@@ -230,6 +230,26 @@ When monitoring or checking remote CI/CD pipelines:
    - etaSeconds <= 60: wait 5s-10s before querying again.
 3. Targeted Error Diagnostics: Use GitMap automated error extraction to isolate actionable failure lines without pulling verbose passing logs.
 
+#### GitMap High-Efficiency Commands & Tooling (Search, Script Runner, Commit)
+
+To maximize developer velocity, avoid slow generic shells, and ensure atomic consistency, heavily leverage native GitMap commands:
+1. Fast Code Search & File Discovery:
+   - File finding: `gitmap find "<pattern>" [-ext <ext>]` or `gitmap lf [pattern]`
+   - Multi-core regex & text search: `gitmap search "<query>"` or scoped streaming `gitmap aum search "<query>" [dir] --ext <ext>`
+   - Inspecting file content: `gitmap cat <filepath>`
+2. Semantic Atomic Commits & Pushes (Replaces Raw Multi-Command Git Chains):
+   - Feature commits: `gitmap cpf "<summary>"` (stages all files, adds `Feature: `, commits, and pushes).
+   - Bug/fix commits: `gitmap cpb "<summary>"` (stages all files, adds `Bug: `, commits, and pushes).
+   - Release commits: `gitmap cpr "<summary>"` (stages all files, adds `Release: `, commits, and pushes).
+   - Safe pull-commit-push: `gitmap pcp "<summary>"`.
+3. Cross-Platform Script Execution:
+   - PowerShell runner: `gitmap pwsh "<command>"` or `gitmap ps "<command>"` (executes with `-NoProfile` and auto-fallback).
+   - Bash runner: `gitmap bash "<command>"` or `gitmap sh "<command>"`.
+4. Pull-All Policy (Do Not Routine-Poll):
+   - Never run `pull-all` (`gitmap pa` or `gitmap pae`) unconditionally during routine execution loops. Checking dozens of repos introduces latency.
+   - Run pull-all ONLY when explicitly requested by the user, and use JSON mode (`gitmap pae --json`) to suppress visual tabular overhead.
+
+
 ---
 
 ## 5. Per-Task Agent Isolation & Workspace Subfolders (`.ai-memory/temp-agents/xx-<task-name>/`)
@@ -256,7 +276,14 @@ To reduce markdown file count and bloat, consolidate subtasks when a parent task
 3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-<slug>/` so that only the single consolidated file remains.
 4. Delete the original parent plan `.ai-memory/plans/pending/xx-<slug>.md`.
 5. Update `.ai-memory/plans/readme.md` to point to the newly consolidated completed file.
-6. Final Step Git Commit & Push (Mandatory): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<type>(<scope>): <summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
+6. Final Step Git Commit & Push via GitMap Semantic Commit Commands (Mandatory):
+   - Heavily leverage GitMap semantic commit & push commands rather than raw multiline git chains:
+     - For features/tasks: `gitmap cpf "<type>(<scope>): <summary>"` (automatically stages all files, prefixes `Feature: `, commits, and pushes to remote).
+     - For fixes/bugs: `gitmap cpb "<type>(<scope>): <summary>"` (automatically stages all files, prefixes `Bug: `, commits, and pushes).
+     - For releases: `gitmap cpr "<type>(<scope>): <summary>"` (automatically stages all files, prefixes `Release: `, commits, and pushes).
+     - For safe pull-commit-push: `gitmap pcp "<type>(<scope>): <summary>"`.
+   - If GitMap CLI is unavailable, fallback to raw git: `git add -A && git commit -m "<type>(<scope>): <summary>" && git push origin <branch>`.
+   - Under no circumstances commit each file individually.
 
 ---
 
@@ -298,6 +325,36 @@ At the completion of all tasks and before concluding the turn, you MUST emit thi
 
 - Confidence: [e.g. 98% or 100%]
 - Rationale: [Detailed explanation of verified quality gates, passing linters, contract adherence, and zero regressions]
+
+### 🤖 Independent AI Verification & Audit Prompt
+
+At the conclusion of the turn, emit this copy-pasteable prompt for an independent auditor AI to verify the implementation against the canonical specification and verbatim requirements:
+
+```markdown
+### Independent AI Audit & Verification Instructions
+
+You are an Independent AI Verification and Quality Auditor.
+Your task is to independently audit, verify, and remediate the implementation against the canonical specification and verbatim requirements.
+
+#### 1. Target Documents & Implemented Code:
+- **Canonical Spec & Verbatim Requirements:** [02-spec/21-app/xx-<slug>.md](02-spec/21-app/xx-<slug>.md)
+- **Consolidated Plan & Subtasks:** [.ai-memory/plans/completed/xx-<slug>.md](.ai-memory/plans/completed/xx-<slug>.md)
+- **Modified & Implemented Code Files:**
+  - [relative/path/to/modified/file1.ext](relative/path/to/modified/file1.ext)
+  - [relative/path/to/modified/file2.ext](relative/path/to/modified/file2.ext)
+
+#### 2. Verification Protocol:
+1. **Strict Verbatim Inspection:** Read the canonical spec file `02-spec/21-app/xx-<slug>.md` completely, focusing on the Verbatim Requirements and Acceptance Criteria.
+2. **Line-by-Line Code Comparison:** Inspect the modified code files line-by-line and verify whether every single verbatim requirement is fully implemented.
+3. **Gap & Missing Items Identification:** Itemize all missing, incomplete, placeholder, or non-compliant elements.
+4. **Autonomous Self-Loop Remediation:** If any gaps or missing items exist, self-loop and modify the code directly until 100% of the verbatim requirements are met. Do not ask for confirmation.
+5. **Comparative Score Audit:** Evaluate and report a comparative score between the verbatim specification and the real-life output:
+   - **Verbatim Adherence Score:** [X/100] (Degree to which implementation matches exact spec text and constraints)
+   - **Completeness Score:** [Y/100] (Percentage of required features and acceptance criteria satisfied)
+   - **Guideline Compliance Score:** [Z/100] (Adherence to booleans, error handling, function sizing, type extraction)
+   - **Overall Implementation Score:** [(X+Y+Z)/3 / 100]
+6. **Final Audit Verdict:** Emit a clear PASS/FAIL verdict with confidence score and rationale.
+```
 ```
 
 ---
@@ -330,6 +387,8 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] NO RAPID CI/CD POLLING (TOTAL BAN): Never query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents must query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait or sleep based on `etaSeconds` to eliminate credit waste.
 - [ ] NO STOPPING AFTER SPEC WRITING (TOTAL BAN): Never halt execution, conclude the turn, or ask the user for permission after generating specs or subtasks. Planning constitutes only 50% of the task budget; you must proceed unconditionally to Phase 2 code execution.
 - [ ] NO HORIZONTAL TASK CONCATENATION (TOTAL BAN): Never concatenate tasks horizontally in the Task Completion Summary (e.g. NEVER `✅ #1... ✅ #2...` run-on). Every completed task MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
+- [ ] INDEPENDENT AI VERIFICATION PROMPT MANDATE: Emitted the self-contained independent AI verification and audit prompt linking to the canonical spec, consolidated plan, and modified files with verbatim score audit criteria.
+- [ ] GITMAP HEAVY USAGE & ROUTINE PULL BAN: Heavily leveraged GitMap commands (`cpf`, `cpb`, `cpr`, `search`, `find`, `pwsh`) for discovery, execution, and commits. Never ran `pull-all` (`gitmap pa` or `gitmap pae`) unconditionally during routine turns; only ran `gitmap pae --json` when explicitly commanded by the user.
 
 ---
 
@@ -363,5 +422,5 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 
 ## 11. Final Step Git Commit & Push Mandate (Strict Checklist)
 
-- [ ] MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "<type>(<scope>): <summary>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
-- [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.
+- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` or `gitmap cpf` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.

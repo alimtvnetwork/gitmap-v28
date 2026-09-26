@@ -234,6 +234,36 @@ Proceeding directly to execution.
 
 - Confidence: [e.g. 98% or 100%]
 - Rationale: [Detailed explanation of verified quality gates, passing linters, contract adherence, and zero regressions]
+
+### 🤖 Independent AI Verification & Audit Prompt
+
+At the conclusion of the turn, emit this copy-pasteable prompt for an independent auditor AI to verify the implementation against the canonical specification and verbatim requirements:
+
+```markdown
+### Independent AI Audit & Verification Instructions
+
+You are an Independent AI Verification and Quality Auditor.
+Your task is to independently audit, verify, and remediate the implementation against the canonical specification and verbatim requirements.
+
+#### 1. Target Documents & Implemented Code:
+- **Canonical Spec & Verbatim Requirements:** [02-spec/21-app/xx-<slug>.md](02-spec/21-app/xx-<slug>.md)
+- **Consolidated Plan & Subtasks:** [.ai-memory/plans/completed/xx-<slug>.md](.ai-memory/plans/completed/xx-<slug>.md)
+- **Modified & Implemented Code Files:**
+  - [relative/path/to/modified/file1.ext](relative/path/to/modified/file1.ext)
+  - [relative/path/to/modified/file2.ext](relative/path/to/modified/file2.ext)
+
+#### 2. Verification Protocol:
+1. **Strict Verbatim Inspection:** Read the canonical spec file `02-spec/21-app/xx-<slug>.md` completely, focusing on the Verbatim Requirements and Acceptance Criteria.
+2. **Line-by-Line Code Comparison:** Inspect the modified code files line-by-line and verify whether every single verbatim requirement is fully implemented.
+3. **Gap & Missing Items Identification:** Itemize all missing, incomplete, placeholder, or non-compliant elements.
+4. **Autonomous Self-Loop Remediation:** If any gaps or missing items exist, self-loop and modify the code directly until 100% of the verbatim requirements are met. Do not ask for confirmation.
+5. **Comparative Score Audit:** Evaluate and report a comparative score between the verbatim specification and the real-life output:
+   - **Verbatim Adherence Score:** [X/100] (Degree to which implementation matches exact spec text and constraints)
+   - **Completeness Score:** [Y/100] (Percentage of required features and acceptance criteria satisfied)
+   - **Guideline Compliance Score:** [Z/100] (Adherence to booleans, error handling, function sizing, type extraction)
+   - **Overall Implementation Score:** [(X+Y+Z)/3 / 100]
+6. **Final Audit Verdict:** Emit a clear PASS/FAIL verdict with confidence score and rationale.
+```
 ```
 
 3. Lean Subtasks (No Common Boilerplate):
@@ -408,8 +438,8 @@ When all subtasks for a parent task (`.ai-memory/plans/pending/xx-<slug>.md`) ar
 
 ## Final Step Git Commit & Push Mandate (Strict Checklist)
 
-- [ ] MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW): At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "<type>(<scope>): <summary>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
-- [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You MUST NOT create separate git commits for each individual file as you edit them (e.g. running `git commit` after editing File 1, then committing again after File 2 is STRICTLY FORBIDDEN). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback/bisectability. All modified files, test change caches, and plan records across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before pushing!
+- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` or `gitmap cpf` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.
 
 ---
 

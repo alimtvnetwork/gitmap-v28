@@ -47,6 +47,8 @@ TARGET_REPOS = [
     SOURCE_ROOT.parent / "wp-link-manager",
     SOURCE_ROOT.parent / "wp-onboarding",
     SOURCE_ROOT.parent / "cat-my",
+    SOURCE_ROOT.parent / "scripts-fixer",
+    SOURCE_ROOT.parent / "gitlogger-new",
 ]
 
 SYNC_DIRS = [

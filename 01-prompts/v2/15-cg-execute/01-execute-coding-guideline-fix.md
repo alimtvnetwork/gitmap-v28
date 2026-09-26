@@ -191,6 +191,36 @@ At the completion of all tasks and before concluding the turn, emit this structu
 
 - Confidence: [e.g. 98% or 100%]
 - Rationale: [Detailed explanation of verified quality gates, passing linters, contract adherence, and zero regressions]
+
+### 🤖 Independent AI Verification & Audit Prompt
+
+At the conclusion of the turn, emit this copy-pasteable prompt for an independent auditor AI to verify the implementation against the canonical specification and verbatim requirements:
+
+```markdown
+### Independent AI Audit & Verification Instructions
+
+You are an Independent AI Verification and Quality Auditor.
+Your task is to independently audit, verify, and remediate the implementation against the canonical specification and verbatim requirements.
+
+#### 1. Target Documents & Implemented Code:
+- **Canonical Spec & Verbatim Requirements:** [02-spec/21-app/xx-<slug>.md](02-spec/21-app/xx-<slug>.md)
+- **Consolidated Plan & Subtasks:** [.ai-memory/plans/completed/xx-<slug>.md](.ai-memory/plans/completed/xx-<slug>.md)
+- **Modified & Implemented Code Files:**
+  - [relative/path/to/modified/file1.ext](relative/path/to/modified/file1.ext)
+  - [relative/path/to/modified/file2.ext](relative/path/to/modified/file2.ext)
+
+#### 2. Verification Protocol:
+1. **Strict Verbatim Inspection:** Read the canonical spec file `02-spec/21-app/xx-<slug>.md` completely, focusing on the Verbatim Requirements and Acceptance Criteria.
+2. **Line-by-Line Code Comparison:** Inspect the modified code files line-by-line and verify whether every single verbatim requirement is fully implemented.
+3. **Gap & Missing Items Identification:** Itemize all missing, incomplete, placeholder, or non-compliant elements.
+4. **Autonomous Self-Loop Remediation:** If any gaps or missing items exist, self-loop and modify the code directly until 100% of the verbatim requirements are met. Do not ask for confirmation.
+5. **Comparative Score Audit:** Evaluate and report a comparative score between the verbatim specification and the real-life output:
+   - **Verbatim Adherence Score:** [X/100] (Degree to which implementation matches exact spec text and constraints)
+   - **Completeness Score:** [Y/100] (Percentage of required features and acceptance criteria satisfied)
+   - **Guideline Compliance Score:** [Z/100] (Adherence to booleans, error handling, function sizing, type extraction)
+   - **Overall Implementation Score:** [(X+Y+Z)/3 / 100]
+6. **Final Audit Verdict:** Emit a clear PASS/FAIL verdict with confidence score and rationale.
+```
 ```
 
 ---

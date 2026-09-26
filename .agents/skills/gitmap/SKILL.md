@@ -50,7 +50,12 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap cpr "<msg>"` — Stage, commit, and push release chore
 - `gitmap pcp "<msg>"` — Pull latest, commit, and push with preflight verification
 
-### 6. Multi-Node Cluster & Remote Delegation
+### 6. Script Runners & Multi-Repo Operations
+- `gitmap pwsh "<cmd>"` / `gitmap ps "<cmd>"` — Cross-platform PowerShell execution with `-NoProfile` and automatic fallback
+- `gitmap bash "<cmd>"` / `gitmap sh "<cmd>"` — Cross-platform Bash execution
+- `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling)
+
+### 7. Multi-Node Cluster & Remote Delegation
 - `gitmap cluster --help` — Orchestrate multi-node clusters and health checks
 - `gitmap sc --help` — Servers-clients topology and background task manager
 - `gitmap ssh --help` — SSH discovery, connection pooling, and remote command execution
