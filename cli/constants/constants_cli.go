@@ -270,8 +270,16 @@ const (
 	// CmdCommons (v6.76.0) is a shortcut for `gitmap sync all` — adds
 	// or dedupe-merges the curated .gitignore, .gitattributes,
 	// .prettierignore, .prettierrc baselines + `git lfs install`.
-	CmdCommons      = "commons"
-	CmdCommonsAlias = "co"
+	CmdCommons           = "commons"
+	CmdCommonsAlias      = "co"
+	CmdRecreateRepo      = "recreate-repo"
+	CmdRecreateRepoAlias = "recreate"
+	CmdRestEnable        = "rest-enable"
+	CmdVar               = "var"
+	CmdVarAlias          = "variable"
+	CmdMigrate           = "migrate"
+
+	DefaultSequenceTTLSeconds = 60
 
 	CmdSetSourceRepo     = "set-source-repo" // gitmap:cmd skip
 	CmdSelfInstall       = "self-install"

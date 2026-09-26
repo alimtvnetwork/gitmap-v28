@@ -20,6 +20,8 @@ const TemplateIDReadAll = "read-all"
 type PromptTemplate struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
+	Category    string    `json:"category,omitempty"`
+	Slug        string    `json:"slug,omitempty"`
 	Description string    `json:"description,omitempty"`
 	Content     string    `json:"content"`
 	CreatedAt   time.Time `json:"createdAt"`

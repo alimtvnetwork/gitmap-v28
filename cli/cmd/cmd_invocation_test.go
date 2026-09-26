@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 )
 
 func TestInstallCommandInvocations(t *testing.T) {
@@ -28,6 +30,9 @@ func TestInstallCommandInvocations(t *testing.T) {
 }
 
 func TestPipelineCommandInvocations(t *testing.T) {
+	origRunner := cmdpipeline.PipelineAgyFixRunner
+	cmdpipeline.PipelineAgyFixRunner = nil
+	defer func() { cmdpipeline.PipelineAgyFixRunner = origRunner }()
 	// 1. gitmap pipeline (default status)
 	err := runPipeline([]string{})
 	if err != nil {
@@ -86,6 +91,10 @@ func TestPipelineCommandInvocations(t *testing.T) {
 }
 
 func TestTopLevelErrorLogsAndLogs(t *testing.T) {
+	origRunner := cmdpipeline.PipelineAgyFixRunner
+	cmdpipeline.PipelineAgyFixRunner = nil
+	defer func() { cmdpipeline.PipelineAgyFixRunner = origRunner }()
+
 	// Top-level error-logs invocation
 	err := runPipeline([]string{"error-logs"})
 	if err != nil {
@@ -106,6 +115,10 @@ func TestTopLevelErrorLogsAndLogs(t *testing.T) {
 }
 
 func TestTopLevelPipelineErrorsShortcut(t *testing.T) {
+	origRunner := cmdpipeline.PipelineAgyFixRunner
+	cmdpipeline.PipelineAgyFixRunner = nil
+	defer func() { cmdpipeline.PipelineAgyFixRunner = origRunner }()
+
 	if err := runPipelineErrors([]string{"--json"}); err != nil {
 		t.Errorf("expected runPipelineErrors --json to succeed, got %v", err)
 	}

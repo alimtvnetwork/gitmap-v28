@@ -1,8 +1,11 @@
 package cmdpull
 
 import (
+	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -53,6 +56,8 @@ func TestPartitionRecordsByActivity_WithMockData(t *testing.T) {
 
 	repoActive := filepath.Join(tempDir, "active-repo")
 	repoInactive := filepath.Join(tempDir, "inactive-repo")
+	setupTestGitRepo(t, repoActive, false)
+	setupTestGitRepo(t, repoInactive, true)
 
 	runID, err := db.InsertPullRun(&store.PullRunRecord{
 		CommandType: "pull-all",
@@ -107,5 +112,25 @@ func TestPartitionRecordsByActivity_WithMockData(t *testing.T) {
 	}
 	if len(part.InactiveRepos) != 1 || part.InactiveRepos[0].RepoName != "inactive-repo" {
 		t.Fatalf("expected 1 inactive repo (inactive-repo), got %v", part.InactiveRepos)
+	}
+}
+
+func setupTestGitRepo(t *testing.T, repoPath string, isOld bool) {
+	t.Helper()
+	if err := os.MkdirAll(repoPath, 0755); err != nil {
+		t.Fatalf("failed to create repo dir: %v", err)
+	}
+	exec.Command("git", "-C", repoPath, "init").Run()
+	exec.Command("git", "-C", repoPath, "config", "user.name", "test").Run()
+	exec.Command("git", "-C", repoPath, "config", "user.email", "test@test.com").Run()
+	os.WriteFile(filepath.Join(repoPath, "file.txt"), []byte("data"), 0644)
+	exec.Command("git", "-C", repoPath, "add", ".").Run()
+	cmd := exec.Command("git", "-C", repoPath, "commit", "-m", "initial")
+	if isOld {
+		oldTime := time.Now().Add(-48 * time.Hour).Format(time.RFC3339)
+		cmd.Env = append(os.Environ(), "GIT_AUTHOR_DATE="+oldTime, "GIT_COMMITTER_DATE="+oldTime)
+	}
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("failed to commit in test repo: %v", err)
 	}
 }

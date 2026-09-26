@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -72,6 +73,7 @@ func maybeWriteInitialFiles(isExisting bool, absDir string, p createRepoParams) 
 		return stageAndCommitExistingFiles(absDir, p)
 	}
 	writeInitialFiles(absDir, p)
+
 	return commitInitialFiles(absDir)
 }
 
@@ -135,12 +137,23 @@ func maybeApplyCGFiles(isCG bool, absDir string) error {
 
 func writeInitialFiles(absDir string, p createRepoParams) {
 	readmePath := filepath.Join(absDir, "README.md")
-	readmeContent := fmt.Sprintf("# %s\n\n%s\n", p.Name, p.Description)
-	_ = os.WriteFile(readmePath, []byte(readmeContent), 0644)
+	readmeLower := filepath.Join(absDir, "readme.md")
+	if !fileExists(readmePath) && !fileExists(readmeLower) {
+		readmeContent := fmt.Sprintf("# %s\n\n%s\n", p.Name, p.Description)
+		_ = os.WriteFile(readmePath, []byte(readmeContent), 0644)
+	}
 
 	gitignorePath := filepath.Join(absDir, ".gitignore")
-	gitignoreContent := ".DS_Store\nThumbs.db\nnode_modules/\nbin/\n*.log\n"
-	_ = os.WriteFile(gitignorePath, []byte(gitignoreContent), 0644)
+	if !fileExists(gitignorePath) {
+		gitignoreContent := ".DS_Store\nThumbs.db\nnode_modules/\nbin/\n*.log\n"
+		_ = os.WriteFile(gitignorePath, []byte(gitignoreContent), 0644)
+	}
+}
+
+func fileExists(p string) bool {
+	info, err := os.Stat(p)
+
+	return err == nil && !info.IsDir()
 }
 
 func commitInitialFiles(absDir string) error {
@@ -148,9 +161,14 @@ func commitInitialFiles(absDir string) error {
 	cmdAdd.Dir = absDir
 	_ = cmdAdd.Run()
 
-	cmdCommit := exec.Command("git", "commit", "-m", "feat: initial commit")
-	cmdCommit.Dir = absDir
-	_ = cmdCommit.Run()
+	cmdStatus := exec.Command("git", "status", "--porcelain")
+	cmdStatus.Dir = absDir
+	out, _ := cmdStatus.Output()
+	if len(strings.TrimSpace(string(out))) > 0 {
+		cmdCommit := exec.Command("git", "commit", "-m", "feat: initial commit")
+		cmdCommit.Dir = absDir
+		_ = cmdCommit.Run()
+	}
 
 	return nil
 }
@@ -163,54 +181,60 @@ func applyCommonFiles(absDir string) error {
 
 	cmdCommon := exec.Command(exe, "common", "all")
 	cmdCommon.Dir = absDir
-	if err := cmdCommon.Run(); err != nil {
-		return apperror.WrapSimple(err, "gitmap common all:")
-	}
+	_ = cmdCommon.Run()
 
 	cmdAdd := exec.Command("git", "add", ".")
 	cmdAdd.Dir = absDir
 	_ = cmdAdd.Run()
 
-	cmdCommit := exec.Command("git", "commit", "-m", "chore: apply common files")
-	cmdCommit.Dir = absDir
-	_ = cmdCommit.Run()
+	cmdStatus := exec.Command("git", "status", "--porcelain")
+	cmdStatus.Dir = absDir
+	out, _ := cmdStatus.Output()
+	if len(strings.TrimSpace(string(out))) > 0 {
+		cmdCommit := exec.Command("git", "commit", "-m", "chore(common): apply common baselines and git-lfs configuration")
+		cmdCommit.Dir = absDir
+		_ = cmdCommit.Run()
+	}
 
 	return nil
 }
 
 func applyCGFiles(absDir string) error {
-	cmdBranch := exec.Command("git", "checkout", "-b", "backup-cg-sync")
+	backupBranch := fmt.Sprintf("backup/cg-sync-%s", time.Now().Format("20060102-150405"))
+	cmdBranch := exec.Command("git", "branch", backupBranch)
 	cmdBranch.Dir = absDir
-	if err := cmdBranch.Run(); err != nil {
-		return apperror.WrapSimple(err, "git checkout -b backup-cg-sync:")
-	}
+	_ = cmdBranch.Run()
 
-
-	baseDir := "."
-	if constants.RepoPath != "" {
-		baseDir = constants.RepoPath
-	} else {
-		exe, err := os.Executable()
-		if err == nil {
-			baseDir = filepath.Dir(filepath.Dir(exe)) // ../bin/gitmap.exe -> ../
-		}
-	}
+	baseDir := resolveCGBaseDir()
 	cgSrc := filepath.Join(baseDir, "02-spec", "02-coding-guidelines")
-
 	cgDst := filepath.Join(absDir, "02-spec", "02-coding-guidelines")
-	if err := copyDir(cgSrc, cgDst); err != nil {
-		return apperror.WrapSimple(err, "copy cg files:")
+
+	if dirExists(cgSrc) {
+		_ = copyDir(cgSrc, cgDst)
+	} else {
+		ensureCGOverviewFallback(cgDst)
 	}
 
 	cmdAdd := exec.Command("git", "add", ".")
 	cmdAdd.Dir = absDir
 	_ = cmdAdd.Run()
 
-	cmdCommit := exec.Command("git", "commit", "-m", "chore: sync coding guidelines")
-	cmdCommit.Dir = absDir
-	_ = cmdCommit.Run()
+	cmdStatus := exec.Command("git", "status", "--porcelain")
+	cmdStatus.Dir = absDir
+	out, _ := cmdStatus.Output()
+	if len(strings.TrimSpace(string(out))) > 0 {
+		cmdCommit := exec.Command("git", "commit", "-m", "docs(spec): synchronize latest coding guidelines to 02-spec/02-coding-guidelines/")
+		cmdCommit.Dir = absDir
+		_ = cmdCommit.Run()
+	}
 
 	return nil
+}
+
+func dirExists(p string) bool {
+	info, err := os.Stat(p)
+
+	return err == nil && info.IsDir()
 }
 
 func copyDir(src, dst string) error {
@@ -240,4 +264,24 @@ func copyFile(src, dst string) error {
 	defer d.Close()
 	_, err = io.Copy(d, s)
 	return err
+}
+
+func resolveCGBaseDir() string {
+	if constants.RepoPath != "" {
+		return constants.RepoPath
+	}
+	exe, err := os.Executable()
+	if err == nil {
+		return filepath.Dir(filepath.Dir(exe))
+	}
+	return "."
+}
+
+func ensureCGOverviewFallback(cgDst string) {
+	_ = os.MkdirAll(cgDst, 0755)
+	readmePath := filepath.Join(cgDst, "00-overview.md")
+	if fileExists(readmePath) {
+		return
+	}
+	_ = os.WriteFile(readmePath, []byte("# Coding Guidelines\n\nCanonical coding guidelines standard.\n"), 0644)
 }

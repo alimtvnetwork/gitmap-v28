@@ -38,10 +38,10 @@ func pushRemoteRepo(p createRepoParams) (string, error) {
 	cmd := exec.Command("gh", "repo", "create", slug, visibilityFlag, "--source=.", "--remote=origin", "--push")
 	cmd.Dir = absDir
 	out, err := cmd.CombinedOutput()
+	if err != nil && strings.Contains(strings.ToLower(string(out)), "already exists") {
+		return handleExistingRemoteRepo(absDir, slug)
+	}
 	if err != nil {
-		if strings.Contains(strings.ToLower(string(out)), "already exists") {
-			return handleExistingRemoteRepo(absDir, slug)
-		}
 		return "", apperror.WrapSimple(err, fmt.Sprintf("gh repo create failed: %s", string(out)))
 	}
 
@@ -63,4 +63,3 @@ func handleExistingRemoteRepo(absDir, slug string) (string, error) {
 
 	return fmt.Sprintf("https://github.com/%s", slug), nil
 }
-

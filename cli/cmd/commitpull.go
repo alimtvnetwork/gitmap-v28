@@ -19,13 +19,14 @@ func runCommitPull(args []string) error {
 	}
 
 	for _, a := range args {
-		if a == "--tree" {
-			printCommitPullTree()
-			if len(args) == 1 {
-				return nil
-			}
-			break
+		if a != "--tree" {
+			continue
 		}
+		printCommitPullTree()
+		if len(args) == 1 {
+			return nil
+		}
+		break
 	}
 
 	adjusted := append([]string{"--pr=merges"}, args...)
@@ -81,7 +82,7 @@ func printCommitPullTree() {
   │ PR Engine: Simulated Feature Branches (--pr merges)                   │
   │ SEO Mode: RISEUP ASIA LLC (https://riseup-asia.com) (Marek & Alim)   │
   └───────────────────────────────────────────────────────────────────────┘` + constants.ColorReset)
-	fmt.Println(`
+	fmt.Print(`
   * [v1.0.0-legacy] PR #1: git-repo-navigator (legacy origin)
   │ \
   │  * feat(nav): core scanner and discovery engine

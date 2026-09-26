@@ -1,0 +1,27 @@
+{
+  "profiles": [
+    {
+      "id": "prof_1",
+      "name": "alimtvnetwork",
+      "provider": "github",
+      "type": "user",
+      "authMethod": "gh-cli",
+      "isDefault": true,
+      "usageCount": 2,
+      "lastUsedAt": "2026-09-26T18:08:50.101763+08:00"
+    },
+    {
+      "id": "auktvgo",
+      "name": "auktvgo",
+      "provider": "github",
+      "type": "organization",
+      "authMethod": "gh-cli",
+      "isDefault": false,
+      "usageCount": 0,
+      "lastUsedAt": "2026-09-26T18:08:48.4853402+08:00"
+    }
+  ],
+  "active": "alimtvnetwork",
+  "default": "alimtvnetwork",
+  "updatedAt": "2026-09-26T18:08:50.101763+08:00"
+}

@@ -34,14 +34,19 @@ func isPathLike(s string) bool {
 	return filepath.Dir(s) != "."
 }
 
+func isExistingDirectory(path string) bool {
+	info, err := os.Stat(path)
+
+	return err == nil && info.IsDir()
+}
+
 func applyPositionalArgs(pos []string, p *createRepoParams) {
 	if len(pos) == 0 {
 		applyCurrentDirPositional(p)
 		return
 	}
 
-	hasOne := len(pos) == 1
-	if hasOne {
+	if len(pos) == 1 {
 		applySinglePositionalArg(pos[0], p)
 		return
 	}
@@ -60,26 +65,25 @@ func applyCurrentDirPositional(p *createRepoParams) {
 }
 
 func applySinglePositionalArg(token string, p *createRepoParams) {
-	if isPathLike(token) {
-		absDir, err := filepath.Abs(token)
-		if err == nil {
-			p.LocalDir = absDir
-			p.Name = filepath.Base(absDir)
-		} else {
-			p.LocalDir = token
-			p.Name = filepath.Base(token)
-		}
-		p.Slug = SlugifyRepoName(p.Name)
+	if token != "." && !isExistingDirectory(token) && !isPathLike(token) {
+		p.Name = token
+		p.Slug = SlugifyRepoName(token)
+		p.LocalDir = filepath.Join(".", p.Slug)
 		return
 	}
 
-	p.Name = token
-	p.Slug = SlugifyRepoName(token)
-	p.LocalDir = filepath.Join(".", p.Slug)
+	absDir, err := filepath.Abs(token)
+	p.LocalDir = absDir
+	p.Name = filepath.Base(absDir)
+	if err != nil {
+		p.LocalDir = token
+		p.Name = filepath.Base(token)
+	}
+	p.Slug = SlugifyRepoName(p.Name)
 }
 
 func applyTwoPositionalArgs(pos []string, p *createRepoParams) {
-	if isPathLike(pos[0]) {
+	if pos[0] == "." || isExistingDirectory(pos[0]) || isPathLike(pos[0]) {
 		absDir, _ := filepath.Abs(pos[0])
 		p.LocalDir = absDir
 		p.Name = pos[1]
@@ -87,7 +91,7 @@ func applyTwoPositionalArgs(pos []string, p *createRepoParams) {
 		return
 	}
 
-	if isPathLike(pos[1]) {
+	if pos[1] == "." || isExistingDirectory(pos[1]) || isPathLike(pos[1]) {
 		absDir, _ := filepath.Abs(pos[1])
 		p.LocalDir = absDir
 		p.Name = pos[0]
@@ -95,8 +99,9 @@ func applyTwoPositionalArgs(pos []string, p *createRepoParams) {
 		return
 	}
 
-	p.Slug = SlugifyRepoName(pos[1])
-	p.LocalDir = filepath.Join(".", p.Slug)
+	p.Name = pos[0]
+	p.Slug = SlugifyRepoName(pos[0])
+	p.Description = pos[1]
 }
 
 func applyMultiPositionalArgs(pos []string, p *createRepoParams) {

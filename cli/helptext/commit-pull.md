@@ -36,3 +36,13 @@ gitmap commit-pull "D:\target" "https://github.com/alimtvnetwork/gitmap-v{2..28}
 # Shorthand notation:
 gitmap cpull "D:\target" gitmap-v2..v28 --sponsor
 ```
+
+## Examples
+
+```bash
+# Replay commits into target repository with tree display
+gitmap commit-pull D:\target repo1 repo2 --tree
+
+# Replay range with Rise Up Asia sponsor integration
+gitmap cpull D:\target gitmap-v2..v28 --sponsor
+```

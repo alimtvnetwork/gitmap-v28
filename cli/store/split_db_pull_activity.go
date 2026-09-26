@@ -87,4 +87,3 @@ func evaluateGitTraceActivity(repoPath string, windowHours int, status RepoInact
 	status.Reason = "active repository (recent commits in git trace)"
 	return status, nil
 }
-

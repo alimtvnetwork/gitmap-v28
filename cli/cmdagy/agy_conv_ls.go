@@ -1,10 +1,10 @@
 package cmdagy
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/spf13/cobra"
 )
 
@@ -15,12 +15,12 @@ var (
 var agyConvCmd = &cobra.Command{
 	Use:     "conv",
 	Aliases: []string{"conversations", "con"},
-	Short:   "Manage conversations",
+	Short:   "Manage and inspect conversations",
 }
 
 var agyConvLsCmd = &cobra.Command{
 	Use:   "ls [N]",
-	Short: "List recent conversations",
+	Short: "List recent conversations with status and queued counts",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		n := 8
 		n = parseAgyConvLsArgCount(args, n)
@@ -40,19 +40,36 @@ func parseAgyConvLsArgCount(args []string, defaultN int) int {
 }
 
 func init() {
-	agyConvLsCmd.Flags().StringVarP(&agyConvLsFile, "file", "f", "", "Export JSON to file")
+	agyConvLsCmd.Flags().StringVarP(&agyConvLsFile, "file", "f", "", "Export JSON to file (default repo-conversations.json)")
+	if flag := agyConvLsCmd.Flags().Lookup("file"); flag != nil {
+		flag.NoOptDefVal = "repo-conversations.json"
+	}
 	agyConvCmd.AddCommand(agyConvLsCmd)
 	AgyCmd.AddCommand(agyConvCmd)
 }
 
 func runAgyConvLs(n int) error {
-	queues, _ := DiscoverAllWorkspaceQueues()
-	
-	if agyConvLsFile != "" {
-		data, _ := json.MarshalIndent(queues, "", "  ")
-		return os.WriteFile(agyConvLsFile, data, 0644)
+	projectFilter := ""
+	currentRepo, isInsideRepo := detectCurrentProjectContext()
+	if isInsideRepo {
+		projectFilter = currentRepo
 	}
-	
-	fmt.Printf("Listing top %d conversations...\n", n)
+
+	rows, isDepthMode, err := FetchConversationInspectRows(n, projectFilter)
+	if err != nil {
+		return apperror.WrapSimple(err, "fetch conversation inspect rows")
+	}
+
+	CacheInspectRowSequences(rows, "conv")
+
+	if agyConvLsFile != "" {
+		return ExportInspectRowsToJSONFile(rows, agyConvLsFile)
+	}
+
+	if isDepthMode {
+		fmt.Printf("\n  \033[36m[Depth Mode]\033[0m Showing last %d conversations for repo: %s\n", len(rows), currentRepo)
+	}
+
+	RenderInspectRowsTable(rows, isDepthMode)
 	return nil
 }

@@ -82,11 +82,11 @@ func stageFiles(p Plan) error {
 // and submodules are out of scope for v1.
 func copyOneFile(p Plan, rel string) error {
 	blob, err := gitRunnerBytes(p.SourceRepoDir, "cat-file", "blob", p.SourceSha+":"+rel)
+	if err != nil && isPathAbsent(err) {
+		_, rmErr := gitRunner(p.TargetRepoDir, "update-index", "--force-remove", rel)
+		return rmErr
+	}
 	if err != nil {
-		if isPathAbsent(err) {
-			_, rmErr := gitRunner(p.TargetRepoDir, "update-index", "--force-remove", rel)
-			return rmErr
-		}
 		return fmt.Errorf("cat-file: %w", err)
 	}
 

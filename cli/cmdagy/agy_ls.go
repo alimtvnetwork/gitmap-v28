@@ -2,10 +2,10 @@ package cmdagy
 
 import (
 	"encoding/json"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/spf13/cobra"
 	"os"
 	"strconv"
-	"github.com/spf13/cobra"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 var (
@@ -77,6 +77,17 @@ func renderAgyLsResult(filtered []AgyProject, dirPath string) error {
 	}
 
 	renderAgyProjectsTable(filtered, dirPath)
+	entries := make([]CachedSequenceEntry, 0, len(filtered))
+	for i, p := range filtered {
+		entries = append(entries, CachedSequenceEntry{
+			Seq:      i + 1,
+			ID:       p.ID,
+			Name:     p.Name,
+			Path:     p.GetPath(),
+			Category: "project",
+		})
+	}
+	_ = SaveSequenceCache(entries)
 	return nil
 }
 

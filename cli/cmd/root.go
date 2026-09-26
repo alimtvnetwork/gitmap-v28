@@ -637,6 +637,21 @@ func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.
 			return runLowerCaseFixCLI(args)
 		}, shouldAudit, id, start)
 		return true
+	case constants.CmdVar, constants.CmdVarAlias:
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return runVariableCmd(argsTail())
+		}, shouldAudit, id, start)
+		return true
+	case constants.CmdRestEnable:
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return RunRestEnable(argsTail())
+		}, shouldAudit, id, start)
+		return true
+	case constants.CmdMigrate:
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return RunMigrate(argsTail())
+		}, shouldAudit, id, start)
+		return true
 	default:
 		return false
 	}

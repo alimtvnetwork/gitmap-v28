@@ -160,11 +160,11 @@ func TestPullSplitDB_EvaluateRepoActivityStatus(t *testing.T) {
 
 	repoClean := filepath.Join(tempDir, "repo-clean")
 	repoChanged := filepath.Join(tempDir, "repo-changed")
-	
+
 	// Create git repos
 	os.MkdirAll(repoClean, 0755)
 	os.MkdirAll(repoChanged, 0755)
-	
+
 	// repoClean: old commit (>24h)
 	exec.Command("git", "-C", repoClean, "init").Run()
 	exec.Command("git", "-C", repoClean, "config", "user.name", "test").Run()

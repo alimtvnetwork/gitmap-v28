@@ -200,17 +200,33 @@ Examples:
 
 // dispatchCommon routes `gitmap common <target>` subcommands.
 func dispatchCommon(command string) (bool, error) {
-	if command != constants.CmdCommon && command != constants.CmdCommonAlias {
+	if command != constants.CmdCommon && command != constants.CmdCommonAlias && command != constants.CmdSync && command != constants.CmdSyncAlias {
 		return false, nil
 	}
 
-	if len(os.Args) < 3 || isCommonHelp(os.Args[2]) {
+	if len(os.Args) < 3 {
+		runCommonLines(".gitignore", defaultGitignoreBaseline, false)
+		runCommonLines(".gitattributes", defaultGitattributesBaseline, false)
+		runCommonLFSInstall(false)
+		runCommonLines(".prettierignore", defaultPrettierignoreBaseline, false)
+		runCommonPrettierRC(false, false)
+
+		return true, nil
+	}
+
+	if isCommonHelp(os.Args[2]) {
 		RenderSyncHelp()
 
 		return true, nil
 	}
 
-	sub, rest := os.Args[2], os.Args[3:]
+	sub := os.Args[2]
+	rest := os.Args[3:]
+	if strings.HasPrefix(sub, "-") {
+		// First arg is a flag, treat target as "all"
+		rest = os.Args[2:]
+		sub = "all"
+	}
 	dry, force := parseCommonFlags(rest)
 
 	switch sub {
@@ -248,6 +264,10 @@ func dispatchCommon(command string) (bool, error) {
 
 func isCommonHelp(arg string) bool {
 	return arg == "help" || arg == "-h" || arg == "--help"
+}
+
+func isSyncHelp(arg string) bool {
+	return isCommonHelp(arg)
 }
 
 // parseCommonFlags scans args for --dry-run and --force (position agnostic).

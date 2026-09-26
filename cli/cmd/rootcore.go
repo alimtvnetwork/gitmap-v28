@@ -60,6 +60,9 @@ func coreBasicOpEntries() []dispatchEntry {
 			constants.CmdCreateLocalRepo, constants.CmdCreateLocalRepoAlias,
 			constants.CmdCreateRepoLocal, constants.CmdRepoCreateLocal,
 		}, func() error { return runCreateLocal(argsTail()) }},
+		{[]string{
+			constants.CmdRecreateRepo, constants.CmdRecreateRepoAlias,
+		}, func() error { return runRecreateRepo(argsTail()) }},
 		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, runCloneSync},
 		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() error { return runPull(argsTail()) }},
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},

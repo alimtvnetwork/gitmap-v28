@@ -13,6 +13,10 @@ import (
 func runCreate(args []string) error {
 	checkHelp("create", args)
 	isNoArgs := len(args) == 0
+	if isNoArgs && hasFilesInCurrentDir() {
+		args = []string{"."}
+		isNoArgs = false
+	}
 	isNonInteractive := !isInteractiveStdin()
 	isHeadlessError := isNoArgs && isNonInteractive
 	if isHeadlessError {
@@ -81,4 +85,19 @@ func promptRepoName() (string, error) {
 	}
 
 	return name, nil
+}
+
+func hasFilesInCurrentDir() bool {
+	entries, err := os.ReadDir(".")
+	if err != nil {
+		return false
+	}
+	for _, e := range entries {
+		name := e.Name()
+		if name != ".git" && !strings.HasPrefix(name, ".") {
+			return true
+		}
+	}
+
+	return false
 }

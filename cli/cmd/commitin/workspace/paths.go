@@ -43,11 +43,14 @@ func EnsureWorkspace(sourceRoot string) (*Paths, error) {
 
 func ensureGitExcluded(sourceRoot string) {
 	excludeFile := filepath.Join(sourceRoot, ".git", "info", "exclude")
-	if data, err := os.ReadFile(excludeFile); err == nil {
-		if !strings.Contains(string(data), ".gitmap") {
-			_ = os.WriteFile(excludeFile, append(data, []byte("\n.gitmap/\n")...), 0o644)
-		}
+	data, err := os.ReadFile(excludeFile)
+	if err != nil {
+		return
 	}
+	if strings.Contains(string(data), ".gitmap") {
+		return
+	}
+	_ = os.WriteFile(excludeFile, append(data, []byte("\n.gitmap/\n")...), 0o644)
 }
 
 // buildPaths assembles the Paths struct. Pure function — no syscalls.

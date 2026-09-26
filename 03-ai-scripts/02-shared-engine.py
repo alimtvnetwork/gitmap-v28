@@ -1049,3 +1049,70 @@ def run_worker_pool(
         has_failures=has_failures,
         exit_code=exit_code
     )
+
+
+def chunk_items(items: list[Any], chunk_size: int = 8) -> list[list[Any]]:
+    """Splits a flat list into chunks of chunk_size items."""
+    effective_size = max(1, chunk_size)
+    chunks = [items[i:i + effective_size] for i in range(0, len(items), effective_size)]
+
+    return chunks
+
+
+class WorkerHeartbeatMonitor:
+    """Daemon thread emitting snapshot progress every snapshot_interval_sec."""
+
+    def __init__(
+        self,
+        total_items: int,
+        item_noun: str = "files",
+        snapshot_interval_sec: float = 25.0,
+        worker_count: int = 10,
+    ) -> None:
+        self.total_items = total_items
+        self.item_noun = item_noun
+        self.snapshot_interval_sec = snapshot_interval_sec
+        self.worker_count = worker_count
+        self.processed_count = 0
+        self.active_workers: dict[str, str] = {}
+        self.lock = threading.Lock()
+        self.is_running = True
+        self.start_time = time.time()
+        self.thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        """Starts the daemon snapshot heartbeat thread."""
+        self.thread = threading.Thread(target=self._run_loop, daemon=True)
+        self.thread.start()
+
+    def stop(self) -> None:
+        """Signals the snapshot loop to stop."""
+        with self.lock:
+            self.is_running = False
+
+    def update_worker(self, worker_id: str, status_msg: str) -> None:
+        """Updates current activity description of a worker."""
+        with self.lock:
+            self.active_workers[worker_id] = status_msg
+
+    def increment_processed(self, count: int = 1) -> None:
+        """Increments total processed items count."""
+        with self.lock:
+            self.processed_count += count
+
+    def _run_loop(self) -> None:
+        """Periodic background loop triggering snapshots."""
+        while True:
+            time.sleep(self.snapshot_interval_sec)
+            with self.lock:
+                if not self.is_running:
+                    break
+                self._print_snapshot()
+
+    def _print_snapshot(self) -> None:
+        """Formats and outputs a snapshot line to stdout."""
+        elapsed = max(0.001, time.time() - self.start_time)
+        fps = self.processed_count / elapsed
+        pct = (self.processed_count / self.total_items * 100.0) if self.total_items > 0 else 100.0
+        msg = f"[Snapshot {elapsed:4.1f}s] Processed {self.processed_count}/{self.total_items} ({pct:5.1f}%) | {self.worker_count} workers | {fps:5.1f} {self.item_noun}/sec"
+        print(msg)
