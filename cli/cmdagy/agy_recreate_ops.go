@@ -91,6 +91,9 @@ func removeProjectRegistration(projectId string) {
 
 func registerFreshProject(p AgyProject) (string, error) {
 	projectPath := p.GetPath()
+	if configDir, err := getProjectsDirPath(); err == nil {
+		_ = os.MkdirAll(configDir, 0755)
+	}
 	if !workspacesync.SyncAntigravity(projectPath, p.Name) {
 		return "", apperror.NewSimple("failed to register project with Antigravity", "E9003")
 	}

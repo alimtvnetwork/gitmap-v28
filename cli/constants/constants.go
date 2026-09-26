@@ -160,8 +160,9 @@ const (
 // Verbose log file.
 const VerboseLogFileFmt = "gitmap-verbose-%s.log"
 
-// Common command constants
+// gitmap:cmd top-level
+// Common command constants.
 const (
-	CmdCommon      = "common"
-	CmdCommonAlias = "co"
+	CmdCommon      = "common" // gitmap:cmd skip
+	CmdCommonAlias = "co"     // gitmap:cmd skip
 )

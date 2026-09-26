@@ -168,6 +168,11 @@ func TestExecuteAgyRecreate_RealLifecycle(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
+	configDir, err := getProjectsDirPath()
+	if err == nil {
+		_ = os.MkdirAll(configDir, 0755)
+	}
+
 	p := buildAdHocProject(tempDir)
 	opts := AgyRecreateOptions{
 		IsDryRun: false,
@@ -179,7 +184,7 @@ func TestExecuteAgyRecreate_RealLifecycle(t *testing.T) {
 	}
 
 	// Verify project was registered in Antigravity
-	configDir, err := getProjectsDirPath()
+	configDir, err = getProjectsDirPath()
 	if err != nil {
 		return
 	}
