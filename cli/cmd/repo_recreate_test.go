@@ -51,6 +51,9 @@ func TestRecreateRepo_BackupBranchCreation(t *testing.T) {
 		t.Fatalf("git init failed: %v", err)
 	}
 
+	_ = exec.Command("git", "-C", tempDir, "config", "user.name", "Test User").Run()
+	_ = exec.Command("git", "-C", tempDir, "config", "user.email", "test@example.com").Run()
+
 	testFile := filepath.Join(tempDir, "file.txt")
 	_ = os.WriteFile(testFile, []byte("hello"), 0644)
 
@@ -58,7 +61,9 @@ func TestRecreateRepo_BackupBranchCreation(t *testing.T) {
 	_ = cmdAdd.Run()
 
 	cmdCommit := exec.Command("git", "-C", tempDir, "commit", "-m", "initial test commit")
-	_ = cmdCommit.Run()
+	if err := cmdCommit.Run(); err != nil {
+		t.Fatalf("git commit failed: %v", err)
+	}
 
 	origWd, _ := os.Getwd()
 	_ = os.Chdir(tempDir)

@@ -43,10 +43,8 @@ func ApplyCommit(p Plan, dryRun bool) (Result, error) {
 		return Result{}, nil
 	}
 
-	if p.IsDirectTree {
-		if res, err := applyDirectTreeCommit(p); err == nil {
-			return res, nil
-		}
+	if res, isDirect := tryDirectTreeReplay(p); isDirect {
+		return res, nil
 	}
 
 	if err := stageFiles(p); err != nil {
@@ -69,6 +67,17 @@ func ApplyCommit(p Plan, dryRun bool) (Result, error) {
 	}
 
 	return Result{NewSha: newSha}, nil
+}
+
+func tryDirectTreeReplay(p Plan) (Result, bool) {
+	if !p.IsDirectTree {
+		return Result{}, false
+	}
+	res, err := applyDirectTreeCommit(p)
+	if err == nil {
+		return res, true
+	}
+	return Result{}, false
 }
 
 // stageFiles copies each path's blob from SourceRepoDir@SourceSha into

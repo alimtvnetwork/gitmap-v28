@@ -66,15 +66,25 @@ func maybePushImmediate(ctx *runContext, staged workspace.StagedInput, created i
 	ensureSSHRemote(ctx.Source.Path)
 	out, err := exec.Command("git", "-C", ctx.Source.Path, "push", "-u", "origin", "main", "--force").CombinedOutput()
 	if err != nil {
-		if stdout != nil {
-			fmt.Fprintf(stdout, "\n  ⚠️ Push warning for %s: %s\n\n", staged.Input.Original, strings.TrimSpace(string(out)))
-		}
+		logPushWarning(stdout, staged.Input.Original, out)
 		return false
 	}
-	if stdout != nil {
-		fmt.Fprintf(stdout, "\n  ✔ Staged repo %d: %s pushed to origin/main (%d commits)\n\n", staged.Input.OrderIndex, staged.Input.Original, created)
-	}
+	logPushSuccess(stdout, staged.Input.OrderIndex, staged.Input.Original, created)
 	return true
+}
+
+func logPushWarning(stdout io.Writer, name string, out []byte) {
+	if stdout == nil {
+		return
+	}
+	fmt.Fprintf(stdout, "\n  ⚠️ Push warning for %s: %s\n\n", name, strings.TrimSpace(string(out)))
+}
+
+func logPushSuccess(stdout io.Writer, order int, name string, created int) {
+	if stdout == nil {
+		return
+	}
+	fmt.Fprintf(stdout, "\n  ✔ Staged repo %d: %s pushed to origin/main (%d commits)\n\n", order, name, created)
 }
 
 func ensureSSHRemote(repoPath string) {
@@ -83,14 +93,15 @@ func ensureSSHRemote(repoPath string) {
 		return
 	}
 	urlStr := strings.TrimSpace(string(out))
-	if strings.HasPrefix(urlStr, "https://github.com/") {
-		trimmed := strings.TrimPrefix(urlStr, "https://github.com/")
-		if !strings.HasSuffix(trimmed, ".git") {
-			trimmed += ".git"
-		}
-		sshURL := "git@github.com:" + trimmed
-		_ = exec.Command("git", "-C", repoPath, "remote", "set-url", "origin", sshURL).Run()
+	if !strings.HasPrefix(urlStr, "https://github.com/") {
+		return
 	}
+	trimmed := strings.TrimPrefix(urlStr, "https://github.com/")
+	if !strings.HasSuffix(trimmed, ".git") {
+		trimmed += ".git"
+	}
+	sshURL := "git@github.com:" + trimmed
+	_ = exec.Command("git", "-C", repoPath, "remote", "set-url", "origin", sshURL).Run()
 }
 
 func recordRepoSummary(

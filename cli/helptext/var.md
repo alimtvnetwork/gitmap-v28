@@ -37,4 +37,3 @@ gitmap var set PROMPT_DIR /path/to/prompts --scope agy
 # List variables
 gitmap var ls
 ```
-

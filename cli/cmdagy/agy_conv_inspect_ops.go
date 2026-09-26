@@ -99,15 +99,15 @@ func FetchConversationInspectRows(n int, projectFilter string) ([]AgyConvInspect
 
 	if projectFilter != "" {
 		pattern := "%" + filepath.Base(projectFilter) + "%"
-		query := `SELECT conversation_id, title, workspace_uris, step_count, not_fully_idle, preview, last_modified_time 
-			FROM conversation_summaries 
-			WHERE workspace_uris LIKE ? OR project_id LIKE ? 
+		query := `SELECT conversation_id, title, workspace_uris, step_count, not_fully_idle, preview, last_modified_time
+			FROM conversation_summaries
+			WHERE workspace_uris LIKE ? OR project_id LIKE ?
 			ORDER BY last_modified_time DESC LIMIT ?`
 		rows, qErr = conn.Query(query, pattern, pattern, n)
 		isDepthMode = true
 	} else {
-		query := `SELECT conversation_id, title, workspace_uris, step_count, not_fully_idle, preview, last_modified_time 
-			FROM conversation_summaries 
+		query := `SELECT conversation_id, title, workspace_uris, step_count, not_fully_idle, preview, last_modified_time
+			FROM conversation_summaries
 			ORDER BY last_modified_time DESC LIMIT ?`
 		rows, qErr = conn.Query(query, n)
 	}

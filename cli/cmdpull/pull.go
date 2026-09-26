@@ -66,11 +66,7 @@ func reorderPullFlags(args []string) []string {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if isPullFlagTakingValue(arg) {
-			flags = append(flags, arg)
-			if i+1 < len(args) {
-				i++
-				flags = append(flags, args[i])
-			}
+			flags = appendValuedFlag(flags, args, &i)
 			continue
 		}
 		if strings.HasPrefix(arg, "-") {
@@ -81,6 +77,15 @@ func reorderPullFlags(args []string) []string {
 	}
 
 	return append(flags, pos...)
+}
+
+func appendValuedFlag(flags []string, args []string, idx *int) []string {
+	flags = append(flags, args[*idx])
+	if *idx+1 < len(args) {
+		*idx++
+		flags = append(flags, args[*idx])
+	}
+	return flags
 }
 
 func isPullFlagTakingValue(arg string) bool {
@@ -262,23 +267,31 @@ func dispatchPullExecution(opts pullOptions) error {
 	}
 
 	if ShouldFallbackToPullAll(opts) {
-		if !opts.isJSON {
-			AnnounceNonGitPullFallback()
-		}
+		announceNonGitFallbackUnlessJSON(opts.isJSON)
 		opts.all = true
 	}
 
 	return runPullBatch(opts)
 }
 
+func announceNonGitFallbackUnlessJSON(isJSON bool) {
+	if !isJSON {
+		AnnounceNonGitPullFallback()
+	}
+}
+
+func handleEmptyBatchRecords(isJSON bool) error {
+	if isJSON {
+		return renderPullBatchJSONSummary(0, nil, 0)
+	}
+
+	return nil
+}
+
 func runPullBatch(opts pullOptions) error {
 	records, isFound := resolvePullBatchRecords(opts)
 	if !isFound || len(records) == 0 {
-		if opts.isJSON {
-			return renderPullBatchJSONSummary(0, nil, 0)
-		}
-
-		return nil
+		return handleEmptyBatchRecords(opts.isJSON)
 	}
 	if !opts.isJSON {
 		printResolvedPullRepos(len(records))
@@ -1011,14 +1024,18 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 func resolveExplicitPullTargets(opts pullOptions) ([]model.ScanRecord, bool) {
 	records := resolvePullTargets(opts.slug, opts.group, opts.all)
 	if len(records) == 0 {
-		if !opts.isJSON {
-			handlePullTargetNotFound(opts)
-		}
+		warnPullTargetNotFoundUnlessJSON(opts)
 
 		return nil, false
 	}
 
 	return records, true
+}
+
+func warnPullTargetNotFoundUnlessJSON(opts pullOptions) {
+	if !opts.isJSON {
+		handlePullTargetNotFound(opts)
+	}
 }
 
 func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {

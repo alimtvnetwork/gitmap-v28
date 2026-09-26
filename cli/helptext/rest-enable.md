@@ -23,4 +23,3 @@ gitmap rest-enable
 # Enable via AGY subsystem
 gitmap agy rest-enable
 ```
-

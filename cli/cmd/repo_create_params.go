@@ -84,7 +84,7 @@ func applySinglePositionalArg(token string, p *createRepoParams) {
 }
 
 func applyTwoPositionalArgs(pos []string, p *createRepoParams) {
-	if pos[0] == "." || isExistingDirectory(pos[0]) || isPathLike(pos[0]) {
+	if pos[0] == "." {
 		absDir, _ := filepath.Abs(pos[0])
 		p.LocalDir = absDir
 		p.Name = pos[1]
@@ -92,7 +92,14 @@ func applyTwoPositionalArgs(pos []string, p *createRepoParams) {
 		return
 	}
 
-	if pos[1] == "." || isExistingDirectory(pos[1]) || isPathLike(pos[1]) {
+	if isPathLike(pos[0]) || isExistingDirectory(pos[0]) {
+		p.LocalDir = pos[0]
+		p.Name = pos[1]
+		p.Slug = SlugifyRepoName(pos[1])
+		return
+	}
+
+	if pos[1] == "." {
 		absDir, _ := filepath.Abs(pos[1])
 		p.LocalDir = absDir
 		p.Name = pos[0]
@@ -100,9 +107,16 @@ func applyTwoPositionalArgs(pos []string, p *createRepoParams) {
 		return
 	}
 
+	if isPathLike(pos[1]) || isExistingDirectory(pos[1]) {
+		p.LocalDir = pos[1]
+		p.Name = pos[0]
+		p.Slug = SlugifyRepoName(pos[0])
+		return
+	}
+
 	p.Name = pos[0]
-	p.Slug = SlugifyRepoName(pos[0])
-	p.Description = pos[1]
+	p.Slug = SlugifyRepoName(pos[1])
+	p.LocalDir = filepath.Join(".", p.Slug)
 }
 
 func applyMultiPositionalArgs(pos []string, p *createRepoParams) {

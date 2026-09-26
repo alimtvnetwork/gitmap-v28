@@ -54,14 +54,7 @@ func SyncAll(repoPath string, repoName string) {
 		pmRes = "[vsc: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"
 	}
 
-	dtRes := "[desktop: skipped]"
-	if os.Getenv("GITMAP_NO_DESKTOP") != "1" && os.Getenv("GITMAP_SKIP_DESKTOP") != "1" {
-		records := []model.ScanRecord{{AbsolutePath: repoPath, RepoName: repoName}}
-		dtSummary := desktop.AddRepos(records)
-		if dtSummary.Added > 0 {
-			dtRes = "[desktop: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"
-		}
-	}
+	dtRes := resolveDesktopSyncStatus(repoPath, repoName)
 
 	agyRes := "[agy: skipped]"
 	if SyncAntigravity(repoPath, repoName) {
@@ -95,6 +88,20 @@ func SyncWithoutDesktop(repoPath string, repoName string) {
 	}
 
 	fmt.Printf(" %s %s %s\n", pmRes, dtRes, agyRes)
+}
+
+func resolveDesktopSyncStatus(repoPath, repoName string) string {
+	if os.Getenv("GITMAP_NO_DESKTOP") == "1" || os.Getenv("GITMAP_SKIP_DESKTOP") == "1" {
+		return "[desktop: skipped]"
+	}
+
+	records := []model.ScanRecord{{AbsolutePath: repoPath, RepoName: repoName}}
+	dtSummary := desktop.AddRepos(records)
+	if dtSummary.Added > 0 {
+		return "[desktop: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"
+	}
+
+	return "[desktop: skipped]"
 }
 
 func SyncAntigravity(repoPath, repoName string) bool {

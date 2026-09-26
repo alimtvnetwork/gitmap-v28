@@ -29,4 +29,3 @@ gitmap recreate-repo my-new-repo
 # Recreate as public
 gitmap recreate my-new-repo --public
 ```
-

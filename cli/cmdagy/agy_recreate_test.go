@@ -180,14 +180,14 @@ func TestExecuteAgyRecreate_RealLifecycle(t *testing.T) {
 
 	// Verify project was registered in Antigravity
 	configDir, err := getProjectsDirPath()
-	if err == nil {
-		fileURI := buildFolderURI(tempDir)
-		id := workspacesync.FindExistingProjectID(configDir, fileURI)
-		if id == "" {
-			t.Errorf("expected project to be registered in %s", configDir)
-		} else {
-			// Clean up test project config
-			_ = deleteProjectFile(id)
-		}
+	if err != nil {
+		return
 	}
+	fileURI := buildFolderURI(tempDir)
+	id := workspacesync.FindExistingProjectID(configDir, fileURI)
+	if id == "" {
+		t.Errorf("expected project to be registered in %s", configDir)
+		return
+	}
+	_ = deleteProjectFile(id)
 }

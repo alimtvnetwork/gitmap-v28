@@ -24,4 +24,3 @@ gitmap migrate graph
 # Inspect preflight status
 gitmap migrate preflight
 ```
-

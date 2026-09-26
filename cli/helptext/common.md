@@ -45,4 +45,3 @@ gitmap common ignore
 # Dry run preview
 gitmap common all --dry-run
 ```
-

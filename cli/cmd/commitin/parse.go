@@ -66,10 +66,10 @@ func maybeLoadStateSEOTemplates(raw *RawArgs) {
 }
 
 func splitPositionalOrConfig(raw *RawArgs, positional []string) *ParseError {
+	if len(positional) == 0 && raw.ConfigPath != "" {
+		return nil
+	}
 	if len(positional) == 0 {
-		if raw.ConfigPath != "" {
-			return nil
-		}
 		return newBadArgs("%s", "missing <source>")
 	}
 	if len(positional) == 1 && raw.ConfigPath == "" && isExistingJSONConfigFile(positional[0]) {

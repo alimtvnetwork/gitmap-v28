@@ -59,13 +59,13 @@ func runMostConv(n int) error {
 	}
 	defer conn.Close()
 
-	query := `SELECT project_id, MAX(workspace_uris) as ws, COUNT(*) as c, 
+	query := `SELECT project_id, MAX(workspace_uris) as ws, COUNT(*) as c,
 		MAX(CASE WHEN not_fully_idle != 0 THEN 1 ELSE 0 END) as has_running,
 		MAX(last_modified_time) as last_mod
-		FROM conversation_summaries 
-		WHERE project_id != '' 
-		GROUP BY project_id 
-		ORDER BY c DESC 
+		FROM conversation_summaries
+		WHERE project_id != ''
+		GROUP BY project_id
+		ORDER BY c DESC
 		LIMIT ?`
 	rows, qErr := conn.Query(query, n)
 	if qErr != nil {

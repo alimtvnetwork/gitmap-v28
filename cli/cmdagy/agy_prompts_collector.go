@@ -77,6 +77,19 @@ func CollectPromptsSnapshot(isAll bool, maxWords int, limitCount int, isSSH bool
 	return snapshot, nil
 }
 
+func queryConversationPreview(conn *sql.DB, convID string) string {
+	if conn == nil {
+		return ""
+	}
+
+	var p sql.NullString
+	if err := conn.QueryRow("SELECT preview FROM conversation_summaries WHERE conversation_id = ?", convID).Scan(&p); err != nil {
+		return ""
+	}
+
+	return TrimBoilerplatePrompt(p.String)
+}
+
 func collectRunningPrompts(maxWords int) ([]AgyPromptSnapshotItem, error) {
 	activeConvs, err := FetchActiveRunningConversations()
 	if err != nil {
@@ -91,12 +104,7 @@ func collectRunningPrompts(maxWords int) ([]AgyPromptSnapshotItem, error) {
 
 	var items []AgyPromptSnapshotItem
 	for _, c := range activeConvs {
-		preview := ""
-		if conn != nil {
-			var p sql.NullString
-			_ = conn.QueryRow("SELECT preview FROM conversation_summaries WHERE conversation_id = ?", c.ConversationID).Scan(&p)
-			preview = TrimBoilerplatePrompt(p.String)
-		}
+		preview := queryConversationPreview(conn, c.ConversationID)
 		if preview == "" {
 			preview = c.Title
 		}

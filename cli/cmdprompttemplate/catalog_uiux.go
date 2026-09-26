@@ -103,7 +103,7 @@ func GetUIUXCategoryTemplates() []PromptTemplate {
 		{
 			slug: "modals-popovers-portals",
 			name: "Modals and Popover Portals",
-			text: "Refine modal dialogues, popovers, and tooltips with proper dismiss triggers, backdrop blurs, and portal mounting. Polish the design below.",
+			text: "Refine modal dialogs, popovers, and tooltips with proper dismiss triggers, backdrop blurs, and portal mounting. Polish the design below.",
 		},
 		{
 			slug: "portfolio-grade-craft",

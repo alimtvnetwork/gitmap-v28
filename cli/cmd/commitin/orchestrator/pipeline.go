@@ -151,12 +151,17 @@ func registerObjectAlternate(targetPath, stagedWorkPath string) {
 	existing, _ := os.ReadFile(altFile)
 	slashPath := filepath.ToSlash(srcObj)
 	if !strings.Contains(string(existing), slashPath) {
-		f, err := os.OpenFile(altFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-		if err == nil {
-			defer f.Close()
-			_, _ = f.WriteString(slashPath + "\n")
-		}
+		appendAlternateLine(altFile, slashPath)
 	}
+}
+
+func appendAlternateLine(altFile, slashPath string) {
+	f, err := os.OpenFile(altFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	_, _ = f.WriteString(slashPath + "\n")
 }
 
 func finalizeObjectAlternates(targetPath string, isDryRun bool) {

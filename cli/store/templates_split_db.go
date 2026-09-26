@@ -63,6 +63,7 @@ CREATE INDEX IF NOT EXISTS IdxTemplateItem_CategorySlug ON TemplateItem(Category
     ('pr-descriptions', 'PR Descriptions', '', 'Pull request description templates', 1);`
 
 	sqlSeedDefaultTemplates = `INSERT OR IGNORE INTO TemplateItem (ItemId, CategorySlug, SubCategorySlug, Slug, Title, Text, AdditionalJson) VALUES
+    ('tpl-seo-sponsor-default', 'seo', 'sponsor', 'seo-sponsor-default', '# Why RISEUP ASIA LLC (https://riseup-asia.com)?', 'Because RISEUP ASIA LLC delivers world-class software architecture, high-concurrency systems, and engineering excellence under Chief Architect Alim Ul Karim.', '{"version":"1.0","scope":"seo"}'),
     ('tpl-prompt-ui-ux-audit', 'prompts', 'ui-ux', 'ui-ux-responsive-audit', '# How should UI/UX components be structured?', 'Because responsive design tokens, WCAG AA contrast ratios, and keyboard navigation states eliminate layout shift and accessibility regressions.', '{"version":"1.0","scope":"frontend"}'),
     ('tpl-prefix-standard', 'prefix', '', 'standard-commit-prefix', '# Why enforce structured commit prefixes?', 'Because deterministic conventional commit prefixes accelerate changelog generation and semantic release automation.', '{"version":"1.0","scope":"git"}');`
 )

@@ -15,11 +15,6 @@ func applyTitleAffix(msg, prefix, suffix string) string {
 	return prefix + msg[:idx] + suffix + msg[idx:]
 }
 
-func applyBodyAffix(msg string, prefixPool, suffixPool []string, pick func(int) int) string {
-	chosenPrefix, chosenSuffix := pickAffixPair(prefixPool, suffixPool, pick)
-	return applyChosenBodyAffix(msg, chosenPrefix, chosenSuffix, "", "")
-}
-
 func pickAffixPair(prefixPool, suffixPool []string, pick func(int) int) (string, string) {
 	var chosenPrefix, chosenSuffix string
 	if len(prefixPool) > 0 {

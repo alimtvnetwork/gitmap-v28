@@ -118,16 +118,17 @@ func (s *TemplatesSplitDB) ExportTemplatesToFile(destPath, categoryFilter, idOrS
 }
 
 func (s *TemplatesSplitDB) resolveExportTemplates(categoryFilter, idOrSlugFilter string) ([]StateTemplateItem, error) {
-	if cleanID := strings.TrimSpace(idOrSlugFilter); cleanID != "" {
-		item, err := s.GetTemplateItem(cleanID)
-		if err != nil {
-			return nil, err
-		}
-
-		return []StateTemplateItem{*item}, nil
+	cleanID := strings.TrimSpace(idOrSlugFilter)
+	if cleanID == "" {
+		return s.ListTemplateItems(categoryFilter)
 	}
 
-	return s.ListTemplateItems(categoryFilter)
+	item, err := s.GetTemplateItem(cleanID)
+	if err != nil {
+		return nil, err
+	}
+
+	return []StateTemplateItem{*item}, nil
 }
 
 func (s *TemplatesSplitDB) filterExportCategories(items []StateTemplateItem) ([]StateTemplateCategory, error) {
@@ -189,11 +190,20 @@ func collectVarRefsFromText(content string, allVars, out map[string]string) {
 	}
 }
 
+func ensureExportParentDir(destPath string) error {
+	dir := filepath.Dir(destPath)
+	if dir == "" || dir == "." {
+		return nil
+	}
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return apperror.WrapSimple(err, "templates_split.export_mkdir")
+	}
+	return nil
+}
+
 func writeExportJSONFile(destPath string, payload TemplateExportPayload) error {
-	if dir := filepath.Dir(destPath); dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return apperror.WrapSimple(err, "templates_split.export_mkdir")
-		}
+	if err := ensureExportParentDir(destPath); err != nil {
+		return err
 	}
 
 	raw, err := json.MarshalIndent(payload, "", "  ")

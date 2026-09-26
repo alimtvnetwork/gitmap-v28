@@ -197,16 +197,7 @@ func loadAndPrecompileConfigTemplates(raw *RawArgs, cfg CommitInConfigJSON) *Par
 	if SyncStateTemplatesHook != nil && len(cfg.Imports) > 0 {
 		_ = SyncStateTemplatesHook(cfg.Imports)
 	}
-	prefixPool := cfg.PrefixTemplates
-	suffixPool := cfg.SuffixTemplates
-	if cfg.TemplatesSection != nil {
-		if len(cfg.TemplatesSection.Prefix) > 0 {
-			prefixPool = append(prefixPool, cfg.TemplatesSection.Prefix...)
-		}
-		if len(cfg.TemplatesSection.Suffix) > 0 {
-			suffixPool = append(suffixPool, cfg.TemplatesSection.Suffix...)
-		}
-	}
+	prefixPool, suffixPool := resolveConfigTemplatePools(cfg)
 
 	vars, items := readImportedTemplateFiles(cfg.Imports, cfg.Variables)
 	prefixes := resolveTemplateRefs(prefixPool, items, vars)
@@ -281,17 +272,36 @@ func resolveTemplateRefs(refs []string, imported []ImportedTemplateItem, vars ma
 	return out
 }
 
+func resolveConfigTemplatePools(cfg CommitInConfigJSON) ([]string, []string) {
+	prefixPool := cfg.PrefixTemplates
+	suffixPool := cfg.SuffixTemplates
+	if cfg.TemplatesSection == nil {
+		return prefixPool, suffixPool
+	}
+
+	prefixPool = append(prefixPool, cfg.TemplatesSection.Prefix...)
+	suffixPool = append(suffixPool, cfg.TemplatesSection.Suffix...)
+
+	return prefixPool, suffixPool
+}
+
 func resolveSingleTemplateRef(ref string, imported []ImportedTemplateItem, vars map[string]string) []string {
 	if matched := matchImportedByRef(ref, imported, vars); len(matched) > 0 {
 		return matched
 	}
-	if PrecompileStateCategoryHook != nil {
-		if dbMatched := PrecompileStateCategoryHook(ref, vars); len(dbMatched) > 0 {
-			return dbMatched
-		}
+	if dbMatched := matchStateHookByRef(ref, vars); len(dbMatched) > 0 {
+		return dbMatched
 	}
 
 	return []string{expandStaticVars(ref, vars)}
+}
+
+func matchStateHookByRef(ref string, vars map[string]string) []string {
+	if PrecompileStateCategoryHook == nil {
+		return nil
+	}
+
+	return PrecompileStateCategoryHook(ref, vars)
 }
 
 func matchImportedByRef(ref string, imported []ImportedTemplateItem, vars map[string]string) []string {
