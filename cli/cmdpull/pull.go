@@ -57,7 +57,38 @@ func NormalizePullArgs(args []string) []string {
 		normalized = appendNormalizedPullToken(normalized, args[i])
 	}
 
-	return normalized
+	return reorderPullFlags(normalized)
+}
+
+func reorderPullFlags(args []string) []string {
+	flags := make([]string, 0, len(args))
+	pos := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if isPullFlagTakingValue(arg) {
+			flags = append(flags, arg)
+			if i+1 < len(args) {
+				i++
+				flags = append(flags, args[i])
+			}
+			continue
+		}
+		if strings.HasPrefix(arg, "-") {
+			flags = append(flags, arg)
+			continue
+		}
+		pos = append(pos, arg)
+	}
+
+	return append(flags, pos...)
+}
+
+func isPullFlagTakingValue(arg string) bool {
+	if strings.Contains(arg, "=") {
+		return false
+	}
+
+	return arg == "-g" || arg == "--group" || arg == "-p" || arg == "--parallel"
 }
 
 func isPullAllTableSeq(args []string, i int) bool {
@@ -303,7 +334,7 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 }
 
 func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullProgressBar, []*PullRepoState, time.Duration) {
-	bar := NewPullProgressBar(len(records), false, opts.stopOnFail)
+	bar := NewPullProgressBar(len(records), opts.isJSON, opts.stopOnFail)
 	if !opts.isJSON {
 		bar.Start()
 	}

@@ -158,3 +158,10 @@ func TestBuildPullBatchSummary_JSONStructure(t *testing.T) {
 		t.Fatalf("missing required JSON keys in %s", string(raw))
 	}
 }
+
+func TestNormalizePullArgs_TrailingFlags(t *testing.T) {
+	opts := parsePullFlags(NormalizePullArgs([]string{"my-repo", "--json"}))
+	if opts.slug != "my-repo" || !opts.isJSON {
+		t.Fatalf("expected slug=my-repo isJSON=true, got slug=%q isJSON=%v", opts.slug, opts.isJSON)
+	}
+}
