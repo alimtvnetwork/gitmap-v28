@@ -49,10 +49,10 @@ func WalkFirstParent(repoDir string) ([]SourceCommit, error) {
 	return out, nil
 }
 
-// listFirstParentShas runs `git rev-list --first-parent --reverse HEAD`
+// listFirstParentShas runs `git rev-list --topo-order --reverse HEAD`
 // in repoDir. Empty repos return an empty slice (no error).
 func listFirstParentShas(repoDir string) ([]string, error) {
-	out, err := gitRunner(repoDir, "rev-list", "--first-parent", "--reverse", "HEAD")
+	out, err := gitRunner(repoDir, "rev-list", "--topo-order", "--reverse", "HEAD")
 	if err != nil && isEmptyRepoError(out, err) {
 		return nil, nil
 	}

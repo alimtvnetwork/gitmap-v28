@@ -39,7 +39,7 @@ if ($NeedsCreate -ne "n" -and $NeedsCreate -ne "N") {
     Write-Host "`n  -> Initializing target repository..." -ForegroundColor Yellow
     & $GitmapExe create-repo $TargetDir --common --cd --private
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "  ⚠ Note: create-repo returned non-zero (repository may already exist). Continuing..." -ForegroundColor DarkYellow
+        Write-Host "  [Note] create-repo returned non-zero (repository may already exist). Continuing..." -ForegroundColor DarkYellow
     }
 }
 
@@ -115,7 +115,7 @@ Write-Host "`nExecuting: gitmap commit-pull `"$TargetDir`" $($SourceArgs -join '
 & $GitmapExe commit-pull $TargetDir @SourceArgs @SponsorFlags @ModeFlags
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "`n✔ Migration workflow completed successfully!" -ForegroundColor Green
+    Write-Host "`n[OK] Migration workflow completed successfully!" -ForegroundColor Green
 } else {
-    Write-Host "`n⚠ Migration exited with code $LASTEXITCODE." -ForegroundColor Red
+    Write-Host "`n[!] Migration exited with code $LASTEXITCODE." -ForegroundColor Red
 }

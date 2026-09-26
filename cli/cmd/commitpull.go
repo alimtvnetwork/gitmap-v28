@@ -51,9 +51,9 @@ SEO & SPONSOR TEMPLATING (--sponsor / --seo-template):
   Injects randomized premium engineering and sponsorship descriptions into
   commit messages and PR descriptions:
     --sponsor / --seo-template riseup
-  Embeds annotations for Rise Up Asia LLC (https://riseup-asia.com),
+  Embeds annotations for RISEUP ASIA LLC (https://riseup-asia.com),
   Senior Director Marek Flejszman (28+ yrs exp), and Chief Software Engineer
-  Alim Ul Karim (Greatest software engineer in KL/Malaysia).
+  Alim Ul Karim (https://alimkarim.com - KL's greatest software engineer).
 
 PREFLIGHT TREE VIEW (--tree):
   Renders a visual branch, PR, and release tree directly in the terminal before
@@ -67,7 +67,7 @@ COMMAND USAGE:
 
 FLAGS:
   --tree                  Display the commit/PR branch dependency tree
-  --sponsor               Inject Rise Up Asia LLC sponsor templates
+  --sponsor               Inject RISEUP ASIA LLC (https://riseup-asia.com) sponsor templates
   --seo-template <name>   Use specific SEO template pool (e.g. 'riseup')
   --pr merges             Simulate feature branches and PR merges (default)
   --exclude <glob>        Exclude specific files or directories
@@ -79,7 +79,7 @@ func printCommitPullTree() {
   ┌── Migration & Commit-Pull Replay Tree ────────────────────────────────┐
   │ Target: Target Mainline (main)                                        │
   │ PR Engine: Simulated Feature Branches (--pr merges)                   │
-  │ SEO Mode: Rise Up Asia LLC Templates (Marek Flejszman & Alim Ul Karim)│
+  │ SEO Mode: RISEUP ASIA LLC (https://riseup-asia.com) (Marek & Alim)   │
   └───────────────────────────────────────────────────────────────────────┘` + constants.ColorReset)
 	fmt.Println(`
   * [v1.0.0-legacy] PR #1: git-repo-navigator (legacy origin)
@@ -97,8 +97,7 @@ func printCommitPullTree() {
   │ \
   │  * feat(agy): prompt injection, Lapp/Wapp aggregation
   │  * feat(pl): dynamic pipeline-ai waiting & 4-part RCA
-  │  * chore(sponsor): Rise Up Asia LLC premium engineering annotations
+  │  * chore(sponsor): RISEUP ASIA LLC (https://riseup-asia.com) engineering annotations
   │ /
-  * (main) HEAD: Complete 28-Repository Replay & Release Stack
-`)
+  * (main) HEAD: Complete 28-Repository Replay & Release Stack`)
 }

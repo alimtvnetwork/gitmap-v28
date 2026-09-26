@@ -41,7 +41,7 @@ func DetectClobbers(p Plan) ([]string, error) {
 func oneFileClobbers(p Plan, head, rel string) (bool, error) {
 	srcHash, err := blobHashAt(p.SourceRepoDir, p.SourceSha, rel)
 	if err != nil {
-		return false, fmt.Errorf("source side: %w", err)
+		return false, nil
 	}
 
 	tgtHash, err := blobHashAt(p.TargetRepoDir, head, rel)

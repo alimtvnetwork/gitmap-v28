@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -25,23 +26,61 @@ type StagedInput struct {
 //
 // runID anchors the temp subtree so concurrent runs never collide.
 // The directory is created on first call; subsequent calls reuse it.
+func isMissingOrUnreachableRemote(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := strings.ToLower(err.Error())
+	return strings.Contains(s, "not found") ||
+		strings.Contains(s, "exit status 128") ||
+		strings.Contains(s, "does not exist") ||
+		strings.Contains(s, "could not read from remote repository")
+}
+
 func CloneInputs(p *Paths, runID int64, inputs []ResolvedInput) ([]StagedInput, error) {
 	runDir, err := ensureRunTempDir(p, runID)
 	if err != nil {
 		return nil, err
 	}
 
+	return stageAllInputs(runDir, inputs)
+}
+
+func stageAllInputs(runDir string, inputs []ResolvedInput) ([]StagedInput, error) {
+	out, err := collectStagedInputs(runDir, inputs)
+	if err != nil {
+		return nil, err
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("all %d input repositories failed to clone or do not exist", len(inputs))
+	}
+	return out, nil
+}
+
+func collectStagedInputs(runDir string, inputs []ResolvedInput) ([]StagedInput, error) {
 	out := make([]StagedInput, 0, len(inputs))
 	for _, in := range inputs {
-		staged, stageErr := stageOneInput(runDir, in)
-		if stageErr != nil {
-			return nil, stageErr
+		staged, ok, err := tryStageInput(runDir, in, len(inputs))
+		if err != nil {
+			return nil, err
 		}
-
-		out = append(out, staged)
+		if ok {
+			out = append(out, staged)
+		}
 	}
-
 	return out, nil
+}
+
+func tryStageInput(runDir string, in ResolvedInput, total int) (StagedInput, bool, error) {
+	staged, stageErr := stageOneInput(runDir, in)
+	if stageErr == nil {
+		return staged, true, nil
+	}
+	if isMissingOrUnreachableRemote(stageErr) && total > 1 {
+		fmt.Fprintf(os.Stderr, "  ⚠ Notice: remote %q not found or unreachable; skipping.\n", in.Original)
+		return StagedInput{}, false, nil
+	}
+	return StagedInput{}, false, stageErr
 }
 
 // ensureRunTempDir creates <TempRoot>/<runId>/ once.

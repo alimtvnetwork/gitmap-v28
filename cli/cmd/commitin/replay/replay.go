@@ -83,6 +83,10 @@ func stageFiles(p Plan) error {
 func copyOneFile(p Plan, rel string) error {
 	blob, err := gitRunnerBytes(p.SourceRepoDir, "cat-file", "blob", p.SourceSha+":"+rel)
 	if err != nil {
+		if isPathAbsent(err) {
+			_, rmErr := gitRunner(p.TargetRepoDir, "update-index", "--force-remove", rel)
+			return rmErr
+		}
 		return fmt.Errorf("cat-file: %w", err)
 	}
 
@@ -96,6 +100,16 @@ func copyOneFile(p Plan, rel string) error {
 	}
 
 	return nil
+}
+
+func isPathAbsent(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := strings.ToLower(err.Error())
+	return strings.Contains(s, "does not exist") ||
+		strings.Contains(s, "fatal: path") ||
+		strings.Contains(s, "exit status 128")
 }
 
 // writeTree materializes the index as a tree object and returns its SHA.

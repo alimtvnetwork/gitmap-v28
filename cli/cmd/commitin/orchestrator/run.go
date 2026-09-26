@@ -14,6 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/runlog"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/workspace"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/workspacesync"
 )
@@ -51,6 +52,9 @@ func Run(raw *commitin.RawArgs, stdout, stderr io.Writer) int {
 }
 
 func maybeRunFinalSync(ctx *runContext) {
+	if ctx.Raw.IsCD && !ctx.Raw.IsDryRun {
+		cmdclone.WriteShellHandoff(ctx.Paths.SourceRoot)
+	}
 	if !ctx.Raw.IsFinalSync || ctx.Raw.IsDryRun {
 		return
 	}

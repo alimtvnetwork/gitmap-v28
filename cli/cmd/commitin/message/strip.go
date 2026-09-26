@@ -7,22 +7,31 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// stripRules drops every line matching any rule, then collapses
+// stripRules drops every line matching any rule or bot marker, then collapses
 // consecutive blank lines and trims trailing whitespace per §6.1 step 1.
 func stripRules(msg string, rules []profile.MessageRule) string {
-	if len(rules) == 0 {
-		return strings.TrimRight(msg, " \t\n")
-	}
-
 	lines := strings.Split(msg, "\n")
 	kept := lines[:0]
 	for _, line := range lines {
-		if !lineMatches(line, rules) {
+		if !lineMatches(line, rules) && !isUnwantedBotLine(line) {
 			kept = append(kept, line)
 		}
 	}
 
 	return collapseBlankLines(kept)
+}
+
+func isUnwantedBotLine(line string) bool {
+	lower := strings.ToLower(strings.TrimSpace(line))
+	if strings.HasPrefix(lower, "x-lovable") ||
+		strings.Contains(lower, "x-lovable-edit-id") ||
+		strings.Contains(lower, "lovable-edit-id") ||
+		strings.HasPrefix(lower, "co-authored-by: gpt-engineer") ||
+		strings.HasPrefix(lower, "signed-off-by: gpt-engineer") {
+		return true
+	}
+
+	return false
 }
 
 func lineMatches(line string, rules []profile.MessageRule) bool {

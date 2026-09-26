@@ -3,6 +3,7 @@ package orchestrator
 import (
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/dedupe"
@@ -198,6 +199,9 @@ func pickAuthorName(ctx *runContext, c walk.SourceCommit) string {
 	if ctx.Resolved.Author != nil && ctx.Resolved.Author.Name != "" {
 		return ctx.Resolved.Author.Name
 	}
+	if isBotAuthor(c.AuthorName, c.AuthorEmail) {
+		return "MD ALIM UL KARIM"
+	}
 
 	return c.AuthorName
 }
@@ -206,8 +210,25 @@ func pickAuthorEmail(ctx *runContext, c walk.SourceCommit) string {
 	if ctx.Resolved.Author != nil && ctx.Resolved.Author.Email != "" {
 		return ctx.Resolved.Author.Email
 	}
+	if isBotAuthor(c.AuthorName, c.AuthorEmail) {
+		return "devorg.bd@gmail.com"
+	}
 
 	return c.AuthorEmail
+}
+
+func isBotAuthor(name, email string) bool {
+	lowerName := strings.ToLower(name)
+	lowerEmail := strings.ToLower(email)
+
+	return strings.Contains(lowerName, "bot") ||
+		strings.Contains(lowerName, "gpt-engineer") ||
+		strings.Contains(lowerName, "lovable") ||
+		strings.Contains(lowerName, "github-actions") ||
+		strings.Contains(lowerName, "web-flow") ||
+		strings.Contains(lowerEmail, "bot@") ||
+		strings.Contains(lowerEmail, "gpt-engineer") ||
+		strings.Contains(lowerEmail, "noreply.github.com")
 }
 
 func recordCreated(

@@ -50,6 +50,7 @@ func registerBoolFlags(fs *flag.FlagSet, raw *RawArgs) {
 	fs.BoolVar(&raw.IsTree, "tree", false, "Display commit/PR branch dependency tree before execution")
 	fs.BoolVar(&raw.IsFinalSync, "final-sync", false, "Final mirror snapshot synchronization")
 	fs.BoolVar(&raw.IsFinalSync, "sync", false, "Alias for final-sync")
+	fs.BoolVar(&raw.IsCD, "cd", false, "Change directory into target repository upon completion")
 }
 
 func registerStringFlags(fs *flag.FlagSet, raw *RawArgs) {
@@ -92,5 +93,6 @@ func boolFlagSet() map[string]bool {
 		"tree":                                     true,
 		"final-sync":                               true,
 		"sync":                                     true,
+		"cd":                                       true,
 	}
 }

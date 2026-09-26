@@ -26,6 +26,10 @@ func dispatchCommitTransfer(command string) (bool, error) {
 		return true, runCommitPull(argsTail())
 	}
 
+	if command == "migrate" || command == "migration-wizard" || command == "wizard" {
+		return true, runMigrateWizard(argsTail())
+	}
+
 	spec, ok := commitTransferSpecFor(command)
 	if !ok {
 		return false, nil

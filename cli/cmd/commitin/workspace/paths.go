@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -35,8 +36,18 @@ func EnsureWorkspace(sourceRoot string) (*Paths, error) {
 	if mkErr := makeDirs(p); mkErr != nil {
 		return nil, mkErr
 	}
+	ensureGitExcluded(abs)
 
 	return p, nil
+}
+
+func ensureGitExcluded(sourceRoot string) {
+	excludeFile := filepath.Join(sourceRoot, ".git", "info", "exclude")
+	if data, err := os.ReadFile(excludeFile); err == nil {
+		if !strings.Contains(string(data), ".gitmap") {
+			_ = os.WriteFile(excludeFile, append(data, []byte("\n.gitmap/\n")...), 0o644)
+		}
+	}
 }
 
 // buildPaths assembles the Paths struct. Pure function — no syscalls.

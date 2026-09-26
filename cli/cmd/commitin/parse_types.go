@@ -50,6 +50,7 @@ type RawArgs struct {
 	IsSponsor         bool
 	IsTree            bool
 	IsFinalSync       bool
+	IsCD              bool
 }
 
 // MessageRuleArg is the parsed shape of one `--message-exclude` entry.

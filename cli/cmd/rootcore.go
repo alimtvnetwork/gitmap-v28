@@ -105,6 +105,7 @@ func coreCloneExtEntries() []dispatchEntry {
 		{[]string{constants.CmdClonePick, constants.CmdClonePickAlias}, func() error { return runClonePick(argsTail()) }},
 		{[]string{constants.CmdCommitIn, constants.CmdCommitInAlias}, func() error { return runCommitIn(argsTail()) }},
 		{[]string{"commit-pull", "cpull", "pull-commits"}, func() error { return runCommitPull(argsTail()) }},
+		{[]string{"migrate", "wizard", "migration-wizard"}, func() error { return runMigrateWizard(argsTail()) }},
 		{[]string{constants.CmdCloneFixRepo, constants.CmdCloneFixRepoAlias}, func() error { return runCloneFixRepo(argsTail()) }},
 		{[]string{constants.CmdCloneFixRepoPub, constants.CmdCloneFixRepoPubAlias}, func() error { return runCloneFixRepoPub(argsTail()) }},
 		{[]string{constants.CmdVSCodePMSync, constants.CmdVSCodePMSyncAlias}, func() error { return runVSCodePMSync(argsTail()) }},
