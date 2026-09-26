@@ -10,14 +10,15 @@ import (
 
 // StateTemplateCategory represents a template category in gitmap-templates.db.
 type StateTemplateCategory struct {
-	CategoryID  int64  `json:"categoryId,omitempty"`
-	Slug        string `json:"slug"`
-	Name        string `json:"name"`
-	ParentSlug  string `json:"parentSlug,omitempty"`
-	Description string `json:"description,omitempty"`
-	IsDefault   bool   `json:"isDefault,omitempty"`
-	CreatedAt   string `json:"createdAt,omitempty"`
-	UpdatedAt   string `json:"updatedAt,omitempty"`
+	CategoryID  int64               `json:"categoryId,omitempty"`
+	Slug        string              `json:"slug"`
+	Name        string              `json:"name"`
+	ParentSlug  string              `json:"parentSlug,omitempty"`
+	Description string              `json:"description,omitempty"`
+	IsDefault   bool                `json:"isDefault,omitempty"`
+	CreatedAt   string              `json:"createdAt,omitempty"`
+	UpdatedAt   string              `json:"updatedAt,omitempty"`
+	Items       []StateTemplateItem `json:"items,omitempty"`
 }
 
 // StateTemplateItem represents a template record in gitmap-templates.db.

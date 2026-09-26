@@ -1,43 +1,37 @@
-# Plan 164: Pull-All Fast Mode, State Templates DB Engine, Pre-Compiled Variables & Declarative Commit-In Config
+# Completed Plan 164: Pull-All Fast Mode, State Templates DB Engine, Pre-Compiled Variables & Declarative Commit-In Config
 
 - **Status:** `completed`
-- **Completed Date:** 2026-09-26
-- **Canonical Spec:** [02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md](../../../02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md)
+- **Date:** 2026-09-26
+- **Spec Reference:** [02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md](../../../02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md)
+- **Steps / Loops Taken:** 12 steps across 2 parallel execution subagents (`Subagent Worker 01` and `Subagent Worker 02`)
 
 ---
 
-## Verbatim User Request
-> improve gitmap pa/pull all # to not to display the status anymore to do things faster
-> the status will be display if
-> gitmap pa --status or gitmap pat/gitmap pull all table # this will behave as current implementation, can you please do it
-> also
-> gitmap pa --json should give json output of the summary , clear???
-> run gitmap pa first to proceed with implementation
-> https://prnt.sc/n2CR1qfil2m-
-> https://prnt.sc/NepOvEamHW5z
-> https://prnt.sc/th5Wp3Bg38XS
-> cli\helptext\seo-templates.md
-> When we have the prefix or postfix template, let's make sure the questions are in `#` and below is the answer, and that starts directly with the reasoning (`Because ...`). Give a detailed answer and combine the 20 things that we have, mix and match, and make it 40. Have good logical references and good numbers that validate those criteria.
-> Also, do not feed the sponsor templates by default. Remove the SEO files (`seo_templates.go`, `seo-templates.md`) from the Git repo as a whole and keep the test JSON and test PowerShell scripts in `.ai-memory/temp/` so they don't get committed.
-> Store templates in the templates state DB (`templates.db`), not in the current project repo. Support variables (`variables`), pre-compile templates with variables before loops, and deduplicate imports via export hash ID (`exportId`), matching by `id` then `slug` to update.
-> In the commit-in config JSON, support auto-importing template JSON files, line skipping (`starts_with`, `ends_with`, `contains`, `regex`) to strip lines like `Co-authored-by:`, blank line gap before templates, and replacing generic `"Changes"` commit titles using `$files.2.names`. Also auto-create the target repo and support `--cd`.
+## How the Main Task Started
+
+The user requested:
+1. Fast `gitmap pa` / `gitmap pull all` default mode (skipping the slow post-pull status table), `gitmap pa --status` and `gitmap pat` / `gitmap pull all table` (rendering the full post-pull status table), and `gitmap pa --json` (JSON summary output), running `gitmap pa` first.
+2. Removal of hardcoded SEO templates (`cli/cmd/commitin/seo_templates.go`, `cli/helptext/seo-templates.md`) and committed test scripts from the Git repository, with zero sponsor templates injected by default and zero hardcoded sponsor strings in Go source files.
+3. Dedicated State Templates & Variables SQLite Split DB (`gitmap-templates.db` in `store.BinaryDataDir()`) supporting default categories (`seo`, `prompts`, `ui-ux` under `prompts`, `prefix`, `pr-descriptions`) and custom categories (`gitmap templates category add`), default seeded prompt templates, variables synced with GitMap's global `config.SetVariable`, pre-compilation before loops, category-sequenced JSON export (`categories[].items` + referenced `variables`) and import with SHA-256 `exportId` deduplication (matching by `id` then `slug`), CLI commands (`ls`, `add`, `edit`, `remove`, `import`, `export`, `var`, `category`), and Browser UI (`gitmap templates ui`).
+4. Declarative `commit-in` / `commit-pull` `--config <file.json>` supporting automatic target repository creation (`executeCreateRepo` with `--common --private`), `--cd`, `--tree`, auto-importing template JSON files, line skippers (`starts_with`, `ends_with`, `contains`, `regex`), blank line gap (`\n\n`) before suffix templates, and dynamic `"Changes"` commit title replacement using `$files.1.name`, `$files.2.names`, and `$seo.title`.
+5. Uncommitted `.ai-memory/temp/seo-templates.json` (40 mix-and-match `# Why ...?\nBecause ...` templates with concrete metrics and variables), `.ai-memory/temp/commit-pull-config.json`, and 1-line `.ai-memory/temp/run-migration-test.ps1`.
 
 ---
 
-## Consolidated Subtask Summary & Verified Outcomes
+## Consolidated Subtasks Summary
 
-- [x] **Subtask 01 — Pull-All Fast Mode, Status Table (`--status` / `pat`), and `--json` Summary (`cli/cmdpull/pull.go`, `cli/cmdpull/pullall.go`, `cli/cmdpull/pull_batch_json.go`, `cli/cmd/rootcore.go`, `cli/cmd/rootgit.go`):**
-  - Default `gitmap pa` / `gitmap pull all` now skips slow post-pull table inspection and prints a fast concise active summary.
-  - `gitmap pa --status`, `gitmap pat`, and `gitmap pull all table` preserve full post-pull status table rendering.
-  - `gitmap pa --json` emits a structured JSON summary of the pull batch to stdout.
-- [x] **Subtask 02 — Hardcoded SEO & Committed Test File Removal:**
-  - Removed `cli/cmd/commitin/seo_templates.go`, `cli/helptext/seo-templates.md`, `02-spec/21-app/148-riseup-asia-templates-and-prompt-enhancement.md`, `scripts/run-e2e-commit-pull.ps1`, `cli/cmd/commitin/e2e/commit_pull_tempe2e_test.go`, `migrate.ps1`, and `scripts/migrate-gitmap-v28.ps1` from Git.
-- [x] **Subtask 03 — State Templates DB (`gitmap-templates.db`), Variables, Pre-Compilation & Web UI (`cli/store/templates_split_*.go`, `cli/cmd/templates_state_cli.go`, `cli/cmd/templates_ui_server.go`, `cli/cmd/templatescli.go`):**
-  - Implemented `gitmap-templates.db` split state database with `TemplateCategory`, `TemplateItem`, `TemplateVariable`, and `TemplateImportHistory`.
-  - Implemented SHA-256 `exportId` import deduplication, ID-first then Slug upsert matching, referenced `$VAR` export extraction, and `PrecompileTemplates` in-memory variable expansion prior to loop execution.
-  - Added CLI subcommands (`ls`, `add`, `edit`, `remove`, `import`, `export`, `var`) and interactive browser studio (`gitmap templates ui`).
-- [x] **Subtask 04 — Declarative Commit-In / Commit-Pull `--config`, Line Skippers, Blank Line Gap & `$files.2.names` (`cli/cmd/commitin/config_json.go`, `cli/cmd/commitin/message/strip.go`, `cli/cmd/commitin/message/affix.go`, `cli/cmd/commitin/message/title_replace.go`, `cli/cmd/commitin/message/pipeline.go`):**
-  - Added `--config <file.json>` (and single-positional JSON file auto-detection) with automatic template import, variable pre-compilation, `starts_with`/`ends_with`/`contains`/`regex` line skippers, guaranteed `\n\n` blank line separation before suffix templates, and `$files.1.name` / `$files.2.names` + `$seo.title` dynamic title replacement for generic `"Changes"` commits.
-- [x] **Subtask 05 — 40 Mix-and-Match SEO Templates JSON (`.ai-memory/temp/`) & Documentation:**
-  - Generated uncommitted `.ai-memory/temp/seo-templates.json` (40 `# Why ...?\nBecause ...` templates with concrete metrics and variables), `.ai-memory/temp/commit-pull-config.json`, and 1-line `.ai-memory/temp/run-migration-test.ps1`.
-  - Updated `cli/helptext/pull-all.md`, `cli/helptext/templates.md`, `cli/helptext/commit-pull.md`, and `src/pages/CommitInExamples.tsx`.
+### Subtask 01: Fast `gitmap pa`, `--status` / `pat`, and `--json` Summary Output (`Task-01`)
+- Updated `cli/cmdpull/pull.go`, `cli/cmdpull/pullall.go`, `cli/cmdpull/pull_batch_json.go`, `cli/cmd/rootcore.go`, `cli/cmd/rootgit.go`, `cli/constants/constants_pull.go`, `cli/helptext/pull-all.md`, and `cli/cmdpull/pull_flags_test.go`.
+- Verified `gitmap pa` skips slow post-pull branch/PR/tag table inspection by default, `gitmap pa --status` and `gitmap pat` / `gitmap pull all table` display the full table, and `gitmap pa --json` outputs JSON summary.
+
+### Subtask 02: Target Repo Auto-Creation, `$files.2.names` Title Replacement & Zero Default Sponsor Injection (`Task-02`)
+- Updated `cli/cmd/commitin.go`, `cli/cmd/commitin/config_json.go`, `cli/cmd/commitin/parse_types.go`, `cli/cmd/commitin/message/title_replace.go`, and `cli/cmd/commitin/message/message_test.go`.
+- Auto-creates missing target repositories via `executeCreateRepo` in `runCommitIn`, removes hardcoded sponsor strings from `title_replace.go`, strips unwanted lines (`starts_with`, `ends_with`, `contains`, `regex`), adds `\n\n` blank line gap before suffix templates, and replaces generic `"Changes"` titles with `$files.2.names: $seo.title`.
+
+### Subtask 03: State Templates DB (`gitmap-templates.db`), Category-Sequenced Export, Default Prompts Seeding & Variable Sync (`Task-03`)
+- Updated `cli/store/templates_split_db.go`, `cli/store/templates_split_ops.go`, `cli/store/templates_split_import_export.go`, `cli/store/templates_split_precompile.go`, `cli/store/templates_split_db_test.go`, `cli/cmd/templates_state_cli.go`, and `cli/cmd/templates_ui_server.go`.
+- Seeded default categories and default prompt items (`prompts` / `ui-ux` and `prefix`), added `categories[].items` sequenced export/import with `exportId` SHA-256 deduplication, synced variables with `config.SetVariable`, and added `category` (`ls`, `add`) and `--subcategory` CLI support.
+
+### Subtask 04: Spec 164, Root `readme.md` Sync, CLI/UI Help Docs & Uncommitted `.ai-memory/temp/` Test Artifacts (`Task-04`)
+- Updated `02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md`, `readme.md`, `.ai-memory/what-to-read.md`, `cli/helptext/templates.md`, `cli/helptext/commit-pull.md`, and `src/pages/CommitInExamples.tsx`.
+- Maintained `.ai-memory/temp/seo-templates.json` (40 templates), `.ai-memory/temp/commit-pull-config.json`, and `.ai-memory/temp/run-migration-test.ps1` untracked in `.ai-memory/temp/`.

@@ -57,9 +57,13 @@ CREATE INDEX IF NOT EXISTS IdxTemplateItem_CategorySlug ON TemplateItem(Category
 	sqlSeedDefaultCategories = `INSERT OR IGNORE INTO TemplateCategory (Slug, Name, ParentSlug, Description, IsDefault) VALUES
     ('seo', 'SEO', '', 'SEO and commit reasoning templates', 1),
     ('prompts', 'Prompts', '', 'AI and developer prompt templates', 1),
-    ('ui-ux', 'UI/UX', '', 'UI and UX design guidance templates', 1),
+    ('ui-ux', 'UI/UX', 'prompts', 'UI and UX design guidance templates', 1),
     ('prefix', 'Prefix', '', 'Commit and message prefix templates', 1),
     ('pr-descriptions', 'PR Descriptions', '', 'Pull request description templates', 1);`
+
+	sqlSeedDefaultTemplates = `INSERT OR IGNORE INTO TemplateItem (ItemId, CategorySlug, SubCategorySlug, Slug, Title, Text, AdditionalJson) VALUES
+    ('tpl-prompt-ui-ux-audit', 'prompts', 'ui-ux', 'ui-ux-responsive-audit', '# How should UI/UX components be structured?', 'Because responsive design tokens, WCAG AA contrast ratios, and keyboard navigation states eliminate layout shift and accessibility regressions.', '{"version":"1.0","scope":"frontend"}'),
+    ('tpl-prefix-standard', 'prefix', '', 'standard-commit-prefix', '# Why enforce structured commit prefixes?', 'Because deterministic conventional commit prefixes accelerate changelog generation and semantic release automation.', '{"version":"1.0","scope":"git"}');`
 )
 
 // TemplatesSplitDB manages the dedicated SQLite split database for state templates and variables.
@@ -116,7 +120,7 @@ func initTemplatesSplitConn(conn *sql.DB, dbPath string) (*TemplatesSplitDB, err
 	return db, nil
 }
 
-// InitSchema creates the 4 template state tables and seeds default categories.
+// InitSchema creates the 4 template state tables and seeds default categories and templates.
 func (s *TemplatesSplitDB) InitSchema() error {
 	stmts := []string{
 		sqlCreateTemplateCategory,
@@ -124,6 +128,7 @@ func (s *TemplatesSplitDB) InitSchema() error {
 		sqlCreateTemplateVariable,
 		sqlCreateTemplateImportHistory,
 		sqlSeedDefaultCategories,
+		sqlSeedDefaultTemplates,
 	}
 	for _, stmt := range stmts {
 		if _, err := s.conn.Exec(stmt); err != nil {

@@ -16,13 +16,21 @@ tpl
 | `templates show <kind> <lang>` | `ts` | Write a single resolved template (overlay > embed) to stdout |
 | `templates init <lang>...` | `ti` | Scaffold `.gitignore` / `.gitattributes` for one or more languages |
 | `templates ls [--category] [--json]` | `state-ls` | List state templates and categories from `gitmap-templates.db` |
-| `templates add [flags]` | — | Add or upsert a template (`--category`, `--slug`, `--title`, `--text`) |
-| `templates edit <id\|slug> [flags]` | — | Update an existing state template by ID or slug |
+| `templates add [flags]` | — | Add or upsert a template (`--category`, `--subcategory`, `--slug`, `--title`, `--text`) |
+| `templates edit <id\|slug> [flags]` | — | Update an existing state template by ID or slug (`--category`, `--subcategory`, `--title`, `--text`) |
 | `templates remove <id\|slug>` | `rm`, `delete` | Delete a state template from `gitmap-templates.db` |
-| `templates import <file.json> [--force]` | — | Import templates & variables with SHA-256 `exportId` deduplication |
-| `templates export <dest.json>` | — | Export templates & referenced `$VAR` variables to portable JSON |
-| `templates var <set\|ls\|rm>` | `vars` | Set, list, or remove template variables (`$VAR` / `${VAR}`) |
+| `templates category <ls\|add>` | `cat`, `categories` | List categories or add custom categories/subcategories (`--name`, `--parent`, `--desc`) |
+| `templates import <file.json> [--force]` | — | Import templates & variables with SHA-256 `exportId` deduplication and `gitmap var` sync |
+| `templates export <dest.json>` | — | Export category-sequenced templates (`categories[].items`) & referenced `$VAR` variables to JSON |
+| `templates var <set\|ls\|rm>` | `vars` | Set, list, or remove template variables (`$VAR` / `${VAR}`) synced with `gitmap var` |
 | `templates ui [--port 8787] [--no-open]` | `web` | Launch local dark-mode Templates & Variables Web Studio |
+
+## State Templates, Categories & Variable Sync (`gitmap-templates.db`)
+
+- **Default Categories & Subcategories**: `gitmap-templates.db` seeds `seo`, `prompts` (with `ui-ux` as a child subcategory via `ParentSlug='prompts'`), `prefix`, and `pr-descriptions`, along with default prompt (`tpl-prompt-ui-ux-audit`) and prefix (`tpl-prefix-standard`) templates.
+- **Custom Categories & `--subcategory`**: Create categories or nested subcategories with `gitmap templates category add <slug> [--name <name>] [--parent <parent>] [--desc <desc>]`, and assign items with `--category prompts --subcategory ui-ux`.
+- **Category-Sequenced Export & Import**: `gitmap templates export <dest.json>` outputs `categories` first—each populated with its nested `items` array (`categories[].items`)—followed by referenced `variables` and `templates`, sealed with a deterministic `exportId` (`sha256-...`). `gitmap templates import` accepts items from both `categories[].items` and top-level `templates`.
+- **Automatic `gitmap var` Sync**: Setting variables via `gitmap templates var set <key> <value>` or importing a template suite via `gitmap templates import <file.json>` automatically synchronizes variables into `gitmap var` (`config.SetVariable`).
 
 ## Flags (list)
 

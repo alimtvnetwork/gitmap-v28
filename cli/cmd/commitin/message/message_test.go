@@ -92,27 +92,45 @@ func TestTitleReplacementWithFiles2NamesAndBlankGap(t *testing.T) {
 		},
 		MessageSuffix: []string{"# Why is deterministic architecture critical?\nBecause it guarantees 99.98% build reliability."},
 	}
-	inSingle := Inputs{
+	outSingle := Build(Inputs{
 		OriginalMessage: "Changes\n\nCo-authored-by: user <123+user@users.noreply.github.com>",
 		Files:           []string{"cli/cliexit/cliexit.go"},
 		Resolved:        res,
 		PickIndex:       fixedPick,
+	}).Message
+	wantSingle := "cliexit.go: Why is deterministic architecture critical?\n\n# Why is deterministic architecture critical?\nBecause it guarantees 99.98% build reliability."
+	if outSingle != wantSingle {
+		t.Fatalf("single file replacement mismatch:\ngot:  %q\nwant: %q", outSingle, wantSingle)
 	}
-	outSingle := Build(inSingle).Message
-	wantPrefixSingle := "cliexit.go: Why is deterministic architecture critical?\n\n# Why is deterministic architecture critical?\nBecause it guarantees 99.98% build reliability."
-	if outSingle != wantPrefixSingle {
-		t.Fatalf("single file replacement mismatch:\ngot:  %q\nwant: %q", outSingle, wantPrefixSingle)
-	}
+	assertTwoFileTitleReplacement(t, res)
+}
 
-	inMulti := Inputs{
+func assertTwoFileTitleReplacement(t *testing.T, res profile.Resolved) {
+	outMulti := Build(Inputs{
 		OriginalMessage: "Changes",
 		Files:           []string{"cli/cliexit/cliexit.go", "cli/cmd/root.go", "cli/cmd/pull.go"},
 		Resolved:        res,
 		PickIndex:       fixedPick,
-	}
-	outMulti := Build(inMulti).Message
+	}).Message
 	if !strings.HasPrefix(outMulti, "cliexit.go, root.go: Why is deterministic architecture critical?\n\n# Why") {
 		t.Fatalf("two-file $files.2.names replacement mismatch: %q", outMulti)
+	}
+}
+
+func TestTitleReplacementWithoutSuffixTemplate(t *testing.T) {
+	res := profile.Resolved{
+		TitleReplacements: []profile.TitleReplacementRule{
+			{MatchMode: "equals", Match: "Changes", Replacement: "$files.2.names: $seo.title"},
+		},
+	}
+	out := Build(Inputs{
+		OriginalMessage: "Changes",
+		Files:           []string{"cli/cliexit/cliexit.go", "cli/cmd/root.go"},
+		Resolved:        res,
+		PickIndex:       fixedPick,
+	}).Message
+	if out != "cliexit.go, root.go" {
+		t.Fatalf("expected clean filenames without sponsor fallback, got %q", out)
 	}
 }
 

@@ -34,12 +34,20 @@ type ImportedTemplateItem struct {
 	Additional map[string]any `json:"additional,omitempty"`
 }
 
+// ImportedTemplateCategory represents a category entry with optional nested items in export/import files.
+type ImportedTemplateCategory struct {
+	Slug  string                 `json:"slug"`
+	Name  string                 `json:"name,omitempty"`
+	Items []ImportedTemplateItem `json:"items,omitempty"`
+}
+
 // ImportedTemplateFile represents an exported/imported templates + variables JSON payload.
 type ImportedTemplateFile struct {
-	ExportID  string                 `json:"exportId"`
-	Version   string                 `json:"version"`
-	Variables map[string]string      `json:"variables"`
-	Templates []ImportedTemplateItem `json:"templates"`
+	ExportID   string                     `json:"exportId"`
+	Version    string                     `json:"version"`
+	Variables  map[string]string          `json:"variables"`
+	Categories []ImportedTemplateCategory `json:"categories,omitempty"`
+	Templates  []ImportedTemplateItem     `json:"templates"`
 }
 
 // CommitInConfigJSON defines the declarative migration configuration file.
@@ -52,6 +60,7 @@ type CommitInConfigJSON struct {
 	IsFinalSync       bool                           `json:"finalSync,omitempty"`
 	IsCD              bool                           `json:"cd,omitempty"`
 	IsDryRun          bool                           `json:"dryRun,omitempty"`
+	IsNewlineGap      bool                           `json:"newlineGap,omitempty"`
 	AuthorName        string                         `json:"authorName,omitempty"`
 	AuthorEmail       string                         `json:"authorEmail,omitempty"`
 	Exclude           []string                       `json:"exclude,omitempty"`
@@ -90,6 +99,7 @@ func mergeConfigIntoRaw(raw *RawArgs, cfg CommitInConfigJSON) {
 		raw.Inputs = splitInputs(cfg.Inputs)
 	}
 	mergeConfigFlags(raw, cfg)
+	mergeConfigAuthor(raw, cfg)
 	mergeConfigRules(raw, cfg)
 }
 
@@ -100,18 +110,13 @@ func mergeConfigFlags(raw *RawArgs, cfg CommitInConfigJSON) {
 	if raw.ConflictMode == "" && cfg.ConflictMode != "" {
 		raw.ConflictMode = cfg.ConflictMode
 	}
-	if cfg.IsTree {
-		raw.IsTree = true
-	}
-	if cfg.IsFinalSync {
-		raw.IsFinalSync = true
-	}
-	if cfg.IsCD {
-		raw.IsCD = true
-	}
-	if cfg.IsDryRun {
-		raw.IsDryRun = true
-	}
+	raw.IsTree = raw.IsTree || cfg.IsTree
+	raw.IsFinalSync = raw.IsFinalSync || cfg.IsFinalSync
+	raw.IsCD = raw.IsCD || cfg.IsCD
+	raw.IsDryRun = raw.IsDryRun || cfg.IsDryRun
+}
+
+func mergeConfigAuthor(raw *RawArgs, cfg CommitInConfigJSON) {
 	if raw.AuthorName == "" && cfg.AuthorName != "" {
 		raw.AuthorName = cfg.AuthorName
 	}
@@ -160,18 +165,7 @@ func readImportedTemplateFiles(paths []string, extraVars map[string]string) (map
 	vars := make(map[string]string)
 	var items []ImportedTemplateItem
 	for _, p := range paths {
-		data, err := os.ReadFile(p)
-		if err != nil {
-			continue
-		}
-		var tf ImportedTemplateFile
-		if json.Unmarshal(data, &tf) != nil {
-			continue
-		}
-		for k, v := range tf.Variables {
-			vars[strings.TrimPrefix(k, "$")] = v
-		}
-		items = append(items, tf.Templates...)
+		items = appendSingleTemplateFile(p, vars, items)
 	}
 	for k, v := range extraVars {
 		vars[strings.TrimPrefix(k, "$")] = v
@@ -180,24 +174,55 @@ func readImportedTemplateFiles(paths []string, extraVars map[string]string) (map
 	return vars, items
 }
 
+func appendSingleTemplateFile(path string, vars map[string]string, items []ImportedTemplateItem) []ImportedTemplateItem {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return items
+	}
+	var tf ImportedTemplateFile
+	if json.Unmarshal(data, &tf) != nil {
+		return items
+	}
+	for k, v := range tf.Variables {
+		vars[strings.TrimPrefix(k, "$")] = v
+	}
+
+	return appendCategoryAndFlatItems(items, tf)
+}
+
+func appendCategoryAndFlatItems(items []ImportedTemplateItem, tf ImportedTemplateFile) []ImportedTemplateItem {
+	for _, cat := range tf.Categories {
+		for _, it := range cat.Items {
+			if it.Category == "" {
+				it.Category = cat.Slug
+			}
+			items = append(items, it)
+		}
+	}
+
+	return append(items, tf.Templates...)
+}
+
 func resolveTemplateRefs(refs []string, imported []ImportedTemplateItem, vars map[string]string) []string {
 	var out []string
 	for _, ref := range refs {
-		matched := matchImportedByRef(ref, imported, vars)
-		if len(matched) > 0 {
-			out = append(out, matched...)
-			continue
-		}
-		if PrecompileStateCategoryHook != nil {
-			if dbMatched := PrecompileStateCategoryHook(ref, vars); len(dbMatched) > 0 {
-				out = append(out, dbMatched...)
-				continue
-			}
-		}
-		out = append(out, expandStaticVars(ref, vars))
+		out = append(out, resolveSingleTemplateRef(ref, imported, vars)...)
 	}
 
 	return out
+}
+
+func resolveSingleTemplateRef(ref string, imported []ImportedTemplateItem, vars map[string]string) []string {
+	if matched := matchImportedByRef(ref, imported, vars); len(matched) > 0 {
+		return matched
+	}
+	if PrecompileStateCategoryHook != nil {
+		if dbMatched := PrecompileStateCategoryHook(ref, vars); len(dbMatched) > 0 {
+			return dbMatched
+		}
+	}
+
+	return []string{expandStaticVars(ref, vars)}
 }
 
 func matchImportedByRef(ref string, imported []ImportedTemplateItem, vars map[string]string) []string {

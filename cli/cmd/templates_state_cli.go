@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -31,6 +32,8 @@ func dispatchStateTemplatesSub(sub string, args []string) bool {
 
 func dispatchStateTemplatesIOAndUI(sub string, args []string) bool {
 	switch sub {
+	case "category", "cat", "categories":
+		runTemplatesStateCategory(args)
 	case "import":
 		runTemplatesStateImport(args)
 	case "export":
@@ -107,17 +110,21 @@ func runTemplatesStateAdd(args []string) {
 	fs := flag.NewFlagSet("templates-add", flag.ExitOnError)
 	id := fs.String("id", "", "Optional template ID")
 	cat := fs.String("category", "seo", "Template category slug")
+	subCat := fs.String("subcategory", "", "Optional template subcategory slug")
 	slug := fs.String("slug", "", "Template slug")
 	title := fs.String("title", "", "Template title / question")
 	text := fs.String("text", "", "Template body text")
 	addRaw := fs.String("additional", "", "Optional JSON object string")
 	_ = fs.Parse(reorderFlagsBeforeArgs(args))
 
-	upsertFromAddFlags(*id, *cat, *slug, *title, *text, *addRaw)
+	upsertFromAddFlags(store.StateTemplateItem{
+		ID: *id, Category: *cat, SubCategory: *subCat, Slug: *slug,
+		Title: *title, Text: *text, Additional: decodeAdditionalFlag(*addRaw),
+	})
 }
 
-func upsertFromAddFlags(id, cat, slug, title, text, addRaw string) {
-	if strings.TrimSpace(title) == "" && strings.TrimSpace(text) == "" {
+func upsertFromAddFlags(item store.StateTemplateItem) {
+	if strings.TrimSpace(item.Title) == "" && strings.TrimSpace(item.Text) == "" {
 		cliexit.HandleError(apperror.NewSimple("cmd.templates.add", "templates add requires --title or --text"), 1)
 
 		return
@@ -129,10 +136,6 @@ func upsertFromAddFlags(id, cat, slug, title, text, addRaw string) {
 	}
 	defer db.Close()
 
-	item := store.StateTemplateItem{
-		ID: id, Category: cat, Slug: slug, Title: title, Text: text,
-		Additional: decodeAdditionalFlag(addRaw),
-	}
 	saveAndPrintTemplateItem(db, item, "Added")
 }
 
@@ -150,6 +153,7 @@ func saveAndPrintTemplateItem(db *store.TemplatesSplitDB, item store.StateTempla
 func runTemplatesStateEdit(args []string) {
 	fs := flag.NewFlagSet("templates-edit", flag.ExitOnError)
 	cat := fs.String("category", "", "Updated category slug")
+	subCat := fs.String("subcategory", "", "Updated subcategory slug")
 	title := fs.String("title", "", "Updated title")
 	text := fs.String("text", "", "Updated body text")
 	addRaw := fs.String("additional", "", "Updated additional JSON")
@@ -161,10 +165,10 @@ func runTemplatesStateEdit(args []string) {
 		return
 	}
 
-	applyTemplateEdit(fs.Args()[0], *cat, *title, *text, *addRaw)
+	applyTemplateEdit(fs.Args()[0], *cat, *subCat, *title, *text, *addRaw)
 }
 
-func applyTemplateEdit(target, cat, title, text, addRaw string) {
+func applyTemplateEdit(target, cat, subCat, title, text, addRaw string) {
 	db := openStateTemplatesDBOrExit()
 	if db == nil {
 		return
@@ -178,14 +182,21 @@ func applyTemplateEdit(target, cat, title, text, addRaw string) {
 		return
 	}
 
-	mergeTemplateEdits(existing, cat, title, text, addRaw)
+	mergeTemplateEdits(existing, cat, subCat, title, text, addRaw)
 	saveAndPrintTemplateItem(db, *existing, "Updated")
 }
 
-func mergeTemplateEdits(item *store.StateTemplateItem, cat, title, text, addRaw string) {
+func mergeTemplateEdits(item *store.StateTemplateItem, cat, subCat, title, text, addRaw string) {
 	if strings.TrimSpace(cat) != "" {
 		item.Category = strings.TrimSpace(cat)
 	}
+	if strings.TrimSpace(subCat) != "" {
+		item.SubCategory = strings.TrimSpace(subCat)
+	}
+	mergeTemplateContentEdits(item, title, text, addRaw)
+}
+
+func mergeTemplateContentEdits(item *store.StateTemplateItem, title, text, addRaw string) {
 	if title != "" {
 		item.Title = title
 	}
@@ -195,6 +206,78 @@ func mergeTemplateEdits(item *store.StateTemplateItem, cat, title, text, addRaw 
 	if strings.TrimSpace(addRaw) != "" {
 		item.Additional = decodeAdditionalFlag(addRaw)
 	}
+}
+
+func runTemplatesStateCategory(args []string) {
+	if len(args) == 0 || args[0] == "ls" || args[0] == "list" {
+		runTemplatesCategoryList()
+
+		return
+	}
+	if args[0] == "add" {
+		runTemplatesCategoryAdd(args[1:])
+
+		return
+	}
+
+	cliexit.HandleError(apperror.NewSimple("cmd.templates.category", "unknown category action: "+args[0]), 1)
+}
+
+func runTemplatesCategoryList() {
+	db := openStateTemplatesDBOrExit()
+	if db == nil {
+		return
+	}
+	defer db.Close()
+
+	cats, err := db.ListCategories()
+	if err != nil {
+		cliexit.HandleError(err, 1)
+
+		return
+	}
+
+	printTemplateCategories(cats)
+}
+
+func printTemplateCategories(cats []store.StateTemplateCategory) {
+	fmt.Printf("%-18s  %-18s  %-14s  %s\n", "SLUG", "NAME", "PARENT", "DESCRIPTION")
+	for _, c := range cats {
+		fmt.Printf("%-18s  %-18s  %-14s  %s\n", c.Slug, c.Name, c.ParentSlug, c.Description)
+	}
+}
+
+func runTemplatesCategoryAdd(args []string) {
+	fs := flag.NewFlagSet("templates-category-add", flag.ExitOnError)
+	name := fs.String("name", "", "Category display name")
+	parent := fs.String("parent", "", "Optional parent category slug")
+	desc := fs.String("desc", "", "Optional category description")
+	_ = fs.Parse(reorderFlagsBeforeArgs(args))
+
+	if len(fs.Args()) == 0 {
+		cliexit.HandleError(apperror.NewSimple("cmd.templates.category.add", "usage: gitmap templates category add <slug> [--name <name>] [--parent <parent>] [--desc <desc>]"), 1)
+
+		return
+	}
+
+	saveTemplateCategory(fs.Args()[0], *name, *parent, *desc)
+}
+
+func saveTemplateCategory(slug, name, parent, desc string) {
+	db := openStateTemplatesDBOrExit()
+	if db == nil {
+		return
+	}
+	defer db.Close()
+
+	cat := store.StateTemplateCategory{Slug: slug, Name: name, ParentSlug: parent, Description: desc}
+	if err := db.UpsertCategory(cat); err != nil {
+		cliexit.HandleError(err, 1)
+
+		return
+	}
+
+	fmt.Printf("Added category %s\n", slug)
 }
 
 func runTemplatesStateRemove(args []string) {
@@ -241,6 +324,7 @@ func executeTemplateImport(srcPath string, isForce bool) {
 		return
 	}
 
+	syncStateVarsToGlobalConfig()
 	if isSkipped {
 		fmt.Printf("Skipped import: %s already imported (exportId=%s)\n", srcPath, exportID)
 
@@ -248,6 +332,19 @@ func executeTemplateImport(srcPath string, isForce bool) {
 	}
 
 	fmt.Printf("Imported %d template(s) from %s (exportId=%s)\n", count, srcPath, exportID)
+}
+
+func syncStateVarsToGlobalConfig() {
+	db, err := store.OpenTemplatesSplitDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	vars, _ := db.ListVariables("")
+	for k, v := range vars {
+		_ = config.SetVariable("global", k, v)
+	}
 }
 
 func runTemplatesStateExport(args []string) {
@@ -323,6 +420,7 @@ func saveTemplateVar(key, scope, val, desc string) {
 		return
 	}
 
+	_ = config.SetVariable(scope, key, val)
 	fmt.Printf("Set variable %s (%s)\n", key, scope)
 }
 
@@ -378,6 +476,7 @@ func runTemplatesVarRemove(args []string) {
 	defer db.Close()
 
 	_ = db.DeleteVariable(fs.Args()[0], *scope)
+	_ = config.DeleteVariable(*scope, fs.Args()[0])
 	fmt.Printf("Removed variable %s\n", fs.Args()[0])
 }
 

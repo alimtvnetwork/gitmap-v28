@@ -52,6 +52,7 @@ func stripCategoryTimestamps(cats []StateTemplateCategory) []StateTemplateCatego
 		c.CategoryID = 0
 		c.CreatedAt = ""
 		c.UpdatedAt = ""
+		c.Items = stripTemplateTimestamps(c.Items)
 		out[i] = c
 	}
 
@@ -135,19 +136,26 @@ func (s *TemplatesSplitDB) filterExportCategories(items []StateTemplateItem) ([]
 		return nil, err
 	}
 
-	used := make(map[string]bool, len(items))
-	for _, it := range items {
-		used[it.Category] = true
-	}
-
 	var out []StateTemplateCategory
 	for _, c := range allCats {
-		if used[c.Slug] {
+		if matched := matchCategoryItems(c.Slug, items); len(matched) > 0 {
+			c.Items = matched
 			out = append(out, c)
 		}
 	}
 
 	return out, nil
+}
+
+func matchCategoryItems(catSlug string, items []StateTemplateItem) []StateTemplateItem {
+	var matched []StateTemplateItem
+	for _, it := range items {
+		if it.Category == catSlug || it.SubCategory == catSlug {
+			matched = append(matched, it)
+		}
+	}
+
+	return matched
 }
 
 func extractReferencedVars(items []StateTemplateItem, allVars map[string]string) map[string]string {
@@ -249,12 +257,66 @@ func readImportPayload(srcPath string) (TemplateExportPayload, string, error) {
 		return payload, "", apperror.WrapSimple(err, "templates_split.import_unmarshal")
 	}
 
-	exportID := strings.TrimSpace(payload.ExportID)
-	if exportID == "" {
-		exportID = ComputeExportHashID(payload)
-	}
+	payload = normalizeImportPayload(payload)
+	exportID := resolveImportExportID(payload)
 
 	return payload, exportID, nil
+}
+
+func resolveImportExportID(payload TemplateExportPayload) string {
+	if exportID := strings.TrimSpace(payload.ExportID); exportID != "" {
+		return exportID
+	}
+
+	return ComputeExportHashID(payload)
+}
+
+func normalizeImportPayload(payload TemplateExportPayload) TemplateExportPayload {
+	seen := indexTemplateKeys(payload.Templates)
+	for _, cat := range payload.Categories {
+		payload.Templates = appendCategoryItems(payload.Templates, cat, seen)
+	}
+
+	return payload
+}
+
+func indexTemplateKeys(items []StateTemplateItem) map[string]bool {
+	seen := make(map[string]bool, len(items)*2)
+	for _, it := range items {
+		markTemplateSeen(seen, it)
+	}
+
+	return seen
+}
+
+func appendCategoryItems(dst []StateTemplateItem, cat StateTemplateCategory, seen map[string]bool) []StateTemplateItem {
+	for _, it := range cat.Items {
+		if strings.TrimSpace(it.Category) == "" {
+			it.Category = cat.Slug
+		}
+		if !isTemplateSeen(seen, it) {
+			markTemplateSeen(seen, it)
+			dst = append(dst, it)
+		}
+	}
+
+	return dst
+}
+
+func isTemplateSeen(seen map[string]bool, it StateTemplateItem) bool {
+	idKey := strings.TrimSpace(it.ID)
+	slugKey := strings.TrimSpace(it.Slug)
+
+	return (idKey != "" && seen["id:"+idKey]) || (slugKey != "" && seen["slug:"+slugKey])
+}
+
+func markTemplateSeen(seen map[string]bool, it StateTemplateItem) {
+	if idKey := strings.TrimSpace(it.ID); idKey != "" {
+		seen["id:"+idKey] = true
+	}
+	if slugKey := strings.TrimSpace(it.Slug); slugKey != "" {
+		seen["slug:"+slugKey] = true
+	}
 }
 
 func (s *TemplatesSplitDB) isExportHashImported(exportID string) bool {

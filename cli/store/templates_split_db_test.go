@@ -18,7 +18,16 @@ func TestTemplatesSplitDB_SchemaAndCategories(t *testing.T) {
 		t.Fatalf("expected at least 5 default categories, got %d", len(cats))
 	}
 
+	verifyDefaultSeededPrompts(t, db)
 	verifyCustomCategoryUpsert(t, db)
+}
+
+func verifyDefaultSeededPrompts(t *testing.T, db *TemplatesSplitDB) {
+	t.Helper()
+	item, err := db.GetTemplateItem("tpl-prompt-ui-ux-audit")
+	if err != nil || item == nil || item.Category != "prompts" || item.SubCategory != "ui-ux" {
+		t.Fatalf("expected default ui-ux prompt template, got %+v (err=%v)", item, err)
+	}
 }
 
 func openTestTemplatesDB(t *testing.T) *TemplatesSplitDB {
@@ -127,6 +136,9 @@ func TestTemplatesSplitDB_ExportImportAndPrecompile(t *testing.T) {
 	}
 	if !strings.HasPrefix(payload.ExportID, "sha256-") || payload.Variables["BRAND"] != "GitMap" {
 		t.Fatalf("unexpected export payload: %+v", payload)
+	}
+	if len(payload.Categories) == 0 || len(payload.Categories[0].Items) != 1 {
+		t.Fatalf("expected category-sequenced items in export payload: %+v", payload.Categories)
 	}
 
 	verifyImportDeduplicationAndPrecompile(t, exportPath)

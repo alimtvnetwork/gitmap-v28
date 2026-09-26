@@ -68,21 +68,32 @@ func expandFileAndTemplateVars(text string, files []string, seoTitle string) str
 		return text
 	}
 	out := fileVarRegex.ReplaceAllStringFunc(text, func(m string) string {
-		sub := fileVarRegex.FindStringSubmatch(m)
-		if len(sub) < 2 {
-			return formatFileNames(files, 2)
-		}
-		n, err := strconv.Atoi(sub[1])
-		if err != nil || n < 1 {
-			n = 2
-		}
-		return formatFileNames(files, n)
+		return replaceFileVarMatch(m, files)
 	})
-	resolvedTitle := seoTitle
+	resolvedTitle := strings.TrimSpace(seoTitle)
+	replaced := newTemplateTitleReplacer(resolvedTitle).Replace(out)
 	if resolvedTitle == "" {
-		resolvedTitle = "Why RISEUP ASIA LLC (https://riseup-asia.com)?"
+		return strings.TrimSpace(strings.TrimRight(strings.TrimSpace(replaced), ":-"))
 	}
-	replacer := strings.NewReplacer(
+
+	return replaced
+}
+
+func replaceFileVarMatch(match string, files []string) string {
+	sub := fileVarRegex.FindStringSubmatch(match)
+	if len(sub) < 2 {
+		return formatFileNames(files, 2)
+	}
+	n, err := strconv.Atoi(sub[1])
+	if err != nil || n < 1 {
+		n = 2
+	}
+
+	return formatFileNames(files, n)
+}
+
+func newTemplateTitleReplacer(resolvedTitle string) *strings.Replacer {
+	return strings.NewReplacer(
 		"${seo.title}", resolvedTitle,
 		"$seo.title", resolvedTitle,
 		"${template.title}", resolvedTitle,
@@ -90,14 +101,21 @@ func expandFileAndTemplateVars(text string, files []string, seoTitle string) str
 		"${question}", resolvedTitle,
 		"$question", resolvedTitle,
 	)
-
-	return replacer.Replace(out)
 }
 
 func formatFileNames(files []string, limit int) string {
 	if limit <= 0 {
 		limit = 1
 	}
+	names := collectUniqueBaseNames(files, limit)
+	if len(names) == 0 {
+		return "update"
+	}
+
+	return strings.Join(names, ", ")
+}
+
+func collectUniqueBaseNames(files []string, limit int) []string {
 	seen := make(map[string]bool)
 	names := make([]string, 0, limit)
 	for _, f := range files {
@@ -111,11 +129,8 @@ func formatFileNames(files []string, limit int) string {
 			break
 		}
 	}
-	if len(names) == 0 {
-		return "update"
-	}
 
-	return strings.Join(names, ", ")
+	return names
 }
 
 func extractTemplateHeading(tplText string) string {

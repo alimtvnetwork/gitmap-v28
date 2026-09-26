@@ -1,7 +1,9 @@
 package cmdpull
 
 import (
+	"encoding/json"
 	"testing"
+	"time"
 )
 
 func TestParsePullFlags_NoFlags(t *testing.T) {
@@ -9,17 +11,11 @@ func TestParsePullFlags_NoFlags(t *testing.T) {
 	if opts.slug != "my-repo" {
 		t.Errorf("expected slug=my-repo, got %q", opts.slug)
 	}
-
 	if len(opts.group) > 0 || opts.all || opts.verbose {
 		t.Error("expected no group/all/verbose")
 	}
-
-	if opts.parallel != 0 {
-		t.Errorf("expected default parallel=0, got %d", opts.parallel)
-	}
-
-	if opts.onlyAvailable {
-		t.Error("expected onlyAvailable=false by default")
+	if opts.parallel != 0 || opts.onlyAvailable {
+		t.Errorf("expected default parallel=0 and onlyAvailable=false, got %+v", opts)
 	}
 }
 
@@ -115,26 +111,50 @@ func TestParsePullFlags_SSHPositionalAndCaseInsensitive(t *testing.T) {
 	}
 }
 
-func TestNormalizePullArgs_TableAndPat(t *testing.T) {
+func TestNormalizePullArgs_FastAndTableModes(t *testing.T) {
+	gotPa := NormalizePullArgs([]string{"pa"})
+	if len(gotPa) != 1 || gotPa[0] != "--all" {
+		t.Fatalf("expected [--all] for 'pa', got %v", gotPa)
+	}
 	gotAllTable := NormalizePullArgs([]string{"all", "table"})
 	if len(gotAllTable) != 2 || gotAllTable[0] != "--all" || gotAllTable[1] != "--status" {
 		t.Fatalf("expected [--all --status] for 'all table', got %v", gotAllTable)
 	}
-
 	gotPat := NormalizePullArgs([]string{"pat"})
 	if len(gotPat) != 2 || gotPat[0] != "--all" || gotPat[1] != "--status" {
 		t.Fatalf("expected [--all --status] for 'pat', got %v", gotPat)
 	}
 }
 
-func TestParsePullFlags_StatusAndJSON(t *testing.T) {
-	statusOpts := parsePullFlags([]string{"--all", "--status"})
+func TestNormalizeAndParsePullFlags_PaStatusAndJSON(t *testing.T) {
+	fastOpts := parsePullFlags(NormalizePullArgs([]string{"pa"}))
+	if !fastOpts.all || fastOpts.showStatus || fastOpts.isJSON {
+		t.Fatalf("expected fast mode all=true showStatus=false isJSON=false, got %+v", fastOpts)
+	}
+	statusOpts := parsePullFlags(NormalizePullArgs([]string{"pa", "--status"}))
 	if !statusOpts.all || !statusOpts.showStatus || statusOpts.isJSON {
 		t.Fatalf("expected all=true showStatus=true isJSON=false, got %+v", statusOpts)
 	}
-
-	jsonOpts := parsePullFlags([]string{"--all", "--json"})
+	jsonOpts := parsePullFlags(NormalizePullArgs([]string{"pa", "--json"}))
 	if !jsonOpts.all || !jsonOpts.isJSON || jsonOpts.showStatus {
 		t.Fatalf("expected all=true isJSON=true showStatus=false, got %+v", jsonOpts)
+	}
+}
+
+func TestBuildPullBatchSummary_JSONStructure(t *testing.T) {
+	states := []*PullRepoState{
+		{RepoName: "repo-a", Changes: "2 commits", Step: PullStepDone},
+	}
+	summary := buildPullBatchSummary(1, states, 250*time.Millisecond)
+	raw, err := json.Marshal(summary)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+	var decoded map[string]any
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+	if decoded["total"] == nil || decoded["pulledCount"] == nil || decoded["durationMs"] == nil || decoded["states"] == nil {
+		t.Fatalf("missing required JSON keys in %s", string(raw))
 	}
 }

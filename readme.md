@@ -3435,6 +3435,8 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 
 - [.ai-memory/plans/pending/03-fix-release-tag-ordering.md](.ai-memory/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
 - [.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
+- [02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md](02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md) - Fast `gitmap pa` / `pat` / `--json`, State Templates DB (`gitmap-templates.db`), Variables & Pre-Compilation, Web UI, and Declarative `commit-in`/`commit-pull` `--config <json>`.
+- [.ai-memory/plans/completed/164-pull-all-fast-mode-templates-db-and-commitin-config.md](.ai-memory/plans/completed/164-pull-all-fast-mode-templates-db-and-commitin-config.md) - Completed Plan 164.
 
 
 ## Release Architecture
