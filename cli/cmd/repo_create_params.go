@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -17,10 +18,14 @@ type createRepoParams struct {
 	IsYAML       bool
 	IsCommon     bool
 	IsCG         bool
+	IsCD         bool
 	Profile      model.GitProfile
 }
 
 func isPathLike(s string) bool {
+	if s == "." || s == ".." {
+		return true
+	}
 	hasSlash := filepath.IsAbs(s) || len(s) > 1 && (s[0] == '.' || s[0] == '/' || s[0] == '\\')
 	if hasSlash {
 		return true
@@ -30,24 +35,63 @@ func isPathLike(s string) bool {
 }
 
 func applyPositionalArgs(pos []string, p *createRepoParams) {
+	if len(pos) == 0 {
+		applyCurrentDirPositional(p)
+		return
+	}
+
 	hasOne := len(pos) == 1
 	if hasOne {
-		p.Name = pos[0]
-		p.Slug = SlugifyRepoName(pos[0])
-		p.LocalDir = filepath.Join(".", p.Slug)
-
+		applySinglePositionalArg(pos[0], p)
 		return
 	}
 
 	applyMultiPositionalArgs(pos, p)
 }
 
-func applyTwoPositionalArgs(pos []string, p *createRepoParams) {
-	isPath := isPathLike(pos[1])
-	if isPath {
-		p.LocalDir = pos[1]
-		p.Slug = SlugifyRepoName(pos[0])
+func applyCurrentDirPositional(p *createRepoParams) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		cwd = "."
+	}
+	p.LocalDir = cwd
+	p.Name = filepath.Base(cwd)
+	p.Slug = SlugifyRepoName(p.Name)
+}
 
+func applySinglePositionalArg(token string, p *createRepoParams) {
+	if isPathLike(token) {
+		absDir, err := filepath.Abs(token)
+		if err == nil {
+			p.LocalDir = absDir
+			p.Name = filepath.Base(absDir)
+		} else {
+			p.LocalDir = token
+			p.Name = filepath.Base(token)
+		}
+		p.Slug = SlugifyRepoName(p.Name)
+		return
+	}
+
+	p.Name = token
+	p.Slug = SlugifyRepoName(token)
+	p.LocalDir = filepath.Join(".", p.Slug)
+}
+
+func applyTwoPositionalArgs(pos []string, p *createRepoParams) {
+	if isPathLike(pos[0]) {
+		absDir, _ := filepath.Abs(pos[0])
+		p.LocalDir = absDir
+		p.Name = pos[1]
+		p.Slug = SlugifyRepoName(pos[1])
+		return
+	}
+
+	if isPathLike(pos[1]) {
+		absDir, _ := filepath.Abs(pos[1])
+		p.LocalDir = absDir
+		p.Name = pos[0]
+		p.Slug = SlugifyRepoName(pos[0])
 		return
 	}
 
@@ -75,7 +119,8 @@ func parseCreateParams(args []string, defaultLocal bool) (createRepoParams, erro
 		IsJSON:       hasArgFlag(args, "--json") || hasArgFlag(args, "-json"),
 		IsYAML:       hasArgFlag(args, "--yaml") || hasArgFlag(args, "--yml") || hasArgFlag(args, "-yaml") || hasArgFlag(args, "-y"),
 		IsCommon:     hasArgFlag(args, "--common"),
-		IsCG:         hasArgFlag(args, "--cg") || hasArgFlag(args, "--cd") || hasArgFlag(args, "--coding-guideline"),
+		IsCG:         hasArgFlag(args, "--cg") || hasArgFlag(args, "--coding-guideline"),
+		IsCD:         hasArgFlag(args, "--cd"),
 		Description:  extractFlagVal(args, "--description"),
 	}
 	if p.Description == "" {

@@ -29,6 +29,9 @@ func executeCreateRepo(args []string, defaultLocal bool) error {
 	absDir, _ := filepath.Abs(params.LocalDir)
 	workspacesync.SyncAll(absDir, params.Name)
 	recordProfileUsage(params.Profile)
+	if params.IsCD {
+		WriteShellHandoff(absDir)
+	}
 
 	return reportCreatedRepo(params, remoteURL)
 }

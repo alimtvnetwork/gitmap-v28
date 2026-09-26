@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -68,10 +69,39 @@ func maybeGitInit(gitDir, absDir string) error {
 
 func maybeWriteInitialFiles(isExisting bool, absDir string, p createRepoParams) error {
 	if isExisting {
-		return nil
+		return stageAndCommitExistingFiles(absDir, p)
 	}
 	writeInitialFiles(absDir, p)
 	return commitInitialFiles(absDir)
+}
+
+func stageAndCommitExistingFiles(absDir string, p createRepoParams) error {
+	readmePath := filepath.Join(absDir, "README.md")
+	if _, err := os.Stat(readmePath); os.IsNotExist(err) {
+		readmeContent := fmt.Sprintf("# %s\n\n%s\n", p.Name, p.Description)
+		_ = os.WriteFile(readmePath, []byte(readmeContent), 0644)
+	}
+
+	gitignorePath := filepath.Join(absDir, ".gitignore")
+	if _, err := os.Stat(gitignorePath); os.IsNotExist(err) {
+		gitignoreContent := ".DS_Store\nThumbs.db\nnode_modules/\nbin/\n*.log\n"
+		_ = os.WriteFile(gitignorePath, []byte(gitignoreContent), 0644)
+	}
+
+	cmdAdd := exec.Command("git", "add", ".")
+	cmdAdd.Dir = absDir
+	_ = cmdAdd.Run()
+
+	cmdStatus := exec.Command("git", "status", "--porcelain")
+	cmdStatus.Dir = absDir
+	out, err := cmdStatus.Output()
+	if err == nil && len(strings.TrimSpace(string(out))) > 0 {
+		cmdCommit := exec.Command("git", "commit", "-m", "feat: initial commit")
+		cmdCommit.Dir = absDir
+		_ = cmdCommit.Run()
+	}
+
+	return nil
 }
 
 func checkDirExists(absDir string) bool {
