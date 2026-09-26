@@ -11,13 +11,15 @@ import (
 func fixedPick(_ int) int { return 0 }
 
 func TestStripRulesRemovesAndCollapses(t *testing.T) {
-	in := "feat: x\n\nSigned-off-by: a\n\n\nbody\n"
+	in := "feat: x\n\nSigned-off-by: a\nCo-authored-by: alimtvnetwork <253777419+alimtvnetwork@users.noreply.github.com>\n\n\nbody\n"
 	rules := []profile.MessageRule{{Kind: constants.CommitInMessageRuleKindStartsWith, Value: "Signed-off-by:"}}
 	got := stripRules(in, rules)
 	if strings.Contains(got, "Signed-off-by") {
 		t.Fatalf("rule not applied: %q", got)
 	}
-
+	if strings.Contains(got, "Co-authored-by:") {
+		t.Fatalf("noreply co-author not stripped: %q", got)
+	}
 	if strings.Contains(got, "\n\n\n") {
 		t.Fatalf("blank lines not collapsed: %q", got)
 	}
@@ -80,6 +82,37 @@ func TestBodyAffixWraps(t *testing.T) {
 	out := Build(Inputs{OriginalMessage: "title", Resolved: res, PickIndex: fixedPick}).Message
 	if !strings.HasPrefix(out, "chore:\n") || !strings.HasSuffix(out, "\n--end--") {
 		t.Fatalf("body affix wrong: %q", out)
+	}
+}
+
+func TestTitleReplacementWithFiles2NamesAndBlankGap(t *testing.T) {
+	res := profile.Resolved{
+		TitleReplacements: []profile.TitleReplacementRule{
+			{MatchMode: "equals", Match: "Changes", Replacement: "$files.2.names: $seo.title"},
+		},
+		MessageSuffix: []string{"# Why is deterministic architecture critical?\nBecause it guarantees 99.98% build reliability."},
+	}
+	inSingle := Inputs{
+		OriginalMessage: "Changes\n\nCo-authored-by: user <123+user@users.noreply.github.com>",
+		Files:           []string{"cli/cliexit/cliexit.go"},
+		Resolved:        res,
+		PickIndex:       fixedPick,
+	}
+	outSingle := Build(inSingle).Message
+	wantPrefixSingle := "cliexit.go: Why is deterministic architecture critical?\n\n# Why is deterministic architecture critical?\nBecause it guarantees 99.98% build reliability."
+	if outSingle != wantPrefixSingle {
+		t.Fatalf("single file replacement mismatch:\ngot:  %q\nwant: %q", outSingle, wantPrefixSingle)
+	}
+
+	inMulti := Inputs{
+		OriginalMessage: "Changes",
+		Files:           []string{"cli/cliexit/cliexit.go", "cli/cmd/root.go", "cli/cmd/pull.go"},
+		Resolved:        res,
+		PickIndex:       fixedPick,
+	}
+	outMulti := Build(inMulti).Message
+	if !strings.HasPrefix(outMulti, "cliexit.go, root.go: Why is deterministic architecture critical?\n\n# Why") {
+		t.Fatalf("two-file $files.2.names replacement mismatch: %q", outMulti)
 	}
 }
 

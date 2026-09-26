@@ -1,10 +1,11 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-09-24T20:00:00Z
+> Last updated: 2026-09-26T21:40:00Z
 
 ## Changelog
 
+- 2026-09-26T21:40:00Z, Memory write: Spec 164 and Plan 164 (Fast `gitmap pa` default mode, `gitmap pat` / `--status`, `gitmap pa --json`, State Templates DB `gitmap-templates.db` with variables & SHA-256 exportId import deduplication, `gitmap templates ui`, declarative `commit-in`/`commit-pull --config <json>`, line skippers, blank gap before suffix, `$files.2.names`, and removal of hardcoded SEO templates).
 - 2026-09-24T20:00:00Z, Memory write: Spec 148, Plan 97, and Issue 41 RCA (SSH Batch Common Join `sjc`, Remote OS Detection `os_detect`, AGY `rerun` & `rop` split-DB optimization, Native AUM Search Benchmark `docs/benchmarks/search_benchmark.md` 33,000x speedup, and VS Code Startup Failure 4-Part RCA).
 - 2026-09-23T07:40:00Z, Memory write: Plan 83 Antigravity Language Server address dynamic discovery, CSRF token extraction via CIM, multi-port probing, agentapi injection, and CLI fallback.
 - 2026-09-22T08:35:00Z, Memory write: Enhanced release-orchestrator and ci-cd-fix-with-release prompts and skills with priority smart runner shortcuts (run-smart, --fast), gitmap pipeline suite (pe, pd), and cross-repo sync (learned 31).

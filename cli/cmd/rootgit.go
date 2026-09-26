@@ -19,15 +19,20 @@ func dispatchGitSubcommand(subCmd string, subArgs []string) error {
 	if subCmd == "pull" {
 		return runPull(subArgs)
 	}
-
 	if isPullAllGitSubCmd(subCmd) {
 		return runPullAll(subArgs)
 	}
+	if isPullAllTableGitSubCmd(subCmd) {
+		return runPullAll(append([]string{"--status"}, subArgs...))
+	}
 
+	return dispatchGitEfficientOrPassthrough(subCmd, subArgs)
+}
+
+func dispatchGitEfficientOrPassthrough(subCmd string, subArgs []string) error {
 	if isPullEfficientTableGitSubCmd(subCmd) {
 		return runPullAllEfficient(subArgs, true, subCmd, isShortPullEfficientGitSubCmd(subCmd))
 	}
-
 	if isPullEfficientGitSubCmd(subCmd) {
 		return runPullAllEfficient(subArgs, false, subCmd, isShortPullEfficientGitSubCmd(subCmd))
 	}
@@ -37,6 +42,12 @@ func dispatchGitSubcommand(subCmd string, subArgs []string) error {
 
 func isPullAllGitSubCmd(subCmd string) bool {
 	return subCmd == "pull-all" || subCmd == "pa"
+}
+
+func isPullAllTableGitSubCmd(subCmd string) bool {
+	lower := strings.ToLower(subCmd)
+
+	return lower == "pull-all-table" || lower == "pat"
 }
 
 func isPullEfficientTableGitSubCmd(subCmd string) bool {

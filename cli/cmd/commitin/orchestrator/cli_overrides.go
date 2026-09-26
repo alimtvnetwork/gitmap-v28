@@ -80,6 +80,10 @@ func addOverridesAndIntel(c *profile.CliOverrides, raw *commitin.RawArgs) {
 	if len(raw.MessageRules) > 0 {
 		c.MessageRules = mapMessageRules(raw.MessageRules)
 	}
+
+	if len(raw.TitleReplacements) > 0 {
+		c.TitleReplacements = raw.TitleReplacements
+	}
 }
 
 func mapMessageRules(in []commitin.MessageRuleArg) []profile.MessageRule {

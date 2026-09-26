@@ -7,37 +7,39 @@ import (
 // Resolved is the final flattened settings after applying the load
 // order from spec §5.6 (CLI > --profile > --default > defaults).
 type Resolved struct {
-	PRMode           string
-	ConflictMode     string
-	Author           *Author
-	Exclusions       []Exclusion
-	MessageRules     []MessageRule
-	MessagePrefix    []string
-	MessageSuffix    []string
-	TitlePrefix      string
-	TitleSuffix      string
-	OverrideMessages []string
-	OverrideOnlyWeak bool
-	WeakWords        []string
-	FunctionIntel    FunctionIntel
+	PRMode            string
+	ConflictMode      string
+	Author            *Author
+	Exclusions        []Exclusion
+	MessageRules      []MessageRule
+	TitleReplacements []TitleReplacementRule
+	MessagePrefix     []string
+	MessageSuffix     []string
+	TitlePrefix       string
+	TitleSuffix       string
+	OverrideMessages  []string
+	OverrideOnlyWeak  bool
+	WeakWords         []string
+	FunctionIntel     FunctionIntel
 }
 
 // CliOverrides represents flag-level overrides; nil-pointer fields
 // mean "user did not pass this flag" so the next layer wins.
 type CliOverrides struct {
-	PRMode           *string
-	ConflictMode     *string
-	Author           *Author
-	Exclusions       []Exclusion // empty slice = no override
-	MessageRules     []MessageRule
-	MessagePrefix    []string
-	MessageSuffix    []string
-	TitlePrefix      *string
-	TitleSuffix      *string
-	OverrideMessages []string
-	OverrideOnlyWeak *bool
-	WeakWords        []string
-	FunctionIntel    *FunctionIntel
+	PRMode            *string
+	ConflictMode      *string
+	Author            *Author
+	Exclusions        []Exclusion // empty slice = no override
+	MessageRules      []MessageRule
+	TitleReplacements []TitleReplacementRule
+	MessagePrefix     []string
+	MessageSuffix     []string
+	TitlePrefix       *string
+	TitleSuffix       *string
+	OverrideMessages  []string
+	OverrideOnlyWeak  *bool
+	WeakWords         []string
+	FunctionIntel     *FunctionIntel
 }
 
 // Resolve applies the four-layer precedence: CLI > profile > defaults.
@@ -82,6 +84,7 @@ func applyProfile(r *Resolved, p *Profile) {
 
 	r.Exclusions = p.Exclusions
 	r.MessageRules = p.MessageRules
+	r.TitleReplacements = p.TitleReplacements
 	r.MessagePrefix = p.MessagePrefix
 	r.MessageSuffix = p.MessageSuffix
 	r.TitlePrefix = p.TitlePrefix
@@ -96,55 +99,54 @@ func applyProfile(r *Resolved, p *Profile) {
 }
 
 func applyCli(r *Resolved, c *CliOverrides) {
+	applyCliScalars(r, c)
+	applyCliSlices(r, c)
+}
+
+func applyCliScalars(r *Resolved, c *CliOverrides) {
 	if c.PRMode != nil {
 		r.PRMode = *c.PRMode
 	}
-
 	if c.ConflictMode != nil {
 		r.ConflictMode = *c.ConflictMode
 	}
-
 	if c.Author != nil {
 		r.Author = c.Author
 	}
-
-	if c.Exclusions != nil {
-		r.Exclusions = c.Exclusions
-	}
-
-	if c.MessageRules != nil {
-		r.MessageRules = c.MessageRules
-	}
-
-	if c.MessagePrefix != nil {
-		r.MessagePrefix = c.MessagePrefix
-	}
-
-	if c.MessageSuffix != nil {
-		r.MessageSuffix = c.MessageSuffix
-	}
-
 	if c.TitlePrefix != nil {
 		r.TitlePrefix = *c.TitlePrefix
 	}
-
 	if c.TitleSuffix != nil {
 		r.TitleSuffix = *c.TitleSuffix
 	}
-
-	if c.OverrideMessages != nil {
-		r.OverrideMessages = c.OverrideMessages
-	}
-
 	if c.OverrideOnlyWeak != nil {
 		r.OverrideOnlyWeak = *c.OverrideOnlyWeak
 	}
-
-	if c.WeakWords != nil {
-		r.WeakWords = c.WeakWords
-	}
-
 	if c.FunctionIntel != nil {
 		r.FunctionIntel = *c.FunctionIntel
+	}
+}
+
+func applyCliSlices(r *Resolved, c *CliOverrides) {
+	if c.Exclusions != nil {
+		r.Exclusions = c.Exclusions
+	}
+	if c.MessageRules != nil {
+		r.MessageRules = c.MessageRules
+	}
+	if c.TitleReplacements != nil {
+		r.TitleReplacements = c.TitleReplacements
+	}
+	if c.MessagePrefix != nil {
+		r.MessagePrefix = c.MessagePrefix
+	}
+	if c.MessageSuffix != nil {
+		r.MessageSuffix = c.MessageSuffix
+	}
+	if c.OverrideMessages != nil {
+		r.OverrideMessages = c.OverrideMessages
+	}
+	if c.WeakWords != nil {
+		r.WeakWords = c.WeakWords
 	}
 }

@@ -11,7 +11,7 @@ import (
 func runMigrateWizard(args []string) error {
 	scriptPath := findMigrateScript()
 	if scriptPath == "" {
-		return apperror.NewSimple("Migration wizard script not found.", "E1001")
+		return apperror.NewSimple("Migration script not found in .ai-memory/temp/.", "E1001")
 	}
 
 	psArgs := append([]string{"-NoProfile", "-ExecutionPolicy", "Bypass", "-File", scriptPath}, args...)
@@ -28,8 +28,8 @@ func findMigrateScript() string {
 	if exe, err := os.Executable(); err == nil {
 		exeDir := filepath.Dir(exe)
 		candidates = append([]string{
+			filepath.Join(exeDir, ".ai-memory", "temp", "run-migration-test.ps1"),
 			filepath.Join(exeDir, "migrate.ps1"),
-			filepath.Join(exeDir, "scripts", "migrate-gitmap-v28.ps1"),
 		}, candidates...)
 	}
 
@@ -38,11 +38,9 @@ func findMigrateScript() string {
 
 func defaultCandidatePaths() []string {
 	return []string{
-		"migrate.ps1",
-		filepath.Join("scripts", "migrate-gitmap-v28.ps1"),
+		filepath.Join(".ai-memory", "temp", "run-migration-test.ps1"),
+		filepath.Join(".ai-memory", "temp", "migrate.ps1"),
 		filepath.Join(os.Getenv("LOCALAPPDATA"), "gitmap-cli", "migrate.ps1"),
-		filepath.Join("D:\\work\\gitmap", "scripts", "migrate-gitmap-v28.ps1"),
-		filepath.Join("D:\\work\\gitmap", "migrate.ps1"),
 	}
 }
 

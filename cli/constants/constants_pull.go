@@ -12,6 +12,8 @@ const (
 	FlagDescPullParallel      = "Run up to N pulls concurrently (0 = auto / NumCPU, 1 = sequential)"
 	FlagDescPullOnlyAvailable = "Skip repos whose latest probe reports no new tag (run `gitmap probe --all` first)"
 	FlagDescPullRaw           = "Stream raw git output directly instead of using progress bar"
+	FlagDescPullStatus        = "Render full post-pull repository status table"
+	FlagDescPullJSON          = "Output batch pull summary as JSON"
 )
 
 // Progress bar visual glyphs.

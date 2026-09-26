@@ -1,18 +1,12 @@
 package commitin
 
-import "strings"
+import (
+	"os"
+	"strings"
+)
 
 // Parse converts an argv slice (already stripped of the leading
 // `commit-in` / `cin` token) into a fully-validated RawArgs.
-//
-// Pure: zero git, zero filesystem, zero DB. Caller layers profile
-// load + interactive prompts on top of the returned RawArgs per
-// spec §5.6.
-//
-// Error contract: every failure returns a *ParseError carrying the
-// exit code from constants.CommitInExit*. Caller writes
-// `parseErr.Message` to STDERR and exits with `parseErr.ExitCode` —
-// no other side effects happen here.
 func Parse(args []string) (*RawArgs, *ParseError) {
 	fs, raw, csv := newFlagSet()
 	if err := fs.Parse(reorder(args)); err != nil {
@@ -23,7 +17,11 @@ func Parse(args []string) (*RawArgs, *ParseError) {
 		return nil, perr
 	}
 
-	if perr := splitPositional(raw, fs.Args()); perr != nil {
+	if perr := splitPositionalOrConfig(raw, fs.Args()); perr != nil {
+		return nil, perr
+	}
+
+	if perr := applyConfigFileIfPresent(raw); perr != nil {
 		return nil, perr
 	}
 
@@ -35,8 +33,7 @@ func Parse(args []string) (*RawArgs, *ParseError) {
 }
 
 // finalizeFlagFanout splits every CSV holder into its typed slice and
-// runs the message-rule shape validator. Other validators run later
-// once positional args are bound.
+// runs the message-rule shape validator.
 func finalizeFlagFanout(raw *RawArgs, csv *csvHolder) *ParseError {
 	raw.Exclude = splitCSV(csv.exclude)
 	raw.MessagePrefix = splitCSV(csv.messagePrefix)
@@ -50,17 +47,51 @@ func finalizeFlagFanout(raw *RawArgs, csv *csvHolder) *ParseError {
 	}
 
 	raw.MessageRules = rules
-
-	if raw.IsSponsor || raw.SEOTemplate == "riseup" || raw.SEOTemplate == "sponsor" {
-		raw.MessageSuffix = append(raw.MessageSuffix, RiseUpAsiaTemplates...)
-	}
+	maybeLoadStateSEOTemplates(raw)
 
 	return nil
 }
 
+func maybeLoadStateSEOTemplates(raw *RawArgs) {
+	cat := raw.SEOTemplate
+	if cat == "" && raw.IsSponsor {
+		cat = "seo"
+	}
+	if cat == "" || PrecompileStateCategoryHook == nil {
+		return
+	}
+	if compiled := PrecompileStateCategoryHook(cat, nil); len(compiled) > 0 {
+		raw.MessageSuffix = append(raw.MessageSuffix, compiled...)
+	}
+}
+
+func splitPositionalOrConfig(raw *RawArgs, positional []string) *ParseError {
+	if len(positional) == 0 {
+		if raw.ConfigPath != "" {
+			return nil
+		}
+		return newBadArgs("%s", "missing <source>")
+	}
+	if len(positional) == 1 && raw.ConfigPath == "" && isExistingJSONConfigFile(positional[0]) {
+		raw.ConfigPath = positional[0]
+		return nil
+	}
+
+	return splitPositional(raw, positional)
+}
+
+func isExistingJSONConfigFile(token string) bool {
+	trimmed := strings.TrimSpace(token)
+	if !strings.HasSuffix(strings.ToLower(trimmed), ".json") {
+		return false
+	}
+	info, err := os.Stat(trimmed)
+
+	return err == nil && !info.IsDir()
+}
+
 // splitPositional consumes the leftover argv: first token is <source>,
-// remainder is the input list. KEYWORD detection runs on a SINGLE
-// remainder token; multi-token remainders go straight to splitInputs.
+// remainder is the input list.
 func splitPositional(raw *RawArgs, positional []string) *ParseError {
 	if len(positional) == 0 {
 		return newBadArgs("%s", "missing <source>")
@@ -77,8 +108,6 @@ func splitPositional(raw *RawArgs, positional []string) *ParseError {
 	return nil
 }
 
-// applyKeywordArg tries to classify a single trailing argument as a keyword;
-// if it is not a keyword, falls back to treating it as a regular input.
 func applyKeywordArg(raw *RawArgs, rest []string) *ParseError {
 	kw, tail, isKw, perr := classifyKeyword(rest[0])
 	if perr != nil {
@@ -97,9 +126,6 @@ func applyKeywordArg(raw *RawArgs, rest []string) *ParseError {
 	return nil
 }
 
-// validateAll runs the cross-cutting validators once positional args
-// are bound. Order chosen so the most informative error wins when
-// several would fire.
 func validateAll(raw *RawArgs) *ParseError {
 	if perr := requireSourceAndInputs(raw.Source, raw.Inputs, raw.Keyword); perr != nil {
 		return perr
@@ -124,13 +150,6 @@ func validateAll(raw *RawArgs) *ParseError {
 	return validateLanguages(raw.Languages)
 }
 
-// reorder lifts every flag token to the front so Go's stdlib `flag`
-// package can parse positional args that follow flags. Mirrors the
-// existing project pattern documented in mem://tech/flag-parsing-logic.
-//
-// Tokens beginning with `-` are flags; the next token is treated as
-// the flag's value when the flag form is `--name value` (i.e. no `=`
-// in the flag token AND the flag is not in the bool set).
 func reorder(args []string) []string {
 	flags, positional := splitFlagsAndPositional(args)
 	out := make([]string, 0, len(args))
@@ -140,9 +159,6 @@ func reorder(args []string) []string {
 	return out
 }
 
-// splitFlagsAndPositional walks argv once, classifying each token.
-// Bool flags consume zero values; other flags consume one value when
-// the form is `--name value`.
 func splitFlagsAndPositional(args []string) ([]string, []string) {
 	bools := boolFlagSet()
 	flags := make([]string, 0, len(args))
@@ -164,10 +180,6 @@ func splitFlagsAndPositional(args []string) ([]string, []string) {
 	return flags, positional
 }
 
-// isTailKeywordToken recognizes the spec §2.4 `-N` tail keyword so the
-// flag re-orderer doesn't mistake it for an unknown flag. Any token
-// matching `-` followed by ≥1 ASCII digit qualifies; classifyKeyword
-// re-validates N≥1 and rejects `-0`.
 func isTailKeywordToken(tok string) bool {
 	if len(tok) < 2 || tok[0] != '-' {
 		return false
@@ -182,9 +194,6 @@ func isTailKeywordToken(tok string) bool {
 	return true
 }
 
-// needsValue reports whether the next argv token belongs to this flag.
-// `--name=value` forms embed the value, so they need no companion. A
-// flag in the bool set never consumes a value.
 func needsValue(tok string, bools map[string]bool) bool {
 	if strings.Contains(tok, "=") {
 		return false

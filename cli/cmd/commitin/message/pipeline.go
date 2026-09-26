@@ -6,11 +6,32 @@ import "strings"
 func Build(in Inputs) Result {
 	msg := stripRules(in.OriginalMessage, in.Resolved.MessageRules)
 	msg = applyOverride(msg, in)
+	chosenPrefix, chosenSuffix := pickAffixPair(in.Resolved.MessagePrefix, in.Resolved.MessageSuffix, in.PickIndex)
+	seoTitle := resolveChosenTemplateTitle(chosenPrefix, chosenSuffix)
+	msg = applyTitleReplacements(msg, in.Files, in.Resolved.TitleReplacements, seoTitle)
 	msg = applyTitleAffix(msg, in.Resolved.TitlePrefix, in.Resolved.TitleSuffix)
-	msg = applyBodyAffix(msg, in.Resolved.MessagePrefix, in.Resolved.MessageSuffix, in.PickIndex)
+	msg = expandTitleLineVars(msg, in.Files, seoTitle)
+	msg = applyChosenBodyAffix(msg, chosenPrefix, chosenSuffix)
 	msg = appendFunctionIntel(msg, in.FunctionIntel)
 
 	return Result{Message: msg, IsEmpty: isEmpty(msg)}
+}
+
+func resolveChosenTemplateTitle(chosenPrefix, chosenSuffix string) string {
+	if h := extractTemplateHeading(chosenSuffix); h != "" {
+		return h
+	}
+
+	return extractTemplateHeading(chosenPrefix)
+}
+
+func expandTitleLineVars(msg string, files []string, seoTitle string) string {
+	if !strings.Contains(msg, "$") {
+		return msg
+	}
+	title, rest := splitTitleAndBody(msg)
+
+	return expandFileAndTemplateVars(title, files, seoTitle) + rest
 }
 
 func applyOverride(msg string, in Inputs) string {

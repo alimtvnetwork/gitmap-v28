@@ -1,18 +1,23 @@
 # gitmap pull-all
 
-Batch-pull every tracked repository in the catalog. This is a thin
-shorthand for `gitmap pull --all` — same resolver, same parallelism,
-same pending-task accounting, same exit-code semantics. It exists so
-the right-click context menu and shell history can name the fan-out
-intent unambiguously.
+Batch-pull every tracked repository in the catalog. By default, `gitmap pa` /
+`gitmap pull all` / `gitmap pull-all` runs in **fast concise mode**, skipping slow
+post-pull remote branch, PR, and tag subprocess inspections and printing an
+aligned bullet summary with total duration.
+
+To render the full post-pull status table, pass `--status` (or `--table`), or run
+`gitmap pat`, `gitmap pull-all-table`, or `gitmap pull all table`.
 
 ## Alias
 
-pa
+pa, pat (status table), pull-all-table (status table)
 
 ## Usage
 
     gitmap pull-all [flags]
+    gitmap pa [--status | --table | --json]
+    gitmap pat [flags]
+    gitmap pull all table [flags]
 
 All `pull` flags are forwarded verbatim. `--all` is injected
 automatically and is idempotent (passing it again is a no-op).
@@ -21,8 +26,10 @@ automatically and is idempotent (passing it again is a no-op).
 
 | Flag | Default | Description |
 |------|---------|-------------|
+| --status, --table | false | Render the full post-pull repository status table |
+| --json | false | Suppress interactive progress bar and emit JSON summary to stdout |
 | --verbose | false | Enable verbose logging |
-| --parallel \<N\> | 1 | Run up to N pulls concurrently (worker pool) |
+| --parallel \<N\> | 0 (auto) | Run up to N pulls concurrently (worker pool) |
 | --only-available | false | Skip repos whose latest probe reports no new tag |
 | --stop-on-fail | false | Halt the batch after the first failure |
 
@@ -32,21 +39,38 @@ automatically and is idempotent (passing it again is a no-op).
 
 ## Examples
 
-### Example 1: Plain batch pull
+### Example 1: Default fast batch pull
 
-    gitmap pull-all
+```bash
+gitmap pa
+```
 
 **Output:**
 
-    Pull batch (37 repos, parallel=1)
-    [01/37] my-api .................. up to date
-    [02/37] frontend ................ pulled (3 commits)
-    ...
-    37 ok · 0 failed
+    • my-api                      up-to-date
+    • frontend                    +12/-3 (2 files)
 
-### Example 2: 8-way parallel, only repos with new commits
+  ✓ Pull all complete: 37 pulled (1.4s)
 
-    gitmap pull-all --parallel 8 --only-available --stop-on-fail
+### Example 2: Full post-pull status table (`--status` or `pat`)
+
+```bash
+gitmap pa --status
+gitmap pat
+gitmap pull all table
+```
+
+### Example 3: Machine-readable JSON summary (`--json`)
+
+```bash
+gitmap pa --json
+```
+
+### Example 4: 8-way parallel, only repos with new commits
+
+```bash
+gitmap pull-all --parallel 8 --only-available --stop-on-fail
+```
 
 ## See also
 

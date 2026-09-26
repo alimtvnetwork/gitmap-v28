@@ -15,10 +15,14 @@ func runPullAll(args []string) error {
 // `gitmap pull-all --all` behave identically to `gitmap pull-all`.
 func prependAll(args []string) []string {
 	for _, a := range args {
-		if a == "--all" || a == "-all" || a == "-a" {
+		if isPullAllFlagOrToken(a) {
 			return args
 		}
 	}
 
 	return append([]string{"--all"}, args...)
+}
+
+func isPullAllFlagOrToken(a string) bool {
+	return a == "--all" || a == "-all" || a == "-a" || a == "pat" || a == "pull-all-table"
 }

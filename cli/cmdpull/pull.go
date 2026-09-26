@@ -41,20 +41,40 @@ type pullOptions struct {
 	isRaw         bool
 	useSSH        bool
 	useHTTPS      bool
+	showStatus    bool
+	isJSON        bool
 }
 
-// NormalizePullArgs converts positional "all", "pa", or "pull-all" argument into "--all" flag.
+// NormalizePullArgs converts positional pull-all and table arguments into flags.
 func NormalizePullArgs(args []string) []string {
-	normalized := make([]string, 0, len(args))
-	for _, a := range args {
-		if a == "all" || a == "pa" || a == "pull-all" {
-			normalized = append(normalized, "--all")
-		} else {
-			normalized = append(normalized, a)
+	normalized := make([]string, 0, len(args)+1)
+	for i := 0; i < len(args); i++ {
+		if isPullAllTableSeq(args, i) {
+			normalized = append(normalized, "--all", "--status")
+			i++
+			continue
 		}
+		normalized = appendNormalizedPullToken(normalized, args[i])
 	}
 
 	return normalized
+}
+
+func isPullAllTableSeq(args []string, i int) bool {
+	isAllToken := args[i] == "all" || args[i] == "--all" || args[i] == "pa" || args[i] == "pull-all"
+
+	return isAllToken && i+1 < len(args) && args[i+1] == "table"
+}
+
+func appendNormalizedPullToken(normalized []string, token string) []string {
+	if token == "pat" || token == "pull-all-table" {
+		return append(normalized, "--all", "--status")
+	}
+	if token == "all" || token == "pa" || token == "pull-all" {
+		return append(normalized, "--all")
+	}
+
+	return append(normalized, token)
 }
 
 // runPull handles the "pull" subcommand.
@@ -65,21 +85,35 @@ func runPull(args []string) error {
 	}
 	isPullAll := isPullAllInvocation(args)
 	args = NormalizePullArgs(args)
-	printPullInvocationHeader(isPullAll)
+	if !hasJSONArg(args) {
+		printPullInvocationHeader(isPullAll)
+	}
 	requireOnline()
 	useSSH, useHTTPS, restArgs := ExtractTransportFlags(args)
-	isCWDTransport := !isPullAll && (useSSH || useHTTPS) && isGitRepoCWD()
-	if isCWDTransport {
-		runPullCWDWithTransport(useSSH, useHTTPS, restArgs)
-
-		return nil
+	if !isPullAll && (useSSH || useHTTPS) && isGitRepoCWD() {
+		return runPullCWDWithTransport(useSSH, useHTTPS, restArgs)
 	}
 	opts := resolveParsedPullOptions(restArgs, useSSH, useHTTPS)
+
+	return executePullWithResolvedOptions(opts)
+}
+
+func executePullWithResolvedOptions(opts pullOptions) error {
 	if opts.verbose {
 		initVerboseLog()
 	}
 
 	return dispatchPullExecution(opts)
+}
+
+func hasJSONArg(args []string) bool {
+	for _, a := range args {
+		if strings.EqualFold(a, "--json") || strings.EqualFold(a, "-json") {
+			return true
+		}
+	}
+
+	return false
 }
 
 func resolveParsedPullOptions(args []string, useSSH, useHTTPS bool) pullOptions {
@@ -89,6 +123,10 @@ func resolveParsedPullOptions(args []string, useSSH, useHTTPS bool) pullOptions 
 	}
 	if useHTTPS {
 		opts.useHTTPS = true
+	}
+	if isPullAllTableRootCmd() {
+		opts.all = true
+		opts.showStatus = true
 	}
 
 	return opts
@@ -140,12 +178,21 @@ func isPullAllRootCmd() bool {
 	}
 	first := strings.ToLower(os.Args[1])
 
-	return first == "pull-all" || first == "pa"
+	return first == "pull-all" || first == "pa" || first == "pull-all-table" || first == "pat"
+}
+
+func isPullAllTableRootCmd() bool {
+	if len(os.Args) <= 1 {
+		return false
+	}
+	first := strings.ToLower(os.Args[1])
+
+	return first == "pull-all-table" || first == "pat"
 }
 
 func hasPullAllArg(args []string) bool {
 	for _, a := range args {
-		if a == "--all" || a == "-all" || a == "-a" || a == "all" || a == "pa" || a == "pull-all" {
+		if a == "--all" || a == "-all" || a == "-a" || a == "all" || a == "pa" || a == "pull-all" || a == "pat" || a == "pull-all-table" {
 			return true
 		}
 	}
@@ -184,7 +231,9 @@ func dispatchPullExecution(opts pullOptions) error {
 	}
 
 	if ShouldFallbackToPullAll(opts) {
-		AnnounceNonGitPullFallback()
+		if !opts.isJSON {
+			AnnounceNonGitPullFallback()
+		}
 		opts.all = true
 	}
 
@@ -194,17 +243,30 @@ func dispatchPullExecution(opts pullOptions) error {
 func runPullBatch(opts pullOptions) error {
 	records, isFound := resolvePullBatchRecords(opts)
 	if !isFound || len(records) == 0 {
-		return nil
-	}
-	printResolvedPullRepos(len(records))
-	filtered := applyPullAvailableFilter(records, opts.onlyAvailable)
-	if opts.onlyAvailable && len(filtered) == 0 {
-		fmt.Print(constants.MsgPullNoAvailable)
+		if opts.isJSON {
+			return renderPullBatchJSONSummary(0, nil, 0)
+		}
 
 		return nil
+	}
+	if !opts.isJSON {
+		printResolvedPullRepos(len(records))
+	}
+	filtered := applyPullAvailableFilter(records, opts.onlyAvailable)
+	if opts.onlyAvailable && len(filtered) == 0 {
+		return handleNoAvailablePullTargets(opts)
 	}
 
 	return executePullBatchLifecycle(filtered, opts)
+}
+
+func handleNoAvailablePullTargets(opts pullOptions) error {
+	if opts.isJSON {
+		return renderPullBatchJSONSummary(0, nil, 0)
+	}
+	fmt.Print(constants.MsgPullNoAvailable)
+
+	return nil
 }
 
 func printResolvedPullRepos(count int) {
@@ -228,18 +290,48 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 		defer taskDB.Close()
 	}
 	maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
-	bar := NewPullProgressBar(len(records), false, opts.stopOnFail)
-	bar.Start()
-	startTime := time.Now()
-	executePull(records, bar, opts)
-	bar.Stop()
-	dur := time.Since(startTime)
-	sortedStates := sortStatesAlphabetically(bar.States())
-	renderPullBatchResults(sortedStates)
-	handlePullRemediationForRecords(records, opts)
+	bar, sortedStates, dur := runPullBatchExecution(records, opts)
 	syncPullBatchTelemetry(records, sortedStates, dur, opts)
+	if opts.isJSON {
+		completePendingTask(taskDB, taskID)
+
+		return renderPullBatchJSONSummary(len(records), sortedStates, dur)
+	}
+	renderPullBatchOutput(records, sortedStates, dur, opts)
 
 	return finalizePullBatchTask(taskDB, taskID, bar.Failed())
+}
+
+func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullProgressBar, []*PullRepoState, time.Duration) {
+	bar := NewPullProgressBar(len(records), false, opts.stopOnFail)
+	if !opts.isJSON {
+		bar.Start()
+	}
+	startTime := time.Now()
+	executePull(records, bar, opts)
+	if !opts.isJSON {
+		bar.Stop()
+	}
+	dur := time.Since(startTime)
+
+	return bar, sortStatesAlphabetically(bar.States()), dur
+}
+
+func renderPullBatchOutput(records []model.ScanRecord, sortedStates []*PullRepoState, dur time.Duration, opts pullOptions) {
+	if opts.all && !opts.showStatus {
+		renderConciseActiveResults(sortedStates, records)
+		printPullAllFastSummary(len(sortedStates), dur)
+	} else {
+		renderPullBatchResults(sortedStates)
+	}
+	handlePullRemediationForRecords(records, opts)
+}
+
+func printPullAllFastSummary(pulledCount int, dur time.Duration) {
+	fmt.Printf("\n  %s✓%s %sPull all complete:%s %d pulled (%s)\n\n",
+		constants.ColorGreen, constants.ColorReset,
+		constants.ColorBold, constants.ColorReset,
+		pulledCount, FormatPullDuration(dur))
 }
 
 func syncPullBatchTelemetry(records []model.ScanRecord, states []*PullRepoState, dur time.Duration, opts pullOptions) {
@@ -345,7 +437,7 @@ func resolveRowSHA(state *PullRepoState) string {
 
 func resolveRepoRelease(repoPath, latestBranch string) string {
 	hasPath := len(repoPath) > 0
-	if hasPath == false {
+	if !hasPath {
 		return "-"
 	}
 
@@ -391,7 +483,7 @@ func isSemverLike(s string) bool {
 	raw := strings.TrimPrefix(s, "v")
 	parts := strings.Split(raw, ".")
 	hasEnoughParts := len(parts) >= 2
-	if hasEnoughParts == false {
+	if !hasEnoughParts {
 		return false
 	}
 
@@ -683,7 +775,7 @@ func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
 
 type pullFlagHolders struct {
 	vFlag, aFlag, sFlag, oFlag, fixFlag, yFlag, noFixFlag, rawFlag *bool
-	sshFlag, httpsFlag                                             *bool
+	sshFlag, httpsFlag, statusFlag, jsonFlag                       *bool
 	gFlag                                                          *string
 	pFlag                                                          *int
 }
@@ -693,6 +785,7 @@ func initPullFlagSet() (*flag.FlagSet, *pullFlagHolders) {
 	h := &pullFlagHolders{}
 	registerPullCoreFlags(fs, h)
 	registerPullRemediationFlags(fs, h)
+	registerPullOutputFlags(fs, h)
 
 	return fs, h
 }
@@ -717,21 +810,23 @@ func registerPullRemediationFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 	fs.BoolVar(h.yFlag, "y", false, "Remediate without prompt")
 }
 
+func registerPullOutputFlags(fs *flag.FlagSet, h *pullFlagHolders) {
+	h.statusFlag = fs.Bool("status", false, constants.FlagDescPullStatus)
+	fs.BoolVar(h.statusFlag, "table", false, constants.FlagDescPullStatus)
+	fs.BoolVar(h.statusFlag, "status-table", false, constants.FlagDescPullStatus)
+	h.jsonFlag = fs.Bool("json", false, constants.FlagDescPullJSON)
+}
+
 func buildPullOptions(h *pullFlagHolders) pullOptions {
-	return pullOptions{
-		group:         *h.gFlag,
-		all:           *h.aFlag,
-		verbose:       *h.vFlag,
-		stopOnFail:    *h.sFlag,
-		parallel:      *h.pFlag,
-		onlyAvailable: *h.oFlag,
-		autoFix:       *h.fixFlag,
-		yes:           *h.yFlag,
-		noFix:         *h.noFixFlag,
-		isRaw:         *h.rawFlag,
-		useSSH:        *h.sshFlag,
-		useHTTPS:      *h.httpsFlag,
+	opts := pullOptions{
+		group: *h.gFlag, all: *h.aFlag, verbose: *h.vFlag,
+		stopOnFail: *h.sFlag, parallel: *h.pFlag, onlyAvailable: *h.oFlag,
+		autoFix: *h.fixFlag, yes: *h.yFlag, noFix: *h.noFixFlag,
+		isRaw: *h.rawFlag, useSSH: *h.sshFlag, useHTTPS: *h.httpsFlag,
+		showStatus: *h.statusFlag, isJSON: *h.jsonFlag,
 	}
+
+	return opts
 }
 
 func parsePullFlags(args []string) pullOptions {
@@ -885,7 +980,9 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 func resolveExplicitPullTargets(opts pullOptions) ([]model.ScanRecord, bool) {
 	records := resolvePullTargets(opts.slug, opts.group, opts.all)
 	if len(records) == 0 {
-		handlePullTargetNotFound(opts)
+		if !opts.isJSON {
+			handlePullTargetNotFound(opts)
+		}
 
 		return nil, false
 	}

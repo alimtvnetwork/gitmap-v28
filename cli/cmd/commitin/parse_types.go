@@ -1,16 +1,17 @@
 package commitin
 
-import "github.com/alimtvnetwork/gitmap-v28/cli/constants"
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+)
 
 // RawArgs is the in-memory shape of a successful `commit-in` parse.
 // All resolved-but-unresolved-defaults values stay zero so the caller
 // can layer profile + interactive prompts on top per spec §5.6.
-//
-// Pure value type: zero git, zero filesystem, zero DB. Trivially
-// printable for golden-test diffing.
 type RawArgs struct {
-	Source string   // <source> argv token, verbatim
-	Inputs []string // expanded input list (post separator/quote split)
+	ConfigPath string   // --config <file.json>
+	Source     string   // <source> argv token, verbatim
+	Inputs     []string // expanded input list (post separator/quote split)
 	// Keyword captures the special-mode token when present. Empty
 	// string when the user passed explicit inputs.
 	Keyword     string // "all" | "-N" (verbatim) | ""
@@ -27,13 +28,14 @@ type RawArgs struct {
 	AuthorName  string
 	AuthorEmail string
 
-	ConflictMode  string // ConflictMode enum literal; empty = unset
-	Exclude       []string
-	MessageRules  []MessageRuleArg
-	MessagePrefix []string
-	MessageSuffix []string
-	TitlePrefix   string
-	TitleSuffix   string
+	ConflictMode      string // ConflictMode enum literal; empty = unset
+	Exclude           []string
+	MessageRules      []MessageRuleArg
+	TitleReplacements []profile.TitleReplacementRule
+	MessagePrefix     []string
+	MessageSuffix     []string
+	TitlePrefix       string
+	TitleSuffix       string
 
 	OverrideMessages []string
 	OverrideOnlyWeak bool

@@ -11,4 +11,5 @@
 - [161-agy-rerun-active-project-non-destructive-and-conversation-commands.md](161-agy-rerun-active-project-non-destructive-and-conversation-commands.md) — Antigravity Rerun Active Project Resolution, Non-Destructive Replay, and Conversation Commands (Status: `active`)
 - [162-pipeline-stage-timings-and-agy-queue-inspector.md](162-pipeline-stage-timings-and-agy-queue-inspector.md) — Pipeline Stage Timings, Split DB Schemas, and Antigravity Queue Inspector (Status: `active`)
 - [163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md](163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md) — SSH Fleet Deploy Keys, Node-Config, and One-Liner Clipboard (Status: `active`)
-- 02-spec/21-app/xx-agy-enhancements/01-overview.md (Active)
+- [xx-agy-enhancements](xx-agy-enhancements/01-overview.md) — Antigravity Enhancements (Status: `active`)
+- [164-pull-all-fast-mode-templates-db-and-commitin-config.md](164-pull-all-fast-mode-templates-db-and-commitin-config.md) — Pull-All Fast Mode, State Templates DB Engine, Pre-Compiled Variables & Declarative Commit-In Config (Status: `active`)

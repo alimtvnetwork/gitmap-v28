@@ -51,18 +51,18 @@ func TestParsePullFlags_All(t *testing.T) {
 		t.Error("expected empty slug and group")
 	}
 
-	if opts.all != true {
+	if !opts.all {
 		t.Error("expected all=true")
 	}
 }
 
 func TestParsePullFlags_AllWithVerbose(t *testing.T) {
 	opts := parsePullFlags([]string{"--all", "--verbose"})
-	if opts.all != true {
+	if !opts.all {
 		t.Error("expected all=true")
 	}
 
-	if opts.verbose != true {
+	if !opts.verbose {
 		t.Error("expected verbose=true")
 	}
 }
@@ -112,5 +112,29 @@ func TestParsePullFlags_SSHPositionalAndCaseInsensitive(t *testing.T) {
 	_, useHTTPSPos, _ := ExtractTransportFlags([]string{"--all", "https"})
 	if !useHTTPSPos {
 		t.Error("expected useHTTPS=true for positional 'https'")
+	}
+}
+
+func TestNormalizePullArgs_TableAndPat(t *testing.T) {
+	gotAllTable := NormalizePullArgs([]string{"all", "table"})
+	if len(gotAllTable) != 2 || gotAllTable[0] != "--all" || gotAllTable[1] != "--status" {
+		t.Fatalf("expected [--all --status] for 'all table', got %v", gotAllTable)
+	}
+
+	gotPat := NormalizePullArgs([]string{"pat"})
+	if len(gotPat) != 2 || gotPat[0] != "--all" || gotPat[1] != "--status" {
+		t.Fatalf("expected [--all --status] for 'pat', got %v", gotPat)
+	}
+}
+
+func TestParsePullFlags_StatusAndJSON(t *testing.T) {
+	statusOpts := parsePullFlags([]string{"--all", "--status"})
+	if !statusOpts.all || !statusOpts.showStatus || statusOpts.isJSON {
+		t.Fatalf("expected all=true showStatus=true isJSON=false, got %+v", statusOpts)
+	}
+
+	jsonOpts := parsePullFlags([]string{"--all", "--json"})
+	if !jsonOpts.all || !jsonOpts.isJSON || jsonOpts.showStatus {
+		t.Fatalf("expected all=true isJSON=true showStatus=false, got %+v", jsonOpts)
 	}
 }

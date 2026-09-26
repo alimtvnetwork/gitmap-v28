@@ -46,7 +46,7 @@ func registerBoolFlags(fs *flag.FlagSet, raw *RawArgs) {
 	fs.BoolVar(&raw.IsDryRun, constants.CommitInFlagDryRun, false, constants.CommitInDescDryRun)
 	fs.BoolVar(&raw.IsKeepTemp, constants.CommitInFlagKeepTemp, false, constants.CommitInDescKeepTemp)
 	fs.BoolVar(&raw.IsNoReleaseBranch, constants.CommitInFlagNoReleaseBranch, false, constants.CommitInDescNoReleaseBranch)
-	fs.BoolVar(&raw.IsSponsor, "sponsor", false, "Append Rise Up Asia sponsor and leadership templates")
+	fs.BoolVar(&raw.IsSponsor, "sponsor", false, "Load pre-compiled sponsor/SEO templates from state DB")
 	fs.BoolVar(&raw.IsTree, "tree", false, "Display commit/PR branch dependency tree before execution")
 	fs.BoolVar(&raw.IsFinalSync, "final-sync", false, "Final mirror snapshot synchronization")
 	fs.BoolVar(&raw.IsFinalSync, "sync", false, "Alias for final-sync")
@@ -54,6 +54,8 @@ func registerBoolFlags(fs *flag.FlagSet, raw *RawArgs) {
 }
 
 func registerStringFlags(fs *flag.FlagSet, raw *RawArgs) {
+	fs.StringVar(&raw.ConfigPath, "config", "", "Path to declarative commit-in / commit-pull JSON config file")
+	fs.StringVar(&raw.ConfigPath, "c", "", "Shorthand for --config")
 	fs.StringVar(&raw.ProfileName, constants.CommitInFlagProfile, "", constants.CommitInDescProfile)
 	fs.StringVar(&raw.SaveProfileName, constants.CommitInFlagSaveProfile, "", constants.CommitInDescSaveProfile)
 	fs.StringVar(&raw.AuthorName, constants.CommitInFlagAuthorName, "", constants.CommitInDescAuthorName)
@@ -63,7 +65,7 @@ func registerStringFlags(fs *flag.FlagSet, raw *RawArgs) {
 	fs.StringVar(&raw.TitleSuffix, constants.CommitInFlagTitleSuffix, "", constants.CommitInDescTitleSuffix)
 	fs.StringVar(&raw.FunctionIntel, constants.CommitInFlagFunctionIntel, "", constants.CommitInDescFunctionIntel)
 	fs.StringVar(&raw.PRMode, constants.CommitInFlagPR, "", constants.CommitInDescPR)
-	fs.StringVar(&raw.SEOTemplate, "seo-template", "", "SEO template category (e.g. 'riseup', 'sponsor')")
+	fs.StringVar(&raw.SEOTemplate, "seo-template", "", "SEO template category from state DB (e.g. 'seo')")
 }
 
 func registerCsvFlags(fs *flag.FlagSet, csv *csvHolder) {

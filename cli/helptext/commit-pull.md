@@ -9,8 +9,9 @@ Chronologically replays commits from multiple source repositories (or a dynamic 
 ## Usage
 
 ```bash
+gitmap commit-pull --config <config.json>
 gitmap commit-pull <target> <inputs...> [flags]
-gitmap cpull <target> gitmap-v2..v28 --sponsor --tree
+gitmap cpull <target> gitmap-v2..v28 --tree --cd
 gitmap pull-commits <target> all --pr merges
 ```
 
@@ -18,31 +19,47 @@ gitmap pull-commits <target> all --pr merges
 
 | Flag | Description | Default |
 |------|-------------|---------|
+| `--config, -c <file.json>` | Load declarative migration config (imports, lineSkippers, titleReplacements) | `""` |
 | `--tree` | Render preflight PR and branch tree before execution | `false` |
-| `--sponsor` | Inject Rise Up Asia LLC sponsor templates into commit & PR bodies | `false` |
-| `--seo-template <name>` | Specify template pool (e.g. `riseup`) | `""` |
+| `--seo-template <cat>` | Load pre-compiled templates from `gitmap-templates.db` category | `""` |
 | `--pr merges` | Simulate feature branches and PR merges | `merges` |
+| `--cd` | Change directory into target repository upon completion | `false` |
 | `--final-sync` | Final mirror snapshot synchronization | `true` |
 | `--dry-run` | Simulate replay without modifying repositories | `false` |
 
-## Dynamic Range Expansion (`v2..v28`)
+## Declarative Config JSON (`--config`)
 
-Automatically pull and replay all 28 repositories into a single codebase:
+Feed a single config JSON file to auto-create the target repo, import state templates with SHA-256 hash deduplication, pre-compile variables before loop execution, strip unwanted lines (`starts_with`, `ends_with`, `contains`, `regex`), and replace generic `"Changes"` commit titles using `$files.2.names`:
 
-```bash
-# Expand all 27 intermediate versions:
-gitmap commit-pull "D:\target" "https://github.com/alimtvnetwork/gitmap-v{2..28}" --sponsor --tree
-
-# Shorthand notation:
-gitmap cpull "D:\target" gitmap-v2..v28 --sponsor
+```json
+{
+  "target": "D:\\test-gitmap\\test-gitmap",
+  "inputs": [
+    "https://github.com/alimtvnetwork/git-repo-navigator",
+    "https://github.com/alimtvnetwork/gitmap-v{2..28}"
+  ],
+  "prMode": "merges",
+  "tree": true,
+  "finalSync": true,
+  "cd": true,
+  "imports": [".ai-memory/temp/seo-templates.json"],
+  "lineSkippers": [
+    { "mode": "starts_with", "pattern": "Co-authored-by:" },
+    { "mode": "contains", "pattern": "X-Lovable-Edit-ID" }
+  ],
+  "titleReplacements": [
+    { "matchMode": "equals", "match": "Changes", "replacement": "$files.2.names: $seo.title" }
+  ],
+  "suffixTemplates": ["seo"]
+}
 ```
 
 ## Examples
 
 ```bash
-# Replay commits into target repository with tree display
-gitmap commit-pull D:\target repo1 repo2 --tree
+# 1-Line Declarative Replay with Config JSON:
+gitmap commit-pull --config .ai-memory/temp/commit-pull-config.json
 
-# Replay range with Rise Up Asia sponsor integration
-gitmap cpull D:\target gitmap-v2..v28 --sponsor
+# Replay commits into target repository with tree display:
+gitmap commit-pull D:\target repo1 repo2 --tree --cd
 ```

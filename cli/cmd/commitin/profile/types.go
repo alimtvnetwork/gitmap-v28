@@ -12,10 +12,17 @@ type Exclusion struct {
 	Value string
 }
 
-// MessageRule represents one StartsWith/EndsWith/Contains line-strip rule.
+// MessageRule represents one StartsWith/EndsWith/Contains/Regex line-strip rule.
 type MessageRule struct {
 	Kind  string
 	Value string
+}
+
+// TitleReplacementRule represents a conditional commit title replacement rule.
+type TitleReplacementRule struct {
+	MatchMode   string `json:"matchMode"`
+	Match       string `json:"match"`
+	Replacement string `json:"replacement"`
 }
 
 // FunctionIntel block of a profile.
@@ -27,23 +34,24 @@ type FunctionIntel struct {
 // Profile is the canonical in-memory representation of a commit-in
 // profile (matches spec §5.2 byte-for-byte when re-serialized).
 type Profile struct {
-	Name             string
-	PRMode           string
-	SchemaVersion    int
-	SourceRepoPath   string
-	IsDefault        bool
-	ConflictMode     string
-	Author           *Author
-	Exclusions       []Exclusion
-	MessageRules     []MessageRule
-	MessagePrefix    []string
-	MessageSuffix    []string
-	TitlePrefix      string
-	TitleSuffix      string
-	OverrideMessages []string
-	OverrideOnlyWeak bool
-	WeakWords        []string
-	FunctionIntel    FunctionIntel
+	Name              string
+	PRMode            string
+	SchemaVersion     int
+	SourceRepoPath    string
+	IsDefault         bool
+	ConflictMode      string
+	Author            *Author
+	Exclusions        []Exclusion
+	MessageRules      []MessageRule
+	TitleReplacements []TitleReplacementRule
+	MessagePrefix     []string
+	MessageSuffix     []string
+	TitlePrefix       string
+	TitleSuffix       string
+	OverrideMessages  []string
+	OverrideOnlyWeak  bool
+	WeakWords         []string
+	FunctionIntel     FunctionIntel
 }
 
 // CurrentSchemaVersion is the only SchemaVersion v1 loaders accept.

@@ -1,6 +1,7 @@
 package message
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
@@ -31,7 +32,7 @@ func isUnwantedBotLine(line string) bool {
 		return true
 	}
 
-	return false
+	return strings.HasPrefix(lower, "co-authored-by:") && strings.Contains(lower, "noreply.github.com")
 }
 
 func lineMatches(line string, rules []profile.MessageRule) bool {
@@ -45,13 +46,20 @@ func lineMatches(line string, rules []profile.MessageRule) bool {
 }
 
 func matchOne(line string, r profile.MessageRule) bool {
-	switch r.Kind {
-	case constants.CommitInMessageRuleKindStartsWith:
-		return strings.HasPrefix(line, r.Value)
-	case constants.CommitInMessageRuleKindEndsWith:
-		return strings.HasSuffix(line, r.Value)
-	case constants.CommitInMessageRuleKindContains:
-		return strings.Contains(line, r.Value)
+	trimmed := strings.TrimSpace(line)
+	kind := strings.ToLower(strings.TrimSpace(r.Kind))
+	switch kind {
+	case strings.ToLower(constants.CommitInMessageRuleKindStartsWith), "starts_with", "startswith":
+		return strings.HasPrefix(line, r.Value) || strings.HasPrefix(trimmed, r.Value) ||
+			strings.HasPrefix(strings.ToLower(trimmed), strings.ToLower(r.Value))
+	case strings.ToLower(constants.CommitInMessageRuleKindEndsWith), "ends_with", "endswith":
+		return strings.HasSuffix(line, r.Value) || strings.HasSuffix(trimmed, r.Value) ||
+			strings.HasSuffix(strings.ToLower(trimmed), strings.ToLower(r.Value))
+	case strings.ToLower(constants.CommitInMessageRuleKindContains), "contains":
+		return strings.Contains(line, r.Value) || strings.Contains(strings.ToLower(line), strings.ToLower(r.Value))
+	case "regex", "regexp":
+		matched, err := regexp.MatchString(r.Value, line)
+		return err == nil && matched
 	}
 
 	return false

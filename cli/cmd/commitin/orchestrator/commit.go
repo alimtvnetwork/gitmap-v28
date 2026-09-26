@@ -125,6 +125,7 @@ func buildMessage(
 	) int) message.Result {
 	return message.Build(message.Inputs{
 		OriginalMessage: c.OriginalMessage,
+		Files:           c.Files,
 		FunctionIntel:   intelBlock,
 		Resolved:        ctx.Resolved,
 		PickIndex:       pick,

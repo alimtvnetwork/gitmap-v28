@@ -1,8 +1,8 @@
 # gitmap templates
 
 Discover and inspect the embedded `.gitignore` / `.gitattributes` template
-corpus that powers `gitmap add ignore`, `gitmap add attributes`, and
-`gitmap add lfs-install`. Two read-only subcommands.
+corpus AND manage stateful commit/SEO/prompt templates and `$VAR` variables
+stored in the `gitmap-templates.db` split state database.
 
 ## Alias
 
@@ -12,9 +12,17 @@ tpl
 
 | Subcommand | Alias | Purpose |
 |------------|-------|---------|
-| `templates list [--kind] [--lang]` | `tl` | Print every available template with KIND, LANG, SOURCE, PATH |
+| `templates list [--kind] [--lang]` | `tl` | Print every available `.gitignore`/`.gitattributes` template |
 | `templates show <kind> <lang>` | `ts` | Write a single resolved template (overlay > embed) to stdout |
 | `templates init <lang>...` | `ti` | Scaffold `.gitignore` / `.gitattributes` for one or more languages |
+| `templates ls [--category] [--json]` | `state-ls` | List state templates and categories from `gitmap-templates.db` |
+| `templates add [flags]` | — | Add or upsert a template (`--category`, `--slug`, `--title`, `--text`) |
+| `templates edit <id\|slug> [flags]` | — | Update an existing state template by ID or slug |
+| `templates remove <id\|slug>` | `rm`, `delete` | Delete a state template from `gitmap-templates.db` |
+| `templates import <file.json> [--force]` | — | Import templates & variables with SHA-256 `exportId` deduplication |
+| `templates export <dest.json>` | — | Export templates & referenced `$VAR` variables to portable JSON |
+| `templates var <set\|ls\|rm>` | `vars` | Set, list, or remove template variables (`$VAR` / `${VAR}`) |
+| `templates ui [--port 8787] [--no-open]` | `web` | Launch local dark-mode Templates & Variables Web Studio |
 
 ## Flags (list)
 

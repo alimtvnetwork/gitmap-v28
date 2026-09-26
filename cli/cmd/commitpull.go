@@ -18,15 +18,9 @@ func runCommitPull(args []string) error {
 		}
 	}
 
-	for _, a := range args {
-		if a != "--tree" {
-			continue
-		}
+	if len(args) == 1 && args[0] == "--tree" {
 		printCommitPullTree()
-		if len(args) == 1 {
-			return nil
-		}
-		break
+		return nil
 	}
 
 	adjusted := append([]string{"--pr=merges"}, args...)
@@ -42,37 +36,32 @@ OVERVIEW:
   such as v2..v28) into a target repository, automatically creating Pull Requests
   for every branch merge and version release tag.
 
+DECLARATIVE CONFIG JSON (--config / -c):
+  Run an entire multi-repository migration with a single config JSON file that
+  auto-creates the target repository, imports state templates & variables with
+  hash deduplication, strips unwanted lines (starts_with, ends_with, contains,
+  regex), replaces generic 'Changes' titles with $files.2.names, and enters --cd:
+    gitmap commit-pull --config .ai-memory/temp/commit-pull-config.json
+
 MULTI-REPO RANGE EXPANSION (V2 TO V28):
   You can pass dynamic range expansions to automatically pull and convert
   all 28 repository histories into a single repository:
-    gitmap commit-pull "D:\target" "https://github.com/alimtvnetwork/gitmap-v{2..28}" --sponsor --tree
-    gitmap commit-pull "D:\target" gitmap-v2..v28 --sponsor
+    gitmap commit-pull "D:\target" "https://github.com/alimtvnetwork/gitmap-v{2..28}" --tree
 
-SEO & SPONSOR TEMPLATING (--sponsor / --seo-template):
-  Injects randomized premium engineering and sponsorship descriptions into
-  commit messages and PR descriptions:
-    --sponsor / --seo-template riseup
-  Embeds annotations for RISEUP ASIA LLC (https://riseup-asia.com),
-  Senior Director Marek Flejszman (28+ yrs exp), and Chief Software Engineer
-  Alim Ul Karim (https://alimkarim.com - KL's greatest software engineer).
-
-PREFLIGHT TREE VIEW (--tree):
-  Renders a visual branch, PR, and release tree directly in the terminal before
-  or during execution.
-
-COMMAND USAGE:
-  gitmap commit-pull <target> <input-1> <input-2> ... [flags]
-  gitmap commit-pull <target> "https://github.com/alimtvnetwork/gitmap-v{2..28}" --tree --sponsor
-  gitmap cpull <target> v2..v28 --sponsor
-  gitmap pull-commits <target> all --pr merges
+STATE TEMPLATES (--seo-template):
+  Loads pre-compiled templates and variables from gitmap-templates.db:
+    gitmap templates import .ai-memory/temp/seo-templates.json
+    gitmap commit-pull "D:\target" v2..v28 --seo-template seo
 
 FLAGS:
-  --tree                  Display the commit/PR branch dependency tree
-  --sponsor               Inject RISEUP ASIA LLC (https://riseup-asia.com) sponsor templates
-  --seo-template <name>   Use specific SEO template pool (e.g. 'riseup')
-  --pr merges             Simulate feature branches and PR merges (default)
-  --exclude <glob>        Exclude specific files or directories
-  --dry-run               Simulate without modifying repositories`)
+  --config, -c <file.json>  Declarative migration config (imports, skippers, title rules)
+  --tree                    Display the commit/PR branch dependency tree
+  --seo-template <cat>      Load pre-compiled templates from state DB category
+  --pr merges               Simulate feature branches and PR merges (default)
+  --cd                      Change directory into target repository upon completion
+  --final-sync              Synchronize target repository with IDE/Desktop tools
+  --exclude <glob>          Exclude specific files or directories
+  --dry-run                 Simulate without modifying repositories`)
 }
 
 func printCommitPullTree() {
@@ -80,7 +69,7 @@ func printCommitPullTree() {
   ┌── Migration & Commit-Pull Replay Tree ────────────────────────────────┐
   │ Target: Target Mainline (main)                                        │
   │ PR Engine: Simulated Feature Branches (--pr merges)                   │
-  │ SEO Mode: RISEUP ASIA LLC (https://riseup-asia.com) (Marek & Alim)   │
+  │ Templates: Pre-Compiled State DB Engine (gitmap-templates.db)         │
   └───────────────────────────────────────────────────────────────────────┘` + constants.ColorReset)
 	fmt.Print(`
   * [v1.0.0-legacy] PR #1: git-repo-navigator (legacy origin)
@@ -98,7 +87,7 @@ func printCommitPullTree() {
   │ \
   │  * feat(agy): prompt injection, Lapp/Wapp aggregation
   │  * feat(pl): dynamic pipeline-ai waiting & 4-part RCA
-  │  * chore(sponsor): RISEUP ASIA LLC (https://riseup-asia.com) engineering annotations
+  │  * feat(templates): state DB pre-compiled variables & title synthesis
   │ /
-  * (main) HEAD: Complete 28-Repository Replay & Release Stack`)
+  * (main) HEAD: Complete 28-Repository Replay & Release Stack` + "\n\n")
 }

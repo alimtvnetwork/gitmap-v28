@@ -6,6 +6,7 @@ import "github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
 // commit message. All fields are inputs; nothing is mutated.
 type Inputs struct {
 	OriginalMessage string
+	Files           []string
 	FunctionIntel   string // pre-rendered §6.3 block, may be ""
 	Resolved        profile.Resolved
 	// PickIndex returns a value in [0,n). Inject deterministic picker

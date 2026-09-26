@@ -28,6 +28,14 @@ Subcommands:
   show <kind> <lang>         Print a single template to stdout (alias: ts)
   init <lang> [<lang>...]    Scaffold .gitignore / .gitattributes for languages (alias: ti)
   diff --lang <l> [--kind k] Show what 'add' would change without writing (alias: td)
+  ls [--category <c>] [--json] List state templates from gitmap-templates.db
+  add [flags]                Add/upsert a state template (--category, --slug, --title, --text)
+  edit <id|slug> [flags]     Edit an existing state template
+  remove <id|slug>           Remove a state template (aliases: rm, delete)
+  import <file.json>         Import state templates & variables with exportId deduplication
+  export <dest.json>         Export state templates & referenced variables
+  var <set|ls|rm>            Manage template variables ($VAR)
+  ui [--port 8787]           Launch the local Templates & Variables Web UI
 
 Kinds:
   ignore | attributes | lfs
@@ -89,104 +97,106 @@ func dispatchTemplates(command string) (bool, error) {
 	}
 
 	if len(os.Args) < 3 {
-		err := apperror.NewWithDetails(
-			"cmd.templates.dispatch",
-			"E1103",
-			usageTemplatesRoot,
-			"cmd.templates",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(err, 1)
+		exitTemplatesRootUsage()
 
 		return true, nil
 	}
 
-	sub, rest := os.Args[2], os.Args[3:]
+	routeTemplatesSubcommand(os.Args[2], os.Args[3:])
+
+	return true, nil
+}
+
+func exitTemplatesRootUsage() {
+	err := apperror.NewWithDetails(
+		"cmd.templates.dispatch", "E1103", usageTemplatesRoot,
+		"cmd.templates", apperror.ErrorTypeValidation, apperror.SeverityError, nil,
+	)
+	cliexit.HandleError(err, 1)
+}
+
+func routeTemplatesSubcommand(sub string, rest []string) {
+	if dispatchStateTemplatesSub(sub, rest) {
+		return
+	}
+
 	switch sub {
 	case cmdTemplatesList, cmdTemplatesListAlias:
-		runTemplatesList(rest)
+		_ = runTemplatesList(rest)
 	case cmdTemplatesShow, cmdTemplatesShowAlias:
-		runTemplatesShow(rest)
+		_ = runTemplatesShow(rest)
 	case cmdTemplatesInit, cmdTemplatesInitAlias:
 		runTemplatesInit(rest)
 	case cmdTemplatesDiff, cmdTemplatesDiffAlias:
 		runTemplatesDiff(rest)
 	default:
-		err := apperror.NewWithDetails(
-			"cmd.templates.dispatch.unknown",
-			"E1104",
-			fmt.Sprintf(errUnknownTemplatesSub, sub),
-			"cmd.templates",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			map[string]any{"subcommand": sub},
-		)
-		cliexit.HandleError(err, 1)
+		exitUnknownTemplatesSub(sub)
 	}
+}
 
-	return true, nil
+func exitUnknownTemplatesSub(sub string) {
+	err := apperror.NewWithDetails(
+		"cmd.templates.dispatch.unknown", "E1104", fmt.Sprintf(errUnknownTemplatesSub, sub),
+		"cmd.templates", apperror.ErrorTypeValidation, apperror.SeverityError, map[string]any{"subcommand": sub},
+	)
+	cliexit.HandleError(err, 1)
 }
 
 // runTemplatesList prints every available template grouped by kind.
-// Optional `--kind <k>` and `--lang <l>` filters narrow the output.
-// Unknown --kind values exit 1 with a clear error so typos surface
-// instead of silently emptying the table.
 func runTemplatesList(args []string) error {
 	kindFilter, langFilter := parseTemplatesListFlags(args)
-	isNonValidKindFilter := !isValidKindFilter(kindFilter)
-	if isNonValidKindFilter {
-		err := apperror.NewWithDetails(
-			"cmd.templates.list.kindFilter",
-			"E1105",
-			fmt.Sprintf("unknown template kind filter '%s'", kindFilter),
-			"cmd.templates",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			map[string]any{"kind": kindFilter},
-		)
-		cliexit.HandleError(err, 1)
+	if !isValidKindFilter(kindFilter) {
+		exitInvalidKindFilter(kindFilter)
 
 		return nil
 	}
 
 	entries, err := templates.List()
 	if err != nil {
-		appErr := apperror.WrapWithDetails(
-			err,
-			"cmd.templates.list.load",
-			"E1106",
-			"failed to load templates list",
-			"cmd.templates",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(appErr, 1)
+		exitTemplatesListLoadErr(err)
 
 		return nil
 	}
 
+	printFilteredTemplateEntries(entries, kindFilter, langFilter)
+
+	return nil
+}
+
+func exitInvalidKindFilter(kindFilter string) {
+	err := apperror.NewWithDetails(
+		"cmd.templates.list.kindFilter", "E1105", fmt.Sprintf("unknown template kind filter '%s'", kindFilter),
+		"cmd.templates", apperror.ErrorTypeValidation, apperror.SeverityError, map[string]any{"kind": kindFilter},
+	)
+	cliexit.HandleError(err, 1)
+}
+
+func exitTemplatesListLoadErr(err error) {
+	appErr := apperror.WrapWithDetails(
+		err, "cmd.templates.list.load", "E1106", "failed to load templates list",
+		"cmd.templates", apperror.ErrorTypeExecution, apperror.SeverityError, nil,
+	)
+	cliexit.HandleError(appErr, 1)
+}
+
+func printFilteredTemplateEntries(entries []templates.Entry, kindFilter, langFilter string) {
 	if len(entries) == 0 {
 		fmt.Print(msgTemplatesEmpty)
 
-		return nil
+		return
 	}
 
 	filtered := filterTemplates(entries, kindFilter, langFilter)
 	if len(filtered) == 0 {
 		fmt.Print(msgTemplatesFiltered)
 
-		return nil
+		return
 	}
 
 	fmt.Print(headerTemplatesList)
 	for _, e := range filtered {
 		fmt.Printf(fmtTemplatesListRow, e.Kind, e.Lang, sourceLabel(e.Source), e.Path)
 	}
-
-	return nil
 }
 
 // parseTemplatesListFlags pulls --kind/--lang out of args. Both are
@@ -223,66 +233,64 @@ func filterTemplates(in []templates.Entry, kindFilter, langFilter string) []temp
 
 	out := make([]templates.Entry, 0, len(in))
 	for _, e := range in {
-		if kindFilter != "" && e.Kind != kindFilter {
-			continue
+		if isMatchingTemplateEntry(e, kindFilter, langFilter) {
+			out = append(out, e)
 		}
-
-		if langFilter != "" && !strings.EqualFold(e.Lang, langFilter) {
-			continue
-		}
-
-		out = append(out, e)
 	}
 
 	return out
 }
 
-// runTemplatesShow prints one template to stdout. Markdown templates
-// (.md / .markdown) are routed through render.RenderANSI when the
-// shared render.Decide() ladder says so for the parsed PrettyMode.
-// Non-markdown templates (.gitignore, .gitattributes, …) are always
-// written byte-for-byte regardless of mode — render.Decide enforces
-// that via its isMarkdown gate, so the dominant
-// `templates show ignore go > .gitignore` redirect workflow is safe.
-//
-// Flag precedence: --pretty / --no-pretty (preferred) win over the
-// legacy --raw flag, which is kept as a deprecated alias for
-// --no-pretty (back-compat with v3.23.x scripts).
+func isMatchingTemplateEntry(e templates.Entry, kindFilter, langFilter string) bool {
+	if kindFilter != "" && e.Kind != kindFilter {
+		return false
+	}
+
+	if langFilter != "" && !strings.EqualFold(e.Lang, langFilter) {
+		return false
+	}
+
+	return true
+}
+
+// runTemplatesShow prints one template to stdout.
 func runTemplatesShow(args []string) error {
 	rest, mode := parseTemplatesShowFlags(args)
 	if len(rest) < 2 {
-		err := apperror.NewWithDetails(
-			"cmd.templates.show.args",
-			"E1107",
-			errTemplatesShowArgs,
-			"cmd.templates",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(err, 1)
+		exitTemplatesShowArgsErr()
 
 		return nil
 	}
 
-	kind, lang := rest[0], rest[1]
-	r, err := templates.Resolve(kind, lang)
+	r, err := templates.Resolve(rest[0], rest[1])
 	if err != nil {
-		appErr := apperror.WrapWithDetails(
-			err,
-			"cmd.templates.show.resolve",
-			"E1108",
-			"failed to resolve template",
-			"cmd.templates",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			map[string]any{"kind": kind, "lang": lang},
-		)
-		cliexit.HandleError(appErr, 1)
+		exitTemplatesShowResolveErr(err, rest[0], rest[1])
 
 		return nil
 	}
 
+	writeResolvedTemplateStdout(&r, mode)
+
+	return nil
+}
+
+func exitTemplatesShowArgsErr() {
+	err := apperror.NewWithDetails(
+		"cmd.templates.show.args", "E1107", errTemplatesShowArgs,
+		"cmd.templates", apperror.ErrorTypeValidation, apperror.SeverityError, nil,
+	)
+	cliexit.HandleError(err, 1)
+}
+
+func exitTemplatesShowResolveErr(err error, kind, lang string) {
+	appErr := apperror.WrapWithDetails(
+		err, "cmd.templates.show.resolve", "E1108", "failed to resolve template",
+		"cmd.templates", apperror.ErrorTypeValidation, apperror.SeverityError, map[string]any{"kind": kind, "lang": lang},
+	)
+	cliexit.HandleError(appErr, 1)
+}
+
+func writeResolvedTemplateStdout(r *templates.Resolved, mode render.PrettyModeType) {
 	out := r.Content
 	if render.Decide(mode, render.StdoutIsTerminal(), isMarkdownTemplatePath(r.Path)) {
 		out = []byte(render.RenderANSI(string(r.Content)))
@@ -290,21 +298,11 @@ func runTemplatesShow(args []string) error {
 
 	if _, err := os.Stdout.Write(out); err != nil {
 		appErr := apperror.WrapWithDetails(
-			err,
-			"cmd.templates.show.write",
-			"E1109",
-			"failed to write template content to stdout",
-			"cmd.templates",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityError,
-			nil,
+			err, "cmd.templates.show.write", "E1109", "failed to write template content to stdout",
+			"cmd.templates", apperror.ErrorTypeExecution, apperror.SeverityError, nil,
 		)
 		cliexit.HandleError(appErr, 1)
-
-		return nil
 	}
-
-	return nil
 }
 
 // parseTemplatesShowFlags extracts --pretty / --no-pretty (preferred) and
