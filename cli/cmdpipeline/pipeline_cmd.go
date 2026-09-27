@@ -5,9 +5,8 @@ import (
 )
 
 var (
-	explicitAgyFixOnce   sync.Once
-	isAgyFixExplicitOnly bool
-	rawAgyFixRunnerFn    func(args []string) error
+	explicitAgyFixOnce sync.Once
+	rawAgyFixRunnerFn  func(args []string) error
 )
 
 // EnsureAgyFixRunnerExplicitOnly wraps PipelineAgyFixRunner to prevent automatic background dispatches.
@@ -22,7 +21,6 @@ func setupExplicitOnlyRunner() {
 		return
 	}
 	rawAgyFixRunnerFn = PipelineAgyFixRunner
-	isAgyFixExplicitOnly = true
 	PipelineAgyFixRunner = func(args []string) error {
 		if !IsExplicitAgyFixArgs(args) {
 			return nil
