@@ -152,12 +152,17 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 
 func safePullRepoWithProgress(rec model.ScanRecord, repoDir string, onProgress func(string)) model.CloneResult {
 	logSafePullStart(rec, repoDir)
+	var lastFail model.CloneResult
 	for attempt := 1; attempt <= constants.SafePullRetryAttempts; attempt++ {
 		res, isDone := executePullAttempt(rec, repoDir, attempt, onProgress)
 		if isDone {
 			return res
 		}
+		lastFail = res
 		sleepRetryBackoff(attempt)
+	}
+	if lastFail.Error != "" {
+		return lastFail
 	}
 
 	return buildFinalFailureResult(rec)

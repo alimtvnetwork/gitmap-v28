@@ -23,10 +23,8 @@ func loadTargetNodes(target string) ([]db.SSHConnection, error) {
 }
 
 func checkRemoteNodeOnline(ip, header string) bool {
-	isOnline, reason := CheckConnLiveness(context.Background(), ip, 22, 0)
+	isOnline, _ := CheckConnLiveness(context.Background(), ip, 22, 0)
 	if !isOnline {
-		appErr := apperror.NewExecutionError(fmt.Sprintf("node %s is unreachable: %s", header, reason))
-		printAppErrorWithStack(header, "Offline", appErr)
 		return false
 	}
 

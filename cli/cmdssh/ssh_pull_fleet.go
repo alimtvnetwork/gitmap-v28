@@ -16,9 +16,11 @@ import (
 )
 
 type fleetPullRepoItem struct {
-	RepoName string `json:"repoName"`
-	Status   string `json:"status"`
-	Changes  string `json:"changes"`
+	RepoName        string `json:"repoName"`
+	Status          string `json:"status"`
+	Changes         string `json:"changes"`
+	ErrorDetails    string `json:"errorDetails,omitempty"`
+	RemediationHint string `json:"remediationHint,omitempty"`
 }
 
 type fleetPullJSONSummary struct {
@@ -36,21 +38,46 @@ type FleetNodePullOutcome struct {
 	IP           string               `json:"ip"`
 	IsLocal      bool                 `json:"isLocal"`
 	Success      bool                 `json:"success"`
+	IsSkipped    bool                 `json:"isSkipped,omitempty"`
 	ErrorMsg     string               `json:"errorMsg,omitempty"`
 	Summary      fleetPullJSONSummary `json:"summary,omitempty"`
 	ActiveStates []fleetPullRepoItem  `json:"activeStates,omitempty"`
+}
+
+type fleetNodeLiveness struct {
+	conn     db.SSHConnection
+	isOnline bool
 }
 
 // RunSSHPullAllFleet executes pull-all across SSH fleet nodes and Local VM concurrently.
 func RunSSHPullAllFleet(cleanArgs []string) error {
 	isJSON := hasFleetJSONFlag(cleanArgs)
 	conns, _ := fetchAllSSHConnections()
+	probes := probeFleetLiveness(conns)
 	if !isJSON {
-		printFleetEnqueueBanner(conns)
+		printFleetEnqueueBanner(probes)
 	}
-	outcomes := executeFleetPullAll(conns, cleanArgs)
+	outcomes := executeFleetPullAll(probes, cleanArgs)
 
 	return renderFleetPullAllOutcomes(outcomes, isJSON)
+}
+
+func probeFleetLiveness(conns []db.SSHConnection) []fleetNodeLiveness {
+	results := make([]fleetNodeLiveness, len(conns))
+	var wg sync.WaitGroup
+	for i, c := range conns {
+		wg.Add(1)
+		idx := i
+		targetConn := c
+		go func() {
+			defer wg.Done()
+			isOnline, _ := CheckConnLiveness(context.Background(), targetConn.IPAddress, 22, 0)
+			results[idx] = fleetNodeLiveness{conn: targetConn, isOnline: isOnline}
+		}()
+	}
+	wg.Wait()
+
+	return results
 }
 
 func hasFleetJSONFlag(args []string) bool {
@@ -63,17 +90,58 @@ func hasFleetJSONFlag(args []string) bool {
 	return false
 }
 
-func printFleetEnqueueBanner(conns []db.SSHConnection) {
+func printFleetEnqueueBanner(probes []fleetNodeLiveness) {
 	fmt.Printf("\n%s  Enqueuing 'pull-all' across SSH fleet:%s\n", constants.ColorCyan, constants.ColorReset)
-	for _, c := range conns {
-		fmt.Printf("    • Remote Node [%s] (%s): %sEnqueued (async)%s\n",
-			c.Alias, c.IPAddress, constants.ColorDim, constants.ColorReset)
+	for _, p := range probes {
+		c := p.conn
+		if p.isOnline {
+			fmt.Printf("    • Remote Node [%s] (%s): %sOnline → Enqueued (async)%s\n",
+				c.Alias, c.IPAddress, constants.ColorGreen, constants.ColorReset)
+			continue
+		}
+		fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
+			c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
 	}
-	fmt.Printf("    • Local VM (127.0.0.1 - localhost): %sRunning locally%s\n\n",
-		constants.ColorGreen, constants.ColorReset)
+	host := resolveLocalHostname()
+	fmt.Printf("    • Current Machine [%s (127.0.0.1)]: %sRunning locally (direct execution, not enqueued)%s\n\n",
+		host, constants.ColorGreen, constants.ColorReset)
 }
 
-func executeFleetPullAll(conns []db.SSHConnection, cleanArgs []string) []FleetNodePullOutcome {
+func resolveLocalHostname() string {
+	host, err := os.Hostname()
+	if err != nil || host == "" {
+		return "localhost"
+	}
+	return host
+}
+
+func executeFleetPullAll(probes []fleetNodeLiveness, cleanArgs []string) []FleetNodePullOutcome {
+	var online []db.SSHConnection
+	var skipped []FleetNodePullOutcome
+	for _, p := range probes {
+		if p.isOnline {
+			online = append(online, p.conn)
+			continue
+		}
+		skipped = append(skipped, buildSkippedFleetOutcome(p.conn.Alias, p.conn.IPAddress))
+	}
+	dispatched := dispatchOnlineFleetPull(online, cleanArgs)
+
+	return append(dispatched, skipped...)
+}
+
+func buildSkippedFleetOutcome(name, ip string) FleetNodePullOutcome {
+	return FleetNodePullOutcome{
+		NodeName:  name,
+		IP:        ip,
+		IsLocal:   false,
+		Success:   false,
+		IsSkipped: true,
+		ErrorMsg:  "offline (skipped, no task enqueued)",
+	}
+}
+
+func dispatchOnlineFleetPull(conns []db.SSHConnection, cleanArgs []string) []FleetNodePullOutcome {
 	total := len(conns) + 1
 	outcomes := make([]FleetNodePullOutcome, total)
 	var wg sync.WaitGroup
@@ -165,7 +233,31 @@ func runRemotePullJSON(client *ssh.Client, c db.SSHConnection) (string, error) {
 		updateTargetNodeGitmap(client, osType)
 		return crypto.RunCommand(client, "gitmap pa --json", "")
 	}
+	if strings.Contains(out, "a pending task already exists for pa") {
+		return recoverRemotePendingTask(client, out)
+	}
 	return out, err
+}
+
+func recoverRemotePendingTask(client *ssh.Client, rawOutput string) (string, error) {
+	taskID := extractPendingTaskID(rawOutput)
+	if taskID != "" {
+		_, _ = crypto.RunCommand(client, "gitmap task cancel "+taskID, "")
+	}
+	return crypto.RunCommand(client, "gitmap pa --json", "")
+}
+
+func extractPendingTaskID(s string) string {
+	idx := strings.Index(s, "(Id ")
+	if idx == -1 {
+		return ""
+	}
+	sub := s[idx+4:]
+	end := strings.Index(sub, ")")
+	if end == -1 {
+		return ""
+	}
+	return strings.TrimSpace(sub[:end])
 }
 
 func buildFailedFleetOutcome(name, ip string, isLocal bool, msg string) FleetNodePullOutcome {
@@ -249,6 +341,9 @@ func renderFleetPullAllOutcomes(outcomes []FleetNodePullOutcome, isJSON bool) er
 }
 
 func renderSingleFleetOutcome(o FleetNodePullOutcome) {
+	if o.IsSkipped {
+		return
+	}
 	if !o.Success {
 		fmt.Printf("  %s▶ Node [%s] (IP: %s): %sfailed%s\n",
 			constants.ColorYellow, o.NodeName, o.IP, constants.ColorRed, constants.ColorReset)
@@ -287,16 +382,27 @@ func printNodeOutcomeHeader(o FleetNodePullOutcome, activeCount, upToDateCount i
 }
 
 func renderActiveStatesList(states []fleetPullRepoItem) {
+	colWidth := resolveFleetStatesColWidth(states)
+	for _, s := range states {
+		styled := styleFleetStatus(s.Status, s.Changes)
+		fmt.Printf("      • %-*s  %s\n", colWidth, s.RepoName, styled)
+		if s.ErrorDetails != "" {
+			fmt.Printf("        %s↳ Reason: %s%s\n", constants.ColorDim, s.ErrorDetails, constants.ColorReset)
+		}
+		if s.RemediationHint != "" {
+			fmt.Printf("        %s↳ Next Step: %s%s\n", constants.ColorCyan, s.RemediationHint, constants.ColorReset)
+		}
+	}
+}
+
+func resolveFleetStatesColWidth(states []fleetPullRepoItem) int {
 	colWidth := 26
 	for _, s := range states {
 		if len(s.RepoName) > colWidth {
 			colWidth = len(s.RepoName)
 		}
 	}
-	for _, s := range states {
-		styled := styleFleetStatus(s.Status, s.Changes)
-		fmt.Printf("      • %-*s  %s\n", colWidth, s.RepoName, styled)
-	}
+	return colWidth
 }
 
 func styleFleetStatus(status, changes string) string {

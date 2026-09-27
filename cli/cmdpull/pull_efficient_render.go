@@ -34,11 +34,23 @@ func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecor
 			fmt.Fprintln(w)
 			hasActive = true
 		}
-		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, statusLabel))
+		renderConciseRepoEntry(w, colWidth, s, statusLabel)
 	}
 	if !hasActive {
 		fmt.Fprintln(w)
 		fmt.Fprintln(w, "  (all repositories are up-to-date)")
+	}
+}
+
+func renderConciseRepoEntry(w io.Writer, colWidth int, s *PullRepoState, statusLabel string) {
+	fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, statusLabel))
+	errDetails := ResolvePullErrorDetails(s)
+	if errDetails != "" {
+		fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
+	}
+	remHint := ResolvePullRemediationHint(s)
+	if remHint != "" {
+		fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
 	}
 }
 

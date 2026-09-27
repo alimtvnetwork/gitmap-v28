@@ -39,12 +39,24 @@ func buildPullBatchSummary(total int, states []*PullRepoState, dur time.Duration
 func buildPullRepoSummaryItems(states []*PullRepoState) []PullRepoSummaryItem {
 	items := make([]PullRepoSummaryItem, 0, len(states))
 	for _, s := range states {
-		items = append(items, PullRepoSummaryItem{
-			RepoName: s.RepoName,
-			Status:   ResolveRepoStatusLabel(s.Changes),
-			Changes:  s.Changes,
-		})
+		item := buildSinglePullRepoSummaryItem(s)
+		items = append(items, item)
 	}
 
 	return items
 }
+
+func buildSinglePullRepoSummaryItem(s *PullRepoState) PullRepoSummaryItem {
+	status := ResolveRepoStatusLabel(s.Changes)
+	item := PullRepoSummaryItem{
+		RepoName: s.RepoName,
+		Status:   status,
+		Changes:  s.Changes,
+	}
+	if status == "failed" || status == "dirty" || s.ErrorMsg != "" {
+		item.ErrorDetails = ResolvePullErrorDetails(s)
+		item.RemediationHint = ResolvePullRemediationHint(s)
+	}
+	return item
+}
+

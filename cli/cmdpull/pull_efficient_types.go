@@ -29,9 +29,11 @@ type EfficientPullOptions struct {
 
 // PullRepoSummaryItem holds the outcome of pulling an individual repository.
 type PullRepoSummaryItem struct {
-	RepoName string `json:"repoName"`
-	Status   string `json:"status"`
-	Changes  string `json:"changes"`
+	RepoName        string `json:"repoName"`
+	Status          string `json:"status"`
+	Changes         string `json:"changes"`
+	ErrorDetails    string `json:"errorDetails,omitempty"`
+	RemediationHint string `json:"remediationHint,omitempty"`
 }
 
 // PullEfficientSummary represents the serialized JSON summary of an efficient pull operation.

@@ -1,3 +1,9 @@
+## v6.351.0 — 2026-09-27 (SSH fleet preflight liveness, error details, and clean dispatch)
+
+**Scope:** Version bump. SSH fleet preflight liveness, error details, and clean dispatch.
+
+---
+
 ## v6.350.0 — 2026-09-27 (SSH Fleet Auto-Update Guard and Concise Pull Remediation)
 
 **Scope:** Version bump. SSH Fleet Auto-Update Guard and Concise Pull Remediation.
