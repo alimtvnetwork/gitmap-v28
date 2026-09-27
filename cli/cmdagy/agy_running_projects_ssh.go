@@ -18,7 +18,7 @@ var SSHConnectionsFetcher func() ([]db.SSHConnection, error)
 // AggregateSSHRunningProjects queries remote SSH cluster nodes and aggregates with local.
 func AggregateSSHRunningProjects(local []RunningProjectRecord, isJSON bool, filePath string) error {
 	remoteRecords := fetchClusterSSHRunningProjects()
-	allRecords := append(local, remoteRecords...)
+	allRecords := mergeProjectRecords(local, remoteRecords)
 	if filePath != "" {
 		return writeRunningProjectsToFile(allRecords, filePath)
 	}
@@ -27,6 +27,13 @@ func AggregateSSHRunningProjects(local []RunningProjectRecord, isJSON bool, file
 	}
 	renderSSHRunningProjectsTable(allRecords)
 	return nil
+}
+
+func mergeProjectRecords(local, remote []RunningProjectRecord) []RunningProjectRecord {
+	merged := make([]RunningProjectRecord, 0, len(local)+len(remote))
+	merged = append(merged, local...)
+	merged = append(merged, remote...)
+	return merged
 }
 
 func fetchClusterSSHRunningProjects() []RunningProjectRecord {

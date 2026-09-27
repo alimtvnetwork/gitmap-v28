@@ -16,13 +16,20 @@ import (
 func AggregateSSHRunningPromptsLs(local []store.RunningPromptRecord, limit, wordCount int, isFull, isJSON bool) error {
 	tagLocalPrompts(local)
 	remote := fetchClusterSSHRunningPromptsLs(wordCount, isFull)
-	all := append(local, remote...)
+	all := mergePromptRecords(local, remote)
 	all = applyPromptsLimit(all, limit)
 	if isJSON {
 		return printJSON(all)
 	}
 	RenderSSHRunningPromptsTable(all, isFull)
 	return nil
+}
+
+func mergePromptRecords(local, remote []store.RunningPromptRecord) []store.RunningPromptRecord {
+	merged := make([]store.RunningPromptRecord, 0, len(local)+len(remote))
+	merged = append(merged, local...)
+	merged = append(merged, remote...)
+	return merged
 }
 
 func tagLocalPrompts(items []store.RunningPromptRecord) {
@@ -237,12 +244,19 @@ func renderRemoteBackupSummary(node, out string, isJSON bool) {
 func AggregateSSHRunningPromptsBackupLs(customFile string, isJSON bool) error {
 	localBatches := fetchLocalBatches(customFile)
 	remoteBatches := fetchClusterSSHBackupBatches(customFile)
-	all := append(localBatches, remoteBatches...)
+	all := mergeBatchRecords(localBatches, remoteBatches)
 	if isJSON {
 		return printJSON(all)
 	}
 	RenderSSHBackupBatchesTable(all)
 	return nil
+}
+
+func mergeBatchRecords(local, remote []store.PromptBackupBatchRecord) []store.PromptBackupBatchRecord {
+	merged := make([]store.PromptBackupBatchRecord, 0, len(local)+len(remote))
+	merged = append(merged, local...)
+	merged = append(merged, remote...)
+	return merged
 }
 
 func fetchLocalBatches(customFile string) []store.PromptBackupBatchRecord {
