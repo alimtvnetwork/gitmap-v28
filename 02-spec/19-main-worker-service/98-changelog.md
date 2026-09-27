@@ -1,3 +1,9 @@
+## v6.365.0 — 2026-09-27 (Add shutdown-until root command, two-column rich help menu, and dry-run safety)
+
+**Scope:** Version bump. Add shutdown-until root command, two-column rich help menu, and dry-run safety.
+
+---
+
 ## v6.364.0 — 2026-09-27 (Smart deploy two-column rich UI help menu, live trace prompt injection, and Split-DB restore E2E verification)
 
 **Scope:** Version bump. Smart deploy two-column rich UI help menu, live trace prompt injection, and Split-DB restore E2E verification.
