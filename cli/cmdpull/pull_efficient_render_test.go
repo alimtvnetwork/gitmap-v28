@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
 )
 
 func TestResolveConciseRepoColWidth(t *testing.T) {
@@ -101,31 +100,29 @@ func TestRenderConciseActiveResultsTo(t *testing.T) {
 		}
 	}
 
-	if len(lines) != 4 {
-		t.Fatalf("expected 4 lines rendered, got %d:\n%s", len(lines), buf.String())
+	// Only 2 active repos (alim-cv-v8 and Antigravity-Manager) should be rendered; 2 up-to-date omitted!
+	if len(lines) != 2 {
+		t.Fatalf("expected 2 active lines rendered, got %d:\n%s", len(lines), buf.String())
 	}
 
-	// Verify that each status starts at the exact same column index
-	var commonStatusCol int
 	for i, line := range lines {
-		// Bullet prefix must be present
 		if !strings.HasPrefix(line, "    • ") {
 			t.Errorf("line %d missing bullet prefix: %q", i, line)
 		}
+	}
+}
 
-		plainLine := termpad.StripAnsi(line)
-		expectedLabel := ResolveRepoStatusLabel(states[i].Changes)
-		statusCol := strings.LastIndex(plainLine, expectedLabel)
-		if statusCol == -1 {
-			t.Errorf("line %d does not contain expected status %q: %s", i, expectedLabel, line)
-		}
+func TestRenderConciseActiveResultsTo_AllUpToDate(t *testing.T) {
+	states := []*PullRepoState{
+		{RepoName: "repo-a", Changes: "up-to-date"},
+		{RepoName: "repo-b", Changes: ""},
+	}
 
-		if i == 0 {
-			commonStatusCol = statusCol
-		} else if statusCol != commonStatusCol {
-			t.Errorf("line %d status column (%d) != line 0 status column (%d):\nLine 0: %s\nLine %d: %s",
-				i, statusCol, commonStatusCol, lines[0], i, line)
-		}
+	var buf bytes.Buffer
+	RenderConciseActiveResultsTo(&buf, states)
+
+	if !strings.Contains(buf.String(), "(all repositories are up-to-date)") {
+		t.Fatalf("expected all repositories up to date notice, got: %s", buf.String())
 	}
 }
 

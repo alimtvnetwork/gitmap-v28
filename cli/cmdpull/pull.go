@@ -120,6 +120,9 @@ func runPull(args []string) error {
 		return err
 	}
 	isPullAll := isPullAllInvocation(args)
+	if isPullAll && hasSSHFleetFlag(args) {
+		return handleSSHFleetPullAll(args)
+	}
 	args = NormalizePullArgs(args)
 	if !hasJSONArg(args) {
 		printPullInvocationHeader(isPullAll)
@@ -132,6 +135,37 @@ func runPull(args []string) error {
 	opts := resolveParsedPullOptions(restArgs, useSSH, useHTTPS)
 
 	return executePullWithResolvedOptions(opts)
+}
+
+func handleSSHFleetPullAll(args []string) error {
+	cleanArgs := stripSSHFleetFlags(args)
+	if RunRemoteSSHPullAllFleetFn == nil {
+		return errors.New("ssh fleet pull-all is not wired")
+	}
+
+	return RunRemoteSSHPullAllFleetFn(cleanArgs)
+}
+
+func hasSSHFleetFlag(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "--ssh" || low == "-ssh" || low == "--sh" || low == "-sh" || low == "ssh" {
+			return true
+		}
+	}
+	return false
+}
+
+func stripSSHFleetFlags(args []string) []string {
+	var clean []string
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "--ssh" || low == "-ssh" || low == "--sh" || low == "-sh" || low == "ssh" {
+			continue
+		}
+		clean = append(clean, a)
+	}
+	return clean
 }
 
 func executePullWithResolvedOptions(opts pullOptions) error {
@@ -333,7 +367,9 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	if taskDB != nil {
 		defer taskDB.Close()
 	}
-	maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
+	if !opts.all {
+		maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
+	}
 	bar, sortedStates, dur := runPullBatchExecution(records, opts)
 	syncPullBatchTelemetry(records, sortedStates, dur, opts)
 	if opts.isJSON {
@@ -364,14 +400,37 @@ func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullP
 func renderPullBatchOutput(records []model.ScanRecord, sortedStates []*PullRepoState, dur time.Duration, opts pullOptions) {
 	if opts.all && !opts.showStatus {
 		renderConciseActiveResults(sortedStates, records)
-		printPullAllFastSummary(len(sortedStates), dur)
+		activeCount, upToDateCount := countActiveStates(sortedStates)
+		printPullAllFastSummary(len(sortedStates), activeCount, upToDateCount, dur)
 	} else {
 		renderPullBatchResults(sortedStates)
 	}
 	handlePullRemediationForRecords(records, opts)
 }
 
-func printPullAllFastSummary(pulledCount int, dur time.Duration) {
+func countActiveStates(states []*PullRepoState) (int, int) {
+	activeCount := 0
+	upToDateCount := 0
+	for _, s := range states {
+		if ResolveRepoStatusLabel(s.Changes) == "up-to-date" {
+			upToDateCount++
+		} else {
+			activeCount++
+		}
+	}
+
+	return activeCount, upToDateCount
+}
+
+func printPullAllFastSummary(pulledCount, activeCount, upToDateCount int, dur time.Duration) {
+	if activeCount > 0 {
+		fmt.Printf("\n  %s✓%s %sPull all complete:%s %d pulled (%d active, %d up-to-date) (%s)\n\n",
+			constants.ColorGreen, constants.ColorReset,
+			constants.ColorBold, constants.ColorReset,
+			pulledCount, activeCount, upToDateCount, FormatPullDuration(dur))
+
+		return
+	}
 	fmt.Printf("\n  %s✓%s %sPull all complete:%s %d pulled (%s)\n\n",
 		constants.ColorGreen, constants.ColorReset,
 		constants.ColorBold, constants.ColorReset,

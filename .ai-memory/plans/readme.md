@@ -11,6 +11,7 @@
 - [166-pull-all-fast-mode-and-templates-db-orchestration.md](completed/166-pull-all-fast-mode-and-templates-db-orchestration.md) — Pull-All Fast Mode Performance & Templates State DB Hygiene (Spec: [166](../../02-spec/21-app/166-pull-all-fast-mode-and-templates-db-orchestration.md))
 - [167-agy-running-prompts-backup-restore-and-green-automation.md](completed/167-agy-running-prompts-backup-restore-and-green-automation.md) — Antigravity Running Prompts Backup, Restore, and Automation (Spec: [167](../../02-spec/21-app/167-agy-running-prompts-backup-restore-and-green-automation/01-overview.md))
 - [168-commit-pull-array-async-pool-ui-and-bootstrap.md](completed/168-commit-pull-array-async-pool-ui-and-bootstrap.md) — Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap (Spec: [168](../../02-spec/21-app/168-commit-pull-array-async-pool-ui-and-bootstrap.md))
+- [169-pull-all-concise-summary-and-ssh-fleet-json.md](completed/169-pull-all-concise-summary-and-ssh-fleet-json.md) — Pull-All Concise Summary Filtering, Noise Elimination & SSH Fleet JSON Orchestration (Spec: [169](../../02-spec/21-app/169-pull-all-concise-summary-and-ssh-fleet-json.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

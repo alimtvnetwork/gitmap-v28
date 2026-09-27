@@ -20,13 +20,25 @@ func renderConciseActiveResults(states []*PullRepoState, allRecords ...[]model.S
 	RenderConciseActiveResultsTo(os.Stdout, states, allRecords...)
 }
 
-// RenderConciseActiveResultsTo renders concise repo states to the provided writer.
+// RenderConciseActiveResultsTo renders concise repo states to the provided writer,
+// suppressing unchanged up-to-date repositories to eliminate terminal bloat.
 func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecords ...[]model.ScanRecord) {
-	fmt.Fprintln(w)
 	colWidth := ResolveConciseRepoColWidth(states, allRecords...)
+	hasActive := false
 	for _, s := range states {
 		statusLabel := ResolveRepoStatusLabel(s.Changes)
+		if statusLabel == "up-to-date" {
+			continue
+		}
+		if !hasActive {
+			fmt.Fprintln(w)
+			hasActive = true
+		}
 		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, statusLabel))
+	}
+	if !hasActive {
+		fmt.Fprintln(w)
+		fmt.Fprintln(w, "  (all repositories are up-to-date)")
 	}
 }
 

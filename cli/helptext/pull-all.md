@@ -28,6 +28,7 @@ automatically and is idempotent (passing it again is a no-op).
 |------|---------|-------------|
 | --status, --table | false | Render the full post-pull repository status table |
 | --json | false | Suppress interactive progress bar and emit JSON summary to stdout |
+| --ssh, -s | false | Dispatch pull-all across SSH cluster fleet and Local VM concurrently |
 | --verbose | false | Enable verbose logging |
 | --parallel \<N\> | 0 (auto) | Run up to N pulls concurrently (worker pool) |
 | --only-available | false | Skip repos whose latest probe reports no new tag |
@@ -39,7 +40,7 @@ automatically and is idempotent (passing it again is a no-op).
 
 ## Examples
 
-### Example 1: Default fast batch pull
+### Example 1: Default fast batch pull (shows only active/updated repos)
 
 ```bash
 gitmap pa
@@ -47,10 +48,10 @@ gitmap pa
 
 **Output:**
 
-    • my-api                      up-to-date
     • frontend                    +12/-3 (2 files)
+    • backend-api                 dirty
 
-  ✓ Pull all complete: 37 pulled (1.4s)
+  ✓ Pull all complete: 64 pulled (2 active, 62 up-to-date) (1.4s)
 
 ### Example 2: Full post-pull status table (`--status` or `pat`)
 
@@ -66,7 +67,26 @@ gitmap pull all table
 gitmap pa --json
 ```
 
-### Example 4: 8-way parallel, only repos with new commits
+### Example 4: SSH fleet batch pull (`--ssh`)
+
+```bash
+gitmap pa --ssh
+```
+
+**Output:**
+
+  Enqueuing 'pull-all' across SSH fleet:
+    • Remote Node [alpha-win] (10.20.0.11): Enqueued (async)
+    • Remote Node [beta-linux] (10.20.0.12): Enqueued (async)
+    • Local VM (127.0.0.1 - localhost): Running locally
+
+  ▶ Local VM (127.0.0.1 - localhost): 64 pulled (1 active, 63 up-to-date)
+      • wp-exam-v2    +1266/-131 (10)
+
+  ▶ Node [alpha-win] (IP: 10.20.0.11): 64 pulled (all up-to-date)
+      (all repositories are up-to-date)
+
+### Example 5: 8-way parallel, only repos with new commits
 
 ```bash
 gitmap pull-all --parallel 8 --only-available --stop-on-fail

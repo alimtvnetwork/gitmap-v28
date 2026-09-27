@@ -165,3 +165,23 @@ func TestNormalizePullArgs_TrailingFlags(t *testing.T) {
 		t.Fatalf("expected slug=my-repo isJSON=true, got slug=%q isJSON=%v", opts.slug, opts.isJSON)
 	}
 }
+
+func TestHasSSHFleetFlag(t *testing.T) {
+	if !hasSSHFleetFlag([]string{"pa", "--ssh"}) {
+		t.Fatal("expected hasSSHFleetFlag=true for --ssh")
+	}
+	if !hasSSHFleetFlag([]string{"pull-all", "--sh"}) {
+		t.Fatal("expected hasSSHFleetFlag=true for --sh")
+	}
+	if hasSSHFleetFlag([]string{"pa", "--status"}) {
+		t.Fatal("expected hasSSHFleetFlag=false without ssh flag")
+	}
+}
+
+func TestStripSSHFleetFlags(t *testing.T) {
+	clean := stripSSHFleetFlags([]string{"pa", "--ssh", "--status"})
+	if len(clean) != 2 || clean[0] != "pa" || clean[1] != "--status" {
+		t.Fatalf("expected [pa, --status], got %v", clean)
+	}
+}
+

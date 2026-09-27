@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-27T10:11:37Z",
+  "updated_at": "2026-09-27T10:24:44Z",
   "total_tests": 4241,
   "summary": {
     "total": 4241,
@@ -57935,7 +57935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-27T10:11:43",
+      "last_run_at": "2026-09-27T10:24:45",
       "needs_run": false
     },
     "cli/cmd/commitin/orchestrator.TestApplyExclusions_NoRulesReturnsInputUnchanged": {
@@ -57951,7 +57951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-27T10:11:43",
+      "last_run_at": "2026-09-27T10:24:45",
       "needs_run": false
     },
     "cli/cmd/commitin/orchestrator.TestApplyExclusions_FolderMatchesNestedSegment": {
@@ -57967,7 +57967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-27T10:11:43",
+      "last_run_at": "2026-09-27T10:24:45",
       "needs_run": false
     },
     "cli/cmd/commitin/orchestrator.TestApplyExclusions_FileExactMatchOnly": {
@@ -57983,7 +57983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-27T10:11:43",
+      "last_run_at": "2026-09-27T10:24:45",
       "needs_run": false
     },
     "cli/cmd/commitin/profile.TestEncodeDecodeRoundTrip": {
