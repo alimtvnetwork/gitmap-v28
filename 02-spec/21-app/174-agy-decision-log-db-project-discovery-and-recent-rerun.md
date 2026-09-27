@@ -49,13 +49,13 @@ PS C:\Users\Administrator> gitmap agy ls
   ║         antigravity projects         ║
   ╚══════════════════════════════════════╝
 
-  8 projects from C:\Users\Administrator\.gemini\config\projects
+  8 projects from ~/.gemini/config/projects
   ──────────────────────────────────────────────────────────────────────
 
-   c:\Users\Administrator\Documents\antigravity (1 projects)
+   ~/Documents/antigravity (1 projects)
   SEQ   CONV NAME          ID           PROJECT               PATH
   ──────────────────────────────────────────────────────────────────────
-  048   —                  9a5f0c7c     adventurous-galileo   c:\Users\Administra...\adventurous-galileo
+  048   —                  9a5f0c7c     adventurous-galileo   ~/Documents/antigravity/adventurous-galileo
 
    d:\work (5 projects)
   SEQ   CONV NAME          ID           PROJECT               PATH
