@@ -17,4 +17,5 @@
 - [167-agy-running-prompts-backup-restore-and-green-automation](167-agy-running-prompts-backup-restore-and-green-automation/01-overview.md) — Antigravity Running Prompts Backup, Restore, and Automation (Status: `active`)
 - [168-commit-pull-array-async-pool-ui-and-bootstrap.md](168-commit-pull-array-async-pool-ui-and-bootstrap.md) — Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap (Status: `active`)
 - [169-pull-all-concise-summary-and-ssh-fleet-json.md](169-pull-all-concise-summary-and-ssh-fleet-json.md) — Pull-All Concise Summary Filtering, Noise Elimination & SSH Fleet JSON Orchestration (Status: `active`)
+- [170-repo-create-cg-sync-no-sync-and-race-detector-guard.md](170-repo-create-cg-sync-no-sync-and-race-detector-guard.md) — Repo Create Coding Guideline Auto-Sync, No-Sync Flag & Race Detector Guard (Status: `active`)
 
