@@ -1,3 +1,9 @@
+## v6.364.0 — 2026-09-27 (Smart deploy two-column rich UI help menu, live trace prompt injection, and Split-DB restore E2E verification)
+
+**Scope:** Version bump. Smart deploy two-column rich UI help menu, live trace prompt injection, and Split-DB restore E2E verification.
+
+---
+
 ## v6.363.0 — 2026-09-27 (Fix telemetry array extraction in fleet update, verified running prompts restore and deploy)
 
 **Scope:** Version bump. Fix telemetry array extraction in fleet update, verified running prompts restore and deploy.
