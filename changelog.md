@@ -3143,6 +3143,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.346.0] - 2026-09-27
+
+### Added
+- Antigravity running prompts backup restore, running projects, fpug, sug, and pe cache
+
+---
+
 ## [v6.345.0] - 2026-09-26
 
 ### Added

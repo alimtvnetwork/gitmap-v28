@@ -1,3 +1,9 @@
+## v6.346.0 — 2026-09-27 (Antigravity running prompts backup restore, running projects, fpug, sug, and pe cache)
+
+**Scope:** Version bump. Antigravity running prompts backup restore, running projects, fpug, sug, and pe cache.
+
+---
+
 ## v6.345.0 — 2026-09-26 (Pull-all fast mode, templates state DB, and declarative config)
 
 **Scope:** Version bump. Pull-all fast mode, templates state DB, and declarative config.
