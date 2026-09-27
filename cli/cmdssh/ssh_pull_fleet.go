@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -111,10 +112,11 @@ func executeLocalVMPull(cleanArgs []string) FleetNodePullOutcome {
 }
 
 func executeRemoteNodePull(c db.SSHConnection) FleetNodePullOutcome {
-	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
-	if !checkRemoteNodeOnline(c.IPAddress, header) {
+	isOnline, _ := CheckConnLiveness(context.Background(), c.IPAddress, 22, 0)
+	if !isOnline {
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, "offline: node unreachable")
 	}
+	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
 	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, "connection or auth failed")
