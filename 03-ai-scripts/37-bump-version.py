@@ -36,7 +36,8 @@ PACKAGE_JSON = REPO_ROOT / "package.json"
 README_MD = REPO_ROOT / "readme.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
 SPEC19_CHANGELOG = REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md"
-TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
+CLI_CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
+LATEST_RELEASE_JSON = REPO_ROOT / ".gitmap" / "release" / "latest.json"
 
 
 def run_cmd(cmd, cwd=None, check=True, capture_output=True):
@@ -54,33 +55,6 @@ def run_cmd(cmd, cwd=None, check=True, capture_output=True):
     return result
 
 
-def read_canonical_version():
-    """Reads current SemVer from version.json or package.json."""
-    if VERSION_JSON.is_file():
-        try:
-            with open(VERSION_JSON, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
-            raw_ver = data.get("Version") or data.get("version")
-            if raw_ver:
-                return str(raw_ver).strip()
-        except Exception:
-            pass
-
-    if PACKAGE_JSON.is_file():
-        try:
-            with open(PACKAGE_JSON, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
-            raw_ver = data.get("version")
-            if raw_ver:
-                return str(raw_ver).strip()
-        except Exception:
-            pass
-
-    raise FileNotFoundError("Could not find canonical version in version.json or package.json.")
-
-
 def parse_semver(ver_str):
     """Parses X.Y.Z into a tuple of ints (major, minor, patch)."""
     clean_ver = ver_str.lstrip("v")
@@ -89,6 +63,60 @@ def parse_semver(ver_str):
         raise ValueError(f"Invalid SemVer format: '{ver_str}' (expected X.Y.Z)")
 
     return int(match.group(1)), int(match.group(2)), int(match.group(3))
+
+
+def read_canonical_version():
+    """Reads current SemVer from git tags, cli/constants/constants.go, version.json, or package.json."""
+    candidates = []
+
+    try:
+        tag_out = run_cmd(["git", "describe", "--tags", "--abbrev=0"], check=False)
+        if tag_out.returncode == 0 and tag_out.stdout.strip():
+            candidates.append(tag_out.stdout.strip().lstrip("v"))
+    except Exception:
+        pass
+
+    if CLI_CONSTANTS_GO.is_file():
+        try:
+            m = re.search(r'var Version = "([^"]+)"', CLI_CONSTANTS_GO.read_text(encoding="utf-8"))
+            if m:
+                candidates.append(m.group(1).lstrip("v"))
+        except Exception:
+            pass
+
+    if VERSION_JSON.is_file():
+        try:
+            with open(VERSION_JSON, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            raw_ver = data.get("Version") or data.get("version")
+            if raw_ver:
+                candidates.append(str(raw_ver).strip().lstrip("v"))
+        except Exception:
+            pass
+
+    if PACKAGE_JSON.is_file():
+        try:
+            with open(PACKAGE_JSON, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            raw_ver = data.get("version")
+            if raw_ver:
+                candidates.append(str(raw_ver).strip().lstrip("v"))
+        except Exception:
+            pass
+
+    valid_candidates = []
+    for c in candidates:
+        try:
+            parse_semver(c)
+            valid_candidates.append(c)
+        except Exception:
+            pass
+
+    if not valid_candidates:
+        raise FileNotFoundError("Could not find canonical version.")
+
+    valid_candidates.sort(key=parse_semver, reverse=True)
+    return valid_candidates[0]
 
 
 def calculate_next_version(current_ver, tier):
@@ -204,7 +232,19 @@ def update_readme_pins(current_ver, next_version, dry_run=False):
 
 def update_changelogs(next_version, scope, today_str, dry_run=False):
     """Prepends release entries to changelog.md and spec19 changelog if present."""
-    entry_header = f"## [v{next_version}] - {today_str}\n\n### Added\n- {scope}\n\n---\n\n"
+    entry_header = f"""## [v{next_version}] {today_str} Release v{next_version}
+
+### Install GitMap v{next_version}
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.sh | bash -s -- ".ai-memory/prompts" "v{next_version}"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v{next_version}"`
+
+### Added / Changed / Fixed / Removed
+
+- {scope}
+
+"""
 
     if CHANGELOG_MD.is_file():
         with open(CHANGELOG_MD, "r", encoding="utf-8") as f:
@@ -219,9 +259,7 @@ def update_changelogs(next_version, scope, today_str, dry_run=False):
                 elif "# Changelog\n" in cl_content:
                     cl_content = cl_content.replace("# Changelog\n", f"# Changelog\n\n{entry_header}", 1)
                 else:
-                    cl_content = f"# Changelog\n\n{entry_header}{cl_content}"
-
-                cl_content = re.sub(r'\n{3,}', '\n\n', cl_content)
+                    cl_content = f"{entry_header}{cl_content}"
 
                 with open(CHANGELOG_MD, "w", encoding="utf-8", newline="\n") as f:
                     f.write(cl_content)
@@ -242,6 +280,76 @@ def update_changelogs(next_version, scope, today_str, dry_run=False):
                     f.write(s19_content)
 
                 print(f"[*] Prepended entry in {SPEC19_CHANGELOG.relative_to(REPO_ROOT)} -> v{next_version}")
+
+
+def update_cli_constants_version(next_version, dry_run=False):
+    """Updates Version in cli/constants/constants.go."""
+    if not CLI_CONSTANTS_GO.is_file():
+        return
+
+    content = CLI_CONSTANTS_GO.read_text(encoding="utf-8")
+    new_content = re.sub(r'var Version = "[^"]+"', f'var Version = "{next_version}"', content)
+    if new_content == content:
+        return
+
+    if dry_run:
+        print(f"[DRY RUN] Would update cli/constants/constants.go -> {next_version}")
+        return
+
+    CLI_CONSTANTS_GO.write_text(new_content, encoding="utf-8", newline="\n")
+    print(f"[*] Updated cli/constants/constants.go Version -> {next_version}")
+
+
+def update_latest_release_json(next_version, dry_run=False):
+    """Updates .gitmap/release/latest.json with latest release metadata."""
+    LATEST_RELEASE_JSON.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "version": next_version,
+        "tag": f"v{next_version}",
+        "branch": f"release/v{next_version}"
+    }
+
+    if dry_run:
+        print(f"[DRY RUN] Would update .gitmap/release/latest.json -> v{next_version}")
+        return
+
+    LATEST_RELEASE_JSON.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8", newline="\n")
+    print(f"[*] Updated .gitmap/release/latest.json -> v{next_version}")
+
+
+def build_release_notes_file(next_version, scope, dry_run=False):
+    """Writes release notes file under .ai-memory/release/."""
+    notes_dir = REPO_ROOT / ".ai-memory" / "release"
+    notes_dir.mkdir(parents=True, exist_ok=True)
+    notes_path = notes_dir / f"release-notes-v{next_version}.md"
+
+    content = f"""## Quick Install v{next_version}
+
+### Windows (PowerShell)
+
+```powershell
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v{next_version}"
+```
+
+### Unix / Linux / macOS (Bash)
+
+```bash
+curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.sh | bash -s -- ".ai-memory/prompts" "v{next_version}"
+```
+
+---
+
+## What's Changed in v{next_version}
+
+### Added / Changed / Fixed
+- {scope}
+"""
+    if dry_run:
+        print(f"[DRY RUN] Would write release notes: {notes_path.name}")
+        return
+
+    notes_path.write_text(content, encoding="utf-8", newline="\n")
+    print(f"[*] Wrote release notes -> {notes_path.name}")
 
 
 def run_repo_sync_if_available(dry_run=False):
@@ -283,7 +391,9 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
 
     update_version_json(next_ver, today_str, dry_run=dry_run)
     update_package_json(next_ver, dry_run=dry_run)
-    update_template_version(next_ver, dry_run=dry_run)
+    update_cli_constants_version(next_ver, dry_run=dry_run)
+    update_latest_release_json(next_ver, dry_run=dry_run)
+    build_release_notes_file(next_ver, bump_scope, dry_run=dry_run)
     update_readme_pins(current_ver, next_ver, dry_run=dry_run)
     update_changelogs(next_ver, bump_scope, today_str, dry_run=dry_run)
     run_repo_sync_if_available(dry_run=dry_run)
