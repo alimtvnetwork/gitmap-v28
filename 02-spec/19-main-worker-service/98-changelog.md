@@ -1,3 +1,9 @@
+## v6.360.0 — 2026-09-27 (Optimize CI cross-platform test compilation, enable GOCACHE, and scope windows e2e)
+
+**Scope:** Version bump. Optimize CI cross-platform test compilation, enable GOCACHE, and scope windows e2e.
+
+---
+
 ## v6.359.0 — 2026-09-27 (Pipeline accurate ETA calculation, overtime tracking, and multi-workflow bottleneck selection)
 
 **Scope:** Version bump. Pipeline accurate ETA calculation, overtime tracking, and multi-workflow bottleneck selection.
