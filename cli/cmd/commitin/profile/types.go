@@ -34,24 +34,24 @@ type FunctionIntel struct {
 // Profile is the canonical in-memory representation of a commit-in
 // profile (matches spec §5.2 byte-for-byte when re-serialized).
 type Profile struct {
-	Name              string
-	PRMode            string
-	SchemaVersion     int
-	SourceRepoPath    string
-	IsDefault         bool
-	ConflictMode      string
-	Author            *Author
-	Exclusions        []Exclusion
-	MessageRules      []MessageRule
-	TitleReplacements []TitleReplacementRule
-	MessagePrefix     []string
-	MessageSuffix     []string
-	TitlePrefix       string
-	TitleSuffix       string
+	Name               string
+	PRMode             string
+	SchemaVersion      int
+	SourceRepoPath     string
+	IsDefault          bool
+	ConflictMode       string
+	Author             *Author
+	Exclusions         []Exclusion
+	MessageRules       []MessageRule
+	TitleReplacements  []TitleReplacementRule
+	MessagePrefix      []string
+	MessageSuffix      []string
+	TitlePrefix        string
+	TitleSuffix        string
 	OverrideMessages   []string
 	IsOverrideOnlyWeak bool
 	WeakWords          []string
-	FunctionIntel     FunctionIntel
+	FunctionIntel      FunctionIntel
 }
 
 // CurrentSchemaVersion is the only SchemaVersion v1 loaders accept.

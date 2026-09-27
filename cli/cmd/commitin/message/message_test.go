@@ -157,7 +157,7 @@ func TestEmptyAfterStripFlagged(t *testing.T) {
 
 func TestPipelineOrderStripBeforeOverride(t *testing.T) {
 	res := profile.Resolved{
-		MessageRules:     []profile.MessageRule{{Kind: constants.CommitInMessageRuleKindStartsWith, Value: "Update"}},
+		MessageRules:       []profile.MessageRule{{Kind: constants.CommitInMessageRuleKindStartsWith, Value: "Update"}},
 		OverrideMessages:   []string{"Refined"},
 		IsOverrideOnlyWeak: true,
 		WeakWords:          []string{"update"},

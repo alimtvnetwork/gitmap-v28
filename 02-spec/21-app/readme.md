@@ -15,4 +15,5 @@
 - [164-pull-all-fast-mode-templates-db-and-commitin-config.md](164-pull-all-fast-mode-templates-db-and-commitin-config.md) — Pull-All Fast Mode, State Templates DB Engine, Pre-Compiled Variables & Declarative Commit-In Config (Status: `active`)
 - [166-pull-all-fast-mode-and-templates-db-orchestration.md](166-pull-all-fast-mode-and-templates-db-orchestration.md) — Pull-All Fast Mode Performance, Templates State DB Hygiene, and Declarative Config (Status: `active`)
 - [167-agy-running-prompts-backup-restore-and-green-automation](167-agy-running-prompts-backup-restore-and-green-automation/01-overview.md) — Antigravity Running Prompts Backup, Restore, and Automation (Status: `active`)
+- [168-commit-pull-array-async-pool-ui-and-bootstrap.md](168-commit-pull-array-async-pool-ui-and-bootstrap.md) — Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap (Status: `active`)
 

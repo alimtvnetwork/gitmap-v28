@@ -9,22 +9,22 @@ import (
 // jsonShape mirrors spec §5.2 key order exactly. Field tags drive both
 // strict decode (DisallowUnknownFields) and stable encode order.
 type jsonShape struct {
-	Name             string        `json:",omitempty"`
-	SchemaVersion    int           `json:",omitempty"`
-	SourceRepoPath   string        `json:",omitempty"`
-	IsDefault        bool          `json:",omitempty"`
-	ConflictMode     string        `json:",omitempty"`
-	Author           *jsonAuthor   `json:",omitempty"`
-	Exclusions       []jsonKV      `json:",omitempty"`
-	MessageRules     []jsonKV      `json:",omitempty"`
-	MessagePrefix    []string      `json:",omitempty"`
-	MessageSuffix    []string      `json:",omitempty"`
-	TitlePrefix      string        `json:",omitempty"`
-	TitleSuffix      string        `json:",omitempty"`
+	Name               string        `json:",omitempty"`
+	SchemaVersion      int           `json:",omitempty"`
+	SourceRepoPath     string        `json:",omitempty"`
+	IsDefault          bool          `json:",omitempty"`
+	ConflictMode       string        `json:",omitempty"`
+	Author             *jsonAuthor   `json:",omitempty"`
+	Exclusions         []jsonKV      `json:",omitempty"`
+	MessageRules       []jsonKV      `json:",omitempty"`
+	MessagePrefix      []string      `json:",omitempty"`
+	MessageSuffix      []string      `json:",omitempty"`
+	TitlePrefix        string        `json:",omitempty"`
+	TitleSuffix        string        `json:",omitempty"`
 	OverrideMessages   []string      `json:",omitempty"`
 	IsOverrideOnlyWeak bool          `json:"overrideOnlyWeak,omitempty"`
 	WeakWords          []string      `json:",omitempty"`
-	FunctionIntel    jsonFuncIntel `json:",omitempty"`
+	FunctionIntel      jsonFuncIntel `json:",omitempty"`
 }
 
 type jsonAuthor struct {
@@ -72,19 +72,19 @@ func Encode(p *Profile) ([]byte, error) {
 
 func shapeToProfile(s *jsonShape) *Profile {
 	p := &Profile{
-		Name:             s.Name,
-		SchemaVersion:    s.SchemaVersion,
-		SourceRepoPath:   s.SourceRepoPath,
-		IsDefault:        s.IsDefault,
-		ConflictMode:     s.ConflictMode,
-		MessagePrefix:    s.MessagePrefix,
-		MessageSuffix:    s.MessageSuffix,
-		TitlePrefix:      s.TitlePrefix,
-		TitleSuffix:      s.TitleSuffix,
+		Name:               s.Name,
+		SchemaVersion:      s.SchemaVersion,
+		SourceRepoPath:     s.SourceRepoPath,
+		IsDefault:          s.IsDefault,
+		ConflictMode:       s.ConflictMode,
+		MessagePrefix:      s.MessagePrefix,
+		MessageSuffix:      s.MessageSuffix,
+		TitlePrefix:        s.TitlePrefix,
+		TitleSuffix:        s.TitleSuffix,
 		OverrideMessages:   s.OverrideMessages,
 		IsOverrideOnlyWeak: s.IsOverrideOnlyWeak,
 		WeakWords:          s.WeakWords,
-		FunctionIntel:    FunctionIntel{IsEnabled: s.FunctionIntel.IsEnabled, Languages: s.FunctionIntel.Languages},
+		FunctionIntel:      FunctionIntel{IsEnabled: s.FunctionIntel.IsEnabled, Languages: s.FunctionIntel.Languages},
 	}
 
 	if s.Author != nil {
@@ -104,19 +104,19 @@ func shapeToProfile(s *jsonShape) *Profile {
 
 func profileToShape(p *Profile) *jsonShape {
 	s := &jsonShape{
-		Name:             p.Name,
-		SchemaVersion:    p.SchemaVersion,
-		SourceRepoPath:   p.SourceRepoPath,
-		IsDefault:        p.IsDefault,
-		ConflictMode:     p.ConflictMode,
-		MessagePrefix:    p.MessagePrefix,
-		MessageSuffix:    p.MessageSuffix,
-		TitlePrefix:      p.TitlePrefix,
-		TitleSuffix:      p.TitleSuffix,
+		Name:               p.Name,
+		SchemaVersion:      p.SchemaVersion,
+		SourceRepoPath:     p.SourceRepoPath,
+		IsDefault:          p.IsDefault,
+		ConflictMode:       p.ConflictMode,
+		MessagePrefix:      p.MessagePrefix,
+		MessageSuffix:      p.MessageSuffix,
+		TitlePrefix:        p.TitlePrefix,
+		TitleSuffix:        p.TitleSuffix,
 		OverrideMessages:   p.OverrideMessages,
 		IsOverrideOnlyWeak: p.IsOverrideOnlyWeak,
 		WeakWords:          p.WeakWords,
-		FunctionIntel:    jsonFuncIntel{IsEnabled: p.FunctionIntel.IsEnabled, Languages: p.FunctionIntel.Languages},
+		FunctionIntel:      jsonFuncIntel{IsEnabled: p.FunctionIntel.IsEnabled, Languages: p.FunctionIntel.Languages},
 	}
 
 	if p.Author != nil {

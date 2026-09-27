@@ -31,26 +31,26 @@ func executeDryRunArrayAsyncPool(ctx *runContext, inputs []workspace.ResolvedInp
 	}
 	fmt.Fprintf(stdout, "\n  %s=== Dry-Run Array Async Pool Probing (%d Repositories) ===%s\n\n", constants.ColorCyan, total, constants.ColorReset)
 	slots := make([]DryRunSlot, total)
-	dispatchDryRunProbers(ctx, inputs, slots)
-	streamOrderedDryRunSlots(ctx, stdout, inputs, slots)
+	var mu sync.Mutex
+	dispatchDryRunProbers(ctx, inputs, slots, &mu)
+	streamOrderedDryRunSlots(ctx, stdout, inputs, slots, &mu)
 	return constants.CommitInExitOk
 }
 
-func dispatchDryRunProbers(ctx *runContext, inputs []workspace.ResolvedInput, slots []DryRunSlot) {
-	var wg sync.WaitGroup
+func dispatchDryRunProbers(ctx *runContext, inputs []workspace.ResolvedInput, slots []DryRunSlot, mu *sync.Mutex) {
 	sem := make(chan struct{}, 16)
 	for i, in := range inputs {
-		wg.Add(1)
-		go probeDryRunWorker(ctx, in, i, slots, &wg, sem)
+		go probeDryRunWorker(ctx, in, i, slots, sem, mu)
 	}
-	wg.Wait()
 }
 
-func probeDryRunWorker(ctx *runContext, in workspace.ResolvedInput, idx int, slots []DryRunSlot, wg *sync.WaitGroup, sem chan struct{}) {
-	defer wg.Done()
+func probeDryRunWorker(ctx *runContext, in workspace.ResolvedInput, idx int, slots []DryRunSlot, sem chan struct{}, mu *sync.Mutex) {
 	sem <- struct{}{}
 	defer func() { <-sem }()
-	slots[idx] = probeSingleDryRunSlot(ctx, in)
+	res := probeSingleDryRunSlot(ctx, in)
+	mu.Lock()
+	slots[idx] = res
+	mu.Unlock()
 }
 
 func probeSingleDryRunSlot(ctx *runContext, in workspace.ResolvedInput) DryRunSlot {
@@ -93,15 +93,20 @@ func countCommitsAt(dir string) int {
 	return count
 }
 
-func streamOrderedDryRunSlots(ctx *runContext, stdout io.Writer, inputs []workspace.ResolvedInput, slots []DryRunSlot) {
+func streamOrderedDryRunSlots(ctx *runContext, stdout io.Writer, inputs []workspace.ResolvedInput, slots []DryRunSlot, mu *sync.Mutex) {
 	total := len(inputs)
 	readyCount, totalCommits := 0, 0
 	for cursor := 0; cursor < total; cursor++ {
-		for !slots[cursor].IsReady {
+		for {
+			mu.Lock()
+			slot := slots[cursor]
+			mu.Unlock()
+			if slot.IsReady {
+				readyCount, totalCommits = renderDryRunSlotOutput(stdout, cursor, total, slot, readyCount, totalCommits)
+				break
+			}
 			time.Sleep(15 * time.Millisecond)
 		}
-		slot := slots[cursor]
-		readyCount, totalCommits = renderDryRunSlotOutput(stdout, cursor, total, slot, readyCount, totalCommits)
 	}
 	ctx.Counters.Skipped = totalCommits
 	printDryRunSummary(stdout, total, readyCount, totalCommits)

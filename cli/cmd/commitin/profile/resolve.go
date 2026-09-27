@@ -7,16 +7,16 @@ import (
 // Resolved is the final flattened settings after applying the load
 // order from spec §5.6 (CLI > --profile > --default > defaults).
 type Resolved struct {
-	PRMode            string
-	ConflictMode      string
-	Author            *Author
-	Exclusions        []Exclusion
-	MessageRules      []MessageRule
-	TitleReplacements []TitleReplacementRule
-	MessagePrefix     []string
-	MessageSuffix     []string
-	TitlePrefix       string
-	TitleSuffix       string
+	PRMode             string
+	ConflictMode       string
+	Author             *Author
+	Exclusions         []Exclusion
+	MessageRules       []MessageRule
+	TitleReplacements  []TitleReplacementRule
+	MessagePrefix      []string
+	MessageSuffix      []string
+	TitlePrefix        string
+	TitleSuffix        string
 	OverrideMessages   []string
 	IsOverrideOnlyWeak bool
 	WeakWords          []string
@@ -41,11 +41,11 @@ type CliOverrides struct {
 	TitleSuffix        *string
 	OverrideMessages   []string
 	IsOverrideOnlyWeak *bool
-	WeakWords         []string
-	FunctionIntel     *FunctionIntel
-	SuffixSeparator   string
-	PrefixSeparator   string
-	SuffixMode        string
+	WeakWords          []string
+	FunctionIntel      *FunctionIntel
+	SuffixSeparator    string
+	PrefixSeparator    string
+	SuffixMode         string
 }
 
 // Resolve applies the four-layer precedence: CLI > profile > defaults.

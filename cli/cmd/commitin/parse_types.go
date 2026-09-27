@@ -18,12 +18,12 @@ type RawArgs struct {
 	KeywordTail int    // N when Keyword == "-N"; 0 otherwise
 
 	// Behavior flags (defaults match spec §2.5 column "Default").
-	PRMode               string
-	IsDefaultProfile     bool
-	ProfileName          string
-	SaveProfileName      string
-	IsProfileOverwrite   bool
-	IsSetDefault         bool
+	PRMode             string
+	IsDefaultProfile   bool
+	ProfileName        string
+	SaveProfileName    string
+	IsProfileOverwrite bool
+	IsSetDefault       bool
 
 	AuthorName  string
 	AuthorEmail string
@@ -39,7 +39,7 @@ type RawArgs struct {
 
 	OverrideMessages   []string
 	IsOverrideOnlyWeak bool
-	WeakWords        []string
+	WeakWords          []string
 
 	FunctionIntel string   // "on" | "off" | "" (unset)
 	Languages     []string // FunctionIntelLanguage literals
