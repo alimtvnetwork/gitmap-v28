@@ -184,4 +184,3 @@ func TestStripSSHFleetFlags(t *testing.T) {
 		t.Fatalf("expected [pa, --status], got %v", clean)
 	}
 }
-

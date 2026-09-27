@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -203,10 +204,13 @@ func TestExpandInputsExplicitClassifiesUrlsAndPaths(t *testing.T) {
 // a fake git runner; verifies that local folders are reused in place
 // and the other two kinds invoke `git clone` with the right target.
 func TestCloneInputsStagesAllThreeKinds(t *testing.T) {
+	var mu sync.Mutex
 	cloneTargets := []string{}
 	restore := SetGitRunnerForTest(func(sub string, args ...string) error {
 		if sub == "clone" && len(args) == 2 {
+			mu.Lock()
 			cloneTargets = append(cloneTargets, args[1])
+			mu.Unlock()
 
 			return os.MkdirAll(args[1], 0o755)
 		}
@@ -245,8 +249,11 @@ func TestCloneInputsStagesAllThreeKinds(t *testing.T) {
 		t.Fatalf("sibling stage path wrong: %+v", staged[2])
 	}
 
-	if len(cloneTargets) != 2 {
-		t.Fatalf("expected 2 clone calls, got %d (%v)", len(cloneTargets), cloneTargets)
+	mu.Lock()
+	targetsCount := len(cloneTargets)
+	mu.Unlock()
+	if targetsCount != 2 {
+		t.Fatalf("expected 2 clone calls, got %d (%v)", targetsCount, cloneTargets)
 	}
 }
 

@@ -90,6 +90,19 @@ func SyncWithoutDesktop(repoPath string, repoName string) {
 	fmt.Printf(" %s %s %s\n", pmRes, dtRes, agyRes)
 }
 
+// SyncAgyOnly synchronizes only Antigravity, skipping VS Code and GitHub Desktop.
+func SyncAgyOnly(repoPath string, repoName string) {
+	fmt.Printf("  " + constants.ColorDim + "→ sync:" + constants.ColorReset)
+	pmRes := "[vsc: skipped]"
+	dtRes := "[desktop: skipped]"
+	agyRes := "[agy: skipped]"
+	if SyncAntigravity(repoPath, repoName) {
+		agyRes = "[agy: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"
+	}
+
+	fmt.Printf(" %s %s %s\n", pmRes, dtRes, agyRes)
+}
+
 func resolveDesktopSyncStatus(repoPath, repoName string) string {
 	if os.Getenv("GITMAP_NO_DESKTOP") == "1" || os.Getenv("GITMAP_SKIP_DESKTOP") == "1" {
 		return "[desktop: skipped]"

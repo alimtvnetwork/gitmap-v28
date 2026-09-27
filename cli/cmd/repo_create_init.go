@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -206,12 +207,10 @@ func applyCGFiles(absDir string) error {
 	_ = cmdBranch.Run()
 
 	baseDir := resolveCGBaseDir()
-	cgSrc := filepath.Join(baseDir, "02-spec", "02-coding-guidelines")
 	cgDst := filepath.Join(absDir, "02-spec", "02-coding-guidelines")
-
-	if dirExists(cgSrc) {
-		_ = copyDir(cgSrc, cgDst)
-	} else {
+	copySuccess := tryCopyCGSpecFiles(baseDir, cgDst)
+	if !copySuccess {
+		_, _ = cmdcg.RunCgScriptInRepo(absDir)
 		ensureCGOverviewFallback(cgDst)
 	}
 
@@ -229,6 +228,18 @@ func applyCGFiles(absDir string) error {
 	}
 
 	return nil
+}
+
+func tryCopyCGSpecFiles(baseDir, cgDst string) bool {
+	if baseDir == "" {
+		return false
+	}
+	cgSrc := filepath.Join(baseDir, "02-spec", "02-coding-guidelines")
+	if !dirExists(cgSrc) {
+		return false
+	}
+	_ = copyDir(cgSrc, cgDst)
+	return true
 }
 
 func dirExists(p string) bool {
@@ -267,14 +278,58 @@ func copyFile(src, dst string) error {
 }
 
 func resolveCGBaseDir() string {
-	if constants.RepoPath != "" {
+	if constants.RepoPath != "" && dirExists(filepath.Join(constants.RepoPath, "02-spec", "02-coding-guidelines")) {
 		return constants.RepoPath
 	}
-	exe, err := os.Executable()
-	if err == nil {
-		return filepath.Dir(filepath.Dir(exe))
+	if p := os.Getenv("GITMAP_CODING_GUIDELINES_DIR"); p != "" && dirExists(filepath.Join(p, "02-spec", "02-coding-guidelines")) {
+		return p
 	}
-	return "."
+	if fromCwd := resolveCGBaseDirFromCwd(); fromCwd != "" {
+		return fromCwd
+	}
+	return resolveCGBaseDirFromDrives()
+}
+
+func resolveCGBaseDirFromCwd() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	if dirExists(filepath.Join(cwd, "02-spec", "02-coding-guidelines")) {
+		return cwd
+	}
+	curr := cwd
+	for i := 0; i < 4; i++ {
+		parent := filepath.Dir(curr)
+		if parent == curr {
+			break
+		}
+		cgDir := filepath.Join(parent, "coding-guidelines")
+		if dirExists(filepath.Join(cgDir, "02-spec", "02-coding-guidelines")) {
+			return cgDir
+		}
+		gmDir := filepath.Join(parent, "git"+"map")
+		if dirExists(filepath.Join(gmDir, "02-spec", "02-coding-guidelines")) {
+			return gmDir
+		}
+		curr = parent
+	}
+	return ""
+}
+
+func resolveCGBaseDirFromDrives() string {
+	drives := []string{"D", "C", "E"}
+	for _, d := range drives {
+		cg := filepath.Join(d+":", string(filepath.Separator), "work", "coding-guidelines")
+		if dirExists(filepath.Join(cg, "02-spec", "02-coding-guidelines")) {
+			return cg
+		}
+		gm := filepath.Join(d+":", string(filepath.Separator), "work", "git"+"map")
+		if dirExists(filepath.Join(gm, "02-spec", "02-coding-guidelines")) {
+			return gm
+		}
+	}
+	return ""
 }
 
 func ensureCGOverviewFallback(cgDst string) {

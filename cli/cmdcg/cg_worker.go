@@ -84,6 +84,11 @@ func getCgScriptCmd(repo string) *exec.Cmd {
 	return exec.Command("bash", "-c", shCmd)
 }
 
+// RunCgScriptInRepo executes the official remote coding guidelines installer in the given repo path.
+func RunCgScriptInRepo(repo string) (string, error) {
+	return runCgScriptInRepo(repo)
+}
+
 func runCgScriptInRepo(repo string) (string, error) {
 	cmd := getCgScriptCmd(repo)
 	cmd.Dir = repo

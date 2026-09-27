@@ -27,11 +27,7 @@ func executeCreateRepo(args []string, defaultLocal bool) error {
 	}
 
 	absDir, _ := filepath.Abs(params.LocalDir)
-	if params.IsNoDesktop {
-		workspacesync.SyncWithoutDesktop(absDir, params.Name)
-	} else {
-		workspacesync.SyncAll(absDir, params.Name)
-	}
+	applyWorkspaceSync(params, absDir)
 	recordProfileUsage(params.Profile)
 	if params.IsCD {
 		WriteShellHandoff(absDir)
@@ -114,4 +110,16 @@ func tryPushRemoteProvisioned(p createRepoParams) {
 	}
 
 	fmt.Printf("  %s✓ Provisioned remote repository: %s%s\n", constants.ColorGreen, remoteURL, constants.ColorReset)
+}
+
+func applyWorkspaceSync(params createRepoParams, absDir string) {
+	if params.IsNoSync {
+		workspacesync.SyncAgyOnly(absDir, params.Name)
+		return
+	}
+	if params.IsNoDesktop {
+		workspacesync.SyncWithoutDesktop(absDir, params.Name)
+		return
+	}
+	workspacesync.SyncAll(absDir, params.Name)
 }

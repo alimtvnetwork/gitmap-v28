@@ -15,6 +15,7 @@ type createRepoParams struct {
 	IsPublic     bool
 	IsSkipRemote bool
 	IsNoDesktop  bool
+	IsNoSync     bool
 	IsJSON       bool
 	IsYAML       bool
 	IsCommon     bool
@@ -137,6 +138,7 @@ func parseCreateParams(args []string, defaultLocal bool) (createRepoParams, erro
 		IsPublic:     hasArgFlag(args, "--public") && !hasArgFlag(args, "--private"),
 		IsSkipRemote: defaultLocal || hasArgFlag(args, "--local") || hasArgFlag(args, "--no-remote"),
 		IsNoDesktop:  hasArgFlag(args, "--no-desktop") || hasArgFlag(args, "--skip-desktop") || os.Getenv("GITMAP_NO_DESKTOP") == "1",
+		IsNoSync:     hasArgFlag(args, "--no-sync") || hasArgFlag(args, "--skip-sync") || os.Getenv("GITMAP_NO_SYNC") == "1",
 		IsJSON:       hasArgFlag(args, "--json") || hasArgFlag(args, "-json"),
 		IsYAML:       hasArgFlag(args, "--yaml") || hasArgFlag(args, "--yml") || hasArgFlag(args, "-yaml") || hasArgFlag(args, "-y"),
 		IsCommon:     hasArgFlag(args, "--common"),
