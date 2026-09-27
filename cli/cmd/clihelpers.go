@@ -358,6 +358,11 @@ func runSSHPullInventory(args []string) error {
 	return cmdssh.RunSSHPullInventoryCLI(args)
 }
 
+// runSSHCP delegates to cmdssh.RunSSHCPCLI.
+func runSSHCP(args []string) error {
+	return cmdssh.RunSSHCPCLI(args)
+}
+
 // runRemote delegates to cmdssh.RunSSHUpdateCLI.
 func runRemote(args []string) error {
 	if len(args) == 0 || args[0] == "-h" || args[0] == "--help" || args[0] == "help" {

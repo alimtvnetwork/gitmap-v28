@@ -2,6 +2,7 @@
 package cmdssh
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -254,6 +255,9 @@ func streamBinaryToRemote(client *ssh.Client, destPath, localPath string, isWin 
 		return fmt.Errorf("open stdin: %w", err)
 	}
 
+	var stderrBuf bytes.Buffer
+	session.Stderr = &stderrBuf
+
 	remoteCmd := buildStreamReceiverCmd(destPath, isWin)
 	file, err := os.Open(localPath)
 	if err != nil {
@@ -266,13 +270,17 @@ func streamBinaryToRemote(client *ssh.Client, destPath, localPath string, isWin 
 		_, _ = io.Copy(stdin, file)
 	}()
 
-	return session.Run(remoteCmd)
+	runErr := session.Run(remoteCmd)
+	if runErr != nil {
+		return fmt.Errorf("%w (remote stderr: %s)", runErr, strings.TrimSpace(stderrBuf.String()))
+	}
+	return nil
 }
 
 func buildStreamReceiverCmd(destPath string, isWin bool) string {
 	if isWin {
 		return fmt.Sprintf(
-			`powershell -NoProfile -Command "$dest = '%s'; $tmp = $dest + '.tmp'; $dir = [System.IO.Path]::GetDirectoryName($dest); if ($dir -and !(Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }; $in = [System.Console]::OpenStandardInput(); $out = [System.IO.File]::OpenWrite($tmp); $in.CopyTo($out); $out.Close(); Move-Item -Path $tmp -Destination $dest -Force"`,
+			`powershell -NoProfile -Command "$dest = '%s'; $tmp = $dest + '.' + [System.IO.Path]::GetRandomFileName() + '.tmp'; $dir = [System.IO.Path]::GetDirectoryName($dest); if ($dir -and !(Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }; $in = [System.Console]::OpenStandardInput(); $out = [System.IO.File]::OpenWrite($tmp); $in.CopyTo($out); $out.Close(); Move-Item -Path $tmp -Destination $dest -Force"`,
 			destPath,
 		)
 	}

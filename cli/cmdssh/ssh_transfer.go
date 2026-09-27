@@ -142,7 +142,7 @@ func transferWorker(c db.SSHConnection, srcPath, rawDest string, data []byte, wg
 	defer client.Close()
 
 	var err error
-	if len(data) > 24000 {
+	if len(data) > 4000 {
 		err = StreamFileToRemote(client, destPath, data, c.OS)
 	} else {
 		cmd := buildRemoteWriteCmd(destPath, data, isWindowsOS(c.OS))

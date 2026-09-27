@@ -159,8 +159,7 @@ func readRemoteFileBytes(conn db.SSHConnection, remotePath string) ([]byte, erro
 	defer client.Close()
 
 	readCmd := buildRemoteReadCmd(remotePath, isWindowsOS(conn.OS))
-	shell := determineFallbackShell(conn.OS)
-	out, err := crypto.RunCommand(client, readCmd, shell)
+	out, err := crypto.RunCommand(client, readCmd, "")
 	if err != nil {
 		return nil, apperror.WrapSimple(err, fmt.Sprintf("read remote file '%s' on %s", remotePath, conn.Alias))
 	}
@@ -189,10 +188,7 @@ func writeRemoteFileBytes(conn db.SSHConnection, remotePath string, data []byte)
 	}
 	defer client.Close()
 
-	writeCmd := buildRemoteWriteCmd(remotePath, data, isWindowsOS(conn.OS))
-	shell := determineFallbackShell(conn.OS)
-	_, err := crypto.RunCommand(client, writeCmd, shell)
-	if err != nil {
+	if err := StreamFileToRemote(client, remotePath, data, conn.OS); err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf("write remote file '%s' on %s", remotePath, conn.Alias))
 	}
 

@@ -55,6 +55,7 @@ func toolingDevEntries() []dispatchEntry {
 		{[]string{constants.CmdSSH, "ssh-key", "ssh-keys", "auth-key", "auth-key-add", "ssh-key-add"}, func() error { return runSSH(argsTail()) }},
 		{[]string{"deploy-bin", "deploy-binary", "push-bin", "sync-bin"}, func() error { return runSSHDeployBin(argsTail()) }},
 		{[]string{"pull-inventory", "fetch-inventory", "sync-inventory"}, func() error { return runSSHPullInventory(argsTail()) }},
+		{[]string{"scp", "ssh-cp", "ssh-copy"}, func() error { return runSSHCP(argsTail()) }},
 		{[]string{constants.CmdBackup}, func() error { return runBackup(argsTail()) }},
 	}
 }

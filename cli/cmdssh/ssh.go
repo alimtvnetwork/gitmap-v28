@@ -177,7 +177,7 @@ func dispatchFilesSSH(sub string, args []string) result.ErrorWrapper {
 	switch sub {
 	case "profiles", "profile", "p":
 		return result.MatchWrapper(runSSHProfile(args))
-	case "copy", "cp":
+	case "copy", "cp", "scp":
 		return result.MatchWrapper(RunSSHCPCLI(args))
 	case "mv", "move":
 		return result.MatchWrapper(runSSHMvCLI(args))

@@ -2,6 +2,7 @@ package crypto
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -93,6 +94,25 @@ func RunCommand(client *ssh.Client, cmd, shellType string) (string, error) {
 		return string(out), fmt.Errorf("command execution failed: %w (output: %s)", err, string(out))
 	}
 
+	return string(out), nil
+}
+
+// RunCommandWithInput executes a command over SSH piping input to standard input.
+func RunCommandWithInput(client *ssh.Client, cmd, shellType string, in io.Reader) (string, error) {
+	session, err := client.NewSession()
+	if err != nil {
+		return "", err
+	}
+	defer session.Close()
+
+	if in != nil {
+		session.Stdin = in
+	}
+	wrappedCmd := wrapCommandForShell(cmd, shellType)
+	out, err := session.CombinedOutput(wrappedCmd)
+	if err != nil {
+		return string(out), fmt.Errorf("command execution failed: %w (output: %s)", err, string(out))
+	}
 	return string(out), nil
 }
 
