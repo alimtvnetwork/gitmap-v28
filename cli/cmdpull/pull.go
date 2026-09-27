@@ -863,6 +863,9 @@ func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
 	if len(remItems) == 0 {
 		return
 	}
+	if opts.all && !opts.showStatus {
+		return
+	}
 	if opts.noFix {
 		PrintRemediationSummaryNoPrompt(remItems)
 

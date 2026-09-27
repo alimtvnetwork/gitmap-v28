@@ -41,3 +41,11 @@ func TestHasFleetJSONFlag(t *testing.T) {
 		t.Fatal("expected hasFleetJSONFlag=false without json")
 	}
 }
+
+func TestResolveTargetNodeOS(t *testing.T) {
+	conn := db.SSHConnection{OS: "linux"}
+	osType := resolveTargetNodeOS(nil, conn)
+	if osType != "linux" {
+		t.Fatalf("expected linux, got %s", osType)
+	}
+}

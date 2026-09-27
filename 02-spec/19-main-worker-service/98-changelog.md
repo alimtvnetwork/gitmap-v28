@@ -1,3 +1,9 @@
+## v6.350.0 — 2026-09-27 (SSH Fleet Auto-Update Guard and Concise Pull Remediation)
+
+**Scope:** Version bump. SSH Fleet Auto-Update Guard and Concise Pull Remediation.
+
+---
+
 ## v6.349.0 — 2026-09-27 (Pull-All Concise Filter, SSH Fleet JSON, Repo Create CG & No-Sync)
 
 **Scope:** Version bump. Pull-All Concise Filter, SSH Fleet JSON, Repo Create CG & No-Sync.

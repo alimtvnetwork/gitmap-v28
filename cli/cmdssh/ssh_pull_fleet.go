@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"golang.org/x/crypto/ssh"
 )
 
 type fleetPullRepoItem struct {
@@ -122,12 +123,49 @@ func executeRemoteNodePull(c db.SSHConnection) FleetNodePullOutcome {
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, "connection or auth failed")
 	}
 	defer client.Close()
-	out, err := crypto.RunCommand(client, "gitmap pa --json", "")
+	ensureRemoteNodeGitmap(client, c)
+	out, err := runRemotePullJSON(client, c)
 	if err != nil && len(out) == 0 {
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, err.Error())
 	}
 
 	return parseFleetPullOutcome(c.Alias, c.IPAddress, false, out)
+}
+
+func ensureRemoteNodeGitmap(client *ssh.Client, c db.SSHConnection) {
+	osType := resolveTargetNodeOS(client, c)
+	ver, isInstalled := queryNodeVersionViaSSH(client, osType)
+	if !isInstalled {
+		cmd := BuildGitmapInstallOneLiner(osType, "latest")
+		_, _ = crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
+		return
+	}
+	if CompareSemverStrings(ver, "6.349.0") < 0 {
+		updateTargetNodeGitmap(client, osType)
+	}
+}
+
+func updateTargetNodeGitmap(client *ssh.Client, osType string) {
+	cmd := resolveRemoteUpdateCommand(osType, "gitmap")
+	_, _ = crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
+}
+
+func resolveTargetNodeOS(client *ssh.Client, c db.SSHConnection) string {
+	osType := c.OS
+	if probed := probeRemoteOSType(client); probed != "" {
+		return probed
+	}
+	return osType
+}
+
+func runRemotePullJSON(client *ssh.Client, c db.SSHConnection) (string, error) {
+	out, err := crypto.RunCommand(client, "gitmap pa --json", "")
+	if strings.Contains(out, "flag provided but not defined: -json") {
+		osType := resolveTargetNodeOS(client, c)
+		updateTargetNodeGitmap(client, osType)
+		return crypto.RunCommand(client, "gitmap pa --json", "")
+	}
+	return out, err
 }
 
 func buildFailedFleetOutcome(name, ip string, isLocal bool, msg string) FleetNodePullOutcome {

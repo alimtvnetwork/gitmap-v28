@@ -206,7 +206,6 @@ func executeActiveEfficientBatch(partition EfficientPullPartition, opts Efficien
 		useSSH:   opts.UseSSH,
 		useHTTPS: opts.UseHTTPS,
 	}
-	maybeApplyTransportToRecords(partition.ActiveRecords, opts.UseSSH, opts.UseHTTPS)
 
 	bar := NewPullProgressBar(len(partition.ActiveRecords), false, false)
 	if !opts.IsJSON {

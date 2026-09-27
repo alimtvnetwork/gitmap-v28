@@ -3143,6 +3143,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.350.0] - 2026-09-27
+
+### Added
+- SSH Fleet Auto-Update Guard and Concise Pull Remediation
+
+---
+
 ## [v6.349.0] - 2026-09-27
 
 ### Added

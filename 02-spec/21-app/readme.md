@@ -18,4 +18,5 @@
 - [168-commit-pull-array-async-pool-ui-and-bootstrap.md](168-commit-pull-array-async-pool-ui-and-bootstrap.md) — Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap (Status: `active`)
 - [169-pull-all-concise-summary-and-ssh-fleet-json.md](169-pull-all-concise-summary-and-ssh-fleet-json.md) — Pull-All Concise Summary Filtering, Noise Elimination & SSH Fleet JSON Orchestration (Status: `active`)
 - [170-repo-create-cg-sync-no-sync-and-race-detector-guard.md](170-repo-create-cg-sync-no-sync-and-race-detector-guard.md) — Repo Create Coding Guideline Auto-Sync, No-Sync Flag & Race Detector Guard (Status: `active`)
+- [171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md](171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md) — SSH Fleet GitMap Auto-Update Guard & Concise Pull Remediation (Status: `active`)
 

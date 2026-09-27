@@ -13,6 +13,7 @@
 - [168-commit-pull-array-async-pool-ui-and-bootstrap.md](completed/168-commit-pull-array-async-pool-ui-and-bootstrap.md) — Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap (Spec: [168](../../02-spec/21-app/168-commit-pull-array-async-pool-ui-and-bootstrap.md))
 - [169-pull-all-concise-summary-and-ssh-fleet-json.md](completed/169-pull-all-concise-summary-and-ssh-fleet-json.md) — Pull-All Concise Summary Filtering, Noise Elimination & SSH Fleet JSON Orchestration (Spec: [169](../../02-spec/21-app/169-pull-all-concise-summary-and-ssh-fleet-json.md))
 - [170-repo-create-cg-sync-no-sync-and-race-detector-guard.md](completed/170-repo-create-cg-sync-no-sync-and-race-detector-guard.md) — Repo Create Coding Guideline Auto-Sync, No-Sync Flag & Race Detector Guard (Spec: [170](../../02-spec/21-app/170-repo-create-cg-sync-no-sync-and-race-detector-guard.md))
+- [171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md](completed/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md) — SSH Fleet GitMap Auto-Update Guard & Concise Pull Remediation (Spec: [171](../../02-spec/21-app/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans
