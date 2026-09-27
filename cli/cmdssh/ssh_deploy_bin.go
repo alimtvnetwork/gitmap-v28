@@ -56,15 +56,16 @@ func parseDeployBinFlags(args []string) deployBinOptions {
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if (arg == "--file" || arg == "-f") && i+1 < len(args) {
+		switch {
+		case (arg == "--file" || arg == "-f") && i+1 < len(args):
 			opts.filePath = args[i+1]
 			i++
-		} else if arg == "--dry-run" || arg == "-n" {
+		case arg == "--dry-run" || arg == "-n":
 			opts.isDryRun = true
-		} else if (arg == "--timeout" || arg == "-t") && i+1 < len(args) {
+		case (arg == "--timeout" || arg == "-t") && i+1 < len(args):
 			opts.timeout = parseTimeoutFlag(args, i, opts.timeout)
 			i++
-		} else if !strings.HasPrefix(arg, "-") {
+		case !strings.HasPrefix(arg, "-"):
 			positional = append(positional, arg)
 		}
 	}
@@ -94,7 +95,6 @@ func resolveDeployBinary(custom string) (string, int64, error) {
 	if custom == "" {
 		candidates = appendExecutableCandidate([]string{
 			filepath.Join("cli", "gitmap.exe"),
-			`d:\work\gitmap\cli\gitmap.exe`,
 			`C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`,
 		})
 	}

@@ -44,7 +44,7 @@ Both invocations are fully equivalent. `deploy-left` automatically defaults the 
 
 2. **`<LOCAL_PATH>`** (Required): Local destination file or folder:
    - **Relative Path:** e.g., `./logs/remote`, `backups/db.sqlite`, `diagnostics/` (resolved against local CWD)
-   - **Absolute Path:** e.g., `D:\work\gitmap\temp\remote-logs`, `/var/tmp/node-dumps`
+   - **Absolute Path:** e.g., `C:\temp\remote-logs`, `/var/tmp/node-dumps`
 
 3. **`<REMOTE_PATH>`** (Required): Remote origin path on the target node:
    - **Relative Path:** e.g., `logs/app.log`, `storage/backup.db` (resolved against remote default work directory: `D:/work` on Windows, `~` on Linux)
@@ -114,7 +114,7 @@ In automated headless workflows, ALWAYS supply `--json` to capture structured JS
   "transfers": [
     {
       "source": "~/logs/pipeline.log",
-      "destination": "D:/work/gitmap/logs/remote/pipeline.log",
+      "destination": "./logs/remote/pipeline.log",
       "bytes": 1048576,
       "status": "transferred",
       "direction": "right-to-left"

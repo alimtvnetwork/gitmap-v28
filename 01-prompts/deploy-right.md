@@ -114,7 +114,7 @@ In headless CI/CD or autonomous agent environments, ALWAYS supply `--json` to su
   },
   "transfers": [
     {
-      "source": "D:/work/gitmap/dist/app.exe",
+      "source": "./dist/app.exe",
       "destination": "D:/work/apps/portal/app.exe",
       "bytes": 3145728,
       "status": "transferred",

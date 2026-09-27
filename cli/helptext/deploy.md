@@ -59,7 +59,7 @@ When neither `--overwrite`, `--skip`, nor `--sync*` is specified:
 
 ### Deploy a single executable to worker-1 with overwrite
 ```bash
-gitmap deploy w1 ./cli/gitmap.exe D:/work/gitmap/cli/gitmap.exe -o
+gitmap deploy w1 ./cli/gitmap.exe D:/work/apps/gitmap.exe -o
 ```
 
 ### Sync local build directory to remote node using 8 parallel workers

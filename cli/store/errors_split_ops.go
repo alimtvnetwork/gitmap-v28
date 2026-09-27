@@ -29,7 +29,7 @@ FROM InternalErrorLog WHERE IsResolved = 0 ORDER BY InternalErrorLogId DESC LIMI
     COALESCE(ContextJson, ''), COALESCE(StackTrace, ''), GitMapVersion, IsResolved, COALESCE(Notes, ''), COALESCE(Comments, ''), CreatedAt
 FROM InternalErrorLog WHERE InternalErrorLogId = ?`
 
-	sqlClearInternalErrors   = `DELETE FROM InternalErrorLog`
+	sqlClearInternalErrors  = `DELETE FROM InternalErrorLog`
 	sqlResolveInternalError = `UPDATE InternalErrorLog SET IsResolved = 1 WHERE InternalErrorLogId = ?`
 )
 

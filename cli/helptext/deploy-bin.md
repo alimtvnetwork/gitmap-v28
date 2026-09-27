@@ -17,7 +17,7 @@ gitmap deploy-bin [target] [flags]
 
 ```bash
 # Old manual workflow (REQUIRES passwords, manual path entry, and StrictHostKeyChecking bypass):
-scp -o StrictHostKeyChecking=no d:\work\gitmap\cli\gitmap.exe Administrator@192.168.1.3:C:/Users/Administrator/AppData/Local/gitmap-cli/gitmap.exe
+scp -o StrictHostKeyChecking=no .\cli\gitmap.exe Administrator@192.168.1.3:C:/Users/Administrator/AppData/Local/gitmap-cli/gitmap.exe
 
 # New smart GitMap one-liner (uses encrypted credentials, auto-detects OS path, streams binary, verifies version):
 gitmap ssh deploy-bin w1
