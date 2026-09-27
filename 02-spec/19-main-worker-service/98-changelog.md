@@ -1,3 +1,9 @@
+## v6.357.0 — 2026-09-27 (Smart deploy command with sync modes, parallel folder replacement, and json telemetry)
+
+**Scope:** Version bump. Smart deploy command with sync modes, parallel folder replacement, and json telemetry.
+
+---
+
 ## v6.356.0 — 2026-09-27 (Scan alias migration, internal errors split-db, deploy-bin command, and fleet inventory aggregation)
 
 **Scope:** Version bump. Scan alias migration, internal errors split-db, deploy-bin command, and fleet inventory aggregation.
