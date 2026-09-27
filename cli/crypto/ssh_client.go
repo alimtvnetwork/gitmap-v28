@@ -45,6 +45,25 @@ func ConnectWithKey(ip, user, keyPath string) (*ssh.Client, error) {
 	return ssh.Dial("tcp", resolveTCPAddress(ip), config)
 }
 
+// ConnectWithFallback attempts connection with key first, falling back to password.
+func ConnectWithFallback(ip, user, keyPath, password string) (*ssh.Client, error) {
+	if client, isKeyOk := tryConnectWithKeyCandidate(ip, user, keyPath); isKeyOk {
+		return client, nil
+	}
+	if password != "" {
+		return ConnectWithPassword(ip, user, password)
+	}
+	return nil, fmt.Errorf("no valid credentials provided for %s@%s", user, ip)
+}
+
+func tryConnectWithKeyCandidate(ip, user, keyPath string) (*ssh.Client, bool) {
+	if keyPath == "" {
+		return nil, false
+	}
+	client, err := ConnectWithKey(ip, user, keyPath)
+	return client, err == nil
+}
+
 func parseKeyFile(keyPath string) (ssh.Signer, error) {
 	key, err := os.ReadFile(keyPath)
 	if err != nil {

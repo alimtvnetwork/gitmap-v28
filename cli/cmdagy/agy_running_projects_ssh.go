@@ -3,7 +3,6 @@ package cmdagy
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -60,16 +59,8 @@ func querySingleSSHNodeRunningProjects(c db.SSHConnection) []RunningProjectRecor
 }
 
 func dialSSHNodeClient(c db.SSHConnection) (*ssh.Client, error) {
-	if c.KeyPath != "" && checkKeyFileExists(c.KeyPath) {
-		return crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
-	}
 	plainPass, _ := crypto.DecryptStoredPassword(c.EncryptedPassword)
-	return crypto.ConnectWithPassword(c.IPAddress, c.Username, plainPass)
-}
-
-func checkKeyFileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
+	return crypto.ConnectWithFallback(c.IPAddress, c.Username, c.KeyPath, plainPass)
 }
 
 func resolveNodeShell(osName string) string {

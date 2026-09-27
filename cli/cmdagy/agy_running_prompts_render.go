@@ -144,6 +144,7 @@ func printRunningPromptsHelpFlags() {
       --wc int          Word count truncation limit (default 100)
       --full            Show full prompt without word truncation
       --json            Output in JSON format
+      --ssh             Inspect or execute across cluster SSH fleet
   -f, --file string     Custom backup file path
   -k, --keep            Keep restored batch from retention pruning
       --force           Force delete all backup batches during clean
@@ -161,6 +162,7 @@ Usage:
 Flags:
   -f, --file string   Target backup database path (default: data/backup-prompts/sql.db)
       --json          Output backup summary or batches in JSON format
+      --ssh           Snapshot or list batches across cluster SSH fleet
 `, constants.ColorCyan, constants.ColorReset)
 }
 
@@ -176,5 +178,6 @@ Flags:
   -k, --keep          Exclude restored batch from 1-day auto-pruning
   -f, --file string   Source database file path
       --json          Output restoration result in JSON format
+      --ssh           Restore prompts across cluster SSH fleet
 `, constants.ColorCyan, constants.ColorReset)
 }

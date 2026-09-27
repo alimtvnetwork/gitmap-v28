@@ -73,3 +73,4 @@
 - [82-gencommands-drift-cmd-parity-and-agy-recreate-projects-dir-rca.md](./82-gencommands-drift-cmd-parity-and-agy-recreate-projects-dir-rca.md): Fix gencommands drift, top-level command AST parity, and headless Antigravity projects dir creation.
 - [83-sponsor-seo-templates-minimum-count-rca.md](./83-sponsor-seo-templates-minimum-count-rca.md): Fix sponsor/seo templates minimum count when partial state DB records exist.
 - [84-unused-var-isagyfixexplicitonly-rca.md](./84-unused-var-isagyfixexplicitonly-rca.md): Fix unused var isAgyFixExplicitOnly in cmdpipeline.
+- [85-ssh-auth-fallback-and-node-status-rca.md](./85-ssh-auth-fallback-and-node-status-rca.md): Fix SSH authentication handshake fallback and accurate node status reporting in nodes listing and fleet execution.

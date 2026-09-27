@@ -26,7 +26,8 @@ var BackupRunningPromptsCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		file, _ := cmd.Flags().GetString("file")
 		isJSON, _ := cmd.Flags().GetBool("json")
-		return RunRunningPromptsBackup(file, isJSON)
+		isSSH, _ := cmd.Flags().GetBool("ssh")
+		return RunRunningPromptsBackup(file, isJSON, isSSH)
 	},
 }
 
@@ -44,10 +45,12 @@ var RestoreRunningPromptsCmd = &cobra.Command{
 func extractRestoreOptions(cmd *cobra.Command) store.RestoreOptions {
 	isKeep, _ := cmd.Flags().GetBool("keep")
 	isJSON, _ := cmd.Flags().GetBool("json")
+	isSSH, _ := cmd.Flags().GetBool("ssh")
 	file, _ := cmd.Flags().GetString("file")
 	return store.RestoreOptions{
 		IsKeep:     isKeep,
 		IsJSON:     isJSON,
+		IsSSH:      isSSH,
 		TargetFile: file,
 	}
 }
@@ -64,6 +67,7 @@ func initAgyRunningPromptsCommands() {
 func setupBackupRunningPromptsCmd() {
 	BackupRunningPromptsCmd.Flags().StringP("file", "f", "", "Target backup database path")
 	BackupRunningPromptsCmd.Flags().Bool("json", false, "Output summary in JSON format")
+	BackupRunningPromptsCmd.Flags().Bool("ssh", false, "Snapshot prompts across cluster SSH fleet")
 	lsCmd := makeBackupLsCmd()
 	helpCmd := makeHelpCmd(RenderBackupHelp)
 	BackupRunningPromptsCmd.AddCommand(lsCmd, helpCmd)
@@ -72,6 +76,7 @@ func setupBackupRunningPromptsCmd() {
 func setupRestoreRunningPromptsCmd() {
 	RestoreRunningPromptsCmd.Flags().BoolP("keep", "k", false, "Exclude from retention auto-pruning")
 	RestoreRunningPromptsCmd.Flags().Bool("json", false, "Output restoration in JSON format")
+	RestoreRunningPromptsCmd.Flags().Bool("ssh", false, "Restore prompts across cluster SSH fleet")
 	RestoreRunningPromptsCmd.Flags().StringP("file", "f", "", "Source database path")
 	helpCmd := makeHelpCmd(RenderRestoreHelp)
 	RestoreRunningPromptsCmd.AddCommand(helpCmd)
@@ -105,11 +110,13 @@ func makeRunningPromptsBackupCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			file, _ := cmd.Flags().GetString("file")
 			isJSON, _ := cmd.Flags().GetBool("json")
-			return RunRunningPromptsBackup(file, isJSON)
+			isSSH, _ := cmd.Flags().GetBool("ssh")
+			return RunRunningPromptsBackup(file, isJSON, isSSH)
 		},
 	}
 	cmd.Flags().StringP("file", "f", "", "Target backup database path")
 	cmd.Flags().Bool("json", false, "Output summary in JSON format")
+	cmd.Flags().Bool("ssh", false, "Snapshot prompts across cluster SSH fleet")
 	cmd.AddCommand(makeBackupLsCmd(), makeHelpCmd(RenderBackupHelp))
 	return cmd
 }
@@ -121,11 +128,13 @@ func makeBackupLsCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			file, _ := cmd.Flags().GetString("file")
 			isJSON, _ := cmd.Flags().GetBool("json")
-			return RunRunningPromptsBackupLs(file, isJSON)
+			isSSH, _ := cmd.Flags().GetBool("ssh")
+			return RunRunningPromptsBackupLs(file, isJSON, isSSH)
 		},
 	}
 	cmd.Flags().StringP("file", "f", "", "Target backup database path")
 	cmd.Flags().Bool("json", false, "Output in JSON format")
+	cmd.Flags().Bool("ssh", false, "List backup batches across cluster SSH fleet")
 	return cmd
 }
 
@@ -140,6 +149,7 @@ func makeRunningPromptsRestoreCmd() *cobra.Command {
 	}
 	cmd.Flags().BoolP("keep", "k", false, "Exclude from retention auto-pruning")
 	cmd.Flags().Bool("json", false, "Output restoration in JSON format")
+	cmd.Flags().Bool("ssh", false, "Restore prompts across cluster SSH fleet")
 	cmd.Flags().StringP("file", "f", "", "Source database path")
 	cmd.AddCommand(makeHelpCmd(RenderRestoreHelp))
 	return cmd
@@ -175,7 +185,8 @@ func executeRunningPromptsLsCmd(cmd *cobra.Command, args []string) error {
 	wc := resolveWordCountFlag(cmd)
 	isFull, _ := cmd.Flags().GetBool("full")
 	isJSON, _ := cmd.Flags().GetBool("json")
-	return RunRunningPromptsLs(limit, wc, isFull, isJSON)
+	isSSH, _ := cmd.Flags().GetBool("ssh")
+	return RunRunningPromptsLs(limit, wc, isFull, isJSON, isSSH)
 }
 
 func setupRunningPromptsLsFlags(cmd *cobra.Command) {
@@ -184,6 +195,7 @@ func setupRunningPromptsLsFlags(cmd *cobra.Command) {
 	cmd.Flags().Int("wc", 100, "Alias for wordcount")
 	cmd.Flags().Bool("full", false, "Display full prompt text without truncation")
 	cmd.Flags().Bool("json", false, "Output in JSON format")
+	cmd.Flags().Bool("ssh", false, "Inspect prompts across cluster SSH fleet")
 }
 
 func resolveWordCountFlag(cmd *cobra.Command) int {

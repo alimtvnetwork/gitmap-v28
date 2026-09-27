@@ -484,48 +484,12 @@ func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool)
 	if len(headers) > 0 {
 		header = headers[0]
 	}
-	if client, isPassOk := tryConnectWithPassword(c, header); isPassOk {
-		return client, true
-	}
-	if client, isKeyOk := tryConnectWithKey(c, header); isKeyOk {
-		return client, true
-	}
-	return connectClientDefaults(c, header)
-}
-
-func connectClientDefaults(c db.SSHConnection, header string) (*ssh.Client, bool) {
-	if client, isDefaultOk := connectWithDefaultKey(c.IPAddress, c.Username, header); isDefaultOk {
-		return client, true
-	}
-	return tryFallbackDBPassword(c, header)
-}
-
-func tryConnectWithPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
-	if c.EncryptedPassword == "" {
+	client, err := dialNodeWithFallback(c, header)
+	if err != nil {
+		printHeaderError(header, "Connect error", err)
 		return nil, false
 	}
-
-	return connectWithEncryptedPassword(c, header)
-}
-
-func tryConnectWithKey(c db.SSHConnection, header string) (*ssh.Client, bool) {
-	if c.KeyPath == "" {
-		return nil, false
-	}
-
-	return connectWithKeyPath(c, header)
-}
-
-func tryFallbackDBPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
-	if c.EncryptedPassword != "" {
-		return nil, false
-	}
-	encPass := queryHostPasswordFromDB(c.Alias, c.IPAddress)
-	if encPass == "" {
-		return nil, false
-	}
-	c.EncryptedPassword = encPass
-	return connectWithEncryptedPassword(c, header)
+	return client, true
 }
 
 func queryHostPasswordFromDB(alias, ip string) string {
@@ -543,16 +507,6 @@ func queryHostPasswordFromDB(alias, ip string) string {
 	return ""
 }
 
-func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {
-	client, err := crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
-	if err != nil {
-		printHeaderError(header, "Connect error", err)
-		return nil, false
-	}
-
-	return client, true
-}
-
 func decryptPasswordCandidate(enc string) (string, error) {
 	plain, err := DecryptSSHPassword(enc)
 	if err == nil && plain != "" {
@@ -566,22 +520,6 @@ func decryptPasswordCandidate(enc string) (string, error) {
 		return "", err
 	}
 	return "", decErr
-}
-
-func connectWithEncryptedPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
-	plain, decErr := decryptPasswordCandidate(c.EncryptedPassword)
-	if decErr != nil {
-		printHeaderError(header, "Decrypt error", decErr)
-		return nil, false
-	}
-
-	client, err := crypto.ConnectWithPassword(c.IPAddress, c.Username, plain)
-	if err != nil {
-		printHeaderError(header, "Connect error", err)
-		return nil, false
-	}
-
-	return client, true
 }
 
 func printHeaderError(header, prefix string, err error) {

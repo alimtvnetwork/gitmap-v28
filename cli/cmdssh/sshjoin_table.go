@@ -18,7 +18,7 @@ const (
 	defaultHostAlias     = "-"
 	defaultHostStatus    = "ready"
 	defaultSSHPort       = 22
-	dividerLength        = 100
+	dividerLength        = 110
 	msgNoNodesRegistered = "No nodes registered. Enroll with: gitmap sj add <user@ip|ip> [alias]\n"
 )
 
@@ -86,12 +86,29 @@ func formatRoleColored(role string, width int) string {
 }
 
 func formatStatusColored(status string, width int) string {
-	if status == "ready" || status == "active" {
-		text := "● " + status
+	if status == "ready" || status == "active" || strings.HasPrefix(status, "●") {
+		text := ensureStatusPrefix(status, "●")
 		plain := padVisual(text, width)
 		return constants.ColorGreen + plain + constants.ColorReset
 	}
+	if strings.Contains(status, "auth failed") || strings.HasPrefix(status, "▲") {
+		text := ensureStatusPrefix(status, "▲")
+		plain := padVisual(text, width)
+		return constants.ColorYellow + plain + constants.ColorReset
+	}
+	if strings.Contains(status, "offline") || strings.HasPrefix(status, "○") {
+		text := ensureStatusPrefix(status, "○")
+		plain := padVisual(text, width)
+		return constants.ColorDim + plain + constants.ColorReset
+	}
 	return constants.ColorDim + padVisual(status, width) + constants.ColorReset
+}
+
+func ensureStatusPrefix(status, icon string) string {
+	if strings.HasPrefix(status, icon) {
+		return status
+	}
+	return icon + " " + status
 }
 
 func formatAliasColored(alias string, width int) string {
@@ -119,7 +136,7 @@ func renderHostsTableHeader(out io.Writer) error {
 	colRole := padVisual("ROLE", 14)
 	colHost := padVisual("HOST (IP:PORT)", 22)
 	colUser := padVisual("USER", 14)
-	colStatus := padVisual("STATUS", 10)
+	colStatus := padVisual("STATUS", 21)
 	colEnrolled := padVisual("ENROLLED", 19)
 
 	headerLine := fmt.Sprintf("  %s %s %s %s %s %s\n",
@@ -139,7 +156,8 @@ func renderHostTableRow(out io.Writer, h store.SSHHost) error {
 	role := formatRoleColored(resolveTableRole(h.ClusterRole), 14)
 	hostPort := formatHostPortColored(formatTableHostPort(h.IP, h.Port), 22)
 	user := formatUserColored(resolveTableUser(h.Username), 14)
-	status := formatStatusColored(defaultHostStatus, 10)
+	statusStr := resolveHostStatusDisplay(h.Status)
+	status := formatStatusColored(statusStr, 21)
 	enrolled := formatEnrolledColored(formatEnrolledTime(h.CreatedAt), 19)
 	_, err := fmt.Fprintf(out, "  %s %s %s %s %s %s\n",
 		alias, role, hostPort, user, status, enrolled)
@@ -147,6 +165,13 @@ func renderHostTableRow(out io.Writer, h store.SSHHost) error {
 		return apperror.WrapSimple(err, "renderHostTableRow")
 	}
 	return nil
+}
+
+func resolveHostStatusDisplay(status string) string {
+	if status == "" {
+		return defaultHostStatus
+	}
+	return status
 }
 
 func renderHostsTableFooter(out io.Writer, count int) error {

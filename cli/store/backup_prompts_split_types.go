@@ -22,6 +22,8 @@ type RunningPromptRecord struct {
 	Snippet        string           `json:"snippet"`
 	Status         PromptStatusType `json:"status"`
 	WordCount      int              `json:"wordCount"`
+	Node           string           `json:"node,omitempty"`
+	Host           string           `json:"host,omitempty"`
 	CreatedAt      string           `json:"createdAt"`
 }
 
@@ -34,6 +36,8 @@ type PromptBackupSummary struct {
 	DatabasePath  string                `json:"databasePath"`
 	DatabaseSize  int64                 `json:"databaseSizeBytes"`
 	CreatedAt     string                `json:"createdAt"`
+	Node          string                `json:"node,omitempty"`
+	Host          string                `json:"host,omitempty"`
 	Items         []RunningPromptRecord `json:"items,omitempty"`
 }
 
@@ -47,6 +51,8 @@ type PromptBackupBatchRecord struct {
 	CreatedAt     string `json:"createdAt"`
 	Note          string `json:"note"`
 	Status        string `json:"status"`
+	Node          string `json:"node,omitempty"`
+	Host          string `json:"host,omitempty"`
 }
 
 // PromptRestoreLedgerRecord models a database row in PromptRestoreLedger.
@@ -63,5 +69,6 @@ type PromptRestoreLedgerRecord struct {
 type RestoreOptions struct {
 	IsKeep     bool   `json:"isKeep"`
 	IsJSON     bool   `json:"isJSON"`
+	IsSSH      bool   `json:"isSSH"`
 	TargetFile string `json:"targetFile"`
 }

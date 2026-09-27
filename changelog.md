@@ -3143,6 +3143,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.347.0] - 2026-09-27
+
+### Added
+- SSH fleet auth fallback and live node status probing
+
+---
+
 ## [v6.346.1] - 2026-09-27
 
 ### Added

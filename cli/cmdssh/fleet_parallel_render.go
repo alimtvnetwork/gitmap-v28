@@ -14,13 +14,34 @@ func PrintFleetStart(alias, ip, task string) {
 		constants.ColorCyan, constants.ColorReset, alias, ip, task)
 }
 
+func isFleetNodeOffline(res FleetNodeResult) bool {
+	if res.Error == nil {
+		return false
+	}
+	msg := strings.ToLower(res.Error.Error())
+	return strings.Contains(msg, "offline") || strings.Contains(msg, "timed out") || strings.Contains(msg, "unreachable")
+}
+
 // PrintFleetDone displays immediate completion output for a single node.
 func PrintFleetDone(res FleetNodeResult) {
-	if !res.Success {
-		printFleetFailure(res)
+	if res.Success {
+		printFleetSuccess(res)
 		return
 	}
+	if isFleetNodeOffline(res) {
+		printFleetSkip(res)
+		return
+	}
+	printFleetFailure(res)
+}
 
+func printFleetSkip(res FleetNodeResult) {
+	fmt.Printf("%s[FLEET SKIP]%s  [%s|%s]: %sOFFLINE%s (took %dms)\n",
+		constants.ColorYellow, constants.ColorReset,
+		res.Alias, res.IP, constants.ColorYellow, constants.ColorReset, res.DurationMs)
+}
+
+func printFleetSuccess(res FleetNodeResult) {
 	fmt.Printf("%s[FLEET DONE]%s  [%s|%s]: %sSUCCESS%s (took %dms)\n",
 		constants.ColorGreen, constants.ColorReset,
 		res.Alias, res.IP, constants.ColorGreen, constants.ColorReset, res.DurationMs)
@@ -50,10 +71,12 @@ func PrintFleetSummary(taskName string, results []FleetNodeResult) {
 	if len(results) == 0 {
 		return
 	}
+	offlineCount := countFleetOffline(results)
+	failedCount := countFleetFailure(results)
 	fmt.Printf("\n%s================================================================================%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf(" %sSSH Fleet Execution Summary:%s %s\n", constants.ColorBold, constants.ColorReset, taskName)
-	fmt.Printf(" Total: %d | Succeeded: %d | Failed: %d\n",
-		len(results), countFleetSuccess(results), countFleetFailure(results))
+	fmt.Printf(" Total: %d | Succeeded: %d | Failed: %d | Offline: %d\n",
+		len(results), countFleetSuccess(results), failedCount, offlineCount)
 	fmt.Printf("%s--------------------------------------------------------------------------------%s\n", constants.ColorDim, constants.ColorReset)
 
 	cfg := termtable.TableConfig{
@@ -80,10 +103,20 @@ func countFleetSuccess(results []FleetNodeResult) int {
 	return count
 }
 
+func countFleetOffline(results []FleetNodeResult) int {
+	count := 0
+	for _, r := range results {
+		if !r.Success && isFleetNodeOffline(r) {
+			count++
+		}
+	}
+	return count
+}
+
 func countFleetFailure(results []FleetNodeResult) int {
 	count := 0
 	for _, r := range results {
-		if !r.Success {
+		if !r.Success && !isFleetNodeOffline(r) {
 			count++
 		}
 	}
@@ -115,6 +148,9 @@ func resolveFleetRowStatus(r FleetNodeResult) (string, string) {
 	details := "Failed"
 	if r.Error != nil {
 		details = r.Error.Error()
+	}
+	if isFleetNodeOffline(r) {
+		return constants.ColorDim + "○ OFFLINE" + constants.ColorReset, details
 	}
 
 	return constants.ColorRed + "FAILED" + constants.ColorReset, details

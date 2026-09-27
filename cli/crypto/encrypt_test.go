@@ -62,3 +62,17 @@ func TestDecryptStoredPassword(t *testing.T) {
 		t.Errorf("Expected plaintext fallback, got %q", fallback)
 	}
 }
+
+func TestConnectWithFallback_NoCredentials(t *testing.T) {
+	_, err := ConnectWithFallback("127.0.0.1", "testuser", "", "")
+	if err == nil {
+		t.Error("Expected error when no credentials provided, got nil")
+	}
+}
+
+func TestConnectWithFallback_InvalidKeyWithPassword(t *testing.T) {
+	_, err := ConnectWithFallback("127.0.0.1:9999", "testuser", "non-existent-key-file", "secret")
+	if err == nil {
+		t.Error("Expected dial error to invalid port, got nil")
+	}
+}

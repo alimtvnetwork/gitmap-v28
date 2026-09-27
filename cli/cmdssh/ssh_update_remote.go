@@ -150,7 +150,10 @@ func executeSingleSSHNodeUpdate(c db.SSHConnection, pkg string, isDryRun bool) (
 	if isDryRun {
 		return fmt.Sprintf("[DRY-RUN] Would update %s on %s", pkg, c.Alias), nil
 	}
-	client, isConnected := connectSSHNode(c, header)
+	if !isNodeAvailable(c.IPAddress, header) {
+		return "", fmt.Errorf("offline: node %s is unreachable", header)
+	}
+	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
 		return "", fmt.Errorf("unable to connect to %s", header)
 	}

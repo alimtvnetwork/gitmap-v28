@@ -152,7 +152,10 @@ func countPromptStatuses(items []store.RunningPromptRecord) (int, int) {
 }
 
 // RunRunningPromptsBackup snapshots all running and queued prompts into the backup database.
-func RunRunningPromptsBackup(customFile string, isJSON bool) error {
+func RunRunningPromptsBackup(customFile string, isJSON, isSSH bool) error {
+	if isSSH {
+		return AggregateSSHRunningPromptsBackup(customFile, isJSON)
+	}
 	db, err := store.OpenBackupPromptsSplitDB(customFile)
 	if err != nil {
 		return err
@@ -192,7 +195,10 @@ func outputBackupResult(summary store.PromptBackupSummary, isJSON bool) error {
 }
 
 // RunRunningPromptsBackupLs lists backup batches recorded in the database.
-func RunRunningPromptsBackupLs(customFile string, isJSON bool) error {
+func RunRunningPromptsBackupLs(customFile string, isJSON, isSSH bool) error {
+	if isSSH {
+		return AggregateSSHRunningPromptsBackupLs(customFile, isJSON)
+	}
 	db, err := store.OpenBackupPromptsSplitDB(customFile)
 	if err != nil {
 		return err
@@ -223,6 +229,9 @@ func printJSON(v interface{}) error {
 
 // RunRunningPromptsRestore restores prompts from the latest backup batch.
 func RunRunningPromptsRestore(opts store.RestoreOptions) error {
+	if opts.IsSSH {
+		return AggregateSSHRunningPromptsRestore(opts)
+	}
 	db, err := store.OpenBackupPromptsSplitDB(opts.TargetFile)
 	if err != nil {
 		return err
@@ -285,10 +294,13 @@ func RunRunningPromptsClean(customFile string, isForce bool) error {
 }
 
 // RunRunningPromptsLs lists current active and enqueued prompts with truncation and limit options.
-func RunRunningPromptsLs(limit, wordCount int, isFull, isJSON bool) error {
+func RunRunningPromptsLs(limit, wordCount int, isFull, isJSON, isSSH bool) error {
 	items, err := CollectActiveAndQueuedPrompts(wordCount, isFull)
 	if err != nil {
 		return err
+	}
+	if isSSH {
+		return AggregateSSHRunningPromptsLs(items, limit, wordCount, isFull, isJSON)
 	}
 	items = applyPromptsLimit(items, limit)
 	if isJSON {

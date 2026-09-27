@@ -104,3 +104,20 @@ func TestRenderSSHHostsTable_ColorsAndStyles(t *testing.T) {
 	assertTableContains(t, out, "cp-node")
 	assertTableContains(t, out, "worker-node")
 }
+
+func TestRenderSSHHostsTable_OfflineAndAuthFailedStatuses(t *testing.T) {
+	h1 := sampleTestHost("offline-node", "worker", "10.20.0.11", 22, "admin")
+	h1.Status = "○ offline (timeout)"
+	h2 := sampleTestHost("auth-failed-node", "worker", "10.20.0.12", 22, "ubuntu")
+	h2.Status = "▲ auth failed"
+	h3 := sampleTestHost("ready-node", "worker", "192.168.1.7", 22, "administrator")
+	h3.Status = "● ready"
+
+	out := renderTableToString(t, []store.SSHHost{h1, h2, h3})
+	assertTableContains(t, out, "○ offline (timeout)")
+	assertTableContains(t, out, "▲ auth failed")
+	assertTableContains(t, out, "● ready")
+	assertTableContains(t, out, constants.ColorYellow)
+	assertTableContains(t, out, constants.ColorGreen)
+	assertTableContains(t, out, constants.ColorDim)
+}

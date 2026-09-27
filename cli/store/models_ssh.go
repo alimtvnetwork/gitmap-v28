@@ -11,5 +11,6 @@ type SSHHost struct {
 	Port              int       `json:"port,omitempty" db:"port"`
 	EncryptedPassword string    `json:"encrypted_password,omitempty" db:"encrypted_password"`
 	ClusterRole       string    `json:"cluster_role,omitempty" db:"cluster_role"`
+	Status            string    `json:"status,omitempty" db:"-"`
 	CreatedAt         time.Time `json:"created_at" db:"created_at"`
 }

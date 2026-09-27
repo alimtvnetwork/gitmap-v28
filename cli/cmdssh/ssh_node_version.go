@@ -96,8 +96,10 @@ func probeOnlineNodeVersion(c db.SSHConnection) NodeVersionInfo {
 	header := fmt.Sprintf("[%s]", c.Alias)
 	client, isConnected := connectSSHNode(c, header)
 	if !isConnected {
-		info.Version = "not installed"
-		info.ErrorMsg = "connection failed"
+		info.Version = "(auth failed)"
+		info.Status = "▲ auth failed"
+		info.Comparison = "▲ AUTH FAILED"
+		info.ErrorMsg = "authentication failed"
 		return info
 	}
 	defer client.Close()
@@ -201,7 +203,7 @@ func renderNodeVersionTable(infos []NodeVersionInfo) {
 	fmt.Println("  " + strings.Repeat("-", 100))
 
 	for _, info := range infos {
-		statusColor := resolveNodeStatusColor(info.IsOnline)
+		statusColor := resolveNodeStatusColor(info.Status, info.IsOnline)
 		versionColor := resolveNodeVersionColor(info.IsInstalled, info.IsOnline)
 		cmpColor := resolveComparisonColor(info.Comparison)
 		fmt.Printf("  %-16s %-20s %-10s %s%-12s%s %s%-18s%s %s%s%s\n",
@@ -223,13 +225,16 @@ func resolveComparisonColor(comparison string) string {
 	if strings.Contains(comparison, "ABOVE") {
 		return constants.ColorCyan
 	}
-	if strings.Contains(comparison, "BELOW") {
+	if strings.Contains(comparison, "BELOW") || strings.Contains(comparison, "AUTH FAILED") {
 		return constants.ColorYellow
 	}
 	return constants.ColorDim
 }
 
-func resolveNodeStatusColor(isOnline bool) string {
+func resolveNodeStatusColor(status string, isOnline bool) string {
+	if strings.Contains(status, "auth failed") || strings.HasPrefix(status, "▲") {
+		return constants.ColorYellow
+	}
 	if isOnline {
 		return constants.ColorGreen
 	}

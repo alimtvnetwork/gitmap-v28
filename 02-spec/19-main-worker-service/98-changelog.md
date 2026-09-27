@@ -1,3 +1,9 @@
+## v6.347.0 — 2026-09-27 (SSH fleet auth fallback and live node status probing)
+
+**Scope:** Version bump. SSH fleet auth fallback and live node status probing.
+
+---
+
 ## v6.346.1 — 2026-09-27 (Release v6.346.1)
 
 **Scope:** Version bump. Release v6.346.1.

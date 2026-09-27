@@ -62,5 +62,6 @@ func printSJList(ctx context.Context, out io.Writer, max int) error {
 		return apperror.New("printSJList", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to list hosts", "err": err.Error()})
 	}
 	limitedHosts := limitSJHosts(hosts, max)
-	return RenderSSHHostsTable(out, limitedHosts)
+	probedHosts := probeHostsLiveStatus(ctx, limitedHosts)
+	return RenderSSHHostsTable(out, probedHosts)
 }
