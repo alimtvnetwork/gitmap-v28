@@ -3143,6 +3143,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.349.0] - 2026-09-27
+
+### Added
+- Pull-All Concise Filter, SSH Fleet JSON, Repo Create CG & No-Sync
+
+---
+
 ## [v6.348.0] - 2026-09-27
 
 ### Added
