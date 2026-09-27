@@ -1,3 +1,9 @@
+## v6.362.0 — 2026-09-27 (Fleet update JSON communication, running prompts restore, and deploy help)
+
+**Scope:** Version bump. Fleet update JSON communication, running prompts restore, and deploy help.
+
+---
+
 ## v6.360.0 — 2026-09-27 (Optimize CI cross-platform test compilation, enable GOCACHE, and scope windows e2e)
 
 **Scope:** Version bump. Optimize CI cross-platform test compilation, enable GOCACHE, and scope windows e2e.
