@@ -1,3 +1,9 @@
+## v6.359.0 — 2026-09-27 (Pipeline accurate ETA calculation, overtime tracking, and multi-workflow bottleneck selection)
+
+**Scope:** Version bump. Pipeline accurate ETA calculation, overtime tracking, and multi-workflow bottleneck selection.
+
+---
+
 ## v6.358.0 — 2026-09-27 (Smart deploy engine with sync modes, CI lint baseline fixes, and gofmt alignment)
 
 **Scope:** Version bump. Smart deploy engine with sync modes, CI lint baseline fixes, and gofmt alignment.
