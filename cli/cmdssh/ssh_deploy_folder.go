@@ -24,7 +24,7 @@ func scanLocalFolder(rootPath string) ([]LocalFileInfo, error) {
 		return nil, apperror.WrapSimple(err, "scanLocalFolder.stat")
 	}
 	if !info.IsDir() {
-		return nil, apperror.NewInvalidInput("rootPath", "E_NOT_DIR", "path is not a directory")
+		return nil, apperror.NewValidationError("path is not a directory: " + cleanRoot)
 	}
 	return walkDirectoryFiles(cleanRoot)
 }

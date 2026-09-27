@@ -75,7 +75,7 @@ type rawRemoteProbe struct {
 // probeRemoteFileInfo probes existence, size, directory status, and modification time of a remote path.
 func probeRemoteFileInfo(client *ssh.Client, remotePath string, isWin bool) (RemoteFileInfo, error) {
 	if client == nil {
-		return RemoteFileInfo{}, apperror.NewInvalidInput("client", "E_SSH_NIL", "ssh client cannot be nil")
+		return RemoteFileInfo{}, apperror.NewValidationError("ssh client cannot be nil")
 	}
 	cmd := buildRemoteProbeCmd(remotePath, isWin)
 	rawOut, err := crypto.RunCommand(client, cmd, "")

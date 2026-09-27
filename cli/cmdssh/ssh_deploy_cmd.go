@@ -29,6 +29,7 @@ type DeployOptions struct {
 	IsSyncRight   bool
 	IsSyncLeft    bool
 	IsJSON        bool
+	IsInteractive bool
 	Parallel      int
 	IsDryRun      bool
 }
@@ -79,10 +80,6 @@ func isHelpDeployRequest(args []string) bool {
 	return isHelpFlag(args[0])
 }
 
-func isHelpFlag(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
-}
-
 func runDeployExecution(subCmd string, args []string) error {
 	opts, err := parseDeployOptions(subCmd, args)
 	if err != nil {
@@ -94,7 +91,7 @@ func runDeployExecution(subCmd string, args []string) error {
 func parseDeployOptions(subCmd string, args []string) (DeployOptions, error) {
 	flags, posArgs := parseDeployFlags(args)
 	if len(posArgs) < 3 {
-		return DeployOptions{}, apperror.NewValidation("deploy_args", "missing arguments: expected <target> <source> <destination>")
+		return DeployOptions{}, apperror.NewValidationError("missing arguments: expected <target> <source> <destination>")
 	}
 	targetToken, srcPath, destPath := posArgs[0], posArgs[1], posArgs[2]
 	return buildDeployOptions(subCmd, targetToken, srcPath, destPath, flags)
@@ -332,6 +329,7 @@ func makeDeployOptions(subCmd, targetToken string, conn db.SSHConnection, host s
 		IsSyncRight:   s.isSyncRight,
 		IsSyncLeft:    s.isSyncLeft,
 		IsJSON:        s.isJSON,
+		IsInteractive: !s.isJSON,
 		Parallel:      s.parallel,
 		IsDryRun:      s.isDryRun,
 	}
