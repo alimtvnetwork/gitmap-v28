@@ -77,3 +77,4 @@
 - [86-gocritic-appendassign-in-ssh-running-prompts-and-projects-rca.md](./86-gocritic-appendassign-in-ssh-running-prompts-and-projects-rca.md): Fix gocritic appendAssign in SSH running prompts and projects aggregation.
 - [87-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency-rca.md](./87-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency-rca.md): Fix rerun test CWD match regression, parallelize PE log/metadata fetching, and restore local PA full-fledged concurrency.
 - [88-resolve-fetch-concurrency-test-assertion-rca.md](./88-resolve-fetch-concurrency-test-assertion-rca.md): Fix TestResolveFetchConcurrency assertion to match 8-worker concurrency ceiling.
+- [89-extract-json-substring-array-format-rca.md](./89-extract-json-substring-array-format-rca.md): Fix extractJSONSubstring stripping array brackets on telemetry array format.

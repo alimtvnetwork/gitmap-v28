@@ -474,9 +474,19 @@ func ParseFleetUpdateTelemetry(raw string, target FleetTarget, execErr error) Fl
 }
 
 func extractJSONSubstring(s string) string {
-	start := strings.Index(s, "{")
-	end := strings.LastIndex(s, "}")
-	if start >= 0 && end > start {
+	startObj, startArr := strings.Index(s, "{"), strings.Index(s, "[")
+	if startArr >= 0 && (startObj < 0 || startArr < startObj) {
+		return extractDelimitedRange(s, startArr, "]")
+	}
+	if startObj >= 0 {
+		return extractDelimitedRange(s, startObj, "}")
+	}
+	return s
+}
+
+func extractDelimitedRange(s string, start int, closeDelim string) string {
+	end := strings.LastIndex(s, closeDelim)
+	if end > start {
 		return s[start : end+1]
 	}
 	return s
