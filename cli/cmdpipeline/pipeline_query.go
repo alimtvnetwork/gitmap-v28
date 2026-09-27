@@ -505,8 +505,11 @@ func formatHoursMinutesSeconds(h, m, s int) string {
 }
 
 func formatEtaDisplay(sec int) string {
-	if sec <= 0 {
+	if sec == 0 {
 		return "-"
+	}
+	if sec < 0 {
+		return fmt.Sprintf("overtime +%s", formatDurationSeconds(-sec))
 	}
 	if sec < 60 {
 		return fmt.Sprintf("~%ds", sec)

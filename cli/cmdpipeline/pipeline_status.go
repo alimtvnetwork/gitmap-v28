@@ -144,13 +144,13 @@ func populateActiveRunPayload(payload *PipelineStatusPayload, runs []ghRunItem, 
 		payload.ActiveWorkflow = activeRun.Name
 		payload.LastRunId = activeRun.DatabaseId
 		payload.LastRunUrl = activeRun.Url
-		payload.EtaSeconds = calculateETA(runs)
+		payload.EtaSeconds = CalculateRunETA(*activeRun, runs)
 
 		return
 	}
 
 	payload.ActiveWorkflow = latest.Name
-	payload.EtaSeconds = calculateETA(runs)
+	payload.EtaSeconds = CalculateRunETA(latest, runs)
 }
 
 func renderPipelineStatusTerminal(p PipelineStatusPayload) {
@@ -265,30 +265,78 @@ func calculateETA(runs []ghRunItem) int {
 		return 0
 	}
 
+	return CalculateRunETA(*activeRun, runs)
+}
+
+// CalculateRunETA computes remaining seconds or negative overtime seconds for a run.
+func CalculateRunETA(activeRun ghRunItem, runs []ghRunItem) int {
 	createdAt, parseErr := time.Parse(time.RFC3339, activeRun.CreatedAt)
 	if parseErr != nil {
 		return 30
 	}
 
-	avgDuration := calculateAverageDuration(runs, activeRun.Name)
+	avgDuration := resolveWorkflowBaselineDuration(runs, activeRun.Name)
 	elapsedSeconds := int(time.Since(createdAt).Seconds())
+
+	return computeRemainingOrOvertime(avgDuration, elapsedSeconds)
+}
+
+func resolveWorkflowBaselineDuration(runs []ghRunItem, name string) int {
+	dur := calculateAverageDuration(runs, name)
+	if dur <= 0 {
+		return fallbackWorkflowDuration(name)
+	}
+
+	return dur
+}
+
+func computeRemainingOrOvertime(avgDuration, elapsedSeconds int) int {
 	remainingSeconds := avgDuration - elapsedSeconds
-	if remainingSeconds < 15 {
-		return 15
+	if remainingSeconds == 0 {
+		return -1
+	}
+	if remainingSeconds < 0 {
+		return remainingSeconds
+	}
+	if remainingSeconds < 5 {
+		return 5
 	}
 
 	return remainingSeconds
 }
 
 func findActiveWorkflowRun(runs []ghRunItem) *ghRunItem {
+	candidates := collectActiveWorkflowCandidates(runs)
+	if len(candidates) == 0 {
+		return nil
+	}
+
+	return selectBestActiveCandidate(runs, candidates)
+}
+
+func collectActiveWorkflowCandidates(runs []ghRunItem) []*ghRunItem {
+	var candidates []*ghRunItem
 	for i := range runs {
-		status := runs[i].Status
-		if status == "in_progress" || status == "queued" || status == "waiting" {
-			return &runs[i]
+		if isRunActive(runs[i]) || runs[i].Status == "waiting" {
+			candidates = append(candidates, &runs[i])
 		}
 	}
 
-	return nil
+	return candidates
+}
+
+func selectBestActiveCandidate(runs []ghRunItem, candidates []*ghRunItem) *ghRunItem {
+	best := candidates[0]
+	bestDur := calculateAverageDuration(runs, best.Name)
+	for _, c := range candidates[1:] {
+		dur := calculateAverageDuration(runs, c.Name)
+		if dur > bestDur {
+			best = c
+			bestDur = dur
+		}
+	}
+
+	return best
 }
 
 func calculateAverageDuration(runs []ghRunItem, workflowName string) int {

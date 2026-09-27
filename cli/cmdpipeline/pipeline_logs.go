@@ -355,13 +355,50 @@ func checkAndApplyRunningState(p *PipelineErrorLogsPayload, runs []ghRunItem, ta
 	}
 
 	targetSha := resolveTargetCommitSha(runs, targetCommit...)
-	for _, r := range runs {
-		if r.HeadSha == targetSha && isRunActive(r) {
-			setPayloadRunningState(p, r, calculateETA(runs))
+	bestRun := selectPrimaryActiveRun(runs, targetSha)
+	if bestRun == nil {
+		return
+	}
 
-			return
+	eta := CalculateRunETA(*bestRun, runs)
+	setPayloadRunningState(p, *bestRun, eta)
+}
+
+func selectPrimaryActiveRun(runs []ghRunItem, targetSha string) *ghRunItem {
+	candidates := collectActiveRunsForSha(runs, targetSha)
+	if len(candidates) == 0 {
+		return nil
+	}
+	if len(candidates) == 1 {
+		return candidates[0]
+	}
+
+	return pickBottleneckActiveRun(runs, candidates)
+}
+
+func collectActiveRunsForSha(runs []ghRunItem, targetSha string) []*ghRunItem {
+	var candidates []*ghRunItem
+	for i := range runs {
+		if (targetSha == "" || runs[i].HeadSha == targetSha) && isRunActive(runs[i]) {
+			candidates = append(candidates, &runs[i])
 		}
 	}
+
+	return candidates
+}
+
+func pickBottleneckActiveRun(runs []ghRunItem, candidates []*ghRunItem) *ghRunItem {
+	best := candidates[0]
+	bestDur := calculateAverageDuration(runs, best.Name)
+	for _, c := range candidates[1:] {
+		dur := calculateAverageDuration(runs, c.Name)
+		if dur > bestDur {
+			best = c
+			bestDur = dur
+		}
+	}
+
+	return best
 }
 
 func isRunActive(r ghRunItem) bool {
@@ -388,7 +425,16 @@ func setPayloadRunningState(p *PipelineErrorLogsPayload, r ghRunItem, eta int) {
 	p.ActiveRunId = r.DatabaseId
 	p.ActiveRunUrl = r.Url
 	p.EtaSeconds = eta
-	p.ErrorLogs = fmt.Sprintf("Pipeline [%s #%d] is currently running. Estimated completion in %d seconds.",
+	p.ErrorLogs = formatRunningErrorLogs(r, eta)
+}
+
+func formatRunningErrorLogs(r ghRunItem, eta int) string {
+	if eta < 0 {
+		return fmt.Sprintf("Pipeline [%s #%d] is currently running (%s).",
+			r.Name, r.DatabaseId, formatEtaDisplay(eta))
+	}
+
+	return fmt.Sprintf("Pipeline [%s #%d] is currently running. Estimated completion in %d seconds.",
 		r.Name, r.DatabaseId, eta)
 }
 

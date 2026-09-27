@@ -78,10 +78,12 @@ func pollTimelineStep(repo string, isJSON bool, startTime time.Time) (bool, erro
 }
 
 func computeAdaptiveInterval(eta int) int {
+	if eta <= 0 {
+		return 15
+	}
 	if eta > 120 {
 		return 15
 	}
-
 	if eta > 60 {
 		return 10
 	}
@@ -212,12 +214,38 @@ func fallbackWorkflowDuration(workflowName string) int {
 
 func resolveStaticFallbackDuration(workflowName string) int {
 	lowerName := strings.ToLower(workflowName)
-	if strings.Contains(lowerName, "release") {
-		return 95
-	}
-	if strings.Contains(lowerName, "ci") || strings.Contains(lowerName, "smoke") || strings.Contains(lowerName, "test") {
-		return 180
+	dur := resolveSpecializedWorkflowDuration(lowerName)
+	if dur > 0 {
+		return dur
 	}
 
-	return 120
+	return resolveStandardWorkflowDuration(lowerName)
+}
+
+func resolveSpecializedWorkflowDuration(lower string) int {
+	if strings.Contains(lower, "beacon") {
+		return 55
+	}
+	if strings.Contains(lower, "rewrite") || strings.Contains(lower, "smoke") {
+		return 75
+	}
+	if strings.Contains(lower, "race") {
+		return 130
+	}
+
+	return 0
+}
+
+func resolveStandardWorkflowDuration(lower string) int {
+	if strings.Contains(lower, "release") {
+		return 480
+	}
+	if strings.Contains(lower, "cross-platform") || strings.Contains(lower, "build") {
+		return 420
+	}
+	if strings.Contains(lower, "ci") || strings.Contains(lower, "test") {
+		return 450
+	}
+
+	return 300
 }

@@ -57,7 +57,8 @@ func resolvePipelineAINextCommand(p *PipelineStatusPayload) {
 	}
 
 	if p.IsRunning {
-		p.NextAiCommand = fmt.Sprintf("gitmap pipeline-ai status -t %d", p.EtaSeconds)
+		waitSec := resolvePipelineAIWaitSeconds(p.EtaSeconds)
+		p.NextAiCommand = fmt.Sprintf("gitmap pipeline-ai status -t %d", waitSec)
 		p.IsStopWaiting = false
 		p.RecommendedAction = "wait"
 
@@ -66,6 +67,17 @@ func resolvePipelineAINextCommand(p *PipelineStatusPayload) {
 
 	p.NextAiCommand = ""
 	p.RecommendedAction = "none"
+}
+
+func resolvePipelineAIWaitSeconds(eta int) int {
+	if eta <= 0 {
+		return 30
+	}
+	if eta < 15 {
+		return 15
+	}
+
+	return eta
 }
 
 func handlePipelineAIErrors(args []string) error {

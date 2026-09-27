@@ -78,4 +78,13 @@ func TestFormatEtaDisplay(t *testing.T) {
 	if formatEtaDisplay(11700) != "~3h 15m (11700s)" {
 		t.Errorf("expected '~3h 15m (11700s)', got %s", formatEtaDisplay(11700))
 	}
+	if formatEtaDisplay(-1) != "overtime +1s" {
+		t.Errorf("expected 'overtime +1s', got %s", formatEtaDisplay(-1))
+	}
+	if formatEtaDisplay(-45) != "overtime +45s" {
+		t.Errorf("expected 'overtime +45s', got %s", formatEtaDisplay(-45))
+	}
+	if formatEtaDisplay(-870) != "overtime +14m 30s" {
+		t.Errorf("expected 'overtime +14m 30s', got %s", formatEtaDisplay(-870))
+	}
 }

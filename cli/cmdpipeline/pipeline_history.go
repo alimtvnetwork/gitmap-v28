@@ -234,13 +234,28 @@ func renderActiveWorkflowsList(sb *strings.Builder, runs []ghRunItem, workflows 
 
 func renderSingleWorkflowStatus(sb *strings.Builder, runs []ghRunItem, wf CommitWorkflowItem) {
 	badge := formatStatusBadge(wf.Conclusion, wf.Status)
-	eta := calculateAverageDuration(runs, wf.Name)
+	eta := resolveCommitWorkflowETA(runs, wf)
 	etaStr := formatWorkflowETA(eta, wf.Status)
 	fmt.Fprintf(sb, "      - %s (#%d): %s %s\n", wf.Name, wf.DatabaseId, badge, etaStr)
 }
 
+func resolveCommitWorkflowETA(runs []ghRunItem, wf CommitWorkflowItem) int {
+	if wf.Status != "in_progress" && wf.Status != "queued" {
+		return 0
+	}
+	run := ghRunItem{
+		DatabaseId: wf.DatabaseId,
+		Name:       wf.Name,
+		Status:     wf.Status,
+		CreatedAt:  wf.CreatedAt,
+		UpdatedAt:  wf.UpdatedAt,
+	}
+
+	return CalculateRunETA(run, runs)
+}
+
 func formatWorkflowETA(eta int, status string) string {
-	if (status == "in_progress" || status == "queued") && eta > 0 {
+	if (status == "in_progress" || status == "queued") && eta != 0 {
 		return fmt.Sprintf("(ETA: %s)", formatEtaDisplay(eta))
 	}
 

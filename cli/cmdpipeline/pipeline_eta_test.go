@@ -123,3 +123,68 @@ func TestCalculateAverageDuration_ExcludesShortSkippedOutliers(t *testing.T) {
 		t.Fatalf("expected baseline ~180s excluding 20s outlier, got %d", avg)
 	}
 }
+
+func TestCalculateETA_OvertimeReturnsNegative(t *testing.T) {
+	now := time.Now().UTC()
+	runs := buildOvertimeTestRuns(now)
+
+	eta := calculateETA(runs)
+	if eta >= 0 {
+		t.Fatalf("expected negative ETA for overdue run, got %d", eta)
+	}
+
+	display := formatEtaDisplay(eta)
+	if !strings.HasPrefix(display, "overtime +") {
+		t.Fatalf("expected display to start with 'overtime +', got %s", display)
+	}
+}
+
+func buildOvertimeTestRuns(now time.Time) []ghRunItem {
+	return []ghRunItem{
+		{
+			DatabaseId: 501,
+			Name:       "CI",
+			Status:     "in_progress",
+			CreatedAt:  now.Add(-600 * time.Second).Format(time.RFC3339),
+			UpdatedAt:  now.Add(-600 * time.Second).Format(time.RFC3339),
+		},
+		{
+			DatabaseId: 502,
+			Name:       "CI",
+			Status:     "completed",
+			Conclusion: "success",
+			CreatedAt:  now.Add(-1000 * time.Second).Format(time.RFC3339),
+			UpdatedAt:  now.Add(-800 * time.Second).Format(time.RFC3339),
+		},
+	}
+}
+
+func TestFindActiveWorkflowRun_SelectsBottleneck(t *testing.T) {
+	now := time.Now().UTC()
+	runs := buildBottleneckCandidateRuns(now)
+
+	active := findActiveWorkflowRun(runs)
+	if active == nil {
+		t.Fatal("expected active workflow run, got nil")
+	}
+	if active.Name != "Release" {
+		t.Fatalf("expected bottleneck 'Release' to be selected over beacon, got %s", active.Name)
+	}
+}
+
+func buildBottleneckCandidateRuns(now time.Time) []ghRunItem {
+	return []ghRunItem{
+		{
+			DatabaseId: 601,
+			Name:       "CI Beacon",
+			Status:     "in_progress",
+			CreatedAt:  now.Add(-10 * time.Second).Format(time.RFC3339),
+		},
+		{
+			DatabaseId: 602,
+			Name:       "Release",
+			Status:     "in_progress",
+			CreatedAt:  now.Add(-10 * time.Second).Format(time.RFC3339),
+		},
+	}
+}
