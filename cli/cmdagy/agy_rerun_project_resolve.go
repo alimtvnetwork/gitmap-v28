@@ -527,7 +527,17 @@ func matchFuzzyTarget(projects []AgyProject, target string) (AgyProject, error) 
 func isHelpKeyword(target string) bool {
 	low := strings.ToLower(strings.TrimSpace(target))
 
-	return low == "help" || low == "info" || low == "man"
+	return low == "help" ||
+		low == "info" ||
+		low == "man" ||
+		low == "-h" ||
+		low == "--help" ||
+		low == "-help" ||
+		low == "/?" ||
+		low == "-?" ||
+		low == "--?" ||
+		low == "/h" ||
+		low == "/help"
 }
 
 func isProjectTargetMatch(p AgyProject, cleanTarget string) bool {

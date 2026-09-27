@@ -30,12 +30,19 @@ func isRerunHelpRequested(args []string) bool {
 }
 
 func isRerunHelpToken(tok string) bool {
-	clean := strings.TrimSpace(tok)
+	clean := strings.ToLower(strings.TrimSpace(tok))
 
-	return strings.EqualFold(clean, "help") ||
-		strings.EqualFold(clean, "-h") ||
-		strings.EqualFold(clean, "--help") ||
-		strings.EqualFold(clean, "-help")
+	return clean == "help" ||
+		clean == "-h" ||
+		clean == "--help" ||
+		clean == "-help" ||
+		clean == "/?" ||
+		clean == "-?" ||
+		clean == "--?" ||
+		clean == "/h" ||
+		clean == "/help" ||
+		clean == "man" ||
+		clean == "info"
 }
 
 func renderAgyRerunHelp() {
