@@ -1,7 +1,7 @@
 # Canonical Specification: Scan Alias Migration, Internal Errors DB, and Fleet Inventory Aggregation
 
 ## Specification Metadata
-- **Spec ID:** 176-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation
+- **Spec ID:** 177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation
 - **Status:** Active
 - **Category:** Architecture & Split-DB / Fleet Telemetry
 - **Created:** 2026-09-27
@@ -76,5 +76,5 @@ CREATE INDEX IF NOT EXISTS IdxInternalErrorLog_IsResolved ON InternalErrorLog(Is
 - [x] **AC-03:** `gitmap e <id>` displays full detail card with code, type, stack trace, and context.
 - [x] **AC-04:** `gitmap e clear` flushes all recorded errors from `gitmap-errors.db`.
 - [x] **AC-05:** `D:\work\.gitmap\output\gitmap.json` contains fresh inventory of all local repositories.
-- [ ] **AC-06:** Remote nodes W1, W2, and W3 are scanned via SSH and their inventories retrieved.
-- [ ] **AC-07:** `D:\work\repo-secrets\04-w1-machine` and `D:\work\repo-secrets\06-w3-machine` are populated matching `05-w2-machine` format.
+- [x] **AC-06:** Remote nodes W1, W2, and W3 are scanned via SSH and their inventories retrieved.
+- [x] **AC-07:** `D:\work\repo-secrets\04-w1-machine` and `D:\work\repo-secrets\06-w3-machine` are populated matching `05-w2-machine` format.

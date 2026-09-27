@@ -1,7 +1,7 @@
 # Completed Plan: Scan Alias Migration, Deploy-Bin Command, and Fleet Inventory Aggregation
 
 ## Plan Overview
-- **Spec Reference:** [02-spec/21-app/176-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md](../../../02-spec/21-app/176-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md)
+- **Spec Reference:** [02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md](../../../02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md)
 - **Status:** Completed
 - **Created:** 2026-09-27
 - **Completed:** 2026-09-27

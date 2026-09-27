@@ -18,6 +18,7 @@
 - [174-agy-decision-log-db-project-discovery-and-recent-rerun.md](completed/174-agy-decision-log-db-project-discovery-and-recent-rerun.md) — Antigravity Decision Log DB, Multi-Source Project Discovery, and Active Rerun Recency (Spec: [174](../../02-spec/21-app/174-agy-decision-log-db-project-discovery-and-recent-rerun.md))
 - [175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md](completed/175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md) — Rerun Test CWD Match, PE Parallel Log Fetching & Local PA Concurrency (Spec: [175](../../02-spec/21-app/175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md))
 - [176-resolve-fetch-concurrency-test-assertion.md](completed/176-resolve-fetch-concurrency-test-assertion.md) — TestResolveFetchConcurrency Alignment with 8-Worker Concurrency Ceiling (Spec: [176](../../02-spec/21-app/176-resolve-fetch-concurrency-test-assertion.md))
+- [177-scan-alias-and-deploy-bin.md](completed/177-scan-alias-and-deploy-bin.md) — Scan Alias Migration, Internal Errors DB, and Fleet Inventory Aggregation (Spec: [177](../../02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

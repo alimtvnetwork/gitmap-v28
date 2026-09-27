@@ -1,6 +1,6 @@
 # Subtask 02: Remote File Fetching & Fleet Inventory Automation (`gitmap ssh pull-inventory`)
 Traceability ID: Task-03
-Spec Reference: [02-spec/21-app/176-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md](../../../02-spec/21-app/176-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md)
+Spec Reference: [02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md](../../../02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md)
 Target Files: cli/cmdssh/ssh_pull_inventory.go, cli/cmdssh/ssh.go
 Status: Completed
 Completed At: 2026-09-27T20:18:00+08:00

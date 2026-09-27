@@ -24,4 +24,5 @@
 - [174-agy-decision-log-db-project-discovery-and-recent-rerun.md](174-agy-decision-log-db-project-discovery-and-recent-rerun.md) — Antigravity Decision Log DB, Multi-Source Project Discovery, and Active Rerun Recency (Status: `active`)
 - [175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md](175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md) — Rerun Test CWD Match, PE Parallel Log Fetching & Local PA Concurrency (Status: `active`)
 - [176-resolve-fetch-concurrency-test-assertion.md](176-resolve-fetch-concurrency-test-assertion.md) — TestResolveFetchConcurrency Alignment with 8-Worker Concurrency Ceiling (Status: `active`)
+- [177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md](177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md) — Scan Alias Migration, Internal Errors DB, and Fleet Inventory Aggregation (Status: `active`)
 

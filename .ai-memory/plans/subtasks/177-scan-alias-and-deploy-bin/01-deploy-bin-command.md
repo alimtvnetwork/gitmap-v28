@@ -1,6 +1,6 @@
 # Subtask 01: Smart GitMap Binary Deploy Command (`gitmap ssh deploy-bin`)
 Traceability ID: Task-01
-Spec Reference: [02-spec/21-app/176-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md](../../../02-spec/21-app/176-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md)
+Spec Reference: [02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md](../../../02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md)
 Target Files: cli/cmdssh/ssh_deploy_bin.go, cli/cmdssh/ssh_deploy_bin_help.go, cli/cmdssh/ssh.go, cli/helptext/deploy-bin.md
 Status: Completed
 Completed At: 2026-09-27T20:18:00+08:00
