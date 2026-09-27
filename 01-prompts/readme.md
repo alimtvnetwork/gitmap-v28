@@ -32,6 +32,12 @@ To maintain 100% backward compatibility while delivering 10x-100x performance ac
    - Single-Command Release: `gitmap release --bump <patch|minor> -y` (alias: `gitmap r -y`)
    - Release History: `gitmap changelog` (alias: `gitmap cl`), `gitmap list-versions` (alias: `gitmap lv`)
 
+4. **Autonomous Remote Deploy & Multi-Node Sync:**
+   - Universal Node Deploy: `gitmap deploy <target> <src> <dest> [--overwrite|--skip|--sync]`
+   - Unidirectional Push: `gitmap deploy-right <target> <src> <dest>`
+   - Protective Pull / Retrieval: `gitmap deploy-left <target> <src> <dest>`
+   - Canonical Prompt: [`v2/14-execute/09-gitmap-deploy-actions.md`](v2/14-execute/09-gitmap-deploy-actions.md)
+
 ---
 
 ## Directory Index

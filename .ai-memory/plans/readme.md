@@ -23,5 +23,4 @@
 
 ## Pending Plans
 
-
-
+- [178-action-based-prompt-gitmap-deploy.md](pending/178-action-based-prompt-gitmap-deploy.md) — Master Architectural Specification & Action-Based Prompt: GitMap Deploy Engine
