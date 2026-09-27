@@ -74,3 +74,4 @@
 - [83-sponsor-seo-templates-minimum-count-rca.md](./83-sponsor-seo-templates-minimum-count-rca.md): Fix sponsor/seo templates minimum count when partial state DB records exist.
 - [84-unused-var-isagyfixexplicitonly-rca.md](./84-unused-var-isagyfixexplicitonly-rca.md): Fix unused var isAgyFixExplicitOnly in cmdpipeline.
 - [85-ssh-auth-fallback-and-node-status-rca.md](./85-ssh-auth-fallback-and-node-status-rca.md): Fix SSH authentication handshake fallback and accurate node status reporting in nodes listing and fleet execution.
+- [86-gocritic-appendassign-in-ssh-running-prompts-and-projects-rca.md](./86-gocritic-appendassign-in-ssh-running-prompts-and-projects-rca.md): Fix gocritic appendAssign in SSH running prompts and projects aggregation.

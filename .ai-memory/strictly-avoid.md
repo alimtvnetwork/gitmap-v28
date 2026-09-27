@@ -553,3 +553,20 @@ Allowed work:
 - ✅ Always automatically copy the full public key to the system clipboard and announce it to the user.
 
 **Why:** Public keys are designed to be shared openly (e.g. pasted into GitHub, GitLab, or remote authorized_keys). Masking them breaks automated scripts, confuses developers, and forces unnecessary manual steps.
+
+---
+
+## Gocritic appendAssign Pattern Violation — TOTAL BAN
+
+🔴 **NEVER write slice concatenation where the `append` result is not assigned to the same slice variable (e.g. `all := append(sliceA, sliceB...)`).**
+
+Forbidden:
+- ❌ Writing `all := append(a, b...)` where `a` is not overwritten (triggers gocritic `appendAssign`).
+- ❌ Re-slicing or mutating incoming function argument slices directly in callers.
+
+Allowed work:
+- ✅ Allocate a fresh slice with exact capacity `make([]T, 0, len(a)+len(b))` and sequentially append, or extract a dedicated `merge*` helper function.
+- ✅ Assign the append result back to the same slice variable `a = append(a, b...)` if intended.
+
+**Why:** In Go, calling `append(a, b...)` without reassigning to `a` risks mutating the underlying array backing `a` if it has excess capacity, introducing subtle data races and side effects. Gocritic flags this in CI baseline guards.
+
