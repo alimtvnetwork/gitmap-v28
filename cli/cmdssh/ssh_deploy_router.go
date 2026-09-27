@@ -18,6 +18,8 @@ func RunSSHDeployRouterCLI(args []string) error {
 	switch sub {
 	case "keys", "key", "k":
 		return RunSSHDeployKeysCLI(args[1:])
+	case "bin", "binary", "exe", "gitmap":
+		return RunSSHDeployBinCLI(args[1:])
 	case "node-config", "nodeconfig", "nc", "nodes":
 		return RunSSHDeployNodeConfigCLI(args[1:])
 	case "help", "--help", "-h":
@@ -43,6 +45,10 @@ func printDeployHelp() {
 	fmt.Println("    gitmap ssh deploy node-config [all] [--except <id,ip,alias>]")
 	fmt.Println("        Deploy node topology, IP addresses, and aliases across all target fleet nodes.")
 	fmt.Println("        (Recommended to run FIRST so all nodes know cluster topology)")
+	fmt.Println()
+	fmt.Println("    gitmap ssh deploy bin [all|<target>] [--file <path>]")
+	fmt.Println("        Deploy local GitMap binary across remote fleet nodes and verify version.")
+	fmt.Println("        (Autonomous one-liner replacement for manual scp commands)")
 	fmt.Println()
 	fmt.Println("    gitmap ssh deploy keys [all] [--except <id,ip,alias>]")
 	fmt.Println("        Gather local and remote public keys, deduplicate unique keys,")

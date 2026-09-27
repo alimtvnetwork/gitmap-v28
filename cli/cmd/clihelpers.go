@@ -348,6 +348,16 @@ func runSSHExec(args []string) error {
 	return cmdssh.RunSSHExec(args)
 }
 
+// runSSHDeployBin delegates to cmdssh.RunSSHDeployBinCLI.
+func runSSHDeployBin(args []string) error {
+	return cmdssh.RunSSHDeployBinCLI(args)
+}
+
+// runSSHPullInventory delegates to cmdssh.RunSSHPullInventoryCLI.
+func runSSHPullInventory(args []string) error {
+	return cmdssh.RunSSHPullInventoryCLI(args)
+}
+
 // runRemote delegates to cmdssh.RunSSHUpdateCLI.
 func runRemote(args []string) error {
 	if len(args) == 0 || args[0] == "-h" || args[0] == "--help" || args[0] == "help" {

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
@@ -344,7 +345,8 @@ func utilityPipelineEntries() []dispatchEntry {
 		{[]string{"pipeline", "pipelines", "pl"}, func() error { return runPipeline(argsTail()) }},
 		{[]string{"pe", "pipeline-errors", "pipeline_errors"}, func() error { return runPipelineErrors(argsTail()) }},
 		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return runPipelineDetails(argsTail()) }},
-		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errors", "err", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},
+		{[]string{"e", "errors", "internal-errors", "errs"}, func() error { return cmderrors.RunErrorsCLI(argsTail()) }},
+		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},
 		{[]string{"logs", "log"}, func() error { return runPipeline(append([]string{"logs"}, argsTail()...)) }},
 		{[]string{"waittime", "wait-time", "eta"}, func() error { return runPipeline(append([]string{"waittime"}, argsTail()...)) }},
 		{[]string{"repo"}, func() error { return runRepoCommand(argsTail()) }},

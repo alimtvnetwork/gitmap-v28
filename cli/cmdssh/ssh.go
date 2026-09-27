@@ -217,6 +217,10 @@ func dispatchExportImportSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(RunSSHExportOnelinerCLI(args))
 	case "deploy":
 		return result.MatchWrapper(RunSSHDeployRouterCLI(args))
+	case "deploy-bin", "deploy-binary", "push-bin", "sync-bin":
+		return result.MatchWrapper(RunSSHDeployBinCLI(args))
+	case "pull-inventory", "fetch-inventory", "sync-inventory":
+		return result.MatchWrapper(RunSSHPullInventoryCLI(args))
 	case "deploy-keys", "dk":
 		return result.MatchWrapper(RunSSHDeployKeysCLI(args))
 	case "deploy-node-config", "node-config", "nc":

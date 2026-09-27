@@ -31,11 +31,12 @@ type sqlQueryerExecutor interface {
 	sqlExecutor
 }
 
-// ExecWrapper wraps db.Exec, explicitly logging failures to os.Stderr.
+// ExecWrapper wraps db.Exec, explicitly logging failures to os.Stderr and persisting to errors split DB.
 func ExecWrapper(db sqlExecutor, query string, args ...any) QueryResult[sql.Result] {
 	res, err := db.Exec(query, args...)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[QueryWrapper Error]: exec failed: %v\nquery: %s\n", err, query)
+		LogInternalError("QUERY_WRAPPER_EXEC", "SQL_EXEC_ERROR", err.Error(), fmt.Sprintf("query: %s\nargs: %v", query, args), "")
 
 		return QueryResult[sql.Result]{IsSuccess: false, IsFailure: true, Error: err}
 	}
@@ -43,11 +44,12 @@ func ExecWrapper(db sqlExecutor, query string, args ...any) QueryResult[sql.Resu
 	return QueryResult[sql.Result]{IsSuccess: true, IsFailure: false, Data: res}
 }
 
-// QueryWrapper wraps db.Query, explicitly logging failures to os.Stderr.
+// QueryWrapper wraps db.Query, explicitly logging failures to os.Stderr and persisting to errors split DB.
 func QueryWrapper(db sqlQueryer, query string, args ...any) QueryResult[*sql.Rows] {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[QueryWrapper Error]: query failed: %v\nquery: %s\n", err, query)
+		LogInternalError("QUERY_WRAPPER_QUERY", "SQL_QUERY_ERROR", err.Error(), fmt.Sprintf("query: %s\nargs: %v", query, args), "")
 
 		return QueryResult[*sql.Rows]{IsSuccess: false, IsFailure: true, Error: err}
 	}

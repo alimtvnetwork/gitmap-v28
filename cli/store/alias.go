@@ -33,8 +33,15 @@ func (db *DB) CreateAlias(alias string, repoID int64) (model.Alias, error) {
 	return db.FindAliasByName(alias)
 }
 
+func (db *DB) ensureAliasColumns() {
+	if !db.columnExists(constants.TableAlias, "IsPrimary") || !db.columnExists(constants.TableAlias, "Source") {
+		db.migrateAliasColumns()
+	}
+}
+
 // CreateAliasWithDetails inserts a new alias with primary flag and source.
 func (db *DB) CreateAliasWithDetails(alias string, repoID int64, isPrimary bool, source string) (model.Alias, error) {
+	db.ensureAliasColumns()
 	primaryVal := 0
 	if isPrimary {
 		primaryVal = 1
@@ -73,6 +80,7 @@ func (db *DB) FindAliasByRepoID(repoID int64) (model.Alias, error) {
 
 // FindAliasesByRepoID retrieves all aliases for a specific repo.
 func (db *DB) FindAliasesByRepoID(repoID int64) ([]model.Alias, error) {
+	db.ensureAliasColumns()
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAliasesByRepoID, repoID).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrAliasQuery, err)

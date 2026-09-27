@@ -74,10 +74,26 @@ func checkSSHHelp(args []string) bool {
 		return true
 	}
 
+	if hasHelp && hasDeployBinToken(args) {
+		RenderDeployBinHelp()
+
+		return true
+	}
+
 	if hasHelp {
 		RenderSSHHelp()
 
 		return true
+	}
+
+	return false
+}
+
+func hasDeployBinToken(args []string) bool {
+	for _, a := range args {
+		if a == "deploy-bin" || a == "push-bin" || a == "sync-bin" || a == "bin" {
+			return true
+		}
 	}
 
 	return false

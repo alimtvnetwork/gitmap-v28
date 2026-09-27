@@ -22,6 +22,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/theme"
 )
 
@@ -259,6 +260,11 @@ func persistLastError(command string, err error) {
 		return
 	}
 
+	writeLastErrorFile(command, err, appErr)
+	persistToErrorsDB(command, err, appErr)
+}
+
+func writeLastErrorFile(command string, err error, appErr *apperror.AppError) {
 	_ = os.MkdirAll(".gitmap", 0755)
 
 	report := map[string]any{
@@ -267,17 +273,47 @@ func persistLastError(command string, err error) {
 		"error":     err.Error(),
 	}
 
-	if isAppErr && appErr != nil {
+	if appErr != nil {
 		populateAppErrorReport(report, appErr)
 	}
 
 	b, marshalErr := json.MarshalIndent(report, "", "  ")
-
 	if marshalErr == nil {
 		_ = os.WriteFile(".gitmap/last_error.log", b, 0644)
 	} else {
 		_ = os.WriteFile(".gitmap/last_error.log", []byte(err.Error()), 0644)
 	}
+}
+
+func persistToErrorsDB(command string, err error, appErr *apperror.AppError) {
+	rec := store.InternalErrorRecord{
+		ErrorCode:  "E_CLI_ERROR",
+		ErrorType:  "CLI_ERROR",
+		Command:    command,
+		Message:    err.Error(),
+		StackTrace: resolveErrorStackTrace(err),
+	}
+
+	if appErr != nil {
+		rec.ErrorCode = string(appErr.Code)
+		rec.ErrorType = string(appErr.Type)
+		rec.ContextJson = resolveAppContextJson(appErr)
+	}
+
+	store.LogInternalErrorRecord(rec)
+}
+
+func resolveAppContextJson(appErr *apperror.AppError) string {
+	if appErr == nil || len(appErr.Ctx) == 0 {
+		return "{}"
+	}
+
+	ctxBytes, err := json.Marshal(appErr.Ctx)
+	if err != nil {
+		return "{}"
+	}
+
+	return string(ctxBytes)
 }
 
 func populateAppErrorReport(report map[string]any, appErr *apperror.AppError) {
