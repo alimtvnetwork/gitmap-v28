@@ -1,0 +1,12 @@
+{
+  "prompt_id": "prompt-7ba4f525-ec3c-4145-8a05-eabb2aeba640",
+  "project_id": "gitmap-7ba4f525",
+  "instance_id": "default",
+  "repo_path": "d:\\work\\gitmap",
+  "prompt_content": "<USER_REQUEST>\njust check build is working and do a minor bump with gitmap pe check\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nThe current local time is: 2026-09-27T23:42:09+08:00.\n</ADDITIONAL_METADATA>",
+  "model": "gemini-pro",
+  "image_payload": null,
+  "has_image": false,
+  "auto_boot": true,
+  "resumed_at": 1790525054
+}
