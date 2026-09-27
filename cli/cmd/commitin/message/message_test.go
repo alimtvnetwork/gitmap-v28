@@ -44,9 +44,9 @@ func TestWeakWordMatching(t *testing.T) {
 
 func TestOverrideOnlyFiresWhenWeak(t *testing.T) {
 	res := profile.Resolved{
-		OverrideMessages: []string{"Refine implementation"},
-		OverrideOnlyWeak: true,
-		WeakWords:        []string{"update"},
+		OverrideMessages:   []string{"Refine implementation"},
+		IsOverrideOnlyWeak: true,
+		WeakWords:          []string{"update"},
 	}
 
 	weakIn := Inputs{OriginalMessage: "Update foo", Resolved: res, PickIndex: fixedPick}
@@ -158,9 +158,9 @@ func TestEmptyAfterStripFlagged(t *testing.T) {
 func TestPipelineOrderStripBeforeOverride(t *testing.T) {
 	res := profile.Resolved{
 		MessageRules:     []profile.MessageRule{{Kind: constants.CommitInMessageRuleKindStartsWith, Value: "Update"}},
-		OverrideMessages: []string{"Refined"},
-		OverrideOnlyWeak: true,
-		WeakWords:        []string{"update"},
+		OverrideMessages:   []string{"Refined"},
+		IsOverrideOnlyWeak: true,
+		WeakWords:          []string{"update"},
 	}
 
 	out := Build(Inputs{OriginalMessage: "Update foo\nReal body", Resolved: res, PickIndex: fixedPick}).Message

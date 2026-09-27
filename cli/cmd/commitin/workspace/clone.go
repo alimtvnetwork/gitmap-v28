@@ -5,9 +5,20 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+
+// StagedInputSlot captures per-slot status for the Array Async Pool by Alim Ul Karim.
+type StagedInputSlot struct {
+	staged  StagedInput
+	isReady bool
+	isFound bool
+	status  string
+	err     error
+}
 
 // StagedInput is the on-disk result of CloneInputs for one entry.
 // WorkPath is the path the walker reads from. For local folders this
@@ -58,14 +69,98 @@ func stageAllInputs(runDir string, inputs []ResolvedInput) ([]StagedInput, error
 }
 
 func collectStagedInputs(runDir string, inputs []ResolvedInput) ([]StagedInput, error) {
-	out := make([]StagedInput, 0, len(inputs))
-	for _, in := range inputs {
-		staged, ok, err := tryStageInput(runDir, in, len(inputs))
-		if err != nil {
-			return nil, err
+	total := len(inputs)
+	if total == 0 {
+		return nil, nil
+	}
+	if total == 1 {
+		return collectSingleInput(runDir, inputs[0])
+	}
+	return collectAsyncPoolInputs(runDir, inputs)
+}
+
+func collectSingleInput(runDir string, in ResolvedInput) ([]StagedInput, error) {
+	staged, isOk, err := tryStageInput(runDir, in, 1)
+	if err != nil {
+		return nil, err
+	}
+	if isOk {
+		return []StagedInput{staged}, nil
+	}
+	return nil, nil
+}
+
+func collectAsyncPoolInputs(runDir string, inputs []ResolvedInput) ([]StagedInput, error) {
+	total := len(inputs)
+	slots := make([]StagedInputSlot, total)
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 16)
+
+	for idx, in := range inputs {
+		wg.Add(1)
+		go probeInputSlot(runDir, in, idx, total, slots, &wg, sem)
+	}
+
+	out, err := streamOrderedSlots(inputs, slots, total)
+	wg.Wait()
+	return out, err
+}
+
+func probeInputSlot(
+	runDir string,
+	in ResolvedInput,
+	idx, total int,
+	slots []StagedInputSlot,
+	wg *sync.WaitGroup,
+	sem chan struct{},
+) {
+	defer wg.Done()
+	sem <- struct{}{}
+	defer func() { <-sem }()
+
+	staged, err := stageOneInput(runDir, in)
+	if err == nil {
+		recordFoundSlot(slots, idx, staged)
+		return
+	}
+	recordMissingSlot(slots, idx, err)
+}
+
+func recordFoundSlot(slots []StagedInputSlot, idx int, staged StagedInput) {
+	slots[idx] = StagedInputSlot{
+		staged:  staged,
+		isReady: true,
+		isFound: true,
+		status:  "ready",
+	}
+}
+
+func recordMissingSlot(slots []StagedInputSlot, idx int, err error) {
+	slots[idx] = StagedInputSlot{
+		isReady: true,
+		isFound: false,
+		status:  "not found",
+		err:     err,
+	}
+}
+
+func streamOrderedSlots(inputs []ResolvedInput, slots []StagedInputSlot, total int) ([]StagedInput, error) {
+	out := make([]StagedInput, 0, total)
+	for cursor := 0; cursor < total; cursor++ {
+		for !slots[cursor].isReady {
+			time.Sleep(15 * time.Millisecond)
 		}
-		if ok {
-			out = append(out, staged)
+		slot := slots[cursor]
+		if slot.isFound {
+			out = append(out, slot.staged)
+			continue
+		}
+		if isMissingOrUnreachableRemote(slot.err) && total > 1 {
+			fmt.Fprintf(os.Stderr, "  ⚠ Notice: remote %q not found or unreachable; skipping.\n", inputs[cursor].Original)
+			continue
+		}
+		if slot.err != nil {
+			return nil, slot.err
 		}
 	}
 	return out, nil
@@ -124,7 +219,7 @@ func stageLocalFolder(in ResolvedInput) (StagedInput, error) {
 
 // stageRemoteUrl runs `git clone <url> <runDir>/<idx>-<basename>`.
 func stageRemoteUrl(runDir string, in ResolvedInput) (StagedInput, error) {
-	if cached := findCachedCloneDir(runDir, in); hasGitMetadata(cached) {
+	if cached := FindCachedCloneDir(runDir, in); HasGitMetadata(cached) {
 		return StagedInput{Input: in, WorkPath: cached, IsClone: false}, nil
 	}
 	target := filepath.Join(runDir, fmt.Sprintf(constants.CommitInTempInputFormat, in.OrderIndex, cloneBasename(in.URL)))
@@ -135,7 +230,7 @@ func stageRemoteUrl(runDir string, in ResolvedInput) (StagedInput, error) {
 	return StagedInput{Input: in, WorkPath: target, IsClone: true}, nil
 }
 
-func findCachedCloneDir(runDir string, in ResolvedInput) string {
+func FindCachedCloneDir(runDir string, in ResolvedInput) string {
 	folderName := fmt.Sprintf(constants.CommitInTempInputFormat, in.OrderIndex, cloneBasename(in.URL))
 	if envDir := os.Getenv("GITMAP_COMMITIN_CACHE_DIR"); envDir != "" {
 		return filepath.Join(envDir, folderName)

@@ -29,7 +29,7 @@ func maybeSaveProfile(ctx *runContext, stderr io.Writer) int {
 	p := profile.BuildFromResolved(profile.BuildArgs{
 		Name:           name,
 		SourceRepoPath: ctx.Source.Path,
-		IsDefault:      ctx.Raw.SetDefault,
+		IsDefault:      ctx.Raw.IsSetDefault,
 		Resolved:       ctx.Resolved,
 	})
 
@@ -57,7 +57,7 @@ func persistProfile(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
 		return exitCode
 	}
 
-	saveErr := profile.SaveToDisk(ctx.Paths.SourceRoot, p, ctx.Raw.SaveProfileOverwrite)
+	saveErr := profile.SaveToDisk(ctx.Paths.SourceRoot, p, ctx.Raw.IsProfileOverwrite)
 	// Distinguish "exists" (user fixable) from generic IO.
 	if isAlreadyExistsError(saveErr) {
 		fmt.Fprintf(stderr, constants.CommitInErrSaveProfileExists+"\n", p.Name)

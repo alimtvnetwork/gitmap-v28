@@ -137,6 +137,7 @@ Consolidated reference, audit logs, contradiction checks.
 | 23 | `23-solid-principles.md` | Architecture |
 | 16a | `16-static-analysis/01-index.md` | Enforcement |
 | 28 | `28-slug-conventions.md` | Naming |
+| 32 | `32-array-async-pool.md` | Architecture & Performance |
 | 97 | `97-acceptance-criteria.md` | Meta |
 | 98 | `98-changelog.md` | Meta |
 | 99 | `99-consistency-report.md` | Meta |

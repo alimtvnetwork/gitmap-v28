@@ -48,9 +48,9 @@ type Profile struct {
 	MessageSuffix     []string
 	TitlePrefix       string
 	TitleSuffix       string
-	OverrideMessages  []string
-	OverrideOnlyWeak  bool
-	WeakWords         []string
+	OverrideMessages   []string
+	IsOverrideOnlyWeak bool
+	WeakWords          []string
 	FunctionIntel     FunctionIntel
 }
 

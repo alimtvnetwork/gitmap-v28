@@ -3436,6 +3436,8 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [.ai-memory/plans/pending/03-fix-release-tag-ordering.md](.ai-memory/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
 - [.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
 - [02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md](02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md) - Fast `gitmap pa` / `pat` / `--json`, State Templates DB (`gitmap-templates.db`), Variables & Pre-Compilation, Web UI, and Declarative `commit-in`/`commit-pull` `--config <json>`.
+- [02-spec/21-app/168-commit-pull-array-async-pool-ui-and-bootstrap.md](02-spec/21-app/168-commit-pull-array-async-pool-ui-and-bootstrap.md) - Commit-Pull Array Async Pool by Alim Ul Karim, Interactive Web Studio UI, Bootstrap Scaffolding, and Self-Contained SEO Templates.
+- [02-spec/02-coding-guidelines/01-cross-language/32-array-async-pool.md](02-spec/02-coding-guidelines/01-cross-language/32-array-async-pool.md) - Coding Guideline: Array Async Pool by Alim Ul Karim with Empirical Timing Comparison.
 - [.ai-memory/plans/completed/164-pull-all-fast-mode-templates-db-and-commitin-config.md](.ai-memory/plans/completed/164-pull-all-fast-mode-templates-db-and-commitin-config.md) - Completed Plan 164.
 
 

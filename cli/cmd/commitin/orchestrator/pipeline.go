@@ -21,6 +21,10 @@ import (
 // executePipeline performs the per-input walk + replay loop. Returns
 // the exit code; the summary is printed by the caller.
 func executePipeline(ctx *runContext, stdout io.Writer) int {
+	if ctx.Raw.IsDryRun {
+		return runDryRunPipeline(ctx, stdout)
+	}
+
 	inputs, code := expandAndStage(ctx, stdout)
 	if code != constants.CommitInExitOk {
 		return code
@@ -40,6 +44,15 @@ func executePipeline(ctx *runContext, stdout io.Writer) int {
 	printFinalSummaryLocation(ctx, stdout)
 
 	return constants.CommitInExitOk
+}
+
+func runDryRunPipeline(ctx *runContext, stdout io.Writer) int {
+	resolved, err := workspace.ExpandInputs(ctx.Source.Path, ctx.Raw.Inputs, ctx.Raw.Keyword, ctx.Raw.KeywordTail)
+	if err != nil {
+		fmt.Fprint(stdout, err.Error())
+		return constants.CommitInExitInputUnusable
+	}
+	return executeDryRunArrayAsyncPool(ctx, resolved, stdout)
 }
 
 func expandAndStage(ctx *runContext, stdout io.Writer) ([]workspace.StagedInput, int) {

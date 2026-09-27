@@ -195,8 +195,8 @@ func TestParseDefaultShortAlias(t *testing.T) {
 		t.Fatalf("unexpected error: %v", perr)
 	}
 
-	if !got.UseDefaultProfile {
-		t.Error("-d did not toggle UseDefaultProfile")
+	if !got.IsDefaultProfile {
+		t.Error("-d did not toggle IsDefaultProfile")
 	}
 }
 

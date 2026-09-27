@@ -88,15 +88,36 @@ func (s *TemplatesSplitDB) resolveTemplatesByCategoryOrSlug(categoryOrSlug strin
 }
 
 func compileSingleTemplate(it StateTemplateItem, vars map[string]string) CompiledTemplate {
+	effectiveVars := mergeItemVariables(it, vars)
 	return CompiledTemplate{
 		ID:          it.ID,
 		Category:    it.Category,
 		SubCategory: it.SubCategory,
 		Slug:        it.Slug,
-		Title:       ExpandTemplateVariables(it.Title, vars),
-		Text:        ExpandTemplateVariables(it.Text, vars),
+		Title:       ExpandTemplateVariables(it.Title, effectiveVars),
+		Text:        ExpandTemplateVariables(it.Text, effectiveVars),
 		Additional:  it.Additional,
 	}
+}
+
+func mergeItemVariables(it StateTemplateItem, baseVars map[string]string) map[string]string {
+	if len(it.Additional) == 0 {
+		return baseVars
+	}
+	itemVars, ok := it.Additional["variables"].(map[string]any)
+	if !ok || len(itemVars) == 0 {
+		return baseVars
+	}
+	merged := make(map[string]string, len(baseVars)+len(itemVars))
+	for k, v := range baseVars {
+		merged[k] = v
+	}
+	for k, v := range itemVars {
+		if s, ok := v.(string); ok {
+			merged[k] = s
+		}
+	}
+	return merged
 }
 
 // ExpandTemplateVariables replaces $VAR and ${VAR} placeholders in content using vars.

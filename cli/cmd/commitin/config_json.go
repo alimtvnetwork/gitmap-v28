@@ -84,10 +84,10 @@ type CommitInConfigJSON struct {
 	PrefixSeparator   string                         `json:"prefixSeparator,omitempty"`
 	SuffixMode        string                         `json:"suffixMode,omitempty"`
 	TemplateMode      string                         `json:"templateMode,omitempty"`
-	PushImmediate     bool                           `json:"pushImmediate,omitempty"`
-	PushImmediately   bool                           `json:"pushImmediately,omitempty"`
-	Push              bool                           `json:"push,omitempty"`
-	AutoPush          bool                           `json:"autoPush,omitempty"`
+	IsPushImmediate   bool                           `json:"pushImmediate,omitempty"`
+	IsPushImmediately bool                           `json:"pushImmediately,omitempty"`
+	IsPush            bool                           `json:"push,omitempty"`
+	IsAutoPush        bool                           `json:"autoPush,omitempty"`
 	SummaryDir        string                         `json:"summaryDir,omitempty"`
 	TitlePrefix       string                         `json:"titlePrefix,omitempty"`
 	TitleSuffix       string                         `json:"titleSuffix,omitempty"`
@@ -136,7 +136,7 @@ func mergeConfigFlags(raw *RawArgs, cfg CommitInConfigJSON) {
 	raw.IsCD = raw.IsCD || cfg.IsCD
 	raw.IsRecreate = raw.IsRecreate || cfg.IsRecreate
 	raw.IsDryRun = raw.IsDryRun || cfg.IsDryRun
-	raw.IsPushImmediate = raw.IsPushImmediate || cfg.PushImmediate || cfg.PushImmediately || cfg.Push || cfg.AutoPush
+	raw.IsPushImmediate = raw.IsPushImmediate || cfg.IsPushImmediate || cfg.IsPushImmediately || cfg.IsPush || cfg.IsAutoPush
 
 	mode := strings.ToLower(strings.TrimSpace(cfg.SuffixMode))
 	if mode == "" {

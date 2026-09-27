@@ -30,9 +30,9 @@ func BuildFromResolved(args BuildArgs) *Profile {
 		MessageSuffix:    cloneStrings(r.MessageSuffix),
 		TitlePrefix:      r.TitlePrefix,
 		TitleSuffix:      r.TitleSuffix,
-		OverrideMessages: cloneStrings(r.OverrideMessages),
-		OverrideOnlyWeak: r.OverrideOnlyWeak,
-		WeakWords:        cloneStrings(r.WeakWords),
+		OverrideMessages:   cloneStrings(r.OverrideMessages),
+		IsOverrideOnlyWeak: r.IsOverrideOnlyWeak,
+		WeakWords:          cloneStrings(r.WeakWords),
 		FunctionIntel: FunctionIntel{
 			IsEnabled: r.FunctionIntel.IsEnabled,
 			Languages: cloneStrings(r.FunctionIntel.Languages),

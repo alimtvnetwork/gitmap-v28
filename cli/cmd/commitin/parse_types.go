@@ -19,11 +19,11 @@ type RawArgs struct {
 
 	// Behavior flags (defaults match spec §2.5 column "Default").
 	PRMode               string
-	UseDefaultProfile    bool
+	IsDefaultProfile     bool
 	ProfileName          string
 	SaveProfileName      string
-	SaveProfileOverwrite bool
-	SetDefault           bool
+	IsProfileOverwrite   bool
+	IsSetDefault         bool
 
 	AuthorName  string
 	AuthorEmail string
@@ -37,8 +37,8 @@ type RawArgs struct {
 	TitlePrefix       string
 	TitleSuffix       string
 
-	OverrideMessages []string
-	OverrideOnlyWeak bool
+	OverrideMessages   []string
+	IsOverrideOnlyWeak bool
 	WeakWords        []string
 
 	FunctionIntel string   // "on" | "off" | "" (unset)

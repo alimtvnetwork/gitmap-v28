@@ -21,9 +21,9 @@ type jsonShape struct {
 	MessageSuffix    []string      `json:",omitempty"`
 	TitlePrefix      string        `json:",omitempty"`
 	TitleSuffix      string        `json:",omitempty"`
-	OverrideMessages []string      `json:",omitempty"`
-	OverrideOnlyWeak bool          `json:",omitempty"`
-	WeakWords        []string      `json:",omitempty"`
+	OverrideMessages   []string      `json:",omitempty"`
+	IsOverrideOnlyWeak bool          `json:"overrideOnlyWeak,omitempty"`
+	WeakWords          []string      `json:",omitempty"`
 	FunctionIntel    jsonFuncIntel `json:",omitempty"`
 }
 
@@ -81,9 +81,9 @@ func shapeToProfile(s *jsonShape) *Profile {
 		MessageSuffix:    s.MessageSuffix,
 		TitlePrefix:      s.TitlePrefix,
 		TitleSuffix:      s.TitleSuffix,
-		OverrideMessages: s.OverrideMessages,
-		OverrideOnlyWeak: s.OverrideOnlyWeak,
-		WeakWords:        s.WeakWords,
+		OverrideMessages:   s.OverrideMessages,
+		IsOverrideOnlyWeak: s.IsOverrideOnlyWeak,
+		WeakWords:          s.WeakWords,
 		FunctionIntel:    FunctionIntel{IsEnabled: s.FunctionIntel.IsEnabled, Languages: s.FunctionIntel.Languages},
 	}
 
@@ -113,9 +113,9 @@ func profileToShape(p *Profile) *jsonShape {
 		MessageSuffix:    p.MessageSuffix,
 		TitlePrefix:      p.TitlePrefix,
 		TitleSuffix:      p.TitleSuffix,
-		OverrideMessages: p.OverrideMessages,
-		OverrideOnlyWeak: p.OverrideOnlyWeak,
-		WeakWords:        p.WeakWords,
+		OverrideMessages:   p.OverrideMessages,
+		IsOverrideOnlyWeak: p.IsOverrideOnlyWeak,
+		WeakWords:          p.WeakWords,
 		FunctionIntel:    jsonFuncIntel{IsEnabled: p.FunctionIntel.IsEnabled, Languages: p.FunctionIntel.Languages},
 	}
 

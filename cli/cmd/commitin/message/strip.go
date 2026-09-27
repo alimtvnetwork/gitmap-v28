@@ -3,10 +3,25 @@ package message
 import (
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+
+var stripRegexCache sync.Map
+
+func getOrCompileStripRegex(pattern string) (*regexp.Regexp, error) {
+	if val, ok := stripRegexCache.Load(pattern); ok {
+		return val.(*regexp.Regexp), nil
+	}
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return nil, err
+	}
+	stripRegexCache.Store(pattern, re)
+	return re, nil
+}
 
 // stripRules drops every line matching any rule or bot marker, then collapses
 // consecutive blank lines and trims trailing whitespace per §6.1 step 1.
@@ -58,8 +73,8 @@ func matchOne(line string, r profile.MessageRule) bool {
 	case strings.ToLower(constants.CommitInMessageRuleKindContains), "contains":
 		return strings.Contains(line, r.Value) || strings.Contains(strings.ToLower(line), strings.ToLower(r.Value))
 	case "regex", "regexp":
-		matched, err := regexp.MatchString(r.Value, line)
-		return err == nil && matched
+		re, err := getOrCompileStripRegex(r.Value)
+		return err == nil && re.MatchString(line)
 	}
 
 	return false

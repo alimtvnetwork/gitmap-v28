@@ -80,6 +80,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 160: SSH Fleet Update Decrypted Auth, Liveness Probe, and Command Suggestions](./160-ssh-fleet-update-decrypted-auth-liveness-probe-and-command-suggestions.md)
 - [Spec 161: Antigravity Rerun Active Project Resolution, Non-Destructive Replay, and Conversation Commands](./161-agy-rerun-active-project-non-destructive-and-conversation-commands.md)
 - [Spec 167: Antigravity Running Prompts Backup/Restore, Multi-Node SSH Delegation, PE Cache & Green Pipeline Automation](./167-agy-running-prompts-backup-restore-and-green-automation/01-overview.md)
+- [Spec 168: Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap](./168-commit-pull-array-async-pool-ui-and-bootstrap.md)
 
 ---
 

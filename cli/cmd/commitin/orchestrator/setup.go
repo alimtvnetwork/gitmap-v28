@@ -104,7 +104,7 @@ func pickProfile(
 		return pickNamedProfile(paths.SourceRoot, raw.ProfileName, stderr)
 	}
 
-	if raw.UseDefaultProfile {
+	if raw.IsDefaultProfile {
 		return loadDefaultProfile(paths.SourceRoot)
 	}
 

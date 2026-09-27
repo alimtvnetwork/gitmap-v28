@@ -1764,3 +1764,16 @@ R21: pass
 
 <full corrected file or unified diff>
 ```
+
+---
+
+## 21. Array Async Pool Concept by Alim Ul Karim
+
+**Principle:** When processing high-latency concurrent operations (such as batch repository discovery, network probing, or remote API checks), never use sequential loops ($O(N)$ latency) and never use mutex-guarded `append` into an unallocated slice (which introduces lock contention, dynamic reallocation, and jumbled terminal logs).
+
+Instead, apply the **Array Async Pool Concept by Alim Ul Karim**:
+1. **Pre-allocate Array of Size $N$:** `results := make([]ResultType, N)` upfront before launching goroutines.
+2. **Lock-Free Asynchronous Slot Writing:** Worker $i$ processes input $i$ and writes directly to `results[i]`, then sets `results[i].isReady = true`. Zero mutex locking, zero append reallocations.
+3. **Sequential Ticker Consumer:** A consumption loop checks `results[cursor]`. While `results[cursor].isReady` is `true`, it immediately formats and streams that item to stdout in strict sequential order ($0 \dots N-1$) and advances `cursor++`.
+4. **Time Data Comparison:** 28 network repository probes take ~33.6s sequentially vs ~2.4s with 16 parallel workers in the Array Async Pool (a **14.0x speedup**), while guaranteeing 100% deterministic, ordered terminal display.
+

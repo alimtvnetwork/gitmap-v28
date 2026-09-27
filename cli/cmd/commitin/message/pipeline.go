@@ -40,7 +40,7 @@ func applyOverride(msg string, in Inputs) string {
 		return msg
 	}
 
-	if in.Resolved.OverrideOnlyWeak && !matchesWeak(msg, in.Resolved.WeakWords) {
+	if in.Resolved.IsOverrideOnlyWeak && !matchesWeak(msg, in.Resolved.WeakWords) {
 		return msg
 	}
 

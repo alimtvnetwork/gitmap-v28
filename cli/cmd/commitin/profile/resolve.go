@@ -17,30 +17,30 @@ type Resolved struct {
 	MessageSuffix     []string
 	TitlePrefix       string
 	TitleSuffix       string
-	OverrideMessages  []string
-	OverrideOnlyWeak  bool
-	WeakWords         []string
-	FunctionIntel     FunctionIntel
-	SuffixSeparator   string
-	PrefixSeparator   string
-	SuffixMode        string
+	OverrideMessages   []string
+	IsOverrideOnlyWeak bool
+	WeakWords          []string
+	FunctionIntel      FunctionIntel
+	SuffixSeparator    string
+	PrefixSeparator    string
+	SuffixMode         string
 }
 
 // CliOverrides represents flag-level overrides; nil-pointer fields
 // mean "user did not pass this flag" so the next layer wins.
 type CliOverrides struct {
-	PRMode            *string
-	ConflictMode      *string
-	Author            *Author
-	Exclusions        []Exclusion // empty slice = no override
-	MessageRules      []MessageRule
-	TitleReplacements []TitleReplacementRule
-	MessagePrefix     []string
-	MessageSuffix     []string
-	TitlePrefix       *string
-	TitleSuffix       *string
-	OverrideMessages  []string
-	OverrideOnlyWeak  *bool
+	PRMode             *string
+	ConflictMode       *string
+	Author             *Author
+	Exclusions         []Exclusion // empty slice = no override
+	MessageRules       []MessageRule
+	TitleReplacements  []TitleReplacementRule
+	MessagePrefix      []string
+	MessageSuffix      []string
+	TitlePrefix        *string
+	TitleSuffix        *string
+	OverrideMessages   []string
+	IsOverrideOnlyWeak *bool
 	WeakWords         []string
 	FunctionIntel     *FunctionIntel
 	SuffixSeparator   string
@@ -96,7 +96,7 @@ func applyProfile(r *Resolved, p *Profile) {
 	r.TitlePrefix = p.TitlePrefix
 	r.TitleSuffix = p.TitleSuffix
 	r.OverrideMessages = p.OverrideMessages
-	r.OverrideOnlyWeak = p.OverrideOnlyWeak
+	r.IsOverrideOnlyWeak = p.IsOverrideOnlyWeak
 	if len(p.WeakWords) > 0 {
 		r.WeakWords = p.WeakWords
 	}
@@ -125,8 +125,8 @@ func applyCliScalars(r *Resolved, c *CliOverrides) {
 	if c.TitleSuffix != nil {
 		r.TitleSuffix = *c.TitleSuffix
 	}
-	if c.OverrideOnlyWeak != nil {
-		r.OverrideOnlyWeak = *c.OverrideOnlyWeak
+	if c.IsOverrideOnlyWeak != nil {
+		r.IsOverrideOnlyWeak = *c.IsOverrideOnlyWeak
 	}
 	if c.FunctionIntel != nil {
 		r.FunctionIntel = *c.FunctionIntel

@@ -131,3 +131,29 @@ func verifyCommitMessageFormat(t *testing.T, targetDir string) {
 		t.Fatalf("expected commit messages to contain sponsor templates or releases")
 	}
 }
+
+func TestGitmapTestRepo_SelfContainedSEOVariables_TempE2E(t *testing.T) {
+	if isTestGitmapE2ESkipped() {
+		t.Skip("skipping temporary e2e test; run on-demand with RUN_TEMP_E2E=1 and -tags=tempe2e")
+	}
+
+	tplPath := filepath.Join("..", "..", "..", ".ai-memory", "temp", "seo-templates.json")
+	_, _, _, err := store.ImportTemplatesFromFile(tplPath, true)
+	if err != nil {
+		t.Fatalf("import failed: %v", err)
+	}
+
+	compiled, err := store.PrecompileTemplates("seo", nil)
+	if err != nil || len(compiled) == 0 {
+		t.Fatalf("expected compiled templates, got %d, err: %v", len(compiled), err)
+	}
+
+	first := compiled[0]
+	if strings.Contains(first.Title, "$COMPANY") || strings.Contains(first.Text, "$COMPANY") {
+		t.Fatalf("template still contains unexpanded $COMPANY: %s", first.Text)
+	}
+	upper := strings.ToUpper(first.Text)
+	if !strings.Contains(upper, "RISEUP ASIA") && !strings.Contains(upper, "RISE UP ASIA") {
+		t.Fatalf("expected self-contained variable expansion of COMPANY: %s", first.Text)
+	}
+}

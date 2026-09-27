@@ -57,24 +57,56 @@ func expandExplicit(inputs []string) ([]ResolvedInput, error) {
 // classifyExplicitInput chooses GitUrl vs LocalFolder for one token.
 func classifyExplicitInput(orderIndex int, tok string) ResolvedInput {
 	if isGitURL(tok) {
-		return ResolvedInput{
-			OrderIndex: orderIndex,
-			Original:   tok,
-			Kind:       constants.CommitInInputKindGitUrl,
-			URL:        tok,
-			Version:    -1,
-		}
+		return newResolvedGitURL(orderIndex, tok, tok)
 	}
 
 	abs, _ := filepath.Abs(tok)
+	if info, err := os.Stat(abs); err == nil && info.IsDir() {
+		return newResolvedLocalFolder(orderIndex, tok, abs)
+	}
 
+	if isShortRepoIdentifier(tok) {
+		return newResolvedGitURL(orderIndex, tok, resolveShortRepoURL(tok))
+	}
+
+	return newResolvedLocalFolder(orderIndex, tok, abs)
+}
+
+func newResolvedGitURL(orderIndex int, orig, url string) ResolvedInput {
 	return ResolvedInput{
 		OrderIndex: orderIndex,
-		Original:   tok,
+		Original:   orig,
+		Kind:       constants.CommitInInputKindGitUrl,
+		URL:        url,
+		Version:    -1,
+	}
+}
+
+func newResolvedLocalFolder(orderIndex int, orig, abs string) ResolvedInput {
+	return ResolvedInput{
+		OrderIndex: orderIndex,
+		Original:   orig,
 		Kind:       constants.CommitInInputKindLocalFolder,
 		AbsPath:    abs,
 		Version:    -1,
 	}
+}
+
+func isShortRepoIdentifier(tok string) bool {
+	if strings.Contains(tok, "\\") || strings.Contains(tok, ":") || strings.Contains(tok, " ") {
+		return false
+	}
+	if strings.HasPrefix(tok, ".") || len(tok) == 0 {
+		return false
+	}
+	return strings.Count(tok, "/") <= 1
+}
+
+func resolveShortRepoURL(tok string) string {
+	if strings.Contains(tok, "/") {
+		return "https://github.com/" + tok
+	}
+	return "https://github.com/alimtvnetwork/" + tok
 }
 
 // expandKeyword implements `all` and `-N` discovery (spec §2.4).

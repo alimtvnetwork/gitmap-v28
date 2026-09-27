@@ -105,7 +105,7 @@ func resolveByClone(url string) (*SourceHandle, error) {
 
 // resolveExistingDir handles spec §2.3 cases 2 and 3.
 func resolveExistingDir(abs string) (*SourceHandle, error) {
-	if hasGitMetadata(abs) {
+	if HasGitMetadata(abs) {
 		return &SourceHandle{Path: abs, Kind: SourceKindExistingRepo}, nil
 	}
 
@@ -161,9 +161,9 @@ func cleanSlugForSource(name string) string {
 	return strings.Trim(b.String(), "-")
 }
 
-// hasGitMetadata returns true when the directory is a working tree
+// HasGitMetadata returns true when the directory is a working tree
 // (has `.git/`) or a bare repo (has `HEAD` + `objects/`).
-func hasGitMetadata(dir string) bool {
+func HasGitMetadata(dir string) bool {
 	if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
 		return true
 	}

@@ -18,6 +18,14 @@ func runCommitPull(args []string) error {
 		}
 	}
 
+	if len(args) > 0 && (args[0] == "bootstrap" || args[0] == "init") {
+		return runCommitPullBootstrap(args[1:])
+	}
+
+	if len(args) > 0 && (args[0] == "ui" || args[0] == "web") {
+		return runCommitPullUI(args[1:])
+	}
+
 	if len(args) == 1 && args[0] == "--tree" {
 		printCommitPullTree()
 		return nil

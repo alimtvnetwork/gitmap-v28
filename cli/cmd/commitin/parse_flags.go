@@ -37,11 +37,11 @@ func newFlagSet() (*flag.FlagSet, *RawArgs, *csvHolder) {
 }
 
 func registerBoolFlags(fs *flag.FlagSet, raw *RawArgs) {
-	fs.BoolVar(&raw.UseDefaultProfile, constants.CommitInFlagDefault, false, constants.CommitInDescDefault)
-	fs.BoolVar(&raw.UseDefaultProfile, constants.CommitInFlagDefaultShort, false, constants.CommitInDescDefault)
-	fs.BoolVar(&raw.SaveProfileOverwrite, constants.CommitInFlagSaveProfileOverwrite, false, constants.CommitInDescSaveProfileOverwrite)
-	fs.BoolVar(&raw.SetDefault, constants.CommitInFlagSetDefault, false, constants.CommitInDescSetDefault)
-	fs.BoolVar(&raw.OverrideOnlyWeak, constants.CommitInFlagOverrideOnlyWeak, false, constants.CommitInDescOverrideOnlyWeak)
+	fs.BoolVar(&raw.IsDefaultProfile, constants.CommitInFlagDefault, false, constants.CommitInDescDefault)
+	fs.BoolVar(&raw.IsDefaultProfile, constants.CommitInFlagDefaultShort, false, constants.CommitInDescDefault)
+	fs.BoolVar(&raw.IsProfileOverwrite, constants.CommitInFlagSaveProfileOverwrite, false, constants.CommitInDescSaveProfileOverwrite)
+	fs.BoolVar(&raw.IsSetDefault, constants.CommitInFlagSetDefault, false, constants.CommitInDescSetDefault)
+	fs.BoolVar(&raw.IsOverrideOnlyWeak, constants.CommitInFlagOverrideOnlyWeak, false, constants.CommitInDescOverrideOnlyWeak)
 	fs.BoolVar(&raw.IsNoPrompt, constants.CommitInFlagNoPrompt, false, constants.CommitInDescNoPrompt)
 	fs.BoolVar(&raw.IsDryRun, constants.CommitInFlagDryRun, false, constants.CommitInDescDryRun)
 	fs.BoolVar(&raw.IsKeepTemp, constants.CommitInFlagKeepTemp, false, constants.CommitInDescKeepTemp)

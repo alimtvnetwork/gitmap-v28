@@ -63,9 +63,9 @@ func addOverridesAndIntel(c *profile.CliOverrides, raw *commitin.RawArgs) {
 		c.OverrideMessages = raw.OverrideMessages
 	}
 
-	if raw.OverrideOnlyWeak {
+	if raw.IsOverrideOnlyWeak {
 		b := true
-		c.OverrideOnlyWeak = &b
+		c.IsOverrideOnlyWeak = &b
 	}
 
 	if len(raw.WeakWords) > 0 {
