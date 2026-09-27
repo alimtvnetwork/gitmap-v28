@@ -1,3 +1,9 @@
+## v6.363.0 — 2026-09-27 (Fix telemetry array extraction in fleet update, verified running prompts restore and deploy)
+
+**Scope:** Version bump. Fix telemetry array extraction in fleet update, verified running prompts restore and deploy.
+
+---
+
 ## v6.362.0 — 2026-09-27 (Fleet update JSON communication, running prompts restore, and deploy help)
 
 **Scope:** Version bump. Fleet update JSON communication, running prompts restore, and deploy help.
