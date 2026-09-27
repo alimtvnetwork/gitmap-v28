@@ -165,12 +165,8 @@ func dispatchOnlineFleetPull(conns []db.SSHConnection, cleanArgs []string) []Fle
 }
 
 func executeLocalVMPull(cleanArgs []string) FleetNodePullOutcome {
-	exePath, err := os.Executable()
-	cmdName := "gitmap"
-	if err == nil && exePath != "" {
-		cmdName = exePath
-	}
-	subArgs := []string{"pa", "--json"}
+	cmdName := resolveLocalGitmapExecutable()
+	subArgs := []string{"pa", "--json", "--parallel", "2"}
 	cmd := exec.Command(cmdName, subArgs...)
 	out, runErr := cmd.CombinedOutput()
 	if runErr != nil && len(out) == 0 {
@@ -178,6 +174,14 @@ func executeLocalVMPull(cleanArgs []string) FleetNodePullOutcome {
 	}
 
 	return parseFleetPullOutcome("Local VM", "127.0.0.1", true, string(out))
+}
+
+func resolveLocalGitmapExecutable() string {
+	exePath, err := os.Executable()
+	if err == nil && exePath != "" {
+		return exePath
+	}
+	return "gitmap"
 }
 
 func executeRemoteNodePull(c db.SSHConnection) FleetNodePullOutcome {
@@ -226,17 +230,23 @@ func resolveTargetNodeOS(client *ssh.Client, c db.SSHConnection) string {
 	return osType
 }
 
+const remotePullCmd = "gitmap pa --json --parallel 2"
+
 func runRemotePullJSON(client *ssh.Client, c db.SSHConnection) (string, error) {
-	out, err := crypto.RunCommand(client, "gitmap pa --json", "")
+	out, err := crypto.RunCommand(client, remotePullCmd, "")
 	if strings.Contains(out, "flag provided but not defined: -json") {
-		osType := resolveTargetNodeOS(client, c)
-		updateTargetNodeGitmap(client, osType)
-		return crypto.RunCommand(client, "gitmap pa --json", "")
+		return handleLegacyRemotePull(client, c)
 	}
-	if strings.Contains(out, "a pending task already exists for pa") {
+	if strings.Contains(out, "pending task already exists for pa") {
 		return recoverRemotePendingTask(client, out)
 	}
 	return out, err
+}
+
+func handleLegacyRemotePull(client *ssh.Client, c db.SSHConnection) (string, error) {
+	osType := resolveTargetNodeOS(client, c)
+	updateTargetNodeGitmap(client, osType)
+	return crypto.RunCommand(client, remotePullCmd, "")
 }
 
 func recoverRemotePendingTask(client *ssh.Client, rawOutput string) (string, error) {
@@ -244,11 +254,12 @@ func recoverRemotePendingTask(client *ssh.Client, rawOutput string) (string, err
 	if taskID != "" {
 		_, _ = crypto.RunCommand(client, "gitmap task cancel "+taskID, "")
 	}
-	return crypto.RunCommand(client, "gitmap pa --json", "")
+	return crypto.RunCommand(client, remotePullCmd, "")
 }
 
 func extractPendingTaskID(s string) string {
-	idx := strings.Index(s, "(Id ")
+	lower := strings.ToLower(s)
+	idx := strings.Index(lower, "(id ")
 	if idx == -1 {
 		return ""
 	}

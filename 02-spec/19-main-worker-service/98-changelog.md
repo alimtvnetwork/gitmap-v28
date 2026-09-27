@@ -1,3 +1,9 @@
+## v6.352.0 — 2026-09-27 (SSH Fleet Resource-Aware Concurrency Throttling, Error Remediation, and Rerun Help)
+
+**Scope:** Version bump. SSH Fleet Resource-Aware Concurrency Throttling, Error Remediation, and Rerun Help.
+
+---
+
 ## v6.351.0 — 2026-09-27 (SSH fleet preflight liveness, error details, and clean dispatch)
 
 **Scope:** Version bump. SSH fleet preflight liveness, error details, and clean dispatch.

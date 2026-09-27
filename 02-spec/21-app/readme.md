@@ -19,4 +19,6 @@
 - [169-pull-all-concise-summary-and-ssh-fleet-json.md](169-pull-all-concise-summary-and-ssh-fleet-json.md) — Pull-All Concise Summary Filtering, Noise Elimination & SSH Fleet JSON Orchestration (Status: `active`)
 - [170-repo-create-cg-sync-no-sync-and-race-detector-guard.md](170-repo-create-cg-sync-no-sync-and-race-detector-guard.md) — Repo Create Coding Guideline Auto-Sync, No-Sync Flag & Race Detector Guard (Status: `active`)
 - [171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md](171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md) — SSH Fleet GitMap Auto-Update Guard & Concise Pull Remediation (Status: `active`)
+- [172-ssh-fleet-preflight-liveness-error-details-and-clean-dispatch.md](172-ssh-fleet-preflight-liveness-error-details-and-clean-dispatch.md) — SSH Fleet Pre-Flight Liveness, Error Details, and Clean Dispatch (Status: `active`)
+- [173-ssh-fleet-liveness-error-remediation-and-rerun-help.md](173-ssh-fleet-liveness-error-remediation-and-rerun-help.md) — SSH Fleet Liveness, Error Remediation, Resource-Aware Concurrency, and Rerun Help (Status: `active`)
 

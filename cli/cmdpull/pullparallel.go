@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -21,6 +22,9 @@ func runPullParallel(records []model.ScanRecord, bar *PullProgressBar, parallel 
 }
 
 func resolveParallelLimit(parallel, count int) int {
+	if cloneconcurrency.IsSSHSession() {
+		parallel = clampSSHLimit(parallel)
+	}
 	if parallel < 1 {
 		return 1
 	}
@@ -29,6 +33,13 @@ func resolveParallelLimit(parallel, count int) int {
 	}
 
 	return parallel
+}
+
+func clampSSHLimit(limit int) int {
+	if limit > 2 {
+		return 2
+	}
+	return limit
 }
 
 func startParallelWorkers(limit int, jobs <-chan model.ScanRecord, bar *PullProgressBar, wg *sync.WaitGroup) {

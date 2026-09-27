@@ -59,4 +59,3 @@ func buildSinglePullRepoSummaryItem(s *PullRepoState) PullRepoSummaryItem {
 	}
 	return item
 }
-

@@ -46,6 +46,7 @@ var (
 )
 
 func init() {
+	agyRerunCmd.AddCommand(agyRerunHelpCmd)
 	agyRerunCmd.Flags().StringVarP(&rerunPromptTpl, "prompt", "p", cmdprompttemplate.DefaultTemplateID, "Prefix prompt template name or ID")
 	agyRerunCmd.Flags().BoolVar(&rerunNoClipboard, "no-clipboard", false, "Do not copy constructed prompt to clipboard")
 	agyRerunCmd.Flags().BoolVarP(&rerunDryRun, "dry-run", "d", false, "Preview constructed prompt without execution")
@@ -62,6 +63,12 @@ func init() {
 
 // RunRerunTopLevelCLI executes agy rerun from top-level gitmap aliases.
 func RunRerunTopLevelCLI(args []string) error {
+	if isRerunHelpRequested(args) {
+		renderAgyRerunHelp()
+
+		return nil
+	}
+
 	runArgs := append([]string{"rerun"}, args...)
 	AgyCmd.SetArgs(runArgs)
 
@@ -69,20 +76,32 @@ func RunRerunTopLevelCLI(args []string) error {
 }
 
 func runAgyRerun(args []string) *apperror.AppError {
+	if isRerunHelpRequested(args) {
+		renderAgyRerunHelp()
+
+		return nil
+	}
+
 	if isLegacyLastInvocation(args) {
 		return runLegacyAgyRerun(args)
 	}
 
+	return executeAgyRerun(args)
+}
+
+func executeAgyRerun(args []string) *apperror.AppError {
 	target := resolveRerunProjectTarget(args)
 	isRestart := rerunRestartFlag && !rerunNoRestart
-	isNewConv := rerunNewConvFlag
 	tplName := extractRerunTemplateName(args)
-
 	if rerunAllFlag || strings.EqualFold(target, "all") {
 		return runRerunAllProjects(isRestart, tplName)
 	}
 
-	err := RerunProject(target, isRestart, isNewConv, rerunDryRun, tplName, rerunModelFlag)
+	return replaySingleProject(target, isRestart, tplName)
+}
+
+func replaySingleProject(target string, isRestart bool, tplName string) *apperror.AppError {
+	err := RerunProject(target, isRestart, rerunNewConvFlag, rerunDryRun, tplName, rerunModelFlag)
 	if err != nil {
 		return apperror.WrapSimple(err, "agy rerun")
 	}

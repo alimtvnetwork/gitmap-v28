@@ -22,24 +22,9 @@
 // callers invoke this exactly once at command startup).
 package cloneconcurrency
 
-import "runtime"
-
 // Resolve translates the user-supplied --max-concurrency value into
 // the effective worker count for the bounded pool. See package doc
 // for the full contract.
 func Resolve(n int) (int, bool) {
-	if n < 0 {
-		return 0, false
-	}
-
-	if n > 0 {
-		return n, true
-	}
-
-	w := runtime.NumCPU()
-	if w < 1 {
-		w = 1
-	}
-
-	return w, true
+	return ResolveWithPriority(n, IsSSHSession())
 }

@@ -3143,6 +3143,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.352.0] - 2026-09-27
+
+### Added
+- SSH Fleet Resource-Aware Concurrency Throttling, Error Remediation, and Rerun Help
+
+---
+
 ## [v6.351.0] - 2026-09-27
 
 ### Added

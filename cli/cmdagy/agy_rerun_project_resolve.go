@@ -493,27 +493,56 @@ func resolveCleanRealCwd(cwd string) string {
 }
 
 func findProjectByFlexibleTarget(projects []AgyProject, target string) (AgyProject, error) {
-	matched, err := ResolveAgyProjectTargets([]string{target}, projects)
-	if err == nil && len(matched) > 0 {
-		return matched[0], nil
+	if isHelpKeyword(target) {
+		return AgyProject{}, apperror.NewNotFound("project_target", "E9039", "help is not a valid project target")
 	}
 
+	if proj, isFound := matchDirectTarget(projects, target); isFound {
+		return proj, nil
+	}
+
+	return matchFuzzyTarget(projects, target)
+}
+
+func matchDirectTarget(projects []AgyProject, target string) (AgyProject, bool) {
+	matched, err := ResolveAgyProjectTargets([]string{target}, projects)
+	if err == nil && len(matched) > 0 {
+		return matched[0], true
+	}
+
+	return AgyProject{}, false
+}
+
+func matchFuzzyTarget(projects []AgyProject, target string) (AgyProject, error) {
 	cleanTarget := normalizeSlugForComparison(target)
 	for _, p := range projects {
-		nameNorm := normalizeSlugForComparison(p.Name)
-		wsNorm := normalizeSlugForComparison(filepath.Base(p.GetPath()))
-		if strings.Contains(nameNorm, cleanTarget) || strings.Contains(wsNorm, cleanTarget) {
-			return p, nil
-		}
-		if cleanTarget != "" && (strings.Contains(cleanTarget, nameNorm) || strings.Contains(cleanTarget, wsNorm)) {
-			return p, nil
-		}
-		if isPhoneticOrAliasMatch(cleanTarget, nameNorm) || isPhoneticOrAliasMatch(cleanTarget, wsNorm) {
+		if isProjectTargetMatch(p, cleanTarget) {
 			return p, nil
 		}
 	}
 
 	return AgyProject{}, apperror.NewNotFound("project_target", "E9039", "no project matching target: "+target)
+}
+
+func isHelpKeyword(target string) bool {
+	low := strings.ToLower(strings.TrimSpace(target))
+
+	return low == "help" || low == "info" || low == "man"
+}
+
+func isProjectTargetMatch(p AgyProject, cleanTarget string) bool {
+	nameNorm := normalizeSlugForComparison(p.Name)
+	wsNorm := normalizeSlugForComparison(filepath.Base(p.GetPath()))
+
+	if strings.Contains(nameNorm, cleanTarget) || strings.Contains(wsNorm, cleanTarget) {
+		return true
+	}
+
+	if cleanTarget != "" && (strings.Contains(cleanTarget, nameNorm) || strings.Contains(cleanTarget, wsNorm)) {
+		return true
+	}
+
+	return isPhoneticOrAliasMatch(cleanTarget, nameNorm) || isPhoneticOrAliasMatch(cleanTarget, wsNorm)
 }
 
 func isPhoneticOrAliasMatch(target, candidate string) bool {

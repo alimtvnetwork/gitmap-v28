@@ -14,6 +14,7 @@
 - [169-pull-all-concise-summary-and-ssh-fleet-json.md](completed/169-pull-all-concise-summary-and-ssh-fleet-json.md) — Pull-All Concise Summary Filtering, Noise Elimination & SSH Fleet JSON Orchestration (Spec: [169](../../02-spec/21-app/169-pull-all-concise-summary-and-ssh-fleet-json.md))
 - [170-repo-create-cg-sync-no-sync-and-race-detector-guard.md](completed/170-repo-create-cg-sync-no-sync-and-race-detector-guard.md) — Repo Create Coding Guideline Auto-Sync, No-Sync Flag & Race Detector Guard (Spec: [170](../../02-spec/21-app/170-repo-create-cg-sync-no-sync-and-race-detector-guard.md))
 - [171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md](completed/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md) — SSH Fleet GitMap Auto-Update Guard & Concise Pull Remediation (Spec: [171](../../02-spec/21-app/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md))
+- [173-ssh-fleet-liveness-error-remediation-and-rerun-help.md](completed/173-ssh-fleet-liveness-error-remediation-and-rerun-help.md) — SSH Fleet Liveness, Error Remediation, Resource-Aware Concurrency, and Rerun Help (Spec: [173](../../02-spec/21-app/173-ssh-fleet-liveness-error-remediation-and-rerun-help.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

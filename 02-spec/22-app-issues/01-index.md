@@ -54,6 +54,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 46 | [46-update-all-ssh-dial-failure-and-missing-command-suggestions-rca.md](46-update-all-ssh-dial-failure-and-missing-command-suggestions-rca.md) | SSH Fleet Update Authentication Dial Failure & Missing Command Suggestions: RCA & Fix | Resolved |
 | 47 | [47-agy-rerun-killed-ide-and-selected-wrong-project-rca.md](47-agy-rerun-killed-ide-and-selected-wrong-project-rca.md) | Antigravity Rerun Process Termination and Inverted Project Selection: RCA & Fix | Resolved |
 | 48 | [48-ssh-auth-handshake-failure-and-misleading-node-status-rca.md](48-ssh-auth-handshake-failure-and-misleading-node-status-rca.md) | SSH Fleet Authentication Handshake Failure and Misleading Node Status: RCA & Fix | Resolved |
+| 49 | [49-ssh-fleet-parallel-pull-machine-hangs-and-concurrency-multiplication-rca.md](49-ssh-fleet-parallel-pull-machine-hangs-and-concurrency-multiplication-rca.md) | SSH Fleet Parallel Pull Machine Hangs and Concurrency Multiplication: RCA & Fix | Resolved |
 
 ---
 

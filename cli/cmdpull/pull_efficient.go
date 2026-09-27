@@ -21,6 +21,10 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 		return nil
 	}
 
+	if hasSSHFleetFlag(args) {
+		return handleSSHFleetPullAll(args)
+	}
+
 	useSSH, useHTTPS, isTableFlag, isJSON, targetSSH, cleanArgs := extractEfficientFlags(args)
 	if isTableFlag {
 		isTableMode = true
