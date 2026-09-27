@@ -2,14 +2,12 @@
 package cmdssh
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -336,13 +334,5 @@ func makeDeployOptions(subCmd, targetToken string, conn db.SSHConnection, host s
 }
 
 func printDeployHelpText(subCmd string) {
-	fmt.Printf("\n  %s🚀 GitMap Smart Deploy Engine (%s)%s\n\n", constants.ColorCyan, subCmd, constants.ColorReset)
-	fmt.Println("    Usage: gitmap deploy <target> <source> <destination> [flags]")
-	fmt.Println("           gitmap deploy-right <target> <source> <destination> [flags]")
-	fmt.Println("           gitmap deploy-left <target> <source> <destination> [flags]")
-	fmt.Println()
-	fmt.Println("    Targets: <alias, ip, seq, id>")
-	fmt.Println("    Modes:   --overwrite (-o), --skip (-s), --sync, --sync-right, --sync-left")
-	fmt.Println("    Options: --json (-j), --parallel (-p <N>), --dry-run (-n)")
-	fmt.Println()
+	RenderDeployRichHelp()
 }

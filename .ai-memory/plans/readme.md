@@ -20,6 +20,8 @@
 - [176-resolve-fetch-concurrency-test-assertion.md](completed/176-resolve-fetch-concurrency-test-assertion.md) — TestResolveFetchConcurrency Alignment with 8-Worker Concurrency Ceiling (Spec: [176](../../02-spec/21-app/176-resolve-fetch-concurrency-test-assertion.md))
 - [177-scan-alias-and-deploy-bin.md](completed/177-scan-alias-and-deploy-bin.md) — Scan Alias Migration, Internal Errors DB, and Fleet Inventory Aggregation (Spec: [177](../../02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md))
 - [178-smart-deploy-files-and-folders-with-sync-modes.md](completed/178-smart-deploy-files-and-folders-with-sync-modes.md) — Smart Deploy Files and Folders with Bidirectional Sync Modes and Parallel Replacement (Spec: [178](../../02-spec/21-app/178-smart-deploy-files-and-folders-with-sync-modes.md))
+- [179-fleet-update-json-prompts-backup-and-deploy-polish.md](completed/179-fleet-update-json-prompts-backup-and-deploy-polish.md) — Fleet Update JSON Communication, Running Prompts Backup/Restore E2E & Deploy Polish (Spec: [179](../../02-spec/21-app/179-fleet-update-json-prompts-backup-and-deploy-polish.md))
+- [180-running-prompts-e2e-and-deploy-live-test.md](completed/180-running-prompts-e2e-and-deploy-live-test.md) — Antigravity Running Prompts E2E Verification & Smart Deploy Polish (Spec: [180](../../02-spec/21-app/85-running-prompts-e2e-and-deploy-live-test.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

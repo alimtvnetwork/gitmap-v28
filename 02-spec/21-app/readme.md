@@ -27,4 +27,5 @@
 - [177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md](177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md) — Scan Alias Migration, Internal Errors DB, and Fleet Inventory Aggregation (Status: `active`)
 - [178-smart-deploy-files-and-folders-with-sync-modes.md](178-smart-deploy-files-and-folders-with-sync-modes.md) — Smart File and Folder Deployment with Bidirectional Sync Modes (Status: `active`)
 - [179-fleet-update-json-prompts-backup-and-deploy-polish.md](179-fleet-update-json-prompts-backup-and-deploy-polish.md) — Fleet Update JSON Communication, Running Prompts Backup/Restore E2E & Deploy Polish (Status: `active`)
+- [180-running-prompts-e2e-and-deploy-live-test.md](85-running-prompts-e2e-and-deploy-live-test.md) — Antigravity Running Prompts E2E Verification & Smart Deploy Polish (Status: `active`)
 
