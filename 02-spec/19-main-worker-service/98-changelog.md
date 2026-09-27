@@ -1,3 +1,9 @@
+## v6.358.0 — 2026-09-27 (Smart deploy engine with sync modes, CI lint baseline fixes, and gofmt alignment)
+
+**Scope:** Version bump. Smart deploy engine with sync modes, CI lint baseline fixes, and gofmt alignment.
+
+---
+
 ## v6.357.0 — 2026-09-27 (Smart deploy command with sync modes, parallel folder replacement, and json telemetry)
 
 **Scope:** Version bump. Smart deploy command with sync modes, parallel folder replacement, and json telemetry.

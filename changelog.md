@@ -3200,6 +3200,18 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.358.0] 2026-09-27 Release v6.358.0
+
+### Install GitMap v6.358.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.358.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.358.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.358.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.358.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Smart deploy engine with sync modes, CI lint baseline fixes, and gofmt alignment
+
 ## [v6.357.0] 2026-09-27 Release v6.357.0
 
 ### Install GitMap v6.357.0
