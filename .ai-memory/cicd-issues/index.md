@@ -76,3 +76,4 @@
 - [85-ssh-auth-fallback-and-node-status-rca.md](./85-ssh-auth-fallback-and-node-status-rca.md): Fix SSH authentication handshake fallback and accurate node status reporting in nodes listing and fleet execution.
 - [86-gocritic-appendassign-in-ssh-running-prompts-and-projects-rca.md](./86-gocritic-appendassign-in-ssh-running-prompts-and-projects-rca.md): Fix gocritic appendAssign in SSH running prompts and projects aggregation.
 - [87-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency-rca.md](./87-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency-rca.md): Fix rerun test CWD match regression, parallelize PE log/metadata fetching, and restore local PA full-fledged concurrency.
+- [88-resolve-fetch-concurrency-test-assertion-rca.md](./88-resolve-fetch-concurrency-test-assertion-rca.md): Fix TestResolveFetchConcurrency assertion to match 8-worker concurrency ceiling.

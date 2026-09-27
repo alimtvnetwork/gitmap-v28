@@ -346,8 +346,8 @@ func TestResolveFetchConcurrency(t *testing.T) {
 	if resolveFetchConcurrency(2) != 2 {
 		t.Errorf("expected 2, got %d", resolveFetchConcurrency(2))
 	}
-	if resolveFetchConcurrency(10) != 4 {
-		t.Errorf("expected 4, got %d", resolveFetchConcurrency(10))
+	if resolveFetchConcurrency(10) != 8 {
+		t.Errorf("expected 8, got %d", resolveFetchConcurrency(10))
 	}
 }
 

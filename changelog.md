@@ -1,3 +1,15 @@
+## [v6.355.2] 2026-09-27 Release v6.355.2
+
+### Install GitMap v6.355.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Unit Test Regression Fix (`TestResolveFetchConcurrency`): Updated the expected concurrency ceiling in `pipeline_errorlogs_test.go` from 4 to 8 to align with the expanded 8-worker pool introduced in `pipeline_logs.go`, eliminating CI/CD cross-platform build test failures.
+
 ## [v6.355.1] 2026-09-27 Release v6.355.1
 
 ### Install GitMap v6.355.1
