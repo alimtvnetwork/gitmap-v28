@@ -1,3 +1,9 @@
+## v6.356.0 — 2026-09-27 (Scan alias migration, internal errors split-db, deploy-bin command, and fleet inventory aggregation)
+
+**Scope:** Version bump. Scan alias migration, internal errors split-db, deploy-bin command, and fleet inventory aggregation.
+
+---
+
 ## v6.353.0 — 2026-09-27 (AGY Decision Log Split-DB, Multi-Source Project Discovery, and Active Rerun Recency)
 
 **Scope:** Version bump. AGY Decision Log Split-DB, Multi-Source Project Discovery, and Active Rerun Recency.
