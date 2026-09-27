@@ -110,11 +110,27 @@ func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, dbRuns []pipelined
 	if checkTargetIndexCacheHit(dbRuns, flags) {
 		return buildCacheHitDecision(dbRuns, latest.Sha, "target_index_matched")
 	}
+	if checkHeadShaCacheHit(dbRuns) {
+		return buildCacheHitDecision(dbRuns, latest.Sha, "head_sha_matched")
+	}
 	if checkTtlCacheHit(db.Path) {
 		return buildCacheHitDecision(dbRuns, latest.Sha, "within_ttl")
 	}
 
 	return PipelineCacheDecision{IsFromCache: false, Reason: "cache_expired"}
+}
+
+func checkHeadShaCacheHit(dbRuns []pipelinedb.PipelineRunRecord) bool {
+	headSha := ResolveLocalHeadCommitSha()
+	if len(headSha) == 0 {
+		return false
+	}
+	for _, r := range dbRuns {
+		if matchCommitSha(r.Sha, headSha) && isRunCompleted(r.Status, r.Conclusion) {
+			return true
+		}
+	}
+	return false
 }
 
 func resolvePipelineCacheTTL() time.Duration {

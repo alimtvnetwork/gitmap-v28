@@ -206,6 +206,15 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "conv-rename" || low == "cr" || low == "rename-conv" {
 		return "conv-rename"
 	}
+	if low == "running-prompts" || low == "running-prompt" || low == "rp-prompts" {
+		return "running-prompts"
+	}
+	if low == "backup-running-prompts" || low == "backup-running-prompt" || low == "brp" {
+		return "backup-running-prompts"
+	}
+	if low == "restore-running-prompts" || low == "restore-running-prompt" || low == "rrp" {
+		return "restore-running-prompts"
+	}
 
 	return ""
 }
@@ -296,6 +305,7 @@ func init() {
 	initAgyRecreateCmd()
 	initAgyQueueCommands()
 	initAgyPromptAndStatusCommands()
+	initAgyRunningPromptsCommands()
 	AgyCmd.SetHelpFunc(renderAgyHelp)
 }
 

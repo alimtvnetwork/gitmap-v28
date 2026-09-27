@@ -84,6 +84,7 @@ func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags Pi
 		HasSuppressOutputLog: flags.HasSuppressOutputLog,
 		FilePath:             flags.FilePath,
 		TempFile:             flags.TempFileName,
+		WantFix:              flags.HasFix,
 	})
 }
 
@@ -101,6 +102,7 @@ func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
 		HasSuppressOutputLog: flags.HasSuppressOutputLog,
 		FilePath:             flags.FilePath,
 		TempFile:             flags.TempFileName,
+		WantFix:              flags.HasFix,
 	})
 }
 
@@ -721,7 +723,7 @@ func dispatchErrorLogPresentation(params ErrorLogOutputParams, content string) e
 	renderErrorLogsTerminal(params.Payload)
 
 	hasFailure := params.Payload.Conclusion == "failure" || len(params.Payload.FailedRuns) > 0
-	if hasFailure && PipelineAgyFixRunner != nil {
+	if hasFailure && params.WantFix && PipelineAgyFixRunner != nil {
 		fmt.Printf("\n  🚀 Automatically dispatching CI/CD fix to Antigravity IDE...\n")
 		return PipelineAgyFixRunner([]string{params.Payload.Repo, "--force"})
 	}

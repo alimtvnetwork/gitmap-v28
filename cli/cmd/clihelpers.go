@@ -777,6 +777,7 @@ func RunRepoReclone(target string, yes bool) error {
 
 func init() {
 	cmdpipeline.PipelineAgyFixRunner = cmdagy.RunPipelineFixAgyCLI
+	cmdagy.SSHConnectionsFetcher = cmdssh.FetchAllSSHConnections
 	cmdssh.JoinRunner = cmdssh.RunSSHJoinCLI
 	cmdssh.ProfileRunner = runProfile
 	cmdmacro.MacroSyncRunner = cmdssh.RunSSHMacroSyncCLI

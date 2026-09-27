@@ -125,6 +125,7 @@ type ErrorLogOutputParams struct {
 	HasSuppressOutputLog bool
 	FilePath             string
 	TempFile             string
+	WantFix              bool
 }
 
 type ghRunItem struct {
