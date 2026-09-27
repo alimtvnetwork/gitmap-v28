@@ -93,22 +93,30 @@ func TestRenderConciseActiveResultsTo(t *testing.T) {
 	RenderConciseActiveResultsTo(&buf, states)
 
 	rawLines := strings.Split(buf.String(), "\n")
-	var lines []string
+	var bulletLines []string
 	for _, l := range rawLines {
-		if strings.TrimSpace(l) != "" {
-			lines = append(lines, l)
+		trimmed := strings.TrimSpace(l)
+		if strings.HasPrefix(trimmed, "•") {
+			bulletLines = append(bulletLines, l)
 		}
 	}
 
 	// Only 2 active repos (alim-cv-v8 and Antigravity-Manager) should be rendered; 2 up-to-date omitted!
-	if len(lines) != 2 {
-		t.Fatalf("expected 2 active lines rendered, got %d:\n%s", len(lines), buf.String())
+	if len(bulletLines) != 2 {
+		t.Fatalf("expected 2 active repo bullet lines rendered, got %d:\n%s", len(bulletLines), buf.String())
 	}
 
-	for i, line := range lines {
+	for i, line := range bulletLines {
 		if !strings.HasPrefix(line, "    • ") {
 			t.Errorf("line %d missing bullet prefix: %q", i, line)
 		}
+	}
+
+	if !strings.Contains(buf.String(), "Reason:") {
+		t.Errorf("expected Reason in output, got: %s", buf.String())
+	}
+	if !strings.Contains(buf.String(), "Next Step:") {
+		t.Errorf("expected Next Step in output, got: %s", buf.String())
 	}
 }
 

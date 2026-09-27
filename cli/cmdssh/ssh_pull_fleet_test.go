@@ -2,6 +2,8 @@ package cmdssh
 
 import (
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
 func TestExtractJSONPayload(t *testing.T) {
