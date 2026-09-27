@@ -42,7 +42,7 @@ func toolingWorkspaceEntries() []dispatchEntry {
 }
 
 func toolingDevEntries() []dispatchEntry {
-	return []dispatchEntry{
+	entries := []dispatchEntry{
 		{[]string{constants.CmdListVersions, constants.CmdListVersionsAlias}, func() error { return runListVersions(argsTail()) }},
 		{[]string{constants.CmdListReleases, constants.CmdListReleasesAlias, constants.CmdReleases}, func() error { return runListReleases(argsTail()) }},
 		{[]string{constants.CmdSEOWrite, constants.CmdSEOWriteAlias}, func() error { return runSEOWrite(argsTail()) }},
@@ -57,6 +57,15 @@ func toolingDevEntries() []dispatchEntry {
 		{[]string{"pull-inventory", "fetch-inventory", "sync-inventory"}, func() error { return runSSHPullInventory(argsTail()) }},
 		{[]string{"scp", "ssh-cp", "ssh-copy"}, func() error { return runSSHCP(argsTail()) }},
 		{[]string{constants.CmdBackup}, func() error { return runBackup(argsTail()) }},
+	}
+	return append(entries, toolingDevDeployEntries()...)
+}
+
+func toolingDevDeployEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{"deploy"}, func() error { return runSSHDeploy("deploy", argsTail()) }},
+		{[]string{"deploy-right"}, func() error { return runSSHDeploy("deploy-right", argsTail()) }},
+		{[]string{"deploy-left"}, func() error { return runSSHDeploy("deploy-left", argsTail()) }},
 	}
 }
 

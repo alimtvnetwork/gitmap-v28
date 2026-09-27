@@ -183,6 +183,8 @@ func dispatchFilesSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(runSSHMvCLI(args))
 	case "schedule", "schedules":
 		return result.MatchWrapper(runSSHExec(append([]string{"schedule"}, args...)))
+	case "deploy", "deploy-right", "deploy-left":
+		return result.MatchWrapper(RunSSHDeployCLI(sub, args))
 	default:
 		return result.UnmatchedWrapper()
 	}
@@ -215,8 +217,6 @@ func dispatchExportImportSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(RunSSHNodesImportJSON(args))
 	case "export-oneliner", "oneliner", "eo":
 		return result.MatchWrapper(RunSSHExportOnelinerCLI(args))
-	case "deploy":
-		return result.MatchWrapper(RunSSHDeployRouterCLI(args))
 	case "deploy-bin", "deploy-binary", "push-bin", "sync-bin":
 		return result.MatchWrapper(RunSSHDeployBinCLI(args))
 	case "pull-inventory", "fetch-inventory", "sync-inventory":

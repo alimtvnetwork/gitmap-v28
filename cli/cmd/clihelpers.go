@@ -363,6 +363,11 @@ func runSSHCP(args []string) error {
 	return cmdssh.RunSSHCPCLI(args)
 }
 
+// runSSHDeploy delegates to cmdssh.RunSSHDeployCLI.
+func runSSHDeploy(sub string, args []string) error {
+	return cmdssh.RunSSHDeployCLI(sub, args)
+}
+
 // runRemote delegates to cmdssh.RunSSHUpdateCLI.
 func runRemote(args []string) error {
 	if len(args) == 0 || args[0] == "-h" || args[0] == "--help" || args[0] == "help" {

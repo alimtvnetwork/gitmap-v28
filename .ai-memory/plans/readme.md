@@ -19,8 +19,9 @@
 - [175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md](completed/175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md) — Rerun Test CWD Match, PE Parallel Log Fetching & Local PA Concurrency (Spec: [175](../../02-spec/21-app/175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md))
 - [176-resolve-fetch-concurrency-test-assertion.md](completed/176-resolve-fetch-concurrency-test-assertion.md) — TestResolveFetchConcurrency Alignment with 8-Worker Concurrency Ceiling (Spec: [176](../../02-spec/21-app/176-resolve-fetch-concurrency-test-assertion.md))
 - [177-scan-alias-and-deploy-bin.md](completed/177-scan-alias-and-deploy-bin.md) — Scan Alias Migration, Internal Errors DB, and Fleet Inventory Aggregation (Spec: [177](../../02-spec/21-app/177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md))
+- [178-smart-deploy-files-and-folders-with-sync-modes.md](completed/178-smart-deploy-files-and-folders-with-sync-modes.md) — Smart Deploy Files and Folders with Bidirectional Sync Modes and Parallel Replacement (Spec: [178](../../02-spec/21-app/178-smart-deploy-files-and-folders-with-sync-modes.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans
 
-- [178-action-based-prompt-gitmap-deploy.md](pending/178-action-based-prompt-gitmap-deploy.md) — Master Architectural Specification & Action-Based Prompt: GitMap Deploy Engine
+_No pending plans._
