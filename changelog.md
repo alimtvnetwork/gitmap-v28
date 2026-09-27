@@ -1,3 +1,19 @@
+## [v6.354.0] 2026-09-27 Release v6.354.0
+
+### Install GitMap v6.354.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.354.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.354.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.354.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.354.0"`
+
+### Added / Changed / Fixed / Removed
+
+- AGY Decision Log Split-DB: Added dedicated SQLite audit database `gitmap-agy-log.db` capturing all Antigravity operations, target project provenance, conversation UUIDs, decision reasoning, and execution status.
+- CLI Commands `gitmap agy log` and `gitmap agy logs`: Implemented rich audit log viewer supporting `--json`, `--limit/-n`, `--project/-P`, `--command/-c`, and `--ssh` to query remote cluster nodes (`w1`).
+- Multi-Source Unified Project Discovery: Removed arbitrary 8-project default limit in `gitmap agy ls` (`n := 0`), expanding discovery across `.gemini/config/projects`, `conversation_summaries.db`, candidate workspace scan roots, and remote SSH cluster aggregation.
+- Active Rerun Project Recency: Enhanced `compareProjectEntries` in `agy_rerun_project_resolve.go` to strictly rank active prompts (`hasActivePrompt`), running IDE sessions (`isRunning`), and latest activity timestamps (`lastActTime`) above CWD matches, preventing stale project targeting.
+- Rerun Help Routing Guard: Fixed `gitmap rerun help`, `gitmap rerun -h`, `gitmap rerun /?`, and `gitmap rr help` to render the rich interactive rerun guide, preventing substring matches against projects named `strhelper`.
+
 ## [v6.344.1] 2026-09-26 Release v6.344.1
 
 ### Install GitMap v6.344.1
