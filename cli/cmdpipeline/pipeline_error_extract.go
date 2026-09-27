@@ -596,7 +596,11 @@ func CorrelateFailedJobs(rawLogs string, ghJobs []ghJobItem) []FailedJobItem {
 
 // CorrelateRunFailedJobs fetches jobs via gh run view --json jobs and correlates them with raw logs.
 func CorrelateRunFailedJobs(repo string, runId uint64, rawLogs string) []FailedJobItem {
-	ghJobs := queryRunJobs(repo, runId)
+	return CorrelateFailedJobsWithRunJobs(rawLogs, queryRunJobs(repo, runId))
+}
+
+// CorrelateFailedJobsWithRunJobs correlates pre-queried run jobs with raw logs.
+func CorrelateFailedJobsWithRunJobs(rawLogs string, ghJobs []ghJobItem) []FailedJobItem {
 	if len(ghJobs) == 0 {
 		return ParseFailedLogLines(rawLogs)
 	}

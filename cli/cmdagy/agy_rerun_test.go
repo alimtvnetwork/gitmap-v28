@@ -83,8 +83,13 @@ func TestResolveClosestActiveProject_CwdMatch(t *testing.T) {
 	}
 
 	p1, seq1 := resolveClosestActiveProject(projects, "1")
-	if p1.ID != "match-1" || seq1 != 2 {
-		t.Errorf("expected target '1' to match CWD project 'match-1', got %q seq %d", p1.ID, seq1)
+	if p1.ID != "other-1" || seq1 != 1 {
+		t.Errorf("expected target '1' to match sequence 1 'other-1', got %q seq %d", p1.ID, seq1)
+	}
+
+	pDot, seqDot := resolveClosestActiveProject(projects, ".")
+	if pDot.ID != "match-1" || seqDot != 2 {
+		t.Errorf("expected target '.' to match CWD project 'match-1', got %q seq %d", pDot.ID, seqDot)
 	}
 }
 

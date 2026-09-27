@@ -3,6 +3,7 @@ package cmdpipeline
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -68,14 +69,31 @@ func BuildCommitGroupFailureTree(repo string, group *CommitPipelineGroup, isColo
 
 	var sb strings.Builder
 	writeTreeHeaderSha(&sb, group.HeadSha, isColor)
+	wfJobs := fetchWorkflowJobsParallel(repo, failingWorkflows)
 	for i, wf := range failingWorkflows {
 		isLast := i == len(failingWorkflows)-1
-		rawLogs := queryFailedRunLogs(repo, wf.DatabaseId)
-		jobs := CorrelateRunFailedJobs(repo, wf.DatabaseId, rawLogs)
-		renderTreeWorkflowDetails(&sb, wf.Name, wf.DatabaseId, jobs, isLast, isColor)
+		renderTreeWorkflowDetails(&sb, wf.Name, wf.DatabaseId, wfJobs[i], isLast, isColor)
 	}
 
 	return sb.String()
+}
+
+func fetchWorkflowJobsParallel(repo string, workflows []CommitWorkflowItem) [][]FailedJobItem {
+	results := make([][]FailedJobItem, len(workflows))
+	var wg sync.WaitGroup
+	for i, wf := range workflows {
+		wg.Add(1)
+		idx := i
+		targetWf := wf
+		go func() {
+			defer wg.Done()
+			rawLogs := queryFailedRunLogs(repo, targetWf.DatabaseId)
+			results[idx] = CorrelateRunFailedJobs(repo, targetWf.DatabaseId, rawLogs)
+		}()
+	}
+	wg.Wait()
+
+	return results
 }
 
 func filterFailingWorkflows(workflows []CommitWorkflowItem) []CommitWorkflowItem {

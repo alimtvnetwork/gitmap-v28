@@ -16,6 +16,7 @@
 - [171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md](completed/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md) — SSH Fleet GitMap Auto-Update Guard & Concise Pull Remediation (Spec: [171](../../02-spec/21-app/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md))
 - [173-ssh-fleet-liveness-error-remediation-and-rerun-help.md](completed/173-ssh-fleet-liveness-error-remediation-and-rerun-help.md) — SSH Fleet Liveness, Error Remediation, Resource-Aware Concurrency, and Rerun Help (Spec: [173](../../02-spec/21-app/173-ssh-fleet-liveness-error-remediation-and-rerun-help.md))
 - [174-agy-decision-log-db-project-discovery-and-recent-rerun.md](completed/174-agy-decision-log-db-project-discovery-and-recent-rerun.md) — Antigravity Decision Log DB, Multi-Source Project Discovery, and Active Rerun Recency (Spec: [174](../../02-spec/21-app/174-agy-decision-log-db-project-discovery-and-recent-rerun.md))
+- [175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md](completed/175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md) — Rerun Test CWD Match, PE Parallel Log Fetching & Local PA Concurrency (Spec: [175](../../02-spec/21-app/175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

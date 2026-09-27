@@ -1,3 +1,17 @@
+## [v6.355.1] 2026-09-27 Release v6.355.1
+
+### Install GitMap v6.355.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.1"`
+
+### Added / Changed / Fixed / Removed
+
+- Unit Test Regression Fix (`TestResolveClosestActiveProject_CwdMatch`): Corrected test assertions in `agy_rerun_test.go` so target `"1"` tests sequence #1 resolution, while target `"."` tests CWD match, maintaining strict non-hijacking rerun sequence behavior.
+- PE Concurrency & Latency Optimization: Parallelized GitHub API calls in `gitmap pe` by fetching PR counts and release tags concurrently in `enrichErrorLogsMetadata`, parallelizing run logs and jobs fetching in `fetchAndBuildFailedRunItem`, and parallelizing failed workflow diagnostics in `BuildCommitGroupFailureTree`.
+- Local PA Concurrency Restoration: Removed artificial `--parallel 2` throttling from `executeLocalVMPull` in `ssh_pull_fleet.go`, restoring full hardware core utilization (`runtime.NumCPU()`) for local machine pulls while isolating throttling strictly to remote SSH sessions.
+
 ## [v6.355.0] 2026-09-27 Release v6.355.0
 
 ### Install GitMap v6.355.0

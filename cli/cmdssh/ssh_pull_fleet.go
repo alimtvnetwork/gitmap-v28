@@ -166,7 +166,7 @@ func dispatchOnlineFleetPull(conns []db.SSHConnection, cleanArgs []string) []Fle
 
 func executeLocalVMPull(cleanArgs []string) FleetNodePullOutcome {
 	cmdName := resolveLocalGitmapExecutable()
-	subArgs := []string{"pa", "--json", "--parallel", "2"}
+	subArgs := []string{"pa", "--json"}
 	cmd := exec.Command(cmdName, subArgs...)
 	out, runErr := cmd.CombinedOutput()
 	if runErr != nil && len(out) == 0 {

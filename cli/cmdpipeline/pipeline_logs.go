@@ -273,13 +273,30 @@ func isFailingConclusion(conclusion string) bool {
 
 func enrichErrorLogsMetadata(p *PipelineErrorLogsPayload, repo string, runs []ghRunItem) {
 	p.RepoUrl = resolveRepoWebURL(repo)
-	p.LastReleaseVersion = queryLatestTagRelease(repo)
-	p.OpenPRsCount = queryPendingPRs(repo)
+	p.LastReleaseVersion, p.OpenPRsCount = queryReleaseAndPRsConcurrently(repo)
 	p.LatestBranch = resolveLatestBranchName(p, runs)
 	if isTagRef(p.Branch) || len(p.Branch) == 0 {
 		p.Branch = p.LatestBranch
 	}
 	p.LastHash = resolveLatestCommitHash(p, runs)
+}
+
+func queryReleaseAndPRsConcurrently(repo string) (string, int) {
+	var tag string
+	var prs int
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		tag = queryLatestTagRelease(repo)
+	}()
+	go func() {
+		defer wg.Done()
+		prs = queryPendingPRs(repo)
+	}()
+	wg.Wait()
+
+	return tag, prs
 }
 
 func resolveRepoWebURL(repo string) string {
@@ -418,11 +435,11 @@ func dispatchFetchRunWorker(wg *sync.WaitGroup, sem chan struct{}, results []Fai
 }
 
 func resolveFetchConcurrency(total int) int {
-	if total <= 4 {
+	if total <= 8 {
 		return total
 	}
 
-	return 4
+	return 8
 }
 
 func initFailedRunTopLevel(p *PipelineErrorLogsPayload, fr ghRunItem) {
@@ -442,13 +459,31 @@ func initFailedRunTopLevel(p *PipelineErrorLogsPayload, fr ghRunItem) {
 }
 
 func fetchAndBuildFailedRunItem(repo string, fr ghRunItem) FailedRunItem {
-	rawLogs := queryFailedRunLogs(repo, fr.DatabaseId)
-	jobs := CorrelateRunFailedJobs(repo, fr.DatabaseId, rawLogs)
+	rawLogs, ghJobs := fetchRunLogsAndJobsConcurrently(repo, fr.DatabaseId)
+	jobs := CorrelateFailedJobsWithRunJobs(rawLogs, ghJobs)
 	item := buildBaseFailedRunItem(repo, fr, rawLogs)
 	item.FailedJobs = jobs
 	item.StackTrace = extractStackTraceFromLog(rawLogs)
 
 	return item
+}
+
+func fetchRunLogsAndJobsConcurrently(repo string, runId uint64) (string, []ghJobItem) {
+	var rawLogs string
+	var ghJobs []ghJobItem
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		rawLogs = queryFailedRunLogs(repo, runId)
+	}()
+	go func() {
+		defer wg.Done()
+		ghJobs = queryRunJobs(repo, runId)
+	}()
+	wg.Wait()
+
+	return rawLogs, ghJobs
 }
 
 func buildBaseFailedRunItem(repo string, fr ghRunItem, rawLogs string) FailedRunItem {
