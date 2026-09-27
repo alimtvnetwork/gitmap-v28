@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -20,7 +21,7 @@ func dispatchProjectRepos(command string) (bool, error) {
 		return true, nil
 	}
 
-	if command == constants.CmdReactRepos || command == constants.CmdReactReposAlias {
+	if isReactReposCommand(command, os.Args[2:]) {
 		runProjectRepos(constants.ProjectKeyReact, os.Args[2:])
 
 		return true, nil
@@ -39,4 +40,24 @@ func dispatchProjectRepos(command string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func isReactReposCommand(cmd string, args []string) bool {
+	if cmd == constants.CmdReactRepos {
+		return true
+	}
+	if cmd != constants.CmdReactReposAlias {
+		return false
+	}
+
+	return isReactReposOnlyArgs(args)
+}
+
+func isReactReposOnlyArgs(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(strings.TrimSpace(args[0]))
+
+	return first == "--count"
 }

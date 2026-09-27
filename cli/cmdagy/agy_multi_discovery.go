@@ -8,7 +8,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -170,12 +169,15 @@ func FetchClusterSSHProjects() []AgyProject {
 	return aggregated
 }
 
-func probeNodeOnline(host string, port int, timeout time.Duration) bool {
-	if port <= 0 {
-		port = 22
+func probeNodeOnline(target string, timeout time.Duration) bool {
+	host := strings.TrimSpace(target)
+	if host == "" {
+		return false
 	}
-	addr := net.JoinHostPort(host, strconv.Itoa(port))
-	conn, err := net.DialTimeout("tcp", addr, timeout)
+	if !strings.Contains(host, ":") {
+		host = net.JoinHostPort(host, "22")
+	}
+	conn, err := net.DialTimeout("tcp", host, timeout)
 	if err != nil {
 		return false
 	}
@@ -184,7 +186,7 @@ func probeNodeOnline(host string, port int, timeout time.Duration) bool {
 }
 
 func querySingleNodeProjects(c db.SSHConnection) []AgyProject {
-	if !probeNodeOnline(c.Host, c.Port, 400*time.Millisecond) {
+	if !probeNodeOnline(c.IPAddress, 400*time.Millisecond) {
 		return nil
 	}
 	client, err := dialSSHNodeClient(c)
