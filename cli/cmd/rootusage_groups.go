@@ -217,6 +217,7 @@ func printGroupIntegrations() {
 	renderLine(constants.HelpVSCode)
 	renderLine(constants.HelpAgy)
 	renderLine(constants.HelpRerun)
+	renderLine(constants.HelpShutdownUntil)
 	renderLine(constants.HelpSchedule)
 	renderLine(constants.HelpStartup)
 	renderLine(constants.HelpStorage)

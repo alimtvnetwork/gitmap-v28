@@ -236,6 +236,8 @@ var helpAliases = map[string]string{
 	"format-go":                   "automation",
 	"gofmt-ast":                   "automation",
 	"fmt-go":                      "automation",
+	"shutdown-until-green":        "shutdown-until",
+	"sug":                         "shutdown-until",
 }
 
 func resolveHelpAlias(cmd string) string {

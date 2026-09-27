@@ -13,7 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var sugIntervalStr string
+var (
+	sugIntervalStr string
+	sugDryRun      bool
+)
 
 // SUGWatchConfig models the persisted watch list configuration.
 type SUGWatchConfig struct {
@@ -25,7 +28,7 @@ type SUGWatchConfig struct {
 // AgySUGCmd monitors registered projects and initiates OS shutdown once all pipelines pass.
 var AgySUGCmd = &cobra.Command{
 	Use:     "shutdown-until-green [command]",
-	Aliases: []string{"sug"},
+	Aliases: []string{"sug", "shutdown-until"},
 	Short:   "Monitor designated projects and trigger OS shutdown when all CI/CD pipelines turn green",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return RunSUGCLI(args)
@@ -34,6 +37,10 @@ var AgySUGCmd = &cobra.Command{
 
 func init() {
 	AgySUGCmd.Flags().StringVarP(&sugIntervalStr, "time", "t", "5m", "Polling interval (minimum 2m, default 5m)")
+	AgySUGCmd.Flags().BoolVarP(&sugDryRun, "dry-run", "n", false, "Simulate shutdown without power off")
+	AgySUGCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		RenderAgySugHelp()
+	})
 	AgyCmd.AddCommand(AgySUGCmd)
 }
 
@@ -58,6 +65,9 @@ func routeSUGSubcommand(subcmd string, rest []string) error {
 		return setSUGRunningProjects()
 	case "run":
 		return runSUGLoop(rest)
+	case "help", "--help", "-h":
+		RenderAgySugHelp()
+		return nil
 	default:
 		return apperror.NewValidationError("unknown sug subcommand: " + subcmd)
 	}
@@ -69,31 +79,7 @@ func checkSUGHelp(token string) bool {
 }
 
 func printSUGHelp() {
-	fmt.Println()
-	fmt.Printf("  %sAntigravity Shutdown Until Green (sug)%s\n\n", constants.ColorCyan, constants.ColorReset)
-	printSUGUsageHelp()
-	printSUGSubcommandsHelp()
-}
-
-func printSUGUsageHelp() {
-	fmt.Println("  Usage:")
-	fmt.Println("    gitmap agy shutdown-until-green [command] [-t <duration>]")
-	fmt.Println("    gitmap agy sug <ls|run|add-projects|rm|agy-running-projects> [-t 5m]")
-	fmt.Println()
-}
-
-func printSUGSubcommandsHelp() {
-	fmt.Println("  Subcommands:")
-	fmt.Println("    ls                      List projects in shutdown-watch list")
-	fmt.Println("    add-projects <targets>  Add project(s) to watch list")
-	fmt.Println("    rm <targets>            Remove project(s) from watch list")
-	fmt.Println("    agy-running-projects    Set watch list to all currently running AGY projects")
-	fmt.Println("    run [-t 5m]             Start the watch loop and shut down when green")
-	fmt.Println("    help                    Show this help synopsis")
-	fmt.Println()
-	fmt.Println("  Flags:")
-	fmt.Println("    -t, --time              Check interval (default 5m, minimum 2m)")
-	fmt.Println()
+	RenderAgySugHelp()
 }
 
 func resolveSUGConfigPath() string {
@@ -214,6 +200,10 @@ func setSUGRunningProjects() error {
 		return err
 	}
 	targets := extractRunningProjectNames(running)
+	if len(targets) == 0 {
+		fmt.Println("  ℹ No active running AGY projects found with pending queues or prompts.")
+		return nil
+	}
 	cfg := SUGWatchConfig{ProjectTargets: targets, IntervalSec: 300}
 	if saveErr := saveSUGConfig(cfg); saveErr != nil {
 		return saveErr
@@ -235,11 +225,13 @@ func runSUGLoop(args []string) error {
 	if len(cfg.ProjectTargets) == 0 {
 		return apperror.NewValidationError("shutdown watch list is empty; add projects before running")
 	}
-	interval := parseSUGInterval(args)
-	return ExecuteSUGWatch(cfg.ProjectTargets, interval)
+	isDryRun := isSUGDryRun(args)
+	isOnce := hasSUGOnceFlag(args)
+	interval := parseSUGInterval(args, isDryRun)
+	return ExecuteSUGWatch(cfg.ProjectTargets, interval, isDryRun, isOnce)
 }
 
-func parseSUGInterval(args []string) time.Duration {
+func parseSUGInterval(args []string, isDryRun bool) time.Duration {
 	raw := sugIntervalStr
 	for i, a := range args {
 		if (a == "-t" || a == "--time") && i+1 < len(args) {
@@ -247,8 +239,35 @@ func parseSUGInterval(args []string) time.Duration {
 		}
 	}
 	d, err := time.ParseDuration(raw)
-	if err != nil || d < 2*time.Minute {
-		return 2 * time.Minute
+	minInterval := 2 * time.Minute
+	if isDryRun {
+		minInterval = 10 * time.Second
+	}
+	if err != nil || d < minInterval {
+		return minInterval
 	}
 	return d
+}
+
+func isSUGDryRun(args []string) bool {
+	if sugDryRun {
+		return true
+	}
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "--dry-run" || low == "-n" || low == "--dry" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasSUGOnceFlag(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "--once" || low == "-1" {
+			return true
+		}
+	}
+	return false
 }

@@ -215,6 +215,15 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "restore-running-prompts" || low == "restore-running-prompt" || low == "rrp" {
 		return "restore-running-prompts"
 	}
+	if low == "sug" || low == "shutdown-until" || low == "shutdown-until-green" {
+		return "shutdown-until-green"
+	}
+	if low == "fpug" || low == "finish-prompts-until-green" {
+		return "finish-prompts-until-green"
+	}
+	if low == "running-projects" || low == "runningprojects" {
+		return "running-projects"
+	}
 
 	return ""
 }

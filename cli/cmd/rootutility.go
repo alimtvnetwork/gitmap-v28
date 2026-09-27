@@ -321,6 +321,7 @@ func utilitySystemEntries() []dispatchEntry {
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
 		{[]string{"ai-clean", "aiclean", "clean-ai"}, func() error { return cmdos.RunOSAICleanCLI(argsTail()) }},
+		{[]string{constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen}, func() error { return cmdagy.RunSUGCLI(argsTail()) }},
 	}
 }
 
@@ -422,6 +423,8 @@ func normalizeHelpTopic(topic string) string {
 		return constants.CmdPower
 	case "rr", "rra", "rrq", "rerun-restart", "rerun-all", "rerun-queue":
 		return "rerun"
+	case constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen:
+		return constants.CmdShutdownUntil
 	}
 
 	return topic

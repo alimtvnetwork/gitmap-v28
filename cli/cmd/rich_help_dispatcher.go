@@ -89,6 +89,10 @@ func tryRenderToolRichTopic(topic string) bool {
 
 func tryRenderWorkflowRichTopic(topic string) bool {
 	switch topic {
+	case "shutdown-until", "shutdown-until-green", "sug":
+		cmdagy.RenderAgySugHelp()
+
+		return true
 	case "running-prompts", "running-prompt", "backup-running-prompts", "restore-running-prompts", "rp-prompts":
 		cmdagy.RenderRunningPromptsHelp()
 

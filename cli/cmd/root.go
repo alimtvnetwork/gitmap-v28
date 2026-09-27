@@ -710,7 +710,7 @@ func dispatchAgySubsystem(
 		"running-prompts", "running-prompt", "rp-prompts",
 		"running-projects", "runningprojects",
 		"fpug", "finish-prompts-until-green",
-		"sug", "shutdown-until-green":
+		"sug", "shutdown-until", "shutdown-until-green":
 		executeAndAudit(cmdagy.DispatchAgy, shouldAudit, auditID, auditStart)
 
 		return true
