@@ -1,3 +1,9 @@
+## v6.348.0 — 2026-09-27 (Pull-All Concise Summary Filter, Noise Removal & SSH Fleet JSON)
+
+**Scope:** Version bump. Pull-All Concise Summary Filter, Noise Removal & SSH Fleet JSON.
+
+---
+
 ## v6.347.0 — 2026-09-27 (SSH fleet auth fallback and live node status probing)
 
 **Scope:** Version bump. SSH fleet auth fallback and live node status probing.
