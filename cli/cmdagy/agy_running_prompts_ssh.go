@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
@@ -40,10 +41,19 @@ func fetchClusterSSHRunningPromptsLs(wordCount int, isFull bool) []store.Running
 		return nil
 	}
 	var aggregated []store.RunningPromptRecord
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 	for _, c := range conns {
-		records := querySingleNodePrompts(c, wordCount, isFull)
-		aggregated = append(aggregated, records...)
+		wg.Add(1)
+		go func(conn db.SSHConnection) {
+			defer wg.Done()
+			records := querySingleNodePrompts(conn, wordCount, isFull)
+			mu.Lock()
+			aggregated = append(aggregated, records...)
+			mu.Unlock()
+		}(c)
 	}
+	wg.Wait()
 	return aggregated
 }
 
@@ -172,9 +182,15 @@ func AggregateSSHRunningPromptsBackup(customFile string, isJSON bool) error {
 	if err != nil || len(conns) == 0 {
 		return localErr
 	}
+	var wg sync.WaitGroup
 	for _, c := range conns {
-		delegateNodeBackup(c, customFile, isJSON)
+		wg.Add(1)
+		go func(conn db.SSHConnection) {
+			defer wg.Done()
+			delegateNodeBackup(conn, customFile, isJSON)
+		}(c)
 	}
+	wg.Wait()
 	return nil
 }
 
@@ -252,10 +268,19 @@ func fetchClusterSSHBackupBatches(customFile string) []store.PromptBackupBatchRe
 		return nil
 	}
 	var aggregated []store.PromptBackupBatchRecord
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 	for _, c := range conns {
-		batches := querySingleNodeBackupBatches(c, customFile)
-		aggregated = append(aggregated, batches...)
+		wg.Add(1)
+		go func(conn db.SSHConnection) {
+			defer wg.Done()
+			batches := querySingleNodeBackupBatches(conn, customFile)
+			mu.Lock()
+			aggregated = append(aggregated, batches...)
+			mu.Unlock()
+		}(c)
 	}
+	wg.Wait()
 	return aggregated
 }
 
@@ -334,9 +359,15 @@ func AggregateSSHRunningPromptsRestore(opts store.RestoreOptions) error {
 	if err != nil || len(conns) == 0 {
 		return localErr
 	}
+	var wg sync.WaitGroup
 	for _, c := range conns {
-		delegateNodeRestore(c, opts)
+		wg.Add(1)
+		go func(conn db.SSHConnection) {
+			defer wg.Done()
+			delegateNodeRestore(conn, opts)
+		}(c)
 	}
+	wg.Wait()
 	return nil
 }
 

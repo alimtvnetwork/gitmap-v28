@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
@@ -37,10 +38,19 @@ func fetchClusterSSHRunningProjects() []RunningProjectRecord {
 		return nil
 	}
 	var aggregated []RunningProjectRecord
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 	for _, c := range conns {
-		records := querySingleSSHNodeRunningProjects(c)
-		aggregated = append(aggregated, records...)
+		wg.Add(1)
+		go func(conn db.SSHConnection) {
+			defer wg.Done()
+			records := querySingleSSHNodeRunningProjects(conn)
+			mu.Lock()
+			aggregated = append(aggregated, records...)
+			mu.Unlock()
+		}(c)
 	}
+	wg.Wait()
 	return aggregated
 }
 
@@ -58,7 +68,13 @@ func querySingleSSHNodeRunningProjects(c db.SSHConnection) []RunningProjectRecor
 	return parseRemoteRunningProjects(c, out)
 }
 
+// SSHNodeDialer is an injectable function to dial cluster SSH connections with full credential fallbacks.
+var SSHNodeDialer func(c db.SSHConnection) (*ssh.Client, error)
+
 func dialSSHNodeClient(c db.SSHConnection) (*ssh.Client, error) {
+	if SSHNodeDialer != nil {
+		return SSHNodeDialer(c)
+	}
 	plainPass, _ := crypto.DecryptStoredPassword(c.EncryptedPassword)
 	return crypto.ConnectWithFallback(c.IPAddress, c.Username, c.KeyPath, plainPass)
 }

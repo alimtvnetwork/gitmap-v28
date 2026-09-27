@@ -88,3 +88,8 @@ func dialNodeWithFallback(c db.SSHConnection, header string) (*ssh.Client, error
 	}
 	return nil, fmt.Errorf("ssh dial failed for %s@%s: unable to authenticate with key or password", c.Username, c.IPAddress)
 }
+
+// DialSSHConnectionWithFallback connects to an SSH node using key, default keys, or vaulted/fallback password.
+func DialSSHConnectionWithFallback(c db.SSHConnection) (*ssh.Client, error) {
+	return dialNodeWithFallback(c, "["+c.Alias+"|"+c.IPAddress+"]")
+}
