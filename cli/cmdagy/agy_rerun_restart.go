@@ -72,6 +72,9 @@ func loadSortedProjects() ([]AgyProject, error) {
 
 func buildRerunRestartPlan(projects []AgyProject, target, templateID string) (rerunRestartPlan, error) {
 	proj, seq := resolveClosestActiveProject(projects, target)
+	if seq == 0 || proj.Name == "" {
+		return rerunRestartPlan{}, fmt.Errorf("no valid project matching target %q", target)
+	}
 	ws := proj.GetPath()
 	if ws == "" {
 		return rerunRestartPlan{}, fmt.Errorf("project %q has no valid workspace folder", proj.Name)

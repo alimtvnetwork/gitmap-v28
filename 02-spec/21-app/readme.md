@@ -21,4 +21,5 @@
 - [171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md](171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md) — SSH Fleet GitMap Auto-Update Guard & Concise Pull Remediation (Status: `active`)
 - [172-ssh-fleet-preflight-liveness-error-details-and-clean-dispatch.md](172-ssh-fleet-preflight-liveness-error-details-and-clean-dispatch.md) — SSH Fleet Pre-Flight Liveness, Error Details, and Clean Dispatch (Status: `active`)
 - [173-ssh-fleet-liveness-error-remediation-and-rerun-help.md](173-ssh-fleet-liveness-error-remediation-and-rerun-help.md) — SSH Fleet Liveness, Error Remediation, Resource-Aware Concurrency, and Rerun Help (Status: `active`)
+- [174-agy-decision-log-db-project-discovery-and-recent-rerun.md](174-agy-decision-log-db-project-discovery-and-recent-rerun.md) — Antigravity Decision Log DB, Multi-Source Project Discovery, and Active Rerun Recency (Status: `active`)
 

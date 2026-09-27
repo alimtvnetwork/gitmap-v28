@@ -1,3 +1,18 @@
+## [v6.355.0] 2026-09-27 Release v6.355.0
+
+### Install GitMap v6.355.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Rerun Target Resolution & Recency: Removed "1" from `isCwdTarget` and added `isProjectActiveOrRunning` check so `gitmap rerun 1` and `gitmap rerun` unambiguously target the top active/running project with recent activity, preventing idle CWD from hijacking target selection.
+- Rerun Help Routing & Guard: Hardened help token interception across `root.go`, `agy_rerun.go`, and `agy_rerun_project_resolve.go` (`IsRerunHelpRequested`, `isHelpKeyword`), guaranteeing `gitmap rerun help` renders the help guide and never matches `strhelper`.
+- SSH Cluster Pre-Flight TCP Probing: Implemented 400ms TCP probe `probeNodeOnline` before dialing SSH in `FetchClusterSSHProjects` and `fetchClusterSSHAgyLogs`, eliminating 15-30s dial timeouts for offline nodes.
+- AGY Decision Audit Log Schema & Filters: Persisted sequence number, running status, and prompt length in `RecordAgyDecision` across rerun, ls, and inject commands.
+
 ## [v6.354.0] 2026-09-27 Release v6.354.0
 
 ### Install GitMap v6.354.0

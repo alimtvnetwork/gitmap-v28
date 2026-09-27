@@ -720,6 +720,10 @@ func dispatchPromptSubsystem(
 		return true
 	case "rerun", "rr":
 		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
+			if len(args) > 1 && cmdagy.IsRerunHelpRequested(args[1:]) {
+				cmdagy.RenderAgyRerunHelp()
+				return nil
+			}
 			return cmdagy.RunRerunTopLevelCLI(args[1:])
 		}, shouldAudit, auditID, auditStart)
 

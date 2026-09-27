@@ -19,9 +19,10 @@ var agyRerunHelpCmd = &cobra.Command{
 	},
 }
 
-func isRerunHelpRequested(args []string) bool {
+// IsRerunHelpRequested reports whether any token in args requests rerun help.
+func IsRerunHelpRequested(args []string) bool {
 	for _, arg := range args {
-		if isRerunHelpToken(arg) {
+		if IsRerunHelpToken(arg) {
 			return true
 		}
 	}
@@ -29,7 +30,8 @@ func isRerunHelpRequested(args []string) bool {
 	return false
 }
 
-func isRerunHelpToken(tok string) bool {
+// IsRerunHelpToken reports whether tok is a help-seeking keyword or flag.
+func IsRerunHelpToken(tok string) bool {
 	clean := strings.ToLower(strings.TrimSpace(tok))
 
 	return clean == "help" ||
@@ -49,6 +51,14 @@ func isRerunHelpToken(tok string) bool {
 		clean == "-usage" ||
 		clean == "--usage" ||
 		clean == "/usage"
+}
+
+func isRerunHelpRequested(args []string) bool {
+	return IsRerunHelpRequested(args)
+}
+
+func isRerunHelpToken(tok string) bool {
+	return IsRerunHelpToken(tok)
 }
 
 // RenderAgyRerunHelp prints the rich interactive Antigravity rerun guide.

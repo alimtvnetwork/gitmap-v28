@@ -134,6 +134,9 @@ func fetchClusterSSHAgyLogs(opts store.AgyLogQueryOptions) []store.AgyDecisionLo
 }
 
 func querySingleNodeAgyLogs(c db.SSHConnection, opts store.AgyLogQueryOptions) []store.AgyDecisionLogRecord {
+	if !probeNodeOnline(c.Host, c.Port, 400*time.Millisecond) {
+		return nil
+	}
 	client, err := dialSSHNodeClient(c)
 	if err != nil {
 		return nil

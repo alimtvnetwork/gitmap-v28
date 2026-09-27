@@ -15,6 +15,7 @@
 - [170-repo-create-cg-sync-no-sync-and-race-detector-guard.md](completed/170-repo-create-cg-sync-no-sync-and-race-detector-guard.md) — Repo Create Coding Guideline Auto-Sync, No-Sync Flag & Race Detector Guard (Spec: [170](../../02-spec/21-app/170-repo-create-cg-sync-no-sync-and-race-detector-guard.md))
 - [171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md](completed/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md) — SSH Fleet GitMap Auto-Update Guard & Concise Pull Remediation (Spec: [171](../../02-spec/21-app/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md))
 - [173-ssh-fleet-liveness-error-remediation-and-rerun-help.md](completed/173-ssh-fleet-liveness-error-remediation-and-rerun-help.md) — SSH Fleet Liveness, Error Remediation, Resource-Aware Concurrency, and Rerun Help (Spec: [173](../../02-spec/21-app/173-ssh-fleet-liveness-error-remediation-and-rerun-help.md))
+- [174-agy-decision-log-db-project-discovery-and-recent-rerun.md](completed/174-agy-decision-log-db-project-discovery-and-recent-rerun.md) — Antigravity Decision Log DB, Multi-Source Project Discovery, and Active Rerun Recency (Spec: [174](../../02-spec/21-app/174-agy-decision-log-db-project-discovery-and-recent-rerun.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

@@ -10,7 +10,7 @@
 ## Consolidated Subtasks & Implemented Deliverables
 
 ### Subtask 01: Antigravity Decision Audit SQLite Split-DB & CLI (`gitmap agy log`)
-- **Traceability ID:** Task-01, Task-02
+- **Traceability ID:** Task-03, Task-04
 - **Target Files:**
   - `cli/store/agy_log_split_db.go`
   - `cli/cmdagy/agy_log_cmd.go`
@@ -27,7 +27,7 @@
   - Authored comprehensive documentation in `cli/helptext/agy-log.md` and registered in `cli/helptext/catalog.go`.
 
 ### Subtask 02: Multi-Source Project Discovery & Active Conversation Recency Sorting
-- **Traceability ID:** Task-03, Task-04
+- **Traceability ID:** Task-02
 - **Target Files:**
   - `cli/cmdagy/agy_multi_discovery.go`
   - `cli/cmdagy/agy_ls.go`
@@ -43,3 +43,26 @@
   - Updated `sortProjectsByActivityAndPins` and `compareProjectEntries` in `cli/cmdagy/agy_rerun_project_resolve.go`:
     - Projects hosting active prompt files (`active-agy-pipeline-fix-prompt.txt`) or active running status rank highest.
     - True latest activity timestamp (`lastActTime`) is prioritized over inactive working directories so `gitmap rerun` targets genuinely active projects (such as `white-presentation-v1` and `rasia-logo`) rather than stale CWDs.
+    - Removed `"1"` from `isCwdTarget` so `gitmap rerun 1` unambiguously selects `projects[0]` without being hijacked by CWD.
+    - Added `isProjectActiveOrRunning` check in `findCwdProjectOrDefault` so idle CWD does not hijack `gitmap rerun` when other active projects exist.
+
+### Subtask 03: Rerun Help Routing & Substring Guard Hardening
+- **Traceability ID:** Task-01
+- **Target Files:**
+  - `cli/cmdagy/agy_rerun_help.go`
+  - `cli/cmdagy/agy_rerun.go`
+  - `cli/cmdagy/agy_rerun_project_resolve.go`
+  - `cli/cmd/root.go`
+- **Accomplished Changes:**
+  - Exported `IsRerunHelpRequested` and `IsRerunHelpToken` in `cli/cmdagy/agy_rerun_help.go`.
+  - Added top-level guard in `cli/cmd/root.go` dispatch to immediately invoke `RenderAgyRerunHelp()` whenever `args[1:]` requests help.
+  - Hardened `resolveClosestActiveProject`, `findProjectByFlexibleTarget`, and `isProjectTargetMatch` to strictly reject help tokens and never substring-match projects (e.g. `strhelper`).
+
+### Subtask 04: SSH Cluster Pre-Flight TCP Probing
+- **Traceability ID:** Task-03, Task-04
+- **Target Files:**
+  - `cli/cmdagy/agy_multi_discovery.go`
+  - `cli/cmdagy/agy_log_cmd.go`
+- **Accomplished Changes:**
+  - Implemented `probeNodeOnline(host, port, timeout)` with a 400ms TCP probe.
+  - Wired into `querySingleNodeProjects` and `querySingleNodeAgyLogs` so unreachable nodes (e.g. `alpha-win`, `beta-linux`, `gamma-mac` at 10.20.0.x) are skipped immediately, preventing 15-30s dial timeouts during `--ssh` discovery and log queries.

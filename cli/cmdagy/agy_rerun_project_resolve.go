@@ -460,6 +460,10 @@ func resolveClosestActiveProject(projects []AgyProject, target string) (AgyProje
 	}
 
 	trimmed := strings.TrimSpace(target)
+	if isHelpKeyword(trimmed) {
+		return AgyProject{}, 0
+	}
+
 	if isCwdTarget(trimmed) {
 		return findCwdProjectOrDefault(projects)
 	}
@@ -478,7 +482,7 @@ func resolveClosestActiveProject(projects []AgyProject, target string) (AgyProje
 }
 
 func isCwdTarget(target string) bool {
-	return target == "" || target == "1" || target == "last" || target == "current" || target == "."
+	return target == "" || target == "last" || target == "current" || target == "."
 }
 
 func findCwdProject(projects []AgyProject) (AgyProject, int, bool) {
@@ -497,11 +501,28 @@ func findCwdProject(projects []AgyProject) (AgyProject, int, bool) {
 }
 
 func findCwdProjectOrDefault(projects []AgyProject) (AgyProject, int) {
-	if proj, seq, ok := findCwdProject(projects); ok {
-		return proj, seq
+	cwdProj, cwdSeq, ok := findCwdProject(projects)
+	if ok && isProjectActiveOrRunning(cwdProj) {
+		return cwdProj, cwdSeq
+	}
+	if len(projects) > 0 && isProjectActiveOrRunning(projects[0]) {
+		return projects[0], 1
+	}
+	if ok {
+		return cwdProj, cwdSeq
 	}
 
 	return projects[0], 1
+}
+
+func isProjectActiveOrRunning(p AgyProject) bool {
+	_, _, hasActivePrompt := checkActivePromptFile(p.GetPath())
+	if hasActivePrompt {
+		return true
+	}
+	runningMap := fetchRunningProjectsSet()
+
+	return resolveProjectIsRunning(p, runningMap)
 }
 
 func isCwdMatchingProject(p AgyProject, cleanCwd, cleanRealCwd string) bool {
@@ -577,6 +598,10 @@ func isHelpKeyword(target string) bool {
 }
 
 func isProjectTargetMatch(p AgyProject, cleanTarget string) bool {
+	if isHelpKeyword(cleanTarget) {
+		return false
+	}
+
 	nameNorm := normalizeSlugForComparison(p.Name)
 	wsNorm := normalizeSlugForComparison(filepath.Base(p.GetPath()))
 
