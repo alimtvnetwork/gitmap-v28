@@ -7,6 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
 )
 
 // TruncateWords trims text to maxWords and returns the truncated string and total word count.
@@ -112,43 +113,64 @@ func printRunningPromptRow(it store.RunningPromptRecord, isFull bool) {
 
 // RenderRunningPromptsHelp prints synopsis and usage guidelines for running-prompts commands.
 func RenderRunningPromptsHelp() {
-	printRunningPromptsHelpUsage()
-	printRunningPromptsHelpCommands()
-	printRunningPromptsHelpFlags()
+	termhelp.RenderMenu(buildRunningPromptsHelpMenu())
 }
 
-func printRunningPromptsHelpUsage() {
-	fmt.Printf(`%sAntigravity Running Prompts Management%s
-
-Usage:
-  gitmap agy running-prompts <command> [flags]
-
-`, constants.ColorCyan, constants.ColorReset)
+func buildRunningPromptsHelpMenu() termhelp.HelpMenu {
+	return termhelp.HelpMenu{
+		Title: "Antigravity Running Prompts Management (running-prompts)",
+		UsageLines: []string{
+			"gitmap agy running-prompts <command> [flags]",
+			"gitmap backup-running-prompts [flags]",
+			"gitmap restore-running-prompts [flags]",
+		},
+		Sections: []termhelp.HelpSection{
+			buildRunningPromptsOpsSection(),
+			buildRunningPromptsIOSection(),
+		},
+		FooterFlags: buildRunningPromptsFooterFlags(),
+		Tips: []string{
+			"Use 'gitmap agy running-prompts ls' to see active prompts across all workspaces.",
+			"Run 'gitmap backup-running-prompts' before restarting machines or rebooting.",
+			"Run 'gitmap restore-running-prompts' to re-enqueue prompts after system reboot.",
+		},
+	}
 }
 
-func printRunningPromptsHelpCommands() {
-	fmt.Printf(`Commands:
-  backup   Snapshot running and queued prompts to Split-DB
-  restore  Restore backed-up prompts into project queue
-  clean    Prune old restored backup batches
-  ls       Inspect and list running/queued prompts
-  export   Export prompts to SQLite .db or .json
-  import   Import prompts from SQLite .db or .json
-
-`)
+func buildRunningPromptsOpsSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Snapshot & Restoration Commands",
+		Entries: []termhelp.CommandEntry{
+			{Command: "backup", Description: "Snapshot running and queued prompts to Split-DB"},
+			{Command: "restore", Description: "Restore backed-up prompts into project prompt queue"},
+			{Command: "clean", Description: "Prune old restored backup batches (or --force)"},
+			{Command: "ls", Description: "Inspect and list running/queued prompts across projects"},
+		},
+	}
 }
 
-func printRunningPromptsHelpFlags() {
-	fmt.Printf(`Flags:
-  -l, --limit int       Limit output entries (default 8)
-      --wc int          Word count truncation limit (default 100)
-      --full            Show full prompt without word truncation
-      --json            Output in JSON format
-      --ssh             Inspect or execute across cluster SSH fleet
-  -f, --file string     Custom backup file path
-  -k, --keep            Keep restored batch from retention pruning
-      --force           Force delete all backup batches during clean
-`)
+func buildRunningPromptsIOSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Export & Import Commands",
+		Entries: []termhelp.CommandEntry{
+			{Command: "export", Description: "Export prompts to SQLite database (.db) or JSON (.json)"},
+			{Command: "import", Description: "Import prompts from SQLite or JSON file into queues"},
+		},
+	}
+}
+
+func buildRunningPromptsFooterFlags() []termhelp.CommandEntry {
+	return []termhelp.CommandEntry{
+		{Command: "-l, --limit <N>", Description: "Maximum prompt entries to display (default 8)"},
+		{Command: "--wc <N>", Description: "Word count truncation limit (default 100)"},
+		{Command: "--full", Description: "Show full prompt text without word truncation"},
+		{Command: "--json", Description: "Output results in structured JSON format"},
+		{Command: "--ssh", Description: "Inspect or execute across cluster SSH fleet"},
+		{Command: "-f, --file <path>", Description: "Custom database or export file path"},
+		{Command: "-k, --keep", Description: "Keep restored batch from auto-pruning"},
+		{Command: "--force", Description: "Force delete all backup batches during clean"},
+		{Command: "-h, --help", Description: "Show this running prompts help menu"},
+	}
 }
 
 // RenderBackupHelp prints usage guidelines for backup-running-prompts.

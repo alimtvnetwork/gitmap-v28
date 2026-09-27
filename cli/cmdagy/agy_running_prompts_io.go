@@ -39,7 +39,7 @@ func enqueueSingleRestoredItem(item store.RunningPromptRecord) bool {
 	if len(item.ProjectPath) == 0 || len(item.Prompt) == 0 {
 		return false
 	}
-	qPath := filepath.Join(item.ProjectPath, ".ai-memory", "temp", "agy-prompt-queue.json")
+	qPath := resolveQueueFilePath(item.ProjectPath)
 	_ = os.MkdirAll(filepath.Dir(qPath), 0755)
 	q := loadQueueOrCreate(qPath)
 	q.Queued = append(q.Queued, makeRestoredQueueEntry(q, item))

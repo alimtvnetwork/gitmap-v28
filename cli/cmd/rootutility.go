@@ -43,7 +43,7 @@ func utilityCoreEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"binary", "info"}, printIdentityLong},
 		{[]string{"error"}, func() error { return runErrorCmd(argsTail()) }},
-		{[]string{constants.CmdUpdate, "ua"}, runUpdateHelp},
+		{[]string{constants.CmdUpdate, "ua", "update-all", "updateall"}, runUpdateHelp},
 		{[]string{constants.CmdUpdateRunner}, runUpdateRunner},
 		{[]string{constants.CmdUpdateCleanup}, runUpdateCleanup},
 		{[]string{constants.CmdInstalledDir, constants.CmdInstalledDirAlias}, runInstalledDirHelp},
@@ -299,7 +299,6 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{constants.CmdLFSCommon, constants.CmdLFSCommonAlias}, func() error { return runLFSCommon(argsTail()) }},
 		{[]string{constants.CmdReinstall}, func() error { return runReinstall(argsTail()) }},
 		{[]string{"peat", "pea"}, func() error { return runPeatCmd(argsTail()) }},
-		{[]string{"deploy"}, func() error { return runDeployCmd(argsTail()) }},
 		{[]string{"install-exec", "in-exec", "setup-exec"}, func() error { return cmdssh.RunSSHInstallExecCLI(argsTail()) }},
 	}
 }
@@ -309,13 +308,6 @@ func runPeatCmd(args []string) error {
 		return cmdmacro.ExecuteMacroDeploySSH(args[1:])
 	}
 	return cmdmacro.RunMacroCmd(args)
-}
-
-func runDeployCmd(args []string) error {
-	if len(args) > 0 && args[0] == "ssh" {
-		return cmdmacro.ExecuteMacroDeploySSH(args[1:])
-	}
-	return cmdmacro.ExecuteMacroDeploySSH(args)
 }
 
 func utilitySystemEntries() []dispatchEntry {

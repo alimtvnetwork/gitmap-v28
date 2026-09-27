@@ -242,7 +242,20 @@ func dispatchSCMetaOps(subCmd string, rest []string) bool {
 	if dispatchSCNetworkOps(subCmd, rest) {
 		return true
 	}
+	if dispatchSCDeployOps(subCmd, rest) {
+		return true
+	}
 	return dispatchSCAuthOps(subCmd, rest)
+}
+
+func dispatchSCDeployOps(subCmd string, rest []string) bool {
+	switch subCmd {
+	case "deploy", "deploy-right", "deploy-left":
+		_ = cmdssh.RunSSHDeployCLI(subCmd, rest)
+		return true
+	default:
+		return false
+	}
 }
 
 func dispatchSCInventoryOps(subCmd string, rest []string) bool {

@@ -80,7 +80,7 @@ var CheckConnLivenessFn = cmdssh.CheckConnLiveness
 
 // IsFleetUpdateCommand reports whether the command invocation routes to fleet update.
 func IsFleetUpdateCommand(cmd string, args []string) bool {
-	if cmd == "ua" {
+	if cmd == "ua" || cmd == "update-all" || cmd == "updateall" {
 		return true
 	}
 	if cmd != "update" {
@@ -97,13 +97,18 @@ func isFleetUpdateArgs(args []string) bool {
 	if first == "ls" || first == "list" {
 		return true
 	}
-	if first == "--all" || first == "all" || first == "all-nodes" || first == "allnodes" || first == "-a" {
+	if isAllFleetToken(first) {
 		return true
 	}
 	if hasExceptFlag(args) {
 		return true
 	}
 	return hasFleetNodeTarget(args)
+}
+
+func isAllFleetToken(token string) bool {
+	return token == "--all" || token == "-all" || token == "all" ||
+		token == "all-nodes" || token == "allnodes" || token == "-a"
 }
 
 func hasExceptFlag(args []string) bool {
@@ -117,7 +122,7 @@ func hasExceptFlag(args []string) bool {
 
 func hasFleetNodeTarget(args []string) bool {
 	for _, a := range args {
-		if a == "--all" || a == "-a" || strings.HasPrefix(a, "--node=") || strings.HasPrefix(a, "--remote=") {
+		if isAllFleetToken(a) || strings.HasPrefix(a, "--node=") || strings.HasPrefix(a, "--remote=") {
 			return true
 		}
 	}
@@ -126,7 +131,7 @@ func hasFleetNodeTarget(args []string) bool {
 
 // RunFleetUpdateDispatch routes to the appropriate fleet update action.
 func RunFleetUpdateDispatch(cmd string, args []string) error {
-	if cmd == "ua" {
+	if cmd == "ua" || cmd == "update-all" || cmd == "updateall" {
 		return ExecuteFleetUpdate(append([]string{"--all"}, args...))
 	}
 	if len(args) > 0 && isLSKeyword(args[0]) {
@@ -175,7 +180,7 @@ func parseFleetUpdateOptions(args []string) FleetUpdateOptions {
 }
 
 func processUpdateFlag(arg string, args []string, index *int, opts *FleetUpdateOptions) {
-	if arg == "--all" || arg == "all" || arg == "-a" {
+	if isAllFleetToken(arg) {
 		opts.IsAll = true
 		return
 	}
@@ -195,7 +200,7 @@ func processUpdateFlag(arg string, args []string, index *int, opts *FleetUpdateO
 		opts.IsForce = true
 		return
 	}
-	isPositionalPkg := !strings.HasPrefix(arg, "-") && arg != "update" && arg != "ua"
+	isPositionalPkg := !strings.HasPrefix(arg, "-") && arg != "update" && arg != "ua" && arg != "update-all" && arg != "updateall"
 	if isPositionalPkg && opts.Pkg == "gitmap" {
 		opts.Pkg = arg
 	}
@@ -453,18 +458,65 @@ func ParseFleetUpdateTelemetry(raw string, target FleetTarget, execErr error) Fl
 		return buildFallbackTelemetry(target, execErr, "Empty response")
 	}
 
+	jsonStr := extractJSONSubstring(trimmed)
 	var parsed FleetUpdateTelemetry
-	if err := json.Unmarshal([]byte(trimmed), &parsed); err == nil {
+	if err := json.Unmarshal([]byte(jsonStr), &parsed); err == nil {
 		populateTelemetryDefaults(&parsed, target, execErr)
 		return parsed
 	}
 
 	var items []map[string]any
-	if err := json.Unmarshal([]byte(trimmed), &items); err == nil {
+	if err := json.Unmarshal([]byte(jsonStr), &items); err == nil {
 		return buildArrayTelemetry(items, target, execErr)
 	}
 
-	return buildFallbackTelemetry(target, execErr, trimmed)
+	return buildFallbackTelemetry(target, execErr, cleanTelemetryDetails(trimmed))
+}
+
+func extractJSONSubstring(s string) string {
+	start := strings.Index(s, "{")
+	end := strings.LastIndex(s, "}")
+	if start >= 0 && end > start {
+		return s[start : end+1]
+	}
+	return s
+}
+
+func cleanTelemetryDetails(raw string) string {
+	lines := strings.Split(raw, "\n")
+	var candidates []string
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if isIgnoredTelemetryLine(trimmed) {
+			continue
+		}
+		candidates = append(candidates, trimmed)
+	}
+	if len(candidates) == 0 {
+		return "OK"
+	}
+	first := candidates[0]
+	if len(first) > 50 {
+		return first[:47] + "..."
+	}
+	return first
+}
+
+func isIgnoredTelemetryLine(trimmed string) bool {
+	if trimmed == "" {
+		return true
+	}
+	low := strings.ToLower(trimmed)
+	if strings.HasPrefix(low, "warning:") || strings.HasPrefix(low, "error:") {
+		return true
+	}
+	if strings.Contains(low, "404") || strings.Contains(low, "[test-repoexists]") || strings.Contains(low, "[discovery]") {
+		return true
+	}
+	if strings.Contains(low, "fetching") || strings.Contains(low, "url:") || strings.Contains(low, "gitmap shell wrapper") {
+		return true
+	}
+	return strings.HasPrefix(low, "---") || strings.HasPrefix(low, "===") || strings.Contains(low, "done! run")
 }
 
 func populateTelemetryDefaults(t *FleetUpdateTelemetry, target FleetTarget, execErr error) {
@@ -580,16 +632,24 @@ func resolveFleetUpdateCommand(osType, pkg string) string {
 	isWin := strings.EqualFold(osType, "windows") || strings.EqualFold(osType, "win")
 	switch strings.ToLower(pkg) {
 	case "agm", "ag-manager", "antigravity-manager":
-		if isWin {
-			return constants.AgManagerWindowsInstallCmd
-		}
-		return constants.AgManagerUnixInstallCmd
+		return resolveAgmUpdateCommand(isWin)
 	default:
-		if isWin {
-			return "powershell -NoProfile -ExecutionPolicy Bypass -Command \"irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1 | iex\""
-		}
-		return "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh | bash"
+		return resolveGitmapUpdateCommand(isWin)
 	}
+}
+
+func resolveGitmapUpdateCommand(isWin bool) string {
+	if isWin {
+		return "powershell -NoProfile -ExecutionPolicy Bypass -Command \"& { $ErrorActionPreference='SilentlyContinue'; $WarningPreference='SilentlyContinue'; $ProgressPreference='SilentlyContinue'; $prev = (gitmap version 2>$null | Out-String).Trim(); & { $env:GITMAP_UPDATING='1'; irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1 | iex } *>$null; $curr = (gitmap version 2>$null | Out-String).Trim(); if ($curr) { $msg = if ($prev -and $prev -ne $curr) { 'Upgraded: ' + $prev + ' -> ' + $curr } else { 'Version: ' + $curr }; @{ success = $true; current_version = $curr; previous_version = $prev; details = $msg } | ConvertTo-Json -Compress } else { @{ success = $false; details = 'Update failed to verify binary' } | ConvertTo-Json -Compress } }\""
+	}
+	return "sh -c 'PREV=$(gitmap version 2>/dev/null | grep -oE \"v[0-9]+\\.[0-9]+\\.[0-9]+\" | head -n1); GITMAP_UPDATING=1 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh | bash >/dev/null 2>&1; CURR=$(gitmap version 2>/dev/null | grep -oE \"v[0-9]+\\.[0-9]+\\.[0-9]+\" | head -n1); if [ -n \"$CURR\" ]; then if [ -n \"$PREV\" ] && [ \"$PREV\" != \"$CURR\" ]; then DET=\"Upgraded: $PREV -> $CURR\"; else DET=\"Version: $CURR\"; fi; printf \"{\\\"success\\\":true,\\\"current_version\\\":\\\"%s\\\",\\\"previous_version\\\":\\\"%s\\\",\\\"details\\\":\\\"%s\\\"}\" \"$CURR\" \"$PREV\" \"$DET\"; else printf \"{\\\"success\\\":false,\\\"details\\\":\\\"Update failed to verify binary\\\"}\"; fi'"
+}
+
+func resolveAgmUpdateCommand(isWin bool) string {
+	if isWin {
+		return "powershell -NoProfile -ExecutionPolicy Bypass -Command \"& { $ErrorActionPreference='SilentlyContinue'; $WarningPreference='SilentlyContinue'; $ProgressPreference='SilentlyContinue'; $prev = (agm version 2>$null | Select-Object -First 1); & { irm https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.ps1 | iex } *>$null; $curr = (agm version 2>$null | Select-Object -First 1); if ($curr) { @{ success = $true; current_version = $curr; details = ('Version: ' + $curr) } | ConvertTo-Json -Compress } else { @{ success = $false; details = 'AGM update completed' } | ConvertTo-Json -Compress } }\""
+	}
+	return "sh -c 'curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.sh | bash >/dev/null 2>&1; CURR=$(agm version 2>/dev/null | head -n1); if [ -n \"$CURR\" ]; then printf \"{\\\"success\\\":true,\\\"current_version\\\":\\\"%s\\\",\\\"details\\\":\\\"Version: %s\\\"}\" \"$CURR\" \"$CURR\"; else printf \"{\\\"success\\\":false,\\\"details\\\":\\\"AGM update completed\\\"}\"; fi'"
 }
 
 func resolveFleetShell(osType string) string {
@@ -682,7 +742,7 @@ func renderFleetUpdateSummary(results []FleetUpdateNodeResult, pkg string, exclu
 			{Title: "IP", Align: termtable.AlignLeft, MinWidth: 16},
 			{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 10},
 			{Title: "DURATION", Align: termtable.AlignRight, MinWidth: 10},
-			{Title: "TELEMETRY DETAILS", Align: termtable.AlignLeft, MinWidth: 30},
+			{Title: "DETAILS", Align: termtable.AlignLeft, MinWidth: 25},
 		},
 		Rows: buildFleetUpdateRows(results),
 	}
@@ -718,15 +778,29 @@ func buildFleetUpdateRows(results []FleetUpdateNodeResult) []termtable.Row {
 		} else if r.IsOffline {
 			statusStr = constants.ColorYellow + "OFFLINE" + constants.ColorReset
 		}
+		detail := sanitizeTableRowDetail(r.Details)
 		rows = append(rows, termtable.Row{
 			Cells: []string{
 				r.Alias,
 				r.IP,
 				statusStr,
 				fmt.Sprintf("%dms", r.DurationMs),
-				r.Details,
+				detail,
 			},
 		})
 	}
 	return rows
+}
+
+func sanitizeTableRowDetail(raw string) string {
+	clean := strings.ReplaceAll(raw, "\r", "")
+	clean = strings.ReplaceAll(clean, "\n", " ")
+	clean = strings.TrimSpace(clean)
+	if len(clean) > 50 {
+		return clean[:47] + "..."
+	}
+	if clean == "" {
+		return "OK"
+	}
+	return clean
 }

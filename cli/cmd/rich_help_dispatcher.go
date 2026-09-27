@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 )
@@ -57,6 +58,14 @@ func tryRenderToolRichTopic(topic string) bool {
 		cmdinstall.RenderInstallHelp()
 
 		return true
+	case "update", "ua", "update-all", "updateall":
+		cmdupdate.RenderUpdateRichHelp()
+
+		return true
+	case "deploy", "deploy-right", "deploy-left":
+		cmdssh.RenderDeployRichHelp()
+
+		return true
 	case "storage":
 		RenderStorageHelp()
 
@@ -80,6 +89,10 @@ func tryRenderToolRichTopic(topic string) bool {
 
 func tryRenderWorkflowRichTopic(topic string) bool {
 	switch topic {
+	case "running-prompts", "running-prompt", "backup-running-prompts", "restore-running-prompts", "rp-prompts":
+		cmdagy.RenderRunningPromptsHelp()
+
+		return true
 	case "macro":
 		cmdmacro.RenderMacroHelp()
 
