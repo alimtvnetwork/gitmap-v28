@@ -34,9 +34,9 @@ flowchart TD
 ## 2. User Request (Verbatim)
 
 ```text
-PS D:\work\gitmap> gitmap pa --ssh
+PS [workspace]> gitmap pa --ssh
 
-  → gitmap pull-all (cwd: D:\work\gitmap)
+  → gitmap pull-all (cwd: [workspace])
     → resolved 64 repo(s) to pull
 
 → remote.origin.url: git@github.com:alimtvnetwork/ai-empathy-prompt-tuner-v1 → git@github.com:alimtvnetwork/ai-empathy-prompt-tuner-v1.git

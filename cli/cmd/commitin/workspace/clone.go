@@ -94,39 +94,39 @@ func collectAsyncPoolInputs(runDir string, inputs []ResolvedInput) ([]StagedInpu
 	total := len(inputs)
 	slots := make([]StagedInputSlot, total)
 	var wg sync.WaitGroup
+	var mu sync.Mutex
 	sem := make(chan struct{}, 16)
 
 	for idx, in := range inputs {
 		wg.Add(1)
-		go probeInputSlot(runDir, in, idx, total, slots, &wg, sem)
+		go probeInputSlot(runDir, in, idx, slots, &wg, sem, &mu)
 	}
 
-	out, err := streamOrderedSlots(inputs, slots, total)
+	out, err := streamOrderedSlots(inputs, slots, total, &mu)
 	wg.Wait()
+
 	return out, err
 }
 
 func probeInputSlot(
-	runDir string,
-	in ResolvedInput,
-	idx, total int,
-	slots []StagedInputSlot,
-	wg *sync.WaitGroup,
-	sem chan struct{},
+	runDir string, in ResolvedInput, idx int,
+	slots []StagedInputSlot, wg *sync.WaitGroup,
+	sem chan struct{}, mu *sync.Mutex,
 ) {
 	defer wg.Done()
 	sem <- struct{}{}
 	defer func() { <-sem }()
-
 	staged, err := stageOneInput(runDir, in)
 	if err == nil {
-		recordFoundSlot(slots, idx, staged)
+		recordFoundSlot(mu, slots, idx, staged)
 		return
 	}
-	recordMissingSlot(slots, idx, err)
+	recordMissingSlot(mu, slots, idx, err)
 }
 
-func recordFoundSlot(slots []StagedInputSlot, idx int, staged StagedInput) {
+func recordFoundSlot(mu *sync.Mutex, slots []StagedInputSlot, idx int, staged StagedInput) {
+	mu.Lock()
+	defer mu.Unlock()
 	slots[idx] = StagedInputSlot{
 		staged:  staged,
 		isReady: true,
@@ -135,7 +135,9 @@ func recordFoundSlot(slots []StagedInputSlot, idx int, staged StagedInput) {
 	}
 }
 
-func recordMissingSlot(slots []StagedInputSlot, idx int, err error) {
+func recordMissingSlot(mu *sync.Mutex, slots []StagedInputSlot, idx int, err error) {
+	mu.Lock()
+	defer mu.Unlock()
 	slots[idx] = StagedInputSlot{
 		isReady: true,
 		isFound: false,
@@ -144,26 +146,46 @@ func recordMissingSlot(slots []StagedInputSlot, idx int, err error) {
 	}
 }
 
-func streamOrderedSlots(inputs []ResolvedInput, slots []StagedInputSlot, total int) ([]StagedInput, error) {
+func streamOrderedSlots(inputs []ResolvedInput, slots []StagedInputSlot, total int, mu *sync.Mutex) ([]StagedInput, error) {
 	out := make([]StagedInput, 0, total)
 	for cursor := 0; cursor < total; cursor++ {
-		for !slots[cursor].isReady {
-			time.Sleep(15 * time.Millisecond)
+		slot := waitForSlotReady(slots, cursor, mu)
+		staged, isKeep, err := handleProcessedSlot(inputs, cursor, slot, total)
+		if err != nil {
+			return nil, err
 		}
-		slot := slots[cursor]
-		if slot.isFound {
-			out = append(out, slot.staged)
-			continue
-		}
-		if isMissingOrUnreachableRemote(slot.err) && total > 1 {
-			fmt.Fprintf(os.Stderr, "  ⚠ Notice: remote %q not found or unreachable; skipping.\n", inputs[cursor].Original)
-			continue
-		}
-		if slot.err != nil {
-			return nil, slot.err
+		if isKeep {
+			out = append(out, staged)
 		}
 	}
+
 	return out, nil
+}
+
+func waitForSlotReady(slots []StagedInputSlot, cursor int, mu *sync.Mutex) StagedInputSlot {
+	for {
+		mu.Lock()
+		ready := slots[cursor].isReady
+		slot := slots[cursor]
+		mu.Unlock()
+		if ready {
+			return slot
+		}
+		time.Sleep(15 * time.Millisecond)
+	}
+}
+
+func handleProcessedSlot(inputs []ResolvedInput, cursor int, slot StagedInputSlot, total int) (StagedInput, bool, error) {
+	if slot.isFound {
+		return slot.staged, true, nil
+	}
+	if isMissingOrUnreachableRemote(slot.err) && total > 1 {
+		fmt.Fprintf(os.Stderr, "  ⚠ Notice: remote %q not found or unreachable; skipping.\n", inputs[cursor].Original)
+
+		return StagedInput{}, false, nil
+	}
+
+	return StagedInput{}, false, slot.err
 }
 
 func tryStageInput(runDir string, in ResolvedInput, total int) (StagedInput, bool, error) {
