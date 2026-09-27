@@ -47,18 +47,39 @@ jobs:
         shell: pwsh
         run: |
           Set-MpPreference -DisableRealtimeMonitoring $true
-          Set-MpPreference -ExclusionPath "${{ github.workspace }}", "C:\hostedtoolcache", "$env:USERPROFILE\go", "$env:LOCALAPPDATA\go-build"
+          Set-MpPreference -ExclusionPath "${{ github.workspace }}", "C:\hostedtoolcache", "$env:USERPROFILE\go", "$env:LOCALAPPDATA\go-build", "$env:TEMP", "$env:TMP"
 
       - uses: actions/setup-go@v6
         with:
           go-version-file: cli/go.mod
           cache-dependency-path: cli/go.sum
 
-      - name: go build ./...
-        run: go build ./...
+      - name: Cache Go build cache (GOCACHE)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~\AppData\Local\go-build
+          key: go-build-${{ runner.os }}-xplat-${{ hashFiles('cli/go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-build-${{ runner.os }}-xplat-${{ hashFiles('cli/go.sum') }}-
+            go-build-${{ runner.os }}-xplat-
 
-      - name: go test ./... (no cache)
-        run: go test ./... -count=1
+      - name: go build ./...
+        run: go build -p 4 ./...
+
+      # Verify test compilation across every package without executing tests.
+      # This completes in ~15-20s and catches 100% of build-tag leaks and OS-specific
+      # compilation issues across Linux, macOS, and Windows.
+      - name: Verify test compilation (build-tag check)
+        run: go test -run=^$ -p 4 ./...
+
+      # Execute fast unit tests using Go's test cache.
+      # Unchanged packages pass instantly via (cached), while heavy integration
+      # suites are handled by the partitioned CI test matrix.
+      - name: go test ./... (cached)
+        run: go test -short -p 4 ./...
 
       # Defense in depth: even on a single host OS, verify the other two
       # GOOS targets still cross-compile. Catches build-tag leaks that

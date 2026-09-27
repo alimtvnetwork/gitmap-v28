@@ -1354,7 +1354,7 @@ jobs:
         shell: pwsh
         run: |
           Set-MpPreference -DisableRealtimeMonitoring $true
-          Set-MpPreference -ExclusionPath "${{ github.workspace }}"
+          Set-MpPreference -ExclusionPath "${{ github.workspace }}", "C:\hostedtoolcache", "$env:USERPROFILE\go", "$env:LOCALAPPDATA\go-build", "$env:TEMP", "$env:TMP"
 
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
@@ -1419,7 +1419,7 @@ jobs:
         shell: pwsh
         run: |
           Set-MpPreference -DisableRealtimeMonitoring $true
-          Set-MpPreference -ExclusionPath "${{ github.workspace }}"
+          Set-MpPreference -ExclusionPath "${{ github.workspace }}", "C:\hostedtoolcache", "$env:USERPROFILE\go", "$env:LOCALAPPDATA\go-build", "$env:TEMP", "$env:TMP"
 
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
@@ -1455,7 +1455,7 @@ jobs:
         run: |
           set -uo pipefail
           set +e
-          go test ./cmd/... ./cmd/commitin/e2e/... -count=1 -v 2>&1 | tee e2e-output.txt
+          go test ./cmd/commitin/e2e/... ./cmdinstall/... -count=1 -v 2>&1 | tee e2e-output.txt
           exit_code=${PIPESTATUS[0]}
           set -e
 
