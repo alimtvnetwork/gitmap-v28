@@ -35,7 +35,13 @@ The command:
 
 ## Arguments
 
-- `[target]`: Node alias (e.g. `w1`, `w2`, `w3`), IP address (`192.168.1.3`), or `all` to broadcast to the entire online fleet. Defaults to `all`.
+- `[target]`: Flexible node target supporting:
+  - `<alias>`: Node alias (e.g. `w1`, `w2`, `w3`, `alpha-win`)
+  - `<ip>`: Node IP address (e.g. `192.168.1.3`, `10.20.0.11`)
+  - `<seq>`: Sequence index from `gitmap ssh ls` (e.g. `1`, `2`, `4`)
+  - `<id>`: Database host ID (e.g. `host-1`, `h-node-2`)
+  - `<t1,t2,...>`: Comma-separated target list (e.g. `w1,w2` or `1,2`)
+  - `all`: Broadcast to all registered online fleet nodes (default if omitted)
 
 ## Options
 
@@ -47,15 +53,32 @@ The command:
 ## Examples
 
 ```bash
-# Deploy latest binary to node w1
-gitmap ssh deploy-bin w1
+# Deploy by alias to node w1
+gitmap deploy-bin w1
+
+# Deploy by IP address to 192.168.1.3
+gitmap deploy-bin 192.168.1.3
+
+# Deploy by sequence number (1st node in 'gitmap ssh ls')
+gitmap deploy-bin 1
+
+# Deploy by sequence number (4th node in 'gitmap ssh ls')
+gitmap deploy-bin 4
+
+# Deploy by database host ID
+gitmap deploy-bin host-1
+
+# Deploy to multiple simple items
+gitmap deploy-bin w1,w2
+gitmap deploy-bin 1,2
 
 # Deploy to all online fleet machines concurrently
-gitmap ssh deploy-bin all
+gitmap deploy-bin all
 
 # Deploy a specific build artifact to node w3
-gitmap ssh deploy-bin w3 --file ./cli/gitmap.exe
+gitmap deploy-bin w3 --file ./cli/gitmap.exe
 
 # Preview fleet deployment
-gitmap ssh deploy-bin --dry-run
+gitmap deploy-bin --dry-run
+gitmap deploy-bin 1 --dry-run
 ```

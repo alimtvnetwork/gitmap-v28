@@ -3,10 +3,12 @@ package cmdssh
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -68,7 +70,7 @@ func parseDeployBinFlags(args []string) deployBinOptions {
 	}
 
 	if len(positional) > 0 {
-		opts.target = positional[0]
+		opts.target = strings.Join(positional, ",")
 	}
 
 	return opts
@@ -118,42 +120,120 @@ func appendExecutableCandidate(candidates []string) []string {
 	return append(candidates, exe)
 }
 
-func loadAllSSHConnections() ([]db.SSHConnection, error) {
+func loadFleetInventory() ([]db.SSHConnection, []store.SSHHost, error) {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "open connection database")
+		return nil, nil, apperror.WrapSimple(err, "open connection database")
 	}
 	defer dbConn.Close()
 
-	res := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
+	ctx, sqlDB := dbConn.Context(), dbConn.SQL()
+	res := db.GetSSHConnections(ctx, sqlDB)
 	if res.IsFailure() {
-		return nil, apperror.NewExecutionError(fmt.Sprintf("load ssh nodes: %v", res.Err))
+		return nil, nil, apperror.NewExecutionError(fmt.Sprintf("load ssh nodes: %v", res.Err))
 	}
 
-	return res.Data, nil
+	hosts, _ := store.ListHosts(ctx, sqlDB)
+	return res.Data, hosts, nil
+}
+
+func findConnByAliasOrIP(conns []db.SSHConnection, alias, ip string) (db.SSHConnection, bool) {
+	for _, c := range conns {
+		if strings.EqualFold(c.Alias, alias) || (ip != "" && strings.EqualFold(c.IPAddress, ip)) {
+			return c, true
+		}
+	}
+	return db.SSHConnection{}, false
+}
+
+func matchConnectionBySeq(conns []db.SSHConnection, hosts []store.SSHHost, token string) (db.SSHConnection, bool) {
+	clean := strings.TrimPrefix(strings.TrimPrefix(strings.TrimPrefix(token, "seq="), "seq:"), "#")
+	idx, err := strconv.Atoi(clean)
+	if err != nil || idx < 1 {
+		return db.SSHConnection{}, false
+	}
+	if len(hosts) > 0 && idx <= len(hosts) {
+		h := hosts[idx-1]
+		return findConnByAliasOrIP(conns, h.Alias, h.IP)
+	}
+	if idx <= len(conns) {
+		return conns[idx-1], true
+	}
+	return db.SSHConnection{}, false
+}
+
+func matchConnectionByID(conns []db.SSHConnection, hosts []store.SSHHost, token string) (db.SSHConnection, bool) {
+	for _, h := range hosts {
+		if strings.EqualFold(h.ID, token) {
+			return findConnByAliasOrIP(conns, h.Alias, h.IP)
+		}
+	}
+	return db.SSHConnection{}, false
+}
+
+func matchConnectionByAliasOrIP(conns []db.SSHConnection, token string) (db.SSHConnection, bool) {
+	cleanIP := strings.Split(token, ":")[0]
+	for _, c := range conns {
+		if strings.EqualFold(c.Alias, token) || strings.EqualFold(c.IPAddress, token) || strings.EqualFold(c.IPAddress, cleanIP) {
+			return c, true
+		}
+	}
+	return db.SSHConnection{}, false
+}
+
+func resolveTargetToken(conns []db.SSHConnection, hosts []store.SSHHost, token string) (db.SSHConnection, bool) {
+	if conn, isMatch := matchConnectionByAliasOrIP(conns, token); isMatch {
+		return conn, true
+	}
+	if conn, isSeq := matchConnectionBySeq(conns, hosts, token); isSeq {
+		return conn, true
+	}
+	return matchConnectionByID(conns, hosts, token)
+}
+
+func splitTargetTokens(target string) []string {
+	parts := strings.Split(target, ",")
+	var tokens []string
+	for _, p := range parts {
+		trimmed := strings.TrimSpace(p)
+		if trimmed != "" {
+			tokens = append(tokens, trimmed)
+		}
+	}
+	return tokens
+}
+
+func isDeployAllTarget(target string) bool {
+	low := strings.ToLower(strings.TrimSpace(target))
+	return low == "" || low == "all" || low == "--all" || low == "all-nodes"
 }
 
 func resolveDeployNodes(target string) ([]db.SSHConnection, error) {
-	connections, err := loadAllSSHConnections()
+	conns, hosts, err := loadFleetInventory()
 	if err != nil {
 		return nil, err
 	}
-
-	if target == "" || target == "all" || target == "--all" {
-		return connections, nil
+	if isDeployAllTarget(target) {
+		return conns, nil
 	}
+	return filterDeployTargets(conns, hosts, target)
+}
 
+func filterDeployTargets(conns []db.SSHConnection, hosts []store.SSHHost, target string) ([]db.SSHConnection, error) {
+	tokens := splitTargetTokens(target)
 	var matched []db.SSHConnection
-	for _, c := range connections {
-		if strings.EqualFold(c.Alias, target) || strings.EqualFold(c.IPAddress, target) {
-			matched = append(matched, c)
+	seen := make(map[string]bool)
+
+	for _, tok := range tokens {
+		conn, isFound := resolveTargetToken(conns, hosts, tok)
+		if isFound && !seen[conn.Alias] {
+			seen[conn.Alias] = true
+			matched = append(matched, conn)
 		}
 	}
-
 	if len(matched) == 0 {
-		return nil, apperror.NewNotFound("target_node", "E404", fmt.Sprintf("target node %q not found in fleet", target))
+		return nil, apperror.NewNotFound("target_node", "E404", fmt.Sprintf("target %q not found in fleet (use: alias, ip, seq 1..%d, or id)", target, len(conns)))
 	}
-
 	return matched, nil
 }
 
@@ -190,21 +270,20 @@ func printDeployStartHeader(nodes []db.SSHConnection, binPath string, binSize in
 func deploySingleNode(node db.SSHConnection, binPath string, binSize int64, opts deployBinOptions) bool {
 	destPath := resolveBinaryInstallPath(node)
 	fmt.Printf("  ▸ [%s|%s] %s -> %s\n", node.Alias, node.IPAddress, filepath.Base(binPath), destPath)
-
 	if opts.isDryRun {
 		fmt.Printf("    %s[dry-run] Skipped transfer%s\n", constants.ColorDim, constants.ColorReset)
-
 		return true
 	}
-
+	if isOnline, reason := CheckConnLiveness(context.Background(), node.IPAddress, 22, 1*time.Second); !isOnline {
+		fmt.Printf("    %s✖ Node offline (%s)%s\n", constants.ColorYellow, reason, constants.ColorReset)
+		return false
+	}
 	client, isConnected := connectSSHClient(node)
 	if !isConnected {
 		fmt.Printf("    %s✖ Failed to connect via SSH%s\n", constants.ColorRed, constants.ColorReset)
-
 		return false
 	}
 	defer client.Close()
-
 	return streamAndVerify(client, node, binPath, destPath)
 }
 
@@ -224,11 +303,40 @@ func resolveNodeUser(node db.SSHConnection) string {
 	return "Administrator"
 }
 
+func isProcessChangeRequiredError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "used by another process") ||
+		strings.Contains(msg, "sharing violation") ||
+		strings.Contains(msg, "text file busy") ||
+		strings.Contains(msg, "process cannot access") ||
+		strings.Contains(msg, "access is denied") ||
+		strings.Contains(msg, "process change")
+}
+
+func printProcessChangeException(alias string) {
+	fmt.Printf("    %s✖ [E_PROCESS_CHANGE_REQUIRED] Cannot deploy gitmap directly with active process on %s%s\n",
+		constants.ColorRed, alias, constants.ColorReset)
+	fmt.Printf("      %sIn-place binary replacement is blocked because gitmap is actively running.%s\n",
+		constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("      %sProcess change required: Clone to stage binary -> delegate call to cloned exe -> replace target.%s\n",
+		constants.ColorDim, constants.ColorReset)
+}
+
+func handleUploadFailure(err error, alias string) {
+	if isProcessChangeRequiredError(err) {
+		printProcessChangeException(alias)
+		return
+	}
+	fmt.Printf("    %s✖ Upload error: %v%s\n", constants.ColorRed, err, constants.ColorReset)
+}
+
 func streamAndVerify(client *ssh.Client, node db.SSHConnection, binPath, destPath string) bool {
 	t0 := time.Now()
 	if err := streamBinaryToRemote(client, destPath, binPath, isWindowsOS(node.OS)); err != nil {
-		fmt.Printf("    %s✖ Upload error: %v%s\n", constants.ColorRed, err, constants.ColorReset)
-
+		handleUploadFailure(err, node.Alias)
 		return false
 	}
 
@@ -280,13 +388,13 @@ func streamBinaryToRemote(client *ssh.Client, destPath, localPath string, isWin 
 func buildStreamReceiverCmd(destPath string, isWin bool) string {
 	if isWin {
 		return fmt.Sprintf(
-			`powershell -NoProfile -Command "$dest = '%s'; $tmp = $dest + '.' + [System.IO.Path]::GetRandomFileName() + '.tmp'; $dir = [System.IO.Path]::GetDirectoryName($dest); if ($dir -and !(Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }; $in = [System.Console]::OpenStandardInput(); $out = [System.IO.File]::OpenWrite($tmp); $in.CopyTo($out); $out.Close(); Move-Item -Path $tmp -Destination $dest -Force"`,
+			`powershell -NoProfile -Command "$dest = '%s'; $cloned = $dest + '-cloned.exe'; $dir = [System.IO.Path]::GetDirectoryName($dest); if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }; $in = [System.Console]::OpenStandardInput(); $out = [System.IO.File]::OpenWrite($cloned); $in.CopyTo($out); $out.Close(); Stop-Process -Name gitmap -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 200; if (Test-Path $dest) { $old = $dest + '.old'; Remove-Item $old -Force -ErrorAction SilentlyContinue; Move-Item -Path $dest -Destination $old -Force -ErrorAction SilentlyContinue }; Move-Item -Path $cloned -Destination $dest -Force"`,
 			destPath,
 		)
 	}
 
 	return fmt.Sprintf(
-		`sh -c "mkdir -p '$(dirname '%s')' && cat > '%s.tmp' && chmod +x '%s.tmp' && mv -f '%s.tmp' '%s'"`,
-		destPath, destPath, destPath, destPath, destPath,
+		`sh -c "dir=$(dirname '%s'); mkdir -p \"$dir\"; cloned='%s-cloned'; cat > \"$cloned\"; chmod +x \"$cloned\"; pkill -f gitmap 2>/dev/null || true; mv -f \"$cloned\" '%s'"`,
+		destPath, destPath, destPath,
 	)
 }
