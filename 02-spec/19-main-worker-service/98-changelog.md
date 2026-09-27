@@ -1,3 +1,9 @@
+## v6.346.1 — 2026-09-27 (Release v6.346.1)
+
+**Scope:** Version bump. Release v6.346.1.
+
+---
+
 ## v6.346.0 — 2026-09-27 (Antigravity running prompts backup restore, running projects, fpug, sug, and pe cache)
 
 **Scope:** Version bump. Antigravity running prompts backup restore, running projects, fpug, sug, and pe cache.
