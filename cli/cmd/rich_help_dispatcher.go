@@ -92,6 +92,10 @@ func tryRenderWorkflowRichTopic(topic string) bool {
 		cmdpipeline.RenderPipelineHelp()
 
 		return true
+	case "rerun", "rr", "rra", "rrq", "rerun-restart", "rerun-all", "rerun-queue":
+		cmdagy.RenderAgyRerunHelp()
+
+		return true
 	case "agy", "antigravity":
 		cmdagy.RenderAgyHelp()
 

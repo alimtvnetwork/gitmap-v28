@@ -78,7 +78,7 @@ func allHelpRows() []helpRow {
 	addGroup(&rows, constants.HelpGroupInstallers,
 		constants.HelpInstall, constants.HelpUninstall, constants.HelpInstaller, constants.HelpMacro, constants.HelpSetup)
 	addGroup(&rows, constants.HelpGroupIntegrations,
-		constants.HelpVSCode, constants.HelpAgy, constants.HelpSchedule,
+		constants.HelpVSCode, constants.HelpAgy, constants.HelpRerun, constants.HelpSchedule,
 		constants.HelpStartup, constants.HelpStorage, constants.HelpPipeline, constants.HelpUI, constants.HelpVmware)
 	addGroup(&rows, constants.HelpGroupCluster,
 		constants.HelpServersClients, constants.HelpClients, constants.HelpCluster, constants.HelpSSHJoin, constants.HelpServe)

@@ -12,10 +12,10 @@ import (
 
 var agyRerunHelpCmd = &cobra.Command{
 	Use:     "help",
-	Aliases: []string{"man", "info"},
+	Aliases: []string{"man", "info", "usage"},
 	Short:   "Show comprehensive help for rerun command",
 	Run: func(cmd *cobra.Command, args []string) {
-		renderAgyRerunHelp()
+		RenderAgyRerunHelp()
 	},
 }
 
@@ -36,16 +36,23 @@ func isRerunHelpToken(tok string) bool {
 		clean == "-h" ||
 		clean == "--help" ||
 		clean == "-help" ||
+		clean == "--h" ||
 		clean == "/?" ||
 		clean == "-?" ||
 		clean == "--?" ||
+		clean == "?" ||
 		clean == "/h" ||
 		clean == "/help" ||
 		clean == "man" ||
-		clean == "info"
+		clean == "info" ||
+		clean == "usage" ||
+		clean == "-usage" ||
+		clean == "--usage" ||
+		clean == "/usage"
 }
 
-func renderAgyRerunHelp() {
+// RenderAgyRerunHelp prints the rich interactive Antigravity rerun guide.
+func RenderAgyRerunHelp() {
 	renderRerunHelpHeader()
 	renderRerunHelpCommands()
 	renderRerunHelpFlagsPrimary()
@@ -67,6 +74,7 @@ func renderRerunHelpCommands() {
 	fmt.Printf("    • %sgitmap rerun%s (or %srr%s)             Replay prompt into current workspace\n", constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    • %sgitmap rerun 1%s (or %srr 1%s)         Replay prompt into project sequence #1\n", constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    • %sgitmap rerun all%s (or %srra%s)        Replay active prompts across all running projects\n", constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    • %sgitmap rerun queue%s (or %srrq%s)      Re-inject queued prompts with completion prefix\n", constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    • %sgitmap rerun help%s                    Show this comprehensive help guide\n\n", constants.ColorCyan, constants.ColorReset)
 }
 

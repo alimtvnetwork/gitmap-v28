@@ -426,6 +426,8 @@ func normalizeHelpTopic(topic string) string {
 		return constants.CmdCluster
 	case constants.CmdPowerAlias, constants.CmdPowerAlias2:
 		return constants.CmdPower
+	case "rr", "rra", "rrq", "rerun-restart", "rerun-all", "rerun-queue":
+		return "rerun"
 	}
 
 	return topic

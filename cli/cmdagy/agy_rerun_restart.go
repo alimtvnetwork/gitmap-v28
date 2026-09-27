@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -35,15 +36,24 @@ func RestartAndRerunProject(target string, isRestart, isDryRun bool, templateID 
 func RerunProject(target string, isRestart, isNewConv, isDryRun bool, templateID, model string) error {
 	projects, err := loadSortedProjects()
 	if err != nil {
+		store.RecordAgyDecision("rerun", target, "", "", "load projects: "+err.Error(), "error")
 		return err
 	}
 
 	plan, planErr := buildRerunRestartPlan(projects, target, templateID)
 	if planErr != nil {
+		store.RecordAgyDecision("rerun", target, "", "", "build plan: "+planErr.Error(), "error")
 		return planErr
 	}
 
 	renderRerunPlanHeader(plan, isRestart)
+	status := "success"
+	if isDryRun {
+		status = "dry-run"
+	}
+	reason := fmt.Sprintf("target #%d %s (conv: %s, prompt: %d chars)", plan.SequenceNumber, plan.Project.Name, plan.ConvID, len(plan.PromptText))
+	store.RecordAgyDecision("rerun", plan.Project.Name, plan.WorkspacePath, plan.ConvID, reason, status)
+
 	if isDryRun {
 		fmt.Println("  • [dry-run] Preview complete. Skipping IDE restart and prompt injection.")
 		return nil

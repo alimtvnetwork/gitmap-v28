@@ -724,6 +724,24 @@ func dispatchPromptSubsystem(
 		}, shouldAudit, auditID, auditStart)
 
 		return true
+	case "rra", "rerun-all":
+		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
+			return cmdagy.RunRerunTopLevelCLI(append([]string{"all"}, args[1:]...))
+		}, shouldAudit, auditID, auditStart)
+
+		return true
+	case "rrq", "rerun-queue":
+		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
+			return cmdagy.RunRerunTopLevelCLI(append([]string{"queue"}, args[1:]...))
+		}, shouldAudit, auditID, auditStart)
+
+		return true
+	case "rerun-restart":
+		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
+			return cmdagy.RunRerunTopLevelCLI(append([]string{"--restart"}, args[1:]...))
+		}, shouldAudit, auditID, auditStart)
+
+		return true
 	case "list-prompts", "listprompts", "lp":
 		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
 			return cmdagy.RunListPromptsTopLevelCLI(args[1:])

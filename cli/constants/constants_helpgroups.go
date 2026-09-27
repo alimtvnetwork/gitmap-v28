@@ -93,7 +93,7 @@ const (
 	CompactPR           = "  pr (pull-request), pr-in, pr-clean (pr-rm), pr-list"
 	CompactCluster      = "  servers-clients (sc), clients, cluster, ssh-join (sj)"
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
-	CompactIntegrations = "  vscode (vsc), antigravity (agy/ag), schedule (sc/cron), startup (su), storage (stor), pipeline (pl/eta), ui, vmware (vm)"
+	CompactIntegrations = "  vscode (vsc), antigravity (agy/ag), rerun (rr/rra/rrq), schedule (sc/cron), startup (su), storage (stor), pipeline (pl/eta), ui, vmware (vm)"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
 	HelpInstaller     = "  installer <sub>             Manage developer tool installer scripts and history"
@@ -101,6 +101,7 @@ const (
 	HelpSchedule      = "  schedule (sc) <sub>         Schedule background tasks, recurring jobs & triggers"
 	HelpVSCode        = "  vscode (vsc) <sub>          Manage VS Code Project Manager workspaces & repos"
 	HelpAgy           = "  antigravity (agy, ag) <sub>  Manage Antigravity workspaces, prompts, and sync"
+	HelpRerun         = "  rerun (rr, rra, rrq) [seq]  Replay active prompts with IDE restart, attachments & queue check"
 	HelpPipeline      = "  pipeline (pl, eta) <sub>    Monitor CI/CD workflows, ETA, and error logs"
 	HelpUI            = "  ui <sub>                    Open interactive web settings and dashboard in browser"
 	HelpChrome        = "  chrome (cprof) <sub>        Manage Chrome installation, profiles, backup & sync (use --help to expand)"

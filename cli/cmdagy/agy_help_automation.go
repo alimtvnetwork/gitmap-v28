@@ -11,7 +11,7 @@ func buildAutomationSection() termhelp.HelpSection {
 
 func buildAutomationEntries() []termhelp.CommandEntry {
 	return []termhelp.CommandEntry{
-		{Command: "rerun [1|2|3|4|all|queue]", Description: "Restart IDE & replay active prompt + images + 5 queued items with completion prefix"},
+		{Command: "rerun (rr, rra, rrq) [1..4|all|queue]", Description: "Restart IDE & replay prompt + media + queued checks (see: rerun help)"},
 		{Command: "ssh <cmd> [--except id,ip,alias]", Description: "Execute any AGY command across remote SSH fleet nodes in parallel"},
 		{Command: "rop [N]", Description: "Re-read, optimize, and repair N Antigravity projects with temp backup"},
 		{Command: "prompt-project (p)", Description: "Target project by prefix with -name, -txt, --pf/--sf (prefix + 2 newlines)"},

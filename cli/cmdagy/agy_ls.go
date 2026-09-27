@@ -2,10 +2,13 @@ package cmdagy
 
 import (
 	"encoding/json"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/spf13/cobra"
+	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -13,6 +16,7 @@ var (
 	agyLsOnlyActive  bool
 	agyLsOnlyPinned  bool
 	agyLsJSON        bool
+	agyLsSSH         bool
 	agyLsSortBy      string
 	agyLsFilter      string
 	agyLsFile        string
@@ -22,7 +26,7 @@ var agyLsCmd = &cobra.Command{
 	Use:   "ls [N]",
 	Short: "List projects in a status table",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		n := 8
+		n := 0
 		n = parseArgCount(args, n)
 		return runAgyLs(n)
 	},
@@ -33,6 +37,7 @@ func init() {
 	agyLsCmd.Flags().BoolVarP(&agyLsOnlyActive, "active", "a", false, "Show only active projects")
 	agyLsCmd.Flags().BoolVarP(&agyLsOnlyPinned, "pinned", "p", false, "Show only pinned projects")
 	agyLsCmd.Flags().BoolVar(&agyLsJSON, "json", false, "Output results as JSON")
+	agyLsCmd.Flags().BoolVar(&agyLsSSH, "ssh", false, "Aggregate projects across remote SSH cluster nodes")
 	agyLsCmd.Flags().StringVarP(&agyLsSortBy, "sort", "s", "name", "Sort by 'name' or 'time'")
 	agyLsCmd.Flags().StringVarP(&agyLsFilter, "filter", "", "", "Filter projects by name or path")
 	agyLsCmd.Flags().StringVarP(&agyLsFile, "file", "f", "", "Export JSON to file")
@@ -48,17 +53,42 @@ func runAgyLs(n int) error {
 }
 
 func processAgyLsProjects(dirPath string, n int) error {
-	projects, loadErr := loadAllAgyProjects(dirPath)
+	projects, loadErr := DiscoverUnifiedAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
+	if agyLsSSH {
+		remote := FetchClusterSSHProjects()
+		projects = mergeRemoteProjects(projects, remote)
+	}
 
 	filtered := filterAndSortAgyProjects(projects)
-	if len(filtered) > n {
+	if n > 0 && len(filtered) > n {
 		filtered = filtered[:n]
 	}
 
+	store.RecordAgyDecision("ls", fmt.Sprintf("%d projects", len(filtered)), dirPath, "", "listed projects across discovery sources", "success")
 	return renderAgyLsResult(filtered, dirPath)
+}
+
+func mergeRemoteProjects(local, remote []AgyProject) []AgyProject {
+	seen := make(map[string]bool)
+	var merged []AgyProject
+	for _, p := range local {
+		ws := cleanProjectWorkspace(p.GetPath())
+		if ws != "" {
+			seen[ws] = true
+		}
+		merged = append(merged, p)
+	}
+	for _, p := range remote {
+		ws := cleanProjectWorkspace(p.GetPath())
+		if ws != "" && !seen[ws] {
+			seen[ws] = true
+			merged = append(merged, p)
+		}
+	}
+	return merged
 }
 
 func filterAndSortAgyProjects(projects []AgyProject) []AgyProject {

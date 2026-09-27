@@ -9,17 +9,19 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 type projectSortEntry struct {
-	project     AgyProject
-	isCwdMatch  bool
-	isRunning   bool
-	lastActTime string
-	pinnedRank  int
+	project         AgyProject
+	isCwdMatch      bool
+	isRunning       bool
+	hasActivePrompt bool
+	lastActTime     string
+	pinnedRank      int
 }
 
 func loadActiveSortedProjects() ([]AgyProject, error) {
@@ -28,9 +30,9 @@ func loadActiveSortedProjects() ([]AgyProject, error) {
 		return nil, apperror.WrapSimple(err, "projects dir")
 	}
 
-	allProjects, loadErr := loadAllAgyProjects(dirPath)
+	allProjects, loadErr := DiscoverUnifiedAgyProjects(dirPath)
 	if loadErr != nil || len(allProjects) == 0 {
-		return nil, apperror.NewSimple("no Antigravity projects configured in ~/.gemini/config/projects", "E9030")
+		return nil, apperror.NewSimple("no Antigravity projects configured", "E9030")
 	}
 
 	validProjects := filterExistingProjects(allProjects)
@@ -68,12 +70,18 @@ func sortProjectsByActivityAndPins(projects []AgyProject) {
 		pRank := resolveProjectPinnedRank(p, pinnedMap)
 		isCwd := isCwdMatchingProject(p, cleanCwd, cleanRealCwd)
 		isRunning := resolveProjectIsRunning(p, runningMap)
+		_, _, hasActivePrompt := checkActivePromptFile(p.GetPath())
+		if hasActivePrompt {
+			isRunning = true
+			actTime = resolvePromptActiveTime(p.GetPath(), actTime)
+		}
 		entries[i] = projectSortEntry{
-			project:     p,
-			isCwdMatch:  isCwd,
-			isRunning:   isRunning,
-			lastActTime: actTime,
-			pinnedRank:  pRank,
+			project:         p,
+			isCwdMatch:      isCwd,
+			isRunning:       isRunning,
+			hasActivePrompt: hasActivePrompt,
+			lastActTime:     actTime,
+			pinnedRank:      pRank,
 		}
 	}
 
@@ -84,6 +92,36 @@ func sortProjectsByActivityAndPins(projects []AgyProject) {
 	for i := range entries {
 		projects[i] = entries[i].project
 	}
+}
+
+func resolvePromptActiveTime(ws, currentAct string) string {
+	promptModTime := resolvePromptFileModTime(ws)
+	if promptModTime > currentAct {
+		return promptModTime
+	}
+	return currentAct
+}
+
+func resolvePromptFileModTime(ws string) string {
+	paths := []string{
+		filepath.Join(ws, ".ai-memory", "temp", "active-agy-pipeline-fix-prompt.txt"),
+		filepath.Join(ws, "active-agy-pipeline-fix-prompt.txt"),
+		filepath.Join(ws, "agy-prompt-queue.json"),
+	}
+	var latest time.Time
+	for _, p := range paths {
+		fi, err := os.Stat(p)
+		if err != nil {
+			continue
+		}
+		if fi.ModTime().After(latest) {
+			latest = fi.ModTime()
+		}
+	}
+	if !latest.IsZero() {
+		return latest.UTC().Format(time.RFC3339)
+	}
+	return ""
 }
 
 func resolveCurrentCleanCwds() (string, string) {
@@ -115,8 +153,8 @@ func resolveProjectIsRunning(p AgyProject, runningMap map[string]bool) bool {
 }
 
 func compareProjectEntries(a, b projectSortEntry) bool {
-	if a.isCwdMatch != b.isCwdMatch {
-		return a.isCwdMatch
+	if a.hasActivePrompt != b.hasActivePrompt {
+		return a.hasActivePrompt
 	}
 
 	if a.isRunning != b.isRunning {
@@ -125,6 +163,10 @@ func compareProjectEntries(a, b projectSortEntry) bool {
 
 	if a.lastActTime != b.lastActTime {
 		return a.lastActTime > b.lastActTime
+	}
+
+	if a.isCwdMatch != b.isCwdMatch {
+		return a.isCwdMatch
 	}
 
 	if a.pinnedRank != b.pinnedRank {
@@ -139,16 +181,22 @@ func compareProjectEntries(a, b projectSortEntry) bool {
 }
 
 func resolveProjectActTime(p AgyProject, actMap map[string]string) string {
+	var maxTime string
 	if actTime, ok := actMap[p.ID]; ok && actTime != "" {
-		return actTime
+		maxTime = actTime
 	}
-
 	cleanWs := cleanProjectWorkspace(p.GetPath())
-	if actTime, ok := actMap[cleanWs]; ok && actTime != "" {
-		return actTime
+	if actTime, ok := actMap[cleanWs]; ok && actTime > maxTime {
+		maxTime = actTime
 	}
-
-	return p.UpdatedAt
+	nameLower := strings.ToLower(p.Name)
+	if actTime, ok := actMap[nameLower]; ok && actTime > maxTime {
+		maxTime = actTime
+	}
+	if p.UpdatedAt > maxTime {
+		maxTime = p.UpdatedAt
+	}
+	return maxTime
 }
 
 func resolveProjectPinnedRank(p AgyProject, pinMap map[string]int) int {
@@ -525,19 +573,7 @@ func matchFuzzyTarget(projects []AgyProject, target string) (AgyProject, error) 
 }
 
 func isHelpKeyword(target string) bool {
-	low := strings.ToLower(strings.TrimSpace(target))
-
-	return low == "help" ||
-		low == "info" ||
-		low == "man" ||
-		low == "-h" ||
-		low == "--help" ||
-		low == "-help" ||
-		low == "/?" ||
-		low == "-?" ||
-		low == "--?" ||
-		low == "/h" ||
-		low == "/help"
+	return isRerunHelpToken(target)
 }
 
 func isProjectTargetMatch(p AgyProject, cleanTarget string) bool {

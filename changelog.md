@@ -3143,6 +3143,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.353.0] - 2026-09-27
+
+### Added
+- AGY Decision Log Split-DB, Multi-Source Project Discovery, and Active Rerun Recency
+
+---
+
 ## [v6.352.0] - 2026-09-27
 
 ### Added

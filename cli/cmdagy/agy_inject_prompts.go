@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/spf13/cobra"
 )
 
@@ -56,6 +57,7 @@ func init() {
 func runAgyInjectPrompts(target string) *apperror.AppError {
 	cwd, _ := os.Getwd()
 	prefixText, suffixText := resolveAppliedTemplates(injectPromptsPrefix, injectPromptsSuffix, isInjectPromptsUIUX)
+	store.RecordAgyDecision("inject", target, cwd, "", "inject prompts initiated", "success")
 
 	fi, err := os.Stat(target)
 	if err == nil && fi.IsDir() {

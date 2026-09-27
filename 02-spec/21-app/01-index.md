@@ -81,6 +81,8 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 161: Antigravity Rerun Active Project Resolution, Non-Destructive Replay, and Conversation Commands](./161-agy-rerun-active-project-non-destructive-and-conversation-commands.md)
 - [Spec 167: Antigravity Running Prompts Backup/Restore, Multi-Node SSH Delegation, PE Cache & Green Pipeline Automation](./167-agy-running-prompts-backup-restore-and-green-automation/01-overview.md)
 - [Spec 168: Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap](./168-commit-pull-array-async-pool-ui-and-bootstrap.md)
+- [Spec 173: SSH Fleet Liveness, Error Remediation, and Rerun Help](./173-ssh-fleet-liveness-error-remediation-and-rerun-help.md)
+- [Spec 174: Antigravity Decision Log DB, Comprehensive Project Discovery, and Active Rerun Recency](./174-agy-decision-log-db-project-discovery-and-recent-rerun.md)
 
 ---
 

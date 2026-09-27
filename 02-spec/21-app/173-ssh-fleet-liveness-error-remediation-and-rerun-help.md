@@ -11,7 +11,7 @@
 is it done with release ca n you please check the e2e and gitmap pe for the release?
 
 
-PS D:\work\gitmap> gitmap pa --ssh
+PS [REPO_ROOT]> gitmap pa --ssh
 
   Enqueuing 'pull-all' across SSH fleet:
     • Remote Node [alpha-win] (10.20.0.11): Enqueued (async)

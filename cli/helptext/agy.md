@@ -40,6 +40,7 @@ gitmap antigravity <subcommand> [flags]
 | `pin-projects` | Manage pinned Antigravity projects |
 | `plugins` | Inspect and configure Antigravity plugins |
 | `reconcile` | Reconcile disk repositories with registered projects |
+| `log` | Inspect Antigravity decision audit logs and operational traces (alias: `logs`) |
 | `help` | Show this Antigravity command suite documentation |
 
 ---

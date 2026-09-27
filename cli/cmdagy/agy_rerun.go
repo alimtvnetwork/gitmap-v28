@@ -25,16 +25,44 @@ var (
 
 var agyRerunCmd = &cobra.Command{
 	Use:     "rerun [1|2|3|4|all|queue|project] [flags]",
-	Aliases: []string{"rr", "rra", "rrq"},
+	Aliases: []string{"rr", "rra", "rrq", "rerun-restart", "rerun-all", "rerun-queue"},
 	Short:   "Rerun active prompt(s) with IDE restart, image re-injection, and queued prefix check",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		appErr := runAgyRerun(args)
+		effectiveArgs := args
+		if cmd != nil {
+			effectiveArgs = resolveEffectiveRerunArgs(cmd, args)
+		}
+		appErr := runAgyRerun(effectiveArgs)
 		if appErr != nil {
 			return appErr
 		}
 
 		return nil
 	},
+}
+
+func resolveEffectiveRerunArgs(cmd *cobra.Command, args []string) []string {
+	called := strings.ToLower(cmd.CalledAs())
+	if (called == "rra" || called == "rerun-all") && !hasRerunTargetArg(args, "all") {
+		return append([]string{"all"}, args...)
+	}
+	if (called == "rrq" || called == "rerun-queue") && !hasRerunTargetArg(args, "queue") {
+		return append([]string{"queue"}, args...)
+	}
+	if called == "rerun-restart" {
+		rerunRestartFlag = true
+	}
+	return args
+}
+
+func hasRerunTargetArg(args []string, target string) bool {
+	for _, a := range args {
+		if strings.EqualFold(strings.TrimSpace(a), target) {
+			return true
+		}
+	}
+
+	return false
 }
 
 var (
@@ -46,6 +74,9 @@ var (
 )
 
 func init() {
+	agyRerunCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		RenderAgyRerunHelp()
+	})
 	agyRerunCmd.AddCommand(agyRerunHelpCmd)
 	agyRerunCmd.Flags().StringVarP(&rerunPromptTpl, "prompt", "p", cmdprompttemplate.DefaultTemplateID, "Prefix prompt template name or ID")
 	agyRerunCmd.Flags().BoolVar(&rerunNoClipboard, "no-clipboard", false, "Do not copy constructed prompt to clipboard")
@@ -64,7 +95,7 @@ func init() {
 // RunRerunTopLevelCLI executes agy rerun from top-level gitmap aliases.
 func RunRerunTopLevelCLI(args []string) error {
 	if isRerunHelpRequested(args) {
-		renderAgyRerunHelp()
+		RenderAgyRerunHelp()
 
 		return nil
 	}
@@ -77,7 +108,7 @@ func RunRerunTopLevelCLI(args []string) error {
 
 func runAgyRerun(args []string) *apperror.AppError {
 	if isRerunHelpRequested(args) {
-		renderAgyRerunHelp()
+		RenderAgyRerunHelp()
 
 		return nil
 	}

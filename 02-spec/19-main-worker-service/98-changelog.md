@@ -1,3 +1,9 @@
+## v6.353.0 — 2026-09-27 (AGY Decision Log Split-DB, Multi-Source Project Discovery, and Active Rerun Recency)
+
+**Scope:** Version bump. AGY Decision Log Split-DB, Multi-Source Project Discovery, and Active Rerun Recency.
+
+---
+
 ## v6.352.0 — 2026-09-27 (SSH Fleet Resource-Aware Concurrency Throttling, Error Remediation, and Rerun Help)
 
 **Scope:** Version bump. SSH Fleet Resource-Aware Concurrency Throttling, Error Remediation, and Rerun Help.
