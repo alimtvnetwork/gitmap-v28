@@ -142,6 +142,7 @@ func formatTimeDuration(d time.Duration, t time.Time) string {
 type AGYRestoreSnapshot struct {
 	CreatedAt     time.Time            `json:"createdAt"`
 	Timestamp     int64                `json:"timestamp"`
+	FilePath      string               `json:"filePath,omitempty"`
 	TotalProjects int                  `json:"totalProjects"`
 	TotalConvs    int                  `json:"totalConversations"`
 	Projects      []AGYSnapshotProject `json:"projects"`

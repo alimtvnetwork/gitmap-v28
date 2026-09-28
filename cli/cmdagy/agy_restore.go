@@ -52,11 +52,18 @@ func findLatestSnapshotPath() (string, error) {
 	if hasErr {
 		return "", err
 	}
+	latest, found := findLatestInGitmapDir(home)
+	if found {
+		return latest, nil
+	}
+	return findWellKnownBackupFile(home)
+}
+
+func findLatestInGitmapDir(home string) (string, bool) {
 	snapDir := filepath.Join(home, ".gitmap")
 	entries, readErr := os.ReadDir(snapDir)
-	hasReadErr := readErr != nil
-	if hasReadErr {
-		return "", fmt.Errorf("no snapshot directory found at %s: %w", snapDir, readErr)
+	if readErr != nil {
+		return "", false
 	}
 	var snaps []string
 	for _, e := range entries {
@@ -65,12 +72,21 @@ func findLatestSnapshotPath() (string, error) {
 			snaps = append(snaps, filepath.Join(snapDir, e.Name()))
 		}
 	}
-	hasNone := len(snaps) == 0
-	if hasNone {
-		return "", fmt.Errorf("no AGY restore snapshot JSON found in %s", snapDir)
+	if len(snaps) == 0 {
+		return "", false
 	}
 	sort.Strings(snaps)
-	return snaps[len(snaps)-1], nil
+	return snaps[len(snaps)-1], true
+}
+
+func findWellKnownBackupFile(home string) (string, error) {
+	wellKnown := filepath.Join(home, "antigravity-projects-backup.json")
+	info, statErr := os.Stat(wellKnown)
+	hasFile := statErr == nil && !info.IsDir()
+	if hasFile {
+		return wellKnown, nil
+	}
+	return "", fmt.Errorf("no AGY restore snapshot JSON found in ~/.gitmap or %s", wellKnown)
 }
 
 func readSnapshotPayload(path string) (AGYRestoreSnapshot, error) {

@@ -185,9 +185,13 @@ func handlePreUninstallSnapshot(isFullPurge, isDryRun bool, backupPath string) e
 	if hasErr {
 		return fmt.Errorf("snapshot export failed prior to purge: %w", err)
 	}
-	fmt.Printf("  %s✓%s Snapshot saved (%d projects, %d conversations)\n",
-		constants.ColorGreen, constants.ColorReset, snap.TotalProjects, snap.TotalConvs)
+	printPreUninstallSnapshotSummary(snap)
 	return nil
+}
+
+func printPreUninstallSnapshotSummary(snap AGYRestoreSnapshot) {
+	fmt.Printf("  %s✓%s Snapshot saved (%d projects, %d conversations) to:\n    %s\n",
+		constants.ColorGreen, constants.ColorReset, snap.TotalProjects, snap.TotalConvs, snap.FilePath)
 }
 
 func terminateRunningProcesses(isDryRun bool) {
@@ -375,6 +379,7 @@ func getHomeGeminiPaths(home string) []string {
 		filepath.Join(home, ".gemini", "antigravity"),
 		filepath.Join(home, ".gemini", "config", "projects"),
 		filepath.Join(home, ".gemini", "antigravity-cli"),
+		filepath.Join(home, ".antigravity"),
 		filepath.Join(home, ".cache", "antigravity"),
 	}
 }

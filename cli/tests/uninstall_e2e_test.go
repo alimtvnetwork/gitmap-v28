@@ -47,6 +47,10 @@ func verifySnapshotOutput(t *testing.T, filePath string, snap cmdagy.AGYRestoreS
 	if !hasMatch {
 		t.Errorf("timestamp mismatch: expected %d, got %d", snap.Timestamp, decoded.Timestamp)
 	}
+	hasFilePath := decoded.FilePath != ""
+	if !hasFilePath {
+		t.Errorf("expected snapshot FilePath populated, got empty")
+	}
 }
 
 // TestE2EUninstallSafetyProtection verifies path safety invariants protecting d:\work and root.

@@ -19,18 +19,34 @@ type uninstallFlags struct {
 	isForce         bool
 	isPurge         bool
 	isPurgeWebView2 bool
+	backupPath      string
 }
 
 func parseUninstallFlags(args []string) (*flag.FlagSet, *uninstallFlags) {
 	fs := flag.NewFlagSet("uninstall", flag.ExitOnError)
 	f := &uninstallFlags{}
-	fs.BoolVar(&f.isDryRun, constants.FlagUninstallDryRun, false, constants.FlagDescUninstallDryRun)
-	fs.BoolVar(&f.isForce, constants.FlagUninstallForce, false, constants.FlagDescUninstallForce)
-	fs.BoolVar(&f.isPurge, constants.FlagUninstallPurge, false, constants.FlagDescUninstallPurge)
-	fs.BoolVar(&f.isPurgeWebView2, "purge-webview2", false, "Purge WebView2 runtime when removing Edge")
+	bindCoreUninstallFlags(fs, f)
+	bindPurgeAndBackupFlags(fs, f)
 	fs.Parse(reorderFlagsBeforeArgs(args))
 
 	return fs, f
+}
+
+func bindCoreUninstallFlags(fs *flag.FlagSet, f *uninstallFlags) {
+	fs.BoolVar(&f.isDryRun, constants.FlagUninstallDryRun, false, constants.FlagDescUninstallDryRun)
+	fs.BoolVar(&f.isDryRun, "n", false, "Dry run alias")
+	fs.BoolVar(&f.isForce, constants.FlagUninstallForce, false, constants.FlagDescUninstallForce)
+	fs.BoolVar(&f.isForce, "yes", false, "Force alias")
+	fs.BoolVar(&f.isForce, "y", false, "Force alias")
+}
+
+func bindPurgeAndBackupFlags(fs *flag.FlagSet, f *uninstallFlags) {
+	fs.BoolVar(&f.isPurge, constants.FlagUninstallPurge, false, constants.FlagDescUninstallPurge)
+	fs.BoolVar(&f.isPurge, "all", false, "Purge all files and configurations")
+	fs.BoolVar(&f.isPurge, "a", false, "Purge alias")
+	fs.BoolVar(&f.isPurgeWebView2, "purge-webview2", false, "Purge WebView2 runtime when removing Edge")
+	fs.StringVar(&f.backupPath, "backup", "", "Backup file path for state snapshot")
+	fs.StringVar(&f.backupPath, "b", "", "Backup file path alias")
 }
 
 func isSelfUninstallTool(tool string) bool {
@@ -96,7 +112,7 @@ func dispatchWinUtilToolUninstall(tool, canonical string, flags *uninstallFlags)
 		return true, runCopilotUninstallFlow(flags)
 	}
 	if isEdgeUninstallTarget(tool, canonical) {
-		return true, runEdgeUninstallFlow(flags)
+		return true, runEdgeUninstallFlow(tool, flags)
 	}
 	return false, nil
 }
@@ -119,7 +135,7 @@ func isAgmUninstallTarget(tool, canonical string) bool {
 func runAgyUninstallFlow(tool, canonical string, flags *uninstallFlags) error {
 	low := strings.ToLower(tool)
 	isFullPurge := flags.isPurge || low == "agy-all" || low == "antigravity-all"
-	return cmdagy.RunAGYUninstall(isFullPurge, flags.isForce, flags.isDryRun, "")
+	return cmdagy.RunAGYUninstall(isFullPurge, flags.isForce, flags.isDryRun, flags.backupPath)
 }
 
 func runAgmUninstallFlow(tool, canonical string, flags *uninstallFlags) error {
@@ -129,19 +145,21 @@ func runAgmUninstallFlow(tool, canonical string, flags *uninstallFlags) error {
 }
 
 func isCopilotUninstallTarget(tool, canonical string) bool {
-	return tool == "copilot" || canonical == "copilot" || tool == "windows-copilot"
+	low := strings.ToLower(tool)
+	return low == "copilot" || low == "copilot-all" || canonical == "copilot" || low == "windows-copilot"
 }
 
 func isEdgeUninstallTarget(tool, canonical string) bool {
-	return tool == "edge" || canonical == "edge" || tool == "msedge"
+	low := strings.ToLower(tool)
+	return low == "edge" || low == "edge-all" || canonical == "edge" || low == "msedge"
 }
 
 func runCopilotUninstallFlow(flags *uninstallFlags) error {
 	return cmdwinutil.RunWinUtilCopilotCLI(buildWinUtilFlags(flags))
 }
 
-func runEdgeUninstallFlow(flags *uninstallFlags) error {
-	return cmdwinutil.RunWinUtilEdgeCLI(buildWinUtilEdgeFlags(flags))
+func runEdgeUninstallFlow(tool string, flags *uninstallFlags) error {
+	return cmdwinutil.RunWinUtilEdgeCLI(buildWinUtilEdgeFlags(tool, flags))
 }
 
 func buildWinUtilFlags(flags *uninstallFlags) []string {
@@ -155,9 +173,10 @@ func buildWinUtilFlags(flags *uninstallFlags) []string {
 	return args
 }
 
-func buildWinUtilEdgeFlags(flags *uninstallFlags) []string {
+func buildWinUtilEdgeFlags(tool string, flags *uninstallFlags) []string {
 	args := buildWinUtilFlags(flags)
-	if flags.isPurge || flags.isPurgeWebView2 {
+	low := strings.ToLower(tool)
+	if flags.isPurge || flags.isPurgeWebView2 || low == "edge-all" {
 		args = append(args, "--purge-webview2")
 	}
 	return args

@@ -23,12 +23,28 @@ func ExportAGYRestoreSnapshot(outPath string) (AGYRestoreSnapshot, error) {
 		return AGYRestoreSnapshot{}, pathErr
 	}
 	snap := buildAGYRestoreSnapshot(collectSnapshotProjects(), collectSnapshotConversations())
+	snap.FilePath = targetPath
 	writeErr := writeSnapshotFile(targetPath, snap)
 	hasWriteErr := writeErr != nil
 	if hasWriteErr {
 		return snap, writeErr
 	}
+	saveWellKnownBackupCopy(outPath, snap)
 	return snap, nil
+}
+
+func saveWellKnownBackupCopy(outPath string, snap AGYRestoreSnapshot) {
+	hasCustom := outPath != ""
+	if hasCustom {
+		return
+	}
+	home, err := os.UserHomeDir()
+	hasErr := err != nil
+	if hasErr {
+		return
+	}
+	wellKnownPath := filepath.Join(home, "antigravity-projects-backup.json")
+	_ = writeSnapshotFile(wellKnownPath, snap)
 }
 
 func buildAGYRestoreSnapshot(projects []AGYSnapshotProject, convs []AGYSnapshotConv) AGYRestoreSnapshot {
