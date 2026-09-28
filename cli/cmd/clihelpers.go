@@ -922,6 +922,9 @@ func init() {
 	cmdscan.SyncRecordsToVSCodePMFn = syncRecordsToVSCodePM
 	cmdscan.RunPruneStaleDBFn = runPruneStaleDB
 	cmdscan.CheckHelpFn = checkHelp
+	cmdscan.CheckSpecialReposOnScanFn = func(workBaseDir string, isQuiet bool) {
+		_, _ = CheckSpecialReposOnScan(workBaseDir, isQuiet)
+	}
 
 	cmdos.RunPowerNeverSleepFn = runPowerNeverSleep
 	cmdos.RunPowerSetFn = runPowerSet
@@ -935,6 +938,7 @@ func init() {
 }
 
 func runScan(args []string) error {
+	_, _ = CheckSpecialReposOnScan(resolveSpecialWorkBaseDir(), false)
 	return cmdscan.RunScan(args)
 }
 

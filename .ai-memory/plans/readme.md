@@ -26,8 +26,10 @@
 - [182-terminal-tab-completion-and-flag-suggestions.md](completed/182-terminal-tab-completion-and-flag-suggestions.md) — Terminal Tab Completion, AGY Flag Suggestions & Shell Integration (Spec: [182](../../02-spec/21-app/87-terminal-tab-completion-and-flag-suggestions.md))
 - [183-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md](completed/183-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md) — SUG Enhancements, PE Path/Alias Resolution, PascalCase/Array Template Variables & Repo-Secrets Hygiene (Spec: [183](../../02-spec/21-app/88-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md))
 - [184-agy-rp-running-projects-and-recreate-safety.md](completed/184-agy-rp-running-projects-and-recreate-safety.md) — AGY RP Running-Projects Remap & Recreate-Project Safety Guard (Spec: [184](../../02-spec/21-app/89-agy-rp-running-projects-and-recreate-safety.md))
+- [187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md](completed/187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md) — Special Default Repositories (`repo-secrets` = `rs` & `repo-cache` = `rc`), One-Time Scan Prompt, `gitmap cd rs`/`rc`, Sequenced Put & Auto-Push, and Coding Guidelines V2 Prompt Integration (Spec: [91](../../02-spec/21-app/91-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans
 
-_No pending plans._
+_None currently pending._
+

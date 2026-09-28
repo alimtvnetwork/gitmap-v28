@@ -20,6 +20,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+// CheckSpecialReposOnScanFn is an optional callback to verify and initialize special repos (rs/rc) on scan.
+var CheckSpecialReposOnScanFn func(workBaseDir string, isQuiet bool)
+
 // runScan handles the "scan" subcommand.
 func runScan(args []string) error {
 	checkHelp("scan", args)
@@ -141,6 +144,11 @@ func executeScan(
 	})
 	bench.Phase("scan.autoAliases", func() {
 		autoPopulateScanAliases(quiet)
+	})
+	bench.Phase("scan.specialReposCheck", func() {
+		if CheckSpecialReposOnScanFn != nil {
+			CheckSpecialReposOnScanFn(absDir, quiet)
+		}
 	})
 	bench.Phase("scan.alignDBIDs", func() {
 		records = alignRecordsWithDB(records, outputDir)

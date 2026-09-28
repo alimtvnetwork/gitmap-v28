@@ -1,3 +1,17 @@
+## [v6.380.0] 2026-09-28 Release v6.380.0
+
+### Install GitMap v6.380.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.380.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.380.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.380.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.380.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Special Default Repositories (`repo-secrets` / `rs` & `repo-cache` / `rc`): Added dedicated SQLite split-db persistence (`gitmap-special-repos.db`), first-scan one-time discovery prompt, `gitmap cd rs` / `gitmap cd rc` navigation shortcuts, and sequenced file/folder/text commands with auto-commit and push.
+- Settings & Web UI: Added `special_repos.secrets_name` and `special_repos.cache_name` configurable settings via CLI (`gitmap settings set`) and interactive Web UI with rich documentation cards.
+- Coding Guidelines & Prompts: Authored `01-prompts/special-repos-secrets-and-cache.md` and enforced R19 Special Repositories rule across `coding-guidelines`.
+
 ## [v6.355.2] 2026-09-27 Release v6.355.2
 
 ### Install GitMap v6.355.2

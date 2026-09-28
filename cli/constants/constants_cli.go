@@ -254,7 +254,7 @@ const (
 	CmdCloneNextAlias        = "cn"
 	CmdReleaseSelf           = "release-self"
 	CmdReleaseSelfAlias      = "rself"
-	CmdReleaseSelfAlias2     = "rs"
+	CmdReleaseSelfAlias2     = "rel-self"
 	CmdHelpDashboard         = "help-dashboard"
 	CmdHelpDashboardAlias    = "hd"
 	CmdPending               = "pending"    // gitmap:cmd skip

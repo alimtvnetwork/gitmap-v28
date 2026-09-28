@@ -48,5 +48,18 @@ func routeCDSub(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(runCDClearDefault(args))
 	}
 
+	if isSpecialRepoCDAlias(sub) {
+		return result.MatchWrapper(runCDSpecialRepo(sub, args))
+	}
+
 	return result.MatchWrapper(runCDLookup(sub, args))
+}
+
+func isSpecialRepoCDAlias(sub string) bool {
+	switch sub {
+	case "rs", "repo-secrets", "rc", "repo-cache", "repo-storage":
+		return true
+	default:
+		return false
+	}
 }

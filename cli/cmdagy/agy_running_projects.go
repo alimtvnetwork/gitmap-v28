@@ -354,10 +354,3 @@ func truncateRunningStr(s string, maxLen int) string {
 	}
 	return s
 }
-
-func truncateRunningPath(p string, maxLen int) string {
-	if len(p) > maxLen {
-		return "..." + p[len(p)-maxLen+3:]
-	}
-	return p
-}

@@ -137,6 +137,14 @@ const IndexHTML = `<!DOCTYPE html>
           <label>Machine Identity &amp; Network Alias — Network Alias (<code>machine.alias</code> — auto-defaults to Local IPv4)</label>
           <input type="text" id="setting-machine-alias" name="machine.alias" data-key="machine.alias" placeholder="Auto-defaults to Local IPv4 if unset">
         </div>
+        <div class="form-group">
+          <label>Special Secrets Repository Name (<code>special_repos.secrets_name</code> — shortcut: <code>gitmap rs</code> / <code>gitmap cd rs</code>)</label>
+          <input type="text" id="setting-special-secrets-name" name="special_repos.secrets_name" data-key="special_repos.secrets_name" value="repo-secrets" placeholder="repo-secrets">
+        </div>
+        <div class="form-group">
+          <label>Special Cache / Storage Repository Name (<code>special_repos.cache_name</code> — shortcut: <code>gitmap rc</code> / <code>gitmap cd rc</code>)</label>
+          <input type="text" id="setting-special-cache-name" name="special_repos.cache_name" data-key="special_repos.cache_name" value="repo-cache" placeholder="repo-cache">
+        </div>
         <button class="btn" onclick="saveSettings()">Save Speed Settings</button>
       </div>
     </div>
@@ -306,6 +314,41 @@ const IndexHTML = `<!DOCTYPE html>
               <td><code>gitmap telegram</code>, <code>gitmap email</code>, <code>gitmap settings</code>, <code>gitmap os help</code></td>
               <td><code>agy telegram</code>, <code>agy email</code>, <code>agy settings</code></td>
               <td>Configure two-way Telegram bot, speed SMTP email alerts, unified speed settings (<code>lap.default_hours=24</code>), and OS diagnostics help.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Special Repositories (repo-secrets / rs &amp; repo-cache / rc)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Command &amp; Syntax</th>
+              <th>Aliases</th>
+              <th>Description &amp; Sequenced Storage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>gitmap cd rs</code> &amp; <code>gitmap cd rc</code></td>
+              <td><code>cd repo-secrets</code>, <code>cd repo-cache</code></td>
+              <td>Navigate directly into the configured <code>repo-secrets</code> (<code>rs</code>) or <code>repo-cache</code> (<code>rc</code>) repository directory.</td>
+            </tr>
+            <tr>
+              <td><code>gitmap rs file &lt;path&gt;</code>, <code>gitmap rs folder &lt;path&gt;</code>, <code>gitmap rs text "&lt;secret&gt;"</code></td>
+              <td><code>repo-secrets</code>, <code>rs</code></td>
+              <td>Store files, folders, or inline secret strings into <code>repo-secrets</code> with auto-sequenced <code>XX-&lt;repo&gt;/01-&lt;slug&gt;.ext</code> hierarchy + auto-commit &amp; push.</td>
+            </tr>
+            <tr>
+              <td><code>gitmap rc file &lt;script.ps1&gt;</code>, <code>gitmap rc folder &lt;dir&gt;</code>, <code>gitmap rc text "&lt;script&gt;" --ext .ps1</code></td>
+              <td><code>repo-cache</code>, <code>repo-storage</code>, <code>rc</code></td>
+              <td>Archive reusable PowerShell (<code>.ps1</code>) scripts, test harnesses, and folders into <code>repo-cache</code> under <code>XX-&lt;repo&gt;/01-&lt;slug&gt;.ext</code> + auto-commit &amp; push.</td>
+            </tr>
+            <tr>
+              <td><code>gitmap settings set special_repos.secrets_name repo-secrets</code> &amp; <code>gitmap settings set special_repos.cache_name repo-cache</code></td>
+              <td><code>secrets_repo</code>, <code>cache_repo</code></td>
+              <td>Customize the default special repository directory names for <code>repo-secrets</code> and <code>repo-cache</code> across local and fleet workflows.</td>
             </tr>
           </tbody>
         </table>

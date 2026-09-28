@@ -166,6 +166,11 @@ var topicSummaries = map[string]string{
 	"asw":                         "Fast-forward switch Antigravity account automatically upon reaching credit threshold (15% remaining prod / 98% E2E test).",
 	"fast-forward":                "Fast-forward switch Antigravity account automatically upon reaching credit threshold (15% remaining prod / 98% E2E test).",
 	"ff":                          "Fast-forward switch Antigravity account automatically upon reaching credit threshold (15% remaining prod / 98% E2E test).",
+	"rs":                          "Store secrets, .env files, folders, and inline tokens into the sequenced repo-secrets vault (XX-<repo>/01-<slug>.ext) with auto-commit and push.",
+	"repo-secrets":                "Store secrets, .env files, folders, and inline tokens into the sequenced repo-secrets vault (XX-<repo>/01-<slug>.ext) with auto-commit and push.",
+	"rc":                          "Archive reusable PowerShell (.ps1) scripts, test harnesses, and folders into repo-cache (XX-<repo>/01-<slug>.ext) with auto-commit and push.",
+	"repo-cache":                  "Archive reusable PowerShell (.ps1) scripts, test harnesses, and folders into repo-cache (XX-<repo>/01-<slug>.ext) with auto-commit and push.",
+	"repo-storage":                "Archive reusable PowerShell (.ps1) scripts, test harnesses, and folders into repo-cache (XX-<repo>/01-<slug>.ext) with auto-commit and push.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

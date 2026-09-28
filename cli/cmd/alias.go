@@ -29,11 +29,17 @@ func isMachineAliasInvocation(args []string) bool {
 		}
 	}
 	first := args[0]
+	if first == "set" && len(args) >= 3 {
+		return false
+	}
 	return first == "ls" || first == "set"
 }
 
 // dispatchAlias routes legacy repository alias subcommands to their handlers.
 func dispatchAlias(sub string, args []string) *apperror.AppError {
+	if sub == constants.SubCmdAliasSet {
+		return dispatchAliasSet(args)
+	}
 	if sub == constants.SubCmdAliasRm {
 		runAliasRemove(args)
 		return nil
@@ -51,4 +57,11 @@ func dispatchAlias(sub string, args []string) *apperror.AppError {
 		return nil
 	}
 	return apperror.New(fmt.Sprintf(constants.ErrUnknownCommand, sub), "E9000", nil)
+}
+
+func dispatchAliasSet(args []string) *apperror.AppError {
+	if err := runAliasSet(args); err != nil {
+		return apperror.New(err.Error(), "E9000", nil)
+	}
+	return nil
 }

@@ -41,7 +41,7 @@ const (
 	CmdCloneNow          = "clone-now"
 	CmdCloneNowAlias     = "cnow"
 	CmdCloneRel          = "relclone"
-	CmdCloneRelAlias     = "rc"
+	CmdCloneRelAlias     = "rcl"
 )
 
 // Flag names + descriptions. Long-form only; short flags are

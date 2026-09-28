@@ -45,17 +45,21 @@ var AgySettingsCmd = agySettingsCmd
 
 // SpeedSettingsStatus represents the unified speed settings state.
 type SpeedSettingsStatus struct {
-	LapDefaultHours        string `json:"lapDefaultHours"`
-	AccountSwitchThreshold string `json:"accountSwitchThreshold"`
-	TelegramBotTokenMasked string `json:"telegramBotTokenMasked"`
-	TelegramChatID         string `json:"telegramChatId"`
-	TelegramReady          bool   `json:"telegramReady"`
-	EmailSMTPHost          string `json:"emailSmtpHost"`
-	EmailFrom              string `json:"emailFrom"`
-	EmailTo                string `json:"emailTo"`
-	EmailReady             bool   `json:"emailReady"`
-	MachineAlias           string `json:"machineAlias"`
+	LapDefaultHours         string `json:"lapDefaultHours"`
+	AccountSwitchThreshold  string `json:"accountSwitchThreshold"`
+	TelegramBotTokenMasked  string `json:"telegramBotTokenMasked"`
+	TelegramChatID          string `json:"telegramChatId"`
+	TelegramReady           bool   `json:"telegramReady"`
+	EmailSMTPHost           string `json:"emailSmtpHost"`
+	EmailFrom               string `json:"emailFrom"`
+	EmailTo                 string `json:"emailTo"`
+	EmailReady              bool   `json:"emailReady"`
+	MachineAlias            string `json:"machineAlias"`
+	SpecialReposSecretsName string `json:"specialReposSecretsName"`
+	SpecialReposCacheName   string `json:"specialReposCacheName"`
 }
+
+type speedSettingsView = SpeedSettingsStatus
 
 func init() {
 	AgyCmd.AddCommand(AgyTelegramCmd)
@@ -313,51 +317,77 @@ func runSettingsImportBridge(args []string) error {
 }
 
 func applySpeedSettingsFlags(args []string) {
-	lapHours := extractSpeedFlag(args, "--lap-hours", "--lap")
-	threshold := extractSpeedFlag(args, "--threshold", "--switch-threshold")
-	alias := extractSpeedFlag(args, "--alias", "--machine-alias")
-	setGlobalIfNonEmpty("lap.default_hours", "GITMAP_LAP_DEFAULT_HOURS", lapHours)
-	setGlobalIfNonEmpty("account_switch.threshold", "GITMAP_ASW_THRESHOLD", threshold)
-	setGlobalIfNonEmpty("machine.alias", "GITMAP_MACHINE_ALIAS", alias)
+	setGlobalIfNonEmpty("lap.default_hours", "GITMAP_LAP_DEFAULT_HOURS", extractSpeedFlag(args, "--lap-hours", "--lap"))
+	setGlobalIfNonEmpty("account_switch.threshold", "GITMAP_ASW_THRESHOLD", extractSpeedFlag(args, "--threshold", "--switch-threshold"))
+	setGlobalIfNonEmpty("machine.alias", "GITMAP_MACHINE_ALIAS", extractSpeedFlag(args, "--alias", "--machine-alias"))
+	setGlobalIfNonEmpty("special_repos.secrets_name", "GITMAP_SPECIAL_SECRETS_REPO", extractSpeedFlag(args, "--secrets-repo", "--repo-secrets"))
+	setGlobalIfNonEmpty("special_repos.cache_name", "GITMAP_SPECIAL_CACHE_REPO", extractSpeedFlag(args, "--cache-repo", "--repo-cache"))
 	applyPositionalSettingsSet(args)
 }
 
 func applyPositionalSettingsSet(args []string) {
 	pos := filterSpeedPositional(args)
 	if len(pos) >= 3 && strings.EqualFold(pos[0], "set") {
-		_ = config.SetVariable("global", pos[1], pos[2])
+		applySettingKeyValue(pos[1], pos[2])
+	}
+}
+
+func applySettingKeyValue(key, val string) {
+	norm := strings.ToLower(strings.TrimSpace(key))
+	trimmedVal := strings.TrimSpace(val)
+	switch norm {
+	case "special_repos.secrets_name", "secrets_repo", "repo_secrets":
+		_ = config.SetVariable("global", "special_repos.secrets_name", trimmedVal)
+	case "special_repos.cache_name", "cache_repo", "repo_cache", "repo_storage":
+		_ = config.SetVariable("global", "special_repos.cache_name", trimmedVal)
+	default:
+		_ = config.SetVariable("global", strings.TrimSpace(key), trimmedVal)
 	}
 }
 
 func renderSpeedSettingsOverview(isJSON bool) error {
-	st := collectSpeedSettingsStatus()
+	view := collectSpeedSettingsView()
 	if isJSON {
-		return printSpeedJSON(st)
+		return printSpeedJSON(view)
 	}
-	fmt.Printf("%s● GitMap & Antigravity Unified Speed Settings%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  LAP Default Window:        %sh (key: lap.default_hours)\n", st.LapDefaultHours)
-	fmt.Printf("  Account Switch Threshold:  %s%% (key: account_switch.threshold)\n", st.AccountSwitchThreshold)
-	fmt.Printf("  Machine Alias:             %s (key: machine.alias)\n", st.MachineAlias)
-	fmt.Printf("  Telegram Chatbot:          chat=%s | token=%s | ready=%v\n", st.TelegramChatID, st.TelegramBotTokenMasked, st.TelegramReady)
-	fmt.Printf("  Email Speed Setup:         smtp=%s | to=%s | ready=%v\n", st.EmailSMTPHost, st.EmailTo, st.EmailReady)
+	runSettingsShow(view)
 	return nil
 }
 
+func runSettingsShow(view speedSettingsView) {
+	fmt.Printf("%s● GitMap & Antigravity Unified Speed Settings%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  LAP Default Window:        %sh (key: lap.default_hours)\n", view.LapDefaultHours)
+	fmt.Printf("  Account Switch Threshold:  %s%% (key: account_switch.threshold)\n", view.AccountSwitchThreshold)
+	fmt.Printf("  Machine Alias:             %s (key: machine.alias)\n", view.MachineAlias)
+	fmt.Printf("  Telegram Chatbot:          chat=%s | token=%s | ready=%v\n", view.TelegramChatID, view.TelegramBotTokenMasked, view.TelegramReady)
+	fmt.Printf("  Email Speed Setup:         smtp=%s | to=%s | ready=%v\n", view.EmailSMTPHost, view.EmailTo, view.EmailReady)
+	fmt.Printf("  Special Secrets Repo  : %s (shortcut: gitmap rs / gitmap cd rs)\n", view.SpecialReposSecretsName)
+	fmt.Printf("  Special Cache Repo    : %s (shortcut: gitmap rc / gitmap cd rc)\n", view.SpecialReposCacheName)
+}
+
+func collectSpeedSettingsView() speedSettingsView {
+	secretsName, _ := config.GetVariable("global", "special_repos.secrets_name")
+	cacheName, _ := config.GetVariable("global", "special_repos.cache_name")
+	st := buildBaseSpeedSettingsStatus()
+	st.SpecialReposSecretsName = defaultIfEmpty(secretsName, "repo-secrets")
+	st.SpecialReposCacheName = defaultIfEmpty(cacheName, "repo-cache")
+	return st
+}
+
 func collectSpeedSettingsStatus() SpeedSettingsStatus {
-	lapHours := readSpeedVar("lap.default_hours", "24")
-	thresh := readSpeedVar("account_switch.threshold", "15")
-	token := resolveTelegramToken()
-	chatID := resolveTelegramChatID()
-	smtpHost := resolveEmailSMTP()
-	fromAddr := resolveEmailFrom()
-	toAddr := resolveEmailTo()
-	alias := readSpeedVar("machine.alias", "auto-ip")
+	return collectSpeedSettingsView()
+}
+
+func buildBaseSpeedSettingsStatus() SpeedSettingsStatus {
+	token, chatID := resolveTelegramToken(), resolveTelegramChatID()
+	smtpHost, toAddr := resolveEmailSMTP(), resolveEmailTo()
 	return SpeedSettingsStatus{
-		LapDefaultHours: lapHours, AccountSwitchThreshold: thresh,
+		LapDefaultHours:        readSpeedVar("lap.default_hours", "24"),
+		AccountSwitchThreshold: readSpeedVar("account_switch.threshold", "15"),
 		TelegramBotTokenMasked: maskSecretToken(token), TelegramChatID: chatID,
 		TelegramReady: len(token) > 0 && len(chatID) > 0,
-		EmailSMTPHost: smtpHost, EmailFrom: fromAddr, EmailTo: toAddr,
-		EmailReady: len(smtpHost) > 0 && len(toAddr) > 0, MachineAlias: alias,
+		EmailSMTPHost: smtpHost, EmailFrom: resolveEmailFrom(), EmailTo: toAddr,
+		EmailReady: len(smtpHost) > 0 && len(toAddr) > 0, MachineAlias: readSpeedVar("machine.alias", "auto-ip"),
 	}
 }
 
@@ -510,22 +540,34 @@ func RenderAgyEmailHelp() {
 
 // RenderAgySettingsHelp renders the boxed help menu for gitmap settings / gitmap agy settings.
 func RenderAgySettingsHelp() {
+	renderSettingsHelp()
+}
+
+func renderSettingsHelp() {
 	termhelp.RenderMenu(termhelp.HelpMenu{
 		Title: "GitMap & Antigravity Speed Settings (gitmap settings)",
 		UsageLines: []string{
 			"gitmap settings [--lap-hours 24] [--threshold 15] [--alias <name>] [--json]",
+			"gitmap settings set special_repos.secrets_name repo-secrets",
+			"gitmap settings set special_repos.cache_name repo-cache",
 			"gitmap agy settings [set <key> <value> | export <file> | import <file>]",
 		},
-		Sections: []termhelp.HelpSection{
-			{
-				Title: "Speed Settings & Configuration Keys",
-				Entries: []termhelp.CommandEntry{
-					{Command: "--lap-hours <N>", Description: "Set default lookback hours for last-active-projects (default: 24)"},
-					{Command: "--threshold <N>", Description: "Set account-switch remaining credit threshold percentage (default: 15)"},
-					{Command: "--alias <name>", Description: "Set machine network alias for SSH fleet recognition"},
-					{Command: "export / import <file>", Description: "Export or import full Antigravity settings JSON"},
-				},
+		Sections: buildSettingsHelpSections(),
+	})
+}
+
+func buildSettingsHelpSections() []termhelp.HelpSection {
+	return []termhelp.HelpSection{
+		{
+			Title: "Speed Settings & Configuration Keys",
+			Entries: []termhelp.CommandEntry{
+				{Command: "--lap-hours <N>", Description: "Set default lookback hours for last-active-projects (default: 24)"},
+				{Command: "--threshold <N>", Description: "Set account-switch remaining credit threshold percentage (default: 15)"},
+				{Command: "--alias <name>", Description: "Set machine network alias for SSH fleet recognition"},
+				{Command: "set special_repos.secrets_name repo-secrets", Description: "Configure special secrets repository name (shortcut: gitmap rs / gitmap cd rs)"},
+				{Command: "set special_repos.cache_name repo-cache", Description: "Configure special cache repository name (shortcut: gitmap rc / gitmap cd rc)"},
+				{Command: "export / import <file>", Description: "Export or import full Antigravity settings JSON"},
 			},
 		},
-	})
+	}
 }

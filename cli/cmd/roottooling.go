@@ -85,7 +85,7 @@ func toolingAuditEntries() []dispatchEntry {
 }
 
 func toolingOpsEntries() []dispatchEntry {
-	return []dispatchEntry{
+	entries := []dispatchEntry{
 		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() error { return runOpen(argsTail()) }},
 		{[]string{constants.CmdPR, constants.CmdPRAlias}, func() error { return runPR(argsTail()) }},
 		{[]string{constants.CmdBlameStats}, func() error { return runBlameStats(argsTail()) }},
@@ -100,6 +100,14 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{"run", "run-macro", "exec-macro"}, func() error { return runMacroRootRun(argsTail()) }},
 		{[]string{"run-until"}, func() error { return runMacroRootRunUntil(argsTail()) }},
 		{[]string{"clean-dev", "cleandev", "dev-cleanup", "devcleanup", "dev-clean"}, func() error { return runCleanDevTopLevel(argsTail()) }},
+	}
+	return append(entries, toolingSpecialRepoEntries()...)
+}
+
+func toolingSpecialRepoEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{"rs", "repo-secrets"}, func() error { return runSpecialRepoCLI("rs", argsTail()) }},
+		{[]string{"rc", "repo-cache", "repo-storage"}, func() error { return runSpecialRepoCLI("rc", argsTail()) }},
 	}
 }
 
