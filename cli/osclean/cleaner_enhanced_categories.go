@@ -18,6 +18,8 @@ func getEnhancedCategoryDefs() []EnhancedCategoryDef {
 		{"git-cache", "Git dangling objects & caches", []string{"git", "gitcache"}, cleanGitEnhanced},
 		{"temp-artifacts", "System temp dev artifacts", []string{"temp", "tmp"}, cleanSystemTempEnhanced},
 		{"test-binaries", "Stale test binaries (*.test)", []string{"test", "tests", "testbin"}, cleanStaleTestBinaries},
+		{"rust-cargo", "Rust / Cargo cache", []string{"rust", "cargo", "crates"}, cleanCargoEnhanced},
+		{"ide-scratch", "IDE scratch & updater logs", []string{"ide", "scratch", "updater"}, cleanIdeScratchEnhanced},
 	}
 }
 
@@ -176,4 +178,32 @@ func isTestBinary(name string) bool {
 	return strings.HasSuffix(low, ".test") ||
 		strings.HasSuffix(low, ".test.exe") ||
 		strings.HasPrefix(low, "__debug_bin")
+}
+
+func cleanCargoEnhanced(isDryRun bool) CategoryCleanStats {
+	res := CategoryCleanStats{Category: "rust-cargo", Label: "Rust / Cargo cache"}
+	home := resolveHomeDir()
+	paths := []string{
+		filepath.Join(home, ".cargo", "registry", "cache"),
+		filepath.Join(home, ".cargo", "git", "db"),
+	}
+	for _, p := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
+	}
+	return res
+}
+
+func cleanIdeScratchEnhanced(isDryRun bool) CategoryCleanStats {
+	res := CategoryCleanStats{Category: "ide-scratch", Label: "IDE scratch & updater logs"}
+	local := resolveLocalAppData()
+	home := resolveHomeDir()
+	paths := []string{
+		filepath.Join(local, "antigravity-updater"),
+		filepath.Join(home, ".antigravity", "logs"),
+		filepath.Join(home, ".gemini", "logs"),
+	}
+	for _, p := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
+	}
+	return res
 }

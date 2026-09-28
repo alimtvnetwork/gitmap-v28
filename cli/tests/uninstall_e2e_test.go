@@ -135,7 +135,7 @@ func TestE2EWinUtilEdgeDryRun(t *testing.T) {
 	}
 }
 
-// TestE2EDevToolCleanerDryRun verifies 10-category cache cleaner dry-run and formatting.
+// TestE2EDevToolCleanerDryRun verifies 12-category cache cleaner dry-run and formatting.
 func TestE2EDevToolCleanerDryRun(t *testing.T) {
 	opts := osclean.DevCleanOptions{IsDryRun: true}
 	summary := osclean.CleanEnhancedDevCaches(opts)
@@ -144,9 +144,9 @@ func TestE2EDevToolCleanerDryRun(t *testing.T) {
 	if !isDryRun {
 		t.Errorf("expected summary IsDryRun true, got false")
 	}
-	hasTenCategories := len(summary.Categories) == 10
-	if !hasTenCategories {
-		t.Errorf("expected 10 categories, got %d", len(summary.Categories))
+	hasTwelveCategories := len(summary.Categories) == 12
+	if !hasTwelveCategories {
+		t.Errorf("expected 12 categories, got %d", len(summary.Categories))
 	}
 
 	testFormatCleanSize(t)
@@ -163,5 +163,32 @@ func testFormatCleanSize(t *testing.T) {
 	hasGB := gbStr == "2.00 GB"
 	if !hasGB {
 		t.Errorf("expected 2.00 GB, got %s", gbStr)
+	}
+}
+
+// TestE2EAGYRestoreFromSnapshot verifies restoring projects and conversations from snapshot JSON.
+func TestE2EAGYRestoreFromSnapshot(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "gitmap-restore-e2e-*")
+	hasErr := err != nil
+	if hasErr {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	targetFile := filepath.Join(tempDir, "agy-snapshot-restore.json")
+	snap, snapErr := cmdagy.ExportAGYRestoreSnapshot(targetFile)
+	hasSnapErr := snapErr != nil
+	if hasSnapErr {
+		t.Fatalf("snapshot export failed: %v", snapErr)
+	}
+
+	pCount, _, resErr := cmdagy.RunAGYRestore(targetFile)
+	hasResErr := resErr != nil
+	if hasResErr {
+		t.Fatalf("RunAGYRestore failed: %v", resErr)
+	}
+	isMatch := pCount == snap.TotalProjects
+	if !isMatch {
+		t.Errorf("project count mismatch: expected %d, got %d", snap.TotalProjects, pCount)
 	}
 }
