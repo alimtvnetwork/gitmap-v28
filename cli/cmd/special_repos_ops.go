@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -84,11 +85,27 @@ func resolveCurrentRepoName(explicitRepo string) string {
 	if len(strings.TrimSpace(explicitRepo)) > 0 {
 		return stripNumericPrefix(strings.TrimSpace(explicitRepo))
 	}
+	topDir := findEnclosingGitTopLevel()
+	if len(topDir) > 0 {
+		return stripNumericPrefix(filepath.Base(topDir))
+	}
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "gitmap"
 	}
 	return stripNumericPrefix(filepath.Base(cwd))
+}
+
+func findEnclosingGitTopLevel() string {
+	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return ""
+	}
+	trimmed := strings.TrimSpace(string(out))
+	if len(trimmed) == 0 {
+		return ""
+	}
+	return filepath.Clean(trimmed)
 }
 
 func stripNumericPrefix(name string) string {
@@ -321,20 +338,81 @@ func logDetectedSpecialRepo(rec store.SpecialRepositoryRecord, targetDir string,
 }
 
 func handleMissingSpecialRepoOnScan(db *store.SpecialReposSplitDB, rec store.SpecialRepositoryRecord, targetDir string, isAutoAccept bool) error {
+	remoteURL := probeRemoteSpecialRepoURL(rec.ConfiguredName)
 	if !isAutoAccept {
-		printOneTimeSpecialRepoBanner(rec, targetDir)
+		printOneTimeSpecialRepoBanner(rec, targetDir, remoteURL)
 	}
-	decision := "prompted-initialized"
-	if isAutoAccept {
-		decision = "auto-initialized"
+	if isAutoAccept || !isInteractiveStdin() {
+		return applyAutoSpecialRepoResolution(db, rec, targetDir, remoteURL)
+	}
+	return promptInteractiveSpecialRepoResolution(db, rec, targetDir, remoteURL)
+}
+
+func probeRemoteSpecialRepoURL(repoName string) string {
+	cmd := exec.Command("gh", "repo", "view", repoName, "--json", "url", "-q", ".url")
+	out, err := cmd.Output()
+	if err == nil && len(strings.TrimSpace(string(out))) > 0 {
+		return strings.TrimSpace(string(out))
+	}
+	return ""
+}
+
+func promptInteractiveSpecialRepoResolution(db *store.SpecialReposSplitDB, rec store.SpecialRepositoryRecord, targetDir, remoteURL string) error {
+	reader := bufio.NewReader(os.Stdin)
+	promptMsg := formatSpecialRepoPrompt(rec.ConfiguredName, targetDir, remoteURL)
+	fmt.Print(promptMsg)
+	ans, _ := reader.ReadString('\n')
+	cleanAns := strings.ToLower(strings.TrimSpace(ans))
+	if cleanAns == "n" || cleanAns == "no" {
+		fmt.Printf("  [info] Skipped %s setup. (Recorded in settings: gitmap settings)\n\n", rec.ConfiguredName)
+		return db.MarkPromptAnswered(rec.ShortKey, "declined", "", remoteURL)
+	}
+	return executeSpecialRepoAccept(db, rec, targetDir, remoteURL)
+}
+
+func formatSpecialRepoPrompt(repoName, targetDir, remoteURL string) string {
+	if len(remoteURL) > 0 {
+		return fmt.Sprintf("Do you like to clone the %s repository from %s into %s? [Y/n]: ", repoName, remoteURL, targetDir)
+	}
+	return fmt.Sprintf("Do you like to create the %s repository at %s? [Y/n]: ", repoName, targetDir)
+}
+
+func executeSpecialRepoAccept(db *store.SpecialReposSplitDB, rec store.SpecialRepositoryRecord, targetDir, remoteURL string) error {
+	if len(remoteURL) > 0 {
+		return cloneAndRecordSpecialRepo(db, rec, targetDir, remoteURL)
+	}
+	return createAndRecordSpecialRepo(db, rec, targetDir, remoteURL)
+}
+
+func cloneAndRecordSpecialRepo(db *store.SpecialReposSplitDB, rec store.SpecialRepositoryRecord, targetDir, remoteURL string) error {
+	cmd := exec.Command("git", "clone", remoteURL, targetDir)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return apperror.WrapSimple(err, "clone special repo: "+string(out))
+	}
+	fmt.Printf("  ✔ Cloned %s into %s\n\n", rec.ConfiguredName, targetDir)
+	return db.MarkPromptAnswered(rec.ShortKey, "cloned", targetDir, remoteURL)
+}
+
+func createAndRecordSpecialRepo(db *store.SpecialReposSplitDB, rec store.SpecialRepositoryRecord, targetDir, remoteURL string) error {
+	if err := ensureSpecialGitRepo(targetDir); err != nil {
+		return err
+	}
+	fmt.Printf("  ✔ Created %s repository at %s\n\n", rec.ConfiguredName, targetDir)
+	return db.MarkPromptAnswered(rec.ShortKey, "created", targetDir, remoteURL)
+}
+
+func applyAutoSpecialRepoResolution(db *store.SpecialReposSplitDB, rec store.SpecialRepositoryRecord, targetDir, remoteURL string) error {
+	if len(remoteURL) > 0 {
+		_ = exec.Command("git", "clone", remoteURL, targetDir).Run()
+		return db.MarkPromptAnswered(rec.ShortKey, "auto-cloned", targetDir, remoteURL)
 	}
 	if err := ensureSpecialGitRepo(targetDir); err != nil {
 		return err
 	}
-	return db.MarkPromptAnswered(rec.ShortKey, decision, targetDir, rec.RemoteURL)
+	return db.MarkPromptAnswered(rec.ShortKey, "auto-initialized", targetDir, remoteURL)
 }
 
-func printOneTimeSpecialRepoBanner(rec store.SpecialRepositoryRecord, targetDir string) {
+func printOneTimeSpecialRepoBanner(rec store.SpecialRepositoryRecord, targetDir, remoteURL string) {
 	fmt.Printf("╭── Special Repository Discovery: %s (%s) ─────────────────────────╮\n", rec.ConfiguredName, rec.ShortKey)
 	if rec.ShortKey == "rs" {
 		fmt.Printf("│ Purpose  : Keep secret files (.env, passwords, tokens) out of public repos.│\n")
@@ -344,6 +422,10 @@ func printOneTimeSpecialRepoBanner(rec store.SpecialRepositoryRecord, targetDir 
 		fmt.Printf("│ Purpose  : Store reusable temporary scripts (.ps1, test harnesses, scratch)│\n")
 		fmt.Printf("│ Settings : gitmap settings set special_repos.cache_name <custom-name>      │\n")
 		fmt.Printf("│ Usage    : gitmap rc file|folder|text | gitmap cd rc                       │\n")
+	}
+	fmt.Printf("│ Default  : %s is default (change anytime via 'gitmap settings')\n", rec.DefaultName)
+	if len(remoteURL) > 0 {
+		fmt.Printf("│ GitHub   : Found existing remote in your account: %s\n", remoteURL)
 	}
 	fmt.Printf("│ Location : %s\n", targetDir)
 	fmt.Printf("╰────────────────────────────────────────────────────────────────────────────╯\n")
