@@ -1,3 +1,9 @@
+## v6.386.0 — 2026-09-28 (fix(ci): resolve swallowed db errors, relative path violations, gofmt formatting, and osclean tests)
+
+**Scope:** Version bump. fix(ci): resolve swallowed db errors, relative path violations, gofmt formatting, and osclean tests.
+
+---
+
 ## v6.385.0 — 2026-09-28 (feat(special-repos): enhance auto-put routing, grouped tree ls, and flag shorthands)
 
 **Scope:** Version bump. feat(special-repos): enhance auto-put routing, grouped tree ls, and flag shorthands.
