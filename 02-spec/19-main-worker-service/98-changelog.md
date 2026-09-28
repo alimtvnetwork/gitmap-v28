@@ -1,3 +1,9 @@
+## v6.382.0 — 2026-09-28 (fix agy import cycle for uninstaller and devtool cleaner)
+
+**Scope:** Version bump. fix agy import cycle for uninstaller and devtool cleaner.
+
+---
+
 ## v6.381.0 — 2026-09-28 (agy agm copilot edge uninstall and 10-category devtool cleaner)
 
 **Scope:** Version bump. agy agm copilot edge uninstall and 10-category devtool cleaner.
