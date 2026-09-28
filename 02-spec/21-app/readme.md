@@ -32,5 +32,6 @@
 - [182-terminal-tab-completion-and-flag-suggestions.md](87-terminal-tab-completion-and-flag-suggestions.md) — Terminal Tab Completion, AGY Flag Suggestions & Shell Integration (Status: `active`)
 - [183-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md](88-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md) — SUG Enhancements, PE Path/Alias Resolution, PascalCase/Array Template Variables & Repo-Secrets Hygiene (Status: `active`)
 - [184-agy-rp-running-projects-and-recreate-safety.md](89-agy-rp-running-projects-and-recreate-safety.md) — AGY RP Running-Projects Remap & Recreate-Project Safety Guard (Status: `active`)
+- [185-agm-update-fix-and-account-switch-e2e.md](89-agm-update-fix-and-account-switch-e2e.md) — AGM Update Version Pinning Fix, Parallel Running-Prompts Backup with Media, Account Switch E2E & Threshold Governance (Status: `active`)
 
 

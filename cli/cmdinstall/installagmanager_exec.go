@@ -3,7 +3,7 @@ package cmdinstall
 import "strings"
 
 func isAgManagerInstalled() (string, bool) {
-	for _, name := range []string{"ag-manager", "Antigravity.Tools", "Antigravity-Manager"} {
+	for _, name := range []string{"agm-alim", "ag-manager", "Antigravity.Tools", "Antigravity-Manager"} {
 		if bin := resolveToolBinaryPath(name); bin != "" {
 			return "installed", true
 		}

@@ -10,6 +10,7 @@ import (
 func findAgManagerWindowsPath() string {
 	localAppData := resolveLocalAppDataDir()
 	candidates := []string{
+		filepath.Join(localAppData, "Programs", "agm-alim", "agm-alim.exe"),
 		filepath.Join(localAppData, "Programs", "Antigravity.Tools", "Antigravity.Tools.exe"),
 		filepath.Join(localAppData, "Programs", "antigravity-tools", "Antigravity.Tools.exe"),
 		filepath.Join(localAppData, "Programs", "Antigravity-Manager", "Antigravity-Manager.exe"),

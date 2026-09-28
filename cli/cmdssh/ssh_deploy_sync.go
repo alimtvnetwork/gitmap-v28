@@ -99,7 +99,7 @@ func buildWindowsProbeCmd(path string) string {
 
 func buildUnixProbeCmd(path string) string {
 	escaped := strings.ReplaceAll(path, "'", "'\\''")
-	return fmt.Sprintf("sh -c 'p=\"%s\"; if [ -e \"$p\" ]; then d=false; [ -d \"$p\" ] && d=true; sz=$(stat -c \"%%s\" \"$p\" 2>/dev/null || stat -f \"%%z\" \"$p\" 2>/dev/null || echo 0); mt=$(stat -c \"%%Y\" \"$p\" 2>/dev/null || stat -f \"%%m\" \"$p\" 2>/dev/null || echo 0); echo \"{\\\"exists\\\":true,\\\"isDir\\\":$d,\\\"size\\\":$sz,\\\"modEpoch\\\":$mt}\"; else echo \"{\\\"exists\\\":false,\\\"isDir\\\":false,\\\"size\\\":0,\\\"modEpoch\\\":0}\"; fi'", escaped)
+	return fmt.Sprintf("sh -c 'p=\"$1\"; if [ -e \"$p\" ]; then d=false; [ -d \"$p\" ] && d=true; sz=$(stat -c \"%%s\" \"$p\" 2>/dev/null || stat -f \"%%z\" \"$p\" 2>/dev/null || echo 0); mt=$(stat -c \"%%Y\" \"$p\" 2>/dev/null || stat -f \"%%m\" \"$p\" 2>/dev/null || echo 0); echo \"{\\\"exists\\\":true,\\\"isDir\\\":$d,\\\"size\\\":$sz,\\\"modEpoch\\\":$mt}\"; else echo \"{\\\"exists\\\":false,\\\"isDir\\\":false,\\\"size\\\":0,\\\"modEpoch\\\":0}\"; fi' _ '%s'", escaped)
 }
 
 func probeFallbackOnErr(rawOut string, err error) (RemoteFileInfo, error) {
@@ -138,14 +138,18 @@ func parseProbeModTime(modStr string, epoch int64) time.Time {
 	if epoch > 0 {
 		return time.Unix(epoch, 0)
 	}
-	if modStr == "" {
+	return parseRFC3339Time(modStr)
+}
+
+func parseRFC3339Time(s string) time.Time {
+	if s == "" {
 		return time.Time{}
 	}
-	if parsed, err := time.Parse(time.RFC3339Nano, modStr); err == nil {
-		return parsed
+	if t, err := time.Parse(time.RFC3339Nano, s); err == nil {
+		return t
 	}
-	parsed, _ := time.Parse(time.RFC3339, modStr)
-	return parsed
+	t, _ := time.Parse(time.RFC3339, s)
+	return t
 }
 
 // evaluateFileConflict determines the sync action based on local and remote metadata.

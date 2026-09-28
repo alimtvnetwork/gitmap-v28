@@ -33,6 +33,7 @@ const (
     PromptText TEXT NOT NULL,
     PromptStatus TEXT NOT NULL,
     WordCount INTEGER NOT NULL DEFAULT 0,
+    MediaPathsJson TEXT NOT NULL DEFAULT '[]',
     CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(BatchId) REFERENCES PromptBackupBatch(BatchId) ON DELETE CASCADE
 );
@@ -102,6 +103,7 @@ func (db *BackupPromptsSplitDB) InitSchema() error {
 			return apperror.WrapSimple(err, "init backup-prompts schema")
 		}
 	}
+	_, _ = db.conn.Exec("ALTER TABLE PromptBackupItem ADD COLUMN MediaPathsJson TEXT NOT NULL DEFAULT '[]'")
 	return nil
 }
 

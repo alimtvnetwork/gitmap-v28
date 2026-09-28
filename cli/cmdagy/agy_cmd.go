@@ -194,6 +194,9 @@ func normalizeWorkflowSubcommands(low string) string {
 	if match := normalizePromptSubcommands(low); len(match) > 0 {
 		return match
 	}
+	if match := normalizeRunningAndSwitchSubcommands(low); len(match) > 0 {
+		return match
+	}
 	if low == "list-prompts" || low == "listprompts" || low == "lp" || low == "list-prompt" {
 		return "list-prompts"
 	}
@@ -206,6 +209,20 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "conv-rename" || low == "cr" || low == "rename-conv" {
 		return "conv-rename"
 	}
+	if low == "sug" || low == "shutdown-until" || low == "shutdown-until-green" {
+		return "shutdown-until-green"
+	}
+	if low == "fpug" || low == "finish-prompts-until-green" {
+		return "finish-prompts-until-green"
+	}
+
+	return ""
+}
+
+func normalizeRunningAndSwitchSubcommands(low string) string {
+	if low == "account-switch" || low == "switch-account" || low == "asw" {
+		return "account-switch"
+	}
 	if low == "running-prompts" || low == "running-prompt" || low == "rp-prompts" {
 		return "running-prompts"
 	}
@@ -215,16 +232,9 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "restore-running-prompts" || low == "restore-running-prompt" || low == "rrp" {
 		return "restore-running-prompts"
 	}
-	if low == "sug" || low == "shutdown-until" || low == "shutdown-until-green" {
-		return "shutdown-until-green"
-	}
-	if low == "fpug" || low == "finish-prompts-until-green" {
-		return "finish-prompts-until-green"
-	}
 	if low == "running-projects" || low == "runningprojects" || low == "rp" {
 		return "running-projects"
 	}
-
 	return ""
 }
 
@@ -315,6 +325,7 @@ func init() {
 	initAgyQueueCommands()
 	initAgyPromptAndStatusCommands()
 	initAgyRunningPromptsCommands()
+	initAgyAccountSwitchCommands()
 	AgyCmd.SetHelpFunc(renderAgyHelp)
 }
 

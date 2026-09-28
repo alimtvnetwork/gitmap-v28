@@ -16,6 +16,46 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
+type conflictPromptSession struct {
+	mu             sync.Mutex
+	isAllOverwrite bool
+	isAllSkip      bool
+}
+
+func (s *conflictPromptSession) prompt(relPath string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.isAllOverwrite {
+		return true
+	}
+	if s.isAllSkip {
+		return false
+	}
+	return s.askUser(relPath)
+}
+
+func (s *conflictPromptSession) askUser(relPath string) bool {
+	fmt.Printf("  File '%s' exists on remote. Overwrite? [y/N/a(ll)/s(kip all)]: ", relPath)
+	var answer string
+	if _, err := fmt.Scanln(&answer); err != nil {
+		return false
+	}
+	clean := strings.ToLower(strings.TrimSpace(answer))
+	return s.applyAnswer(clean)
+}
+
+func (s *conflictPromptSession) applyAnswer(clean string) bool {
+	if clean == "a" || clean == "all" {
+		s.isAllOverwrite = true
+		return true
+	}
+	if clean == "s" || clean == "skip all" || clean == "skip" {
+		s.isAllSkip = true
+		return false
+	}
+	return clean == "y" || clean == "yes"
+}
+
 // scanLocalFolder recursively scans the rootPath and returns all files as LocalFileInfo items.
 func scanLocalFolder(rootPath string) ([]LocalFileInfo, error) {
 	cleanRoot := filepath.Clean(rootPath)
@@ -31,24 +71,25 @@ func scanLocalFolder(rootPath string) ([]LocalFileInfo, error) {
 
 func walkDirectoryFiles(root string) ([]LocalFileInfo, error) {
 	var items []LocalFileInfo
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
+	walker := makeFileWalker(root, &items)
+	if err := filepath.Walk(root, walker); err != nil {
+		return nil, apperror.WrapSimple(err, "walkDirectoryFiles")
+	}
+	return items, nil
+}
+
+func makeFileWalker(root string, items *[]LocalFileInfo) filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
 			return err
-		}
-		if info.IsDir() {
-			return nil
 		}
 		rel, err := filepath.Rel(root, path)
 		if err != nil {
 			return err
 		}
-		items = append(items, buildLocalFileInfo(path, rel, info))
+		*items = append(*items, buildLocalFileInfo(path, rel, info))
 		return nil
-	})
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "walkDirectoryFiles")
 	}
-	return items, nil
 }
 
 func buildLocalFileInfo(absPath, relPath string, info os.FileInfo) LocalFileInfo {
@@ -68,8 +109,9 @@ func executeParallelFolderDeploy(client *ssh.Client, node db.SSHConnection, item
 	jobs := make(chan LocalFileInfo, len(items))
 	results := make(chan FileDeployResult, len(items))
 	var wg sync.WaitGroup
+	session := &conflictPromptSession{}
 
-	spawnDeployWorkers(client, node, destRoot, opts, jobs, results, workerCount, &wg)
+	spawnDeployWorkers(client, node, destRoot, opts, session, jobs, results, workerCount, &wg)
 	feedJobsAndClose(items, jobs)
 	go awaitWorkersAndClose(&wg, results)
 
@@ -89,15 +131,15 @@ func resolveWorkerCount(requested, itemCount int) int {
 		workers = 16
 	}
 	if workers > itemCount {
-		workers = itemCount
+		return itemCount
 	}
 	return workers
 }
 
-func spawnDeployWorkers(client *ssh.Client, node db.SSHConnection, destRoot string, opts DeployOptions, jobs <-chan LocalFileInfo, results chan<- FileDeployResult, count int, wg *sync.WaitGroup) {
+func spawnDeployWorkers(client *ssh.Client, node db.SSHConnection, destRoot string, opts DeployOptions, session *conflictPromptSession, jobs <-chan LocalFileInfo, results chan<- FileDeployResult, count int, wg *sync.WaitGroup) {
 	for w := 0; w < count; w++ {
 		wg.Add(1)
-		go runFolderDeployWorker(client, node, destRoot, opts, jobs, results, wg)
+		go runFolderDeployWorker(client, node, destRoot, opts, session, jobs, results, wg)
 	}
 }
 
@@ -113,16 +155,16 @@ func awaitWorkersAndClose(wg *sync.WaitGroup, results chan<- FileDeployResult) {
 	close(results)
 }
 
-func runFolderDeployWorker(client *ssh.Client, node db.SSHConnection, destRoot string, opts DeployOptions, jobs <-chan LocalFileInfo, results chan<- FileDeployResult, wg *sync.WaitGroup) {
+func runFolderDeployWorker(client *ssh.Client, node db.SSHConnection, destRoot string, opts DeployOptions, session *conflictPromptSession, jobs <-chan LocalFileInfo, results chan<- FileDeployResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 	isWin := isWindowsOS(node.OS)
 	for item := range jobs {
-		res := deploySingleFolderItem(client, node, destRoot, item, opts, isWin)
+		res := deploySingleFolderItem(client, node, destRoot, item, opts, session, isWin)
 		results <- res
 	}
 }
 
-func deploySingleFolderItem(client *ssh.Client, node db.SSHConnection, destRoot string, item LocalFileInfo, opts DeployOptions, isWin bool) FileDeployResult {
+func deploySingleFolderItem(client *ssh.Client, node db.SSHConnection, destRoot string, item LocalFileInfo, opts DeployOptions, session *conflictPromptSession, isWin bool) FileDeployResult {
 	destPath := joinRemotePath(destRoot, item.RelPath, isWin)
 	remoteInfo, err := probeRemoteFileInfo(client, destPath, isWin)
 	if err != nil {
@@ -133,20 +175,43 @@ func deploySingleFolderItem(client *ssh.Client, node db.SSHConnection, destRoot 
 	if err != nil {
 		return FileDeployResult{RelPath: item.RelPath, Success: false, Error: err.Error()}
 	}
-	return executeDeployAction(client, node, item, destPath, action, opts, isWin)
+	return executeDeployAction(client, node, item, destPath, remoteInfo, action, opts, session, isWin)
 }
 
-func executeDeployAction(client *ssh.Client, node db.SSHConnection, item LocalFileInfo, destPath string, action DeployAction, opts DeployOptions, isWin bool) FileDeployResult {
+func executeDeployAction(client *ssh.Client, node db.SSHConnection, item LocalFileInfo, destPath string, remote RemoteFileInfo, action DeployAction, opts DeployOptions, session *conflictPromptSession, isWin bool) FileDeployResult {
 	if action == ActionSkip {
 		return FileDeployResult{RelPath: item.RelPath, Action: ActionSkip, Success: true}
 	}
 	if action == ActionConflictPrompt {
-		return handleFolderConflictPrompt(item, opts)
+		return handleConflictPromptAction(client, node, item, destPath, remote, opts, session)
 	}
 	if action == ActionTransferToLocal {
 		return transferRemoteToLocal(client, destPath, item.AbsPath, isWin)
 	}
 	return transferLocalToRemote(client, node, item, destPath, opts)
+}
+
+func handleConflictPromptAction(client *ssh.Client, node db.SSHConnection, item LocalFileInfo, destPath string, remote RemoteFileInfo, opts DeployOptions, session *conflictPromptSession) FileDeployResult {
+	if !opts.IsInteractive {
+		return buildConflictResult(item, destPath, remote)
+	}
+	if session != nil && session.prompt(item.RelPath) {
+		return transferLocalToRemote(client, node, item, destPath, opts)
+	}
+	return FileDeployResult{RelPath: item.RelPath, Action: ActionSkip, Success: true}
+}
+
+func buildConflictResult(item LocalFileInfo, destPath string, remote RemoteFileInfo) FileDeployResult {
+	record := DeployConflictRecord{
+		Source:      item.RelPath,
+		Destination: destPath,
+		LocalMtime:  item.ModTime.Unix(),
+		RemoteMtime: remote.ModTime.Unix(),
+		LocalSize:   item.Size,
+		RemoteSize:  remote.Size,
+		Reason:      "remote file exists and no sync mode specified",
+	}
+	return FileDeployResult{RelPath: item.RelPath, Action: ActionConflictPrompt, Success: true, Conflict: &record}
 }
 
 func transferLocalToRemote(client *ssh.Client, node db.SSHConnection, item LocalFileInfo, destPath string, opts DeployOptions) FileDeployResult {
@@ -157,8 +222,7 @@ func transferLocalToRemote(client *ssh.Client, node db.SSHConnection, item Local
 	if err != nil {
 		return FileDeployResult{RelPath: item.RelPath, Action: ActionTransferToRemote, Success: false, Error: err.Error()}
 	}
-	err = StreamFileToRemote(client, destPath, data, node.OS)
-	if err != nil {
+	if err := StreamFileToRemote(client, destPath, data, node.OS); err != nil {
 		return FileDeployResult{RelPath: item.RelPath, Action: ActionTransferToRemote, Success: false, Error: err.Error()}
 	}
 	return FileDeployResult{RelPath: item.RelPath, Action: ActionTransferToRemote, Bytes: int64(len(data)), Success: true}
@@ -169,13 +233,17 @@ func transferRemoteToLocal(client *ssh.Client, remotePath, localPath string, isW
 	if err != nil {
 		return FileDeployResult{RelPath: remotePath, Action: ActionTransferToLocal, Success: false, Error: err.Error()}
 	}
-	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
-		return FileDeployResult{RelPath: remotePath, Action: ActionTransferToLocal, Success: false, Error: err.Error()}
-	}
-	if err := os.WriteFile(localPath, data, 0644); err != nil {
+	if err := saveLocalFileBytes(localPath, data); err != nil {
 		return FileDeployResult{RelPath: remotePath, Action: ActionTransferToLocal, Success: false, Error: err.Error()}
 	}
 	return FileDeployResult{RelPath: remotePath, Action: ActionTransferToLocal, Bytes: int64(len(data)), Success: true}
+}
+
+func saveLocalFileBytes(localPath string, data []byte) error {
+	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
+		return err
+	}
+	return os.WriteFile(localPath, data, 0644)
 }
 
 func pullRemoteFileBytes(client *ssh.Client, remotePath string, isWin bool) ([]byte, error) {
@@ -184,8 +252,7 @@ func pullRemoteFileBytes(client *ssh.Client, remotePath string, isWin bool) ([]b
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "pullRemoteFileBytes")
 	}
-	clean := strings.TrimSpace(b64Out)
-	data, err := base64.StdEncoding.DecodeString(clean)
+	data, err := base64.StdEncoding.DecodeString(strings.TrimSpace(b64Out))
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "pullRemoteFileBytes.decode")
 	}
@@ -197,25 +264,12 @@ func buildPullFileCmd(remotePath string, isWin bool) string {
 		escaped := strings.ReplaceAll(remotePath, "'", "''")
 		return fmt.Sprintf("powershell.exe -NoProfile -Command \"[Convert]::ToBase64String([System.IO.File]::ReadAllBytes('%s'))\"", escaped)
 	}
-	return fmt.Sprintf("base64 < '%s'", remotePath)
-}
-
-func handleFolderConflictPrompt(item LocalFileInfo, opts DeployOptions) FileDeployResult {
-	if !opts.IsInteractive {
-		return FileDeployResult{RelPath: item.RelPath, Action: ActionSkip, Success: true}
-	}
-	return FileDeployResult{RelPath: item.RelPath, Action: ActionConflictPrompt, Success: true}
+	escaped := strings.ReplaceAll(remotePath, "'", "'\\''")
+	return fmt.Sprintf("base64 < '%s'", escaped)
 }
 
 func collectFolderDeployResults(node db.SSHConnection, src, dest string, mode DeploySyncMode, results <-chan FileDeployResult) DeployResult {
-	res := DeployResult{
-		Target:      node.Alias,
-		IP:          node.IPAddress,
-		Source:      src,
-		Destination: dest,
-		Mode:        string(mode),
-		Success:     true,
-	}
+	res := makeInitialFolderDeployResult(node, src, dest, mode)
 	for r := range results {
 		res.TotalFiles++
 		res.FileResults = append(res.FileResults, r)
@@ -224,11 +278,26 @@ func collectFolderDeployResults(node db.SSHConnection, src, dest string, mode De
 	return res
 }
 
+func makeInitialFolderDeployResult(node db.SSHConnection, src, dest string, mode DeploySyncMode) DeployResult {
+	return DeployResult{
+		Target:      node.Alias,
+		IP:          node.IPAddress,
+		Source:      src,
+		Destination: dest,
+		Mode:        string(mode),
+		Success:     true,
+	}
+}
+
 func updateFolderDeployMetrics(res *DeployResult, r FileDeployResult) {
 	if !r.Success {
 		res.Success = false
 		return
 	}
+	applySuccessfulFileMetric(res, r)
+}
+
+func applySuccessfulFileMetric(res *DeployResult, r FileDeployResult) {
 	if r.Action == ActionSkip {
 		res.SkippedFiles++
 		return

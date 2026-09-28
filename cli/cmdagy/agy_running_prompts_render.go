@@ -127,12 +127,14 @@ func buildRunningPromptsHelpMenu() termhelp.HelpMenu {
 		Sections: []termhelp.HelpSection{
 			buildRunningPromptsOpsSection(),
 			buildRunningPromptsIOSection(),
+			buildRunningPromptsExamplesSection(),
 		},
 		FooterFlags: buildRunningPromptsFooterFlags(),
 		Tips: []string{
-			"Use 'gitmap agy running-prompts ls' to see active prompts across all workspaces.",
-			"Run 'gitmap backup-running-prompts' before restarting machines or rebooting.",
-			"Run 'gitmap restore-running-prompts' to re-enqueue prompts after system reboot.",
+			"Run 'gitmap agy running-prompts backup' before switching accounts or restarting.",
+			"Run 'gitmap agy running-prompts restore' to re-enqueue backed-up prompts.",
+			"Test live quota switching via 'gitmap agy account-switch test --threshold 98'.",
+			"Update Antigravity Manager via 'gitmap agm update' or 'gitmap agm update --version 4.89.0'.",
 		},
 	}
 }
@@ -155,6 +157,19 @@ func buildRunningPromptsIOSection() termhelp.HelpSection {
 		Entries: []termhelp.CommandEntry{
 			{Command: "export", Description: "Export prompts to SQLite database (.db) or JSON (.json)"},
 			{Command: "import", Description: "Import prompts from SQLite or JSON file into queues"},
+		},
+	}
+}
+
+func buildRunningPromptsExamplesSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Real-World Examples",
+		Entries: []termhelp.CommandEntry{
+			{Command: "gitmap agy running-prompts backup", Description: "Snapshot all active & queued prompts into Split-DB"},
+			{Command: "gitmap agy running-prompts restore", Description: "Re-enqueue backed-up prompts into active workspaces"},
+			{Command: "gitmap agy account-switch test --threshold 98", Description: "Verify end-to-end backup, account rotation, and prompt restore"},
+			{Command: "gitmap agm update", Description: "Update Antigravity Manager (agm-alim) to latest release"},
+			{Command: "gitmap agm update --version 4.89.0", Description: "Pin Antigravity Manager update to release v4.89.0"},
 		},
 	}
 }

@@ -3,7 +3,9 @@ package store
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -39,7 +41,8 @@ func insertBatchSummaryRow(tx *sql.Tx, summary PromptBackupSummary) error {
 	if len(cAt) == 0 {
 		cAt = time.Now().UTC().Format(time.RFC3339)
 	}
-	_, err := tx.Exec(q, summary.BatchId, summary.DatabasePath, summary.TotalPrompts, summary.RunningCount, summary.EnqueuedCount, cAt, "")
+	note := strings.Join(summary.ProjectNames, ",")
+	_, err := tx.Exec(q, summary.BatchId, summary.DatabasePath, summary.TotalPrompts, summary.RunningCount, summary.EnqueuedCount, cAt, note)
 	if err != nil {
 		return apperror.WrapSimple(err, "insert batch summary")
 	}
@@ -47,19 +50,66 @@ func insertBatchSummaryRow(tx *sql.Tx, summary PromptBackupSummary) error {
 }
 
 func insertBatchItemRows(tx *sql.Tx, batchID string, items []RunningPromptRecord) error {
-	q := `INSERT INTO PromptBackupItem (ItemId, BatchId, ProjectName, ProjectPath, ProjectId, ConversationId, SequenceId, PromptText, PromptStatus, WordCount, CreatedAt)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	for idx, item := range items {
-		itemID := fmt.Sprintf("item-%s-%d", batchID, idx+1)
-		cAt := item.CreatedAt
-		if len(cAt) == 0 {
-			cAt = time.Now().UTC().Format(time.RFC3339)
-		}
-		if _, err := tx.Exec(q, itemID, batchID, item.ProjectName, item.ProjectPath, item.ProjectId, item.ConversationId, item.SequenceId, item.Prompt, string(item.Status), item.WordCount, cAt); err != nil {
-			return apperror.WrapSimple(err, "insert batch item")
+		if err := insertSingleBatchItemRow(tx, batchID, idx+1, item); err != nil {
+			return err
 		}
 	}
 	return nil
+}
+
+func insertSingleBatchItemRow(tx *sql.Tx, batchID string, seq int, item RunningPromptRecord) error {
+	q := `INSERT INTO PromptBackupItem (ItemId, BatchId, ProjectName, ProjectPath, ProjectId, ConversationId, SequenceId, PromptText, PromptStatus, WordCount, MediaPathsJson, CreatedAt)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	itemID := fmt.Sprintf("item-%s-%d", batchID, seq)
+	cAt := resolveItemCreatedAt(item.CreatedAt)
+	mediaJSON := marshalMediaPaths(item.MediaPaths)
+	_, err := tx.Exec(q, itemID, batchID, item.ProjectName, item.ProjectPath, item.ProjectId, item.ConversationId, item.SequenceId, item.Prompt, string(item.Status), item.WordCount, mediaJSON, cAt)
+	if err != nil {
+		return apperror.WrapSimple(err, "insert batch item")
+	}
+	return nil
+}
+
+func resolveItemCreatedAt(createdAt string) string {
+	if len(createdAt) == 0 {
+		return time.Now().UTC().Format(time.RFC3339)
+	}
+	return createdAt
+}
+
+func marshalMediaPaths(paths []string) string {
+	if len(paths) == 0 {
+		return "[]"
+	}
+	raw, err := json.Marshal(paths)
+	if err != nil {
+		return "[]"
+	}
+	return string(raw)
+}
+
+func unmarshalMediaPaths(raw string) []string {
+	var paths []string
+	if len(strings.TrimSpace(raw)) == 0 {
+		return nil
+	}
+	_ = json.Unmarshal([]byte(raw), &paths)
+	return paths
+}
+
+// ExtractUniqueProjectNames extracts unique human-readable project names from items.
+func ExtractUniqueProjectNames(items []RunningPromptRecord) []string {
+	seen := make(map[string]bool)
+	var names []string
+	for _, it := range items {
+		name := strings.TrimSpace(it.ProjectName)
+		if len(name) > 0 && !seen[name] {
+			seen[name] = true
+			names = append(names, name)
+		}
+	}
+	return names
 }
 
 // ListBackupBatches returns all recorded backup batches with their active/restored status.
@@ -117,13 +167,14 @@ func (db *BackupPromptsSplitDB) populateBatchItems(summary *PromptBackupSummary,
 		return nil, err
 	}
 	summary.Items = items
+	summary.ProjectNames = ExtractUniqueProjectNames(items)
 	_, size, _ := db.GetStorageInfo()
 	summary.DatabaseSize = size
 	return summary, nil
 }
 
 func (db *BackupPromptsSplitDB) getBackupBatchItems(batchId string) ([]RunningPromptRecord, error) {
-	q := `SELECT ProjectName, ProjectPath, ProjectId, ConversationId, SequenceId, PromptText, PromptStatus, WordCount, CreatedAt
+	q := `SELECT ProjectName, ProjectPath, ProjectId, ConversationId, SequenceId, PromptText, PromptStatus, WordCount, MediaPathsJson, CreatedAt
 	FROM PromptBackupItem WHERE BatchId = ? ORDER BY CreatedAt ASC`
 	rows, err := db.conn.Query(q, batchId)
 	if err != nil {
@@ -137,11 +188,12 @@ func scanItemRecords(rows *sql.Rows) ([]RunningPromptRecord, error) {
 	var items []RunningPromptRecord
 	for rows.Next() {
 		var item RunningPromptRecord
-		var statusStr string
-		if err := rows.Scan(&item.ProjectName, &item.ProjectPath, &item.ProjectId, &item.ConversationId, &item.SequenceId, &item.Prompt, &statusStr, &item.WordCount, &item.CreatedAt); err != nil {
+		var statusStr, mediaJSON string
+		if err := rows.Scan(&item.ProjectName, &item.ProjectPath, &item.ProjectId, &item.ConversationId, &item.SequenceId, &item.Prompt, &statusStr, &item.WordCount, &mediaJSON, &item.CreatedAt); err != nil {
 			return nil, apperror.WrapSimple(err, "scan item row")
 		}
 		item.Status = PromptStatusType(statusStr)
+		item.MediaPaths = unmarshalMediaPaths(mediaJSON)
 		items = append(items, item)
 	}
 	return items, rows.Err()

@@ -22,6 +22,7 @@ type RunningPromptRecord struct {
 	Snippet        string           `json:"snippet"`
 	Status         PromptStatusType `json:"status"`
 	WordCount      int              `json:"wordCount"`
+	MediaPaths     []string         `json:"mediaPaths,omitempty"`
 	Node           string           `json:"node,omitempty"`
 	Host           string           `json:"host,omitempty"`
 	CreatedAt      string           `json:"createdAt"`
@@ -33,6 +34,7 @@ type PromptBackupSummary struct {
 	TotalPrompts  int                   `json:"totalPrompts"`
 	RunningCount  int                   `json:"runningCount"`
 	EnqueuedCount int                   `json:"enqueuedCount"`
+	ProjectNames  []string              `json:"projectNames,omitempty"`
 	DatabasePath  string                `json:"databasePath"`
 	DatabaseSize  int64                 `json:"databaseSizeBytes"`
 	CreatedAt     string                `json:"createdAt"`

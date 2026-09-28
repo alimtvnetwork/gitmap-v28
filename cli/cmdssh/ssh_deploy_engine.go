@@ -36,11 +36,12 @@ type DeployResult struct {
 
 // FileDeployResult records the action and outcome of an individual file.
 type FileDeployResult struct {
-	RelPath string       `json:"relPath"`
-	Action  DeployAction `json:"action"`
-	Bytes   int64        `json:"bytes"`
-	Success bool         `json:"success"`
-	Error   string       `json:"error,omitempty"`
+	RelPath  string                `json:"relPath"`
+	Action   DeployAction          `json:"action"`
+	Bytes    int64                 `json:"bytes"`
+	Success  bool                  `json:"success"`
+	Error    string                `json:"error,omitempty"`
+	Conflict *DeployConflictRecord `json:"conflict,omitempty"`
 }
 
 // ExecuteDeploy orchestrates verification, connectivity, path resolution, and file/folder deployment.
@@ -58,7 +59,6 @@ func ExecuteDeploy(opts DeployOptions) error {
 		return err
 	}
 	defer client.Close()
-
 	return runDeployPipeline(client, node, srcInfo, opts)
 }
 
@@ -98,7 +98,7 @@ func dialTargetNodeClient(node db.SSHConnection) (*ssh.Client, error) {
 }
 
 func runDeployPipeline(client *ssh.Client, node db.SSHConnection, srcInfo os.FileInfo, opts DeployOptions) error {
-	resolvedDest := resolveRemoteDestination(client, node, opts.DestPath, filepath.Base(opts.SourcePath))
+	resolvedDest := resolveRemoteDestination(client, node, opts.DestPath, filepath.Base(opts.SourcePath), srcInfo.IsDir())
 	t0 := time.Now()
 	res, err := dispatchDeployTarget(client, node, resolvedDest, srcInfo, opts)
 	if err != nil {
@@ -126,19 +126,28 @@ func dispatchFolderDeploy(client *ssh.Client, node db.SSHConnection, destPath st
 func executeSingleFileDeploy(client *ssh.Client, node db.SSHConnection, srcPath, destPath string, srcInfo os.FileInfo, opts DeployOptions) (DeployResult, error) {
 	isWin := isWindowsOS(node.OS)
 	localItem := buildLocalFileInfo(srcPath, filepath.Base(srcPath), srcInfo)
-	remoteInfo, err := probeRemoteFileInfo(client, destPath, isWin)
-	if err != nil {
-		return DeployResult{}, err
-	}
-	mode := resolveDeploySyncMode(opts)
-	action, err := evaluateFileConflict(localItem, remoteInfo, mode)
+	fileRes, mode, err := processSingleFileTransfer(client, node, localItem, destPath, opts, isWin)
 	if err != nil {
 		return DeployResult{}, err
 	}
 	res := buildInitialSingleDeployResult(node, srcPath, destPath, mode)
-	fileRes := executeDeployAction(client, node, localItem, destPath, action, opts, isWin)
 	applySingleDeployResult(&res, fileRes)
 	return res, nil
+}
+
+func processSingleFileTransfer(client *ssh.Client, node db.SSHConnection, local LocalFileInfo, destPath string, opts DeployOptions, isWin bool) (FileDeployResult, DeploySyncMode, error) {
+	remoteInfo, err := probeRemoteFileInfo(client, destPath, isWin)
+	if err != nil {
+		return FileDeployResult{}, SyncModeNone, err
+	}
+	mode := resolveDeploySyncMode(opts)
+	action, err := evaluateFileConflict(local, remoteInfo, mode)
+	if err != nil {
+		return FileDeployResult{}, mode, err
+	}
+	session := &conflictPromptSession{}
+	fileRes := executeDeployAction(client, node, local, destPath, remoteInfo, action, opts, session, isWin)
+	return fileRes, mode, nil
 }
 
 func buildInitialSingleDeployResult(node db.SSHConnection, src, dest string, mode DeploySyncMode) DeployResult {
@@ -160,6 +169,10 @@ func applySingleDeployResult(res *DeployResult, fileRes FileDeployResult) {
 		res.ErrorMessage = fileRes.Error
 		return
 	}
+	applySingleDeploySuccess(res, fileRes)
+}
+
+func applySingleDeploySuccess(res *DeployResult, fileRes FileDeployResult) {
 	if fileRes.Action == ActionSkip {
 		res.SkippedFiles = 1
 		return
@@ -172,16 +185,23 @@ func applySingleDeployResult(res *DeployResult, fileRes FileDeployResult) {
 	res.TransferredBytes = fileRes.Bytes
 }
 
-func resolveRemoteDestination(client *ssh.Client, node db.SSHConnection, rawDest, srcBase string) string {
+func resolveRemoteDestination(client *ssh.Client, node db.SSHConnection, rawDest, srcBase string, isSrcDir bool) string {
 	isWin := isWindowsOS(node.OS)
 	baseDest := rawDest
 	if !isAbsolutePath(rawDest, isWin) {
 		baseDest = prefixRemoteWorkDir(rawDest, isWin)
 	}
-	if isDirDestination(rawDest) {
+	if isBaseAppendNeeded(rawDest, srcBase, isSrcDir) {
 		return joinRemotePath(baseDest, srcBase, isWin)
 	}
 	return baseDest
+}
+
+func isBaseAppendNeeded(rawDest, srcBase string, isSrcDir bool) bool {
+	if isSrcDir {
+		return strings.HasSuffix(rawDest, "/") || strings.HasSuffix(rawDest, "\\")
+	}
+	return isDirDestination(rawDest)
 }
 
 func prefixRemoteWorkDir(relPath string, isWin bool) string {
@@ -210,52 +230,88 @@ func isAbsolutePath(path string, isWin bool) bool {
 }
 
 func outputDeployResult(res DeployResult, opts DeployOptions) error {
-	if opts.IsJSON {
-		return RenderDeployJSONSummary(buildDeploySummaryJSON(res, opts))
+	if !opts.IsJSON {
+		renderDeployBanner(res)
+		return nil
 	}
-	renderDeployBanner(res)
-	return nil
+	if res.Conflicts > 0 {
+		return RenderConflictJSONPrompt(extractDeployConflicts(res))
+	}
+	return RenderDeployJSONSummary(buildDeploySummaryJSON(res, opts))
+}
+
+func extractDeployConflicts(res DeployResult) []DeployConflictRecord {
+	var records []DeployConflictRecord
+	for _, f := range res.FileResults {
+		if f.Action == ActionConflictPrompt && f.Conflict != nil {
+			records = append(records, *f.Conflict)
+		}
+	}
+	return records
 }
 
 func buildDeploySummaryJSON(res DeployResult, opts DeployOptions) DeploySummaryJSON {
-	exitCode := 0
-	status := "success"
-	if !res.Success {
-		exitCode = 1
-		status = "failed"
-	}
+	targetNode := DeployTargetNodeJSON{ID: opts.Host.ID, Alias: res.Target, IP: res.IP, OS: opts.Conn.OS, WorkDir: opts.RemoteWorkDir}
+	metrics := DeployMetricsJSON{FilesProcessed: res.TotalFiles, FilesTransferred: res.TransferredFiles, FilesSkipped: res.SkippedFiles, BytesTransferred: res.TransferredBytes, DurationMs: res.DurationMs, ParallelWorkers: opts.Parallel}
 	return DeploySummaryJSON{
-		Status:    status,
-		Command:   opts.SubCmd,
-		Direction: res.Mode,
-		TargetNode: DeployTargetNodeJSON{
-			Alias:   res.Target,
-			IP:      res.IP,
-			OS:      opts.Conn.OS,
-			WorkDir: opts.RemoteWorkDir,
-		},
-		Metrics: DeployMetricsJSON{
-			FilesProcessed:   res.TotalFiles,
-			FilesTransferred: res.TransferredFiles,
-			FilesSkipped:     res.SkippedFiles,
-			BytesTransferred: res.TransferredBytes,
-			DurationMs:       res.DurationMs,
-			ParallelWorkers:  opts.Parallel,
-		},
-		ExitCode: exitCode,
+		Status:     resolveDeployStatus(res.Success),
+		Command:    opts.SubCmd,
+		Direction:  res.Mode,
+		TargetNode: targetNode,
+		Metrics:    metrics,
+		Transfers:  buildDeployFileRecords(res.FileResults, opts),
+		Conflicts:  extractDeployConflicts(res),
+		ExitCode:   resolveDeployExitCode(res),
+	}
+}
+
+func resolveDeployExitCode(res DeployResult) int {
+	if !res.Success {
+		return 1
+	}
+	if res.Conflicts > 0 {
+		return 3
+	}
+	return 0
+}
+
+func resolveDeployStatus(isSuccess bool) string {
+	if isSuccess {
+		return "success"
+	}
+	return "failed"
+}
+
+func buildDeployFileRecords(results []FileDeployResult, opts DeployOptions) []DeployFileRecord {
+	var records []DeployFileRecord
+	for _, r := range results {
+		records = append(records, buildSingleDeployFileRecord(r, opts))
+	}
+	return records
+}
+
+func buildSingleDeployFileRecord(r FileDeployResult, opts DeployOptions) DeployFileRecord {
+	status := "transferred"
+	if r.Action == ActionSkip {
+		status = "skipped"
+	}
+	if r.Action == ActionConflictPrompt {
+		status = "conflict"
+	}
+	return DeployFileRecord{
+		Source:      r.RelPath,
+		Destination: r.RelPath,
+		Bytes:       r.Bytes,
+		Status:      status,
+		Direction:   opts.SubCmd,
 	}
 }
 
 func renderDeployBanner(res DeployResult) {
 	fmt.Println()
-	statusColor := constants.ColorGreen
-	statusIcon := "✓"
-	if !res.Success {
-		statusColor = constants.ColorRed
-		statusIcon = "✖"
-	}
+	color, icon := resolveBannerStatusStyle(res.Success)
 	fmt.Printf("  %s%s Deployment to [%s|%s] complete (%d ms)%s\n",
-		statusColor, statusIcon, res.Target, res.IP, res.DurationMs, constants.ColorReset)
+		color, icon, res.Target, res.IP, res.DurationMs, constants.ColorReset)
 	fmt.Printf("  • Source:      %s\n", res.Source)
 	fmt.Printf("  • Destination: %s\n", res.Destination)
 	fmt.Printf("  • Mode:        %s\n", res.Mode)
@@ -265,6 +321,13 @@ func renderDeployBanner(res DeployResult) {
 		constants.ColorYellow, res.SkippedFiles, constants.ColorReset)
 	printDeployBytesAndConflicts(res)
 	fmt.Println()
+}
+
+func resolveBannerStatusStyle(isSuccess bool) (string, string) {
+	if isSuccess {
+		return constants.ColorGreen, "✓"
+	}
+	return constants.ColorRed, "✖"
 }
 
 func printDeployBytesAndConflicts(res DeployResult) {

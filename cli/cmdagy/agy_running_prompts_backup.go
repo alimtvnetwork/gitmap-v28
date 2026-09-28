@@ -6,12 +6,19 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+)
+
+var (
+	reMarkdownMedia = regexp.MustCompile(`!\[[^\]]*\]\(([^)]+)\)`)
+	reRawUUID       = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 )
 
 func getAllProjects() ([]AgyProject, error) {
@@ -22,23 +29,68 @@ func getAllProjects() ([]AgyProject, error) {
 	return loadAllAgyProjects(dirPath)
 }
 
-// CollectActiveAndQueuedPrompts discovers running and pending prompts across all configured workspaces.
+// CollectActiveAndQueuedPrompts discovers running and pending prompts in parallel across all non-restricted workspaces.
 func CollectActiveAndQueuedPrompts(maxWords int, isFull bool) ([]store.RunningPromptRecord, error) {
 	projects, _ := getAllProjects()
+	eligible := filterNonRestrictedProjects(projects)
+	return collectPromptsParallel(eligible, maxWords, isFull), nil
+}
+
+func filterNonRestrictedProjects(projects []AgyProject) []AgyProject {
+	var out []AgyProject
+	for _, p := range projects {
+		path := strings.TrimSpace(p.GetPath())
+		if len(path) > 0 && !IsRestrictedSystemOrHomeDir(path) {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+func collectPromptsParallel(projects []AgyProject, maxWords int, isFull bool) []store.RunningPromptRecord {
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 	seen := make(map[string]bool)
 	var records []store.RunningPromptRecord
-	for _, p := range projects {
-		records = collectProjectPrompts(records, seen, p.Name, p.GetPath(), p.ID, maxWords, isFull)
+	for _, proj := range projects {
+		wg.Add(1)
+		go collectSingleProjectWorker(proj, maxWords, isFull, &wg, &mu, seen, &records)
 	}
-	cwd, _ := os.Getwd()
-	if len(cwd) > 0 {
-		records = collectProjectPrompts(records, seen, filepath.Base(cwd), cwd, "cwd", maxWords, isFull)
+	wg.Wait()
+	return records
+}
+
+func collectSingleProjectWorker(p AgyProject, maxWords int, isFull bool, wg *sync.WaitGroup, mu *sync.Mutex, seen map[string]bool, records *[]store.RunningPromptRecord) {
+	defer wg.Done()
+	localSeen := make(map[string]bool)
+	var local []store.RunningPromptRecord
+	projName := resolveHumanProjectName(p.Name, p.GetPath())
+	local = collectProjectPrompts(local, localSeen, projName, p.GetPath(), p.ID, maxWords, isFull)
+	mergeProjectPromptRecords(mu, seen, records, local)
+}
+
+func mergeProjectPromptRecords(mu *sync.Mutex, seen map[string]bool, dest *[]store.RunningPromptRecord, local []store.RunningPromptRecord) {
+	mu.Lock()
+	defer mu.Unlock()
+	for _, rec := range local {
+		key := fmt.Sprintf("%s:%s", rec.ProjectPath, rec.Prompt)
+		if !seen[key] {
+			seen[key] = true
+			*dest = append(*dest, rec)
+		}
 	}
-	return records, nil
+}
+
+func resolveHumanProjectName(name, projectPath string) string {
+	trimmed := strings.TrimSpace(name)
+	if len(trimmed) > 0 && !reRawUUID.MatchString(trimmed) {
+		return trimmed
+	}
+	return filepath.Base(filepath.Clean(projectPath))
 }
 
 func collectProjectPrompts(records []store.RunningPromptRecord, seen map[string]bool, name, path, id string, maxWords int, isFull bool) []store.RunningPromptRecord {
-	if len(path) == 0 {
+	if len(path) == 0 || IsRestrictedSystemOrHomeDir(path) {
 		return records
 	}
 	records = appendQueuePrompts(records, seen, name, path, id, maxWords, isFull)
@@ -103,11 +155,80 @@ func resolveQueueEntryStatus(status string) store.PromptStatusType {
 
 func buildRunningPromptRecord(name, path, id, text, createdAt string, status store.PromptStatusType, maxWords int, isFull bool) store.RunningPromptRecord {
 	snippet, wordCount := TruncateWords(text, maxWords)
+	humanName := resolveHumanProjectName(name, path)
 	return store.RunningPromptRecord{
-		ProjectName: name, ProjectPath: path, ProjectId: id,
+		ProjectName: humanName, ProjectPath: path, ProjectId: id,
 		Prompt: text, Snippet: resolveSnippet(text, snippet, isFull),
-		Status: status, WordCount: wordCount, CreatedAt: createdAt,
+		Status: status, WordCount: wordCount,
+		MediaPaths: extractPromptMediaPaths(text, path),
+		CreatedAt:  createdAt,
 	}
+}
+
+func extractPromptMediaPaths(text, projectPath string) []string {
+	seen := make(map[string]bool)
+	var paths []string
+	paths = appendMarkdownMediaPaths(paths, seen, text)
+	paths = appendTokenMediaPaths(paths, seen, text)
+	paths = appendProjectScreenshotPaths(paths, seen, projectPath)
+	return paths
+}
+
+func appendMarkdownMediaPaths(paths []string, seen map[string]bool, text string) []string {
+	matches := reMarkdownMedia.FindAllStringSubmatch(text, -1)
+	for _, m := range matches {
+		if len(m) > 1 {
+			paths = addUniqueMediaPath(paths, seen, m[1])
+		}
+	}
+	return paths
+}
+
+func appendTokenMediaPaths(paths []string, seen map[string]bool, text string) []string {
+	for _, tok := range strings.Fields(text) {
+		clean := strings.Trim(tok, "\"'`()[]{},;:")
+		if isSupportedMediaFile(clean) {
+			paths = addUniqueMediaPath(paths, seen, clean)
+		}
+	}
+	return paths
+}
+
+func appendProjectScreenshotPaths(paths []string, seen map[string]bool, projectPath string) []string {
+	if len(strings.TrimSpace(projectPath)) == 0 {
+		return paths
+	}
+	screenshotsDir := filepath.Join(projectPath, "assets", "screenshots")
+	entries, err := os.ReadDir(screenshotsDir)
+	if err != nil {
+		return paths
+	}
+	for _, e := range entries {
+		paths = appendScreenshotEntry(paths, seen, screenshotsDir, e)
+	}
+	return paths
+}
+
+func appendScreenshotEntry(paths []string, seen map[string]bool, dir string, entry os.DirEntry) []string {
+	if entry.IsDir() || !isSupportedMediaFile(entry.Name()) {
+		return paths
+	}
+	return addUniqueMediaPath(paths, seen, filepath.Join(dir, entry.Name()))
+}
+
+func isSupportedMediaFile(candidate string) bool {
+	low := strings.ToLower(strings.TrimSpace(candidate))
+	return strings.HasSuffix(low, ".png") || strings.HasSuffix(low, ".jpg") ||
+		strings.HasSuffix(low, ".jpeg") || strings.HasSuffix(low, ".webp")
+}
+
+func addUniqueMediaPath(paths []string, seen map[string]bool, candidate string) []string {
+	clean := strings.TrimSpace(candidate)
+	if len(clean) == 0 || seen[clean] {
+		return paths
+	}
+	seen[clean] = true
+	return append(paths, clean)
 }
 
 func resolveSnippet(prompt, snippet string, isFull bool) string {
@@ -156,42 +277,82 @@ func RunRunningPromptsBackup(customFile string, isJSON, isSSH bool) error {
 	if isSSH {
 		return AggregateSSHRunningPromptsBackup(customFile, isJSON)
 	}
-	db, err := store.OpenBackupPromptsSplitDB(customFile)
+	summary, err := RunRunningPromptsBackupSummary(customFile)
 	if err != nil {
 		return err
+	}
+	return outputBackupResult(summary, isJSON)
+}
+
+// RunRunningPromptsBackupSummary snapshots running prompts and returns the PromptBackupSummary.
+func RunRunningPromptsBackupSummary(customFile string) (store.PromptBackupSummary, error) {
+	db, err := store.OpenBackupPromptsSplitDB(customFile)
+	if err != nil {
+		return store.PromptBackupSummary{}, err
 	}
 	defer db.Close()
 	_, _ = db.PruneOldRestoredEntries(24*time.Hour, false)
 	items, cErr := CollectActiveAndQueuedPrompts(0, true)
 	if cErr != nil {
-		return cErr
+		return store.PromptBackupSummary{}, cErr
 	}
-	return executeBackupBatchSave(db, items, isJSON)
+	return saveBackupBatchSummary(db, items)
 }
 
 func executeBackupBatchSave(db *store.BackupPromptsSplitDB, items []store.RunningPromptRecord, isJSON bool) error {
-	batchID := fmt.Sprintf("b-%x", time.Now().UnixNano()%0xffffffff)
-	rCount, eCount := countPromptStatuses(items)
-	now := time.Now().UTC().Format(time.RFC3339)
-	summary := store.PromptBackupSummary{
-		BatchId: batchID, TotalPrompts: len(items),
-		RunningCount: rCount, EnqueuedCount: eCount,
-		DatabasePath: db.Path(), CreatedAt: now, Items: items,
-	}
-	if err := db.InsertBackupBatch(summary); err != nil {
+	summary, err := saveBackupBatchSummary(db, items)
+	if err != nil {
 		return err
 	}
 	return outputBackupResult(summary, isJSON)
+}
+
+func saveBackupBatchSummary(db *store.BackupPromptsSplitDB, items []store.RunningPromptRecord) (store.PromptBackupSummary, error) {
+	batchID := fmt.Sprintf("b-%x", time.Now().UnixNano()%0xffffffff)
+	rCount, eCount := countPromptStatuses(items)
+	now := time.Now().UTC().Format(time.RFC3339)
+	projNames := extractCleanProjectNames(items)
+	summary := store.PromptBackupSummary{
+		BatchId: batchID, TotalPrompts: len(items),
+		RunningCount: rCount, EnqueuedCount: eCount,
+		ProjectNames: projNames,
+		DatabasePath: db.Path(), CreatedAt: now, Items: items,
+	}
+	if err := db.InsertBackupBatch(summary); err != nil {
+		return store.PromptBackupSummary{}, err
+	}
+	return summary, nil
+}
+
+func extractCleanProjectNames(items []store.RunningPromptRecord) []string {
+	seen := make(map[string]bool)
+	var names []string
+	for _, it := range items {
+		clean := resolveHumanProjectName(it.ProjectName, it.ProjectPath)
+		if len(clean) > 0 && !seen[clean] {
+			seen[clean] = true
+			names = append(names, clean)
+		}
+	}
+	return names
 }
 
 func outputBackupResult(summary store.PromptBackupSummary, isJSON bool) error {
 	if isJSON {
 		return printJSON(summary)
 	}
-	fmt.Printf("%s✔ Backed up %d running prompts (Batch: %s, Running: %d, Enqueued: %d)%s\n",
-		constants.ColorGreen, summary.TotalPrompts, summary.BatchId,
-		summary.RunningCount, summary.EnqueuedCount, constants.ColorReset)
+	projLabel := formatBackupProjectsLabel(summary.ProjectNames)
+	fmt.Printf("%s✔ Backed up %d running prompts across %d project(s) [%s] (Batch: %s, Running: %d, Enqueued: %d)%s\n",
+		constants.ColorGreen, summary.TotalPrompts, len(summary.ProjectNames), projLabel,
+		summary.BatchId, summary.RunningCount, summary.EnqueuedCount, constants.ColorReset)
 	return nil
+}
+
+func formatBackupProjectsLabel(names []string) string {
+	if len(names) == 0 {
+		return "none"
+	}
+	return strings.Join(names, ", ")
 }
 
 // RunRunningPromptsBackupLs lists backup batches recorded in the database.
@@ -232,47 +393,56 @@ func RunRunningPromptsRestore(opts store.RestoreOptions) error {
 	if opts.IsSSH {
 		return AggregateSSHRunningPromptsRestore(opts)
 	}
-	db, err := store.OpenBackupPromptsSplitDB(opts.TargetFile)
+	summary, restoredCount, err := RunRunningPromptsRestoreSummary(opts)
 	if err != nil {
 		return err
+	}
+	return outputRestoreResult(summary.BatchId, restoredCount, summary.ProjectNames, opts)
+}
+
+// RunRunningPromptsRestoreSummary restores prompts from the latest batch and returns the summary and count.
+func RunRunningPromptsRestoreSummary(opts store.RestoreOptions) (store.PromptBackupSummary, int, error) {
+	db, err := store.OpenBackupPromptsSplitDB(opts.TargetFile)
+	if err != nil {
+		return store.PromptBackupSummary{}, 0, err
 	}
 	defer db.Close()
 	_, _ = db.PruneOldRestoredEntries(24*time.Hour, false)
 	batches, bErr := db.ListBackupBatches()
 	if bErr != nil {
-		return bErr
+		return store.PromptBackupSummary{}, 0, bErr
 	}
-	return restoreFromLatestBatch(db, batches, opts)
-}
-
-func restoreFromLatestBatch(db *store.BackupPromptsSplitDB, batches []store.PromptBackupBatchRecord, opts store.RestoreOptions) error {
 	if len(batches) == 0 {
-		return apperror.NewSimple("no backup batches found to restore", "E404")
+		return store.PromptBackupSummary{}, 0, apperror.NewSimple("no backup batches found to restore", "E404")
 	}
-	return executeRestoreBatch(db, batches[0], opts)
+	return executeRestoreBatchSummary(db, batches[0], opts)
 }
 
-func executeRestoreBatch(db *store.BackupPromptsSplitDB, latest store.PromptBackupBatchRecord, opts store.RestoreOptions) error {
+func executeRestoreBatchSummary(db *store.BackupPromptsSplitDB, latest store.PromptBackupBatchRecord, opts store.RestoreOptions) (store.PromptBackupSummary, int, error) {
 	summary, err := db.GetBackupBatch(latest.BatchID)
 	if err != nil {
-		return err
+		return store.PromptBackupSummary{}, 0, err
 	}
+	summary.ProjectNames = extractCleanProjectNames(summary.Items)
 	restoredCount := restoreItemsToWorkspaces(summary.Items)
 	if mErr := db.MarkBatchRestored(latest.BatchID, opts.IsKeep, restoredCount); mErr != nil {
-		return mErr
+		return store.PromptBackupSummary{}, 0, mErr
 	}
-	return outputRestoreResult(latest.BatchID, restoredCount, opts)
+	return *summary, restoredCount, nil
 }
 
-func outputRestoreResult(batchID string, count int, opts store.RestoreOptions) error {
+func outputRestoreResult(batchID string, count int, projectNames []string, opts store.RestoreOptions) error {
 	if opts.IsJSON {
 		res := map[string]interface{}{
-			"batchId": batchID, "restoredCount": count, "isKept": opts.IsKeep,
+			"batchId": batchID, "restoredCount": count,
+			"projectCount": len(projectNames), "projectNames": projectNames,
+			"isKept": opts.IsKeep,
 		}
 		return printJSON(res)
 	}
-	fmt.Printf("%s✔ Restored %d prompts from batch %s (keep: %v)%s\n",
-		constants.ColorGreen, count, batchID, opts.IsKeep, constants.ColorReset)
+	projLabel := formatBackupProjectsLabel(projectNames)
+	fmt.Printf("%s✔ Restored %d prompts across %d project(s) [%s] from batch %s (keep: %v)%s\n",
+		constants.ColorGreen, count, len(projectNames), projLabel, batchID, opts.IsKeep, constants.ColorReset)
 	return nil
 }
 
