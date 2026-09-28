@@ -106,6 +106,9 @@ func printRepoSlugSuggestions(target string) {
 	defer mainDB.Close()
 
 	suggs, _ := mainDB.GetRepoSuggestions(target)
+	if len(suggs) == 0 {
+		suggs = findClosestRepoSuggestions(mainDB, target)
+	}
 	if len(suggs) > 0 {
 		fmt.Fprintf(os.Stderr, "Repository %q not found. Did you mean:\n", target)
 		for _, s := range suggs {

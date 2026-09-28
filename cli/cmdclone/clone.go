@@ -413,6 +413,7 @@ func executeDirectClone(params DirectCloneParams) {
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
 		closeTaskDB(taskDB)
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
+		printRepoSlugSuggestions(url)
 		cliexit.HandleError(cloneErr, 1)
 	}
 
