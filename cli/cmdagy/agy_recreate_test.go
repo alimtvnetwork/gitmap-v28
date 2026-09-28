@@ -217,6 +217,7 @@ func TestExecuteAgyRecreate_RealLifecycle(t *testing.T) {
 		t.Fatalf("temp dir error: %v", err)
 	}
 	defer os.RemoveAll(tempDir)
+	_ = os.MkdirAll(filepath.Join(tempDir, ".git"), 0755)
 
 	configDir, err := getProjectsDirPath()
 	if err == nil {

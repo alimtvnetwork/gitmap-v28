@@ -38,7 +38,7 @@ func resolveCurrentDirTarget(projects []AgyProject, isConfirm bool) ([]AgyProjec
 
 func resolveWorkingDirAdHoc(projects []AgyProject, cwd string, isConfirm bool) ([]AgyProject, error) {
 	targetDir := resolveWorkingRepoRoot(cwd)
-	if matched := findProjectByPath(projects, targetDir); matched != nil {
+	if matched := findProjectByPathOrCwd(projects, targetDir, cwd); matched != nil {
 		return []AgyProject{*matched}, nil
 	}
 	if !isGitRepo(targetDir) {
@@ -48,6 +48,13 @@ func resolveWorkingDirAdHoc(projects []AgyProject, cwd string, isConfirm bool) (
 		return nil, apperror.NewSimple(fmt.Sprintf("directory %q is not an existing registered Antigravity project; pass --confirm (-y) to confirm creating and recreating this workspace", targetDir), "E9103")
 	}
 	return []AgyProject{buildAdHocProject(targetDir)}, nil
+}
+
+func findProjectByPathOrCwd(projects []AgyProject, targetDir, cwd string) *AgyProject {
+	if matched := findProjectByPath(projects, targetDir); matched != nil {
+		return matched
+	}
+	return findProjectByPath(projects, cwd)
 }
 
 func findProjectByPath(projects []AgyProject, targetDir string) *AgyProject {
