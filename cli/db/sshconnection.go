@@ -32,9 +32,9 @@ const (
 		ON CONFLICT(Alias) DO UPDATE SET
 			IPAddress = excluded.IPAddress,
 			Username = excluded.Username,
-			EncryptedPassword = excluded.EncryptedPassword,
-			KeyPath = excluded.KeyPath,
-			OS = excluded.OS,
+			EncryptedPassword = CASE WHEN excluded.EncryptedPassword != '' THEN excluded.EncryptedPassword ELSE SSHConnection.EncryptedPassword END,
+			KeyPath = CASE WHEN excluded.KeyPath != '' THEN excluded.KeyPath ELSE SSHConnection.KeyPath END,
+			OS = CASE WHEN excluded.OS != '' THEN excluded.OS ELSE SSHConnection.OS END,
 			OSGroup = CASE WHEN excluded.OSGroup != '' THEN excluded.OSGroup ELSE SSHConnection.OSGroup END,
 			OSVersion = CASE WHEN excluded.OSVersion != '' THEN excluded.OSVersion ELSE SSHConnection.OSVersion END,
 			BuildVersion = CASE WHEN excluded.BuildVersion != '' THEN excluded.BuildVersion ELSE SSHConnection.BuildVersion END,
@@ -53,6 +53,11 @@ const (
 func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnection) *apperror.AppError {
 	ensureSSHConnectionSchema(ctx, db)
 	firstRun, createdAt := resolveConnTimestamps(conn.FirstRunAt, conn.CreatedAt)
+	var existingAlias string
+	row := db.QueryRowContext(ctx, "SELECT Alias FROM SSHConnection WHERE IPAddress = ? LIMIT 1", conn.IPAddress)
+	if err := row.Scan(&existingAlias); err == nil && existingAlias != "" && existingAlias != conn.Alias {
+		_, _ = db.ExecContext(ctx, `UPDATE SSHConnection SET Alias = ? WHERE Alias = ?`, conn.Alias, existingAlias)
+	}
 	return execUpsertSSHConnection(ctx, db, conn, firstRun, createdAt)
 }
 

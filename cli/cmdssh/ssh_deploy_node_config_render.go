@@ -38,3 +38,29 @@ func renderNodeConfigDeploySummary(targets []db.SSHConnection, except string, to
 		constants.ColorCyan, constants.ColorReset)
 	return nil
 }
+
+func printDeployConfigSSHHelp() {
+	fmt.Printf("\n  %s🚀 GitMap Deploy Config SSH (Fleet Configuration Deployment)%s\n\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("    gitmap deploy config ssh [all|<target>] [flags]")
+	fmt.Println("    gitmap deploy config ssh --file <json-file> [all|<target>] [flags]")
+	fmt.Println("    gitmap ssh deploy node-config [all|<target>] [flags] (alias: nc)")
+	fmt.Println()
+	fmt.Println("  Description:")
+	fmt.Println("    Deploys SSH node topology, IP addresses, aliases, and encrypted credentials")
+	fmt.Println("    from local CLI configuration (Split-DB) or an exported JSON file to remote fleet nodes.")
+	fmt.Println("    Target machines automatically update matching records without duplicate inserts.")
+	fmt.Println()
+	fmt.Println("  Flags:")
+	fmt.Println("    -f, --file <path>      Deploy from specified JSON file instead of local CLI config")
+	fmt.Println("    -e, --except <tokens>  Exclude nodes by ID, worker ID, IP, or alias")
+	fmt.Println("    -n, --dry-run          Preview deployment actions without executing remote changes")
+	fmt.Println("    -j, --json             Output machine-readable JSON telemetry")
+	fmt.Println("    -h, --help             Show this help menu")
+	fmt.Println()
+	fmt.Println("  Examples:")
+	fmt.Println("    gitmap deploy config ssh")
+	fmt.Println("    gitmap deploy config ssh w3")
+	fmt.Println("    gitmap deploy config ssh --file D:\\work\\repo-secrets\\01-gitmap\\gitmap-ssh-nodes.json")
+	fmt.Println("    gitmap deploy config ssh all --except w1")
+	fmt.Println()
+}

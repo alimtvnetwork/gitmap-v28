@@ -16,12 +16,19 @@ func RunSSHDeployRouterCLI(args []string) error {
 	}
 	sub := strings.ToLower(args[0])
 	switch sub {
+	case "config", "config-ssh":
+		if len(args) > 1 && strings.ToLower(args[1]) == "ssh" {
+			return RunSSHDeployConfigSSHCLI(args[2:])
+		}
+		return RunSSHDeployConfigSSHCLI(args[1:])
+	case "ssh":
+		return RunSSHDeployConfigSSHCLI(args[1:])
 	case "keys", "key", "k":
 		return RunSSHDeployKeysCLI(args[1:])
 	case "bin", "binary", "exe", "gitmap":
 		return RunSSHDeployBinCLI(args[1:])
 	case "node-config", "nodeconfig", "nc", "nodes":
-		return RunSSHDeployNodeConfigCLI(args[1:])
+		return RunSSHDeployConfigSSHCLI(args[1:])
 	case "help", "--help", "-h":
 		printDeployHelp()
 		return nil
@@ -33,7 +40,7 @@ func RunSSHDeployRouterCLI(args []string) error {
 func routeFallbackDeploy(args []string) error {
 	first := strings.ToLower(args[0])
 	if first == "all" || strings.HasPrefix(first, "-") {
-		return RunSSHDeployNodeConfigCLI(args)
+		return RunSSHDeployConfigSSHCLI(args)
 	}
 	fmt.Printf("\n  %sUnknown deploy target: %q%s\n", constants.ColorRed, args[0], constants.ColorReset)
 	printDeployHelp()
@@ -42,7 +49,11 @@ func routeFallbackDeploy(args []string) error {
 
 func printDeployHelp() {
 	fmt.Printf("\n  %s🚀 GitMap SSH Fleet Deploy Commands%s\n\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Println("    gitmap ssh deploy node-config [all] [--except <id,ip,alias>]")
+	fmt.Println("    gitmap deploy config ssh [all|<target>] [--file <path>] [--except <id,ip,alias>]")
+	fmt.Println("        Deploy node topology, IP addresses, aliases, and credentials across fleet nodes.")
+	fmt.Println("        (Deploys from CLI config or JSON file; updates existing records without duplicates)")
+	fmt.Println()
+	fmt.Println("    gitmap ssh deploy node-config [all] [--except <id,ip,alias>] (alias: nc)")
 	fmt.Println("        Deploy node topology, IP addresses, and aliases across all target fleet nodes.")
 	fmt.Println("        (Recommended to run FIRST so all nodes know cluster topology)")
 	fmt.Println()
@@ -55,6 +66,7 @@ func printDeployHelp() {
 	fmt.Println("        and deploy into ~/.ssh/authorized_keys across all nodes for passwordless SSH.")
 	fmt.Println()
 	fmt.Println("    Flags:")
+	fmt.Println("        -f, --file <path>      Deploy from specified JSON file instead of local CLI config")
 	fmt.Println("        --except, -e <tokens>  Exclude nodes by numeric ID, worker ID, IP, or alias")
 	fmt.Println("        --dry-run, -n          Preview deployment actions without modifying files")
 	fmt.Println("        --json                 Output machine-readable JSON metrics")

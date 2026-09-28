@@ -13,31 +13,38 @@ import (
 
 // ResolvePipelineTarget resolves a path, alias, URL, or identifier to a canonical repository slug.
 func ResolvePipelineTarget(target string) string {
+	slug, _ := ResolvePipelineTargetAndPath(target)
+	return slug
+}
+
+// ResolvePipelineTargetAndPath resolves a path, alias, URL, or identifier to (slug, absPath).
+func ResolvePipelineTargetAndPath(target string) (string, string) {
 	trimmed := strings.TrimSpace(target)
 	if trimmed == "" || trimmed == "." {
-		return resolveLocalOrCwdSlug(trimmed)
+		return resolveLocalOrCwdSlug(trimmed), ""
 	}
 
 	// 1. Git remote URL
 	if isPipelineGitURL(trimmed) {
-		return parseSlugFromGitURL(trimmed)
+		return parseSlugFromGitURL(trimmed), ""
 	}
 
 	// 2. Local directory
 	if info, err := os.Stat(trimmed); err == nil && info.IsDir() {
-		return resolveDirectorySlug(trimmed)
+		abs, _ := filepath.Abs(trimmed)
+		return resolveDirectorySlug(trimmed), abs
 	}
 
 	// 3. Database repository lookup by slug or alias
-	if slug, isFound := queryRepoSlugFromDB(trimmed); isFound {
-		return slug
+	if slug, absPath, isFound := queryRepoSlugAndPathFromDB(trimmed); isFound {
+		return slug, absPath
 	}
 
 	// 4. Fallback to slug directly or with default owner if missing slash
 	if strings.Contains(trimmed, "/") {
-		return trimmed
+		return trimmed, ""
 	}
-	return "alimtvnetwork/" + trimmed
+	return "alimtvnetwork/" + trimmed, ""
 }
 
 func resolveLocalOrCwdSlug(target string) string {
@@ -76,24 +83,33 @@ func isPipelineGitURL(s string) bool {
 }
 
 func queryRepoSlugFromDB(identifier string) (string, bool) {
+	slug, _, ok := queryRepoSlugAndPathFromDB(identifier)
+	return slug, ok
+}
+
+func queryRepoSlugAndPathFromDB(identifier string) (string, string, bool) {
 	dbPath := store.DefaultDBPath()
 	info, err := os.Stat(dbPath)
 	if err != nil || info.IsDir() {
-		return "", false
+		return "", "", false
 	}
 
 	conn, err := sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro")
 	if err != nil {
-		return "", false
+		return "", "", false
 	}
 	defer conn.Close()
 
-	var slug string
-	query := "SELECT Slug FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath LIKE ? LIMIT 1"
-	likePattern := "%" + filepath.ToSlash(identifier)
-	row := conn.QueryRow(query, identifier, identifier, likePattern)
-	if scanErr := row.Scan(&slug); scanErr == nil && len(slug) > 0 {
-		return slug, true
+	var slug, absPath string
+	aliasQuery := "SELECT r.Slug, r.AbsolutePath FROM Alias a JOIN Repo r ON a.RepoId = r.RepoId WHERE a.Alias = ? LIMIT 1"
+	if err := conn.QueryRow(aliasQuery, identifier).Scan(&slug, &absPath); err == nil && len(slug) > 0 {
+		return slug, absPath, true
 	}
-	return "", false
+
+	repoQuery := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath LIKE ? LIMIT 1"
+	likePattern := "%" + filepath.ToSlash(identifier)
+	if scanErr := conn.QueryRow(repoQuery, identifier, identifier, likePattern).Scan(&slug, &absPath); scanErr == nil && len(slug) > 0 {
+		return slug, absPath, true
+	}
+	return "", "", false
 }

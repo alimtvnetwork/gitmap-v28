@@ -32,6 +32,9 @@ func handlePipelineErrorLogs(args []string) error {
 
 func handlePipelineHistoryOrExecute(args []string) error {
 	flags := ParsePipelineErrorFlags(args)
+	if flags.ResolvedPath != "" {
+		_ = os.Chdir(flags.ResolvedPath)
+	}
 	if len(flags.CommitTarget) > 0 {
 		return executePipelineErrorLogs(args)
 	}
@@ -44,6 +47,9 @@ func handlePipelineHistoryOrExecute(args []string) error {
 
 func executePipelineErrorLogs(args []string) error {
 	flags := ParsePipelineErrorFlags(args)
+	if flags.ResolvedPath != "" {
+		_ = os.Chdir(flags.ResolvedPath)
+	}
 	repo := flags.RepoTarget
 	if len(repo) == 0 {
 		repo = resolveCurrentRepoSlug()

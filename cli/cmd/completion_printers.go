@@ -23,9 +23,16 @@ func printCompletionRepos() {
 		if err != nil {
 			return
 		}
-
+		seen := make(map[string]bool)
 		for _, r := range repos {
-			fmt.Println(r.Slug)
+			if r.RepoName != "" && !seen[r.RepoName] {
+				seen[r.RepoName] = true
+				fmt.Println(r.RepoName)
+			}
+			if r.Slug != "" && !seen[r.Slug] {
+				seen[r.Slug] = true
+				fmt.Println(r.Slug)
+			}
 		}
 	})
 }

@@ -182,8 +182,8 @@ func updateHostForIP(ctx context.Context, runner sqlContextQueryExecer, id strin
 	role := resolveClusterRole(host.ClusterRole)
 	createdAt := resolveSSHHostCreatedAt(host.CreatedAt)
 	port := resolveHostPort(host.Port)
-	query := `UPDATE ssh_hosts SET alias = ?, username = ?, port = ?, encrypted_password = ?, cluster_role = ?, created_at = ? WHERE id = ?`
-	_, err := runner.ExecContext(ctx, query, host.Alias, host.Username, port, host.EncryptedPassword, role, createdAt, id)
+	query := `UPDATE ssh_hosts SET alias = ?, username = ?, port = ?, encrypted_password = CASE WHEN ? != '' THEN ? ELSE encrypted_password END, cluster_role = ?, created_at = ? WHERE id = ?`
+	_, err := runner.ExecContext(ctx, query, host.Alias, host.Username, port, host.EncryptedPassword, host.EncryptedPassword, role, createdAt, id)
 	if err != nil {
 		return apperror.Wrap(err, "updateHostForIP", map[string]any{"id": id})
 	}
@@ -195,8 +195,8 @@ func updateHostForAlias(ctx context.Context, runner sqlContextQueryExecer, id st
 	role := resolveClusterRole(host.ClusterRole)
 	createdAt := resolveSSHHostCreatedAt(host.CreatedAt)
 	port := resolveHostPort(host.Port)
-	query := `UPDATE ssh_hosts SET ip = ?, username = ?, port = ?, encrypted_password = ?, cluster_role = ?, created_at = ? WHERE id = ?`
-	_, err := runner.ExecContext(ctx, query, host.IP, host.Username, port, host.EncryptedPassword, role, createdAt, id)
+	query := `UPDATE ssh_hosts SET ip = ?, username = ?, port = ?, encrypted_password = CASE WHEN ? != '' THEN ? ELSE encrypted_password END, cluster_role = ?, created_at = ? WHERE id = ?`
+	_, err := runner.ExecContext(ctx, query, host.IP, host.Username, port, host.EncryptedPassword, host.EncryptedPassword, role, createdAt, id)
 	if err != nil {
 		return apperror.Wrap(err, "updateHostForAlias", map[string]any{"id": id})
 	}

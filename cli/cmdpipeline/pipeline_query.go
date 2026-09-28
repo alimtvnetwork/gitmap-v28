@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -118,7 +119,30 @@ func queryLatestTagRelease(repo string) string {
 		return strings.TrimSpace(string(tagOut))
 	}
 
+	if ver := readVersionJSONVersion("."); ver != "" {
+		return ver
+	}
+
 	return "v" + constants.Version
+}
+
+type versionFileMinimal struct {
+	Version string `json:"version"`
+}
+
+func readVersionJSONVersion(dir string) string {
+	data, err := os.ReadFile(filepath.Join(dir, "version.json"))
+	if err != nil {
+		return ""
+	}
+	var vf versionFileMinimal
+	if err := json.Unmarshal(data, &vf); err == nil && vf.Version != "" {
+		if !strings.HasPrefix(vf.Version, "v") {
+			return "v" + vf.Version
+		}
+		return vf.Version
+	}
+	return ""
 }
 
 type ghReleaseTagItem struct {

@@ -11,22 +11,40 @@ func RenderDeployRichHelp() {
 
 func buildDeployHelpMenu() termhelp.HelpMenu {
 	return termhelp.HelpMenu{
-		Title: "Smart File & Folder Deployment (gitmap deploy)",
+		Title: "Smart File, Configuration & Fleet Deployment (gitmap deploy)",
 		UsageLines: []string{
+			"gitmap deploy config ssh [all|<target>] [flags]",
+			"gitmap deploy config ssh --file <json-file> [all|<target>] [flags]",
 			"gitmap deploy <target> <source> <dest> [flags]",
 			"gitmap deploy-right <target> <source> <dest> [flags]",
 			"gitmap deploy-left <target> <source> <dest> [flags]",
 			"gitmap sc deploy <target> <source> <dest> [flags]",
 		},
 		Sections: []termhelp.HelpSection{
+			buildDeployConfigSection(),
 			buildDeploySyncModesSection(),
 			buildDeployTargetsSection(),
 		},
 		FooterFlags: buildDeployFooterFlags(),
 		Tips: []string{
+			"Use 'gitmap deploy config ssh' to synchronize fleet topology and credentials across nodes.",
+			"Use 'gitmap deploy config ssh --file <f>' to deploy from an exported JSON configuration.",
 			"Use 'gitmap deploy-right' to push local files only when newer than remote.",
 			"Use 'gitmap deploy-left' to pull remote files only when newer than local.",
 			"Add '--json' for clean programmatic pipeline telemetry.",
+		},
+	}
+}
+
+func buildDeployConfigSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Configuration & Fleet Deployment",
+		Entries: []termhelp.CommandEntry{
+			{Command: "deploy config ssh [target]", Description: "Deploy local SSH topology & credentials across fleet nodes"},
+			{Command: "deploy config ssh --file <f>", Description: "Deploy SSH nodes and passwords from a JSON file to fleet"},
+			{Command: "deploy node-config [all]", Description: "Alias for deploy config ssh (deploy cluster topology)"},
+			{Command: "deploy bin [target]", Description: "Deploy latest GitMap executable binary to remote fleet nodes"},
+			{Command: "deploy keys [all]", Description: "Gather, deduplicate, and deploy SSH public keys across fleet"},
 		},
 	}
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -18,6 +19,7 @@ var rootCompletionCmd *cobra.Command
 
 func init() {
 	completion.CustomGenerator = GenerateCobraCompletionScript
+	completion.DynamicRepoSupplier = getDynamicRepoCompletions
 }
 
 // GetRootCompletionCmd builds and caches the top-level Cobra command tree for completion.
@@ -46,6 +48,7 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelHistoryCmd())
 	root.AddCommand(makeTopLevelHelpCmd())
 	root.AddCommand(makeTopLevelPECmd())
+	root.AddCommand(makeTopLevelCFRCmd())
 
 	populateRemainingCommands(root)
 
@@ -313,7 +316,7 @@ func buildHelpCompletions() []string {
 func makeTopLevelPECmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "pe [path|alias|url] [flags]",
-		Aliases: []string{"pipeline-errors", "pipeline_errors"},
+		Aliases: []string{"ee", "pipeline-errors", "pipeline_errors"},
 		Short:   "Inspect CI/CD pipeline error logs and status for target repository",
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
@@ -326,6 +329,23 @@ func makeTopLevelPECmd() *cobra.Command {
 	cmd.Flags().BoolP("fix", "f", false, "Generate actionable fix suggestions")
 	cmd.Flags().BoolP("check", "c", false, "Check live pipeline status")
 	cmd.Flags().BoolP("detailed", "v", false, "Display detailed stack traces")
+	return cmd
+}
+
+func makeTopLevelCFRCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "cfr [repo|alias|url] [flags]",
+		Aliases: []string{"clone-fix-repo", "cfrp", "clone-fix-repo-pub", "clone"},
+		Short:   "Clone, inspect, and fix repository with desktop sync",
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return getDBRepoCompletions(), cobra.ShellCompDirectiveDefault
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	cmd.Flags().Bool("https", false, "Force HTTPS clone")
+	cmd.Flags().Bool("ssh", false, "Force SSH clone")
 	return cmd
 }
 
@@ -344,6 +364,35 @@ func getDBRepoCompletions() []string {
 		out = append(out, r.Slug+"\t"+r.AbsolutePath)
 		if r.RepoName != r.Slug {
 			out = append(out, r.RepoName+"\t"+r.AbsolutePath)
+		}
+	}
+	return out
+}
+
+func getDynamicRepoCompletions() []string {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return nil
+	}
+	defer db.Close()
+	repos, errList := db.ListRepos()
+	if errList != nil {
+		return nil
+	}
+	return extractRepoNamesAndSlugs(repos)
+}
+
+func extractRepoNamesAndSlugs(repos []model.ScanRecord) []string {
+	seen := make(map[string]bool, len(repos)*2)
+	out := make([]string, 0, len(repos)*2)
+	for _, r := range repos {
+		if r.RepoName != "" && !seen[r.RepoName] {
+			seen[r.RepoName] = true
+			out = append(out, r.RepoName)
+		}
+		if r.Slug != "" && !seen[r.Slug] {
+			seen[r.Slug] = true
+			out = append(out, r.Slug)
 		}
 	}
 	return out

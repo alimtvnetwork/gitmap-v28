@@ -155,6 +155,11 @@ func importConnectionsLocally(conns []db.SSHConnection) int {
 	count := 0
 	now := time.Now().UTC()
 	for _, c := range conns {
+		if c.EncryptedPassword != "" && !strings.HasPrefix(c.EncryptedPassword, "rsa:") && !strings.HasPrefix(c.EncryptedPassword, "aes:") {
+			if enc, err := EncryptSSHPassword(c.EncryptedPassword); err == nil && enc != "" {
+				c.EncryptedPassword = enc
+			}
+		}
 		if appErr := db.InsertOrUpdateSSHConnection(dbConn.Context(), dbConn.SQL(), c); appErr == nil {
 			count++
 		}

@@ -86,3 +86,4 @@ tmp/
 .ai-memory/cicd/
 vmpass.json
 benchmark.md
+gitmap-final.json
