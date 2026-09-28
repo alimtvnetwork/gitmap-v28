@@ -1,3 +1,9 @@
+## v6.384.0 — 2026-09-28 (out-of-ide uninstaller script, agy restore reenq, and 12-category devtool cleaner)
+
+**Scope:** Version bump. out-of-ide uninstaller script, agy restore reenq, and 12-category devtool cleaner.
+
+---
+
 ## v6.383.0 — 2026-09-28 (verified hermetic e2e uninstall suite and 10-category cleaner)
 
 **Scope:** Version bump. verified hermetic e2e uninstall suite and 10-category cleaner.
