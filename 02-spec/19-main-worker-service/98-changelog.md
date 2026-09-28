@@ -1,3 +1,9 @@
+## v6.367.0 — 2026-09-28 (feat(sug): overhaul SUG with web UI, path resolution, subcommand help, and multi-target PE)
+
+**Scope:** Version bump. feat(sug): overhaul SUG with web UI, path resolution, subcommand help, and multi-target PE.
+
+---
+
 ## v6.366.0 — 2026-09-28 (Release v6.366.0)
 
 **Scope:** Version bump. Release v6.366.0.
