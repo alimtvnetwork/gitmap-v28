@@ -1,3 +1,9 @@
+## v6.389.0 — 2026-09-28 (feat(deploy): deploy config ssh, ee target cwd resolution, and cfr suggestions)
+
+**Scope:** Version bump. feat(deploy): deploy config ssh, ee target cwd resolution, and cfr suggestions.
+
+---
+
 ## v6.388.0 — 2026-09-28 (eliminate unused functions and fix spelling for strict golangci-lint CI gate)
 
 **Scope:** Version bump. eliminate unused functions and fix spelling for strict golangci-lint CI gate.
