@@ -177,7 +177,9 @@ func initConvSummariesTable(conn *sql.DB) {
 		step_count INTEGER,
 		last_modified_time TIMESTAMP
 	);`
-	_, _ = conn.Exec(stmt)
+	if _, err := conn.Exec(stmt); err != nil {
+		return
+	}
 }
 
 func insertConvRows(conn *sql.DB, convs []AGYSnapshotConv) int {

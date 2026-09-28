@@ -34,11 +34,40 @@ func resolveSpecialWorkBaseDir() string {
 	if info, err := os.Stat(`D:\work`); err == nil && info.IsDir() {
 		return `D:\work`
 	}
+	return fallbackWorkBaseDir()
+}
+
+func fallbackWorkBaseDir() string {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "."
 	}
 	return filepath.Dir(cwd)
+}
+
+func resolveSpecialRepoCDPath(target string) (string, error) {
+	db, err := store.OpenSpecialReposSplitDB()
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+	return resolveSpecialRepoCDPathWithDB(db, target, resolveSpecialWorkBaseDir())
+}
+
+func resolveSpecialRepoCDPathWithDB(db *store.SpecialReposSplitDB, target, workBaseDir string) (string, error) {
+	rec, err := db.GetSpecialRepo(target)
+	if err != nil {
+		return "", err
+	}
+	if len(rec.LocalPath) > 0 && isDirValid(rec.LocalPath) {
+		return rec.LocalPath, nil
+	}
+	return filepath.Join(workBaseDir, rec.ConfiguredName), nil
+}
+
+func isDirValid(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
 }
 
 func resolveSpecialRepoRoot(keyOrShort string) (string, *store.SpecialRepositoryRecord, error) {
@@ -55,24 +84,36 @@ func resolveSpecialRepoRootWithDB(db *store.SpecialReposSplitDB, keyOrShort, wor
 	if err != nil {
 		return "", nil, err
 	}
-	targetPath := rec.LocalPath
-	if len(strings.TrimSpace(targetPath)) == 0 {
-		targetPath = filepath.Join(workBaseDir, rec.ConfiguredName)
-	}
+	targetPath := resolveValidRepoPath(rec.LocalPath, workBaseDir, rec.ConfiguredName)
 	if err := ensureSpecialGitRepo(targetPath); err != nil {
 		return "", nil, err
 	}
 	return targetPath, rec, nil
 }
 
+func resolveValidRepoPath(localPath, workBaseDir, configuredName string) string {
+	if len(localPath) > 0 && isDirValid(localPath) {
+		return localPath
+	}
+	return filepath.Join(workBaseDir, configuredName)
+}
+
 func ensureSpecialGitRepo(repoDir string) error {
 	if err := os.MkdirAll(repoDir, 0755); err != nil {
 		return apperror.WrapSimple(err, "mkdir special repo")
 	}
-	gitDir := filepath.Join(repoDir, ".git")
-	if info, err := os.Stat(gitDir); err == nil && info.IsDir() {
+	if hasGitSubdir(repoDir) {
 		return nil
 	}
+	return runGitInitInDir(repoDir)
+}
+
+func hasGitSubdir(repoDir string) bool {
+	info, err := os.Stat(filepath.Join(repoDir, ".git"))
+	return err == nil && info.IsDir()
+}
+
+func runGitInitInDir(repoDir string) error {
 	cmd := exec.Command("git", "init")
 	cmd.Dir = repoDir
 	if out, err := cmd.CombinedOutput(); err != nil {
@@ -89,6 +130,10 @@ func resolveCurrentRepoName(explicitRepo string) string {
 	if len(topDir) > 0 {
 		return stripNumericPrefix(filepath.Base(topDir))
 	}
+	return fallbackCurrentRepoName()
+}
+
+func fallbackCurrentRepoName() string {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "gitmap"
@@ -123,7 +168,7 @@ func allocateSequencedItemPath(repoFolderDir, baseName string) string {
 	if hasLeadingTwoDigitSeq(baseName) {
 		return filepath.Join(repoFolderDir, baseName)
 	}
-	nextSeq := nextItemSeqInDir(repoFolderDir)
+	nextSeq, _ := store.GetNextFileSeq(repoFolderDir, "")
 	seqName := fmt.Sprintf("%02d-%s", nextSeq, baseName)
 	return filepath.Join(repoFolderDir, seqName)
 }
@@ -135,33 +180,6 @@ func hasLeadingTwoDigitSeq(name string) bool {
 	}
 	seq, err := strconv.Atoi(parts[0])
 	return err == nil && seq > 0
-}
-
-func nextItemSeqInDir(dirPath string) int {
-	entries, err := os.ReadDir(dirPath)
-	if err != nil {
-		return 1
-	}
-	maxVal := 0
-	for _, entry := range entries {
-		seq := extractEntrySeq(entry.Name())
-		if seq > maxVal {
-			maxVal = seq
-		}
-	}
-	return maxVal + 1
-}
-
-func extractEntrySeq(name string) int {
-	parts := strings.SplitN(name, "-", 2)
-	if len(parts) < 2 || len(parts[0]) < 2 {
-		return 0
-	}
-	seq, err := strconv.Atoi(parts[0])
-	if err != nil || seq < 0 {
-		return 0
-	}
-	return seq
 }
 
 func deriveTextSlugAndFilename(text, customSlug, customExt string) string {
@@ -194,13 +212,17 @@ func deriveSlugFromWords(text string) string {
 func sanitizeKebabSlug(raw string) string {
 	var b strings.Builder
 	for _, r := range strings.ToLower(strings.TrimSpace(raw)) {
-		if isAlphaNumRune(r) {
-			b.WriteRune(r)
-		} else if r == '-' || r == '_' || r == ' ' || r == '.' {
-			b.WriteRune('-')
-		}
+		appendSanitizedSlugRune(&b, r)
 	}
 	return strings.Trim(collapseHyphens(b.String()), "-")
+}
+
+func appendSanitizedSlugRune(b *strings.Builder, r rune) {
+	if isAlphaNumRune(r) {
+		b.WriteRune(r)
+	} else if r == '-' || r == '_' || r == ' ' || r == '.' {
+		b.WriteRune('-')
+	}
 }
 
 func isAlphaNumRune(r rune) bool {
@@ -263,16 +285,23 @@ func copyWalkEntry(srcDir, destDir, currentPath string, info os.FileInfo) error 
 	return copySingleFile(currentPath, target)
 }
 
-func autoCommitAndPushSpecialRepo(specialRepoRoot, relPath, shortKey, repoName string, shouldPush bool) (bool, bool) {
+func autoCommitAndPushSpecialRepo(specialRepoRoot, relPath, shortKey, repoName, customMsg string, shouldPush bool) (bool, bool) {
 	_ = ensureSpecialGitRepo(specialRepoRoot)
 	_ = runGitInSpecialRepo(specialRepoRoot, "add", "--", relPath)
-	commitMsg := fmt.Sprintf("chore(%s): store %s for %s", shortKey, filepath.ToSlash(relPath), repoName)
+	commitMsg := resolveSpecialCommitMsg(shortKey, relPath, repoName, customMsg)
 	isCommitted := runGitInSpecialRepo(specialRepoRoot, "commit", "-m", commitMsg) == nil
 	if !shouldPush || !hasGitRemoteOrigin(specialRepoRoot) {
 		return isCommitted, false
 	}
 	isPushed := tryPushSpecialRepo(specialRepoRoot)
 	return isCommitted, isPushed
+}
+
+func resolveSpecialCommitMsg(shortKey, relPath, repoName, customMsg string) string {
+	if len(strings.TrimSpace(customMsg)) > 0 {
+		return strings.TrimSpace(customMsg)
+	}
+	return fmt.Sprintf("chore(%s): store %s for %s", shortKey, filepath.ToSlash(relPath), repoName)
 }
 
 func tryPushSpecialRepo(repoDir string) bool {
@@ -421,15 +450,7 @@ func applyAutoSpecialRepoResolution(db *store.SpecialReposSplitDB, rec store.Spe
 
 func printOneTimeSpecialRepoBanner(rec store.SpecialRepositoryRecord, targetDir, remoteURL string) {
 	fmt.Printf("╭── Special Repository Discovery: %s (%s) ─────────────────────────╮\n", rec.ConfiguredName, rec.ShortKey)
-	if rec.ShortKey == "rs" {
-		fmt.Printf("│ Purpose  : Keep secret files (.env, passwords, tokens) out of public repos.│\n")
-		fmt.Printf("│ Settings : gitmap settings set special_repos.secrets_name <custom-name>    │\n")
-		fmt.Printf("│ Usage    : gitmap rs file|folder|text | gitmap cd rs                       │\n")
-	} else {
-		fmt.Printf("│ Purpose  : Store reusable temporary scripts (.ps1, test harnesses, scratch)│\n")
-		fmt.Printf("│ Settings : gitmap settings set special_repos.cache_name <custom-name>      │\n")
-		fmt.Printf("│ Usage    : gitmap rc file|folder|text | gitmap cd rc                       │\n")
-	}
+	printSpecialRepoBannerPurpose(rec.ShortKey)
 	fmt.Printf("│ Default  : %s is default (change anytime via 'gitmap settings')\n", rec.DefaultName)
 	if len(remoteURL) > 0 {
 		fmt.Printf("│ GitHub   : Found existing remote in your account: %s\n", remoteURL)
@@ -438,17 +459,30 @@ func printOneTimeSpecialRepoBanner(rec store.SpecialRepositoryRecord, targetDir,
 	fmt.Printf("╰────────────────────────────────────────────────────────────────────────────╯\n")
 }
 
+func printSpecialRepoBannerPurpose(shortKey string) {
+	if shortKey == "rs" {
+		fmt.Printf("│ Purpose  : Keep secret files (.env, passwords, tokens) out of public repos.│\n")
+		fmt.Printf("│ Settings : gitmap settings set special_repos.secrets_name <custom-name>    │\n")
+		fmt.Printf("│ Usage    : gitmap rs file|folder|text | gitmap cd rs                       │\n")
+		return
+	}
+	fmt.Printf("│ Purpose  : Store reusable temporary scripts (.ps1, test harnesses, scratch)│\n")
+	fmt.Printf("│ Settings : gitmap settings set special_repos.cache_name <custom-name>      │\n")
+	fmt.Printf("│ Usage    : gitmap rc file|folder|text | gitmap cd rc                       │\n")
+}
+
 // RunSpecialRepoProbeForPull probes remote GitHub account and local workspace for companion repositories on pull.
 func RunSpecialRepoProbeForPull(workBaseDir string, isAutoAccept bool) error {
-	if len(workBaseDir) == 0 {
-		workBaseDir = resolveSpecialWorkBaseDir()
+	baseDir := workBaseDir
+	if len(baseDir) == 0 {
+		baseDir = resolveSpecialWorkBaseDir()
 	}
 	db, err := store.OpenSpecialReposSplitDB()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	return probeSpecialReposOnPullWithDB(db, workBaseDir, isAutoAccept)
+	return probeSpecialReposOnPullWithDB(db, baseDir, isAutoAccept)
 }
 
 func probeSpecialReposOnPullWithDB(db *store.SpecialReposSplitDB, workBaseDir string, isAutoAccept bool) error {

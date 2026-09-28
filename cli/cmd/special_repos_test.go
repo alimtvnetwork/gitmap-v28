@@ -57,10 +57,75 @@ func verifySpecialRepoFolderAllocation(t *testing.T, db *store.SpecialReposSplit
 		t.Fatalf("expected folder 02-coding-guidelines, got %s", filepath.Base(folder2))
 	}
 
-	// Idempotent resolution
 	folder1Repeat, err := db.ResolveOrCreateRepoFolder("rs", repoSecretsRoot, "gitmap")
 	if err != nil || folder1Repeat != folder1 {
 		t.Fatalf("expected idempotent folder resolution %s, got %s, err: %v", folder1, folder1Repeat, err)
+	}
+}
+
+func TestStoreSpecialRepoStandaloneHelpers(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test-helpers.db")
+	db, err := store.OpenSpecialReposSplitDBAt(dbPath)
+	if err != nil {
+		t.Fatalf("OpenSpecialReposSplitDBAt failed: %v", err)
+	}
+	defer db.Close()
+
+	verifyStandaloneRepoQueries(t, db)
+	verifyStandaloneSeqHelpers(t, db, tempDir)
+}
+
+func verifyStandaloneRepoQueries(t *testing.T, db *store.SpecialReposSplitDB) {
+	rec, err := store.GetSpecialRepoByShortKey(db.Conn(), "rs")
+	if err != nil || rec.RepoKey != "repo-secrets" {
+		t.Fatalf("GetSpecialRepoByShortKey failed: %+v, err: %v", rec, err)
+	}
+	recKey, err := store.GetSpecialRepoByKey(db.Conn(), "repo-cache")
+	if err != nil || recKey.ShortKey != "rc" {
+		t.Fatalf("GetSpecialRepoByKey failed: %+v, err: %v", recKey, err)
+	}
+	all, err := store.GetAllSpecialRepos(db.Conn())
+	if err != nil || len(all) < 2 {
+		t.Fatalf("GetAllSpecialRepos failed: %d items, err: %v", len(all), err)
+	}
+}
+
+func verifyStandaloneSeqHelpers(t *testing.T, db *store.SpecialReposSplitDB, tempDir string) {
+	prefix1, err := store.GetNextRepoFolderSeq(db.Conn(), "rs", "app-one")
+	if err != nil || prefix1 != "01-app-one" {
+		t.Fatalf("expected 01-app-one, got %s, err: %v", prefix1, err)
+	}
+	prefix2, err := store.GetNextRepoFolderSeq(db.Conn(), "rs", "app-two")
+	if err != nil || prefix2 != "02-app-two" {
+		t.Fatalf("expected 02-app-two, got %s, err: %v", prefix2, err)
+	}
+	fileSeq, err := store.GetNextFileSeq(tempDir, "")
+	if err != nil || fileSeq != 1 {
+		t.Fatalf("expected fileSeq 1, got %d, err: %v", fileSeq, err)
+	}
+}
+
+func TestOneTimePromptPersistence(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test-prompt.db")
+	db, err := store.OpenSpecialReposSplitDBAt(dbPath)
+	if err != nil {
+		t.Fatalf("OpenSpecialReposSplitDBAt failed: %v", err)
+	}
+	defer db.Close()
+
+	if err := store.MarkSpecialRepoPromptAnswered(db.Conn(), "rs", "approved"); err != nil {
+		t.Fatalf("MarkSpecialRepoPromptAnswered failed: %v", err)
+	}
+	rec, err := store.GetSpecialRepoByShortKey(db.Conn(), "rs")
+	if err != nil || !rec.HasAnsweredPrompt() {
+		t.Fatalf("expected prompt to be answered, got %+v, err: %v", rec, err)
+	}
+
+	records, err := CheckSpecialReposOnScanWithDB(db, tempDir, true)
+	if err != nil || len(records) < 2 {
+		t.Fatalf("CheckSpecialReposOnScanWithDB failed: %v", err)
 	}
 }
 
@@ -81,21 +146,54 @@ func TestDeriveTextSlugAndFilename(t *testing.T) {
 	}
 }
 
+func TestDeriveFileAndFolderDestinationName(t *testing.T) {
+	name1 := deriveFileDestinationName("/path/to/my-secret.env", "token")
+	if name1 != "token.env" {
+		t.Fatalf("expected token.env, got %s", name1)
+	}
+	name2 := deriveFileDestinationName("/path/to/my-secret.env", "")
+	if name2 != "my-secret.env" {
+		t.Fatalf("expected my-secret.env, got %s", name2)
+	}
+	dir1 := deriveFolderDestinationName("/path/to/my_certs", "certs")
+	if dir1 != "certs" {
+		t.Fatalf("expected certs, got %s", dir1)
+	}
+}
+
 func TestIsSpecialRepoCDAlias(t *testing.T) {
-	if !isSpecialRepoCDAlias("rs") {
-		t.Fatalf("expected rs to be special repo CD alias")
+	if !isSpecialRepoCDAlias("rs") || !isSpecialRepoCDAlias("repo-secrets") {
+		t.Fatalf("expected rs/repo-secrets to be special repo CD alias")
 	}
-	if !isSpecialRepoCDAlias("repo-secrets") {
-		t.Fatalf("expected repo-secrets to be special repo CD alias")
-	}
-	if !isSpecialRepoCDAlias("rc") {
-		t.Fatalf("expected rc to be special repo CD alias")
-	}
-	if !isSpecialRepoCDAlias("repo-cache") {
-		t.Fatalf("expected repo-cache to be special repo CD alias")
+	if !isSpecialRepoCDAlias("rc") || !isSpecialRepoCDAlias("repo-cache") || !isSpecialRepoCDAlias("repo-storage") {
+		t.Fatalf("expected rc/repo-cache/repo-storage to be special repo CD alias")
 	}
 	if isSpecialRepoCDAlias("other-repo") {
 		t.Fatalf("expected other-repo not to be special repo CD alias")
+	}
+}
+
+func TestResolveSpecialRepoCDPathWithDB(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test-cd.db")
+	db, err := store.OpenSpecialReposSplitDBAt(dbPath)
+	if err != nil {
+		t.Fatalf("OpenSpecialReposSplitDBAt failed: %v", err)
+	}
+	defer db.Close()
+
+	pathRS, err := resolveSpecialRepoCDPathWithDB(db, "rs", tempDir)
+	if err != nil || pathRS != filepath.Join(tempDir, "repo-secrets") {
+		t.Fatalf("expected fallback %s, got %s, err: %v", filepath.Join(tempDir, "repo-secrets"), pathRS, err)
+	}
+
+	customDir := filepath.Join(tempDir, "custom-cache")
+	_ = os.MkdirAll(customDir, 0755)
+	_ = store.UpdateSpecialRepoPath(db.Conn(), "rc", customDir, "")
+
+	pathRC, err := resolveSpecialRepoCDPathWithDB(db, "rc", tempDir)
+	if err != nil || pathRC != customDir {
+		t.Fatalf("expected customDir %s, got %s, err: %v", customDir, pathRC, err)
 	}
 }
 
@@ -113,36 +211,54 @@ func TestAllocateSequencedItemPath(t *testing.T) {
 	}
 }
 
-func TestSpecialRepoFlagShorthands(t *testing.T) {
-	if !isRepoFlag("--repo") || !isRepoFlag("-r") {
-		t.Fatalf("expected --repo and -r to be valid repo flags")
+func TestSpecialRepoOptionFlags(t *testing.T) {
+	opts := parseSpecialCLIOptions([]string{"file", "path/secret.env", "--repo", "gitmap", "--name", "token", "--msg", "init", "--no-push", "--json"})
+	if opts.subcmd != "file" || opts.primaryArg != "path/secret.env" {
+		t.Fatalf("unexpected subcmd or primaryArg: %+v", opts)
 	}
-	if !isSlugFlag("--slug") || !isSlugFlag("-s") || !isSlugFlag("--name") || !isSlugFlag("-n") {
-		t.Fatalf("expected slug and name shorthands to be valid")
+	if opts.repoName != "gitmap" || opts.slug != "token" || opts.commitMsg != "init" {
+		t.Fatalf("unexpected parsed flags: %+v", opts)
 	}
-	if !isExtFlag("--ext") || !isExtFlag("-e") {
-		t.Fatalf("expected --ext and -e to be valid ext flags")
+	if !opts.isNoPush || !opts.isJSON {
+		t.Fatalf("expected isNoPush and isJSON to be true")
 	}
 }
 
-func TestResolveAutoPutActionFunc(t *testing.T) {
+func TestExecuteSpecialRepoTextAndFileSequencing(t *testing.T) {
 	tempDir := t.TempDir()
-	testFile := filepath.Join(tempDir, "sample.txt")
-	_ = os.WriteFile(testFile, []byte("sample"), 0644)
-
-	fnFile := resolveAutoPutActionFunc(testFile)
-	if fnFile == nil {
-		t.Fatalf("expected valid file put func")
+	dbPath := filepath.Join(tempDir, "test-exec.db")
+	db, err := store.OpenSpecialReposSplitDBAt(dbPath)
+	if err != nil {
+		t.Fatalf("OpenSpecialReposSplitDBAt failed: %v", err)
 	}
+	defer db.Close()
 
-	fnDir := resolveAutoPutActionFunc(tempDir)
-	if fnDir == nil {
-		t.Fatalf("expected valid dir put func")
+	verifySpecialRepoTextExecution(t, db, tempDir)
+	verifySpecialRepoFileExecution(t, db, tempDir)
+}
+
+func verifySpecialRepoTextExecution(t *testing.T, db *store.SpecialReposSplitDB, tempDir string) {
+	specialRoot := filepath.Join(tempDir, "repo-secrets")
+	textOpts := specialCLIOptions{primaryArg: "API_KEY=12345", slug: "api-key", ext: ".env", repoName: "demo", isNoPush: true}
+	resText, err := executeSpecialRepoText(db, "rs", specialRoot, textOpts)
+	if err != nil {
+		t.Fatalf("executeSpecialRepoText failed: %v", err)
 	}
-
-	fnText := resolveAutoPutActionFunc("raw inline text note")
-	if fnText == nil {
-		t.Fatalf("expected valid text put func")
+	if filepath.Base(resText.TargetPath) != "01-api-key.env" {
+		t.Fatalf("expected 01-api-key.env, got %s", filepath.Base(resText.TargetPath))
 	}
 }
 
+func verifySpecialRepoFileExecution(t *testing.T, db *store.SpecialReposSplitDB, tempDir string) {
+	specialRoot := filepath.Join(tempDir, "repo-secrets")
+	srcFile := filepath.Join(tempDir, "source-token.txt")
+	_ = os.WriteFile(srcFile, []byte("token-content"), 0644)
+	fileOpts := specialCLIOptions{primaryArg: srcFile, slug: "token", repoName: "demo", isNoPush: true}
+	resFile, err := executeSpecialRepoFile(db, "rs", specialRoot, fileOpts)
+	if err != nil {
+		t.Fatalf("executeSpecialRepoFile failed: %v", err)
+	}
+	if filepath.Base(resFile.TargetPath) != "02-token.txt" {
+		t.Fatalf("expected 02-token.txt, got %s", filepath.Base(resFile.TargetPath))
+	}
+}

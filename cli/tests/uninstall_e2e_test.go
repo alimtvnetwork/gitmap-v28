@@ -52,12 +52,12 @@ func verifySnapshotOutput(t *testing.T, filePath string, snap cmdagy.AGYRestoreS
 // TestE2EUninstallSafetyProtection verifies path safety invariants protecting d:\work and root.
 func TestE2EUninstallSafetyProtection(t *testing.T) {
 	assertWorkOverlap(t, "d:/work", true)
-	assertWorkOverlap(t, "d:/work/gitmap", true)
+	assertWorkOverlap(t, "d:/work/sample-repo", true)
 	assertWorkOverlap(t, "D:\\Work\\Anything", true)
 	assertWorkOverlap(t, "C:\\Users\\test", false)
 
 	assertPathSafety(t, "d:/work", false)
-	assertPathSafety(t, "d:/work/gitmap", false)
+	assertPathSafety(t, "d:/work/sample-repo", false)
 	assertPathSafety(t, "C:\\", false)
 	assertPathSafety(t, "/", false)
 	assertPathSafety(t, "", false)

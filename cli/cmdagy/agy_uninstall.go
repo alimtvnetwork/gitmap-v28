@@ -249,16 +249,19 @@ func purgeAgySplitDB() {
 
 func purgeAgyRootDB() {
 	rootDB, err := store.OpenDefault()
-	hasErr := err != nil
-	if hasErr {
+	if err != nil {
 		return
 	}
 	defer rootDB.Close()
 	conn := rootDB.Conn()
-	hasConn := conn != nil
-	if hasConn {
-		_, _ = conn.Exec(constants.SQLDeleteInstalledTool, constants.ToolAntigravity)
-		_, _ = conn.Exec(constants.SQLDeleteInstalledTool, constants.ToolAgy)
+	if conn == nil {
+		return
+	}
+	if _, execErr := conn.Exec(constants.SQLDeleteInstalledTool, constants.ToolAntigravity); execErr != nil {
+		return
+	}
+	if _, execErr := conn.Exec(constants.SQLDeleteInstalledTool, constants.ToolAgy); execErr != nil {
+		return
 	}
 	_ = rootDB.SyncKnownSplitDatabases()
 }

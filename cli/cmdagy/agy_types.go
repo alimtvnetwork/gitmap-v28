@@ -164,4 +164,3 @@ type AGYSnapshotConv struct {
 	WorkspacePath string `json:"workspacePath,omitempty"`
 	StepCount     int    `json:"stepCount,omitempty"`
 }
-

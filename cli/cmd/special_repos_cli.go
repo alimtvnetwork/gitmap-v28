@@ -4,6 +4,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,14 +20,18 @@ type specialCLIOptions struct {
 	repoName     string
 	slug         string
 	ext          string
+	commitMsg    string
 	isNoPush     bool
 	isJSON       bool
 	isAutoAccept bool
 }
 
 func runCDSpecialRepo(sub string, args []string) error {
-	targetPath, _, err := resolveSpecialRepoRoot(sub)
+	targetPath, err := resolveSpecialRepoCDPath(sub)
 	if err != nil {
+		return err
+	}
+	if err := ensureSpecialGitRepo(targetPath); err != nil {
 		return err
 	}
 	targetPath = maybeAppendCDSubdir(targetPath, args)
@@ -61,6 +66,14 @@ func resolveMatchingRepoSubdir(rootDir, repoName string) string {
 	return ""
 }
 
+func rsCmd(args []string) error {
+	return runSpecialRepoCLI("rs", args)
+}
+
+func rcCmd(args []string) error {
+	return runSpecialRepoCLI("rc", args)
+}
+
 func runSpecialRepoCLI(shortKey string, args []string) error {
 	_, normShort := store.NormalizeSpecialRepoKey(shortKey)
 	if len(args) == 0 || isSpecialHelpArg(args[0]) {
@@ -77,6 +90,22 @@ func isSpecialHelpArg(arg string) bool {
 }
 
 func dispatchSpecialRepoSubcmd(shortKey string, opts specialCLIOptions) error {
+	if isPutSubcmd(opts.subcmd) {
+		return dispatchSpecialPutSubcmd(shortKey, opts)
+	}
+	return dispatchSpecialAdminSubcmd(shortKey, opts)
+}
+
+func isPutSubcmd(subcmd string) bool {
+	switch subcmd {
+	case "put", "add", "file", "f", "folder", "dir", "d", "text", "note", "t":
+		return true
+	default:
+		return false
+	}
+}
+
+func dispatchSpecialPutSubcmd(shortKey string, opts specialCLIOptions) error {
 	switch opts.subcmd {
 	case "put", "add":
 		return runSpecialAutoPutAction(shortKey, opts)
@@ -84,8 +113,13 @@ func dispatchSpecialRepoSubcmd(shortKey string, opts specialCLIOptions) error {
 		return runSpecialPutAction(shortKey, opts, executeSpecialRepoFile)
 	case "folder", "dir", "d":
 		return runSpecialPutAction(shortKey, opts, executeSpecialRepoFolder)
-	case "text", "note", "t":
+	default:
 		return runSpecialPutAction(shortKey, opts, executeSpecialRepoText)
+	}
+}
+
+func dispatchSpecialAdminSubcmd(shortKey string, opts specialCLIOptions) error {
+	switch opts.subcmd {
 	case "ls", "list":
 		return runSpecialRepoList(shortKey, opts)
 	case "init", "ensure":
@@ -131,32 +165,45 @@ func consumeSpecialOptionToken(opts *specialCLIOptions, tokens []string, idx int
 	switch tok {
 	case "--no-push", "-np":
 		opts.isNoPush = true
+		return idx
 	case "--json", "-j":
 		opts.isJSON = true
+		return idx
 	case "--auto-accept", "-y", "--yes":
 		opts.isAutoAccept = true
+		return idx
 	default:
-		return consumeKeyValOrPositional(opts, tokens, idx)
+		return consumeParamOrPositional(opts, tokens, idx)
 	}
-	return idx
 }
 
-func consumeKeyValOrPositional(opts *specialCLIOptions, tokens []string, idx int) int {
+func consumeParamOrPositional(opts *specialCLIOptions, tokens []string, idx int) int {
 	tok := tokens[idx]
 	hasNext := idx+1 < len(tokens)
-	if isRepoFlag(tok) && hasNext {
-		opts.repoName = tokens[idx+1]
-		return idx + 1
-	}
-	if isSlugFlag(tok) && hasNext {
-		opts.slug = tokens[idx+1]
-		return idx + 1
-	}
-	if isExtFlag(tok) && hasNext {
-		opts.ext = tokens[idx+1]
+	if hasNext && tryAssignParamToken(opts, tok, tokens[idx+1]) {
 		return idx + 1
 	}
 	return assignPrimaryPositional(opts, tok, idx)
+}
+
+func tryAssignParamToken(opts *specialCLIOptions, flag, val string) bool {
+	if isRepoFlag(flag) {
+		opts.repoName = val
+		return true
+	}
+	if isSlugFlag(flag) {
+		opts.slug = val
+		return true
+	}
+	if isExtFlag(flag) {
+		opts.ext = val
+		return true
+	}
+	if isMsgFlag(flag) {
+		opts.commitMsg = val
+		return true
+	}
+	return false
 }
 
 func isRepoFlag(tok string) bool {
@@ -169,6 +216,10 @@ func isSlugFlag(tok string) bool {
 
 func isExtFlag(tok string) bool {
 	return tok == "--ext" || tok == "-e"
+}
+
+func isMsgFlag(tok string) bool {
+	return tok == "--msg" || tok == "-m" || tok == "--message"
 }
 
 func assignPrimaryPositional(opts *specialCLIOptions, tok string, idx int) int {
@@ -206,11 +257,24 @@ func executeSpecialRepoFile(db *store.SpecialReposSplitDB, shortKey, specialRoot
 	if err != nil {
 		return nil, err
 	}
-	destPath := allocateSequencedItemPath(repoFolder, filepath.Base(opts.primaryArg))
+	destName := deriveFileDestinationName(opts.primaryArg, opts.slug)
+	destPath := allocateSequencedItemPath(repoFolder, destName)
 	if err := copySingleFile(opts.primaryArg, destPath); err != nil {
 		return nil, err
 	}
-	return finalizeSpecialPut(shortKey, specialRoot, repoName, repoFolder, destPath, !opts.isNoPush), nil
+	return finalizeSpecialPut(shortKey, specialRoot, repoName, repoFolder, destPath, opts.commitMsg, !opts.isNoPush), nil
+}
+
+func deriveFileDestinationName(srcPath, customSlug string) string {
+	if len(strings.TrimSpace(customSlug)) == 0 {
+		return filepath.Base(srcPath)
+	}
+	cleanSlug := sanitizeKebabSlug(customSlug)
+	ext := filepath.Ext(srcPath)
+	if len(ext) > 0 && !strings.HasSuffix(cleanSlug, ext) {
+		return cleanSlug + ext
+	}
+	return cleanSlug
 }
 
 func executeSpecialRepoFolder(db *store.SpecialReposSplitDB, shortKey, specialRoot string, opts specialCLIOptions) (*SpecialPutResult, error) {
@@ -222,33 +286,64 @@ func executeSpecialRepoFolder(db *store.SpecialReposSplitDB, shortKey, specialRo
 	if err != nil {
 		return nil, err
 	}
-	destPath := allocateSequencedItemPath(repoFolder, filepath.Base(opts.primaryArg))
+	destName := deriveFolderDestinationName(opts.primaryArg, opts.slug)
+	destPath := allocateSequencedItemPath(repoFolder, destName)
 	if err := copyDirectoryRecursive(opts.primaryArg, destPath); err != nil {
 		return nil, err
 	}
-	return finalizeSpecialPut(shortKey, specialRoot, repoName, repoFolder, destPath, !opts.isNoPush), nil
+	return finalizeSpecialPut(shortKey, specialRoot, repoName, repoFolder, destPath, opts.commitMsg, !opts.isNoPush), nil
+}
+
+func deriveFolderDestinationName(srcDir, customSlug string) string {
+	if len(strings.TrimSpace(customSlug)) == 0 {
+		return filepath.Base(srcDir)
+	}
+	return sanitizeKebabSlug(customSlug)
 }
 
 func executeSpecialRepoText(db *store.SpecialReposSplitDB, shortKey, specialRoot string, opts specialCLIOptions) (*SpecialPutResult, error) {
+	content, err := readSpecialTextContent(opts.primaryArg)
+	if err != nil {
+		return nil, err
+	}
 	repoName := resolveCurrentRepoName(opts.repoName)
 	repoFolder, err := db.ResolveOrCreateRepoFolder(shortKey, specialRoot, repoName)
 	if err != nil {
 		return nil, err
 	}
-	fileName := deriveTextSlugAndFilename(opts.primaryArg, opts.slug, opts.ext)
+	fileName := deriveTextSlugAndFilename(content, opts.slug, opts.ext)
 	destPath := allocateSequencedItemPath(repoFolder, fileName)
-	if err := os.WriteFile(destPath, []byte(opts.primaryArg), 0644); err != nil {
+	if err := os.WriteFile(destPath, []byte(content), 0644); err != nil {
 		return nil, apperror.WrapSimple(err, "write text note to special repo")
 	}
-	return finalizeSpecialPut(shortKey, specialRoot, repoName, repoFolder, destPath, !opts.isNoPush), nil
+	return finalizeSpecialPut(shortKey, specialRoot, repoName, repoFolder, destPath, opts.commitMsg, !opts.isNoPush), nil
 }
 
-func finalizeSpecialPut(shortKey, specialRoot, repoName, repoFolder, destPath string, shouldPush bool) *SpecialPutResult {
+func readSpecialTextContent(primaryArg string) (string, error) {
+	if len(primaryArg) > 0 && primaryArg != "-" {
+		return primaryArg, nil
+	}
+	return readPipedStdinText()
+}
+
+func readPipedStdinText() (string, error) {
+	stat, err := os.Stdin.Stat()
+	if err != nil || (stat.Mode()&os.ModeCharDevice) != 0 {
+		return "", apperror.NewValidationError("text content or piped stdin is required")
+	}
+	data, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		return "", apperror.WrapSimple(err, "read stdin for special repo text")
+	}
+	return string(data), nil
+}
+
+func finalizeSpecialPut(shortKey, specialRoot, repoName, repoFolder, destPath, customMsg string, shouldPush bool) *SpecialPutResult {
 	relPath, err := filepath.Rel(specialRoot, destPath)
 	if err != nil {
 		relPath = filepath.Base(destPath)
 	}
-	isCommitted, isPushed := autoCommitAndPushSpecialRepo(specialRoot, relPath, shortKey, repoName, shouldPush)
+	isCommitted, isPushed := autoCommitAndPushSpecialRepo(specialRoot, relPath, shortKey, repoName, customMsg, shouldPush)
 	return &SpecialPutResult{
 		SpecialKey:   shortKey,
 		SpecialRoot:  specialRoot,
@@ -299,15 +394,18 @@ func collectSpecialRepoGroups(rootDir, filterRepo string) []SpecialRepoTreeGroup
 	}
 	var out []SpecialRepoTreeGroup
 	for _, entry := range entries {
-		if isIgnoredSpecialFolder(entry) {
-			continue
+		if isSpecialGroupCandidate(entry, filterRepo) {
+			out = append(out, buildRepoGroup(rootDir, entry.Name()))
 		}
-		if isFilteredSpecialFolder(entry.Name(), filterRepo) {
-			continue
-		}
-		out = append(out, buildRepoGroup(rootDir, entry.Name()))
 	}
 	return out
+}
+
+func isSpecialGroupCandidate(entry os.DirEntry, filterRepo string) bool {
+	if isIgnoredSpecialFolder(entry) || isFilteredSpecialFolder(entry.Name(), filterRepo) {
+		return false
+	}
+	return true
 }
 
 func isIgnoredSpecialFolder(entry os.DirEntry) bool {
@@ -325,27 +423,31 @@ func buildRepoGroup(rootDir, folderName string) SpecialRepoTreeGroup {
 	subEntries, _ := os.ReadDir(filepath.Join(rootDir, folderName))
 	var items []string
 	for _, sub := range subEntries {
-		name := sub.Name()
-		if sub.IsDir() {
-			name += "/"
-		}
-		items = append(items, name)
+		items = append(items, formatRepoGroupItem(sub))
 	}
-	return SpecialRepoTreeGroup{
-		Folder: folderName,
-		Items:  items,
+	return SpecialRepoTreeGroup{Folder: folderName, Items: items}
+}
+
+func formatRepoGroupItem(sub os.DirEntry) string {
+	name := sub.Name()
+	if sub.IsDir() {
+		return name + "/"
 	}
+	return name
 }
 
 func renderSpecialRepoTree(shortKey, repoName, rootDir string, groups []SpecialRepoTreeGroup) {
-	totalItems := countTotalGroupItems(groups)
-	fmt.Printf("\n  %s╔══ SPECIAL REPOSITORY: %s (%s) ═══════════════════════════════╗%s\n", constants.ColorCyan, repoName, shortKey, constants.ColorReset)
-	fmt.Printf("  │ Path:  %-58s │\n", rootDir)
-	fmt.Printf("  │ Total: %d project folder(s), %d item(s)                          │\n", len(groups), totalItems)
-	fmt.Printf("  %s╚═════════════════════════════════════════════════════════════════════════╝%s\n\n", constants.ColorCyan, constants.ColorReset)
+	printSpecialRepoHeader(shortKey, repoName, rootDir, countTotalGroupItems(groups), len(groups))
 	for _, g := range groups {
 		renderSingleRepoGroup(g)
 	}
+}
+
+func printSpecialRepoHeader(shortKey, repoName, rootDir string, totalItems, totalGroups int) {
+	fmt.Printf("\n  %s╔══ SPECIAL REPOSITORY: %s (%s) ═══════════════════════════════╗%s\n", constants.ColorCyan, repoName, shortKey, constants.ColorReset)
+	fmt.Printf("  │ Path:  %-58s │\n", rootDir)
+	fmt.Printf("  │ Total: %d project folder(s), %d item(s)                          │\n", totalGroups, totalItems)
+	fmt.Printf("  %s╚═════════════════════════════════════════════════════════════════════════╝%s\n\n", constants.ColorCyan, constants.ColorReset)
 }
 
 func countTotalGroupItems(groups []SpecialRepoTreeGroup) int {
@@ -359,14 +461,17 @@ func countTotalGroupItems(groups []SpecialRepoTreeGroup) int {
 func renderSingleRepoGroup(g SpecialRepoTreeGroup) {
 	fmt.Printf("  📁 %s%s/%s (%d items)\n", constants.ColorBold, g.Folder, constants.ColorReset, len(g.Items))
 	for idx, it := range g.Items {
-		isLast := idx == len(g.Items)-1
-		branch := "├─"
-		if isLast {
-			branch = "└─"
-		}
-		fmt.Printf("    %s %s\n", branch, it)
+		renderGroupItemLine(it, idx == len(g.Items)-1)
 	}
 	fmt.Println()
+}
+
+func renderGroupItemLine(it string, isLast bool) {
+	branch := "├─"
+	if isLast {
+		branch = "└─"
+	}
+	fmt.Printf("    %s %s\n", branch, it)
 }
 
 func runSpecialRepoInit(workBaseDir string) error {
@@ -375,6 +480,10 @@ func runSpecialRepoInit(workBaseDir string) error {
 		return err
 	}
 	defer db.Close()
+	return initSpecialReposBoth(db, workBaseDir)
+}
+
+func initSpecialReposBoth(db *store.SpecialReposSplitDB, workBaseDir string) error {
 	for _, key := range []string{"rs", "rc"} {
 		if err := initSingleSpecialRepo(db, key, workBaseDir); err != nil {
 			return err
@@ -413,9 +522,9 @@ func RenderSpecialRepoHelp(shortKey string) string {
 	return fmt.Sprintf(`╭── GitMap Special Repository (%s / %s) ──────────────────────────────────────╮
 │ Navigation : gitmap cd %s [<repo>]                                          │
 │ Auto-Put   : gitmap %s put <path|text> [--repo <name>] [--no-push] [--json] │
-│ Store File : gitmap %s file <filepath> [--repo <name>] [--no-push] [--json] │
-│ Store Dir  : gitmap %s folder <folder> [--repo <name>] [--no-push] [--json] │
-│ Store Note : gitmap %s text "<text>" [--slug <s>] [--ext .ps1] [--repo <n>] │
+│ Store File : gitmap %s file <filepath> [--repo <name>] [--name <s>] [--msg] │
+│ Store Dir  : gitmap %s folder <folder> [--repo <name>] [--name <s>] [--msg] │
+│ Store Note : gitmap %s text "<text>" [--name <s>] [--ext .ps1] [--msg <m>]  │
 │ List Tree  : gitmap %s ls [--repo <name>] [--json]                          │
 │ Initialize : gitmap %s init | scan-check [--auto-accept]                    │
 ╰────────────────────────────────────────────────────────────────────────────╯

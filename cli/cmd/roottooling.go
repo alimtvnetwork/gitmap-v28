@@ -108,8 +108,8 @@ func toolingOpsEntries() []dispatchEntry {
 
 func toolingSpecialRepoEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdRepoSecretsAlias, constants.CmdRepoSecrets}, func() error { return runSpecialRepoCLI("rs", argsTail()) }},
-		{[]string{constants.CmdRepoCacheAlias, constants.CmdRepoCache, constants.CmdRepoStorageAlias}, func() error { return runSpecialRepoCLI("rc", argsTail()) }},
+		{[]string{constants.CmdRepoSecretsAlias, constants.CmdRepoSecrets}, func() error { return rsCmd(argsTail()) }},
+		{[]string{constants.CmdRepoCacheAlias, constants.CmdRepoCache, constants.CmdRepoStorageAlias}, func() error { return rcCmd(argsTail()) }},
 	}
 }
 

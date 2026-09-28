@@ -36,23 +36,27 @@ func handleBareCD() error {
 
 // routeCDSub routes to the appropriate cd handler.
 func routeCDSub(sub string, args []string) result.ErrorWrapper {
-	if sub == constants.CmdCDRepos {
-		return result.MatchWrapper(runCDRepos(args))
+	if isConfigCDSub(sub) {
+		return result.MatchWrapper(routeConfigCDSub(sub, args))
 	}
-
-	if sub == constants.CmdCDSetDefault {
-		return result.MatchWrapper(runCDSetDefault(args))
-	}
-
-	if sub == constants.CmdCDClearDefault {
-		return result.MatchWrapper(runCDClearDefault(args))
-	}
-
 	if isSpecialRepoCDAlias(sub) {
 		return result.MatchWrapper(runCDSpecialRepo(sub, args))
 	}
-
 	return result.MatchWrapper(runCDLookup(sub, args))
+}
+
+func isConfigCDSub(sub string) bool {
+	return sub == constants.CmdCDRepos || sub == constants.CmdCDSetDefault || sub == constants.CmdCDClearDefault
+}
+
+func routeConfigCDSub(sub string, args []string) error {
+	if sub == constants.CmdCDRepos {
+		return runCDRepos(args)
+	}
+	if sub == constants.CmdCDSetDefault {
+		return runCDSetDefault(args)
+	}
+	return runCDClearDefault(args)
 }
 
 func isSpecialRepoCDAlias(sub string) bool {

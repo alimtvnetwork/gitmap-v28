@@ -256,4 +256,3 @@ func printSnapshotSuccess(outPath string, snap AGYRestoreSnapshot) {
 func init() {
 	AgyCmd.AddCommand(agySnapshotCmd)
 }
-

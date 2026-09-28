@@ -50,8 +50,8 @@ const (
 ) VALUES ('repo-cache', 'rc', 'repo-cache', 'repo-cache', 'cache', 'pending');`
 )
 
-// SpecialRepositoryRecord represents a configured special repository in SQLite.
-type SpecialRepositoryRecord struct {
+// SpecialRepoRecord represents a configured special repository in SQLite.
+type SpecialRepoRecord struct {
 	RepoKey          string `json:"repoKey"`
 	ShortKey         string `json:"shortKey"`
 	DefaultName      string `json:"defaultName"`
@@ -65,8 +65,11 @@ type SpecialRepositoryRecord struct {
 	UpdatedAt        string `json:"updatedAt"`
 }
 
+// SpecialRepositoryRecord is an alias for SpecialRepoRecord.
+type SpecialRepositoryRecord = SpecialRepoRecord
+
 // HasAnsweredPrompt returns true when the first-scan prompt has already been answered.
-func (r SpecialRepositoryRecord) HasAnsweredPrompt() bool {
+func (r SpecialRepoRecord) HasAnsweredPrompt() bool {
 	return r.IsPromptAnswered > 0
 }
 
@@ -160,18 +163,146 @@ func (db *SpecialReposSplitDB) Path() string {
 	return db.path
 }
 
-// GetSpecialRepo retrieves a single special repository record by key or short alias.
-func (db *SpecialReposSplitDB) GetSpecialRepo(keyOrShort string) (*SpecialRepositoryRecord, error) {
-	repoKey, _ := NormalizeSpecialRepoKey(keyOrShort)
+// GetSpecialRepoByShortKey retrieves a special repository record by shortKey ("rs" or "rc").
+func GetSpecialRepoByShortKey(db *sql.DB, shortKey string) (*SpecialRepoRecord, error) {
+	_, normShort := NormalizeSpecialRepoKey(shortKey)
 	query := `SELECT RepoKey, ShortKey, DefaultName, ConfiguredName, Category,
 		LocalPath, RemoteURL, IsPromptAnswered, UserDecision, PromptedAt, UpdatedAt
-		FROM SpecialRepository WHERE RepoKey = ?`
-	row := db.conn.QueryRow(query, repoKey)
-	return scanSpecialRepoRow(row)
+		FROM SpecialRepository WHERE ShortKey = ?`
+	return scanSpecialRepoRow(db.QueryRow(query, normShort))
 }
 
-func scanSpecialRepoRow(scanner interface{ Scan(dest ...any) error }) (*SpecialRepositoryRecord, error) {
-	var rec SpecialRepositoryRecord
+// GetSpecialRepoByKey retrieves a special repository record by repoKey.
+func GetSpecialRepoByKey(db *sql.DB, repoKey string) (*SpecialRepoRecord, error) {
+	normKey, normShort := NormalizeSpecialRepoKey(repoKey)
+	query := `SELECT RepoKey, ShortKey, DefaultName, ConfiguredName, Category,
+		LocalPath, RemoteURL, IsPromptAnswered, UserDecision, PromptedAt, UpdatedAt
+		FROM SpecialRepository WHERE RepoKey = ? OR ShortKey = ?`
+	return scanSpecialRepoRow(db.QueryRow(query, normKey, normShort))
+}
+
+// GetAllSpecialRepos returns all configured special repository records.
+func GetAllSpecialRepos(db *sql.DB) ([]SpecialRepoRecord, error) {
+	query := `SELECT RepoKey, ShortKey, DefaultName, ConfiguredName, Category,
+		LocalPath, RemoteURL, IsPromptAnswered, UserDecision, PromptedAt, UpdatedAt
+		FROM SpecialRepository ORDER BY RepoKey DESC`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "list special repositories")
+	}
+	defer rows.Close()
+	return collectSpecialRepoRows(rows)
+}
+
+// UpdateSpecialRepoPath updates the local path and remote URL in SQLite.
+func UpdateSpecialRepoPath(db *sql.DB, shortKey, localPath, remoteURL string) error {
+	normKey, normShort := NormalizeSpecialRepoKey(shortKey)
+	now := time.Now().UTC().Format(time.RFC3339)
+	query := `UPDATE SpecialRepository
+		SET LocalPath = ?, RemoteURL = ?, UpdatedAt = ?
+		WHERE ShortKey = ? OR RepoKey = ?`
+	if _, err := db.Exec(query, localPath, remoteURL, now, normShort, normKey); err != nil {
+		return apperror.WrapSimple(err, "update special repo path")
+	}
+	return nil
+}
+
+// MarkSpecialRepoPromptAnswered records user decision and marks prompt as answered in SQLite.
+func MarkSpecialRepoPromptAnswered(db *sql.DB, shortKey, decision string) error {
+	normKey, normShort := NormalizeSpecialRepoKey(shortKey)
+	now := time.Now().UTC().Format(time.RFC3339)
+	query := `UPDATE SpecialRepository
+		SET IsPromptAnswered = 1, UserDecision = ?, PromptedAt = ?, UpdatedAt = ?
+		WHERE ShortKey = ? OR RepoKey = ?`
+	if _, err := db.Exec(query, decision, now, now, normShort, normKey); err != nil {
+		return apperror.WrapSimple(err, "mark special repo prompt answered")
+	}
+	return nil
+}
+
+// GetNextRepoFolderSeq allocates or increments the folder prefix (e.g. 01-<repoName>, 02-<repoName>).
+func GetNextRepoFolderSeq(db *sql.DB, specialKey, repoName string) (string, error) {
+	_, shortKey := NormalizeSpecialRepoKey(specialKey)
+	cleanRepo := sanitizeRepoFolderSlug(repoName)
+	if prefix, isFound := queryStoredFolderPrefix(db, shortKey, cleanRepo); isFound {
+		return prefix, nil
+	}
+	return allocateAndSaveNextFolderSeq(db, shortKey, cleanRepo)
+}
+
+func queryStoredFolderPrefix(db *sql.DB, shortKey, cleanRepo string) (string, bool) {
+	var prefix string
+	query := `SELECT FolderPrefix FROM SpecialRepoFolderSeq WHERE SpecialKey = ? AND RepoName = ?`
+	err := db.QueryRow(query, shortKey, cleanRepo).Scan(&prefix)
+	return prefix, err == nil && len(prefix) > 0
+}
+
+func allocateAndSaveNextFolderSeq(db *sql.DB, shortKey, cleanRepo string) (string, error) {
+	nextSeq := computeNextFolderSeqNumber(db, shortKey)
+	prefix := fmt.Sprintf("%02d-%s", nextSeq, cleanRepo)
+	query := `INSERT OR REPLACE INTO SpecialRepoFolderSeq (SpecialKey, RepoName, FolderPrefix, SeqNumber) VALUES (?, ?, ?, ?)`
+	if _, err := db.Exec(query, shortKey, cleanRepo, prefix, nextSeq); err != nil {
+		return "", apperror.WrapSimple(err, "insert special repo folder seq")
+	}
+	return prefix, nil
+}
+
+func computeNextFolderSeqNumber(db *sql.DB, shortKey string) int {
+	var maxDB int
+	query := `SELECT COALESCE(MAX(SeqNumber), 0) FROM SpecialRepoFolderSeq WHERE SpecialKey = ?`
+	if err := db.QueryRow(query, shortKey).Scan(&maxDB); err != nil {
+		return 1
+	}
+	return maxDB + 1
+}
+
+// GetNextFileSeq scans repoDir/folderPrefix for existing files and returns the next 2-digit sequence number.
+func GetNextFileSeq(repoDir string, folderPrefix string) (int, error) {
+	targetDir := resolveFileSeqTargetDir(repoDir, folderPrefix)
+	entries, err := os.ReadDir(targetDir)
+	if err != nil {
+		return 1, nil
+	}
+	return maxFileSeqFromEntries(entries) + 1, nil
+}
+
+func resolveFileSeqTargetDir(repoDir, folderPrefix string) string {
+	if len(strings.TrimSpace(folderPrefix)) > 0 {
+		return filepath.Join(repoDir, folderPrefix)
+	}
+	return repoDir
+}
+
+func maxFileSeqFromEntries(entries []os.DirEntry) int {
+	maxSeq := 0
+	for _, entry := range entries {
+		seq := extractLeadingTwoDigitSeq(entry.Name())
+		if seq > maxSeq {
+			maxSeq = seq
+		}
+	}
+	return maxSeq
+}
+
+func extractLeadingTwoDigitSeq(name string) int {
+	parts := strings.SplitN(name, "-", 2)
+	if len(parts) < 2 || len(parts[0]) < 2 {
+		return 0
+	}
+	seq, err := strconv.Atoi(parts[0])
+	if err != nil || seq <= 0 {
+		return 0
+	}
+	return seq
+}
+
+// GetSpecialRepo retrieves a single special repository record by key or short alias.
+func (db *SpecialReposSplitDB) GetSpecialRepo(keyOrShort string) (*SpecialRepoRecord, error) {
+	return GetSpecialRepoByKey(db.conn, keyOrShort)
+}
+
+func scanSpecialRepoRow(scanner interface{ Scan(dest ...any) error }) (*SpecialRepoRecord, error) {
+	var rec SpecialRepoRecord
 	err := scanner.Scan(
 		&rec.RepoKey, &rec.ShortKey, &rec.DefaultName, &rec.ConfiguredName, &rec.Category,
 		&rec.LocalPath, &rec.RemoteURL, &rec.IsPromptAnswered, &rec.UserDecision, &rec.PromptedAt, &rec.UpdatedAt,
@@ -183,20 +314,12 @@ func scanSpecialRepoRow(scanner interface{ Scan(dest ...any) error }) (*SpecialR
 }
 
 // ListSpecialRepos returns all configured special repository records.
-func (db *SpecialReposSplitDB) ListSpecialRepos() ([]SpecialRepositoryRecord, error) {
-	query := `SELECT RepoKey, ShortKey, DefaultName, ConfiguredName, Category,
-		LocalPath, RemoteURL, IsPromptAnswered, UserDecision, PromptedAt, UpdatedAt
-		FROM SpecialRepository ORDER BY RepoKey DESC`
-	rows, err := db.conn.Query(query)
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "list special repositories")
-	}
-	defer rows.Close()
-	return collectSpecialRepoRows(rows)
+func (db *SpecialReposSplitDB) ListSpecialRepos() ([]SpecialRepoRecord, error) {
+	return GetAllSpecialRepos(db.conn)
 }
 
-func collectSpecialRepoRows(rows *sql.Rows) ([]SpecialRepositoryRecord, error) {
-	var list []SpecialRepositoryRecord
+func collectSpecialRepoRows(rows *sql.Rows) ([]SpecialRepoRecord, error) {
+	var list []SpecialRepoRecord
 	for rows.Next() {
 		rec, err := scanSpecialRepoRow(rows)
 		if err != nil {
@@ -209,12 +332,12 @@ func collectSpecialRepoRows(rows *sql.Rows) ([]SpecialRepositoryRecord, error) {
 
 // MarkPromptAnswered records the one-time first-scan user decision in SQLite.
 func (db *SpecialReposSplitDB) MarkPromptAnswered(keyOrShort, decision, localPath, remoteURL string) error {
-	repoKey, _ := NormalizeSpecialRepoKey(keyOrShort)
+	normKey, normShort := NormalizeSpecialRepoKey(keyOrShort)
 	now := time.Now().UTC().Format(time.RFC3339)
 	query := `UPDATE SpecialRepository
 		SET IsPromptAnswered = 1, UserDecision = ?, LocalPath = ?, RemoteURL = ?, PromptedAt = ?, UpdatedAt = ?
-		WHERE RepoKey = ?`
-	if _, err := db.conn.Exec(query, decision, localPath, remoteURL, now, now, repoKey); err != nil {
+		WHERE ShortKey = ? OR RepoKey = ?`
+	if _, err := db.conn.Exec(query, decision, localPath, remoteURL, now, now, normShort, normKey); err != nil {
 		return apperror.WrapSimple(err, "mark special repo prompt answered")
 	}
 	return nil
@@ -222,10 +345,10 @@ func (db *SpecialReposSplitDB) MarkPromptAnswered(keyOrShort, decision, localPat
 
 // UpdateConfiguredName updates the custom repository folder name and local path.
 func (db *SpecialReposSplitDB) UpdateConfiguredName(keyOrShort, newName, localPath string) error {
-	repoKey, _ := NormalizeSpecialRepoKey(keyOrShort)
+	normKey, _ := NormalizeSpecialRepoKey(keyOrShort)
 	now := time.Now().UTC().Format(time.RFC3339)
 	query := `UPDATE SpecialRepository SET ConfiguredName = ?, LocalPath = ?, UpdatedAt = ? WHERE RepoKey = ?`
-	if _, err := db.conn.Exec(query, strings.TrimSpace(newName), localPath, now, repoKey); err != nil {
+	if _, err := db.conn.Exec(query, strings.TrimSpace(newName), localPath, now, normKey); err != nil {
 		return apperror.WrapSimple(err, "update special repo configured name")
 	}
 	return nil
@@ -238,44 +361,27 @@ func (db *SpecialReposSplitDB) ResolveOrCreateRepoFolder(specialKey, specialRepo
 	if err := os.MkdirAll(specialRepoRoot, 0755); err != nil {
 		return "", apperror.WrapSimple(err, "mkdir special repo root")
 	}
-	if diskPrefix, seqNum, isFound := findExistingRepoFolderOnDisk(specialRepoRoot, cleanRepo); isFound {
-		_ = db.saveRepoFolderSeq(shortKey, cleanRepo, diskPrefix, seqNum)
-		return filepath.Join(specialRepoRoot, diskPrefix), nil
+	diskPrefix, seqNum, isFound := findExistingRepoFolderOnDisk(specialRepoRoot, cleanRepo)
+	if isFound {
+		return db.recordAndReturnExistingFolder(specialRepoRoot, shortKey, cleanRepo, diskPrefix, seqNum)
 	}
 	return db.allocateOrLoadRepoFolder(shortKey, specialRepoRoot, cleanRepo)
 }
 
-func (db *SpecialReposSplitDB) allocateOrLoadRepoFolder(shortKey, rootDir, cleanRepo string) (string, error) {
-	if existingPrefix, isFound := db.queryStoredFolderPrefix(shortKey, cleanRepo); isFound {
-		fullDir := filepath.Join(rootDir, existingPrefix)
-		return fullDir, os.MkdirAll(fullDir, 0755)
+func (db *SpecialReposSplitDB) recordAndReturnExistingFolder(root, shortKey, cleanRepo, prefix string, seq int) (string, error) {
+	if err := db.saveRepoFolderSeq(shortKey, cleanRepo, prefix, seq); err != nil {
+		return "", err
 	}
-	nextSeq := db.computeNextRepoSeq(shortKey, rootDir)
-	prefix := fmt.Sprintf("%02d-%s", nextSeq, cleanRepo)
-	if err := db.saveRepoFolderSeq(shortKey, cleanRepo, prefix, nextSeq); err != nil {
+	return filepath.Join(root, prefix), nil
+}
+
+func (db *SpecialReposSplitDB) allocateOrLoadRepoFolder(shortKey, rootDir, cleanRepo string) (string, error) {
+	prefix, err := GetNextRepoFolderSeq(db.conn, shortKey, cleanRepo)
+	if err != nil {
 		return "", err
 	}
 	fullDir := filepath.Join(rootDir, prefix)
 	return fullDir, os.MkdirAll(fullDir, 0755)
-}
-
-func (db *SpecialReposSplitDB) queryStoredFolderPrefix(shortKey, cleanRepo string) (string, bool) {
-	var prefix string
-	err := db.conn.QueryRow(
-		`SELECT FolderPrefix FROM SpecialRepoFolderSeq WHERE SpecialKey = ? AND RepoName = ?`,
-		shortKey, cleanRepo,
-	).Scan(&prefix)
-	return prefix, err == nil && len(prefix) > 0
-}
-
-func (db *SpecialReposSplitDB) computeNextRepoSeq(shortKey, rootDir string) int {
-	var maxDB int
-	_ = db.conn.QueryRow(`SELECT COALESCE(MAX(SeqNumber), 0) FROM SpecialRepoFolderSeq WHERE SpecialKey = ?`, shortKey).Scan(&maxDB)
-	maxDisk := maxSeqOnDisk(rootDir)
-	if maxDisk > maxDB {
-		return maxDisk + 1
-	}
-	return maxDB + 1
 }
 
 func (db *SpecialReposSplitDB) saveRepoFolderSeq(shortKey, cleanRepo, prefix string, seqNum int) error {
@@ -308,21 +414,6 @@ func matchRepoFolderEntry(entry os.DirEntry, cleanRepo string) (string, int, boo
 		return "", 0, false
 	}
 	return entry.Name(), seq, strings.EqualFold(slug, cleanRepo)
-}
-
-func maxSeqOnDisk(rootDir string) int {
-	entries, err := os.ReadDir(rootDir)
-	if err != nil {
-		return 0
-	}
-	maxVal := 0
-	for _, entry := range entries {
-		seq, _, isParsed := parseSequencedName(entry.Name())
-		if isParsed && seq > maxVal {
-			maxVal = seq
-		}
-	}
-	return maxVal
 }
 
 func parseSequencedName(name string) (int, string, bool) {
