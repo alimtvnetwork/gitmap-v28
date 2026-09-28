@@ -84,7 +84,52 @@ Write-Host "`n[Step 1/4] Preserving Projects & Conversations Snapshot..." -Foreg
 if ($DryRun) {
     Write-Host "  [dry-run] Would export AGY restore snapshot to: $TargetSnapFile"
 } else {
-    & $GitMapExe agy uninstall --all --dry-run --backup $TargetSnapFile | Out-Null
+    $Exported = $false
+    try {
+        & $GitMapExe agy snapshot $TargetSnapFile | Out-Null
+        if (Test-Path $TargetSnapFile) {
+            $Exported = $true
+        }
+    } catch {}
+
+    if (-not $Exported) {
+        $Projects = @()
+        $ProjDir = Join-Path $HomeDir ".gemini\config\projects"
+        if (Test-Path $ProjDir) {
+            Get-ChildItem -Path $ProjDir -Filter "*.json" -File | ForEach-Object {
+                try {
+                    $item = Get-Content $_.FullName -Raw | ConvertFrom-Json
+                    if ($item.project_metadata.workspace_path) {
+                        $Projects += @{
+                            id = $item.project_id
+                            name = $item.project_metadata.name
+                            workspace = $item.project_metadata.workspace_path
+                            branch = $item.project_metadata.branch
+                        }
+                    }
+                } catch {}
+            }
+        }
+        $Convs = @()
+        $BrainDir = Join-Path $HomeDir ".gemini\antigravity\brain"
+        if (Test-Path $BrainDir) {
+            Get-ChildItem -Path $BrainDir -Directory | ForEach-Object {
+                $Convs += @{
+                    id = $_.Name
+                    title = $_.Name
+                }
+            }
+        }
+        $SnapObj = @{
+            createdAt = (Get-Date).ToUniversalTime().ToString("o")
+            timestamp = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+            totalProjects = $Projects.Count
+            totalConversations = $Convs.Count
+            projects = $Projects
+            conversations = $Convs
+        }
+        $SnapObj | ConvertTo-Json -Depth 5 | Set-Content -Path $TargetSnapFile -Encoding UTF8
+    }
     Write-Host "  [OK] Snapshot saved to: $TargetSnapFile" -ForegroundColor Green
 }
 

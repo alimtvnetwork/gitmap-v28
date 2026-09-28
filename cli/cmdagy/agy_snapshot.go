@@ -9,6 +9,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -219,3 +222,38 @@ func writeSnapshotFile(outPath string, snap AGYRestoreSnapshot) error {
 	}
 	return os.WriteFile(outPath, data, 0644)
 }
+
+var agySnapshotCmd = &cobra.Command{
+	Use:     "snapshot [output-path]",
+	Aliases: []string{"snap", "save-snapshot", "export-snapshot"},
+	Short:   "Export Antigravity projects and conversations to a JSON snapshot",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return executeAgySnapshotCmd(args)
+	},
+}
+
+func executeAgySnapshotCmd(args []string) error {
+	outPath := ""
+	hasArg := len(args) > 0
+	if hasArg {
+		outPath = args[0]
+	}
+	snap, err := ExportAGYRestoreSnapshot(outPath)
+	hasErr := err != nil
+	if hasErr {
+		return err
+	}
+	printSnapshotSuccess(outPath, snap)
+	return nil
+}
+
+func printSnapshotSuccess(outPath string, snap AGYRestoreSnapshot) {
+	targetPath, _ := resolveSnapshotOutputPath(outPath)
+	fmt.Printf("%s[GitMap]%s Successfully exported %d project(s) and %d conversation(s) snapshot to:\n  %s\n",
+		constants.ColorGreen, constants.ColorReset, snap.TotalProjects, snap.TotalConvs, targetPath)
+}
+
+func init() {
+	AgyCmd.AddCommand(agySnapshotCmd)
+}
+
