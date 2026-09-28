@@ -37,10 +37,17 @@ func ExecuteAgyRecreate(targets []AgyProject, opts AgyRecreateOptions) error {
 }
 
 func processSingleRecreate(p AgyProject, opts AgyRecreateOptions) (*AgyRecreateResult, error) {
+	if IsRestrictedSystemOrHomeDir(p.GetPath()) {
+		return nil, apperror.NewSimple(fmt.Sprintf("refusing to recreate restricted system or home directory project: %s", p.GetPath()), "E9101")
+	}
 	renderRecreateBanner(p)
 	if opts.IsDryRun {
 		return renderDryRunPreview(p), nil
 	}
+	return executeRecreateLifecycle(p, opts)
+}
+
+func executeRecreateLifecycle(p AgyProject, opts AgyRecreateOptions) (*AgyRecreateResult, error) {
 	purged := purgeCacheAndConversations(p)
 	removeProjectRegistration(p.ID)
 	newId, regErr := registerFreshProject(p)

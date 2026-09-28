@@ -25,13 +25,26 @@ func resolveCurrentDirTarget(projects []AgyProject) ([]AgyProject, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "get current working directory")
 	}
+	if IsRestrictedSystemOrHomeDir(cwd) {
+		return nil, apperror.NewSimple(fmt.Sprintf("restricted system or home directory cannot be recreated as an Antigravity project: %s", cwd), "E9101")
+	}
 	targetDir := resolveWorkingRepoRoot(cwd)
-	for _, p := range projects {
-		if isMatchingProjectPath(p.GetPath(), targetDir) {
-			return []AgyProject{p}, nil
-		}
+	if matched := findProjectByPath(projects, targetDir); matched != nil {
+		return []AgyProject{*matched}, nil
+	}
+	if !isGitRepo(targetDir) {
+		return nil, apperror.NewSimple(fmt.Sprintf("directory %q is neither an existing Antigravity project nor a valid Git repository; refusing to create ad-hoc project", targetDir), "E9102")
 	}
 	return []AgyProject{buildAdHocProject(targetDir)}, nil
+}
+
+func findProjectByPath(projects []AgyProject, targetDir string) *AgyProject {
+	for _, p := range projects {
+		if isMatchingProjectPath(p.GetPath(), targetDir) {
+			return &p
+		}
+	}
+	return nil
 }
 
 func resolveWorkingRepoRoot(dirPath string) string {
@@ -125,11 +138,23 @@ func resolveLikelyPathToken(token string, projects []AgyProject) []AgyProject {
 	if folderMatches := collectProjectsUnderFolder(token, projects); len(folderMatches) > 0 {
 		return folderMatches
 	}
-	if info, err := os.Stat(token); err == nil && info.IsDir() {
-		targetDir := resolveWorkingRepoRoot(token)
-		return []AgyProject{buildAdHocProject(targetDir)}
+	return tryBuildAdHocFromPath(token)
+}
+
+func tryBuildAdHocFromPath(token string) []AgyProject {
+	info, err := os.Stat(token)
+	if err != nil || !info.IsDir() {
+		return nil
 	}
-	return nil
+	absDir, _ := filepath.Abs(token)
+	if IsRestrictedSystemOrHomeDir(absDir) {
+		return nil
+	}
+	targetDir := resolveWorkingRepoRoot(token)
+	if !isGitRepo(targetDir) {
+		return nil
+	}
+	return []AgyProject{buildAdHocProject(targetDir)}
 }
 
 func isLikelyPath(token string) bool {
@@ -157,9 +182,96 @@ func resolveDirectoryOrFolderTarget(token string, projects []AgyProject) ([]AgyP
 	if folderMatches := collectProjectsUnderFolder(token, projects); len(folderMatches) > 0 {
 		return folderMatches, nil
 	}
-	if info, err := os.Stat(token); err == nil && info.IsDir() {
-		targetDir := resolveWorkingRepoRoot(token)
-		return []AgyProject{buildAdHocProject(targetDir)}, nil
+	info, err := os.Stat(token)
+	if err != nil || !info.IsDir() {
+		return nil, fmt.Errorf("target %q did not match any project sequence, ID, alias, or path", token)
 	}
-	return nil, fmt.Errorf("target %q did not match any project sequence, ID, alias, or path", token)
+	return resolveDirectoryAdHocTarget(token)
+}
+
+func resolveDirectoryAdHocTarget(token string) ([]AgyProject, error) {
+	absDir, err := filepath.Abs(token)
+	if err == nil {
+		token = absDir
+	}
+	if IsRestrictedSystemOrHomeDir(token) {
+		return nil, apperror.NewSimple(fmt.Sprintf("restricted system or home directory cannot be recreated as an Antigravity project: %s", token), "E9101")
+	}
+	targetDir := resolveWorkingRepoRoot(token)
+	if !isGitRepo(targetDir) {
+		return nil, apperror.NewSimple(fmt.Sprintf("directory %q is neither an existing Antigravity project nor a valid Git repository; refusing to create ad-hoc project", targetDir), "E9102")
+	}
+	return []AgyProject{buildAdHocProject(targetDir)}, nil
+}
+
+// IsRestrictedSystemOrHomeDir reports whether dirPath is a drive root, user home, or OS system directory.
+func IsRestrictedSystemOrHomeDir(dirPath string) bool {
+	if strings.TrimSpace(dirPath) == "" {
+		return true
+	}
+	clean := filepath.Clean(dirPath)
+	if abs, err := filepath.Abs(clean); err == nil {
+		clean = abs
+	}
+	if isVolumeOrRootDrive(clean) || isUserHomeOrParent(clean) {
+		return true
+	}
+	return isOperatingSystemDir(clean)
+}
+
+func isVolumeOrRootDrive(clean string) bool {
+	if clean == "/" || clean == "\\" {
+		return true
+	}
+	if filepath.Dir(clean) == clean {
+		return true
+	}
+	vol := filepath.VolumeName(clean)
+	return vol != "" && (clean == vol || clean == vol+"\\" || clean == vol+"/")
+}
+
+func isUserHomeOrParent(clean string) bool {
+	home, err := os.UserHomeDir()
+	if err != nil || home == "" {
+		return false
+	}
+	cleanHome := filepath.Clean(home)
+	if strings.EqualFold(clean, cleanHome) {
+		return true
+	}
+	parent := filepath.Dir(cleanHome)
+	return parent != cleanHome && strings.EqualFold(clean, parent)
+}
+
+func isOperatingSystemDir(clean string) bool {
+	candidates := collectSystemDirCandidates()
+	for _, d := range candidates {
+		if d != "" && strings.EqualFold(clean, filepath.Clean(d)) {
+			return true
+		}
+	}
+	return false
+}
+
+func collectSystemDirCandidates() []string {
+	return []string{
+		os.Getenv("WINDIR"),
+		os.Getenv("SystemRoot"),
+		os.Getenv("ProgramFiles"),
+		os.Getenv("ProgramFiles(x86)"),
+		os.Getenv("ProgramData"),
+		"/etc", "/usr", "/bin", "/sbin", "/var", "/root", "/System", "/Library",
+	}
+}
+
+func isGitRepo(dirPath string) bool {
+	if strings.TrimSpace(dirPath) == "" {
+		return false
+	}
+	dotGit := filepath.Join(dirPath, ".git")
+	if _, err := os.Stat(dotGit); err == nil {
+		return true
+	}
+	root, err := gitutil.RepoRoot(dirPath)
+	return err == nil && len(root) > 0
 }

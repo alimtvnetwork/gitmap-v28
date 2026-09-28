@@ -31,5 +31,6 @@
 - [181-shutdown-until-commands-discovery-help-and-test.md](86-shutdown-until-commands-discovery-help-and-test.md) — Shutdown-Until Command Discovery, Root Dispatch & Rich Help Integration (Status: `active`)
 - [182-terminal-tab-completion-and-flag-suggestions.md](87-terminal-tab-completion-and-flag-suggestions.md) — Terminal Tab Completion, AGY Flag Suggestions & Shell Integration (Status: `active`)
 - [183-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md](88-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md) — SUG Enhancements, PE Path/Alias Resolution, PascalCase/Array Template Variables & Repo-Secrets Hygiene (Status: `active`)
+- [184-agy-rp-running-projects-and-recreate-safety.md](89-agy-rp-running-projects-and-recreate-safety.md) — AGY RP Running-Projects Remap & Recreate-Project Safety Guard (Status: `active`)
 
 

@@ -709,7 +709,7 @@ func dispatchAgySubsystem(
 		executeAndAudit(dispatchIP, shouldAudit, auditID, auditStart)
 
 		return true
-	case "agy", "ag", "antigravity", "rrr", "rm-rejoin-read", "rejoin-read", "rrpr", "rrbr", "rm-rejoin-pin-read", "pins", "ccko", "cckf", "cache-clear", "clean-cache", "recreate-project", "recreate-proj", "recreate-p", "recreate", "rec", "rp",
+	case "agy", "ag", "antigravity", "rrr", "rm-rejoin-read", "rejoin-read", "rrpr", "rrbr", "rm-rejoin-pin-read", "pins", "ccko", "cckf", "cache-clear", "clean-cache", "recreate-project", "recreate-proj", "recreate-p", "recreate", "rec", "rcp",
 		"backup-running-prompts", "backup-running-prompt", "brp",
 		"restore-running-prompts", "restore-running-prompt", "rrp",
 		"running-prompts", "running-prompt", "rp-prompts",

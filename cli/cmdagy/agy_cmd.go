@@ -160,7 +160,7 @@ func normalizeProjectSubcommands(low string) string {
 	if low == "pin-projects" || low == "pin-project" || low == "pinned-projects" || low == "pinned" || low == "pins" {
 		return "pin-projects"
 	}
-	if low == "recreate-project" || low == "recreate" || low == "rp" || low == "rec" {
+	if low == "recreate-project" || low == "recreate" || low == "rcp" || low == "rec" {
 		return "recreate-project"
 	}
 
@@ -221,7 +221,7 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "fpug" || low == "finish-prompts-until-green" {
 		return "finish-prompts-until-green"
 	}
-	if low == "running-projects" || low == "runningprojects" {
+	if low == "running-projects" || low == "runningprojects" || low == "rp" {
 		return "running-projects"
 	}
 

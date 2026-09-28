@@ -11,12 +11,17 @@ import (
 )
 
 func TestNormalizeAgySubcommand_Recreate(t *testing.T) {
-	aliases := []string{"recreate-project", "recreate", "rp", "rec", "RECREATE-PROJECT", "Recreate"}
+	aliases := []string{"recreate-project", "recreate", "rcp", "rec", "RECREATE-PROJECT", "Recreate"}
 	for _, alias := range aliases {
 		normalized := normalizeAgySubcommand(alias)
 		if normalized != "recreate-project" {
 			t.Errorf("normalizeAgySubcommand(%q) = %q; want 'recreate-project'", alias, normalized)
 		}
+	}
+
+	rpNormalized := normalizeAgySubcommand("rp")
+	if rpNormalized != "running-projects" {
+		t.Errorf("normalizeAgySubcommand('rp') = %q; want 'running-projects'", rpNormalized)
 	}
 }
 
@@ -195,4 +200,50 @@ func TestExecuteAgyRecreate_RealLifecycle(t *testing.T) {
 		return
 	}
 	_ = deleteProjectFile(id)
+}
+
+func TestIsRestrictedSystemOrHomeDir(t *testing.T) {
+	if !IsRestrictedSystemOrHomeDir("") || !IsRestrictedSystemOrHomeDir("/") {
+		t.Errorf("expected empty path and / to be restricted")
+	}
+	home, err := os.UserHomeDir()
+	if err != nil || home == "" {
+		return
+	}
+	if !IsRestrictedSystemOrHomeDir(home) || !IsRestrictedSystemOrHomeDir(filepath.Dir(home)) {
+		t.Errorf("expected home %q and parent to be restricted", home)
+	}
+	vol := filepath.VolumeName(home)
+	if vol != "" && !IsRestrictedSystemOrHomeDir(vol+"\\") {
+		t.Errorf("expected drive root %s\\ to be restricted", vol)
+	}
+}
+
+func TestResolveAgyRecreateTargets_Restricted(t *testing.T) {
+	home, err := os.UserHomeDir()
+	if err == nil && home != "" {
+		assertRecreateFails(t, home, "home directory")
+	}
+	vol := filepath.VolumeName(home)
+	if vol != "" {
+		assertRecreateFails(t, vol+"\\", "drive root")
+	}
+}
+
+func assertRecreateFails(t *testing.T, target, desc string) {
+	if _, recErr := ResolveAgyRecreateTargets([]string{target}, nil); recErr == nil {
+		t.Errorf("expected recreation of %s %q to fail", desc, target)
+	}
+}
+
+func TestResolveAgyRecreateTargets_NonGitDir(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "agy-rec-nongit-*")
+	if err != nil {
+		t.Fatalf("temp dir error: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	if _, recErr := ResolveAgyRecreateTargets([]string{tempDir}, nil); recErr == nil {
+		t.Errorf("expected non-git ad-hoc folder recreation to fail")
+	}
 }

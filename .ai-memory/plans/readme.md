@@ -24,6 +24,8 @@
 - [180-running-prompts-e2e-and-deploy-live-test.md](completed/180-running-prompts-e2e-and-deploy-live-test.md) — Antigravity Running Prompts E2E Verification & Smart Deploy Polish (Spec: [180](../../02-spec/21-app/85-running-prompts-e2e-and-deploy-live-test.md))
 - [181-shutdown-until-commands-discovery-help-and-test.md](completed/181-shutdown-until-commands-discovery-help-and-test.md) — Shutdown-Until Command Discovery, Root Dispatch & Rich Help Integration (Spec: [181](../../02-spec/21-app/86-shutdown-until-commands-discovery-help-and-test.md))
 - [182-terminal-tab-completion-and-flag-suggestions.md](completed/182-terminal-tab-completion-and-flag-suggestions.md) — Terminal Tab Completion, AGY Flag Suggestions & Shell Integration (Spec: [182](../../02-spec/21-app/87-terminal-tab-completion-and-flag-suggestions.md))
+- [183-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md](completed/183-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md) — SUG Enhancements, PE Path/Alias Resolution, PascalCase/Array Template Variables & Repo-Secrets Hygiene (Spec: [183](../../02-spec/21-app/88-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md))
+- [184-agy-rp-running-projects-and-recreate-safety.md](completed/184-agy-rp-running-projects-and-recreate-safety.md) — AGY RP Running-Projects Remap & Recreate-Project Safety Guard (Spec: [184](../../02-spec/21-app/89-agy-rp-running-projects-and-recreate-safety.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

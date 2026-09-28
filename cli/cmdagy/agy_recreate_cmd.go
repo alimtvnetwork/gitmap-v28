@@ -16,7 +16,7 @@ var (
 
 var agyRecreateProjectCmd = &cobra.Command{
 	Use:     "recreate-project [target...]",
-	Aliases: []string{"recreate", "rp", "rec"},
+	Aliases: []string{"recreate", "rcp", "rec"},
 	Short:   "Purge project cache & conversations, re-register in AGY, and start new read-memory conversation",
 	Long: `Purge cache, prompt queues, and conversations for target project(s),
 re-register them freshly in Antigravity, and spawn a new conversation
