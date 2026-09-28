@@ -1,3 +1,9 @@
+## v6.381.0 — 2026-09-28 (agy agm copilot edge uninstall and 10-category devtool cleaner)
+
+**Scope:** Version bump. agy agm copilot edge uninstall and 10-category devtool cleaner.
+
+---
+
 ## v6.380.0 — 2026-09-28 (feat(special-repos): special repos repo-secrets (rs) and repo-cache (rc))
 
 **Scope:** Version bump. feat(special-repos): special repos repo-secrets (rs) and repo-cache (rc).

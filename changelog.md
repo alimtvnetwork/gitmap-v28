@@ -3214,6 +3214,18 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.381.0] 2026-09-28 Release v6.381.0
+
+### Install GitMap v6.381.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.381.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.381.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.381.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.381.0"`
+
+### Added / Changed / Fixed / Removed
+
+- agy agm copilot edge uninstall and 10-category devtool cleaner
+
 ## [v6.367.0] 2026-09-28 Release v6.367.0
 
 ### Install GitMap v6.367.0
