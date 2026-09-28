@@ -1,3 +1,9 @@
+## v6.387.0 — 2026-09-28 (complete agy-all agm copilot edge uninstall suite and devtool cache cleaner)
+
+**Scope:** Version bump. complete agy-all agm copilot edge uninstall suite and devtool cache cleaner.
+
+---
+
 ## v6.386.0 — 2026-09-28 (fix(ci): resolve swallowed db errors, relative path violations, gofmt formatting, and osclean tests)
 
 **Scope:** Version bump. fix(ci): resolve swallowed db errors, relative path violations, gofmt formatting, and osclean tests.
