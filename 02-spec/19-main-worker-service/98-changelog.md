@@ -1,3 +1,9 @@
+## v6.388.0 — 2026-09-28 (eliminate unused functions and fix spelling for strict golangci-lint CI gate)
+
+**Scope:** Version bump. eliminate unused functions and fix spelling for strict golangci-lint CI gate.
+
+---
+
 ## v6.387.0 — 2026-09-28 (complete agy-all agm copilot edge uninstall suite and devtool cache cleaner)
 
 **Scope:** Version bump. complete agy-all agm copilot edge uninstall suite and devtool cache cleaner.

@@ -3214,6 +3214,18 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.388.0] 2026-09-28 Release v6.388.0
+
+### Install GitMap v6.388.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.388.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.388.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.388.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.388.0"`
+
+### Added / Changed / Fixed / Removed
+
+- eliminate unused functions and fix spelling for strict golangci-lint CI gate
+
 ## [v6.387.0] 2026-09-28 Release v6.387.0
 
 ### Install GitMap v6.387.0
