@@ -100,7 +100,7 @@ const sugUIDashboardHTML = `<!DOCTYPE html>
     </table>
 
     <div class="add-form">
-      <input type="text" id="new-target" placeholder="Add local path, repository name, or Git URL (e.g. d:/work/gitmap, antigravity-manager)...">
+      <input type="text" id="new-target" placeholder="Add local path, repository name, or Git URL (e.g. ./my-repo, antigravity-manager)...">
       <button class="primary" onclick="addNewTarget()">Add Target</button>
     </div>
   </div>

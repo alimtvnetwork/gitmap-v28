@@ -25,6 +25,7 @@ if (Test-Path -Path $resolvedPath) {
 }
 
 # 3. Create fresh git repository directly at D:\test-gitmap
+$origDir = Get-Location
 New-Item -ItemType Directory -Path $resolvedPath -Force | Out-Null
 Set-Location -Path $resolvedPath
 git init | Out-Null
@@ -40,7 +41,7 @@ if (-not (Test-Path -Path $gitDir)) {
 Write-Host "[OK] Successfully created git repository at $resolvedPath" -ForegroundColor Green
 
 # 4. Return to workspace
-Set-Location -Path "D:\work\gitmap"
+Set-Location -Path $origDir
 Write-Host "Verifying SUG recognition for $resolvedPath..." -ForegroundColor Cyan
 
 # 5. Clean up test repository

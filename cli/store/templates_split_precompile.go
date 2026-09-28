@@ -137,17 +137,6 @@ func ExpandTemplateVariables(content string, vars map[string]string) string {
 }
 
 
-func expandDottedVars(content string, vars map[string]string) string {
-	out := content
-	for k, v := range vars {
-		if strings.ContainsAny(k, ".-") {
-			out = strings.ReplaceAll(out, "${"+k+"}", v)
-			out = strings.ReplaceAll(out, "$"+k, v)
-		}
-	}
-
-	return out
-}
 
 func extractVarKeyFromMatch(match string) string {
 	if strings.HasPrefix(match, "${") && strings.HasSuffix(match, "}") {
