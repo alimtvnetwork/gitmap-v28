@@ -46,7 +46,16 @@ gitmap cd repo-storage
 
 ## Examples
 
-### 1. Archive a Reusable Script or File (`file`)
+### 1. Auto-Put Anything (`put` / `add`)
+Automatically detect scripts, test fixture directories, or inline code and sequence into `repo-cache/XX-<repo>/01-<slug>.ext`:
+
+```bash
+gitmap rc put ./scratch/verify-cluster.ps1
+gitmap rc put ./scratch/fixtures --slug fixtures
+gitmap rc put "Get-Process | Where-Object { $_.CPU -gt 50 }" --slug high-cpu --ext .ps1
+```
+
+### 2. Archive a Reusable Script or File (`file`)
 Store a PowerShell `.ps1` script or test utility into `repo-cache/XX-<repo>/01-<slug>.ps1`:
 
 ```bash

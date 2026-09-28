@@ -271,8 +271,15 @@ func autoCommitAndPushSpecialRepo(specialRepoRoot, relPath, shortKey, repoName s
 	if !shouldPush || !hasGitRemoteOrigin(specialRepoRoot) {
 		return isCommitted, false
 	}
-	isPushed := runGitInSpecialRepo(specialRepoRoot, "push") == nil
+	isPushed := tryPushSpecialRepo(specialRepoRoot)
 	return isCommitted, isPushed
+}
+
+func tryPushSpecialRepo(repoDir string) bool {
+	if runGitInSpecialRepo(repoDir, "push") == nil {
+		return true
+	}
+	return runGitInSpecialRepo(repoDir, "push", "-u", "origin", "HEAD") == nil
 }
 
 func hasGitRemoteOrigin(repoDir string) bool {

@@ -45,7 +45,16 @@ gitmap cd repo-secrets
 
 ## Examples
 
-### 1. Store a Secret File (`file`)
+### 1. Auto-Put Anything (`put` / `add`)
+Automatically detect files, directories, or inline text and sequence into `repo-secrets/XX-<repo>/01-<slug>.ext`:
+
+```bash
+gitmap rs put .env.production
+gitmap rs put ./certs --slug tls-certs
+gitmap rs put "TELEGRAM_BOT_TOKEN=123456:ABC-DEF" --slug telegram-token
+```
+
+### 2. Store a Secret File (`file`)
 Copy a `.env`, credential JSON, or certificate file into `repo-secrets/XX-<repo>/01-<slug>.ext` and auto-commit/push:
 
 ```bash

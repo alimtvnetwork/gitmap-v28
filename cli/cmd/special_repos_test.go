@@ -112,3 +112,37 @@ func TestAllocateSequencedItemPath(t *testing.T) {
 		t.Fatalf("expected 02-key.txt, got %s", filepath.Base(path2))
 	}
 }
+
+func TestSpecialRepoFlagShorthands(t *testing.T) {
+	if !isRepoFlag("--repo") || !isRepoFlag("-r") {
+		t.Fatalf("expected --repo and -r to be valid repo flags")
+	}
+	if !isSlugFlag("--slug") || !isSlugFlag("-s") || !isSlugFlag("--name") || !isSlugFlag("-n") {
+		t.Fatalf("expected slug and name shorthands to be valid")
+	}
+	if !isExtFlag("--ext") || !isExtFlag("-e") {
+		t.Fatalf("expected --ext and -e to be valid ext flags")
+	}
+}
+
+func TestResolveAutoPutActionFunc(t *testing.T) {
+	tempDir := t.TempDir()
+	testFile := filepath.Join(tempDir, "sample.txt")
+	_ = os.WriteFile(testFile, []byte("sample"), 0644)
+
+	fnFile := resolveAutoPutActionFunc(testFile)
+	if fnFile == nil {
+		t.Fatalf("expected valid file put func")
+	}
+
+	fnDir := resolveAutoPutActionFunc(tempDir)
+	if fnDir == nil {
+		t.Fatalf("expected valid dir put func")
+	}
+
+	fnText := resolveAutoPutActionFunc("raw inline text note")
+	if fnText == nil {
+		t.Fatalf("expected valid text put func")
+	}
+}
+

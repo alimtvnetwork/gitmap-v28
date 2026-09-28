@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -77,11 +78,13 @@ func isSpecialHelpArg(arg string) bool {
 
 func dispatchSpecialRepoSubcmd(shortKey string, opts specialCLIOptions) error {
 	switch opts.subcmd {
-	case "file":
+	case "put", "add":
+		return runSpecialAutoPutAction(shortKey, opts)
+	case "file", "f":
 		return runSpecialPutAction(shortKey, opts, executeSpecialRepoFile)
-	case "folder", "dir":
+	case "folder", "dir", "d":
 		return runSpecialPutAction(shortKey, opts, executeSpecialRepoFolder)
-	case "text", "note":
+	case "text", "note", "t":
 		return runSpecialPutAction(shortKey, opts, executeSpecialRepoText)
 	case "ls", "list":
 		return runSpecialRepoList(shortKey, opts)
@@ -93,6 +96,25 @@ func dispatchSpecialRepoSubcmd(shortKey string, opts specialCLIOptions) error {
 		fmt.Print(RenderSpecialRepoHelp(shortKey))
 		return nil
 	}
+}
+
+func runSpecialAutoPutAction(shortKey string, opts specialCLIOptions) error {
+	if len(strings.TrimSpace(opts.primaryArg)) == 0 {
+		return apperror.NewValidationError("path or text required: gitmap " + shortKey + " put <path|text>")
+	}
+	actionFn := resolveAutoPutActionFunc(opts.primaryArg)
+	return runSpecialPutAction(shortKey, opts, actionFn)
+}
+
+func resolveAutoPutActionFunc(target string) specialPutFunc {
+	info, err := os.Stat(target)
+	if err != nil {
+		return executeSpecialRepoText
+	}
+	if info.IsDir() {
+		return executeSpecialRepoFolder
+	}
+	return executeSpecialRepoFile
 }
 
 func parseSpecialCLIOptions(args []string) specialCLIOptions {
@@ -107,9 +129,9 @@ func parseSpecialCLIOptions(args []string) specialCLIOptions {
 func consumeSpecialOptionToken(opts *specialCLIOptions, tokens []string, idx int) int {
 	tok := tokens[idx]
 	switch tok {
-	case "--no-push":
+	case "--no-push", "-np":
 		opts.isNoPush = true
-	case "--json":
+	case "--json", "-j":
 		opts.isJSON = true
 	case "--auto-accept", "-y", "--yes":
 		opts.isAutoAccept = true
@@ -122,19 +144,31 @@ func consumeSpecialOptionToken(opts *specialCLIOptions, tokens []string, idx int
 func consumeKeyValOrPositional(opts *specialCLIOptions, tokens []string, idx int) int {
 	tok := tokens[idx]
 	hasNext := idx+1 < len(tokens)
-	if tok == "--repo" && hasNext {
+	if isRepoFlag(tok) && hasNext {
 		opts.repoName = tokens[idx+1]
 		return idx + 1
 	}
-	if tok == "--slug" && hasNext {
+	if isSlugFlag(tok) && hasNext {
 		opts.slug = tokens[idx+1]
 		return idx + 1
 	}
-	if tok == "--ext" && hasNext {
+	if isExtFlag(tok) && hasNext {
 		opts.ext = tokens[idx+1]
 		return idx + 1
 	}
 	return assignPrimaryPositional(opts, tok, idx)
+}
+
+func isRepoFlag(tok string) bool {
+	return tok == "--repo" || tok == "-r" || tok == "-repo"
+}
+
+func isSlugFlag(tok string) bool {
+	return tok == "--slug" || tok == "-s" || tok == "--name" || tok == "-n"
+}
+
+func isExtFlag(tok string) bool {
+	return tok == "--ext" || tok == "-e"
 }
 
 func assignPrimaryPositional(opts *specialCLIOptions, tok string, idx int) int {
@@ -237,47 +271,102 @@ func printSpecialPutResult(res *SpecialPutResult, isJSON bool) error {
 	return nil
 }
 
+// SpecialRepoTreeGroup represents a sequenced project folder and its stored files.
+type SpecialRepoTreeGroup struct {
+	Folder string   `json:"folder"`
+	Items  []string `json:"items"`
+}
+
 func runSpecialRepoList(shortKey string, opts specialCLIOptions) error {
-	rootDir, _, err := resolveSpecialRepoRoot(shortKey)
+	rootDir, rec, err := resolveSpecialRepoRoot(shortKey)
 	if err != nil {
 		return err
 	}
-	items := collectSpecialRepoEntries(rootDir, opts.repoName)
+	groups := collectSpecialRepoGroups(rootDir, opts.repoName)
 	if opts.isJSON {
-		data, _ := json.MarshalIndent(items, "", "  ")
+		data, _ := json.MarshalIndent(groups, "", "  ")
 		fmt.Println(string(data))
 		return nil
 	}
-	for _, item := range items {
-		fmt.Println(item)
-	}
+	renderSpecialRepoTree(shortKey, rec.ConfiguredName, rootDir, groups)
 	return nil
 }
 
-func collectSpecialRepoEntries(rootDir, filterRepo string) []string {
+func collectSpecialRepoGroups(rootDir, filterRepo string) []SpecialRepoTreeGroup {
 	entries, err := os.ReadDir(rootDir)
 	if err != nil {
 		return nil
 	}
-	var out []string
+	var out []SpecialRepoTreeGroup
 	for _, entry := range entries {
-		out = appendRepoFolderChildren(out, rootDir, entry, filterRepo)
+		if isIgnoredSpecialFolder(entry) {
+			continue
+		}
+		if isFilteredSpecialFolder(entry.Name(), filterRepo) {
+			continue
+		}
+		out = append(out, buildRepoGroup(rootDir, entry.Name()))
 	}
 	return out
 }
 
-func appendRepoFolderChildren(out []string, rootDir string, entry os.DirEntry, filterRepo string) []string {
-	if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
-		return out
+func isIgnoredSpecialFolder(entry os.DirEntry) bool {
+	return !entry.IsDir() || strings.HasPrefix(entry.Name(), ".")
+}
+
+func isFilteredSpecialFolder(folderName, filterRepo string) bool {
+	if len(filterRepo) == 0 {
+		return false
 	}
-	if len(filterRepo) > 0 && !strings.Contains(strings.ToLower(entry.Name()), strings.ToLower(filterRepo)) {
-		return out
-	}
-	subEntries, _ := os.ReadDir(filepath.Join(rootDir, entry.Name()))
+	return !strings.Contains(strings.ToLower(folderName), strings.ToLower(filterRepo))
+}
+
+func buildRepoGroup(rootDir, folderName string) SpecialRepoTreeGroup {
+	subEntries, _ := os.ReadDir(filepath.Join(rootDir, folderName))
+	var items []string
 	for _, sub := range subEntries {
-		out = append(out, filepath.ToSlash(filepath.Join(entry.Name(), sub.Name())))
+		name := sub.Name()
+		if sub.IsDir() {
+			name += "/"
+		}
+		items = append(items, name)
 	}
-	return out
+	return SpecialRepoTreeGroup{
+		Folder: folderName,
+		Items:  items,
+	}
+}
+
+func renderSpecialRepoTree(shortKey, repoName, rootDir string, groups []SpecialRepoTreeGroup) {
+	totalItems := countTotalGroupItems(groups)
+	fmt.Printf("\n  %s╔══ SPECIAL REPOSITORY: %s (%s) ═══════════════════════════════╗%s\n", constants.ColorCyan, repoName, shortKey, constants.ColorReset)
+	fmt.Printf("  │ Path:  %-58s │\n", rootDir)
+	fmt.Printf("  │ Total: %d project folder(s), %d item(s)                          │\n", len(groups), totalItems)
+	fmt.Printf("  %s╚═════════════════════════════════════════════════════════════════════════╝%s\n\n", constants.ColorCyan, constants.ColorReset)
+	for _, g := range groups {
+		renderSingleRepoGroup(g)
+	}
+}
+
+func countTotalGroupItems(groups []SpecialRepoTreeGroup) int {
+	total := 0
+	for _, g := range groups {
+		total += len(g.Items)
+	}
+	return total
+}
+
+func renderSingleRepoGroup(g SpecialRepoTreeGroup) {
+	fmt.Printf("  📁 %s%s/%s (%d items)\n", constants.ColorBold, g.Folder, constants.ColorReset, len(g.Items))
+	for idx, it := range g.Items {
+		isLast := idx == len(g.Items)-1
+		branch := "├─"
+		if isLast {
+			branch = "└─"
+		}
+		fmt.Printf("    %s %s\n", branch, it)
+	}
+	fmt.Println()
 }
 
 func runSpecialRepoInit(workBaseDir string) error {
@@ -322,12 +411,13 @@ func runSpecialRepoScanCheck(opts specialCLIOptions) error {
 func RenderSpecialRepoHelp(shortKey string) string {
 	repoKey, normShort := store.NormalizeSpecialRepoKey(shortKey)
 	return fmt.Sprintf(`╭── GitMap Special Repository (%s / %s) ──────────────────────────────────────╮
-│ Navigation : gitmap cd %s                                                   │
+│ Navigation : gitmap cd %s [<repo>]                                          │
+│ Auto-Put   : gitmap %s put <path|text> [--repo <name>] [--no-push] [--json] │
 │ Store File : gitmap %s file <filepath> [--repo <name>] [--no-push] [--json] │
 │ Store Dir  : gitmap %s folder <folder> [--repo <name>] [--no-push] [--json] │
 │ Store Note : gitmap %s text "<text>" [--slug <s>] [--ext .ps1] [--repo <n>] │
-│ List Items : gitmap %s ls [--repo <name>] [--json]                          │
+│ List Tree  : gitmap %s ls [--repo <name>] [--json]                          │
 │ Initialize : gitmap %s init | scan-check [--auto-accept]                    │
 ╰────────────────────────────────────────────────────────────────────────────╯
-`, normShort, repoKey, normShort, normShort, normShort, normShort, normShort, normShort)
+`, normShort, repoKey, normShort, normShort, normShort, normShort, normShort, normShort, normShort)
 }
