@@ -3,7 +3,6 @@ package osclean
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 

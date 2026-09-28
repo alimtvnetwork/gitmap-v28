@@ -120,7 +120,7 @@ func IsPathSafeToDelete(path string) bool {
 	if hasEmpty {
 		return false
 	}
-	isRoot := filepath.VolumeName(clean) == clean || clean == "/" || clean == "\\"
+	isRoot := isRootDirectory(clean)
 	if isRoot {
 		return false
 	}
@@ -133,6 +133,15 @@ func IsPathSafeToDelete(path string) bool {
 		return false
 	}
 	return true
+}
+
+func isRootDirectory(clean string) bool {
+	vol := filepath.VolumeName(clean)
+	isVolRoot := clean == vol || clean == vol+"\\" || clean == vol+"/"
+	if isVolRoot {
+		return true
+	}
+	return clean == "/" || clean == "\\"
 }
 
 // IsWorkDirectoryOverlap validates if a path overlaps with or is a parent of d:\work.
