@@ -12,6 +12,7 @@ var (
 	recreateModelFlag   string
 	recreateProfileFlag string
 	recreateDryRunFlag  bool
+	recreateConfirmFlag bool
 )
 
 var agyRecreateProjectCmd = &cobra.Command{
@@ -26,11 +27,13 @@ Targeting:
   If no target is specified, the current git repository / directory is automatically used.
   Multiple targets can be specified as comma-separated or space-separated sequences,
   project IDs, aliases, or directory paths.
+  If the target directory is not an existing registered Antigravity project,
+  the --confirm (-y) flag is strictly required to prevent accidental registration.
 
 Examples:
   gitmap agy recreate-project
   gitmap agy recreate
-  gitmap agy recreate D:\test-gitmap\test-gitmap
+  gitmap agy recreate D:\test-gitmap\test-gitmap --confirm
   gitmap agy recreate 1, 2, 3
   gitmap agy recreate gitmap, test-gitmap
 `,
@@ -52,6 +55,7 @@ func bindRecreateFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&recreateModelFlag, "model", "m", "", "Model type (flash_lite, flash, pro)")
 	cmd.Flags().StringVar(&recreateProfileFlag, "profile", "", "Profile to use for session")
 	cmd.Flags().BoolVarP(&recreateDryRunFlag, "dry-run", "d", false, "Preview recreate steps without modifying")
+	cmd.Flags().BoolVarP(&recreateConfirmFlag, "confirm", "y", false, "Confirm adding and recreating an unregistered repository")
 }
 
 func runAgyRecreate(args []string) error {
@@ -66,7 +70,7 @@ func runAgyRecreate(args []string) error {
 	}
 	sortAgyProjects(projects, "name")
 
-	targets, resolveErr := ResolveAgyRecreateTargets(args, projects)
+	targets, resolveErr := ResolveAgyRecreateTargetsWithConfirm(args, projects, recreateConfirmFlag)
 	if resolveErr != nil {
 		return resolveErr
 	}

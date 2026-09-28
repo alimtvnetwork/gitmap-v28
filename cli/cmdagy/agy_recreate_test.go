@@ -46,18 +46,63 @@ func TestResolveAgyRecreateTargets_Cwd(t *testing.T) {
 		t.Fatalf("failed to get cwd: %v", err)
 	}
 
-	// When no args provided, should target cwd / repo root
-	targets, err := ResolveAgyRecreateTargets(nil, nil)
+	// 1. Unregistered cwd without confirm must fail with E9103
+	_, err = ResolveAgyRecreateTargetsWithConfirm(nil, nil, false)
+	if err == nil {
+		t.Fatalf("expected unregistered cwd without confirm to fail")
+	}
+
+	// 2. Unregistered cwd with confirm must succeed
+	targets, err := ResolveAgyRecreateTargetsWithConfirm(nil, nil, true)
 	if err != nil {
-		t.Fatalf("ResolveAgyRecreateTargets(nil) failed: %v", err)
+		t.Fatalf("ResolveAgyRecreateTargetsWithConfirm(nil, nil, true) failed: %v", err)
 	}
-	if len(targets) != 1 {
-		t.Fatalf("expected 1 target, got %d", len(targets))
+	if len(targets) != 1 || targets[0].GetPath() == "" {
+		t.Errorf("expected 1 target with non-empty path, got %v", targets)
 	}
-	if targets[0].GetPath() == "" {
-		t.Errorf("expected non-empty path for cwd target")
+
+	// 3. Registered project cwd must succeed even without confirm
+	registered := []AgyProject{
+		{
+			ID:   "proj-gitmap",
+			Name: "gitmap",
+			ProjectResources: &AgyProjectResources{
+				Resources: []AgyResource{
+					{
+						GitFolder: &AgyGitFolder{
+							FolderURI:     buildFolderURI(cwd),
+							DefaultBranch: "main",
+						},
+					},
+				},
+			},
+		},
 	}
-	_ = cwd
+	regTargets, err := ResolveAgyRecreateTargetsWithConfirm(nil, registered, false)
+	if err != nil || len(regTargets) != 1 {
+		t.Fatalf("expected registered cwd to succeed without confirm, got err: %v", err)
+	}
+}
+
+func TestResolveAgyRecreateTargets_UnregisteredConfirm(t *testing.T) {
+	tempRepo, err := os.MkdirTemp("", "agy-rec-unreg-*")
+	if err != nil {
+		t.Fatalf("temp dir error: %v", err)
+	}
+	defer os.RemoveAll(tempRepo)
+	_ = os.MkdirAll(filepath.Join(tempRepo, ".git"), 0755)
+
+	// Without confirm: must fail with E9103
+	_, err = ResolveAgyRecreateTargetsWithConfirm([]string{tempRepo}, nil, false)
+	if err == nil {
+		t.Fatalf("expected unregistered repo without confirm to fail")
+	}
+
+	// With confirm: must succeed
+	targets, err := ResolveAgyRecreateTargetsWithConfirm([]string{tempRepo}, nil, true)
+	if err != nil || len(targets) != 1 {
+		t.Fatalf("expected confirmed unregistered repo to succeed, got %v, err: %v", targets, err)
+	}
 }
 
 func TestResolveAgyRecreateTargets_MultiArgs(t *testing.T) {

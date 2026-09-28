@@ -14,13 +14,18 @@ import (
 
 // ResolveAgyRecreateTargets resolves raw arguments or current working directory into AgyProject targets.
 func ResolveAgyRecreateTargets(args []string, projects []AgyProject) ([]AgyProject, error) {
-	if len(args) == 0 || (len(args) == 1 && args[0] == ".") {
-		return resolveCurrentDirTarget(projects)
-	}
-	return resolveSpecifiedTargets(args, projects)
+	return ResolveAgyRecreateTargetsWithConfirm(args, projects, recreateConfirmFlag)
 }
 
-func resolveCurrentDirTarget(projects []AgyProject) ([]AgyProject, error) {
+// ResolveAgyRecreateTargetsWithConfirm resolves raw arguments or cwd into AgyProject targets with explicit confirm flag.
+func ResolveAgyRecreateTargetsWithConfirm(args []string, projects []AgyProject, isConfirm bool) ([]AgyProject, error) {
+	if len(args) == 0 || (len(args) == 1 && args[0] == ".") {
+		return resolveCurrentDirTarget(projects, isConfirm)
+	}
+	return resolveSpecifiedTargets(args, projects, isConfirm)
+}
+
+func resolveCurrentDirTarget(projects []AgyProject, isConfirm bool) ([]AgyProject, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "get current working directory")
@@ -28,12 +33,19 @@ func resolveCurrentDirTarget(projects []AgyProject) ([]AgyProject, error) {
 	if IsRestrictedSystemOrHomeDir(cwd) {
 		return nil, apperror.NewSimple(fmt.Sprintf("restricted system or home directory cannot be recreated as an Antigravity project: %s", cwd), "E9101")
 	}
+	return resolveWorkingDirAdHoc(projects, cwd, isConfirm)
+}
+
+func resolveWorkingDirAdHoc(projects []AgyProject, cwd string, isConfirm bool) ([]AgyProject, error) {
 	targetDir := resolveWorkingRepoRoot(cwd)
 	if matched := findProjectByPath(projects, targetDir); matched != nil {
 		return []AgyProject{*matched}, nil
 	}
 	if !isGitRepo(targetDir) {
 		return nil, apperror.NewSimple(fmt.Sprintf("directory %q is neither an existing Antigravity project nor a valid Git repository; refusing to create ad-hoc project", targetDir), "E9102")
+	}
+	if !isConfirm {
+		return nil, apperror.NewSimple(fmt.Sprintf("directory %q is not an existing registered Antigravity project; pass --confirm (-y) to confirm creating and recreating this workspace", targetDir), "E9103")
 	}
 	return []AgyProject{buildAdHocProject(targetDir)}, nil
 }
@@ -97,13 +109,13 @@ func buildFolderURI(dirPath string) string {
 	return "file:///" + url.PathEscape(slashPath)
 }
 
-func resolveSpecifiedTargets(args []string, projects []AgyProject) ([]AgyProject, error) {
+func resolveSpecifiedTargets(args []string, projects []AgyProject, isConfirm bool) ([]AgyProject, error) {
 	tokens := expandCommaSeparatedTokens(args)
 	var results []AgyProject
 	seen := make(map[string]bool)
 
 	for _, token := range tokens {
-		matched, err := resolveSingleRecreateToken(token, projects)
+		matched, err := resolveSingleRecreateToken(token, projects, isConfirm)
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +124,7 @@ func resolveSpecifiedTargets(args []string, projects []AgyProject) ([]AgyProject
 	return results, nil
 }
 
-func resolveSingleRecreateToken(token string, projects []AgyProject) ([]AgyProject, error) {
+func resolveSingleRecreateToken(token string, projects []AgyProject, isConfirm bool) ([]AgyProject, error) {
 	if seqMatch, isSeq := matchBySequence(token, projects); isSeq {
 		return []AgyProject{seqMatch}, nil
 	}
@@ -125,7 +137,7 @@ func resolveSingleRecreateToken(token string, projects []AgyProject) ([]AgyProje
 	if slugMatches := matchBySlug(token, projects); len(slugMatches) > 0 {
 		return slugMatches, nil
 	}
-	return resolveDirectoryOrFolderTarget(token, projects)
+	return resolveDirectoryOrFolderTarget(token, projects, isConfirm)
 }
 
 func resolveLikelyPathToken(token string, projects []AgyProject) []AgyProject {
@@ -135,26 +147,7 @@ func resolveLikelyPathToken(token string, projects []AgyProject) []AgyProject {
 	if pathMatches := matchByExactPath(token, projects); len(pathMatches) > 0 {
 		return pathMatches
 	}
-	if folderMatches := collectProjectsUnderFolder(token, projects); len(folderMatches) > 0 {
-		return folderMatches
-	}
-	return tryBuildAdHocFromPath(token)
-}
-
-func tryBuildAdHocFromPath(token string) []AgyProject {
-	info, err := os.Stat(token)
-	if err != nil || !info.IsDir() {
-		return nil
-	}
-	absDir, _ := filepath.Abs(token)
-	if IsRestrictedSystemOrHomeDir(absDir) {
-		return nil
-	}
-	targetDir := resolveWorkingRepoRoot(token)
-	if !isGitRepo(targetDir) {
-		return nil
-	}
-	return []AgyProject{buildAdHocProject(targetDir)}
+	return collectProjectsUnderFolder(token, projects)
 }
 
 func isLikelyPath(token string) bool {
@@ -178,7 +171,7 @@ func matchByExactPath(token string, projects []AgyProject) []AgyProject {
 	return matches
 }
 
-func resolveDirectoryOrFolderTarget(token string, projects []AgyProject) ([]AgyProject, error) {
+func resolveDirectoryOrFolderTarget(token string, projects []AgyProject, isConfirm bool) ([]AgyProject, error) {
 	if folderMatches := collectProjectsUnderFolder(token, projects); len(folderMatches) > 0 {
 		return folderMatches, nil
 	}
@@ -186,10 +179,10 @@ func resolveDirectoryOrFolderTarget(token string, projects []AgyProject) ([]AgyP
 	if err != nil || !info.IsDir() {
 		return nil, fmt.Errorf("target %q did not match any project sequence, ID, alias, or path", token)
 	}
-	return resolveDirectoryAdHocTarget(token)
+	return resolveDirectoryAdHocTarget(token, isConfirm)
 }
 
-func resolveDirectoryAdHocTarget(token string) ([]AgyProject, error) {
+func resolveDirectoryAdHocTarget(token string, isConfirm bool) ([]AgyProject, error) {
 	absDir, err := filepath.Abs(token)
 	if err == nil {
 		token = absDir
@@ -197,9 +190,16 @@ func resolveDirectoryAdHocTarget(token string) ([]AgyProject, error) {
 	if IsRestrictedSystemOrHomeDir(token) {
 		return nil, apperror.NewSimple(fmt.Sprintf("restricted system or home directory cannot be recreated as an Antigravity project: %s", token), "E9101")
 	}
+	return validateAndBuildAdHoc(token, isConfirm)
+}
+
+func validateAndBuildAdHoc(token string, isConfirm bool) ([]AgyProject, error) {
 	targetDir := resolveWorkingRepoRoot(token)
 	if !isGitRepo(targetDir) {
 		return nil, apperror.NewSimple(fmt.Sprintf("directory %q is neither an existing Antigravity project nor a valid Git repository; refusing to create ad-hoc project", targetDir), "E9102")
+	}
+	if !isConfirm {
+		return nil, apperror.NewSimple(fmt.Sprintf("directory %q is not an existing registered Antigravity project; pass --confirm (-y) to confirm creating and recreating this workspace", targetDir), "E9103")
 	}
 	return []AgyProject{buildAdHocProject(targetDir)}, nil
 }

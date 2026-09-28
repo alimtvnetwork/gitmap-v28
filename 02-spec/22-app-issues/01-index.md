@@ -55,6 +55,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 47 | [47-agy-rerun-killed-ide-and-selected-wrong-project-rca.md](47-agy-rerun-killed-ide-and-selected-wrong-project-rca.md) | Antigravity Rerun Process Termination and Inverted Project Selection: RCA & Fix | Resolved |
 | 48 | [48-ssh-auth-handshake-failure-and-misleading-node-status-rca.md](48-ssh-auth-handshake-failure-and-misleading-node-status-rca.md) | SSH Fleet Authentication Handshake Failure and Misleading Node Status: RCA & Fix | Resolved |
 | 49 | [49-ssh-fleet-parallel-pull-machine-hangs-and-concurrency-multiplication-rca.md](49-ssh-fleet-parallel-pull-machine-hangs-and-concurrency-multiplication-rca.md) | SSH Fleet Parallel Pull Machine Hangs and Concurrency Multiplication: RCA & Fix | Resolved |
+| 50 | [50-agy-rp-recreate-alias-hijack-and-ad-hoc-project-creation-rca.md](50-agy-rp-recreate-alias-hijack-and-ad-hoc-project-creation-rca.md) | AGY RP Subcommand Alias Hijack, Unconfirmed Ad-Hoc Project Creation & CWD Pollution: RCA & Fix | Resolved |
 
 ---
 
