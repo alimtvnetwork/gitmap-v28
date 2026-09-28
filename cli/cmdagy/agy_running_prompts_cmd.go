@@ -68,6 +68,7 @@ func setupBackupRunningPromptsCmd() {
 	BackupRunningPromptsCmd.Flags().StringP("file", "f", "", "Target backup database path")
 	BackupRunningPromptsCmd.Flags().Bool("json", false, "Output summary in JSON format")
 	BackupRunningPromptsCmd.Flags().Bool("ssh", false, "Snapshot prompts across cluster SSH fleet")
+	_ = cobra.MarkFlagFilename(BackupRunningPromptsCmd.Flags(), "file")
 	lsCmd := makeBackupLsCmd()
 	helpCmd := makeHelpCmd(RenderBackupHelp)
 	BackupRunningPromptsCmd.AddCommand(lsCmd, helpCmd)
@@ -78,6 +79,7 @@ func setupRestoreRunningPromptsCmd() {
 	RestoreRunningPromptsCmd.Flags().Bool("json", false, "Output restoration in JSON format")
 	RestoreRunningPromptsCmd.Flags().Bool("ssh", false, "Restore prompts across cluster SSH fleet")
 	RestoreRunningPromptsCmd.Flags().StringP("file", "f", "", "Source database path")
+	_ = cobra.MarkFlagFilename(RestoreRunningPromptsCmd.Flags(), "file")
 	helpCmd := makeHelpCmd(RenderRestoreHelp)
 	RestoreRunningPromptsCmd.AddCommand(helpCmd)
 }
@@ -91,6 +93,20 @@ func setupRunningPromptsSubcommands() {
 	importCmd := makeRunningPromptsImportCmd()
 	helpCmd := makeHelpCmd(RenderRunningPromptsHelp)
 	RunningPromptsCmd.AddCommand(backupCmd, restoreCmd, cleanCmd, lsCmd, exportCmd, importCmd, helpCmd)
+	RunningPromptsCmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return []string{
+				"ls\tInspect and list running and queued prompts",
+				"backup\tSnapshot running and queued prompts to Split-DB",
+				"restore\tRestore backed-up prompts into project queue",
+				"clean\tPrune expired restored entries or force cleanup",
+				"export\tExport prompts snapshot to file",
+				"import\tImport prompts from file into queue",
+				"help\tShow command help and synopsis",
+			}, cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
 }
 
 func makeHelpCmd(renderFn func()) *cobra.Command {
@@ -219,6 +235,7 @@ func makeRunningPromptsExportCmd() *cobra.Command {
 	}
 	cmd.Flags().StringP("file", "f", "gitmap-running-prompts.db", "Export target file path (.db or .json)")
 	cmd.Flags().Int("wc", 0, "Word count truncation limit (0 for full)")
+	_ = cobra.MarkFlagFilename(cmd.Flags(), "file")
 	return cmd
 }
 
@@ -234,5 +251,6 @@ func makeRunningPromptsImportCmd() *cobra.Command {
 	}
 	cmd.Flags().StringP("file", "f", "gitmap-running-prompts.db", "Import source file path (.db or .json)")
 	cmd.Flags().Int("wc", 0, "Word count truncation limit (0 for full)")
+	_ = cobra.MarkFlagFilename(cmd.Flags(), "file")
 	return cmd
 }

@@ -251,7 +251,7 @@ func addSourceLine(scriptPath, profilePath, shell string) error {
 // buildSourceLine returns the shell-appropriate source command.
 func buildSourceLine(scriptPath, shell string) string {
 	if shell == constants.ShellPowerShell {
-		return fmt.Sprintf(". '%s'", scriptPath)
+		return fmt.Sprintf(". '%s'\nif ((Get-Module -ListAvailable -Name PSReadLine) -and -not [Console]::IsOutputRedirected) {\n    try {\n        Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue\n        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue\n    } catch {}\n}", scriptPath)
 	}
 
 	return fmt.Sprintf("source '%s'", scriptPath)

@@ -50,6 +50,13 @@ func init() {
 	AgyRunningProjectsCmd.Flags().BoolVar(&runningProjectsJSON, "json", false, "Output results in JSON format")
 	AgyRunningProjectsCmd.Flags().BoolVar(&runningProjectsSSH, "ssh", false, "Aggregate running projects across SSH cluster nodes")
 	AgyRunningProjectsCmd.Flags().StringVarP(&runningProjectsFile, "file", "f", "", "Export results to file (.json or .db)")
+	_ = cobra.MarkFlagFilename(AgyRunningProjectsCmd.Flags(), "file")
+	AgyRunningProjectsCmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return []string{"ls\tList projects with active or queued prompts"}, cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
 	AgyCmd.AddCommand(AgyRunningProjectsCmd)
 }
 

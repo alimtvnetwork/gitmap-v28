@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -335,4 +337,25 @@ func makeDeployOptions(subCmd, targetToken string, conn db.SSHConnection, host s
 
 func printDeployHelpText(subCmd string) {
 	RenderDeployRichHelp()
+}
+
+// MakeDeployCobraCmd creates a cobra.Command for deploy completion and routing.
+func MakeDeployCobraCmd(use string) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   use + " [target-node] [source-path] [dest-path]",
+		Short: "Smart file and folder deployment across SSH fleet with sync modes",
+		ValidArgsFunction: DeployValidArgsFunction,
+		RunE: func(c *cobra.Command, args []string) error {
+			return RunSSHDeployCLI(use, args)
+		},
+	}
+	cmd.Flags().BoolP("overwrite", "o", false, "Force overwrite remote files")
+	cmd.Flags().BoolP("skip", "s", false, "Skip already existing files")
+	cmd.Flags().Bool("sync", false, "Bidirectional sync based on modification time")
+	cmd.Flags().Bool("sync-right", false, "Push newer files from local to remote only")
+	cmd.Flags().Bool("sync-left", false, "Pull newer files from remote to local only")
+	cmd.Flags().BoolP("json", "j", false, "Output deployment telemetry as JSON")
+	cmd.Flags().BoolP("dry-run", "n", false, "Preview transfer plan without executing")
+	cmd.Flags().IntP("parallel", "p", 4, "Number of concurrent transfer workers")
+	return cmd
 }

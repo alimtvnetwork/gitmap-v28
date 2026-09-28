@@ -28,8 +28,15 @@ import (
 // allcommands_generated.go. Domain owners never need to edit the generator.
 var manualExtras = []string{"db", "start-fresh", "find-duplicates"}
 
+// CustomGenerator allows package cmd to provide dynamic Cobra completion scripts.
+var CustomGenerator func(shell string) (string, error)
+
 // Generate returns the completion script for the given shell.
 func Generate(shell string) (string, error) {
+	if script, isGenerated := tryCustomGenerator(shell); isGenerated {
+		return script, nil
+	}
+
 	switch shell {
 	case constants.ShellPowerShell:
 		return generatePowerShell(), nil
@@ -42,6 +49,17 @@ func Generate(shell string) (string, error) {
 	default:
 		return "", fmt.Errorf(constants.ErrCompUnknownShell, shell)
 	}
+}
+
+func tryCustomGenerator(shell string) (string, bool) {
+	if CustomGenerator == nil {
+		return "", false
+	}
+	script, err := CustomGenerator(shell)
+	if err != nil || len(script) == 0 {
+		return "", false
+	}
+	return script, true
 }
 
 // AllCommands returns every command name and alias offered by tab-completion.

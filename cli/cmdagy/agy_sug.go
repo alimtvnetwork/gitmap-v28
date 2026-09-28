@@ -38,9 +38,23 @@ var AgySUGCmd = &cobra.Command{
 func init() {
 	AgySUGCmd.Flags().StringVarP(&sugIntervalStr, "time", "t", "5m", "Polling interval (minimum 2m, default 5m)")
 	AgySUGCmd.Flags().BoolVarP(&sugDryRun, "dry-run", "n", false, "Simulate shutdown without power off")
+	AgySUGCmd.Flags().BoolP("once", "1", false, "Run single verification pass and exit")
 	AgySUGCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		RenderAgySugHelp()
 	})
+	AgySUGCmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return []string{
+				"ls\tList monitored projects in shutdown watch list",
+				"run\tStart monitoring loop until green and then shut down",
+				"add-projects\tAdd project directories or IDs to watch list",
+				"rm\tRemove projects from watch list",
+				"agy-running-projects\tAdd all currently running Antigravity projects",
+				"help\tShow help and usage guide",
+			}, cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
 	AgyCmd.AddCommand(AgySUGCmd)
 }
 

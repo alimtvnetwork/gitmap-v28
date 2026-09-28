@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
@@ -16,17 +17,39 @@ func runCompletion(args []string) error {
 
 		return nil
 	}
+	if len(args) > 0 && args[0] == "install" {
+		return handleCompletionInstall(args[1:])
+	}
 
 	return executeCompletionScript(args)
 }
 
-func executeCompletionScript(args []string) error {
-	if len(args) < 1 {
-		fmt.Fprint(os.Stderr, constants.ErrCompUsage)
-		cliexit.HandleError(nil, 1)
+func handleCompletionInstall(args []string) error {
+	shell := ""
+	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
+		shell = args[0]
+	} else {
+		shell = completion.DetectShell()
 	}
 
-	printCompletionScript(args[0])
+	if err := completion.Install(shell); err != nil {
+		fmt.Fprintf(os.Stderr, "  ✗ Failed to install %s completion: %v\n", shell, err)
+		return err
+	}
+
+	fmt.Printf("  ✓ GitMap completion and prediction suggestions installed for %s in profile.\n", shell)
+	return nil
+}
+
+func executeCompletionScript(args []string) error {
+	shell := ""
+	if len(args) >= 1 {
+		shell = args[0]
+	} else {
+		shell = completion.DetectShell()
+	}
+
+	printCompletionScript(shell)
 
 	return nil
 }

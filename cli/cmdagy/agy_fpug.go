@@ -25,6 +25,14 @@ var AgyFPUGCmd = &cobra.Command{
 
 func init() {
 	AgyFPUGCmd.Flags().StringVarP(&fpugIntervalStr, "time", "t", "30s", "Polling interval (minimum 30s, e.g. 30s, 1m, 5m)")
+	AgyFPUGCmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return []string{
+				"running-projects\tAll currently running Antigravity projects",
+			}, cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
 	AgyCmd.AddCommand(AgyFPUGCmd)
 }
 

@@ -23,6 +23,7 @@
 - [179-fleet-update-json-prompts-backup-and-deploy-polish.md](completed/179-fleet-update-json-prompts-backup-and-deploy-polish.md) — Fleet Update JSON Communication, Running Prompts Backup/Restore E2E & Deploy Polish (Spec: [179](../../02-spec/21-app/179-fleet-update-json-prompts-backup-and-deploy-polish.md))
 - [180-running-prompts-e2e-and-deploy-live-test.md](completed/180-running-prompts-e2e-and-deploy-live-test.md) — Antigravity Running Prompts E2E Verification & Smart Deploy Polish (Spec: [180](../../02-spec/21-app/85-running-prompts-e2e-and-deploy-live-test.md))
 - [181-shutdown-until-commands-discovery-help-and-test.md](completed/181-shutdown-until-commands-discovery-help-and-test.md) — Shutdown-Until Command Discovery, Root Dispatch & Rich Help Integration (Spec: [181](../../02-spec/21-app/86-shutdown-until-commands-discovery-help-and-test.md))
+- [182-terminal-tab-completion-and-flag-suggestions.md](completed/182-terminal-tab-completion-and-flag-suggestions.md) — Terminal Tab Completion, AGY Flag Suggestions & Shell Integration (Spec: [182](../../02-spec/21-app/87-terminal-tab-completion-and-flag-suggestions.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

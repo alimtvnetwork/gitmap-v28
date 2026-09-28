@@ -90,6 +90,31 @@ func init() {
 	agyRerunCmd.Flags().BoolVarP(&rerunAllFlag, "all", "a", false, "Rerun active prompts across all running projects")
 	agyRerunCmd.Flags().BoolVarP(&rerunQueueFlag, "queue", "q", true, "Re-inject queued prompts with completion verification prefix")
 	agyRerunCmd.Flags().StringVar(&rerunPrefixFlag, "prefix", DefaultQueueCheckPrefix, "Prefix added to queued prompts")
+
+	_ = agyRerunCmd.RegisterFlagCompletionFunc("model", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{
+			"flash_lite\tFast lightweight Gemini model",
+			"flash\tBalanced standard Gemini model",
+			"pro\tMost capable deep reasoning Gemini model",
+		}, cobra.ShellCompDirectiveNoFileComp
+	})
+
+	agyRerunCmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return []string{
+				"1\tTarget running project #1",
+				"2\tTarget running project #2",
+				"all\tRerun active prompts across all running projects",
+				"queue\tRe-inject queued prompts with check prefix",
+			}, cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+// GetAgyRerunCmd returns the internal agy rerun cobra command.
+func GetAgyRerunCmd() *cobra.Command {
+	return agyRerunCmd
 }
 
 // RunRerunTopLevelCLI executes agy rerun from top-level gitmap aliases.

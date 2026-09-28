@@ -31,6 +31,7 @@ func recordAuditEnd(id int64, start time.Time, exitCode int, summary string, rep
 
 	db, err := openAuditDB()
 	if err != nil {
+		recordCommandHistorySplitDB(record.DurationMs, exitCode)
 		return
 	}
 
@@ -38,6 +39,24 @@ func recordAuditEnd(id int64, start time.Time, exitCode int, summary string, rep
 
 	updateAuditRecordAndTasks(db, record, exitCode, summary)
 	maybeRecordAiExecutionHistory(record, exitCode)
+	recordCommandHistorySplitDB(record.DurationMs, exitCode)
+}
+
+func recordCommandHistorySplitDB(durationMs int64, exitCode int) {
+	if len(os.Args) < 2 {
+		return
+	}
+	cmdName := os.Args[1]
+	if cmdName == "__complete" || cmdName == "__completeNoDesc" {
+		return
+	}
+	cmdLine := strings.Join(os.Args[1:], " ")
+	histDB, err := store.OpenCommandHistorySplitDB("")
+	if err != nil {
+		return
+	}
+	defer histDB.Close()
+	_ = histDB.InsertCommandRecord(cmdLine, cmdName, exitCode, durationMs)
 }
 
 func maybeRecordAiExecutionHistory(record model.CommandHistoryRecord, exitCode int) {

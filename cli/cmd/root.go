@@ -41,6 +41,11 @@ func Run() {
 		return
 	}
 
+	if os.Args[1] == "__complete" || os.Args[1] == "__completeNoDesc" {
+		executeCobraCompletion(os.Args[1:])
+		return
+	}
+
 	// Strip the global `--theme` palette selector first so it is
 	// honored even when no subcommand-specific args are present.
 	// theme.Install must run AFTER the env var is set but BEFORE

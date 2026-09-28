@@ -15,9 +15,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
+func isHistorySubcommand(sub string) bool {
+	return sub == "ls" || sub == "list" || sub == "suggest" || sub == "clear" || sub == "clean"
+}
+
 // runHistory handles the "history" subcommand.
 func runHistory(args []string) error {
 	checkHelp("history", args)
+	if len(args) > 0 && isHistorySubcommand(strings.ToLower(args[0])) {
+		return RunCommandHistoryCLI(args)
+	}
 	detail, cmdFilter, limit, jsonOut := parseHistoryFlags(args)
 	records := loadHistory(cmdFilter)
 	records = applyHistoryLimit(records, limit)

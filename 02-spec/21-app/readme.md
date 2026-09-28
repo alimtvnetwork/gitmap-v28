@@ -29,4 +29,5 @@
 - [179-fleet-update-json-prompts-backup-and-deploy-polish.md](179-fleet-update-json-prompts-backup-and-deploy-polish.md) — Fleet Update JSON Communication, Running Prompts Backup/Restore E2E & Deploy Polish (Status: `active`)
 - [180-running-prompts-e2e-and-deploy-live-test.md](85-running-prompts-e2e-and-deploy-live-test.md) — Antigravity Running Prompts E2E Verification & Smart Deploy Polish (Status: `active`)
 - [181-shutdown-until-commands-discovery-help-and-test.md](86-shutdown-until-commands-discovery-help-and-test.md) — Shutdown-Until Command Discovery, Root Dispatch & Rich Help Integration (Status: `active`)
+- [182-terminal-tab-completion-and-flag-suggestions.md](87-terminal-tab-completion-and-flag-suggestions.md) — Terminal Tab Completion, AGY Flag Suggestions & Shell Integration (Status: `active`)
 
