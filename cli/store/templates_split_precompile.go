@@ -126,17 +126,16 @@ func ExpandTemplateVariables(content string, vars map[string]string) string {
 		return content
 	}
 
-	expanded := expandDottedVars(content, vars)
-
-	return templateVarRefPattern.ReplaceAllStringFunc(expanded, func(match string) string {
+	return templateVarRefPattern.ReplaceAllStringFunc(content, func(match string) string {
 		key := extractVarKeyFromMatch(match)
-		if val, hasKey := vars[key]; hasKey {
+		if val, hasKey := ResolveTemplateVarValue(key, vars); hasKey {
 			return val
 		}
 
 		return match
 	})
 }
+
 
 func expandDottedVars(content string, vars map[string]string) string {
 	out := content

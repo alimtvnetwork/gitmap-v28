@@ -44,13 +44,17 @@ func handlePipelineHistoryOrExecute(args []string) error {
 
 func executePipelineErrorLogs(args []string) error {
 	flags := ParsePipelineErrorFlags(args)
-	repo := resolveCurrentRepoSlug()
+	repo := flags.RepoTarget
+	if len(repo) == 0 {
+		repo = resolveCurrentRepoSlug()
+	}
 	if flags.HasTimeline {
 		return executeTimelineErrorLogs(repo, flags, args)
 	}
 
 	return processAndRenderErrorLogs(repo, flags)
 }
+
 
 func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []string) error {
 	WaitForRunnerETAIfActive()

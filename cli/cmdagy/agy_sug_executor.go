@@ -16,8 +16,12 @@ var OSShutdownExecutorFn = defaultCrossPlatformShutdown
 
 // ExecuteSUGWatch monitors registered projects and executes OS shutdown when all turn green.
 func ExecuteSUGWatch(projects []string, interval time.Duration, isDryRun bool, isOnce bool) error {
+	RecordSUGWatchStarted(projects, interval)
+	defer RecordSUGWatchStopped()
+
 	printSUGStartBanner(projects, interval, isDryRun)
 	for {
+
 		pendingCount := evaluateAllProjectsStatus(projects)
 		if pendingCount == 0 {
 			return triggerSystemShutdown(len(projects), isDryRun)
@@ -83,10 +87,16 @@ func triggerSystemShutdown(total int, isDryRun bool) error {
 			constants.ColorGreen+"\033[1m", total, cmdStr, constants.ColorReset)
 		return nil
 	}
+	cfg := loadSUGConfig()
+	if cfg.IsClearOnShutdown() {
+		cfg.ProjectTargets = []string{}
+		_ = saveSUGConfig(cfg)
+	}
 	fmt.Printf("  %s🚀 All %d monitored projects are green. Initiating system shutdown...%s\n\n",
 		constants.ColorGreen+"\033[1m", total, constants.ColorReset)
 	return OSShutdownExecutorFn(runtime.GOOS)
 }
+
 
 func getShutdownCommandStr(goos string) string {
 	switch strings.ToLower(goos) {

@@ -20,12 +20,21 @@ var (
 
 // SUGWatchConfig models the persisted watch list configuration.
 type SUGWatchConfig struct {
-	ProjectTargets []string `json:"projectTargets"`
-	IntervalSec    int      `json:"intervalSeconds"`
-	UpdatedAt      string   `json:"updatedAt"`
+	ProjectTargets  []string `json:"projectTargets"`
+	IntervalSec     int      `json:"intervalSeconds"`
+	ClearOnShutdown *bool    `json:"clearOnShutdown,omitempty"`
+	UpdatedAt       string   `json:"updatedAt"`
 }
 
-// AgySUGCmd monitors registered projects and initiates OS shutdown once all pipelines pass.
+// IsClearOnShutdown reports whether projects list should clear when shutdown starts.
+func (c *SUGWatchConfig) IsClearOnShutdown() bool {
+	if c.ClearOnShutdown == nil {
+		return true
+	}
+	return *c.ClearOnShutdown
+}
+
+// AgySUGCmd monitors designated projects and initiates OS shutdown once all pipelines pass.
 var AgySUGCmd = &cobra.Command{
 	Use:     "shutdown-until-green [command]",
 	Aliases: []string{"sug", "shutdown-until"},
@@ -45,9 +54,12 @@ func init() {
 	AgySUGCmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
 			return []string{
-				"ls\tList monitored projects in shutdown watch list",
+				"ls\tList monitored projects and watch loop status",
+				"status\tCheck whether watch loop is running or idle",
 				"run\tStart monitoring loop until green and then shut down",
-				"add-projects\tAdd project directories or IDs to watch list",
+				"watch\tAlias for run",
+				"ui\tLaunch local dark-mode monitoring dashboard",
+				"add-projects\tAdd project directories, repo names, or URLs to watch list",
 				"rm\tRemove projects from watch list",
 				"agy-running-projects\tAdd all currently running Antigravity projects",
 				"help\tShow help and usage guide",
@@ -58,33 +70,84 @@ func init() {
 	AgyCmd.AddCommand(AgySUGCmd)
 }
 
-// RunSUGCLI routes shutdown-until-green subcommands.
+// RunSUGCLI routes shutdown-until-green subcommands with robust normalization.
 func RunSUGCLI(args []string) error {
 	if len(args) == 0 || checkSUGHelp(args[0]) {
 		printSUGHelp()
 		return nil
 	}
-	return routeSUGSubcommand(strings.ToLower(args[0]), args[1:])
+	subcmd, rest := normalizeSUGArgs(args)
+	return routeSUGSubcommand(subcmd, rest)
+}
+
+func normalizeSUGArgs(args []string) (string, []string) {
+	if len(args) == 0 {
+		return "help", nil
+	}
+	first := strings.ToLower(args[0])
+	if isRunningProjectsToken(first) && len(args) > 1 && strings.EqualFold(args[1], "projects") {
+		return "agy-running-projects", args[2:]
+	}
+	if isRunningProjectsToken(first) {
+		return "agy-running-projects", args[1:]
+	}
+	if first == "watch" && len(args) > 1 && strings.EqualFold(args[1], "ui") {
+		return "ui", args[2:]
+	}
+	return first, args[1:]
+}
+
+
+func isRunningProjectsToken(token string) bool {
+	switch token {
+	case "agy-running-projects", "running-projects", "agy-running", "running", "arp", "rp":
+		return true
+	default:
+		return false
+	}
 }
 
 func routeSUGSubcommand(subcmd string, rest []string) error {
 	switch subcmd {
-	case "ls", "list":
+	case "ls", "list", "status", "st":
 		return listSUGProjects()
-	case "add-projects", "add":
+	case "add-projects", "add", "/add", "ap":
+		if len(rest) > 0 && checkSUGHelp(rest[0]) {
+			RenderAgySugHelp()
+			return nil
+		}
 		return addSUGProjects(rest)
-	case "rm", "remove", "del":
+	case "rm", "/rm", "remove", "del", "delete":
+		if len(rest) > 0 && checkSUGHelp(rest[0]) {
+			RenderAgySugHelp()
+			return nil
+		}
 		return removeSUGProjects(rest)
 	case "agy-running-projects", "running-projects":
 		return setSUGRunningProjects()
-	case "run":
+	case "run", "watch", "w":
 		return runSUGLoop(rest)
+	case "ui", "web":
+		return RunSUGUI(rest)
 	case "help", "--help", "-h":
 		RenderAgySugHelp()
 		return nil
 	default:
-		return apperror.NewValidationError("unknown sug subcommand: " + subcmd)
+		return handleDirectTargetOrFallback(subcmd, rest)
 	}
+}
+
+func handleDirectTargetOrFallback(subcmd string, rest []string) error {
+	resolved, isValid := ValidateSUGTarget(subcmd)
+	if isValid {
+		fmt.Printf("  ✔ Direct project target identified: %s\n", resolved)
+		cfg := loadSUGConfig()
+		appendNewSUGTargets(&cfg, []string{resolved})
+		_ = saveSUGConfig(cfg)
+		return ExecuteSUGWatch([]string{resolved}, parseSUGInterval(rest, isSUGDryRun(rest)), isSUGDryRun(rest), hasSUGOnceFlag(rest))
+	}
+	PrintSUGTargetValidationDiagnostic(subcmd)
+	return apperror.NewValidationError("unknown sug subcommand or invalid target: " + subcmd)
 }
 
 func checkSUGHelp(token string) bool {
@@ -134,11 +197,21 @@ func saveSUGConfig(cfg SUGWatchConfig) error {
 
 func listSUGProjects() error {
 	cfg := loadSUGConfig()
+	st, isRunning := LoadSUGRuntimeStatus()
+
 	fmt.Println()
 	fmt.Printf("  %s%s SHUTDOWN-UNTIL-GREEN WATCH LIST (%d projects) %s%s\n",
 		constants.ColorCyan, "╔════", len(cfg.ProjectTargets), "════╗", constants.ColorReset)
+
+	if isRunning {
+		fmt.Printf("  %s● Watch loop is ACTIVE%s (PID: %d, interval: %ds, started: %s)\n\n",
+			constants.ColorGreen, constants.ColorReset, st.PID, st.IntervalSec, st.StartedAt)
+	} else {
+		fmt.Printf("  %s○ Watch loop is IDLE%s\n\n", constants.ColorYellow, constants.ColorReset)
+	}
+
 	if len(cfg.ProjectTargets) == 0 {
-		fmt.Printf("  %sWatch list is empty. Use 'add-projects' or 'agy-running-projects'.%s\n\n",
+		fmt.Printf("  %sWatch list is empty. Use 'add-projects <target>' or 'agy-running-projects'.%s\n\n",
 			constants.ColorDim, constants.ColorReset)
 		return nil
 	}
@@ -153,8 +226,21 @@ func addSUGProjects(targets []string) error {
 	if len(targets) == 0 {
 		return apperror.NewValidationError("add-projects requires at least one project target")
 	}
+	var validTargets []string
+	for _, t := range targets {
+		resolved, isValid := ValidateSUGTarget(t)
+		if isValid {
+			validTargets = append(validTargets, resolved)
+		} else {
+			PrintSUGTargetValidationDiagnostic(t)
+		}
+	}
+	if len(validTargets) == 0 {
+		return apperror.NewValidationError("no valid targets provided; see diagnostic suggestions above")
+	}
+
 	cfg := loadSUGConfig()
-	added := appendNewSUGTargets(&cfg, targets)
+	added := appendNewSUGTargets(&cfg, validTargets)
 	if err := saveSUGConfig(cfg); err != nil {
 		return err
 	}

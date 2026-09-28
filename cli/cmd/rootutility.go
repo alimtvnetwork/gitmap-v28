@@ -392,6 +392,10 @@ func runHelpDispatch() error {
 // usage when the topic has no dedicated help text.
 func dispatchHelpTopic(rawTopic string) {
 	topic := normalizeHelpTopic(rawTopic)
+	if isHelpCategoryGroup(topic) {
+		printUsageCategoryGroup(topic)
+		return
+	}
 	if tryRenderRichTopic(topic) {
 		return
 	}
@@ -401,6 +405,7 @@ func dispatchHelpTopic(rawTopic string) {
 
 		return
 	}
+
 
 	_, mode := ParsePrettyFlag(os.Args[3:])
 	helptext.PrintWithMode(topic, mode)

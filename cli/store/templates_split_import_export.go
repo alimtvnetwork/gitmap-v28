@@ -12,7 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-var templateVarRefPattern = regexp.MustCompile(`\$\{([A-Za-z0-9_.-]+)\}|\$([A-Za-z0-9_]+)`)
+var templateVarRefPattern = regexp.MustCompile(`\$\{([A-Za-z0-9_.-]+(?:\[\d+\])?)\}|\$([A-Za-z0-9_]+)`)
 
 // TemplateExportPayload defines the portable JSON schema for exporting and importing templates and variables.
 type TemplateExportPayload struct {

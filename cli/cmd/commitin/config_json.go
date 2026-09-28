@@ -66,11 +66,20 @@ type CommitInConfigJSON struct {
 	PRMode            string                         `json:"prMode,omitempty"`
 	ConflictMode      string                         `json:"conflictMode,omitempty"`
 	IsTree            bool                           `json:"tree,omitempty"`
+
+	IsTreeAlias       bool                           `json:"isTree,omitempty"`
 	IsFinalSync       bool                           `json:"finalSync,omitempty"`
+	IsFinalSyncAlias  bool                           `json:"isFinalSync,omitempty"`
 	IsCD              bool                           `json:"cd,omitempty"`
+	IsCDAlias         bool                           `json:"isCD,omitempty"`
+	IsApplyCDAlias    bool                           `json:"isApplyCD,omitempty"`
+	IsApply           bool                           `json:"isApply,omitempty"`
 	IsRecreate        bool                           `json:"recreate,omitempty"`
+	IsRecreateAlias   bool                           `json:"isRecreate,omitempty"`
 	IsDryRun          bool                           `json:"dryRun,omitempty"`
+	IsDryRunAlias     bool                           `json:"isDryRun,omitempty"`
 	IsNewlineGap      bool                           `json:"newlineGap,omitempty"`
+
 	AuthorName        string                         `json:"authorName,omitempty"`
 	AuthorEmail       string                         `json:"authorEmail,omitempty"`
 	Exclude           []string                       `json:"exclude,omitempty"`
@@ -85,6 +94,7 @@ type CommitInConfigJSON struct {
 	SuffixMode        string                         `json:"suffixMode,omitempty"`
 	TemplateMode      string                         `json:"templateMode,omitempty"`
 	IsPushImmediate   bool                           `json:"pushImmediate,omitempty"`
+	IsPushImmediateAl bool                           `json:"isPushImmediate,omitempty"`
 	IsPushImmediately bool                           `json:"pushImmediately,omitempty"`
 	IsPush            bool                           `json:"push,omitempty"`
 	IsAutoPush        bool                           `json:"autoPush,omitempty"`
@@ -131,12 +141,13 @@ func mergeConfigFlags(raw *RawArgs, cfg CommitInConfigJSON) {
 	if raw.ConflictMode == "" && cfg.ConflictMode != "" {
 		raw.ConflictMode = cfg.ConflictMode
 	}
-	raw.IsTree = raw.IsTree || cfg.IsTree
-	raw.IsFinalSync = raw.IsFinalSync || cfg.IsFinalSync
-	raw.IsCD = raw.IsCD || cfg.IsCD
-	raw.IsRecreate = raw.IsRecreate || cfg.IsRecreate
-	raw.IsDryRun = raw.IsDryRun || cfg.IsDryRun
-	raw.IsPushImmediate = raw.IsPushImmediate || cfg.IsPushImmediate || cfg.IsPushImmediately || cfg.IsPush || cfg.IsAutoPush
+	raw.IsTree = raw.IsTree || cfg.IsTree || cfg.IsTreeAlias
+	raw.IsFinalSync = raw.IsFinalSync || cfg.IsFinalSync || cfg.IsFinalSyncAlias
+	raw.IsCD = raw.IsCD || cfg.IsCD || cfg.IsCDAlias || cfg.IsApplyCDAlias || cfg.IsApply
+	raw.IsRecreate = raw.IsRecreate || cfg.IsRecreate || cfg.IsRecreateAlias
+	raw.IsDryRun = raw.IsDryRun || cfg.IsDryRun || cfg.IsDryRunAlias
+	raw.IsPushImmediate = raw.IsPushImmediate || cfg.IsPushImmediate || cfg.IsPushImmediateAl || cfg.IsPushImmediately || cfg.IsPush || cfg.IsAutoPush
+
 
 	mode := strings.ToLower(strings.TrimSpace(cfg.SuffixMode))
 	if mode == "" {

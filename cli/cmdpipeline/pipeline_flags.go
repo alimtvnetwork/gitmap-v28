@@ -25,6 +25,7 @@ type PipelineErrorFlags struct {
 	TempFileName         string
 	HasForce             bool
 	FormatProfile        string
+	RepoTarget           string
 }
 
 // ParsePipelineErrorFlags parses command-line arguments for pipeline error-logs.
@@ -33,9 +34,11 @@ func ParsePipelineErrorFlags(args []string) PipelineErrorFlags {
 	parseCommonErrorFlags(args, &flags)
 	parseIndexAndFailures(args, &flags)
 	parseCommitTarget(args, &flags)
+	parseRepoTarget(args, &flags)
 
 	return flags
 }
+
 
 func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.HasHelp = hasArgFlag(args, "--help") || hasArgFlag(args, "-h") || hasArgFlag(args, "help")
@@ -250,3 +253,36 @@ func isCommitHexSha(s string) bool {
 
 	return true
 }
+
+func parseRepoTarget(args []string, flags *PipelineErrorFlags) {
+	explicit := extractFlagVal(args, "--repo")
+	if explicit == "" {
+		explicit = extractFlagVal(args, "-r")
+	}
+	if len(explicit) > 0 {
+		flags.RepoTarget = ResolvePipelineTarget(explicit)
+		return
+	}
+
+	for _, a := range args {
+		trimmed := strings.TrimSpace(a)
+		if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget {
+			continue
+		}
+		flags.RepoTarget = ResolvePipelineTarget(trimmed)
+		return
+	}
+}
+
+func isSkipTokenForRepoTarget(token string) bool {
+	if len(token) == 0 || strings.HasPrefix(token, "-") {
+		return true
+	}
+	switch strings.ToLower(token) {
+	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "help":
+		return true
+	default:
+		return false
+	}
+}
+

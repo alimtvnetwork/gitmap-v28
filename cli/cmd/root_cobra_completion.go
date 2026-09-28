@@ -11,7 +11,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
+
 
 var rootCompletionCmd *cobra.Command
 
@@ -43,8 +45,11 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelUpdateCmd())
 	root.AddCommand(makeTopLevelCompletionCmd())
 	root.AddCommand(makeTopLevelHistoryCmd())
+	root.AddCommand(makeTopLevelHelpCmd())
+	root.AddCommand(makeTopLevelPECmd())
 
 	populateRemainingCommands(root)
+
 
 	rootCompletionCmd = root
 	return rootCompletionCmd
@@ -266,3 +271,83 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 		return "", fmt.Errorf("unsupported shell: %s", shell)
 	}
 }
+
+func makeTopLevelHelpCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "help [command|group]",
+		Short: "Display comprehensive help for commands or functional groups",
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return buildHelpCompletions(), cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	return cmd
+}
+
+func buildHelpCompletions() []string {
+	var completions []string
+	groups := []string{
+		"scanning\tRepository discovery and indexing commands",
+		"cloning\tHigh-speed git clone and desktop sync",
+		"gitops\tGit operations (pull, status, watch, etc.)",
+		"navigation\tDirectory navigation and repository aliases",
+		"release\tSemantic version bumping and release workflows",
+		"release-info\tChangelogs, tags, and release history",
+		"data\tDatabase management, exports, and profiles",
+		"import-export\tJSON config and summary import/export",
+		"history\tCommand execution and commit history",
+		"ssh\tSSH fleet management and node delegation",
+		"integrations\tIDE, AGY, AGM, and pipeline integrations",
+		"templates\tPre-compiled variables, ignore, and SEO templates",
+		"search-find\tCode search, AUM search, and file finding",
+		"tasks\tMacro automation and background task execution",
+		"cluster\tMulti-node cluster join and fleet coordination",
+	}
+	completions = append(completions, groups...)
+	for _, cmdName := range completion.AllCommands() {
+		completions = append(completions, cmdName+"\t"+resolveCommandHelpShort(cmdName))
+	}
+	return completions
+}
+
+func makeTopLevelPECmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "pe [path|alias|url] [flags]",
+		Aliases: []string{"pipeline-errors", "pipeline_errors"},
+		Short:   "Inspect CI/CD pipeline error logs and status for target repository",
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return getDBRepoCompletions(), cobra.ShellCompDirectiveDefault
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	cmd.Flags().Bool("json", false, "Output error report in JSON format")
+	cmd.Flags().BoolP("fix", "f", false, "Generate actionable fix suggestions")
+	cmd.Flags().BoolP("check", "c", false, "Check live pipeline status")
+	cmd.Flags().BoolP("detailed", "v", false, "Display detailed stack traces")
+	return cmd
+}
+
+func getDBRepoCompletions() []string {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return nil
+	}
+	defer db.Close()
+	repos, errList := db.ListRepos()
+	if errList != nil {
+		return nil
+	}
+	out := make([]string, 0, len(repos))
+	for _, r := range repos {
+		out = append(out, r.Slug+"\t"+r.AbsolutePath)
+		if r.RepoName != r.Slug {
+			out = append(out, r.RepoName+"\t"+r.AbsolutePath)
+		}
+	}
+	return out
+}
+
