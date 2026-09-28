@@ -48,25 +48,30 @@ func buildAgyHelpMenu() termhelp.HelpMenu {
 		},
 		Sections: []termhelp.HelpSection{
 			buildProjectMgmtSection(),
+			buildActiveLapAndRerunSection(),
 			buildDiagnosticsSection(),
 			buildAutomationSection(),
 		},
 		FooterFlags: []termhelp.CommandEntry{
 			{Command: "-h, --help", Description: "Show help for agy"},
+			{Command: "-j, --json", Description: "Output structured JSON where supported (rp, lap, telegram, settings)"},
+			{Command: "-f, --file <path>", Description: "Export JSON output directly to <path> (rp, lap)"},
 		},
 		Tips: []string{
 			"Run 'gitmap agy <command> --help' for details on any subcommand.",
+			"Use 'gitmap agy lap 24 --limit 10 --page 1 --wc 200' to inspect active projects & prompt trees.",
 		},
 	}
 }
 
 func buildProjectMgmtSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
-		Title: "Project Management",
+		Title: "Project Management & Onboarding",
 		Entries: []termhelp.CommandEntry{
 			{Command: "open [path]", Description: "Open Antigravity Desktop IDE on path (default: .)"},
 			{Command: "ls", Description: "List projects in status table grouped by root folder"},
-			{Command: "add <id> <name>", Description: "Add an Antigravity project configuration"},
+			{Command: "add . / add <path>", Description: "Add current repo (.) or <path> to Antigravity workspace registry"},
+			{Command: "add-read . / add-read <path> (ar)", Description: "Add current repo (.) or <path> and run Read Memory prompt"},
 			{Command: "rm <id>", Description: "Remove project configuration (files on disk preserved)"},
 			{Command: "update <id>", Description: "Update project updatedAt timestamp to now"},
 			{Command: "scan [path]", Description: "Scan directory and register Antigravity projects"},
@@ -75,6 +80,23 @@ func buildProjectMgmtSection() termhelp.HelpSection {
 			{Command: "pin-projects (pins)", Description: "Manage pinned priority projects"},
 			{Command: "recreate-project (recreate, rp)", Description: "Purge cache/convs, re-register project, and start read-memory conv"},
 			{Command: "group", Description: "Group and categorize projects by tag or folder", HasSubcommands: true},
+		},
+	}
+}
+
+func buildActiveLapAndRerunSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Running Projects, Last-Active Tree (LAP), Rerun-With-ID & Bot Settings",
+		Entries: []termhelp.CommandEntry{
+			{Command: "rp ls", Description: "List running projects with 24h sequence (#1), ID, alias, path & [convID]"},
+			{Command: "rp prompts ls [--wc 200]", Description: "Tree view of running projects and active prompts (200 words default)"},
+			{Command: "last-active-projects (lap) [N] [ls]", Description: "Projects active in last N hours (default 24h, --limit 10, --offset, --page, --wc 200)"},
+			{Command: "rerun-with-id (rwi) <id|seq> <c> <p>", Description: "Inject prompt/file into project (<id|alias|seq|path>) and conversation (<c>|P1)"},
+			{Command: "rerun-with-convid (rwc) <c|P1> <p>", Description: "Resolve project + conversation from <convid|P1> and inject prompt/file"},
+			{Command: "account-switch (asw)", Description: "Fast-forward switch account on 98% used / 15% remaining credit threshold"},
+			{Command: "telegram [setup|status|send|poll]", Description: "Two-way Telegram bot setup, notifications, and remote chat commands"},
+			{Command: "email [setup|status|test]", Description: "Speed SMTP Email notification setup and verification"},
+			{Command: "settings [--lap-hours 24]", Description: "Unified speed settings for LAP default hours (24), threshold (15%), Telegram & Email"},
 		},
 	}
 }

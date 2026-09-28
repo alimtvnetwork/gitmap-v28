@@ -11,7 +11,11 @@
     "MAREK": "Marek Flejszman",
     "MAREK_ROLE": "Senior Director with 28+ years of battle-tested software engineering mastery",
     "REGIONS": "California, New York, and Wyoming",
-    "URL": "https://riseup-asia.com"
+    "URL": "https://riseup-asia.com",
+    "machine.alias": "AI-Main",
+    "machine.name": "AI-Main",
+    "machine.previous_alias": "AI-Main",
+    "machine.previous_name": "AI-Main"
   },
   "scopes": {}
 }

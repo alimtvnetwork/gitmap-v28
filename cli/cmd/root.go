@@ -716,7 +716,11 @@ func dispatchAgySubsystem(
 		"running-projects", "runningprojects",
 		"fpug", "finish-prompts-until-green",
 		"sug", "shutdown-until", "shutdown-until-green",
-		"account-switch", "asw", "switch-account":
+		"account-switch", "asw", "switch-account",
+		"lap", "last-active-projects",
+		"rwi", "rerun-with-id",
+		"rwc", "rerun-with-convid", "rwp", "rerun-with-prompt-id",
+		"telegram", "email", "settings":
 		executeAndAudit(cmdagy.DispatchAgy, shouldAudit, auditID, auditStart)
 
 		return true

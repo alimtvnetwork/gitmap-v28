@@ -12,8 +12,7 @@ import (
 // runOS dispatches gitmap os subcommands.
 func runOS(args []string) error {
 	if len(args) == 0 || isOSHelpArg(args[0]) {
-		checkHelp("os", args)
-		printOSUsage()
+		RenderModernOSHelp()
 
 		return nil
 	}
@@ -29,6 +28,10 @@ func isOSHelpArg(arg string) bool {
 
 func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 	switch subCmd {
+	case "machine", "machines", "machine-name", "hostname":
+		return RunMachineCLI(subArgs)
+	case "alias", "aliases":
+		return RunAliasCLI(subArgs)
 	case constants.SubCmdOSDisplay, constants.SubCmdOSDisplayAlias, constants.SubCmdOSDisplayAlias2:
 		return runOSDisplay(subArgs)
 	case constants.SubCmdFixLink, constants.SubCmdFixLinkAlias, constants.SubCmdFixLinkAlias2:

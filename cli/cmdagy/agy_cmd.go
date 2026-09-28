@@ -25,12 +25,12 @@ var AgyCmd = &cobra.Command{
 // DispatchAgy routes CLI arguments to agy commands.
 func DispatchAgy(ctx context.Context, args []string, root *cobra.Command) error {
 	args = stripAgyPrefix(args)
-	if len(args) > 0 && isAgyOpenPathArg(args[0]) {
-		return RunAgyOpen(args[0])
-	}
 	args = normalizeAgyArgs(args)
 	if err, isHandled := tryDispatchAgyShortcut(args); isHandled {
 		return err
+	}
+	if len(args) > 0 && isAgyOpenPathArg(args[0]) {
+		return RunAgyOpen(args[0])
 	}
 	AgyCmd.SetArgs(args)
 
@@ -38,6 +38,9 @@ func DispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 }
 
 func tryDispatchAgyShortcut(args []string) (error, bool) {
+	if len(args) > 0 && strings.EqualFold(args[0], "settings") {
+		return RunAgySettingsCLI(args[1:]), true
+	}
 	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
 		return RunFindDuplicates(), true
 	}
@@ -197,6 +200,39 @@ func normalizeWorkflowSubcommands(low string) string {
 	if match := normalizeRunningAndSwitchSubcommands(low); len(match) > 0 {
 		return match
 	}
+	if match := normalizeAddLapAndRwiSubcommands(low); len(match) > 0 {
+		return match
+	}
+	return normalizeCoreWorkflowAliases(low)
+}
+
+func normalizeAddLapAndRwiSubcommands(low string) string {
+	if low == "add" || low == "add-project" {
+		return "add"
+	}
+	if low == "add-read" || low == "ar" || low == "add-and-read" {
+		return "add-read"
+	}
+	if low == "lap" || low == "last-active-projects" || low == "active-projects" {
+		return "last-active-projects"
+	}
+	return normalizeRwiAndMessagingSubcommands(low)
+}
+
+func normalizeRwiAndMessagingSubcommands(low string) string {
+	if low == "rwi" || low == "rerun-with-id" {
+		return "rerun-with-id"
+	}
+	if low == "rwc" || low == "rerun-with-convid" || low == "rwp" || low == "rerun-with-prompt-id" {
+		return "rerun-with-convid"
+	}
+	if low == "telegram" || low == "email" || low == "settings" {
+		return low
+	}
+	return ""
+}
+
+func normalizeCoreWorkflowAliases(low string) string {
 	if low == "list-prompts" || low == "listprompts" || low == "lp" || low == "list-prompt" {
 		return "list-prompts"
 	}
@@ -215,7 +251,6 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "fpug" || low == "finish-prompts-until-green" {
 		return "finish-prompts-until-green"
 	}
-
 	return ""
 }
 
@@ -330,7 +365,8 @@ func init() {
 }
 
 func registerAgyBaseCommands() {
-	AgyCmd.AddCommand(agyAddCmd)
+	AgyCmd.AddCommand(AgyAddCmd)
+	AgyCmd.AddCommand(AgyAddReadCmd)
 	AgyCmd.AddCommand(agyRmCmd)
 	AgyCmd.AddCommand(agyLsCmd)
 	AgyCmd.AddCommand(agyStatusCmd)
@@ -364,6 +400,7 @@ func registerAgyProjectCommands() {
 	AgyCmd.AddCommand(agyRemoveMissingCmd)
 	AgyCmd.AddCommand(agyReconcileCmd)
 	AgyCmd.AddCommand(agyAllProjectsReadMemoryCmd)
+	AgyCmd.AddCommand(AgyLastActiveProjectsCmd)
 }
 
 func registerAgyUtilityCommands() {
@@ -378,6 +415,8 @@ func registerAgyUtilityCommands() {
 	AgyCmd.AddCommand(agyCacheClearKeepFiveCmd)
 	AgyCmd.AddCommand(agyFixPipelineCmd)
 	AgyCmd.AddCommand(agyRerunCmd)
+	AgyCmd.AddCommand(AgyRerunWithIDCmd)
+	AgyCmd.AddCommand(AgyRerunWithConvIDCmd)
 	AgyCmd.AddCommand(agyNewConvCmd)
 	AgyCmd.AddCommand(agySendMessageCmd)
 	AgyCmd.AddCommand(agyListPromptsCmd)

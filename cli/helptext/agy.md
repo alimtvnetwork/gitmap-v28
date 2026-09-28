@@ -20,6 +20,17 @@ gitmap antigravity <subcommand> [flags]
 
 | Subcommand | Description |
 |------------|-------------|
+| `add [. \| <path>]` | Add current repository (`.`) or `<path>` to Antigravity workspace registry |
+| `add-read [. \| <path>]` | Add current repository (`.`) or `<path>` and immediately run Read Memory prompt (alias: `ar`) |
+| `rp ls` | List running projects with 24h SQLite sequence (`#1`), Project ID, Alias, Path, and `[convID]` |
+| `rp prompts ls` | Tree view of running projects and active prompts truncated to 200 words (`--wc T`, `--json`, `--file`) |
+| `last-active-projects [N]` | Tree view of projects with activity in last `N` hours (alias: `lap`, default `N=24`, `--limit 10`, `--offset`, `--page`, `--wc 200`, `--json`, `--file`) |
+| `rerun-with-id <id\|seq> <c> <p>` | Inject prompt text or file into project (`<id\|alias\|seq\|path>`) and conversation (`<convid\|P1>`) (alias: `rwi`) |
+| `rerun-with-convid <c\|P1> <p>` | Resolve project + conversation from `<convid\|P1>` in 24h SQLite sequence cache and inject prompt (alias: `rwc`, `rwp`) |
+| `account-switch` | Fast-forward switch Antigravity account on 98% used / 15% remaining credit threshold (alias: `asw`) |
+| `telegram [setup\|status\|send\|poll]` | Connect two-way Telegram chatbot for remote `/status`, `/rp`, `/lap`, `/rwi`, and `/asw` commands |
+| `email [setup\|status\|test]` | Speed SMTP Email notification setup and verification |
+| `settings [--lap-hours 24]` | Unified speed settings for LAP default hours (`24`), account-switch threshold (`15%`), Telegram & Email |
 | `ping` | Ping Antigravity IDE and inspect environment health (alias: `check`) |
 | `prompt-project <prefix>` | Target Antigravity project by prefix with `-name`, `-txt`, `--pf/--sf` (alias: `p`) |
 | `prompt [-n name] [-t txt]` | Dispatch prompt to current repo (auto-adds project, queues read-all first) |
@@ -49,25 +60,28 @@ gitmap antigravity <subcommand> [flags]
 ## Examples
 
 ```bash
-# Rerun the last prompt with the default verification template
-gitmap agy rerun last 1
+# Add current repo or explicit path and run Read Memory prompt
+gitmap agy add .
+gitmap agy add-read .
+gitmap agy add-read d:/work/my-service
 
-# List prompt activity and open multi-project changes in VS Code
-gitmap agy list-prompts --projects 3
+# Inspect running projects and active prompt tree (200 words default)
+gitmap agy rp ls
+gitmap agy rp prompts ls --wc 200
 
-# Scan repositories and prompt archives
-gitmap agy scan
+# List active projects in last 24h (limit 10, page 1, export JSON)
+gitmap agy lap 24 ls --limit 10 --offset 0 --wc 200
+gitmap agy lap 24 --page 2 --json --file active-projects.json
 
-# Fix pipeline errors with Antigravity
-gitmap agy fix-pipeline
+# Rerun / inject prompt by sequence ID (#1) or short prompt sequence (P1)
+gitmap agy rwi 1 P1 "Continue implementation and verify all checks" -p is-done
+gitmap agy rwc P1 "01-prompts/read.md"
 
-# Recreate current project (purge cache/convs, re-register, start read-memory conversation)
-gitmap agy recreate-project
-
-# Recreate multiple selected projects by sequence, alias, or path
-gitmap agy recreate 1, 2, 3
-gitmap agy recreate gitmap, test-gitmap
-gitmap agy recreate D:\test-gitmap\test-gitmap
+# Fast-forward account switch & configure two-way Telegram bot + Email speed settings
+gitmap agy account-switch
+gitmap agy telegram setup --token "<BOT_TOKEN>" --chat "<CHAT_ID>"
+gitmap agy email setup --smtp "smtp.gmail.com:587" --from "bot@co.com" --to "dev@co.com"
+gitmap agy settings --lap-hours 24 --threshold 15
 ```
 
 ---

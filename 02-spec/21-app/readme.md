@@ -33,5 +33,6 @@
 - [183-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md](88-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md) — SUG Enhancements, PE Path/Alias Resolution, PascalCase/Array Template Variables & Repo-Secrets Hygiene (Status: `active`)
 - [184-agy-rp-running-projects-and-recreate-safety.md](89-agy-rp-running-projects-and-recreate-safety.md) — AGY RP Running-Projects Remap & Recreate-Project Safety Guard (Status: `active`)
 - [185-agm-update-fix-and-account-switch-e2e.md](89-agm-update-fix-and-account-switch-e2e.md) — AGM Update Version Pinning Fix, Parallel Running-Prompts Backup with Media, Account Switch E2E & Threshold Governance (Status: `active`)
+- [90-agy-add-read-lap-rwi-machine-alias-telegram-and-os-help.md](90-agy-add-read-lap-rwi-machine-alias-telegram-and-os-help.md) — AGY Add/Add-Read, Running-Projects Tree (`rp prompts ls`), Last-Active-Projects (`lap`), Rerun-With-ID (`rwi`/`rwc`), Machine/Alias (`--ssh`), Two-Way Telegram Bot, Email Speed Settings, and Modernized OS/AGY Help (Status: `active`)
 
 

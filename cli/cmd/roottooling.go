@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdasset"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservice"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtoken"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvmware"
@@ -112,6 +113,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"prompts-version"}, func() error { return runCG(append([]string{"prompts-version"}, argsTail()...)) }},
 		{[]string{"workdir", "work-dir", "wd"}, func() error { return runWorkDir(argsTail()) }},
 		{[]string{"os", "os-update"}, func() error { return RunOSCLI(argsTail()) }},
+		{[]string{"machine", "machines", "machine-name", "hostname"}, func() error { return cmdos.RunMachineCLI(argsTail()) }},
 		{[]string{"os-info", "osinfo", "sysinfo", "system-info", "which-os", "whichos", "os-which"}, func() error { return RunOSInfoCLI(argsTail()) }},
 		{[]string{"bash", "git-bash"}, func() error { return runBash(argsTail()) }},
 		{[]string{"shell", "sh"}, func() error { return runShell(argsTail()) }},
