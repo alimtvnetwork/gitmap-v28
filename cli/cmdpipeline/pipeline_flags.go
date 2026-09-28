@@ -39,7 +39,6 @@ func ParsePipelineErrorFlags(args []string) PipelineErrorFlags {
 	return flags
 }
 
-
 func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.HasHelp = hasArgFlag(args, "--help") || hasArgFlag(args, "-h") || hasArgFlag(args, "help")
 	flags.IsJSON = hasArgFlag(args, "--json")
@@ -285,4 +284,3 @@ func isSkipTokenForRepoTarget(token string) bool {
 		return false
 	}
 }
-

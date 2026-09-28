@@ -25,7 +25,6 @@ func ResolveTemplateVarValue(key string, vars map[string]string) (string, bool) 
 		return tryResolveIndexedArray(match[1], match[2], vars)
 	}
 
-
 	// 2. Standard or random array reference: e.g. Var
 	rawVal, isFound := lookupKeyWithNormalization(key, vars)
 	if !isFound {

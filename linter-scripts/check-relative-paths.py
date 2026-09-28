@@ -69,7 +69,11 @@ def ensure_changed_files_manifest(repo_root: Path, commits: int) -> Path:
 
 
 def load_changed_files(repo_root: Path, commits: int) -> list[str]:
-    """Loads changed files list from git-changed-files.json."""
+    """Loads changed files list from git-changed-files.json or git diff."""
+    extractor = repo_root / "03-ai-scripts/27-git-changed-files.py"
+    if not extractor.is_file():
+        res = subprocess.run(["git", "diff", "--name-only", f"HEAD~{commits}", "HEAD"], cwd=str(repo_root), capture_output=True, text=True, encoding="utf-8")
+        return [line.strip() for line in res.stdout.splitlines() if line.strip()] if res.returncode == 0 else collect_all_tracked_files(repo_root)
     manifest = ensure_changed_files_manifest(repo_root, commits)
     data = json.loads(manifest.read_text(encoding="utf-8"))
     files_list = data.get("files", [])

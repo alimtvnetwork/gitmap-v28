@@ -22,7 +22,6 @@ func ValidateSUGTarget(raw string) (string, bool) {
 		return resolveLocalDirPath(trimmed)
 	}
 
-
 	// 2. Git remote URL
 	if isGitRemoteURL(trimmed) {
 		return trimmed, true
@@ -113,7 +112,6 @@ func resolveAGYProjectPathOrName(p AgyProject, path string) string {
 	}
 	return p.Name
 }
-
 
 // PrintSUGTargetValidationDiagnostic prints actionable error messages when target validation fails.
 func PrintSUGTargetValidationDiagnostic(target string) {

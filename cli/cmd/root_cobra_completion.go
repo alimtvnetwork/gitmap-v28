@@ -14,7 +14,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-
 var rootCompletionCmd *cobra.Command
 
 func init() {
@@ -49,7 +48,6 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelPECmd())
 
 	populateRemainingCommands(root)
-
 
 	rootCompletionCmd = root
 	return rootCompletionCmd
@@ -350,4 +348,3 @@ func getDBRepoCompletions() []string {
 	}
 	return out
 }
-

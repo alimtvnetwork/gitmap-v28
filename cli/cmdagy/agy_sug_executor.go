@@ -97,7 +97,6 @@ func triggerSystemShutdown(total int, isDryRun bool) error {
 	return OSShutdownExecutorFn(runtime.GOOS)
 }
 
-
 func getShutdownCommandStr(goos string) string {
 	switch strings.ToLower(goos) {
 	case "windows":

@@ -75,8 +75,8 @@ func EnsureAndGetSequenceCache(entries []AgySequenceRecord, isForceRefresh bool)
 }
 
 func refreshSequenceCacheRows(conn *sql.DB, entries, cached []AgySequenceRecord, now int64, isForce bool) ([]AgySequenceRecord, error) {
-	if isForce || len(cached) == 0 {
-		_, _ = conn.Exec("DELETE FROM AgySequenceCache WHERE ExpiresAt <= ? OR 1=1", now)
+	if err := clearSequenceCacheIfNeeded(conn, now, isForce || len(cached) == 0); err != nil {
+		return nil, err
 	}
 	if len(entries) == 0 {
 		return cached, nil
@@ -86,6 +86,16 @@ func refreshSequenceCacheRows(conn *sql.DB, entries, cached []AgySequenceRecord,
 		return nil, err
 	}
 	return normalized, nil
+}
+
+func clearSequenceCacheIfNeeded(conn *sql.DB, now int64, isShouldClear bool) error {
+	if !isShouldClear {
+		return nil
+	}
+	if _, err := conn.Exec("DELETE FROM AgySequenceCache WHERE ExpiresAt <= ? OR 1=1", now); err != nil {
+		return apperror.WrapSimple(err, "purge AgySequenceCache")
+	}
+	return nil
 }
 
 func normalizeSequenceEntries(entries []AgySequenceRecord, now int64) []AgySequenceRecord {
@@ -107,7 +117,7 @@ func assignRecordDefaults(rec AgySequenceRecord, projSeq, promptSeq *int, now in
 		return fillSequenceTimestamps(rec, fmt.Sprintf("P%d", *promptSeq), *promptSeq, now)
 	}
 	*projSeq++
-	return fillSequenceTimestamps(rec, strconv.Itoa(*projSeq), *projSeq, now)
+	return fillSequenceTimestamps(rec, strconv.Itoa(*projSeq), *promptSeq, now)
 }
 
 func fillSequenceTimestamps(rec AgySequenceRecord, defaultSeqId string, defaultNum int, now int64) AgySequenceRecord {
@@ -148,7 +158,9 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 }
 
 func queryValidSequenceRows(conn *sql.DB, now int64) []AgySequenceRecord {
-	_, _ = conn.Exec("DELETE FROM AgySequenceCache WHERE ExpiresAt <= ?", now)
+	if _, err := conn.Exec("DELETE FROM AgySequenceCache WHERE ExpiresAt <= ?", now); err != nil {
+		return nil
+	}
 	rows, err := conn.Query(`SELECT SeqId, SeqNum, EntryType, ProjectId, ProjectAlias, ProjectPath,
 ConversationId, PromptSnippet, CreatedAt, ExpiresAt FROM AgySequenceCache WHERE ExpiresAt > ? ORDER BY SeqNum ASC`, now)
 	if err != nil {

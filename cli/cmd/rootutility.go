@@ -406,7 +406,6 @@ func dispatchHelpTopic(rawTopic string) {
 		return
 	}
 
-
 	_, mode := ParsePrettyFlag(os.Args[3:])
 	helptext.PrintWithMode(topic, mode)
 	printUsageFooterShort()

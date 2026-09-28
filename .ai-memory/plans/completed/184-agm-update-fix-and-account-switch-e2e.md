@@ -1,16 +1,16 @@
 # Plan 184: Antigravity Manager (`gitmap agm update`) Fix, Parallel 1-to-1 Running-Prompts SQLite Backup with Media, and E2E Account Switch (`98%` Test -> `15%` Production Reset)
 
 **Status:** Completed (`2026-09-28`)
-**Canonical Spec:** [02-spec/21-app/89-agm-update-fix-and-account-switch-e2e.md](file:///d:/work/gitmap/02-spec/21-app/89-agm-update-fix-and-account-switch-e2e.md)
+**Canonical Spec:** [02-spec/21-app/89-agm-update-fix-and-account-switch-e2e.md](../../../02-spec/21-app/89-agm-update-fix-and-account-switch-e2e.md)
 
 ---
 
 ## 1. Consolidated Subtasks & Verified Outcomes
 
 - [x] **Subtask 01 (`01-agm-update-version-pin-and-verify-fix.md`)**:
-  - Removed `ConsoleHost_history.txt` and `PSConsoleReadLine` history scraping from `d:\work\Antigravity-Manager\install.ps1` (`cc2171c6`) and scoped `Resolve-PinnedVersion` strictly to `Antigravity-Manager` URLs.
+  - Removed `ConsoleHost_history.txt` and `PSConsoleReadLine` history scraping from `install.ps1` (`cc2171c6`) and scoped `Resolve-PinnedVersion` strictly to `Antigravity-Manager` URLs.
   - Implemented `resolveLatestAgManagerReleaseVersion()` in `cli/cmdinstall/installagmanager.go` and passed `-Version '<latest>' -Update -NoLaunch` plus `AGM_VERSION=<latest>` on a cache-busted `install.ps1` URL.
-  - Updated `findAgManagerWindowsPath()` (`cli/cmdinstall/installagmanager_windows.go`) and `isAgManagerInstalled()` (`cli/cmdinstall/installagmanager_exec.go`) to prioritize `C:\Users\Administrator\AppData\Local\Programs\agm-alim\agm-alim.exe` (`agm-alim`).
+  - Updated `findAgManagerWindowsPath()` (`cli/cmdinstall/installagmanager_windows.go`) and `isAgManagerInstalled()` (`cli/cmdinstall/installagmanager_exec.go`) to prioritize `agm-alim.exe` (`agm-alim`).
   - Live verified `gitmap agm update` upgrading `v4.85.0 -> v4.89.0` with `✔ Antigravity Manager (4.89.0) completed successfully.`
 
 - [x] **Subtask 02 (`02-parallel-running-prompts-backup-with-media.md`)**:

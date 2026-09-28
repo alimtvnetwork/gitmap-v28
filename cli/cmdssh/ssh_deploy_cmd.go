@@ -342,8 +342,8 @@ func printDeployHelpText(subCmd string) {
 // MakeDeployCobraCmd creates a cobra.Command for deploy completion and routing.
 func MakeDeployCobraCmd(use string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   use + " [target-node] [source-path] [dest-path]",
-		Short: "Smart file and folder deployment across SSH fleet with sync modes",
+		Use:               use + " [target-node] [source-path] [dest-path]",
+		Short:             "Smart file and folder deployment across SSH fleet with sync modes",
 		ValidArgsFunction: DeployValidArgsFunction,
 		RunE: func(c *cobra.Command, args []string) error {
 			return RunSSHDeployCLI(use, args)

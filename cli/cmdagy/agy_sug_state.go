@@ -108,4 +108,3 @@ func isUnixProcessAlive(pid int) bool {
 	}
 	return proc.Signal(os.Signal(nil)) == nil
 }
-

@@ -55,7 +55,6 @@ func executePipelineErrorLogs(args []string) error {
 	return processAndRenderErrorLogs(repo, flags)
 }
 
-
 func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []string) error {
 	WaitForRunnerETAIfActive()
 

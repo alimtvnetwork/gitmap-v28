@@ -97,7 +97,6 @@ func normalizeSUGArgs(args []string) (string, []string) {
 	return first, args[1:]
 }
 
-
 func isRunningProjectsToken(token string) bool {
 	switch token {
 	case "agy-running-projects", "running-projects", "agy-running", "running", "arp", "rp":

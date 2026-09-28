@@ -136,8 +136,6 @@ func ExpandTemplateVariables(content string, vars map[string]string) string {
 	})
 }
 
-
-
 func extractVarKeyFromMatch(match string) string {
 	if strings.HasPrefix(match, "${") && strings.HasSuffix(match, "}") {
 		return match[2 : len(match)-1]

@@ -49,23 +49,16 @@ var (
 
 // AgyLastActiveProjectsCmd lists projects with communication in the last N hours as a tree view.
 var AgyLastActiveProjectsCmd = &cobra.Command{
-	Use:     "last-active-projects [N] [ls|help]",
-	Aliases: []string{"lap", "active-projects"},
-	Short:   "List projects with communication in the last N hours (default 24h) with conversation tree",
+	Use:                "last-active-projects [N] [ls|help]",
+	Aliases:            []string{"lap", "active-projects"},
+	Short:              "List projects with communication in the last N hours (default 24h) with conversation tree",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return RunLastActiveProjectsCLI(args)
 	},
 }
 
 func init() {
-	AgyLastActiveProjectsCmd.Flags().IntVarP(&lapLimitFlag, "limit", "l", 10, "Maximum number of projects to display (default 10)")
-	AgyLastActiveProjectsCmd.Flags().IntVar(&lapOffsetFlag, "offset", 0, "Number of projects to skip")
-	AgyLastActiveProjectsCmd.Flags().IntVar(&lapOffsetFlag, "skip", 0, "Number of projects to skip (alias for --offset)")
-	AgyLastActiveProjectsCmd.Flags().IntVarP(&lapPageFlag, "page", "p", 1, "Page number (1-indexed, uses --limit)")
-	AgyLastActiveProjectsCmd.Flags().IntVar(&lapWordCountFlag, "wordcount", 200, "Maximum word count per prompt sub-item (default 200)")
-	AgyLastActiveProjectsCmd.Flags().IntVar(&lapWordCountFlag, "wc", 200, "Maximum word count per prompt sub-item (default 200)")
-	AgyLastActiveProjectsCmd.Flags().BoolVar(&lapJSONFlag, "json", false, "Output results in JSON format")
-	AgyLastActiveProjectsCmd.Flags().StringVarP(&lapFileFlag, "file", "f", "", "Write JSON output to file path")
 	AgyLastActiveProjectsCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		RenderLastActiveProjectsHelp()
 	})
@@ -77,13 +70,14 @@ func RunRunningProjectsPromptsTreeCLI(args []string) error {
 		printRunningProjectsHelp()
 		return nil
 	}
+	parseLapArguments(args)
 	projects, err := DiscoverRunningProjects()
 	if err != nil {
 		return err
 	}
-	wc := resolveEffectiveWordCount(runningProjectsWordCount)
+	wc := resolveEffectiveWordCount(lapWordCountFlag)
 	trees := convertRunningToTreeRecords(projects, wc)
-	return outputTreeRecords(trees, len(trees), len(trees), 0, wc, runningProjectsJSON, runningProjectsFile, "RUNNING PROJECTS PROMPTS TREE")
+	return outputTreeRecords(trees, len(trees), len(trees), 0, wc, lapJSONFlag, lapFileFlag, "RUNNING PROJECTS PROMPTS TREE")
 }
 
 func convertRunningToTreeRecords(projects []RunningProjectRecord, wc int) []LapProjectTreeRecord {
@@ -114,7 +108,7 @@ func RunLastActiveProjectsCLI(args []string) error {
 		RenderLastActiveProjectsHelp()
 		return nil
 	}
-	hours := parseLapHoursArg(args)
+	hours := parseLapArguments(args)
 	wc := resolveEffectiveWordCount(lapWordCountFlag)
 	allTrees := discoverLastActiveProjectTrees(hours, wc)
 	sliced, offset, limit := paginateLapTrees(allTrees, lapLimitFlag, lapOffsetFlag, lapPageFlag)
@@ -122,14 +116,84 @@ func RunLastActiveProjectsCLI(args []string) error {
 	return outputTreeRecords(sliced, len(allTrees), limit, offset, wc, lapJSONFlag, lapFileFlag, header)
 }
 
-func parseLapHoursArg(args []string) int {
-	for _, a := range args {
-		n, err := strconv.Atoi(strings.TrimSpace(a))
-		if err == nil && n > 0 {
-			return n
-		}
+func parseLapArguments(args []string) int {
+	lapLimitFlag, lapOffsetFlag, lapPageFlag, lapWordCountFlag = 10, 0, 1, 200
+	lapJSONFlag, lapFileFlag = false, ""
+	hours := 24
+	hasHours, isPendingOffset := false, false
+	for i := 0; i < len(args); i++ {
+		consumed := stepLapToken(args, i, &hours, &hasHours, &isPendingOffset)
+		i += consumed
 	}
-	return 24
+	return hours
+}
+
+func stepLapToken(args []string, i int, hours *int, hasHours, isPendingOffset *bool) int {
+	tok := strings.TrimSpace(args[i])
+	if tok == "--json" || tok == "-j" {
+		lapJSONFlag = true
+		return 0
+	}
+	if (tok == "--file" || tok == "-f") && i+1 < len(args) {
+		lapFileFlag = args[i+1]
+		return 1
+	}
+	if (tok == "--limit" || tok == "-l") && i+1 < len(args) {
+		lapLimitFlag = parseIntOrDefault(args[i+1], 10)
+		return 1
+	}
+	if (tok == "--page" || tok == "-p") && i+1 < len(args) {
+		lapPageFlag = parseIntOrDefault(args[i+1], 1)
+		return 1
+	}
+	if (tok == "--wordcount" || tok == "--wc" || tok == "-wc" || tok == "--ww") && i+1 < len(args) {
+		lapWordCountFlag = parseIntOrDefault(args[i+1], 200)
+		return 1
+	}
+	return stepLapOffsetOrPositional(args, i, hours, hasHours, isPendingOffset)
+}
+
+func stepLapOffsetOrPositional(args []string, i int, hours *int, hasHours, isPendingOffset *bool) int {
+	tok := strings.TrimSpace(args[i])
+	if tok == "--offset" || tok == "--skip" || tok == "-skip" {
+		return consumeImmediateOrDeferOffset(args, i, isPendingOffset)
+	}
+	if !isNumericToken(tok) {
+		return 0
+	}
+	val := parseIntOrDefault(tok, 0)
+	if !*hasHours && val > 0 {
+		*hours = val
+		*hasHours = true
+		return 0
+	}
+	if *isPendingOffset {
+		lapOffsetFlag = val
+		*isPendingOffset = false
+	}
+	return 0
+}
+
+func consumeImmediateOrDeferOffset(args []string, i int, isPendingOffset *bool) int {
+	if i+1 < len(args) && isNumericToken(args[i+1]) {
+		lapOffsetFlag = parseIntOrDefault(args[i+1], 0)
+		return 1
+	}
+	*isPendingOffset = true
+	return 0
+}
+
+func isNumericToken(s string) bool {
+	_, err := strconv.Atoi(strings.TrimSpace(s))
+	return err == nil
+}
+
+func parseIntOrDefault(s string, def int) int {
+	v, err := strconv.Atoi(strings.TrimSpace(s))
+	if err != nil {
+		return def
+	}
+	return v
 }
 
 func resolveEffectiveWordCount(wc int) int {

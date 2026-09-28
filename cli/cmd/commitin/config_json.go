@@ -61,26 +61,26 @@ type ConfigTemplatesSection struct {
 
 // CommitInConfigJSON defines the declarative migration configuration file.
 type CommitInConfigJSON struct {
-	Target            string                         `json:"target"`
-	Inputs            []string                       `json:"inputs"`
-	PRMode            string                         `json:"prMode,omitempty"`
-	ConflictMode      string                         `json:"conflictMode,omitempty"`
-	IsTree            bool                           `json:"tree,omitempty"`
-	IsTreeAlias       bool                           `json:"isTree,omitempty"`
-	IsApplyTree       bool                           `json:"isApplyTree,omitempty"`
-	IsFinalSync       bool                           `json:"finalSync,omitempty"`
-	IsFinalSyncAlias  bool                           `json:"isFinalSync,omitempty"`
-	IsApplyFinalSync  bool                           `json:"isApplyFinalSync,omitempty"`
-	IsCD              bool                           `json:"cd,omitempty"`
-	IsCDAlias         bool                           `json:"isCD,omitempty"`
-	IsApplyCDAlias    bool                           `json:"isApplyCD,omitempty"`
-	IsApplyCd         bool                           `json:"isApplyCd,omitempty"`
-	IsApply           bool                           `json:"isApply,omitempty"`
-	IsRecreate        bool                           `json:"recreate,omitempty"`
-	IsRecreateAlias   bool                           `json:"isRecreate,omitempty"`
-	IsDryRun          bool                           `json:"dryRun,omitempty"`
-	IsDryRunAlias     bool                           `json:"isDryRun,omitempty"`
-	IsNewlineGap      bool                           `json:"newlineGap,omitempty"`
+	Target           string   `json:"target"`
+	Inputs           []string `json:"inputs"`
+	PRMode           string   `json:"prMode,omitempty"`
+	ConflictMode     string   `json:"conflictMode,omitempty"`
+	IsTree           bool     `json:"tree,omitempty"`
+	IsTreeAlias      bool     `json:"isTree,omitempty"`
+	IsApplyTree      bool     `json:"isApplyTree,omitempty"`
+	IsFinalSync      bool     `json:"finalSync,omitempty"`
+	IsFinalSyncAlias bool     `json:"isFinalSync,omitempty"`
+	IsApplyFinalSync bool     `json:"isApplyFinalSync,omitempty"`
+	IsCD             bool     `json:"cd,omitempty"`
+	IsCDAlias        bool     `json:"isCD,omitempty"`
+	IsApplyCDAlias   bool     `json:"isApplyCD,omitempty"`
+	IsApplyCd        bool     `json:"isApplyCd,omitempty"`
+	IsApply          bool     `json:"isApply,omitempty"`
+	IsRecreate       bool     `json:"recreate,omitempty"`
+	IsRecreateAlias  bool     `json:"isRecreate,omitempty"`
+	IsDryRun         bool     `json:"dryRun,omitempty"`
+	IsDryRunAlias    bool     `json:"isDryRun,omitempty"`
+	IsNewlineGap     bool     `json:"newlineGap,omitempty"`
 
 	AuthorName        string                         `json:"authorName,omitempty"`
 	AuthorEmail       string                         `json:"authorEmail,omitempty"`
@@ -149,7 +149,6 @@ func mergeConfigFlags(raw *RawArgs, cfg CommitInConfigJSON) {
 	raw.IsRecreate = raw.IsRecreate || cfg.IsRecreate || cfg.IsRecreateAlias
 	raw.IsDryRun = raw.IsDryRun || cfg.IsDryRun || cfg.IsDryRunAlias
 	raw.IsPushImmediate = raw.IsPushImmediate || cfg.IsPushImmediate || cfg.IsPushImmediateAl || cfg.IsPushImmediately || cfg.IsPush || cfg.IsAutoPush
-
 
 	mode := strings.ToLower(strings.TrimSpace(cfg.SuffixMode))
 	if mode == "" {
