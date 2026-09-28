@@ -1,3 +1,9 @@
+## v6.390.0 — 2026-09-28 (enhance sug ls, add clear/remove-all, full forms for agy rp, and remove ee in favor of pe)
+
+**Scope:** Version bump. enhance sug ls, add clear/remove-all, full forms for agy rp, and remove ee in favor of pe.
+
+---
+
 ## v6.389.0 — 2026-09-28 (feat(deploy): deploy config ssh, ee target cwd resolution, and cfr suggestions)
 
 **Scope:** Version bump. feat(deploy): deploy config ssh, ee target cwd resolution, and cfr suggestions.
