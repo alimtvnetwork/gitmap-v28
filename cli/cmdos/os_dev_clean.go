@@ -105,30 +105,6 @@ func renderVerboseDevNotes(categories []osclean.CategoryCleanStats) {
 	}
 }
 
-func printDevCleanBanner(isDryRun bool) {
-	fmt.Println()
-	fmt.Println("  OS Dev-Cleanup (Developer Tools Cache Remover)")
-	fmt.Println("  ==============================================")
-	if isDryRun {
-		fmt.Println("  [DRY-RUN] Preview only. No cache files will be deleted.")
-	}
-	fmt.Println()
-}
-
-func renderCategoryStats(cat osclean.CategoryCleanStats, isDryRun, isVerbose bool) {
-	mb := float64(cat.BytesFreed) / (1024 * 1024)
-	action := "Cleaned"
-	if isDryRun {
-		action = "Would clean"
-	}
-	fmt.Printf("  • %-18s %s %d files, %d dirs (%.2f MB freed)\n",
-		cat.Category+":", action, cat.ItemsRemoved, cat.DirsRemoved, mb)
-
-	if isVerbose {
-		printVerboseNotes(cat.Notes, cat.Errors)
-	}
-}
-
 func printVerboseNotes(notes, errors []string) {
 	for _, n := range notes {
 		fmt.Printf("      note: %s\n", n)
@@ -136,17 +112,6 @@ func printVerboseNotes(notes, errors []string) {
 	for _, e := range errors {
 		fmt.Printf("      warning: %s\n", e)
 	}
-}
-
-func renderDevCleanSummaryTotals(summary osclean.DevCleanSummary) {
-	mb := float64(summary.TotalBytesFreed) / (1024 * 1024)
-	mode := "Cleaned"
-	if summary.IsDryRun {
-		mode = "[Dry-Run] Reclaimable"
-	}
-	fmt.Println()
-	fmt.Printf("  ✔ %s Total: %.2f MB across %d files and %d dirs (%dms)\n\n",
-		mode, mb, summary.TotalItemsRemoved, summary.TotalDirsRemoved, summary.DurationMs)
 }
 
 func printOSDevCleanUsage() {

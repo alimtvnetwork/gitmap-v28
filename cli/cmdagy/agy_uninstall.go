@@ -80,7 +80,7 @@ func executeUninstallStages(candidates []string, isFullPurge, isForce, isDryRun 
 	terminateRunningProcesses(isDryRun)
 	isConfirmed := checkUninstallConfirmation(candidates, isForce, isDryRun)
 	if !isConfirmed {
-		fmt.Println("Uninstallation cancelled by user.")
+		fmt.Println("Uninstallation canceled by user.")
 		return nil
 	}
 	return applyUninstallRemoval(candidates, isFullPurge, isDryRun)
