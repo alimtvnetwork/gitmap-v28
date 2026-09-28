@@ -206,6 +206,12 @@ func normalizeMaintenanceSubcommands(low string) string {
 	if isFixPipelineAlias(low) {
 		return "fix-pipeline"
 	}
+	if low == "uninstall" || low == "remove" || low == "purge" {
+		return "uninstall"
+	}
+	if low == "uninstall-all" || low == "purge-all" || low == "uninstallall" {
+		return "uninstall-all"
+	}
 
 	return ""
 }
@@ -378,6 +384,7 @@ func init() {
 	initAgyPromptAndStatusCommands()
 	initAgyRunningPromptsCommands()
 	initAgyAccountSwitchCommands()
+	initAgyUninstallCmd()
 	AgyCmd.SetHelpFunc(renderAgyHelp)
 }
 

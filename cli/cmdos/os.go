@@ -50,6 +50,8 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSClean(subArgs)
 	case "dev":
 		return runOSDevSubcommand(subArgs)
+	case "devtool", "dt":
+		return RunDevToolCLI(subArgs)
 	case "dev-clean", "dev-cleanup", "cleandev", "devcleanup", "clean-dev":
 		return RunOSDevClean(subArgs)
 	case "cleanup":

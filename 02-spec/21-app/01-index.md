@@ -83,6 +83,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 168: Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap](./168-commit-pull-array-async-pool-ui-and-bootstrap.md)
 - [Spec 173: SSH Fleet Liveness, Error Remediation, and Rerun Help](./173-ssh-fleet-liveness-error-remediation-and-rerun-help.md)
 - [Spec 174: Antigravity Decision Log DB, Comprehensive Project Discovery, and Active Rerun Recency](./174-agy-decision-log-db-project-discovery-and-recent-rerun.md)
+- [Spec 180: AGY, AGM, Copilot, and Edge Complete Uninstallation Suite & Enhanced DevTool Cache Cleaner](./180-agy-agm-copilot-edge-uninstall-and-devtool-clean/01-overview.md)
 
 ---
 

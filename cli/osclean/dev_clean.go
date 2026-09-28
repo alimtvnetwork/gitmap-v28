@@ -2,7 +2,6 @@ package osclean
 
 import (
 	"strings"
-	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
@@ -14,21 +13,7 @@ type categoryCleaner struct {
 }
 
 func CleanDevCaches(opts DevCleanOptions) result.Result[DevCleanSummary] {
-	start := time.Now()
-	var summary DevCleanSummary
-	summary.IsDryRun = opts.IsDryRun
-
-	cleaners := getCategoryCleaners()
-	for _, c := range cleaners {
-		if !isCategorySelected(c, opts.OnlyCategories) {
-			continue
-		}
-		stats := c.Clean(opts.IsDryRun)
-		accumulateSummary(&summary, stats)
-	}
-
-	summary.DurationMs = time.Since(start).Milliseconds()
-
+	summary := CleanEnhancedDevCaches(opts)
 	return result.Ok(summary)
 }
 

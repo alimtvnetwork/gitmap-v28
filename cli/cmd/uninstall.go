@@ -7,15 +7,18 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdwinutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 type uninstallFlags struct {
-	isDryRun bool
-	isForce  bool
-	isPurge  bool
+	isDryRun        bool
+	isForce         bool
+	isPurge         bool
+	isPurgeWebView2 bool
 }
 
 func parseUninstallFlags(args []string) (*flag.FlagSet, *uninstallFlags) {
@@ -24,6 +27,7 @@ func parseUninstallFlags(args []string) (*flag.FlagSet, *uninstallFlags) {
 	fs.BoolVar(&f.isDryRun, constants.FlagUninstallDryRun, false, constants.FlagDescUninstallDryRun)
 	fs.BoolVar(&f.isForce, constants.FlagUninstallForce, false, constants.FlagDescUninstallForce)
 	fs.BoolVar(&f.isPurge, constants.FlagUninstallPurge, false, constants.FlagDescUninstallPurge)
+	fs.BoolVar(&f.isPurgeWebView2, "purge-webview2", false, "Purge WebView2 runtime when removing Edge")
 	fs.Parse(reorderFlagsBeforeArgs(args))
 
 	return fs, f
@@ -66,11 +70,97 @@ func processToolUninstall(tool string, flags *uninstallFlags) error {
 	canonical := resolveToolAlias(tool)
 	if isCtxTool(tool, canonical) {
 		runUninstallCtx()
-
 		return nil
 	}
-
+	if handled, err := dispatchAgyAgmUninstall(tool, canonical, flags); handled {
+		return err
+	}
+	if handled, err := dispatchWinUtilToolUninstall(tool, canonical, flags); handled {
+		return err
+	}
 	return executeValidatedUninstall(tool, canonical, flags)
+}
+
+func dispatchAgyAgmUninstall(tool, canonical string, flags *uninstallFlags) (bool, error) {
+	if isAgyUninstallTarget(tool, canonical) {
+		return true, runAgyUninstallFlow(tool, canonical, flags)
+	}
+	if isAgmUninstallTarget(tool, canonical) {
+		return true, runAgmUninstallFlow(tool, canonical, flags)
+	}
+	return false, nil
+}
+
+func dispatchWinUtilToolUninstall(tool, canonical string, flags *uninstallFlags) (bool, error) {
+	if isCopilotUninstallTarget(tool, canonical) {
+		return true, runCopilotUninstallFlow(flags)
+	}
+	if isEdgeUninstallTarget(tool, canonical) {
+		return true, runEdgeUninstallFlow(flags)
+	}
+	return false, nil
+}
+
+func isAgyUninstallTarget(tool, canonical string) bool {
+	low := strings.ToLower(tool)
+	canLow := strings.ToLower(canonical)
+	return low == "agy" || low == "agy-all" || low == "antigravity" || low == "antigravity-all" ||
+		canLow == constants.ToolAgy || canLow == constants.ToolAntigravity
+}
+
+func isAgmUninstallTarget(tool, canonical string) bool {
+	low := strings.ToLower(tool)
+	canLow := strings.ToLower(canonical)
+	return low == "agm" || low == "agm-all" || low == "ag-manager" || low == "ag-manager-all" ||
+		low == "antigravity-manager" || low == "antigravity-manager-all" ||
+		canLow == constants.ToolAgManager
+}
+
+func runAgyUninstallFlow(tool, canonical string, flags *uninstallFlags) error {
+	low := strings.ToLower(tool)
+	isFullPurge := flags.isPurge || low == "agy-all" || low == "antigravity-all"
+	return cmdagy.RunAGYUninstall(isFullPurge, flags.isForce, flags.isDryRun, "")
+}
+
+func runAgmUninstallFlow(tool, canonical string, flags *uninstallFlags) error {
+	low := strings.ToLower(tool)
+	isFullPurge := flags.isPurge || low == "agm-all" || low == "ag-manager-all" || low == "antigravity-manager-all"
+	return cmdinstall.RunAGMUninstall(isFullPurge, flags.isForce, flags.isDryRun)
+}
+
+func isCopilotUninstallTarget(tool, canonical string) bool {
+	return tool == "copilot" || canonical == "copilot" || tool == "windows-copilot"
+}
+
+func isEdgeUninstallTarget(tool, canonical string) bool {
+	return tool == "edge" || canonical == "edge" || tool == "msedge"
+}
+
+func runCopilotUninstallFlow(flags *uninstallFlags) error {
+	return cmdwinutil.RunWinUtilCopilotCLI(buildWinUtilFlags(flags))
+}
+
+func runEdgeUninstallFlow(flags *uninstallFlags) error {
+	return cmdwinutil.RunWinUtilEdgeCLI(buildWinUtilEdgeFlags(flags))
+}
+
+func buildWinUtilFlags(flags *uninstallFlags) []string {
+	var args []string
+	if flags.isDryRun {
+		args = append(args, "--dry-run")
+	}
+	if flags.isForce {
+		args = append(args, "--yes")
+	}
+	return args
+}
+
+func buildWinUtilEdgeFlags(flags *uninstallFlags) []string {
+	args := buildWinUtilFlags(flags)
+	if flags.isPurge || flags.isPurgeWebView2 {
+		args = append(args, "--purge-webview2")
+	}
+	return args
 }
 
 func executeValidatedUninstall(tool, canonical string, flags *uninstallFlags) error {

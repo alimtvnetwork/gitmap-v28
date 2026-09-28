@@ -137,3 +137,31 @@ func formatTimeDuration(d time.Duration, t time.Time) string {
 
 	return t.Format("2006-01-02")
 }
+
+// AGYRestoreSnapshot contains serialized metadata of projects and conversations for full restore.
+type AGYRestoreSnapshot struct {
+	CreatedAt     time.Time            `json:"createdAt"`
+	Timestamp     int64                `json:"timestamp"`
+	TotalProjects int                  `json:"totalProjects"`
+	TotalConvs    int                  `json:"totalConversations"`
+	Projects      []AGYSnapshotProject `json:"projects"`
+	Conversations []AGYSnapshotConv    `json:"conversations"`
+}
+
+// AGYSnapshotProject records a single registered workspace.
+type AGYSnapshotProject struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Workspace string `json:"workspace"`
+	Branch    string `json:"branch,omitempty"`
+}
+
+// AGYSnapshotConv records conversation identifiers and titles.
+type AGYSnapshotConv struct {
+	ID            string `json:"id"`
+	Title         string `json:"title"`
+	ProjectID     string `json:"projectId,omitempty"`
+	WorkspacePath string `json:"workspacePath,omitempty"`
+	StepCount     int    `json:"stepCount,omitempty"`
+}
+

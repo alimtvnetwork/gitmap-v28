@@ -54,6 +54,7 @@ func init() {
 	})
 	AgmCmd.AddCommand(agmInstallCmd)
 	AgmCmd.AddCommand(agmVersionCmd)
+	initAgmUninstallCmd()
 }
 
 func printAgmHelp() {
@@ -88,6 +89,8 @@ func buildAgmCommandsSection() termhelp.HelpSection {
 			{Command: "update", Description: "Update Antigravity Manager to the latest or pinned GitHub release"},
 			{Command: "update-all", Description: "Update Antigravity Manager across all SSH fleet nodes"},
 			{Command: "version ls", Description: "List available Antigravity Manager release tags from GitHub"},
+			{Command: "uninstall", Description: "Uninstall Antigravity Manager (use --all for full purge)"},
+			{Command: "uninstall-all", Description: "Full purge of Antigravity Manager configuration and shortcuts"},
 		},
 	}
 }

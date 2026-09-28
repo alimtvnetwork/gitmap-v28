@@ -100,6 +100,8 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{"run", "run-macro", "exec-macro"}, func() error { return runMacroRootRun(argsTail()) }},
 		{[]string{"run-until"}, func() error { return runMacroRootRunUntil(argsTail()) }},
 		{[]string{"clean-dev", "cleandev", "dev-cleanup", "devcleanup", "dev-clean"}, func() error { return runCleanDevTopLevel(argsTail()) }},
+		{[]string{"devtool", "dt"}, func() error { return runDevToolTopLevel(argsTail()) }},
+		{[]string{"winutil"}, func() error { return runWinUtilTopLevel(argsTail()) }},
 	}
 	return append(entries, toolingSpecialRepoEntries()...)
 }
@@ -133,6 +135,12 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdCargo, constants.CmdCargoAlias}, func() error { return runCargo(argsTail()) }},
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() error { return runInstall(argsTail()) }},
 		{[]string{constants.CmdUninstall, constants.CmdUninstallAlias}, func() error { return runUninstall(argsTail()) }},
+		{[]string{"uninstall-agy"}, func() error { return runUninstall(append([]string{"agy"}, argsTail()...)) }},
+		{[]string{"uninstall-agy-all"}, func() error { return runUninstall(append([]string{"agy-all"}, argsTail()...)) }},
+		{[]string{"uninstall-agm"}, func() error { return runUninstall(append([]string{"agm"}, argsTail()...)) }},
+		{[]string{"uninstall-agm-all"}, func() error { return runUninstall(append([]string{"agm-all"}, argsTail()...)) }},
+		{[]string{"uninstall-copilot"}, func() error { return runUninstall(append([]string{"copilot"}, argsTail()...)) }},
+		{[]string{"uninstall-edge"}, func() error { return runUninstall(append([]string{"edge"}, argsTail()...)) }},
 		{[]string{constants.CmdExportConfig, constants.CmdExportConfigAlias}, func() error { return runExportConfig(argsTail()) }},
 		{[]string{constants.CmdImportConfig, constants.CmdImportConfigAlias, constants.CmdImportConfigTypo}, func() error { return runImportConfig(argsTail()) }},
 		{[]string{constants.CmdStartupAdd, constants.CmdStartupAddAlias}, func() error { return runStartupAdd(argsTail()) }},

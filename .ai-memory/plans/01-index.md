@@ -9,7 +9,9 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [112-agy-rerun-active-project-non-destructive-and-conversation-commands.md](completed/112-agy-rerun-active-project-non-destructive-and-conversation-commands.md): Antigravity Rerun Active Project Resolution, Non-Destructive Replay & Dedicated Conversation Commands
+1. [188-agy-agm-copilot-edge-uninstall-and-devtool-clean.md](completed/188-agy-agm-copilot-edge-uninstall-and-devtool-clean.md): AGY, AGM, Copilot, and Edge Complete Uninstallation Suite & Enhanced DevTool Cache Cleaner
+2. [187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md](completed/187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md): Special Repos, Repo Secrets, Repo Cache, CD, and Coding Guidelines
+3. [112-agy-rerun-active-project-non-destructive-and-conversation-commands.md](completed/112-agy-rerun-active-project-non-destructive-and-conversation-commands.md): Antigravity Rerun Active Project Resolution, Non-Destructive Replay & Dedicated Conversation Commands
 2. [111-update-all-ssh-dial-failure-and-missing-command-suggestions.md](completed/111-update-all-ssh-dial-failure-and-missing-command-suggestions.md): SSH Fleet Update Authentication Dial Failure & Missing Command Suggestions
 3. [110-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md](completed/110-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md): SSH Fleet Installer Hermetic Test Isolation & Stale Process Lock Guard
 2. [109-ssh-installer-nsis-payload-detection-and-fleet-deployment.md](completed/109-ssh-installer-nsis-payload-detection-and-fleet-deployment.md): SSH Installer NSIS Payload Detection, Unattended Silent Execution & Fleet DB Resolution

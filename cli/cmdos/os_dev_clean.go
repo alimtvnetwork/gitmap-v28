@@ -93,11 +93,16 @@ func renderDevCleanOutput(summary osclean.DevCleanSummary, opts osclean.DevClean
 		return
 	}
 
-	printDevCleanBanner(opts.IsDryRun)
-	for _, cat := range summary.Categories {
-		renderCategoryStats(cat, opts.IsDryRun, opts.IsVerbose)
+	osclean.RenderEnhancedSummaryTable(summary)
+	if opts.IsVerbose {
+		renderVerboseDevNotes(summary.Categories)
 	}
-	renderDevCleanSummaryTotals(summary)
+}
+
+func renderVerboseDevNotes(categories []osclean.CategoryCleanStats) {
+	for _, cat := range categories {
+		printVerboseNotes(cat.Notes, cat.Errors)
+	}
 }
 
 func printDevCleanBanner(isDryRun bool) {
