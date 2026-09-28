@@ -96,12 +96,37 @@ a
     Path:  D:\repos\api-gateway
     Branch: main
 
+## Machine Network Alias (`gitmap alias ls/change/set/revert/help [--ssh]`)
+
+Manage local or SSH fleet machine network aliases (`machine.alias`). If not explicitly configured, the machine alias automatically defaults to the machine's Local IPv4 address.
+
+```bash
+# Inspect local machine IP, network alias, and OS hostname
+gitmap alias ls
+gitmap os alias ls
+
+# Inspect network aliases across all joined SSH fleet nodes
+gitmap alias ls --ssh
+
+# Set or change local machine network alias with confirmation token
+gitmap alias set dev-win-01 y
+gitmap alias change dev-win-01 y
+
+# Update remote SSH fleet machine alias
+gitmap alias set node1 ubuntu-node-02 y --ssh
+
+# Revert network alias back to previous snapshot
+gitmap alias revert
+gitmap alias revert node1 --ssh
+```
+
 ## See Also
 
 - [cd](cd.md) — Navigate to a repository (supports -A flag)
 - [exec](exec.md) — Run commands in a repository (supports -A flag)
 - [pull](pull.md) — Pull a repository (supports -A flag)
 - [list](list.md) — List tracked repositories
+- [os](os.md) — Machine identity (`gitmap machine`) and OS fleet diagnostics
 
 ## Scripting (JSON)
 

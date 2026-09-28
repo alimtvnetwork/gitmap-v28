@@ -716,11 +716,13 @@ func dispatchAgySubsystem(
 		"running-projects", "runningprojects",
 		"fpug", "finish-prompts-until-green",
 		"sug", "shutdown-until", "shutdown-until-green",
-		"account-switch", "asw", "switch-account",
+		"account-switch", "asw", "switch-account", "fast-forward", "ff",
 		"lap", "last-active-projects",
 		"rwi", "rerun-with-id",
 		"rwc", "rerun-with-convid", "rwp", "rerun-with-prompt-id",
 		"telegram", "email", "settings":
+		cmdagy.MachineCLIRunner = func(a []string) error { return RunOSCLI(append([]string{"machine"}, a...)) }
+		cmdagy.AliasCLIRunner = func(a []string) error { return RunOSCLI(append([]string{"alias"}, a...)) }
 		executeAndAudit(cmdagy.DispatchAgy, shouldAudit, auditID, auditStart)
 
 		return true

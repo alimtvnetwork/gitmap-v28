@@ -13,7 +13,7 @@ import (
 // AgyAccountSwitchCmd is the root command for Antigravity account switching.
 var AgyAccountSwitchCmd = &cobra.Command{
 	Use:     "account-switch",
-	Aliases: []string{"asw", "switch-account"},
+	Aliases: []string{"asw", "switch-account", "fast-forward", "ff"},
 	Short:   "Automated Antigravity account switch with parallel prompt backup, lock check, and fast-forward",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return dispatchRootAccountSwitch(cmd, args)

@@ -1,0 +1,9 @@
+{
+  "global": {
+    "machine.alias": "AI-Main",
+    "machine.name": "AI-Main",
+    "machine.previous_alias": "AI-Main",
+    "machine.previous_name": "AI-Main"
+  },
+  "scopes": {}
+}

@@ -16,6 +16,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
+var (
+	// MachineCLIRunner delegates `gitmap agy machine` to cmdos without creating a package import cycle.
+	MachineCLIRunner func(args []string) error
+	// AliasCLIRunner delegates `gitmap agy alias` to cmdos without creating a package import cycle.
+	AliasCLIRunner func(args []string) error
+)
+
 // AgyCmd is the root agy command
 var AgyCmd = &cobra.Command{
 	Use:   "agy",
@@ -38,9 +45,19 @@ func DispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 }
 
 func tryDispatchAgyShortcut(args []string) (error, bool) {
+	if len(args) > 0 && strings.EqualFold(args[0], "machine") && MachineCLIRunner != nil {
+		return MachineCLIRunner(args[1:]), true
+	}
+	if len(args) > 0 && strings.EqualFold(args[0], "alias") && AliasCLIRunner != nil {
+		return AliasCLIRunner(args[1:]), true
+	}
 	if len(args) > 0 && strings.EqualFold(args[0], "settings") {
 		return RunAgySettingsCLI(args[1:]), true
 	}
+	return tryDispatchAgyMaintenanceShortcut(args)
+}
+
+func tryDispatchAgyMaintenanceShortcut(args []string) (error, bool) {
 	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
 		return RunFindDuplicates(), true
 	}
@@ -255,7 +272,7 @@ func normalizeCoreWorkflowAliases(low string) string {
 }
 
 func normalizeRunningAndSwitchSubcommands(low string) string {
-	if low == "account-switch" || low == "switch-account" || low == "asw" {
+	if low == "account-switch" || low == "switch-account" || low == "asw" || low == "fast-forward" || low == "ff" {
 		return "account-switch"
 	}
 	if low == "running-prompts" || low == "running-prompt" || low == "rp-prompts" {

@@ -70,11 +70,18 @@ func routeMachineAliasSubcmd(mode, sub string, rest []string, isSSH, isJSON bool
 func filterPositionalMachineArgs(args []string) []string {
 	var out []string
 	for _, a := range args {
-		if !strings.HasPrefix(a, "-") {
+		if !shouldSkipMachineArg(a, len(out)) {
 			out = append(out, a)
 		}
 	}
 	return out
+}
+
+func shouldSkipMachineArg(arg string, count int) bool {
+	if strings.HasPrefix(arg, "-") {
+		return true
+	}
+	return count >= 2 && (strings.EqualFold(arg, "y") || strings.EqualFold(arg, "yes"))
 }
 
 func resolveLocalMachineIdentity() MachineIdentity {

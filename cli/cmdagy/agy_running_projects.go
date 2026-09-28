@@ -46,9 +46,10 @@ var (
 
 // AgyRunningProjectsCmd inspects projects with active or enqueued prompts.
 var AgyRunningProjectsCmd = &cobra.Command{
-	Use:     "running-projects [ls|prompts ls]",
-	Aliases: []string{"runningprojects", "rp"},
-	Short:   "List projects hosting active or queued Antigravity prompts",
+	Use:                "running-projects [ls|prompts ls]",
+	Aliases:            []string{"runningprojects", "rp"},
+	Short:              "List projects hosting active or queued Antigravity prompts",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return RunRunningProjectsCLI(args)
 	},
@@ -66,6 +67,7 @@ func init() {
 
 // RunRunningProjectsCLI handles running-projects command execution.
 func RunRunningProjectsCLI(args []string) error {
+	parseRunningProjectsFlags(args)
 	if isPromptsSubcommand(args) {
 		return RunRunningProjectsPromptsTreeCLI(args[1:])
 	}
@@ -77,10 +79,54 @@ func RunRunningProjectsCLI(args []string) error {
 	if err != nil {
 		return err
 	}
+	return dispatchRunningProjectsOutput(projects)
+}
+
+func dispatchRunningProjectsOutput(projects []RunningProjectRecord) error {
 	if runningProjectsSSH {
 		return AggregateSSHRunningProjects(projects, runningProjectsJSON, runningProjectsFile)
 	}
 	return outputRunningProjects(projects, runningProjectsJSON, runningProjectsFile)
+}
+
+func parseRunningProjectsFlags(args []string) {
+	runningProjectsJSON, runningProjectsSSH = false, false
+	runningProjectsFile, runningProjectsWordCount = "", 200
+	for i := 0; i < len(args); i++ {
+		i += stepRunningProjectsFlag(args, i)
+	}
+}
+
+func stepRunningProjectsFlag(args []string, i int) int {
+	tok := strings.TrimSpace(args[i])
+	if tok == "--json" || tok == "-j" || tok == "-json" {
+		runningProjectsJSON = true
+		return 0
+	}
+	if tok == "--ssh" || tok == "-s" || tok == "-ssh" {
+		runningProjectsSSH = true
+		return 0
+	}
+	return stepRunningProjectsValueFlag(args, i, tok)
+}
+
+func stepRunningProjectsValueFlag(args []string, i int, tok string) int {
+	if i+1 >= len(args) {
+		return 0
+	}
+	if tok == "--file" || tok == "-f" || tok == "-file" {
+		runningProjectsFile = args[i+1]
+		return 1
+	}
+	if isWordCountFlag(tok) {
+		runningProjectsWordCount = parseIntOrDefault(args[i+1], 200)
+		return 1
+	}
+	return 0
+}
+
+func isWordCountFlag(tok string) bool {
+	return tok == "--wc" || tok == "-wc" || tok == "--wordcount" || tok == "-wordcount" || tok == "--ww" || tok == "-ww"
 }
 
 func isPromptsSubcommand(args []string) bool {

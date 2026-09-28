@@ -26,8 +26,9 @@ gitmap antigravity <subcommand> [flags]
 | `rp prompts ls` | Tree view of running projects and active prompts truncated to 200 words (`--wc T`, `--json`, `--file`) |
 | `last-active-projects [N]` | Tree view of projects with activity in last `N` hours (alias: `lap`, default `N=24`, `--limit 10`, `--offset`, `--page`, `--wc 200`, `--json`, `--file`) |
 | `rerun-with-id <id\|seq> <c> <p>` | Inject prompt text or file into project (`<id\|alias\|seq\|path>`) and conversation (`<convid\|P1>`) (alias: `rwi`) |
-| `rerun-with-convid <c\|P1> <p>` | Resolve project + conversation from `<convid\|P1>` in 24h SQLite sequence cache and inject prompt (alias: `rwc`, `rwp`) |
-| `account-switch` | Fast-forward switch Antigravity account on 98% used / 15% remaining credit threshold (alias: `asw`) |
+| `rerun-with-convid (rwc, rwp) <c\|P1> <p>` | Resolve project + conversation from `<convid\|P1>` in 24h SQLite sequence cache and inject prompt (alias: `rwc`, `rwp`, `rerun-with-prompt-id`) |
+| `fast-forward (ff, account-switch, asw)` | Fast-forward switch Antigravity account on 98% used / 15% remaining credit threshold (alias: `ff`, `account-switch`, `asw`) |
+| `machine / alias [ls\|set\|change\|revert]` | Inspect, set, change, or revert local and SSH fleet (`--ssh`) machine name & network alias (defaults to Local IPv4) |
 | `telegram [setup\|status\|send\|poll]` | Connect two-way Telegram chatbot for remote `/status`, `/rp`, `/lap`, `/rwi`, and `/asw` commands |
 | `email [setup\|status\|test]` | Speed SMTP Email notification setup and verification |
 | `settings [--lap-hours 24]` | Unified speed settings for LAP default hours (`24`), account-switch threshold (`15%`), Telegram & Email |
@@ -76,9 +77,13 @@ gitmap agy lap 24 --page 2 --json --file active-projects.json
 # Rerun / inject prompt by sequence ID (#1) or short prompt sequence (P1)
 gitmap agy rwi 1 P1 "Continue implementation and verify all checks" -p is-done
 gitmap agy rwc P1 "01-prompts/read.md"
+gitmap agy rwp P1 "01-prompts/read.md"
 
-# Fast-forward account switch & configure two-way Telegram bot + Email speed settings
+# Fast-forward account switch, machine/alias identity & two-way Telegram bot + Email speed settings
+gitmap agy fast-forward
 gitmap agy account-switch
+gitmap machine set dev-win-01 y
+gitmap alias set dev-win-01 y
 gitmap agy telegram setup --token "<BOT_TOKEN>" --chat "<CHAT_ID>"
 gitmap agy email setup --smtp "smtp.gmail.com:587" --from "bot@co.com" --to "dev@co.com"
 gitmap agy settings --lap-hours 24 --threshold 15

@@ -36,9 +36,10 @@ var (
 
 // AgyRerunWithIDCmd injects or replays a prompt into a target project and conversation.
 var AgyRerunWithIDCmd = &cobra.Command{
-	Use:     "rerun-with-id <project-id|alias|sequence|path> <convid> [prompt-or-file]",
-	Aliases: []string{"rwi"},
-	Short:   "Inject/rerun prompt by project ID/alias/sequence (#1) and conversation ID (or P1)",
+	Use:                "rerun-with-id <project-id|alias|sequence|path> <convid> [prompt-or-file]",
+	Aliases:            []string{"rwi"},
+	Short:              "Inject/rerun prompt by project ID/alias/sequence (#1) and conversation ID (or P1)",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return RunRerunWithIDCLI(args)
 	},
@@ -46,9 +47,10 @@ var AgyRerunWithIDCmd = &cobra.Command{
 
 // AgyRerunWithConvIDCmd injects or replays a prompt using only a short sequence ID (P1) or conversation ID.
 var AgyRerunWithConvIDCmd = &cobra.Command{
-	Use:     "rerun-with-convid <convid|short-seq-id> [prompt-or-file]",
-	Aliases: []string{"rwc", "rerun-with-prompt-id", "rwp"},
-	Short:   "Inject/rerun prompt by conversation ID or 24h sequence ID (e.g. P1, #1)",
+	Use:                "rerun-with-convid <convid|short-seq-id> [prompt-or-file]",
+	Aliases:            []string{"rwc", "rerun-with-prompt-id", "rwp"},
+	Short:              "Inject/rerun prompt by conversation ID or 24h sequence ID (e.g. P1, #1)",
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return RunRerunWithConvIDCLI(args)
 	},
@@ -64,31 +66,69 @@ func init() {
 	AgyRerunWithConvIDCmd.Flags().BoolVarP(&rwiDryRunFlag, "dry-run", "d", false, "Preview target and prompt without injecting")
 }
 
+func parseRwiFlexibleArgs(args []string) []string {
+	rwiPromptFlag, rwiJSONFlag, rwiDryRunFlag = "", false, false
+	var posArgs []string
+	for i := 0; i < len(args); i++ {
+		consumed, isHelp, isFlag := stepRwiArgToken(args, i)
+		if isHelp {
+			return nil
+		}
+		if !isFlag {
+			posArgs = append(posArgs, args[i])
+		}
+		i += consumed
+	}
+	return posArgs
+}
+
+func stepRwiArgToken(args []string, i int) (int, bool, bool) {
+	low := strings.ToLower(strings.TrimSpace(args[i]))
+	if low == "help" || low == "--help" || low == "-h" {
+		return 0, true, true
+	}
+	if low == "--json" || low == "-j" || low == "-json" {
+		rwiJSONFlag = true
+		return 0, false, true
+	}
+	if low == "--dry-run" || low == "-d" || low == "-dry-run" {
+		rwiDryRunFlag = true
+		return 0, false, true
+	}
+	if (low == "-p" || low == "--prompt" || low == "-prompt") && i+1 < len(args) {
+		rwiPromptFlag = args[i+1]
+		return 1, false, true
+	}
+	return 0, false, false
+}
+
 // RunRerunWithIDCLI executes `gitmap agy rerun-with-id` (`rwi`).
 func RunRerunWithIDCLI(args []string) error {
-	if len(args) < 2 {
+	pos := parseRwiFlexibleArgs(args)
+	if len(pos) < 2 {
 		return apperror.NewSimple("usage: gitmap agy rerun-with-id <project-id|alias|seq|path> <convid> [prompt-or-file] [-p <name>]", "E9042")
 	}
-	projRec, err := resolveRwiProjectTarget(args[0])
+	projRec, err := resolveRwiProjectTarget(pos[0])
 	if err != nil {
 		return err
 	}
-	convID, seqID := resolveRwiConvTarget(args[1], projRec)
-	rawPromptArg := strings.Join(args[2:], " ")
+	convID, seqID := resolveRwiConvTarget(pos[1], projRec)
+	rawPromptArg := strings.Join(pos[2:], " ")
 	promptText, source := resolveRwiPromptContent(rawPromptArg, rwiPromptFlag, projRec.ProjectPath, projRec.PromptSnippet)
 	return dispatchAndRenderRwi(projRec, convID, seqID, promptText, source)
 }
 
 // RunRerunWithConvIDCLI executes `gitmap agy rerun-with-convid` (`rwc` / `rwp`).
 func RunRerunWithConvIDCLI(args []string) error {
-	if len(args) < 1 {
+	pos := parseRwiFlexibleArgs(args)
+	if len(pos) < 1 {
 		return apperror.NewSimple("usage: gitmap agy rerun-with-convid <convid|short-seq-id> [prompt-or-file] [-p <name>]", "E9043")
 	}
-	projRec, convID, seqID, err := resolveRwcSingleToken(args[0])
+	projRec, convID, seqID, err := resolveRwcSingleToken(pos[0])
 	if err != nil {
 		return err
 	}
-	rawPromptArg := strings.Join(args[1:], " ")
+	rawPromptArg := strings.Join(pos[1:], " ")
 	promptText, source := resolveRwiPromptContent(rawPromptArg, rwiPromptFlag, projRec.ProjectPath, projRec.PromptSnippet)
 	return dispatchAndRenderRwi(projRec, convID, seqID, promptText, source)
 }

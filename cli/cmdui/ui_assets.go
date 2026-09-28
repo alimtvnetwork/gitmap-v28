@@ -71,6 +71,7 @@ const IndexHTML = `<!DOCTYPE html>
       <button class="nav-btn" onclick="showTab('import-export')">🔄 Import / Export</button>
       <button class="nav-btn" onclick="showTab('schedules')">⏱️ Schedules</button>
       <button class="nav-btn" onclick="showTab('editor')">📝 Remote Editor</button>
+      <button class="nav-btn" onclick="showTab('help')">📖 CLI & AGY Help</button>
     </nav>
   </div>
   <div id="main">
@@ -96,6 +97,47 @@ const IndexHTML = `<!DOCTYPE html>
           <input type="number" id="setting-port" value="49152">
         </div>
         <button class="btn" onclick="saveSettings()">Save Settings</button>
+      </div>
+
+      <div class="card">
+        <h3>Speed Settings (AGY, LAP, Account Switch, Telegram Bot, Email &amp; Machine Identity)</h3>
+        <div class="form-group">
+          <label>LAP Default Lookback Hours (N = 24) (<code>lap.default_hours</code>)</label>
+          <input type="number" id="setting-lap-hours" name="lap.default_hours" data-key="lap.default_hours" value="24" placeholder="24">
+        </div>
+        <div class="form-group">
+          <label>Account Switch Fast-Forward Threshold (%) (<code>account_switch.threshold</code> — default 15% prod / 98% E2E test)</label>
+          <input type="number" id="setting-account-switch-threshold" name="account_switch.threshold" data-key="account_switch.threshold" value="15" placeholder="15 (prod) or 98 (E2E test)">
+        </div>
+        <div class="form-group">
+          <label>Telegram Two-Way Bot Setup — Bot Token (<code>telegram.bot_token</code>)</label>
+          <input type="text" id="setting-telegram-token" name="telegram.bot_token" data-key="telegram.bot_token" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
+        </div>
+        <div class="form-group">
+          <label>Telegram Two-Way Bot Setup — Chat ID (<code>telegram.chat_id</code>)</label>
+          <input type="text" id="setting-telegram-chat" name="telegram.chat_id" data-key="telegram.chat_id" placeholder="-1001234567890">
+        </div>
+        <div class="form-group">
+          <label>Email Speed SMTP Setup — SMTP Host (<code>email.smtp_host</code>)</label>
+          <input type="text" id="setting-email-smtp" name="email.smtp_host" data-key="email.smtp_host" placeholder="smtp.gmail.com:587">
+        </div>
+        <div class="form-group">
+          <label>Email Speed SMTP Setup — From Address (<code>email.from</code>)</label>
+          <input type="email" id="setting-email-from" name="email.from" data-key="email.from" placeholder="bot@example.com">
+        </div>
+        <div class="form-group">
+          <label>Email Speed SMTP Setup — To Address (<code>email.to</code>)</label>
+          <input type="email" id="setting-email-to" name="email.to" data-key="email.to" placeholder="dev@example.com">
+        </div>
+        <div class="form-group">
+          <label>Machine Identity &amp; Network Alias — Machine Name (<code>machine.name</code>)</label>
+          <input type="text" id="setting-machine-name" name="machine.name" data-key="machine.name" placeholder="dev-win-01 / ubuntu-node-02">
+        </div>
+        <div class="form-group">
+          <label>Machine Identity &amp; Network Alias — Network Alias (<code>machine.alias</code> — auto-defaults to Local IPv4)</label>
+          <input type="text" id="setting-machine-alias" name="machine.alias" data-key="machine.alias" placeholder="Auto-defaults to Local IPv4 if unset">
+        </div>
+        <button class="btn" onclick="saveSettings()">Save Speed Settings</button>
       </div>
     </div>
 
@@ -204,6 +246,69 @@ const IndexHTML = `<!DOCTYPE html>
       <div id="editor-container">
         <div id="editor-toolbar"><span id="editor-status" style="font-size:0.85rem;color:var(--muted)">No file loaded</span><span id="editor-lang" style="font-size:0.8rem;color:var(--primary)">Language: Plaintext</span></div>
         <textarea id="editor-area" spellcheck="false" placeholder="Remote file content will appear here..."></textarea>
+      </div>
+    </div>
+
+    <!-- CLI & AGY HELP TAB -->
+    <div id="tab-help" class="content-area">
+      <div class="card">
+        <h3>📖 CLI &amp; AGY Help — Speed Commands, LAP, Rerun-With-ID, Machine Identity &amp; Bot Reference</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Command &amp; Syntax</th>
+              <th>Aliases</th>
+              <th>Description &amp; Flags</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>gitmap agy add .</code> / <code>gitmap agy add &lt;path&gt;</code></td>
+              <td><code>agy add</code></td>
+              <td>Register current repository (<code>.</code>) or explicit <code>&lt;path&gt;</code> in Antigravity workspace registry and 24h SQLite sequence cache.</td>
+            </tr>
+            <tr>
+              <td><code>gitmap agy add-read .</code> / <code>gitmap agy add-read &lt;path&gt;</code></td>
+              <td><code>ar</code></td>
+              <td>Register current repository (<code>.</code>) or <code>&lt;path&gt;</code> and immediately dispatch Read Memory onboarding prompt.</td>
+            </tr>
+            <tr>
+              <td><code>gitmap agy rp ls</code> &amp; <code>gitmap agy rp prompts ls [--wc 200]</code></td>
+              <td><code>running-projects</code></td>
+              <td>List running projects with 24h sequence ID (<code>#1</code>), Project ID, Alias, Path, and <code>[convID]</code>, or render active prompt tree truncated to 200 words (<code>--wc T</code>, <code>--json</code>, <code>--file</code>).</td>
+            </tr>
+            <tr>
+              <td><code>gitmap agy last-active-projects (lap) N [ls/help] [--limit Y] [--offset/skip Z] [--page P] [--wc T] [--json] [--file &lt;path&gt;]</code></td>
+              <td><code>lap</code></td>
+              <td>Inspect projects with activity in the last <code>N</code> hours (default <code>24</code>, <code>--limit 10</code>, <code>--offset/--skip</code>, <code>--page</code>, <code>--wc 200</code>, <code>--json</code>, <code>--file &lt;path&gt;</code>).</td>
+            </tr>
+            <tr>
+              <td><code>gitmap agy rerun-with-id (rwi) &lt;id|alias|seq|path&gt; &lt;convid&gt; "&lt;prompt|file&gt;" [-p &lt;name&gt;]</code></td>
+              <td><code>rwi</code></td>
+              <td>Resolve target project by 24h sequence (<code>1</code>), ID, alias, or path and conversation (<code>&lt;convid&gt;</code> or <code>P1</code>), then inject prompt text or markdown file with optional prefix template (<code>-p</code>).</td>
+            </tr>
+            <tr>
+              <td><code>gitmap agy rerun-with-convid (rwc / rwp) &lt;convid|P1&gt; "&lt;prompt|file&gt;" [-p &lt;name&gt;]</code></td>
+              <td><code>rwc</code>, <code>rwp</code>, <code>rerun-with-prompt-id</code></td>
+              <td>Auto-resolve project + conversation from <code>&lt;convid|P1&gt;</code> in the 24h SQLite sequence cache and inject prompt or file.</td>
+            </tr>
+            <tr>
+              <td><code>gitmap agy fast-forward (ff / account-switch / asw)</code></td>
+              <td><code>ff</code>, <code>account-switch</code>, <code>asw</code></td>
+              <td>Fast-forward switch Antigravity account automatically when usage reaches threshold (default 15% remaining prod / 98% E2E test).</td>
+            </tr>
+            <tr>
+              <td><code>gitmap machine ls/change/set/revert/help [--ssh]</code> &amp; <code>gitmap alias ls/change/set/revert/help [--ssh]</code></td>
+              <td><code>gitmap os machine</code>, <code>gitmap os alias</code></td>
+              <td>Inspect, set, change, or revert local and SSH fleet machine hostname and network alias (auto-defaults to Local IPv4; accepts <code>y</code> confirmation).</td>
+            </tr>
+            <tr>
+              <td><code>gitmap telegram</code>, <code>gitmap email</code>, <code>gitmap settings</code>, <code>gitmap os help</code></td>
+              <td><code>agy telegram</code>, <code>agy email</code>, <code>agy settings</code></td>
+              <td>Configure two-way Telegram bot, speed SMTP email alerts, unified speed settings (<code>lap.default_hours=24</code>), and OS diagnostics help.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

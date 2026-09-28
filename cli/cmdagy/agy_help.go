@@ -86,18 +86,28 @@ func buildProjectMgmtSection() termhelp.HelpSection {
 
 func buildActiveLapAndRerunSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
-		Title: "Running Projects, Last-Active Tree (LAP), Rerun-With-ID & Bot Settings",
-		Entries: []termhelp.CommandEntry{
-			{Command: "rp ls", Description: "List running projects with 24h sequence (#1), ID, alias, path & [convID]"},
-			{Command: "rp prompts ls [--wc 200]", Description: "Tree view of running projects and active prompts (200 words default)"},
-			{Command: "last-active-projects (lap) [N] [ls]", Description: "Projects active in last N hours (default 24h, --limit 10, --offset, --page, --wc 200)"},
-			{Command: "rerun-with-id (rwi) <id|seq> <c> <p>", Description: "Inject prompt/file into project (<id|alias|seq|path>) and conversation (<c>|P1)"},
-			{Command: "rerun-with-convid (rwc) <c|P1> <p>", Description: "Resolve project + conversation from <convid|P1> and inject prompt/file"},
-			{Command: "account-switch (asw)", Description: "Fast-forward switch account on 98% used / 15% remaining credit threshold"},
-			{Command: "telegram [setup|status|send|poll]", Description: "Two-way Telegram bot setup, notifications, and remote chat commands"},
-			{Command: "email [setup|status|test]", Description: "Speed SMTP Email notification setup and verification"},
-			{Command: "settings [--lap-hours 24]", Description: "Unified speed settings for LAP default hours (24), threshold (15%), Telegram & Email"},
-		},
+		Title:   "Running Projects, Last-Active Tree (LAP), Rerun-With-ID & Bot Settings",
+		Entries: append(buildLapAndRerunEntries(), buildSpeedAndFleetEntries()...),
+	}
+}
+
+func buildLapAndRerunEntries() []termhelp.CommandEntry {
+	return []termhelp.CommandEntry{
+		{Command: "rp ls", Description: "List running projects with 24h sequence (#1), ID, alias, path & [convID]"},
+		{Command: "rp prompts ls [--wc 200]", Description: "Tree view of running projects and active prompts (200 words default)"},
+		{Command: "last-active-projects (lap) [N] [ls]", Description: "Projects active in last N hours (default 24h, --limit 10, --offset, --page, --wc 200)"},
+		{Command: "rerun-with-id (rwi) <id|seq> <c> <p>", Description: "Inject prompt/file into project (<id|alias|seq|path>) and conversation (<c>|P1)"},
+		{Command: "rerun-with-convid (rwc, rwp) <c|P1> <p>", Description: "Resolve project + conv from <convid|P1> (rerun-with-prompt-id) and inject prompt/file"},
+	}
+}
+
+func buildSpeedAndFleetEntries() []termhelp.CommandEntry {
+	return []termhelp.CommandEntry{
+		{Command: "fast-forward (ff, account-switch, asw)", Description: "Fast-forward switch account on 98% used / 15% remaining credit threshold"},
+		{Command: "machine / alias [ls|set|change|revert]", Description: "Manage local or SSH fleet machine name & network alias (defaults to Local IPv4)"},
+		{Command: "telegram [setup|status|send|poll]", Description: "Two-way Telegram bot setup, notifications, and remote chat commands"},
+		{Command: "email [setup|status|test]", Description: "Speed SMTP Email notification setup and verification"},
+		{Command: "settings [--lap-hours 24]", Description: "Unified speed settings for LAP default hours (24), threshold (15%), Telegram & Email"},
 	}
 }
 

@@ -12,6 +12,8 @@ gitmap os [subcommand] [flags]
 
 | Subcommand | Description |
 |------------|-------------|
+| machine [ls\|set\|change\|revert\|help] [--ssh] | Inspect, set, change, or revert local and SSH fleet machine identity and OS hostname |
+| alias [ls\|set\|change\|revert\|help] [--ssh] | Inspect, set, change, or revert local and SSH fleet network alias (auto-defaults to Local IPv4) |
 | ip [subcommand] | Inspect, set, change, switch, or revert network IP configuration |
 | fix [subcommand] | Register, edit, run, export, and import system repair scripts |
 | clean (clear) | Clean temporary and ephemeral system cache directories |
@@ -41,6 +43,26 @@ gitmap os [subcommand] [flags]
 | --json | false | Output status and link results as structured JSON |
 
 ## Examples
+
+### Manage Machine Identity and Network Alias (Local & SSH Fleet)
+
+```bash
+# Inspect local machine IP, alias (defaults to Local IPv4), and OS hostname
+gitmap os machine ls
+gitmap os alias ls
+
+# Inspect machine identity across all joined SSH fleet nodes
+gitmap machine ls --ssh
+gitmap alias ls --ssh
+
+# Set or change machine name / alias with automatic confirmation ('y')
+gitmap machine set dev-win-01 y
+gitmap alias set dev-win-01 y
+
+# Revert machine name or alias back to previous value
+gitmap machine revert
+gitmap alias revert
+```
 
 ### Inspect Display Server and Screen Blanking Settings
 

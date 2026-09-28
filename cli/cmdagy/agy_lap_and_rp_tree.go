@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -119,7 +120,7 @@ func RunLastActiveProjectsCLI(args []string) error {
 func parseLapArguments(args []string) int {
 	lapLimitFlag, lapOffsetFlag, lapPageFlag, lapWordCountFlag = 10, 0, 1, 200
 	lapJSONFlag, lapFileFlag = false, ""
-	hours := 24
+	hours := resolveConfiguredLapHours()
 	hasHours, isPendingOffset := false, false
 	for i := 0; i < len(args); i++ {
 		consumed := stepLapToken(args, i, &hours, &hasHours, &isPendingOffset)
@@ -128,34 +129,77 @@ func parseLapArguments(args []string) int {
 	return hours
 }
 
+func resolveConfiguredLapHours() int {
+	val, isFound := config.GetVariable("global", "lap.default_hours")
+	if !isFound {
+		return 24
+	}
+	parsed := parseIntOrDefault(val, 24)
+	if parsed <= 0 {
+		return 24
+	}
+	return parsed
+}
+
 func stepLapToken(args []string, i int, hours *int, hasHours, isPendingOffset *bool) int {
 	tok := strings.TrimSpace(args[i])
-	if tok == "--json" || tok == "-j" {
+	if tok == "--json" || tok == "-j" || tok == "-json" {
 		lapJSONFlag = true
 		return 0
 	}
-	if (tok == "--file" || tok == "-f") && i+1 < len(args) {
-		lapFileFlag = args[i+1]
-		return 1
+	if pageNum, isCompactPage := parseCompactPageToken(tok); isCompactPage {
+		lapPageFlag = pageNum
+		return 0
 	}
-	if (tok == "--limit" || tok == "-l") && i+1 < len(args) {
-		lapLimitFlag = parseIntOrDefault(args[i+1], 10)
-		return 1
-	}
-	if (tok == "--page" || tok == "-p") && i+1 < len(args) {
-		lapPageFlag = parseIntOrDefault(args[i+1], 1)
-		return 1
-	}
-	if (tok == "--wordcount" || tok == "--wc" || tok == "-wc" || tok == "--ww") && i+1 < len(args) {
-		lapWordCountFlag = parseIntOrDefault(args[i+1], 200)
-		return 1
+	if consumed, isHandled := stepLapValueFlag(args, i, tok); isHandled {
+		return consumed
 	}
 	return stepLapOffsetOrPositional(args, i, hours, hasHours, isPendingOffset)
 }
 
+func parseCompactPageToken(tok string) (int, bool) {
+	clean := strings.ToLower(strings.TrimPrefix(strings.TrimSpace(tok), "-"))
+	if !strings.HasPrefix(clean, "p") || len(clean) < 2 {
+		return 0, false
+	}
+	pageNum, err := strconv.Atoi(clean[1:])
+	if err != nil || pageNum <= 0 {
+		return 0, false
+	}
+	return pageNum, true
+}
+
+func stepLapValueFlag(args []string, i int, tok string) (int, bool) {
+	if i+1 >= len(args) {
+		return 0, false
+	}
+	low := strings.ToLower(tok)
+	if low == "--file" || low == "-f" || low == "-file" {
+		lapFileFlag = args[i+1]
+		return 1, true
+	}
+	if low == "--limit" || low == "-l" || low == "-limit" {
+		lapLimitFlag = parseIntOrDefault(args[i+1], 10)
+		return 1, true
+	}
+	return stepLapPageOrWordCountFlag(args, i, low)
+}
+
+func stepLapPageOrWordCountFlag(args []string, i int, low string) (int, bool) {
+	if low == "--page" || low == "-p" || low == "-page" || low == "page" {
+		lapPageFlag = parseIntOrDefault(args[i+1], 1)
+		return 1, true
+	}
+	if isWordCountFlag(low) {
+		lapWordCountFlag = parseIntOrDefault(args[i+1], 200)
+		return 1, true
+	}
+	return 0, false
+}
+
 func stepLapOffsetOrPositional(args []string, i int, hours *int, hasHours, isPendingOffset *bool) int {
-	tok := strings.TrimSpace(args[i])
-	if tok == "--offset" || tok == "--skip" || tok == "-skip" {
+	tok := strings.ToLower(strings.TrimSpace(args[i]))
+	if tok == "--offset" || tok == "-offset" || tok == "--skip" || tok == "-skip" {
 		return consumeImmediateOrDeferOffset(args, i, isPendingOffset)
 	}
 	if !isNumericToken(tok) {
