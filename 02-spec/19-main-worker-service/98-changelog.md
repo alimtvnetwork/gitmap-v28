@@ -1,3 +1,9 @@
+## v6.385.0 — 2026-09-28 (feat(special-repos): enhance auto-put routing, grouped tree ls, and flag shorthands)
+
+**Scope:** Version bump. feat(special-repos): enhance auto-put routing, grouped tree ls, and flag shorthands.
+
+---
+
 ## v6.384.0 — 2026-09-28 (out-of-ide uninstaller script, agy restore reenq, and 12-category devtool cleaner)
 
 **Scope:** Version bump. out-of-ide uninstaller script, agy restore reenq, and 12-category devtool cleaner.
