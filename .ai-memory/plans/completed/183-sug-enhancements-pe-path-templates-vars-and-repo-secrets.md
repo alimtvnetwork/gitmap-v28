@@ -1,7 +1,13 @@
 # Completed Plan: 183-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md
 
 ## Status
-Completed
+Completed (Verified 100% Green, Tested, Released as v6.366.0)
+
+## Spec Reference
+[02-spec/21-app/88-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md](../../../02-spec/21-app/88-sug-enhancements-pe-path-templates-vars-and-repo-secrets.md)
+
+## Visual Assets Reference
+- Target Screenshot: `![Screenshot](../../../assets/screenshots/sug-enhancements-01.png)`
 
 ## Overview
 Implemented SUG subcommand normalization, target existence verification, watch process monitoring and local browser UI; PE path/alias/URL resolution; help group filtering, search distinction, and AGM documentation; PascalCase and array-indexed template variable expansion; repo-secrets reorganization and commit; and hermetic `D:\test-gitmap` verification.
