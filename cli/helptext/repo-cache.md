@@ -44,7 +44,7 @@ gitmap cd repo-storage
 
 ---
 
-## Subcommands & Examples
+## Examples
 
 ### 1. Archive a Reusable Script or File (`file`)
 Store a PowerShell `.ps1` script or test utility into `repo-cache/XX-<repo>/01-<slug>.ps1`:

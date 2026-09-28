@@ -43,7 +43,7 @@ gitmap cd repo-secrets
 
 ---
 
-## Subcommands & Examples
+## Examples
 
 ### 1. Store a Secret File (`file`)
 Copy a `.env`, credential JSON, or certificate file into `repo-secrets/XX-<repo>/01-<slug>.ext` and auto-commit/push:
