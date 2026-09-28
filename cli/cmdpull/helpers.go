@@ -37,6 +37,7 @@ var (
 	GetAliasSlugFn                    func() string
 	GetAliasPathFn                    func() string
 	RunStatusFn                       func(args []string) error
+	RunSpecialRepoProbeOnPullFn       func(workBaseDir string, isAutoAccept bool) error
 )
 
 func runStatus(args []string) error {

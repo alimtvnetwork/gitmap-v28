@@ -15,7 +15,8 @@ pa, pat (status table), pull-all-table (status table)
 ## Usage
 
     gitmap pull-all [flags]
-    gitmap pa [--status | --table | --json]
+    gitmap pa [--probe] [--status | --table | --json]
+    gitmap pa --probe [-y]
     gitmap pat [flags]
     gitmap pull all table [flags]
 
@@ -26,6 +27,7 @@ automatically and is idempotent (passing it again is a no-op).
 
 | Flag | Default | Description |
 |------|---------|-------------|
+| --probe | false | Probe GitHub account & workspace for companion repositories (`repo-secrets` & `repo-cache`) before pulling |
 | --status, --table | false | Render the full post-pull repository status table |
 | --json | false | Suppress interactive progress bar and emit JSON summary to stdout |
 | --ssh, -s | false | Dispatch pull-all across SSH cluster fleet and Local VM concurrently |
@@ -90,6 +92,16 @@ gitmap pa --ssh
 
 ```bash
 gitmap pull-all --parallel 8 --only-available --stop-on-fail
+```
+
+### Example 6: Pull all with companion repository probing (`--probe`)
+
+Probe your remote GitHub account and local workspace for companion repositories (`repo-secrets` and `repo-cache`), prompting to clone any missing repositories before pulling all repositories:
+
+```bash
+gitmap pa --probe
+gitmap pa --probe -y
+gitmap pull all --probe
 ```
 
 ## See also

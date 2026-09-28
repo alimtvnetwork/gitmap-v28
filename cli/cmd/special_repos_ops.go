@@ -437,3 +437,38 @@ func printOneTimeSpecialRepoBanner(rec store.SpecialRepositoryRecord, targetDir,
 	fmt.Printf("│ Location : %s\n", targetDir)
 	fmt.Printf("╰────────────────────────────────────────────────────────────────────────────╯\n")
 }
+
+// RunSpecialRepoProbeForPull probes remote GitHub account and local workspace for companion repositories on pull.
+func RunSpecialRepoProbeForPull(workBaseDir string, isAutoAccept bool) error {
+	if len(workBaseDir) == 0 {
+		workBaseDir = resolveSpecialWorkBaseDir()
+	}
+	db, err := store.OpenSpecialReposSplitDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	return probeSpecialReposOnPullWithDB(db, workBaseDir, isAutoAccept)
+}
+
+func probeSpecialReposOnPullWithDB(db *store.SpecialReposSplitDB, workBaseDir string, isAutoAccept bool) error {
+	repos, err := db.ListSpecialRepos()
+	if err != nil {
+		return err
+	}
+	for _, rec := range repos {
+		if err := evaluateSingleSpecialRepoOnPull(db, rec, workBaseDir, isAutoAccept); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func evaluateSingleSpecialRepoOnPull(db *store.SpecialReposSplitDB, rec store.SpecialRepositoryRecord, workBaseDir string, isAutoAccept bool) error {
+	targetDir := filepath.Join(workBaseDir, rec.ConfiguredName)
+	if hasExistingTargetDir(targetDir) {
+		logDetectedSpecialRepo(rec, targetDir, false)
+		return db.MarkPromptAnswered(rec.ShortKey, "detected", targetDir, rec.RemoteURL)
+	}
+	return handleMissingSpecialRepoOnScan(db, rec, targetDir, isAutoAccept)
+}

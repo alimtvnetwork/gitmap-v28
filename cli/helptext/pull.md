@@ -9,8 +9,9 @@ p
 ## Usage
 
     gitmap pull [<repo-name> | all] [flags]
+    gitmap pull all --probe
     gitmap pull-all [flags]
-    gitmap pa [flags]
+    gitmap pa [--probe] [flags]
     gitmap pull all-efficient [flags]
     gitmap pull-all-efficient [flags]
     gitmap pae [flags]
@@ -26,6 +27,7 @@ p
 | -A, --alias \<name\> | — | Target a repo by its alias |
 | --group \<name\> | — | Pull all repos in a group |
 | --all | false | Pull all tracked repos (default when outside a git repo) |
+| --probe | false | Probe GitHub account & workspace for companion repositories (`repo-secrets` & `repo-cache`) before pulling |
 | --raw | false | Stream raw git output directly instead of using progress bar |
 | --verbose | false | Enable verbose logging |
 | --parallel \<N\> | 1 | Run up to N pulls concurrently (worker pool) |
@@ -98,6 +100,15 @@ Execute native GitMap pull workflows directly using standard `git` subcommands:
 
     gitmap git pull
     gitmap git pull-all
+
+### Example 7: Pull with companion repository probing (`--probe`)
+
+Probe GitHub remote account and local directory for companion repositories (`repo-secrets` and `repo-cache`), prompting to clone missing ones before pulling:
+
+```bash
+gitmap pull all --probe
+gitmap pa --probe -y
+```
 
 ## See Also
 

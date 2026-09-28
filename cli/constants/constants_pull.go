@@ -14,6 +14,7 @@ const (
 	FlagDescPullRaw           = "Stream raw git output directly instead of using progress bar"
 	FlagDescPullStatus        = "Render full post-pull repository status table"
 	FlagDescPullJSON          = "Output batch pull summary as JSON"
+	FlagDescPullProbe         = "Probe GitHub account and workspace for companion repositories (repo-secrets & repo-cache) before pulling"
 )
 
 // Progress bar visual glyphs.

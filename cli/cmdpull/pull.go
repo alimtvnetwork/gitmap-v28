@@ -43,6 +43,7 @@ type pullOptions struct {
 	useHTTPS      bool
 	showStatus    bool
 	isJSON        bool
+	isProbe       bool
 }
 
 // NormalizePullArgs converts positional pull-all and table arguments into flags.
@@ -115,11 +116,11 @@ func appendNormalizedPullToken(normalized []string, token string) []string {
 
 // runPull handles the "pull" subcommand.
 func runPull(args []string) error {
-	checkHelp("pull", args)
+	isPullAll := isPullAllInvocation(args)
+	checkPullHelp(isPullAll, args)
 	if handled, err := checkEfficientSubcommand(args); handled {
 		return err
 	}
-	isPullAll := isPullAllInvocation(args)
 	if isPullAll && hasSSHFleetFlag(args) {
 		return handleSSHFleetPullAll(args)
 	}
@@ -135,6 +136,14 @@ func runPull(args []string) error {
 	opts := resolveParsedPullOptions(restArgs, useSSH, useHTTPS)
 
 	return executePullWithResolvedOptions(opts)
+}
+
+func checkPullHelp(isPullAll bool, args []string) {
+	helpCmd := "pull"
+	if isPullAll {
+		helpCmd = "pull-all"
+	}
+	checkHelp(helpCmd, args)
 }
 
 func handleSSHFleetPullAll(args []string) error {
@@ -169,11 +178,25 @@ func stripSSHFleetFlags(args []string) []string {
 }
 
 func executePullWithResolvedOptions(opts pullOptions) error {
+	if opts.isProbe {
+		executePullProbeHook(opts)
+	}
 	if opts.verbose {
 		initVerboseLog()
 	}
 
 	return dispatchPullExecution(opts)
+}
+
+func executePullProbeHook(opts pullOptions) {
+	if RunSpecialRepoProbeOnPullFn == nil {
+		return
+	}
+	if !opts.isJSON {
+		fmt.Printf("\n  %s●%s %sProbing companion repositories (repo-secrets & repo-cache)...%s\n",
+			constants.ColorCyan, constants.ColorReset, constants.ColorBold, constants.ColorReset)
+	}
+	_ = RunSpecialRepoProbeOnPullFn("", opts.yes)
 }
 
 func hasJSONArg(args []string) bool {
@@ -881,7 +904,7 @@ func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
 
 type pullFlagHolders struct {
 	vFlag, aFlag, sFlag, oFlag, fixFlag, yFlag, noFixFlag, rawFlag *bool
-	sshFlag, httpsFlag, statusFlag, jsonFlag                       *bool
+	sshFlag, httpsFlag, statusFlag, jsonFlag, probeFlag            *bool
 	gFlag                                                          *string
 	pFlag                                                          *int
 }
@@ -921,6 +944,8 @@ func registerPullOutputFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 	fs.BoolVar(h.statusFlag, "table", false, constants.FlagDescPullStatus)
 	fs.BoolVar(h.statusFlag, "status-table", false, constants.FlagDescPullStatus)
 	h.jsonFlag = fs.Bool("json", false, constants.FlagDescPullJSON)
+	h.probeFlag = fs.Bool("probe", false, constants.FlagDescPullProbe)
+	fs.BoolVar(h.probeFlag, "probe-repos", false, constants.FlagDescPullProbe)
 }
 
 func buildPullOptions(h *pullFlagHolders) pullOptions {
@@ -929,7 +954,7 @@ func buildPullOptions(h *pullFlagHolders) pullOptions {
 		stopOnFail: *h.sFlag, parallel: *h.pFlag, onlyAvailable: *h.oFlag,
 		autoFix: *h.fixFlag, yes: *h.yFlag, noFix: *h.noFixFlag,
 		isRaw: *h.rawFlag, useSSH: *h.sshFlag, useHTTPS: *h.httpsFlag,
-		showStatus: *h.statusFlag, isJSON: *h.jsonFlag,
+		showStatus: *h.statusFlag, isJSON: *h.jsonFlag, isProbe: *h.probeFlag,
 	}
 
 	return opts

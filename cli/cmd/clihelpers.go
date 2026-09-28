@@ -856,6 +856,7 @@ func init() {
 	cmdpull.GetAliasSlugFn = GetAliasSlug
 	cmdpull.GetAliasPathFn = GetAliasPath
 	cmdpull.RunStatusFn = runStatus
+	cmdpull.RunSpecialRepoProbeOnPullFn = RunSpecialRepoProbeForPull
 	cmdpull.PrintRemediationSummaryNoPromptFn = func(items []cmdpull.RemediationItem) {
 		cmdItems := make([]RemediationItem, len(items))
 		for i, it := range items {

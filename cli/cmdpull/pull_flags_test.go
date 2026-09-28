@@ -184,3 +184,23 @@ func TestStripSSHFleetFlags(t *testing.T) {
 		t.Fatalf("expected [pa, --status], got %v", clean)
 	}
 }
+
+func TestParsePullFlags_Probe(t *testing.T) {
+	opts := parsePullFlags(NormalizePullArgs([]string{"pa", "--probe"}))
+	if !opts.all {
+		t.Fatal("expected all=true for pa")
+	}
+	if !opts.isProbe {
+		t.Fatal("expected isProbe=true for --probe")
+	}
+}
+
+func TestParsePullFlags_ProbeReposAlias(t *testing.T) {
+	opts := parsePullFlags(NormalizePullArgs([]string{"pull", "all", "--probe-repos"}))
+	if !opts.all {
+		t.Fatal("expected all=true for pull all")
+	}
+	if !opts.isProbe {
+		t.Fatal("expected isProbe=true for --probe-repos")
+	}
+}
