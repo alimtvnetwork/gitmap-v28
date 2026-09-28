@@ -255,6 +255,11 @@ const (
 	CmdReleaseSelf           = "release-self"
 	CmdReleaseSelfAlias      = "rself"
 	CmdReleaseSelfAlias2     = "rel-self"
+	CmdRepoSecrets           = "repo-secrets"
+	CmdRepoSecretsAlias      = "rs"
+	CmdRepoCache             = "repo-cache"
+	CmdRepoCacheAlias        = "rc"
+	CmdRepoStorageAlias      = "repo-storage"
 	CmdHelpDashboard         = "help-dashboard"
 	CmdHelpDashboardAlias    = "hd"
 	CmdPending               = "pending"    // gitmap:cmd skip
