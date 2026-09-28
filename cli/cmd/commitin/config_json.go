@@ -66,13 +66,15 @@ type CommitInConfigJSON struct {
 	PRMode            string                         `json:"prMode,omitempty"`
 	ConflictMode      string                         `json:"conflictMode,omitempty"`
 	IsTree            bool                           `json:"tree,omitempty"`
-
 	IsTreeAlias       bool                           `json:"isTree,omitempty"`
+	IsApplyTree       bool                           `json:"isApplyTree,omitempty"`
 	IsFinalSync       bool                           `json:"finalSync,omitempty"`
 	IsFinalSyncAlias  bool                           `json:"isFinalSync,omitempty"`
+	IsApplyFinalSync  bool                           `json:"isApplyFinalSync,omitempty"`
 	IsCD              bool                           `json:"cd,omitempty"`
 	IsCDAlias         bool                           `json:"isCD,omitempty"`
 	IsApplyCDAlias    bool                           `json:"isApplyCD,omitempty"`
+	IsApplyCd         bool                           `json:"isApplyCd,omitempty"`
 	IsApply           bool                           `json:"isApply,omitempty"`
 	IsRecreate        bool                           `json:"recreate,omitempty"`
 	IsRecreateAlias   bool                           `json:"isRecreate,omitempty"`
@@ -141,9 +143,9 @@ func mergeConfigFlags(raw *RawArgs, cfg CommitInConfigJSON) {
 	if raw.ConflictMode == "" && cfg.ConflictMode != "" {
 		raw.ConflictMode = cfg.ConflictMode
 	}
-	raw.IsTree = raw.IsTree || cfg.IsTree || cfg.IsTreeAlias
-	raw.IsFinalSync = raw.IsFinalSync || cfg.IsFinalSync || cfg.IsFinalSyncAlias
-	raw.IsCD = raw.IsCD || cfg.IsCD || cfg.IsCDAlias || cfg.IsApplyCDAlias || cfg.IsApply
+	raw.IsTree = raw.IsTree || cfg.IsTree || cfg.IsTreeAlias || cfg.IsApplyTree
+	raw.IsFinalSync = raw.IsFinalSync || cfg.IsFinalSync || cfg.IsFinalSyncAlias || cfg.IsApplyFinalSync
+	raw.IsCD = raw.IsCD || cfg.IsCD || cfg.IsCDAlias || cfg.IsApplyCDAlias || cfg.IsApply || cfg.IsApplyCd
 	raw.IsRecreate = raw.IsRecreate || cfg.IsRecreate || cfg.IsRecreateAlias
 	raw.IsDryRun = raw.IsDryRun || cfg.IsDryRun || cfg.IsDryRunAlias
 	raw.IsPushImmediate = raw.IsPushImmediate || cfg.IsPushImmediate || cfg.IsPushImmediateAl || cfg.IsPushImmediately || cfg.IsPush || cfg.IsAutoPush
