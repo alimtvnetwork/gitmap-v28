@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 var (
@@ -217,9 +217,41 @@ func applyUninstallRemoval(candidates []string, isFullPurge, isDryRun bool) erro
 	if isFullPurge {
 		cleanEmptyGeminiDir()
 	}
-	_ = cmdinstall.PurgeAntigravityDualDatabase()
+	purgeAgyFromStores()
 	fmt.Printf("  %s✓%s Antigravity (AGY) uninstallation completed.\n", constants.ColorGreen, constants.ColorReset)
 	return nil
+}
+
+func purgeAgyFromStores() {
+	purgeAgySplitDB()
+	purgeAgyRootDB()
+}
+
+func purgeAgySplitDB() {
+	splitDB, err := store.OpenInstallationSplitDB()
+	hasErr := err != nil
+	if hasErr {
+		return
+	}
+	defer splitDB.Close()
+	_ = splitDB.RemoveInstalledTool(constants.ToolAntigravity)
+	_ = splitDB.RemoveInstalledTool(constants.ToolAgy)
+}
+
+func purgeAgyRootDB() {
+	rootDB, err := store.OpenDefault()
+	hasErr := err != nil
+	if hasErr {
+		return
+	}
+	defer rootDB.Close()
+	conn := rootDB.Conn()
+	hasConn := conn != nil
+	if hasConn {
+		_, _ = conn.Exec(constants.SQLDeleteInstalledTool, constants.ToolAntigravity)
+		_, _ = conn.Exec(constants.SQLDeleteInstalledTool, constants.ToolAgy)
+	}
+	_ = rootDB.SyncKnownSplitDatabases()
 }
 
 func renderDryRunCandidates(candidates []string) {
