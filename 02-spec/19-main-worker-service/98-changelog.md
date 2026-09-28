@@ -1,3 +1,9 @@
+## v6.366.0 — 2026-09-28 (Release v6.366.0)
+
+**Scope:** Version bump. Release v6.366.0.
+
+---
+
 ## v6.365.0 — 2026-09-27 (Add shutdown-until root command, two-column rich help menu, and dry-run safety)
 
 **Scope:** Version bump. Add shutdown-until root command, two-column rich help menu, and dry-run safety.
