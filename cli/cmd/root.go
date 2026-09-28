@@ -718,6 +718,7 @@ func dispatchAgySubsystem(
 		"sug", "shutdown-until", "shutdown-until-green",
 		"account-switch", "asw", "switch-account", "fast-forward", "ff",
 		"lap", "last-active-projects",
+		"add-read", "ar", "add-and-read",
 		"rwi", "rerun-with-id",
 		"rwc", "rerun-with-convid", "rwp", "rerun-with-prompt-id",
 		"telegram", "email", "settings":
