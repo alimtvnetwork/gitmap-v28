@@ -1,3 +1,9 @@
+## v6.383.0 — 2026-09-28 (verified hermetic e2e uninstall suite and 10-category cleaner)
+
+**Scope:** Version bump. verified hermetic e2e uninstall suite and 10-category cleaner.
+
+---
+
 ## v6.382.0 — 2026-09-28 (fix agy import cycle for uninstaller and devtool cleaner)
 
 **Scope:** Version bump. fix agy import cycle for uninstaller and devtool cleaner.
