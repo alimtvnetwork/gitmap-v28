@@ -96,12 +96,72 @@ gitmap pull-all --parallel 8 --only-available --stop-on-fail
 
 ### Example 6: Pull all with companion repository probing (`--probe`)
 
-Probe your remote GitHub account and local workspace for companion repositories (`repo-secrets` and `repo-cache`), prompting to clone any missing repositories before pulling all repositories:
+Probe your remote GitHub account and local workspace for companion repositories (`repo-secrets` and `repo-cache`), prompting to clone any missing repositories before pulling all repositories.
+
+When companion repositories are already present in your local workspace:
 
 ```bash
 gitmap pa --probe
+```
+
+**Output:**
+
+    ● Probing companion repositories (repo-secrets & repo-cache)...
+    ✓ Detected special secrets repository (rs) at D:\work\repo-secrets
+    ✓ Detected special cache repository (rc) at D:\work\repo-cache
+
+    • frontend                    +12/-3 (2 files)
+    • backend-api                 dirty
+
+  ✔ Pull all complete: 64 pulled (2 active, 62 up-to-date) (1.4s)
+
+### Example 7: Interactive clone of missing companion repository (`--probe`)
+
+When a companion repository is not found locally but discovered in your remote GitHub account, GitMap renders a structured discovery box and offers to clone it immediately before pulling:
+
+```bash
+gitmap pa --probe
+```
+
+**Output:**
+
+    ● Probing companion repositories (repo-secrets & repo-cache)...
+  ╭── Special Repository Discovery: repo-secrets (rs) ─────────────────────────╮
+  │ Purpose  : Keep secret files (.env, passwords, tokens) out of public repos.│
+  │ Settings : gitmap settings set special_repos.secrets_name <custom-name>    │
+  │ Usage    : gitmap rs file|folder|text | gitmap cd rs                       │
+  │ Default  : repo-secrets is default (change anytime via 'gitmap settings')  │
+  │ GitHub   : Found existing remote in your account: https://github.com/user/repo-secrets │
+  │ Location : D:\work\repo-secrets                                            │
+  ╰────────────────────────────────────────────────────────────────────────────╯
+  Do you like to clone the repo-secrets repository from https://github.com/user/repo-secrets into D:\work\repo-secrets? [Y/n]: y
+    ✔ Cloned repo-secrets into D:\work\repo-secrets
+
+    • frontend                    +12/-3 (2 files)
+    • backend-api                 dirty
+
+  ✔ Pull all complete: 65 pulled (2 active, 63 up-to-date) (1.6s)
+
+### Example 8: Non-interactive auto-clone with probing (`--probe -y`)
+
+In automation scripts or CI/CD pipelines, supply `-y` (or `--yes`) to automatically accept cloning or initialization without interactive prompts:
+
+```bash
 gitmap pa --probe -y
-gitmap pull all --probe
+gitmap pull all --probe -y
+```
+
+### Example 9: Probing combined with full status table or JSON
+
+Combine `--probe` with full post-pull status tables or machine-readable JSON summaries:
+
+```bash
+# Probe companion repos and render the full post-pull status table
+gitmap pa --probe --status
+gitmap pat --probe
+
+# Probe companion repos and emit JSON summary
+gitmap pa --probe --json
 ```
 
 ## See also

@@ -204,3 +204,39 @@ func TestParsePullFlags_ProbeReposAlias(t *testing.T) {
 		t.Fatal("expected isProbe=true for --probe-repos")
 	}
 }
+
+func TestParsePullFlags_ProbeWithYes(t *testing.T) {
+	opts := parsePullFlags(NormalizePullArgs([]string{"pa", "--probe", "-y"}))
+	if !opts.all || !opts.isProbe || !opts.yes {
+		t.Fatalf("expected all=true, isProbe=true, yes=true, got %+v", opts)
+	}
+}
+
+func TestParsePullFlags_ProbeWithStatus(t *testing.T) {
+	opts := parsePullFlags(NormalizePullArgs([]string{"pa", "--probe", "--status"}))
+	if !opts.all || !opts.isProbe || !opts.showStatus {
+		t.Fatalf("expected all=true, isProbe=true, showStatus=true, got %+v", opts)
+	}
+}
+
+func TestParsePullFlags_ProbeWithJSON(t *testing.T) {
+	opts := parsePullFlags(NormalizePullArgs([]string{"pa", "--probe", "--json"}))
+	if !opts.all || !opts.isProbe || !opts.isJSON {
+		t.Fatalf("expected all=true, isProbe=true, isJSON=true, got %+v", opts)
+	}
+}
+
+func TestExtractEfficientFlags_Probe(t *testing.T) {
+	if !hasProbeFlag([]string{"pae", "--probe"}) {
+		t.Fatal("expected hasProbeFlag=true for --probe")
+	}
+	if !hasProbeFlag([]string{"paet", "--probe-repos"}) {
+		t.Fatal("expected hasProbeFlag=true for --probe-repos")
+	}
+	_, _, _, _, _, rest := extractEfficientFlags([]string{"pae", "--probe", "-y"})
+	for _, r := range rest {
+		if r == "--probe" {
+			t.Fatalf("expected --probe stripped from rest, got %v", rest)
+		}
+	}
+}

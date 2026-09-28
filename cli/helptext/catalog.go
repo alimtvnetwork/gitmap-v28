@@ -171,6 +171,10 @@ var topicSummaries = map[string]string{
 	"rc":                          "Archive reusable PowerShell (.ps1) scripts, test harnesses, and folders into repo-cache (XX-<repo>/01-<slug>.ext) with auto-commit and push.",
 	"repo-cache":                  "Archive reusable PowerShell (.ps1) scripts, test harnesses, and folders into repo-cache (XX-<repo>/01-<slug>.ext) with auto-commit and push.",
 	"repo-storage":                "Archive reusable PowerShell (.ps1) scripts, test harnesses, and folders into repo-cache (XX-<repo>/01-<slug>.ext) with auto-commit and push.",
+	"pull":                        "Pull latest changes for a single repository, group, or all tracked repositories with optional companion repository probing (--probe).",
+	"pull-all":                    "Batch-pull every tracked repository in the catalog with fast concise progress or full table (--status), SSH fleet delegation (--ssh), and companion repository probing (--probe).",
+	"pa":                          "Fast concise batch-pull of all tracked repositories with optional companion repository probing (--probe), status table (--status), and JSON export (--json).",
+	"pat":                         "Batch-pull every tracked repository in the catalog and display the full post-pull status table.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

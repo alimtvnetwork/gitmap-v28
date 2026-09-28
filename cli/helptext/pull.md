@@ -110,6 +110,14 @@ gitmap pull all --probe
 gitmap pa --probe -y
 ```
 
+**Output:**
+
+    ● Probing companion repositories (repo-secrets & repo-cache)...
+    ✓ Detected special secrets repository (rs) at D:\work\repo-secrets
+    ✓ Detected special cache repository (rc) at D:\work\repo-cache
+
+  ✔ Pull all complete: 64 pulled (2 active, 62 up-to-date) (1.4s)
+
 ## See Also
 
 - [scan](scan.md) — Scan directories to populate the database

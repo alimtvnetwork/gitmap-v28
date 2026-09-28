@@ -367,9 +367,6 @@ func hasExistingTargetDir(targetDir string) bool {
 }
 
 func logDetectedSpecialRepo(rec store.SpecialRepositoryRecord, targetDir string, isAutoAccept bool) {
-	if isAutoAccept {
-		return
-	}
 	fmt.Printf("  ✓ Detected special %s repository (%s) at %s\n", rec.Category, rec.ShortKey, targetDir)
 }
 
@@ -499,7 +496,7 @@ func probeSpecialReposOnPullWithDB(db *store.SpecialReposSplitDB, workBaseDir st
 }
 
 func evaluateSingleSpecialRepoOnPull(db *store.SpecialReposSplitDB, rec store.SpecialRepositoryRecord, workBaseDir string, isAutoAccept bool) error {
-	targetDir := filepath.Join(workBaseDir, rec.ConfiguredName)
+	targetDir := resolveValidRepoPath(rec.LocalPath, workBaseDir, rec.ConfiguredName)
 	if hasExistingTargetDir(targetDir) {
 		logDetectedSpecialRepo(rec, targetDir, false)
 		return db.MarkPromptAnswered(rec.ShortKey, "detected", targetDir, rec.RemoteURL)

@@ -39,6 +39,7 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 		PrintPullBanner(fullCmd, invokedAlias, isShortForm)
 	}
 	requireOnline()
+	maybeExecuteEfficientProbe(args, isJSON)
 
 	records := resolveAllTrackedRecords()
 	if len(records) == 0 {
@@ -133,6 +134,9 @@ func extractEfficientFlags(args []string) (bool, bool, bool, bool, string, []str
 		}
 		if lower == "--json" {
 			isJSON = true
+			continue
+		}
+		if isProbeFlag(lower) {
 			continue
 		}
 		if (lower == "-t" || lower == "--target") && i+1 < len(args) {
@@ -373,4 +377,33 @@ func recordTelemetryToDB(telemetry PullSessionTelemetry, records []store.PullRep
 	}
 
 	return db.InsertPullRepoRuns(runID, records)
+}
+
+func maybeExecuteEfficientProbe(args []string, isJSON bool) {
+	if hasProbeFlag(args) {
+		executePullProbeHook(pullOptions{isJSON: isJSON, yes: hasYesFlag(args)})
+	}
+}
+
+func isProbeFlag(lower string) bool {
+	return lower == "--probe" || lower == "-probe" || lower == "--probe-repos" || lower == "-probe-repos"
+}
+
+func hasProbeFlag(args []string) bool {
+	for _, a := range args {
+		if isProbeFlag(strings.ToLower(a)) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasYesFlag(args []string) bool {
+	for _, a := range args {
+		lower := strings.ToLower(a)
+		if lower == "-y" || lower == "--yes" || lower == "-yes" {
+			return true
+		}
+	}
+	return false
 }

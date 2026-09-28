@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -44,6 +45,11 @@ func resolveDefaultWorkDirPath() (string, bool) {
 
 	wd, errGet := db.GetDefaultWorkDir()
 	if errGet != nil || wd == nil || wd.AbsolutePath == "" {
+		return "", false
+	}
+
+	info, errStat := os.Stat(wd.AbsolutePath)
+	if errStat != nil || !info.IsDir() {
 		return "", false
 	}
 
