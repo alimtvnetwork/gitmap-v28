@@ -80,14 +80,20 @@ func resolveFromStore(slug string) string {
 		}
 	}
 
-	if resolved, err := mainDB.ResolveAlias(slug); err == nil && resolved.Slug != "" {
-		for _, r := range repos {
-			if strings.EqualFold(r.Slug, resolved.Slug) {
-				return pickRepoURL(r)
-			}
-		}
+	resolved, err := mainDB.ResolveAlias(slug)
+	if err == nil && resolved.Slug != "" {
+		return matchRepoURLBySlug(repos, resolved.Slug)
 	}
 
+	return ""
+}
+
+func matchRepoURLBySlug(repos []model.ScanRecord, slug string) string {
+	for _, r := range repos {
+		if strings.EqualFold(r.Slug, slug) {
+			return pickRepoURL(r)
+		}
+	}
 	return ""
 }
 

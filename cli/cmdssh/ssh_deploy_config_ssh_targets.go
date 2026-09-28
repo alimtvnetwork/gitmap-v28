@@ -9,19 +9,24 @@ import (
 )
 
 func resolveDeployConfigTargets(conns []db.SSHConnection, target, except string) []db.SSHConnection {
-	if target != "" && strings.ToLower(target) != "all" {
-		var matched []db.SSHConnection
-		for _, c := range conns {
-			if strings.EqualFold(c.Alias, target) || strings.EqualFold(c.IPAddress, target) {
-				matched = append(matched, c)
-			}
-		}
-		if len(matched) > 0 {
-			return FilterSSHConnectionsByExcept(matched, except)
-		}
+	if matched := filterSpecificTarget(conns, target); len(matched) > 0 {
+		return FilterSSHConnectionsByExcept(matched, except)
 	}
 	filtered := FilterSSHConnectionsByExcept(conns, except)
 	return filterOutLocalFleetIPs(filtered)
+}
+
+func filterSpecificTarget(conns []db.SSHConnection, target string) []db.SSHConnection {
+	if target == "" || strings.EqualFold(target, "all") {
+		return nil
+	}
+	var matched []db.SSHConnection
+	for _, c := range conns {
+		if strings.EqualFold(c.Alias, target) || strings.EqualFold(c.IPAddress, target) {
+			matched = append(matched, c)
+		}
+	}
+	return matched
 }
 
 func filterOutLocalFleetIPs(conns []db.SSHConnection) []db.SSHConnection {
@@ -43,10 +48,9 @@ func getLocalHostIPSet() map[string]bool {
 		return ips
 	}
 	for _, a := range addrs {
-		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				ips[ipnet.IP.String()] = true
-			}
+		ipnet, ok := a.(*net.IPNet)
+		if ok && !ipnet.IP.IsLoopback() && ipnet.IP.To4() != nil {
+			ips[ipnet.IP.String()] = true
 		}
 	}
 	return ips

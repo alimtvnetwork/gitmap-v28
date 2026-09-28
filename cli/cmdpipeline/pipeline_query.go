@@ -136,13 +136,13 @@ func readVersionJSONVersion(dir string) string {
 		return ""
 	}
 	var vf versionFileMinimal
-	if err := json.Unmarshal(data, &vf); err == nil && vf.Version != "" {
-		if !strings.HasPrefix(vf.Version, "v") {
-			return "v" + vf.Version
-		}
-		return vf.Version
+	if err := json.Unmarshal(data, &vf); err != nil || vf.Version == "" {
+		return ""
 	}
-	return ""
+	if !strings.HasPrefix(vf.Version, "v") {
+		return "v" + vf.Version
+	}
+	return vf.Version
 }
 
 type ghReleaseTagItem struct {

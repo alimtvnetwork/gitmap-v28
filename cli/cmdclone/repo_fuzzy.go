@@ -23,12 +23,13 @@ func collectClosestMatches(repos []model.ScanRecord, clean string) []string {
 		name := strings.ToLower(r.RepoName)
 		slug := strings.ToLower(r.Slug)
 		base := strings.Split(name, "-v")[0]
-		if isSuggestionMatch(clean, name, slug, base) && !seen[r.Slug] {
-			seen[r.Slug] = true
-			matches = append(matches, r.Slug)
-			if len(matches) >= 5 {
-				break
-			}
+		if !isSuggestionMatch(clean, name, slug, base) || seen[r.Slug] {
+			continue
+		}
+		seen[r.Slug] = true
+		matches = append(matches, r.Slug)
+		if len(matches) >= 5 {
+			break
 		}
 	}
 	return matches
@@ -87,14 +88,12 @@ func updateLevenshteinRow(dp []int, charA rune, br []rune, lb int, prev *int) {
 }
 
 func min3(a, b, c int) int {
-	if a < b {
-		if a < c {
-			return a
-		}
-		return c
+	m := a
+	if b < m {
+		m = b
 	}
-	if b < c {
-		return b
+	if c < m {
+		m = c
 	}
-	return c
+	return m
 }

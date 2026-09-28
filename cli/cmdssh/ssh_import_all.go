@@ -155,17 +155,24 @@ func importConnectionsLocally(conns []db.SSHConnection) int {
 	count := 0
 	now := time.Now().UTC()
 	for _, c := range conns {
-		if c.EncryptedPassword != "" && !strings.HasPrefix(c.EncryptedPassword, "rsa:") && !strings.HasPrefix(c.EncryptedPassword, "aes:") {
-			if enc, err := EncryptSSHPassword(c.EncryptedPassword); err == nil && enc != "" {
-				c.EncryptedPassword = enc
-			}
-		}
+		c.EncryptedPassword = ensureEncryptedPassword(c.EncryptedPassword)
 		if appErr := db.InsertOrUpdateSSHConnection(dbConn.Context(), dbConn.SQL(), c); appErr == nil {
 			count++
 		}
 		upsertConnToSSHHost(dbConn.Context(), dbConn.SQL(), c, now)
 	}
 	return count
+}
+
+func ensureEncryptedPassword(raw string) string {
+	if raw == "" || strings.HasPrefix(raw, "rsa:") || strings.HasPrefix(raw, "aes:") {
+		return raw
+	}
+	enc, err := EncryptSSHPassword(raw)
+	if err == nil && enc != "" {
+		return enc
+	}
+	return raw
 }
 
 func importKnownHostsLocally(kh string) int {

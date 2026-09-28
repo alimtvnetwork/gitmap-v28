@@ -40,10 +40,10 @@ func DeployValidArgsFunction(cmd *cobra.Command, args []string, toComplete strin
 		}
 		return append(subcmds, GetFleetNodeCompletions()...), cobra.ShellCompDirectiveNoFileComp
 	}
-	if len(args) == 1 && (args[0] == "config" || args[0] == "config-ssh") {
-		if args[0] == "config" {
-			return append([]string{"ssh\tDeploy SSH connection and credentials config"}, GetFleetNodeCompletions()...), cobra.ShellCompDirectiveNoFileComp
-		}
+	if len(args) == 1 && args[0] == "config" {
+		return append([]string{"ssh\tDeploy SSH connection and credentials config"}, GetFleetNodeCompletions()...), cobra.ShellCompDirectiveNoFileComp
+	}
+	if len(args) == 1 && args[0] == "config-ssh" {
 		return GetFleetNodeCompletions(), cobra.ShellCompDirectiveNoFileComp
 	}
 	if len(args) == 2 && args[0] == "config" && args[1] == "ssh" {
