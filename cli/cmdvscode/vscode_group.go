@@ -25,11 +25,11 @@ func dispatchEcosystemGroupCli(ecosystem string, label string, unit string, args
 		return handleEcosystemGroupAdd(ecosystem, label, unit, args[1], args[2:])
 	}
 
-	if (args[0] == "rm" || args[0] == "delete") && len(args) >= 2 {
+	if (args[0] == "rm" || args[0] == "delete" || args[0] == "remove") && len(args) >= 2 {
 		return handleEcosystemGroupRm(ecosystem, label, args[1:])
 	}
 
-	return fmt.Errorf("usage: gitmap %s group [ls|add <group> <%s...>|rm <group> [%s]]", ecosystem, unit, unit)
+	return fmt.Errorf("usage: gitmap %s group [ls|add <group> <%s...>|remove/rm <group> [%s]]", ecosystem, unit, unit)
 }
 
 func handleEcosystemGroupAdd(ecosystem string, label string, unit string, group string, targets []string) error {

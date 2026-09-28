@@ -91,7 +91,7 @@ func isPRSubcommandClean(name string, args []string) bool {
 		return false
 	}
 
-	return args[0] == "clean" || args[0] == "rm"
+	return args[0] == "clean" || args[0] == "rm" || args[0] == "remove"
 }
 
 func isPRSubcommandList(name string, args []string) bool {

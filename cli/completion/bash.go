@@ -29,7 +29,7 @@ func generateBash() string {
         cfr|cfrp|clone-fix-repo|clone-fix-repo-pub|clone)
             COMPREPLY=($(compgen -W "$(gitmap completion --list-repos) $(gitmap completion --list-aliases) --https --ssh --force -f" -- "$cur"))
             ;;
-        ee|pe|pipeline-errors)
+        pe|pipeline-errors)
             COMPREPLY=($(compgen -W "$(gitmap completion --list-repos) $(gitmap completion --list-aliases) --json --live --all --verbose --wait" -- "$cur"))
             ;;
         deploy|deploy-right|deploy-left)

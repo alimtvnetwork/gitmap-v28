@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -16,12 +17,14 @@ var OSShutdownExecutorFn = defaultCrossPlatformShutdown
 
 // ExecuteSUGWatch monitors registered projects and executes OS shutdown when all turn green.
 func ExecuteSUGWatch(projects []string, interval time.Duration, isDryRun bool, isOnce bool) error {
+	if len(projects) == 0 {
+		return apperror.NewValidationError("no projects registered in shutdown watch list")
+	}
 	RecordSUGWatchStarted(projects, interval)
 	defer RecordSUGWatchStopped()
 
 	printSUGStartBanner(projects, interval, isDryRun)
 	for {
-
 		pendingCount := evaluateAllProjectsStatus(projects)
 		if pendingCount == 0 {
 			return triggerSystemShutdown(len(projects), isDryRun)
@@ -30,7 +33,7 @@ func ExecuteSUGWatch(projects []string, interval time.Duration, isDryRun bool, i
 			printSUGOnceFinished(pendingCount)
 			return nil
 		}
-		printSUGPendingWait(pendingCount, interval)
+		printSUGPendingWait(pendingCount, len(projects), interval)
 		time.Sleep(interval)
 	}
 }
@@ -40,8 +43,10 @@ func printSUGStartBanner(projects []string, interval time.Duration, isDryRun boo
 	if isDryRun {
 		mode = " " + constants.ColorYellow + "[DRY-RUN]" + constants.ColorCyan
 	}
-	fmt.Printf("\n  %s[SUG]%s%s Monitoring %d project(s) until green for automated shutdown (interval: %v)...\n\n",
+	fmt.Printf("\n  %s[SUG]%s%s Monitoring %d project(s) until green (interval: %v)...\n",
 		constants.ColorCyan, mode, constants.ColorReset, len(projects), interval)
+	fmt.Printf("  %sℹ Shutdown Condition: OS shutdown triggers ONLY when ALL %d projects are green simultaneously.%s\n\n",
+		constants.ColorDim, len(projects), constants.ColorReset)
 }
 
 func printSUGOnceFinished(pending int) {
@@ -49,9 +54,9 @@ func printSUGOnceFinished(pending int) {
 		constants.ColorCyan, pending, constants.ColorReset)
 }
 
-func printSUGPendingWait(pending int, interval time.Duration) {
-	fmt.Printf("\n  %s⏳ [SUG] %d project(s) not yet green. Next evaluation in %v...%s\n\n",
-		constants.ColorYellow, pending, interval, constants.ColorReset)
+func printSUGPendingWait(pending int, total int, interval time.Duration) {
+	fmt.Printf("\n  %s⏳ [SUG] %d/%d project(s) not yet green (all %d must be green together). Next evaluation in %v...%s\n\n",
+		constants.ColorYellow, pending, total, total, interval, constants.ColorReset)
 }
 
 func evaluateAllProjectsStatus(projects []string) int {

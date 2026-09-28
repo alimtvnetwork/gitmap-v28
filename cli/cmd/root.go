@@ -713,7 +713,7 @@ func dispatchAgySubsystem(
 		"backup-running-prompts", "backup-running-prompt", "brp",
 		"restore-running-prompts", "restore-running-prompt", "rrp",
 		"running-prompts", "running-prompt", "rp-prompts",
-		"running-projects", "runningprojects",
+		"running-projects", "runningprojects", "rp",
 		"fpug", "finish-prompts-until-green",
 		"sug", "shutdown-until", "shutdown-until-green",
 		"account-switch", "asw", "switch-account", "fast-forward", "ff",

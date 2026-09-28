@@ -41,7 +41,7 @@ func generatePowerShell() string {
         return
     }
 
-    if ($cmd -eq "ee" -or $cmd -eq "pe" -or $cmd -eq "pipeline-errors") {
+    if ($cmd -eq "pe" -or $cmd -eq "pipeline-errors") {
         $repos = @(gitmap completion --list-repos)
         $aliases = @(gitmap completion --list-aliases)
         $items = $repos + $aliases + @("--json", "--live", "--all", "--verbose", "--wait")

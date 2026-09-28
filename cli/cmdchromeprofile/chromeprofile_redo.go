@@ -42,11 +42,11 @@ func runChromeGroupDispatch(args []string) error {
 		return handleChromeGroupAdd(args[1], args[2:])
 	}
 
-	if (args[0] == "rm" || args[0] == "delete") && len(args) >= 2 {
+	if (args[0] == "rm" || args[0] == "delete" || args[0] == "remove") && len(args) >= 2 {
 		return handleChromeGroupRm(args[1:])
 	}
 
-	return fmt.Errorf("usage: gitmap chrome group [ls|add <group> <profiles...>|rm <group> [profile]]")
+	return fmt.Errorf("usage: gitmap chrome group [ls|add <group> <profiles...>|remove/rm <group> [profile]]")
 }
 
 func handleChromeGroupAdd(group string, profiles []string) error {

@@ -206,7 +206,7 @@ func isPipelineClearAction(action string) bool {
 func isErrorLogsSubcmd(subcmd string) bool {
 	switch subcmd {
 	case "error-logs", "errorlogs", "error-log", "errorlog", "errors", "err",
-		"errorslogs", "errors-log", "errors-logs", "pe", "ee":
+		"errorslogs", "errors-log", "errors-logs", "pe":
 		return true
 	}
 

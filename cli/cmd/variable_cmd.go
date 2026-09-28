@@ -29,7 +29,7 @@ func runVariableCmd(args []string) error {
 		return runVarGet(rest)
 	case "ls", "list":
 		return runVarList(rest)
-	case "rm", "delete", "del":
+	case "rm", "remove", "delete", "del":
 		return runVarDelete(rest)
 	case "export":
 		return runVarExport(rest)

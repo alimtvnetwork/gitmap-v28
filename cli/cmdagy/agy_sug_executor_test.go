@@ -81,3 +81,19 @@ func TestSUGFlagsParsing(t *testing.T) {
 		t.Errorf("did not expect once without flag")
 	}
 }
+
+func TestExecuteSUGWatch_EmptyProjects(t *testing.T) {
+	err := ExecuteSUGWatch([]string{}, 5*time.Second, true, true)
+	if err == nil {
+		t.Fatalf("expected error when running with empty projects, got nil")
+	}
+}
+
+func TestFilterKeptSUGProjects(t *testing.T) {
+	initial := []string{"proj-a", "proj-b", "proj-c"}
+	toRemove := []string{"proj-b"}
+	kept := filterKeptSUGProjects(initial, toRemove)
+	if len(kept) != 2 || kept[0] != "proj-a" || kept[1] != "proj-c" {
+		t.Errorf("expected [proj-a proj-c], got %v", kept)
+	}
+}

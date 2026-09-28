@@ -26,7 +26,7 @@ func dispatchOSFixSubcommand(sub string, args []string) error {
 		return runOSFixAdd(args)
 	case "edit":
 		return runOSFixEdit(args)
-	case "rm", "del", "delete":
+	case "rm", "remove", "del", "delete":
 		return runOSFixDelete(args)
 	case "run":
 		return runOSFixExecute(args)

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/spf13/cobra"
 )
 
@@ -60,7 +60,10 @@ func init() {
 				"watch\tAlias for run",
 				"ui\tLaunch local dark-mode monitoring dashboard",
 				"add-projects\tAdd project directories, repo names, or URLs to watch list",
+				"remove\tRemove projects from watch list",
 				"rm\tRemove projects from watch list",
+				"clear\tClear all projects from watch list",
+				"remove-all\tClear all projects from watch list",
 				"agy-running-projects\tAdd all currently running Antigravity projects",
 				"help\tShow help and usage guide",
 			}, cobra.ShellCompDirectiveNoFileComp
@@ -122,6 +125,8 @@ func routeSUGSubcommand(subcmd string, rest []string) error {
 			return nil
 		}
 		return removeSUGProjects(rest)
+	case "clear", "clear-all", "remove-all", "rm-all":
+		return clearSUGProjects()
 	case "agy-running-projects", "running-projects":
 		return setSUGRunningProjects()
 	case "run", "watch", "w":
@@ -194,33 +199,6 @@ func saveSUGConfig(cfg SUGWatchConfig) error {
 	return nil
 }
 
-func listSUGProjects() error {
-	cfg := loadSUGConfig()
-	st, isRunning := LoadSUGRuntimeStatus()
-
-	fmt.Println()
-	fmt.Printf("  %s%s SHUTDOWN-UNTIL-GREEN WATCH LIST (%d projects) %s%s\n",
-		constants.ColorCyan, "╔════", len(cfg.ProjectTargets), "════╗", constants.ColorReset)
-
-	if isRunning {
-		fmt.Printf("  %s● Watch loop is ACTIVE%s (PID: %d, interval: %ds, started: %s)\n\n",
-			constants.ColorGreen, constants.ColorReset, st.PID, st.IntervalSec, st.StartedAt)
-	} else {
-		fmt.Printf("  %s○ Watch loop is IDLE%s\n\n", constants.ColorYellow, constants.ColorReset)
-	}
-
-	if len(cfg.ProjectTargets) == 0 {
-		fmt.Printf("  %sWatch list is empty. Use 'add-projects <target>' or 'agy-running-projects'.%s\n\n",
-			constants.ColorDim, constants.ColorReset)
-		return nil
-	}
-	for i, p := range cfg.ProjectTargets {
-		fmt.Printf("  [%d] %s\n", i+1, p)
-	}
-	fmt.Println()
-	return nil
-}
-
 func addSUGProjects(targets []string) error {
 	if len(targets) == 0 {
 		return apperror.NewValidationError("add-projects requires at least one project target")
@@ -271,7 +249,10 @@ func buildSUGSeenMap(projects []string) map[string]bool {
 
 func removeSUGProjects(targets []string) error {
 	if len(targets) == 0 {
-		return apperror.NewValidationError("rm requires at least one project target")
+		return apperror.NewValidationError("remove requires at least one project target, or 'all'")
+	}
+	if strings.EqualFold(targets[0], "all") || targets[0] == "*" {
+		return clearSUGProjects()
 	}
 	cfg := loadSUGConfig()
 	cfg.ProjectTargets = filterKeptSUGProjects(cfg.ProjectTargets, targets)
@@ -282,15 +263,54 @@ func removeSUGProjects(targets []string) error {
 	return nil
 }
 
+func clearSUGProjects() error {
+	cfg := loadSUGConfig()
+	cfg.ProjectTargets = []string{}
+	if err := saveSUGConfig(cfg); err != nil {
+		return err
+	}
+	fmt.Println("  ✔ Cleared all projects from shutdown watch list (0 remaining)")
+	return nil
+}
+
 func filterKeptSUGProjects(existing, toRemove []string) []string {
-	removeMap := buildSUGSeenMap(toRemove)
+	removeMap := buildSUGRemovalMatchers(toRemove)
 	var kept []string
-	for _, p := range existing {
-		if !removeMap[strings.ToLower(strings.Trim(p, ","))] {
+	for i, p := range existing {
+		seqStr := strconv.Itoa(i + 1)
+		if !isTargetMarkedForRemoval(p, seqStr, removeMap) {
 			kept = append(kept, p)
 		}
 	}
 	return kept
+}
+
+func buildSUGRemovalMatchers(toRemove []string) map[string]bool {
+	m := make(map[string]bool)
+	for _, raw := range toRemove {
+		clean := strings.Trim(strings.TrimSpace(raw), ",")
+		if clean == "" {
+			continue
+		}
+		m[strings.ToLower(clean)] = true
+		m[strings.ToLower(filepath.Clean(clean))] = true
+		if resolved, ok := ValidateSUGTarget(clean); ok {
+			m[strings.ToLower(resolved)] = true
+			m[strings.ToLower(filepath.Clean(resolved))] = true
+		}
+	}
+	return m
+}
+
+func isTargetMarkedForRemoval(p, seqStr string, removeMap map[string]bool) bool {
+	if removeMap[seqStr] || removeMap[strings.ToLower(p)] {
+		return true
+	}
+	if removeMap[strings.ToLower(filepath.Clean(p))] {
+		return true
+	}
+	base := strings.ToLower(filepath.Base(p))
+	return removeMap[base]
 }
 
 func setSUGRunningProjects() error {

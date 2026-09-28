@@ -30,7 +30,7 @@ func dispatchOSCronSubcommand(sub string, rest []string) error {
 		return runOSCronList()
 	case "add":
 		return runOSCronAdd(rest)
-	case "rm", "delete", "del":
+	case "rm", "remove", "delete", "del":
 		return runOSCronRemove(rest)
 	case "clear":
 		return runOSCronClear()

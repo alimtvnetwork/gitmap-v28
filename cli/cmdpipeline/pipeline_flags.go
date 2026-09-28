@@ -279,7 +279,7 @@ func isSkipTokenForRepoTarget(token string) bool {
 		return true
 	}
 	switch strings.ToLower(token) {
-	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "ee", "help":
+	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "help":
 		return true
 	default:
 		return false

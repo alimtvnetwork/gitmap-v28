@@ -96,7 +96,7 @@ func makeTopLevelRunningPromptsCmd() *cobra.Command {
 func makeTopLevelRunningProjectsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "running-projects [ls]",
-		Aliases:           []string{"runningprojects"},
+		Aliases:           []string{"runningprojects", "rp"},
 		Short:             "List projects hosting active or queued Antigravity prompts",
 		ValidArgsFunction: cmdagy.AgyRunningProjectsCmd.ValidArgsFunction,
 	}
@@ -316,7 +316,7 @@ func buildHelpCompletions() []string {
 func makeTopLevelPECmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "pe [path|alias|url] [flags]",
-		Aliases: []string{"ee", "pipeline-errors", "pipeline_errors"},
+		Aliases: []string{"pipeline-errors", "pipeline_errors"},
 		Short:   "Inspect CI/CD pipeline error logs and status for target repository",
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {

@@ -44,7 +44,7 @@ func dispatchServiceSubcommand(sub string, rest []string) error {
 		return runServiceStop(rest)
 	case "create", "new", "add":
 		return runServiceCreate(rest)
-	case "rm", "delete", "del":
+	case "rm", "remove", "delete", "del":
 		return runServiceRemove(rest)
 	case "export", "export-all":
 		return runServiceExport(rest)
