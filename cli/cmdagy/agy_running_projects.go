@@ -77,11 +77,13 @@ func RunRunningProjectsCLI(args []string) error {
 }
 
 func checkRunningProjectsHelp(args []string) bool {
-	if len(args) == 0 {
-		return false
+	for _, a := range args {
+		sub := strings.ToLower(a)
+		if sub == "help" || sub == "--help" || sub == "-h" {
+			return true
+		}
 	}
-	sub := strings.ToLower(args[0])
-	return sub == "help" || sub == "--help" || sub == "-h"
+	return false
 }
 
 func printRunningProjectsHelp() {

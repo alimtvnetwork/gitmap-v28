@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 
@@ -24,8 +25,15 @@ var versionLikeArgPattern = regexp.MustCompile(`^v?\d+(\.\d+){0,2}(-[A-Za-z0-9.]
 // runReleasePending handles the 'release-pending' command.
 func runReleasePending(args []string) error {
 	checkHelp("release-pending", args)
+	if isRunningProjectsAliasArg(args) {
+		return cmdagy.RunRunningProjectsCLI(args)
+	}
 	printCanonicalCmdBanner(constants.CmdReleasePending, constants.CmdReleasePendingAlias)
 	rejectVersionArgOnPending(args)
+	return executeReleasePendingRun(args)
+}
+
+func executeReleasePendingRun(args []string) error {
 	assets, notes, draft, dryRun, verbose, noCommit, yes := parseReleasePendingFlags(args)
 	_ = verbose
 
@@ -35,6 +43,14 @@ func runReleasePending(args []string) error {
 	}
 
 	return nil
+}
+
+func isRunningProjectsAliasArg(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+	return first == "ls" || first == "list"
 }
 
 // printCanonicalCmdBanner prints "→ Running: gitmap <canonical> (alias: <alias>)"
