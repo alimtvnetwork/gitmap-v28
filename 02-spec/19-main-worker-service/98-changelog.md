@@ -1,3 +1,9 @@
+## v6.396.0 — 2026-09-29 (flatten nested ifs in pipeline_logs and pipeline_query for boolean and enum compliance)
+
+**Scope:** Version bump. flatten nested ifs in pipeline_logs and pipeline_query for boolean and enum compliance.
+
+---
+
 ## v6.395.0 — 2026-09-29 (resolve ee external repo targets, fix cfr bare repo suggestions, and add cache cleanup guard)
 
 **Scope:** Version bump. resolve ee external repo targets, fix cfr bare repo suggestions, and add cache cleanup guard.
