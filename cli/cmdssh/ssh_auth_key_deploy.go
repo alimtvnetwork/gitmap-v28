@@ -336,7 +336,7 @@ func readKeyCandidate(path string) (string, bool) {
 
 func buildInjectAuthKeyScript(pubKey, osType string) string {
 	escapedKey := escapeSingleQuotes(pubKey)
-	if strings.EqualFold(osType, "windows") {
+	if isWindowsOS(osType) {
 		return buildWindowsAuthKeyScript(escapedKey)
 	}
 

@@ -35,6 +35,8 @@ func RunSSHDeployRouterCLI(args []string) error {
 		return RunSSHDeployConfigSSHCLI(args[1:])
 	case "macro", "macros":
 		return cmdmacro.ExecuteMacroDeploySSH(args[1:])
+	case "import", "import-json", "importjson":
+		return RunSSHNodesImportJSON(args[1:])
 	case "help", "--help", "-h":
 		printDeployHelp()
 		return nil
@@ -58,6 +60,9 @@ func printDeployHelp() {
 	fmt.Println("    gitmap deploy config ssh [all|<target>] [--file <path>] [--except <id,ip,alias>]")
 	fmt.Println("        Deploy node topology, IP addresses, aliases, and credentials across fleet nodes.")
 	fmt.Println("        (Deploys from CLI config or JSON file; updates existing records without duplicates)")
+	fmt.Println()
+	fmt.Println("    gitmap deploy import [file.json] (alias: import-json)")
+	fmt.Println("        Import fleet topology, nodes, or credentials from JSON manifest or stdin.")
 	fmt.Println()
 	fmt.Println("    gitmap ssh deploy node-config [all] [--except <id,ip,alias>] (alias: nc)")
 	fmt.Println("        Deploy node topology, IP addresses, and aliases across all target fleet nodes.")

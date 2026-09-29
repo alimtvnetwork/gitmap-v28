@@ -42,6 +42,7 @@ func buildDeployConfigSection() termhelp.HelpSection {
 		Entries: []termhelp.CommandEntry{
 			{Command: "deploy config ssh [target]", Description: "Deploy local SSH topology & credentials across fleet nodes"},
 			{Command: "deploy config ssh --file <f>", Description: "Deploy SSH nodes and passwords from a JSON file to fleet"},
+			{Command: "deploy import [file]", Description: "Import SSH topology / cluster configuration from JSON file or stdin"},
 			{Command: "deploy node-config [all]", Description: "Alias for deploy config ssh (deploy cluster topology)"},
 			{Command: "deploy bin [target]", Description: "Deploy latest GitMap executable binary to remote fleet nodes"},
 			{Command: "deploy keys [all]", Description: "Gather, deduplicate, and deploy SSH public keys across fleet"},

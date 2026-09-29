@@ -479,7 +479,7 @@ func resolveWorkerCommand(c db.SSHConnection, args []string) (string, string, bo
 	return shellType, commandStr, delegateToGitmap
 }
 
-func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool) {
+func connectSSHClientWithErr(c db.SSHConnection, headers ...string) (*ssh.Client, error) {
 	header := ""
 	if len(headers) > 0 {
 		header = headers[0]
@@ -487,9 +487,14 @@ func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool)
 	client, err := dialNodeWithFallback(c, header)
 	if err != nil {
 		printHeaderError(header, "Connect error", err)
-		return nil, false
+		return nil, err
 	}
-	return client, true
+	return client, nil
+}
+
+func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool) {
+	client, err := connectSSHClientWithErr(c, headers...)
+	return client, err == nil
 }
 
 func queryHostPasswordFromDB(alias, ip string) string {

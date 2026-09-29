@@ -416,9 +416,18 @@ func executeMultiEnroll(ctx context.Context, args []string, targetIdx int) error
 	return nil
 }
 
+func isUserAtHostAddress(s string) bool {
+	parts := strings.Split(s, "@")
+	if len(parts) != 2 || len(parts[0]) == 0 || len(parts[1]) == 0 {
+		return false
+	}
+	cleanHost := stripPortOrBrackets(parts[1])
+	return net.ParseIP(cleanHost) != nil || strings.Contains(cleanHost, ".") || cleanHost == "localhost"
+}
+
 func isTargetAddress(s string) bool {
 	if strings.Contains(s, "@") {
-		return true
+		return isUserAtHostAddress(s)
 	}
 	clean := stripPortOrBrackets(s)
 	return net.ParseIP(clean) != nil

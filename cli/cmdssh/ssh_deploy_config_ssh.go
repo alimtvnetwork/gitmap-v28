@@ -2,7 +2,6 @@
 package cmdssh
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -116,8 +115,6 @@ func buildEnvelopeFromConnections(conns []db.SSHConnection) *SSHNodesExportEnvel
 
 func executeDeployConfigToFleet(targets []db.SSHConnection, envelope *SSHNodesExportEnvelope, opts DeployConfigSSHOptions) error {
 	compactBytes, _ := json.Marshal(envelope)
-	b64 := base64.StdEncoding.EncodeToString(compactBytes)
-	remoteCmd := fmt.Sprintf("gitmap ssh nodes import-json --base64 \"%s\"", b64)
 
 	fmt.Printf("\n%s🚀 GitMap Deploy Config SSH (Fleet Node Synchronization)%s\n", constants.ColorCyan, constants.ColorReset)
 	sourceDesc := "CL Active Config"
@@ -134,7 +131,7 @@ func executeDeployConfigToFleet(targets []db.SSHConnection, envelope *SSHNodesEx
 		TaskName: "Deploy SSH Fleet Config (deploy config ssh)",
 	}
 	RunParallelFleetExecution(targets, fleetOpts, func(c db.SSHConnection) (string, error) {
-		return executeNodeConfigDeployWorker(c, remoteCmd)
+		return executeNodeConfigDeployWorker(c, compactBytes)
 	})
 	return renderNodeConfigDeploySummary(targets, opts.Except, len(envelope.Connections), opts.IsDryRun, opts.IsJSON)
 }

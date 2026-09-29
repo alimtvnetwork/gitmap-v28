@@ -123,6 +123,8 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"which-format", "whichformat", "format-which", "format-inspect", "format-check", "which-json"}, func() error { return runWhichFormatCLI(argsTail()) }},
 		{[]string{"which"}, func() error { return handleWhichSubcommand(argsTail()) }},
 		{[]string{"format"}, func() error { return handleFormatSubcommand(argsTail()) }},
+		{[]string{"import-all-json", "import-all", "importall", "import-json-all", "importjsonall"}, func() error { return runImportAllJSONCLI(argsTail()) }},
+		{[]string{"what-configs", "what-config", "whatconfigs", "whatconfig", "wc"}, func() error { return runWhatConfigsCLI(argsTail()) }},
 		{[]string{"pin", "version-pin"}, func() error { return runPinCLI(argsTail()) }},
 		{[]string{"unpin", "version-unpin"}, func() error { return runUnpinCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines", "ct"}, func() error { return runCG(argsTail()) }},
@@ -286,6 +288,9 @@ func handleWhichSubcommand(args []string) error {
 		return runWhichFormatCLI(args)
 	}
 	first := strings.ToLower(args[0])
+	if first == "config" || first == "configs" {
+		return runWhatConfigsCLI(args[1:])
+	}
 	if first == "format" || first == "json" {
 		return runWhichFormatCLI(args[1:])
 	}
@@ -297,6 +302,9 @@ func handleFormatSubcommand(args []string) error {
 		return runWhichFormatCLI(args)
 	}
 	first := strings.ToLower(args[0])
+	if first == "import" || first == "import-all" || first == "importall" {
+		return runImportAllJSONCLI(args[1:])
+	}
 	if first == "which" || first == "inspect" || first == "check" {
 		return runWhichFormatCLI(args[1:])
 	}

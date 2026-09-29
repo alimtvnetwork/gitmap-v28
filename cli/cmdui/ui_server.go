@@ -222,6 +222,23 @@ func saveSettingsData(s SettingsData) error {
 	return os.WriteFile(path, data, 0644)
 }
 
+// ImportSettingsFromFile loads settings from a file (supporting JSON envelope) and persists them to ui_settings.json.
+func ImportSettingsFromFile(filePath string) error {
+	raw, err := os.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+	payload, _, err := jsonenvelope.ExtractPayload(raw)
+	if err == nil && len(payload) > 0 {
+		raw = payload
+	}
+	var loaded SettingsData
+	if err := json.Unmarshal(raw, &loaded); err != nil {
+		return err
+	}
+	return saveSettingsData(loaded)
+}
+
 func getSettingsFilePath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {

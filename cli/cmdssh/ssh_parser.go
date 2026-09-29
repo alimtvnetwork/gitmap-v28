@@ -419,12 +419,22 @@ func buildJoinOptions(raw string, target *SSHTarget, p *parsedFlags) *SSHJoinOpt
 	}
 }
 
+func resolveJoinPositionalTarget(positional []string) (string, string) {
+	if len(positional) >= 2 && !isTargetAddress(positional[0]) && isTargetAddress(positional[1]) {
+		return positional[1], positional[0]
+	}
+	return positional[0], ""
+}
+
 func assembleJoinOptions(p *parsedFlags) (*SSHJoinOptions, error) {
 	if len(p.positional) == 0 {
 		return nil, wrapTargetError("", "missing required target")
 	}
 
-	rawTarget := p.positional[0]
+	rawTarget, inferredAlias := resolveJoinPositionalTarget(p.positional)
+	if inferredAlias != "" && p.flagAlias == "" {
+		p.flagAlias = inferredAlias
+	}
 	target, err := ParseSSHTarget(rawTarget, p.flagUser, p.flagPort)
 	if err != nil {
 		return nil, err

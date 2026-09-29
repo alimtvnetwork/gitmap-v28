@@ -109,9 +109,8 @@ func convertSSHHostToConnection(h store.SSHHost) db.SSHConnection {
 }
 
 func executeRemoteTargetCommand(c db.SSHConnection, target string, args []string, isJSON bool) error {
-	client, isConnected := connectSSHClient(c, fmt.Sprintf("[%s]", c.Alias))
-	if !isConnected {
-		err := fmt.Errorf("failed to connect or authenticate with host '%s'", target)
+	client, err := connectSSHClientWithErr(c, fmt.Sprintf("[%s]", c.Alias))
+	if err != nil {
 		return handleTargetNotFound(target, isJSON, err)
 	}
 	defer client.Close()

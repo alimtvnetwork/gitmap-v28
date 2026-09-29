@@ -36,9 +36,13 @@ func PrintFleetDone(res FleetNodeResult) {
 }
 
 func printFleetSkip(res FleetNodeResult) {
-	fmt.Printf("%s[FLEET SKIP]%s  [%s|%s]: %sOFFLINE%s (took %dms)\n",
+	details := "offline"
+	if res.Error != nil {
+		details = res.Error.Error()
+	}
+	fmt.Printf("%s[FLEET SKIP]%s  [%s|%s]: %sOFFLINE%s (%s) (took %dms)\n",
 		constants.ColorYellow, constants.ColorReset,
-		res.Alias, res.IP, constants.ColorYellow, constants.ColorReset, res.DurationMs)
+		res.Alias, res.IP, constants.ColorYellow, constants.ColorReset, details, res.DurationMs)
 }
 
 func printFleetSuccess(res FleetNodeResult) {

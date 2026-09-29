@@ -86,6 +86,16 @@ func parseAddPassParams(args []string) (addPassEnrollParams, error) {
 	if len(positionals) == 0 {
 		return addPassEnrollParams{}, apperror.NewValidationError(msgMissingAddPassTarget)
 	}
+	if len(positionals) >= 2 && !isTargetAddress(positionals[0]) && isTargetAddress(positionals[1]) {
+		p.targetRaw = positionals[1]
+		if p.alias == "" {
+			p.alias = positionals[0]
+		}
+		if len(positionals) > 2 && p.password == "" {
+			p.password = positionals[2]
+		}
+		return p, nil
+	}
 	p.targetRaw = positionals[0]
 	if len(positionals) > 1 && p.password == "" {
 		p.password = positionals[1]

@@ -370,6 +370,9 @@ func deployHostPublicKey(client *ssh.Client, alias, osType string) *apperror.App
 
 func confirmBidirectionalComm(client *ssh.Client, alias, osType string) bool {
 	checkCmd := "gitmap version 2>/dev/null || gitmap --version 2>/dev/null"
+	if isWindowsOS(osType) {
+		checkCmd = "powershell -NoProfile -Command \"gitmap version 2>$null\""
+	}
 	out, err := crypto.RunCommand(client, checkCmd, resolveRemoteShell(osType))
 	hasGitmap := err == nil && strings.Contains(out, "gitmap")
 	if hasGitmap {
