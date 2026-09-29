@@ -58,3 +58,38 @@ func TestParseDeployKeysFlags(t *testing.T) {
 		t.Errorf("expected isJSON true")
 	}
 }
+
+func TestParseDeployKeysFlags_DirectVariants(t *testing.T) {
+	testCases := [][]string{
+		{"deploy-keys-all", "--except=worker-1"},
+		{"keys-all", "--dry-run"},
+		{"--all", "-n"},
+		{"deploy-keys", "all"},
+	}
+
+	for _, tc := range testCases {
+		except, isDryRun, _ := parseDeployKeysFlags(tc)
+		if len(tc) > 1 && tc[1] == "--except=worker-1" && except != "worker-1" {
+			t.Errorf("expected except worker-1, got %s", except)
+		}
+		if len(tc) > 1 && (tc[1] == "--dry-run" || tc[1] == "-n") && !isDryRun {
+			t.Errorf("expected isDryRun true for args %v", tc)
+		}
+	}
+}
+
+func TestIsIgnoredDeployKeysToken(t *testing.T) {
+	validTokens := []string{
+		"keys", "key", "k", "deploy", "ssh", "all", "--all", "-all",
+		"keys-all", "deploy-keys", "deploy-keys-all", "keys-hyphen-all", "hyphen-all",
+	}
+	for _, tok := range validTokens {
+		if !isIgnoredDeployKeysToken(tok) {
+			t.Errorf("expected %q to be recognized as ignored token", tok)
+		}
+	}
+	if isIgnoredDeployKeysToken("worker-1") {
+		t.Errorf("expected node identifier not to be ignored")
+	}
+}
+

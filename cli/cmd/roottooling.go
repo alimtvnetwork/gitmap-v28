@@ -70,7 +70,9 @@ func toolingDevDeployEntries() []dispatchEntry {
 		{[]string{"deploy-right"}, func() error { return runSSHDeploy("deploy-right", argsTail()) }},
 		{[]string{"deploy-left"}, func() error { return runSSHDeploy("deploy-left", argsTail()) }},
 		{[]string{"deploy-config", "deploy-config-ssh", "deploy-ssh-config"}, func() error { return runSSHDeployConfig(argsTail()) }},
-		{[]string{"import-ssh", "ssh-import", "import-ssh-nodes"}, func() error { return runSSHImportNodes(argsTail()) }},
+		{[]string{"deploy-keys", "deploy-keys-all", "deploy-key", "deploykeys", "deploy-key-all"}, func() error { return cmdssh.RunSSHDeployKeysCLI(argsTail()) }},
+		{[]string{"export-ssh", "ssh-export", "export-ssh-nodes", "nodes-export-json"}, func() error { return cmdssh.RunSSHNodesExportJSON(argsTail()) }},
+		{[]string{"import-ssh", "ssh-import", "import-ssh-nodes", "nodes-import-json"}, func() error { return runSSHImportNodes(argsTail()) }},
 	}
 }
 

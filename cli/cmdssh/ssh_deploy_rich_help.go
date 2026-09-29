@@ -27,11 +27,12 @@ func buildDeployHelpMenu() termhelp.HelpMenu {
 		},
 		FooterFlags: buildDeployFooterFlags(),
 		Tips: []string{
+			"Use 'gitmap deploy keys all' or 'gitmap deploy-keys-all' to configure passwordless SSH between all nodes.",
+			"Use 'gitmap ssh export-json' to export cluster topology to JSON for migration to another machine.",
+			"Use 'gitmap ssh import-json <file>' to import cluster topology on a new machine.",
 			"Use 'gitmap deploy config ssh' to synchronize fleet topology and credentials across nodes.",
-			"Use 'gitmap deploy config ssh --file <f>' to deploy from an exported JSON configuration.",
 			"Use 'gitmap deploy-right' to push local files only when newer than remote.",
 			"Use 'gitmap deploy-left' to pull remote files only when newer than local.",
-			"Add '--json' for clean programmatic pipeline telemetry.",
 		},
 	}
 }
@@ -40,12 +41,12 @@ func buildDeployConfigSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
 		Title: "Configuration & Fleet Deployment",
 		Entries: []termhelp.CommandEntry{
+			{Command: "deploy keys [all]", Description: "Deploy SSH public keys across fleet (alias: deploy-keys-all)"},
 			{Command: "deploy config ssh [target]", Description: "Deploy local SSH topology & credentials across fleet nodes"},
 			{Command: "deploy config ssh --file <f>", Description: "Deploy SSH nodes and passwords from a JSON file to fleet"},
 			{Command: "deploy import [file]", Description: "Import SSH topology / cluster configuration from JSON file or stdin"},
 			{Command: "deploy node-config [all]", Description: "Alias for deploy config ssh (deploy cluster topology)"},
 			{Command: "deploy bin [target]", Description: "Deploy latest GitMap executable binary to remote fleet nodes"},
-			{Command: "deploy keys [all]", Description: "Gather, deduplicate, and deploy SSH public keys across fleet"},
 		},
 	}
 }

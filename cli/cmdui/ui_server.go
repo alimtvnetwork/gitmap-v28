@@ -66,6 +66,9 @@ func mountSPARoutes(mux *http.ServeMux) {
 
 func mountAPIRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/ssh/nodes", handleAPISSHNodes)
+	mux.HandleFunc("/api/ssh/export", handleAPISSHExport)
+	mux.HandleFunc("/api/ssh/import", handleAPISSHImport)
+	mux.HandleFunc("/api/ssh/deploy-keys", handleAPISSHDeployKeys)
 	mux.HandleFunc("/api/editor/read", handleAPIEditorRead)
 	mux.HandleFunc("/api/editor/save", handleAPIEditorSave)
 	mux.HandleFunc("/api/commitin/exec", handleAPICommitinExec)
@@ -98,6 +101,79 @@ func buildNodeSummaries(conns []db.SSHConnection) []NodeSummary {
 		}
 	}
 	return summaries
+}
+
+func handleAPISSHExport(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	envelope, err := cmdssh.BuildSSHNodesExportEnvelope()
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": err.Error()})
+		return
+	}
+	typedEnv := jsonenvelope.NewEnvelope(
+		jsonenvelope.TypeSSHNodes,
+		"gitmap-ssh-nodes.json",
+		"gitmap ssh export",
+		"1.0",
+		envelope,
+	)
+	_ = json.NewEncoder(w).Encode(typedEnv)
+}
+
+func parseConnectionsFromRaw(raw []byte) ([]db.SSHConnection, error) {
+	payload, _, extractErr := jsonenvelope.ExtractPayload(raw)
+	if extractErr == nil && len(payload) > 0 {
+		raw = payload
+	}
+	var env cmdssh.SSHNodesExportEnvelope
+	if err := json.Unmarshal(raw, &env); err == nil && len(env.Connections) > 0 {
+		return env.Connections, nil
+	}
+	var conns []db.SSHConnection
+	if err := json.Unmarshal(raw, &conns); err != nil {
+		return nil, fmt.Errorf("invalid SSH nodes JSON format")
+	}
+	return conns, nil
+}
+
+func handleAPISSHImport(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST required", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		JSONContent string `json:"content"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": err.Error()})
+		return
+	}
+	conns, parseErr := parseConnectionsFromRaw([]byte(req.JSONContent))
+	if parseErr != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": parseErr.Error()})
+		return
+	}
+	stats, syncErr := cmdssh.SyncSSHConnectionsLocally(conns)
+	if syncErr != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": syncErr.Error()})
+		return
+	}
+	_ = json.NewEncoder(w).Encode(map[string]any{"success": true, "stats": stats})
+}
+
+func handleAPISSHDeployKeys(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST required", http.StatusMethodNotAllowed)
+		return
+	}
+	err := cmdssh.RunSSHDeployKeysCLI([]string{"all"})
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": err.Error()})
+		return
+	}
+	_ = json.NewEncoder(w).Encode(map[string]any{"success": true, "message": "Public keys deployed to fleet"})
 }
 
 func handleAPIEditorRead(w http.ResponseWriter, r *http.Request) {

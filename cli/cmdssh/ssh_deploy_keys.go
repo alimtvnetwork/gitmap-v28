@@ -56,7 +56,7 @@ func parseDeployKeysFlags(args []string) (string, bool, bool) {
 	isDryRun, isJSON := false, false
 	for i := 0; i < len(args); i++ {
 		low := strings.ToLower(args[i])
-		if low == "keys" || low == "k" || low == "deploy" || low == "ssh" || low == "all" {
+		if isIgnoredDeployKeysToken(low) {
 			continue
 		}
 		if low == "--dry-run" || low == "-n" {
@@ -80,4 +80,11 @@ func parseDeployKeysFlags(args []string) (string, bool, bool) {
 		}
 	}
 	return strings.Join(exceptParts, ","), isDryRun, isJSON
+}
+
+func isIgnoredDeployKeysToken(low string) bool {
+	return low == "keys" || low == "key" || low == "k" || low == "deploy" ||
+		low == "ssh" || low == "all" || low == "--all" || low == "-all" ||
+		low == "keys-all" || low == "deploy-keys" || low == "deploy-keys-all" ||
+		low == "keys-hyphen-all" || low == "hyphen-all"
 }

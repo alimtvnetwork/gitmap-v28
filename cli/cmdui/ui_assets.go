@@ -200,12 +200,31 @@ const IndexHTML = `<!DOCTYPE html>
     <div id="tab-ssh" class="content-area">
       <div class="card">
         <h3>SSH Cluster Nodes & Fleet Operations</h3>
-        <button class="btn" onclick="refreshNodes()">Refresh Node Fleet</button>
-        <button class="btn btn-secondary" onclick="deployMacroFleetModal()">Deploy Macros to Fleet</button>
-        <table id="nodes-table" style="margin-top: 1rem;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button class="btn" onclick="refreshNodes()">Refresh Node Fleet</button>
+          <button class="btn btn-secondary" onclick="deployKeysFleetUI()">🔑 Deploy Keys (All)</button>
+          <button class="btn btn-secondary" onclick="exportSSHNodesUI()">📤 Export Nodes JSON</button>
+          <button class="btn btn-secondary" onclick="openImportNodesModal()">📥 Import Nodes JSON</button>
+          <button class="btn btn-secondary" onclick="deployMacroFleetModal()">Deploy Macros to Fleet</button>
+        </div>
+        <div id="ssh-action-status" style="font-size: 0.85rem; margin-bottom: 0.5rem; display: none;"></div>
+        <table id="nodes-table" style="margin-top: 0.5rem;">
           <thead><tr><th>Node ID</th><th>Alias</th><th>Host / IP</th><th>OS</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="nodes-body"><tr><td colspan="6" style="text-align:center;">Loading nodes...</td></tr></tbody>
         </table>
+        <div style="margin-top: 1.25rem; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;">
+          <h4 style="margin-bottom: 0.5rem; color: var(--primary);">💡 Fleet CLI Commands & Cross-Machine Sharing</h4>
+          <p style="font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 0.5rem;">
+            • <b>Deploy Keys Across Fleet:</b> <code>gitmap deploy keys all</code> or <code>gitmap deploy-keys-all</code> (alias: <code>gitmap ssh deploy keys all</code>)<br>
+            • <b>Export Nodes to JSON:</b> <code>gitmap ssh export-json [file]</code> or <code>gitmap export-ssh</code><br>
+            • <b>Import Nodes from JSON:</b> <code>gitmap ssh import-json [file]</code> or <code>gitmap deploy import [file]</code><br>
+            • <b>Single-Line Compact Share:</b> <code>gitmap ssh export-oneliner</code> (copies base64 command to import on any machine)<br>
+            • <b>Deploy Cluster Topology:</b> <code>gitmap deploy config ssh [all]</code> (syncs all nodes and IPs across the fleet)
+          </p>
+          <p style="font-size: 0.8rem; color: var(--accent);">
+            Tip: You can also manage full configuration backups in the <b>🔄 Import / Export</b> tab.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -248,6 +267,18 @@ const IndexHTML = `<!DOCTYPE html>
         <button class="btn" onclick="exportFullConfig()">Export Full JSON Config</button>
         <button class="btn btn-secondary" onclick="importFullConfig()">Import JSON Config</button>
         <div style="margin-top: 1rem;"><textarea id="import-export-area" rows="12" placeholder="JSON snapshot data..."></textarea></div>
+      </div>
+      <div class="card" style="margin-top: 1rem;">
+        <h3>SSH Fleet Nodes &amp; Public Keys Export / Import</h3>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem;">
+          Export all registered cluster nodes, aliases, IPs, and public keys to share across machines, or import nodes directly from another node's JSON export.
+        </p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+          <button class="btn" onclick="exportSSHNodesUI()">📤 Export Fleet Nodes JSON</button>
+          <button class="btn btn-secondary" onclick="importSSHNodesUI()">📥 Import Fleet Nodes JSON</button>
+          <button class="btn" style="background:#0284c7" onclick="deployKeysFleetUI()">🔑 Deploy Keys (All Nodes)</button>
+        </div>
+        <textarea id="ssh-nodes-export-area" rows="8" placeholder="Fleet nodes JSON export/import data will appear here..."></textarea>
       </div>
     </div>
 
@@ -334,6 +365,21 @@ const IndexHTML = `<!DOCTYPE html>
               <td><code>gitmap telegram</code>, <code>gitmap email</code>, <code>gitmap settings</code>, <code>gitmap os help</code></td>
               <td><code>agy telegram</code>, <code>agy email</code>, <code>agy settings</code></td>
               <td>Configure two-way Telegram bot, speed SMTP email alerts, unified speed settings (<code>lap.default_hours=24</code>), and OS diagnostics help.</td>
+            </tr>
+            <tr>
+              <td><code>gitmap deploy keys all</code> / <code>gitmap deploy-keys-all</code></td>
+              <td><code>deploy-keys</code>, <code>deploy-key-all</code></td>
+              <td>Distribute and trust all cluster SSH public keys across all fleet machines passwordlessly (no <code>ssh</code> subcommand prefix required).</td>
+            </tr>
+            <tr>
+              <td><code>gitmap ssh export-json [file]</code> / <code>gitmap export-ssh</code></td>
+              <td><code>ssh-export</code>, <code>nodes-export-json</code></td>
+              <td>Export full fleet node configurations, IPs, hostnames, and public keys into JSON for instant transfer to another machine.</td>
+            </tr>
+            <tr>
+              <td><code>gitmap ssh import-json [file]</code> / <code>gitmap import-ssh</code></td>
+              <td><code>ssh-import</code>, <code>nodes-import-json</code></td>
+              <td>Import fleet node configurations and public keys from JSON snapshot, automatically merging connections and authorized keys.</td>
             </tr>
           </tbody>
         </table>
@@ -523,6 +569,64 @@ const IndexHTML = `<!DOCTYPE html>
           alert('Settings saved successfully!');
         }
       } catch (e) { alert('Failed to save settings: ' + e.message); }
+    }
+
+    async function deployKeysFleetUI() {
+      const out = document.getElementById('ssh-keys-output') || document.getElementById('ssh-nodes-export-area');
+      if (out) out.value = 'Deploying cluster SSH keys to all nodes...';
+      try {
+        const res = await fetch('/api/ssh/deploy-keys', { method: 'POST' });
+        const data = await res.json();
+        if (out) out.value = data.output || data.error || (data.success ? 'Keys deployed successfully!' : 'Deploy failed');
+        alert(data.success ? 'Public keys successfully deployed to fleet!' : 'Deployment finished with warnings');
+      } catch (e) {
+        if (out) out.value = 'Deploy error: ' + e.message;
+        alert('Error deploying keys: ' + e.message);
+      }
+    }
+
+    async function exportSSHNodesUI() {
+      const area = document.getElementById('ssh-nodes-export-area');
+      try {
+        const res = await fetch('/api/ssh/export');
+        const data = await res.json();
+        const jsonStr = JSON.stringify(data, null, 2);
+        if (area) area.value = jsonStr;
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gitmap-ssh-nodes.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        alert('Failed to export SSH nodes: ' + e.message);
+      }
+    }
+
+    async function importSSHNodesUI() {
+      const area = document.getElementById('ssh-nodes-export-area');
+      if (!area || !area.value.trim()) {
+        alert('Please paste the fleet JSON export into the text area or use terminal: gitmap import-ssh <file.json>');
+        return;
+      }
+      try {
+        const payload = JSON.parse(area.value.trim());
+        const res = await fetch('/api/ssh/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Successfully imported ' + (data.imported || 0) + ' fleet node(s)!');
+          if (typeof loadSSHConnections === 'function') loadSSHConnections();
+        } else {
+          alert('Import failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        alert('Invalid JSON or import error: ' + e.message);
+      }
     }
 
     // Auto-detect route on load
