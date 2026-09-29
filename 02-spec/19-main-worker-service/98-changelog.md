@@ -1,3 +1,9 @@
+## v6.398.0 — 2026-09-29 (format templatescli.go with gofmt)
+
+**Scope:** Version bump. format templatescli.go with gofmt.
+
+---
+
 ## v6.397.0 — 2026-09-29 (universal command help modernization, llm train self-loop, and search benchmarks)
 
 **Scope:** Version bump. universal command help modernization, llm train self-loop, and search benchmarks.
