@@ -1,3 +1,9 @@
+## v6.391.0 — 2026-09-29 (Release v6.391.0)
+
+**Scope:** Version bump. Release v6.391.0.
+
+---
+
 ## v6.390.0 — 2026-09-28 (enhance sug ls, add clear/remove-all, full forms for agy rp, and remove ee in favor of pe)
 
 **Scope:** Version bump. enhance sug ls, add clear/remove-all, full forms for agy rp, and remove ee in favor of pe.
