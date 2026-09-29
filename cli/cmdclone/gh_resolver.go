@@ -111,16 +111,27 @@ func printRepoSlugSuggestions(target string) {
 	}
 	defer mainDB.Close()
 
-	suggs, _ := mainDB.GetRepoSuggestions(target)
+	cleanTarget := extractRepoNameFromTarget(target)
+	suggs, _ := mainDB.GetRepoSuggestions(cleanTarget)
 	if len(suggs) == 0 {
-		suggs = findClosestRepoSuggestions(mainDB, target)
+		suggs = findClosestRepoSuggestions(mainDB, cleanTarget)
 	}
 	if len(suggs) > 0 {
-		fmt.Fprintf(os.Stderr, "Repository %q not found. Did you mean:\n", target)
+		fmt.Fprintf(os.Stderr, "Repository %q not found. Did you mean:\n", cleanTarget)
 		for _, s := range suggs {
 			fmt.Fprintf(os.Stderr, "  %s\n", s)
 		}
 	}
+}
+
+func extractRepoNameFromTarget(target string) string {
+	clean := strings.TrimSpace(target)
+	clean = strings.TrimSuffix(clean, ".git")
+	clean = strings.TrimRight(clean, "/\\")
+	if idx := strings.LastIndexAny(clean, "/:"); idx != -1 {
+		clean = clean[idx+1:]
+	}
+	return clean
 }
 
 func resolveFromGitHubCLI(slug string) string {
@@ -136,7 +147,7 @@ func resolveFromGitHubCLI(slug string) string {
 		return ""
 	}
 
-	cleanSlug := strings.ToLower(slug)
+	cleanSlug := strings.ToLower(extractRepoNameFromTarget(slug))
 	for _, r := range repos {
 		isExactMatch := strings.EqualFold(r.Name, cleanSlug)
 		if isExactMatch {

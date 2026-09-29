@@ -324,13 +324,20 @@ func queryReleaseAndPRsConcurrently(repo string) (string, int) {
 }
 
 func resolveRepoWebURL(repo string) string {
+	if len(repo) > 0 {
+		clean := strings.TrimPrefix(repo, "github.com/")
+		if strings.HasPrefix(clean, "http://") || strings.HasPrefix(clean, "https://") {
+			return clean
+		}
+		if !strings.Contains(clean, "/") {
+			clean = "alimtvnetwork/" + clean
+		}
+		return "https://github.com/" + clean
+	}
+
 	remoteURL, err := gitutil.RemoteURL(".")
 	if err == nil && len(remoteURL) > 0 {
 		return formatWebURL(remoteURL)
-	}
-
-	if len(repo) > 0 {
-		return "https://github.com/" + repo
 	}
 
 	return ""
@@ -353,7 +360,17 @@ func resolveLatestCommitHash(p *PipelineErrorLogsPayload, runs []ghRunItem) stri
 		return gitutil.TruncSha(runs[0].HeadSha)
 	}
 
-	return resolveLocalCommitSHA()
+	targetDir := resolveRepoLocalDir(p.Repo)
+	if targetDir != "" {
+		sha := gitutil.GetLastCommitSHA(targetDir)
+		if len(sha) > 0 && sha != "-" {
+			return sha
+		}
+	} else if isCurrentRepoMatching(p.Repo) {
+		return resolveLocalCommitSHA()
+	}
+
+	return ""
 }
 
 func resolveLocalCommitSHA() string {

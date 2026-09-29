@@ -114,16 +114,69 @@ func queryLatestTagRelease(repo string) string {
 		return tag
 	}
 
-	tagOut, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
-	if err == nil && len(tagOut) > 0 {
-		return strings.TrimSpace(string(tagOut))
+	if ghTag := queryGHTags(repo); len(ghTag) > 0 {
+		return ghTag
 	}
 
-	if ver := readVersionJSONVersion("."); ver != "" {
-		return ver
+	targetDir := resolveRepoLocalDir(repo)
+	if len(targetDir) > 0 {
+		tagOut, err := exec.Command("git", "-C", targetDir, "describe", "--tags", "--abbrev=0").Output()
+		if err == nil && len(tagOut) > 0 {
+			return strings.TrimSpace(string(tagOut))
+		}
+		if ver := readVersionJSONVersion(targetDir); ver != "" {
+			return ver
+		}
+	} else if isCurrentRepoMatching(repo) {
+		tagOut, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
+		if err == nil && len(tagOut) > 0 {
+			return strings.TrimSpace(string(tagOut))
+		}
+		if ver := readVersionJSONVersion("."); ver != "" {
+			return ver
+		}
 	}
 
-	return "v" + constants.Version
+	if isGitmapRepo(repo) {
+		return "v" + constants.Version
+	}
+
+	return ""
+}
+
+func queryGHTags(repo string) string {
+	if len(repo) == 0 {
+		return ""
+	}
+	endpoint := fmt.Sprintf("repos/%s/tags", repo)
+	out, err := runGHCommandWithTimeout("api", endpoint, "--jq", ".[0].name")
+	if err == nil && len(out) > 0 {
+		tag := strings.TrimSpace(string(out))
+		if tag != "" && tag != "null" {
+			return tag
+		}
+	}
+	return ""
+}
+
+func isGitmapRepo(repo string) bool {
+	low := strings.ToLower(repo)
+	return low == "gitmap" || strings.Contains(low, "gitmap-v") || strings.HasSuffix(low, "/gitmap")
+}
+
+func isCurrentRepoMatching(repo string) bool {
+	cwdSlug := resolveCurrentRepoSlug()
+	return strings.EqualFold(cwdSlug, repo) || strings.EqualFold(filepath.Base(cwdSlug), filepath.Base(repo))
+}
+
+func resolveRepoLocalDir(repo string) string {
+	_, absPath, ok := queryRepoSlugAndPathFromDB(repo)
+	if ok && absPath != "" {
+		if info, err := os.Stat(absPath); err == nil && info.IsDir() {
+			return absPath
+		}
+	}
+	return ""
 }
 
 type versionFileMinimal struct {

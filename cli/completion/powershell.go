@@ -35,18 +35,24 @@ func generatePowerShell() string {
         $repos = @(gitmap completion --list-repos)
         $aliases = @(gitmap completion --list-aliases)
         $items = $repos + $aliases + @("--https", "--ssh", "--force", "-f")
-        $items | Where-Object { $_ -like "$wordToComplete*" } |
-            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+        $matched = $items | Where-Object { $_ -like "$wordToComplete*" }
+        if (-not $matched) {
+            $matched = $items | Where-Object { $_ -like "*$wordToComplete*" }
+        }
+        $matched | ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
 
         return
     }
 
-    if ($cmd -eq "pe" -or $cmd -eq "pipeline-errors") {
+    if ($cmd -eq "pe" -or $cmd -eq "pipeline-errors" -or $cmd -eq "ee") {
         $repos = @(gitmap completion --list-repos)
         $aliases = @(gitmap completion --list-aliases)
         $items = $repos + $aliases + @("--json", "--live", "--all", "--verbose", "--wait")
-        $items | Where-Object { $_ -like "$wordToComplete*" } |
-            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+        $matched = $items | Where-Object { $_ -like "$wordToComplete*" }
+        if (-not $matched) {
+            $matched = $items | Where-Object { $_ -like "*$wordToComplete*" }
+        }
+        $matched | ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
 
         return
     }

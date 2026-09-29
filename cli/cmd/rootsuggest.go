@@ -17,7 +17,7 @@ var primaryTopCommands = []string{
 	"history", "stats", "export", "import", "profile", "bookmark",
 	"dashboard", "version", "help", "diff", "amend", "sync",
 	"add", "rm", "mv", "prune", "revert", "ip", "zsh", "user",
-	"service", "schedule", "macro", "os", "storage", "pipeline", "pe", "pd",
+	"service", "schedule", "macro", "os", "storage", "pipeline", "pe", "pd", "ee",
 	"servers-clients", "servers-client", "sc", "clients", "cluster",
 	"agy", "fix-pipeline", "tasks", "task", "author", "sponsor", "credits",
 	"update", "ua", "ssh", "ssh-join", "ssh-exec", "ssh-nodes", "install-exec", "deploy",

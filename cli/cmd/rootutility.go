@@ -337,7 +337,7 @@ func utilityPipelineEntries() []dispatchEntry {
 		{[]string{"pipeline-fix", "fix-pipeline", "aef", "agy-errors-fix", "fix-agy"}, func() error { return cmdagy.RunPipelineFixAgyCLI(argsTail()) }},
 		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return runPipelineAI(argsTail()) }},
 		{[]string{"pipeline", "pipelines", "pl"}, func() error { return runPipeline(argsTail()) }},
-		{[]string{"pe", "pipeline-errors", "pipeline_errors"}, func() error { return runPipelineErrors(argsTail()) }},
+		{[]string{"pe", "pipeline-errors", "pipeline_errors", "ee"}, func() error { return runPipelineErrors(argsTail()) }},
 		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return runPipelineDetails(argsTail()) }},
 		{[]string{"e", "errors", "internal-errors", "errs"}, func() error { return cmderrors.RunErrorsCLI(argsTail()) }},
 		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},

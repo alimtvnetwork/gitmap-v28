@@ -333,11 +333,11 @@ func buildHelpCompletions() []string {
 func makeTopLevelPECmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "pe [path|alias|url] [flags]",
-		Aliases: []string{"pipeline-errors", "pipeline_errors"},
+		Aliases: []string{"pipeline-errors", "pipeline_errors", "ee"},
 		Short:   "Inspect CI/CD pipeline error logs and status for target repository",
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
-				return getDBRepoCompletions(), cobra.ShellCompDirectiveDefault
+				return filterRepoCompletions(toComplete), cobra.ShellCompDirectiveNoFileComp
 			}
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
@@ -356,7 +356,7 @@ func makeTopLevelCFRCmd() *cobra.Command {
 		Short:   "Clone, inspect, and fix repository with desktop sync",
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
-				return getDBRepoCompletions(), cobra.ShellCompDirectiveDefault
+				return filterRepoCompletions(toComplete), cobra.ShellCompDirectiveNoFileComp
 			}
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
@@ -364,6 +364,26 @@ func makeTopLevelCFRCmd() *cobra.Command {
 	cmd.Flags().Bool("https", false, "Force HTTPS clone")
 	cmd.Flags().Bool("ssh", false, "Force SSH clone")
 	return cmd
+}
+
+func filterRepoCompletions(toComplete string) []string {
+	all := getDBRepoCompletions()
+	if toComplete == "" {
+		return all
+	}
+	clean := strings.ToLower(strings.TrimSpace(toComplete))
+	var filtered []string
+	for _, entry := range all {
+		parts := strings.Split(entry, "\t")
+		name := strings.ToLower(parts[0])
+		if strings.HasPrefix(name, clean) || strings.Contains(name, clean) {
+			filtered = append(filtered, entry)
+		}
+	}
+	if len(filtered) > 0 {
+		return filtered
+	}
+	return all
 }
 
 func getDBRepoCompletions() []string {

@@ -34,11 +34,37 @@ func ResolvePipelineTargetAndPath(target string) (string, string) {
 }
 
 func resolveDBOrExplicitSlug(target string) (string, string) {
+	if slug, absPath := resolveSpecialAlias(target); slug != "" {
+		return slug, absPath
+	}
 	if slug, absPath, isFound := queryRepoSlugAndPathFromDB(target); isFound {
 		return slug, absPath
 	}
 	if strings.Contains(target, "/") {
 		return target, ""
+	}
+	return "", ""
+}
+
+func resolveSpecialAlias(target string) (string, string) {
+	low := strings.ToLower(target)
+	switch low {
+	case "rs", "repo-secrets":
+		if slug, absPath, isFound := queryRepoSlugAndPathFromDB("repo-secrets"); isFound {
+			return slug, absPath
+		}
+	case "rc", "repo-cache", "repo-storage":
+		if slug, absPath, isFound := queryRepoSlugAndPathFromDB("repo-cache"); isFound {
+			return slug, absPath
+		}
+	case "gm", "gitmap":
+		if slug, absPath, isFound := queryRepoSlugAndPathFromDB("gitmap"); isFound {
+			return slug, absPath
+		}
+	case "cg", "coding-guidelines":
+		if slug, absPath, isFound := queryRepoSlugAndPathFromDB("coding-guidelines"); isFound {
+			return slug, absPath
+		}
 	}
 	return "", ""
 }
@@ -111,16 +137,17 @@ func queryExactAlias(conn *sql.DB, identifier string) (string, string, bool) {
 
 func queryExactRepo(conn *sql.DB, identifier string) (string, string, bool) {
 	var slug, absPath string
-	q := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath LIKE ? LIMIT 1"
-	likePattern := "%" + filepath.ToSlash(identifier)
-	if err := conn.QueryRow(q, identifier, identifier, likePattern).Scan(&slug, &absPath); err == nil && len(slug) > 0 {
+	q := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath = ? OR AbsolutePath LIKE ? OR AbsolutePath LIKE ? LIMIT 1"
+	slashPattern := "%/" + filepath.ToSlash(identifier)
+	backslashPattern := "%\\" + filepath.FromSlash(identifier)
+	if err := conn.QueryRow(q, identifier, identifier, identifier, slashPattern, backslashPattern).Scan(&slug, &absPath); err == nil && len(slug) > 0 {
 		return slug, absPath, true
 	}
 	return "", "", false
 }
 
 func queryPrefixRepo(conn *sql.DB, identifier string) (string, string, bool) {
-	q := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug LIKE ? OR RepoName LIKE ? LIMIT 2"
+	q := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug LIKE ? OR RepoName LIKE ? ORDER BY Slug DESC LIMIT 5"
 	rows, err := conn.Query(q, identifier+"%", identifier+"%")
 	if err != nil {
 		return "", "", false
@@ -132,10 +159,12 @@ func queryPrefixRepo(conn *sql.DB, identifier string) (string, string, bool) {
 		if errScan := rows.Scan(&s, &a); errScan != nil {
 			return "", "", false
 		}
+		if count == 0 {
+			slug, absPath = s, a
+		}
 		count++
-		slug, absPath = s, a
 	}
-	if count == 1 && slug != "" {
+	if count > 0 && slug != "" {
 		return slug, absPath, true
 	}
 	return "", "", false
