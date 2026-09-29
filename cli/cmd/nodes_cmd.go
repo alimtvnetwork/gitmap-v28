@@ -227,16 +227,20 @@ func populateSSHConnections(m map[string]*UnifiedFleetNode, conns []dbpkg.SSHCon
 	}
 }
 
+func updateExistingClusterNode(existing *UnifiedFleetNode, nodeRole string) {
+	ensureSubsystem(existing, "Cluster")
+	ensureSubsystem(existing, "SC")
+	if nodeRole != "" {
+		existing.Role = nodeRole
+	}
+}
+
 func populateClusterNodes(m map[string]*UnifiedFleetNode, nodes []dbpkg.ClusterNode) {
 	for _, n := range nodes {
 		key := resolveNodeKey(n.IPAddress, n.Alias)
 		existing, ok := m[key]
 		if ok {
-			ensureSubsystem(existing, "Cluster")
-			ensureSubsystem(existing, "SC")
-			if n.NodeRole != "" {
-				existing.Role = n.NodeRole
-			}
+			updateExistingClusterNode(existing, n.NodeRole)
 			continue
 		}
 		m[key] = &UnifiedFleetNode{

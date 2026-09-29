@@ -20,24 +20,26 @@ func runWinUtilTopLevel(args []string) error {
 }
 
 func runDevTopLevel(args []string) error {
-	if len(args) > 0 {
-		sub := strings.ToLower(args[0])
-		if isDevCleanActionVerb(sub) {
-			return cmdos.RunOSDevClean(args[1:])
-		}
+	if len(args) == 0 {
+		return cmdos.RunDevToolCLI(args)
+	}
+	sub := strings.ToLower(args[0])
+	if isDevCleanActionVerb(sub) {
+		return cmdos.RunOSDevClean(args[1:])
 	}
 	return cmdos.RunDevToolCLI(args)
 }
 
 func runCleanTopLevel(args []string) error {
-	if len(args) > 0 {
-		sub := strings.ToLower(args[0])
-		if isTerminalCleanSubToken(sub) {
-			return runCleanTerminalTopLevel(args[1:])
-		}
-		if isDevCleanSubToken(sub) {
-			return cmdos.RunOSDevClean(args[1:])
-		}
+	if len(args) == 0 {
+		return cmdos.RunOSDevClean(args)
+	}
+	sub := strings.ToLower(args[0])
+	if isTerminalCleanSubToken(sub) {
+		return runCleanTerminalTopLevel(args[1:])
+	}
+	if isDevCleanSubToken(sub) {
+		return cmdos.RunOSDevClean(args[1:])
 	}
 	return cmdos.RunOSDevClean(args)
 }

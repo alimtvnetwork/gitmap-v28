@@ -207,11 +207,12 @@ func processTerminalHistoryFile(stats *ShellCleanStats, filePath string, suggest
 	stats.BytesFreed += bytes
 	stats.ClearedPaths = append(stats.ClearedPaths, filePath)
 
+	if isDryRun && shouldReseed {
+		stats.IsReseeded = true
+		stats.ReseedCount += len(suggestions)
+		return
+	}
 	if isDryRun {
-		if shouldReseed {
-			stats.IsReseeded = true
-			stats.ReseedCount += len(suggestions)
-		}
 		return
 	}
 
@@ -346,11 +347,12 @@ func resolveBashHistoryTargets() []string {
 
 func resolveBashSessionsDir() string {
 	home, _ := os.UserHomeDir()
-	if home != "" {
-		dir := filepath.Join(home, ".bash_sessions")
-		if isDir(dir) {
-			return dir
-		}
+	if home == "" {
+		return ""
+	}
+	dir := filepath.Join(home, ".bash_sessions")
+	if isDir(dir) {
+		return dir
 	}
 	return ""
 }
@@ -372,11 +374,12 @@ func resolveZshHistoryTargets() []string {
 
 func resolveZshSessionsDir() string {
 	home, _ := os.UserHomeDir()
-	if home != "" {
-		dir := filepath.Join(home, ".zsh_sessions")
-		if isDir(dir) {
-			return dir
-		}
+	if home == "" {
+		return ""
+	}
+	dir := filepath.Join(home, ".zsh_sessions")
+	if isDir(dir) {
+		return dir
 	}
 	return ""
 }
@@ -445,10 +448,9 @@ func isGitmapInstalledBefore() bool {
 		return true
 	}
 
-	if exe, err := os.Executable(); err == nil {
-		if strings.Contains(strings.ToLower(exe), "gitmap") {
-			return true
-		}
+	exe, err := os.Executable()
+	if err == nil && strings.Contains(strings.ToLower(exe), "gitmap") {
+		return true
 	}
 
 	return false

@@ -98,28 +98,26 @@ func queryFallbackConnection(ctx context.Context, target string) (*db.SSHConnect
 
 	host, hostErr := store.GetHostByAlias(ctx, cleanHost, dbConn.Conn())
 	if hostErr == nil {
-		conn := convertSSHHostToConnection(host)
-		if explicitUser != "" {
-			conn.Username = explicitUser
-		}
+		conn := convertSSHHostToConnection(host, explicitUser)
 		return &conn, nil
 	}
 	hostIP, ipErr := store.GetHostByIP(ctx, cleanHost, dbConn.Conn())
 	if ipErr == nil {
-		conn := convertSSHHostToConnection(hostIP)
-		if explicitUser != "" {
-			conn.Username = explicitUser
-		}
+		conn := convertSSHHostToConnection(hostIP, explicitUser)
 		return &conn, nil
 	}
 	return nil, apperror.NewNotFoundError(fmt.Sprintf("SSH host '%s' not found in registry", target))
 }
 
-func convertSSHHostToConnection(h store.SSHHost) db.SSHConnection {
+func convertSSHHostToConnection(h store.SSHHost, explicitUser string) db.SSHConnection {
+	user := h.Username
+	if explicitUser != "" {
+		user = explicitUser
+	}
 	return db.SSHConnection{
 		Alias:             h.Alias,
 		IPAddress:         h.IP,
-		Username:          h.Username,
+		Username:          user,
 		EncryptedPassword: h.EncryptedPassword,
 		OS:                "linux",
 	}

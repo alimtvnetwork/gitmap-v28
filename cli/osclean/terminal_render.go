@@ -25,12 +25,10 @@ func renderTerminalTableRow(s ShellCleanStats, isDryRun bool) {
 	}
 	sizeStr := FormatCleanSize(s.BytesFreed)
 	reseedStr := "None"
-	if s.IsReseeded {
-		if isDryRun {
-			reseedStr = fmt.Sprintf("%d cmds (plan)", s.ReseedCount)
-		} else {
-			reseedStr = fmt.Sprintf("✔ %d cmds", s.ReseedCount)
-		}
+	if s.IsReseeded && isDryRun {
+		reseedStr = fmt.Sprintf("%d cmds (plan)", s.ReseedCount)
+	} else if s.IsReseeded {
+		reseedStr = fmt.Sprintf("✔ %d cmds", s.ReseedCount)
 	}
 	fmt.Printf("  • %-28s %-12s %8d %12s %16s\n",
 		s.Label, status, s.FilesCleared, sizeStr, reseedStr)
