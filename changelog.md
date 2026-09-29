@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.411.0] - 2026-09-29
+
+### Added
+- resolve cmdssh symbol redeclaration and complete ssh diagnostics
+
+---
+
 ## [v6.410.0] - 2026-09-29
 
 ### Added

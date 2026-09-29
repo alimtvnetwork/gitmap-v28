@@ -1,3 +1,9 @@
+## v6.411.0 — 2026-09-29 (resolve cmdssh symbol redeclaration and complete ssh diagnostics)
+
+**Scope:** Version bump. resolve cmdssh symbol redeclaration and complete ssh diagnostics.
+
+---
+
 ## v6.410.0 — 2026-09-29 (fix ssh join auth reporting, crlf password trimming, and suppress stack traces)
 
 **Scope:** Version bump. fix ssh join auth reporting, crlf password trimming, and suppress stack traces.
