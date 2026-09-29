@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.412.0] - 2026-09-29
+
+### Added
+- add clear devtools, clear dev-tools, clear dev-tools-cache, and devtools-cache clear aliases
+
+---
+
 ## [v6.411.0] - 2026-09-29
 
 ### Added

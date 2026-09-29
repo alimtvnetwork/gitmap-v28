@@ -1,3 +1,9 @@
+## v6.412.0 — 2026-09-29 (add clear devtools, clear dev-tools, clear dev-tools-cache, and devtools-cache clear aliases)
+
+**Scope:** Version bump. add clear devtools, clear dev-tools, clear dev-tools-cache, and devtools-cache clear aliases.
+
+---
+
 ## v6.411.0 — 2026-09-29 (resolve cmdssh symbol redeclaration and complete ssh diagnostics)
 
 **Scope:** Version bump. resolve cmdssh symbol redeclaration and complete ssh diagnostics.
