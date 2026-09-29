@@ -1,3 +1,9 @@
+## v6.406.0 — 2026-09-29 (fix user@host target resolution and OpenSSH askpass newline authentication)
+
+**Scope:** Version bump. fix user@host target resolution and OpenSSH askpass newline authentication.
+
+---
+
 ## v6.405.0 — 2026-09-29 (import-all-json what-configs and fleet deploy hardening)
 
 **Scope:** Version bump. import-all-json what-configs and fleet deploy hardening.
