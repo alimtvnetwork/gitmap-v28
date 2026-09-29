@@ -25,20 +25,23 @@ type SSHConnection struct {
 }
 
 const (
-	sqlUpsertSSHConnection = `
-		INSERT INTO SSHConnection (
+	sqlInsertSSHConnection = `
+		INSERT OR REPLACE INTO SSHConnection (
 			Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, OSGroup, OSVersion, BuildVersion, FirstRunAt, CreatedAt
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		ON CONFLICT(Alias) DO UPDATE SET
-			IPAddress = excluded.IPAddress,
-			Username = excluded.Username,
-			EncryptedPassword = excluded.EncryptedPassword,
-			KeyPath = excluded.KeyPath,
-			OS = excluded.OS,
-			OSGroup = CASE WHEN excluded.OSGroup != '' THEN excluded.OSGroup ELSE SSHConnection.OSGroup END,
-			OSVersion = CASE WHEN excluded.OSVersion != '' THEN excluded.OSVersion ELSE SSHConnection.OSVersion END,
-			BuildVersion = CASE WHEN excluded.BuildVersion != '' THEN excluded.BuildVersion ELSE SSHConnection.BuildVersion END,
-			FirstRunAt = COALESCE(SSHConnection.FirstRunAt, excluded.FirstRunAt)
+	`
+	sqlUpdateMatchedSSHConnection = `
+		UPDATE SSHConnection SET
+			Alias = ?,
+			IPAddress = ?,
+			Username = ?,
+			EncryptedPassword = ?,
+			KeyPath = ?,
+			OS = ?,
+			OSGroup = ?,
+			OSVersion = ?,
+			BuildVersion = ?
+		WHERE Alias = ?
 	`
 	sqlSelectSSHConnections        = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSGroup, ''), COALESCE(OSVersion, ''), COALESCE(BuildVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection`
 	sqlSelectSSHConnectionByAlias  = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSGroup, ''), COALESCE(OSVersion, ''), COALESCE(BuildVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
@@ -73,13 +76,85 @@ func execUpsertSSHConnection(
 	c SSHConnection,
 	firstRun, createdAt time.Time,
 ) *apperror.AppError {
-	_, err := db.ExecContext(ctx, sqlUpsertSSHConnection,
+	existing := findExistingMatch(ctx, db, c.Alias, c.IPAddress)
+	if existing != nil {
+		return updateMatchedConnection(ctx, db, existing, c)
+	}
+	return insertNewConnection(ctx, db, c, firstRun, createdAt)
+}
+
+func findExistingMatch(ctx context.Context, db *sql.DB, alias, ip string) *SSHConnection {
+	if alias != "" {
+		if found, err := GetSSHConnectionByAlias(ctx, db, alias); err == nil && found != nil {
+			return found
+		}
+	}
+	if ip != "" {
+		if found, err := GetSSHConnectionByIP(ctx, db, ip); err == nil && found != nil {
+			return found
+		}
+	}
+	return nil
+}
+
+func updateMatchedConnection(ctx context.Context, db *sql.DB, existing *SSHConnection, incoming SSHConnection) *apperror.AppError {
+	merged := mergeMatchedFields(existing, incoming)
+	_, err := db.ExecContext(ctx, sqlUpdateMatchedSSHConnection,
+		merged.Alias, merged.IPAddress, merged.Username, merged.EncryptedPassword,
+		merged.KeyPath, merged.OS, merged.OSGroup, merged.OSVersion, merged.BuildVersion,
+		existing.Alias,
+	)
+	if err != nil {
+		return apperror.WrapSimple(err, "updateMatchedConnection")
+	}
+	return nil
+}
+
+func mergeMatchedFields(existing *SSHConnection, incoming SSHConnection) SSHConnection {
+	merged := *existing
+	if incoming.Alias != "" {
+		merged.Alias = incoming.Alias
+	}
+	if incoming.IPAddress != "" {
+		merged.IPAddress = incoming.IPAddress
+	}
+	if incoming.Username != "" {
+		merged.Username = incoming.Username
+	}
+	if incoming.EncryptedPassword != "" {
+		merged.EncryptedPassword = incoming.EncryptedPassword
+	}
+	if incoming.KeyPath != "" {
+		merged.KeyPath = incoming.KeyPath
+	}
+	if incoming.OS != "" {
+		merged.OS = incoming.OS
+	}
+	if incoming.OSGroup != "" {
+		merged.OSGroup = incoming.OSGroup
+	}
+	if incoming.OSVersion != "" {
+		merged.OSVersion = incoming.OSVersion
+	}
+	if incoming.BuildVersion != "" {
+		merged.BuildVersion = incoming.BuildVersion
+	}
+	return merged
+}
+
+func insertNewConnection(
+	ctx context.Context,
+	db *sql.DB,
+	c SSHConnection,
+	firstRun, createdAt time.Time,
+) *apperror.AppError {
+	_, err := db.ExecContext(ctx, sqlInsertSSHConnection,
 		c.Alias, c.IPAddress, c.Username, c.EncryptedPassword,
 		c.KeyPath, c.OS, c.OSGroup, c.OSVersion, c.BuildVersion,
 		firstRun, createdAt,
 	)
 	if err != nil {
-		return apperror.WrapSimple(err, "execUpsertSSHConnection")
+		return apperror.WrapSimple(err, "insertNewConnection")
 	}
 	return nil
 }

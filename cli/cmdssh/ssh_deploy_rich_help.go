@@ -16,14 +16,17 @@ func buildDeployHelpMenu() termhelp.HelpMenu {
 			"gitmap deploy <target> <source> <dest> [flags]",
 			"gitmap deploy-right <target> <source> <dest> [flags]",
 			"gitmap deploy-left <target> <source> <dest> [flags]",
+			"gitmap deploy config ssh [all|<target>] [flags]",
 			"gitmap sc deploy <target> <source> <dest> [flags]",
 		},
 		Sections: []termhelp.HelpSection{
 			buildDeploySyncModesSection(),
+			buildDeployFleetConfigSection(),
 			buildDeployTargetsSection(),
 		},
 		FooterFlags: buildDeployFooterFlags(),
 		Tips: []string{
+			"Use 'gitmap deploy config ssh' to automatically deploy and sync SSH node configs across fleet machines.",
 			"Use 'gitmap deploy-right' to push local files only when newer than remote.",
 			"Use 'gitmap deploy-left' to pull remote files only when newer than local.",
 			"Add '--json' for clean programmatic pipeline telemetry.",
@@ -40,6 +43,17 @@ func buildDeploySyncModesSection() termhelp.HelpSection {
 			{Command: "--sync", Description: "Bidirectional sync: transfer newer file by mtime"},
 			{Command: "--overwrite (-o)", Description: "Unconditionally overwrite existing remote files"},
 			{Command: "--skip (-s)", Description: "Skip existing files without prompting"},
+		},
+	}
+}
+
+func buildDeployFleetConfigSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Fleet Infrastructure & Configuration Deployment",
+		Entries: []termhelp.CommandEntry{
+			{Command: "deploy config ssh [target]", Description: "Deploy SSH topology & credentials from local DB across fleet"},
+			{Command: "deploy bin [target]", Description: "Deploy GitMap CLI binary across remote fleet nodes and verify version"},
+			{Command: "deploy keys [target]", Description: "Deploy authorized SSH public keys across fleet nodes for passwordless SSH"},
 		},
 	}
 }

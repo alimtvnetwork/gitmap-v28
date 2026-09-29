@@ -67,6 +67,8 @@ func toolingDevDeployEntries() []dispatchEntry {
 		{[]string{"deploy"}, func() error { return runSSHDeploy("deploy", argsTail()) }},
 		{[]string{"deploy-right"}, func() error { return runSSHDeploy("deploy-right", argsTail()) }},
 		{[]string{"deploy-left"}, func() error { return runSSHDeploy("deploy-left", argsTail()) }},
+		{[]string{"deploy-config", "deploy-config-ssh", "deploy-ssh-config"}, func() error { return runSSHDeployConfig(argsTail()) }},
+		{[]string{"import-ssh", "ssh-import", "import-ssh-nodes"}, func() error { return runSSHImportNodes(argsTail()) }},
 	}
 }
 

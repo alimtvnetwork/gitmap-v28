@@ -316,18 +316,21 @@ func isProcessChangeRequiredError(err error) bool {
 		strings.Contains(msg, "process change")
 }
 
-func printProcessChangeException(alias string) {
+func printProcessChangeException(alias string, err error) {
 	fmt.Printf("    %s✖ [E_PROCESS_CHANGE_REQUIRED] Cannot deploy gitmap directly with active process on %s%s\n",
 		constants.ColorRed, alias, constants.ColorReset)
 	fmt.Printf("      %sIn-place binary replacement is blocked because gitmap is actively running.%s\n",
 		constants.ColorYellow, constants.ColorReset)
 	fmt.Printf("      %sProcess change required: Clone to stage binary -> delegate call to cloned exe -> replace target.%s\n",
 		constants.ColorDim, constants.ColorReset)
+	if err != nil {
+		fmt.Printf("      %sRaw error: %v%s\n", constants.ColorDim, err, constants.ColorReset)
+	}
 }
 
 func handleUploadFailure(err error, alias string) {
 	if isProcessChangeRequiredError(err) {
-		printProcessChangeException(alias)
+		printProcessChangeException(alias, err)
 		return
 	}
 	fmt.Printf("    %s✖ Upload error: %v%s\n", constants.ColorRed, err, constants.ColorReset)
@@ -388,7 +391,7 @@ func streamBinaryToRemote(client *ssh.Client, destPath, localPath string, isWin 
 func buildStreamReceiverCmd(destPath string, isWin bool) string {
 	if isWin {
 		return fmt.Sprintf(
-			`powershell -NoProfile -Command "$dest = '%s'; $cloned = $dest + '-cloned.exe'; $dir = [System.IO.Path]::GetDirectoryName($dest); if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }; $in = [System.Console]::OpenStandardInput(); $out = [System.IO.File]::OpenWrite($cloned); $in.CopyTo($out); $out.Close(); Stop-Process -Name gitmap -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 200; if (Test-Path $dest) { $old = $dest + '.old'; Remove-Item $old -Force -ErrorAction SilentlyContinue; Move-Item -Path $dest -Destination $old -Force -ErrorAction SilentlyContinue }; Move-Item -Path $cloned -Destination $dest -Force"`,
+			`powershell -NoProfile -Command "$dest = '%s'; $cloned = $dest + '-' + [System.Guid]::NewGuid().ToString('N') + '.tmp.exe'; $dir = [System.IO.Path]::GetDirectoryName($dest); if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }; $in = [System.Console]::OpenStandardInput(); $out = [System.IO.File]::OpenWrite($cloned); $in.CopyTo($out); $out.Close(); Stop-Process -Name gitmap -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 200; if (Test-Path $dest) { $old = $dest + '.old'; Remove-Item $old -Force -ErrorAction SilentlyContinue; Move-Item -Path $dest -Destination $old -Force -ErrorAction SilentlyContinue }; Move-Item -Path $cloned -Destination $dest -Force"`,
 			destPath,
 		)
 	}

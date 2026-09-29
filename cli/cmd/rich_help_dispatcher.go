@@ -62,7 +62,7 @@ func tryRenderToolRichTopic(topic string) bool {
 		cmdupdate.RenderUpdateRichHelp()
 
 		return true
-	case "deploy", "deploy-right", "deploy-left":
+	case "deploy", "deploy-right", "deploy-left", "deploy-config", "deploy-config-ssh", "deploy-ssh-config":
 		cmdssh.RenderDeployRichHelp()
 
 		return true

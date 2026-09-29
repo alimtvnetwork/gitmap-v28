@@ -6,12 +6,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -146,21 +144,27 @@ func importConfigLocally(cfg map[string]any) {
 }
 
 func importConnectionsLocally(conns []db.SSHConnection) int {
-	dbConn, err := store.OpenDefault()
+	stats, err := SyncSSHConnectionsLocally(conns)
 	if err != nil {
 		return 0
 	}
-	defer dbConn.Close()
-	_ = store.EnsureSSHTables(dbConn.SQL())
-	count := 0
-	now := time.Now().UTC()
-	for _, c := range conns {
-		if appErr := db.InsertOrUpdateSSHConnection(dbConn.Context(), dbConn.SQL(), c); appErr == nil {
-			count++
+	return stats.Matched + stats.Inserted
+}
+
+func enrichConnectionPassword(c db.SSHConnection) db.SSHConnection {
+	if c.EncryptedPassword != "" {
+		if plain := tryDecryptCandidate(c.EncryptedPassword); plain != "" {
+			return c
 		}
-		upsertConnToSSHHost(dbConn.Context(), dbConn.SQL(), c, now)
 	}
-	return count
+	plain := ResolveFallbackCredentials(c.Username, c.OS)
+	if plain == "" {
+		return c
+	}
+	if enc, err := EncryptSSHPassword(plain); err == nil {
+		c.EncryptedPassword = enc
+	}
+	return c
 }
 
 func importKnownHostsLocally(kh string) int {

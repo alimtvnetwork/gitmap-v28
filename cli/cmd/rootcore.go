@@ -253,6 +253,9 @@ func dispatchSCDeployOps(subCmd string, rest []string) bool {
 	case "deploy", "deploy-right", "deploy-left":
 		_ = cmdssh.RunSSHDeployCLI(subCmd, rest)
 		return true
+	case "deploy-config", "deploy-config-ssh", "deploy-ssh-config":
+		_ = cmdssh.RunSSHDeployConfigSSHCLI(rest)
+		return true
 	default:
 		return false
 	}

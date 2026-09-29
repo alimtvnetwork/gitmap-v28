@@ -26,6 +26,10 @@ func candidateVMPassPaths() []string {
 		"../vmpass.json",
 		"../../vmpass.json",
 		filepath.Join(filepath.Dir(store.BinaryDataDir()), "vmpass.json"),
+		"D:/work/repo-secrets/01-gitmap/vmpass.json",
+		filepath.Join("..", "repo-secrets", "01-gitmap", "vmpass.json"),
+		filepath.Join("..", "..", "repo-secrets", "01-gitmap", "vmpass.json"),
+		filepath.Join("repo-secrets", "01-gitmap", "vmpass.json"),
 	}
 	if home, err := os.UserHomeDir(); err == nil {
 		paths = append(paths,

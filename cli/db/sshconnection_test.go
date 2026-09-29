@@ -99,3 +99,57 @@ func TestSSHConnection_GetByIP(t *testing.T) {
 		t.Fatalf("expected OS 'windows', got: %s", fetched.OS)
 	}
 }
+
+func TestSSHConnection_MatchAndUpdate(t *testing.T) {
+	conn := setupTestSSHDB(t)
+	defer conn.Close()
+	ctx := context.Background()
+
+	now := time.Now().UTC().Truncate(time.Second)
+	initial := SSHConnection{
+		Alias:             "w1",
+		IPAddress:         "192.168.1.3",
+		Username:          "Administrator",
+		EncryptedPassword: "rsa:secret-password",
+		OS:                "windows",
+		CreatedAt:         now,
+	}
+	if err := InsertOrUpdateSSHConnection(ctx, conn, initial); err != nil {
+		t.Fatalf("initial insert failed: %v", err)
+	}
+
+	// 1. Update by Alias with empty password: should update OS and preserve password
+	updateAlias := SSHConnection{
+		Alias:     "w1",
+		IPAddress: "192.168.1.3",
+		Username:  "Administrator",
+		OS:        "linux",
+	}
+	if err := InsertOrUpdateSSHConnection(ctx, conn, updateAlias); err != nil {
+		t.Fatalf("update by alias failed: %v", err)
+	}
+	fetched1, _ := GetSSHConnectionByAlias(ctx, conn, "w1")
+	if fetched1.EncryptedPassword != "rsa:secret-password" {
+		t.Fatalf("expected preserved password, got: %s", fetched1.EncryptedPassword)
+	}
+	if fetched1.OS != "linux" {
+		t.Fatalf("expected updated OS 'linux', got: %s", fetched1.OS)
+	}
+
+	// 2. Match by IP address with new Alias: should update Alias and preserve password
+	updateIP := SSHConnection{
+		Alias:     "w1-renamed",
+		IPAddress: "192.168.1.3",
+		Username:  "Administrator",
+	}
+	if err := InsertOrUpdateSSHConnection(ctx, conn, updateIP); err != nil {
+		t.Fatalf("update by IP failed: %v", err)
+	}
+	fetched2, _ := GetSSHConnectionByIP(ctx, conn, "192.168.1.3")
+	if fetched2.Alias != "w1-renamed" {
+		t.Fatalf("expected updated alias 'w1-renamed', got: %s", fetched2.Alias)
+	}
+	if fetched2.EncryptedPassword != "rsa:secret-password" {
+		t.Fatalf("expected preserved password after IP match, got: %s", fetched2.EncryptedPassword)
+	}
+}

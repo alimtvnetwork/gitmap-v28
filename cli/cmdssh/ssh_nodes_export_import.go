@@ -23,15 +23,17 @@ const (
 
 // SSHNodeExportItem represents an exported SSH node with deterministic worker ID and metadata.
 type SSHNodeExportItem struct {
-	WorkerID   string `json:"worker_id"`
-	NumericID  int    `json:"id"`
-	Alias      string `json:"alias"`
-	IPAddress  string `json:"ip_address"`
-	Username   string `json:"username"`
-	Port       int    `json:"port"`
-	OS         string `json:"os"`
-	AuthMethod string `json:"auth_method"`
-	KeyPath    string `json:"key_path,omitempty"`
+	WorkerId          string `json:"worker_id"`
+	NumericId         int    `json:"id"`
+	Alias             string `json:"alias"`
+	IPAddress         string `json:"ip_address"`
+	Username          string `json:"username"`
+	Port              int    `json:"port"`
+	OS                string `json:"os"`
+	AuthMethod        string `json:"auth_method"`
+	KeyPath           string `json:"key_path,omitempty"`
+	Password          string `json:"password,omitempty"`
+	EncryptedPassword string `json:"encrypted_password,omitempty"`
 }
 
 // SSHNodesExportEnvelope wraps the exported SSH nodes list with schema and timestamp metadata.
@@ -79,14 +81,14 @@ func BuildSSHNodesExportEnvelope() (*SSHNodesExportEnvelope, error) {
 	}
 	items := make([]SSHNodeExportItem, 0, len(conns))
 	for idx, c := range conns {
-		numID := idx + 1
+		numId := idx + 1
 		authMethod := "key"
 		if c.EncryptedPassword != "" && c.KeyPath == "" {
 			authMethod = "password"
 		}
 		items = append(items, SSHNodeExportItem{
-			WorkerID:   fmt.Sprintf("worker-%d", idx+1),
-			NumericID:  numID,
+			WorkerId:   fmt.Sprintf("worker-%d", idx+1),
+			NumericId:  numId,
 			Alias:      c.Alias,
 			IPAddress:  c.IPAddress,
 			Username:   c.Username,
@@ -135,8 +137,12 @@ func RunSSHNodesImportJSON(args []string) error {
 	if parseErr != nil {
 		return parseErr
 	}
-	imported := importConnectionsLocally(conns)
-	fmt.Printf("✓ Imported %d/%d SSH node(s) from %s\n", imported, len(conns), sourceLabel)
+	stats, syncErr := SyncSSHConnectionsLocally(conns)
+	if syncErr != nil {
+		return syncErr
+	}
+	fmt.Printf("✓ Synced %d SSH node(s) from %s: %d matched (%d updated, %d unchanged), %d inserted\n",
+		stats.Total, sourceLabel, stats.Matched, stats.Updated, stats.Unchanged, stats.Inserted)
 	_ = printSJList(context.Background(), os.Stdout, 0)
 	return nil
 }
@@ -169,12 +175,19 @@ func decodeConnectionsFromJSON(raw []byte) ([]db.SSHConnection, error) {
 func convertExportItemsToConnections(items []SSHNodeExportItem) []db.SSHConnection {
 	out := make([]db.SSHConnection, 0, len(items))
 	for _, it := range items {
+		encPass := it.EncryptedPassword
+		if encPass == "" && it.Password != "" {
+			if encrypted, err := EncryptSSHPassword(it.Password); err == nil {
+				encPass = encrypted
+			}
+		}
 		out = append(out, db.SSHConnection{
-			Alias:     it.Alias,
-			IPAddress: it.IPAddress,
-			Username:  it.Username,
-			OS:        it.OS,
-			KeyPath:   it.KeyPath,
+			Alias:             it.Alias,
+			IPAddress:         it.IPAddress,
+			Username:          it.Username,
+			EncryptedPassword: encPass,
+			OS:                it.OS,
+			KeyPath:           it.KeyPath,
 		})
 	}
 	return out
@@ -197,14 +210,14 @@ func FilterSSHConnectionsByExcept(conns []db.SSHConnection, exceptRaw string) []
 }
 
 func isConnectionExcluded(c db.SSHConnection, oneBasedIdx int, tokens []string) bool {
-	workerID := fmt.Sprintf("worker-%d", oneBasedIdx)
+	workerId := fmt.Sprintf("worker-%d", oneBasedIdx)
 	idxStr := strconv.Itoa(oneBasedIdx)
 	for _, tok := range tokens {
 		low := strings.ToLower(strings.TrimSpace(tok))
 		if low == "" {
 			continue
 		}
-		if low == idxStr || low == strings.ToLower(workerID) ||
+		if low == idxStr || low == strings.ToLower(workerId) ||
 			strings.EqualFold(c.Alias, low) || strings.EqualFold(c.IPAddress, low) {
 			return true
 		}
@@ -250,8 +263,15 @@ func readNodesImportFileWithFallback(inPath string) ([]byte, string, error) {
 	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
 		return []byte(trimmed), "inline-json", nil
 	}
+	resolvedPath := ResolveRepoSecretsNodesPath(trimmed)
+	if data, err := os.ReadFile(resolvedPath); err == nil {
+		return data, resolvedPath, nil
+	}
 	if info, err := os.Stat(inPath); err == nil && info.IsDir() {
-		inPath = filepath.Join(inPath, DefaultSSHNodesJSONFile)
+		dirPath := filepath.Join(inPath, DefaultSSHNodesJSONFile)
+		if data, dirErr := os.ReadFile(dirPath); dirErr == nil {
+			return data, dirPath, nil
+		}
 	}
 	data, err := os.ReadFile(inPath)
 	if err == nil {

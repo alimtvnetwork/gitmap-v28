@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secretsresolver"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
@@ -64,6 +65,12 @@ func runCloneFixOptimization() {
 
 func resolveCloneManifest(source string) string {
 	if len(source) > 0 {
+		if isRegularFile(source) {
+			return source
+		}
+		if resolved := secretsresolver.ResolveRepoSecretsManifest(source, "gitmap.json"); resolved != "" {
+			return resolved
+		}
 		return source
 	}
 	discovered := discoverDefaultCloneManifest()

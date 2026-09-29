@@ -2,8 +2,6 @@
 package cmdssh
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -13,29 +11,7 @@ import (
 
 // RunSSHDeployNodeConfigCLI deploys local SSH node topology to remote nodes (--except id,ip,alias).
 func RunSSHDeployNodeConfigCLI(args []string) error {
-	except, isDryRun, isJSON := parseNodeConfigDeployFlags(args)
-	envelope, err := BuildSSHNodesExportEnvelope()
-	if err != nil {
-		return err
-	}
-	compactBytes, _ := json.Marshal(envelope)
-	b64 := base64.StdEncoding.EncodeToString(compactBytes)
-	remoteCmd := fmt.Sprintf("gitmap ssh nodes import-json --base64 \"%s\"", b64)
-
-	conns, _ := fetchAllSSHConnections()
-	filtered := FilterSSHConnectionsByExcept(conns, except)
-	if isDryRun || len(filtered) == 0 {
-		return renderNodeConfigDeploySummary(filtered, except, len(envelope.Connections), isDryRun, isJSON)
-	}
-	opts := FleetParallelOptions{
-		Target:   "all",
-		Except:   except,
-		TaskName: "Deploy SSH Node-Config (nc)",
-	}
-	RunParallelFleetExecution(filtered, opts, func(c db.SSHConnection) (string, error) {
-		return executeNodeConfigDeployWorker(c, remoteCmd)
-	})
-	return renderNodeConfigDeploySummary(filtered, except, len(envelope.Connections), isDryRun, isJSON)
+	return RunSSHDeployConfigSSHCLI(args)
 }
 
 func executeNodeConfigDeployWorker(c db.SSHConnection, remoteCmd string) (string, error) {
