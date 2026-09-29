@@ -1,3 +1,9 @@
+## v6.410.0 — 2026-09-29 (fix ssh join auth reporting, crlf password trimming, and suppress stack traces)
+
+**Scope:** Version bump. fix ssh join auth reporting, crlf password trimming, and suppress stack traces.
+
+---
+
 ## v6.409.0 — 2026-09-29 (add clear terminal and suggestion reseed)
 
 **Scope:** Version bump. add clear terminal and suggestion reseed.
