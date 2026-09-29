@@ -49,6 +49,7 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelHelpCmd())
 	root.AddCommand(makeTopLevelPECmd())
 	root.AddCommand(makeTopLevelCFRCmd())
+	root.AddCommand(makeTopLevelWPRCmd())
 
 	populateRemainingCommands(root)
 
@@ -81,6 +82,20 @@ func makeTopLevelSugCmd() *cobra.Command {
 	}
 	cmd.Flags().AddFlagSet(cmdagy.AgySUGCmd.Flags())
 	cmd.ValidArgsFunction = cmdagy.AgySUGCmd.ValidArgsFunction
+	return cmd
+}
+
+func makeTopLevelWPRCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "watch-prompts-running [command]",
+		Aliases: []string{"wpr", "watch-running-prompts"},
+		Short:   "Watch, backup, auto-recover, and deploy running prompts",
+		RunE: func(c *cobra.Command, args []string) error {
+			return cmdagy.RunWPRCLI(args)
+		},
+	}
+	cmd.Flags().AddFlagSet(cmdagy.AgyWPRCmd.Flags())
+	cmd.ValidArgsFunction = cmdagy.AgyWPRCmd.ValidArgsFunction
 	return cmd
 }
 

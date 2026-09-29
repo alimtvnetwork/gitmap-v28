@@ -146,6 +146,8 @@ func topLevelCmds() map[string]string {
 		"CmdShutdownUntil":              CmdShutdownUntil,
 		"CmdShutdownUntilAlias":         CmdShutdownUntilAlias,
 		"CmdShutdownUntilGreen":         CmdShutdownUntilGreen,
+		"CmdWatchPromptsRunning":        CmdWatchPromptsRunning,
+		"CmdWatchPromptsRunningAlias":   CmdWatchPromptsRunningAlias,
 		"CmdPrompt":                     CmdPrompt,
 		"CmdPromptAlias":                CmdPromptAlias,
 		"CmdAdd":                        CmdAdd,

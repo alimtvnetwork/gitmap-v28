@@ -79,6 +79,8 @@ tmp/
 /.tmp/
 .tmp/
 *.db
+watch-prompts/
+**/watch-prompts/
 
 *.db-shm
 *.db-wal

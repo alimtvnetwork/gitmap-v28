@@ -281,6 +281,9 @@ func normalizeRunningAndSwitchSubcommands(low string) string {
 	if low == "account-switch" || low == "switch-account" || low == "asw" || low == "fast-forward" || low == "ff" {
 		return "account-switch"
 	}
+	if low == "watch-prompts-running" || low == "wpr" || low == "watch-running-prompts" {
+		return "watch-prompts-running"
+	}
 	if low == "running-prompts" || low == "running-prompt" || low == "rp-prompts" {
 		return "running-prompts"
 	}

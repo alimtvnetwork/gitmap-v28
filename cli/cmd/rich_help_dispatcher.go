@@ -93,6 +93,10 @@ func tryRenderWorkflowRichTopic(topic string) bool {
 		cmdagy.RenderAgySugHelp()
 
 		return true
+	case "watch-prompts-running", "watch-running-prompts", "wpr":
+		cmdagy.RenderWPRHelp()
+
+		return true
 	case "running-prompts", "running-prompt", "backup-running-prompts", "restore-running-prompts", "rp-prompts":
 		cmdagy.RenderRunningPromptsHelp()
 
