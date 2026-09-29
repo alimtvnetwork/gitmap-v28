@@ -3228,6 +3228,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.407.0] - 2026-09-29
+
+### Added
+- add deploy-keys-all direct routing, cross-machine export/import UI and fix mesh key render
+
+---
+
 ## [v6.406.0] 2026-09-29 Release v6.406.0
 
 ### Install GitMap v6.406.0

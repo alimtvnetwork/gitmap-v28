@@ -1,3 +1,9 @@
+## v6.407.0 — 2026-09-29 (add deploy-keys-all direct routing, cross-machine export/import UI and fix mesh key render)
+
+**Scope:** Version bump. add deploy-keys-all direct routing, cross-machine export/import UI and fix mesh key render.
+
+---
+
 ## v6.406.0 — 2026-09-29 (fix user@host target resolution and OpenSSH askpass newline authentication)
 
 **Scope:** Version bump. fix user@host target resolution and OpenSSH askpass newline authentication.
