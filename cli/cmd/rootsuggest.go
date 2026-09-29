@@ -21,6 +21,7 @@ var primaryTopCommands = []string{
 	"servers-clients", "servers-client", "sc", "clients", "cluster",
 	"agy", "fix-pipeline", "tasks", "task", "author", "sponsor", "credits",
 	"update", "ua", "ssh", "ssh-join", "ssh-exec", "ssh-nodes", "install-exec", "deploy",
+	"clean", "clear", "terminal", "clear-terminal", "clean-terminal", "devtool",
 }
 
 func buildUnknownCommandMessage(command string, suggestions []string) string {

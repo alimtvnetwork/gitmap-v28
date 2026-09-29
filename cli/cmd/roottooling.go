@@ -111,7 +111,10 @@ func toolingOpsEntries() []dispatchEntry {
 			"clear-devtool", "clear-dev-tool", "clean-devtools", "clean-dev-tools", "clean-dev-tools-cache",
 			"devtools-cache-clear", "dev-tools-cache-clear",
 		}, func() error { return runCleanDevTopLevel(argsTail()) }},
-		{[]string{"terminal"}, func() error { return runTerminalTopLevel(argsTail()) }},
+		{[]string{
+			"terminal", "clean-terminal", "clear-terminal", "terminal-clean", "terminal-clear",
+			"clean-term", "clear-term",
+		}, func() error { return runTerminalTopLevel(argsTail()) }},
 		{[]string{"devtool", "devtools", "dev-tool", "dev-tools", "dt"}, func() error { return runDevToolTopLevel(argsTail()) }},
 		{[]string{"dev"}, func() error { return runDevTopLevel(argsTail()) }},
 		{[]string{"clean", "clear"}, func() error { return runCleanTopLevel(argsTail()) }},

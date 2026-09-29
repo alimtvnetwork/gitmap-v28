@@ -55,7 +55,8 @@ func runTerminalTopLevel(args []string) error {
 func isTerminalCleanSubToken(sub string) bool {
 	return sub == "terminal" || sub == "term" || sub == "console" ||
 		sub == "shell-history" || sub == "history" ||
-		sub == "terminal-history" || sub == "terminal-suggestions"
+		sub == "terminal-history" || sub == "terminal-suggestions" ||
+		sub == "terminals" || sub == "clear-terminal" || sub == "clean-terminal"
 }
 
 func isDevCleanActionVerb(sub string) bool {

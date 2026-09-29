@@ -72,7 +72,8 @@ func parseTerminalCleanFlag(a string, args []string, i *int, opts *osclean.Termi
 	case a == "--only" && *i+1 < len(args):
 		*i++
 		opts.OnlyShells = strings.Split(args[*i], ",")
-	case a == "terminal" || a == "clear" || a == "clean" || a == "cleanup" || a == "history":
+	case a == "terminal" || a == "clear" || a == "clean" || a == "cleanup" || a == "history" ||
+		a == "clear-terminal" || a == "clean-terminal" || a == "terminal-clear" || a == "terminal-clean":
 		// Ignore action/noun arguments
 	}
 }

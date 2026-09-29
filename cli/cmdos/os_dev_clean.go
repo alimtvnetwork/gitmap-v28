@@ -67,6 +67,7 @@ func parseDevCleanFlag(a string, args []string, i *int, opts *osclean.DevCleanOp
 		opts.OnlyCategories = strings.Split(strings.TrimPrefix(a, "--only="), ",")
 	case a == "--only" && *i+1 < len(args):
 		*i++
+		opts.OnlyCategories = strings.Split(args[*i], ",")
 	case isDevCleanIgnoredToken(a):
 		// Ignore action verbs and target nouns passed as argument
 	}
