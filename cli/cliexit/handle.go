@@ -30,8 +30,22 @@ func HandleError(err error, defaultCode ...int) {
 	}
 
 	code := resolveExitCode(defaultCode...)
+	if isAbortOrReported(err) {
+		runFlushers()
+		exitFunc(code)
+
+		return
+	}
+
 	appErr := ensureAppError(err)
 	if appErr == nil {
+		return
+	}
+
+	if isAbortOrReported(appErr) {
+		runFlushers()
+		exitFunc(code)
+
 		return
 	}
 
@@ -131,12 +145,74 @@ func isStackTraceEnabled(e *apperror.AppError) bool {
 		return true
 	}
 
+	isAbort := e.Type == apperror.ErrorTypeAbort || isReportedContext(e.Ctx)
+	if isAbort {
+		return false
+	}
+
 	isFatal := e.Code == "E9000" || e.Code == "E_INTERNAL_ERROR" || e.Type == apperror.ErrorTypeExecution || e.Severity == apperror.SeverityFatal
 	if isFatal {
 		return true
 	}
 
 	return false
+}
+
+func isAbortOrReported(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	appErr, isApp := err.(*apperror.AppError)
+	if isApp && appErr != nil {
+		return checkAppErrorAbort(appErr)
+	}
+
+	multi, isMulti := err.(interface{ Unwrap() []error })
+	if isMulti && multi != nil {
+		return checkMultiErrorAbort(multi.Unwrap())
+	}
+
+	single, isSingle := err.(interface{ Unwrap() error })
+	if isSingle && single != nil {
+		return isAbortOrReported(single.Unwrap())
+	}
+
+	return false
+}
+
+func checkAppErrorAbort(appErr *apperror.AppError) bool {
+	isAbort := appErr.Type == apperror.ErrorTypeAbort || isReportedContext(appErr.Ctx)
+	if isAbort {
+		return true
+	}
+
+	return isAbortOrReported(appErr.Cause)
+}
+
+func checkMultiErrorAbort(errs []error) bool {
+	for _, e := range errs {
+		if isAbortOrReported(e) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isReportedContext(ctx map[string]any) bool {
+	if ctx == nil {
+		return false
+	}
+
+	val, ok := ctx["reported"]
+	if !ok {
+		return false
+	}
+
+	isReported, isBool := val.(bool)
+
+	return isBool && isReported
 }
 
 func indentLines(s, prefix string) string {

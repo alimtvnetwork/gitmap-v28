@@ -128,3 +128,55 @@ func TestFailWith_InvokesExitFunc(t *testing.T) {
 		t.Fatalf("expected exit code 5, got %d", capturedCode)
 	}
 }
+
+func TestHandleError_AbortSuppressesDiagnostics(t *testing.T) {
+	var capturedCode int
+	prev := SetExitFunc(func(c int) {
+		capturedCode = c
+	})
+	defer SetExitFunc(prev)
+
+	appErr := apperror.NewWithDetails(
+		"test.abort",
+		"E9000",
+		"aborted operation",
+		"testpkg",
+		apperror.ErrorTypeAbort,
+		apperror.SeverityError,
+		map[string]any{"reported": true},
+	)
+
+	HandleError(appErr, 1)
+	if capturedCode != 1 {
+		t.Fatalf("expected exit code 1, got %d", capturedCode)
+	}
+
+	if isStackTraceEnabled(appErr) {
+		t.Fatal("expected stack trace to be disabled for abort/reported error")
+	}
+}
+
+func TestHandleError_WrappedAbortSuppressesDiagnostics(t *testing.T) {
+	var capturedCode int
+	prev := SetExitFunc(func(c int) {
+		capturedCode = c
+	})
+	defer SetExitFunc(prev)
+
+	inner := apperror.NewWithDetails(
+		"test.abort",
+		"E9000",
+		"auth failed",
+		"testpkg",
+		apperror.ErrorTypeAbort,
+		apperror.SeverityError,
+		map[string]any{"reported": true},
+	)
+	wrapped := apperror.WrapSimple(inner, "outer.wrapper")
+
+	HandleError(wrapped, 1)
+	if capturedCode != 1 {
+		t.Fatalf("expected exit code 1, got %d", capturedCode)
+	}
+}
+

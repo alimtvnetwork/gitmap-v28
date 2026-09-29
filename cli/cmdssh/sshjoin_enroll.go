@@ -448,7 +448,8 @@ func savePostInstallProfile(opts *SSHJoinOptions, rep *cmdos.OSInfoReport) {
 }
 
 func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {
-	isFailedAuth := opts.Password != "" && !session.hasClient
+	isAuthDialError := session.err != nil && strings.Contains(session.err.Error(), "authentication failed")
+	isFailedAuth := (opts.Password != "" || isAuthDialError) && !session.hasClient
 	if !isFailedAuth {
 		return nil
 	}

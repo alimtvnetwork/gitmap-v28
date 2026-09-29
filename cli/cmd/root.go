@@ -187,6 +187,12 @@ func handleGlobalError(command string, err error) {
 
 	persistLastError(command, err)
 
+	if isAbortOrReportedError(err) {
+		cliexit.HandleError(nil, 1)
+
+		return
+	}
+
 	if isAppErr && appErr != nil && appErr.Type == apperror.ErrorTypeValidation {
 		msg := getValidationErrorMessage(appErr)
 		cliexit.Reportf(command, "validation", "", fmt.Errorf("%s", msg))
@@ -198,12 +204,6 @@ func handleGlobalError(command string, err error) {
 	if isAppErr && appErr != nil && appErr.Type == apperror.ErrorTypeNotFound {
 		msg := getNotFoundErrorMessage(appErr)
 		cliexit.Reportf(command, "not found", "", fmt.Errorf("%s", msg))
-		cliexit.HandleError(nil, 1)
-
-		return
-	}
-
-	if isAppErr && appErr != nil && (appErr.Type == apperror.ErrorTypeAbort || isAlreadyReportedError(appErr)) {
 		cliexit.HandleError(nil, 1)
 
 		return
@@ -226,16 +226,65 @@ func handleGlobalError(command string, err error) {
 	cliexit.HandleError(nil, 1)
 }
 
-func isAlreadyReportedError(appErr *apperror.AppError) bool {
-	if appErr == nil || appErr.Ctx == nil {
+func isAbortOrReportedError(err error) bool {
+	if err == nil {
 		return false
 	}
-	val, ok := appErr.Ctx["reported"]
+
+	appErr, isApp := err.(*apperror.AppError)
+	if isApp && appErr != nil {
+		return checkRootAppErrorAbort(appErr)
+	}
+
+	multi, isMulti := err.(interface{ Unwrap() []error })
+	if isMulti && multi != nil {
+		return checkRootMultiErrorAbort(multi.Unwrap())
+	}
+
+	single, isSingle := err.(interface{ Unwrap() error })
+	if isSingle && single != nil {
+		return isAbortOrReportedError(single.Unwrap())
+	}
+
+	return false
+}
+
+func checkRootAppErrorAbort(appErr *apperror.AppError) bool {
+	isAbort := appErr.Type == apperror.ErrorTypeAbort || isReportedRootContext(appErr.Ctx)
+	if isAbort {
+		return true
+	}
+
+	return isAbortOrReportedError(appErr.Cause)
+}
+
+func checkRootMultiErrorAbort(errs []error) bool {
+	for _, e := range errs {
+		if isAbortOrReportedError(e) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isReportedRootContext(ctx map[string]any) bool {
+	if ctx == nil {
+		return false
+	}
+
+	val, ok := ctx["reported"]
 	if !ok {
 		return false
 	}
+
 	isReported, isBool := val.(bool)
+
 	return isBool && isReported
+}
+
+func isAlreadyReportedError(appErr *apperror.AppError) bool {
+	return isAbortOrReportedError(appErr)
 }
 
 func resolveErrorStackTrace(err error) string {
@@ -623,7 +672,7 @@ func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error
 
 func runSJ(args []string) error {
 	if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
-		cliexit.HandleError(err, 1)
+		handleGlobalError("ssh-join", err)
 	}
 
 	return nil
@@ -673,7 +722,7 @@ func dispatchSJC(ctx context.Context, args []string, root *cobra.Command) error 
 
 func runSJC(args []string) error {
 	if err := dispatchSJC(context.Background(), os.Args[1:], nil); err != nil {
-		cliexit.HandleError(err, 1)
+		handleGlobalError("ssh-join-common", err)
 	}
 
 	return nil
