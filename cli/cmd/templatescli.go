@@ -107,7 +107,6 @@ func dispatchTemplates(command string) (bool, error) {
 	return true, nil
 }
 
-
 func routeTemplatesSubcommand(sub string, rest []string) {
 	if dispatchStateTemplatesSub(sub, rest) {
 		return
