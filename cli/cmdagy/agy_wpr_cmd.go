@@ -87,7 +87,13 @@ func parseWPROptions(args []string) WPROptions {
 		IntervalStr:    "2m",
 		Interval:       2 * time.Minute,
 		PrefixTemplate: "default",
+		IsJSON:         isWPRJSON,
+		IsSSH:          isWPRSSH,
+		IsDryRun:       isWPRDryRun,
+		IsRestart:      isWPRRestart,
+		IsOnce:         isWPROnce,
 	}
+	applyWPRFlagOverrides(&opts)
 
 	var positional []string
 	for i := 0; i < len(args); i++ {
@@ -95,7 +101,24 @@ func parseWPROptions(args []string) WPROptions {
 	}
 
 	extractWPRPositional(positional, &opts)
+
 	return opts
+}
+
+func applyWPRFlagOverrides(opts *WPROptions) {
+	if len(wprIntervalStr) > 0 && wprIntervalStr != "2m" {
+		opts.IntervalStr = wprIntervalStr
+		opts.Interval, _ = time.ParseDuration(wprIntervalStr)
+	}
+	if len(wprPrefixTpl) > 0 && wprPrefixTpl != "default" {
+		opts.PrefixTemplate = wprPrefixTpl
+	}
+	if len(wprSuffixTpl) > 0 {
+		opts.SuffixTemplate = wprSuffixTpl
+	}
+	if len(wprFileTarget) > 0 {
+		opts.FilePath = wprFileTarget
+	}
 }
 
 func parseSingleWPRArg(args []string, i int, opts *WPROptions, positional *[]string) int {

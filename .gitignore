@@ -81,6 +81,8 @@ tmp/
 *.db
 watch-prompts/
 **/watch-prompts/
+*wpr_machine_cache.json
+cli/data/account-switch/
 
 *.db-shm
 *.db-wal
