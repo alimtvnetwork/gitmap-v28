@@ -266,15 +266,33 @@ func parseRepoTarget(args []string, flags *PipelineErrorFlags) {
 		return
 	}
 
-	for _, a := range args {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		if isValueFlag(a) {
+			i++
+			continue
+		}
 		trimmed := strings.TrimSpace(a)
-		if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget {
+		if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget || isConsumedFlagValue(trimmed, flags) {
 			continue
 		}
 		flags.RawRepoTarget = trimmed
 		flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(trimmed)
 		return
 	}
+}
+
+func isValueFlag(flag string) bool {
+	switch strings.ToLower(flag) {
+	case "--file", "--tempfile", "--format", "--repo", "-r", "--last-failures":
+		return true
+	default:
+		return false
+	}
+}
+
+func isConsumedFlagValue(val string, flags *PipelineErrorFlags) bool {
+	return val == flags.FilePath || val == flags.TempFileName || val == flags.FormatProfile
 }
 
 func isSkipTokenForRepoTarget(token string) bool {
