@@ -140,6 +140,7 @@ func coreVisibilityHistoryEntries() []dispatchEntry {
 
 func coreClusterEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"nodes", "node", "allnodes", "all-nodes", "fleet-nodes"}, func() error { return runUnifiedNodesCLI(argsTail()) }},
 		{[]string{constants.CmdServersClients, constants.CmdServersClientsAlias, constants.CmdSC}, func() error { dispatchServersClients(argsTail()); return nil }},
 		{[]string{constants.CmdClients, constants.CmdClientsAlias}, func() error { dispatchClients(argsTail()); return nil }},
 		{[]string{"servers"}, func() error { dispatchServers(argsTail()); return nil }},

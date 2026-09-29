@@ -70,3 +70,9 @@ func classifyHostOfflineStatus(err error) string {
 	}
 	return "○ offline"
 }
+
+// ProbeHostsLiveStatus tests network reachability and authentication for hosts.
+func ProbeHostsLiveStatus(ctx context.Context, hosts []store.SSHHost) []store.SSHHost {
+	return probeHostsLiveStatus(ctx, hosts)
+}
+

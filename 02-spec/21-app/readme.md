@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [185-unified-fleet-nodes-command.md](185-unified-fleet-nodes-command.md) — Unified Fleet Nodes Command (`gitmap nodes`), Subsystem Aggregation, and Liveness Probing (Status: `active`)
 - [184-import-all-json-what-configs-and-fleet-deploy-hardening.md](184-import-all-json-what-configs-and-fleet-deploy-hardening.md) — Import-All-JSON, What-Configs (`wc`), and Fleet Deploy Hardening (Status: `active`)
 - [183-typed-json-envelope-and-format-inspection.md](183-typed-json-envelope-and-format-inspection.md) — Typed JSON Envelope Architecture, Format Inspection (`which-format`), and Repo-Secrets Normalization (Status: `active`)
 - [182-version-pinning-macro-deploy-ui-settings-secret-flags.md](182-version-pinning-macro-deploy-ui-settings-secret-flags.md) — Version Pinning, Macro Fleet Deployment, UI Settings Layout, and Secret Flags Deduplication (Status: `active`)

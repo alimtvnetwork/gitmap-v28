@@ -40,8 +40,6 @@ VERSION_JSON = REPO_ROOT / "version.json"
 PACKAGE_JSON = REPO_ROOT / "package.json"
 README_MD = REPO_ROOT / "readme.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
-CLI_CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
-LATEST_RELEASE_JSON = REPO_ROOT / ".gitmap" / "release" / "latest.json"
 
 # Known bump scripts
 NODE_BUMP_SCRIPT = REPO_ROOT / "scripts" / "bump-version.mjs"
@@ -94,6 +92,33 @@ def get_main_branch():
     return "main"
 
 
+def read_canonical_version():
+    """Reads current SemVer from version.json or package.json."""
+    if VERSION_JSON.is_file():
+        try:
+            with open(VERSION_JSON, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            raw_ver = data.get("Version") or data.get("version")
+            if raw_ver:
+                return str(raw_ver).strip()
+        except Exception:
+            pass
+
+    if PACKAGE_JSON.is_file():
+        try:
+            with open(PACKAGE_JSON, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            raw_ver = data.get("version")
+            if raw_ver:
+                return str(raw_ver).strip()
+        except Exception:
+            pass
+
+    raise FileNotFoundError("Could not find canonical version in version.json or package.json.")
+
+
 def parse_semver(ver_str):
     """Parses X.Y.Z into a tuple of ints (major, minor, patch)."""
     clean_ver = ver_str.lstrip("v")
@@ -102,60 +127,6 @@ def parse_semver(ver_str):
         raise ValueError(f"Invalid SemVer format: '{ver_str}' (expected X.Y.Z)")
 
     return int(match.group(1)), int(match.group(2)), int(match.group(3))
-
-
-def read_canonical_version():
-    """Reads current SemVer from git tags, cli/constants/constants.go, version.json, or package.json."""
-    candidates = []
-
-    try:
-        tag_out = run_cmd(["git", "describe", "--tags", "--abbrev=0"], check=False)
-        if tag_out.returncode == 0 and tag_out.stdout.strip():
-            candidates.append(tag_out.stdout.strip().lstrip("v"))
-    except Exception:
-        pass
-
-    if CLI_CONSTANTS_GO.is_file():
-        try:
-            m = re.search(r'var Version = "([^"]+)"', CLI_CONSTANTS_GO.read_text(encoding="utf-8"))
-            if m:
-                candidates.append(m.group(1).lstrip("v"))
-        except Exception:
-            pass
-
-    if VERSION_JSON.is_file():
-        try:
-            with open(VERSION_JSON, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            raw_ver = data.get("Version") or data.get("version")
-            if raw_ver:
-                candidates.append(str(raw_ver).strip().lstrip("v"))
-        except Exception:
-            pass
-
-    if PACKAGE_JSON.is_file():
-        try:
-            with open(PACKAGE_JSON, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            raw_ver = data.get("version")
-            if raw_ver:
-                candidates.append(str(raw_ver).strip().lstrip("v"))
-        except Exception:
-            pass
-
-    valid_candidates = []
-    for c in candidates:
-        try:
-            parse_semver(c)
-            valid_candidates.append(c)
-        except Exception:
-            pass
-
-    if not valid_candidates:
-        raise FileNotFoundError("Could not find canonical version.")
-
-    valid_candidates.sort(key=parse_semver, reverse=True)
-    return valid_candidates[0]
 
 
 def calculate_next_version(current_ver, tier):
