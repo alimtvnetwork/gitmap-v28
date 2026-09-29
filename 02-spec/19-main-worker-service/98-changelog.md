@@ -1,3 +1,9 @@
+## v6.399.0 — 2026-09-29 (add import-ssh-nodes.ps1 for importing repo-secrets into gitmap)
+
+**Scope:** Version bump. add import-ssh-nodes.ps1 for importing repo-secrets into gitmap.
+
+---
+
 ## v6.398.0 — 2026-09-29 (format templatescli.go with gofmt)
 
 **Scope:** Version bump. format templatescli.go with gofmt.
