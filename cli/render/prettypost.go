@@ -16,21 +16,30 @@ func applyANSIPost(s string) string {
 	bannerRendered := false
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		if !bannerRendered && trimmed != "" {
-			if strings.HasPrefix(trimmed, "# ") {
-				lines[i] = formatBoxBanner(strings.TrimPrefix(trimmed, "# "))
-				bannerRendered = true
-				continue
-			} else if !strings.HasPrefix(trimmed, "#") {
-				lines[i] = formatBoxBanner(trimmed)
-				bannerRendered = true
-				continue
-			}
+		banner, hasBanner := resolveInitialBanner(trimmed, bannerRendered)
+		if hasBanner {
+			lines[i] = banner
+			bannerRendered = true
+			continue
 		}
 		lines[i] = transformLine(line)
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+func resolveInitialBanner(trimmed string, bannerRendered bool) (string, bool) {
+	if bannerRendered || trimmed == "" {
+		return "", false
+	}
+	if strings.HasPrefix(trimmed, "# ") {
+		return formatBoxBanner(strings.TrimPrefix(trimmed, "# ")), true
+	}
+	if !strings.HasPrefix(trimmed, "#") {
+		return formatBoxBanner(trimmed), true
+	}
+
+	return "", false
 }
 
 // transformLine dispatches per-line transforms. Headings short-circuit;
@@ -136,15 +145,20 @@ func transformTableRow(line string) (string, bool) {
 	col2 := stripInlineMarkers(strings.TrimSpace(parts[2]))
 	if len(parts) >= 4 && strings.TrimSpace(parts[3]) != "" {
 		col3 := stripInlineMarkers(strings.TrimSpace(parts[3]))
-		if strings.EqualFold(col1, "Flag") || strings.EqualFold(col1, "Command") {
-			return fmt.Sprintf("    %s%-24s %-12s %s%s", constants.ColorDim, strings.ToUpper(col1), strings.ToUpper(col2), strings.ToUpper(col3), constants.ColorReset), true
-		}
-		return fmt.Sprintf("    %s%-24s%s %s%-12s%s %s", constants.ColorCyan, col1, constants.ColorReset, constants.ColorYellow, col2, constants.ColorReset, col3), true
+		return formatThreeColumnRow(col1, col2, col3), true
 	}
 	if strings.EqualFold(col1, "Flag") || strings.EqualFold(col1, "Command") || strings.EqualFold(col1, "Action") {
 		return fmt.Sprintf("    %s%-28s%s %s%s%s", constants.ColorDim, strings.ToUpper(col1), constants.ColorReset, constants.ColorDim, strings.ToUpper(col2), constants.ColorReset), true
 	}
 	return fmt.Sprintf("    %s%-28s%s %s", constants.ColorCyan, col1, constants.ColorReset, col2), true
+}
+
+func formatThreeColumnRow(col1, col2, col3 string) string {
+	if strings.EqualFold(col1, "Flag") || strings.EqualFold(col1, "Command") {
+		return fmt.Sprintf("    %s%-24s %-12s %s%s", constants.ColorDim, strings.ToUpper(col1), strings.ToUpper(col2), strings.ToUpper(col3), constants.ColorReset)
+	}
+
+	return fmt.Sprintf("    %s%-24s%s %s%-12s%s %s", constants.ColorCyan, col1, constants.ColorReset, constants.ColorYellow, col2, constants.ColorReset, col3)
 }
 
 func stripInlineMarkers(s string) string {
