@@ -71,7 +71,7 @@ func sortDirEntries(entries []os.DirEntry) []os.DirEntry {
 
 func processDirEntry(baseRoot string, parent *FolderTreeNode, currentPath string, entry os.DirEntry, depth int, opts FolderTreeOptions, seq *int) {
 	name := entry.Name()
-	if shouldSkipEntry(name, opts.IncludeHidden) {
+	if isIgnoredEntry(name, opts.IncludeHidden) {
 		return
 	}
 	if !entry.IsDir() && opts.DirsOnly {
@@ -105,7 +105,7 @@ func createChildNode(baseRoot, fullPath, name string, isDir bool, seq *int) *Fol
 	return node
 }
 
-func shouldSkipEntry(name string, includeHidden bool) bool {
+func isIgnoredEntry(name string, includeHidden bool) bool {
 	if includeHidden {
 		return false
 	}
