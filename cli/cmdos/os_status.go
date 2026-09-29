@@ -44,5 +44,10 @@ func runOSDevSubcommand(subArgs []string) error {
 func isDevTarget(s string) bool {
 	low := strings.ToLower(strings.TrimSpace(s))
 
-	return low == "dev" || low == "clean-dev" || low == "dev-clean"
+	return low == "dev" || low == "clean-dev" || low == "dev-clean" ||
+		low == "devtools" || low == "devtool" ||
+		low == "dev-tools" || low == "dev-tool" ||
+		low == "devtools-cache" || low == "dev-tools-cache" ||
+		low == "devtool-cache" || low == "dev-tool-cache"
 }
+

@@ -105,10 +105,10 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{constants.CmdService, constants.CmdServiceAlias, "services"}, func() error { return cmdservice.Run(argsTail()) }},
 		{[]string{"run", "run-macro", "exec-macro"}, func() error { return runMacroRootRun(argsTail()) }},
 		{[]string{"run-until"}, func() error { return runMacroRootRunUntil(argsTail()) }},
-		{[]string{"clean-dev", "cleandev", "dev-cleanup", "devcleanup", "dev-clean"}, func() error { return runCleanDevTopLevel(argsTail()) }},
-		{[]string{"devtool", "dt"}, func() error { return runDevToolTopLevel(argsTail()) }},
+		{[]string{"clean-dev", "cleandev", "dev-cleanup", "devcleanup", "dev-clean", "devtools-cache", "dev-tools-cache", "dev-tool-cache", "devtool-cache"}, func() error { return runCleanDevTopLevel(argsTail()) }},
+		{[]string{"devtool", "devtools", "dev-tool", "dev-tools", "dt"}, func() error { return runDevToolTopLevel(argsTail()) }},
 		{[]string{"dev"}, func() error { return runDevTopLevel(argsTail()) }},
-		{[]string{"clean"}, func() error { return runCleanTopLevel(argsTail()) }},
+		{[]string{"clean", "clear"}, func() error { return runCleanTopLevel(argsTail()) }},
 		{[]string{"winutil"}, func() error { return runWinUtilTopLevel(argsTail()) }},
 	}
 	return append(entries, toolingSpecialRepoEntries()...)

@@ -68,6 +68,8 @@ func parseDevCleanFlag(a string, args []string, i *int, opts *osclean.DevCleanOp
 	case a == "--only" && *i+1 < len(args):
 		*i++
 		opts.OnlyCategories = strings.Split(args[*i], ",")
+	case a == "clear" || a == "clean" || a == "cleanup" || a == "cache":
+		// Ignore action verbs passed as argument
 	}
 }
 

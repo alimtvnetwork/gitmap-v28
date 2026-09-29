@@ -13,7 +13,7 @@ func RunDevToolCLI(args []string) error {
 	}
 
 	subCmd := strings.ToLower(args[0])
-	if subCmd == "clear" || subCmd == "clean" {
+	if subCmd == "clear" || subCmd == "clean" || subCmd == "cleanup" || subCmd == "cache" {
 		return RunOSDevClean(args[1:])
 	}
 
@@ -31,7 +31,11 @@ func isHelpDevTool(arg string) bool {
 
 func printDevToolUsage() {
 	fmt.Println("Usage: gitmap devtool clear [flags]")
-	fmt.Println("       gitmap dt clear [flags]")
+	fmt.Println("       gitmap devtools clear [flags]")
+	fmt.Println("       gitmap clear devtools [flags]")
+	fmt.Println("       gitmap clear dev-tools [flags]")
+	fmt.Println("       gitmap clear dev-tools-cache [flags]")
+	fmt.Println("       gitmap devtools-cache clear [flags]")
 	fmt.Println("       gitmap clean-dev [flags]")
 	fmt.Println()
 	fmt.Println("Commands:")

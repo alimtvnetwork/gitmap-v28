@@ -22,7 +22,7 @@ func runWinUtilTopLevel(args []string) error {
 func runDevTopLevel(args []string) error {
 	if len(args) > 0 {
 		sub := strings.ToLower(args[0])
-		if sub == "clean" || sub == "clear" || sub == "cleanup" {
+		if isDevCleanActionVerb(sub) {
 			return cmdos.RunOSDevClean(args[1:])
 		}
 	}
@@ -32,9 +32,22 @@ func runDevTopLevel(args []string) error {
 func runCleanTopLevel(args []string) error {
 	if len(args) > 0 {
 		sub := strings.ToLower(args[0])
-		if sub == "dev" || sub == "devs" || sub == "developer" {
+		if isDevCleanSubToken(sub) {
 			return cmdos.RunOSDevClean(args[1:])
 		}
 	}
 	return cmdos.RunOSDevClean(args)
 }
+
+func isDevCleanActionVerb(sub string) bool {
+	return sub == "clean" || sub == "clear" || sub == "cleanup" || sub == "cache"
+}
+
+func isDevCleanSubToken(sub string) bool {
+	return sub == "dev" || sub == "devs" || sub == "developer" ||
+		sub == "devtool" || sub == "devtools" ||
+		sub == "dev-tool" || sub == "dev-tools" ||
+		sub == "devtool-cache" || sub == "devtools-cache" ||
+		sub == "dev-tool-cache" || sub == "dev-tools-cache"
+}
+

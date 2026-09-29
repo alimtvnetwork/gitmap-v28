@@ -41,14 +41,15 @@ func TestIsHelpDevClean(t *testing.T) {
 }
 
 func TestIsDevTarget(t *testing.T) {
-	if !isDevTarget("dev") {
-		t.Errorf("expected dev to be true")
+	validTargets := []string{
+		"dev", "clean-dev", "dev-clean",
+		"devtools", "devtool", "dev-tools", "dev-tool",
+		"devtools-cache", "dev-tools-cache",
 	}
-	if !isDevTarget("clean-dev") {
-		t.Errorf("expected clean-dev to be true")
-	}
-	if !isDevTarget("dev-clean") {
-		t.Errorf("expected dev-clean to be true")
+	for _, target := range validTargets {
+		if !isDevTarget(target) {
+			t.Errorf("expected isDevTarget(%q) to be true", target)
+		}
 	}
 	if isDevTarget("temp") {
 		t.Errorf("expected temp to be false")
