@@ -3,8 +3,6 @@ package cmdpipeline
 import (
 	"database/sql"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -14,24 +12,17 @@ import (
 
 // QueryRepoSuggestionsFromDB queries repository suggestions matching partial string.
 func QueryRepoSuggestionsFromDB(identifier string) []string {
-	conn, err := openSuggestDB()
+	sdb, err := store.OpenDefault()
 	if err != nil {
 		return nil
 	}
-	defer conn.Close()
+	defer sdb.Close()
+	conn := sdb.Conn()
 
 	if candidates := fetchCandidateSlugs(conn, identifier); len(candidates) > 0 {
 		return candidates
 	}
 	return fetchFuzzyCandidates(conn, identifier)
-}
-
-func openSuggestDB() (*sql.DB, error) {
-	dbPath := store.DefaultDBPath()
-	if info, err := os.Stat(dbPath); err != nil || info.IsDir() {
-		return nil, err
-	}
-	return sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro")
 }
 
 func fetchCandidateSlugs(conn *sql.DB, identifier string) []string {

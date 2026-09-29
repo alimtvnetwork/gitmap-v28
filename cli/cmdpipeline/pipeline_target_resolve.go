@@ -84,11 +84,12 @@ func queryRepoSlugFromDB(identifier string) (string, bool) {
 }
 
 func queryRepoSlugAndPathFromDB(identifier string) (string, string, bool) {
-	conn, err := openDBReadonly()
+	sdb, err := store.OpenDefault()
 	if err != nil {
 		return "", "", false
 	}
-	defer conn.Close()
+	defer sdb.Close()
+	conn := sdb.Conn()
 
 	if slug, absPath, ok := queryExactAlias(conn, identifier); ok {
 		return slug, absPath, true
@@ -97,14 +98,6 @@ func queryRepoSlugAndPathFromDB(identifier string) (string, string, bool) {
 		return slug, absPath, true
 	}
 	return queryPrefixRepo(conn, identifier)
-}
-
-func openDBReadonly() (*sql.DB, error) {
-	dbPath := store.DefaultDBPath()
-	if info, err := os.Stat(dbPath); err != nil || info.IsDir() {
-		return nil, sql.ErrConnDone
-	}
-	return sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro")
 }
 
 func queryExactAlias(conn *sql.DB, identifier string) (string, string, bool) {
