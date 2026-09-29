@@ -117,10 +117,11 @@ func formatBoxBanner(text string) string {
 		pad = 1
 	}
 	leftSpace := strings.Repeat(" ", pad)
-	rightSpace := strings.Repeat(" ", width-len(text)-pad)
-	if len(rightSpace) < 0 {
-		rightSpace = ""
+	rightPad := width - len(text) - pad
+	if rightPad < 0 {
+		rightPad = 0
 	}
+	rightSpace := strings.Repeat(" ", rightPad)
 
 	return fmt.Sprintf("\n  %s╔%s╗%s\n  %s║%s%s%s║%s\n  %s╚%s╝%s\n",
 		constants.ColorCyan, border, constants.ColorReset,
