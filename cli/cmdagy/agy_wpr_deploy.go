@@ -275,4 +275,3 @@ func buildStreamReceiverCmd(destPath string, isWin bool) string {
 	dir := filepath.Dir(destPath)
 	return fmt.Sprintf("mkdir -p '%s' && cat > '%s'", dir, destPath)
 }
-

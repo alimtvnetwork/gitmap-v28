@@ -25,20 +25,20 @@ type FolderTreeExportDoc struct {
 
 // FolderTreeOptions holds CLI options for folder-tree commands.
 type FolderTreeOptions struct {
-	TargetDir      string
-	Subcommand     string
-	Format         string
-	MaxDepth       int
-	DirsOnly       bool
-	ShowFiles      bool
-	ShowNumbers    bool
-	GitOnly        bool
-	IncludeHidden  bool
-	OutputFile     string
-	InputFile      string
-	DryRun         bool
-	IsPreview      bool
-	IsTree         bool
+	TargetDir     string
+	Subcommand    string
+	Format        string
+	MaxDepth      int
+	DirsOnly      bool
+	ShowFiles     bool
+	ShowNumbers   bool
+	GitOnly       bool
+	IncludeHidden bool
+	OutputFile    string
+	InputFile     string
+	DryRun        bool
+	IsPreview     bool
+	IsTree        bool
 }
 
 // ImportSummary records the result of an import operation.
