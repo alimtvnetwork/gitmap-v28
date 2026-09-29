@@ -136,17 +136,20 @@ func assignDeployPositionalArgs(pos []string, opts *MacroDeployOptions) {
 		return
 	}
 	if len(pos) == 1 {
-		token := pos[0]
-		if strings.EqualFold(token, "all") {
-			return
-		}
-		if opts.Target == "" {
-			opts.Target = token
-		}
+		assignSinglePositionalArg(pos[0], opts)
 		return
 	}
 	opts.MacroName = pos[0]
 	opts.Target = pos[1]
+}
+
+func assignSinglePositionalArg(token string, opts *MacroDeployOptions) {
+	if strings.EqualFold(token, "all") {
+		return
+	}
+	if opts.Target == "" {
+		opts.Target = token
+	}
 }
 
 func stripLeadingKeywords(args []string) []string {
