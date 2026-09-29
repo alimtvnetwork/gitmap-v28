@@ -3228,6 +3228,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.408.0] - 2026-09-29
+
+### Added
+- add clear devtools, clear dev-tools-cache, and devtools-cache clear aliases
+
+---
+
 ## [v6.407.0] - 2026-09-29
 
 ### Added

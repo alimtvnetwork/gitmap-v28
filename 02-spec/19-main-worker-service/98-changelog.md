@@ -1,3 +1,9 @@
+## v6.408.0 — 2026-09-29 (add clear devtools, clear dev-tools-cache, and devtools-cache clear aliases)
+
+**Scope:** Version bump. add clear devtools, clear dev-tools-cache, and devtools-cache clear aliases.
+
+---
+
 ## v6.407.0 — 2026-09-29 (add deploy-keys-all direct routing, cross-machine export/import UI and fix mesh key render)
 
 **Scope:** Version bump. add deploy-keys-all direct routing, cross-machine export/import UI and fix mesh key render.
