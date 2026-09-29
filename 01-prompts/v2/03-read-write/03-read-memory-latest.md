@@ -158,7 +158,11 @@ The `.ai-memory/`, `02-spec/`, and knowledge base folders can be massive. To pro
    - Use available guidelines in the prompt library.
    - If critical information is absent, explicitly ask the user for the file.
 
-10. CRITICAL read-only enforcement:
+10. Special Companion Repositories (`repo-secrets` & `repo-cache`):
+    - Identify whether the workspace relies on `repo-secrets` (`rs`, `gitmap cd rs`) for environment credentials, `.env` files, API keys, or private tokens. All secrets MUST be stored in `repo-secrets/XX-<repo-name>/01-<slug>.ext` and never committed into project source trees.
+    - Identify whether temporary test harnesses, PowerShell (`.ps1`) runners, or scratch benchmarks should be preserved in `repo-cache` (`rc`, `gitmap cd rc`) under `repo-cache/XX-<repo-name>/01-<slug>.ps1` for multi-project reuse.
+
+11. CRITICAL read-only enforcement:
     - Other than fixing the root `readme.md` lowercase naming if needed, you MUST NOT refactor, edit, or write any application source code.
     - This is a strictly read and analysis phase.
 

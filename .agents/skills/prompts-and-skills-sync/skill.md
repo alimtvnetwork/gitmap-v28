@@ -5,8 +5,8 @@ description: Autonomously synchronize canonical prompts (01-prompts/), Antigravi
 
 # Prompts, Skills & AI Scripts Multi-Repository Synchronizer
 
-> **/goal** Propagate canonical prompt templates, Antigravity skills, and AI automation scripts across all connected target repositories, ensuring 100% parity and hygiene.
-> **/learn** Execute `03-ai-scripts/38-sync-prompts-skills-scripts.py` safely with git pre-checks, branch status verification, and automated downstream commits.
+> **[/goal](slashCommand:goal)** Propagate canonical prompt templates, Antigravity skills, and AI automation scripts across all connected target repositories, ensuring 100% parity and hygiene.
+> **[/learn](slashCommand:learn)** Execute `03-ai-scripts/38-sync-prompts-skills-scripts.py` safely with git pre-checks, branch status verification, and automated downstream commits.
 
 **Version:** 1.0.0
 **Updated:** 2026-09-24

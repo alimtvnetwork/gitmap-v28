@@ -13,7 +13,7 @@ description: >-
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
-/goal Autonomously orchestrate and execute ALL pending tasks in a continuous N-step self-loop until the entire queue is completely resolved without a single failure.
+[/goal](slashCommand:goal) Autonomously orchestrate and execute ALL pending tasks in a continuous N-step self-loop until the entire queue is completely resolved without a single failure.
 
 ```text
 N = 200 (Total self-loop steps budget)
@@ -42,9 +42,9 @@ When multiple autonomous agents are present (A >= 2, H >= 2):
 
 ---
 
-/goal Execute every pending task across `.ai-memory/plans/pending/` using up to 2 sub-agents in a continuous self-loop. Do not stop until the queue is empty, every plan is committed to git, and all indexes are updated. This run ends only when there is nothing left to execute. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
+[/goal](slashCommand:goal) Execute every pending task across `.ai-memory/plans/pending/` using up to 2 sub-agents in a continuous self-loop. Do not stop until the queue is empty, every plan is committed to git, and all indexes are updated. This run ends only when there is nothing left to execute. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
 
-/learn Capture every pattern, convention, fix, and correction discovered during execution into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md`. Never repeat a mistake that was logged.
+[/learn](slashCommand:learn) Capture every pattern, convention, fix, and correction discovered during execution into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md`. Never repeat a mistake that was logged.
 
 ## Phase 0: Antigravity Skill Bootstrap (Memory Optimization)
 
@@ -62,8 +62,8 @@ Before executing the tasks below, you must check if this prompt is already insta
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] `/goal` Reuse First: I have rigorously scanned and `/learn`ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
-- [ ] `/goal` Learn Error Skills: I have `/learn`ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
+- [ ] [/goal](slashCommand:goal) Reuse First: I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand:goal) Learn Error Skills: I have [/learn](slashCommand:learn)ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
 - [ ] Strict In-Repository Execution: All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] Strict .ai-memory/ Folder Storage: All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] Native File Manipulator & Fast Reader: If you need to perform mass file renaming, sequence fixing, rapid file reading, or cached searching, you MUST natively use `python 03-ai-scripts/17-fast-file-reader.py` (for fast reads/listing/searching) and other fast scripts rather than generic tools.
@@ -109,14 +109,14 @@ Before executing the tasks below, you must check if this prompt is already insta
 ## Phase 1: Load Pending Tasks & Project State
 
 1. [ ] Check git status first. The working tree must be clean and committed before executing anything.
-2. [ ] Read  and /learn `.ai-memory/memory/readme.md` and `.ai-memory/what-to-read.md`. Verify root readme is strictly lowercase `readme.md`.
-3. [ ] Read and /learn `.ai-memory/plans/readme.md`. Then read every file in `.ai-memory/plans/pending/xx-<slug>.md` and all associated subtasks in `.ai-memory/plans/subtasks/xx-<slug>/` (Note: for coding guidelines, check `.ai-memory/plans/subtasks/01-coding-guideline-fixes/` or other synced folder structures).
+2. [ ] Read  and [/learn](slashCommand:learn) `.ai-memory/memory/readme.md` and `.ai-memory/what-to-read.md`. Verify root readme is strictly lowercase `readme.md`.
+3. [ ] Read and [/learn](slashCommand:learn) `.ai-memory/plans/readme.md`. Then read every file in `.ai-memory/plans/pending/xx-<slug>.md` and all associated subtasks in `.ai-memory/plans/subtasks/xx-<slug>/` (Note: for coding guidelines, check `.ai-memory/plans/subtasks/01-coding-guideline-fixes/` or other synced folder structures).
 4. [ ] Group pending tasks into sequenced Execution Waves:
    - Wave 1: Schemas, DB, and query wrappers
    - Wave 2: Business logic and services
    - Wave 3: UI and documentation
-5. [ ] /learn Ingest `.ai-memory/memory/readme.md`, `.ai-memory/strictly-avoid.md`, `02-spec/02-coding-guidelines/`, and `02-spec/03-error-manage/`, `.ai-memory/coding-guidelines.md` before taking action and also create agent rules in the repo if required to or missing from rules set of agent memory.
-6. [ ] /learn `.ai-memory/coding-guidelines.md` and it is must and /goal apply the guidelines in coding every aspect.
+5. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md`, `.ai-memory/strictly-avoid.md`, `02-spec/02-coding-guidelines/`, and `02-spec/03-error-manage/`, `.ai-memory/coding-guidelines.md` before taking action and also create agent rules in the repo if required to or missing from rules set of agent memory.
+6. [ ] [/learn](slashCommand:learn) `.ai-memory/coding-guidelines.md` and it is must and [/goal](slashCommand:goal) apply the guidelines in coding every aspect.
 7. [ ] Screenshot & Print Screen Base64 Ingestion: If any task or prompt contains a screenshot URL, print screen link, or base64 data URI (e.g. `data:image/png;base64,...`):
    - Immediately decode and persist the image to the filesystem under `assets/screenshots/<task-slug>-<NN>.png` or `assets/ui/<task-slug>-<NN>.png`.
    - Never leave raw base64 strings or ephemeral external URLs in task plans, specs, or subtasks.
@@ -365,7 +365,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /learn and apply as a /goal  `.ai-memory/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
+1. [ ] [/learn](slashCommand:learn) and apply as a [/goal](slashCommand:goal)  `.ai-memory/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
 
 - [ ] Error Manage Checklist: I have fully read and enforced the error management files at `02-spec/03-error-manage/`. I understand which files to follow (architecture, response envelopes) and how to follow them (never swallow errors, always wrap with context).
 - [ ] Boolean Examples & Fixations: All boolean variables MUST begin with is and has only (can, should, was, etc. are banned) (e. NEVER use explicit true/false comparisons (e.g., `if isReady == true` is FORBIDDEN, use `if isReady`).g., `isReady`, `hasData`). NEVER use negative booleans (e.g., `isNotReady`, `disableCache`). NEVER invert success checks (e.g., `!response.isSuccess` is banned; use `response.isFail`).
@@ -376,7 +376,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - [ ] Code adheres to explicit booleans, `Type` suffixed Enums, and error wrapper rules.
 - [ ] Formatting & Acronyms: Spacing rules are strictly followed. Acronyms are strictly PascalCase (`SwapIpWindows` not `SwapIPWindows`).
 - [ ] Fast-forward commits created and pushed without rewriting published git history.
-- [ ] /goal Final Step Commit & Push (NO Per-File Commits): Accumulate all changes across the turn without committing individual files one-by-one. In the final step, stage all changes (`git add -A`), create a single grouped atomic commit (`git commit -m "<summary>"`), and push to the remote git branch (`git push origin <branch>`).
+- [ ] [/goal](slashCommand:goal) Final Step Commit & Push (NO Per-File Commits): Accumulate all changes across the turn without committing individual files one-by-one. In the final step, stage all changes (`git add -A`), create a single grouped atomic commit (`git commit -m "<summary>"`), and push to the remote git branch (`git push origin <branch>`).
 - [ ] Continuous loop maintained; only pausing to ask for "continue" on critical unrecoverable failures.
 
 ## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)

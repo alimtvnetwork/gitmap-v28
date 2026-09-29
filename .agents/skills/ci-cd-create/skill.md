@@ -15,9 +15,9 @@ description: >-
 
 Trigger Keywords & Aliases: `create-ci-cd`, `cicd-create`, `create cicd`, `setup cicd pipeline`, `build ci-cd pipeline`, `cicd create python`, `05-cicd-pipeline-create`
 
-/goal Autonomously design, create, and verify complete cross-platform Python CI/CD pipelines, local runners, and GitHub Actions workflows by following specifications in `02-spec/12-cicd-pipeline-workflows/` and `02-spec/02-coding-guidelines/06-cicd-integration/`, maintaining a continuous N-step self-loop until all jobs exit code 0.
+[/goal](slashCommand:goal) Autonomously design, create, and verify complete cross-platform Python CI/CD pipelines, local runners, and GitHub Actions workflows by following specifications in `02-spec/12-cicd-pipeline-workflows/` and `02-spec/02-coding-guidelines/06-cicd-integration/`, maintaining a continuous N-step self-loop until all jobs exit code 0.
 
-/learn Ingest `02-spec/12-cicd-pipeline-workflows/`, `02-spec/02-coding-guidelines/06-cicd-integration/`, `02-spec/11-powershell-integration/`, `02-spec/14-update/`, `02-spec/15-distribution-and-runner/`, `02-spec/16-generic-release/`, `02-spec/17-consolidated-guidelines/18-cicd-pipeline-workflows.md`, and `.ai-memory/coding-guidelines.md` before writing code.
+[/learn](slashCommand:learn) Ingest `02-spec/12-cicd-pipeline-workflows/`, `02-spec/02-coding-guidelines/06-cicd-integration/`, `02-spec/11-powershell-integration/`, `02-spec/14-update/`, `02-spec/15-distribution-and-runner/`, `02-spec/16-generic-release/`, `02-spec/17-consolidated-guidelines/18-cicd-pipeline-workflows.md`, and `.ai-memory/coding-guidelines.md` before writing code.
 
 ---
 
