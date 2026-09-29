@@ -1,3 +1,9 @@
+## v6.395.0 — 2026-09-29 (resolve ee external repo targets, fix cfr bare repo suggestions, and add cache cleanup guard)
+
+**Scope:** Version bump. resolve ee external repo targets, fix cfr bare repo suggestions, and add cache cleanup guard.
+
+---
+
 ## v6.394.0 — 2026-09-29 (Release v6.393.0: folder-tree command suite and ls preview enhancement)
 
 **Scope:** Version bump. Release v6.393.0: folder-tree command suite and ls preview enhancement.
