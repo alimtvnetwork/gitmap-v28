@@ -1,3 +1,9 @@
+## v6.405.0 — 2026-09-29 (import-all-json what-configs and fleet deploy hardening)
+
+**Scope:** Version bump. import-all-json what-configs and fleet deploy hardening.
+
+---
+
 ## v6.404.0 — 2026-09-29 (typed JSON envelope architecture and which-format CLI command)
 
 **Scope:** Version bump. typed JSON envelope architecture and which-format CLI command.
