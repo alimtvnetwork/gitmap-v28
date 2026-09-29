@@ -1,3 +1,9 @@
+## v6.403.0 — 2026-09-29 (version pinning, macro fleet deploy, and UI settings layout)
+
+**Scope:** Version bump. version pinning, macro fleet deploy, and UI settings layout.
+
+---
+
 ## v6.402.0 — 2026-09-29 (resolve SA4024 staticcheck warning in prettypost)
 
 **Scope:** Version bump. resolve SA4024 staticcheck warning in prettypost.
