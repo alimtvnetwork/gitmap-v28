@@ -1,0 +1,15 @@
+{
+  "attributes": {
+    "type": "ui-settings",
+    "source": "cli/jsonenvelope/fixtures/ui-settings.json",
+    "how": "gitmap ui settings",
+    "version": "1.0",
+    "timestamp": "2026-09-29T12:00:00Z"
+  },
+  "data": {
+    "theme": "dark",
+    "cluster_port": 49152,
+    "default_remote": "origin",
+    "auto_open_browser": true
+  }
+}

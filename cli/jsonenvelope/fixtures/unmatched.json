@@ -1,0 +1,8 @@
+{
+  "project": "external-unknown",
+  "some_field": 12345,
+  "items": [
+    "alpha",
+    "beta"
+  ]
+}

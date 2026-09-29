@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
 )
 
 var configVarRegex = regexp.MustCompile(`\$\{([a-zA-Z0-9_.-]+)\}|\$([a-zA-Z0-9_.-]+)`)
@@ -150,6 +151,10 @@ func applyConfigFileIfPresent(raw *RawArgs) *ParseError {
 	data, err := os.ReadFile(raw.ConfigPath)
 	if err != nil {
 		return newBadArgs("failed to read config %q: %v", raw.ConfigPath, err)
+	}
+	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	if extractErr == nil && len(payload) > 0 {
+		data = payload
 	}
 	var cfg CommitInConfigJSON
 	if err := json.Unmarshal(data, &cfg); err != nil {

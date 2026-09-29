@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
 )
 
 var templateVarRefPattern = regexp.MustCompile(`\$\{([A-Za-z0-9_.-]+(?:\[\d+\])?)\}|\$([A-Za-z0-9_]+)`)
@@ -206,7 +207,15 @@ func writeExportJSONFile(destPath string, payload TemplateExportPayload) error {
 		return err
 	}
 
-	raw, err := json.MarshalIndent(payload, "", "  ")
+	envelope := jsonenvelope.NewEnvelope(
+		jsonenvelope.TypeTemplates,
+		destPath,
+		"gitmap templates export",
+		"1.0",
+		payload,
+	)
+
+	raw, err := json.MarshalIndent(envelope, "", "  ")
 	if err != nil {
 		return apperror.WrapSimple(err, "templates_split.export_marshal")
 	}
@@ -256,6 +265,14 @@ func (s *TemplatesSplitDB) ImportTemplatesFromFile(srcPath string, isForce bool)
 	return len(payload.Templates), false, exportID, nil
 }
 
+type flexibleImportPayload struct {
+	ExportID   string                  `json:"exportId"`
+	Version    string                  `json:"version"`
+	Categories []StateTemplateCategory `json:"categories,omitempty"`
+	Variables  map[string]any          `json:"variables,omitempty"`
+	Templates  []StateTemplateItem     `json:"templates"`
+}
+
 func readImportPayload(srcPath string) (TemplateExportPayload, string, error) {
 	var payload TemplateExportPayload
 	raw, err := os.ReadFile(srcPath)
@@ -263,14 +280,47 @@ func readImportPayload(srcPath string) (TemplateExportPayload, string, error) {
 		return payload, "", apperror.WrapSimple(err, "templates_split.import_read")
 	}
 
-	if err := json.Unmarshal(raw, &payload); err != nil {
+	payloadBytes, _, extractErr := jsonenvelope.ExtractPayload(raw)
+	if extractErr != nil {
+		payloadBytes = raw
+	}
+
+	var flex flexibleImportPayload
+	if err := json.Unmarshal(payloadBytes, &flex); err != nil {
 		return payload, "", apperror.WrapSimple(err, "templates_split.import_unmarshal")
 	}
 
+	payload = convertFlexibleToPayload(flex)
 	payload = normalizeImportPayload(payload)
 	exportID := resolveImportExportID(payload)
 
 	return payload, exportID, nil
+}
+
+func convertFlexibleToPayload(flex flexibleImportPayload) TemplateExportPayload {
+	payload := TemplateExportPayload{
+		ExportID:   flex.ExportID,
+		Version:    flex.Version,
+		Categories: flex.Categories,
+		Templates:  flex.Templates,
+		Variables:  make(map[string]string),
+	}
+	for k, v := range flex.Variables {
+		payload.Variables[k] = stringifyVariableValue(v)
+	}
+	return payload
+}
+
+func stringifyVariableValue(val any) string {
+	str, isStr := val.(string)
+	if isStr {
+		return str
+	}
+	raw, err := json.Marshal(val)
+	if err != nil {
+		return ""
+	}
+	return string(raw)
 }
 
 func resolveImportExportID(payload TemplateExportPayload) string {

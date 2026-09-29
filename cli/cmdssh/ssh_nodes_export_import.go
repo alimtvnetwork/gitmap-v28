@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
 )
 
 // DefaultSSHNodesJSONFile is the default filename for SSH node JSON exports and imports.
@@ -52,7 +53,14 @@ func RunSSHNodesExportJSON(args []string) error {
 	if err != nil {
 		return err
 	}
-	data, err := json.MarshalIndent(envelope, "", "  ")
+	typedEnv := jsonenvelope.NewEnvelope(
+		jsonenvelope.TypeSSHNodes,
+		outPath,
+		"gitmap ssh export",
+		"1.0",
+		envelope,
+	)
+	data, err := json.MarshalIndent(typedEnv, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -162,6 +170,10 @@ func decodeEnvelopeConnections(raw []byte) ([]db.SSHConnection, bool) {
 }
 
 func decodeConnectionsFromJSON(raw []byte) ([]db.SSHConnection, error) {
+	payload, _, err := jsonenvelope.ExtractPayload(raw)
+	if err == nil && len(payload) > 0 {
+		raw = payload
+	}
 	if conns, ok := decodeEnvelopeConnections(raw); ok {
 		return conns, nil
 	}

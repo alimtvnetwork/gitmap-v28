@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
 )
 
 const maxPortScanAttempts = 50
@@ -189,8 +190,13 @@ func loadSettings() SettingsData {
 	if err != nil {
 		return def
 	}
+	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	if extractErr != nil {
+		payload = data
+	}
 	var loaded SettingsData
-	if err := json.Unmarshal(data, &loaded); err == nil {
+	err = json.Unmarshal(payload, &loaded)
+	if err == nil {
 		return loaded
 	}
 	return def
@@ -202,7 +208,14 @@ func saveSettingsData(s SettingsData) error {
 		return nil
 	}
 	_ = os.MkdirAll(filepath.Dir(path), 0755)
-	data, err := json.MarshalIndent(s, "", "  ")
+	envelope := jsonenvelope.NewEnvelope(
+		jsonenvelope.TypeUISettings,
+		path,
+		"gitmap ui settings",
+		"1.0",
+		s,
+	)
+	data, err := json.MarshalIndent(envelope, "", "  ")
 	if err != nil {
 		return err
 	}

@@ -1,0 +1,15 @@
+{
+  "attributes": {
+    "type": "commit-pull-config",
+    "source": "cli/jsonenvelope/fixtures/commit-pull-config.json",
+    "how": "gitmap commitin export",
+    "version": "1.0",
+    "timestamp": "2026-09-29T12:00:00Z"
+  },
+  "data": {
+    "version": "1.0",
+    "branches": ["main", "dev"],
+    "auto_pull": true,
+    "strategy": "merge"
+  }
+}

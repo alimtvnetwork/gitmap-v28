@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdasset"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
@@ -118,6 +120,9 @@ func toolingSpecialRepoEntries() []dispatchEntry {
 func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"installer"}, func() error { return RunInstallerCLI(argsTail()) }},
+		{[]string{"which-format", "whichformat", "format-which", "format-inspect", "format-check", "which-json"}, func() error { return runWhichFormatCLI(argsTail()) }},
+		{[]string{"which"}, func() error { return handleWhichSubcommand(argsTail()) }},
+		{[]string{"format"}, func() error { return handleFormatSubcommand(argsTail()) }},
 		{[]string{"pin", "version-pin"}, func() error { return runPinCLI(argsTail()) }},
 		{[]string{"unpin", "version-unpin"}, func() error { return runUnpinCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines", "ct"}, func() error { return runCG(argsTail()) }},
@@ -274,4 +279,26 @@ func toolingNetworkEntries() []dispatchEntry {
 		}},
 		{[]string{"ip"}, func() error { return runIP(argsTail()) }},
 	}
+}
+
+func handleWhichSubcommand(args []string) error {
+	if len(args) == 0 {
+		return runWhichFormatCLI(args)
+	}
+	first := strings.ToLower(args[0])
+	if first == "format" || first == "json" {
+		return runWhichFormatCLI(args[1:])
+	}
+	return runWhichFormatCLI(args)
+}
+
+func handleFormatSubcommand(args []string) error {
+	if len(args) == 0 {
+		return runWhichFormatCLI(args)
+	}
+	first := strings.ToLower(args[0])
+	if first == "which" || first == "inspect" || first == "check" {
+		return runWhichFormatCLI(args[1:])
+	}
+	return runWhichFormatCLI(args)
 }

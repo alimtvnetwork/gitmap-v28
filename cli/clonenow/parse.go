@@ -25,6 +25,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -118,11 +119,16 @@ func parseJSONWithSchema(f io.Reader) ([]Row, error) {
 		return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)
 	}
 
-	if err := validateJSONSchema(data); err != nil {
+	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	if extractErr != nil {
+		payload = data
+	}
+
+	if err := validateJSONSchema(payload); err != nil {
 		return nil, err
 	}
 
-	recs, err := formatter.ParseJSON(bytes.NewReader(data))
+	recs, err := formatter.ParseJSON(bytes.NewReader(payload))
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)
 	}

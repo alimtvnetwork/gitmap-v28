@@ -279,9 +279,9 @@ func routeSJSubcommands(ctx context.Context, args []string) (bool, error) {
 		return true, RunClusterBootstrapCLI(args[1:])
 	case "install":
 		return true, RunClusterInstallCLI(args[1:])
-	case "import-json", "importjson":
+	case "import-json", "importjson", "import":
 		return true, RunSSHNodesImportJSON(args[1:])
-	case "export-json", "exportjson":
+	case "export-json", "exportjson", "export":
 		return true, RunSSHNodesExportJSON(args[1:])
 	case "export-oneliner", "oneliner", "eo":
 		return true, RunSSHExportOnelinerCLI(args[1:])

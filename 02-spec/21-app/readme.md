@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [183-typed-json-envelope-and-format-inspection.md](183-typed-json-envelope-and-format-inspection.md) — Typed JSON Envelope Architecture, Format Inspection (`which-format`), and Repo-Secrets Normalization (Status: `active`)
 - [182-version-pinning-macro-deploy-ui-settings-secret-flags.md](182-version-pinning-macro-deploy-ui-settings-secret-flags.md) — Version Pinning, Macro Fleet Deployment, UI Settings Layout, and Secret Flags Deduplication (Status: `active`)
 - [181-universal-command-help-restructuring-markdown-box-display.md](181-universal-command-help-restructuring-markdown-box-display.md) — Universal Command Help Restructuring, Markdown-to-Box Transformation, and Catalog Fallback (Status: `active`)
 - [156-which-os-cross-platform-shell-and-node-profiling](156-which-os-cross-platform-shell-and-node-profiling/01-overview.md) — OS Discovery, Enum Reusability, Cross-Platform Shell Runner, and Node OS Profiling (Status: `active`)

@@ -1,10 +1,12 @@
 package formatter
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -66,9 +68,17 @@ func WriteJSONCompact(w io.Writer, records []model.ScanRecord) error {
 
 // ParseJSON reads records from a JSON reader.
 func ParseJSON(reader io.Reader) ([]model.ScanRecord, error) {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	if extractErr != nil {
+		payload = data
+	}
 	var records []model.ScanRecord
-	dec := json.NewDecoder(reader)
-	err := dec.Decode(&records)
+	dec := json.NewDecoder(bytes.NewReader(payload))
+	err = dec.Decode(&records)
 	if err != nil {
 		return nil, err
 	}

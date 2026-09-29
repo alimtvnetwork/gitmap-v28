@@ -1,3 +1,9 @@
+## v6.404.0 — 2026-09-29 (typed JSON envelope architecture and which-format CLI command)
+
+**Scope:** Version bump. typed JSON envelope architecture and which-format CLI command.
+
+---
+
 ## v6.403.0 — 2026-09-29 (version pinning, macro fleet deploy, and UI settings layout)
 
 **Scope:** Version bump. version pinning, macro fleet deploy, and UI settings layout.

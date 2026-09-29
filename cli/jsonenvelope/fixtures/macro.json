@@ -1,0 +1,20 @@
+{
+  "attributes": {
+    "type": "macro",
+    "source": "cli/jsonenvelope/fixtures/macro.json",
+    "how": "gitmap macro export",
+    "version": "1.0",
+    "timestamp": "2026-09-29T12:00:00Z"
+  },
+  "data": {
+    "name": "mock-build",
+    "version": "1.0",
+    "steps": [
+      {
+        "id": "step-1",
+        "command": "go version",
+        "description": "Check go version"
+      }
+    ]
+  }
+}

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -26,8 +27,13 @@ func LoadGitProfiles() (model.GitProfileConfig, error) {
 		return cfg, saveErr
 	}
 
+	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	if extractErr != nil {
+		payload = data
+	}
+
 	var cfg model.GitProfileConfig
-	if unmarshalErr := json.Unmarshal(data, &cfg); unmarshalErr != nil {
+	if unmarshalErr := json.Unmarshal(payload, &cfg); unmarshalErr != nil {
 		return cfg, apperror.WrapSimple(unmarshalErr, "unmarshal git profiles:")
 	}
 
@@ -36,7 +42,14 @@ func LoadGitProfiles() (model.GitProfileConfig, error) {
 
 func SaveGitProfiles(cfg model.GitProfileConfig) error {
 	cfg.UpdatedAt = time.Now()
-	data, err := json.MarshalIndent(cfg, "", "  ")
+	envelope := jsonenvelope.NewEnvelope(
+		jsonenvelope.TypeGitProfiles,
+		GitProfilesPath(),
+		"gitmap profile save",
+		"1.0",
+		cfg,
+	)
+	data, err := json.MarshalIndent(envelope, "", "  ")
 	if err != nil {
 		return apperror.WrapSimple(err, "marshal git profiles:")
 	}

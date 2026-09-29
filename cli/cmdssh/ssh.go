@@ -211,7 +211,7 @@ func dispatchExportImportSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(RunSSHExportAllCLI(args))
 	case "import-all", "importall":
 		return result.MatchWrapper(RunSSHImportAllCLI(args))
-	case "export-json", "exportjson":
+	case "export-json", "exportjson", "export":
 		return result.MatchWrapper(RunSSHNodesExportJSON(args))
 	case "import-json", "importjson", "import":
 		return result.MatchWrapper(RunSSHNodesImportJSON(args))

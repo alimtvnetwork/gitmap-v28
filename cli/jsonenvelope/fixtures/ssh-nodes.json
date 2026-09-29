@@ -1,0 +1,35 @@
+{
+  "attributes": {
+    "type": "ssh-nodes",
+    "source": "cli/jsonenvelope/fixtures/ssh-nodes.json",
+    "how": "gitmap ssh export",
+    "version": "1.0",
+    "timestamp": "2026-09-29T12:00:00Z"
+  },
+  "data": {
+    "schema_version": "1.0",
+    "exported_at": "2026-09-29T12:00:00Z",
+    "total_nodes": 1,
+    "nodes": [
+      {
+        "alias": "mock-node-1",
+        "ip_address": "192.168.1.100",
+        "username": "mockuser",
+        "port": 22,
+        "os": "linux",
+        "auth_method": "key"
+      }
+    ],
+    "connections": [
+      {
+        "id": "mock-node-1",
+        "name": "mock-node-1",
+        "host": "192.168.1.100",
+        "user": "mockuser",
+        "port": 22,
+        "os_type": "linux",
+        "auth_type": "key"
+      }
+    ]
+  }
+}
