@@ -203,6 +203,12 @@ func handleGlobalError(command string, err error) {
 		return
 	}
 
+	if isAppErr && appErr != nil && (appErr.Type == apperror.ErrorTypeAbort || isAlreadyReportedError(appErr)) {
+		cliexit.HandleError(nil, 1)
+
+		return
+	}
+
 	if display == "simple" && isAppErr && appErr != nil {
 		cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
 		cliexit.HandleError(nil, 1)
@@ -218,6 +224,18 @@ func handleGlobalError(command string, err error) {
 	}
 
 	cliexit.HandleError(nil, 1)
+}
+
+func isAlreadyReportedError(appErr *apperror.AppError) bool {
+	if appErr == nil || appErr.Ctx == nil {
+		return false
+	}
+	val, ok := appErr.Ctx["reported"]
+	if !ok {
+		return false
+	}
+	isReported, isBool := val.(bool)
+	return isBool && isReported
 }
 
 func resolveErrorStackTrace(err error) string {

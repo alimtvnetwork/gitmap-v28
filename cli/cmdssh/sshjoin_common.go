@@ -72,6 +72,14 @@ func resolveDialError(err error) string {
 }
 
 func probeTargetReport(client *ssh.Client, alias, ip string) *cmdos.OSInfoReport {
+	if client == nil {
+		return &cmdos.OSInfoReport{
+			OSType:       "linux",
+			OSGroup:      "Linux",
+			OSVersion:    "",
+			Architecture: "amd64",
+		}
+	}
 	rep, hasGitmap := probeRemoteGitmapWhichOS(client)
 	if hasGitmap && rep != nil {
 		fmt.Printf("✔ Node %s: Identified via GitMap which-os: %s (%s, %s, %s)\n",

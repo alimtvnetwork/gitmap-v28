@@ -142,7 +142,7 @@ func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, erro
 		}
 	}
 
-	return string(password), nil
+	return strings.TrimRight(string(password), "\r\n"), nil
 }
 
 // NewAutoAcceptHostKeyConfig creates an ssh.ClientConfig that auto-accepts host keys on first join.

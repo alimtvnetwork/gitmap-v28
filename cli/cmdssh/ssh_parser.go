@@ -258,6 +258,7 @@ type parsedFlags struct {
 	flagAlias  string
 	flagUser   string
 	flagPort   int
+	flagPass   string
 	isPushAuth bool
 	isShowHelp bool
 	positional []string
@@ -329,6 +330,17 @@ func parsePortFlag(args []string, idx int, p *parsedFlags) (int, bool, error) {
 	return nextIdx, true, nil
 }
 
+func parsePassFlag(args []string, idx int, p *parsedFlags) (int, bool, error) {
+	val, nextIdx, isMatch, err := extractFlagValue(args, idx, "--pass", "--password", "-w")
+	if !isMatch || err != nil {
+		return nextIdx, isMatch, err
+	}
+
+	p.flagPass = val
+
+	return nextIdx, true, nil
+}
+
 func tryParseOptionFlags(args []string, idx int, p *parsedFlags) (int, bool, error) {
 	if nextIdx, isAlias, err := parseAliasFlag(args, idx, p); isAlias || err != nil {
 		return nextIdx, isAlias, err
@@ -336,6 +348,10 @@ func tryParseOptionFlags(args []string, idx int, p *parsedFlags) (int, bool, err
 
 	if nextIdx, isUser, err := parseUserFlag(args, idx, p); isUser || err != nil {
 		return nextIdx, isUser, err
+	}
+
+	if nextIdx, isPass, err := parsePassFlag(args, idx, p); isPass || err != nil {
+		return nextIdx, isPass, err
 	}
 
 	return parsePortFlag(args, idx, p)
@@ -414,6 +430,7 @@ func buildJoinOptions(raw string, target *SSHTarget, p *parsedFlags) *SSHJoinOpt
 		RawTarget:  raw,
 		Target:     target,
 		Alias:      alias,
+		Password:   p.flagPass,
 		IsPushAuth: p.isPushAuth,
 		IsShowHelp: false,
 	}

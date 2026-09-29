@@ -79,10 +79,12 @@ func promptUserPassword(ctx context.Context, target *SSHTarget) string {
 
 func connectWithGivenPass(target *SSHTarget, pass string) enrollSession {
 	client, err := dialNodeWithPassword(target, pass)
-	hasClient := client != nil
+	if client == nil {
+		return enrollSession{client: nil, hasClient: false, osType: "linux", err: err}
+	}
 	osType, osVersion, _ := probeTargetWithWhichOS(client, target.IP, target.IP)
 
-	return enrollSession{client: client, hasClient: hasClient, osType: osType, osVersion: osVersion, err: err}
+	return enrollSession{client: client, hasClient: true, osType: osType, osVersion: osVersion, err: nil}
 }
 
 func promptAndConnectTarget(ctx context.Context, opts *SSHJoinOptions) enrollSession {
@@ -470,9 +472,18 @@ func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {
 		"user":      opts.Target.Username,
 		"host":      opts.Target.IP,
 		"port":      opts.Target.Port,
+		"reported":  true,
 	}
 
-	return apperror.Wrap(err, "ExecuteSSHJoinEnrollment.auth", ctx)
+	return apperror.NewWithDetails(
+		"ExecuteSSHJoinEnrollment.auth",
+		"E9000",
+		err.Error(),
+		"cmdssh",
+		apperror.ErrorTypeAbort,
+		apperror.SeverityError,
+		ctx,
+	)
 }
 
 func buildAuthFailureHint(opts *SSHJoinOptions, err error) string {
