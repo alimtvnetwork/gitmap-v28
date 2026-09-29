@@ -175,6 +175,10 @@ var topicSummaries = map[string]string{
 	"pull-all":                    "Batch-pull every tracked repository in the catalog with fast concise progress or full table (--status), SSH fleet delegation (--ssh), and companion repository probing (--probe).",
 	"pa":                          "Fast concise batch-pull of all tracked repositories with optional companion repository probing (--probe), status table (--status), and JSON export (--json).",
 	"pat":                         "Batch-pull every tracked repository in the catalog and display the full post-pull status table.",
+	"nodes":                       "Unified fleet infrastructure command aggregating nodes across SSH, Cluster DB, and Server-Client networks with live probing and machine ping.",
+	"node":                        "Unified fleet infrastructure command aggregating nodes across SSH, Cluster DB, and Server-Client networks with live probing and machine ping.",
+	"ping":                        "Run machine ping command and network reachability probes concurrently against all fleet nodes with tabular terminal display.",
+	"nodes-ping":                  "Run machine ping command and network reachability probes concurrently against all fleet nodes with tabular terminal display.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

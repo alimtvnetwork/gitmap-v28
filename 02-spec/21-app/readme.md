@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [186-fleet-nodes-machine-ping-command.md](186-fleet-nodes-machine-ping-command.md) — Fleet Nodes Machine Ping Command (`gitmap nodes ping` & `gitmap ping`), Dual-Stack ICMP & TCP Probe (Status: `active`)
 - [185-unified-fleet-nodes-command.md](185-unified-fleet-nodes-command.md) — Unified Fleet Nodes Command (`gitmap nodes`), Subsystem Aggregation, and Liveness Probing (Status: `active`)
 - [184-import-all-json-what-configs-and-fleet-deploy-hardening.md](184-import-all-json-what-configs-and-fleet-deploy-hardening.md) — Import-All-JSON, What-Configs (`wc`), and Fleet Deploy Hardening (Status: `active`)
 - [183-typed-json-envelope-and-format-inspection.md](183-typed-json-envelope-and-format-inspection.md) — Typed JSON Envelope Architecture, Format Inspection (`which-format`), and Repo-Secrets Normalization (Status: `active`)

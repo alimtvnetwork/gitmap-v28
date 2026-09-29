@@ -99,6 +99,7 @@ func printUnifiedNodesHelp() error {
 	fmt.Println()
 	fmt.Println("  Commands & Filtering:")
 	fmt.Println("    gitmap nodes                Display all unified fleet nodes with live liveness")
+	fmt.Println("    gitmap nodes ping [target]  Run machine ping command against all fleet nodes")
 	fmt.Println("    gitmap nodes <alias|ip>     Filter output to a specific node or host")
 	fmt.Println("    gitmap nodes --ssh          Filter only SSH-enrolled nodes")
 	fmt.Println("    gitmap nodes --cluster      Filter only Cluster DB registered nodes")
@@ -108,6 +109,8 @@ func printUnifiedNodesHelp() error {
 	fmt.Println()
 	fmt.Println("  Examples:")
 	fmt.Println("    gitmap nodes")
+	fmt.Println("    gitmap nodes ping")
+	fmt.Println("    gitmap nodes ping main")
 	fmt.Println("    gitmap nodes main")
 	fmt.Println("    gitmap nodes --json")
 	fmt.Println("    gitmap nodes --fast")
@@ -118,8 +121,16 @@ func printUnifiedNodesHelp() error {
 	return nil
 }
 
+func isNodesPingCommand(arg string) bool {
+	low := strings.ToLower(arg)
+	return low == "ping" || low == "probe"
+}
+
 // runUnifiedNodesCLI handles `gitmap nodes [flags] [target]`.
 func runUnifiedNodesCLI(args []string) error {
+	if len(args) > 0 && isNodesPingCommand(args[0]) {
+		return runUnifiedNodesPingCLI(args[1:])
+	}
 	if isNodesHelpRequest(args) {
 		return printUnifiedNodesHelp()
 	}
