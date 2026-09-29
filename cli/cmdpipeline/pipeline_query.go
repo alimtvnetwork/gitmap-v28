@@ -231,7 +231,7 @@ func buildFallbackRunLogs(repo string, runId uint64) string {
 }
 
 func appendJobFallbackLogs(sb *strings.Builder, j ghJobItem, diag string) {
-	if !isJobFailingOrCancelled(j) {
+	if !isJobFailingOrCanceled(j) {
 		return
 	}
 
@@ -256,15 +256,13 @@ func appendStepFallbackLogs(sb *strings.Builder, j ghJobItem) bool {
 	return hasFailedStep
 }
 
-//nolint:misspell // GitHub Actions API uses British spelling "cancelled"
-func isJobFailingOrCancelled(j ghJobItem) bool {
-	return j.Conclusion == "failure" || j.Conclusion == "cancelled" || j.Conclusion == "timed_out" || j.Conclusion == "startup_failure"
+func isJobFailingOrCanceled(j ghJobItem) bool {
+	return j.Conclusion == "failure" || strings.HasPrefix(j.Conclusion, "cancel") || j.Conclusion == "timed_out" || j.Conclusion == "startup_failure"
 }
 
-//nolint:misspell // GitHub Actions API uses British spelling "cancelled"
 func formatConclusionTag(conclusion string) string {
-	if conclusion == "cancelled" {
-		return "CANCELLED"
+	if strings.HasPrefix(conclusion, "cancel") {
+		return "CANCELED"
 	}
 	if conclusion == "timed_out" {
 		return "TIMED_OUT"

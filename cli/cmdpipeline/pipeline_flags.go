@@ -26,6 +26,7 @@ type PipelineErrorFlags struct {
 	HasForce             bool
 	FormatProfile        string
 	RepoTarget           string
+	RawRepoTarget        string
 	ResolvedPath         string
 }
 
@@ -260,6 +261,7 @@ func parseRepoTarget(args []string, flags *PipelineErrorFlags) {
 		explicit = extractFlagVal(args, "-r")
 	}
 	if len(explicit) > 0 {
+		flags.RawRepoTarget = explicit
 		flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(explicit)
 		return
 	}
@@ -269,6 +271,7 @@ func parseRepoTarget(args []string, flags *PipelineErrorFlags) {
 		if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget {
 			continue
 		}
+		flags.RawRepoTarget = trimmed
 		flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(trimmed)
 		return
 	}
@@ -279,7 +282,8 @@ func isSkipTokenForRepoTarget(token string) bool {
 		return true
 	}
 	switch strings.ToLower(token) {
-	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "help":
+	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "help",
+		"format", "add-format", "rm-format", "remove-format", "add-all", "list-formats", "preview-format":
 		return true
 	default:
 		return false

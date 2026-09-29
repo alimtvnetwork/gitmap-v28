@@ -20,7 +20,7 @@ func HandlePEFormatCommands(args []string) (bool, error) {
 	switch sub {
 	case "add-format", "addformat", "save-format":
 		return true, handleAddFormatCLI(args[1:])
-	case "rm-format", "rmformat", "delete-format":
+	case "rm-format", "rmformat", "remove-format", "removeformat", "delete-format":
 		return true, handleRmFormatCLI(args[1:])
 	case "add-all", "addall", "import-formats":
 		return true, handleAddAllFormatsCLI(args[1:])
@@ -72,7 +72,7 @@ func handleAddFormatCLI(args []string) error {
 
 func handleRmFormatCLI(args []string) error {
 	if len(args) == 0 {
-		return apperror.NewValidationError("usage: gitmap pe rm-format <name|alias>")
+		return apperror.NewValidationError("usage: gitmap pe remove-format (rm-format) <name|alias>")
 	}
 	name := args[0]
 	if err := DeletePEFormatProfile(name); err != nil {

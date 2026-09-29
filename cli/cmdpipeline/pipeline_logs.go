@@ -50,15 +50,30 @@ func executePipelineErrorLogs(args []string) error {
 	if flags.ResolvedPath != "" {
 		_ = os.Chdir(flags.ResolvedPath)
 	}
-	repo := flags.RepoTarget
-	if len(repo) == 0 {
-		repo = resolveCurrentRepoSlug()
+	if err := validateTargetRepo(flags); err != nil {
+		return err
 	}
+	repo := resolveFlagsRepoSlug(flags)
 	if flags.HasTimeline {
 		return executeTimelineErrorLogs(repo, flags, args)
 	}
 
 	return processAndRenderErrorLogs(repo, flags)
+}
+
+func validateTargetRepo(flags PipelineErrorFlags) error {
+	if flags.RawRepoTarget != "" && flags.RepoTarget == "" {
+		PrintRepoTargetNotFoundDiagnostic(flags.RawRepoTarget, QueryRepoSuggestionsFromDB(flags.RawRepoTarget))
+		return fmt.Errorf("target repository %q not found", flags.RawRepoTarget)
+	}
+	return nil
+}
+
+func resolveFlagsRepoSlug(flags PipelineErrorFlags) string {
+	if len(flags.RepoTarget) > 0 {
+		return flags.RepoTarget
+	}
+	return resolveCurrentRepoSlug()
 }
 
 func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []string) error {
@@ -1321,26 +1336,27 @@ func printPipelineErrorLogsHelp() {
 }
 
 func printPipelineErrorLogsUsage() {
-	fmt.Println("Usage: gitmap pipeline error-logs [commit|-N|-Nn|HEAD~N] [flags]")
-	fmt.Println("       gitmap pipeline errors [commit|-N] [clear [-y]] [flags]")
-	fmt.Println("       gitmap pe [commit|-N|-Nn|HEAD~N] [clear [-y]] [flags]")
+	fmt.Println("Usage: gitmap pipeline error-logs [repo] [commit|-N|-Nn|HEAD~N] [flags]")
+	fmt.Println("       gitmap pipeline errors [repo] [commit|-N] [clear [-y]] [flags]")
+	fmt.Println("       gitmap pe [repo] [commit|-N|-Nn|HEAD~N] [clear [-y]] [flags]")
 	fmt.Println("       gitmap pe -f <format.json|alias> [flags]")
 	fmt.Println("       gitmap pe -f <alias> -test <filepath>")
 	fmt.Println("       gitmap pe -f <alias> -test-commit <commit-sha> [-repo <path>]")
 	fmt.Println("       gitmap pe add-format <file.json> [alias]")
-	fmt.Println("       gitmap pe rm-format <name|alias>")
+	fmt.Println("       gitmap pe remove-format (rm-format) <name|alias>")
 	fmt.Println("       gitmap pe add-all <folder-path>")
 	fmt.Println("       gitmap pe list-formats")
 	fmt.Println()
 	fmt.Println("Commands:")
 	fmt.Println("  clear [-y]                     Purge error logs, reports, and reset pipeline DB for current repo")
 	fmt.Println("  add-format <file.json> [alias] Register custom JSON format profile for error/warning filtering")
-	fmt.Println("  rm-format <name|alias>         Remove registered format profile")
+	fmt.Println("  remove-format <name|alias>     Remove registered format profile (alias: rm-format)")
 	fmt.Println("  add-all <folder-path>          Batch register all format profiles (*.json) from folder")
 	fmt.Println("  list-formats                   List all registered error log format profiles")
 	fmt.Println("  preview-format <name|file>     Preview format configuration rules in JSON")
 	fmt.Println()
 	fmt.Println("Targeting:")
+	fmt.Println("  [repo]                         Target repository by name, prefix, alias, or path")
 	fmt.Println("  <commit-sha>                   Filter errors for specific commit (e.g. gitmap pe ee4a694)")
 	fmt.Println("  -1, -2, -3, -1n, HEAD~1        Inspect errors for previous commits by relative offset")
 	fmt.Println()

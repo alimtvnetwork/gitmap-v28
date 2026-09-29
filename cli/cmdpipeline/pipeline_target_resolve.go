@@ -23,28 +23,24 @@ func ResolvePipelineTargetAndPath(target string) (string, string) {
 	if trimmed == "" || trimmed == "." {
 		return resolveLocalOrCwdSlug(trimmed), ""
 	}
-
-	// 1. Git remote URL
 	if isPipelineGitURL(trimmed) {
 		return parseSlugFromGitURL(trimmed), ""
 	}
-
-	// 2. Local directory
 	if info, err := os.Stat(trimmed); err == nil && info.IsDir() {
 		abs, _ := filepath.Abs(trimmed)
 		return resolveDirectorySlug(trimmed), abs
 	}
+	return resolveDBOrExplicitSlug(trimmed)
+}
 
-	// 3. Database repository lookup by slug or alias
-	if slug, absPath, isFound := queryRepoSlugAndPathFromDB(trimmed); isFound {
+func resolveDBOrExplicitSlug(target string) (string, string) {
+	if slug, absPath, isFound := queryRepoSlugAndPathFromDB(target); isFound {
 		return slug, absPath
 	}
-
-	// 4. Fallback to slug directly or with default owner if missing slash
-	if strings.Contains(trimmed, "/") {
-		return trimmed, ""
+	if strings.Contains(target, "/") {
+		return target, ""
 	}
-	return "alimtvnetwork/" + trimmed, ""
+	return "", ""
 }
 
 func resolveLocalOrCwdSlug(target string) string {
@@ -88,27 +84,63 @@ func queryRepoSlugFromDB(identifier string) (string, bool) {
 }
 
 func queryRepoSlugAndPathFromDB(identifier string) (string, string, bool) {
-	dbPath := store.DefaultDBPath()
-	info, err := os.Stat(dbPath)
-	if err != nil || info.IsDir() {
-		return "", "", false
-	}
-
-	conn, err := sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro")
+	conn, err := openDBReadonly()
 	if err != nil {
 		return "", "", false
 	}
 	defer conn.Close()
 
-	var slug, absPath string
-	aliasQuery := "SELECT r.Slug, r.AbsolutePath FROM Alias a JOIN Repo r ON a.RepoId = r.RepoId WHERE a.Alias = ? LIMIT 1"
-	if err := conn.QueryRow(aliasQuery, identifier).Scan(&slug, &absPath); err == nil && len(slug) > 0 {
+	if slug, absPath, ok := queryExactAlias(conn, identifier); ok {
 		return slug, absPath, true
 	}
+	if slug, absPath, ok := queryExactRepo(conn, identifier); ok {
+		return slug, absPath, true
+	}
+	return queryPrefixRepo(conn, identifier)
+}
 
-	repoQuery := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath LIKE ? LIMIT 1"
+func openDBReadonly() (*sql.DB, error) {
+	dbPath := store.DefaultDBPath()
+	if info, err := os.Stat(dbPath); err != nil || info.IsDir() {
+		return nil, sql.ErrConnDone
+	}
+	return sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro")
+}
+
+func queryExactAlias(conn *sql.DB, identifier string) (string, string, bool) {
+	var slug, absPath string
+	q := "SELECT r.Slug, r.AbsolutePath FROM Alias a JOIN Repo r ON a.RepoId = r.RepoId WHERE a.Alias = ? LIMIT 1"
+	if err := conn.QueryRow(q, identifier).Scan(&slug, &absPath); err == nil && len(slug) > 0 {
+		return slug, absPath, true
+	}
+	return "", "", false
+}
+
+func queryExactRepo(conn *sql.DB, identifier string) (string, string, bool) {
+	var slug, absPath string
+	q := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath LIKE ? LIMIT 1"
 	likePattern := "%" + filepath.ToSlash(identifier)
-	if scanErr := conn.QueryRow(repoQuery, identifier, identifier, likePattern).Scan(&slug, &absPath); scanErr == nil && len(slug) > 0 {
+	if err := conn.QueryRow(q, identifier, identifier, likePattern).Scan(&slug, &absPath); err == nil && len(slug) > 0 {
+		return slug, absPath, true
+	}
+	return "", "", false
+}
+
+func queryPrefixRepo(conn *sql.DB, identifier string) (string, string, bool) {
+	q := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug LIKE ? OR RepoName LIKE ? LIMIT 2"
+	rows, err := conn.Query(q, identifier+"%", identifier+"%")
+	if err != nil {
+		return "", "", false
+	}
+	defer rows.Close()
+	var slug, absPath, s, a string
+	count := 0
+	for rows.Next() {
+		count++
+		_ = rows.Scan(&s, &a)
+		slug, absPath = s, a
+	}
+	if count == 1 && slug != "" {
 		return slug, absPath, true
 	}
 	return "", "", false
