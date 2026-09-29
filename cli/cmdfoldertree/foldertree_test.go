@@ -211,3 +211,88 @@ func TestExportYAML(t *testing.T) {
 		t.Errorf("expected yaml structure in output: %s", out)
 	}
 }
+
+func TestExportFolderPaths(t *testing.T) {
+	rootPath := createMockTree(t)
+	opts := FolderTreeOptions{
+		TargetDir: rootPath,
+		Format:    "folder",
+	}
+
+	rootNode, err := ScanFolderTree(rootPath, opts)
+	if err != nil {
+		t.Fatalf("scan error: %v", err)
+	}
+
+	out, err := ExportFolderTree(rootNode, opts)
+	if err != nil {
+		t.Fatalf("ExportFolderTree folder error: %v", err)
+	}
+	if !strings.Contains(out, "subA/") && !strings.Contains(out, "subB/") {
+		t.Errorf("expected folder paths in output: %s", out)
+	}
+}
+
+func TestImportFolderOnly(t *testing.T) {
+	jsonContent := `{
+		"rootName": "sample",
+		"tree": {
+			"name": "sample",
+			"isDir": true,
+			"children": [
+				{
+					"name": "config",
+					"isDir": true,
+					"children": [
+						{"name": "app.json", "isDir": false}
+					]
+				}
+			]
+		}
+	}`
+	jsonFile := filepath.Join(t.TempDir(), "structure.json")
+	if err := os.WriteFile(jsonFile, []byte(jsonContent), 0644); err != nil {
+		t.Fatalf("write jsonFile: %v", err)
+	}
+
+	destDir := t.TempDir()
+	opts := FolderTreeOptions{DirsOnly: true}
+	summary, err := ImportFolderTree(jsonFile, destDir, opts)
+	if err != nil {
+		t.Fatalf("ImportFolderTree error: %v", err)
+	}
+	if summary.DirsCreated == 0 {
+		t.Errorf("expected dirs created > 0")
+	}
+	if summary.FilesCreated != 0 {
+		t.Errorf("expected 0 files created when DirsOnly is true, got %d", summary.FilesCreated)
+	}
+	if _, err := os.Stat(filepath.Join(destDir, "config")); os.IsNotExist(err) {
+		t.Errorf("expected config directory to exist")
+	}
+	if _, err := os.Stat(filepath.Join(destDir, "config", "app.json")); !os.IsNotExist(err) {
+		t.Errorf("expected app.json to NOT exist when DirsOnly is true")
+	}
+}
+
+func TestImportTextPaths(t *testing.T) {
+	textContent := "models/\nmodels/user.go\nservices/auth.go\n"
+	txtFile := filepath.Join(t.TempDir(), "paths.txt")
+	if err := os.WriteFile(txtFile, []byte(textContent), 0644); err != nil {
+		t.Fatalf("write txtFile: %v", err)
+	}
+
+	destDir := t.TempDir()
+	opts := FolderTreeOptions{DirsOnly: false}
+	summary, err := ImportFolderTree(txtFile, destDir, opts)
+	if err != nil {
+		t.Fatalf("ImportFolderTree text error: %v", err)
+	}
+	if summary.FilesCreated != 2 {
+		t.Errorf("expected 2 files created, got %d", summary.FilesCreated)
+	}
+	userFile := filepath.Join(destDir, "models", "user.go")
+	if _, err := os.Stat(userFile); os.IsNotExist(err) {
+		t.Errorf("expected placeholder user.go to exist")
+	}
+}

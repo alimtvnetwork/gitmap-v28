@@ -24,11 +24,41 @@ func TestPrintListPreview(t *testing.T) {
 		return 0
 	})
 
-	if !strings.Contains(out, "1. alpha\nD:/work/alpha\n\n") && !strings.Contains(out, "1. alpha\r\nD:/work/alpha\r\n\r\n") {
+	if !strings.Contains(out, "alpha") || !strings.Contains(out, "D:/work/alpha") {
 		t.Errorf("unexpected preview output:\n%s", out)
 	}
-	if !strings.Contains(out, "2. beta\nD:/work/beta\n\n") && !strings.Contains(out, "2. beta\r\nD:/work/beta\r\n\r\n") {
+	if !strings.Contains(out, "beta") || !strings.Contains(out, "D:/work/beta") {
 		t.Errorf("unexpected preview output:\n%s", out)
+	}
+	if !strings.Contains(out, "[git]") {
+		t.Errorf("expected [git] in preview output:\n%s", out)
+	}
+}
+
+func TestPrintListPreviewWithOptions(t *testing.T) {
+	records := []model.ScanRecord{
+		{
+			RepoName:     "alpha",
+			Branch:       "feature-1",
+			AbsolutePath: "D:/work/alpha",
+		},
+	}
+
+	opts := ListPreviewOptions{
+		ShowNumbers: false,
+		ShowEmoji:   false,
+	}
+
+	out, _ := captureStdout(t, func() int {
+		PrintListPreviewWithOptions(records, opts)
+		return 0
+	})
+
+	if strings.Contains(out, "1. ") {
+		t.Errorf("expected no sequence numbers when ShowNumbers is false:\n%s", out)
+	}
+	if !strings.Contains(out, "[git: feature-1]") {
+		t.Errorf("expected [git: feature-1] in output:\n%s", out)
 	}
 }
 

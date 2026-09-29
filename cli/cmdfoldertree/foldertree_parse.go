@@ -1,7 +1,6 @@
 package cmdfoldertree
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -47,7 +46,7 @@ func appendOrSetSubcommand(a string, opts *FolderTreeOptions, remaining []string
 
 func isKnownSubcommand(a string) bool {
 	switch strings.ToLower(a) {
-	case "ls", "view", "show", "tree", "export", "exp", "import", "imp":
+	case "ls", "view", "show", "tree", "export", "exp", "export-folder", "import", "imp", "import-folder":
 		return true
 	default:
 		return false
@@ -75,7 +74,7 @@ func handleBooleanFlags(a string, opts *FolderTreeOptions) bool {
 		opts.DirsOnly = true
 		opts.ShowFiles = false
 		return true
-	case "--files", "-f":
+	case "--files":
 		opts.ShowFiles = true
 		return true
 	case "--no-numbers":
@@ -93,43 +92,4 @@ func handleBooleanFlags(a string, opts *FolderTreeOptions) bool {
 	default:
 		return false
 	}
-}
-
-func handleValueFlags(a string, args []string, i int, opts *FolderTreeOptions) (bool, int) {
-	if a == "--depth" || a == "-L" {
-		return extractDepthFlag(args, i, opts)
-	}
-	if a == "--format" || a == "-fmt" {
-		return extractFormatFlag(args, i, opts)
-	}
-	if a == "--output" || a == "-o" || a == "--file" {
-		return extractOutputFlag(args, i, opts)
-	}
-	return false, i
-}
-
-func extractDepthFlag(args []string, i int, opts *FolderTreeOptions) (bool, int) {
-	if i+1 >= len(args) {
-		return false, i
-	}
-	if d, err := strconv.Atoi(args[i+1]); err == nil {
-		opts.MaxDepth = d
-	}
-	return true, i + 1
-}
-
-func extractFormatFlag(args []string, i int, opts *FolderTreeOptions) (bool, int) {
-	if i+1 < len(args) {
-		opts.Format = args[i+1]
-		return true, i + 1
-	}
-	return false, i
-}
-
-func extractOutputFlag(args []string, i int, opts *FolderTreeOptions) (bool, int) {
-	if i+1 < len(args) {
-		opts.OutputFile = args[i+1]
-		return true, i + 1
-	}
-	return false, i
 }

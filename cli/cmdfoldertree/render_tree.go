@@ -2,7 +2,6 @@ package cmdfoldertree
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 )
 
@@ -57,34 +56,17 @@ func formatGitTag(node *FolderTreeNode) string {
 	if !node.IsGit {
 		return ""
 	}
+	if node.GitRepo != "" && node.GitBranch != "" {
+		if node.GitRepo != node.Name {
+			return fmt.Sprintf("[git: %s (%s)]", node.GitRepo, node.GitBranch)
+		}
+		return fmt.Sprintf("[git: %s]", node.GitBranch)
+	}
 	if node.GitBranch != "" {
 		return fmt.Sprintf("[git: %s]", node.GitBranch)
 	}
+	if node.GitRepo != "" {
+		return fmt.Sprintf("[git: %s]", node.GitRepo)
+	}
 	return "[git]"
-}
-
-func resolveNodeIcon(node *FolderTreeNode) string {
-	if node.IsGit {
-		return "📦"
-	}
-	if node.IsDir {
-		return "📁"
-	}
-	return resolveFileIcon(node.Name)
-}
-
-func resolveFileIcon(name string) string {
-	ext := strings.ToLower(filepath.Ext(name))
-	switch ext {
-	case ".go", ".ts", ".js", ".py", ".rs", ".cs", ".php", ".c", ".cpp":
-		return "💻"
-	case ".json", ".yaml", ".yml", ".toml", ".ini", ".env", ".xml":
-		return "📜"
-	case ".md", ".txt", ".rst", ".doc", ".pdf":
-		return "📝"
-	case ".png", ".jpg", ".jpeg", ".svg", ".ico", ".webp", ".gif":
-		return "🖼️"
-	default:
-		return "📄"
-	}
 }

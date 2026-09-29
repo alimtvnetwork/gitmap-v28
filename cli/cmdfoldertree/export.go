@@ -27,10 +27,14 @@ func renderFormatContent(doc FolderTreeExportDoc, root *FolderTreeNode, opts Fol
 	switch format {
 	case "yaml", "yml":
 		return exportYAML(doc)
-	case "tree", "text":
+	case "tree", "text", "txt":
 		return RenderTree(root, opts), nil
 	case "preview", "gap":
 		return RenderPreview(root, opts), nil
+	case "folder", "folders", "dirs", "dir", "paths", "path":
+		return exportPaths(root, true), nil
+	case "files", "file":
+		return exportPaths(root, false), nil
 	default:
 		return exportJSON(doc)
 	}

@@ -1,16 +1,12 @@
 package cmdfoldertree
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
-
-	"gopkg.in/yaml.v3"
 )
 
-// ImportFolderTree reads JSON/YAML and recreates directory and placeholder files on disk.
+// ImportFolderTree reads JSON/YAML/text and recreates directory and placeholder files on disk.
 func ImportFolderTree(inputFile, targetDir string, opts FolderTreeOptions) (*ImportSummary, error) {
 	data, err := os.ReadFile(inputFile)
 	if err != nil {
@@ -25,49 +21,14 @@ func ImportFolderTree(inputFile, targetDir string, opts FolderTreeOptions) (*Imp
 		return nil, fmt.Errorf("resolve target directory: %w", err)
 	}
 	summary := &ImportSummary{TargetDir: absTarget}
+	rootNode.RelPath = "."
 	err = materializeNode(rootNode, absTarget, opts, summary)
 	return summary, err
 }
 
-func parseImportPayload(data []byte, filename string) (*FolderTreeNode, error) {
-	if isYAMLFile(filename) {
-		return parseYAMLPayload(data)
-	}
-	return parseJSONPayload(data)
-}
-
-func isYAMLFile(filename string) bool {
-	low := strings.ToLower(filename)
-	return strings.HasSuffix(low, ".yaml") || strings.HasSuffix(low, ".yml")
-}
-
-func parseJSONPayload(data []byte) (*FolderTreeNode, error) {
-	var doc FolderTreeExportDoc
-	if err := json.Unmarshal(data, &doc); err == nil && doc.Tree != nil {
-		return doc.Tree, nil
-	}
-	var node FolderTreeNode
-	if err := json.Unmarshal(data, &node); err != nil {
-		return nil, fmt.Errorf("parse json import: %w", err)
-	}
-	return &node, nil
-}
-
-func parseYAMLPayload(data []byte) (*FolderTreeNode, error) {
-	var doc FolderTreeExportDoc
-	if err := yaml.Unmarshal(data, &doc); err == nil && doc.Tree != nil {
-		return doc.Tree, nil
-	}
-	var node FolderTreeNode
-	if err := yaml.Unmarshal(data, &node); err != nil {
-		return nil, fmt.Errorf("parse yaml import: %w", err)
-	}
-	return &node, nil
-}
-
 func materializeNode(node *FolderTreeNode, currentDest string, opts FolderTreeOptions, summary *ImportSummary) error {
 	destPath := filepath.Join(currentDest, node.Name)
-	if node.RelPath == "." {
+	if node.RelPath == "." || node.Name == "." {
 		destPath = currentDest
 	}
 	if node.IsDir {

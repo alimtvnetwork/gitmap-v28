@@ -26,8 +26,8 @@ gitmap ft [subcommand] [flags]
 ## Subcommands
 
 - `ls` / `view [path]`: Render directory hierarchy with Git detection and sequence numbers.
-- `export [path]`: Export hierarchy to JSON, YAML, tree text, or one-line gap preview.
-- `import <file> [target-dir]`: Recreate directory skeleton and empty placeholder files from file.
+- `export [folder] [path]`: Export hierarchy to JSON, YAML, tree text, one-line gap preview, or folder paths (`folder`).
+- `import [folder] <file> [target-dir]`: Recreate directory skeleton and empty placeholder files (or folder structure only when `folder` or `--dirs-only` is passed).
 - `help`: Display comprehensive boxed ASCII terminal usage guide.
 
 ## Flags & Options

@@ -11,22 +11,27 @@ func RenderPreview(root *FolderTreeNode, opts FolderTreeOptions) string {
 	var sb strings.Builder
 	for i, node := range nodes {
 		gitTag := formatGitTag(node)
-		nameLine := formatPreviewName(i+1, node.Name, gitTag, opts.ShowNumbers)
+		icon := resolveNodeIcon(node)
+		nameLine := formatPreviewName(i+1, icon, node.Name, gitTag, opts.ShowNumbers)
 		sb.WriteString(nameLine + "\n")
 		sb.WriteString(node.Path + "\n\n")
 	}
 	return sb.String()
 }
 
-func formatPreviewName(seq int, name, gitTag string, showNumbers bool) string {
+func formatPreviewName(seq int, icon, name, gitTag string, showNumbers bool) string {
 	prefix := ""
 	if showNumbers {
 		prefix = fmt.Sprintf("%d. ", seq)
 	}
-	if gitTag != "" {
-		return fmt.Sprintf("%s%s %s", prefix, name, gitTag)
+	iconPrefix := ""
+	if icon != "" {
+		iconPrefix = icon + " "
 	}
-	return fmt.Sprintf("%s%s", prefix, name)
+	if gitTag != "" {
+		return fmt.Sprintf("%s%s%s %s", prefix, iconPrefix, name, gitTag)
+	}
+	return fmt.Sprintf("%s%s%s", prefix, iconPrefix, name)
 }
 
 func collectNodesFlat(root *FolderTreeNode, dirsOnly bool) []*FolderTreeNode {
