@@ -125,12 +125,7 @@ func mergeConnectionChanges(existing, incoming db.SSHConnection) (bool, db.SSHCo
 
 func resolveMergedPassword(existing, incoming db.SSHConnection) (bool, string) {
 	if incoming.EncryptedPassword != "" && incoming.EncryptedPassword != existing.EncryptedPassword {
-		incomingDec := tryDecryptCandidate(incoming.EncryptedPassword)
-		existingDec := tryDecryptCandidate(existing.EncryptedPassword)
-		if incomingDec != "" || existingDec == "" {
-			return true, incoming.EncryptedPassword
-		}
-		return false, existing.EncryptedPassword
+		return pickBetterEncryptedPassword(existing.EncryptedPassword, incoming.EncryptedPassword)
 	}
 	if existing.EncryptedPassword != "" && tryDecryptCandidate(existing.EncryptedPassword) != "" {
 		return false, existing.EncryptedPassword
@@ -140,6 +135,15 @@ func resolveMergedPassword(existing, incoming db.SSHConnection) (bool, string) {
 		return true, enriched.EncryptedPassword
 	}
 	return false, existing.EncryptedPassword
+}
+
+func pickBetterEncryptedPassword(existingEnc, incomingEnc string) (bool, string) {
+	incomingDec := tryDecryptCandidate(incomingEnc)
+	existingDec := tryDecryptCandidate(existingEnc)
+	if incomingDec != "" || existingDec == "" {
+		return true, incomingEnc
+	}
+	return false, existingEnc
 }
 
 func portableEncryptConnections(conns []db.SSHConnection) []db.SSHConnection {

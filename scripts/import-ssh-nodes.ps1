@@ -37,11 +37,10 @@ Write-Host "==========================================================" -Foregro
 # 1. Resolve GitMap Executable
 $GitMapBin = $null
 $CandidateBinaries = @(
-    "D:\work\gitmap\gitmap.exe",
     (Join-Path $PSScriptRoot "..\gitmap.exe"),
     (Join-Path $PSScriptRoot "gitmap.exe"),
     (Join-Path $PSScriptRoot "..\cli\gitmap.exe"),
-    "D:\work\gitmap\cli\gitmap.exe",
+    (Join-Path $PSScriptRoot "cli\gitmap.exe"),
     ".\gitmap.exe"
 )
 foreach ($Candidate in $CandidateBinaries) {
@@ -81,9 +80,9 @@ if ($FilePath -ne "") {
     }
 } else {
     $Candidates = @(
-        "D:\work\repo-secrets\01-gitmap\gitmap-ssh-nodes.json",
         (Join-Path $PSScriptRoot "..\..\repo-secrets\01-gitmap\gitmap-ssh-nodes.json"),
-        "D:\work\repo-secrets\gitmap-ssh-nodes.json",
+        (Join-Path $PSScriptRoot "..\repo-secrets\01-gitmap\gitmap-ssh-nodes.json"),
+        (Join-Path $PSScriptRoot "..\..\repo-secrets\gitmap-ssh-nodes.json"),
         (Join-Path $PSScriptRoot "gitmap-ssh-nodes.json"),
         "gitmap-ssh-nodes.json"
     )

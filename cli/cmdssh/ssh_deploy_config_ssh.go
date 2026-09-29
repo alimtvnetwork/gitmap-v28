@@ -69,21 +69,25 @@ func stripLeadingSSHArg(args []string) []string {
 }
 
 func loadDeployConfigEnvelope(filePath string) (*SSHNodesExportEnvelope, error) {
-	if filePath != "" {
-		raw, _, err := readNodesImportFileWithFallback(filePath)
-		if err != nil {
-			return nil, err
-		}
-		conns, err := decodeConnectionsFromJSON(raw)
-		if err != nil {
-			return nil, err
-		}
-		for i := range conns {
-			conns[i] = enrichConnectionPassword(conns[i])
-		}
-		return buildEnvelopeFromConnections(conns), nil
+	if filePath == "" {
+		return BuildSSHNodesExportEnvelope()
 	}
-	return BuildSSHNodesExportEnvelope()
+	return loadDeployConfigFromFile(filePath)
+}
+
+func loadDeployConfigFromFile(filePath string) (*SSHNodesExportEnvelope, error) {
+	raw, _, err := readNodesImportFileWithFallback(filePath)
+	if err != nil {
+		return nil, err
+	}
+	conns, err := decodeConnectionsFromJSON(raw)
+	if err != nil {
+		return nil, err
+	}
+	for i := range conns {
+		conns[i] = enrichConnectionPassword(conns[i])
+	}
+	return buildEnvelopeFromConnections(conns), nil
 }
 
 func buildEnvelopeFromConnections(conns []db.SSHConnection) *SSHNodesExportEnvelope {
