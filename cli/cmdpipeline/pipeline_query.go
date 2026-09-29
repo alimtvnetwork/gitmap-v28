@@ -118,23 +118,8 @@ func queryLatestTagRelease(repo string) string {
 		return ghTag
 	}
 
-	targetDir := resolveRepoLocalDir(repo)
-	if len(targetDir) > 0 {
-		tagOut, err := exec.Command("git", "-C", targetDir, "describe", "--tags", "--abbrev=0").Output()
-		if err == nil && len(tagOut) > 0 {
-			return strings.TrimSpace(string(tagOut))
-		}
-		if ver := readVersionJSONVersion(targetDir); ver != "" {
-			return ver
-		}
-	} else if isCurrentRepoMatching(repo) {
-		tagOut, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
-		if err == nil && len(tagOut) > 0 {
-			return strings.TrimSpace(string(tagOut))
-		}
-		if ver := readVersionJSONVersion("."); ver != "" {
-			return ver
-		}
+	if tag := resolveLocalTargetTag(repo); len(tag) > 0 {
+		return tag
 	}
 
 	if isGitmapRepo(repo) {
@@ -144,19 +129,39 @@ func queryLatestTagRelease(repo string) string {
 	return ""
 }
 
+func resolveLocalTargetTag(repo string) string {
+	targetDir := resolveRepoLocalDir(repo)
+	if len(targetDir) > 0 {
+		return queryLocalDirectoryTag(targetDir)
+	}
+	if isCurrentRepoMatching(repo) {
+		return queryLocalDirectoryTag(".")
+	}
+	return ""
+}
+
+func queryLocalDirectoryTag(dir string) string {
+	tagOut, err := exec.Command("git", "-C", dir, "describe", "--tags", "--abbrev=0").Output()
+	if err == nil && len(tagOut) > 0 {
+		return strings.TrimSpace(string(tagOut))
+	}
+	return readVersionJSONVersion(dir)
+}
+
 func queryGHTags(repo string) string {
 	if len(repo) == 0 {
 		return ""
 	}
 	endpoint := fmt.Sprintf("repos/%s/tags", repo)
 	out, err := runGHCommandWithTimeout("api", endpoint, "--jq", ".[0].name")
-	if err == nil && len(out) > 0 {
-		tag := strings.TrimSpace(string(out))
-		if tag != "" && tag != "null" {
-			return tag
-		}
+	if err != nil || len(out) == 0 {
+		return ""
 	}
-	return ""
+	tag := strings.TrimSpace(string(out))
+	if tag == "" || tag == "null" {
+		return ""
+	}
+	return tag
 }
 
 func isGitmapRepo(repo string) bool {
@@ -171,12 +176,14 @@ func isCurrentRepoMatching(repo string) bool {
 
 func resolveRepoLocalDir(repo string) string {
 	_, absPath, ok := queryRepoSlugAndPathFromDB(repo)
-	if ok && absPath != "" {
-		if info, err := os.Stat(absPath); err == nil && info.IsDir() {
-			return absPath
-		}
+	if !ok || absPath == "" {
+		return ""
 	}
-	return ""
+	info, err := os.Stat(absPath)
+	if err != nil || !info.IsDir() {
+		return ""
+	}
+	return absPath
 }
 
 type versionFileMinimal struct {
