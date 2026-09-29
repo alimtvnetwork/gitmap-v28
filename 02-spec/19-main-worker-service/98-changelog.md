@@ -1,3 +1,9 @@
+## v6.394.0 — 2026-09-29 (Release v6.393.0: folder-tree command suite and ls preview enhancement)
+
+**Scope:** Version bump. Release v6.393.0: folder-tree command suite and ls preview enhancement.
+
+---
+
 ## v6.393.0 — 2026-09-29 (Enhance ls preview options and add folder-tree command suite with emoji tree, sequence numbers, and multi-format scaffolding)
 
 **Scope:** Version bump. Enhance ls preview options and add folder-tree command suite with emoji tree, sequence numbers, and multi-format scaffolding.
