@@ -82,3 +82,35 @@ func TestPrintListTree(t *testing.T) {
 		t.Errorf("expected repo name in tree output:\n%s", out)
 	}
 }
+
+func TestPrintListPreviewEmpty(t *testing.T) {
+	out, _ := captureStdout(t, func() int {
+		PrintListPreview(nil)
+		return 0
+	})
+	if !strings.Contains(out, "No repos") {
+		t.Errorf("expected empty message, got:\n%s", out)
+	}
+}
+
+func TestPrintListPreviewRelative(t *testing.T) {
+	records := []model.ScanRecord{
+		{
+			RepoName:     "alpha",
+			AbsolutePath: "D:/work/repos/alpha",
+			RelativePath: "repos/alpha",
+		},
+	}
+	opts := ListPreviewOptions{
+		ShowNumbers: true,
+		ShowEmoji:   true,
+		UseRelative: true,
+	}
+	out, _ := captureStdout(t, func() int {
+		PrintListPreviewWithOptions(records, opts)
+		return 0
+	})
+	if !strings.Contains(out, "repos/alpha") {
+		t.Errorf("expected relative path in output:\n%s", out)
+	}
+}

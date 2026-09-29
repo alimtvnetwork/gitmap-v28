@@ -41,6 +41,7 @@ type listOptions struct {
 	tree        bool
 	showNumbers bool
 	showEmoji   bool
+	useRelative bool
 }
 
 func executeList(args []string) {
@@ -55,6 +56,7 @@ func executeList(args []string) {
 		previewOpts := ListPreviewOptions{
 			ShowNumbers: opts.showNumbers,
 			ShowEmoji:   opts.showEmoji,
+			UseRelative: opts.useRelative,
 		}
 		PrintListPreviewWithOptions(records, previewOpts)
 		return
@@ -85,6 +87,8 @@ func parseListFlags(args []string) listOptions {
 			opts.showNumbers = false
 		case "--no-emoji":
 			opts.showEmoji = false
+		case "--relative", "-r", "--rel":
+			opts.useRelative = true
 		}
 	}
 	opts.group = extractGroupFlag(args)

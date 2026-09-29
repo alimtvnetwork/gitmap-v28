@@ -17,10 +17,14 @@ func RenderTree(root *FolderTreeNode, opts FolderTreeOptions) string {
 func formatRootHeader(root *FolderTreeNode, opts FolderTreeOptions) string {
 	icon := "📂"
 	gitTag := formatGitTag(root)
-	if opts.ShowNumbers {
-		return fmt.Sprintf("%d. %s %s %s", root.Sequence, icon, root.Path, gitTag)
+	tagPart := ""
+	if gitTag != "" {
+		tagPart = " " + gitTag
 	}
-	return fmt.Sprintf("%s %s %s", icon, root.Path, gitTag)
+	if opts.ShowNumbers {
+		return fmt.Sprintf("%d. %s %s%s", root.Sequence, icon, root.Path, tagPart)
+	}
+	return fmt.Sprintf("%s %s%s", icon, root.Path, tagPart)
 }
 
 func renderChildrenTree(sb *strings.Builder, children []*FolderTreeNode, indent string, opts FolderTreeOptions) {

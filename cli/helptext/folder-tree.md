@@ -40,7 +40,7 @@ gitmap ft [subcommand] [flags]
 | `--files`, `-f` | `true` | Include files in tree rendering |
 | `--git-only` | `false` | Filter to display only Git repositories |
 | `--depth <N>`, `-L <N>` | `3` | Maximum scan recursion depth (0 for infinite) |
-| `--format <fmt>`, `-fmt` | `json` | Export format: `json`, `yaml`, `tree`, `preview` |
+| `--format <fmt>`, `-fmt` | `json` | Export format: `json`, `yaml`, `tree`, `preview`, `folder` |
 | `--output <file>`, `-o` | | Write exported output directly to specified file |
 | `--no-numbers` | `false` | Suppress sequence numbering in output |
 | `--all`, `-a` | `false` | Include hidden items (.git internals, node_modules) |
@@ -67,8 +67,20 @@ gitmap ft --preview --depth 1
 gitmap ft export . --format json -o skeleton.json
 ```
 
-### Example 4: Recreate directory scaffolding from file
+### Example 4: Export folder structure only
+
+```bash
+gitmap ft export folder -o dirs.txt
+```
+
+### Example 5: Recreate directory scaffolding from file
 
 ```bash
 gitmap ft import skeleton.json ./my-new-project
+```
+
+### Example 6: Recreate folder structure only
+
+```bash
+gitmap ft import folder dirs.txt ./my-new-project
 ```

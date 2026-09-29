@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -10,6 +11,7 @@ import (
 type ListPreviewOptions struct {
 	ShowNumbers bool
 	ShowEmoji   bool
+	UseRelative bool
 }
 
 // DefaultListPreviewOptions returns default preview options.
@@ -28,14 +30,23 @@ func PrintListPreview(records []model.ScanRecord) {
 // PrintListPreviewWithOptions renders repositories in one-line gap format with options.
 func PrintListPreviewWithOptions(records []model.ScanRecord, opts ListPreviewOptions) {
 	if len(records) == 0 {
+		fmt.Println(constants.MsgListEmpty)
 		return
 	}
 	for i, r := range records {
 		name := resolveRecordDisplayName(r)
 		branchInfo := resolveBranchInfo(r.Branch)
 		header := formatListPreviewHeader(i+1, name, branchInfo, opts)
-		fmt.Printf("%s\n%s\n\n", header, r.AbsolutePath)
+		pathStr := resolveRecordPath(r, opts.UseRelative)
+		fmt.Printf("%s\n%s\n\n", header, pathStr)
 	}
+}
+
+func resolveRecordPath(r model.ScanRecord, useRelative bool) string {
+	if useRelative && r.RelativePath != "" {
+		return r.RelativePath
+	}
+	return r.AbsolutePath
 }
 
 func formatListPreviewHeader(seq int, name, branchInfo string, opts ListPreviewOptions) string {
