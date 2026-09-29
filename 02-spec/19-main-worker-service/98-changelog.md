@@ -1,3 +1,9 @@
+## v6.414.0 — 2026-09-29 (support clear terminal and clear-terminal commands)
+
+**Scope:** Version bump. support clear terminal and clear-terminal commands.
+
+---
+
 ## v6.413.0 — 2026-09-29 (recursively suppress developer stack traces on reported ssh auth aborts)
 
 **Scope:** Version bump. recursively suppress developer stack traces on reported ssh auth aborts.

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.414.0] - 2026-09-29
+
+### Added
+- support clear terminal and clear-terminal commands
+
+---
+
 ## [v6.413.0] - 2026-09-29
 
 ### Added
