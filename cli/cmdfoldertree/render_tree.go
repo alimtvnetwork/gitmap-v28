@@ -56,11 +56,8 @@ func formatGitTag(node *FolderTreeNode) string {
 	if !node.IsGit {
 		return ""
 	}
-	if node.GitRepo != "" && node.GitBranch != "" {
-		if node.GitRepo != node.Name {
-			return fmt.Sprintf("[git: %s (%s)]", node.GitRepo, node.GitBranch)
-		}
-		return fmt.Sprintf("[git: %s]", node.GitBranch)
+	if node.GitRepo != "" && node.GitBranch != "" && node.GitRepo != node.Name {
+		return fmt.Sprintf("[git: %s (%s)]", node.GitRepo, node.GitBranch)
 	}
 	if node.GitBranch != "" {
 		return fmt.Sprintf("[git: %s]", node.GitBranch)

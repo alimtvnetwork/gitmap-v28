@@ -9,19 +9,23 @@ func exportPaths(root *FolderTreeNode, dirsOnly bool) string {
 }
 
 func walkCollectPaths(node *FolderTreeNode, dirsOnly bool, lines *[]string) {
-	if shouldIncludeInPathList(node, dirsOnly) {
-		rel := node.RelPath
-		if node.IsDir && rel != "." && !strings.HasSuffix(rel, "/") {
-			rel += "/"
-		}
-		*lines = append(*lines, rel)
+	if isIncludedInPathList(node, dirsOnly) {
+		*lines = append(*lines, formatExportPath(node))
 	}
 	for _, child := range node.Children {
 		walkCollectPaths(child, dirsOnly, lines)
 	}
 }
 
-func shouldIncludeInPathList(node *FolderTreeNode, dirsOnly bool) bool {
+func formatExportPath(node *FolderTreeNode) string {
+	rel := node.RelPath
+	if node.IsDir && rel != "." && !strings.HasSuffix(rel, "/") {
+		return rel + "/"
+	}
+	return rel
+}
+
+func isIncludedInPathList(node *FolderTreeNode, dirsOnly bool) bool {
 	if dirsOnly {
 		return node.IsDir
 	}
