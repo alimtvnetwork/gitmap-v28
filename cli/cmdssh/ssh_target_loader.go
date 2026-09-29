@@ -123,10 +123,30 @@ func filterConnectionsByTarget(conns []db.SSHConnection, target string) []db.SSH
 	return filterMultipleTargets(conns, targets)
 }
 
+func isConnectionTargetMatch(c db.SSHConnection, target string) bool {
+	if strings.EqualFold(c.Alias, target) || strings.EqualFold(c.IPAddress, target) {
+		return true
+	}
+	userAtIP := fmt.Sprintf("%s@%s", c.Username, c.IPAddress)
+	if strings.EqualFold(userAtIP, target) {
+		return true
+	}
+	userAtAlias := fmt.Sprintf("%s@%s", c.Username, c.Alias)
+	if strings.EqualFold(userAtAlias, target) {
+		return true
+	}
+	if !strings.Contains(target, "@") {
+		return false
+	}
+	parts := strings.Split(target, "@")
+	hostPart := parts[len(parts)-1]
+	return strings.EqualFold(c.Alias, hostPart) || strings.EqualFold(c.IPAddress, hostPart)
+}
+
 func filterSingleTarget(conns []db.SSHConnection, target string) []db.SSHConnection {
 	var matched []db.SSHConnection
 	for _, c := range conns {
-		if strings.EqualFold(c.Alias, target) || strings.EqualFold(c.IPAddress, target) {
+		if isConnectionTargetMatch(c, target) {
 			matched = append(matched, c)
 		}
 	}
@@ -145,7 +165,7 @@ func filterMultipleTargets(conns []db.SSHConnection, targets []string) []db.SSHC
 
 func matchesAnyTarget(c db.SSHConnection, targets []string) bool {
 	for _, t := range targets {
-		if strings.EqualFold(c.Alias, t) || strings.EqualFold(c.IPAddress, t) {
+		if isConnectionTargetMatch(c, t) {
 			return true
 		}
 	}

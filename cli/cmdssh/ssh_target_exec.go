@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -78,6 +79,14 @@ func findMatchingTargetConnection(target string) *db.SSHConnection {
 	return &matched[0]
 }
 
+func resolveTargetHostAndUser(target string) (string, string) {
+	if !strings.Contains(target, "@") {
+		return target, ""
+	}
+	parts := strings.Split(target, "@")
+	return parts[len(parts)-1], parts[0]
+}
+
 func queryFallbackConnection(ctx context.Context, target string) (*db.SSHConnection, error) {
 	dbConn, err := openSSHDB()
 	if err != nil {
@@ -85,14 +94,22 @@ func queryFallbackConnection(ctx context.Context, target string) (*db.SSHConnect
 	}
 	defer dbConn.Close()
 
-	host, hostErr := store.GetHostByAlias(ctx, target, dbConn.Conn())
+	cleanHost, explicitUser := resolveTargetHostAndUser(target)
+
+	host, hostErr := store.GetHostByAlias(ctx, cleanHost, dbConn.Conn())
 	if hostErr == nil {
 		conn := convertSSHHostToConnection(host)
+		if explicitUser != "" {
+			conn.Username = explicitUser
+		}
 		return &conn, nil
 	}
-	hostIP, ipErr := store.GetHostByIP(ctx, target, dbConn.Conn())
+	hostIP, ipErr := store.GetHostByIP(ctx, cleanHost, dbConn.Conn())
 	if ipErr == nil {
 		conn := convertSSHHostToConnection(hostIP)
+		if explicitUser != "" {
+			conn.Username = explicitUser
+		}
 		return &conn, nil
 	}
 	return nil, apperror.NewNotFoundError(fmt.Sprintf("SSH host '%s' not found in registry", target))

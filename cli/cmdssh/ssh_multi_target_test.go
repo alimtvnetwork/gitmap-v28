@@ -60,3 +60,22 @@ func TestFilterConnectionsByTarget_MultiMixedAliasIP(t *testing.T) {
 		t.Errorf("expected 0 matches for unknown targets, got %d", len(none))
 	}
 }
+
+func TestFilterConnectionsByTarget_UserAtHostAndAlias(t *testing.T) {
+	conns := createSampleConns()
+
+	byUserIP := filterConnectionsByTarget(conns, "dev@192.168.1.10")
+	if len(byUserIP) != 1 || byUserIP[0].Alias != "devbox" {
+		t.Errorf("expected match for dev@192.168.1.10, got %+v", byUserIP)
+	}
+
+	byUserAlias := filterConnectionsByTarget(conns, "dev@devbox")
+	if len(byUserAlias) != 1 || byUserAlias[0].Alias != "devbox" {
+		t.Errorf("expected match for dev@devbox, got %+v", byUserAlias)
+	}
+
+	byDifferentUserAtIP := filterConnectionsByTarget(conns, "root@192.168.1.20")
+	if len(byDifferentUserAtIP) != 1 || byDifferentUserAtIP[0].Alias != "worker-1" {
+		t.Errorf("expected match for root@192.168.1.20 by host IP, got %+v", byDifferentUserAtIP)
+	}
+}
