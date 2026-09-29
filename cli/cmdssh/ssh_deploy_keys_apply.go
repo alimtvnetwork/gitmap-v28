@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -21,15 +23,32 @@ func deployKeysToRemoteNode(c db.SSHConnection, uniqueKeys []string, isDryRun bo
 	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
 		res.ErrorMsg = "authentication failed"
+		logDeployKeysError(c, "authentication failed", len(uniqueKeys))
 		return res, fmt.Errorf("auth failed for %s", header)
 	}
 	defer client.Close()
-	return syncAuthorizedKeysOnClient(client, res, uniqueKeys, isDryRun)
+	nodeRes, err := syncAuthorizedKeysOnClient(client, res, uniqueKeys, c.OS, isDryRun)
+	if err != nil {
+		logDeployKeysError(c, err.Error(), len(uniqueKeys))
+	}
+	return nodeRes, err
 }
 
-func syncAuthorizedKeysOnClient(client *ssh.Client, res DeployKeysNodeResult, uniqueKeys []string, isDryRun bool) (DeployKeysNodeResult, error) {
-	prepCmd := "mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && cat ~/.ssh/authorized_keys"
-	existingAuth, err := crypto.RunCommand(client, prepCmd, "")
+func logDeployKeysError(c db.SSHConnection, errMsg string, keysTotal int) {
+	store.LogInternalErrorRecord(store.InternalErrorRecord{
+		ErrorCode:     "ERR_SSH_DEPLOY_KEYS",
+		ErrorType:     "SSHDeploymentError",
+		Command:       "gitmap ssh deploy keys",
+		Message:       fmt.Sprintf("Mesh SSH key deployment failed on node %s (%s): %s", c.Alias, c.IPAddress, errMsg),
+		Details:       errMsg,
+		SourceFile:    "cli/cmdssh/ssh_deploy_keys_apply.go",
+		ContextJson:   fmt.Sprintf(`{"node":"%s","ip":"%s","keys_total":%d}`, c.Alias, c.IPAddress, keysTotal),
+		GitMapVersion: constants.Version,
+	})
+}
+
+func syncAuthorizedKeysOnClient(client *ssh.Client, res DeployKeysNodeResult, uniqueKeys []string, osType string, isDryRun bool) (DeployKeysNodeResult, error) {
+	existingAuth, err := readRemoteAuthorizedKeys(client, osType)
 	if err != nil {
 		res.ErrorMsg = err.Error()
 		return res, err
@@ -40,7 +59,16 @@ func syncAuthorizedKeysOnClient(client *ssh.Client, res DeployKeysNodeResult, un
 	if isDryRun || len(missingKeys) == 0 {
 		return res, nil
 	}
-	return appendMissingKeysToRemote(client, res, missingKeys)
+	return appendMissingKeysToRemote(client, res, missingKeys, osType)
+}
+
+func readRemoteAuthorizedKeys(client *ssh.Client, osType string) (string, error) {
+	if isWindowsOS(osType) {
+		cmd := `powershell -NoProfile -Command "Get-Content -Path (Join-Path $env:USERPROFILE '.ssh\authorized_keys') -ErrorAction SilentlyContinue; if (Test-Path (Join-Path $env:ProgramData 'ssh\administrators_authorized_keys')) { Get-Content -Path (Join-Path $env:ProgramData 'ssh\administrators_authorized_keys') -ErrorAction SilentlyContinue }"`
+		return crypto.RunCommand(client, cmd, "")
+	}
+	prepCmd := "mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && cat ~/.ssh/authorized_keys"
+	return crypto.RunCommand(client, prepCmd, "")
 }
 
 func buildExistingSignaturesMap(authContent string) map[string]bool {
@@ -64,7 +92,14 @@ func filterMissingPublicKeys(uniqueKeys []string, existing map[string]bool) []st
 	return missing
 }
 
-func appendMissingKeysToRemote(client *ssh.Client, res DeployKeysNodeResult, missing []string) (DeployKeysNodeResult, error) {
+func appendMissingKeysToRemote(client *ssh.Client, res DeployKeysNodeResult, missing []string, osType string) (DeployKeysNodeResult, error) {
+	if isWindowsOS(osType) {
+		return appendMissingKeysWindows(client, res, missing)
+	}
+	return appendMissingKeysUnix(client, res, missing)
+}
+
+func appendMissingKeysUnix(client *ssh.Client, res DeployKeysNodeResult, missing []string) (DeployKeysNodeResult, error) {
 	builder := strings.Builder{}
 	for _, k := range missing {
 		builder.WriteString(fmt.Sprintf("printf '%%s\\n' %q >> ~/.ssh/authorized_keys\n", k))
@@ -74,6 +109,18 @@ func appendMissingKeysToRemote(client *ssh.Client, res DeployKeysNodeResult, mis
 	if err != nil {
 		res.ErrorMsg = err.Error()
 		return res, err
+	}
+	return res, nil
+}
+
+func appendMissingKeysWindows(client *ssh.Client, res DeployKeysNodeResult, missing []string) (DeployKeysNodeResult, error) {
+	for _, k := range missing {
+		script := buildInjectAuthKeyScript(k, "windows")
+		_, err := crypto.RunCommand(client, script, "")
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			return res, err
+		}
 	}
 	return res, nil
 }

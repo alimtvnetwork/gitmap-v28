@@ -32,29 +32,53 @@ func printDeployKeysHeader(s DeployKeysSummary, except string) {
 
 func printDeployKeysRows(results []DeployKeysNodeResult) {
 	for idx, r := range results {
-		statusStr := formatNodeStatus(r)
-		addedStr := fmt.Sprintf("+%d key(s)", r.KeysAdded)
-		if r.KeysAdded == 0 && r.IsOnline {
-			addedStr = "already synced"
-		}
-		fmt.Printf("    %-4d %-20s %-16s %-12s %s\n", idx+1, r.Alias, r.IPAddress, statusStr, addedStr)
+		statusCell := formatNodeStatusCell(r, 12)
+		actionText := formatNodeActionText(r)
+		fmt.Printf("    %-4d %-20s %-16s %s%s\n", idx+1, r.Alias, r.IPAddress, statusCell, actionText)
 	}
 }
 
-func formatNodeStatus(r DeployKeysNodeResult) string {
+func formatNodeStatusCell(r DeployKeysNodeResult, width int) string {
+	raw, color := "synced", constants.ColorGreen
 	if !r.IsOnline {
-		return constants.ColorRed + "offline" + constants.ColorReset
+		raw, color = "offline", constants.ColorRed
+	} else if r.ErrorMsg != "" {
+		raw, color = "failed", constants.ColorRed
+	}
+	padding := width - len(raw)
+	if padding < 1 {
+		padding = 1
+	}
+	return fmt.Sprintf("%s%s%s%s", color, raw, constants.ColorReset, strings.Repeat(" ", padding))
+}
+
+func formatNodeActionText(r DeployKeysNodeResult) string {
+	if !r.IsOnline {
+		return "+0 key(s)"
 	}
 	if r.ErrorMsg != "" {
-		return constants.ColorRed + "failed" + constants.ColorReset
+		return fmt.Sprintf("error: %s", r.ErrorMsg)
 	}
-	return constants.ColorGreen + "synced" + constants.ColorReset
+	if r.KeysAdded == 0 {
+		return "already synced"
+	}
+	return fmt.Sprintf("+%d key(s)", r.KeysAdded)
 }
 
 func printDeployKeysFooter(s DeployKeysSummary) {
 	fmt.Println()
 	if s.IsDryRun {
 		fmt.Printf("  %s[dry-run] No remote authorized_keys were modified.%s\n\n", constants.ColorYellow, constants.ColorReset)
+		return
+	}
+	if s.NodesSucceeded == 0 && s.NodesTargeted > 0 {
+		fmt.Printf("  %s✗ Mesh public key deployment failed: 0/%d nodes updated.%s\n\n",
+			constants.ColorRed, s.NodesTargeted, constants.ColorReset)
+		return
+	}
+	if s.NodesSucceeded < s.NodesTargeted {
+		fmt.Printf("  %s⚠ Mesh public key deployment partially complete (%d/%d succeeded).%s\n\n",
+			constants.ColorYellow, s.NodesSucceeded, s.NodesTargeted, constants.ColorReset)
 		return
 	}
 	fmt.Printf("  %s✓ Mesh public key synchronization complete! All nodes now trust cluster keys passwordlessly.%s\n\n",

@@ -40,12 +40,19 @@ func gatherRemotePublicKeys(c db.SSHConnection) ([]string, error) {
 		return nil, fmt.Errorf("auth failed for %s", header)
 	}
 	defer client.Close()
-	cmd := "cat ~/.ssh/id_ed25519.pub ~/.ssh/id_rsa.pub ~/.ssh/id_ecdsa.pub ~/.ssh/*.pub 2>/dev/null"
+	cmd := buildGatherRemoteKeysCommand(c.OS)
 	out, err := crypto.RunCommand(client, cmd, "")
 	if err != nil {
 		return nil, err
 	}
 	return strings.Split(out, "\n"), nil
+}
+
+func buildGatherRemoteKeysCommand(osType string) string {
+	if isWindowsOS(osType) {
+		return `powershell -NoProfile -Command "Get-Content -Path (Join-Path $env:USERPROFILE '.ssh\*.pub') -ErrorAction SilentlyContinue"`
+	}
+	return "cat ~/.ssh/id_ed25519.pub ~/.ssh/id_rsa.pub ~/.ssh/id_ecdsa.pub ~/.ssh/*.pub 2>/dev/null"
 }
 
 func deduplicatePublicKeys(allKeys []string) []string {

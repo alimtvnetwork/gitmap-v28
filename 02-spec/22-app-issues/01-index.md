@@ -56,6 +56,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 48 | [48-ssh-auth-handshake-failure-and-misleading-node-status-rca.md](48-ssh-auth-handshake-failure-and-misleading-node-status-rca.md) | SSH Fleet Authentication Handshake Failure and Misleading Node Status: RCA & Fix | Resolved |
 | 49 | [49-ssh-fleet-parallel-pull-machine-hangs-and-concurrency-multiplication-rca.md](49-ssh-fleet-parallel-pull-machine-hangs-and-concurrency-multiplication-rca.md) | SSH Fleet Parallel Pull Machine Hangs and Concurrency Multiplication: RCA & Fix | Resolved |
 | 50 | [50-agy-rp-recreate-alias-hijack-and-ad-hoc-project-creation-rca.md](50-agy-rp-recreate-alias-hijack-and-ad-hoc-project-creation-rca.md) | AGY RP Subcommand Alias Hijack, Unconfirmed Ad-Hoc Project Creation & CWD Pollution: RCA & Fix | Resolved |
+| 51 | [51-mesh-ssh-deploy-keys-windows-chmod-failure-rca.md](51-mesh-ssh-deploy-keys-windows-chmod-failure-rca.md) | Mesh SSH Deploy Keys Windows Chmod Command Failure & Misleading Output: RCA & Fix | Resolved |
 
 ---
 

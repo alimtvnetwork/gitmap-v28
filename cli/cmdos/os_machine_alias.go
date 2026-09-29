@@ -30,6 +30,11 @@ type MachineIdentity struct {
 	PreviousName  string `json:"previousName,omitempty"`
 	PreviousAlias string `json:"previousAlias,omitempty"`
 	OSPlatform    string `json:"osPlatform"`
+	OSVersion     string `json:"osVersion,omitempty"`
+	Architecture  string `json:"architecture,omitempty"`
+	CPUCores      int    `json:"cpuCores,omitempty"`
+	CurrentUser   string `json:"currentUser,omitempty"`
+	GitMapVersion string `json:"gitmapVersion,omitempty"`
 	Scope         string `json:"scope"`
 }
 
@@ -94,10 +99,18 @@ func resolveLocalMachineIdentity() MachineIdentity {
 	alias := readGlobalOrFallback("machine.alias", ip)
 	prevName, _ := config.GetVariable("global", "machine.previous_name")
 	prevAlias, _ := config.GetVariable("global", "machine.previous_alias")
+	osInfo := GetLocalOSInfo()
+	user := os.Getenv("USERNAME")
+	if user == "" {
+		user = os.Getenv("USER")
+	}
 	return MachineIdentity{
 		Sequence: 1, NodeID: "local-01", IPAddress: ip, Alias: alias,
 		MachineName: machName, OSHostname: osHost, PreviousName: prevName,
-		PreviousAlias: prevAlias, OSPlatform: formatOSPlatform(runtime.GOOS), Scope: "local",
+		PreviousAlias: prevAlias, OSPlatform: formatOSPlatform(runtime.GOOS),
+		OSVersion: osInfo.OSVersion, Architecture: osInfo.Architecture,
+		CPUCores: osInfo.NumCPU, CurrentUser: user, GitMapVersion: constants.Version,
+		Scope: "local",
 	}
 }
 
@@ -169,8 +182,24 @@ func renderSingleMachineIdentity(mode string, id MachineIdentity) {
 	fmt.Printf("  Machine IP:      %s%s%s\n", constants.ColorGreen, id.IPAddress, constants.ColorReset)
 	fmt.Printf("  Machine Alias:   %s%s%s (auto-defaults to IP if unset)\n", constants.ColorYellow, id.Alias, constants.ColorReset)
 	fmt.Printf("  Machine Name:    %s%s%s (OS Hostname: %s)\n", constants.ColorCyan, id.MachineName, constants.ColorReset, id.OSHostname)
+	if id.CurrentUser != "" {
+		fmt.Printf("  Current User:    %s\n", id.CurrentUser)
+	}
 	fmt.Printf("  Previous Value:  name=%q | alias=%q\n", id.PreviousName, id.PreviousAlias)
+	renderSystemDetails(id)
+}
+
+func renderSystemDetails(id MachineIdentity) {
 	fmt.Printf("  OS Platform:     %s\n", id.OSPlatform)
+	if id.OSVersion != "" {
+		fmt.Printf("  OS Version:      %s%s%s\n", constants.ColorGreen, id.OSVersion, constants.ColorReset)
+	}
+	if id.Architecture != "" || id.CPUCores > 0 {
+		fmt.Printf("  System Hardware: %s, %d CPU core(s)\n", id.Architecture, id.CPUCores)
+	}
+	if id.GitMapVersion != "" {
+		fmt.Printf("  GitMap Version:  %s\n", id.GitMapVersion)
+	}
 }
 
 func renderFleetMachineAliasList(mode string, isJSON bool) error {
@@ -179,11 +208,18 @@ func renderFleetMachineAliasList(mode string, isJSON bool) error {
 		return printIdentityJSON(items)
 	}
 	fmt.Printf("%s● SSH Fleet & Local Machine Identifiers (%s --ssh)%s\n", constants.ColorCyan, mode, constants.ColorReset)
-	fmt.Printf("  %-4s %-12s %-16s %-20s %-20s %-22s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "MACHINE NAME", "OS PLATFORM")
-	fmt.Printf("  %s\n", strings.Repeat("─", 98))
+	fmt.Printf("  %-4s %-12s %-16s %-18s %-18s %-20s %s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "USER", "OS PLATFORM", "OS VERSION")
+	fmt.Printf("  %s\n", strings.Repeat("─", 110))
 	for _, it := range items {
-		fmt.Printf("  #%-3d %-12s %-16s %-20s %-20s %-22s\n",
-			it.Sequence, it.NodeID, it.IPAddress, it.Alias, it.MachineName, it.OSPlatform)
+		user, osVer := it.CurrentUser, it.OSVersion
+		if user == "" {
+			user = "-"
+		}
+		if osVer == "" {
+			osVer = "-"
+		}
+		fmt.Printf("  #%-3d %-12s %-16s %-18s %-18s %-20s %s\n",
+			it.Sequence, it.NodeID, it.IPAddress, it.Alias, user, it.OSPlatform, osVer)
 	}
 	return nil
 }
@@ -212,10 +248,15 @@ func convertSSHConnToIdentity(seq int, conn db.SSHConnection) MachineIdentity {
 	}
 	nodeID := fmt.Sprintf("ssh-%02d", seq-1)
 	prev, _ := config.GetVariable("ssh_prev", conn.IPAddress)
+	osPlatform := formatOSPlatform(conn.OS)
+	if conn.OSGroup != "" && conn.OSGroup != conn.OS {
+		osPlatform = fmt.Sprintf("%s (%s)", conn.OSGroup, conn.OS)
+	}
 	return MachineIdentity{
 		Sequence: seq, NodeID: nodeID, IPAddress: conn.IPAddress, Alias: alias,
 		MachineName: alias, OSHostname: alias, PreviousAlias: prev,
-		OSPlatform: formatOSPlatform(conn.OS), Scope: "ssh",
+		OSPlatform: osPlatform, OSVersion: conn.OSVersion, CurrentUser: conn.Username,
+		Scope: "ssh",
 	}
 }
 

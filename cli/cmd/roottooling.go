@@ -105,6 +105,8 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{"run-until"}, func() error { return runMacroRootRunUntil(argsTail()) }},
 		{[]string{"clean-dev", "cleandev", "dev-cleanup", "devcleanup", "dev-clean"}, func() error { return runCleanDevTopLevel(argsTail()) }},
 		{[]string{"devtool", "dt"}, func() error { return runDevToolTopLevel(argsTail()) }},
+		{[]string{"dev"}, func() error { return runDevTopLevel(argsTail()) }},
+		{[]string{"clean"}, func() error { return runCleanTopLevel(argsTail()) }},
 		{[]string{"winutil"}, func() error { return runWinUtilTopLevel(argsTail()) }},
 	}
 	return append(entries, toolingSpecialRepoEntries()...)
