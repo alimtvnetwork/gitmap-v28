@@ -1194,6 +1194,78 @@ function Update-PowerShellProfilePathLine([string]$profilePath, [string]$dir) {
     return $true
 }
 
+function Configure-PowerShellProfileSuggestions {
+    $marker = "# >>> gitmap shell completion & predictive suggestions >>>"
+    $endMarker = "# <<< gitmap shell completion & predictive suggestions <<<"
+    $block = @"
+# >>> gitmap shell completion & predictive suggestions >>>
+if (-not `$global:__gitmap_suggestions_configured) {
+    `$global:__gitmap_suggestions_configured = `$true
+    if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
+        try {
+            Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
+        } catch {
+            try {
+                Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+            } catch {}
+        }
+        try {
+            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+        } catch {}
+    }
+}
+`$compPath = "`$env:APPDATA\gitmap\completions.ps1"
+if (Test-Path -LiteralPath `$compPath) {
+    . `$compPath
+}
+# <<< gitmap shell completion & predictive suggestions <<<
+"@
+
+    try {
+        $psrl = Get-Module -ListAvailable PSReadLine | Sort-Object Version -Descending | Select-Object -First 1
+        if ($psrl -and $psrl.Version -lt [Version]"2.2.0") {
+            Write-Host "  ◦ Note: Windows PowerShell built-in PSReadLine is $($psrl.Version) (requires >= 2.2.0 for predictive dropdown)." -ForegroundColor Yellow
+            Write-Host "    To enable ListView predictive IntelliSense in Windows PowerShell 5.1, run:" -ForegroundColor Cyan
+            Write-Host "      Install-Module PSReadLine -Scope CurrentUser -Force -SkipPublisherCheck" -ForegroundColor Cyan
+        }
+    } catch {}
+
+    $targets = Resolve-PowerShellProfileTargets
+    foreach ($profilePath in $targets) {
+        $profileDir = Split-Path $profilePath -Parent
+        if ($profileDir -and -not (Test-Path $profileDir)) {
+            New-Item -ItemType Directory -Path $profileDir -Force -ErrorAction SilentlyContinue | Out-Null
+        }
+
+        if (-not (Test-Path $profilePath)) {
+            Add-Content -Path $profilePath -Value $block -Encoding UTF8
+            Write-OK "Configured predictive suggestions: $profilePath"
+            continue
+        }
+
+        $content = Get-Content $profilePath -Raw -ErrorAction SilentlyContinue
+        if ($null -eq $content) { $content = "" }
+
+        $cleaned = $content -replace "(?s)# gitmap shell completion\s*\r?\n\s*\.\s*'[^']+'(?:\s*\r?\n\s*if\s*\(\(Get-Module[^}]+\}[^}]+\})?", ""
+        while ($cleaned -match "(\r?\n){3,}") {
+            $cleaned = $cleaned -replace "(\r?\n){3,}", "`r`n`r`n"
+        }
+
+        if ($cleaned -match [regex]::Escape($marker)) {
+            $pattern = "(?s)" + [regex]::Escape($marker) + ".*?" + [regex]::Escape($endMarker)
+            $newContent = [regex]::Replace($cleaned, $pattern, $block).TrimEnd() + "`r`n"
+        } else {
+            $trimmed = $cleaned.TrimEnd()
+            $newContent = if ([string]::IsNullOrWhiteSpace($trimmed)) { "$block`r`n" } else { "$trimmed`r`n`r`n$block`r`n" }
+        }
+
+        if ($newContent -ne $content) {
+            Set-Content -Path $profilePath -Value $newContent -Encoding UTF8
+            Write-OK "Configured predictive suggestions: $profilePath"
+        }
+    }
+}
+
 function Broadcast-EnvironmentChange {
     Add-Type -TypeDefinition @"
 using System;
@@ -1753,6 +1825,15 @@ try {
             Write-Warning "[Main.GitmapSetup] $_"
             Write-Host "  (setup auto-run skipped: $_)" -ForegroundColor Yellow
         }
+    }
+
+    # Configure PowerShell profiles with PSReadLine predictive IntelliSense & completions
+    Write-Host ""
+    Write-Host "  -> Configuring PowerShell predictive suggestions & completions..." -ForegroundColor Cyan
+    try {
+        Configure-PowerShellProfileSuggestions
+    } catch {
+        Write-Warning "[Main.ConfigurePowerShellProfileSuggestions] $_"
     }
 
     if ($env:GITMAP_UPDATING -ne "1" -and (Test-Path -LiteralPath $binPath)) {

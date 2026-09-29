@@ -263,9 +263,15 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 			return "", err
 		}
 		buf.WriteString("\n# GitMap Command History & PSReadLine Predictive IntelliSense\n")
-		buf.WriteString("if ((Get-Module -ListAvailable -Name PSReadLine) -and -not [Console]::IsOutputRedirected) {\n")
+		buf.WriteString("if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {\n")
 		buf.WriteString("    try {\n")
-		buf.WriteString("        Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue\n")
+		buf.WriteString("        Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue\n")
+		buf.WriteString("    } catch {\n")
+		buf.WriteString("        try {\n")
+		buf.WriteString("            Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue\n")
+		buf.WriteString("        } catch {}\n")
+		buf.WriteString("    }\n")
+		buf.WriteString("    try {\n")
 		buf.WriteString("        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue\n")
 		buf.WriteString("    } catch {}\n")
 		buf.WriteString("}\n")

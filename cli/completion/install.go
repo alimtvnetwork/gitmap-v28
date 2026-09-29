@@ -217,29 +217,35 @@ func writeScriptFile(path, content string) error {
 	return os.WriteFile(path, []byte(content), 0o644)
 }
 
-// addSourceLine appends the source command to the profile if absent.
+const (
+	compMarkerStart     = "# >>> gitmap shell completion & predictive suggestions >>>"
+	compMarkerEnd       = "# <<< gitmap shell completion & predictive suggestions <<<"
+	compLegacyMarker    = "# gitmap shell completion"
+	compUnixMarkerStart = "# >>> gitmap shell completion >>>"
+	compUnixMarkerEnd   = "# <<< gitmap shell completion <<<"
+)
+
+// addSourceLine updates or appends the shell completion and predictive suggestions snippet.
 func addSourceLine(scriptPath, profilePath, shell string) error {
-	sourceLine := buildSourceLine(scriptPath, shell)
+	snippet := buildSourceLine(scriptPath, shell)
 	if err := os.MkdirAll(filepath.Dir(profilePath), 0o755); err != nil {
 		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
 	}
 
-	existing, err := os.ReadFile(profilePath)
-	if err == nil && strings.Contains(string(existing), sourceLine) {
+	existingBytes, err := os.ReadFile(profilePath)
+	existing := ""
+	if err == nil {
+		existing = string(existingBytes)
+	}
+
+	updated, hasChanged := reconcileProfileSnippet(existing, snippet, shell)
+	if !hasChanged {
 		fmt.Fprintf(os.Stderr, constants.MsgCompAlreadyDone, shell)
 
 		return nil
 	}
 
-	f, err := os.OpenFile(profilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if err != nil {
-		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
-	}
-
-	defer f.Close()
-
-	_, err = fmt.Fprintf(f, "\n# gitmap shell completion\n%s\n", sourceLine)
-	if err != nil {
+	if err := os.WriteFile(profilePath, []byte(updated), 0o644); err != nil {
 		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
 	}
 
@@ -251,8 +257,175 @@ func addSourceLine(scriptPath, profilePath, shell string) error {
 // buildSourceLine returns the shell-appropriate source command.
 func buildSourceLine(scriptPath, shell string) string {
 	if shell == constants.ShellPowerShell {
-		return fmt.Sprintf(". '%s'\nif ((Get-Module -ListAvailable -Name PSReadLine) -and -not [Console]::IsOutputRedirected) {\n    try {\n        Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue\n        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue\n    } catch {}\n}", scriptPath)
+		return toNativeEOL(buildPowerShellSnippet(scriptPath), resolveProfileEOL("", shell))
 	}
 
-	return fmt.Sprintf("source '%s'", scriptPath)
+	return buildUnixSnippet(scriptPath)
+}
+
+func buildPowerShellSnippet(scriptPath string) string {
+	return fmt.Sprintf(`%s
+if (-not $global:__gitmap_suggestions_configured) {
+    $global:__gitmap_suggestions_configured = $true
+    if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
+        try {
+            Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
+        } catch {
+            try {
+                Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+            } catch {}
+        }
+        try {
+            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+        } catch {}
+    }
+}
+if (Test-Path -LiteralPath '%s') {
+    . '%s'
+}
+%s`, compMarkerStart, scriptPath, scriptPath, compMarkerEnd)
+}
+
+func buildUnixSnippet(scriptPath string) string {
+	return fmt.Sprintf("%s\n[[ -f '%s' ]] && source '%s'\n%s",
+		compUnixMarkerStart, scriptPath, scriptPath, compUnixMarkerEnd)
+}
+
+// reconcileProfileSnippet reconciles existing profile content with the latest snippet.
+func reconcileProfileSnippet(existing, snippet, shell string) (string, bool) {
+	eol := resolveProfileEOL(existing, shell)
+	normExisting := strings.ReplaceAll(existing, "\r\n", "\n")
+	normSnippet := strings.ReplaceAll(snippet, "\r\n", "\n")
+
+	if shell == constants.ShellPowerShell {
+		return reconcilePowerShellProfile(normExisting, normSnippet, existing, eol)
+	}
+
+	return reconcileUnixProfile(normExisting, normSnippet, existing, eol)
+}
+
+func resolveProfileEOL(existing, shell string) string {
+	if strings.Contains(existing, "\r\n") || (runtime.GOOS == "windows" && shell == constants.ShellPowerShell) {
+		return "\r\n"
+	}
+
+	return "\n"
+}
+
+func reconcilePowerShellProfile(normExisting, normSnippet, rawExisting, eol string) (string, bool) {
+	if strings.Contains(normExisting, compMarkerStart) && strings.Contains(normExisting, compMarkerEnd) {
+		replaced := replaceExistingBlock(normExisting, normSnippet, compMarkerStart, compMarkerEnd)
+		cleaned := collapseBlankLines(stripLegacyPowerShellBlocks(replaced))
+		final := toNativeEOL(cleaned, eol)
+
+		return final, final != rawExisting
+	}
+
+	cleaned := collapseBlankLines(stripLegacyPowerShellBlocks(normExisting))
+	appended := appendSnippetToProfile(cleaned, normSnippet)
+	final := toNativeEOL(appended, eol)
+
+	return final, final != rawExisting
+}
+
+func reconcileUnixProfile(normExisting, normSnippet, rawExisting, eol string) (string, bool) {
+	if strings.Contains(normExisting, compUnixMarkerStart) && strings.Contains(normExisting, compUnixMarkerEnd) {
+		replaced := replaceExistingBlock(normExisting, normSnippet, compUnixMarkerStart, compUnixMarkerEnd)
+		final := toNativeEOL(replaced, eol)
+
+		return final, final != rawExisting
+	}
+
+	appended := appendSnippetToProfile(normExisting, normSnippet)
+	final := toNativeEOL(appended, eol)
+
+	return final, final != rawExisting
+}
+
+func replaceExistingBlock(content, snippet, startMarker, endMarker string) string {
+	startIndex := strings.Index(content, startMarker)
+	if startIndex < 0 {
+		return content
+	}
+
+	endIndex := strings.Index(content, endMarker)
+	if endIndex < 0 {
+		return content
+	}
+
+	endIndex += len(endMarker)
+
+	return content[:startIndex] + snippet + content[endIndex:]
+}
+
+func appendSnippetToProfile(base, snippet string) string {
+	trimmed := strings.TrimRight(base, " \t\r\n")
+	if len(trimmed) == 0 {
+		return snippet + "\n"
+	}
+
+	return trimmed + "\n\n" + snippet + "\n"
+}
+
+func stripLegacyPowerShellBlocks(content string) string {
+	lines := strings.Split(content, "\n")
+	cleanLines := make([]string, 0, len(lines))
+	isInsideLegacy := false
+	braceDepth := 0
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == compLegacyMarker {
+			isInsideLegacy = true
+			braceDepth = 0
+			continue
+		}
+		if isInsideLegacy {
+			braceDepth += strings.Count(trimmed, "{") - strings.Count(trimmed, "}")
+			if isLegacyLineToDrop(trimmed, braceDepth) {
+				continue
+			}
+			isInsideLegacy = false
+		}
+		cleanLines = append(cleanLines, line)
+	}
+
+	return strings.Join(cleanLines, "\n")
+}
+
+func isLegacyLineToDrop(trimmed string, braceDepth int) bool {
+	if strings.HasPrefix(trimmed, ".") && strings.Contains(trimmed, "gitmap") {
+		return true
+	}
+
+	if strings.HasPrefix(trimmed, "if ((Get-Module") {
+		return true
+	}
+
+	if braceDepth > 0 {
+		return true
+	}
+
+	if strings.HasPrefix(trimmed, "}") {
+		return true
+	}
+
+	return false
+}
+
+func collapseBlankLines(text string) string {
+	for strings.Contains(text, "\n\n\n") {
+		text = strings.ReplaceAll(text, "\n\n\n", "\n\n")
+	}
+
+	return text
+}
+
+func toNativeEOL(content, eol string) string {
+	normalized := strings.ReplaceAll(content, "\r\n", "\n")
+	if eol == "\r\n" {
+		return strings.ReplaceAll(normalized, "\n", "\r\n")
+	}
+
+	return normalized
 }

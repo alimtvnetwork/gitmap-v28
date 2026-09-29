@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -68,5 +69,11 @@ func announceRemoteUpdate(currentVersion, targetVersion, scriptPath string) {
 
 func finishRemoteUpdate(currentVersion, targetVersion, url string) {
 	fmt.Printf(constants.MsgUpdateSummaryDetail, currentVersion, targetVersion, url)
+	ensurePostUpdateCompletions()
 	printPostUpdateIdentity()
+}
+
+func ensurePostUpdateCompletions() {
+	shell := completion.DetectShell()
+	_ = completion.Install(shell)
 }

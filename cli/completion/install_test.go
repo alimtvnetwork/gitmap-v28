@@ -63,3 +63,75 @@ func TestUniqueProfilePathsDropsDuplicatesAndEmptyValues(t *testing.T) {
 		}
 	}
 }
+
+func TestAddSourceLinePowerShellIdempotent(t *testing.T) {
+	scriptPath := filepath.Join(t.TempDir(), "gitmap", constants.CompFilePS)
+	profilePath := filepath.Join(t.TempDir(), "Documents", "PowerShell", "profile.ps1")
+
+	if err := addSourceLine(scriptPath, profilePath, constants.ShellPowerShell); err != nil {
+		t.Fatalf("first addSourceLine failed: %v", err)
+	}
+
+	if err := addSourceLine(scriptPath, profilePath, constants.ShellPowerShell); err != nil {
+		t.Fatalf("second addSourceLine failed: %v", err)
+	}
+
+	data, err := os.ReadFile(profilePath)
+	if err != nil {
+		t.Fatalf("read profile failed: %v", err)
+	}
+
+	occurrences := strings.Count(string(data), compMarkerStart)
+	if occurrences != 1 {
+		t.Fatalf("expected exactly 1 marker block, got %d in:\n%s", occurrences, string(data))
+	}
+}
+
+func TestAddSourceLinePowerShellStripsLegacyBlocks(t *testing.T) {
+	scriptPath := filepath.Join(t.TempDir(), "gitmap", constants.CompFilePS)
+	profilePath := filepath.Join(t.TempDir(), "Documents", "PowerShell", "Microsoft.PowerShell_profile.ps1")
+
+	initial := `# custom user tool
+function mytool { Write-Host "hi" }
+
+# gitmap shell completion
+. 'C:\Users\Old\AppData\Roaming\gitmap\completions.ps1'
+if ((Get-Module -ListAvailable -Name PSReadLine) -and -not [Console]::IsOutputRedirected) {
+    try {
+        Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+    } catch {}
+}
+
+$env:CUSTOM_VAR = "1"
+`
+	if err := os.MkdirAll(filepath.Dir(profilePath), 0o755); err != nil {
+		t.Fatalf("mkdir failed: %v", err)
+	}
+	if err := os.WriteFile(profilePath, []byte(initial), 0o644); err != nil {
+		t.Fatalf("write initial profile failed: %v", err)
+	}
+
+	if err := addSourceLine(scriptPath, profilePath, constants.ShellPowerShell); err != nil {
+		t.Fatalf("addSourceLine failed: %v", err)
+	}
+
+	data, err := os.ReadFile(profilePath)
+	if err != nil {
+		t.Fatalf("read profile failed: %v", err)
+	}
+
+	content := string(data)
+	if strings.Contains(content, "Old\\AppData") {
+		t.Fatalf("legacy completions.ps1 path not removed:\n%s", content)
+	}
+	if !strings.Contains(content, "function mytool") {
+		t.Fatalf("user custom function was removed:\n%s", content)
+	}
+	if !strings.Contains(content, "$env:CUSTOM_VAR") {
+		t.Fatalf("user custom var was removed:\n%s", content)
+	}
+	if strings.Count(content, compMarkerStart) != 1 {
+		t.Fatalf("expected exactly 1 modern marker, got %d", strings.Count(content, compMarkerStart))
+	}
+}
