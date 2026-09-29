@@ -330,7 +330,7 @@ func parsePortFlag(args []string, idx int, p *parsedFlags) (int, bool, error) {
 	return nextIdx, true, nil
 }
 
-func parsePassFlag(args []string, idx int, p *parsedFlags) (int, bool, error) {
+func parseSSHPassFlag(args []string, idx int, p *parsedFlags) (int, bool, error) {
 	val, nextIdx, isMatch, err := extractFlagValue(args, idx, "--pass", "--password", "-w")
 	if !isMatch || err != nil {
 		return nextIdx, isMatch, err
@@ -350,7 +350,7 @@ func tryParseOptionFlags(args []string, idx int, p *parsedFlags) (int, bool, err
 		return nextIdx, isUser, err
 	}
 
-	if nextIdx, isPass, err := parsePassFlag(args, idx, p); isPass || err != nil {
+	if nextIdx, isPass, err := parseSSHPassFlag(args, idx, p); isPass || err != nil {
 		return nextIdx, isPass, err
 	}
 
