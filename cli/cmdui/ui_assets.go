@@ -83,10 +83,30 @@ const IndexHTML = `<!DOCTYPE html>
     <!-- SETTINGS TAB -->
     <div id="tab-settings" class="content-area active">
       <div class="card">
-        <h3>General Settings</h3>
+        <h3>General & UI Layout Settings</h3>
         <div class="form-group">
           <label>Theme</label>
           <select id="setting-theme"><option value="dark">Dark Theme (Standard)</option><option value="light">Light Theme</option></select>
+        </div>
+        <div class="form-group">
+          <label>Graphics Rendering & Hardware Acceleration</label>
+          <select id="setting-graphics"><option value="high">High Performance / Hardware Acceleration</option><option value="fast">Fast Standard</option><option value="plain">Plain / Low Graphics</option></select>
+        </div>
+        <div class="form-group">
+          <label>Auto-Open Browser on UI Launch</label>
+          <select id="setting-auto-open"><option value="true">Enabled (Launch default browser automatically)</option><option value="false">Disabled (Emit URL to console only)</option></select>
+        </div>
+        <div class="form-group">
+          <label>Commit-In Migration Studio Layout</label>
+          <select id="setting-commitin-layout"><option value="split">Split Dual-Pane (Config & Output)</option><option value="left">Left Focus (Config dominant)</option><option value="right">Right Focus (Output dominant)</option><option value="stacked">Stacked Vertical</option></select>
+        </div>
+        <div class="form-group">
+          <label>Pull Direction Orientation</label>
+          <select id="setting-pull-direction"><option value="pull-left">Pull-Left (Replay from target down to left)</option><option value="pull-right">Pull-Right (Replay from left source into right target)</option><option value="bidirectional">Bidirectional Sync</option></select>
+        </div>
+        <div class="form-group">
+          <label>Commit-Pull PR Replay Mode</label>
+          <select id="setting-pr-mode"><option value="merges">merges (Feature branches & release PRs)</option><option value="feature-per-commit">feature-per-commit</option><option value="direct">direct mainline</option></select>
         </div>
         <div class="form-group">
           <label>Default Remote Target</label>
@@ -464,8 +484,50 @@ const IndexHTML = `<!DOCTYPE html>
       } catch (e) { out.innerText = 'Error: ' + e.message; }
     }
 
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data) {
+          if (data.theme && document.getElementById('setting-theme')) document.getElementById('setting-theme').value = data.theme;
+          if (data.defaultRemote && document.getElementById('setting-remote')) document.getElementById('setting-remote').value = data.defaultRemote;
+          if (data.clusterPort && document.getElementById('setting-port')) document.getElementById('setting-port').value = data.clusterPort;
+          if (data.graphicsMode && document.getElementById('setting-graphics')) document.getElementById('setting-graphics').value = data.graphicsMode;
+          if (data.autoOpenBrowser !== undefined && document.getElementById('setting-auto-open')) document.getElementById('setting-auto-open').value = String(data.autoOpenBrowser);
+          if (data.commitInLayout && document.getElementById('setting-commitin-layout')) document.getElementById('setting-commitin-layout').value = data.commitInLayout;
+          if (data.pullDirection && document.getElementById('setting-pull-direction')) document.getElementById('setting-pull-direction').value = data.pullDirection;
+          if (data.prReplayMode && document.getElementById('setting-pr-mode')) document.getElementById('setting-pr-mode').value = data.prReplayMode;
+        }
+      } catch (e) { console.error('Failed to load settings', e); }
+    }
+
+    async function saveSettings() {
+      const payload = {
+        theme: document.getElementById('setting-theme').value,
+        defaultRemote: document.getElementById('setting-remote').value,
+        clusterPort: parseInt(document.getElementById('setting-port').value) || 49152,
+        graphicsMode: document.getElementById('setting-graphics') ? document.getElementById('setting-graphics').value : 'high',
+        autoOpenBrowser: document.getElementById('setting-auto-open') ? document.getElementById('setting-auto-open').value === 'true' : true,
+        commitInLayout: document.getElementById('setting-commitin-layout') ? document.getElementById('setting-commitin-layout').value : 'split',
+        pullDirection: document.getElementById('setting-pull-direction') ? document.getElementById('setting-pull-direction').value : 'pull-left',
+        prReplayMode: document.getElementById('setting-pr-mode') ? document.getElementById('setting-pr-mode').value : 'merges'
+      };
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Settings saved successfully!');
+        }
+      } catch (e) { alert('Failed to save settings: ' + e.message); }
+    }
+
     // Auto-detect route on load
     window.addEventListener('load', () => {
+      loadSettings();
       const path = window.location.pathname.replace(/^\//, '');
       if (path && document.getElementById('tab-' + path)) {
         showTab(path);

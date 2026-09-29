@@ -2,7 +2,8 @@
 
 ## Active Specifications
 
-- [155-ssh-install-exec-streaming-upload-and-os-resolution.md](155-ssh-install-exec-streaming-upload-and-os-resolution.md) — SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing (Status: `active`)
+- [182-version-pinning-macro-deploy-ui-settings-secret-flags.md](182-version-pinning-macro-deploy-ui-settings-secret-flags.md) — Version Pinning, Macro Fleet Deployment, UI Settings Layout, and Secret Flags Deduplication (Status: `active`)
+- [181-universal-command-help-restructuring-markdown-box-display.md](181-universal-command-help-restructuring-markdown-box-display.md) — Universal Command Help Restructuring, Markdown-to-Box Transformation, and Catalog Fallback (Status: `active`)
 - [156-which-os-cross-platform-shell-and-node-profiling](156-which-os-cross-platform-shell-and-node-profiling/01-overview.md) — OS Discovery, Enum Reusability, Cross-Platform Shell Runner, and Node OS Profiling (Status: `active`)
 - [157-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](157-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md) — GitMap Lowercase Pre-Flight Working Tree Hygiene, Conflict Resolution & Auto-Push (Status: `active`)
 - [158-ssh-installer-payload-nsis-auto-detection-and-fleet-deployment.md](158-ssh-installer-payload-nsis-auto-detection-and-fleet-deployment.md) — SSH Installer Payload NSIS Auto-Detection & Fleet Deployment (Status: `active`)

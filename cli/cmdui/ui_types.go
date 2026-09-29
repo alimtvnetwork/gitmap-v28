@@ -2,11 +2,16 @@ package cmdui
 
 // SettingsData models application configuration settings.
 type SettingsData struct {
-	Theme         string            `json:"theme"`
-	DefaultRemote string            `json:"defaultRemote"`
-	ClusterPort   int               `json:"clusterPort"`
-	AutoDeployKey bool              `json:"isAutoDeployKey"`
-	Attributes    map[string]string `json:"attributes"`
+	Theme           string            `json:"theme"`
+	DefaultRemote   string            `json:"defaultRemote"`
+	ClusterPort     int               `json:"clusterPort"`
+	AutoDeployKey   bool              `json:"isAutoDeployKey"`
+	GraphicsMode    string            `json:"graphicsMode"`
+	AutoOpenBrowser bool              `json:"autoOpenBrowser"`
+	CommitInLayout  string            `json:"commitInLayout"`
+	PullDirection   string            `json:"pullDirection"`
+	PRReplayMode    string            `json:"prReplayMode"`
+	Attributes      map[string]string `json:"attributes"`
 }
 
 // CommitinOptions defines options for commit operations.

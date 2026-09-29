@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -166,14 +168,67 @@ func handleAPICommitinExec(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]any{"success": true, "output": string(out)})
 }
 
+func loadSettings() SettingsData {
+	def := SettingsData{
+		Theme:           "dark",
+		DefaultRemote:   "origin",
+		ClusterPort:     49152,
+		AutoDeployKey:   true,
+		GraphicsMode:    "high",
+		AutoOpenBrowser: true,
+		CommitInLayout:  "split",
+		PullDirection:   "pull-left",
+		PRReplayMode:    "merges",
+		Attributes:      make(map[string]string),
+	}
+	path := getSettingsFilePath()
+	if path == "" {
+		return def
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return def
+	}
+	var loaded SettingsData
+	if err := json.Unmarshal(data, &loaded); err == nil {
+		return loaded
+	}
+	return def
+}
+
+func saveSettingsData(s SettingsData) error {
+	path := getSettingsFilePath()
+	if path == "" {
+		return nil
+	}
+	_ = os.MkdirAll(filepath.Dir(path), 0755)
+	data, err := json.MarshalIndent(s, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0644)
+}
+
+func getSettingsFilePath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(home, ".gitmap", "ui_settings.json")
+}
+
 func handleAPISettings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method == http.MethodGet {
-		_ = json.NewEncoder(w).Encode(SettingsData{Theme: "dark", DefaultRemote: "origin", ClusterPort: 49152})
+		_ = json.NewEncoder(w).Encode(loadSettings())
 		return
 	}
 
+	var req SettingsData
+	if err := json.NewDecoder(r.Body).Decode(&req); err == nil {
+		_ = saveSettingsData(req)
+	}
 	_ = json.NewEncoder(w).Encode(map[string]any{"success": true})
 }
 

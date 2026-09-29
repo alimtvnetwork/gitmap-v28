@@ -10,17 +10,18 @@ type OSScript struct {
 
 // InstallerScript represents an installer script record stored in SQLite.
 type InstallerScript struct {
-	ID           int64               `json:"id"`
-	Name         string              `json:"name"`
-	Slug         string              `json:"slug"`
-	Description  string              `json:"description"`
-	TargetOS     string              `json:"targetOs"`
-	Version      string              `json:"version"`
-	OrderMode    string              `json:"orderMode,omitempty"` // "unix-first", "os-first", "os-only", "fallback"
-	Instructions string              `json:"instructions"`
-	Scripts      map[string]OSScript `json:"scripts,omitempty"` // keyed by OS ("ubuntu", "win", "arch", "unix", etc.)
-	CreatedAt    string              `json:"createdAt"`
-	UpdatedAt    string              `json:"updatedAt"`
+	ID            int64               `json:"id"`
+	Name          string              `json:"name"`
+	Slug          string              `json:"slug"`
+	Description   string              `json:"description"`
+	TargetOS      string              `json:"targetOs"`
+	Version       string              `json:"version"`
+	PinnedVersion string              `json:"pinnedVersion,omitempty"`
+	OrderMode     string              `json:"orderMode,omitempty"` // "unix-first", "os-first", "os-only", "fallback"
+	Instructions  string              `json:"instructions"`
+	Scripts       map[string]OSScript `json:"scripts,omitempty"` // keyed by OS ("ubuntu", "win", "arch", "unix", etc.)
+	CreatedAt     string              `json:"createdAt"`
+	UpdatedAt     string              `json:"updatedAt"`
 }
 
 // InstallerVersion represents a versioned snapshot of an installer script.

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -29,6 +30,8 @@ func RunSSHDeployRouterCLI(args []string) error {
 		return RunSSHDeployBinCLI(args[1:])
 	case "node-config", "nodeconfig", "nc", "nodes":
 		return RunSSHDeployConfigSSHCLI(args[1:])
+	case "macro", "macros":
+		return cmdmacro.ExecuteMacroDeploySSH(args[1:])
 	case "help", "--help", "-h":
 		printDeployHelp()
 		return nil
