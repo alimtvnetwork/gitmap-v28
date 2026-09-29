@@ -378,6 +378,16 @@ func runSSHImportNodes(args []string) error {
 	return cmdssh.RunSSHNodesImportJSON(args)
 }
 
+// runSSHDeployKeys delegates to cmdssh.RunSSHDeployKeysCLI.
+func runSSHDeployKeys(args []string) error {
+	return cmdssh.RunSSHDeployKeysCLI(args)
+}
+
+// runSSHExportNodes delegates to cmdssh.RunSSHNodesExportJSON.
+func runSSHExportNodes(args []string) error {
+	return cmdssh.RunSSHNodesExportJSON(args)
+}
+
 // runRemote delegates to cmdssh.RunSSHUpdateCLI.
 func runRemote(args []string) error {
 	if len(args) == 0 || args[0] == "-h" || args[0] == "--help" || args[0] == "help" {
