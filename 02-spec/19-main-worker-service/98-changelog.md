@@ -1,3 +1,9 @@
+## v6.397.0 — 2026-09-29 (universal command help modernization, llm train self-loop, and search benchmarks)
+
+**Scope:** Version bump. universal command help modernization, llm train self-loop, and search benchmarks.
+
+---
+
 ## v6.396.0 — 2026-09-29 (flatten nested ifs in pipeline_logs and pipeline_query for boolean and enum compliance)
 
 **Scope:** Version bump. flatten nested ifs in pipeline_logs and pipeline_query for boolean and enum compliance.
