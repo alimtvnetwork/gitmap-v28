@@ -39,9 +39,15 @@ func printHelpAndExit(command string, args []string) {
 	if tryRenderRichTopic(command) {
 		cliexit.Exit(0)
 	}
-	_, mode := ParsePrettyFlag(args)
-	helptext.PrintWithMode(command, mode)
-	printUsageFooterShort()
+	if helptext.HasTopic(command) {
+		_, mode := ParsePrettyFlag(args)
+		helptext.PrintWithMode(command, mode)
+		printUsageFooterShort()
+		cliexit.Exit(0)
+	}
+	if RenderDynamicCommandHelp(command) {
+		cliexit.Exit(0)
+	}
 	cliexit.Exit(0)
 }
 

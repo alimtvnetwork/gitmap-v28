@@ -160,6 +160,10 @@ func tryInterceptCommandHelp(command string, args []string) bool {
 		printHelpAndExit(command, args)
 		return true
 	}
+	if RenderDynamicCommandHelp(command) {
+		cliexit.Exit(0)
+		return true
+	}
 
 	return false
 }

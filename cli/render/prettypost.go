@@ -3,6 +3,7 @@
 package render
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -12,7 +13,20 @@ import (
 // applyANSIPost runs cosmetic passes on the output of RenderANSI.
 func applyANSIPost(s string) string {
 	lines := strings.Split(s, "\n")
+	bannerRendered := false
 	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if !bannerRendered && trimmed != "" {
+			if strings.HasPrefix(trimmed, "# ") {
+				lines[i] = formatBoxBanner(strings.TrimPrefix(trimmed, "# "))
+				bannerRendered = true
+				continue
+			} else if !strings.HasPrefix(trimmed, "#") {
+				lines[i] = formatBoxBanner(trimmed)
+				bannerRendered = true
+				continue
+			}
+		}
 		lines[i] = transformLine(line)
 	}
 
@@ -24,6 +38,21 @@ func applyANSIPost(s string) string {
 func transformLine(line string) string {
 	if h, ok := renderHeadingLine(line); ok {
 		return h
+	}
+	if t, ok := transformTableRow(line); ok {
+		return t
+	}
+
+	trimmed := strings.TrimSpace(line)
+	if strings.HasPrefix(trimmed, "```") {
+		return ""
+	}
+	if strings.HasPrefix(trimmed, "#") && !headingRe.MatchString(line) {
+		return "    " + constants.ColorDim + trimmed + constants.ColorReset
+	}
+	if strings.HasPrefix(trimmed, "gitmap ") || strings.HasPrefix(trimmed, "$ gitmap ") {
+		cmdStr := strings.TrimPrefix(trimmed, "$ ")
+		return "    " + constants.ColorCyan + cmdStr + constants.ColorReset
 	}
 
 	line = unescapeMarkdown(line)
@@ -53,14 +82,69 @@ func renderHeadingLine(line string) (string, bool) {
 	text = stripInlineMarkers(text)
 	switch len(m[1]) {
 	case 1:
-		return constants.ColorCyan + "▌ " + text + constants.ColorReset, true
+		return formatBoxBanner(text), true
 	case 2:
-		return constants.ColorYellow + "▌ " + text + constants.ColorReset, true
+		title := strings.TrimSuffix(text, ":") + ":"
+		return "\n  " + constants.ColorYellow + title + constants.ColorReset, true
 	case 3:
-		return constants.ColorMagenta + "› " + text + constants.ColorReset, true
+		return "\n  " + constants.ColorMagenta + "› " + text + constants.ColorReset, true
 	default:
-		return constants.ColorWhite + text + constants.ColorReset, true
+		return "  " + constants.ColorWhite + text + constants.ColorReset, true
 	}
+}
+
+func formatBoxBanner(text string) string {
+	text = strings.Trim(text, "`'\" ")
+	width := len(text) + 6
+	if width < 50 {
+		width = 50
+	}
+	if width > 80 {
+		width = 80
+	}
+	border := strings.Repeat("═", width)
+	pad := (width - len(text)) / 2
+	if pad < 1 {
+		pad = 1
+	}
+	leftSpace := strings.Repeat(" ", pad)
+	rightSpace := strings.Repeat(" ", width-len(text)-pad)
+	if len(rightSpace) < 0 {
+		rightSpace = ""
+	}
+
+	return fmt.Sprintf("\n  %s╔%s╗%s\n  %s║%s%s%s║%s\n  %s╚%s╝%s\n",
+		constants.ColorCyan, border, constants.ColorReset,
+		constants.ColorCyan, leftSpace, text, rightSpace, constants.ColorReset,
+		constants.ColorCyan, border, constants.ColorReset,
+	)
+}
+
+func transformTableRow(line string) (string, bool) {
+	trimmed := strings.TrimSpace(line)
+	if !strings.HasPrefix(trimmed, "|") || !strings.HasSuffix(trimmed, "|") {
+		return "", false
+	}
+	if tableSepRe.MatchString(trimmed) {
+		return "", true
+	}
+	parts := strings.Split(trimmed, "|")
+	if len(parts) < 3 {
+		return "", false
+	}
+	col1 := stripInlineMarkers(strings.TrimSpace(parts[1]))
+	col2 := stripInlineMarkers(strings.TrimSpace(parts[2]))
+	if len(parts) >= 4 && strings.TrimSpace(parts[3]) != "" {
+		col3 := stripInlineMarkers(strings.TrimSpace(parts[3]))
+		if strings.EqualFold(col1, "Flag") || strings.EqualFold(col1, "Command") {
+			return fmt.Sprintf("    %s%-24s %-12s %s%s", constants.ColorDim, strings.ToUpper(col1), strings.ToUpper(col2), strings.ToUpper(col3), constants.ColorReset), true
+		}
+		return fmt.Sprintf("    %s%-24s%s %s%-12s%s %s", constants.ColorCyan, col1, constants.ColorReset, constants.ColorYellow, col2, constants.ColorReset, col3), true
+	}
+	if strings.EqualFold(col1, "Flag") || strings.EqualFold(col1, "Command") || strings.EqualFold(col1, "Action") {
+		return fmt.Sprintf("    %s%-28s%s %s%s%s", constants.ColorDim, strings.ToUpper(col1), constants.ColorReset, constants.ColorDim, strings.ToUpper(col2), constants.ColorReset), true
+	}
+	return fmt.Sprintf("    %s%-28s%s %s", constants.ColorCyan, col1, constants.ColorReset, col2), true
 }
 
 func stripInlineMarkers(s string) string {

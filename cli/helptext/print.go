@@ -14,10 +14,10 @@ import (
 var files embed.FS
 
 // Print reads and prints the help file for the given command using the
-// default PrettyAuto mode (TTY auto-detect + GITMAP_NO_PRETTY opt-out).
+// PrettyOn mode to ensure modern terminal formatting is displayed.
 // Kept as a thin wrapper for callers that don't parse a --pretty flag.
 func Print(command string) {
-	PrintWithMode(command, render.PrettyAuto)
+	PrintWithMode(command, render.PrettyOn)
 }
 
 // PrintWithMode reads and prints the help file for `command`, routing the
@@ -46,7 +46,7 @@ func PrintWithMode(command string, mode render.PrettyModeType) {
 		return
 	}
 
-	if render.Decide(mode, render.StdoutIsTerminal(), true) {
+	if mode != render.PrettyOff {
 		fmt.Print(render.RenderANSI(string(data)))
 
 		return
