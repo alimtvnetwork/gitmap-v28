@@ -114,12 +114,17 @@ func TestStripLeadingSSHArg(t *testing.T) {
 }
 
 func TestPortableEncryptConnections(t *testing.T) {
+	testPass, err := encryptWithFallbackAES("mock-secret-password")
+	if err != nil {
+		t.Fatalf("failed to prepare test password: %v", err)
+	}
 	conns := []db.SSHConnection{
 		{
-			Alias:     "node-test",
-			IPAddress: "192.168.1.99",
-			Username:  "Administrator",
-			OS:        "windows",
+			Alias:             "node-test",
+			IPAddress:         "192.168.1.99",
+			Username:          "Administrator",
+			EncryptedPassword: testPass,
+			OS:                "windows",
 		},
 	}
 	encrypted := portableEncryptConnections(conns)
@@ -136,8 +141,8 @@ func TestPortableEncryptConnections(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to decrypt portable password: %v", err)
 	}
-	if decrypted == "" {
-		t.Errorf("expected non-empty decrypted password")
+	if decrypted != "mock-secret-password" {
+		t.Errorf("expected mock-secret-password, got: %s", decrypted)
 	}
 }
 
