@@ -69,5 +69,3 @@ func isDevCleanSubToken(sub string) bool {
 		sub == "devtool-cache" || sub == "devtools-cache" ||
 		sub == "dev-tool-cache" || sub == "dev-tools-cache"
 }
-
-

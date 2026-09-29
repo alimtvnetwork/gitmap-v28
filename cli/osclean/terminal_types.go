@@ -7,7 +7,7 @@ type TerminalCleanOptions struct {
 	IsJSON       bool     `json:"isJson"`
 	IsVerbose    bool     `json:"isVerbose"`
 	OnlyShells   []string `json:"onlyShells,omitempty"` // powershell, bash, zsh, fish, sh
-	ShouldReseed bool     `json:"shouldReseed"`          // default: true
+	ShouldReseed bool     `json:"shouldReseed"`         // default: true
 }
 
 // ShellCleanStats records metrics for a single shell's cleaned history and suggestions.

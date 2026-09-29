@@ -75,4 +75,3 @@ func classifyHostOfflineStatus(err error) string {
 func ProbeHostsLiveStatus(ctx context.Context, hosts []store.SSHHost) []store.SSHHost {
 	return probeHostsLiveStatus(ctx, hosts)
 }
-

@@ -78,4 +78,3 @@ func isTerminalTarget(t string) bool {
 	return low == "terminal" || low == "term" || low == "console" ||
 		low == "history" || low == "shell-history"
 }
-

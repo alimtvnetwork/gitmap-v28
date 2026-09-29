@@ -67,10 +67,17 @@ func parseDevCleanFlag(a string, args []string, i *int, opts *osclean.DevCleanOp
 		opts.OnlyCategories = strings.Split(strings.TrimPrefix(a, "--only="), ",")
 	case a == "--only" && *i+1 < len(args):
 		*i++
-		opts.OnlyCategories = strings.Split(args[*i], ",")
-	case a == "clear" || a == "clean" || a == "cleanup" || a == "cache":
-		// Ignore action verbs passed as argument
+	case isDevCleanIgnoredToken(a):
+		// Ignore action verbs and target nouns passed as argument
 	}
+}
+
+func isDevCleanIgnoredToken(a string) bool {
+	return a == "clear" || a == "clean" || a == "cleanup" || a == "cache" ||
+		a == "caches" || a == "dev" || a == "devs" || a == "developer" ||
+		a == "devtool" || a == "devtools" || a == "dev-tool" || a == "dev-tools" ||
+		a == "tool" || a == "tools" || a == "devtool-cache" || a == "devtools-cache" ||
+		a == "dev-tool-cache" || a == "dev-tools-cache"
 }
 
 func isPromptRequired(opts osclean.DevCleanOptions) bool {

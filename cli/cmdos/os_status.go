@@ -50,4 +50,3 @@ func isDevTarget(s string) bool {
 		low == "devtools-cache" || low == "dev-tools-cache" ||
 		low == "devtool-cache" || low == "dev-tool-cache"
 }
-

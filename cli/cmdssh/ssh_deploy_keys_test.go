@@ -92,4 +92,3 @@ func TestIsIgnoredDeployKeysToken(t *testing.T) {
 		t.Errorf("expected node identifier not to be ignored")
 	}
 }
-
