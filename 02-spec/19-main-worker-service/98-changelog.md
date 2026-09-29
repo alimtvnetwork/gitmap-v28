@@ -1,3 +1,9 @@
+## v6.409.0 — 2026-09-29 (add clear terminal and suggestion reseed)
+
+**Scope:** Version bump. add clear terminal and suggestion reseed.
+
+---
+
 ## v6.408.0 — 2026-09-29 (add clear devtools, clear dev-tools-cache, and devtools-cache clear aliases)
 
 **Scope:** Version bump. add clear devtools, clear dev-tools-cache, and devtools-cache clear aliases.

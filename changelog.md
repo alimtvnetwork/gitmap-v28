@@ -1,3232 +1,11 @@
-## [v6.392.0] 2026-09-29 Release v6.392.0
-
-### Install GitMap v6.392.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.392.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.392.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.392.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.392.0"`
-
-### Added / Changed / Fixed / Removed
-
-- `gitmap ls preview` / `--preview` / `-p` / `--gap`: Numbered repository list with repo name and path on the next line, separated by a single blank line gap between entries.
-- `gitmap ls tree` / `--tree` / `-t`: Groups repositories by parent directory in an emoji tree format (`📁 <parent-folder>`).
-- `gitmap folder-tree` (`ft`, `foldertree`): New command to scan and visualize folder and repository structures on any path on disk without prior database scanning. Includes sequence numbers, Git detection (`[git: <branch>]`), tree/preview rendering, and multi-format export/import (`json`, `yaml`, `tree`, `preview`) with directory and placeholder file scaffolding.
-
-## [v6.380.0] 2026-09-28 Release v6.380.0
-
-### Install GitMap v6.380.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.380.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.380.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.380.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.380.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Special Default Repositories (`repo-secrets` / `rs` & `repo-cache` / `rc`): Added dedicated SQLite split-db persistence (`gitmap-special-repos.db`), first-scan one-time discovery prompt, `gitmap cd rs` / `gitmap cd rc` navigation shortcuts, and sequenced file/folder/text commands with auto-commit and push.
-- Settings & Web UI: Added `special_repos.secrets_name` and `special_repos.cache_name` configurable settings via CLI (`gitmap settings set`) and interactive Web UI with rich documentation cards.
-- Coding Guidelines & Prompts: Authored `01-prompts/special-repos-secrets-and-cache.md` and enforced R19 Special Repositories rule across `coding-guidelines`.
-
-## [v6.355.2] 2026-09-27 Release v6.355.2
-
-### Install GitMap v6.355.2
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.2"`
-
-### Added / Changed / Fixed / Removed
-
-- Unit Test Regression Fix (`TestResolveFetchConcurrency`): Updated the expected concurrency ceiling in `pipeline_errorlogs_test.go` from 4 to 8 to align with the expanded 8-worker pool introduced in `pipeline_logs.go`, eliminating CI/CD cross-platform build test failures.
-
-## [v6.355.1] 2026-09-27 Release v6.355.1
-
-### Install GitMap v6.355.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.1"`
-
-### Added / Changed / Fixed / Removed
-
-- Unit Test Regression Fix (`TestResolveClosestActiveProject_CwdMatch`): Corrected test assertions in `agy_rerun_test.go` so target `"1"` tests sequence #1 resolution, while target `"."` tests CWD match, maintaining strict non-hijacking rerun sequence behavior.
-- PE Concurrency & Latency Optimization: Parallelized GitHub API calls in `gitmap pe` by fetching PR counts and release tags concurrently in `enrichErrorLogsMetadata`, parallelizing run logs and jobs fetching in `fetchAndBuildFailedRunItem`, and parallelizing failed workflow diagnostics in `BuildCommitGroupFailureTree`.
-- Local PA Concurrency Restoration: Removed artificial `--parallel 2` throttling from `executeLocalVMPull` in `ssh_pull_fleet.go`, restoring full hardware core utilization (`runtime.NumCPU()`) for local machine pulls while isolating throttling strictly to remote SSH sessions.
-
-## [v6.355.0] 2026-09-27 Release v6.355.0
-
-### Install GitMap v6.355.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Rerun Target Resolution & Recency: Removed "1" from `isCwdTarget` and added `isProjectActiveOrRunning` check so `gitmap rerun 1` and `gitmap rerun` unambiguously target the top active/running project with recent activity, preventing idle CWD from hijacking target selection.
-- Rerun Help Routing & Guard: Hardened help token interception across `root.go`, `agy_rerun.go`, and `agy_rerun_project_resolve.go` (`IsRerunHelpRequested`, `isHelpKeyword`), guaranteeing `gitmap rerun help` renders the help guide and never matches `strhelper`.
-- SSH Cluster Pre-Flight TCP Probing: Implemented 400ms TCP probe `probeNodeOnline` before dialing SSH in `FetchClusterSSHProjects` and `fetchClusterSSHAgyLogs`, eliminating 15-30s dial timeouts for offline nodes.
-- AGY Decision Audit Log Schema & Filters: Persisted sequence number, running status, and prompt length in `RecordAgyDecision` across rerun, ls, and inject commands.
-
-## [v6.354.0] 2026-09-27 Release v6.354.0
-
-### Install GitMap v6.354.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.354.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.354.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.354.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.354.0"`
-
-### Added / Changed / Fixed / Removed
-
-- AGY Decision Log Split-DB: Added dedicated SQLite audit database `gitmap-agy-log.db` capturing all Antigravity operations, target project provenance, conversation UUIDs, decision reasoning, and execution status.
-- CLI Commands `gitmap agy log` and `gitmap agy logs`: Implemented rich audit log viewer supporting `--json`, `--limit/-n`, `--project/-P`, `--command/-c`, and `--ssh` to query remote cluster nodes (`w1`).
-- Multi-Source Unified Project Discovery: Removed arbitrary 8-project default limit in `gitmap agy ls` (`n := 0`), expanding discovery across `.gemini/config/projects`, `conversation_summaries.db`, candidate workspace scan roots, and remote SSH cluster aggregation.
-- Active Rerun Project Recency: Enhanced `compareProjectEntries` in `agy_rerun_project_resolve.go` to strictly rank active prompts (`hasActivePrompt`), running IDE sessions (`isRunning`), and latest activity timestamps (`lastActTime`) above CWD matches, preventing stale project targeting.
-- Rerun Help Routing Guard: Fixed `gitmap rerun help`, `gitmap rerun -h`, `gitmap rerun /?`, and `gitmap rr help` to render the rich interactive rerun guide, preventing substring matches against projects named `strhelper`.
-
-## [v6.344.1] 2026-09-26 Release v6.344.1
-
-### Install GitMap v6.344.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.344.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.344.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.344.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.344.1"`
-
-### Added / Changed / Fixed / Removed
-
-- SSH Fleet Dual-Table Persistence: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables simultaneously, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover all imported nodes.
-- Bidirectional SSH Host Synchronization: Added `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts` on every list/query operation.
-- Compact Single-Line Export (`eo`): `gitmap ssh export-oneliner` now emits an ultra-compact payload (~600 bytes vs 5500 bytes) by omitting redundant encrypted passwords, avoiding terminal wrapping and paste buffer truncation.
-- Auto-Rendering on Import: `gitmap ssh nodes import-json` immediately prints the formatted registered nodes table upon successful import, providing instant visual confirmation.
-- Robust Payload Detection: Auto-detects inline base64 and inline JSON in `import-json` even when `--base64` flag is omitted or contains terminal whitespace/newlines.
-- Flexible SJ Routing: Extended `gitmap sj` to seamlessly route `nodes import-json`, `import-json`, `eo`, and `export-oneliner`.
-
-## [v6.344.0] 2026-09-26 Release v6.344.0
-
-### Install GitMap v6.344.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.344.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.344.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.344.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.344.0"`
-
-### Added / Changed / Fixed / Removed
-
-- SSH Fleet Dual-Table Persistence: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables simultaneously, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover all imported nodes.
-- Bidirectional SSH Host Synchronization: Added `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts` on every list/query operation.
-- Compact Single-Line Export (`eo`): `gitmap ssh export-oneliner` now emits an ultra-compact payload (~600 bytes vs 5500 bytes) by omitting redundant encrypted passwords, avoiding terminal wrapping and paste buffer truncation.
-- Auto-Rendering on Import: `gitmap ssh nodes import-json` immediately prints the formatted registered nodes table upon successful import, providing instant visual confirmation.
-- Robust Payload Detection: Auto-detects inline base64 and inline JSON in `import-json` even when `--base64` flag is omitted or contains terminal whitespace/newlines.
-- Flexible SJ Routing: Extended `gitmap sj` to seamlessly route `nodes import-json`, `import-json`, `eo`, and `export-oneliner`.
-
-## [v6.343.0] 2026-09-25 Release v6.343.0
-
-### Install GitMap v6.343.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.343.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.343.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.343.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.343.0"`
-
-### Added / Changed / Fixed / Removed
-
-- SSH Fleet Dual-Table Persistence: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables simultaneously, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover all imported nodes.
-- Bidirectional SSH Host Synchronization: Added `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts` on every list/query operation.
-- Compact Single-Line Export (`eo`): `gitmap ssh export-oneliner` now emits an ultra-compact payload (~600 bytes vs 5500 bytes) by omitting redundant encrypted passwords, avoiding terminal wrapping and paste buffer truncation.
-- Auto-Rendering on Import: `gitmap ssh nodes import-json` immediately prints the formatted registered nodes table upon successful import, providing instant visual confirmation.
-- Robust Payload Detection: Auto-detects inline base64 and inline JSON in `import-json` even when `--base64` flag is omitted or contains terminal whitespace/newlines.
-- Flexible SJ Routing: Extended `gitmap sj` to seamlessly route `nodes import-json`, `import-json`, `eo`, and `export-oneliner`.
-
-## [v6.342.0] 2026-09-25 Release v6.342.0
-
-### Install GitMap v6.342.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.342.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.342.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.342.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.342.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Git Pull Efficient (PAE): Evaluates repository activity strictly on actual git log / commit trace changes within 24h window (skipping quiescent repositories), saving complete commit traces into SQLite gitmap-pull.db (PullRepoRun.Notes).
-- Sub-Millisecond Commit Trace Search: Added SearchPullTraces with indexes on LastCommitSha, RepoPath, HasChanges, and CreatedAt for instant querying across all historical repository commit logs without invoking git subprocesses.
-- Antigravity IDE Injection Hardening: Enhanced gitmap pe agy fix with automatic fallback to default gitmap repo root and conversation resolution via resolveConversationForDispatch when outside git repos.
-- CI/CD & Exhaustive Switch Fixes: Resolved exhaustive linter checks on PullStepType in cmdpull and ScriptTemplateType in cmdai, keeping 100% CI compliance.
-
-## [v6.341.0] 2026-09-25 Release v6.341.0
-
-### Install GitMap v6.341.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.341.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.341.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.341.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.341.0"`
-
-### Added / Changed / Fixed / Removed
-
-- prioritize CWD and active session in rerun, normalize tag refs in pipeline logs
-
-## [v6.340.0] 2026-09-24 Release v6.340.0
-
-### Install GitMap v6.340.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.340.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.340.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.340.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.340.0"`
-
-### Added / Changed / Fixed / Removed
-
-- antigravity rerun non-destructive replay and dedicated conversation commands
-
-## [v6.339.0] 2026-09-24 Release v6.339.0
-
-### Install GitMap v6.339.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.339.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.339.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.339.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.339.0"`
-
-### Added / Changed / Fixed / Removed
-
-- antigravity rerun non-destructive and conversation commands
-
-## [v6.338.0] 2026-09-24 Release v6.338.0
-
-### Install GitMap v6.338.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.338.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.338.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.338.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.338.0"`
-
-### Added / Changed / Fixed / Removed
-
-- **Spec 156: GitMap Lowercase Pre-Flight Hygiene, Conflict Resolution & Auto-Push**
-  - Added pre-flight working tree inspection (`git status --porcelain`) prior to rename execution.
-  - Added immediate detection and abortion on unresolved Git merge conflicts (`UU`, `AA`, etc.).
-  - Added full relative path disclosure in pre-flight confirmation without truncation or hidden items.
-  - Added interactive prompt to discard uncommitted working tree changes with `--discard-pending` and `-f, --force` bypass flags.
-  - Added automatic remote git push (`git push origin <branch>`) after atomic commit with `--no-push` bypass flag.
-  - Enhanced report summary to indicate commit SHA and remote push status.
-- **Spec 155: SSH Install-Exec Streaming Upload Protocol & OS Resolution**
-  - Replaced Base64 command-line string inlining with pure SSH stdin POSIX Tar streaming (`StreamFileToRemote`).
-  - Added AppData global database fallback in `store/location.go` when invoked outside git directories.
-  - Added dynamic remote OS probing and SQLite schema migration for `ssh_hosts` table OS column.
-
-## [v6.337.0] 2026-09-24 Release v6.337.0
-
-### Install GitMap v6.337.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.337.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.337.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.337.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.337.0"`
-
-### Added / Changed / Fixed / Removed
-
-- prune unused symbols, resolve heavy_test module root, and pass all CI gates
-
-## [v6.336.0] 2026-09-24 Release v6.336.0
-
-### Install GitMap v6.336.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.336.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.336.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.336.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.336.0"`
-
-### Added / Changed / Fixed / Removed
-
-- fix staticcheck, stdlib constants, spelling, and release v6.336.0
-
-## [v6.335.0] 2026-09-24 Release v6.335.0
-
-### Install GitMap v6.335.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.335.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.335.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.335.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.335.0"`
-
-### Added / Changed / Fixed / Removed
-
-- prune unused functions and finalize v6.335.0 release
-
-## [v6.334.0] 2026-09-24 Release v6.334.0
-
-### Install GitMap v6.334.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.334.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.334.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.334.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.334.0"`
-
-### Added / Changed / Fixed / Removed
-
-- fix CI/CD quality gates, relative paths, boolean conventions, nested ifs, and gofmt
-
-## [v6.333.0] 2026-09-24 Release v6.333.0
-
-### Install GitMap v6.333.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.333.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.333.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.333.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.333.0"`
-
-### Added / Changed / Fixed / Removed
-
-- add which-os, cross-platform bash/shell runner, and node os profiling
-
-## [v6.332.0] 2026-09-24 Release v6.332.0
-
-### Install GitMap v6.332.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.332.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.332.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.332.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.332.0"`
-
-### Added / Changed / Fixed / Removed
-
-- fix(spec-154): pae inactivity calculation, freshness cooldown, and global column width stability
-
-## [v6.331.0] 2026-09-24 Release v6.331.0
-
-### Install GitMap v6.331.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.331.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.331.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.331.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.331.0"`
-
-### Added / Changed / Fixed / Removed
-
-- enhance pae column display with syntax highlighted statuses and clean word-wrapped inactive repos
-
-## [v6.330.0] 2026-09-24 Release v6.330.0
-
-### Install GitMap v6.330.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.330.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.330.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.330.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.330.0"`
-
-### Added / Changed / Fixed / Removed
-
-- fix output column width for gitmap pae
-
-## [v6.329.0] 2026-09-24 Release v6.329.0
-
-### Install GitMap v6.329.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.329.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.329.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.329.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.329.0"`
-
-### Added / Changed / Fixed / Removed
-
-- ssh exec except-os filter and install-exec deployment
-
-## [v6.328.0] 2026-09-24 Release v6.328.0
-
-### Install GitMap v6.328.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.328.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.328.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.328.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.328.0"`
-
-### Added / Changed / Fixed / Removed
-
-- add preflight confirmation and -y prompt bypass to lowercase renamer
-
-## [v6.327.0] 2026-09-24 Release v6.327.0
-
-### Install GitMap v6.327.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.327.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.327.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.327.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.327.0"`
-
-### Added / Changed / Fixed / Removed
-
-- remote exe copy semver verification and pinned releases
-
-## [v6.326.0] 2026-09-24 Release v6.326.0
-
-### Install GitMap v6.326.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.326.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.326.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.326.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.326.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Routine release v6.326.0
-
-## [v6.325.0] 2026-09-24 Release v6.325.0
-
-### Install GitMap v6.325.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.325.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.325.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.325.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.325.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Routine release v6.325.0
-
-## [v6.324.0] 2026-09-24 Release v6.324.0
-
-### Install GitMap v6.324.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.324.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.324.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.324.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.324.0"`
-
-### Added / Changed / Fixed / Removed
-
-- **Macro, PEAT & PEA Fleet SSH Deployment (`gitmap macro|peat|pea deploy ssh`)**: Enhanced parallel fleet deployment across joined SSH nodes with `--except`, `--excep`, and `--exclude` host ID, IP, and alias filtering and aligned summary tables.
-- **Fleet Multi-App Update (`gitmap update --all` / `gitmap update all` / `gitmap ua`)**: Added parallel multi-node app updates returning structured JSON telemetry from each SSH machine and displaying a rich terminal summary table.
-- **Targeted App Update (`gitmap update <name> --excep/--except`) & Fleet Inventory (`gitmap update ls`)**: Added targeted package updates with `--excep`/`--except` node filtering and `gitmap update ls` to query installed software inventory as JSON across SSH nodes and display as a table.
-- **Remote SSH Repository Clone (`gitmap ssh clone` / `ssh-clone` / `ssh-c`)**: Added current repository `origin` URL auto-detection (when repo arg omitted or `git`/`.`) and default remote workdir (`~/git/<repo>`) resolution with `--except`/`--excep` filtering.
-- **Isolated Temporary End-to-End Validation (`//go:build tempe2e`)**: Added `cli/tests/e2e/ssh_fleet_deploy_update_clone_tempe2e_test.go` guarded by `//go:build tempe2e` and `RUN_TEMP_E2E=1` skip-by-default runtime protection.
-
-## [v6.323.0] 2026-09-24 Release v6.323.0
-
-### Install GitMap v6.323.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.323.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.323.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.323.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.323.0"`
-
-### Added / Changed / Fixed / Removed
-
-- **SSH Batch Common Join (`sjc` / `ssh-join-common`)**: Added shorthand IP/octet notation with embedded host aliases (`gitmap ssh-join-common administrator 192.168.1.3(w1),7(w2),12(w3) --pass <secret>`), automatic remote OS detection (`os_detect`) upon initial join, and persistence to `SSHConnection.OSVersion` in SQLite (`gitmap.db`).
-- **OS Telemetry & Node Inspection (`gitmap os info --json`)**: Exposed structured JSON and terminal hardware/OS telemetry via `RunOSInfoCLI` in `cli/cmdos/os.go`.
-- **AGY IDE Rerun & Restart Replay (`gitmap agy rerun [1|2|3|4|project]`)**: Hardened IDE termination (`taskkill /F /IM antigravity.exe` / `pkill -9 antigravity`), target project workspace launch, and multimodal prompt replay (including pictures and media attachments).
-- **AGY Project Re-Read & Optimization (`gitmap agy rop [N]`)**: Implemented active project discovery (last 24h, default 5), `--keep 10` cache retention, split SQLite DB conversation archiving (`data/AGY/<slug>.db`), and automated project-named conversation re-read initialization.
-- **Native AUM Search vs Python Fast Grep Benchmarking**: Documented side-by-side search benchmarks (`docs/benchmarks/search_benchmark.md` and `cli/tests/e2e/search_benchmark_e2e_test.go`), demonstrating a 33,000x latency improvement (<1ms vs 33.2s).
-- **Chrome Profile Full-Fidelity Export/Import E2E Suite**: Added hermetic local E2E verification (`//go:build e2e`) for OAuth refresh token, session cookie, and login persistence roundtrip.
-- **VS Code Startup Failure 4-Part RCA & Dynamic Path Normalization (Issue 41)**: Authored `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md` detailing Chromium ICU binary locks and `projects.json` schema recovery, and normalized all PowerShell/Go scripts to use dynamic environment variables (`$env:APPDATA`).
-
-## [v6.322.0] 2026-09-24 Release v6.322.0
-
-### Install GitMap v6.322.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.322.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.322.0"`
-
-### Added / Changed / Fixed / Removed
-
-- **Pull Batch Abort Graceful Remediation (`cmdpull`)**: Prevented `[E9000:EXECUTION]` AppError stack trace dumps when users select `[q] Quit` or `[s] Skip` during dirty repository interactive remediation; cleanly finalizes batch tasks in SQLite store without terminal panic dumps.
-- **Untracked Directory Search Resilience (`cmd/search.go`)**: Eliminated `search.getRepoDB` crash when running `gitmap search <filename>` from untracked root directories (e.g. `D:\work`), falling back seamlessly to global repository store or local workspace file search.
-- **CFR Short-Name GitHub CLI Resolution (`cmdclone`)**: When `gitmap cfr <name>` or `gitmap clone <name>` receives a bare slug (e.g. `pwp-mobile`), automatically resolves remote repository URLs via `gh repo list` and cached SQLite `repodb` records, automatically registering clones in GitHub Desktop and VS Code Project Manager (`projects.json`).
-- **Native LightShot & Asset Downloader (`gitmap asset download-prnt <url> [dest]`)**: Added screenshot extractor and archiver supporting direct LightShot URLs, extracting CDN PNG/JPG assets, and synchronizing with the active Antigravity brain workspace.
-- **Git Access Token Fleet Deployment (`gitmap token`)**: Added `gitmap token [add|remove|list|deploy]` with multi-node SSH fleet distribution, securing personal access tokens across remote nodes.
-- **High-Contrast Terminal & Installer Styling**: Replaced low-contrast dark blue `#6272a4` and `#a6adc8` ANSI downsampling with bright cyan `#8be9fd` and bright white `#f8f8f2` across interactive prompts and PowerShell installers.
-- **Coding Guidelines & E2E Prompt Synchronization**: Updated prompt 21 with N-step budget, 2-half lifecycle, dynamic path requirements, and 2-agent orchestration mandates across prompts.
-
-## [v6.321.0] 2026-09-24 Release v6.321.0
-
-### Install GitMap v6.321.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.321.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.321.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.321.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.321.0"`
-
-### Added / Changed / Fixed / Removed
-
-- macro deploy ssh, fleet update, remote clone, rest triad, and web ui
-
-## [v6.320.0] 2026-09-24 Release v6.320.0
-
-### Install GitMap v6.320.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.320.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.320.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.320.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.320.0"`
-
-### Added / Changed / Fixed / Removed
-
-- **AGY Rerun IDE Restart (`gitmap agy rerun [1|2|3|4|project]`)**: Re-runs the active prompt payload by terminating running Antigravity IDE instances, relaunching the IDE in the target project's workspace, and immediately re-dispatching the prompt to that conversation.
-- **Transcript Media Preservation**: Extracted and embedded media attachments (`rawTranscriptMedia`) including user uploaded images and files directly into replayed prompts for seamless vision/multimodal resumption.
-- **Native VS Code Repair & Fix Integration**: Integrated `gitmap vscode repair` and `gitmap vscode fix` with dynamic path resolution, fixing locked Chromium ICU binary and corrupted project manager configurations without hardcoded drive letters.
-- **Parallel SSH Fleet Automation**: Distributed AGM and AGY command execution across remote SSH cluster nodes with summary rendering and node exclusion flags.
-- **Isolated E2E Test Suite**: Added end-to-end verification tests under `cli/tests/e2e/` guarded by `//go:build e2e`.
-
-## [v6.319.0] 2026-09-24 Release v6.319.0
-
-### Install GitMap v6.319.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.319.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.319.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.319.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.319.0"`
-
-### Added / Changed / Fixed / Removed
-
-- native vscode repair command, dynamic paths, and install list color contrast
-
-## [v6.318.0] 2026-09-23 Release v6.318.0
-
-### Install GitMap v6.318.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.318.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.318.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.318.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.318.0"`
-
-### Added / Changed / Fixed / Removed
-
-- relative path check fix in rca 78 and green ci validation
-
-## [v6.317.0] 2026-09-23 Release v6.317.0
-
-### Install GitMap v6.317.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.317.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.317.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.317.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.317.0"`
-
-### Added / Changed / Fixed / Removed
-
-- chrome profile auth export/import, us-english canceled, and sshjoin boolean fixes
-
-## [v6.316.0] 2026-09-23 Release v6.316.0
-
-### Install GitMap v6.316.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.316.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.316.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.316.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.316.0"`
-
-### Added / Changed / Fixed / Removed
-
-- batch common join, subnet scanner, os info, agy rop, and aum benchmarks
-
-## [v6.315.0] 2026-09-23 Release v6.315.0
-
-### Install GitMap v6.315.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.315.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.315.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.315.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.315.0"`
-
-### Added / Changed / Fixed / Removed
-
-- pipeline error custom format profiles and multi-line capture
-
-## [v6.314.0] 2026-09-23 Release v6.314.0
-
-### Install GitMap v6.314.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.314.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.314.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.314.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.314.0"`
-
-### Added / Changed / Fixed / Removed
-
-- fix(ssh): delegate ip command to gitmap with auto-install across os and fix sh not recognized
-
-## [v6.313.0] 2026-09-23 Release v6.313.0
-
-### Install GitMap v6.313.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.313.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.313.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.313.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.313.0"`
-
-### Added / Changed / Fixed / Removed
-
-- feat(cluster): expose osutil aliases, enhance cluster e2e tests, and document agy rca
-
-## [v6.312.0] 2026-09-23 Release v6.312.0
-
-### Install GitMap v6.312.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.312.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.312.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.312.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.312.0"`
-
-### Added / Changed / Fixed / Removed
-
-- feat(cluster): live VM cluster E2E SSH join, multi-node exec, and remote update
-
-## [v6.311.0] 2026-09-22 Release v6.311.0
-
-### Install GitMap v6.311.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.311.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.311.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.311.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.311.0"`
-
-### Added / Changed / Fixed / Removed
-
-- dynamic Antigravity language server discovery and agy CLI fallback
-
-## [v6.310.0] 2026-09-22 Release v6.310.0
-
-### Install GitMap v6.310.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.310.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.310.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.310.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.310.0"`
-
-### Added / Changed / Fixed / Removed
-
-- lowercase renamer full parity, doc CMD, web UI, prefix wildcard engine, and report summary
-
-## [v6.309.0] 2026-09-22 Release v6.309.0
-
-### Install GitMap v6.309.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.309.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.309.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.309.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.309.0"`
-
-### Added / Changed / Fixed / Removed
-
-- unify lowercase renamer with two-step safe git mv and live logging
-
-## [v6.308.0] 2026-09-22 Release v6.308.0
-
-### Install GitMap v6.308.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.308.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.308.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.308.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.308.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix AGY prompt injection stacktrace, add conv-rename, unique SEQ persistence, and table polish
-
-## [v6.307.0] 2026-09-22 Release v6.307.0
-
-### Install GitMap v6.307.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.307.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.307.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.307.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.307.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Anchor pipeline database to CLI data directory with relative display path
-
-## [v6.306.0] 2026-09-22 Release v6.306.0
-
-### Install GitMap v6.306.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.306.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.306.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.306.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.306.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Implement SSH-first access probe and interactive terminal token authentication with global reuse
-
-## [v6.305.0] 2026-09-22 Release v6.305.0
-
-### Install GitMap v6.305.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.305.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.305.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.305.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.305.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Implement robust lowercase file renamer and root README command
-
-## [v6.304.0] 2026-09-22 Release v6.304.0
-
-### Install GitMap v6.304.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.304.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.304.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.304.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.304.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add visibility, JSON, and YAML status to create-repo
-
-## [v6.303.0] 2026-09-22 Release v6.303.0
-
-### Install GitMap v6.303.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.303.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.303.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.303.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.303.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Pipeline compile and vet fixes
-
-## [v6.302.0] 2026-09-22 Release v6.302.0
-
-### Install GitMap v6.302.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.302.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.302.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.302.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.302.0"`
-
-### Added / Changed / Fixed / Removed
-
-- AGY Workspace & Pin Management: Added `gitmap agy pins` (`ls`, `add`, `rm`, `edit`, `help`), `gitmap agy rm-rejoin-read` (`rrr`), `gitmap agy rm-rejoin-pin-read` (`rrpr`), supporting sequential IDs, project slugs, and shell completion.
-- Raw Error Propagation: Audited codebase error management across CLI commands to guarantee zero swallowed errors; wrapped underlying SQL and filesystem errors with structured `apperror.WrapSimple` / `apperror.Wrap` preserving root causes.
-- Antigravity Compilation & Import Hygiene: Added missing `database/sql` import in `cli/cmdagy/agy_history_cmd.go`, fixed `loadAllAgyProjects` signature mismatch in `agy_pin_projects.go` and `agy_pins_edit.go`, and cleaned unused imports in `agy_projects.go`.
-- Quad Runner Verification: Verified all 13 modified Go packages pass green via parallel quad runner in local CI/CD.
-
-## [v6.301.0] 2026-09-22 Release v6.301.0
-
-### Install GitMap v6.301.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.301.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.301.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.301.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.301.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Interface Naming Compliance: Renamed all internal `cmdos` orchestrator interfaces (`AutoLoginEngine` -> `AutoLoginOperator`, `SystemCleanEngine` -> `SystemCleanOperator`, `DNSEngine` -> `DNSOperator`, `ThemeEngine` -> `ThemeOperator`, `TweakEngine` -> `TweakOperator`) to strictly adhere to Go naming guidelines (`*er` / `*or` suffix) enforced by `check-interface-naming.py`.
-- Enum Naming Compliance: Renamed `ThemeMode` to `ThemeModeType` in `cli/cmdos/os_theme_types.go` and cross-platform handlers to satisfy the mandatory `*Type` suffix rule enforced by `check-enum-guidelines.py`.
-- Quality Gate Self-Healing & Verification: All 43 CI/CD quality gates in `03-ai-scripts/06-cicd-local-runner.py` executed and passed 100% green (including E2E smoke tests, history pin/purge, and race detector).
-- 4-Part RCA 74: Recorded root-cause analysis in `.ai-memory/cicd-issues/74-interface-naming-and-enum-suffix-compliance-rca.md` and registered in `.ai-memory/cicd-index.md`.
-
-## [v6.300.0] 2026-09-22 Release v6.300.0
-
-### Install GitMap v6.300.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.300.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.300.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.300.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.300.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Native Linux Display Manager (`gitmap os dm`): Display manager detection and configuration parity with LinUtil's `dm.settings`, inspecting active DM (GDM3, LightDM, SDDM), toggling Wayland mode (`gitmap os dm wayland on|off`), and restarting display-manager services without shell scripts.
-- Windows Privacy & Start Menu Tweaks: Added `gitmap os tweak telemetry off|on` (disables DiagTrack service, sets telemetry opt-out), `activity off|on` (disables Windows Activity Feed collection & cloud upload), and `search clean|default` (removes Bing and web suggestions from Start Menu).
-- Native DNS Switcher & Benchmark (`gitmap os dns`): Added ultra-fast DNS switcher supporting Cloudflare (1.1.1.1), Google (8.8.8.8), Quad9 (9.9.9.9), and AdGuard (94.140.14.14), automated DHCP restoration (`gitmap os dns dhcp`), and integrated UDP DNS benchmark (`gitmap os dns bench`).
-- Universal System Updater (`gitmap os update / upgrade`): Cross-platform multi-package manager aggregator supporting winget, apt, dnf, pacman, and brew with dry-run support (`--dry-run`).
-- Desktop Theme Switcher (`gitmap os theme dark|light`): Native registry theme toggle on Windows (AppsUseLightTheme, SystemUsesLightTheme) and gsettings on Linux/GNOME.
-- Code Hygiene & Modularity: Strictly preserved $\le 100$ lines per file, flattened all nested ifs to depth 1, and achieved 100% compliance across all CI/CD policy linters and cross-platform vet.
-
-## [v6.299.1] 2026-09-22 Release v6.299.1
-
-### Install GitMap v6.299.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.299.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.299.1"`
-
-### Added / Changed / Fixed / Removed
-
-- CI/CD & Gofmt Formatting: Formatted `cli/cmd/rootcore.go` and `cli/cmdschedule/helpers.go` using canonical `gofmt -w` to eliminate extra blank lines and ensure 100% compliance with `go-format-check.py`.
-- Linter Unit Tests: Verified all 18/18 test cases pass green in `.github/scripts/tests/test_ci_scripts.py`.
-- 4-Part RCA 73: Recorded `.ai-memory/cicd-issues/73-gofmt-whitespace-drift-in-rootcore-and-helpers-rca.md` and registered in `.ai-memory/cicd-index.md`.
-- Cross-Platform Quality Gates: All 4 policy linters (nested ifs, boolean guidelines, relative paths, enum & boolean) and cross-platform `go vet` (Linux, Darwin, Windows) pass with 0 errors.
-
-## [v6.299.0] 2026-09-22 Release v6.299.0
-
-### Install GitMap v6.299.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.299.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.299.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Native OS Auto-Login Subsystem: Added `gitmap os autologin` with interactive 3-parameter credentials (username, domain, masked password) and flags (`-u`, `-d`, `-p`), natively writing Windows Winlogon registry keys and configuring Ubuntu display managers (GDM3, LightDM) with zero PowerShell or external executable dependencies.
-- Windows Desktop Tweaks: Added `gitmap os tweak context-menu classic|modern` (CLSID InprocServer32 restore for Windows 10 right-click menu) and `start-menu classic|default` layout override.
-- Ultimate Performance & Hibernation: Added `gitmap os tweak power ultimate|balanced` to duplicate and activate Windows Ultimate Performance scheme and `gitmap os tweak hibernate off|on` to delete `C:\hiberfil.sys` and reclaim RAM-sized disk space.
-- Linux System Maintenance: Added `gitmap os clean sys` for multi-distro package manager cache purging (APT, DNF, Pacman) and systemd journal vacuuming (`journalctl --vacuum-time=3d`).
-- Two-Column Styled Help Screens: Authored comprehensive help documentation and terminal menus for `gitmap help os-autologin` and `gitmap help os-tweak`.
-- CI/CD Self-Healing: Restored local runner helpers in `03-ai-scripts/06-cicd-local-runner.py`, fixed 18/18 Python CI test cases, removed unused symbols, and verified cross-platform compilation across Linux, Darwin, and Windows.
-
-## [v6.298.0] 2026-09-22 Release v6.298.0
-
-### Install GitMap v6.298.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.298.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.298.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.298.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.298.0"`
-
-### Added / Changed / Fixed / Removed
-
-- MultiClone Subsystem: Added `gitmap multiclone` (aliases `mc`, `mutliclone`) to batch clone repositories from markdown codeblocks, raw lists, or stdin with shorthand expansion, description stripping, and deduplication.
-- AI Split DB Command Tracking: Integrated global `--ai` execution history logging into `~/.gitmap/ai/instructions.db` with duration and exit code metrics.
-- Frequent AI Commands & Clipboard Export: Implemented `gitmap ai ls` and `gitmap ai history` to inspect top frequent commands with `--copy` to OS clipboard.
-- Native Automation Search Benchmark: Verified Go native search is 46.1x faster (1.5ms vs 70.5ms) than cached Python grep with 0 disk bloat.
-- Rich Terminal Help Menus: Implemented two-column styled help screens for `gitmap sync` and `gitmap github` (`gd`) with formatted error diagnostics.
-- Anti-Gravity Settings Protection: Protected all Antigravity IDE configuration files and settings across Windows and Unix OS clean operations.
-- WinUtil & LinUtil Integration Architecture: Authored comprehensive plan for native Go OS auto-login, Windows tweaks, and Linux system cleanup.
-
-## [v6.297.0] 2026-09-22 Release v6.297.0
-
-### Install GitMap v6.297.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.297.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.297.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.297.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.297.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fixed SSH Host Key verification: implemented auto-pruning of stale known_hosts entries (handling hashed entries via ssh-keygen -R and line deletion) to prevent REMOTE HOST IDENTIFICATION HAS CHANGED
-- Added auto-recovery & retry in SpawnSSH: seamlessly auto-prunes stale host keys and re-trusts remote machines upon detecting host key changes
-- Preserved bare gitmap ssh public key display and clipboard copying: strictly enforced TOTAL BAN in .ai-memory/strictly-avoid.md
-- Guaranteed bounded stack traces on all errors: updated global error handler so no error is ever emitted without an informative stack trace
-- Added repository creation commands suite: gitmap repo-create (repoc), gitmap create-repo (crepo), gitmap create-local-repo (clr) with automatic space slugification
-- Enhanced commit transfer & PR workflows: automated destination repository directory provision and GitHub creation in commit-in, commit-left, commit-right, and PR counterparts (cin-pr, cml-pr, cmr-pr)
-- Resolved CI/CD pipeline issues: eliminated constants collision (CmdCompareAlias to "comp"), AST registry discrepancies, unused functions, and staticcheck context warnings across all 35 gates
-
-## [v6.296.0] 2026-09-22 Release v6.296.0
-
-### Install GitMap v6.296.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.296.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.296.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.296.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.296.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fixed SSH join routing: routed 'add' subcommand to RunSSHJoinCLI to support 'gitmap ssh add <user@ip> <alias>'
-- Restored unmasked public key display: formatDisplayPublicKey unconditionally outputs full key, and printExistingKeyOnDisk copies to OS clipboard
-- Added Memory Rule: enforced TOTAL BAN in .ai-memory/strictly-avoid.md against public key masking and clipboard omission
-- Fixed Known Hosts verification: auto-purged stale host keys in known_hosts during join and login to prevent 'REMOTE HOST IDENTIFICATION HAS CHANGED'
-- Fixed SSH Password & PAM Auth: supported keyboard-interactive authentication alongside password and enforced auth check before reporting join success
-- Preserved Error Stack Traces: populated Stack and Caller in executeClientCmd and enabled stack trace output on E_INTERNAL_ERROR
-- Fixed SSH node list and removal: used openSSHDBFunc in fetchSJHosts and auto-confirmed removal in non-interactive terminals
-- Documented 4-part Root Cause Analysis in .ai-memory/issues/16-ssh-join-hostkey-and-auth-rca.md
-
-## [v6.295.0] 2026-09-22 Release v6.295.0
-
-### Install GitMap v6.295.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.295.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.295.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.295.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.295.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fixed CI/CD compilation and lint: resolved unused strings imports and eliminated duplicate SJRmCmd declaration in cmdssh
-- Fixed Error Management Policy Check: eliminated swallowed SQLite execution error in openSSHHistoryDB with proper apperror.WrapSimple
-- Fixed test suites: added resolveRmTarget and validateRmTarget in cli/cmdssh/ssh_rm_target.go for sshjoin_rm_cmd_test.go
-- Fixed gitmap pe stack trace leak: removed Go runtime stack trace capture from formatGHFailedError and buildGHFailedErrorMessage
-- Fixed golangci-lint strict: removed unused checkHelp in cli/cmdssh/ssh_help_check.go and unused apperror import in cli/cmdpipeline/pipeline_query.go
-- Documented 4-part Root Cause Analysis in .ai-memory/cicd-issues/72-ssh-build-failures-and-pe-stacktrace-rca.md
-
-## [v6.269.0] 2026-09-20 Release v6.269.0
-
-### Install GitMap v6.269.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.269.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.269.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.269.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.269.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Remove raw direct git command lines (`git -C <repo> ...`) from remediation plan display in `gitmap fix`
-- Replace direct git plan string with human-readable strategy description in `executeFixRecipe`
-- Clean step command display in `executeSingleStep` to omit `-C <repoPath>` and show concise actions (`git stash -u`, `git pull`, `git stash pop`)
-- Clean remediation CLI help text and examples shown after `gitmap pull-all`
-- Add unit tests for `formatStepCommand` in `cli/cmd/fix_execute_test.go`
-- Update `cli/helptext/fix.md` examples to match clean plan output
-
-## [v6.268.0] 2026-09-20 Release v6.268.0
-
-### Install GitMap v6.268.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.268.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.268.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.268.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.268.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add gitmap ssh nodes command to list registered SSH nodes directly instead of failing with alias not found
-- Add gitmap ssh ls command to list registered SSH nodes
-- Improve SSH nodes and ls terminal view with rich ANSI colors (Cyan headers, Yellow roles for control-plane/master, Green bullet status, White aliases and host:port)
-- Add top and bottom newline padding and precise column alignment (100-char table layout) for terminal readability
-- Enhance alias-not-found suggestion view with the same rich colored registered hosts table and recall guidance
-- Add gitmap ssh-join nodes and gitmap sj nodes aliases for nodes listing
-
-## [v6.267.0] 2026-09-20 Release v6.267.0
-
-### Install GitMap v6.267.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.267.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.267.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.267.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.267.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Improve gitmap pipeline errors visual hierarchy with top and bottom newline padding and 2-space indentation on the Reading pipeline logs... progress message
-- Add leading newline gap before Recent Commits Pipeline Summary cyan table header for cleaner visual spacing
-- Display actionable pipeline database cleanup guidance (• Cleanup: gitmap pipeline clear -y) directly below database metadata in both clean and failure reports
-- Update printEmptyCachedFailures to include pipeline cleanup command guidance
-- Add unit test TestPrintRecentCommitsHeaderPadding to verify consistent header padding
-
-## [v6.266.0] 2026-09-20 Release v6.266.0
-
-### Install GitMap v6.266.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.266.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.266.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.266.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.266.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Update Antigravity Manager (agm, ag-manager, antigravity-manager) installer and updater to canonical one-liners: PowerShell script execution for Windows and curl | bash execution for UNIX
-- Add gitmap agm update subcommand with aliases (up, u) and support --dry-run
-- Route gitmap update agm (and aliases ag-manager, antigravity-manager) in root utility dispatcher directly to Antigravity Manager updater
-- Replace legacy lbjlaq/Antigravity-Manager repository URLs with canonical alimtvnetwork/Antigravity-Manager
-- Remove legacy binary installer helpers and unused executable copier functions from cli/cmdinstall
-- Fix 03-ai-scripts/09-cli-help-auditor.py concurrency argument passing
-
-## [v6.265.0] 2026-09-19 Release v6.265.0
-
-### Install GitMap v6.265.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.265.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.265.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.265.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.265.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix SQL double precision keywords (DOUBLE and FLOAT) in cli/cmdautomation/db_generate.go to prevent misspell false positive
-- Replace deprecated strings.Title with custom formatDomainTitle rune helper in cli/cmdautomation/plan_consolidate.go
-- Rename cachedErr to errCached in cli/cmdai/ai_python_detector.go to satisfy Go errname linter convention
-- Remove unused option getter functions in cli/cmdautomation (version_sync_cmd.go, release_bump_cmd.go, milestones_cmd.go) and unused aiCmd in cli/cmdai/ai_cmd.go
-- Resolve inverted success check (!isSuccess) in cli/cmdautomation/phase2_test.go by renaming to isGenerated
-- Sanitize repository path references in RCA documents to maintain 100% relative path compliance
-
-## [v6.264.0] 2026-09-19 Release v6.264.0
-
-### Install GitMap v6.264.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.264.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.264.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.264.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.264.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Restore missing worker pool, chunking, and git tracking functions in 03-ai-scripts/02-shared-engine.py to fix Python linters
-- Restore CICD_DIR, normalize_repo_rel, and JobResult 6-parameter constructor in 03-ai-scripts/06-cicd-local-runner.py
-- Flatten all depth-2 nested if statements across cli/cmdautomation (changed_files_cmd.go, db_generate.go, db_migrate.go, help_audit.go, run_cmd.go, worker_pool.go, worker_test.go) to comply with maximum depth-1 branching guidelines
-- Resolve 52 British English spelling violations across repository documentation and source files via 03-ai-scripts/27-misspell-auditor.py
-- Fix result.Result[T] monad method invocations in cli/cmdai/ai_create_test.go (res.IsFailure(), res.AppError(), res.Data)
-- Remove hardcoded absolute path to gitmap in 03-ai-scripts/38-sync-prompts-skills-scripts.py to comply with check-relative-paths policy
-- Fix redundant newline inside fmt.Println in cli/cmdssh/ssh_auth_key_deploy.go and handle database error in cli/cmdautomation/topology.go
-- Replace negative booleans with affirmative isSuccess checks across cmdautomation commands and tests
-- Run gofmt across all Go source files to ensure 100% gofmt compliance
-
-## [v6.263.0] 2026-09-19 Release v6.263.0
-
-### Install GitMap v6.263.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.263.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.263.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.263.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.263.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix function identifier collisions in cli/cmdautomation: rename collectSearchFiles to collectSpecMigrateFiles in spec_migrate.go and resolveThreshold to resolveSlowThreshold in test_inventory.go
-- Implement ListRuntimes, RefreshRuntimes, and reprobeRuntime in cli/cmdautomation/runtime_probe.go and update runtimes_cmd.go to use RuntimeRecord
-- Fix RunRelPathsAudit reference to RunRelPathAudit in cli/cmdautomation/preflight.go
-- Fix run_cmd.go type mismatch on RunWorkerPool(opts), map opts.Script = args[1], add IsJson to WorkerRunOptions, and render worker results
-- Rename cli/cmdautomation/smoke_test.go to cli/cmdautomation/smoke_runner.go to prevent Go compiler build exclusion
-- Align BuildFileContext, EncodeToStream, and DecodeFromStream in stream_encoding.go and worker_pool.go with result.Result[T] wrappers and Spec 124
-- Fix resolveSpecDir in cli/cmdautomation/spec_migrate.go to inspect 02-spec/21-app and 02-spec in base directory
-
-## [v6.262.0] 2026-09-19 Release v6.262.0
-
-### Install GitMap v6.262.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.262.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.262.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix pipeline history import, typecheck fields, and store OpenInMemory test instance (RCA 60)
-- Flatten nested-if statements and guard clauses across pipeline, install, auto-alias, ssh, and storage commands
-- Enforce error handling on database vacuum and truncate commands, eliminating swallowed errors
-- Standardize top-level ## Examples sections across all Markdown help documentation (pipeline.md, agy.md)
-- Enhance pipeline error logs fallback logic and workflow success tracking across branches
-
-## [v6.261.0] 2026-09-18 Release v6.261.0
-
-### Install GitMap v6.261.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.261.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.261.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.261.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.261.0"`
-
-### Added / Changed / Fixed / Removed
-
-- feat(pipeline): bounded pattern-aware stack trace extraction and job-scoped isolation
-- fix(pipeline): halt context capture on exit code lines to eliminate runner cleanup noise
-- fix(pipeline): eliminate duplicated section reports and filter tool installation progress tickers
-- feat(ssh): multi-command discovery, machine join parity, and terminal help verification
-- fix(ci): resolve nested ifs, ssh help exit panic, absolute path linters, and error management regex
-
-## [v6.260.0] 2026-09-18 Release v6.260.0
-
-### Install GitMap v6.260.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.260.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.260.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.260.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.260.0"`
-
-### Added / Changed / Fixed / Removed
-
-- feat(storage): clean storage ls table UI with root folder header and relative database paths
-- feat(table): utilize reusable termtable auto-alignment and spacing framework
-- fix(ci): complete verification across all 46 CI/CD local quality gates and 5 remote workflows
-- refactor(storage): decompose database listing to storage_ls.go to maintain <100 line canonical file sizes
-
-## [v6.259.1] 2026-09-18 Release v6.259.1
-
-### Install GitMap v6.259.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.259.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.259.1"`
-
-### Added / Changed / Fixed / Removed
-
-- wire agy pipeline-fix helptext rendering and expand command aliases
-
-## [v6.259.0] 2026-09-18 Release v6.259.0
-
-### Install GitMap v6.259.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.259.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.259.0"`
-
-### Added / Changed / Fixed / Removed
-
-- feat(pipeline): parallel section and job log downloads for faster single-commit pipeline error inspection
-- feat(pipeline): two-pass non-mutating line execution and filtering algorithms for error log processing
-- feat(pipeline): resilient historical fallback retrieval for pipeline DB and commit logs
-- fix(pipeline): prevent historical fallback from overwriting clean success pipeline payloads
-- fix(ci): resolve gocritic switch statement violations and ResultSlice method wrappers
-
-## [v6.258.0] 2026-09-17 Release v6.258.0
-
-### Install GitMap v6.258.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.258.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.258.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.258.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.258.0"`
-
-### Added / Changed / Fixed / Removed
-
-- feat(safety): implement IsProtectedProcess in cli/lockcheck/ to protect Antigravity IDE, VS Code, Node, Electron, WebView2, and parent shells from taskkill and process termination
-- feat(safety): guard TerminateProcesses in cli/cmdagy/ to prevent terminating running Antigravity IDE instances during cache cleanup
-- feat(ci): add memory-aware CPU freeness worker scaling and cap linter concurrency to prevent Windows commit limit exhaustion (errno 1455)
-- feat(test): isolate 37 heavy E2E subprocess tests in cli/tests/heavy_test from routine fast unit test runs
-- feat(pipeline,agy): add gitmap pipeline fix errors agy, pipeline-fix, and aef commands with 4-part RCA embedding and duplicate error detection (--force)
-- feat(pipeline,agy): dual prompt architecture generating primary fix prompt and staging verification check in prompt queue
-- feat(cmd): root CLI shortcuts for fix agy, fix-agy, gitmap aef, and compound phrase token normalization
-- feat(cluster,ssh): SSH config sanitizer automatically pruning unsupported client options (authorizedkeysfile)
-- feat(clone): add --force / -f destination re-cloning and directory overwrite flag
-- feat(cluster,sc): complete command and help parity across cluster and servers-clients (sc) subcommands with interactive examples
-- guidelines: author coding guideline 24, master prompt 24, and cg-isolate-os-tests skill safeguarding OS state during test execution
-- fix(cli): handle ReplaceModeTypeUnknown in cmd/replace.go exhaustive switch and skip non-supported OS calls on Darwin in osuser_test.go
-
-## [v6.257.0] 2026-09-17 Release v6.257.0
-
-### Install GitMap v6.257.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.257.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.257.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.257.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.257.0"`
-
-### Added / Changed / Fixed / Removed
-
-- feat(schedule): flexible shutdown and restart duration parsing (1:45hr, 1:45h, 2h, 120m, 1day, 1d, now) with native OS elevation
-- feat(schedule): power schedule state persistence, countdown inspection (schedule shutdown status), and cancellation abort (schedule shutdown cancel)
-- feat(cluster): remote GitMap installation (cluster install gitmap, sj install gitmap) with official curl and PowerShell one-liners
-- feat(cluster): automatic preflight GitMap detection and on-the-fly bootstrapping during remote cluster and servers-clients command execution
-- feat(os): gitmap os ai-clean and scripts/os-ai-clean.py scanning Antigravity brain caches, system task logs, and temp AI dumps with preflight table confirmation
-- docs(help): comprehensive cluster triad architecture documentation unifying ssh-join, cluster, and servers-clients with rich copy-pasteable examples
-- docs(help): leaf help topics registered for cluster-install, schedule-shutdown, schedule-restart, and os-ai-clean
-- ui(table): fixed-width ASCII column formatting and divider alignment for sj ls and cluster nodes
-- guidelines: prompt 24 (isolate destructive OS and heavy unit tests) authored, indexed, and synchronized across gitmap and coding-guidelines
-- test(qa): 100% green verification on 38 linters, compile gates, 118 E2E smoke tests, and zero nested ifs across 3059 files
-
-## [v6.256.0] 2026-09-16 Release v6.256.0
-
-### Install GitMap v6.256.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.256.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.256.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.256.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.256.0"`
-
-### Added / Changed / Fixed / Removed
-
-- automated release orchestrator and branch lifecycle enforcement
-
-## [v6.255.0] 2026-09-16 Release v6.255.0
-
-### Install GitMap v6.255.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.255.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.255.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.255.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.255.0"`
-
-### Added / Changed / Fixed / Removed
-
-- coding guideline compliance and ResultSlice enforcement
-
-## [v6.254.0] 2026-09-16 Release v6.254.0
-
-### Install GitMap v6.254.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.254.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.254.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.254.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.254.0"`
-
-### Added / Changed / Fixed / Removed
-
-- add clone-only-missing, ssh auto-accept, agy launcher, and read-all-projects-with-read-prompts
-
-## [v6.253.0] 2026-09-16 Release v6.253.0
-
-### Install GitMap v6.253.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.253.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.253.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.253.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.253.0"`
-
-### Added / Changed / Fixed / Removed
-
-- fix task smoke help, unused linter types, nested if, truncate math, and generate drift
-
-## [v6.252.0] 2026-09-16 Release v6.252.0
-
-### Install GitMap v6.252.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.252.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.252.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Capture and display Go stack trace on pipeline command failures
-- Diagnose workflow initialization and syntax errors when GitHub Actions log archive is missing
-- Eliminate blank job labels and misleading synthetic step errors on failed gh runs
-
-## [v6.251.0] 2026-09-16 Release v6.251.0
-
-### Install GitMap v6.251.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.251.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.251.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Co-locate pipeline split databases inside CLI installation data directory
-- Repository-isolated pipeline database resolution and metrics
-- Normalize workflow keys and prevent false-positive failures
-
-## [v6.250.0] 2026-09-16 Release v6.250.0
-
-### Install GitMap v6.250.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.250.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.250.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.250.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.250.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Anchor pipeline database to CLI binary data directory in dedicated pipeline/ folder with per-repo slug isolation
-- Resolve pipeline DB path dynamically and eliminate hardcoded repo-root fallback
-- Display canonical CLI pipeline database path in all summaries, error logs, and root identity footers
-- Decompose pipeline split DB connection and schema management adhering to strict 100-line coding guidelines
-
-## [v6.249.0] 2026-09-16 Release v6.249.0
-
-### Install GitMap v6.249.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.249.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.249.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.249.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.249.0"`
-
-### Added / Changed / Fixed / Removed
-
-- clone auto manifest discovery, ssh enforcement, ls table parity and exclude filter
-
-## [v6.248.0] 2026-09-15 Release v6.248.0
-
-### Install GitMap v6.248.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.248.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.248.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.248.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.248.0"`
-
-### Added / Changed / Fixed / Removed
-
-- add sc bash shell join list subcommands and fix ssh connection schema
-
-## [v6.247.0] 2026-09-15 Release v6.247.0
-
-### Install GitMap v6.247.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.247.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.247.0"`
-
-### Added / Changed / Fixed / Removed
-
-- relocate pipeline db to repo location, display db size on next line, and filter rust test logs
-
-## [v6.246.0] 2026-09-15 Release v6.246.0
-
-### Install GitMap v6.246.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.246.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.246.0"`
-
-### Added / Changed / Fixed / Removed
-
-- align pipeline table, display db size, add agy fix-pipeline command
-
-## [v6.245.1] 2026-09-15 Release v6.245.1
-
-### Install GitMap v6.245.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.245.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.245.1"`
-
-### Added / Changed / Fixed / Removed
-
-- fix exhaustive switch linter cases and align ErrorType nil receiver check
-
-## [v6.245.0] 2026-09-15 Release v6.245.0
-
-### Install GitMap v6.245.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.245.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.245.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Added universal self-null first and error/noError type validation across all ErrorWrapper, Result, ResultSlice, ResultMap, and AppError methods.
-- Introduced package-level result.AsError(ew ErrorWrapper) error helper for clean one-line terminal returns (eliminating temporary variables).
-- Removed Error() method from generic container types to eliminate errname linter misclassifications while preserving AsError(), ErrOrNil(), and AppError().
-- Hardened install.ps1 and install.sh with automatic zero-asset probe fallback against GitHub 404 releases.
-- Fixed Windows low-resolution timer collision on ssh_history.id using atomic sequence counters.
-- Validated darwin/arm64 and linux/amd64 cross-compilation and 100% green quality gates.
-
-## [v6.244.0] 2026-09-15 Release v6.244.0
-
-### Install GitMap v6.244.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.244.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.244.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.244.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.244.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.243.0] 2026-09-15 Release v6.243.0
-
-### Install GitMap v6.243.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.243.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.243.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.243.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.243.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Convert join command to universal AppError envelopes
-- Introduce CheckHelpOrEmpty centralized DRY help checking engine
-- Eliminate repeated help checks across cluster, server-cmd, and servers-clients
-
-## [v6.242.0] 2026-09-15 Release v6.242.0
-
-### Install GitMap v6.242.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.242.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.242.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix test DDL for ssh_hosts port column
-- Resolve gosec G115 integer conversions in storage display and POSIX metrics
-- Safeguard nil context and avoid test deadlock in cmdssh
-
-## [v6.241.0] 2026-09-15 Release v6.241.0
-
-### Install GitMap v6.241.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.241.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.241.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add non-Linux launcher stub for cross-platform compilation
-- Remove unused functions and fix SA4023 interface nilness
-- Fix SQLite DB mock reconnection in cmdssh tests
-- Correct unit test assertions across install, pull, and ssh suites
-
-## [v6.240.0] 2026-09-14 Release v6.240.0
-
-### Install GitMap v6.240.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.240.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.240.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.240.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.240.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Resolve duplicate identifiers in store and cmdssh packages
-- Eliminate swallowed SQLite migration errors using isBenignAlterError
-- Flatten control-flow and eliminate nested if blocks in cluster bootstrap
-- Fix undefined PullResult reference and missing resolveJoinAlias argument
-- Remove unused fmt import in Linux antigravity deploy
-
-## [v6.239.0] 2026-09-14 Release v6.239.0
-
-### Install GitMap v6.239.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.239.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.239.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Antigravity launcher purge, install_logs SQLite telemetry, and cluster SSH node bootstrap
-
-## [v6.238.0] 2026-09-14 Release v6.238.0
-
-### Install GitMap v6.238.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.238.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.238.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Kubernetes cluster runner, Ubuntu provisioning, CRI-O runtime, Helm and NFS storage suite
-
-## [v6.237.0] 2026-09-14 Release v6.237.0
-
-### Install GitMap v6.237.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.237.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.237.0"`
-
-### Added / Changed / Fixed / Removed
-
-- First-class add-with-pass subcommand (gitmap ssh-join add-with-pass <user>@ip password [alias]) with interactive password prompting and JSON output
-- SSH RSA password encryption at rest in SQLite database using RSA-OAEP with SHA-256 via local SSH key (~/.ssh/id_rsa)
-- Cross-platform OpenSSH AskPass password auto-supply (SSH_ASKPASS_REQUIRE=force), enabling seamless password logins without terminal prompts
-- Comprehensive leaf help, catalog topics, and command markdown documentation parity
-
-## [v6.236.0] 2026-09-14 Release v6.236.0
-
-### Install GitMap v6.236.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.236.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.236.0"`
-
-### Added / Changed / Fixed / Removed
-
-- First-class user@ip SSH join syntax (gitmap ssh-join user@ip [alias]), default host-<ip> alias generation, and automatic IP login user resolution
-- Subnet discovery scanner (gitmap sj scan) probing port 22 and cross-referencing registered hosts
-- Machine health and latency ping (gitmap sj status) with online/offline diagnostics
-- Redesigned Git pull UI with 80ms active background ticker, animated Braille spinner, accurate Windows TTY detection, 4-step milestones, and worker slot concurrency
-- Scripts-fixer alignment: terminal profile utilities (jq, yq, zellij), OS-aware dev/small-dev partitioning, git-compact integration, and AI profile trees
-- Comprehensive leaf command help, mistake recovery guidance, and documentation parity across terminal UI, catalogs, and markdown docs
-
-## [v6.235.0] 2026-09-14 Release v6.235.0
-
-### Install GitMap v6.235.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.235.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.235.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.235.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.235.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.234.0] 2026-09-14 Release v6.234.0
-
-### Install GitMap v6.234.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.234.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.234.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.234.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.234.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Confirmed 100% green CI/CD pipeline runs on v6.233.0
-- Pipeline error inspector, history tree, SQLite telemetry, and storage commands in production
-
-## [v6.233.0] 2026-09-14 Release v6.233.0
-
-### Install GitMap v6.233.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.233.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.233.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.233.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.233.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Replaced if-else chain with switch in calculateHistoryStats to satisfy gocritic linter
-
-## [v6.232.0] 2026-09-14 Release v6.232.0
-
-### Install GitMap v6.232.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.232.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.232.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Commit-scoped offset resolution for gitmap pipeline errors (-1, -2, -3)
-- Added gitmap pipeline history command with tree visualization
-- Added gitmap pipeline logs command with clipboard and file export
-- Enriched repository SQLite database telemetry (.gitmap/data/pipeline.db)
-- Added gitmap storage and gitmap os storage command suite
-
-## [v6.231.0] 2026-09-14 Release v6.231.0
-
-### Install GitMap v6.231.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.231.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.231.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.231.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.231.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Profile installation idempotency with component tree rendering
-- Untracked SQLite database auditing for profiles and packages with full stack trace preservation
-- Cross-platform VMware CLI support across Linux and Windows
-- Resilient VMware shared folder mounting and startup persistence
-- Terminal table column alignment fixes for gitmap pull and gitmap status
-
-## [v6.230.0] 2026-09-14 Release v6.230.0
-
-### Install GitMap v6.230.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.230.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.230.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.230.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.230.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Gracefully handle gitmap cd and lookup commands when targets are not found without raw stack traces or duplicate stderr output
-- Add fuzzy repository and workdir suggestion engine (Did you mean: <repo>?) on cd lookup misses
-- Standardize ErrorTypeNotFound across apperror, cliexit, and cmd packages
-
-## [v6.229.0] 2026-09-14 Release v6.229.0
-
-### Install GitMap v6.229.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.229.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.229.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Gracefully handle gitmap cd and lookup commands when targets are not found without raw stack traces or duplicate stderr output
-- Add fuzzy repository and workdir suggestion engine (Did you mean: <repo>?) on cd lookup misses
-- Standardize ErrorTypeNotFound across apperror, cliexit, and cmd packages
-
-## [v6.228.0] 2026-09-13 Release v6.228.0
-
-### Install GitMap v6.228.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.228.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.228.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add Linux archive package installation (tar, gz, zip) with intelligent strategy detection
-- Support automated strategy detection for ELF binaries, install scripts, and source builds
-- Integrate universal uninstaller for archive deployments with desktop database refresh
-- Add cross-platform compilation stubs and enforce strict boolean, enum, and lint guidelines
-
-## [v6.227.0] 2026-09-13 Release v6.227.0
-
-### Install GitMap v6.227.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.227.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.227.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.227.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.227.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix Installer Dry-Run Windows step in release.yml by updating path to cli/scripts/install.ps1
-- Fix Installer Smoke Windows seed data download by updating GitHub raw data URLs to cli/data/
-- Add local repository fallback for seed files in install.ps1 and install.sh
-- Synchronize installer URLs across Go constants, helptext, and scripts
-
-## [v6.226.0] 2026-09-13 Release v6.226.0
-
-### Install GitMap v6.226.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.226.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.226.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fixed unbalanced if statement syntax error in E2E GitHub Actions workflow
-- Guarded TypeScript AST imports in check-nested-ifs against missing node_modules
-- Auto-migrated and ensured ssh_hosts and ssh_history tables exist across cmdssh subcommands
-- Resolved relative path and nested-if lint violations
-
-## [v6.225.0] 2026-09-13 Release v6.225.0
-
-### Install GitMap v6.225.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.225.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.225.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Integrated robust_rmtree with Windows read-only file attribute unlinking across all build and test cleanup hooks
-- Guaranteed zero-byte temporary storage footprint in OS temp gitmap after test runs
-- Added --allow-serial-runners across all golangci-lint invocations to prevent parallel lock contention
-
-## [v6.224.0] 2026-09-13 Release v6.224.0
-
-### Install GitMap v6.224.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.224.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.224.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Added dynamic CPU freeness detection to scale test workers dynamically from 16 to 32+ based on CPU idle headroom
-- Enforced wipe-before-write pre-build and pre-test temporary storage cleanup across all build, test, and packaging gates
-- Added ClearRepoTestTempDir, ClearRepoSandboxTempDir, and ClearAllRepoTempDirs to cli/tempdir package
-- Relocated e2e smoke test worker sandboxes to OS test temp with automatic post-run sweeping
-- Automated old CI/CD run pruning (capping at 5 runs) and loose coverage profile cleanup recovering 455+ MB of storage
-- Enabled --allow-serial-runners across concurrent golangci-lint invocations to eliminate race conditions
-
-## [v6.223.0] 2026-09-13 Release v6.223.0
-
-### Install GitMap v6.223.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.223.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.223.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Unify slow and fast unit tests into a single 32-worker priority thread pool, eliminating thread starvation
-- Bypass external GitHub API dials and subprocess probing in unit tests, speeding up cmd tests by up to 110x
-- Accelerate Go Test Coverage Profile from 193s down to 2.5s while meeting 100% of coverage floor gates
-
-## [v6.222.0] 2026-09-13 Release v6.222.0
-
-### Install GitMap v6.222.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.222.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.222.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Route 'gitmap agy install' to Antigravity Desktop IDE and add 'gitmap agm install' for Antigravity Tools/Manager
-- Add dynamic CPU freeness and memory detection, scaling test worker pools to 32 threads for full CPU saturation
-- Resolve multi-module go.mod paths and pass 100% of all 46 CI/CD quality gates
-
-## [v6.221.0] 2026-09-12 Release v6.221.0
-
-### Install GitMap v6.221.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.221.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.221.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Enhance pipeline error-logs with rich diagnostics and clean zero-error state
-- Embed repository metadata (URL, commit hash, release version, branch, open PR count)
-- Integrate automatic clipboard export with terminal confirmation
-
-## [v6.220.2] 2026-09-12 Release v6.220.2
-
-### Install GitMap v6.220.2
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.2"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix macro step timeout pipe hanging on Unix and fixrepo e2e gofmt backup inspection
-
-## [v6.220.1] 2026-09-12 Release v6.220.1
-
-### Install GitMap v6.220.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.1"`
-
-### Added / Changed / Fixed / Removed
-
-- Guard against destructive side-effects during clone-next --dry-run (Plan 112)
-
-## [v6.220.0] 2026-09-12 Release v6.220.0
-
-### Install GitMap v6.220.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Complete architectural audit and execution across all 18 Coding Guideline modules (Prompts 01-18)
-- Enforce single return types, Result[T] envelopes, and strict *AppError wrapping
-- Zero nested ifs, affirmative boolean naming, and strict *Type enum suffixes
-- Normalize vertical newline styling (Rule R4/R5) and 100% gofmt hygiene across 2,524 Go files
-- Enforce strict relative Git paths and eliminate absolute filesystem paths / file:/// URIs
-- Full CLI commands and help text parity verified across 8,155 CLI files
-
-## [v6.219.0] 2026-09-11 Release v6.219.0
-
-### Install GitMap v6.219.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.219.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.219.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Relocate CI/CD runner temporary telemetry and session runs from OS temp directory to repository-internal .ai-memory/cicd
-- Ensure all failure banner stream paths and artifact locations are displayed as repository-relative paths
-- Add .ai-memory/cicd/ to .gitignore to avoid untracked working directory clutter
-
-## [v6.218.0] 2026-09-11 Release v6.218.0
-
-### Install GitMap v6.218.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.218.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.218.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.218.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.218.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add gitmap pipelines alias and errorlogs/errors subcommands with negative index inspection (-N)
-- Implement incremental SQLite caching for last-failed-logs avoiding duplicate log downloads
-- Correlate GitHub Actions job API data to guarantee all failing sections are combined
-
-## [v6.217.0] 2026-09-11 Release v6.217.0
-
-### Install GitMap v6.217.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.217.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.217.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Remove dead queryRecentFailedRuns helper to resolve unused linter finding
-- Format Go files to satisfy dry-run formatting gate
-
-## [v6.216.0] 2026-09-11 Release v6.216.0
-
-### Install GitMap v6.216.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.216.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.216.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.216.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.216.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Filter out superseded failures when a workflow has succeeded in a newer run
-- Eliminate fallback that dredged up ancient failed runs when current pipeline is green
-- Clear local last_error.log and pipeline_errors.log when pipeline runs pass cleanly
-
-## [v6.215.0] 2026-09-11 Release v6.215.0
-
-### Install GitMap v6.215.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.215.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.215.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Aggregate all pipeline section and step failure errors together in one consolidated view
-- Explicitly state saved error log files (.gitmap/pipeline/pipeline_errors.log, <runId>.log, and DB path)
-- Display full execution metadata (which workflow, run ID, branch, commit, when run timestamp and relative age, run duration, and URL)
-
-## [v6.214.0] 2026-09-11 Release v6.214.0
-
-### Install GitMap v6.214.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.214.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.214.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix gosec G115 integer overflow conversion uint64 -> int64 in pipeline_split_ops.go
-- Ensure all cross-platform pattern normalizations and quality gates pass
-
-## [v6.213.0] 2026-09-11 Release v6.213.0
-
-### Install GitMap v6.213.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.213.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.213.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add live execution feedback and --exec toggle during interactive macro creation
-- Add universal path expansion for %TEMP%, //temp, /temp, , and ~ across macro engine and cd tracking
-- Fix CI/CD race in-memory DB collision and anchor lifecycle in store
-- Fix process isolation for concurrent E2E smoke test workers on Windows
-- Ensure readme platform badges and single-line install section compliance
-
-## [v6.212.0] 2026-09-11 Release v6.212.0
-
-### Install GitMap v6.212.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.212.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.212.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Prevent infinite dynamic timeline polling loop in tests and CI mode
-- Skip live GitHub API polling in unit test suite under CI
-- Verify all 20+ Go packages pass with zero failures
-
-## [v6.211.0] 2026-09-11 Release v6.211.0
-
-### Install GitMap v6.211.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.211.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.211.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add targeted test runner by file path, file name, or Go package name
-- Migrate CI/CD runner artifacts to cross-platform OS temp folder
-- Add isolated per-test failure log files and hashed session folders
-- Flatten nested-if conditionals across mkdir.go and store.go
-
-## [v6.210.2] 2026-09-11 Release v6.210.2
-
-### Install GitMap v6.210.2
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.2"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.210.1] 2026-09-11 Release v6.210.1
-
-### Install GitMap v6.210.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.1"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.210.0] 2026-09-11 Release v6.210.0
-
-### Install GitMap v6.210.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.209.2] 2026-09-11 Release v6.209.2
-
-### Install GitMap v6.209.2
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.2"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.209.1] 2026-09-10 Release v6.209.1
-
-### Install GitMap v6.209.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.1"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.209.0] 2026-09-10 Release v6.209.0
-
-### Install GitMap v6.209.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.208.1] 2026-09-10 Release v6.208.1
-
-### Install GitMap v6.208.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.208.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.208.1"`
-
-### Added / Changed / Fixed / Removed
-
-- add temp backup, recycle bin deletion, folder 25 preset, and consolidation cleanup prompt
-
-## [v6.208.0] 2026-09-10 Release v6.208.0
-
-### Install GitMap v6.208.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.208.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.208.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Connect repodb to dbengine ORM with typed repositories and row scanners
-- Upgrade 30-db-struct-enum-generator.py to support db tags, entity models, and typed mutations
-- Normalize SQLite database primary keys to PascalCase <Entity>Id across repodb and store
-- Eradicate swallowed errors across pipelinedb, dbengine, and repodb with universal AppError wrapping
-- Implement in-memory batch timestamp caching, 8KB binary sniffer, and directory pruning in indexer
-- Fix Linux corrupted install directories with safe recovery and cross-OS Darwin/Windows support
-- Decouple Google Antigravity Desktop IDE installer from agy CLI utility
-
-## [v6.207.0] 2026-09-10 Release v6.207.0
-
-### Install GitMap v6.207.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.207.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.207.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.206.3] 2026-09-10 Release v6.206.3
-
-### Install GitMap v6.206.3
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.3"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.3"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.206.2] 2026-09-10 Release v6.206.2
-
-### Install GitMap v6.206.2
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.2"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.206.1] 2026-09-10 Release v6.206.1
-
-### Install GitMap v6.206.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.1"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.206.0] 2026-09-10 Release v6.206.0
-
-### Install GitMap v6.206.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.205.0] 2026-09-09 Release v6.205.0
-
-### Install GitMap v6.205.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.205.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.205.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Resolve VMware shared folders crontab persistence bad minute error on fresh Ubuntu systems
-- Implement dedicated crontab reader/writer with clean empty crontab detection and trailing newline enforcement
-- Add subprocess-level Ubuntu E2E crontab lifecycle tests simulating Vixie cron execution
-- Pass full golangci-lint suite and multi-core repository quality gates
-
-## [v6.204.9] 2026-09-09 Release v6.204.9
-
-### Install GitMap v6.204.9
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.9"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.9"`
-
-### Added / Changed / Fixed / Removed
-
-- Remove unused crontabLookPathFunc and isCrontabAvailable to pass golangci-lint full-suite runner
-
-## [v6.204.8] 2026-09-09 Release v6.204.8
-
-### Install GitMap v6.204.8
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.8"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.8"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix VMware shared crontab bad minute error when no existing crontab exists on Ubuntu/Debian
-- Add modular crontab reader/writer with clean empty detection and robust newline termination
-- Add comprehensive unit tests and Ubuntu crontab lifecycle E2E test suite
-
-## [v6.204.7] 2026-09-09 Release v6.204.7
-
-### Install GitMap v6.204.7
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.7"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.7"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix macro add arrow history, mkdir tilde expansion and in-builder feedback, and open code/url support
-
-## [v6.204.6] 2026-09-09 Release v6.204.6
-
-### Install GitMap v6.204.6
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.6"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.6"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix dev profile tools installation and add diagnostic stack trace logging
-
-## [v6.204.5] 2026-09-09 Release v6.204.5
-
-### Install GitMap v6.204.5
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.5"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.5"`
-
-### Added / Changed / Fixed / Removed
-
-- Replace unsupported ⊘ glyph with green checkmark in setup configuration steps
-- Add ⊘ to glyphs Filter table for safe terminal fallback
-- Fix setup unchanged summary counter glyph
-
-## [v6.204.4] 2026-09-09 Release v6.204.4
-
-### Install GitMap v6.204.4
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.4"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.4"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix Ubuntu ZSH update prompt and prevent unwanted apt reinstall during update
-- Prevent sudo password requests and preserve existing Oh-My-Zsh configurations
-- Auto-detect existing ZSH binary and skip non-interactive setup runs
-- Enforce LF line endings and automatic gofmt synchronization during release orchestration
-
-## [v6.204.3] 2026-09-09 Release v6.204.3
-
-### Install GitMap v6.204.3
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.3"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.3"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix Ubuntu ZSH update prompt and prevent unwanted apt reinstall during update
-- Prevent sudo password requests and preserve existing Oh-My-Zsh configurations
-- Auto-detect existing ZSH binary and skip non-interactive setup runs
-- Enforce LF line endings and automatic gofmt synchronization during release orchestration
-
-## [v6.204.2] 2026-09-09 Release v6.204.2
-
-### Install GitMap v6.204.2
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.2"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix Ubuntu ZSH update prompt, prevent unwanted reinstall, and preserve existing shell configuration
-
-## [v6.204.1] 2026-09-09 Release v6.204.1
-
-### Install GitMap v6.204.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.1"`
-
-### Added / Changed / Fixed / Removed
-
-- qBittorrent and uTorrent installers, config export and import options, profile tree preview
-
-## [v6.204.0] 2026-09-09 Release v6.204.0
-
-### Install GitMap v6.204.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fix Linux PNPM, Yarn, and Bun installation via npm global and standalone script fallbacks
-- Add upfront tool tree hierarchy preview before profile execution and --tree flag support
-- Remove Ollama and ubuntu-dev-ai profile, isolating Ollama strictly to standalone ai profile
-- Add explicit profile installation examples across CLI help, documentation, and install ls
-
-## [v6.203.0] 2026-09-09 Release v6.203.0
-
-### Install GitMap v6.203.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.203.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.203.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add qBittorrent and uTorrent cross-platform installers across Windows (choco, winget), Ubuntu/Debian (apt), and macOS (brew)
-- Implement portable JSON configuration export/import engine (export-config, import-config, improt-config) for VS Code, qBittorrent, and uTorrent
-- Support batch export and import across folders with automatic OS path and file format translation (.ini <-> .conf)
-- Add dedicated help documentation (export-config.md, import-config.md) and commands.ts UI metadata
-
-## [v6.202.0] 2026-09-09 Release v6.202.0
-
-### Install GitMap v6.202.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.202.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.202.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Remove dead runInstallAgManager and runInstallAntigravity functions to pass strict unused and lint-baseline-diff CI checks
-- Upgrade .github/scripts/full-suite-lint.sh to native high-performance Bash runner with live tee streaming and SIMD grep -cE issue counting
-- Modernize .github/scripts/full-suite-lint.py with line-buffered subprocess.Popen real-time stdout streaming and O(1) memory tracking
-
-## [v6.201.0] 2026-09-09 Release v6.201.0
-
-### Install GitMap v6.201.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.201.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.201.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Add automatic Git remote tag release discovery (https://github.com/lbjlaq/Antigravity-Manager.git) for Antigravity Manager GUI with semver sorting and multi-OS asset matching
-- Add specific version targeting --version <ver> to gitmap install ag-manager and gitmap agy install manager
-- Enable full CLI flag parity (--dry-run, --yes/-y, --verbose/-v, --version) in gitmap agy install [manager|cli|all]
-- Fix gitmap in alias routing and display grouped tool catalog, descriptions, and profiles when run without arguments
-- Add and document antigravity, ag-manager, ag-ctx, build-essential, and installation profiles (dev, ubuntu, ubuntu-dev-ai, ai, backend, fullstack, minimal)
-
-## [v6.200.0] 2026-09-09 Release v6.200.0
-
-### Install GitMap v6.200.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.200.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.200.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Antigravity Manager release installer, custom profile engine, and preflight probe
-- Parallel multi-worker CPU checkers, 10s telemetry heartbeat, and incremental git commit checkpointing
-- Terminal-adaptive responsive table layout, status checkmarks, and interactive dirty remediation box
-- Google OAuth token preservation and cipher extraction in Chrome profile backups
-- 100% CPU multi-core utilization across all linters and code formatters with chunked file queues
-
-## [v6.199.0] 2026-09-08 Release v6.199.0
-
-### Install GitMap v6.199.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.199.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.199.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Added gitmap os display command family (display, disp, screen) for desktop session, display server detection (Wayland, X11, DWM, Quartz), screen idle timeout, and never-sleep blanking inhibition
-- Implemented SQLite site registry in sites.db with gitmap nginx add <domain> (auto-detecting WordPress and Laravel roots), gitmap nginx rm <domain>, and gitmap nginx list
-- Added gitmap nginx ini and showcase displaying recommended production directives for WordPress and Laravel with idempotent marker blocks
-- Enhanced VMware shared folder mount resilience with open-vm-tools integration, desktop symlink repair, and reboot crontab persistence
-- Integrated Nginx, WordPress, and Laravel setup engines with dynamic PHP-FPM socket discovery
-- Added Chrome token vault with reversible ciphers and enhanced Windows command remediation execution
-
-## [v6.198.0] 2026-09-08 Release v6.198.0
-
-### Install GitMap v6.198.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.198.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.198.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Terminal-adaptive responsive pull table layout and chrome profile sign-in scrubbing
-
-## [v6.197.0] 2026-09-08 Release v6.197.0
-
-### Install GitMap v6.197.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.197.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.197.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Chrome profile import routing, JSON and FNF export options, and macro delete idempotency
-
-## [v6.196.1] 2026-09-07 Release v6.196.1
-
-### Install GitMap v6.196.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.196.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.196.1"`
-
-### Added / Changed / Fixed / Removed
-
-- Automated release orchestration
-
-## [v6.196.0] 2026-09-07 Release v6.196.0
-
-### Install GitMap v6.196.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.196.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.196.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Chrome profile polymorphic discovery, Ubuntu chrome deb installer, rich error diagnostics and parallel CI runner
-
-## [v6.195.0] 2026-09-07 Release v6.195.0
-
-### Install GitMap v6.195.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.195.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.195.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.195.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.195.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Ubuntu OS fix-link suite, pipeline log caching, lock reentrancy & CI fixes
-
-## [v6.194.0] 2026-09-07 Release v6.194.0
-
-### Install GitMap v6.194.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.194.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.194.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Real-Time Streaming Telemetry, Unbuffered Event Pipeline & AI Parallel Orchestration
-- Added cross-platform OS power and screen timeout management framework (`gitmap power`) supporting Windows (`powercfg.exe`) and Linux/Ubuntu (GNOME `gsettings`, X11 `xset`, `systemd-logind`) with SQLite state tracking and restore profiles (`status`, `never-sleep`, `set`, `reset`, `history`)
-- Isolated tool installation tracking and telemetry into dedicated split SQLite database (`installation.db`) adhering to split DB architectural standards and preserving zero-swallow error policies
-- Added VMware tools detection and shared folder management suite (`gitmap vmware shared enable`, `status`) with automatic `/mnt/hgfs` mount, desktop symlink, and `@reboot` crontab persistence
-- Added Ubuntu `build-essential` compiler toolchain and common developer profiles (`gitmap install build-essential`) strictly excluding legacy/deprecated packages
-- Added remote cluster server command and script delegation suite (`gitmap server-cmd`, `server-cmds`, `scmd`) supporting node filtering and sudo escalation
-- Added Ubuntu OS symlink diagnostic and repair command suite (`gitmap os fix-link`, `gitmap fix-link`) with target override, dry-run simulation, and recursive scanning
-- Fixed CI/CD pipeline error log fetching timeout and added disk persistence at `.gitmap/pipeline/` with reentrant process lock tracking
-
-## [v6.193.0] 2026-09-06 Release v6.193.0
-
-### Install GitMap v6.193.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.193.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.193.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.193.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.193.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fixed CI/CD compatibility: formatted cmd/agy_pin_projects.go to strict gofmt specifications
-- Purged orphaned submodule gitlinks ensuring clean actions/checkout across GitHub Actions workflows
-- Standardized US English spelling across all documentation in spec/ and de-literalized test lookup tables
-- Gracefully handled missing VS Code user-data root in headless CI runners for gitmap vscode ls
-- Verified 115/115 E2E installer smoke tests with 100% green verification on release pipeline
-- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
-- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
-- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
-- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
-- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
-- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
-
-## [v6.192.0] 2026-09-06 Release v6.192.0
-
-### Install GitMap v6.192.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.192.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.192.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.192.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.192.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fixed CI/CD compatibility: formatted cmd/agy_pin_projects.go to strict gofmt specifications
-- Purged orphaned submodule gitlinks ensuring clean actions/checkout across GitHub Actions workflows
-- Standardized US English spelling across all documentation in spec/ and de-literalized test lookup tables
-- Gracefully handled missing VS Code user-data root in headless CI runners for gitmap vscode ls
-- Verified 115/115 E2E installer smoke tests with 100% green verification on release pipeline
-- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
-- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
-- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
-- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
-- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
-- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
-
-## [v6.191.0] 2026-09-05 Release v6.191.0
-
-### Install GitMap v6.191.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.191.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.191.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.191.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.191.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Synchronized release deployment and version bump prompt in 01-prompts/01-release.md to Prompt Version 2.1.0
-- Aligned SSoT manifests and verified version propagation across version.json, package.json, constants.go, and readme.md
-- Enforced strict zero-tag policy delegating git tags to automated CI release orchestrators
-- Passed 100% test verification across lazyregex, regexnew, pipelinedb, and constants packages
-- Pinned active repository version to v6.191.0 in root readme.md and .ai-memory/user-preferences
-
-## [v6.190.0] 2026-09-05 Release v6.190.0
-
-### Install GitMap v6.190.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.190.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.190.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Refactored lazy regex engine with strict thread-safe compile locking across gitmap/lazyregex and pkg/regexnew
-- Introduced CompileResult envelope wrapping compiled regexp, structured AppError, and fluent AppBuilder diagnostics
-- Added dedicated GroupMap data type with rich query, mutation, cloning, and serialization methods
-- Added dedicated GroupList data type with bounds-safe indexing, key deduplication, and predicate filtering
-- Updated root readme.md pinned version to v6.190.0 and synchronized all SSoT manifests
-
-## [v6.189.0] 2026-09-05 Release v6.189.0
-
-### Install GitMap v6.189.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.189.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.189.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Eliminated redundant secondary regexMap lookups in gitmap/lazyregex and pkg/regexnew, transitioning to single-map pattern deduplication
-- Added isCompiled boolean flag, self-contained compiled *regexp.Regexp state, and mutex synchronization to LazyRegexp and LazyRegex
-- Introduced Count, IsFound, GroupBy (named capture group extraction), and FindAllGroups methods to LazyRegexp and LazyRegex
-- Implemented CompileAppError and CompileBuilder methods returning structured diagnostic AppErrors and AppBuilders on compilation failure
-- Updated root readme.md pinned version to v6.189.0 and synchronized all SSoT manifests
-
-## [v6.188.0] 2026-09-05 Release v6.188.0
-
-### Install GitMap v6.188.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.188.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.188.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.188.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.188.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Refactored lazy regular expression engine in gitmap/lazyregex with thread-safe global maps and compiled regex pattern caching
-- Implemented reusable pkg/regexnew in coding guidelines codebase with New Creator pattern, batch registration, and nil-safe predicates
-- Refactored pipelinedb models and code generator with dedicated enum subpackages, gofmt tab-alignment, and type aliases
-- Documented Rule 5 (Lazy Regex & Global Map Deduplication) in cross-language regex usage guidelines
-- Updated root readme.md pinned version to v6.188.0 and synchronized all SSoT manifests
-
-## [v6.187.0] 2026-09-05 Release v6.187.0
-
-### Install GitMap v6.187.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.187.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.187.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.187.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.187.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Introduced pkg/fileutil with type-safe FileActionType and FileModeType enums, FileWrapper encapsulation, and package-level I/O convenience helpers
-- Enhanced pkg/appfault with first-class errorId field on AppError and dedicated WrapFailure, WrapWriterFailure, and WrapReaderFailure constructors
-- Overhauled 03-ai-scripts/06-cicd-local-runner.py with adaptive parallel worker pool, 3-batch IO throttling, and quiet success tick output
-- Fixed SQLite concurrency race condition in gitmap/store/store.go by prioritizing busy_timeout pragma before journal_mode WAL pragma
-- Introduced reusable run_worker_pool and add_worker_cli_arguments in 03-ai-scripts/02-shared-engine.py for repository-wide parallel script modernization
-- Modernized 03-ai-scripts/16-installer-smoke-tester.py and 28-go-preflight-ci.py to leverage the shared worker pool with quiet tick output and JSON/file exports
-- Bumped version to v6.187.0 across all Single Source of Truth manifests
-
-## [v6.186.0] 2026-09-04 Release v6.186.0
-
-### Install GitMap v6.186.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.186.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.186.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.186.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.186.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Added smart Chrome profile import supporting directory scanning, globbing (*.json), email lookup, and auto-detecting current directory
-- Implemented safe non-destructive Chrome profile import: matches existing profiles by email and automatically creates new profile directories without breaking existing profiles
-- Added step-by-step progress logging across all import phases (inspect, resolve, restore, stage extensions, and Local State registration)
-- Added gitmap chrome profile import-check (inspect) command to preview snapshot metadata and planned import actions before execution
-- Enhanced gitmap chrome profile ls to display account emails alongside discovered snapshot files in the active directory
-- Added --except / --exclude flag to skip profile IDs, slugs, names, emails, or prefix patterns during import
-- Bumped version to v6.186.0 across all Single Source of Truth manifests
-
-## [v6.185.0] 2026-09-04 Release v6.185.0
-
-### Install GitMap v6.185.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.185.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.185.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.185.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.185.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Overhauled .github/scripts/e2e-cli-smoke.py with async worker group execution running parallel tests concurrently via asyncio
-- Added --all (-a) CLI flag to e2e-cli-smoke.py to control verbose pass/fail printing vs concise summary
-- Optimized default smoke test output to only report failed tests or a single clean pass confirmation line
-- Structured stateful CLI commands (schedule and macro chains) into isolated sequential worker tasks executing in parallel with independent tests
-- Bumped version to v6.185.0 across all Single Source of Truth manifests
-
-## [v6.184.0] 2026-09-04 Release v6.184.0
-
-### Install GitMap v6.184.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.184.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.184.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Enhanced GitMap CLI footer when inside a git repository to display repo name, remote Git URL, active branch, latest branch, open PR count, and comprehensive branch status
-- Resolved real-time git branch tracking and upstream sync counters (ahead/behind/up to date)
-- Automated SSoT version bumping pipeline via 03-ai-scripts/29-release-bumper.py
-- Bumped version to v6.184.0 across all Single Source of Truth manifests
-
-## [v6.183.0] 2026-09-04 Release v6.183.0
-
-### Install GitMap v6.183.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.183.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.183.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Overhauled GitMap CLI footer metadata output with dedicated Short and Long variants
-- Implemented short footer displaying Version and Git Commit SHA, integrated across all help invocations (`--help`, `-h`, `gitmap help <topic>`)
-- Implemented long footer displaying complete binary identity block: Name, Git URL (`https://github.com/alimtvnetwork/gitmap-v28`), Version, Commit SHA, Database path, and Installed binary path
-- Added dynamic binary and repository metadata resolution with cascading fallbacks (ldflags -> git config -> origin URL -> `version.json`), guaranteeing zero empty fields
-- Flattened nested conditionals across `04-code/` streamwriter reference implementation, achieving 0 nested `if` violations across 3,089 repository files
-- Bumped version to `v6.183.0` across all Single Source of Truth manifests (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`)
-- Verified 100% green pass across all 16 CI/CD quality gates locally and synchronized release assets
-
-## [v6.182.0] 2026-09-04 Release v6.182.0
-
-### Install GitMap v6.182.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.182.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.182.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Added `--limit <N>` (`--limit=1`, `-n 1`) option to Chrome profile import and export commands to restrict the number of processed profiles
-- Added `--profile <name>` (`-p <name>`) option to import/export single Chrome profiles from multi-profile snapshots and archives (JSON, YAML, SQLite, ZIP)
-- Enhanced `gitmap agy clear` with pinned project protection: pinned Antigravity projects are strictly protected and never deleted during cleanup
-- Verified and audited `gitmap agy ls`, `gitmap agy pin-projects` (add/rm/ls), and `gitmap agy clear`
-- Resolved self-update downgrade bug where `gitmap update` fetched outdated release `v6.176.0` from GitHub Releases API
-- Bumped version to `v6.182.0` across all Single Source of Truth manifests (`version.json`, `package.json`, `gitmap/constants/constants.go`, `readme.md`, `changelog.md`)
-- Flattened nested conditionals in `cmd/chrome_batch.go` and `cmd/chromeprofile_zip_import.go` adhering to zero-nesting standards
-- Verified 100% green pass on all 16 CI/CD quality gates locally and synchronized release assets
-
-## [v6.179.0] 2026-09-04 Release v6.179.0
-
-### Install GitMap v6.179.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.179.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.179.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.179.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.179.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Added self-healing Git diagnostic command engine: `gitmap fix-git` (aliases: `gitmap fg`, `gitmap --fix-git`)
-- Added automatic permission repair and Windows NTFS ACL Full Control assignment on `.git` directories (`icacls` / `chmod -R u+rwX`)
-- Added elevated PowerShell self-healing script `scripts/fix-all-permissions.ps1` for system-wide ACL and ownership recovery
-- Added stale lockfile detection and removal (`.git/index.lock`, `HEAD.lock`, `config.lock`)
-- Added index corruption detection and auto-recovery from `HEAD` via `git reset` with timestamped backup
-- Added detection and guided resolution for unmerged files and unresolved merge conflicts
-- Added conflict-safe pull protection by backing up colliding untracked files to `.git/gitmap-backup/`
-- Added `gitmap workdir default [path]` to inspect or configure the active workspace default directory
-- Added `gitmap workdir path` to print raw absolute default workdir path for shell navigation scripts
-- Resolved `gitmap cd work` and `gitmap cd default` to seamlessly navigate to the default work directory
-- Suppressed internal Go runtime stack traces and line numbers on validation errors for clean user-facing error reporting
-- Added interactive step builder fallback when command steps are omitted in `gitmap macro add <name>`
-- Authored formal issue specification and 5-part RCA in `02-spec/22-app-issues/35-reconcile-prompt-nested-if-ci-failure.md`
-- Flattened nested conditionals in `cmd/reconcile_prompt.go` to maintain 0 nested if violations across the codebase
-- Verified 100% green pass across all 25 quality gates in `03-ai-scripts/06-cicd-local-runner.py`
-
-## [v6.178.0] 2026-09-04 Release v6.178.0
-
-### Install GitMap v6.178.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.178.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.178.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Displayed dirty and modified files list during interactive reconciliation (gitmap reconcile and interactive prompt in gitmap pull)
-- Added comprehensive file status categories (modified:, untracked:, deleted:, staged:) with 10-file display cap and overflow summary
-- Refactored porcelain dirty state inspection in gitutil/dirty_inspect.go to strictly adhere to coding guidelines (<=15 lines per function)
-- Flattened nested conditionals in cmd/reconcile_prompt.go using early return guard clauses to achieve 0 nested if violations
-- Fixed Windows cmd.exe escape character issue in 03-ai-scripts/06-cicd-local-runner.py by quoting -run="^$" regex in Compile Gate
-- Added unit test suites in gitutil/dirty_inspect_test.go and cmd/reconcile_cmd_test.go
-- Validated all 25 CI/CD quality gates with 100% green pass (exit code 0)
-
-## [v6.177.0] 2026-09-04 Release v6.177.0
-
-### Install GitMap v6.177.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.177.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.177.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fixed pull and status table line wrapping and column misalignment in terminal output
-- Implemented smart branch prefix omission for common branch prefixes (feature/, feat/, release/, bugfix/, hotfix/, fix/, dependabot/)
-- Added middle-truncation engine with ellipsis (...) preserving starting characters and ending 5 characters
-- Enforced fixed column caps across repository name, branch, latest branch, PR status, pull status, and SHA
-- Corrected ANSI escape sequence padding calculation for styled Lipgloss elements to ensure exact column alignment
-- Added comprehensive unit tests in cmd/pull_table_test.go covering prefix omission, middle-truncation, and ANSI padding
-
-## [v6.176.0] 2026-09-04 Release v6.176.0
-
-### Install GitMap v6.176.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.176.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.176.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Fixed CI/CD compatibility: formatted cmd/agy_pin_projects.go to strict gofmt specifications
-- Purged orphaned submodule gitlinks ensuring clean actions/checkout across GitHub Actions workflows
-- Standardized US English spelling across all documentation in spec/ and de-literalized test lookup tables
-- Gracefully handled missing VS Code user-data root in headless CI runners for gitmap vscode ls
-- Verified 115/115 E2E installer smoke tests with 100% green verification on release pipeline
-- Added interactive command builder and piped input support for gitmap macro add <name> without stack traces on validation errors
-- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
-- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
-- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
-- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
-- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
-- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
-
-## [v6.175.0] 2026-09-04 Release v6.175.0
-
-### Install GitMap v6.175.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.175.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.175.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.175.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.175.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
-- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
-- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
-- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
-- Added comprehensive documentation in docs/commands/agy/pin-projects.md and docs/commands/macro.md
-- Formatted function signatures, parameter declarations, and invocations across Go codebase to Rule 9a/9b multi-line standards
-- Standardized value-based parameter structs (*Params) and eliminated bare void functions across Go domain and service layers
-- Enforced universal Result[T] envelope in Go and TypeScript with .IsSuccess(), .IsFailed(), .HasError(), .HasNoError(), and .HasValidError()
-- Enforced code hygiene, Unix LF line endings across all files, UTF-8 (no BOM) encoding, and Markdown heading spacing (MD022/MD032)
-- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
-- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
-
-## [v6.174.0] 2026-09-03 Release v6.174.0
-
-### Install GitMap v6.174.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.174.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.174.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.174.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.174.0"`
-
-### Added / Changed / Fixed / Removed
-
-- Formatted function signatures, parameter declarations, and invocations across Go codebase to Rule 9a/9b multi-line standards
-- Standardized value-based parameter structs (*Params) and eliminated bare "void" functions across Go domain and service layers
-- Enforced TypeScript strict typing, total ban on any, as const enums with *Type suffixes, and Discriminated Unions with exhaustive assertNever pattern matching
-- Enforced multi-language enums, string-backed enums, and *Type suffixes across Go, TypeScript, PHP, Rust, and Python
-- Upgraded terminal UI palettes with bright bold 9X ANSI escape sequences, Catppuccin pastel cycling, responsive 2-column help alignment, and super-category intent banners
-- Enforced universal Result[T] envelope in Go and TypeScript with .IsSuccess(), .IsFailed(), .HasError(), .HasNoError(), and .HasValidError()
-- Extended *AppError with helper predicates (.HasError, .HasNoError, .HasValidError, .IsErrorCode)
-- Audited CLI commands, help text descriptions, AST top-level command matches, and help UI parity
-- Replaced absolute paths and non-portable file URIs with strict relative Git repository paths across 6,765 tracked repository files
-- Enforced code hygiene, Unix LF line endings across 342 converted files, UTF-8 (no BOM) encoding, and Markdown heading spacing (MD022/MD032) across 75 files
-- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
-- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
-
-## [v6.173.0] 2026-09-03 Release v6.173.0
-
-### Install GitMap v6.173.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.173.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.173.0"`
-
-### Added & Enhanced
-
-- **Cross-Ecosystem Workspace Groups (`gitmap agy group`, `gitmap vscode group`, `gitmap gd group`, `gitmap chrome group`)**:
-  - Implemented unified group storage engine (`~/.gemini/config/groups/<ecosystem>_groups.json`) enabling named multi-project grouping across Antigravity, VS Code, GitHub Desktop, and Chrome profiles.
-  - Added subcommands for creating, listing, inspecting, deleting, exporting, importing, and broadcasting prompts across entire groups (`gitmap agy group prompt <group> <prompt>`).
-  - Added cross-ecosystem CLI parity across all workspace types.
-
-- **Automated Snapshot & Undo/Redo Engine (`gitmap agy undo`, `gitmap chrome undo`, `gitmap installer undo`)**:
-  - Implemented automatic pre-mutation state snapshots for Antigravity (`~/.gemini/config/backup/agy/`) and Chrome profiles (`~/.gemini/config/backup/chrome/`) before any clear, deletion, import, or restore operation.
-  - Added seamless `undo` and `redo` recovery commands to restore workspaces and profiles to exact pre-operation states.
-  - Added `undo`, `redo`, and `revert` aliases to script installer version management (`gitmap installer undo <slug>`).
-
-- **AI Prompt Template Management System (`gitmap prompt`)**:
-  - Engineered markdown-based AI prompt template storage engine (`~/.gemini/config/prompts/`) with YAML frontmatter parsing (`title`, `slug`, `version`, `description`, `tags`, `variables`).
-  - Pre-seeded built-in prompt templates (`code-review.md` and `ci-cd-fix.md`).
-  - Added subcommands `ls`, `show`, `add`, `rm`, `export` (portable `.zip` bundle), `import`, and `inject` (broadcast directly into AGY workspaces or groups).
-
-- **Antigravity Plugins Catalog & Settings Management (`gitmap agy plugin`, `gitmap agy settings`)**:
-  - Built real-time plugin inspection engine scanning `~/.gemini/config/plugins/` to list installed plugins and install new plugins from catalog.
-  - Built JSON settings export and import engine (`gitmap agy settings export` / `import`) for rapid workspace synchronization.
-
-- **Help UI & Terminal Help Parity**:
-  - Synchronized terminal `--help` markdown files (`prompt.md`, `antigravity.md`, `chrome.md`, `github-desktop.md`, `vscode-group.md`) with comprehensive flags, descriptions, and real-world examples.
-  - Added rich interactive command documentation to React Help UI (`src/data/commands.ts`).
-  - Added 12 new automated test cases to E2E smoke suite (`.github/scripts/e2e-cli-smoke.py`) verifying all new commands pass with zero errors.
-
-## [v6.172.0] 2026-09-03 Release v6.172.0
-
-### Install GitMap v6.172.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.172.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.172.0"`
-
-### Added & Enhanced
-
-- **TypeScript Strict Typing & ESLint Zero Errors**:
-  - Refactored empty interfaces (`CommandDialogProps`, `TextareaProps`) into explicit type aliases compliant with `@typescript-eslint/no-empty-object-type`.
-  - Converted ternary expression statements with side-effects in `Changelog.tsx` to clean, structured `if/else` control flow blocks with vertical line gaps.
-  - Modernized `tailwind.config.ts` by replacing CommonJS `require("tailwindcss-animate")` with ES Module `import tailwindcssAnimate from "tailwindcss-animate"`.
-
-- **Local CI/CD Runner Sequential Batching (`03-ai-scripts/06-cicd-local-runner.py`)**:
-  - Partitioned quality gates into 3 sequential batches (Linters/AST checks, Compiles/Builds, E2E Smoke Suite) to eliminate Windows file-locking race conditions on `bin/gitmap.exe`.
-  - Integrated `shutil.which` cross-platform binary path resolution across Windows and POSIX environments.
-
-- **Vertical Line-Gaps & Hygiene Compliance**:
-  - Applied vertical newline formatting (blank line after `}` and blank line before `return`) across core packages.
-  - Formatted multi-parameter function signatures to Rule 9a standards (one parameter per line with trailing commas).
-
-## [v6.171.0] 2026-09-03 Release v6.171.0
-
-### Added & Enhanced
-
-- **E2E Smoke Test Suite Concurrency & 10x Acceleration (`.github/scripts/e2e-cli-smoke.py`)**:
-  - Re-architected CLI smoke testing suite to execute independent commands in parallel via a worker thread pool (`ThreadPoolExecutor`).
-  - Reduced test suite duration from ~60s down to ~4.8s across all 97 core commands and aliases.
-  - Implemented isolated sequential execution chains for stateful SQLite subcommands (`schedule` and `macro`) to eliminate lock contention.
-  - Added non-interactive execution guards (`GITMAP_NON_INTERACTIVE=1`), `CI=1`, and per-command timeouts (15s).
-  - Updated expected exit codes `[0, 1]` for language repository listing commands in unindexed / fresh workspaces.
-
-- **Non-Interactive Stdin Guarding & Database Lock Prevention**:
-  - Implemented `isInteractiveStdin()` terminal detection across database operations, preventing hanging `fmt.Scanln` prompts in subshells and automated runners.
-  - Added explicit `--help` / `-h` interceptors across `gitmap pipeline logs` and `gitmap pipeline error-logs`.
-  - Added `checkHelp` guard to `gitmap visibility-history` so help inspection renders immediately without acquiring database file locks (`data/gitmap.lock`).
-
-## [v6.170.0] 2026-09-03 Release v6.170.0
-
-### Added & Enhanced
-
-- **Pipeline Errorlogs Dynamic Timeline (`gitmap pipeline errorlogs -t`)**:
-  - Added `-t` / `--timeline` / `--timeout` / `-w` / `--watch` support across `gitmap pipeline errorlogs` and top-level `gitmap errorlogs`.
-  - Continuously tracks active workflow executions with dynamic ETA countdowns and adaptive intervals (15s, 10s, 5s) until terminal completion.
-  - Automatically isolates and renders high-precision failure step error logs upon completion, omitting passing noise.
-
-- **Historical Success Baseline Rerun ETA (`rerunEtaSeconds`)**:
-  - Dynamically calculates the estimated pipeline duration required to rerun the workflow, derived strictly from past successful runs.
-  - Emitted across terminal error cards and structured `--json` payloads.
-
-- **Internal CI/CD Diagnostic & Auto-Repair Engine (`pipeline_cicd_checker.go`)**:
-  - Integrated full local validation suite executing:
-    - `gofmt` code formatting check and automatic batch repair (`gofmt -w .`).
-    - Nested `if` linter (`check-nested-ifs.py`).
-    - Boolean and enum naming convention linters (`check-enum-and-boolean.py`).
-    - Relative paths and drive-letter URI enforcement (`check-relative-paths.py`).
-    - Error management and AppError compliance (`check-error-management.py`).
-    - Legacy repository reference scanner (`check-legacy-refs.py`).
-    - US English spell check (`misspell-changed.py`).
-    - Go test compile and typecheck gate (`go test -run=^$ ./... -count=1`).
-  - Supports `--fix` (`-f`) for automated repair without prompts, `--check` (`-c`) for read-only audits, and interactive confirmation in terminal mode.
-
-- **Specification Module Added (`02-spec/21-app/11-pipeline-errorlogs-timeline-and-fix/`)**:
-  - Authored complete specification module with overview, dynamic timeline contracts, CI/CD diagnostic engine specifications, acceptance criteria, and consistency reports.
-
-## [v6.169.0] 2026-09-03 Release v6.169.0
-
-### Added & Enhanced
-
-- **Isolated Pipeline Split SQLite Databases (`data/pipeline_db/pipeline_<slug>.db`)**:
-  - Engineered dedicated per-repository split SQLite database tier for CI/CD pipeline runs and telemetry.
-  - Implemented `PipelineRun`, `PipelineErrorLog`, and `PipelineSegment` schemas with `SetMaxOpenConns(1)` for zero lock collisions.
-  - Added dual-writing in `pipeline_recorder.go` to capture pipeline execution history, ETA tracking, and parsed step failures.
-  - Added CLI suite: `gitmap pipeline db [status|clear|reset|optimize|error-logs|help]`.
-
-- **Isolated Repository Split SQLite Databases (`data/repo_search/`)**:
-  - Added `RepoScanLog` table for structured repository scan and indexing telemetry.
-  - Added CLI suite: `gitmap repo db [status|log|error-logs|clear|reset|optimize|help]`.
-
-- **Cross-Tier Database Administration (`gitmap db`)**:
-  - Implemented `gitmap db status` presenting unified metrics across Primary Master DB, Split Repo DBs, and Split Pipeline DBs.
-  - Implemented `gitmap db optimize` running automated `VACUUM` and `PRAGMA optimize` across all database tiers.
-  - Implemented `gitmap db clear` with interactive/non-interactive (`-y`) confirmation for cache purging.
-
-- **Coding Guideline & CI/CD Compliance**:
-  - Refactored and flattened all nested `if` statements across `gitmap/cmd/` and `gitmap/vscodepm/` to achieve 100% compliance with `check-nested-ifs.py` and `check-enum-and-boolean.py`.
-  - Regenerated CLI command mappings via `go generate ./...` to prevent generate drift.
-  - Resolved legacy references in `02-spec/01-spec-authoring-guide/13-root-readme-conventions.md`.
-
-## [v6.168.0] 2026-09-03 Release v6.168.0
-
-### Added & Enhanced
-
-- **Historical Success Baseline Pipeline ETA Model**:
-  - Refined pipeline duration baseline heuristics to filter strictly on `conclusion == "success"` (`status == "completed"`), discarding skewed canceled or fast-failing runs.
-  - Computes remaining ETA dynamically as `avgSuccessDuration - elapsed` with an adaptive countdown grace floor.
-
-- **Dynamic Timeline & Timeout (`-t` / `--timeout` / `--timeline`)**:
-  - Added `-t` flag across `gitmap pipeline status`, `gitmap pipeline wait-time`, and `gitmap pipeline-ai`.
-  - Automatically orchestrates dynamic polling timelines and timeout budgets derived from the calculated ETA, eliminating the need for manual retry seconds.
-
-- **Direct CI/CD Error Extraction in Status & ETA**:
-  - When a pipeline run completes with a failure conclusion, GitMap now automatically extracts and displays clean, actionable error lines (`##[error]`, `❌ FAIL:`, `--- FAIL:`, `exit code 1`, stack traces) directly beneath the status card, suppressing passing step noise.
-
-- **Linter & CI/CD Pipeline Hardening**:
-  - Eliminated hardcoded drive-letter URIs in test suites to ensure 100% compliance with `linter-scripts/check-relative-paths.py`.
-  - Resolved `CmdDashboardAlias` collision with `CmdDB` by assigning `dash` as the dashboard alias.
-  - Standardized all CLI confirmation messages to American English `canceled` for strict `misspell` compliance.
-  - Updated `agy stats` format to satisfy E2E smoke test contracts (97/97 passing).
-
-## [v6.167.0] 2026-09-03 Release v6.167.0
-
-### Added & Enhanced
-
-- **Modular Lowercase Documentation Architecture (`docs/commands/`)**:
-  - Reorganized the entire command catalog from monolithic files into 15 domain-specific subdirectories (`agy/`, `db/`, `find-duplicates/`, `vscode/`, `chrome/`, `cloning/`, `git-ops/`, `release/`, `navigation/`, `schedule/`, `cluster/`, `templates/`, `data/`, `automation/`, `utilities/`).
-  - Standardized all documentation markdown paths and file names to lowercase (`readme.md`, `ls.md`, `remove-projects-with-empty-conversations.md`, etc.).
-  - Embedded high-resolution animated vector SVG terminal recordings in `docs/assets/` showcasing realistic terminal interactions, typing, and colored tabular outputs.
-  - Linked the subcommands hub prominently from root `readme.md`.
-
-- **Comprehensive Flag Tables & Real-World Examples**:
-  - Enriched all command reference documentation with detailed flag tables (Flag, Shorthand, Default, Description).
-  - Authored actionable, copy-pasteable runnable command examples covering every single flag (e.g. `--missing`, `--active`, `--sort`, `--filter`, `--json`, `--except`, `--dry-run`, `--yes`, `--safe-pull`, `--fix`, `--delete`, `--create-remote`).
-
-- **`.ai-memory` AI Agent System Architecture Mapping**:
-  - Created `.ai-memory/folder-structure.md` formalizing the relationship between the codebase, canonical specifications (`02-spec/`), user documentation (`docs/commands/`), and `.ai-memory/` AI cognitive workspaces (`plans/`, `memory/`, `coding-guidelines/`, `prompts/`).
-
-## [v6.166.0] 2026-09-03 Release v6.166.0
-
-### Added & Enhanced
-
-- **Antigravity Empty Conversations Auditor & Pruner**:
-  - Added `gitmap agy ls show-projects-with-empty-conversations` (and typos/aliases `show-proects-with-empty-conversations`, `--empty-conversations`) to audit and list all Antigravity projects having zero or aborted/empty conversation databases.
-  - Added `gitmap agy remove-projects-with-empty-conversations` (and aliases `rm-empty-conversations`, `clean-empty-conversations`, `prune-empty-conversations`) to prune orphaned project files from `~/.gemini/config/projects/`.
-  - Added `--except` / `-e` flag supporting comma-delimited strings or `.csv` / `.txt` file paths to preserve whitelisted project IDs, names, paths, or aliases from deletion.
-  - Added `--dry-run` / `-d` for safe previewing and `--yes` / `-y` for non-interactive automated cleanup.
-  - Registered commands in UI documentation (`src/data/commands.ts`) and created markdown help reference (`gitmap/helptext/agy-empty-conversations.md`).
-
-## [v6.165.0] 2026-09-03 Release v6.165.0
-
-### Added & Enhanced
-
-- **Database Architecture Inspector & Management Suite (`gitmap db`)**:
-  - `gitmap help` footer identity block now displays the active Primary Master SQLite database file path (`● Database: <path>`).
-  - Added `gitmap db ls` to display architectural breakdown of the Primary Master DB, per-repository Split DBs (`repo_search/*.db`), and architectural rationale (lock elimination, concurrency, query isolation).
-  - Added `gitmap db repo-db list` to inspect per-repository split databases, table row counts (`RepoFile`, `SearchCache`), file sizes, and tracking status.
-  - Added `gitmap db sizes list` to display consolidated disk usage tables across all database files.
-  - Added `gitmap db reset / clear` to reset repository records and clear split DBs with confirmation prompts.
-  - Added `gitmap start-fresh` with irreversible transaction warning prompt to completely purge database files/journals and recreate fresh schemas and split directories.
-
-- **Cross-Platform Duplicate Detection & Immediate Remediation (`gitmap find-duplicates`)**:
-  - Audits duplicate projects and repositories across **Antigravity (AGY)**, **VS Code**, **Chrome**, and **Git**.
-  - Displays instant copy-pasteable CLI fix commands directly beneath findings for single deletion, `--except` preservation, batch optimization (`optimize-projects` / `--repeat-fix` / `clone --fix`), and remapping.
-  - Supported as unified `gitmap find-duplicates` or platform-specific `gitmap <platform> find-duplicates`.
-
-- **Cross-Platform Standard Python Tooling**:
-  - Converted all shell (`.sh`) scripts repository-wide to pure standard-library Python scripts (`.py`) with cross-platform OS and UTF-8 console support.
-
-- **Documentation & UI Registry**:
-  - Registered `db`, `start-fresh`, and `find-duplicates` in `src/data/commands.ts` for the web UI dashboard.
-  - Added dedicated CLI help documentation: `gitmap/helptext/db.md`, `gitmap/helptext/start-fresh.md`, and `gitmap/helptext/find-duplicates.md`.
-
-## [v6.164.0] 2026-09-02 Release v6.164.0
-
-### Fixed & Enhanced
-
-- **Rune Display-Width Alignment**:
-  - Replaced raw byte length checks with terminal cell display width calculation via `runewidth.StringWidth`.
-  - Multibyte characters like `•` and international runes now align with pixel-perfect column precision across all multi-profile operations.
-
-## [v6.163.0] 2026-09-02 Release v6.163.0
-
-### Added & Enhanced
-
-- **Column Alignment & Padded Progress Output**:
-  - Dynamically calculates maximum profile label width across all discovered profiles to render cleanly column-aligned `→` progress lines.
-- **Default ZIP Archive Export & Archive Manifest**:
-  - Multi-profile batch export defaults to structured `.zip` packaging containing root `manifest.json` metadata (`gitmapVersion`, schema, profile inventory).
-  - SQLite exports record schema metadata in `gitmap_metadata` table.
-- **Smart Import, Extension Merging & Local State Registration**:
-  - Multi-format snapshot imports (`zip`, `json`, `yaml`, `sqlite`) detect tool versions, notify users on version deltas, merge pending extension IDs cleanly without duplicates, and register imported profile display names in Chrome's `Local State`.
-  - Added CLI completion footer note displaying `gitmap vX.Y.Z`.
-
-## [v6.162.0] 2026-09-02 Release v6.162.0
-
-### Added & Enhanced
-
-- **Batch Profile Export Display & Universal Aliases**:
-  - Enhanced multi-profile folder exports (`export-all` / `cpe-all`) to print full profile identity labels (`Default • Person 1 (email) → outdir/Default.json`).
-  - Silenced repetitive database sync lines during batch exports for clean output.
-  - Added universal top-level and subcommand routing for `cpe-all`, `export-all`, `cpi-all`, `import-all`, `cpc-all`, `copy-all`, and `cpe <outdir>`.
-
-## [v6.161.0] 2026-09-02 Release v6.161.0
-
-### Added & Enhanced
-
-- **Chrome Profile Name and Email Export Progress Display**:
-  - Export operations (`json`, `yaml`, `sqlite`, `zip`) now resolve and print the human-readable profile display name and user email address from Chrome's `Local State` and `Preferences`.
-  - Intelligently avoids redundant repetition when the display name is identical to the email.
-  - Added unit tests for profile label formatting with full permutations.
-
-- **CI/CD Reliability & Go Linter Hardening**:
-  - Fixed relative output pathing in `ci.yml` for `go -C gitmap` invocations across Linux and Windows.
-  - Refactored multi-branch conditionals in `chromeprofile.go` to idiomatic Go `switch` statements to pass `gocritic` diff checks.
-
-## [v6.160.0] 2026-09-01 Release v6.160.0
-
-### Added & Enhanced
-
-- **CI/CD Reliability & E2E Testing**:
-  - Added full `docs-site` frontend Vite build verification (`npm run build`) in CI workflows.
-  - Added comprehensive `e2e-cli-smoke.py` suite covering scheduled tasks, macros, retries, and Chrome management.
-  - Fixed release workflow version resolution to dynamically bind to triggered git tags.
-  - Resolved `02-spec/21-app` relative import paths across documentation views.
-
-## [v6.158.1] 2026-09-01 Release v6.158.1
-
-### Install gitmap v6.158.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.158.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.158.1"`
-
-### Fixed
-
-- **Fix `gitmap update` Version Detection & Display Drift**:
-  - Removed duplicate rogue lowercase `"version": "6.153.0"` key from `version.json` that was overriding the root version during JSON deserialization.
-  - Enhanced `fetchRemoteTargetVersion` in `updateremoteinstall.go` to resolve the actual published release version from GitHub Releases API with fallback to `version.json`.
-  - Updated `readTargetVersion` and `decodeVersionFromMap` to check both `"Version"` and `"version"` keys safely without stream override bugs.
-  - Synchronized pinned release documentation in `readme.md`.
-
-## [v6.158.0] 2026-09-01 Release v6.158.0
-
-### Install gitmap v6.158.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.158.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.158.0"`
-
-### Added & Enhanced
-
-- **Macro Line-by-Line Terminal Logs Array in JSON & YAML**:
-  - Captured live command output per step into `"logs": []string` array in both JSON and YAML outputs.
-  - Added structured `"errorLogs": []string` and `"error": string` capture on failed steps.
-  - Supported all file flag aliases: `--file`, `--filepath`, `--out`, `--output`, `-o`, `-f`.
-  - Expanded LLM documentation with detailed step logs schema and usage guidelines.
-
-## [v6.157.0] 2026-09-01 Release v6.157.0
-
-### Install gitmap v6.157.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.157.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.157.0"`
-
-### Added & Enhanced
-
-- **Macro Structured Reporting & File Export Engine**:
-  - Added `--json` and `--yaml` flags for `gitmap macro run`, `gitmap macro show`, and `gitmap macro list`.
-  - Added `--file <path>` / `--out <path>` / `-o <path>` to export structured reports directly to files while printing formatted reports and absolute file path confirmations in the terminal.
-  - Automatically captures step timings, command lines, exit codes, errors, and working directories into structured payloads.
-- **Comprehensive LLM Documentation**:
-  - Expanded `llm.md`, `gitmap/llm.md`, `gitmap/helptext/llm.md`, and `gitmap/helptext/macro.md` with complete workflows for macros, AI CI/CD telemetry, error log extraction, search tools, and file inspection.
-
-## [v6.156.4] 2026-08-31 Release v6.156.4
-
-### Install gitmap v6.156.4
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.4"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.4"`
-
-### Fixed & Cleaned
-
-- **Clean Unused Legacy Function**:
-  - Removed deprecated `parseCdTarget` from `gitmap/macro/record.go` which was replaced by modular directory parsing in `gitmap/macro/record_dir.go`.
-
-## [v6.156.3] 2026-08-31 Release v6.156.3
-
-### Install gitmap v6.156.3
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.3"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.3"`
-
-### Fixed & Enhanced
-
-- **Macro Dynamic Working Directory Tracking & Navigation**:
-  - Replay execution now dynamically tracks and maintains runtime working directory across all steps (`cd <dir>`, `cd ..`, `cd -`, and `gitmap cd <repo>`).
-  - Automatically resolves `gitmap cd <repo>` to repository paths from database or filesystem and switches execution context for all subsequent macro steps.
-  - Fixes child subshell execution failure where directory changes were lost between steps.
-
-## [v6.156.2] 2026-08-31 Release v6.156.2
-
-### Install gitmap v6.156.2
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.2"`
-
-### Added & Enhanced
-
-- **Top-Level Working Directory & Navigation Display**:
-  - Displays the active working directory on the top level above each prompt (`┌─ 📁 <path>`) with box-drawing styling and vivid cyan accents.
-  - Live feedback banner on directory changes (`➜ 📁 Directory: <path>`) with support for `cd -` previous directory swapping.
-- **Enhanced Terminal Coloring & Badges**:
-  - Live execution duration badge (`✔ Recorded step N (0.1s)`).
-  - Multi-colored session commands in header and help menu (`stop`, `cancel`, `undo`, `redo`, `list`, `help`).
-
-## [v6.156.1] 2026-08-31 Release v6.156.1
-
-### Install gitmap v6.156.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.1"`
-
-### Added & Enhanced
-
-- **Interactive Macro Recorder Path & Environment Variable Expansion**:
-  - Automatically expands Windows environment variables (`%TEMP%`, `%USERPROFILE%`, `%APPDATA%`, etc.), Unix variables (`$VAR`, `${VAR}`), and tilde (`~`, `~/...`) before execution and saving.
-  - Automatically resolves and tracks working directory changes (`cd <path>` and `chdir <path>`).
-- **Interactive Macro Recorder In-Session Commands**:
-  - Added `undo` and `undo-steps <N> [-y]` to undo the last execution or last N executions with prompt confirmation.
-  - Added `redo` and `redo-steps <N>` to restore previously undone steps.
-  - Added in-session `help` and `list` / `steps` commands, with helpful next-action tips displayed upon undo/redo operations.
-- **Help Documentation**:
-  - Added comprehensive documentation and examples in `gitmap/helptext/macro.md`.
-
-## [v6.156.0] 2026-08-31 Release v6.156.0
-
-### Install gitmap v6.156.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.0"`
-
-### Added & Enhanced
-
-- **Minor Version Feature Release**:
-  - Full stability and architectural hardening across the CLI, scheduler, error management, and pipeline telemetry engine.
-  - Complete conformance with boolean naming conventions, AST conditional nesting limits, and runnable golden help examples.
-
-## [v6.155.11] 2026-08-31 Release v6.155.11
-
-### Install gitmap v6.155.11
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.11"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.11"`
-
-### Fixed & Enhanced
-
-- **Flattened Nested Conditionals Across Core Packages**:
-  - Refactored `captureStackTrace` in `gitmap/apperror/apperror.go` to delegate stack frame appending to `appendStackFrame`, eliminating nested if blocks (depth >= 2).
-  - Flattened `parsePipelineAIDelay` in `gitmap/cmd/pipeline_ai.go` by extracting `extractDelaySeconds` helper and using guard checks.
-  - Flattened `sumCompletedRunDurations` in `gitmap/cmd/pipeline_status.go` with early continue guard clauses.
-- **Help Text Golden Assertion Compliance**:
-  - Standardized the Examples section heading across `gitmap/helptext/llm.md`, `llm.md`, `gitmap/llm.md`, and `gitmap/cmd/llm/llm.go` to `## Examples (Step-by-Step AI Workflows)` to satisfy `TestEveryHelpFileHasExamples`.
-
-## [v6.155.10] 2026-08-31 Release v6.155.10
-
-### Install gitmap v6.155.10
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.10"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.10"`
-
-### Added & Enhanced
-
-- **Autonomous Pipeline-AI Command Suite (`gitmap pipeline-ai`)**:
-  - Implemented `gitmap pipeline-ai status` (and aliases `pl-ai`, `plai`) with automatic 20s default delay and custom delay `-t <seconds>` (minimum 20s).
-  - Displays delay notifications in terminal and stderr in JSON mode.
-  - Automatically recommends the next AI execution command (`gitmap pipeline-ai status -t <etaSeconds>`) embedded directly in both the human-readable UI and structured JSON payload (`nextAiCommand`).
-  - Added dedicated documentation and help text in `gitmap/helptext/pipeline-ai.md` and updated LLM specs (`llm.md`, `gitmap/llm.md`, `gitmap/cmd/llm/llm.go`).
-  - Added full end-to-end smoke test coverage (`82/82` tests passing).
-
-## [v6.155.9] 2026-08-31 Release v6.155.9
-
-### Install gitmap v6.155.9
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.9"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.9"`
-
-### Fixed & Enhanced
-
-- **Historical Duration-Based Pipeline ETA Calculation**:
-  - Enhanced `calculateETA` in `gitmap/cmd/pipeline_status.go` to compute dynamic ETA by averaging actual elapsed run durations from recent completed workflow runs (`updatedAt - createdAt`).
-  - Added 20-second lower bound for pipeline waiting periods so AI and automation engines avoid high-frequency status queries (< 20s).
-  - Extended GitHub Actions run query in `pipeline_query.go` to retrieve up to 15 runs including `updatedAt` timestamps.
-
-## [v6.155.8] 2026-08-31 Release v6.155.8
-
-### Install gitmap v6.155.8
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.8"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.8"`
-
-### Fixed & Enhanced
-
-- **Compiled Stack Trace Engine in AppError**:
-  - Enhanced `apperror.AppError` with call frame hierarchy extraction using `runtime.Callers` and `runtime.CallersFrames`.
-  - All errors created via `apperror.New`, `Wrap`, `NewSimple`, `WrapSimple` now automatically capture stack traces.
-  - Formats clean terminal stack traces to `os.Stderr` and persists `stack` in `.gitmap/last_error.log`.
-  - Added full nil pointer safety in `(e *AppError) Unwrap()` and `(e *AppError) Error()`.
-
-- **Comprehensive End-to-End CLI Smoke Test Suite**:
-  - Implemented `.github/scripts/e2e-cli-smoke.py` covering 77+ distinct commands, aliases, subcommands, zero-argument help dialogs, and ad-hoc queries across the entire CLI surface.
-  - Integrated E2E CLI testing into `smoke-installer.py` for automated validation on both Linux and Windows CI runners and release pipelines.
-  - Fixed aliases and routing for `--help`, `-h`, `sc`, `replace history`, and Antigravity workspace commands (`agy`, `ag`, `antigravity`).
-
-## [v6.155.7] 2026-08-31 Release v6.155.7
-
-### Install gitmap v6.155.7
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.7"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.7"`
-
-### Fixed & Enhanced
-
-- **LLM Help & Terminal Display Spacing Overhaul**:
-  - Added clean vertical gaps and newline spacing across all sections of `gitmap llm` and `llm.md`.
-  - Added comprehensive step-by-step AI Agent Standard Operating Procedure (SOP) diagram.
-  - Added copy-pasteable real-world examples for CI/CD self-healing loop, file discovery with extension filtering, batch regex replacement, Antigravity workspaces, and background cron scheduler.
-  - Added master alternative commands & aliases cheat sheet.
-  - Fixed version formatting in CLI trailer (`v6.155.7`).
-
-## [v6.155.6] 2026-08-31 Release v6.155.6
-
-### Install gitmap v6.155.6
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.6"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.6"`
-
-### Fixed & Enhanced
-
-- **Interactive Search & File Discovery Help**:
-  - Running search commands with no arguments (`find`, `find-files`, `find-files-any`, `find-files-startswith`, `find-files-endswith`, `search`, `find-regex`, `find-read`, `find-regex-read`, `repo-search`) now automatically outputs comprehensive usage guides, descriptions, aliases, and examples instead of executing unconstrained blank searches.
-
-## [v6.155.5] 2026-08-31 Release v6.155.5
-
-### Install gitmap v6.155.5
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.5"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.5"`
-
-### Fixed & Enhanced
-
-- **Terminal Help UI Overhaul**:
-  - Distinct colored headers for flag sections and category banners.
-  - Consistent blank newline gaps before and after every super-category, group header, and flag section header.
-  - Refactored Integrations section (`vscode`, `antigravity`, `schedule`, `pipeline`, `ui`) from multi-line broken brackets into clean, 2-column aligned rows with aliases.
-  - Enhanced all command aliases and alt text visibility (`pl`, `eta`, `waittime`, `ff`, `ffa`, `ffs`, `ffe`, `f`, `lf`, `agy`, `ag`, `vsc`, `sc`, `cpf`, `cpb`, `cpr`, `pcp`).
-  - Added dedicated `Search & File Discovery` help group.
-- **Comprehensive LLM Specification & AI Agent Guidelines**:
-  - Added 5-phase AI Agent Standard Operating Procedure (SOP) execution order diagram.
-  - Added rich step-by-step real-world workflows with commands and JSON outputs (CI/CD self-healing loop, file discovery, batch refactoring with rollback, workspace management).
-  - Added complete Alternative Commands & Aliases cheat sheet.
-
-## [v6.155.4] 2026-08-31 Release v6.155.4
-
-### Install gitmap v6.155.4
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.4"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.4"`
-
-### Fixed & Enhanced
-
-- Enhanced `install.ps1` and `install.sh` terminal output to detect and display previous installed version (e.g. `upgrading v6.155.3 -> v6.155.4` or `clean install`).
-- Fixed duplicate binary prefix in post-install verification (cleaned up `gitmap gitmap v6.155.3` to `Installed: gitmap v6.155.4 (upgraded from v6.155.3)`).
-
-## [v6.155.3] 2026-08-31 Release v6.155.3
-
-### Install gitmap v6.155.3
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.3"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.3"`
-
-### Added
-
-- Added CI/CD pipeline telemetry and file search command suite to `llm.md` and embedded `gitmap llm` instructions for autonomous AI agents.
-- Added `buildPipelineGroup` and `buildSearchFindGroup` to `gitmap llm-docs` generator.
-
-### Fixed
-
-- Fixed `gofmt` compliance in `gitmap/cmd/llmdocsgroups.go`.
-
-## [v6.155.2] 2026-08-31 Release v6.155.2
-
-### Install gitmap v6.155.2
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.2"`
-
-### Added
-
-- Added `gitmap pipeline eta` subcommand alias and `gitmap eta` top-level shortcut for CI/CD remaining wait time.
-
-## [v6.155.1] 2026-08-31 Release v6.155.1
-
-### Install gitmap v6.155.1
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.1"`
-
-### Fixed
-
-- Fixed `gofmt` compliance in `gitmap/cmd/folder/folder.go` and `gitmap/cmd/sequence_cmd.go`.
-- Added `go-format-check.py` to local CI/CD runner `06-cicd-local-runner.py` to prevent formatting drift.
-
-## [v6.155.0] 2026-08-31 Release v6.155.0
-
-### Install gitmap v6.155.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.0"`
-
-### Added
-
-- Added `gitmap find-files` exact filename search with optional `-ext` extension filtering.
-- Added `gitmap find-files-any` substring/contains filename search with optional `-ext` extension filtering.
-- Added `gitmap find-files-startswith` prefix filename search with optional `-ext` extension filtering.
-- Added `gitmap find-files-endswith` suffix filename search with optional `-ext` extension filtering.
-- Added wildcard glob matching (`*ends`, `starts*`, `*contains*`) and `-ext` filtering to `gitmap find` and `gitmap list-files`.
-- Added embedded markdown terminal help pages for `find-files`, `find-files-any`, `find-files-startswith`, `find-files-endswith`, `list-files`, and updated `find`.
-- Added Web UI command documentation registry for Search & File Discovery (`searchfind`) in `src/data/commands.ts`.
-- Added unbuffered `flush=True` output streaming to CI/CD local runner `06-cicd-local-runner.py`.
-
-## [v6.154.0] 2026-08-31 Release v6.154.0
-
-### Install gitmap v6.154.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.154.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.154.0"`
-
-### Added
-
-- Added `gitmap pipeline` command suite (`status`, `status --json`, `waittime`, `logs`, `error-logs`, `error-logs --json`, `--file`, `--tempfile`, `help`) with GitHub CLI (`gh`) integration and SQLite persistence.
-- Added top-level shortcuts for `error-logs`, `logs`, `waittime`, `export-all`, `import-all`, and `export-only`.
-- Added high-contrast dark mode text styling and interactive Web Terminal drawer to `gitmap ui`.
-- Added runtime caller stack trace tracking to `AppError` and structured `.gitmap/last_error.log` for autonomous AI diagnostics.
-- Added build-time command invocation test gate to CI/CD local runner suite.
-- Converted CI formatting scripts to cross-platform Python scripts (`go-format-check.py`, `fix-repo-gofmt-audit.py`).
-
-## [v6.137.0] 2026-08-28 - commit-push and rm-git
-
-### Install gitmap v6.137.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.137.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.137.0"`
-
-### Added
-
-- Added commit-push suite commands and rm-git for agile CLI workflow
-
-## [v6.131.0] 2026-08-27 - search and llm feature spec
-
-### Install gitmap v6.131.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.131.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.131.0"`
-
-### Added
-
-- Added comprehensive AI Instruction Generic Spec for upcoming gitmap search, gitmap llm, and Split DB architecture LLM search tooling feature set.
-
-## [v6.130.0] 2026-08-27 - github-desktop linux install fix
-
-### Install gitmap v6.130.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.130.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.130.0"`
-
-### Fixed
-
-- Fixed gitmap install github-desktop on Linux (APT) failing with exit status 100 by migrating from the deprecated pt.packages.shiftkey.dev APT repository to the new official mirror.mwt.me mirror.
-
-## [v6.129.0] 2026-08-27 - ag and vscode install commands
-
-### Install gitmap v6.129.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.129.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.129.0"`
-
-### Added
-
-- gitmap ag and gitmap antigravity top-level commands to seamlessly open projects with Antigravity.
-- gitmap ag install and gitmap vscode install subcommands to automatically install the respective tools and Windows right-click context menus.
-- "Open project with Antigravity" option integrated into the gitmap install ctx right-click registry generation.
-
-### Fixed
-
-- Fixed missing command registrations for folder, git-rm, ignore, and add commands in the command dispatcher routing table.
-
-## [v6.128.0] 2026-08-27 - ignore and add commands
-
-### Install gitmap v6.128.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.128.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.128.0"`
-
-### Added
-
-- gitmap ignore dynamically updates .gitignore without duplicates.
-- gitmap ignore-rm automatically cleans git history and updates .gitignore in one action.
-- gitmap add common-attr instantly bootstraps standardized .gitattributes.
-- gitmap add common-ignore instantly bootstraps standardized .gitignore template.
-
-## [v6.127.0] 2026-08-27 - git-rm and folder export features
-
-### Install gitmap v6.127.0
-
-To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.127.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.127.0"`
-
-### Added
-
-- Implemented gitmap folder for exporting directory trees to .txt, .md, .json, and .yaml with pattern exclusion support.
-- Implemented gitmap git-rm for aggressively scrubbing files from git history with automated backups to the global .gitmap folder.
-
-## [v6.26.0] - 2026-08-27
-
-## [v6.126.0] - 2026-08-27
-
-### Added
-
-- PR Engine integration for commit-transfer and commit-in.
-- Left padding and improved formatting for commit CLI output.
-- Keep URL toggle in commit replay settings.
-- Template overrides for generic commit messages.
-
-## [v6.28.0] - 2026-08-27
-
-### Fixed
-
-- Fixed golangci-lint drift by downgrading to go 1.24.
-- Synced generated commands.
-- Fixed changelog sync check.
-- Fixed install_profile_tree test aliases.
-
-## [v6.27.0] - 2026-08-27
-
-### Added
-
-- Added implemented agy (antigravity) commands.
-- Added implemented vscode commands.
-- Fixed spacing in help menu.
-
 # Changelog
+
+## [v6.409.0] - 2026-09-29
+
+### Added
+- add clear terminal and suggestion reseed
+
+---
 
 ## [v6.408.0] - 2026-09-29
 
@@ -10073,3 +6852,3231 @@ const (
 ## v2.2.1
 
 - Patched PowerShell parsing edge cases affecting update flow.
+
+## [v6.392.0] 2026-09-29 Release v6.392.0
+
+### Install GitMap v6.392.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.392.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.392.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.392.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.392.0"`
+
+### Added / Changed / Fixed / Removed
+
+- `gitmap ls preview` / `--preview` / `-p` / `--gap`: Numbered repository list with repo name and path on the next line, separated by a single blank line gap between entries.
+- `gitmap ls tree` / `--tree` / `-t`: Groups repositories by parent directory in an emoji tree format (`📁 <parent-folder>`).
+- `gitmap folder-tree` (`ft`, `foldertree`): New command to scan and visualize folder and repository structures on any path on disk without prior database scanning. Includes sequence numbers, Git detection (`[git: <branch>]`), tree/preview rendering, and multi-format export/import (`json`, `yaml`, `tree`, `preview`) with directory and placeholder file scaffolding.
+
+## [v6.380.0] 2026-09-28 Release v6.380.0
+
+### Install GitMap v6.380.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.380.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.380.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.380.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.380.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Special Default Repositories (`repo-secrets` / `rs` & `repo-cache` / `rc`): Added dedicated SQLite split-db persistence (`gitmap-special-repos.db`), first-scan one-time discovery prompt, `gitmap cd rs` / `gitmap cd rc` navigation shortcuts, and sequenced file/folder/text commands with auto-commit and push.
+- Settings & Web UI: Added `special_repos.secrets_name` and `special_repos.cache_name` configurable settings via CLI (`gitmap settings set`) and interactive Web UI with rich documentation cards.
+- Coding Guidelines & Prompts: Authored `01-prompts/special-repos-secrets-and-cache.md` and enforced R19 Special Repositories rule across `coding-guidelines`.
+
+## [v6.355.2] 2026-09-27 Release v6.355.2
+
+### Install GitMap v6.355.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Unit Test Regression Fix (`TestResolveFetchConcurrency`): Updated the expected concurrency ceiling in `pipeline_errorlogs_test.go` from 4 to 8 to align with the expanded 8-worker pool introduced in `pipeline_logs.go`, eliminating CI/CD cross-platform build test failures.
+
+## [v6.355.1] 2026-09-27 Release v6.355.1
+
+### Install GitMap v6.355.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.1"`
+
+### Added / Changed / Fixed / Removed
+
+- Unit Test Regression Fix (`TestResolveClosestActiveProject_CwdMatch`): Corrected test assertions in `agy_rerun_test.go` so target `"1"` tests sequence #1 resolution, while target `"."` tests CWD match, maintaining strict non-hijacking rerun sequence behavior.
+- PE Concurrency & Latency Optimization: Parallelized GitHub API calls in `gitmap pe` by fetching PR counts and release tags concurrently in `enrichErrorLogsMetadata`, parallelizing run logs and jobs fetching in `fetchAndBuildFailedRunItem`, and parallelizing failed workflow diagnostics in `BuildCommitGroupFailureTree`.
+- Local PA Concurrency Restoration: Removed artificial `--parallel 2` throttling from `executeLocalVMPull` in `ssh_pull_fleet.go`, restoring full hardware core utilization (`runtime.NumCPU()`) for local machine pulls while isolating throttling strictly to remote SSH sessions.
+
+## [v6.355.0] 2026-09-27 Release v6.355.0
+
+### Install GitMap v6.355.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.355.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.355.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.355.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Rerun Target Resolution & Recency: Removed "1" from `isCwdTarget` and added `isProjectActiveOrRunning` check so `gitmap rerun 1` and `gitmap rerun` unambiguously target the top active/running project with recent activity, preventing idle CWD from hijacking target selection.
+- Rerun Help Routing & Guard: Hardened help token interception across `root.go`, `agy_rerun.go`, and `agy_rerun_project_resolve.go` (`IsRerunHelpRequested`, `isHelpKeyword`), guaranteeing `gitmap rerun help` renders the help guide and never matches `strhelper`.
+- SSH Cluster Pre-Flight TCP Probing: Implemented 400ms TCP probe `probeNodeOnline` before dialing SSH in `FetchClusterSSHProjects` and `fetchClusterSSHAgyLogs`, eliminating 15-30s dial timeouts for offline nodes.
+- AGY Decision Audit Log Schema & Filters: Persisted sequence number, running status, and prompt length in `RecordAgyDecision` across rerun, ls, and inject commands.
+
+## [v6.354.0] 2026-09-27 Release v6.354.0
+
+### Install GitMap v6.354.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.354.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.354.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.354.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.354.0"`
+
+### Added / Changed / Fixed / Removed
+
+- AGY Decision Log Split-DB: Added dedicated SQLite audit database `gitmap-agy-log.db` capturing all Antigravity operations, target project provenance, conversation UUIDs, decision reasoning, and execution status.
+- CLI Commands `gitmap agy log` and `gitmap agy logs`: Implemented rich audit log viewer supporting `--json`, `--limit/-n`, `--project/-P`, `--command/-c`, and `--ssh` to query remote cluster nodes (`w1`).
+- Multi-Source Unified Project Discovery: Removed arbitrary 8-project default limit in `gitmap agy ls` (`n := 0`), expanding discovery across `.gemini/config/projects`, `conversation_summaries.db`, candidate workspace scan roots, and remote SSH cluster aggregation.
+- Active Rerun Project Recency: Enhanced `compareProjectEntries` in `agy_rerun_project_resolve.go` to strictly rank active prompts (`hasActivePrompt`), running IDE sessions (`isRunning`), and latest activity timestamps (`lastActTime`) above CWD matches, preventing stale project targeting.
+- Rerun Help Routing Guard: Fixed `gitmap rerun help`, `gitmap rerun -h`, `gitmap rerun /?`, and `gitmap rr help` to render the rich interactive rerun guide, preventing substring matches against projects named `strhelper`.
+
+## [v6.344.1] 2026-09-26 Release v6.344.1
+
+### Install GitMap v6.344.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.344.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.344.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.344.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.344.1"`
+
+### Added / Changed / Fixed / Removed
+
+- SSH Fleet Dual-Table Persistence: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables simultaneously, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover all imported nodes.
+- Bidirectional SSH Host Synchronization: Added `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts` on every list/query operation.
+- Compact Single-Line Export (`eo`): `gitmap ssh export-oneliner` now emits an ultra-compact payload (~600 bytes vs 5500 bytes) by omitting redundant encrypted passwords, avoiding terminal wrapping and paste buffer truncation.
+- Auto-Rendering on Import: `gitmap ssh nodes import-json` immediately prints the formatted registered nodes table upon successful import, providing instant visual confirmation.
+- Robust Payload Detection: Auto-detects inline base64 and inline JSON in `import-json` even when `--base64` flag is omitted or contains terminal whitespace/newlines.
+- Flexible SJ Routing: Extended `gitmap sj` to seamlessly route `nodes import-json`, `import-json`, `eo`, and `export-oneliner`.
+
+## [v6.344.0] 2026-09-26 Release v6.344.0
+
+### Install GitMap v6.344.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.344.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.344.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.344.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.344.0"`
+
+### Added / Changed / Fixed / Removed
+
+- SSH Fleet Dual-Table Persistence: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables simultaneously, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover all imported nodes.
+- Bidirectional SSH Host Synchronization: Added `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts` on every list/query operation.
+- Compact Single-Line Export (`eo`): `gitmap ssh export-oneliner` now emits an ultra-compact payload (~600 bytes vs 5500 bytes) by omitting redundant encrypted passwords, avoiding terminal wrapping and paste buffer truncation.
+- Auto-Rendering on Import: `gitmap ssh nodes import-json` immediately prints the formatted registered nodes table upon successful import, providing instant visual confirmation.
+- Robust Payload Detection: Auto-detects inline base64 and inline JSON in `import-json` even when `--base64` flag is omitted or contains terminal whitespace/newlines.
+- Flexible SJ Routing: Extended `gitmap sj` to seamlessly route `nodes import-json`, `import-json`, `eo`, and `export-oneliner`.
+
+## [v6.343.0] 2026-09-25 Release v6.343.0
+
+### Install GitMap v6.343.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.343.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.343.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.343.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.343.0"`
+
+### Added / Changed / Fixed / Removed
+
+- SSH Fleet Dual-Table Persistence: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables simultaneously, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover all imported nodes.
+- Bidirectional SSH Host Synchronization: Added `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts` on every list/query operation.
+- Compact Single-Line Export (`eo`): `gitmap ssh export-oneliner` now emits an ultra-compact payload (~600 bytes vs 5500 bytes) by omitting redundant encrypted passwords, avoiding terminal wrapping and paste buffer truncation.
+- Auto-Rendering on Import: `gitmap ssh nodes import-json` immediately prints the formatted registered nodes table upon successful import, providing instant visual confirmation.
+- Robust Payload Detection: Auto-detects inline base64 and inline JSON in `import-json` even when `--base64` flag is omitted or contains terminal whitespace/newlines.
+- Flexible SJ Routing: Extended `gitmap sj` to seamlessly route `nodes import-json`, `import-json`, `eo`, and `export-oneliner`.
+
+## [v6.342.0] 2026-09-25 Release v6.342.0
+
+### Install GitMap v6.342.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.342.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.342.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.342.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.342.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Git Pull Efficient (PAE): Evaluates repository activity strictly on actual git log / commit trace changes within 24h window (skipping quiescent repositories), saving complete commit traces into SQLite gitmap-pull.db (PullRepoRun.Notes).
+- Sub-Millisecond Commit Trace Search: Added SearchPullTraces with indexes on LastCommitSha, RepoPath, HasChanges, and CreatedAt for instant querying across all historical repository commit logs without invoking git subprocesses.
+- Antigravity IDE Injection Hardening: Enhanced gitmap pe agy fix with automatic fallback to default gitmap repo root and conversation resolution via resolveConversationForDispatch when outside git repos.
+- CI/CD & Exhaustive Switch Fixes: Resolved exhaustive linter checks on PullStepType in cmdpull and ScriptTemplateType in cmdai, keeping 100% CI compliance.
+
+## [v6.341.0] 2026-09-25 Release v6.341.0
+
+### Install GitMap v6.341.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.341.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.341.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.341.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.341.0"`
+
+### Added / Changed / Fixed / Removed
+
+- prioritize CWD and active session in rerun, normalize tag refs in pipeline logs
+
+## [v6.340.0] 2026-09-24 Release v6.340.0
+
+### Install GitMap v6.340.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.340.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.340.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.340.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.340.0"`
+
+### Added / Changed / Fixed / Removed
+
+- antigravity rerun non-destructive replay and dedicated conversation commands
+
+## [v6.339.0] 2026-09-24 Release v6.339.0
+
+### Install GitMap v6.339.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.339.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.339.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.339.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.339.0"`
+
+### Added / Changed / Fixed / Removed
+
+- antigravity rerun non-destructive and conversation commands
+
+## [v6.338.0] 2026-09-24 Release v6.338.0
+
+### Install GitMap v6.338.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.338.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.338.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.338.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.338.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **Spec 156: GitMap Lowercase Pre-Flight Hygiene, Conflict Resolution & Auto-Push**
+  - Added pre-flight working tree inspection (`git status --porcelain`) prior to rename execution.
+  - Added immediate detection and abortion on unresolved Git merge conflicts (`UU`, `AA`, etc.).
+  - Added full relative path disclosure in pre-flight confirmation without truncation or hidden items.
+  - Added interactive prompt to discard uncommitted working tree changes with `--discard-pending` and `-f, --force` bypass flags.
+  - Added automatic remote git push (`git push origin <branch>`) after atomic commit with `--no-push` bypass flag.
+  - Enhanced report summary to indicate commit SHA and remote push status.
+- **Spec 155: SSH Install-Exec Streaming Upload Protocol & OS Resolution**
+  - Replaced Base64 command-line string inlining with pure SSH stdin POSIX Tar streaming (`StreamFileToRemote`).
+  - Added AppData global database fallback in `store/location.go` when invoked outside git directories.
+  - Added dynamic remote OS probing and SQLite schema migration for `ssh_hosts` table OS column.
+
+## [v6.337.0] 2026-09-24 Release v6.337.0
+
+### Install GitMap v6.337.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.337.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.337.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.337.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.337.0"`
+
+### Added / Changed / Fixed / Removed
+
+- prune unused symbols, resolve heavy_test module root, and pass all CI gates
+
+## [v6.336.0] 2026-09-24 Release v6.336.0
+
+### Install GitMap v6.336.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.336.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.336.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.336.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.336.0"`
+
+### Added / Changed / Fixed / Removed
+
+- fix staticcheck, stdlib constants, spelling, and release v6.336.0
+
+## [v6.335.0] 2026-09-24 Release v6.335.0
+
+### Install GitMap v6.335.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.335.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.335.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.335.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.335.0"`
+
+### Added / Changed / Fixed / Removed
+
+- prune unused functions and finalize v6.335.0 release
+
+## [v6.334.0] 2026-09-24 Release v6.334.0
+
+### Install GitMap v6.334.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.334.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.334.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.334.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.334.0"`
+
+### Added / Changed / Fixed / Removed
+
+- fix CI/CD quality gates, relative paths, boolean conventions, nested ifs, and gofmt
+
+## [v6.333.0] 2026-09-24 Release v6.333.0
+
+### Install GitMap v6.333.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.333.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.333.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.333.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.333.0"`
+
+### Added / Changed / Fixed / Removed
+
+- add which-os, cross-platform bash/shell runner, and node os profiling
+
+## [v6.332.0] 2026-09-24 Release v6.332.0
+
+### Install GitMap v6.332.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.332.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.332.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.332.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.332.0"`
+
+### Added / Changed / Fixed / Removed
+
+- fix(spec-154): pae inactivity calculation, freshness cooldown, and global column width stability
+
+## [v6.331.0] 2026-09-24 Release v6.331.0
+
+### Install GitMap v6.331.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.331.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.331.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.331.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.331.0"`
+
+### Added / Changed / Fixed / Removed
+
+- enhance pae column display with syntax highlighted statuses and clean word-wrapped inactive repos
+
+## [v6.330.0] 2026-09-24 Release v6.330.0
+
+### Install GitMap v6.330.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.330.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.330.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.330.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.330.0"`
+
+### Added / Changed / Fixed / Removed
+
+- fix output column width for gitmap pae
+
+## [v6.329.0] 2026-09-24 Release v6.329.0
+
+### Install GitMap v6.329.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.329.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.329.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.329.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.329.0"`
+
+### Added / Changed / Fixed / Removed
+
+- ssh exec except-os filter and install-exec deployment
+
+## [v6.328.0] 2026-09-24 Release v6.328.0
+
+### Install GitMap v6.328.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.328.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.328.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.328.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.328.0"`
+
+### Added / Changed / Fixed / Removed
+
+- add preflight confirmation and -y prompt bypass to lowercase renamer
+
+## [v6.327.0] 2026-09-24 Release v6.327.0
+
+### Install GitMap v6.327.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.327.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.327.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.327.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.327.0"`
+
+### Added / Changed / Fixed / Removed
+
+- remote exe copy semver verification and pinned releases
+
+## [v6.326.0] 2026-09-24 Release v6.326.0
+
+### Install GitMap v6.326.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.326.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.326.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.326.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.326.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Routine release v6.326.0
+
+## [v6.325.0] 2026-09-24 Release v6.325.0
+
+### Install GitMap v6.325.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.325.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.325.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.325.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.325.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Routine release v6.325.0
+
+## [v6.324.0] 2026-09-24 Release v6.324.0
+
+### Install GitMap v6.324.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.324.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.324.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.324.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.324.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **Macro, PEAT & PEA Fleet SSH Deployment (`gitmap macro|peat|pea deploy ssh`)**: Enhanced parallel fleet deployment across joined SSH nodes with `--except`, `--excep`, and `--exclude` host ID, IP, and alias filtering and aligned summary tables.
+- **Fleet Multi-App Update (`gitmap update --all` / `gitmap update all` / `gitmap ua`)**: Added parallel multi-node app updates returning structured JSON telemetry from each SSH machine and displaying a rich terminal summary table.
+- **Targeted App Update (`gitmap update <name> --excep/--except`) & Fleet Inventory (`gitmap update ls`)**: Added targeted package updates with `--excep`/`--except` node filtering and `gitmap update ls` to query installed software inventory as JSON across SSH nodes and display as a table.
+- **Remote SSH Repository Clone (`gitmap ssh clone` / `ssh-clone` / `ssh-c`)**: Added current repository `origin` URL auto-detection (when repo arg omitted or `git`/`.`) and default remote workdir (`~/git/<repo>`) resolution with `--except`/`--excep` filtering.
+- **Isolated Temporary End-to-End Validation (`//go:build tempe2e`)**: Added `cli/tests/e2e/ssh_fleet_deploy_update_clone_tempe2e_test.go` guarded by `//go:build tempe2e` and `RUN_TEMP_E2E=1` skip-by-default runtime protection.
+
+## [v6.323.0] 2026-09-24 Release v6.323.0
+
+### Install GitMap v6.323.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.323.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.323.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.323.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.323.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **SSH Batch Common Join (`sjc` / `ssh-join-common`)**: Added shorthand IP/octet notation with embedded host aliases (`gitmap ssh-join-common administrator 192.168.1.3(w1),7(w2),12(w3) --pass <secret>`), automatic remote OS detection (`os_detect`) upon initial join, and persistence to `SSHConnection.OSVersion` in SQLite (`gitmap.db`).
+- **OS Telemetry & Node Inspection (`gitmap os info --json`)**: Exposed structured JSON and terminal hardware/OS telemetry via `RunOSInfoCLI` in `cli/cmdos/os.go`.
+- **AGY IDE Rerun & Restart Replay (`gitmap agy rerun [1|2|3|4|project]`)**: Hardened IDE termination (`taskkill /F /IM antigravity.exe` / `pkill -9 antigravity`), target project workspace launch, and multimodal prompt replay (including pictures and media attachments).
+- **AGY Project Re-Read & Optimization (`gitmap agy rop [N]`)**: Implemented active project discovery (last 24h, default 5), `--keep 10` cache retention, split SQLite DB conversation archiving (`data/AGY/<slug>.db`), and automated project-named conversation re-read initialization.
+- **Native AUM Search vs Python Fast Grep Benchmarking**: Documented side-by-side search benchmarks (`docs/benchmarks/search_benchmark.md` and `cli/tests/e2e/search_benchmark_e2e_test.go`), demonstrating a 33,000x latency improvement (<1ms vs 33.2s).
+- **Chrome Profile Full-Fidelity Export/Import E2E Suite**: Added hermetic local E2E verification (`//go:build e2e`) for OAuth refresh token, session cookie, and login persistence roundtrip.
+- **VS Code Startup Failure 4-Part RCA & Dynamic Path Normalization (Issue 41)**: Authored `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md` detailing Chromium ICU binary locks and `projects.json` schema recovery, and normalized all PowerShell/Go scripts to use dynamic environment variables (`$env:APPDATA`).
+
+## [v6.322.0] 2026-09-24 Release v6.322.0
+
+### Install GitMap v6.322.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.322.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.322.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **Pull Batch Abort Graceful Remediation (`cmdpull`)**: Prevented `[E9000:EXECUTION]` AppError stack trace dumps when users select `[q] Quit` or `[s] Skip` during dirty repository interactive remediation; cleanly finalizes batch tasks in SQLite store without terminal panic dumps.
+- **Untracked Directory Search Resilience (`cmd/search.go`)**: Eliminated `search.getRepoDB` crash when running `gitmap search <filename>` from untracked root directories (e.g. `D:\work`), falling back seamlessly to global repository store or local workspace file search.
+- **CFR Short-Name GitHub CLI Resolution (`cmdclone`)**: When `gitmap cfr <name>` or `gitmap clone <name>` receives a bare slug (e.g. `pwp-mobile`), automatically resolves remote repository URLs via `gh repo list` and cached SQLite `repodb` records, automatically registering clones in GitHub Desktop and VS Code Project Manager (`projects.json`).
+- **Native LightShot & Asset Downloader (`gitmap asset download-prnt <url> [dest]`)**: Added screenshot extractor and archiver supporting direct LightShot URLs, extracting CDN PNG/JPG assets, and synchronizing with the active Antigravity brain workspace.
+- **Git Access Token Fleet Deployment (`gitmap token`)**: Added `gitmap token [add|remove|list|deploy]` with multi-node SSH fleet distribution, securing personal access tokens across remote nodes.
+- **High-Contrast Terminal & Installer Styling**: Replaced low-contrast dark blue `#6272a4` and `#a6adc8` ANSI downsampling with bright cyan `#8be9fd` and bright white `#f8f8f2` across interactive prompts and PowerShell installers.
+- **Coding Guidelines & E2E Prompt Synchronization**: Updated prompt 21 with N-step budget, 2-half lifecycle, dynamic path requirements, and 2-agent orchestration mandates across prompts.
+
+## [v6.321.0] 2026-09-24 Release v6.321.0
+
+### Install GitMap v6.321.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.321.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.321.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.321.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.321.0"`
+
+### Added / Changed / Fixed / Removed
+
+- macro deploy ssh, fleet update, remote clone, rest triad, and web ui
+
+## [v6.320.0] 2026-09-24 Release v6.320.0
+
+### Install GitMap v6.320.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.320.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.320.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.320.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.320.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **AGY Rerun IDE Restart (`gitmap agy rerun [1|2|3|4|project]`)**: Re-runs the active prompt payload by terminating running Antigravity IDE instances, relaunching the IDE in the target project's workspace, and immediately re-dispatching the prompt to that conversation.
+- **Transcript Media Preservation**: Extracted and embedded media attachments (`rawTranscriptMedia`) including user uploaded images and files directly into replayed prompts for seamless vision/multimodal resumption.
+- **Native VS Code Repair & Fix Integration**: Integrated `gitmap vscode repair` and `gitmap vscode fix` with dynamic path resolution, fixing locked Chromium ICU binary and corrupted project manager configurations without hardcoded drive letters.
+- **Parallel SSH Fleet Automation**: Distributed AGM and AGY command execution across remote SSH cluster nodes with summary rendering and node exclusion flags.
+- **Isolated E2E Test Suite**: Added end-to-end verification tests under `cli/tests/e2e/` guarded by `//go:build e2e`.
+
+## [v6.319.0] 2026-09-24 Release v6.319.0
+
+### Install GitMap v6.319.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.319.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.319.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.319.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.319.0"`
+
+### Added / Changed / Fixed / Removed
+
+- native vscode repair command, dynamic paths, and install list color contrast
+
+## [v6.318.0] 2026-09-23 Release v6.318.0
+
+### Install GitMap v6.318.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.318.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.318.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.318.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.318.0"`
+
+### Added / Changed / Fixed / Removed
+
+- relative path check fix in rca 78 and green ci validation
+
+## [v6.317.0] 2026-09-23 Release v6.317.0
+
+### Install GitMap v6.317.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.317.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.317.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.317.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.317.0"`
+
+### Added / Changed / Fixed / Removed
+
+- chrome profile auth export/import, us-english canceled, and sshjoin boolean fixes
+
+## [v6.316.0] 2026-09-23 Release v6.316.0
+
+### Install GitMap v6.316.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.316.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.316.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.316.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.316.0"`
+
+### Added / Changed / Fixed / Removed
+
+- batch common join, subnet scanner, os info, agy rop, and aum benchmarks
+
+## [v6.315.0] 2026-09-23 Release v6.315.0
+
+### Install GitMap v6.315.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.315.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.315.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.315.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.315.0"`
+
+### Added / Changed / Fixed / Removed
+
+- pipeline error custom format profiles and multi-line capture
+
+## [v6.314.0] 2026-09-23 Release v6.314.0
+
+### Install GitMap v6.314.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.314.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.314.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.314.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.314.0"`
+
+### Added / Changed / Fixed / Removed
+
+- fix(ssh): delegate ip command to gitmap with auto-install across os and fix sh not recognized
+
+## [v6.313.0] 2026-09-23 Release v6.313.0
+
+### Install GitMap v6.313.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.313.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.313.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.313.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.313.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(cluster): expose osutil aliases, enhance cluster e2e tests, and document agy rca
+
+## [v6.312.0] 2026-09-23 Release v6.312.0
+
+### Install GitMap v6.312.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.312.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.312.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.312.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.312.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(cluster): live VM cluster E2E SSH join, multi-node exec, and remote update
+
+## [v6.311.0] 2026-09-22 Release v6.311.0
+
+### Install GitMap v6.311.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.311.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.311.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.311.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.311.0"`
+
+### Added / Changed / Fixed / Removed
+
+- dynamic Antigravity language server discovery and agy CLI fallback
+
+## [v6.310.0] 2026-09-22 Release v6.310.0
+
+### Install GitMap v6.310.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.310.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.310.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.310.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.310.0"`
+
+### Added / Changed / Fixed / Removed
+
+- lowercase renamer full parity, doc CMD, web UI, prefix wildcard engine, and report summary
+
+## [v6.309.0] 2026-09-22 Release v6.309.0
+
+### Install GitMap v6.309.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.309.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.309.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.309.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.309.0"`
+
+### Added / Changed / Fixed / Removed
+
+- unify lowercase renamer with two-step safe git mv and live logging
+
+## [v6.308.0] 2026-09-22 Release v6.308.0
+
+### Install GitMap v6.308.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.308.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.308.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.308.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.308.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix AGY prompt injection stacktrace, add conv-rename, unique SEQ persistence, and table polish
+
+## [v6.307.0] 2026-09-22 Release v6.307.0
+
+### Install GitMap v6.307.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.307.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.307.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.307.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.307.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Anchor pipeline database to CLI data directory with relative display path
+
+## [v6.306.0] 2026-09-22 Release v6.306.0
+
+### Install GitMap v6.306.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.306.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.306.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.306.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.306.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Implement SSH-first access probe and interactive terminal token authentication with global reuse
+
+## [v6.305.0] 2026-09-22 Release v6.305.0
+
+### Install GitMap v6.305.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.305.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.305.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.305.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.305.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Implement robust lowercase file renamer and root README command
+
+## [v6.304.0] 2026-09-22 Release v6.304.0
+
+### Install GitMap v6.304.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.304.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.304.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.304.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.304.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add visibility, JSON, and YAML status to create-repo
+
+## [v6.303.0] 2026-09-22 Release v6.303.0
+
+### Install GitMap v6.303.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.303.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.303.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.303.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.303.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Pipeline compile and vet fixes
+
+## [v6.302.0] 2026-09-22 Release v6.302.0
+
+### Install GitMap v6.302.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.302.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.302.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.302.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.302.0"`
+
+### Added / Changed / Fixed / Removed
+
+- AGY Workspace & Pin Management: Added `gitmap agy pins` (`ls`, `add`, `rm`, `edit`, `help`), `gitmap agy rm-rejoin-read` (`rrr`), `gitmap agy rm-rejoin-pin-read` (`rrpr`), supporting sequential IDs, project slugs, and shell completion.
+- Raw Error Propagation: Audited codebase error management across CLI commands to guarantee zero swallowed errors; wrapped underlying SQL and filesystem errors with structured `apperror.WrapSimple` / `apperror.Wrap` preserving root causes.
+- Antigravity Compilation & Import Hygiene: Added missing `database/sql` import in `cli/cmdagy/agy_history_cmd.go`, fixed `loadAllAgyProjects` signature mismatch in `agy_pin_projects.go` and `agy_pins_edit.go`, and cleaned unused imports in `agy_projects.go`.
+- Quad Runner Verification: Verified all 13 modified Go packages pass green via parallel quad runner in local CI/CD.
+
+## [v6.301.0] 2026-09-22 Release v6.301.0
+
+### Install GitMap v6.301.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.301.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.301.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.301.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.301.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Interface Naming Compliance: Renamed all internal `cmdos` orchestrator interfaces (`AutoLoginEngine` -> `AutoLoginOperator`, `SystemCleanEngine` -> `SystemCleanOperator`, `DNSEngine` -> `DNSOperator`, `ThemeEngine` -> `ThemeOperator`, `TweakEngine` -> `TweakOperator`) to strictly adhere to Go naming guidelines (`*er` / `*or` suffix) enforced by `check-interface-naming.py`.
+- Enum Naming Compliance: Renamed `ThemeMode` to `ThemeModeType` in `cli/cmdos/os_theme_types.go` and cross-platform handlers to satisfy the mandatory `*Type` suffix rule enforced by `check-enum-guidelines.py`.
+- Quality Gate Self-Healing & Verification: All 43 CI/CD quality gates in `03-ai-scripts/06-cicd-local-runner.py` executed and passed 100% green (including E2E smoke tests, history pin/purge, and race detector).
+- 4-Part RCA 74: Recorded root-cause analysis in `.ai-memory/cicd-issues/74-interface-naming-and-enum-suffix-compliance-rca.md` and registered in `.ai-memory/cicd-index.md`.
+
+## [v6.300.0] 2026-09-22 Release v6.300.0
+
+### Install GitMap v6.300.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.300.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.300.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.300.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.300.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Native Linux Display Manager (`gitmap os dm`): Display manager detection and configuration parity with LinUtil's `dm.settings`, inspecting active DM (GDM3, LightDM, SDDM), toggling Wayland mode (`gitmap os dm wayland on|off`), and restarting display-manager services without shell scripts.
+- Windows Privacy & Start Menu Tweaks: Added `gitmap os tweak telemetry off|on` (disables DiagTrack service, sets telemetry opt-out), `activity off|on` (disables Windows Activity Feed collection & cloud upload), and `search clean|default` (removes Bing and web suggestions from Start Menu).
+- Native DNS Switcher & Benchmark (`gitmap os dns`): Added ultra-fast DNS switcher supporting Cloudflare (1.1.1.1), Google (8.8.8.8), Quad9 (9.9.9.9), and AdGuard (94.140.14.14), automated DHCP restoration (`gitmap os dns dhcp`), and integrated UDP DNS benchmark (`gitmap os dns bench`).
+- Universal System Updater (`gitmap os update / upgrade`): Cross-platform multi-package manager aggregator supporting winget, apt, dnf, pacman, and brew with dry-run support (`--dry-run`).
+- Desktop Theme Switcher (`gitmap os theme dark|light`): Native registry theme toggle on Windows (AppsUseLightTheme, SystemUsesLightTheme) and gsettings on Linux/GNOME.
+- Code Hygiene & Modularity: Strictly preserved $\le 100$ lines per file, flattened all nested ifs to depth 1, and achieved 100% compliance across all CI/CD policy linters and cross-platform vet.
+
+## [v6.299.1] 2026-09-22 Release v6.299.1
+
+### Install GitMap v6.299.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.299.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.299.1"`
+
+### Added / Changed / Fixed / Removed
+
+- CI/CD & Gofmt Formatting: Formatted `cli/cmd/rootcore.go` and `cli/cmdschedule/helpers.go` using canonical `gofmt -w` to eliminate extra blank lines and ensure 100% compliance with `go-format-check.py`.
+- Linter Unit Tests: Verified all 18/18 test cases pass green in `.github/scripts/tests/test_ci_scripts.py`.
+- 4-Part RCA 73: Recorded `.ai-memory/cicd-issues/73-gofmt-whitespace-drift-in-rootcore-and-helpers-rca.md` and registered in `.ai-memory/cicd-index.md`.
+- Cross-Platform Quality Gates: All 4 policy linters (nested ifs, boolean guidelines, relative paths, enum & boolean) and cross-platform `go vet` (Linux, Darwin, Windows) pass with 0 errors.
+
+## [v6.299.0] 2026-09-22 Release v6.299.0
+
+### Install GitMap v6.299.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.299.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.299.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Native OS Auto-Login Subsystem: Added `gitmap os autologin` with interactive 3-parameter credentials (username, domain, masked password) and flags (`-u`, `-d`, `-p`), natively writing Windows Winlogon registry keys and configuring Ubuntu display managers (GDM3, LightDM) with zero PowerShell or external executable dependencies.
+- Windows Desktop Tweaks: Added `gitmap os tweak context-menu classic|modern` (CLSID InprocServer32 restore for Windows 10 right-click menu) and `start-menu classic|default` layout override.
+- Ultimate Performance & Hibernation: Added `gitmap os tweak power ultimate|balanced` to duplicate and activate Windows Ultimate Performance scheme and `gitmap os tweak hibernate off|on` to delete `C:\hiberfil.sys` and reclaim RAM-sized disk space.
+- Linux System Maintenance: Added `gitmap os clean sys` for multi-distro package manager cache purging (APT, DNF, Pacman) and systemd journal vacuuming (`journalctl --vacuum-time=3d`).
+- Two-Column Styled Help Screens: Authored comprehensive help documentation and terminal menus for `gitmap help os-autologin` and `gitmap help os-tweak`.
+- CI/CD Self-Healing: Restored local runner helpers in `03-ai-scripts/06-cicd-local-runner.py`, fixed 18/18 Python CI test cases, removed unused symbols, and verified cross-platform compilation across Linux, Darwin, and Windows.
+
+## [v6.298.0] 2026-09-22 Release v6.298.0
+
+### Install GitMap v6.298.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.298.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.298.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.298.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.298.0"`
+
+### Added / Changed / Fixed / Removed
+
+- MultiClone Subsystem: Added `gitmap multiclone` (aliases `mc`, `mutliclone`) to batch clone repositories from markdown codeblocks, raw lists, or stdin with shorthand expansion, description stripping, and deduplication.
+- AI Split DB Command Tracking: Integrated global `--ai` execution history logging into `~/.gitmap/ai/instructions.db` with duration and exit code metrics.
+- Frequent AI Commands & Clipboard Export: Implemented `gitmap ai ls` and `gitmap ai history` to inspect top frequent commands with `--copy` to OS clipboard.
+- Native Automation Search Benchmark: Verified Go native search is 46.1x faster (1.5ms vs 70.5ms) than cached Python grep with 0 disk bloat.
+- Rich Terminal Help Menus: Implemented two-column styled help screens for `gitmap sync` and `gitmap github` (`gd`) with formatted error diagnostics.
+- Anti-Gravity Settings Protection: Protected all Antigravity IDE configuration files and settings across Windows and Unix OS clean operations.
+- WinUtil & LinUtil Integration Architecture: Authored comprehensive plan for native Go OS auto-login, Windows tweaks, and Linux system cleanup.
+
+## [v6.297.0] 2026-09-22 Release v6.297.0
+
+### Install GitMap v6.297.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.297.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.297.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.297.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.297.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed SSH Host Key verification: implemented auto-pruning of stale known_hosts entries (handling hashed entries via ssh-keygen -R and line deletion) to prevent REMOTE HOST IDENTIFICATION HAS CHANGED
+- Added auto-recovery & retry in SpawnSSH: seamlessly auto-prunes stale host keys and re-trusts remote machines upon detecting host key changes
+- Preserved bare gitmap ssh public key display and clipboard copying: strictly enforced TOTAL BAN in .ai-memory/strictly-avoid.md
+- Guaranteed bounded stack traces on all errors: updated global error handler so no error is ever emitted without an informative stack trace
+- Added repository creation commands suite: gitmap repo-create (repoc), gitmap create-repo (crepo), gitmap create-local-repo (clr) with automatic space slugification
+- Enhanced commit transfer & PR workflows: automated destination repository directory provision and GitHub creation in commit-in, commit-left, commit-right, and PR counterparts (cin-pr, cml-pr, cmr-pr)
+- Resolved CI/CD pipeline issues: eliminated constants collision (CmdCompareAlias to "comp"), AST registry discrepancies, unused functions, and staticcheck context warnings across all 35 gates
+
+## [v6.296.0] 2026-09-22 Release v6.296.0
+
+### Install GitMap v6.296.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.296.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.296.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.296.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.296.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed SSH join routing: routed 'add' subcommand to RunSSHJoinCLI to support 'gitmap ssh add <user@ip> <alias>'
+- Restored unmasked public key display: formatDisplayPublicKey unconditionally outputs full key, and printExistingKeyOnDisk copies to OS clipboard
+- Added Memory Rule: enforced TOTAL BAN in .ai-memory/strictly-avoid.md against public key masking and clipboard omission
+- Fixed Known Hosts verification: auto-purged stale host keys in known_hosts during join and login to prevent 'REMOTE HOST IDENTIFICATION HAS CHANGED'
+- Fixed SSH Password & PAM Auth: supported keyboard-interactive authentication alongside password and enforced auth check before reporting join success
+- Preserved Error Stack Traces: populated Stack and Caller in executeClientCmd and enabled stack trace output on E_INTERNAL_ERROR
+- Fixed SSH node list and removal: used openSSHDBFunc in fetchSJHosts and auto-confirmed removal in non-interactive terminals
+- Documented 4-part Root Cause Analysis in .ai-memory/issues/16-ssh-join-hostkey-and-auth-rca.md
+
+## [v6.295.0] 2026-09-22 Release v6.295.0
+
+### Install GitMap v6.295.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.295.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.295.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.295.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.295.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed CI/CD compilation and lint: resolved unused strings imports and eliminated duplicate SJRmCmd declaration in cmdssh
+- Fixed Error Management Policy Check: eliminated swallowed SQLite execution error in openSSHHistoryDB with proper apperror.WrapSimple
+- Fixed test suites: added resolveRmTarget and validateRmTarget in cli/cmdssh/ssh_rm_target.go for sshjoin_rm_cmd_test.go
+- Fixed gitmap pe stack trace leak: removed Go runtime stack trace capture from formatGHFailedError and buildGHFailedErrorMessage
+- Fixed golangci-lint strict: removed unused checkHelp in cli/cmdssh/ssh_help_check.go and unused apperror import in cli/cmdpipeline/pipeline_query.go
+- Documented 4-part Root Cause Analysis in .ai-memory/cicd-issues/72-ssh-build-failures-and-pe-stacktrace-rca.md
+
+## [v6.269.0] 2026-09-20 Release v6.269.0
+
+### Install GitMap v6.269.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.269.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.269.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.269.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.269.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove raw direct git command lines (`git -C <repo> ...`) from remediation plan display in `gitmap fix`
+- Replace direct git plan string with human-readable strategy description in `executeFixRecipe`
+- Clean step command display in `executeSingleStep` to omit `-C <repoPath>` and show concise actions (`git stash -u`, `git pull`, `git stash pop`)
+- Clean remediation CLI help text and examples shown after `gitmap pull-all`
+- Add unit tests for `formatStepCommand` in `cli/cmd/fix_execute_test.go`
+- Update `cli/helptext/fix.md` examples to match clean plan output
+
+## [v6.268.0] 2026-09-20 Release v6.268.0
+
+### Install GitMap v6.268.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.268.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.268.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.268.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.268.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add gitmap ssh nodes command to list registered SSH nodes directly instead of failing with alias not found
+- Add gitmap ssh ls command to list registered SSH nodes
+- Improve SSH nodes and ls terminal view with rich ANSI colors (Cyan headers, Yellow roles for control-plane/master, Green bullet status, White aliases and host:port)
+- Add top and bottom newline padding and precise column alignment (100-char table layout) for terminal readability
+- Enhance alias-not-found suggestion view with the same rich colored registered hosts table and recall guidance
+- Add gitmap ssh-join nodes and gitmap sj nodes aliases for nodes listing
+
+## [v6.267.0] 2026-09-20 Release v6.267.0
+
+### Install GitMap v6.267.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.267.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.267.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.267.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.267.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Improve gitmap pipeline errors visual hierarchy with top and bottom newline padding and 2-space indentation on the Reading pipeline logs... progress message
+- Add leading newline gap before Recent Commits Pipeline Summary cyan table header for cleaner visual spacing
+- Display actionable pipeline database cleanup guidance (• Cleanup: gitmap pipeline clear -y) directly below database metadata in both clean and failure reports
+- Update printEmptyCachedFailures to include pipeline cleanup command guidance
+- Add unit test TestPrintRecentCommitsHeaderPadding to verify consistent header padding
+
+## [v6.266.0] 2026-09-20 Release v6.266.0
+
+### Install GitMap v6.266.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.266.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.266.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.266.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.266.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Update Antigravity Manager (agm, ag-manager, antigravity-manager) installer and updater to canonical one-liners: PowerShell script execution for Windows and curl | bash execution for UNIX
+- Add gitmap agm update subcommand with aliases (up, u) and support --dry-run
+- Route gitmap update agm (and aliases ag-manager, antigravity-manager) in root utility dispatcher directly to Antigravity Manager updater
+- Replace legacy lbjlaq/Antigravity-Manager repository URLs with canonical alimtvnetwork/Antigravity-Manager
+- Remove legacy binary installer helpers and unused executable copier functions from cli/cmdinstall
+- Fix 03-ai-scripts/09-cli-help-auditor.py concurrency argument passing
+
+## [v6.265.0] 2026-09-19 Release v6.265.0
+
+### Install GitMap v6.265.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.265.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.265.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.265.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.265.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix SQL double precision keywords (DOUBLE and FLOAT) in cli/cmdautomation/db_generate.go to prevent misspell false positive
+- Replace deprecated strings.Title with custom formatDomainTitle rune helper in cli/cmdautomation/plan_consolidate.go
+- Rename cachedErr to errCached in cli/cmdai/ai_python_detector.go to satisfy Go errname linter convention
+- Remove unused option getter functions in cli/cmdautomation (version_sync_cmd.go, release_bump_cmd.go, milestones_cmd.go) and unused aiCmd in cli/cmdai/ai_cmd.go
+- Resolve inverted success check (!isSuccess) in cli/cmdautomation/phase2_test.go by renaming to isGenerated
+- Sanitize repository path references in RCA documents to maintain 100% relative path compliance
+
+## [v6.264.0] 2026-09-19 Release v6.264.0
+
+### Install GitMap v6.264.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.264.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.264.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.264.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.264.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Restore missing worker pool, chunking, and git tracking functions in 03-ai-scripts/02-shared-engine.py to fix Python linters
+- Restore CICD_DIR, normalize_repo_rel, and JobResult 6-parameter constructor in 03-ai-scripts/06-cicd-local-runner.py
+- Flatten all depth-2 nested if statements across cli/cmdautomation (changed_files_cmd.go, db_generate.go, db_migrate.go, help_audit.go, run_cmd.go, worker_pool.go, worker_test.go) to comply with maximum depth-1 branching guidelines
+- Resolve 52 British English spelling violations across repository documentation and source files via 03-ai-scripts/27-misspell-auditor.py
+- Fix result.Result[T] monad method invocations in cli/cmdai/ai_create_test.go (res.IsFailure(), res.AppError(), res.Data)
+- Remove hardcoded absolute path to gitmap in 03-ai-scripts/38-sync-prompts-skills-scripts.py to comply with check-relative-paths policy
+- Fix redundant newline inside fmt.Println in cli/cmdssh/ssh_auth_key_deploy.go and handle database error in cli/cmdautomation/topology.go
+- Replace negative booleans with affirmative isSuccess checks across cmdautomation commands and tests
+- Run gofmt across all Go source files to ensure 100% gofmt compliance
+
+## [v6.263.0] 2026-09-19 Release v6.263.0
+
+### Install GitMap v6.263.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.263.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.263.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.263.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.263.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix function identifier collisions in cli/cmdautomation: rename collectSearchFiles to collectSpecMigrateFiles in spec_migrate.go and resolveThreshold to resolveSlowThreshold in test_inventory.go
+- Implement ListRuntimes, RefreshRuntimes, and reprobeRuntime in cli/cmdautomation/runtime_probe.go and update runtimes_cmd.go to use RuntimeRecord
+- Fix RunRelPathsAudit reference to RunRelPathAudit in cli/cmdautomation/preflight.go
+- Fix run_cmd.go type mismatch on RunWorkerPool(opts), map opts.Script = args[1], add IsJson to WorkerRunOptions, and render worker results
+- Rename cli/cmdautomation/smoke_test.go to cli/cmdautomation/smoke_runner.go to prevent Go compiler build exclusion
+- Align BuildFileContext, EncodeToStream, and DecodeFromStream in stream_encoding.go and worker_pool.go with result.Result[T] wrappers and Spec 124
+- Fix resolveSpecDir in cli/cmdautomation/spec_migrate.go to inspect 02-spec/21-app and 02-spec in base directory
+
+## [v6.262.0] 2026-09-19 Release v6.262.0
+
+### Install GitMap v6.262.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.262.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.262.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix pipeline history import, typecheck fields, and store OpenInMemory test instance (RCA 60)
+- Flatten nested-if statements and guard clauses across pipeline, install, auto-alias, ssh, and storage commands
+- Enforce error handling on database vacuum and truncate commands, eliminating swallowed errors
+- Standardize top-level ## Examples sections across all Markdown help documentation (pipeline.md, agy.md)
+- Enhance pipeline error logs fallback logic and workflow success tracking across branches
+
+## [v6.261.0] 2026-09-18 Release v6.261.0
+
+### Install GitMap v6.261.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.261.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.261.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.261.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.261.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(pipeline): bounded pattern-aware stack trace extraction and job-scoped isolation
+- fix(pipeline): halt context capture on exit code lines to eliminate runner cleanup noise
+- fix(pipeline): eliminate duplicated section reports and filter tool installation progress tickers
+- feat(ssh): multi-command discovery, machine join parity, and terminal help verification
+- fix(ci): resolve nested ifs, ssh help exit panic, absolute path linters, and error management regex
+
+## [v6.260.0] 2026-09-18 Release v6.260.0
+
+### Install GitMap v6.260.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.260.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.260.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.260.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.260.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(storage): clean storage ls table UI with root folder header and relative database paths
+- feat(table): utilize reusable termtable auto-alignment and spacing framework
+- fix(ci): complete verification across all 46 CI/CD local quality gates and 5 remote workflows
+- refactor(storage): decompose database listing to storage_ls.go to maintain <100 line canonical file sizes
+
+## [v6.259.1] 2026-09-18 Release v6.259.1
+
+### Install GitMap v6.259.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.259.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.259.1"`
+
+### Added / Changed / Fixed / Removed
+
+- wire agy pipeline-fix helptext rendering and expand command aliases
+
+## [v6.259.0] 2026-09-18 Release v6.259.0
+
+### Install GitMap v6.259.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.259.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.259.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(pipeline): parallel section and job log downloads for faster single-commit pipeline error inspection
+- feat(pipeline): two-pass non-mutating line execution and filtering algorithms for error log processing
+- feat(pipeline): resilient historical fallback retrieval for pipeline DB and commit logs
+- fix(pipeline): prevent historical fallback from overwriting clean success pipeline payloads
+- fix(ci): resolve gocritic switch statement violations and ResultSlice method wrappers
+
+## [v6.258.0] 2026-09-17 Release v6.258.0
+
+### Install GitMap v6.258.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.258.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.258.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.258.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.258.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(safety): implement IsProtectedProcess in cli/lockcheck/ to protect Antigravity IDE, VS Code, Node, Electron, WebView2, and parent shells from taskkill and process termination
+- feat(safety): guard TerminateProcesses in cli/cmdagy/ to prevent terminating running Antigravity IDE instances during cache cleanup
+- feat(ci): add memory-aware CPU freeness worker scaling and cap linter concurrency to prevent Windows commit limit exhaustion (errno 1455)
+- feat(test): isolate 37 heavy E2E subprocess tests in cli/tests/heavy_test from routine fast unit test runs
+- feat(pipeline,agy): add gitmap pipeline fix errors agy, pipeline-fix, and aef commands with 4-part RCA embedding and duplicate error detection (--force)
+- feat(pipeline,agy): dual prompt architecture generating primary fix prompt and staging verification check in prompt queue
+- feat(cmd): root CLI shortcuts for fix agy, fix-agy, gitmap aef, and compound phrase token normalization
+- feat(cluster,ssh): SSH config sanitizer automatically pruning unsupported client options (authorizedkeysfile)
+- feat(clone): add --force / -f destination re-cloning and directory overwrite flag
+- feat(cluster,sc): complete command and help parity across cluster and servers-clients (sc) subcommands with interactive examples
+- guidelines: author coding guideline 24, master prompt 24, and cg-isolate-os-tests skill safeguarding OS state during test execution
+- fix(cli): handle ReplaceModeTypeUnknown in cmd/replace.go exhaustive switch and skip non-supported OS calls on Darwin in osuser_test.go
+
+## [v6.257.0] 2026-09-17 Release v6.257.0
+
+### Install GitMap v6.257.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.257.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.257.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.257.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.257.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(schedule): flexible shutdown and restart duration parsing (1:45hr, 1:45h, 2h, 120m, 1day, 1d, now) with native OS elevation
+- feat(schedule): power schedule state persistence, countdown inspection (schedule shutdown status), and cancellation abort (schedule shutdown cancel)
+- feat(cluster): remote GitMap installation (cluster install gitmap, sj install gitmap) with official curl and PowerShell one-liners
+- feat(cluster): automatic preflight GitMap detection and on-the-fly bootstrapping during remote cluster and servers-clients command execution
+- feat(os): gitmap os ai-clean and scripts/os-ai-clean.py scanning Antigravity brain caches, system task logs, and temp AI dumps with preflight table confirmation
+- docs(help): comprehensive cluster triad architecture documentation unifying ssh-join, cluster, and servers-clients with rich copy-pasteable examples
+- docs(help): leaf help topics registered for cluster-install, schedule-shutdown, schedule-restart, and os-ai-clean
+- ui(table): fixed-width ASCII column formatting and divider alignment for sj ls and cluster nodes
+- guidelines: prompt 24 (isolate destructive OS and heavy unit tests) authored, indexed, and synchronized across gitmap and coding-guidelines
+- test(qa): 100% green verification on 38 linters, compile gates, 118 E2E smoke tests, and zero nested ifs across 3059 files
+
+## [v6.256.0] 2026-09-16 Release v6.256.0
+
+### Install GitMap v6.256.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.256.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.256.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.256.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.256.0"`
+
+### Added / Changed / Fixed / Removed
+
+- automated release orchestrator and branch lifecycle enforcement
+
+## [v6.255.0] 2026-09-16 Release v6.255.0
+
+### Install GitMap v6.255.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.255.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.255.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.255.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.255.0"`
+
+### Added / Changed / Fixed / Removed
+
+- coding guideline compliance and ResultSlice enforcement
+
+## [v6.254.0] 2026-09-16 Release v6.254.0
+
+### Install GitMap v6.254.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.254.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.254.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.254.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.254.0"`
+
+### Added / Changed / Fixed / Removed
+
+- add clone-only-missing, ssh auto-accept, agy launcher, and read-all-projects-with-read-prompts
+
+## [v6.253.0] 2026-09-16 Release v6.253.0
+
+### Install GitMap v6.253.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.253.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.253.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.253.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.253.0"`
+
+### Added / Changed / Fixed / Removed
+
+- fix task smoke help, unused linter types, nested if, truncate math, and generate drift
+
+## [v6.252.0] 2026-09-16 Release v6.252.0
+
+### Install GitMap v6.252.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.252.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.252.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Capture and display Go stack trace on pipeline command failures
+- Diagnose workflow initialization and syntax errors when GitHub Actions log archive is missing
+- Eliminate blank job labels and misleading synthetic step errors on failed gh runs
+
+## [v6.251.0] 2026-09-16 Release v6.251.0
+
+### Install GitMap v6.251.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.251.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.251.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Co-locate pipeline split databases inside CLI installation data directory
+- Repository-isolated pipeline database resolution and metrics
+- Normalize workflow keys and prevent false-positive failures
+
+## [v6.250.0] 2026-09-16 Release v6.250.0
+
+### Install GitMap v6.250.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.250.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.250.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.250.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.250.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Anchor pipeline database to CLI binary data directory in dedicated pipeline/ folder with per-repo slug isolation
+- Resolve pipeline DB path dynamically and eliminate hardcoded repo-root fallback
+- Display canonical CLI pipeline database path in all summaries, error logs, and root identity footers
+- Decompose pipeline split DB connection and schema management adhering to strict 100-line coding guidelines
+
+## [v6.249.0] 2026-09-16 Release v6.249.0
+
+### Install GitMap v6.249.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.249.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.249.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.249.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.249.0"`
+
+### Added / Changed / Fixed / Removed
+
+- clone auto manifest discovery, ssh enforcement, ls table parity and exclude filter
+
+## [v6.248.0] 2026-09-15 Release v6.248.0
+
+### Install GitMap v6.248.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.248.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.248.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.248.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.248.0"`
+
+### Added / Changed / Fixed / Removed
+
+- add sc bash shell join list subcommands and fix ssh connection schema
+
+## [v6.247.0] 2026-09-15 Release v6.247.0
+
+### Install GitMap v6.247.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.247.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.247.0"`
+
+### Added / Changed / Fixed / Removed
+
+- relocate pipeline db to repo location, display db size on next line, and filter rust test logs
+
+## [v6.246.0] 2026-09-15 Release v6.246.0
+
+### Install GitMap v6.246.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.246.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.246.0"`
+
+### Added / Changed / Fixed / Removed
+
+- align pipeline table, display db size, add agy fix-pipeline command
+
+## [v6.245.1] 2026-09-15 Release v6.245.1
+
+### Install GitMap v6.245.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.245.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.245.1"`
+
+### Added / Changed / Fixed / Removed
+
+- fix exhaustive switch linter cases and align ErrorType nil receiver check
+
+## [v6.245.0] 2026-09-15 Release v6.245.0
+
+### Install GitMap v6.245.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.245.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.245.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added universal self-null first and error/noError type validation across all ErrorWrapper, Result, ResultSlice, ResultMap, and AppError methods.
+- Introduced package-level result.AsError(ew ErrorWrapper) error helper for clean one-line terminal returns (eliminating temporary variables).
+- Removed Error() method from generic container types to eliminate errname linter misclassifications while preserving AsError(), ErrOrNil(), and AppError().
+- Hardened install.ps1 and install.sh with automatic zero-asset probe fallback against GitHub 404 releases.
+- Fixed Windows low-resolution timer collision on ssh_history.id using atomic sequence counters.
+- Validated darwin/arm64 and linux/amd64 cross-compilation and 100% green quality gates.
+
+## [v6.244.0] 2026-09-15 Release v6.244.0
+
+### Install GitMap v6.244.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.244.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.244.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.244.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.244.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.243.0] 2026-09-15 Release v6.243.0
+
+### Install GitMap v6.243.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.243.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.243.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.243.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.243.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Convert join command to universal AppError envelopes
+- Introduce CheckHelpOrEmpty centralized DRY help checking engine
+- Eliminate repeated help checks across cluster, server-cmd, and servers-clients
+
+## [v6.242.0] 2026-09-15 Release v6.242.0
+
+### Install GitMap v6.242.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.242.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.242.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix test DDL for ssh_hosts port column
+- Resolve gosec G115 integer conversions in storage display and POSIX metrics
+- Safeguard nil context and avoid test deadlock in cmdssh
+
+## [v6.241.0] 2026-09-15 Release v6.241.0
+
+### Install GitMap v6.241.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.241.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.241.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add non-Linux launcher stub for cross-platform compilation
+- Remove unused functions and fix SA4023 interface nilness
+- Fix SQLite DB mock reconnection in cmdssh tests
+- Correct unit test assertions across install, pull, and ssh suites
+
+## [v6.240.0] 2026-09-14 Release v6.240.0
+
+### Install GitMap v6.240.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.240.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.240.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.240.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.240.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Resolve duplicate identifiers in store and cmdssh packages
+- Eliminate swallowed SQLite migration errors using isBenignAlterError
+- Flatten control-flow and eliminate nested if blocks in cluster bootstrap
+- Fix undefined PullResult reference and missing resolveJoinAlias argument
+- Remove unused fmt import in Linux antigravity deploy
+
+## [v6.239.0] 2026-09-14 Release v6.239.0
+
+### Install GitMap v6.239.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.239.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.239.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Antigravity launcher purge, install_logs SQLite telemetry, and cluster SSH node bootstrap
+
+## [v6.238.0] 2026-09-14 Release v6.238.0
+
+### Install GitMap v6.238.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.238.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.238.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Kubernetes cluster runner, Ubuntu provisioning, CRI-O runtime, Helm and NFS storage suite
+
+## [v6.237.0] 2026-09-14 Release v6.237.0
+
+### Install GitMap v6.237.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.237.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.237.0"`
+
+### Added / Changed / Fixed / Removed
+
+- First-class add-with-pass subcommand (gitmap ssh-join add-with-pass <user>@ip password [alias]) with interactive password prompting and JSON output
+- SSH RSA password encryption at rest in SQLite database using RSA-OAEP with SHA-256 via local SSH key (~/.ssh/id_rsa)
+- Cross-platform OpenSSH AskPass password auto-supply (SSH_ASKPASS_REQUIRE=force), enabling seamless password logins without terminal prompts
+- Comprehensive leaf help, catalog topics, and command markdown documentation parity
+
+## [v6.236.0] 2026-09-14 Release v6.236.0
+
+### Install GitMap v6.236.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.236.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.236.0"`
+
+### Added / Changed / Fixed / Removed
+
+- First-class user@ip SSH join syntax (gitmap ssh-join user@ip [alias]), default host-<ip> alias generation, and automatic IP login user resolution
+- Subnet discovery scanner (gitmap sj scan) probing port 22 and cross-referencing registered hosts
+- Machine health and latency ping (gitmap sj status) with online/offline diagnostics
+- Redesigned Git pull UI with 80ms active background ticker, animated Braille spinner, accurate Windows TTY detection, 4-step milestones, and worker slot concurrency
+- Scripts-fixer alignment: terminal profile utilities (jq, yq, zellij), OS-aware dev/small-dev partitioning, git-compact integration, and AI profile trees
+- Comprehensive leaf command help, mistake recovery guidance, and documentation parity across terminal UI, catalogs, and markdown docs
+
+## [v6.235.0] 2026-09-14 Release v6.235.0
+
+### Install GitMap v6.235.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.235.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.235.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.235.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.235.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.234.0] 2026-09-14 Release v6.234.0
+
+### Install GitMap v6.234.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.234.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.234.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.234.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.234.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Confirmed 100% green CI/CD pipeline runs on v6.233.0
+- Pipeline error inspector, history tree, SQLite telemetry, and storage commands in production
+
+## [v6.233.0] 2026-09-14 Release v6.233.0
+
+### Install GitMap v6.233.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.233.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.233.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.233.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.233.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Replaced if-else chain with switch in calculateHistoryStats to satisfy gocritic linter
+
+## [v6.232.0] 2026-09-14 Release v6.232.0
+
+### Install GitMap v6.232.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.232.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.232.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Commit-scoped offset resolution for gitmap pipeline errors (-1, -2, -3)
+- Added gitmap pipeline history command with tree visualization
+- Added gitmap pipeline logs command with clipboard and file export
+- Enriched repository SQLite database telemetry (.gitmap/data/pipeline.db)
+- Added gitmap storage and gitmap os storage command suite
+
+## [v6.231.0] 2026-09-14 Release v6.231.0
+
+### Install GitMap v6.231.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.231.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.231.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.231.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.231.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Profile installation idempotency with component tree rendering
+- Untracked SQLite database auditing for profiles and packages with full stack trace preservation
+- Cross-platform VMware CLI support across Linux and Windows
+- Resilient VMware shared folder mounting and startup persistence
+- Terminal table column alignment fixes for gitmap pull and gitmap status
+
+## [v6.230.0] 2026-09-14 Release v6.230.0
+
+### Install GitMap v6.230.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.230.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.230.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.230.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.230.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Gracefully handle gitmap cd and lookup commands when targets are not found without raw stack traces or duplicate stderr output
+- Add fuzzy repository and workdir suggestion engine (Did you mean: <repo>?) on cd lookup misses
+- Standardize ErrorTypeNotFound across apperror, cliexit, and cmd packages
+
+## [v6.229.0] 2026-09-14 Release v6.229.0
+
+### Install GitMap v6.229.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.229.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.229.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Gracefully handle gitmap cd and lookup commands when targets are not found without raw stack traces or duplicate stderr output
+- Add fuzzy repository and workdir suggestion engine (Did you mean: <repo>?) on cd lookup misses
+- Standardize ErrorTypeNotFound across apperror, cliexit, and cmd packages
+
+## [v6.228.0] 2026-09-13 Release v6.228.0
+
+### Install GitMap v6.228.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.228.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.228.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add Linux archive package installation (tar, gz, zip) with intelligent strategy detection
+- Support automated strategy detection for ELF binaries, install scripts, and source builds
+- Integrate universal uninstaller for archive deployments with desktop database refresh
+- Add cross-platform compilation stubs and enforce strict boolean, enum, and lint guidelines
+
+## [v6.227.0] 2026-09-13 Release v6.227.0
+
+### Install GitMap v6.227.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.227.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.227.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.227.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.227.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Installer Dry-Run Windows step in release.yml by updating path to cli/scripts/install.ps1
+- Fix Installer Smoke Windows seed data download by updating GitHub raw data URLs to cli/data/
+- Add local repository fallback for seed files in install.ps1 and install.sh
+- Synchronize installer URLs across Go constants, helptext, and scripts
+
+## [v6.226.0] 2026-09-13 Release v6.226.0
+
+### Install GitMap v6.226.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.226.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.226.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed unbalanced if statement syntax error in E2E GitHub Actions workflow
+- Guarded TypeScript AST imports in check-nested-ifs against missing node_modules
+- Auto-migrated and ensured ssh_hosts and ssh_history tables exist across cmdssh subcommands
+- Resolved relative path and nested-if lint violations
+
+## [v6.225.0] 2026-09-13 Release v6.225.0
+
+### Install GitMap v6.225.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.225.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.225.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Integrated robust_rmtree with Windows read-only file attribute unlinking across all build and test cleanup hooks
+- Guaranteed zero-byte temporary storage footprint in OS temp gitmap after test runs
+- Added --allow-serial-runners across all golangci-lint invocations to prevent parallel lock contention
+
+## [v6.224.0] 2026-09-13 Release v6.224.0
+
+### Install GitMap v6.224.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.224.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.224.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added dynamic CPU freeness detection to scale test workers dynamically from 16 to 32+ based on CPU idle headroom
+- Enforced wipe-before-write pre-build and pre-test temporary storage cleanup across all build, test, and packaging gates
+- Added ClearRepoTestTempDir, ClearRepoSandboxTempDir, and ClearAllRepoTempDirs to cli/tempdir package
+- Relocated e2e smoke test worker sandboxes to OS test temp with automatic post-run sweeping
+- Automated old CI/CD run pruning (capping at 5 runs) and loose coverage profile cleanup recovering 455+ MB of storage
+- Enabled --allow-serial-runners across concurrent golangci-lint invocations to eliminate race conditions
+
+## [v6.223.0] 2026-09-13 Release v6.223.0
+
+### Install GitMap v6.223.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.223.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.223.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Unify slow and fast unit tests into a single 32-worker priority thread pool, eliminating thread starvation
+- Bypass external GitHub API dials and subprocess probing in unit tests, speeding up cmd tests by up to 110x
+- Accelerate Go Test Coverage Profile from 193s down to 2.5s while meeting 100% of coverage floor gates
+
+## [v6.222.0] 2026-09-13 Release v6.222.0
+
+### Install GitMap v6.222.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.222.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.222.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Route 'gitmap agy install' to Antigravity Desktop IDE and add 'gitmap agm install' for Antigravity Tools/Manager
+- Add dynamic CPU freeness and memory detection, scaling test worker pools to 32 threads for full CPU saturation
+- Resolve multi-module go.mod paths and pass 100% of all 46 CI/CD quality gates
+
+## [v6.221.0] 2026-09-12 Release v6.221.0
+
+### Install GitMap v6.221.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.221.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.221.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Enhance pipeline error-logs with rich diagnostics and clean zero-error state
+- Embed repository metadata (URL, commit hash, release version, branch, open PR count)
+- Integrate automatic clipboard export with terminal confirmation
+
+## [v6.220.2] 2026-09-12 Release v6.220.2
+
+### Install GitMap v6.220.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix macro step timeout pipe hanging on Unix and fixrepo e2e gofmt backup inspection
+
+## [v6.220.1] 2026-09-12 Release v6.220.1
+
+### Install GitMap v6.220.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.1"`
+
+### Added / Changed / Fixed / Removed
+
+- Guard against destructive side-effects during clone-next --dry-run (Plan 112)
+
+## [v6.220.0] 2026-09-12 Release v6.220.0
+
+### Install GitMap v6.220.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Complete architectural audit and execution across all 18 Coding Guideline modules (Prompts 01-18)
+- Enforce single return types, Result[T] envelopes, and strict *AppError wrapping
+- Zero nested ifs, affirmative boolean naming, and strict *Type enum suffixes
+- Normalize vertical newline styling (Rule R4/R5) and 100% gofmt hygiene across 2,524 Go files
+- Enforce strict relative Git paths and eliminate absolute filesystem paths / file:/// URIs
+- Full CLI commands and help text parity verified across 8,155 CLI files
+
+## [v6.219.0] 2026-09-11 Release v6.219.0
+
+### Install GitMap v6.219.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.219.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.219.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Relocate CI/CD runner temporary telemetry and session runs from OS temp directory to repository-internal .ai-memory/cicd
+- Ensure all failure banner stream paths and artifact locations are displayed as repository-relative paths
+- Add .ai-memory/cicd/ to .gitignore to avoid untracked working directory clutter
+
+## [v6.218.0] 2026-09-11 Release v6.218.0
+
+### Install GitMap v6.218.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.218.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.218.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.218.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.218.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add gitmap pipelines alias and errorlogs/errors subcommands with negative index inspection (-N)
+- Implement incremental SQLite caching for last-failed-logs avoiding duplicate log downloads
+- Correlate GitHub Actions job API data to guarantee all failing sections are combined
+
+## [v6.217.0] 2026-09-11 Release v6.217.0
+
+### Install GitMap v6.217.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.217.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.217.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove dead queryRecentFailedRuns helper to resolve unused linter finding
+- Format Go files to satisfy dry-run formatting gate
+
+## [v6.216.0] 2026-09-11 Release v6.216.0
+
+### Install GitMap v6.216.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.216.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.216.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.216.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.216.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Filter out superseded failures when a workflow has succeeded in a newer run
+- Eliminate fallback that dredged up ancient failed runs when current pipeline is green
+- Clear local last_error.log and pipeline_errors.log when pipeline runs pass cleanly
+
+## [v6.215.0] 2026-09-11 Release v6.215.0
+
+### Install GitMap v6.215.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.215.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.215.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Aggregate all pipeline section and step failure errors together in one consolidated view
+- Explicitly state saved error log files (.gitmap/pipeline/pipeline_errors.log, <runId>.log, and DB path)
+- Display full execution metadata (which workflow, run ID, branch, commit, when run timestamp and relative age, run duration, and URL)
+
+## [v6.214.0] 2026-09-11 Release v6.214.0
+
+### Install GitMap v6.214.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.214.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.214.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix gosec G115 integer overflow conversion uint64 -> int64 in pipeline_split_ops.go
+- Ensure all cross-platform pattern normalizations and quality gates pass
+
+## [v6.213.0] 2026-09-11 Release v6.213.0
+
+### Install GitMap v6.213.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.213.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.213.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add live execution feedback and --exec toggle during interactive macro creation
+- Add universal path expansion for %TEMP%, //temp, /temp, , and ~ across macro engine and cd tracking
+- Fix CI/CD race in-memory DB collision and anchor lifecycle in store
+- Fix process isolation for concurrent E2E smoke test workers on Windows
+- Ensure readme platform badges and single-line install section compliance
+
+## [v6.212.0] 2026-09-11 Release v6.212.0
+
+### Install GitMap v6.212.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.212.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.212.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Prevent infinite dynamic timeline polling loop in tests and CI mode
+- Skip live GitHub API polling in unit test suite under CI
+- Verify all 20+ Go packages pass with zero failures
+
+## [v6.211.0] 2026-09-11 Release v6.211.0
+
+### Install GitMap v6.211.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.211.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.211.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add targeted test runner by file path, file name, or Go package name
+- Migrate CI/CD runner artifacts to cross-platform OS temp folder
+- Add isolated per-test failure log files and hashed session folders
+- Flatten nested-if conditionals across mkdir.go and store.go
+
+## [v6.210.2] 2026-09-11 Release v6.210.2
+
+### Install GitMap v6.210.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.210.1] 2026-09-11 Release v6.210.1
+
+### Install GitMap v6.210.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.1"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.210.0] 2026-09-11 Release v6.210.0
+
+### Install GitMap v6.210.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.209.2] 2026-09-11 Release v6.209.2
+
+### Install GitMap v6.209.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.209.1] 2026-09-10 Release v6.209.1
+
+### Install GitMap v6.209.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.1"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.209.0] 2026-09-10 Release v6.209.0
+
+### Install GitMap v6.209.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.208.1] 2026-09-10 Release v6.208.1
+
+### Install GitMap v6.208.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.208.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.208.1"`
+
+### Added / Changed / Fixed / Removed
+
+- add temp backup, recycle bin deletion, folder 25 preset, and consolidation cleanup prompt
+
+## [v6.208.0] 2026-09-10 Release v6.208.0
+
+### Install GitMap v6.208.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.208.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.208.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Connect repodb to dbengine ORM with typed repositories and row scanners
+- Upgrade 30-db-struct-enum-generator.py to support db tags, entity models, and typed mutations
+- Normalize SQLite database primary keys to PascalCase <Entity>Id across repodb and store
+- Eradicate swallowed errors across pipelinedb, dbengine, and repodb with universal AppError wrapping
+- Implement in-memory batch timestamp caching, 8KB binary sniffer, and directory pruning in indexer
+- Fix Linux corrupted install directories with safe recovery and cross-OS Darwin/Windows support
+- Decouple Google Antigravity Desktop IDE installer from agy CLI utility
+
+## [v6.207.0] 2026-09-10 Release v6.207.0
+
+### Install GitMap v6.207.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.207.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.207.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.206.3] 2026-09-10 Release v6.206.3
+
+### Install GitMap v6.206.3
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.3"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.206.2] 2026-09-10 Release v6.206.2
+
+### Install GitMap v6.206.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.206.1] 2026-09-10 Release v6.206.1
+
+### Install GitMap v6.206.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.1"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.206.0] 2026-09-10 Release v6.206.0
+
+### Install GitMap v6.206.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.205.0] 2026-09-09 Release v6.205.0
+
+### Install GitMap v6.205.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.205.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.205.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Resolve VMware shared folders crontab persistence bad minute error on fresh Ubuntu systems
+- Implement dedicated crontab reader/writer with clean empty crontab detection and trailing newline enforcement
+- Add subprocess-level Ubuntu E2E crontab lifecycle tests simulating Vixie cron execution
+- Pass full golangci-lint suite and multi-core repository quality gates
+
+## [v6.204.9] 2026-09-09 Release v6.204.9
+
+### Install GitMap v6.204.9
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.9"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.9"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove unused crontabLookPathFunc and isCrontabAvailable to pass golangci-lint full-suite runner
+
+## [v6.204.8] 2026-09-09 Release v6.204.8
+
+### Install GitMap v6.204.8
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.8"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.8"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix VMware shared crontab bad minute error when no existing crontab exists on Ubuntu/Debian
+- Add modular crontab reader/writer with clean empty detection and robust newline termination
+- Add comprehensive unit tests and Ubuntu crontab lifecycle E2E test suite
+
+## [v6.204.7] 2026-09-09 Release v6.204.7
+
+### Install GitMap v6.204.7
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.7"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.7"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix macro add arrow history, mkdir tilde expansion and in-builder feedback, and open code/url support
+
+## [v6.204.6] 2026-09-09 Release v6.204.6
+
+### Install GitMap v6.204.6
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.6"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.6"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix dev profile tools installation and add diagnostic stack trace logging
+
+## [v6.204.5] 2026-09-09 Release v6.204.5
+
+### Install GitMap v6.204.5
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.5"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.5"`
+
+### Added / Changed / Fixed / Removed
+
+- Replace unsupported ⊘ glyph with green checkmark in setup configuration steps
+- Add ⊘ to glyphs Filter table for safe terminal fallback
+- Fix setup unchanged summary counter glyph
+
+## [v6.204.4] 2026-09-09 Release v6.204.4
+
+### Install GitMap v6.204.4
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.4"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Ubuntu ZSH update prompt and prevent unwanted apt reinstall during update
+- Prevent sudo password requests and preserve existing Oh-My-Zsh configurations
+- Auto-detect existing ZSH binary and skip non-interactive setup runs
+- Enforce LF line endings and automatic gofmt synchronization during release orchestration
+
+## [v6.204.3] 2026-09-09 Release v6.204.3
+
+### Install GitMap v6.204.3
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.3"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Ubuntu ZSH update prompt and prevent unwanted apt reinstall during update
+- Prevent sudo password requests and preserve existing Oh-My-Zsh configurations
+- Auto-detect existing ZSH binary and skip non-interactive setup runs
+- Enforce LF line endings and automatic gofmt synchronization during release orchestration
+
+## [v6.204.2] 2026-09-09 Release v6.204.2
+
+### Install GitMap v6.204.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Ubuntu ZSH update prompt, prevent unwanted reinstall, and preserve existing shell configuration
+
+## [v6.204.1] 2026-09-09 Release v6.204.1
+
+### Install GitMap v6.204.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.1"`
+
+### Added / Changed / Fixed / Removed
+
+- qBittorrent and uTorrent installers, config export and import options, profile tree preview
+
+## [v6.204.0] 2026-09-09 Release v6.204.0
+
+### Install GitMap v6.204.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix Linux PNPM, Yarn, and Bun installation via npm global and standalone script fallbacks
+- Add upfront tool tree hierarchy preview before profile execution and --tree flag support
+- Remove Ollama and ubuntu-dev-ai profile, isolating Ollama strictly to standalone ai profile
+- Add explicit profile installation examples across CLI help, documentation, and install ls
+
+## [v6.203.0] 2026-09-09 Release v6.203.0
+
+### Install GitMap v6.203.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.203.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.203.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add qBittorrent and uTorrent cross-platform installers across Windows (choco, winget), Ubuntu/Debian (apt), and macOS (brew)
+- Implement portable JSON configuration export/import engine (export-config, import-config, improt-config) for VS Code, qBittorrent, and uTorrent
+- Support batch export and import across folders with automatic OS path and file format translation (.ini <-> .conf)
+- Add dedicated help documentation (export-config.md, import-config.md) and commands.ts UI metadata
+
+## [v6.202.0] 2026-09-09 Release v6.202.0
+
+### Install GitMap v6.202.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.202.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.202.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove dead runInstallAgManager and runInstallAntigravity functions to pass strict unused and lint-baseline-diff CI checks
+- Upgrade .github/scripts/full-suite-lint.sh to native high-performance Bash runner with live tee streaming and SIMD grep -cE issue counting
+- Modernize .github/scripts/full-suite-lint.py with line-buffered subprocess.Popen real-time stdout streaming and O(1) memory tracking
+
+## [v6.201.0] 2026-09-09 Release v6.201.0
+
+### Install GitMap v6.201.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.201.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.201.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add automatic Git remote tag release discovery (https://github.com/lbjlaq/Antigravity-Manager.git) for Antigravity Manager GUI with semver sorting and multi-OS asset matching
+- Add specific version targeting --version <ver> to gitmap install ag-manager and gitmap agy install manager
+- Enable full CLI flag parity (--dry-run, --yes/-y, --verbose/-v, --version) in gitmap agy install [manager|cli|all]
+- Fix gitmap in alias routing and display grouped tool catalog, descriptions, and profiles when run without arguments
+- Add and document antigravity, ag-manager, ag-ctx, build-essential, and installation profiles (dev, ubuntu, ubuntu-dev-ai, ai, backend, fullstack, minimal)
+
+## [v6.200.0] 2026-09-09 Release v6.200.0
+
+### Install GitMap v6.200.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.200.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.200.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Antigravity Manager release installer, custom profile engine, and preflight probe
+- Parallel multi-worker CPU checkers, 10s telemetry heartbeat, and incremental git commit checkpointing
+- Terminal-adaptive responsive table layout, status checkmarks, and interactive dirty remediation box
+- Google OAuth token preservation and cipher extraction in Chrome profile backups
+- 100% CPU multi-core utilization across all linters and code formatters with chunked file queues
+
+## [v6.199.0] 2026-09-08 Release v6.199.0
+
+### Install GitMap v6.199.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.199.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.199.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added gitmap os display command family (display, disp, screen) for desktop session, display server detection (Wayland, X11, DWM, Quartz), screen idle timeout, and never-sleep blanking inhibition
+- Implemented SQLite site registry in sites.db with gitmap nginx add <domain> (auto-detecting WordPress and Laravel roots), gitmap nginx rm <domain>, and gitmap nginx list
+- Added gitmap nginx ini and showcase displaying recommended production directives for WordPress and Laravel with idempotent marker blocks
+- Enhanced VMware shared folder mount resilience with open-vm-tools integration, desktop symlink repair, and reboot crontab persistence
+- Integrated Nginx, WordPress, and Laravel setup engines with dynamic PHP-FPM socket discovery
+- Added Chrome token vault with reversible ciphers and enhanced Windows command remediation execution
+
+## [v6.198.0] 2026-09-08 Release v6.198.0
+
+### Install GitMap v6.198.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.198.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.198.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Terminal-adaptive responsive pull table layout and chrome profile sign-in scrubbing
+
+## [v6.197.0] 2026-09-08 Release v6.197.0
+
+### Install GitMap v6.197.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.197.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.197.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Chrome profile import routing, JSON and FNF export options, and macro delete idempotency
+
+## [v6.196.1] 2026-09-07 Release v6.196.1
+
+### Install GitMap v6.196.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.196.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.196.1"`
+
+### Added / Changed / Fixed / Removed
+
+- Automated release orchestration
+
+## [v6.196.0] 2026-09-07 Release v6.196.0
+
+### Install GitMap v6.196.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.196.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.196.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Chrome profile polymorphic discovery, Ubuntu chrome deb installer, rich error diagnostics and parallel CI runner
+
+## [v6.195.0] 2026-09-07 Release v6.195.0
+
+### Install GitMap v6.195.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.195.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.195.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.195.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.195.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Ubuntu OS fix-link suite, pipeline log caching, lock reentrancy & CI fixes
+
+## [v6.194.0] 2026-09-07 Release v6.194.0
+
+### Install GitMap v6.194.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.194.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.194.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Real-Time Streaming Telemetry, Unbuffered Event Pipeline & AI Parallel Orchestration
+- Added cross-platform OS power and screen timeout management framework (`gitmap power`) supporting Windows (`powercfg.exe`) and Linux/Ubuntu (GNOME `gsettings`, X11 `xset`, `systemd-logind`) with SQLite state tracking and restore profiles (`status`, `never-sleep`, `set`, `reset`, `history`)
+- Isolated tool installation tracking and telemetry into dedicated split SQLite database (`installation.db`) adhering to split DB architectural standards and preserving zero-swallow error policies
+- Added VMware tools detection and shared folder management suite (`gitmap vmware shared enable`, `status`) with automatic `/mnt/hgfs` mount, desktop symlink, and `@reboot` crontab persistence
+- Added Ubuntu `build-essential` compiler toolchain and common developer profiles (`gitmap install build-essential`) strictly excluding legacy/deprecated packages
+- Added remote cluster server command and script delegation suite (`gitmap server-cmd`, `server-cmds`, `scmd`) supporting node filtering and sudo escalation
+- Added Ubuntu OS symlink diagnostic and repair command suite (`gitmap os fix-link`, `gitmap fix-link`) with target override, dry-run simulation, and recursive scanning
+- Fixed CI/CD pipeline error log fetching timeout and added disk persistence at `.gitmap/pipeline/` with reentrant process lock tracking
+
+## [v6.193.0] 2026-09-06 Release v6.193.0
+
+### Install GitMap v6.193.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.193.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.193.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.193.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.193.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed CI/CD compatibility: formatted cmd/agy_pin_projects.go to strict gofmt specifications
+- Purged orphaned submodule gitlinks ensuring clean actions/checkout across GitHub Actions workflows
+- Standardized US English spelling across all documentation in spec/ and de-literalized test lookup tables
+- Gracefully handled missing VS Code user-data root in headless CI runners for gitmap vscode ls
+- Verified 115/115 E2E installer smoke tests with 100% green verification on release pipeline
+- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
+- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
+- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
+- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
+- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
+- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
+
+## [v6.192.0] 2026-09-06 Release v6.192.0
+
+### Install GitMap v6.192.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.192.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.192.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.192.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.192.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed CI/CD compatibility: formatted cmd/agy_pin_projects.go to strict gofmt specifications
+- Purged orphaned submodule gitlinks ensuring clean actions/checkout across GitHub Actions workflows
+- Standardized US English spelling across all documentation in spec/ and de-literalized test lookup tables
+- Gracefully handled missing VS Code user-data root in headless CI runners for gitmap vscode ls
+- Verified 115/115 E2E installer smoke tests with 100% green verification on release pipeline
+- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
+- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
+- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
+- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
+- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
+- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
+
+## [v6.191.0] 2026-09-05 Release v6.191.0
+
+### Install GitMap v6.191.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.191.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.191.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.191.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.191.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Synchronized release deployment and version bump prompt in 01-prompts/01-release.md to Prompt Version 2.1.0
+- Aligned SSoT manifests and verified version propagation across version.json, package.json, constants.go, and readme.md
+- Enforced strict zero-tag policy delegating git tags to automated CI release orchestrators
+- Passed 100% test verification across lazyregex, regexnew, pipelinedb, and constants packages
+- Pinned active repository version to v6.191.0 in root readme.md and .ai-memory/user-preferences
+
+## [v6.190.0] 2026-09-05 Release v6.190.0
+
+### Install GitMap v6.190.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.190.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.190.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Refactored lazy regex engine with strict thread-safe compile locking across gitmap/lazyregex and pkg/regexnew
+- Introduced CompileResult envelope wrapping compiled regexp, structured AppError, and fluent AppBuilder diagnostics
+- Added dedicated GroupMap data type with rich query, mutation, cloning, and serialization methods
+- Added dedicated GroupList data type with bounds-safe indexing, key deduplication, and predicate filtering
+- Updated root readme.md pinned version to v6.190.0 and synchronized all SSoT manifests
+
+## [v6.189.0] 2026-09-05 Release v6.189.0
+
+### Install GitMap v6.189.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.189.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.189.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Eliminated redundant secondary regexMap lookups in gitmap/lazyregex and pkg/regexnew, transitioning to single-map pattern deduplication
+- Added isCompiled boolean flag, self-contained compiled *regexp.Regexp state, and mutex synchronization to LazyRegexp and LazyRegex
+- Introduced Count, IsFound, GroupBy (named capture group extraction), and FindAllGroups methods to LazyRegexp and LazyRegex
+- Implemented CompileAppError and CompileBuilder methods returning structured diagnostic AppErrors and AppBuilders on compilation failure
+- Updated root readme.md pinned version to v6.189.0 and synchronized all SSoT manifests
+
+## [v6.188.0] 2026-09-05 Release v6.188.0
+
+### Install GitMap v6.188.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.188.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.188.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.188.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.188.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Refactored lazy regular expression engine in gitmap/lazyregex with thread-safe global maps and compiled regex pattern caching
+- Implemented reusable pkg/regexnew in coding guidelines codebase with New Creator pattern, batch registration, and nil-safe predicates
+- Refactored pipelinedb models and code generator with dedicated enum subpackages, gofmt tab-alignment, and type aliases
+- Documented Rule 5 (Lazy Regex & Global Map Deduplication) in cross-language regex usage guidelines
+- Updated root readme.md pinned version to v6.188.0 and synchronized all SSoT manifests
+
+## [v6.187.0] 2026-09-05 Release v6.187.0
+
+### Install GitMap v6.187.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.187.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.187.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.187.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.187.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Introduced pkg/fileutil with type-safe FileActionType and FileModeType enums, FileWrapper encapsulation, and package-level I/O convenience helpers
+- Enhanced pkg/appfault with first-class errorId field on AppError and dedicated WrapFailure, WrapWriterFailure, and WrapReaderFailure constructors
+- Overhauled 03-ai-scripts/06-cicd-local-runner.py with adaptive parallel worker pool, 3-batch IO throttling, and quiet success tick output
+- Fixed SQLite concurrency race condition in gitmap/store/store.go by prioritizing busy_timeout pragma before journal_mode WAL pragma
+- Introduced reusable run_worker_pool and add_worker_cli_arguments in 03-ai-scripts/02-shared-engine.py for repository-wide parallel script modernization
+- Modernized 03-ai-scripts/16-installer-smoke-tester.py and 28-go-preflight-ci.py to leverage the shared worker pool with quiet tick output and JSON/file exports
+- Bumped version to v6.187.0 across all Single Source of Truth manifests
+
+## [v6.186.0] 2026-09-04 Release v6.186.0
+
+### Install GitMap v6.186.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.186.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.186.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.186.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.186.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added smart Chrome profile import supporting directory scanning, globbing (*.json), email lookup, and auto-detecting current directory
+- Implemented safe non-destructive Chrome profile import: matches existing profiles by email and automatically creates new profile directories without breaking existing profiles
+- Added step-by-step progress logging across all import phases (inspect, resolve, restore, stage extensions, and Local State registration)
+- Added gitmap chrome profile import-check (inspect) command to preview snapshot metadata and planned import actions before execution
+- Enhanced gitmap chrome profile ls to display account emails alongside discovered snapshot files in the active directory
+- Added --except / --exclude flag to skip profile IDs, slugs, names, emails, or prefix patterns during import
+- Bumped version to v6.186.0 across all Single Source of Truth manifests
+
+## [v6.185.0] 2026-09-04 Release v6.185.0
+
+### Install GitMap v6.185.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.185.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.185.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.185.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.185.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Overhauled .github/scripts/e2e-cli-smoke.py with async worker group execution running parallel tests concurrently via asyncio
+- Added --all (-a) CLI flag to e2e-cli-smoke.py to control verbose pass/fail printing vs concise summary
+- Optimized default smoke test output to only report failed tests or a single clean pass confirmation line
+- Structured stateful CLI commands (schedule and macro chains) into isolated sequential worker tasks executing in parallel with independent tests
+- Bumped version to v6.185.0 across all Single Source of Truth manifests
+
+## [v6.184.0] 2026-09-04 Release v6.184.0
+
+### Install GitMap v6.184.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.184.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.184.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Enhanced GitMap CLI footer when inside a git repository to display repo name, remote Git URL, active branch, latest branch, open PR count, and comprehensive branch status
+- Resolved real-time git branch tracking and upstream sync counters (ahead/behind/up to date)
+- Automated SSoT version bumping pipeline via 03-ai-scripts/29-release-bumper.py
+- Bumped version to v6.184.0 across all Single Source of Truth manifests
+
+## [v6.183.0] 2026-09-04 Release v6.183.0
+
+### Install GitMap v6.183.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.183.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.183.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Overhauled GitMap CLI footer metadata output with dedicated Short and Long variants
+- Implemented short footer displaying Version and Git Commit SHA, integrated across all help invocations (`--help`, `-h`, `gitmap help <topic>`)
+- Implemented long footer displaying complete binary identity block: Name, Git URL (`https://github.com/alimtvnetwork/gitmap-v28`), Version, Commit SHA, Database path, and Installed binary path
+- Added dynamic binary and repository metadata resolution with cascading fallbacks (ldflags -> git config -> origin URL -> `version.json`), guaranteeing zero empty fields
+- Flattened nested conditionals across `04-code/` streamwriter reference implementation, achieving 0 nested `if` violations across 3,089 repository files
+- Bumped version to `v6.183.0` across all Single Source of Truth manifests (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`)
+- Verified 100% green pass across all 16 CI/CD quality gates locally and synchronized release assets
+
+## [v6.182.0] 2026-09-04 Release v6.182.0
+
+### Install GitMap v6.182.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.182.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.182.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added `--limit <N>` (`--limit=1`, `-n 1`) option to Chrome profile import and export commands to restrict the number of processed profiles
+- Added `--profile <name>` (`-p <name>`) option to import/export single Chrome profiles from multi-profile snapshots and archives (JSON, YAML, SQLite, ZIP)
+- Enhanced `gitmap agy clear` with pinned project protection: pinned Antigravity projects are strictly protected and never deleted during cleanup
+- Verified and audited `gitmap agy ls`, `gitmap agy pin-projects` (add/rm/ls), and `gitmap agy clear`
+- Resolved self-update downgrade bug where `gitmap update` fetched outdated release `v6.176.0` from GitHub Releases API
+- Bumped version to `v6.182.0` across all Single Source of Truth manifests (`version.json`, `package.json`, `gitmap/constants/constants.go`, `readme.md`, `changelog.md`)
+- Flattened nested conditionals in `cmd/chrome_batch.go` and `cmd/chromeprofile_zip_import.go` adhering to zero-nesting standards
+- Verified 100% green pass on all 16 CI/CD quality gates locally and synchronized release assets
+
+## [v6.179.0] 2026-09-04 Release v6.179.0
+
+### Install GitMap v6.179.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.179.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.179.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.179.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.179.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added self-healing Git diagnostic command engine: `gitmap fix-git` (aliases: `gitmap fg`, `gitmap --fix-git`)
+- Added automatic permission repair and Windows NTFS ACL Full Control assignment on `.git` directories (`icacls` / `chmod -R u+rwX`)
+- Added elevated PowerShell self-healing script `scripts/fix-all-permissions.ps1` for system-wide ACL and ownership recovery
+- Added stale lockfile detection and removal (`.git/index.lock`, `HEAD.lock`, `config.lock`)
+- Added index corruption detection and auto-recovery from `HEAD` via `git reset` with timestamped backup
+- Added detection and guided resolution for unmerged files and unresolved merge conflicts
+- Added conflict-safe pull protection by backing up colliding untracked files to `.git/gitmap-backup/`
+- Added `gitmap workdir default [path]` to inspect or configure the active workspace default directory
+- Added `gitmap workdir path` to print raw absolute default workdir path for shell navigation scripts
+- Resolved `gitmap cd work` and `gitmap cd default` to seamlessly navigate to the default work directory
+- Suppressed internal Go runtime stack traces and line numbers on validation errors for clean user-facing error reporting
+- Added interactive step builder fallback when command steps are omitted in `gitmap macro add <name>`
+- Authored formal issue specification and 5-part RCA in `02-spec/22-app-issues/35-reconcile-prompt-nested-if-ci-failure.md`
+- Flattened nested conditionals in `cmd/reconcile_prompt.go` to maintain 0 nested if violations across the codebase
+- Verified 100% green pass across all 25 quality gates in `03-ai-scripts/06-cicd-local-runner.py`
+
+## [v6.178.0] 2026-09-04 Release v6.178.0
+
+### Install GitMap v6.178.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.178.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.178.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Displayed dirty and modified files list during interactive reconciliation (gitmap reconcile and interactive prompt in gitmap pull)
+- Added comprehensive file status categories (modified:, untracked:, deleted:, staged:) with 10-file display cap and overflow summary
+- Refactored porcelain dirty state inspection in gitutil/dirty_inspect.go to strictly adhere to coding guidelines (<=15 lines per function)
+- Flattened nested conditionals in cmd/reconcile_prompt.go using early return guard clauses to achieve 0 nested if violations
+- Fixed Windows cmd.exe escape character issue in 03-ai-scripts/06-cicd-local-runner.py by quoting -run="^$" regex in Compile Gate
+- Added unit test suites in gitutil/dirty_inspect_test.go and cmd/reconcile_cmd_test.go
+- Validated all 25 CI/CD quality gates with 100% green pass (exit code 0)
+
+## [v6.177.0] 2026-09-04 Release v6.177.0
+
+### Install GitMap v6.177.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.177.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.177.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed pull and status table line wrapping and column misalignment in terminal output
+- Implemented smart branch prefix omission for common branch prefixes (feature/, feat/, release/, bugfix/, hotfix/, fix/, dependabot/)
+- Added middle-truncation engine with ellipsis (...) preserving starting characters and ending 5 characters
+- Enforced fixed column caps across repository name, branch, latest branch, PR status, pull status, and SHA
+- Corrected ANSI escape sequence padding calculation for styled Lipgloss elements to ensure exact column alignment
+- Added comprehensive unit tests in cmd/pull_table_test.go covering prefix omission, middle-truncation, and ANSI padding
+
+## [v6.176.0] 2026-09-04 Release v6.176.0
+
+### Install GitMap v6.176.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.176.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.176.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed CI/CD compatibility: formatted cmd/agy_pin_projects.go to strict gofmt specifications
+- Purged orphaned submodule gitlinks ensuring clean actions/checkout across GitHub Actions workflows
+- Standardized US English spelling across all documentation in spec/ and de-literalized test lookup tables
+- Gracefully handled missing VS Code user-data root in headless CI runners for gitmap vscode ls
+- Verified 115/115 E2E installer smoke tests with 100% green verification on release pipeline
+- Added interactive command builder and piped input support for gitmap macro add <name> without stack traces on validation errors
+- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
+- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
+- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
+- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
+- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
+- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
+
+## [v6.175.0] 2026-09-04 Release v6.175.0
+
+### Install GitMap v6.175.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.175.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.175.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.175.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.175.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
+- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
+- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
+- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
+- Added comprehensive documentation in docs/commands/agy/pin-projects.md and docs/commands/macro.md
+- Formatted function signatures, parameter declarations, and invocations across Go codebase to Rule 9a/9b multi-line standards
+- Standardized value-based parameter structs (*Params) and eliminated bare void functions across Go domain and service layers
+- Enforced universal Result[T] envelope in Go and TypeScript with .IsSuccess(), .IsFailed(), .HasError(), .HasNoError(), and .HasValidError()
+- Enforced code hygiene, Unix LF line endings across all files, UTF-8 (no BOM) encoding, and Markdown heading spacing (MD022/MD032)
+- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
+- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
+
+## [v6.174.0] 2026-09-03 Release v6.174.0
+
+### Install GitMap v6.174.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.174.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.174.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.174.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.174.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Formatted function signatures, parameter declarations, and invocations across Go codebase to Rule 9a/9b multi-line standards
+- Standardized value-based parameter structs (*Params) and eliminated bare "void" functions across Go domain and service layers
+- Enforced TypeScript strict typing, total ban on any, as const enums with *Type suffixes, and Discriminated Unions with exhaustive assertNever pattern matching
+- Enforced multi-language enums, string-backed enums, and *Type suffixes across Go, TypeScript, PHP, Rust, and Python
+- Upgraded terminal UI palettes with bright bold 9X ANSI escape sequences, Catppuccin pastel cycling, responsive 2-column help alignment, and super-category intent banners
+- Enforced universal Result[T] envelope in Go and TypeScript with .IsSuccess(), .IsFailed(), .HasError(), .HasNoError(), and .HasValidError()
+- Extended *AppError with helper predicates (.HasError, .HasNoError, .HasValidError, .IsErrorCode)
+- Audited CLI commands, help text descriptions, AST top-level command matches, and help UI parity
+- Replaced absolute paths and non-portable file URIs with strict relative Git repository paths across 6,765 tracked repository files
+- Enforced code hygiene, Unix LF line endings across 342 converted files, UTF-8 (no BOM) encoding, and Markdown heading spacing (MD022/MD032) across 75 files
+- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
+- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
+
+## [v6.173.0] 2026-09-03 Release v6.173.0
+
+### Install GitMap v6.173.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.173.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.173.0"`
+
+### Added & Enhanced
+
+- **Cross-Ecosystem Workspace Groups (`gitmap agy group`, `gitmap vscode group`, `gitmap gd group`, `gitmap chrome group`)**:
+  - Implemented unified group storage engine (`~/.gemini/config/groups/<ecosystem>_groups.json`) enabling named multi-project grouping across Antigravity, VS Code, GitHub Desktop, and Chrome profiles.
+  - Added subcommands for creating, listing, inspecting, deleting, exporting, importing, and broadcasting prompts across entire groups (`gitmap agy group prompt <group> <prompt>`).
+  - Added cross-ecosystem CLI parity across all workspace types.
+
+- **Automated Snapshot & Undo/Redo Engine (`gitmap agy undo`, `gitmap chrome undo`, `gitmap installer undo`)**:
+  - Implemented automatic pre-mutation state snapshots for Antigravity (`~/.gemini/config/backup/agy/`) and Chrome profiles (`~/.gemini/config/backup/chrome/`) before any clear, deletion, import, or restore operation.
+  - Added seamless `undo` and `redo` recovery commands to restore workspaces and profiles to exact pre-operation states.
+  - Added `undo`, `redo`, and `revert` aliases to script installer version management (`gitmap installer undo <slug>`).
+
+- **AI Prompt Template Management System (`gitmap prompt`)**:
+  - Engineered markdown-based AI prompt template storage engine (`~/.gemini/config/prompts/`) with YAML frontmatter parsing (`title`, `slug`, `version`, `description`, `tags`, `variables`).
+  - Pre-seeded built-in prompt templates (`code-review.md` and `ci-cd-fix.md`).
+  - Added subcommands `ls`, `show`, `add`, `rm`, `export` (portable `.zip` bundle), `import`, and `inject` (broadcast directly into AGY workspaces or groups).
+
+- **Antigravity Plugins Catalog & Settings Management (`gitmap agy plugin`, `gitmap agy settings`)**:
+  - Built real-time plugin inspection engine scanning `~/.gemini/config/plugins/` to list installed plugins and install new plugins from catalog.
+  - Built JSON settings export and import engine (`gitmap agy settings export` / `import`) for rapid workspace synchronization.
+
+- **Help UI & Terminal Help Parity**:
+  - Synchronized terminal `--help` markdown files (`prompt.md`, `antigravity.md`, `chrome.md`, `github-desktop.md`, `vscode-group.md`) with comprehensive flags, descriptions, and real-world examples.
+  - Added rich interactive command documentation to React Help UI (`src/data/commands.ts`).
+  - Added 12 new automated test cases to E2E smoke suite (`.github/scripts/e2e-cli-smoke.py`) verifying all new commands pass with zero errors.
+
+## [v6.172.0] 2026-09-03 Release v6.172.0
+
+### Install GitMap v6.172.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.172.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.172.0"`
+
+### Added & Enhanced
+
+- **TypeScript Strict Typing & ESLint Zero Errors**:
+  - Refactored empty interfaces (`CommandDialogProps`, `TextareaProps`) into explicit type aliases compliant with `@typescript-eslint/no-empty-object-type`.
+  - Converted ternary expression statements with side-effects in `Changelog.tsx` to clean, structured `if/else` control flow blocks with vertical line gaps.
+  - Modernized `tailwind.config.ts` by replacing CommonJS `require("tailwindcss-animate")` with ES Module `import tailwindcssAnimate from "tailwindcss-animate"`.
+
+- **Local CI/CD Runner Sequential Batching (`03-ai-scripts/06-cicd-local-runner.py`)**:
+  - Partitioned quality gates into 3 sequential batches (Linters/AST checks, Compiles/Builds, E2E Smoke Suite) to eliminate Windows file-locking race conditions on `bin/gitmap.exe`.
+  - Integrated `shutil.which` cross-platform binary path resolution across Windows and POSIX environments.
+
+- **Vertical Line-Gaps & Hygiene Compliance**:
+  - Applied vertical newline formatting (blank line after `}` and blank line before `return`) across core packages.
+  - Formatted multi-parameter function signatures to Rule 9a standards (one parameter per line with trailing commas).
+
+## [v6.171.0] 2026-09-03 Release v6.171.0
+
+### Added & Enhanced
+
+- **E2E Smoke Test Suite Concurrency & 10x Acceleration (`.github/scripts/e2e-cli-smoke.py`)**:
+  - Re-architected CLI smoke testing suite to execute independent commands in parallel via a worker thread pool (`ThreadPoolExecutor`).
+  - Reduced test suite duration from ~60s down to ~4.8s across all 97 core commands and aliases.
+  - Implemented isolated sequential execution chains for stateful SQLite subcommands (`schedule` and `macro`) to eliminate lock contention.
+  - Added non-interactive execution guards (`GITMAP_NON_INTERACTIVE=1`), `CI=1`, and per-command timeouts (15s).
+  - Updated expected exit codes `[0, 1]` for language repository listing commands in unindexed / fresh workspaces.
+
+- **Non-Interactive Stdin Guarding & Database Lock Prevention**:
+  - Implemented `isInteractiveStdin()` terminal detection across database operations, preventing hanging `fmt.Scanln` prompts in subshells and automated runners.
+  - Added explicit `--help` / `-h` interceptors across `gitmap pipeline logs` and `gitmap pipeline error-logs`.
+  - Added `checkHelp` guard to `gitmap visibility-history` so help inspection renders immediately without acquiring database file locks (`data/gitmap.lock`).
+
+## [v6.170.0] 2026-09-03 Release v6.170.0
+
+### Added & Enhanced
+
+- **Pipeline Errorlogs Dynamic Timeline (`gitmap pipeline errorlogs -t`)**:
+  - Added `-t` / `--timeline` / `--timeout` / `-w` / `--watch` support across `gitmap pipeline errorlogs` and top-level `gitmap errorlogs`.
+  - Continuously tracks active workflow executions with dynamic ETA countdowns and adaptive intervals (15s, 10s, 5s) until terminal completion.
+  - Automatically isolates and renders high-precision failure step error logs upon completion, omitting passing noise.
+
+- **Historical Success Baseline Rerun ETA (`rerunEtaSeconds`)**:
+  - Dynamically calculates the estimated pipeline duration required to rerun the workflow, derived strictly from past successful runs.
+  - Emitted across terminal error cards and structured `--json` payloads.
+
+- **Internal CI/CD Diagnostic & Auto-Repair Engine (`pipeline_cicd_checker.go`)**:
+  - Integrated full local validation suite executing:
+    - `gofmt` code formatting check and automatic batch repair (`gofmt -w .`).
+    - Nested `if` linter (`check-nested-ifs.py`).
+    - Boolean and enum naming convention linters (`check-enum-and-boolean.py`).
+    - Relative paths and drive-letter URI enforcement (`check-relative-paths.py`).
+    - Error management and AppError compliance (`check-error-management.py`).
+    - Legacy repository reference scanner (`check-legacy-refs.py`).
+    - US English spell check (`misspell-changed.py`).
+    - Go test compile and typecheck gate (`go test -run=^$ ./... -count=1`).
+  - Supports `--fix` (`-f`) for automated repair without prompts, `--check` (`-c`) for read-only audits, and interactive confirmation in terminal mode.
+
+- **Specification Module Added (`02-spec/21-app/11-pipeline-errorlogs-timeline-and-fix/`)**:
+  - Authored complete specification module with overview, dynamic timeline contracts, CI/CD diagnostic engine specifications, acceptance criteria, and consistency reports.
+
+## [v6.169.0] 2026-09-03 Release v6.169.0
+
+### Added & Enhanced
+
+- **Isolated Pipeline Split SQLite Databases (`data/pipeline_db/pipeline_<slug>.db`)**:
+  - Engineered dedicated per-repository split SQLite database tier for CI/CD pipeline runs and telemetry.
+  - Implemented `PipelineRun`, `PipelineErrorLog`, and `PipelineSegment` schemas with `SetMaxOpenConns(1)` for zero lock collisions.
+  - Added dual-writing in `pipeline_recorder.go` to capture pipeline execution history, ETA tracking, and parsed step failures.
+  - Added CLI suite: `gitmap pipeline db [status|clear|reset|optimize|error-logs|help]`.
+
+- **Isolated Repository Split SQLite Databases (`data/repo_search/`)**:
+  - Added `RepoScanLog` table for structured repository scan and indexing telemetry.
+  - Added CLI suite: `gitmap repo db [status|log|error-logs|clear|reset|optimize|help]`.
+
+- **Cross-Tier Database Administration (`gitmap db`)**:
+  - Implemented `gitmap db status` presenting unified metrics across Primary Master DB, Split Repo DBs, and Split Pipeline DBs.
+  - Implemented `gitmap db optimize` running automated `VACUUM` and `PRAGMA optimize` across all database tiers.
+  - Implemented `gitmap db clear` with interactive/non-interactive (`-y`) confirmation for cache purging.
+
+- **Coding Guideline & CI/CD Compliance**:
+  - Refactored and flattened all nested `if` statements across `gitmap/cmd/` and `gitmap/vscodepm/` to achieve 100% compliance with `check-nested-ifs.py` and `check-enum-and-boolean.py`.
+  - Regenerated CLI command mappings via `go generate ./...` to prevent generate drift.
+  - Resolved legacy references in `02-spec/01-spec-authoring-guide/13-root-readme-conventions.md`.
+
+## [v6.168.0] 2026-09-03 Release v6.168.0
+
+### Added & Enhanced
+
+- **Historical Success Baseline Pipeline ETA Model**:
+  - Refined pipeline duration baseline heuristics to filter strictly on `conclusion == "success"` (`status == "completed"`), discarding skewed canceled or fast-failing runs.
+  - Computes remaining ETA dynamically as `avgSuccessDuration - elapsed` with an adaptive countdown grace floor.
+
+- **Dynamic Timeline & Timeout (`-t` / `--timeout` / `--timeline`)**:
+  - Added `-t` flag across `gitmap pipeline status`, `gitmap pipeline wait-time`, and `gitmap pipeline-ai`.
+  - Automatically orchestrates dynamic polling timelines and timeout budgets derived from the calculated ETA, eliminating the need for manual retry seconds.
+
+- **Direct CI/CD Error Extraction in Status & ETA**:
+  - When a pipeline run completes with a failure conclusion, GitMap now automatically extracts and displays clean, actionable error lines (`##[error]`, `❌ FAIL:`, `--- FAIL:`, `exit code 1`, stack traces) directly beneath the status card, suppressing passing step noise.
+
+- **Linter & CI/CD Pipeline Hardening**:
+  - Eliminated hardcoded drive-letter URIs in test suites to ensure 100% compliance with `linter-scripts/check-relative-paths.py`.
+  - Resolved `CmdDashboardAlias` collision with `CmdDB` by assigning `dash` as the dashboard alias.
+  - Standardized all CLI confirmation messages to American English `canceled` for strict `misspell` compliance.
+  - Updated `agy stats` format to satisfy E2E smoke test contracts (97/97 passing).
+
+## [v6.167.0] 2026-09-03 Release v6.167.0
+
+### Added & Enhanced
+
+- **Modular Lowercase Documentation Architecture (`docs/commands/`)**:
+  - Reorganized the entire command catalog from monolithic files into 15 domain-specific subdirectories (`agy/`, `db/`, `find-duplicates/`, `vscode/`, `chrome/`, `cloning/`, `git-ops/`, `release/`, `navigation/`, `schedule/`, `cluster/`, `templates/`, `data/`, `automation/`, `utilities/`).
+  - Standardized all documentation markdown paths and file names to lowercase (`readme.md`, `ls.md`, `remove-projects-with-empty-conversations.md`, etc.).
+  - Embedded high-resolution animated vector SVG terminal recordings in `docs/assets/` showcasing realistic terminal interactions, typing, and colored tabular outputs.
+  - Linked the subcommands hub prominently from root `readme.md`.
+
+- **Comprehensive Flag Tables & Real-World Examples**:
+  - Enriched all command reference documentation with detailed flag tables (Flag, Shorthand, Default, Description).
+  - Authored actionable, copy-pasteable runnable command examples covering every single flag (e.g. `--missing`, `--active`, `--sort`, `--filter`, `--json`, `--except`, `--dry-run`, `--yes`, `--safe-pull`, `--fix`, `--delete`, `--create-remote`).
+
+- **`.ai-memory` AI Agent System Architecture Mapping**:
+  - Created `.ai-memory/folder-structure.md` formalizing the relationship between the codebase, canonical specifications (`02-spec/`), user documentation (`docs/commands/`), and `.ai-memory/` AI cognitive workspaces (`plans/`, `memory/`, `coding-guidelines/`, `prompts/`).
+
+## [v6.166.0] 2026-09-03 Release v6.166.0
+
+### Added & Enhanced
+
+- **Antigravity Empty Conversations Auditor & Pruner**:
+  - Added `gitmap agy ls show-projects-with-empty-conversations` (and typos/aliases `show-proects-with-empty-conversations`, `--empty-conversations`) to audit and list all Antigravity projects having zero or aborted/empty conversation databases.
+  - Added `gitmap agy remove-projects-with-empty-conversations` (and aliases `rm-empty-conversations`, `clean-empty-conversations`, `prune-empty-conversations`) to prune orphaned project files from `~/.gemini/config/projects/`.
+  - Added `--except` / `-e` flag supporting comma-delimited strings or `.csv` / `.txt` file paths to preserve whitelisted project IDs, names, paths, or aliases from deletion.
+  - Added `--dry-run` / `-d` for safe previewing and `--yes` / `-y` for non-interactive automated cleanup.
+  - Registered commands in UI documentation (`src/data/commands.ts`) and created markdown help reference (`gitmap/helptext/agy-empty-conversations.md`).
+
+## [v6.165.0] 2026-09-03 Release v6.165.0
+
+### Added & Enhanced
+
+- **Database Architecture Inspector & Management Suite (`gitmap db`)**:
+  - `gitmap help` footer identity block now displays the active Primary Master SQLite database file path (`● Database: <path>`).
+  - Added `gitmap db ls` to display architectural breakdown of the Primary Master DB, per-repository Split DBs (`repo_search/*.db`), and architectural rationale (lock elimination, concurrency, query isolation).
+  - Added `gitmap db repo-db list` to inspect per-repository split databases, table row counts (`RepoFile`, `SearchCache`), file sizes, and tracking status.
+  - Added `gitmap db sizes list` to display consolidated disk usage tables across all database files.
+  - Added `gitmap db reset / clear` to reset repository records and clear split DBs with confirmation prompts.
+  - Added `gitmap start-fresh` with irreversible transaction warning prompt to completely purge database files/journals and recreate fresh schemas and split directories.
+
+- **Cross-Platform Duplicate Detection & Immediate Remediation (`gitmap find-duplicates`)**:
+  - Audits duplicate projects and repositories across **Antigravity (AGY)**, **VS Code**, **Chrome**, and **Git**.
+  - Displays instant copy-pasteable CLI fix commands directly beneath findings for single deletion, `--except` preservation, batch optimization (`optimize-projects` / `--repeat-fix` / `clone --fix`), and remapping.
+  - Supported as unified `gitmap find-duplicates` or platform-specific `gitmap <platform> find-duplicates`.
+
+- **Cross-Platform Standard Python Tooling**:
+  - Converted all shell (`.sh`) scripts repository-wide to pure standard-library Python scripts (`.py`) with cross-platform OS and UTF-8 console support.
+
+- **Documentation & UI Registry**:
+  - Registered `db`, `start-fresh`, and `find-duplicates` in `src/data/commands.ts` for the web UI dashboard.
+  - Added dedicated CLI help documentation: `gitmap/helptext/db.md`, `gitmap/helptext/start-fresh.md`, and `gitmap/helptext/find-duplicates.md`.
+
+## [v6.164.0] 2026-09-02 Release v6.164.0
+
+### Fixed & Enhanced
+
+- **Rune Display-Width Alignment**:
+  - Replaced raw byte length checks with terminal cell display width calculation via `runewidth.StringWidth`.
+  - Multibyte characters like `•` and international runes now align with pixel-perfect column precision across all multi-profile operations.
+
+## [v6.163.0] 2026-09-02 Release v6.163.0
+
+### Added & Enhanced
+
+- **Column Alignment & Padded Progress Output**:
+  - Dynamically calculates maximum profile label width across all discovered profiles to render cleanly column-aligned `→` progress lines.
+- **Default ZIP Archive Export & Archive Manifest**:
+  - Multi-profile batch export defaults to structured `.zip` packaging containing root `manifest.json` metadata (`gitmapVersion`, schema, profile inventory).
+  - SQLite exports record schema metadata in `gitmap_metadata` table.
+- **Smart Import, Extension Merging & Local State Registration**:
+  - Multi-format snapshot imports (`zip`, `json`, `yaml`, `sqlite`) detect tool versions, notify users on version deltas, merge pending extension IDs cleanly without duplicates, and register imported profile display names in Chrome's `Local State`.
+  - Added CLI completion footer note displaying `gitmap vX.Y.Z`.
+
+## [v6.162.0] 2026-09-02 Release v6.162.0
+
+### Added & Enhanced
+
+- **Batch Profile Export Display & Universal Aliases**:
+  - Enhanced multi-profile folder exports (`export-all` / `cpe-all`) to print full profile identity labels (`Default • Person 1 (email) → outdir/Default.json`).
+  - Silenced repetitive database sync lines during batch exports for clean output.
+  - Added universal top-level and subcommand routing for `cpe-all`, `export-all`, `cpi-all`, `import-all`, `cpc-all`, `copy-all`, and `cpe <outdir>`.
+
+## [v6.161.0] 2026-09-02 Release v6.161.0
+
+### Added & Enhanced
+
+- **Chrome Profile Name and Email Export Progress Display**:
+  - Export operations (`json`, `yaml`, `sqlite`, `zip`) now resolve and print the human-readable profile display name and user email address from Chrome's `Local State` and `Preferences`.
+  - Intelligently avoids redundant repetition when the display name is identical to the email.
+  - Added unit tests for profile label formatting with full permutations.
+
+- **CI/CD Reliability & Go Linter Hardening**:
+  - Fixed relative output pathing in `ci.yml` for `go -C gitmap` invocations across Linux and Windows.
+  - Refactored multi-branch conditionals in `chromeprofile.go` to idiomatic Go `switch` statements to pass `gocritic` diff checks.
+
+## [v6.160.0] 2026-09-01 Release v6.160.0
+
+### Added & Enhanced
+
+- **CI/CD Reliability & E2E Testing**:
+  - Added full `docs-site` frontend Vite build verification (`npm run build`) in CI workflows.
+  - Added comprehensive `e2e-cli-smoke.py` suite covering scheduled tasks, macros, retries, and Chrome management.
+  - Fixed release workflow version resolution to dynamically bind to triggered git tags.
+  - Resolved `02-spec/21-app` relative import paths across documentation views.
+
+## [v6.158.1] 2026-09-01 Release v6.158.1
+
+### Install gitmap v6.158.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.158.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.158.1"`
+
+### Fixed
+
+- **Fix `gitmap update` Version Detection & Display Drift**:
+  - Removed duplicate rogue lowercase `"version": "6.153.0"` key from `version.json` that was overriding the root version during JSON deserialization.
+  - Enhanced `fetchRemoteTargetVersion` in `updateremoteinstall.go` to resolve the actual published release version from GitHub Releases API with fallback to `version.json`.
+  - Updated `readTargetVersion` and `decodeVersionFromMap` to check both `"Version"` and `"version"` keys safely without stream override bugs.
+  - Synchronized pinned release documentation in `readme.md`.
+
+## [v6.158.0] 2026-09-01 Release v6.158.0
+
+### Install gitmap v6.158.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.158.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.158.0"`
+
+### Added & Enhanced
+
+- **Macro Line-by-Line Terminal Logs Array in JSON & YAML**:
+  - Captured live command output per step into `"logs": []string` array in both JSON and YAML outputs.
+  - Added structured `"errorLogs": []string` and `"error": string` capture on failed steps.
+  - Supported all file flag aliases: `--file`, `--filepath`, `--out`, `--output`, `-o`, `-f`.
+  - Expanded LLM documentation with detailed step logs schema and usage guidelines.
+
+## [v6.157.0] 2026-09-01 Release v6.157.0
+
+### Install gitmap v6.157.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.157.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.157.0"`
+
+### Added & Enhanced
+
+- **Macro Structured Reporting & File Export Engine**:
+  - Added `--json` and `--yaml` flags for `gitmap macro run`, `gitmap macro show`, and `gitmap macro list`.
+  - Added `--file <path>` / `--out <path>` / `-o <path>` to export structured reports directly to files while printing formatted reports and absolute file path confirmations in the terminal.
+  - Automatically captures step timings, command lines, exit codes, errors, and working directories into structured payloads.
+- **Comprehensive LLM Documentation**:
+  - Expanded `llm.md`, `gitmap/llm.md`, `gitmap/helptext/llm.md`, and `gitmap/helptext/macro.md` with complete workflows for macros, AI CI/CD telemetry, error log extraction, search tools, and file inspection.
+
+## [v6.156.4] 2026-08-31 Release v6.156.4
+
+### Install gitmap v6.156.4
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.4"`
+
+### Fixed & Cleaned
+
+- **Clean Unused Legacy Function**:
+  - Removed deprecated `parseCdTarget` from `gitmap/macro/record.go` which was replaced by modular directory parsing in `gitmap/macro/record_dir.go`.
+
+## [v6.156.3] 2026-08-31 Release v6.156.3
+
+### Install gitmap v6.156.3
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.3"`
+
+### Fixed & Enhanced
+
+- **Macro Dynamic Working Directory Tracking & Navigation**:
+  - Replay execution now dynamically tracks and maintains runtime working directory across all steps (`cd <dir>`, `cd ..`, `cd -`, and `gitmap cd <repo>`).
+  - Automatically resolves `gitmap cd <repo>` to repository paths from database or filesystem and switches execution context for all subsequent macro steps.
+  - Fixes child subshell execution failure where directory changes were lost between steps.
+
+## [v6.156.2] 2026-08-31 Release v6.156.2
+
+### Install gitmap v6.156.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.2"`
+
+### Added & Enhanced
+
+- **Top-Level Working Directory & Navigation Display**:
+  - Displays the active working directory on the top level above each prompt (`┌─ 📁 <path>`) with box-drawing styling and vivid cyan accents.
+  - Live feedback banner on directory changes (`➜ 📁 Directory: <path>`) with support for `cd -` previous directory swapping.
+- **Enhanced Terminal Coloring & Badges**:
+  - Live execution duration badge (`✔ Recorded step N (0.1s)`).
+  - Multi-colored session commands in header and help menu (`stop`, `cancel`, `undo`, `redo`, `list`, `help`).
+
+## [v6.156.1] 2026-08-31 Release v6.156.1
+
+### Install gitmap v6.156.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.1"`
+
+### Added & Enhanced
+
+- **Interactive Macro Recorder Path & Environment Variable Expansion**:
+  - Automatically expands Windows environment variables (`%TEMP%`, `%USERPROFILE%`, `%APPDATA%`, etc.), Unix variables (`$VAR`, `${VAR}`), and tilde (`~`, `~/...`) before execution and saving.
+  - Automatically resolves and tracks working directory changes (`cd <path>` and `chdir <path>`).
+- **Interactive Macro Recorder In-Session Commands**:
+  - Added `undo` and `undo-steps <N> [-y]` to undo the last execution or last N executions with prompt confirmation.
+  - Added `redo` and `redo-steps <N>` to restore previously undone steps.
+  - Added in-session `help` and `list` / `steps` commands, with helpful next-action tips displayed upon undo/redo operations.
+- **Help Documentation**:
+  - Added comprehensive documentation and examples in `gitmap/helptext/macro.md`.
+
+## [v6.156.0] 2026-08-31 Release v6.156.0
+
+### Install gitmap v6.156.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.0"`
+
+### Added & Enhanced
+
+- **Minor Version Feature Release**:
+  - Full stability and architectural hardening across the CLI, scheduler, error management, and pipeline telemetry engine.
+  - Complete conformance with boolean naming conventions, AST conditional nesting limits, and runnable golden help examples.
+
+## [v6.155.11] 2026-08-31 Release v6.155.11
+
+### Install gitmap v6.155.11
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.11"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.11"`
+
+### Fixed & Enhanced
+
+- **Flattened Nested Conditionals Across Core Packages**:
+  - Refactored `captureStackTrace` in `gitmap/apperror/apperror.go` to delegate stack frame appending to `appendStackFrame`, eliminating nested if blocks (depth >= 2).
+  - Flattened `parsePipelineAIDelay` in `gitmap/cmd/pipeline_ai.go` by extracting `extractDelaySeconds` helper and using guard checks.
+  - Flattened `sumCompletedRunDurations` in `gitmap/cmd/pipeline_status.go` with early continue guard clauses.
+- **Help Text Golden Assertion Compliance**:
+  - Standardized the Examples section heading across `gitmap/helptext/llm.md`, `llm.md`, `gitmap/llm.md`, and `gitmap/cmd/llm/llm.go` to `## Examples (Step-by-Step AI Workflows)` to satisfy `TestEveryHelpFileHasExamples`.
+
+## [v6.155.10] 2026-08-31 Release v6.155.10
+
+### Install gitmap v6.155.10
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.10"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.10"`
+
+### Added & Enhanced
+
+- **Autonomous Pipeline-AI Command Suite (`gitmap pipeline-ai`)**:
+  - Implemented `gitmap pipeline-ai status` (and aliases `pl-ai`, `plai`) with automatic 20s default delay and custom delay `-t <seconds>` (minimum 20s).
+  - Displays delay notifications in terminal and stderr in JSON mode.
+  - Automatically recommends the next AI execution command (`gitmap pipeline-ai status -t <etaSeconds>`) embedded directly in both the human-readable UI and structured JSON payload (`nextAiCommand`).
+  - Added dedicated documentation and help text in `gitmap/helptext/pipeline-ai.md` and updated LLM specs (`llm.md`, `gitmap/llm.md`, `gitmap/cmd/llm/llm.go`).
+  - Added full end-to-end smoke test coverage (`82/82` tests passing).
+
+## [v6.155.9] 2026-08-31 Release v6.155.9
+
+### Install gitmap v6.155.9
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.9"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.9"`
+
+### Fixed & Enhanced
+
+- **Historical Duration-Based Pipeline ETA Calculation**:
+  - Enhanced `calculateETA` in `gitmap/cmd/pipeline_status.go` to compute dynamic ETA by averaging actual elapsed run durations from recent completed workflow runs (`updatedAt - createdAt`).
+  - Added 20-second lower bound for pipeline waiting periods so AI and automation engines avoid high-frequency status queries (< 20s).
+  - Extended GitHub Actions run query in `pipeline_query.go` to retrieve up to 15 runs including `updatedAt` timestamps.
+
+## [v6.155.8] 2026-08-31 Release v6.155.8
+
+### Install gitmap v6.155.8
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.8"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.8"`
+
+### Fixed & Enhanced
+
+- **Compiled Stack Trace Engine in AppError**:
+  - Enhanced `apperror.AppError` with call frame hierarchy extraction using `runtime.Callers` and `runtime.CallersFrames`.
+  - All errors created via `apperror.New`, `Wrap`, `NewSimple`, `WrapSimple` now automatically capture stack traces.
+  - Formats clean terminal stack traces to `os.Stderr` and persists `stack` in `.gitmap/last_error.log`.
+  - Added full nil pointer safety in `(e *AppError) Unwrap()` and `(e *AppError) Error()`.
+
+- **Comprehensive End-to-End CLI Smoke Test Suite**:
+  - Implemented `.github/scripts/e2e-cli-smoke.py` covering 77+ distinct commands, aliases, subcommands, zero-argument help dialogs, and ad-hoc queries across the entire CLI surface.
+  - Integrated E2E CLI testing into `smoke-installer.py` for automated validation on both Linux and Windows CI runners and release pipelines.
+  - Fixed aliases and routing for `--help`, `-h`, `sc`, `replace history`, and Antigravity workspace commands (`agy`, `ag`, `antigravity`).
+
+## [v6.155.7] 2026-08-31 Release v6.155.7
+
+### Install gitmap v6.155.7
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.7"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.7"`
+
+### Fixed & Enhanced
+
+- **LLM Help & Terminal Display Spacing Overhaul**:
+  - Added clean vertical gaps and newline spacing across all sections of `gitmap llm` and `llm.md`.
+  - Added comprehensive step-by-step AI Agent Standard Operating Procedure (SOP) diagram.
+  - Added copy-pasteable real-world examples for CI/CD self-healing loop, file discovery with extension filtering, batch regex replacement, Antigravity workspaces, and background cron scheduler.
+  - Added master alternative commands & aliases cheat sheet.
+  - Fixed version formatting in CLI trailer (`v6.155.7`).
+
+## [v6.155.6] 2026-08-31 Release v6.155.6
+
+### Install gitmap v6.155.6
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.6"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.6"`
+
+### Fixed & Enhanced
+
+- **Interactive Search & File Discovery Help**:
+  - Running search commands with no arguments (`find`, `find-files`, `find-files-any`, `find-files-startswith`, `find-files-endswith`, `search`, `find-regex`, `find-read`, `find-regex-read`, `repo-search`) now automatically outputs comprehensive usage guides, descriptions, aliases, and examples instead of executing unconstrained blank searches.
+
+## [v6.155.5] 2026-08-31 Release v6.155.5
+
+### Install gitmap v6.155.5
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.5"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.5"`
+
+### Fixed & Enhanced
+
+- **Terminal Help UI Overhaul**:
+  - Distinct colored headers for flag sections and category banners.
+  - Consistent blank newline gaps before and after every super-category, group header, and flag section header.
+  - Refactored Integrations section (`vscode`, `antigravity`, `schedule`, `pipeline`, `ui`) from multi-line broken brackets into clean, 2-column aligned rows with aliases.
+  - Enhanced all command aliases and alt text visibility (`pl`, `eta`, `waittime`, `ff`, `ffa`, `ffs`, `ffe`, `f`, `lf`, `agy`, `ag`, `vsc`, `sc`, `cpf`, `cpb`, `cpr`, `pcp`).
+  - Added dedicated `Search & File Discovery` help group.
+- **Comprehensive LLM Specification & AI Agent Guidelines**:
+  - Added 5-phase AI Agent Standard Operating Procedure (SOP) execution order diagram.
+  - Added rich step-by-step real-world workflows with commands and JSON outputs (CI/CD self-healing loop, file discovery, batch refactoring with rollback, workspace management).
+  - Added complete Alternative Commands & Aliases cheat sheet.
+
+## [v6.155.4] 2026-08-31 Release v6.155.4
+
+### Install gitmap v6.155.4
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.4"`
+
+### Fixed & Enhanced
+
+- Enhanced `install.ps1` and `install.sh` terminal output to detect and display previous installed version (e.g. `upgrading v6.155.3 -> v6.155.4` or `clean install`).
+- Fixed duplicate binary prefix in post-install verification (cleaned up `gitmap gitmap v6.155.3` to `Installed: gitmap v6.155.4 (upgraded from v6.155.3)`).
+
+## [v6.155.3] 2026-08-31 Release v6.155.3
+
+### Install gitmap v6.155.3
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.3"`
+
+### Added
+
+- Added CI/CD pipeline telemetry and file search command suite to `llm.md` and embedded `gitmap llm` instructions for autonomous AI agents.
+- Added `buildPipelineGroup` and `buildSearchFindGroup` to `gitmap llm-docs` generator.
+
+### Fixed
+
+- Fixed `gofmt` compliance in `gitmap/cmd/llmdocsgroups.go`.
+
+## [v6.155.2] 2026-08-31 Release v6.155.2
+
+### Install gitmap v6.155.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.2"`
+
+### Added
+
+- Added `gitmap pipeline eta` subcommand alias and `gitmap eta` top-level shortcut for CI/CD remaining wait time.
+
+## [v6.155.1] 2026-08-31 Release v6.155.1
+
+### Install gitmap v6.155.1
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.1"`
+
+### Fixed
+
+- Fixed `gofmt` compliance in `gitmap/cmd/folder/folder.go` and `gitmap/cmd/sequence_cmd.go`.
+- Added `go-format-check.py` to local CI/CD runner `06-cicd-local-runner.py` to prevent formatting drift.
+
+## [v6.155.0] 2026-08-31 Release v6.155.0
+
+### Install gitmap v6.155.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.0"`
+
+### Added
+
+- Added `gitmap find-files` exact filename search with optional `-ext` extension filtering.
+- Added `gitmap find-files-any` substring/contains filename search with optional `-ext` extension filtering.
+- Added `gitmap find-files-startswith` prefix filename search with optional `-ext` extension filtering.
+- Added `gitmap find-files-endswith` suffix filename search with optional `-ext` extension filtering.
+- Added wildcard glob matching (`*ends`, `starts*`, `*contains*`) and `-ext` filtering to `gitmap find` and `gitmap list-files`.
+- Added embedded markdown terminal help pages for `find-files`, `find-files-any`, `find-files-startswith`, `find-files-endswith`, `list-files`, and updated `find`.
+- Added Web UI command documentation registry for Search & File Discovery (`searchfind`) in `src/data/commands.ts`.
+- Added unbuffered `flush=True` output streaming to CI/CD local runner `06-cicd-local-runner.py`.
+
+## [v6.154.0] 2026-08-31 Release v6.154.0
+
+### Install gitmap v6.154.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.154.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.154.0"`
+
+### Added
+
+- Added `gitmap pipeline` command suite (`status`, `status --json`, `waittime`, `logs`, `error-logs`, `error-logs --json`, `--file`, `--tempfile`, `help`) with GitHub CLI (`gh`) integration and SQLite persistence.
+- Added top-level shortcuts for `error-logs`, `logs`, `waittime`, `export-all`, `import-all`, and `export-only`.
+- Added high-contrast dark mode text styling and interactive Web Terminal drawer to `gitmap ui`.
+- Added runtime caller stack trace tracking to `AppError` and structured `.gitmap/last_error.log` for autonomous AI diagnostics.
+- Added build-time command invocation test gate to CI/CD local runner suite.
+- Converted CI formatting scripts to cross-platform Python scripts (`go-format-check.py`, `fix-repo-gofmt-audit.py`).
+
+## [v6.137.0] 2026-08-28 - commit-push and rm-git
+
+### Install gitmap v6.137.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.137.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.137.0"`
+
+### Added
+
+- Added commit-push suite commands and rm-git for agile CLI workflow
+
+## [v6.131.0] 2026-08-27 - search and llm feature spec
+
+### Install gitmap v6.131.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.131.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.131.0"`
+
+### Added
+
+- Added comprehensive AI Instruction Generic Spec for upcoming gitmap search, gitmap llm, and Split DB architecture LLM search tooling feature set.
+
+## [v6.130.0] 2026-08-27 - github-desktop linux install fix
+
+### Install gitmap v6.130.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.130.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.130.0"`
+
+### Fixed
+
+- Fixed gitmap install github-desktop on Linux (APT) failing with exit status 100 by migrating from the deprecated pt.packages.shiftkey.dev APT repository to the new official mirror.mwt.me mirror.
+
+## [v6.129.0] 2026-08-27 - ag and vscode install commands
+
+### Install gitmap v6.129.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.129.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.129.0"`
+
+### Added
+
+- gitmap ag and gitmap antigravity top-level commands to seamlessly open projects with Antigravity.
+- gitmap ag install and gitmap vscode install subcommands to automatically install the respective tools and Windows right-click context menus.
+- "Open project with Antigravity" option integrated into the gitmap install ctx right-click registry generation.
+
+### Fixed
+
+- Fixed missing command registrations for folder, git-rm, ignore, and add commands in the command dispatcher routing table.
+
+## [v6.128.0] 2026-08-27 - ignore and add commands
+
+### Install gitmap v6.128.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.128.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.128.0"`
+
+### Added
+
+- gitmap ignore dynamically updates .gitignore without duplicates.
+- gitmap ignore-rm automatically cleans git history and updates .gitignore in one action.
+- gitmap add common-attr instantly bootstraps standardized .gitattributes.
+- gitmap add common-ignore instantly bootstraps standardized .gitignore template.
+
+## [v6.127.0] 2026-08-27 - git-rm and folder export features
+
+### Install gitmap v6.127.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.127.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.127.0"`
+
+### Added
+
+- Implemented gitmap folder for exporting directory trees to .txt, .md, .json, and .yaml with pattern exclusion support.
+- Implemented gitmap git-rm for aggressively scrubbing files from git history with automated backups to the global .gitmap folder.
+
+## [v6.26.0] - 2026-08-27
+
+## [v6.126.0] - 2026-08-27
+
+### Added
+
+- PR Engine integration for commit-transfer and commit-in.
+- Left padding and improved formatting for commit CLI output.
+- Keep URL toggle in commit replay settings.
+- Template overrides for generic commit messages.
+
+## [v6.28.0] - 2026-08-27
+
+### Fixed
+
+- Fixed golangci-lint drift by downgrading to go 1.24.
+- Synced generated commands.
+- Fixed changelog sync check.
+- Fixed install_profile_tree test aliases.
+
+## [v6.27.0] - 2026-08-27
+
+### Added
+
+- Added implemented agy (antigravity) commands.
+- Added implemented vscode commands.
+- Fixed spacing in help menu.
