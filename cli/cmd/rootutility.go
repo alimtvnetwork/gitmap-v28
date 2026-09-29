@@ -8,6 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -110,6 +111,10 @@ func runUpdateHelp() error {
 	if len(args) > 0 && (args[0] == "ssh" || args[0] == "remote") {
 		return cmdssh.RunSSHUpdateCLI(args[1:])
 	}
+	if hasSSHArg(args) {
+		cleaned := stripSSHFlag(args)
+		return cmdssh.RunSSHUpdateCLI(cleaned)
+	}
 	checkHelp("update", argsTail())
 
 	if isVersionListRequest(args) && isAgmUpdateTarget(args) {
@@ -124,11 +129,15 @@ func runUpdateHelp() error {
 		pkg := resolveUpdatePackage(cleanArgs)
 		return cmdssh.RunSSHUpdateCLI([]string{pkg, remoteTarget})
 	}
+
+	targetVer := extractVersionFromArgs(args)
+	applyPinIfRequested(args, targetVer)
+
 	if isAgmUpdateTarget(args) {
 		return runUpdateAgManagerTarget(args)
 	}
 
-	targetVer := extractVersionFromArgs(args)
+	targetVer = resolveEffectiveVersion("gitmap", targetVer)
 	if targetVer != "" {
 		cmdupdate.SetTargetVersion(targetVer)
 	}
@@ -141,6 +150,59 @@ func runUpdateHelp() error {
 	return runUpdate()
 }
 
+func applyPinIfRequested(args []string, targetVer string) {
+	if !hasPinArg(args) || targetVer == "" {
+		return
+	}
+	appName := "gitmap"
+	if isAgmUpdateTarget(args) {
+		appName = "agm"
+	}
+	_ = cmdinstaller.PinVersion(appName, targetVer)
+}
+
+func resolveEffectiveVersion(appName, requestedVer string) string {
+	if requestedVer != "" {
+		return requestedVer
+	}
+	pinned, err := cmdinstaller.GetPinnedVersion(appName)
+	if err == nil && pinned != "" {
+		return pinned
+	}
+	return ""
+}
+
+func hasPinArg(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "--pin" || low == "-pin" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasSSHArg(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "--ssh" || low == "-ssh" || low == "--remote" {
+			return true
+		}
+	}
+	return false
+}
+
+func stripSSHFlag(args []string) []string {
+	var cleaned []string
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low != "--ssh" && low != "-ssh" && low != "--remote" {
+			cleaned = append(cleaned, a)
+		}
+	}
+	return cleaned
+}
+
 func isKnownUpdateTargetOrFlag(token string) bool {
 	if strings.HasPrefix(token, "-") {
 		return true
@@ -150,7 +212,7 @@ func isKnownUpdateTargetOrFlag(token string) bool {
 	}
 	low := strings.ToLower(token)
 	switch low {
-	case "all", "all-nodes", "allnodes", "ls", "list", "ssh", "remote", "gitmap", "agm", "ag-manager", "antigravity-manager":
+	case "all", "all-nodes", "allnodes", "ls", "list", "ssh", "remote", "gitmap", "agm", "agy", "ag-manager", "antigravity-manager":
 		return true
 	default:
 		return false
@@ -211,7 +273,7 @@ func isAgmUpdateTarget(args []string) bool {
 
 func isAgmToken(arg string) bool {
 	low := strings.ToLower(arg)
-	return low == "agm" || low == "ag-manager" || low == "antigravity-manager"
+	return low == "agm" || low == "agy" || low == "ag-manager" || low == "antigravity-manager"
 }
 
 func runUpdateAgManagerTarget(args []string) error {
@@ -222,9 +284,11 @@ func runUpdateAgManagerTarget(args []string) error {
 	if isVersionListRequest(cleanArgs) {
 		return RunAGMVersionTagsLS()
 	}
+	ver := extractVersionFromArgs(cleanArgs)
+	ver = resolveEffectiveVersion("agm", ver)
 	opts := cmdinstall.InstallOptions{
 		DryRun:  hasDryRunArg(cleanArgs),
-		Version: extractVersionFromArgs(cleanArgs),
+		Version: ver,
 	}
 	return cmdinstall.RunUpdateAgManagerWithOpts(opts)
 }
@@ -287,8 +351,9 @@ func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return runDocs(argsTail()) }},
 		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
-		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias, "llm-train", "llmtrain"}, func() error { return runLLMDocs(argsTail()) }},
-		{[]string{"ai-server", "ai-ping", "aum-server", "aum"}, func() error { return runAIMemoryServerCmd(argsTail()) }},
+		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias, "ld"}, func() error { return runLLMDocs(argsTail()) }},
+		{[]string{"llm-train", "train", "llmtrain"}, func() error { return runLlm(append([]string{"train"}, argsTail()...)) }},
+		{[]string{"ai-server", "ai-ping", "aum-server"}, func() error { return runAIMemoryServerCmd(argsTail()) }},
 		{[]string{constants.CmdSetSourceRepo}, runSetSourceRepo},
 		{[]string{constants.CmdSf}, func() error { return runSf(argsTail()) }},
 		{[]string{constants.CmdProbe}, func() error { return runProbe(argsTail()) }},
@@ -322,6 +387,7 @@ func utilitySystemEntries() []dispatchEntry {
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
 		{[]string{"ai-clean", "aiclean", "clean-ai"}, func() error { return cmdos.RunOSAICleanCLI(argsTail()) }},
 		{[]string{constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen}, func() error { return cmdagy.RunSUGCLI(argsTail()) }},
+		{[]string{constants.CmdWatchPromptsRunning, constants.CmdWatchPromptsRunningAlias, "watch-running-prompts"}, func() error { return cmdagy.RunWPRCLI(argsTail()) }},
 	}
 }
 
@@ -336,7 +402,7 @@ func utilityPipelineEntries() []dispatchEntry {
 		{[]string{"pipeline-fix", "fix-pipeline", "aef", "agy-errors-fix", "fix-agy"}, func() error { return cmdagy.RunPipelineFixAgyCLI(argsTail()) }},
 		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return runPipelineAI(argsTail()) }},
 		{[]string{"pipeline", "pipelines", "pl"}, func() error { return runPipeline(argsTail()) }},
-		{[]string{"pe", "pipeline-errors", "pipeline_errors"}, func() error { return runPipelineErrors(argsTail()) }},
+		{[]string{"pe", "pipeline-errors", "pipeline_errors", "ee"}, func() error { return runPipelineErrors(argsTail()) }},
 		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return runPipelineDetails(argsTail()) }},
 		{[]string{"e", "errors", "internal-errors", "errs"}, func() error { return cmderrors.RunErrorsCLI(argsTail()) }},
 		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},

@@ -21,12 +21,16 @@ from pathlib import Path
 
 def git_cmd(cwd: Path, *args: str) -> str:
     """Executes a git command in the target directory and returns stripped stdout."""
-    return subprocess.check_output(
+    res = subprocess.run(
         ["git"] + list(args),
         cwd=str(cwd),
         text=True,
-        stderr=subprocess.DEVNULL,
-    ).strip()
+        capture_output=True,
+    )
+    if res.returncode != 0:
+        print(f"git_cmd failed: args={args} cwd={cwd} code={res.returncode} stderr={res.stderr.strip()}", file=sys.stderr)
+        raise subprocess.CalledProcessError(res.returncode, ["git"] + list(args), res.stdout, res.stderr)
+    return res.stdout.strip()
 
 
 def sha256_text(text: str) -> str:

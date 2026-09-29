@@ -118,6 +118,8 @@ func toolingSpecialRepoEntries() []dispatchEntry {
 func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"installer"}, func() error { return RunInstallerCLI(argsTail()) }},
+		{[]string{"pin", "version-pin"}, func() error { return runPinCLI(argsTail()) }},
+		{[]string{"unpin", "version-unpin"}, func() error { return runUnpinCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines", "ct"}, func() error { return runCG(argsTail()) }},
 		{[]string{"install-version-json", "init-version"}, func() error { return runCG(append([]string{"install-version-json"}, argsTail()...)) }},
 		{[]string{"install-prompts", "install-prompt"}, func() error { return runCG(append([]string{"install-prompts"}, argsTail()...)) }},

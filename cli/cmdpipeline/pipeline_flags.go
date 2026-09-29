@@ -26,6 +26,8 @@ type PipelineErrorFlags struct {
 	HasForce             bool
 	FormatProfile        string
 	RepoTarget           string
+	RawRepoTarget        string
+	ResolvedPath         string
 }
 
 // ParsePipelineErrorFlags parses command-line arguments for pipeline error-logs.
@@ -259,18 +261,38 @@ func parseRepoTarget(args []string, flags *PipelineErrorFlags) {
 		explicit = extractFlagVal(args, "-r")
 	}
 	if len(explicit) > 0 {
-		flags.RepoTarget = ResolvePipelineTarget(explicit)
+		flags.RawRepoTarget = explicit
+		flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(explicit)
 		return
 	}
 
-	for _, a := range args {
-		trimmed := strings.TrimSpace(a)
-		if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		if isValueFlag(a) {
+			i++
 			continue
 		}
-		flags.RepoTarget = ResolvePipelineTarget(trimmed)
+		trimmed := strings.TrimSpace(a)
+		if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget || isConsumedFlagValue(trimmed, flags) {
+			continue
+		}
+		flags.RawRepoTarget = trimmed
+		flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(trimmed)
 		return
 	}
+}
+
+func isValueFlag(flag string) bool {
+	switch strings.ToLower(flag) {
+	case "--file", "--tempfile", "--format", "--repo", "-r", "--last-failures":
+		return true
+	default:
+		return false
+	}
+}
+
+func isConsumedFlagValue(val string, flags *PipelineErrorFlags) bool {
+	return val == flags.FilePath || val == flags.TempFileName || val == flags.FormatProfile
 }
 
 func isSkipTokenForRepoTarget(token string) bool {
@@ -278,7 +300,8 @@ func isSkipTokenForRepoTarget(token string) bool {
 		return true
 	}
 	switch strings.ToLower(token) {
-	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "help":
+	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "ee", "help",
+		"format", "add-format", "rm-format", "remove-format", "add-all", "list-formats", "preview-format":
 		return true
 	default:
 		return false

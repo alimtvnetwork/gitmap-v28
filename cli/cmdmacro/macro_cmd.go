@@ -240,7 +240,7 @@ func routeSyncSubcommand(rest []string) result.ErrorWrapper {
 
 func isModifySubcommand(sub string) bool {
 	switch sub {
-	case "add", "create", "new", "edit", "modify", "record", "rec", "rm", "delete":
+	case "add", "create", "new", "edit", "modify", "record", "rec", "rm", "remove", "delete":
 		return true
 	default:
 		return false

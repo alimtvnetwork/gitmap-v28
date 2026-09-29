@@ -111,7 +111,7 @@ func isPowerStatusSubcmd(arg string) bool {
 }
 
 func isPowerCancelSubcmd(arg string) bool {
-	return arg == "cancel" || arg == "abort" || arg == "stop" || arg == "rm"
+	return arg == "cancel" || arg == "abort" || arg == "stop" || arg == "rm" || arg == "remove"
 }
 
 // RunSchedulePowerCLI handles the schedule power subcommands from the CLI.

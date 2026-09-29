@@ -26,10 +26,10 @@ func buildAgySugHelpMenu() termhelp.HelpMenu {
 		},
 		FooterFlags: buildSugFooterFlags(),
 		Tips: []string{
+			"Shutdown Condition: System triggers power-off ONLY when ALL registered projects turn green simultaneously.",
 			"Run 'gitmap sug agy-running-projects' (or 'gitmap sug arp') to auto-register all active workspaces.",
-			"Run 'gitmap sug status' to check if a watch loop process is currently active or idle.",
+			"Run 'gitmap sug clear' (or 'gitmap sug remove all') to wipe the watch list clean.",
 			"Run 'gitmap sug ui' (or 'gitmap sug web') to open the dark-mode dashboard in your browser.",
-			"Direct path: 'gitmap sug d:/work/my-project' registers and monitors the target immediately.",
 		},
 	}
 }
@@ -38,9 +38,10 @@ func buildSugCommandsSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
 		Title: "Watch List Commands",
 		Entries: []termhelp.CommandEntry{
-			{Command: "ls / status (st)", Description: "List registered targets and check live watch loop process state"},
+			{Command: "ls / status (st)", Description: "List registered targets, live watch process state & background info"},
 			{Command: "add-projects <targets...>", Description: "Register project targets into watch list (alias: add, /add, ap)"},
-			{Command: "rm <targets...>", Description: "Remove targets from watch list (alias: /rm, remove, del, delete)"},
+			{Command: "remove <targets...> (rm)", Description: "Remove targets from watch list (alias: /rm, del, delete)"},
+			{Command: "clear (remove-all, rm-all)", Description: "Clear all targets from watch list (alias: clear-all)"},
 			{Command: "agy-running-projects", Description: "Auto-populate with running AGY projects (alias: running-projects, arp, rp)"},
 			{Command: "ui (web)", Description: "Launch dark-mode local browser dashboard for visual project monitoring"},
 			{Command: "help", Description: "Show this comprehensive interactive help menu"},

@@ -10,6 +10,8 @@
     Path to vmpass.json credential fallback. Defaults to D:\work\repo-secrets\01-gitmap\vmpass.json.
 .PARAMETER Target
     Optional deploy target machine (e.g. w1, w2, or all).
+.PARAMETER Except
+    Comma-separated list of node IDs, IPs, or aliases to exclude during deployment.
 .PARAMETER Deploy
     Switch to automatically deploy the imported configuration across remote fleet machines.
 .EXAMPLE
@@ -18,9 +20,11 @@
 #>
 [CmdletBinding()]
 param(
+    [Alias("Path")]
     [string]$FilePath = "",
     [string]$PassFile = "",
     [string]$Target = "all",
+    [string]$Except = "",
     [switch]$Deploy = $false
 )
 
@@ -79,6 +83,7 @@ if ($FilePath -ne "") {
     $Candidates = @(
         "D:\work\repo-secrets\01-gitmap\gitmap-ssh-nodes.json",
         (Join-Path $PSScriptRoot "..\..\repo-secrets\01-gitmap\gitmap-ssh-nodes.json"),
+        "D:\work\repo-secrets\gitmap-ssh-nodes.json",
         (Join-Path $PSScriptRoot "gitmap-ssh-nodes.json"),
         "gitmap-ssh-nodes.json"
     )
@@ -107,7 +112,11 @@ Write-Host "`n[Step 4] Enrolled cluster node inventory:" -ForegroundColor Yellow
 # 5. Optional Fleet Deploy
 if ($Deploy) {
     Write-Host "`n[Step 5] Deploying node configuration across fleet (target: $Target)..." -ForegroundColor Yellow
-    & $GitMapBin deploy config ssh $Target
+    if ($Except -ne "") {
+        & $GitMapBin deploy config ssh $Target --except $Except
+    } else {
+        & $GitMapBin deploy config ssh $Target
+    }
 }
 
 Write-Host "`n==========================================================" -ForegroundColor Green

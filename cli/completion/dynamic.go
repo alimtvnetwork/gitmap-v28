@@ -23,6 +23,9 @@ import (
 	"strings"
 )
 
+// DynamicRepoSupplier allows cmd to supply repository slugs/names for tab completion.
+var DynamicRepoSupplier func() []string
+
 // Dynamic returns suggestions for the given argv slice. `cword` is
 // the index of the word being completed (0-based, excluding the
 // `gitmap` binary itself). When no specialized handler matches it
@@ -37,7 +40,11 @@ func Dynamic(cword int, argv []string) []string {
 
 	switch {
 	case isRepoPathCmd(cmd):
-		return filterByPrefix(localGitDirs("."), prefix)
+		candidates := localGitDirs(".")
+		if DynamicRepoSupplier != nil {
+			candidates = append(candidates, DynamicRepoSupplier()...)
+		}
+		return filterByPrefix(candidates, prefix)
 	case strings.HasPrefix(cmd, "chrome-profile") || cmd == "cpc" || cmd == "cpm":
 		return filterByPrefix(chromeProfileNames(), prefix)
 	default:

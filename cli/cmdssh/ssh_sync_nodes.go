@@ -42,29 +42,10 @@ func SyncSSHConnectionsLocally(conns []db.SSHConnection) (NodeSyncStats, error) 
 }
 
 func syncSingleConnection(stats *NodeSyncStats, ctx context.Context, sqlDB *sql.DB, incoming db.SSHConnection, now time.Time) {
-	var existing *db.SSHConnection
-
-	foundAlias, errAlias := db.GetSSHConnectionByAlias(ctx, sqlDB, incoming.Alias)
-	if errAlias == nil && foundAlias != nil && foundAlias.Alias != "" {
-		existing = foundAlias
-	} else if incoming.IPAddress != "" {
-		foundIP, errIP := db.GetSSHConnectionByIP(ctx, sqlDB, incoming.IPAddress)
-		if errIP == nil && foundIP != nil && foundIP.Alias != "" {
-			existing = foundIP
-		}
-	}
-
+	existing := findExistingLocalConnection(ctx, sqlDB, incoming)
 	if existing != nil {
 		stats.Matched++
-		isChanged, merged := mergeConnectionChanges(*existing, incoming)
-		if isChanged {
-			if err := db.InsertOrUpdateSSHConnection(ctx, sqlDB, merged); err == nil {
-				stats.Updated++
-			}
-			upsertConnToSSHHost(ctx, sqlDB, merged, now)
-		} else {
-			stats.Unchanged++
-		}
+		applyMatchedConnectionUpdate(stats, ctx, sqlDB, *existing, incoming, now)
 		return
 	}
 
@@ -73,6 +54,33 @@ func syncSingleConnection(stats *NodeSyncStats, ctx context.Context, sqlDB *sql.
 		stats.Inserted++
 	}
 	upsertConnToSSHHost(ctx, sqlDB, incoming, now)
+}
+
+func findExistingLocalConnection(ctx context.Context, sqlDB *sql.DB, incoming db.SSHConnection) *db.SSHConnection {
+	foundAlias, errAlias := db.GetSSHConnectionByAlias(ctx, sqlDB, incoming.Alias)
+	if errAlias == nil && foundAlias != nil && foundAlias.Alias != "" {
+		return foundAlias
+	}
+	if incoming.IPAddress == "" {
+		return nil
+	}
+	foundIP, errIP := db.GetSSHConnectionByIP(ctx, sqlDB, incoming.IPAddress)
+	if errIP == nil && foundIP != nil && foundIP.Alias != "" {
+		return foundIP
+	}
+	return nil
+}
+
+func applyMatchedConnectionUpdate(stats *NodeSyncStats, ctx context.Context, sqlDB *sql.DB, existing, incoming db.SSHConnection, now time.Time) {
+	isChanged, merged := mergeConnectionChanges(existing, incoming)
+	if !isChanged {
+		stats.Unchanged++
+		return
+	}
+	if err := db.InsertOrUpdateSSHConnection(ctx, sqlDB, merged); err == nil {
+		stats.Updated++
+	}
+	upsertConnToSSHHost(ctx, sqlDB, merged, now)
 }
 
 func mergeConnectionChanges(existing, incoming db.SSHConnection) (bool, db.SSHConnection) {
@@ -87,19 +95,9 @@ func mergeConnectionChanges(existing, incoming db.SSHConnection) (bool, db.SSHCo
 		merged.Username = incoming.Username
 		isChanged = true
 	}
-	if incoming.EncryptedPassword != "" && incoming.EncryptedPassword != existing.EncryptedPassword {
-		incomingDec := tryDecryptCandidate(incoming.EncryptedPassword)
-		existingDec := tryDecryptCandidate(existing.EncryptedPassword)
-		if incomingDec != "" || existingDec == "" {
-			merged.EncryptedPassword = incoming.EncryptedPassword
-			isChanged = true
-		}
-	} else if existing.EncryptedPassword == "" || tryDecryptCandidate(existing.EncryptedPassword) == "" {
-		enriched := enrichConnectionPassword(existing)
-		if enriched.EncryptedPassword != "" && enriched.EncryptedPassword != existing.EncryptedPassword {
-			merged.EncryptedPassword = enriched.EncryptedPassword
-			isChanged = true
-		}
+	if passChanged, newPass := resolveMergedPassword(existing, incoming); passChanged {
+		merged.EncryptedPassword = newPass
+		isChanged = true
 	}
 	if incoming.KeyPath != "" && incoming.KeyPath != existing.KeyPath {
 		merged.KeyPath = incoming.KeyPath
@@ -125,16 +123,42 @@ func mergeConnectionChanges(existing, incoming db.SSHConnection) (bool, db.SSHCo
 	return isChanged, merged
 }
 
+func resolveMergedPassword(existing, incoming db.SSHConnection) (bool, string) {
+	if incoming.EncryptedPassword != "" && incoming.EncryptedPassword != existing.EncryptedPassword {
+		incomingDec := tryDecryptCandidate(incoming.EncryptedPassword)
+		existingDec := tryDecryptCandidate(existing.EncryptedPassword)
+		if incomingDec != "" || existingDec == "" {
+			return true, incoming.EncryptedPassword
+		}
+		return false, existing.EncryptedPassword
+	}
+	if existing.EncryptedPassword != "" && tryDecryptCandidate(existing.EncryptedPassword) != "" {
+		return false, existing.EncryptedPassword
+	}
+	enriched := enrichConnectionPassword(existing)
+	if enriched.EncryptedPassword != "" && enriched.EncryptedPassword != existing.EncryptedPassword {
+		return true, enriched.EncryptedPassword
+	}
+	return false, existing.EncryptedPassword
+}
+
 func portableEncryptConnections(conns []db.SSHConnection) []db.SSHConnection {
 	out := make([]db.SSHConnection, len(conns))
 	copy(out, conns)
 	for i := range out {
-		plain := resolveCandidatePassword(out[i])
-		if plain != "" {
-			if enc, err := encryptWithFallbackAES(plain); err == nil {
-				out[i].EncryptedPassword = enc
-			}
-		}
+		out[i].EncryptedPassword = portableEncryptSingle(out[i])
 	}
 	return out
+}
+
+func portableEncryptSingle(c db.SSHConnection) string {
+	plain := resolveCandidatePassword(c)
+	if plain == "" {
+		return c.EncryptedPassword
+	}
+	enc, err := encryptWithFallbackAES(plain)
+	if err != nil {
+		return c.EncryptedPassword
+	}
+	return enc
 }

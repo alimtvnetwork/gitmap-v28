@@ -96,8 +96,8 @@ func dispatchTemplates(command string) (bool, error) {
 		return false, nil
 	}
 
-	if len(os.Args) < 3 {
-		exitTemplatesRootUsage()
+	if len(os.Args) < 3 || IsHelpFlag(os.Args[2]) {
+		printHelpAndExit("templates", os.Args[2:])
 
 		return true, nil
 	}
@@ -107,20 +107,14 @@ func dispatchTemplates(command string) (bool, error) {
 	return true, nil
 }
 
-func exitTemplatesRootUsage() {
-	err := apperror.NewWithDetails(
-		"cmd.templates.dispatch", "E1103", usageTemplatesRoot,
-		"cmd.templates", apperror.ErrorTypeValidation, apperror.SeverityError, nil,
-	)
-	cliexit.HandleError(err, 1)
-}
-
 func routeTemplatesSubcommand(sub string, rest []string) {
 	if dispatchStateTemplatesSub(sub, rest) {
 		return
 	}
 
 	switch sub {
+	case "help", "--help", "-h":
+		printHelpAndExit("templates", rest)
 	case cmdTemplatesList, cmdTemplatesListAlias:
 		_ = runTemplatesList(rest)
 	case cmdTemplatesShow, cmdTemplatesShowAlias:

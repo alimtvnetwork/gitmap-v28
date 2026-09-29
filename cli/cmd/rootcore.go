@@ -84,6 +84,7 @@ func coreBasicOpEntries() []dispatchEntry {
 			return runPullAllEfficient(argsTail(), true, alias, isShort)
 		}},
 		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return runStatus(argsTail()) }},
+		{[]string{"commit", "cm"}, func() error { return runCommitCLI(argsTail()) }},
 		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},
 		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return runExec(argsTail()) }},
 	}

@@ -70,7 +70,7 @@ func runCacheCmd(cmd *cobra.Command, args []string) error {
 			dir = args[1]
 		}
 		return toError(RunCacheWarm(dir))
-	case "clear", "purge", "rm":
+	case "clear", "purge", "rm", "remove":
 		return toError(RunCacheClear())
 	default:
 		return toError(RunCacheStatus())

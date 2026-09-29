@@ -98,14 +98,12 @@ func extractFailingJobsAndSteps(jobs []ghJobItem) []FailedJobItem {
 	return results
 }
 
-//nolint:misspell // GitHub Actions API uses British spelling "cancelled"
 func isJobFailing(j ghJobItem) bool {
-	return j.Conclusion == "failure" || j.Conclusion == "cancelled" || j.Conclusion == "timed_out" || j.Conclusion == "startup_failure"
+	return j.Conclusion == "failure" || strings.HasPrefix(j.Conclusion, "cancel") || j.Conclusion == "timed_out" || j.Conclusion == "startup_failure"
 }
 
-//nolint:misspell // GitHub Actions API uses British spelling "cancelled"
 func isStepFailing(s ghStepItem) bool {
-	return s.Conclusion == "failure" || s.Conclusion == "cancelled" || s.Conclusion == "timed_out"
+	return s.Conclusion == "failure" || strings.HasPrefix(s.Conclusion, "cancel") || s.Conclusion == "timed_out"
 }
 
 func extractFailingStepsFromJob(j ghJobItem) []FailedJobItem {

@@ -54,8 +54,8 @@ func buildAgyHelpMenu() termhelp.HelpMenu {
 		},
 		FooterFlags: []termhelp.CommandEntry{
 			{Command: "-h, --help", Description: "Show help for agy"},
-			{Command: "-j, --json", Description: "Output structured JSON where supported (rp, lap, telegram, settings)"},
-			{Command: "-f, --file <path>", Description: "Export JSON output directly to <path> (rp, lap)"},
+			{Command: "-j, --json", Description: "Output structured JSON where supported (running-projects / rp, lap, telegram, settings)"},
+			{Command: "-f, --file <path>", Description: "Export JSON output directly to <path> (running-projects / rp, lap)"},
 		},
 		Tips: []string{
 			"Run 'gitmap agy <command> --help' for details on any subcommand.",
@@ -72,13 +72,13 @@ func buildProjectMgmtSection() termhelp.HelpSection {
 			{Command: "ls", Description: "List projects in status table grouped by root folder"},
 			{Command: "add . / add <path>", Description: "Add current repo (.) or <path> to Antigravity workspace registry"},
 			{Command: "add-read . / add-read <path> (ar)", Description: "Add current repo (.) or <path> and run Read Memory prompt"},
-			{Command: "rm <id>", Description: "Remove project configuration (files on disk preserved)"},
+			{Command: "remove <id> (rm)", Description: "Remove project configuration (files on disk preserved)"},
 			{Command: "update <id>", Description: "Update project updatedAt timestamp to now"},
 			{Command: "scan [path]", Description: "Scan directory and register Antigravity projects"},
 			{Command: "reconcile (recon)", Description: "Reconcile missing projects with active paths"},
 			{Command: "remove-missing", Description: "Remove stale references to missing directories"},
 			{Command: "pin-projects (pins)", Description: "Manage pinned priority projects"},
-			{Command: "recreate-project (recreate, rp)", Description: "Purge cache/convs, re-register project, and start read-memory conv"},
+			{Command: "recreate-project (recreate)", Description: "Purge cache/convs, re-register project, and start read-memory conv"},
 			{Command: "group", Description: "Group and categorize projects by tag or folder", HasSubcommands: true},
 		},
 	}
@@ -93,8 +93,8 @@ func buildActiveLapAndRerunSection() termhelp.HelpSection {
 
 func buildLapAndRerunEntries() []termhelp.CommandEntry {
 	return []termhelp.CommandEntry{
-		{Command: "rp ls", Description: "List running projects with 24h sequence (#1), ID, alias, path & [convID]"},
-		{Command: "rp prompts ls [--wc 200]", Description: "Tree view of running projects and active prompts (200 words default)"},
+		{Command: "running-projects (rp) [ls]", Description: "List running projects with 24h sequence (#1), ID, alias, path & [convID]"},
+		{Command: "running-projects (rp) prompts ls [--wc 200]", Description: "Tree view of running projects and active prompts (200 words default)"},
 		{Command: "last-active-projects (lap) [N] [ls]", Description: "Projects active in last N hours (default 24h, --limit 10, --offset, --page, --wc 200)"},
 		{Command: "rerun-with-id (rwi) <id|seq> <c> <p>", Description: "Inject prompt/file into project (<id|alias|seq|path>) and conversation (<c>|P1)"},
 		{Command: "rerun-with-convid (rwc, rwp) <c|P1> <p>", Description: "Resolve project + conv from <convid|P1> (rerun-with-prompt-id) and inject prompt/file"},

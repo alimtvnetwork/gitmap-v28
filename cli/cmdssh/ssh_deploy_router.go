@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -16,19 +17,24 @@ func RunSSHDeployRouterCLI(args []string) error {
 	}
 	sub := strings.ToLower(args[0])
 	switch sub {
-	case "keys", "key", "k":
-		return RunSSHDeployKeysCLI(args[1:])
-	case "bin", "binary", "exe", "gitmap":
-		return RunSSHDeployBinCLI(args[1:])
-	case "node-config", "nodeconfig", "nc", "nodes":
-		return RunSSHDeployConfigSSHCLI(args[1:])
 	case "config", "config-ssh", "ssh-config":
+		if len(args) > 1 && strings.EqualFold(args[1], "ssh") {
+			return RunSSHDeployConfigSSHCLI(args[2:])
+		}
 		return RunSSHDeployConfigSSHCLI(args[1:])
 	case "ssh":
 		if len(args) > 1 && strings.EqualFold(args[1], "config") {
 			return RunSSHDeployConfigSSHCLI(args[2:])
 		}
 		return RunSSHDeployConfigSSHCLI(args[1:])
+	case "keys", "key", "k":
+		return RunSSHDeployKeysCLI(args[1:])
+	case "bin", "binary", "exe", "gitmap":
+		return RunSSHDeployBinCLI(args[1:])
+	case "node-config", "nodeconfig", "nc", "nodes":
+		return RunSSHDeployConfigSSHCLI(args[1:])
+	case "macro", "macros":
+		return cmdmacro.ExecuteMacroDeploySSH(args[1:])
 	case "help", "--help", "-h":
 		printDeployHelp()
 		return nil
@@ -50,10 +56,10 @@ func routeFallbackDeploy(args []string) error {
 func printDeployHelp() {
 	fmt.Printf("\n  %s🚀 GitMap SSH Fleet Deploy Commands%s\n\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Println("    gitmap deploy config ssh [all|<target>] [--file <path>] [--except <id,ip,alias>]")
-	fmt.Println("        Deploy SSH node topology, passwords, and cluster config from local DB across fleet.")
-	fmt.Println("        (Checks existing configuration, matches by Alias/IP, and updates without duplicates)")
+	fmt.Println("        Deploy node topology, IP addresses, aliases, and credentials across fleet nodes.")
+	fmt.Println("        (Deploys from CLI config or JSON file; updates existing records without duplicates)")
 	fmt.Println()
-	fmt.Println("    gitmap ssh deploy node-config [all] [--except <id,ip,alias>]")
+	fmt.Println("    gitmap ssh deploy node-config [all] [--except <id,ip,alias>] (alias: nc)")
 	fmt.Println("        Deploy node topology, IP addresses, and aliases across all target fleet nodes.")
 	fmt.Println("        (Recommended to run FIRST so all nodes know cluster topology)")
 	fmt.Println()
@@ -66,7 +72,7 @@ func printDeployHelp() {
 	fmt.Println("        and deploy into ~/.ssh/authorized_keys across all nodes for passwordless SSH.")
 	fmt.Println()
 	fmt.Println("    Flags:")
-	fmt.Println("        --file, -f <path>      Deploy from specified JSON file instead of local DB")
+	fmt.Println("        -f, --file <path>      Deploy from specified JSON file instead of local CLI config")
 	fmt.Println("        --except, -e <tokens>  Exclude nodes by numeric ID, worker ID, IP, or alias")
 	fmt.Println("        --dry-run, -n          Preview deployment actions without modifying files")
 	fmt.Println("        --json                 Output machine-readable JSON metrics")

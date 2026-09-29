@@ -2,9 +2,12 @@ package cmdclone
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -22,16 +25,16 @@ func ResolveRepoSlug(target string) string {
 	}
 
 	cachedURL := resolveFromStore(target)
-	hasCachedURL := len(cachedURL) > 0
-	if hasCachedURL {
+	if len(cachedURL) > 0 {
 		return cachedURL
 	}
 
 	ghURL := resolveFromGitHubCLI(target)
-	hasGhURL := len(ghURL) > 0
-	if hasGhURL {
+	if len(ghURL) > 0 {
 		return ghURL
 	}
+
+	printRepoSlugSuggestions(target)
 
 	return target
 }
@@ -60,19 +63,75 @@ func resolveFromStore(slug string) string {
 	}
 
 	for _, r := range repos {
-		isMatchingName := strings.EqualFold(r.RepoName, cleanSlug) || strings.EqualFold(r.Slug, cleanSlug)
-		if !isMatchingName {
-			continue
-		}
-		if len(r.HTTPSUrl) > 0 {
-			return r.HTTPSUrl
-		}
-		if len(r.SSHUrl) > 0 {
-			return r.SSHUrl
+		if strings.EqualFold(r.RepoName, cleanSlug) || strings.EqualFold(r.Slug, cleanSlug) {
+			return pickRepoURL(r)
 		}
 	}
 
+	for _, r := range repos {
+		if strings.HasPrefix(strings.ToLower(r.RepoName), cleanSlug) || strings.HasPrefix(strings.ToLower(r.Slug), cleanSlug) {
+			return pickRepoURL(r)
+		}
+	}
+
+	for _, r := range repos {
+		if strings.Contains(strings.ToLower(r.RepoName), cleanSlug) || strings.Contains(strings.ToLower(r.Slug), cleanSlug) {
+			return pickRepoURL(r)
+		}
+	}
+
+	resolved, err := mainDB.ResolveAlias(slug)
+	if err == nil && resolved.Slug != "" {
+		return matchRepoURLBySlug(repos, resolved.Slug)
+	}
+
 	return ""
+}
+
+func matchRepoURLBySlug(repos []model.ScanRecord, slug string) string {
+	for _, r := range repos {
+		if strings.EqualFold(r.Slug, slug) {
+			return pickRepoURL(r)
+		}
+	}
+	return ""
+}
+
+func pickRepoURL(r model.ScanRecord) string {
+	if len(r.HTTPSUrl) > 0 {
+		return r.HTTPSUrl
+	}
+	return r.SSHUrl
+}
+
+func printRepoSlugSuggestions(target string) {
+	mainDB, err := store.OpenDefault()
+	if err != nil {
+		return
+	}
+	defer mainDB.Close()
+
+	cleanTarget := extractRepoNameFromTarget(target)
+	suggs, _ := mainDB.GetRepoSuggestions(cleanTarget)
+	if len(suggs) == 0 {
+		suggs = findClosestRepoSuggestions(mainDB, cleanTarget)
+	}
+	if len(suggs) > 0 {
+		fmt.Fprintf(os.Stderr, "Repository %q not found. Did you mean:\n", cleanTarget)
+		for _, s := range suggs {
+			fmt.Fprintf(os.Stderr, "  %s\n", s)
+		}
+	}
+}
+
+func extractRepoNameFromTarget(target string) string {
+	clean := strings.TrimSpace(target)
+	clean = strings.TrimSuffix(clean, ".git")
+	clean = strings.TrimRight(clean, "/\\")
+	if idx := strings.LastIndexAny(clean, "/:"); idx != -1 {
+		clean = clean[idx+1:]
+	}
+	return clean
 }
 
 func resolveFromGitHubCLI(slug string) string {
@@ -88,7 +147,7 @@ func resolveFromGitHubCLI(slug string) string {
 		return ""
 	}
 
-	cleanSlug := strings.ToLower(slug)
+	cleanSlug := strings.ToLower(extractRepoNameFromTarget(slug))
 	for _, r := range repos {
 		isExactMatch := strings.EqualFold(r.Name, cleanSlug)
 		if isExactMatch {

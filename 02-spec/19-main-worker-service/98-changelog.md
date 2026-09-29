@@ -1,3 +1,93 @@
+## v6.403.0 — 2026-09-29 (version pinning, macro fleet deploy, and UI settings layout)
+
+**Scope:** Version bump. version pinning, macro fleet deploy, and UI settings layout.
+
+---
+
+## v6.402.0 — 2026-09-29 (resolve SA4024 staticcheck warning in prettypost)
+
+**Scope:** Version bump. resolve SA4024 staticcheck warning in prettypost.
+
+---
+
+## v6.401.0 — 2026-09-29 (flatten nested ifs in prettypost for linter compliance)
+
+**Scope:** Version bump. flatten nested ifs in prettypost for linter compliance.
+
+---
+
+## v6.400.0 — 2026-09-29 (restructure markdown help into modern box display format and universal catalog fallback)
+
+**Scope:** Version bump. restructure markdown help into modern box display format and universal catalog fallback.
+
+---
+
+## v6.399.0 — 2026-09-29 (add import-ssh-nodes.ps1 for importing repo-secrets into gitmap)
+
+**Scope:** Version bump. add import-ssh-nodes.ps1 for importing repo-secrets into gitmap.
+
+---
+
+## v6.398.0 — 2026-09-29 (format templatescli.go with gofmt)
+
+**Scope:** Version bump. format templatescli.go with gofmt.
+
+---
+
+## v6.397.0 — 2026-09-29 (universal command help modernization, llm train self-loop, and search benchmarks)
+
+**Scope:** Version bump. universal command help modernization, llm train self-loop, and search benchmarks.
+
+---
+
+## v6.396.0 — 2026-09-29 (flatten nested ifs in pipeline_logs and pipeline_query for boolean and enum compliance)
+
+**Scope:** Version bump. flatten nested ifs in pipeline_logs and pipeline_query for boolean and enum compliance.
+
+---
+
+## v6.395.0 — 2026-09-29 (resolve ee external repo targets, fix cfr bare repo suggestions, and add cache cleanup guard)
+
+**Scope:** Version bump. resolve ee external repo targets, fix cfr bare repo suggestions, and add cache cleanup guard.
+
+---
+
+## v6.394.0 — 2026-09-29 (Release v6.393.0: folder-tree command suite and ls preview enhancement)
+
+**Scope:** Version bump. Release v6.393.0: folder-tree command suite and ls preview enhancement.
+
+---
+
+## v6.393.0 — 2026-09-29 (Enhance ls preview options and add folder-tree command suite with emoji tree, sequence numbers, and multi-format scaffolding)
+
+**Scope:** Version bump. Enhance ls preview options and add folder-tree command suite with emoji tree, sequence numbers, and multi-format scaffolding.
+
+---
+
+## v6.392.0 — 2026-09-29 (Release v6.392.0)
+
+**Scope:** Version bump. Release v6.392.0 - add folder-tree command suite, ls preview gap format, and directory scaffolding export/import.
+
+---
+
+## v6.391.0 — 2026-09-29 (Release v6.391.0)
+
+**Scope:** Version bump. Release v6.391.0.
+
+---
+
+## v6.390.0 — 2026-09-28 (enhance sug ls, add clear/remove-all, full forms for agy rp, and remove ee in favor of pe)
+
+**Scope:** Version bump. enhance sug ls, add clear/remove-all, full forms for agy rp, and remove ee in favor of pe.
+
+---
+
+## v6.389.0 — 2026-09-28 (feat(deploy): deploy config ssh, ee target cwd resolution, and cfr suggestions)
+
+**Scope:** Version bump. feat(deploy): deploy config ssh, ee target cwd resolution, and cfr suggestions.
+
+---
+
 ## v6.388.0 — 2026-09-28 (eliminate unused functions and fix spelling for strict golangci-lint CI gate)
 
 **Scope:** Version bump. eliminate unused functions and fix spelling for strict golangci-lint CI gate.

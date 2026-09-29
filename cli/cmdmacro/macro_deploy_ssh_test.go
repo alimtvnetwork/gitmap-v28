@@ -215,3 +215,59 @@ func TestExecuteMacroDeploySSH_PartialFailure(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+func TestExecuteMacroDeploySSH_SpecificMacroAndNode(t *testing.T) {
+	origLoad := LoadClusterTargetsFn
+	origTransfer := TransferMacrosToTargetFn
+	origCollect := CollectAllLocalMacrosFn
+	defer func() {
+		LoadClusterTargetsFn = origLoad
+		TransferMacrosToTargetFn = origTransfer
+		CollectAllLocalMacrosFn = origCollect
+	}()
+
+	mockTargets := createMockTargets()
+	LoadClusterTargetsFn = func() ([]MacroDeployTarget, error) {
+		return mockTargets, nil
+	}
+
+	mockMacros := []macro.Macro{
+		{Name: "macro-build", Description: "Build pipeline"},
+		{Name: "macro-test", Description: "Test pipeline"},
+	}
+	CollectAllLocalMacrosFn = func() ([]macro.Macro, error) {
+		return mockMacros, nil
+	}
+
+	var deployedNodes []string
+	var deployedMacroNames []string
+	TransferMacrosToTargetFn = func(target MacroDeployTarget, macros []macro.Macro, opts MacroDeployOptions) error {
+		deployedNodes = append(deployedNodes, target.Alias)
+		for _, m := range macros {
+			deployedMacroNames = append(deployedMacroNames, m.Name)
+		}
+		return nil
+	}
+
+	// Case 1: deploy specific macro to specific node
+	err := ExecuteMacroDeploySSH([]string{"deploy", "macro", "macro-build", "worker-alpha"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(deployedNodes) != 1 || deployedNodes[0] != "worker-alpha" {
+		t.Errorf("expected worker-alpha deployed, got %+v", deployedNodes)
+	}
+	if len(deployedMacroNames) != 1 || deployedMacroNames[0] != "macro-build" {
+		t.Errorf("expected macro-build deployed, got %+v", deployedMacroNames)
+	}
+
+	// Case 2: deploy non-existent macro returns nil cleanly without transfer
+	deployedNodes = nil
+	err = ExecuteMacroDeploySSH([]string{"deploy", "macro", "non-existent-macro", "worker-alpha"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(deployedNodes) != 0 {
+		t.Errorf("expected 0 transfers for non-existent macro, got %d", len(deployedNodes))
+	}
+}

@@ -31,6 +31,47 @@ func generatePowerShell() string {
         return
     }
 
+    if ($cmd -eq "cfr" -or $cmd -eq "cfrp" -or $cmd -eq "clone-fix-repo" -or $cmd -eq "clone-fix-repo-pub" -or $cmd -eq "clone") {
+        $repos = @(gitmap completion --list-repos)
+        $aliases = @(gitmap completion --list-aliases)
+        $items = $repos + $aliases + @("--https", "--ssh", "--force", "-f")
+        $matched = $items | Where-Object { $_ -like "$wordToComplete*" }
+        if (-not $matched) {
+            $matched = $items | Where-Object { $_ -like "*$wordToComplete*" }
+        }
+        $matched | ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
+    if ($cmd -eq "pe" -or $cmd -eq "pipeline-errors" -or $cmd -eq "ee") {
+        $repos = @(gitmap completion --list-repos)
+        $aliases = @(gitmap completion --list-aliases)
+        $items = $repos + $aliases + @("--json", "--live", "--all", "--verbose", "--wait")
+        $matched = $items | Where-Object { $_ -like "$wordToComplete*" }
+        if (-not $matched) {
+            $matched = $items | Where-Object { $_ -like "*$wordToComplete*" }
+        }
+        $matched | ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
+    if ($cmd -eq "deploy" -or $cmd -eq "deploy-right" -or $cmd -eq "deploy-left") {
+        if ($sub -eq "config") {
+            $items = @("ssh", "--file", "--dry-run", "--json")
+            $items | Where-Object { $_ -like "$wordToComplete*" } |
+                ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+            return
+        }
+        $subs = @("config", "config-ssh", "nodes", "keys", "bin", "--overwrite", "--skip", "--sync", "--dry-run", "--json", "all")
+        $subs | Where-Object { $_ -like "$wordToComplete*" } |
+            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
     if ($cmd -eq "exec" -and ($prev -eq "--group")) {
         gitmap completion --list-groups | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }

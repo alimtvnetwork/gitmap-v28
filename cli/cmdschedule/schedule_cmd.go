@@ -118,7 +118,7 @@ func dispatchScheduleInspectOps(sub string, rest []string) (bool, error) {
 		return true, runScheduleRun(rest)
 	case "test":
 		return true, runScheduleTest(rest)
-	case "rm", "delete", "del":
+	case "rm", "remove", "delete", "del":
 		return true, runScheduleDelete(rest)
 	}
 	return false, nil

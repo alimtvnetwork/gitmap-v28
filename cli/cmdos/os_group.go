@@ -38,7 +38,7 @@ func dispatchOSGroupSubcommand(sub string, rest []string) error {
 		return runOSGroupImport(rest)
 	case "import-all":
 		return runOSGroupImportAll(rest)
-	case "rm", "delete", "del":
+	case "rm", "remove", "delete", "del":
 		return runOSGroupRemove(rest)
 	default:
 		return apperror.NewSimple("unknown os group subcommand: "+sub, "E_OS_GROUP_INVALID")

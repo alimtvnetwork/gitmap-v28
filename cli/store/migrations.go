@@ -200,6 +200,10 @@ func RegisterInstallerMigration(dbConn *sql.DB, migrationVersion int, isForce bo
 		return errVersions
 	}
 
+	if errPins := RegisterInstallerPinsMigration(dbConn, migrationVersion, isForce); errPins != nil {
+		return errPins
+	}
+
 	return nil
 }
 

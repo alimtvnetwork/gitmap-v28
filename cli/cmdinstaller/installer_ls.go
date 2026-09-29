@@ -38,8 +38,8 @@ func init() {
 
 // printInstallerTableHeader outputs the table headers and divider for installer ls.
 func printInstallerTableHeader() {
-	fmt.Printf("%-20s %-15s %-10s %-10s %s\n", "NAME", "SLUG", "OS", "VERSION", "DESCRIPTION")
-	fmt.Println(strings.Repeat("-", 75))
+	fmt.Printf("%-20s %-15s %-10s %-10s %-12s %s\n", "NAME", "SLUG", "OS", "VERSION", "PINNED", "DESCRIPTION")
+	fmt.Println(strings.Repeat("-", 88))
 }
 
 // isSkippableInstallerRow checks if target OS matches the provided filter.
@@ -51,25 +51,54 @@ func isSkippableInstallerRow(targetOS, filter string) bool {
 	return !strings.EqualFold(targetOS, filter) && !strings.EqualFold(targetOS, "all")
 }
 
+func resolvePinnedVersion(slug, name string, pins map[string]string) (string, bool) {
+	if p, ok := pins[slug]; ok && p != "" {
+		return p, true
+	}
+	if p, ok := pins[name]; ok && p != "" {
+		return p, true
+	}
+	return "-", false
+}
+
 // printInstallerRows iterates through scripts and prints matching table rows.
-func printInstallerRows(scriptList []model.InstallerScript, osFilter string) int {
+func printInstallerRows(scriptList []model.InstallerScript, osFilter string, pins map[string]string) (int, int) {
 	filterKey := strings.ToLower(strings.TrimSpace(osFilter))
 	matchedCount := 0
+	pinnedCount := 0
 	for _, scriptRecord := range scriptList {
 		if isSkippableInstallerRow(scriptRecord.TargetOS, filterKey) {
 			continue
 		}
 
-		fmt.Printf("%-20s %-15s %-10s %-10s %s\n",
-			scriptRecord.Name, scriptRecord.Slug, scriptRecord.TargetOS, scriptRecord.Version, scriptRecord.Description)
+		pinned, isPinned := resolvePinnedVersion(strings.ToLower(scriptRecord.Slug), strings.ToLower(scriptRecord.Name), pins)
+		if isPinned {
+			pinnedCount++
+		}
+
+		fmt.Printf("%-20s %-15s %-10s %-10s %-12s %s\n",
+			scriptRecord.Name, scriptRecord.Slug, scriptRecord.TargetOS, scriptRecord.Version, pinned, scriptRecord.Description)
 		matchedCount++
 	}
 
-	return matchedCount
+	return matchedCount, pinnedCount
+}
+
+func printPinnedSummary(total, pinnedCount int, pins map[string]string) {
+	fmt.Println()
+	fmt.Printf("Summary: %d registered installer(s), %d pinned\n", total, pinnedCount)
+	if len(pins) == 0 {
+		return
+	}
+	fmt.Print("Pinned Versions: ")
+	var items []string
+	for slug, ver := range pins {
+		items = append(items, fmt.Sprintf("%s@%s", slug, ver))
+	}
+	fmt.Println(strings.Join(items, ", "))
 }
 
 // executeInstallerLs retrieves and displays installer records formatted as a table.
-
 func executeInstallerLs(ctx context.Context, dbInstance *store.DB, osFilter string) error {
 	if dbInstance == nil {
 		return apperror.New("executeInstallerLs", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "db cannot be nil"})
@@ -80,11 +109,14 @@ func executeInstallerLs(ctx context.Context, dbInstance *store.DB, osFilter stri
 		return errList
 	}
 
+	pins, _ := dbInstance.ListPinnedVersions()
 	printInstallerTableHeader()
-	if matchedCount := printInstallerRows(scriptList, osFilter); matchedCount == 0 {
+	matchedCount, pinnedCount := printInstallerRows(scriptList, osFilter, pins)
+	if matchedCount == 0 {
 		fmt.Println("No installer scripts found matching criteria.")
 	}
 
+	printPinnedSummary(len(scriptList), pinnedCount, pins)
 	return nil
 }
 

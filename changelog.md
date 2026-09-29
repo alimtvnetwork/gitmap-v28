@@ -1,3 +1,17 @@
+## [v6.392.0] 2026-09-29 Release v6.392.0
+
+### Install GitMap v6.392.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.392.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.392.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.392.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.392.0"`
+
+### Added / Changed / Fixed / Removed
+
+- `gitmap ls preview` / `--preview` / `-p` / `--gap`: Numbered repository list with repo name and path on the next line, separated by a single blank line gap between entries.
+- `gitmap ls tree` / `--tree` / `-t`: Groups repositories by parent directory in an emoji tree format (`📁 <parent-folder>`).
+- `gitmap folder-tree` (`ft`, `foldertree`): New command to scan and visualize folder and repository structures on any path on disk without prior database scanning. Includes sequence numbers, Git detection (`[git: <branch>]`), tree/preview rendering, and multi-format export/import (`json`, `yaml`, `tree`, `preview`) with directory and placeholder file scaffolding.
+
 ## [v6.380.0] 2026-09-28 Release v6.380.0
 
 ### Install GitMap v6.380.0
@@ -3213,6 +3227,174 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Fixed spacing in help menu.
 
 # Changelog
+
+## [v6.403.0] 2026-09-29 Release v6.403.0
+
+### Install GitMap v6.403.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.403.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.403.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.403.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.403.0"`
+
+### Added / Changed / Fixed / Removed
+
+- version pinning, macro fleet deploy, and UI settings layout
+
+## [v6.402.0] 2026-09-29 Release v6.402.0
+
+### Install GitMap v6.402.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.402.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.402.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.402.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.402.0"`
+
+### Added / Changed / Fixed / Removed
+
+- resolve SA4024 staticcheck warning in prettypost
+
+## [v6.401.0] 2026-09-29 Release v6.401.0
+
+### Install GitMap v6.401.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.401.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.401.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.401.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.401.0"`
+
+### Added / Changed / Fixed / Removed
+
+- flatten nested ifs in prettypost for linter compliance
+
+## [v6.400.0] 2026-09-29 Release v6.400.0
+
+### Install GitMap v6.400.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.400.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.400.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.400.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.400.0"`
+
+### Added / Changed / Fixed / Removed
+
+- restructure markdown help into modern box display format and universal catalog fallback
+
+## [v6.399.0] 2026-09-29 Release v6.399.0
+
+### Install GitMap v6.399.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.399.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.399.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.399.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.399.0"`
+
+### Added / Changed / Fixed / Removed
+
+- add import-ssh-nodes.ps1 for importing repo-secrets into gitmap
+
+## [v6.398.0] 2026-09-29 Release v6.398.0
+
+### Install GitMap v6.398.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.398.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.398.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.398.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.398.0"`
+
+### Added / Changed / Fixed / Removed
+
+- format templatescli.go with gofmt
+
+## [v6.397.0] 2026-09-29 Release v6.397.0
+
+### Install GitMap v6.397.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.397.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.397.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.397.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.397.0"`
+
+### Added / Changed / Fixed / Removed
+
+- universal command help modernization, llm train self-loop, and search benchmarks
+
+## [v6.396.0] 2026-09-29 Release v6.396.0
+
+### Install GitMap v6.396.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.396.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.396.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.396.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.396.0"`
+
+### Added / Changed / Fixed / Removed
+
+- flatten nested ifs in pipeline_logs and pipeline_query for boolean and enum compliance
+
+## [v6.395.0] 2026-09-29 Release v6.395.0
+
+### Install GitMap v6.395.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.395.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.395.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.395.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.395.0"`
+
+### Added / Changed / Fixed / Removed
+
+- resolve ee external repo targets, fix cfr bare repo suggestions, and add cache cleanup guard
+
+## [v6.394.0] 2026-09-29 Release v6.394.0
+
+### Install GitMap v6.394.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.394.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.394.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.394.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.394.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Release v6.393.0: folder-tree command suite and ls preview enhancement
+
+## [v6.393.0] 2026-09-29 Release v6.393.0
+
+### Install GitMap v6.393.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.393.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.393.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.393.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.393.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Enhance ls preview options and add folder-tree command suite with emoji tree, sequence numbers, and multi-format scaffolding
+
+## [v6.391.0] 2026-09-29 Release v6.391.0
+
+### Install GitMap v6.391.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.391.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.391.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.391.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.391.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Release v6.391.0
+
+## [v6.390.0] 2026-09-28 Release v6.390.0
+
+### Install GitMap v6.390.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.390.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.390.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.390.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.390.0"`
+
+### Added / Changed / Fixed / Removed
+
+- enhance sug ls, add clear/remove-all, full forms for agy rp, and remove ee in favor of pe
+
+## [v6.389.0] 2026-09-28 Release v6.389.0
+
+### Install GitMap v6.389.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.389.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.389.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.389.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.389.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(deploy): deploy config ssh, ee target cwd resolution, and cfr suggestions
 
 ## [v6.388.0] 2026-09-28 Release v6.388.0
 

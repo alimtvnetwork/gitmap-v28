@@ -834,8 +834,12 @@ func printCachedRunsJSON(runs []pipelinedb.PipelineRunRecord) error {
 
 // HandlePipelineHistoryErrors inspects args for negative offset or --last-failures flag and executes them.
 func HandlePipelineHistoryErrors(args []string) (bool, error) {
-	repo := resolveCurrentRepoSlug()
-	isJSON := hasArgFlag(args, "--json")
+	flags := ParsePipelineErrorFlags(args)
+	repo := flags.RepoTarget
+	if len(repo) == 0 {
+		repo = resolveCurrentRepoSlug()
+	}
+	isJSON := flags.IsJSON
 
 	if isHandled, err := tryHandleOffsetInspection(repo, args, isJSON); isHandled {
 		return true, err

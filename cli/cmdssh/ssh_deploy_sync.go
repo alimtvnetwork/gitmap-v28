@@ -13,36 +13,42 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 )
 
-// DeploySyncMode defines bidirectional synchronization conflict behavior.
-type DeploySyncMode string
+// DeploySyncModeType defines bidirectional synchronization conflict behavior.
+type DeploySyncModeType string
+
+// DeploySyncMode is a type alias for DeploySyncModeType.
+type DeploySyncMode = DeploySyncModeType
 
 const (
 	// SyncModeNone prompts interactively on conflict.
-	SyncModeNone DeploySyncMode = ""
+	SyncModeNone DeploySyncModeType = ""
 	// SyncModeOverwrite forces overwriting the remote file unconditionally.
-	SyncModeOverwrite DeploySyncMode = "overwrite"
+	SyncModeOverwrite DeploySyncModeType = "overwrite"
 	// SyncModeSkip skips transfer if remote file exists.
-	SyncModeSkip DeploySyncMode = "skip"
+	SyncModeSkip DeploySyncModeType = "skip"
 	// SyncModeSync synchronizes bidirectionally based on latest mtime.
-	SyncModeSync DeploySyncMode = "sync"
+	SyncModeSync DeploySyncModeType = "sync"
 	// SyncModeSyncRight pushes local to remote only if local is newer.
-	SyncModeSyncRight DeploySyncMode = "sync-right"
+	SyncModeSyncRight DeploySyncModeType = "sync-right"
 	// SyncModeSyncLeft pulls remote to local only if remote is newer.
-	SyncModeSyncLeft DeploySyncMode = "sync-left"
+	SyncModeSyncLeft DeploySyncModeType = "sync-left"
 )
 
-// DeployAction represents the decided action for a specific file transfer.
-type DeployAction string
+// DeployActionType represents the decided action for a specific file transfer.
+type DeployActionType string
+
+// DeployAction is a type alias for DeployActionType.
+type DeployAction = DeployActionType
 
 const (
 	// ActionTransferToRemote copies local file to remote target.
-	ActionTransferToRemote DeployAction = "transfer-to-remote"
+	ActionTransferToRemote DeployActionType = "transfer-to-remote"
 	// ActionTransferToLocal copies remote file to local workspace.
-	ActionTransferToLocal DeployAction = "transfer-to-local"
+	ActionTransferToLocal DeployActionType = "transfer-to-local"
 	// ActionSkip skips file without transfer.
-	ActionSkip DeployAction = "skip"
+	ActionSkip DeployActionType = "skip"
 	// ActionConflictPrompt requests user decision interactively.
-	ActionConflictPrompt DeployAction = "conflict-prompt"
+	ActionConflictPrompt DeployActionType = "conflict-prompt"
 )
 
 // RemoteFileInfo contains metadata about a remote file or directory.

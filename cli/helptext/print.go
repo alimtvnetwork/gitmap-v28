@@ -14,10 +14,10 @@ import (
 var files embed.FS
 
 // Print reads and prints the help file for the given command using the
-// default PrettyAuto mode (TTY auto-detect + GITMAP_NO_PRETTY opt-out).
+// PrettyOn mode to ensure modern terminal formatting is displayed.
 // Kept as a thin wrapper for callers that don't parse a --pretty flag.
 func Print(command string) {
-	PrintWithMode(command, render.PrettyAuto)
+	PrintWithMode(command, render.PrettyOn)
 }
 
 // PrintWithMode reads and prints the help file for `command`, routing the
@@ -46,7 +46,7 @@ func PrintWithMode(command string, mode render.PrettyModeType) {
 		return
 	}
 
-	if render.Decide(mode, render.StdoutIsTerminal(), true) {
+	if mode != render.PrettyOff {
 		fmt.Print(render.RenderANSI(string(data)))
 
 		return
@@ -135,6 +135,9 @@ var helpAliases = map[string]string{
 	"df":                          "storage",
 	"ag":                          "agy",
 	"antigravity":                 "agy",
+	"wpr":                         "watch-prompts-running",
+	"ft":                          "folder-tree",
+	"foldertree":                  "folder-tree",
 	"scripts":                     "ai",
 	"ai-create":                   "ai",
 	"ai-new":                      "ai",
@@ -269,4 +272,11 @@ func ReadRaw(command string) ([]byte, error) {
 	dashed := strings.ReplaceAll(low, " ", "-")
 
 	return files.ReadFile(dashed + ".md")
+}
+
+// HasTopic reports whether help documentation exists for the specified topic.
+func HasTopic(command string) bool {
+	_, err := ReadRaw(command)
+
+	return err == nil
 }

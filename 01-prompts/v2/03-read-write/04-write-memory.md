@@ -50,6 +50,11 @@ Memory in chat is lost the moment the turn finishes. Memory in `.ai-memory/` is 
 
 18. Recent 20-Task Tracking & Compact Task Register: The AI MUST inspect `.ai-memory/plans/readme.md`, `.ai-memory/plans/completed/`, and `.ai-memory/plans/pending/` to maintain a compact, accurate mental and written model of completed vs pending work. The last 20 tasks/plans MUST be cataloged in the `Recent Completed Tasks Register` in `.ai-memory/plans/readme.md` and referenced in `.ai-memory/what-to-read.md`. Every newly written memory MUST refer back to this task list and `what-to-read.md` so that during loop executions, the AI maintains continuity with recent progress.
 
+19. Zero Secrets in Repositories (`repo-secrets`) & Script Caching (`repo-cache`):
+    - Never write or persist secrets, API tokens, database passwords, private keys, or `.env` files into `.ai-memory/`, documentation, code comments, or application files. All secrets MUST be archived into the dedicated companion repository `repo-secrets` using `gitmap rs put <file|text> [--repo <name>]` or `gitmap rs file <path>`.
+    - Never leave temporary diagnostic scripts, one-off PowerShell (`.ps1`) test runners, or benchmark harnesses cluttering application repositories. Store them in `repo-cache` using `gitmap rc put <file|folder> [--repo <name>]` or `gitmap rc file <path>`.
+    - Special companion repositories are organized as `XX-<repo-name>/01-<slug>.ext` with automatic commit and push via `commit-in`.
+
 ## Working Stance
 
 The AI running this prompt has been a stupid fuck on prior runs:

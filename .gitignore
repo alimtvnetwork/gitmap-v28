@@ -79,10 +79,15 @@ tmp/
 /.tmp/
 .tmp/
 *.db
+watch-prompts/
+**/watch-prompts/
+*wpr_machine_cache.json
+cli/data/account-switch/
 
 *.db-shm
 *.db-wal
 *.lock
 .ai-memory/cicd/
 vmpass.json
-benchmark.md
+gitmap-final.json
+.antigravity_resume_task.json

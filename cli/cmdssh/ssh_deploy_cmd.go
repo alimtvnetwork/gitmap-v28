@@ -66,7 +66,7 @@ func isLegacyDeploySub(subCmd string, args []string) bool {
 
 func isKnownLegacyDeployWord(first string) bool {
 	switch first {
-	case "keys", "key", "k", "bin", "binary", "exe", "gitmap", "node-config", "nodeconfig", "nc", "nodes", "config", "config-ssh", "ssh-config", "ssh":
+	case "config", "config-ssh", "ssh-config", "ssh", "keys", "key", "k", "bin", "binary", "exe", "gitmap", "node-config", "nodeconfig", "nc", "nodes", "macro", "macros":
 		return true
 	default:
 		return false

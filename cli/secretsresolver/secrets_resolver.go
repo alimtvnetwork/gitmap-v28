@@ -33,7 +33,7 @@ func ResolveRepoSecretsRoot() string {
 		"repo-secrets",
 	}
 	for _, c := range candidates {
-		if info, err := os.Stat(c); err == nil && info.IsDir() {
+		if isDirectoryPath(c) {
 			return c
 		}
 	}
@@ -47,12 +47,17 @@ func ResolveRepoSecretsNodesPath(token string) string {
 		return trimmed
 	}
 	root := ResolveRepoSecretsRoot()
-	if trimmed != "" {
-		if folderPath := resolveFolderByToken(root, trimmed); folderPath != "" {
-			return findNodesFileInDir(folderPath)
-		}
+	if folderPath := resolveNonEmptyFolderToken(root, trimmed); folderPath != "" {
+		return findNodesFileInDir(folderPath)
 	}
 	return findDefaultNodesPath(root)
+}
+
+func resolveNonEmptyFolderToken(root, trimmed string) string {
+	if trimmed == "" {
+		return ""
+	}
+	return resolveFolderByToken(root, trimmed)
 }
 
 // ResolveRepoSecretsManifest locates a clone or status manifest (gitmap.json) for a machine token.
@@ -66,18 +71,31 @@ func ResolveRepoSecretsManifest(token string, preferredFile string) string {
 	if targetDir == "" {
 		return ""
 	}
-	if preferredFile != "" {
-		preferredPath := filepath.Join(targetDir, preferredFile)
-		if fileExists(preferredPath) {
-			return preferredPath
-		}
+	if preferredPath := resolvePreferredManifestPath(targetDir, preferredFile); preferredPath != "" {
+		return preferredPath
 	}
 	return findAnyManifestInDir(targetDir)
+}
+
+func resolvePreferredManifestPath(targetDir, preferredFile string) string {
+	if preferredFile == "" {
+		return ""
+	}
+	preferredPath := filepath.Join(targetDir, preferredFile)
+	if fileExists(preferredPath) {
+		return preferredPath
+	}
+	return ""
 }
 
 func isDirectPath(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && !info.IsDir()
+}
+
+func isDirectoryPath(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
 }
 
 func fileExists(path string) bool {
@@ -87,14 +105,11 @@ func fileExists(path string) bool {
 
 func resolveFolderByToken(root, token string) string {
 	low := strings.ToLower(token)
-	if mapped, ok := knownMachineFolderMap[low]; ok {
-		mappedPath := filepath.Join(root, mapped)
-		if info, err := os.Stat(mappedPath); err == nil && info.IsDir() {
-			return mappedPath
-		}
+	if mapped, ok := knownMachineFolderMap[low]; ok && isDirectoryPath(filepath.Join(root, mapped)) {
+		return filepath.Join(root, mapped)
 	}
 	directPath := filepath.Join(root, token)
-	if info, err := os.Stat(directPath); err == nil && info.IsDir() {
+	if isDirectoryPath(directPath) {
 		return directPath
 	}
 	return scanSubdirMatchingToken(root, low)

@@ -26,7 +26,7 @@ import (
 //
 // Run `go generate ./completion/...` after editing constants to refresh
 // allcommands_generated.go. Domain owners never need to edit the generator.
-var manualExtras = []string{"db", "start-fresh", "find-duplicates"}
+var manualExtras = []string{"db", "start-fresh", "find-duplicates", "pe", "pd"}
 
 // CustomGenerator allows package cmd to provide dynamic Cobra completion scripts.
 var CustomGenerator func(shell string) (string, error)

@@ -55,6 +55,34 @@ func TestGenerateSkillFile(t *testing.T) {
 	}
 }
 
+func TestRunTrainLoop(t *testing.T) {
+	err := RunTrain([]string{"--loop"})
+	if err != nil {
+		t.Fatalf("expected nil error for RunTrain --loop, got: %v", err)
+	}
+}
+
+func TestRunTrainSelfLoopCount(t *testing.T) {
+	err := RunTrain([]string{"--self-loop", "2"})
+	if err != nil {
+		t.Fatalf("expected nil error for RunTrain --self-loop 2, got: %v", err)
+	}
+}
+
+func TestRunTrainURL(t *testing.T) {
+	err := RunTrain([]string{"--url"})
+	if err != nil {
+		t.Fatalf("expected nil error for RunTrain --url, got: %v", err)
+	}
+}
+
+func TestRunTrainJSON(t *testing.T) {
+	err := RunTrain([]string{"--json"})
+	if err != nil {
+		t.Fatalf("expected nil error for RunTrain --json, got: %v", err)
+	}
+}
+
 func TestRunTrainHelp(t *testing.T) {
 	err := RunTrain([]string{"--help"})
 	if err != nil {

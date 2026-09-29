@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -35,31 +34,84 @@ func runList(args []string) error {
 	return nil
 }
 
+type listOptions struct {
+	group       string
+	verbose     bool
+	preview     bool
+	tree        bool
+	showNumbers bool
+	showEmoji   bool
+	useRelative bool
+}
+
 func executeList(args []string) {
-	groupFilter, verboseMode := parseListFlags(args)
+	opts := parseListFlags(args)
 	db, err := openDB()
 	if err != nil {
 		return
 	}
-
 	defer db.Close()
-	records := fetchListRecords(db, groupFilter)
-	printListOutput(records, verboseMode)
+	records := fetchListRecords(db, opts.group)
+	if opts.preview {
+		previewOpts := ListPreviewOptions{
+			ShowNumbers: opts.showNumbers,
+			ShowEmoji:   opts.showEmoji,
+			UseRelative: opts.useRelative,
+		}
+		PrintListPreviewWithOptions(records, previewOpts)
+		return
+	}
+	if opts.tree {
+		PrintListTree(records)
+		return
+	}
+	printListOutput(records, opts.verbose)
 	printHints(listHints())
+}
+
+// parseListFlags parses flags and positional modes for the list command.
+func parseListFlags(args []string) listOptions {
+	opts := listOptions{
+		showNumbers: true,
+		showEmoji:   true,
+	}
+	for _, a := range args {
+		switch strings.ToLower(a) {
+		case "preview", "-p", "--preview", "--gap", "gap":
+			opts.preview = true
+		case "tree", "-t", "--tree":
+			opts.tree = true
+		case "-v", "--verbose", "verbose":
+			opts.verbose = true
+		case "--no-numbers":
+			opts.showNumbers = false
+		case "--no-emoji":
+			opts.showEmoji = false
+		case "--relative", "-r", "--rel":
+			opts.useRelative = true
+		}
+	}
+	opts.group = extractGroupFlag(args)
+	return opts
+}
+
+func extractGroupFlag(args []string) string {
+	g := extractFlagVal(args, "-group")
+	if g == "" {
+		return extractFlagVal(args, "--group")
+	}
+	return g
 }
 
 func fetchListRecords(db *store.DB, groupFilter string) []model.ScanRecord {
 	records, err := loadListRecords(db, groupFilter)
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-
 		return nil
 	}
-
 	if err != nil {
 		return nil
 	}
-
 	return records
 }
 
@@ -69,9 +121,7 @@ func isListTypeOrGroups(arg string) bool {
 	if lower == constants.SubCmdGroups {
 		return true
 	}
-
 	_, ok := typeKeywords[lower]
-
 	return ok
 }
 
@@ -81,22 +131,10 @@ func handleListSpecial(keyword string, args []string) {
 	if lower == constants.SubCmdGroups {
 		runGroupList()
 		printHints(listGroupsHints())
-
 		return
 	}
-
 	typeKey := typeKeywords[lower]
 	runProjectRepos(typeKey, args)
-}
-
-// parseListFlags parses flags for the list command.
-func parseListFlags(args []string) (group string, verbose bool) {
-	fs := flag.NewFlagSet(constants.CmdList, flag.ExitOnError)
-	gFlag := fs.String(constants.CmdGroup, "", constants.FlagDescGroup)
-	vFlag := fs.Bool("verbose", false, constants.FlagDescListVerbose)
-	fs.Parse(args)
-
-	return *gFlag, *vFlag
 }
 
 // loadListRecords loads repos, optionally filtered by group.

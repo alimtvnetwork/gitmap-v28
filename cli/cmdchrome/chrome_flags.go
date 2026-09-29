@@ -53,7 +53,7 @@ func dispatchFlagAction(action string, args []string) error {
 		return displayChromeFlags(fmtStr)
 	case "enable", "on", "set":
 		return setChromeFlagState(args, true)
-	case "disable", "off", "rm":
+	case "disable", "off", "rm", "remove":
 		return setChromeFlagState(args, false)
 	case "reset", "clear":
 		return resetChromeFlags()

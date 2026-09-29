@@ -34,10 +34,11 @@ type MacroDeployTarget struct {
 
 // MacroDeployOptions contains parsed CLI flags for fleet deployment.
 type MacroDeployOptions struct {
-	Target   string
-	Except   string
-	IsDryRun bool
-	IsForce  bool
+	MacroName string
+	Target    string
+	Except    string
+	IsDryRun  bool
+	IsForce   bool
 }
 
 // MacroDeployNodeResult stores the deployment status on a single node.
@@ -58,12 +59,21 @@ var LoadClusterTargetsFn = loadClusterTargets
 // TransferMacrosToTargetFn is a mockable transport worker for macro transfer.
 var TransferMacrosToTargetFn = transferMacrosToTarget
 
+// CollectAllLocalMacrosFn is a mockable provider for local macro discovery.
+var CollectAllLocalMacrosFn = collectAllLocalMacros
+
 // ExecuteMacroDeploySSH distributes macros across active cluster targets.
 func ExecuteMacroDeploySSH(args []string) error {
 	opts := parseMacroDeployFlags(args)
-	macros, err := collectAllLocalMacros()
+	macros, err := CollectAllLocalMacrosFn()
 	if err != nil {
 		return apperror.WrapSimple(err, "ExecuteMacroDeploySSH.collectAllLocalMacros")
+	}
+
+	macros = filterMacrosByName(macros, opts.MacroName)
+	if isSpecificMacroMissing(opts.MacroName, len(macros)) {
+		fmt.Printf("No matching macro '%s' found to deploy.\n", opts.MacroName)
+		return nil
 	}
 
 	targets, err := LoadClusterTargetsFn()
@@ -83,14 +93,63 @@ func ExecuteMacroDeploySSH(args []string) error {
 	return nil
 }
 
+func filterMacrosByName(macros []macro.Macro, targetName string) []macro.Macro {
+	cleanName := strings.TrimSpace(targetName)
+	if cleanName == "" || strings.EqualFold(cleanName, "all") {
+		return macros
+	}
+	var filtered []macro.Macro
+	targetLower := strings.ToLower(cleanName)
+	for _, m := range macros {
+		if strings.ToLower(m.Name) == targetLower {
+			filtered = append(filtered, m)
+		}
+	}
+	return filtered
+}
+
+func isSpecificMacroMissing(macroName string, matchCount int) bool {
+	if macroName == "" || strings.EqualFold(macroName, "all") {
+		return false
+	}
+	return matchCount == 0
+}
+
 func parseMacroDeployFlags(args []string) MacroDeployOptions {
 	cleanArgs := stripLeadingKeywords(args)
 	opts := MacroDeployOptions{}
+	var posTokens []string
 	for i := 0; i < len(cleanArgs); i++ {
 		arg := cleanArgs[i]
-		processDeployFlag(arg, cleanArgs, &i, &opts)
+		if strings.HasPrefix(arg, "-") {
+			processDeployFlag(arg, cleanArgs, &i, &opts)
+			continue
+		}
+		posTokens = append(posTokens, arg)
 	}
+	assignDeployPositionalArgs(posTokens, &opts)
 	return opts
+}
+
+func assignDeployPositionalArgs(pos []string, opts *MacroDeployOptions) {
+	if len(pos) == 0 {
+		return
+	}
+	if len(pos) == 1 {
+		assignSinglePositionalArg(pos[0], opts)
+		return
+	}
+	opts.MacroName = pos[0]
+	opts.Target = pos[1]
+}
+
+func assignSinglePositionalArg(token string, opts *MacroDeployOptions) {
+	if strings.EqualFold(token, "all") {
+		return
+	}
+	if opts.Target == "" {
+		opts.Target = token
+	}
 }
 
 func stripLeadingKeywords(args []string) []string {

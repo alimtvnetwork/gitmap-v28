@@ -79,3 +79,26 @@ func TestUnterminatedQuoteClosedDefensively(t *testing.T) {
 		t.Fatalf("unterminated quote should still close: %q", out)
 	}
 }
+
+// TestRenderANSIBoxBannerAndTable verifies that Level 1 headings render as framed
+// double-line box banners and markdown tables transform without raw pipes.
+func TestRenderANSIBoxBannerAndTable(t *testing.T) {
+	md := "# `gitmap backup`\n\n| Flag | Description |\n|---|---|\n| `--note <text>` | Backup note |\n"
+	out := RenderANSI(md)
+
+	if !strings.Contains(out, "╔") || !strings.Contains(out, "║") || !strings.Contains(out, "╚") {
+		t.Fatalf("RenderANSI missing box banner borders: %q", out)
+	}
+
+	if !strings.Contains(out, "gitmap backup") {
+		t.Fatalf("RenderANSI missing title: %q", out)
+	}
+
+	if strings.Contains(out, "|---|---|") {
+		t.Fatalf("RenderANSI leaked raw markdown table separator: %q", out)
+	}
+
+	if !strings.Contains(out, "--note <text>") || !strings.Contains(out, "Backup note") {
+		t.Fatalf("RenderANSI missing transformed table content: %q", out)
+	}
+}

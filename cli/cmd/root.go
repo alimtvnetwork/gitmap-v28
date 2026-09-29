@@ -22,6 +22,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/theme"
 )
@@ -138,7 +139,33 @@ func runDispatch(command string) {
 	// second yields the correct outer→inner drain sequence.
 	defer theme.Drain()
 	defer glyphs.Drain()
+	if tryInterceptCommandHelp(command, os.Args[2:]) {
+		return
+	}
 	dispatch(command)
+}
+
+func tryInterceptCommandHelp(command string, args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	if !IsHelpFlag(args[0]) {
+		return false
+	}
+	if tryRenderRichTopic(command) {
+		cliexit.Exit(0)
+		return true
+	}
+	if helptext.HasTopic(command) {
+		printHelpAndExit(command, args)
+		return true
+	}
+	if RenderDynamicCommandHelp(command) {
+		cliexit.Exit(0)
+		return true
+	}
+
+	return false
 }
 
 func handleGlobalError(command string, err error) {
@@ -379,6 +406,11 @@ func dispatch(command string) {
 	auditID, auditStart, shouldAudit := beginCommandAudit(command, os.Args[2:])
 
 	found, err := dispatchUser(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = dispatchFolderTree(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
@@ -713,7 +745,7 @@ func dispatchAgySubsystem(
 		"backup-running-prompts", "backup-running-prompt", "brp",
 		"restore-running-prompts", "restore-running-prompt", "rrp",
 		"running-prompts", "running-prompt", "rp-prompts",
-		"running-projects", "runningprojects",
+		"running-projects", "runningprojects", "rp",
 		"fpug", "finish-prompts-until-green",
 		"sug", "shutdown-until", "shutdown-until-green",
 		"account-switch", "asw", "switch-account", "fast-forward", "ff",

@@ -26,6 +26,19 @@ func generateBash() string {
         pull)
             COMPREPLY=($(compgen -W "$(gitmap completion --list-repos)" -- "$cur"))
             ;;
+        cfr|cfrp|clone-fix-repo|clone-fix-repo-pub|clone)
+            COMPREPLY=($(compgen -W "$(gitmap completion --list-repos) $(gitmap completion --list-aliases) --https --ssh --force -f" -- "$cur"))
+            ;;
+        pe|pipeline-errors)
+            COMPREPLY=($(compgen -W "$(gitmap completion --list-repos) $(gitmap completion --list-aliases) --json --live --all --verbose --wait" -- "$cur"))
+            ;;
+        deploy|deploy-right|deploy-left)
+            if [[ "$sub" == "config" ]]; then
+                COMPREPLY=($(compgen -W "ssh --file --dry-run --json" -- "$cur"))
+            else
+                COMPREPLY=($(compgen -W "config config-ssh nodes keys bin --overwrite --skip --sync --dry-run --json all" -- "$cur"))
+            fi
+            ;;
         exec)
             if [[ "$prev" == "--group" ]]; then
                 COMPREPLY=($(compgen -W "$(gitmap completion --list-groups)" -- "$cur"))

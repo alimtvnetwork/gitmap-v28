@@ -84,17 +84,32 @@ func execUpsertSSHConnection(
 }
 
 func findExistingMatch(ctx context.Context, db *sql.DB, alias, ip string) *SSHConnection {
-	if alias != "" {
-		if found, err := GetSSHConnectionByAlias(ctx, db, alias); err == nil && found != nil {
-			return found
-		}
+	if found := findByNonEmptyAlias(ctx, db, alias); found != nil {
+		return found
 	}
-	if ip != "" {
-		if found, err := GetSSHConnectionByIP(ctx, db, ip); err == nil && found != nil {
-			return found
-		}
+	return findByNonEmptyIP(ctx, db, ip)
+}
+
+func findByNonEmptyAlias(ctx context.Context, db *sql.DB, alias string) *SSHConnection {
+	if alias == "" {
+		return nil
 	}
-	return nil
+	found, err := GetSSHConnectionByAlias(ctx, db, alias)
+	if err != nil {
+		return nil
+	}
+	return found
+}
+
+func findByNonEmptyIP(ctx context.Context, db *sql.DB, ip string) *SSHConnection {
+	if ip == "" {
+		return nil
+	}
+	found, err := GetSSHConnectionByIP(ctx, db, ip)
+	if err != nil {
+		return nil
+	}
+	return found
 }
 
 func updateMatchedConnection(ctx context.Context, db *sql.DB, existing *SSHConnection, incoming SSHConnection) *apperror.AppError {

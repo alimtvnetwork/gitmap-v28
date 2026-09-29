@@ -39,16 +39,27 @@ func printHelpAndExit(command string, args []string) {
 	if tryRenderRichTopic(command) {
 		cliexit.Exit(0)
 	}
-	_, mode := ParsePrettyFlag(args)
-	helptext.PrintWithMode(command, mode)
-	printUsageFooterShort()
+	if helptext.HasTopic(command) {
+		_, mode := ParsePrettyFlag(args)
+		helptext.PrintWithMode(command, mode)
+		printUsageFooterShort()
+		cliexit.Exit(0)
+	}
+	if RenderDynamicCommandHelp(command) {
+		cliexit.Exit(0)
+	}
 	cliexit.Exit(0)
+}
+
+// IsHelpFlag reports whether token is a help request indicator.
+func IsHelpFlag(token string) bool {
+	return token == "--help" || token == "-h" || token == "help"
 }
 
 // hasHelpFlag scans args for the standard help triggers.
 func hasHelpFlag(args []string) bool {
 	for _, a := range args {
-		if a == "--help" || a == "-h" || a == "help" {
+		if IsHelpFlag(a) {
 			return true
 		}
 	}

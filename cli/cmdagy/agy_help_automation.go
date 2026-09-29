@@ -13,7 +13,7 @@ func buildAutomationEntries() []termhelp.CommandEntry {
 	return []termhelp.CommandEntry{
 		{Command: "shutdown-until (sug)", Description: "Monitor designated projects & trigger OS shutdown when green (see: sug help)"},
 		{Command: "finish-prompts-until-green (fpug)", Description: "Loop projects until prompt queues clear and CI/CD pipelines turn green"},
-		{Command: "running-prompts (rp)", Description: "Inspect, backup, and restore active prompt queues across workspaces"},
+		{Command: "running-prompts (rp-prompts)", Description: "Inspect, backup, and restore active prompt queues across workspaces"},
 		{Command: "rerun (rr, rra, rrq) [1..4|all|queue]", Description: "Restart IDE & replay prompt + media + queued checks (see: rerun help)"},
 		{Command: "ssh <cmd> [--except id,ip,alias]", Description: "Execute any AGY command across remote SSH fleet nodes in parallel"},
 		{Command: "rop [N]", Description: "Re-read, optimize, and repair N Antigravity projects with temp backup"},

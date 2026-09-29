@@ -31,10 +31,25 @@ func GetFleetNodeCompletions() []string {
 // DeployValidArgsFunction provides dynamic completions for deploy commands.
 func DeployValidArgsFunction(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	if len(args) == 0 {
+		subcmds := []string{
+			"config\tDeploy SSH node configuration and credentials across fleet",
+			"config-ssh\tDeploy SSH configuration across fleet",
+			"nodes\tDeploy cluster node configuration",
+			"keys\tDeploy SSH authorized keys",
+			"bin\tDeploy gitmap binary to remote nodes",
+		}
+		return append(subcmds, GetFleetNodeCompletions()...), cobra.ShellCompDirectiveNoFileComp
+	}
+	if len(args) == 1 && args[0] == "config" {
+		return append([]string{"ssh\tDeploy SSH connection and credentials config"}, GetFleetNodeCompletions()...), cobra.ShellCompDirectiveNoFileComp
+	}
+	if len(args) == 1 && args[0] == "config-ssh" {
+		return GetFleetNodeCompletions(), cobra.ShellCompDirectiveNoFileComp
+	}
+	if len(args) == 2 && args[0] == "config" && args[1] == "ssh" {
 		return GetFleetNodeCompletions(), cobra.ShellCompDirectiveNoFileComp
 	}
 	if len(args) == 1 {
-		// Second argument is local source file or directory path
 		return nil, cobra.ShellCompDirectiveDefault
 	}
 	if len(args) == 2 {

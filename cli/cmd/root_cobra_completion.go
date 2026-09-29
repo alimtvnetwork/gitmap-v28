@@ -8,9 +8,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfoldertree"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -18,6 +20,7 @@ var rootCompletionCmd *cobra.Command
 
 func init() {
 	completion.CustomGenerator = GenerateCobraCompletionScript
+	completion.DynamicRepoSupplier = getDynamicRepoCompletions
 }
 
 // GetRootCompletionCmd builds and caches the top-level Cobra command tree for completion.
@@ -46,6 +49,9 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelHistoryCmd())
 	root.AddCommand(makeTopLevelHelpCmd())
 	root.AddCommand(makeTopLevelPECmd())
+	root.AddCommand(makeTopLevelCFRCmd())
+	root.AddCommand(makeTopLevelWPRCmd())
+	root.AddCommand(makeTopLevelFolderTreeCmd())
 
 	populateRemainingCommands(root)
 
@@ -81,6 +87,20 @@ func makeTopLevelSugCmd() *cobra.Command {
 	return cmd
 }
 
+func makeTopLevelWPRCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "watch-prompts-running [command]",
+		Aliases: []string{"wpr", "watch-running-prompts"},
+		Short:   "Watch, backup, auto-recover, and deploy running prompts",
+		RunE: func(c *cobra.Command, args []string) error {
+			return cmdagy.RunWPRCLI(args)
+		},
+	}
+	cmd.Flags().AddFlagSet(cmdagy.AgyWPRCmd.Flags())
+	cmd.ValidArgsFunction = cmdagy.AgyWPRCmd.ValidArgsFunction
+	return cmd
+}
+
 func makeTopLevelRunningPromptsCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:               "running-prompts [command]",
@@ -93,7 +113,7 @@ func makeTopLevelRunningPromptsCmd() *cobra.Command {
 func makeTopLevelRunningProjectsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "running-projects [ls]",
-		Aliases:           []string{"runningprojects"},
+		Aliases:           []string{"runningprojects", "rp"},
 		Short:             "List projects hosting active or queued Antigravity prompts",
 		ValidArgsFunction: cmdagy.AgyRunningProjectsCmd.ValidArgsFunction,
 	}
@@ -313,11 +333,11 @@ func buildHelpCompletions() []string {
 func makeTopLevelPECmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "pe [path|alias|url] [flags]",
-		Aliases: []string{"pipeline-errors", "pipeline_errors"},
+		Aliases: []string{"pipeline-errors", "pipeline_errors", "ee"},
 		Short:   "Inspect CI/CD pipeline error logs and status for target repository",
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
-				return getDBRepoCompletions(), cobra.ShellCompDirectiveDefault
+				return filterRepoCompletions(toComplete), cobra.ShellCompDirectiveNoFileComp
 			}
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
@@ -327,6 +347,43 @@ func makeTopLevelPECmd() *cobra.Command {
 	cmd.Flags().BoolP("check", "c", false, "Check live pipeline status")
 	cmd.Flags().BoolP("detailed", "v", false, "Display detailed stack traces")
 	return cmd
+}
+
+func makeTopLevelCFRCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "cfr [repo|alias|url] [flags]",
+		Aliases: []string{"clone-fix-repo", "cfrp", "clone-fix-repo-pub", "clone"},
+		Short:   "Clone, inspect, and fix repository with desktop sync",
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return filterRepoCompletions(toComplete), cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	cmd.Flags().Bool("https", false, "Force HTTPS clone")
+	cmd.Flags().Bool("ssh", false, "Force SSH clone")
+	return cmd
+}
+
+func filterRepoCompletions(toComplete string) []string {
+	all := getDBRepoCompletions()
+	if toComplete == "" {
+		return all
+	}
+	clean := strings.ToLower(strings.TrimSpace(toComplete))
+	var filtered []string
+	for _, entry := range all {
+		parts := strings.Split(entry, "\t")
+		name := strings.ToLower(parts[0])
+		if strings.HasPrefix(name, clean) || strings.Contains(name, clean) {
+			filtered = append(filtered, entry)
+		}
+	}
+	if len(filtered) > 0 {
+		return filtered
+	}
+	return all
 }
 
 func getDBRepoCompletions() []string {
@@ -347,4 +404,44 @@ func getDBRepoCompletions() []string {
 		}
 	}
 	return out
+}
+
+func getDynamicRepoCompletions() []string {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return nil
+	}
+	defer db.Close()
+	repos, errList := db.ListRepos()
+	if errList != nil {
+		return nil
+	}
+	return extractRepoNamesAndSlugs(repos)
+}
+
+func extractRepoNamesAndSlugs(repos []model.ScanRecord) []string {
+	seen := make(map[string]bool, len(repos)*2)
+	out := make([]string, 0, len(repos)*2)
+	for _, r := range repos {
+		if r.RepoName != "" && !seen[r.RepoName] {
+			seen[r.RepoName] = true
+			out = append(out, r.RepoName)
+		}
+		if r.Slug != "" && !seen[r.Slug] {
+			seen[r.Slug] = true
+			out = append(out, r.Slug)
+		}
+	}
+	return out
+}
+
+func makeTopLevelFolderTreeCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:     "folder-tree [path]",
+		Aliases: []string{"ft", "foldertree"},
+		Short:   "Render folder & repo tree with emoji structure, sequence numbers, export and import",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmdfoldertree.RunFolderTree(args)
+		},
+	}
 }

@@ -65,13 +65,7 @@ func runCloneFixOptimization() {
 
 func resolveCloneManifest(source string) string {
 	if len(source) > 0 {
-		if isRegularFile(source) {
-			return source
-		}
-		if resolved := secretsresolver.ResolveRepoSecretsManifest(source, "gitmap.json"); resolved != "" {
-			return resolved
-		}
-		return source
+		return resolveExplicitCloneSource(source)
 	}
 	discovered := discoverDefaultCloneManifest()
 	if len(discovered) > 0 {
@@ -81,6 +75,16 @@ func resolveCloneManifest(source string) string {
 	fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
 	cliexit.HandleError(nil, 1)
 	return ""
+}
+
+func resolveExplicitCloneSource(source string) string {
+	if isRegularFile(source) {
+		return source
+	}
+	if resolved := secretsresolver.ResolveRepoSecretsManifest(source, "gitmap.json"); resolved != "" {
+		return resolved
+	}
+	return source
 }
 
 // runClone handles the "clone" subcommand.
@@ -420,6 +424,7 @@ func executeDirectClone(params DirectCloneParams) {
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
 		closeTaskDB(taskDB)
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
+		printRepoSlugSuggestions(url)
 		cliexit.HandleError(cloneErr, 1)
 	}
 

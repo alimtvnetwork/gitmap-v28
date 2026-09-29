@@ -175,22 +175,26 @@ func decodeConnectionsFromJSON(raw []byte) ([]db.SSHConnection, error) {
 func convertExportItemsToConnections(items []SSHNodeExportItem) []db.SSHConnection {
 	out := make([]db.SSHConnection, 0, len(items))
 	for _, it := range items {
-		encPass := it.EncryptedPassword
-		if encPass == "" && it.Password != "" {
-			if encrypted, err := EncryptSSHPassword(it.Password); err == nil {
-				encPass = encrypted
-			}
-		}
 		out = append(out, db.SSHConnection{
 			Alias:             it.Alias,
 			IPAddress:         it.IPAddress,
 			Username:          it.Username,
-			EncryptedPassword: encPass,
+			EncryptedPassword: resolveExportItemPassword(it.EncryptedPassword, it.Password),
 			OS:                it.OS,
 			KeyPath:           it.KeyPath,
 		})
 	}
 	return out
+}
+
+func resolveExportItemPassword(encPass, plainPass string) string {
+	if encPass != "" || plainPass == "" {
+		return encPass
+	}
+	if encrypted, err := EncryptSSHPassword(plainPass); err == nil {
+		return encrypted
+	}
+	return ""
 }
 
 // FilterSSHConnectionsByExcept excludes connections matching any comma/space-separated ID (1, worker-1), IP, or alias.
@@ -267,11 +271,8 @@ func readNodesImportFileWithFallback(inPath string) ([]byte, string, error) {
 	if data, err := os.ReadFile(resolvedPath); err == nil {
 		return data, resolvedPath, nil
 	}
-	if info, err := os.Stat(inPath); err == nil && info.IsDir() {
-		dirPath := filepath.Join(inPath, DefaultSSHNodesJSONFile)
-		if data, dirErr := os.ReadFile(dirPath); dirErr == nil {
-			return data, dirPath, nil
-		}
+	if data, dirPath, isOk := tryReadDefaultNodesInDir(inPath); isOk {
+		return data, dirPath, nil
 	}
 	data, err := os.ReadFile(inPath)
 	if err == nil {
@@ -285,6 +286,19 @@ func readNodesImportFileWithFallback(inPath string) ([]byte, string, error) {
 		return altData, DefaultSSHNodesAltJSONFile, nil
 	}
 	return nil, inPath, err
+}
+
+func tryReadDefaultNodesInDir(inPath string) ([]byte, string, bool) {
+	info, err := os.Stat(inPath)
+	if err != nil || !info.IsDir() {
+		return nil, "", false
+	}
+	dirPath := filepath.Join(inPath, DefaultSSHNodesJSONFile)
+	data, dirErr := os.ReadFile(dirPath)
+	if dirErr != nil {
+		return nil, "", false
+	}
+	return data, dirPath, true
 }
 
 func parseImportJSONArgs(args []string) (string, string) {

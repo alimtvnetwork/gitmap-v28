@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -113,12 +114,95 @@ func queryLatestTagRelease(repo string) string {
 		return tag
 	}
 
-	tagOut, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
+	if ghTag := queryGHTags(repo); len(ghTag) > 0 {
+		return ghTag
+	}
+
+	if tag := resolveLocalTargetTag(repo); len(tag) > 0 {
+		return tag
+	}
+
+	if isGitmapRepo(repo) {
+		return "v" + constants.Version
+	}
+
+	return ""
+}
+
+func resolveLocalTargetTag(repo string) string {
+	targetDir := resolveRepoLocalDir(repo)
+	if len(targetDir) > 0 {
+		return queryLocalDirectoryTag(targetDir)
+	}
+	if isCurrentRepoMatching(repo) {
+		return queryLocalDirectoryTag(".")
+	}
+	return ""
+}
+
+func queryLocalDirectoryTag(dir string) string {
+	tagOut, err := exec.Command("git", "-C", dir, "describe", "--tags", "--abbrev=0").Output()
 	if err == nil && len(tagOut) > 0 {
 		return strings.TrimSpace(string(tagOut))
 	}
+	return readVersionJSONVersion(dir)
+}
 
-	return "v" + constants.Version
+func queryGHTags(repo string) string {
+	if len(repo) == 0 {
+		return ""
+	}
+	endpoint := fmt.Sprintf("repos/%s/tags", repo)
+	out, err := runGHCommandWithTimeout("api", endpoint, "--jq", ".[0].name")
+	if err != nil || len(out) == 0 {
+		return ""
+	}
+	tag := strings.TrimSpace(string(out))
+	if tag == "" || tag == "null" {
+		return ""
+	}
+	return tag
+}
+
+func isGitmapRepo(repo string) bool {
+	low := strings.ToLower(repo)
+	return low == "gitmap" || strings.Contains(low, "gitmap-v") || strings.HasSuffix(low, "/gitmap")
+}
+
+func isCurrentRepoMatching(repo string) bool {
+	cwdSlug := resolveCurrentRepoSlug()
+	return strings.EqualFold(cwdSlug, repo) || strings.EqualFold(filepath.Base(cwdSlug), filepath.Base(repo))
+}
+
+func resolveRepoLocalDir(repo string) string {
+	_, absPath, ok := queryRepoSlugAndPathFromDB(repo)
+	if !ok || absPath == "" {
+		return ""
+	}
+	info, err := os.Stat(absPath)
+	if err != nil || !info.IsDir() {
+		return ""
+	}
+	return absPath
+}
+
+type versionFileMinimal struct {
+	Version string `json:"version"`
+}
+
+func readVersionJSONVersion(dir string) string {
+	data, err := os.ReadFile(filepath.Join(dir, "version.json"))
+	if err != nil {
+		return ""
+	}
+	var vf versionFileMinimal
+	if err := json.Unmarshal(data, &vf); err != nil || vf.Version == "" {
+		return ""
+	}
+	if !strings.HasPrefix(vf.Version, "v") {
+		return "v" + vf.Version
+	}
+	return vf.Version
 }
 
 type ghReleaseTagItem struct {
@@ -207,7 +291,7 @@ func buildFallbackRunLogs(repo string, runId uint64) string {
 }
 
 func appendJobFallbackLogs(sb *strings.Builder, j ghJobItem, diag string) {
-	if !isJobFailingOrCancelled(j) {
+	if !isJobFailingOrCanceled(j) {
 		return
 	}
 
@@ -232,15 +316,13 @@ func appendStepFallbackLogs(sb *strings.Builder, j ghJobItem) bool {
 	return hasFailedStep
 }
 
-//nolint:misspell // GitHub Actions API uses British spelling "cancelled"
-func isJobFailingOrCancelled(j ghJobItem) bool {
-	return j.Conclusion == "failure" || j.Conclusion == "cancelled" || j.Conclusion == "timed_out" || j.Conclusion == "startup_failure"
+func isJobFailingOrCanceled(j ghJobItem) bool {
+	return j.Conclusion == "failure" || strings.HasPrefix(j.Conclusion, "cancel") || j.Conclusion == "timed_out" || j.Conclusion == "startup_failure"
 }
 
-//nolint:misspell // GitHub Actions API uses British spelling "cancelled"
 func formatConclusionTag(conclusion string) string {
-	if conclusion == "cancelled" {
-		return "CANCELLED"
+	if strings.HasPrefix(conclusion, "cancel") {
+		return "CANCELED"
 	}
 	if conclusion == "timed_out" {
 		return "TIMED_OUT"

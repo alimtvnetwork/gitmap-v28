@@ -152,10 +152,9 @@ func importConnectionsLocally(conns []db.SSHConnection) int {
 }
 
 func enrichConnectionPassword(c db.SSHConnection) db.SSHConnection {
-	if c.EncryptedPassword != "" {
-		if plain := tryDecryptCandidate(c.EncryptedPassword); plain != "" {
-			return c
-		}
+	c.EncryptedPassword = ensureEncryptedPassword(c.EncryptedPassword)
+	if c.EncryptedPassword != "" && tryDecryptCandidate(c.EncryptedPassword) != "" {
+		return c
 	}
 	plain := ResolveFallbackCredentials(c.Username, c.OS)
 	if plain == "" {
@@ -165,6 +164,17 @@ func enrichConnectionPassword(c db.SSHConnection) db.SSHConnection {
 		c.EncryptedPassword = enc
 	}
 	return c
+}
+
+func ensureEncryptedPassword(raw string) string {
+	if raw == "" || strings.HasPrefix(raw, "rsa:") || strings.HasPrefix(raw, "aes:") {
+		return raw
+	}
+	enc, err := EncryptSSHPassword(raw)
+	if err == nil && enc != "" {
+		return enc
+	}
+	return raw
 }
 
 func importKnownHostsLocally(kh string) int {
