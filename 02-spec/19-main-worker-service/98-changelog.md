@@ -1,3 +1,9 @@
+## v6.401.0 — 2026-09-29 (flatten nested ifs in prettypost for linter compliance)
+
+**Scope:** Version bump. flatten nested ifs in prettypost for linter compliance.
+
+---
+
 ## v6.400.0 — 2026-09-29 (restructure markdown help into modern box display format and universal catalog fallback)
 
 **Scope:** Version bump. restructure markdown help into modern box display format and universal catalog fallback.
