@@ -1,3 +1,9 @@
+## v6.402.0 — 2026-09-29 (resolve SA4024 staticcheck warning in prettypost)
+
+**Scope:** Version bump. resolve SA4024 staticcheck warning in prettypost.
+
+---
+
 ## v6.401.0 — 2026-09-29 (flatten nested ifs in prettypost for linter compliance)
 
 **Scope:** Version bump. flatten nested ifs in prettypost for linter compliance.
