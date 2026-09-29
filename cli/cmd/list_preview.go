@@ -63,4 +63,3 @@ func resolveBranchInfo(branch string) string {
 	}
 	return fmt.Sprintf("[git: %s]", branch)
 }
-
