@@ -54,6 +54,8 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return RunDevToolCLI(subArgs)
 	case "dev-clean", "dev-cleanup", "cleandev", "devcleanup", "clean-dev", "devtools-cache", "dev-tools-cache":
 		return RunOSDevClean(subArgs)
+	case "terminal", "terminal-clear", "clear-terminal", "clean-terminal":
+		return RunTerminalCleanCLI(subArgs)
 	case "cleanup":
 		return runOSCleanup(subArgs)
 	case "ai-clean", "aiclean", "clean-ai":

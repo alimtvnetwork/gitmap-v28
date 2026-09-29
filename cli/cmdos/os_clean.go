@@ -8,6 +8,9 @@ import (
 )
 
 func runOSClean(args []string) error {
+	if len(args) > 0 && isTerminalTarget(args[0]) {
+		return RunTerminalCleanCLI(args[1:])
+	}
 	if len(args) > 0 && isDevTarget(args[0]) {
 		return RunOSDevClean(args[1:])
 	}
@@ -59,12 +62,20 @@ func printCleanSummary(stats osclean.CleanStats, isDryRun bool) {
 }
 
 func printOSCleanUsage() {
-	fmt.Println("Usage: gitmap os clean [temp|dev|sys] [flags]")
+	fmt.Println("Usage: gitmap os clean [temp|dev|sys|terminal] [flags]")
 	fmt.Println("       gitmap os clear temp [flags]")
 	fmt.Println("       gitmap os clean sys [flags]   (Linux package & journal cleanup)")
 	fmt.Println("       gitmap os dev-clean [flags]")
+	fmt.Println("       gitmap os clean terminal [flags]")
 	fmt.Println()
 	fmt.Println("Flags:")
 	fmt.Println("  -n, --dry-run    Simulate cleanup without deleting files")
 	fmt.Println("  -v, --verbose    Show detailed cleanup output")
 }
+
+func isTerminalTarget(t string) bool {
+	low := strings.ToLower(t)
+	return low == "terminal" || low == "term" || low == "console" ||
+		low == "history" || low == "shell-history"
+}
+

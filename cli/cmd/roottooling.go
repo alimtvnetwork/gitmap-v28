@@ -106,6 +106,8 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{"run", "run-macro", "exec-macro"}, func() error { return runMacroRootRun(argsTail()) }},
 		{[]string{"run-until"}, func() error { return runMacroRootRunUntil(argsTail()) }},
 		{[]string{"clean-dev", "cleandev", "dev-cleanup", "devcleanup", "dev-clean", "devtools-cache", "dev-tools-cache", "dev-tool-cache", "devtool-cache"}, func() error { return runCleanDevTopLevel(argsTail()) }},
+		{[]string{"clear-terminal", "clean-terminal", "terminal-clear", "terminal-clean", "clearterminal"}, func() error { return runCleanTerminalTopLevel(argsTail()) }},
+		{[]string{"terminal"}, func() error { return runTerminalTopLevel(argsTail()) }},
 		{[]string{"devtool", "devtools", "dev-tool", "dev-tools", "dt"}, func() error { return runDevToolTopLevel(argsTail()) }},
 		{[]string{"dev"}, func() error { return runDevTopLevel(argsTail()) }},
 		{[]string{"clean", "clear"}, func() error { return runCleanTopLevel(argsTail()) }},

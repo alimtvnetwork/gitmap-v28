@@ -32,11 +32,28 @@ func runDevTopLevel(args []string) error {
 func runCleanTopLevel(args []string) error {
 	if len(args) > 0 {
 		sub := strings.ToLower(args[0])
+		if isTerminalCleanSubToken(sub) {
+			return runCleanTerminalTopLevel(args[1:])
+		}
 		if isDevCleanSubToken(sub) {
 			return cmdos.RunOSDevClean(args[1:])
 		}
 	}
 	return cmdos.RunOSDevClean(args)
+}
+
+func runCleanTerminalTopLevel(args []string) error {
+	return cmdos.RunTerminalCleanCLI(args)
+}
+
+func runTerminalTopLevel(args []string) error {
+	return cmdos.RunTerminalCleanCLI(args)
+}
+
+func isTerminalCleanSubToken(sub string) bool {
+	return sub == "terminal" || sub == "term" || sub == "console" ||
+		sub == "shell-history" || sub == "history" ||
+		sub == "terminal-history" || sub == "terminal-suggestions"
 }
 
 func isDevCleanActionVerb(sub string) bool {
@@ -50,4 +67,5 @@ func isDevCleanSubToken(sub string) bool {
 		sub == "devtool-cache" || sub == "devtools-cache" ||
 		sub == "dev-tool-cache" || sub == "dev-tools-cache"
 }
+
 
