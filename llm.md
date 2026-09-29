@@ -240,6 +240,12 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 | **AI Scripts** | `gitmap ai [run/list/fix]` | `gitmap scripts` | Native AI scripts runner, catalog, and fix suite |
 | **AI Scaffolder** | `gitmap ai create <name>` | `gitmap scripts new <name>` | Scaffold new AI linter/fixer/auditor script skeleton |
 | **Automation Engine** | `gitmap automation <cmd>` | `gitmap auto`, `gitmap py-auto` | Native Go search (lazy regex), polyglot newlines, in-memory cache, and Go vs Py benchmarks |
+| **LLM Self-Training** | `gitmap llm train --loop` | `gitmap train --loop` | Autonomous 5-phase AI self-looping simulation |
+| **LLM Machine URL** | `gitmap llm --url` | `gitmap train --url` | Public raw spec URL for AI models to download |
+| **Watch Running Prompts**| `gitmap watch-prompts-running` | `gitmap wpr` | Live terminal dashboard tracking running prompts |
+| **Folder Tree** | `gitmap folder-tree` | `gitmap ft` | Visual directory hierarchy with depth controls |
+| **Deploy Binary** | `gitmap deploy-right <target>` | `gitmap deploy <target>` | High-speed binary sync to remote cluster nodes |
+| **SSH Node Enrollment** | `gitmap ssh-join <user@ip>` | `gitmap sj <ip>` | Automated SSH authorization & passwordless setup |
 | **Antigravity** | `gitmap antigravity` | `gitmap agy`, `gitmap ag` | AI agent workspaces and config sync |
 | **VS Code PM** | `gitmap vscode` | `gitmap vsc` | VS Code Project Manager integrations |
 | **Scheduler** | `gitmap schedule` | `gitmap sc` | Background cron and interval scheduler |

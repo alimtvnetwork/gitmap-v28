@@ -21,10 +21,11 @@ import (
 // We don't gate on `--help` here because each subcommand handler does
 // its own help check via checkHelp at the top.
 func runBranch(args []string) *apperror.AppError {
+	checkHelp("branch", args)
 	if len(args) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrBranchMissingSubcommand)
+		printHelpAndExit("branch", args)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return nil
 	}
 
 	sub, rest := args[0], args[1:]

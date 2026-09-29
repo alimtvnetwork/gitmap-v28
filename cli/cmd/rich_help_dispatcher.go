@@ -25,8 +25,66 @@ func tryRenderRichTopic(topic string) bool {
 	if tryRenderToolRichTopic(topic) {
 		return true
 	}
+	if tryRenderCoreRichTopic(topic) {
+		return true
+	}
 
 	return tryRenderWorkflowRichTopic(topic)
+}
+
+func tryRenderCoreRichTopic(topic string) bool {
+	switch topic {
+	case "search", "grep":
+		RenderSearchHelp()
+
+		return true
+	case "find", "find-files", "find-files-any", "find-files-startswith", "find-files-endswith", "ff", "ffa", "ffs", "ffe", "f":
+		RenderFindHelp()
+
+		return true
+	case "commit", "cm", "commit-both", "commit-left", "commit-right", "cmb", "cml", "cmr", "cpf", "cpb", "cpr", "pcp", "commit-pull", "cpull":
+		RenderCommitHelp()
+
+		return true
+	case "status", "st":
+		RenderStatusHelp()
+
+		return true
+	case "diff", "df", "diff-profiles":
+		RenderDiffHelp()
+
+		return true
+	case "templates", "template", "tpl":
+		RenderTemplatesHelp()
+
+		return true
+	case "ui", "gui", "web":
+		RenderUIHelp()
+
+		return true
+	case "aum", "automation", "auto":
+		RenderAumHelp()
+
+		return true
+	case "llm", "llm-train", "train", "chain", "llm-docs", "ld":
+		RenderLlmHelp()
+
+		return true
+	case "branch", "b", "latest-branch", "lb":
+		RenderBranchHelp()
+
+		return true
+	case "stash", "fix", "wip", "discard":
+		RenderStashHelp()
+
+		return true
+	case "user", "os-user":
+		RenderUserHelp()
+
+		return true
+	}
+
+	return false
 }
 
 func tryRenderInfraRichTopic(topic string) bool {

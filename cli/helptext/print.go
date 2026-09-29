@@ -273,3 +273,10 @@ func ReadRaw(command string) ([]byte, error) {
 
 	return files.ReadFile(dashed + ".md")
 }
+
+// HasTopic reports whether help documentation exists for the specified topic.
+func HasTopic(command string) bool {
+	_, err := ReadRaw(command)
+
+	return err == nil
+}

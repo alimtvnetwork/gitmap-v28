@@ -45,10 +45,15 @@ func printHelpAndExit(command string, args []string) {
 	cliexit.Exit(0)
 }
 
+// IsHelpFlag reports whether token is a help request indicator.
+func IsHelpFlag(token string) bool {
+	return token == "--help" || token == "-h" || token == "help"
+}
+
 // hasHelpFlag scans args for the standard help triggers.
 func hasHelpFlag(args []string) bool {
 	for _, a := range args {
-		if a == "--help" || a == "-h" || a == "help" {
+		if IsHelpFlag(a) {
 			return true
 		}
 	}

@@ -22,6 +22,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/theme"
 )
@@ -138,7 +139,29 @@ func runDispatch(command string) {
 	// second yields the correct outer→inner drain sequence.
 	defer theme.Drain()
 	defer glyphs.Drain()
+	if tryInterceptCommandHelp(command, os.Args[2:]) {
+		return
+	}
 	dispatch(command)
+}
+
+func tryInterceptCommandHelp(command string, args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	if !IsHelpFlag(args[0]) {
+		return false
+	}
+	if tryRenderRichTopic(command) {
+		cliexit.Exit(0)
+		return true
+	}
+	if helptext.HasTopic(command) {
+		printHelpAndExit(command, args)
+		return true
+	}
+
+	return false
 }
 
 func handleGlobalError(command string, err error) {

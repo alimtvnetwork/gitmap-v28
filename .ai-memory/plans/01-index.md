@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [189-out-of-ide-uninstall-script-restore-reenqueue-and-devtool-expansion.md](completed/189-out-of-ide-uninstall-script-restore-reenqueue-and-devtool-expansion.md): Out-of-IDE Standalone Uninstaller, Snapshot Restore Re-Enqueue, and DevTool Cleaner Expansion
+1. [190-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md](completed/190-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md): Universal Command Help Modernization, LLM Train Self-Loop, and Polyglot Benchmarks (File, Project, Grid)
+2. [189-out-of-ide-uninstall-script-restore-reenqueue-and-devtool-expansion.md](completed/189-out-of-ide-uninstall-script-restore-reenqueue-and-devtool-expansion.md): Out-of-IDE Standalone Uninstaller, Snapshot Restore Re-Enqueue, and DevTool Cleaner Expansion
 2. [188-agy-agm-copilot-edge-uninstall-and-devtool-clean.md](completed/188-agy-agm-copilot-edge-uninstall-and-devtool-clean.md): AGY, AGM, Copilot, and Edge Complete Uninstallation Suite & Enhanced DevTool Cache Cleaner
 3. [187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md](completed/187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md): Special Repos, Repo Secrets, Repo Cache, CD, and Coding Guidelines
 3. [112-agy-rerun-active-project-non-destructive-and-conversation-commands.md](completed/112-agy-rerun-active-project-non-destructive-and-conversation-commands.md): Antigravity Rerun Active Project Resolution, Non-Destructive Replay & Dedicated Conversation Commands

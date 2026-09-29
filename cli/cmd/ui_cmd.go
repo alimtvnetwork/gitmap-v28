@@ -6,6 +6,7 @@ import (
 
 // runUI dispatches gitmap ui and gitmap <module> ui.
 func runUI(args []string) error {
+	checkHelp("ui", args)
 	page := "settings"
 	hasArg := len(args) > 0
 	if hasArg {

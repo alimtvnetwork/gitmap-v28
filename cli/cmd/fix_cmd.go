@@ -104,6 +104,12 @@ func runFixAll(action string, items []RemediationItem) error {
 }
 
 func runFix(args []string, aliasOverride string) error {
+	cmdName := "fix"
+	if aliasOverride != "" {
+		cmdName = aliasOverride
+	}
+	checkHelp(cmdName, args)
+
 	if isFixAgyRequest(args) {
 		return cmdagy.RunPipelineFixAgyCLI(args)
 	}

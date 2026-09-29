@@ -4,6 +4,10 @@ package llm
 type TrainOptions struct {
 	IsTextOnly bool
 	IsHelp     bool
+	IsLoop     bool
+	LoopCount  int
+	IsURL      bool
+	IsJSON     bool
 	SkillPath  string
 }
 
