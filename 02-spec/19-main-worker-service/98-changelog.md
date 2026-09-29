@@ -1,3 +1,9 @@
+## v6.400.0 — 2026-09-29 (restructure markdown help into modern box display format and universal catalog fallback)
+
+**Scope:** Version bump. restructure markdown help into modern box display format and universal catalog fallback.
+
+---
+
 ## v6.399.0 — 2026-09-29 (add import-ssh-nodes.ps1 for importing repo-secrets into gitmap)
 
 **Scope:** Version bump. add import-ssh-nodes.ps1 for importing repo-secrets into gitmap.

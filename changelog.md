@@ -3228,6 +3228,18 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.400.0] 2026-09-29 Release v6.400.0
+
+### Install GitMap v6.400.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.400.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.400.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.400.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.400.0"`
+
+### Added / Changed / Fixed / Removed
+
+- restructure markdown help into modern box display format and universal catalog fallback
+
 ## [v6.399.0] 2026-09-29 Release v6.399.0
 
 ### Install GitMap v6.399.0
