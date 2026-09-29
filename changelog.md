@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.413.0] - 2026-09-29
+
+### Added
+- recursively suppress developer stack traces on reported ssh auth aborts
+
+---
+
 ## [v6.412.0] - 2026-09-29
 
 ### Added

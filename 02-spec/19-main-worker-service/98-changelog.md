@@ -1,3 +1,9 @@
+## v6.413.0 — 2026-09-29 (recursively suppress developer stack traces on reported ssh auth aborts)
+
+**Scope:** Version bump. recursively suppress developer stack traces on reported ssh auth aborts.
+
+---
+
 ## v6.412.0 — 2026-09-29 (add clear devtools, clear dev-tools, clear dev-tools-cache, and devtools-cache clear aliases)
 
 **Scope:** Version bump. add clear devtools, clear dev-tools, clear dev-tools-cache, and devtools-cache clear aliases.
