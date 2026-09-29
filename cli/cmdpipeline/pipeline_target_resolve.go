@@ -129,8 +129,10 @@ func queryPrefixRepo(conn *sql.DB, identifier string) (string, string, bool) {
 	var slug, absPath, s, a string
 	count := 0
 	for rows.Next() {
+		if errScan := rows.Scan(&s, &a); errScan != nil {
+			return "", "", false
+		}
 		count++
-		_ = rows.Scan(&s, &a)
 		slug, absPath = s, a
 	}
 	if count == 1 && slug != "" {
