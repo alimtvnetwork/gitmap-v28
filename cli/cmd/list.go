@@ -35,10 +35,12 @@ func runList(args []string) error {
 }
 
 type listOptions struct {
-	group   string
-	verbose bool
-	preview bool
-	tree    bool
+	group       string
+	verbose     bool
+	preview     bool
+	tree        bool
+	showNumbers bool
+	showEmoji   bool
 }
 
 func executeList(args []string) {
@@ -50,7 +52,11 @@ func executeList(args []string) {
 	defer db.Close()
 	records := fetchListRecords(db, opts.group)
 	if opts.preview {
-		PrintListPreview(records)
+		previewOpts := ListPreviewOptions{
+			ShowNumbers: opts.showNumbers,
+			ShowEmoji:   opts.showEmoji,
+		}
+		PrintListPreviewWithOptions(records, previewOpts)
 		return
 	}
 	if opts.tree {
@@ -63,15 +69,22 @@ func executeList(args []string) {
 
 // parseListFlags parses flags and positional modes for the list command.
 func parseListFlags(args []string) listOptions {
-	var opts listOptions
+	opts := listOptions{
+		showNumbers: true,
+		showEmoji:   true,
+	}
 	for _, a := range args {
 		switch strings.ToLower(a) {
-		case "preview", "-p", "--preview", "--gap":
+		case "preview", "-p", "--preview", "--gap", "gap":
 			opts.preview = true
 		case "tree", "-t", "--tree":
 			opts.tree = true
 		case "-v", "--verbose", "verbose":
 			opts.verbose = true
+		case "--no-numbers":
+			opts.showNumbers = false
+		case "--no-emoji":
+			opts.showEmoji = false
 		}
 	}
 	opts.group = extractGroupFlag(args)

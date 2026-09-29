@@ -12,9 +12,9 @@ func RunFolderTree(args []string) error {
 		return nil
 	}
 	switch opts.Subcommand {
-	case "export", "exp":
+	case "export", "exp", "export-folder":
 		return handleExport(opts, remaining)
-	case "import", "imp":
+	case "import", "imp", "import-folder":
 		return handleImport(opts, remaining)
 	default:
 		return handleLS(opts, remaining)
@@ -22,6 +22,10 @@ func RunFolderTree(args []string) error {
 }
 
 func handleLS(opts FolderTreeOptions, remaining []string) error {
+	if len(remaining) > 0 && isFolderArg(remaining[0]) {
+		opts.DirsOnly = true
+		remaining = remaining[1:]
+	}
 	target := resolveTargetPath(remaining, opts.TargetDir)
 	root, err := ScanFolderTree(target, opts)
 	if err != nil {
@@ -36,6 +40,13 @@ func handleLS(opts FolderTreeOptions, remaining []string) error {
 }
 
 func handleExport(opts FolderTreeOptions, remaining []string) error {
+	if len(remaining) > 0 && isFolderArg(remaining[0]) {
+		opts.DirsOnly = true
+		remaining = remaining[1:]
+	}
+	if opts.Subcommand == "export-folder" {
+		opts.DirsOnly = true
+	}
 	target := resolveTargetPath(remaining, opts.TargetDir)
 	root, err := ScanFolderTree(target, opts)
 	if err != nil {
@@ -54,8 +65,15 @@ func handleExport(opts FolderTreeOptions, remaining []string) error {
 }
 
 func handleImport(opts FolderTreeOptions, remaining []string) error {
+	if len(remaining) > 0 && isFolderArg(remaining[0]) {
+		opts.DirsOnly = true
+		remaining = remaining[1:]
+	}
+	if opts.Subcommand == "import-folder" {
+		opts.DirsOnly = true
+	}
 	if len(remaining) == 0 && opts.InputFile == "" {
-		return fmt.Errorf("usage: gitmap folder-tree import <file.json|file.yaml> [target-dir]")
+		return fmt.Errorf("usage: gitmap folder-tree import <file.json|file.yaml|file.txt> [target-dir]")
 	}
 	inputFile := opts.InputFile
 	targetDir := "."
@@ -71,23 +89,4 @@ func handleImport(opts FolderTreeOptions, remaining []string) error {
 	}
 	printImportSummary(summary, opts.DryRun)
 	return nil
-}
-
-func printImportSummary(s *ImportSummary, dryRun bool) {
-	prefix := "✔ Created"
-	if dryRun {
-		prefix = "✔ [DRY RUN] Would create"
-	}
-	fmt.Printf("%s %d directories and %d files in %s\n",
-		prefix, s.DirsCreated, s.FilesCreated, s.TargetDir)
-}
-
-func resolveTargetPath(remaining []string, targetDir string) string {
-	if len(remaining) > 0 && remaining[0] != "" {
-		return remaining[0]
-	}
-	if targetDir != "" {
-		return targetDir
-	}
-	return "."
 }
