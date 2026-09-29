@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfoldertree"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -50,6 +51,7 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelPECmd())
 	root.AddCommand(makeTopLevelCFRCmd())
 	root.AddCommand(makeTopLevelWPRCmd())
+	root.AddCommand(makeTopLevelFolderTreeCmd())
 
 	populateRemainingCommands(root)
 
@@ -411,4 +413,15 @@ func extractRepoNamesAndSlugs(repos []model.ScanRecord) []string {
 		}
 	}
 	return out
+}
+
+func makeTopLevelFolderTreeCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:     "folder-tree [path]",
+		Aliases: []string{"ft", "foldertree"},
+		Short:   "Render folder & repo tree with emoji structure, sequence numbers, export and import",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmdfoldertree.RunFolderTree(args)
+		},
+	}
 }

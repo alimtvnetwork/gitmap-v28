@@ -1,3 +1,9 @@
+## v6.392.0 — 2026-09-29 (Release v6.392.0)
+
+**Scope:** Version bump. Release v6.392.0 - add folder-tree command suite, ls preview gap format, and directory scaffolding export/import.
+
+---
+
 ## v6.391.0 — 2026-09-29 (Release v6.391.0)
 
 **Scope:** Version bump. Release v6.391.0.

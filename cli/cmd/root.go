@@ -383,6 +383,11 @@ func dispatch(command string) {
 		return
 	}
 
+	found, err = dispatchFolderTree(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
 	found, err = dispatchCore(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return

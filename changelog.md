@@ -1,3 +1,17 @@
+## [v6.392.0] 2026-09-29 Release v6.392.0
+
+### Install GitMap v6.392.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.392.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.392.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.392.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.392.0"`
+
+### Added / Changed / Fixed / Removed
+
+- `gitmap ls preview` / `--preview` / `-p` / `--gap`: Numbered repository list with repo name and path on the next line, separated by a single blank line gap between entries.
+- `gitmap ls tree` / `--tree` / `-t`: Groups repositories by parent directory in an emoji tree format (`📁 <parent-folder>`).
+- `gitmap folder-tree` (`ft`, `foldertree`): New command to scan and visualize folder and repository structures on any path on disk without prior database scanning. Includes sequence numbers, Git detection (`[git: <branch>]`), tree/preview rendering, and multi-format export/import (`json`, `yaml`, `tree`, `preview`) with directory and placeholder file scaffolding.
+
 ## [v6.380.0] 2026-09-28 Release v6.380.0
 
 ### Install GitMap v6.380.0

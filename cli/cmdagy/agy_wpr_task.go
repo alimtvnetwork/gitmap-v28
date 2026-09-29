@@ -99,12 +99,13 @@ func syncWPRWithSUG(action, target string) error {
 	}
 
 	cfg := loadSUGConfig()
-	if target != "" && target != "all" {
-		resolved, isValid := ValidateSUGTarget(target)
-		if isValid {
-			appendNewSUGTargets(&cfg, []string{resolved})
-			_ = saveSUGConfig(cfg)
-		}
+	if target == "" || target == "all" {
+		return nil
+	}
+	resolved, isValid := ValidateSUGTarget(target)
+	if isValid {
+		appendNewSUGTargets(&cfg, []string{resolved})
+		_ = saveSUGConfig(cfg)
 	}
 
 	return nil
