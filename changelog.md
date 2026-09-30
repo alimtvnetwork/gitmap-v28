@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.415.0] - 2026-09-30
+
+### Added
+- json envelope v2, terminal clear, deploy keys variants, and friendly import
+
+---
+
 ## [v6.414.0] - 2026-09-29
 
 ### Added

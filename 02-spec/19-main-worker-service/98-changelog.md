@@ -1,3 +1,9 @@
+## v6.415.0 — 2026-09-30 (json envelope v2, terminal clear, deploy keys variants, and friendly import)
+
+**Scope:** Version bump. json envelope v2, terminal clear, deploy keys variants, and friendly import.
+
+---
+
 ## v6.414.0 — 2026-09-29 (support clear terminal and clear-terminal commands)
 
 **Scope:** Version bump. support clear terminal and clear-terminal commands.
