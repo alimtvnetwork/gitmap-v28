@@ -33,7 +33,7 @@ func RunChangePasswordCLI(args []string) error {
 	}
 	if !opts.IsYes && !opts.IsDryRun {
 		if !confirmPasswordChange(opts.Username) {
-			fmt.Println("Cancelled by user.")
+			fmt.Println("Canceled by user.")
 			return nil
 		}
 	}

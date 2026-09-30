@@ -41,6 +41,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 74 | Go Interface Naming and Enum Type Suffix Compliance in cmdos | Enum Guidelines / Interface Naming | ✅ Resolved | [74-interface-naming-and-enum-suffix-compliance-rca.md](cicd-issues/74-interface-naming-and-enum-suffix-compliance-rca.md) |
 | 77 | Misspell `cancelled` in Pipeline Tests & Inverted Success Check in `sshjoin_common.go` | golangci-lint / Boolean Guidelines | ✅ Resolved | [77-misspell-cancelled-and-sshjoin-inverted-success-rca.md](cicd-issues/77-misspell-cancelled-and-sshjoin-inverted-success-rca.md) |
 | 78 | Windows Binary Archive Packaging vs Executable PE Target | Local CLI Installation / PowerShell | ✅ Resolved | [78-windows-binary-magic-bytes-and-powershell-profile-rca.md](cicd-issues/78-windows-binary-magic-bytes-and-powershell-profile-rca.md) |
+| 90 | US Locale `misspell` Failure on `Cancelled` in `change_password_cmd.go` | Spell Check (`misspell`) | ✅ Resolved | [90-misspell-cancelled-in-change-password-cmd-rca.md](cicd-issues/90-misspell-cancelled-in-change-password-cmd-rca.md) |
 
 ## Patterns Learned
 
