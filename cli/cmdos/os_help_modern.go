@@ -74,6 +74,7 @@ func buildOSSystemAndNetworkSection() termhelp.HelpSection {
 			{Command: "os storage (disk)", Description: "Inspect disk drive capacities, partitions, and storage utilization"},
 			{Command: "os display / theme / tweak", Description: "Configure display resolution, dark/light theme, and power schemes"},
 			{Command: "os user / group / autologin", Description: "Manage OS users, groups, and automatic login credentials"},
+			{Command: "os change-password [user] [pass]", Description: "Change OS user password cross-platform (Windows / Linux / macOS)"},
 		},
 	}
 }
@@ -91,6 +92,8 @@ func printCrossPlatformOSExamples() {
 	fmt.Printf("  %sReal-World Examples (Windows, macOS, Ubuntu/Linux):%s\n", constants.ColorYellow, constants.ColorReset)
 	fmt.Printf("    %sgitmap os info%s                              # Inspect OS platform, IP, and hardware\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap os update%s                            # Update OS packages (winget / brew / apt)\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    %sgitmap os change-password%s                   # Change OS password for current user with prompt\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    %sgitmap os change-password Administrator MyPass# Set user password directly on Windows/Linux/macOS\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap machine ls%s                           # Show local IP, Alias, and OS Hostname\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap machine set dev-win-01 -y%s            # Set machine name on Windows/macOS/Ubuntu\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap alias set build-ubuntu-02 -y%s         # Set machine network alias for fleet discovery\n", constants.ColorCyan, constants.ColorReset)

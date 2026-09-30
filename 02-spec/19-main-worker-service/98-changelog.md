@@ -1,3 +1,9 @@
+## v6.416.0 — 2026-09-30 (JSON envelope variables, workDirectory object, OS change-password CLI, SSH join vault prompt, and repo-secrets sequence)
+
+**Scope:** Version bump. JSON envelope variables, workDirectory object, OS change-password CLI, SSH join vault prompt, and repo-secrets sequence.
+
+---
+
 ## v6.415.0 — 2026-09-30 (json envelope v2, terminal clear, deploy keys variants, and friendly import)
 
 **Scope:** Version bump. json envelope v2, terminal clear, deploy keys variants, and friendly import.

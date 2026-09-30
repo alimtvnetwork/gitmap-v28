@@ -149,6 +149,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"prompts-version"}, func() error { return runCG(append([]string{"prompts-version"}, argsTail()...)) }},
 		{[]string{"workdir", "work-dir", "wd"}, func() error { return runWorkDir(argsTail()) }},
 		{[]string{"os", "os-update"}, func() error { return RunOSCLI(argsTail()) }},
+		{[]string{"change-password", "passwd", "chpasswd"}, func() error { return cmdos.RunChangePasswordCLI(argsTail()) }},
 		{[]string{"machine", "machines", "machine-name", "hostname"}, func() error { return cmdos.RunMachineCLI(argsTail()) }},
 		{[]string{"os-info", "osinfo", "sysinfo", "system-info", "which-os", "whichos", "os-which"}, func() error { return RunOSInfoCLI(argsTail()) }},
 		{[]string{"bash", "git-bash"}, func() error { return runBash(argsTail()) }},

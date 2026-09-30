@@ -11,23 +11,95 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
+// WorkDirectoryConfig represents structured working directory configuration.
+type WorkDirectoryConfig struct {
+	Path        string         `json:"path"`
+	DefaultPath string         `json:"defaultPath,omitempty"`
+	IsApplied   bool           `json:"isApplied,omitempty"`
+	IsEnforced  bool           `json:"isEnforced,omitempty"`
+	Variables   map[string]any `json:"variables,omitempty"`
+}
+
 // EnvelopeAttributes holds metadata describing payload, origin, commands, and working directory.
 type EnvelopeAttributes struct {
-	Type                    string `json:"type"`
-	Source                  string `json:"source,omitempty"`
-	How                     string `json:"how,omitempty"`
-	Version                 string `json:"version,omitempty"`
-	GitmapVersion           string `json:"gitmapVersion,omitempty"`
-	ImportCommand           string `json:"importCommand,omitempty"`
-	ExportCommand           string `json:"exportCommand,omitempty"`
-	HelpCommand             string `json:"helpCommand,omitempty"`
-	Notes                   string `json:"notes,omitempty"`
-	Timestamp               string `json:"timestamp,omitempty"`
-	WorkDirectory           string `json:"workDirectory,omitempty"`
-	DefaultWorkDirectory    string `json:"defaultWorkDirectory,omitempty"`
-	IsWorkDirectoryApplied  bool   `json:"isWorkDirectoryApplied,omitempty"`
-	IsWorkDirectoryEnforced bool   `json:"isWorkDirectoryEnforced,omitempty"`
+	Type                    string               `json:"type"`
+	Source                  string               `json:"source,omitempty"`
+	How                     string               `json:"how,omitempty"`
+	Version                 string               `json:"version,omitempty"`
+	GitmapVersion           string               `json:"gitmapVersion,omitempty"`
+	ImportCommand           string               `json:"importCommand,omitempty"`
+	ExportCommand           string               `json:"exportCommand,omitempty"`
+	HelpCommand             string               `json:"helpCommand,omitempty"`
+	Notes                   string               `json:"notes,omitempty"`
+	Timestamp               string               `json:"timestamp,omitempty"`
+	WorkDirectory           string               `json:"workDirectory,omitempty"`
+	WorkDirectoryConfig     *WorkDirectoryConfig `json:"workDirectoryConfig,omitempty"`
+	DefaultWorkDirectory    string               `json:"defaultWorkDirectory,omitempty"`
+	IsWorkDirectoryApplied  bool                 `json:"isWorkDirectoryApplied,omitempty"`
+	IsWorkDirectoryEnforced bool                 `json:"isWorkDirectoryEnforced,omitempty"`
 }
+
+// UnmarshalJSON supports workDirectory as either a plain string or a WorkDirectoryConfig object.
+func (attrs *EnvelopeAttributes) UnmarshalJSON(data []byte) error {
+	type Alias EnvelopeAttributes
+	var raw struct {
+		Alias
+		RawWorkDir json.RawMessage `json:"workDirectory"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	*attrs = EnvelopeAttributes(raw.Alias)
+	return attrs.applyRawWorkDirectory(raw.RawWorkDir)
+}
+
+func (attrs *EnvelopeAttributes) applyRawWorkDirectory(raw []byte) error {
+	if len(raw) == 0 {
+		return nil
+	}
+	var strVal string
+	if err := json.Unmarshal(raw, &strVal); err == nil {
+		attrs.WorkDirectory = strVal
+		return nil
+	}
+	var cfg WorkDirectoryConfig
+	if err := json.Unmarshal(raw, &cfg); err != nil {
+		return err
+	}
+	attrs.applyWorkDirConfig(&cfg)
+	return nil
+}
+
+func (attrs *EnvelopeAttributes) applyWorkDirConfig(cfg *WorkDirectoryConfig) {
+	attrs.WorkDirectoryConfig = cfg
+	attrs.WorkDirectory = cfg.Path
+	if cfg.DefaultPath != "" && attrs.DefaultWorkDirectory == "" {
+		attrs.DefaultWorkDirectory = cfg.DefaultPath
+	}
+	if cfg.IsApplied {
+		attrs.IsWorkDirectoryApplied = true
+	}
+	if cfg.IsEnforced {
+		attrs.IsWorkDirectoryEnforced = true
+	}
+}
+
+// MarshalJSON serializes workDirectory as an object if WorkDirectoryConfig is populated.
+func (attrs EnvelopeAttributes) MarshalJSON() ([]byte, error) {
+	if attrs.WorkDirectoryConfig != nil {
+		type Alias EnvelopeAttributes
+		return json.Marshal(&struct {
+			Alias
+			WorkDirectory *WorkDirectoryConfig `json:"workDirectory"`
+		}{
+			Alias:         Alias(attrs),
+			WorkDirectory: attrs.WorkDirectoryConfig,
+		})
+	}
+	type Alias EnvelopeAttributes
+	return json.Marshal(Alias(attrs))
+}
+
 
 // Envelope is a generic envelope wrapping attributes, optional variables, and typed data.
 type Envelope[T any] struct {
@@ -160,5 +232,10 @@ func extractEnvelopePayload(raw []byte) ([]byte, EnvelopeAttributes, error) {
 	if err != nil {
 		return nil, EnvelopeAttributes{}, err
 	}
-	return env.Data, env.Attributes, nil
+	allVars := MergeVariables(env.Variables, env.Attributes.WorkDirectoryConfig)
+	data := env.Data
+	if len(allVars) > 0 {
+		data = ExpandVariables(data, allVars)
+	}
+	return data, env.Attributes, nil
 }

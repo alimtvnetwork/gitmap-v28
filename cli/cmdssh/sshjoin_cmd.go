@@ -36,6 +36,7 @@ Examples:
   gitmap ssh-join add-with-pass alim@192.168.1.14 secret123 devbox
   gitmap ssh-join 192.168.1.14
   gitmap ssh join alim@192.168.1.14 devbox
+  gitmap ssh join administrator@192.168.1.20 main    # prompts for password & saves in salted RSA vault
   gitmap ssh join ubuntu@192.168.1.14:2222 prod --auth`
 
 func executeSSHJoin(ctx context.Context, target string, history store.SSHHistory) error {

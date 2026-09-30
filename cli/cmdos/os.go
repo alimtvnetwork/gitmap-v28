@@ -72,6 +72,8 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSStorage(subArgs)
 	case "autologin", "auto-login", "al":
 		return runOSAutoLogin(subArgs)
+	case "change-password", "passwd", "chpasswd", "password":
+		return RunChangePasswordCLI(subArgs)
 	case "tweak", "tweaks", "twk":
 		return runOSTweak(subArgs)
 	case "dm", "display-manager":

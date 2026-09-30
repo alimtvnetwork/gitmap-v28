@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.416.0] - 2026-09-30
+
+### Added
+- JSON envelope variables, workDirectory object, OS change-password CLI, SSH join vault prompt, and repo-secrets sequence
+
+---
+
 ## [v6.415.0] - 2026-09-30
 
 ### Added

@@ -16,3 +16,9 @@ func RunOS(args []string) error {
 func RunOSFixLink(args []string) error {
 	return runOSFixLink(args)
 }
+
+// RunChangePassword changes the OS user password across Windows, Linux, and macOS.
+func RunChangePassword(args []string) error {
+	return RunChangePasswordCLI(args)
+}
+
