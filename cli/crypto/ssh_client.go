@@ -118,34 +118,44 @@ func RunCommandWithInput(client *ssh.Client, cmd, shellType string, in io.Reader
 
 func wrapCommandForShell(cmd, shellType string) string {
 	trimmed := strings.TrimSpace(cmd)
-	if shellType == "cmd" {
-		if strings.HasPrefix(trimmed, "cmd.exe") || strings.HasPrefix(trimmed, "cmd ") {
-			return cmd
-		}
-		return fmt.Sprintf("cmd.exe /c \"%s\"", cmd)
+	switch {
+	case shellType == "cmd":
+		return wrapCmdCommand(cmd, trimmed)
+	case shellType == "ps" || shellType == "pwsh" || shellType == "powershell":
+		return wrapPowerShellCommand(cmd, trimmed)
+	case shellType == "bash":
+		return wrapBashCommand(cmd, trimmed)
+	case shellType == "sh":
+		return wrapShCommand(cmd, trimmed)
+	default:
+		return cmd
 	}
+}
 
-	isPowerShell := shellType == "ps" || shellType == "pwsh" || shellType == "powershell"
-	if isPowerShell {
-		if strings.HasPrefix(trimmed, "powershell") || strings.HasPrefix(trimmed, "pwsh") {
-			return cmd
-		}
-		return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)
+func wrapCmdCommand(cmd, trimmed string) string {
+	if strings.HasPrefix(trimmed, "cmd.exe") || strings.HasPrefix(trimmed, "cmd ") {
+		return cmd
 	}
+	return fmt.Sprintf("cmd.exe /c \"%s\"", cmd)
+}
 
-	if shellType == "bash" {
-		if strings.HasPrefix(trimmed, "bash ") || strings.HasPrefix(trimmed, "sh ") {
-			return cmd
-		}
-		return fmt.Sprintf("bash -c %q", cmd)
+func wrapPowerShellCommand(cmd, trimmed string) string {
+	if strings.HasPrefix(trimmed, "powershell") || strings.HasPrefix(trimmed, "pwsh") {
+		return cmd
 	}
+	return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)
+}
 
-	if shellType == "sh" {
-		if strings.HasPrefix(trimmed, "sh ") {
-			return cmd
-		}
-		return fmt.Sprintf("sh -c %q", cmd)
+func wrapBashCommand(cmd, trimmed string) string {
+	if strings.HasPrefix(trimmed, "bash ") || strings.HasPrefix(trimmed, "sh ") {
+		return cmd
 	}
+	return fmt.Sprintf("bash -c %q", cmd)
+}
 
-	return cmd
+func wrapShCommand(cmd, trimmed string) string {
+	if strings.HasPrefix(trimmed, "sh ") {
+		return cmd
+	}
+	return fmt.Sprintf("sh -c %q", cmd)
 }
