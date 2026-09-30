@@ -3150,6 +3150,7 @@ Seamless cross-platform OS desktop integration, persistent clipboard memory, and
 | `browse <url>` | `open-url`, `web` | Open URL or local HTML file in system default browser or Google Chrome (`--chrome`) |
 | `cat <file>` | `view` | Stream and inspect file contents directly in terminal stdout |
 | `touch <path>` | `mkfile` | Create a new file and automatically create missing parent directories |
+| `safe-rm <path...>` | `rm-safe` | Idempotently and safely remove files or directories without failing if targets do not exist |
 
 ```bash
 # Copy text or file to OS clipboard and GitMap memory buffer
@@ -3168,9 +3169,10 @@ gitmap explorer ./src/data/commands.ts
 gitmap browse https://github.com/alimtvnetwork/gitmap-v28
 gitmap browse https://localhost:3000 --chrome
 
-# Cross-platform file creation and terminal viewing
+# Cross-platform file creation, terminal viewing, and safe removal
 gitmap touch src/features/new-flow.ts
 gitmap cat src/features/new-flow.ts
+gitmap safe-rm ./temp_cache ./stale_output --force
 ```
 
 → [copy](cli/helptext/copy.md) · [paste](cli/helptext/paste.md) · [explorer](cli/helptext/explorer.md) · [browse](cli/helptext/browse.md) · [cat](cli/helptext/cat.md) · [touch](cli/helptext/touch.md)

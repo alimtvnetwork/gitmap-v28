@@ -161,7 +161,7 @@ Okay. So, a couple of issues in the terminal actually. So there is one macro tha
 1. **Idempotent Removal (`safe-rm` / on-exist):**
    - In cross-platform shell step execution (`cli/macro/execute.go`), intercept `rm ` / `rm -rf` commands on Windows PowerShell to guard against missing target errors:
      `if (Test-Path '<path>') { Remove-Item -Recurse -Force '<path>' }`
-   - Provide native GitMap CLI safe removal helper `gitmap rm <target> [--force]` ensuring exit code 0 when target is already absent.
+   - Provide native GitMap CLI safe removal helper `gitmap safe-rm <target...> [--force]` (alias `gitmap rm-safe`) ensuring exit code 0 when target is already absent.
 2. **Interactive Edit Step Recording Fix:**
    - In `cli/cmdmacro/macro_edit.go`, when the user inputs standard shell commands like `mkdir -p test` or `ls`, do not trap them in ephemeral helpers unless explicitly prefixed with `:`. Record them directly as macro steps with live execution feedback.
    - Prevent phantom initial steps by verifying step provenance during macro recording and creation.

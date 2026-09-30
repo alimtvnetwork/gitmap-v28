@@ -38,9 +38,9 @@ Single-file PowerShell automation engine located in `repo-secrets/vmware/manage-
 .\manage-vm.ps1 -Action <Action> -CopyLog
 ```
 
-### 1.2 Macro Idempotent Removal (`safe-rm`)
-When macros run shell commands on Windows PowerShell:
-- Commands starting with `rm`, `rmdir`, `Remove-Item`, or `rd` are automatically transformed into idempotent scripts checking `Test-Path -LiteralPath` before deleting.
+### 1.2 Macro Idempotent Removal & CLI Safe-Rm (`gitmap safe-rm`)
+- **CLI Command:** `gitmap safe-rm <path...> [--force]` (alias `gitmap rm-safe`). Idempotently removes files or directories, exiting 0 even if target does not exist.
+- **Macro Step & Live Runner:** When macros or live interactive runners execute commands starting with `rm`, `rmdir`, `Remove-Item`, `rd`, or `del` on Windows PowerShell, they are automatically transformed into idempotent scripts checking `Test-Path -LiteralPath` before deleting.
 - Deletion of non-existent files or directories returns exit code 0 rather than terminating with `ItemNotFoundException`.
 
 ### 1.3 Interactive Macro Editor Polish (`gitmap macro edit <name>`)

@@ -10,11 +10,12 @@ Related Specs:
 
 ### 1.1 Cross-Platform Idempotent File Deletion
 On Windows, `rm` maps to PowerShell's `Remove-Item` cmdlet, which throws terminating `ItemNotFoundException` if the path is missing.
-- In macro execution (`cli/macro/safe_rm.go`), wrap removal commands in:
+- In macro execution (`cli/macro/safe_rm.go`) and live interactive runner (`resolveSingleLiveCmd`), wrap removal commands in:
   ```powershell
   foreach ($__target in @(<paths>)) { if (Test-Path -LiteralPath $__target) { Remove-Item -Recurse -Force -LiteralPath $__target } }
   ```
 - Parse arguments with quote-aware tokenization (`tokenizeCommandArgs`) to properly handle quoted paths with spaces without regex corruption or space-split damage.
+- Provide native `gitmap safe-rm <path...>` / `gitmap rm-safe` CLI command with exit code 0 on missing targets.
 
 ### 1.2 Interactive Macro Editor UX Contract
 - Never silently drop shell commands typed into an interactive editor.
