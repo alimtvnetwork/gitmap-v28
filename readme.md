@@ -3332,8 +3332,8 @@ project, the JSON output contracts, and how to add a new JSON surface:
 3. `.ai-memory/memory/01-index.md` — master memory index (Core rules + topic links).
 4. [`.ai-memory/coding-guidelines.md`](.ai-memory/coding-guidelines.md) — Centralized error management & coding guidelines.
 5. `.ai-memory/overview.md` and `.ai-memory/strictly-avoid.md` — invariants & hard NOs.
-5. `02-spec/08-json-schemas/` — every JSON output's schema.
-6. `cli/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
+6. `02-spec/08-json-schemas/` — every JSON output's schema.
+7. `cli/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
    — canonical example of the encoder + contract-test pattern to copy.
 
 ### How JSON Outputs Are Structured
@@ -3347,7 +3347,7 @@ cli/cmd/<name>render.go                       ← stablejson encoder (key order 
 cli/cmd/<name>_jsonschema_contract_test.go    ← drift guard
 ```
 
-See `.ai-memory/memory/project/what-to-read.md` §3–4 for the full recipe.
+See [`.ai-memory/what-to-read.md`](.ai-memory/what-to-read.md) for the full onboarding and reading order.
 
 ---
 

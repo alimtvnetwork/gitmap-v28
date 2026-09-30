@@ -214,9 +214,9 @@ Okay. So, a couple of issues in the terminal actually. So there is one macro tha
 ---
 
 ## 5. Verification & Acceptance Criteria
-- [ ] Macro step runner does not fail with exit code 1 when deleting non-existent paths on Windows.
-- [ ] Interactive macro editor (`macro edit`) appends typed commands into the macro steps definition.
-- [ ] `gitmap macro export` and `gitmap macro import` perform lossless JSON roundtrips.
-- [ ] Every macro, SSH, and installer execution is logged to `TaskHistory` in SQLite split-DB.
-- [ ] `gitmap task history` renders a formatted, high-aesthetic terminal view.
-- [ ] `manage-vm.ps1` successfully validates, modifies, and backs up VMware `.vmx` files with error stack traces and `-CopyLog`.
+- [x] Macro step runner does not fail with exit code 1 when deleting non-existent paths on Windows (`cli/macro/safe_rm.go` and `cli/macro/execute.go:397`).
+- [x] Interactive macro editor (`macro edit`) appends typed commands into the macro steps definition (`cli/cmdmacro/macro_edit.go:137` and `cli/cmdmacro/macro_add_interactive.go:183`).
+- [x] `gitmap macro export` and `gitmap macro import` perform lossless JSON roundtrips (`cli/cmdmacro/macro_export.go` and `cli/cmdmacro/macro_import.go`).
+- [x] Every macro, SSH, and installer execution is logged to `TaskHistory` in SQLite split-DB (`cli/cmdtask/task_audit.go`).
+- [x] `gitmap task history` renders a formatted, high-aesthetic terminal view (`cli/cmdtask/task_history_cmd.go`).
+- [x] `manage-vm.ps1` successfully validates, modifies, and backs up VMware `.vmx` files with error stack traces and `-CopyLog` (`scripts/vmware/manage-vm.ps1` and `D:\work\repo-secrets\vmware\manage-vm.ps1`).

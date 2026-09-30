@@ -357,7 +357,7 @@ func resolveSingleLiveCmd(cmdText string) string {
 		return formatGitmapExeCmd(trimmed)
 	}
 
-	return trimmed
+	return macro.AdaptCommandForPlatform(trimmed)
 }
 
 func isGitmapDirectCommand(lower string) bool {
