@@ -1,3 +1,9 @@
+## v6.435.0 — 2026-09-30 (RCA-56: In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation)
+
+**Scope:** Version bump. RCA-56: In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation.
+
+---
+
 ## v6.434.0 — 2026-09-30 (RCA-55: Fix test auto-dest-repo workspace pollution in VS Code and Antigravity, correct w4 os, distinguish offline vs auth_failed in nodes clone)
 
 **Scope:** Version bump. RCA-55: Fix test auto-dest-repo workspace pollution in VS Code and Antigravity, correct w4 os, distinguish offline vs auth_failed in nodes clone.

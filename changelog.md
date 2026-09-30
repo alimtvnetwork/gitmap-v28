@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.435.0] - 2026-09-30
+
+### Added
+- RCA-56: In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation
+
+---
+
 ## [v6.434.0] - 2026-09-30
 
 ### Added
