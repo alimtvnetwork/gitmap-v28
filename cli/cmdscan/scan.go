@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/detector"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/mapper"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -149,6 +150,9 @@ func executeScan(
 		if CheckSpecialReposOnScanFn != nil {
 			CheckSpecialReposOnScanFn(absDir, quiet)
 		}
+	})
+	bench.Phase("scan.gitignoreAgmCheck", func() {
+		checkAgmResumeTaskOnScan(records, quiet, fix)
 	})
 	bench.Phase("scan.alignDBIDs", func() {
 		records = alignRecordsWithDB(records, outputDir)
@@ -373,4 +377,12 @@ func autoPopulateScanAliases(quiet bool) {
 	if count > 0 && !quiet {
 		fmt.Printf("  ✓ Auto-generated %d repository alias(es)\n", count)
 	}
+}
+
+func checkAgmResumeTaskOnScan(records []model.ScanRecord, quiet, fix bool) {
+	paths := make([]string, 0, len(records))
+	for _, r := range records {
+		paths = append(paths, r.AbsolutePath)
+	}
+	_ = gitignoreagm.CheckAndPromptRepos(paths, quiet, fix)
 }

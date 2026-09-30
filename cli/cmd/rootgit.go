@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 )
 
 // runGitSubcommand handles transparent CLI routing for git subcommands.
@@ -16,6 +17,9 @@ func runGitSubcommand(args []string) error {
 }
 
 func dispatchGitSubcommand(subCmd string, subArgs []string) error {
+	if subCmd == "gitignore" || subCmd == "gitignore-agm" || subCmd == "agm" {
+		return gitignoreagm.RunCLI(subArgs)
+	}
 	if subCmd == "pull" {
 		return runPull(subArgs)
 	}
@@ -41,7 +45,7 @@ func dispatchGitEfficientOrPassthrough(subCmd string, subArgs []string) error {
 }
 
 func isPullAllGitSubCmd(subCmd string) bool {
-	return subCmd == "pull-all" || subCmd == "pa"
+	return subCmd == "pull-all" || subCmd == "pa" || subCmd == "ta"
 }
 
 func isPullAllTableGitSubCmd(subCmd string) bool {

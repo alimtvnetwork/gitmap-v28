@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdantigravity"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -58,6 +59,9 @@ func tryDispatchAgyShortcut(args []string) (error, bool) {
 }
 
 func tryDispatchAgyMaintenanceShortcut(args []string) (error, bool) {
+	if len(args) > 0 && (strings.EqualFold(args[0], "gitignore") || strings.EqualFold(args[0], "ignore")) {
+		return gitignoreagm.RunCLI(args[1:]), true
+	}
 	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
 		return RunFindDuplicates(), true
 	}

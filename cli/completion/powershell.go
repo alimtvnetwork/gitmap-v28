@@ -316,6 +316,14 @@ func generatePowerShell() string {
         return
     }
 
+    if ($cmd -eq "gitignore" -or $cmd -eq "agm" -or $cmd -eq "gitignore-agm") {
+        $items = @("agm", "agy", "--all", "-a", "--yes", "-y", "--no-commit", "--help")
+        $items | Where-Object { $_ -like "$wordToComplete*" } |
+            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
     gitmap completion --list-commands | Where-Object { $_ -like "$wordToComplete*" } |
         ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
 }

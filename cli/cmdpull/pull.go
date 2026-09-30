@@ -19,6 +19,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -98,7 +99,7 @@ func isPullFlagTakingValue(arg string) bool {
 }
 
 func isPullAllTableSeq(args []string, i int) bool {
-	isAllToken := args[i] == "all" || args[i] == "--all" || args[i] == "pa" || args[i] == "pull-all"
+	isAllToken := args[i] == "all" || args[i] == "--all" || args[i] == "pa" || args[i] == "ta" || args[i] == "pull-all"
 
 	return isAllToken && i+1 < len(args) && args[i+1] == "table"
 }
@@ -107,7 +108,7 @@ func appendNormalizedPullToken(normalized []string, token string) []string {
 	if token == "pat" || token == "pull-all-table" {
 		return append(normalized, "--all", "--status")
 	}
-	if token == "all" || token == "pa" || token == "pull-all" {
+	if token == "all" || token == "pa" || token == "ta" || token == "pull-all" {
 		return append(normalized, "--all")
 	}
 
@@ -271,7 +272,7 @@ func isPullAllRootCmd() bool {
 	}
 	first := strings.ToLower(os.Args[1])
 
-	return first == "pull-all" || first == "pa" || first == "pull-all-table" || first == "pat"
+	return first == "pull-all" || first == "pa" || first == "ta" || first == "pull-all-table" || first == "pat"
 }
 
 func isPullAllTableRootCmd() bool {
@@ -285,7 +286,7 @@ func isPullAllTableRootCmd() bool {
 
 func hasPullAllArg(args []string) bool {
 	for _, a := range args {
-		if a == "--all" || a == "-all" || a == "-a" || a == "all" || a == "pa" || a == "pull-all" || a == "pat" || a == "pull-all-table" {
+		if a == "--all" || a == "-all" || a == "-a" || a == "all" || a == "pa" || a == "ta" || a == "pull-all" || a == "pat" || a == "pull-all-table" {
 			return true
 		}
 	}
@@ -393,6 +394,7 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	if !opts.all {
 		maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
 	}
+	checkAgmResumeTaskBeforePull(records, opts)
 	bar, sortedStates, dur := runPullBatchExecution(records, opts)
 	syncPullBatchTelemetry(records, sortedStates, dur, opts)
 	if opts.isJSON {
@@ -403,6 +405,15 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	renderPullBatchOutput(records, sortedStates, dur, opts)
 
 	return finalizePullBatchTask(taskDB, taskID, bar.Failed())
+}
+
+func checkAgmResumeTaskBeforePull(records []model.ScanRecord, opts pullOptions) {
+	paths := make([]string, 0, len(records))
+	for _, r := range records {
+		paths = append(paths, r.AbsolutePath)
+	}
+	isAutoYes := opts.yes || opts.autoFix
+	_ = gitignoreagm.CheckAndPromptRepos(paths, opts.isJSON, isAutoYes)
 }
 
 func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullProgressBar, []*PullRepoState, time.Duration) {

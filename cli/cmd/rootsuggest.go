@@ -26,6 +26,7 @@ var primaryTopCommands = []string{
 	"clean", "clear", "terminal", "clear-terminal", "clean-terminal", "devtool",
 	"deploy-all-keys", "deploy-keys-all", "deploy-keys", "which-format", "import-all-json",
 	"what-configs", "wc", "merge-json", "failed-commands", "fc", "unknown-commands", "errors",
+	"gitignore", "agm", "ta", "nodes", "ping",
 }
 
 func buildUnknownCommandMessage(command string, suggestions []string) string {

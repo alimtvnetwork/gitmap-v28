@@ -87,7 +87,7 @@ func parseNonEmptyLines(raw string) []string {
 }
 
 // RemediateRepo removes resume task files from git tracking and disk, updates .gitignore, and commits.
-func RemediateRepo(repoDir string, shouldCommit bool) (RepoRemediationResult, error) {
+func RemediateRepo(repoDir string, isCommitEnabled bool) (RepoRemediationResult, error) {
 	res := RepoRemediationResult{RepoPath: repoDir}
 	if !IsGitRepository(repoDir) {
 		return res, apperror.NewSimple("not a git repository: "+repoDir, "E_NOT_GIT_REPO")
@@ -99,7 +99,7 @@ func RemediateRepo(repoDir string, shouldCommit bool) (RepoRemediationResult, er
 		return res, err
 	}
 	res.WasIgnored = wasAdded
-	if shouldCommit && (res.WasUntracked || res.WasFileDeleted || res.WasIgnored) {
+	if isCommitEnabled && (res.WasUntracked || res.WasFileDeleted || res.WasIgnored) {
 		res.WasCommitted = stageAndCommitGitignore(repoDir)
 	}
 	return res, nil

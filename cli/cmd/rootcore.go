@@ -7,6 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpurge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 )
 
 // dispatchCore routes scan, clone, pull, and status commands.
@@ -28,7 +29,7 @@ func coreDispatchEntries() []dispatchEntry {
 }
 
 func coreBasicEntries() []dispatchEntry {
-	entries := make([]dispatchEntry, 0, 17)
+	entries := make([]dispatchEntry, 0, 18)
 	entries = append(entries, coreBasicMaintenanceEntries()...)
 
 	return append(entries, coreBasicOpEntries()...)
@@ -38,6 +39,7 @@ func coreBasicMaintenanceEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"clean-corrupted", "clean-corrupted-dirs"}, func() error { return runCleanCorrupted(argsTail()) }},
 		{[]string{"purge", "purge-history"}, func() error { return cmdpurge.RunPurge(argsTail()) }},
+		{[]string{"gitignore", "gitignore-agm", "gitignore-agy", "agm"}, func() error { return gitignoreagm.RunCLI(argsTail()) }},
 		{[]string{"fix"}, func() error { return runFix(argsTail(), "") }},
 		{[]string{"stash"}, func() error { return runFix(argsTail(), "stash") }},
 		{[]string{"wip"}, func() error { return runFix(argsTail(), "wip") }},
@@ -66,7 +68,7 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, runCloneSync},
 		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() error { return runPull(argsTail()) }},
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},
-		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias}, func() error { return runPullAll(argsTail()) }},
+		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias, "ta"}, func() error { return runPullAll(argsTail()) }},
 		{[]string{"pull-all-table", "pat"}, func() error { return runPullAll(append([]string{"--status"}, argsTail()...)) }},
 		{[]string{
 			constants.CmdPullAllEfficient, constants.CmdPullAllEfficientAlias,

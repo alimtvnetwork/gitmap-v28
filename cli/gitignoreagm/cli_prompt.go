@@ -9,11 +9,11 @@ import (
 )
 
 type cliOptions struct {
-	targetDir    string
-	isAutoYes    bool
-	isAllRepos   bool
-	shouldCommit bool
-	isHelp       bool
+	targetDir       string
+	isAutoYes       bool
+	isAllRepos      bool
+	isCommitEnabled bool
+	isHelp          bool
 }
 
 // FilterReposNeedingRemediation returns the subset of repoDirs that have unignored or tracked resume task files.
@@ -22,7 +22,7 @@ func FilterReposNeedingRemediation(repoDirs []string) []string {
 	var affected []string
 	for _, dir := range repoDirs {
 		clean := filepath.Clean(dir)
-		if shouldIncludeAffectedRepo(clean, seen) {
+		if isEligibleAffectedRepo(clean, seen) {
 			seen[clean] = true
 			affected = append(affected, clean)
 		}
@@ -30,7 +30,7 @@ func FilterReposNeedingRemediation(repoDirs []string) []string {
 	return affected
 }
 
-func shouldIncludeAffectedRepo(cleanDir string, seen map[string]bool) bool {
+func isEligibleAffectedRepo(cleanDir string, seen map[string]bool) bool {
 	if cleanDir == "" || seen[cleanDir] {
 		return false
 	}
@@ -99,10 +99,10 @@ func isInteractiveTerminal() bool {
 }
 
 // RemediateBatch applies RemediateRepo across all target repositories and returns the number of remediated repos.
-func RemediateBatch(repoDirs []string, shouldCommit bool, isQuiet bool) int {
+func RemediateBatch(repoDirs []string, isCommitEnabled bool, isQuiet bool) int {
 	remediatedCount := 0
 	for _, dir := range repoDirs {
-		res, err := RemediateRepo(dir, shouldCommit)
+		res, err := RemediateRepo(dir, isCommitEnabled)
 		if err == nil && (res.WasUntracked || res.WasFileDeleted || res.WasIgnored || res.WasCommitted) {
 			remediatedCount++
 			printRepoRemediationStatus(res, isQuiet)
@@ -135,13 +135,13 @@ func RunCLI(args []string) error {
 		absTarget = opts.targetDir
 	}
 	if IsGitRepository(absTarget) && !opts.isAllRepos {
-		return runSingleRepoCLI(absTarget, opts.shouldCommit)
+		return runSingleRepoCLI(absTarget, opts.isCommitEnabled)
 	}
 	return runWorkspaceReposCLI(absTarget, opts)
 }
 
-func runSingleRepoCLI(repoDir string, shouldCommit bool) error {
-	res, err := RemediateRepo(repoDir, shouldCommit)
+func runSingleRepoCLI(repoDir string, isCommitEnabled bool) error {
+	res, err := RemediateRepo(repoDir, isCommitEnabled)
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func runWorkspaceReposCLI(rootDir string, opts cliOptions) error {
 		fmt.Printf("  ✓ Scanned %d repositories under %s — no unignored %s files found.\n", len(repos), rootDir, PrimaryIgnoreEntry)
 		return nil
 	}
-	count := RemediateBatch(targets, opts.shouldCommit, false)
+	count := RemediateBatch(targets, opts.isCommitEnabled, false)
 	fmt.Printf("  ✓ Completed gitignore AGM remediation across %d/%d repository(ies).\n", count, len(targets))
 	return nil
 }
@@ -208,7 +208,7 @@ func appendDiscoveredEntry(repos []string, rootDir string, entry os.DirEntry) []
 }
 
 func parseCLIArgs(args []string) cliOptions {
-	opts := cliOptions{targetDir: ".", shouldCommit: true}
+	opts := cliOptions{targetDir: ".", isCommitEnabled: true}
 	for _, arg := range args {
 		applyCLIArg(&opts, arg)
 	}
@@ -225,7 +225,7 @@ func applyCLIArg(opts *cliOptions, arg string) {
 	case "-a", "--all", "all":
 		opts.isAllRepos = true
 	case "--no-commit":
-		opts.shouldCommit = false
+		opts.isCommitEnabled = false
 	case "agm", "agy", "antigravity", "resume", "ignore":
 		// Subcommand selector token; default mode is AGM resume task ignore.
 	default:

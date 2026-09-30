@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -45,8 +46,27 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 	if len(records) == 0 {
 		return handleEmptyRecords(isJSON)
 	}
+	checkAgmResumeTaskEfficient(records, isJSON, args)
 
 	return processEfficientPullLifecycle(records, opts)
+}
+
+func checkAgmResumeTaskEfficient(records []model.ScanRecord, isJSON bool, args []string) {
+	paths := make([]string, 0, len(records))
+	for _, r := range records {
+		paths = append(paths, r.AbsolutePath)
+	}
+	_ = gitignoreagm.CheckAndPromptRepos(paths, isJSON, hasEfficientAutoYes(args))
+}
+
+func hasEfficientAutoYes(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "-y" || low == "--yes" || low == "--auto-fix" {
+			return true
+		}
+	}
+	return false
 }
 
 func handleEmptyRecords(isJSON bool) error {
