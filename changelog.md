@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.421.0] - 2026-09-30
+
+### Added
+- enforce relative JSON envelope commands, root workDir/repoDir variables, and relative path resolution
+
+---
+
 ## [v6.420.0] - 2026-09-30
 
 ### Added

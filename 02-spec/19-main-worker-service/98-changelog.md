@@ -1,3 +1,9 @@
+## v6.421.0 — 2026-09-30 (enforce relative JSON envelope commands, root workDir/repoDir variables, and relative path resolution)
+
+**Scope:** Version bump. enforce relative JSON envelope commands, root workDir/repoDir variables, and relative path resolution.
+
+---
+
 ## v6.420.0 — 2026-09-30 (fix ssh join re-enrollment auth, double shell wrap, and password vault precedence)
 
 **Scope:** Version bump. fix ssh join re-enrollment auth, double shell wrap, and password vault precedence.
