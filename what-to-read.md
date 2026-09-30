@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.432.0**
+**Pinned version: v6.433.0**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -87,9 +87,9 @@ GitMap is a **Windows-first** project. The commands below install the latest rel
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 ```
 
-#### Pinned Version Install (v6.432.0)
+#### Pinned Version Install (v6.433.0)
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.432.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.433.0/install.ps1 | iex
 ```
 
 ---
@@ -101,9 +101,9 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.432.0/install.
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-#### Pinned Version Install (v6.432.0)
+#### Pinned Version Install (v6.433.0)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.432.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.433.0/install.sh | sh
 ```
 
 ### 🎯 Install — Quick (pick your install drive)
@@ -3150,6 +3150,7 @@ Seamless cross-platform OS desktop integration, persistent clipboard memory, and
 | `browse <url>` | `open-url`, `web` | Open URL or local HTML file in system default browser or Google Chrome (`--chrome`) |
 | `cat <file>` | `view` | Stream and inspect file contents directly in terminal stdout |
 | `touch <path>` | `mkfile` | Create a new file and automatically create missing parent directories |
+| `safe-rm <path...>` | `rm-safe` | Idempotently and safely remove files or directories without failing if targets do not exist |
 
 ```bash
 # Copy text or file to OS clipboard and GitMap memory buffer
@@ -3168,9 +3169,10 @@ gitmap explorer ./src/data/commands.ts
 gitmap browse https://github.com/alimtvnetwork/gitmap-v28
 gitmap browse https://localhost:3000 --chrome
 
-# Cross-platform file creation and terminal viewing
+# Cross-platform file creation, terminal viewing, and safe removal
 gitmap touch src/features/new-flow.ts
 gitmap cat src/features/new-flow.ts
+gitmap safe-rm ./temp_cache ./stale_output --force
 ```
 
 → [copy](cli/helptext/copy.md) · [paste](cli/helptext/paste.md) · [explorer](cli/helptext/explorer.md) · [browse](cli/helptext/browse.md) · [cat](cli/helptext/cat.md) · [touch](cli/helptext/touch.md)
@@ -3332,8 +3334,8 @@ project, the JSON output contracts, and how to add a new JSON surface:
 3. `.ai-memory/memory/01-index.md` — master memory index (Core rules + topic links).
 4. [`.ai-memory/coding-guidelines.md`](.ai-memory/coding-guidelines.md) — Centralized error management & coding guidelines.
 5. `.ai-memory/overview.md` and `.ai-memory/strictly-avoid.md` — invariants & hard NOs.
-5. `02-spec/08-json-schemas/` — every JSON output's schema.
-6. `cli/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
+6. `02-spec/08-json-schemas/` — every JSON output's schema.
+7. `cli/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
    — canonical example of the encoder + contract-test pattern to copy.
 
 ### How JSON Outputs Are Structured
@@ -3347,7 +3349,7 @@ cli/cmd/<name>render.go                       ← stablejson encoder (key order 
 cli/cmd/<name>_jsonschema_contract_test.go    ← drift guard
 ```
 
-See `.ai-memory/memory/project/what-to-read.md` §3–4 for the full recipe.
+See [`.ai-memory/what-to-read.md`](.ai-memory/what-to-read.md) for the full onboarding and reading order.
 
 ---
 

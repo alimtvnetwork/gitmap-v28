@@ -60,6 +60,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 52 | [52-ssh-join-re-enrollment-auth-failure-and-double-shell-wrap-rca.md](52-ssh-join-re-enrollment-auth-failure-and-double-shell-wrap-rca.md) | SSH Join Re-Enrollment Auth Failure, Premature Interactive Prompt & Windows Double Shell Wrapping: RCA & Fix | Resolved |
 | 53 | [53-macro-phantom-steps-and-removal-failure-rca.md](53-macro-phantom-steps-and-removal-failure-rca.md) | Macro Deletion Failure on Missing Target (`rm test`) and Interactive Edit Step Discard: RCA & Fix | Resolved |
 | 54 | [54-windows-node-bash-missing-clone-failure-rca.md](54-windows-node-bash-missing-clone-failure-rca.md) | Remote Windows Node Clone Failure (`'bash' is not recognized`) and Fleet Output Degradation: RCA & Fix | Resolved |
+| 55 | [55-test-auto-dest-repo-pollution-of-vscode-project-manager-and-agy-rca.md](55-test-auto-dest-repo-pollution-of-vscode-project-manager-and-agy-rca.md) | Test Destination Auto-Provisioning Polluting VS Code Project Manager and Antigravity Projects: RCA & Fix | Resolved |
 
 ---
 

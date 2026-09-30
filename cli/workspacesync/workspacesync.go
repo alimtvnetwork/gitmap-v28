@@ -40,6 +40,9 @@ type GitFolder struct {
 }
 
 func SyncAll(repoPath string, repoName string) {
+	if IsRestrictedPath(repoPath) {
+		return
+	}
 	fmt.Printf("  " + constants.ColorDim + "→ sync:" + constants.ColorReset)
 
 	pmRes := "[vsc: skipped]"
@@ -66,6 +69,9 @@ func SyncAll(repoPath string, repoName string) {
 
 // SyncWithoutDesktop synchronizes VS Code and Antigravity without launching GitHub Desktop.
 func SyncWithoutDesktop(repoPath string, repoName string) {
+	if IsRestrictedPath(repoPath) {
+		return
+	}
 	fmt.Printf("  " + constants.ColorDim + "→ sync:" + constants.ColorReset)
 
 	pmRes := "[vsc: skipped]"
@@ -92,6 +98,9 @@ func SyncWithoutDesktop(repoPath string, repoName string) {
 
 // SyncAgyOnly synchronizes only Antigravity, skipping VS Code and GitHub Desktop.
 func SyncAgyOnly(repoPath string, repoName string) {
+	if IsRestrictedPath(repoPath) {
+		return
+	}
 	fmt.Printf("  " + constants.ColorDim + "→ sync:" + constants.ColorReset)
 	pmRes := "[vsc: skipped]"
 	dtRes := "[desktop: skipped]"
@@ -118,7 +127,7 @@ func resolveDesktopSyncStatus(repoPath, repoName string) string {
 }
 
 func SyncAntigravity(repoPath, repoName string) bool {
-	if isRestrictedPath(repoPath) || !isGitRepoPath(repoPath) {
+	if IsRestrictedPath(repoPath) || !isGitRepoPath(repoPath) {
 		return false
 	}
 	home, err := os.UserHomeDir()
@@ -237,61 +246,4 @@ func checkEntryURI(configDir, fileName, fileURI string) string {
 	}
 
 	return ""
-}
-
-func isRestrictedPath(path string) bool {
-	if strings.TrimSpace(path) == "" {
-		return true
-	}
-	clean := filepath.Clean(path)
-	if abs, err := filepath.Abs(clean); err == nil {
-		clean = abs
-	}
-	if clean == "/" || clean == "\\" || filepath.Dir(clean) == clean {
-		return true
-	}
-	vol := filepath.VolumeName(clean)
-	if vol != "" && (clean == vol || clean == vol+"\\" || clean == vol+"/") {
-		return true
-	}
-	if isUserHomeOrParent(clean) {
-		return true
-	}
-	return isSystemPath(clean)
-}
-
-func isUserHomeOrParent(clean string) bool {
-	home, err := os.UserHomeDir()
-	if err != nil || home == "" {
-		return false
-	}
-	cleanHome := filepath.Clean(home)
-	if strings.EqualFold(clean, cleanHome) {
-		return true
-	}
-	parent := filepath.Dir(cleanHome)
-	return parent != cleanHome && strings.EqualFold(clean, parent)
-}
-
-func isSystemPath(clean string) bool {
-	candidates := []string{
-		os.Getenv("WINDIR"), os.Getenv("SystemRoot"), os.Getenv("ProgramFiles"),
-		os.Getenv("ProgramFiles(x86)"), os.Getenv("ProgramData"),
-		"/etc", "/usr", "/bin", "/sbin", "/var", "/root", "/System", "/Library",
-	}
-	for _, sys := range candidates {
-		if sys != "" && strings.EqualFold(clean, filepath.Clean(sys)) {
-			return true
-		}
-	}
-	return false
-}
-
-func isGitRepoPath(path string) bool {
-	if strings.TrimSpace(path) == "" {
-		return false
-	}
-	dotGit := filepath.Join(path, ".git")
-	info, err := os.Stat(dotGit)
-	return err == nil && (info.IsDir() || !info.IsDir())
 }

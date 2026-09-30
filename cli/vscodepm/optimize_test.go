@@ -7,6 +7,8 @@ import (
 )
 
 func TestOptimizeProjectsAt(t *testing.T) {
+	BypassDisallowedPathFilterForTesting = true
+	defer func() { BypassDisallowedPathFilterForTesting = false }()
 	tmpDir := t.TempDir()
 	projectsFile := filepath.Join(tmpDir, "projects.json")
 

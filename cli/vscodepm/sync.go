@@ -45,7 +45,23 @@ func SyncMode(pairs []Pair, mode MergeMode) (SyncSummary, error) {
 		return SyncSummary{}, err
 	}
 
-	return SyncAtMode(path, pairs, mode)
+	filtered := filterProductionPairs(pairs)
+	if len(filtered) == 0 {
+		return SyncSummary{}, nil
+	}
+
+	return SyncAtMode(path, filtered, mode)
+}
+
+func filterProductionPairs(pairs []Pair) []Pair {
+	out := make([]Pair, 0, len(pairs))
+	for _, p := range pairs {
+		if IsDisallowedProjectPath(p.RootPath) {
+			continue
+		}
+		out = append(out, p)
+	}
+	return out
 }
 
 // RenameByPath updates the Name field of the entry whose rootPath matches.

@@ -29,4 +29,5 @@ Registry of application bugs, regressions, root cause analyses (RCA), and resolu
 | [18-ssh-exec-ip-sh-not-found-rca.md](18-ssh-exec-ip-sh-not-found-rca.md) | SSH remote execution `sh: not found` shell binary resolution RCA | Resolved |
 | [19-vscode-startup-icu-botched-update-and-project-manager-rca.md](19-vscode-startup-icu-botched-update-and-project-manager-rca.md) | VS Code startup ICU failure, botched update & project manager sync RCA | Resolved |
 | [20-macro-phantom-steps-and-removal-failure-rca.md](20-macro-phantom-steps-and-removal-failure-rca.md) | Macro Deletion Failure on Missing Target (`rm test`) and Interactive Edit Step Discard: RCA & Fix | Resolved |
+| [21-test-auto-dest-repo-pollution-of-vscode-project-manager-and-agy-rca.md](21-test-auto-dest-repo-pollution-of-vscode-project-manager-and-agy-rca.md) | Test Destination Auto-Provisioning Polluting VS Code Project Manager and Antigravity Projects: RCA & Fix | Resolved |
 | [agy-vm-status.md](agy-vm-status.md) | Antigravity virtual machine status inspection | Resolved |

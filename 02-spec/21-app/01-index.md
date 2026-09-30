@@ -81,9 +81,23 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 161: Antigravity Rerun Active Project Resolution, Non-Destructive Replay, and Conversation Commands](./161-agy-rerun-active-project-non-destructive-and-conversation-commands.md)
 - [Spec 167: Antigravity Running Prompts Backup/Restore, Multi-Node SSH Delegation, PE Cache & Green Pipeline Automation](./167-agy-running-prompts-backup-restore-and-green-automation/01-overview.md)
 - [Spec 168: Commit-Pull Array Async Pool, Interactive Web UI & Declarative Bootstrap](./168-commit-pull-array-async-pool-ui-and-bootstrap.md)
+- [Spec 170: Repo Create Coding Guideline Auto-Sync, No-Sync Flag & Race Detector Guard](./170-repo-create-cg-sync-no-sync-and-race-detector-guard.md)
+- [Spec 171: SSH Fleet GitMap Auto-Update Guard & Concise Pull Remediation](./171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md)
+- [Spec 172: SSH Fleet Preflight Liveness, Error Details & Clean Dispatch](./172-ssh-fleet-preflight-liveness-error-details-and-clean-dispatch.md)
 - [Spec 173: SSH Fleet Liveness, Error Remediation, and Rerun Help](./173-ssh-fleet-liveness-error-remediation-and-rerun-help.md)
 - [Spec 174: Antigravity Decision Log DB, Comprehensive Project Discovery, and Active Rerun Recency](./174-agy-decision-log-db-project-discovery-and-recent-rerun.md)
+- [Spec 175: Rerun Test CWD Match, PE Parallel Log Fetching & Local PA Concurrency](./175-rerun-test-cwd-match-pe-parallel-and-local-pa-concurrency.md)
+- [Spec 176: TestResolveFetchConcurrency Alignment with 8-Worker Concurrency Ceiling](./176-resolve-fetch-concurrency-test-assertion.md)
+- [Spec 177: Scan Alias Migration, Internal Errors DB, and Fleet Inventory Aggregation](./177-scan-alias-migration-internal-errors-db-and-fleet-inventory-aggregation.md)
+- [Spec 178: Smart File and Folder Deployment with Bidirectional Sync Modes](./178-smart-deploy-files-and-folders-with-sync-modes.md)
+- [Spec 179: Fleet Update JSON Communication, Running Prompts Backup/Restore E2E & Deploy Polish](./179-fleet-update-json-prompts-backup-and-deploy-polish.md)
 - [Spec 180: AGY, AGM, Copilot, and Edge Complete Uninstallation Suite & Enhanced DevTool Cache Cleaner](./180-agy-agm-copilot-edge-uninstall-and-devtool-clean/01-overview.md)
+- [Spec 186: Fleet Nodes Machine Ping Command (`gitmap nodes ping` & `gitmap ping`)](./186-fleet-nodes-machine-ping-command.md)
+- [Spec 187: PowerShell Predictive Suggestions & Profile Auto-Configuration](./187-powershell-predictive-suggestions-and-profile-installer.md)
+- [Spec 188: JSON Envelope V2, Terminal Clear, Deploy-Keys Variants, and Friendly Import CLI](./188-json-envelope-v2-terminal-clear-and-deploy-keys.md)
+- [Spec 189: JSON Envelope Variables, WorkDirectory Object, OS Password CLI, and Repo-Secrets Hygiene](./189-envelope-variables-os-password-and-secrets-sequence.md)
+- [Spec 190: VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task History, and Chained Installer](./190-vmware-macro-audit-task-and-installer-chain.md)
+- [Spec 191: Fleet Nodes Clone — Except-Self, Windows Remote Shell Runner, and Target Directory Architecture](./191-nodes-clone-except-self-windows-runner-and-path.md)
 
 ---
 

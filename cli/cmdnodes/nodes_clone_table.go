@@ -12,7 +12,7 @@ import (
 func renderFleetStartBanner(out io.Writer, opts NodesCloneOptions, nodeCount int) {
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "  ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗")
-	fmt.Fprintf(out, "  ║ GITMAP FLEET NODES %-86s║\n", strings.ToUpper(string(opts.Kind))+" DISPATCH")
+	fmt.Fprintf(out, "  ║ GITMAP FLEET NODES %-94s║\n", strings.ToUpper(string(opts.Kind))+" DISPATCH")
 	fmt.Fprintln(out, "  ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝")
 	fileMsg := ""
 	if opts.HasFile {
@@ -95,11 +95,22 @@ func sanitizeError(errStr string) string {
 	return clean
 }
 
+func isIgnoredDetailLine(line string) bool {
+	low := strings.ToLower(line)
+	if strings.HasPrefix(line, "=") || strings.HasPrefix(line, "-") || strings.HasPrefix(line, "╔") || strings.HasPrefix(line, "║") || strings.HasPrefix(line, "╚") {
+		return true
+	}
+	if strings.HasPrefix(low, "at ") || strings.HasPrefix(low, "origin:") || strings.HasPrefix(low, "stack trace:") {
+		return true
+	}
+	return strings.HasPrefix(low, "pending task already exists")
+}
+
 func sanitizeStdout(stdout string) string {
 	lines := strings.Split(stdout, "\n")
 	for i := len(lines) - 1; i >= 0; i-- {
 		line := strings.TrimSpace(lines[i])
-		if line == "" || strings.HasPrefix(line, "=") || strings.HasPrefix(line, "-") {
+		if line == "" || isIgnoredDetailLine(line) {
 			continue
 		}
 		if len(line) > 55 {

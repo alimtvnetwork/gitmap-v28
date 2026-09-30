@@ -4,7 +4,8 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-*(All master plans currently completed)*
+- [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md): VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
+
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 

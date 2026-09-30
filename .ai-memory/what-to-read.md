@@ -1,10 +1,11 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-09-26T21:40:00Z
+> Last updated: 2026-09-30T23:55:00Z
 
 ## Changelog
 
+- 2026-09-30T23:55:00Z, Memory write: Plan 56 pending roadmap (VMware hardware customization, multi-VM batch operations, macro integration, and TUI settings), Spec 190 index sync, binary path synchronization across all 4 execution targets, and root readme/what-to-read parity.
 - 2026-09-30T23:10:00Z, Memory write: Spec 190, Plan 54, native `gitmap safe-rm` / `rm-safe` CLI command, interactive live execution platform adaptation, root `readme.md` sync, and comprehensive test suite validation.
 - 2026-09-30T20:20:00Z, Memory write: Spec 190, Plan 54, Learned 33, and Issue 53 / RCA 20 (VMware Workstation PowerShell engine manage-vm.ps1 in repo-secrets, macro idempotent safe removal shim, interactive macro edit step recording fix, and universal TaskHistory audit logging).
 - 2026-09-26T21:40:00Z, Memory write: Spec 164 and Plan 164 (Fast `gitmap pa` default mode, `gitmap pat` / `--status`, `gitmap pa --json`, State Templates DB `gitmap-templates.db` with variables & SHA-256 exportId import deduplication, `gitmap templates ui`, declarative `commit-in`/`commit-pull --config <json>`, line skippers, blank gap before suffix, `$files.2.names`, and removal of hardcoded SEO templates).
