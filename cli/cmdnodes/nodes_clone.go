@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 )
 
 // IsNodesCloneCommand identifies if an argument invokes fleet clone.
@@ -128,11 +129,24 @@ func dispatchFleetExecution(opts NodesCloneOptions) error {
 	}
 	results := executeFleetNodesParallel(remoteConns, opts, fileBytes, fileName)
 	isLocalOk := executeLocalClone(opts)
+	recordFleetTaskAudit(opts, isLocalOk)
 	if opts.IsJSON {
 		return emitFleetJSON(results, isLocalOk)
 	}
 	renderFleetResultsTable(os.Stdout, results, isLocalOk, opts)
 	return nil
+}
+
+func recordFleetTaskAudit(opts NodesCloneOptions, isLocalOk bool) {
+	status := "completed"
+	if !isLocalOk {
+		status = "partial"
+	}
+	target := strings.Join(opts.PassArgs, " ")
+	if target == "" && opts.HasFile {
+		target = opts.DetectedFile
+	}
+	cmdtask.RecordTaskAudit("nodes", string(opts.Kind), target, opts.TargetDir, status)
 }
 
 func executeLocalClone(opts NodesCloneOptions) bool {

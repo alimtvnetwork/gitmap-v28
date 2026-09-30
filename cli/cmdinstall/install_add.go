@@ -26,6 +26,7 @@ type InstallAddFlags struct {
 	WinScript    string
 	UnixScript   string
 	UbuntuScript string
+	CentOSScript string
 	AddLater     bool
 	Yes          bool
 }
@@ -80,6 +81,8 @@ func parseInstallAddFlags(args []string) (*InstallAddFlags, error) {
 	fs.StringVar(&flags.UnixScript, "unix", "", "Unix install command/script")
 	fs.StringVar(&flags.UnixScript, "u", "", "Unix shorthand")
 	fs.StringVar(&flags.UbuntuScript, "ubuntu", "", "Ubuntu install command/script")
+	fs.StringVar(&flags.CentOSScript, "centos", "", "CentOS install command/script")
+	fs.StringVar(&flags.CentOSScript, "c", "", "CentOS shorthand")
 	fs.BoolVar(&flags.Yes, "yes", false, "Skip interactive prompt")
 	fs.BoolVar(&flags.Yes, "y", false, "Skip interactive shorthand")
 	fs.StringVar(&flags.Version, "version", "", "Installer version")
@@ -202,18 +205,26 @@ func buildOSScriptsMap(flags *InstallAddFlags) map[string]model.OSScript {
 		out["ubuntu"] = model.OSScript{Runtime: "bash", Instructions: flags.UbuntuScript}
 	}
 
+	if flags.CentOSScript != "" {
+		out["centos"] = model.OSScript{Runtime: "bash", Instructions: flags.CentOSScript}
+	}
+
 	return out
 }
 
 func resolveTargetOSFromFlags(flags *InstallAddFlags) string {
 	hasWin := flags.WinScript != ""
-	hasUnix := flags.UnixScript != "" || flags.UbuntuScript != ""
+	hasUnix := flags.UnixScript != "" || flags.UbuntuScript != "" || flags.CentOSScript != ""
 	if hasWin && hasUnix {
 		return "all"
 	}
 
 	if hasWin {
 		return "win"
+	}
+
+	if flags.CentOSScript != "" {
+		return "centos"
 	}
 
 	if flags.UbuntuScript != "" {
@@ -239,6 +250,10 @@ func marshalMultiOSInstructions(flags *InstallAddFlags) string {
 
 	if flags.UbuntuScript != "" {
 		payload["ubuntu"] = flags.UbuntuScript
+	}
+
+	if flags.CentOSScript != "" {
+		payload["centos"] = flags.CentOSScript
 	}
 
 	data, err := json.Marshal(payload)

@@ -52,20 +52,23 @@ The user identified two major functional gaps and requested an advanced virtuali
   - Refined `isDeleteStepCmd` to require numeric argument tokens so commands starting with `del` or `rm` (e.g. `rm test`) fall through as shell commands rather than step-deletion directives.
 
 ### 3.2 Task-02: Macro Export, Import, and Multi-Node Fleet Deployment
-- Verified `gitmap macro export <name>` and `gitmap macro import <file>` workflows for JSON and YAML payloads.
-- Verified fleet distribution via `gitmap macro deploy <name>` connecting to SSH cluster nodes.
+### 3.2 Task-02: Macro Export, Import, and Multi-Node Fleet Deployment
+- Verified `gitmap macro export <name>` and `gitmap macro import <file>` workflows for JSON and YAML payloads, with task audit logging on export and import.
+- Verified fleet distribution via `gitmap macro deploy <name>` connecting to SSH cluster nodes, instrumented with task audit logging.
 
 ### 3.3 Task-03: Universal Audit Task Logging and Polished Terminal History View
 - **Universal Audit Interceptor (`cli/cmdtask/task_audit.go`):** Added `RecordTaskAudit(section, action, target, forwardPayload, status)` interfacing with `TasksSplitDB.InsertTaskHistory`.
 - **Wired Subsystems:**
-  - Macro: `macro add`, `macro edit`, `macro rm`, `macro run`
-  - SSH: `cluster exec`
+  - Macro: `macro add`, `macro edit`, `macro rm`, `macro run`, `macro export`, `macro import`, `macro deploy`
+  - SSH: `ssh connect`, `cluster exec`
+  - Nodes & Clone: `nodes clone`, `clone`, `clone-fix-repo`, `clone-fix-repo-pub`
   - Installer: `install <tool>`, `install add`, `install update`
-- **TUI History Table (`cli/cmdtask/task_history_cmd.go`):** Rendered table with cyan headers, rounded box boundaries, colored section badges (`⚡ MACRO`, `🔑 SSH`, `📦 INSTALL`), status indicators (`[✔ COMPLETED]`, `[✖ FAILED]`), humanized timestamps, and `--section` filtering with limit/offset pagination.
+- **TUI History Table (`cli/cmdtask/task_history_cmd.go` & `cli/cmd/tasks_list.go`):** Rendered table with cyan headers, rounded box boundaries, colored section badges (`⚡ MACRO`, `🔑 SSH`, `📦 INSTALL`), status indicators (`[✔ COMPLETED]`, `[✖ FAILED]`), humanized timestamps, and `--section` filtering with limit/offset pagination. When running `gitmap task` or `gitmap tasks`, audit history is rendered automatically.
 
 ### 3.4 Task-04: OS-Specific Modular Installer and Chained Sub-Installer Engine
-- Supported multi-OS installer targets (`win`, `unix`, `ubuntu`, `all`) in `cli/cmdinstall/install_add.go`.
+- Supported multi-OS installer targets (`win`, `unix`, `ubuntu`, `centos`, `all`) in `cli/cmdinstall/install_add.go` via `--centos` / `-c` flags.
 - Added audit instrumentation in `executeInstall` and `persistInstallerScript` in `cli/cmdinstall/`.
+- Modular recipe structures and chained sub-installer validation in `cli/cmdinstall/installer_types.go`.
 
 ### 3.5 Task-05: Single-File Enterprise VMware Automation PowerShell Script
 - Authored 980+ line production PowerShell engine at `scripts/vmware/manage-vm.ps1` and mirrored to `D:/work/repo-secrets/vmware/manage-vm.ps1`.

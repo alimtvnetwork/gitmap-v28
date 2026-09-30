@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
@@ -36,7 +37,13 @@ func runMacroExport(args []string) error {
 		return nil
 	}
 
-	return executeMacroExport(macros, opts)
+	exportErr := executeMacroExport(macros, opts)
+	status := "completed"
+	if exportErr != nil {
+		status = "failed"
+	}
+	cmdtask.RecordTaskAudit("macro", "export", opts.TargetName, opts.FilePath, status)
+	return exportErr
 }
 
 func parseMacroExportOpts(args []string) macroExportOpts {

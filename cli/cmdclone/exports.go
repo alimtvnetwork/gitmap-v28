@@ -1,18 +1,39 @@
 package cmdclone
 
+import (
+	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
+)
+
 // RunClone handles the "clone" subcommand.
 func RunClone(args []string) error {
-	return runClone(args)
+	err := runClone(args)
+	recordCloneAudit("clone", args, err)
+	return err
 }
 
 // RunCloneFixRepo handles the "clone-fix-repo" subcommand.
 func RunCloneFixRepo(args []string) error {
-	return runCloneFixRepo(args)
+	err := runCloneFixRepo(args)
+	recordCloneAudit("clone-fix-repo", args, err)
+	return err
 }
 
 // RunCloneFixRepoPub handles the "clone-fix-repo-pub" subcommand.
 func RunCloneFixRepoPub(args []string) error {
-	return runCloneFixRepoPub(args)
+	err := runCloneFixRepoPub(args)
+	recordCloneAudit("clone-fix-repo-pub", args, err)
+	return err
+}
+
+func recordCloneAudit(action string, args []string, err error) {
+	status := "completed"
+	if err != nil {
+		status = "failed"
+	}
+	target := strings.Join(args, " ")
+	cmdtask.RecordTaskAudit("clone", action, target, "", status)
 }
 
 // RunCloneFrom handles the "clone-from" subcommand.

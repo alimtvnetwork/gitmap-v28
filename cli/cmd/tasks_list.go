@@ -19,9 +19,14 @@ func runTasksList() error {
 	defer db.Close()
 
 	pending, _ := db.ListPendingTasks()
-	completed, _ := db.ListCompletedTasks()
-
 	printPendingTasksTable(pending)
+
+	historyRecords, _ := db.ListTaskHistory("all", 15, 0)
+	if len(historyRecords) > 0 {
+		return cmdtask.RunTaskHistory(nil)
+	}
+
+	completed, _ := db.ListCompletedTasks()
 	printRecentCompletedTasksTable(completed)
 
 	return nil

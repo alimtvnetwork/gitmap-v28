@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
@@ -48,9 +49,11 @@ func runMacroImport(args []string) error {
 		ExceptList: opts.ExceptList,
 	})
 	if err != nil {
+		cmdtask.RecordTaskAudit("macro", "import", opts.FilePath, opts.TargetName, "failed")
 		return err
 	}
 
+	cmdtask.RecordTaskAudit("macro", "import", opts.FilePath, opts.TargetName, "completed")
 	printMacroImportSummary(res, opts.IsDryRun)
 
 	return nil

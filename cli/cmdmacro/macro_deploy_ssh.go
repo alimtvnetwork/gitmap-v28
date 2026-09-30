@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
@@ -90,6 +91,7 @@ func ExecuteMacroDeploySSH(args []string) error {
 
 	results := executeFleetDeployment(filteredTargets, macros, opts)
 	renderDeploySummary(results, excludedCount, len(macros))
+	cmdtask.RecordTaskAudit("macro", "deploy", opts.MacroName, fmt.Sprintf("%d nodes", len(filteredTargets)), "completed")
 	return nil
 }
 

@@ -12,6 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -487,8 +488,10 @@ func connectSSHClientWithErr(c db.SSHConnection, headers ...string) (*ssh.Client
 	client, err := dialNodeWithFallback(c, header)
 	if err != nil {
 		printHeaderError(header, "Connect error", err)
+		cmdtask.RecordTaskAudit("ssh", "connect", c.Alias, c.IPAddress, "failed")
 		return nil, err
 	}
+	cmdtask.RecordTaskAudit("ssh", "connect", c.Alias, c.IPAddress, "completed")
 	return client, nil
 }
 
