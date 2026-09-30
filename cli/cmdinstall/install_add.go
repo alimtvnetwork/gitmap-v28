@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 )
 
 // InstallAddFlags encapsulates CLI and interactive arguments for installer creation.
@@ -261,9 +262,12 @@ func persistInstallerScript(db *store.DB, script *model.InstallerScript) error {
 
 func updateExistingInstaller(db *store.DB, script *model.InstallerScript) error {
 	if errUpdate := db.UpdateInstaller(script); errUpdate != nil {
+		cmdtask.RecordTaskAudit("installer", "update", script.Slug, script.TargetOS, "FAILED")
+
 		return errUpdate
 	}
 
+	cmdtask.RecordTaskAudit("installer", "update", script.Slug, script.TargetOS, "COMPLETED")
 	printInstallAddSuccess(script, true)
 
 	return nil
@@ -271,9 +275,12 @@ func updateExistingInstaller(db *store.DB, script *model.InstallerScript) error 
 
 func createNewInstaller(db *store.DB, script *model.InstallerScript) error {
 	if errCreate := db.CreateInstaller(script); errCreate != nil {
+		cmdtask.RecordTaskAudit("installer", "add", script.Slug, script.TargetOS, "FAILED")
+
 		return errCreate
 	}
 
+	cmdtask.RecordTaskAudit("installer", "add", script.Slug, script.TargetOS, "COMPLETED")
 	printInstallAddSuccess(script, false)
 
 	return nil

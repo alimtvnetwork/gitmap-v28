@@ -58,7 +58,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 50 | [50-agy-rp-recreate-alias-hijack-and-ad-hoc-project-creation-rca.md](50-agy-rp-recreate-alias-hijack-and-ad-hoc-project-creation-rca.md) | AGY RP Subcommand Alias Hijack, Unconfirmed Ad-Hoc Project Creation & CWD Pollution: RCA & Fix | Resolved |
 | 51 | [51-mesh-ssh-deploy-keys-windows-chmod-failure-rca.md](51-mesh-ssh-deploy-keys-windows-chmod-failure-rca.md) | Mesh SSH Deploy Keys Windows Chmod Command Failure & Misleading Output: RCA & Fix | Resolved |
 | 52 | [52-ssh-join-re-enrollment-auth-failure-and-double-shell-wrap-rca.md](52-ssh-join-re-enrollment-auth-failure-and-double-shell-wrap-rca.md) | SSH Join Re-Enrollment Auth Failure, Premature Interactive Prompt & Windows Double Shell Wrapping: RCA & Fix | Resolved |
-| 53 | [53-macro-phantom-steps-and-removal-failure-rca.md](53-macro-phantom-steps-and-removal-failure-rca.md) | Macro Deletion Failure on Missing Target (`rm test`) and Interactive Edit Step Discard: RCA & Fix | In Progress |
+| 53 | [53-macro-phantom-steps-and-removal-failure-rca.md](53-macro-phantom-steps-and-removal-failure-rca.md) | Macro Deletion Failure on Missing Target (`rm test`) and Interactive Edit Step Discard: RCA & Fix | Resolved |
 
 ---
 

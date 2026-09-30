@@ -16,6 +16,6 @@ func RecordTaskAudit(section, action, target, forwardPayload, status string) {
 	}
 	defer tasksDB.Close()
 
-	taskID := fmt.Sprintf("%s-%d", section, time.Now().UnixNano())
-	_ = tasksDB.InsertTaskHistory(taskID, section, action, target, forwardPayload, "", status)
+	taskId := fmt.Sprintf("%s-%d", section, time.Now().UnixNano())
+	_ = tasksDB.InsertTaskHistory(taskId, section, action, target, forwardPayload, "", status)
 }

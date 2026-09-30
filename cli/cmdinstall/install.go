@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -320,6 +321,8 @@ func executeInstall(opts installOptions) {
 	if opts.Tool == "ag-m" {
 		opts.Tool = constants.ToolAgManager
 	}
+
+	cmdtask.RecordTaskAudit("installer", "run", opts.Tool, opts.Manager, "COMPLETED")
 
 	if handler := specialInstallHandler(opts.Tool); handler != nil {
 		handler(opts)

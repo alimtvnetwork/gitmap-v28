@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     VMware Virtual Machine Configuration, Hardware, Network, Disk, and Snapshot Management Engine.
 
@@ -163,11 +163,18 @@ param(
 
     [switch]$Json,
 
-    [string]$LogFile = ""
+    [string]$LogFile = "",
+
+    [Alias("h", "?")]
+    [switch]$Help
 )
 
 Set-StrictMode -Off
 $ErrorActionPreference = "Stop"
+
+if ($Help.IsPresent) {
+    $Action = "Help"
+}
 
 # --- In-Memory Log Buffer & Transcript Store ---
 $script:LogEntries = [System.Collections.Generic.List[string]]::new()

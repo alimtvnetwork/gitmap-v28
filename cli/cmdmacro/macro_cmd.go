@@ -347,10 +347,12 @@ func handleMacroDelete(args []string) error {
 
 	if err := macro.DeleteMacro(args[0]); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cmdtask.RecordTaskAudit("macro", "delete", args[0], "", "failed")
 
 		return apperror.WrapSimple(err, "macro.DeleteMacro")
 	}
 
+	cmdtask.RecordTaskAudit("macro", "delete", args[0], "", "completed")
 	fmt.Printf("✔ Removed macro %q\n", args[0])
 
 	return nil

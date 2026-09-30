@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+	"unicode"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -34,7 +35,7 @@ func isWindowsRemovalCmd(low string) bool {
 }
 
 func transformToWindowsSafeRemoval(cmdText string) string {
-	parts := strings.Fields(cmdText)
+	parts := tokenizeCommandArgs(cmdText)
 	if len(parts) <= 1 {
 		return cmdText
 	}
@@ -49,13 +50,51 @@ func transformToWindowsSafeRemoval(cmdText string) string {
 	return fmt.Sprintf("foreach ($__target in @(%s)) { if (Test-Path -LiteralPath $__target) { Remove-Item -Recurse -Force -LiteralPath $__target } }", targetArray)
 }
 
+func tokenizeCommandArgs(cmdText string) []string {
+	var tokens []string
+	var current strings.Builder
+	inQuote := false
+	var quoteChar rune
+
+	for _, r := range cmdText {
+		if inQuote && r == quoteChar {
+			inQuote = false
+			continue
+		}
+		if inQuote {
+			current.WriteRune(r)
+			continue
+		}
+		if r == '\'' || r == '"' {
+			inQuote = true
+			quoteChar = r
+			continue
+		}
+		if unicode.IsSpace(r) && current.Len() > 0 {
+			tokens = append(tokens, current.String())
+			current.Reset()
+			continue
+		}
+		if unicode.IsSpace(r) {
+			continue
+		}
+		current.WriteRune(r)
+	}
+
+	if current.Len() > 0 {
+		tokens = append(tokens, current.String())
+	}
+
+	return tokens
+}
+
 func extractRemovalTargets(args []string) []string {
 	var targets []string
 	for _, p := range args {
-		if isRemovalFlag(p) {
+		clean := strings.Trim(p, `"'`)
+		if isRemovalFlag(clean) {
 			continue
 		}
-		clean := strings.Trim(p, `"'`)
 		if len(clean) > 0 {
 			targets = append(targets, fmt.Sprintf("'%s'", clean))
 		}

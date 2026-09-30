@@ -143,7 +143,7 @@ func (db *TasksSplitDB) Conn() *sql.DB {
 
 // InsertTaskHistory adds an execution audit record into TaskHistory.
 func (db *TasksSplitDB) InsertTaskHistory(
-	taskID,
+	taskId,
 	section,
 	action,
 	target,
@@ -154,7 +154,7 @@ func (db *TasksSplitDB) InsertTaskHistory(
 	now := time.Now().UTC().Format(time.RFC3339)
 	query := `INSERT INTO TaskHistory (TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status, ExecutedAt, CreatedAt)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	res := ExecWrapper(db.Conn(), query, taskID, section, action, target, forward, inverse, status, now, now)
+	res := ExecWrapper(db.Conn(), query, taskId, section, action, target, forward, inverse, status, now, now)
 	if res.IsFailure {
 		return apperror.WrapSimple(res.Error, "InsertTaskHistory")
 	}

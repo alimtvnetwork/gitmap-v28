@@ -61,6 +61,7 @@ func parseOffsetToken(token string, win *TaskHistoryWindow) {
 // ParseHistoryArgs extracts limit, offset, and section from CLI arguments.
 func ParseHistoryArgs(args []string) TaskHistoryWindow {
 	win := TaskHistoryWindow{Limit: 50, Offset: 0, Section: "all", IsNegativeOffset: false}
+	posIndex := 0
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		if a == "--section" && i+1 < len(args) {
@@ -68,11 +69,17 @@ func ParseHistoryArgs(args []string) TaskHistoryWindow {
 			i++
 			continue
 		}
-		if i == 0 {
+		if strings.HasPrefix(a, "--section=") {
+			win.Section = strings.TrimPrefix(a, "--section=")
+			continue
+		}
+		if posIndex == 0 {
 			parseSingleHistoryToken(a, &win)
+			posIndex++
 			continue
 		}
 		parseOffsetToken(a, &win)
+		posIndex++
 	}
 
 	return win

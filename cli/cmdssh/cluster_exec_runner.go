@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -48,13 +49,20 @@ func resolveClusterHosts(ctx context.Context, target string) ([]store.SSHHost, e
 func executeClusterExec(ctx context.Context, opts *clusterExecOptions) error {
 	hosts, err := resolveClusterHosts(ctx, opts.target)
 	if err != nil {
+		cmdtask.RecordTaskAudit("ssh", "exec", opts.target, opts.command, "failed")
+
 		return err
 	}
 	results := dispatchClusterRunFn(ctx, hosts, opts.command, opts.isSudo, opts.parallel)
 	ignoreOffline := opts.target == "all"
 	if hasClusterFailures(results, ignoreOffline) {
+		cmdtask.RecordTaskAudit("ssh", "exec", opts.target, opts.command, "failed")
+
 		return apperror.NewExecutionError("one or more cluster nodes failed execution")
 	}
+
+	cmdtask.RecordTaskAudit("ssh", "exec", opts.target, opts.command, "completed")
+
 	return nil
 }
 

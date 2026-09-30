@@ -100,7 +100,7 @@ func (s *CommandHistorySplitDB) ListRecentCommands(limit int) ([]CommandHistoryE
 	if limit <= 0 {
 		limit = 50
 	}
-	const q = `SELECT CommandId, CommandLine, CommandName, ExitCode, ExecutedAt, DurationMs 
+	const q = `SELECT CommandId, CommandLine, CommandName, ExitCode, ExecutedAt, DurationMs
 FROM CommandHistory ORDER BY ExecutedAt DESC, CommandId DESC LIMIT ?;`
 	rows, err := s.conn.Query(q, limit)
 	if err != nil {
@@ -127,7 +127,7 @@ func (s *CommandHistorySplitDB) SuggestCommands(prefix string, limit int) ([]str
 	if limit <= 0 {
 		limit = 10
 	}
-	const q = `SELECT DISTINCT CommandLine FROM CommandHistory 
+	const q = `SELECT DISTINCT CommandLine FROM CommandHistory
 WHERE CommandLine LIKE ? ORDER BY ExecutedAt DESC LIMIT ?;`
 	rows, err := s.conn.Query(q, prefix+"%", limit)
 	if err != nil {

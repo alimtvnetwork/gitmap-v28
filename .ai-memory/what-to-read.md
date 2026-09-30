@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-09-30T20:20:00Z, Memory write: Spec 190, Plan 54, Learned 33, and Issue 53 / RCA 20 (VMware Workstation PowerShell engine manage-vm.ps1 in repo-secrets, macro idempotent safe removal shim, interactive macro edit step recording fix, and universal TaskHistory audit logging).
 - 2026-09-26T21:40:00Z, Memory write: Spec 164 and Plan 164 (Fast `gitmap pa` default mode, `gitmap pat` / `--status`, `gitmap pa --json`, State Templates DB `gitmap-templates.db` with variables & SHA-256 exportId import deduplication, `gitmap templates ui`, declarative `commit-in`/`commit-pull --config <json>`, line skippers, blank gap before suffix, `$files.2.names`, and removal of hardcoded SEO templates).
 - 2026-09-24T20:00:00Z, Memory write: Spec 148, Plan 97, and Issue 41 RCA (SSH Batch Common Join `sjc`, Remote OS Detection `os_detect`, AGY `rerun` & `rop` split-DB optimization, Native AUM Search Benchmark `docs/benchmarks/search_benchmark.md` 33,000x speedup, and VS Code Startup Failure 4-Part RCA).
 - 2026-09-23T07:40:00Z, Memory write: Plan 83 Antigravity Language Server address dynamic discovery, CSRF token extraction via CIM, multi-port probing, agentapi injection, and CLI fallback.
@@ -48,6 +49,7 @@
 - `.ai-memory/memory/learned/29-ssh-multi-target-pipeline-bounded-stacktrace-ingestion.md`, why: Plans 208–214 SSH multi-target command resolution and machine join, and CI/CD pipeline bounded stack traces (RCA 58)
 - `.ai-memory/memory/learned/30-gitmap-subsystem-skills-set-architecture.md`, why: 6 specialized subsystem skills set for scanner, SSH cluster fleet, Split-DB, pipeline diagnostics, AGY hygiene, and macro automation engines
 - `.ai-memory/memory/learned/31-pipeline-runner-enhancements-prompts-and-skills-sync.md`, why: release orchestrator & CI/CD fix with release prompts updated with priority runner shortcuts (run-smart, --fast), gitmap pipeline suite (pe, pd), and cross-repo synchronization
+- `.ai-memory/memory/learned/33-vmware-macro-safe-rm-and-task-history-audit.md`, why: VMware automation engine, macro idempotent removal shim (safe-rm), interactive editor step recording, and TaskHistory split-DB audit logging
 
 
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
@@ -80,7 +82,9 @@
 - `02-spec/21-app/129-pr-commit-engines-and-sqlite-split-db.md`, why: PR commit replay engine, SQLite split-DB standardization, and final snapshot sync
 - `02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md`, why: SSH batch common join (`sjc`), remote OS telemetry (`os_detect`), AGY `rerun` & `rop` split-DB optimization, and AUM search benchmarks
 - `02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md`, why: SSH macro/pea/peat deploy (`--except`), fleet update (`ua`, `update ls`), remote `ssh-clone`, and `//go:build tempe2e` isolated validation
+- `02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md`, why: VMware automation, macro safe removal & edit UX, audit task history, and chained installer
 - `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md`, why: 4-Part RCA for VS Code startup failure and search latency
+- `02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md`, why: 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard
 - `docs/benchmarks/search_benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report
 - `cli/helptext/pr.md`, why: PR command family usage, HG help, and JSON examples
 
