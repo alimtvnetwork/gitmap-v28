@@ -1,3 +1,9 @@
+## v6.429.0 — 2026-09-30 (Fleet clone except-self, Windows shell fallback, safe rm, universal audit, and VMware automation)
+
+**Scope:** Version bump. Fleet clone except-self, Windows shell fallback, safe rm, universal audit, and VMware automation.
+
+---
+
 ## v6.424.0 — 2026-09-30 (support two-step deletion commit and gitignore commit for antigravity-resume_task.json)
 
 **Scope:** Version bump. support two-step deletion commit and gitignore commit for antigravity-resume_task.json.

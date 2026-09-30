@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.429.0] - 2026-09-30
+
+### Added
+- Fleet clone except-self, Windows shell fallback, safe rm, universal audit, and VMware automation
+
+---
+
 ## [v6.428.0] - 2026-09-30
 
 ### Added
