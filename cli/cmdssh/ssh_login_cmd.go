@@ -359,7 +359,7 @@ func suggestSSHKeyOrSyncSubcommand(low string) string {
 func formatAliasNotFoundMessage(target string, hosts []store.SSHHost) string {
 	header := fmt.Sprintf("SSH host alias '%s' not found in registry.\n\n", target)
 	if suggestion := suggestSSHSubcommand(target); suggestion != "" {
-		header = fmt.Sprintf("SSH host alias '%s' not found in registry.\n  💡 Did you mean: gitmap ssh %s?\n\n", target, suggestion)
+		header = fmt.Sprintf("SSH host alias '%s' not found in registry.\n  💡 It is not there, but here is a suggestion you can try: gitmap ssh %s\n  Did you mean: gitmap ssh %s?\n\n", target, suggestion, suggestion)
 	}
 	table := formatRegisteredHostsTable(hosts)
 	examples := formatJoinExamples(target)

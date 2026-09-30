@@ -36,7 +36,7 @@ func buildUnknownCommandMessage(command string, suggestions []string) string {
 
 	msg := fmt.Sprintf(constants.ErrUnknownCommand, command)
 	if len(suggestions) > 0 {
-		msg += fmt.Sprintf("\n  Did you mean: %s?", strings.Join(suggestions, ", "))
+		msg += fmt.Sprintf("\n  It is not there, but here is a suggestion you can try: %s", strings.Join(suggestions, ", "))
 	}
 
 	return msg
@@ -48,7 +48,7 @@ func printCommandSuggestions(suggestions []string) {
 	}
 
 	fmt.Println()
-	fmt.Println("  💡 Did you mean one of these?")
+	fmt.Println("  💡 It is not there, but here is a suggestion you can try:")
 	for _, s := range suggestions {
 		fmt.Printf("    gitmap %s\n", s)
 	}
