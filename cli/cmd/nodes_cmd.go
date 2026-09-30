@@ -11,6 +11,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdnodes"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	dbpkg "github.com/alimtvnetwork/gitmap-v28/cli/db"
@@ -98,20 +99,26 @@ func printUnifiedNodesHelp() error {
 	fmt.Println("      • Server-Clients Network  (gitmap sc / servers-clients)")
 	fmt.Println()
 	fmt.Println("  Commands & Filtering:")
-	fmt.Println("    gitmap nodes                Display all unified fleet nodes with live liveness")
-	fmt.Println("    gitmap nodes ping [target]  Run machine ping command against all fleet nodes")
-	fmt.Println("    gitmap nodes <alias|ip>     Filter output to a specific node or host")
-	fmt.Println("    gitmap nodes --ssh          Filter only SSH-enrolled nodes")
-	fmt.Println("    gitmap nodes --cluster      Filter only Cluster DB registered nodes")
-	fmt.Println("    gitmap nodes --sc           Filter only Server-Client broadcast nodes")
-	fmt.Println("    gitmap nodes --fast         Skip network liveness check for instant display")
-	fmt.Println("    gitmap nodes --json         Output machine-readable JSON telemetry")
+	fmt.Println("    gitmap nodes                          Display all unified fleet nodes with live liveness")
+	fmt.Println("    gitmap nodes ping [target]            Run machine ping command against all fleet nodes")
+	fmt.Println("    gitmap nodes clone [flags] <targets>  Clone repository/manifest locally and across fleet async")
+	fmt.Println("    gitmap nodes cfr [flags] [targets]    Clone, fix, and auto-setup across all fleet nodes")
+	fmt.Println("    gitmap nodes cfrp [flags] [targets]   Clone, fix, and promote public across all fleet nodes")
+	fmt.Println("    gitmap nodes <alias|ip>               Filter output to a specific node or host")
+	fmt.Println("    gitmap nodes --ssh                    Filter only SSH-enrolled nodes")
+	fmt.Println("    gitmap nodes --cluster                Filter only Cluster DB registered nodes")
+	fmt.Println("    gitmap nodes --sc                     Filter only Server-Client broadcast nodes")
+	fmt.Println("    gitmap nodes --fast                   Skip network liveness check for instant display")
+	fmt.Println("    gitmap nodes --json                   Output machine-readable JSON telemetry")
 	fmt.Println()
 	fmt.Println("  Examples:")
 	fmt.Println("    gitmap nodes")
 	fmt.Println("    gitmap nodes ping")
-	fmt.Println("    gitmap nodes ping main")
-	fmt.Println("    gitmap nodes main")
+	fmt.Println("    gitmap nodes clone ChrisTitusTech/winutil")
+	fmt.Println("    gitmap nodes clone repo1,repo2")
+	fmt.Println("    gitmap nodes cfr gitmap.json")
+	fmt.Println("    gitmap nodes cfr")
+	fmt.Println("    gitmap nodes cfrp gitmap.json")
 	fmt.Println("    gitmap nodes --json")
 	fmt.Println("    gitmap nodes --fast")
 	fmt.Println()
@@ -130,6 +137,11 @@ func isNodesPingCommand(arg string) bool {
 func runUnifiedNodesCLI(args []string) error {
 	if len(args) > 0 && isNodesPingCommand(args[0]) {
 		return runUnifiedNodesPingCLI(args[1:])
+	}
+	if len(args) > 0 {
+		if _, isClone := cmdnodes.IsNodesCloneCommand(args[0]); isClone {
+			return cmdnodes.RunNodesClone(args)
+		}
 	}
 	if isNodesHelpRequest(args) {
 		return printUnifiedNodesHelp()
@@ -590,5 +602,6 @@ func renderUnifiedNodesFooter(out io.Writer) {
 	fmt.Fprintln(out, "    • Cluster Remote Exec:     gitmap cluster exec <alias> \"<cmd>\"")
 	fmt.Fprintln(out, "    • Broadcast to All Nodes:  gitmap sc exec \"<cmd>\"            (or: gitmap ssh exec all \"<cmd>\")")
 	fmt.Fprintln(out, "    • Sync Keys & Ping Nodes:  gitmap ssh deploy-keys            | gitmap nodes ping")
+	fmt.Fprintln(out, "    • Fleet Clones & CFR:      gitmap nodes clone <repo|file>    | gitmap nodes cfr <repo|file>")
 	fmt.Fprintln(out)
 }

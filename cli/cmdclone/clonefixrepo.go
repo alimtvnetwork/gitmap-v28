@@ -62,15 +62,24 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) error {
 	modifiers.IsSkipPush = modifiers.IsSkipPush || isSkipPush
 	f := cloneFixRepoFlags{url, folder, isSkipVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, isSkipCommit, isSkipPush}
 	if isCFRManifestTarget(f.url) || (len(f.url) == 0 && hasLocalCloneManifest()) {
-		return runCFRManifestPipeline(f, makePublic, modifiers)
+		err := runCFRManifestPipeline(f, makePublic, modifiers)
+		if err == nil && !f.dryRun {
+			MaybePrintFleetCFRSuggestion(f.url, makePublic)
+		}
+		return err
 	}
 	if dispatchCFRMultiURL(f, makePublic, modifiers, parallel) {
+		if !f.dryRun {
+			MaybePrintFleetCFRSuggestion(f.url, makePublic)
+		}
 		return nil
 	}
 
-	runSingleCloneFixRepo(f, makePublic, modifiers)
-
-	return nil
+	err := runSingleCloneFixRepo(f, makePublic, modifiers)
+	if err == nil && !f.dryRun {
+		MaybePrintFleetCFRSuggestion(f.url, makePublic)
+	}
+	return err
 }
 
 func dispatchCFRMultiURL(

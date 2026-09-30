@@ -92,7 +92,11 @@ func runClone(args []string) error {
 	checkHelp("clone", args)
 	cf := parseCloneFlags(args)
 
-	return executeParsedClone(cf)
+	err := executeParsedClone(cf)
+	if err == nil && !cf.DryRun && !cf.IsListOnly && !cf.Audit {
+		MaybePrintFleetCloneSuggestion(cf.Source)
+	}
+	return err
 }
 
 func executeParsedClone(cf CloneFlags) error {

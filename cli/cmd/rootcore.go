@@ -149,6 +149,9 @@ func coreVisibilityHistoryEntries() []dispatchEntry {
 func coreClusterEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"nodes", "node", "allnodes", "all-nodes", "fleet-nodes"}, func() error { return runUnifiedNodesCLI(argsTail()) }},
+		{[]string{"nodes-clone", "node-clone", "fleet-clone"}, func() error { return runUnifiedNodesCLI(append([]string{"clone"}, argsTail()...)) }},
+		{[]string{"nodes-cfr", "node-cfr", "fleet-cfr"}, func() error { return runUnifiedNodesCLI(append([]string{"cfr"}, argsTail()...)) }},
+		{[]string{"nodes-cfrp", "node-cfrp", "fleet-cfrp"}, func() error { return runUnifiedNodesCLI(append([]string{"cfrp"}, argsTail()...)) }},
 		{[]string{"ping", "nodes-ping", "nodeping", "fleet-ping"}, func() error { return runUnifiedNodesPingCLI(argsTail()) }},
 		{[]string{constants.CmdServersClients, constants.CmdServersClientsAlias, constants.CmdSC}, func() error { dispatchServersClients(argsTail()); return nil }},
 		{[]string{constants.CmdClients, constants.CmdClientsAlias}, func() error { dispatchClients(argsTail()); return nil }},
