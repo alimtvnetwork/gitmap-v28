@@ -14,6 +14,10 @@ import (
 
 // RunErrorsCLI is the entry point for 'gitmap errors' and 'gitmap e'.
 func RunErrorsCLI(args []string) error {
+	if len(args) > 0 && isFailedSubcommandToken(args[0]) {
+		return RunFailedCommandsCLI(args[1:])
+	}
+
 	if isErrorsHelpRequested(args) {
 		renderErrorsHelp()
 

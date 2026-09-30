@@ -16,6 +16,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // isFlagToken returns true when arg looks like a CLI flag (-x or --xx).
@@ -245,7 +246,16 @@ func formatUnknownUpdateTargetHeader(token string) string {
 }
 
 func handleUnknownUpdateTarget(token string) {
-	fmt.Printf("\n%s\n\n", formatUnknownUpdateTargetHeader(token))
+	header := formatUnknownUpdateTargetHeader(token)
+	sugg := suggestUpdateTarget(token)
+	var suggList []string
+	if sugg != "" {
+		suggList = []string{"gitmap update " + sugg}
+	} else {
+		suggList = []string{"gitmap update", "gitmap update all", "gitmap update ls"}
+	}
+	store.LogFailedCommand(token, strings.Join(os.Args[1:], " "), "update", "E1001", header, suggList)
+	fmt.Printf("\n%s\n\n", header)
 	fmt.Println("Available update commands:")
 	fmt.Println("  gitmap update              - Self-update local gitmap binary")
 	fmt.Println("  gitmap update all          - Update all fleet cluster nodes in parallel (alias: gitmap ua)")
@@ -405,6 +415,7 @@ func utilityPipelineEntries() []dispatchEntry {
 		{[]string{"pe", "pipeline-errors", "pipeline_errors", "ee"}, func() error { return runPipelineErrors(argsTail()) }},
 		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return runPipelineDetails(argsTail()) }},
 		{[]string{"e", "errors", "internal-errors", "errs"}, func() error { return cmderrors.RunErrorsCLI(argsTail()) }},
+		{[]string{"failed-commands", "failed-command", "fc", "unknown-commands", "unknown-command", "failed-to-detect"}, func() error { return cmderrors.RunFailedCommandsCLI(argsTail()) }},
 		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},
 		{[]string{"logs", "log"}, func() error { return runPipeline(append([]string{"logs"}, argsTail()...)) }},
 		{[]string{"waittime", "wait-time", "eta"}, func() error { return runPipeline(append([]string{"waittime"}, argsTail()...)) }},

@@ -86,8 +86,14 @@ func formatRecentTags(raw string) string {
 }
 
 func printInstallListLegend() {
-	legend := fmt.Sprintf("\nLegend: %s installed   %s not installed   %s unknown\n", installedDot, missingDot, unknownDot)
+	legend := fmt.Sprintf("\nLegend: %s installed   %s not installed   %s unknown", installedDot, missingDot, unknownDot)
 	fmt.Println(lipgloss.NewStyle().Italic(true).Render(legend))
+	fmt.Printf("\n  %s💡 Installation & Fleet Optimization Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("    • Preview a profile hierarchy:     gitmap install profile dev --tree")
+	fmt.Println("    • Install tool on all SSH nodes:   gitmap ssh install <tool> --all")
+	fmt.Println("    • Push local binary to SSH fleet:  gitmap deploy-bin all")
+	fmt.Println("    • Audit fleet software versions:   gitmap update ls")
+	fmt.Println()
 }
 
 func printCategoryBlock(category string, tools []string, installed map[string]string) {

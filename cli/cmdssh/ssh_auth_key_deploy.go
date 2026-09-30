@@ -151,7 +151,12 @@ func executeFleetKeyDeployment(conns []db.SSHConnection, target, pubKey, keyPath
 	for _, c := range conns {
 		deployAuthKeyToNode(c, pubKey, isForceUnix)
 	}
-	fmt.Printf("\nAuthorized key deployment complete.\n\n")
+	fmt.Printf("\nAuthorized key deployment complete.\n")
+	fmt.Printf("\n  %s💡 SSH Key Optimization Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("    • Full mesh key sync (all-to-all): gitmap ssh deploy-keys  (or: gitmap deploy-keys-all)")
+	fmt.Println("    • Add a remote key locally:        gitmap ssh key add <pubkey-or-file>")
+	fmt.Println("    • Check live node status:          gitmap ssh ls")
+	fmt.Println()
 }
 
 func resolveTargetOS(osType string, isForceUnix bool) string {

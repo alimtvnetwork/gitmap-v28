@@ -119,6 +119,16 @@ func renderTerminalCleanOutput(summary osclean.TerminalCleanSummary, opts osclea
 	if opts.IsVerbose {
 		osclean.RenderVerboseTerminalNotes(summary.Shells)
 	}
+	printTerminalCleanOptimizationSuggestions()
+}
+
+func printTerminalCleanOptimizationSuggestions() {
+	fmt.Println("  💡 Terminal & Cache Optimization Suggestions:")
+	fmt.Println("    • Clear history without reseeding:   gitmap clear terminal --no-reseed -y")
+	fmt.Println("    • Target specific shells only:       gitmap clear terminal --only powershell,zsh -y")
+	fmt.Println("    • Clean developer build/pkg caches:  gitmap clear devtools -y")
+	fmt.Println("    • Re-install Zsh autocomplete:       gitmap zsh install")
+	fmt.Println()
 }
 
 func printTerminalCleanUsage() {
@@ -140,4 +150,6 @@ func printTerminalCleanUsage() {
 	fmt.Println("      --no-reseed    Clear history only without re-seeding GitMap suggestions")
 	fmt.Println("      --only <list>  Comma-separated shell targets (e.g. powershell,bash,zsh)")
 	fmt.Println("  -h, --help         Show this documentation")
+	fmt.Println()
+	printTerminalCleanOptimizationSuggestions()
 }

@@ -49,14 +49,23 @@ func handleDirectSSHTarget(ctx context.Context, parent *cobra.Command, target st
 }
 
 func handleTargetNotFound(target string, isJSON bool, err error) error {
+	sugg := collectSSHSuggestions(target)
+	store.LogFailedCommand("ssh "+target, strings.Join(os.Args[1:], " "), "ssh", "E1001", err.Error(), sugg)
 	if isJSON {
 		out := map[string]any{
-			"status": "error",
-			"host":   target,
-			"error":  err.Error(),
+			"status":      "error",
+			"host":        target,
+			"error":       err.Error(),
+			"suggestions": sugg,
 		}
 		_ = json.NewEncoder(os.Stdout).Encode(out)
+		return apperror.WrapSimple(err, "resolveConnectionForTarget")
 	}
+	fmt.Fprintf(os.Stderr, "\n  💡 SSH Suggestions for '%s':\n", target)
+	for _, s := range sugg {
+		fmt.Fprintf(os.Stderr, "    • %s\n", s)
+	}
+	fmt.Fprintln(os.Stderr)
 	return apperror.WrapSimple(err, "resolveConnectionForTarget")
 }
 

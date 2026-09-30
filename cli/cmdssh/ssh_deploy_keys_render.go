@@ -69,19 +69,36 @@ func formatNodeActionText(r DeployKeysNodeResult) string {
 func printDeployKeysFooter(s DeployKeysSummary) {
 	fmt.Println()
 	if s.IsDryRun {
-		fmt.Printf("  %s[dry-run] No remote authorized_keys were modified.%s\n\n", constants.ColorYellow, constants.ColorReset)
+		fmt.Printf("  %s[dry-run] No remote authorized_keys were modified.%s\n", constants.ColorYellow, constants.ColorReset)
+		printDeployKeysSuggestions(s)
 		return
 	}
 	if s.NodesSucceeded == 0 && s.NodesTargeted > 0 {
-		fmt.Printf("  %s✗ Mesh public key deployment failed: 0/%d nodes updated.%s\n\n",
+		fmt.Printf("  %s✗ Mesh public key deployment failed: 0/%d nodes updated.%s\n",
 			constants.ColorRed, s.NodesTargeted, constants.ColorReset)
+		printDeployKeysSuggestions(s)
 		return
 	}
 	if s.NodesSucceeded < s.NodesTargeted {
-		fmt.Printf("  %s⚠ Mesh public key deployment partially complete (%d/%d succeeded).%s\n\n",
+		fmt.Printf("  %s⚠ Mesh public key deployment partially complete (%d/%d succeeded).%s\n",
 			constants.ColorYellow, s.NodesSucceeded, s.NodesTargeted, constants.ColorReset)
+		printDeployKeysSuggestions(s)
 		return
 	}
-	fmt.Printf("  %s✓ Mesh public key synchronization complete! All nodes now trust cluster keys passwordlessly.%s\n\n",
+	fmt.Printf("  %s✓ Mesh public key synchronization complete! All nodes now trust cluster keys passwordlessly.%s\n",
 		constants.ColorGreen, constants.ColorReset)
+	printDeployKeysSuggestions(s)
+}
+
+func printDeployKeysSuggestions(s DeployKeysSummary) {
+	fmt.Printf("\n  %s💡 SSH Key Deploy & Optimization Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	if s.NodesSucceeded < s.NodesTargeted {
+		fmt.Println("    • Repair auth on failed node:     gitmap ssh copy-id <alias|user@ip>")
+		fmt.Println("    • Skip offline nodes during sync: gitmap ssh deploy-keys --except <offline-alias>")
+		fmt.Println("    • Inspect SSH diagnostic logs:    gitmap ssh error-logs")
+	}
+	fmt.Println("    • Add external public key locally: gitmap ssh key add <pubkey-or-file>")
+	fmt.Println("    • Sync ~/.ssh/config to all nodes: gitmap ssh deploy-config")
+	fmt.Println("    • Verify passwordless mesh exec:   gitmap ssh exec all \"hostname\"")
+	fmt.Println()
 }

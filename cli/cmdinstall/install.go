@@ -271,11 +271,45 @@ func validateToolName(tool string) {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, "\n  %s✗ Unknown tool: '%s'%s\n\n", constants.ColorRed, tool, constants.ColorReset)
-	fmt.Fprintf(os.Stderr, "  Use 'gitmap install --list' to see all supported tools.\n")
-	fmt.Fprintf(os.Stderr, "  Use 'gitmap install --help' for usage examples.\n\n")
+	sugg := suggestInstallTools(tool)
 	errMsg := fmt.Sprintf("unknown tool '%s'. Use 'gitmap install --list' to see available tools", tool)
+	store.LogFailedCommand("install "+tool, strings.Join(os.Args[1:], " "), "install", "E9000", errMsg, sugg)
+
+	fmt.Fprintf(os.Stderr, "\n  %s✗ Unknown tool: '%s'%s\n\n", constants.ColorRed, tool, constants.ColorReset)
+	printInstallToolSuggestions(sugg)
+	fmt.Fprintf(os.Stderr, "  Use 'gitmap install --list' (or 'gitmap install ls') to see all supported tools.\n")
+	fmt.Fprintf(os.Stderr, "  Use 'gitmap install --help' for usage examples.\n\n")
 	cliexit.HandleError(apperror.NewSimple(errMsg, "E9000"), 1)
+}
+
+func suggestInstallTools(tool string) []string {
+	low := strings.ToLower(strings.TrimSpace(tool))
+	var matches []string
+	for name := range constants.InstallToolDescriptions {
+		if strings.Contains(name, low) || strings.Contains(low, name) {
+			matches = append(matches, "gitmap install "+name)
+		}
+		if len(matches) >= 3 {
+			break
+		}
+	}
+	if len(matches) > 0 {
+		return matches
+	}
+	return []string{
+		"gitmap install ls",
+		"gitmap install profile dev --tree",
+		"gitmap ssh install gitmap -t all",
+	}
+}
+
+func printInstallToolSuggestions(sugg []string) {
+	fmt.Fprintf(os.Stderr, "  %s💡 Installation Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	for _, s := range sugg {
+		fmt.Fprintf(os.Stderr, "    • %s\n", s)
+	}
+	fmt.Fprintf(os.Stderr, "    • gitmap deploy-bin all             - Push local gitmap binary across SSH fleet\n")
+	fmt.Fprintf(os.Stderr, "    • gitmap failed-commands            - View failed/unknown command history\n\n")
 }
 
 // executeInstall runs the install flow for a tool.

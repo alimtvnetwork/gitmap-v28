@@ -1,10 +1,15 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdwinutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func runCleanDevTopLevel(args []string) error {
@@ -41,6 +46,9 @@ func runCleanTopLevel(args []string) error {
 	if isDevCleanSubToken(sub) {
 		return cmdos.RunOSDevClean(args[1:])
 	}
+	if !isKnownCleanOrClearFlag(sub) {
+		return handleUnknownCleanOrClearTarget("clean", sub)
+	}
 	return cmdos.RunOSDevClean(args)
 }
 
@@ -59,11 +67,45 @@ func runClearTopLevel(args []string) error {
 	if isTerminalCleanSubToken(sub) {
 		return cmdos.RunTerminalCleanCLI(args[1:])
 	}
+	if !isKnownCleanOrClearFlag(sub) {
+		return handleUnknownCleanOrClearTarget("clear", sub)
+	}
 	return cmdos.RunTerminalCleanCLI(args)
 }
 
 func runTerminalTopLevel(args []string) error {
 	return cmdos.RunTerminalCleanCLI(args)
+}
+
+func isKnownCleanOrClearFlag(sub string) bool {
+	if strings.HasPrefix(sub, "-") || sub == "/?" || sub == "/y" {
+		return true
+	}
+	return sub == "help" || sub == "yes" || sub == "dry-run" || sub == "cache" || sub == "caches"
+}
+
+func handleUnknownCleanOrClearTarget(verb, sub string) error {
+	fullCmd := verb + " " + sub
+	sugg := []string{
+		"gitmap clear devtools",
+		"gitmap clear dev-tools-cache",
+		"gitmap clear terminal",
+		"gitmap clear-terminal",
+		"gitmap agy clean-cache",
+	}
+	msg := fmt.Sprintf("unknown %s target '%s'", verb, sub)
+	store.LogFailedCommand(fullCmd, strings.Join(os.Args[1:], " "), verb, "E1001", msg, sugg)
+
+	fmt.Printf("\n  %s✗ Unknown %s target: '%s'%s\n\n", constants.ColorRed, verb, sub, constants.ColorReset)
+	fmt.Printf("  %s💡 Available Clear & Clean Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("    • gitmap clear devtools         - Clean Go, npm, pnpm, Cargo, pip, Maven & Gradle caches")
+	fmt.Println("    • gitmap clear dev-tools-cache  - Alias for developer tools cache cleanup")
+	fmt.Println("    • gitmap clear terminal         - Clear PowerShell, Bash & Zsh history and reseed suggestions")
+	fmt.Println("    • gitmap clear-terminal         - Direct alias to clear terminal history & suggestions")
+	fmt.Println("    • gitmap agy clean-cache        - Purge Antigravity IDE cache & logs")
+	fmt.Println("    • gitmap failed-commands clear  - Clear recorded failed commands log")
+	fmt.Println()
+	return apperror.NewValidationError(msg)
 }
 
 func isTerminalCleanSubToken(sub string) bool {

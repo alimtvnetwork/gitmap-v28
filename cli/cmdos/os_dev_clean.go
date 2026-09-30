@@ -107,6 +107,16 @@ func renderDevCleanOutput(summary osclean.DevCleanSummary, opts osclean.DevClean
 	if opts.IsVerbose {
 		renderVerboseDevNotes(summary.Categories)
 	}
+	printDevCleanOptimizationSuggestions()
+}
+
+func printDevCleanOptimizationSuggestions() {
+	fmt.Println("  💡 Clean & Cache Optimization Suggestions:")
+	fmt.Println("    • Preview space without deleting:    gitmap clear devtools --dry-run")
+	fmt.Println("    • Clean specific ecosystems only:    gitmap clear devtools --only go,npm,pnpm -y")
+	fmt.Println("    • Clear shell history & suggestions: gitmap clear terminal -y")
+	fmt.Println("    • Clean Antigravity IDE caches:      gitmap agy clean-cache")
+	fmt.Println()
 }
 
 func renderVerboseDevNotes(categories []osclean.CategoryCleanStats) {
@@ -125,11 +135,11 @@ func printVerboseNotes(notes, errors []string) {
 }
 
 func printOSDevCleanUsage() {
-	fmt.Println("Usage: gitmap clean-dev [flags]")
-	fmt.Println("       gitmap os dev clean [flags]")
-	fmt.Println("       gitmap os dev-clean [flags]")
-	fmt.Println("       gitmap os clean dev [flags]")
-	fmt.Println("       gitmap os cleanup dev [flags]")
+	fmt.Println("Usage: gitmap clear devtools [flags]")
+	fmt.Println("       gitmap clear dev-tools [flags]")
+	fmt.Println("       gitmap clear dev-tools-cache [flags]")
+	fmt.Println("       gitmap devtools-cache clear [flags]")
+	fmt.Println("       gitmap clean-dev [flags]")
 	fmt.Println()
 	fmt.Println("Flags:")
 	fmt.Println("  -n, --dry-run      Preview space reclaimed without deleting")
@@ -138,4 +148,6 @@ func printOSDevCleanUsage() {
 	fmt.Println("  -v, --verbose      Display individual subpaths and command notes")
 	fmt.Println("      --only <cats>  Comma-separated categories to clean (e.g. go,npm,pnpm)")
 	fmt.Println("  -h, --help         Show this documentation")
+	fmt.Println()
+	printDevCleanOptimizationSuggestions()
 }

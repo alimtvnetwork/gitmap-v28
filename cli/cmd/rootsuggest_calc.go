@@ -37,8 +37,32 @@ func suggestTopLevelCommands(command string) []string {
 
 	candidates := collectTopCommandCandidates()
 	scores := rankCandidateCommands(norm, candidates)
+	best := selectBestSuggestions(scores)
+	if len(best) > 0 {
+		return best
+	}
 
-	return selectBestSuggestions(scores)
+	return suggestByIntentKeywords(norm)
+}
+
+func suggestByIntentKeywords(norm string) []string {
+	if strings.Contains(norm, "key") || strings.Contains(norm, "auth") {
+		return []string{"deploy-keys-all", "ssh key add", "ssh copy-id"}
+	}
+	if strings.Contains(norm, "ssh") || strings.Contains(norm, "node") || strings.Contains(norm, "host") {
+		return []string{"ssh ls", "ssh join", "ssh deploy-keys"}
+	}
+	if strings.Contains(norm, "clean") || strings.Contains(norm, "clear") || strings.Contains(norm, "cache") || strings.Contains(norm, "term") {
+		return []string{"clear devtools", "clear terminal", "clean-dev"}
+	}
+	if strings.Contains(norm, "install") || strings.Contains(norm, "setup") {
+		return []string{"install ls", "ssh install gitmap -t all", "deploy-bin all"}
+	}
+	if strings.Contains(norm, "fail") || strings.Contains(norm, "err") || strings.Contains(norm, "unknown") {
+		return []string{"failed-commands", "errors", "pe"}
+	}
+
+	return nil
 }
 
 func rankCandidateCommands(input string, candidates []string) []commandScore {

@@ -33,6 +33,7 @@ func runSSHList(args ...string) error {
 
 	if len(keys) == 0 {
 		fmt.Println("  No SSH keys stored. Run 'gitmap ssh' to generate one.")
+		printSSHKeyListSuggestions()
 
 		return nil
 	}
@@ -51,8 +52,17 @@ func runSSHList(args ...string) error {
 
 		fmt.Fprintf(os.Stdout, constants.MsgSSHListRow, k.Name, k.PrivatePath, k.Fingerprint, created)
 	}
+	printSSHKeyListSuggestions()
 
 	return nil
+}
+
+func printSSHKeyListSuggestions() {
+	fmt.Printf("\n  %s💡 SSH Key Management & Deployment Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("    • Deploy all keys across cluster: gitmap ssh deploy-keys  (or: gitmap deploy-keys-all)")
+	fmt.Println("    • Add external key locally:       gitmap ssh key add <pubkey-or-file>")
+	fmt.Println("    • Push local key to target node:  gitmap ssh copy-id <alias|user@ip>")
+	fmt.Println()
 }
 
 // printSSHListJSON outputs SSH keys as JSON.

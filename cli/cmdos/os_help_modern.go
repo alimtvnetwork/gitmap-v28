@@ -93,7 +93,7 @@ func printCrossPlatformOSExamples() {
 	fmt.Printf("    %sgitmap os info%s                              # Inspect OS platform, IP, and hardware\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap os update%s                            # Update OS packages (winget / brew / apt)\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap os change-password%s                   # Change OS password for current user with prompt\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("    %sgitmap os change-password Administrator MyPass# Set user password directly on Windows/Linux/macOS\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    %sgitmap os change-password Administrator MyPass%s # Set user password directly on Windows/Linux/macOS\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap machine ls%s                           # Show local IP, Alias, and OS Hostname\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap machine set dev-win-01 -y%s            # Set machine name on Windows/macOS/Ubuntu\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %sgitmap alias set build-ubuntu-02 -y%s         # Set machine network alias for fleet discovery\n", constants.ColorCyan, constants.ColorReset)

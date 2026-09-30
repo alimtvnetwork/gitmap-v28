@@ -33,6 +33,28 @@ CREATE INDEX IF NOT EXISTS IdxInternalErrorLog_CreatedAt ON InternalErrorLog(Cre
 CREATE INDEX IF NOT EXISTS IdxInternalErrorLog_ErrorType ON InternalErrorLog(ErrorType);
 CREATE INDEX IF NOT EXISTS IdxInternalErrorLog_ErrorCode ON InternalErrorLog(ErrorCode);
 CREATE INDEX IF NOT EXISTS IdxInternalErrorLog_IsResolved ON InternalErrorLog(IsResolved);`
+
+	sqlCreateFailedCommand = `CREATE TABLE IF NOT EXISTS FailedCommand (
+    FailedCommandId INTEGER PRIMARY KEY AUTOINCREMENT,
+    Command         TEXT NOT NULL DEFAULT '',
+    FullArgs        TEXT NOT NULL DEFAULT '',
+    Domain          TEXT NOT NULL DEFAULT 'root',
+    ErrorCode       TEXT NOT NULL DEFAULT 'E1001',
+    Message         TEXT NOT NULL DEFAULT '',
+    Suggestions     TEXT NOT NULL DEFAULT '',
+    HitCount        INTEGER NOT NULL DEFAULT 1,
+    WorkingDir      TEXT NOT NULL DEFAULT '',
+    GitMapVersion   TEXT NOT NULL DEFAULT '',
+    IsResolved      INTEGER NOT NULL DEFAULT 0,
+    Notes           TEXT NULL,
+    Comments        TEXT NULL,
+    CreatedAt       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LastSeenAt      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS IdxFailedCommand_Command ON FailedCommand(Command, Domain);
+CREATE INDEX IF NOT EXISTS IdxFailedCommand_HitCount ON FailedCommand(HitCount DESC);
+CREATE INDEX IF NOT EXISTS IdxFailedCommand_LastSeenAt ON FailedCommand(LastSeenAt DESC);
+CREATE VIEW IF NOT EXISTS failed_commands AS SELECT * FROM FailedCommand;`
 )
 
 // InternalErrorRecord represents a recorded internal error log entry.
@@ -103,10 +125,13 @@ func initErrorsSplitConn(conn *sql.DB, dbPath string) (*ErrorsSplitDB, error) {
 	return db, nil
 }
 
-// InitSchema creates the InternalErrorLog table and indexes if absent.
+// InitSchema creates the InternalErrorLog and FailedCommand tables and indexes if absent.
 func (s *ErrorsSplitDB) InitSchema() error {
 	if _, err := s.conn.Exec(sqlCreateInternalErrorLog); err != nil {
 		return apperror.WrapSimple(err, "errors_split.init_schema")
+	}
+	if _, err := s.conn.Exec(sqlCreateFailedCommand); err != nil {
+		return apperror.WrapSimple(err, "errors_split.init_failed_commands_schema")
 	}
 
 	return nil

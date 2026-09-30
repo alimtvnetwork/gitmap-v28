@@ -175,20 +175,30 @@ func resolveHostStatusDisplay(status string) string {
 }
 
 func renderHostsTableFooter(out io.Writer, count int) error {
-	_, err := fmt.Fprintf(out, "\n  %sTotal: %d registered node(s)%s\n\n",
+	_, err := fmt.Fprintf(out, "\n  %sTotal: %d registered node(s)%s\n",
 		constants.ColorDim, count, constants.ColorReset)
 	if err != nil {
 		return apperror.WrapSimple(err, "renderHostsTableFooter")
 	}
+	renderHostsOptimizationSuggestions(out)
 	return nil
 }
 
+func renderHostsOptimizationSuggestions(out io.Writer) {
+	_, _ = fmt.Fprintf(out, "\n  %s💡 SSH Fleet Optimization & Key Management Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	_, _ = fmt.Fprintf(out, "    • Sync All Cluster Keys:   gitmap ssh deploy-keys            (or: gitmap deploy-keys-all)\n")
+	_, _ = fmt.Fprintf(out, "    • Add Key to Local Node:   gitmap ssh key add <pubkey|file>  (or: gitmap ssh auth-key-add)\n")
+	_, _ = fmt.Fprintf(out, "    • Push Key to Remote Node: gitmap ssh copy-id <alias|user@ip> [-i ~/.ssh/id_ed25519.pub]\n")
+	_, _ = fmt.Fprintf(out, "    • Enroll / Backup / Exec:  gitmap ssh join <user@ip> <alias> | gitmap ssh export-json | gitmap ssh exec all \"<cmd>\"\n\n")
+}
+
 func renderEmptyHostsNotice(out io.Writer) error {
-	_, err := fmt.Fprintf(out, "\n  %s● No nodes registered. Enroll with: gitmap sj add <user@ip|ip> [alias]%s\n\n",
+	_, err := fmt.Fprintf(out, "\n  %s● No nodes registered. Enroll with: gitmap sj add <user@ip|ip> [alias]%s\n",
 		constants.ColorYellow, constants.ColorReset)
 	if err != nil {
 		return apperror.WrapSimple(err, "renderEmptyHostsNotice")
 	}
+	renderHostsOptimizationSuggestions(out)
 	return nil
 }
 

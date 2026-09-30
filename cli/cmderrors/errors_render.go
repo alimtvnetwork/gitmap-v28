@@ -16,6 +16,8 @@ func renderErrorsHelp() {
 	fmt.Println("    gitmap e [flags]              Short alias to list recorded internal errors")
 	fmt.Println("    gitmap e <id>                 Show detailed information for a specific error")
 	fmt.Println("    gitmap e clear                Clear all recorded internal errors")
+	fmt.Println("    gitmap e failed               List failed/undetected commands (alias: gitmap fc)")
+	fmt.Println("    gitmap failed-commands count  Show count of failed/undetected commands")
 	fmt.Println()
 	fmt.Println("  Flags:")
 	fmt.Println("    --json                        Output error records as JSON")

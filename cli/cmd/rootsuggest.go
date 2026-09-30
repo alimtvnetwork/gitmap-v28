@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 var primaryTopCommands = []string{
@@ -23,7 +25,7 @@ var primaryTopCommands = []string{
 	"update", "ua", "ssh", "ssh-join", "ssh-exec", "ssh-nodes", "install-exec", "deploy",
 	"clean", "clear", "terminal", "clear-terminal", "clean-terminal", "devtool",
 	"deploy-all-keys", "deploy-keys-all", "deploy-keys", "which-format", "import-all-json",
-	"what-configs", "wc", "merge-json",
+	"what-configs", "wc", "merge-json", "failed-commands", "fc", "unknown-commands", "errors",
 }
 
 func buildUnknownCommandMessage(command string, suggestions []string) string {
@@ -45,7 +47,7 @@ func printCommandSuggestions(suggestions []string) {
 	}
 
 	fmt.Println()
-	fmt.Println("  Did you mean one of these?")
+	fmt.Println("  💡 Did you mean one of these?")
 	for _, s := range suggestions {
 		fmt.Printf("    gitmap %s\n", s)
 	}
@@ -57,7 +59,9 @@ func handleUnknownCommand(command string) {
 	suggestions := suggestTopLevelCommands(command)
 	printCommandSuggestions(suggestions)
 	msg := buildUnknownCommandMessage(command, suggestions)
+	store.LogFailedCommand(command, strings.Join(os.Args[1:], " "), "root", "E1001", msg, suggestions)
 	fmt.Println("  Run 'gitmap help' or 'gitmap <command> --help' to view available commands.")
+	fmt.Println("  Run 'gitmap failed-commands' (or 'gitmap fc') to inspect failed command logs & suggestions.")
 	fmt.Println()
 	dispatchErr := apperror.NewWithDetails(
 		"cmd.dispatch",

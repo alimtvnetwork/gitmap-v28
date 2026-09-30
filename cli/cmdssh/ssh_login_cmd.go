@@ -274,7 +274,16 @@ func lookupSSHHostOrReport(ctx context.Context, target string, db *store.DB, ssh
 func reportAliasNotFound(ctx context.Context, target string, db *store.DB) error {
 	hosts, _ := store.ListHosts(ctx, db.Conn())
 	msg := formatAliasNotFoundMessage(target, hosts)
+	sugg := collectSSHSuggestions(target)
+	store.LogFailedCommand("ssh "+target, "ssh "+target, "ssh", "E1001", fmt.Sprintf("unknown SSH command or host alias '%s'", target), sugg)
 	return apperror.NewNotFoundError(msg)
+}
+
+func collectSSHSuggestions(target string) []string {
+	if s := suggestSSHSubcommand(target); s != "" {
+		return []string{"gitmap ssh " + s, "gitmap ssh ls", "gitmap ssh deploy-keys"}
+	}
+	return []string{"gitmap ssh ls", "gitmap ssh join user@<ip> " + target, "gitmap ssh deploy-keys", "gitmap ssh key add"}
 }
 
 func formatRegisteredHostsTable(hosts []store.SSHHost) string {
@@ -290,24 +299,29 @@ func formatRegisteredHostsTable(hosts []store.SSHHost) string {
 func formatJoinExamples(target string) string {
 	var sb strings.Builder
 	sb.WriteString("To enroll this machine in your SSH registry:\n")
-	sb.WriteString(fmt.Sprintf("  gitmap ssh-join user@<ip> %s\n", target))
-	sb.WriteString("  gitmap ssh-join user@<ip>\n")
-	sb.WriteString(fmt.Sprintf("  gitmap ssh-join <ip> %s\n", target))
-	sb.WriteString(fmt.Sprintf("  gitmap ssh-join add user@<ip> %s\n", target))
 	sb.WriteString(fmt.Sprintf("  gitmap ssh join user@<ip> %s\n", target))
-	sb.WriteString("\nTo recall an existing registered host:\n")
-	sb.WriteString("  gitmap ssh <alias>\n")
-	sb.WriteString("  gitmap ssh nodes\n")
-	sb.WriteString("  gitmap ssh ls\n")
-	sb.WriteString("  gitmap ssh-join ls\n")
+	sb.WriteString(fmt.Sprintf("  gitmap ssh-join user@<ip> %s\n", target))
+	sb.WriteString("\n💡 SSH Key & Fleet Optimization Suggestions:\n")
+	sb.WriteString("  gitmap ssh ls                         - List all registered SSH nodes & live status\n")
+	sb.WriteString("  gitmap ssh deploy-keys                - Sync all SSH public keys across every cluster node (alias: gitmap deploy-keys-all)\n")
+	sb.WriteString("  gitmap ssh key add [pubkey-or-file]   - Add a public key into local authorized_keys\n")
+	sb.WriteString("  gitmap ssh copy-id <alias|user@ip>    - Push local SSH public key to a remote machine\n")
+	sb.WriteString("  gitmap ssh exec all \"<command>\"       - Execute a command across all SSH nodes\n")
 	return sb.String()
 }
 
 func suggestSSHSubcommand(target string) string {
 	low := strings.ToLower(target)
+	if s := suggestSSHCoreSubcommand(low); s != "" {
+		return s
+	}
+	return suggestSSHKeyOrSyncSubcommand(low)
+}
+
+func suggestSSHCoreSubcommand(low string) string {
 	switch low {
-	case "hosts", "host", "machines", "vms", "node":
-		return "nodes"
+	case "hosts", "host", "machines", "vms", "node", "list-nodes", "l":
+		return "ls"
 	case "updat", "up", "upgrade":
 		return "update"
 	case "exe", "cmd", "run":
@@ -324,10 +338,26 @@ func suggestSSHSubcommand(target string) string {
 	return ""
 }
 
+func suggestSSHKeyOrSyncSubcommand(low string) string {
+	switch low {
+	case "deploy-key", "deploykeys", "deploy-keys-all", "deploy-all-keys", "keys-deploy", "sync-keys":
+		return "deploy-keys"
+	case "addkey", "keyadd", "authorize", "authorized-keys":
+		return "key add"
+	case "copyid", "ssh-copy-id", "push-key":
+		return "copy-id"
+	case "export-nodes", "backup":
+		return "export-json"
+	case "import-nodes":
+		return "import-json"
+	}
+	return ""
+}
+
 func formatAliasNotFoundMessage(target string, hosts []store.SSHHost) string {
 	header := fmt.Sprintf("SSH host alias '%s' not found in registry.\n\n", target)
 	if suggestion := suggestSSHSubcommand(target); suggestion != "" {
-		header = fmt.Sprintf("SSH host alias '%s' not found in registry.\n  Did you mean: gitmap ssh %s?\n\n", target, suggestion)
+		header = fmt.Sprintf("SSH host alias '%s' not found in registry.\n  💡 Did you mean: gitmap ssh %s?\n\n", target, suggestion)
 	}
 	table := formatRegisteredHostsTable(hosts)
 	examples := formatJoinExamples(target)

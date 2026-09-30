@@ -31,7 +31,12 @@ func executeFleetInstall(conns []db.SSHConnection, target, pkg string) {
 		installOrUpdateNodeWithPackage(c, pkg)
 	}
 
-	fmt.Printf("\nSSH Install '%s' complete.\n\n", pkg)
+	fmt.Printf("\nSSH Install '%s' complete.\n", pkg)
+	fmt.Printf("\n  %s💡 SSH Fleet Install & Optimization Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("    • Sync SSH public keys first:      gitmap ssh deploy-keys  (or: gitmap deploy-keys-all)")
+	fmt.Println("    • Push local binary directly:      gitmap deploy-bin all")
+	fmt.Println("    • Audit installed versions:        gitmap update ls")
+	fmt.Println()
 }
 
 func parseInstallTargetAndPackage(conns []db.SSHConnection, args []string) (string, string) {
