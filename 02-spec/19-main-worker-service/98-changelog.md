@@ -1,3 +1,9 @@
+## v6.417.0 — 2026-09-30 (log failed commands to db and add rich suggestions across ssh, clean, and install)
+
+**Scope:** Version bump. log failed commands to db and add rich suggestions across ssh, clean, and install.
+
+---
+
 ## v6.416.0 — 2026-09-30 (JSON envelope variables, workDirectory object, OS change-password CLI, SSH join vault prompt, and repo-secrets sequence)
 
 **Scope:** Version bump. JSON envelope variables, workDirectory object, OS change-password CLI, SSH join vault prompt, and repo-secrets sequence.

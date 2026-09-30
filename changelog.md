@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.417.0] - 2026-09-30
+
+### Added
+- log failed commands to db and add rich suggestions across ssh, clean, and install
+
+---
+
 ## [v6.416.0] - 2026-09-30
 
 ### Added
