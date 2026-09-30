@@ -104,6 +104,7 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{constants.CmdEnv, constants.CmdEnvAlias}, func() error { return runEnv(argsTail()) }},
 		{[]string{constants.CmdService, constants.CmdServiceAlias, "services"}, func() error { return cmdservice.Run(argsTail()) }},
 		{[]string{"run", "run-macro", "exec-macro"}, func() error { return runMacroRootRun(argsTail()) }},
+		{[]string{"run-until"}, func() error { return runMacroRootRunUntil(argsTail()) }},
 		{[]string{
 			"clean-dev", "cleandev", "dev-cleanup", "devcleanup", "dev-clean",
 			"devtools-cache", "dev-tools-cache", "dev-tool-cache", "devtool-cache",

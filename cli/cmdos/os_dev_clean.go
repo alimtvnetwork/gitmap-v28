@@ -54,6 +54,9 @@ func parseDevCleanOptions(args []string) osclean.DevCleanOptions {
 }
 
 func parseDevCleanFlag(a string, args []string, i *int, opts *osclean.DevCleanOptions) {
+	if isDevCleanIgnoredToken(a) {
+		return
+	}
 	switch {
 	case a == "--dry-run" || a == "-n" || a == "-d" || a == "dry-run":
 		opts.IsDryRun = true
@@ -68,8 +71,6 @@ func parseDevCleanFlag(a string, args []string, i *int, opts *osclean.DevCleanOp
 	case a == "--only" && *i+1 < len(args):
 		*i++
 		opts.OnlyCategories = strings.Split(args[*i], ",")
-	case isDevCleanIgnoredToken(a):
-		// Ignore action verbs and target nouns passed as argument
 	}
 }
 

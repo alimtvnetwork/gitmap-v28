@@ -212,15 +212,24 @@ func pickWrappedSlice(nodes, items, tmpls, macros []map[string]any) []map[string
 func extractDedupeKey(it map[string]any) string {
 	candidates := []string{"alias", "ipAddress", "ip_address", "slug", "repoId", "name", "id", "workerId"}
 	for _, c := range candidates {
-		if val, ok := it[c]; ok && val != nil {
-			str := fmt.Sprintf("%v", val)
-			if str != "" && str != "0" {
-				return c + ":" + str
-			}
+		key := resolveCandidateDedupeKey(c, it[c])
+		if key != "" {
+			return key
 		}
 	}
 	bytes, _ := json.Marshal(it)
 	return string(bytes)
+}
+
+func resolveCandidateDedupeKey(c string, val any) string {
+	if val == nil {
+		return ""
+	}
+	str := fmt.Sprintf("%v", val)
+	if str == "" || str == "0" {
+		return ""
+	}
+	return c + ":" + str
 }
 
 func reindexMergedItems(items []map[string]any) []map[string]any {

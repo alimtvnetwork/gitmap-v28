@@ -121,20 +121,21 @@ func parsePingCountFlag(opts *nodesPingOptions, args []string, index *int) bool 
 	arg := args[*index]
 	if (arg == "--count" || arg == "-c" || arg == "-n") && *index+1 < len(args) {
 		*index++
-		val, err := strconv.Atoi(args[*index])
-		if err == nil && val > 0 {
-			opts.count = val
-		}
+		applyPositiveCount(opts, args[*index])
 		return true
 	}
 	if strings.HasPrefix(arg, "--count=") {
-		val, err := strconv.Atoi(strings.TrimPrefix(arg, "--count="))
-		if err == nil && val > 0 {
-			opts.count = val
-		}
+		applyPositiveCount(opts, strings.TrimPrefix(arg, "--count="))
 		return true
 	}
 	return false
+}
+
+func applyPositiveCount(opts *nodesPingOptions, raw string) {
+	val, err := strconv.Atoi(raw)
+	if err == nil && val > 0 {
+		opts.count = val
+	}
 }
 
 func parsePingTimeoutFlag(opts *nodesPingOptions, args []string, index *int) bool {
@@ -153,11 +154,8 @@ func parsePingTimeoutFlag(opts *nodesPingOptions, args []string, index *int) boo
 
 func parseTimeoutValue(val string) int {
 	dur, err := time.ParseDuration(val)
-	if err == nil {
-		ms := int(dur.Milliseconds())
-		if ms > 0 {
-			return ms
-		}
+	if err == nil && dur > 0 {
+		return int(dur.Milliseconds())
 	}
 	msVal, err := strconv.Atoi(val)
 	if err == nil && msVal > 0 {
@@ -389,12 +387,16 @@ func parseWinPingOutput(raw string, sent, recv, lost, lossPct *int, minR, avgR, 
 	if len(matchRTT) >= 4 {
 		*minR = matchRTT[1] + "ms"
 		*maxR = matchRTT[2] + "ms"
-		*avgR = matchRTT[3] + "ms"
-		if *avgR == "0ms" && strings.Contains(raw, "time<1ms") {
-			*avgR = "<1ms"
-		}
+		*avgR = resolveWinAvgRTT(matchRTT[3]+"ms", raw)
 	}
 	return true
+}
+
+func resolveWinAvgRTT(avg, raw string) string {
+	if avg == "0ms" && strings.Contains(raw, "time<1ms") {
+		return "<1ms"
+	}
+	return avg
 }
 
 func parseLinuxPingOutput(raw string, sent, recv, lost, lossPct *int, minR, avgR, maxR *string) bool {

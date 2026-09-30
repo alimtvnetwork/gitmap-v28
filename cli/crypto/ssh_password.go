@@ -23,6 +23,12 @@ func DecryptStoredPassword(cipherText string) (string, error) {
 	if cipherText == "" {
 		return "", nil
 	}
+	if strings.HasPrefix(cipherText, "salt:") {
+		return DecryptSalted(cipherText)
+	}
+	if strings.HasPrefix(cipherText, "caesar:") {
+		return DecryptCaesar(cipherText)
+	}
 	if strings.HasPrefix(cipherText, "rsa:") {
 		return decryptRSACipher(strings.TrimPrefix(cipherText, "rsa:"))
 	}

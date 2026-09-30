@@ -283,10 +283,6 @@ func isReportedRootContext(ctx map[string]any) bool {
 	return isBool && isReported
 }
 
-func isAlreadyReportedError(appErr *apperror.AppError) bool {
-	return isAbortOrReportedError(appErr)
-}
-
 func resolveErrorStackTrace(err error) string {
 	appErr, isAppErr := err.(*apperror.AppError)
 	if isAppErr && appErr != nil && appErr.Stack != "" {

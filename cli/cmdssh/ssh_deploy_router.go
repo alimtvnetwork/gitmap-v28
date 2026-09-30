@@ -61,15 +61,19 @@ func isDeployKeysSubToken(s string) bool {
 	return s == "keys" || s == "key" || s == "k" || s == "all-keys" || s == "keys-all"
 }
 
+func isDeployAllKeysArg(args []string) bool {
+	return len(args) > 1 && isDeployKeysSubToken(strings.ToLower(args[1]))
+}
+
 func routeFallbackDeploy(args []string) error {
 	first := strings.ToLower(args[0])
 	if first == "all-keys" || first == "allkeys" {
 		return RunSSHDeployKeysCLI(args[1:])
 	}
+	if first == "all" && isDeployAllKeysArg(args) {
+		return RunSSHDeployKeysCLI(args[2:])
+	}
 	if first == "all" {
-		if len(args) > 1 && isDeployKeysSubToken(strings.ToLower(args[1])) {
-			return RunSSHDeployKeysCLI(args[2:])
-		}
 		return RunSSHDeployConfigSSHCLI(args)
 	}
 	if strings.HasPrefix(first, "-") {

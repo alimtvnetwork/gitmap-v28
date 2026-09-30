@@ -31,23 +31,33 @@ func RunChangePasswordCLI(args []string) error {
 	if err := resolvePasswordTarget(&opts); err != nil {
 		return err
 	}
-	if !opts.IsYes && !opts.IsDryRun {
-		if !confirmPasswordChange(opts.Username) {
-			fmt.Println("Canceled by user.")
-			return nil
-		}
+	if requiresPasswordConfirmation(opts) && !confirmPasswordChange(opts.Username) {
+		fmt.Println("Canceled by user.")
+		return nil
 	}
-	if opts.Password == "" {
-		opts.Password = promptPassword(fmt.Sprintf("Enter new password for '%s': ", opts.Username))
-		if opts.Password == "" {
-			return apperror.NewValidationError("password cannot be empty")
-		}
+	if err := ensurePasswordPopulated(&opts); err != nil {
+		return err
 	}
 	if opts.IsDryRun {
 		fmt.Printf("[dry-run] Would change password for user '%s' on %s\n", opts.Username, runtime.GOOS)
 		return nil
 	}
 	return executePlatformPasswordChange(opts.Username, opts.Password)
+}
+
+func requiresPasswordConfirmation(opts ChangePasswordOptions) bool {
+	return !opts.IsYes && !opts.IsDryRun
+}
+
+func ensurePasswordPopulated(opts *ChangePasswordOptions) error {
+	if opts.Password != "" {
+		return nil
+	}
+	opts.Password = promptPassword(fmt.Sprintf("Enter new password for '%s': ", opts.Username))
+	if opts.Password == "" {
+		return apperror.NewValidationError("password cannot be empty")
+	}
+	return nil
 }
 
 func parseChangePasswordArgs(args []string) (ChangePasswordOptions, bool, error) {

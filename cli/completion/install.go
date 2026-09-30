@@ -380,13 +380,15 @@ func stripLegacyPowerShellBlocks(content string) string {
 			braceDepth = 0
 			continue
 		}
-		if isInsideLegacy {
-			braceDepth += strings.Count(trimmed, "{") - strings.Count(trimmed, "}")
-			if isLegacyLineToDrop(trimmed, braceDepth) {
-				continue
-			}
-			isInsideLegacy = false
+		if !isInsideLegacy {
+			cleanLines = append(cleanLines, line)
+			continue
 		}
+		braceDepth += strings.Count(trimmed, "{") - strings.Count(trimmed, "}")
+		if isLegacyLineToDrop(trimmed, braceDepth) {
+			continue
+		}
+		isInsideLegacy = false
 		cleanLines = append(cleanLines, line)
 	}
 

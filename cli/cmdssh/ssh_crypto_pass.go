@@ -108,6 +108,16 @@ func EncryptSSHPassword(plain string) (string, error) {
 	return encryptWithFallbackAES(plain)
 }
 
+// EncryptSaltedPassword encrypts a password using the salted rotation cipher.
+func EncryptSaltedPassword(plain, salt string) string {
+	return crypto.EncryptSalted(plain, salt)
+}
+
+// EncryptCaesarPassword encrypts a password using a caesar rotation cipher with optional salt.
+func EncryptCaesarPassword(plain string, shift int, salt string) string {
+	return crypto.EncryptCaesar(plain, shift, salt)
+}
+
 func isRSACiphertext(cipherText string) bool {
 	return strings.HasPrefix(cipherText, prefixRSA)
 }
@@ -116,16 +126,25 @@ func isAESCiphertext(cipherText string) bool {
 	return strings.HasPrefix(cipherText, prefixAES)
 }
 
-// DecryptSSHPassword decrypts an encrypted password using the user's SSH RSA key.
+// DecryptSSHPassword decrypts an encrypted password using the user's SSH RSA key, AES, or salted cipher.
 func DecryptSSHPassword(cipherText string) (string, error) {
 	if cipherText == "" {
 		return "", nil
+	}
+	if strings.HasPrefix(cipherText, "salt:") {
+		return crypto.DecryptSalted(cipherText)
+	}
+	if strings.HasPrefix(cipherText, "caesar:") {
+		return crypto.DecryptCaesar(cipherText)
 	}
 	if isRSACiphertext(cipherText) {
 		return decryptRSAPassword(strings.TrimPrefix(cipherText, prefixRSA))
 	}
 	if isAESCiphertext(cipherText) {
 		return decryptWithFallbackAES(strings.TrimPrefix(cipherText, prefixAES))
+	}
+	if plain, decErr := crypto.DecryptStoredPassword(cipherText); decErr == nil && plain != cipherText {
+		return plain, nil
 	}
 	return decryptWithFallbackAES(cipherText)
 }
