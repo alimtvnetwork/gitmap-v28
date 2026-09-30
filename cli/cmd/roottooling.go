@@ -70,7 +70,7 @@ func toolingDevDeployEntries() []dispatchEntry {
 		{[]string{"deploy-right"}, func() error { return runSSHDeploy("deploy-right", argsTail()) }},
 		{[]string{"deploy-left"}, func() error { return runSSHDeploy("deploy-left", argsTail()) }},
 		{[]string{"deploy-config", "deploy-config-ssh", "deploy-ssh-config"}, func() error { return runSSHDeployConfig(argsTail()) }},
-		{[]string{"deploy-keys", "deploy-keys-all", "deploy-key", "deploykeys", "deploy-key-all"}, func() error { return runSSHDeployKeys(argsTail()) }},
+		{[]string{"deploy-keys", "deploy-keys-all", "deploy-all-keys", "deploy-all-key", "deploy-key", "deploykeys", "deploy-key-all"}, func() error { return runSSHDeployKeys(argsTail()) }},
 		{[]string{"export-ssh", "ssh-export", "export-ssh-nodes", "nodes-export-json"}, func() error { return runSSHExportNodes(argsTail()) }},
 		{[]string{"import-ssh", "ssh-import", "import-ssh-nodes", "nodes-import-json"}, func() error { return runSSHImportNodes(argsTail()) }},
 	}
@@ -116,8 +116,8 @@ func toolingOpsEntries() []dispatchEntry {
 			"clean-term", "clear-term",
 		}, func() error { return runTerminalTopLevel(argsTail()) }},
 		{[]string{"devtool", "devtools", "dev-tool", "dev-tools", "dt"}, func() error { return runDevToolTopLevel(argsTail()) }},
-		{[]string{"dev"}, func() error { return runDevTopLevel(argsTail()) }},
-		{[]string{"clean", "clear"}, func() error { return runCleanTopLevel(argsTail()) }},
+		{[]string{"clean"}, func() error { return runCleanTopLevel(argsTail()) }},
+		{[]string{"clear", "cls"}, func() error { return runClearTopLevel(argsTail()) }},
 		{[]string{"winutil"}, func() error { return runWinUtilTopLevel(argsTail()) }},
 	}
 	return append(entries, toolingSpecialRepoEntries()...)
@@ -136,8 +136,10 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"which-format", "whichformat", "format-which", "format-inspect", "format-check", "which-json"}, func() error { return runWhichFormatCLI(argsTail()) }},
 		{[]string{"which"}, func() error { return handleWhichSubcommand(argsTail()) }},
 		{[]string{"format"}, func() error { return handleFormatSubcommand(argsTail()) }},
+		{[]string{"json"}, func() error { return handleJSONSubcommand(argsTail()) }},
 		{[]string{"import-all-json", "import-all", "importall", "import-json-all", "importjsonall"}, func() error { return runImportAllJSONCLI(argsTail()) }},
 		{[]string{"what-configs", "what-config", "whatconfigs", "whatconfig", "wc"}, func() error { return runWhatConfigsCLI(argsTail()) }},
+		{[]string{"merge-json", "mergejson", "json-merge"}, func() error { return runMergeJSONCLI(argsTail()) }},
 		{[]string{"pin", "version-pin"}, func() error { return runPinCLI(argsTail()) }},
 		{[]string{"unpin", "version-unpin"}, func() error { return runUnpinCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines", "ct"}, func() error { return runCG(argsTail()) }},
@@ -315,11 +317,28 @@ func handleFormatSubcommand(args []string) error {
 		return runWhichFormatCLI(args)
 	}
 	first := strings.ToLower(args[0])
+	if first == "merge" {
+		return runMergeJSONCLI(args[1:])
+	}
 	if first == "import" || first == "import-all" || first == "importall" {
 		return runImportAllJSONCLI(args[1:])
 	}
 	if first == "which" || first == "inspect" || first == "check" {
 		return runWhichFormatCLI(args[1:])
+	}
+	return runWhichFormatCLI(args)
+}
+
+func handleJSONSubcommand(args []string) error {
+	if len(args) == 0 {
+		return runWhichFormatCLI(args)
+	}
+	first := strings.ToLower(args[0])
+	if first == "merge" {
+		return runMergeJSONCLI(args[1:])
+	}
+	if first == "import" || first == "import-all" || first == "importall" {
+		return runImportAllJSONCLI(args[1:])
 	}
 	return runWhichFormatCLI(args)
 }

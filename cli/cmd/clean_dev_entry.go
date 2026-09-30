@@ -48,6 +48,20 @@ func runCleanTerminalTopLevel(args []string) error {
 	return cmdos.RunTerminalCleanCLI(args)
 }
 
+func runClearTopLevel(args []string) error {
+	if len(args) == 0 {
+		return cmdos.RunTerminalCleanCLI(args)
+	}
+	sub := strings.ToLower(args[0])
+	if isDevCleanSubToken(sub) {
+		return cmdos.RunOSDevClean(args[1:])
+	}
+	if isTerminalCleanSubToken(sub) {
+		return cmdos.RunTerminalCleanCLI(args[1:])
+	}
+	return cmdos.RunTerminalCleanCLI(args)
+}
+
 func runTerminalTopLevel(args []string) error {
 	return cmdos.RunTerminalCleanCLI(args)
 }
@@ -56,7 +70,8 @@ func isTerminalCleanSubToken(sub string) bool {
 	return sub == "terminal" || sub == "term" || sub == "console" ||
 		sub == "shell-history" || sub == "history" ||
 		sub == "terminal-history" || sub == "terminal-suggestions" ||
-		sub == "terminals" || sub == "clear-terminal" || sub == "clean-terminal"
+		sub == "terminals" || sub == "clear-terminal" || sub == "clean-terminal" ||
+		sub == "clear" || sub == "terminal-clear"
 }
 
 func isDevCleanActionVerb(sub string) bool {

@@ -27,7 +27,17 @@ func RunSSHDeployRouterCLI(args []string) error {
 			return RunSSHDeployConfigSSHCLI(args[2:])
 		}
 		return RunSSHDeployConfigSSHCLI(args[1:])
+	case "all-keys", "all-key", "allkeys":
+		return RunSSHDeployKeysCLI(args[1:])
+	case "all":
+		if len(args) > 1 && isDeployKeysSubToken(strings.ToLower(args[1])) {
+			return RunSSHDeployKeysCLI(args[2:])
+		}
+		return RunSSHDeployConfigSSHCLI(args)
 	case "keys", "key", "k", "keys-all", "deploy-keys", "deploy-keys-all", "keys-hyphen-all":
+		if len(args) > 1 && strings.EqualFold(args[1], "all") {
+			return RunSSHDeployKeysCLI(args[2:])
+		}
 		return RunSSHDeployKeysCLI(args[1:])
 	case "export", "export-json", "exportjson":
 		return RunSSHNodesExportJSON(args[1:])
@@ -47,9 +57,22 @@ func RunSSHDeployRouterCLI(args []string) error {
 	}
 }
 
+func isDeployKeysSubToken(s string) bool {
+	return s == "keys" || s == "key" || s == "k" || s == "all-keys" || s == "keys-all"
+}
+
 func routeFallbackDeploy(args []string) error {
 	first := strings.ToLower(args[0])
-	if first == "all" || strings.HasPrefix(first, "-") {
+	if first == "all-keys" || first == "allkeys" {
+		return RunSSHDeployKeysCLI(args[1:])
+	}
+	if first == "all" {
+		if len(args) > 1 && isDeployKeysSubToken(strings.ToLower(args[1])) {
+			return RunSSHDeployKeysCLI(args[2:])
+		}
+		return RunSSHDeployConfigSSHCLI(args)
+	}
+	if strings.HasPrefix(first, "-") {
 		return RunSSHDeployConfigSSHCLI(args)
 	}
 	fmt.Printf("\n  %sUnknown deploy target: %q%s\n", constants.ColorRed, args[0], constants.ColorReset)

@@ -22,6 +22,8 @@ var primaryTopCommands = []string{
 	"agy", "fix-pipeline", "tasks", "task", "author", "sponsor", "credits",
 	"update", "ua", "ssh", "ssh-join", "ssh-exec", "ssh-nodes", "install-exec", "deploy",
 	"clean", "clear", "terminal", "clear-terminal", "clean-terminal", "devtool",
+	"deploy-all-keys", "deploy-keys-all", "deploy-keys", "which-format", "import-all-json",
+	"what-configs", "wc", "merge-json",
 }
 
 func buildUnknownCommandMessage(command string, suggestions []string) string {
@@ -55,7 +57,8 @@ func handleUnknownCommand(command string) {
 	suggestions := suggestTopLevelCommands(command)
 	printCommandSuggestions(suggestions)
 	msg := buildUnknownCommandMessage(command, suggestions)
-	printUsage()
+	fmt.Println("  Run 'gitmap help' or 'gitmap <command> --help' to view available commands.")
+	fmt.Println()
 	dispatchErr := apperror.NewWithDetails(
 		"cmd.dispatch",
 		"E1001",

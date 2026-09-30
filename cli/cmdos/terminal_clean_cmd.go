@@ -5,10 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/osclean"
 )
+
+// ClearTerminalScreenBuffer resets the visual terminal screen and scrollback buffer.
+func ClearTerminalScreenBuffer() {
+	fmt.Print("\033[H\033[2J\033[3J")
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
+		_ = cmd.Run()
+	}
+}
 
 // RunTerminalCleanCLI dispatches terminal history cleanup and suggestion reseeding.
 func RunTerminalCleanCLI(args []string) error {
@@ -21,6 +33,10 @@ func RunTerminalCleanCLI(args []string) error {
 	if isTerminalCleanPromptRequired(opts) && !confirmTerminalClean() {
 		fmt.Println("  Aborted by operator.")
 		return nil
+	}
+
+	if !opts.IsJSON && !opts.IsDryRun {
+		ClearTerminalScreenBuffer()
 	}
 
 	res := osclean.CleanTerminalHistory(opts)

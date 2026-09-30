@@ -3,32 +3,34 @@
     "type": "ssh-nodes",
     "source": "cli/jsonenvelope/fixtures/ssh-nodes.json",
     "how": "gitmap ssh export",
-    "version": "1.0",
-    "timestamp": "2026-09-29T12:00:00Z"
+    "version": "2.0",
+    "gitmapVersion": "6.415.0",
+    "importCommand": "gitmap sj import cli/jsonenvelope/fixtures/ssh-nodes.json -y",
+    "exportCommand": "gitmap ssh export cli/jsonenvelope/fixtures/ssh-nodes.json",
+    "helpCommand": "gitmap which-format cli/jsonenvelope/fixtures/ssh-nodes.json",
+    "notes": "Definitions and credentials for remote SSH cluster nodes.",
+    "timestamp": "2026-09-30T00:00:00Z",
+    "workDirectory": "D:\\work\\gitmap",
+    "defaultWorkDirectory": "D:\\work\\gitmap",
+    "isWorkDirectoryApplied": true,
+    "isWorkDirectoryEnforced": false
   },
+  "variables": {},
   "data": {
-    "schema_version": "1.0",
-    "exported_at": "2026-09-29T12:00:00Z",
-    "total_nodes": 1,
+    "schemaVersion": "2.0",
+    "exportedAt": "2026-09-30T00:00:00Z",
+    "totalNodes": 1,
     "nodes": [
       {
+        "workerId": "worker-1",
+        "id": 1,
         "alias": "mock-node-1",
-        "ip_address": "192.168.1.100",
+        "ipAddress": "192.168.1.100",
         "username": "mockuser",
         "port": 22,
         "os": "linux",
-        "auth_method": "key"
-      }
-    ],
-    "connections": [
-      {
-        "id": "mock-node-1",
-        "name": "mock-node-1",
-        "host": "192.168.1.100",
-        "user": "mockuser",
-        "port": 22,
-        "os_type": "linux",
-        "auth_type": "key"
+        "authMethod": "key",
+        "authType": "key"
       }
     ]
   }

@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [188-json-envelope-v2-terminal-clear-and-deploy-keys.md](188-json-envelope-v2-terminal-clear-and-deploy-keys.md) — JSON Envelope V2, Terminal Clear, Deploy-Keys Variants, and Friendly Import CLI (Status: `active`)
 - [186-fleet-nodes-machine-ping-command.md](186-fleet-nodes-machine-ping-command.md) — Fleet Nodes Machine Ping Command (`gitmap nodes ping` & `gitmap ping`), Dual-Stack ICMP & TCP Probe (Status: `active`)
 - [185-unified-fleet-nodes-command.md](185-unified-fleet-nodes-command.md) — Unified Fleet Nodes Command (`gitmap nodes`), Subsystem Aggregation, and Liveness Probing (Status: `active`)
 - [184-import-all-json-what-configs-and-fleet-deploy-hardening.md](184-import-all-json-what-configs-and-fleet-deploy-hardening.md) — Import-All-JSON, What-Configs (`wc`), and Fleet Deploy Hardening (Status: `active`)

@@ -173,11 +173,12 @@ func detectFromLegacy(raw []byte) (TypeDescriptor, EnvelopeAttributes, bool) {
 
 func hasLegacySSHNodesSignature(raw []byte) bool {
 	str := string(raw)
-	hasNodesArray := strings.Contains(str, `"nodes"`) && strings.Contains(str, `"ip_address"`)
+	hasNodesArray := strings.Contains(str, `"nodes"`) && (strings.Contains(str, `"ip_address"`) || strings.Contains(str, `"ipAddress"`))
 	if hasNodesArray {
 		return true
 	}
-	hasDirectWorkers := strings.Contains(str, `"worker_id"`) && strings.Contains(str, `"ip_address"`)
+	hasDirectWorkers := (strings.Contains(str, `"worker_id"`) || strings.Contains(str, `"workerId"`)) &&
+		(strings.Contains(str, `"ip_address"`) || strings.Contains(str, `"ipAddress"`))
 	return hasDirectWorkers
 }
 

@@ -24,26 +24,96 @@ const (
 
 // SSHNodeExportItem represents an exported SSH node with deterministic worker ID and metadata.
 type SSHNodeExportItem struct {
-	WorkerId          string `json:"worker_id"`
+	WorkerId          string `json:"workerId"`
 	NumericId         int    `json:"id"`
 	Alias             string `json:"alias"`
-	IPAddress         string `json:"ip_address"`
+	IPAddress         string `json:"ipAddress"`
 	Username          string `json:"username"`
 	Port              int    `json:"port"`
 	OS                string `json:"os"`
-	AuthMethod        string `json:"auth_method"`
-	KeyPath           string `json:"key_path,omitempty"`
+	AuthMethod        string `json:"authMethod"`
+	AuthType          string `json:"authType,omitempty"`
+	KeyPath           string `json:"keyPath,omitempty"`
 	Password          string `json:"password,omitempty"`
-	EncryptedPassword string `json:"encrypted_password,omitempty"`
+	EncryptedPassword string `json:"encryptedPassword,omitempty"`
+}
+
+// UnmarshalJSON implements custom decoding for both camelCase and legacy snake_case SSH node items.
+func (item *SSHNodeExportItem) UnmarshalJSON(data []byte) error {
+	type Alias SSHNodeExportItem
+	var raw struct {
+		Alias
+		LegacyWorkerId          string `json:"worker_id"`
+		LegacyIPAddress         string `json:"ip_address"`
+		LegacyAuthMethod        string `json:"auth_method"`
+		LegacyAuthType          string `json:"auth_type"`
+		LegacyKeyPath           string `json:"key_path"`
+		LegacyEncryptedPassword string `json:"encrypted_password"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	*item = SSHNodeExportItem(raw.Alias)
+	item.applyLegacyFallbacks(raw.LegacyWorkerId, raw.LegacyIPAddress, raw.LegacyAuthMethod, raw.LegacyAuthType, raw.LegacyKeyPath, raw.LegacyEncryptedPassword)
+	return nil
+}
+
+func (item *SSHNodeExportItem) applyLegacyFallbacks(wId, ip, aMethod, aType, kPath, encPass string) {
+	if item.WorkerId == "" && wId != "" {
+		item.WorkerId = wId
+	}
+	if item.IPAddress == "" && ip != "" {
+		item.IPAddress = ip
+	}
+	if item.AuthMethod == "" && aMethod != "" {
+		item.AuthMethod = aMethod
+	}
+	if item.AuthMethod == "" && aType != "" {
+		item.AuthMethod = aType
+	}
+	if item.AuthType == "" && item.AuthMethod != "" {
+		item.AuthType = item.AuthMethod
+	}
+	if item.KeyPath == "" && kPath != "" {
+		item.KeyPath = kPath
+	}
+	if item.EncryptedPassword == "" && encPass != "" {
+		item.EncryptedPassword = encPass
+	}
 }
 
 // SSHNodesExportEnvelope wraps the exported SSH nodes list with schema and timestamp metadata.
 type SSHNodesExportEnvelope struct {
-	SchemaVersion string              `json:"schema_version"`
-	ExportedAt    string              `json:"exported_at"`
-	TotalNodes    int                 `json:"total_nodes"`
+	SchemaVersion string              `json:"schemaVersion"`
+	ExportedAt    string              `json:"exportedAt"`
+	TotalNodes    int                 `json:"totalNodes"`
 	Nodes         []SSHNodeExportItem `json:"nodes"`
-	Connections   []db.SSHConnection  `json:"connections"`
+	Connections   []db.SSHConnection  `json:"connections,omitempty"`
+}
+
+// UnmarshalJSON implements custom decoding for both camelCase and legacy snake_case envelope headers.
+func (env *SSHNodesExportEnvelope) UnmarshalJSON(data []byte) error {
+	type Alias SSHNodesExportEnvelope
+	var raw struct {
+		Alias
+		LegacySchemaVersion string `json:"schema_version"`
+		LegacyExportedAt    string `json:"exported_at"`
+		LegacyTotalNodes    int    `json:"total_nodes"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	*env = SSHNodesExportEnvelope(raw.Alias)
+	if env.SchemaVersion == "" && raw.LegacySchemaVersion != "" {
+		env.SchemaVersion = raw.LegacySchemaVersion
+	}
+	if env.ExportedAt == "" && raw.LegacyExportedAt != "" {
+		env.ExportedAt = raw.LegacyExportedAt
+	}
+	if env.TotalNodes == 0 && raw.LegacyTotalNodes != 0 {
+		env.TotalNodes = raw.LegacyTotalNodes
+	}
+	return nil
 }
 
 // RunSSHNodesExportJSON exports all registered SSH nodes to a JSON file (default: gitmap-ssh-nodes.json and gitmap-ssh.json).
@@ -57,7 +127,7 @@ func RunSSHNodesExportJSON(args []string) error {
 		jsonenvelope.TypeSSHNodes,
 		outPath,
 		"gitmap ssh export",
-		"1.0",
+		"2.0",
 		envelope,
 	)
 	data, err := json.MarshalIndent(typedEnv, "", "  ")
@@ -107,11 +177,11 @@ func BuildSSHNodesExportEnvelope() (*SSHNodesExportEnvelope, error) {
 		})
 	}
 	return &SSHNodesExportEnvelope{
-		SchemaVersion: "1.0",
+		SchemaVersion: "2.0",
 		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
 		TotalNodes:    len(conns),
 		Nodes:         items,
-		Connections:   conns,
+		Connections:   nil,
 	}, nil
 }
 

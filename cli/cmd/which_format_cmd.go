@@ -165,6 +165,9 @@ func inspectSingleFile(path string) FormatInspectionResult {
 
 	normPath := filepath.ToSlash(path)
 	importCmd := fmt.Sprintf(desc.SuggestedImportCmd, normPath)
+	if attrs.ImportCommand != "" {
+		importCmd = attrs.ImportCommand
+	}
 	return FormatInspectionResult{
 		FilePath:           normPath,
 		IsMatched:          true,

@@ -47,7 +47,26 @@ func TestIsTerminalCleanSubToken(t *testing.T) {
 		}
 	}
 
+	if !isTerminalCleanSubToken("clear") {
+		t.Errorf("expected 'clear' to be recognized as terminal clean sub token")
+	}
+	if !isTerminalCleanSubToken("terminal-clear") {
+		t.Errorf("expected 'terminal-clear' to be recognized as terminal clean sub token")
+	}
+
 	if isTerminalCleanSubToken("other") {
 		t.Errorf("expected 'other' not to be recognized as terminal clean sub token")
+	}
+}
+
+func TestRunClearAndTerminalTopLevel_DryRun(t *testing.T) {
+	if err := runClearTopLevel([]string{"-n"}); err != nil {
+		t.Errorf("expected runClearTopLevel -n to succeed, got: %v", err)
+	}
+	if err := runClearTopLevel([]string{"terminal", "-n"}); err != nil {
+		t.Errorf("expected runClearTopLevel terminal -n to succeed, got: %v", err)
+	}
+	if err := runTerminalTopLevel([]string{"clear", "-n"}); err != nil {
+		t.Errorf("expected runTerminalTopLevel clear -n to succeed, got: %v", err)
 	}
 }

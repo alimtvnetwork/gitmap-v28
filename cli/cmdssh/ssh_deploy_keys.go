@@ -86,5 +86,6 @@ func isIgnoredDeployKeysToken(low string) bool {
 	return low == "keys" || low == "key" || low == "k" || low == "deploy" ||
 		low == "ssh" || low == "all" || low == "--all" || low == "-all" ||
 		low == "keys-all" || low == "deploy-keys" || low == "deploy-keys-all" ||
+		low == "all-keys" || low == "all-key" || low == "allkeys" ||
 		low == "keys-hyphen-all" || low == "hyphen-all"
 }
