@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.430.0] - 2026-09-30
+
+### Added
+- Fix ListTaskHistory receiver on store.DB for universal tasks list
+
+---
+
 ## [v6.429.0] - 2026-09-30
 
 ### Added

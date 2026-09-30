@@ -1,3 +1,9 @@
+## v6.430.0 — 2026-09-30 (Fix ListTaskHistory receiver on store.DB for universal tasks list)
+
+**Scope:** Version bump. Fix ListTaskHistory receiver on store.DB for universal tasks list.
+
+---
+
 ## v6.429.0 — 2026-09-30 (Fleet clone except-self, Windows shell fallback, safe rm, universal audit, and VMware automation)
 
 **Scope:** Version bump. Fleet clone except-self, Windows shell fallback, safe rm, universal audit, and VMware automation.
