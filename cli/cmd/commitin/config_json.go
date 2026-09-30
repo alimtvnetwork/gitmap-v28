@@ -169,23 +169,24 @@ func applyConfigFileIfPresent(raw *RawArgs) *ParseError {
 	return loadAndPrecompileConfigTemplates(raw, cfg)
 }
 
+func resolveRelativeCandidate(configDir, relOrAbs string) string {
+	if relOrAbs == "" || filepath.IsAbs(relOrAbs) {
+		return relOrAbs
+	}
+	candidate := filepath.Clean(filepath.Join(configDir, relOrAbs))
+	if _, err := os.Stat(candidate); err == nil {
+		return candidate
+	}
+	return relOrAbs
+}
+
 func resolveConfigRelativePaths(cfg CommitInConfigJSON, configDir string) CommitInConfigJSON {
 	if configDir == "" || configDir == "." {
 		return cfg
 	}
-	if cfg.SummaryDir != "" && !filepath.IsAbs(cfg.SummaryDir) {
-		candidate := filepath.Clean(filepath.Join(configDir, cfg.SummaryDir))
-		if _, err := os.Stat(candidate); err == nil {
-			cfg.SummaryDir = candidate
-		}
-	}
+	cfg.SummaryDir = resolveRelativeCandidate(configDir, cfg.SummaryDir)
 	for i, imp := range cfg.Imports {
-		if imp != "" && !filepath.IsAbs(imp) {
-			candidate := filepath.Clean(filepath.Join(configDir, imp))
-			if _, err := os.Stat(candidate); err == nil {
-				cfg.Imports[i] = candidate
-			}
-		}
+		cfg.Imports[i] = resolveRelativeCandidate(configDir, imp)
 	}
 	return cfg
 }

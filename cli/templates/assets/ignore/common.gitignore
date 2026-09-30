@@ -40,7 +40,9 @@ ehthumbs_vista.db
 .env.local
 .env.*.local
 
-# gitmap artifacts (local-only state)
+# gitmap & antigravity artifacts (local-only state)
 .gitmap/state/
 .gitmap/cache/
 gitmap.lock
+.antigravity_resume_task.json
+antigravity-resume_task.json

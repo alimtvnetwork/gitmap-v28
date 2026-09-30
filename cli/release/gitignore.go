@@ -13,6 +13,8 @@ import (
 var gitignoreEntries = []string{
 	constants.AssetsStagingDir,
 	"release-assets",
+	".antigravity_resume_task.json",
+	"antigravity-resume_task.json",
 }
 
 // EnsureGitignore appends missing release-related entries to .gitignore.

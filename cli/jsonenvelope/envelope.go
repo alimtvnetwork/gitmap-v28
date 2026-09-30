@@ -303,9 +303,9 @@ func extractEnvelopePayload(raw []byte) ([]byte, EnvelopeAttributes, error) {
 	if len(allVars) > 0 {
 		data = ExpandVariables(data, allVars)
 		env.Attributes.WorkDirectory = ResolveStringVariable(env.Attributes.WorkDirectory, allVars)
-		if env.Attributes.WorkDirectoryConfig != nil {
-			env.Attributes.WorkDirectoryConfig.Path = ResolveStringVariable(env.Attributes.WorkDirectoryConfig.Path, allVars)
-		}
+	}
+	if len(allVars) > 0 && env.Attributes.WorkDirectoryConfig != nil {
+		env.Attributes.WorkDirectoryConfig.Path = ResolveStringVariable(env.Attributes.WorkDirectoryConfig.Path, allVars)
 	}
 	return data, env.Attributes, nil
 }
