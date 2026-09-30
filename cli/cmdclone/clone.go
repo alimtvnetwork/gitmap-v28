@@ -146,11 +146,7 @@ func runClone(args []string) error {
 	}
 	cf := parseCloneFlags(args)
 
-	err := executeParsedClone(cf)
-	if err == nil && !cf.DryRun && !cf.IsListOnly && !cf.Audit {
-		MaybePrintFleetCloneSuggestion(cf.Source)
-	}
-	return err
+	return executeParsedClone(cf)
 }
 
 func executeParsedClone(cf CloneFlags) error {
@@ -170,7 +166,11 @@ func executeParsedClone(cf CloneFlags) error {
 	}
 	cf = prepareCloneTransport(cf)
 
-	return dispatchCloneExecution(cf)
+	err := dispatchCloneExecution(cf)
+	if err == nil && !cf.DryRun && !cf.IsListOnly && !cf.Audit {
+		MaybePrintFleetCloneSuggestion(cf.Source)
+	}
+	return err
 }
 
 func prepareCloneEnv(cf CloneFlags) {

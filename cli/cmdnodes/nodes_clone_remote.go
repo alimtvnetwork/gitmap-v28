@@ -4,6 +4,7 @@ package cmdnodes
 import (
 	"fmt"
 	"net"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -63,18 +64,48 @@ func isLocalHostIP(ip string) bool {
 	return false
 }
 
-func buildRemoteWorkDirExecString(kindStr, cmdArgs string, isWin bool) string {
-	if isWin {
-		return fmt.Sprintf("Set-Location D:\\work; gitmap %s %s", kindStr, cmdArgs)
+func resolveRemoteArgs(passArgs []string, detectedFile, fileName string) string {
+	if len(passArgs) == 0 {
+		return fileName
 	}
-	return fmt.Sprintf("cd ~/work && gitmap %s %s", kindStr, cmdArgs)
+	var remoteArgs []string
+	for _, a := range passArgs {
+		if a == detectedFile || filepath.Base(a) == fileName {
+			remoteArgs = append(remoteArgs, fileName)
+		} else {
+			remoteArgs = append(remoteArgs, a)
+		}
+	}
+	return strings.TrimSpace(strings.Join(remoteArgs, " "))
+}
+
+func buildWindowsWorkDirExecString(kindStr, args string) string {
+	if args == "" {
+		return fmt.Sprintf("Set-Location D:\\work; gitmap %s", kindStr)
+	}
+	return fmt.Sprintf("Set-Location D:\\work; gitmap %s %s", kindStr, args)
+}
+
+func buildUnixWorkDirExecString(kindStr, args string) string {
+	if args == "" {
+		return fmt.Sprintf("cd ~/work && gitmap %s", kindStr)
+	}
+	return fmt.Sprintf("cd ~/work && gitmap %s %s", kindStr, args)
+}
+
+func buildRemoteWorkDirExecString(kindStr, cmdArgs string, isWin bool) string {
+	args := strings.TrimSpace(cmdArgs)
+	if isWin {
+		return buildWindowsWorkDirExecString(kindStr, args)
+	}
+	return buildUnixWorkDirExecString(kindStr, args)
 }
 
 func buildRemoteExecString(opts NodesCloneOptions, fileName string, isWin bool) string {
-	cmdArgs := strings.Join(opts.PassArgs, " ")
+	cmdArgs := resolveRemoteArgs(opts.PassArgs, opts.DetectedFile, fileName)
 	kindStr := string(opts.Kind)
 	if !opts.HasFile {
-		return fmt.Sprintf("gitmap %s %s", kindStr, cmdArgs)
+		return strings.TrimSpace(fmt.Sprintf("gitmap %s %s", kindStr, cmdArgs))
 	}
 	return buildRemoteWorkDirExecString(kindStr, cmdArgs, isWin)
 }

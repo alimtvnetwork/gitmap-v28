@@ -1,5 +1,15 @@
 # Changelog
 
+## [v6.428.0] - 2026-09-30
+
+### Added
+- Fleet Nodes Commands (`gitmap nodes clone`, `gitmap nodes cfr`, `gitmap nodes cfrp`): Asynchronously orchestrate multi-repo cloning and CFR remediation across local host and remote fleet nodes with comprehensive parameter support (repo names, URLs, comma-separated lists, and manifest files).
+- Automatic Manifest Staging & Path Normalization: Local manifests (e.g. `gitmap.json` or custom JSON inventories) are automatically staged over SSH to default work directories (`D:\work` on Windows, `~/work` on Linux/Unix), normalizing file paths so remote execution commands invoke the staged manifest directly.
+- Contextual Fleet Clone Suggestions: Display actionable suggestions upon completion of `gitmap clone`, `gitmap clone only-missing`, and `gitmap cfr` directing users how to broadcast the operation fleet-wide.
+- Rich CLI Parameter Documentation: Detailed `--help` menus for `nodes clone`, `nodes cfr`, and `nodes cfrp` describing supported target input shapes, execution phases, and manifest staging semantics.
+
+---
+
 ## [v6.427.0] - 2026-09-30
 
 ### Fixed

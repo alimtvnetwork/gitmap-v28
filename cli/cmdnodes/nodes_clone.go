@@ -112,15 +112,19 @@ func executeLocalClone(opts NodesCloneOptions) bool {
 		return true
 	}
 	var err error
+	args := opts.PassArgs
+	if len(args) == 0 && opts.HasFile {
+		args = []string{opts.DetectedFile}
+	}
 	switch opts.Kind {
 	case CloneKindClone:
-		err = cmdclone.RunClone(opts.PassArgs)
+		err = cmdclone.RunClone(args)
 	case CloneKindCFR:
-		err = cmdclone.RunCloneFixRepo(opts.PassArgs)
+		err = cmdclone.RunCloneFixRepo(args)
 	case CloneKindCFRP:
-		err = cmdclone.RunCloneFixRepoPub(opts.PassArgs)
+		err = cmdclone.RunCloneFixRepoPub(args)
 	default:
-		err = cmdclone.RunClone(opts.PassArgs)
+		err = cmdclone.RunClone(args)
 	}
 	return err == nil
 }
