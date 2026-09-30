@@ -11,7 +11,7 @@ https://prnt.sc/Bl-7E2INIrex
 agy prompts inject still nto fixed why, not stacktrace why, didn't you uise proper apprError, where is the stack trace are you stupid???
 make sure all the agy prompts has help with examples and read-all should n't be fix but one single prompt name, we should be able to see list of prompts and inject as we wish , do you understamd??
 
-if you cannot find antigravtiy ide show the path what you found and also clearly check if agy cli helps to connect or not and also 
+if you cannot find antigravtiy ide show the path what you found and also clearly check if agy cli helps to connect or not and also
 
 the sequence needs to be uniqye not per group fix it
 

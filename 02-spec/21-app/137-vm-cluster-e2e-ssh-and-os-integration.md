@@ -2,13 +2,13 @@
 
 ## Overview
 
-**Module Number:** 137  
-**Version:** 1.0.0  
-**Updated:** 2026-09-23  
-**Status:** Approved Specification  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
-**Package:** `cli/cmdcluster/`, `cli/cmdssh/`, `cli/cmdos/`, `cli/cmdupdate/`, `cli/cmdagm/`, `cli/tests/`  
+**Module Number:** 137
+**Version:** 1.0.0
+**Updated:** 2026-09-23
+**Status:** Approved Specification
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
+**Package:** `cli/cmdcluster/`, `cli/cmdssh/`, `cli/cmdos/`, `cli/cmdupdate/`, `cli/cmdagm/`, `cli/tests/`
 **Related Specs:** [Spec 132](132-ssh-multinode-exec-copy-mv-and-env.md), [Spec 133](133-ssh-interactive-join-password-vault-and-cluster.md), [Spec 134](134-antigravity-ide-first-integration-and-queue-protocol.md)
 
 ---
@@ -71,14 +71,14 @@ flowchart TD
     B --> C["SSH Direct & Aliased Connectivity<br/>gitmap ssh <ip|alias> --json"]
     B --> D["SSH Interactive Join & Vault<br/>gitmap ssh-join / sj"]
     B --> E["Multi-Node Cluster Execution<br/>gitmap cluster exec --nodes ..."]
-    
+
     F["Remote Maintenance"] --> G["gitmap remote update<br/>(Ubuntu & Windows)"]
     F --> H["Antigravity Manager Update<br/>(agm remote update)"]
-    
+
     I["AGY Prompt Remote Execution"] --> J["Command Verification & Status Audit<br/>(.ai-memory/issues/agy-vm-status.md)"]
-    
+
     K["OS Tweaks Audit"] --> L["WinUtil (D:/work/chris/winutil)<br/>LinUtil (D:/work/chris/linutil)<br/>Auto-Login, Auto-Scheduling, Tweaks"]
-    
+
     M["Strict Quality Gates"] --> N["*apperror.AppError Envelopes<br/>Verbose Stack Traces, Zero Swallowed Errors"]
     M --> O["Release Version Bump & CI/CD<br/>Dynamic Waiting via gitmap pl-ai status -t"]
 ```

@@ -1,8 +1,8 @@
 # Issue 41: VS Code Startup Failure & Investigation Latency Root Cause Analysis
 
-> **Issue Status:** Resolved  
-> **Traceability IDs:** Task-07  
-> **Canonical Path:** `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md`  
+> **Issue Status:** Resolved
+> **Traceability IDs:** Task-07
+> **Canonical Path:** `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md`
 > **Parent Spec:** `02-spec/22-app-issues/01-index.md`
 
 ---

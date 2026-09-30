@@ -1,9 +1,9 @@
 # AGY VM Remote Execution Diagnostic Report
 
-**Date:** 2026-09-23  
-**Evaluator:** Antigravity Autonomous Companion  
-**Target Environment:** Local Multi-Node Virtual Machine Cluster  
-**Document Status:** Final Verified Matrix  
+**Date:** 2026-09-23
+**Evaluator:** Antigravity Autonomous Companion
+**Target Environment:** Local Multi-Node Virtual Machine Cluster
+**Document Status:** Final Verified Matrix
 
 ---
 
@@ -103,4 +103,3 @@ gitmap ssh agy w1 prompt-all-project -n is-done -t "Quality check complete"
 - **Root Cause:** `resolveIPCommandArgs()` injected a hardcoded Linux shell string `sh -c ip -br a ...`, bypassing GitMap delegation and failing on Windows.
 - **Resolution:** Preserved `args` in `resolveIPCommandArgs()` and mapped `ip` to `gitmap ip` with `isDelegate = true`. Enabled auto-installation of GitMap over SSH via OS-specific installers (`irm ... | iex` for Windows, `curl ... | bash` for Linux) when not present on remote hosts.
 - **Verification:** Verified with live E2E test `TestVMClusterE2EIPDelegation` across all active VMs and interactive execution of `gitmap ssh exec ip`.
-

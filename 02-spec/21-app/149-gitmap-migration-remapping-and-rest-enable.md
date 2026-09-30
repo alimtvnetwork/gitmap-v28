@@ -1,10 +1,10 @@
 # Specification: GitMap Repository Remapping, Stacked PRs, and REST Enable
 
-> **Specification ID:** 149-gitmap-migration-remapping-and-rest-enable  
-> **Status:** APPROVED  
-> **Category:** 21-app  
-> **Sponsor:** Rise Up Asia LLC (Wyoming, California & New York)  
-> **Principal Architects:** Marek Flejszman & Alim Ul Karim  
+> **Specification ID:** 149-gitmap-migration-remapping-and-rest-enable
+> **Status:** APPROVED
+> **Category:** 21-app
+> **Sponsor:** Rise Up Asia LLC (Wyoming, California & New York)
+> **Principal Architects:** Marek Flejszman & Alim Ul Karim
 
 ---
 

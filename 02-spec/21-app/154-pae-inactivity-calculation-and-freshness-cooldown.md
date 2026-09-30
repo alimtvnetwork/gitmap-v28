@@ -1,10 +1,10 @@
 # Spec 154: Inactivity Calculation, Freshness Cooldown, and Global Column Width Stability for `gitmap pae`
 
-> **Spec ID:** `SPEC-154`  
-> **Version:** `v6.332.0`  
-> **Status:** Approved / In Progress  
-> **Date:** 2026-09-24  
-> **Package:** `cli/store/`, `cli/cmdpull/`  
+> **Spec ID:** `SPEC-154`
+> **Version:** `v6.332.0`
+> **Status:** Approved / In Progress
+> **Date:** 2026-09-24
+> **Package:** `cli/store/`, `cli/cmdpull/`
 
 ---
 
@@ -54,18 +54,18 @@ flowchart TD
     A["gitmap pae / gitmap pull all-efficient"] --> B["Resolve All Tracked Records"]
     B --> C["PartitionRecordsByActivity()"]
     C --> D{"EvaluateRepoActivityStatus()<br/>(window: 24h, cooldown: 5m)"}
-    
+
     D -- "Pulled < 5m ago" --> E["INACTIVE (Cooldown)<br/>'already checked recently (<5m)'"]
     D -- "Pulled > 24h ago / Never" --> F["ACTIVE (Daily Refresh)<br/>'latest pull older than 24h'"]
     D -- "Pulled < 24h ago & 0 changes" --> G["INACTIVE (Clean)<br/>'0 changes on latest pull within 24h'"]
     D -- "Pulled < 24h ago & has changes" --> H["ACTIVE (Receiving Changes)<br/>'recent commits within 24h'"]
-    
+
     F --> I["Execute Network Pull"]
     H --> I
-    
+
     E --> J["Skip Repo & Record Summary"]
     G --> J
-    
+
     I --> K["Render Results with Stable Global Column Width"]
 ```
 

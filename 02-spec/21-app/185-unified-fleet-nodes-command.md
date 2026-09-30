@@ -7,7 +7,7 @@ GitMap environments operate across three distinct infrastructure management tier
 2. **Distributed Cluster Fleet Database**: Managed via `gitmap cluster nodes`, tracking control plane and worker topology in `ClusterNode` SQLite tables.
 3. **Server-Clients Orchestration (`sc`)**: Autonomous peer-to-peer broadcast and RPC network topology managing live node command fan-out.
 
-Previously, operators had to run separate commands (`gitmap ssh nodes`, `gitmap cluster nodes`, `gitmap sc status`) to ascertain fleet membership and status. 
+Previously, operators had to run separate commands (`gitmap ssh nodes`, `gitmap cluster nodes`, `gitmap sc status`) to ascertain fleet membership and status.
 
 This specification introduces **`gitmap nodes`** (aliases: `gitmap node`, `allnodes`, `all-nodes`, `fleet-nodes`), providing a unified, deduplicated aggregation plane across all three subsystems.
 
@@ -100,7 +100,7 @@ Unless `--fast` / `--no-probe` is specified, `gitmap nodes` runs non-blocking co
 ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
   Discovered: 6 registered node(s) across SSH, Cluster DB & Server-Client (SC) networks
 
-  ALIAS            ROLE           HOST (IP:PORT)         USER           SUBSYSTEMS         STATUS                ENROLLED           
+  ALIAS            ROLE           HOST (IP:PORT)         USER           SUBSYSTEMS         STATUS                ENROLLED
   ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
   main             worker         192.168.1.20:22        administrator  SSH, Cluster, SC   ● ready               2026-09-29 12:27:18
   w3               worker         192.168.1.12:22        Administrator  SSH, Cluster, SC   ● ready               2026-09-29 12:33:35

@@ -1,8 +1,8 @@
 # Specification 147: Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management
 
-> **Spec Status:** Active  
-> **Traceability IDs:** Task-01, Task-02, Task-03, Task-04, Task-05, Task-06, Task-07, Task-08, Task-09, Task-10  
-> **Canonical Path:** `02-spec/21-app/147-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md`  
+> **Spec Status:** Active
+> **Traceability IDs:** Task-01, Task-02, Task-03, Task-04, Task-05, Task-06, Task-07, Task-08, Task-09, Task-10
+> **Canonical Path:** `02-spec/21-app/147-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md`
 > **Parent Spec:** `02-spec/21-app/01-index.md`
 
 ---

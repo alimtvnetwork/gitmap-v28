@@ -1,7 +1,7 @@
 # Plan 98: SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone & Isolated Temporary E2E Validation
 
-> **Plan Status:** Completed  
-> **Traceability IDs:** Task-01 .. Task-05  
+> **Plan Status:** Completed
+> **Traceability IDs:** Task-01 .. Task-05
 > **Spec Reference:** [02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md](../../../02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md)
 
 ---

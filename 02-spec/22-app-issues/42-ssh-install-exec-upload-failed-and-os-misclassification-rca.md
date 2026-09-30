@@ -1,11 +1,11 @@
 # 42: SSH Install-Exec 0ms Upload Failure & Remote OS Misclassification RCA
 
-> **Issue ID:** `APP-ISSUE-42`  
-> **Status:** Investigated & Resolved  
-> **Date:** 2026-09-25  
-> **Severity:** High  
-> **Target Subsystem:** `cli/cmdssh/`, `cli/db/`, `cli/store/`  
-> **Reference Spec:** [Spec 155: SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing](../21-app/155-ssh-install-exec-streaming-upload-and-os-resolution.md)  
+> **Issue ID:** `APP-ISSUE-42`
+> **Status:** Investigated & Resolved
+> **Date:** 2026-09-25
+> **Severity:** High
+> **Target Subsystem:** `cli/cmdssh/`, `cli/db/`, `cli/store/`
+> **Reference Spec:** [Spec 155: SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing](../21-app/155-ssh-install-exec-streaming-upload-and-os-resolution.md)
 
 ---
 

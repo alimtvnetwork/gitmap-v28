@@ -1,7 +1,7 @@
 # Subtask 01: Nodes Display Parity and Supported Commands Table
 
-> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`  
-> **Status:** `PENDING`  
+> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`
+> **Status:** `PENDING`
 > **Target Files:**
 > - `cli/cmd/nodes_cmd.go`
 > - `cli/cmd/nodes_cmd_test.go`

@@ -1,8 +1,8 @@
 # Plan 96: Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management
 
-> **Plan Status:** Completed  
-> **Traceability IDs:** Task-01 .. Task-10  
-> **Spec Reference:** [02-spec/21-app/147-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md](../../../02-spec/21-app/147-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md)  
+> **Plan Status:** Completed
+> **Traceability IDs:** Task-01 .. Task-10
+> **Spec Reference:** [02-spec/21-app/147-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md](../../../02-spec/21-app/147-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md)
 > **Issues Covered:** [02-spec/22-app-issues/39-pull-batch-abort-and-search-untracked-directory-crash.md](../../../02-spec/22-app-issues/39-pull-batch-abort-and-search-untracked-directory-crash.md), [02-spec/22-app-issues/40-cfr-short-name-clone-failure-and-missing-gh-resolution.md](../../../02-spec/22-app-issues/40-cfr-short-name-clone-failure-and-missing-gh-resolution.md)
 
 ---

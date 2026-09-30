@@ -2,13 +2,13 @@
 
 ## Overview
 
-**Module Number:** 136  
-**Version:** 1.0.0  
-**Updated:** 2026-09-23  
-**Status:** Approved Specification  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
-**Package:** `cli/cmdpull/`, `cli/store/`, `cli/cmd/`  
+**Module Number:** 136
+**Version:** 1.0.0
+**Updated:** 2026-09-23
+**Status:** Approved Specification
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
+**Package:** `cli/cmdpull/`, `cli/store/`, `cli/cmd/`
 **Related Specs:** [Spec 101](101-pull-all.md), [Spec 112](112-pull-release-cd.md), [Spec 119](119-git-pull-diagnostics-and-display.md), [Spec 129](129-pr-commit-engines-and-sqlite-split-db.md)
 
 ---
@@ -30,19 +30,19 @@ flowchart TD
     A["gitmap pull / gitmap pull-all / gitmap pae"] --> B{"Current Directory<br/>Git Repo?"}
     B -- "No" --> C["Default to Multi-Repo Pull All<br/>(Traditional Fallback)"]
     B -- "Yes" --> D["Pull Current Working Directory"]
-    
+
     C --> E["Execute Pull Lifecycle"]
     D --> E
-    
+
     E --> F["Dedicated SQLite Split-DB<br/>gitmap-pull.db"]
     F --> G["Table: PullRun<br/>(RunId, Command, CWD, Version, Counts, Duration)"]
     F --> H["Table: PullRepoRun<br/>(RepoPath, SHA, FilesChanged, CommitTrace in Notes, IsActive)"]
-    
+
     I["gitmap pull all-efficient (pae)"] --> J["Git Trace Activity Evaluator<br/>(Inspect local git log/trace)"]
     J --> K{"Local Git Trace / Log<br/>has actual recent changes (e.g. last 24h)?"}
     K -- "No (No commits/changes in local git trace within 24h)" --> L["Mark Quiescent & Skip Pull"]
     K -- "Yes (Recent commits in git trace)" --> M["Pull Repository & Capture New Commit Trace"]
-    
+
     M --> N["Save Commit Trace into PullRepoRun.Notes<br/>(Enables Sub-Millisecond Search)"]
     L --> O["Emit Skip Summary<br/>'Skipped X inactive repos (no recent git changes). Run pull all to force.'"]
     N --> P["Fast SQLite Search Index<br/>(Query commit traces by msg, SHA, author, text <1ms)"]
@@ -179,7 +179,7 @@ Given candidate repository R:
   [ 1/5] • repo-alpha -> up-to-date
   [ 2/5] • repo-beta  -> +3/-1 (2 files, 3 commits)
   ...
-  
+
   ✓ Pull efficient complete: 5 pulled, 10 skipped inactive.
     Inactive repos: repo-3, repo-4, repo-5, repo-6, repo-7, repo-8, repo-9, repo-10, repo-11, repo-12
     (To force pull all repositories, run `gitmap pull all`)

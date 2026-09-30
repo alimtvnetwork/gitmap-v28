@@ -46,3 +46,4 @@
 - [188-json-envelope-v2-terminal-clear-and-deploy-keys.md](188-json-envelope-v2-terminal-clear-and-deploy-keys.md) — JSON Envelope V2, Terminal Clear, Deploy-Keys Variants, and Friendly Import CLI (Status: `active`)
 - [189-envelope-variables-os-password-and-secrets-sequence.md](189-envelope-variables-os-password-and-secrets-sequence.md) — JSON Envelope Variables, WorkDirectory Object, OS Password CLI, and Repo-Secrets Hygiene (Status: `active`)
 - [190-vmware-macro-audit-task-and-installer-chain.md](190-vmware-macro-audit-task-and-installer-chain.md) — VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task History, and Chained Installer (Status: `active`)
+- [191-nodes-clone-except-self-windows-runner-and-path.md](191-nodes-clone-except-self-windows-runner-and-path.md) — Fleet Nodes Clone — Except-Self, Windows Remote Shell Runner, and Target Directory Architecture (Status: `active`)

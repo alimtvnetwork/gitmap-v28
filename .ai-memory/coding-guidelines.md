@@ -1776,4 +1776,3 @@ Instead, apply the **Array Async Pool Concept by Alim Ul Karim**:
 2. **Lock-Free Asynchronous Slot Writing:** Worker $i$ processes input $i$ and writes directly to `results[i]`, then sets `results[i].isReady = true`. Zero mutex locking, zero append reallocations.
 3. **Sequential Ticker Consumer:** A consumption loop checks `results[cursor]`. While `results[cursor].isReady` is `true`, it immediately formats and streams that item to stdout in strict sequential order ($0 \dots N-1$) and advances `cursor++`.
 4. **Time Data Comparison:** 28 network repository probes take ~33.6s sequentially vs ~2.4s with 16 parallel workers in the Array Async Pool (a **14.0x speedup**), while guaranteeing 100% deterministic, ordered terminal display.
-

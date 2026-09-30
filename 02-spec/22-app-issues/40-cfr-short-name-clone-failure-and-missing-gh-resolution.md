@@ -1,8 +1,8 @@
 # Issue 40: CFR Short-Name Clone Failure & Missing GitHub CLI Resolution
 
-> **Issue Status:** Resolved  
-> **Traceability IDs:** Task-08  
-> **Canonical Path:** `02-spec/22-app-issues/40-cfr-short-name-clone-failure-and-missing-gh-resolution.md`  
+> **Issue Status:** Resolved
+> **Traceability IDs:** Task-08
+> **Canonical Path:** `02-spec/22-app-issues/40-cfr-short-name-clone-failure-and-missing-gh-resolution.md`
 > **Parent Spec:** `02-spec/22-app-issues/01-index.md`
 
 ---

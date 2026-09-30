@@ -27,12 +27,12 @@ do a git pull properly and git pull always before commiting to sync and fix the 
 
 
 
-add 
+add
 
 gitmap macro deploy ssh --except id, ip, alaising
 gitmap peat deploy ssh --except id, ip, alaising
 gitmap pea deploy ssh --except id, ip, alaising
-gitmap update --all  / gitmap update all / gitmap ua # all same except ones, this will update all apps and returns summary in json from other gitmaps of those ssh machines, clear??? and display it nicely 
+gitmap update --all  / gitmap update all / gitmap ua # all same except ones, this will update all apps and returns summary in json from other gitmaps of those ssh machines, clear??? and display it nicely
 
 gitmap update <name> --excep id,alias, ip #update specific installed item
 gitmap update ls # show all install items accross ndoes with nice table list receivbed as json then display as table

@@ -2,6 +2,7 @@
 package cmdnodes
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func filterRemoteConnections(conns []db.SSHConnection, opts NodesCloneOptions) []db.SSHConnection {
@@ -79,35 +81,48 @@ func resolveRemoteArgs(passArgs []string, detectedFile, fileName string) string 
 	return strings.TrimSpace(strings.Join(remoteArgs, " "))
 }
 
-func buildWindowsWorkDirExecString(kindStr, args string) string {
-	if args == "" {
-		return fmt.Sprintf("Set-Location D:\\work; gitmap %s", kindStr)
+func isWindowsNode(conn db.SSHConnection) bool {
+	if strings.EqualFold(conn.OS, "windows") || strings.EqualFold(conn.OS, "win") {
+		return true
 	}
-	return fmt.Sprintf("Set-Location D:\\work; gitmap %s %s", kindStr, args)
+	if strings.EqualFold(conn.OSGroup, "windows") {
+		return true
+	}
+	if strings.EqualFold(conn.Username, "Administrator") {
+		return true
+	}
+	return false
 }
 
-func buildUnixWorkDirExecString(kindStr, args string) string {
-	if args == "" {
-		return fmt.Sprintf("cd ~/work && gitmap %s", kindStr)
+func buildWindowsWorkDirExecString(kindStr, args, targetDir string) string {
+	workDir := "D:\\work"
+	if targetDir != "" {
+		workDir = targetDir
 	}
-	return fmt.Sprintf("cd ~/work && gitmap %s %s", kindStr, args)
+	if args == "" {
+		return fmt.Sprintf("Set-Location %q; gitmap %s", workDir, kindStr)
+	}
+	return fmt.Sprintf("Set-Location %q; gitmap %s %s", workDir, kindStr, args)
 }
 
-func buildRemoteWorkDirExecString(kindStr, cmdArgs string, isWin bool) string {
-	args := strings.TrimSpace(cmdArgs)
-	if isWin {
-		return buildWindowsWorkDirExecString(kindStr, args)
+func buildUnixWorkDirExecString(kindStr, args, targetDir string) string {
+	workDir := "~/work"
+	if targetDir != "" {
+		workDir = targetDir
 	}
-	return buildUnixWorkDirExecString(kindStr, args)
+	if args == "" {
+		return fmt.Sprintf("cd %s && gitmap %s", workDir, kindStr)
+	}
+	return fmt.Sprintf("cd %s && gitmap %s %s", workDir, kindStr, args)
 }
 
 func buildRemoteExecString(opts NodesCloneOptions, fileName string, isWin bool) string {
 	cmdArgs := resolveRemoteArgs(opts.PassArgs, opts.DetectedFile, fileName)
 	kindStr := string(opts.Kind)
-	if !opts.HasFile {
-		return strings.TrimSpace(fmt.Sprintf("gitmap %s %s", kindStr, cmdArgs))
+	if isWin {
+		return buildWindowsWorkDirExecString(kindStr, cmdArgs, opts.TargetDir)
 	}
-	return buildRemoteWorkDirExecString(kindStr, cmdArgs, isWin)
+	return buildUnixWorkDirExecString(kindStr, cmdArgs, opts.TargetDir)
 }
 
 func runRemoteNodeWorker(conn db.SSHConnection, opts NodesCloneOptions, fileBytes []byte, fileName string) RemoteCloneNodeResult {
@@ -140,14 +155,35 @@ func executeRemoteCloneSession(client *ssh.Client, conn db.SSHConnection, opts N
 	return runRemoteExecOverSSH(client, conn, opts, fileName, res, start)
 }
 
-func runRemoteExecOverSSH(client *ssh.Client, conn db.SSHConnection, opts NodesCloneOptions, fileName string, res RemoteCloneNodeResult, start time.Time) RemoteCloneNodeResult {
-	isWin := strings.EqualFold(conn.OS, "windows") || strings.EqualFold(conn.OS, "win")
-	shell := "bash"
-	if isWin {
-		shell = "ps"
+func isBashMissingError(out string, err error) bool {
+	if err != nil && strings.Contains(err.Error(), "'bash' is not recognized") {
+		return true
 	}
-	cmdStr := buildRemoteExecString(opts, fileName, isWin)
-	out, errRun := crypto.RunCommand(client, cmdStr, shell)
+	if strings.Contains(out, "'bash' is not recognized") || strings.Contains(out, "bash: command not found") {
+		return true
+	}
+	return false
+}
+
+func persistCorrectedNodeOS(alias, osType string) {
+	dbConn, err := store.OpenDefault()
+	if err != nil {
+		return
+	}
+	defer dbConn.Close()
+	_ = db.UpdateConnectionOS(context.Background(), dbConn.Conn(), alias, osType)
+}
+
+func retryWithPowerShell(client *ssh.Client, opts NodesCloneOptions, fileName, alias string) (string, error) {
+	cmdStr := buildRemoteExecString(opts, fileName, true)
+	out, err := crypto.RunCommand(client, cmdStr, "ps")
+	if err == nil {
+		go persistCorrectedNodeOS(alias, "windows")
+	}
+	return out, err
+}
+
+func populateExecutionResult(res RemoteCloneNodeResult, out string, errRun error, start time.Time) RemoteCloneNodeResult {
 	res.Duration = time.Since(start)
 	res.DurationMs = res.Duration.Milliseconds()
 	res.Stdout = strings.TrimSpace(out)
@@ -158,6 +194,20 @@ func runRemoteExecOverSSH(client *ssh.Client, conn db.SSHConnection, opts NodesC
 	}
 	res.Status = "success"
 	return res
+}
+
+func runRemoteExecOverSSH(client *ssh.Client, conn db.SSHConnection, opts NodesCloneOptions, fileName string, res RemoteCloneNodeResult, start time.Time) RemoteCloneNodeResult {
+	isWin := isWindowsNode(conn)
+	shell := "bash"
+	if isWin {
+		shell = "ps"
+	}
+	cmdStr := buildRemoteExecString(opts, fileName, isWin)
+	out, errRun := crypto.RunCommand(client, cmdStr, shell)
+	if errRun != nil && !isWin && isBashMissingError(out, errRun) {
+		out, errRun = retryWithPowerShell(client, opts, fileName, conn.Alias)
+	}
+	return populateExecutionResult(res, out, errRun, start)
 }
 
 func executeFleetNodesParallel(conns []db.SSHConnection, opts NodesCloneOptions, fileBytes []byte, fileName string) []RemoteCloneNodeResult {

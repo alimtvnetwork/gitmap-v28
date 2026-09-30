@@ -1,9 +1,9 @@
 # Spec 156: GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
 
-> **Spec ID:** `SPEC-156`  
-> **Version:** `v6.338.0`  
-> **Status:** Active  
-> **Date:** 2026-09-25  
+> **Spec ID:** `SPEC-156`
+> **Version:** `v6.338.0`
+> **Status:** Active
+> **Date:** 2026-09-25
 
 ---
 

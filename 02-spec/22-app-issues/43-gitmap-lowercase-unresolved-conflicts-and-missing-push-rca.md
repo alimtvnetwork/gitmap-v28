@@ -1,9 +1,9 @@
 # Issue 43: GitMap Lowercase Unresolved Merge Conflicts, Working Tree Dirt Contamination & Missing Push RCA
 
-> **Issue ID:** `ISSUE-43`  
-> **Spec Reference:** [02-spec/21-app/156-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](../21-app/156-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md)  
-> **Status:** Resolved  
-> **Date:** 2026-09-25  
+> **Issue ID:** `ISSUE-43`
+> **Spec Reference:** [02-spec/21-app/156-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](../21-app/156-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md)
+> **Status:** Resolved
+> **Date:** 2026-09-25
 
 ---
 

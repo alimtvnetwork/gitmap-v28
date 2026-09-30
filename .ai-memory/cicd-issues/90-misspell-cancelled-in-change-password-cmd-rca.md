@@ -18,4 +18,3 @@ During the `v6.416.0` CI workflow:
 
 ## 4. Prevention
 Enforce US English spelling (`Canceled`), verify `cli/apperror` constructor signatures (`NewExecutionError`, `NewValidationError`), and run `gofmt -w` on modified Go packages before pushing release commits.
-

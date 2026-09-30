@@ -26,6 +26,7 @@ type NodesCloneOptions struct {
 	ExcludeFilter string         `json:"excludeFilter,omitempty"`
 	ExceptOS      string         `json:"exceptOS,omitempty"`
 	TargetOS      string         `json:"targetOS,omitempty"`
+	TargetDir     string         `json:"targetDir,omitempty"`
 	IsDryRun      bool           `json:"isDryRun"`
 	IsJSON        bool           `json:"isJSON"`
 	IsSkipLocal   bool           `json:"isSkipLocal"`

@@ -1,8 +1,8 @@
 # Plan 103: Inactivity Calculation, Freshness Cooldown, and Global Column Width Stability for `gitmap pae`
 
 ## Status: Completed
-**Version:** `v6.332.0`  
-**Spec Reference:** [Spec 154](../../../02-spec/21-app/154-pae-inactivity-calculation-and-freshness-cooldown.md)  
+**Version:** `v6.332.0`
+**Spec Reference:** [Spec 154](../../../02-spec/21-app/154-pae-inactivity-calculation-and-freshness-cooldown.md)
 **Parent Task:** GitMap Pull All-Efficient Optimization
 
 ---

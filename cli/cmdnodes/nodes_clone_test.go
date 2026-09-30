@@ -1,8 +1,11 @@
 package cmdnodes
 
 import (
+	"errors"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
 func TestIsNodesCloneCommand(t *testing.T) {
@@ -12,11 +15,14 @@ func TestIsNodesCloneCommand(t *testing.T) {
 		wantOk   bool
 	}{
 		{"clone", CloneKindClone, true},
+		{"clone-except-self", CloneKindClone, true},
+		{"clone-noself", CloneKindClone, true},
 		{"cfr", CloneKindCFR, true},
 		{"clone-fix-repo", CloneKindCFR, true},
+		{"cfr-except-self", CloneKindCFR, true},
 		{"cfrp", CloneKindCFRP, true},
 		{"clone-fix-repo-pub", CloneKindCFRP, true},
-		{"cfr-pub", CloneKindCFRP, true},
+		{"cfrp-except-self", CloneKindCFRP, true},
 		{"status", "", false},
 		{"unknown", "", false},
 	}
@@ -30,8 +36,8 @@ func TestIsNodesCloneCommand(t *testing.T) {
 	}
 }
 
-func TestParseNodesCloneOptions(t *testing.T) {
-	raw := []string{"ChrisTitusTech/winutil", "--dry-run", "-t", "w1", "--skip-local"}
+func TestParseNodesCloneOptions_ExceptSelf(t *testing.T) {
+	raw := []string{"except-self", "ChrisTitusTech/winutil", "--dry-run", "-t", "w1"}
 	opts, ok := parseNodesCloneOptions(CloneKindClone, raw)
 	if !ok {
 		t.Fatalf("expected parse to succeed")
@@ -43,36 +49,21 @@ func TestParseNodesCloneOptions(t *testing.T) {
 		t.Errorf("expected IsDryRun = true")
 	}
 	if !opts.IsSkipLocal {
-		t.Errorf("expected IsSkipLocal = true")
+		t.Errorf("expected IsSkipLocal = true for except-self")
 	}
 	if len(opts.PassArgs) == 0 || opts.PassArgs[0] != "ChrisTitusTech/winutil" {
 		t.Errorf("PassArgs[0] = %v; want ChrisTitusTech/winutil", opts.PassArgs)
 	}
 }
 
-func TestResolveRemoteWorkDir(t *testing.T) {
-	if got := ResolveRemoteWorkDir("windows"); got != "D:/work" {
-		t.Errorf("ResolveRemoteWorkDir(windows) = %q; want D:/work", got)
+func TestParseNodesCloneOptions_TargetDir(t *testing.T) {
+	raw := []string{"https://github.com/user/repo", "D:\\custom\\path"}
+	opts, ok := parseNodesCloneOptions(CloneKindClone, raw)
+	if !ok {
+		t.Fatalf("expected parse to succeed")
 	}
-	if got := ResolveRemoteWorkDir("win"); got != "D:/work" {
-		t.Errorf("ResolveRemoteWorkDir(win) = %q; want D:/work", got)
-	}
-	if got := ResolveRemoteWorkDir("linux"); got != "~/work" {
-		t.Errorf("ResolveRemoteWorkDir(linux) = %q; want ~/work", got)
-	}
-	if got := ResolveRemoteWorkDir("darwin"); got != "~/work" {
-		t.Errorf("ResolveRemoteWorkDir(darwin) = %q; want ~/work", got)
-	}
-}
-
-func TestResolveRemoteDestPath(t *testing.T) {
-	winDest := ResolveRemoteDestPath("windows", "gitmap.json")
-	if !strings.Contains(winDest, "gitmap.json") || !strings.Contains(winDest, "work") {
-		t.Errorf("ResolveRemoteDestPath(windows) = %q; want path with work and gitmap.json", winDest)
-	}
-	unixDest := ResolveRemoteDestPath("linux", "gitmap.json")
-	if unixDest != "~/work/gitmap.json" {
-		t.Errorf("ResolveRemoteDestPath(linux) = %q; want ~/work/gitmap.json", unixDest)
+	if opts.TargetDir != "D:\\custom\\path" {
+		t.Errorf("TargetDir = %q; want D:\\custom\\path", opts.TargetDir)
 	}
 }
 
@@ -83,7 +74,7 @@ func TestBuildRemoteExecString(t *testing.T) {
 		HasFile:  true,
 	}
 	winCmd := buildRemoteExecString(opts, "gitmap.json", true)
-	if !strings.Contains(winCmd, "Set-Location D:\\work") || !strings.Contains(winCmd, "gitmap cfr") {
+	if !strings.Contains(winCmd, "Set-Location \"D:\\work\"") || !strings.Contains(winCmd, "gitmap cfr") {
 		t.Errorf("buildRemoteExecString(win) = %q; want Set-Location and gitmap cfr", winCmd)
 	}
 
@@ -92,25 +83,58 @@ func TestBuildRemoteExecString(t *testing.T) {
 		t.Errorf("buildRemoteExecString(unix) = %q; want cd ~/work and gitmap cfr", unixCmd)
 	}
 
-	optsNoFile := NodesCloneOptions{
-		Kind:     CloneKindClone,
-		PassArgs: []string{"user/repo"},
-		HasFile:  false,
+	optsCustom := NodesCloneOptions{
+		Kind:      CloneKindClone,
+		PassArgs:  []string{"https://github.com/user/repo"},
+		TargetDir: "D:\\custom\\dir",
 	}
-	noFileCmd := buildRemoteExecString(optsNoFile, "", true)
-	if noFileCmd != "gitmap clone user/repo" {
-		t.Errorf("buildRemoteExecString(noFile) = %q; want gitmap clone user/repo", noFileCmd)
+	customWinCmd := buildRemoteExecString(optsCustom, "", true)
+	if !strings.Contains(customWinCmd, "Set-Location \"D:\\custom\\dir\"") {
+		t.Errorf("buildRemoteExecString(customDir) = %q; want custom path", customWinCmd)
 	}
 }
 
-func TestPrintNodesCloneHelp(t *testing.T) {
-	if err := PrintNodesCloneHelp(CloneKindClone); err != nil {
-		t.Errorf("PrintNodesCloneHelp(clone) error = %v", err)
+func TestIsWindowsNode(t *testing.T) {
+	if !isWindowsNode(db.SSHConnection{OS: "windows"}) {
+		t.Errorf("expected OS windows to be identified as Windows")
 	}
-	if err := PrintNodesCloneHelp(CloneKindCFR); err != nil {
-		t.Errorf("PrintNodesCloneHelp(cfr) error = %v", err)
+	if !isWindowsNode(db.SSHConnection{OS: "win"}) {
+		t.Errorf("expected OS win to be identified as Windows")
 	}
-	if err := PrintNodesCloneHelp(CloneKindCFRP); err != nil {
-		t.Errorf("PrintNodesCloneHelp(cfrp) error = %v", err)
+	if !isWindowsNode(db.SSHConnection{Username: "Administrator", OS: "unknown"}) {
+		t.Errorf("expected Administrator username to be identified as Windows")
+	}
+	if isWindowsNode(db.SSHConnection{OS: "linux", Username: "ubuntu"}) {
+		t.Errorf("expected linux node not to be identified as Windows")
+	}
+}
+
+func TestIsBashMissingError(t *testing.T) {
+	err := errors.New("command execution failed: Process exited with status 1 (output: 'bash' is not recognized as an internal or external command)")
+	if !isBashMissingError("", err) {
+		t.Errorf("expected isBashMissingError to identify Windows bash missing error")
+	}
+	if !isBashMissingError("bash: command not found", nil) {
+		t.Errorf("expected isBashMissingError to identify bash command not found")
+	}
+	if isBashMissingError("git clone failed", errors.New("fatal: repository not found")) {
+		t.Errorf("expected unrelated error not to trigger bash missing")
+	}
+}
+
+func TestSanitizeErrorAndStdout(t *testing.T) {
+	rawErr := "Process exited with status 1 (output: 'bash' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n)"
+	cleanErr := sanitizeError(rawErr)
+	if strings.Contains(cleanErr, "\n") || strings.Contains(cleanErr, "\r") {
+		t.Errorf("expected sanitized error without newlines, got %q", cleanErr)
+	}
+	if !strings.Contains(cleanErr, "'bash' is not recognized") {
+		t.Errorf("expected sanitized error to preserve core message, got %q", cleanErr)
+	}
+
+	rawOut := "===================================\nCloned awansoft-v10 successfully."
+	cleanOut := sanitizeStdout(rawOut)
+	if cleanOut != "Cloned awansoft-v10 successfully." {
+		t.Errorf("expected clean stdout, got %q", cleanOut)
 	}
 }

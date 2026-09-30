@@ -1,8 +1,8 @@
 # Specification 148: SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking
 
-> **Spec Status:** Active  
-> **Traceability IDs:** Task-01, Task-02, Task-03, Task-04, Task-05, Task-06, Task-07  
-> **Canonical Path:** `02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md`  
+> **Spec Status:** Active
+> **Traceability IDs:** Task-01, Task-02, Task-03, Task-04, Task-05, Task-06, Task-07
+> **Canonical Path:** `02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md`
 > **Parent Spec:** `02-spec/21-app/01-index.md`
 
 ---
@@ -126,23 +126,23 @@ Empirical test run executed across 124,800 files (Windows 11, NVMe PCIe 4.0):
 ## 4. Verification & Acceptance Criteria
 
 ### AC-APP-148-001: Common Join Shorthand Parsing
-**Given** A user provides `gitmap ssh-join-common administrator 10.0.0.15(master),16(worker1),17(worker2) --pass secret`.  
-**When** The parser runs.  
+**Given** A user provides `gitmap ssh-join-common administrator 10.0.0.15(master),16(worker1),17(worker2) --pass secret`.
+**When** The parser runs.
 **Then** Three separate host target definitions must be generated with correct aliases (`master`, `worker1`, `worker2`) and full IPv4 addresses.
 
 ### AC-APP-148-002: Remote OS Version Persistence
-**Given** A new SSH node is added via `ssh-join-common`.  
-**When** The handshake and initial SSH session open.  
+**Given** A new SSH node is added via `ssh-join-common`.
+**When** The handshake and initial SSH session open.
 **Then** An OS probe command executes, and the parsed OS string is saved to `ssh_connections.os_version` without manual user intervention.
 
 ### AC-APP-148-003: AGY Rerun IDE Restart & Replay
-**Given** An active Antigravity session with previous multimodal prompt inputs.  
-**When** `gitmap agy rerun 1` is executed.  
+**Given** An active Antigravity session with previous multimodal prompt inputs.
+**When** `gitmap agy rerun 1` is executed.
 **Then** Running IDE processes are killed, the IDE launches in project #1's directory, and the complete prompt including media files is replayed into the session.
 
 ### AC-APP-148-004: End-to-End Build Tag Conformance
-**Given** Test suites in `cli/tests/e2e/`.  
-**When** `go test -short ./...` is executed in standard CI/CD.  
+**Given** Test suites in `cli/tests/e2e/`.
+**When** `go test -short ./...` is executed in standard CI/CD.
 **Then** All E2E files guarded by `//go:build e2e` are excluded without build errors, and the suite passes in < 30 seconds.
 
 ---

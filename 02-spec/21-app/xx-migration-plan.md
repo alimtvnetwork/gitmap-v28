@@ -40,20 +40,20 @@ gitGraph
    commit id: "nav-02: discovery & scan engines"
    checkout main
    merge migration/git-repo-navigator id: "PR #1: merge git-repo-navigator" tag: "v1.0.0-legacy"
-   
+
    branch migration/gitmap-v2
    checkout migration/gitmap-v2
    commit id: "v2-01: split sqlite architecture"
    commit id: "v2-02: terminal rendering & termpad"
    checkout main
    merge migration/gitmap-v2 id: "PR #2: merge gitmap-v2" tag: "v2.0.0-legacy"
-   
+
    branch migration/gitmap-v3-to-v27
    checkout migration/gitmap-v3-to-v27
    commit id: "v3..v27 intermediate iterations"
    checkout main
    merge migration/gitmap-v3-to-v27 id: "PR #3..#27: sequential iterations"
-   
+
    branch migration/gitmap-v28
    checkout migration/gitmap-v28
    commit id: "v28-01: AGY prompt injection & Lapp"

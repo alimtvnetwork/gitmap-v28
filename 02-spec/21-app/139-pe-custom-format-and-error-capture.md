@@ -33,7 +33,7 @@ https://prnt.sc/WIi4FxFUx453
 https://prnt.sc/Xl4_dMPZ_nYz
 https://prnt.sc/vPLK7e8h8-cC
 
-For the pipeline errors 
+For the pipeline errors
 
 actual
 

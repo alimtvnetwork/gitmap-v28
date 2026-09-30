@@ -1,9 +1,9 @@
 # Master Execution Plan: 200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md
 
-> **Status:** `IN PROGRESS`  
-> **Target Version:** `v6.425.0`  
-> **Date:** `2026-09-30`  
-> **Author:** Antigravity Autonomous Lead Agent  
+> **Status:** `IN PROGRESS`
+> **Target Version:** `v6.425.0`
+> **Date:** `2026-09-30`
+> **Author:** Antigravity Autonomous Lead Agent
 
 ---
 

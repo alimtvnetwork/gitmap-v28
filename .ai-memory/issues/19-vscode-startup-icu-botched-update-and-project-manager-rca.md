@@ -57,4 +57,3 @@ VS Code workbench failed to open completely.
   * Program Files: `$env:ProgramFiles` / `os.Getenv("ProgramFiles")`
   * Script Root: `$PSScriptRoot`
 - Strict prohibition on hardcoded drive letters (`D:\` or `C:\`) ensuring 100% portability across workstations and multi-node clusters.
-

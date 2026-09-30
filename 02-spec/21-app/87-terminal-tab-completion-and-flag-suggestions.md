@@ -1,10 +1,10 @@
 # Canonical Spec: Terminal Tab Completion, AGY Flag Suggestions & Shell Integration
 
-**Spec ID:** SPEC-APP-87  
-**Status:** Active  
-**Author:** Antigravity Master Orchestrator  
-**Date:** 2026-09-28  
-**Version:** v6.365.1  
+**Spec ID:** SPEC-APP-87
+**Status:** Active
+**Author:** Antigravity Master Orchestrator
+**Date:** 2026-09-28
+**Version:** v6.365.1
 
 ---
 

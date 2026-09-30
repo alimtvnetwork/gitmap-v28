@@ -1,9 +1,9 @@
 # Spec 153: Dynamic Column Width Alignment for Efficient Pull (`gitmap pae`)
 
-> **Spec ID:** `SPEC-153`  
-> **Version:** `v6.331.0`  
-> **Status:** Completed / Released  
-> **Date:** 2026-09-24  
+> **Spec ID:** `SPEC-153`
+> **Version:** `v6.331.0`
+> **Status:** Completed / Released
+> **Date:** 2026-09-24
 
 ---
 

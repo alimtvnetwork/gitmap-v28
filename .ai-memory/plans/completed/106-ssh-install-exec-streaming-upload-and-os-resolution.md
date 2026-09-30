@@ -1,7 +1,7 @@
 # Completed Plan 106: SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing
 
-Spec Reference: [02-spec/21-app/155-ssh-install-exec-streaming-upload-and-os-resolution.md](../../02-spec/21-app/155-ssh-install-exec-streaming-upload-and-os-resolution.md)  
-Issue Reference: [02-spec/22-app-issues/42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md](../../02-spec/22-app-issues/42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md)  
+Spec Reference: [02-spec/21-app/155-ssh-install-exec-streaming-upload-and-os-resolution.md](../../02-spec/21-app/155-ssh-install-exec-streaming-upload-and-os-resolution.md)
+Issue Reference: [02-spec/22-app-issues/42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md](../../02-spec/22-app-issues/42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md)
 Execution Summary: Completed in 2 orchestration loops across 3 subtask domains with verified live fleet deployment and E2E testing.
 
 ## User Request (Verbatim)

@@ -67,7 +67,7 @@ gitmap os dev-clean --dry-run
   ✓ Saved recovery snapshot to: ~/.gitmap/agy-snapshot-20260928-171500.json
     (Captured 3 project workspaces and 14 conversations)
 
-  Are you sure you want to proceed? [y/N]: 
+  Are you sure you want to proceed? [y/N]:
 ```
 
 ### 2.2 DevTool Clean Aligned Table

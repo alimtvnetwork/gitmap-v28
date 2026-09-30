@@ -1,8 +1,8 @@
 # Subtask 190.3: LLM Train Self-Loop and Machine URL Corpus
 
-> **Parent Plan:** [Plan 190](../../190-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md)  
-> **Status:** Complete  
-> **Lead Architect:** MD ALIM UL KARIM  
+> **Parent Plan:** [Plan 190](../../190-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md)
+> **Status:** Complete
+> **Lead Architect:** MD ALIM UL KARIM
 
 ---
 

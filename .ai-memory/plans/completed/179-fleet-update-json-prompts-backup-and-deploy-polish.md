@@ -1,7 +1,7 @@
 # Completed Plan: Fleet Update JSON Communication, Running Prompts Backup/Restore E2E & Deploy Polish
 
-**Plan Version:** 1.0.0  
-**Status:** Completed  
+**Plan Version:** 1.0.0
+**Status:** Completed
 **Spec Reference:** [02-spec/21-app/179-fleet-update-json-prompts-backup-and-deploy-polish.md](../../../02-spec/21-app/179-fleet-update-json-prompts-backup-and-deploy-polish.md)
 
 ---

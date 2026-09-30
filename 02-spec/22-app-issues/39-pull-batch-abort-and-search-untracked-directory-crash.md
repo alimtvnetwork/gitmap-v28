@@ -1,8 +1,8 @@
 # Issue 39: Pull Batch Abort & Search Untracked Directory Crash
 
-> **Issue Status:** Resolved  
-> **Traceability IDs:** Task-01, Task-02, Task-08  
-> **Canonical Path:** `02-spec/22-app-issues/39-pull-batch-abort-and-search-untracked-directory-crash.md`  
+> **Issue Status:** Resolved
+> **Traceability IDs:** Task-01, Task-02, Task-08
+> **Canonical Path:** `02-spec/22-app-issues/39-pull-batch-abort-and-search-untracked-directory-crash.md`
 > **Parent Spec:** `02-spec/22-app-issues/01-index.md`
 
 ---

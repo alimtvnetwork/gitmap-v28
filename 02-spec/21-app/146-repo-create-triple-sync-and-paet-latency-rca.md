@@ -1,10 +1,10 @@
 # Spec 146: Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA
 
-**Version:** 6.319.0  
-**Updated:** 2026-09-24  
-**Status:** Active  
-**AI Confidence:** Production-Ready  
-**Ambiguity:** None  
+**Version:** 6.319.0
+**Updated:** 2026-09-24
+**Status:** Active
+**AI Confidence:** Production-Ready
+**Ambiguity:** None
 
 ---
 
@@ -24,7 +24,7 @@ Additionally, this specification incorporates a comprehensive Root Cause Analysi
 ## 2. User Request (Verbatim)
 
 ```text
-Git Map, first do a git pull. Okay? So before committing, make sure you do a pull and synchronize, and then you commit. Okay? Okay. Now, coming to the point, in Git Map, if we... Yes. In Git Map, if we create a repository, like create repo, local repo, or create repo, remote repo, in both cases, the Git Map should actually do the CFR command. Not probably the fix. That it would not do because it's just create. But what I mean by this is that it should also sync with the VS Code projects. It should also sync with the GitHub desktop. It should also be added to Antigravity. Okay, these three things. If Antigravity is installed, if not, then it would not do that. So these are the three things I want. So make sure that we follow these steps, and also at the end, I wanted to know, when you open the Git Map space, P-A-E-T, T for table, right? When you do that, then why it takes so many time? What is the root cause behind checking for the time waste and how we can reduce it? Okay? I want these few things. Can you please do that for me? 
+Git Map, first do a git pull. Okay? So before committing, make sure you do a pull and synchronize, and then you commit. Okay? Okay. Now, coming to the point, in Git Map, if we... Yes. In Git Map, if we create a repository, like create repo, local repo, or create repo, remote repo, in both cases, the Git Map should actually do the CFR command. Not probably the fix. That it would not do because it's just create. But what I mean by this is that it should also sync with the VS Code projects. It should also sync with the GitHub desktop. It should also be added to Antigravity. Okay, these three things. If Antigravity is installed, if not, then it would not do that. So these are the three things I want. So make sure that we follow these steps, and also at the end, I wanted to know, when you open the Git Map space, P-A-E-T, T for table, right? When you do that, then why it takes so many time? What is the root cause behind checking for the time waste and how we can reduce it? Okay? I want these few things. Can you please do that for me?
 
 Swapn agents to do things parallely
 ```

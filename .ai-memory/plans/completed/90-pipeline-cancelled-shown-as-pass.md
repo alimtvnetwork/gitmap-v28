@@ -9,12 +9,12 @@ is it done and released properly
 
 https://prnt.sc/p1KnI6ogAmUU
 
-Failed pipeline shows as PASS fix please correctly, test things properly You can check for 
+Failed pipeline shows as PASS fix please correctly, test things properly You can check for
 
 Antigravity-Manager with commit hash 12e40b1
 
 
-check the issue properly 
+check the issue properly
 
 
 And fix it please

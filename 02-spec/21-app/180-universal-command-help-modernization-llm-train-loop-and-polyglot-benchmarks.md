@@ -1,10 +1,10 @@
 # Spec 180: Universal Command Help Modernization, LLM Train Self-Loop, and Polyglot Benchmarks
 
-> **Version:** 1.0.0  
-> **Status:** Draft  
-> **Author:** MD ALIM UL KARIM  
-> **Sponsor:** RISEUP ASIA LLC  
-> **Date:** 2026-09-29  
+> **Version:** 1.0.0
+> **Status:** Draft
+> **Author:** MD ALIM UL KARIM
+> **Sponsor:** RISEUP ASIA LLC
+> **Date:** 2026-09-29
 > **Scope:** Repository-wide CLI Help Uniformity, Modern Banner Display, LLM Train Self-Loop Engine, File/Project/Grid Search Benchmarks, and Verification Prompt
 
 ---

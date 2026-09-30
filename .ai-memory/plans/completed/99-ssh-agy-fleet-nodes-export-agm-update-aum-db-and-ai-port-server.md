@@ -1,7 +1,7 @@
 # Plan 99: SSH & AGY Bidirectional Fleet Dispatch, SSH Nodes JSON Export/Import & One-Liner, AGM Fleet Update, AUM SQLite Search History (`DH2D`), PowerShell Search Benchmark, and In-Memory AI Multi-Port Server
 
-> **Status:** `COMPLETED`  
-> **Release Version:** `v6.325.0`  
+> **Status:** `COMPLETED`
+> **Release Version:** `v6.325.0`
 > **Spec Reference:** [`02-spec/21-app/150-ssh-agy-fleet-nodes-export-agm-update-aum-db-and-ai-port-server.md`](../../../02-spec/21-app/150-ssh-agy-fleet-nodes-export-agm-update-aum-db-and-ai-port-server.md)
 
 ---

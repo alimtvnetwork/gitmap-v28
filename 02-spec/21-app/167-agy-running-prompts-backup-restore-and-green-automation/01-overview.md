@@ -14,11 +14,11 @@ This specification defines the architectural design, CLI interfaces, SQLite Spli
 ```text
 <cli> agy = <prefix cli>
 
-<prefix cli> backup-running-prompts [-file/-f "filepath or file name.db"] # if no 
+<prefix cli> backup-running-prompts [-file/-f "filepath or file name.db"] # if no
 <prefix cli> backup-running-prompts ls
 
 <prefix cli> running-prompts backup ls
-<prefix cli> running-prompts restore --keep/k 
+<prefix cli> running-prompts restore --keep/k
 <prefix cli> restore-running-prompts --keep/k
 
 <prefix cli> running-prompts backup ls --json
@@ -38,7 +38,7 @@ This specification defines the architectural design, CLI interfaces, SQLite Spli
 <prefix cli> running-prompts export [-file "file abs path or relative path or nothing , format is file.db, file.json"] [--wc 200] # default file <cli>-running-prompts.db
 <prefix cli> running-prompts import [-file "file abs path or relative path or nothing , format is file.db, file.json"] [--wc 200] # default file <cli>-running-prompts.db
 
-<prefix cli> running-projects help/ls --json [-file/-f -file "file abs path or relative path or nothing , format is file.db, default file.json"] 
+<prefix cli> running-projects help/ls --json [-file/-f -file "file abs path or relative path or nothing , format is file.db, default file.json"]
 <prefix cli> running-projects help/ls --json [-file/-f -file "file abs path or relative path or nothing , format is file.db, default file.json"] --ssh
 <prefix cli> running-projects help/ls [-file/-f -file "file abs path or relative path or nothing , format is file.db, default file.json"] --ssh
 

@@ -1,7 +1,7 @@
 # Subtask 05: VS Code Optimize Projects Root Command
 
-> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`  
-> **Status:** `PENDING`  
+> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`
+> **Status:** `PENDING`
 > **Target Files:**
 > - `cli/vscodepm/optimize.go`
 > - `cli/cmdvscode/vscode_optimize.go`

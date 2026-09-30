@@ -1,8 +1,8 @@
 # Specification 149: SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone & Isolated Temporary E2E Validation
 
-> **Spec Status:** Active  
-> **Traceability IDs:** Task-01, Task-02, Task-03, Task-04, Task-05  
-> **Canonical Path:** `02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md`  
+> **Spec Status:** Active
+> **Traceability IDs:** Task-01, Task-02, Task-03, Task-04, Task-05
+> **Canonical Path:** `02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md`
 > **Parent Spec:** `02-spec/21-app/01-index.md`
 
 ---
@@ -38,18 +38,18 @@ This specification formalizes the SSH fleet deployment commands, remote package 
 ## 2. Verification & Acceptance Criteria
 
 ### AC-APP-149-001: Macro, PEAT, and PEA Exclusion Filtering
-**Given** Joined SSH nodes `w1 (192.168.1.3)`, `w2 (192.168.1.7)`, and `w3 (192.168.1.12)`.  
-**When** `gitmap macro deploy ssh --except w3,192.168.1.12` or `gitmap peat deploy ssh --excep w2` is executed.  
+**Given** Joined SSH nodes `w1 (192.168.1.3)`, `w2 (192.168.1.7)`, and `w3 (192.168.1.12)`.
+**When** `gitmap macro deploy ssh --except w3,192.168.1.12` or `gitmap peat deploy ssh --excep w2` is executed.
 **Then** Excluded nodes are skipped, active nodes receive parallel deployments, and the summary table reports exact succeeded and excluded counts.
 
 ### AC-APP-149-002: Fleet Update & Inventory JSON-to-Table Rendering
-**Given** Joined SSH nodes returning JSON `FleetUpdateTelemetry` and `FleetNodeInventory`.  
-**When** `gitmap ua --except w3`, `gitmap update gitmap --excep w2`, or `gitmap update ls` is executed.  
+**Given** Joined SSH nodes returning JSON `FleetUpdateTelemetry` and `FleetNodeInventory`.
+**When** `gitmap ua --except w3`, `gitmap update gitmap --excep w2`, or `gitmap update ls` is executed.
 **Then** JSON payloads are parsed and rendered into an aligned terminal summary table.
 
 ### AC-APP-149-003: Skip-by-Default Temporary E2E Quarantine
-**Given** `cli/tests/e2e/ssh_fleet_deploy_update_clone_tempe2e_test.go`.  
-**When** Executed with `RUN_TEMP_E2E=1 go test -tags=tempe2e -v ./tests/e2e/... -run TempE2E`.  
+**Given** `cli/tests/e2e/ssh_fleet_deploy_update_clone_tempe2e_test.go`.
+**When** Executed with `RUN_TEMP_E2E=1 go test -tags=tempe2e -v ./tests/e2e/... -run TempE2E`.
 **Then** All 3 E2E suites pass, and when `RUN_TEMP_E2E` is unset, all 3 tests skip automatically.
 
 ---

@@ -97,14 +97,14 @@ This specification introduces:
 ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
   Probing 6 node(s) across fleet with machine command 'ping' (packets: 2, timeout: 1500ms)...
 
-  ALIAS          ROLE         HOST (IP:PORT)         ICMP STATS      LOSS     AVG RTT    TCP (PORT)       STATUS              
+  ALIAS          ROLE         HOST (IP:PORT)         ICMP STATS      LOSS     AVG RTT    TCP (PORT)       STATUS
   ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  w1             worker       192.168.1.3:22         2/2 rcvd        0%       <1ms       ● 22 (<1ms)      ● ONLINE            
-  main           worker       192.168.1.20:22        0/2 rcvd        100%     -          ● 22 (2ms)       ● REACHABLE (TCP)   
-  w3             worker       192.168.1.12:22        0/2 rcvd        100%     -          ● 22 (2ms)       ● REACHABLE (TCP)   
-  u1             worker       192.168.1.22:22        0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE           
-  w2             worker       192.168.1.7:22         0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE           
-  w4             worker       192.168.1.13:22        0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE           
+  w1             worker       192.168.1.3:22         2/2 rcvd        0%       <1ms       ● 22 (<1ms)      ● ONLINE
+  main           worker       192.168.1.20:22        0/2 rcvd        100%     -          ● 22 (2ms)       ● REACHABLE (TCP)
+  w3             worker       192.168.1.12:22        0/2 rcvd        100%     -          ● 22 (2ms)       ● REACHABLE (TCP)
+  u1             worker       192.168.1.22:22        0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
+  w2             worker       192.168.1.7:22         0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
+  w4             worker       192.168.1.13:22        0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
 
   ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
   Fleet Ping: 3/6 reachable (1 online ICMP, 2 reachable via TCP) | 3 offline | Max Elapsed: 2.01s

@@ -1,9 +1,9 @@
 # Spec 151: Remote Binary Installation & Copy via Low-Level SSH, Remote Fleet SemVer Verification & Comparison, and Specific Version Pinning/Downgrades for GitMap & Antigravity Manager
 
-> **Spec ID:** `SPEC-151`  
-> **Version:** `v6.327.0`  
-> **Status:** Implemented & Verified  
-> **Date:** 2026-09-24  
+> **Spec ID:** `SPEC-151`
+> **Version:** `v6.327.0`
+> **Status:** Implemented & Verified
+> **Date:** 2026-09-24
 
 ---
 

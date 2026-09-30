@@ -1,7 +1,7 @@
 # Subtask 03: Repo-Secrets Gitmap JSON Harmonization and Standalone PowerShell Script
 
-> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`  
-> **Status:** `PENDING`  
+> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`
+> **Status:** `PENDING`
 > **Target Files:**
 > - `D:\work\repo-secrets\07-final-network-machine\gitmap.json`
 > - `D:\work\repo-secrets\07-final-network-machine\clone-gitmap.ps1`

@@ -1,7 +1,7 @@
 # Plan 101: SSH Execution OS Filtering (`--except-os`), Multi-Command Sequencing, and Remote Installer Deployment (`gitmap ssh install-exec`)
 
-> **Status:** `COMPLETED`  
-> **Release Version:** `v6.329.0`  
+> **Status:** `COMPLETED`
+> **Release Version:** `v6.329.0`
 > **Spec Reference:** [`02-spec/21-app/152-ssh-exec-os-filter-and-install-exec.md`](../../../02-spec/21-app/152-ssh-exec-os-filter-and-install-exec.md)
 
 ---

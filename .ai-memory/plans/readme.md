@@ -29,11 +29,10 @@
 - [187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md](completed/187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md) — Special Default Repositories (`repo-secrets` = `rs` & `repo-cache` = `rc`), One-Time Scan Prompt, `gitmap cd rs`/`rc`, Sequenced Put & Auto-Push, and Coding Guidelines V2 Prompt Integration (Spec: [91](../../02-spec/21-app/91-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines.md))
 - [199-envelope-variables-os-password-and-secrets-sequence.md](completed/199-envelope-variables-os-password-and-secrets-sequence.md) — JSON Envelope Variables, WorkDirectory Object, OS Password CLI, and Repo-Secrets Hygiene (Spec: [189](../../02-spec/21-app/189-envelope-variables-os-password-and-secrets-sequence.md))
 - [54-vmware-macro-audit-task-and-installer-chain.md](completed/54-vmware-macro-audit-task-and-installer-chain.md) — VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task Logging, and Chained Installer (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
+- [55-nodes-clone-except-self-windows-runner-and-path.md](completed/55-nodes-clone-except-self-windows-runner-and-path.md) — Fleet Nodes Clone — Except-Self, Windows Remote Shell Runner, and Target Directory Architecture (Spec: [191](../../02-spec/21-app/191-nodes-clone-except-self-windows-runner-and-path.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans
 
 - [52-winutil-linutil-advanced-os-integration-plan.md](pending/52-winutil-linutil-advanced-os-integration-plan.md) — Winutil/Linutil Advanced OS Integration Plan
 - [53-cicd-interface-naming-and-enum-suffix.md](pending/53-cicd-interface-naming-and-enum-suffix.md) — CI/CD Interface Naming and Enum Suffix
-
-

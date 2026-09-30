@@ -59,6 +59,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 51 | [51-mesh-ssh-deploy-keys-windows-chmod-failure-rca.md](51-mesh-ssh-deploy-keys-windows-chmod-failure-rca.md) | Mesh SSH Deploy Keys Windows Chmod Command Failure & Misleading Output: RCA & Fix | Resolved |
 | 52 | [52-ssh-join-re-enrollment-auth-failure-and-double-shell-wrap-rca.md](52-ssh-join-re-enrollment-auth-failure-and-double-shell-wrap-rca.md) | SSH Join Re-Enrollment Auth Failure, Premature Interactive Prompt & Windows Double Shell Wrapping: RCA & Fix | Resolved |
 | 53 | [53-macro-phantom-steps-and-removal-failure-rca.md](53-macro-phantom-steps-and-removal-failure-rca.md) | Macro Deletion Failure on Missing Target (`rm test`) and Interactive Edit Step Discard: RCA & Fix | Resolved |
+| 54 | [54-windows-node-bash-missing-clone-failure-rca.md](54-windows-node-bash-missing-clone-failure-rca.md) | Remote Windows Node Clone Failure (`'bash' is not recognized`) and Fleet Output Degradation: RCA & Fix | Resolved |
 
 ---
 

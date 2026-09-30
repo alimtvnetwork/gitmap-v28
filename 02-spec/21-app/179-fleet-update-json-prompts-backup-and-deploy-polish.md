@@ -1,7 +1,7 @@
 # Specification: Fleet Update JSON Communication, Running Prompts Backup/Restore E2E & Deploy Polish
 
-**Specification Version:** 1.0.0  
-**Status:** Active  
+**Specification Version:** 1.0.0
+**Status:** Active
 **Spec Reference:** `02-spec/21-app/179-fleet-update-json-prompts-backup-and-deploy-polish.md`
 
 ---

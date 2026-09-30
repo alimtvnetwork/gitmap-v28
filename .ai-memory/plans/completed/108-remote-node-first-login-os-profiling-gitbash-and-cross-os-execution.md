@@ -1,6 +1,6 @@
 # Completed Plan 108: Remote Node First-Time Login OS Profiling, Cross-Platform Git Bash Execution & Multi-OS Installer Filtering
 
-Spec Reference: [02-spec/21-app/156-which-os-cross-platform-shell-and-node-profiling/01-overview.md](../../02-spec/21-app/156-which-os-cross-platform-shell-and-node-profiling/01-overview.md)  
+Spec Reference: [02-spec/21-app/156-which-os-cross-platform-shell-and-node-profiling/01-overview.md](../../02-spec/21-app/156-which-os-cross-platform-shell-and-node-profiling/01-overview.md)
 Execution Summary: Verified and completed across all 6 core deliverables with live execution proof, robust JSON parsing, automatic Windows/Unix installer filtering, `--force-all` bypass, and Git/PowerShell installation guidance.
 
 ## User Request (Verbatim)

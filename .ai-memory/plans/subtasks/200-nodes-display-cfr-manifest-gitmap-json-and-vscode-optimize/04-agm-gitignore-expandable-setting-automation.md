@@ -1,7 +1,7 @@
 # Subtask 04: AGM Gitignore Expandable Setting and Scan Automation
 
-> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`  
-> **Status:** `PENDING`  
+> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`
+> **Status:** `PENDING`
 > **Target Files:**
 > - `cli/config/config.go`
 > - `cli/model/record.go`

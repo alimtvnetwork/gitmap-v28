@@ -1,9 +1,9 @@
 # Spec 150: SSH & AGY Bidirectional Fleet Dispatch, SSH Nodes JSON Export/Import & One-Liner, AGM Fleet Update, AUM SQLite Search History (`DH2D`), PowerShell Search Benchmark, and In-Memory AI Multi-Port Server
 
-> **Spec ID:** `SPEC-150`  
-> **Version:** `v6.326.0`  
-> **Status:** Implemented & Verified  
-> **Date:** 2026-09-24  
+> **Spec ID:** `SPEC-150`
+> **Version:** `v6.326.0`
+> **Status:** Implemented & Verified
+> **Date:** 2026-09-24
 > **Visual Evidence:** ![Search Benchmark Screenshot](../../assets/screenshots/MNRD-mOPioTv.png)
 
 ---
@@ -18,7 +18,7 @@ gitmap ssh nodes import-json [path or file name or none gitmap-ssh-nodes.json wi
 gitmap agm update ssh --except
 gitmap agm update-all-nodes --except
 gitmap ssh update agm
-gitmap ssh export-oneliner # create a command that is oneliner 
+gitmap ssh export-oneliner # create a command that is oneliner
 gitmap ssh deploy node-config (nc) --except id, ip, alias
 
 Update the benchmark table with PowerShell search (latency, perspective, example data in this repository, and optimization strategies), embed into root README with evidence, store AUM searches in SQLite with deterministic DH2D IDs and hot-cache optimization, provide an in-memory AI responder on 3-4 unique candidate ports (47831..47834), upgrade llm-train & help text with multi-step sequencing loops, and isolate temporary E2E tests under //go:build tempe2e and RUN_TEMP_E2E=1.

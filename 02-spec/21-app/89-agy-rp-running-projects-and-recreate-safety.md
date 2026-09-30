@@ -3,12 +3,12 @@
 ## User Request (Verbatim)
 
 ```text
-PS C:\Users\Administrator> gitmap agy rp                                                                            
-                                                                                                                    
-  ┌── Antigravity Recreate Project ──────────────────────────────────────┐                                          
-  │ Project:    Administrator                                             │                                         
-  │ Path:       C:\Users\Administrator                                    │                                         
-  │ Action:     Purge cache/convs → Re-add to AGY → Read Memory conv     │                                          
+PS C:\Users\Administrator> gitmap agy rp
+
+  ┌── Antigravity Recreate Project ──────────────────────────────────────┐
+  │ Project:    Administrator                                             │
+  │ Path:       C:\Users\Administrator                                    │
+  │ Action:     Purge cache/convs → Re-add to AGY → Read Memory conv     │
   └───────────────────────────────────────────────────────────────────
 ```
 

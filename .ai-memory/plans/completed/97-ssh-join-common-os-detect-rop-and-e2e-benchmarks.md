@@ -1,8 +1,8 @@
 # Plan 97: SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking
 
-> **Plan Status:** Completed  
-> **Traceability IDs:** Task-01 .. Task-07  
-> **Spec Reference:** [02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](../../../02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md)  
+> **Plan Status:** Completed
+> **Traceability IDs:** Task-01 .. Task-07
+> **Spec Reference:** [02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](../../../02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md)
 > **Issues Covered:** [02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md](../../../02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md)
 
 ---

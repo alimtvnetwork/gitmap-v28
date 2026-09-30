@@ -1,9 +1,9 @@
 # Spec 155: SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing
 
-> **Spec ID:** `SPEC-155`  
-> **Version:** `v6.333.0`  
-> **Status:** Active  
-> **Date:** 2026-09-25  
+> **Spec ID:** `SPEC-155`
+> **Version:** `v6.333.0`
+> **Status:** Active
+> **Date:** 2026-09-25
 
 ---
 

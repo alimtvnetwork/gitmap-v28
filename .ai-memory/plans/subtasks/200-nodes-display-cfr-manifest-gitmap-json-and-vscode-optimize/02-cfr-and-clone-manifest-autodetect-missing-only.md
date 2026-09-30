@@ -1,7 +1,7 @@
 # Subtask 02: CFR and Clone Manifest Auto-Detection and Missing-Only Execution
 
-> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`  
-> **Status:** `PENDING`  
+> **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`
+> **Status:** `PENDING`
 > **Target Files:**
 > - `cli/cmdclone/clonefixrepo.go`
 > - `cli/cmdclone/clone.go`

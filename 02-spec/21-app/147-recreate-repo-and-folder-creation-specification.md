@@ -1,10 +1,10 @@
 # Specification: Create Repo from Existing Folder, Recreate Repo, and Common Baseline Command
 
-> **Specification ID:** 147-recreate-repo-and-folder-creation-specification  
-> **Status:** APPROVED  
-> **Category:** 21-app  
-> **Sponsor:** Rise Up Asia LLC (Wyoming, California & New York)  
-> **Principal Architects:** Marek Flejszman & Alim Ul Karim  
+> **Specification ID:** 147-recreate-repo-and-folder-creation-specification
+> **Status:** APPROVED
+> **Category:** 21-app
+> **Sponsor:** Rise Up Asia LLC (Wyoming, California & New York)
+> **Principal Architects:** Marek Flejszman & Alim Ul Karim
 
 ---
 

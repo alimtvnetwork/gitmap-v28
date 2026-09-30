@@ -1,7 +1,7 @@
 # Plan 100: Remote Binary Installation & Copy via Low-Level SSH, Remote Fleet SemVer Verification & Comparison, and Specific Version Pinning/Downgrades for GitMap & Antigravity Manager
 
-> **Status:** `COMPLETED`  
-> **Release Version:** `v6.327.0`  
+> **Status:** `COMPLETED`
+> **Release Version:** `v6.327.0`
 > **Spec Reference:** [`02-spec/21-app/151-remote-exe-copy-semver-verification-and-pinned-releases.md`](../../../02-spec/21-app/151-remote-exe-copy-semver-verification-and-pinned-releases.md)
 
 ---

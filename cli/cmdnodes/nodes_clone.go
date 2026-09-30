@@ -14,15 +14,38 @@ import (
 func IsNodesCloneCommand(cmd string) (NodesCloneKind, bool) {
 	low := strings.ToLower(cmd)
 	switch low {
-	case "clone":
+	case "clone", "clone-except-self", "clone-noself", "clones":
 		return CloneKindClone, true
-	case "cfr", "clone-fix-repo":
+	case "cfr", "clone-fix-repo", "cfr-except-self":
 		return CloneKindCFR, true
-	case "cfrp", "clone-fix-repo-pub", "cfr-pub":
+	case "cfrp", "clone-fix-repo-pub", "cfr-pub", "cfrp-except-self":
 		return CloneKindCFRP, true
 	default:
 		return "", false
 	}
+}
+
+// isExceptSelfToken checks if a token requests excluding local host.
+func isExceptSelfToken(arg string) bool {
+	low := strings.ToLower(strings.TrimSpace(arg))
+	return low == "except-self" || low == "exceptself" || low == "no-self" || low == "noself" ||
+		low == "without-self" || low == "--except-self" || low == "--exceptself" ||
+		low == "--no-self" || low == "--noself" || low == "--without-self" ||
+		low == "--skip-local" || low == "--remote-only"
+}
+
+func extractTargetDirFromPassArgs(passArgs []string, hasFile bool) string {
+	if hasFile || len(passArgs) < 2 {
+		return ""
+	}
+	candidate := strings.TrimSpace(passArgs[1])
+	if candidate == "" || strings.HasPrefix(candidate, "-") {
+		return ""
+	}
+	if strings.HasPrefix(candidate, "http://") || strings.HasPrefix(candidate, "https://") || strings.HasPrefix(candidate, "git@") {
+		return ""
+	}
+	return candidate
 }
 
 // RunNodesClone orchestrates fleet clone across local host and remote nodes.
@@ -45,6 +68,9 @@ func RunNodesClone(args []string) error {
 
 func parseNodesCloneOptions(kind NodesCloneKind, raw []string) (NodesCloneOptions, bool) {
 	opts := NodesCloneOptions{Kind: kind, RawArgs: raw}
+	if strings.Contains(strings.ToLower(string(kind)), "except-self") || strings.Contains(strings.ToLower(string(kind)), "noself") {
+		opts.IsSkipLocal = true
+	}
 	for i := 0; i < len(raw); i++ {
 		a := raw[i]
 		if a == "-h" || a == "--help" || a == "help" {
@@ -61,12 +87,13 @@ func parseNodesCloneOptions(kind NodesCloneKind, raw []string) (NodesCloneOption
 			i++
 			continue
 		}
-		if a == "--skip-local" || a == "--remote-only" {
+		if isExceptSelfToken(a) {
 			opts.IsSkipLocal = true
 			continue
 		}
 		if a == "--dry-run" {
 			opts.IsDryRun = true
+			continue
 		}
 		if a == "-j" || a == "--json" {
 			opts.IsJSON = true
@@ -77,6 +104,7 @@ func parseNodesCloneOptions(kind NodesCloneKind, raw []string) (NodesCloneOption
 	file, hasFile := DetectCloneFile(opts.PassArgs)
 	opts.DetectedFile = file
 	opts.HasFile = hasFile
+	opts.TargetDir = extractTargetDirFromPassArgs(opts.PassArgs, opts.HasFile)
 	return opts, true
 }
 
@@ -103,7 +131,7 @@ func dispatchFleetExecution(opts NodesCloneOptions) error {
 	if opts.IsJSON {
 		return emitFleetJSON(results, isLocalOk)
 	}
-	renderFleetResultsTable(os.Stdout, results, isLocalOk)
+	renderFleetResultsTable(os.Stdout, results, isLocalOk, opts)
 	return nil
 }
 

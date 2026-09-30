@@ -569,4 +569,3 @@ Allowed work:
 - ✅ Assign the append result back to the same slice variable `a = append(a, b...)` if intended.
 
 **Why:** In Go, calling `append(a, b...)` without reassigning to `a` risks mutating the underlying array backing `a` if it has excess capacity, introducing subtle data races and side effects. Gocritic flags this in CI baseline guards.
-

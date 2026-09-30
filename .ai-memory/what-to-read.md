@@ -87,4 +87,3 @@
 - `02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md`, why: 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard
 - `docs/benchmarks/search_benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report
 - `cli/helptext/pr.md`, why: PR command family usage, HG help, and JSON examples
-

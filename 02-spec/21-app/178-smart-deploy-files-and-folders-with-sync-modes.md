@@ -19,7 +19,7 @@ these commands should work
 
  gitmap deploy <alias, ip, seq, id> <from or current releative file or folder> <abs path or path from default work dir into that machine> --json # clear???, will show summary response in json mode, if same file match or found then will ask for permission if we want to replace to skip
 
-gitmap deploy <alias, ip, seq, id> <from or current releative file or folder> <abs path or path from default work dir into that machine> --overrite(o)/skip/sync/sync-right/sync-left  # don't seek for prompt, copy and replace , sync means it will only take if left one is latest by date or copy from right to left if the right has the latest date, for folder can do parallel replace ?? can???, sync right means don't pass any file to left, sync left means keep the left intact right on conflicts 
+gitmap deploy <alias, ip, seq, id> <from or current releative file or folder> <abs path or path from default work dir into that machine> --overrite(o)/skip/sync/sync-right/sync-left  # don't seek for prompt, copy and replace , sync means it will only take if left one is latest by date or copy from right to left if the right has the latest date, for folder can do parallel replace ?? can???, sync right means don't pass any file to left, sync left means keep the left intact right on conflicts
 
 also create prompts for deploy-right, deply left
 ```

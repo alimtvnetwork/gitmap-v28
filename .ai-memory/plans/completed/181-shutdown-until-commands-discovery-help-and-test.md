@@ -1,8 +1,8 @@
 # Completed Plan 181: Shutdown-Until Command Discovery, Root Dispatch & Rich Help Integration
 
-**Spec Reference:** [02-spec/21-app/86-shutdown-until-commands-discovery-help-and-test.md](../../../02-spec/21-app/86-shutdown-until-commands-discovery-help-and-test.md)  
-**Execution Date:** 2026-09-28  
-**Release Target:** v6.365.0  
+**Spec Reference:** [02-spec/21-app/86-shutdown-until-commands-discovery-help-and-test.md](../../../02-spec/21-app/86-shutdown-until-commands-discovery-help-and-test.md)
+**Execution Date:** 2026-09-28
+**Release Target:** v6.365.0
 
 ---
 
