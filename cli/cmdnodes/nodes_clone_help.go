@@ -8,18 +8,14 @@ func PrintNodesCloneHelp(kind NodesCloneKind) error {
 	kindStr := string(kind)
 	fmt.Println()
 	fmt.Println("  ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗")
-	fmt.Fprintf(outFormat(), "  ║ GITMAP NODES %-86s║\n", toUpperStr(kindStr)+" - ASYNC FLEET CLONE & MANIFEST STAGING")
+	fmt.Printf("  ║ GITMAP NODES %-86s║\n", toUpperStr(kindStr)+" - ASYNC FLEET CLONE & MANIFEST STAGING")
 	fmt.Println("  ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝")
 	fmt.Println()
 	printUsageSection(kindStr)
-	printDescriptionSection(kindStr)
+	printDescriptionSection()
 	printFlagsSection()
 	printExamplesSection(kindStr)
 	return nil
-}
-
-func outFormat() string {
-	return "%s"
 }
 
 func toUpperStr(s string) string {
@@ -35,12 +31,12 @@ func toUpperStr(s string) string {
 
 func printUsageSection(kindStr string) {
 	fmt.Println("  Usage:")
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s [flags] <repo|url|file>\n", kindStr)
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s [flags] <repo1,repo2,...>\n", kindStr)
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s [flags]\n\n", kindStr)
+	fmt.Printf("    gitmap nodes %s [flags] <repo|url|file>\n", kindStr)
+	fmt.Printf("    gitmap nodes %s [flags] <repo1,repo2,...>\n", kindStr)
+	fmt.Printf("    gitmap nodes %s [flags]\n\n", kindStr)
 }
 
-func printDescriptionSection(kindStr string) {
+func printDescriptionSection() {
 	fmt.Println("  Description:")
 	fmt.Println("    Executes repository cloning simultaneously across the entire fleet:")
 	fmt.Println("      1. Runs directly on the current host machine in-process.")
@@ -65,14 +61,14 @@ func printFlagsSection() {
 
 func printExamplesSection(kindStr string) {
 	fmt.Println("  Examples:")
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s ChrisTitusTech/winutil\n", kindStr)
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s https://github.com/user/project.git\n", kindStr)
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s repo1,repo2,repo3\n", kindStr)
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s gitmap.json\n", kindStr)
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s                           # Auto-detects local gitmap.json\n", kindStr)
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s --target w1 gitmap.json    # Target single remote node\n", kindStr)
-	fmt.Fprintf(outFormat(), "    gitmap nodes %s --dry-run gitmap.json     # Preview fleet execution\n", kindStr)
+	fmt.Printf("    gitmap nodes %s ChrisTitusTech/winutil\n", kindStr)
+	fmt.Printf("    gitmap nodes %s https://github.com/user/project.git\n", kindStr)
+	fmt.Printf("    gitmap nodes %s repo1,repo2,repo3\n", kindStr)
+	fmt.Printf("    gitmap nodes %s gitmap.json\n", kindStr)
+	fmt.Printf("    gitmap nodes %s                           # Auto-detects local gitmap.json\n", kindStr)
+	fmt.Printf("    gitmap nodes %s --target w1 gitmap.json    # Target single remote node\n", kindStr)
+	fmt.Printf("    gitmap nodes %s --dry-run gitmap.json     # Preview fleet execution\n", kindStr)
 	fmt.Println()
 	fmt.Println("  Aliases:")
-	fmt.Fprintf(outFormat(), "    gitmap node %s, gitmap nodes-%s, gitmap fleet-nodes %s\n\n", kindStr, kindStr, kindStr)
+	fmt.Printf("    gitmap node %s, gitmap nodes-%s, gitmap fleet-nodes %s\n\n", kindStr, kindStr, kindStr)
 }
