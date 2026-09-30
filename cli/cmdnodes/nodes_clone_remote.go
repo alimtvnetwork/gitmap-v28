@@ -125,14 +125,26 @@ func buildRemoteExecString(opts NodesCloneOptions, fileName string, isWin bool) 
 	return buildUnixWorkDirExecString(kindStr, cmdArgs, opts.TargetDir)
 }
 
+func classifyConnectFailure(res RemoteCloneNodeResult, errConnect error, start time.Time) RemoteCloneNodeResult {
+	res.Duration = time.Since(start)
+	res.DurationMs = res.Duration.Milliseconds()
+	errStr := errConnect.Error()
+	if strings.Contains(errStr, "network unreachable") || strings.Contains(errStr, "offline") {
+		res.Status = "offline"
+		res.Error = "node offline or unreachable"
+		return res
+	}
+	res.Status = "auth_failed"
+	res.Error = "credentials rejected by remote host"
+	return res
+}
+
 func runRemoteNodeWorker(conn db.SSHConnection, opts NodesCloneOptions, fileBytes []byte, fileName string) RemoteCloneNodeResult {
 	start := time.Now()
 	res := RemoteCloneNodeResult{Alias: conn.Alias, Host: conn.IPAddress, Role: "worker"}
-	client, isConnected := cmdssh.ConnectSSHClient(conn)
-	if !isConnected {
-		res.Status = "auth_failed"
-		res.Error = "authentication failed or node offline"
-		return res
+	client, errConnect := cmdssh.ConnectSSHClientWithErr(conn)
+	if errConnect != nil {
+		return classifyConnectFailure(res, errConnect, start)
 	}
 	defer client.Close()
 	return executeRemoteCloneSession(client, conn, opts, fileBytes, fileName, res, start)

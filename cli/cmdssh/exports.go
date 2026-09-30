@@ -177,6 +177,11 @@ func ConnectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool)
 	return connectSSHClient(c, headers...)
 }
 
+// ConnectSSHClientWithErr connects to an SSH node and returns the diagnostic error.
+func ConnectSSHClientWithErr(c db.SSHConnection, headers ...string) (*ssh.Client, error) {
+	return connectSSHClientWithErr(c, headers...)
+}
+
 // ProbeRemoteOSType detects whether a connected SSH client is running on Windows or Unix.
 func ProbeRemoteOSType(client *ssh.Client) string {
 	return probeRemoteOSType(client)

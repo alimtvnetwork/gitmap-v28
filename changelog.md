@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.434.0] - 2026-09-30
+
+### Added
+- RCA-55: Fix test auto-dest-repo workspace pollution in VS Code and Antigravity, correct w4 os, distinguish offline vs auth_failed in nodes clone
+
+---
+
 ## [v6.433.0] - 2026-09-30
 
 ### Added

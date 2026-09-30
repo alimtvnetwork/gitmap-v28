@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
 // sandboxVSCodePMRoot redirects vscodepm.ProjectsJSONPath into a temp
@@ -36,6 +37,11 @@ func sandboxVSCodePMRoot(t *testing.T) string {
 	if err := os.MkdirAll(extDir, 0o755); err != nil {
 		t.Fatalf("mkdir ext dir: %v", err)
 	}
+
+	vscodepm.BypassDisallowedPathFilterForTesting = true
+	t.Cleanup(func() {
+		vscodepm.BypassDisallowedPathFilterForTesting = false
+	})
 
 	return filepath.Join(extDir, constants.VSCodePMProjectsFile)
 }

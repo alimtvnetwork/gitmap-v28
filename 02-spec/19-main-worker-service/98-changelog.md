@@ -1,3 +1,9 @@
+## v6.434.0 — 2026-09-30 (RCA-55: Fix test auto-dest-repo workspace pollution in VS Code and Antigravity, correct w4 os, distinguish offline vs auth_failed in nodes clone)
+
+**Scope:** Version bump. RCA-55: Fix test auto-dest-repo workspace pollution in VS Code and Antigravity, correct w4 os, distinguish offline vs auth_failed in nodes clone.
+
+---
+
 ## v6.433.0 — 2026-09-30 (Fix shared engine sync regression and CI/CD runner attributes (RCA-093))
 
 **Scope:** Version bump. Fix shared engine sync regression and CI/CD runner attributes (RCA-093).
