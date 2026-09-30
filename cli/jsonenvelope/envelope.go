@@ -235,7 +235,7 @@ func extractLegacyOrFlatPayload(raw []byte) ([]byte, EnvelopeAttributes, error) 
 	return raw, attrs, nil
 }
 
-func hasEnvelopeVariablesOrWorkDir(env Envelope[json.RawMessage]) bool {
+func hasEnvelopeVariablesOrWorkDir(env RawEnvelope) bool {
 	return len(env.Variables) > 0 || env.Attributes.WorkDirectoryConfig != nil
 }
 
