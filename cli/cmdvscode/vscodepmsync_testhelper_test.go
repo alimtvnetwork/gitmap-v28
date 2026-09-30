@@ -167,5 +167,12 @@ func swapHomeEnv(t *testing.T, tmp string) func() {
 	t.Setenv(constants.VSCodeEnvXDGConfigHome, filepath.Join(tmp, ".config"))
 	t.Setenv(constants.VSCodeEnvAppData, tmp)
 
-	return func() {}
+	vscodepm.BypassDisallowedPathFilterForTesting = true
+	t.Cleanup(func() {
+		vscodepm.BypassDisallowedPathFilterForTesting = false
+	})
+
+	return func() {
+		vscodepm.BypassDisallowedPathFilterForTesting = false
+	}
 }
