@@ -1,3 +1,9 @@
+## v6.432.0 — 2026-09-30 (Interactive Bubbletea OS TUI Dashboard and WinUtil/LinUtil integration)
+
+**Scope:** Version bump. Interactive Bubbletea OS TUI Dashboard and WinUtil/LinUtil integration.
+
+---
+
 ## v6.431.0 — 2026-09-30 (Fix cross-platform tests and boolean linter nested if policy)
 
 **Scope:** Version bump. Fix cross-platform tests and boolean linter nested if policy.

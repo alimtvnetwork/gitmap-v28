@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.432.0] - 2026-09-30
+
+### Added
+- Interactive Bubbletea OS TUI Dashboard and WinUtil/LinUtil integration
+
+---
+
 ## [v6.431.0] - 2026-09-30
 
 ### Added
