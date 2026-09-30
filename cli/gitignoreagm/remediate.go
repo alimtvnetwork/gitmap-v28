@@ -9,23 +9,32 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-const PrimaryIgnoreEntry = ".antigravity_resume_task.json"
-const SecondaryIgnoreEntry = "antigravity-resume_task.json"
+const PrimaryIgnoreEntry = "antigravity-resume_task.json"
+const SecondaryIgnoreEntry = ".antigravity_resume_task.json"
 
 var targetResumeFiles = []string{
-	".antigravity_resume_task.json",
 	"antigravity-resume_task.json",
+	".antigravity_resume_task.json",
+	"antigravity_resume_task.json",
+	".antigravity-resume_task.json",
+}
+
+var allIgnoreEntries = []string{
+	"antigravity-resume_task.json",
+	".antigravity_resume_task.json",
 	"antigravity_resume_task.json",
 	".antigravity-resume_task.json",
 }
 
 // RepoRemediationResult captures the actions taken on a single repository.
 type RepoRemediationResult struct {
-	RepoPath       string
-	WasUntracked   bool
-	WasFileDeleted bool
-	WasIgnored     bool
-	WasCommitted   bool
+	RepoPath        string
+	WasUntracked    bool
+	WasFileDeleted  bool
+	WasIgnored      bool
+	WasDeleteCommit bool
+	WasIgnoreCommit bool
+	WasCommitted    bool
 }
 
 // IsGitRepository checks whether dir contains a valid .git directory or file.
@@ -92,17 +101,42 @@ func RemediateRepo(repoDir string, isCommitEnabled bool) (RepoRemediationResult,
 	if !IsGitRepository(repoDir) {
 		return res, apperror.NewSimple("not a git repository: "+repoDir, "E_NOT_GIT_REPO")
 	}
-	res.WasUntracked = untrackResumeFiles(repoDir)
-	res.WasFileDeleted = deletePhysicalResumeFiles(repoDir)
+
+	tracked := findTrackedResumeFiles(repoDir)
+	if len(tracked) > 0 {
+		remediateTrackedFiles(repoDir, isCommitEnabled, &res)
+	} else {
+		res.WasFileDeleted = deletePhysicalResumeFiles(repoDir)
+	}
+
 	wasAdded, err := ensureGitignoreEntries(repoDir)
 	if err != nil {
 		return res, err
 	}
 	res.WasIgnored = wasAdded
-	if isCommitEnabled && (res.WasUntracked || res.WasFileDeleted || res.WasIgnored) {
-		res.WasCommitted = stageAndCommitGitignore(repoDir)
+
+	if isCommitEnabled && res.WasIgnored {
+		res.WasIgnoreCommit = stageAndCommitGitignore(repoDir)
 	}
+
+	res.WasCommitted = res.WasDeleteCommit || res.WasIgnoreCommit
 	return res, nil
+}
+
+func remediateTrackedFiles(repoDir string, isCommitEnabled bool, res *RepoRemediationResult) {
+	res.WasUntracked = untrackResumeFiles(repoDir)
+	res.WasFileDeleted = deletePhysicalResumeFiles(repoDir)
+	if isCommitEnabled && hasStagedGitChanges(repoDir) {
+		res.WasDeleteCommit = commitGitDeletion(repoDir)
+	}
+}
+
+func commitGitDeletion(repoDir string) bool {
+	if !hasStagedGitChanges(repoDir) {
+		return false
+	}
+	commitErr := exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): remove "+PrimaryIgnoreEntry+" from repository").Run()
+	return commitErr == nil
 }
 
 func untrackResumeFiles(repoDir string) bool {
@@ -139,7 +173,7 @@ func ensureGitignoreEntries(repoDir string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	entries := []string{PrimaryIgnoreEntry, SecondaryIgnoreEntry}
+	entries := allIgnoreEntries
 	updated, changed := appendMissingIgnoreLines(string(data), entries)
 	if !changed {
 		return false, nil
@@ -195,7 +229,7 @@ func stageAndCommitGitignore(repoDir string) bool {
 	if !hasStagedGitChanges(repoDir) {
 		return false
 	}
-	commitErr := exec.Command("git", "-C", repoDir, "commit", "-m", "Update .gitignore").Run()
+	commitErr := exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): ignore "+PrimaryIgnoreEntry+" in .gitignore").Run()
 	return commitErr == nil
 }
 

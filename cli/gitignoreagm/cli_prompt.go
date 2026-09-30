@@ -116,11 +116,30 @@ func printRepoRemediationStatus(res RepoRemediationResult, isQuiet bool) {
 		return
 	}
 	name := filepath.Base(res.RepoPath)
+	if res.WasDeleteCommit && res.WasIgnoreCommit {
+		fmt.Printf("  ✓ [%s] Deleted %s from Git & committed, then added to .gitignore & committed\n", name, PrimaryIgnoreEntry)
+		return
+	}
+	if res.WasDeleteCommit {
+		fmt.Printf("  ✓ [%s] Deleted %s from Git and committed\n", name, PrimaryIgnoreEntry)
+		return
+	}
+	if res.WasIgnoreCommit {
+		fmt.Printf("  ✓ [%s] Added %s to .gitignore and committed\n", name, PrimaryIgnoreEntry)
+		return
+	}
 	if res.WasCommitted {
 		fmt.Printf("  ✓ [%s] Untracked %s, added to .gitignore, and committed\n", name, PrimaryIgnoreEntry)
 		return
 	}
-	fmt.Printf("  ✓ [%s] Added %s to .gitignore\n", name, PrimaryIgnoreEntry)
+	if res.WasIgnored {
+		fmt.Printf("  ✓ [%s] Added %s to .gitignore\n", name, PrimaryIgnoreEntry)
+		return
+	}
+	if res.WasFileDeleted {
+		fmt.Printf("  ✓ [%s] Removed local %s file\n", name, PrimaryIgnoreEntry)
+		return
+	}
 }
 
 // RunCLI executes the `gitmap gitignore [agm|agy]` command.

@@ -753,6 +753,9 @@ func isGitRepoCWD() bool {
 
 // runPullCWD streams pull in CWD, using progress bar unless isRaw is true.
 func runPullCWD(isRaw ...bool) error {
+	if cwd, err := os.Getwd(); err == nil && gitignoreagm.IsGitRepository(cwd) {
+		_ = gitignoreagm.CheckAndPromptRepos([]string{cwd}, false, false)
+	}
 	if len(isRaw) > 0 && isRaw[0] {
 		return runPullCWDWithTransport(false, false, nil)
 	}
