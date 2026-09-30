@@ -501,7 +501,14 @@ func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool)
 }
 
 func queryHostPasswordFromDB(alias, ip string) string {
-	dbConn, err := store.OpenDefault()
+	if enc := queryHostPasswordFromStore(store.OpenDefault, alias, ip); enc != "" {
+		return enc
+	}
+	return queryHostPasswordFromStore(store.OpenGlobalDefault, alias, ip)
+}
+
+func queryHostPasswordFromStore(openFn func() (*store.DB, error), alias, ip string) string {
+	dbConn, err := openFn()
 	if err != nil {
 		return ""
 	}

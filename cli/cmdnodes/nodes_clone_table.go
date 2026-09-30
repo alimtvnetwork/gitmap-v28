@@ -30,8 +30,46 @@ func renderFleetStartBanner(out io.Writer, opts NodesCloneOptions, nodeCount int
 		opts.Kind, destMsg, execScope, nodeCount, fileMsg)
 }
 
+func isANSIEscapeTerminator(r rune) bool {
+	return r == 'm' || r == 'K' || r == 'J' || r == 'H'
+}
+
+func stripANSI(s string) string {
+	var b strings.Builder
+	inEsc := false
+	for _, r := range s {
+		if r == 0x1b {
+			inEsc = true
+			continue
+		}
+		if inEsc && isANSIEscapeTerminator(r) {
+			inEsc = false
+			continue
+		}
+		if inEsc {
+			continue
+		}
+		b.WriteRune(r)
+	}
+	return b.String()
+}
+
+func visualLen(s string) int {
+	clean := stripANSI(s)
+	return len([]rune(clean))
+}
+
+func padVisual(s string, width int) string {
+	vl := visualLen(s)
+	if vl >= width {
+		return s
+	}
+	return s + strings.Repeat(" ", width-vl)
+}
+
 func renderFleetResultsTable(out io.Writer, results []RemoteCloneNodeResult, isLocalSuccess bool, localDetails string, opts NodesCloneOptions) {
-	fmt.Fprintln(out, "  NODE (ALIAS)     HOST                   ROLE       STATUS        DURATION   DETAILS")
+	fmt.Fprintf(out, "  %-16s %-22s %-10s %-14s %-10s %s\n",
+		"NODE (ALIAS)", "HOST", "ROLE", "STATUS", "DURATION", "DETAILS")
 	fmt.Fprintln(out, "  --------------------------------------------------------------------------------------------------------------")
 	renderLocalRow(out, isLocalSuccess, opts.IsSkipLocal, localDetails)
 	for _, r := range results {
@@ -44,8 +82,8 @@ func renderFleetResultsTable(out io.Writer, results []RemoteCloneNodeResult, isL
 func renderLocalRow(out io.Writer, isLocalSuccess bool, isSkipLocal bool, localDetails string) {
 	if isSkipLocal {
 		statusTag := constants.ColorCyan + "○ skipped" + constants.ColorReset
-		fmt.Fprintf(out, "  %-16s %-22s %-10s %-20s %-10s %s\n",
-			"local (current)", "127.0.0.1", "master", statusTag, "-", "skipped local execution (except-self)")
+		fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-10s %s\n",
+			"local (current)", "127.0.0.1", "master", padVisual(statusTag, 14), "-", "skipped local execution (except-self)")
 		return
 	}
 	statusTag := constants.ColorGreen + "● success" + constants.ColorReset
@@ -56,8 +94,8 @@ func renderLocalRow(out io.Writer, isLocalSuccess bool, isSkipLocal bool, localD
 	if localDetails != "" {
 		details = localDetails
 	}
-	fmt.Fprintf(out, "  %-16s %-22s %-10s %-20s %-10s %s\n",
-		"local (current)", "127.0.0.1", "master", statusTag, "in-process", details)
+	fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-10s %s\n",
+		"local (current)", "127.0.0.1", "master", padVisual(statusTag, 14), "in-process", details)
 }
 
 func renderRemoteRow(out io.Writer, r RemoteCloneNodeResult) {
@@ -67,8 +105,8 @@ func renderRemoteRow(out io.Writer, r RemoteCloneNodeResult) {
 	if r.DurationMs == 0 {
 		durStr = "-"
 	}
-	fmt.Fprintf(out, "  %-16s %-22s %-10s %-20s %-10s %s\n",
-		r.Alias, r.Host, r.Role, statusTag, durStr, details)
+	fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-10s %s\n",
+		r.Alias, r.Host, r.Role, padVisual(statusTag, 14), durStr, details)
 }
 
 func resolveStatusTag(status string) string {

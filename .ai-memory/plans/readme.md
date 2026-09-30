@@ -32,6 +32,7 @@
 - [55-nodes-clone-except-self-windows-runner-and-path.md](completed/55-nodes-clone-except-self-windows-runner-and-path.md) — Fleet Nodes Clone — Except-Self, Windows Remote Shell Runner, and Target Directory Architecture (Spec: [191](../../02-spec/21-app/191-nodes-clone-except-self-windows-runner-and-path.md))
 - [52-winutil-linutil-advanced-os-integration-plan.md](completed/52-winutil-linutil-advanced-os-integration-plan.md) — Winutil/Linutil Advanced OS Integration Plan
 - [53-cicd-interface-naming-and-enum-suffix.md](completed/53-cicd-interface-naming-and-enum-suffix.md) — CI/CD Interface Naming and Enum Suffix
+- [57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Spec: [194](../../02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

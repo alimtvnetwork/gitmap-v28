@@ -260,13 +260,23 @@ def load_changed_targets(commits: int) -> list[Path]:
     """Loads target files from git-changed-files.json."""
     manifest = ROOT_DIR / ".ai-memory/temp/git-changed-files.json"
     is_fresh = manifest.is_file() and (time.time() - manifest.stat().st_mtime < 120.0)
-    if not is_fresh:
-        extractor = ROOT_DIR / "03-ai-scripts/27-git-changed-files.py"
+    extractor = ROOT_DIR / "03-ai-scripts/27-git-changed-files.py"
+    files_list: list[str] = []
+    if extractor.is_file():
         subprocess.run([sys.executable, str(extractor), "--commits", str(commits), "--quiet"], cwd=str(ROOT_DIR), check=True)
-    data = json.loads(manifest.read_text(encoding="utf-8"))
+        if manifest.is_file():
+            data = json.loads(manifest.read_text(encoding="utf-8"))
+            files_list = [item["path"] if isinstance(item, dict) else str(item) for item in data.get("files", [])]
+    if not files_list:
+        res = subprocess.run(["git", "diff", "--name-only", f"HEAD~{commits}"], cwd=str(ROOT_DIR), capture_output=True, text=True)
+        files_list = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+        st = subprocess.run(["git", "status", "--porcelain"], cwd=str(ROOT_DIR), capture_output=True, text=True)
+        for line in st.stdout.splitlines():
+            parts = line.strip().split()
+            if len(parts) >= 2:
+                files_list.append(parts[-1])
     targets: list[Path] = []
-    for item in data.get("files", []):
-        path_str = item["path"] if isinstance(item, dict) else str(item)
+    for path_str in files_list:
         p = ROOT_DIR / path_str
         if p.is_file() and p.suffix.lower() in TARGET_EXTS and not p.name.endswith('_test.go'):
             rel = p.relative_to(ROOT_DIR).as_posix()

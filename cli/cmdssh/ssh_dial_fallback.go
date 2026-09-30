@@ -91,6 +91,10 @@ func diagnoseDialFailure(c db.SSHConnection) error {
 }
 
 func dialNodeWithFallback(c db.SSHConnection, header string) (*ssh.Client, error) {
+	isOnline, reason := CheckConnLiveness(context.Background(), c.IPAddress, 22, 0)
+	if !isOnline {
+		return nil, fmt.Errorf("ssh dial failed for %s@%s: network unreachable (%s) - verify hostname/IP, DNS, and port 22 firewall", c.Username, c.IPAddress, reason)
+	}
 	if client, isKeyOk := tryDialWithSpecifiedKey(c); isKeyOk {
 		return client, nil
 	}

@@ -17,9 +17,10 @@ type livenessEntry struct {
 }
 
 var (
-	livenessCacheMu sync.RWMutex
-	livenessCache   = make(map[string]livenessEntry)
-	livenessTTL     = 45 * time.Second
+	livenessCacheMu    sync.RWMutex
+	livenessCache      = make(map[string]livenessEntry)
+	livenessSuccessTTL = 45 * time.Second
+	livenessFailureTTL = 5 * time.Second
 )
 
 func getCachedLiveness(key string) (bool, string, bool) {
@@ -27,7 +28,14 @@ func getCachedLiveness(key string) (bool, string, bool) {
 	defer livenessCacheMu.RUnlock()
 
 	entry, hasEntry := livenessCache[key]
-	if !hasEntry || time.Since(entry.checkedAt) > livenessTTL {
+	if !hasEntry {
+		return false, "", false
+	}
+	ttl := livenessSuccessTTL
+	if !entry.isOnline {
+		ttl = livenessFailureTTL
+	}
+	if time.Since(entry.checkedAt) > ttl {
 		return false, "", false
 	}
 

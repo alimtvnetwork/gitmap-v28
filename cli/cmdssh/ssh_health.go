@@ -45,7 +45,7 @@ func resolveHealthTimeout(d time.Duration) time.Duration {
 	if d > 0 {
 		return d
 	}
-	return 1500 * time.Millisecond
+	return 3000 * time.Millisecond
 }
 
 func classifyProbeError(err error) string {
@@ -91,11 +91,20 @@ func buildOfflineResult(host store.SSHHost, port int, reason string) SSHHealthRe
 	}
 }
 
+func probeWithRetry(ctx context.Context, addr string, timeout time.Duration) (net.Conn, error) {
+	dialer := net.Dialer{Timeout: timeout}
+	conn, err := dialer.DialContext(ctx, "tcp", addr)
+	if err == nil {
+		return conn, nil
+	}
+	retryDialer := net.Dialer{Timeout: 1500 * time.Millisecond}
+	return retryDialer.DialContext(ctx, "tcp", addr)
+}
+
 func probeHostHealth(ctx context.Context, host store.SSHHost, port int, timeout time.Duration) SSHHealthResult {
 	addr := net.JoinHostPort(host.IP, strconv.Itoa(port))
-	dialer := net.Dialer{Timeout: timeout}
 	start := time.Now()
-	conn, err := dialer.DialContext(ctx, "tcp", addr)
+	conn, err := probeWithRetry(ctx, addr, timeout)
 	if err != nil {
 		return buildOfflineResult(host, port, classifyProbeError(err))
 	}

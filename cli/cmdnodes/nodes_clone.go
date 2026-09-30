@@ -153,14 +153,17 @@ func recordFleetTaskAudit(opts NodesCloneOptions, isLocalOk bool) {
 
 func captureOutput(fn func() error) (string, error) {
 	origStdout := os.Stdout
+	origStderr := os.Stderr
 	r, w, err := os.Pipe()
 	if err != nil {
 		return "", fn()
 	}
 	os.Stdout = w
+	os.Stderr = w
 	runErr := fn()
 	_ = w.Close()
 	os.Stdout = origStdout
+	os.Stderr = origStderr
 
 	var buf bytes.Buffer
 	_, _ = io.Copy(&buf, r)

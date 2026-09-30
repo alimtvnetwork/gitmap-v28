@@ -59,10 +59,23 @@ func escapeNestedGitRepo() {
 	}
 
 	if chErr := os.Chdir(target); chErr != nil {
-		fmt.Fprintf(os.Stderr, constants.WarnCFREscapeChdir, target, chErr)
-
+		logEscapeChdirWarning(target, chErr)
 		return
 	}
 
+	logEscapeNestedSuccess(cwd, target)
+}
+
+func logEscapeChdirWarning(target string, chErr error) {
+	if IsFleetCloneActive() {
+		return
+	}
+	fmt.Fprintf(os.Stderr, constants.WarnCFREscapeChdir, target, chErr)
+}
+
+func logEscapeNestedSuccess(cwd, target string) {
+	if IsFleetCloneActive() {
+		return
+	}
 	fmt.Fprintf(os.Stderr, constants.MsgCFREscapeNested, cwd, target)
 }
