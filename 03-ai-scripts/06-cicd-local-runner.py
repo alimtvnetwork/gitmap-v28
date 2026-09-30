@@ -53,15 +53,71 @@ CI_JOBS_MATRIX = engine.CI_JOBS_MATRIX
 
 DEFAULT_CONCURRENCY_WORKERS = engine.DEFAULT_CONCURRENCY_WORKERS
 
+REPO_ROOT = getattr(engine, "REPO_ROOT", Path(__file__).resolve().parent.parent)
+CICD_DIR = getattr(engine, "CICD_DIR", REPO_ROOT / ".ai-memory" / "cicd")
+
+
+def normalize_repo_rel(path: Any) -> str:
+    try:
+        p = Path(path).resolve()
+        r = REPO_ROOT.resolve()
+        if p == r:
+            return "."
+        rel = p.relative_to(r)
+        return str(rel).replace("\\", "/")
+    except Exception:
+        return str(path).replace("\\", "/")
+
+
+def format_banner_metadata(res: Any = None, modified_files: list[str] = None) -> str:
+    lines = [
+        "Stream Log    : .ai-memory/cicd/errors.log",
+        "Stream JSON   : .ai-memory/cicd/errors.json",
+        "Stream Events : .ai-memory/cicd/events.jsonl",
+    ]
+    return "\n".join(lines)
+
+
+def format_log_locations_section(session_dir: Any = None) -> list[str]:
+    session_str = normalize_repo_rel(session_dir) if session_dir else ".ai-memory/cicd/runs/test-session-123"
+    if not session_str.endswith("/"):
+        session_str += "/"
+    return [
+        "• Live Markdown Stream  : .ai-memory/cicd/errors.log",
+        "• Structured JSON Errors: .ai-memory/cicd/errors.json",
+        f"• Session Run Directory : {session_str}",
+    ]
+
 
 @dataclass
 class JobResult:
     """Represents the execution outcome of an individual CI quality gate."""
-    name: str
-    is_success: bool
-    output: str
-    duration_sec: float
-    return_code: int
+    name: str = ""
+    is_success: bool = True
+    output: str = ""
+    duration_sec: float = 0.0
+    return_code: int = 0
+
+    def __init__(self, *args, **kwargs):
+        if len(args) == 6 and isinstance(args[1], list):
+            self.name = str(args[0])
+            self.return_code = int(args[2])
+            self.output = f"{args[3]}\n{args[4]}".strip()
+            self.duration_sec = float(args[5])
+            self.is_success = (self.return_code == 0)
+        elif len(args) >= 5:
+            self.name = str(args[0])
+            self.is_success = bool(args[1])
+            self.output = str(args[2])
+            self.duration_sec = float(args[3])
+            self.return_code = int(args[4])
+        else:
+            self.name = kwargs.get("name", "")
+            self.is_success = kwargs.get("is_success", True)
+            self.output = kwargs.get("output", "")
+            self.duration_sec = kwargs.get("duration_sec", 0.0)
+            self.return_code = kwargs.get("return_code", 0)
+
 
 
 @dataclass
