@@ -589,4 +589,3 @@ func pickRecordCloneURL(r model.ScanRecord, useSSH, useHTTPS bool) string {
 	}
 	return applyCloneFixRepoScheme(raw, useSSH, useHTTPS)
 }
-

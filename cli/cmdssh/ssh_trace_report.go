@@ -11,11 +11,27 @@ import (
 )
 
 func resolveSSHLogPath() string {
-	dir := store.BinaryDataDir()
+	dir := resolveSSHBaseDir()
 	logDir := filepath.Join(dir, "logs")
 	_ = os.MkdirAll(logDir, 0755)
 
 	return filepath.Join(logDir, "ssh_error.log")
+}
+
+func resolveSSHBaseDir() string {
+	dir := store.BinaryDataDir()
+	if !isTemporaryBuildDir(dir) {
+		return dir
+	}
+	if global := store.GlobalUserDataDir(); global != "" {
+		return global
+	}
+	return dir
+}
+
+func isTemporaryBuildDir(dir string) bool {
+	lower := strings.ToLower(dir)
+	return strings.Contains(lower, "go-build") || strings.Contains(lower, "\\temp\\") || strings.Contains(lower, "/temp/")
 }
 
 func writeTempMirrorLog(content []byte) {
@@ -54,12 +70,15 @@ func (t *SSHExecutionTrace) FormatTerminalReport() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("  ● SSH Operation: %s\n", t.Operation))
 	sb.WriteString(fmt.Sprintf("    Target: %s\n", t.Target))
+	if t.User != "" {
+		sb.WriteString(fmt.Sprintf("    Attempted User: '%s' (verify remote username matches this target host)\n", t.User))
+	}
 	sb.WriteString("  ● Steps Executed:\n")
 
 	for _, step := range t.Steps {
-		icon := "✓"
+		icon := "✔"
 		if step.Status == "FAILED" {
-			icon = "✗"
+			icon = "✖"
 		} else if step.Status == "SKIPPED" {
 			icon = "○"
 		}
@@ -69,8 +88,16 @@ func (t *SSHExecutionTrace) FormatTerminalReport() string {
 		}
 	}
 
-	if t.InternalError != "" {
+	if t.RawError != "" {
+		sb.WriteString(fmt.Sprintf("  ● Raw Error: %s\n", t.RawError))
+	}
+	if t.InternalError != "" && t.InternalError != t.RawError {
 		sb.WriteString(fmt.Sprintf("  ● Root Internal Error: %s\n", t.InternalError))
+	} else if t.InternalError != "" && t.RawError == "" {
+		sb.WriteString(fmt.Sprintf("  ● Root Internal Error: %s\n", t.InternalError))
+	}
+	if t.StackTrace != "" {
+		appendStackTraceLines(&sb, t.StackTrace)
 	}
 	if t.Suggestion != "" {
 		sb.WriteString(fmt.Sprintf("  ● Actionable Hint: %s\n", t.Suggestion))
@@ -80,4 +107,15 @@ func (t *SSHExecutionTrace) FormatTerminalReport() string {
 	}
 
 	return sb.String()
+}
+
+func appendStackTraceLines(sb *strings.Builder, stackTrace string) {
+	sb.WriteString("  ● Stack Trace:\n")
+	lines := strings.Split(stackTrace, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimRight(line, "\r")
+		if strings.TrimSpace(trimmed) != "" {
+			sb.WriteString(fmt.Sprintf("      %s\n", strings.TrimLeft(trimmed, " ")))
+		}
+	}
 }

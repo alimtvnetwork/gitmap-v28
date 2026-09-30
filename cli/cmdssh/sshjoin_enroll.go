@@ -95,7 +95,47 @@ func promptAndConnectTarget(ctx context.Context, opts *SSHJoinOptions) enrollSes
 	}
 	opts.Password = pass
 
-	return connectWithGivenPass(opts.Target, pass)
+	sess := connectWithGivenPass(opts.Target, pass)
+	if sess.hasClient {
+		return sess
+	}
+
+	if isInteractiveTerminal() {
+		return promptRetryOrRecheckCredentials(ctx, opts, sess)
+	}
+
+	return sess
+}
+
+func promptRetryOrRecheckCredentials(ctx context.Context, opts *SSHJoinOptions, prevSess enrollSession) enrollSession {
+	fmt.Fprintf(os.Stderr, "\n  ▲ Authentication rejected for user '%s' at %s.\n", opts.Target.Username, opts.Target.IP)
+	fmt.Fprintf(os.Stderr, "  Please verify whether '%s' is the correct remote account on %s.\n", opts.Target.Username, opts.Target.IP)
+	fmt.Fprintf(os.Stderr, "  Common remote accounts: root, administrator, admin, ubuntu, debian, ec2-user\n\n")
+
+	fmt.Print("  Would you like to try again or specify a different username? [y/N]: ")
+	var answer string
+	_, _ = fmt.Fscanln(os.Stdin, &answer)
+	cleanAnswer := strings.ToLower(strings.TrimSpace(answer))
+	if cleanAnswer != "y" && cleanAnswer != "yes" {
+		return prevSess
+	}
+
+	fmt.Printf("  Enter remote username [%s]: ", opts.Target.Username)
+	var newUser string
+	_, _ = fmt.Fscanln(os.Stdin, &newUser)
+	newUser = strings.TrimSpace(newUser)
+	if newUser != "" {
+		opts.Target.Username = newUser
+		opts.Target.Raw = fmt.Sprintf("%s@%s", newUser, opts.Target.IP)
+	}
+
+	newPass := promptUserPassword(ctx, opts.Target)
+	if newPass == "" {
+		return prevSess
+	}
+	opts.Password = newPass
+
+	return connectWithGivenPass(opts.Target, newPass)
 }
 
 func notifyPasswordEncryptedStorage(alias string) {
@@ -566,7 +606,17 @@ func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {
 	trace.SetInternalError(err, hint)
 	logPath := trace.PersistLog()
 
-	printAuthFailureReport(err, trace, logPath)
+	printAuthFailureReport(opts, err, trace, logPath)
+
+	sugg := []string{
+		fmt.Sprintf("Verify username '%s' exists on remote host %s", opts.Target.Username, opts.Target.IP),
+		fmt.Sprintf("gitmap ssh join <correct-username>@%s %s", opts.Target.IP, opts.Alias),
+		fmt.Sprintf("gitmap ssh copy-id %s@%s", opts.Target.Username, opts.Target.IP),
+		"gitmap ssh deploy-keys",
+		"gitmap ssh pass ls",
+		"gitmap failed-commands count",
+	}
+	store.LogFailedCommand("ssh join "+opts.Target.String(), strings.Join(os.Args[1:], " "), "ssh", "E9000", err.Error(), sugg)
 
 	ctx := map[string]any{
 		"target":    opts.Target.String(),
@@ -594,20 +644,29 @@ func buildAuthFailureHint(opts *SSHJoinOptions, err error) string {
 		return fmt.Sprintf("Verify remote host %s is online, port %d open, and firewall allows SSH.", opts.Target.IP, opts.Target.Port)
 	}
 
-	return fmt.Sprintf("Remote host %s rejected credentials for '%s'. Check password or sshd_config on remote host.", opts.Target.IP, opts.Target.Username)
+	return fmt.Sprintf("Remote host %s rejected credentials for '%s'. Check whether username '%s' and password are correct. Check remote /etc/ssh/sshd_config PasswordAuthentication.", opts.Target.IP, opts.Target.Username, opts.Target.Username)
 }
 
-func printAuthFailureReport(err error, trace *SSHExecutionTrace, logPath string) {
-	fmt.Fprintf(os.Stderr, "  ⚠ Failed to authenticate with remote machine: %v\n", err)
+func printAuthFailureReport(opts *SSHJoinOptions, err error, trace *SSHExecutionTrace, logPath string) {
+	fmt.Fprintf(os.Stderr, "  ▲ Failed to authenticate with remote machine: %v\n", err)
 	if trace != nil {
 		fmt.Fprint(os.Stderr, trace.FormatTerminalReport())
 	}
-	fmt.Fprintf(os.Stderr, "  ℹ To share or inspect full details, view: %s\n", logPath)
+	fmt.Fprintf(os.Stderr, "\n  ● Username & Password Verification Checklist:\n")
+	fmt.Fprintf(os.Stderr, "    [!] Attempted Username: '%s'\n", opts.Target.Username)
+	fmt.Fprintf(os.Stderr, "        ↳ Please verify if '%s' is the correct account on %s.\n", opts.Target.Username, opts.Target.IP)
+	fmt.Fprintf(os.Stderr, "        ↳ Common remote usernames: root, administrator, admin, ubuntu, debian, ec2-user\n")
+	fmt.Fprintf(os.Stderr, "    [!] Attempted Target:   %s:%d\n", opts.Target.IP, opts.Target.Port)
+	fmt.Fprintf(os.Stderr, "    [!] Password Status:    Rejected by remote SSH server (PAM / Password authentication).\n")
+	fmt.Fprintf(os.Stderr, "        ↳ Verify Caps Lock, password case-sensitivity, special characters, or remote sshd PasswordAuthentication.\n")
+	fmt.Fprintf(os.Stderr, "    [!] Re-run Command:     gitmap ssh join <correct-username>@%s %s\n", opts.Target.IP, opts.Alias)
+	fmt.Fprintf(os.Stderr, "\n  ℹ To share or inspect full details, view: %s\n", logPath)
 	fmt.Fprintf(os.Stderr, "    Or run: gitmap ssh error-logs\n")
 	fmt.Fprintf(os.Stderr, "\n  💡 SSH Key & Auth Recovery Suggestions:\n")
 	fmt.Fprintf(os.Stderr, "    • On the remote machine, authorize your key: gitmap ssh key add \"<your-public-key>\"\n")
-	fmt.Fprintf(os.Stderr, "    • Push your local key to remote machine:     gitmap ssh copy-id <user@ip> [-i ~/.ssh/id_ed25519.pub]\n")
+	fmt.Fprintf(os.Stderr, "    • Push your local key to remote machine:     gitmap ssh copy-id %s@%s [-i ~/.ssh/id_ed25519.pub]\n", opts.Target.Username, opts.Target.IP)
 	fmt.Fprintf(os.Stderr, "    • Sync keys across all enrolled nodes:       gitmap ssh deploy-keys  (or: gitmap deploy-keys-all)\n")
+	fmt.Fprintf(os.Stderr, "    • Inspect failed commands count & history:   gitmap failed-commands count\n")
 }
 
 func finalizeEnrollment(ctx context.Context, opts *SSHJoinOptions, session enrollSession) error {

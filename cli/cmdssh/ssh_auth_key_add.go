@@ -43,6 +43,8 @@ func printAuthKeyAddSummary(count int) {
 	fmt.Println("    • Propagate all keys across cluster: gitmap ssh deploy-keys  (or: gitmap deploy-keys-all)")
 	fmt.Println("    • Push your key to a remote node:    gitmap ssh copy-id <alias|user@ip>")
 	fmt.Println("    • Inspect registered cluster nodes:  gitmap ssh ls")
+	fmt.Println("    • Check live node health & auth:     gitmap ssh check-all")
+	fmt.Println("    • Review failed command count:       gitmap failed-commands count")
 	fmt.Println()
 }
 

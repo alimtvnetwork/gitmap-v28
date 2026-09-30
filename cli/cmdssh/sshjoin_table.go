@@ -186,10 +186,13 @@ func renderHostsTableFooter(out io.Writer, count int) error {
 
 func renderHostsOptimizationSuggestions(out io.Writer) {
 	_, _ = fmt.Fprintf(out, "\n  %s💡 SSH Fleet Optimization & Key Management Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
-	_, _ = fmt.Fprintf(out, "    • Sync All Cluster Keys:   gitmap ssh deploy-keys            (or: gitmap deploy-keys-all)\n")
-	_, _ = fmt.Fprintf(out, "    • Add Key to Local Node:   gitmap ssh key add <pubkey|file>  (or: gitmap ssh auth-key-add)\n")
-	_, _ = fmt.Fprintf(out, "    • Push Key to Remote Node: gitmap ssh copy-id <alias|user@ip> [-i ~/.ssh/id_ed25519.pub]\n")
-	_, _ = fmt.Fprintf(out, "    • Enroll / Backup / Exec:  gitmap ssh join <user@ip> <alias> | gitmap ssh export-json | gitmap ssh exec all \"<cmd>\"\n\n")
+	_, _ = fmt.Fprintf(out, "    • Full Mesh Key Sync:      gitmap ssh deploy-keys            (or: gitmap deploy-keys-all)\n")
+	_, _ = fmt.Fprintf(out, "    • Authorize Key Locally:   gitmap ssh key add <pubkey|file>  (or: gitmap ssh auth-key-add)\n")
+	_, _ = fmt.Fprintf(out, "    • Push Key to Target Node: gitmap ssh copy-id <alias|user@ip> [-i ~/.ssh/id_ed25519.pub]\n")
+	_, _ = fmt.Fprintf(out, "    • Fleet Health Check:      gitmap ssh check-all              (test reachability & latency)\n")
+	_, _ = fmt.Fprintf(out, "    • Parallel Fleet Exec:     gitmap ssh exec all \"<cmd>\"        (run remote command across all nodes)\n")
+	_, _ = fmt.Fprintf(out, "    • Manage Saved Passwords:  gitmap ssh pass ls                (view encrypted vault credentials)\n")
+	_, _ = fmt.Fprintf(out, "    • Enroll New Remote Node:  gitmap ssh join <user@ip> <alias> (connect and auto-bootstrap node)\n\n")
 }
 
 func renderEmptyHostsNotice(out io.Writer) error {

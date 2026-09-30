@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	_ "modernc.org/sqlite"
@@ -86,9 +87,35 @@ type ErrorsSplitDB struct {
 // ErrorsDBPath returns the canonical path to gitmap-errors.db in the data folder.
 func ErrorsDBPath() string {
 	dir := BinaryDataDir()
+	dbPath := filepath.Join(dir, ErrorsDBFileName)
+	if fallback := findGlobalFallbackDB(ErrorsDBFileName, dbPath); fallback != "" {
+		return fallback
+	}
+
+	if isGlobalUserDataFallbackNeeded(dir) {
+		return resolveGlobalUserDataDB(ErrorsDBFileName, dbPath)
+	}
+
 	_ = os.MkdirAll(dir, 0755)
 
-	return filepath.Join(dir, ErrorsDBFileName)
+	return dbPath
+}
+
+func isGlobalUserDataFallbackNeeded(dir string) bool {
+	if binaryDataDirOverride != "" {
+		return false
+	}
+	lower := strings.ToLower(dir)
+	return strings.Contains(lower, "go-build") || strings.Contains(lower, "\\temp\\") || strings.Contains(lower, "/temp/")
+}
+
+func resolveGlobalUserDataDB(fileName, defaultPath string) string {
+	global := GlobalUserDataDir()
+	if global == "" {
+		return defaultPath
+	}
+	_ = os.MkdirAll(global, 0755)
+	return filepath.Join(global, fileName)
 }
 
 // OpenErrorsSplitDB opens the canonical split database for internal errors.

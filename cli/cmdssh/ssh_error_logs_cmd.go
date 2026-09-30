@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 type sshErrorLogsFlags struct {
@@ -70,12 +72,20 @@ func runSSHErrorLogsCLI(args []string) error {
 	if flags.clear {
 		_ = os.Remove(resolveSSHLogPath())
 		fmt.Println("✓ SSH error logs cleared.")
+		fmt.Printf("\n  %s💡 Next Steps & Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+		fmt.Println("    • Review failed command count: gitmap failed-commands count")
+		fmt.Println("    • Clear failed commands DB:    gitmap failed-commands clear")
+		fmt.Println("    • Verify live node status:     gitmap ssh check-all")
 		return nil
 	}
 
 	trace := loadOrActiveTrace()
 	if trace == nil {
 		fmt.Println("ℹ No SSH error logs found. Last operations succeeded or no logs recorded.")
+		fmt.Printf("\n  %s💡 Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+		fmt.Println("    • Inspect registered nodes:    gitmap ssh ls")
+		fmt.Println("    • Check connection to all:     gitmap ssh check-all")
+		fmt.Println("    • Review failed command count: gitmap failed-commands count")
 		return nil
 	}
 

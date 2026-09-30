@@ -1,8 +1,12 @@
 package cmdssh
 
 import (
+	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // SSHTraceStep captures a discrete action executed during an SSH operation.
@@ -25,6 +29,7 @@ type SSHExecutionTrace struct {
 	Steps         []SSHTraceStep `json:"steps"`
 	InternalError string         `json:"internal_error,omitempty"`
 	RawError      string         `json:"raw_error,omitempty"`
+	StackTrace    string         `json:"stack_trace,omitempty"`
 	LogPath       string         `json:"log_path,omitempty"`
 	Suggestion    string         `json:"suggestion,omitempty"`
 }
@@ -94,7 +99,7 @@ func (t *SSHExecutionTrace) AddStep(name, details, status string, err error) {
 	t.Steps = append(t.Steps, step)
 }
 
-// SetInternalError records the root cause internal error and actionable suggestion.
+// SetInternalError records the root cause internal error, raw error, stack trace and actionable suggestion.
 func (t *SSHExecutionTrace) SetInternalError(rawErr error, suggestion string) {
 	if t == nil {
 		return
@@ -106,8 +111,17 @@ func (t *SSHExecutionTrace) SetInternalError(rawErr error, suggestion string) {
 	if rawErr != nil {
 		t.InternalError = rawErr.Error()
 		t.RawError = rawErr.Error()
+		t.StackTrace = resolveStackTrace()
 	}
 
 	t.Suggestion = suggestion
 	lastFailTrace = t
+}
+
+func resolveStackTrace() string {
+	st := strings.TrimSpace(apperror.CaptureStackTrace(3))
+	if st == "" {
+		return strings.TrimSpace(string(debug.Stack()))
+	}
+	return st
 }

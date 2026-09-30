@@ -308,8 +308,10 @@ func printInstallToolSuggestions(sugg []string) {
 	for _, s := range sugg {
 		fmt.Fprintf(os.Stderr, "    • %s\n", s)
 	}
+	fmt.Fprintf(os.Stderr, "    • gitmap install ls                 - List all available tools and packages\n")
 	fmt.Fprintf(os.Stderr, "    • gitmap deploy-bin all             - Push local gitmap binary across SSH fleet\n")
-	fmt.Fprintf(os.Stderr, "    • gitmap failed-commands            - View failed/unknown command history\n\n")
+	fmt.Fprintf(os.Stderr, "    • gitmap ssh install gitmap -t all  - Bootstrap or update GitMap on remote fleet\n")
+	fmt.Fprintf(os.Stderr, "    • gitmap failed-commands count      - View total failed command count and history\n\n")
 }
 
 // executeInstall runs the install flow for a tool.

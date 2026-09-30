@@ -62,6 +62,8 @@ func printSSHKeyListSuggestions() {
 	fmt.Println("    • Deploy all keys across cluster: gitmap ssh deploy-keys  (or: gitmap deploy-keys-all)")
 	fmt.Println("    • Add external key locally:       gitmap ssh key add <pubkey-or-file>")
 	fmt.Println("    • Push local key to target node:  gitmap ssh copy-id <alias|user@ip>")
+	fmt.Println("    • Inspect SSH error logs:         gitmap ssh error-logs")
+	fmt.Println("    • Review failed command count:    gitmap failed-commands count")
 	fmt.Println()
 }
 

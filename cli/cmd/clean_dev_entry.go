@@ -103,7 +103,9 @@ func handleUnknownCleanOrClearTarget(verb, sub string) error {
 	fmt.Println("    • gitmap clear terminal         - Clear PowerShell, Bash & Zsh history and reseed suggestions")
 	fmt.Println("    • gitmap clear-terminal         - Direct alias to clear terminal history & suggestions")
 	fmt.Println("    • gitmap agy clean-cache        - Purge Antigravity IDE cache & logs")
+	fmt.Println("    • gitmap failed-commands count  - Review total failed command count")
 	fmt.Println("    • gitmap failed-commands clear  - Clear recorded failed commands log")
+	fmt.Println("    • gitmap clean-artifacts        - Clean workspace temporary files and build artifacts")
 	fmt.Println()
 	return apperror.NewValidationError(msg)
 }

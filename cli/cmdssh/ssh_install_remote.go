@@ -35,7 +35,9 @@ func executeFleetInstall(conns []db.SSHConnection, target, pkg string) {
 	fmt.Printf("\n  %s💡 SSH Fleet Install & Optimization Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Println("    • Sync SSH public keys first:      gitmap ssh deploy-keys  (or: gitmap deploy-keys-all)")
 	fmt.Println("    • Push local binary directly:      gitmap deploy-bin all")
+	fmt.Println("    • Run fleet update check:          gitmap update all")
 	fmt.Println("    • Audit installed versions:        gitmap update ls")
+	fmt.Println("    • Review failed command count:     gitmap failed-commands count")
 	fmt.Println()
 }
 
