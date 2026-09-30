@@ -1,3 +1,9 @@
+## v6.422.0 — 2026-09-30 (gitignore agm command and automatic .antigravity_resume_task.json remediation on scan and pull-all)
+
+**Scope:** Version bump. Add `gitmap gitignore agm` (`gitmap gitignore agy`, `gitmap agm`, `gitmap agy gitignore`) command and interactive prompt during `gitmap scan` and `gitmap pull-all` (`pa`, `ta`) to untrack, delete, add `.antigravity_resume_task.json` to `.gitignore`, and commit.
+
+---
+
 ## v6.421.0 — 2026-09-30 (enforce relative JSON envelope commands, root workDir/repoDir variables, and relative path resolution)
 
 **Scope:** Version bump. enforce relative JSON envelope commands, root workDir/repoDir variables, and relative path resolution.

@@ -1,5 +1,14 @@
 # Changelog
 
+## [v6.422.0] - 2026-09-30
+
+### Added
+- Add `gitmap gitignore agm` (`gitmap gitignore agy`, `gitmap agm`, `gitmap agy gitignore`) command to untrack (`git rm --cached`), delete, add `.antigravity_resume_task.json` and `antigravity-resume_task.json` to `.gitignore`, and auto-commit (`Update .gitignore`).
+- Add interactive detection and prompt during `gitmap scan` and `gitmap pull-all` (`pa`, `ta`, `pull-all-efficient`, `pae`) to untrack, ignore, and commit `.antigravity_resume_task.json` across repositories.
+- Add `.antigravity_resume_task.json` and `antigravity-resume_task.json` to `common.gitignore` template and release `.gitignore` synchronization.
+
+---
+
 ## [v6.421.0] - 2026-09-30
 
 ### Added
