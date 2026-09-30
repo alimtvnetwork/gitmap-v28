@@ -65,6 +65,7 @@ type WorkerParams struct {
 type EnqueueJobsParams struct {
 	Records   []model.ScanRecord
 	TargetDir string
+	Options   CloneOptions
 	Cache     *CloneCache
 	Jobs      chan<- cloneJob
 	Out       chan<- cloneOutcome
@@ -98,6 +99,7 @@ func runConcurrent(params ConcurrentRunParams) model.CloneSummary {
 	enqueueJobs(EnqueueJobsParams{
 		Records:   params.Records,
 		TargetDir: params.TargetDir,
+		Options:   params.Options,
 		Cache:     params.Cache,
 		Jobs:      jobs,
 		Out:       out,
@@ -135,19 +137,30 @@ func cloneWorker(params WorkerParams) {
 // onto the job channel.
 func enqueueJobs(params EnqueueJobsParams) {
 	for _, rec := range params.Records {
-		dest := filepath.Join(params.TargetDir, model.CleanRelativePath(rec.RelativePath))
-		if params.Cache.IsUpToDate(rec, dest) {
-			params.Out <- cloneOutcome{
-				rec:    rec,
-				dest:   dest,
-				result: model.CloneResult{Record: rec, IsSuccess: true},
-				cached: true,
-			}
+		dispatchCloneJob(rec, params)
+	}
+}
 
-			continue
-		}
+func dispatchCloneJob(rec model.ScanRecord, params EnqueueJobsParams) {
+	dest := filepath.Join(params.TargetDir, model.CleanRelativePath(rec.RelativePath))
+	if isRecordEarlySkip(rec, dest, params.Cache, params.Options.IsMissingOnly) {
+		params.Out <- makeEarlySkipOutcome(rec, dest, params.Options.IsMissingOnly)
+		return
+	}
 
-		params.Jobs <- cloneJob{rec: rec, dest: dest}
+	params.Jobs <- cloneJob{rec: rec, dest: dest}
+}
+
+func makeEarlySkipOutcome(rec model.ScanRecord, dest string, isMissingOnly bool) cloneOutcome {
+	return cloneOutcome{
+		rec:  rec,
+		dest: dest,
+		result: model.CloneResult{
+			Record:    rec,
+			IsSuccess: true,
+			Notes:     resolveEarlySkipNote(dest, isMissingOnly),
+		},
+		cached: true,
 	}
 }
 
@@ -156,26 +169,28 @@ func enqueueJobs(params EnqueueJobsParams) {
 func collectOutcomes(params CollectOutcomesParams) model.CloneSummary {
 	summary := model.CloneSummary{}
 	for i := 0; i < len(params.Records); i++ {
-		o := <-params.Out
-		if o.cached {
-			params.Progress.Skip(o.result)
-			summary = updateSummarySkipped(summary, o.result)
-
-			continue
-		}
-
-		_ = TrackResult(TrackResultParams{
-			Progress:   params.Progress,
-			Result:     o.result,
-			ScanRecord: o.rec,
-			TargetDir:  params.TargetDir,
-			IsSafePull: params.IsSafePull,
-		})
-		summary = updateSummary(summary, o.result)
-		if o.result.IsSuccess {
-			params.Cache.Record(o.rec, o.dest)
-		}
+		summary = processWorkerOutcome(<-params.Out, params, summary)
 	}
 
 	return summary
+}
+
+func processWorkerOutcome(o cloneOutcome, params CollectOutcomesParams, summary model.CloneSummary) model.CloneSummary {
+	if o.cached {
+		params.Progress.Skip(o.result)
+		return updateSummarySkipped(summary, o.result)
+	}
+
+	_ = TrackResult(TrackResultParams{
+		Progress:   params.Progress,
+		Result:     o.result,
+		ScanRecord: o.rec,
+		TargetDir:  params.TargetDir,
+		IsSafePull: params.IsSafePull,
+	})
+	if o.result.IsSuccess {
+		params.Cache.Record(o.rec, o.dest)
+	}
+
+	return recordOutcomeSummary(summary, o.result)
 }

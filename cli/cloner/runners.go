@@ -115,33 +115,67 @@ func normalizeWorkers(requested, jobs int) int {
 func runSequential(params SequentialRunParams) model.CloneSummary {
 	summary := model.CloneSummary{}
 	for _, rec := range params.Records {
-		params.Progress.Begin(repoDisplayName(rec))
-
-		dest := filepath.Join(params.TargetDir, model.CleanRelativePath(rec.RelativePath))
-		if params.Cache.IsUpToDate(rec, dest) {
-			result := model.CloneResult{Record: rec, IsSuccess: true}
-			params.Progress.Skip(result)
-			summary = updateSummarySkipped(summary, result)
-
-			continue
-		}
-
-		result := cloneOrPullOne(rec, params.TargetDir, params.Options)
-		_ = TrackResult(TrackResultParams{
-			Progress:   params.Progress,
-			Result:     result,
-			ScanRecord: rec,
-			TargetDir:  params.TargetDir,
-			IsSafePull: params.Options.IsSafePull,
-		})
-		summary = updateSummary(summary, result)
-
-		if result.IsSuccess {
-			params.Cache.Record(rec, dest)
-		}
+		summary = processSequentialRecord(rec, params, summary)
 	}
 
 	return summary
+}
+
+func processSequentialRecord(rec model.ScanRecord, params SequentialRunParams, summary model.CloneSummary) model.CloneSummary {
+	dest := filepath.Join(params.TargetDir, model.CleanRelativePath(rec.RelativePath))
+	if isRecordEarlySkip(rec, dest, params.Cache, params.Options.IsMissingOnly) {
+		result := model.CloneResult{
+			Record:    rec,
+			IsSuccess: true,
+			Notes:     resolveEarlySkipNote(dest, params.Options.IsMissingOnly),
+		}
+		params.Progress.Skip(result)
+
+		return updateSummarySkipped(summary, result)
+	}
+
+	return executeSequentialClone(rec, dest, params, summary)
+}
+
+func executeSequentialClone(rec model.ScanRecord, dest string, params SequentialRunParams, summary model.CloneSummary) model.CloneSummary {
+	params.Progress.Begin(repoDisplayName(rec))
+	result := cloneOrPullOne(rec, params.TargetDir, params.Options)
+	_ = TrackResult(TrackResultParams{
+		Progress:   params.Progress,
+		Result:     result,
+		ScanRecord: rec,
+		TargetDir:  params.TargetDir,
+		IsSafePull: params.Options.IsSafePull,
+	})
+	if result.IsSuccess {
+		params.Cache.Record(rec, dest)
+	}
+
+	return recordOutcomeSummary(summary, result)
+}
+
+func recordOutcomeSummary(summary model.CloneSummary, result model.CloneResult) model.CloneSummary {
+	if isSkippedResult(result) {
+		return updateSummarySkipped(summary, result)
+	}
+
+	return updateSummary(summary, result)
+}
+
+func isRecordEarlySkip(rec model.ScanRecord, dest string, cache *CloneCache, isMissingOnly bool) bool {
+	if cache != nil && cache.IsUpToDate(rec, dest) {
+		return true
+	}
+
+	return isMissingOnly && isPathExisting(dest)
+}
+
+func resolveEarlySkipNote(dest string, isMissingOnly bool) string {
+	if isMissingOnly && isPathExisting(dest) {
+		return "skipped (existing directory)"
+	}
+
+	return "skipped (up-to-date cache)"
 }
 
 // repoDisplayName returns a display name for progress output.
@@ -153,6 +187,20 @@ func repoDisplayName(rec model.ScanRecord) string {
 	return rec.RelativePath
 }
 
+func isSkippedResult(r model.CloneResult) bool {
+	return strings.Contains(r.Notes, "skipped")
+}
+
+func handleSuccessfulResult(params TrackResultParams) {
+	if isSkippedResult(params.Result) {
+		params.Progress.Skip(params.Result)
+		return
+	}
+	destPath := filepath.Join(params.TargetDir, model.CleanRelativePath(params.ScanRecord.RelativePath))
+	isPulled := params.IsSafePull && isGitRepo(destPath)
+	params.Progress.Done(params.Result, isPulled)
+}
+
 // TrackResult updates progress based on clone/pull outcome and returns any processing error.
 func TrackResult(params TrackResultParams) *apperror.AppError {
 	if params.Progress == nil {
@@ -160,10 +208,7 @@ func TrackResult(params TrackResultParams) *apperror.AppError {
 	}
 
 	if params.Result.IsSuccess {
-		destPath := filepath.Join(params.TargetDir, model.CleanRelativePath(params.ScanRecord.RelativePath))
-		isPulled := params.IsSafePull && isGitRepo(destPath)
-		params.Progress.Done(params.Result, isPulled)
-
+		handleSuccessfulResult(params)
 		return nil
 	}
 

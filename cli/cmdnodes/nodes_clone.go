@@ -113,6 +113,8 @@ func executeLocalClone(opts NodesCloneOptions) bool {
 	}
 	var err error
 	switch opts.Kind {
+	case CloneKindClone:
+		err = cmdclone.RunClone(opts.PassArgs)
 	case CloneKindCFR:
 		err = cmdclone.RunCloneFixRepo(opts.PassArgs)
 	case CloneKindCFRP:

@@ -87,9 +87,63 @@ func resolveExplicitCloneSource(source string) string {
 	return source
 }
 
+func isCloneSubcommand(arg string) string {
+	low := strings.TrimPrefix(strings.ToLower(arg), "--")
+	switch low {
+	case "only-missing", "onlymissing":
+		return "only-missing"
+	case "next":
+		return "next"
+	case "now":
+		return "now"
+	case "sync":
+		return "sync"
+	case "pick":
+		return "pick"
+	case "fix-repo", "fixrepo", "fr", "cfr":
+		return "fix-repo"
+	default:
+		return ""
+	}
+}
+
+func dispatchCloneSubcommand(subcmd string, subArgs []string) error {
+	switch subcmd {
+	case "only-missing":
+		return RunCloneOnlyMissing(subArgs)
+	case "next":
+		return RunCloneNext(subArgs)
+	case "now":
+		return RunCloneNow(subArgs)
+	case "sync":
+		return RunCloneSync()
+	case "pick":
+		return RunClonePick(subArgs)
+	case "fix-repo":
+		return RunCloneFixRepo(subArgs)
+	default:
+		return nil
+	}
+}
+
+func resolveCloneSubcommand(args []string) (string, []string) {
+	if len(args) == 0 {
+		return "", nil
+	}
+	sub := isCloneSubcommand(args[0])
+	if len(sub) == 0 {
+		return "", nil
+	}
+	return sub, args[1:]
+}
+
 // runClone handles the "clone" subcommand.
 func runClone(args []string) error {
 	checkHelp("clone", args)
+	subcmd, subArgs := resolveCloneSubcommand(args)
+	if len(subcmd) > 0 {
+		return dispatchCloneSubcommand(subcmd, subArgs)
+	}
 	cf := parseCloneFlags(args)
 
 	err := executeParsedClone(cf)
