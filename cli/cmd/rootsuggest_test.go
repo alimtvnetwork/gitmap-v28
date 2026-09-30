@@ -90,7 +90,7 @@ func TestBuildUnknownCommandMessage(t *testing.T) {
 		t.Errorf("expected unknown command in message, got %q", msg)
 	}
 
-	if !strings.Contains(msg, "Did you mean: pull, release") {
+	if !strings.Contains(msg, "It is not there, but here is a suggestion you can try: pull, release") {
 		t.Errorf("expected suggestion in message, got %q", msg)
 	}
 }
