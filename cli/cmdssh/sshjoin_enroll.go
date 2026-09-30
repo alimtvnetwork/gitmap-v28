@@ -126,7 +126,7 @@ func promptRetryOrRecheckCredentials(ctx context.Context, opts *SSHJoinOptions, 
 	newUser = strings.TrimSpace(newUser)
 	if newUser != "" {
 		opts.Target.Username = newUser
-		opts.Target.Raw = fmt.Sprintf("%s@%s", newUser, opts.Target.IP)
+		opts.RawTarget = fmt.Sprintf("%s@%s", newUser, opts.Target.IP)
 	}
 
 	newPass := promptUserPassword(ctx, opts.Target)
