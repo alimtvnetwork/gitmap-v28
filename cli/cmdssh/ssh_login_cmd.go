@@ -320,7 +320,9 @@ func suggestSSHSubcommand(target string) string {
 
 func suggestSSHCoreSubcommand(low string) string {
 	switch low {
-	case "hosts", "host", "machines", "vms", "node", "list-nodes", "l":
+	case "hosts", "host", "machines", "vms", "node":
+		return "nodes"
+	case "list-nodes", "l":
 		return "ls"
 	case "updat", "up", "upgrade":
 		return "update"
