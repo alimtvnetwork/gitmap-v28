@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.418.0] - 2026-09-30
+
+### Added
+- mirror failed commands to primary db and add ssh clear/reset/enroll suggestions
+
+---
+
 ## [v6.417.1] - 2026-09-30
 
 ### Added

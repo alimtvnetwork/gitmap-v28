@@ -179,4 +179,3 @@ func TestHandleError_WrappedAbortSuppressesDiagnostics(t *testing.T) {
 		t.Fatalf("expected exit code 1, got %d", capturedCode)
 	}
 }
-

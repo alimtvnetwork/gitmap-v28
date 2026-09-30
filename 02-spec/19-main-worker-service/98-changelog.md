@@ -1,3 +1,9 @@
+## v6.418.0 — 2026-09-30 (mirror failed commands to primary db and add ssh clear/reset/enroll suggestions)
+
+**Scope:** Version bump. mirror failed commands to primary db and add ssh clear/reset/enroll suggestions.
+
+---
+
 ## v6.417.1 — 2026-09-30 (fix TestSuggestSSHSubcommand_Proof in cmdssh)
 
 **Scope:** Version bump. fix TestSuggestSSHSubcommand_Proof in cmdssh.
