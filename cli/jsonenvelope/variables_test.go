@@ -43,17 +43,14 @@ func TestEnvelopeAttributes_WorkDirectoryObjectDuality(t *testing.T) {
 		t.Errorf("expected WorkDirectory D:\\work, got %s", attrs1.WorkDirectory)
 	}
 
-	// 2. Object form
+	// 2. Object form (no nested variables inside workDirectory; uses root variables)
 	jsonObject := []byte(`{
 		"type": "ssh-nodes",
 		"workDirectory": {
 			"path": "${workDir}",
 			"defaultPath": "D:\\work",
 			"isApplied": true,
-			"isEnforced": false,
-			"variables": {
-				"workDir": "D:\\work"
-			}
+			"isEnforced": false
 		}
 	}`)
 	var attrs2 EnvelopeAttributes
@@ -69,25 +66,48 @@ func TestEnvelopeAttributes_WorkDirectoryObjectDuality(t *testing.T) {
 	if !attrs2.IsWorkDirectoryApplied {
 		t.Errorf("expected IsWorkDirectoryApplied to be true")
 	}
+	marshaled, err := json.Marshal(attrs2)
+	if err != nil {
+		t.Fatalf("marshal attrs2 failed: %v", err)
+	}
+	if strings.Contains(string(marshaled), `"variables"`) {
+		t.Errorf("expected workDirectory not to contain nested variables field, got: %s", string(marshaled))
+	}
 }
 
 func TestChainedVariablesAndFlatEnvelope(t *testing.T) {
 	raw := []byte(`{
-		"attributes": {"type": "secrets-config"},
-		"variables": {
-			"secretsDir": "D:\\work\\secrets",
-			"summaryPath": "${secretsDir}\\summaries"
+		"attributes": {
+			"type": "commit-pull-config",
+			"workDirectory": {
+				"path": "${workDir}",
+				"defaultPath": "D:\\work",
+				"isApplied": true,
+				"isEnforced": false
+			}
 		},
-		"outputDir": "${summaryPath}"
+		"variables": {
+			"workDir": "D:\\work",
+			"repoDir": "${workDir}\\gitmap",
+			"secretsDir": ".",
+			"summaryPath": "./summaries"
+		},
+		"data": {
+			"repoPath": "${repoDir}",
+			"outputDir": "${summaryPath}"
+		}
 	}`)
 	payload, attrs, err := ExtractPayload(raw)
 	if err != nil {
 		t.Fatalf("ExtractPayload failed: %v", err)
 	}
-	if attrs.Type != "secrets-config" {
-		t.Errorf("expected type secrets-config, got %s", attrs.Type)
+	if attrs.Type != "commit-pull-config" {
+		t.Errorf("expected type commit-pull-config, got %s", attrs.Type)
 	}
-	if !strings.Contains(string(payload), `D:\\work\\secrets\\summaries`) {
-		t.Errorf("expected chained variable expansion in flat envelope, got: %s", string(payload))
+	if attrs.WorkDirectory != `D:\work` {
+		t.Errorf("expected WorkDirectory resolved to D:\\work, got %s", attrs.WorkDirectory)
+	}
+	if !strings.Contains(string(payload), `D:\\work\\gitmap`) {
+		t.Errorf("expected chained repoDir expansion in envelope, got: %s", string(payload))
 	}
 }

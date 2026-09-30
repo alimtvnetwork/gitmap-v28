@@ -3,6 +3,7 @@ package commitin
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -148,7 +149,8 @@ func applyConfigFileIfPresent(raw *RawArgs) *ParseError {
 	if raw.ConfigPath == "" {
 		return nil
 	}
-	data, err := os.ReadFile(raw.ConfigPath)
+	resolvedPath := jsonenvelope.ResolveRelativeJSONPath(raw.ConfigPath)
+	data, err := os.ReadFile(resolvedPath)
 	if err != nil {
 		return newBadArgs("failed to read config %q: %v", raw.ConfigPath, err)
 	}
@@ -161,9 +163,31 @@ func applyConfigFileIfPresent(raw *RawArgs) *ParseError {
 		return newBadArgs("invalid config JSON %q: %v", raw.ConfigPath, err)
 	}
 	cfg = expandConfigVariables(cfg)
+	cfg = resolveConfigRelativePaths(cfg, filepath.Dir(resolvedPath))
 	mergeConfigIntoRaw(raw, cfg)
 
 	return loadAndPrecompileConfigTemplates(raw, cfg)
+}
+
+func resolveConfigRelativePaths(cfg CommitInConfigJSON, configDir string) CommitInConfigJSON {
+	if configDir == "" || configDir == "." {
+		return cfg
+	}
+	if cfg.SummaryDir != "" && !filepath.IsAbs(cfg.SummaryDir) {
+		candidate := filepath.Clean(filepath.Join(configDir, cfg.SummaryDir))
+		if _, err := os.Stat(candidate); err == nil {
+			cfg.SummaryDir = candidate
+		}
+	}
+	for i, imp := range cfg.Imports {
+		if imp != "" && !filepath.IsAbs(imp) {
+			candidate := filepath.Clean(filepath.Join(configDir, imp))
+			if _, err := os.Stat(candidate); err == nil {
+				cfg.Imports[i] = candidate
+			}
+		}
+	}
+	return cfg
 }
 
 func mergeConfigIntoRaw(raw *RawArgs, cfg CommitInConfigJSON) {
@@ -289,9 +313,14 @@ func readImportedTemplateFiles(paths []string, extraVars map[string]string) (map
 }
 
 func appendSingleTemplateFile(path string, vars map[string]string, items []ImportedTemplateItem) []ImportedTemplateItem {
-	data, err := os.ReadFile(path)
+	resolved := jsonenvelope.ResolveRelativeJSONPath(path)
+	data, err := os.ReadFile(resolved)
 	if err != nil {
 		return items
+	}
+	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	if extractErr == nil && len(payload) > 0 {
+		data = payload
 	}
 	var tf ImportedTemplateFile
 	if json.Unmarshal(data, &tf) != nil {

@@ -62,23 +62,18 @@ func escapeForJSON(s string) string {
 	return string(b[1 : len(b)-1])
 }
 
-// MergeVariables combines top-level and work-directory variables into a single map.
-func MergeVariables(topVars map[string]any, workDirCfg *WorkDirectoryConfig) map[string]any {
+// MergeVariables normalizes and resolves chained root variables.
+func MergeVariables(topVars map[string]any, _ *WorkDirectoryConfig) map[string]any {
 	out := make(map[string]any)
 	for k, v := range topVars {
 		out[k] = v
-	}
-	if workDirCfg != nil && workDirCfg.Variables != nil {
-		for k, v := range workDirCfg.Variables {
-			out[k] = v
-		}
 	}
 	resolveChainedVariables(out)
 	return out
 }
 
 func resolveChainedVariables(vars map[string]any) {
-	for pass := 0; pass < 2; pass++ {
+	for pass := 0; pass < 3; pass++ {
 		for k, v := range vars {
 			if strVal, isStr := v.(string); isStr {
 				vars[k] = ResolveStringVariable(strVal, vars)

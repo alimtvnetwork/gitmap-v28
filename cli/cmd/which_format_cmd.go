@@ -164,7 +164,8 @@ func inspectSingleFile(path string) FormatInspectionResult {
 	}
 
 	normPath := filepath.ToSlash(path)
-	importCmd := fmt.Sprintf(desc.SuggestedImportCmd, normPath)
+	baseName := jsonenvelope.RelativeBaseName(normPath)
+	importCmd := fmt.Sprintf(desc.SuggestedImportCmd, baseName)
 	if attrs.ImportCommand != "" {
 		importCmd = attrs.ImportCommand
 	}

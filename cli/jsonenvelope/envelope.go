@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -11,13 +12,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// WorkDirectoryConfig represents structured working directory configuration.
+// WorkDirectoryConfig represents structured working directory configuration using root variables.
 type WorkDirectoryConfig struct {
-	Path        string         `json:"path"`
-	DefaultPath string         `json:"defaultPath,omitempty"`
-	IsApplied   bool           `json:"isApplied,omitempty"`
-	IsEnforced  bool           `json:"isEnforced,omitempty"`
-	Variables   map[string]any `json:"variables,omitempty"`
+	Path        string `json:"path"`
+	DefaultPath string `json:"defaultPath,omitempty"`
+	IsApplied   bool   `json:"isApplied,omitempty"`
+	IsEnforced  bool   `json:"isEnforced,omitempty"`
 }
 
 // EnvelopeAttributes holds metadata describing payload, origin, commands, and working directory.
@@ -114,7 +114,49 @@ type RawEnvelope struct {
 	Data       json.RawMessage    `json:"data"`
 }
 
-// NewEnvelope constructs a typed envelope with the given metadata and payload.
+// RelativeBaseName extracts the clean file basename for local directory execution commands.
+func RelativeBaseName(source string) string {
+	trimmed := strings.TrimSpace(source)
+	if trimmed == "" {
+		return ""
+	}
+	norm := strings.ReplaceAll(trimmed, "\\", "/")
+	base := filepath.Base(norm)
+	if base == "." || base == "/" || base == "\\" {
+		return trimmed
+	}
+	return base
+}
+
+// ResolveRelativeJSONPath resolves a relative JSON filename against CWD and common relative subdirectories.
+func ResolveRelativeJSONPath(inputPath string) string {
+	trimmed := strings.TrimSpace(inputPath)
+	if trimmed == "" {
+		return inputPath
+	}
+	if _, err := os.Stat(trimmed); err == nil {
+		return trimmed
+	}
+	base := RelativeBaseName(trimmed)
+	searchDirs := []string{
+		".",
+		"01-gitmap",
+		filepath.Join("01-gitmap", "summaries"),
+		filepath.Join("01-gitmap", "temp"),
+		"vault",
+		filepath.Join("02-antigravity-manager", "vault"),
+		filepath.Join("02-antigravity-and-event-manager", "vault"),
+	}
+	for _, dir := range searchDirs {
+		candidate := filepath.Join(dir, base)
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+	return inputPath
+}
+
+// NewEnvelope constructs a typed envelope with standard v2.0 metadata, workDir/repoDir variables, and payload.
 func NewEnvelope[T any](
 	dataType string,
 	source string,
@@ -127,24 +169,35 @@ func NewEnvelope[T any](
 	if ver == "" {
 		ver = "2.0"
 	}
-	cwd, _ := os.Getwd()
+	baseSource := RelativeBaseName(source)
+	workDirCfg := &WorkDirectoryConfig{
+		Path:        "${workDir}",
+		DefaultPath: `D:\work`,
+		IsApplied:   true,
+		IsEnforced:  false,
+	}
 	attrs := EnvelopeAttributes{
 		Type:                   dataType,
-		Source:                 source,
+		Source:                 baseSource,
 		How:                    how,
 		Version:                ver,
 		GitmapVersion:          constants.Version,
 		Timestamp:              curTime,
 		ExportCommand:          how,
-		WorkDirectory:          cwd,
-		DefaultWorkDirectory:   cwd,
-		IsWorkDirectoryApplied: cwd != "",
+		WorkDirectory:          "${workDir}",
+		WorkDirectoryConfig:    workDirCfg,
+		DefaultWorkDirectory:   `D:\work`,
+		IsWorkDirectoryApplied: true,
 	}
-	populateDescriptorDefaults(&attrs, dataType, source)
+	populateDescriptorDefaults(&attrs, dataType, baseSource)
 	return Envelope[T]{
 		Attributes: attrs,
-		Variables:  make(map[string]any),
-		Data:       payload,
+		Variables: map[string]any{
+			"workDir":    `D:\work`,
+			"repoDir":    `${workDir}\gitmap`,
+			"secretsDir": ".",
+		},
+		Data: payload,
 	}
 }
 
@@ -153,11 +206,12 @@ func populateDescriptorDefaults(attrs *EnvelopeAttributes, dataType, source stri
 	if !ok {
 		return
 	}
-	if desc.SuggestedImportCmd != "" && source != "" {
-		attrs.ImportCommand = fmt.Sprintf(desc.SuggestedImportCmd, source)
+	baseSource := RelativeBaseName(source)
+	if desc.SuggestedImportCmd != "" && baseSource != "" {
+		attrs.ImportCommand = fmt.Sprintf(desc.SuggestedImportCmd, baseSource)
 	}
-	if source != "" {
-		attrs.HelpCommand = fmt.Sprintf("gitmap which-format %s", source)
+	if baseSource != "" {
+		attrs.HelpCommand = fmt.Sprintf("gitmap which-format %s", baseSource)
 	}
 	attrs.Notes = desc.Description
 }
@@ -248,6 +302,10 @@ func extractEnvelopePayload(raw []byte) ([]byte, EnvelopeAttributes, error) {
 	data := env.Data
 	if len(allVars) > 0 {
 		data = ExpandVariables(data, allVars)
+		env.Attributes.WorkDirectory = ResolveStringVariable(env.Attributes.WorkDirectory, allVars)
+		if env.Attributes.WorkDirectoryConfig != nil {
+			env.Attributes.WorkDirectoryConfig.Path = ResolveStringVariable(env.Attributes.WorkDirectoryConfig.Path, allVars)
+		}
 	}
 	return data, env.Attributes, nil
 }
