@@ -773,6 +773,11 @@ func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.
 			return runLowerCaseFixCLI(args)
 		}, shouldAudit, id, start)
 		return true
+	case "safe-rm", "rm-safe":
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return runSafeRmCLI(argsTail())
+		}, shouldAudit, id, start)
+		return true
 	case constants.CmdVar, constants.CmdVarAlias:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
 			return runVariableCmd(argsTail())
