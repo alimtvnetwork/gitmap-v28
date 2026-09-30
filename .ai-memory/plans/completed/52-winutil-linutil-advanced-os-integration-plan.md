@@ -105,10 +105,10 @@ Following the successful initial integration of native Go OS auto-login and core
 
 ## 4. Execution Subtasks
 
-- [ ] **Subtask 52.1**: Implement Display Manager (`gitmap os dm`) subsystem in native Go (`os_dm_types.go`, `os_dm_linux.go`, `os_dm_other.go`, `os_dm_cmd.go`).
-- [ ] **Subtask 52.2**: Extend Windows desktop tweaks with telemetry, activity feed, and dark/light theme switching (`os_tweak_windows_privacy.go`, `os_tweak_theme.go`).
-- [ ] **Subtask 52.3**: Implement Native DNS Switcher (`os_dns_types.go`, `os_dns_windows.go`, `os_dns_linux.go`, `os_dns_cmd.go`).
-- [ ] **Subtask 52.4**: Implement Universal Multi-Distro Updater (`os_update_types.go`, `os_update_engine.go`, `os_update_cmd.go`).
-- [ ] **Subtask 52.5**: Author Two-Column Styled Help Screens (`cli/helptext/os-dm.md`, `cli/helptext/os-dns.md`, `cli/helptext/os-update.md`).
-- [ ] **Subtask 52.6**: Add Unit Tests for new OS subsystems in `cli/cmdos/`.
-- [ ] **Subtask 52.7**: Verify all quality gates, linters, and release ceremony via `06-ci-cd-fix-with-release.md`.
+- [x] **Subtask 52.1**: Implement Display Manager (`gitmap os dm`) subsystem in native Go (`os_dm_types.go`, `os_dm_linux.go`, `os_dm_other.go`, `os_dm_cmd.go`).
+- [x] **Subtask 52.2**: Extend Windows desktop tweaks with telemetry, activity feed, and dark/light theme switching (`os_tweak_windows_privacy.go`, `os_tweak_theme.go`).
+- [x] **Subtask 52.3**: Implement Native DNS Switcher (`os_dns_types.go`, `os_dns_windows.go`, `os_dns_linux.go`, `os_dns_cmd.go`).
+- [x] **Subtask 52.4**: Implement Universal Multi-Distro Updater (`os_update_types.go`, `os_update_engine.go`, `os_update_cmd.go`).
+- [x] **Subtask 52.5**: Author Two-Column Styled Help Screens (`cli/helptext/os-dm.md`, `cli/helptext/os-dns.md`, `cli/helptext/os-update.md`, `cli/helptext/os-tui.md`).
+- [x] **Subtask 52.6**: Add Unit Tests for new OS subsystems in `cli/cmdos/`.
+- [x] **Subtask 52.7**: Verify all quality gates, linters, and release ceremony via `06-ci-cd-fix-with-release.md`.

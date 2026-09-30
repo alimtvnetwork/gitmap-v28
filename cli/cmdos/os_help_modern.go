@@ -55,6 +55,7 @@ func buildOSCoreUpdateAndInfoSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
 		Title: "OS Inspection, Updates & Package Maintenance",
 		Entries: []termhelp.CommandEntry{
+			{Command: "os tui (menu)", Description: "Interactive Bubbletea dashboard for tweaks, DNS, auto-login, and clean"},
 			{Command: "os info (gitmap os-info)", Description: "Inspect OS distribution, kernel, architecture, CPU, RAM, and hostname"},
 			{Command: "os update (gitmap os-update)", Description: "Update OS package repositories and security patches (Windows/macOS/Ubuntu)"},
 			{Command: "os upgrade / full-upgrade", Description: "Execute full OS package and distribution upgrade"},

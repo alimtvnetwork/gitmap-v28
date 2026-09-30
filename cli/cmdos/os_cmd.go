@@ -62,12 +62,22 @@ var osAliasCmd = &cobra.Command{
 	},
 }
 
+var osTUICmd = &cobra.Command{
+	Use:     "tui",
+	Aliases: []string{"menu", "dashboard"},
+	Short:   "Interactive terminal dashboard for OS tweaks, auto-login, display, DNS, and maintenance",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return RunOSTUICommand(args)
+	},
+}
+
 func init() {
 	osCmd.AddCommand(osUpdateCmd)
 	osCmd.AddCommand(osFullUpgradeCmd)
 	osCmd.AddCommand(osFixMirrorsCmd)
 	osCmd.AddCommand(osMachineCmd)
 	osCmd.AddCommand(osAliasCmd)
+	osCmd.AddCommand(osTUICmd)
 	osCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		RenderModernOSHelp()
 	})
@@ -94,6 +104,8 @@ func tryDispatchOSIdentityOrCobra(sub string, args []string) (bool, error) {
 		return true, RunAliasCLI(args[1:])
 	case "info", "os-info", "osinfo", "sysinfo", "system-info":
 		return true, RunOSInfoCLI(args[1:])
+	case "tui", "menu", "gui", "dashboard":
+		return true, RunOSTUICommand(args[1:])
 	case "update", "full-upgrade", "fix-mirrors", "update-fix", "fix-update":
 		osCmd.SetArgs(args)
 		return true, osCmd.Execute()

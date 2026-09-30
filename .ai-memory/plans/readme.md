@@ -30,9 +30,10 @@
 - [199-envelope-variables-os-password-and-secrets-sequence.md](completed/199-envelope-variables-os-password-and-secrets-sequence.md) — JSON Envelope Variables, WorkDirectory Object, OS Password CLI, and Repo-Secrets Hygiene (Spec: [189](../../02-spec/21-app/189-envelope-variables-os-password-and-secrets-sequence.md))
 - [54-vmware-macro-audit-task-and-installer-chain.md](completed/54-vmware-macro-audit-task-and-installer-chain.md) — VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task Logging, and Chained Installer (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
 - [55-nodes-clone-except-self-windows-runner-and-path.md](completed/55-nodes-clone-except-self-windows-runner-and-path.md) — Fleet Nodes Clone — Except-Self, Windows Remote Shell Runner, and Target Directory Architecture (Spec: [191](../../02-spec/21-app/191-nodes-clone-except-self-windows-runner-and-path.md))
+- [52-winutil-linutil-advanced-os-integration-plan.md](completed/52-winutil-linutil-advanced-os-integration-plan.md) — Winutil/Linutil Advanced OS Integration Plan
+- [53-cicd-interface-naming-and-enum-suffix.md](completed/53-cicd-interface-naming-and-enum-suffix.md) — CI/CD Interface Naming and Enum Suffix
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans
 
-- [52-winutil-linutil-advanced-os-integration-plan.md](pending/52-winutil-linutil-advanced-os-integration-plan.md) — Winutil/Linutil Advanced OS Integration Plan
-- [53-cicd-interface-naming-and-enum-suffix.md](pending/53-cicd-interface-naming-and-enum-suffix.md) — CI/CD Interface Naming and Enum Suffix
+*(All master plans currently completed)*

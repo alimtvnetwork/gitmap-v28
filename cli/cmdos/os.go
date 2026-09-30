@@ -86,6 +86,8 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSUpdateCommand(false, subArgs)
 	case "upgrade":
 		return runOSUpdateCommand(true, subArgs)
+	case "tui", "menu", "gui", "dashboard":
+		return RunOSTUICommand(subArgs)
 	case constants.SubCmdOSHelp:
 		return handleOSHelp()
 	default:
