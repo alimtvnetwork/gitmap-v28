@@ -78,13 +78,20 @@ func SafePushOne(rec model.ScanRecord, repoDir string) model.CloneResult {
 	return model.CloneResult{Record: rec, IsSuccess: false, Error: lastError}
 }
 
-func runGitPush(repoDir string) (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.CmdPush)
-	cmd.Env = append(os.Environ(),
+func buildSafePushEnv() []string {
+	return append(os.Environ(),
 		constants.EnvGitTerminalPromptZero,
 		constants.EnvGitAskpassEmpty,
 		constants.EnvSSHAskpassEmpty,
-		constants.EnvGitSSHCommandBatchYes)
+		constants.EnvGitSSHCommandBatchYes,
+		"GCM_NO_PERSIST=1",
+		"GCM_CREDENTIAL_STORE=cache",
+	)
+}
+
+func runGitPush(repoDir string) (string, error) {
+	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.CmdPush)
+	cmd.Env = buildSafePushEnv()
 	out, err := cmd.CombinedOutput()
 
 	return string(out), err
@@ -92,11 +99,7 @@ func runGitPush(repoDir string) (string, error) {
 
 func runGitPullRebase(repoDir string) (string, error) {
 	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--rebase")
-	cmd.Env = append(os.Environ(),
-		constants.EnvGitTerminalPromptZero,
-		constants.EnvGitAskpassEmpty,
-		constants.EnvSSHAskpassEmpty,
-		constants.EnvGitSSHCommandBatchYes)
+	cmd.Env = buildSafePushEnv()
 	out, err := cmd.CombinedOutput()
 
 	return string(out), err

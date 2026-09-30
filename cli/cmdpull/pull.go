@@ -810,11 +810,24 @@ func applyTransportSafe(cwd string, useSSH, useHTTPS bool) bool {
 	return true
 }
 
+func buildGitPullEnv() []string {
+	return append(os.Environ(),
+		constants.EnvGitTerminalPromptZero,
+		constants.EnvGitAskpassEmpty,
+		constants.EnvSSHAskpassEmpty,
+		constants.EnvGitSSHCommandBatchYes,
+		constants.EnvGCMInteractiveNever,
+		"GCM_NO_PERSIST=1",
+		"GCM_CREDENTIAL_STORE=cache",
+	)
+}
+
 func executeGitPullCommand(cwd string, extraArgs []string) error {
 	gitArgs := append([]string{"pull"}, extraArgs...)
 	arrow := resolveSubArrow()
 	fmt.Printf("    %s%s%s Running: git %s (cwd: %s)\n", constants.ColorCyan, arrow, constants.ColorReset, joinForLog(gitArgs), cwd)
 	cmd := exec.Command("git", gitArgs...)
+	cmd.Env = buildGitPullEnv()
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

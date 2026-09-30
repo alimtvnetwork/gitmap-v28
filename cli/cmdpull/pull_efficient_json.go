@@ -8,7 +8,11 @@ import (
 
 func renderJSONEfficientResults(total int, states []*PullRepoState, inactive []InactiveRepoDetail, dur time.Duration) error {
 	summary := buildPullEfficientSummary(total, states, inactive, dur)
-	return json.NewEncoder(os.Stdout).Encode(summary)
+	w := pullBatchJSONWriter
+	if w == nil {
+		w = os.Stdout
+	}
+	return json.NewEncoder(w).Encode(summary)
 }
 
 func renderJSONInactiveResults(total int, inactive []InactiveRepoDetail) error {
@@ -20,7 +24,11 @@ func renderJSONInactiveResults(total int, inactive []InactiveRepoDetail) error {
 		Inactive:      inactive,
 		DurationMs:    0,
 	}
-	return json.NewEncoder(os.Stdout).Encode(summary)
+	w := pullBatchJSONWriter
+	if w == nil {
+		w = os.Stdout
+	}
+	return json.NewEncoder(w).Encode(summary)
 }
 
 func buildPullEfficientSummary(total int, states []*PullRepoState, inactive []InactiveRepoDetail, dur time.Duration) PullEfficientSummary {

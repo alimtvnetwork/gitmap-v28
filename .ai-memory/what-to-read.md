@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-10-01T01:10:00Z, Memory write: Spec 192, Learned 34, Direct Clone structured JSON response (--json), automatic legacy node command fallback, and granular offline reachability error classification.
 - 2026-09-30T23:55:00Z, Memory write: Plan 56 pending roadmap (VMware hardware customization, multi-VM batch operations, macro integration, and TUI settings), Spec 190 index sync, binary path synchronization across all 4 execution targets, and root readme/what-to-read parity.
 - 2026-09-30T23:10:00Z, Memory write: Spec 190, Plan 54, native `gitmap safe-rm` / `rm-safe` CLI command, interactive live execution platform adaptation, root `readme.md` sync, and comprehensive test suite validation.
 - 2026-09-30T20:20:00Z, Memory write: Spec 190, Plan 54, Learned 33, and Issue 53 / RCA 20 (VMware Workstation PowerShell engine manage-vm.ps1 in repo-secrets, macro idempotent safe removal shim, interactive macro edit step recording fix, and universal TaskHistory audit logging).
@@ -54,6 +55,8 @@
 - `.ai-memory/memory/learned/32-multiclone-ai-split-db-and-search-benchmark.md`, why: multiclone shorthand and paste parser, AI split database execution tracking, and 46.1x automation search acceleration
 - `.ai-memory/memory/learned/32-winutil-and-linutil-os-autologin-and-tweaks.md`, why: native Go Windows/Ubuntu auto-login, desktop tweaks, power scheme, and system maintenance
 - `.ai-memory/memory/learned/33-vmware-macro-safe-rm-and-task-history-audit.md`, why: VMware automation engine, macro idempotent removal shim (safe-rm), interactive editor step recording, and TaskHistory split-DB audit logging
+- `.ai-memory/memory/learned/34-direct-clone-json-and-fleet-clone-details.md`, why: direct clone structured JSON response (--json), automatic legacy node command fallback, and granular offline reachability error classification
+- `.ai-memory/memory/learned/35-in-process-fleet-pull-json-and-wincredman-isolation.md`, why: in-process host execution delegation for fleet pull-all tasks and Windows Credential Manager non-persist environment isolation
 
 
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
@@ -87,6 +90,8 @@
 - `02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md`, why: SSH batch common join (`sjc`), remote OS telemetry (`os_detect`), AGY `rerun` & `rop` split-DB optimization, and AUM search benchmarks
 - `02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md`, why: SSH macro/pea/peat deploy (`--except`), fleet update (`ua`, `update ls`), remote `ssh-clone`, and `//go:build tempe2e` isolated validation
 - `02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md`, why: VMware automation, macro safe removal & edit UX, audit task history, and chained installer
+- `02-spec/21-app/191-nodes-clone-except-self-windows-runner-and-path.md`, why: fleet nodes clone except-self, Windows remote shell runner, and target directory
+- `02-spec/21-app/192-direct-clone-json-and-fleet-clone-details.md`, why: direct clone structured JSON output, fleet node details, and legacy fallback
 - `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md`, why: 4-Part RCA for VS Code startup failure and search latency
 - `02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md`, why: 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard
 - `docs/benchmarks/search_benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report

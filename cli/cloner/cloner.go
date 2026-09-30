@@ -211,7 +211,9 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 		constants.EnvGitTerminalPromptZero,
 		constants.EnvGCMInteractiveNever,
 		constants.EnvGitAskpassEmpty,
-		constants.EnvSSHAskpassEmpty)
+		constants.EnvSSHAskpassEmpty,
+		"GCM_NO_PERSIST=1",
+		"GCM_CREDENTIAL_STORE=cache")
 	if isSSHCloneURL(url) {
 		cmd.Env = append(cmd.Env, "GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=accept-new")
 		return runInteractiveClone(InteractiveCloneParams{

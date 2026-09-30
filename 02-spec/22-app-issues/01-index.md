@@ -61,6 +61,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 53 | [53-macro-phantom-steps-and-removal-failure-rca.md](53-macro-phantom-steps-and-removal-failure-rca.md) | Macro Deletion Failure on Missing Target (`rm test`) and Interactive Edit Step Discard: RCA & Fix | Resolved |
 | 54 | [54-windows-node-bash-missing-clone-failure-rca.md](54-windows-node-bash-missing-clone-failure-rca.md) | Remote Windows Node Clone Failure (`'bash' is not recognized`) and Fleet Output Degradation: RCA & Fix | Resolved |
 | 55 | [55-test-auto-dest-repo-pollution-of-vscode-project-manager-and-agy-rca.md](55-test-auto-dest-repo-pollution-of-vscode-project-manager-and-agy-rca.md) | Test Destination Auto-Provisioning Polluting VS Code Project Manager and Antigravity Projects: RCA & Fix | Resolved |
+| 56 | [56-ssh-fleet-pull-subprocess-bypass-and-wincredman-credential-failure-rca.md](56-ssh-fleet-pull-subprocess-bypass-and-wincredman-credential-failure-rca.md) | SSH Fleet Pull Subprocess Bypass & Wincredman Credential Store Failure: RCA & Fix | Resolved |
 
 ---
 

@@ -2,9 +2,22 @@ package cmdpull
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 	"time"
 )
+
+var pullBatchJSONWriter io.Writer = os.Stdout
+
+// SetPullBatchJSONWriter configures the output destination for batch JSON summaries.
+func SetPullBatchJSONWriter(w io.Writer) {
+	pullBatchJSONWriter = w
+}
+
+// ResetPullBatchJSONWriter resets the batch JSON output destination to os.Stdout.
+func ResetPullBatchJSONWriter() {
+	pullBatchJSONWriter = os.Stdout
+}
 
 // PullBatchSummary represents the serialized JSON summary of a pull-all batch operation.
 type PullBatchSummary struct {
@@ -18,8 +31,11 @@ type PullBatchSummary struct {
 
 func renderPullBatchJSONSummary(total int, states []*PullRepoState, dur time.Duration) error {
 	summary := buildPullBatchSummary(total, states, dur)
-
-	return json.NewEncoder(os.Stdout).Encode(summary)
+	w := pullBatchJSONWriter
+	if w == nil {
+		w = os.Stdout
+	}
+	return json.NewEncoder(w).Encode(summary)
 }
 
 func buildPullBatchSummary(total int, states []*PullRepoState, dur time.Duration) PullBatchSummary {

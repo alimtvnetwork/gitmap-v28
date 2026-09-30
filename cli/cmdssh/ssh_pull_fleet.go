@@ -164,7 +164,25 @@ func dispatchOnlineFleetPull(conns []db.SSHConnection, cleanArgs []string) []Fle
 	return outcomes
 }
 
+// RunLocalPullAllJSONFn executes pull-all in-process and returns structured JSON output.
+var RunLocalPullAllJSONFn func(args []string) (string, error)
+
 func executeLocalVMPull(cleanArgs []string) FleetNodePullOutcome {
+	if RunLocalPullAllJSONFn != nil {
+		return executeLocalVMPullInProcess(cleanArgs)
+	}
+	return executeLocalVMPullSubprocess(cleanArgs)
+}
+
+func executeLocalVMPullInProcess(cleanArgs []string) FleetNodePullOutcome {
+	out, err := RunLocalPullAllJSONFn(cleanArgs)
+	if err != nil && len(strings.TrimSpace(out)) == 0 {
+		return buildFailedFleetOutcome("Local VM", "127.0.0.1", true, err.Error())
+	}
+	return parseFleetPullOutcome("Local VM", "127.0.0.1", true, out)
+}
+
+func executeLocalVMPullSubprocess(cleanArgs []string) FleetNodePullOutcome {
 	cmdName := resolveLocalGitmapExecutable()
 	subArgs := []string{"pa", "--json"}
 	cmd := exec.Command(cmdName, subArgs...)

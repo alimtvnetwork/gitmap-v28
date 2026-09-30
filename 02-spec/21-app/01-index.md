@@ -98,6 +98,8 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 189: JSON Envelope Variables, WorkDirectory Object, OS Password CLI, and Repo-Secrets Hygiene](./189-envelope-variables-os-password-and-secrets-sequence.md)
 - [Spec 190: VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task History, and Chained Installer](./190-vmware-macro-audit-task-and-installer-chain.md)
 - [Spec 191: Fleet Nodes Clone — Except-Self, Windows Remote Shell Runner, and Target Directory Architecture](./191-nodes-clone-except-self-windows-runner-and-path.md)
+- [Spec 192: Direct Clone JSON Output & Fleet Clone Node Details Architecture](./192-direct-clone-json-and-fleet-clone-details.md)
+- [Spec 193: In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation](./193-in-process-fleet-pull-json-and-wincredman-isolation.md)
 
 ---
 

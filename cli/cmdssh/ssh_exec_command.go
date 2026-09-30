@@ -105,9 +105,9 @@ func isGitmapCoreCommand(cmd string) bool {
 	switch cmd {
 	case "gitmap", "status", "st", "pipeline", "pipe", "pl", "clone", "pull", "sync", "push", "clean", "log", "branch", "diff":
 		return true
-	case "open", "o", "browse", "browse-url", "open-url", "pull-all", "clone-all", "sync-all", "push-all":
+	case "open", "o", "browse", "browse-url", "open-url", "pull-all", "pa", "pae", "paet", "clone-all", "ca", "sync-all", "sa", "push-all":
 		return true
-	case "clone-sync", "clone-only-missing", "clone-next", "clone-pick", "clone-from", "clone-now", "clone-reclone":
+	case "clone-sync", "clone-only-missing", "clone-next", "clone-pick", "clone-from", "clone-now", "clone-reclone", "cfr", "cfrp":
 		return true
 	case "reconcile", "latest-branch", "discard", "stash", "wip":
 		return true

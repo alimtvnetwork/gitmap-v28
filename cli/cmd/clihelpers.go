@@ -872,6 +872,7 @@ func init() {
 	cmdpull.ApplyTransportFlagFn = ApplyTransportFlag
 	cmdpull.RunRemoteSSHPullFn = cmdssh.RunSSHPullJSON
 	cmdpull.RunRemoteSSHPullAllFleetFn = cmdssh.RunSSHPullAllFleet
+	cmdssh.RunLocalPullAllJSONFn = cmdpull.RunPullAllJSON
 	cmdpull.HasAliasFn = HasAlias
 	cmdpull.GetAliasSlugFn = GetAliasSlug
 	cmdpull.GetAliasPathFn = GetAliasPath
