@@ -97,3 +97,12 @@ func TestIsIgnoredDeployKeysToken(t *testing.T) {
 		t.Errorf("expected node identifier not to be ignored")
 	}
 }
+
+func TestIsKnownLegacyDeployWord_DeployKeysVariants(t *testing.T) {
+	variants := []string{"all-keys", "all-key", "allkeys", "all", "keys", "key", "keys-all", "deploy-keys", "deploy-keys-all"}
+	for _, v := range variants {
+		if !isKnownLegacyDeployWord(v) {
+			t.Errorf("expected isKnownLegacyDeployWord(%q) to be true", v)
+		}
+	}
+}
