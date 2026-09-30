@@ -83,14 +83,25 @@ func startCloneSpinnerForURL(url string) func() {
 	return startCloneSpinner(constants.MsgCloneSpinnerLabel)
 }
 
+func buildCloneCommandEnv(url string) []string {
+	base := os.Environ()
+	if isSSHCloneURL(url) || isCloneAssumeYes.Load() {
+		base = cloneEnvWithSSHAcceptNew()
+	}
+	return append(base,
+		constants.EnvGitTerminalPromptZero,
+		constants.EnvGCMInteractiveNever,
+		"GCM_NO_PERSIST=1",
+		"GCM_CREDENTIAL_STORE=cache",
+	)
+}
+
 func newCloneCommand(url, dest string) *exec.Cmd {
 	cmd := exec.Command(constants.GitBin, constants.GitClone, url, dest)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if isSSHCloneURL(url) || isCloneAssumeYes.Load() {
-		cmd.Env = cloneEnvWithSSHAcceptNew()
-	}
+	cmd.Env = buildCloneCommandEnv(url)
 
 	return cmd
 }

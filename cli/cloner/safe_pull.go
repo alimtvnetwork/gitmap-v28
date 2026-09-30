@@ -248,13 +248,21 @@ func buildFinalFailureResult(rec model.ScanRecord) model.CloneResult {
 	return model.CloneResult{Record: rec, IsSuccess: false, Error: "safe-pull failed after all retries"}
 }
 
-func runGitPullWithProgress(repoDir string, onProgress func(string)) (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--progress", constants.GitFFOnlyFlag, "--autostash")
-	cmd.Env = append(os.Environ(),
+func buildSafePullEnv() []string {
+	return append(os.Environ(),
 		constants.EnvGitTerminalPromptZero,
 		constants.EnvGitAskpassEmpty,
 		constants.EnvSSHAskpassEmpty,
-		constants.EnvGitSSHCommandBatchYes)
+		constants.EnvGitSSHCommandBatchYes,
+		constants.EnvGCMInteractiveNever,
+		"GCM_NO_PERSIST=1",
+		"GCM_CREDENTIAL_STORE=cache",
+	)
+}
+
+func runGitPullWithProgress(repoDir string, onProgress func(string)) (string, error) {
+	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--progress", constants.GitFFOnlyFlag, "--autostash")
+	cmd.Env = buildSafePullEnv()
 	stream := newProgressStreamWriter(onProgress)
 	cmd.Stdout = stream
 	cmd.Stderr = stream

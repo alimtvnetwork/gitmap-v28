@@ -35,6 +35,7 @@ type CloneFlags struct {
 	MissingOnly                     bool
 	Fix                             bool
 	IsListOnly                      bool
+	IsJSON                          bool
 	OnlyFilter                      string
 	ExcludeFilter                   string
 }
@@ -63,6 +64,7 @@ type cloneFlagPointers struct {
 	yesFlag           *bool
 	fixFlag           *bool
 	listOnlyFlag      *bool
+	isJSONFlag        *bool
 	onlyFlag          *string
 	excludeFlag       *string
 }
@@ -101,6 +103,8 @@ func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
 	flagPtrs.listOnlyFlag = fs.Bool("ls", false, "List repositories in candidate file as a formatted table with sequence IDs")
 	fs.BoolVar(flagPtrs.listOnlyFlag, "list", false, "Alias for --ls")
 	fs.BoolVar(flagPtrs.listOnlyFlag, "l", false, "Alias for --ls")
+	flagPtrs.isJSONFlag = fs.Bool("json", false, "Emit structured machine-readable JSON output")
+	fs.BoolVar(flagPtrs.isJSONFlag, "j", false, "Short alias for --json")
 }
 
 func registerCloneExecutionFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -143,6 +147,7 @@ func populateCloneToggles(cloneOpts *CloneFlags, flagPtrs *cloneFlagPointers) {
 	cloneOpts.MissingOnly = *flagPtrs.missingOnlyFlag
 	cloneOpts.Fix = *flagPtrs.fixFlag
 	cloneOpts.IsListOnly = *flagPtrs.listOnlyFlag
+	cloneOpts.IsJSON = *flagPtrs.isJSONFlag
 }
 
 func populateCloneExecutionFlags(cloneOpts *CloneFlags, flagPtrs *cloneFlagPointers) {

@@ -30,10 +30,10 @@ func renderFleetStartBanner(out io.Writer, opts NodesCloneOptions, nodeCount int
 		opts.Kind, destMsg, execScope, nodeCount, fileMsg)
 }
 
-func renderFleetResultsTable(out io.Writer, results []RemoteCloneNodeResult, isLocalSuccess bool, opts NodesCloneOptions) {
+func renderFleetResultsTable(out io.Writer, results []RemoteCloneNodeResult, isLocalSuccess bool, localDetails string, opts NodesCloneOptions) {
 	fmt.Fprintln(out, "  NODE (ALIAS)     HOST                   ROLE       STATUS        DURATION   DETAILS")
 	fmt.Fprintln(out, "  --------------------------------------------------------------------------------------------------------------")
-	renderLocalRow(out, isLocalSuccess, opts.IsSkipLocal)
+	renderLocalRow(out, isLocalSuccess, opts.IsSkipLocal, localDetails)
 	for _, r := range results {
 		renderRemoteRow(out, r)
 	}
@@ -41,7 +41,7 @@ func renderFleetResultsTable(out io.Writer, results []RemoteCloneNodeResult, isL
 	renderFleetSummaryFooter(out, results, isLocalSuccess, opts.IsSkipLocal)
 }
 
-func renderLocalRow(out io.Writer, isLocalSuccess bool, isSkipLocal bool) {
+func renderLocalRow(out io.Writer, isLocalSuccess bool, isSkipLocal bool, localDetails string) {
 	if isSkipLocal {
 		statusTag := constants.ColorCyan + "○ skipped" + constants.ColorReset
 		fmt.Fprintf(out, "  %-16s %-22s %-10s %-20s %-10s %s\n",
@@ -52,8 +52,12 @@ func renderLocalRow(out io.Writer, isLocalSuccess bool, isSkipLocal bool) {
 	if !isLocalSuccess {
 		statusTag = constants.ColorRed + "✗ failed" + constants.ColorReset
 	}
+	details := "executed directly on host machine"
+	if localDetails != "" {
+		details = localDetails
+	}
 	fmt.Fprintf(out, "  %-16s %-22s %-10s %-20s %-10s %s\n",
-		"local (current)", "127.0.0.1", "master", statusTag, "in-process", "executed directly on host machine")
+		"local (current)", "127.0.0.1", "master", statusTag, "in-process", details)
 }
 
 func renderRemoteRow(out io.Writer, r RemoteCloneNodeResult) {
@@ -122,6 +126,9 @@ func sanitizeStdout(stdout string) string {
 }
 
 func formatDetails(r RemoteCloneNodeResult) string {
+	if r.Details != "" {
+		return r.Details
+	}
 	if r.Error != "" {
 		return sanitizeError(r.Error)
 	}

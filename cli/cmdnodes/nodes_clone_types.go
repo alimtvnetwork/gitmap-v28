@@ -47,6 +47,7 @@ type RemoteCloneNodeResult struct {
 	Stdout     string        `json:"stdout,omitempty"`
 	Stderr     string        `json:"stderr,omitempty"`
 	Error      string        `json:"error,omitempty"`
+	Details    string        `json:"details,omitempty"`
 }
 
 // SetFleetCloneActive toggles recursion suppression for inner suggestions.

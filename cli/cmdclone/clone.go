@@ -167,7 +167,7 @@ func executeParsedClone(cf CloneFlags) error {
 	cf = prepareCloneTransport(cf)
 
 	err := dispatchCloneExecution(cf)
-	if err == nil && !cf.DryRun && !cf.IsListOnly && !cf.Audit {
+	if err == nil && !cf.DryRun && !cf.IsListOnly && !cf.Audit && !cf.IsJSON {
 		MaybePrintFleetCloneSuggestion(cf.Source)
 	}
 	return err
@@ -206,6 +206,7 @@ func dispatchCloneExecution(cf CloneFlags) error {
 			Output:       cf.Output,
 			NoVSCodeSync: cf.NoVSCodeSync,
 			IsClean:      cf.Clean,
+			IsJSON:       cf.IsJSON,
 		})
 		maybeExitOnCmdFaithfulMismatch()
 
@@ -380,6 +381,7 @@ type DirectCloneParams struct {
 	Output       string
 	NoVSCodeSync bool
 	IsClean      bool
+	IsJSON       bool
 }
 
 func cleanDirectCloneTarget(absPath string, isClean bool) {
@@ -401,6 +403,61 @@ func maybeCleanMultiFolder(url string, isClean bool) {
 	if errFolder == nil {
 		cleanDirectCloneTarget(absFolder, true)
 	}
+}
+
+func handleExistingGitRepo(params DirectCloneParams, repoName, absPath string) {
+	if params.IsJSON {
+		emitDirectCloneJSON(DirectCloneJSONResponse{
+			Success:  true,
+			RepoName: repoName,
+			Status:   "already_exists",
+			Message:  fmt.Sprintf("already exists on disk (%s)", absPath),
+			Path:     absPath,
+		})
+		return
+	}
+	fmt.Printf("~ %s already exists on disk (%s), skipping clone and workspace re-registration.\n", repoName, absPath)
+}
+
+func printCloneStartup(params DirectCloneParams, url, absPath, repoName, folderName string) {
+	if params.IsJSON {
+		return
+	}
+	printCloneTermBlockForURL(params.Output, 1, url, absPath)
+	fmt.Printf(constants.MsgCloneURLCloning, repoName, folderName)
+}
+
+func handleDirectCloneFailure(params DirectCloneParams, taskDB *store.DB, taskID int64, url, repoName, absPath string, cloneErr error) {
+	failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
+	closeTaskDB(taskDB)
+	if params.IsJSON {
+		emitDirectCloneJSON(DirectCloneJSONResponse{
+			Success:  false,
+			RepoName: repoName,
+			Status:   "failed",
+			Message:  cloneErr.Error(),
+			Path:     absPath,
+		})
+		cliexit.HandleError(cloneErr, 1)
+		return
+	}
+	fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
+	printRepoSlugSuggestions(url)
+	cliexit.HandleError(cloneErr, 1)
+}
+
+func handleDirectCloneSuccess(params DirectCloneParams, repoName, absPath string) {
+	if params.IsJSON {
+		emitDirectCloneJSON(DirectCloneJSONResponse{
+			Success:  true,
+			RepoName: repoName,
+			Status:   "cloned",
+			Message:  fmt.Sprintf("cloned %s successfully", repoName),
+			Path:     absPath,
+		})
+		return
+	}
+	fmt.Printf(constants.MsgCloneURLDone, repoName)
 }
 
 // executeDirectClone clones a single repo from a direct URL.
@@ -446,8 +503,7 @@ func executeDirectClone(params DirectCloneParams) {
 	}
 
 	if isGitRepo(absPath) {
-		fmt.Printf("~ %s already exists on disk (%s), skipping clone and workspace re-registration.\n", repoName, absPath)
-
+		handleExistingGitRepo(params, repoName, absPath)
 		return
 	}
 
@@ -462,14 +518,7 @@ func executeDirectClone(params DirectCloneParams) {
 		url = pickResolvedURL(resolved, url)
 	}
 
-	// `--output terminal`: emit the standardized per-repo block to
-	// stdout BEFORE the legacy "Cloning ..." line so the user sees
-	// branch/from/to/command up-front. No-op when output is empty,
-	// which preserves byte-identical legacy output.
-	printCloneTermBlockForURL(params.Output, 1, url, absPath)
-
-	// Clone (default: replace; with --no-replace: clone into a guaranteed-empty target).
-	fmt.Printf(constants.MsgCloneURLCloning, repoName, folderName)
+	printCloneStartup(params, url, absPath, repoName, folderName)
 
 	var cloneErr error
 	if params.NoReplace {
@@ -479,16 +528,11 @@ func executeDirectClone(params DirectCloneParams) {
 	}
 
 	if cloneErr != nil {
-		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
-		closeTaskDB(taskDB)
-		fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
-		printRepoSlugSuggestions(url)
-		cliexit.HandleError(cloneErr, 1)
+		handleDirectCloneFailure(params, taskDB, taskID, url, repoName, absPath, cloneErr)
 	}
 
 	persistRecloneTransport(url)
-
-	fmt.Printf(constants.MsgCloneURLDone, repoName)
+	handleDirectCloneSuccess(params, repoName, absPath)
 
 	// Upsert to database.
 	upsertDirectClone(url, repoName, folderName, absPath)
@@ -503,7 +547,9 @@ func executeDirectClone(params DirectCloneParams) {
 	WriteShellHandoff(absPath)
 
 	// Open in VS Code if available.
-	openInVSCode(absPath)
+	if !params.IsJSON {
+		openInVSCode(absPath)
+	}
 
 	// VS Code Project Manager: register the freshly-cloned repo so
 	// it appears in the sidebar without a separate `gitmap code`

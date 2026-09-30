@@ -2,7 +2,9 @@
 package cmdnodes
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"os"
 	"strings"
 
@@ -128,12 +130,12 @@ func dispatchFleetExecution(opts NodesCloneOptions) error {
 		renderFleetStartBanner(os.Stdout, opts, len(remoteConns))
 	}
 	results := executeFleetNodesParallel(remoteConns, opts, fileBytes, fileName)
-	isLocalOk := executeLocalClone(opts)
+	isLocalOk, localDetails := executeLocalClone(opts)
 	recordFleetTaskAudit(opts, isLocalOk)
 	if opts.IsJSON {
 		return emitFleetJSON(results, isLocalOk)
 	}
-	renderFleetResultsTable(os.Stdout, results, isLocalOk, opts)
+	renderFleetResultsTable(os.Stdout, results, isLocalOk, localDetails, opts)
 	return nil
 }
 
@@ -149,26 +151,71 @@ func recordFleetTaskAudit(opts NodesCloneOptions, isLocalOk bool) {
 	cmdtask.RecordTaskAudit("nodes", string(opts.Kind), target, opts.TargetDir, status)
 }
 
-func executeLocalClone(opts NodesCloneOptions) bool {
-	if opts.IsSkipLocal {
-		return true
+func captureOutput(fn func() error) (string, error) {
+	origStdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		return "", fn()
 	}
-	var err error
-	args := opts.PassArgs
+	os.Stdout = w
+	runErr := fn()
+	_ = w.Close()
+	os.Stdout = origStdout
+
+	var buf bytes.Buffer
+	_, _ = io.Copy(&buf, r)
+	_ = r.Close()
+	return buf.String(), runErr
+}
+
+func dispatchLocalKind(kind NodesCloneKind, args []string) error {
+	switch kind {
+	case CloneKindClone:
+		return cmdclone.RunClone(args)
+	case CloneKindCFR:
+		return cmdclone.RunCloneFixRepo(args)
+	case CloneKindCFRP:
+		return cmdclone.RunCloneFixRepoPub(args)
+	default:
+		return cmdclone.RunClone(args)
+	}
+}
+
+func containsJSONArg(args []string) bool {
+	for _, a := range args {
+		if a == "--json" || a == "-j" {
+			return true
+		}
+	}
+	return false
+}
+
+func prepareLocalCloneArgs(opts NodesCloneOptions) []string {
+	args := append([]string{}, opts.PassArgs...)
 	if len(args) == 0 && opts.HasFile {
 		args = []string{opts.DetectedFile}
 	}
-	switch opts.Kind {
-	case CloneKindClone:
-		err = cmdclone.RunClone(args)
-	case CloneKindCFR:
-		err = cmdclone.RunCloneFixRepo(args)
-	case CloneKindCFRP:
-		err = cmdclone.RunCloneFixRepoPub(args)
-	default:
-		err = cmdclone.RunClone(args)
+	if !containsJSONArg(args) {
+		args = append(args, "--json")
 	}
-	return err == nil
+	return args
+}
+
+func executeLocalClone(opts NodesCloneOptions) (bool, string) {
+	if opts.IsSkipLocal {
+		return true, "skipped local execution (except-self)"
+	}
+	args := prepareLocalCloneArgs(opts)
+	out, err := captureOutput(func() error {
+		return dispatchLocalKind(opts.Kind, args)
+	})
+	if payload, hasJSON := cmdclone.ParseCloneJSONResponse(out); hasJSON {
+		return payload.Success, payload.Message
+	}
+	if err != nil {
+		return false, err.Error()
+	}
+	return true, "completed successfully"
 }
 
 func emitFleetJSON(results []RemoteCloneNodeResult, isLocalOk bool) error {
