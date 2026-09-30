@@ -212,6 +212,11 @@ func TestExecuteAgyRecreate_DryRun(t *testing.T) {
 }
 
 func TestExecuteAgyRecreate_RealLifecycle(t *testing.T) {
+	workspacesync.BypassRestrictedPathFilterForTesting = true
+	t.Cleanup(func() {
+		workspacesync.BypassRestrictedPathFilterForTesting = false
+	})
+
 	tempDir, err := os.MkdirTemp("", "agy-rec-real-*")
 	if err != nil {
 		t.Fatalf("temp dir error: %v", err)

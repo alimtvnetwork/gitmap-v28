@@ -43,8 +43,14 @@ func matchesTestKeywords(clean string) bool {
 	return strings.Contains(clean, "testprovisiondesttarget") || strings.Contains(clean, "testensureorprovision")
 }
 
+// BypassRestrictedPathFilterForTesting allows unit tests that explicitly test workspace registration to bypass path restrictions.
+var BypassRestrictedPathFilterForTesting = false
+
 // IsRestrictedPath reports whether a path should not be registered as a workspace.
 func IsRestrictedPath(path string) bool {
+	if BypassRestrictedPathFilterForTesting {
+		return false
+	}
 	if strings.TrimSpace(path) == "" {
 		return true
 	}
