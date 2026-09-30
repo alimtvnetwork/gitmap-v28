@@ -15,7 +15,9 @@ import (
 func AggregateSSHWPRAll(opts WPROptions) error {
 	local, _ := SnapshotAllRunningPrompts()
 	remote := queryFleetWPRAll()
-	all := append(local, remote...)
+	all := make([]store.WatchPromptsSummary, 0, len(local)+len(remote))
+	all = append(all, local...)
+	all = append(all, remote...)
 
 	if opts.IsJSON {
 		return printJSON(all)
@@ -95,7 +97,9 @@ func AggregateSSHWPRLs(opts WPROptions) error {
 	st, isRunning := LoadWPRRuntimeStatus()
 	localProjects := collectWatchedProjectStatuses(st.TargetSlugs, isRunning)
 	remoteProjects := queryFleetWPRProjects()
-	all := append(localProjects, remoteProjects...)
+	all := make([]WPRProjectStatus, 0, len(localProjects)+len(remoteProjects))
+	all = append(all, localProjects...)
+	all = append(all, remoteProjects...)
 
 	if opts.IsJSON {
 		return printJSON(all)

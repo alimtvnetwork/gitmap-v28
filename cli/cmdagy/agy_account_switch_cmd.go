@@ -15,9 +15,7 @@ var AgyAccountSwitchCmd = &cobra.Command{
 	Use:     "account-switch",
 	Aliases: []string{"asw", "switch-account", "fast-forward", "ff"},
 	Short:   "Automated Antigravity account switch with parallel prompt backup, lock check, and fast-forward",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return dispatchRootAccountSwitch(cmd, args)
-	},
+	RunE:    dispatchRootAccountSwitch,
 }
 
 func initAgyAccountSwitchCommands() {
@@ -111,9 +109,7 @@ func makeAccountSwitchSetThresholdCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-threshold <pct>",
 		Short: "Update and persist the credit threshold percentage (default 15)",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return executeSetThresholdCmd(cmd, args)
-		},
+		RunE:  executeSetThresholdCmd,
 	}
 	cmd.Flags().Bool("json", false, "Output updated state in JSON format")
 	return cmd

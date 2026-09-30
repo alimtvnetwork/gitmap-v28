@@ -493,11 +493,12 @@ func renderPingTable(out io.Writer, results []NodePingResult, opts nodesPingOpti
 		if r.Duration > maxDur {
 			maxDur = r.Duration
 		}
-		if r.ICMPOk {
+		switch {
+		case r.ICMPOk:
 			onlineCount++
-		} else if r.TCPOk {
+		case r.TCPOk:
 			tcpCount++
-		} else {
+		default:
 			offlineCount++
 		}
 		renderPingRow(out, r)

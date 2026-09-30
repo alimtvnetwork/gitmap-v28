@@ -127,7 +127,7 @@ func isWorkDirectoryOverlap(path string) bool {
 	if hasWork {
 		return true
 	}
-	isWorkParent := strings.HasPrefix("d:/work", norm+"/")
+	isWorkParent := norm == "d:" || norm == "d:/"
 	if isWorkParent {
 		return true
 	}
