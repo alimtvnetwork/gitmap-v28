@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.424.0] - 2026-09-30
+
+### Added
+- support two-step deletion commit and gitignore commit for antigravity-resume_task.json
+
+---
+
 ## [v6.423.0] - 2026-09-30
 
 ### Added

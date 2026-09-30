@@ -1,3 +1,9 @@
+## v6.424.0 — 2026-09-30 (support two-step deletion commit and gitignore commit for antigravity-resume_task.json)
+
+**Scope:** Version bump. support two-step deletion commit and gitignore commit for antigravity-resume_task.json.
+
+---
+
 ## v6.423.0 — 2026-09-30 (add failed-to-detect commands logging, dynamic suggestions, and rich ssh/clean optimization suggestions)
 
 **Scope:** Version bump. add failed-to-detect commands logging, dynamic suggestions, and rich ssh/clean optimization suggestions.
