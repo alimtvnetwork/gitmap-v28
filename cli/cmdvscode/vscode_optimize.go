@@ -20,6 +20,7 @@ type vscodeOptimizeFlags struct {
 }
 
 func parseVSCodeOptimizeFlags(args []string) vscodeOptimizeFlags {
+	args = stripProjectSubArg(args)
 	fs := flag.NewFlagSet("vscode-optimize", flag.ContinueOnError)
 	exceptStr := fs.String("except", "", "Comma-separated list of IDs, names, or paths to exclude")
 	fs.StringVar(exceptStr, "e", "", "Alias for --except")
@@ -29,12 +30,24 @@ func parseVSCodeOptimizeFlags(args []string) vscodeOptimizeFlags {
 	fs.BoolVar(yes, "y", false, "Alias for --yes")
 	_ = fs.Parse(args)
 
-	var excepts []string
-	if *exceptStr != "" {
-		excepts = strings.Split(*exceptStr, ",")
+	return makeVSCodeOptimizeFlags(*exceptStr, *dryRun, *yes)
+}
+
+func stripProjectSubArg(args []string) []string {
+	if len(args) > 0 && (args[0] == "projects" || args[0] == "project") {
+		return args[1:]
 	}
 
-	return vscodeOptimizeFlags{Except: excepts, DryRun: *dryRun, Yes: *yes}
+	return args
+}
+
+func makeVSCodeOptimizeFlags(exceptStr string, dryRun, yes bool) vscodeOptimizeFlags {
+	var excepts []string
+	if exceptStr != "" {
+		excepts = strings.Split(exceptStr, ",")
+	}
+
+	return vscodeOptimizeFlags{Except: excepts, DryRun: dryRun, Yes: yes}
 }
 
 func runVSCodeOptimize(args []string) error {
@@ -52,22 +65,33 @@ func runVSCodeOptimize(args []string) error {
 }
 
 func printVSCodeOptimizeResult(s vscodepm.OptimizeSummary, isDryRun bool) {
+	prefix := constants.ColorGreen + "✓" + constants.ColorReset
 	if isDryRun {
-		fmt.Printf("%s [dry-run] %d duplicate VS Code project(s) would be merged. Total remaining: %d\n",
-			constants.ColorYellow+"ℹ"+constants.ColorReset, s.Removed, s.Remaining)
-
+		prefix = constants.ColorYellow + "ℹ [dry-run]" + constants.ColorReset
+	}
+	if s.Removed == 0 && len(s.Advices) == 0 {
+		fmt.Printf("%s No duplicate or missing VS Code projects found. Total active: %d\n", prefix, s.Remaining)
 		return
 	}
 
-	if s.Removed == 0 {
-		fmt.Printf("%s No duplicate VS Code projects found. Total active: %d\n",
-			constants.ColorGreen+"✓"+constants.ColorReset, s.Remaining)
+	fmt.Printf("%s VS Code Project Manager Optimization Complete:\n", prefix)
+	fmt.Printf("    • Duplicate entries merged/removed: %d\n", s.RemovedDuplicates)
+	fmt.Printf("    • Missing/stale folders pruned:    %d\n", s.RemovedMissing)
+	fmt.Printf("    • Total active projects retained:  %d\n", s.Remaining)
+	printOptimizationAdvices(s.Advices)
+}
 
+func printOptimizationAdvices(advices []vscodepm.ProjectOptimizationAdvice) {
+	if len(advices) == 0 {
 		return
 	}
-
-	fmt.Printf("%s Successfully merged and removed %d duplicate VS Code project(s). Total active: %d\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, s.Removed, s.Remaining)
+	fmt.Printf("\n  %s📁 Duplicate Project Relocation Advice:%s\n", constants.ColorCyan, constants.ColorReset)
+	for _, adv := range advices {
+		fmt.Printf("    • Project %q:\n", adv.ProjectName)
+		fmt.Printf("      - Canonical: %s\n", adv.CanonicalPath)
+		fmt.Printf("      - Duplicate: %s\n", adv.DuplicatePath)
+		fmt.Printf("      - %s\n", adv.Advice)
+	}
 }
 
 type vscodeClearFlags struct {

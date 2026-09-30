@@ -6,13 +6,24 @@ import (
 	"strings"
 )
 
-// OptimizeSummary contains counts of removed and remaining entries.
-type OptimizeSummary struct {
-	Removed   int
-	Remaining int
+// ProjectOptimizationAdvice provides relocation and deduplication advice for duplicate repository checkouts.
+type ProjectOptimizationAdvice struct {
+	ProjectName   string
+	DuplicatePath string
+	CanonicalPath string
+	Advice        string
 }
 
-// OptimizeProjects cleans up duplicate entries in projects.json.
+// OptimizeSummary contains counts of removed and remaining entries, plus relocation advice.
+type OptimizeSummary struct {
+	RemovedDuplicates int
+	RemovedMissing    int
+	Removed           int
+	Remaining         int
+	Advices           []ProjectOptimizationAdvice
+}
+
+// OptimizeProjects cleans up duplicate and missing entries in projects.json and advises on relocations.
 func OptimizeProjects(exceptList []string, dryRun bool) (OptimizeSummary, error) {
 	path, err := ProjectsJSONPath()
 	if err != nil {
@@ -22,31 +33,98 @@ func OptimizeProjects(exceptList []string, dryRun bool) (OptimizeSummary, error)
 	return OptimizeProjectsAt(path, exceptList, dryRun)
 }
 
-// OptimizeProjectsAt deduplicates entries in a specified file.
+// OptimizeProjectsAt deduplicates entries and prunes missing entries in a specified file.
 func OptimizeProjectsAt(filePath string, exceptList []string, dryRun bool) (OptimizeSummary, error) {
 	entries, err := readEntries(filePath)
 	if err != nil {
 		return OptimizeSummary{}, err
 	}
 
-	deduped, removed := deduplicateEntries(entries, exceptList)
-	if isWriteEnabled(dryRun, removed) {
-		return commitOptimizedEntries(filePath, deduped, removed)
+	validEntries, missingCount := pruneMissingEntries(entries, exceptList)
+	deduped, dupCount := deduplicateEntries(validEntries, exceptList)
+	advices := generateRelocationAdvice(deduped)
+
+	totalRemoved := missingCount + dupCount
+	summary := OptimizeSummary{
+		RemovedDuplicates: dupCount,
+		RemovedMissing:    missingCount,
+		Removed:           totalRemoved,
+		Remaining:         len(deduped),
+		Advices:           advices,
 	}
 
-	return OptimizeSummary{Removed: removed, Remaining: len(deduped)}, nil
+	if isWriteEnabled(dryRun, totalRemoved) {
+		return commitOptimizedEntries(filePath, deduped, summary)
+	}
+
+	return summary, nil
 }
 
-func isWriteEnabled(dryRun bool, count int) bool {
-	return !dryRun && count > 0
+func isWriteEnabled(dryRun bool, totalRemoved int) bool {
+	return !dryRun && totalRemoved > 0
 }
 
-func commitOptimizedEntries(filePath string, deduped []Entry, removed int) (OptimizeSummary, error) {
+func pruneMissingEntries(entries []Entry, exceptList []string) ([]Entry, int) {
+	valid := make([]Entry, 0, len(entries))
+	missing := 0
+	for i, e := range entries {
+		if isEntryExcepted(e, exceptList, i+1) {
+			valid = append(valid, e)
+			continue
+		}
+		if !dirExists(e.RootPath) {
+			missing++
+			continue
+		}
+		valid = append(valid, e)
+	}
+	return valid, missing
+}
+
+func generateRelocationAdvice(entries []Entry) []ProjectOptimizationAdvice {
+	byBaseName := make(map[string][]Entry)
+	for _, e := range entries {
+		base := strings.ToLower(filepath.Base(e.RootPath))
+		byBaseName[base] = append(byBaseName[base], e)
+	}
+
+	var advices []ProjectOptimizationAdvice
+	for base, group := range byBaseName {
+		if len(group) <= 1 {
+			continue
+		}
+		canonical := pickCanonicalEntry(group)
+		for _, e := range group {
+			if normalizePath(e.RootPath) == normalizePath(canonical.RootPath) {
+				continue
+			}
+			advices = append(advices, ProjectOptimizationAdvice{
+				ProjectName:   base,
+				DuplicatePath: e.RootPath,
+				CanonicalPath: canonical.RootPath,
+				Advice:        fmt.Sprintf("Relocate work from duplicate directory %q to canonical %q", e.RootPath, canonical.RootPath),
+			})
+		}
+	}
+	return advices
+}
+
+func pickCanonicalEntry(group []Entry) Entry {
+	for _, e := range group {
+		low := strings.ToLower(e.RootPath)
+		if strings.Contains(low, "\\work\\") || strings.Contains(low, "/work/") {
+			return e
+		}
+	}
+	return group[0]
+}
+
+func commitOptimizedEntries(filePath string, deduped []Entry, summary OptimizeSummary) (OptimizeSummary, error) {
 	if err := writeEntriesAtomic(filePath, deduped); err != nil {
-		return OptimizeSummary{}, err
+		return summary, err
 	}
 
-	return OptimizeSummary{Removed: removed, Remaining: len(deduped)}, nil
+	return summary, nil
 }
 
 func deduplicateEntries(entries []Entry, exceptList []string) ([]Entry, int) {

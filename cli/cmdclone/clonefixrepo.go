@@ -24,11 +24,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // runCloneFixRepo implements `gitmap clone-fix-repo` (alias cfr).
@@ -60,6 +61,9 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) error {
 	modifiers.IsSkipCommit = modifiers.IsSkipCommit || isSkipCommit
 	modifiers.IsSkipPush = modifiers.IsSkipPush || isSkipPush
 	f := cloneFixRepoFlags{url, folder, isSkipVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, isSkipCommit, isSkipPush}
+	if isCFRManifestTarget(f.url) || (len(f.url) == 0 && hasLocalCloneManifest()) {
+		return runCFRManifestPipeline(f, makePublic, modifiers)
+	}
 	if dispatchCFRMultiURL(f, makePublic, modifiers, parallel) {
 		return nil
 	}
@@ -469,3 +473,120 @@ func handleChainedStepResult(runErr error) {
 	fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, runErr)
 	cliexit.HandleError(runErr, constants.ExitCloneFixRepoChainFailed)
 }
+
+func hasLocalCloneManifest() bool {
+	return isRegularFile("gitmap.json") || discoverDefaultCloneManifest() != ""
+}
+
+func isCFRManifestTarget(target string) bool {
+	if target == "" {
+		return false
+	}
+	low := strings.ToLower(target)
+	if strings.HasSuffix(low, ".json") {
+		return true
+	}
+	return target == "gitmap.json" || isCandidateCloneJSON(target)
+}
+
+func resolveCFRManifestPath(target string) string {
+	if target != "" {
+		return target
+	}
+	discovered := discoverDefaultCloneManifest()
+	if discovered != "" {
+		return discovered
+	}
+	return "gitmap.json"
+}
+
+func filterCFRMissingRecords(records []model.ScanRecord, targetDir string) []model.ScanRecord {
+	var missing []model.ScanRecord
+	for _, r := range records {
+		dest := filepath.Join(targetDir, r.RelativePath)
+		if r.RelativePath == "" {
+			dest = filepath.Join(targetDir, r.RepoName)
+		}
+		if !isGitRepo(dest) {
+			missing = append(missing, r)
+		}
+	}
+	return missing
+}
+
+func runCFRManifestPipeline(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags) error {
+	manifestPath := resolveCFRManifestPath(f.url)
+	records, err := cloner.LoadRecords(manifestPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading manifest %q: %v\n", manifestPath, err)
+		cliexit.HandleError(err, 1)
+	}
+
+	targetDir := f.folder
+	if targetDir == "" {
+		targetDir = "."
+	}
+
+	missing := filterCFRMissingRecords(records, targetDir)
+	if len(missing) == 0 {
+		fmt.Printf("✓ All %d repository(ies) in %s already exist on disk. Nothing to clone.\n", len(records), manifestPath)
+		return nil
+	}
+
+	return executeCFRMissingBatch(missing, len(records), manifestPath, targetDir, f, makePublic, modifiers)
+}
+
+func executeCFRMissingBatch(
+	missing []model.ScanRecord,
+	total int,
+	manifestPath string,
+	targetDir string,
+	f cloneFixRepoFlags,
+	makePublic bool,
+	modifiers CfrModifierFlags,
+) error {
+	fmt.Printf("ℹ Manifest %q: cloning %d missing repository(ies) (out of %d total)...\n",
+		manifestPath, len(missing), total)
+
+	for idx, r := range missing {
+		executeCFRMissingOne(idx+1, len(missing), r, targetDir, f, makePublic, modifiers)
+	}
+	fmt.Printf("\n✓ Finished cloning and fixing %d missing repository(ies) from %s.\n", len(missing), manifestPath)
+	return nil
+}
+
+func executeCFRMissingOne(
+	index, total int,
+	r model.ScanRecord,
+	targetDir string,
+	f cloneFixRepoFlags,
+	makePublic bool,
+	modifiers CfrModifierFlags,
+) {
+	cloneURL := pickRecordCloneURL(r, f.useSSH, f.useHTTPS)
+	destFolder := r.RelativePath
+	if destFolder == "" {
+		destFolder = r.RepoName
+	}
+	absPath, _ := filepath.Abs(filepath.Join(targetDir, destFolder))
+	fmt.Printf("\n[%d/%d] ↪ Cloning missing: %s → %s\n", index, total, r.RepoName, absPath)
+
+	subFlags := f
+	subFlags.url = cloneURL
+	subFlags.folder = destFolder
+	executeCFRClone(cloneURL, destFolder, absPath, subFlags)
+	if !f.dryRun {
+		executeCFRPostSteps(absPath, makePublic, subFlags, modifiers)
+	}
+}
+
+func pickRecordCloneURL(r model.ScanRecord, useSSH, useHTTPS bool) string {
+	raw := r.SSHUrl
+	if !useSSH && len(r.HTTPSUrl) > 0 {
+		raw = r.HTTPSUrl
+	} else if len(raw) == 0 {
+		raw = r.HTTPSUrl
+	}
+	return applyCloneFixRepoScheme(raw, useSSH, useHTTPS)
+}
+

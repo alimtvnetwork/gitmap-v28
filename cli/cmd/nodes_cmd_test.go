@@ -63,14 +63,17 @@ func TestUnifiedNodes_RenderTable(t *testing.T) {
 	}
 
 	out := buf.String()
-	if !strings.Contains(out, "GITMAP UNIFIED FLEET NODES") {
-		t.Errorf("table missing header")
+	if !strings.Contains(out, "ALIAS") || !strings.Contains(out, "HOST (IP:PORT)") {
+		t.Errorf("table missing header columns")
 	}
 	if !strings.Contains(out, "main") || !strings.Contains(out, "192.168.1.20") {
 		t.Errorf("table missing main node")
 	}
-	if !strings.Contains(out, "SSH, Cluster, SC") {
-		t.Errorf("table missing subsystems")
+	if !strings.Contains(out, "SUPPORTED COMMANDS & CLUSTERS") {
+		t.Errorf("table missing command matrix header")
+	}
+	if !strings.Contains(out, "Total: 2 registered node(s)") {
+		t.Errorf("table missing total summary count")
 	}
 }
 

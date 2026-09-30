@@ -45,6 +45,12 @@ func coreBasicMaintenanceEntries() []dispatchEntry {
 		{[]string{"wip"}, func() error { return runFix(argsTail(), "wip") }},
 		{[]string{"discard"}, func() error { return runFix(argsTail(), "discard") }},
 		{[]string{constants.CmdReconcile, constants.CmdReconcileAlias}, func() error { return RunReconcileCmd(argsTail()) }},
+		{[]string{
+			"vscode-optimize-projects", "vscode-optimize",
+			"vsc-optimize-projects", "vsc-optimize",
+			"vpm-optimize", "vpm-optimize-projects",
+			"optimize-projects",
+		}, func() error { return runVSCode(append([]string{"optimize-projects"}, argsTail()...)) }},
 	}
 }
 

@@ -611,10 +611,14 @@ func runCloneExecution(cf CloneFlags) (model.CloneSummary, error) {
 	}
 	records = filterRecordsByOnly(records, cf.OnlyFilter)
 	records = filterRecordsByExclude(records, cf.ExcludeFilter)
+	if countMissingCloneRecords(records, cf.TargetDir) == 0 && !cf.Clean {
+		fmt.Printf("✓ All %d repository(ies) in %s already exist on disk. Nothing to clone.\n", len(records), cf.Source)
+		return model.CloneSummary{Succeeded: len(records)}, nil
+	}
 	if cf.UseSSH {
 		records = convertRecordsToSSH(records)
 	} else {
-		records = resolveAuthForRecords(records)
+		records = resolveAuthForRecords(records, cf.TargetDir, cf.MissingOnly || !cf.Clean)
 	}
 	if len(records) == 0 {
 		fmt.Println("Warning: no repositories matched clone filters")
@@ -623,9 +627,31 @@ func runCloneExecution(cf CloneFlags) (model.CloneSummary, error) {
 	return cloner.CloneRecords(records, cf.TargetDir, opts), nil
 }
 
-func resolveAuthForRecords(records []model.ScanRecord) []model.ScanRecord {
+func countMissingCloneRecords(records []model.ScanRecord, targetDir string) int {
+	missing := 0
+	for _, r := range records {
+		dest := filepath.Join(targetDir, r.RelativePath)
+		if r.RelativePath == "" {
+			dest = filepath.Join(targetDir, r.RepoName)
+		}
+		if !isGitRepo(dest) {
+			missing++
+		}
+	}
+	return missing
+}
+
+func resolveAuthForRecords(records []model.ScanRecord, targetDir string, skipExisting bool) []model.ScanRecord {
 	out := make([]model.ScanRecord, 0, len(records))
 	for _, r := range records {
+		dest := filepath.Join(targetDir, r.RelativePath)
+		if r.RelativePath == "" {
+			dest = filepath.Join(targetDir, r.RepoName)
+		}
+		if skipExisting && isGitRepo(dest) {
+			out = append(out, r)
+			continue
+		}
 		resolved, err := ResolveRepoAuth(r)
 		if err == ErrAuthSkipped {
 			fmt.Printf("  Skipping %s per user request.\n", getRecordDisplayName(r))

@@ -1,5 +1,17 @@
 # Changelog
 
+## [v6.425.0] - 2026-09-30
+
+### Added
+- Nodes Display Parity (`gitmap nodes`): Render compact professional 110-character nodes table matching `gitmap ssh nodes`, add secondary Supported Commands & Clusters Matrix table, and actionable fleet operation suggestions.
+- Manifest Auto-Detection (`gitmap cfr` & `gitmap clone`): Automatically discover local `gitmap.json` or explicit `.json` manifests, skip auth probing for existing repositories to eliminate latency hangs, clone missing-only repositories, and run post-clone fix actions.
+- JSON Envelope Harmonization: Standardize `gitmap.json` to v2.0 envelope schema with 1-based indexing, remove redundant work directory keys, reuse `${workDir}` across path variables, and provide rich structured `attributes.help` with usage commands and examples.
+- Standalone Manifest Cloner (`clone-gitmap.ps1`): Add cross-platform PowerShell cloner script in `scripts/` and `repo-secrets` capable of reading `gitmap.json` and cloning missing repositories without requiring the `gitmap` binary.
+- Antigravity Gitignore Automation: Add expandable `autoGitignoreAgm` configuration setting with subcommands (`enable-scan-auto`, `disable-scan-auto`, `status`) to automate `.antigravity_resume_task.json` remediation during scans.
+- VS Code Project Optimization (`gitmap vscode optimize-projects`): Add root command and subcommands (`vsc optimize-projects`, `vpm optimize`, `optimize-projects`) to deduplicate VS Code project manager entries, prune non-existent directory references, advise on repository relocations, and persist clean `projects.json`.
+
+---
+
 ## [v6.424.0] - 2026-09-30
 
 ### Added

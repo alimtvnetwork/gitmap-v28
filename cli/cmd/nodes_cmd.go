@@ -429,58 +429,111 @@ func padCell(s string, width int) string {
 
 func renderUnifiedNodesTable(out io.Writer, nodes []UnifiedFleetNode) error {
 	if len(nodes) == 0 {
-		fmt.Fprintln(out)
-		fmt.Fprintln(out, "  ● No nodes registered across SSH, Cluster, or Server-Client networks.")
-		fmt.Fprintln(out, "    Enroll nodes with: gitmap ssh join <user@ip|ip> [alias]")
-		fmt.Fprintln(out)
-		return nil
+		return renderEmptyUnifiedNodesNotice(out)
 	}
-
-	renderTableHeaderBox(out, len(nodes))
-	renderTableColumnHeadings(out)
-
-	for _, n := range nodes {
-		renderUnifiedNodeRow(out, n)
+	if err := renderPrimaryNodesTable(out, nodes); err != nil {
+		return err
 	}
-
-	renderTableFooter(out, len(nodes))
+	if err := renderCommandsMatrixTable(out, nodes); err != nil {
+		return err
+	}
+	renderUnifiedNodesFooter(out)
 	return nil
 }
 
-func renderTableHeaderBox(out io.Writer, count int) {
+func renderEmptyUnifiedNodesNotice(out io.Writer) error {
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, "╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗")
-	fmt.Fprintln(out, "║ GITMAP UNIFIED FLEET NODES (SSH, CLUSTER & SERVER-CLIENTS)                                                       ║")
-	fmt.Fprintln(out, "╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝")
-	fmt.Fprintf(out, "  Discovered: %d registered node(s) across SSH, Cluster DB & Server-Client (SC) networks\n\n", count)
+	fmt.Fprintf(out, "  %s● No nodes registered across SSH, Cluster, or Server-Client networks.%s\n",
+		constants.ColorYellow, constants.ColorReset)
+	fmt.Fprintln(out, "    Enroll nodes with: gitmap ssh join <user@ip|ip> [alias]")
+	fmt.Fprintln(out)
+	renderUnifiedNodesFooter(out)
+	return nil
 }
 
-func renderTableColumnHeadings(out io.Writer) {
+func renderPrimaryNodesTable(out io.Writer, nodes []UnifiedFleetNode) error {
+	if err := renderHostsHeader(out); err != nil {
+		return err
+	}
+	for _, n := range nodes {
+		renderPrimaryNodeRow(out, n)
+	}
+	fmt.Fprintf(out, "\n  %sTotal: %d registered node(s)%s\n\n", constants.ColorDim, len(nodes), constants.ColorReset)
+	return nil
+}
+
+func renderHostsHeader(out io.Writer) error {
 	colAlias := padCell("ALIAS", 16)
 	colRole := padCell("ROLE", 14)
 	colHost := padCell("HOST (IP:PORT)", 22)
 	colUser := padCell("USER", 14)
-	colSys := padCell("SUBSYSTEMS", 18)
 	colStatus := padCell("STATUS", 21)
 	colEnrolled := padCell("ENROLLED", 19)
 
-	fmt.Fprintf(out, "  %s%s %s %s %s %s %s %s%s\n",
-		constants.ColorCyan, colAlias, colRole, colHost, colUser, colSys, colStatus, colEnrolled, constants.ColorReset)
-	divider := strings.Repeat("─", 126)
+	headerLine := fmt.Sprintf("  %s %s %s %s %s %s\n",
+		colAlias, colRole, colHost, colUser, colStatus, colEnrolled)
+	fmt.Fprintf(out, "\n%s%s%s", constants.ColorCyan, headerLine, constants.ColorReset)
+	divider := strings.Repeat("-", 110)
 	fmt.Fprintf(out, "  %s%s%s\n", constants.ColorDim, divider, constants.ColorReset)
+	return nil
 }
 
-func renderUnifiedNodeRow(out io.Writer, n UnifiedFleetNode) {
+func renderPrimaryNodeRow(out io.Writer, n UnifiedFleetNode) {
 	alias := formatCellAlias(n.Alias, 16)
 	role := formatCellRole(n.Role, 14)
 	hostPort := formatCellHost(fmt.Sprintf("%s:%d", n.Host, n.Port), 22)
 	user := formatCellDim(n.User, 14)
-	sys := formatCellSubsystems(strings.Join(n.Subsystems, ", "), 18)
 	status := formatCellStatus(n.Status, 21)
 	enrolled := formatCellDim(n.EnrolledAt, 19)
 
-	fmt.Fprintf(out, "  %s %s %s %s %s %s %s\n",
-		alias, role, hostPort, user, sys, status, enrolled)
+	fmt.Fprintf(out, "  %s %s %s %s %s %s\n", alias, role, hostPort, user, status, enrolled)
+}
+
+func renderCommandsMatrixTable(out io.Writer, nodes []UnifiedFleetNode) error {
+	renderCommandsMatrixHeader(out)
+	for _, n := range nodes {
+		renderCommandsMatrixRow(out, n)
+	}
+	divider := strings.Repeat("-", 110)
+	fmt.Fprintf(out, "  %s%s%s\n\n", constants.ColorDim, divider, constants.ColorReset)
+	return nil
+}
+
+func renderCommandsMatrixHeader(out io.Writer) {
+	colAlias := padCell("NODE (ALIAS)", 16)
+	colRole := padCell("ROLE", 14)
+	colSys := padCell("SUBSYSTEMS", 20)
+	colCmds := padCell("SUPPORTED COMMANDS & CLUSTERS", 56)
+
+	headerLine := fmt.Sprintf("  %s %s %s %s\n",
+		colAlias, colRole, colSys, colCmds)
+	fmt.Fprintf(out, "%s%s%s", constants.ColorCyan, headerLine, constants.ColorReset)
+	divider := strings.Repeat("-", 110)
+	fmt.Fprintf(out, "  %s%s%s\n", constants.ColorDim, divider, constants.ColorReset)
+}
+
+func renderCommandsMatrixRow(out io.Writer, n UnifiedFleetNode) {
+	alias := formatCellAlias(n.Alias, 16)
+	role := formatCellRole(n.Role, 14)
+	subsys := formatCellSubsystems(strings.Join(n.Subsystems, ", "), 20)
+	cmds := formatSupportedCommands(n)
+
+	fmt.Fprintf(out, "  %s %s %s %s\n", alias, role, subsys, cmds)
+}
+
+func formatSupportedCommands(n UnifiedFleetNode) string {
+	var parts []string
+	if hasSubsystem(n, "SSH") {
+		parts = append(parts, fmt.Sprintf("gitmap ssh %s", n.Alias))
+		parts = append(parts, fmt.Sprintf("gitmap exec %s", n.Alias))
+	}
+	if hasSubsystem(n, "Cluster") {
+		parts = append(parts, fmt.Sprintf("gitmap cluster exec %s", n.Alias))
+	}
+	if hasSubsystem(n, "SC") {
+		parts = append(parts, "gitmap sc exec")
+	}
+	return constants.ColorDim + strings.Join(parts, ", ") + constants.ColorReset
 }
 
 func formatCellAlias(alias string, width int) string {
@@ -530,10 +583,12 @@ func ensurePrefix(s, pfx string) string {
 	return pfx + " " + s
 }
 
-func renderTableFooter(out io.Writer, count int) {
-	fmt.Fprintln(out)
-	fmt.Fprintln(out, "==============================================================================================================================")
-	fmt.Fprintln(out, " TIP: Run 'gitmap ssh <alias>' for shell access, or 'gitmap sc exec <cmd>' to broadcast across all nodes.")
-	fmt.Fprintln(out, "==============================================================================================================================")
+func renderUnifiedNodesFooter(out io.Writer) {
+	fmt.Fprintf(out, "  %s💡 Fleet Operations & Supported Command Suggestions:%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Fprintln(out, "    • Shell Access:            gitmap ssh <alias>                (or: gitmap ssh login <alias>)")
+	fmt.Fprintln(out, "    • Command Execution:       gitmap exec <alias> \"<cmd>\"       (or: gitmap ssh exec <alias> \"<cmd>\")")
+	fmt.Fprintln(out, "    • Cluster Remote Exec:     gitmap cluster exec <alias> \"<cmd>\"")
+	fmt.Fprintln(out, "    • Broadcast to All Nodes:  gitmap sc exec \"<cmd>\"            (or: gitmap ssh exec all \"<cmd>\")")
+	fmt.Fprintln(out, "    • Sync Keys & Ping Nodes:  gitmap ssh deploy-keys            | gitmap nodes ping")
 	fmt.Fprintln(out)
 }

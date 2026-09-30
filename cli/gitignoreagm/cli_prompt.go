@@ -6,7 +6,39 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
+
+// SettingAutoGitignoreAgm is the settings key controlling automated scan remediation.
+const SettingAutoGitignoreAgm = "autoGitignoreAgm"
+
+// IsAutoRemediateScanEnabled reports whether automatic remediation is enabled in settings or environment.
+func IsAutoRemediateScanEnabled() bool {
+	if val := os.Getenv("GITMAP_AUTO_GITIGNORE_AGM"); val == "1" || strings.EqualFold(val, "true") {
+		return true
+	}
+	db, err := store.OpenDefault()
+	if err != nil {
+		return false
+	}
+	defer db.Close()
+	return strings.EqualFold(db.GetSetting(SettingAutoGitignoreAgm), "true")
+}
+
+// SetAutoRemediateScan persists the setting in the local settings table.
+func SetAutoRemediateScan(enabled bool) error {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	val := "false"
+	if enabled {
+		val = "true"
+	}
+	return db.SetSetting(SettingAutoGitignoreAgm, val)
+}
 
 type cliOptions struct {
 	targetDir       string
@@ -144,6 +176,10 @@ func printRepoRemediationStatus(res RepoRemediationResult, isQuiet bool) {
 
 // RunCLI executes the `gitmap gitignore [agm|agy]` command.
 func RunCLI(args []string) error {
+	handled, err := handleSettingSubcommands(args)
+	if handled {
+		return err
+	}
 	opts := parseCLIArgs(args)
 	if opts.isHelp {
 		printGitignoreHelp()
@@ -157,6 +193,60 @@ func RunCLI(args []string) error {
 		return runSingleRepoCLI(absTarget, opts.isCommitEnabled)
 	}
 	return runWorkspaceReposCLI(absTarget, opts)
+}
+
+func handleSettingSubcommands(args []string) (bool, error) {
+	for _, arg := range args {
+		low := strings.ToLower(strings.TrimSpace(arg))
+		if isEnableAutoCommand(low) {
+			return applyEnableAutoScan()
+		}
+		if isDisableAutoCommand(low) {
+			return applyDisableAutoScan()
+		}
+		if isStatusSettingCommand(low) {
+			printSettingStatus()
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func isEnableAutoCommand(cmd string) bool {
+	return cmd == "enable-scan-auto" || cmd == "enable-auto" || cmd == "auto-on"
+}
+
+func isDisableAutoCommand(cmd string) bool {
+	return cmd == "disable-scan-auto" || cmd == "disable-auto" || cmd == "auto-off"
+}
+
+func isStatusSettingCommand(cmd string) bool {
+	return cmd == "status" || cmd == "setting"
+}
+
+func applyEnableAutoScan() (bool, error) {
+	err := SetAutoRemediateScan(true)
+	if err == nil {
+		fmt.Println("✓ Enabled automatic AGM gitignore remediation during scan (autoGitignoreAgm = true)")
+	}
+	return true, err
+}
+
+func applyDisableAutoScan() (bool, error) {
+	err := SetAutoRemediateScan(false)
+	if err == nil {
+		fmt.Println("✓ Disabled automatic AGM gitignore remediation during scan (autoGitignoreAgm = false)")
+	}
+	return true, err
+}
+
+func printSettingStatus() {
+	enabled := IsAutoRemediateScanEnabled()
+	statusStr := "disabled (interactive prompt / notice mode)"
+	if enabled {
+		statusStr = "enabled (automatic remediation without prompt)"
+	}
+	fmt.Printf("AGM Scan Automation Setting: %s\n", statusStr)
 }
 
 func runSingleRepoCLI(repoDir string, isCommitEnabled bool) error {
@@ -255,15 +345,20 @@ func applyCLIArg(opts *cliOptions, arg string) {
 }
 
 func printGitignoreHelp() {
-	fmt.Println("Usage: gitmap gitignore [agm|agy] [path] [flags]")
+	fmt.Println("Usage: gitmap gitignore [agm|agy] [subcommand|path] [flags]")
 	fmt.Println("")
 	fmt.Println("Untrack, delete, and ignore .antigravity_resume_task.json (and antigravity-resume_task.json)")
 	fmt.Println("across one or more Git repositories, automatically staging and committing .gitignore.")
 	fmt.Println("")
+	fmt.Println("Automated Scan Settings:")
+	fmt.Println("  gitmap gitignore agm enable-scan-auto   # Enable automatic remediation during gitmap scan")
+	fmt.Println("  gitmap gitignore agm disable-scan-auto  # Require confirmation before scan remediation")
+	fmt.Println("  gitmap gitignore agm status             # Show current scan automation setting")
+	fmt.Println("")
 	fmt.Println("Examples:")
-	fmt.Println("  gitmap gitignore agm                  # Untrack, ignore, and commit in current repo or workspace")
-	fmt.Println("  gitmap gitignore agm D:\\work --all    # Ensure .gitignore entry across all repos in D:\\work")
-	fmt.Println("  gitmap gitignore agy -y               # Non-interactive remediation and commit")
+	fmt.Println("  gitmap gitignore agm                    # Untrack, ignore, and commit in current repo or workspace")
+	fmt.Println("  gitmap gitignore agm D:\\work --all      # Ensure .gitignore entry across all repos in D:\\work")
+	fmt.Println("  gitmap gitignore agy -y                 # Non-interactive remediation and commit")
 	fmt.Println("")
 	fmt.Println("Flags:")
 	fmt.Println("  -a, --all         Apply .gitignore entry to all discovered repositories even if file is absent")

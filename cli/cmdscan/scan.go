@@ -384,5 +384,6 @@ func checkAgmResumeTaskOnScan(records []model.ScanRecord, quiet, fix bool) {
 	for _, r := range records {
 		paths = append(paths, r.AbsolutePath)
 	}
-	_ = gitignoreagm.CheckAndPromptRepos(paths, quiet, fix)
+	isAuto := fix || gitignoreagm.IsAutoRemediateScanEnabled()
+	_ = gitignoreagm.CheckAndPromptRepos(paths, quiet, isAuto)
 }

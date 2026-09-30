@@ -18,9 +18,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
+func isVSCodeOptimizeAction(args []string) bool {
+	return len(args) > 0 && (args[0] == "optimize" || args[0] == "optimize-projects" || args[0] == "dedupe")
+}
+
 // runVSCodePMSync is the entry point wired into the dispatcher.
 func runVSCodePMSync(args []string) error {
 	checkHelp(constants.CmdVSCodePMSync, args)
+	if isVSCodeOptimizeAction(args) {
+		return runVSCodeOptimize(args[1:])
+	}
 
 	opts, err := parseVSCodePMSyncFlags(args)
 	if err != nil {
