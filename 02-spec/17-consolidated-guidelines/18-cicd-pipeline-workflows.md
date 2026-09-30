@@ -2,7 +2,7 @@
 
 **Version:** 3.3.0
 **Updated:** 2026-04-22
-**Source Module:** [`02-spec/12-cicd-pipeline-workflows/`](../12-cicd-pipeline-workflows/01-index.md)
+**Source Module:** [`02-spec/12-cicd-pipeline-workflows/`](../12-cicd-pipeline-workflows/readme.md)
 
 ---
 
@@ -47,6 +47,7 @@ The source module `02-spec/12-cicd-pipeline-workflows/` contains 13 root specs +
 | Permissions | Minimum required (`read` for CI, `write` for releases) |
 | Working directory | Use `working-directory:` key, never `cd` |
 | Build-once rule | Compile once, then compress/checksum/publish — no rebuilds |
+| Actions storage | **0 bytes in CI** — total ban on `actions/upload-artifact` steps |
 
 ### Trigger Patterns
 
@@ -416,7 +417,7 @@ The `env` command manages persistent PATH and environment:
 2. App-specific deployment notes go in `21-app/` instead
 3. Shared patterns (version resolution, checksums, releases) are in root-level files
 4. Archetype-specific patterns are in their respective subfolders
-5. New pipeline types get their own subfolder with `01-index.md`
+5. New pipeline types get their own subfolder with `readme.md`
 6. Client-side update logic lives in `02-spec/14-update/`
 7. Never use `@latest` — pin all versions
 8. Never cancel release pipeline jobs
@@ -605,8 +606,8 @@ Both are Mermaid sources rendered inline in the docs viewer. Do not copy as PNGs
 
 | Reference | Location |
 |-----------|----------|
-| Full Source | `../12-cicd-pipeline-workflows/01-index.md` |
-| Self-Update & App Update | `../14-update/01-index.md` |
+| Full Source | `../12-cicd-pipeline-workflows/readme.md` |
+| Self-Update & App Update | `../14-update/readme.md` |
 | Folder Structure Rules | `../01-spec-authoring-guide/02-folder-structure.md` |
 
 ---

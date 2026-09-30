@@ -32,6 +32,10 @@ This directory hosts the canonical, production-grade prompts library (V4 archite
    - **Standard Execute & Audit Prompts:** Enforce **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence)** — instructions provided ABOVE the prompt take highest priority.
    - **Below-Steps Prompts (`*-in-below-steps.md`, `32-cg-follow-other-prompts.md`):** Enforce **Bottom-Instruction Priority Mandate (Below Precedence)** — instructions appended after the trailing `--` and `## 🚨 High Priority Instructions Below` header take highest priority.
 
+6. **V3 Parent Task N-Steps Continuous Loop (`14-execute/10-execute-parent-task-with-n-steps-v3.md`):**
+   - Top-header editable step budget (`N = 300`, `PHASE_1_STEPS = 150`, `PHASE_2_STEPS = 150`) and concurrency parameters (`A = 2`, `H = 2`).
+   - **Mandatory Subagent Spawning Gate (`invoke_subagent`, Zero Solo Execution):** Requires spawning `A = 2` concurrent subagents (`H = 2` disjoint tasks per subagent, `TypeName: "self"` in Phase 2) across both Phase 1 discovery/spec generation and Phase 2 code execution.
+
 ---
 
 ## Directory Index

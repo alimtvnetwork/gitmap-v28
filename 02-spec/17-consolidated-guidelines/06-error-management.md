@@ -2,7 +2,7 @@
 
 **Version:** 3.3.0
 **Updated:** 2026-04-22
-**Source Module:** [`02-spec/03-error-manage/`](../03-error-manage/01-index.md)
+**Source Module:** [`02-spec/03-error-manage/`](../03-error-manage/readme.md)
 
 ---
 
@@ -849,10 +849,10 @@ Cross-cutting categories that every module inherits — never reallocate:
 
 | Generator | Reads | Emits | Language |
 |-----------|-------|-------|----------|
-| `gen-go-errcodes` | `spec/<module>/error-codes.json` | `internal/apperror/apperror_codes_generated.go` | Go |
-| `gen-php-errcodes` | `spec/<module>/error-codes.json` | `src/Errors/ErrorCode.php` | PHP |
-| `gen-ts-errcodes` | `spec/<module>/error-codes.json` | `src/lib/errors/errorCodes.generated.ts` | TypeScript |
-| `gen-rust-errcodes` | `spec/<module>/error-codes.json` | `src/errors/error_code_generated.rs` | Rust |
+| `gen-go-errcodes` | `02-spec/<module>/error-codes.json` | `internal/apperror/apperror_codes_generated.go` | Go |
+| `gen-php-errcodes` | `02-spec/<module>/error-codes.json` | `src/Errors/ErrorCode.php` | PHP |
+| `gen-ts-errcodes` | `02-spec/<module>/error-codes.json` | `src/lib/errors/errorCodes.generated.ts` | TypeScript |
+| `gen-rust-errcodes` | `02-spec/<module>/error-codes.json` | `src/errors/error_code_generated.rs` | Rust |
 
 **Invocation pattern** (run from repo root for each module):
 

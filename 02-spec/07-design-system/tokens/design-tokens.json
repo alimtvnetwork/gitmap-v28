@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Global Multi-Theme Design Tokens",
+  "version": "1.0.0",
+  "description": "Unified machine-readable design tokens covering light high-trust, dark obsidian navy, riseup corporate, and electric indigo palettes.",
+  "meta": {
+    "preferredLanguage": "less",
+    "zeroBannedWordsEnforced": true
+  },
+  "themes": {
+    "lightHighTrust": {
+      "name": "Light High-Trust Editorial",
+      "mode": "light",
+      "description": "Pure crisp surfaces with high contrast dark typography, subtle container distinctions, and darkish professional hover shades.",
+      "colors": {
+        "bgPrimary": "#ffffff",
+        "bgSecondary": "#f8fafc",
+        "bgElevated": "#f1f5f9",
+        "textPrimary": "#0f172a",
+        "textSecondary": "#475569",
+        "textMuted": "#64748b",
+        "borderSubtle": "#e2e8f0",
+        "borderStrong": "#cbd5e1",
+        "accentPrimary": "#6366f1",
+        "accentSecondary": "#7c3aed",
+        "accentHighlight": "#f43f5e",
+        "hoverTintDarkish": "rgba(15, 23, 42, 0.05)",
+        "hoverBorder": "rgba(99, 102, 241, 0.40)",
+        "shadowResting": "0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05)",
+        "shadowHover": "0 20px 40px -15px rgba(15, 23, 42, 0.12)"
+      }
+    },
+    "darkObsidianNavy": {
+      "name": "Dark Obsidian Navy",
+      "mode": "dark",
+      "description": "Deep obsidian blue base with electric violet highlights, 4-plane neutral depth hierarchy, and ambient shadow blooming.",
+      "colors": {
+        "bgPrimary": "#0b1329",
+        "bgSecondary": "#111c44",
+        "bgElevated": "#1e293b",
+        "textPrimary": "#f8fafc",
+        "textSecondary": "#cbd5e1",
+        "textMuted": "#94a3b8",
+        "borderSubtle": "#1e293b",
+        "borderStrong": "#334155",
+        "accentPrimary": "#8b5cf6",
+        "accentSecondary": "#a855f7",
+        "accentHighlight": "#38bdf8",
+        "hoverTintDarkish": "rgba(255, 255, 255, 0.07)",
+        "hoverBorder": "rgba(139, 92, 246, 0.50)",
+        "shadowResting": "0 4px 6px -1px rgba(2, 6, 23, 0.50)",
+        "shadowHover": "0 25px 50px -12px rgba(2, 6, 23, 0.70)"
+      }
+    },
+    "riseupCorporate": {
+      "name": "Riseup Asia Corporate",
+      "mode": "dark",
+      "description": "High-authority corporate dark canvas with rich gold badges and emerald success indicators.",
+      "colors": {
+        "bgPrimary": "#0f172a",
+        "bgSecondary": "#1e293b",
+        "bgElevated": "#334155",
+        "textPrimary": "#ffffff",
+        "textSecondary": "#e2e8f0",
+        "textMuted": "#94a3b8",
+        "borderSubtle": "#334155",
+        "borderStrong": "#475569",
+        "accentPrimary": "#facc15",
+        "accentSecondary": "#10b981",
+        "accentHighlight": "#f59e0b",
+        "hoverTintDarkish": "rgba(255, 255, 255, 0.08)",
+        "hoverBorder": "rgba(250, 204, 21, 0.50)",
+        "shadowResting": "0 4px 10px rgba(0, 0, 0, 0.40)",
+        "shadowHover": "0 20px 40px -10px rgba(0, 0, 0, 0.60)"
+      }
+    },
+    "electricIndigo": {
+      "name": "Electric Indigo & Cyber Slate",
+      "mode": "dark",
+      "description": "Ultra-modern developer dark surface with deep slate background and vibrant indigo neon edges.",
+      "colors": {
+        "bgPrimary": "#030712",
+        "bgSecondary": "#0f172a",
+        "bgElevated": "#1e293b",
+        "textPrimary": "#f9fafb",
+        "textSecondary": "#d1d5db",
+        "textMuted": "#6b7280",
+        "borderSubtle": "#1f2937",
+        "borderStrong": "#374151",
+        "accentPrimary": "#6366f1",
+        "accentSecondary": "#4f46e5",
+        "accentHighlight": "#06b6d4",
+        "hoverTintDarkish": "rgba(99, 102, 241, 0.10)",
+        "hoverBorder": "rgba(99, 102, 241, 0.60)",
+        "shadowResting": "0 4px 6px -1px rgba(0, 0, 0, 0.60)",
+        "shadowHover": "0 20px 45px -10px rgba(99, 102, 241, 0.35)"
+      }
+    }
+  },
+  "typography": {
+    "fontFamilyHeading": "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    "fontFamilyBody": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    "fontFamilyMono": "'JetBrains Mono', 'Fira Code', monospace",
+    "scale": {
+      "hero": "clamp(2.5rem, 5vw, 4.5rem)",
+      "h1": "clamp(2rem, 3.5vw, 3rem)",
+      "h2": "clamp(1.5rem, 2.5vw, 2.25rem)",
+      "h3": "1.25rem",
+      "bodyLarge": "1.125rem",
+      "bodyBase": "1rem",
+      "caption": "0.875rem",
+      "tiny": "0.75rem"
+    },
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700,
+      "extrabold": 800
+    }
+  },
+  "radii": {
+    "sm": "0.375rem",
+    "md": "0.5rem",
+    "lg": "0.75rem",
+    "xl": "1rem",
+    "2xl": "1.25rem",
+    "3xl": "1.5rem",
+    "pill": "9999px"
+  },
+  "motion": {
+    "easingEmphasized": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "easingStandard": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "durationFast": "150ms",
+    "durationNormal": "300ms",
+    "durationSlow": "500ms"
+  }
+}

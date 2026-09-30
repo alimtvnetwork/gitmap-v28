@@ -4,8 +4,8 @@
 **Updated:** 2026-04-16
 **Source Specs:**
 
-- [Go Enum Specification](../02-coding-guidelines/03-golang/01-enum-specification/01-index.md)
-- [TypeScript Enums](../02-coding-guidelines/02-typescript/01-index.md)
+- [Go Enum Specification](../02-coding-guidelines/03-golang/01-enum-specification/readme.md)
+- [TypeScript Enums](../02-coding-guidelines/02-typescript/readme.md)
 - [PHP Enums](../02-coding-guidelines/04-php/02-enums.md)
 - [Rust Naming Conventions](../02-coding-guidelines/05-rust/02-naming-conventions.md)
 - [Enum Naming Quick Reference](../02-coding-guidelines/06-ai-optimization/07-enum-naming-quick-reference.md)
@@ -247,7 +247,7 @@ interface WsState { status: 'connected' | 'disconnected'; }
 |------|--------|
 | `ConnectionStatus` | Connected, Disconnected, Connecting, Reconnecting, Error |
 | `EntityStatus` | Active, Inactive, Pending, Archived |
-| `ExecutionStatus` | Pending, Running, Completed, Failed, Canceled |
+| `ExecutionStatus` | Pending, Running, Completed, Failed, canceled |
 | `ExportStatus` | Pending, Processing, Completed, Failed |
 | `HttpMethod` | Get, Post, Put, Patch, Delete |
 | `MessageStatus` | Pending, Streaming, Completed, Error |
@@ -561,7 +561,7 @@ values:
 
 | Generator | Reads | Emits | Output Path Pattern |
 |-----------|-------|-------|---------------------|
-| `gen-go-enums.mjs` | `spec/**/enums/*.yaml` | Go file with `iota` block, `String()`, `ParseEnum()`, `MarshalJSON`, `UnmarshalJSON` | `internal/<package>/<enum_name>_generated.go` |
+| `gen-go-enums.mjs` | `02-spec/**/enums/*.yaml` | Go file with `iota` block, `String()`, `ParseEnum()`, `MarshalJSON`, `UnmarshalJSON` | `internal/<package>/<enum_name>_generated.go` |
 | `gen-ts-enums.mjs` | same | TS union type, `parse()`, `is<Name>()` guard, JSON I/O | `src/lib/enums/<enumName>.generated.ts` |
 | `gen-php-enums.mjs` | same | PHP 8.1 backed enum with `from()`, `tryFrom()`, `cases()` | `src/Enums/<EnumName>.php` |
 | `gen-rust-enums.mjs` | same | Rust `enum` with `FromStr`, `Display`, `Serialize`, `Deserialize` derives | `src/enums/<enum_name>_generated.rs` |

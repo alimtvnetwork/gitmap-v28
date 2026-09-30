@@ -205,6 +205,18 @@ This enables usage like:
 
 ---
 
+## Multi-Theme Architecture & Available Ecosystems
+
+The variable system natively supports dynamic re-theming across multiple complete design languages:
+1. **Navy Blue & Purple:** Deep midnight navy base (`#0A0F1D`) with electric violet (`#A855F7`) and ice cyan (`#38BDF8`).
+2. **VS Code Ecosystem:** Visual Studio Code Dark+, Tokyo Night Storm, One Dark Pro, GitHub Dark High Contrast, and Monokai Pro.
+3. **Heatmap & Density Scales:** Continuous Plasma thermal, Diverging Red-Amber-Green, and GitHub-style activity matrices.
+4. **Warm Editorial & Craft:** Warm-black dark base (`#0B0A09`), warm paper light base (`#FBF9F6`), and brand amber (`#FFAD01`).
+
+See [16-theme-catalogue-and-palettes.md](./16-theme-catalogue-and-palettes.md) for full palette specs, and [17-theme-tokens.json](./17-theme-tokens.json) for raw machine-readable JSON tokens.
+
+---
+
 ## Forbidden Patterns
 
 | Pattern | Why Forbidden |
@@ -225,4 +237,7 @@ This enables usage like:
 | CSS Source File | `src/index.css` |
 | Tailwind Config | `tailwind.config.ts` |
 | Design Principles | [02-design-principles.md](./02-design-principles.md) |
+| Theme Catalogue & Palettes | [16-theme-catalogue-and-palettes.md](./16-theme-catalogue-and-palettes.md) |
+| Machine-Readable Theme Tokens | [17-theme-tokens.json](./17-theme-tokens.json) |
+| Dark Mode & Materiality | [18-dark-mode-and-materiality.md](./18-dark-mode-and-materiality.md) |
 | Code Block Tokens | [09-code-blocks.md](./09-code-blocks.md) |

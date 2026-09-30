@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 960 560" width="960" height="560">
+  <defs>
+    <style>
+      .canvas-bg { fill: #f8fafc; }
+      .card-standard { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
+      .card-popular { fill: #0b1329; stroke: #8b5cf6; stroke-width: 2; }
+      .tier-title-light { fill: #0f172a; font-family: system-ui, sans-serif; font-size: 18px; font-weight: 800; }
+      .tier-title-dark { fill: #ffffff; font-family: system-ui, sans-serif; font-size: 18px; font-weight: 800; }
+      .tier-desc-light { fill: #64748b; font-family: system-ui, sans-serif; font-size: 12px; }
+      .tier-desc-dark { fill: #94a3b8; font-family: system-ui, sans-serif; font-size: 12px; }
+      .price-light { fill: #0f172a; font-family: system-ui, sans-serif; font-size: 32px; font-weight: 900; }
+      .price-dark { fill: #f8fafc; font-family: system-ui, sans-serif; font-size: 32px; font-weight: 900; }
+      .period { font-size: 13px; font-weight: 500; fill: #64748b; }
+      .badge-gold { fill: #facc15; }
+      .badge-gold-text { fill: #0f172a; font-family: system-ui, sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; }
+      .btn-light { fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 1; }
+      .btn-light-text { fill: #0f172a; font-family: system-ui, sans-serif; font-size: 13px; font-weight: 700; }
+      .btn-popular { fill: #8b5cf6; }
+      .btn-popular-text { fill: #ffffff; font-family: system-ui, sans-serif; font-size: 13px; font-weight: 700; }
+      .bullet-light { fill: #334155; font-family: system-ui, sans-serif; font-size: 12px; }
+      .bullet-dark { fill: #cbd5e1; font-family: system-ui, sans-serif; font-size: 12px; }
+      .anno-text { fill: #4f46e5; font-family: system-ui, sans-serif; font-size: 11px; font-weight: 600; }
+      .anno-line { stroke: #6366f1; stroke-width: 1.5; stroke-dasharray: 4,4; }
+    </style>
+    <filter id="resting-shadow" x="-15%" y="-10%" width="130%" height="125%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+      <feOffset dx="0" dy="4" result="offset"/>
+      <feComponentTransfer in="offset" result="shadow">
+        <feFuncA type="linear" slope="0.05"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="elevated-glow" x="-20%" y="-15%" width="140%" height="135%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="22" result="blur"/>
+      <feOffset dx="0" dy="18" result="offset"/>
+      <feComponentTransfer in="offset" result="shadow">
+        <feFuncA type="linear" slope="0.25"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="960" height="560" class="canvas-bg" />
+
+  <!-- Section Header -->
+  <text x="50" y="45" font-family="system-ui, sans-serif" font-size="22" font-weight="900" fill="#0f172a">Building Block: 3-Tier Modular Pricing Architecture</text>
+  <text x="50" y="70" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">Clear optical weight hierarchy with center card elevation, feature checklist bullets, and darkish hover shades.</text>
+
+  <!-- TIER 1: STARTER (Resting Light Surface) -->
+  <g transform="translate(50, 110)" filter="url(#resting-shadow)">
+    <rect width="260" height="380" rx="16" class="card-standard" />
+    
+    <text x="24" y="38" class="tier-title-light">Foundation Tier</text>
+    <text x="24" y="58" class="tier-desc-light">Core fundamentals and basic access</text>
+
+    <!-- Price -->
+    <text x="24" y="105" class="price-light">$49 <tspan class="period">/ mo</tspan></text>
+    <line x1="24" y1="125" x2="236" y2="125" stroke="#f1f5f9" stroke-width="1.5" />
+
+    <!-- Feature Bullets -->
+    <circle cx="32" cy="155" r="4" fill="#10b981" />
+    <text x="44" y="159" class="bullet-light">Self-paced modules</text>
+
+    <circle cx="32" cy="185" r="4" fill="#10b981" />
+    <text x="44" y="189" class="bullet-light">Community forum access</text>
+
+    <circle cx="32" cy="215" r="4" fill="#10b981" />
+    <text x="44" y="219" class="bullet-light">Code repository examples</text>
+
+    <circle cx="32" cy="245" r="4" fill="#cbd5e1" />
+    <text x="44" y="249" class="bullet-light" fill="#94a3b8">No live mentoring</text>
+
+    <!-- Button -->
+    <rect x="24" y="315" width="212" height="42" rx="8" class="btn-light" />
+    <text x="85" y="341" class="btn-light-text">Get Started</text>
+  </g>
+
+  <!-- TIER 2: PROFESSIONAL / MOST POPULAR (Elevated Obsidian Navy) -->
+  <g transform="translate(340, 90)" filter="url(#elevated-glow)">
+    <rect width="280" height="420" rx="16" class="card-popular" />
+
+    <!-- Most Popular Badge -->
+    <rect x="75" y="-12" width="130" height="24" rx="10" class="badge-gold" />
+    <text x="92" y="4" class="badge-gold-text">MOST POPULAR</text>
+
+    <text x="28" y="48" class="tier-title-dark">Enterprise Pro</text>
+    <text x="28" y="68" class="tier-desc-dark">Complete engineering cohort &amp; certification</text>
+
+    <!-- Price -->
+    <text x="28" y="120" class="price-dark">$149 <tspan class="period" fill="#94a3b8">/ mo</tspan></text>
+    <line x1="28" y1="140" x2="252" y2="140" stroke="#1e293b" stroke-width="1.5" />
+
+    <!-- Feature Bullets -->
+    <circle cx="36" cy="170" r="4" fill="#8b5cf6" />
+    <text x="48" y="174" class="bullet-dark">Everything in Foundation</text>
+
+    <circle cx="36" cy="200" r="4" fill="#8b5cf6" />
+    <text x="48" y="204" class="bullet-dark">Live weekly office hours</text>
+
+    <circle cx="36" cy="230" r="4" fill="#8b5cf6" />
+    <text x="48" y="234" class="bullet-dark">Agentic loop code reviews</text>
+
+    <circle cx="36" cy="260" r="4" fill="#8b5cf6" />
+    <text x="48" y="264" class="bullet-dark">Verified accreditation badge</text>
+
+    <circle cx="36" cy="290" r="4" fill="#8b5cf6" />
+    <text x="48" y="294" class="bullet-dark">Private Discord channel</text>
+
+    <!-- Button -->
+    <rect x="28" y="345" width="224" height="46" rx="8" class="btn-popular" />
+    <text x="82" y="373" class="btn-popular-text">Join Cohort Now →</text>
+  </g>
+
+  <!-- TIER 3: ENTERPRISE (Custom Tailored) -->
+  <g transform="translate(650, 110)" filter="url(#resting-shadow)">
+    <rect width="260" height="380" rx="16" class="card-standard" />
+
+    <text x="24" y="38" class="tier-title-light">Custom Fleet</text>
+    <text x="24" y="58" class="tier-desc-light">Dedicated cluster for teams</text>
+
+    <!-- Price -->
+    <text x="24" y="105" class="price-light">Custom</text>
+    <line x1="24" y1="125" x2="236" y2="125" stroke="#f1f5f9" stroke-width="1.5" />
+
+    <!-- Feature Bullets -->
+    <circle cx="32" cy="155" r="4" fill="#10b981" />
+    <text x="44" y="159" class="bullet-light">Dedicated VPC deployment</text>
+
+    <circle cx="32" cy="185" r="4" fill="#10b981" />
+    <text x="44" y="189" class="bullet-light">Custom LLM adapters</text>
+
+    <circle cx="32" cy="215" r="4" fill="#10b981" />
+    <text x="44" y="219" class="bullet-light">SLA &amp; security guarantees</text>
+
+    <circle cx="32" cy="245" r="4" fill="#10b981" />
+    <text x="44" y="249" class="bullet-light">Direct engineering hotline</text>
+
+    <!-- Button -->
+    <rect x="24" y="315" width="212" height="42" rx="8" class="btn-light" />
+    <text x="75" y="341" class="btn-light-text">Contact Solutions</text>
+  </g>
+
+  <!-- Explanatory Callout Annotations -->
+  <line x1="480" y1="78" x2="480" y2="15" class="anno-line" />
+  <text x="410" y="10" class="anno-text">Center Card Elevated 20px Higher</text>
+
+  <line x1="24" y1="330" x2="-20" y2="330" class="anno-line" transform="translate(50, 110)" />
+  <text x="15" y="445" class="anno-text" font-size="10">Darkish Hover</text>
+</svg>

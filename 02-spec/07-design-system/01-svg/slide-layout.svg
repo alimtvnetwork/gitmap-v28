@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 960 540" width="960" height="540">
+  <defs>
+    <style>
+      .canvas-outer { fill: #020617; }
+      .slide-frame { fill: #0b1329; stroke: #1e293b; stroke-width: 2; }
+      .header-title { fill: #ffffff; font-family: system-ui, sans-serif; font-size: 26px; font-weight: 800; }
+      .header-sub { fill: #94a3b8; font-family: system-ui, sans-serif; font-size: 14px; }
+      .content-card { fill: #111c44; stroke: #1e293b; stroke-width: 1; }
+      .card-text-head { fill: #f8fafc; font-family: system-ui, sans-serif; font-size: 14px; font-weight: 700; }
+      .card-text-body { fill: #94a3b8; font-family: system-ui, sans-serif; font-size: 11px; }
+      .pip-cam { fill: #1e1b4b; stroke: #8b5cf6; stroke-width: 3; }
+      .cam-avatar { fill: #a78bfa; }
+      .hud-text { fill: #cbd5e1; font-family: monospace; font-size: 12px; }
+      .annotation { fill: #38bdf8; font-family: system-ui, sans-serif; font-size: 12px; font-weight: 600; }
+      .anno-line { stroke: #38bdf8; stroke-width: 1.5; stroke-dasharray: 4,4; }
+    </style>
+    <filter id="pip-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="15" result="blur"/>
+      <feOffset dx="0" dy="8" result="offset"/>
+      <feComponentTransfer in="offset" result="shadow">
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Canvas Outer Background -->
+  <rect width="960" height="540" class="canvas-outer" />
+
+  <!-- 16:9 Presentation Frame (800 x 450) -->
+  <g transform="translate(80, 45)">
+    <rect width="800" height="450" rx="12" class="slide-frame" />
+
+    <!-- Top Slide Header -->
+    <text x="40" y="55" class="header-title">04 • Architecture: Autonomous AI Orchestration</text>
+    <text x="40" y="80" class="header-sub">Multi-agent worker pools with isolated memory workspaces and task-bound retries.</text>
+
+    <!-- Main Content Area: Left Column -->
+    <g transform="translate(40, 115)">
+      <!-- Step Block 1 -->
+      <g transform="translate(0, 0)">
+        <rect width="420" height="85" rx="8" class="content-card" />
+        <circle cx="25" cy="25" r="10" fill="#6366f1" fill-opacity="0.3"/>
+        <text x="21" y="29" fill="#818cf8" font-family="monospace" font-size="11" font-weight="700">1</text>
+        <text x="45" y="30" class="card-text-head">Bounded Task Partitioning</text>
+        <text x="45" y="52" class="card-text-body">Break large objectives into atomic units with strict 5-8</text>
+        <text x="45" y="68" class="card-text-body">file boundaries before spawning execution.</text>
+      </g>
+
+      <!-- Step Block 2 -->
+      <g transform="translate(0, 100)">
+        <rect width="420" height="85" rx="8" class="content-card" />
+        <circle cx="25" cy="25" r="10" fill="#8b5cf6" fill-opacity="0.3"/>
+        <text x="21" y="29" fill="#a78bfa" font-family="monospace" font-size="11" font-weight="700">2</text>
+        <text x="45" y="30" class="card-text-head">Concurrent Thread Dispatch</text>
+        <text x="45" y="52" class="card-text-body">Spawn independent subagents in isolated directory</text>
+        <text x="45" y="68" class="card-text-body">branches without shared state hazards.</text>
+      </g>
+
+      <!-- Step Block 3 -->
+      <g transform="translate(0, 200)">
+        <rect width="420" height="85" rx="8" class="content-card" />
+        <circle cx="25" cy="25" r="10" fill="#10b981" fill-opacity="0.3"/>
+        <text x="21" y="29" fill="#34d399" font-family="monospace" font-size="11" font-weight="700">3</text>
+        <text x="45" y="30" class="card-text-head">Quality Gate &amp; Reconciliation</text>
+        <text x="45" y="52" class="card-text-body">Verify linting, types, and formatting before merging</text>
+        <text x="45" y="68" class="card-text-body">results into canonical memory structures.</text>
+      </g>
+    </g>
+
+    <!-- Main Content Area: Right Visual Column -->
+    <g transform="translate(485, 115)">
+      <rect width="275" height="185" fill="#162040" stroke="#334155" stroke-width="1" rx="8" />
+      <text x="80" y="100" class="hud-text" fill="#64748b">[SYSTEM ARCHITECTURE DIAGRAM]</text>
+    </g>
+
+    <!-- Draggable Floating PIP Webcam (Top-Right / Bottom-Right) -->
+    <g transform="translate(635, 315)" filter="url(#pip-glow)">
+      <circle cx="65" cy="65" r="55" class="pip-cam" />
+      <!-- Stylized Camera Icon / Presenter Silhouette -->
+      <circle cx="65" cy="55" r="20" class="cam-avatar" />
+      <path d="M 35 105 C 35 85, 95 85, 95 105 Z" class="cam-avatar" />
+      <!-- Status Indicator -->
+      <circle cx="102" cy="30" r="6" fill="#10b981" stroke="#0b1329" stroke-width="2" />
+    </g>
+
+    <!-- Slide Footer Bar -->
+    <line x1="0" y1="418" x2="800" y2="418" stroke="#1e293b" stroke-width="1" />
+    <rect x="0" y="446" width="320" height="4" fill="#8b5cf6" />
+    <text x="40" y="437" class="hud-text" font-size="10">DECK: AGENTIC AI ARCHITECTURE</text>
+    <text x="710" y="437" class="hud-text" font-size="10">04 / 24</text>
+  </g>
+
+  <!-- Explanatory Callouts -->
+  <line x1="160" y1="45" x2="160" y2="20" class="anno-line" />
+  <text x="110" y="15" class="annotation">16:9 Aspect Ratio Canvas (1920x1080 scalable)</text>
+
+  <line x1="780" y1="360" x2="860" y2="360" class="anno-line" />
+  <text x="760" y="390" class="annotation">Presenter Webcam PIP</text>
+  <text x="760" y="405" class="hud-text" font-size="10" fill="#94a3b8">(Draggable, Mirrored, Glowing)</text>
+</svg>

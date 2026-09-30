@@ -2,7 +2,7 @@
 
 **Version:** 3.3.0
 **Updated:** 2026-04-16
-**Source Module:** [`02-spec/18-wp-plugin-how-to/`](../18-wp-plugin-how-to/01-index.md)
+**Source Module:** [`02-spec/18-wp-plugin-how-to/`](../18-wp-plugin-how-to/readme.md)
 
 ---
 

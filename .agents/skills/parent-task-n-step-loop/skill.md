@@ -1,35 +1,46 @@
 ---
 name: parent-task-n-step-loop
-description: Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion.
+description: >-
+  Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step (N = 300) self-loop with mandatory A = 2, H = 2 subagents until completion.
 ---
 
-# [V2] Parent Task N-Step Continuous Loop & Multi-Agent Orchestration — Workflow (must follow)
-
-> [!IMPORTANT]
-> Prompt Version: 2.6.0
-> Synchronization: Main Meta-Repo & Connected Workspaces
->
-> **Top-Instruction Priority Mandate (Preamble Precedence):**
-> Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
-
-[/goal](slashCommand:goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure.
+# [V3] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow)
 
 ```text
-N = 200 (Total self-loop steps budget)
-A = 2   (Number of spawned autonomous subagents, default: 2)
-H = 2   (Number of hands / parallel operations per agent, default: 2)
-```
+N = 300 (Total self-loop steps budget — editable top-header parameter, default: 300)
+A = 2   (MANDATORY number of spawned autonomous subagents running concurrently via invoke_subagent, default: 2)
+H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
 
-N = total self-loop steps budget that the agents will perform.
-A = count of autonomous subagents running concurrently (default: 2).
-H = number of hands / parallel operations per agent (default: 2).
-
-```text
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Planning, Detailed Spec, and Lean Subtask Generation)
-PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Execution, Self-Looping, Targeted Quality Linting)
+System Concurrency Capacity = A × H = 2 agents × 2 hands = 4 concurrent subtask operations
+PHASE_1_STEPS = N / 2   (Steps 1 .. 150: Planning, Parallel Discovery Subagents, Detailed Spec, and Lean Subtask Generation)
+PHASE_2_STEPS = N / 2   (Steps 151 .. 300: Mandatory Parallel Subagent Execution, Self-Looping, Targeted Quality Linting)
 ```
 
 N, A, H, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
+
+> [!IMPORTANT]
+> Prompt Version: 3.0.0
+> Synchronization: Main Meta-Repo & Connected Workspaces
+>
+> **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
+> Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
+
+[/goal](slashCommand:goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop (`N = 300` default) until completion without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). You MUST spawn autonomous subagents (`A = 2`, `H = 2`) via `invoke_subagent` for parallel reading, modular spec generation, and disjoint code execution (solo execution without calling `invoke_subagent` is an auto-reject failure), use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
+
+[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, enforce mandatory `invoke_subagent` (`A = 2, H = 2`) spawning, and persist all progress into `.ai-memory/plans/` and memory logs.
+
+- **N = 300 (Editable Top-Header Parameter):** Total self-loop steps budget that the orchestrator and subagents will perform (`Steps 1 .. 150` in Phase 1; `Steps 151 .. 300` in Phase 2). Users can edit `N = 300` at the top of the prompt header to any desired step count before running.
+- **A = 2 (Mandatory Subagents):** Count of autonomous subagents running concurrently (`invoke_subagent` MUST launch `A = 2` subagents in parallel).
+- **H = 2 (Hands / Parallel Operations):** Concrete operational capacity defined across two execution axes:
+  1. **Workload Hands ($H_{batch} = 2$):** Each subagent is assigned a bounded batch of up to 2 tightly coupled, file-disjoint subtasks from `.ai-memory/plans/subtasks/` (e.g., Subagent 1 executes Subtasks 01 & 02; Subagent 2 executes Subtasks 03 & 04). This prevents agent sprawl while doubling throughput.
+  2. **Tool-Dispatch Hands ($H_{tool} = 2$):** Within any execution step, each agent or subagent executes up to 2 parallel tool calls in a single response turn (e.g., calling two `view_file` or two `run_command` operations simultaneously).
+
+### 🚨 MANDATORY SUBAGENT SPAWNING GATE (A = 2, H = 2 — ZERO SOLO EXECUTION ALLOWED)
+
+- **ABSOLUTE, NON-NEGOTIABLE MUST:** Spawning subagents via the `invoke_subagent` tool (`A = 2`, `H = 2`) is an **ABSOLUTE, NON-NEGOTIABLE MUST** in both **Phase 1** (parallel codebase discovery reading and modular spec authoring) and **Phase 2** (parallel subtask code execution with `TypeName: "self"`).
+- **SOLO EXECUTION IS AN AUTO-REJECT FAILURE:** The lead orchestrator is **STRICTLY FORBIDDEN** from executing all discovery reads or all subtask code modifications by itself without invoking `invoke_subagent`. Failing to call `invoke_subagent` when `A >= 2` is a critical protocol violation on the same tier as Rule 0.
+- **Phase 1 Mandatory Subagent Dispatch:** Immediately after establishing the Confirmed Task Breakdown (Phase 1A) and the single-agent unified blueprint overview (`01-overview.md` or parent plan skeleton), the lead agent MUST call `invoke_subagent` to spawn `A = 2` subagents in parallel for codebase discovery/reading or modular spec sections and yield the turn to await `<SYSTEM_MESSAGE>`.
+- **Phase 2 Mandatory Subagent Dispatch (`TypeName: "self"`):** Once subtasks are generated in `.ai-memory/plans/subtasks/xx-<slug>/`, the lead agent MUST call `invoke_subagent` with `TypeName: "self"` to dispatch `A = 2` worker subagents (`H = 2` disjoint subtasks per worker) and yield the turn to await `<SYSTEM_MESSAGE>`.
 
 ### Multi-Agent Parallel Task Allocation & Orchestration (A = 2, H = 2)
 
@@ -42,10 +53,34 @@ When multiple autonomous agents are present (A >= 2, H >= 2):
      - **Reading Files:** Fast exploratory reading, scanning dependencies, mapping call sites, and inspecting types in parallel using GitMap AUM (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary and Python scripts (`03-ai-scripts/17-fast-file-reader.py`, `03-ai-scripts/11-fast-file-scanner.py`) as fallback.
      - **Writing Modular Specs:** Authoring modular, segmented spec sub-files in parallel (e.g. `02-data-contracts.md`, `03-visual-and-ux.md`, `04-verification-gates.md`) adhering to the lead agent's blueprint.
 3. **Spec Writing & Spec Audit Emphasis:**
-   - **Spec Writing Section:** The lead agent defines the parent spec overview and data boundaries first; subagents are then spawned in parallel to flesh out disjoint spec modules and verification gates concurrently.
-   - **Spec Audit Section:** The lead agent establishes the audit methodology and roadmap first; subagents are then dispatched concurrently to inspect disjoint code areas, build the violation ledger, and generate granular subtask files.
-4. **Execution Mode (Disjoint Refactoring):**
-   - Subagents execute parallel disjoint refactoring tasks (each assigned to distinct, non-overlapping target files) and run targeted file-level linters (`exit 0`).
+   - **Spec Writing Section:** The lead agent defines the parent spec overview and data boundaries first; subagents are then spawned in parallel via `invoke_subagent` to flesh out disjoint spec modules and verification gates concurrently.
+   - **Spec Audit Section:** The lead agent establishes the audit methodology and roadmap first; subagents are then dispatched concurrently via `invoke_subagent` to inspect disjoint code areas, build the violation ledger, and generate granular subtask files.
+4. **Execution Mode (Disjoint Refactoring via Subagent Batches):**
+   - Subagents execute parallel disjoint refactoring tasks via `invoke_subagent` (`TypeName: "self"`, each assigned to distinct, non-overlapping target files across its $H=2$ subtasks) and run targeted file-level linters (`exit 0`).
+
+#### High-Speed GitMap Acceleration Options (Run Everything Faster)
+
+Always prefer native GitMap commands over slow generic shell pipelines:
+1. **Ultra-Fast File & Directory Discovery (AUM Index & Walk):**
+   - **Wildcard / Glob Search:** `gitmap find "<wildcard*>" [-ext <ext>]` (alias `gitmap f`)
+   - **Exact Filename Search:** `gitmap find-files <name> [-ext <ext>]` (alias `gitmap ff`)
+   - **Substring Filename Search:** `gitmap find-files-any "<str>" [-ext <ext>]` (alias `gitmap ffa`)
+   - **Prefix / Suffix Search:** `gitmap find-files-startswith <prefix>` (`gitmap ffs`) / `gitmap find-files-endswith <suffix>` (`gitmap ffe`)
+   - **List Indexed Repo Files:** `gitmap list-files [pattern] [-ext <ext>]` (alias `gitmap lf`)
+   - **Directory Tree & Scaffolding:** `gitmap folder-tree` (alias `gitmap ft`)
+   - **Zero-Write File Stream:** `gitmap cat <filepath>`
+   - **Instant Multi-Core Regex Search:** `gitmap search "<term>"` or `gitmap aum search "<query>" [dir] --ext <ext>`
+2. **Fast Repository Hygiene, Lowercase & Symlink Repair:**
+   - **Auto-Lowercase Files (Safe 2-Step `git mv`):** `gitmap lowercase` (alias `gitmap lcf [--dry-run]`)
+   - **Lowercase Root Readme:** `gitmap lowercase-readme`
+   - **Sync Curated `.gitignore` / `.gitattributes` / `.prettierignore`:** `gitmap commons` (alias `gitmap co` or `gitmap sync all`)
+   - **Repair Broken Symlinks:** `gitmap fix-link` (alias `gitmap fixlink`)
+   - **Clean Update Temp & Inspect Storage:** `gitmap update-cleanup`, `gitmap storage` (alias `gitmap stor`)
+3. **Fast Git State, Execution & Atomic Commits:**
+   - **Repo Status & Remote Check:** `gitmap status` (`gitmap st`), `gitmap has-any-updates` (`gitmap hau`), `gitmap latest-branch` (`gitmap lb`)
+   - **Fast Cross-Platform Shell Runner:** `gitmap pwsh "<command>"` (`gitmap ps`), `gitmap bash "<command>"` (`gitmap sh`), `gitmap async <cmd>` (`gitmap asyn`)
+   - **Semantic Atomic Commit & Push:** `gitmap cpf "<summary>"` (Feature), `gitmap cpb "<summary>"` (Bug), `gitmap cpr "<summary>"` (Release), `gitmap pcp "<summary>"` (Pull-Commit-Push)
+   - **Smart CI/CD Pipeline Waiting:** `gitmap pe`, `gitmap pipeline-ai status --json` (`gitmap pl-ai status -t <etaSeconds>`)
 
 ---
 
@@ -53,8 +88,8 @@ When multiple autonomous agents are present (A >= 2, H >= 2):
 
 Before executing the tasks below, check if this prompt is already installed as a native Antigravity Skill.
 
-1. If `.agents/skills/<slug>/SKILL.md` does not exist in the workspace, create it now.
-2. Extract the core instructions of this prompt and save it into that `SKILL.md` using the standard YAML frontmatter (with `name` and `description`).
+1. If `.agents/skills/<slug>/skill.md` does not exist in the workspace, create it now.
+2. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter (with `name` and `description`).
 3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
 
 ---
@@ -76,7 +111,7 @@ Before executing any file searches, scans, spec writing, or code changes, you mu
 4. Actionable Deliverables Extraction: Break down whatever user requirements were given (regardless of how they were formatted) into discrete, actionable items with ordered traceable IDs (`Task-01`, `Task-02`, `Task-03`) under `## Extracted Actionable Task List`.
 5. Mandatory Chat Output Gate & Same-Turn Tool Chaining (TOTAL BAN ON CLOSING CONVERSATION):
    - You MUST output the confirmed deliverables list directly in chat, but you MUST NOT end your turn or pause after emitting it!
-   - In the EXACT SAME RESPONSE turn as your markdown output, you MUST immediately invoke the first tool call (e.g. `write_to_file` to initialize the planning spec or `run_command` for fast discovery).
+   - In the EXACT SAME RESPONSE turn as your markdown output, you MUST immediately invoke the first tool call (e.g. `write_to_file` to initialize the planning spec or `invoke_subagent` / `run_command` for fast discovery).
    - NEVER emit the breakdown text without invoking a tool call. Emitting visible text without a tool call terminates the AI turn, causing the engine to close or hang the conversation while tasks remain pending.
    - TOTAL BAN ON WAITING FOR APPROVAL: Do not pause, do not wait for the user to reply, and do not ask "Should I proceed?". Override any planning mode stop directives. Proceed immediately into Phase 1B in the same turn.
    - Respect whatever requirements the user has given, parse every request completely, and format each task clearly with proper markdown indentation, vertical blank lines, task state (`State: [IN PROGRESS — EXECUTING IMMEDIATELY]`), and an explicit understanding indicator bracket (`Understood: [YES — ...]`).
@@ -110,7 +145,8 @@ Before executing any file searches, scans, spec writing, or code changes, you mu
 Proceeding directly to Phase 1B: Spec & Subtask Generation (Active Tool Call Running Below).
 ```
 
-MANDATORY SAME-TURN TOOL CHAIN: The breakdown text above and your first tool call (e.g. `write_to_file` to save the spec or `run_command` to discover files) MUST be emitted in the EXACT SAME TURN. Never end the turn with text alone.
+MANDATORY SAME-TURN TOOL CHAIN: The breakdown text above and your first tool call (e.g. `write_to_file` to save the spec or `invoke_subagent` / `run_command` to discover files) MUST be emitted in the EXACT SAME TURN. Never end the turn with text alone before execution has begun.
+(Clarification: This same-turn chaining rule prevents premature turn closure during planning and synchronous tool loops. It does not apply when awaiting asynchronous background subagents after calling `invoke_subagent`, where yielding control is required for reactive wakeup).
 
 ---
 
@@ -119,37 +155,37 @@ MANDATORY SAME-TURN TOOL CHAIN: The breakdown text above and your first tool cal
 #### Step 1: Canonical Application Spec Generation (Folder 21 Standard)
 First, write the canonical application specification into `02-spec/21-app/` before creating execution plans or modifying code:
 - **Single-Agent Unified Blueprint Mandate (MANDATORY):**
-  - The initial plan, architecture overview (`01-overview.md`), data boundaries, and lookahead roadmap MUST be authored by a single lead agent first as a unified blueprint before delegating to subagents. Never allow multiple agents to author disjoint or competing initial plans simultaneously.
-  - Once the unified blueprint is established by the single lead agent, subagents (A = 2, H = 2) are spawned to handle parallel modular spec writing (`02-data-contracts.md`, `03-visual-and-ux.md`, `04-verification-gates.md`) adhering strictly to the blueprint.
+   - The initial plan, architecture overview (`01-overview.md`), data boundaries, and lookahead roadmap MUST be authored by a single lead agent first as a unified blueprint before delegating to subagents. Never allow multiple agents to author disjoint or competing initial plans simultaneously.
+   - Once the unified blueprint is established by the single lead agent, subagents (`A = 2, H = 2`) MUST be spawned via `invoke_subagent` to handle parallel modular spec writing (`02-data-contracts.md`, `03-visual-and-ux.md`, `04-verification-gates.md`) or parallel codebase discovery adhering strictly to the blueprint.
 - **Location & Sizing Standard:**
-  - Concise / single-domain specs (<= 150 lines): Write to `02-spec/21-app/xx-<slug>.md`.
-  - Large / multi-domain features: Write to a segmented directory `02-spec/21-app/xx-<slug>/` with sequential sub-files:
-    - `01-overview.md` (Domain architecture, system context, verbatim user request — authored by lead agent)
-    - `02-data-contracts.md` (Models, schemas, interfaces, error types — parallel subagent task)
-    - `03-visual-and-ux.md` (Component hierarchy, visual layout, screenshots — parallel subagent task)
-    - `04-verification-gates.md` (Quality gates, test invariants, acceptance criteria — parallel subagent task)
+   - Concise / single-domain specs (<= 150 lines): Write to `02-spec/21-app/xx-<slug>.md`.
+   - Large / multi-domain features: Write to a segmented directory `02-spec/21-app/xx-<slug>/` with sequential sub-files:
+     - `01-overview.md` (Domain architecture, system context, verbatim user request — authored by lead agent)
+     - `02-data-contracts.md` (Models, schemas, interfaces, error types — parallel subagent task)
+     - `03-visual-and-ux.md` (Component hierarchy, visual layout, screenshots — parallel subagent task)
+     - `04-verification-gates.md` (Quality gates, test invariants, acceptance criteria — parallel subagent task)
 - **Lossless Verbatim Capture:** Under `## User Request (Verbatim)`, preserve the exact prompt text and constraints without truncation.
 - **Visual Assets & Base64 Screenshots:** If screenshot URLs or base64 images were provided, verify they were decoded and saved to `assets/screenshots/<task-slug>-<NN>.png` and reference them strictly via relative markdown links.
 - **Spec Registry Registration:** Register the new spec entry in `02-spec/21-app/readme.md` with status `draft` or `active`.
 
-#### Step 2: Scan & Discover (GitMap AUM Acceleration & Multi-Agent Parallel Reading)
-To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, leverage the 2-tier discovery toolchain:
+#### Step 2: Scan & Discover (GitMap AUM Acceleration & Mandatory Multi-Agent Parallel Reading)
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, leverage the 2-tier discovery toolchain and spawn `A = 2` discovery subagents:
 
-##### Tier 1: GitMap AUM Acceleration (PRIMARY)
+#### Tier 1: GitMap AUM Acceleration (PRIMARY)
 - **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]` (e.g. `gitmap find "*.go" -ext "go"`, `gitmap find "01*"`)
 - **List Indexed Files:** `gitmap list-files [pattern]` (alias `gitmap lf [pattern] [-ext <ext>]`)
 - **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
 - **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
 - **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
 
-##### Tier 2: Fast Cached Python Toolchain (FALLBACK)
+#### Tier 2: Fast Cached Python Toolchain (FALLBACK)
 - **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`
 - **Fast Cached Grep (<15ms):** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --limit 50`
 - **Sub-Millisecond Folder Exploration:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --limit 50`
 - **Read Target File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000`
 - **Subsystem & Topology Overview:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
 
-**Multi-Agent Parallel Discovery (A = 2, H = 2):** When multiple agents are present, the most useful parallel tasks are reading files and authoring modular specs. Subagents concurrently read disjoint codebase areas, explore dependencies, and trace call sites without merge conflicts.
+**Mandatory Multi-Agent Parallel Discovery (`A = 2, H = 2`):** Do NOT read all codebase modules solo in a single thread. Call `invoke_subagent` to dispatch `A = 2` subagents concurrently to read disjoint codebase areas, explore dependencies, and trace call sites without merge conflicts.
 
 #### Step 3: Actionable Execution Plan & Lean Subtask Decomposition
 With the canonical spec established in `02-spec/21-app/`, initialize the execution plan and decompose it into subtasks in `.ai-memory/plans/`:
@@ -157,7 +193,7 @@ With the canonical spec established in `02-spec/21-app/`, initialize the executi
   - Strict relative link to the canonical spec: `Spec Reference: [02-spec/21-app/xx-<slug>.md](../../../02-spec/21-app/xx-<slug>.md)`
   - Architectural context, custom domain constraints, and blast radius analysis.
   - Complete mapping of deliverables (`Task-01`, `Task-02`, etc.) to subtask files.
-- **Subtask Files:** Break down the plan into granular subtasks in `.ai-memory/plans/subtasks/xx-<slug>/01-<subtask>.md`, `02-<subtask>.md`, etc. Complete all spec and subtask writing within 50% of the steps budget (`PHASE_1_STEPS = N / 2`).
+- **Subtask Files:** Break down the plan into granular subtasks in `.ai-memory/plans/subtasks/xx-<slug>/01-<subtask>.md`, `02-<subtask>.md`, etc. Complete all spec and subtask writing within 50% of the steps budget (`PHASE_1_STEPS = N / 2 = 150`).
 - **No Common Boilerplate:** Do not write common repository boilerplate, universal coding rules, banned operations, or generic guidelines inside subtask files. Common rules belong in the parent plan and root guidelines. Subtasks must contain only the unique, non-common items required for that specific subtask.
 
 Subtasks must follow this lean, unique template:
@@ -183,22 +219,83 @@ Before transitioning to execution, verify:
 
 #### Step 5: Unconditional Zero-Question Execution Mandate (Total Ban on Stopping After Spec Writing)
 
-- **Strict 50/50 Time & Step Budget Allocation:** Spec writing and subtask generation MUST strictly complete within the first 50% of the budget (`PHASE_1_STEPS = N / 2`).
-- **Zero Questions / Unconditional Execution:** As soon as Phase 1 planning completes, the master orchestrator MUST NOT pause, stop, or ask the user "Should I proceed?", "Would you like me to start execution?", or any confirmation question. There is NO question. It must immediately, unconditionally self-loop and transition directly into Phase 2 execution mode.
-- **Spec Writing is Only Half the Task:** Generating specs without executing code changes is an INCOMPLETE FAILURE. The remaining 50% of the budget (`PHASE_2_STEPS = N / 2`) is dedicated strictly to modifying code, running targeted quality linters, consolidating subtasks, and completing the deliverables.
+- **Strict 50/50 Time & Step Budget Allocation:** Spec writing and subtask generation MUST strictly complete within the first 50% of the budget (`PHASE_1_STEPS = N / 2 = 150`).
+- **Zero Questions / Unconditional Execution:** As soon as Phase 1 planning completes, the master orchestrator MUST NOT pause, stop, or ask the user "Should I proceed?", "Would you like me to start execution?", or any confirmation question. There is NO question. It must immediately, unconditionally self-loop and transition directly into Phase 2 execution mode by invoking `invoke_subagent`.
+- **Spec Writing is Only Half the Task:** Generating specs without executing code changes is an INCOMPLETE FAILURE. The remaining 50% of the budget (`PHASE_2_STEPS = N / 2 = 150`) is dedicated strictly to modifying code via parallel subagents, running targeted quality linters, consolidating subtasks, and completing the deliverables.
 
 ---
 
-### Phase 2: Execution Mode & Parallel Refactoring (Steps N/2+1 .. N)
+### Phase 2: Mandatory Subagent Execution Mode & Parallel Refactoring (Steps N/2+1 .. N)
 
-1. Parallel Dispatch & Unconditional Execution: Unconditionally execute code refactoring across target files in the remaining 50% of the steps budget (`PHASE_2_STEPS = N / 2`). Use `invoke_subagent` to spawn up to A = 2 execution subagents (H = 2 operations each) assigned to disjoint subtasks from `.ai-memory/plans/subtasks/xx-<slug>/`. Provide subagents with minimal instructions (e.g., "Read `.ai-memory/plans/subtasks/xx-slug/01-task.md` and execute it").
-2. File Locking & Disjoint Files: Verify subagents operate on distinct files using `.ai-memory/readme.md`.
-3. Execution & Coding Guidelines: Subagents refactor code following all coding guidelines (<= 8-15 line functions, single return types, Unix LF line endings).
-4. Failure Memory & Error Recovery: If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/xx-failure.md`; subsequent agents must read the failure log first to remediate root causes.
-5. Atomic Change Tracking: Append all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.ai-memory/test-inventory.json` for subsequent CI/CD verification.
-6. Total Ban on Test Running: Do not run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`), Go (`go test`), or any test runner during routine execution turns. All test execution is strictly deferred to CI/CD pipelines and dedicated fix workflows.
-7. Total Ban on Build Checking: Do not run build verification commands (`go build`, `npm run build`, compiler invocations). Build compilation is checked later on in CI/CD.
-8. Targeted Quality Linting Only: Run only targeted, fast file-level linters or autofixers on specifically modified files (`exit 0`). Do not run `06-cicd-local-runner.py` or full test suites.
+> [!CRITICAL]
+> **MANDATORY `invoke_subagent` DISPATCH IN PHASE 2 (ZERO SOLO EXECUTION):**
+> You MUST call `invoke_subagent` to spawn `A = 2` worker subagents (`TypeName: "self"`, `H = 2` disjoint subtasks per worker) to execute the subtask batches in parallel. Executing all subtasks solo in the main orchestrator without calling `invoke_subagent` is an immediate auto-reject violation!
+
+1. **Parallel Dispatch & Concrete Subagent Schema (A = 2, H = 2):**
+   - Unconditionally execute code refactoring across target files in the remaining 50% of the steps budget (`PHASE_2_STEPS = N / 2 = 150`).
+   - Use `invoke_subagent` to spawn `A = 2` execution subagents concurrently. Each subagent handles an operational capacity of `H = 2` (a bounded batch of up to 2 disjoint subtasks from `.ai-memory/plans/subtasks/xx-<slug>/`).
+   - **Mandatory Tool Schema (`TypeName: "self"`):** Subagents executing code changes MUST use `TypeName: "self"` to inherit the parent agent's write and command capabilities (`write_to_file`, `replace_file_content`, `run_command`). (Using `research` is strictly banned for code refactoring).
+   - **Invocation Payload Template:**
+     ```json
+     {
+       "Subagents": [
+         {
+           "TypeName": "self",
+           "Role": "Subtask Worker 01: [Feature/Module A]",
+           "Model": "inherit",
+           "Prompt": "[Subagent Prompt Envelope Below]"
+         },
+         {
+           "TypeName": "self",
+           "Role": "Subtask Worker 02: [Feature/Module B]",
+           "Model": "inherit",
+           "Prompt": "[Subagent Prompt Envelope Below]"
+         }
+       ]
+     }
+     ```
+
+2. **Self-Contained Subagent Prompt Envelope (Eliminate Context Blindness):**
+   - NEVER spawn subagents with starved one-liner instructions (e.g., NEVER just "Read 01-task.md and execute it"). Subagents spawn with a clean context and must receive a complete, self-contained **Prompt Envelope**:
+     ```markdown
+     You are Subagent Worker [NN].
+
+     ### Assigned Subtasks (H = 2 Batch Capacity):
+     - Subtask 1: `.ai-memory/plans/subtasks/xx-<slug>/01-<name>.md`
+     - Subtask 2: `.ai-memory/plans/subtasks/xx-<slug>/02-<name>.md` (if assigned)
+
+     ### Strict Target File Bounding Box (Disjoint Files Only):
+     - Allowed Target Files: `[path/to/file1.go, path/to/file2.go]`
+     - TOTAL BAN: You are strictly banned from touching or modifying ANY other files in the workspace.
+
+     ### Non-Negotiable Coding Rules:
+     1. Positive booleans only (`isReady`, `hasPermission`), NO explicit `== true`.
+     2. Structured Go errors: return `*appfault.AppError`, never bare `error`.
+     3. Function sizing: <= 8 lines preferred (hard cap 15 lines).
+     4. Zero tests or builds: NEVER run `go test`, `pytest`, or build commands.
+     5. Targeted quality check: Run only targeted file-level linters (`python 03-ai-scripts/05-guideline-autofixer.py <file>`).
+
+     ### Completion & Reporting Contract:
+     When finished, emit a structured completion summary detailing:
+     - Exact files modified
+     - Verification status
+     - Any blockers encountered
+     Conclude your response cleanly. Your output will be delivered back to the parent orchestrator via the reactive messaging system.
+     ```
+
+3. **Reactive Wakeup & Turn-Yielding Protocol (Deadlock Prevention):**
+   - In Google Antigravity, background subagents run asynchronously in the platform runtime. The parent agent receives subagent completions via the **Reactive Wakeup** messaging system (`<SYSTEM_MESSAGE>`).
+   - **MANDATORY YIELD RULE:** Immediately after issuing the `invoke_subagent` tool call, the parent orchestrator MUST output a brief progress note to the user (e.g. `Dispatched Subagents [01] and [02] to execute subtasks in parallel. Yielding turn to await completion...`) and **STOP CALLING TOOLS**.
+   - **NO BUSY-POLLING (TOTAL BAN):** NEVER run tight-polling loops using `manage_task` or filesystem checks to wait for subagents. Ending the tool-call chain allows the platform scheduler to execute the background subagents and deliver their completion messages into the parent's inbox upon wakeup.
+   - When the subagents finish, the engine wakes up the parent agent automatically with a `<SYSTEM_MESSAGE>`. The parent inspects the results, verifies acceptance criteria, and either dispatches the next batch of `A = 2, H = 2` subagents or transitions to Phase 3 consolidation.
+
+4. **File Locking & Disjoint Files:** Verify subagents operate on strictly distinct files using `.ai-memory/readme.md`.
+5. **Execution & Coding Guidelines:** Subagents refactor code following all coding guidelines (<= 8-15 line functions, single return types, Unix LF line endings).
+6. **Failure Memory & Error Recovery:** If a subagent fails or times out, the parent logs the root cause in `.ai-memory/memory/issues/xx-failure.md` and either executes the subtask directly or dispatches a targeted remediation subagent.
+7. **Atomic Change Tracking:** Append all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.ai-memory/test-inventory.json` for subsequent CI/CD verification.
+8. **Total Ban on Test Running:** Do not run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`), Go (`go test`), or any test runner during routine execution turns. All test execution is strictly deferred to CI/CD pipelines and dedicated fix workflows.
+9. **Total Ban on Build Checking:** Do not run build verification commands (`go build`, `npm run build`, compiler invocations). Build compilation is checked later on in CI/CD.
+10. **Targeted Quality Linting Only:** Run only targeted, fast file-level linters or autofixers on specifically modified files (`exit 0`). Do not run `06-cicd-local-runner.py` or full test suites.
 
 #### Remote CI/CD Pipeline Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI)
 
@@ -352,11 +449,19 @@ To prevent instruction bloat, context exhaustion, and repetitive failure loops, 
 ```text
 [Phase 1A: Prompt Capture & Task Extraction Gate]
                 │
-                ▼
-[Phase 1B: Master Spec & Lean Subtask Generation]
+                ▼ (Chained Tool Call — Same Turn)
+[Phase 1B: Blueprint + invoke_subagent(A=2, H=2) Discovery & Modular Specs + Lean Subtasks]
                 │
                 ▼ (Automatic Transition — Do Not Pause)
-[Phase 2: 2-Agent Parallel Execution & Linting]
+[Phase 2: Mandatory Subagent Dispatch & Execution (Steps 151..300)]
+                │
+                ├──> invoke_subagent(A=2, H=2, TypeName="self")
+                │         │
+                │         ▼ (Yield Control to Platform Engine)
+                │    [Subagents Execute in Background]
+                │         │
+                │         ▼ (Reactive Wakeup via <SYSTEM_MESSAGE>)
+                └──> Ingest Results & Verify Acceptance Gates
                 │
                 ▼ (On All Subtasks Done)
 [Phase 3: Task Consolidation & Atomic Git Push]
@@ -396,6 +501,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 ## 2. Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
 - [ ] TOP-INSTRUCTION PRIORITY MANDATE: Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) are verified as highest priority and non-negotiable, overriding all lower-level guidelines below.
+- [ ] MANDATORY SUBAGENT SPAWNING GATE (ZERO SOLO EXECUTION): Verified that `invoke_subagent` (`A = 2, H = 2`) was explicitly called in Phase 1 (parallel discovery/spec modules) and Phase 2 (`TypeName: "self"` parallel subtask execution). Executing all reads or code modifications solo without calling `invoke_subagent` is an immediate auto-reject failure.
 - [ ] ISSUE & RCA DESTINATION ROUTING: Whenever resolving an issue or performing a fix with RCA, verified that CI/CD failures are documented in .ai-memory/cicd-issues/NN-<slug>.md (indexed in .ai-memory/cicd-index.md), while non-CI/CD issues (application bugs, logic/runtime defects) are documented in 02-spec/22-app-issues/NN-<slug>.md (indexed in 02-spec/22-app-issues/readme.md).
 - [ ] NO TEST RUNNING (TOTAL BAN): Never run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
 - [ ] NO BUILD CHECKING (TOTAL BAN): Never run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
@@ -403,7 +509,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] NO AUTOMATIC RELEASES (TOTAL BAN): Never bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] NO PER-FILE COMMITTING (TOTAL BAN): Never commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
 - [ ] NO RAPID CI/CD POLLING (TOTAL BAN): Never query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents must query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait or sleep based on `etaSeconds` to eliminate credit waste.
-- [ ] NO STOPPING AFTER SPEC WRITING (TOTAL BAN): Never halt execution, conclude the turn, or ask the user for permission after generating specs or subtasks. Planning constitutes only 50% of the task budget; you must proceed unconditionally to Phase 2 code execution.
+- [ ] NO PREMATURE TURN CLOSING BEFORE EXECUTION (TOTAL BAN): Never halt execution, conclude the turn, or ask the user for permission after generating specs or subtasks. Planning constitutes only 50% of the task budget; you must proceed unconditionally to Phase 2 code execution. (Note: When dispatching asynchronous background subagents via `invoke_subagent`, yielding control to allow platform reactive wakeup is mandatory and is exempt from this ban).
 - [ ] NO HORIZONTAL TASK CONCATENATION (TOTAL BAN): Never concatenate tasks horizontally in the Task Completion Summary (e.g. NEVER `✅ #1... ✅ #2...` run-on). Every completed task MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
 - [ ] INDEPENDENT AI VERIFICATION PROMPT MANDATE: Emitted the self-contained independent AI verification and audit prompt linking to the canonical spec, consolidated plan, and modified files with verbatim score audit criteria.
 - [ ] GITMAP HEAVY USAGE & ROUTINE PULL BAN: Heavily leveraged GitMap commands (`cpf`, `cpb`, `cpr`, `search`, `find`, `pwsh`) for discovery, execution, and commits. Never ran `pull-all` (`gitmap pa` or `gitmap pae`) unconditionally during routine turns; only ran `gitmap pae --json` when explicitly commanded by the user.
@@ -442,3 +548,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 
 - [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
 - [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` or `gitmap cpf` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.
+
+## MUST FOLLOW NON-NEGOTIABLE
+
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.

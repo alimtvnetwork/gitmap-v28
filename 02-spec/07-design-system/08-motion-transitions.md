@@ -251,6 +251,28 @@ The overlay backdrop uses `backdrop-filter: blur(4px)` with `z-index: 998`.
 
 ---
 
+## Controlled Multi-Card Sliding Carousels
+
+For interactive project showcases, team rails, and customer stories:
+- **1-Card Step Advance:** Clicking navigation controls or swipe advances the track by exactly one card width + gutter (not jarring multi-card jumps).
+- **GPU-Composited Translation:** Track moves via `transform: translate3d(-Xpx, 0, 0)` with `--ease-out-editorial` (`cubic-bezier(0.16, 1, 0.3, 1)`).
+- **Autoplay & Safeguards:** Default 5.2s loop; MUST automatically pause on hover, keyboard focus (`:focus-within`), touch active, offscreen (`IntersectionObserver`), or `prefers-reduced-motion`.
+- **No Card Hover Lift:** Never use `translateY` hover lifts inside a moving horizontal carousel; rely on border brightening and subtle image scale (`scale(1.02)`) to avoid vertical jitter.
+
+---
+
+## Choreographed Entrance Grammar
+
+Content reveals follow an intentional grammatical hierarchy:
+- `maskUp`: Line-by-line clip-path upward wipe for display titles.
+- `rise`: Vertical rise (`y: 18px -> 0`, `opacity: 0 -> 1`) for body and cards over 520ms.
+- `drawRule`: Horizontal rule expansion (`scaleX: 0 -> 1`) from the left.
+- `countUp`: Tabular numeric incrementation for statistics.
+
+See [19-modern-motion-and-sliding-interactions.md](./19-modern-motion-and-sliding-interactions.md) for full kinetic tokens and implementation guides.
+
+---
+
 ## Motion Anti-Patterns
 
 | ❌ Forbidden | ✅ Alternative |
@@ -271,5 +293,6 @@ The overlay backdrop uses `backdrop-filter: blur(4px)` with `z-index: 998`.
 | Reference | Location |
 |-----------|----------|
 | Design Principles (Motion Rule) | [02-design-principles.md](./02-design-principles.md) |
+| Modern Motion & Sliding Interactions | [19-modern-motion-and-sliding-interactions.md](./19-modern-motion-and-sliding-interactions.md) |
 | Button System (Slide Animation) | [11-button-system.md](./11-button-system.md) |
 | Code Block Interactions | [09-code-blocks.md](./09-code-blocks.md) |

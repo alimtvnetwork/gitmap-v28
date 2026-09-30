@@ -187,10 +187,52 @@ No design decision should depend on React, Tailwind, or any specific build tool.
 
 ---
 
+## 11. 60 / 30 / 10 Visual Balance & Von Restorff Rule
+
+To prevent visual clutter and maintain clear conversion intent:
+
+- **60% Dominant Neutral Base:** The deepest ground (Plane 0 or Plane 1) provides breathing room and contrast.
+- **30% Structural Surfaces & Typography:** Content cards, tables, headers, and secondary text define the informational architecture.
+- **10% Purposeful Accent:** The saturated brand accent is reserved strictly for primary actions, active states, and focal metrics.
+
+### Single-Accent Von Restorff Principle
+At any given viewport position, **exactly ONE prominent accent-filled element** may be visible (e.g. a solid Primary CTA). Secondary actions must use outline, ghost, or hairline styling. If two solid primary buttons are placed side-by-side, the visual hierarchy collapses into noise.
+
+---
+
+## 12. 4-Plane Depth Hierarchy (Materiality Over Shadows)
+
+In modern dark and light interfaces, depth is created by stepped lightness planes and top-edge hairline highlights rather than dark drop shadows:
+
+- **Plane 0 (Canvas Base):** Deepest page ground (`#0A0F1D` or `#0B0A09` in dark; `#FBF9F6` in light).
+- **Plane 1 (Raised Wells):** Inset containers, alternating section bands, and sidebars (+3% to 4% lightness).
+- **Plane 2 (Surface):** Cards, panels, input fields, and code blocks (+3% to 4% lightness).
+- **Plane 3 (Elevated):** Modals, dropdowns, and hovered cards with subtle edge glow.
+
+Adjacent sections alternate between Plane 0 and Plane 1 to establish rhythm.
+
+---
+
+## 13. Anti-AI-Slop Governance
+
+All AI models generating UI code against this design system are strictly forbidden from producing:
+1. **Generic 3-card grids** with circular icons and 1-line descriptions.
+2. **Purple-blue gradient soup** across large background canvases.
+3. **Unanchored heroes** lacking a tangible visual anchor (diagram, photo, or interactive scorecard).
+4. **Adjective proof** ("cutting-edge", "world-class") in place of concrete numbers and metrics.
+5. **Uniform section padding** that deprives the page of visual rhythm.
+
+---
+
 ## Cross-References
 
 | Reference | Location |
 |-----------|----------|
 | Theme Variable Registry | [03-theme-variable-architecture.md](./03-theme-variable-architecture.md) |
+| Theme Catalogue & Palettes | [16-theme-catalogue-and-palettes.md](./16-theme-catalogue-and-palettes.md) |
+| Machine-Readable Theme Tokens | [17-theme-tokens.json](./17-theme-tokens.json) |
+| Dark Mode & Materiality | [18-dark-mode-and-materiality.md](./18-dark-mode-and-materiality.md) |
+| Motion & Sliding Interactions | [19-modern-motion-and-sliding-interactions.md](./19-modern-motion-and-sliding-interactions.md) |
+| AI Training & Anti-Slop Guide | [20-ai-training-and-checklist-guide.md](./20-ai-training-and-checklist-guide.md) |
 | Motion System | [08-motion-transitions.md](./08-motion-transitions.md) |
 | WordPress Migration | [15-wordpress-migration.md](./15-wordpress-migration.md) |

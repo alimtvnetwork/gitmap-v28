@@ -2,9 +2,9 @@
 
 Version: 1.5.0
 
-This is a standalone file. Follow every rule below without consulting any other document. If a `02-spec/02-coding-guidelines/` folder, a `02-spec/02-coding-guidelines/01-cross-language/01-index.md` file, or a `02-spec/03-error-manage/` folder exists in this repository, treat those as strictly binding extensions to this file, but this file alone is enough to write compliant code. The `error-manage` rules must be tightly followed.
+This is a standalone file. Follow every rule below without consulting any other document. If a `02-spec/02-coding-guidelines/` folder, a `02-spec/02-coding-guidelines/01-cross-language/readme.md` file, or a `02-spec/03-error-manage/` folder exists in this repository, treat those as strictly binding extensions to this file, but this file alone is enough to write compliant code. The `error-manage` rules must be tightly followed.
 
-**Before reading the rules below**, read the [AI Instruction Manual & Overview](02-spec/02-coding-guidelines/01-cross-language/01-index.md) to understand how to review code, interpret files, and maintain repository hygiene (e.g. updating `.gitignore`).
+**Before reading the rules below**, read the [AI Instruction Manual & Overview](../02-coding-guidelines/01-cross-language/readme.md) to understand how to review code, interpret files, and maintain repository hygiene (e.g. updating `.gitignore`).
 
 Canonical locations (all three must exist and match, byte-for-byte, via `scripts/sync-guidelines.mjs`):
 
@@ -57,7 +57,15 @@ auto-reject on the same tier as RULE 0.
 23. **No Magic Strings**: Every state or status comparison must check against a named enum symbol. Never compare against raw strings like `status === 'ACTIVE'`.
 24. **Pattern Matching**: Switch or match statements on enums MUST be exhaustive (or include a default/fallback branch that throws or handles the error safely).
 25. **AI Trigger: Update Prompts**: If the user instructs to "update prompts from prompt architect" (or similar wording), you MUST immediately execute `pwsh scripts/update-prompts-from-architect.ps1` (or `.sh` on Unix) to pull the latest AI prompt files from the prompt-architect showcase into `01-prompts/`. After updating, you must run `npm run sync` and push the changes.
-26. **Lazy Regex & Test Diagnostics (`lazyregex.MatchResult`)**: Never use raw `regexp.MustCompile` outside `lazyregex`. In tests and pattern validation, blind boolean regex assertions (`if !re.MatchString(s)`) are strictly banned. Always use `rs := lazyRegex.MatchResult(s)` and assert with `if rs.IsFailed() { t.Error(rs.AppError()) }`. Extract capture groups via `rs.Items()`, `rs.Map()`, `rs.First()`, `rs.Last()`, and `rs.FirstOrDefault()`. On mismatch, `rs.AppError()` logs the exact pattern, compared text, and byte length.
+26. **No Intermediate Variable Mutation (Return-from-Function Pattern)**: Never declare a zero-valued or unassigned variable before a `switch` or `if/else` block and reassign it across cases (e.g. `var data []byte; switch ...: case ...: data = v`). Instead, encapsulate the conversion/mapping into a pure helper function that immediately returns from each branch, or use a dedicated conversion package.
+27. **Standalone Payload Conversion Architecture (`payloadconv`)**: Polymorphic conversions of generic payloads (`any` to `[]byte`, JSON, line-by-line slices) must be isolated in a dedicated conversion package (e.g. `payloadconv`). Slices of strings MUST format line-by-line with newlines; structs and maps MUST serialize as indented JSON with a trailing newline.
+28. **Unified File Writing & Concurrency Locking Standard (`fileutil`)**: File writing operations must provide a unified entry point (`Write` accepting any payload) alongside explicit typed writers (`WriteJSON`, `WriteLines`, `WriteString`). Concurrent writes must support file-path-based mutex locking with automatic reference-counted eviction (`ReleaseFileLock`) to guarantee zero memory leaks and prevent race conditions.
+29. **Strict Return Types for Errors (`appfault` Standard)**: Custom serializers or formatters that write or serialize `AppError` payloads MUST return `Result[T]` wrappers or `*AppError` natively. Never return the standard generic Go `error` type (e.g. `(T, error)`) from these internal pipelines, as it leads to cycle joins and disjointed error architectures.
+30. **Pipeline Formatting for Complex Outputs**: When generating multi-line console output or formatting rich diagnostic data (e.g., `FaultWriter`), prefer an array-of-steps (Pipeline) approach over directly streaming to an `io.Writer`. This ensures the formatting steps are highly traceable, composable, and customizable via dependency injection.
+31. **Checker Interface Convention (`Checker` Suffix)**: All interfaces that evaluate boolean states or predicates MUST end with the `Checker` suffix (`IsSuccessChecker`, `IsFailureChecker`, `IsInvalidChecker`, `IsNullChecker`, `IsEmptyChecker`, `IsDefinedChecker`, `DefinableChecker`, `StatusChecker`). Never use generic suffixes like `Definer` or `Emptyer`.
+32. **High-Performance Fast-Path Typecasting (`typecast`)**: Dynamic reflection-based casting (`ReflectSetTo`) must implement fast-path type switches for primitive types (`string`, `int`, `int64`, `bool`, `float64`, `[]byte`) before allocating reflection objects. Compound types (JSON unmarshaling from `[]byte` and marshaling to `*[]byte`) must use direct type assertions.
+33. **Unified Result and Error Generic Casting**: Monadic result wrappers (`Result[T]`, `Wrap[T]`) and structured error representations (`*AppError`) must provide generic conversion helpers (`CastTo[T]`, `ReflectTo[T]`, `CastResult[T, U]`, `CastContextPayload[T]`) returning explicit `*AppError` wrappers on failure, ensuring type safety across boundaries without panic.
+34. **GitHub Actions Zero Storage (Total Ban on `actions/upload-artifact` in CI)**: Never use `actions/upload-artifact` in CI workflows (`ci.yml`, test runs, linting, matrix builds). GitHub accounts operate under strict storage quotas (e.g. 500 MB free quota), and multi-platform matrix builds uploading test binaries or artifacts quickly cause account-wide storage exhaustion, blocking all subsequent workflow runs. Build binaries in CI only to verify compilation (`go build`, `npm run build`), keeping execution completely ephemeral. If failure diagnostics or logs are strictly required, use `retention-days: 1` as a temporary override. Permanent release binaries belong exclusively on GitHub Releases (`release.yml` using `gh release upload`), which do not count against the Actions workflow artifact quota.
 
 ---
 
@@ -90,6 +98,7 @@ If this repository has a `02-spec/xx-error-manage/` folder, that folder is bindi
 - Never swallow. Every `catch` logs the operation name and the key inputs, then rethrows or returns a typed error.
 - Wrap, do not lose. Wrap the original error with an operation label and context (`appfault.Wrap(err, "op", ctx)` in Go, `throw new AppError(cause, { op, ctx })` in TS). The original stack must survive.
 - Go Return Type: Use `*appfault.AppError` (package `appfault`, struct `AppError`) for structured Go errors and `Result[T].AppError()` / `Result[T].Fault()`. Migrate legacy `*apperror.*` references to `pkg/appfault`.
+- Go Result Containers & types.go: Functions returning errors paired with collections or values must return `appfault.ResultMap[K, V]`, `appfault.ResultSlice[T]`, or `appfault.Result[T]`, with pointer-attached null safety (`*Result[T]`) and methods (`IsCountOtherThan`, `IsEmpty`, `HasRecord`, `IsDefined`). All domain payload structs and Result aliases MUST be declared in a dedicated `types.go` file within each package as a single reusable named type. Never scatter unexported structs or raw generic Result envelopes inline.
 - Every variable needs to be captured in a error log, path, value, numbers with meaningful ways to debug except for direct SQL injections.
 - Typed errors only. No `throw "string"`, no bare `panic("msg")`. Use a typed error class or result type with a registered code.
 - Registered codes. Every user-visible error has a stable code. No ad-hoc codes invented at the throw site.
@@ -231,7 +240,7 @@ The same rules apply to TypeScript, PHP, Rust, C#, PowerShell, and Python. Only 
   - **Never two blank lines in a row, anywhere**. No empty lines padded inside braces.
 - [ ] **Single Source of Truth for Versions**: Do not hardcode version numbers across files. Use a root-level JSON file (e.g. `version.json`) as the single source of truth and inject/read it dynamically.
 
-> **See Full Guide**: For complete rules and multi-language examples, see `02-spec/02-coding-guidelines/01-cross-language/01-index.md`
+> **See Full Guide**: For complete rules and multi-language examples, see `02-spec/02-coding-guidelines/01-cross-language/readme.md`
 
 # AI Code Review Guide — Naming, Signatures, Whitespace
 
@@ -469,6 +478,7 @@ public sealed record UserDto(string Id, string ApiUrl, bool IsActive);
 ## 4. R3 — Boolean naming: `is` or `has` ONLY
 
 1. **Prefixes:** Every boolean variable, function, parameter, struct field, JSON key, or property MUST begin with `is` or `has` ONLY (`Is` / `Has` for PascalCase; e.g. `isValid`, `hasAccess`, `isReady`, `hasData`); all other prefixes (`can`, `should`, `was`, `will`, `did`, `must`, etc.) and negative names are strictly **BANNED**.
+2. **Boolean Interface Naming:** Interfaces that define boolean predicates MUST end with the `Checker` suffix (e.g., `IsDefinedChecker`, `IsEmptyChecker`) rather than just the generic `er` suffix (e.g. `IsDefiner`). This ensures grammatical correctness.
 
 ```go
 // BEFORE

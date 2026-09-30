@@ -2,7 +2,7 @@
 
 **Version:** 3.3.0
 **Updated:** 2026-04-22
-**Source Module:** [`02-spec/14-update/`](../14-update/01-index.md)
+**Source Module:** [`02-spec/14-update/`](../14-update/readme.md)
 
 ---
 
@@ -582,8 +582,8 @@ The original inventory below mapped source files 01–16 only. The added section
 
 | Reference | Location |
 |-----------|----------|
-| Full Source | `../14-update/01-index.md` |
-| CI/CD Pipeline Workflows | `../12-cicd-pipeline-workflows/01-index.md` |
+| Full Source | `../14-update/readme.md` |
+| CI/CD Pipeline Workflows | `../12-cicd-pipeline-workflows/readme.md` |
 | Install Script Generation | `../12-cicd-pipeline-workflows/07-install-script-generation.md` |
 | Code Signing | `../12-cicd-pipeline-workflows/10-code-signing.md` |
 | Installation Flow | `../12-cicd-pipeline-workflows/08-installation-flow.md` |

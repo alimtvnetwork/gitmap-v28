@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 850 480" width="850" height="480">
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .label-head { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 700; fill: #475569; }
+      .box-title { font-family: system-ui, -apple-system, sans-serif; font-size: 16px; font-weight: 700; fill: #0f172a; }
+      .box-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #64748b; }
+      .badge-tag { font-family: system-ui, -apple-system, sans-serif; font-size: 10px; font-weight: 700; fill: #4338ca; }
+      .callout { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; font-weight: 600; fill: #6366f1; }
+      .line-guide { stroke: #6366f1; stroke-width: 1.5; stroke-dasharray: 3,3; }
+    </style>
+    <!-- Resting Shadow -->
+    <filter id="resting-shadow" x="-20%" y="-10%" width="140%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+      <feOffset dx="0" dy="2" result="offset"/>
+      <feComponentTransfer in="offset" result="shadow">
+        <feFuncA type="linear" slope="0.04"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Hover Elevated Darkish Shadow -->
+    <filter id="hover-shadow" x="-30%" y="-20%" width="160%" height="150%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="20" result="blur"/>
+      <feOffset dx="0" dy="18" result="offset"/>
+      <feComponentTransfer in="offset" result="shadow">
+        <feFuncA type="linear" slope="0.14"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="850" height="480" class="bg" />
+
+  <!-- Title Banner -->
+  <text x="50" y="45" font-family="system-ui, sans-serif" font-size="20" font-weight="800" fill="#0f172a">Hover Mechanics: Resting vs Elevated States</text>
+  <text x="50" y="70" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">Subtle darkish tones and shadow bloom ensure visibility against white surfaces without blending.</text>
+
+  <!-- Left: Resting State -->
+  <g transform="translate(60, 110)">
+    <text x="0" y="-15" class="label-head">RESTING STATE (Default)</text>
+
+    <!-- Card -->
+    <rect width="320" height="180" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#resting-shadow)" />
+    
+    <!-- Tag -->
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#e0e7ff" />
+    <text x="32" y="34" class="badge-tag">STANDARD</text>
+
+    <text x="20" y="70" class="box-title">System Container</text>
+    <text x="20" y="95" class="box-desc">Clean hairline perimeter with soft baseline</text>
+    <text x="20" y="115" class="box-desc">elevation for calm, neutral readability.</text>
+
+    <rect x="20" y="140" width="120" height="14" rx="4" fill="#f1f5f9" />
+  </g>
+
+  <!-- Right: Hover State -->
+  <g transform="translate(450, 102)">
+    <text x="0" y="-7" class="label-head" fill="#4f46e5">HOVER STATE (Active Elevation)</text>
+
+    <!-- Card Elevated (moved up 8px) -->
+    <rect width="320" height="180" rx="16" fill="#fcfcfd" stroke="#818cf8" stroke-width="1.5" filter="url(#hover-shadow)" />
+
+    <!-- Tag -->
+    <rect x="20" y="20" width="80" height="20" rx="10" fill="#c7d2fe" />
+    <text x="32" y="34" class="badge-tag" fill="#312e81">ELEVATED</text>
+
+    <text x="20" y="70" class="box-title" fill="#1e1b4b">System Container</text>
+    <text x="20" y="95" class="box-desc" fill="#334155">Darkish ambient shadow prevents washout</text>
+    <text x="20" y="115" class="box-desc" fill="#334155">while hairline boundary maintains crisp focus.</text>
+
+    <rect x="20" y="140" width="120" height="14" rx="4" fill="#e0e7ff" />
+
+    <!-- Delta Indicator -->
+    <path d="M 335 90 L 335 10 L 325 18 M 335 10 L 345 18" stroke="#4f46e5" stroke-width="2" fill="none" />
+    <text x="355" y="55" class="callout">-4px Lift</text>
+  </g>
+
+  <!-- Interactive Row / Line Hover Section at Bottom -->
+  <g transform="translate(60, 340)">
+    <text x="0" y="-12" class="label-head">INTERACTIVE LINE HOVER (Non-White Blended Shade)</text>
+
+    <!-- Row 1: Resting -->
+    <rect x="0" y="0" width="340" height="42" fill="none" stroke="#e2e8f0" stroke-width="1" />
+    <text x="16" y="26" font-family="system-ui, sans-serif" font-size="13" fill="#475569">01. Standard Curriculum Row (Resting)</text>
+
+    <!-- Row 2: Hovered -->
+    <rect x="390" y="0" width="340" height="42" fill="#0f172a" fill-opacity="0.05" stroke="#cbd5e1" stroke-width="1" />
+    <rect x="390" y="6" width="4" height="30" rx="2" fill="#f43f5e" />
+    <text x="410" y="26" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#0f172a">02. Highlighted Row (Darkish Tint + Rose Indicator)</text>
+  </g>
+</svg>

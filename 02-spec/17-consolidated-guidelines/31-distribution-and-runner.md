@@ -91,7 +91,7 @@ irm https://github.com/<org>/coding-guidelines-v24/releases/latest/download/inst
 3. **Verify** every downloaded zip against `checksums.txt` (SHA-256).
    Mismatch → exit code `2`, no files written.
 4. **Extract** only the folders listed in `install-config.json` (default:
-   `02-spec`, `linters`, `linter-scripts`, `linters-cicd`).
+   `spec`, `linters`, `linter-scripts`, `linters-cicd`).
 5. **Be idempotent.** Re-running with no flags MUST converge to the
    same on-disk state.
 6. **Print a summary**: folders installed, version pinned, next-step
@@ -237,7 +237,7 @@ the following:
 ## §10 — Cross-References
 
 - Source folder: [`02-spec/15-distribution-and-runner/`](../15-distribution-and-runner/)
-- Slides app spec: [`spec-slides/01-index.md`](../01-index.md)
+- Slides app spec: [`spec-slides/readme.md`](../readme.md)
 - CI/CD pipeline conventions: [`02-spec/12-cicd-pipeline-workflows/`](../12-cicd-pipeline-workflows/)
 - Generic CLI conventions: [`02-spec/13-generic-cli/`](../13-generic-cli/)
 - Generic release standard: [`02-spec/16-generic-release/`](../16-generic-release/)

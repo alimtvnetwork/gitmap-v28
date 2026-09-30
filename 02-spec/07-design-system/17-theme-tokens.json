@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "4.0.0",
+  "generated": "2026-09-24",
+  "description": "Canonical machine-readable design system theme tokens for human and AI engineering workflows.",
+  "themes": {
+    "navy-purple": {
+      "name": "Navy Blue & Purple",
+      "slug": "navy-purple",
+      "category": "cloud-ai",
+      "description": "Deep midnight navy base with electric violet primary actions and ice cyan secondary highlights.",
+      "whyUsed": "High visual energy without eye fatigue; optimal for distributed systems, AI platforms, and developer infrastructure.",
+      "recommendedDomains": ["ai-infrastructure", "cloud-computing", "cybersecurity", "dev-tools"],
+      "contrastRating": "WCAG-AAA",
+      "planes": {
+        "plane0_base": { "hex": "#0A0F1D", "hsl": "224 49% 8%", "role": "Page background foundation" },
+        "plane1_raised": { "hex": "#10172A", "hsl": "222 45% 11%", "role": "Alternate section wells" },
+        "plane2_surface": { "hex": "#172036", "hsl": "223 40% 15%", "role": "Cards and panel surfaces" },
+        "plane3_elevated": { "hex": "#1E2945", "hsl": "223 39% 19%", "role": "Card hover and modals" }
+      },
+      "typography": {
+        "fg_primary": { "hex": "#F8FAFC", "hsl": "210 40% 98%", "contrastVsBase": 16.4 },
+        "fg_muted": { "hex": "#94A3B8", "hsl": "215 20% 65%", "contrastVsBase": 7.2 },
+        "fg_subtle": { "hex": "#64748B", "hsl": "215 16% 47%", "contrastVsBase": 4.6 }
+      },
+      "accents": {
+        "primary": { "hex": "#A855F7", "hsl": "271 91% 65%", "role": "Electric Violet primary CTA" },
+        "primary_hover": { "hex": "#C084FC", "hsl": "270 95% 75%", "role": "Hover lift state" },
+        "primary_fg": { "hex": "#0A0F1D", "hsl": "224 49% 8%", "contrast": 11.2 },
+        "secondary_accent": { "hex": "#38BDF8", "hsl": "199 89% 60%", "role": "Sky Cyan data highlight" },
+        "secondary_fg": { "hex": "#0A0F1D", "hsl": "224 49% 8%", "contrast": 10.8 },
+        "depth_wash": { "hex": "#6366F1", "hsl": "239 84% 67%", "opacity": 0.08, "role": "Royal Indigo ambient glow" }
+      },
+      "borders": {
+        "hairline": "rgba(248, 250, 252, 0.08)",
+        "strong": "rgba(248, 250, 252, 0.16)",
+        "highlight": "rgba(248, 250, 252, 0.12)"
+      }
+    },
+    "vscode-dark-plus": {
+      "name": "VS Code Dark+",
+      "slug": "vscode-dark-plus",
+      "category": "ide-classic",
+      "description": "Standard Microsoft Visual Studio Code dark theme palette.",
+      "whyUsed": "Instantly recognizable to millions of software engineers; zero cognitive friction in technical portals.",
+      "recommendedDomains": ["documentation", "api-portals", "code-viewers", "cli-tools"],
+      "contrastRating": "WCAG-AA",
+      "planes": {
+        "plane0_base": { "hex": "#1E1E1E", "hsl": "0 0% 12%", "role": "Editor canvas base" },
+        "plane1_raised": { "hex": "#252526", "hsl": "240 1% 15%", "role": "Sidebar and tree views" },
+        "plane2_surface": { "hex": "#2D2D2D", "hsl": "0 0% 18%", "role": "Panels and dialogs" },
+        "plane3_elevated": { "hex": "#37373D", "hsl": "240 5% 23%", "role": "Interactive row hover" }
+      },
+      "typography": {
+        "fg_primary": { "hex": "#D4D4D4", "hsl": "0 0% 83%", "contrastVsBase": 8.6 },
+        "fg_muted": { "hex": "#858585", "hsl": "0 0% 52%", "contrastVsBase": 4.8 },
+        "fg_subtle": { "hex": "#6E6E6E", "hsl": "0 0% 43%", "contrastVsBase": 3.4 }
+      },
+      "accents": {
+        "primary": { "hex": "#007ACC", "hsl": "204 100% 40%", "role": "Status Blue primary button" },
+        "primary_fg": { "hex": "#FFFFFF", "hsl": "0 0% 100%", "contrast": 6.8 },
+        "syntax_cyan": { "hex": "#4EC9B0", "hsl": "168 53% 55%", "role": "Types and classes" },
+        "syntax_yellow": { "hex": "#DCDCAA", "hsl": "60 41% 77%", "role": "Functions and methods" },
+        "syntax_orange": { "hex": "#CE9178", "hsl": "17 48% 64%", "role": "Strings and parameters" },
+        "syntax_purple": { "hex": "#C586C0", "hsl": "305 34% 65%", "role": "Keywords and control flow" }
+      },
+      "borders": {
+        "hairline": "#3C3C3C",
+        "strong": "#474747"
+      }
+    },
+    "tokyo-night": {
+      "name": "Tokyo Night Storm",
+      "slug": "tokyo-night",
+      "category": "terminal-cyber",
+      "description": "Tokyo Night Storm edition with clean cool undertones and neon pastel syntax.",
+      "whyUsed": "Reduces glare while maintaining crisp code comprehension; modern aesthetic standard for developer products.",
+      "recommendedDomains": ["terminals", "dashboards", "engineering-blogs", "cli-apps"],
+      "contrastRating": "WCAG-AA",
+      "planes": {
+        "plane0_base": { "hex": "#1F2335", "hsl": "230 26% 17%", "role": "Storm canvas ground" },
+        "plane1_raised": { "hex": "#24283B", "hsl": "229 24% 19%", "role": "Section wells and sidebars" },
+        "plane2_surface": { "hex": "#292E42", "hsl": "229 23% 21%", "role": "Card surfaces" },
+        "plane3_elevated": { "hex": "#343A52", "hsl": "228 22% 26%", "role": "Hover panels" }
+      },
+      "typography": {
+        "fg_primary": { "hex": "#C0CAF5", "hsl": "228 75% 86%", "contrastVsBase": 10.4 },
+        "fg_muted": { "hex": "#787C99", "hsl": "232 13% 54%", "contrastVsBase": 4.5 },
+        "fg_subtle": { "hex": "#565A6E", "hsl": "230 12% 38%", "contrastVsBase": 3.1 }
+      },
+      "accents": {
+        "primary": { "hex": "#7AA2F7", "hsl": "221 89% 72%", "role": "Cornflower Blue CTA" },
+        "primary_fg": { "hex": "#1F2335", "hsl": "230 26% 17%", "contrast": 8.9 },
+        "accent": { "hex": "#BB9AF7", "hsl": "261 88% 79%", "role": "Lilac Purple highlight" },
+        "cyan": { "hex": "#7DCFFF", "hsl": "202 100% 75%", "role": "Ice Cyan data tag" },
+        "green": { "hex": "#9ECE6A", "hsl": "88 48% 65%", "role": "Positive state" }
+      },
+      "borders": {
+        "hairline": "rgba(192, 202, 245, 0.10)",
+        "strong": "rgba(192, 202, 245, 0.20)"
+      }
+    },
+    "one-dark-pro": {
+      "name": "One Dark Pro",
+      "slug": "one-dark-pro",
+      "category": "editor-classic",
+      "description": "Atom's legendary chalky slate dark theme with warm pastel accents.",
+      "whyUsed": "Gentle on the eyes, balanced saturation, timeless software engineering aesthetic.",
+      "recommendedDomains": ["documentation", "specifications", "markdown-readers"],
+      "contrastRating": "WCAG-AA",
+      "planes": {
+        "plane0_base": { "hex": "#282C34", "hsl": "220 13% 18%", "role": "Slate base canvas" },
+        "plane1_raised": { "hex": "#21252B", "hsl": "220 13% 15%", "role": "Sunken panels" },
+        "plane2_surface": { "hex": "#2E3440", "hsl": "220 16% 22%", "role": "Card containers" },
+        "plane3_elevated": { "hex": "#3E4452", "hsl": "221 14% 28%", "role": "Hover elevated states" }
+      },
+      "typography": {
+        "fg_primary": { "hex": "#ABB2BF", "hsl": "219 14% 71%", "contrastVsBase": 6.8 },
+        "fg_muted": { "hex": "#5C6370", "hsl": "219 10% 40%", "contrastVsBase": 4.5 },
+        "fg_subtle": { "hex": "#4B5263", "hsl": "222 14% 34%", "contrastVsBase": 3.0 }
+      },
+      "accents": {
+        "primary": { "hex": "#61AFEF", "hsl": "207 82% 66%", "role": "Soft Blue primary" },
+        "primary_fg": { "hex": "#282C34", "hsl": "220 13% 18%", "contrast": 7.4 },
+        "accent": { "hex": "#C678DD", "hsl": "286 60% 67%", "role": "Violet emphasis" },
+        "coral": { "hex": "#E06C75", "hsl": "355 65% 65%", "role": "Negative alert" },
+        "sage": { "hex": "#98C379", "hsl": "95 38% 62%", "role": "Positive success" },
+        "amber": { "hex": "#E5C07B", "hsl": "39 67% 69%", "role": "Warning badge" }
+      },
+      "borders": {
+        "hairline": "#3E4452",
+        "strong": "#4B5263"
+      }
+    },
+    "github-dark-high-contrast": {
+      "name": "GitHub Dark High Contrast",
+      "slug": "github-dark-high-contrast",
+      "category": "accessibility",
+      "description": "Maximum contrast developer theme engineered for absolute clarity and WCAG AAA compliance.",
+      "whyUsed": "Mandatory for mission-critical operations, safety audits, and accessibility-first deployments.",
+      "recommendedDomains": ["finance", "healthcare", "compliance", "government"],
+      "contrastRating": "WCAG-AAA",
+      "planes": {
+        "plane0_base": { "hex": "#0A0C10", "hsl": "220 23% 5%", "role": "Deep base ground" },
+        "plane1_raised": { "hex": "#12151C", "hsl": "223 22% 9%", "role": "Sunken containers" },
+        "plane2_surface": { "hex": "#1C212C", "hsl": "220 22% 14%", "role": "Solid cards" },
+        "plane3_elevated": { "hex": "#272E3B", "hsl": "218 20% 19%", "role": "Elevated modal" }
+      },
+      "typography": {
+        "fg_primary": { "hex": "#FFFFFF", "hsl": "0 0% 100%", "contrastVsBase": 21.0 },
+        "fg_muted": { "hex": "#C9D1D9", "hsl": "210 17% 82%", "contrastVsBase": 13.2 },
+        "fg_subtle": { "hex": "#8B949E", "hsl": "215 8% 58%", "contrastVsBase": 6.8 }
+      },
+      "accents": {
+        "primary": { "hex": "#79C0FF", "hsl": "209 100% 74%", "role": "High-chroma Blue" },
+        "primary_fg": { "hex": "#010409", "hsl": "218 80% 2%", "contrast": 13.5 },
+        "border": { "hex": "#7A828E", "hsl": "217 9% 52%", "role": "Explicit 1px border" }
+      },
+      "borders": {
+        "hairline": "#7A828E",
+        "strong": "#FFFFFF"
+      }
+    },
+    "monokai-pro": {
+      "name": "Monokai Pro",
+      "slug": "monokai-pro",
+      "category": "creative-telemetry",
+      "description": "Rich espresso ground with electric neon pastel accents.",
+      "whyUsed": "High personality, creative expression, distinct visual pop on metrics and data points.",
+      "recommendedDomains": ["creative-tools", "gaming", "telemetry", "design-software"],
+      "contrastRating": "WCAG-AA",
+      "planes": {
+        "plane0_base": { "hex": "#2D2A2E", "hsl": "285 5% 18%", "role": "Espresso base" },
+        "plane1_raised": { "hex": "#221F22", "hsl": "300 5% 13%", "role": "Inset wells" },
+        "plane2_surface": { "hex": "#3A363B", "hsl": "288 4% 22%", "role": "Cards" },
+        "plane3_elevated": { "hex": "#49444B", "hsl": "283 5% 28%", "role": "Hover state" }
+      },
+      "typography": {
+        "fg_primary": { "hex": "#FCFCFA", "hsl": "60 33% 98%", "contrastVsBase": 14.1 },
+        "fg_muted": { "hex": "#939293", "hsl": "300 1% 57%", "contrastVsBase": 5.4 },
+        "fg_subtle": { "hex": "#727072", "hsl": "300 1% 44%", "contrastVsBase": 3.5 }
+      },
+      "accents": {
+        "primary": { "hex": "#FF6188", "hsl": "345 100% 69%", "role": "Fluorescent Rose" },
+        "primary_fg": { "hex": "#2D2A2E", "hsl": "285 5% 18%", "contrast": 7.8 },
+        "accent_gold": { "hex": "#FFD866", "hsl": "45 100% 70%", "role": "Neon Gold" },
+        "mint": { "hex": "#A9DC76", "hsl": "90 60% 66%", "role": "Mint Green" },
+        "cyan": { "hex": "#78DCE8", "hsl": "187 71% 69%", "role": "Bright Cyan" }
+      },
+      "borders": {
+        "hairline": "#49444B",
+        "strong": "#727072"
+      }
+    },
+    "warm-editorial": {
+      "name": "Warm Editorial & Craft",
+      "slug": "warm-editorial",
+      "category": "bespoke-craft",
+      "description": "Warm-black dark foundation (#0B0A09) with single amber accent (#FFAD01) and warm paper light mode (#FBF9F6).",
+      "whyUsed": "Conveys premium bespoke human engineering; avoids disposable SaaS and generic AI visual tropes.",
+      "recommendedDomains": ["agency-showcase", "architecture-reviews", "executive-dashboards", "consulting"],
+      "contrastRating": "WCAG-AAA",
+      "dark_mode": {
+        "planes": {
+          "plane0_base": { "hex": "#0B0A09", "hsl": "40 10% 4%", "role": "Warm-black ground" },
+          "plane1_raised": { "hex": "#151312", "hsl": "30 7% 8%", "role": "Raised section band" },
+          "plane2_surface": { "hex": "#1D1A18", "hsl": "24 9% 10%", "role": "Surface cards" },
+          "plane3_elevated": { "hex": "#262220", "hsl": "20 9% 13%", "role": "Hover elevation" }
+        },
+        "accents": {
+          "primary": { "hex": "#FFAD01", "hsl": "41 100% 50%", "role": "Brand Amber CTA" },
+          "primary_fg": { "hex": "#0B0A09", "hsl": "40 10% 4%", "contrast": 11.4 },
+          "depth_wash": { "hex": "#791AB0", "hsl": "278 74% 39%", "opacity": 0.08, "role": "Depth glow" }
+        },
+        "typography": {
+          "fg_primary": { "hex": "#F7F5F2", "hsl": "40 20% 96%", "contrastVsBase": 17.2 },
+          "fg_muted": { "hex": "#ADA8A2", "hsl": "33 6% 66%", "contrastVsBase": 7.4 }
+        }
+      },
+      "light_mode": {
+        "planes": {
+          "plane0_base": { "hex": "#FBF9F6", "hsl": "36 33% 97%", "role": "Warm paper ground" },
+          "plane1_raised": { "hex": "#F4F0EA", "hsl": "36 27% 94%", "role": "Raised paper bands" },
+          "plane2_surface": { "hex": "#FFFFFF", "hsl": "0 0% 100%", "role": "Clean white cards" }
+        },
+        "accents": {
+          "primary": { "hex": "#FFAD01", "hsl": "41 100% 50%", "role": "Fill CTA button" },
+          "accent_ink": { "hex": "#8A5A00", "hsl": "39 100% 27%", "role": "Amber text on light (5.5:1)" }
+        },
+        "typography": {
+          "fg_primary": { "hex": "#141210", "hsl": "30 11% 7%", "contrastVsBase": 16.8 },
+          "fg_muted": { "hex": "#57514B", "hsl": "33 7% 32%", "contrastVsBase": 7.1 }
+        }
+      }
+    }
+  },
+  "heatmaps": {
+    "plasma_sequential": {
+      "name": "Sequential Plasma Scale",
+      "type": "sequential",
+      "purpose": "Continuous intensity, latency distributions, CPU heat, throughput volume",
+      "steps": [
+        { "step": 0, "pct": "0-10%", "hex": "#0D0887", "hsl": "242 83% 29%", "label": "Idle / Baseline" },
+        { "step": 1, "pct": "11-25%", "hex": "#5A01A5", "hsl": "273 99% 33%", "label": "Nominal Low" },
+        { "step": 2, "pct": "26-40%", "hex": "#8F0DA4", "hsl": "292 85% 35%", "label": "Moderate Load" },
+        { "step": 3, "pct": "41-55%", "hex": "#BC3754", "hsl": "347 55% 48%", "label": "Elevated Threshold" },
+        { "step": 4, "pct": "56-70%", "hex": "#DE5F39", "hsl": "14 73% 55%", "label": "Substantial Pressure" },
+        { "step": 5, "pct": "71-85%", "hex": "#F58C46", "hsl": "24 90% 62%", "label": "Hotspot Zone" },
+        { "step": 6, "pct": "86-100%", "hex": "#F0F921", "hsl": "63 93% 55%", "label": "Critical Saturation" }
+      ]
+    },
+    "diverging_rag": {
+      "name": "Diverging Red-Amber-Green Scale",
+      "type": "diverging",
+      "purpose": "Threshold deviations, SLA margins, test suite deltas, health indices",
+      "steps": [
+        { "grade": "critical_breach", "hex": "#DC2626", "hsl": "0 72% 51%", "condition": "Severe failure / Negative deviation > 20%" },
+        { "grade": "high_risk", "hex": "#EF4444", "hsl": "0 84% 60%", "condition": "Warning limit breached / Failed check" },
+        { "grade": "warning", "hex": "#F59E0B", "hsl": "38 92% 50%", "condition": "Approaching quota / Flaky state" },
+        { "grade": "neutral", "hex": "#64748B", "hsl": "215 16% 47%", "condition": "Baseline maintained / 0% delta" },
+        { "grade": "acceptable", "hex": "#84CC16", "hsl": "84 81% 44%", "condition": "SLA satisfied / Nominal pass" },
+        { "grade": "optimal", "hex": "#10B981", "hsl": "160 84% 39%", "condition": "Zero defect / 100% pass rate" }
+      ]
+    },
+    "activity_density": {
+      "name": "Activity Density Matrix",
+      "type": "discrete_density",
+      "purpose": "Commit activity, streak calendars, test execution history",
+      "levels": [
+        { "level": 0, "dark_hex": "#161B22", "light_hex": "#EBEDF0", "events": "0" },
+        { "level": 1, "dark_hex": "#0E4429", "light_hex": "#9BE9A8", "events": "1-3" },
+        { "level": 2, "dark_hex": "#006D32", "light_hex": "#40C463", "events": "4-9" },
+        { "level": 3, "dark_hex": "#26A641", "light_hex": "#30A14E", "events": "10-19" },
+        { "level": 4, "dark_hex": "#39D353", "light_hex": "#216E39", "events": "20+" }
+      ]
+    }
+  }
+}

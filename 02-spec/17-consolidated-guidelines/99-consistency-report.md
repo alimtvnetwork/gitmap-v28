@@ -9,31 +9,31 @@
 
 | # | File | Status | Lines | Impl. Score |
 |---|------|--------|-------|-------------|
-| 1 | `00-overview.md` | ✅ Present | — | — |
-| 2 | `01-spec-authoring.md` | ✅ Present | 330+ | 95% |
-| 3 | `02-coding-guidelines.md` | ✅ Present | 726 | 97% |
-| 4 | `03-error-management.md` | ✅ Present | 489 | 97% |
-| 5 | `04-enum-standards.md` | ✅ Present | 519 | 95% |
-| 6 | `05-split-db-architecture.md` | ✅ Present | 723 | 92% |
-| 7 | `06-seedable-config.md` | ✅ Present | 754 | 93% |
-| 8 | `07-design-system.md` | ✅ Present | 580+ | 92% |
-| 9 | `08-docs-viewer-ui.md` | ✅ Present | 430+ | 91% |
-| 10 | `09-code-block-system.md` | ✅ Present | 530+ | 91% |
+| 1 | `readme.md` | ✅ Present | — | — |
+| 2 | `04-spec-authoring.md` | ✅ Present | 330+ | 95% |
+| 3 | `05-coding-guidelines.md` | ✅ Present | 726 | 97% |
+| 4 | `06-error-management.md` | ✅ Present | 489 | 97% |
+| 5 | `07-enum-standards.md` | ✅ Present | 519 | 95% |
+| 6 | `08-split-db-architecture.md` | ✅ Present | 723 | 92% |
+| 7 | `09-seedable-config.md` | ✅ Present | 754 | 93% |
+| 8 | `10-design-system.md` | ✅ Present | 580+ | 92% |
+| 9 | `11-docs-viewer-ui.md` | ✅ Present | 430+ | 91% |
+| 10 | `12-code-block-system.md` | ✅ Present | 530+ | 91% |
 | 11 | `11-powershell-integration.md` | ✅ Present | 560+ | 91% |
 | 12 | `10-research.md` | ✅ Present | 180+ | 88% |
-| 13 | `12-root-research.md` | ✅ Present | 170+ | 88% |
-| 14 | `13-app.md` | ✅ Present | 210+ | 88% |
-| 15 | `14-app-issues.md` | ✅ Present | 210+ | 85% |
-| 16 | `15-cicd-pipeline-workflows.md` | ✅ Present | 422 | 92% |
-| 17 | `16-app-design-system-and-ui.md` | ✅ Present | 530+ | 93% |
-| 18 | `17-self-update-app-update.md` | ✅ Present | 441 | 93% |
-| 19 | `18-database-conventions.md` | ✅ Present | 945 | 95% |
-| 20 | `19-gap-analysis.md` | ✅ Present | — | (meta) |
-| 21 | `20-wp-plugin-conventions.md` | ✅ Present | 570+ | 92% |
-| 22 | `21-lovable-folder-structure.md` | ✅ Present | 220+ | 91% |
-| 23 | `22-app-database.md` | ✅ Present | 310+ | 90% |
-| 24 | `23-generic-cli.md` | ✅ Present | 600+ | 93% |
-| 25 | `24-folder-mapping.md` | ✅ Present | 184 | (meta-index) |
+| 13 | `15-root-research.md` | ✅ Present | 170+ | 88% |
+| 14 | `16-app.md` | ✅ Present | 210+ | 88% |
+| 15 | `17-app-issues.md` | ✅ Present | 210+ | 85% |
+| 16 | `18-cicd-pipeline-workflows.md` | ✅ Present | 422 | 92% |
+| 17 | `19-app-design-system-and-ui.md` | ✅ Present | 530+ | 93% |
+| 18 | `20-self-update-app-update.md` | ✅ Present | 441 | 93% |
+| 19 | `21-database-conventions.md` | ✅ Present | 945 | 95% |
+| 20 | `22-gap-analysis.md` | ✅ Present | — | (meta) |
+| 21 | `23-wp-plugin-conventions.md` | ✅ Present | 570+ | 92% |
+| 22 | `24-lovable-folder-03-structure.md` | ✅ Present | 220+ | 91% |
+| 23 | `25-app-database.md` | ✅ Present | 310+ | 90% |
+| 24 | `26-generic-cli.md` | ✅ Present | 600+ | 93% |
+| 25 | `27-folder-mapping.md` | ✅ Present | 184 | (meta-index) |
 
 **Total:** 25 files (including this report, gap analysis, and folder mapping)
 
@@ -60,9 +60,9 @@
 
 ## Cross-Reference Validation
 
-- [x] `03-error-management.md` source path updated to `02-spec/03-error-manage/`
-- [x] `04-enum-standards.md` links updated — coding guidelines subfolders at `02-coding-guidelines/` root
-- [x] `02-coding-guidelines.md` source path updated — `03-coding-guidelines-spec/` folder flattened
+- [x] `06-error-management.md` source path updated to `02-spec/03-error-manage/`
+- [x] `07-enum-standards.md` links updated — coding guidelines subfolders at `02-coding-guidelines/` root
+- [x] `05-coding-guidelines.md` source path updated — `03-coding-guidelines-spec/` folder flattened
 - [x] All `13-self-update-app-update` references corrected to `14-update`
 - [x] Full dashboard scan: **1,510 links checked, 0 broken — 100/100 (A+)**
 
@@ -95,11 +95,11 @@
 | 2026-04-09 | 2.0.0 | Added 10-research, 11-root-research, 12-app, 13-app-issues |
 | 2026-04-09 | 3.0.0 | Added 14-cicd-pipeline-workflows |
 | 2026-04-14 | 4.0.0 | All files rewritten as standalone self-contained references |
-| 2026-04-15 | 5.0.0 | Added 18-database-conventions.md; fixed plural PK naming |
+| 2026-04-15 | 5.0.0 | Added 21-database-conventions.md; fixed plural PK naming |
 | 2026-04-15 | 5.1.0 | Enforced singular table names across all consolidated and source specs |
 | 2026-04-16 | 3.2.0 | Cross-reference validation after error-manage restructuring, coding-guidelines flattening, global version bump to 3.1.0. Dashboard: 0 broken links. |
-| 2026-04-16 | 3.3.0 | Reflected recent expansions: `01-spec-authoring.md` 90%→95% (330+ lines), `16-app-design-system-and-ui.md` 88%→93% (530+ lines), `22-app-database.md` added (310+ lines, 90%), placeholders 11/12/13 expanded to 88%. Added implementability summary table. Total: 23 files, 17 at 90%+. |
-| 2026-04-22 | 3.4.0 | Added `24-folder-mapping.md` — bidirectional source-folder ↔ consolidated-file index with coverage heatmap, reverse index, and blind-spot tracking. Registered `23-generic-cli.md` in inventory. Total: 25 files. |
+| 2026-04-16 | 3.3.0 | Reflected recent expansions: `04-spec-authoring.md` 90%→95% (330+ lines), `19-app-design-system-and-ui.md` 88%→93% (530+ lines), `25-app-database.md` added (310+ lines, 90%), placeholders 11/12/13 expanded to 88%. Added implementability summary table. Total: 23 files, 17 at 90%+. |
+| 2026-04-22 | 3.4.0 | Added `27-folder-mapping.md` — bidirectional source-folder ↔ consolidated-file index with coverage heatmap, reverse index, and blind-spot tracking. Registered `26-generic-cli.md` in inventory. Total: 25 files. |
 
 ---
 

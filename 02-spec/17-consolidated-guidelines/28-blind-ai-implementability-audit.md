@@ -143,7 +143,7 @@ The repo actually ships **16 linter assets**:
 
 ### 🟡 MEDIUM-1 — App-Specific Folders Are Placeholder-Only
 
-`16-app.md`, `17-app-issues.md`, `24-lovable-folder-03-structure.md` are short placeholders that defer to source folders containing only `01-index.md`. A blind AI cannot distinguish between "this is intentionally minimal" and "this is missing content." `27-folder-mapping.md` flags these as 🟡 — that mitigation is sufficient for now, but the AI must read the mapping file first.
+`16-app.md`, `17-app-issues.md`, `24-lovable-folder-03-structure.md` are short placeholders that defer to source folders containing only `readme.md`. A blind AI cannot distinguish between "this is intentionally minimal" and "this is missing content." `27-folder-mapping.md` flags these as 🟡 — that mitigation is sufficient for now, but the AI must read the mapping file first.
 
 ---
 

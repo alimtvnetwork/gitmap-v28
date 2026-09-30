@@ -136,7 +136,7 @@ Every `21-app/` module must contain:
 
 | File | Purpose | Required |
 |------|---------|----------|
-| `01-index.md` | Module overview, file inventory | **Always** |
+| `readme.md` | Module overview, file inventory | **Always** |
 | `97-acceptance-criteria.md` | Consolidated acceptance criteria | When 3+ features |
 | `98-changelog.md` | Version history | When versioned |
 | `99-consistency-report.md` | Cross-reference validation | When 3+ files |
@@ -147,7 +147,7 @@ Every `21-app/` module must contain:
 
 ```
 02-spec/21-app/
-├── 01-index.md
+├── readme.md
 ├── 01-user-authentication.md
 ├── 02-dashboard-layout.md
 ├── 03-data-import-pipeline.md

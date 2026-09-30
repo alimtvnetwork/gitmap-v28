@@ -1,0 +1,225 @@
+// ==============================================================================
+// GLOBAL THEME PALETTE & MIXIN LIBRARY (LESS PREFERRED SPECIFICATION)
+// ==============================================================================
+// Note: LESS is the explicitly preferred stylesheet architecture across this repository.
+// It provides modular variable scoping, mixin parametric nesting, and mathematical color
+// functions for predictable multi-theme compilation.
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// 1. Core Color Variables by Theme
+// ------------------------------------------------------------------------------
+
+// Light High-Trust Editorial Palette
+@light-bg-primary:       #ffffff;
+@light-bg-secondary:     #f8fafc;
+@light-bg-elevated:      #f1f5f9;
+@light-text-primary:     #0f172a;
+@light-text-secondary:   #475569;
+@light-text-muted:       #64748b;
+@light-border-subtle:    #e2e8f0;
+@light-border-strong:    #cbd5e1;
+@light-accent-primary:   #6366f1;
+@light-accent-secondary: #7c3aed;
+@light-accent-highlight: #f43f5e;
+@light-hover-darkish:    rgba(15, 23, 42, 0.05); // High-craft darkish tint that does not blend into white
+@light-shadow-resting:   0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+@light-shadow-hover:     0 20px 40px -15px rgba(15, 23, 42, 0.12);
+
+// Dark Obsidian Navy Palette
+@dark-bg-primary:        #0b1329;
+@dark-bg-secondary:      #111c44;
+@dark-bg-elevated:       #1e293b;
+@dark-text-primary:      #f8fafc;
+@dark-text-secondary:    #cbd5e1;
+@dark-text-muted:        #94a3b8;
+@dark-border-subtle:     #1e293b;
+@dark-border-strong:     #334155;
+@dark-accent-primary:    #8b5cf6;
+@dark-accent-secondary:  #a855f7;
+@dark-accent-highlight:  #38bdf8;
+@dark-hover-darkish:     rgba(255, 255, 255, 0.07);
+@dark-shadow-resting:    0 4px 6px -1px rgba(2, 6, 23, 0.50);
+@dark-shadow-hover:      0 25px 50px -12px rgba(2, 6, 23, 0.70);
+
+// Riseup Asia Corporate Dark Palette
+@riseup-bg-primary:      #0f172a;
+@riseup-bg-secondary:    #1e293b;
+@riseup-bg-elevated:     #334155;
+@riseup-text-primary:    #ffffff;
+@riseup-text-secondary:  #e2e8f0;
+@riseup-text-muted:      #94a3b8;
+@riseup-border-subtle:   #334155;
+@riseup-border-strong:   #475569;
+@riseup-accent-gold:     #facc15;
+@riseup-accent-emerald:  #10b981;
+@riseup-hover-darkish:   rgba(255, 255, 255, 0.08);
+@riseup-shadow-resting:  0 4px 10px rgba(0, 0, 0, 0.40);
+@riseup-shadow-hover:    0 20px 40px -10px rgba(0, 0, 0, 0.60);
+
+// Electric Indigo Cyber Palette
+@cyber-bg-primary:       #030712;
+@cyber-bg-secondary:     #0f172a;
+@cyber-bg-elevated:      #1e293b;
+@cyber-text-primary:     #f9fafb;
+@cyber-text-secondary:   #d1d5db;
+@cyber-text-muted:       #6b7280;
+@cyber-border-subtle:    #1f2937;
+@cyber-border-strong:    #374151;
+@cyber-accent-indigo:    #6366f1;
+@cyber-accent-cyan:      #06b6d4;
+@cyber-hover-darkish:    rgba(99, 102, 241, 0.10);
+@cyber-shadow-resting:   0 4px 6px -1px rgba(0, 0, 0, 0.60);
+@cyber-shadow-hover:     0 20px 45px -10px rgba(99, 102, 241, 0.35);
+
+// ------------------------------------------------------------------------------
+// 2. Physics & Motion Constants
+// ------------------------------------------------------------------------------
+
+@ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+@ease-standard:   cubic-bezier(0.4, 0, 0.2, 1);
+@duration-fast:   150ms;
+@duration-normal: 300ms;
+@duration-slow:   500ms;
+
+// ------------------------------------------------------------------------------
+// 3. Reusable Component Mixins
+// ------------------------------------------------------------------------------
+
+// High-craft card mixin with darkish hover shade and non-white blending
+.hover-card(
+  @bg: @light-bg-primary,
+  @border: @light-border-subtle,
+  @hover-bg: @light-bg-secondary,
+  @resting-shadow: @light-shadow-resting,
+  @hover-shadow: @light-shadow-hover,
+  @hover-border: @light-accent-primary
+) {
+  background-color: @bg;
+  border: 1px solid @border;
+  border-radius: 1.25rem;
+  box-shadow: @resting-shadow;
+  transition: transform @duration-normal @ease-emphasized,
+              box-shadow @duration-normal @ease-emphasized,
+              border-color @duration-fast ease,
+              background-color @duration-fast ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    background-color: @hover-bg;
+    border-color: fade(@hover-border, 50%);
+    box-shadow: @hover-shadow;
+  }
+}
+
+// Professional list row / line hover effect
+// Preserves crisp dark tone and prevents washing out against white backgrounds
+.hover-interactive-line(
+  @resting-border: @light-border-subtle,
+  @hover-bg: @light-hover-darkish,
+  @hover-indicator: @light-accent-highlight
+) {
+  position: relative;
+  border-bottom: 1px solid @resting-border;
+  background-color: transparent;
+  transition: background-color @duration-fast ease,
+              padding-left @duration-normal @ease-emphasized;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    bottom: 15%;
+    width: 3px;
+    border-radius: 9999px;
+    background-color: @hover-indicator;
+    opacity: 0;
+    transform: scaleY(0.4);
+    transition: opacity @duration-fast ease,
+                transform @duration-normal @ease-emphasized;
+  }
+
+  &:hover {
+    background-color: @hover-bg;
+    padding-left: 0.75rem;
+
+    &::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+}
+
+// Prominent badge or tag pill
+.accent-pill(
+  @bg: @riseup-accent-gold,
+  @text: #0f172a
+) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background-color: @bg;
+  color: @text;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+// Native Select with base-select and ::picker(select) customization
+.native-custom-select(
+  @bg: @light-bg-primary,
+  @border: @light-border-strong,
+  @text: @light-text-primary,
+  @accent: @light-accent-primary
+) {
+  appearance: base-select;
+  background-color: @bg;
+  border: 1px solid @border;
+  border-radius: 0.75rem;
+  color: @text;
+  padding: 0.625rem 2.25rem 0.625rem 1rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: border-color @duration-fast ease,
+              box-shadow @duration-fast ease;
+
+  &::picker-icon {
+    transition: transform @duration-normal @ease-emphasized;
+  }
+
+  &:open::picker-icon {
+    transform: rotate(180deg);
+  }
+
+  &::picker(select) {
+    appearance: base-select;
+    background-color: @bg;
+    border: 1px solid @border;
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.20);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  option {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    color: @text;
+
+    &:hover,
+    &:focus {
+      background-color: fade(@accent, 12%);
+      color: @accent;
+    }
+
+    &:checked {
+      background-color: fade(@accent, 18%);
+      font-weight: 600;
+    }
+  }
+}

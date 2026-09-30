@@ -131,9 +131,35 @@ The gradient flows from `--heading-gradient-from` (primary hue) to `--heading-gr
 
 ---
 
+## Fluid Typography Scale (`clamp()`) for Marketing & Portals
+
+For high-craft landing pages, marketing headers, and hero banners, use fluid `clamp()` formulas to avoid rigid breakpoint snapping:
+
+| Role | Token Formula | Font & Weight | Tracking | Line-Height |
+|:---|:---|:---|:---|:---|
+| **Display** | `clamp(3.0rem, 7.0vw, 6.0rem)` | Ubuntu 700 | `-0.035em` | `0.98` |
+| **Hero H1** | `clamp(2.25rem, 5.0vw, 4.25rem)` | Ubuntu 700 | `-0.03em` | `1.02` |
+| **Section H2**| `clamp(1.75rem, 3.2vw, 3.0rem)` | Ubuntu 700 | `-0.025em` | `1.08` |
+| **Feature H3**| `clamp(1.25rem, 2.0vw, 1.75rem)` | Ubuntu 600 | `-0.015em` | `1.2` |
+| **Lead Subhead**| `clamp(1.125rem, 1.4vw, 1.35rem)` | Poppins 400 | `0` | `1.55` |
+| **Body** | `1rem` (`16px`) | Poppins 400 | `0` | `1.65` |
+| **Micro Eyebrow**| `0.75rem` (`12px`) | Poppins 600 | `+0.14em` | `1.0` (uppercase) |
+| **Numeral Metric**| `clamp(2.5rem, 4.5vw, 3.75rem)` | Ubuntu 700 | `-0.03em` | `1.0` (`tabular-nums`) |
+
+### Key Typographic Rules
+
+1. **Extreme Scale Contrast:** Every high-craft section pairs one massive element (Display or H2) with a tiny tracked micro-label (`0.75rem`, `+0.14em` uppercase). That extreme contrast signals intentional art direction rather than default layout.
+2. **Negative Tracking on Display Sizes:** Large Ubuntu text MUST use negative tracking (`-0.025em` to `-0.035em`). Default tracking on large sizes looks dated and loose.
+3. **Line Measure Restriction (`max-w-[62ch]`):** Body paragraphs must NEVER span full container widths. Restrict prose measure to `45–75 characters` (enforced via `max-w-[62ch]`).
+4. **Tabular Numerals (`font-variant-numeric: tabular-nums`):** All animated stat counters and table figures must use tabular numerals so widths do not jitter as digits cycle.
+
+---
+
 ## Cross-References
 
 | Reference | Location |
 |-----------|----------|
 | Theme Variables | [03-theme-variable-architecture.md](./03-theme-variable-architecture.md) |
+| Theme Catalogue & Palettes | [16-theme-catalogue-and-palettes.md](./16-theme-catalogue-and-palettes.md) |
+| Dark Mode & Materiality | [18-dark-mode-and-materiality.md](./18-dark-mode-and-materiality.md) |
 | Code Block Specifics | [09-code-blocks.md](./09-code-blocks.md) |

@@ -65,6 +65,7 @@ Follow this sequence before and during any repository modification task:
 | **37** | `37-bump-version.py` | Repository-aware SemVer version bumper & manifest synchronizer | ~15ms | `version`, `bump`, `semver`, `sync`, `changelog` |
 | **38** | `38-sync-prompts-skills-scripts.py` | Synchronizes prompts, skills, and scripts across connected repositories | ~40ms | `sync`, `prompts`, `skills`, `multi-repo` |
 | **39** | `39-migrate-indexes-to-readme.py` | Autonomous repository-wide index migrator (renames index files to readme.md) | ~150ms | `migrator`, `index`, `readme`, `references` |
+| **44** | `44-work-and-system-cache-cleaner.py` | Multi-layer work build artifact, Go/npm/pnpm/Node/DevTools cache, OS temp, SoftwareDistribution, Recycle Bin & Git cache cleaner with Plan & -y modes | ~50ms | `clean`, `cache`, `artifacts`, `go-cache`, `npm-cache`, `pnpm`, `devtools`, `temp`, `recycle-bin` |
 
 ---
 

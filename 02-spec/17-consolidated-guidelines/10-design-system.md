@@ -707,4 +707,32 @@ Change HSL values in `:root {}` and `.dark {}` — every component updates autom
 
 ---
 
-*Consolidated design system — v3.2.0 — 2026-04-16*
+## White Blue Theme Design System (`04-white-blue-theme`)
+
+For light-first enterprise editorial B2B portals, cloud ERP/CRM flagships, and consulting sites, use the **White Blue Theme** ([`../07-design-system/04-white-blue-theme/readme.md`](../07-design-system/04-white-blue-theme/readme.md)):
+
+### 1. Mandatory 3-Format Color Tokens (`HEX` | `RGB`/`RGBA` | `HSL` + `OKLCH`)
+
+| Token | Format 1: HEX | Format 2: RGB / RGBA | Format 3: HSL | OKLCH Runtime Value | Role |
+|:---|:---|:---|:---|:---|:---|
+| `--brand-primary` (`--blue-900`) | `#0D2975` | `rgb(13, 41, 117)` | `hsl(224, 80%, 25%)` | `oklch(0.317 0.135 264.5)` | Solid button fill & brand shadow tint base |
+| `--brand-secondary` (`--blue-500`) | `#2563EB` | `rgb(37, 99, 235)` | `hsl(221, 83%, 53%)` | `oklch(0.546 0.215 262.9)` | Primary action (`--primary`), active switches, links |
+| `--brand-tertiary` (`--violet-500`) | `#822EE8` | `rgb(130, 46, 232)` | `hsl(267, 80%, 55%)` | `oklch(0.532 0.253 296.9)` | Gradient partner (`--gradient-accent`, `--gradient-brand`) |
+| `--brand-highlight` (`--cyan-400`) | `#03D5E7` | `rgb(3, 213, 231)` | `hsl(185, 97%, 46%)` | `oklch(0.797 0.136 205.6)` | `.shine-sweep` 45deg sheen & decorative highlights |
+| `--paper` (`--background`) | `#FFFFFF` | `rgb(255, 255, 255)` | `hsl(0, 0%, 100%)` | `oklch(1 0 0)` | Default light band canvas & elevated card surface |
+| `--surface-soft` (`.band-soft`) | `#EEF3FA` | `rgb(238, 243, 250)` | `hsl(215, 55%, 96%)` | `oklch(0.962 0.011 258)` | Soft band separator canvas & `SiteFooter` background |
+| `--surface-dark` (`.band-dark`) | `#04070F` | `rgb(4, 7, 15)` | `hsl(224, 58%, 4%)` | `oklch(0.129 0.019 264)` | Dark band canvas (`--card`: `#0C121E`, `--on-dark`: `#D0D7E5`) |
+| `--ink` (`--foreground`) | `#090E18` | `rgb(9, 14, 24)` | `hsl(220, 45%, 6%)` | `oklch(0.163 0.023 265)` | Primary heading & body ink on light/soft bands |
+| `--ink-soft` (`--muted-foreground`) | `#48536B` | `rgb(72, 83, 107)` | `hsl(221, 20%, 35%)` | `oklch(0.441 0.043 265.9)` | Lead paragraphs, eyebrows, metadata |
+| `--border-light` (`--border`) | `#E2E6ED` | `rgb(226, 230, 237)` | `hsl(218, 23%, 91%)` | `oklch(0.924 0.011 265)` | Crisp 1px card & section border |
+
+### 2. Core White Blue Theme Blueprints
+
+- **Colors, Typography & Tokens:** [`../07-design-system/04-white-blue-theme/01-colors-typography-and-tokens.md`](../07-design-system/04-white-blue-theme/01-colors-typography-and-tokens.md) (`Ubuntu` + `Poppins` + `JetBrains Mono`, 10 fluid `@utility` classes, brand-tinted shadows).
+- **Header, 3D Flip Mega-Menu & Footer:** [`../07-design-system/04-white-blue-theme/02-header-mega-menu-and-footer.md`](../07-design-system/04-white-blue-theme/02-header-mega-menu-and-footer.md) (`72px` glass header, `SlideSwapLabel`, `14px` safe-region hover Mega-Menu with `[perspective:1400px]` `rotateY(180deg)` promo card).
+- **Buttons, Motion & Micro-Interactions:** [`../07-design-system/04-white-blue-theme/03-buttons-motion-and-interactions.md`](../07-design-system/04-white-blue-theme/03-buttons-motion-and-interactions.md) (`WhiteBlueButton`, `.shine-sweep`, `.pointer-fill`, `Magnetic`, `SpotlightCard`, `ToggleRow`).
+- **Cards, Heroes & Section Library:** [`../07-design-system/04-white-blue-theme/04-cards-heroes-and-section-library.md`](../07-design-system/04-white-blue-theme/04-cards-heroes-and-section-library.md) (`card-premium` & `row-premium` 2px left gradient border growth, Split Hero `CapabilityStack`, Sticky-Note Workflow Board with 3D `PushPin` & SVG `NoteConnector`, and Fluted Ribbed Glass `ScrollStack`).
+
+---
+
+*Consolidated design system — v3.3.0 — 2026-09-30*

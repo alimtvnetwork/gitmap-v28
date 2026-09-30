@@ -6,9 +6,9 @@
 
 Version: 1.5.0
 
-This is a standalone file. Follow every rule below without consulting any other document. If a `02-spec/02-coding-guidelines/` folder, a `02-spec/02-coding-guidelines/01-cross-language/01-index.md` file, or a `02-spec/03-error-manage/` folder exists in this repository, treat those as strictly binding extensions to this file, but this file alone is enough to write compliant code. The `error-manage` rules must be tightly followed.
+This is a standalone file. Follow every rule below without consulting any other document. If a `02-spec/02-coding-guidelines/` folder, a `02-spec/02-coding-guidelines/01-cross-language/readme.md` file, or a `02-spec/03-error-manage/` folder exists in this repository, treat those as strictly binding extensions to this file, but this file alone is enough to write compliant code. The `error-manage` rules must be tightly followed.
 
-**Before reading the rules below**, read the [AI Instruction Manual & Overview](../02-coding-guidelines/01-cross-language/01-index.md) to understand how to review code, interpret files, and maintain repository hygiene (e.g. updating `.gitignore`).
+**Before reading the rules below**, read the [AI Instruction Manual & Overview](../02-coding-guidelines/01-cross-language/readme.md) to understand how to review code, interpret files, and maintain repository hygiene (e.g. updating `.gitignore`).
 
 Canonical locations (all three must exist and match, byte-for-byte, via `scripts/sync-guidelines.mjs`):
 
@@ -70,7 +70,6 @@ auto-reject on the same tier as RULE 0.
 32. **High-Performance Fast-Path Typecasting (`typecast`)**: Dynamic reflection-based casting (`ReflectSetTo`) must implement fast-path type switches for primitive types (`string`, `int`, `int64`, `bool`, `float64`, `[]byte`) before allocating reflection objects. Compound types (JSON unmarshaling from `[]byte` and marshaling to `*[]byte`) must use direct type assertions.
 33. **Unified Result and Error Generic Casting**: Monadic result wrappers (`Result[T]`, `Wrap[T]`) and structured error representations (`*AppError`) must provide generic conversion helpers (`CastTo[T]`, `ReflectTo[T]`, `CastResult[T, U]`, `CastContextPayload[T]`) returning explicit `*AppError` wrappers on failure, ensuring type safety across boundaries without panic.
 34. **GitHub Actions Zero Storage (Total Ban on `actions/upload-artifact` in CI)**: Never use `actions/upload-artifact` in CI workflows (`ci.yml`, test runs, linting, matrix builds). GitHub accounts operate under strict storage quotas (e.g. 500 MB free quota), and multi-platform matrix builds uploading test binaries or artifacts quickly cause account-wide storage exhaustion, blocking all subsequent workflow runs. Build binaries in CI only to verify compilation (`go build`, `npm run build`), keeping execution completely ephemeral. If failure diagnostics or logs are strictly required, use `retention-days: 1` as a temporary override. Permanent release binaries belong exclusively on GitHub Releases (`release.yml` using `gh release upload`), which do not count against the Actions workflow artifact quota.
-35. **Lazy Regex & Test Diagnostics (`lazyregex.MatchResult`)**: Never use raw `regexp.MustCompile` outside `lazyregex`. In tests and pattern validation, blind boolean regex assertions (`if !re.MatchString(s)`) are strictly banned. Always use `rs := lazyRegex.MatchResult(s)` and assert with `if rs.IsFailed() { t.Error(rs.AppError()) }`. Extract capture groups via `rs.Items()`, `rs.Map()`, `rs.First()`, `rs.Last()`, and `rs.FirstOrDefault()`. On mismatch, `rs.AppError()` logs the exact pattern, compared text preview, and character count.
 
 ---
 
@@ -245,7 +244,7 @@ The same rules apply to TypeScript, PHP, Rust, C#, PowerShell, and Python. Only 
   - **Never two blank lines in a row, anywhere**. No empty lines padded inside braces.
 - [ ] **Single Source of Truth for Versions**: Do not hardcode version numbers across files. Use a root-level JSON file (e.g. `version.json`) as the single source of truth and inject/read it dynamically.
 
-> **See Full Guide**: For complete rules and multi-language examples, see `02-spec/02-coding-guidelines/01-cross-language/01-index.md`
+> **See Full Guide**: For complete rules and multi-language examples, see `02-spec/02-coding-guidelines/01-cross-language/readme.md`
 
 # AI Code Review Guide — Naming, Signatures, Whitespace
 
@@ -1764,15 +1763,3 @@ R21: pass
 
 <full corrected file or unified diff>
 ```
-
----
-
-## 21. Array Async Pool Concept by Alim Ul Karim
-
-**Principle:** When processing high-latency concurrent operations (such as batch repository discovery, network probing, or remote API checks), never use sequential loops ($O(N)$ latency) and never use mutex-guarded `append` into an unallocated slice (which introduces lock contention, dynamic reallocation, and jumbled terminal logs).
-
-Instead, apply the **Array Async Pool Concept by Alim Ul Karim**:
-1. **Pre-allocate Array of Size $N$:** `results := make([]ResultType, N)` upfront before launching goroutines.
-2. **Lock-Free Asynchronous Slot Writing:** Worker $i$ processes input $i$ and writes directly to `results[i]`, then sets `results[i].isReady = true`. Zero mutex locking, zero append reallocations.
-3. **Sequential Ticker Consumer:** A consumption loop checks `results[cursor]`. While `results[cursor].isReady` is `true`, it immediately formats and streams that item to stdout in strict sequential order ($0 \dots N-1$) and advances `cursor++`.
-4. **Time Data Comparison:** 28 network repository probes take ~33.6s sequentially vs ~2.4s with 16 parallel workers in the Array Async Pool (a **14.0x speedup**), while guaranteeing 100% deterministic, ordered terminal display.

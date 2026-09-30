@@ -15,16 +15,17 @@ Activate this skill when:
 
 ## 2. Multi-Layer Cache & Temp Cleanup Protocol
 
-1. **Layer 1 — Repository Build Artifacts:**
+1. **Layer 1 — Repository & Work Directory Build Artifacts:**
+   - Run `python 03-ai-scripts/44-work-and-system-cache-cleaner.py --dry-run` (Plan preview) and `python 03-ai-scripts/44-work-and-system-cache-cleaner.py -y` to clean work build elements, Go/npm/pnpm/Node/DevTools caches, OS temp, `SoftwareDistribution\Download`, Recycle Bin, and Git caches.
    - Remove `.tmp/`, `tmp/`, `__pycache__/`, `.pytest_cache/`, `.mypy_cache/`, `.ruff_cache/`, `.vite/`, `.turbo/`, `.parcel-cache/`, `*.pyc`, `*.pyo`, `*.tmp`, `*.test`, `coverage.out`, `tsconfig.tsbuildinfo`, `.eslintcache`.
    - Run `python 03-ai-scripts/19-artifact-remover.py --execute` (if present).
-2. **Layer 2 — OS Temporary Directories:**
-   - Clean stale `$env:TEMP\go-build*`, `$env:TEMP\vite*`, `$env:TEMP\npm-*`, `/tmp/go-build*` directories.
+2. **Layer 2 — OS Temporary Directories, SoftwareDistribution & Recycle Bin:**
+   - Clean stale `$env:TEMP\go-build*`, `$env:TEMP\vite*`, `$env:TEMP\npm-*`, `/tmp/go-build*`, `%WINDIR%\SoftwareDistribution\Download`, and Recycle Bin (`Clear-RecycleBin -Force`).
    - Run `gitmap update-cleanup`.
-3. **Layer 3 — Golang Caches:**
-   - Execute `go clean -cache -testcache -fuzzcache` and `golangci-lint cache clean`.
-4. **Layer 4 — pnpm, npm & Frontend Caches:**
-   - Execute `pnpm store prune`, `npm cache clean --force`, and remove `node_modules/.cache` and `node_modules/.vite`.
+3. **Layer 3 — Golang Caches (`GOCACHE` & `GOMODCACHE`):**
+   - Execute `go clean -cache -testcache -fuzzcache -modcache` and `golangci-lint cache clean`.
+4. **Layer 4 — pnpm, npm, Node.js & DevTools Caches (`node_modules` preserved):**
+   - Execute `pnpm store prune`, `npm cache clean --force`, and remove `node_modules/.cache`, `node_modules/.vite`, `.pnpm-store`, and Browser/VSCode DevTools caches.
 5. **Layer 5 — Git Hygiene & Lowercase Enforcement:**
    - Run `gitmap commons` to sync `.gitignore` and `.gitattributes`.
    - Run `gitmap lcf` and `gitmap lowercase-readme` to eliminate case-sensitivity build blockers.

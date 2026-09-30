@@ -150,7 +150,7 @@ Research files use the standard numbered prefix pattern:
 
 ```
 02-spec/02-coding-guidelines/10-research/
-├── 01-index.md
+├── readme.md
 ├── 01-framework-comparison-react-vue.md
 ├── 02-orm-evaluation-prisma-drizzle.md
 ├── 03-state-management-patterns.md
@@ -177,7 +177,7 @@ Research files use the standard numbered prefix pattern:
 | Reference | Location |
 |-----------|----------|
 | Root-level research | `02-spec/17-consolidated-guidelines/15-root-research.md` |
-| Source folder | `02-spec/02-coding-guidelines/10-research/01-index.md` |
+| Source folder | `02-spec/02-coding-guidelines/10-research/readme.md` |
 | Coding guidelines | `02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md` |
 | Spec authoring | `02-spec/17-consolidated-guidelines/04-spec-authoring.md` |
 
