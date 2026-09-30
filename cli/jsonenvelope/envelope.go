@@ -100,7 +100,6 @@ func (attrs EnvelopeAttributes) MarshalJSON() ([]byte, error) {
 	return json.Marshal(Alias(attrs))
 }
 
-
 // Envelope is a generic envelope wrapping attributes, optional variables, and typed data.
 type Envelope[T any] struct {
 	Attributes EnvelopeAttributes `json:"attributes"`

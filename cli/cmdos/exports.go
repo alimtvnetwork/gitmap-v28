@@ -21,4 +21,3 @@ func RunOSFixLink(args []string) error {
 func RunChangePassword(args []string) error {
 	return RunChangePasswordCLI(args)
 }
-
