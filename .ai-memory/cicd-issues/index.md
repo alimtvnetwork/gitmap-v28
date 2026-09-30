@@ -79,3 +79,4 @@
 - [88-resolve-fetch-concurrency-test-assertion-rca.md](./88-resolve-fetch-concurrency-test-assertion-rca.md): Fix TestResolveFetchConcurrency assertion to match 8-worker concurrency ceiling.
 - [89-extract-json-substring-array-format-rca.md](./89-extract-json-substring-array-format-rca.md): Fix extractJSONSubstring stripping array brackets on telemetry array format.
 - [90-misspell-cancelled-in-change-password-cmd-rca.md](./90-misspell-cancelled-in-change-password-cmd-rca.md): Fix US locale misspell failure on Cancelled in change_password_cmd.go.
+- [91-listtaskhistory-receiver-on-store-db-rca.md](./91-listtaskhistory-receiver-on-store-db-rca.md): Fix ListTaskHistory undefined on *store.DB in cmd/tasks_list.go by attaching methods to *DB.

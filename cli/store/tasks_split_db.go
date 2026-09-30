@@ -142,7 +142,7 @@ func (db *TasksSplitDB) Conn() *sql.DB {
 }
 
 // InsertTaskHistory adds an execution audit record into TaskHistory.
-func (db *TasksSplitDB) InsertTaskHistory(
+func (db *DB) InsertTaskHistory(
 	taskId,
 	section,
 	action,
@@ -163,7 +163,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
 }
 
 // ListTaskHistory queries audit records with section filter and pagination.
-func (db *TasksSplitDB) ListTaskHistory(section string, limit, offset int) ([]model.TaskHistoryRecord, error) {
+func (db *DB) ListTaskHistory(section string, limit, offset int) ([]model.TaskHistoryRecord, error) {
 	boundedLimit, boundedOffset := sanitizeTaskHistoryBounds(limit, offset)
 	rows, err := db.queryTaskHistoryRows(section, boundedLimit, boundedOffset)
 	if err != nil {
@@ -185,7 +185,7 @@ func sanitizeTaskHistoryBounds(limit, offset int) (int, int) {
 	return limit, offset
 }
 
-func (db *TasksSplitDB) queryTaskHistoryRows(section string, limit, offset int) (*sql.Rows, error) {
+func (db *DB) queryTaskHistoryRows(section string, limit, offset int) (*sql.Rows, error) {
 	if section != "" && section != "all" {
 		query := `SELECT TaskHistoryId, TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status, RestoredAt, ExecutedAt, CreatedAt
 FROM TaskHistory WHERE Section = ? ORDER BY TaskHistoryId DESC LIMIT ? OFFSET ?`
