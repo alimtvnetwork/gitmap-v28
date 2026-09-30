@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.431.0] - 2026-09-30
+
+### Added
+- Fix cross-platform tests and boolean linter nested if policy
+
+---
+
 ## [v6.430.0] - 2026-09-30
 
 ### Added

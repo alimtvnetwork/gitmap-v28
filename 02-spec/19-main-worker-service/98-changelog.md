@@ -1,3 +1,9 @@
+## v6.431.0 — 2026-09-30 (Fix cross-platform tests and boolean linter nested if policy)
+
+**Scope:** Version bump. Fix cross-platform tests and boolean linter nested if policy.
+
+---
+
 ## v6.430.0 — 2026-09-30 (Fix ListTaskHistory receiver on store.DB for universal tasks list)
 
 **Scope:** Version bump. Fix ListTaskHistory receiver on store.DB for universal tasks list.
