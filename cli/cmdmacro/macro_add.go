@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/uipref"
 )
@@ -45,6 +46,7 @@ func handleMacroAdd(args []string) error {
 		return apperror.WrapSimple(err, fmt.Sprintf("save macro %s", name))
 	}
 
+	cmdtask.RecordTaskAudit("macro", "add", m.Name, fmt.Sprintf("%d steps", len(m.Steps)), "completed")
 	printMacroCreatedSuccess(m)
 
 	return nil

@@ -32,4 +32,8 @@
 
 ## Pending Plans
 
+- [52-winutil-linutil-advanced-os-integration-plan.md](pending/52-winutil-linutil-advanced-os-integration-plan.md) — Winutil/Linutil Advanced OS Integration Plan
+- [53-cicd-interface-naming-and-enum-suffix.md](pending/53-cicd-interface-naming-and-enum-suffix.md) — CI/CD Interface Naming and Enum Suffix
+- [54-vmware-macro-audit-task-and-installer-chain.md](pending/54-vmware-macro-audit-task-and-installer-chain.md) — VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task Logging, and Chained Installer
+
 

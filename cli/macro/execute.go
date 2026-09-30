@@ -394,10 +394,11 @@ func resolveExitCode(err error) int {
 
 func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, outBuf, errBuf io.Writer) (*exec.Cmd, func()) {
 	var cmd *exec.Cmd
+	adaptedCmd := AdaptCommandForPlatform(cmdText)
 	if runtime.GOOS == constants.OSWindows {
-		cmd = exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", cmdText)
+		cmd = exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", adaptedCmd)
 	} else {
-		cmd = exec.CommandContext(ctx, "sh", "-c", cmdText)
+		cmd = exec.CommandContext(ctx, "sh", "-c", adaptedCmd)
 	}
 
 	cmd.WaitDelay = 250 * time.Millisecond

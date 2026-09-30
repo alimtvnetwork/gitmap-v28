@@ -45,3 +45,4 @@
 - [187-powershell-predictive-suggestions-and-profile-installer.md](187-powershell-predictive-suggestions-and-profile-installer.md) — PowerShell Predictive Suggestions & Profile Auto-Configuration with PSReadLine ListView, CRLF Idempotence, and Post-Update Hook (Status: `active`)
 - [188-json-envelope-v2-terminal-clear-and-deploy-keys.md](188-json-envelope-v2-terminal-clear-and-deploy-keys.md) — JSON Envelope V2, Terminal Clear, Deploy-Keys Variants, and Friendly Import CLI (Status: `active`)
 - [189-envelope-variables-os-password-and-secrets-sequence.md](189-envelope-variables-os-password-and-secrets-sequence.md) — JSON Envelope Variables, WorkDirectory Object, OS Password CLI, and Repo-Secrets Hygiene (Status: `active`)
+- [190-vmware-macro-audit-task-and-installer-chain.md](190-vmware-macro-audit-task-and-installer-chain.md) — VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task History, and Chained Installer (Status: `active`)

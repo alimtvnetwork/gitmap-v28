@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
@@ -155,7 +156,20 @@ func handleEditSpecialAction(line string, state *interactiveSessionState, steps 
 		return handleInsertStepCmd(line, state, steps, stepNum)
 	}
 
-	return processInBuilderCommand(line, state, steps, stepNum)
+	if isExplicitHelperCmd(line) {
+		return processInBuilderCommand(line, state, steps, stepNum)
+	}
+
+	return false
+}
+
+func isExplicitHelperCmd(line string) bool {
+	low := strings.ToLower(line)
+	if strings.HasPrefix(low, ":") || strings.HasPrefix(low, "+add") || low == "help" || low == "?" || low == "pwd" || strings.HasPrefix(low, "cd ") || low == "cd" {
+		return true
+	}
+
+	return false
 }
 
 func isListStepsCmd(line string) bool {
@@ -166,8 +180,18 @@ func isListStepsCmd(line string) bool {
 
 func isDeleteStepCmd(line string) bool {
 	low := strings.ToLower(line)
+	if !strings.HasPrefix(low, "del ") && !strings.HasPrefix(low, "rm ") && !strings.HasPrefix(low, "delete ") {
+		return false
+	}
 
-	return strings.HasPrefix(low, "del ") || strings.HasPrefix(low, "rm ") || strings.HasPrefix(low, "delete ")
+	parts := strings.Fields(line)
+	if len(parts) >= 2 {
+		_, err := strconv.Atoi(parts[1])
+
+		return err == nil
+	}
+
+	return false
 }
 
 func isReplaceStepCmd(line string) bool {
@@ -278,6 +302,7 @@ func saveAndFinishEdit(m *macro.Macro, steps []macro.MacroStep) interactiveLoopA
 		return loopActionBreak
 	}
 
+	cmdtask.RecordTaskAudit("macro", "edit", m.Name, fmt.Sprintf("%d steps", len(steps)), "completed")
 	fmt.Printf("  %s✔ Macro %q successfully updated (%d steps)%s\n\n",
 		constants.ColorGreen, m.Name, len(steps), constants.ColorReset)
 

@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	_ "modernc.org/sqlite"
 )
 
@@ -137,4 +139,77 @@ func (db *TasksSplitDB) Close() error {
 // Conn returns the underlying SQLite connection.
 func (db *TasksSplitDB) Conn() *sql.DB {
 	return db.DB.Conn()
+}
+
+// InsertTaskHistory adds an execution audit record into TaskHistory.
+func (db *TasksSplitDB) InsertTaskHistory(
+	taskID,
+	section,
+	action,
+	target,
+	forward,
+	inverse,
+	status string,
+) error {
+	now := time.Now().UTC().Format(time.RFC3339)
+	query := `INSERT INTO TaskHistory (TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status, ExecutedAt, CreatedAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	res := ExecWrapper(db.Conn(), query, taskID, section, action, target, forward, inverse, status, now, now)
+	if res.IsFailure {
+		return apperror.WrapSimple(res.Error, "InsertTaskHistory")
+	}
+
+	return nil
+}
+
+// ListTaskHistory queries audit records with section filter and pagination.
+func (db *TasksSplitDB) ListTaskHistory(section string, limit, offset int) ([]model.TaskHistoryRecord, error) {
+	boundedLimit, boundedOffset := sanitizeTaskHistoryBounds(limit, offset)
+	rows, err := db.queryTaskHistoryRows(section, boundedLimit, boundedOffset)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "ListTaskHistory query")
+	}
+	defer rows.Close()
+
+	return scanTaskHistoryRows(rows)
+}
+
+func sanitizeTaskHistoryBounds(limit, offset int) (int, int) {
+	if limit <= 0 {
+		limit = 50
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	return limit, offset
+}
+
+func (db *TasksSplitDB) queryTaskHistoryRows(section string, limit, offset int) (*sql.Rows, error) {
+	if section != "" && section != "all" {
+		query := `SELECT TaskHistoryId, TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status, RestoredAt, ExecutedAt, CreatedAt
+FROM TaskHistory WHERE Section = ? ORDER BY TaskHistoryId DESC LIMIT ? OFFSET ?`
+		return db.Conn().Query(query, section, limit, offset)
+	}
+
+	query := `SELECT TaskHistoryId, TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status, RestoredAt, ExecutedAt, CreatedAt
+FROM TaskHistory ORDER BY TaskHistoryId DESC LIMIT ? OFFSET ?`
+	return db.Conn().Query(query, limit, offset)
+}
+
+func scanTaskHistoryRows(rows *sql.Rows) ([]model.TaskHistoryRecord, error) {
+	var records []model.TaskHistoryRecord
+	for rows.Next() {
+		var r model.TaskHistoryRecord
+		scanErr := rows.Scan(
+			&r.TaskHistoryId, &r.TaskId, &r.Section, &r.Action, &r.Target,
+			&r.ForwardPayload, &r.InversePayload, &r.Status,
+			&r.RestoredAt, &r.ExecutedAt, &r.CreatedAt,
+		)
+		if scanErr == nil {
+			records = append(records, r)
+		}
+	}
+
+	return records, nil
 }

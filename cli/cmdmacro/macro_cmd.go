@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
@@ -65,6 +66,7 @@ func executeMacroByName(macroName string, opts macro.ExecOptions) error {
 	loadedMacro, loadErr := macro.LoadMacro(macroName)
 	if loadErr != nil {
 		fmt.Fprintf(os.Stderr, "%s✖ Error: %v%s\n", constants.ColorRed, loadErr, constants.ColorReset)
+		cmdtask.RecordTaskAudit("macro", "run", macroName, "load failed", "failed")
 
 		return apperror.WrapSimple(loadErr, "macro.LoadMacro")
 	}
@@ -74,8 +76,12 @@ func executeMacroByName(macroName string, opts macro.ExecOptions) error {
 	}
 
 	if execErr := macro.Execute(context.Background(), loadedMacro, opts); execErr != nil {
+		cmdtask.RecordTaskAudit("macro", "run", macroName, fmt.Sprintf("%d steps", len(loadedMacro.Steps)), "failed")
+
 		return apperror.WrapSimple(execErr, "macro.Execute")
 	}
+
+	cmdtask.RecordTaskAudit("macro", "run", macroName, fmt.Sprintf("%d steps", len(loadedMacro.Steps)), "completed")
 
 	return nil
 }

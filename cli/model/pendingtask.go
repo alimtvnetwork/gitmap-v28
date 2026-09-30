@@ -28,3 +28,18 @@ type CompletedTaskRecord struct {
 	CompletedAt      string `json:"completedAt,omitempty"`
 	CreatedAt        string `json:"createdAt,omitempty"`
 }
+
+// TaskHistoryRecord represents an audit history record across macro, ssh, and installer subsystems.
+type TaskHistoryRecord struct {
+	TaskHistoryId  int64  `json:"taskHistoryId"`
+	TaskId         string `json:"taskId"`
+	Section        string `json:"section"`
+	Action         string `json:"action"`
+	Target         string `json:"target"`
+	ForwardPayload string `json:"forwardPayload,omitempty"`
+	InversePayload string `json:"inversePayload,omitempty"`
+	Status         string `json:"status"`
+	RestoredAt     string `json:"restoredAt,omitempty"`
+	ExecutedAt     string `json:"executedAt,omitempty"`
+	CreatedAt      string `json:"createdAt,omitempty"`
+}
