@@ -1,3 +1,9 @@
+## v6.433.0 — 2026-09-30 (Fix shared engine sync regression and CI/CD runner attributes (RCA-093))
+
+**Scope:** Version bump. Fix shared engine sync regression and CI/CD runner attributes (RCA-093).
+
+---
+
 ## v6.432.0 — 2026-09-30 (Interactive Bubbletea OS TUI Dashboard and WinUtil/LinUtil integration)
 
 **Scope:** Version bump. Interactive Bubbletea OS TUI Dashboard and WinUtil/LinUtil integration.

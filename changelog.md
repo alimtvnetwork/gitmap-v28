@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.433.0] - 2026-09-30
+
+### Added
+- Fix shared engine sync regression and CI/CD runner attributes (RCA-093)
+
+---
+
 ## [v6.432.0] - 2026-09-30
 
 ### Added
