@@ -1,3 +1,9 @@
+## v6.417.1 — 2026-09-30 (fix TestSuggestSSHSubcommand_Proof in cmdssh)
+
+**Scope:** Version bump. fix TestSuggestSSHSubcommand_Proof in cmdssh.
+
+---
+
 ## v6.417.0 — 2026-09-30 (log failed commands to db and add rich suggestions across ssh, clean, and install)
 
 **Scope:** Version bump. log failed commands to db and add rich suggestions across ssh, clean, and install.

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.417.1] - 2026-09-30
+
+### Added
+- fix TestSuggestSSHSubcommand_Proof in cmdssh
+
+---
+
 ## [v6.417.0] - 2026-09-30
 
 ### Added
