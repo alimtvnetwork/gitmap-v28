@@ -121,27 +121,39 @@ func formatDetails(r RemoteCloneNodeResult) string {
 }
 
 func renderFleetSummaryFooter(out io.Writer, results []RemoteCloneNodeResult, isLocalSuccess bool, isSkipLocal bool) {
+	succCount, failCount := countFleetResults(results)
+	if isSkipLocal {
+		renderSkippedLocalSummary(out, len(results), succCount, failCount)
+		return
+	}
+
+	succCount, failCount = adjustForLocalResult(succCount, failCount, isLocalSuccess)
+	total := len(results) + 1
+	fmt.Fprintf(out, "\n  ✔ Fleet Clone Summary: %d/%d node(s) completed successfully (%d failed)\n\n",
+		succCount, total, failCount)
+}
+
+func countFleetResults(results []RemoteCloneNodeResult) (int, int) {
 	var succCount int
 	var failCount int
 	for _, r := range results {
 		if r.Status == "success" {
 			succCount++
-		} else {
-			failCount++
+			continue
 		}
+		failCount++
 	}
-	if !isSkipLocal {
-		if isLocalSuccess {
-			succCount++
-		} else {
-			failCount++
-		}
-		total := len(results) + 1
-		fmt.Fprintf(out, "\n  ✔ Fleet Clone Summary: %d/%d node(s) completed successfully (%d failed)\n\n",
-			succCount, total, failCount)
-		return
+	return succCount, failCount
+}
+
+func adjustForLocalResult(succCount, failCount int, isLocalSuccess bool) (int, int) {
+	if isLocalSuccess {
+		return succCount + 1, failCount
 	}
-	total := len(results)
+	return succCount, failCount + 1
+}
+
+func renderSkippedLocalSummary(out io.Writer, total, succCount, failCount int) {
 	fmt.Fprintf(out, "\n  ✔ Fleet Clone Summary: %d/%d remote node(s) completed successfully (%d failed, local skipped)\n\n",
 		succCount, total, failCount)
 }

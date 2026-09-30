@@ -154,7 +154,7 @@ func printMacroPromptPwd() {
 
 func processInteractiveStepLine(rawLine, name string, state *interactiveSessionState, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
 	line := strings.TrimSpace(rawLine)
-	if isExplicitHelperCmd(line) && processInBuilderCommand(line, state, steps, stepNum) {
+	if processInBuilderCommand(line, state, steps, stepNum) {
 		return loopActionContinue
 	}
 

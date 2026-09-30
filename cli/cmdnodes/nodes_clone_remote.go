@@ -95,14 +95,14 @@ func isWindowsNode(conn db.SSHConnection) bool {
 }
 
 func buildWindowsWorkDirExecString(kindStr, args, targetDir string) string {
-	workDir := "D:\\work"
+	workDir := `D:\work`
 	if targetDir != "" {
 		workDir = targetDir
 	}
 	if args == "" {
-		return fmt.Sprintf("Set-Location %q; gitmap %s", workDir, kindStr)
+		return fmt.Sprintf("Set-Location \"%s\"; gitmap %s", workDir, kindStr)
 	}
-	return fmt.Sprintf("Set-Location %q; gitmap %s %s", workDir, kindStr, args)
+	return fmt.Sprintf("Set-Location \"%s\"; gitmap %s %s", workDir, kindStr, args)
 }
 
 func buildUnixWorkDirExecString(kindStr, args, targetDir string) string {
