@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.353.0**
+**Pinned version: v6.432.0**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -87,9 +87,9 @@ GitMap is a **Windows-first** project. The commands below install the latest rel
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 ```
 
-#### Pinned Version Install (v6.353.0)
+#### Pinned Version Install (v6.432.0)
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.353.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.432.0/install.ps1 | iex
 ```
 
 ---
@@ -101,9 +101,9 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.353.0/install.
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-#### Pinned Version Install (v6.353.0)
+#### Pinned Version Install (v6.432.0)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.353.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.432.0/install.sh | sh
 ```
 
 ### 🎯 Install — Quick (pick your install drive)
@@ -3443,18 +3443,17 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 
 - [Install Tools Logic](cli/cmd/installtools.go)
 
-- [Search and LLM Specs](.ai-memory/plans/pending/06-search-and-llm-feature.md)
-
-- [.ai-memory/plans/pending/01-file-manipulation-spec.md](.ai-memory/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
-
-- [.ai-memory/plans/pending/02-python-file-manipulation-spec.md](.ai-memory/plans/pending/02-python-file-manipulation-spec.md) - AI Instruction spec for generating the Python file manipulation script.
-
-- [.ai-memory/plans/pending/03-fix-release-tag-ordering.md](.ai-memory/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
-- [.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
-- [02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md](02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md) - Fast `gitmap pa` / `pat` / `--json`, State Templates DB (`gitmap-templates.db`), Variables & Pre-Compilation, Web UI, and Declarative `commit-in`/`commit-pull` `--config <json>`.
-- [02-spec/21-app/168-commit-pull-array-async-pool-ui-and-bootstrap.md](02-spec/21-app/168-commit-pull-array-async-pool-ui-and-bootstrap.md) - Commit-Pull Array Async Pool by Alim Ul Karim, Interactive Web Studio UI, Bootstrap Scaffolding, and Self-Contained SEO Templates.
-- [02-spec/02-coding-guidelines/01-cross-language/32-array-async-pool.md](02-spec/02-coding-guidelines/01-cross-language/32-array-async-pool.md) - Coding Guideline: Array Async Pool by Alim Ul Karim with Empirical Timing Comparison.
-- [.ai-memory/plans/completed/164-pull-all-fast-mode-templates-db-and-commitin-config.md](.ai-memory/plans/completed/164-pull-all-fast-mode-templates-db-and-commitin-config.md) - Completed Plan 164.
+- [Root readme.md](readme.md) (must stay in sync with what-to-read.md)
+- [.ai-memory/plans/completed/09-chrome-profile-management-picker-and-token-vault.md](.ai-memory/plans/completed/09-chrome-profile-management-picker-and-token-vault.md) - Chrome profile picker and token vault.
+- [02-spec/21-app/129-pr-commit-engines-and-sqlite-split-db.md](02-spec/21-app/129-pr-commit-engines-and-sqlite-split-db.md) - PR commit replay engine, SQLite split-DB standardization, and final snapshot sync.
+- [02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md) - SSH batch common join (`sjc`), remote OS telemetry (`os_detect`), AGY `rerun` & `rop` split-DB optimization, and AUM search benchmarks.
+- [02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md](02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md) - SSH macro/pea/peat deploy (`--except`), fleet update (`ua`, `update ls`), remote `ssh-clone`, and `//go:build tempe2e` isolated validation.
+- [02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md](02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md) - VMware automation, macro safe removal & edit UX, audit task history, and chained installer.
+- [02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md](02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md) - 4-Part RCA for VS Code startup failure and search latency.
+- [02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md](02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md) - 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard.
+- [docs/benchmarks/search_benchmark.md](docs/benchmarks/search_benchmark.md) - Native AUM search vs Go walk vs Python grep benchmark report.
+- [cli/helptext/pr.md](cli/helptext/pr.md) - PR command family usage, HG help, and JSON examples.
+- [.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md](.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md) - Completed Plan 54.
 
 
 ## Release Architecture

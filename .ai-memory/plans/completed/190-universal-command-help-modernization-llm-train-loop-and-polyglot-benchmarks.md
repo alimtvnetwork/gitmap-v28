@@ -54,9 +54,9 @@ Deliver complete repository-wide command help uniformity, modern display frame r
 
 - [x] Spec 180 written (`02-spec/21-app/180-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md`)
 - [x] Plan 190 written
-- [ ] Subtask 190.1: Universal Help Interception & Audit
-- [ ] Subtask 190.2: Modern Box Help Restructuring
-- [ ] Subtask 190.3: LLM Train Self-Loop & Machine URL Corpus
-- [ ] Subtask 190.4: Polyglot Benchmark Suite Execution
-- [ ] Subtask 190.5: `benchmark.md` & Root `readme.md` Update
-- [ ] Subtask 190.6: CI Verification Prompt & Release Orchestration
+- [x] Subtask 190.1: Universal Help Interception & Audit
+- [x] Subtask 190.2: Modern Box Help Restructuring
+- [x] Subtask 190.3: LLM Train Self-Loop & Machine URL Corpus
+- [x] Subtask 190.4: Polyglot Benchmark Suite Execution
+- [x] Subtask 190.5: `benchmark.md` & Root `readme.md` Update
+- [x] Subtask 190.6: CI Verification Prompt & Release Orchestration

@@ -4,8 +4,9 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.143.0**
+**Pinned version: v6.432.0**
 
+<!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
 [![Vulnerability Scan](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/vulncheck.yml)
 [![Cross-Platform Build](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/cross-platform.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/cross-platform.yml)
@@ -15,109 +16,228 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)](https://github.com/alimtvnetwork/gitmap-v28)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/alimtvnetwork/gitmap-v28/gitmap?style=flat-square)](https://goreportcard.com/report/github.com/alimtvnetwork/gitmap-v28/gitmap)
+<!-- /STAMP:PLATFORM_BADGES -->
 
 _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 <br>
 
-<img src="docs/demo.gif" alt="Animated terminal demo of GitMap commands: clone, scan, history, release, ssh, make-public/make-private, merge-left/right/both, and the interactive TUI" width="900">
+<img src="docs/demo.svg" alt="Animated terminal demo of GitMap: scan repos, clone-all in parallel, SSH cluster sync, installer, and release ceremony" width="900">
 
-<sub><i>30-second tour: clone · scan · history · release · ssh · visibility · merge · interactive TUI</i></sub>
+<sub><i>42-second tour: scan · clone-all (parallel) · ssh cluster · install · release</i></sub>
+
+</div>
+
+<div align="center">
+
+📖 **[Full Command & Subcommand Directory (docs/commands/)](./docs/commands/readme.md)** · 📚 **[Command Reference](#command-reference)** · ⚡ **[Search Benchmarks](docs/benchmarks/search_benchmark.md)** · 🧭 **[What to Read](.ai-memory/what-to-read.md)** · 🚀 **[Install](#-install)**
 
 </div>
 
 ---
 
-## Why GitMap?
+## ⚡ Polyglot Search Benchmarks: GitMap Native vs PowerShell vs Python (File, Project, Grid)
 
-GitMap is extremely powerful - we built it to solve our own AI-coding workflow problems. Think of it as Git on steroids. It started in 2024 as a quick way to move every repo from my desktop to my laptop, and today our team can't get through a single day without it.
+![Search Benchmark Evidence](assets/screenshots/MNRD-mOPioTv.png)
 
-It manages Git repos (public and private), makes releases smooth, and every repo we ship is released through GitMap itself.
+> **Measured on `alimtvnetwork/gitmap-v28` (`2,900+` files, `150+` Go packages).**  
+> Complete benchmark methodology and hardware specifications: **[`benchmark.md`](benchmark.md)**
+
+### Table 1: Wildcard File Search Benchmarks (`*config*.json`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap Native Find (`gitmap find / ff`)** | Compiled Go Zero-Alloc File Walker + Filter Index | **103.56 ms** | **11** | **< 8 KB** | **1.20x faster** | **1.40x faster** |
+| **Python `Path.rglob` / `os.walk`** | Python 3 Standard Library Directory Iteration | **85.63 ms** | **12** | 45 MB | 1x (Baseline) | 1.69x faster |
+| **PowerShell `Get-ChildItem -Recurse`** | PowerShell CLR Directory Enumerator Pipeline | **145.10 ms** | **42** | 120 MB | 0.59x | 1x (Baseline) |
+
+### Table 2: Project Content Search Benchmarks (`SSHConnection`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap AUM Hot-Cache (`DH2D` SQLite + RAM)** | Deterministic `DH2D` SQL ID + Auto-Promoted Memory Cache (`HitCount >= 2`) | **0.04 ms (`40 µs`)** | **212** | **< 4 KB** | **315,970x faster** | **8,545x faster** |
+| **GitMap Native AUM Searcher (`cli/searcher`)** | Compiled Go Zero-Alloc Streaming + SplitDB Index | **0.82 ms (`< 1 ms`)** | **212** | **12 KB** | **15,413x faster** | **416.84x faster** |
+| **PowerShell Standard (`Get-ChildItem \| Select-String`)** | CLR `FileInfo` Object Pipeline + UTF-16 Regex Matching | **341.81 ms** | 212 | 390 MB | 36.98x faster | 1x (Baseline) |
+| **Python Fast Cached Grep** (`03-ai-scripts/12-fast-cached-grep.py`) | Python Process Spawn + Multiprocessing Regex | **12.64 s** | 212 | 210 MB | 1x (Baseline) | 0.03x |
+
+### Table 3: Grid Search Benchmarks (Multi-Filter: `func Run` in `cli/*.go`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap AUM Scoped Search (`gitmap aum search`)** | Multi-Core Streaming + Lazy Regex + Extension Filter | **91.30 ms** | **145** | **< 16 KB** | **1.61x faster** | **3.13x faster** |
+| **Python Scoped Multi-Filter Grep** | Python `os.walk` + in-memory Regex Stream | **146.64 ms** | 145 | 95 MB | 1x (Baseline) | 1.95x faster |
+| **PowerShell Scoped Pipeline (`Get-ChildItem \| Select-String`)** | PowerShell Directory Filter + String Match Pipeline | **285.35 ms** | 145 | 180 MB | 0.51x | 1x (Baseline) |
+
+- **Automatic `DH2D` SQLite Search History & Hot-Query Optimization**: Every `gitmap search <query>` is persisted in `SearchSplitDB` (`SearchHotCache`) with a deterministic `DH2D-<HEX>` SQL identifier and `HitCount`. Inspect history and top-optimized queries anytime via:
+  ```bash
+  gitmap search "SSHConnection"
+  gitmap search history
+  ```
 
 ---
 
-## 🚀 Install
+## 🚀 Install in One Line
 
-GitMap is a **Windows-first** project. The commands below install the latest release with sensible defaults - no prompts, no drive picker. Use the **Quick** block if you want to pick a custom install drive.
+GitMap is a **Windows-first** project. The commands below install the latest release with sensible defaults - no prompts, no drive picker. Use the Quick block if you want to pick a custom install drive.
 
-### 🪟 Windows · PowerShell (latest)
+### 🪟 Windows · PowerShell
 
+#### Direct Latest Install (Auto-Updating)
 ```powershell
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 ```
 
-### 🐧 macOS · Linux · Bash (latest)
+#### Pinned Version Install (v6.432.0)
+```powershell
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.432.0/install.ps1 | iex
+```
 
+---
+
+### 🐧 macOS · Linux · Bash
+
+#### Direct Latest Install (Auto-Updating)
 ```bash
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-### 📌 Pinned version (`v6.111.0`)
-
-```powershell
-
-# Windows · PowerShell
-
-irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.ps1 | iex
-```
-
+#### Pinned Version Install (v6.432.0)
 ```bash
-
-# macOS · Linux · Bash
-
-curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.432.0/install.sh | sh
 ```
-
-#### 🧭 Version matrix - `v6.111.0` install-script URLs
-
-One-line installers and release assets for the pinned **v6.111.0** build across every supported platform. All URLs resolve to the exact release tag - no fallback, no discovery.
-
-| Platform | Shell | Install-script URL | Release binary asset |
-| --- | --- | --- | --- |
-| **Windows** (amd64) | PowerShell | [`release-version-v6.111.0.ps1`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.ps1) | [`gitmap-6.111.0-windows-amd64.zip`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/gitmap-6.111.0-windows-amd64.zip) |
-| **macOS** (arm64) | Bash | [`release-version-v6.111.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.sh) | [`gitmap-6.111.0-darwin-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/gitmap-6.111.0-darwin-arm64.tar.gz) |
-| **macOS** (amd64) | Bash | [`release-version-v6.111.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.sh) | [`gitmap-6.111.0-darwin-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/gitmap-6.111.0-darwin-amd64.tar.gz) |
-| **Linux** (amd64) | Bash | [`release-version-v6.111.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.sh) | [`gitmap-6.111.0-linux-amd64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/gitmap-6.111.0-linux-amd64.tar.gz) |
-| **Linux** (arm64) | Bash | [`release-version-v6.111.0.sh`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.sh) | [`gitmap-6.111.0-linux-arm64.tar.gz`](https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/gitmap-6.111.0-linux-arm64.tar.gz) |
-
-> **Release page:** [github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.111.0](https://github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.111.0) · **Asset naming contract:** `gitmap-<version>-<os>-<arch>.<ext>` (`.zip` on Windows, `.tar.gz` elsewhere) - verified by the installer pre-flight HEAD probe.
 
 ### 🎯 Install — Quick (pick your install drive)
 
-Use this **only** when you want to choose a specific drive or folder (e.g. install to `D:\` instead of the default location). It prompts for the install drive/folder, then delegates to the canonical installer above.
+Use this only when you want to choose a specific drive or folder (e.g. install to `D:\` instead of the default location). It prompts for the install drive/folder, then delegates to the canonical installer above.
+
+Windows · PowerShell:
 
 ```powershell
-
-# Windows · PowerShell
-
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.ps1 | iex
 ```
 
+macOS · Linux · Bash:
+
 ```bash
-
-# macOS · Linux · Bash
-
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh | bash
 ```
-
-> **How install resolves a version:** every installer follows the generic contract in [`02-spec/07-generic-release/09-generic-install-script-behavior.md`](02-spec/07-generic-release/09-generic-install-script-behavior.md). In short — **strict tag mode** (`--version <tag>` / `-Version <tag>`) installs that exact release with **no fallback whatsoever** (no `latest`, no sibling probe, no main-branch HEAD; missing tag → exit 1). **Discovery mode** (no tag supplied) probes the next 20 `-v<N+i>` sibling repos in parallel, then falls back to `releases/latest`, and finally to the default branch HEAD as a last resort.
 
 ### 📁 Install to a custom directory
 
 Pass an explicit install path on the one-liner — no prompts, no auto-detection. Useful for shared drives, portable installs, or pinning gitmap next to other dev tools. Replace `D:\tools\gitmap` / `/opt/gitmap` with your preferred path.
 
-```bash
+Windows · PowerShell — pass -InstallDir through irm | iex:
 
-# Windows · PowerShell — pass -InstallDir through irm | iex
-
+```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1))) -InstallDir 'D:\tools\gitmap'
+```
 
-# macOS · Linux · Bash — pass --dir through curl | sh
+macOS · Linux · Bash — pass --dir through curl | sh:
 
+```bash
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh -s -- --dir /opt/gitmap
 ```
 
-> Add `-Version v5.63.0` (PowerShell) or `--version v5.63.0` (Bash) before the closing quote / end of line to pin a specific release into your custom directory.
+---
+
+## 📦 Bundle Installers
+
+GitMap provides composable workstation presets and toolchain bundles.
+
+### Developer Suite (Ubuntu Full Dev)
+
+```bash
+gitmap install ubuntu+dev
+```
+
+### Minimal Toolchain (Ubuntu Basic)
+
+```bash
+gitmap install ubuntu-basic
+```
+
+### VS Code & Extensions
+
+```bash
+gitmap install ubuntu+vscode
+```
+
+### Custom Utility CLI
+
+```bash
+gitmap install custom-cli
+```
+
+---
+
+## Why GitMap? Why Was GitMap Invented?
+
+### The Core Problem: The Multi-Machine & Multi-Repository Bottleneck
+
+Modern software engineering rarely happens in a single repository or on a single machine. High-output developers, system architects, and software leaders frequently balance **dozens to hundreds of active repositories** across enterprise codebases, microservices, open-source projects, and client deliveries.
+
+Standard Git is extraordinary for a single repository, but fundamentally blind to the broader ecosystem of repositories across your disk and your machines:
+- **How do you migrate 100+ repositories from your desktop workstation to your laptop without spending days manually cloning, setting up tracking remotes, and fixing branches?**
+- **How do you set up a fresh development machine in minutes so it mirrors your exact working tree and repository layout with zero missing dependencies?**
+- **How do you know in seconds which repositories have uncommitted changes, unpushed commits, or broken tracking remotes across 5 different drives?**
+
+GitMap was originally invented to solve this exact problem: **seamless, lossless, and instantaneous repository transfer and machine preparation**. What used to require hours of manual `git clone` scripts, manual path configurations, and SSH credential binding was reduced to a single command.
+
+---
+
+### The Evolution: An AI Development Superpower
+
+As development entered the age of autonomous AI coding agents (Google Antigravity, Cursor, Claude Code, GitHub Copilot workspace agents), the bottleneck shifted again. AI agents don't just edit a single file—they refactor across multi-repo dependencies, trigger CI/CD pipelines, generate documentation, and run background tasks.
+
+Without a centralized, high-speed management layer, developers and autonomous agents drown in operational overhead. **GitMap evolved from a repository migration tool into an AI development superpower**:
+1. **Instant Multi-Repo Discovery & Orchestration:** Autonomous agents can instantly locate, catalog, query, and manipulate hundreds of repositories via deterministic CLI commands and structured `--json` outputs.
+2. **Predictive CI/CD Pipeline Intelligence:** Built-in historical baseline calculation automatically forecasts CI/CD completion ETAs, breaks down live job/step segments, and extracts targeted error diagnostics without wading through megabytes of raw logs.
+3. **Split SQLite Database Architecture:** Decouples heavy file indexes (`repo_search/`) and pipeline telemetry (`pipeline_db/`) from the master database, eliminating SQLite write-lock contention entirely.
+4. **Automated Release & Versioning Ceremonies:** Manages single-source-of-truth semantic versioning, changelog synchronizations, and cross-platform artifact distribution with zero human error.
+
+---
+
+### Questions & Answers (Q&A)
+
+#### Q1: What makes GitMap standalone and superior to other Git managers?
+
+**Answer:** Most Git GUI or CLI tools are mere wrappers around basic `git status` or `git pull`. GitMap is a **complete developer operating system**. It combines:
+- **Over 398+ commands and subcommands** covering every phase of development: scanning, parallel cloning, file sequencing, AST search, diff profiling, SSH cluster binding, macro scheduling, automated releases, and Antigravity workspace integration.
+- **Both blazing-fast CLI and modern UI:** Use the keyboard-driven terminal interface, the rich terminal dashboards (`gitmap dash`), or launch the local web UI (`gitmap ui`) for visual exploration.
+- **Extreme performance & zero-lock concurrency:** Written in Go with per-repository split databases, background task queuing, and native cross-platform binaries (Windows, Linux, macOS).
+
+#### Q2: Who is the creator behind GitMap?
+
+**Answer:** GitMap was conceived, designed, and architected by **[MD Alim Ul Karim](https://alimkarim.com/)** ([Search MD Alim Ul Karim on Google](https://www.google.com/search?q=MD+Alim+Ul+Karim)).
+- MD Alim Ul Karim is a visionary inventor and system architect with over **20+ years** of professional software engineering leadership across enterprise, fintech, distributed systems, and AI-driven platforms.
+- Recognized globally as a **Top 1% Crossover** talent, he is one of the rare inventors of our lifetime who builds transformative software foundations—including the **[XProgramming Language](https://the-xproduct.com)**, spec-driven architectural frameworks, and developer automation engines.
+- His engineering philosophy—*spec-driven rigor, consistency over cleverness, and zero-defect quality gates*—is embedded in every line of GitMap's codebase.
+
+#### Q3: Who sponsors GitMap?
+
+**Answer:** GitMap is proudly sponsored and backed by **[RISEUP ASIA LLC](https://riseup-asia.com)** ([riseup-asia.com](https://riseup-asia.com)).
+
+- **RISEUP ASIA LLC** is an elite software engineering company recognized for delivering world-class, spec-driven software for **California-based** technology companies (Silicon Valley SaaS, fintech, and developer tooling leaders) and **EU-based** product innovators (Germany, Netherlands, and Nordics).
+- RISEUP ASIA LLC sponsors GitMap as part of its commitment to empowering global developers and AI engineers with industrial-grade tooling.
+
+#### Q4: How many features does GitMap have?
+
+**Answer:** GitMap includes **over 398+ commands and subcommands** organized across modular domains:
+- **Repository Management:** Parallel multi-repo clone (`clone-all`), bulk branch switching, SSH cluster binding, automated remotes fixing, and worktree mapping.
+- **AI & Antigravity Suite:** Project tracking (`gitmap agy ls`), empty project cleanup, configuration sync, and prompt pipeline orchestration.
+- **CI/CD Pipeline Telemetry:** Live status, historical success baseline ETA calculation, dynamic `-t` retry timers, segment step monitoring, and isolated split error logging.
+- **Database Control Plane:** Master SQLite DB management, per-repo split databases (`gitmap repo db`), pipeline telemetry DBs (`gitmap pipeline db`), and global cross-tier optimization (`gitmap db optimize`).
+- **Developer Productivity & OS Hygiene:** Developer tools cache remover (`gitmap clean-dev`, `gitmap os dev-clean`) sweeping Go, pnpm, npm, Chocolatey, Cargo, pip, NuGet, Gradle across 10 categories with Windows read-only attribute stripping; file sequence renaming, full-text regex AST search, markdown-to-SVG generation, cron-like scheduling, and one-liner cross-platform installers.
+
+---
+
+### Honest Assessment & Engineering Opinion
+
+> [!TIP]
+> **An Honest Perspective on GitMap:**
+> In modern software development, time is the single most valuable resource. Most developers lose hours every week to administrative friction: switching laptops, cloning repos, verifying which branch has unpushed commits, tracking failed GitHub Actions runs, or wrestling with setup scripts.
+>
+> GitMap transforms that chaos into total command. It is not just an incremental improvement over existing git workflows—it fundamentally changes how engineers and autonomous AI agents interact with codebases. Having 50, 100, or 500 repositories on a machine is no longer daunting; it feels as effortless as managing a single folder. For engineers who demand speed, precision, and architectural excellence, GitMap is genuinely one of the most capable and well-engineered tools in the modern developer ecosystem.
 
 ---
 
@@ -220,6 +340,7 @@ map as a single object. Every command flows from that idea.
 
 #### 🛠️ Self-managing installation
 
+- `gitmap install` / `uninstall` — install or uninstall Google Antigravity Desktop IDE (`agy`), developer tools, Linux `.tar`/`.gz`/`.zip` archives (`gitmap install tar <archive>`), context menus, and packages across Ubuntu and Windows with universal coverage, dynamic cleanup, and AppError stack trace diagnostics.
 - `gitmap self-install` / `self-uninstall` manage the binary itself
   on every supported platform.
 - Canonical installers (`cli/scripts/install.ps1` /
@@ -229,6 +350,7 @@ map as a single object. Every command flows from that idea.
   prompt on top for users who want to install on a specific drive.
 - `cli-updater` keeps the binary fresh; `self-uninstall` cleans
   up the PATH marker block and (optionally) the user data folder.
+
 
 #### 🔀 Workspace operations
 
@@ -240,6 +362,65 @@ map as a single object. Every command flows from that idea.
   auto-stash/pop.
 - `regoldens` (`rg`) — automated two-pass golden-fixture
   regeneration with built-in determinism verification.
+
+#### 🚀 Startup & background operations
+
+- `startup` (`su`) — manage native OS autostart items, `.ps1`/`.sh` scripts, binaries, and macros with isolated split DB tracking (`startup.db`), execution history, and weekly run schedules.
+- `schedule` (`sc`) / `crontab` — background task and macro scheduler with per-schedule split DBs (`schedules/<slug>.db`), debug inspect, and edit workflows.
+- `async` (`asyn`) — run background monitor commands and periodic loops (`-t <seconds>`).
+- `storage` (`stor`) — inspect drive capacity, filesystem format, and full SQLite database inventory (`gitmap storage ls`) with table and record counts.
+- `pipeline error-logs -t` — live polling on runner ETA countdowns (`.ai-memory/temp/runner-eta.json`) before extracting CI/CD error diagnostics.
+
+#### ⚡ High-Speed Automation Manager (AUM) & Performance Benchmarks
+
+GitMap features a compiled native automation engine (`gitmap aum`) replacing legacy Python scripts with multi-core parallel file traversal, lazy regex compilation, and memory-safe binary probes.
+
+##### Go AUM vs Python Performance Benchmarks (Side-by-Side)
+
+Benchmarks executed on multi-core workstation comparing native Go (`gitmap aum`) against legacy Python automation scripts:
+
+| Benchmark Target | Operation / Dataset | Go (Native AUM) | Python (Legacy Script) | Speedup Factor | Memory Footprint (Go vs Py) |
+|---|---|---|---|---|---|
+| **Search & Grep** | Parallel literal & regex content search | **95 ms** | 14.35 s | **151.1x faster** | 1.8 MB vs 48.2 MB |
+| **File Traversal & List** | Deep repository file discovery | **4.8 ms** | 68.2 ms | **14.2x faster** | 1.2 MB vs 36.4 MB |
+| **Newline Normalizer** | CRLF/LF scanning across 7,500+ files | **18.2 ms** | 412.0 ms | **22.6x faster** | 2.1 MB vs 52.8 MB |
+| **Cached File Read** | Sub-millisecond lazy cache index lookup | **0.4 ms** | 14.8 ms | **37.0x faster** | 0.8 MB vs 28.5 MB |
+
+Run benchmarks locally:
+```bash
+gitmap aum benchmark search   # Benchmark Go vs Python search & grep
+gitmap aum benchmark all      # Full side-by-side performance suite
+```
+
+#### 🌐 SSH Fleet Batch Common Join, Subnet Scanner & OS Detection
+
+- **Batch SSH Join (`gitmap ssh-join-common` / `sjc`)**:
+  Onboard multiple fleet nodes sharing common administrative credentials in a single command using shorthand octet notation:
+  ```bash
+  gitmap sjc administrator 192.168.1.3(w1),7(w2),12(w3) --pass MySecretPassword
+  ```
+- **Network Subnet Discovery (`gitmap ssh scan`)**:
+  Scan your local `/24` network to discover active machines with SSH port 22 reachable:
+  ```bash
+  gitmap ssh scan                  # Auto-detects local subnet
+  gitmap ssh scan 192.168.1.0/24   # Scan custom CIDR notation
+  ```
+- **Local & Remote OS Information (`gitmap os-info`)**:
+  Query deep OS distribution, kernel version, and processor architecture:
+  ```bash
+  gitmap os-info          # Formatted terminal table
+  gitmap os-info --json   # Machine-readable JSON output
+  ```
+
+#### 🧠 Antigravity (AGY) Project Re-Read & Optimization (`gitmap agy rop`)
+
+- **Re-Read & Optimize Projects (`gitmap agy reread-optimize-project` / `rop`)**:
+  Re-reads recent codebases, optimizes project context, and creates a Split-DB backup before clearing:
+  ```bash
+  gitmap agy rop 5        # Optimize top 5 active projects from the last 24 hours
+  gitmap agy rop --dry-run
+  ```
+- Conversations are safely backed up to dedicated Split-DB at `data/agy/<repo-slug>/agy.db` before purging, resettable via `gitmap storage reset`.
 
 #### 🖥️ Web docs UI
 
@@ -420,7 +601,7 @@ To handle missing versions in automated environments:
 1. **Use `--allow-fallback`** — Automatically picks the newest patch in the same
    minor series (e.g., `v3.38.0` requested but missing → uses `v3.38.5`):
    ```powershell
-   irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.111.0/release-version-v6.111.0.ps1 | iex
+   irm https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.139.0/release-version-v6.139.0.ps1 | iex
    # Or with generic script:
    irm https://gitmap.dev/scripts/release-version.ps1 | iex; Install-Gitmap -Version "v3.38.0" -AllowFallback
    ```
@@ -623,6 +804,7 @@ gitmap help --json --filter ssh   # compose: scope JSON to matching rows
 
 ## Command Reference
 
+> 📖 **Exhaustive Subcommand Manual:** For a complete, dedicated breakdown of all commands, subcommands, flags, and operational workflows categorized by area, see the dedicated [**Command & Subcommand Directory (docs/commands/)**](./docs/commands/readme.md).
 
 <div align="center">
 
@@ -1916,7 +2098,7 @@ the exact command + flags gitmap runs. It mirrors
 
 ## 🚀 gitmap Release
 
-**Current version:** `v6.109.0` · Cross-platform (Windows · Linux · macOS) · Single static binary
+**Current version:** `v6.139.0` · Cross-platform (Windows · Linux · macOS) · Single static binary
 
 </div>
 
@@ -1944,7 +2126,7 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 
 # Windows — install v3.50.0 exactly, skip the "latest" lookup
 
-$ver = 'v6.109.0'
+$ver = 'v6.139.0'
 $installer = irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1
 & ([scriptblock]::Create($installer)) -Version $ver -NoDiscovery
 ```
@@ -1962,7 +2144,7 @@ Verify:
 ```bash
 gitmap --version
 
-# gitmap v6.109.0
+# gitmap v6.139.0
 
 ```
 
@@ -2892,6 +3074,109 @@ gitmap dashboard --limit 100 --open
 
 ---
 
+<div align="center">
+
+### Interactive Macros & Automation
+
+</div>
+
+Record, interactively compose, and replay terminal command sequences with live stdout/stderr previews and in-builder file manipulation.
+
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `macro add <name>` | — | Interactively build a macro step-by-step with live execution results and file tools |
+| `macro edit <name>` | — | Interactively edit, insert, replace, delete, or test individual steps in a saved macro |
+| `macro run <name>` | `execute`, `exec` | Replay all recorded steps of a macro (`--dry-run`, `--verbose`) |
+| `macro list` | — | List all saved macros with step counts and timestamps |
+| `macro show <name>` | — | Inspect the individual steps of a saved macro |
+| `macro record <name>` | — | Record an interactive terminal session into a macro |
+| `macro rm <name>` | — | Delete a saved macro |
+| `macro export <name\|all>` | `macro-export` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP archive |
+| `macro import <file>` | `macro-import` | Safely import macro(s) with format auto-inference and overwrite guards |
+
+#### In-Builder Interactive Commands & Live Execution
+
+When building (`gitmap macro add`) or editing (`gitmap macro edit`) a macro:
+- **Live Execution:** Every step is executed immediately in the terminal, showing its live stdout and stderr so you verify correctness as you record.
+- `cat <file>` / `view <file>`: Inspect a file's content directly inside the builder.
+- `touch <file>` / `mkfile <file>`: Create a new file (and any missing parent directories) on the fly.
+- `rmfile <file>` / `cpfile <src> <dst>`: Delete or copy files within the macro workflow.
+- `copy <text|file>` / `paste`: Copy text or file contents into clipboard/memory and paste into files.
+- `explorer [path]` / `browse <url>`: Open local folders in the OS file manager or launch web pages.
+- `undo`: Drop the last added step from the macro.
+- `list` / `show`: Display current steps recorded so far.
+- `test <step#>`: Re-execute a specific step to inspect results (in edit mode).
+- `done` / `save`: Finalize and save the macro.
+
+```bash
+# Interactively create a deployment macro with live step execution
+gitmap macro add deploy-flow
+
+# Edit an existing macro (insert, delete, or test steps)
+gitmap macro edit deploy-flow
+
+# Replay macro
+gitmap macro run deploy-flow
+
+# Replay with preview (dry run)
+gitmap macro run deploy-flow --dry-run
+
+# Export macro(s) to JSON, YAML, SQLite, or ZIP
+gitmap macro export deploy-flow -f deploy-flow.json
+gitmap macro export --all -f macros.db --sqlite
+
+# Import macro(s) safely
+gitmap macro import deploy-flow.json
+gitmap macro import macros.db --force
+```
+
+→ [macro](cli/helptext/macro.md)
+
+---
+
+<div align="center">
+
+### Desktop & File Utilities
+
+</div>
+
+Seamless cross-platform OS desktop integration, persistent clipboard memory, and file utilities.
+
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `copy [text\|--file]` | `cp` | Copy text, file content, or piped stdin to OS clipboard and persistent memory buffer (`.gitmap/memory/clipboard.txt`) |
+| `paste [--file]` | `pst` | Paste from OS clipboard or persistent memory buffer (`--memory`) to stdout or destination file |
+| `explorer [path]` | `exp` | Open directory or reveal file in native desktop file manager (Explorer, Finder, xdg-open) |
+| `browse <url>` | `open-url`, `web` | Open URL or local HTML file in system default browser or Google Chrome (`--chrome`) |
+| `cat <file>` | `view` | Stream and inspect file contents directly in terminal stdout |
+| `touch <path>` | `mkfile` | Create a new file and automatically create missing parent directories |
+
+```bash
+# Copy text or file to OS clipboard and GitMap memory buffer
+gitmap copy "gitmap release --tag v6.262.0"
+gitmap copy --file ./config.json
+gitmap copy notes.txt
+
+# Paste to stdout or write directly to target file
+gitmap paste
+gitmap paste --file ./output.txt
+gitmap paste --memory
+
+# Open desktop file manager or web browser
+gitmap explorer .
+gitmap explorer ./src/data/commands.ts
+gitmap browse https://github.com/alimtvnetwork/gitmap-v28
+gitmap browse https://localhost:3000 --chrome
+
+# Cross-platform file creation and terminal viewing
+gitmap touch src/features/new-flow.ts
+gitmap cat src/features/new-flow.ts
+```
+
+→ [copy](cli/helptext/copy.md) · [paste](cli/helptext/paste.md) · [explorer](cli/helptext/explorer.md) · [browse](cli/helptext/browse.md) · [cat](cli/helptext/cat.md) · [touch](cli/helptext/touch.md)
+
+---
+
 ## Build & Deploy
 
 ### Makefile Targets
@@ -3040,12 +3325,13 @@ A fresh AI session should open these files **in order** to understand the
 project, the JSON output contracts, and how to add a new JSON surface:
 
 1. This README — product overview + folder structure (you are here).
-2. **[`.ai-memory/memory/project/what-to-read.md`](./.ai-memory/memory/project/what-to-read.md)**
+2. **[`.ai-memory/what-to-read.md`](.ai-memory/what-to-read.md)**
    — full onboarding map, JSON contract triangle
    (schema ↔ model ↔ encoder ↔ test ↔ fixture), and the step-by-step
    recipe for adding a new JSON output.
-3. `.ai-memory/memory/index.md` — master memory index (Core rules + topic links).
-4. `.ai-memory/overview.md` and `.ai-memory/strictly-avoid.md` — invariants & hard NOs.
+3. `.ai-memory/memory/01-index.md` — master memory index (Core rules + topic links).
+4. [`.ai-memory/coding-guidelines.md`](.ai-memory/coding-guidelines.md) — Centralized error management & coding guidelines.
+5. `.ai-memory/overview.md` and `.ai-memory/strictly-avoid.md` — invariants & hard NOs.
 5. `02-spec/08-json-schemas/` — every JSON output's schema.
 6. `cli/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
    — canonical example of the encoder + contract-test pattern to copy.
@@ -3141,29 +3427,40 @@ To install or update the Coding Guidelines locally:
 **Unix:** curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.sh | bash
 Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 
-### Lazy Regex & Test Diagnostics (`lazyregex.MatchResult`)
 
-When matching patterns or authoring unit tests:
-- **Total Ban on Raw `regexp.MustCompile`**: Use `lazyregex.New(pattern)` for thread-safe lazy compilation and deduplication.
-- **Total Ban on Blind Test Assertions**: Never write `if !re.MatchString(content) { t.Error("expected match") }`.
-- **Mandatory `MatchResult` Wrapped Envelopes**:
-  ```go
-  var rsLazyRegex = lazyRegex.MatchResult(comparing)
-  if rsLazyRegex.IsFailed() {
-      t.Error(rsLazyRegex.AppError())
-  }
-  ```
-- **Fluent MatchGroup Accessors**: `rs.Items()`, `rs.Map()`, `rs.First()`, `rs.Last()`, `rs.FirstOrDefault("default")`.
-- **Informative Diagnostics**: On failure, `rs.AppError()` reports the exact pattern, comparing text preview, and byte length.
+## Release Architecture
 
-- .ai-memory/memory/release-architecture-map.md
+For repository versioning and propagation design, see [.ai-memory/memory/release-architecture-map.md](.ai-memory/memory/release-architecture-map.md).
 
 
-- [.ai-memory/plans/pending/01-file-manipulation-spec.md](.ai-memory/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
+- [Folder Command Logic](cli/cmd/folder/folder.go)
+- [Git-Rm Command Logic](cli/cmd/gitrm/gitrm.go)
 
-- [.ai-memory/plans/pending/02-python-file-manipulation-spec.md](.ai-memory/plans/pending/02-python-file-manipulation-spec.md) - AI Instruction spec for generating the Python file manipulation script.
+- [Ignore Command Logic](cli/cmd/ignore/ignore.go)
+- [Add Command Logic](cli/cmd/add/add.go)
 
-- [.ai-memory/plans/pending/03-fix-release-tag-ordering.md](.ai-memory/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
-- [.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
+- [Antigravity Command Logic](cli/cmd/ag/ag.go)
 
-- [.ai-memory/memory/release-architecture-map.md](.ai-memory/memory/release-architecture-map.md) - Release architecture and versioning rules
+- [Install Tools Logic](cli/cmd/installtools.go)
+
+- [Root readme.md](readme.md) (must stay in sync with what-to-read.md)
+- [.ai-memory/plans/completed/09-chrome-profile-management-picker-and-token-vault.md](.ai-memory/plans/completed/09-chrome-profile-management-picker-and-token-vault.md) - Chrome profile picker and token vault.
+- [02-spec/21-app/129-pr-commit-engines-and-sqlite-split-db.md](02-spec/21-app/129-pr-commit-engines-and-sqlite-split-db.md) - PR commit replay engine, SQLite split-DB standardization, and final snapshot sync.
+- [02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md) - SSH batch common join (`sjc`), remote OS telemetry (`os_detect`), AGY `rerun` & `rop` split-DB optimization, and AUM search benchmarks.
+- [02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md](02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md) - SSH macro/pea/peat deploy (`--except`), fleet update (`ua`, `update ls`), remote `ssh-clone`, and `//go:build tempe2e` isolated validation.
+- [02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md](02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md) - VMware automation, macro safe removal & edit UX, audit task history, and chained installer.
+- [02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md](02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md) - 4-Part RCA for VS Code startup failure and search latency.
+- [02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md](02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md) - 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard.
+- [docs/benchmarks/search_benchmark.md](docs/benchmarks/search_benchmark.md) - Native AUM search vs Go walk vs Python grep benchmark report.
+- [cli/helptext/pr.md](cli/helptext/pr.md) - PR command family usage, HG help, and JSON examples.
+- [.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md](.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md) - Completed Plan 54.
+
+
+## Release Architecture
+
+For information on how releases are managed, see [.ai-memory/memory/release-architecture-map.md](.ai-memory/memory/release-architecture-map.md).
+
+## Author & Sponsorship
+
+- **Lead Architect & Author:** MD ALIM UL KARIM ([alimtvnetwork](https://github.com/alimtvnetwork))
+- **Sponsoring Organization:** [RISEUP ASIA LLC](https://riseup-asia.com) (https://riseup-asia.com)

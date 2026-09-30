@@ -41,3 +41,15 @@ Aliases: `gitmap os menu`, `gitmap os dashboard`
 | `Enter` | Sequentially execute all selected actions |
 | `Esc` / `Backspace` | Return to dashboard after execution |
 | `q` / `Ctrl+C` | Quit dashboard |
+
+## Examples
+
+### Launch Interactive OS Dashboard
+
+```bash
+# Launch interactive dashboard
+gitmap os tui
+
+# Launch in dry-run simulation mode
+gitmap os tui --dry-run
+```

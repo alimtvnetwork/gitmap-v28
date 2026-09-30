@@ -49,6 +49,8 @@
 - `.ai-memory/memory/learned/29-ssh-multi-target-pipeline-bounded-stacktrace-ingestion.md`, why: Plans 208–214 SSH multi-target command resolution and machine join, and CI/CD pipeline bounded stack traces (RCA 58)
 - `.ai-memory/memory/learned/30-gitmap-subsystem-skills-set-architecture.md`, why: 6 specialized subsystem skills set for scanner, SSH cluster fleet, Split-DB, pipeline diagnostics, AGY hygiene, and macro automation engines
 - `.ai-memory/memory/learned/31-pipeline-runner-enhancements-prompts-and-skills-sync.md`, why: release orchestrator & CI/CD fix with release prompts updated with priority runner shortcuts (run-smart, --fast), gitmap pipeline suite (pe, pd), and cross-repo synchronization
+- `.ai-memory/memory/learned/32-multiclone-ai-split-db-and-search-benchmark.md`, why: multiclone shorthand and paste parser, AI split database execution tracking, and 46.1x automation search acceleration
+- `.ai-memory/memory/learned/32-winutil-and-linutil-os-autologin-and-tweaks.md`, why: native Go Windows/Ubuntu auto-login, desktop tweaks, power scheme, and system maintenance
 - `.ai-memory/memory/learned/33-vmware-macro-safe-rm-and-task-history-audit.md`, why: VMware automation engine, macro idempotent removal shim (safe-rm), interactive editor step recording, and TaskHistory split-DB audit logging
 
 

@@ -4,13 +4,15 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [52-winutil-linutil-advanced-os-integration-plan.md](pending/52-winutil-linutil-advanced-os-integration-plan.md): Advanced WinUtil & LinUtil Native Go Integration (DM Settings, OS Tweaks, DNS Switcher & Bubbletea TUI)
-- [53-cicd-interface-naming-and-enum-suffix.md](pending/53-cicd-interface-naming-and-enum-suffix.md): CI/CD Quality Gate: Interface Naming and Enum Type Suffix Compliance
+*(All master plans currently completed)*
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [54-vmware-macro-audit-task-and-installer-chain.md](completed/54-vmware-macro-audit-task-and-installer-chain.md): VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task Logging, and Chained Installer
-2. [191-universal-command-help-restructuring-markdown-box-display.md](completed/191-universal-command-help-restructuring-markdown-box-display.md): Universal Command Help Restructuring, Markdown-to-Box Transformation, and Catalog Fallback
+1. [52-winutil-linutil-advanced-os-integration-plan.md](completed/52-winutil-linutil-advanced-os-integration-plan.md): Advanced WinUtil & LinUtil Native Go Integration (DM Settings, OS Tweaks, DNS Switcher & Bubbletea TUI)
+2. [53-cicd-interface-naming-and-enum-suffix.md](completed/53-cicd-interface-naming-and-enum-suffix.md): CI/CD Quality Gate: Interface Naming and Enum Type Suffix Compliance
+3. [54-vmware-macro-audit-task-and-installer-chain.md](completed/54-vmware-macro-audit-task-and-installer-chain.md): VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task Logging, and Chained Installer
+4. [55-nodes-clone-except-self-windows-runner-and-path.md](completed/55-nodes-clone-except-self-windows-runner-and-path.md): Fleet Nodes Clone — Except-Self, Windows Remote Shell Runner, and Target Directory Architecture
+5. [191-universal-command-help-restructuring-markdown-box-display.md](completed/191-universal-command-help-restructuring-markdown-box-display.md): Universal Command Help Restructuring, Markdown-to-Box Transformation, and Catalog Fallback
 2. [190-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md](completed/190-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md): Universal Command Help Modernization, LLM Train Self-Loop, and Polyglot Benchmarks (File, Project, Grid)
 2. [189-out-of-ide-uninstall-script-restore-reenqueue-and-devtool-expansion.md](completed/189-out-of-ide-uninstall-script-restore-reenqueue-and-devtool-expansion.md): Out-of-IDE Standalone Uninstaller, Snapshot Restore Re-Enqueue, and DevTool Cleaner Expansion
 2. [188-agy-agm-copilot-edge-uninstall-and-devtool-clean.md](completed/188-agy-agm-copilot-edge-uninstall-and-devtool-clean.md): AGY, AGM, Copilot, and Edge Complete Uninstallation Suite & Enhanced DevTool Cache Cleaner
