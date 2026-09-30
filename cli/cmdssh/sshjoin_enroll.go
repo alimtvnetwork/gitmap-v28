@@ -630,17 +630,6 @@ func finalizeEnrollment(ctx context.Context, opts *SSHJoinOptions, session enrol
 	return nil
 }
 
-func promptPasswordIfInteractive(opts *SSHJoinOptions) {
-	if opts.Password != "" || !isInteractiveTerminal() || opts.Target == nil {
-		return
-	}
-	prompt := fmt.Sprintf("Enter SSH password for %s (leave blank to skip password vault): ", opts.Target.String())
-	pass, err := PromptSSHPassword(context.Background(), prompt, int(os.Stdin.Fd()))
-	if err == nil && pass != "" {
-		opts.Password = pass
-	}
-}
-
 func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
 	if opts.Target == nil {
 		return apperror.NewValidationError(msgMissingJoinTarget)
