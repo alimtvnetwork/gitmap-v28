@@ -81,7 +81,7 @@ func maybeSuggestFleetCFR(err error, dryRun bool, url string, makePublic bool) {
 	MaybePrintFleetCFRSuggestion(url, makePublic)
 }
 
-func handleCFRManifestRun(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifiers) error {
+func handleCFRManifestRun(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags) error {
 	err := runCFRManifestPipeline(f, makePublic, modifiers)
 	maybeSuggestFleetCFR(err, f.dryRun, f.url, makePublic)
 	return err
