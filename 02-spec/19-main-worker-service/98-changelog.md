@@ -1,3 +1,9 @@
+## v6.436.0 — 2026-09-30 (RCA-57: Align Fleet Clone Table, Suppress Stderr Escape Leaks, and Harden W3 Liveness Resilience)
+
+**Scope:** Version bump. RCA-57: Align Fleet Clone Table, Suppress Stderr Escape Leaks, and Harden W3 Liveness Resilience.
+
+---
+
 ## v6.435.0 — 2026-09-30 (RCA-56: In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation)
 
 **Scope:** Version bump. RCA-56: In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation.

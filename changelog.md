@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.436.0] - 2026-09-30
+
+### Added
+- RCA-57: Align Fleet Clone Table, Suppress Stderr Escape Leaks, and Harden W3 Liveness Resilience
+
+---
+
 ## [v6.435.0] - 2026-09-30
 
 ### Added
