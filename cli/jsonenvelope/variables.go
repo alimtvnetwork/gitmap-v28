@@ -14,8 +14,10 @@ func ExpandVariables(content []byte, vars map[string]any) []byte {
 	}
 
 	result := content
-	for k, v := range vars {
-		result = replaceSingleVariable(result, k, v)
+	for pass := 0; pass < 2; pass++ {
+		for k, v := range vars {
+			result = replaceSingleVariable(result, k, v)
+		}
 	}
 	return result
 }
@@ -71,7 +73,18 @@ func MergeVariables(topVars map[string]any, workDirCfg *WorkDirectoryConfig) map
 			out[k] = v
 		}
 	}
+	resolveChainedVariables(out)
 	return out
+}
+
+func resolveChainedVariables(vars map[string]any) {
+	for pass := 0; pass < 2; pass++ {
+		for k, v := range vars {
+			if strVal, isStr := v.(string); isStr {
+				vars[k] = ResolveStringVariable(strVal, vars)
+			}
+		}
+	}
 }
 
 // ResolveStringVariable performs direct expansion on a single Go string.

@@ -1194,7 +1194,7 @@ function Update-PowerShellProfilePathLine([string]$profilePath, [string]$dir) {
     return $true
 }
 
-function Configure-PowerShellProfileSuggestions {
+function Configure-PowerShellProfileSuggestions([string]$binPath = "") {
     $marker = "# >>> gitmap shell completion & predictive suggestions >>>"
     $endMarker = "# <<< gitmap shell completion & predictive suggestions <<<"
     $block = @"
@@ -1220,6 +1220,41 @@ if (Test-Path -LiteralPath `$compPath) {
 }
 # <<< gitmap shell completion & predictive suggestions <<<
 "@
+
+    $compPath = "$env:APPDATA\gitmap\completions.ps1"
+    $compDir = Split-Path $compPath -Parent
+    if ($compDir -and -not (Test-Path $compDir)) {
+        New-Item -ItemType Directory -Path $compDir -Force -ErrorAction SilentlyContinue | Out-Null
+    }
+
+    if ($binPath -and (Test-Path -LiteralPath $binPath)) {
+        try {
+            $compOut = & $binPath completion powershell 2>$null
+            if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($compOut)) {
+                Set-Content -Path $compPath -Value $compOut -Encoding UTF8 -ErrorAction SilentlyContinue
+                Write-OK "Generated shell completion: $compPath"
+            }
+        } catch {}
+    }
+
+    # Activate predictive suggestions and completions in current session immediately
+    if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
+        try {
+            Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
+        } catch {
+            try {
+                Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+            } catch {}
+        }
+        try {
+            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+        } catch {}
+    }
+    if (Test-Path -LiteralPath $compPath) {
+        try {
+            . $compPath
+        } catch {}
+    }
 
     try {
         $psrl = Get-Module -ListAvailable PSReadLine | Sort-Object Version -Descending | Select-Object -First 1
@@ -1831,7 +1866,7 @@ try {
     Write-Host ""
     Write-Host "  -> Configuring PowerShell predictive suggestions & completions..." -ForegroundColor Cyan
     try {
-        Configure-PowerShellProfileSuggestions
+        Configure-PowerShellProfileSuggestions $binPath
     } catch {
         Write-Warning "[Main.ConfigurePowerShellProfileSuggestions] $_"
     }

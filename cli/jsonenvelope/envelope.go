@@ -217,13 +217,23 @@ func ExtractPayload(raw []byte) ([]byte, EnvelopeAttributes, error) {
 	}
 
 	if !IsEnvelope(raw) {
-		attrs := EnvelopeAttributes{
-			Version: "legacy",
-		}
-		return raw, attrs, nil
+		return extractLegacyOrFlatPayload(raw)
 	}
 
 	return extractEnvelopePayload(raw)
+}
+
+func extractLegacyOrFlatPayload(raw []byte) ([]byte, EnvelopeAttributes, error) {
+	if env, err := ExtractEnvelope(raw); err == nil {
+		if len(env.Variables) > 0 || env.Attributes.WorkDirectoryConfig != nil {
+			allVars := MergeVariables(env.Variables, env.Attributes.WorkDirectoryConfig)
+			return ExpandVariables(raw, allVars), env.Attributes, nil
+		}
+	}
+	attrs := EnvelopeAttributes{
+		Version: "legacy",
+	}
+	return raw, attrs, nil
 }
 
 func extractEnvelopePayload(raw []byte) ([]byte, EnvelopeAttributes, error) {

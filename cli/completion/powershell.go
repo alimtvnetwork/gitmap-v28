@@ -172,8 +172,32 @@ func generatePowerShell() string {
         return
     }
 
+    if ($cmd -eq "nodes" -or $cmd -eq "node") {
+        $subs = @("ping", "ls", "list", "join", "reset", "clear", "enroll", "import", "export", "status", "--json", "--raw", "--all")
+        $subs | Where-Object { $_ -like "$wordToComplete*" } |
+            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
+    if ($cmd -eq "ping") {
+        $items = @("nodes", "--json", "--raw", "--all", "main", "w1", "w2", "w3", "w4", "u1")
+        $items | Where-Object { $_ -like "$wordToComplete*" } |
+            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
+    if ($cmd -eq "os") {
+        $subs = @("change-password", "info", "clean", "--help", "-y", "--dry-run")
+        $subs | Where-Object { $_ -like "$wordToComplete*" } |
+            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
     if ($cmd -eq "ssh") {
-        $subs = @("cat", "list", "ls", "delete", "rm", "config", "--name", "--path", "--email", "--force")
+        $subs = @("cat", "list", "ls", "delete", "rm", "config", "join", "nodes", "ping", "clear", "reset", "enroll", "deploy", "run", "doctor", "--name", "--path", "--email", "--force", "--json")
         $subs | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
 

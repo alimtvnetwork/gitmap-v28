@@ -17,7 +17,7 @@ func runCleanDevTopLevel(args []string) error {
 }
 
 func runDevToolTopLevel(args []string) error {
-	return cmdos.RunDevToolCLI(args)
+	return runDevTopLevel(args)
 }
 
 func runWinUtilTopLevel(args []string) error {

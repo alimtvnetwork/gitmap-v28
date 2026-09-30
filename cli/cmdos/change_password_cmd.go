@@ -53,30 +53,56 @@ func RunChangePasswordCLI(args []string) error {
 func parseChangePasswordArgs(args []string) (ChangePasswordOptions, bool, error) {
 	opts := ChangePasswordOptions{}
 	var posArgs []string
-	for _, arg := range args {
-		switch arg {
-		case "-h", "--help", "help":
+	for i := 0; i < len(args); i++ {
+		if isChangePasswordHelpArg(args[i]) {
 			printChangePasswordUsage()
 			return opts, true, nil
-		case "-y", "--yes":
-			opts.IsYes = true
-		case "--dry-run":
-			opts.IsDryRun = true
-		default:
-			if !strings.HasPrefix(arg, "-") {
-				posArgs = append(posArgs, arg)
-			}
+		}
+		if nextIdx, isHandled := consumeChangePasswordFlag(args, i, &opts); isHandled {
+			i = nextIdx
+			continue
+		}
+		if !strings.HasPrefix(args[i], "-") {
+			posArgs = append(posArgs, args[i])
 		}
 	}
 	assignPositionalArgs(&opts, posArgs)
 	return opts, false, nil
 }
 
+func isChangePasswordHelpArg(arg string) bool {
+	return arg == "-h" || arg == "--help" || arg == "help"
+}
+
+func consumeChangePasswordFlag(args []string, i int, opts *ChangePasswordOptions) (int, bool) {
+	switch args[i] {
+	case "-y", "--yes":
+		opts.IsYes = true
+		return i, true
+	case "--dry-run":
+		opts.IsDryRun = true
+		return i, true
+	case "-u", "--user":
+		if i+1 < len(args) {
+			opts.Username = args[i+1]
+			return i + 1, true
+		}
+	case "-p", "--password":
+		if i+1 < len(args) {
+			opts.Password = args[i+1]
+			return i + 1, true
+		}
+	}
+	return i, false
+}
+
 func assignPositionalArgs(opts *ChangePasswordOptions, pos []string) {
-	if len(pos) >= 1 {
-		opts.Username = pos[0]
+	if len(pos) == 1 {
+		opts.Password = pos[0]
+		return
 	}
 	if len(pos) >= 2 {
+		opts.Username = pos[0]
 		opts.Password = pos[1]
 	}
 }
@@ -152,18 +178,22 @@ func printChangePasswordUsage() {
 	fmt.Printf(`Change OS User Account Password (gitmap os change-password)
 
 Usage:
-  gitmap os change-password [user] [password] [flags]
+  gitmap os change-password <new-password> [flags]
+  gitmap os change-password <user> <new-password> [flags]
   gitmap os passwd [user] [password] [flags]
   gitmap change-password [user] [password] [flags]
 
 Flags:
-  -y, --yes      Confirm password change immediately without prompting
-      --dry-run  Simulate password change without executing OS modification
-  -h, --help     Show this help message
+  -u, --user <user>      Target OS username (defaults to current user)
+  -p, --password <pass>  New password to set
+  -y, --yes              Confirm password change immediately without prompting
+      --dry-run          Simulate password change without executing OS modification
+  -h, --help             Show this help message
 
 Examples:
+  gitmap os change-password MyNewPass123!             # Change current user password after confirmation
   gitmap os change-password                           # Prompt for confirmation and password for current user
-  gitmap os change-password Administrator MyNewPass   # Update Windows Administrator password
+  gitmap os change-password Administrator MyNewPass   # Update Windows Administrator password (admin mode)
   gitmap os passwd ubuntu Secret123 -y                # Non-interactive password change
   gitmap change-password                              # Top-level shortcut
 `)

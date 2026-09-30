@@ -42,3 +42,16 @@ func TestRunChangePasswordCLIDryRun(t *testing.T) {
 		t.Fatalf("dry run failed: %v", err)
 	}
 }
+
+func TestParseChangePasswordArgsSinglePasswordArg(t *testing.T) {
+	opts, exit, err := parseChangePasswordArgs([]string{"MyNewPass123!"})
+	if err != nil || exit {
+		t.Fatalf("unexpected error or exit: err=%v exit=%v", err, exit)
+	}
+	if opts.Password != "MyNewPass123!" {
+		t.Errorf("expected password 'MyNewPass123!', got '%s'", opts.Password)
+	}
+	if opts.Username != "" {
+		t.Errorf("expected empty username for single password arg, got '%s'", opts.Username)
+	}
+}

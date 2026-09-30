@@ -30,12 +30,14 @@ Usage:
   gitmap sj <user@ip|ip> [alias] [flags]
 
 Examples:
+  › 1. Join Machine by User and IP (user@ip)
+  # Join user@ip with alias (prompts interactively for password on first join and stores in salted RSA vault; leave blank to skip saving)
+  gitmap ssh join alim@192.168.1.14 devbox
   gitmap ssh-join user@192.168.1.14
   gitmap ssh-join root@192.168.1.14 prod-server
   gitmap ssh-join add dev@192.168.1.50 devbox
   gitmap ssh-join add-with-pass alim@192.168.1.14 secret123 devbox
   gitmap ssh-join 192.168.1.14
-  gitmap ssh join alim@192.168.1.14 devbox
   gitmap ssh join administrator@192.168.1.20 main    # prompts for password & saves in salted RSA vault
   gitmap ssh join ubuntu@192.168.1.14:2222 prod --auth`
 

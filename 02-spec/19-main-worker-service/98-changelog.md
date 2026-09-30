@@ -1,3 +1,9 @@
+## v6.419.0 — 2026-09-30 (JSON envelope variables, single-arg OS password, and repo-secrets consistency)
+
+**Scope:** Version bump. JSON envelope variables, single-arg OS password, and repo-secrets consistency.
+
+---
+
 ## v6.418.0 — 2026-09-30 (mirror failed commands to primary db and add ssh clear/reset/enroll suggestions)
 
 **Scope:** Version bump. mirror failed commands to primary db and add ssh clear/reset/enroll suggestions.

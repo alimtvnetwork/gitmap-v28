@@ -70,3 +70,24 @@ func TestEnvelopeAttributes_WorkDirectoryObjectDuality(t *testing.T) {
 		t.Errorf("expected IsWorkDirectoryApplied to be true")
 	}
 }
+
+func TestChainedVariablesAndFlatEnvelope(t *testing.T) {
+	raw := []byte(`{
+		"attributes": {"type": "secrets-config"},
+		"variables": {
+			"secretsDir": "D:\\work\\secrets",
+			"summaryPath": "${secretsDir}\\summaries"
+		},
+		"outputDir": "${summaryPath}"
+	}`)
+	payload, attrs, err := ExtractPayload(raw)
+	if err != nil {
+		t.Fatalf("ExtractPayload failed: %v", err)
+	}
+	if attrs.Type != "secrets-config" {
+		t.Errorf("expected type secrets-config, got %s", attrs.Type)
+	}
+	if !strings.Contains(string(payload), `D:\\work\\secrets\\summaries`) {
+		t.Errorf("expected chained variable expansion in flat envelope, got: %s", string(payload))
+	}
+}

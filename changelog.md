@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.419.0] - 2026-09-30
+
+### Added
+- JSON envelope variables, single-arg OS password, and repo-secrets consistency
+
+---
+
 ## [v6.418.0] - 2026-09-30
 
 ### Added
