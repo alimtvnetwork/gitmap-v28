@@ -117,20 +117,33 @@ func RunCommandWithInput(client *ssh.Client, cmd, shellType string, in io.Reader
 }
 
 func wrapCommandForShell(cmd, shellType string) string {
+	trimmed := strings.TrimSpace(cmd)
 	if shellType == "cmd" {
+		if strings.HasPrefix(trimmed, "cmd.exe") || strings.HasPrefix(trimmed, "cmd ") {
+			return cmd
+		}
 		return fmt.Sprintf("cmd.exe /c \"%s\"", cmd)
 	}
 
 	isPowerShell := shellType == "ps" || shellType == "pwsh" || shellType == "powershell"
 	if isPowerShell {
+		if strings.HasPrefix(trimmed, "powershell") || strings.HasPrefix(trimmed, "pwsh") {
+			return cmd
+		}
 		return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)
 	}
 
 	if shellType == "bash" {
+		if strings.HasPrefix(trimmed, "bash ") || strings.HasPrefix(trimmed, "sh ") {
+			return cmd
+		}
 		return fmt.Sprintf("bash -c %q", cmd)
 	}
 
 	if shellType == "sh" {
+		if strings.HasPrefix(trimmed, "sh ") {
+			return cmd
+		}
 		return fmt.Sprintf("sh -c %q", cmd)
 	}
 

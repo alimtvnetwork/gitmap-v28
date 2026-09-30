@@ -1,3 +1,9 @@
+## v6.420.0 — 2026-09-30 (fix ssh join re-enrollment auth, double shell wrap, and password vault precedence)
+
+**Scope:** Version bump. fix ssh join re-enrollment auth, double shell wrap, and password vault precedence.
+
+---
+
 ## v6.419.0 — 2026-09-30 (JSON envelope variables, single-arg OS password, and repo-secrets consistency)
 
 **Scope:** Version bump. JSON envelope variables, single-arg OS password, and repo-secrets consistency.

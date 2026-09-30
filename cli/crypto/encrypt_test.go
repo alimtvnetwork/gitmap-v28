@@ -76,3 +76,26 @@ func TestConnectWithFallback_InvalidKeyWithPassword(t *testing.T) {
 		t.Error("Expected dial error to invalid port, got nil")
 	}
 }
+
+func TestWrapCommandForShell_NoDoubleWrap(t *testing.T) {
+	cases := []struct {
+		cmd       string
+		shellType string
+		expected  string
+	}{
+		{"echo hi", "ps", "powershell -NoProfile -Command \"echo hi\""},
+		{"powershell -NoProfile -Command \"echo hi\"", "ps", "powershell -NoProfile -Command \"echo hi\""},
+		{"pwsh -c echo hi", "ps", "pwsh -c echo hi"},
+		{"echo hi", "cmd", "cmd.exe /c \"echo hi\""},
+		{"cmd.exe /c echo hi", "cmd", "cmd.exe /c echo hi"},
+		{"echo hi", "bash", "bash -c \"echo hi\""},
+		{"bash -c 'echo hi'", "bash", "bash -c 'echo hi'"},
+	}
+
+	for _, c := range cases {
+		actual := wrapCommandForShell(c.cmd, c.shellType)
+		if actual != c.expected {
+			t.Errorf("wrapCommandForShell(%q, %q) = %q, want %q", c.cmd, c.shellType, actual, c.expected)
+		}
+	}
+}

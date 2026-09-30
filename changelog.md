@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.420.0] - 2026-09-30
+
+### Added
+- fix ssh join re-enrollment auth, double shell wrap, and password vault precedence
+
+---
+
 ## [v6.419.0] - 2026-09-30
 
 ### Added

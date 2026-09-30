@@ -109,6 +109,24 @@ func notifyPasswordEncryptedStorage(alias string) {
 	fmt.Println("  ℹ Review saved password anytime with: gitmap ssh pass ls")
 }
 
+func lookupVaultPassword(alias, ip string) (string, bool) {
+	if alias != "" {
+		if encPass, _, err := resolveNodeEncryptedPassword(alias); err == nil && encPass != "" {
+			if plain, decErr := DecryptSSHPassword(encPass); decErr == nil && plain != "" {
+				return plain, true
+			}
+		}
+	}
+	if ip != "" {
+		if encPass, _, err := resolveNodeEncryptedPassword(ip); err == nil && encPass != "" {
+			if plain, decErr := DecryptSSHPassword(encPass); decErr == nil && plain != "" {
+				return plain, true
+			}
+		}
+	}
+	return "", false
+}
+
 func detectAndConnectAuth(ctx context.Context, opts *SSHJoinOptions) enrollSession {
 	client := tryConnectDefaultKey(opts.Target)
 	hasClient := client != nil
@@ -117,6 +135,25 @@ func detectAndConnectAuth(ctx context.Context, opts *SSHJoinOptions) enrollSessi
 
 		return enrollSession{client: client, hasClient: true, osType: osType, osVersion: osVersion}
 	}
+
+	if vaultPass, ok := lookupVaultPassword(opts.Alias, opts.Target.IP); ok && vaultPass != "" {
+		trace := GetActiveSSHTrace()
+		if sess := connectWithGivenPass(opts.Target, vaultPass); sess.hasClient {
+			trace.AddStep("Vault Credentials", "authenticated using saved vault password", "SUCCESS", nil)
+			opts.Password = vaultPass
+			return sess
+		}
+	}
+
+	if fallbackPass := ResolveFallbackCredentials(opts.Target.Username, ""); fallbackPass != "" {
+		trace := GetActiveSSHTrace()
+		if sess := connectWithGivenPass(opts.Target, fallbackPass); sess.hasClient {
+			trace.AddStep("Configuration Credentials", "authenticated using vmpass fallback password", "SUCCESS", nil)
+			opts.Password = fallbackPass
+			return sess
+		}
+	}
+
 	isInteractive := isInteractiveTerminal()
 	if isInteractive == false {
 		return enrollSession{hasClient: false, osType: "linux"}
@@ -181,7 +218,25 @@ func resolveTargetClient(ctx context.Context, opts *SSHJoinOptions) enrollSessio
 
 	hasPass := opts.Password != ""
 	if hasPass {
-		return connectWithGivenPass(opts.Target, opts.Password)
+		sess := connectWithGivenPass(opts.Target, opts.Password)
+		if sess.hasClient {
+			return sess
+		}
+		if vaultPass, ok := lookupVaultPassword(opts.Alias, opts.Target.IP); ok && vaultPass != "" && vaultPass != opts.Password {
+			if fbSess := connectWithGivenPass(opts.Target, vaultPass); fbSess.hasClient {
+				trace.AddStep("Vault Credentials Fallback", "authenticated using saved vault password", "SUCCESS", nil)
+				opts.Password = vaultPass
+				return fbSess
+			}
+		}
+		if fbPass := ResolveFallbackCredentials(opts.Target.Username, ""); fbPass != "" && fbPass != opts.Password {
+			if fbSess := connectWithGivenPass(opts.Target, fbPass); fbSess.hasClient {
+				trace.AddStep("Configuration Fallback", "authenticated using vmpass fallback password", "SUCCESS", nil)
+				opts.Password = fbPass
+				return fbSess
+			}
+		}
+		return sess
 	}
 
 	return detectAndConnectAuth(ctx, opts)
@@ -545,8 +600,6 @@ func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
 	}
 
 	_ = BeginSSHTrace("ssh join", opts.Target.String(), opts.Target.Username, opts.Target.IP, opts.Target.Port)
-
-	promptPasswordIfInteractive(opts)
 
 	session := resolveTargetClient(ctx, opts)
 	if err := checkEnrollAuth(opts, session); err != nil {
