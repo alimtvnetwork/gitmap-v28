@@ -65,16 +65,20 @@ func resolveStatusTag(status string) string {
 	}
 }
 
+func truncateFirstLine(s string) string {
+	firstLine := strings.Split(s, "\n")[0]
+	if len(firstLine) > 45 {
+		return firstLine[:42] + "..."
+	}
+	return firstLine
+}
+
 func formatDetails(r RemoteCloneNodeResult) string {
 	if r.Error != "" {
 		return r.Error
 	}
 	if r.Stdout != "" {
-		firstLine := strings.Split(r.Stdout, "\n")[0]
-		if len(firstLine) > 45 {
-			return firstLine[:42] + "..."
-		}
-		return firstLine
+		return truncateFirstLine(r.Stdout)
 	}
 	return "done"
 }

@@ -63,16 +63,20 @@ func isLocalHostIP(ip string) bool {
 	return false
 }
 
+func buildRemoteWorkDirExecString(kindStr, cmdArgs string, isWin bool) string {
+	if isWin {
+		return fmt.Sprintf("Set-Location D:\\work; gitmap %s %s", kindStr, cmdArgs)
+	}
+	return fmt.Sprintf("cd ~/work && gitmap %s %s", kindStr, cmdArgs)
+}
+
 func buildRemoteExecString(opts NodesCloneOptions, fileName string, isWin bool) string {
 	cmdArgs := strings.Join(opts.PassArgs, " ")
 	kindStr := string(opts.Kind)
-	if opts.HasFile {
-		if isWin {
-			return fmt.Sprintf("Set-Location D:\\work; gitmap %s %s", kindStr, cmdArgs)
-		}
-		return fmt.Sprintf("cd ~/work && gitmap %s %s", kindStr, cmdArgs)
+	if !opts.HasFile {
+		return fmt.Sprintf("gitmap %s %s", kindStr, cmdArgs)
 	}
-	return fmt.Sprintf("gitmap %s %s", kindStr, cmdArgs)
+	return buildRemoteWorkDirExecString(kindStr, cmdArgs, isWin)
 }
 
 func runRemoteNodeWorker(conn db.SSHConnection, opts NodesCloneOptions, fileBytes []byte, fileName string) RemoteCloneNodeResult {
@@ -88,14 +92,19 @@ func runRemoteNodeWorker(conn db.SSHConnection, opts NodesCloneOptions, fileByte
 	return executeRemoteCloneSession(client, conn, opts, fileBytes, fileName, res, start)
 }
 
+func stageRemoteFileIfNeeded(client *ssh.Client, conn db.SSHConnection, opts NodesCloneOptions, fileBytes []byte, fileName string) error {
+	if !opts.HasFile || len(fileBytes) == 0 {
+		return nil
+	}
+	_, err := StageFileToRemoteNode(client, conn, fileName, fileBytes)
+	return err
+}
+
 func executeRemoteCloneSession(client *ssh.Client, conn db.SSHConnection, opts NodesCloneOptions, fileBytes []byte, fileName string, res RemoteCloneNodeResult, start time.Time) RemoteCloneNodeResult {
-	if opts.HasFile && len(fileBytes) > 0 {
-		_, errStage := StageFileToRemoteNode(client, conn, fileName, fileBytes)
-		if errStage != nil {
-			res.Status = "failed"
-			res.Error = "manifest staging failed: " + errStage.Error()
-			return res
-		}
+	if errStage := stageRemoteFileIfNeeded(client, conn, opts, fileBytes, fileName); errStage != nil {
+		res.Status = "failed"
+		res.Error = "manifest staging failed: " + errStage.Error()
+		return res
 	}
 	return runRemoteExecOverSSH(client, conn, opts, fileName, res, start)
 }

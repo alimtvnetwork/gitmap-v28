@@ -62,23 +62,28 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) error {
 	modifiers.IsSkipPush = modifiers.IsSkipPush || isSkipPush
 	f := cloneFixRepoFlags{url, folder, isSkipVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, isSkipCommit, isSkipPush}
 	if isCFRManifestTarget(f.url) || (len(f.url) == 0 && hasLocalCloneManifest()) {
-		err := runCFRManifestPipeline(f, makePublic, modifiers)
-		if err == nil && !f.dryRun {
-			MaybePrintFleetCFRSuggestion(f.url, makePublic)
-		}
-		return err
+		return handleCFRManifestRun(f, makePublic, modifiers)
 	}
 	if dispatchCFRMultiURL(f, makePublic, modifiers, parallel) {
-		if !f.dryRun {
-			MaybePrintFleetCFRSuggestion(f.url, makePublic)
-		}
+		maybeSuggestFleetCFR(nil, f.dryRun, f.url, makePublic)
 		return nil
 	}
 
 	err := runSingleCloneFixRepo(f, makePublic, modifiers)
-	if err == nil && !f.dryRun {
-		MaybePrintFleetCFRSuggestion(f.url, makePublic)
+	maybeSuggestFleetCFR(err, f.dryRun, f.url, makePublic)
+	return err
+}
+
+func maybeSuggestFleetCFR(err error, dryRun bool, url string, makePublic bool) {
+	if err != nil || dryRun {
+		return
 	}
+	MaybePrintFleetCFRSuggestion(url, makePublic)
+}
+
+func handleCFRManifestRun(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifiers) error {
+	err := runCFRManifestPipeline(f, makePublic, modifiers)
+	maybeSuggestFleetCFR(err, f.dryRun, f.url, makePublic)
 	return err
 }
 

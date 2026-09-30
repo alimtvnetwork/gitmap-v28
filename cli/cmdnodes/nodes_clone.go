@@ -80,17 +80,21 @@ func parseNodesCloneOptions(kind NodesCloneKind, raw []string) (NodesCloneOption
 	return opts, true
 }
 
+func loadCloneFileBytes(opts NodesCloneOptions) ([]byte, string) {
+	if !opts.HasFile {
+		return nil, ""
+	}
+	b, f, err := ReadCloneFileBytes(opts.DetectedFile)
+	if err != nil {
+		return nil, ""
+	}
+	return b, f
+}
+
 func dispatchFleetExecution(opts NodesCloneOptions) error {
 	conns, _ := cmdssh.FetchAllSSHConnections()
 	remoteConns := filterRemoteConnections(conns, opts)
-	var fileBytes []byte
-	var fileName string
-	if opts.HasFile {
-		b, f, err := ReadCloneFileBytes(opts.DetectedFile)
-		if err == nil {
-			fileBytes, fileName = b, f
-		}
-	}
+	fileBytes, fileName := loadCloneFileBytes(opts)
 	if !opts.IsJSON {
 		renderFleetStartBanner(os.Stdout, opts, len(remoteConns))
 	}

@@ -133,15 +133,21 @@ func isNodesPingCommand(arg string) bool {
 	return low == "ping" || low == "probe"
 }
 
+func isNodesCloneRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	_, isClone := cmdnodes.IsNodesCloneCommand(args[0])
+	return isClone
+}
+
 // runUnifiedNodesCLI handles `gitmap nodes [flags] [target]`.
 func runUnifiedNodesCLI(args []string) error {
 	if len(args) > 0 && isNodesPingCommand(args[0]) {
 		return runUnifiedNodesPingCLI(args[1:])
 	}
-	if len(args) > 0 {
-		if _, isClone := cmdnodes.IsNodesCloneCommand(args[0]); isClone {
-			return cmdnodes.RunNodesClone(args)
-		}
+	if isNodesCloneRequest(args) {
+		return cmdnodes.RunNodesClone(args)
 	}
 	if isNodesHelpRequest(args) {
 		return printUnifiedNodesHelp()
