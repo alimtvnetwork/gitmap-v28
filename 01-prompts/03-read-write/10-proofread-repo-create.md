@@ -11,7 +11,7 @@ Trigger keyword: `proofread repo create`, `repo organize`.
 
 When triggered, this prompt acts like it is the repo itself. It MUST:
 1. Create a `proofread-prompts/` folder in the root directory if it doesn't exist.
-2. Generate the new proofread prompt (following the same rules as Proofread V2) and save it into the `proofread-prompts/` folder with a sequence number (e.g., `proofread-prompts/01-task-name.md`).
+2. Generate the new proofread prompt (following the same rules as Proofread V2) and save it into the `proofread-prompts/` folder with a sequence number (e.g., `proofread-prompts/01-{slug}.md`).
 3. Set up the repo so that every time a user gives something with a `next` or `proofread`, it will follow through sequentially.
 
 ## Hard Rules
