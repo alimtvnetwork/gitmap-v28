@@ -40,7 +40,6 @@ VERSION_JSON = REPO_ROOT / "version.json"
 PACKAGE_JSON = REPO_ROOT / "package.json"
 README_MD = REPO_ROOT / "readme.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
-CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
 
 # Known bump scripts
 NODE_BUMP_SCRIPT = REPO_ROOT / "scripts" / "bump-version.mjs"
@@ -256,15 +255,6 @@ def execute_version_bump(next_version, scope, dry_run=False):
         with open(PACKAGE_JSON, "w", encoding="utf-8") as f:
             json.dump(p_data, f, indent=2)
             f.write("\n")
-
-    # Fallback: cli/constants/constants.go
-    if CONSTANTS_GO.is_file():
-        with open(CONSTANTS_GO, "r", encoding="utf-8") as f:
-            c_content = f.read()
-        new_c_content = re.sub(r'var Version = "[^"]+"', f'var Version = "{next_version}"', c_content)
-        if new_c_content != c_content:
-            with open(CONSTANTS_GO, "w", encoding="utf-8", newline="\n") as f:
-                f.write(new_c_content)
 
     # Fallback: changelog.md
     if CHANGELOG_MD.is_file():

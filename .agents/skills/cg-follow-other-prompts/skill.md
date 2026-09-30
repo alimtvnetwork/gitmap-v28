@@ -11,7 +11,7 @@ description: Autonomously ingest, follow, and execute referenced external prompt
 
 Activate this skill when:
 - The user instructs the agent to follow one or more referenced prompt files or external directives under coding guideline enforcement.
-- Executing `01-prompts/v4/15-cg-execute/32-cg-follow-other-prompts.md`.
+- Executing `01-prompts/15-cg-execute/32-cg-follow-other-prompts.md`.
 
 ## 2. Core Execution Pipeline
 

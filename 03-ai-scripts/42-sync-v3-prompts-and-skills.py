@@ -42,7 +42,7 @@ TARGET_REPOS = [
     ("digital-name-card", Path(r"D:\work\digital-name-card")),
     ("flat-slide-show", Path(r"D:\work\presentations-repos\flat-slide-show")),
     ("gitlogger-new-v2", Path(r"D:\work\gitlogger-new")),
-    ("gitmap-v28", SOURCE_ROOT if SOURCE_ROOT.name.startswith("gitmap") else SOURCE_ROOT.parent / "gitmap"),
+    ("gitmap-v28", Path(r"D:\work\gitmap")),
     ("global-ppt-v1", Path(r"D:\work\presentations-repos\global-ppt-v1")),
     ("hiltrax-v1", Path(r"D:\work\presentations-repos\hiltrax")),
     ("icon-coding-guidelines", Path(r"D:\work\icon-coding-guidelines")),

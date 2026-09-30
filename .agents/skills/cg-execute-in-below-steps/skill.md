@@ -11,7 +11,7 @@ description: Autonomously orchestrate and apply surgical coding guideline refact
 
 Activate this skill when:
 - Executing coding guideline fixes where specific user instructions or target rules are appended at the bottom below `--`.
-- Executing `01-prompts/v4/15-cg-execute/31-cg-execute-in-below-steps.md`.
+- Executing `01-prompts/15-cg-execute/31-cg-execute-in-below-steps.md`.
 
 ## 2. Core Execution Pipeline
 

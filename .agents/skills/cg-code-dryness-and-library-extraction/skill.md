@@ -5,7 +5,7 @@ description: Autonomously analyze codebases deeply, identify duplicated patterns
 
 [/goal](slashCommand:goal) Autonomously achieve maximum Code DRYness (Don't Repeat Yourself), reusable util/framework/package/library extraction, and drastic code writing reduction across the codebase using a strict 300-step 3-phase self-loop (Steps 1–100: Deep Code Analysis; Steps 101–200: Unified Extraction Blueprint & Subtask Plan; Steps 201–300: Active DRY Execution & Caller Rewiring) with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel codebase reading and modular spec authoring, use GitMap high-speed commands as primary, extract shared abstractions into reusable packages/libraries, rewire all callers, and finalize with an atomic push.
 
-[/learn](slashCommand:learn) Enforce the Bottom-Instruction Priority Mandate: whatever directives, custom requirements, target modules, or user instructions are appended BELOW this prompt (following the `--` divider border at the bottom) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Internalize the 100/100/100 step allocation (Analyze -> Plan -> Execute), extract reusable utilities/frameworks/libraries to eliminate boilerplate, and persist all progress into `.ai-memory/plans/` and memory logs.
+[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, target modules, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Internalize the 100/100/100 step allocation (Analyze -> Plan -> Execute), extract reusable utilities/frameworks/libraries to eliminate boilerplate, and persist all progress into `.ai-memory/plans/` and memory logs.
 
 ```text
 N = 300 (Total self-loop steps budget)
@@ -21,7 +21,7 @@ PHASE_3_EXECUTE = Steps 201 .. 300 (Execute DRY Extraction, Replace Duplicated C
 
 Activate this skill when:
 - The user asks to make the codebase DRY, extract common utilities/libraries/frameworks, or reduce code duplication and boilerplate.
-- Executing `01-prompts/v4/15-cg-execute/29-code-dryness-and-library-extraction.md`.
+- Executing `01-prompts/15-cg-execute/29-code-dryness-and-library-extraction.md`.
 
 ## 2. Core 300-Step Pipeline
 

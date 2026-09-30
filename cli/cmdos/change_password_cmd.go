@@ -113,7 +113,7 @@ func executePlatformPasswordChange(username, password string) error {
 	case "darwin":
 		return applyDarwinPassword(username, password)
 	default:
-		return apperror.NewUnsupportedError("unsupported OS for change-password: " + runtime.GOOS)
+		return apperror.NewExecutionError("unsupported OS for change-password: " + runtime.GOOS)
 	}
 }
 

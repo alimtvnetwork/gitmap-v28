@@ -37,7 +37,6 @@ README_MD = REPO_ROOT / "readme.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
 SPEC19_CHANGELOG = REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md"
 TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
-CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
 
 
 def run_cmd(cmd, cwd=None, check=True, capture_output=True):
@@ -123,10 +122,6 @@ def update_version_json(next_version, today_str, dry_run=False):
     if "Version" in data:
         data["Version"] = next_version
     data["releaseDate"] = today_str
-    if "folders" in data and isinstance(data["folders"], list):
-        for item in data["folders"]:
-            if isinstance(item, dict) and "version" in item:
-                item["version"] = next_version
 
     if dry_run:
         print(f"[DRY RUN] Would update version.json to {next_version} ({today_str})")
@@ -158,28 +153,6 @@ def update_package_json(next_version, dry_run=False):
         f.write("\n")
 
     print(f"[*] Updated package.json -> {next_version}")
-
-
-def update_go_constants(next_version, dry_run=False):
-    """Updates Version in cli/constants/constants.go if present."""
-    if not CONSTANTS_GO.is_file():
-        return
-
-    with open(CONSTANTS_GO, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    new_content = re.sub(r'var Version = "[^"]+"', f'var Version = "{next_version}"', content)
-    if new_content == content:
-        return
-
-    if dry_run:
-        print(f"[DRY RUN] Would update cli/constants/constants.go: Version -> {next_version}")
-        return
-
-    with open(CONSTANTS_GO, "w", encoding="utf-8", newline="\n") as f:
-        f.write(new_content)
-
-    print(f"[*] Updated cli/constants/constants.go Version -> {next_version}")
 
 
 def update_template_version(next_version, dry_run=False):
@@ -310,7 +283,6 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
 
     update_version_json(next_ver, today_str, dry_run=dry_run)
     update_package_json(next_ver, dry_run=dry_run)
-    update_go_constants(next_ver, dry_run=dry_run)
     update_template_version(next_ver, dry_run=dry_run)
     update_readme_pins(current_ver, next_ver, dry_run=dry_run)
     update_changelogs(next_ver, bump_scope, today_str, dry_run=dry_run)

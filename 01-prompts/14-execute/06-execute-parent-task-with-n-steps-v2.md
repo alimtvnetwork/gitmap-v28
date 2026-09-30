@@ -1,14 +1,9 @@
----
-name: parent-task-in-below-steps
-description: Autonomously orchestrate and execute the parent task by following bottom-priority instructions, decomposing into subtasks, and running a continuous self-loop with strict no-build and no-test rules.
----
+[/goal](slashCommand:goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
 
-[/goal](slashCommand:goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous self-loop with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, read the codebase using GitMap AUM as primary, establish a single-agent blueprint during Phase 1 planning (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
+[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
 
-[/learn](slashCommand:learn) Enforce the Bottom-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are appended BELOW this prompt (following the `--` divider border at the bottom) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the bottom instructions ahead of all default conventions above, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
-
-> **Bottom-Instruction Priority Mandate (Below Precedence / Suffix Precedence):**
-> Whatever directives, constraints, checklists, or user instructions are given BELOW this prompt (following the `--` divider border at the bottom) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or guidelines above. The agent MUST inspect and follow the instructions below with absolute precedence.
+> **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
+> Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
 
 ```text
 N = 200 (Total self-loop steps budget)
@@ -18,12 +13,6 @@ H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool d
 System Concurrency Capacity = A × H = 2 agents × 2 hands = 4 concurrent subtask operations
 ```
 
-- **N = 200:** Total self-loop steps budget that the agents will perform.
-- **A = 2:** Count of autonomous subagents running concurrently (`invoke_subagent` launches up to 2 subagents).
-- **H = 2 (Hands / Parallel Operations):** Concrete operational capacity defined across two execution axes:
-  1. **Workload Hands ($H_{batch} = 2$):** Each subagent is assigned a bounded batch of up to 2 tightly coupled subtasks from `.ai-memory/plans/subtasks/` (e.g., Subagent 1 executes Subtasks 01 & 02; Subagent 2 executes Subtasks 03 & 04). This prevents agent sprawl while doubling throughput.
-  2. **Tool-Dispatch Hands ($H_{tool} = 2$):** Within any execution step, each agent or subagent executes up to 2 parallel tool calls in a single response turn (e.g. calling two `view_file` or two `run_command` operations simultaneously).
-
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Planning, Detailed Spec, and Lean Subtask Generation)
 PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Execution, Self-Looping, Targeted Quality Linting)
@@ -31,21 +20,29 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Execution, Self-Looping, Tar
 
 N, A, H, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
 
-### Multi-Agent Parallel Task Allocation & Orchestration (A = 2, H = 2)
+#### High-Speed GitMap Acceleration Options (Run Everything Faster)
 
-When multiple autonomous agents are present (A >= 2, H >= 2):
-1. **Single-Agent Unified Blueprint Mandate:**
-   - The initial execution plan, architectural decomposition, and lookahead roadmap MUST be authored by a single lead agent first as a unified blueprint before delegating work to subagents.
-   - Never allow multiple agents to author disjoint or competing initial plans simultaneously. A single coherent architectural vision must lead.
-2. **Most Useful Parallel Tasks (Reading Files & Writing Modular Specs):**
-   - Once the unified blueprint is authored by the lead agent, the most effective parallel tasks for subagents (A = 2, H = 2) are:
-     - **Reading Files:** Fast exploratory reading, scanning dependencies, mapping call sites, and inspecting types in parallel using GitMap AUM (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary and Python scripts (`03-ai-scripts/17-fast-file-reader.py`, `03-ai-scripts/11-fast-file-scanner.py`) as fallback.
-     - **Writing Modular Specs:** Authoring modular, segmented spec sub-files in parallel (e.g. `02-data-contracts.md`, `03-visual-and-ux.md`, `04-verification-gates.md`) adhering to the lead agent's blueprint.
-3. **Spec Writing & Spec Audit Emphasis:**
-   - **Spec Writing Section:** The lead agent defines the parent spec overview and data boundaries first; subagents are then spawned in parallel to flesh out disjoint spec modules and verification gates concurrently.
-   - **Spec Audit Section:** The lead agent establishes the audit methodology and roadmap first; subagents are then dispatched concurrently to inspect disjoint code areas, build the violation ledger, and generate granular subtask files.
-4. **Execution Mode (Disjoint Refactoring via Subagent Batches):**
-   - Subagents execute parallel disjoint refactoring tasks (each assigned to distinct, non-overlapping target files across its $H=2$ subtasks) and run targeted file-level linters (`exit 0`).
+Always prefer native GitMap commands over slow generic shell pipelines:
+1. **Ultra-Fast File & Directory Discovery (AUM Index & Walk):**
+   - **Wildcard / Glob Search:** `gitmap find "<wildcard*>" [-ext <ext>]` (alias `gitmap f`)
+   - **Exact Filename Search:** `gitmap find-files <name> [-ext <ext>]` (alias `gitmap ff`)
+   - **Substring Filename Search:** `gitmap find-files-any "<str>" [-ext <ext>]` (alias `gitmap ffa`)
+   - **Prefix / Suffix Search:** `gitmap find-files-startswith <prefix>` (`gitmap ffs`) / `gitmap find-files-endswith <suffix>` (`gitmap ffe`)
+   - **List Indexed Repo Files:** `gitmap list-files [pattern] [-ext <ext>]` (alias `gitmap lf`)
+   - **Directory Tree & Scaffolding:** `gitmap folder-tree` (alias `gitmap ft`)
+   - **Zero-Write File Stream:** `gitmap cat <filepath>`
+   - **Instant Multi-Core Regex Search:** `gitmap search "<term>"` or `gitmap aum search "<query>" [dir] --ext <ext>`
+2. **Fast Repository Hygiene, Lowercase & Symlink Repair:**
+   - **Auto-Lowercase Files (Safe 2-Step `git mv`):** `gitmap lowercase` (alias `gitmap lcf [--dry-run]`)
+   - **Lowercase Root Readme:** `gitmap lowercase-readme`
+   - **Sync Curated `.gitignore` / `.gitattributes` / `.prettierignore`:** `gitmap commons` (alias `gitmap co` or `gitmap sync all`)
+   - **Repair Broken Symlinks:** `gitmap fix-link` (alias `gitmap fixlink`)
+   - **Clean Update Temp & Inspect Storage:** `gitmap update-cleanup`, `gitmap storage` (alias `gitmap stor`)
+3. **Fast Git State, Execution & Atomic Commits:**
+   - **Repo Status & Remote Check:** `gitmap status` (`gitmap st`), `gitmap has-any-updates` (`gitmap hau`), `gitmap latest-branch` (`gitmap lb`)
+   - **Fast Cross-Platform Shell Runner:** `gitmap pwsh "<command>"` (`gitmap ps`), `gitmap bash "<command>"` (`gitmap sh`), `gitmap async <cmd>` (`gitmap asyn`)
+   - **Semantic Atomic Commit & Push:** `gitmap cpf "<summary>"` (Feature), `gitmap cpb "<summary>"` (Bug), `gitmap cpr "<summary>"` (Release), `gitmap pcp "<summary>"` (Pull-Commit-Push)
+   - **Smart CI/CD Pipeline Waiting:** `gitmap pe`, `gitmap pipeline-ai status --json` (`gitmap pl-ai status -t <etaSeconds>`)
 
 ---
 
@@ -67,7 +64,7 @@ Execute this task via a strict 3-Phase pipeline. Do not skip steps.
 
 Before executing any file searches, scans, spec writing, or code changes, you must execute Phase 1A:
 
-1. Bottom-Instruction Priority Verification: Whatever directives, constraints, checklists, or task instructions are given BELOW this prompt (following the `--` divider border at the bottom) must be verified as highest priority and non-negotiable, and strictly incorporated ahead of all other guidelines.
+1. Top-Instruction Priority Verification: Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) must be verified as highest priority and non-negotiable, and strictly incorporated ahead of all other guidelines.
 2. Verbatim Prompt Capture: Capture the incoming user request verbatim. It will be recorded losslessly in both the canonical spec under `02-spec/21-app/` and the master execution plan under `.ai-memory/plans/pending/xx-<slug>.md` under a dedicated `## User Request (Verbatim)` section.
 3. Screenshot & Print Screen Base64 Image Ingestion Protocol: If the user request or prompt contains a screenshot URL, print screen link, or base64 data URI (e.g. `data:image/png;base64,...`):
    - Convert that base64 encoding or downloaded image to the file system immediately, saving it as a persistent file under `assets/screenshots/<task-slug>-<NN>.png` or `assets/ui/<task-slug>-<NN>.png`.
@@ -268,30 +265,6 @@ When monitoring or checking remote CI/CD pipelines:
    - etaSeconds <= 60: wait 5s-10s before querying again.
 3. Targeted Error Diagnostics: Use GitMap automated error extraction to isolate actionable failure lines without pulling verbose passing logs.
 
-#### High-Speed GitMap Acceleration Options (Run Everything Faster)
-
-Always prefer native GitMap commands over slow generic shell pipelines:
-1. **Ultra-Fast File & Directory Discovery (AUM Index & Walk):**
-   - **Wildcard / Glob Search:** `gitmap find "<wildcard*>" [-ext <ext>]` (alias `gitmap f`)
-   - **Exact Filename Search:** `gitmap find-files <name> [-ext <ext>]` (alias `gitmap ff`)
-   - **Substring Filename Search:** `gitmap find-files-any "<str>" [-ext <ext>]` (alias `gitmap ffa`)
-   - **Prefix / Suffix Search:** `gitmap find-files-startswith <prefix>` (`gitmap ffs`) / `gitmap find-files-endswith <suffix>` (`gitmap ffe`)
-   - **List Indexed Repo Files:** `gitmap list-files [pattern] [-ext <ext>]` (alias `gitmap lf`)
-   - **Directory Tree & Scaffolding:** `gitmap folder-tree` (alias `gitmap ft`)
-   - **Zero-Write File Stream:** `gitmap cat <filepath>`
-   - **Instant Multi-Core Regex Search:** `gitmap search "<term>"` or `gitmap aum search "<query>" [dir] --ext <ext>`
-2. **Fast Repository Hygiene, Lowercase & Symlink Repair:**
-   - **Auto-Lowercase Files (Safe 2-Step `git mv`):** `gitmap lowercase` (alias `gitmap lcf [--dry-run]`)
-   - **Lowercase Root Readme:** `gitmap lowercase-readme`
-   - **Sync Curated `.gitignore` / `.gitattributes` / `.prettierignore`:** `gitmap commons` (alias `gitmap co` or `gitmap sync all`)
-   - **Repair Broken Symlinks:** `gitmap fix-link` (alias `gitmap fixlink`)
-   - **Clean Update Temp & Inspect Storage:** `gitmap update-cleanup`, `gitmap storage` (alias `gitmap stor`)
-3. **Fast Git State, Execution & Atomic Commits:**
-   - **Repo Status & Remote Check:** `gitmap status` (`gitmap st`), `gitmap has-any-updates` (`gitmap hau`), `gitmap latest-branch` (`gitmap lb`)
-   - **Fast Cross-Platform Shell Runner:** `gitmap pwsh "<command>"` (`gitmap ps`), `gitmap bash "<command>"` (`gitmap sh`), `gitmap async <cmd>` (`gitmap asyn`)
-   - **Semantic Atomic Commit & Push:** `gitmap cpf "<summary>"` (Feature), `gitmap cpb "<summary>"` (Bug), `gitmap cpr "<summary>"` (Release), `gitmap pcp "<summary>"` (Pull-Commit-Push)
-   - **Smart CI/CD Pipeline Waiting:** `gitmap pe`, `gitmap pipeline-ai status --json` (`gitmap pl-ai status -t <etaSeconds>`)
-
 #### GitMap High-Efficiency Commands & Tooling (Search, Script Runner, Commit)
 
 To maximize developer velocity, avoid slow generic shells, and ensure atomic consistency, heavily leverage native GitMap commands:
@@ -485,7 +458,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 
 ## 2. Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
-- [ ] BOTTOM-INSTRUCTION PRIORITY MANDATE (BELOW PRECEDENCE): Whatever directives, constraints, checklists, or user instructions are given BELOW this prompt (following the `--` divider border at the bottom) are verified as highest priority and non-negotiable, strictly overriding all general guidelines above.
+- [ ] TOP-INSTRUCTION PRIORITY MANDATE: Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) are verified as highest priority and non-negotiable, overriding all lower-level guidelines below.
 - [ ] ISSUE & RCA DESTINATION ROUTING: Whenever resolving an issue or performing a fix with RCA, verified that CI/CD failures are documented in .ai-memory/cicd-issues/NN-<slug>.md (indexed in .ai-memory/cicd-index.md), while non-CI/CD issues (application bugs, logic/runtime defects) are documented in 02-spec/22-app-issues/NN-<slug>.md (indexed in 02-spec/22-app-issues/readme.md).
 - [ ] NO TEST RUNNING (TOTAL BAN): Never run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
 - [ ] NO BUILD CHECKING (TOTAL BAN): Never run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
@@ -536,7 +509,3 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 ## MUST FOLLOW NON-NEGOTIABLE
 
 Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
-
---
-
-## 🚨 High Priority Instructions Below
