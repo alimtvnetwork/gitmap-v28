@@ -45,6 +45,7 @@ func printNodeDeletionSuccess(count int, taskID string) {
 	_ = taskID
 	fmt.Printf("✓ %d machine(s) removed from SSH registry.\n", count)
 	fmt.Println("  Undo anytime: gitmap ssh undo")
+	fmt.Println("  💡 Suggestions: 'gitmap ssh ls' to inspect remaining nodes, or 'gitmap ssh join <user@ip> <alias>' to re-enroll.")
 }
 
 func runSSHClearNodes(args []string) error {

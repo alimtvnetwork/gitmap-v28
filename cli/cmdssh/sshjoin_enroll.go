@@ -502,6 +502,10 @@ func printAuthFailureReport(err error, trace *SSHExecutionTrace, logPath string)
 	}
 	fmt.Fprintf(os.Stderr, "  ℹ To share or inspect full details, view: %s\n", logPath)
 	fmt.Fprintf(os.Stderr, "    Or run: gitmap ssh error-logs\n")
+	fmt.Fprintf(os.Stderr, "\n  💡 SSH Key & Auth Recovery Suggestions:\n")
+	fmt.Fprintf(os.Stderr, "    • On the remote machine, authorize your key: gitmap ssh key add \"<your-public-key>\"\n")
+	fmt.Fprintf(os.Stderr, "    • Push your local key to remote machine:     gitmap ssh copy-id <user@ip> [-i ~/.ssh/id_ed25519.pub]\n")
+	fmt.Fprintf(os.Stderr, "    • Sync keys across all enrolled nodes:       gitmap ssh deploy-keys  (or: gitmap deploy-keys-all)\n")
 }
 
 func finalizeEnrollment(ctx context.Context, opts *SSHJoinOptions, session enrollSession) error {

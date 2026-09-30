@@ -54,7 +54,9 @@ CREATE INDEX IF NOT EXISTS IdxInternalErrorLog_IsResolved ON InternalErrorLog(Is
 CREATE INDEX IF NOT EXISTS IdxFailedCommand_Command ON FailedCommand(Command, Domain);
 CREATE INDEX IF NOT EXISTS IdxFailedCommand_HitCount ON FailedCommand(HitCount DESC);
 CREATE INDEX IF NOT EXISTS IdxFailedCommand_LastSeenAt ON FailedCommand(LastSeenAt DESC);
-CREATE VIEW IF NOT EXISTS failed_commands AS SELECT * FROM FailedCommand;`
+CREATE VIEW IF NOT EXISTS failed_commands AS SELECT * FROM FailedCommand;
+CREATE VIEW IF NOT EXISTS failed_to_detect_commands AS SELECT * FROM FailedCommand;
+CREATE VIEW IF NOT EXISTS FailedToDetectCommand AS SELECT * FROM FailedCommand;`
 )
 
 // InternalErrorRecord represents a recorded internal error log entry.

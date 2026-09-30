@@ -209,22 +209,17 @@ func (s *ErrorsSplitDB) ClearFailedCommands() error {
 		return apperror.WrapSimple(err, "errors_split.clear_failed_commands")
 	}
 
+	clearFailedCommandsInPrimaryDB()
+
 	return nil
 }
 
-// LogFailedCommand safely records an unknown or failed-to-detect command into gitmap-errors.db.
+// LogFailedCommand safely records an unknown or failed-to-detect command into gitmap-errors.db and gitmap.db.
 func LogFailedCommand(command, fullArgs, domain, errorCode, message string, suggestions []string) {
 	cleanCmd := strings.TrimSpace(command)
 	if cleanCmd == "" {
 		return
 	}
-
-	db, err := OpenErrorsSplitDB()
-	if err != nil {
-		return
-	}
-
-	defer db.Close()
 
 	rec := FailedCommandRecord{
 		Command:       cleanCmd,
@@ -236,5 +231,36 @@ func LogFailedCommand(command, fullArgs, domain, errorCode, message string, sugg
 		GitMapVersion: constants.Version,
 	}
 
-	_, _ = db.RecordFailedCommand(rec)
+	db, err := OpenErrorsSplitDB()
+	if err == nil {
+		_, _ = db.RecordFailedCommand(rec)
+		_ = db.Close()
+	}
+
+	mirrorFailedCommandToPrimaryDB(rec)
+}
+
+func mirrorFailedCommandToPrimaryDB(rec FailedCommandRecord) {
+	primaryDB, err := OpenDefault()
+	if err != nil || primaryDB == nil || primaryDB.conn == nil {
+		return
+	}
+
+	defer primaryDB.Close()
+
+	_, _ = primaryDB.conn.Exec(sqlCreateFailedCommand)
+	mirror := &ErrorsSplitDB{conn: primaryDB.conn, Path: DefaultDBPath()}
+	_, _ = mirror.RecordFailedCommand(rec)
+}
+
+func clearFailedCommandsInPrimaryDB() {
+	primaryDB, err := OpenDefault()
+	if err != nil || primaryDB == nil || primaryDB.conn == nil {
+		return
+	}
+
+	defer primaryDB.Close()
+
+	_, _ = primaryDB.conn.Exec(sqlCreateFailedCommand)
+	_, _ = primaryDB.conn.Exec(sqlClearFailedCommands)
 }

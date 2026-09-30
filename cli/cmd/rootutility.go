@@ -415,7 +415,9 @@ func utilityPipelineEntries() []dispatchEntry {
 		{[]string{"pe", "pipeline-errors", "pipeline_errors", "ee"}, func() error { return runPipelineErrors(argsTail()) }},
 		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return runPipelineDetails(argsTail()) }},
 		{[]string{"e", "errors", "internal-errors", "errs"}, func() error { return cmderrors.RunErrorsCLI(argsTail()) }},
-		{[]string{"failed-commands", "failed-command", "fc", "unknown-commands", "unknown-command", "failed-to-detect"}, func() error { return cmderrors.RunFailedCommandsCLI(argsTail()) }},
+		{[]string{"failed-commands", "failed-command", "fc", "unknown-commands", "unknown-command", "failed-to-detect", "failed-to-detect-commands", "failed-commands-count", "fcc"}, func() error {
+			return cmderrors.RunFailedCommandsWithCmd(os.Args[1], argsTail())
+		}},
 		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},
 		{[]string{"logs", "log"}, func() error { return runPipeline(append([]string{"logs"}, argsTail()...)) }},
 		{[]string{"waittime", "wait-time", "eta"}, func() error { return runPipeline(append([]string{"waittime"}, argsTail()...)) }},

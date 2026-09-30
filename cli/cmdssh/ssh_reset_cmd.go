@@ -39,6 +39,11 @@ func purgeAndResetRegistry(ctx context.Context, hosts []store.SSHHost) error {
 	_ = db.DeleteAllSSHConnections(ctx, dbConn.SQL())
 	fmt.Printf("✓ SSH registry reset successfully. All %d node(s) removed and caches cleared.\n", len(hosts))
 	fmt.Println("  Undo anytime: gitmap ssh undo")
+	fmt.Println("\n  💡 Next Steps & SSH Recovery Suggestions:")
+	fmt.Println("    • Restore from JSON backup:       gitmap ssh import-json <nodes.json>")
+	fmt.Println("    • Enroll a fresh remote machine:  gitmap ssh join <user@ip> [alias]")
+	fmt.Println("    • Authorize a public key locally: gitmap ssh key add <pubkey-or-file>")
+	fmt.Println("    • Sync keys across new nodes:     gitmap ssh deploy-keys")
 
 	return nil
 }

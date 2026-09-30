@@ -11,6 +11,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+// RunFailedCommandsWithCmd dispatches failed-commands and automatically enables count mode for fcc/failed-commands-count.
+func RunFailedCommandsWithCmd(cmdName string, args []string) error {
+	low := strings.ToLower(strings.TrimSpace(cmdName))
+	if low == "failed-commands-count" || low == "fcc" {
+		return RunFailedCommandsCLI(append([]string{"count"}, args...))
+	}
+
+	return RunFailedCommandsCLI(args)
+}
+
 // RunFailedCommandsCLI is the entry point for 'gitmap failed-commands', 'gitmap fc', and 'gitmap e failed'.
 func RunFailedCommandsCLI(args []string) error {
 	if isErrorsHelpRequested(args) {
@@ -34,7 +44,8 @@ func isFailedSubcommandToken(token string) bool {
 	low := strings.ToLower(strings.TrimSpace(token))
 
 	return low == "failed" || low == "failed-commands" || low == "failed-command" ||
-		low == "fc" || low == "unknown" || low == "unknown-commands" || low == "failed-to-detect"
+		low == "fc" || low == "unknown" || low == "unknown-commands" ||
+		low == "failed-to-detect" || low == "failed-to-detect-commands"
 }
 
 func isFailedCountRequested(args []string) bool {
