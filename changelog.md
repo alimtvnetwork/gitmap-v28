@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.423.0] - 2026-09-30
+
+### Added
+- add failed-to-detect commands logging, dynamic suggestions, and rich ssh/clean optimization suggestions
+
+---
+
 ## [v6.422.0] - 2026-09-30
 
 ### Added
