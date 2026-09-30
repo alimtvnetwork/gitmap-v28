@@ -1,5 +1,16 @@
 # Changelog
 
+## [v6.427.0] - 2026-09-30
+
+### Fixed
+- Clone Subcommand Resolution: Support `gitmap clone only-missing <manifest>` and other clone subcommands (`next`, `now`, `sync`, `pick`, `fix-repo`, `fr`, `cfr`) directly through `gitmap clone`, eliminating false "file not found" errors when subcommands are passed as the first positional argument.
+- Flag Aliasing (`--only-missing`): Register `--only-missing` as a first-class alias for `--missing-only` in `gitmap clone` flag parsing.
+- Real-Time Clone Progress Feedback: Output active in-flight status indicators (`⏳ cloning...`) during parallel repository cloning and route skipped items directly to `✔ up-to-date (skipped)`, eliminating long silent pauses during manifest clones.
+- Early Directory Skip in Missing-Only Mode: Immediately bypass pre-existing repositories in `isMissingOnly` mode with real-time feedback without dispatching unnecessary worker overhead.
+- Pending Task Lock Deduplication: Exclude failed tasks (`FailureReason != ''`) from duplicate active task queries (`SQLSelectPendingTaskByTypePath`, `SQLSelectPendingTaskByTypePathCmd`), preventing aborted commands from blocking future execution as false duplicates.
+
+---
+
 ## [v6.426.0] - 2026-09-30
 
 ### Added

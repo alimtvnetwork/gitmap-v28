@@ -38,11 +38,15 @@ func NewProgress(total int, isQuiet bool) *Progress {
 	return p
 }
 
-// Begin records a repo processing start.
+// Begin records a repo processing start and outputs an active in-flight indicator.
 func (p *Progress) Begin(name string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.current++
+	if !p.isQuiet {
+		fmt.Printf("  [%2d/%d] 📂 %-32s %s⏳ cloning...%s\n",
+			p.current, p.total, name, constants.ColorYellow, constants.ColorReset)
+	}
 }
 
 // Done marks a repo as successfully completed.
@@ -81,6 +85,9 @@ func (p *Progress) Skip(result model.CloneResult) {
 	defer p.mu.Unlock()
 
 	p.skipped++
+	if p.current < p.cloned+p.pulled+p.skipped+p.failed {
+		p.current = p.cloned + p.pulled + p.skipped + p.failed
+	}
 	if p.isQuiet {
 		return
 	}

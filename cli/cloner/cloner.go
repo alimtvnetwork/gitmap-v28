@@ -199,7 +199,7 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 	url := pickURL(rec)
 	strategy := pickCloneStrategy(rec)
 
-	args := []string{constants.GitClone}
+	args := []string{constants.GitClone, "--progress"}
 	if strategy.useBranch {
 		args = append(args, constants.GitBranchFlag, strategy.branch)
 	}

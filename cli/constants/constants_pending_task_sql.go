@@ -19,10 +19,12 @@ const (
 		WHERE p.PendingTaskId = ?`
 
 	SQLSelectPendingTaskByTypePath = `SELECT p.PendingTaskId FROM PendingTask p
-		WHERE p.TaskTypeId = ? AND p.TargetPath = ?`
+		WHERE p.TaskTypeId = ? AND p.TargetPath = ?
+		AND (p.FailureReason IS NULL OR p.FailureReason = '')`
 
 	SQLSelectPendingTaskByTypePathCmd = `SELECT p.PendingTaskId FROM PendingTask p
-		WHERE p.TaskTypeId = ? AND p.TargetPath = ? AND p.CommandArgs = ?`
+		WHERE p.TaskTypeId = ? AND p.TargetPath = ? AND p.CommandArgs = ?
+		AND (p.FailureReason IS NULL OR p.FailureReason = '')`
 
 	SQLUpdatePendingTaskFailure = `UPDATE PendingTask
 		SET FailureReason = ?, UpdatedAt = CURRENT_TIMESTAMP

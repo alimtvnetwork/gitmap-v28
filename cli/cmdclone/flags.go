@@ -92,6 +92,7 @@ func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
 	fs.BoolVar(flagPtrs.cleanFlag, "f", false, "Short alias for --force")
 	fs.BoolVar(flagPtrs.cleanFlag, "reclone", false, "Alias for --clean / --force")
 	flagPtrs.missingOnlyFlag = fs.Bool("missing-only", false, "Skip existing directories entirely")
+	fs.BoolVar(flagPtrs.missingOnlyFlag, "only-missing", false, "Alias for --missing-only")
 	flagPtrs.auditFlag = fs.Bool(constants.CloneFlagAudit, false, constants.FlagDescCloneAudit)
 	flagPtrs.noVSCodeSyncFlag = fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
 	flagPtrs.debugPathsFlag = fs.Bool(constants.FlagDebugPaths, false, constants.FlagDescDebugPaths)
