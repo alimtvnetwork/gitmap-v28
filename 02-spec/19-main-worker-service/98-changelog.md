@@ -1,3 +1,9 @@
+## v6.451.0 — 2026-10-01 (enforce gitignore split-db cache across pull commands and suppress pending task no-rows warning)
+
+**Scope:** Version bump. enforce gitignore split-db cache across pull commands and suppress pending task no-rows warning.
+
+---
+
 ## v6.450.0 — 2026-10-01 (auto fast-forward merge fallback on diverged pull and pipeline cancel filtering)
 
 **Scope:** Version bump. auto fast-forward merge fallback on diverged pull and pipeline cancel filtering.

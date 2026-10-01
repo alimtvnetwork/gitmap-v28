@@ -714,6 +714,7 @@ func handleIgnoreRemediation(issues []IgnoreRepoIssue, isAutoYes, isJSON bool) {
 		return
 	}
 	if !isInteractiveTerminal() {
+		markIssuesSkipped(issues)
 		printNonInteractiveIgnoreNotice(len(issues))
 		return
 	}
@@ -844,6 +845,7 @@ func remediateSingleRepoIgnore(issue IgnoreRepoIssue) bool {
 		_ = store.RecordIgnoreCheckResult(issue.RepoPath, issue.RepoName, "clean", 1, 0)
 		return true
 	}
+	_ = store.RecordIgnoreCheckResult(issue.RepoPath, issue.RepoName, "skipped", 0, 0)
 	return false
 }
 
@@ -1240,7 +1242,31 @@ func handleCWDIgnoreChecks() {
 	if err != nil || !gitignoreagm.IsGitRepository(cwd) {
 		return
 	}
-	issue := inspectRepoForIgnoreIssues(cwd, filepath.Base(cwd))
+	if isCWDIgnoreCheckRecent(cwd) {
+		return
+	}
+	executeCWDIgnoreAudit(cwd)
+}
+
+func isCWDIgnoreCheckRecent(cwd string) bool {
+	ttl := resolvePullIgnoreTTL()
+	db, err := store.OpenGitIgnoreSplitDB()
+	if err != nil {
+		return false
+	}
+	defer db.Close()
+	return db.IsCheckRecent(cwd, ttl)
+}
+
+func executeCWDIgnoreAudit(cwd string) {
+	start := time.Now()
+	name := filepath.Base(cwd)
+	issue := inspectRepoForIgnoreIssues(cwd, name)
+	status := "clean"
+	if issue.HasIssues() {
+		status = "has_issues"
+	}
+	_ = store.RecordIgnoreCheckResult(cwd, name, status, 0, time.Since(start))
 	if issue.HasIssues() {
 		handleIgnoreRemediation([]IgnoreRepoIssue{issue}, false, false)
 	}

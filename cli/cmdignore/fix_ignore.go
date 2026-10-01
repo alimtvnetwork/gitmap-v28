@@ -306,6 +306,8 @@ func scanReposForIgnoreIssues(records []model.ScanRecord) []IgnoreScanIssue {
 		hasIssue := isIssueDetected(issue)
 		if hasIssue {
 			issues = append(issues, issue)
+		} else {
+			_ = RecordRepoCheckResult(r.AbsolutePath, r.RepoName, "clean", 0, 0)
 		}
 	}
 	return issues

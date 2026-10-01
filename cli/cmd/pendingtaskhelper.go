@@ -105,7 +105,7 @@ func isIgnorablePendingTaskError(err error) bool {
 		return true
 	}
 	errStr := strings.ToLower(err.Error())
-	return strings.Contains(errStr, "no rows in result set") || strings.Contains(errStr, "not found")
+	return strings.Contains(errStr, "no rows") || strings.Contains(errStr, "not found")
 }
 
 func failPendingTask(db *store.DB, taskID int64, reason string) {

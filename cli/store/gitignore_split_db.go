@@ -111,12 +111,20 @@ func (s *GitIgnoreSplitDB) EnsureGitIgnoreTable() error {
 	return nil
 }
 
+func normalizeRepoPathForCache(repoPath string) string {
+	abs, err := filepath.Abs(repoPath)
+	if err == nil {
+		repoPath = abs
+	}
+	return filepath.ToSlash(filepath.Clean(repoPath))
+}
+
 // GetLastIgnoreCheck retrieves the cached check record for the specified repository path.
 func (s *GitIgnoreSplitDB) GetLastIgnoreCheck(repoPath string) (*GitIgnoreRecord, error) {
 	if s == nil || s.conn == nil {
 		return nil, apperror.NewSimple("split db connection is nil", "E1020")
 	}
-	cleanPath := filepath.ToSlash(filepath.Clean(repoPath))
+	cleanPath := normalizeRepoPathForCache(repoPath)
 	row := s.conn.QueryRow(sqlSelectLastIgnoreCheck, cleanPath)
 	return scanIgnoreRecord(row)
 }
@@ -140,7 +148,7 @@ func (s *GitIgnoreSplitDB) RecordIgnoreCheck(record GitIgnoreRecord) error {
 	if s == nil || s.conn == nil {
 		return apperror.NewSimple("split db connection is nil", "E1020")
 	}
-	cleanPath := filepath.ToSlash(filepath.Clean(record.RepoPath))
+	cleanPath := normalizeRepoPathForCache(record.RepoPath)
 	_, err := s.conn.Exec(sqlUpsertIgnoreCheck,
 		cleanPath, record.RepoSlug, record.LastCheckedAt,
 		record.Status, record.RemediatedCount, record.DurationMs,
@@ -164,7 +172,11 @@ func (s *GitIgnoreSplitDB) IsCheckRecent(repoPath string, ttl time.Duration) boo
 	if elapsed >= ttl {
 		return false
 	}
-	return record.Status == "clean" || record.Status == "skipped"
+	return isCacheStatusValid(record.Status)
+}
+
+func isCacheStatusValid(status string) bool {
+	return status == "clean" || status == "skipped" || status == "remediated"
 }
 
 // InvalidateCache marks a single repository's cache record as inactive.
@@ -172,7 +184,7 @@ func (s *GitIgnoreSplitDB) InvalidateCache(repoPath string) error {
 	if s == nil || s.conn == nil {
 		return apperror.NewSimple("split db connection is nil", "E1020")
 	}
-	cleanPath := filepath.ToSlash(filepath.Clean(repoPath))
+	cleanPath := normalizeRepoPathForCache(repoPath)
 	_, err := s.conn.Exec("UPDATE gitignore_repo_cache SET is_active = 0 WHERE repo_path = ? COLLATE NOCASE", cleanPath)
 	if err != nil {
 		return apperror.WrapSimple(err, "invalidate cache for "+cleanPath)
@@ -247,12 +259,20 @@ func FilterReposNeedingIgnoreCheck(repos []model.ScanRecord, ttl time.Duration) 
 func filterReposWithDB(db *GitIgnoreSplitDB, repos []model.ScanRecord, ttl time.Duration) []model.ScanRecord {
 	var needingCheck []model.ScanRecord
 	for _, repo := range repos {
-		isRecent := db.IsCheckRecent(repo.AbsolutePath, ttl)
+		targetPath := resolveRepoRecordPath(repo)
+		isRecent := db.IsCheckRecent(targetPath, ttl)
 		if !isRecent {
 			needingCheck = append(needingCheck, repo)
 		}
 	}
 	return needingCheck
+}
+
+func resolveRepoRecordPath(repo model.ScanRecord) string {
+	if repo.AbsolutePath != "" {
+		return repo.AbsolutePath
+	}
+	return repo.RelativePath
 }
 
 // RecordIgnoreCheckResult persists a repository inspection outcome into the Split-DB.

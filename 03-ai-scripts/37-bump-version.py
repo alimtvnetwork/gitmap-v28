@@ -34,9 +34,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 VERSION_JSON = REPO_ROOT / "version.json"
 PACKAGE_JSON = REPO_ROOT / "package.json"
 README_MD = REPO_ROOT / "readme.md"
+WHAT_TO_READ_MD = REPO_ROOT / "what-to-read.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
 SPEC19_CHANGELOG = REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md"
 TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
+CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
+RELEASE_NOTES_DIR = REPO_ROOT / ".ai-memory" / "release"
 
 
 def run_cmd(cmd, cwd=None, check=True, capture_output=True):
@@ -244,6 +247,88 @@ def update_changelogs(next_version, scope, today_str, dry_run=False):
                 print(f"[*] Prepended entry in {SPEC19_CHANGELOG.relative_to(REPO_ROOT)} -> v{next_version}")
 
 
+def update_what_to_read_pins(current_ver, next_version, dry_run=False):
+    """Pins new version in what-to-read.md badges and text references."""
+    if not WHAT_TO_READ_MD.is_file():
+        return
+
+    with open(WHAT_TO_READ_MD, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    escaped_curr = re.escape(current_ver)
+    new_content = re.sub(rf"\bv?{escaped_curr}\b", f"v{next_version}", content)
+    new_content = re.sub(rf"\b{escaped_curr}\b", next_version, new_content)
+
+    if new_content == content:
+        return
+
+    if dry_run:
+        print(f"[DRY RUN] Would update version references in what-to-read.md: {current_ver} -> {next_version}")
+        return
+
+    with open(WHAT_TO_READ_MD, "w", encoding="utf-8", newline="\n") as f:
+        f.write(new_content)
+
+    print(f"[*] Updated what-to-read.md version pins -> v{next_version}")
+
+
+def update_constants_go(next_version, dry_run=False):
+    """Updates Version in cli/constants/constants.go."""
+    if not CONSTANTS_GO.is_file():
+        return
+
+    with open(CONSTANTS_GO, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    pattern = r'var Version = "[^"]*"'
+    new_line = f'var Version = "{next_version}"'
+    new_content = re.sub(pattern, new_line, content)
+
+    if new_content == content:
+        return
+
+    if dry_run:
+        print(f"[DRY RUN] Would update Version in constants.go -> {next_version}")
+        return
+
+    with open(CONSTANTS_GO, "w", encoding="utf-8", newline="\n") as f:
+        f.write(new_content)
+
+    print(f"[*] Updated cli/constants/constants.go -> {next_version}")
+
+
+def create_release_notes(next_version, scope, dry_run=False):
+    """Creates a release notes markdown document in .ai-memory/release/."""
+    notes_file = RELEASE_NOTES_DIR / f"release-notes-v{next_version}.md"
+    content = f"""# GitMap v{next_version}
+
+## What's Changed in v{next_version}
+
+- **{scope}**
+
+### Quick Install One-Liners
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.ps1 | iex
+```
+
+**Linux / macOS (Bash):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.sh | sh
+```
+"""
+    if dry_run:
+        print(f"[DRY RUN] Would create release notes at {notes_file.name}")
+        return
+
+    RELEASE_NOTES_DIR.mkdir(parents=True, exist_ok=True)
+    with open(notes_file, "w", encoding="utf-8", newline="\n") as f:
+        f.write(content)
+
+    print(f"[*] Created release notes -> {notes_file.name}")
+
+
 def run_repo_sync_if_available(dry_run=False):
     """Executes `npm run sync` if defined in package.json to regenerate spec trees and manifests."""
     if not PACKAGE_JSON.is_file():
@@ -285,6 +370,9 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
     update_package_json(next_ver, dry_run=dry_run)
     update_template_version(next_ver, dry_run=dry_run)
     update_readme_pins(current_ver, next_ver, dry_run=dry_run)
+    update_what_to_read_pins(current_ver, next_ver, dry_run=dry_run)
+    update_constants_go(next_ver, dry_run=dry_run)
+    create_release_notes(next_ver, bump_scope, dry_run=dry_run)
     update_changelogs(next_ver, bump_scope, today_str, dry_run=dry_run)
     run_repo_sync_if_available(dry_run=dry_run)
 

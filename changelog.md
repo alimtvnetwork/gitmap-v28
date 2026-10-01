@@ -1,5 +1,18 @@
 # Changelog
 
+## [v6.451.0] - 2026-10-01
+
+### Added
+- GitIgnore Split-DB Cache Enforcement: integrate `isCWDIgnoreCheckRecent` in `handleCWDIgnoreChecks` to query `.gitmap/data/gitignore/cache/sql.db` before auditing CWD repositories
+- Interactive Skip Persistence: record `status = "skipped"` in the Split-DB whenever interactive remediation is skipped or running non-interactively, preventing repetitive prompts during the 24-hour TTL
+- Path Normalization: normalize paths across drive letter casing, relative paths, and `/` separators via `normalizeRepoPathForCache`
+- Cache Status Expansion: accept `"clean"`, `"skipped"`, and `"remediated"` as valid cached verification states
+- Clean Repo Caching: record clean repository status during `fix-ignore-all` batch inspections
+- Pending Task Warning Suppression: broaden `isIgnorablePendingTaskError` to suppress non-fatal `no rows` and `not found` errors on completed task records
+- Version Bumper & Synchronizer: auto-pin version references across `what-to-read.md`, `cli/constants/constants.go`, and release notes
+
+---
+
 ## [v6.450.0] - 2026-10-01
 
 ### Added
