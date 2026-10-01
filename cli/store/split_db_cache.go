@@ -346,9 +346,15 @@ func summarizeRepoDir(baseDir, slug string) (CachedRepoSummary, bool) {
 	}
 	defer db.Close()
 
-	_ = db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = 'repo_path'").Scan(&summary.RepoPath)
-	_ = db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = 'last_indexed_at'").Scan(&summary.LastIndexed)
-	_ = db.QueryRow("SELECT COUNT(*), COALESCE(SUM(FileSize), 0) FROM Files").Scan(&summary.FileCount, &summary.TotalBytes)
+	if scanErr := db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = 'repo_path'").Scan(&summary.RepoPath); scanErr != nil && scanErr != sql.ErrNoRows {
+		return summary, false
+	}
+	if scanErr := db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = 'last_indexed_at'").Scan(&summary.LastIndexed); scanErr != nil && scanErr != sql.ErrNoRows {
+		return summary, false
+	}
+	if scanErr := db.QueryRow("SELECT COUNT(*), COALESCE(SUM(FileSize), 0) FROM Files").Scan(&summary.FileCount, &summary.TotalBytes); scanErr != nil && scanErr != sql.ErrNoRows {
+		return summary, false
+	}
 	return summary, true
 }
 

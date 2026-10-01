@@ -72,15 +72,16 @@ func parseCPAROptions(args []string) cparOptions {
 }
 
 func applyOption(opts cparOptions, a string) cparOptions {
-	if isYesFlag(a) {
+	switch {
+	case isYesFlag(a):
 		opts.isAutoYes = true
-	} else if isReviewFlag(a) {
+	case isReviewFlag(a):
 		opts.isReview = true
-	} else if isCommitOnlyFlag(a) {
+	case isCommitOnlyFlag(a):
 		opts.isCommitOnly = true
-	} else if isCompoundFlag(a) {
+	case isCompoundFlag(a):
 		opts = applyCompoundFlags(opts, a)
-	} else if strings.HasPrefix(a, "-m=") {
+	case strings.HasPrefix(a, "-m="):
 		opts.commitMsg = a[3:]
 	}
 	return opts

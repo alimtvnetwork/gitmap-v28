@@ -178,10 +178,10 @@ func walkAndIndexDir(rootDB *sql.DB, targetDir, repoRoot string, isKeep bool, to
 		if walkErr != nil {
 			return nil
 		}
+		if d.IsDir() && isSkippedDir(d.Name()) {
+			return filepath.SkipDir
+		}
 		if d.IsDir() {
-			if isSkippedDir(d.Name()) {
-				return filepath.SkipDir
-			}
 			return nil
 		}
 		indexFile(rootDB, path, repoRoot, isKeep, totalIndexed, totalBytes, folderStats)
@@ -285,12 +285,13 @@ func reconcileExistingFiles(rootDB *sql.DB, repoRoot string) (int, int) {
 	updated, removed := 0, 0
 	for _, rec := range files {
 		info, statErr := os.Stat(rec.AbsolutePath)
+		if statErr != nil && !rec.IsKeep {
+			_ = store.DeleteCacheFile(rootDB, rec.RelativePath)
+			removeLinesFromSlug(rec.FolderSlug, rec.RelativePath, repoRoot)
+			removed++
+			continue
+		}
 		if statErr != nil {
-			if !rec.IsKeep {
-				_ = store.DeleteCacheFile(rootDB, rec.RelativePath)
-				removeLinesFromSlug(rec.FolderSlug, rec.RelativePath, repoRoot)
-				removed++
-			}
 			continue
 		}
 		if info.ModTime().Unix() != rec.ModifiedTime {

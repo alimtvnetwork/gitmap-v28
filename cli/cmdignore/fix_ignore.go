@@ -151,18 +151,22 @@ func RunFixIgnoresAllSSH(args []string) *apperror.AppError {
 	updateIgnoreTaskQueue(tDB, queueId, "running")
 
 	hasHook := RunFixIgnoresAllSSHFn != nil
-	if !hasHook {
-		errLocal := RunFixIgnoreAll(args)
-		hasErr := errLocal != nil
-		if hasErr {
-			store.LogInternalError("FIX_IGNORE_SSH", "LOCAL_FALLBACK_ERROR", errLocal.Error(), "", "")
-			updateIgnoreTaskQueue(tDB, queueId, "failed")
-			return errLocal
-		}
-		updateIgnoreTaskQueue(tDB, queueId, "completed")
-		return nil
+	if hasHook {
+		return executeFleetSSHWithTask(tDB, queueId, args)
 	}
-	return executeFleetSSHWithTask(tDB, queueId, args)
+	return executeLocalFallbackWithTask(tDB, queueId, args)
+}
+
+func executeLocalFallbackWithTask(tDB *store.TasksSplitDB, queueId string, args []string) *apperror.AppError {
+	errLocal := RunFixIgnoreAll(args)
+	hasErr := errLocal != nil
+	if hasErr {
+		store.LogInternalError("FIX_IGNORE_SSH", "LOCAL_FALLBACK_ERROR", errLocal.Error(), "", "")
+		updateIgnoreTaskQueue(tDB, queueId, "failed")
+		return errLocal
+	}
+	updateIgnoreTaskQueue(tDB, queueId, "completed")
+	return nil
 }
 
 func executeFleetSSHWithTask(tDB *store.TasksSplitDB, queueId string, args []string) *apperror.AppError {

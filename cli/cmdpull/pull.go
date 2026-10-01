@@ -653,13 +653,13 @@ func findGitignoreDuplicatePatterns(repoDir string) []string {
 			continue
 		}
 		norm := strings.TrimPrefix(trimmed, "/")
-		if seen[norm] {
-			if !dupSeen[norm] {
-				dupSeen[norm] = true
-				duplicates = append(duplicates, trimmed)
-			}
-		} else {
+		if !seen[norm] {
 			seen[norm] = true
+			continue
+		}
+		if !dupSeen[norm] {
+			dupSeen[norm] = true
+			duplicates = append(duplicates, trimmed)
 		}
 	}
 	return duplicates
