@@ -1,3 +1,9 @@
+## v6.442.0 — 2026-10-01 (Add GitMap native remediations rule)
+
+**Scope:** Version bump. Add GitMap native remediations rule.
+
+---
+
 ## v6.441.0 — 2026-10-01 (Release v6.441.0)
 
 **Scope:** Version bump. Release v6.441.0.
