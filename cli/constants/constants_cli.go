@@ -275,6 +275,8 @@ const (
 	CmdSSHBindAlias          = "sb"
 	CmdFixAuth               = "fix-auth"
 	CmdFixAuthAlias          = "fa"
+	CmdFixCredential         = "fix-credential"
+	CmdFixCredentialAlias    = "fc"
 	CmdSync                  = "sync"
 	CmdSyncAlias             = "sy"
 	// CmdCommons (v6.76.0) is a shortcut for `gitmap sync all` — adds

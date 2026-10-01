@@ -35,13 +35,15 @@
 - [57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Spec: [194](../../02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md))
 - [58-pas-formula-fix-ignores-cpar-and-repo-cache.md](completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) — GitMap PAS Formula, Windows Credential Store Fix, Ignore Management Suite, CPAR, and Split-DB Cache Engine (Spec: [195](../../02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md), Subtasks: [201](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/))
 
+- [197-pas-fix.md](completed/197-pas-fix.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
+
 ## Pending Plans
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
 - [59-gitmap-pas-fix-and-repo-cache.md](pending/59-gitmap-pas-fix-and-repo-cache.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
 - [60-gitmap-pas-command-fix.md](pending/60-gitmap-pas-command-fix.md) — GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite & Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [181](../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md))
 - [181-gitmap-ignore-and-cache-engine.md](pending/181-gitmap-ignore-and-cache-engine.md) — Gitmap Ignore Engine and Split-DB Cache Engine (Spec: [181](../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md))
-- [197-pas-fix.md](pending/197-pas-fix.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
+
 
 ## Subtasks Directory
 
@@ -78,6 +80,7 @@
 - [52.3-native-dns-switcher.md](subtasks/52.3-native-dns-switcher.md): Native secure DNS switcher and benchmarks
 - [52.4-universal-system-updater.md](subtasks/52.4-universal-system-updater.md): Universal multi-distro system and package updater
 - [52.5-interactive-bubbletea-os-tui.md](subtasks/52.5-interactive-bubbletea-os-tui.md): Interactive Bubbletea OS TUI dashboard
+
 
 
 

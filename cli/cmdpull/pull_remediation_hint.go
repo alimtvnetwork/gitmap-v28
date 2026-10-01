@@ -80,5 +80,8 @@ func buildActionableRemediation(repoName, repoPath, msg string) string {
 	if strings.Contains(msg, "missing repository directory") {
 		return fmt.Sprintf("Run 'gitmap clone %s' to re-clone", repoName)
 	}
+	if strings.Contains(msg, "Can not use the 'cache' credential store on Windows") || strings.Contains(msg, "lack of UNIX socket support") {
+		return "Run 'gitmap fix-credential' (alias: fc) to repair Windows git credential store"
+	}
 	return fmt.Sprintf("Inspect repository: run 'git -C %s status'", repoName)
 }

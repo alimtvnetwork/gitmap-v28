@@ -15,3 +15,10 @@ type DirtyRepoSummary struct {
 	RepoPath  string
 	Diagnosis gitutil.DirtyDiagnosis
 }
+
+// CPARRunState captures the outcome of a batch CPAR run.
+type CPARRunState struct {
+	HasFailures  bool
+	SuccessCount int
+	FailureCount int
+}
