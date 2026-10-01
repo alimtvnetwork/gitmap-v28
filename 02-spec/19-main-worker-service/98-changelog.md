@@ -1,3 +1,9 @@
+## v6.438.0 — 2026-10-01 (Implement GitMap PAS Formula, Ignore Grouping Suite, CPAR, and Split-DB Repo Cache)
+
+**Scope:** Version bump. Implement GitMap PAS Formula, Ignore Grouping Suite, CPAR, and Split-DB Repo Cache.
+
+---
+
 ## v6.437.0 — 2026-10-01 (Implement GitMap PAS Fix, Repo Cache, and Credential helper fix)
 
 **Scope:** Version bump. Implement GitMap PAS Fix, Repo Cache, and Credential helper fix.
