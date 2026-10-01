@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-10-01T15:35:00Z, Memory write: Plan 60 completed with all 7 subtasks verified, CPAR suite, Split-DB cache engine, and ignore grouping suite.
 - 2026-10-01T15:30:00Z, Memory write: Spec 201, Plan 64 (completed), Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation.
 - 2026-10-01T14:45:00Z, Memory write: Spec 200, Command 13, Flat Git Commit Workflow (`gitmap commit`, `gitmap cm`), Auto-Staging, `--push` and `--dry-run` Flags, and Test Suite Validation.
 - 2026-10-01T14:10:00Z, Memory write: Spec 199, Plan 62 (completed), Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence.
