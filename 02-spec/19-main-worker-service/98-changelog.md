@@ -1,3 +1,9 @@
+## v6.448.0 — 2026-10-01 (Pull concurrency throttling, split-db ignore cache, deadlock prevention, and task manager synchronization)
+
+**Scope:** Version bump. Pull concurrency throttling, split-db ignore cache, deadlock prevention, and task manager synchronization.
+
+---
+
 ## v6.447.1 — 2026-10-01 (Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines)
 
 **Scope:** Version bump. Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines.

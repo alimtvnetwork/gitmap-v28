@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.448.0] - 2026-10-01
+
+### Added
+- Pull concurrency throttling, split-db ignore cache, deadlock prevention, and task manager synchronization
+
+---
+
 ## [v6.447.1] - 2026-10-01
 
 ### Added
