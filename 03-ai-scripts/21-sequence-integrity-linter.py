@@ -37,6 +37,7 @@ AUDIT_DIRS = (
 # Directories/files explicitly exempt (e.g., historical archives and migration transaction logs)
 EXEMPT_PATHS = {
     ".ai-memory/memory/transactions/spec-migration-transaction-log.md",
+    ".ai-memory/plans/scripts_fixer_catalog_audit.md",
 }
 
 EXEMPT_DIR_PARTS = {
