@@ -37,15 +37,22 @@
 - [60-gitmap-pas-command-fix.md](completed/60-gitmap-pas-command-fix.md) — GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite & Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [181](../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md))
 - [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) — PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry (Spec: [198](../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md))
 - [62-devtools-cache-discovery-tree-and-split-db.md](completed/62-devtools-cache-discovery-tree-and-split-db.md) — Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Spec: [199](../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md))
+- [63-semantic-flat-commit-suite.md](completed/63-semantic-flat-commit-suite.md) — Semantic Flat Commit Suite & Auto-Stage Command (Spec: [200](../../02-spec/21-app/200-semantic-flat-commit-and-auto-stage-command.md))
 
 - [197-pas-fix.md](completed/197-pas-fix.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
 
 ## Pending Plans
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
-- [60-gitmap-pas-command-fix.md](pending/60-gitmap-pas-command-fix.md) — GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite & Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [181](../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md))
 
 ## Subtasks Directory
+
+### Plan 63 Subtasks (subtasks/63-semantic-flat-commit-suite/)
+- [01-commit-cmd-implementation-and-auto-stage.md](subtasks/63-semantic-flat-commit-suite/01-commit-cmd-implementation-and-auto-stage.md): Commit command implementation and auto-stage
+- [02-cli-routing-and-conflict-resolution.md](subtasks/63-semantic-flat-commit-suite/02-cli-routing-and-conflict-resolution.md): CLI routing and conflict resolution
+- [03-helptext-and-interactive-menu.md](subtasks/63-semantic-flat-commit-suite/03-helptext-and-interactive-menu.md): Helptext and interactive menu
+- [04-unit-tests-and-verification.md](subtasks/63-semantic-flat-commit-suite/04-unit-tests-and-verification.md): Unit tests and verification
+
 
 ### Plan 52 Subtasks (subtasks/)
 - [52.1-display-manager-settings-dm.md](subtasks/52.1-display-manager-settings-dm.md): Linux Display Manager session configuration
@@ -106,3 +113,9 @@
 - [02-split-db-cache-persistence.md](subtasks/62-devtools-cache-discovery-tree-and-split-db/02-split-db-cache-persistence.md): Split-DB Cache Persistence & Force Invalidation
 - [03-ansi-colored-tree-view-rendering.md](subtasks/62-devtools-cache-discovery-tree-and-split-db/03-ansi-colored-tree-view-rendering.md): ANSI Colored Rich Output & Interactive Tree View
 - [04-devtools-cli-flags-and-routing.md](subtasks/62-devtools-cache-discovery-tree-and-split-db/04-devtools-cli-flags-and-routing.md): Devtools CLI Flags Integration & Routing
+
+### Plan 63 Subtasks (subtasks/63-semantic-flat-commit-suite/)
+- [01-commit-cmd-implementation-and-auto-stage.md](subtasks/63-semantic-flat-commit-suite/01-commit-cmd-implementation-and-auto-stage.md): Implementation of `commit_cmd.go` with auto-staging, dry-run, and push flags
+- [02-cli-routing-and-conflict-resolution.md](subtasks/63-semantic-flat-commit-suite/02-cli-routing-and-conflict-resolution.md): Elimination of shadow routing in `rootcore.go` and removal of `commit_cli.go`
+- [03-helptext-and-interactive-menu.md](subtasks/63-semantic-flat-commit-suite/03-helptext-and-interactive-menu.md): Authoring help documentation `cli/helptext/commit.md` and `commit_help_menu.go`
+- [04-unit-tests-and-verification.md](subtasks/63-semantic-flat-commit-suite/04-unit-tests-and-verification.md): Unit test suite `commit_cmd_test.go` and binary synchronization

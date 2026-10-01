@@ -107,6 +107,8 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 181: GitMap Ignore and Cache Engine Architecture](./181-gitmap-ignore-and-cache-engine/01-overview.md)
 - [Spec 198: PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry](./198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
 - [Spec 199: Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence](./199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md)
+- [Spec 200: Semantic Flat Commit & Auto-Stage Command (`gitmap commit`, `cm`, `commit-all`, `ca`) & Macro Execution Resilience](./200-semantic-flat-commit-and-auto-stage-command.md)
+
 
 ---
 

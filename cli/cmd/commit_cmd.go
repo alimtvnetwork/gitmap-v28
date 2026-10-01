@@ -1,3 +1,4 @@
+// Package cmd provides CLI commands and execution dispatchers for gitmap.
 package cmd
 
 import (
@@ -52,13 +53,19 @@ func executeCommit(args []string, hasPush bool) error {
 	if err := dispatchGitCommit(args); err != nil {
 		return apperror.WrapSimple(err, "git commit failed:")
 	}
-	if hasPush {
-		printPaddedInfo("Pushing to remote...")
-		if err := execGitInheritCP("push"); err != nil {
-			return apperror.WrapSimple(err, "git push failed:")
-		}
+	return handleOptionalPush(hasPush)
+}
+
+func handleOptionalPush(hasPush bool) error {
+	if !hasPush {
+		printPaddedSuccess("Changes committed successfully.")
+		return nil
 	}
-	printPaddedSuccess("Changes committed successfully.")
+	printPaddedInfo("Pushing to remote...")
+	if err := execGitInheritCP("push"); err != nil {
+		return apperror.WrapSimple(err, "git push failed:")
+	}
+	printPaddedSuccess("Changes committed and pushed successfully.")
 	return nil
 }
 

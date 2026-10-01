@@ -54,10 +54,23 @@ func DiscoverDevToolCaches(opts DevCleanOptions) []DiscoveredCachePath {
 	sdb, err := store.OpenDevtoolsCacheSplitDB()
 	if err != nil || sdb == nil {
 		disc := DiscoverAllDevCaches(DevDiscoveryOptions{TargetEcosystems: opts.OnlyCategories, HasForceRescan: true, IsVerbose: opts.IsVerbose})
-		return disc.Paths
+		return filterByOnlyCategories(disc.Paths, opts.OnlyCategories)
 	}
 	defer sdb.Close()
-	return resolveCacheFromSplitDB(sdb, opts)
+	return filterByOnlyCategories(resolveCacheFromSplitDB(sdb, opts), opts.OnlyCategories)
+}
+
+func filterByOnlyCategories(paths []DiscoveredCachePath, only []string) []DiscoveredCachePath {
+	if len(only) == 0 {
+		return paths
+	}
+	var filtered []DiscoveredCachePath
+	for _, p := range paths {
+		if containsEcosystem(only, getPathEcosystemKey(p)) {
+			filtered = append(filtered, p)
+		}
+	}
+	return filtered
 }
 
 func resolveCacheFromSplitDB(sdb *store.DevtoolsCacheSplitDB, opts DevCleanOptions) []DiscoveredCachePath {

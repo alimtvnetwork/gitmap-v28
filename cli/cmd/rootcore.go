@@ -110,7 +110,7 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{"ses", "see-errors-ssh"}, func() error { return cmdsee.RunSeeErrorsSSH(argsTail()) }},
 		{[]string{"repo-manage", "repo-manage-ui"}, func() error { return cmdsee.RunRepoManageUI() }},
 		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return runStatus(argsTail()) }},
-		{[]string{"commit", "cm"}, func() error { return runCommitCLI(argsTail()) }},
+		{[]string{constants.CmdCommit, constants.CmdCommitAlias, constants.CmdCommitAlias2, constants.CmdCommitAlias3}, func() error { return runCommit(argsTail()) }},
 		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},
 		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return runExec(argsTail()) }},
 	}

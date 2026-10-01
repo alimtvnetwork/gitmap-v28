@@ -56,3 +56,5 @@
 - [181-gitmap-ignore-and-cache-engine](181-gitmap-ignore-and-cache-engine/01-overview.md) — GitMap Ignore and Cache Engine Architecture (Status: `active`)
 - [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) — PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry (Status: `active`)
 - [199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md) — Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Status: `active`)
+- [200-semantic-flat-commit-and-auto-stage-command.md](200-semantic-flat-commit-and-auto-stage-command.md) — Semantic Flat Commit & Auto-Stage Command (`gitmap commit`, `cm`, `commit-all`, `ca`) and Macro Execution Resilience (Status: `active`)
+
