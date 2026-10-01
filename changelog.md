@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.445.0] - 2026-10-01
+
+### Added
+- Implement GitMap PAS Worker Concurrency, Pull-Error Subsystem, Heartbeat Progress, and Wincredman Remediation
+
+---
+
 ## [v6.444.0] - 2026-10-01
 
 ### Added

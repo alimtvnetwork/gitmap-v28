@@ -1,3 +1,9 @@
+## v6.445.0 — 2026-10-01 (Implement GitMap PAS Worker Concurrency, Pull-Error Subsystem, Heartbeat Progress, and Wincredman Remediation)
+
+**Scope:** Version bump. Implement GitMap PAS Worker Concurrency, Pull-Error Subsystem, Heartbeat Progress, and Wincredman Remediation.
+
+---
+
 ## v6.444.0 — 2026-10-01 (Release v6.444.0)
 
 **Scope:** Version bump. Release v6.444.0.
