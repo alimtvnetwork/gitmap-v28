@@ -94,8 +94,19 @@ func completePendingTask(db *store.DB, taskID int64) {
 
 	err := activeDB.CompleteTask(taskID)
 	if err != nil {
+		if isIgnorablePendingTaskError(err) {
+			return
+		}
 		fmt.Fprintf(os.Stderr, constants.WarnPendingCompleteFail, taskID, err)
 	}
+}
+
+func isIgnorablePendingTaskError(err error) bool {
+	if err == nil {
+		return true
+	}
+	errStr := strings.ToLower(err.Error())
+	return strings.Contains(errStr, "no rows in result set") || strings.Contains(errStr, "not found")
 }
 
 func failPendingTask(db *store.DB, taskID int64, reason string) {

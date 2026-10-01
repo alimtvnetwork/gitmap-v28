@@ -3,7 +3,10 @@ package store
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -109,6 +112,9 @@ func (db *DB) CompleteTask(taskID int64) error {
 func executeCompleteTaskTx(ctx context.Context, tx *dbengine.TxWrapper, taskID int64) *apperror.AppError {
 	task, appErr := findPendingTaskInTx(ctx, tx, taskID)
 	if appErr != nil {
+		if isPendingTaskAlreadyCompleted(ctx, tx, taskID, appErr) {
+			return nil
+		}
 		return appErr
 	}
 
@@ -117,6 +123,22 @@ func executeCompleteTaskTx(ctx context.Context, tx *dbengine.TxWrapper, taskID i
 	}
 
 	return deletePendingTaskInTx(ctx, tx, taskID)
+}
+
+func isPendingTaskAlreadyCompleted(ctx context.Context, tx *dbengine.TxWrapper, taskID int64, appErr *apperror.AppError) bool {
+	if appErr == nil {
+		return false
+	}
+	isNoRows := errors.Is(appErr.Unwrap(), sql.ErrNoRows) || strings.Contains(appErr.Error(), "no rows in result set")
+	if !isNoRows {
+		return false
+	}
+	row, qErr := tx.QueryRow(ctx, "SELECT 1 FROM CompletedTask WHERE OriginalTaskId = ? LIMIT 1", taskID)
+	if qErr != nil {
+		return false
+	}
+	var dummy int
+	return row.Scan(&dummy) == nil
 }
 
 func insertCompletedTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, task model.PendingTaskRecord) *apperror.AppError {

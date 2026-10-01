@@ -129,6 +129,9 @@ func formatPathError(path, operation string, err error) string {
 func completeTaskWithLog(db *store.DB, taskID int64) {
 	err := db.CompleteTask(taskID)
 	if err != nil {
+		if isIgnorablePendingTaskError(err) {
+			return
+		}
 		fmt.Fprintf(os.Stderr, constants.WarnPendingCompleteFail, taskID, err)
 	}
 }
