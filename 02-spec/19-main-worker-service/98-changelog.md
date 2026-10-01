@@ -1,3 +1,9 @@
+## v6.444.0 — 2026-10-01 (Release v6.444.0)
+
+**Scope:** Version bump. Release v6.444.0.
+
+---
+
 ## v6.443.0 — 2026-10-01 (Restore plan 60 full verbatim specs and expand safe-rm aliases)
 
 **Scope:** Version bump. Restore plan 60 full verbatim specs and expand safe-rm aliases.
