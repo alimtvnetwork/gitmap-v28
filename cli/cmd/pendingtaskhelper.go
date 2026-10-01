@@ -93,12 +93,11 @@ func completePendingTask(db *store.DB, taskID int64) {
 	defer cleanup()
 
 	err := activeDB.CompleteTask(taskID)
-	if err != nil {
-		if isIgnorablePendingTaskError(err) {
-			return
-		}
-		fmt.Fprintf(os.Stderr, constants.WarnPendingCompleteFail, taskID, err)
+	if isIgnorablePendingTaskError(err) {
+		return
 	}
+
+	fmt.Fprintf(os.Stderr, constants.WarnPendingCompleteFail, taskID, err)
 }
 
 func isIgnorablePendingTaskError(err error) bool {

@@ -252,11 +252,12 @@ func startActiveBatchHeartbeat(bar *PullProgressBar, isJSON bool) func() {
 }
 
 func launchThrottledActiveIgnoreScan(records []model.ScanRecord) *IgnoreScanHandle {
-	cold, err := store.FilterReposNeedingIgnoreCheck(records, 24*time.Hour)
+	ttl := resolvePullIgnoreTTL()
+	cold, err := store.FilterReposNeedingIgnoreCheck(records, ttl)
 	if err != nil || len(cold) == 0 {
 		return nil
 	}
-	return StartThrottledAsyncIgnoreScan(cold, 24*time.Hour)
+	return StartThrottledAsyncIgnoreScan(cold, ttl)
 }
 
 func handleEfficientBatchFinish(total int, bar *PullProgressBar, part EfficientPullPartition, all []model.ScanRecord, opts EfficientPullOptions, dur time.Duration) error {

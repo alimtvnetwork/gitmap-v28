@@ -18,6 +18,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
@@ -588,7 +589,16 @@ type IgnoreScanHandle struct {
 }
 
 func startAsyncIgnoreScan(records []model.ScanRecord) *IgnoreScanHandle {
-	return StartThrottledAsyncIgnoreScan(records, 24*time.Hour)
+	return StartThrottledAsyncIgnoreScan(records, resolvePullIgnoreTTL())
+}
+
+func resolvePullIgnoreTTL() time.Duration {
+	s, err := store.OpenDefault()
+	if err != nil {
+		return 24 * time.Hour
+	}
+	defer s.Close()
+	return config.GetGitIgnoreTTL(s)
 }
 
 func (h *IgnoreScanHandle) Collect() []IgnoreRepoIssue {
@@ -758,7 +768,14 @@ func dispatchInteractiveIgnoreRemediation(issues []IgnoreRepoIssue) {
 		remediateSingleRepoInteractive(issues)
 		return
 	}
+	markIssuesSkipped(issues)
 	fmt.Printf("  %s↷ Skipped ignore resolution.%s\n\n", constants.ColorDim, constants.ColorReset)
+}
+
+func markIssuesSkipped(issues []IgnoreRepoIssue) {
+	for _, issue := range issues {
+		_ = store.RecordIgnoreCheckResult(issue.RepoPath, issue.RepoName, "skipped", 0, 0)
+	}
 }
 
 func promptIgnoreRemediationChoice() string {
@@ -785,6 +802,7 @@ func remediateSingleRepoInteractive(issues []IgnoreRepoIssue) {
 	remediatedCount := 0
 	for _, issue := range issues {
 		if !promptSingleRepoRemediation(reader, issue.RepoName) {
+			_ = store.RecordIgnoreCheckResult(issue.RepoPath, issue.RepoName, "skipped", 0, 0)
 			continue
 		}
 		if remediateSingleRepoIgnore(issue) {
@@ -823,6 +841,7 @@ func remediateSingleRepoIgnore(issue IgnoreRepoIssue) bool {
 	if wasUntracked || wasSanitized {
 		fmt.Printf("  %s✓%s [%s] Resolved ignore issues and sanitized .gitignore\n",
 			constants.ColorGreen, constants.ColorReset, issue.RepoName)
+		_ = store.RecordIgnoreCheckResult(issue.RepoPath, issue.RepoName, "clean", 1, 0)
 		return true
 	}
 	return false

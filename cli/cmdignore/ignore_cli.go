@@ -265,8 +265,14 @@ func filterRemovedLines(content string, removeSet map[string]bool) []string {
 }
 
 func runIgnoreScan(args []string) error {
+	hasForce := isForceArg(args)
 	records := resolveTargetRepos()
-	issues := scanReposForIgnoreIssues(records)
+	targets := resolveAuditRecords(records, hasForce)
+	if len(targets) == 0 {
+		printAllCachedCleanNotice(len(records))
+		return nil
+	}
+	issues := scanReposForIgnoreIssues(targets)
 	if len(issues) == 0 {
 		fmt.Printf("%s✓ No ignore issues found across %d repositories.%s\n",
 			constants.ColorGreen, len(records), constants.ColorReset)

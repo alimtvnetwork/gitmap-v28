@@ -111,10 +111,11 @@ func (db *DB) CompleteTask(taskID int64) error {
 
 func executeCompleteTaskTx(ctx context.Context, tx *dbengine.TxWrapper, taskID int64) *apperror.AppError {
 	task, appErr := findPendingTaskInTx(ctx, tx, taskID)
+	if isPendingTaskAlreadyCompleted(ctx, tx, taskID, appErr) {
+		return nil
+	}
+
 	if appErr != nil {
-		if isPendingTaskAlreadyCompleted(ctx, tx, taskID, appErr) {
-			return nil
-		}
 		return appErr
 	}
 

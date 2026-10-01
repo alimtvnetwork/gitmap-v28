@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -38,24 +39,61 @@ func RunFixIgnoreAll(args []string) *apperror.AppError {
 
 func executeFixIgnoreAllInternal(args []string) *apperror.AppError {
 	isAutoYes := isAutoYesArg(args)
+	hasForce := isForceArg(args)
 	records := resolveTargetRepos()
 	isZero := len(records) == 0
 	if isZero {
 		fmt.Println("No repositories found to inspect.")
 		return nil
 	}
-	return runFixIgnoreAllWithRecords(records, isAutoYes)
+	return runFixIgnoreAllWithRecords(records, isAutoYes, hasForce)
 }
 
-func runFixIgnoreAllWithRecords(records []model.ScanRecord, isAutoYes bool) *apperror.AppError {
-	issues := scanReposForIgnoreIssues(records)
-	isClean := len(issues) == 0
-	if isClean {
-		fmt.Printf("%s✓ All %d repository .gitignore files are clean and synchronized.%s\n",
-			constants.ColorGreen, len(records), constants.ColorReset)
+func runFixIgnoreAllWithRecords(records []model.ScanRecord, isAutoYes, hasForce bool) *apperror.AppError {
+	targetRecords := resolveAuditRecords(records, hasForce)
+	if len(targetRecords) == 0 {
+		printAllCachedCleanNotice(len(records))
+		return nil
+	}
+	issues := scanReposForIgnoreIssues(targetRecords)
+	if len(issues) == 0 {
+		printAllSynchronizedNotice(len(records))
 		return nil
 	}
 	return proceedWithIssues(issues, isAutoYes)
+}
+
+func resolveAuditRecords(records []model.ScanRecord, hasForce bool) []model.ScanRecord {
+	if hasForce {
+		return records
+	}
+	ttl := resolveIgnoreAuditTTL()
+	cold, err := FilterReposNeedingCheck(records, ttl)
+	if err != nil {
+		return records
+	}
+	return cold
+}
+
+func resolveIgnoreAuditTTL() time.Duration {
+	s, err := store.OpenDefault()
+	if err != nil {
+		return 24 * time.Hour
+	}
+	defer s.Close()
+	return config.GetGitIgnoreTTL(s)
+}
+
+func printAllCachedCleanNotice(total int) {
+	fmt.Printf("%s✓ All %d repository .gitignore files are clean and synchronized (cached).%s\n",
+		constants.ColorGreen, total, constants.ColorReset)
+	fmt.Printf("  %s(Audit cached within TTL. Pass '--force' / '-f' to re-verify all repositories.)%s\n",
+		constants.ColorDim, constants.ColorReset)
+}
+
+func printAllSynchronizedNotice(total int) {
+	fmt.Printf("%s✓ All %d repository .gitignore files are clean and synchronized.%s\n",
+		constants.ColorGreen, total, constants.ColorReset)
 }
 
 func proceedWithIssues(issues []IgnoreScanIssue, isAutoYes bool) *apperror.AppError {
@@ -84,6 +122,9 @@ func handleFixChoice(choice string, issues []IgnoreScanIssue) *apperror.AppError
 			constants.ColorGreen, fixedCount, constants.ColorReset)
 		return nil
 	default:
+		for _, issue := range issues {
+			_ = RecordRepoCheckResult(issue.RepoPath, issue.RepoName, "skipped", 0, 0)
+		}
 		fmt.Println("Aborted by user.")
 		return nil
 	}
@@ -132,6 +173,7 @@ func remediateSingleRepoSessions(issues []IgnoreScanIssue) int {
 		}
 		isSkip := trimmed == "n" || trimmed == "no"
 		if isSkip {
+			_ = RecordRepoCheckResult(issue.RepoPath, issue.RepoName, "skipped", 0, 0)
 			fmt.Printf("Skipped %s.\n", issue.RepoName)
 			continue
 		}
@@ -201,6 +243,26 @@ func isYesFlagString(a string) bool {
 	return isDashYes
 }
 
+func isForceArg(args []string) bool {
+	for _, a := range args {
+		isForce := isForceFlagString(a)
+		if isForce {
+			return true
+		}
+	}
+	return false
+}
+
+func isForceFlagString(a string) bool {
+	low := strings.ToLower(a)
+	isDashF := low == "-f"
+	isDashForce := low == "--force"
+	if isDashF {
+		return true
+	}
+	return isDashForce
+}
+
 func resolveTargetRepos() []model.ScanRecord {
 	s, err := store.OpenDefault()
 	hasErr := err != nil
@@ -268,18 +330,29 @@ func isIssueDetected(issue IgnoreScanIssue) bool {
 }
 
 func inspectSingleRepo(repoDir, repoName string) IgnoreScanIssue {
+	start := time.Now()
 	issue := IgnoreScanIssue{RepoPath: repoDir, RepoName: repoName}
 	trackedFiles := findTrackedIgnoredFiles(repoDir)
 	issue.TrackedResume = trackedFiles
 	issue.HasResumeTask = len(trackedFiles) > 0
 	ignorePath := filepath.Join(repoDir, ".gitignore")
 	data, err := os.ReadFile(ignorePath)
-	hasErr := err != nil
-	if hasErr {
+	if err != nil {
 		issue.MissingGitmapDir = true
+		recordInspectedCache(repoDir, repoName, true, time.Since(start))
 		return issue
 	}
-	return analyzeGitignoreData(issue, repoDir, string(data))
+	analyzed := analyzeGitignoreData(issue, repoDir, string(data))
+	recordInspectedCache(repoDir, repoName, isIssueDetected(analyzed), time.Since(start))
+	return analyzed
+}
+
+func recordInspectedCache(repoDir, repoName string, hasIssue bool, dur time.Duration) {
+	status := "clean"
+	if hasIssue {
+		status = "has_issues"
+	}
+	_ = RecordRepoCheckResult(repoDir, repoName, status, 0, dur)
 }
 
 func analyzeGitignoreData(issue IgnoreScanIssue, repoDir, data string) IgnoreScanIssue {
@@ -382,11 +455,26 @@ func remediateSingleRepo(issue IgnoreScanIssue) bool {
 	}
 	ignorePath := filepath.Join(issue.RepoPath, ".gitignore")
 	data, err := os.ReadFile(ignorePath)
-	hasErr := err != nil
-	if hasErr {
-		return writeDefaultGitignore(issue.RepoPath, ignorePath)
+	if err != nil {
+		return handleRemediateDefault(issue.RepoPath, issue.RepoName, ignorePath)
 	}
-	return sanitizeAndCommitRepo(issue.RepoPath, ignorePath, string(data))
+	return handleRemediateSanitize(issue.RepoPath, issue.RepoName, ignorePath, string(data))
+}
+
+func handleRemediateDefault(repoPath, repoName, ignorePath string) bool {
+	isFixed := writeDefaultGitignore(repoPath, ignorePath)
+	if isFixed {
+		_ = RecordRepoCheckResult(repoPath, repoName, "clean", 1, 0)
+	}
+	return isFixed
+}
+
+func handleRemediateSanitize(repoPath, repoName, ignorePath, data string) bool {
+	isFixed := sanitizeAndCommitRepo(repoPath, ignorePath, data)
+	if isFixed {
+		_ = RecordRepoCheckResult(repoPath, repoName, "clean", 1, 0)
+	}
+	return isFixed
 }
 
 func untrackCachedFiles(repoDir string, files []string) {

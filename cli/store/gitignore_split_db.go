@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -31,7 +32,7 @@ type GitIgnoreSplitDB struct {
 const sqlCreateGitIgnoreTable = `
 CREATE TABLE IF NOT EXISTS gitignore_repo_cache (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    repo_path TEXT NOT NULL UNIQUE,
+    repo_path TEXT NOT NULL UNIQUE COLLATE NOCASE,
     repo_slug TEXT NOT NULL,
     last_checked_at INTEGER NOT NULL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'clean',
@@ -39,7 +40,7 @@ CREATE TABLE IF NOT EXISTS gitignore_repo_cache (
     duration_ms INTEGER NOT NULL DEFAULT 0,
     is_active INTEGER NOT NULL DEFAULT 1
 );
-CREATE UNIQUE INDEX IF NOT EXISTS idx_gitignore_cache_repo_path ON gitignore_repo_cache(repo_path);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_gitignore_cache_repo_path ON gitignore_repo_cache(repo_path COLLATE NOCASE);
 CREATE INDEX IF NOT EXISTS idx_gitignore_cache_last_checked ON gitignore_repo_cache(last_checked_at);
 CREATE INDEX IF NOT EXISTS idx_gitignore_cache_is_active ON gitignore_repo_cache(is_active);
 `
@@ -47,7 +48,7 @@ CREATE INDEX IF NOT EXISTS idx_gitignore_cache_is_active ON gitignore_repo_cache
 const sqlSelectLastIgnoreCheck = `
 SELECT id, repo_path, repo_slug, last_checked_at, status, remediated_count, duration_ms, is_active
 FROM gitignore_repo_cache
-WHERE repo_path = ? AND is_active = 1
+WHERE repo_path = ? COLLATE NOCASE AND is_active = 1
 LIMIT 1;
 `
 
@@ -70,9 +71,15 @@ FROM gitignore_repo_cache
 ORDER BY last_checked_at DESC;
 `
 
+// ResolveGitIgnoreSplitDbPath returns the canonical path to the gitignore cache SQLite database.
+func ResolveGitIgnoreSplitDbPath() string {
+	return filepath.ToSlash(filepath.Join(BinaryDataDir(), "gitignore", "cache", DbFileName))
+}
+
 // OpenGitIgnoreSplitDB opens or creates the isolated SQLite DB for gitignore caching.
 func OpenGitIgnoreSplitDB() (*GitIgnoreSplitDB, error) {
-	dbPath := ResolveSplitDbPath("gitignore", "cache", "")
+	dbPath := ResolveGitIgnoreSplitDbPath()
+	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
 	conn, appErr := OpenSQLiteDB(dbPath)
 	if appErr != nil {
 		return nil, appErr
@@ -144,7 +151,7 @@ func (s *GitIgnoreSplitDB) RecordIgnoreCheck(record GitIgnoreRecord) error {
 	return nil
 }
 
-// IsCheckRecent reports whether an active check exists within the TTL duration.
+// IsCheckRecent reports whether an active check exists within the TTL duration and is clean or skipped.
 func (s *GitIgnoreSplitDB) IsCheckRecent(repoPath string, ttl time.Duration) bool {
 	if ttl <= 0 {
 		return false
@@ -154,7 +161,10 @@ func (s *GitIgnoreSplitDB) IsCheckRecent(repoPath string, ttl time.Duration) boo
 		return false
 	}
 	elapsed := time.Since(time.Unix(record.LastCheckedAt, 0))
-	return elapsed < ttl
+	if elapsed >= ttl {
+		return false
+	}
+	return record.Status == "clean" || record.Status == "skipped"
 }
 
 // InvalidateCache marks a single repository's cache record as inactive.
@@ -163,7 +173,7 @@ func (s *GitIgnoreSplitDB) InvalidateCache(repoPath string) error {
 		return apperror.NewSimple("split db connection is nil", "E1020")
 	}
 	cleanPath := filepath.ToSlash(filepath.Clean(repoPath))
-	_, err := s.conn.Exec("UPDATE gitignore_repo_cache SET is_active = 0 WHERE repo_path = ?", cleanPath)
+	_, err := s.conn.Exec("UPDATE gitignore_repo_cache SET is_active = 0 WHERE repo_path = ? COLLATE NOCASE", cleanPath)
 	if err != nil {
 		return apperror.WrapSimple(err, "invalidate cache for "+cleanPath)
 	}

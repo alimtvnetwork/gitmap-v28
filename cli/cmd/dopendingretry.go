@@ -128,12 +128,11 @@ func formatPathError(path, operation string, err error) string {
 // completeTaskWithLog marks a task complete and logs any transactional failure.
 func completeTaskWithLog(db *store.DB, taskID int64) {
 	err := db.CompleteTask(taskID)
-	if err != nil {
-		if isIgnorablePendingTaskError(err) {
-			return
-		}
-		fmt.Fprintf(os.Stderr, constants.WarnPendingCompleteFail, taskID, err)
+	if isIgnorablePendingTaskError(err) {
+		return
 	}
+
+	fmt.Fprintf(os.Stderr, constants.WarnPendingCompleteFail, taskID, err)
 }
 
 func failTaskAndLog(db *store.DB, taskID int64, reason string) {

@@ -170,14 +170,18 @@ func formatFrequencyLabel(interval string) string {
 	if err != nil || dur == 0 {
 		return interval
 	}
+
 	days := dur / (24 * time.Hour)
-	if days >= 1 && dur%(24*time.Hour) == 0 {
-		if days == 1 {
-			return fmt.Sprintf("%s (1 day)", interval)
-		}
-		return fmt.Sprintf("%s (%d days)", interval, days)
+	hasExactDays := days >= 1 && dur%(24*time.Hour) == 0
+	if !hasExactDays {
+		return interval
 	}
-	return interval
+
+	if days == 1 {
+		return fmt.Sprintf("%s (1 day)", interval)
+	}
+
+	return fmt.Sprintf("%s (%d days)", interval, days)
 }
 
 func printConfigExamples() {
