@@ -45,14 +45,49 @@
 
 ## Subtasks Directory
 
-### Plan 52 Subtasks (`subtasks/`)
+### Plan 52 Subtasks (subtasks/)
 - [52.1-display-manager-settings-dm.md](subtasks/52.1-display-manager-settings-dm.md): Linux Display Manager session configuration
 - [52.2-windows-privacy-and-theme-tweaks.md](subtasks/52.2-windows-privacy-and-theme-tweaks.md): Windows privacy, telemetry, and dark/light theme tweaks
 - [52.3-native-dns-switcher.md](subtasks/52.3-native-dns-switcher.md): Native secure DNS switcher and benchmarks
 - [52.4-universal-system-updater.md](subtasks/52.4-universal-system-updater.md): Universal multi-distro system and package updater
 - [52.5-interactive-bubbletea-os-tui.md](subtasks/52.5-interactive-bubbletea-os-tui.md): Interactive Bubbletea OS TUI dashboard
 
+### Plan 54 Subtasks (subtasks/54-vmware-macro-audit-task-and-installer-chain/)
+- [01-macro-safe-rm-and-editor-fix.md](subtasks/54-vmware-macro-audit-task-and-installer-chain/01-macro-safe-rm-and-editor-fix.md): Macro safe removal and editor UX
+- [02-macro-export-import-and-deploy.md](subtasks/54-vmware-macro-audit-task-and-installer-chain/02-macro-export-import-and-deploy.md): Macro export, import, and deploy
+- [03-audit-task-logging-and-tui-viewer.md](subtasks/54-vmware-macro-audit-task-and-installer-chain/03-audit-task-logging-and-tui-viewer.md): Audit task logging and TUI viewer
+- [04-modular-installer-and-subinstaller-chain.md](subtasks/54-vmware-macro-audit-task-and-installer-chain/04-modular-installer-and-subinstaller-chain.md): Modular installer and subinstaller chain
+- [05-vmware-powershell-automation-script.md](subtasks/54-vmware-macro-audit-task-and-installer-chain/05-vmware-powershell-automation-script.md): VMware PowerShell automation script
+- [06-future-roadmap-and-specs-consolidation.md](subtasks/54-vmware-macro-audit-task-and-installer-chain/06-future-roadmap-and-specs-consolidation.md): Future roadmap and specs consolidation
 
+### Plan 56 Subtasks (subtasks/56-vmware-hardware-batch-and-macro-orchestration/)
+- [01-vmware-disk-management-and-expansion.md](subtasks/56-vmware-hardware-batch-and-macro-orchestration/01-vmware-disk-management-and-expansion.md): VMware disk management and expansion
+- [02-vmware-ram-and-cpu-hotplug-tuning.md](subtasks/56-vmware-hardware-batch-and-macro-orchestration/02-vmware-ram-and-cpu-hotplug-tuning.md): VMware RAM and CPU hotplug tuning
+- [03-vmware-multi-vm-batch-operations.md](subtasks/56-vmware-hardware-batch-and-macro-orchestration/03-vmware-multi-vm-batch-operations.md): VMware multi-VM batch operations
+- [04-gitmap-vm-macro-command-subsystem.md](subtasks/56-vmware-hardware-batch-and-macro-orchestration/04-gitmap-vm-macro-command-subsystem.md): GitMap VM macro command subsystem
+- [05-vmware-settings-terminal-tui.md](subtasks/56-vmware-hardware-batch-and-macro-orchestration/05-vmware-settings-terminal-tui.md): VMware settings terminal TUI
+- [06-e2e-verification-and-acceptance.md](subtasks/56-vmware-hardware-batch-and-macro-orchestration/06-e2e-verification-and-acceptance.md): E2E verification and acceptance
 
+### Plan 60 Subtasks (subtasks/60-gitmap-pas-command-fix/)
+- [01-pull-all-optimization.md](subtasks/60-gitmap-pas-command-fix/01-pull-all-optimization.md): Decoupled asynchronous pull & PAS formula engine
+- [02-fix-ignore-all.md](subtasks/60-gitmap-pas-command-fix/02-fix-ignore-all.md): Fleet-wide ignore repair suite (ia / ias)
+- [03-commit-push-all.md](subtasks/60-gitmap-pas-command-fix/03-commit-push-all.md): Commit & push all repositories suite (cpar)
+- [04-ignore-engine.md](subtasks/60-gitmap-pas-command-fix/04-ignore-engine.md): GitMap ignore engine & hierarchical group management
+- [05-cache-engine.md](subtasks/60-gitmap-pas-command-fix/05-cache-engine.md): Split-DB repository cache & accelerated search engine
+- [06-see-commands.md](subtasks/60-gitmap-pas-command-fix/06-see-commands.md): Unified inspection and remote telemetry (gitmap see / gitmap ses)
+- [07-fix-screenshot-bug.md](subtasks/60-gitmap-pas-command-fix/07-fix-screenshot-bug.md): Pull remediation hints & untracked prompt fix
 
+### Plan 181 Subtasks (subtasks/181-gitmap-ignore-and-cache-engine/)
+- [01-pull-all-optimization.md](subtasks/181-gitmap-ignore-and-cache-engine/01-pull-all-optimization.md): Pull-all optimization
+- [02-fix-ignore-all.md](subtasks/181-gitmap-ignore-and-cache-engine/02-fix-ignore-all.md): Fix ignore all
+- [03-commit-push-all.md](subtasks/181-gitmap-ignore-and-cache-engine/03-commit-push-all.md): Commit push all
+- [04-ignore-engine.md](subtasks/181-gitmap-ignore-and-cache-engine/04-ignore-engine.md): Ignore engine
+- [05-cache-engine.md](subtasks/181-gitmap-ignore-and-cache-engine/05-cache-engine.md): Cache engine
+- [06-see-commands.md](subtasks/181-gitmap-ignore-and-cache-engine/06-see-commands.md): See commands
+- [07-fix-screenshot-bug.md](subtasks/181-gitmap-ignore-and-cache-engine/07-fix-screenshot-bug.md): Fix screenshot bug
 
+### Plan 201 Subtasks (subtasks/201-pas-formula-ignore-suite-cpar-and-cache/)
+- [01-windows-git-cache-credential-store-fix.md](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/01-windows-git-cache-credential-store-fix.md): Windows Git credential cache safety
+- [02-pull-first-and-gitignore-deduplication.md](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/02-pull-first-and-gitignore-deduplication.md): Pull first and gitignore deduplication
+- [03-ignore-management-suite-and-pas-formula.md](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/03-ignore-management-suite-and-pas-formula.md): Ignore management suite and PAS formula
+- [04-cpar-see-suite-and-split-db-cache.md](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/04-cpar-see-suite-and-split-db-cache.md): CPAR see suite and Split-DB cache

@@ -31,7 +31,11 @@ func isWindowsRemovalCmd(low string) bool {
 		strings.HasPrefix(low, "rmdir ") ||
 		strings.HasPrefix(low, "rmdir\t") ||
 		strings.HasPrefix(low, "remove-item ") ||
-		strings.HasPrefix(low, "rd ")
+		strings.HasPrefix(low, "rd ") ||
+		strings.HasPrefix(low, "del ") ||
+		strings.HasPrefix(low, "del\t") ||
+		strings.HasPrefix(low, "erase ") ||
+		strings.HasPrefix(low, "erase\t")
 }
 
 func transformToWindowsSafeRemoval(cmdText string) string {
@@ -47,7 +51,7 @@ func transformToWindowsSafeRemoval(cmdText string) string {
 
 	targetArray := strings.Join(targets, ", ")
 
-	return fmt.Sprintf("foreach ($__target in @(%s)) { if (Test-Path -LiteralPath $__target) { Remove-Item -Recurse -Force -LiteralPath $__target } }", targetArray)
+	return fmt.Sprintf("foreach ($__target in @(%s)) { if (Test-Path -LiteralPath $__target) { Remove-Item -Recurse -Force -LiteralPath $__target } elseif (Test-Path -Path $__target) { Remove-Item -Recurse -Force -Path $__target } }", targetArray)
 }
 
 func tokenizeCommandArgs(cmdText string) []string {

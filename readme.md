@@ -3467,9 +3467,9 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md](.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md) - Completed Plan 54.
 - [.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) - Completed Plan 57: Fleet nodes clone output alignment.
 - [.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md](.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) - Completed Plan 58: GitMap PAS formula, ignore management suite, CPAR, and Split-DB cache engine.
+- [.ai-memory/plans/completed/60-gitmap-pas-command-fix.md](.ai-memory/plans/completed/60-gitmap-pas-command-fix.md) - Completed Plan 60: GitMap PAS formula, ignore grouping engine, CPAR suite & split-DB repo cache.
+- [.ai-memory/plans/completed/197-pas-fix.md](.ai-memory/plans/completed/197-pas-fix.md) - Completed Plan 197: GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache.
 - [.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md](.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md) - Plan 56: VMware hardware customization, multi-VM batch operations, and macro orchestration.
-- [.ai-memory/plans/pending/59-gitmap-pas-fix-and-repo-cache.md](.ai-memory/plans/pending/59-gitmap-pas-fix-and-repo-cache.md) - Plan 59: GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache.
-- [.ai-memory/plans/pending/60-gitmap-pas-command-fix.md](.ai-memory/plans/pending/60-gitmap-pas-command-fix.md) - Plan 60: GitMap PAS formula, ignore grouping engine, CPAR suite & split-DB repo cache.
 - [02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md](02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md) - Spec 181: GitMap ignore and split-DB repo cache engine architecture.
 
 

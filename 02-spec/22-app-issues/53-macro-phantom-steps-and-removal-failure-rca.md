@@ -55,9 +55,15 @@ During interactive macro execution and editing in GitMap:
 ## 3. Resolution
 
 1. **Idempotent Removal Shim in Macro Step Execution:**
-   - In `cli/macro/execute.go`, when running on Windows PowerShell and encountering steps beginning with `rm `, `rmdir `, or `Remove-Item `, transform the command into an idempotent script:
+   - In `cli/macro/safe_rm.go` and `cli/macro/execute.go`, when running on Windows PowerShell and encountering steps beginning with `rm `, `rmdir `, `Remove-Item `, `rd `, `del `, or `erase `, transform the command into an idempotent script:
      ```powershell
-     if (Test-Path '<target>') { Remove-Item -Recurse -Force '<target>' }
+     foreach ($__target in @(<targets>)) {
+         if (Test-Path -LiteralPath $__target) {
+             Remove-Item -Recurse -Force -LiteralPath $__target
+         } elseif (Test-Path -Path $__target) {
+             Remove-Item -Recurse -Force -Path $__target
+         }
+     }
      ```
    - Provide a native `gitmap rm` / `safe-rm` command in `cli/cmd/` that safely removes files/directories and returns exit 0 if they already do not exist.
 2. **Interactive Macro Edit Recording Polish:**
