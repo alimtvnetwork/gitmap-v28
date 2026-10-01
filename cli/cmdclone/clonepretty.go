@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
 // Package-level dry-run + spinner state. Set by the top-level
@@ -88,12 +89,7 @@ func buildCloneCommandEnv(url string) []string {
 	if isSSHCloneURL(url) || isCloneAssumeYes.Load() {
 		base = cloneEnvWithSSHAcceptNew()
 	}
-	return append(base,
-		constants.EnvGitTerminalPromptZero,
-		constants.EnvGCMInteractiveNever,
-		"GCM_NO_PERSIST=1",
-		"GCM_CREDENTIAL_STORE=cache",
-	)
+	return gitutil.BuildSafeGitEnvWithBase(base)
 }
 
 func newCloneCommand(url, dest string) *exec.Cmd {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
@@ -112,6 +113,10 @@ func runFix(args []string, aliasOverride string) error {
 
 	if isFixAgyRequest(args) {
 		return cmdagy.RunPipelineFixAgyCLI(args)
+	}
+
+	if isFixIgnoreRequest(args) {
+		return runFixIgnoreDispatch(args)
 	}
 
 	if isFixLsRequest(args) {
@@ -280,3 +285,34 @@ func buildFixNotFoundError(items []RemediationItem, repoQuery string) error {
 
 	return apperror.New("fix", "E_NOT_FOUND", map[string]any{"msg": msg})
 }
+
+func isFixIgnoreRequest(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "ignore" || low == "ignores" || low == "gitignore" {
+			return true
+		}
+	}
+	return false
+}
+
+func runFixIgnoreDispatch(args []string) error {
+	hasSSH := false
+	var remaining []string
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "ignore" || low == "ignores" || low == "gitignore" || low == "all" {
+			continue
+		}
+		if low == "ssh" || low == "--ssh" {
+			hasSSH = true
+			continue
+		}
+		remaining = append(remaining, a)
+	}
+	if hasSSH {
+		return cmdignore.RunFixIgnoresAllSSH(remaining)
+	}
+	return cmdignore.RunFixIgnoreAll(remaining)
+}
+

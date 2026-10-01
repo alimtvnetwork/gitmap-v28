@@ -46,9 +46,11 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 	if len(records) == 0 {
 		return handleEmptyRecords(isJSON)
 	}
+
+	pullErr := processEfficientPullLifecycle(records, opts)
 	checkAgmResumeTaskEfficient(records, isJSON, args)
 
-	return processEfficientPullLifecycle(records, opts)
+	return pullErr
 }
 
 func checkAgmResumeTaskEfficient(records []model.ScanRecord, isJSON bool, args []string) {

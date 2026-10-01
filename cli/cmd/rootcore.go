@@ -4,7 +4,11 @@ import (
 	"context"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cluster"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcache"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcpar"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpurge"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsee"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
@@ -44,6 +48,10 @@ func coreBasicMaintenanceEntries() []dispatchEntry {
 		{[]string{"stash"}, func() error { return runFix(argsTail(), "stash") }},
 		{[]string{"wip"}, func() error { return runFix(argsTail(), "wip") }},
 		{[]string{"discard"}, func() error { return runFix(argsTail(), "discard") }},
+		{[]string{"fix-ignore-all", "fix-ignores-all", "fia"}, func() error { return cmdignore.RunFixIgnoreAll(argsTail()) }},
+		{[]string{"fix-ignores-all-ssh", "fix-ignore-all-ssh", "fias"}, func() error { return cmdignore.RunFixIgnoresAllSSH(argsTail()) }},
+		{[]string{"ignore", "ig"}, func() error { return cmdignore.RunIgnoreCLI(argsTail()) }},
+		{[]string{"cache"}, func() error { return cmdcache.RunCacheCLI(argsTail()) }},
 		{[]string{constants.CmdReconcile, constants.CmdReconcileAlias}, func() error { return RunReconcileCmd(argsTail()) }},
 		{[]string{
 			"vscode-optimize-projects", "vscode-optimize",
@@ -91,6 +99,10 @@ func coreBasicOpEntries() []dispatchEntry {
 			isShort := alias == constants.CmdPullAllEfficientTableAlias
 			return runPullAllEfficient(argsTail(), true, alias, isShort)
 		}},
+		{[]string{"pull-all-ssh", "pas"}, func() error { return runPullAll(append([]string{"--ssh"}, argsTail()...)) }},
+		{[]string{"commit-push-all-repos", "cpar"}, func() error { return cmdcpar.RunCPAR(argsTail()) }},
+		{[]string{"see"}, func() error { return cmdsee.RunSeeCLI(argsTail()) }},
+		{[]string{"repo-manage"}, func() error { return cmdsee.RunRepoManageUI() }},
 		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return runStatus(argsTail()) }},
 		{[]string{"commit", "cm"}, func() error { return runCommitCLI(argsTail()) }},
 		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},

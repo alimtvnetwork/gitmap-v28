@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 )
 
@@ -20,8 +21,14 @@ func dispatchGitSubcommand(subCmd string, subArgs []string) error {
 	if subCmd == "gitignore" || subCmd == "gitignore-agm" || subCmd == "agm" {
 		return gitignoreagm.RunCLI(subArgs)
 	}
+	if subCmd == "ignore" || subCmd == "ig" {
+		return cmdignore.RunIgnoreCLI(subArgs)
+	}
 	if subCmd == "pull" {
 		return runPull(subArgs)
+	}
+	if subCmd == "pull-all-ssh" || subCmd == "pas" {
+		return runPullAll(append([]string{"--ssh"}, subArgs...))
 	}
 	if isPullAllGitSubCmd(subCmd) {
 		return runPullAll(subArgs)

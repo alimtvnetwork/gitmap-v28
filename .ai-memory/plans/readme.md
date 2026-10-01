@@ -33,6 +33,7 @@
 - [52-winutil-linutil-advanced-os-integration-plan.md](completed/52-winutil-linutil-advanced-os-integration-plan.md) — Winutil/Linutil Advanced OS Integration Plan
 - [53-cicd-interface-naming-and-enum-suffix.md](completed/53-cicd-interface-naming-and-enum-suffix.md) — CI/CD Interface Naming and Enum Suffix
 - [57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Spec: [194](../../02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md))
+- [58-pas-formula-fix-ignores-cpar-and-repo-cache.md](completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) — GitMap PAS Formula, Windows Credential Store Fix, Ignore Management Suite, CPAR, and Cache Engine (Spec: [195](../../02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md))
 - xx-agy-enhancements.md (Completed)
 
 ## Pending Plans

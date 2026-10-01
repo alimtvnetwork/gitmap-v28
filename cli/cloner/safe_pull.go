@@ -14,6 +14,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -249,15 +250,7 @@ func buildFinalFailureResult(rec model.ScanRecord) model.CloneResult {
 }
 
 func buildSafePullEnv() []string {
-	return append(os.Environ(),
-		constants.EnvGitTerminalPromptZero,
-		constants.EnvGitAskpassEmpty,
-		constants.EnvSSHAskpassEmpty,
-		constants.EnvGitSSHCommandBatchYes,
-		constants.EnvGCMInteractiveNever,
-		"GCM_NO_PERSIST=1",
-		"GCM_CREDENTIAL_STORE=cache",
-	)
+	return gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
 }
 
 func runGitPullWithProgress(repoDir string, onProgress func(string)) (string, error) {

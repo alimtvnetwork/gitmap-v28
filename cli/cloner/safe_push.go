@@ -2,12 +2,12 @@ package cloner
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -79,14 +79,7 @@ func SafePushOne(rec model.ScanRecord, repoDir string) model.CloneResult {
 }
 
 func buildSafePushEnv() []string {
-	return append(os.Environ(),
-		constants.EnvGitTerminalPromptZero,
-		constants.EnvGitAskpassEmpty,
-		constants.EnvSSHAskpassEmpty,
-		constants.EnvGitSSHCommandBatchYes,
-		"GCM_NO_PERSIST=1",
-		"GCM_CREDENTIAL_STORE=cache",
-	)
+	return gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
 }
 
 func runGitPush(repoDir string) (string, error) {

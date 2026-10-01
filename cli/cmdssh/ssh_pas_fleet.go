@@ -1,0 +1,167 @@
+package cmdssh
+
+import (
+	"fmt"
+	"strings"
+	"sync"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+)
+
+// FleetPASOutcome captures command execution on a single local or remote node.
+type FleetPASOutcome struct {
+	NodeName  string
+	IP        string
+	IsLocal   bool
+	Success   bool
+	IsSkipped bool
+	Output    string
+	ErrorMsg  string
+}
+
+// RunFleetPASCommand executes a task following the GitMap PAS Formula.
+func RunFleetPASCommand(label, remoteCmd string, localFn func() error) error {
+	conns, _ := fetchAllSSHConnections()
+	probes := probeFleetLiveness(conns)
+	printFleetPASBanner(label, probes)
+
+	var online []db.SSHConnection
+	var skipped []FleetPASOutcome
+	for _, p := range probes {
+		if p.isOnline {
+			online = append(online, p.conn)
+			continue
+		}
+		skipped = append(skipped, FleetPASOutcome{
+			NodeName:  p.conn.Alias,
+			IP:        p.conn.IPAddress,
+			IsSkipped: true,
+			ErrorMsg:  "offline (skipped, no task enqueued)",
+		})
+	}
+
+	outcomes := dispatchPASFleetWork(online, remoteCmd, localFn)
+	outcomes = append(outcomes, skipped...)
+	renderPASFleetSummary(label, outcomes)
+	return nil
+}
+
+func printFleetPASBanner(label string, probes []fleetNodeLiveness) {
+	fmt.Printf("\n%s  Enqueuing '%s' across SSH fleet:%s\n", constants.ColorCyan, label, constants.ColorReset)
+	for _, p := range probes {
+		c := p.conn
+		if p.isOnline {
+			fmt.Printf("    • Remote Node [%s] (%s): %sOnline → Enqueued (async)%s\n",
+				c.Alias, c.IPAddress, constants.ColorGreen, constants.ColorReset)
+			continue
+		}
+		fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
+			c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
+	}
+	host := resolveLocalHostname()
+	fmt.Printf("    • Current Machine [%s (127.0.0.1)]: %sRunning locally (direct execution, not enqueued)%s\n\n",
+		host, constants.ColorGreen, constants.ColorReset)
+}
+
+func dispatchPASFleetWork(conns []db.SSHConnection, remoteCmd string, localFn func() error) []FleetPASOutcome {
+	total := len(conns) + 1
+	outcomes := make([]FleetPASOutcome, total)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		localErr := localFn()
+		errMsg := ""
+		if localErr != nil {
+			errMsg = localErr.Error()
+		}
+		outcomes[0] = FleetPASOutcome{
+			NodeName: "Local VM",
+			IP:       "127.0.0.1",
+			IsLocal:  true,
+			Success:  localErr == nil,
+			ErrorMsg: errMsg,
+		}
+	}()
+
+	for idx, c := range conns {
+		wg.Add(1)
+		slot := idx + 1
+		targetConn := c
+		go func() {
+			defer wg.Done()
+			outcomes[slot] = executeRemotePASCommand(targetConn, remoteCmd)
+		}()
+	}
+	wg.Wait()
+	return outcomes
+}
+
+func executeRemotePASCommand(c db.SSHConnection, remoteCmd string) FleetPASOutcome {
+	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
+	client, isConnected := connectSSHClient(c, header)
+	if !isConnected {
+		return FleetPASOutcome{
+			NodeName: c.Alias,
+			IP:       c.IPAddress,
+			Success:  false,
+			ErrorMsg: "connection or auth failed",
+		}
+	}
+	defer client.Close()
+
+	osType := resolveTargetNodeOS(client, c)
+	out, err := crypto.RunCommand(client, remoteCmd, resolveRemoteShell(osType))
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
+	}
+	return FleetPASOutcome{
+		NodeName: c.Alias,
+		IP:       c.IPAddress,
+		Success:  err == nil,
+		Output:   strings.TrimSpace(out),
+		ErrorMsg: errMsg,
+	}
+}
+
+func renderPASFleetSummary(label string, outcomes []FleetPASOutcome) {
+	fmt.Printf("\n%s  ▶ Fleet '%s' Summary:%s\n", constants.ColorCyan, label, constants.ColorReset)
+	for _, o := range outcomes {
+		if o.IsSkipped {
+			fmt.Printf("    • [%s] (%s): %sSkipped%s (%s)\n",
+				o.NodeName, o.IP, constants.ColorYellow, constants.ColorReset, o.ErrorMsg)
+			continue
+		}
+		if o.Success {
+			fmt.Printf("    • [%s] (%s): %sSuccess%s\n",
+				o.NodeName, o.IP, constants.ColorGreen, constants.ColorReset)
+			printIndentedOutputIfPresent(o.Output)
+			continue
+		}
+		fmt.Printf("    • [%s] (%s): %sFailed%s (%s)\n",
+			o.NodeName, o.IP, constants.ColorRed, constants.ColorReset, o.ErrorMsg)
+		printIndentedOutputIfPresent(o.Output)
+	}
+	fmt.Println()
+}
+
+func printIndentedOutputIfPresent(output string) {
+	if output == "" {
+		return
+	}
+	printIndentedOutput(output)
+}
+
+func printIndentedOutput(output string) {
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" {
+			fmt.Printf("        %s\n", trimmed)
+		}
+	}
+}

@@ -394,9 +394,9 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	if !opts.all {
 		maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
 	}
-	checkAgmResumeTaskBeforePull(records, opts)
 	bar, sortedStates, dur := runPullBatchExecution(records, opts)
 	syncPullBatchTelemetry(records, sortedStates, dur, opts)
+	checkAgmResumeTaskAfterPull(records, opts)
 	if opts.isJSON {
 		completePendingTask(taskDB, taskID)
 
@@ -407,7 +407,7 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	return finalizePullBatchTask(taskDB, taskID, bar.Failed())
 }
 
-func checkAgmResumeTaskBeforePull(records []model.ScanRecord, opts pullOptions) {
+func checkAgmResumeTaskAfterPull(records []model.ScanRecord, opts pullOptions) {
 	paths := make([]string, 0, len(records))
 	for _, r := range records {
 		paths = append(paths, r.AbsolutePath)
@@ -753,14 +753,17 @@ func isGitRepoCWD() bool {
 
 // runPullCWD streams pull in CWD, using progress bar unless isRaw is true.
 func runPullCWD(isRaw ...bool) error {
+	var pullErr error
+	if len(isRaw) > 0 && isRaw[0] {
+		pullErr = runPullCWDWithTransport(false, false, nil)
+	} else {
+		pullErr = runPullCWDTracked()
+	}
 	if cwd, err := os.Getwd(); err == nil && gitignoreagm.IsGitRepository(cwd) {
 		_ = gitignoreagm.CheckAndPromptRepos([]string{cwd}, false, false)
 	}
-	if len(isRaw) > 0 && isRaw[0] {
-		return runPullCWDWithTransport(false, false, nil)
-	}
 
-	return runPullCWDTracked()
+	return pullErr
 }
 
 func runPullCWDTracked() error {
@@ -811,15 +814,7 @@ func applyTransportSafe(cwd string, useSSH, useHTTPS bool) bool {
 }
 
 func buildGitPullEnv() []string {
-	return append(os.Environ(),
-		constants.EnvGitTerminalPromptZero,
-		constants.EnvGitAskpassEmpty,
-		constants.EnvSSHAskpassEmpty,
-		constants.EnvGitSSHCommandBatchYes,
-		constants.EnvGCMInteractiveNever,
-		"GCM_NO_PERSIST=1",
-		"GCM_CREDENTIAL_STORE=cache",
-	)
+	return gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
 }
 
 func executeGitPullCommand(cwd string, extraArgs []string) error {

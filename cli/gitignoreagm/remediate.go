@@ -173,9 +173,8 @@ func ensureGitignoreEntries(repoDir string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	entries := allIgnoreEntries
-	updated, changed := appendMissingIgnoreLines(string(data), entries)
-	if !changed {
+	updated, isChanged := DeduplicateAndSanitizeGitignore(string(data))
+	if !isChanged {
 		return false, nil
 	}
 	writeErr := os.WriteFile(ignorePath, []byte(updated), 0o644)

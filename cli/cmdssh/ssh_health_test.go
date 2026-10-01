@@ -17,7 +17,7 @@ func TestResolveHealthDefaults(t *testing.T) {
 	if resolveHealthPort(0) != 22 || resolveHealthPort(2222) != 2222 {
 		t.Error("unexpected health port resolution")
 	}
-	if resolveHealthTimeout(0) != 1500*time.Millisecond {
+	if resolveHealthTimeout(0) != 3000*time.Millisecond {
 		t.Error("unexpected health timeout resolution")
 	}
 }

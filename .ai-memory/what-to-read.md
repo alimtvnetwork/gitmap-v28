@@ -5,6 +5,8 @@
 
 ## Changelog
 
+- 2026-10-01T11:45:00Z, Memory write: Spec 195, Learned 37, Issue 24 (RCA-58), GitMap PAS Formula, Windows Git Subprocess Environment Safety, Non-Blocking Pull Workflow, and GitIgnore Deduplicating Sanitizer.
+- 2026-10-01T07:35:00Z, Memory write: Spec 194, Learned 36, Issue 23 (RCA-57), Fleet Nodes Clone Table Alignment, Dual Stream Capture, and Resilient Liveness Probing.
 - 2026-10-01T01:10:00Z, Memory write: Spec 192, Learned 34, Direct Clone structured JSON response (--json), automatic legacy node command fallback, and granular offline reachability error classification.
 - 2026-09-30T23:55:00Z, Memory write: Plan 56 pending roadmap (VMware hardware customization, multi-VM batch operations, macro integration, and TUI settings), Spec 190 index sync, binary path synchronization across all 4 execution targets, and root readme/what-to-read parity.
 - 2026-09-30T23:10:00Z, Memory write: Spec 190, Plan 54, native `gitmap safe-rm` / `rm-safe` CLI command, interactive live execution platform adaptation, root `readme.md` sync, and comprehensive test suite validation.
@@ -57,6 +59,8 @@
 - `.ai-memory/memory/learned/33-vmware-macro-safe-rm-and-task-history-audit.md`, why: VMware automation engine, macro idempotent removal shim (safe-rm), interactive editor step recording, and TaskHistory split-DB audit logging
 - `.ai-memory/memory/learned/34-direct-clone-json-and-fleet-clone-details.md`, why: direct clone structured JSON response (--json), automatic legacy node command fallback, and granular offline reachability error classification
 - `.ai-memory/memory/learned/35-in-process-fleet-pull-json-and-wincredman-isolation.md`, why: in-process host execution delegation for fleet pull-all tasks and Windows Credential Manager non-persist environment isolation
+- `.ai-memory/memory/learned/36-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md`, why: fleet nodes clone table visual padding, dual stream capture, and resilient SSH liveness probing
+- `.ai-memory/memory/learned/37-pas-formula-windows-git-env-and-gitignore-sanitizer.md`, why: GitMap PAS formula, Windows Git subprocess environment (excluding GCM cache store), and deduplicating gitignore sanitizer
 
 
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
@@ -92,7 +96,11 @@
 - `02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md`, why: VMware automation, macro safe removal & edit UX, audit task history, and chained installer
 - `02-spec/21-app/191-nodes-clone-except-self-windows-runner-and-path.md`, why: fleet nodes clone except-self, Windows remote shell runner, and target directory
 - `02-spec/21-app/192-direct-clone-json-and-fleet-clone-details.md`, why: direct clone structured JSON output, fleet node details, and legacy fallback
+- `02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md`, why: fleet nodes clone output alignment, table visual padding, and resilient SSH liveness probing
+- `02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md`, why: GitMap PAS formula, ignore management suite, CPAR, and repository split-DB cache engine
 - `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md`, why: 4-Part RCA for VS Code startup failure and search latency
 - `02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md`, why: 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard
+- `02-spec/22-app-issues/57-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md`, why: 4-Part RCA for fleet nodes clone table misalignment, stderr escape leaks, and remote liveness false-offline
+- `02-spec/22-app-issues/58-windows-git-cache-credential-store-failure-rca.md`, why: 4-Part RCA for Windows Git cache credential store failure, pull-first workflow, and gitignore duplication
 - `docs/benchmarks/search_benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report
 - `cli/helptext/pr.md`, why: PR command family usage, HG help, and JSON examples

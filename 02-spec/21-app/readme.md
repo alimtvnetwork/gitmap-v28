@@ -50,3 +50,4 @@
 - [192-direct-clone-json-and-fleet-clone-details.md](192-direct-clone-json-and-fleet-clone-details.md) — Direct Clone Structured JSON Output, Fleet Remote Fallback, and Offline Reachability Telemetry (Status: `active`)
 - [193-in-process-fleet-pull-json-and-wincredman-isolation.md](193-in-process-fleet-pull-json-and-wincredman-isolation.md) — In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation (Status: `active`)
 - [194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Status: `active`)
+- [195-pas-formula-fix-ignores-cpar-and-repo-cache.md](195-pas-formula-fix-ignores-cpar-and-repo-cache.md) — GitMap PAS Formula, Ignore Management Suite, CPAR, and Repository Split-DB Cache Engine (Status: `active`)

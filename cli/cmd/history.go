@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -22,6 +23,11 @@ func isHistorySubcommand(sub string) bool {
 // runHistory handles the "history" subcommand.
 func runHistory(args []string) error {
 	checkHelp("history", args)
+	if len(args) > 0 && (strings.EqualFold(args[0], "ssh") || strings.EqualFold(args[0], "--ssh")) {
+		return cmdssh.RunFleetPASCommand("history", "gitmap history --limit 10", func() error {
+			return runHistory(args[1:])
+		})
+	}
 	if len(args) > 0 && isHistorySubcommand(strings.ToLower(args[0])) {
 		return RunCommandHistoryCLI(args)
 	}

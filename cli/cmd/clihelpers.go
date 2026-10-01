@@ -20,9 +20,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddoctor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsee"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
@@ -700,7 +702,17 @@ func saveRepoPathToDB(path string) {
 }
 
 func runPull(args []string) error {
+	if len(args) > 0 && strings.EqualFold(args[0], "all") {
+		return dispatchPullAllWithArgs(args[1:])
+	}
 	return cmdpull.RunPull(args)
+}
+
+func dispatchPullAllWithArgs(subArgs []string) error {
+	if len(subArgs) > 0 && (strings.EqualFold(subArgs[0], "ssh") || strings.EqualFold(subArgs[0], "--ssh")) {
+		return runPullAll(append([]string{"--ssh"}, subArgs[1:]...))
+	}
+	return runPullAll(subArgs)
 }
 
 func runPullAll(args []string) error {
@@ -873,6 +885,12 @@ func init() {
 	cmdpull.RunRemoteSSHPullFn = cmdssh.RunSSHPullJSON
 	cmdpull.RunRemoteSSHPullAllFleetFn = cmdssh.RunSSHPullAllFleet
 	cmdssh.RunLocalPullAllJSONFn = cmdpull.RunPullAllJSON
+	cmdignore.RunFixIgnoresAllSSHFn = func(args []string) error {
+		return cmdssh.RunFleetPASCommand("fix-ignore-all", "gitmap fix-ignore-all -y", func() error {
+			return cmdignore.RunFixIgnoreAll(args)
+		})
+	}
+	cmdsee.HistoryRunnerFn = runHistory
 	cmdpull.HasAliasFn = HasAlias
 	cmdpull.GetAliasSlugFn = GetAliasSlug
 	cmdpull.GetAliasPathFn = GetAliasPath

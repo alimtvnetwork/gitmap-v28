@@ -3,9 +3,9 @@ package release
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
@@ -17,7 +17,7 @@ var gitignoreEntries = []string{
 	"antigravity-resume_task.json",
 }
 
-// EnsureGitignore appends missing release-related entries to .gitignore.
+// EnsureGitignore sanitizes and appends missing release-related entries to .gitignore.
 func EnsureGitignore() {
 	const path = ".gitignore"
 
@@ -27,34 +27,16 @@ func EnsureGitignore() {
 	}
 
 	content := string(data)
-	lines := strings.Split(content, "\n")
-	existing := make(map[string]bool, len(lines))
-	for _, l := range lines {
-		existing[strings.TrimSpace(l)] = true
-	}
-
-	var toAdd []string
-	for _, entry := range gitignoreEntries {
-		if !existing[entry] && !existing["/"+entry] {
-			toAdd = append(toAdd, entry)
-		}
-	}
-
-	if len(toAdd) == 0 {
+	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(content, gitignoreEntries...)
+	if !isModified {
 		return
 	}
 
 	if verbose.IsEnabled() {
-		verbose.Get().Log("gitignore: appending %d entries", len(toAdd))
+		verbose.Get().Log("gitignore: sanitized and updated %s", path)
 	}
 
-	// Ensure trailing newline before appending.
-	if len(content) > 0 && !strings.HasSuffix(content, "\n") {
-		content += "\n"
-	}
-
-	content += strings.Join(toAdd, "\n") + "\n"
-	if err := os.WriteFile(path, []byte(content), constants.FilePermission); err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not write .gitignore at %s: %v\n", path, err)
+	if writeErr := os.WriteFile(path, []byte(cleaned), constants.FilePermission); writeErr != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not write .gitignore at %s: %v\n", path, writeErr)
 	}
 }

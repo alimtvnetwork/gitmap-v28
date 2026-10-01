@@ -144,8 +144,17 @@ func isNodesCloneRequest(args []string) bool {
 	return isClone
 }
 
+func runNodesHistoryCLI(args []string) error {
+	return cmdssh.RunFleetPASCommand("nodes history", "gitmap history --limit 10", func() error {
+		return runHistory(args)
+	})
+}
+
 // runUnifiedNodesCLI handles `gitmap nodes [flags] [target]`.
 func runUnifiedNodesCLI(args []string) error {
+	if len(args) > 0 && (strings.EqualFold(args[0], "history") || strings.EqualFold(args[0], "histories")) {
+		return runNodesHistoryCLI(args[1:])
+	}
 	if len(args) > 0 && isNodesPingCommand(args[0]) {
 		return runUnifiedNodesPingCLI(args[1:])
 	}
