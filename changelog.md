@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.440.0] - 2026-10-01
+
+### Added
+- Maintenance release for v6.440.0
+
+---
+
 ## [v6.439.0] - 2026-10-01
 
 ### Added

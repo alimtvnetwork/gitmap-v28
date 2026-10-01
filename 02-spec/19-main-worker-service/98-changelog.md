@@ -1,3 +1,9 @@
+## v6.440.0 — 2026-10-01 (Maintenance release for v6.440.0)
+
+**Scope:** Version bump. Maintenance release for v6.440.0.
+
+---
+
 ## v6.439.0 — 2026-10-01 (Implement GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite, and Split-DB Repo Cache)
 
 **Scope:** Version bump. Implement GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite, and Split-DB Repo Cache.
