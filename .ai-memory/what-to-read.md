@@ -120,6 +120,7 @@
 - `.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md`, why: Completed Plan 58 GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine
 - `02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md`, why: GitMap PAS formula, ignore management suite, CPAR, and split-DB repo cache
 - `.ai-memory/plans/completed/60-gitmap-pas-command-fix.md`, why: Completed Plan 60 GitMap PAS formula, ignore grouping engine, CPAR suite & split-DB repo cache
+- `.ai-memory/plans/pending/60-gitmap-pas-command-fix.md`, why: Pending Plan 60 GitMap PAS formula, ignore grouping engine, CPAR suite & split-DB repo cache V6 specification
 - `.ai-memory/plans/completed/197-pas-fix.md`, why: Completed Plan 197 GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache
 - `02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md`, why: Spec 181 GitMap ignore and split-DB repo cache engine architecture
 - `02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md`, why: Spec 198 PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry
