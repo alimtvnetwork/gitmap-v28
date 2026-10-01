@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.438.3] - 2026-10-01
+
+### Added
+- Flatten nested ifs, switch applyOption, and handle cache db scan errors
+
+---
+
 ## [v6.438.2] - 2026-10-01
 
 ### Added

@@ -1,3 +1,9 @@
+## v6.438.3 — 2026-10-01 (Flatten nested ifs, switch applyOption, and handle cache db scan errors)
+
+**Scope:** Version bump. Flatten nested ifs, switch applyOption, and handle cache db scan errors.
+
+---
+
 ## v6.438.2 — 2026-10-01 (Fix helptext examples formatting for fix-credential)
 
 **Scope:** Version bump. Fix helptext examples formatting for fix-credential.
