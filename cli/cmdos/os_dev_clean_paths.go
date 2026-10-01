@@ -40,12 +40,29 @@ func getEcosystemDiscoveryRules(targets []string) []EcosystemDiscoveryRule {
 }
 
 func containsEcosystem(targets []string, id string) bool {
+	normID := normalizeEcosystemID(id)
 	for _, t := range targets {
-		if strings.EqualFold(strings.TrimSpace(t), id) {
+		if normalizeEcosystemID(t) == normID || strings.EqualFold(strings.TrimSpace(t), id) {
 			return true
 		}
 	}
 	return false
+}
+
+func normalizeEcosystemID(token string) string {
+	tok := strings.ToLower(strings.TrimSpace(token))
+	switch tok {
+	case "golang", "go-build", "go-buildcache", "gocache":
+		return "go"
+	case "pip", "uv", "pip3", "python3":
+		return "python"
+	case "rust", "rustc":
+		return "cargo"
+	case "dotnet", ".net":
+		return "nuget"
+	default:
+		return tok
+	}
 }
 
 func probeTier1CliPaths(rule EcosystemDiscoveryRule) []DiscoveredCachePath {

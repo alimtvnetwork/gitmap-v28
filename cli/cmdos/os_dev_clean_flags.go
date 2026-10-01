@@ -59,13 +59,26 @@ func parseDevCleanBooleans(a string, opts *DevCleanOptions) bool {
 
 func parseDevCleanComplex(a string, args []string, idx *int, opts *DevCleanOptions) {
 	if strings.HasPrefix(a, "--only=") {
-		opts.OnlyCategories = strings.Split(strings.TrimPrefix(a, "--only="), ",")
+		opts.OnlyCategories = append(opts.OnlyCategories, parseCategoryTokens(strings.TrimPrefix(a, "--only="))...)
 		return
 	}
 	if a == "--only" && *idx+1 < len(args) {
 		*idx++
-		opts.OnlyCategories = strings.Split(args[*idx], ",")
+		opts.OnlyCategories = append(opts.OnlyCategories, parseCategoryTokens(args[*idx])...)
 	}
+}
+
+func parseCategoryTokens(raw string) []string {
+	tokens := strings.FieldsFunc(raw, func(r rune) bool {
+		return r == ',' || r == ' ' || r == ';'
+	})
+	var cats []string
+	for _, t := range tokens {
+		if clean := strings.TrimSpace(t); len(clean) > 0 {
+			cats = append(cats, clean)
+		}
+	}
+	return cats
 }
 
 func isDevCleanIgnoredToken(a string) bool {
