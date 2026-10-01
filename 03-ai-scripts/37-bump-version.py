@@ -176,6 +176,29 @@ def update_template_version(next_version, dry_run=False):
     print(f"[*] Updated prompt-version.template.json -> {next_version}")
 
 
+def update_gitmap_latest_json(next_version, dry_run=False):
+    """Updates .gitmap/release/latest.json if present."""
+    gitmap_latest = REPO_ROOT / ".gitmap" / "release" / "latest.json"
+    if not gitmap_latest.parent.is_dir():
+        return
+
+    data = {
+        "version": next_version,
+        "tag": f"v{next_version}",
+        "branch": f"release/v{next_version}",
+    }
+
+    if dry_run:
+        print(f"[DRY RUN] Would update .gitmap/release/latest.json to {next_version}")
+        return
+
+    with open(gitmap_latest, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+    print(f"[*] Updated .gitmap/release/latest.json -> {next_version}")
+
+
 def update_readme_pins(current_ver, next_version, dry_run=False):
     """Pins new version in readme.md badges and text references."""
     if not README_MD.is_file():
@@ -319,6 +342,7 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
     update_version_json(next_ver, today_str, dry_run=dry_run)
     update_package_json(next_ver, dry_run=dry_run)
     update_template_version(next_ver, dry_run=dry_run)
+    update_gitmap_latest_json(next_ver, dry_run=dry_run)
     update_constants_go(next_ver, dry_run=dry_run)
     update_readme_pins(current_ver, next_ver, dry_run=dry_run)
     update_what_to_read_pins(current_ver, next_ver, dry_run=dry_run)
