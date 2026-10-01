@@ -22,3 +22,14 @@ type CPARRunState struct {
 	SuccessCount int
 	FailureCount int
 }
+
+// CPARReviewAction represents user choice in review flow.
+type CPARReviewAction string
+
+const (
+	ActionCommitAllFeature CPARReviewAction = "feature"
+	ActionCommitAllBug     CPARReviewAction = "bug"
+	ActionSingleRepo       CPARReviewAction = "single"
+	ActionCommitAllChore   CPARReviewAction = "chore"
+	ActionAbort            CPARReviewAction = "abort"
+)

@@ -3,6 +3,7 @@ package cmdignore
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // GitMap PAS Formula concurrency constraints:
@@ -24,6 +25,7 @@ func RunFiasWithPAS(args []string) *apperror.AppError {
 	})
 	hasErr := err != nil
 	if hasErr {
+		store.LogInternalError("FIX_IGNORE_SSH", "PAS_EXECUTION_FAILED", err.Error(), "", "")
 		return apperror.WrapSimple(err, "PAS execution failed")
 	}
 	return nil

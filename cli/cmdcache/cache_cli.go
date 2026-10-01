@@ -1,7 +1,9 @@
 package cmdcache
 
 import (
+	"database/sql"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -27,14 +29,21 @@ func RunCacheCLI(args []string) *appfault.AppError {
 		return runCacheList()
 	case "remove", "rm":
 		return runCacheRemove(subArgs)
+	case "recache", "reconcile", "sync":
+		return ReconcileCache(findRepoRoot())
+	default:
+		return routeSearchCmd(subCmd, subArgs)
+	}
+}
+
+func routeSearchCmd(subCmd string, subArgs []string) *appfault.AppError {
+	switch subCmd {
 	case "search":
 		return runSearchSingle(subArgs)
 	case "search-multi":
 		return runSearchMulti(subArgs, false)
 	case "search-multi-grep":
 		return runSearchMulti(subArgs, true)
-	case "recache", "reconcile", "sync":
-		return CreateCache([]string{"."})
 	default:
 		return appfault.NewSimple("unknown cache subcommand: "+subCmd, "E1030")
 	}
@@ -42,6 +51,11 @@ func RunCacheCLI(args []string) *appfault.AppError {
 
 func runCacheList() *appfault.AppError {
 	repoRoot := findRepoRoot()
+	summaries, _ := store.ListCachedRepos(repoRoot)
+	if len(summaries) > 0 {
+		renderRepoSummaries(summaries)
+	}
+
 	rootDB, err := store.OpenRootCacheDB(repoRoot)
 	if err != nil {
 		return err
@@ -52,14 +66,31 @@ func runCacheList() *appfault.AppError {
 	if queryErr != nil {
 		return queryErr
 	}
+	renderCachedFiles(files)
+	return nil
+}
 
-	fmt.Printf("\n%s  === CACHED FILES IN SPLIT-DB (%d total) ===%s\n",
+func renderRepoSummaries(summaries []store.CachedRepoSummary) {
+	fmt.Printf("\n%s  === CACHED REPOSITORIES (%d total) ===%s\n",
+		constants.ColorCyan, len(summaries), constants.ColorReset)
+	for _, s := range summaries {
+		fmt.Printf("  • %-20s | %4d files | %8d B | last: %s\n",
+			s.RepoSlug, s.FileCount, s.TotalBytes, s.LastIndexed)
+	}
+}
+
+func renderCachedFiles(files []store.CacheFileRecord) {
+	fmt.Printf("\n%s  === CURRENT REPO CACHED FILES (%d total) ===%s\n",
 		constants.ColorCyan, len(files), constants.ColorReset)
 	for _, f := range files {
-		fmt.Printf("  • %-45s | %6d B | slug: %-10s\n", f.RelativePath, f.FileSize, f.FolderSlug)
+		keepTag := ""
+		if f.IsKeep {
+			keepTag = " [keep]"
+		}
+		fmt.Printf("  • %-45s | %6d B | slug: %-10s%s\n",
+			f.RelativePath, f.FileSize, f.FolderSlug, keepTag)
 	}
 	fmt.Println()
-	return nil
 }
 
 func runCacheRemove(args []string) *appfault.AppError {
@@ -67,19 +98,30 @@ func runCacheRemove(args []string) *appfault.AppError {
 		return appfault.NewSimple("Usage: gitmap cache remove <path>", "E1031")
 	}
 	repoRoot := findRepoRoot()
+	targets := extractTargetParts(strings.Join(args, ","))
+	queueId, tasksDB := enqueueCacheTask("remove", strings.Join(targets, ","))
+	defer closeTasksDB(tasksDB)
+
 	rootDB, err := store.OpenRootCacheDB(repoRoot)
 	if err != nil {
+		logAndFailCacheTask(tasksDB, queueId, err, "cache_remove_open_db")
 		return err
 	}
 	defer rootDB.Close()
 
-	for _, target := range args {
-		if _, delErr := rootDB.Exec("DELETE FROM Files WHERE RelativePath = ?", target); delErr != nil {
-			return appfault.WrapSimple(delErr, "cache_remove")
-		}
+	for _, target := range targets {
+		removeSingleTarget(rootDB, target, repoRoot)
 	}
-	fmt.Printf("%s✓ Removed %d file(s) from cache database.%s\n", constants.ColorGreen, len(args), constants.ColorReset)
+	completeCacheTask(tasksDB, queueId)
+	fmt.Printf("%s✓ Removed %d target(s) from cache database.%s\n", constants.ColorGreen, len(targets), constants.ColorReset)
 	return nil
+}
+
+func removeSingleTarget(rootDB *sql.DB, target, repoRoot string) {
+	cleanRel := filepath.ToSlash(target)
+	slug := resolveFileSlug(cleanRel)
+	_ = store.DeleteCacheFile(rootDB, cleanRel)
+	removeLinesFromSlug(slug, cleanRel, repoRoot)
 }
 
 func runSearchSingle(args []string) *appfault.AppError {
@@ -100,47 +142,52 @@ func runSearchMulti(args []string, isRegex bool) *appfault.AppError {
 }
 
 func parseSearchFlags(args []string) CacheSearchOptions {
-	opts := CacheSearchOptions{ResultLimit: 50}
+	opts := CacheSearchOptions{LinesToShow: 10, ResultLimit: 20}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if a == "--lines" && i+1 < len(args) {
-			opts.LinesToShow, _ = strconv.Atoi(args[i+1])
-			i++
-		} else if a == "--limit" && i+1 < len(args) {
-			opts.ResultLimit, _ = strconv.Atoi(args[i+1])
-			i++
-		} else if isFilePatternFlag(a) && i+1 < len(args) {
-			opts.FileGlobs = append(opts.FileGlobs, strings.Split(args[i+1], ",")...)
-			i++
-		} else {
-			processRemainingArg(a, &opts)
-		}
+		i = handleFlagStep(args, i, a, &opts)
 	}
 	return opts
 }
 
+func handleFlagStep(args []string, i int, a string, opts *CacheSearchOptions) int {
+	if (a == "--lines" || a == "-lines") && i+1 < len(args) {
+		opts.LinesToShow, _ = strconv.Atoi(args[i+1])
+		return i + 1
+	}
+	if (a == "--limit" || a == "-limit") && i+1 < len(args) {
+		opts.ResultLimit, _ = strconv.Atoi(args[i+1])
+		return i + 1
+	}
+	if isFilePatternFlag(a) && i+1 < len(args) {
+		return handleFilePatternFlag(args, i+1, opts)
+	}
+	processPositionalSearchArg(a, opts)
+	return i
+}
+
+func handleFilePatternFlag(args []string, nextIdx int, opts *CacheSearchOptions) int {
+	val := args[nextIdx]
+	if (val == "(fp)" || val == "fp") && nextIdx+1 < len(args) {
+		nextIdx++
+		val = args[nextIdx]
+	}
+	terms := extractCleanTerms(val)
+	opts.FileGlobs = append(opts.FileGlobs, terms...)
+	return nextIdx
+}
+
 func isFilePatternFlag(a string) bool {
-	return a == "-file-pattern" || a == "-fp" || a == "--file-pattern"
+	lower := strings.ToLower(strings.TrimSpace(a))
+	return lower == "-file-pattern" || lower == "--file-pattern" ||
+		lower == "-fp" || lower == "--fp" || lower == "(fp)" || lower == "fp"
 }
 
-func processRemainingArg(a string, opts *CacheSearchOptions) {
-	if strings.HasPrefix(a, "-") {
-		return
-	}
-	if len(opts.Patterns) == 0 {
-		opts.Patterns = append(opts.Patterns, splitQuotedTerms(a)...)
-	} else if len(opts.FileGlobs) == 0 && (strings.Contains(a, "*") || strings.Contains(a, ".")) {
-		opts.FileGlobs = append(opts.FileGlobs, a)
-	} else {
-		opts.Patterns = append(opts.Patterns, a)
-	}
-}
-
-func splitQuotedTerms(raw string) []string {
+func extractCleanTerms(raw string) []string {
 	parts := strings.Split(raw, ",")
 	var result []string
 	for _, p := range parts {
-		trimmed := strings.Trim(strings.TrimSpace(p), `"'`)
+		trimmed := strings.Trim(strings.TrimSpace(p), `"', `)
 		if trimmed != "" {
 			result = append(result, trimmed)
 		}
@@ -148,18 +195,64 @@ func splitQuotedTerms(raw string) []string {
 	return result
 }
 
+func processPositionalSearchArg(a string, opts *CacheSearchOptions) {
+	if strings.HasPrefix(a, "-") || a == "(fp)" {
+		return
+	}
+	terms := extractCleanTerms(a)
+	if len(opts.Patterns) == 0 {
+		opts.Patterns = append(opts.Patterns, terms...)
+		return
+	}
+	if len(opts.FileGlobs) == 0 && (strings.Contains(a, "*") || strings.Contains(a, "?")) {
+		opts.FileGlobs = append(opts.FileGlobs, terms...)
+		return
+	}
+	opts.Patterns = append(opts.Patterns, terms...)
+}
+
 // PrintCacheHelp outputs usage documentation for gitmap cache.
 func PrintCacheHelp() *appfault.AppError {
-	fmt.Printf(`
-  GitMap Repository Split-DB Cache Engine (cache)
-    • gitmap cache create [paths...]             - Index target paths (files <= 200KB) into Split-DB
-    • gitmap cache ls                            - List all indexed files in cache
-    • gitmap cache add <paths...>                - Add specific files to cache
-    • gitmap cache remove (rm) <paths...>        - Remove files from cache
-    • gitmap cache search "query" [pattern]      - Full-text search across cached files
-    • gitmap cache search-multi "q1, q2"         - Multi-query search across cached files
-    • gitmap cache search-multi-grep "r1, r2"    - Multi-regex search across cached files
-    • gitmap cache recache / reconcile / sync    - Re-index current repository into cache
-`)
+	printHelpOverview()
+	printHelpCommands()
+	printHelpExamples()
 	return nil
+}
+
+func printHelpOverview() {
+	fmt.Printf(`
+%s  GitMap Repository Split-DB Cache Engine (cache)%s
+  High-speed indexed repository cache utilizing SQLite Split-DB architecture:
+  • Root metadata & file index: .gitmap/cache/repos/<slug>/sql.db
+  • Top-level folder databases: .gitmap/cache/repos/<slug>/<folder-slug>.db
+  • Exclusion gates: files > 200KB, binaries, large JSON, .git/, node_modules/
+  • Zero SHA hashes during scan (relies on filesystem mtime)
+`, constants.ColorCyan, constants.ColorReset)
+}
+
+func printHelpCommands() {
+	fmt.Printf(`  COMMANDS:
+    • gitmap cache create [paths...]             Index target path(s) into Split-DB
+    • gitmap cache add <paths...>                Add specific files or paths to cache
+    • gitmap cache ls / list                     List all cached repositories and files
+    • gitmap cache remove / rm <paths...>        Remove files or paths from cache
+    • gitmap cache search "<text>" [glob]        Fast text search with context lines
+    • gitmap cache search-multi "t1", "t2"       Multi-term search with file pattern
+    • gitmap cache search-multi-grep "<regex>"   Regular expression search
+    • gitmap cache recache / reconcile / sync    Update cache based on filesystem mtime
+    • gitmap cache help                          Show this help documentation
+`)
+}
+
+func printHelpExamples() {
+	fmt.Printf(`  FLAGS & EXAMPLES:
+    • gitmap cache create .
+    • gitmap cache create src,pkg/api --keep
+    • gitmap cache create "a.json", "b.json"
+    • gitmap cache search "TODO" "*.go" --lines 10 --limit 20
+    • gitmap cache search "ErrNotFound" -file-pattern (fp) "a*.md", "b*.md"
+    • gitmap cache search-multi "func", "return" -fp "*.go" --lines 5
+    • gitmap cache search-multi-grep "AppError.*Simple" -fp "*.go"
+    • gitmap cache reconcile
+`)
 }

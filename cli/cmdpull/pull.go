@@ -1,6 +1,7 @@
 package cmdpull
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -11,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -479,12 +481,13 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	defer closePullBatchDBs(taskDB, tDB)
 
 	applySelectiveTransport(records, opts)
+	ignoreHandle := startAsyncIgnoreScan(records)
 	bar, states, dur := runPullBatchWork(records, opts)
 	if opts.isJSON {
 		return finalizePullBatchJSON(taskDB, taskID, tDB, queueId, opts.all, len(records), states, dur)
 	}
 
-	return finalizePullBatchStandard(taskDB, taskID, tDB, queueId, opts.all, records, states, dur, opts, bar.Failed())
+	return finalizePullBatchStandard(taskDB, taskID, tDB, queueId, opts.all, records, states, dur, opts, bar.Failed(), ignoreHandle)
 }
 
 func closePullBatchDBs(taskDB *store.DB, tDB *store.TasksSplitDB) {
@@ -513,7 +516,6 @@ func applySelectiveTransport(records []model.ScanRecord, opts pullOptions) {
 func runPullBatchWork(records []model.ScanRecord, opts pullOptions) (*PullProgressBar, []*PullRepoState, time.Duration) {
 	bar, sortedStates, dur := runPullBatchExecution(records, opts)
 	syncPullBatchTelemetry(records, sortedStates, dur, opts)
-	checkAgmResumeTaskAfterPull(records, opts)
 
 	return bar, sortedStates, dur
 }
@@ -525,8 +527,9 @@ func finalizePullBatchJSON(taskDB *store.DB, taskID int64, tDB *store.TasksSplit
 	return renderPullBatchJSONSummary(total, states, dur)
 }
 
-func finalizePullBatchStandard(taskDB *store.DB, taskID int64, tDB *store.TasksSplitDB, queueId string, isAll bool, records []model.ScanRecord, states []*PullRepoState, dur time.Duration, opts pullOptions, failedCount int) error {
+func finalizePullBatchStandard(taskDB *store.DB, taskID int64, tDB *store.TasksSplitDB, queueId string, isAll bool, records []model.ScanRecord, states []*PullRepoState, dur time.Duration, opts pullOptions, failedCount int, ignoreHandle *IgnoreScanHandle) error {
 	renderPullBatchOutput(records, states, dur, opts)
+	collectAndRemediateIgnoreIssues(ignoreHandle, opts)
 	finalizePullTaskQueueOutput(isAll, tDB, queueId, failedCount)
 
 	return finalizePullBatchTask(taskDB, taskID, failedCount)
@@ -549,11 +552,331 @@ func finalizePullTaskQueueOutput(isAll bool, tDB *store.TasksSplitDB, queueId st
 	updateTaskQueue(tDB, queueId, status)
 }
 
-func checkAgmResumeTaskAfterPull(records []model.ScanRecord, opts pullOptions) {
-	isAutoYes := opts.yes || opts.autoFix
-	utils.ProcessAsync(5, len(records), func(i int) {
-		_ = gitignoreagm.CheckAndPromptRepos([]string{records[i].AbsolutePath}, opts.isJSON, isAutoYes)
+// IgnoreRepoIssue holds ignore configuration and index issues for a repository.
+type IgnoreRepoIssue struct {
+	RepoName          string
+	RepoPath          string
+	DuplicatePatterns []string
+	TrackedPaths      []string
+}
+
+// HasIssues reports whether any ignore or tracking issues were detected.
+func (i IgnoreRepoIssue) HasIssues() bool {
+	return len(i.DuplicatePatterns) > 0 || len(i.TrackedPaths) > 0
+}
+
+// IgnoreScanHandle manages asynchronous ignore scanning across repositories.
+type IgnoreScanHandle struct {
+	done chan []IgnoreRepoIssue
+}
+
+func startAsyncIgnoreScan(records []model.ScanRecord) *IgnoreScanHandle {
+	handle := &IgnoreScanHandle{
+		done: make(chan []IgnoreRepoIssue, 1),
+	}
+	go func() {
+		handle.done <- scanRecordsForIgnoreIssues(records)
+	}()
+	return handle
+}
+
+func (h *IgnoreScanHandle) Collect() []IgnoreRepoIssue {
+	if h == nil {
+		return nil
+	}
+	return <-h.done
+}
+
+func scanRecordsForIgnoreIssues(records []model.ScanRecord) []IgnoreRepoIssue {
+	if len(records) == 0 {
+		return nil
+	}
+	var mu sync.Mutex
+	var issues []IgnoreRepoIssue
+	workers := calculateIgnoreWorkers(len(records))
+	utils.ProcessAsync(workers, len(records), func(i int) {
+		issue := inspectRepoForIgnoreIssues(records[i].AbsolutePath, records[i].RepoName)
+		if issue.HasIssues() {
+			mu.Lock()
+			issues = append(issues, issue)
+			mu.Unlock()
+		}
 	})
+	return sortIgnoreIssues(issues)
+}
+
+func calculateIgnoreWorkers(total int) int {
+	if total <= 0 {
+		return 1
+	}
+	workers := (total + 4) / 5
+	if workers < 1 {
+		return 1
+	}
+	if workers > 8 {
+		return 8
+	}
+	return workers
+}
+
+func sortIgnoreIssues(issues []IgnoreRepoIssue) []IgnoreRepoIssue {
+	sorted := make([]IgnoreRepoIssue, len(issues))
+	copy(sorted, issues)
+	sort.Slice(sorted, func(i, j int) bool {
+		return strings.ToLower(sorted[i].RepoName) < strings.ToLower(sorted[j].RepoName)
+	})
+	return sorted
+}
+
+func inspectRepoForIgnoreIssues(repoDir, repoName string) IgnoreRepoIssue {
+	issue := IgnoreRepoIssue{RepoPath: repoDir, RepoName: repoName}
+	if !gitignoreagm.IsGitRepository(repoDir) {
+		return issue
+	}
+	issue.DuplicatePatterns = findGitignoreDuplicatePatterns(repoDir)
+	issue.TrackedPaths = findTrackedDefaultIgnorePaths(repoDir)
+	return issue
+}
+
+func findGitignoreDuplicatePatterns(repoDir string) []string {
+	data, err := os.ReadFile(filepath.Join(repoDir, ".gitignore"))
+	if err != nil {
+		return nil
+	}
+	lines := strings.Split(string(data), "\n")
+	seen := make(map[string]bool, len(lines))
+	dupSeen := make(map[string]bool)
+	var duplicates []string
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if isIgnorablePatternLine(trimmed) {
+			continue
+		}
+		norm := strings.TrimPrefix(trimmed, "/")
+		if seen[norm] {
+			if !dupSeen[norm] {
+				dupSeen[norm] = true
+				duplicates = append(duplicates, trimmed)
+			}
+		} else {
+			seen[norm] = true
+		}
+	}
+	return duplicates
+}
+
+func isIgnorablePatternLine(trimmed string) bool {
+	return trimmed == "" || strings.HasPrefix(trimmed, "#")
+}
+
+func findTrackedDefaultIgnorePaths(repoDir string) []string {
+	paths := buildDefaultTrackedPathsToCheck(repoDir)
+	var tracked []string
+	for _, p := range paths {
+		if isPathTrackedInGitIndex(repoDir, p) {
+			tracked = append(tracked, p)
+		}
+	}
+	return tracked
+}
+
+func buildDefaultTrackedPathsToCheck(repoDir string) []string {
+	basePaths := []string{
+		".gitmap/backup/",
+		"antigravity-resume_task.json",
+		".antigravity_resume_task.json",
+		"antigravity_resume_task.json",
+		".antigravity-resume_task.json",
+	}
+	if !isGitmapDevelopmentRepo(repoDir) {
+		return append([]string{".gitmap/"}, basePaths...)
+	}
+	return basePaths
+}
+
+func isGitmapDevelopmentRepo(repoDir string) bool {
+	base := strings.ToLower(filepath.Base(repoDir))
+	return base == "gitmap" || strings.Contains(strings.ToLower(repoDir), "gitmap-v28")
+}
+
+func isPathTrackedInGitIndex(repoDir, pathspec string) bool {
+	cmd := exec.Command("git", "-C", repoDir, "ls-files", "--error-unmatch", pathspec)
+	return cmd.Run() == nil
+}
+
+func collectAndRemediateIgnoreIssues(handle *IgnoreScanHandle, opts pullOptions) {
+	if handle == nil {
+		return
+	}
+	issues := handle.Collect()
+	if len(issues) == 0 {
+		return
+	}
+	isAutoYes := opts.yes || opts.autoFix
+	handleIgnoreRemediation(issues, isAutoYes, opts.isJSON)
+}
+
+func handleIgnoreRemediation(issues []IgnoreRepoIssue, isAutoYes, isJSON bool) {
+	if len(issues) == 0 || isJSON {
+		return
+	}
+	printIgnoreIssuesReport(issues)
+	if isAutoYes {
+		remediateAllIgnoreIssues(issues)
+		return
+	}
+	if !isInteractiveTerminal() {
+		printNonInteractiveIgnoreNotice(len(issues))
+		return
+	}
+	dispatchInteractiveIgnoreRemediation(issues)
+}
+
+func printIgnoreIssuesReport(issues []IgnoreRepoIssue) {
+	fmt.Printf("\n  %s⚠%s %sDetected .gitignore issues in %d repository(ies):%s\n",
+		constants.ColorYellow, constants.ColorReset,
+		constants.ColorBold, len(issues), constants.ColorReset)
+	for _, issue := range issues {
+		printSingleRepoIgnoreIssue(issue)
+	}
+	fmt.Println()
+}
+
+func printSingleRepoIgnoreIssue(issue IgnoreRepoIssue) {
+	fmt.Printf("    %s• %s%s\n", constants.ColorCyan, issue.RepoName, constants.ColorReset)
+	for _, dup := range issue.DuplicatePatterns {
+		fmt.Printf("      %s-%s Duplicate pattern in .gitignore: %s%s%s\n",
+			constants.ColorDim, constants.ColorReset, constants.ColorYellow, dup, constants.ColorReset)
+	}
+	for _, tracked := range issue.TrackedPaths {
+		fmt.Printf("      %s-%s Tracked in git index (should be ignored): %s%s%s\n",
+			constants.ColorDim, constants.ColorReset, constants.ColorRed, tracked, constants.ColorReset)
+	}
+}
+
+func isInteractiveTerminal() bool {
+	if os.Getenv("CI") != "" || os.Getenv("GITMAP_NON_INTERACTIVE") != "" {
+		return false
+	}
+	fi, err := os.Stdin.Stat()
+	if err != nil {
+		return false
+	}
+	return (fi.Mode() & os.ModeCharDevice) != 0
+}
+
+func printNonInteractiveIgnoreNotice(count int) {
+	fmt.Printf("  %sℹ Detected ignore issues in %d repository(ies). Run 'gitmap fix-ignore-all' to remediate.%s\n\n",
+		constants.ColorCyan, count, constants.ColorReset)
+}
+
+func dispatchInteractiveIgnoreRemediation(issues []IgnoreRepoIssue) {
+	choice := promptIgnoreRemediationChoice()
+	if isChoiceAll(choice) {
+		remediateAllIgnoreIssues(issues)
+		return
+	}
+	if isChoiceSingle(choice) {
+		remediateSingleRepoInteractive(issues)
+		return
+	}
+	fmt.Printf("  %s↷ Skipped ignore resolution.%s\n\n", constants.ColorDim, constants.ColorReset)
+}
+
+func promptIgnoreRemediationChoice() string {
+	fmt.Printf("  %s?%s Resolve all at once [y/all], one-by-one [s/single], or skip [n]?: ",
+		constants.ColorCyan, constants.ColorReset)
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	if err != nil && len(line) == 0 {
+		return "n"
+	}
+	return strings.ToLower(strings.TrimSpace(line))
+}
+
+func isChoiceAll(choice string) bool {
+	return choice == "y" || choice == "yes" || choice == "all" || choice == "a"
+}
+
+func isChoiceSingle(choice string) bool {
+	return choice == "s" || choice == "single" || choice == "one" || choice == "1"
+}
+
+func remediateSingleRepoInteractive(issues []IgnoreRepoIssue) {
+	reader := bufio.NewReader(os.Stdin)
+	remediatedCount := 0
+	for _, issue := range issues {
+		if !promptSingleRepoRemediation(reader, issue.RepoName) {
+			continue
+		}
+		if remediateSingleRepoIgnore(issue) {
+			remediatedCount++
+		}
+	}
+	fmt.Printf("\n  %s✓ Completed remediation across %d repository(ies).%s\n\n",
+		constants.ColorGreen, remediatedCount, constants.ColorReset)
+}
+
+func promptSingleRepoRemediation(reader *bufio.Reader, repoName string) bool {
+	fmt.Printf("  %s?%s [%s] Resolve ignore issues in %s? [Y/n]: ",
+		constants.ColorCyan, constants.ColorReset, repoName, repoName)
+	line, err := reader.ReadString('\n')
+	if err != nil && len(line) == 0 {
+		return false
+	}
+	ans := strings.ToLower(strings.TrimSpace(line))
+	return ans == "" || ans == "y" || ans == "yes"
+}
+
+func remediateAllIgnoreIssues(issues []IgnoreRepoIssue) {
+	remediatedCount := 0
+	for _, issue := range issues {
+		if remediateSingleRepoIgnore(issue) {
+			remediatedCount++
+		}
+	}
+	fmt.Printf("\n  %s✓ Completed ignore remediation across %d repository(ies).%s\n\n",
+		constants.ColorGreen, remediatedCount, constants.ColorReset)
+}
+
+func remediateSingleRepoIgnore(issue IgnoreRepoIssue) bool {
+	wasUntracked := untrackRepoPaths(issue.RepoPath, issue.TrackedPaths)
+	wasSanitized := sanitizeRepoGitignore(issue.RepoPath)
+	if wasUntracked || wasSanitized {
+		fmt.Printf("  %s✓%s [%s] Resolved ignore issues and sanitized .gitignore\n",
+			constants.ColorGreen, constants.ColorReset, issue.RepoName)
+		return true
+	}
+	return false
+}
+
+func untrackRepoPaths(repoDir string, trackedPaths []string) bool {
+	if len(trackedPaths) == 0 {
+		return false
+	}
+	args := append([]string{"-C", repoDir, "rm", "--cached", "-r", "-f", "--ignore-unmatch", "--"}, trackedPaths...)
+	err := exec.Command("git", args...).Run()
+	if err != nil {
+		return false
+	}
+	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): untrack ignored files from index").Run()
+	return true
+}
+
+func sanitizeRepoGitignore(repoDir string) bool {
+	ignorePath := filepath.Join(repoDir, ".gitignore")
+	data, _ := os.ReadFile(ignorePath)
+	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data))
+	if !isModified {
+		return false
+	}
+	writeErr := os.WriteFile(ignorePath, []byte(cleaned), 0o644)
+	if writeErr != nil {
+		return false
+	}
+	_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
+	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore patterns").Run()
+	return true
 }
 
 func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullProgressBar, []*PullRepoState, time.Duration) {
@@ -901,11 +1224,20 @@ func runPullCWD(isRaw ...bool) error {
 	} else {
 		pullErr = runPullCWDTracked()
 	}
-	if cwd, err := os.Getwd(); err == nil && gitignoreagm.IsGitRepository(cwd) {
-		_ = gitignoreagm.CheckAndPromptRepos([]string{cwd}, false, false)
-	}
+	handleCWDIgnoreChecks()
 
 	return pullErr
+}
+
+func handleCWDIgnoreChecks() {
+	cwd, err := os.Getwd()
+	if err != nil || !gitignoreagm.IsGitRepository(cwd) {
+		return
+	}
+	issue := inspectRepoForIgnoreIssues(cwd, filepath.Base(cwd))
+	if issue.HasIssues() {
+		handleIgnoreRemediation([]IgnoreRepoIssue{issue}, false, false)
+	}
 }
 
 func runPullCWDTracked() error {

@@ -21,6 +21,22 @@ var RunFixIgnoresAllSSHFn func(args []string) *apperror.AppError
 
 // RunFixIgnoreAll fixes gitignore issues across all repositories.
 func RunFixIgnoreAll(args []string) *apperror.AppError {
+	queueId, tDB := enqueueIgnoreTaskQueue("fix-ignore-all", "local")
+	defer closeIgnoreTaskDB(tDB)
+	updateIgnoreTaskQueue(tDB, queueId, "running")
+
+	err := executeFixIgnoreAllInternal(args)
+	hasErr := err != nil
+	if hasErr {
+		store.LogInternalError("FIX_IGNORE", "LOCAL_FIX_ERROR", err.Error(), "", "")
+		updateIgnoreTaskQueue(tDB, queueId, "failed")
+		return err
+	}
+	updateIgnoreTaskQueue(tDB, queueId, "completed")
+	return nil
+}
+
+func executeFixIgnoreAllInternal(args []string) *apperror.AppError {
 	isAutoYes := isAutoYesArg(args)
 	records := resolveTargetRepos()
 	isZero := len(records) == 0
@@ -43,30 +59,109 @@ func runFixIgnoreAllWithRecords(records []model.ScanRecord, isAutoYes bool) *app
 }
 
 func proceedWithIssues(issues []IgnoreScanIssue, isAutoYes bool) *apperror.AppError {
-	hasConsent := isAutoYes
-	if !hasConsent {
-		printIssuesSummary(issues)
-		hasConsent = promptUserConsent(len(issues))
+	if isAutoYes {
+		fixedCount := remediateIssuesList(issues)
+		fmt.Printf("\n%s✓ Fixed and sanitized .gitignore across %d repository(ies).%s\n",
+			constants.ColorGreen, fixedCount, constants.ColorReset)
+		return nil
 	}
-	if !hasConsent {
+
+	printIssuesSummary(issues)
+	choice := promptFixChoice(len(issues))
+	return handleFixChoice(choice, issues)
+}
+
+func handleFixChoice(choice string, issues []IgnoreScanIssue) *apperror.AppError {
+	switch choice {
+	case "all":
+		fixedCount := remediateIssuesList(issues)
+		fmt.Printf("\n%s✓ Fixed and sanitized .gitignore across %d repository(ies).%s\n",
+			constants.ColorGreen, fixedCount, constants.ColorReset)
+		return nil
+	case "single":
+		fixedCount := remediateSingleRepoSessions(issues)
+		fmt.Printf("\n%s✓ Completed single-repo sessions: fixed %d repository(ies).%s\n",
+			constants.ColorGreen, fixedCount, constants.ColorReset)
+		return nil
+	default:
 		fmt.Println("Aborted by user.")
 		return nil
 	}
-	fixedCount := remediateIssuesList(issues)
-	fmt.Printf("\n%s✓ Fixed and sanitized .gitignore across %d repository(ies).%s\n",
-		constants.ColorGreen, fixedCount, constants.ColorReset)
-	return nil
+}
+
+func promptFixChoice(count int) string {
+	fmt.Printf("\n%sFound gitignore issues in %d repository(ies).%s\n",
+		constants.ColorYellow, count, constants.ColorReset)
+	fmt.Println("How would you like to proceed?")
+	fmt.Println("  [1/a] Resolve all at once (recommended)")
+	fmt.Println("  [2/s] Step through single-repo sessions")
+	fmt.Println("  [q/n] Cancel / Abort")
+	fmt.Print("Choose option [1/2/q]: ")
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	return parseFixChoice(text)
+}
+
+func parseFixChoice(input string) string {
+	trimmed := strings.ToLower(strings.TrimSpace(input))
+	isAll := trimmed == "" || trimmed == "1" || trimmed == "a" || trimmed == "all" || trimmed == "y" || trimmed == "yes"
+	if isAll {
+		return "all"
+	}
+	isSingle := trimmed == "2" || trimmed == "s" || trimmed == "single"
+	if isSingle {
+		return "single"
+	}
+	return "cancel"
+}
+
+func remediateSingleRepoSessions(issues []IgnoreScanIssue) int {
+	reader := bufio.NewReader(os.Stdin)
+	fixed := 0
+	for idx, issue := range issues {
+		fmt.Printf("\n[%d/%d] %s%s%s (%s)\n",
+			idx+1, len(issues), constants.ColorBold, issue.RepoName, constants.ColorReset, issue.RepoPath)
+		printSingleRepoIssueSummary(issue)
+		fmt.Print("Apply fix to this repository? [Y/n/q]: ")
+		ans, _ := reader.ReadString('\n')
+		trimmed := strings.ToLower(strings.TrimSpace(ans))
+		isQuit := trimmed == "q" || trimmed == "quit"
+		if isQuit {
+			fmt.Println("Exiting single-repo sessions.")
+			break
+		}
+		isSkip := trimmed == "n" || trimmed == "no"
+		if isSkip {
+			fmt.Printf("Skipped %s.\n", issue.RepoName)
+			continue
+		}
+		isFixed := remediateSingleRepo(issue)
+		if isFixed {
+			fixed++
+			fmt.Printf("%s✓ Remediated %s%s\n", constants.ColorGreen, issue.RepoName, constants.ColorReset)
+		}
+	}
+	return fixed
 }
 
 // RunFixIgnoresAllSSH executes fleet-wide fix-ignore following the GitMap PAS Formula.
 func RunFixIgnoresAllSSH(args []string) *apperror.AppError {
-	hasHook := RunFixIgnoresAllSSHFn != nil
-	if !hasHook {
-		return RunFixIgnoreAll(args)
-	}
 	queueId, tDB := enqueueIgnoreTaskQueue("fix-ignore-all-ssh", "fleet")
 	defer closeIgnoreTaskDB(tDB)
 	updateIgnoreTaskQueue(tDB, queueId, "running")
+
+	hasHook := RunFixIgnoresAllSSHFn != nil
+	if !hasHook {
+		errLocal := RunFixIgnoreAll(args)
+		hasErr := errLocal != nil
+		if hasErr {
+			store.LogInternalError("FIX_IGNORE_SSH", "LOCAL_FALLBACK_ERROR", errLocal.Error(), "", "")
+			updateIgnoreTaskQueue(tDB, queueId, "failed")
+			return errLocal
+		}
+		updateIgnoreTaskQueue(tDB, queueId, "completed")
+		return nil
+	}
 	return executeFleetSSHWithTask(tDB, queueId, args)
 }
 
@@ -187,7 +282,7 @@ func analyzeGitignoreData(issue IgnoreScanIssue, repoDir, data string) IgnoreSca
 	_, dupCount := deduplicateIgnoreContent(data)
 	issue.DuplicateCount = dupCount
 	issue.HasDuplicate = dupCount > 0
-	hasGitmapDir := strings.Contains(data, ".gitmap/")
+	hasGitmapDir := strings.Contains(data, ".gitmap/") || strings.Contains(data, ".gitmap")
 	hasMissing := !hasGitmapDir
 	issue.MissingGitmapDir = hasMissing
 	return issue
@@ -232,15 +327,16 @@ func deduplicateIgnoreContent(content string) (string, int) {
 }
 
 func processIgnoreLine(raw string, seen map[string]bool, cleaned *[]string, dupCount int) int {
-	trimmed := strings.TrimSpace(raw)
+	line := strings.TrimRight(raw, "\r")
+	trimmed := strings.TrimSpace(line)
 	isEmpty := trimmed == ""
 	if isEmpty {
-		*cleaned = append(*cleaned, raw)
+		*cleaned = append(*cleaned, line)
 		return dupCount
 	}
 	isComment := strings.HasPrefix(trimmed, "#")
 	if isComment {
-		*cleaned = append(*cleaned, raw)
+		*cleaned = append(*cleaned, line)
 		return dupCount
 	}
 	norm := strings.TrimPrefix(trimmed, "/")
@@ -249,12 +345,12 @@ func processIgnoreLine(raw string, seen map[string]bool, cleaned *[]string, dupC
 		return dupCount + 1
 	}
 	seen[norm] = true
-	*cleaned = append(*cleaned, raw)
+	*cleaned = append(*cleaned, line)
 	return dupCount
 }
 
 func assembleCleanedGitignore(cleaned []string, seen map[string]bool) string {
-	hasGitmap := seen[".gitmap/"]
+	hasGitmap := seen[".gitmap/"] || seen[".gitmap"]
 	if !hasGitmap {
 		cleaned = append(cleaned, "", "# GitMap & Task Persistence", ".gitmap/", ".gitmap/backup/")
 		seen[".gitmap/"] = true
@@ -290,9 +386,26 @@ func remediateSingleRepo(issue IgnoreScanIssue) bool {
 }
 
 func untrackCachedFiles(repoDir string, files []string) {
-	args := append([]string{"-C", repoDir, "rm", "--cached", "-f", "--ignore-unmatch", "--"}, files...)
+	tracked := filterTrackedFilesInIndex(repoDir, files)
+	isZero := len(tracked) == 0
+	if isZero {
+		return
+	}
+	args := append([]string{"-C", repoDir, "rm", "--cached", "-f", "--"}, tracked...)
 	_ = exec.Command("git", args...).Run()
 	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): untrack ignored files from repository").Run()
+}
+
+func filterTrackedFilesInIndex(repoDir string, files []string) []string {
+	var tracked []string
+	for _, f := range files {
+		out, err := exec.Command("git", "-C", repoDir, "ls-files", "--", f).Output()
+		hasOut := err == nil && len(strings.TrimSpace(string(out))) > 0
+		if hasOut {
+			tracked = append(tracked, f)
+		}
+	}
+	return tracked
 }
 
 func writeDefaultGitignore(repoDir, ignorePath string) bool {
@@ -305,39 +418,16 @@ func writeDefaultGitignore(repoDir, ignorePath string) bool {
 
 func sanitizeAndCommitRepo(repoDir, ignorePath, data string) bool {
 	cleaned, dupCount := deduplicateIgnoreContent(data)
-	hasGitmapDir := strings.Contains(data, ".gitmap/")
+	hasGitmapDir := strings.Contains(data, ".gitmap/") || strings.Contains(data, ".gitmap")
 	hasDuplicates := dupCount > 0
 	isMissingGitmap := !hasGitmapDir
-	hasChanges := hasDuplicates || isMissingGitmap
+	hasChanges := hasDuplicates || isMissingGitmap || (cleaned != data)
 	if hasChanges {
 		_ = os.WriteFile(ignorePath, []byte(cleaned), 0644)
 		_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
 		_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore").Run()
 	}
 	return true
-}
-
-func promptUserConsent(count int) bool {
-	fmt.Printf("\n%sFound gitignore issues in %d repository(ies).%s\n",
-		constants.ColorYellow, count, constants.ColorReset)
-	fmt.Print("Sanitize and fix .gitignore across these repositories? [Y/n]: ")
-	reader := bufio.NewReader(os.Stdin)
-	text, _ := reader.ReadString('\n')
-	return isConsentGranted(text)
-}
-
-func isConsentGranted(text string) bool {
-	trimmed := strings.ToLower(strings.TrimSpace(text))
-	isEmpty := trimmed == ""
-	isY := trimmed == "y"
-	isYes := trimmed == "yes"
-	if isEmpty {
-		return true
-	}
-	if isY {
-		return true
-	}
-	return isYes
 }
 
 func printIssuesSummary(issues []IgnoreScanIssue) {

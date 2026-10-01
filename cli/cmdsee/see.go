@@ -2,6 +2,7 @@ package cmdsee
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -18,7 +19,8 @@ var HistoryRunnerFn func(args []string) *apperror.AppError
 
 // RunSeeCLI routes gitmap see subcommands.
 func RunSeeCLI(args []string) *apperror.AppError {
-	if len(args) == 0 {
+	isZero := len(args) == 0
+	if isZero {
 		return PrintSeeHelp()
 	}
 	joined := strings.ToLower(strings.Join(args, " "))
@@ -26,7 +28,7 @@ func RunSeeCLI(args []string) *apperror.AppError {
 }
 
 func routeSeeCommand(args []string, joined string) *apperror.AppError {
-	if strings.HasPrefix(joined, "commit pending") {
+	if isCommitPendingCmd(joined) {
 		return runSeeCommitPending()
 	}
 	if hasIgnorePrefix(joined) {
@@ -35,7 +37,34 @@ func routeSeeCommand(args []string, joined string) *apperror.AppError {
 	if hasErrorsSSHPrefix(joined) {
 		return runSeeErrorsSSH(args)
 	}
+	if hasHistorySSHPrefix(joined) {
+		return runSeeHistorySSH(args)
+	}
 	return routeRemaining(args, joined)
+}
+
+func isCommitPendingCmd(joined string) bool {
+	return strings.HasPrefix(joined, "commit pending") ||
+		strings.HasPrefix(joined, "commit-pending") ||
+		strings.HasPrefix(joined, "cp")
+}
+
+func hasIgnorePrefix(joined string) bool {
+	return strings.HasPrefix(joined, "git-ignore") ||
+		strings.HasPrefix(joined, "ignore") ||
+		strings.HasPrefix(joined, "ig")
+}
+
+func hasErrorsSSHPrefix(joined string) bool {
+	return strings.HasPrefix(joined, "errors ssh") ||
+		strings.HasPrefix(joined, "ses") ||
+		joined == "ses"
+}
+
+func hasHistorySSHPrefix(joined string) bool {
+	return strings.HasPrefix(joined, "history ssh") ||
+		strings.HasPrefix(joined, "nodes history") ||
+		strings.HasPrefix(joined, "nodes histories")
 }
 
 func routeRemaining(args []string, joined string) *apperror.AppError {
@@ -46,25 +75,37 @@ func routeRemaining(args []string, joined string) *apperror.AppError {
 	if strings.HasPrefix(joined, "history") {
 		return runSeeHistory(args[1:])
 	}
+	if strings.HasPrefix(joined, "repo-manage") || strings.HasPrefix(joined, "ui") {
+		return RunRepoManageUI()
+	}
 	return apperror.NewSimple("unknown see command: "+joined, "E1020")
 }
 
-func hasIgnorePrefix(joined string) bool {
-	return strings.HasPrefix(joined, "git-ignore") || strings.HasPrefix(joined, "ignore") || strings.HasPrefix(joined, "ig issues")
-}
-
 func routeIgnoreIssues(args []string) *apperror.AppError {
-	err := cmdignore.RunIgnoreCLI(append([]string{"scan"}, args[1:]...))
+	var scanArgs []string
+	isLonger := len(args) > 1
+	if isLonger {
+		scanArgs = filterIgnoreFlags(args[1:])
+	}
+	err := cmdignore.RunIgnoreCLI(append([]string{"scan"}, scanArgs...))
 	return apperror.WrapSimple(err, "ignore")
 }
 
-func hasErrorsSSHPrefix(joined string) bool {
-	return strings.HasPrefix(joined, "errors ssh") || joined == "ses"
+func filterIgnoreFlags(subArgs []string) []string {
+	var filtered []string
+	for _, a := range subArgs {
+		isIssueWord := strings.EqualFold(a, "issues") || strings.EqualFold(a, "issue")
+		if !isIssueWord {
+			filtered = append(filtered, a)
+		}
+	}
+	return filtered
 }
 
 func runSeeCommitPending() *apperror.AppError {
 	dirty := cmdcpar.CollectDirtyRepositories()
-	if len(dirty) == 0 {
+	isClean := len(dirty) == 0
+	if isClean {
 		fmt.Printf("%s✓ No repositories with pending commits.%s\n", constants.ColorGreen, constants.ColorReset)
 		return nil
 	}
@@ -82,11 +123,32 @@ func printPendingCommits(dirty []cmdcpar.DirtyRepoSummary) {
 }
 
 func runSeeHistory(args []string) *apperror.AppError {
-	if HistoryRunnerFn != nil {
+	hasHook := HistoryRunnerFn != nil
+	if hasHook {
 		return HistoryRunnerFn(args)
 	}
 	err := exec.Command("gitmap", append([]string{"history"}, args...)...).Run()
 	return apperror.WrapSimple(err, "history")
+}
+
+func runSeeHistorySSH(args []string) *apperror.AppError {
+	subArgs := resolveHistorySSHArgs(args)
+	err := cmdssh.RunFleetPASCommand("history", "gitmap history --limit 10", func() error {
+		hasHook := HistoryRunnerFn != nil
+		if hasHook {
+			return HistoryRunnerFn(subArgs)
+		}
+		return exec.Command("gitmap", append([]string{"history"}, subArgs...)...).Run()
+	})
+	return apperror.WrapSimple(err, "history-ssh")
+}
+
+func resolveHistorySSHArgs(args []string) []string {
+	isLonger := len(args) > 2
+	if isLonger {
+		return args[2:]
+	}
+	return []string{}
 }
 
 // RunSeeErrorsSSH executes see errors across local host and remote fleet nodes.
@@ -98,31 +160,46 @@ func RunSeeErrorsSSH(args []string) *apperror.AppError {
 }
 
 func runSeeErrorsSSH(args []string) *apperror.AppError {
-	subArgs := []string{}
-	if len(args) > 2 {
-		subArgs = args[2:]
-	}
+	subArgs := resolveErrorsSSHArgs(args)
 	return RunSeeErrorsSSH(subArgs)
 }
 
-// RunRepoManageUI opens the repository management web UI.
+func resolveErrorsSSHArgs(args []string) []string {
+	isLonger := len(args) > 2
+	if isLonger {
+		return args[2:]
+	}
+	return []string{}
+}
+
+// RunRepoManageUI opens the repository management interactive terminal dashboard.
 func RunRepoManageUI() *apperror.AppError {
-	fmt.Println("Launching GitMap Repository Management UI...")
-	cmd := exec.Command("gitmap", "ui")
-	err := cmd.Start()
-	return apperror.WrapSimple(err, "repo-manage-ui")
+	fmt.Println("Launching GitMap Repository Management Dashboard...")
+	cmd := exec.Command("gitmap", "interactive")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	hasErr := err != nil
+	if hasErr {
+		cmdWeb := exec.Command("gitmap", "ui")
+		_ = cmdWeb.Start()
+	}
+	return nil
 }
 
 // PrintSeeHelp displays help for gitmap see suite.
 func PrintSeeHelp() *apperror.AppError {
 	fmt.Printf(`
-  GitMap Inspection Suite (see)
+  GitMap Inspection Suite (see / c)
     • gitmap see commit pending          - List repositories with uncommitted changes
     • gitmap see git-ignore issues       - List repositories with ignore/duplicate issues
     • gitmap see errors                  - Display recent execution errors
     • gitmap see history                 - Display command history
     • gitmap see errors ssh (ses)        - Display errors across SSH fleet (PAS Formula)
-    • gitmap repo-manage ui              - Open web repository manager
+    • gitmap history ssh                 - Display history across SSH fleet (PAS Formula)
+    • gitmap nodes history               - Display history across SSH fleet nodes
+    • gitmap repo-manage ui              - Launch interactive terminal dashboard
 `)
 	return nil
 }

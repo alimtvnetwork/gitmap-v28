@@ -7,10 +7,8 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/utils"
 )
 
 // RunPullAllEfficient executes the efficient pull workflow skipping inactive repos.
@@ -48,17 +46,20 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 		return handleEmptyRecords(isJSON)
 	}
 
+	ignoreHandle := startAsyncIgnoreScan(records)
 	pullErr := processEfficientPullLifecycle(records, opts)
-	checkAgmResumeTaskEfficient(records, isJSON, args)
+	collectAndRemediateEfficientIgnore(ignoreHandle, args, isJSON)
 
 	return pullErr
 }
 
-func checkAgmResumeTaskEfficient(records []model.ScanRecord, isJSON bool, args []string) {
+func collectAndRemediateEfficientIgnore(handle *IgnoreScanHandle, args []string, isJSON bool) {
+	if handle == nil {
+		return
+	}
+	issues := handle.Collect()
 	isAutoYes := hasEfficientAutoYes(args)
-	utils.ProcessAsync(5, len(records), func(i int) {
-		_ = gitignoreagm.CheckAndPromptRepos([]string{records[i].AbsolutePath}, isJSON, isAutoYes)
-	})
+	handleIgnoreRemediation(issues, isAutoYes, isJSON)
 }
 
 func hasEfficientAutoYes(args []string) bool {

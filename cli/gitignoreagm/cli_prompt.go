@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -66,7 +67,20 @@ func isEligibleAffectedRepo(cleanDir string, seen map[string]bool) bool {
 	if cleanDir == "" || seen[cleanDir] {
 		return false
 	}
-	return HasUnignoredResumeTask(cleanDir)
+	return hasTrackedResumeTaskInIndex(cleanDir)
+}
+
+func hasTrackedResumeTaskInIndex(repoDir string) bool {
+	if !IsGitRepository(repoDir) {
+		return false
+	}
+	for _, target := range targetResumeFiles {
+		cmd := exec.Command("git", "-C", repoDir, "ls-files", "--error-unmatch", target)
+		if cmd.Run() == nil {
+			return true
+		}
+	}
+	return false
 }
 
 // CheckAndPromptRepos detects affected repos during scan or pull-all and prompts the user to remediate.

@@ -59,7 +59,7 @@ func extractFirstMeaningfulErrorLine(msg string) string {
 // ResolvePullRemediationHint generates an actionable next-step command for pull failures.
 func ResolvePullRemediationHint(s *PullRepoState) string {
 	if s.IsDirty || s.Changes == "dirty" {
-		return fmt.Sprintf("gitmap fix %s 1 (or git stash / git commit)", s.RepoName)
+		return fmt.Sprintf("gitmap fix %s, gitmap cpar, or gitmap stash", s.RepoName)
 	}
 	if s.ErrorMsg == "" {
 		return ""
@@ -68,20 +68,36 @@ func ResolvePullRemediationHint(s *PullRepoState) string {
 }
 
 func buildActionableRemediation(repoName, repoPath, msg string) string {
-	if strings.Contains(msg, "Permission denied (publickey)") || strings.Contains(msg, "Authentication failed") {
-		return fmt.Sprintf("Check SSH keys or run 'git -C %s remote set-url origin git@github.com:...'", repoName)
+	if isAuthFailure(msg) {
+		return fmt.Sprintf("gitmap status %s or gitmap fix %s", repoName, repoName)
 	}
-	if strings.Contains(msg, "CONFLICT") || strings.Contains(msg, "conflict") {
-		return fmt.Sprintf("Resolve conflicts or run 'git -C %s merge --abort'", repoName)
+	if isConflictFailure(msg) {
+		return fmt.Sprintf("gitmap fix %s or gitmap stash", repoName)
 	}
-	if strings.Contains(msg, "Not possible to fast-forward") || strings.Contains(msg, "diverged") {
-		return fmt.Sprintf("Run 'git -C %s pull --rebase' or inspect branches", repoName)
+	if isDivergedFailure(msg) {
+		return fmt.Sprintf("gitmap pull %s", repoName)
 	}
-	if strings.Contains(msg, "missing repository directory") {
-		return fmt.Sprintf("Run 'gitmap clone %s' to re-clone", repoName)
+	if isMissingRepoFailure(msg) {
+		return fmt.Sprintf("gitmap clone %s", repoName)
 	}
 	if strings.Contains(msg, "Can not use the 'cache' credential store on Windows") || strings.Contains(msg, "lack of UNIX socket support") {
 		return "Run 'gitmap fix-credential' (alias: fc) to repair Windows git credential store"
 	}
-	return fmt.Sprintf("Inspect repository: run 'git -C %s status'", repoName)
+	return fmt.Sprintf("gitmap status %s or gitmap fix %s", repoName, repoName)
+}
+
+func isAuthFailure(msg string) bool {
+	return strings.Contains(msg, "Permission denied (publickey)") || strings.Contains(msg, "Authentication failed")
+}
+
+func isConflictFailure(msg string) bool {
+	return strings.Contains(msg, "CONFLICT") || strings.Contains(msg, "conflict")
+}
+
+func isDivergedFailure(msg string) bool {
+	return strings.Contains(msg, "Not possible to fast-forward") || strings.Contains(msg, "diverged")
+}
+
+func isMissingRepoFailure(msg string) bool {
+	return strings.Contains(msg, "missing repository directory")
 }
