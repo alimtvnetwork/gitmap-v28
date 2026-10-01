@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.452.0] - 2026-10-01
+
+### Added
+- fix shared engine attributes, canceled pipeline status, US spelling, and complete command helptext
+
+---
+
 ## [v6.451.0] - 2026-10-01
 
 ### Added
@@ -18,7 +25,7 @@
 ### Added
 - Auto fast-forward merge fallback in safe pull (`--no-rebase --no-edit --autostash`) when local and remote branches have diverged
 - Clean in-progress merge abort (`git merge --abort`) if non-fast-forward auto-merge encounters conflicts
-- Excluded cancelled workflow runs from false-positive failure flags in pipeline error logging
+- Excluded canceled workflow runs from false-positive failure flags in pipeline error logging
 - Centralized SQLite Split-DB gitignore cache in `BinaryDataDir` with `COLLATE NOCASE` and case-insensitive matching
 - Dynamic TTL resolution for ignore checks with `--force` bypass support across pull and ignore commands
 

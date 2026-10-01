@@ -282,6 +282,10 @@ func hasFailingRuns(runs []ghRunItem) bool {
 
 func isFailingConclusion(conclusion string) bool {
 	lower := strings.ToLower(strings.TrimSpace(conclusion))
+	if strings.HasPrefix(lower, "cancel") {
+		return true
+	}
+
 	switch lower {
 	case "failure", "timed_out", "startup_failure", "action_required", "stale":
 		return true

@@ -43,6 +43,8 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 78 | Windows Binary Archive Packaging vs Executable PE Target | Local CLI Installation / PowerShell | ✅ Resolved | [78-windows-binary-magic-bytes-and-powershell-profile-rca.md](cicd-issues/78-windows-binary-magic-bytes-and-powershell-profile-rca.md) |
 | 90 | US Locale `misspell` Failure on `Cancelled` in `change_password_cmd.go` | Spell Check (`misspell`) | ✅ Resolved | [90-misspell-cancelled-in-change-password-cmd-rca.md](cicd-issues/90-misspell-cancelled-in-change-password-cmd-rca.md) |
 | 94 | VS Code PM Sync Test Fixture Disallowed Path Filter Exclusion | Full Suite Guard / Cross-Platform Build | ✅ Resolved | [94-vscodepm-sync-test-fixture-disallowed-path-filter-rca.md](cicd-issues/94-vscodepm-sync-test-fixture-disallowed-path-filter-rca.md) |
+| 95 | Pipeline Nested Ifs, Swallowed DB Errors & Runner Path Regression | CI Quality Gates | ✅ Resolved | [95-pipeline-nested-if-error-management-and-runner-attributes-rca.md](cicd-issues/95-pipeline-nested-if-error-management-and-runner-attributes-rca.md) |
+| 96 | Shared Engine Attributes, Canceled Pipeline Workflows, US Misspell & Helptext | CI Pipeline / Build Gate | ✅ Resolved | [96-shared-engine-attributes-canceled-pipeline-misspell-and-helptext-rca.md](cicd-issues/96-shared-engine-attributes-canceled-pipeline-misspell-and-helptext-rca.md) |
 
 ## Patterns Learned
 

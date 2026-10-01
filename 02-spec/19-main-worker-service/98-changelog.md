@@ -1,3 +1,9 @@
+## v6.452.0 — 2026-10-01 (fix shared engine attributes, canceled pipeline status, US spelling, and complete command helptext)
+
+**Scope:** Version bump. fix shared engine attributes, canceled pipeline status, US spelling, and complete command helptext.
+
+---
+
 ## v6.451.0 — 2026-10-01 (enforce gitignore split-db cache across pull commands and suppress pending task no-rows warning)
 
 **Scope:** Version bump. enforce gitignore split-db cache across pull commands and suppress pending task no-rows warning.
