@@ -1,3 +1,9 @@
+## v6.438.2 — 2026-10-01 (Fix helptext examples formatting for fix-credential)
+
+**Scope:** Version bump. Fix helptext examples formatting for fix-credential.
+
+---
+
 ## v6.438.1 — 2026-10-01 (Fix nested-if in cpar, sync generated commands and register fix-credential test constants)
 
 **Scope:** Version bump. Fix nested-if in cpar, sync generated commands and register fix-credential test constants.

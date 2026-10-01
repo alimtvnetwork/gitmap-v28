@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.438.2] - 2026-10-01
+
+### Added
+- Fix helptext examples formatting for fix-credential
+
+---
+
 ## [v6.438.1] - 2026-10-01
 
 ### Added
