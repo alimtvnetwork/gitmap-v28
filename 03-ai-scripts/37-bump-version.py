@@ -268,7 +268,18 @@ def update_changelogs(next_version, scope, today_str, dry_run=False):
 
 
 def run_repo_sync_if_available(dry_run=False):
-    """Executes `npm run sync` if defined in package.json to regenerate spec trees and manifests."""
+    """Executes `npm run sync` and `go generate ./...` if defined to regenerate spec trees, manifests, and Go code."""
+    cli_dir = REPO_ROOT / "cli"
+    if cli_dir.is_dir():
+        if dry_run:
+            print("[DRY RUN] Would run: go generate ./... in cli/")
+        else:
+            try:
+                run_cmd(["go", "generate", "./..."], cwd=str(cli_dir), check=False)
+                print("[*] Completed go generate ./... in cli/")
+            except Exception as e:
+                print(f"[!] Warning running go generate ./...: {e}")
+
     if not PACKAGE_JSON.is_file():
         return
 
