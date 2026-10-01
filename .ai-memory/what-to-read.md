@@ -122,7 +122,10 @@
 - `.ai-memory/plans/completed/197-pas-fix.md`, why: Completed Plan 197 GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache
 - `02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md`, why: Spec 181 GitMap ignore and split-DB repo cache engine architecture
 - `02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md`, why: Spec 198 PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry
-- `.ai-memory/plans/pending/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md`, why: Pending Plan 61 PAS worker concurrency and pull-error split-DB subsystem
+- `.ai-memory/plans/completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md`, why: Completed Plan 61 PAS worker concurrency and pull-error split-DB subsystem
+- `02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md`, why: Spec 199 Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence
+- `.ai-memory/plans/pending/62-devtools-cache-discovery-tree-and-split-db.md`, why: Pending Plan 62 Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence
 - `.ai-memory/spec/commands/10-pas-formula-ignore-suite-cpar-and-cache.md`, why: Command specification for GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine
 - `.ai-memory/spec/commands/11-pas-worker-concurrency-pull-error-and-telemetry.md`, why: Command specification for machine telemetry, paswh command, pull-error subsystem, and wincredman remediation
+- `.ai-memory/spec/commands/12-devtools-cache-discovery-tree-and-split-db.md`, why: Command specification for Devtools cache dynamic discovery, tree view, and Split-DB persistence
 - `.ai-memory/ambiguous-questions/01-new-ambiguity/03-gitmap-mcp-server-api-endpoint.md`, why: Open Ambiguity 03 GitMap as an MCP Server API Endpoint for autonomous AI agents

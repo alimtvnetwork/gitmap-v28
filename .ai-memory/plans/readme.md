@@ -42,10 +42,7 @@
 ## Pending Plans
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
-
-
-
-
+- [62-devtools-cache-discovery-tree-and-split-db.md](pending/62-devtools-cache-discovery-tree-and-split-db.md) — Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Spec: [199](../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md))
 ## Subtasks Directory
 
 ### Plan 52 Subtasks (subtasks/)
@@ -101,3 +98,9 @@
 - [03-heartbeat-ticker-and-structured-output-grouping.md](subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/03-heartbeat-ticker-and-structured-output-grouping.md): Heartbeat ticker and structured output grouping
 - [04-pull-error-subsystem-and-split-db-engine.md](subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/04-pull-error-subsystem-and-split-db-engine.md): Pull-error subsystem and split-DB engine
 - [05-wincredman-credential-remediation-hints.md](subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/05-wincredman-credential-remediation-hints.md): Wincredman credential store remediation hints
+
+### Plan 62 Subtasks (subtasks/62-devtools-cache-discovery-tree-and-split-db/)
+- [01-devtools-dynamic-cache-discovery.md](subtasks/62-devtools-cache-discovery-tree-and-split-db/01-devtools-dynamic-cache-discovery.md): Multi-Ecosystem Dynamic Discovery Engine
+- [02-split-db-cache-persistence.md](subtasks/62-devtools-cache-discovery-tree-and-split-db/02-split-db-cache-persistence.md): Split-DB Cache Persistence & Force Invalidation
+- [03-ansi-colored-tree-view-rendering.md](subtasks/62-devtools-cache-discovery-tree-and-split-db/03-ansi-colored-tree-view-rendering.md): ANSI Colored Rich Output & Interactive Tree View
+- [04-devtools-cli-flags-and-routing.md](subtasks/62-devtools-cache-discovery-tree-and-split-db/04-devtools-cli-flags-and-routing.md): Devtools CLI Flags Integration & Routing

@@ -5,10 +5,7 @@ Master directory of architectural and execution plans.
 ## Pending Plans
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md): VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
-
-
-
-
+- [62-devtools-cache-discovery-tree-and-split-db.md](pending/62-devtools-cache-discovery-tree-and-split-db.md): Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Spec: [199](../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md))
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
 1. [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md): PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry (Spec: [198](../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md))
