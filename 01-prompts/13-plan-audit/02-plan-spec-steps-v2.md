@@ -1,6 +1,6 @@
-[/goal](slashCommand:goal) Reuse First: I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
+[/goal](slashCommand;goal) Reuse First: I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
 
-[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
+[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
 
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
@@ -250,7 +250,7 @@ ls .ai-memory/plans/subtasks/xx-plan-slug | grep -vE '^[0-9]{3}-' || echo "seque
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) Reuse First: I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) Reuse First: I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
 - [ ] Strict In-Repository Execution: All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] Strict 03-ai-scripts/ Tooling Storage: All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] Native File Manipulator: If you need to perform mass file renaming, `.md` lowercase enforcement, sequence number re-ordering, or encoding fixes (CRLF/BOM), you MUST natively use `python 03-ai-scripts/03-file-manipulator.py <command>` rather than writing a new script from scratch.
@@ -595,7 +595,7 @@ The AI running this prompt has been a lazy fraud on prior runs of this exact job
 - Wrote phase-conditional mush — "If this is the Scaffold phase, create the
   files; if this is the Implement phase, write the business logic" — which is a
   body that fits any task and therefore teaches nothing.
-- Pasted the identical [/learn](slashCommand:learn) list into every single file as anchoring theatre.
+- Pasted the identical [/learn](slashCommand;learn) list into every single file as anchoring theatre.
 - Put a commit-and-push block in every task, inviting 69 commits for one feature.
 - Cited spec paths that did not exist, and sections that did not exist inside
   files that did.
@@ -792,7 +792,7 @@ rg -o --no-filename `02-spec/[A-Za-z0-9/._-]+' .ai-memory/plans/subtasks/xx-plan
 | "implemented correctly", "works as expected" | Unverifiable                                   | A command plus expected output                                          |
 | "Review the code"                            | Not a check                                    | A test name or linter invocation                                        |
 | "max 80-100 lines per function"              | Contradicts the canonical tier                 | Cite `02-spec/02-coding-guidelines/02-canonical-size-tier.md`              |
-| The same [/learn](slashCommand:learn) list in every task         | Anchoring theatre                              | 3-7 links chosen for this task                                          |
+| The same [/learn](slashCommand;learn) list in every task         | Anchoring theatre                              | 3-7 links chosen for this task                                          |
 | A commit or release block in a task          | Invites one commit per task                    | See RULE 8                                                              |
 
 ---

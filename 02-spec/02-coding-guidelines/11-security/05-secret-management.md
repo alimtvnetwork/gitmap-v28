@@ -15,8 +15,9 @@
 
 ## 4. Special Repository for Secrets (`repo-secrets` / `gitmap rs` / `gitmap cd rs`)
 
-- All secrets, `.env` files, API credentials, and private tokens MUST NEVER be committed to source repositories.
-- Secrets MUST be stored into the dedicated special repository (`repo-secrets`) using GitMap CLI commands:
+- All secrets, private credentials, authentication email and password pairs, `.env` files, API credentials, and private tokens MUST NEVER be committed to standard source repositories.
+- **Context & Location Mandate:** Never specify or provide repository URLs, git remote URLs, or absolute folder paths. State strictly that if the `repo-secrets` folder exists in the default work directory, that is the context where secrets MUST be stored.
+- If the `repo-secrets` folder exists in the default work directory, secrets MUST be stored into it using GitMap CLI commands or dedicated companion storage:
   - `gitmap rs file <filepath> [--repo <name>]`: Copies the secret file into `repo-secrets/XX-<repo-name>/01-<slug>.ext`, automatically commits, and pushes.
   - `gitmap rs folder <folderpath> [--repo <name>]`: Recursively archives a secret directory into `repo-secrets/XX-<repo-name>/01-<slug>/`, commits, and pushes.
   - `gitmap rs text "<secret-token>" [--slug <slug>] [--ext <ext>]`: Writes inline secrets or tokens into `repo-secrets/XX-<repo-name>/01-<slug>.ext` with deterministic numbering, commits, and pushes.

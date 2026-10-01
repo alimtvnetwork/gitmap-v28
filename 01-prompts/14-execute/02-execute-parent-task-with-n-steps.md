@@ -1,6 +1,11 @@
-[/goal](slashCommand:goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
+> [!NOTE]
+> For Antigravity runs, use [V4](11-execute-parent-task-with-n-steps-v4.md), which supersedes this version. This file is kept for existing users.
 
-[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
+[/goal](slashCommand;goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
+
+[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
+
+[/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution. Ensure all deliverables, architecture boundaries, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
 
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
@@ -48,23 +53,23 @@ Always prefer native GitMap commands over slow generic shell pipelines:
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Preamble Precedence Verification: Whatever is given before this section or prompt (user preamble, header constraints, prior instructions) has been verified as highest priority and non-negotiable, and is strictly incorporated into the task scope ahead of all other guidelines.
-2. [ ] [/goal](slashCommand:goal) Phase 1A (Step 0 - Verbatim Prompt Recording & Task Extraction Gate): Immediately capture the user prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`. If screenshot URLs or base64 data URIs are provided, decode/save them as image files (`assets/screenshots/<task-slug>-<NN>.png`) and refer back to them via relative paths in specs. Extract actionable deliverables with traceable IDs (`Task-01`, `Task-02`), and output this confirmed task breakdown directly in chat in cleanly indented markdown with vertical blank lines, task state (`State: [PENDING]`), and understanding indicator bracket (`Understood: [YES — ...]`) before any file exploration, scanning, or spec writing.
-3. [ ] [/goal](slashCommand:goal) Phase 1B (Step 1 - Canonical Spec Generation & Single-Agent Blueprint in Folder 21): Write the initial canonical specification overview and blueprint in `02-spec/21-app/xx-<slug>.md` (or directory `02-spec/21-app/xx-<slug>/` for complex features) with a single lead agent, then delegate modular spec sections to parallel subagents (A = 2, H = 2) for lossless verbatim capture and visual assets, register it in `02-spec/21-app/readme.md`, and initialize the execution plan in `.ai-memory/plans/pending/xx-<slug>.md` linking back to the spec.
-4. [ ] [/goal](slashCommand:goal) Phase 1B (Step 2 - Scan & Discover via Parallel Subagents): Use GitMap AUM discovery (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery scripts (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, with parallel subagents (reading files as the primary parallel task) to inventory files and map call sites without tool truncation limits.
-5. [ ] [/goal](slashCommand:goal) Phase 1B (Step 3 - Lean Subtask Decomposition): Decompose the plan into lean subtask files in `.ai-memory/plans/subtasks/xx-<slug>/01-<subslug>.md` cross-referencing the canonical spec. Subtasks must focus purely on unique task deliverables without repeating common repository boilerplate. Complete all spec and subtask writing within 50% of the steps budget (`PHASE_1_STEPS = N / 2`).
-6. [ ] [/goal](slashCommand:goal) Phase 1B (Step 4 - Readiness & Spec Audit Gate): Confirm single-agent audit roadmap is set, canonical spec is registered in `02-spec/21-app/readme.md`, all `Task-xx` deliverables are mapped to subtasks linking back to the spec, and disjoint files are assigned before execution.
-7. [ ] [/goal](slashCommand:goal) Phase 1B (Step 5 - Unconditional Zero-Question Execution Mandate): Immediately upon completing Phase 1, self-loop and transition directly into Phase 2 code execution without pausing, asking questions, or seeking user confirmation. Stopping after spec writing is strictly banned and constitutes an auto-reject failure.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Execution & Code Refactoring, Steps N/2+1..N): Unconditionally execute the code refactoring in the remaining 50% of the steps budget (`PHASE_2_STEPS = N / 2`). Spawn up to A = 2 execution subagents (H = 2 operations each) to execute subtasks on disjoint files in parallel.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents must read the failure log first to remediate root causes.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters on specifically modified files (`exit 0`). Do not run `06-cicd-local-runner.py`, unit tests, or build checks (deferred to CI/CD).
-11. [ ] [/goal](slashCommand:goal) Phase 3 (Consolidation & Atomic Push): Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md` preserving the canonical spec reference (canonical spec in `02-spec/21-app/` remains permanently intact), delete granular subtasks and pending plan, stage all changes, and push in a single grouped commit.
-12. [ ] [/goal](slashCommand:goal) Phase 3 (Completion & Confidence Reporting): Emit the final Task Completion Summary with strict line-by-line bullet format (- ✅), modified files summary, and implementation confidence score.
-13. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-14. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/` for error handling architectures and *appfault.AppError.
-17. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+1. [ ] [/goal](slashCommand;goal) Preamble Precedence Verification: Whatever is given before this section or prompt (user preamble, header constraints, prior instructions) has been verified as highest priority and non-negotiable, and is strictly incorporated into the task scope ahead of all other guidelines.
+2. [ ] [/goal](slashCommand;goal) Phase 1A (Step 0 - Verbatim Prompt Recording & Task Extraction Gate): Immediately capture the user prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`. If screenshot URLs or base64 data URIs are provided, decode/save them as image files (`assets/screenshots/<task-slug>-<NN>.png`) and refer back to them via relative paths in specs. Extract actionable deliverables with traceable IDs (`Task-01`, `Task-02`), and output this confirmed task breakdown directly in chat in cleanly indented markdown with vertical blank lines, task state (`State: [PENDING]`), and understanding indicator bracket (`Understood: [YES — ...]`) before any file exploration, scanning, or spec writing.
+3. [ ] [/goal](slashCommand;goal) Phase 1B (Step 1 - Canonical Spec Generation & Single-Agent Blueprint in Folder 21): Write the initial canonical specification overview and blueprint in `02-spec/21-app/xx-<slug>.md` (or directory `02-spec/21-app/xx-<slug>/` for complex features) with a single lead agent, then delegate modular spec sections to parallel subagents (A = 2, H = 2) for lossless verbatim capture and visual assets, register it in `02-spec/21-app/readme.md`, and initialize the execution plan in `.ai-memory/plans/pending/xx-<slug>.md` linking back to the spec.
+4. [ ] [/goal](slashCommand;goal) Phase 1B (Step 2 - Scan & Discover via Parallel Subagents): Use GitMap AUM discovery (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery scripts (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, with parallel subagents (reading files as the primary parallel task) to inventory files and map call sites without tool truncation limits.
+5. [ ] [/goal](slashCommand;goal) Phase 1B (Step 3 - Lean Subtask Decomposition): Decompose the plan into lean subtask files in `.ai-memory/plans/subtasks/xx-<slug>/01-<subslug>.md` cross-referencing the canonical spec. Subtasks must focus purely on unique task deliverables without repeating common repository boilerplate. Complete all spec and subtask writing within 50% of the steps budget (`PHASE_1_STEPS = N / 2`).
+6. [ ] [/goal](slashCommand;goal) Phase 1B (Step 4 - Readiness & Spec Audit Gate): Confirm single-agent audit roadmap is set, canonical spec is registered in `02-spec/21-app/readme.md`, all `Task-xx` deliverables are mapped to subtasks linking back to the spec, and disjoint files are assigned before execution.
+7. [ ] [/goal](slashCommand;goal) Phase 1B (Step 5 - Unconditional Zero-Question Execution Mandate): Immediately upon completing Phase 1, self-loop and transition directly into Phase 2 code execution without pausing, asking questions, or seeking user confirmation. Stopping after spec writing is strictly banned and constitutes an auto-reject failure.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Execution & Code Refactoring, Steps N/2+1..N): Unconditionally execute the code refactoring in the remaining 50% of the steps budget (`PHASE_2_STEPS = N / 2`). Spawn up to A = 2 execution subagents (H = 2 operations each) to execute subtasks on disjoint files in parallel.
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents must read the failure log first to remediate root causes.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters on specifically modified files (`exit 0`). Do not run `06-cicd-local-runner.py`, unit tests, or build checks (deferred to CI/CD).
+11. [ ] [/goal](slashCommand;goal) Phase 3 (Consolidation & Atomic Push): Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md` preserving the canonical spec reference (canonical spec in `02-spec/21-app/` remains permanently intact), delete granular subtasks and pending plan, stage all changes, and push in a single grouped commit.
+12. [ ] [/goal](slashCommand;goal) Phase 3 (Completion & Confidence Reporting): Emit the final Task Completion Summary with strict line-by-line bullet format (- ✅), modified files summary, and implementation confidence score.
+13. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+14. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+16. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/` for error handling architectures and *appfault.AppError.
+17. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 
 ---
 
@@ -72,15 +77,15 @@ Always prefer native GitMap commands over slow generic shell pipelines:
 
 Before executing the tasks below, check if this prompt is already installed as a native Antigravity Skill.
 
-1. If `.agents/skills/<slug>/SKILL.md` does not exist in the workspace, create it now.
-2. Extract the core instructions of this prompt and save it into that `SKILL.md` using the standard YAML frontmatter (with `name` and `description`).
+1. If `.agents/skills/<slug>/skill.md` does not exist in the workspace, create it now.
+2. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter (with `name` and `description`).
 3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
 
 ---
 
 ## 1. Multi-Agent Concurrency & Orchestration (A = 2, H = 2)
 
-[/goal](slashCommand:goal) You are the master orchestrator. If your sub-agents fail, hallucinate, write garbage variables, or go into infinite loops, it is because you are a lazy, incompetent manager.
+[/goal](slashCommand;goal) You are the master orchestrator. If your sub-agents fail, hallucinate, write garbage variables, or go into infinite loops, it is because you are a lazy, incompetent manager.
 
 - **Single-Agent Unified Blueprint Mandate:**
   - The initial execution plan, architectural decomposition, and lookahead roadmap MUST be authored by a single lead agent first as a unified blueprint before delegating work to subagents.
@@ -94,7 +99,7 @@ Before executing the tasks below, check if this prompt is already installed as a
 - **Mandatory Tool Schema (`TypeName: "self"`):** Subagents performing code refactoring or spec authoring MUST use `TypeName: "self"` so they inherit write and command tools (`write_to_file`, `replace_file_content`, `run_command`).
 - **Reactive Wakeup & Turn Yielding Protocol:**
   - After invoking `invoke_subagent`, the parent orchestrator MUST output a brief progress note to the user and **STOP CALLING TOOLS** to yield the turn.
-  - DO NOT run busy-polling loops. The platform automatically wakes up the parent agent with a `<SYSTEM_MESSAGE>` when subagents complete or send messages.
+  - DO NOT run busy-polling loops. Subagent results and messages arrive in the parent agent's conversation automatically.
 - **Fail Fast & Kill Stalls:** If a sub-agent stalls or provides garbage code, kill it immediately, rollback its dirty working tree, and spawn a new one.
 
 ---
@@ -113,7 +118,7 @@ Before executing any file searches, scans, spec writing, or code changes, you mu
    - You MUST output the confirmed deliverables list directly in chat, but you MUST NOT end your turn or pause after emitting it!
    - In the EXACT SAME RESPONSE turn as your markdown output, you MUST immediately invoke the first tool call (e.g. `write_to_file` to initialize the planning spec or `run_command` for fast discovery).
    - NEVER emit the breakdown text without invoking a tool call. Emitting visible text without a tool call terminates the AI turn, causing the engine to close or hang the conversation while tasks remain pending.
-   - TOTAL BAN ON WAITING FOR APPROVAL: Do not pause, do not wait for the user to reply, and do not ask "Should I proceed?". Override any planning mode stop directives. Proceed immediately into Phase 1B in the same turn.
+   - TOTAL BAN ON WAITING FOR APPROVAL: Do not pause, do not wait for the user to reply, and do not ask "Should I proceed?". Add no stops of your own; the only allowed pause is the one the Artifact Review Policy (a user setting) imposes. Proceed immediately into Phase 1B in the same turn.
    - Respect whatever requirements the user has given, parse every request completely, and format each task clearly with proper markdown indentation, vertical blank lines, task state (`State: [IN PROGRESS — EXECUTING IMMEDIATELY]`), and an explicit understanding indicator bracket (`Understood: [YES — ...]`).
    - TOTAL BAN ON UNFORMATTED RUN-ON TEXT: Never concatenate tasks into a single unformatted line or paragraph block (e.g. NEVER `#1. Task-01: ... #2. Task-02: ...`). Every task must be its own clearly separated markdown item.
    - Line-by-Line Output Format Structure:
@@ -237,13 +242,11 @@ Before transitioning to execution, verify:
          {
            "TypeName": "self",
            "Role": "Subtask Worker 01: [Feature/Module A]",
-           "Model": "inherit",
            "Prompt": "[Subagent Prompt Envelope Below]"
          },
          {
            "TypeName": "self",
            "Role": "Subtask Worker 02: [Feature/Module B]",
-           "Model": "inherit",
            "Prompt": "[Subagent Prompt Envelope Below]"
          }
        ]
@@ -268,7 +271,7 @@ Before transitioning to execution, verify:
      2. Structured Go errors: return `*appfault.AppError`, never bare `error`.
      3. Function sizing: <= 8 lines preferred (hard cap 15 lines).
      4. Zero tests or builds: NEVER run `go test`, `pytest`, or build commands.
-     5. Targeted quality check: Run only targeted file-level linters (`python 03-ai-scripts/05-guideline-autofixer.py <file>`).
+     5. Targeted quality check: Run only targeted file-level linters (`python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only --ext <.ext>`). Pass the folder that holds the file: a single new file scans 0 files and still exits 0, which counts as a FAIL.
 
      ### Completion & Reporting Contract:
      When finished, emit a structured completion summary detailing:
@@ -279,10 +282,10 @@ Before transitioning to execution, verify:
      ```
 
 3. **Reactive Wakeup & Turn-Yielding Protocol (Deadlock Prevention):**
-   - In Google Antigravity, background subagents run asynchronously in the platform runtime. The parent agent receives subagent completions via the **Reactive Wakeup** messaging system (`<SYSTEM_MESSAGE>`).
+   - In Google Antigravity, background subagents run asynchronously in the platform runtime. Subagent results arrive in the parent agent's conversation as messages (**Reactive Wakeup**).
    - **MANDATORY YIELD RULE:** Immediately after issuing the `invoke_subagent` tool call, the parent orchestrator MUST output a brief progress note to the user (e.g. `Dispatched Subagents [01] and [02] to execute subtasks in parallel. Yielding turn to await completion...`) and **STOP CALLING TOOLS**.
    - **NO BUSY-POLLING (TOTAL BAN):** NEVER run tight-polling loops using `manage_task` or filesystem checks to wait for subagents. Ending the tool-call chain allows the platform scheduler to execute the background subagents and deliver their completion messages into the parent's inbox upon wakeup.
-   - When the subagents finish, the engine wakes up the parent agent automatically with a `<SYSTEM_MESSAGE>`. The parent inspects the results, verifies acceptance criteria, and transitions to consolidation.
+   - When the subagents finish, their results arrive as messages and wake the parent agent automatically. The parent inspects the results, verifies acceptance criteria, and transitions to consolidation.
 
 4. **File Locking & Disjoint Files:** Verify subagents operate on strictly distinct files using `.ai-memory/readme.md`.
 5. **Execution & Coding Guidelines:** Subagents refactor code following all coding guidelines (<= 8-15 line functions, single return types, universal `*appfault.AppError` wrapping, Unix LF line endings).
@@ -353,7 +356,7 @@ To reduce markdown file count and bloat, consolidate subtasks when a parent task
      - For fixes/bugs: `gitmap cpb "<summary>"` (automatically stages all files, prefixes `Bug: `, commits, and pushes).
      - For releases: `gitmap cpr "<summary>"` (automatically stages all files, prefixes `Release: `, commits, and pushes).
      - For safe pull-commit-push: `gitmap pcp "<summary>"`.
-   - If GitMap CLI is unavailable, fallback to raw git: `git add -A && git commit -m "<summary>" && git push origin <branch>`.
+   - If GitMap CLI is unavailable, fallback to raw git: `git add -- <paths this task changed> && git commit -m "<summary>" && git push origin <branch>`.
    - Under no circumstances commit each file individually.
 
 ---
@@ -465,7 +468,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 
 ## 9. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
-[/goal](slashCommand:goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
+[/goal](slashCommand;goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
 - [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).
@@ -487,11 +490,11 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] Index Sync Deadman Switch: Every new file is explicitly linked in `readme.md` and enqueued in `.ai-memory/what-to-read.md`.
 - [ ] Blast Radius Acknowledgment: Global search across codebase performed to update all callers of modified symbols.
 - [ ] Continuous Loop Maintained: Continuous self-loop executed until 100% complete without running banned test/build commands.
-- [ ] Final Step Commit & Push Verified: Staged all changes (`git add -A`), committed everything in a single grouped atomic commit, and pushed to git before ending the turn (no per-file commits).
+- [ ] Final Step Commit & Push Verified: Staged only the files this task changed, by explicit path (`git add -- <paths>`), committed them in a single grouped atomic commit, and pushed to git before ending the turn (no per-file commits).
 
 ---
 
 ## 11. Final Step Git Commit & Push Mandate (Strict Checklist)
 
-- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. These GitMap commands stage every file, so use them only when `git status --porcelain` was clean before the task started; otherwise, or if GitMap CLI is unavailable, run `git add -- <paths this task changed> && git commit && git push`. Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
 - [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` or `gitmap cpf` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.

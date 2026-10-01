@@ -1,858 +1,397 @@
-[/goal](slashCommand:goal) Autonomously scan, discover, plan, refactor, and verify all Go functions returning multi-value error tuples (such as `(map[K]V, error)`, `([]T, error)`, or `(T, error)`), eliminating raw standard library error returns, centralizing all domain payload structs and Result type aliases into `types.go` within each package as single reusable types everywhere rather than scattering inline structs or raw generic Result declarations across implementation files, replacing multi-value returns with strongly-typed result wrappers (`ResultMap[K, V]`, `ResultSlice[T]`, `Result[T]`) and structured `*appfault.AppError` returns, guaranteeing a single return object, pointer-attached null safety (`*Result[T]`, `*ResultSlice[T]`, `*ResultMap[K, V]`) with methods attached to pointer receivers (`(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])`) that verify `if r == nil` before dereferencing any fields or checking errors, standardized outer-layer inspection predicates (`IsSuccess`, `IsFailure`, `HasError`, `IsEmptyError`, `IsEmpty`, `HasRecord`, `IsDefined`, `IsCountOtherThan`, `Data`, `Items`, `AppError`, `Fault`, `Get`, `Has`, `Count`), eliminating dual-handling, and replacing verbose `if err != nil || len(...) != N` or `IsFailure() || Count() != N` conditions with fluent `if res.IsCountOtherThan(N)` across the entire codebase until 100% green without stopping with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
-
-[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
-
-> **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
-> Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
-
 ```text
-N = 200 (Total self-loop steps budget)
-A = 2   (Number of spawned autonomous subagents running concurrently, default: 2)
+N = 300 (Total self-loop steps budget — editable top-header parameter, default: 300)
+A = 2   (MANDATORY number of spawned autonomous subagents running concurrently via invoke_subagent, default: 2)
 H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
+C = 30  (Tool calls per worker before it must report, default: 30)
 
 System Concurrency Capacity = A × H = 2 agents × 2 hands = 4 concurrent subtask operations
+PHASE_1_BUDGET = N / 2   (Steps 1 .. 150: Planning, Parallel Discovery Subagents, Detailed Spec, and Lean Subtask Generation)
+PHASE_2_BUDGET = N / 2   (Steps 151 .. 300: Mandatory Parallel Subagent Execution, Self-Looping, Targeted Quality Linting)
+WAVES = ceil(subtasks / (A x H))
 ```
+
+[/goal](slashCommand;goal) Autonomously scan, discover, plan, refactor, and verify all Go functions returning multi-value error tuples (such as `(map[K]V, error)`, `([]T, error)`, or `(T, error)`), eliminating raw standard library error returns, centralizing all domain payload structs and Result type aliases into `types.go` within each package as single reusable types everywhere rather than scattering inline structs or raw generic Result declarations across implementation files, replacing multi-value returns with strongly-typed result wrappers (`ResultMap[K, V]`, `ResultSlice[T]`, `Result[T]`) and structured `*appfault.AppError` returns, guaranteeing a single return object, pointer-attached null safety (`*Result[T]`, `*ResultSlice[T]`, `*ResultMap[K, V]`) with methods attached to pointer receivers (`(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])`) that verify `if r == nil` before dereferencing any fields or checking errors, standardized outer-layer inspection predicates (`IsSuccess`, `IsFailure`, `HasError`, `IsEmptyError`, `IsEmpty`, `HasRecord`, `IsDefined`, `IsCountOtherThan`, `Data`, `Items`, `AppError`, `Fault`, `Get`, `Has`, `Count`), eliminating dual-handling, and replacing verbose `if err != nil || len(...) != N` or `IsFailure() || Count() != N` conditions with fluent `if res.IsCountOtherThan(N)` across the entire codebase: FIRST showcase and list out the given task in visible chat during Turn 1, capture it verbatim, plan it in the repo, spawn autonomous subagents via `invoke_subagent` (A = 2, H = 2; solo execution without calling `invoke_subagent` is an auto-reject failure) in disjoint file boxes using GitMap high-speed commands as primary, prove every single claim with concrete evidence, enforce coding guidelines to 100%, and finish with one atomic GitMap commit that holds strictly this task's files.
+
+[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt outrank everything below. Turn 1 MUST showcase the given task list in visible chat before any background execution. Each rule is stated once (R1 to R16) and cited by ID. Progress lives in the ledger and in `.ai-memory/plans/`, never only in chat.
+
+[/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution. Ensure all deliverables, architecture boundaries, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
+
+### 🚨 MANDATORY SUBAGENT SPAWNING GATE (A = 2, H = 2 — ZERO SOLO EXECUTION ALLOWED)
+
+- **ACTUAL TOOL CALL REQUIRED:** You must ACTUALLY CALL the `invoke_subagent` tool via your tool-calling API. Do NOT just print the text "Dispatched Worker..." and stop. If you only print text, the agents will not spawn and the task will fail! You must execute the `invoke_subagent` JSON tool payload.
+- **3-STAGE MANDATORY DISPATCH:** You must invoke `A = 2` agents (`invoke_subagent`) at EVERY stage of the workflow:
+  1. **Planning Step:** Spawn 2 subagents to research the codebase and author the step-by-step execution plan.
+  2. **Spec Step:** Spawn 2 subagents to write the detailed architectural spec.
+  3. **Execution Step:** Spawn 2 worker subagents to execute the actual code modifications.
+- **SOLO EXECUTION IS AN AUTO-REJECT FAILURE:** The lead orchestrator is **STRICTLY FORBIDDEN** from executing planning, spec writing, or code changes by itself without calling the `invoke_subagent` tool. Failing to call the actual tool is a critical protocol violation.
+
+---
+
+## Phase 0: Antigravity Skill Bootstrap (Memory Optimization)
+
+Before executing the tasks below, check if this prompt is already installed as a native Antigravity Skill.
+
+1. If `.agents/skills/<slug>/skill.md` does not exist in the workspace, create it now.
+2. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter (with `name` and `description`).
+3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
+
+---
+
+## The Unified Master Pipeline (Atomic Numbered Steps)
+
+Execute this task via a strict 3-Phase pipeline. Do not skip steps.
+
+### Phase 1A: Verbatim Capture, Task Extraction & Chat Output Gate (Step 0)
+
+Before executing any file searches, scans, spec writing, or code changes, you must execute Phase 1A:
+
+1. **Top-Instruction Priority Verification:** Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) must be verified as highest priority and non-negotiable.
+2. **Showcase Given Task First (Turn 1 Action):** In your VERY FIRST response turn upon receiving the prompt, you MUST output the confirmed task breakdown directly in visible chat. Never execute tools silently without displaying the task breakdown to the user first!
+3. **Lossless Verbatim Capture:** Store incoming prompt losslessly under `## User Request (Verbatim)` in canonical spec and parent plan.
+4. **Screenshots & Media:** Decode base64/screenshots immediately into `assets/screenshots/<slug>-<NN>.png`. Reference via relative markdown links (`![Screenshot](assets/screenshots/<slug>-<NN>.png)`).
+5. **Discrete Deliverables Extraction:** Break down whatever user requirements were given into discrete, actionable items with ordered traceable IDs (`Task-01`, `Task-02`, ...).
+6. **Mandatory Same-Turn Tool Chaining (TOTAL BAN ON TURNING OFF):** Emit the breakdown in chat with clean vertical formatting, and in the **EXACT SAME TURN**, invoke your first tool call (e.g. `write_to_file` to initialize ledger/spec, or run preflight). NEVER emit text alone (which ends the turn prematurely), and never ask "Should I proceed?".
+
+```markdown
+### 📋 Confirmed Task Breakdown & Requirement Ingestion
+
+1. **Task-01: [Descriptive Task Title]**
+   - **State:** `[IN PROGRESS — EXECUTING IMMEDIATELY]`
+   - **Understood:** `[YES]` — [1-2 concise sentences proving understanding of intent, scope, and verified constraints]
+   - **Actionable Scope:** [Precise technical deliverable and implementation scope]
+   - **Target Files / Area:** `[relative/path/or/module]`
+
+2. **Task-02: [Descriptive Task Title]**
+   - **State:** `[QUEUED — EXECUTING NOW WITHOUT USER PROMPT]`
+   - **Understood:** `[YES]` — [1-2 concise sentences proving understanding of intent, scope, and verified constraints]
+   - **Actionable Scope:** [Precise technical deliverable and implementation scope]
+   - **Target Files / Area:** `[relative/path/or/module]`
+
+Proceeding directly to Preflight & Phase 1B Spec Generation (Active Tool Call Running Below).
+```
+
+---
+
+## 1. Precedence Hierarchy & Scope (Highest First)
+
+1. **User Instructions & Preamble:** Directives and parameters ABOVE this prompt outrank everything below.
+2. **Platform Limits:** Native tools, Artifact Review Policy, permission prompts, hooks. Never claim to override them.
+3. **Repo Rules:** `agents.md`, `.ai-memory/strictly-avoid.md`, and `coding-guidelines.md`.
+4. **This Prompt.**
+
+If sources conflict, follow stricter one and record under `Conflicts:` in ledger.
+
+### Scope Control Rules
+- **Turn 1 Task Showcase:** In your very first response turn, you MUST showcase and list out the given task in visible chat. Running tools silently without presenting the task breakdown is strictly banned.
+- **Read budget:** Read only requested paths, search hits, and Step 0 context.
+- **History read-only:** Never edit past events, changelogs, completed plans, release notes, or `06-old-prompts/` and `19-old-execute-prompts/`.
+- **Out-of-scope:** Log under `Follow-ups:` in plan; never fix in this run.
+- **Minimal diff:** Change only lines required; never reflow unaffected lines.
+- **Indexes:** Update `01-prompts/readme.md` and `.ai-memory/prompts.md` only when adding/modifying prompts. Update `.ai-memory/plans/readme.md` and `02-spec/21-app/readme.md` every run. Register recent completed tasks before push.
+- **Mandatory Multi-Agent Partitioning:** Even for tasks touching few files, work MUST be partitioned across A workers (e.g. Worker 01 implements changes, Worker 02 implements verification/linters/companion tests). Solo execution is strictly banned.
+- **Finish early:** When all Task-IDs are `DONE`, proceed directly to consolidation.
+- **Zero releases:** Never bump versions or edit changelogs unless requested (R10).
+
+---
+
+## 2. Core Operational Rules (Cite by ID)
+
+- **R1 Zero Builds or Test Suites (TOTAL BAN).** NEVER run `go build`, `npm run build`, `vite build`, `go test ./...`, `pytest`, `npm test`, or `03-ai-scripts/06-cicd-local-runner.py`. CI verifies builds and suites. Routine turns must never waste time on heavy compilation/tests. Only explicit user command lifts this.
+- **R2 Targeted Checks Only.** Run only fast, file-scoped checks on specifically modified files (see Section 10). A check scanning 0 files is a **FAIL**.
+- **R3 Evidence or It Did Not Happen.** Every `DONE`, `PASS`, or "verified" claim MUST cite a concrete file path, git diffstat, or command exit code (`exit 0`). Vague assurances are auto-rejected.
+- **R4 Never Invent Commands, Flags, or Paths.** Verify commands with a harmless call (`gitmap lf readme.md`), not `--help`. Use documented fallbacks and log in ledger.
+- **R5 Mandatory Subagents (`invoke_subagent`).** Spawning subagents via `invoke_subagent` (`A = 2`, `H = 2`) is an **ABSOLUTE MUST** (`research` for discovery in Phase 1, `self` for edits in Phase 2). The lead agent is STRICTLY FORBIDDEN from executing all reads or edits solo. Solo execution without calling `invoke_subagent` is an auto-reject failure on the same tier as Rule 0.
+- **R6 One Owner Per File (Disjoint Bounding Boxes).** Within every worker wave, each file has exactly one owner. Shared indexes (`.ai-memory/plans/readme.md`, `.ai-memory/prompts.md`, `.ai-memory/what-to-read.md`, `02-spec/21-app/readme.md`, directory `readme.md`) belong exclusively to lead.
+- **R7 Git Safety & Isolation.** Subagents never run git commands or alter git state. Nobody runs `git reset --hard`, `git checkout --`, `git clean`, `git stash`, or force pushes.
+- **R8/R9 Atomic Commit & Push via GitMap.** The run ends with one GitMap call: `gitmap cpf "<summary>"` (features) or `gitmap cpb "<summary>"` (fixes). GitMap stages, commits, and pushes. Never commit file-by-file. Before GitMap, all push gates must pass (targeted checks, secrets gate, and `.gitignore` hygiene; untrack any ignored files: `git rm --cached`). Push rejected: `git pull --rebase`, re-run command. Miss after push: allow one follow-up `gitmap cpb "<summary>"`, logged as `FOLLOW_UP_PUSH: <sha>`. Never amend pushed commits. Workers never run git commands or GitMap commit tools; only lead does.
+- **R10 Zero Unauthorized Releases.** Never bump versions, edit `version.json`, update changelogs, or trigger release scripts unless user explicitly requested release.
+- **R11 Strict Relative Git Paths & Lowercase Hygiene.** Strict ban on absolute paths (`C:\...`, `/home/...`) and `file:///` URIs. Paths relative from git root. New filenames and specs strictly lowercase.
+- **R12 No Polling / Immediate Turn Yielding.** Print progress line (`Dispatched Worker 01 .. Worker <A> (wave k / WAVES); waiting for their results.`) and **STOP CALLING TOOLS**. Never poll in loop. Check `manage_subagents` once if wave runs long.
+- **R13 Two-Strike Retry Cap & Anti-Looping.** Tool failing twice: worker replies `STATUS: BLOCKED` with exact error and stops. Lead takes over and logs `LEAD_FALLBACK: <reason>`. Subtask failing two remediation rounds is marked `FAILED` with RCA (Section 12).
+- **R14 100% Ambiguity & Decision Boundaries.** Non-blocking: choose conservative option, log in ledger `Assumptions:`, proceed. Blocking: `ask_question` once, log in `.ai-memory/ambiguous-questions/01-new-ambiguity/`, continue unblocked tasks.
+- **R15 Zero Generated Artifacts Committed.** Never commit build caches, logs, temp scripts, or newly generated code (Hard Rule 1) unless repository already tracked them.
+- **R16 Zero Secrets in Standard Repos.** Never write credentials, tokens, passwords, or `.env` contents into tracked files, commits, ledger, plans, specs, or prompts (`agents.md` section 9).
+  - *Secrets Gate (lead, before GitMap call):*
+    1. Check changed/new files via `git status --porcelain`.
+    2. Run `python linter-scripts/check-forbidden-strings.py`.
+    3. Search files via `gitmap aum search -r "(BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})"` for private keys, AWS, GitHub, OpenAI, Slack tokens, or secret/token assignments (NEVER run `git grep` or `Select-String`), AWS (`AKIA[0-9A-Z]{16}`), GitHub (`gh[pousr]_[A-Za-z0-9]{36}`), OpenAI (`sk-[A-Za-z0-9]{20,}`), Slack (`xox[baprs]-[A-Za-z0-9-]{10,}`), or secret/token assignments.
+    4. On hit: if `repo-secrets` exists in default work directory, store via `gitmap rs text "<value>" --slug <slug>` (or `gitmap rs file <path>`) and replace with env var/placeholder; if not, remove value and `ask_question` once. Log `SECRET_OFFLOADED: <file>:<line>` without value.
+    5. Never print secrets in chat/logs; refer to file:line only. Workers finding a secret report `BLOCKED: secret at <file>:<line>`. Never put repository URLs or absolute paths into secrets instructions (`agents.md` section 9).
+
+---
+
+## 3. GitMap High-Speed Command Primacy (Run Everything Faster)
+
+GitMap is your **PRIMARY** acceleration engine. NEVER use generic PowerShell search cmdlets (`Select-String`, `Get-ChildItem`), `git grep`, `grep`, or `findstr`. Execute all searches and operations through GitMap:
+
+| Operation | Primary GitMap Command | High-Speed Alias | Purpose & Advantage |
+| :--- | :--- | :--- | :--- |
+| **Live Streaming Search** | `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]` | `gitmap aum grep "<pat>"` | Multi-core streaming live file search (replaces `Select-String`, `git grep`) |
+| **Indexed Symbol Search** | `gitmap search "<query>" [--limit <n>]` | `gitmap search` | Instant SQLite cached keyword/symbol search across indexed repos |
+| **Wildcard File Search** | `gitmap find "<pattern>" [-ext <ext>]` | `gitmap f "<pat>"` | Index-accelerated multi-core glob filename finder |
+| **Directory Inventory** | `gitmap list-files [pattern] [-ext <ext>]` | `gitmap lf [pat]` | Instant indexed repository inventory |
+| **Substring File Search** | `gitmap find-files-any "<substring>"` | `gitmap ffa "<str>"` | High-speed partial filename matcher |
+| **Stream File** | `gitmap cat <filepath>` | `gitmap cat` | Zero-disk memory streaming to stdout |
+| **PowerShell Runner** | `gitmap pwsh "<command>"` | `gitmap ps "<cmd>"` | High-speed PowerShell execution with `-NoProfile` |
+| **Bash Runner** | `gitmap bash "<command>"` | `gitmap sh "<cmd>"` | Standard cross-platform Bash command execution |
+| **Offload Secrets** | `gitmap rs file <filepath>` / `folder` / `text` | `gitmap rs` | Auto-commits into `repo-secrets` in work directory |
+| **Offload Scripts** | `gitmap rc file <file.ps1>` / `text` | `gitmap rc` | Auto-commits reusable scripts into `repo-cache` |
+| **Atomic Commits** | `gitmap cpf "<summary>"` (Feature) / `cpb` (Bug) | `gitmap cpf` | Stages, commits with prefix, and pushes atomically |
+| **Pipeline Waiting** | `gitmap pipeline-ai status --json` | `gitmap pl-ai` | Non-polling dynamic ETA CI/CD monitor |
+
+### 🔍 Code & Symbol Search Protocol (TOTAL BAN ON `Select-String` & `git grep`)
+- **Live Disk Search (Default for discovery, symbol tracking & blast radius):**
+  - Search string/symbol: `gitmap aum search "<symbol>" [dir] [-e <.ext>]` (e.g. `gitmap aum search "RunFleetPASCommand" cli -e .go`)
+  - Search regex: `gitmap aum search -r "<regex>" [dir] [-e <.ext>]` (e.g. `gitmap aum search -r "("pas"|"pa")" cli/cmd -e .go`)
+  - Case-insensitive: `gitmap aum search -i "<query>" [dir]`
+- **TOTAL BAN:** NEVER run PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr`. Running generic shell searches wastes execution steps, slows turns, and violates GitMap primacy.
+
+---
+
+## 5. Step 0: Preflight, Platform Handshake & Ledger Creation (Phase 1 Budget)
+
+1. **Platform Handshake:** Confirm tools (`invoke_subagent`, `send_message`, `manage_subagents`, `ask_question`, `write_to_file`, `replace_file_content`, `run_command`). If `task_boundary` exists: set `PLANNING` (Phase 1), `EXECUTION` (Phase 2), `VERIFICATION` (Phase 3).
+2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
+3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
+4. **Resume Procedure (Check Before Creating):**
+   - Match `.ai-memory/temp-agents/*/ledger.md` on `Request slug:` and `Request first line:`. No match: start fresh.
+   - Status `COMPLETE`: verify commit in `git log`, report "Already complete: <sha>", stop.
+   - Status `ACTIVE`: log `RESUMED_FROM: step x, phase p, wave k`; if `Pushed: yes`, proceed to final report; if workers in flight, re-dispatch; if subtask has diff, verify and mark `DONE` or re-dispatch; subtasks marked `DONE` are never redone. Continue from `Next action:`. Never run `git reset`, `git stash`, `git clean`, or `git checkout --`.
+5. **Ledger Creation:** If not resuming, create `.ai-memory/temp-agents/NN-<slug>/ledger.md`:
+
+```markdown
+# Ledger: NN-<slug>
+Request slug: <slug>
+Request first line: <verbatim first line>
+Status: ACTIVE
+Phase: 1    Wave: 0 / WAVES    Step: 1 / N
+Last completed action: Phase 1A Capture & Task Breakdown
+Next action: Phase 1B Spec & Plan
+Workers in flight: none
+Commits: none    Pushed: no
+Branch: <branch> | Tree at start: clean (or dirty with <paths>)
+Tools: invoke_subagent=yes send_message=yes ask_question=yes gitmap=yes
+| Task-ID | Subtask | Owner | Owned files | Status | Evidence |
+|---|---|---|---|---|---|
+| Task-01 | 01-<name> | Worker 01 | <paths> | PENDING | - |
+Assumptions: <list or none>
+Conflicts: <list or none>
+Stage list: <every path this run creates or modifies>
+
+---
+
+## 6. Phase 1: Planning Step & Spec Step (Steps 1 .. PHASE_1_BUDGET)
+
+You must use `invoke_subagent` to delegate both planning and spec writing.
+
+1. **Planning Step (A = 2 Agents):** Lead agent calls `invoke_subagent` to spawn 2 subagents (e.g., `Research 01`, `Research 02`). Their prompt MUST instruct them to research the codebase using GitMap high-speed search (`gitmap aum search "<symbol>" [dir] [-e <.ext>]`, `gitmap find`, `gitmap lf`, `gitmap cat`) — NEVER PowerShell `Select-String` or `git grep` — define the boundaries, and write the Execution Plan (`.ai-memory/plans/pending/NN-<slug>.md`) and the Root Task JSON Manifest.
+   - *Tool Call:* Lead must actually execute the `invoke_subagent` tool, then print `Dispatched Planning Agents`, and then END TURN to wait for `<SYSTEM_MESSAGE>`.
+2. **Spec Step (A = 2 Agents):** Once planning is done, the lead agent calls `invoke_subagent` again to spawn 2 subagents. Their prompt MUST instruct them to write the Canonical Spec (`02-spec/21-app/NN-<slug>.md` or folder) and decompose subtasks into `.ai-memory/plans/subtasks/`.
+   - *Tool Call:* Lead must actually execute the `invoke_subagent` tool, then print `Dispatched Spec Agents`, and then END TURN to wait for `<SYSTEM_MESSAGE>`.
+3. **Readiness Gate:** Complete Phase 1 planning and spec authoring within `PHASE_1_BUDGET` steps, then proceed **UNCONDITIONALLY** into Phase 2.
+
+---
+
+## 7. Phase 2: Execution Step (Worker Waves) (Steps (PHASE_1_BUDGET + 1) .. N)
+
+> [!CRITICAL]
+> **MANDATORY `invoke_subagent` DISPATCH (ZERO SOLO EXECUTION):**
+> You MUST ACTUALLY CALL the `invoke_subagent` tool to spawn A workers (`TypeName: "self"`, up to H subtasks per worker) in parallel. Executing all subtasks solo in main agent without the tool call is an immediate auto-reject failure.
+
+### 7.1 Dispatch Payload (`invoke_subagent`)
+
+The `invoke_subagent` payload holds A entries (`Worker 01 .. Worker <A>`):
+
+```json
+{
+  "Subagents": [
+    {
+      "TypeName": "self",
+      "Role": "Worker 01: [Assigned Subtask]",
+      "Model": "inherit",
+      "Workspace": "inherit",
+      "Prompt": "<Worker Brief Below>"
+    },
+    {
+      "TypeName": "self",
+      "Role": "Worker 02: [Assigned Subtask]",
+      "Model": "inherit",
+      "Workspace": "inherit",
+      "Prompt": "<Worker Brief Below>"
+    }
+  ]
+}
+```
+
+### 7.2 Self-Contained Worker Brief (Eliminate Context Blindness)
+
+Subagents spawn with clean context. The prompt envelope MUST inject complete instructions:
 
 ```text
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Planning, Detailed Spec, and Lean Subtask Generation)
-PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Execution, Self-Looping, Targeted Quality Linting)
+You are Worker <NN> for task NN-<slug>. You have no prior chat context; this brief is your complete specification.
+
+### Boundaries:
+- Read any file in the workspace; edit only your Owned Files: <relative paths>.
+- Code & Symbol Search: Use GitMap exclusively: `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]` or `gitmap search`. TOTAL BAN on PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr`.
+- After C tool calls, stop and report what you have.
+- A tool failing twice: reply "STATUS: BLOCKED" with exact error and stop. Never guess paths and never troubleshoot machine.
+- Workers that find a secret stop and report "BLOCKED: secret at <file>:<line>". They do not handle it themselves.
+- Adhere to R1, R2, and R11 by ID.
+
+### Assigned Subtasks (up to H subtasks):
+- Subtask 1: .ai-memory/plans/subtasks/NN-<slug>/01-<name>.md
+- Subtask 2: .ai-memory/plans/subtasks/NN-<slug>/02-<name>.md (if assigned)
+
+### 100% Non-Negotiable Coding Guidelines (AUTO-REJECT ON VIOLATION):
+1. Positive booleans ONLY: use `is` and `has` prefixes exclusively. NEVER evaluate explicit `== true`. NEVER combine positive and negative checks in the same condition (`if isA && !isB` is BANNED).
+2. Go Structured Errors: return `*appfault.AppError`, never bare `error`.
+3. Function Sizing: <= 8 lines preferred, hard cap 15 lines. Extract domain structs and raw generics to `types.go`.
+4. Strict Relative Git Paths: zero absolute filesystem paths and zero `file:///` URIs.
+5. Repo Secrets: if any credentials or private tokens are needed, store them in the `repo-secrets` folder in the default work directory (via `gitmap rs`). Never commit secrets.
+6. Zero Builds or Tests: NEVER run `go build`, `npm run build`, `go test`, or `pytest`.
+7. Targeted Verification: Run only fast file-scoped linters (e.g. `python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only`). A check scanning 0 files is a FAIL.
+8. GitMap Search Primacy (TOTAL BAN on Select-String / git grep): NEVER execute PowerShell `Select-String`, `Get-ChildItem`, `git grep`, `grep`, or `findstr`. Always use `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r]` for live symbol/regex discovery.
+
+### Output Contract:
+Write your subtask output to .ai-memory/plans/subtasks/NN-<slug>/01-<name>.json and reply with this JSON block, once per subtask, then stop:
+{
+  "task": "Task-01",
+  "status": "DONE",
+  "filesChanged": ["<path1>", "<path2>"],
+  "checks": "<command> -> exit <code>, <files scanned>",
+  "acceptance": { "ac1": "PASS <evidence>" },
+  "assumptions": [],
+  "blockers": []
+}
 ```
 
-N, A, H, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
+### 7.3 Turn-Yielding & Verification Protocol
 
-#### High-Speed GitMap Acceleration Options (Run Everything Faster)
-
-Always prefer native GitMap commands over slow generic shell pipelines:
-1. **Ultra-Fast File & Directory Discovery (AUM Index & Walk):**
-   - **Wildcard / Glob Search:** `gitmap find "<wildcard*>" [-ext <ext>]` (alias `gitmap f`)
-   - **Exact Filename Search:** `gitmap find-files <name> [-ext <ext>]` (alias `gitmap ff`)
-   - **Substring Filename Search:** `gitmap find-files-any "<str>" [-ext <ext>]` (alias `gitmap ffa`)
-   - **Prefix / Suffix Search:** `gitmap find-files-startswith <prefix>` (`gitmap ffs`) / `gitmap find-files-endswith <suffix>` (`gitmap ffe`)
-   - **List Indexed Repo Files:** `gitmap list-files [pattern] [-ext <ext>]` (alias `gitmap lf`)
-   - **Directory Tree & Scaffolding:** `gitmap folder-tree` (alias `gitmap ft`)
-   - **Zero-Write File Stream:** `gitmap cat <filepath>`
-   - **Instant Multi-Core Regex Search:** `gitmap search "<term>"` or `gitmap aum search "<query>" [dir] --ext <ext>`
-2. **Fast Repository Hygiene, Lowercase & Symlink Repair:**
-   - **Auto-Lowercase Files (Safe 2-Step `git mv`):** `gitmap lowercase` (alias `gitmap lcf [--dry-run]`)
-   - **Lowercase Root Readme:** `gitmap lowercase-readme`
-   - **Sync Curated `.gitignore` / `.gitattributes` / `.prettierignore`:** `gitmap commons` (alias `gitmap co` or `gitmap sync all`)
-   - **Repair Broken Symlinks:** `gitmap fix-link` (alias `gitmap fixlink`)
-   - **Clean Update Temp & Inspect Storage:** `gitmap update-cleanup`, `gitmap storage` (alias `gitmap stor`)
-3. **Fast Git State, Execution & Atomic Commits:**
-   - **Repo Status & Remote Check:** `gitmap status` (`gitmap st`), `gitmap has-any-updates` (`gitmap hau`), `gitmap latest-branch` (`gitmap lb`)
-   - **Fast Cross-Platform Shell Runner:** `gitmap pwsh "<command>"` (`gitmap ps`), `gitmap bash "<command>"` (`gitmap sh`), `gitmap async <cmd>` (`gitmap asyn`)
-   - **Semantic Atomic Commit & Push:** `gitmap cpf "<summary>"` (Feature), `gitmap cpb "<summary>"` (Bug), `gitmap cpr "<summary>"` (Release), `gitmap pcp "<summary>"` (Pull-Commit-Push)
-   - **Smart CI/CD Pipeline Waiting:** `gitmap pe`, `gitmap pipeline-ai status --json` (`gitmap pl-ai status -t <etaSeconds>`)
+1. **Invoke & Yield:** You must ACTUALLY CALL the `invoke_subagent` tool in your turn. Print the progress line (`Dispatched Worker 01 .. Worker <A> (wave k / WAVES); waiting for their results.`) and **STOP CALLING TOOLS** to end your turn.
+2. **Verify Worker Reports Independently:** Confirm `git diff --stat -- <owned files>` matches `filesChanged`, no files outside owned files modified, re-run targeted checks for `exit 0` on non-zero files.
+3. **Reject Violations:** Send failures via `send_message`. On `BLOCKED`, lead does work and logs `LEAD_FALLBACK: <reason>`. After two failed rounds, mark `FAILED`, write RCA, continue (R13).
+4. **Update Ledger:** Record status, evidence, changed paths in `ledger.md` via `replace_file_content`.
+5. **Loop:** Dispatch subsequent waves via `invoke_subagent` until all subtasks are `DONE` or `FAILED`.
 
 ---
 
-### Master Task Checklist (Atomic Numbered Steps)
+## 8. Phase 3: Consolidation, Evidence Verification & Atomic GitMap Push
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-result-wrapper-audit.md` with an exhaustive Violation Ledger table.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/XX-result-wrapper/`.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Open each target file and refactor function signatures from multi-value returns to single `ResultMap[K, V]`, `ResultSlice[T]`, or `Result[T]` envelopes.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Extract and define all domain payload structs (e.g. `ScheduleExportBundle`) and repeated generic Result envelopes (e.g. `type ScheduleExportBundleResult = result.ResultSlice[ScheduleExportBundle]`) into a dedicated `types.go` file within the package as a single type to be reused everywhere. Update all function signatures to return the canonical `types.go` single type alias.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Replace raw stdlib `error` returns with structured `*appfault.AppError` instances using `appfault.New()` or `appfault.Wrap()`.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Enforce pointer-attached null safety on all Result wrappers: attach all inspection methods (`IsSuccess`, `IsFailure`, `IsEmpty`, `HasRecord`, `IsDefined`, `IsCountOtherThan`, `Count`, `AppError`, `Data`, `Items`) to pointer receivers (`(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])`) with explicit `nil` checks (`if r == nil`) guarding against nil pointer panics and returning safe defaults.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step E): Modernize all caller call sites to utilize outer-layer inspection methods (`res.IsSuccess()`, `res.IsFailure()`, `res.IsEmpty()`, `res.HasRecord()`, `res.IsDefined()`, `res.IsCountOtherThan(N)`, `res.Get()`, `res.AppError()`), eliminating manual `err != nil || len(...) != N` boilerplate.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step F): Enforce <= 8–15 line function decomposition and clean blank-line spacing.
-11. [ ] [/goal](slashCommand:goal) Phase 2 (Step G): Execute targeted file-level linters (`python linter-scripts/check-function-lengths.py`, `check-mws-error-codes.py`, `check-newline-styling.py`) to verify 0 remaining violations. DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
-12. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-13. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for single return type mandates and micro-tasking.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/27-types-folder-convention.md` for types.go and single type definitions.
-17. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/readme.md` for universal AppError wrapping and error envelopes.
-18. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` for error handling architecture and Result wrappers.
-19. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/03-error-code-registry/02-registry.md` for structured error code catalog.
-20. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/02-error-architecture/05-response-envelope/05-response-envelope-reference.md` for response envelope schemas.
-21. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md` for Go AppError implementation specifications.
-22. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md` for Result[T], ResultSlice[T], and ResultMap[K, V] method specifications and pointer null-safety rules.
-23. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-24. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
-
-```text
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Multi-Value Returns, Build Violation Ledger in .ai-memory/plans/pending/, Subtasks, Linter Hook)
-PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Actively Edit Code, Refactor Signatures to ResultMap/Result, Modernize Call Sites, Verify Local Linters)
-```
-
-N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
+1. **Consolidate Subtasks:** Merge completed subtasks into `.ai-memory/plans/completed/NN-<slug>.md`, logging real steps from ledger; link to canonical spec. Delete `.ai-memory/plans/subtasks/NN-<slug>/` and pending plan. Canonical spec in `02-spec/21-app/` stays permanently.
+2. **Update Registers:** Update `.ai-memory/plans/readme.md` and `02-spec/21-app/readme.md`. Update `01-prompts/readme.md` and `.ai-memory/prompts.md` only when adding/modifying prompts. Register recent completed tasks before push gate.
+3. **Push Gate Verification:** Before GitMap call, verify: (a) targeted checks exit 0 (>0 files), (b) secrets gate clean, (c) `.gitignore` covers caches, build outputs, logs, reports, `.env*` (untrack any tracked ignored files via `git rm --cached <file>` or `git rm -r --cached <dir>`). On failure: abort GitMap call; mark task `FAILED` with RCA.
+4. **Atomic Commit & Push:** Call `gitmap cpf "<summary>"` (features) or `gitmap cpb "<summary>"` (fixes). Push rejected: `git pull --rebase` and re-run. Miss after push: allow one follow-up `gitmap cpb "<summary>"`, logged as `FOLLOW_UP_PUSH: <sha>`. Never amend pushed commits.
 
 ---
 
-## The Code Pattern & Anti-Pattern Analysis
+## 9. Final Report Format (Strict Vertical Lines)
 
-In legacy Go codebases, developers frequently write functions that return multi-value tuples pairing collections with the standard library `error` interface, and call sites perform fragile, compound boolean assertions.
+```markdown
+### Task Completion Summary
 
-### 1. The Problematic Legacy Store Pattern
+- ✅ **Task-01: [Descriptive Task Title]** — `[Completed]` — [diff/check evidence]
+- ❌ **Task-02: [Descriptive Task Title]** — `[Failed]` — [RCA link]
 
-Consider this common database query implementation:
+### Modified Files Summary
 
-```go
-// ❌ ANTI-PATTERN: Multi-value tuple return with raw standard library error
-func (s *SQLiteStore) queryAllMacroSteps(db *sql.DB) (map[string][]MacroStep, error) {
-    rows, err := db.Query("SELECT macro_id, step_name, action, payload FROM macro_steps ORDER BY macro_id, step_order")
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+- [relative/path/to/modified/file1.ext]
+- [relative/path/to/modified/file2.ext]
 
-    return scanMacroStepsMap(rows)
-}
+### Steps Used
 
-// ❌ ANTI-PATTERN: Secondary scanner returning raw map and error tuple
-func scanMacroStepsMap(rows *sql.Rows) (map[string][]MacroStep, error) {
-    stepsMap := make(map[string][]MacroStep)
-    for rows.Next() {
-        var macroId, name, action, payload string
-        if err := rows.Scan(&macroId, &name, &action, &payload); err != nil {
-            return nil, err
-        }
-        stepsMap[macroId] = append(stepsMap[macroId], MacroStep{
-            Name:    name,
-            Action:  action,
-            Payload: payload,
-        })
-    }
+- Step x / N (Phase 1: y / PHASE_1_BUDGET, Phase 2: z / PHASE_2_BUDGET), Wave k / WAVES
 
-    return stepsMap, rows.Err()
-}
-```
+### Implementation Confidence Score
 
-### 2. The Problematic Legacy Caller & Test Assertion Pattern
+- Confidence: [passed checks / total checks]
+- Rationale: [Verified evidence across all criteria, passing targeted linters, zero regressions]
 
-At call sites and in test suites, multi-value returns force awkward tuple unpacking and compound checks:
+Independent check: run /verify-parent-task-run <slug>
 
-```go
-// ❌ ANTI-PATTERN: Tuple unpacking + compound condition mixing error check and length check
-details, err := pipeDb.QueryDetailedErrorLogsByRunId(runId)
-if err != nil || len(details) != 1 {
-    t.Fatalf("expected 1 detail log, got %d (err: %v)", len(details), err)
-}
+### 🤖 Independent AI Verification & Audit Prompt
 
-if !strings.Contains(details[0].RawLogs, "PASS: Test0") {
-    t.Errorf("detail log missing raw PASS line: %s", details[0].RawLogs)
-}
-```
-
-### Why This Pattern Violates Repository Guidelines
-
-1. **Violates the Single Return Object Mandate:**
-   - Multi-value returns like `(map[string][]MacroStep, error)` or `([]DetailedErrorLog, error)` violate the core architectural standard requiring functions to return a single strongly-typed envelope object.
-   - Returning tuples forces dual assignment unpacking (`val, err := ...`).
-2. **Raw Standard Library `error` Anti-Pattern:**
-   - Returning the bare standard library `error` interface strips domain context, structured error codes, file/line tracing, and machine-readable metadata.
-   - All errors in the repository MUST use structured `*appfault.AppError`.
-3. **Dual-Handling Risk and Ambiguous Empty Returns:**
-   - Does returning `(nil, nil)` represent an empty database table or an uninitialized store?
-   - If an error occurs midway through row scanning, returning `(nil, err)` drops partially collected records, while returning `(stepsMap, err)` tempts callers into dual handling (processing data *and* logging error).
-4. **Call-Site Clutter & Compound Disjunctions:**
-   - The check `if err != nil || len(details) != 1` combines two disparate concepts (execution failure vs. cardinality mismatch) into an unseparated condition.
-   - If `details` is nil upon failure, downstream slice index operations (`details[0]`) risk index panics if the guard block is refactored improperly.
-
----
-
-## The Modern Refactored Architecture
-
-Under Prompt Architect coding guidelines, all multi-value returns are refactored into dedicated result container types from package `pkg/appfault`:
-- Key-Value Maps: `appfault.ResultMap[K, V]`
-- Lists & Slices: `appfault.ResultSlice[T]`
-- Scalar Values: `appfault.Result[T]`
-- Pure Side-Effects: `*appfault.AppError` (zero bare `void` / empty returns)
-
-### Modern Refactored Store Implementation
-
-```go
-// -----------------------------------------------------------------------------
-// Step 1: Declare Concrete Types in `types.go` (Mandatory Rule)
-// -----------------------------------------------------------------------------
-// In types.go:
-// type (
-//     // MacroStep defines an individual recorded UI action.
-//     MacroStep struct {
-//         Name    string `json:"name"`
-//         Action  string `json:"action"`
-//         Payload string `json:"payload"`
-//     }
-//
-//     // MacroStepsMapResult is the canonical single reusable result envelope for macro step maps.
-//     // RULE: Define concrete type alias in types.go rather than repeating raw generic instantiations.
-//     MacroStepsMapResult = appfault.ResultMap[string, []MacroStep]
-// )
-// -----------------------------------------------------------------------------
-
-// ✅ MODERN PATTERN: Concrete MacroStepsMapResult return envelope with structured AppError and blank line gaps
-func (s *SQLiteStore) queryAllMacroSteps(db *sql.DB) MacroStepsMapResult {
-    rows, err := db.Query("SELECT macro_id, step_name, action, payload FROM macro_steps ORDER BY macro_id, step_order")
-
-    if err != nil {
-        fault := appfault.New(appfault.ErrDatabaseQuery).
-            WithCause(err).
-            WithMessage("failed to query macro steps from database")
-
-        return appfault.FailMap[string, []MacroStep](fault)
-    }
-
-    defer rows.Close()
-
-    return scanMacroStepsMap(rows)
-}
-
-// ✅ MODERN PATTERN: Scanner returning strongly-typed concrete MacroStepsMapResult
-func scanMacroStepsMap(rows *sql.Rows) MacroStepsMapResult {
-    stepsMap := make(map[string][]MacroStep)
-
-    for rows.Next() {
-        var macroId, name, action, payload string
-        err := rows.Scan(&macroId, &name, &action, &payload)
-
-        if err != nil {
-            fault := appfault.New(appfault.ErrDatabaseScan).
-                WithCause(err).
-                WithMessage("failed to scan macro step row")
-
-            return appfault.FailMap[string, []MacroStep](fault)
-        }
-
-        stepsMap[macroId] = append(stepsMap[macroId], MacroStep{
-            Name:    name,
-            Action:  action,
-            Payload: payload,
-        })
-    }
-
-    err := rows.Err()
-
-    if err != nil {
-        fault := appfault.New(appfault.ErrDatabaseIteration).
-            WithCause(err).
-            WithMessage("row iteration failed for macro steps")
-
-        return appfault.FailMap[string, []MacroStep](fault)
-    }
-
-    return appfault.OkMap(stepsMap)
-}
+(Emit self-contained audit prompt linking spec, plan, and modified files)
 ```
 
 ---
 
-## Mandate: Define Types in `types.go` as a Single Reusable Type Everywhere
+---
 
-A frequent transitional anti-pattern observed during Result wrapper refactoring is shown in this real-world diff:
+## 10. Targeted Verification Checks
 
-```diff
-- func parseImportSQLite(filePath string) ([]scheduleExportBundle, error) {
-+ func parseImportSQLite(filePath string) result.ResultSlice[scheduleExportBundle] {
-+ 	return result.FailSlice[scheduleExportBundle](appfault.Wrap(errtype.IO, err, "parse imported sqlite"))
-```
+Confirm scripts exist via harmless workspace call before invoking (R4). Run on changed files/folders only:
 
-### Why the Transitional Diff is Flawed: Two Latent Violations
-
-1. **Unexported Inline Struct (`scheduleExportBundle`):**
-   The struct `scheduleExportBundle` was originally declared locally or unexported inside an implementation file (`importer.go` or `sqlite.go`). Other packages, services, test suites, or callers cannot import or reference it cleanly.
-2. **Scattered Generic Instantiations (`result.ResultSlice[scheduleExportBundle]`):**
-   Declaring raw generic returns like `result.ResultSlice[scheduleExportBundle]` ad-hoc across multiple functions forces every signature, caller, and test to repeat the verbose generic parameter. It creates severe code churn if the payload type changes.
-
-### The Grounded Solution: Dedicated `types.go` with Single Reusable Types
-
-Under Prompt Architect standards, every package managing domain models, payloads, or Result envelopes MUST define them inside a dedicated `types.go` file within the package directory as a single reusable named type.
-
-#### 1. Define Types in `types.go`:
-
-```go
-// schedule/types.go
-package schedule
-
-import (
-	"coding-guidelines/common/pkg/appfault"
-	"coding-guidelines/common/pkg/result"
-)
-
-type (
-	// ScheduleExportBundle defines the exported schedule archive payload.
-	ScheduleExportBundle struct {
-		ScheduleId   string `json:"scheduleId"`
-		WorkflowName string `json:"workflowName"`
-		Payload      []byte `json:"payload"`
-	}
-
-	// ScheduleExportBundleResult is the canonical single reusable result envelope for bundle slices.
-	ScheduleExportBundleResult = result.ResultSlice[ScheduleExportBundle]
-
-	// ScheduleExportBundleSingleResult is the canonical single reusable result envelope for a single bundle.
-	ScheduleExportBundleSingleResult = result.Wrap[ScheduleExportBundle]
-)
-```
-
-#### 2. Use the Single Reusable Type in Implementation Files:
-
-```go
-// schedule/importer.go
-package schedule
-
-import (
-	"coding-guidelines/common/pkg/appfault"
-	"coding-guidelines/common/pkg/result"
-)
-
-// ✅ CANONICAL: Clean, expressive signature using the single reusable type from types.go
-func parseImportSQLite(filePath string) ScheduleExportBundleResult {
-	if len(filePath) == 0 {
-		return result.FailSlice[ScheduleExportBundle](
-			appfault.New(appfault.ErrValidation).
-				WithMessage("file path cannot be empty").
-				WithOp("schedule.parseImportSQLite"),
-		)
-	}
-
-	bundles, err := readSQLiteBundles(filePath)
-
-	if err != nil {
-		return result.FailSlice[ScheduleExportBundle](
-			appfault.Wrap(appfault.ErrDatabaseQuery, err, "parse imported sqlite").
-				WithOp("schedule.parseImportSQLite"),
-		)
-	}
-
-	return appfault.OkSlice(bundles)
-}
-```
-
-### Twofold Scope of the `types.go` Mandate
-
-| Level | Scope & Directory | Rule & Standard |
-|---|---|---|
-| **Package / Framework Level** | `pkg/result/`, `pkg/appfault/`, `pkg/fileutil/` | Core container types (`Wrap[T]`, `Result[T]`, `ResultSlice[T]`, `ResultMap[K, V]`, verifier and inspector interfaces) MUST be declared in `types.go` as single canonical types. Implementation files (`result.go`, `combinators.go`) only contain constructors, helpers, and methods. |
-| **Domain / Service Level** | `schedule/`, `user/`, `order/`, `importer/` | Domain structs (`ScheduleExportBundle`, `PluginSummary`) and their Result aliases (`ScheduleExportBundleResult = result.ResultSlice[...]`) MUST be declared in `types.go` as single reusable types. Never scatter unexported structs or raw generic Result declarations inline. |
-
-### Architectural Benefits
-
-1. **Single Source of Truth:** All structs, enums, and Result aliases live in one predictable, standardized file (`types.go`).
-2. **Zero Generic Clutter at Call Sites:** Callers use `ScheduleExportBundleResult` instead of typing `result.ResultSlice[ScheduleExportBundle]` repeatedly across dozens of files.
-3. **Seamless Refactoring:** If the underlying envelope changes (e.g. from slice to pageable collection), modifying `types.go` updates the entire package and all callers without touching implementation files.
-4. **Strict Alignment with Specs:** Fully adheres to `02-spec/02-coding-guidelines/01-cross-language/27-types-folder-convention.md`.
+- **Coding Guidelines & Boolean Linter:** `python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only --ext <.ext>`
+- **Relative Path Linter:** `python linter-scripts/check-relative-paths.py`
+- **Prompts & Spec Index Linter:** `python linter-scripts/check-prompts-loaded.py`
+- **Markdown Link & Doc Path Linter:** `python 03-ai-scripts/22-doc-path-linter.py <folder>`
+- **Sequence Integrity Linter:** `python linter-scripts/check-sequence-integrity.py`
+- **Forbidden Strings Check:** `python linter-scripts/check-forbidden-strings.py`
 
 ---
 
-## The 4 Core Predicate Methods (Must Enforce)
+## 11. AI Fix Scripts Memory (Reusable Tooling)
 
-Result envelopes (`ResultSlice[T]`, `ResultMap[K, V]`, `Result[T]`) provide four core predicate methods that eliminate call-site boilerplate, null pointer panics, and compound boolean conditions:
-
-### 1. `res.IsCountOtherThan(number int) bool`
-
-- **Exact Semantics:** Returns `true` if the operation failed (has error or nil receiver) **OR** if the record count is not equal to `number`.
-- **Purpose:** Replaces the compound check `if res.IsFailure() || res.Count() != N` (and legacy `if err != nil || len(...) != N`) with a single, intention-revealing predicate.
-- **Behavior:**
-  - If `res == nil` or `res.IsFailure()`: returns `true`.
-  - If `res.IsSuccess()`: returns `res.Count() != number`.
-- **Example:**
-  ```go
-  // ✅ Clean single-condition guard replacing err != nil || len(users) != 1
-  userRes := userRepo.FindById(userId)
-  if userRes.IsCountOtherThan(1) {
-      return appfault.New(appfault.ErrNotFound).WithMessage("expected exactly 1 user")
-  }
-  ```
-
-### 2. `res.IsEmpty() bool`
-
-- **Exact Semantics:** Returns `true` if the collection contains `0` items/entries, if the scalar payload `T` is empty/null/zero, or if the receiver is `nil`.
-- **Purpose:** Cleanly checks for zero records after validating success, without fragile `len()` checks.
-- **Behavior:**
-  - If `res == nil`: returns `true`.
-  - If `res.IsFailure()`: returns `true` (failed results contain zero valid records).
-  - If `res.IsSuccess()`: returns `res.Count() == 0`.
-- **Example:**
-  ```go
-  orderRes := orderService.ListPendingOrders(ctx)
-  if orderRes.IsFailure() {
-      return orderRes.AppError()
-  }
-  if orderRes.IsEmpty() {
-      logger.Info("no pending orders to process")
-      return nil
-  }
-  ```
-
-### 3. `res.HasRecord() bool` (and alias `res.HasRecords() bool`)
-
-- **Exact Semantics:** Returns `true` if the operation succeeded (no error) **AND** contains **more than 0 records** (`res.Count() > 0 && !res.IsFailure()`).
-- **Purpose:** Direct positive check when business logic requires at least one record before continuing, avoiding inverted `!IsEmpty()` logic.
-- **Behavior:**
-  - If `res == nil` or `res.IsFailure()`: returns `false`.
-  - If `res.IsSuccess()`: returns `res.Count() > 0`.
-- **Example:**
-  ```go
-  itemRes := catalog.QueryItemsByCategory(catId)
-  if itemRes.HasRecord() {
-      dispatcher.EnqueueBatch(itemRes.Items)
-  }
-  ```
-
-### 4. `res.IsDefined() bool` — Mandatory Replacement for `!res.IsEmpty()`
-
-- **Total Ban on Inverted `!res.IsEmpty()`:** In application and test code, developers frequently write `if !res.IsEmpty() { ... }`. Negating a negative condition violates Affirmative Boolean Principles and Positive Framing.
-- **Mandatory Affirmative Replacement:** ALWAYS use `res.IsDefined()` instead of `!res.IsEmpty()`:
-  - ❌ **FORBIDDEN:** `if !res.IsEmpty() { ... }`, `if !res.Empty() { ... }`
-  - ✅ **REQUIRED:** `if res.IsDefined() { ... }`
-- **Canonical Usage Guide:**
-  - Empty / missing path: use affirmative `if res.IsEmpty() { ... }`.
-  - Populated / valid data path: use affirmative `if res.IsDefined() { ... }`.
-  - NEVER evaluate `if !res.IsEmpty()`!
-- **Exact Semantics:** Returns `true` if the operation succeeded (no error) **AND** has `recordCount > 0` (or the underlying data `T` is non-null/non-empty).
-- **Distinction from `IsSuccess()`:**
-  - `IsSuccess()` means "no error occurred" (an empty query returning 0 items succeeds without error).
-  - `IsDefined()` means "no error occurred AND actual data exists" (`recordCount > 0` or payload not null/empty).
-- **Behavior:**
-  - If `res == nil` or `res.IsFailure()`: returns `false`.
-  - For `Result[T]`: returns `r.isDefined && r.IsSuccess() && !isValueEmpty(r.value)` (delegates error check to `r.IsSuccess()`).
-  - For `ResultSlice[T]`: returns `rs.Count() > 0 && rs.IsSuccess()` (delegates to `rs.Count()` and `rs.IsSuccess()`).
-  - For `ResultMap[K, V]`: returns `rm.Count() > 0 && rm.IsSuccess()` (delegates to `rm.Count()` and `rm.IsSuccess()`).
-- **Example:**
-  ```go
-  // ✅ REQUIRED: res.IsDefined() replaces !res.IsEmpty()
-  profileRes := userProfileService.GetProfile(userId)
-  if profileRes.IsDefined() {
-      displayProfileBadge(profileRes.Value())
-  }
-
-  // ✅ Affirmative isEmpty ONLY when handling the empty/missing case
-  if profileRes.IsEmpty() {
-      displayPlaceholderBadge()
-  }
-  ```
+- [ ] [/goal](slashCommand;goal) Reuse First: Scanned and learned `03-ai-scripts/readme.md` before writing temporary code.
+- [ ] Strict In-Repository Execution: All Python scripts executed strictly within the codebase repository root.
+- [ ] Strict .ai-memory/ Folder Storage: All helper scripts, local runners, and linters stored in `03-ai-scripts/`.
+- [ ] Native File Manipulator: Use `python 03-ai-scripts/03-file-manipulator.py <command>` for mass file operations.
+- [ ] Go Generate Sync: If Go constants or enums are modified, run `go generate ./...` in the relevant package and commit generated files.
 
 ---
 
-## Pointer-Attached Null Safety (*Result[T], *ResultSlice[T], *ResultMap[K, V])
+## 12. Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
-### The Fatal Flaw of Value Receivers in Go
-
-In Go, declaring methods with a **value receiver** (`func (r Result[T]) Method()`) creates an inescapable runtime crash vulnerability:
-If a caller has a `nil` pointer to a result (`var res *Result[T] = nil`), calling `res.IsFailure()` or `res.Count()` **panics immediately** with:
-```text
-panic: runtime error: invalid memory address or nil pointer dereference
-```
-This panic happens **before the method body even begins executing**, because the Go runtime must evaluate `*res` to create a value copy for the receiver.
-
-By contrast, declaring methods with a **pointer receiver** (`func (r *Result[T]) Method()`) passes the pointer itself directly. If `r == nil`, the method body executes normally and can guard itself on line 1:
-```go
-if r == nil {
-    return true // Safe default, ZERO panic!
-}
-```
-
-Furthermore, in Go, methods declared on a pointer receiver `(r *T)` can still be called directly on an addressable value `T` (`res := Ok(val); res.IsSuccess()`) because the Go compiler automatically passes `&res`. Therefore, pointer receivers provide 100% backward compatibility while providing complete immunity against nil pointer crashes!
-
-### Canonical Nil Receiver Defaults Table
-
-When any inspection method is invoked on a `nil` pointer (`(*Result[T])(nil)`, `(*ResultSlice[T])(nil)`, or `(*ResultMap[K, V])(nil)`), it MUST never panic and MUST return these canonical safe defaults:
-
-| Method | Return on `nil` Pointer | Rationale & Semantic Behavior |
-|---|---|---|
-| `r.IsFailure()` / `r.IsFailed()` | `true` | An uninitialized/missing result is an error/failure state. |
-| `r.IsSuccess()` / `r.IsSafe()` | `false` | A nil pointer cannot represent a successful operation. |
-| `r.HasError()` | `true` | Alias for `IsFailed()`. |
-| `r.IsEmptyError()` / `r.HasNoError()` | `false` | A nil result is not error-free. |
-| `r.Count()` | `0` | A nil result contains zero records. |
-| `r.IsEmpty()` | `true` | A nil result contains no elements. |
-| `r.HasRecord()` / `r.HasRecords()` | `false` | A nil container has 0 records, never > 0. |
-| `r.IsDefined()` | `false` | A nil container has no defined data payload. |
-| `r.IsCountOtherThan(number)` | `true` | A nil/failed result differs from any expected record count. |
-| `r.AppError()` / `r.Fault()` | `nil` | Safely returns nil error without crashing. |
-| `r.Value()` / `r.Data()` | `zero value of T` | Safely returns zero value of type `T`. |
-| `rs.Items()` / `rs.Data` | `nil` | Safely returns nil slice. |
-| `rm.Get(key)` | `zero, false` | Safely returns zero value and `false` indicating missing key. |
-| `rm.Has(key)` | `false` | Key cannot exist in a nil map. |
-
-### Pointer-Attached Implementation Standard (`pkg/appfault/`)
-
-Every result wrapper struct and inspection method in `pkg/appfault` MUST follow these two architectural rules:
-1. **Affirmative Boolean Field Naming:** Boolean fields MUST use affirmative prefixes (e.g. `isDefined bool`, NEVER bare `defined bool`).
-2. **Method Composition & Reuse:** Methods MUST delegate to and compose existing inspection methods (`r.IsFailure()`, `r.IsSuccess()`, `r.Count()`) rather than repeating raw pointer and error checks (`r == nil || r.err != nil`).
-
-```go
-type Result[T any] struct {
-    value     T
-    err       *AppError
-    isDefined bool // ✅ REQUIRED: Affirmative boolean prefix (TOTAL BAN on bare 'defined')
-}
-
-// ✅ POINTER-ATTACHED & NULL-SAFE: Inspecting nil pointer returns false, never panics!
-func (r *Result[T]) IsSuccess() bool {
-    if r == nil {
-        return false
-    }
-
-    return r.err == nil
-}
-
-// ✅ POINTER-ATTACHED & NULL-SAFE: Inspecting nil pointer returns true, never panics!
-func (r *Result[T]) IsFailed() bool {
-    if r == nil {
-        return true
-    }
-
-    return r.err != nil
-}
-
-// ✅ METHOD COMPOSITION: Delegates alias directly to IsFailed()
-func (r *Result[T]) IsFailure() bool {
-    return r.IsFailed()
-}
-
-// ✅ METHOD COMPOSITION: Delegates alias directly to IsSuccess()
-func (r *Result[T]) IsValid() bool {
-    return r.IsSuccess()
-}
-
-// ✅ METHOD COMPOSITION: Reuses r.IsFailure() to eliminate redundant null checks
-func (r *Result[T]) Count() int {
-    if r.IsFailure() {
-        return 0
-    }
-
-    if r.isDefined {
-        return 1
-    }
-
-    return 0
-}
-
-// ✅ METHOD COMPOSITION: Reuses r.IsFailure() and r.Count()
-func (r *Result[T]) IsCountOtherThan(expected int) bool {
-    if r.IsFailure() {
-        return true
-    }
-
-    return r.Count() != expected
-}
-
-// ✅ METHOD COMPOSITION: Reuses r.IsFailure() and checks affirmative isDefined field
-func (r *Result[T]) IsEmpty() bool {
-    if r.IsFailure() {
-        return true
-    }
-
-    return !r.isDefined || isValueEmpty(r.value)
-}
-
-// ✅ METHOD COMPOSITION: Reuses r.IsFailure() and r.Count()
-func (r *Result[T]) HasRecord() bool {
-    if r.IsFailure() {
-        return false
-    }
-
-    return r.Count() > 0
-}
-
-// ✅ METHOD COMPOSITION: Delegates alias directly to HasRecord()
-func (r *Result[T]) HasRecords() bool {
-    return r.HasRecord()
-}
-
-// ✅ METHOD COMPOSITION: Reuses r.IsFailure() and checks affirmative isDefined field
-func (r *Result[T]) IsDefined() bool {
-    if r.IsFailure() {
-        return false
-    }
-
-    return r.isDefined && !isValueEmpty(r.value)
-}
-```
-
-### Dedicated Rule: Affirmative Field Naming (`isDefined bool`) & Method Composition
-
-- **TOTAL BAN on bare `defined bool`:** Struct fields, properties, local variables, and parameters MUST ALWAYS carry an affirmative prefix (`is*` or `has*`). In Result wrappers, the definition state MUST be named `isDefined bool` (NEVER `defined bool`).
-- **TOTAL BAN on bare `Defined()` method:** Predicate methods MUST be named `IsDefined() bool` (NEVER `Defined() bool`).
-- **Method Composition Mandate:** Never write duplicate expressions like `if r == nil || r.err != nil` across 10 different methods. Always call `if r.IsFailure()` or `if !r.IsSuccess()`. Composing methods ensures single-point maintenance, prevents cognitive drift, and enforces consistent null-safety semantics.
-
-### Go Addressability Rule for Callers
-
-In Go, methods declared on pointer receivers `*T` can be called on:
-1. Pointers directly: `ptr := &res; ptr.IsSuccess()` or `var ptr *Result[T]; ptr.IsFailure()`
-2. Addressable value variables: `res := store.Query(); if res.IsSuccess() { ... }` (compiler passes `&res`)
-3. Slice elements and struct fields: `results[0].IsSuccess()`, `s.result.IsSuccess()`
-
-**Important Caller Rule:** In Go, you cannot call a pointer method on an *unaddressable temporary expression* directly (e.g. `store.Query().IsSuccess()` will not compile if `Query()` returns by value). Callers MUST assign the result to a variable first:
-```go
-// ❌ COMPILE ERROR (if Query returns Result[T] by value):
-if store.Query().IsSuccess() { ... }
-
-// ✅ CORRECT: Assign to variable first (variable is addressable)
-res := store.Query()
-if res.IsSuccess() { ... }
-```
+- [ ] TOP-INSTRUCTION PRIORITY MANDATE: Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) are verified as highest priority and non-negotiable, overriding all lower-level guidelines below.
+- [ ] MANDATORY SUBAGENT SPAWNING GATE (ZERO SOLO EXECUTION): Verified that `invoke_subagent` (`A = 2, H = 2`) was explicitly called in Phase 1 (parallel discovery/spec modules) and Phase 2 (`TypeName: "self"` parallel subtask execution). Executing all reads or code modifications solo without calling `invoke_subagent` is an immediate auto-reject failure.
+- [ ] ISSUE & RCA DESTINATION ROUTING: Whenever resolving an issue or performing a fix with RCA, verified that CI/CD failures are documented in .ai-memory/cicd-issues/NN-<slug>.md (indexed in .ai-memory/cicd-index.md), while non-CI/CD issues (application bugs, logic/runtime defects) are documented in 02-spec/22-app-issues/NN-<slug>.md (indexed in 02-spec/22-app-issues/readme.md).
+- [ ] NO TEST RUNNING (TOTAL BAN): Never run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
+- [ ] NO BUILD CHECKING (TOTAL BAN): Never run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- [ ] NO RUNNER SCRIPTS (TOTAL BAN): Never launch background test runners, worker pools, or test inventory loops during routine execution.
+- [ ] NO AUTOMATIC RELEASES (TOTAL BAN): Never bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
+- [ ] NO PER-FILE COMMITTING (TOTAL BAN): Never commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+- [ ] NO RAPID CI/CD POLLING (TOTAL BAN): Never query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents must query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait or sleep based on `etaSeconds` to eliminate credit waste.
+- [ ] NO PREMATURE TURN CLOSING BEFORE EXECUTION (TOTAL BAN): Never halt execution, conclude the turn, or ask the user for permission after generating specs or subtasks. Planning constitutes only 50% of the task budget; you must proceed unconditionally to Phase 2 code execution. (Note: When dispatching asynchronous background subagents via `invoke_subagent`, yielding control to allow platform reactive wakeup is mandatory and is exempt from this ban).
+- [ ] NO HORIZONTAL TASK CONCATENATION (TOTAL BAN): Never concatenate tasks horizontally in the Task Completion Summary (e.g. NEVER `✅ #1... ✅ #2...` run-on). Every completed task MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
+- [ ] INDEPENDENT AI VERIFICATION PROMPT MANDATE: Emitted the self-contained independent AI verification and audit prompt linking to the canonical spec, consolidated plan, and modified files with verbatim score audit criteria.
+- [ ] GITMAP HEAVY USAGE & ROUTINE PULL BAN: Heavily leveraged GitMap commands (`cpf`, `cpb`, `cpr`, `search`, `find`, `pwsh`) for discovery, execution, and commits. Never ran `pull-all` (`gitmap pa` or `gitmap pae`) unconditionally during routine turns; only ran `gitmap pae --json` when explicitly commanded by the user.
+- [ ] NO POWERSHELL OR SHELL SEARCHES (TOTAL BAN): Never run `Select-String`, `Get-ChildItem -Recurse`, `grep`, `git grep`, `findstr`, or slow shell search pipelines to search code. All code searching and symbol discovery MUST use GitMap high-speed search tools: `gitmap aum search "<query>" [dir] [-e <.ext>] [-r]` (streaming multi-core text/regex search) or `gitmap search "<query>"` (indexed symbol search). Running `Select-String` or `git grep` is an immediate auto-reject failure.
 
 ---
 
-## Comparison of Caller Patterns
+## 13. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
-### Evolution: Legacy vs. Transitional vs. Modern
+[/goal](slashCommand;goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
-```go
-// ------------------------------------------------------------
-// ❌ 1. LEGACY PATTERN: Raw multi-value unpacking + compound boolean
-// ------------------------------------------------------------
-bundles, err := parseImportSQLite(filePath)
-if err != nil || len(bundles) != 1 {
-    t.Fatalf("expected 1 bundle, got %d (err: %v)", len(bundles), err)
-}
-
-// ------------------------------------------------------------
-// ⚠️ 2. TRANSITIONAL PATTERN: Generic ResultSlice + unexported inline struct + verbose check
-// ------------------------------------------------------------
-// Function signature: func parseImportSQLite(...) result.ResultSlice[scheduleExportBundle]
-bundleRes := parseImportSQLite(filePath)
-if bundleRes.IsFailure() || bundleRes.Count() != 1 {
-    t.Fatalf("expected 1 bundle, got %d (err: %v)", bundleRes.Count(), bundleRes.AppError())
-}
-
-// ------------------------------------------------------------
-// ✅ 3. CANONICAL MODERN PATTERN: Single reusable type from types.go + pointer-safe guard
-// ------------------------------------------------------------
-// Defined once in types.go:
-//   type ScheduleExportBundle struct { ... }
-//   type ScheduleExportBundleResult = result.ResultSlice[ScheduleExportBundle]
-//
-// Clean function signature in importer.go:
-//   func parseImportSQLite(filePath string) ScheduleExportBundleResult
-//
-// Fluent call site:
-bundleRes := parseImportSQLite(filePath)
-if bundleRes.IsCountOtherThan(1) {
-    t.Fatalf("expected 1 bundle, got %d (err: %v)", bundleRes.Count(), bundleRes.AppError())
-}
-
-bundles := bundleRes.Data
-if len(bundles) > 0 && !strings.Contains(string(bundles[0].Payload), "EXPORT") {
-    t.Errorf("bundle missing EXPORT payload")
-}
-```
-
-### Production Service Caller Example
-
-```go
-// Loading workflow steps:
-stepRes := store.QueryMacroSteps(db, macroId)
-if stepRes.IsFailure() {
-    return stepRes.AppError().WithContext("caller", "executeWorkflow")
-}
-
-// Check if no records were found:
-if stepRes.IsEmpty() {
-    log.Println("No macro steps configured for macroId")
-    return nil
-}
-
-// Check if at least one record exists:
-if stepRes.HasRecord() {
-    log.Printf("Loaded %d macro step(s)", stepRes.Count())
-}
-
-// Process single value safely:
-if stepRes.IsDefined() {
-    executeSteps(stepRes.Items)
-}
-```
+- [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
+- [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).
+- [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `*appfault.AppError`, never generic error.
+- [ ] Boolean Conventions: All booleans begin with is or has only (all other prefixes like can, should, was, will, did, must are banned). No negatives (`!isSuccess` is banned; use `isFail`).
+- [ ] Semantic Naming: Zero generic garbage names (`temp`, `data`, `obj`). Behavior-driven unit test names.
+- [ ] Multi-Line Arguments (Rule 9a/9b): Signatures and call sites with >2 arguments formatted one argument per line with trailing commas.
+- [ ] Line Endings & Encoding: Strictly Unix LF (`\n`) and UTF-8 without BOM.
+- [ ] Function Sizing: Functions <= 8 lines preferred (hard cap 15 lines).
+- [ ] Strict Relative Git Paths: Zero absolute paths (`/absolute/path/to/...`) or `file:///` URIs.
 
 ---
 
-## Standardized Outer-Layer Inspection Methods Table
+## 14. Anti-Hallucination & Blast Radius Checklist
 
-All methods below are declared on **pointer receivers** (`*Result[T]`, `*ResultSlice[T]`, `*ResultMap[K, V]`) and guarantee complete **null safety** (zero runtime panics when invoked on `nil` pointers):
-
-| Method | Return Type | Receiver | Purpose & Exact Behavior (Safe on `nil`) |
-|---|---|---|---|
-| `res.IsSuccess()` | `bool` | `*Result`, `*ResultSlice`, `*ResultMap` | Returns `true` if operation succeeded with no error. (`false` on `nil`). |
-| `res.IsFailure()` / `res.IsFailed()` | `bool` | `*Result`, `*ResultSlice`, `*ResultMap` | Returns `true` if operation encountered an error or receiver is `nil`. |
-| `res.HasError()` | `bool` | `*Result`, `*ResultSlice`, `*ResultMap` | Alias for `IsFailed()`. Returns `true` if error is present or `nil`. |
-| `res.IsEmptyError()` / `res.HasNoError()` | `bool` | `*Result`, `*ResultSlice`, `*ResultMap` | Returns `true` if receiver is non-nil and has no active error. |
-| `res.IsCountOtherThan(number)` | `bool` | `*Result`, `*ResultSlice`, `*ResultMap` | Returns `true` if operation failed (or `nil`) OR count != number. |
-| `res.IsEmpty()` | `bool` | `*Result`, `*ResultSlice`, `*ResultMap` | Returns `true` if collection has 0 items, payload is empty/null, or `nil`. |
-| `res.HasRecord()` / `res.HasRecords()` | `bool` | `*Result`, `*ResultSlice`, `*ResultMap` | Returns `true` if succeeded AND count > 0 (more than 0 records). |
-| `res.IsDefined()` | `bool` | `*Result`, `*ResultSlice`, `*ResultMap` | Returns `true` if succeeded AND recordCount > 0 / non-null payload. |
-| `res.Count()` | `int` | `*Result`, `*ResultSlice`, `*ResultMap` | Returns total number of records/entries (0 if failed or `nil`). |
-| `res.Data` / `res.Items` / `res.Value()` | `T` / `[]T` / `map[K]V` | `*Result`, `*ResultSlice`, `*ResultMap` | Accesses the underlying data payload directly (zero value on `nil`). |
-| `res.AppError()` / `res.Fault()` | `*appfault.AppError` | `*Result`, `*ResultSlice`, `*ResultMap` | Retrieves structured error context (`nil` on `nil` receiver). |
-| `res.Get(key)` | `(V, bool)` | `*ResultMap[K, V]` | Safely retrieves map entry by key without nil-map panics. |
-| `res.Has(key)` | `bool` | `*ResultMap[K, V]` | Checks whether a key exists within the result map (`false` on `nil`). |
-| `res.Keys()` | `[]K` | `*ResultMap[K, V]` | Returns deterministically sorted slice of all map keys (`nil` on `nil`). |
-| `res.Values()` | `[]V` | `*ResultMap[K, V]` | Returns slice of map values ordered according to `Keys()`. |
-| `res.Filter(predicate)` | `ResultSlice[T]` | `*ResultSlice[T]` | Returns filtered slice matching predicate (or self if failed/nil). |
-| `res.ForEach(fn)` | `ResultSlice[T]` | `*ResultSlice[T]` | Iterates over elements with early exit via `ForEachBreak`. |
+- [ ] Echo Back the Spec: Verified Acceptance Criteria from the Spec file verbatim.
+- [ ] Pre-Commit Diff Proof: Verified `git status` shows actual modified files before committing.
+- [ ] No Placeholder Search: Confirmed zero `TODO` or `\[.*\]` placeholders remain in modified files.
+- [ ] Index Sync Deadman Switch: Every new file is explicitly linked in `readme.md` and enqueued in `.ai-memory/what-to-read.md`.
+- [ ] Blast Radius Acknowledgment: Global search across codebase performed via `gitmap aum search "<symbol>" [dir]` to update all callers of modified symbols (never `Select-String` or `git grep`).
+- [ ] Continuous Loop Maintained: Continuous self-loop executed until 100% complete without running banned test/build commands.
+- [ ] Final Step Commit & Push Verified: Staged all changes (`git add -A`), committed everything in a single grouped atomic commit, and pushed to git before ending the turn (no per-file commits).
 
 ---
 
-## Error Management Learning Checklist (`02-spec/03-error-manage/`)
+## 15. Final Step Git Commit & Push Mandate (Strict Checklist)
 
-Before refactoring error handling in any package, the agent must study and enforce the repository error management specifications:
+- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` or `gitmap cpf` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.
 
-- [ ] **Universal `*appfault.AppError` Standard (`02-spec/03-error-manage/readme.md`):**
-  - Never return bare `error` from domain services, repositories, or business logic.
-  - Wrap third-party and standard library errors with `appfault.New()` or `appfault.Wrap()`.
-- [ ] **Structured Error Codes (`02-spec/03-error-manage/03-error-code-registry/02-registry.md`):**
-  - All errors must carry a typed `ErrorCode` string identifying the fault category (e.g. `ErrDatabaseQuery`, `ErrValidationFailed`, `ErrNotFound`).
-- [ ] **Deterministic Error Handling & Envelopes (`02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md`):**
-  - Use `appfault.Ok()`, `appfault.OkMap()`, and `appfault.OkSlice()` for successful results.
-  - Use `appfault.Fail()`, `appfault.FailMap()`, and `appfault.FailSlice()` for failed results.
-- [ ] **Universal Response Envelopes (`02-spec/03-error-manage/02-error-architecture/05-response-envelope/05-response-envelope-reference.md`):**
-  - HTTP handlers and JSON serializers marshal `Result` and `ResultMap` into universal JSON response envelopes `{ "data": ..., "appError": ... }`.
-- [ ] **Go AppError Architecture (`02-spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md`):**
-  - Strict enforcement of `*appfault.AppError` return types and monadic helper methods across Go packages.
-- [ ] **Result Types Specification (`02-spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md`):**
-  - Mandatory implementation of pointer-attached null safety and the 4 core predicates (`IsCountOtherThan`, `IsEmpty`, `HasRecord`, `IsDefined`) on all result containers.
+## MUST FOLLOW NON-NEGOTIABLE
 
----
-
-## Automated Codebase Scanning Guide
-
-Use these exact `ripgrep` regex commands to discover legacy multi-value return patterns, clumsy caller checks, and value-receiver anti-patterns across the codebase:
-
-```bash
-# 1. Find functions returning multi-value map tuples: (map[...], error)
-rg --pcre2 "func\s+\w+\([^\)]*\)\s*\(\s*map\[[^\]]+\][^,]+,\s*error\)"
-
-# 2. Find functions returning multi-value slice tuples: ([]..., error)
-rg --pcre2 "func\s+\w+\([^\)]*\)\s*\(\s*\[\][^,]+,\s*error\)"
-
-# 3. Find any function returning a tuple ending in standard library error
-rg --pcre2 "func\s+\w+\([^\)]*\)\s*\([^\)]*,\s*error\)"
-
-# 4. Find functions returning bare standard library error
-rg --pcre2 "func\s+\w+\([^\)]*\)\s+error\s*\{"
-
-# 5. Find dual-assignment caller unpacking: val, err := ...
-rg --pcre2 "\b(\w+),\s*err\s*:=\s*"
-
-# 6. Find compound caller checks: err != nil || len(...) != N
-rg --pcre2 "(err\s*!=\s*nil\s*\|\|\s*len\([^\)]+\)\s*!=\s*\d+|len\([^\)]+\)\s*!=\s*\d+\s*\|\|\s*err\s*!=\s*nil)"
-
-# 7. Find transitional checks: IsFailure() || ... Count() != N
-rg --pcre2 "(IsFailure\(\)\s*\|\|\s*\w+\.Count\(\)\s*!=\s*\d+|\w+\.Count\(\)\s*!=\s*\d+\s*\|\|\s*\w+\.IsFailure\(\))"
-
-# 8. Find value receiver declarations on Result types (violates pointer null safety):
-rg --pcre2 "func\s+\([a-zA-Z0-9_]+\s+Result(?:Slice|Map)?\["
-
-# 9. Find unexported domain structs declared inline in implementation files:
-rg --pcre2 "type\s+[a-z][a-zA-Z0-9_]*\s+struct\s*\{" --glob "!*types*.go" --glob "!*_test.go"
-
-# 10. Find raw generic Result returns in non-types implementation files (should use types.go aliases):
-rg --pcre2 "func\s+[A-Za-z0-9_]+\([^\)]*\)\s+(?:result\.)?Result(?:Slice|Map)?\[" --glob "!*types*.go"
-```
-
----
-
-### Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
-
-To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the fast 2-tier discovery toolchain:
-
-### Tier 1: GitMap AUM Acceleration (PRIMARY)
-1. **Universal File Search:**
-   ```bash
-   gitmap find "<pattern>" [-ext <ext>]
-   ```
-2. **List Indexed Files & Substring Lookup:**
-   ```bash
-   gitmap list-files [pattern]
-   gitmap find-files-any "<substring>"
-   ```
-3. **Stream File Content:**
-   ```bash
-   gitmap cat <filepath>
-   ```
-4. **Instant Code Walk Search:**
-   ```bash
-   gitmap search "<term>"
-   ```
-
-### Tier 2: Fast Cached Python Toolchain (FALLBACK)
-1. **Inventory Target Files (with `--limit` option):**
-   ```bash
-   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats
-   ```
-2. **Fast Cached Grep (<15ms, with `--limit` option):**
-   ```bash
-   python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --lang go --limit 50
-   ```
-3. **Sub-Millisecond Folder & File Exploration (with `--limit` option):**
-   ```bash
-   python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --ext .go --limit 50
-   python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000
-   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --path <folder-path> --limit 50
-   ```
-4. **Subsystem & Topology Overview:**
-   ```bash
-   python 03-ai-scripts/18-codebase-topology-discoverer.py --summary
-   ```
-Do not rely on standard search tools with 50-item truncation when discovering repository-wide violations.
-
-## 2-Agent Parallel Orchestration
-
-To survive large codebases without hitting step limits or context loss, execute this prompt using a strict 2-agent parallel split:
-
-```text
-+-------------------------------------------------------------------------+
-| MASTER ORCHESTRATOR (Budget: N = 200)                                   |
-|                                                                         |
-| Phase 1 (Steps 1..100): DISCOVERY & PLANNING                            |
-| +---------------------------------------------------------------------+ |
-| | Sub-Agent 1: Codebase Scanner & Spec Architect                      | |
-| | - Runs ripgrep queries to catalog all multi-value error returns     | |
-| | - Inventories compound caller assertions (err != nil || len != N)   | |
-| | - Detects value receiver declarations lacking pointer null safety   | |
-| | - Inventories unexported structs and scattered generic Result types  | |
-| | - Authors master audit plan in .ai-memory/plans/pending/             | |
-| | - Generates granular subtasks in .ai-memory/plans/subtasks/           | |
-| +---------------------------------------------------------------------+ |
-|                                                                         |
-| Phase 2 (Steps 101..200): SURGICAL REFACTORING                          |
-| +---------------------------------------------------------------------+ |
-| | Sub-Agent 2: Code Refactorer & Outer-Layer Modernizer                | |
-| | - Creates/updates types.go with domain models & Result aliases      | |
-| | - Refactors store/repo signatures to single types.go aliases         | |
-| | - Attaches methods to pointer receivers with nil-safety guards      | |
-| | - Updates scanner functions to use appfault.OkMap / FailMap         | |
-| | - Modernizes callers with IsCountOtherThan / HasRecord / IsDefined   | |
-| | - Verifies zero regressions with targeted file linters              | |
-| +---------------------------------------------------------------------+ |
-+-------------------------------------------------------------------------+
-```
-
----
-
-## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
-
-- [ ] **NO TEST RUNNING (TOTAL BAN):** NEVER run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
-- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
-- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
-- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
-- [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
-
----
-
-## Final Step Git Commit & Push Mandate (Strict Checklist)
-
-- [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "<summary>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
-- [ ] **TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY):** You MUST NOT create separate git commits for each individual file as you edit them (e.g. running `git commit` after editing File 1, then committing again after File 2 is STRICTLY FORBIDDEN). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback/bisectability. All modified files, test change caches, and plan records across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before pushing!
-
----
-
-## Strictly Avoid: Anti-Patterns & Prohibitions
-
-- **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
-- **NO SCATTERED INLINE STRUCTS OR AD-HOC RESULT GENERICS:** Never declare domain types or repeated generic Result envelopes inline in implementation files (e.g. `importer.go`, `store.go`, `sqlite.go`). Every payload struct and repeated Result alias MUST be defined in `types.go` within the package as a single reusable type.
-- **NO VALUE RECEIVERS FOR RESULT INSPECTION METHODS:** NEVER define inspection methods on value receivers `func (r Result[T])`. ALL methods checking status, error, count, or data MUST be attached to pointer receivers `(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])` with mandatory `if r == nil` guards to eliminate nil-pointer dereference panics.
-- **NO UNGUARDED FIELD ACCESS ON NIL POINTERS:** Never access `.Data`, `.items`, or `.err` directly on a pointer without verifying `r == nil` or calling pointer-safe inspection methods (`res.IsFailure()`, `res.Count()`, `res.IsDefined()`).
-- **NO PIECEMEAL COMMITS:** NEVER commit 1 or 2 files in isolation. Consolidate all related changes across specs, code, and indices into a single atomic commit followed immediately by `git push origin main`.
-- **NO ROUTINE FULL CI/CD RUNS:** DO NOT run `06-cicd-local-runner.py` during normal turns. It executes 28-38 heavy validation gates across unrelated packages and wastes minutes. Run targeted linters only on modified files.
-- **TOTAL BAN ON TEST RUNNING & BUILD CHECKING:** Zero tests (`go test`, `pytest`) or builds (`go build`) may be run during routine execution. Verification is strictly deferred to CI/CD.
-- **NO RAW `error` RETURNS:** Never leave bare `error` as a return type on domain or store functions; always use `*appfault.AppError` or `Result[T]`.
-- **NO COMPOUND CARDINALITY DISJUNCTIONS:** Never write `if res.IsFailure() || res.Count() != N` when `res.IsCountOtherThan(N)` can express the guard directly.
-- **NO CONFUSING `IsSuccess()` WITH `IsDefined()`:** Do not use `IsSuccess()` when you require actual data records to be present. Use `res.IsDefined()` or `res.HasRecord()`.
-- **NO ABSOLUTE PATHS:** Never write absolute filesystem paths (`C:\...`, `/home/...`) or `file:///` URIs. Use strict relative Git paths starting from the repository root.
-- **NO UPPERCASE FILENAMES:** Every file created or edited must be strictly lowercase.
-- **NO MULTI-VALUE TUPLES:** Eliminate `(T, error)` in favor of `Result[T]`, `ResultMap[K, V]`, or `ResultSlice[T]`.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.

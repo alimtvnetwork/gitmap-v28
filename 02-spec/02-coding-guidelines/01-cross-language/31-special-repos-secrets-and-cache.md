@@ -17,11 +17,13 @@ Inside both `repo-secrets` and `repo-cache`:
 
 ## 3. Mandatory AI Agent Workflow
 
-1. **Offloading Secrets (`gitmap rs`):**
-   - When an AI agent encounters or generates a secret file, credential JSON, or password:
+1. **Offloading Secrets (`gitmap rs` / Default Work Directory Context):**
+   - Context & Location Mandate: Never specify or hardcode repository URLs, git remote URLs, or absolute folder paths for secrets. State strictly that if the `repo-secrets` folder exists in the default work directory, that is the context where secrets MUST be stored.
+   - If anything is secret, private, or contains authentication credentials (e.g. email, password, API tokens, private keys, `.env` configurations), it MUST be stored inside the `repo-secrets` folder in the default work directory, and MUST NEVER be committed to standard source code repositories:
      - `gitmap rs file .env`
      - `gitmap rs folder ./secrets`
      - `gitmap rs text "PROD_DB_PASS=..." --slug prod-db-pass`
+   - If the `repo-secrets` folder exists in the default work directory, offload and store credentials there immediately. If it does not exist, credentials must never be written in plain text or pushed to public/standard repositories.
 2. **Saving Reusable Temporary Scripts (`gitmap rc`):**
    - When an AI agent writes a temporary `.ps1` script, migration helper, or E2E test harness that may be useful to future runs or other repositories:
      - `gitmap rc file ./verify-cluster.ps1`

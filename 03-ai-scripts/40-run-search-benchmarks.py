@@ -66,48 +66,48 @@ def main() -> None:
     # --- 1. File Search (*test*.md) ---
     print("\n[1/3] Benchmarking File Search (*test*.md)...", flush=True)
     results["file_search"] = {}
-
+    
     print("  -> GitMap find...", flush=True)
     results["file_search"]["GitMap Native (`gitmap find`)"] = run_benchmark(["gitmap", "find", "*test*", "-ext", "md"], REPO_ROOT, iterations=3)
-
+    
     print("  -> Ripgrep files...", flush=True)
     results["file_search"]["Ripgrep (`rg --files`)"] = run_benchmark(["rg", "--files", "-g", "*test*.md"], REPO_ROOT, iterations=3)
-
+    
     print("  -> Python fast-file-scanner...", flush=True)
     results["file_search"]["Python (`11-fast-file-scanner.py`)"] = run_benchmark([sys.executable, "03-ai-scripts/11-fast-file-scanner.py", "--search", "test", "--limit", "100"], REPO_ROOT, iterations=3)
-
+    
     print("  -> PowerShell Get-ChildItem...", flush=True)
     results["file_search"]["PowerShell (`Get-ChildItem`)"] = run_benchmark(["pwsh", "-NoProfile", "-Command", "$null = (Get-ChildItem -Recurse -File -Filter '*test*.md' -Exclude '.git','node_modules')"], REPO_ROOT, iterations=3)
 
     # --- 2. Content / Regex Search (appfault.AppError) ---
     print("\n[2/3] Benchmarking Content / Regex Search (appfault.AppError)...", flush=True)
     results["content_search"] = {}
-
+    
     print("  -> GitMap AUM Hot-Cache...", flush=True)
     results["content_search"]["GitMap Hot-Cache (`DH2D` SQLite)"] = run_benchmark(["gitmap", "search", "AppError"], REPO_ROOT, iterations=3)
-
+    
     print("  -> Ripgrep regex...", flush=True)
     results["content_search"]["Ripgrep (`rg`)"] = run_benchmark(["rg", "appfault\\.AppError", "."], REPO_ROOT, iterations=3)
-
+    
     print("  -> Python fast-cached-grep...", flush=True)
     results["content_search"]["Python (`12-fast-cached-grep.py`)"] = run_benchmark([sys.executable, "03-ai-scripts/12-fast-cached-grep.py", "--pattern", "appfault\\.AppError", "--limit", "50"], REPO_ROOT, iterations=1)
-
+    
     print("  -> PowerShell Select-String...", flush=True)
     results["content_search"]["PowerShell (`Select-String`)"] = run_benchmark(["pwsh", "-NoProfile", "-Command", "$null = (Get-ChildItem -Path 01-prompts,04-code -Recurse -File -Filter *.go | Select-String -Pattern 'appfault\\.AppError')"], REPO_ROOT, iterations=2)
 
     # --- 3. File Streaming / Cat (readme.md) ---
     print("\n[3/3] Benchmarking File Streaming / Cat (readme.md)...", flush=True)
     results["file_cat"] = {}
-
+    
     print("  -> GitMap cat...", flush=True)
     results["file_cat"]["GitMap Streaming (`gitmap cat`)"] = run_benchmark(["gitmap", "cat", "readme.md"], REPO_ROOT, iterations=3)
-
+    
     print("  -> Ripgrep streaming...", flush=True)
     results["file_cat"]["Ripgrep (`rg ^`)"] = run_benchmark(["rg", "^", "readme.md"], REPO_ROOT, iterations=3)
-
+    
     print("  -> Python fast-file-reader...", flush=True)
     results["file_cat"]["Python (`17-fast-file-reader.py`)"] = run_benchmark([sys.executable, "03-ai-scripts/17-fast-file-reader.py", "--file", "readme.md", "--limit", "1000"], REPO_ROOT, iterations=3)
-
+    
     print("  -> PowerShell Get-Content...", flush=True)
     results["file_cat"]["PowerShell (`Get-Content`)"] = run_benchmark(["pwsh", "-NoProfile", "-Command", "$null = (Get-Content readme.md)"], REPO_ROOT, iterations=3)
 

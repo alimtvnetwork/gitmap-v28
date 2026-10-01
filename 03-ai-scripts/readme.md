@@ -1182,6 +1182,49 @@ python 03-ai-scripts/37-bump-version.py --version 6.42.0
 
 </details>
 
+<details>
+<summary><strong>46 — <code>46-agent-sqlite-task-manager.py</code>: Antigravity Multi-Agent SQLite Task Manager & Crash Forensics Engine</strong></summary>
+
+#### Why It Exists
+
+Provides ACID-compliant, concurrency-safe task coordination and crash forensics for multi-agent runs (V6 workflow). Replaces fragile markdown file editing with WAL-mode SQLite micro-transactions, completely preventing Windows OS file lock collisions and state drift.
+
+#### What It Does
+
+- Generates deterministic, lowercase kebab-case task slugs from prompt titles or descriptions.
+- Automatically scans `.ai-memory/temp-agents/` for prior matching/similar runs to enable instant resume or crash diagnosis.
+- Initializes run-scoped SQLite databases (`.ai-memory/temp-agents/<nn>-<slug>/agent-task.db`) in WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
+- Manages atomic subtask claiming, status transitions (`PENDING -> IN_PROGRESS -> DONE / FAILED`), and evidence storage.
+- Logs in-flight agent actions (`write_to_file`, `replace_file_content`, `run_linter`, `gitmap_search`) before files are touched.
+- Executes crash diagnostics to identify abandoned in-progress tasks, reporting the exact agent, target file, and action when a crash occurs.
+
+#### CLI Usage & Examples
+
+```bash
+# Initialize task run or detect prior run to resume
+python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "validate regex syntax and prevent nil fallback"
+
+# Populate decomposed subtasks
+python 03-ai-scripts/46-agent-sqlite-task-manager.py add-subtasks --db <db-path> --tasks-json '[{"code": "Task-01", "title": "...", "owned_files": ["..."]}]'
+
+# Worker atomically claims next available subtask
+python 03-ai-scripts/46-agent-sqlite-task-manager.py claim --db <db-path> --agent "Worker 01"
+
+# Worker logs in-flight action before touching a file
+python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <db-path> --subtask-id 1 --agent "Worker 01" --action "write_to_file" --file "pkg/aum/regex.go" --details "updating parser"
+
+# Worker marks subtask completed with evidence
+python 03-ai-scripts/46-agent-sqlite-task-manager.py complete --db <db-path> --subtask-id 1 --agent "Worker 01" --evidence "PASS exit 0"
+
+# Diagnose crashed or abandoned tasks
+python 03-ai-scripts/46-agent-sqlite-task-manager.py diagnose --db <db-path>
+
+# High-level task execution status
+python 03-ai-scripts/46-agent-sqlite-task-manager.py status --db <db-path>
+```
+
+</details>
+
 ---
 
 ## 🏛️ Core Shared Engine Architecture (`02-shared-engine.py`)

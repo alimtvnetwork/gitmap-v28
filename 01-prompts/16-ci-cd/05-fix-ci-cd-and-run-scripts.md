@@ -13,15 +13,15 @@ N = 200
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) First `N/2` steps (Phase 1): Review the central CI/CD pipeline definitions (`.github/workflows`, `.gitlab-ci.yml`, etc.) and cross-reference them with the local Python runner (`03-ai-scripts/06-cicd-local-runner.py`).
+1. [ ] [/goal](slashCommand;goal) First `N/2` steps (Phase 1): Review the central CI/CD pipeline definitions (`.github/workflows`, `.gitlab-ci.yml`, etc.) and cross-reference them with the local Python runner (`03-ai-scripts/06-cicd-local-runner.py`).
    - **Condition:** If `03-ai-scripts/06-cicd-local-runner.py` does not exist, you must create it immediately.
    - **Condition:** You must ensure that **every single CI/CD case** that needs to run in the pipeline can also be run locally from this Python script (with Docker stripped for native host execution). Improve the Python script to cover all cases if any are missing.
-2. [ ] [/goal](slashCommand:goal) Second `N/2` steps (Phase 2): Run the local runner script (`python 03-ai-scripts/06-cicd-local-runner.py --all`) to catch all errors. Singly execute the script in an autonomous self-loop, zeroing in on one failing error per turn (4-part RCA -> surgical fix -> guideline autofixer -> re-verify).
-3. [ ] [/goal](slashCommand:goal) Finalize CI/CD: Your ultimate goal is to fix and finalize the CI/CD. You must loop until the Python local runner script executes flawlessly with **no errors** (exit code 0) for all registered cases. Do not stop until this goal is met.
+2. [ ] [/goal](slashCommand;goal) Second `N/2` steps (Phase 2): Run the local runner script (`python 03-ai-scripts/06-cicd-local-runner.py --all`) to catch all errors. Singly execute the script in an autonomous self-loop, zeroing in on one failing error per turn (4-part RCA -> surgical fix -> guideline autofixer -> re-verify).
+3. [ ] [/goal](slashCommand;goal) Finalize CI/CD: Your ultimate goal is to fix and finalize the CI/CD. You must loop until the Python local runner script executes flawlessly with **no errors** (exit code 0) for all registered cases. Do not stop until this goal is met.
 
-[/goal](slashCommand:goal) Perform a Root Cause Analysis (RCA) on all failing run scripts and CI/CD workflows, update `03-ai-scripts/06-cicd-local-runner.py` with any newly added pipeline steps from screenshots or workflow files, zero in on each error singly using self-looping, persist the RCA into `.ai-memory/cicd-issues/` and `.ai-memory/strictly-avoid.md`, implement universal query wrappers with explicit success/failure boolean results and automated error logging, verify clean builds, commit logically, and push to git.
+[/goal](slashCommand;goal) Perform a Root Cause Analysis (RCA) on all failing run scripts and CI/CD workflows, update `03-ai-scripts/06-cicd-local-runner.py` with any newly added pipeline steps from screenshots or workflow files, zero in on each error singly using self-looping, persist the RCA into `.ai-memory/cicd-issues/` and `.ai-memory/strictly-avoid.md`, implement universal query wrappers with explicit success/failure boolean results and automated error logging, verify clean builds, commit logically, and push to git.
 
-[/learn](slashCommand:learn) Ingest recent Root Cause Analysis (RCA) records from `.ai-memory/cicd-issues/`, `.ai-memory/issues/`, `02-spec/02-coding-guidelines/02-canonical-size-tier.md`, `02-spec/02-coding-guidelines/01-cross-language/readme.md`, `02-spec/02-coding-guidelines/01-cross-language/readme.md`, and `02-spec/03-error-manage/` so previous mistakes and anti-patterns are never repeated.
+[/learn](slashCommand;learn) Ingest recent Root Cause Analysis (RCA) records from `.ai-memory/cicd-issues/`, `.ai-memory/issues/`, `02-spec/02-coding-guidelines/02-canonical-size-tier.md`, `02-spec/02-coding-guidelines/01-cross-language/readme.md`, `02-spec/02-coding-guidelines/01-cross-language/readme.md`, and `02-spec/03-error-manage/` so previous mistakes and anti-patterns are never repeated.
 
 ---
 
@@ -185,7 +185,7 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/learn](slashCommand:learn) previous RCAs in `.ai-memory/cicd-issues/` and `.ai-memory/strictly-avoid.md`.
+1. [ ] [/learn](slashCommand;learn) previous RCAs in `.ai-memory/cicd-issues/` and `.ai-memory/strictly-avoid.md`.
 
 - [ ] Read the overarching main task plan.
 - [ ] Ensure the git repository starts completely clean.

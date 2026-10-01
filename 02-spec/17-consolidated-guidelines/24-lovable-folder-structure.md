@@ -171,3 +171,4 @@ Enforced by `linter-scripts/check-axios-version.sh`.
 The canonical memory lives at `mem://index.md` and is automatically loaded into every Lovable AI session. External AIs have no access to that memory — this section is the only way they will learn these rules.
 
 When updating: edit `mem://index.md` first, then sync this section. The mirror is allowed to lag by at most one minor version.
+

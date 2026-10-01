@@ -132,40 +132,40 @@ For every task, you MUST check if the following files or folders exist. If they 
 
 1. Root Memory Guidelines
 
-- [/learn](slashCommand:learn) `.ai-memory/coding-guidelines.md` (and/or `.ai-memory/coding-guidelines.md`)
+- [/learn](slashCommand;learn) `.ai-memory/coding-guidelines.md` (and/or `.ai-memory/coding-guidelines.md`)
 
 2. Master Consolidated Guide & Coding Guidelines
 
-- [/learn](slashCommand:learn) `02-spec/17-consolidated-guidelines/05-coding-guidelines.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/readme.md`
+- [/learn](slashCommand;learn) `02-spec/17-consolidated-guidelines/05-coding-guidelines.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/readme.md`
 
 3. Error Management (Must Follow for all Coding Tasks)
 
-- [/learn](slashCommand:learn) `02-spec/03-error-manage/readme.md`
-- [/learn](slashCommand:learn) *Include most of the files from the error manage directory to ensure robust error handling is implemented per task.*
+- [/learn](slashCommand;learn) `02-spec/03-error-manage/readme.md`
+- [/learn](slashCommand;learn) *Include most of the files from the error manage directory to ensure robust error handling is implemented per task.*
 
 4. Boolean Conditions, Wrappers & Samples
 
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`
 
 5. Code Style & File Size Limits (80-100 lines max)
 
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/04-code-style/readme.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/04-code-style/readme.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md`
 
 6. Variable Naming & Definitions
 
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`
 
 7. Database Conventions
 
-- [/learn](slashCommand:learn) `02-spec/04-database-conventions/` (for schemas and queries)
+- [/learn](slashCommand;learn) `02-spec/04-database-conventions/` (for schemas and queries)
 - If NONE exist for a coding task, ask before planning.
 
 ## Banned actions (auto-reject)

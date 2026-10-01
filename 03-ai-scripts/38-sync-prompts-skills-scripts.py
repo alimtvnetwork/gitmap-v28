@@ -397,7 +397,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
 
     # 2. Create and push pre-change backup branch from HEAD
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    backup_branch = f"backup/pre-v3-nsteps-sync-{timestamp}"
+    backup_branch = f"backup/pre-v6-sync-{timestamp}"
     result["backup_branch"] = backup_branch
 
     if not is_dry_run:
@@ -463,8 +463,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
     # 6. Commit changes on base branch and push
     run_cmd("git add -A", target)
     commit_msg = (
-        "feat(sync): sync v3 n-steps prompt (N=300, mandatory subagents), "
-        "white-blue theme guidelines, skills, and scripts"
+        "feat(sync): sync v6 prompts, sqlite task manager, skills, and coding guidelines"
     )
     code, out, err = run_cmd(f'git commit -m "{commit_msg}"', target)
 
@@ -489,30 +488,56 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
     # Update version files if present
     is_ver_updated = False
 
-    for vf in ["version.json", "package.json"]:
-        vpath = target / vf
+    bump_script = target / "03-ai-scripts" / "37-bump-version.py"
+    if bump_script.exists():
+        b_code, b_out, b_err = run_cmd(
+            f'python "{bump_script}" --tier patch --scope "Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines"',
+            target,
+        )
+        if b_code == 0:
+            is_ver_updated = True
+            bumped_ver = detect_latest_version(target)
+            if bumped_ver and bumped_ver != current_ver:
+                next_ver = bumped_ver
+                release_tag = f"v{next_ver}"
+                release_branch = f"release/{release_tag}"
+                result["release_tag"] = release_tag
+    elif (target / "scripts" / "bump-version.mjs").exists():
+        b_code, b_out, b_err = run_cmd("node scripts/bump-version.mjs --patch", target)
+        if b_code == 0:
+            is_ver_updated = True
+            bumped_ver = detect_latest_version(target)
+            if bumped_ver and bumped_ver != current_ver:
+                next_ver = bumped_ver
+                release_tag = f"v{next_ver}"
+                release_branch = f"release/{release_tag}"
+                result["release_tag"] = release_tag
 
-        if vpath.exists():
-            try:
-                content = vpath.read_text(encoding="utf-8")
-                new_content = re.sub(
-                    r'("[Vv]ersion"\s*:\s*")(\d+\.\d+\.\d+)(")',
-                    rf"\g<1>{next_ver}\g<3>",
-                    content,
-                )
+    if not is_ver_updated:
+        for vf in ["version.json", "package.json"]:
+            vpath = target / vf
 
-                if new_content != content:
-                    vpath.write_text(new_content, encoding="utf-8")
-                    is_ver_updated = True
-            except Exception:
-                pass
+            if vpath.exists():
+                try:
+                    content = vpath.read_text(encoding="utf-8")
+                    new_content = re.sub(
+                        r'("[Vv]ersion"\s*:\s*")(\d+\.\d+\.\d+)(")',
+                        rf"\g<1>{next_ver}\g<3>",
+                        content,
+                    )
+
+                    if new_content != content:
+                        vpath.write_text(new_content, encoding="utf-8")
+                        is_ver_updated = True
+                except Exception:
+                    pass
 
     if is_ver_updated:
         run_cmd("git add -A", target)
         run_cmd(f'git commit -m "chore(version): bump to {release_tag}"', target)
 
     run_cmd(
-        f'git tag -a {release_tag} -m "Release {release_tag} - Synchronize V3 N-steps prompt, white-blue theme coding guidelines, skills, and AI scripts"',
+        f'git tag -a {release_tag} -m "Release {release_tag} - Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines"',
         target,
     )
 

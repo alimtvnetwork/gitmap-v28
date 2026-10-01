@@ -3,7 +3,7 @@
 > **Prompt Version:** 2.1.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-[/goal](slashCommand:goal) Autonomously generate and maintain a robust, dependency-free Python CLI tool to handle mass file renaming, sequencing, and encoding normalization across any specified folder.
+[/goal](slashCommand;goal) Autonomously generate and maintain a robust, dependency-free Python CLI tool to handle mass file renaming, sequencing, and encoding normalization across any specified folder.
 
 ## Overview
 

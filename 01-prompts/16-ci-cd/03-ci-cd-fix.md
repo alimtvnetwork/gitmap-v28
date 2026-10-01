@@ -37,20 +37,20 @@ To rapidly locate failing pipeline definitions, broken source files, test fixtur
 
 ## Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Preamble Precedence Verification: Whatever is given before this section or prompt (user preamble, header constraints, prior instructions) has been verified as highest priority and non-negotiable, and is strictly incorporated into the task scope ahead of all other guidelines.
-2. [ ] [/goal](slashCommand:goal) Phase 1A (Step 0 - Verbatim Prompt Recording & Failure Extraction Gate): Immediately capture the user prompt and error logs verbatim into `.ai-memory/cicd-issues/xx-<slug>.md`. If screenshot URLs or base64 data URIs are provided, decode/save them to `assets/screenshots/<slug>-<NN>.png` and refer back via relative paths. Output the confirmed failure breakdown directly in chat and chain the first diagnostic tool call in the exact same turn (TOTAL BAN on closing conversation or waiting for approval).
-3. [ ] [/goal](slashCommand:goal) First `N/2` steps (Phase 1B): Review the central CI/CD pipeline definitions (`.github/workflows`, `.gitlab-ci.yml`, etc.) and cross-reference them with the local Python runner (`03-ai-scripts/06-cicd-local-runner.py`).
+1. [ ] [/goal](slashCommand;goal) Preamble Precedence Verification: Whatever is given before this section or prompt (user preamble, header constraints, prior instructions) has been verified as highest priority and non-negotiable, and is strictly incorporated into the task scope ahead of all other guidelines.
+2. [ ] [/goal](slashCommand;goal) Phase 1A (Step 0 - Verbatim Prompt Recording & Failure Extraction Gate): Immediately capture the user prompt and error logs verbatim into `.ai-memory/cicd-issues/xx-<slug>.md`. If screenshot URLs or base64 data URIs are provided, decode/save them to `assets/screenshots/<slug>-<NN>.png` and refer back via relative paths. Output the confirmed failure breakdown directly in chat and chain the first diagnostic tool call in the exact same turn (TOTAL BAN on closing conversation or waiting for approval).
+3. [ ] [/goal](slashCommand;goal) First `N/2` steps (Phase 1B): Review the central CI/CD pipeline definitions (`.github/workflows`, `.gitlab-ci.yml`, etc.) and cross-reference them with the local Python runner (`03-ai-scripts/06-cicd-local-runner.py`).
    - **Condition:** If `03-ai-scripts/06-cicd-local-runner.py` does not exist, you must create it immediately.
    - **Condition:** You must ensure that **every single CI/CD case** that needs to run in the pipeline can also be run locally from this Python script (with Docker stripped for native host execution). Improve the Python script to cover all cases if any are missing.
-4. [ ] [/goal](slashCommand:goal) Second `N/2` steps (Phase 2): Run the local runner script (`python 03-ai-scripts/06-cicd-local-runner.py --changed-only` or `--pkg <target>`) to catch all errors. Singly execute the script in an autonomous self-loop, zeroing in on one failing error per turn (4-part RCA -> surgical fix -> guideline autofixer -> re-verify).
-5. [ ] [/goal](slashCommand:goal) Finalize CI/CD: Your ultimate goal is to fix and finalize the CI/CD. You must loop until the Python local runner script executes flawlessly with **no errors** (exit code 0) for all registered cases. Do not stop until this goal is met.
-6. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/cicd-issues/` for domain-specific architectural specifications.
-7. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-8. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-9. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-10. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
-11. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
-12. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+4. [ ] [/goal](slashCommand;goal) Second `N/2` steps (Phase 2): Run the local runner script (`python 03-ai-scripts/06-cicd-local-runner.py --changed-only` or `--pkg <target>`) to catch all errors. Singly execute the script in an autonomous self-loop, zeroing in on one failing error per turn (4-part RCA -> surgical fix -> guideline autofixer -> re-verify).
+5. [ ] [/goal](slashCommand;goal) Finalize CI/CD: Your ultimate goal is to fix and finalize the CI/CD. You must loop until the Python local runner script executes flawlessly with **no errors** (exit code 0) for all registered cases. Do not stop until this goal is met.
+6. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/cicd-issues/` for domain-specific architectural specifications.
+7. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+8. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+9. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+10. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+11. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
+12. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Screenshot Pipeline Discovery, Update 06-cicd-local-runner.py, Register New JOBS)

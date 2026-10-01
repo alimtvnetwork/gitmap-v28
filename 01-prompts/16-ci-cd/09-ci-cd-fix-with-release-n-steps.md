@@ -9,7 +9,7 @@ Trigger Keywords & Aliases: `cicd fix release n steps`, `ci release n steps`, `f
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
-[/goal](slashCommand:goal) Autonomously diagnose, repair all CI/CD pipeline issues using local runner scripts, execute targeted quality gates to verify 100% green status, and perform full automated release publication with version bump and changelog synchronization using an N-step continuous self-loop.
+[/goal](slashCommand;goal) Autonomously diagnose, repair all CI/CD pipeline issues using local runner scripts, execute targeted quality gates to verify 100% green status, and perform full automated release publication with version bump and changelog synchronization using an N-step continuous self-loop.
 
 ```text
 N = 200

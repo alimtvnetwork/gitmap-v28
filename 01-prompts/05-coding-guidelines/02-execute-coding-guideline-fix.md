@@ -7,7 +7,7 @@
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
-[/goal](slashCommand:goal) Apply concrete, surgical fixes for all coding guideline violations listed in the pending tasks. Strictly adhere to all style rules, boolean principles, function size limits (< 8–15 lines), and type-safety standards in bounded 5-8 file micro-batches without introducing regressions.
+[/goal](slashCommand;goal) Apply concrete, surgical fixes for all coding guideline violations listed in the pending tasks. Strictly adhere to all style rules, boolean principles, function size limits (< 8–15 lines), and type-safety standards in bounded 5-8 file micro-batches without introducing regressions.
 
 ```text
 N = 200 (Total self-loop steps budget)

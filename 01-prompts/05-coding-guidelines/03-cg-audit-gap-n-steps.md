@@ -11,9 +11,9 @@ N = 400
 
 N = total self-loop steps budget across the codebase. The user may override this number when triggering the prompt (e.g., N = 100 or N = 200).
 
-- [ ] [/goal](slashCommand:goal) First N/2 steps (Phase 1): Deeply scan the entire codebase file-by-file, dividing N steps across files with 30-50 nested atomic checks per file, scoring guideline compliance from 0 to 100, and writing the master audit report to `02-spec/01-spec-authoring-guide/readme.md`.
-- [ ] [/goal](slashCommand:goal) Second N/2 steps (Phase 2): Enqueue all identified gaps into `.ai-memory/plans/pending/XX-coding-guidelines-audit.md`, break them down into microscopic atomic subtasks inside `.ai-memory/plans/subtasks/XX-coding-guidelines/`, and register them in `.ai-memory/plans/readme.md`.
-- [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` (HIGH PRIORITY FIRST), `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, `02-spec/17-consolidated-guidelines/`, and `.ai-memory/strictly-avoid.md` before taking action.
+- [ ] [/goal](slashCommand;goal) First N/2 steps (Phase 1): Deeply scan the entire codebase file-by-file, dividing N steps across files with 30-50 nested atomic checks per file, scoring guideline compliance from 0 to 100, and writing the master audit report to `02-spec/01-spec-authoring-guide/readme.md`.
+- [ ] [/goal](slashCommand;goal) Second N/2 steps (Phase 2): Enqueue all identified gaps into `.ai-memory/plans/pending/XX-coding-guidelines-audit.md`, break them down into microscopic atomic subtasks inside `.ai-memory/plans/subtasks/XX-coding-guidelines/`, and register them in `.ai-memory/plans/readme.md`.
+- [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` (HIGH PRIORITY FIRST), `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, `02-spec/17-consolidated-guidelines/`, and `.ai-memory/strictly-avoid.md` before taking action.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Deep File-by-File Gap Audit & 0-100 Scoring Report)

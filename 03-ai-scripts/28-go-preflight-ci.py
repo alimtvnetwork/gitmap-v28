@@ -123,9 +123,7 @@ def execute_go_check(item: GoPreflightItem) -> WorkItemResult:
             [exe_path] + item.command[1:],
             cwd=str(item.mod_dir),
             capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace"
+            text=True
         )
         duration_sec = time.perf_counter() - start_time
         combined_output = (res.stdout or "") + (res.stderr or "")

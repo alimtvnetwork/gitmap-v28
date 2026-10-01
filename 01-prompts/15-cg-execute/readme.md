@@ -17,7 +17,7 @@ N = total self-loop steps budget that the agents will perform.
 A = count of autonomous subagents running concurrently (default: 2).
 H = number of hands / parallel operations per agent (default: 2).
 
-[/goal](slashCommand:goal) Autonomously orchestrate and execute coding standard compliance across the repository by directly scanning files, generating verifiable audit specs, actively refactoring source code, and verifying with automated linters until 100% green without stopping.
+[/goal](slashCommand;goal) Autonomously orchestrate and execute coding standard compliance across the repository by directly scanning files, generating verifiable audit specs, actively refactoring source code, and verifying with automated linters until 100% green without stopping.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan, Spec with Violation Ledger in .ai-memory/plans/pending/, Subtasks, Linter Hook)
@@ -44,23 +44,25 @@ When multiple autonomous agents are present (A >= 2, H >= 2):
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A - Scan & Discover via Single-Agent Blueprint): Single lead agent establishes the audit roadmap; subagents execute parallel reading across disjoint files using fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all violations without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B - Master Audit Spec): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C - Modular Subtasks): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/` across disjoint target files.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D - Quality Linter Hook): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A - Surgical Refactoring): Spawn up to A = 2 execution subagents (H = 2 operations each) on disjoint target files following authoritative guidelines.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B - Size Tier & Formatting): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C - Linter Verification): Execute targeted file-level linters to verify 0 remaining violations across all modified files (`exit 0`).
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D - File Recording): Atomically record modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). DO NOT run full CI/CD runners (`06-cicd-local-runner.py`), build checks, or test suites during routine turns.
-9. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-10. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-13. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
-16. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-17. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A - Scan & Discover via Single-Agent Blueprint): Single lead agent establishes the audit roadmap; subagents execute parallel reading across disjoint files using fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all violations without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B - Master Audit Spec): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C - Modular Subtasks): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/` across disjoint target files.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D - Quality Linter Hook): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A - Surgical Refactoring): Spawn up to A = 2 execution subagents (H = 2 operations each) on disjoint target files following authoritative guidelines.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B - Size Tier & Formatting): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C - Linter Verification): Execute targeted file-level linters to verify 0 remaining violations across all modified files (`exit 0`).
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D - File Recording): Atomically record modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). DO NOT run full CI/CD runners (`06-cicd-local-runner.py`), build checks, or test suites during routine turns.
+9. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+10. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+11. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+13. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
+16. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+17. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
+
+[/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution. Ensure all deliverables, architecture boundaries, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
 
 ---
 
@@ -104,6 +106,7 @@ Prompts are sequenced according to priority. Error management, control-flow flat
 | **32** | [`32-cg-follow-other-prompts.md`](./32-cg-follow-other-prompts.md) | Follow External Guideline Prompts & Directives | `cg-follow-prompts`, `cg-external-prompts` | External prompt ingestion, reference chaining, bounded micro-batches, zero-test/zero-build execution | `validate-guidelines.py`, `check-function-lengths.py` |
 | **33** | [`33-branch-immutability-and-clean-construction.md`](./33-branch-immutability-and-clean-construction.md) | Branch Immutability, Clean Construction & Condition Decomposition | `cg-branch-immutability`, `cg-clean-construction`, `fix-branch-mutation` | Ban mutating object fields across branch ladders, decompose compound conditions into affirmative booleans, pure constructor helpers | `validate-guidelines.py`, `check-boolean-guidelines.py` |
 | **34** | [`34-golang-pointer-reduction-and-value-semantics.md`](./34-golang-pointer-reduction-and-value-semantics.md) | Golang Pointer Reduction & Value Semantics (300 Steps) | `cg-pointer-reduction`, `cg-golang-pointers`, `golang-value-semantics` | 3-phase 300-step execution (100 Audit / 100 Spec / 100 Refactor), reduce heap escapes, value semantics for small structs & query receivers | `golangci-lint`, `validate-guidelines.py` |
+| **35** | [`35-clean-work-artifacts-and-os-caches.md`](./35-clean-work-artifacts-and-os-caches.md) | Work Directory & OS Cache Cleaner (Dry-Run Plan First) | `clean-work-artifacts-and-os-caches` | Plan preview first, then purge work-repo build artifacts, Go/npm/pnpm/Bun caches (keeping `node_modules`), browser/editor caches, OS temp, and Git caches, reporting space reclaimed per layer | `44-work-and-system-cache-cleaner.py`, `scripts-fixer` |
 
 ---
 

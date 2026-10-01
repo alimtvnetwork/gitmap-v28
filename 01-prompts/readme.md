@@ -9,12 +9,13 @@ This directory hosts the canonical, production-grade prompts library (V4 archite
 ## Core Architecture & Capabilities
 
 1. **Antigravity Slash Command Links + GitMap AUM Engine:**
-   - Interactive slash command links (`[/goal](slashCommand:goal)`, `[/learn](slashCommand:learn)`) combined with **GitMap AUM Engine** (`gitmap` CLI) as primary and Python scripts (`03-ai-scripts/`) as fallback.
+   - Interactive slash command links (`[/goal](slashCommand;goal)`, `[/learn](slashCommand;learn)`) combined with **GitMap AUM Engine** (`gitmap` CLI) as primary and Python scripts (`03-ai-scripts/`) as fallback.
 
-2. **High-Speed File & Content Discovery:**
+2. **High-Speed File & Content Discovery (TOTAL BAN ON `Select-String` & `git grep`):**
+   - Multi-Core Streaming Live Search: `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]` (alias: `gitmap aum grep`) — streaming live disk text/regex scanner (replaces `Select-String`, `git grep`)
+   - Instant Indexed Symbol Search: `gitmap search "<query>" [--limit <n>]` — cached SQLite symbol & keyword search
    - Universal Wildcard Search: `gitmap find "<pattern>" [-ext <ext>]` (<10ms across 10,000+ files)
    - Zero-Disk Streaming: `gitmap cat <filepath>`
-   - Instant Filesystem Walk: `gitmap search "<symbol>"`
    - Substring Filename Search: `gitmap find-files-any "<str>"` (alias: `gitmap ffa`)
    - Directory Indexing: `gitmap list-files [pattern]` (alias: `gitmap lf`)
 
@@ -35,6 +36,17 @@ This directory hosts the canonical, production-grade prompts library (V4 archite
 6. **V3 Parent Task N-Steps Continuous Loop (`14-execute/10-execute-parent-task-with-n-steps-v3.md`):**
    - Top-header editable step budget (`N = 300`, `PHASE_1_STEPS = 150`, `PHASE_2_STEPS = 150`) and concurrency parameters (`A = 2`, `H = 2`).
    - **Mandatory Subagent Spawning Gate (`invoke_subagent`, Zero Solo Execution):** Requires spawning `A = 2` concurrent subagents (`H = 2` disjoint tasks per subagent, `TypeName: "self"` in Phase 2) across both Phase 1 discovery/spec generation and Phase 2 code execution.
+
+7. **V4 Antigravity-Native Parent Task N-Steps (`14-execute/11-execute-parent-task-with-n-steps-v4.md`):**
+   - Rewrite of V3 for Google Antigravity 2.0: every rule stated once (R1 to R15), a capability preflight, and a resumable gitignored ledger.
+   - Lead verification of every worker report, explicit-path staging, and evidence-based confidence.
+
+8. **V5 Antigravity-Native Ultra-Orchestrator (`14-execute/12-execute-parent-task-with-n-steps-v5.md`):**
+   - Ultimate synthesis of V4's rule-indexed efficiency (R1–R16), resumable ledger (`ledger.md`), explicit path staging (R8), and evidence-gating with 100% GitMap command primacy, in-brief coding guideline injection (positive booleans, `*appfault.AppError`, <=8-15 lines), corrected Antigravity 2.0 tool schemas (`Model: "inherit"`), repo-secrets default work directory governance (R16), and non-negotiable wake-up urgency.
+
+9. **V6 Parameter-Driven Ultra-Orchestrator (`14-execute/13-execute-parent-task-with-n-steps-v6.md`):**
+   - Pure parameterization driven entirely by header variables (`N`, `A`, `H`, `C`, `PHASE_1_BUDGET`, `PHASE_2_BUDGET`, `WAVES`) with zero hardcoded literal step or agent counts in the body.
+   - 100% GitMap commit primacy via atomic `gitmap cpf` / `gitmap cpb` (eliminating manual `git add` and `git commit`), upstream `.gitignore` hygiene gate (R8) with automatic untracking of ignored files (`git rm --cached`), root task JSON manifest (`task.json`) and subagent JSON contracts, self-contained worker briefs with language-specific rules, secrets gate, and <= 3,200-word footprint.
 
 ---
 
