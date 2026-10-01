@@ -1,3 +1,9 @@
+## v6.450.0 — 2026-10-01 (auto fast-forward merge fallback on diverged pull and pipeline cancel filtering)
+
+**Scope:** Version bump. auto fast-forward merge fallback on diverged pull and pipeline cancel filtering.
+
+---
+
 ## v6.449.1 — 2026-10-01 (Synchronize prompts, skills, AI scripts, and coding guidelines)
 
 **Scope:** Version bump. Synchronize prompts, skills, AI scripts, and coding guidelines.

@@ -1,5 +1,16 @@
 # Changelog
 
+## [v6.450.0] - 2026-10-01
+
+### Added
+- Auto fast-forward merge fallback in safe pull (`--no-rebase --no-edit --autostash`) when local and remote branches have diverged
+- Clean in-progress merge abort (`git merge --abort`) if non-fast-forward auto-merge encounters conflicts
+- Excluded cancelled workflow runs from false-positive failure flags in pipeline error logging
+- Centralized SQLite Split-DB gitignore cache in `BinaryDataDir` with `COLLATE NOCASE` and case-insensitive matching
+- Dynamic TTL resolution for ignore checks with `--force` bypass support across pull and ignore commands
+
+---
+
 ## [v6.449.1] - 2026-10-01
 
 ### Added
