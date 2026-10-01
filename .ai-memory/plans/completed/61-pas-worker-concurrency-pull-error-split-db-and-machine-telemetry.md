@@ -13,10 +13,10 @@ WAVES = ceil(subtasks / (A x H))
 ```
 
 > [!IMPORTANT]
-> **Plan Slug:** `61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry`  
-> **Status:** `COMPLETED`  
-> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Runtime:** Google Antigravity 2.0 (IDE and CLI)  
+> **Plan Slug:** `61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry`
+> **Status:** `COMPLETED`
+> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Runtime:** Google Antigravity 2.0 (IDE and CLI)
 
 ---
 

@@ -1,8 +1,8 @@
 # Subtask 03: Heartbeat Ticker & Structured Output Grouping
 
-> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Primary File Targets:** `cli/cmdpull/pull_heartbeat.go`, `cli/cmdpull/pull_efficient.go`, `cli/cmdpull/pull_efficient_render.go`  
+> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Primary File Targets:** `cli/cmdpull/pull_heartbeat.go`, `cli/cmdpull/pull_efficient.go`, `cli/cmdpull/pull_efficient_render.go`
 
 ---
 

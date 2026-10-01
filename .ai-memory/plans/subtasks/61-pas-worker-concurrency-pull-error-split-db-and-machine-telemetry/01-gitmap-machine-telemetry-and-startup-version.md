@@ -1,8 +1,8 @@
 # Subtask 01: Dedicated Machine Telemetry & Startup Node Version
 
-> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Primary File Targets:** `cli/cmdos/os_machine_alias.go`, `cli/cmdssh/ssh_pull_fleet.go`  
+> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Primary File Targets:** `cli/cmdos/os_machine_alias.go`, `cli/cmdssh/ssh_pull_fleet.go`
 
 ---
 

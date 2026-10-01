@@ -1,8 +1,8 @@
 # Subtask 05: Wincredman Credential Store Remediation Hints
 
-> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Primary File Targets:** `cli/cmdpull/pull_remediation_hint.go`  
+> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Primary File Targets:** `cli/cmdpull/pull_remediation_hint.go`
 
 ---
 

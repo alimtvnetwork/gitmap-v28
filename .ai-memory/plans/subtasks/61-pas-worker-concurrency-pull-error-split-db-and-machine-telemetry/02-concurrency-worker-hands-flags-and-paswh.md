@@ -1,8 +1,8 @@
 # Subtask 02: Concurrency Worker & Hands Flags and paswh Command
 
-> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
-> **Primary File Targets:** `cli/cmdpull/pull.go`, `cli/cmdssh/ssh_pas_fleet.go`, `cli/cmd/rootcore.go`, `cli/cloneconcurrency/resolve.go`  
+> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+> **Primary File Targets:** `cli/cmdpull/pull.go`, `cli/cmdssh/ssh_pas_fleet.go`, `cli/cmd/rootcore.go`, `cli/cloneconcurrency/resolve.go`
 
 ---
 
