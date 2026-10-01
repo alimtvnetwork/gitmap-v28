@@ -1,3 +1,9 @@
+## v6.449.0 — 2026-10-01 (resolve nested ifs, swallowed db errors, and runner path attributes (RCA-095))
+
+**Scope:** Version bump. resolve nested ifs, swallowed db errors, and runner path attributes (RCA-095).
+
+---
+
 ## v6.448.0 — 2026-10-01 (Pull concurrency throttling, split-db ignore cache, deadlock prevention, and task manager synchronization)
 
 **Scope:** Version bump. Pull concurrency throttling, split-db ignore cache, deadlock prevention, and task manager synchronization.
