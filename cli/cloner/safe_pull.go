@@ -254,6 +254,17 @@ func buildSafePullEnv() []string {
 }
 
 func runGitPullWithProgress(repoDir string, onProgress func(string)) (string, error) {
+	out, err := execGitPullFF(repoDir, onProgress)
+	if err == nil {
+		return out, nil
+	}
+	if isDivergedOutput(out) {
+		return attemptAutoMergePull(repoDir, onProgress, out)
+	}
+	return out, err
+}
+
+func execGitPullFF(repoDir string, onProgress func(string)) (string, error) {
 	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--progress", constants.GitFFOnlyFlag, "--autostash")
 	cmd.Env = buildSafePullEnv()
 	stream := newProgressStreamWriter(onProgress)
@@ -261,8 +272,34 @@ func runGitPullWithProgress(repoDir string, onProgress func(string)) (string, er
 	cmd.Stderr = stream
 	err := cmd.Run()
 	stream.flush()
-
 	return stream.output(), err
+}
+
+func isDivergedOutput(output string) bool {
+	return strings.Contains(output, "Not possible to fast-forward") ||
+		strings.Contains(output, "diverged") ||
+		strings.Contains(output, "non-fast-forward")
+}
+
+func attemptAutoMergePull(repoDir string, onProgress func(string), ffOutput string) (string, error) {
+	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--progress", "--no-rebase", "--no-edit", "--autostash")
+	cmd.Env = buildSafePullEnv()
+	stream := newProgressStreamWriter(onProgress)
+	cmd.Stdout = stream
+	cmd.Stderr = stream
+	err := cmd.Run()
+	stream.flush()
+	if err == nil {
+		return stream.output(), nil
+	}
+	abortInProgressMerge(repoDir)
+	return stream.output(), err
+}
+
+func abortInProgressMerge(repoDir string) {
+	abort := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "merge", "--abort")
+	abort.Env = buildSafePullEnv()
+	_ = abort.Run()
 }
 
 func cleanDirIfRequested(isDirExists, isClean bool, dest string) *apperror.AppError {
