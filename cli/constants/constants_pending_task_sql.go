@@ -6,16 +6,16 @@ const (
 		(TaskTypeId, TargetPath, WorkingDirectory, SourceCommand, CommandArgs)
 		VALUES (?, ?, ?, ?, ?)`
 
-	SQLSelectAllPendingTasks = `SELECT p.PendingTaskId, p.TaskTypeId, t.Name, p.TargetPath,
+	SQLSelectAllPendingTasks = `SELECT p.PendingTaskId, p.TaskTypeId, COALESCE(t.Name, ''), p.TargetPath,
 		p.WorkingDirectory, p.SourceCommand, p.CommandArgs,
 		p.FailureReason, p.CreatedAt, p.UpdatedAt
-		FROM PendingTask p JOIN TaskType t ON p.TaskTypeId = t.TaskTypeId
+		FROM PendingTask p LEFT JOIN TaskType t ON p.TaskTypeId = t.TaskTypeId
 		ORDER BY p.PendingTaskId`
 
-	SQLSelectPendingTaskByID = `SELECT p.PendingTaskId, p.TaskTypeId, t.Name, p.TargetPath,
+	SQLSelectPendingTaskByID = `SELECT p.PendingTaskId, p.TaskTypeId, COALESCE(t.Name, ''), p.TargetPath,
 		p.WorkingDirectory, p.SourceCommand, p.CommandArgs,
 		p.FailureReason, p.CreatedAt, p.UpdatedAt
-		FROM PendingTask p JOIN TaskType t ON p.TaskTypeId = t.TaskTypeId
+		FROM PendingTask p LEFT JOIN TaskType t ON p.TaskTypeId = t.TaskTypeId
 		WHERE p.PendingTaskId = ?`
 
 	SQLSelectPendingTaskByTypePath = `SELECT p.PendingTaskId FROM PendingTask p

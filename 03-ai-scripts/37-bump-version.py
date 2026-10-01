@@ -34,9 +34,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 VERSION_JSON = REPO_ROOT / "version.json"
 PACKAGE_JSON = REPO_ROOT / "package.json"
 README_MD = REPO_ROOT / "readme.md"
+WHAT_TO_READ_MD = REPO_ROOT / "what-to-read.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
 SPEC19_CHANGELOG = REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md"
 TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
+CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
+LATEST_JSON = REPO_ROOT / ".gitmap" / "release" / "latest.json"
+RELEASE_NOTES_DIR = REPO_ROOT / ".ai-memory" / "release"
 
 
 def run_cmd(cmd, cwd=None, check=True, capture_output=True):
@@ -176,6 +180,115 @@ def update_template_version(next_version, dry_run=False):
     print(f"[*] Updated prompt-version.template.json -> {next_version}")
 
 
+def update_constants_go(next_version, dry_run=False):
+    """Updates var Version in cli/constants/constants.go."""
+    if not CONSTANTS_GO.is_file():
+        return
+
+    with open(CONSTANTS_GO, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    new_content = re.sub(
+        r'var Version = "[^"]+"',
+        f'var Version = "{next_version}"',
+        content,
+    )
+    if new_content == content:
+        return
+
+    if dry_run:
+        print(f"[DRY RUN] Would update Version in {CONSTANTS_GO.name} -> {next_version}")
+        return
+
+    with open(CONSTANTS_GO, "w", encoding="utf-8", newline="\n") as f:
+        f.write(new_content)
+
+    print(f"[*] Updated {CONSTANTS_GO.relative_to(REPO_ROOT)} -> {next_version}")
+
+
+def update_latest_json(next_version, dry_run=False):
+    """Updates version, tag, branch in .gitmap/release/latest.json."""
+    if not LATEST_JSON.parent.is_dir():
+        LATEST_JSON.parent.mkdir(parents=True, exist_ok=True)
+
+    data = {
+        "version": next_version,
+        "tag": f"v{next_version}",
+        "branch": f"release/v{next_version}",
+    }
+
+    if dry_run:
+        print(f"[DRY RUN] Would write {LATEST_JSON.name} -> {data}")
+        return
+
+    with open(LATEST_JSON, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+    print(f"[*] Updated {LATEST_JSON.relative_to(REPO_ROOT)} -> v{next_version}")
+
+
+def update_what_to_read_pins(current_ver, next_version, dry_run=False):
+    """Pins new version in what-to-read.md badges and text references."""
+    if not WHAT_TO_READ_MD.is_file():
+        return
+
+    with open(WHAT_TO_READ_MD, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    escaped_curr = re.escape(current_ver)
+    new_content = re.sub(rf"\bv?{escaped_curr}\b", f"v{next_version}", content)
+    new_content = re.sub(rf"\b{escaped_curr}\b", next_version, new_content)
+
+    if new_content == content:
+        return
+
+    if dry_run:
+        print(f"[DRY RUN] Would update version references in what-to-read.md: {current_ver} -> {next_version}")
+        return
+
+    with open(WHAT_TO_READ_MD, "w", encoding="utf-8", newline="\n") as f:
+        f.write(new_content)
+
+    print(f"[*] Updated what-to-read.md version pins -> v{next_version}")
+
+
+def write_release_notes(next_version, scope, dry_run=False):
+    """Generates release-notes-vX.Y.Z.md in .ai-memory/release/."""
+    RELEASE_NOTES_DIR.mkdir(parents=True, exist_ok=True)
+    notes_file = RELEASE_NOTES_DIR / f"release-notes-v{next_version}.md"
+
+    notes_content = f"""## Quick Install v{next_version}
+
+### Windows (PowerShell)
+
+```powershell
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v{next_version}"
+```
+
+### Unix / Linux / macOS (Bash)
+
+```bash
+curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.sh | bash -s -- ".ai-memory/prompts" "v{next_version}"
+```
+
+---
+
+## What's Changed in v{next_version}
+
+### Added
+- {scope}
+"""
+    if dry_run:
+        print(f"[DRY RUN] Would write release notes: {notes_file.name}")
+        return
+
+    with open(notes_file, "w", encoding="utf-8", newline="\n") as f:
+        f.write(notes_content)
+
+    print(f"[*] Generated release notes -> {notes_file.relative_to(REPO_ROOT)}")
+
+
 def update_readme_pins(current_ver, next_version, dry_run=False):
     """Pins new version in readme.md badges and text references."""
     if not README_MD.is_file():
@@ -245,7 +358,18 @@ def update_changelogs(next_version, scope, today_str, dry_run=False):
 
 
 def run_repo_sync_if_available(dry_run=False):
-    """Executes `npm run sync` if defined in package.json to regenerate spec trees and manifests."""
+    """Executes `go generate ./...` in cli/ and `npm run sync` if defined."""
+    cli_dir = REPO_ROOT / "cli"
+    if cli_dir.is_dir():
+        if dry_run:
+            print("[DRY RUN] Would run: go generate ./... in cli/")
+        else:
+            try:
+                run_cmd(["go", "generate", "./..."], cwd=str(cli_dir), check=False)
+                print("[*] Completed go generate ./... in cli/")
+            except Exception as e:
+                print(f"[!] Warning running go generate ./...: {e}")
+
     if not PACKAGE_JSON.is_file():
         return
 
@@ -284,8 +408,12 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
     update_version_json(next_ver, today_str, dry_run=dry_run)
     update_package_json(next_ver, dry_run=dry_run)
     update_template_version(next_ver, dry_run=dry_run)
+    update_constants_go(next_ver, dry_run=dry_run)
+    update_latest_json(next_ver, dry_run=dry_run)
     update_readme_pins(current_ver, next_ver, dry_run=dry_run)
+    update_what_to_read_pins(current_ver, next_ver, dry_run=dry_run)
     update_changelogs(next_ver, bump_scope, today_str, dry_run=dry_run)
+    write_release_notes(next_ver, bump_scope, dry_run=dry_run)
     run_repo_sync_if_available(dry_run=dry_run)
 
     print(f"[OK] Successfully bumped version to {next_ver}")
