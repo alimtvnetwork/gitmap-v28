@@ -1,3 +1,9 @@
+## v6.438.4 — 2026-10-01 (Rewrite formatDetails if-else chain to switch statement)
+
+**Scope:** Version bump. Rewrite formatDetails if-else chain to switch statement.
+
+---
+
 ## v6.438.3 — 2026-10-01 (Flatten nested ifs, switch applyOption, and handle cache db scan errors)
 
 **Scope:** Version bump. Flatten nested ifs, switch applyOption, and handle cache db scan errors.

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.438.4] - 2026-10-01
+
+### Added
+- Rewrite formatDetails if-else chain to switch statement
+
+---
+
 ## [v6.438.3] - 2026-10-01
 
 ### Added
