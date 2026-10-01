@@ -73,13 +73,14 @@ func renderUpdatedGroup(w io.Writer, colWidth int, updated []*PullRepoState) {
 
 func resolveUpdatedStatusLabel(s *PullRepoState) string {
 	statusLabel := ResolveRepoStatusLabel(s.Changes)
-	if statusLabel == "up-to-date" {
-		if s.Step == PullStepTypeFastForward {
-			return "fast-forward"
-		}
-		if s.Step == PullStepTypeMerging {
-			return "merged"
-		}
+	if statusLabel != "up-to-date" {
+		return statusLabel
+	}
+	if s.Step == PullStepTypeFastForward {
+		return "fast-forward"
+	}
+	if s.Step == PullStepTypeMerging {
+		return "merged"
 	}
 	return statusLabel
 }

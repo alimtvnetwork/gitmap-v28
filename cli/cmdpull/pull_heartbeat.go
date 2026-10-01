@@ -61,10 +61,11 @@ func emitHeartbeat(elapsed, threshold time.Duration, progressFn func() string, w
 }
 
 func resolveHeartbeatMessage(progressFn func() string) string {
-	if progressFn != nil {
-		if msg := progressFn(); msg != "" {
-			return msg
-		}
+	if progressFn == nil {
+		return "Pulling repositories..."
+	}
+	if msg := progressFn(); msg != "" {
+		return msg
 	}
 	return "Pulling repositories..."
 }

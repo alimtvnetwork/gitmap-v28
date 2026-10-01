@@ -53,17 +53,17 @@ func printFleetPASBanner(label string, probes []fleetNodeLiveness) {
 	fmt.Printf("\n%s  Enqueuing '%s' across SSH fleet:%s\n", constants.ColorCyan, label, constants.ColorReset)
 	for _, p := range probes {
 		c := p.conn
-		if p.isOnline {
-			verStr := p.version
-			if verStr != "" && verStr != "unknown" && !strings.HasPrefix(verStr, "v") {
-				verStr = "v" + verStr
-			}
-			fmt.Printf("    • Remote Node [%s] (%s) [GitMap %s]: %sOnline → Enqueued (async)%s\n",
-				c.Alias, c.IPAddress, verStr, constants.ColorGreen, constants.ColorReset)
+		if !p.isOnline {
+			fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
+				c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
 			continue
 		}
-		fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
-			c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
+		verStr := p.version
+		if verStr != "" && verStr != "unknown" && !strings.HasPrefix(verStr, "v") {
+			verStr = "v" + verStr
+		}
+		fmt.Printf("    • Remote Node [%s] (%s) [GitMap %s]: %sOnline → Enqueued (async)%s\n",
+			c.Alias, c.IPAddress, verStr, constants.ColorGreen, constants.ColorReset)
 	}
 	host := resolveLocalHostname()
 	localVer := constants.Version
@@ -196,11 +196,9 @@ func ParsePASConcurrencyFlags(args []string) []string {
 				forwarded = append(forwarded, args[i])
 			}
 		case a == "-h":
-			if i+1 < len(args) {
-				if _, err := strconv.Atoi(args[i+1]); err == nil {
-					forwarded = append(forwarded, "--hand", args[i+1])
-					i++
-				}
+			if i+1 < len(args) && isIntegerArg(args[i+1]) {
+				forwarded = append(forwarded, "--hand", args[i+1])
+				i++
 			}
 		case strings.HasPrefix(a, "--w=") || strings.HasPrefix(a, "--worker=") || strings.HasPrefix(a, "--workers="):
 			forwarded = append(forwarded, a)
@@ -224,4 +222,9 @@ func dispatchOnlineFleetPAS(conns []db.SSHConnection, baseRemoteCmd string, args
 // RunSSHPASFleet executes pull-all across SSH fleet nodes, forwarding concurrency flags to remote nodes.
 func RunSSHPASFleet(cleanArgs []string) error {
 	return RunSSHPullAllFleet(cleanArgs)
+}
+
+func isIntegerArg(s string) bool {
+	_, err := strconv.Atoi(s)
+	return err == nil
 }

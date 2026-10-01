@@ -99,14 +99,15 @@ func resolveTargetRepo(positional []string) string {
 }
 
 func resolveDefaultTarget() string {
-	if isGitRepoCWD() {
-		topLevel := gitRepoTopLevel()
-		if topLevel != "" {
-			return filepath.Base(topLevel)
-		}
-		if cwd, err := os.Getwd(); err == nil && cwd != "" {
-			return filepath.Base(cwd)
-		}
+	if !isGitRepoCWD() {
+		return "all"
+	}
+	topLevel := gitRepoTopLevel()
+	if topLevel != "" {
+		return filepath.Base(topLevel)
+	}
+	if cwd, err := os.Getwd(); err == nil && cwd != "" {
+		return filepath.Base(cwd)
 	}
 	return "all"
 }

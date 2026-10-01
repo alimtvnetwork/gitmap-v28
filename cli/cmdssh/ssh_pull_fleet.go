@@ -143,22 +143,24 @@ func tryRESTNodeVersion(ip string) string {
 		if err != nil {
 			continue
 		}
-		defer resp.Body.Close()
-		if resp.StatusCode == http.StatusOK {
-			body, readErr := io.ReadAll(io.LimitReader(resp.Body, 4096))
-			if readErr != nil {
-				continue
-			}
-			var statusResp struct {
-				Version string `json:"version"`
-			}
-			if err := json.Unmarshal(body, &statusResp); err == nil && statusResp.Version != "" {
-				return cleanFleetVersionString(statusResp.Version)
-			}
-			trimmed := strings.TrimSpace(string(body))
-			if trimmed != "" && !strings.HasPrefix(trimmed, "<") && !strings.HasPrefix(trimmed, "{") {
-				return cleanFleetVersionString(trimmed)
-			}
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			continue
+		}
+		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		resp.Body.Close()
+		if readErr != nil {
+			continue
+		}
+		var statusResp struct {
+			Version string `json:"version"`
+		}
+		if err := json.Unmarshal(body, &statusResp); err == nil && statusResp.Version != "" {
+			return cleanFleetVersionString(statusResp.Version)
+		}
+		trimmed := strings.TrimSpace(string(body))
+		if trimmed != "" && !strings.HasPrefix(trimmed, "<") && !strings.HasPrefix(trimmed, "{") {
+			return cleanFleetVersionString(trimmed)
 		}
 	}
 	return ""
@@ -220,17 +222,17 @@ func printFleetEnqueueBanner(probes []fleetNodeLiveness) {
 	fmt.Printf("\n%s  Enqueuing 'pull-all' across SSH fleet:%s\n", constants.ColorCyan, constants.ColorReset)
 	for _, p := range probes {
 		c := p.conn
-		if p.isOnline {
-			verStr := p.version
-			if verStr != "" && verStr != "unknown" && !strings.HasPrefix(verStr, "v") {
-				verStr = "v" + verStr
-			}
-			fmt.Printf("    • Remote Node [%s] (%s) [GitMap %s]: %sOnline → Enqueued (async)%s\n",
-				c.Alias, c.IPAddress, verStr, constants.ColorGreen, constants.ColorReset)
+		if !p.isOnline {
+			fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
+				c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
 			continue
 		}
-		fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
-			c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
+		verStr := p.version
+		if verStr != "" && verStr != "unknown" && !strings.HasPrefix(verStr, "v") {
+			verStr = "v" + verStr
+		}
+		fmt.Printf("    • Remote Node [%s] (%s) [GitMap %s]: %sOnline → Enqueued (async)%s\n",
+			c.Alias, c.IPAddress, verStr, constants.ColorGreen, constants.ColorReset)
 	}
 	host := resolveLocalHostname()
 	localVer := constants.Version

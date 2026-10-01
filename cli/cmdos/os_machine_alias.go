@@ -52,10 +52,10 @@ func dispatchMachineOrAlias(mode string, args []string) error {
 	isSSH := hasFlag(args, "--ssh") || hasFlag(args, "-s")
 	isJSON := hasFlag(args, "--json") || hasFlag(args, "-j")
 	clean := filterPositionalMachineArgs(args)
+	if len(clean) == 0 && isSSH {
+		return renderFleetMachineAliasList(mode, isJSON)
+	}
 	if len(clean) == 0 {
-		if isSSH {
-			return renderFleetMachineAliasList(mode, isJSON)
-		}
 		return renderSingleMachineIdentity(resolveLocalMachineIdentity(), isJSON)
 	}
 	if isOSHelpArg(clean[0]) {
@@ -191,14 +191,7 @@ func renderSingleMachineIdentity(id MachineIdentity, isJSON bool) error {
 		osDesc = fmt.Sprintf("%s (%s)", id.OSPlatform, id.OSVersion)
 	}
 	fmt.Printf("  • %-17s%s\n", "OS Platform:", osDesc)
-	archDesc := id.Architecture
-	if id.CPUCores > 0 {
-		if archDesc != "" {
-			archDesc = fmt.Sprintf("%s (%d CPUs)", id.Architecture, id.CPUCores)
-		} else {
-			archDesc = fmt.Sprintf("%d CPUs", id.CPUCores)
-		}
-	}
+	archDesc := formatArchWithCores(id.Architecture, id.CPUCores)
 	fmt.Printf("  • %-17s%s\n", "Architecture:", archDesc)
 	fmt.Printf("  • %-17s%s\n", "User:", id.CurrentUser)
 	fmt.Printf("  • %-17s%s\n", "GitMap Version:", id.GitMapVersion)
@@ -211,42 +204,40 @@ func renderFleetMachineAliasList(mode string, isJSON bool) error {
 		return printIdentityJSON(items)
 	}
 	fmt.Printf("%s● SSH Fleet & Local Machine Identifiers (%s --ssh)%s\n", constants.ColorCyan, mode, constants.ColorReset)
-	hasVersion := false
+	if hasFleetGitMapVersion(items) {
+		return renderFleetVersionTable(items)
+	}
+	return renderFleetStandardTable(items)
+}
+
+func hasFleetGitMapVersion(items []MachineIdentity) bool {
 	for _, it := range items {
 		if it.GitMapVersion != "" {
-			hasVersion = true
-			break
+			return true
 		}
 	}
-	if hasVersion {
-		fmt.Printf("  %-4s %-12s %-16s %-18s %-18s %-20s %-14s %s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "USER", "OS PLATFORM", "OS VERSION", "GITMAP VERSION")
-		fmt.Printf("  %s\n", strings.Repeat("─", 125))
-		for _, it := range items {
-			user, osVer, gmVer := it.CurrentUser, it.OSVersion, it.GitMapVersion
-			if user == "" {
-				user = "-"
-			}
-			if osVer == "" {
-				osVer = "-"
-			}
-			if gmVer == "" {
-				gmVer = "-"
-			}
-			fmt.Printf("  #%-3d %-12s %-16s %-18s %-18s %-20s %-14s %s\n",
-				it.Sequence, it.NodeID, it.IPAddress, it.Alias, user, it.OSPlatform, osVer, gmVer)
-		}
-		return nil
+	return false
+}
+
+func renderFleetVersionTable(items []MachineIdentity) error {
+	fmt.Printf("  %-4s %-12s %-16s %-18s %-18s %-20s %-14s %s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "USER", "OS PLATFORM", "OS VERSION", "GITMAP VERSION")
+	fmt.Printf("  %s\n", strings.Repeat("─", 125))
+	for _, it := range items {
+		user := fallbackDash(it.CurrentUser)
+		osVer := fallbackDash(it.OSVersion)
+		gmVer := fallbackDash(it.GitMapVersion)
+		fmt.Printf("  #%-3d %-12s %-16s %-18s %-18s %-20s %-14s %s\n",
+			it.Sequence, it.NodeID, it.IPAddress, it.Alias, user, it.OSPlatform, osVer, gmVer)
 	}
+	return nil
+}
+
+func renderFleetStandardTable(items []MachineIdentity) error {
 	fmt.Printf("  %-4s %-12s %-16s %-18s %-18s %-20s %s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "USER", "OS PLATFORM", "OS VERSION")
 	fmt.Printf("  %s\n", strings.Repeat("─", 110))
 	for _, it := range items {
-		user, osVer := it.CurrentUser, it.OSVersion
-		if user == "" {
-			user = "-"
-		}
-		if osVer == "" {
-			osVer = "-"
-		}
+		user := fallbackDash(it.CurrentUser)
+		osVer := fallbackDash(it.OSVersion)
 		fmt.Printf("  #%-3d %-12s %-16s %-18s %-18s %-20s %s\n",
 			it.Sequence, it.NodeID, it.IPAddress, it.Alias, user, it.OSPlatform, osVer)
 	}
@@ -477,4 +468,21 @@ func buildMachineAliasFooterFlags() []termhelp.CommandEntry {
 		{Command: "-j, --json", Description: "Output machine identity or SSH fleet table as structured JSON"},
 		{Command: "-h, --help", Description: "Display help and current machine summary"},
 	}
+}
+
+func formatArchWithCores(arch string, cores int) string {
+	if cores <= 0 {
+		return arch
+	}
+	if arch != "" {
+		return fmt.Sprintf("%s (%d CPUs)", arch, cores)
+	}
+	return fmt.Sprintf("%d CPUs", cores)
+}
+
+func fallbackDash(val string) string {
+	if val == "" {
+		return "-"
+	}
+	return val
 }
