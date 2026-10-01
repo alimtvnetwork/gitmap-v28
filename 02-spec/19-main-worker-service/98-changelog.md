@@ -1,3 +1,9 @@
+## v6.437.0 — 2026-10-01 (Implement GitMap PAS Fix, Repo Cache, and Credential helper fix)
+
+**Scope:** Version bump. Implement GitMap PAS Fix, Repo Cache, and Credential helper fix.
+
+---
+
 ## v6.436.0 — 2026-09-30 (RCA-57: Align Fleet Clone Table, Suppress Stderr Escape Leaks, and Harden W3 Liveness Resilience)
 
 **Scope:** Version bump. RCA-57: Align Fleet Clone Table, Suppress Stderr Escape Leaks, and Harden W3 Liveness Resilience.

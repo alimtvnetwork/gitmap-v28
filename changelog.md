@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.437.0] - 2026-10-01
+
+### Added
+- Implement GitMap PAS Fix, Repo Cache, and Credential helper fix
+
+---
+
 ## [v6.436.0] - 2026-09-30
 
 ### Added
