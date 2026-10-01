@@ -213,6 +213,7 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdFixSeqFiles, constants.CmdFixSeqFilesAlias}, func() error { return runFixSeqFiles(argsTail()) }},
 		{[]string{constants.CmdSequence, constants.CmdSequenceAlias}, func() error { return runSequence(argsTail()) }},
 		{[]string{constants.CmdGitRm}, func() error { return runGitRm(argsTail()) }},
+		{[]string{constants.CmdCommit, constants.CmdCommitAlias, constants.CmdCommitAlias2, constants.CmdCommitAlias3}, func() error { return runCommit(argsTail()) }},
 		{[]string{constants.CmdCommitPush, constants.CmdCommitPushAlias}, func() error { return runCommitPush(argsTail()) }},
 		{[]string{constants.CmdPullCommitPush, constants.CmdPullCommitPushAlias}, func() error { return runPullCommitPush(argsTail()) }},
 		{[]string{constants.CmdCommitPushBug, constants.CmdCommitPushBugAlias}, func() error { return runCommitPushBug(argsTail()) }},
