@@ -167,11 +167,12 @@ func sanitizeStdout(stdout string) string {
 
 func formatDetails(r RemoteCloneNodeResult) string {
 	res := "done"
-	if r.Details != "" {
+	switch {
+	case r.Details != "":
 		res = r.Details
-	} else if r.Error != "" {
+	case r.Error != "":
 		res = sanitizeError(r.Error)
-	} else if r.Stdout != "" {
+	case r.Stdout != "":
 		res = sanitizeStdout(r.Stdout)
 	}
 	return strings.ReplaceAll(res, "(machine is off)", "(unreachable or port 22 closed)")
