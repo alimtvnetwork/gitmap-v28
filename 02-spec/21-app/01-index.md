@@ -106,6 +106,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 197: GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache](./197-gitmap-pas-fix-and-repo-cache-commands.md)
 - [Spec 181: GitMap Ignore and Cache Engine Architecture](./181-gitmap-ignore-and-cache-engine/01-overview.md)
 - [Spec 198: PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry](./198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+- [Spec 199: Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence](./199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md)
 
 ---
 

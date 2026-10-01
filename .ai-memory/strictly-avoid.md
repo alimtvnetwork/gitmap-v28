@@ -617,3 +617,22 @@ Allowed work:
 - ✅ Dispatch bounded asynchronous tasks (`A=2`, `H=2`) strictly to external remote fleet nodes over SSH.
 
 **Why:** Local in-process execution guarantees zero SSH overhead, eliminates credential/key requirements for localhost, preserves interactive color/progress display, and adheres to the canonical GitMap PAS standard.
+
+---
+
+## Piping Commands to Select-String / Grep & Running `--help` Discovery — TOTAL BAN
+
+🔴 **NEVER run `gitmap --help | Select-String "..."`, `gitmap <cmd> --help | grep "..."`, or pipe commands to `Select-String`, `grep`, or `findstr`.**
+
+Forbidden:
+- ❌ Running `gitmap --help | Select-String "..."` or `<cmd> --help | grep "..."` to discover flags or subcommands.
+- ❌ Using PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr` across the repository.
+- ❌ Running `--help` to check whether a command exists. Rule R4 states: verify commands with a harmless call (`gitmap lf readme.md`), not `--help`.
+
+Allowed work:
+- ✅ Use GitMap high-speed streaming live search: `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]`.
+- ✅ Use indexed symbol search: `gitmap search "<query>"`.
+- ✅ Use fast file finding: `gitmap find "<pattern>" [-ext <ext>]` or `gitmap lf [path]`.
+- ✅ Inspect CLI command routing directly in Go code (`cli/cmd/rootcore.go`, `cli/cmd/`).
+
+**Why:** User explicitly flagged `Ran gitmap --help | Select-String "cpb"` with "make sure we have remedy for this". Running generic shell search pipelines and piping `--help` violates GitMap high-speed primacy, wastes execution turn budget, and violates Rule R4.

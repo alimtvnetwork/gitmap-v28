@@ -55,3 +55,4 @@
 - [197-gitmap-pas-fix-and-repo-cache-commands.md](197-gitmap-pas-fix-and-repo-cache-commands.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Status: `active`)
 - [181-gitmap-ignore-and-cache-engine](181-gitmap-ignore-and-cache-engine/01-overview.md) — GitMap Ignore and Cache Engine Architecture (Status: `active`)
 - [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) — PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry (Status: `active`)
+- [199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md) — Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Status: `active`)
