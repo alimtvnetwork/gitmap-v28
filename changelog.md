@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.447.1] - 2026-10-01
+
+### Added
+- Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines
+
+---
+
 ## [v6.447.0] - 2026-10-01
 
 ### Added

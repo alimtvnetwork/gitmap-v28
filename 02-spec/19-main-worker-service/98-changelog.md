@@ -1,3 +1,9 @@
+## v6.447.1 — 2026-10-01 (Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines)
+
+**Scope:** Version bump. Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines.
+
+---
+
 ## v6.447.0 — 2026-10-01 (PAS worker concurrency, pull-error split-db, devtools cache discovery, and semantic flat commit suite)
 
 **Scope:** Version bump. PAS worker concurrency, pull-error split-db, devtools cache discovery, and semantic flat commit suite.
