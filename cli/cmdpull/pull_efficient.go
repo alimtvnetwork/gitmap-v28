@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/utils"
 )
 
 // RunPullAllEfficient executes the efficient pull workflow skipping inactive repos.
@@ -54,11 +55,10 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 }
 
 func checkAgmResumeTaskEfficient(records []model.ScanRecord, isJSON bool, args []string) {
-	paths := make([]string, 0, len(records))
-	for _, r := range records {
-		paths = append(paths, r.AbsolutePath)
-	}
-	_ = gitignoreagm.CheckAndPromptRepos(paths, isJSON, hasEfficientAutoYes(args))
+	isAutoYes := hasEfficientAutoYes(args)
+	utils.ProcessAsync(5, len(records), func(i int) {
+		_ = gitignoreagm.CheckAndPromptRepos([]string{records[i].AbsolutePath}, isJSON, isAutoYes)
+	})
 }
 
 func hasEfficientAutoYes(args []string) bool {

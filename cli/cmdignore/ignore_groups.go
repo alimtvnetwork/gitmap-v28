@@ -1,7 +1,6 @@
 package cmdignore
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,35 +10,60 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func resolveGroupsConfigPath() string {
-	baseDir := store.BinaryDataDir()
-	dir := filepath.Join(baseDir, "ignore")
-	_ = os.MkdirAll(dir, 0755)
-	return filepath.Join(dir, "groups.json")
-}
-
-// LoadGroups reads saved ignore groups from disk.
-func LoadGroups() (map[string]IgnoreGroup, error) {
-	path := resolveGroupsConfigPath()
-	data, err := os.ReadFile(path)
+// LoadGroups reads saved ignore groups from the split DB.
+func LoadGroups() (map[string]IgnoreGroup, *apperror.AppError) {
+	db, err := store.OpenIgnoreSplitDB()
 	if err != nil {
 		return defaultGroupsMap(), nil
 	}
-	var groups map[string]IgnoreGroup
-	if jsonErr := json.Unmarshal(data, &groups); jsonErr != nil {
-		return defaultGroupsMap(), nil
-	}
-	return groups, nil
+	defer db.Close()
+	return loadGroupsFromDB(db)
 }
 
-// SaveGroups writes the ignore groups map to disk.
-func SaveGroups(groups map[string]IgnoreGroup) error {
-	path := resolveGroupsConfigPath()
-	data, err := json.MarshalIndent(groups, "", "  ")
-	if err != nil {
-		return apperror.WrapSimple(err, "marshal ignore groups")
+func loadGroupsFromDB(db *store.IgnoreSplitDB) (map[string]IgnoreGroup, *apperror.AppError) {
+	records, err := db.LoadGroups()
+	if err != nil || len(records) == 0 {
+		return populateDefaultGroups(db)
 	}
-	return os.WriteFile(path, data, 0644)
+	return convertRecordsToGroups(records), nil
+}
+
+func convertRecordsToGroups(records map[string]store.IgnoreGroupRecord) map[string]IgnoreGroup {
+	groups := make(map[string]IgnoreGroup)
+	for k, v := range records {
+		groups[k] = IgnoreGroup{Name: v.Name, IsDefault: v.IsDefault, Patterns: v.Patterns}
+	}
+	return groups
+}
+
+func populateDefaultGroups(db *store.IgnoreSplitDB) (map[string]IgnoreGroup, *apperror.AppError) {
+	defaults := defaultGroupsMap()
+	for _, g := range defaults {
+		rec := store.IgnoreGroupRecord{Name: g.Name, IsDefault: g.IsDefault, Patterns: g.Patterns}
+		_ = db.SaveGroup(rec)
+	}
+	return defaults, nil
+}
+
+// SaveGroups writes the ignore groups map to the split DB.
+func SaveGroups(groups map[string]IgnoreGroup) *apperror.AppError {
+	db, err := store.OpenIgnoreSplitDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	return saveGroupsToDB(db, groups)
+}
+
+func saveGroupsToDB(db *store.IgnoreSplitDB, groups map[string]IgnoreGroup) *apperror.AppError {
+	_ = db.ClearGroups()
+	for _, g := range groups {
+		rec := store.IgnoreGroupRecord{Name: g.Name, IsDefault: g.IsDefault, Patterns: g.Patterns}
+		if dbErr := db.SaveGroup(rec); dbErr != nil {
+			return dbErr
+		}
+	}
+	return nil
 }
 
 func defaultGroupsMap() map[string]IgnoreGroup {
@@ -65,7 +89,7 @@ func defaultGroupsMap() map[string]IgnoreGroup {
 }
 
 // AddGroup creates or updates a named ignore group.
-func AddGroup(name string, patterns []string) error {
+func AddGroup(name string, patterns []string) *apperror.AppError {
 	groups, _ := LoadGroups()
 	cleanName := strings.ToLower(strings.TrimSpace(name))
 	groups[cleanName] = IgnoreGroup{Name: cleanName, Patterns: patterns}
@@ -73,7 +97,7 @@ func AddGroup(name string, patterns []string) error {
 }
 
 // RemoveGroup deletes a named ignore group.
-func RemoveGroup(name string) error {
+func RemoveGroup(name string) *apperror.AppError {
 	groups, _ := LoadGroups()
 	cleanName := strings.ToLower(strings.TrimSpace(name))
 	delete(groups, cleanName)
@@ -81,7 +105,7 @@ func RemoveGroup(name string) error {
 }
 
 // SetDefaultGroup sets the specified group as default.
-func SetDefaultGroup(name string) error {
+func SetDefaultGroup(name string) *apperror.AppError {
 	groups, _ := LoadGroups()
 	cleanName := strings.ToLower(strings.TrimSpace(name))
 	for k, g := range groups {
@@ -92,7 +116,7 @@ func SetDefaultGroup(name string) error {
 }
 
 // AddGroupToDefault marks the specified group as also default.
-func AddGroupToDefault(name string) error {
+func AddGroupToDefault(name string) *apperror.AppError {
 	groups, _ := LoadGroups()
 	cleanName := strings.ToLower(strings.TrimSpace(name))
 	if g, ok := groups[cleanName]; ok {
@@ -104,18 +128,24 @@ func AddGroupToDefault(name string) error {
 }
 
 // ApplyGroupToRepo appends the group patterns to a repository's .gitignore.
-func ApplyGroupToRepo(groupName, repoDir string) error {
+func ApplyGroupToRepo(groupName, repoDir string) *apperror.AppError {
 	groups, _ := LoadGroups()
 	cleanName := strings.ToLower(strings.TrimSpace(groupName))
 	grp, ok := groups[cleanName]
 	if !ok {
 		return apperror.NewSimple("group not found: "+groupName, "E1002")
 	}
+	return applyGroupPatterns(grp, repoDir)
+}
+
+func applyGroupPatterns(grp IgnoreGroup, repoDir string) *apperror.AppError {
 	ignorePath := filepath.Join(repoDir, ".gitignore")
 	data, _ := os.ReadFile(ignorePath)
 	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data), grp.Patterns...)
 	if isModified {
-		return os.WriteFile(ignorePath, []byte(cleaned), 0644)
+		if err := os.WriteFile(ignorePath, []byte(cleaned), 0644); err != nil {
+			return apperror.WrapSimple(err, "write .gitignore")
+		}
 	}
 	return nil
 }

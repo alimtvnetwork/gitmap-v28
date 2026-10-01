@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -15,61 +16,92 @@ import (
 )
 
 // RunFixIgnoreAllFn is a hook for delegating fleet execution.
-var RunFixIgnoresAllSSHFn func(args []string) error
+var RunFixIgnoresAllSSHFn func(args []string) *apperror.AppError
 
 // RunFixIgnoreAll fixes gitignore issues across all repositories.
-func RunFixIgnoreAll(args []string) error {
-	isAutoYes := hasYesFlag(args)
+func RunFixIgnoreAll(args []string) *apperror.AppError {
+	isAutoYes := isAutoYesArg(args)
 	records := resolveTargetRepos()
-	if len(records) == 0 {
+	isZero := len(records) == 0
+	if isZero {
 		fmt.Println("No repositories found to inspect.")
 		return nil
 	}
+	return runFixIgnoreAllWithRecords(records, isAutoYes)
+}
 
+func runFixIgnoreAllWithRecords(records []model.ScanRecord, isAutoYes bool) *apperror.AppError {
 	issues := scanReposForIgnoreIssues(records)
-	if len(issues) == 0 {
+	isClean := len(issues) == 0
+	if isClean {
 		fmt.Printf("%s✓ All %d repository .gitignore files are clean and synchronized.%s\n",
 			constants.ColorGreen, len(records), constants.ColorReset)
 		return nil
 	}
+	return proceedWithIssues(issues, isAutoYes)
+}
 
-	if !isAutoYes && !promptUserConsent(len(issues)) {
+func proceedWithIssues(issues []IgnoreScanIssue, isAutoYes bool) *apperror.AppError {
+	hasConsent := isAutoYes
+	if !hasConsent {
+		hasConsent = promptUserConsent(len(issues))
+	}
+	if !hasConsent {
 		fmt.Println("Aborted by user.")
 		return nil
 	}
-
 	fixedCount := remediateIssuesList(issues)
 	fmt.Printf("\n%s✓ Fixed and sanitized .gitignore across %d repository(ies).%s\n",
 		constants.ColorGreen, fixedCount, constants.ColorReset)
 	return nil
 }
 
-// RunFixIgnoresAllSSH executes fix-ignore-all across local host and remote fleet nodes.
-func RunFixIgnoresAllSSH(args []string) error {
-	if RunFixIgnoresAllSSHFn != nil {
+func RunFixIgnoresAllSSH(args []string) *apperror.AppError {
+	hasHook := RunFixIgnoresAllSSHFn != nil
+	if hasHook {
 		return RunFixIgnoresAllSSHFn(args)
 	}
 	return RunFixIgnoreAll(args)
 }
 
-func hasYesFlag(args []string) bool {
+func isAutoYesArg(args []string) bool {
 	for _, a := range args {
-		low := strings.ToLower(a)
-		if low == "-y" || low == "--yes" {
+		isYes := isYesFlagString(a)
+		if isYes {
 			return true
 		}
 	}
 	return false
 }
 
+func isYesFlagString(a string) bool {
+	low := strings.ToLower(a)
+	isDashY := low == "-y"
+	isDashYes := low == "--yes"
+	if isDashY {
+		return true
+	}
+	return isDashYes
+}
+
 func resolveTargetRepos() []model.ScanRecord {
 	s, err := store.OpenDefault()
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return checkCurrentDirectoryOnly()
 	}
 	defer s.Close()
+	return getRecordsFromStore(s)
+}
+
+func getRecordsFromStore(s *store.DB) []model.ScanRecord {
 	records, queryErr := s.ListRepos()
-	if queryErr != nil || len(records) == 0 {
+	hasErr := queryErr != nil
+	if hasErr {
+		return checkCurrentDirectoryOnly()
+	}
+	isZero := len(records) == 0
+	if isZero {
 		return checkCurrentDirectoryOnly()
 	}
 	return records
@@ -77,36 +109,62 @@ func resolveTargetRepos() []model.ScanRecord {
 
 func checkCurrentDirectoryOnly() []model.ScanRecord {
 	cwd, err := os.Getwd()
-	if err != nil || !gitignoreagm.IsGitRepository(cwd) {
+	hasErr := err != nil
+	if hasErr {
 		return nil
 	}
-	return []model.ScanRecord{{AbsolutePath: cwd, RepoName: filepath.Base(cwd)}}
+	isGit := gitignoreagm.IsGitRepository(cwd)
+	if isGit {
+		return []model.ScanRecord{{AbsolutePath: cwd, RepoName: filepath.Base(cwd)}}
+	}
+	return nil
 }
 
 func scanReposForIgnoreIssues(records []model.ScanRecord) []IgnoreScanIssue {
 	var issues []IgnoreScanIssue
 	for _, r := range records {
 		issue := inspectSingleRepo(r.AbsolutePath, r.RepoName)
-		if issue.HasDuplicate || issue.HasResumeTask || issue.MissingGitmapDir {
+		hasIssue := isIssueDetected(issue)
+		if hasIssue {
 			issues = append(issues, issue)
 		}
 	}
 	return issues
 }
 
+func isIssueDetected(issue IgnoreScanIssue) bool {
+	if issue.HasDuplicate {
+		return true
+	}
+	if issue.HasResumeTask {
+		return true
+	}
+	// Note: using issue.MissingGitmapDir directly
+	if issue.MissingGitmapDir {
+		return true
+	}
+	return false
+}
+
 func inspectSingleRepo(repoDir, repoName string) IgnoreScanIssue {
 	issue := IgnoreScanIssue{RepoPath: repoDir, RepoName: repoName}
 	ignorePath := filepath.Join(repoDir, ".gitignore")
 	data, err := os.ReadFile(ignorePath)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		issue.MissingGitmapDir = true
 		issue.HasResumeTask = gitignoreagm.HasUnignoredResumeTask(repoDir)
 		return issue
 	}
+	return analyzeGitignoreData(issue, repoDir, string(data))
+}
 
-	_, isChanged := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data))
+func analyzeGitignoreData(issue IgnoreScanIssue, repoDir, data string) IgnoreScanIssue {
+	_, isChanged := gitignoreagm.DeduplicateAndSanitizeGitignore(data)
 	issue.HasDuplicate = isChanged
-	issue.MissingGitmapDir = !strings.Contains(string(data), ".gitmap/")
+	hasGitmapDir := strings.Contains(data, ".gitmap/")
+	isMissing := !hasGitmapDir
+	issue.MissingGitmapDir = isMissing
 	issue.HasResumeTask = gitignoreagm.HasUnignoredResumeTask(repoDir)
 	return issue
 }
@@ -117,14 +175,28 @@ func promptUserConsent(count int) bool {
 	fmt.Print("Sanitize and fix .gitignore across these repositories? [Y/n]: ")
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
+	return isConsentGranted(text)
+}
+
+func isConsentGranted(text string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(text))
-	return trimmed == "" || trimmed == "y" || trimmed == "yes"
+	isEmpty := trimmed == ""
+	isY := trimmed == "y"
+	isYes := trimmed == "yes"
+	if isEmpty {
+		return true
+	}
+	if isY {
+		return true
+	}
+	return isYes
 }
 
 func remediateIssuesList(issues []IgnoreScanIssue) int {
 	fixed := 0
 	for _, issue := range issues {
-		if remediateSingleRepo(issue.RepoPath) {
+		isFixed := remediateSingleRepo(issue.RepoPath)
+		if isFixed {
 			fixed++
 		}
 	}
@@ -135,17 +207,19 @@ func remediateSingleRepo(repoDir string) bool {
 	_, _ = gitignoreagm.RemediateRepo(repoDir, true)
 	ignorePath := filepath.Join(repoDir, ".gitignore")
 	data, err := os.ReadFile(ignorePath)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return true
 	}
+	return sanitizeAndCommit(repoDir, ignorePath, string(data))
+}
 
-	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data))
-	if !isModified {
-		return true
+func sanitizeAndCommit(repoDir, ignorePath, data string) bool {
+	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(data)
+	if isModified {
+		_ = os.WriteFile(ignorePath, []byte(cleaned), 0644)
+		_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
+		_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore").Run()
 	}
-
-	_ = os.WriteFile(ignorePath, []byte(cleaned), 0644)
-	_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
-	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore").Run()
 	return true
 }

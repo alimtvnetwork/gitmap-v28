@@ -5,44 +5,30 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-type cparOptions struct {
-	isAutoYes    bool
-	isReview     bool
-	isCommitOnly bool
-	commitMsg    string
-}
-
-// DirtyRepoSummary captures uncommitted changes for review.
-type DirtyRepoSummary struct {
-	RepoName  string
-	RepoPath  string
-	Diagnosis gitutil.DirtyDiagnosis
-}
-
 // RunCPAR executes commit-push-all-repos across all dirty repositories.
-func RunCPAR(args []string) error {
+func RunCPAR(args []string) *apperror.AppError {
 	opts := parseCPAROptions(args)
 	dirtyList := CollectDirtyRepositories()
 	if len(dirtyList) == 0 {
-		fmt.Printf("%s✓ All repositories are clean. No pending changes to commit.%s\n",
-			constants.ColorGreen, constants.ColorReset)
+		fmt.Printf("%s✓ All repositories are clean.%s\n", constants.ColorGreen, constants.ColorReset)
 		return nil
 	}
-
-	if opts.isReview && !handleReviewFlow(dirtyList, opts) {
-		fmt.Println("Aborted by user.")
-		return nil
+	if opts.isReview {
+		isProceed := handleReviewFlow(dirtyList, opts)
+		if isProceed == false {
+			fmt.Println("Aborted by user.")
+			return nil
+		}
 	}
-
 	executeCPARAcrossDirty(dirtyList, opts)
 	return nil
 }
@@ -50,16 +36,20 @@ func RunCPAR(args []string) error {
 func parseCPAROptions(args []string) cparOptions {
 	opts := cparOptions{commitMsg: "chore: commit pending changes"}
 	for _, a := range args {
-		low := strings.ToLower(a)
-		if low == "-y" || low == "--yes" {
-			opts.isAutoYes = true
-		} else if low == "-r" || low == "--review" {
-			opts.isReview = true
-		} else if low == "-co" || low == "--commit-only" {
-			opts.isCommitOnly = true
-		} else if strings.HasPrefix(low, "-m=") {
-			opts.commitMsg = a[3:]
-		}
+		opts = applyOption(opts, strings.ToLower(a))
+	}
+	return opts
+}
+
+func applyOption(opts cparOptions, a string) cparOptions {
+	if a == "-y" || a == "--yes" {
+		opts.isAutoYes = true
+	} else if a == "-r" || a == "--review" {
+		opts.isReview = true
+	} else if a == "-co" || a == "--commit-only" {
+		opts.isCommitOnly = true
+	} else if strings.HasPrefix(a, "-m=") {
+		opts.commitMsg = a[3:]
 	}
 	return opts
 }
@@ -68,16 +58,20 @@ func CollectDirtyRepositories() []DirtyRepoSummary {
 	records := resolveAllRecords()
 	var dirty []DirtyRepoSummary
 	for _, r := range records {
-		diag := gitutil.InspectDirtyState(r.AbsolutePath)
+		diag := gitutil.InspectDirtyState(r.RelativePath)
 		if diag.IsDirty {
-			dirty = append(dirty, DirtyRepoSummary{
-				RepoName:  r.RepoName,
-				RepoPath:  r.AbsolutePath,
-				Diagnosis: diag,
-			})
+			dirty = appendDirty(dirty, r, diag)
 		}
 	}
 	return dirty
+}
+
+func appendDirty(dirty []DirtyRepoSummary, r model.ScanRecord, diag gitutil.DirtyDiagnosis) []DirtyRepoSummary {
+	return append(dirty, DirtyRepoSummary{
+		RepoName:  r.RepoName,
+		RepoPath:  r.RelativePath,
+		Diagnosis: diag,
+	})
 }
 
 func handleReviewFlow(dirtyList []DirtyRepoSummary, opts cparOptions) bool {
@@ -93,11 +87,7 @@ func resolveAllRecords() []model.ScanRecord {
 	if len(records) > 0 {
 		return records
 	}
-	cwd, getErr := os.Getwd()
-	if getErr == nil {
-		return []model.ScanRecord{{AbsolutePath: cwd, RepoName: filepath.Base(cwd)}}
-	}
-	return nil
+	return []model.ScanRecord{{RelativePath: ".", RepoName: "."}}
 }
 
 func queryStoreRecords() []model.ScanRecord {
@@ -114,10 +104,14 @@ func renderDirtyReviewTable(dirty []DirtyRepoSummary) {
 	fmt.Printf("\n%s  === PENDING COMMITS REVIEW (%d repositories) ===%s\n",
 		constants.ColorCyan, len(dirty), constants.ColorReset)
 	for _, d := range dirty {
-		fmt.Printf("  • %-30s | modified: %d | untracked: %d | staged: %d\n",
-			d.RepoName, d.Diagnosis.ModifiedCount, d.Diagnosis.UntrackedCount, d.Diagnosis.StagedCount)
+		printDirtyRow(d)
 	}
 	fmt.Println()
+}
+
+func printDirtyRow(d DirtyRepoSummary) {
+	fmt.Printf("    %-30s | modified: %d | untracked: %d | staged: %d\n",
+		d.RepoName, d.Diagnosis.ModifiedCount, d.Diagnosis.UntrackedCount, d.Diagnosis.StagedCount)
 }
 
 func promptReviewConsent(isCommitOnly bool) bool {
@@ -129,7 +123,14 @@ func promptReviewConsent(isCommitOnly bool) bool {
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
 	low := strings.ToLower(strings.TrimSpace(text))
-	return low == "" || low == "y" || low == "yes"
+	return isConsentGranted(low)
+}
+
+func isConsentGranted(low string) bool {
+	if low == "" || low == "y" || low == "yes" {
+		return true
+	}
+	return false
 }
 
 func executeCPARAcrossDirty(dirty []DirtyRepoSummary, opts cparOptions) {
@@ -146,18 +147,22 @@ func commitAndMaybePush(d DirtyRepoSummary, opts cparOptions) {
 	cmd := exec.Command("git", "-C", d.RepoPath, "commit", "-m", opts.commitMsg)
 	cmd.Env = gitutil.BuildSafeGitEnv()
 	if err := cmd.Run(); err != nil {
-		fmt.Printf("    • %-30s %scommit failed%s\n", d.RepoName, constants.ColorRed, constants.ColorReset)
+		fmt.Printf("      %-30s %scommit failed%s\n", d.RepoName, constants.ColorRed, constants.ColorReset)
 		return
 	}
+	handlePush(d, opts)
+}
+
+func handlePush(d DirtyRepoSummary, opts cparOptions) {
 	if opts.isCommitOnly {
-		fmt.Printf("    • %-30s %scommitted (commit-only)%s\n", d.RepoName, constants.ColorGreen, constants.ColorReset)
+		fmt.Printf("      %-30s %scommitted (commit-only)%s\n", d.RepoName, constants.ColorGreen, constants.ColorReset)
 		return
 	}
 	pushCmd := exec.Command("git", "-C", d.RepoPath, "push")
 	pushCmd.Env = gitutil.BuildSafeGitEnv()
 	if pushErr := pushCmd.Run(); pushErr != nil {
-		fmt.Printf("    • %-30s %scommitted (push failed)%s\n", d.RepoName, constants.ColorYellow, constants.ColorReset)
+		fmt.Printf("      %-30s %scommitted (push failed)%s\n", d.RepoName, constants.ColorYellow, constants.ColorReset)
 		return
 	}
-	fmt.Printf("    • %-30s %scommitted & pushed%s\n", d.RepoName, constants.ColorGreen, constants.ColorReset)
+	fmt.Printf("      %-30s %scommitted & pushed%s\n", d.RepoName, constants.ColorGreen, constants.ColorReset)
 }

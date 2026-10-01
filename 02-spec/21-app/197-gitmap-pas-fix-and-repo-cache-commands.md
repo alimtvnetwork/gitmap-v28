@@ -35,6 +35,14 @@ This specification consolidates the feature requests from the multi-part prompt 
   - `[slug].db` (Folder): Each subfolder gets its own SQLite DB containing its exact relative path and files.
   - Avoids nesting DBs for sub-subfolders.
 - **`gitmap cache search / multi-search / search-multi-grep`**: Performs regex/text searches directly against SQLite for massive performance gains. Displays 10 lines of context by default (limit 20 matches).
+  - `gitmap cache search "text search" "*.md" [--lines 10] [--limit 20]`
+  - `gitmap cache search "text search" -file-pattern (fp) "a*.md", "b*.md" [--lines 10] [--limit 20]`
+  - `gitmap cache search-multi "text search", "multi *" -file-pattern (fp) "a*.md" [--lines 10] [--limit 20]`
+  - `gitmap cache search-multi-grep "regex search", "multi *" -file-pattern (fp) "a*.md" [--lines 10] [--limit 20]`
+  - `gitmap cache recache/reconcile/sync`
+- **History Commands**:
+  - `gitmap history ssh`
+  - `gitmap nodes histories/history`
 - **Auto-Reconciliation**: If search finds outdated `last_modified` times, async workers seamlessly update the SQLite DB from the filesystem.
 
 ## 5. UI and Help

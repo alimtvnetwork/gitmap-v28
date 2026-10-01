@@ -1,0 +1,20 @@
+[
+{
+  "task": "Task-05b-1",
+  "status": "DONE",
+  "filesChanged": ["cli/cmdignore/fix_ignore.go"],
+  "checks": "python 03-ai-scripts/05-guideline-autofixer.py cli/cmdignore/ --check-only -> exit 0",
+  "acceptance": { "ac1": "PASS Sweeps all repos and dedupes ignores conforming to guidelines" },
+  "assumptions": [],
+  "blockers": []
+},
+{
+  "task": "Task-05b-2",
+  "status": "DONE",
+  "filesChanged": ["cli/cmdignore/fias.go", "cli/cmdignore/see_issues.go"],
+  "checks": "python 03-ai-scripts/05-guideline-autofixer.py cli/cmdignore/ --check-only -> exit 0",
+  "acceptance": { "ac1": "PASS Implements fias using PAS formula and see_issues" },
+  "assumptions": [],
+  "blockers": []
+}
+]

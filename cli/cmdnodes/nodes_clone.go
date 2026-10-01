@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -130,12 +131,12 @@ func dispatchFleetExecution(opts NodesCloneOptions) error {
 		renderFleetStartBanner(os.Stdout, opts, len(remoteConns))
 	}
 	results := executeFleetNodesParallel(remoteConns, opts, fileBytes, fileName)
-	isLocalOk, localDetails := executeLocalClone(opts)
+	isLocalOk, localDetails, localDur := executeLocalClone(opts)
 	recordFleetTaskAudit(opts, isLocalOk)
 	if opts.IsJSON {
 		return emitFleetJSON(results, isLocalOk)
 	}
-	renderFleetResultsTable(os.Stdout, results, isLocalOk, localDetails, opts)
+	renderFleetResultsTable(os.Stdout, results, isLocalOk, localDetails, localDur, opts)
 	return nil
 }
 
@@ -204,21 +205,23 @@ func prepareLocalCloneArgs(opts NodesCloneOptions) []string {
 	return args
 }
 
-func executeLocalClone(opts NodesCloneOptions) (bool, string) {
+func executeLocalClone(opts NodesCloneOptions) (bool, string, time.Duration) {
 	if opts.IsSkipLocal {
-		return true, "skipped local execution (except-self)"
+		return true, "skipped local execution (except-self)", 0
 	}
 	args := prepareLocalCloneArgs(opts)
+	start := time.Now()
 	out, err := captureOutput(func() error {
 		return dispatchLocalKind(opts.Kind, args)
 	})
+	dur := time.Since(start)
 	if payload, hasJSON := cmdclone.ParseCloneJSONResponse(out); hasJSON {
-		return payload.Success, payload.Message
+		return payload.Success, payload.Message, dur
 	}
 	if err != nil {
-		return false, err.Error()
+		return false, err.Error(), dur
 	}
-	return true, "completed successfully"
+	return true, "completed successfully", dur
 }
 
 func emitFleetJSON(results []RemoteCloneNodeResult, isLocalOk bool) error {

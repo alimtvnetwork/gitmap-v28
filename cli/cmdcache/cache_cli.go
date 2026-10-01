@@ -5,12 +5,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // RunCacheCLI routes gitmap cache commands.
-func RunCacheCLI(args []string) error {
+func RunCacheCLI(args []string) *appfault.AppError {
 	if len(args) == 0 {
 		return PrintCacheHelp()
 	}
@@ -20,9 +21,7 @@ func RunCacheCLI(args []string) error {
 	switch subCmd {
 	case "help", "-h", "--help":
 		return PrintCacheHelp()
-	case "create":
-		return CreateCache(subArgs)
-	case "add":
+	case "create", "add":
 		return CreateCache(subArgs)
 	case "ls", "list":
 		return runCacheList()
@@ -37,19 +36,19 @@ func RunCacheCLI(args []string) error {
 	case "recache", "reconcile", "sync":
 		return CreateCache([]string{"."})
 	default:
-		return apperror.NewSimple("unknown cache subcommand: "+subCmd, "E1030")
+		return appfault.NewSimple("unknown cache subcommand: "+subCmd, "E1030")
 	}
 }
 
-func runCacheList() error {
+func runCacheList() *appfault.AppError {
 	repoRoot := findRepoRoot()
-	rootDB, err := OpenRootCacheDB(repoRoot)
+	rootDB, err := store.OpenRootCacheDB(repoRoot)
 	if err != nil {
 		return err
 	}
 	defer rootDB.Close()
 
-	files, queryErr := ListCacheFiles(rootDB)
+	files, queryErr := store.ListCacheFiles(rootDB)
 	if queryErr != nil {
 		return queryErr
 	}
@@ -63,12 +62,12 @@ func runCacheList() error {
 	return nil
 }
 
-func runCacheRemove(args []string) error {
+func runCacheRemove(args []string) *appfault.AppError {
 	if len(args) == 0 {
-		return apperror.NewSimple("Usage: gitmap cache remove <path>", "E1031")
+		return appfault.NewSimple("Usage: gitmap cache remove <path>", "E1031")
 	}
 	repoRoot := findRepoRoot()
-	rootDB, err := OpenRootCacheDB(repoRoot)
+	rootDB, err := store.OpenRootCacheDB(repoRoot)
 	if err != nil {
 		return err
 	}
@@ -76,24 +75,24 @@ func runCacheRemove(args []string) error {
 
 	for _, target := range args {
 		if _, delErr := rootDB.Exec("DELETE FROM Files WHERE RelativePath = ?", target); delErr != nil {
-			return apperror.WrapSimple(delErr, "cache_remove")
+			return appfault.WrapSimple(delErr, "cache_remove")
 		}
 	}
 	fmt.Printf("%s✓ Removed %d file(s) from cache database.%s\n", constants.ColorGreen, len(args), constants.ColorReset)
 	return nil
 }
 
-func runSearchSingle(args []string) error {
+func runSearchSingle(args []string) *appfault.AppError {
 	if len(args) == 0 {
-		return apperror.NewSimple("Usage: gitmap cache search <query> [glob] [--lines N] [--limit N]", "E1032")
+		return appfault.NewSimple("Usage: gitmap cache search <query> [glob] [--lines N] [--limit N]", "E1032")
 	}
 	opts := parseSearchFlags(args)
 	return SearchCache(opts)
 }
 
-func runSearchMulti(args []string, isRegex bool) error {
+func runSearchMulti(args []string, isRegex bool) *appfault.AppError {
 	if len(args) == 0 {
-		return apperror.NewSimple("Usage: gitmap cache search-multi <queries...> [-file-pattern glob]", "E1033")
+		return appfault.NewSimple("Usage: gitmap cache search-multi <queries...> [-file-pattern glob]", "E1033")
 	}
 	opts := parseSearchFlags(args)
 	opts.IsRegex = isRegex
@@ -110,20 +109,31 @@ func parseSearchFlags(args []string) CacheSearchOptions {
 		} else if a == "--limit" && i+1 < len(args) {
 			opts.ResultLimit, _ = strconv.Atoi(args[i+1])
 			i++
-		} else if (a == "-file-pattern" || a == "-fp" || a == "--file-pattern") && i+1 < len(args) {
+		} else if isFilePatternFlag(a) && i+1 < len(args) {
 			opts.FileGlobs = append(opts.FileGlobs, strings.Split(args[i+1], ",")...)
 			i++
-		} else if strings.HasPrefix(a, "-") {
-			continue
-		} else if len(opts.Patterns) == 0 {
-			opts.Patterns = append(opts.Patterns, splitQuotedTerms(a)...)
-		} else if len(opts.FileGlobs) == 0 && (strings.Contains(a, "*") || strings.Contains(a, ".")) {
-			opts.FileGlobs = append(opts.FileGlobs, a)
 		} else {
-			opts.Patterns = append(opts.Patterns, a)
+			processRemainingArg(a, &opts)
 		}
 	}
 	return opts
+}
+
+func isFilePatternFlag(a string) bool {
+	return a == "-file-pattern" || a == "-fp" || a == "--file-pattern"
+}
+
+func processRemainingArg(a string, opts *CacheSearchOptions) {
+	if strings.HasPrefix(a, "-") {
+		return
+	}
+	if len(opts.Patterns) == 0 {
+		opts.Patterns = append(opts.Patterns, splitQuotedTerms(a)...)
+	} else if len(opts.FileGlobs) == 0 && (strings.Contains(a, "*") || strings.Contains(a, ".")) {
+		opts.FileGlobs = append(opts.FileGlobs, a)
+	} else {
+		opts.Patterns = append(opts.Patterns, a)
+	}
 }
 
 func splitQuotedTerms(raw string) []string {
@@ -139,7 +149,7 @@ func splitQuotedTerms(raw string) []string {
 }
 
 // PrintCacheHelp outputs usage documentation for gitmap cache.
-func PrintCacheHelp() error {
+func PrintCacheHelp() *appfault.AppError {
 	fmt.Printf(`
   GitMap Repository Split-DB Cache Engine (cache)
     • gitmap cache create [paths...]             - Index target paths (files <= 200KB) into Split-DB

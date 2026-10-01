@@ -24,6 +24,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/utils"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
@@ -408,12 +409,10 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 }
 
 func checkAgmResumeTaskAfterPull(records []model.ScanRecord, opts pullOptions) {
-	paths := make([]string, 0, len(records))
-	for _, r := range records {
-		paths = append(paths, r.AbsolutePath)
-	}
 	isAutoYes := opts.yes || opts.autoFix
-	_ = gitignoreagm.CheckAndPromptRepos(paths, opts.isJSON, isAutoYes)
+	utils.ProcessAsync(5, len(records), func(i int) {
+		_ = gitignoreagm.CheckAndPromptRepos([]string{records[i].AbsolutePath}, opts.isJSON, isAutoYes)
+	})
 }
 
 func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullProgressBar, []*PullRepoState, time.Duration) {

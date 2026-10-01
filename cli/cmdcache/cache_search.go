@@ -7,13 +7,15 @@ import (
 	"regexp"
 	"strings"
 
+	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // SearchCache searches through split database tables.
-func SearchCache(opts CacheSearchOptions) error {
+func SearchCache(opts CacheSearchOptions) *appfault.AppError {
 	repoRoot := findRepoRoot()
-	rootDB, err := OpenRootCacheDB(repoRoot)
+	rootDB, err := store.OpenRootCacheDB(repoRoot)
 	if err != nil {
 		return err
 	}
@@ -53,7 +55,7 @@ func collectIndexedSlugs(rootDB *sql.DB) []string {
 }
 
 func searchSlug(slug, repoRoot string, opts CacheSearchOptions, maxRemaining int) []SearchMatch {
-	slugDB, err := OpenSlugCacheDB(slug, repoRoot)
+	slugDB, err := store.OpenSlugCacheDB(slug, repoRoot)
 	if err != nil {
 		return nil
 	}
@@ -72,8 +74,8 @@ func searchSlug(slug, repoRoot string, opts CacheSearchOptions, maxRemaining int
 func filterRows(rows *sql.Rows, opts CacheSearchOptions, maxRemaining int) []SearchMatch {
 	var matches []SearchMatch
 	for rows.Next() && len(matches) < maxRemaining {
-		m, ok := scanAndMatchRow(rows, opts)
-		if ok {
+		m, hasMatch := scanAndMatchRow(rows, opts)
+		if hasMatch {
 			matches = append(matches, m)
 		}
 	}
@@ -98,8 +100,8 @@ func isFileMatch(relPath string, globs []string) bool {
 	base := filepath.Base(relPath)
 	for _, g := range globs {
 		clean := strings.TrimSpace(g)
-		matched, _ := filepath.Match(clean, base)
-		if matched {
+		isMatched, _ := filepath.Match(clean, base)
+		if isMatched {
 			return true
 		}
 	}
@@ -108,14 +110,14 @@ func isFileMatch(relPath string, globs []string) bool {
 
 func isContentMatch(content string, opts CacheSearchOptions) bool {
 	for _, pat := range opts.Patterns {
-		if checkPatternMatch(content, pat, opts.IsRegex) {
+		if hasPatternMatch(content, pat, opts.IsRegex) {
 			return true
 		}
 	}
 	return false
 }
 
-func checkPatternMatch(content, pat string, isRegex bool) bool {
+func hasPatternMatch(content, pat string, isRegex bool) bool {
 	if isRegex {
 		re, err := regexp.Compile(pat)
 		return err == nil && re.MatchString(content)
