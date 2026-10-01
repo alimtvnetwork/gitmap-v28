@@ -1,3 +1,9 @@
+## v6.449.1 — 2026-10-01 (Synchronize prompts, skills, AI scripts, and coding guidelines)
+
+**Scope:** Version bump. Synchronize prompts, skills, AI scripts, and coding guidelines.
+
+---
+
 ## v6.449.0 — 2026-10-01 (resolve nested ifs, swallowed db errors, and runner path attributes (RCA-095))
 
 **Scope:** Version bump. resolve nested ifs, swallowed db errors, and runner path attributes (RCA-095).
