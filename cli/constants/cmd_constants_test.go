@@ -516,6 +516,8 @@ func topLevelCmds() map[string]string {
 		"CmdAutomationAlias":            CmdAutomationAlias,
 		"CmdAutomationAumAlias":         CmdAutomationAumAlias,
 		"CmdAutomationPyAlias":          CmdAutomationPyAlias,
+		"CmdFixCredential":              CmdFixCredential,
+		"CmdFixCredentialAlias":         CmdFixCredentialAlias,
 	}
 }
 

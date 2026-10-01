@@ -36,14 +36,15 @@ func isBatchCleanOrAborted(dirtyList []DirtyRepoSummary, opts cparOptions) bool 
 }
 
 func isReviewAborted(dirtyList []DirtyRepoSummary, opts cparOptions) bool {
-	if opts.isReview {
-		isProceed := handleReviewFlow(dirtyList, opts)
-		if !isProceed {
-			fmt.Println("Aborted by user.")
-			return true
-		}
+	if !opts.isReview {
+		return false
 	}
-	return false
+	isProceed := handleReviewFlow(dirtyList, opts)
+	if isProceed {
+		return false
+	}
+	fmt.Println("Aborted by user.")
+	return true
 }
 
 func dispatchCPARBatch(dirtyList []DirtyRepoSummary, opts cparOptions) {
