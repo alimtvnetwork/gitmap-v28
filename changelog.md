@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.438.1] - 2026-10-01
+
+### Added
+- Fix nested-if in cpar, sync generated commands and register fix-credential test constants
+
+---
+
 ## [v6.438.0] - 2026-10-01
 
 ### Added

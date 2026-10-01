@@ -1,3 +1,9 @@
+## v6.438.1 — 2026-10-01 (Fix nested-if in cpar, sync generated commands and register fix-credential test constants)
+
+**Scope:** Version bump. Fix nested-if in cpar, sync generated commands and register fix-credential test constants.
+
+---
+
 ## v6.438.0 — 2026-10-01 (Implement GitMap PAS Formula, Ignore Grouping Suite, CPAR, and Split-DB Repo Cache)
 
 **Scope:** Version bump. Implement GitMap PAS Formula, Ignore Grouping Suite, CPAR, and Split-DB Repo Cache.
