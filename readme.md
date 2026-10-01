@@ -227,7 +227,7 @@ Without a centralized, high-speed management layer, developers and autonomous ag
 - **AI & Antigravity Suite:** Project tracking (`gitmap agy ls`), empty project cleanup, configuration sync, and prompt pipeline orchestration.
 - **CI/CD Pipeline Telemetry:** Live status, historical success baseline ETA calculation, dynamic `-t` retry timers, segment step monitoring, and isolated split error logging.
 - **Database Control Plane:** Master SQLite DB management, per-repo split databases (`gitmap repo db`), pipeline telemetry DBs (`gitmap pipeline db`), and global cross-tier optimization (`gitmap db optimize`).
-- **Developer Productivity & OS Hygiene:** Developer tools cache remover (`gitmap clean-dev`, `gitmap os dev-clean`) sweeping Go, pnpm, npm, Chocolatey, Cargo, pip, NuGet, Gradle across 10 categories with Windows read-only attribute stripping; file sequence renaming, full-text regex AST search, markdown-to-SVG generation, cron-like scheduling, and one-liner cross-platform installers.
+- **Developer Productivity & OS Hygiene:** Developer tools cache remover (`gitmap clear devtools`, `gitmap clean-dev`, `gitmap os dev-clean`) sweeping Go, pnpm, npm, Chocolatey, Cargo, pip, NuGet, Gradle across 10 categories with Windows read-only attribute stripping; file sequence renaming, full-text regex AST search, markdown-to-SVG generation, cron-like scheduling, and one-liner cross-platform installers.
 
 ---
 
