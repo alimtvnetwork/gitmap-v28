@@ -86,7 +86,6 @@ cli/data/account-switch/
 *.db-shm
 *.db-wal
 *.lock
-*.pid
 .*.pid
 vmpass.json
 gitmap-final.json
