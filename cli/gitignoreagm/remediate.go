@@ -19,13 +19,6 @@ var targetResumeFiles = []string{
 	".antigravity-resume_task.json",
 }
 
-var allIgnoreEntries = []string{
-	"antigravity-resume_task.json",
-	".antigravity_resume_task.json",
-	"antigravity_resume_task.json",
-	".antigravity-resume_task.json",
-}
-
 // RepoRemediationResult captures the actions taken on a single repository.
 type RepoRemediationResult struct {
 	RepoPath        string
@@ -190,37 +183,6 @@ func readGitignoreFile(ignorePath string) ([]byte, error) {
 		return nil, apperror.WrapSimple(err, "failed reading .gitignore")
 	}
 	return data, nil
-}
-
-func appendMissingIgnoreLines(content string, entries []string) (string, bool) {
-	existing := buildExistingLineMap(content)
-	var missing []string
-	for _, entry := range entries {
-		if !existing[entry] && !existing["/"+entry] {
-			missing = append(missing, entry)
-		}
-	}
-	if len(missing) == 0 {
-		return content, false
-	}
-	prefix := ensureTrailingNewline(content)
-	return prefix + strings.Join(missing, "\n") + "\n", true
-}
-
-func buildExistingLineMap(content string) map[string]bool {
-	lines := strings.Split(content, "\n")
-	existing := make(map[string]bool, len(lines))
-	for _, line := range lines {
-		existing[strings.TrimSpace(line)] = true
-	}
-	return existing
-}
-
-func ensureTrailingNewline(content string) string {
-	if len(content) == 0 || strings.HasSuffix(content, "\n") {
-		return content
-	}
-	return content + "\n"
 }
 
 func stageAndCommitGitignore(repoDir string) bool {
