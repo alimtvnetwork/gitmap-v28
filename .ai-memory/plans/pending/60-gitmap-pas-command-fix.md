@@ -20,7 +20,7 @@ WAVES = ceil(subtasks / (A x H))
 > [!IMPORTANT]
 > **Plan Slug:** `60-gitmap-pas-command-fix`
 > **Tracking Specs:** [02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md](../../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md](../../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md)
-> **Related Plans:** [59-gitmap-pas-fix-and-repo-cache.md](59-gitmap-pas-fix-and-repo-cache.md) & [181-gitmap-ignore-and-cache-engine.md](181-gitmap-ignore-and-cache-engine.md)
+> **Related Plans:** [58-pas-formula-fix-ignores-cpar-and-repo-cache.md](../completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) & [181-gitmap-ignore-and-cache-engine](../../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md)
 > **Runtime:** Google Antigravity 2.0 (IDE and CLI)
 > **Invoke Command:** `/execute-parent-task-with-n-steps-v6 60-gitmap-pas-command-fix`
 >
