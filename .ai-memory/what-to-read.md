@@ -116,5 +116,9 @@
 - `02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md`, why: GitMap PAS formula, ignore management suite, CPAR, and split-DB repo cache
 - `.ai-memory/plans/pending/59-gitmap-pas-fix-and-repo-cache.md`, why: Pending Plan 59 GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine
 - `.ai-memory/plans/pending/60-gitmap-pas-command-fix.md`, why: Pending Plan 60 GitMap PAS formula, ignore grouping engine, CPAR suite & split-DB repo cache
+- `.ai-memory/plans/pending/181-gitmap-ignore-and-cache-engine.md`, why: Pending Plan 181 Gitmap ignore and split-DB cache engine
+- `.ai-memory/plans/pending/197-pas-fix.md`, why: Pending Plan 197 GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache
 - `02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md`, why: Spec 181 GitMap ignore and split-DB repo cache engine architecture
+- `.ai-memory/spec/commands/10-pas-formula-ignore-suite-cpar-and-cache.md`, why: Command specification for GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine
 - `.ai-memory/ambiguous-questions/01-new-ambiguity/03-gitmap-mcp-server-api-endpoint.md`, why: Open Ambiguity 03 GitMap as an MCP Server API Endpoint for autonomous AI agents
+

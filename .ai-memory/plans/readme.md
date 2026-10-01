@@ -40,6 +40,44 @@
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
 - [59-gitmap-pas-fix-and-repo-cache.md](pending/59-gitmap-pas-fix-and-repo-cache.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
 - [60-gitmap-pas-command-fix.md](pending/60-gitmap-pas-command-fix.md) — GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite & Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [181](../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md))
+- [181-gitmap-ignore-and-cache-engine.md](pending/181-gitmap-ignore-and-cache-engine.md) — Gitmap Ignore Engine and Split-DB Cache Engine (Spec: [181](../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md))
+- [197-pas-fix.md](pending/197-pas-fix.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
+
+## Subtasks Directory
+
+### Plan 60 Subtasks (`subtasks/60-gitmap-pas-command-fix/`)
+- [01-pull-all-optimization.md](subtasks/60-gitmap-pas-command-fix/01-pull-all-optimization.md): Decoupled asynchronous git pull workflow
+- [02-fix-ignore-all.md](subtasks/60-gitmap-pas-command-fix/02-fix-ignore-all.md): Fleet and local ignore repair suite
+- [03-commit-push-all.md](subtasks/60-gitmap-pas-command-fix/03-commit-push-all.md): Batch commit and push with interactive review mode
+- [04-ignore-engine.md](subtasks/60-gitmap-pas-command-fix/04-ignore-engine.md): GitMap hierarchical ignore engine and repo bindings
+- [05-cache-engine.md](subtasks/60-gitmap-pas-command-fix/05-cache-engine.md): Multi-tier Split-DB repo cache with mtime reconciliation
+- [06-see-commands.md](subtasks/60-gitmap-pas-command-fix/06-see-commands.md): Unified telemetry and inspection suite (`see` / `ses`)
+- [07-fix-screenshot-bug.md](subtasks/60-gitmap-pas-command-fix/07-fix-screenshot-bug.md): Command spec and screenshot parity verification
+
+### Plan 181 Subtasks (`subtasks/181-gitmap-ignore-and-cache-engine/`)
+- [01-pull-all-optimization.md](subtasks/181-gitmap-ignore-and-cache-engine/01-pull-all-optimization.md): Non-blocking pull-first optimization
+- [02-fix-ignore-all.md](subtasks/181-gitmap-ignore-and-cache-engine/02-fix-ignore-all.md): Local and SSH ignore repair
+- [03-commit-push-all.md](subtasks/181-gitmap-ignore-and-cache-engine/03-commit-push-all.md): Commit and push automation
+- [04-ignore-engine.md](subtasks/181-gitmap-ignore-and-cache-engine/04-ignore-engine.md): SQLite ignore template storage and group bindings
+- [05-cache-engine.md](subtasks/181-gitmap-ignore-and-cache-engine/05-cache-engine.md): Split-DB repository cache structure
+- [06-see-commands.md](subtasks/181-gitmap-ignore-and-cache-engine/06-see-commands.md): Errors and commit pending inspection
+- [07-fix-screenshot-bug.md](subtasks/181-gitmap-ignore-and-cache-engine/07-fix-screenshot-bug.md): Screenshot bug and command parity audit
+
+### Plan 197 Subtasks (`subtasks/197-pas-fix/`)
+- [01-nodes-clone-fix.md](subtasks/197-pas-fix/01-nodes-clone-fix.md): Nodes clone table alignment and W3 resilience
+- [02-pa-async-refactor.md](subtasks/197-pas-fix/02-pa-async-refactor.md): PA async pull and ignore check decoupling
+- [03-ignore-group-logic.md](subtasks/197-pas-fix/03-ignore-group-logic.md): Ignore group management and SQLite persistence
+- [04-cache-split-db.md](subtasks/197-pas-fix/04-cache-split-db.md): Cache split-DB storage engine
+- [05-cpar-fia-commands.md](subtasks/197-pas-fix/05-cpar-fia-commands.md): CPAR and FIA CLI verbs and flag routing
+- [05a-cpar-see.json](subtasks/197-pas-fix/05a-cpar-see.json): Contract definition for commit-push-all and see commands
+- [05b-fia-fias.json](subtasks/197-pas-fix/05b-fia-fias.json): Contract definition for fix-ignore local and SSH suite
+
+### Plan 52 Subtasks (`subtasks/`)
+- [52.1-display-manager-settings-dm.md](subtasks/52.1-display-manager-settings-dm.md): Linux Display Manager session configuration
+- [52.2-windows-privacy-and-theme-tweaks.md](subtasks/52.2-windows-privacy-and-theme-tweaks.md): Windows privacy, telemetry, and dark/light theme tweaks
+- [52.3-native-dns-switcher.md](subtasks/52.3-native-dns-switcher.md): Native secure DNS switcher and benchmarks
+- [52.4-universal-system-updater.md](subtasks/52.4-universal-system-updater.md): Universal multi-distro system and package updater
+- [52.5-interactive-bubbletea-os-tui.md](subtasks/52.5-interactive-bubbletea-os-tui.md): Interactive Bubbletea OS TUI dashboard
 
 
 

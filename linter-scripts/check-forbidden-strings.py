@@ -26,7 +26,7 @@ except ModuleNotFoundError:
         import sys as _sys; print(f"Error: {exc}", file=_sys.stderr)
         sys.exit("Error: Python 3.11+ required (tomllib), or install 'tomli'.")
 
-ALWAYS_EXCLUDE_DIRS = {".git", "node_modules", "dist", "build"}
+ALWAYS_EXCLUDE_DIRS = {".git", "node_modules", "dist", "build", "temp", ".temp"}
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "forbidden-strings.toml")
 
 

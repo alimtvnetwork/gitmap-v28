@@ -100,10 +100,12 @@ def resolve_reference(citing_file: Path, raw_target: str, repo_root: Path) -> Pa
     if local_resolved.exists():
         return local_resolved
 
-    # Check if target is a sibling file in citing directory
-    sibling_resolved = (citing_file.parent / Path(clean).name).resolve()
-    if sibling_resolved.exists():
-        return sibling_resolved
+    # Check if target stripped of leading relative segments exists from repo root
+    clean_stripped = re.sub(r'^(?:\.\./)+', '', clean)
+    if clean_stripped != clean:
+        stripped_resolved = (repo_root / clean_stripped).resolve()
+        if stripped_resolved.exists():
+            return stripped_resolved
 
     return None
 

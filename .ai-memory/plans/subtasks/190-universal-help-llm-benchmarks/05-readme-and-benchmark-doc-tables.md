@@ -1,6 +1,6 @@
 # Subtask 190.5: Benchmark Documentation & Root README Integration
 
-> **Parent Plan:** [Plan 190](../../190-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md)
+> **Parent Plan:** [Plan 190](../../completed/190-universal-command-help-modernization-llm-train-loop-and-polyglot-benchmarks.md)
 > **Status:** Complete
 > **Lead Architect:** MD ALIM UL KARIM
 

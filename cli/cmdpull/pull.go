@@ -72,14 +72,18 @@ func reorderPullFlags(args []string) []string {
 			flags = appendValuedFlag(flags, args, &i)
 			continue
 		}
-		if strings.HasPrefix(arg, "-") {
-			flags = append(flags, arg)
-			continue
-		}
-		pos = append(pos, arg)
+		flags, pos = categorizePullArg(arg, flags, pos)
 	}
 
 	return append(flags, pos...)
+}
+
+func categorizePullArg(arg string, flags, pos []string) ([]string, []string) {
+	if strings.HasPrefix(arg, "-") {
+		return append(flags, arg), pos
+	}
+
+	return flags, append(pos, arg)
 }
 
 func appendValuedFlag(flags []string, args []string, idx *int) []string {
@@ -106,14 +110,27 @@ func isPullAllTableSeq(args []string, i int) bool {
 }
 
 func appendNormalizedPullToken(normalized []string, token string) []string {
-	if token == "pat" || token == "pull-all-table" {
+	if isTableToken(token) {
 		return append(normalized, "--all", "--status")
 	}
-	if token == "all" || token == "pa" || token == "ta" || token == "pull-all" {
+	if isSSHFleetToken(token) {
+		return append(normalized, "--all", "--ssh")
+	}
+	if isAllToken(token) {
 		return append(normalized, "--all")
 	}
 
 	return append(normalized, token)
+}
+
+func isTableToken(token string) bool {
+	lower := strings.ToLower(token)
+	return lower == "pat" || lower == "pull-all-table"
+}
+
+func isAllToken(token string) bool {
+	lower := strings.ToLower(token)
+	return lower == "all" || lower == "pa" || lower == "ta" || lower == "pull-all"
 }
 
 // runPull handles the "pull" subcommand.
@@ -126,18 +143,39 @@ func runPull(args []string) error {
 	if isPullAll && hasSSHFleetFlag(args) {
 		return handleSSHFleetPullAll(args)
 	}
+
+	return runPullStandardFlow(args, isPullAll)
+}
+
+func runPullStandardFlow(args []string, isPullAll bool) error {
 	args = NormalizePullArgs(args)
-	if !hasJSONArg(args) {
-		printPullInvocationHeader(isPullAll)
-	}
+	printHeaderUnlessJSON(isPullAll, args)
 	requireOnline()
 	useSSH, useHTTPS, restArgs := ExtractTransportFlags(args)
-	if !isPullAll && (useSSH || useHTTPS) && isGitRepoCWD() {
+	if isCWDTransportEligible(isPullAll, useSSH, useHTTPS) {
 		return runPullCWDWithTransport(useSSH, useHTTPS, restArgs)
 	}
 	opts := resolveParsedPullOptions(restArgs, useSSH, useHTTPS)
 
 	return executePullWithResolvedOptions(opts)
+}
+
+func printHeaderUnlessJSON(isPullAll bool, args []string) {
+	if !hasJSONArg(args) {
+		printPullInvocationHeader(isPullAll)
+	}
+}
+
+func isCWDTransportEligible(isPullAll, useSSH, useHTTPS bool) bool {
+	if isPullAll {
+		return false
+	}
+	hasTransport := useSSH || useHTTPS
+	if !hasTransport {
+		return false
+	}
+
+	return isGitRepoCWD()
 }
 
 func checkPullHelp(isPullAll bool, args []string) {
@@ -155,6 +193,10 @@ func handleSSHFleetPullAll(args []string) error {
 		return apperror.NewSimple("ssh fleet pull-all is not wired", "E_SSH_PULLALL")
 	}
 
+	return executeSSHFleetPullTask(cleanArgs)
+}
+
+func executeSSHFleetPullTask(cleanArgs []string) error {
 	queueId, tDB := enqueueTaskQueue("pull-all-ssh", "fleet")
 	defer closeTaskDB(tDB)
 	updateTaskQueue(tDB, queueId, "running")
@@ -162,30 +204,38 @@ func handleSSHFleetPullAll(args []string) error {
 	errFleet := RunRemoteSSHPullAllFleetFn(cleanArgs)
 	hasErr := errFleet != nil
 	if hasErr {
-		store.LogInternalError("PULL_ALL_SSH", "SSH_DELEGATION_ERROR", errFleet.Error(), "", "")
-		updateTaskQueue(tDB, queueId, "failed")
-		return apperror.WrapSimple(errFleet, "SSH fleet pull-all failed")
+		return handleSSHFleetFailure(tDB, queueId, errFleet)
 	}
 
 	updateTaskQueue(tDB, queueId, "completed")
 	return nil
 }
 
+func handleSSHFleetFailure(tDB *store.TasksSplitDB, queueId string, errFleet error) error {
+	store.LogInternalError("PULL_ALL_SSH", "SSH_DELEGATION_ERROR", errFleet.Error(), "", "")
+	updateTaskQueue(tDB, queueId, "failed")
+
+	return apperror.WrapSimple(errFleet, "SSH fleet pull-all failed")
+}
+
 func hasSSHFleetFlag(args []string) bool {
 	for _, a := range args {
-		low := strings.ToLower(a)
-		if low == "--ssh" || low == "-ssh" || low == "--sh" || low == "-sh" || low == "ssh" {
+		if isSSHFleetToken(a) {
 			return true
 		}
 	}
 	return false
 }
 
+func isSSHFleetToken(token string) bool {
+	low := strings.ToLower(token)
+	return low == "--ssh" || low == "-ssh" || low == "--sh" || low == "-sh" || low == "ssh" || low == "pas" || low == "pull-all-ssh"
+}
+
 func stripSSHFleetFlags(args []string) []string {
 	var clean []string
 	for _, a := range args {
-		low := strings.ToLower(a)
-		if low == "--ssh" || low == "-ssh" || low == "--sh" || low == "-sh" || low == "ssh" {
+		if isSSHFleetToken(a) {
 			continue
 		}
 		clean = append(clean, a)
@@ -227,15 +277,21 @@ func hasJSONArg(args []string) bool {
 
 func resolveParsedPullOptions(args []string, useSSH, useHTTPS bool) pullOptions {
 	opts := parsePullFlags(args)
+	opts = applyTransportOptions(opts, useSSH, useHTTPS)
+	if isPullAllTableRootCmd() {
+		opts.all = true
+		opts.showStatus = true
+	}
+
+	return opts
+}
+
+func applyTransportOptions(opts pullOptions, useSSH, useHTTPS bool) pullOptions {
 	if useSSH {
 		opts.useSSH = true
 	}
 	if useHTTPS {
 		opts.useHTTPS = true
-	}
-	if isPullAllTableRootCmd() {
-		opts.all = true
-		opts.showStatus = true
 	}
 
 	return opts
@@ -287,7 +343,7 @@ func isPullAllRootCmd() bool {
 	}
 	first := strings.ToLower(os.Args[1])
 
-	return first == "pull-all" || first == "pa" || first == "ta" || first == "pull-all-table" || first == "pat"
+	return isPullAllToken(first)
 }
 
 func isPullAllTableRootCmd() bool {
@@ -301,12 +357,16 @@ func isPullAllTableRootCmd() bool {
 
 func hasPullAllArg(args []string) bool {
 	for _, a := range args {
-		if a == "--all" || a == "-all" || a == "-a" || a == "all" || a == "pa" || a == "ta" || a == "pull-all" || a == "pat" || a == "pull-all-table" {
+		if isPullAllToken(strings.ToLower(a)) {
 			return true
 		}
 	}
 
 	return false
+}
+
+func isPullAllToken(token string) bool {
+	return token == "--all" || token == "-all" || token == "-a" || token == "all" || token == "pa" || token == "ta" || token == "pull-all" || token == "pat" || token == "pull-all-table" || token == "pas" || token == "pull-all-ssh"
 }
 
 func printPullInvocationHeader(isPullAll bool) {
@@ -331,20 +391,23 @@ func resolveSubArrow() string {
 
 func dispatchPullExecution(opts pullOptions) error {
 	if isPullCWDEnabled(opts) {
-		arrow := resolveSubArrow()
-		fmt.Printf("    %s%s%s %scwd is a git repo — running plain `git pull` here%s\n\n",
-			constants.ColorCyan, arrow, constants.ColorReset,
-			constants.ColorDim, constants.ColorReset)
-
-		return runPullCWD(opts.isRaw)
+		return executePullCWDWithNotice(opts.isRaw)
 	}
-
 	if ShouldFallbackToPullAll(opts) {
 		announceNonGitFallbackUnlessJSON(opts.isJSON)
 		opts.all = true
 	}
 
 	return runPullBatch(opts)
+}
+
+func executePullCWDWithNotice(isRaw bool) error {
+	arrow := resolveSubArrow()
+	fmt.Printf("    %s%s%s %scwd is a git repo — running plain `git pull` here%s\n\n",
+		constants.ColorCyan, arrow, constants.ColorReset,
+		constants.ColorDim, constants.ColorReset)
+
+	return runPullCWD(isRaw)
 }
 
 func announceNonGitFallbackUnlessJSON(isJSON bool) {
@@ -363,18 +426,27 @@ func handleEmptyBatchRecords(isJSON bool) error {
 
 func runPullBatch(opts pullOptions) error {
 	records, isFound := resolvePullBatchRecords(opts)
-	if !isFound || len(records) == 0 {
+	hasRecords := isFound && len(records) > 0
+	if !hasRecords {
 		return handleEmptyBatchRecords(opts.isJSON)
 	}
-	if !opts.isJSON {
-		printResolvedPullRepos(len(records))
-	}
+	printResolvedPullReposUnlessJSON(len(records), opts.isJSON)
 	filtered := applyPullAvailableFilter(records, opts.onlyAvailable)
-	if opts.onlyAvailable && len(filtered) == 0 {
+	if isNoAvailablePullTargets(opts.onlyAvailable, len(filtered)) {
 		return handleNoAvailablePullTargets(opts)
 	}
 
 	return executePullBatchLifecycle(filtered, opts)
+}
+
+func printResolvedPullReposUnlessJSON(count int, isJSON bool) {
+	if !isJSON {
+		printResolvedPullRepos(count)
+	}
+}
+
+func isNoAvailablePullTargets(onlyAvailable bool, count int) bool {
+	return onlyAvailable && count == 0
 }
 
 func handleNoAvailablePullTargets(opts pullOptions) error {
@@ -403,36 +475,61 @@ func applyPullAvailableFilter(records []model.ScanRecord, isOnlyAvailable bool) 
 
 func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) error {
 	taskID, taskDB := beginPullTask(records)
-	hasTaskDB := taskDB != nil
-	if hasTaskDB {
-		defer taskDB.Close()
+	queueId, tDB := initLocalPullTaskQueue(opts.all)
+	defer closePullBatchDBs(taskDB, tDB)
+
+	applySelectiveTransport(records, opts)
+	bar, states, dur := runPullBatchWork(records, opts)
+	if opts.isJSON {
+		return finalizePullBatchJSON(taskDB, taskID, tDB, queueId, opts.all, len(records), states, dur)
 	}
 
-	var queueId string
-	var tDB *store.TasksSplitDB
-	isAll := opts.all
-	if isAll {
-		queueId, tDB = enqueueTaskQueue("pull-all", "local")
-		defer closeTaskDB(tDB)
-		updateTaskQueue(tDB, queueId, "running")
-	}
+	return finalizePullBatchStandard(taskDB, taskID, tDB, queueId, opts.all, records, states, dur, opts, bar.Failed())
+}
 
+func closePullBatchDBs(taskDB *store.DB, tDB *store.TasksSplitDB) {
+	if taskDB != nil {
+		_ = taskDB.Close()
+	}
+	closeTaskDB(tDB)
+}
+
+func initLocalPullTaskQueue(isAll bool) (string, *store.TasksSplitDB) {
+	if !isAll {
+		return "", nil
+	}
+	queueId, tDB := enqueueTaskQueue("pull-all", "local")
+	updateTaskQueue(tDB, queueId, "running")
+
+	return queueId, tDB
+}
+
+func applySelectiveTransport(records []model.ScanRecord, opts pullOptions) {
 	if !opts.all {
 		maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
 	}
+}
+
+func runPullBatchWork(records []model.ScanRecord, opts pullOptions) (*PullProgressBar, []*PullRepoState, time.Duration) {
 	bar, sortedStates, dur := runPullBatchExecution(records, opts)
 	syncPullBatchTelemetry(records, sortedStates, dur, opts)
 	checkAgmResumeTaskAfterPull(records, opts)
 
-	if opts.isJSON {
-		completePendingTask(taskDB, taskID)
-		finalizePullTaskQueueJSON(isAll, tDB, queueId)
-		return renderPullBatchJSONSummary(len(records), sortedStates, dur)
-	}
-	renderPullBatchOutput(records, sortedStates, dur, opts)
-	finalizePullTaskQueueOutput(isAll, tDB, queueId, bar.Failed())
+	return bar, sortedStates, dur
+}
 
-	return finalizePullBatchTask(taskDB, taskID, bar.Failed())
+func finalizePullBatchJSON(taskDB *store.DB, taskID int64, tDB *store.TasksSplitDB, queueId string, isAll bool, total int, states []*PullRepoState, dur time.Duration) error {
+	completePendingTask(taskDB, taskID)
+	finalizePullTaskQueueJSON(isAll, tDB, queueId)
+
+	return renderPullBatchJSONSummary(total, states, dur)
+}
+
+func finalizePullBatchStandard(taskDB *store.DB, taskID int64, tDB *store.TasksSplitDB, queueId string, isAll bool, records []model.ScanRecord, states []*PullRepoState, dur time.Duration, opts pullOptions, failedCount int) error {
+	renderPullBatchOutput(records, states, dur, opts)
+	finalizePullTaskQueueOutput(isAll, tDB, queueId, failedCount)
+
+	return finalizePullBatchTask(taskDB, taskID, failedCount)
 }
 
 func finalizePullTaskQueueJSON(isAll bool, tDB *store.TasksSplitDB, queueId string) {
@@ -475,7 +572,7 @@ func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullP
 }
 
 func renderPullBatchOutput(records []model.ScanRecord, sortedStates []*PullRepoState, dur time.Duration, opts pullOptions) {
-	if opts.all && !opts.showStatus {
+	if isConcisePullOutput(opts.all, opts.showStatus) {
 		renderConciseActiveResults(sortedStates, records)
 		activeCount, upToDateCount := countActiveStates(sortedStates)
 		printPullAllFastSummary(len(sortedStates), activeCount, upToDateCount, dur)
@@ -483,6 +580,14 @@ func renderPullBatchOutput(records []model.ScanRecord, sortedStates []*PullRepoS
 		renderPullBatchResults(sortedStates)
 	}
 	handlePullRemediationForRecords(records, opts)
+}
+
+func isConcisePullOutput(isAll, isShowStatus bool) bool {
+	if isShowStatus {
+		return false
+	}
+
+	return isAll
 }
 
 func countActiveStates(states []*PullRepoState) (int, int) {
@@ -515,22 +620,20 @@ func printPullAllFastSummary(pulledCount, activeCount, upToDateCount int, dur ti
 }
 
 func syncPullBatchTelemetry(records []model.ScanRecord, states []*PullRepoState, dur time.Duration, opts pullOptions) {
-	cwd, _ := os.Getwd()
-	cmdType := resolveBatchCommandType(opts.all)
-	successCount, failedCount := countBatchStateOutcomes(states)
-	telemetry := PullSessionTelemetry{
-		CommandType:   cmdType,
-		WorkingDir:    cwd,
-		TotalRepos:    len(records),
-		PulledRepos:   len(states),
-		SkippedRepos:  len(records) - len(states),
-		SuccessCount:  successCount,
-		FailedCount:   failedCount,
-		IsEfficient:   false,
-		Duration:      dur,
-		GitMapVersion: constants.Version,
-	}
+	telemetry := buildPullSessionTelemetry(records, states, dur, opts.all)
 	_ = RecordPullBatchSession(telemetry, states)
+}
+
+func buildPullSessionTelemetry(records []model.ScanRecord, states []*PullRepoState, dur time.Duration, isAll bool) PullSessionTelemetry {
+	cwd, _ := os.Getwd()
+	succ, fail := countBatchStateOutcomes(states)
+
+	return PullSessionTelemetry{
+		CommandType: resolveBatchCommandType(isAll), WorkingDir: cwd,
+		TotalRepos: len(records), PulledRepos: len(states),
+		SkippedRepos: len(records) - len(states), SuccessCount: succ, FailedCount: fail,
+		IsEfficient: false, Duration: dur, GitMapVersion: constants.Version,
+	}
 }
 
 func resolveBatchCommandType(isAll bool) string {
@@ -644,15 +747,10 @@ func queryReleaseIdentifier(repoPath, latestBranch string) string {
 
 func extractReleaseFromBranch(branch string) string {
 	lower := strings.ToLower(branch)
-	isReleasePrefix := strings.HasPrefix(lower, "release/")
-	trimmed := strings.TrimPrefix(branch, "release/")
-	hasRelease := isReleasePrefix && len(trimmed) > 0
-	if hasRelease {
-		return trimmed
+	if strings.HasPrefix(lower, "release/") {
+		return strings.TrimPrefix(branch, "release/")
 	}
-
-	isVPrefix := strings.HasPrefix(lower, "v")
-	if isVPrefix && isSemverLike(branch) {
+	if strings.HasPrefix(lower, "v") && isSemverLike(branch) {
 		return branch
 	}
 
@@ -673,14 +771,11 @@ func isSemverLike(s string) bool {
 }
 
 func readRepoManifestVersion(repoPath string) string {
-	vJson := filepath.Join(repoPath, "version.json")
-	v := readJsonVersion(vJson)
+	v := readJsonVersion(filepath.Join(repoPath, "version.json"))
 	if len(v) > 0 {
 		return ensureVPrefix(v)
 	}
-
-	pkgJson := filepath.Join(repoPath, "package.json")
-	pkgV := readJsonVersion(pkgJson)
+	pkgV := readJsonVersion(filepath.Join(repoPath, "package.json"))
 	if len(pkgV) > 0 {
 		return ensureVPrefix(pkgV)
 	}
@@ -690,15 +785,19 @@ func readRepoManifestVersion(repoPath string) string {
 
 func readJsonVersion(filePath string) string {
 	data, err := os.ReadFile(filePath)
-	if err != nil || len(data) == 0 {
+	hasData := err == nil && len(data) > 0
+	if !hasData {
 		return ""
 	}
-
 	var m map[string]interface{}
 	if err := json.Unmarshal(data, &m); err != nil {
 		return ""
 	}
 
+	return extractVersionField(m)
+}
+
+func extractVersionField(m map[string]interface{}) string {
 	if v, ok := m["Version"].(string); ok && len(v) > 0 {
 		return v
 	}
@@ -778,7 +877,7 @@ func finalizePullBatchTask(taskDB *store.DB, taskID int64, failCount int) error 
 }
 
 func isPullCWDEnabled(opts pullOptions) bool {
-	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
+	if hasExplicitPullTarget(opts) {
 		return false
 	}
 
@@ -874,18 +973,16 @@ func executeGitPullCommand(cwd string, extraArgs []string) error {
 }
 
 func handleGitExecResult(err error) error {
+	if err == nil {
+		return nil
+	}
 	var exitErr *exec.ExitError
-	if err != nil && errors.As(err, &exitErr) {
+	if errors.As(err, &exitErr) {
 		cliexit.HandleError(apperror.WrapSimple(exitErr, "git pull"), exitErr.ExitCode())
-
 		return nil
 	}
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "git pull failed: %v\n", err)
-		cliexit.HandleGeneralError(apperror.WrapSimple(err, "git pull failed"))
-
-		return nil
-	}
+	fmt.Fprintf(os.Stderr, "git pull failed: %v\n", err)
+	cliexit.HandleGeneralError(apperror.WrapSimple(err, "git pull failed"))
 
 	return nil
 }
@@ -894,17 +991,21 @@ func ExtractTransportFlags(args []string) (bool, bool, []string) {
 	var useSSH, useHTTPS bool
 	rest := make([]string, 0, len(args))
 	for _, a := range args {
-		switch strings.ToLower(a) {
-		case "--ssh", "-ssh", "--sh", "-sh", "ssh":
-			useSSH = true
-		case "--https", "-https", "--ht", "-ht", "https":
-			useHTTPS = true
-		default:
-			rest = append(rest, a)
-		}
+		useSSH, useHTTPS, rest = classifyTransportToken(a, useSSH, useHTTPS, rest)
 	}
 
 	return useSSH, useHTTPS, rest
+}
+
+func classifyTransportToken(a string, useSSH, useHTTPS bool, rest []string) (bool, bool, []string) {
+	switch strings.ToLower(a) {
+	case "--ssh", "-ssh", "--sh", "-sh", "ssh":
+		return true, useHTTPS, rest
+	case "--https", "-https", "--ht", "-ht", "https":
+		return useSSH, true, rest
+	default:
+		return useSSH, useHTTPS, append(rest, a)
+	}
 }
 
 func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
@@ -927,14 +1028,11 @@ func executePull(records []model.ScanRecord, bar *PullProgressBar, opts pullOpti
 	if !isResolved {
 		cliexit.HandleError(apperror.NewSimple("invalid concurrency", "E9000"), 1)
 	}
-
 	opts.parallel = workers
 	if opts.parallel > 1 {
 		runPullParallel(records, bar, opts.parallel)
-
 		return
 	}
-
 	runSerialPull(records, bar)
 }
 
@@ -948,20 +1046,19 @@ func runSerialPull(records []model.ScanRecord, bar *PullProgressBar) {
 }
 
 func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
-	if len(remItems) == 0 {
+	if len(remItems) == 0 || isConcisePullOutput(opts.all, opts.showStatus) {
 		return
 	}
-	if opts.all && !opts.showStatus {
-		return
-	}
+	dispatchRemediationSummary(remItems, opts)
+}
+
+func dispatchRemediationSummary(remItems []RemediationItem, opts pullOptions) {
 	if opts.noFix {
 		PrintRemediationSummaryNoPrompt(remItems)
-
 		return
 	}
 	if opts.yes || opts.autoFix {
 		PrintRemediationSummaryAutoFix(remItems)
-
 		return
 	}
 	PrintRemediationSummary(remItems)
@@ -1160,10 +1257,7 @@ func pullOneRepo(rec model.ScanRecord) {
 func findChildrenOfCWD(cwd string) []model.ScanRecord {
 	all := loadAllRecordsDB()
 	var children []model.ScanRecord
-	prefix := cwd
-	if !strings.HasSuffix(prefix, string(os.PathSeparator)) {
-		prefix += string(os.PathSeparator)
-	}
+	prefix := ensureTrailingPathSep(cwd)
 	for _, r := range all {
 		if strings.HasPrefix(r.AbsolutePath, prefix) || r.AbsolutePath == cwd {
 			children = append(children, r)
@@ -1171,6 +1265,15 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 	}
 
 	return children
+}
+
+func ensureTrailingPathSep(path string) string {
+	sep := string(os.PathSeparator)
+	if strings.HasSuffix(path, sep) {
+		return path
+	}
+
+	return path + sep
 }
 
 func resolveExplicitPullTargets(opts pullOptions) ([]model.ScanRecord, bool) {
@@ -1191,25 +1294,39 @@ func warnPullTargetNotFoundUnlessJSON(opts pullOptions) {
 }
 
 func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
-	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
+	if hasExplicitPullTarget(opts) {
 		return resolveExplicitPullTargets(opts)
 	}
-	cwd, _ := os.Getwd()
-	records := ResolvePullDirectoryTargets(cwd)
+	records := discoverCWDPullRecords()
 	if len(records) == 0 {
-		records = findChildrenOfCWD(cwd)
-	}
-	if len(records) == 0 {
-		arrow := resolveSubArrow()
-		fmt.Printf("    %s%s%s %snothing to pull: no tracked repositories found in or under this directory.%s\n\n",
-			constants.ColorCyan, arrow, constants.ColorReset,
-			constants.ColorDim, constants.ColorReset)
-		cliexit.HandleError(nil, int(cliexit.ExitCodeNotFound))
+		handleNoTrackedReposInCWD()
 
 		return nil, false
 	}
 
 	return records, true
+}
+
+func hasExplicitPullTarget(opts pullOptions) bool {
+	return opts.slug != "" || opts.group != "" || opts.all || HasAlias()
+}
+
+func discoverCWDPullRecords() []model.ScanRecord {
+	cwd, _ := os.Getwd()
+	records := ResolvePullDirectoryTargets(cwd)
+	if len(records) == 0 {
+		return findChildrenOfCWD(cwd)
+	}
+
+	return records
+}
+
+func handleNoTrackedReposInCWD() {
+	arrow := resolveSubArrow()
+	fmt.Printf("    %s%s%s %snothing to pull: no tracked repositories found in or under this directory.%s\n\n",
+		constants.ColorCyan, arrow, constants.ColorReset,
+		constants.ColorDim, constants.ColorReset)
+	cliexit.HandleError(nil, int(cliexit.ExitCodeNotFound))
 }
 
 func handleNonGitPull(cwd string, extraArgs []string) error {
@@ -1228,17 +1345,19 @@ func pullDiscoveredChildren(cwd string, childRepos []string, extraArgs []string)
 	fmt.Printf("    %s%s%s Discovered %d child repositories in %s for pull:\n",
 		constants.ColorCyan, arrow, constants.ColorReset, len(childRepos), cwd)
 	for _, r := range childRepos {
-		fmt.Printf("      • %s\n", filepath.Base(r))
-		gitArgs := make([]string, 0, 3+len(extraArgs))
-		gitArgs = append(gitArgs, "-C", r, "pull")
-		gitArgs = append(gitArgs, extraArgs...)
-		cmd := exec.Command("git", gitArgs...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		_ = cmd.Run()
+		pullSingleDiscoveredChild(r, extraArgs)
 	}
 
 	return nil
+}
+
+func pullSingleDiscoveredChild(repoPath string, extraArgs []string) {
+	fmt.Printf("      • %s\n", filepath.Base(repoPath))
+	gitArgs := append([]string{"-C", repoPath, "pull"}, extraArgs...)
+	cmd := exec.Command("git", gitArgs...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	_ = cmd.Run()
 }
 
 func enqueueTaskQueue(action, target string) (string, *store.TasksSplitDB) {

@@ -16,7 +16,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// RunFixIgnoreAllFn is a hook for delegating fleet execution.
+// RunFixIgnoresAllSSHFn is a hook for delegating fleet execution.
 var RunFixIgnoresAllSSHFn func(args []string) *apperror.AppError
 
 // RunFixIgnoreAll fixes gitignore issues across all repositories.
@@ -58,16 +58,19 @@ func proceedWithIssues(issues []IgnoreScanIssue, isAutoYes bool) *apperror.AppEr
 	return nil
 }
 
+// RunFixIgnoresAllSSH executes fleet-wide fix-ignore following the GitMap PAS Formula.
 func RunFixIgnoresAllSSH(args []string) *apperror.AppError {
 	hasHook := RunFixIgnoresAllSSHFn != nil
 	if !hasHook {
 		return RunFixIgnoreAll(args)
 	}
-
 	queueId, tDB := enqueueIgnoreTaskQueue("fix-ignore-all-ssh", "fleet")
 	defer closeIgnoreTaskDB(tDB)
 	updateIgnoreTaskQueue(tDB, queueId, "running")
+	return executeFleetSSHWithTask(tDB, queueId, args)
+}
 
+func executeFleetSSHWithTask(tDB *store.TasksSplitDB, queueId string, args []string) *apperror.AppError {
 	errFleet := RunFixIgnoresAllSSHFn(args)
 	hasErr := errFleet != nil
 	if hasErr {
@@ -75,7 +78,6 @@ func RunFixIgnoresAllSSH(args []string) *apperror.AppError {
 		updateIgnoreTaskQueue(tDB, queueId, "failed")
 		return errFleet
 	}
-
 	updateIgnoreTaskQueue(tDB, queueId, "completed")
 	return nil
 }
@@ -155,8 +157,12 @@ func isIssueDetected(issue IgnoreScanIssue) bool {
 	if issue.HasResumeTask {
 		return true
 	}
-	// Note: using issue.MissingGitmapDir directly
-	if issue.MissingGitmapDir {
+	hasMissing := issue.MissingGitmapDir
+	if hasMissing {
+		return true
+	}
+	hasTracked := len(issue.TrackedResume) > 0
+	if hasTracked {
 		return true
 	}
 	return false
@@ -164,29 +170,155 @@ func isIssueDetected(issue IgnoreScanIssue) bool {
 
 func inspectSingleRepo(repoDir, repoName string) IgnoreScanIssue {
 	issue := IgnoreScanIssue{RepoPath: repoDir, RepoName: repoName}
+	trackedFiles := findTrackedIgnoredFiles(repoDir)
+	issue.TrackedResume = trackedFiles
+	issue.HasResumeTask = len(trackedFiles) > 0
 	ignorePath := filepath.Join(repoDir, ".gitignore")
 	data, err := os.ReadFile(ignorePath)
 	hasErr := err != nil
 	if hasErr {
 		issue.MissingGitmapDir = true
-		issue.HasResumeTask = gitignoreagm.HasUnignoredResumeTask(repoDir)
 		return issue
 	}
 	return analyzeGitignoreData(issue, repoDir, string(data))
 }
 
 func analyzeGitignoreData(issue IgnoreScanIssue, repoDir, data string) IgnoreScanIssue {
-	_, isChanged := gitignoreagm.DeduplicateAndSanitizeGitignore(data)
-	issue.HasDuplicate = isChanged
+	_, dupCount := deduplicateIgnoreContent(data)
+	issue.DuplicateCount = dupCount
+	issue.HasDuplicate = dupCount > 0
 	hasGitmapDir := strings.Contains(data, ".gitmap/")
-	isMissing := !hasGitmapDir
-	issue.MissingGitmapDir = isMissing
-	issue.HasResumeTask = gitignoreagm.HasUnignoredResumeTask(repoDir)
+	hasMissing := !hasGitmapDir
+	issue.MissingGitmapDir = hasMissing
 	return issue
 }
 
+func findTrackedIgnoredFiles(repoDir string) []string {
+	isGit := gitignoreagm.IsGitRepository(repoDir)
+	if !isGit {
+		return nil
+	}
+	out, err := exec.Command("git", "-C", repoDir, "ls-files", "-c", "-i", "--exclude-standard").Output()
+	hasErr := err != nil
+	if hasErr {
+		return nil
+	}
+	return parseGitLsFilesOutput(string(out))
+}
+
+func parseGitLsFilesOutput(raw string) []string {
+	lines := strings.Split(strings.TrimSpace(raw), "\n")
+	var result []string
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		hasLen := len(trimmed) > 0
+		if hasLen {
+			result = append(result, trimmed)
+		}
+	}
+	return result
+}
+
+func deduplicateIgnoreContent(content string) (string, int) {
+	lines := strings.Split(content, "\n")
+	seen := make(map[string]bool, len(lines))
+	var cleaned []string
+	dupCount := 0
+	for _, raw := range lines {
+		dupCount = processIgnoreLine(raw, seen, &cleaned, dupCount)
+	}
+	finalContent := assembleCleanedGitignore(cleaned, seen)
+	return finalContent, dupCount
+}
+
+func processIgnoreLine(raw string, seen map[string]bool, cleaned *[]string, dupCount int) int {
+	trimmed := strings.TrimSpace(raw)
+	isEmpty := trimmed == ""
+	if isEmpty {
+		*cleaned = append(*cleaned, raw)
+		return dupCount
+	}
+	isComment := strings.HasPrefix(trimmed, "#")
+	if isComment {
+		*cleaned = append(*cleaned, raw)
+		return dupCount
+	}
+	norm := strings.TrimPrefix(trimmed, "/")
+	hasSeen := seen[norm]
+	if hasSeen {
+		return dupCount + 1
+	}
+	seen[norm] = true
+	*cleaned = append(*cleaned, raw)
+	return dupCount
+}
+
+func assembleCleanedGitignore(cleaned []string, seen map[string]bool) string {
+	hasGitmap := seen[".gitmap/"]
+	if !hasGitmap {
+		cleaned = append(cleaned, "", "# GitMap & Task Persistence", ".gitmap/", ".gitmap/backup/")
+		seen[".gitmap/"] = true
+		seen[".gitmap/backup/"] = true
+	}
+	text := strings.Join(cleaned, "\n")
+	return strings.TrimRight(text, "\r\n") + "\n"
+}
+
+func remediateIssuesList(issues []IgnoreScanIssue) int {
+	fixed := 0
+	for _, issue := range issues {
+		isFixed := remediateSingleRepo(issue)
+		if isFixed {
+			fixed++
+		}
+	}
+	return fixed
+}
+
+func remediateSingleRepo(issue IgnoreScanIssue) bool {
+	hasTracked := len(issue.TrackedResume) > 0
+	if hasTracked {
+		untrackCachedFiles(issue.RepoPath, issue.TrackedResume)
+	}
+	ignorePath := filepath.Join(issue.RepoPath, ".gitignore")
+	data, err := os.ReadFile(ignorePath)
+	hasErr := err != nil
+	if hasErr {
+		return writeDefaultGitignore(issue.RepoPath, ignorePath)
+	}
+	return sanitizeAndCommitRepo(issue.RepoPath, ignorePath, string(data))
+}
+
+func untrackCachedFiles(repoDir string, files []string) {
+	args := append([]string{"-C", repoDir, "rm", "--cached", "-f", "--ignore-unmatch", "--"}, files...)
+	_ = exec.Command("git", args...).Run()
+	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): untrack ignored files from repository").Run()
+}
+
+func writeDefaultGitignore(repoDir, ignorePath string) bool {
+	content := "# GitMap & Task Persistence\n.gitmap/\n.gitmap/backup/\n"
+	_ = os.WriteFile(ignorePath, []byte(content), 0644)
+	_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
+	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): add default .gitignore").Run()
+	return true
+}
+
+func sanitizeAndCommitRepo(repoDir, ignorePath, data string) bool {
+	cleaned, dupCount := deduplicateIgnoreContent(data)
+	hasGitmapDir := strings.Contains(data, ".gitmap/")
+	hasDuplicates := dupCount > 0
+	isMissingGitmap := !hasGitmapDir
+	hasChanges := hasDuplicates || isMissingGitmap
+	if hasChanges {
+		_ = os.WriteFile(ignorePath, []byte(cleaned), 0644)
+		_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
+		_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore").Run()
+	}
+	return true
+}
+
 func promptUserConsent(count int) bool {
-	fmt.Printf("\n%sFound gitignore issues / duplicates in %d repository(ies).%s\n",
+	fmt.Printf("\n%sFound gitignore issues in %d repository(ies).%s\n",
 		constants.ColorYellow, count, constants.ColorReset)
 	fmt.Print("Sanitize and fix .gitignore across these repositories? [Y/n]: ")
 	reader := bufio.NewReader(os.Stdin)
@@ -208,51 +340,33 @@ func isConsentGranted(text string) bool {
 	return isYes
 }
 
-func remediateIssuesList(issues []IgnoreScanIssue) int {
-	fixed := 0
-	for _, issue := range issues {
-		isFixed := remediateSingleRepo(issue.RepoPath)
-		if isFixed {
-			fixed++
-		}
-	}
-	return fixed
-}
-
-func remediateSingleRepo(repoDir string) bool {
-	_, _ = gitignoreagm.RemediateRepo(repoDir, true)
-	ignorePath := filepath.Join(repoDir, ".gitignore")
-	data, err := os.ReadFile(ignorePath)
-	hasErr := err != nil
-	if hasErr {
-		return true
-	}
-	return sanitizeAndCommit(repoDir, ignorePath, string(data))
-}
-
-func sanitizeAndCommit(repoDir, ignorePath, data string) bool {
-	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(data)
-	if isModified {
-		_ = os.WriteFile(ignorePath, []byte(cleaned), 0644)
-		_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
-		_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore").Run()
-	}
-	return true
-}
-
 func printIssuesSummary(issues []IgnoreScanIssue) {
 	fmt.Printf("\n%s=== GitIgnore Issues By Repository ===%s\n", constants.ColorCyan, constants.ColorReset)
 	for _, issue := range issues {
-		fmt.Printf("  * %s%s%s\n", constants.ColorBold, issue.RepoName, constants.ColorReset)
-		if issue.HasDuplicate {
-			fmt.Printf("      - Contains duplicate rules\n")
-		}
-		if issue.HasResumeTask {
-			fmt.Printf("      - Contains unignored agm-resume.task\n")
-		}
-		if issue.MissingGitmapDir {
-			fmt.Printf("      - Missing .gitmap/ ignore rule\n")
-		}
+		printSingleRepoIssueSummary(issue)
+	}
+}
+
+func printSingleRepoIssueSummary(issue IgnoreScanIssue) {
+	fmt.Printf("  * %s%s%s\n", constants.ColorBold, issue.RepoName, constants.ColorReset)
+	if issue.HasDuplicate {
+		fmt.Printf("      - Contains %d duplicate rule(s)\n", issue.DuplicateCount)
+	}
+	hasMissing := issue.MissingGitmapDir
+	if hasMissing {
+		fmt.Printf("      - Missing .gitmap/ ignore rule\n")
+	}
+	printTrackedFilesSummary(issue.TrackedResume)
+}
+
+func printTrackedFilesSummary(tracked []string) {
+	hasTracked := len(tracked) > 0
+	if !hasTracked {
+		return
+	}
+	fmt.Printf("      - Contains %d tracked file(s) matching .gitignore rules:\n", len(tracked))
+	for _, f := range tracked {
+		fmt.Printf("          * %s\n", f)
 	}
 }
 

@@ -36,46 +36,6 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 ---
 
-## ⚡ Polyglot Search Benchmarks: GitMap Native vs PowerShell vs Python (File, Project, Grid)
-
-![Search Benchmark Evidence](assets/screenshots/MNRD-mOPioTv.png)
-
-> **Measured on `alimtvnetwork/gitmap-v28` (`2,900+` files, `150+` Go packages).**  
-> Complete benchmark methodology and hardware specifications: **[`benchmark.md`](benchmark.md)**
-
-### Table 1: Wildcard File Search Benchmarks (`*config*.json`)
-
-| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **GitMap Native Find (`gitmap find / ff`)** | Compiled Go Zero-Alloc File Walker + Filter Index | **103.56 ms** | **11** | **< 8 KB** | **1.20x faster** | **1.40x faster** |
-| **Python `Path.rglob` / `os.walk`** | Python 3 Standard Library Directory Iteration | **85.63 ms** | **12** | 45 MB | 1x (Baseline) | 1.69x faster |
-| **PowerShell `Get-ChildItem -Recurse`** | PowerShell CLR Directory Enumerator Pipeline | **145.10 ms** | **42** | 120 MB | 0.59x | 1x (Baseline) |
-
-### Table 2: Project Content Search Benchmarks (`SSHConnection`)
-
-| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **GitMap AUM Hot-Cache (`DH2D` SQLite + RAM)** | Deterministic `DH2D` SQL ID + Auto-Promoted Memory Cache (`HitCount >= 2`) | **0.04 ms (`40 µs`)** | **212** | **< 4 KB** | **315,970x faster** | **8,545x faster** |
-| **GitMap Native AUM Searcher (`cli/searcher`)** | Compiled Go Zero-Alloc Streaming + SplitDB Index | **0.82 ms (`< 1 ms`)** | **212** | **12 KB** | **15,413x faster** | **416.84x faster** |
-| **PowerShell Standard (`Get-ChildItem \| Select-String`)** | CLR `FileInfo` Object Pipeline + UTF-16 Regex Matching | **341.81 ms** | 212 | 390 MB | 36.98x faster | 1x (Baseline) |
-| **Python Fast Cached Grep** (`03-ai-scripts/12-fast-cached-grep.py`) | Python Process Spawn + Multiprocessing Regex | **12.64 s** | 212 | 210 MB | 1x (Baseline) | 0.03x |
-
-### Table 3: Grid Search Benchmarks (Multi-Filter: `func Run` in `cli/*.go`)
-
-| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **GitMap AUM Scoped Search (`gitmap aum search`)** | Multi-Core Streaming + Lazy Regex + Extension Filter | **91.30 ms** | **145** | **< 16 KB** | **1.61x faster** | **3.13x faster** |
-| **Python Scoped Multi-Filter Grep** | Python `os.walk` + in-memory Regex Stream | **146.64 ms** | 145 | 95 MB | 1x (Baseline) | 1.95x faster |
-| **PowerShell Scoped Pipeline (`Get-ChildItem \| Select-String`)** | PowerShell Directory Filter + String Match Pipeline | **285.35 ms** | 145 | 180 MB | 0.51x | 1x (Baseline) |
-
-- **Automatic `DH2D` SQLite Search History & Hot-Query Optimization**: Every `gitmap search <query>` is persisted in `SearchSplitDB` (`SearchHotCache`) with a deterministic `DH2D-<HEX>` SQL identifier and `HitCount`. Inspect history and top-optimized queries anytime via:
-  ```bash
-  gitmap search "SSHConnection"
-  gitmap search history
-  ```
-
----
-
 ## 🚀 Install in One Line
 
 GitMap is a **Windows-first** project. The commands below install the latest release with sensible defaults - no prompts, no drive picker. Use the Quick block if you want to pick a custom install drive.
@@ -167,6 +127,46 @@ gitmap install ubuntu+vscode
 ```bash
 gitmap install custom-cli
 ```
+
+---
+
+## ⚡ Polyglot Search Benchmarks: GitMap Native vs PowerShell vs Python (File, Project, Grid)
+
+![Search Benchmark Evidence](assets/screenshots/MNRD-mOPioTv.png)
+
+> **Measured on `alimtvnetwork/gitmap-v28` (`2,900+` files, `150+` Go packages).**  
+> Complete benchmark methodology and hardware specifications: **[`benchmark.md`](benchmark.md)**
+
+### Table 1: Wildcard File Search Benchmarks (`*config*.json`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap Native Find (`gitmap find / ff`)** | Compiled Go Zero-Alloc File Walker + Filter Index | **103.56 ms** | **11** | **< 8 KB** | **1.20x faster** | **1.40x faster** |
+| **Python `Path.rglob` / `os.walk`** | Python 3 Standard Library Directory Iteration | **85.63 ms** | **12** | 45 MB | 1x (Baseline) | 1.69x faster |
+| **PowerShell `Get-ChildItem -Recurse`** | PowerShell CLR Directory Enumerator Pipeline | **145.10 ms** | **42** | 120 MB | 0.59x | 1x (Baseline) |
+
+### Table 2: Project Content Search Benchmarks (`SSHConnection`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap AUM Hot-Cache (`DH2D` SQLite + RAM)** | Deterministic `DH2D` SQL ID + Auto-Promoted Memory Cache (`HitCount >= 2`) | **0.04 ms (`40 µs`)** | **212** | **< 4 KB** | **315,970x faster** | **8,545x faster** |
+| **GitMap Native AUM Searcher (`cli/searcher`)** | Compiled Go Zero-Alloc Streaming + SplitDB Index | **0.82 ms (`< 1 ms`)** | **212** | **12 KB** | **15,413x faster** | **416.84x faster** |
+| **PowerShell Standard (`Get-ChildItem \| Select-String`)** | CLR `FileInfo` Object Pipeline + UTF-16 Regex Matching | **341.81 ms** | 212 | 390 MB | 36.98x faster | 1x (Baseline) |
+| **Python Fast Cached Grep** (`03-ai-scripts/12-fast-cached-grep.py`) | Python Process Spawn + Multiprocessing Regex | **12.64 s** | 212 | 210 MB | 1x (Baseline) | 0.03x |
+
+### Table 3: Grid Search Benchmarks (Multi-Filter: `func Run` in `cli/*.go`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap AUM Scoped Search (`gitmap aum search`)** | Multi-Core Streaming + Lazy Regex + Extension Filter | **91.30 ms** | **145** | **< 16 KB** | **1.61x faster** | **3.13x faster** |
+| **Python Scoped Multi-Filter Grep** | Python `os.walk` + in-memory Regex Stream | **146.64 ms** | 145 | 95 MB | 1x (Baseline) | 1.95x faster |
+| **PowerShell Scoped Pipeline (`Get-ChildItem \| Select-String`)** | PowerShell Directory Filter + String Match Pipeline | **285.35 ms** | 145 | 180 MB | 0.51x | 1x (Baseline) |
+
+- **Automatic `DH2D` SQLite Search History & Hot-Query Optimization**: Every `gitmap search <query>` is persisted in `SearchSplitDB` (`SearchHotCache`) with a deterministic `DH2D-<HEX>` SQL identifier and `HitCount`. Inspect history and top-optimized queries anytime via:
+  ```bash
+  gitmap search "SSHConnection"
+  gitmap search history
+  ```
 
 ---
 

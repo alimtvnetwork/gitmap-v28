@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -58,8 +61,33 @@ func RunSSHPullAllFleet(cleanArgs []string) error {
 		printFleetEnqueueBanner(probes)
 	}
 	outcomes := executeFleetPullAll(probes, cleanArgs)
+	renderErr := renderFleetPullAllOutcomes(outcomes, isJSON)
+	if renderErr != nil {
+		return renderErr
+	}
+	failures := countFleetFailures(outcomes)
+	if failures > 0 {
+		return apperror.NewSimple(fmt.Sprintf("SSH fleet pull-all had %d node failure(s)", failures), "E_SSH_FLEET_FAIL")
+	}
 
-	return renderFleetPullAllOutcomes(outcomes, isJSON)
+	return nil
+}
+
+func countFleetFailures(outcomes []FleetNodePullOutcome) int {
+	failures := 0
+	for _, o := range outcomes {
+		if hasOutcomeFailed(o) {
+			failures++
+		}
+	}
+	return failures
+}
+
+func hasOutcomeFailed(o FleetNodePullOutcome) bool {
+	if o.IsSkipped {
+		return false
+	}
+	return !o.Success
 }
 
 func probeFleetLiveness(conns []db.SSHConnection) []fleetNodeLiveness {
@@ -141,27 +169,62 @@ func buildSkippedFleetOutcome(name, ip string) FleetNodePullOutcome {
 	}
 }
 
+const (
+	// MaxPASWorkers is the maximum concurrency for remote nodes under the PAS Formula.
+	MaxPASWorkers = 2
+	// MaxAsyncOpsPerNode is the maximum parallel operations per remote node.
+	MaxAsyncOpsPerNode = 2
+)
+
+func resolvePASWorkerCount() int {
+	if isHighCPUPressure() {
+		return 1
+	}
+	return MaxPASWorkers
+}
+
+func isHighCPUPressure() bool {
+	if os.Getenv("GITMAP_HIGH_CPU") == "1" {
+		return true
+	}
+	return runtime.NumCPU() <= 2
+}
+
 func dispatchOnlineFleetPull(conns []db.SSHConnection, cleanArgs []string) []FleetNodePullOutcome {
 	total := len(conns) + 1
 	outcomes := make([]FleetNodePullOutcome, total)
 	var wg sync.WaitGroup
+	dispatchLocalVMPullAsync(&wg, outcomes, cleanArgs)
+	dispatchRemoteFleetNodes(&wg, outcomes, conns)
+	wg.Wait()
+
+	return outcomes
+}
+
+func dispatchLocalVMPullAsync(wg *sync.WaitGroup, outcomes []FleetNodePullOutcome, cleanArgs []string) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		outcomes[0] = executeLocalVMPull(cleanArgs)
 	}()
+}
+
+func dispatchRemoteFleetNodes(wg *sync.WaitGroup, outcomes []FleetNodePullOutcome, conns []db.SSHConnection) {
+	workerCount := resolvePASWorkerCount()
+	sem := make(chan struct{}, workerCount)
 	for idx, c := range conns {
 		wg.Add(1)
 		slot := idx + 1
 		targetConn := c
-		go func() {
-			defer wg.Done()
-			outcomes[slot] = executeRemoteNodePull(targetConn)
-		}()
+		go executeBoundedRemotePull(wg, sem, outcomes, slot, targetConn)
 	}
-	wg.Wait()
+}
 
-	return outcomes
+func executeBoundedRemotePull(wg *sync.WaitGroup, sem chan struct{}, outcomes []FleetNodePullOutcome, slot int, c db.SSHConnection) {
+	defer wg.Done()
+	sem <- struct{}{}
+	defer func() { <-sem }()
+	outcomes[slot] = executeRemoteNodePull(c)
 }
 
 // RunLocalPullAllJSONFn executes pull-all in-process and returns structured JSON output.
@@ -290,6 +353,7 @@ func extractPendingTaskID(s string) string {
 }
 
 func buildFailedFleetOutcome(name, ip string, isLocal bool, msg string) FleetNodePullOutcome {
+	logFleetFailure(isLocal, msg, ip)
 	return FleetNodePullOutcome{
 		NodeName: name,
 		IP:       ip,
@@ -297,6 +361,14 @@ func buildFailedFleetOutcome(name, ip string, isLocal bool, msg string) FleetNod
 		Success:  false,
 		ErrorMsg: msg,
 	}
+}
+
+func logFleetFailure(isLocal bool, msg, ip string) {
+	errType := "SSH_DELEGATION_ERROR"
+	if isLocal {
+		errType = "LOCAL_PULL_ERROR"
+	}
+	store.LogInternalError("PULL_ALL_SSH", errType, msg, ip, "")
 }
 
 func parseFleetPullOutcome(name, ip string, isLocal bool, rawOutput string) FleetNodePullOutcome {

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 )
+
 // IgnoreGroup represents a named collection of gitignore patterns.
 type IgnoreGroup struct {
 	Name      string   `json:"name"`
