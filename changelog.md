@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.439.0] - 2026-10-01
+
+### Added
+- Implement GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite, and Split-DB Repo Cache
+
+---
+
 ## [v6.438.4] - 2026-10-01
 
 ### Added

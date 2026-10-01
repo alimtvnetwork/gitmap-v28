@@ -1,3 +1,9 @@
+## v6.439.0 — 2026-10-01 (Implement GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite, and Split-DB Repo Cache)
+
+**Scope:** Version bump. Implement GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite, and Split-DB Repo Cache.
+
+---
+
 ## v6.438.4 — 2026-10-01 (Rewrite formatDetails if-else chain to switch statement)
 
 **Scope:** Version bump. Rewrite formatDetails if-else chain to switch statement.
