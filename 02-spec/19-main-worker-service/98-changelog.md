@@ -1,3 +1,9 @@
+## v6.441.0 — 2026-10-01 (Release v6.441.0)
+
+**Scope:** Version bump. Release v6.441.0.
+
+---
+
 ## v6.440.0 — 2026-10-01 (Maintenance release for v6.440.0)
 
 **Scope:** Version bump. Maintenance release for v6.440.0.
