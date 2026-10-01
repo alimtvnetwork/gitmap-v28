@@ -3465,8 +3465,8 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [cli/helptext/pr.md](cli/helptext/pr.md) - PR command family usage, HG help, and JSON examples.
 - [.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md](.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md) - Completed Plan 54.
 - [.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) - Completed Plan 57: Fleet nodes clone output alignment.
+- [.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md](.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) - Completed Plan 58: GitMap PAS formula, ignore management suite, CPAR, and Split-DB cache engine.
 - [.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md](.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md) - Plan 56: VMware hardware customization, multi-VM batch operations, and macro orchestration.
-- [.ai-memory/plans/pending/58-pas-formula-fix-ignores-cpar-and-repo-cache.md](.ai-memory/plans/pending/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) - Plan 58: GitMap PAS formula, ignore management suite, CPAR, and Split-DB cache engine.
 
 
 

@@ -5,13 +5,11 @@ Master directory of architectural and execution plans.
 ## Pending Plans
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md): VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
-- [58-pas-formula-fix-ignores-cpar-and-repo-cache.md](pending/58-pas-formula-fix-ignores-cpar-and-repo-cache.md): GitMap PAS Formula, Windows Credential Store Fix, Ignore Management Suite, CPAR, and Split-DB Cache Engine (Spec: [195](../../02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md), Subtasks: [201](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/))
-
-
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md): Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Spec: [194](../../02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md))
+1. [58-pas-formula-fix-ignores-cpar-and-repo-cache.md](completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md): GitMap PAS Formula, Windows Credential Store Fix, Ignore Management Suite, CPAR, and Split-DB Cache Engine (Spec: [195](../../02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md), Subtasks: [201](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/))
+2. [57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md): Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Spec: [194](../../02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md))
 2. [52-winutil-linutil-advanced-os-integration-plan.md](completed/52-winutil-linutil-advanced-os-integration-plan.md): Advanced WinUtil & LinUtil Native Go Integration (DM Settings, OS Tweaks, DNS Switcher & Bubbletea TUI)
 2. [53-cicd-interface-naming-and-enum-suffix.md](completed/53-cicd-interface-naming-and-enum-suffix.md): CI/CD Quality Gate: Interface Naming and Enum Type Suffix Compliance
 3. [54-vmware-macro-audit-task-and-installer-chain.md](completed/54-vmware-macro-audit-task-and-installer-chain.md): VMware Automation, Macro Idempotent Removal & Edit UX, Audit Task Logging, and Chained Installer

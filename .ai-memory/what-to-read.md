@@ -111,4 +111,4 @@
 - `cli/helptext/pr.md`, why: PR command family usage, HG help, and JSON examples
 - `.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md`, why: Completed Plan 57 fleet nodes clone output alignment
 - `.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md`, why: Pending Plan 56 VMware hardware customization and macro orchestration
-- `.ai-memory/plans/pending/58-pas-formula-fix-ignores-cpar-and-repo-cache.md`, why: Plan 58 GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine
+- `.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md`, why: Completed Plan 58 GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine

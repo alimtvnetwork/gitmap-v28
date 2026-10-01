@@ -4,7 +4,7 @@
 - **Plan ID**: `58`
 - **Spec Reference**: `02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md`
 - **RCA Reference**: `02-spec/22-app-issues/58-windows-git-cache-credential-store-failure-rca.md` / `.ai-memory/issues/24-windows-git-cache-credential-store-failure-rca.md`
-- **Status**: In Progress
+- **Status**: Completed
 
 ---
 
