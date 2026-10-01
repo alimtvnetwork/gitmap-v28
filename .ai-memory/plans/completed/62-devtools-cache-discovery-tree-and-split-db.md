@@ -13,9 +13,9 @@ WAVES = ceil(subtasks / (A x H))
 ```
 
 > [!IMPORTANT]
-> **Plan Slug:** `62-devtools-cache-discovery-tree-and-split-db`  
-> **Tracking Spec:** `02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md`  
-> **Runtime:** Google Antigravity 2.0 (IDE and CLI)  
+> **Plan Slug:** `62-devtools-cache-discovery-tree-and-split-db`
+> **Tracking Spec:** `02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md`
+> **Runtime:** Google Antigravity 2.0 (IDE and CLI)
 
 ---
 
@@ -55,10 +55,10 @@ This Git map clean or clear cache output for the dev tools is clearly stupid. Fi
 
 | Task-ID | Subtask | Owner | Owned Files | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `Task-01` | Multi-Ecosystem Dynamic Discovery Engine | Worker 01 | `cli/cmdos/os_dev_clean_paths.go`, `cli/cmdos/os_dev_clean_discover.go` | PENDING |
-| `Task-02` | Split-DB Cache Persistence & `--force` Invalidation | Worker 02 | `cli/store/devtools_cache_split_db.go` | PENDING |
-| `Task-03` | ANSI Colored Rich Output & Interactive Tree View | Worker 01 | `cli/cmdos/os_dev_clean_render.go`, `cli/cmdos/os_dev_clean_tree.go` | PENDING |
-| `Task-04` | CLI Flags Integration (`--force`, `--tree`, `--only`) & Routing | Worker 02 | `cli/cmdos/os_dev_clean.go`, `cli/cmdos/devclean_cmd.go` | PENDING |
+| `Task-01` | Multi-Ecosystem Dynamic Discovery Engine | Worker 01 | `cli/cmdos/os_dev_clean_paths.go`, `cli/cmdos/os_dev_clean_discover.go` | COMPLETED |
+| `Task-02` | Split-DB Cache Persistence & `--force` Invalidation | Worker 02 | `cli/store/devtools_cache_split_db.go` | COMPLETED |
+| `Task-03` | ANSI Colored Rich Output & Interactive Tree View | Worker 01 | `cli/cmdos/os_dev_clean_render.go`, `cli/cmdos/os_dev_clean_tree.go` | COMPLETED |
+| `Task-04` | CLI Flags Integration (`--force`, `--tree`, `--only`) & Routing | Worker 02 | `cli/cmdos/os_dev_clean.go`, `cli/cmdos/devclean_cmd.go` | COMPLETED |
 
 ---
 

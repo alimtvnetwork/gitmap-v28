@@ -1,8 +1,10 @@
 # Subtask 04: Devtools CLI Flags Integration & Routing
 
-> **Parent Plan:** [62-devtools-cache-discovery-tree-and-split-db](../../pending/62-devtools-cache-discovery-tree-and-split-db.md)  
-> **Tracking Spec:** [199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](../../../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md)  
-> **Primary File Targets:** `cli/cmdos/os_dev_clean.go`, `cli/cmdos/os_dev_clean_flags.go`, `cli/cmdos/devclean_cmd.go`, `cli/osclean/dev_types.go`  
+> **Parent Plan:** [62-devtools-cache-discovery-tree-and-split-db](../../completed/62-devtools-cache-discovery-tree-and-split-db.md)
+> **Tracking Spec:** [199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](../../../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md)
+> **Primary File Targets:** `cli/cmdos/os_dev_clean.go`, `cli/cmdos/os_dev_clean_flags.go`, `cli/cmdos/devclean_cmd.go`, `cli/osclean/dev_types.go`
+> **Status:** `COMPLETED`
+> **Owner:** Worker 02
 
 ---
 

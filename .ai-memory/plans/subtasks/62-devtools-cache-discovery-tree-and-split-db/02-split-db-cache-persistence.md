@@ -1,8 +1,10 @@
 # Subtask 02: Split-DB Cache Persistence & Force Invalidation
 
-> **Parent Plan:** [62-devtools-cache-discovery-tree-and-split-db](../../pending/62-devtools-cache-discovery-tree-and-split-db.md)  
-> **Tracking Spec:** [199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](../../../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md)  
-> **Primary File Targets:** `cli/store/devtools_cache_split_db.go`, `cli/store/devtools_cache_types.go`  
+> **Parent Plan:** [62-devtools-cache-discovery-tree-and-split-db](../../completed/62-devtools-cache-discovery-tree-and-split-db.md)
+> **Tracking Spec:** [199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](../../../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md)
+> **Primary File Targets:** `cli/store/devtools_cache_split_db.go`, `cli/store/devtools_cache_types.go`
+> **Status:** `COMPLETED`
+> **Owner:** Worker 02
 
 ---
 
