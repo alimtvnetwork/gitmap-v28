@@ -82,3 +82,4 @@
 - [91-listtaskhistory-receiver-on-store-db-rca.md](./91-listtaskhistory-receiver-on-store-db-rca.md): Fix ListTaskHistory undefined on *store.DB in cmd/tasks_list.go by attaching methods to *DB.
 - [92-xplat-test-failure-and-nested-if-policy-rca.md](./92-xplat-test-failure-and-nested-if-policy-rca.md): Fix cross-platform test failures in cmdmacro/cmdnodes and nested if linter violation in nodes_clone_table.go.
 - [93-shared-engine-sync-regression-and-cicd-runner-attributes-rca.md](./93-shared-engine-sync-regression-and-cicd-runner-attributes-rca.md): Fix shared engine sync regression (chunk_items, WorkerHeartbeatMonitor) and CI/CD runner attributes (CICD_DIR, normalize_repo_rel, JobResult).
+- [94-vscodepm-sync-test-fixture-disallowed-path-filter-rca.md](./94-vscodepm-sync-test-fixture-disallowed-path-filter-rca.md): Fix VS Code project manager sync test fixture disallowed path filtering.
