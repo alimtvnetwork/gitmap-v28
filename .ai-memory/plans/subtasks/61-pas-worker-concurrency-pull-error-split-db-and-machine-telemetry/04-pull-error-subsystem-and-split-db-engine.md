@@ -1,6 +1,6 @@
 # Subtask 04: Pull-Error Subsystem & Split-DB Engine
 
-> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../pending/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
+> **Parent Plan:** [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry](../../completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
 > **Tracking Spec:** [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](../../../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)  
 > **Primary File Targets:** `cli/cmdpullerror/`, `cli/store/split_db_pull_error.go`, `cli/store/pull_split_db_errors.go`, `cli/cmd/rootcore.go`  
 
