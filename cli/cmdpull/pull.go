@@ -590,13 +590,7 @@ type IgnoreScanHandle struct {
 }
 
 func startAsyncIgnoreScan(records []model.ScanRecord) *IgnoreScanHandle {
-	handle := &IgnoreScanHandle{
-		done: make(chan []IgnoreRepoIssue, 1),
-	}
-	go func() {
-		handle.done <- scanRecordsForIgnoreIssues(records)
-	}()
-	return handle
+	return StartThrottledAsyncIgnoreScan(records, 24*time.Hour)
 }
 
 func (h *IgnoreScanHandle) Collect() []IgnoreRepoIssue {
@@ -612,7 +606,7 @@ func scanRecordsForIgnoreIssues(records []model.ScanRecord) []IgnoreRepoIssue {
 	}
 	var mu sync.Mutex
 	var issues []IgnoreRepoIssue
-	workers := calculateIgnoreWorkers(len(records))
+	workers := CalculateIgnoreWorkersForPull(len(records))
 	utils.ProcessAsync(workers, len(records), func(i int) {
 		issue := inspectRepoForIgnoreIssues(records[i].AbsolutePath, records[i].RepoName)
 		if issue.HasIssues() {
@@ -625,17 +619,7 @@ func scanRecordsForIgnoreIssues(records []model.ScanRecord) []IgnoreRepoIssue {
 }
 
 func calculateIgnoreWorkers(total int) int {
-	if total <= 0 {
-		return 1
-	}
-	workers := (total + 4) / 5
-	if workers < 1 {
-		return 1
-	}
-	if workers > 8 {
-		return 8
-	}
-	return workers
+	return CalculateIgnoreWorkersForPull(total)
 }
 
 func sortIgnoreIssues(issues []IgnoreRepoIssue) []IgnoreRepoIssue {
@@ -719,8 +703,7 @@ func isGitmapDevelopmentRepo(repoDir string) bool {
 }
 
 func isPathTrackedInGitIndex(repoDir, pathspec string) bool {
-	cmd := exec.Command("git", "-C", repoDir, "ls-files", "--error-unmatch", pathspec)
-	return cmd.Run() == nil
+	return gitutil.ExecGitCheck(5*time.Second, repoDir, "-C", repoDir, "ls-files", "--error-unmatch", pathspec)
 }
 
 func collectAndRemediateIgnoreIssues(handle *IgnoreScanHandle, opts pullOptions) {
@@ -874,11 +857,12 @@ func untrackRepoPaths(repoDir string, trackedPaths []string) bool {
 		return false
 	}
 	args := append([]string{"-C", repoDir, "rm", "--cached", "-r", "-f", "--ignore-unmatch", "--"}, trackedPaths...)
-	err := exec.Command("git", args...).Run()
+	_, err := gitutil.ExecGitWithTimeout(10*time.Second, repoDir, args...)
 	if err != nil {
 		return false
 	}
-	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): untrack ignored files from index").Run()
+	commitArgs := []string{"-C", repoDir, "commit", "-m", "chore(git): untrack ignored files from index"}
+	_, _ = gitutil.ExecGitWithTimeout(10*time.Second, repoDir, commitArgs...)
 	return true
 }
 
@@ -889,13 +873,21 @@ func sanitizeRepoGitignore(repoDir string) bool {
 	if !isModified {
 		return false
 	}
-	writeErr := os.WriteFile(ignorePath, []byte(cleaned), 0o644)
-	if writeErr != nil {
+	if writeErr := os.WriteFile(ignorePath, []byte(cleaned), 0o644); writeErr != nil {
 		return false
 	}
-	_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
-	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore patterns").Run()
-	return true
+	return commitSanitizedGitignore(repoDir)
+}
+
+func commitSanitizedGitignore(repoDir string) bool {
+	addArgs := []string{"-C", repoDir, "add", ".gitignore"}
+	_, errAdd := gitutil.ExecGitWithTimeout(10*time.Second, repoDir, addArgs...)
+	if errAdd != nil {
+		return false
+	}
+	commitArgs := []string{"-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore patterns"}
+	_, errCommit := gitutil.ExecGitWithTimeout(10*time.Second, repoDir, commitArgs...)
+	return errCommit == nil
 }
 
 func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullProgressBar, []*PullRepoState, time.Duration) {
@@ -1378,19 +1370,31 @@ func executePull(records []model.ScanRecord, bar *PullProgressBar, opts pullOpti
 	if opts.parallel < 0 || opts.workers < 0 || opts.hands < 0 {
 		cliexit.HandleError(apperror.NewSimple("invalid concurrency", "E9000"), 1)
 	}
-	effectiveWorkers := opts.workers
-	if effectiveWorkers <= 0 {
-		effectiveWorkers = opts.parallel
-	}
-	workers, hands := cloneconcurrency.ResolveWorkerHands(effectiveWorkers, opts.hands, opts.isWWOH, opts.useSSH)
-	opts.workers = workers
-	opts.hands = hands
-	opts.parallel = workers * hands
+	opts = clampPullConcurrencyForSSH(opts)
 	if opts.parallel > 1 {
 		runPullParallel(records, bar, opts.parallel)
 		return
 	}
 	runSerialPull(records, bar)
+}
+
+func clampPullConcurrencyForSSH(opts pullOptions) pullOptions {
+	isSSH := cloneconcurrency.IsSSHSession() || opts.useSSH
+	if isSSH {
+		opts.workers = 1
+		opts.hands = 1
+		opts.parallel = 1
+		return opts
+	}
+	effectiveWorkers := opts.workers
+	if effectiveWorkers <= 0 {
+		effectiveWorkers = opts.parallel
+	}
+	workers, hands := cloneconcurrency.ResolveWorkerHands(effectiveWorkers, opts.hands, opts.isWWOH, false)
+	opts.workers = workers
+	opts.hands = hands
+	opts.parallel = workers * hands
+	return opts
 }
 
 func runSerialPull(records []model.ScanRecord, bar *PullProgressBar) {

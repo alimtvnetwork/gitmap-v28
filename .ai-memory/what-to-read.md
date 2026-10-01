@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-10-01T15:30:00Z, Memory write: Spec 201, Plan 64 (completed), Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation.
 - 2026-10-01T14:45:00Z, Memory write: Spec 200, Command 13, Flat Git Commit Workflow (`gitmap commit`, `gitmap cm`), Auto-Staging, `--push` and `--dry-run` Flags, and Test Suite Validation.
 - 2026-10-01T14:10:00Z, Memory write: Spec 199, Plan 62 (completed), Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence.
 - 2026-10-01T13:33:00Z, Memory write: Plan 60 pending specification restored to .ai-memory/plans/pending/60-gitmap-pas-command-fix.md with lossless V6 prompt format and non-negotiable directives.
@@ -137,4 +138,9 @@
 - `.ai-memory/spec/commands/13-semantic-flat-commit-suite.md`, why: Command specification for semantic flat commit auto-staging suite (`gitmap commit`, `cm`, `ca`)
 - `02-spec/22-app-issues/60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md`, why: 4-Part RCA for rootcore commit dispatch shadowing and stale binary execution
 - `.ai-memory/issues/26-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md`, why: Memory RCA for rootcore commit dispatch shadowing and stale binary execution
+- `02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md`, why: Spec 201 Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation
+- `.ai-memory/plans/pending/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md`, why: Pending Plan 64 Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation
+- `.ai-memory/spec/commands/14-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md`, why: Command specification for GitIgnore Split-DB cache and concurrency governance commands
+- `02-spec/22-app-issues/61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md`, why: 4-Part RCA for pull-all unconstrained ignore subprocess deadlock and SSH concurrency multiplication
+- `.ai-memory/issues/27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md`, why: Memory RCA for pull-all unconstrained ignore subprocess deadlock and SSH concurrency multiplication
 - `.ai-memory/ambiguous-questions/01-new-ambiguity/03-gitmap-mcp-server-api-endpoint.md`, why: Open Ambiguity 03 GitMap as an MCP Server API Endpoint for autonomous AI agents

@@ -38,13 +38,13 @@
 - [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) — PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry (Spec: [198](../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md))
 - [62-devtools-cache-discovery-tree-and-split-db.md](completed/62-devtools-cache-discovery-tree-and-split-db.md) — Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Spec: [199](../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md))
 - [63-semantic-flat-commit-suite.md](completed/63-semantic-flat-commit-suite.md) — Semantic Flat Commit Suite & Auto-Stage Command (Spec: [200](../../02-spec/21-app/200-semantic-flat-commit-and-auto-stage-command.md))
+- [64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) — GitMap Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation (Spec: [201](../../02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md))
 
 - [197-pas-fix.md](completed/197-pas-fix.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
 
 ## Pending Plans
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
-- [60-gitmap-pas-command-fix.md](pending/60-gitmap-pas-command-fix.md) — GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite & Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [181](../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md))
 
 ## Subtasks Directory
 

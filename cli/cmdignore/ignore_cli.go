@@ -25,9 +25,31 @@ func RunIgnoreCLI(args []string) error {
 	if len(args) == 0 {
 		return PrintIgnoreHelp()
 	}
+	cleanCmd, cleanArgs := resolveSubcommandArgs(args)
+	return dispatchIgnoreCommand(cleanCmd, cleanArgs)
+}
+
+func resolveSubcommandArgs(args []string) (string, []string) {
 	subCmd := strings.ToLower(args[0])
-	subArgs := args[1:]
-	return dispatchIgnoreCommand(subCmd, subArgs)
+	if isIgnoreFlag(subCmd) {
+		return routeLeadingFlag(args)
+	}
+	return subCmd, args[1:]
+}
+
+func isIgnoreFlag(arg string) bool {
+	return arg == "--force" || arg == "--interval" || arg == "-i"
+}
+
+func routeLeadingFlag(args []string) (string, []string) {
+	for i, a := range args {
+		if !strings.HasPrefix(a, "-") {
+			remaining := append([]string{}, args[:i]...)
+			remaining = append(remaining, args[i+1:]...)
+			return strings.ToLower(a), remaining
+		}
+	}
+	return "cache", args
 }
 
 func dispatchIgnoreCommand(subCmd string, subArgs []string) error {
@@ -36,6 +58,17 @@ func dispatchIgnoreCommand(subCmd string, subArgs []string) error {
 		return PrintIgnoreHelp()
 	case "ls", "list":
 		return runIgnoreList()
+	case "config", "cfg":
+		return RunIgnoreConfig(subArgs)
+	case "cache":
+		return RunIgnoreCache(subArgs)
+	default:
+		return dispatchRuleAndScan(subCmd, subArgs)
+	}
+}
+
+func dispatchRuleAndScan(subCmd string, subArgs []string) error {
+	switch subCmd {
 	case "add":
 		return runIgnoreAdd(subArgs)
 	case "remove", "rm":
@@ -172,13 +205,13 @@ func runIgnoreAdd(args []string) error {
 
 func applyToCurrentRepoIfGit(patterns []string) {
 	cwd, err := os.Getwd()
-	if err != nil {
+	if err != nil || !gitignoreagm.IsGitRepository(cwd) {
 		return
 	}
-	isGit := gitignoreagm.IsGitRepository(cwd)
-	if !isGit {
-		return
-	}
+	writeGitignorePatterns(cwd, patterns)
+}
+
+func writeGitignorePatterns(cwd string, patterns []string) {
 	ignorePath := filepath.Join(cwd, ".gitignore")
 	data, _ := os.ReadFile(ignorePath)
 	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data), patterns...)
@@ -491,6 +524,10 @@ func importBindings(bindings []store.IgnoreRepoBindingRecord) {
 const ignoreHelpMenu = `
   GitMap Ignore Management Suite (ig / ignore)
     • gitmap ignore ls                             - List configured ignore groups & bindings
+    • gitmap ignore config                         - Show check interval, Split-DB path & stats
+    • gitmap ignore config set interval <dur>      - Configure audit check frequency
+    • gitmap ignore cache                          - List cached repo audit statuses
+    • gitmap ignore cache clear (--force)          - Invalidate all cached ignore records
     • gitmap ignore add <pattern>                  - Add pattern to default group
     • gitmap ignore remove (rm) <pattern>          - Remove pattern from current repo
     • gitmap ignore scan                           - Scan all repos for ignore issues

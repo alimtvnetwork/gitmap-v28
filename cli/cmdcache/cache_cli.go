@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -14,12 +13,16 @@ import (
 
 // RunCacheCLI routes gitmap cache commands.
 func RunCacheCLI(args []string) *appfault.AppError {
-	if len(args) == 0 {
+	hasArgs := len(args) > 0
+	if !hasArgs {
 		return PrintCacheHelp()
 	}
 	subCmd := strings.ToLower(args[0])
 	subArgs := args[1:]
+	return dispatchSubCmd(subCmd, subArgs)
+}
 
+func dispatchSubCmd(subCmd string, subArgs []string) *appfault.AppError {
 	switch subCmd {
 	case "help", "-h", "--help":
 		return PrintCacheHelp()
@@ -52,18 +55,24 @@ func routeSearchCmd(subCmd string, subArgs []string) *appfault.AppError {
 func runCacheList() *appfault.AppError {
 	repoRoot := findRepoRoot()
 	summaries, _ := store.ListCachedRepos(repoRoot)
-	if len(summaries) > 0 {
+	hasSummaries := len(summaries) > 0
+	if hasSummaries {
 		renderRepoSummaries(summaries)
 	}
+	return listAndRenderCacheFiles(repoRoot)
+}
 
-	rootDB, err := store.OpenRootCacheDB(repoRoot)
-	if err != nil {
+func listAndRenderCacheFiles(repoRoot string) *appfault.AppError {
+	rootDb, err := store.OpenRootCacheDB(repoRoot)
+	hasErr := err != nil
+	if hasErr {
 		return err
 	}
-	defer rootDB.Close()
+	defer rootDb.Close()
 
-	files, queryErr := store.ListCacheFiles(rootDB)
-	if queryErr != nil {
+	files, queryErr := store.ListCacheFiles(rootDb)
+	hasQueryErr := queryErr != nil
+	if hasQueryErr {
 		return queryErr
 	}
 	renderCachedFiles(files)
@@ -94,38 +103,45 @@ func renderCachedFiles(files []store.CacheFileRecord) {
 }
 
 func runCacheRemove(args []string) *appfault.AppError {
-	if len(args) == 0 {
+	hasArgs := len(args) > 0
+	if !hasArgs {
 		return appfault.NewSimple("Usage: gitmap cache remove <path>", "E1031")
 	}
 	repoRoot := findRepoRoot()
 	targets := extractTargetParts(strings.Join(args, ","))
-	queueId, tasksDB := enqueueCacheTask("remove", strings.Join(targets, ","))
-	defer closeTasksDB(tasksDB)
+	queueId, tasksDb := enqueueCacheTask("remove", strings.Join(targets, ","))
+	defer closeTasksDB(tasksDb)
 
-	rootDB, err := store.OpenRootCacheDB(repoRoot)
-	if err != nil {
-		logAndFailCacheTask(tasksDB, queueId, err, "cache_remove_open_db")
+	return executeCacheRemove(targets, repoRoot, queueId, tasksDb)
+}
+
+func executeCacheRemove(targets []string, repoRoot, queueId string, tasksDb *store.TasksSplitDB) *appfault.AppError {
+	rootDb, err := store.OpenRootCacheDB(repoRoot)
+	hasErr := err != nil
+	if hasErr {
+		logAndFailCacheTask(tasksDb, queueId, err, "cache_remove_open_db")
 		return err
 	}
-	defer rootDB.Close()
+	defer rootDb.Close()
 
 	for _, target := range targets {
-		removeSingleTarget(rootDB, target, repoRoot)
+		removeSingleTarget(rootDb, target, repoRoot)
 	}
-	completeCacheTask(tasksDB, queueId)
+	completeCacheTask(tasksDb, queueId)
 	fmt.Printf("%s✓ Removed %d target(s) from cache database.%s\n", constants.ColorGreen, len(targets), constants.ColorReset)
 	return nil
 }
 
-func removeSingleTarget(rootDB *sql.DB, target, repoRoot string) {
+func removeSingleTarget(rootDb *sql.DB, target, repoRoot string) {
 	cleanRel := filepath.ToSlash(target)
 	slug := resolveFileSlug(cleanRel)
-	_ = store.DeleteCacheFile(rootDB, cleanRel)
+	_ = store.DeleteCacheFile(rootDb, cleanRel)
 	removeLinesFromSlug(slug, cleanRel, repoRoot)
 }
 
 func runSearchSingle(args []string) *appfault.AppError {
-	if len(args) == 0 {
+	hasArgs := len(args) > 0
+	if !hasArgs {
 		return appfault.NewSimple("Usage: gitmap cache search <query> [glob] [--lines N] [--limit N]", "E1032")
 	}
 	opts := parseSearchFlags(args)
@@ -133,82 +149,13 @@ func runSearchSingle(args []string) *appfault.AppError {
 }
 
 func runSearchMulti(args []string, isRegex bool) *appfault.AppError {
-	if len(args) == 0 {
+	hasArgs := len(args) > 0
+	if !hasArgs {
 		return appfault.NewSimple("Usage: gitmap cache search-multi <queries...> [-file-pattern glob]", "E1033")
 	}
 	opts := parseSearchFlags(args)
 	opts.IsRegex = isRegex
 	return SearchCache(opts)
-}
-
-func parseSearchFlags(args []string) CacheSearchOptions {
-	opts := CacheSearchOptions{LinesToShow: 10, ResultLimit: 20}
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		i = handleFlagStep(args, i, a, &opts)
-	}
-	return opts
-}
-
-func handleFlagStep(args []string, i int, a string, opts *CacheSearchOptions) int {
-	if (a == "--lines" || a == "-lines") && i+1 < len(args) {
-		opts.LinesToShow, _ = strconv.Atoi(args[i+1])
-		return i + 1
-	}
-	if (a == "--limit" || a == "-limit") && i+1 < len(args) {
-		opts.ResultLimit, _ = strconv.Atoi(args[i+1])
-		return i + 1
-	}
-	if isFilePatternFlag(a) && i+1 < len(args) {
-		return handleFilePatternFlag(args, i+1, opts)
-	}
-	processPositionalSearchArg(a, opts)
-	return i
-}
-
-func handleFilePatternFlag(args []string, nextIdx int, opts *CacheSearchOptions) int {
-	val := args[nextIdx]
-	if (val == "(fp)" || val == "fp") && nextIdx+1 < len(args) {
-		nextIdx++
-		val = args[nextIdx]
-	}
-	terms := extractCleanTerms(val)
-	opts.FileGlobs = append(opts.FileGlobs, terms...)
-	return nextIdx
-}
-
-func isFilePatternFlag(a string) bool {
-	lower := strings.ToLower(strings.TrimSpace(a))
-	return lower == "-file-pattern" || lower == "--file-pattern" ||
-		lower == "-fp" || lower == "--fp" || lower == "(fp)" || lower == "fp"
-}
-
-func extractCleanTerms(raw string) []string {
-	parts := strings.Split(raw, ",")
-	var result []string
-	for _, p := range parts {
-		trimmed := strings.Trim(strings.TrimSpace(p), `"', `)
-		if trimmed != "" {
-			result = append(result, trimmed)
-		}
-	}
-	return result
-}
-
-func processPositionalSearchArg(a string, opts *CacheSearchOptions) {
-	if strings.HasPrefix(a, "-") || a == "(fp)" {
-		return
-	}
-	terms := extractCleanTerms(a)
-	if len(opts.Patterns) == 0 {
-		opts.Patterns = append(opts.Patterns, terms...)
-		return
-	}
-	if len(opts.FileGlobs) == 0 && (strings.Contains(a, "*") || strings.Contains(a, "?")) {
-		opts.FileGlobs = append(opts.FileGlobs, terms...)
-		return
-	}
-	opts.Patterns = append(opts.Patterns, terms...)
 }
 
 // PrintCacheHelp outputs usage documentation for gitmap cache.

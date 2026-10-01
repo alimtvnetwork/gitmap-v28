@@ -49,11 +49,11 @@ func isReviewAborted(dirtyList []DirtyRepoSummary, opts cparOptions) bool {
 
 func dispatchCPARBatch(dirtyList []DirtyRepoSummary, opts cparOptions) {
 	action := resolveCPARAction(opts)
-	queueId, tasksDB := enqueueCPARTaskQueue(action, "local")
-	updateCPARTaskQueue(tasksDB, queueId, "running")
+	queueId, tasksDb := enqueueCPARTaskQueue(action, "local")
+	updateCPARTaskQueue(tasksDb, queueId, "running")
 	runState := executeCPARAcrossDirty(dirtyList, opts)
-	finalizeCPARTaskQueue(tasksDB, queueId, runState.HasFailures)
-	closeCPARTaskDB(tasksDB)
+	finalizeCPARTaskQueue(tasksDb, queueId, runState.HasFailures)
+	closeCPARTaskDb(tasksDb)
 }
 
 func resolveCPARAction(opts cparOptions) string {
@@ -61,57 +61,6 @@ func resolveCPARAction(opts cparOptions) string {
 		return "cpar-commit-only"
 	}
 	return "cpar-commit-push"
-}
-
-func parseCPAROptions(args []string) cparOptions {
-	opts := cparOptions{commitMsg: "chore: commit pending changes"}
-	for _, a := range args {
-		opts = applyOption(opts, strings.ToLower(a))
-	}
-	return opts
-}
-
-func applyOption(opts cparOptions, a string) cparOptions {
-	switch {
-	case isYesFlag(a):
-		opts.isAutoYes = true
-	case isReviewFlag(a):
-		opts.isReview = true
-	case isCommitOnlyFlag(a):
-		opts.isCommitOnly = true
-	case isCompoundFlag(a):
-		opts = applyCompoundFlags(opts, a)
-	case strings.HasPrefix(a, "-m="):
-		opts.commitMsg = a[3:]
-	}
-	return opts
-}
-
-func isYesFlag(a string) bool {
-	return a == "-y" || a == "--yes"
-}
-
-func isReviewFlag(a string) bool {
-	return a == "-r" || a == "--review"
-}
-
-func isCommitOnlyFlag(a string) bool {
-	return a == "-co" || a == "--co" || a == "--commit-only"
-}
-
-func isCompoundFlag(a string) bool {
-	return a == "-rco" || a == "-ry" || a == "-yr"
-}
-
-func applyCompoundFlags(opts cparOptions, a string) cparOptions {
-	if a == "-rco" {
-		opts.isReview = true
-		opts.isCommitOnly = true
-	} else if a == "-ry" || a == "-yr" {
-		opts.isReview = true
-		opts.isAutoYes = true
-	}
-	return opts
 }
 
 func CollectDirtyRepositories() []DirtyRepoSummary {
@@ -201,10 +150,7 @@ func promptReviewConsent(isCommitOnly bool) bool {
 }
 
 func isConsentGranted(low string) bool {
-	if low == "" || low == "y" || low == "yes" {
-		return true
-	}
-	return false
+	return low == "" || low == "y" || low == "yes"
 }
 
 func resolveAllRecords() []model.ScanRecord {
@@ -280,6 +226,10 @@ func handlePush(d DirtyRepoSummary, opts cparOptions) bool {
 		fmt.Printf("      %-30s %scommitted (commit-only)%s\n", d.RepoName, constants.ColorGreen, constants.ColorReset)
 		return true
 	}
+	return pushToRemote(d)
+}
+
+func pushToRemote(d DirtyRepoSummary) bool {
 	pushCmd := exec.Command("git", "-C", d.RepoPath, "push")
 	pushCmd.Env = gitutil.BuildSafeGitEnv()
 	out, pushErr := pushCmd.CombinedOutput()
@@ -307,19 +257,19 @@ func logPushFailure(d DirtyRepoSummary, output string, err error) {
 
 func enqueueCPARTaskQueue(action, target string) (string, *store.TasksSplitDB) {
 	queueId := fmt.Sprintf("%s-%d", action, time.Now().UnixNano())
-	tasksDB, err := store.OpenTasksRootSplitDB()
+	tasksDb, err := store.OpenTasksRootSplitDB()
 	hasErr := err != nil
 	if hasErr {
 		return "", nil
 	}
 	now := time.Now().UTC().Format(time.RFC3339)
-	store.ExecWrapper(tasksDB.Conn(), "INSERT INTO TaskQueue (QueueId, Section, Action, Target, Status, CreatedAt, UpdatedAt) VALUES (?, 'cpar', ?, ?, 'pending', ?, ?)", queueId, action, target, now, now)
-	return queueId, tasksDB
+	store.ExecWrapper(tasksDb.Conn(), "INSERT INTO TaskQueue (QueueId, Section, Action, Target, Status, CreatedAt, UpdatedAt) VALUES (?, 'cpar', ?, ?, 'pending', ?, ?)", queueId, action, target, now, now)
+	return queueId, tasksDb
 }
 
 func updateCPARTaskQueue(db *store.TasksSplitDB, queueId, status string) {
-	hasDB := db != nil
-	if !hasDB {
+	hasDb := db != nil
+	if !hasDb {
 		return
 	}
 	now := time.Now().UTC().Format(time.RFC3339)
@@ -334,9 +284,9 @@ func finalizeCPARTaskQueue(db *store.TasksSplitDB, queueId string, hasFailures b
 	updateCPARTaskQueue(db, queueId, "completed")
 }
 
-func closeCPARTaskDB(db *store.TasksSplitDB) {
-	hasDB := db != nil
-	if hasDB {
+func closeCPARTaskDb(db *store.TasksSplitDB) {
+	hasDb := db != nil
+	if hasDb {
 		_ = db.Close()
 	}
 }

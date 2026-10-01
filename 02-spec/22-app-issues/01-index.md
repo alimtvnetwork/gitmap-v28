@@ -66,6 +66,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 58 | [58-windows-git-cache-credential-store-failure-rca.md](58-windows-git-cache-credential-store-failure-rca.md) | Windows Git Cache Credential Store Failure, Pull-First Workflow, and GitIgnore Duplication: RCA & Fix | Resolved |
 | 59 | [59-fleet-nodes-clone-duration-alignment-and-w3-liveness-rca.md](59-fleet-nodes-clone-duration-alignment-and-w3-liveness-rca.md) | Fleet Nodes Clone Duration Alignment, Column Gutter Spacing, and W3 Reachability Diagnostics: RCA & Fix | Resolved |
 | 60 | [60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md](60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md) | RootCore Commit Dispatch Shadowing and Stale Binary Macro Execution Failure: RCA & Fix | Resolved |
+| 61 | [61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md) | Pull-All Unconstrained Ignore Subprocess Deadlock and SSH Concurrency Multiplication: RCA & Fix | Resolved |
 
 ---
 

@@ -12,41 +12,43 @@ import (
 
 // CacheFileRecord represents metadata of a cached file in the root split-db.
 type CacheFileRecord struct {
-	FileId       int64  `json:"fileId"`
-	RepoUrl      string `json:"repoUrl"`
-	RelativePath string `json:"relativePath"`
-	AbsolutePath string `json:"absolutePath"`
-	FileSize     int64  `json:"fileSize"`
-	ModifiedTime int64  `json:"modifiedTime"`
-	FolderSlug   string `json:"folderSlug"`
-	IsKeep       bool   `json:"isKeep"`
+	FileId       int64  `json:"FileId"`
+	RepoUrl      string `json:"RepoUrl"`
+	RelativePath string `json:"RelativePath"`
+	AbsolutePath string `json:"AbsolutePath"`
+	FileSize     int64  `json:"FileSize"`
+	ModifiedTime int64  `json:"ModifiedTime"`
+	FolderSlug   string `json:"FolderSlug"`
+	IsKeep       bool   `json:"IsKeep"`
 }
 
 // CachedRepoSummary summarizes a cached repository.
 type CachedRepoSummary struct {
-	RepoSlug    string `json:"repoSlug"`
-	RepoPath    string `json:"repoPath"`
-	FileCount   int    `json:"fileCount"`
-	TotalBytes  int64  `json:"totalBytes"`
-	LastIndexed string `json:"lastIndexed"`
+	RepoSlug    string `json:"RepoSlug"`
+	RepoPath    string `json:"RepoPath"`
+	FileCount   int    `json:"FileCount"`
+	TotalBytes  int64  `json:"TotalBytes"`
+	LastIndexed string `json:"LastIndexed"`
 }
 
 // CacheContextLine holds context around a matching line.
 type CacheContextLine struct {
-	LineNumber int    `json:"lineNumber"`
-	Content    string `json:"content"`
-	IsMatch    bool   `json:"isMatch"`
+	LineNumber int    `json:"LineNumber"`
+	Content    string `json:"Content"`
+	IsMatch    bool   `json:"IsMatch"`
 }
 
 // ResolveRepoSlug derives a sanitized slug from the repository root directory.
 func ResolveRepoSlug(repoRoot string) string {
 	abs, err := filepath.Abs(repoRoot)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return "default"
 	}
 	base := filepath.Base(abs)
 	slug := SanitizeSlug(base)
-	if slug == "" {
+	hasSlug := slug != ""
+	if !hasSlug {
 		return "default"
 	}
 	return slug
@@ -72,7 +74,8 @@ func ResolveCacheRepoDir(repoRoot string) string {
 func openSqliteConn(dbPath string) (*sql.DB, *appfault.AppError) {
 	connStr := dbPath + "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)"
 	db, err := sql.Open("sqlite", connStr)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return nil, appfault.WrapSimple(err, "open sqlite conn")
 	}
 	return db, nil
@@ -82,9 +85,9 @@ func openSqliteConn(dbPath string) (*sql.DB, *appfault.AppError) {
 func OpenRootCacheDB(repoRoot string) (*sql.DB, *appfault.AppError) {
 	repoDir := ResolveCacheRepoDir(repoRoot)
 	dbPath := filepath.ToSlash(filepath.Join(repoDir, DbFileName))
-
 	db, err := openSqliteConn(dbPath)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return nil, err
 	}
 	if initErr := InitRootCacheSchema(db); initErr != nil {
@@ -96,12 +99,11 @@ func OpenRootCacheDB(repoRoot string) (*sql.DB, *appfault.AppError) {
 
 // OpenSlugCacheDB opens or creates a partition split database for content lines.
 func OpenSlugCacheDB(slug, repoRoot string) (*sql.DB, *appfault.AppError) {
-	cleanSlug := SanitizeSlug(slug)
 	repoDir := ResolveCacheRepoDir(repoRoot)
-	dbPath := filepath.ToSlash(filepath.Join(repoDir, cleanSlug+".db"))
-
+	dbPath := filepath.ToSlash(filepath.Join(repoDir, SanitizeSlug(slug)+".db"))
 	db, err := openSqliteConn(dbPath)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return nil, err
 	}
 	if initErr := InitSlugCacheSchema(db); initErr != nil {
@@ -113,33 +115,14 @@ func OpenSlugCacheDB(slug, repoRoot string) (*sql.DB, *appfault.AppError) {
 
 // InitRootCacheSchema initializes tables and indices for file metadata.
 func InitRootCacheSchema(db *sql.DB) *appfault.AppError {
-	const ddl = `
-	CREATE TABLE IF NOT EXISTS RepoMetadata (
-		Key TEXT PRIMARY KEY,
-		Value TEXT
-	);
-	CREATE TABLE IF NOT EXISTS FolderTree (
-		FolderPath TEXT PRIMARY KEY,
-		FolderSlug TEXT,
-		FileCount INTEGER,
-		TotalBytes INTEGER,
-		UpdatedAt INTEGER
-	);
-	CREATE TABLE IF NOT EXISTS Files (
-		FileId INTEGER PRIMARY KEY AUTOINCREMENT,
-		RepoUrl TEXT,
-		RelativePath TEXT UNIQUE,
-		AbsolutePath TEXT,
-		FileSize INTEGER,
-		ModifiedTime INTEGER,
-		FolderSlug TEXT,
-		IsKeep INTEGER DEFAULT 0
-	);
-	CREATE INDEX IF NOT EXISTS idx_files_slug ON Files(FolderSlug);
-	CREATE INDEX IF NOT EXISTS idx_files_mtime ON Files(ModifiedTime);
-	`
+	const ddl = `CREATE TABLE IF NOT EXISTS RepoMetadata (Key TEXT PRIMARY KEY, Value TEXT);
+CREATE TABLE IF NOT EXISTS FolderTree (FolderPath TEXT PRIMARY KEY, FolderSlug TEXT, FileCount INTEGER, TotalBytes INTEGER, UpdatedAt INTEGER);
+CREATE TABLE IF NOT EXISTS Files (FileId INTEGER PRIMARY KEY AUTOINCREMENT, RepoUrl TEXT, RelativePath TEXT UNIQUE, AbsolutePath TEXT, FileSize INTEGER, ModifiedTime INTEGER, FolderSlug TEXT, IsKeep INTEGER DEFAULT 0);
+CREATE INDEX IF NOT EXISTS idx_files_slug ON Files(FolderSlug);
+CREATE INDEX IF NOT EXISTS idx_files_mtime ON Files(ModifiedTime);`
 	_, err := db.Exec(ddl)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return appfault.WrapSimple(err, "init root cache schema")
 	}
 	return nil
@@ -147,18 +130,12 @@ func InitRootCacheSchema(db *sql.DB) *appfault.AppError {
 
 // InitSlugCacheSchema initializes tables for indexed line contents.
 func InitSlugCacheSchema(db *sql.DB) *appfault.AppError {
-	const ddl = `
-	CREATE TABLE IF NOT EXISTS Lines (
-		LineId INTEGER PRIMARY KEY AUTOINCREMENT,
-		RelativePath TEXT,
-		LineNumber INTEGER,
-		Content TEXT
-	);
-	CREATE INDEX IF NOT EXISTS idx_lines_path ON Lines(RelativePath);
-	CREATE INDEX IF NOT EXISTS idx_lines_path_num ON Lines(RelativePath, LineNumber);
-	`
+	const ddl = `CREATE TABLE IF NOT EXISTS Lines (LineId INTEGER PRIMARY KEY AUTOINCREMENT, RelativePath TEXT, LineNumber INTEGER, Content TEXT);
+CREATE INDEX IF NOT EXISTS idx_lines_path ON Lines(RelativePath);
+CREATE INDEX IF NOT EXISTS idx_lines_path_num ON Lines(RelativePath, LineNumber);`
 	_, err := db.Exec(ddl)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return appfault.WrapSimple(err, "init slug cache schema")
 	}
 	return nil
@@ -166,22 +143,15 @@ func InitSlugCacheSchema(db *sql.DB) *appfault.AppError {
 
 // InsertCacheFile upserts a file record in the root cache database.
 func InsertCacheFile(db *sql.DB, rec CacheFileRecord) *appfault.AppError {
-	const query = `
-	INSERT INTO Files (RepoUrl, RelativePath, AbsolutePath, FileSize, ModifiedTime, FolderSlug, IsKeep)
-	VALUES (?, ?, ?, ?, ?, ?, ?)
-	ON CONFLICT(RelativePath) DO UPDATE SET
-		AbsolutePath=excluded.AbsolutePath,
-		FileSize=excluded.FileSize,
-		ModifiedTime=excluded.ModifiedTime,
-		FolderSlug=excluded.FolderSlug,
-		IsKeep=MAX(Files.IsKeep, excluded.IsKeep);
-	`
+	const query = `INSERT INTO Files (RepoUrl, RelativePath, AbsolutePath, FileSize, ModifiedTime, FolderSlug, IsKeep) VALUES (?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(RelativePath) DO UPDATE SET AbsolutePath=excluded.AbsolutePath, FileSize=excluded.FileSize, ModifiedTime=excluded.ModifiedTime, FolderSlug=excluded.FolderSlug, IsKeep=MAX(Files.IsKeep, excluded.IsKeep);`
 	isKeepInt := 0
 	if rec.IsKeep {
 		isKeepInt = 1
 	}
 	_, err := db.Exec(query, rec.RepoUrl, rec.RelativePath, rec.AbsolutePath, rec.FileSize, rec.ModifiedTime, rec.FolderSlug, isKeepInt)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return appfault.WrapSimple(err, "insert cache file")
 	}
 	return nil
@@ -190,7 +160,8 @@ func InsertCacheFile(db *sql.DB, rec CacheFileRecord) *appfault.AppError {
 // DeleteCacheFile removes a file record from the root cache database.
 func DeleteCacheFile(db *sql.DB, relPath string) *appfault.AppError {
 	_, err := db.Exec("DELETE FROM Files WHERE RelativePath = ?", relPath)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return appfault.WrapSimple(err, "delete cache file")
 	}
 	return nil
@@ -199,7 +170,8 @@ func DeleteCacheFile(db *sql.DB, relPath string) *appfault.AppError {
 // DeleteCachedLines deletes lines for a given file from a slug database.
 func DeleteCachedLines(db *sql.DB, relPath string) *appfault.AppError {
 	_, err := db.Exec("DELETE FROM Lines WHERE RelativePath = ?", relPath)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return appfault.WrapSimple(err, "delete cached lines")
 	}
 	return nil
@@ -209,11 +181,15 @@ func DeleteCachedLines(db *sql.DB, relPath string) *appfault.AppError {
 func InsertCachedLines(db *sql.DB, relPath string, lines []string) *appfault.AppError {
 	_ = DeleteCachedLines(db, relPath)
 	tx, err := db.Begin()
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return appfault.WrapSimple(err, "begin lines tx")
 	}
 	defer tx.Rollback()
+	return commitLinesTx(tx, relPath, lines)
+}
 
+func commitLinesTx(tx *sql.Tx, relPath string, lines []string) *appfault.AppError {
 	if insertErr := insertLinesInTx(tx, relPath, lines); insertErr != nil {
 		return insertErr
 	}
@@ -225,11 +201,15 @@ func InsertCachedLines(db *sql.DB, relPath string, lines []string) *appfault.App
 
 func insertLinesInTx(tx *sql.Tx, relPath string, lines []string) *appfault.AppError {
 	stmt, prepErr := tx.Prepare("INSERT INTO Lines (RelativePath, LineNumber, Content) VALUES (?, ?, ?)")
-	if prepErr != nil {
+	hasPrepErr := prepErr != nil
+	if hasPrepErr {
 		return appfault.WrapSimple(prepErr, "prepare lines stmt")
 	}
 	defer stmt.Close()
+	return executeLinesInsert(stmt, relPath, lines)
+}
 
+func executeLinesInsert(stmt *sql.Stmt, relPath string, lines []string) *appfault.AppError {
 	for idx, line := range lines {
 		if _, execErr := stmt.Exec(relPath, idx+1, line); execErr != nil {
 			return appfault.WrapSimple(execErr, "exec line insert")
@@ -242,7 +222,8 @@ func insertLinesInTx(tx *sql.Tx, relPath string, lines []string) *appfault.AppEr
 func ListCacheFiles(db *sql.DB) ([]CacheFileRecord, *appfault.AppError) {
 	const query = "SELECT FileId, RepoUrl, RelativePath, AbsolutePath, FileSize, ModifiedTime, FolderSlug, IsKeep FROM Files ORDER BY RelativePath ASC"
 	rows, err := db.Query(query)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return nil, appfault.WrapSimple(err, "query cache files")
 	}
 	defer rows.Close()
@@ -278,18 +259,12 @@ func GetCacheFile(db *sql.DB, relPath string) (*CacheFileRecord, *appfault.AppEr
 
 // UpdateFolderTree upserts folder statistics into the FolderTree table.
 func UpdateFolderTree(db *sql.DB, folderPath, folderSlug string, fileCount int, totalBytes int64) *appfault.AppError {
-	const query = `
-	INSERT INTO FolderTree (FolderPath, FolderSlug, FileCount, TotalBytes, UpdatedAt)
-	VALUES (?, ?, ?, ?, ?)
-	ON CONFLICT(FolderPath) DO UPDATE SET
-		FolderSlug=excluded.FolderSlug,
-		FileCount=excluded.FileCount,
-		TotalBytes=excluded.TotalBytes,
-		UpdatedAt=excluded.UpdatedAt;
-	`
+	const query = `INSERT INTO FolderTree (FolderPath, FolderSlug, FileCount, TotalBytes, UpdatedAt) VALUES (?, ?, ?, ?, ?)
+ON CONFLICT(FolderPath) DO UPDATE SET FolderSlug=excluded.FolderSlug, FileCount=excluded.FileCount, TotalBytes=excluded.TotalBytes, UpdatedAt=excluded.UpdatedAt;`
 	now := time.Now().Unix()
 	_, err := db.Exec(query, folderPath, folderSlug, fileCount, totalBytes, now)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return appfault.WrapSimple(err, "update folder tree")
 	}
 	return nil
@@ -299,7 +274,8 @@ func UpdateFolderTree(db *sql.DB, folderPath, folderSlug string, fileCount int, 
 func SetRepoMetadata(db *sql.DB, key, value string) *appfault.AppError {
 	const query = `INSERT INTO RepoMetadata (Key, Value) VALUES (?, ?) ON CONFLICT(Key) DO UPDATE SET Value=excluded.Value;`
 	_, err := db.Exec(query, key, value)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return appfault.WrapSimple(err, "set repo metadata")
 	}
 	return nil
@@ -309,7 +285,8 @@ func SetRepoMetadata(db *sql.DB, key, value string) *appfault.AppError {
 func GetRepoMetadata(db *sql.DB, key string) (string, *appfault.AppError) {
 	var val string
 	err := db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = ?", key).Scan(&val)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return "", appfault.WrapSimple(err, "get repo metadata")
 	}
 	return val, nil
@@ -319,10 +296,14 @@ func GetRepoMetadata(db *sql.DB, key string) (string, *appfault.AppError) {
 func ListCachedRepos(repoRoot string) ([]CachedRepoSummary, *appfault.AppError) {
 	baseDir := ResolveCacheReposBaseDir(repoRoot)
 	entries, err := os.ReadDir(baseDir)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return nil, appfault.WrapSimple(err, "read cached repos dir")
 	}
+	return collectRepoSummaries(baseDir, entries), nil
+}
 
+func collectRepoSummaries(baseDir string, entries []os.DirEntry) []CachedRepoSummary {
 	var summaries []CachedRepoSummary
 	for _, entry := range entries {
 		if !entry.IsDir() {
@@ -333,7 +314,7 @@ func ListCachedRepos(repoRoot string) ([]CachedRepoSummary, *appfault.AppError) 
 			summaries = append(summaries, summary)
 		}
 	}
-	return summaries, nil
+	return summaries
 }
 
 func summarizeRepoDir(baseDir, slug string) (CachedRepoSummary, bool) {
@@ -341,38 +322,45 @@ func summarizeRepoDir(baseDir, slug string) (CachedRepoSummary, bool) {
 	summary := CachedRepoSummary{RepoSlug: slug}
 
 	db, err := sql.Open("sqlite", dbPath+"?_pragma=busy_timeout(2000)")
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return summary, false
 	}
 	defer db.Close()
+	return scanRepoSummaryDetails(db, summary)
+}
 
-	if scanErr := db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = 'repo_path'").Scan(&summary.RepoPath); scanErr != nil && scanErr != sql.ErrNoRows {
-		return summary, false
-	}
-	if scanErr := db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = 'last_indexed_at'").Scan(&summary.LastIndexed); scanErr != nil && scanErr != sql.ErrNoRows {
-		return summary, false
-	}
-	if scanErr := db.QueryRow("SELECT COUNT(*), COALESCE(SUM(FileSize), 0) FROM Files").Scan(&summary.FileCount, &summary.TotalBytes); scanErr != nil && scanErr != sql.ErrNoRows {
+func scanRepoSummaryDetails(db *sql.DB, summary CachedRepoSummary) (CachedRepoSummary, bool) {
+	_ = db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = 'repo_path'").Scan(&summary.RepoPath)
+	_ = db.QueryRow("SELECT Value FROM RepoMetadata WHERE Key = 'last_indexed_at'").Scan(&summary.LastIndexed)
+	err := db.QueryRow("SELECT COUNT(*), COALESCE(SUM(FileSize), 0) FROM Files").Scan(&summary.FileCount, &summary.TotalBytes)
+	hasErr := err != nil && err != sql.ErrNoRows
+	if hasErr {
 		return summary, false
 	}
 	return summary, true
 }
 
 // FetchContextLines retrieves context lines around a specific line number in a slug DB.
-func FetchContextLines(slugDB *sql.DB, relPath string, matchLine, radius int) []CacheContextLine {
-	minLine := matchLine - radius
-	if minLine < 1 {
-		minLine = 1
-	}
-	maxLine := matchLine + radius
+func FetchContextLines(slugDb *sql.DB, relPath string, matchLine, radius int) []CacheContextLine {
+	minLine, maxLine := resolveContextBounds(matchLine, radius)
 	query := "SELECT LineNumber, Content FROM Lines WHERE RelativePath = ? AND LineNumber BETWEEN ? AND ? ORDER BY LineNumber ASC"
-	rows, err := slugDB.Query(query, relPath, minLine, maxLine)
-	if err != nil {
+	rows, err := slugDb.Query(query, relPath, minLine, maxLine)
+	hasErr := err != nil
+	if hasErr {
 		return nil
 	}
 	defer rows.Close()
 
 	return scanContextLines(rows, matchLine)
+}
+
+func resolveContextBounds(matchLine, radius int) (int, int) {
+	minLine := matchLine - radius
+	if minLine < 1 {
+		minLine = 1
+	}
+	return minLine, matchLine + radius
 }
 
 func scanContextLines(rows *sql.Rows, matchLine int) []CacheContextLine {

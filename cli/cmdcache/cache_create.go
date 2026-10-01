@@ -1,7 +1,6 @@
 package cmdcache
 
 import (
-	"bytes"
 	"database/sql"
 	"fmt"
 	"io/fs"
@@ -15,30 +14,37 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-const maxCacheFileSize = 200 * 1024 // 200 KB
-const maxJsonFileSize = 150 * 1024  // 150 KB
-
 // CreateCache indexes target paths into the Split-DB cache.
 func CreateCache(args []string) *appfault.AppError {
 	opts := parseCreateOptions(args)
 	repoRoot := findRepoRoot()
-	queueId, tasksDB := enqueueCacheTask("create", strings.Join(opts.Targets, ","))
-	defer closeTasksDB(tasksDB)
+	queueId, tasksDb := enqueueCacheTask("create", strings.Join(opts.Targets, ","))
+	defer closeTasksDB(tasksDb)
 
-	rootDB, err := store.OpenRootCacheDB(repoRoot)
-	if err != nil {
-		logAndFailCacheTask(tasksDB, queueId, err, "open_root_cache_db")
+	return executeCreateCache(opts, repoRoot, queueId, tasksDb)
+}
+
+func executeCreateCache(opts CacheCreateOptions, repoRoot, queueId string, tasksDb *store.TasksSplitDB) *appfault.AppError {
+	rootDb, err := store.OpenRootCacheDB(repoRoot)
+	hasErr := err != nil
+	if hasErr {
+		logAndFailCacheTask(tasksDb, queueId, err, "open_root_cache_db")
 		return err
 	}
-	defer rootDB.Close()
+	defer rootDb.Close()
 
-	indexed, totalBytes, procErr := processTargets(rootDB, opts, repoRoot)
-	if procErr != nil {
-		logAndFailCacheTask(tasksDB, queueId, procErr, "process_targets")
+	return runIndexAndFinalize(rootDb, opts, repoRoot, queueId, tasksDb)
+}
+
+func runIndexAndFinalize(rootDb *sql.DB, opts CacheCreateOptions, repoRoot, queueId string, tasksDb *store.TasksSplitDB) *appfault.AppError {
+	indexed, totalBytes, procErr := processTargets(rootDb, opts, repoRoot)
+	hasProcErr := procErr != nil
+	if hasProcErr {
+		logAndFailCacheTask(tasksDb, queueId, procErr, "process_targets")
 		return procErr
 	}
-	updateRepoStats(rootDB, repoRoot, indexed, totalBytes)
-	completeCacheTask(tasksDB, queueId)
+	updateRepoStats(rootDb, repoRoot, indexed, totalBytes)
+	completeCacheTask(tasksDb, queueId)
 	fmt.Printf("\n%s✓ Split-DB cache created: indexed %d file(s) (<= 200KB).%s\n",
 		constants.ColorGreen, indexed, constants.ColorReset)
 	return nil
@@ -46,203 +52,162 @@ func CreateCache(args []string) *appfault.AppError {
 
 // ReconcileCache checks mtime vs filesystem and updates outdated cache entries.
 func ReconcileCache(repoRoot string) *appfault.AppError {
-	queueId, tasksDB := enqueueCacheTask("reconcile", repoRoot)
-	defer closeTasksDB(tasksDB)
+	queueId, tasksDb := enqueueCacheTask("reconcile", repoRoot)
+	defer closeTasksDB(tasksDb)
 
-	rootDB, err := store.OpenRootCacheDB(repoRoot)
-	if err != nil {
-		logAndFailCacheTask(tasksDB, queueId, err, "open_root_cache_db")
+	rootDb, err := store.OpenRootCacheDB(repoRoot)
+	hasErr := err != nil
+	if hasErr {
+		logAndFailCacheTask(tasksDb, queueId, err, "open_root_cache_db")
 		return err
 	}
-	defer rootDB.Close()
+	defer rootDb.Close()
 
-	updated, removed := reconcileExistingFiles(rootDB, repoRoot)
+	return executeReconcile(rootDb, repoRoot, queueId, tasksDb)
+}
+
+func executeReconcile(rootDb *sql.DB, repoRoot, queueId string, tasksDb *store.TasksSplitDB) *appfault.AppError {
+	updated, removed := reconcileExistingFiles(rootDb, repoRoot)
 	opts := CacheCreateOptions{Targets: []string{"."}, IsKeep: false}
-	indexed, totalBytes, _ := processTargets(rootDB, opts, repoRoot)
-	updateRepoStats(rootDB, repoRoot, indexed, totalBytes)
-	completeCacheTask(tasksDB, queueId)
+	indexed, totalBytes, _ := processTargets(rootDb, opts, repoRoot)
+	updateRepoStats(rootDb, repoRoot, indexed, totalBytes)
+	completeCacheTask(tasksDb, queueId)
 
 	fmt.Printf("\n%s✓ Split-DB cache reconciled: updated %d, removed %d, total %d file(s).%s\n",
 		constants.ColorGreen, updated, removed, indexed, constants.ColorReset)
 	return nil
 }
 
-func parseCreateOptions(args []string) CacheCreateOptions {
-	opts := CacheCreateOptions{IsKeep: false}
-	for _, a := range args {
-		trimmed := strings.TrimSpace(a)
-		if trimmed == "--keep" || trimmed == "-k" {
-			opts.IsKeep = true
-		} else if !strings.HasPrefix(trimmed, "-") {
-			parts := extractTargetParts(trimmed)
-			opts.Targets = append(opts.Targets, parts...)
-		}
-	}
-	if len(opts.Targets) == 0 {
-		opts.Targets = []string{"."}
-	}
-	return opts
-}
-
-func extractTargetParts(raw string) []string {
-	parts := strings.Split(raw, ",")
-	var cleaned []string
-	for _, p := range parts {
-		trimmed := strings.Trim(strings.TrimSpace(p), `"'`)
-		if trimmed != "" {
-			cleaned = append(cleaned, trimmed)
-		}
-	}
-	return cleaned
-}
-
 func enqueueCacheTask(action, target string) (string, *store.TasksSplitDB) {
 	queueId := fmt.Sprintf("cache-%s-%d", action, time.Now().UnixNano())
-	tasksDB, err := store.OpenTasksRootSplitDB()
-	if err != nil {
+	tasksDb, err := store.OpenTasksRootSplitDB()
+	hasErr := err != nil
+	if hasErr {
 		return "", nil
 	}
 	now := time.Now().UTC().Format(time.RFC3339)
 	stmt := "INSERT INTO TaskQueue (QueueId, Section, Action, Target, Status, CreatedAt, UpdatedAt) VALUES (?, 'cache', ?, ?, 'pending', ?, ?)"
-	store.ExecWrapper(tasksDB.Conn(), stmt, queueId, action, target, now, now)
-	return queueId, tasksDB
+	store.ExecWrapper(tasksDb.Conn(), stmt, queueId, action, target, now, now)
+	return queueId, tasksDb
 }
 
-func completeCacheTask(tasksDB *store.TasksSplitDB, queueId string) {
-	if tasksDB == nil {
+func completeCacheTask(tasksDb *store.TasksSplitDB, queueId string) {
+	hasTasksDb := tasksDb != nil
+	if !hasTasksDb {
 		return
 	}
 	now := time.Now().UTC().Format(time.RFC3339)
-	store.ExecWrapper(tasksDB.Conn(), "UPDATE TaskQueue SET Status = 'completed', UpdatedAt = ? WHERE QueueId = ?", now, queueId)
+	store.ExecWrapper(tasksDb.Conn(), "UPDATE TaskQueue SET Status = 'completed', UpdatedAt = ? WHERE QueueId = ?", now, queueId)
 }
 
-func logAndFailCacheTask(tasksDB *store.TasksSplitDB, queueId string, err error, action string) {
-	if tasksDB != nil {
+func logAndFailCacheTask(tasksDb *store.TasksSplitDB, queueId string, err error, action string) {
+	hasTasksDb := tasksDb != nil
+	if hasTasksDb {
 		now := time.Now().UTC().Format(time.RFC3339)
-		store.ExecWrapper(tasksDB.Conn(), "UPDATE TaskQueue SET Status = 'failed', UpdatedAt = ? WHERE QueueId = ?", now, queueId)
+		store.ExecWrapper(tasksDb.Conn(), "UPDATE TaskQueue SET Status = 'failed', UpdatedAt = ? WHERE QueueId = ?", now, queueId)
 	}
 	msg := ""
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		msg = err.Error()
 	}
 	store.LogInternalError("cache", "E1030", msg, action, "cache_create.go")
 }
 
-func closeTasksDB(tasksDB *store.TasksSplitDB) {
-	if tasksDB != nil {
-		_ = tasksDB.Close()
+func closeTasksDB(tasksDb *store.TasksSplitDB) {
+	hasTasksDb := tasksDb != nil
+	if hasTasksDb {
+		_ = tasksDb.Close()
 	}
 }
 
-func processTargets(rootDB *sql.DB, opts CacheCreateOptions, repoRoot string) (int, int64, *appfault.AppError) {
+func processTargets(rootDb *sql.DB, opts CacheCreateOptions, repoRoot string) (int, int64, *appfault.AppError) {
 	totalIndexed := 0
 	var totalBytes int64
-	folderStats := make(map[string]struct {
-		count int
-		bytes int64
-	})
+	folderStats := make(map[string]FolderStats)
 
 	for _, target := range opts.Targets {
-		processSingleTarget(rootDB, target, repoRoot, opts.IsKeep, &totalIndexed, &totalBytes, folderStats)
+		processSingleTarget(rootDb, target, repoRoot, opts.IsKeep, &totalIndexed, &totalBytes, folderStats)
 	}
-	for folderSlug, stat := range folderStats {
-		_ = store.UpdateFolderTree(rootDB, folderSlug, folderSlug, stat.count, stat.bytes)
-	}
+	updateFolderTreeStats(rootDb, folderStats)
 	return totalIndexed, totalBytes, nil
 }
 
-func processSingleTarget(rootDB *sql.DB, target, repoRoot string, isKeep bool, totalIndexed *int, totalBytes *int64, folderStats map[string]struct {
-	count int
-	bytes int64
-}) {
-	absTarget, err := filepath.Abs(target)
-	if err != nil {
-		return
-	}
-	info, statErr := os.Stat(absTarget)
-	if statErr != nil {
-		return
-	}
-	if info.IsDir() {
-		walkAndIndexDir(rootDB, absTarget, repoRoot, isKeep, totalIndexed, totalBytes, folderStats)
-	} else {
-		indexFile(rootDB, absTarget, repoRoot, isKeep, totalIndexed, totalBytes, folderStats)
+func updateFolderTreeStats(rootDb *sql.DB, folderStats map[string]FolderStats) {
+	for folderSlug, stat := range folderStats {
+		_ = store.UpdateFolderTree(rootDb, folderSlug, folderSlug, stat.Count, stat.Bytes)
 	}
 }
 
-func walkAndIndexDir(rootDB *sql.DB, targetDir, repoRoot string, isKeep bool, totalIndexed *int, totalBytes *int64, folderStats map[string]struct {
-	count int
-	bytes int64
-}) {
+func processSingleTarget(rootDb *sql.DB, target, repoRoot string, isKeep bool, totalIndexed *int, totalBytes *int64, folderStats map[string]FolderStats) {
+	absTarget, err := filepath.Abs(target)
+	hasErr := err != nil
+	if hasErr {
+		return
+	}
+	info, statErr := os.Stat(absTarget)
+	hasStatErr := statErr != nil
+	if hasStatErr {
+		return
+	}
+	dispatchTargetIndex(rootDb, absTarget, repoRoot, isKeep, info.IsDir(), totalIndexed, totalBytes, folderStats)
+}
+
+func dispatchTargetIndex(rootDb *sql.DB, absTarget, repoRoot string, isKeep, isDir bool, totalIndexed *int, totalBytes *int64, folderStats map[string]FolderStats) {
+	if isDir {
+		walkAndIndexDir(rootDb, absTarget, repoRoot, isKeep, totalIndexed, totalBytes, folderStats)
+		return
+	}
+	indexFile(rootDb, absTarget, repoRoot, isKeep, totalIndexed, totalBytes, folderStats)
+}
+
+func walkAndIndexDir(rootDb *sql.DB, targetDir, repoRoot string, isKeep bool, totalIndexed *int, totalBytes *int64, folderStats map[string]FolderStats) {
 	_ = filepath.WalkDir(targetDir, func(path string, d fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
+		hasWalkErr := walkErr != nil
+		if hasWalkErr {
 			return nil
-		}
-		if d.IsDir() && isSkippedDir(d.Name()) {
-			return filepath.SkipDir
 		}
 		if d.IsDir() {
-			return nil
+			return handleDirWalk(d.Name())
 		}
-		indexFile(rootDB, path, repoRoot, isKeep, totalIndexed, totalBytes, folderStats)
+		indexFile(rootDb, path, repoRoot, isKeep, totalIndexed, totalBytes, folderStats)
 		return nil
 	})
 }
 
-func isSkippedDir(name string) bool {
-	lower := strings.ToLower(name)
-	return lower == ".git" || lower == "node_modules" || lower == ".vscode" ||
-		lower == ".idea" || lower == ".gitmap" || lower == "vendor"
+func handleDirWalk(name string) error {
+	if isSkippedDir(name) {
+		return filepath.SkipDir
+	}
+	return nil
 }
 
-func isFileEligible(info fs.FileInfo, absPath string, isKeep bool) bool {
-	if info.IsDir() {
-		return false
-	}
-	if isKeep {
-		return !isBinaryFile(absPath)
-	}
-	if info.Size() > maxCacheFileSize || isLargeJson(absPath, info.Size()) {
-		return false
-	}
-	return !isBinaryFile(absPath)
-}
-
-func isLargeJson(absPath string, size int64) bool {
-	if !strings.HasSuffix(strings.ToLower(absPath), ".json") {
-		return false
-	}
-	return size > maxJsonFileSize
-}
-
-func isBinaryFile(path string) bool {
-	f, err := os.Open(path)
-	if err != nil {
-		return true
-	}
-	defer f.Close()
-
-	buf := make([]byte, 512)
-	n, readErr := f.Read(buf)
-	if readErr != nil && n == 0 {
-		return false
-	}
-	return bytes.Contains(buf[:n], []byte{0})
-}
-
-func indexFile(rootDB *sql.DB, absPath, repoRoot string, isKeep bool, totalIndexed *int, totalBytes *int64, folderStats map[string]struct {
-	count int
-	bytes int64
-}) {
+func indexFile(rootDb *sql.DB, absPath, repoRoot string, isKeep bool, totalIndexed *int, totalBytes *int64, folderStats map[string]FolderStats) {
 	info, err := os.Stat(absPath)
-	if err != nil || !isFileEligible(info, absPath, isKeep) {
+	hasErr := err != nil
+	if hasErr {
 		return
 	}
-	relPath, _ := filepath.Rel(repoRoot, absPath)
-	cleanRel := filepath.ToSlash(relPath)
-	slug := resolveFileSlug(cleanRel)
+	isEligible := isFileEligible(info, absPath, isKeep)
+	if !isEligible {
+		return
+	}
+	recordAndStoreFile(rootDb, absPath, repoRoot, isKeep, info, totalIndexed, totalBytes, folderStats)
+}
 
-	rec := store.CacheFileRecord{
+func recordAndStoreFile(rootDb *sql.DB, absPath, repoRoot string, isKeep bool, info fs.FileInfo, totalIndexed *int, totalBytes *int64, folderStats map[string]FolderStats) {
+	cleanRel := resolveCleanRelPath(repoRoot, absPath)
+	slug := resolveFileSlug(cleanRel)
+	rec := buildCacheFileRecord(cleanRel, absPath, slug, isKeep, info)
+	if insertErr := store.InsertCacheFile(rootDb, rec); insertErr != nil {
+		return
+	}
+	storeFileLines(slug, cleanRel, absPath, repoRoot)
+	accumulateStats(slug, info.Size(), totalIndexed, totalBytes, folderStats)
+}
+
+func buildCacheFileRecord(cleanRel, absPath, slug string, isKeep bool, info fs.FileInfo) store.CacheFileRecord {
+	return store.CacheFileRecord{
 		RelativePath: cleanRel,
 		AbsolutePath: absPath,
 		FileSize:     info.Size(),
@@ -250,97 +215,107 @@ func indexFile(rootDB *sql.DB, absPath, repoRoot string, isKeep bool, totalIndex
 		FolderSlug:   slug,
 		IsKeep:       isKeep,
 	}
-	if insertErr := store.InsertCacheFile(rootDB, rec); insertErr != nil {
-		return
-	}
-	storeFileLines(slug, cleanRel, absPath, repoRoot)
+}
+
+func resolveCleanRelPath(repoRoot, absPath string) string {
+	relPath, _ := filepath.Rel(repoRoot, absPath)
+	return filepath.ToSlash(relPath)
+}
+
+func accumulateStats(slug string, size int64, totalIndexed *int, totalBytes *int64, folderStats map[string]FolderStats) {
 	*totalIndexed++
-	*totalBytes += info.Size()
+	*totalBytes += size
 	cur := folderStats[slug]
-	cur.count++
-	cur.bytes += info.Size()
+	cur.Count++
+	cur.Bytes += size
 	folderStats[slug] = cur
 }
 
 func storeFileLines(slug, relPath, absPath, repoRoot string) {
 	contentBytes, err := os.ReadFile(absPath)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return
 	}
-	slugDB, openErr := store.OpenSlugCacheDB(slug, repoRoot)
-	if openErr != nil {
+	slugDb, openErr := store.OpenSlugCacheDB(slug, repoRoot)
+	hasOpenErr := openErr != nil
+	if hasOpenErr {
 		return
 	}
-	defer slugDB.Close()
+	defer slugDb.Close()
 
 	lines := strings.Split(string(contentBytes), "\n")
-	_ = store.InsertCachedLines(slugDB, relPath, lines)
+	_ = store.InsertCachedLines(slugDb, relPath, lines)
 }
 
-func reconcileExistingFiles(rootDB *sql.DB, repoRoot string) (int, int) {
-	files, err := store.ListCacheFiles(rootDB)
-	if err != nil {
+func reconcileExistingFiles(rootDb *sql.DB, repoRoot string) (int, int) {
+	files, err := store.ListCacheFiles(rootDb)
+	hasErr := err != nil
+	if hasErr {
 		return 0, 0
 	}
+	return processReconcileFiles(rootDb, files, repoRoot)
+}
+
+func processReconcileFiles(rootDb *sql.DB, files []store.CacheFileRecord, repoRoot string) (int, int) {
 	updated, removed := 0, 0
 	for _, rec := range files {
-		info, statErr := os.Stat(rec.AbsolutePath)
-		if statErr != nil && !rec.IsKeep {
-			_ = store.DeleteCacheFile(rootDB, rec.RelativePath)
-			removeLinesFromSlug(rec.FolderSlug, rec.RelativePath, repoRoot)
-			removed++
-			continue
-		}
-		if statErr != nil {
-			continue
-		}
-		if info.ModTime().Unix() != rec.ModifiedTime {
-			reIndexChangedFile(rootDB, rec, info, repoRoot)
+		isUpdated, isRemoved := reconcileSingleFile(rootDb, rec, repoRoot)
+		if isUpdated {
 			updated++
+		}
+		if isRemoved {
+			removed++
 		}
 	}
 	return updated, removed
 }
 
+func reconcileSingleFile(rootDb *sql.DB, rec store.CacheFileRecord, repoRoot string) (bool, bool) {
+	info, statErr := os.Stat(rec.AbsolutePath)
+	hasStatErr := statErr != nil
+	if hasStatErr {
+		return false, handleMissingFile(rootDb, rec, repoRoot)
+	}
+	isModified := info.ModTime().Unix() != rec.ModifiedTime
+	if isModified {
+		reIndexChangedFile(rootDb, rec, info, repoRoot)
+		return true, false
+	}
+	return false, false
+}
+
+func handleMissingFile(rootDb *sql.DB, rec store.CacheFileRecord, repoRoot string) bool {
+	if rec.IsKeep {
+		return false
+	}
+	_ = store.DeleteCacheFile(rootDb, rec.RelativePath)
+	removeLinesFromSlug(rec.FolderSlug, rec.RelativePath, repoRoot)
+	return true
+}
+
 func removeLinesFromSlug(slug, relPath, repoRoot string) {
-	slugDB, err := store.OpenSlugCacheDB(slug, repoRoot)
-	if err == nil {
-		defer slugDB.Close()
-		_ = store.DeleteCachedLines(slugDB, relPath)
+	slugDb, err := store.OpenSlugCacheDB(slug, repoRoot)
+	hasErr := err != nil
+	if !hasErr {
+		defer slugDb.Close()
+		_ = store.DeleteCachedLines(slugDb, relPath)
 	}
 }
 
-func reIndexChangedFile(rootDB *sql.DB, rec store.CacheFileRecord, info fs.FileInfo, repoRoot string) {
+func reIndexChangedFile(rootDb *sql.DB, rec store.CacheFileRecord, info fs.FileInfo, repoRoot string) {
 	rec.ModifiedTime = info.ModTime().Unix()
 	rec.FileSize = info.Size()
-	_ = store.InsertCacheFile(rootDB, rec)
+	_ = store.InsertCacheFile(rootDb, rec)
 	storeFileLines(rec.FolderSlug, rec.RelativePath, rec.AbsolutePath, repoRoot)
 }
 
-func updateRepoStats(rootDB *sql.DB, repoRoot string, totalFiles int, totalBytes int64) {
+func updateRepoStats(rootDb *sql.DB, repoRoot string, totalFiles int, totalBytes int64) {
 	now := time.Now().UTC().Format(time.RFC3339)
 	slug := store.ResolveRepoSlug(repoRoot)
-	_ = store.SetRepoMetadata(rootDB, "repo_slug", slug)
-	_ = store.SetRepoMetadata(rootDB, "repo_path", repoRoot)
-	_ = store.SetRepoMetadata(rootDB, "last_indexed_at", now)
-	_ = store.SetRepoMetadata(rootDB, "total_files", fmt.Sprintf("%d", totalFiles))
-	_ = store.SetRepoMetadata(rootDB, "total_bytes", fmt.Sprintf("%d", totalBytes))
-}
-
-func resolveFileSlug(relPath string) string {
-	clean := filepath.ToSlash(relPath)
-	clean = strings.TrimPrefix(clean, "./")
-	parts := strings.Split(clean, "/")
-	if len(parts) > 1 && parts[0] != "" {
-		return store.SanitizeSlug(parts[0])
-	}
-	return "root"
-}
-
-func findRepoRoot() string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "."
-	}
-	return cwd
+	_ = store.SetRepoMetadata(rootDb, "repo_slug", slug)
+	_ = store.SetRepoMetadata(rootDb, "repo_path", repoRoot)
+	_ = store.SetRepoMetadata(rootDb, "last_indexed_at", now)
+	_ = store.SetRepoMetadata(rootDb, "total_files", fmt.Sprintf("%d", totalFiles))
+	_ = store.SetRepoMetadata(rootDb, "total_bytes", fmt.Sprintf("%d", totalBytes))
 }

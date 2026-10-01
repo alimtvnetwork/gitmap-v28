@@ -46,11 +46,7 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 		return handleEmptyRecords(isJSON)
 	}
 
-	ignoreHandle := startAsyncIgnoreScan(records)
-	pullErr := processEfficientPullLifecycle(records, opts)
-	collectAndRemediateEfficientIgnore(ignoreHandle, args, isJSON)
-
-	return pullErr
+	return processEfficientPullLifecycle(records, opts)
 }
 
 func collectAndRemediateEfficientIgnore(handle *IgnoreScanHandle, args []string, isJSON bool) {
@@ -238,14 +234,33 @@ func executeActiveEfficientBatch(partition EfficientPullPartition, opts Efficien
 		defer bar.Stop()
 	}
 	startTime := time.Now()
-	stopHeartbeat := StartPullHeartbeat(30*time.Second, 5*time.Second, func() string {
-		return fmt.Sprintf("%d/%d completed • %d active workers • %d failures so far...",
-			bar.Completed(), bar.Total(), len(bar.ActiveWorkers()), bar.Failed())
-	}, opts.IsJSON)
+	stopHeartbeat := startActiveBatchHeartbeat(bar, opts.IsJSON)
 	defer stopHeartbeat()
 
+	ignoreHandle := launchThrottledActiveIgnoreScan(allRecords)
 	executePull(partition.ActiveRecords, bar, pullOptions{all: true, useSSH: opts.UseSSH, useHTTPS: opts.UseHTTPS})
+	collectAndRemediateEfficientIgnore(ignoreHandle, opts.Args, opts.IsJSON)
+
 	return handleEfficientBatchFinish(total, bar, partition, allRecords, opts, time.Since(startTime))
+}
+
+func startActiveBatchHeartbeat(bar *PullProgressBar, isJSON bool) func() {
+	return StartPullHeartbeat(30*time.Second, 5*time.Second, func() string {
+		return fmt.Sprintf("%d/%d completed • %d active workers • %d failures so far...",
+			bar.Completed(), bar.Total(), len(bar.ActiveWorkers()), bar.Failed())
+	}, isJSON)
+}
+
+func launchThrottledActiveIgnoreScan(records []model.ScanRecord) *IgnoreScanHandle {
+	cold, err := store.FilterReposNeedingIgnoreCheck(records, 24*time.Hour)
+	if err != nil || len(cold) == 0 {
+		return nil
+	}
+	return StartThrottledAsyncIgnoreScan(cold, 24*time.Hour)
+}
+
+func initThrottledPullIgnoreScan(records []model.ScanRecord) *IgnoreScanHandle {
+	return launchThrottledActiveIgnoreScan(records)
 }
 
 func handleEfficientBatchFinish(total int, bar *PullProgressBar, part EfficientPullPartition, all []model.ScanRecord, opts EfficientPullOptions, dur time.Duration) error {
