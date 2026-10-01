@@ -76,13 +76,35 @@ func filterByOnlyCategories(paths []DiscoveredCachePath, only []string) []Discov
 func resolveCacheFromSplitDB(sdb *store.DevtoolsCacheSplitDB, opts DevCleanOptions) []DiscoveredCachePath {
 	if opts.IsForce {
 		_ = sdb.InvalidateCache("")
-	} else if cached, err := sdb.GetCachedPaths(""); err == nil && len(cached) > 0 {
-		if valid := filterExistingCachePaths(ConvertSplitRecordsToDiscovered(cached)); len(valid) > 0 {
-			return measureDiscoveredPaths(valid)
-		}
+		return discoverAndPersistDevCaches(sdb, opts)
 	}
+
+	cachedPaths := resolveExistingCachedPaths(sdb)
+	if len(cachedPaths) > 0 {
+		return measureDiscoveredPaths(cachedPaths)
+	}
+
+	return discoverAndPersistDevCaches(sdb, opts)
+}
+
+func resolveExistingCachedPaths(sdb *store.DevtoolsCacheSplitDB) []DiscoveredCachePath {
+	cached, err := sdb.GetCachedPaths("")
+	if err != nil || len(cached) == 0 {
+		return nil
+	}
+
+	valid := filterExistingCachePaths(ConvertSplitRecordsToDiscovered(cached))
+	if len(valid) == 0 {
+		return nil
+	}
+
+	return valid
+}
+
+func discoverAndPersistDevCaches(sdb *store.DevtoolsCacheSplitDB, opts DevCleanOptions) []DiscoveredCachePath {
 	disc := DiscoverAllDevCaches(DevDiscoveryOptions{TargetEcosystems: opts.OnlyCategories, HasForceRescan: opts.IsForce, IsVerbose: opts.IsVerbose})
 	_ = sdb.SaveDiscoveredPaths(ConvertDiscoveredToSplitRecords(disc.Paths))
+
 	return disc.Paths
 }
 

@@ -209,8 +209,8 @@ func ParsePASConcurrencyFlags(args []string) []string {
 	return forwarded
 }
 
-// dispatchOnlineFleetPAS constructs remote commands forwarding concurrency flags and dispatches fleet work.
-func dispatchOnlineFleetPAS(conns []db.SSHConnection, baseRemoteCmd string, args []string, localFn func() error) []FleetPASOutcome {
+// DispatchOnlineFleetPAS constructs remote commands forwarding concurrency flags and dispatches fleet work.
+func DispatchOnlineFleetPAS(conns []db.SSHConnection, baseRemoteCmd string, args []string, localFn func() error) []FleetPASOutcome {
 	forwardedFlags := ParsePASConcurrencyFlags(args)
 	remoteCmd := baseRemoteCmd
 	if len(forwardedFlags) > 0 {

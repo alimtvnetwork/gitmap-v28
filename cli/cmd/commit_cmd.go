@@ -50,6 +50,7 @@ func executeCommit(args []string, hasPush bool) error {
 	if err := execGitInheritCP("add", "-A"); err != nil {
 		return apperror.WrapSimple(err, "git add failed:")
 	}
+
 	if err := dispatchGitCommit(args); err != nil {
 		return apperror.WrapSimple(err, "git commit failed:")
 	}
@@ -61,10 +62,12 @@ func handleOptionalPush(hasPush bool) error {
 		printPaddedSuccess("Changes committed successfully.")
 		return nil
 	}
+
 	printPaddedInfo("Pushing to remote...")
 	if err := execGitInheritCP("push"); err != nil {
 		return apperror.WrapSimple(err, "git push failed:")
 	}
+
 	printPaddedSuccess("Changes committed and pushed successfully.")
 	return nil
 }
