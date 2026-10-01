@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.443.0] - 2026-10-01
+
+### Added
+- Restore plan 60 full verbatim specs and expand safe-rm aliases
+
+---
+
 ## [v6.442.0] - 2026-10-01
 
 ### Added
