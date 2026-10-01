@@ -1,3 +1,9 @@
+## v6.447.0 — 2026-10-01 (PAS worker concurrency, pull-error split-db, devtools cache discovery, and semantic flat commit suite)
+
+**Scope:** Version bump. PAS worker concurrency, pull-error split-db, devtools cache discovery, and semantic flat commit suite.
+
+---
+
 ## v6.445.0 — 2026-10-01 (Implement GitMap PAS Worker Concurrency, Pull-Error Subsystem, Heartbeat Progress, and Wincredman Remediation)
 
 **Scope:** Version bump. Implement GitMap PAS Worker Concurrency, Pull-Error Subsystem, Heartbeat Progress, and Wincredman Remediation.

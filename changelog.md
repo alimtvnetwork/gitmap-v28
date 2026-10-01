@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.447.0] - 2026-10-01
+
+### Added
+- PAS worker concurrency, pull-error split-db, devtools cache discovery, and semantic flat commit suite
+
+---
+
 ## [v6.445.0] - 2026-10-01
 
 ### Added
