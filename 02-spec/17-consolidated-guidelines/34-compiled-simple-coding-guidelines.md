@@ -46,6 +46,7 @@ auto-reject on the same tier as RULE 0.
 12. Immutable-first, Rust-style. Assign every variable once at declaration. Never reassign except loop indices. Prefer `const`, `let`, `final`, `val` over `let mut` or `var`. Build result objects with spread or copy, not in-place mutation.
 13. Assets go to `assets/<NN-folder>/<NN-file>.<ext>` with two-digit sequence prefixes, for example `assets/01-icons/03-logo.svg`.
 14. No Inverted Complex Conditions: Do not use a NOT operator (`!`, `not`) on complex conditions containing AND/OR inside an `if`. Simplify using De Morgan's laws or extract into a well-named boolean variable.
+15. Native GitMap Remediations First: When GitMap encounters an error from an underlying tool (e.g., git config errors, UNIX socket cache store failures on Windows, SSH keys), DO NOT output raw generic remediation commands for the user (like git config --global ...). Instead, design and implement a native GitMap command (e.g., gitmap fix-credential) that safely executes the fix, and output the hint for the user to run that GitMap command.
 15. Boolean Return Wrapper: If a function returns multiple values (tuples or native multi-returns) and one is a boolean, do not return a raw boolean (e.g. `(int, bool)`). Return a wrapper object, struct, or class to provide clear context (e.g. `{ data, isSuccess }`).
 16. Strict Conditional Joins: Never mix logical operators (e.g., OR with AND) and keep `if` conditions to a maximum of one join (two operands). Extract complex logic into named boolean variables.
 17. No Mixed Polarity: Never mix positive and negative conditions in a single conditional join (e.g., `if (a && !b)` is forbidden, use all positive variables).
@@ -1759,3 +1760,4 @@ R21: pass
 
 <full corrected file or unified diff>
 ```
+
