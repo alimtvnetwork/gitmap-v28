@@ -3456,6 +3456,7 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) - Fleet nodes clone output alignment, table visual padding, and resilient SSH liveness probing.
 - [02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md](02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md) - GitMap PAS formula, ignore management suite, CPAR, and repository split-DB cache engine.
 - [02-spec/21-app/196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md](02-spec/21-app/196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md) - Fleet nodes clone table spacing alignment and W3 reachability resilience.
+- [02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md](02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) - GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache.
 - [02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md](02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md) - 4-Part RCA for VS Code startup failure and search latency.
 - [02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md](02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md) - 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard.
 - [02-spec/22-app-issues/57-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md](02-spec/22-app-issues/57-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md) - 4-Part RCA for fleet nodes clone table misalignment, stderr escape leaks, and remote liveness false-offline.
@@ -3467,6 +3468,7 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) - Completed Plan 57: Fleet nodes clone output alignment.
 - [.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md](.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) - Completed Plan 58: GitMap PAS formula, ignore management suite, CPAR, and Split-DB cache engine.
 - [.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md](.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md) - Plan 56: VMware hardware customization, multi-VM batch operations, and macro orchestration.
+- [.ai-memory/plans/pending/59-gitmap-pas-fix-and-repo-cache.md](.ai-memory/plans/pending/59-gitmap-pas-fix-and-repo-cache.md) - Plan 59: GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache.
 
 
 

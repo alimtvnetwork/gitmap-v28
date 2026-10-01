@@ -52,4 +52,5 @@
 - [194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Status: `active`)
 - [195-pas-formula-fix-ignores-cpar-and-repo-cache.md](195-pas-formula-fix-ignores-cpar-and-repo-cache.md) — GitMap PAS Formula, Ignore Management Suite, CPAR, and Repository Split-DB Cache Engine (Status: `active`)
 - [196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md](196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md) — Fleet Nodes Clone Table Spacing Alignment & W3 Reachability Resilience (Status: `active`)
+- [197-gitmap-pas-fix-and-repo-cache-commands.md](197-gitmap-pas-fix-and-repo-cache-commands.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Status: `active`)
 

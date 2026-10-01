@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-10-01T13:20:00Z, Memory write: Spec 197, Plan 59 (pending), Ambiguity 03, GitMap PAS Formula, Ignore Grouping & Sanitizer, CPAR Review Mode, Split-DB Cache Engine, and MCP Server API Endpoint Architecture.
 - 2026-10-01T12:00:00Z, Memory write: Spec 196, Learned 38, Issue 25 (RCA-59), Fleet Nodes Clone Table Spacing Alignment, Column 81 Gutter Parity, and W3 Reachability Resilience.
 - 2026-10-01T11:45:00Z, Memory write: Spec 195, Learned 37, Issue 24 (RCA-58), GitMap PAS Formula, Windows Git Subprocess Environment Safety, Non-Blocking Pull Workflow, and GitIgnore Deduplicating Sanitizer.
 - 2026-10-01T07:35:00Z, Memory write: Spec 194, Learned 36, Issue 23 (RCA-57), Fleet Nodes Clone Table Alignment, Dual Stream Capture, and Resilient Liveness Probing.
@@ -112,3 +113,6 @@
 - `.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md`, why: Completed Plan 57 fleet nodes clone output alignment
 - `.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md`, why: Pending Plan 56 VMware hardware customization and macro orchestration
 - `.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md`, why: Completed Plan 58 GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine
+- `02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md`, why: GitMap PAS formula, ignore management suite, CPAR, and split-DB repo cache
+- `.ai-memory/plans/pending/59-gitmap-pas-fix-and-repo-cache.md`, why: Pending Plan 59 GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine
+- `.ai-memory/ambiguous-questions/01-new-ambiguity/03-gitmap-mcp-server-api-endpoint.md`, why: Open Ambiguity 03 GitMap as an MCP Server API Endpoint for autonomous AI agents
