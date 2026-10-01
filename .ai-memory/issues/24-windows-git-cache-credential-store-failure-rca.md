@@ -64,7 +64,13 @@ Lacking a sanitizing deduplicator, multiple runs multiplied identical lines.
 
 ## 3. Corrective & Preventive Actions
 
-1. **OS-Aware Git Subprocess Environment (`gitutil.BuildSafeGitEnv`)**: Exclude `GCM_CREDENTIAL_STORE=cache` on Windows; retain it on Linux/macOS.
-2. **Pull-First Workflow**: Decouple interactive prompts from batch pull lifecycles; run pulls immediately.
-3. **Deduplicating GitIgnore Sanitizer (`gitignoreagm.DeduplicateAndSanitizeGitignore`)**: Clean duplicate entries and redundant comments while preserving repository structure.
-4. **GitMap PAS Formula Enforcement**: Bounded async remote dispatch (`A=2`, `H=2`) and direct in-process local execution.
+1. **OS-Aware Git Subprocess Environment**:
+   - Centralize environment construction in `gitutil.BuildSafeGitEnv()`.
+   - On Windows, set `GCM_NO_PERSIST=1`, `GCM_INTERACTIVE=never`, `GIT_TERMINAL_PROMPT=0`, but omit `GCM_CREDENTIAL_STORE=cache`.
+2. **Pull-First Mandate**:
+   - Defer `.gitignore` auditing until after repo pulls complete.
+   - Run ignore scans concurrently or present non-blocking summaries at the conclusion of pulls.
+3. **Formalize GitMap PAS Formula**:
+   - Establish spec standard for `gitmap pas`: local direct in-process execution with bounded remote SSH fleet fanout.
+4. **Idempotent GitIgnore Sanitizer**:
+   - Clean, deduplicate, and sort entries while preserving comments and structure in `.gitignore`.

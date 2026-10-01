@@ -75,7 +75,9 @@ func runCacheRemove(args []string) error {
 	defer rootDB.Close()
 
 	for _, target := range args {
-		_, _ = rootDB.Exec("DELETE FROM Files WHERE RelativePath = ?", target)
+		if _, delErr := rootDB.Exec("DELETE FROM Files WHERE RelativePath = ?", target); delErr != nil {
+			return apperror.WrapSimple(delErr, "cache_remove")
+		}
 	}
 	fmt.Printf("%s✓ Removed %d file(s) from cache database.%s\n", constants.ColorGreen, len(args), constants.ColorReset)
 	return nil

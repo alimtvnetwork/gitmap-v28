@@ -19,7 +19,7 @@ Executing `gitmap nodes clone https://github.com/alimtvnetwork/awansoft-v10` emi
   ▸ Dispatching 'clone' local host and 5 remote fleet node(s)...
 
   ↑ cfr: cwd is a git repo — escaping to non-repo ancestor
-    from: D:\work\gitmap
+    from: <workspace>\gitmap
       to: D:\work
   NODE (ALIAS)     HOST                   ROLE       STATUS        DURATION   DETAILS
 ```

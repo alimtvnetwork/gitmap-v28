@@ -33,4 +33,5 @@ Registry of application bugs, regressions, root cause analyses (RCA), and resolu
 | [22-ssh-fleet-pull-subprocess-bypass-and-wincredman-credential-failure-rca.md](22-ssh-fleet-pull-subprocess-bypass-and-wincredman-credential-failure-rca.md) | SSH Fleet Pull Subprocess Bypass & Wincredman Credential Store Failure: RCA & Fix | Resolved |
 | [23-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md](23-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md) | Fleet Nodes Clone Table Misalignment, Stderr Escape Leaks, and Remote Liveness False-Offline (RCA-57) | Resolved |
 | [24-windows-git-cache-credential-store-failure-rca.md](24-windows-git-cache-credential-store-failure-rca.md) | Windows Git Cache Credential Store Failure, Pull-First Workflow, and GitIgnore Duplication (RCA-58) | Resolved |
+| [25-fleet-nodes-clone-table-alignment-and-w3-reachability-rca.md](25-fleet-nodes-clone-table-alignment-and-w3-reachability-rca.md) | Fleet Nodes Clone Duration Alignment, Column Gutter Spacing & W3 Reachability Diagnostics (RCA-59) | Resolved |
 | [agy-vm-status.md](agy-vm-status.md) | Antigravity virtual machine status inspection | Resolved |

@@ -315,4 +315,3 @@ func runFixIgnoreDispatch(args []string) error {
 	}
 	return cmdignore.RunFixIgnoreAll(remaining)
 }
-

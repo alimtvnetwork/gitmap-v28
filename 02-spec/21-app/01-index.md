@@ -100,6 +100,9 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 191: Fleet Nodes Clone — Except-Self, Windows Remote Shell Runner, and Target Directory Architecture](./191-nodes-clone-except-self-windows-runner-and-path.md)
 - [Spec 192: Direct Clone JSON Output & Fleet Clone Node Details Architecture](./192-direct-clone-json-and-fleet-clone-details.md)
 - [Spec 193: In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation](./193-in-process-fleet-pull-json-and-wincredman-isolation.md)
+- [Spec 194: Fleet Nodes Clone Output Alignment & W3 Liveness Resilience](./194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md)
+- [Spec 195: GitMap PAS Formula, Ignore Management Suite, CPAR, and Repository Split-DB Cache Engine](./195-pas-formula-fix-ignores-cpar-and-repo-cache.md)
+- [Spec 196: Fleet Nodes Clone Table Spacing Alignment & W3 Reachability Resilience](./196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md)
 
 ---
 

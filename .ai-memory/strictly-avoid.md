@@ -569,3 +569,52 @@ Allowed work:
 - ✅ Assign the append result back to the same slice variable `a = append(a, b...)` if intended.
 
 **Why:** In Go, calling `append(a, b...)` without reassigning to `a` risks mutating the underlying array backing `a` if it has excess capacity, introducing subtle data races and side effects. Gocritic flags this in CI baseline guards.
+
+---
+
+## Windows Git Subprocess GCM_CREDENTIAL_STORE=cache — TOTAL BAN
+
+🔴 **NEVER set `GCM_CREDENTIAL_STORE=cache` when spawning Git subprocesses on Windows (`runtime.GOOS == "windows"`).**
+
+Forbidden:
+- ❌ Injecting `GCM_CREDENTIAL_STORE=cache` unconditionally into Git subprocess environments without OS gating.
+- ❌ Assuming Git for Windows supports UNIX domain sockets for the credential daemon.
+
+Allowed work:
+- ✅ Use `gitutil.BuildSafeGitEnv()` which gates `GCM_CREDENTIAL_STORE=cache` to non-Windows platforms.
+- ✅ Retain `GCM_NO_PERSIST=1`, `GCM_INTERACTIVE=never`, `GIT_TERMINAL_PROMPT=0` across all operating systems.
+
+**Why:** Git for Windows does not include Unix domain socket support for `git-credential-cache`. Setting `cache` on Windows causes immediate fatal execution failure: `fatal: Can not use the 'cache' credential store on Windows due to lack of UNIX socket support in Git for Windows.`
+
+---
+
+## Upfront Interactive Prompts Blocking Batch Pulls — TOTAL BAN
+
+🔴 **NEVER block `gitmap pa`, `gitmap pull-all`, `gitmap pas`, or `gitmap pull-all-ssh` with interactive prompts prior to repository pulling.**
+
+Forbidden:
+- ❌ Pausing or prompting for user confirmation (e.g. `.gitignore` fixes or resume task deletions) before pull operations initiate.
+- ❌ Breaking unattended batch scripts and CI/CD pipelines with upfront interactive prompts.
+
+Allowed work:
+- ✅ Execute repository pulls immediately upon command invocation.
+- ✅ Defer `.gitignore` inspection, resume task warnings, and remediation suggestions to post-pull summaries or asynchronous workers.
+
+**Why:** Automated multi-repo and fleet sync operations rely on immediate non-blocking execution. Interactive pre-flight prompts deadlock automated scripts and degrade developer ergonomics.
+
+---
+
+## Local Node SSH Wrapping (GitMap PAS Formula Violation) — TOTAL BAN
+
+🔴 **NEVER route current local machine operations (`127.0.0.1` / localhost) through SSH connections or asynchronous fleet worker pools.**
+
+Forbidden:
+- ❌ Wrapping the local machine in SSH commands during fleet operations like `gitmap pas` or `gitmap fias`.
+- ❌ Enqueuing local tasks in remote async worker pools.
+
+Allowed work:
+- ✅ Follow the GitMap PAS Formula: execute local machine operations directly in-process with real-time UI/streaming output.
+- ✅ Dispatch bounded asynchronous tasks (`A=2`, `H=2`) strictly to external remote fleet nodes over SSH.
+
+**Why:** Local in-process execution guarantees zero SSH overhead, eliminates credential/key requirements for localhost, preserves interactive color/progress display, and adheres to the canonical GitMap PAS standard.
+

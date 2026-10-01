@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-10-01T12:00:00Z, Memory write: Spec 196, Learned 38, Issue 25 (RCA-59), Fleet Nodes Clone Table Spacing Alignment, Column 81 Gutter Parity, and W3 Reachability Resilience.
 - 2026-10-01T11:45:00Z, Memory write: Spec 195, Learned 37, Issue 24 (RCA-58), GitMap PAS Formula, Windows Git Subprocess Environment Safety, Non-Blocking Pull Workflow, and GitIgnore Deduplicating Sanitizer.
 - 2026-10-01T07:35:00Z, Memory write: Spec 194, Learned 36, Issue 23 (RCA-57), Fleet Nodes Clone Table Alignment, Dual Stream Capture, and Resilient Liveness Probing.
 - 2026-10-01T01:10:00Z, Memory write: Spec 192, Learned 34, Direct Clone structured JSON response (--json), automatic legacy node command fallback, and granular offline reachability error classification.
@@ -60,7 +61,9 @@
 - `.ai-memory/memory/learned/34-direct-clone-json-and-fleet-clone-details.md`, why: direct clone structured JSON response (--json), automatic legacy node command fallback, and granular offline reachability error classification
 - `.ai-memory/memory/learned/35-in-process-fleet-pull-json-and-wincredman-isolation.md`, why: in-process host execution delegation for fleet pull-all tasks and Windows Credential Manager non-persist environment isolation
 - `.ai-memory/memory/learned/36-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md`, why: fleet nodes clone table visual padding, dual stream capture, and resilient SSH liveness probing
-- `.ai-memory/memory/learned/37-pas-formula-windows-git-env-and-gitignore-sanitizer.md`, why: GitMap PAS formula, Windows Git subprocess environment (excluding GCM cache store), and deduplicating gitignore sanitizer
+- `.ai-memory/memory/learned/37-pas-formula-ignore-suite-cpar-and-repo-cache.md`, why: GitMap PAS formula, Windows credential cache safety, ignore management suite, CPAR, and Split-DB cache engine
+- `.ai-memory/memory/learned/38-fleet-nodes-clone-table-spacing-and-w3-reachability.md`, why: visual column 81 gutter alignment, measured in-process duration, and accurate offline network reachability reporting
+
 
 
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
@@ -98,9 +101,14 @@
 - `02-spec/21-app/192-direct-clone-json-and-fleet-clone-details.md`, why: direct clone structured JSON output, fleet node details, and legacy fallback
 - `02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md`, why: fleet nodes clone output alignment, table visual padding, and resilient SSH liveness probing
 - `02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md`, why: GitMap PAS formula, ignore management suite, CPAR, and repository split-DB cache engine
+- `02-spec/21-app/196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md`, why: fleet nodes clone table spacing alignment and W3 reachability resilience
 - `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md`, why: 4-Part RCA for VS Code startup failure and search latency
 - `02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md`, why: 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard
 - `02-spec/22-app-issues/57-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md`, why: 4-Part RCA for fleet nodes clone table misalignment, stderr escape leaks, and remote liveness false-offline
 - `02-spec/22-app-issues/58-windows-git-cache-credential-store-failure-rca.md`, why: 4-Part RCA for Windows Git cache credential store failure, pull-first workflow, and gitignore duplication
+- `02-spec/22-app-issues/59-fleet-nodes-clone-duration-alignment-and-w3-liveness-rca.md`, why: 4-Part RCA for fleet nodes clone duration alignment, column gutter spacing, and W3 reachability diagnostics
 - `docs/benchmarks/search_benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report
 - `cli/helptext/pr.md`, why: PR command family usage, HG help, and JSON examples
+- `.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md`, why: Completed Plan 57 fleet nodes clone output alignment
+- `.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md`, why: Pending Plan 56 VMware hardware customization and macro orchestration
+- `.ai-memory/plans/pending/58-pas-formula-fix-ignores-cpar-and-repo-cache.md`, why: Plan 58 GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine

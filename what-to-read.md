@@ -3451,11 +3451,23 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md) - SSH batch common join (`sjc`), remote OS telemetry (`os_detect`), AGY `rerun` & `rop` split-DB optimization, and AUM search benchmarks.
 - [02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md](02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md) - SSH macro/pea/peat deploy (`--except`), fleet update (`ua`, `update ls`), remote `ssh-clone`, and `//go:build tempe2e` isolated validation.
 - [02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md](02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md) - VMware automation, macro safe removal & edit UX, audit task history, and chained installer.
+- [02-spec/21-app/191-nodes-clone-except-self-windows-runner-and-path.md](02-spec/21-app/191-nodes-clone-except-self-windows-runner-and-path.md) - Fleet nodes clone except-self, Windows remote shell runner, and target directory.
+- [02-spec/21-app/192-direct-clone-json-and-fleet-clone-details.md](02-spec/21-app/192-direct-clone-json-and-fleet-clone-details.md) - Direct clone structured JSON output, fleet node details, and legacy fallback.
+- [02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) - Fleet nodes clone output alignment, table visual padding, and resilient SSH liveness probing.
+- [02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md](02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md) - GitMap PAS formula, ignore management suite, CPAR, and repository split-DB cache engine.
+- [02-spec/21-app/196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md](02-spec/21-app/196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md) - Fleet nodes clone table spacing alignment and W3 reachability resilience.
 - [02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md](02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md) - 4-Part RCA for VS Code startup failure and search latency.
 - [02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md](02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md) - 4-Part RCA for macro execution failure on missing target deletion and interactive edit step discard.
+- [02-spec/22-app-issues/57-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md](02-spec/22-app-issues/57-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md) - 4-Part RCA for fleet nodes clone table misalignment, stderr escape leaks, and remote liveness false-offline.
+- [02-spec/22-app-issues/58-windows-git-cache-credential-store-failure-rca.md](02-spec/22-app-issues/58-windows-git-cache-credential-store-failure-rca.md) - 4-Part RCA for Windows Git cache credential store failure, pull-first workflow, and gitignore duplication.
+- [02-spec/22-app-issues/59-fleet-nodes-clone-duration-alignment-and-w3-liveness-rca.md](02-spec/22-app-issues/59-fleet-nodes-clone-duration-alignment-and-w3-liveness-rca.md) - 4-Part RCA for fleet nodes clone duration alignment, column gutter spacing, and W3 reachability diagnostics.
 - [docs/benchmarks/search_benchmark.md](docs/benchmarks/search_benchmark.md) - Native AUM search vs Go walk vs Python grep benchmark report.
 - [cli/helptext/pr.md](cli/helptext/pr.md) - PR command family usage, HG help, and JSON examples.
 - [.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md](.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md) - Completed Plan 54.
+- [.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) - Completed Plan 57: Fleet nodes clone output alignment.
+- [.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md](.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md) - Plan 56: VMware hardware customization, multi-VM batch operations, and macro orchestration.
+- [.ai-memory/plans/pending/58-pas-formula-fix-ignores-cpar-and-repo-cache.md](.ai-memory/plans/pending/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) - Plan 58: GitMap PAS formula, ignore management suite, CPAR, and Split-DB cache engine.
+
 
 
 ## Release Architecture

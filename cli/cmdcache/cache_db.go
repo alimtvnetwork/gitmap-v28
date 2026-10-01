@@ -89,7 +89,9 @@ func InsertCacheFile(db *sql.DB, rec CacheFileRecord) error {
 
 // InsertCachedLines writes file lines in a batch into the slug cache database.
 func InsertCachedLines(db *sql.DB, relPath string, lines []string) error {
-	_, _ = db.Exec("DELETE FROM Lines WHERE RelativePath = ?", relPath)
+	if _, delErr := db.Exec("DELETE FROM Lines WHERE RelativePath = ?", relPath); delErr != nil {
+		return delErr
+	}
 	tx, err := db.Begin()
 	if err != nil {
 		return err
