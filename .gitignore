@@ -74,10 +74,8 @@ __pycache__/
 /data
 cli/data/pipeline/
 /tmp/
-tmp/
 /.tmp
 /.tmp/
-.tmp/
 *.db
 watch-prompts/
 **/watch-prompts/
@@ -87,7 +85,6 @@ cli/data/account-switch/
 *.db-shm
 *.db-wal
 *.lock
-.ai-memory/cicd/
 vmpass.json
 gitmap-final.json
 .antigravity_resume_task.json
