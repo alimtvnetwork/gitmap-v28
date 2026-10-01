@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 type DiscoveredCachePath struct {
@@ -177,4 +179,27 @@ func buildDiscoveryResult(paths []DiscoveredCachePath, durationMs int64) DevDisc
 		TotalDirs:      dirs,
 		DurationMs:     durationMs,
 	}
+}
+
+func ConvertDiscoveredToSplitRecords(paths []DiscoveredCachePath) []store.DevtoolsCacheRecord {
+	var records []store.DevtoolsCacheRecord
+	for _, p := range paths {
+		records = append(records, store.DevtoolsCacheRecord{
+			Path: p.Path, Ecosystem: getPathEcosystemKey(p), SizeBytes: p.SizeBytes,
+			FilesCount: p.FilesCount, DirsCount: p.DirsCount, IsCustom: p.IsCustom, IsActive: p.IsActive,
+		})
+	}
+	return records
+}
+
+func ConvertSplitRecordsToDiscovered(records []store.DevtoolsCacheRecord) []DiscoveredCachePath {
+	var paths []DiscoveredCachePath
+	for _, r := range records {
+		paths = append(paths, DiscoveredCachePath{
+			Path: r.Path, Category: r.Ecosystem, Ecosystem: r.Ecosystem,
+			Source: "split-db", DiscoverySource: "split-db", SizeBytes: r.SizeBytes,
+			FilesCount: r.FilesCount, DirsCount: r.DirsCount, IsCustom: r.IsCustom, IsActive: r.IsActive,
+		})
+	}
+	return paths
 }
