@@ -104,6 +104,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 195: GitMap PAS Formula, Ignore Management Suite, CPAR, and Repository Split-DB Cache Engine](./195-pas-formula-fix-ignores-cpar-and-repo-cache.md)
 - [Spec 196: Fleet Nodes Clone Table Spacing Alignment & W3 Reachability Resilience](./196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md)
 - [Spec 197: GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache](./197-gitmap-pas-fix-and-repo-cache-commands.md)
+- [Spec 181: GitMap Ignore and Cache Engine Architecture](./181-gitmap-ignore-and-cache-engine/01-overview.md)
 
 ---
 

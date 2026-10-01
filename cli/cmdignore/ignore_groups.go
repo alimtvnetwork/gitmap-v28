@@ -142,10 +142,11 @@ func applyGroupPatterns(grp IgnoreGroup, repoDir string) *apperror.AppError {
 	ignorePath := filepath.Join(repoDir, ".gitignore")
 	data, _ := os.ReadFile(ignorePath)
 	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data), grp.Patterns...)
-	if isModified {
-		if err := os.WriteFile(ignorePath, []byte(cleaned), 0644); err != nil {
-			return apperror.WrapSimple(err, "write .gitignore")
-		}
+	if !isModified {
+		return nil
+	}
+	if err := os.WriteFile(ignorePath, []byte(cleaned), 0644); err != nil {
+		return apperror.WrapSimple(err, "write .gitignore")
 	}
 	return nil
 }

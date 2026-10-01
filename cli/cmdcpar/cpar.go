@@ -22,15 +22,20 @@ func RunCPAR(args []string) *apperror.AppError {
 		fmt.Printf("%s✓ All repositories are clean.%s\n", constants.ColorGreen, constants.ColorReset)
 		return nil
 	}
-	if opts.isReview {
-		isProceed := handleReviewFlow(dirtyList, opts)
-		if isProceed == false {
-			fmt.Println("Aborted by user.")
-			return nil
-		}
+	if isReviewAborted(dirtyList, opts) {
+		fmt.Println("Aborted by user.")
+		return nil
 	}
 	executeCPARAcrossDirty(dirtyList, opts)
 	return nil
+}
+
+func isReviewAborted(dirtyList []DirtyRepoSummary, opts cparOptions) bool {
+	if !opts.isReview {
+		return false
+	}
+	isProceed := handleReviewFlow(dirtyList, opts)
+	return !isProceed
 }
 
 func parseCPAROptions(args []string) cparOptions {

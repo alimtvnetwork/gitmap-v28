@@ -150,11 +150,25 @@ func checkPullHelp(isPullAll bool, args []string) {
 
 func handleSSHFleetPullAll(args []string) error {
 	cleanArgs := stripSSHFleetFlags(args)
-	if RunRemoteSSHPullAllFleetFn == nil {
-		return errors.New("ssh fleet pull-all is not wired")
+	hasHook := RunRemoteSSHPullAllFleetFn != nil
+	if !hasHook {
+		return apperror.NewSimple("ssh fleet pull-all is not wired", "E_SSH_PULLALL")
 	}
 
-	return RunRemoteSSHPullAllFleetFn(cleanArgs)
+	queueId, tDB := enqueueTaskQueue("pull-all-ssh", "fleet")
+	defer closeTaskDB(tDB)
+	updateTaskQueue(tDB, queueId, "running")
+
+	errFleet := RunRemoteSSHPullAllFleetFn(cleanArgs)
+	hasErr := errFleet != nil
+	if hasErr {
+		store.LogInternalError("PULL_ALL_SSH", "SSH_DELEGATION_ERROR", errFleet.Error(), "", "")
+		updateTaskQueue(tDB, queueId, "failed")
+		return apperror.WrapSimple(errFleet, "SSH fleet pull-all failed")
+	}
+
+	updateTaskQueue(tDB, queueId, "completed")
+	return nil
 }
 
 func hasSSHFleetFlag(args []string) bool {
@@ -389,23 +403,53 @@ func applyPullAvailableFilter(records []model.ScanRecord, isOnlyAvailable bool) 
 
 func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) error {
 	taskID, taskDB := beginPullTask(records)
-	if taskDB != nil {
+	hasTaskDB := taskDB != nil
+	if hasTaskDB {
 		defer taskDB.Close()
 	}
+
+	var queueId string
+	var tDB *store.TasksSplitDB
+	isAll := opts.all
+	if isAll {
+		queueId, tDB = enqueueTaskQueue("pull-all", "local")
+		defer closeTaskDB(tDB)
+		updateTaskQueue(tDB, queueId, "running")
+	}
+
 	if !opts.all {
 		maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
 	}
 	bar, sortedStates, dur := runPullBatchExecution(records, opts)
 	syncPullBatchTelemetry(records, sortedStates, dur, opts)
 	checkAgmResumeTaskAfterPull(records, opts)
+
 	if opts.isJSON {
 		completePendingTask(taskDB, taskID)
-
+		finalizePullTaskQueueJSON(isAll, tDB, queueId)
 		return renderPullBatchJSONSummary(len(records), sortedStates, dur)
 	}
 	renderPullBatchOutput(records, sortedStates, dur, opts)
+	finalizePullTaskQueueOutput(isAll, tDB, queueId, bar.Failed())
 
 	return finalizePullBatchTask(taskDB, taskID, bar.Failed())
+}
+
+func finalizePullTaskQueueJSON(isAll bool, tDB *store.TasksSplitDB, queueId string) {
+	if isAll {
+		updateTaskQueue(tDB, queueId, "completed")
+	}
+}
+
+func finalizePullTaskQueueOutput(isAll bool, tDB *store.TasksSplitDB, queueId string, failedCount int) {
+	if !isAll {
+		return
+	}
+	status := "completed"
+	if failedCount > 0 {
+		status = "failed"
+	}
+	updateTaskQueue(tDB, queueId, status)
 }
 
 func checkAgmResumeTaskAfterPull(records []model.ScanRecord, opts pullOptions) {
@@ -1195,4 +1239,32 @@ func pullDiscoveredChildren(cwd string, childRepos []string, extraArgs []string)
 	}
 
 	return nil
+}
+
+func enqueueTaskQueue(action, target string) (string, *store.TasksSplitDB) {
+	queueId := fmt.Sprintf("%s-%d", action, time.Now().UnixNano())
+	tasksDB, err := store.OpenTasksRootSplitDB()
+	hasErr := err != nil
+	if hasErr {
+		return "", nil
+	}
+	now := time.Now().UTC().Format(time.RFC3339)
+	store.ExecWrapper(tasksDB.Conn(), "INSERT INTO TaskQueue (QueueId, Section, Action, Target, Status, CreatedAt, UpdatedAt) VALUES (?, 'pull', ?, ?, 'pending', ?, ?)", queueId, action, target, now, now)
+	return queueId, tasksDB
+}
+
+func updateTaskQueue(db *store.TasksSplitDB, queueId, status string) {
+	hasDB := db != nil
+	if !hasDB {
+		return
+	}
+	now := time.Now().UTC().Format(time.RFC3339)
+	store.ExecWrapper(db.Conn(), "UPDATE TaskQueue SET Status = ?, UpdatedAt = ? WHERE QueueId = ?", status, now, queueId)
+}
+
+func closeTaskDB(db *store.TasksSplitDB) {
+	hasDB := db != nil
+	if hasDB {
+		_ = db.Close()
+	}
 }

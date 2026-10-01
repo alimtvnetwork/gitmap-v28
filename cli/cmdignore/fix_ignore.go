@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -44,6 +45,7 @@ func runFixIgnoreAllWithRecords(records []model.ScanRecord, isAutoYes bool) *app
 func proceedWithIssues(issues []IgnoreScanIssue, isAutoYes bool) *apperror.AppError {
 	hasConsent := isAutoYes
 	if !hasConsent {
+		printIssuesSummary(issues)
 		hasConsent = promptUserConsent(len(issues))
 	}
 	if !hasConsent {
@@ -58,10 +60,24 @@ func proceedWithIssues(issues []IgnoreScanIssue, isAutoYes bool) *apperror.AppEr
 
 func RunFixIgnoresAllSSH(args []string) *apperror.AppError {
 	hasHook := RunFixIgnoresAllSSHFn != nil
-	if hasHook {
-		return RunFixIgnoresAllSSHFn(args)
+	if !hasHook {
+		return RunFixIgnoreAll(args)
 	}
-	return RunFixIgnoreAll(args)
+
+	queueId, tDB := enqueueIgnoreTaskQueue("fix-ignore-all-ssh", "fleet")
+	defer closeIgnoreTaskDB(tDB)
+	updateIgnoreTaskQueue(tDB, queueId, "running")
+
+	errFleet := RunFixIgnoresAllSSHFn(args)
+	hasErr := errFleet != nil
+	if hasErr {
+		store.LogInternalError("FIX_IGNORE_SSH", "SSH_DELEGATION_ERROR", errFleet.Error(), "", "")
+		updateIgnoreTaskQueue(tDB, queueId, "failed")
+		return errFleet
+	}
+
+	updateIgnoreTaskQueue(tDB, queueId, "completed")
+	return nil
 }
 
 func isAutoYesArg(args []string) bool {
@@ -222,4 +238,48 @@ func sanitizeAndCommit(repoDir, ignorePath, data string) bool {
 		_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore").Run()
 	}
 	return true
+}
+
+func printIssuesSummary(issues []IgnoreScanIssue) {
+	fmt.Printf("\n%s=== GitIgnore Issues By Repository ===%s\n", constants.ColorCyan, constants.ColorReset)
+	for _, issue := range issues {
+		fmt.Printf("  * %s%s%s\n", constants.ColorBold, issue.RepoName, constants.ColorReset)
+		if issue.HasDuplicate {
+			fmt.Printf("      - Contains duplicate rules\n")
+		}
+		if issue.HasResumeTask {
+			fmt.Printf("      - Contains unignored agm-resume.task\n")
+		}
+		if issue.MissingGitmapDir {
+			fmt.Printf("      - Missing .gitmap/ ignore rule\n")
+		}
+	}
+}
+
+func enqueueIgnoreTaskQueue(action, target string) (string, *store.TasksSplitDB) {
+	queueId := fmt.Sprintf("%s-%d", action, time.Now().UnixNano())
+	tasksDB, err := store.OpenTasksRootSplitDB()
+	hasErr := err != nil
+	if hasErr {
+		return "", nil
+	}
+	now := time.Now().UTC().Format(time.RFC3339)
+	store.ExecWrapper(tasksDB.Conn(), "INSERT INTO TaskQueue (QueueId, Section, Action, Target, Status, CreatedAt, UpdatedAt) VALUES (?, 'ignore', ?, ?, 'pending', ?, ?)", queueId, action, target, now, now)
+	return queueId, tasksDB
+}
+
+func updateIgnoreTaskQueue(db *store.TasksSplitDB, queueId, status string) {
+	hasDB := db != nil
+	if !hasDB {
+		return
+	}
+	now := time.Now().UTC().Format(time.RFC3339)
+	store.ExecWrapper(db.Conn(), "UPDATE TaskQueue SET Status = ?, UpdatedAt = ? WHERE QueueId = ?", status, now, queueId)
+}
+
+func closeIgnoreTaskDB(db *store.TasksSplitDB) {
+	hasDB := db != nil
+	if hasDB {
+		_ = db.Close()
+	}
 }
