@@ -19,13 +19,17 @@ Resolves the `Can not use the 'cache' credential store on Windows due to lack of
 
 ### Example 1: Run credential store repair
 
-    gitmap fix-credential
+```bash
+gitmap fix-credential
+```
 
 **Output:**
 
-    Executing Git credential store fix for Windows...
-    ✔ Git credential helper successfully updated to 'manager'.
-      The 'cache' credential store issue on Windows is now resolved.
+```
+Executing Git credential store fix for Windows...
+✔ Git credential helper successfully updated to 'manager'.
+  The 'cache' credential store issue on Windows is now resolved.
+```
 
 ## See Also
 
