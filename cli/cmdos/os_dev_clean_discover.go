@@ -117,18 +117,21 @@ func measureDiscoveredPaths(paths []DiscoveredCachePath) []DiscoveredCachePath {
 	return measured
 }
 
+func walkMetricsStep(info os.FileInfo, bytes *int64, files, dirs *int) {
+	if info.IsDir() {
+		*dirs++
+		return
+	}
+	*files++
+	*bytes += info.Size()
+}
+
 func calculateDirectoryMetrics(root string) (int64, int, int) {
 	var totalBytes int64
 	var fileCount, dirCount int
 	_ = filepath.Walk(root, func(_ string, info os.FileInfo, err error) error {
-		if err != nil || info == nil {
-			return nil
-		}
-		if info.IsDir() {
-			dirCount++
-		} else {
-			fileCount++
-			totalBytes += info.Size()
+		if err == nil && info != nil {
+			walkMetricsStep(info, &totalBytes, &fileCount, &dirCount)
 		}
 		return nil
 	})
@@ -154,19 +157,24 @@ func isDevCachePathSafe(path string) bool {
 	return false
 }
 
-func buildDiscoveryResult(paths []DiscoveredCachePath, durationMs int64) DevDiscoveryResult {
-	var totalBytes int64
-	var totalFiles, totalDirs int
+func sumDiscoveryMetrics(paths []DiscoveredCachePath) (int64, int, int) {
+	var bytes int64
+	var files, dirs int
 	for _, p := range paths {
-		totalBytes += p.SizeBytes
-		totalFiles += p.FilesCount
-		totalDirs += p.DirsCount
+		bytes += p.SizeBytes
+		files += p.FilesCount
+		dirs += p.DirsCount
 	}
+	return bytes, files, dirs
+}
+
+func buildDiscoveryResult(paths []DiscoveredCachePath, durationMs int64) DevDiscoveryResult {
+	bytes, files, dirs := sumDiscoveryMetrics(paths)
 	return DevDiscoveryResult{
 		Paths:          paths,
-		TotalSizeBytes: totalBytes,
-		TotalFiles:     totalFiles,
-		TotalDirs:      totalDirs,
+		TotalSizeBytes: bytes,
+		TotalFiles:     files,
+		TotalDirs:      dirs,
 		DurationMs:     durationMs,
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/osclean"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // RunOSDevClean dispatches the developer tools cache cleaner.
@@ -16,139 +17,83 @@ func RunOSDevClean(args []string) error {
 		printOSDevCleanUsage()
 		return nil
 	}
-
-	opts := parseDevCleanOptions(args)
+	opts := ParseDevCleanOptions(args)
 	if isPromptRequired(opts) && !confirmDevClean() {
 		fmt.Println("  Aborted by operator.")
 		return nil
 	}
+	_ = DiscoverDevToolCaches(opts)
+	return executeAndRenderClean(opts)
+}
 
-	res := osclean.CleanDevCaches(opts)
+func executeAndRenderClean(opts DevCleanOptions) error {
+	osOpts := osclean.DevCleanOptions{IsDryRun: opts.IsDryRun, HasAutoYes: opts.HasAutoYes, IsJSON: opts.IsJSON, IsVerbose: opts.IsVerbose, OnlyCategories: opts.OnlyCategories}
+	res := osclean.CleanDevCaches(osOpts)
 	if res.IsFailure() {
 		return res.AppError()
 	}
-
 	renderDevCleanOutput(res.Value, opts)
 	return nil
 }
 
-func isHelpDevClean(args []string) bool {
-	for _, a := range args {
-		low := strings.ToLower(a)
-		if low == "-h" || low == "--help" || low == "help" || low == "/?" {
-			return true
+// DiscoverDevToolCaches discovers active cache paths, leveraging Split-DB persistence.
+func DiscoverDevToolCaches(opts DevCleanOptions) []store.DevtoolsCacheRecord {
+	sdb, err := store.OpenDevtoolsCacheSplitDB()
+	if err != nil || sdb == nil {
+		return nil
+	}
+	defer sdb.Close()
+	if opts.IsForce {
+		_ = sdb.InvalidateCache("")
+	} else if cached, err := sdb.GetCachedPaths(""); err == nil && len(cached) > 0 {
+		return cached
+	}
+	records := probeKnownDevCaches(opts.OnlyCategories)
+	if len(records) > 0 {
+		_ = sdb.SaveDiscoveredPaths(records)
+	}
+	return records
+}
+
+func probeKnownDevCaches(only []string) []store.DevtoolsCacheRecord {
+	var records []store.DevtoolsCacheRecord
+	for _, p := range []string{`C:\dev-tool\go\cache`, `C:\dev-tool\go\pkg\mod`, `D:\dev-tool\pnpm\store`} {
+		if fi, err := os.Stat(p); err == nil && fi.IsDir() {
+			records = append(records, store.DevtoolsCacheRecord{Path: p, Ecosystem: "dev", IsCustom: true, IsActive: true})
 		}
 	}
-
-	return false
+	return records
 }
 
-func parseDevCleanOptions(args []string) osclean.DevCleanOptions {
-	opts := osclean.DevCleanOptions{}
-	for i := 0; i < len(args); i++ {
-		a := strings.ToLower(args[i])
-		parseDevCleanFlag(a, args, &i, &opts)
-	}
-
-	return opts
-}
-
-func parseDevCleanFlag(a string, args []string, i *int, opts *osclean.DevCleanOptions) {
-	if isDevCleanIgnoredToken(a) {
-		return
-	}
-	switch {
-	case a == "--dry-run" || a == "-n" || a == "-d" || a == "dry-run":
-		opts.IsDryRun = true
-	case a == "--yes" || a == "-y" || a == "/y" || a == "yes":
-		opts.HasAutoYes = true
-	case a == "--json":
-		opts.IsJSON = true
-	case a == "--verbose" || a == "-v":
-		opts.IsVerbose = true
-	case strings.HasPrefix(a, "--only="):
-		opts.OnlyCategories = strings.Split(strings.TrimPrefix(a, "--only="), ",")
-	case a == "--only" && *i+1 < len(args):
-		*i++
-		opts.OnlyCategories = strings.Split(args[*i], ",")
-	}
-}
-
-func isDevCleanIgnoredToken(a string) bool {
-	return a == "clear" || a == "clean" || a == "cleanup" || a == "cache" ||
-		a == "caches" || a == "dev" || a == "devs" || a == "developer" ||
-		a == "devtool" || a == "devtools" || a == "dev-tool" || a == "dev-tools" ||
-		a == "tool" || a == "tools" || a == "devtool-cache" || a == "devtools-cache" ||
-		a == "dev-tool-cache" || a == "dev-tools-cache"
-}
-
-func isPromptRequired(opts osclean.DevCleanOptions) bool {
+func isPromptRequired(opts DevCleanOptions) bool {
 	return !opts.IsDryRun && !opts.HasAutoYes && !opts.IsJSON
 }
 
 func confirmDevClean() bool {
 	fmt.Print("  Proceed with dev tools cache cleanup? Type 'yes' to continue: ")
-	reader := bufio.NewReader(os.Stdin)
-	text, err := reader.ReadString('\n')
-	if err != nil {
-		return false
-	}
-
-	return strings.ToLower(strings.TrimSpace(text)) == "yes"
+	text, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	return err == nil && strings.ToLower(strings.TrimSpace(text)) == "yes"
 }
 
-func renderDevCleanOutput(summary osclean.DevCleanSummary, opts osclean.DevCleanOptions) {
+func renderDevCleanOutput(summary osclean.DevCleanSummary, opts DevCleanOptions) {
 	if opts.IsJSON {
 		data, _ := json.MarshalIndent(summary, "", "  ")
 		fmt.Println(string(data))
-		return
-	}
-
-	osclean.RenderEnhancedSummaryTable(summary)
-	if opts.IsVerbose {
-		renderVerboseDevNotes(summary.Categories)
-	}
-	printDevCleanOptimizationSuggestions()
-}
-
-func printDevCleanOptimizationSuggestions() {
-	fmt.Println("  💡 Clean & Cache Optimization Suggestions:")
-	fmt.Println("    • Preview space without deleting:    gitmap clear devtools --dry-run")
-	fmt.Println("    • Clean specific ecosystems only:    gitmap clear devtools --only go,npm,pnpm -y")
-	fmt.Println("    • Clear shell history & suggestions: gitmap clear terminal -y")
-	fmt.Println("    • Clean Antigravity IDE caches:      gitmap agy clean-cache")
-	fmt.Println()
-}
-
-func renderVerboseDevNotes(categories []osclean.CategoryCleanStats) {
-	for _, cat := range categories {
-		printVerboseNotes(cat.Notes, cat.Errors)
+	} else if opts.IsTree {
+		renderDevCleanTree(summary)
+	} else {
+		osclean.RenderEnhancedSummaryTable(summary)
 	}
 }
 
-func printVerboseNotes(notes, errors []string) {
-	for _, n := range notes {
-		fmt.Printf("      note: %s\n", n)
+func renderDevCleanTree(summary osclean.DevCleanSummary) {
+	mbTotal := float64(summary.TotalBytesFreed) / (1024 * 1024)
+	fmt.Printf("\n  🌳 Developer Tools Cache Tree (Total: %.2f MB, %d files, %d dirs)\n", mbTotal, summary.TotalItemsRemoved, summary.TotalDirsRemoved)
+	for i, cat := range summary.Categories {
+		branch := "├──"
+		if i == len(summary.Categories)-1 {
+			branch = "└──"
+		}
+		fmt.Printf("  %s 📦 %s [%.2f MB - %d files]\n", branch, cat.Label, float64(cat.BytesFreed)/(1024*1024), cat.ItemsRemoved)
 	}
-	for _, e := range errors {
-		fmt.Printf("      warning: %s\n", e)
-	}
-}
-
-func printOSDevCleanUsage() {
-	fmt.Println("Usage: gitmap clear devtools [flags]")
-	fmt.Println("       gitmap clear dev-tools [flags]")
-	fmt.Println("       gitmap clear dev-tools-cache [flags]")
-	fmt.Println("       gitmap devtools-cache clear [flags]")
-	fmt.Println("       gitmap clean-dev [flags]")
-	fmt.Println()
-	fmt.Println("Flags:")
-	fmt.Println("  -n, --dry-run      Preview space reclaimed without deleting")
-	fmt.Println("  -y, --yes          Bypass confirmation prompt")
-	fmt.Println("      --json         Output structured JSON summary")
-	fmt.Println("  -v, --verbose      Display individual subpaths and command notes")
-	fmt.Println("      --only <cats>  Comma-separated categories to clean (e.g. go,npm,pnpm)")
-	fmt.Println("  -h, --help         Show this documentation")
-	fmt.Println()
-	printDevCleanOptimizationSuggestions()
 }
