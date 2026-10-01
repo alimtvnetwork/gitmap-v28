@@ -1,19 +1,848 @@
 ---
 name: coding-guidelines
-description: "Executes the Standards Compliance & Coding Rules Audit - V2 (Grounded & Multi-Language) prompt. You are the Chief Software Architect and Code Reviewer. Use when the user asks to run coding-guidelines, or the task is about coding standards or theming guidelines."
+description: >-
+  Use this skill to audit, review, and enforce grounded coding guidelines across all languages (Go, TS, Python, Rust, C#, PHP).
 ---
 
-# Standards Compliance & Coding Rules Audit - V2 (Grounded & Multi-Language)
+# Standards Compliance & Coding Rules Audit — V2 (Grounded & Multi-Language)
 
-Source prompt: `01-prompts/04-coding-standards/01-coding-guidelines.md`
+> **Prompt Version:** 2.1.0
+> **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-## Instructions
+[/goal](slashCommand:goal) You are the Chief Software Architect and Code Reviewer. Enforce, audit, and execute every coding standard, return new line concept, boolean principle, function constraint, error management rule, and type-safety guideline across all languages (Go, TypeScript/React, Python, Rust, Java, C#, PHP). Zero hallucination, zero drive-by refactoring, zero tolerance for guideline violations.
 
-1. Read `01-prompts/04-coding-standards/01-coding-guidelines.md` in full before doing the task.
-2. Execute that prompt verbatim. It is the source of truth for this workflow.
-3. A direct instruction in the current user message overrides the prompt when they conflict.
-4. Do not shorten, paraphrase, or skip checklist items in the source prompt.
+[/learn](slashCommand:learn) Ingest, understand, and internalize all coding standards from `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, `02-spec/17-consolidated-guidelines/`, and `.ai-memory/coding-guidelines.md` before reading, modifying, or creating any code.
 
-## Goal
+---
 
-You are the Chief Software Architect and Code Reviewer.
+## Phase 0: Antigravity Skill Bootstrap (Memory Optimization)
+
+Before executing or auditing code, check if this coding standard is installed as a native Antigravity Skill.
+
+1. If `.agents/skills/coding-guidelines/skill.md` does not exist in the workspace, you MUST create it now.
+2. Extract the core instructions of this prompt and save it into `.agents/skills/coding-guidelines/skill.md` with standard YAML frontmatter (`name: coding-guidelines`, `description: "Use this skill to audit, review, and enforce coding guidelines across all languages."`).
+3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire specification in active context when not in use.
+
+---
+
+## Phase 1: Read & Understand (Isolated Loop)
+
+Your very first action when reviewing or writing code must be purely exploratory:
+
+1. **Explore & Map:** Read the target files, trace dependencies, inspect existing types, and understand the architectural boundary.
+2. **Consult Spec References:** Read the relevant language-specific guideline in `02-spec/02-coding-guidelines/` before writing any replacement code.
+3. **End Turn & Self-Loop:** Once the scope and violations are cataloged, end your turn and self-loop into execution.
+
+---
+
+## File & Folder Information Mapping
+
+When auditing, applying fixes, or creating skills, navigate and respect these canonical file paths:
+
+| Component | Path / Location | Purpose |
+| :--- | :--- | :--- |
+| **Master Guideline** | `.ai-memory/coding-guidelines.md` | Single standalone source of truth for AI agents |
+| **Consolidated Spec** | `02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md` | Authoritative root spec matching .ai-memory mirror |
+| **Cross-Language Specs** | `02-spec/02-coding-guidelines/01-cross-language/` | Detailed chapters (00-overview through 29-no-generated-artifacts) |
+| **Newline Examples** | `02-spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` | Canonical Before/After examples for return new lines |
+| **TypeScript / React** | `02-spec/02-coding-guidelines/02-typescript/` | Strict TS, immutability, React hook guards |
+| **Go Standards** | `02-spec/02-coding-guidelines/03-golang/` | Result types, enum bytes with iota, error wrapping |
+| **PHP Standards** | `02-spec/02-coding-guidelines/04-php/` | Enum methods `->isEqual()`, typing rules |
+| **Python Standards** | `02-spec/02-coding-guidelines/01-cross-language/` | Strict type hints, `@dataclass`, `pydantic` |
+| **C# / Java Standards** | `02-spec/02-coding-guidelines/07-csharp/` | `I` prefix interfaces, PascalCase properties |
+| **Error Management** | `02-spec/03-error-manage/` | `AppError` wrapping, universal response envelopes |
+| **Shared Core Engine** | `03-ai-scripts/02-shared-engine.py` | Universal streaming engine with lazy regex registry and two-phase mtime caching |
+| **Local CI Runner** | `03-ai-scripts/06-cicd-local-runner.py` | Parallel local quality gate runner (18 checks) |
+| **Fast File Scanner** | `03-ai-scripts/11-fast-file-scanner.py` | Multi-language fast file scanner (<15ms) and cache builder |
+| **Path Fixer** | `03-ai-scripts/07-relative-path-fixer.py` | Relative path detector and sanitizer |
+| **Naming Guard** | `03-ai-scripts/08-naming-autofixer.py` | Boolean naming and implicit condition validator |
+| **Encoding Normalizer**| `03-ai-scripts/10-encoding-normalizer.py` | UTF-8 and strict UNIX LF line ending normalizer |
+| **Size Guard** | `03-ai-scripts/13-file-size-guard.py` | Binary blob and file size threshold checker |
+| **Global Rules** | `agents.md` | Always-on workspace constraints for Antigravity agents |
+| **Version Truth** | `version.json` | Root version source of truth dynamically read across all languages |
+| **Antigravity Skills** | `.agents/skills/` | On-demand skill runbooks for progressive disclosure |
+
+---
+
+## 1. High-Contrast Code Standards (❌ BAD vs ✅ GOOD Grounded Examples)
+
+### A. Boolean Evaluation & Naming (P1–P6, R3)
+
+- **Rules:** Positive affirmative prefixes ONLY (`is` and `has`). TOTAL BAN on all other prefixes (`can`, `should`, `was`, `will`, `did`, `must` are strictly BANNED). TOTAL BAN on explicit `== true` / `=== true` checks. No negative boolean naming (`isNot*`, `isUndefined`, `isNotDefined`, `hasNo*`). **Mandatory Replacement for `!isEmpty`:** NEVER use inverted negative empty checks (`!isEmpty`, `!res.IsEmpty()`). Always use affirmative `isDefined` / `res.IsDefined()` when asserting that data or records are present. When checking presence, definition, or initialization, always use affirmative `isDefined` / `IsDefined` (or `isValid`, `hasValue`, `isReady`, `isFound` for map lookups). Invert only once at callsite guard clause (`if !isDefined { ... }`) if handling missing case. No mixed polarity (`if a && !b`). No inverted success checks (`!isSuccess`).
+- **Affirmative Parameter & Field Naming (Rule 5):** TOTAL BAN on single-letter parameters (`v bool`, `b bool`, `val bool`, `flag bool`) in function or method signatures (e.g. setters). TOTAL BAN on bare verbs, nouns, or adjectives (`stop bool`, `pause bool`, `force bool`, `dryRun bool`, `header bool`, `defined bool`). Every boolean identifier MUST carry an affirmative prefix (`is*` or `has*`): `stop` -> `isStopped`, `stopOnFail` -> `isStopOnFail` (e.g., `SetStopOnFail(isStopOnFail bool)`), `defined` -> `isDefined` (e.g. struct field `isDefined bool`, method `IsDefined() bool`), `pause` -> `isPaused`, `dryRun` -> `isDryRun`.
+- **IsDefined vs IsExists & Compound Negatives (Rule 6 & 7):** TOTAL BAN on awkward/ungrammatical `isExists` / `isUserExist`. Always use affirmative `isDefined` (or `isFound` for map lookups: `val, isFound := userMap[id]`). TOTAL BAN on compound negative chains in conditions (`!state.IsDefined || !state.IsEmpty || state.IsRepo`). In tests, write discrete assertions per field. In app logic, extract an affirmative composite predicate (`isCloneTargetFresh := !params.State.IsDefined || params.State.IsEmpty`).
+
+```go
+// ❌ BAD (Explicit true comparison, negative naming, mixed polarity, compound negatives, isExists)
+if isUserNotActive == true { ... }
+if !response.isSuccess { ... }
+if isReady && !hasToken { ... }
+if !state.IsExists || !state.IsEmpty || state.IsRepo { ... }
+func (p *Progress) SetStopOnFail(v bool) { p.stopOnFail = v }
+type Worker struct { stop bool }
+type Result[T any] struct { defined bool }
+
+// ✅ GOOD (Implicit evaluation, affirmative naming, extracted conflict, discrete assertions)
+if !isUserActive { ... }
+if response.isFail { ... }
+isTokenMissing := isReady && !hasToken
+if isTokenMissing { ... }
+
+// Discrete assertions for compound states:
+if !state.IsDefined { t.Errorf("expected defined: %+v", state) }
+if !state.IsEmpty { t.Errorf("expected empty: %+v", state) }
+if state.IsRepo { t.Errorf("expected non-repo: %+v", state) }
+
+func (p *Progress) SetStopOnFail(isStopOnFail bool) {
+    p.stopOnFail = isStopOnFail
+}
+
+type Worker struct {
+    isStopped bool
+}
+func (w *Worker) SetStopped(isStopped bool) {
+    w.isStopped = isStopped
+}
+
+type Result[T any] struct {
+    isDefined bool
+}
+```
+
+```typescript
+// ❌ BAD (Raw boolean parameter, triple equals true, tuple return)
+function saveRecord(isDraft: boolean): [boolean, string] { ... }
+if (record.isVerified === true) { ... }
+
+// ✅ GOOD (Option struct/enum, implicit evaluation, named object return)
+interface SaveRecordOptions {
+  isDraft: boolean;
+}
+interface SaveRecordResult {
+  isSuccess: boolean;
+  recordId: string;
+}
+function saveRecord(options: SaveRecordOptions): SaveRecordResult {
+  if (record.isVerified) { ... }
+}
+```
+
+---
+
+### B. Function Decomposition Blueprint (15-Line Limit & Logic Drift Prevention)
+
+- **Rule:** Functions MUST be <= 8 lines preferred, hard cap of <= 15 lines.
+- **Decomposition Formula:** Decompose complex functions into 3 distinct, single-responsibility helper stages:
+  1. **Stage 1 (Precondition Guard):** `validateInputParams(params)`
+  2. **Stage 2 (Pure Core Transformation):** `processBusinessLogic(data)`
+  3. **Stage 3 (Response Envelope & Assembly):** `buildResponseEnvelope(data)`
+
+```go
+// ❌ BAD (Monolithic 45-line function with nested loops and inline validation)
+func ProcessUserOrder(ctx context.Context, orderId string, items []OrderItem, isExpedited bool) (*OrderResult, error) {
+    if orderId == "" || len(items) == 0 {
+        return nil, errors.New("invalid payload")
+    }
+    total := 0
+    for _, item := range items {
+        if item.Price <= 0 {
+            return nil, errors.New("negative price")
+        }
+        total += item.Price
+    }
+    if isExpedited {
+        total += 15
+    }
+    return &OrderResult{Total: total}, nil
+}
+
+// ✅ GOOD (Decomposed into clean <= 8-line functions with zero logic drift)
+type ProcessOrderParams struct {
+    OrderId     string      `json:"OrderId"`
+    Items       []OrderItem `json:"Items"`
+    IsExpedited bool        `json:"IsExpedited"`
+}
+
+func ProcessUserOrder(ctx context.Context, params ProcessOrderParams) (*OrderResult, *appfault.AppError) {
+    if err := validateOrderParams(params); err != nil {
+        return nil, appfault.Wrap(err, "ProcessUserOrder.Validate", nil)
+    }
+
+    totalAmount, err := calculateOrderTotal(params.Items, params.IsExpedited)
+    if err != nil {
+        return nil, appfault.Wrap(err, "ProcessUserOrder.Calculate", nil)
+    }
+
+    return buildOrderResult(params.OrderId, totalAmount), nil
+}
+
+func validateOrderParams(params ProcessOrderParams) *appfault.AppError {
+    if params.OrderId == "" || len(params.Items) == 0 {
+        return appfault.New(appfault.ErrValidation).WithMessage("invalid order payload")
+    }
+
+    return nil
+}
+
+func calculateOrderTotal(items []OrderItem, isExpedited bool) (int, *appfault.AppError) {
+    total := 0
+    for _, item := range items {
+        if item.Price <= 0 {
+            return 0, appfault.New(appfault.ErrValidation).WithMessage("negative item price detected")
+        }
+        total += item.Price
+    }
+    if isExpedited {
+        total += 15
+    }
+
+    return total, nil
+}
+
+func buildOrderResult(orderId string, total int) *OrderResult {
+    return &OrderResult{
+        OrderId:     orderId,
+        TotalAmount: total,
+    }
+}
+```
+
+---
+
+### C. Circular Dependency Prevention Protocol (Leaf Type Architecture)
+
+- **Rules:** Types, Enums, Structs, and Error Codes must live in a dedicated **Leaf Package** (e.g. `domain/types`, `types/`, `models/`).
+- Leaf packages must NEVER import services, handlers, or repositories.
+
+```typescript
+// ❌ BAD (Service file circularly importing types from handler, or vice-versa)
+// src/services/UserService.ts
+import { UserHandlerRequest } from '../handlers/UserHandler'; // Circular import cycle!
+
+// ✅ GOOD (Strict Leaf Type extraction)
+// src/types/UserTypes.ts  <-- Pure leaf file: NO imports from handlers/services
+export enum UserRoleType {
+  Admin = "Admin",
+  Member = "Member",
+}
+export interface UserProfileDto {
+  UserId: string;
+  Role: UserRoleType;
+}
+
+// src/services/UserService.ts
+import type { UserProfileDto } from '../types/UserTypes';
+```
+
+---
+
+### D. Polyglot Grounding: Rust, C#, PHP, Java
+
+- **Rust:** PascalCase enums without `Type` suffix, exhaustive pattern matching, `Result<T, AppError>`, zero `unwrap()` or `panic!()`.
+- **C# / .NET:** `I` prefix interfaces, PascalCase properties, `CancellationToken` as last parameter, `ValueTask<Result<T>>`.
+- **PHP 8.1+:** BackedEnums + `HasEnumHelpers` trait, typed `AppException`, strict return types.
+
+```rust
+// ❌ BAD (Missing error context, unwrap panic, raw string matches)
+fn parse_status(raw: &str) -> String {
+    let status: UserStatus = raw.parse().unwrap();
+    if status == "ACTIVE" { ... }
+}
+
+// ✅ GOOD (Rust: Exhaustive pattern matching, Result envelope, no unwrap)
+pub enum UserRole {
+    Admin,
+    Member,
+    Guest,
+}
+
+pub fn handle_role(role: UserRole) -> Result<PermissionLevel, AppError> {
+    match role {
+        UserRole::Admin => Ok(PermissionLevel::Full),
+        UserRole::Member => Ok(PermissionLevel::Standard),
+        UserRole::Guest => Ok(PermissionLevel::Restricted),
+    }
+}
+```
+
+```csharp
+// ❌ BAD (Missing I interface prefix, camelCase serialization, missing cancellation token)
+public interface UserService {
+    Task<User> GetUser(string id);
+}
+
+// ✅ GOOD (C#: I interface prefix, PascalCase DTOs, CancellationToken as last parameter)
+public interface IUserService {
+    ValueTask<Result<UserDto>> GetUserAsync(string userId, CancellationToken cancellationToken = default);
+}
+
+public sealed record UserDto(
+    string UserId,
+    string EmailAddress,
+    bool IsActive
+);
+```
+
+```php
+<?php
+// ❌ BAD (PHP: Magic string status, missing Type suffix, swallowed catch)
+enum UserRole {
+    case Admin;
+}
+try {
+    $db->save();
+} catch (Exception $e) {}
+
+// ✅ GOOD (PHP 8.1+: Backed Enum with Type suffix, HasEnumHelpers, typed AppException)
+namespace App\Enums;
+
+enum UserRoleType: string {
+    use HasEnumHelpers;
+
+    case Admin = 'ADMIN';
+    case Member = 'MEMBER';
+}
+
+try {
+    $userRepo->save($user);
+} catch (Throwable $cause) {
+    throw new AppException('User save failed', ['UserId' => $user->getId()], $cause);
+}
+```
+
+---
+
+### E. Deep React Immutability & Component Topology
+
+- **Rules:**
+  1. Custom hooks MUST return named property objects (`{ userProfile, isPending, onUpdate }`), NEVER tuples `[state, setState]`.
+  2. Deep state immutability via `structuredClone` (no in-place mutations on nested state arrays/objects).
+  3. Component sizing cap (<= 80–100 lines) with clean child component decomposition.
+  4. Zero `useEffect` for derived state or inline negative checks.
+
+```tsx
+// ❌ BAD (Tuple hook return, in-place state mutation, inline useEffect filter)
+export function useUser(userId: string): [UserProfile | null, boolean] {
+    const [user, setUser] = useState<UserProfile | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    function updateUserAge(newAge: number) {
+        user.age = newAge; // Silent bug: in-place state mutation!
+        setUser(user);
+    }
+    return [user, isLoading];
+}
+
+// ✅ GOOD (Named property object return, structuredClone / fresh reference creation)
+export interface UseUserResult {
+    userProfile: UserProfile | null;
+    isLoading: boolean;
+    onUpdateAge: (newAge: number) => void;
+}
+
+export function useUser(userId: string): UseUserResult {
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const onUpdateAge = (newAge: number): void => {
+        if (!userProfile) {
+            return;
+        }
+
+        const nextProfile = structuredClone(userProfile);
+        nextProfile.age = newAge;
+        setUserProfile(nextProfile);
+    };
+
+    return {
+        userProfile,
+        isLoading,
+        onUpdateAge,
+    };
+}
+```
+
+---
+
+### F. Parameter Structs & Signature Splitting (R4, R5, R9)
+
+- **Rules:** If a function has > 3 parameters, split to one per line. If a function has > 4 parameters or 2+ adjacent parameters of the same type, group into a dedicated parameter struct with PascalCase JSON tags.
+
+```go
+// ❌ BAD (Long signature, adjacent same types, magic constants)
+func ConnectRemote(ctx context.Context, host string, port string, user string, pass string, timeout int) (*Client, error) { ... }
+
+// ✅ GOOD (Grouped into clean Parameter Struct with PascalCase tags)
+type RemoteConnectionParams struct {
+    HostName       string `json:"HostName"`
+    PortNumber     string `json:"PortNumber"`
+    UserName       string `json:"UserName"`
+    PasswordSecret string `json:"PasswordSecret"`
+    TimeoutSeconds int    `json:"TimeoutSeconds"`
+}
+
+func ConnectRemote(ctx context.Context, params RemoteConnectionParams) (*Client, *appfault.AppError) {
+    if err := params.Validate(); err != nil {
+        return nil, appfault.Wrap(err, "ConnectRemote.Validate", nil)
+    }
+
+    return clientRepo.Connect(ctx, params)
+}
+```
+
+---
+
+### G. Error Context Wrapping & Universal Envelopes (R7)
+
+- **Rules:** Never swallow errors. Wrap every error with operation context (`appfault.Wrap`). Functions returning structured errors MUST use `*appfault.AppError` from `04-code/golang/pkg/appfault`. Standardize all API responses to `{ data, errors, meta }`.
+
+```go
+// ❌ BAD (Swallowing error or bare return without context)
+func GetUser(id string) (*User, error) {
+    user, err := db.Find(id)
+    if err != nil {
+        return nil, err // Violation: missing operation context wrapper
+    }
+    return user, nil
+}
+
+// ✅ GOOD (Universal AppError context wrapping)
+func GetUser(ctx context.Context, userId string) (*User, *appfault.AppError) {
+    user, err := db.Find(ctx, userId)
+    if err != nil {
+        return nil, appfault.Wrap(err, "GetUser", map[string]any{"UserId": userId})
+    }
+
+    return user, nil
+}
+```
+
+---
+
+### H. Result Wrapper Types, Collections & Pointer Null-Safety (pkg/appfault)
+
+- **Single Result Containers:** Replace all multi-value error tuples (`(map[K]V, error)`, `([]T, error)`, `(T, error)`) with strongly-typed result wrappers: `appfault.ResultMap[K, V]`, `appfault.ResultSlice[T]`, and `appfault.Result[T]`.
+- **Mandatory `types.go` Single Reusable Type Definition:** All domain payload structs (e.g. `User`, `ScheduleExportBundle`) and repeated generic Result envelopes (`type UserSliceResult = appfault.ResultSlice[User]`) MUST be defined in a dedicated `types.go` file within the package as a single reusable named type. Never declare unexported structs or raw generic Result envelopes inline in implementation files.
+- **Affirmative Boolean Struct Fields (`isDefined bool`):** Result struct boolean fields MUST use affirmative prefixes (`isDefined bool`, TOTAL BAN on bare `defined bool`).
+- **Pointer-Attached Null Safety & Method Composition:** All Result inspection methods MUST be attached to pointer receivers (`(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])`) with line-1 `if r == nil` guards. Methods MUST compose and reuse existing methods (`r.IsFailure()`, `r.IsSuccess()`, `r.Count()`) rather than repeating raw pointer/error checks (`r == nil || r.err != nil`).
+- **The 4 Core Predicate Methods:**
+  - `res.IsCountOtherThan(number int) bool`: Returns `true` if operation failed (or nil receiver) OR `Count() != number`. Replaces compound `err != nil || len(...) != N` or `IsFailure() || Count() != N`.
+  - `res.IsEmpty() bool`: Returns `true` if collection has 0 elements, payload data is empty/null/zero, or receiver is nil.
+  - `res.HasRecord() bool` (and alias `res.HasRecords() bool`): Returns `true` if operation succeeded (no error) AND has **more than 0 records** (`Count() > 0 && !IsFailure()`).
+  - `res.IsDefined() bool`: Returns `true` if operation succeeded (no error) AND `recordCount > 0` (or non-null/non-empty data `T`). Delegates error validation to `IsSuccess()`/`IsFailure()`.
+
+```go
+// ❌ BAD (Multi-value tuple return, raw stdlib error, compound caller condition)
+func (s *Store) QueryUsers(dept string) ([]User, error) { ... }
+
+users, err := store.QueryUsers("engineering")
+if err != nil || len(users) != 1 {
+    return appfault.New(appfault.ErrNotFound).WithMessage("expected exactly 1 user")
+}
+
+// ✅ GOOD (types.go defines single reusable type, pointer null-safety, fluent predicate)
+// types.go
+type (
+    User struct { ... }
+    UserSliceResult = appfault.ResultSlice[User]
+)
+
+// store.go
+func (s *Store) QueryUsers(dept string) UserSliceResult { ... }
+
+userRes := store.QueryUsers("engineering")
+if userRes.IsCountOtherThan(1) {
+    return appfault.New(appfault.ErrNotFound).WithMessage("expected exactly 1 user")
+}
+```
+
+---
+
+### I. Acronyms & Casing Standards (R1, R2, P8)
+
+- **Acronyms:** Standard PascalCase for acronyms: `Id`, `Url`, `Ip`, `Json`, `Api`, `Rpc` (NEVER all-caps `ID`, `URL`, `IP`, `JSON`).
+- **Enums:** Every enum type name MUST end with `Type` (e.g. `UserRoleType`, `ExitCodeType`).
+
+```typescript
+// ❌ BAD (All-caps acronyms, missing Type enum suffix)
+enum UserRole {
+  ADMIN = "ADMIN",
+}
+interface UserDTO {
+  USER_ID: string;
+  IP_ADDRESS: string;
+}
+
+// ✅ GOOD (PascalCase acronyms, Type suffix, PascalCase JSON tags)
+enum UserRoleType {
+  Admin = "Admin",
+  Guest = "Guest",
+}
+interface UserDto {
+  UserId: string;
+  IpAddress: string;
+}
+```
+
+---
+
+### I. Multi-Line Statement Separation, Simple If Checking & Zero Magic Strings
+
+- **Total Ban on Inline Compound Cramming (`if init; cond`):** NEVER cram variable declarations, type assertions, or multi-part boolean checks into an `if` header to fake vertical line count reduction.
+- **Decomposition Over Compression:** Reducing file size (<100 lines) and function size (<=8-15 lines) MUST be achieved through modular decomposition into sibling files (`_validator.go`, `_helpers.go`), NEVER by compressing statements onto fewer lines.
+- **Zero Magic Strings & Returning Constants:** Never hardcode raw string literals (`"unknown"`, `"Version"`, `"version"`) into function logic or return statements. Merge repeated strings into named constants and return defined constants (`return VersionUnknown`).
+
+```go
+// ❌ BANNED ANTI-PATTERN:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return "unknown"
+}
+
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range versionKeys {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return VersionUnknown
+}
+```
+
+---
+
+## 2. Hard Rules (Zero Tolerance)
+
+1. **No Generated Code or Artifacts:** Never commit generated code (`*.generated.*`, gRPC/ORM models), cache files (`__pycache__`, `*.pyc`), test reports (`.test-report.*`), compiled binaries (`.exe`, `.dll`, `.so`), or output directories (`build/`, `bin/`) to Git. Proactively ignore them via `.gitignore`.
+2. **Function Length Caps:** Functions should ideally be 8 lines, hard capped at 15 lines (excluding blank lines and comments). Waiver only via `// lint-allow: function-length reason="..." max=N`.
+3. **No Nested Ifs:** Flatten logic with early returns and guard clauses.
+4. **Positive Framing Only:** `if` conditions must be positive and simple. No `!`, no double negatives. Extract a positively named boolean if negation is needed.
+5. **No Swallowed Errors:** Every `catch` or error block must log with context (`op` name + key inputs) and rethrow or return typed `AppError`. Silent `catch {}` is a build-fail.
+6. **Narrow Types Only:** No `any`, `unknown`, `interface{}`, `object`, `dynamic`. Narrow trust boundaries immediately with type guards. `Generic<T>` is the only wide-scope tool.
+7. **File Size Caps:** Any file 300 lines max; React component (.tsx) 100 lines max; class or struct 120 lines max.
+8. **No Magic Strings or Numbers & Return Defined Constants:** Use enums or typed constants. Every comparison, dictionary lookup key, or status return must be against a named symbol. Never return raw string literals (like `"unknown"`, `"error"`, `"default"`) from functions—always return defined constants (`return VersionUnknown`). Merge related string keys into named constants and aggregate them into reusable slices (`var versionKeys = []string{versionKeyUpper, versionKeyLower}`), eliminating inline magic strings.
+9. **Definitions in Dedicated Files:** Types, enums, constants, and interfaces get their own files (e.g., `src/types/`, `src/enums/`), never defined inline next to first use.
+10. **DRY is Priority One:** Duplicate logic across two sites must be extracted immediately.
+11. **Component Modularity:** Small, reusable components. For features with 3+ components, produce a Mermaid diagram first.
+12. **Immutable-First:** Assign every variable once at declaration. Never reassign except loop indices. Prefer `const`, `let`, `final`, `val` over mutable variables. Build result objects with spread or copy.
+13. **Asset Naming:** Assets go to `assets/<NN-folder>/<NN-file>.<ext>` with two-digit sequence prefixes (e.g., `assets/01-icons/03-logo.svg`).
+14. **No Inverted Complex Conditions:** Never use `!` on complex conditions containing AND/OR. Simplify or extract into named booleans.
+15. **Boolean Return Wrapper:** Functions returning multiple values including a boolean must return a named struct/object (e.g. `{ data, isSuccess }`), never bare tuples `(int, bool)`.
+16. **Strict Conditional Joins:** Never mix logical operators (e.g., OR with AND) and keep `if` conditions to at most one join (two operands).
+17. **No Mixed Polarity:** Never combine positive and negative conditions in the same `if` statement (e.g., `if isA && !isB` is banned; extract `isConflict := isA && !isB`).
+18. **No Explicit True Checks (TOTAL BAN):** NEVER evaluate a boolean explicitly against `true` or `false` (e.g., `if isReady == true` is FORBIDDEN; write `if isReady`).
+19. **Enum Naming:** Every enum name MUST end with the suffix `Type` (e.g. `UserRoleType`), except in Rust where PascalCase is used without suffix. In Python, Enum classes use `PascalCase`, variable members use `UPPER_CASE` with underscores, and string values mirror member names exactly (e.g. `RegexPatternType.UPPERCASE = "UPPERCASE"`, `ExitCodeType.SUCCESS = 0`).
+20. **Version Source of Truth:** `version.json` at root is the sole version authority. All languages import or read this file dynamically.
+21. **Affirmative Boolean Parameter & Field Naming (TOTAL BAN on Single-Letter & Bare Names):** Never use single-letter boolean parameters (`v bool`, `b bool`, `val bool`, `flag bool`) or bare verbs/nouns (`stop bool`, `pause bool`, `force bool`, `dryRun bool`, `header bool`, `defined bool`). Always use affirmative prefixes: `isStopOnFail bool`, `isStopped bool`, `isPaused bool`, `isForced bool`, `isDryRun bool`, `hasHeader bool`, `isDefined bool`.
+22. **Result Container Return Types, Pointer Null-Safety & types.go Mandate (`pkg/appfault`):** Multi-value returns returning errors (`(map[K]V, error)`, `([]T, error)`, `(T, error)`) are strictly banned in Go. Functions MUST return `appfault.ResultMap[K, V]`, `appfault.ResultSlice[T]`, or `appfault.Result[T]`, and side-effects MUST return `*appfault.AppError`. All domain payload structs (e.g. `User`, `ScheduleExportBundle`) and repeated generic Result aliases (`type UserSliceResult = appfault.ResultSlice[User]`) MUST be defined in a dedicated `types.go` file within each package as a single reusable named type. All Result inspection methods MUST attach to pointer receivers (`(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])`) with line-1 `if r == nil` guards returning safe defaults. Enforce the 4 core predicates: `IsCountOtherThan(N)`, `IsEmpty()`, `HasRecord()`, `IsDefined()`.
+23. **Multi-Line Statement Separation & Simple If Condition Checking:** NEVER cram variable declarations, type assertions, and compound boolean checks into an `if` header (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`). You MUST separate them across lines:
+    - **Step 1:** Assignment or type assertion on its own dedicated line (`v, isString := rawMap[key].(string)`).
+    - **Step 2:** Affirmative boolean evaluation on its own dedicated line *before* the `if` (`hasContent := isString && len(v) > 0`).
+    - **Step 3:** One blank line before the `if` statement for vertical breathing room.
+    - **Step 4:** Dead-simple `if` check evaluating exactly ONE boolean variable (`if hasContent { return v }`).
+    - **Step 5:** Zero magic strings: define named constants (`VersionUnknown = "unknown"`, `versionKeyUpper`, `versionKeyLower`), aggregate them (`versionKeys`), and return defined constants (`return VersionUnknown`).
+
+---
+
+## 2. The Return New Line & Whitespace Concept (Mandatory)
+
+The return new line and whitespace standard governs readability and clean code structure. This is mechanically checked by Rule R13–R20 and auto-fixed by `03-ai-scripts/05-guideline-autofixer.py`.
+
+### Rule R13: Blank Line Before `return` / `throw` / `raise`
+
+- **Rule:** Exactly ONE blank line before every `return`, `throw`, `raise`, or early exit statement when it is preceded by other statements in the block.
+- **Exception (Single-Statement Blocks):** If `return` or `throw` is the **ONLY statement** in the block or function body, **NO** blank line is placed before it.
+
+#### Multi-Language Examples:
+
+```go
+// Go: Single-statement function -> NO blank line
+func GetDefaultPort() int {
+    return 8080
+}
+
+// Go: Multi-statement function -> Blank line REQUIRED before return
+func CalculateTotal(price int, tax int) int {
+    subtotal := price + tax
+    discount := calculateDiscount(subtotal)
+
+    return subtotal - discount
+}
+
+// Go: Inside conditional blocks
+func FindUser(ctx context.Context, params UserSearchParams) (*User, *appfault.AppError) {
+    if params.UserId == "" {
+        return nil, appfault.New(appfault.ErrValidation).WithMessage("empty user id") // Single-statement block: no blank line
+    }
+
+    user, err := repo.GetById(ctx, params.UserId)
+    if err != nil {
+        return nil, appfault.Wrap(err, "FindUser", map[string]any{"UserId": params.UserId})
+    }
+
+    return user, nil
+}
+```
+
+```typescript
+// TypeScript / React
+export function calculateDiscount(price: number, isVip: boolean): number {
+  if (isVip) {
+    return price * 0.2; // Single statement: tight against brace
+  }
+
+  const standardRate = getStandardRate();
+  const adjustedPrice = applyBaseDiscount(price, standardRate);
+
+  return adjustedPrice; // Preceded by statements: blank line required
+}
+```
+
+```python
+# Python
+def calculate_metrics(data_points: list[int]) -> int:
+    if not data_points:
+        return 0
+
+    total_sum = sum(data_points)
+    average_val = total_sum // len(data_points)
+
+    return average_val
+```
+
+### Rule R14: Blank Line After Closing `}` Brace
+
+- **Rule:** Exactly ONE blank line after every closing brace `}`, **unless** the next line is another `}`, `else`, `catch`, `finally`, or `case`.
+- **In Python:** Exactly one blank line after a dedent ending a block, unless followed by `else`, `elif`, `except`, or `finally`.
+
+```go
+// CORRECT (Rule R14):
+if err := validate(params); err != nil {
+    return err
+}
+
+cmd := buildCommand(params)
+if err := cmd.Run(); err != nil {
+    return err
+}
+
+return nil
+```
+
+### Rule R15: Never Two Blank Lines in a Row
+
+- Never place two consecutive blank lines anywhere in any file.
+
+### Rule R16: No Padded Braces
+
+- No blank line immediately after an opening `{` brace, and no blank line immediately before a closing `}` brace.
+
+---
+
+## 3. Boolean Principles (P1–P9)
+
+1. **Prefixes:** Every boolean variable, function, parameter, or struct field MUST start with `is` or `has` ONLY (e.g. `isValid`, `hasAccess`, `isReady`, `hasData`); all other prefixes (`can`, `should`, `was`, `will`, `did`, `must`, etc.) are strictly BANNED.
+2. **Positive Framing:** Never use negative names (`isNotReady`, `disableCache` are banned). Invert to positive equivalents (`isReady`, `isCacheEnabled`).
+3. **No Inverted Success:** Never check `!response.isSuccess`. Use `response.isFail`.
+4. **No Explicit True Checks (TOTAL BAN):** Never write `if isReady == true` or `if (hasMatch === true)`. Positive booleans MUST be implicit: `if isReady { ... }`.
+5. **No Mixed Polarity:** Never combine positive and negative checks in the same condition (`if isA && !isB`). Extract to `isConflict := isA && !isB; if isConflict { ... }`.
+6. **No Boolean Flag Parameters:** Never write `save(true)`. Split into `saveDraft()` / `savePublished()` or pass a configuration struct `save(SaveOptions{ IsDraft: true })`.
+
+---
+
+## 4. Function Signatures & Parameter Grouping
+
+- **Rule R4 (Splitting):** If a function has > 3 parameters OR the signature line exceeds 100 characters, split to **one parameter per line**.
+- **Rule R5 (Grouping):** If a function has > 4 parameters OR 2+ adjacent parameters of the same type, group them into a dedicated parameters struct/object (e.g. `SwapIpParams`).
+- **Rule R9 (Call Site Mirror):** Any function call exceeding 100 characters or 4 arguments must be split to **one argument per line**.
+
+```go
+// Param Struct Example (Go)
+type SwapIpParams struct {
+    InterfaceName string `json:"InterfaceName"`
+    OldIp         string `json:"OldIp"`
+    NewIp         string `json:"NewIp"`
+    SubnetMask    string `json:"SubnetMask"`
+    IsDryRun      bool   `json:"IsDryRun"`
+}
+
+func SwapIp(ctx context.Context, params SwapIpParams) error { ... }
+```
+
+---
+
+## 5. Error Management (`02-spec/03-error-manage/`)
+
+- **Never Swallow Errors:** Every `catch` or error check must log with context and rethrow/return.
+- **Structured Go AppError:** All Go functions returning structured errors MUST use `*appfault.AppError` from `04-code/golang/pkg/appfault`.
+- **Wrap with Context:** Use `appfault.Wrap(err, "operationName", contextMap)` in Go, or `new AppError("message", { cause, op, context })` in TypeScript.
+- **Single Result Containers:** Replace multi-value error returns with `appfault.ResultMap[K, V]`, `appfault.ResultSlice[T]`, or `appfault.Result[T]`.
+- **Pointer Null Safety & Predicates:** Attach all inspection methods to pointer receivers with line-1 `if r == nil` guards; use `IsCountOtherThan(N)`, `IsEmpty()`, `HasRecord()`, `IsDefined()`.
+- **Universal Response Envelope:** APIs return `{ data, errors[], meta }`.
+- **No Generic Errors:** Never throw base `Error` or `Exception`. Use domain-specific `AppError` classes with registered error codes.
+
+---
+
+## 6. R1–R21 AI Code Review & Linter Index
+
+| Rule | Machine-Checkable Rule | Severity | Auto-Fixable Script |
+| :--- | :--- | :--- | :--- |
+| **R1** | Acronyms PascalCase (`Id`, `Url`, `Ip`, `Json`), never all-caps | Must Fix | Yes (`05-guideline-autofixer.py`) |
+| **R2** | JSON / serialization keys are PascalCase (`{"UserId": "...", "IsActive": true}`) | Must Fix | Yes |
+| **R3** | Boolean naming starts with is or has only (all other prefixes banned) | Must Fix | Yes |
+| **R4** | Signature > 3 params or > 100 chars -> one param per line | Must Fix | Yes |
+| **R5** | > 4 params or adjacent same-type params -> group into param struct | Must Fix | No (AI manual refactor) |
+| **R6** | Every parameter is used, or discarded as `_` with explanatory comment | Must Fix | No (AI manual refactor) |
+| **R7** | Every error propagated with context; no swallowed errors | Must Fix | No (AI manual refactor) |
+| **R8** | No magic literals passed as arguments — extract named constants | Must Fix | No (AI manual refactor) |
+| **R9** | Call > 100 chars or > 4 args -> one argument per line | Must Fix | Yes |
+| **R10** | No boolean positional parameters -> use named struct or enum | Suggestion | No |
+| **R11** | Go: `ctx` first parameter. C#: `cancellationToken` last parameter | Must Fix | Yes |
+| **R12** | Return values documented; multi-return meanings unambiguous | Suggestion | No |
+| **R13** | One blank line before `return`/`throw`, unless sole statement in block | Must Fix | Yes (`05-guideline-autofixer.py`) |
+| **R14** | One blank line after closing `}`, unless followed by `}`, `else`, `catch`, etc. | Must Fix | Yes (`05-guideline-autofixer.py`) |
+| **R15** | Never two blank lines in a row anywhere | Must Fix | Yes (`05-guideline-autofixer.py`) |
+| **R16** | No blank line immediately after `{` or before `}` | Must Fix | Yes (`05-guideline-autofixer.py`) |
+| **R17** | Exactly one blank line between top-level declarations | Must Fix | Yes (`05-guideline-autofixer.py`) |
+| **R18** | Import grouping: stdlib -> third-party -> first-party absolute -> relative | Must Fix | Yes |
+| **R19** | Trailing newline at EOF; no trailing whitespace | Must Fix | Yes (`05-guideline-autofixer.py`) |
+| **R20** | No section-separator blank lines inside functions (refactor instead) | Suggestion | No |
+| **R21** | No comments on struct fields unless explaining units or non-obvious defaults | Must Fix | No |
+
+---
+
+## 7. Step-by-Step AI Execution Workflow
+
+When tasked with auditing, reviewing, or fixing coding guidelines across a codebase, follow these sequential steps:
+
+1. **Step 1: Automated Pre-Pass (Deterministic AST Autofixers):**
+   - Run the autofixers to instantly eliminate 85% of mechanical violations:
+     ```bash
+     python 03-ai-scripts/05-guideline-autofixer.py <target-dir>
+     python 03-ai-scripts/08-naming-autofixer.py <target-dir>
+     python 03-ai-scripts/04-newline-fixer.py <target-dir>
+     python 03-ai-scripts/07-relative-path-fixer.py <target-dir>
+     ```
+2. **Step 2: Run Linters for Violations:**
+   - Execute `python linter-scripts/validate-guidelines.py` and `python linter-scripts/check-boolean-guidelines.py` to identify remaining violations.
+3. **Step 3: Sequential Manual Fixes (Bounded Micro-Tasks):**
+   - Address remaining non-autofixable violations (R5 param structs, R6 dead params, R7 error context, R8 magic constants) file by file.
+   - Respect the 15-line function cap and flatten all nested conditionals.
+4. **Step 4: Local CI/CD Pipeline Quality Gate:**
+   - Execute targeted file linters / autofixers on modified files ensuring `exit 0`. DO NOT run the full `06-cicd-local-runner.py` during routine guideline turns.
+5. **Step 5: Atomic File Change Tracking:**
+   - Append all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.ai-memory/test-inventory.json`.
+6. **Step 6: File Change Summary:**
+   - Output a detailed summary in chat listing exactly which files changed, what changed, and why.
+
+---
+
+## 8. Anti-Hallucination & Checklist Execution
+
+> [!CAUTION]
+> **CRITICAL RULE: DO NOT ATTEMPT TO READ, PLAN, AND EXECUTE EVERYTHING AT ONCE.**
+> Operate using the 3-Phase Bounded Execution Model:
+>
+> 1. **Phase 1: Read & Understand (Isolated Loop):** First turn is purely exploratory. Do NOT write code.
+> 2. **Phase 2: Bounded Micro-Tasking:** Fix one file or section at a time.
+> 3. **Phase 3: Multi-Agent Parallelization:** Spawn sub-agents with micro-boundaries (single-file bounding box).
+
+---
+
+## Strictly Avoid: No Automatic Releases, No Test Running & No Full CI/CD Runner in Routine Turns (Strict Policy)
+
+- **NO RELEASES (Strict Policy):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
+- **NO TEST RUNNING (Strict Policy):** Test execution is strictly disabled. You MUST NOT execute unit tests, integration tests, or test suites unless explicitly commanded by the repository owner.
+- **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine coding guideline execution turns or micro-batch loops. Running the heavy 28-38 gate pipeline across the entire repository wastes massive amounts of time. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.
+- **Test Inventory & Recent Changes Tracking:** Whenever any file is modified, append its repository-relative path to `.ai-memory/temp/recent-file-changes.json` under atomic file lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`), cross-referencing `.ai-memory/test-inventory.json` so associated tests are known for future release verification.
+
+---
+
+## STRICT AVOIDANCE: Never Disable CI/CD
+
+> [!CAUTION]
+> **NEVER disable any CI/CD checks, GitHub Actions, or validation workflows.**
+> Strictly avoid commenting out, bypassing, or deleting CI/CD steps to force a pipeline to pass. Your job is to fix the underlying code so that the CI/CD pipeline passes legitimately. Disabling CI/CD is an auto-reject failure.
+
+---
+
+## 9. Non-Negotiable Review Checklist
+
+- [ ] **Return New Line Concept (R13-R16):** I verified that every `return`, `throw`, and `raise` has a blank line before it (unless sole statement in block), every closing brace `}` has a blank line after it, no two blank lines exist in a row, and no padded braces exist.
+- [ ] **No Explicit True Checks (P4):** Absolutely zero `== true`, `=== true`, `!= false`, `!== false` comparisons exist.
+- [ ] **No Mixed Polarity (P5):** No mixed positive and negative conditions in `if` statements.
+- [ ] **Acronyms & PascalCase (R1, R2):** All acronyms (`Id`, `Url`, `Ip`, `Json`) and serialization keys use PascalCase.
+- [ ] **Boolean Prefixes & IsDefined (R3):** All booleans start with `is` or `has` only (all other prefixes banned). No negative boolean names. MANDATORY: Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty` / `!res.IsEmpty()`). Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`. Affirmative parameter and field naming enforced (`isStopOnFail`, `isStopped`, no single-letter `v bool` or bare `stop bool`).
+- [ ] **Function Decomposition & Signatures (R4, R5):** All functions <= 15 lines decomposed via 3-Stage Blueprint (Guard -> Core Logic -> Envelope) without logic drift; parameter structs for > 3 arguments.
+- [ ] **Circular Dependency Prevention:** All extracted types/enums reside in leaf packages (`domain/types` or `types/`) with zero circular dependency cycles.
+- [ ] **Polyglot & React Compliance:** Rust match expressions, C# Task/records, PHP BackedEnums, React structuredClone & object hook returns.
+- [ ] **Error Handling & Result Envelopes (R7):** All errors are wrapped with context (`appfault.Wrap`) and returned as `*appfault.AppError`. Single Result containers (`ResultMap`, `ResultSlice`, `Result`) with pointer-attached null safety (`*Result[T]`), dedicated `types.go` single reusable type definitions for domain structs and Result aliases, and 4 core predicates (`IsCountOtherThan`, `IsEmpty`, `HasRecord`, `IsDefined`) enforced without swallowing.
+- [ ] **No Magic Constants (R8):** All magic strings/numbers are extracted to named constants.
+- [ ] **Strict Lowercase Filenames:** All generated or modified files use strictly lowercase naming (`readme.md`, `agents.md`, `skill.md`).
+- [ ] **Tooling Execution:** I ran `03-ai-scripts/05-guideline-autofixer.py` and verified clean output with `python linter-scripts/validate-guidelines.py`.
+- [ ] **Targeted Verification:** All modified files pass targeted linters / autofixers cleanly with exit 0. (Full CI runner `06-cicd-local-runner.py` is banned in routine turns).
+- [ ] **Temp Storage & Pre-Build Clean (R17):** All OS/user temporary files are scoped under `<temp>/gitmap/<category>/` (build, test, purge, downloads). Before running any build, previous build artifacts in the target directory are purged to respect storage and prevent disk bloat.
+- [ ] **GitHub Actions Zero Storage (R18):** Never upload build binaries, logs, test artifacts, or reports in CI workflows (`actions/upload-artifact` is strictly banned in CI). Free tier accounts have an account-wide cap of 0.5 GB (500 MB). Releases belong exclusively in GitHub Releases (`release.yml`), never in Actions artifact storage.
+- [ ] **File Change Summary:** I provided a detailed summary in chat of what files changed, what changed inside them, and why.
+
+---
+
+## Fast File Discovery & Reading Toolchain (GitMap AUM Primary, Python Fallback)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the fast 2-tier discovery toolchain:
+
+### Tier 1: GitMap AUM Acceleration (PRIMARY)
+- **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]` (e.g. `gitmap find "*.go" -ext "go"`, `gitmap find "01*"`)
+- **List Indexed Files:** `gitmap list-files [pattern]` (alias `gitmap lf [pattern] [-ext <ext>]`)
+- **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
+- **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
+- **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
+
+### Tier 2: Fast Cached Python Toolchain (FALLBACK)
+- **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`
+- **Fast Cached Grep (<15ms):** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<pattern>" --lang go --limit 50`
+- **Sub-Millisecond Folder Explorer & Reader:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir> --ext .go --limit 50`
+- **Read Target File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000`
+- **Codebase Topology:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
+
+---
+
+## Final Step Git Commit & Push Mandate (Strict Checklist)
+
+- [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "<summary>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] **TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY):** You MUST NOT create separate git commits for each individual file as you edit them (e.g. running `git commit` after editing File 1, then committing again after File 2 is STRICTLY FORBIDDEN). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback/bisectability. All modified files, test change caches, and plan records across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before pushing!
+
+---
+
+## Metadata
+
+- slug: coding-guidelines
+- status: active

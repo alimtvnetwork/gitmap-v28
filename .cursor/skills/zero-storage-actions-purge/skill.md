@@ -1,19 +1,33 @@
 ---
 name: zero-storage-actions-purge
-description: "Executes the Zero-Storage Actions Purge & Storage Governance prompt. Trigger Keywords & Aliases: purge actions storage, zero storage mandate, purge artifacts, purge actions cache, clean actions storage, github actions storage purge. Use when the user asks to run zero-storage-actions-purge, or the task is about CI/CD fixes, pipeline creation, or zero-storage Actions."
+description: Autonomously discover, purge, and govern GitHub Actions storage, deleting stored artifacts and caches to maintain 0.0 GB usage across repositories.
 ---
 
 # Zero-Storage Actions Purge & Storage Governance
 
-Source prompt: `01-prompts/16-ci-cd/10-zero-storage-actions-purge.md`
+Autonomously inspects repositories, identifies bloated GitHub Actions storage (artifacts and caches), eliminates excessive caching configurations in workflows, and executes multi-threaded API deletion of remote artifacts and caches to maintain zero storage footprint.
 
-## Instructions
+## Core Capabilities
 
-1. Read `01-prompts/16-ci-cd/10-zero-storage-actions-purge.md` in full before doing the task.
-2. Execute that prompt verbatim. It is the source of truth for this workflow.
-3. A direct instruction in the current user message overrides the prompt when they conflict.
-4. Do not shorten, paraphrase, or skip checklist items in the source prompt.
+- **Storage Auditing:** Inspects active caches (`/actions/caches`) and stored artifacts (`/actions/artifacts`) via GitHub REST API across repositories.
+- **Workflow Optimization:**
+  - Adds `retention-days: 1` to all temporary build handoff `upload-artifact` steps.
+  - Removes bloated compiler object caches (`cache-all-crates: "true"`, multi-gigabyte target directory caching).
+  - Adds post-release artifact deletion hooks to release workflows.
+- **Scheduled Automated Purge:** Deploys `.github/workflows/purge-actions-artifacts.yml` running on nightly cron (`0 2 * * *`) and `workflow_dispatch`.
+- **High-Speed Autonomous Deletion:** Runs `03-ai-scripts/34-purge-github-actions-artifacts.py` with multi-threaded concurrent deletion (`ThreadPoolExecutor`) to instantly reclaim gigabytes of storage across repositories.
 
-## Goal
+## Workflow Execution Steps
 
-Trigger Keywords & Aliases: purge actions storage, zero storage mandate, purge artifacts, purge actions cache, clean actions storage, github actions storage purge.
+1. **Defensive Git Pull:** Run `git pull` on the target repository before modifying any workflows or scripts.
+2. **Audit & Fix Workflows:**
+   - Scan `.github/workflows/` for missing `retention-days: 1` on `actions/upload-artifact`.
+   - Remove redundant or massive object caches.
+   - Install or update `.github/workflows/purge-actions-artifacts.yml`.
+3. **Deploy Purge Automation:** Ensure `03-ai-scripts/34-purge-github-actions-artifacts.py` exists with dual artifact and cache purge support.
+4. **Execute Remote Purge:** Run:
+   ```bash
+   python 03-ai-scripts/34-purge-github-actions-artifacts.py --repo <owner/repo>
+   ```
+5. **Verify & Test:** Validate YAML integrity of workflows and verify storage has dropped to 0.0 MB.
+6. **Atomic Commit & Push:** Commit all workflow changes and scripts atomically and immediately push to `origin`.

@@ -87,10 +87,10 @@ SYNC_DIRS = [
     (".cursor/skills", ".cursor/skills"),
     ("03-ai-scripts", "03-ai-scripts"),
     (".agents/scripts", ".agents/scripts"),
+    ("02-spec/02-coding-guidelines", "02-spec/02-coding-guidelines"),
 ]
 
 CONDITIONAL_SPEC_DIRS = [
-    "02-spec/02-coding-guidelines",
     "02-spec/07-design-system",
     "02-spec/17-consolidated-guidelines",
 ]
@@ -288,23 +288,11 @@ def mirror_directory(src: Path, dst: Path, is_dry_run: bool = False) -> tuple[in
 
 
 def mirror_conditional_guidelines(target: Path, is_dry_run: bool = False) -> tuple[int, int]:
-    """Conditionally sync 02-spec guidelines and .ai-memory guideline indices when present in target."""
+    """Conditionally sync other spec guidelines and .ai-memory guideline indices when present in target."""
     copied = 0
     removed = 0
 
-    has_spec_root = (target / "02-spec").exists()
-    has_cg_dir = (target / "02-spec" / "02-coding-guidelines").exists()
-
-    if has_spec_root or has_cg_dir:
-        c, r = mirror_directory(
-            SOURCE_ROOT / "02-spec" / "02-coding-guidelines",
-            target / "02-spec" / "02-coding-guidelines",
-            is_dry_run=is_dry_run,
-        )
-        copied += c
-        removed += r
-
-    for spec_rel in CONDITIONAL_SPEC_DIRS[1:]:
+    for spec_rel in CONDITIONAL_SPEC_DIRS:
         if (target / spec_rel).exists():
             c, r = mirror_directory(
                 SOURCE_ROOT / spec_rel,
@@ -395,16 +383,18 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
     if is_live_push:
         run_cmd(f"git pull origin {base_branch} --no-rebase", target)
 
-    # 2. Create and push pre-change backup branch from HEAD
+    # 2. Create and push pre-change backup branch from HEAD, then return to base branch
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    backup_branch = f"backup/pre-v6-sync-{timestamp}"
+    backup_branch = f"backup/sync-{timestamp}"
     result["backup_branch"] = backup_branch
 
     if not is_dry_run:
-        run_cmd(f"git branch {backup_branch} HEAD", target)
+        run_cmd(f"git checkout -b {backup_branch}", target)
 
         if not is_no_push:
             run_cmd(f"git push -u origin {backup_branch}", target)
+
+        run_cmd(f"git checkout {base_branch}", target)
 
     # 3. Ensure pre-change release tag and release branch exist before modifying
     current_ver = detect_latest_version(target)
@@ -491,7 +481,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
     bump_script = target / "03-ai-scripts" / "37-bump-version.py"
     if bump_script.exists():
         b_code, b_out, b_err = run_cmd(
-            f'python "{bump_script}" --tier patch --scope "Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines"',
+            f'python "{bump_script}" --tier patch --scope "Synchronize prompts, skills, AI scripts, and coding guidelines"',
             target,
         )
         if b_code == 0:
@@ -503,7 +493,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
                 release_branch = f"release/{release_tag}"
                 result["release_tag"] = release_tag
     elif (target / "scripts" / "bump-version.mjs").exists():
-        b_code, b_out, b_err = run_cmd("node scripts/bump-version.mjs --patch", target)
+        b_code, b_out, b_err = run_cmd("node scripts/bump-version.mjs patch", target)
         if b_code == 0:
             is_ver_updated = True
             bumped_ver = detect_latest_version(target)
@@ -537,7 +527,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
         run_cmd(f'git commit -m "chore(version): bump to {release_tag}"', target)
 
     run_cmd(
-        f'git tag -a {release_tag} -m "Release {release_tag} - Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines"',
+        f'git tag -a {release_tag} -m "Release {release_tag} - Synchronize prompts, skills, AI scripts, and coding guidelines"',
         target,
     )
 

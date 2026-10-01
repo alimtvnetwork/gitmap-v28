@@ -66,6 +66,9 @@ Follow this sequence before and during any repository modification task:
 | **38** | `38-sync-prompts-skills-scripts.py` | Synchronizes prompts, skills, and scripts across connected repositories | ~40ms | `sync`, `prompts`, `skills`, `multi-repo` |
 | **39** | `39-migrate-indexes-to-readme.py` | Autonomous repository-wide index migrator (renames index files to readme.md) | ~150ms | `migrator`, `index`, `readme`, `references` |
 | **44** | `44-work-and-system-cache-cleaner.py` | Multi-layer work build artifact, Go/npm/pnpm/Node/DevTools cache, OS temp, SoftwareDistribution, Recycle Bin & Git cache cleaner with Plan & -y modes | ~50ms | `clean`, `cache`, `artifacts`, `go-cache`, `npm-cache`, `pnpm`, `devtools`, `temp`, `recycle-bin` |
+| **45** | `45-antigravity-run-audit.py` | Audits Antigravity runs, transcript events, and subagent lifecycles | ~20ms | `audit`, `antigravity`, `transcripts`, `subagents` |
+| **46** | `46-agent-sqlite-task-manager.py` | Concurrency-safe SQLite task coordination and crash forensics engine | ~10ms | `task-manager`, `sqlite`, `acid`, `multi-agent`, `crash-forensics` |
+| **47** | `47-git-reconcile-and-resolve-conflict.py` | Autonomous Git divergence reconciliation, mechanical conflict resolver & push | ~30ms | `git`, `reconcile`, `merge`, `conflict-resolver`, `push`, `divergence` |
 
 ---
 
@@ -1221,6 +1224,48 @@ python 03-ai-scripts/46-agent-sqlite-task-manager.py diagnose --db <db-path>
 
 # High-level task execution status
 python 03-ai-scripts/46-agent-sqlite-task-manager.py status --db <db-path>
+```
+
+</details>
+
+<details>
+<summary><strong>47 — <code>47-git-reconcile-and-resolve-conflict.py</code>: Autonomous Git Reconciliation & Conflict Resolver</strong></summary>
+
+#### Why It Exists
+
+Safely synchronizes diverged branches without rewriting published Git history (strictly adhering to Lovable and continuous integration guidelines). When multiple agents, developers, or automated releases push concurrent commits, branches diverge. This script automates safe standard merge reconciliation, mechanical conflict resolution for known file patterns, and post-merge push verification.
+
+#### What It Does
+
+- Evaluates local vs remote tracking branches for ahead/behind commit counts and common merge-base commit.
+- Automatically handles fast-forward merges when local is behind with zero ahead commits.
+- Executes non-destructive standard merges (`git merge --no-ff`) when branches have diverged.
+- Scans and detects git conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
+- Provides domain-specific mechanical conflict resolution engines:
+  - Deduplicated line unions for ignore/set files (`.gitignore`, `.gitattributes`).
+  - SemVer comparison and adoption for version manifests (`version.json`, `package.json`).
+  - Chronological section preservation for markdown changelogs and release notes.
+  - Pluggable fallback strategies (`smart`, `ours`, `theirs`, `union`).
+- Audits resolved files to verify 0 conflict markers remain before staging with `git add`.
+- Commits the resolved merge and autonomously pushes to remote, verifying 0 divergence post-push.
+
+#### CLI Usage & Examples
+
+```bash
+# Check divergence status and simulate merge (dry-run)
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py --check
+
+# Reconcile diverged branches, mechanically resolve conflicts, and push to origin
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py --push
+
+# Reconcile using specific strategy without pushing
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py --strategy smart --no-push
+
+# Mechanically resolve active conflict markers in working tree
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py resolve-conflicts --strategy smart
+
+# Output structured JSON report for programmatic agent consumption
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py --check --json
 ```
 
 </details>
