@@ -21,10 +21,9 @@
 
 1. **Synchronize Binary Currency Across All User Profiles:** Rebuilt `gitmap.exe` from `cli/` and copied the newly compiled binary directly to all active target paths:
    - `./gitmap.exe` and `./bin/gitmap.exe`
-   - `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` (`C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`)
-   - `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`
-   - `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`
-   This ensures that any session running under user `Alim` or `Administrator` executes the platform-adaptive `safe-rm` PowerShell loop without terminating `ItemNotFoundException`.
+   - `%LOCALAPPDATA%\gitmap-cli\gitmap.exe`
+   - `%LOCALAPPDATA%\gitmap\gitmap.exe`
+   This ensures that any active session executes the platform-adaptive `safe-rm` PowerShell loop without terminating `ItemNotFoundException`.
 2. **Consolidate Commit Dispatching:** Updated `cli/cmd/rootcore.go` to use `constants.CmdCommit`, `CmdCommitAlias`, `CmdCommitAlias2`, and `CmdCommitAlias3` pointing to `runCommit(argsTail())`, removed the duplicate entry in `cli/cmd/roottooling.go`, and purged `cli/cmd/commit_cli.go`.
 3. **Coding Guideline & Test Verification:** Decomposed `executeCommit` in `cli/cmd/commit_cmd.go` to keep all functions <= 15 lines, added package documentation, and implemented unit tests in `cli/cmd/commit_cmd_test.go` covering flag parsing and alias constants.
 

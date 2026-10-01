@@ -259,10 +259,6 @@ func launchThrottledActiveIgnoreScan(records []model.ScanRecord) *IgnoreScanHand
 	return StartThrottledAsyncIgnoreScan(cold, 24*time.Hour)
 }
 
-func initThrottledPullIgnoreScan(records []model.ScanRecord) *IgnoreScanHandle {
-	return launchThrottledActiveIgnoreScan(records)
-}
-
 func handleEfficientBatchFinish(total int, bar *PullProgressBar, part EfficientPullPartition, all []model.ScanRecord, opts EfficientPullOptions, dur time.Duration) error {
 	sortedStates := sortStatesAlphabetically(bar.States())
 	if opts.IsJSON {

@@ -1,7 +1,7 @@
 # Command Specification: GitIgnore Split-DB Cache & Concurrency Governance
 
 Spec Reference: [02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](../../../02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)  
-Plan Reference: [.ai-memory/plans/pending/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](../../plans/pending/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)
+Plan Reference: [.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](../../plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)
 
 ---
 

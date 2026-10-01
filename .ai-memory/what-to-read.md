@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-10-01T15:45:00Z, Memory write: RCA-26 / Spec 60, Avoid 06, Non-idempotent PowerShell macro removal prevention, platform-adaptive shims (Test-Path), and multi-user binary synchronization (including C:\Users\Alim\AppData\Local\gitmap\gitmap.exe).
 - 2026-10-01T15:35:00Z, Memory write: Plan 60 completed with all 7 subtasks verified, CPAR suite, Split-DB cache engine, and ignore grouping suite.
 - 2026-10-01T15:30:00Z, Memory write: Spec 201, Plan 64 (completed), Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation.
 - 2026-10-01T14:45:00Z, Memory write: Spec 200, Command 13, Flat Git Commit Workflow (`gitmap commit`, `gitmap cm`), Auto-Staging, `--push` and `--dry-run` Flags, and Test Suite Validation.
@@ -48,6 +49,7 @@
 
 - `version.json`, why: single source of truth for the repository version, backend/frontend sections, and sub-package version tracks. All codebases must import this file for version information.
 - `.ai-memory/memory/01-index.md`, why: core memory index
+- `.ai-memory/memory/avoid/06-non-idempotent-macro-removal-and-stale-user-binaries.md`, why: ban on non-idempotent PowerShell removal in macro steps and multi-user binary synchronization
 - `.ai-memory/memory/learned/01-project-context-and-guidelines.md`, why: canonical learned memory of repo identity, CODE RED rules, coding guidelines, error philosophy, and active plans
 - `.ai-memory/memory/learned/03-parallel-cicd-runner-and-log-filtering.md`, why: parallel local runner concurrency, duration tracking, and log suppression standard
 - `.ai-memory/memory/learned/04-streamwriter-contracts-and-naming-standards.md`, why: streamwriter contracts, reentrant locker, monadic Bytes[T], JsonResult multi-source ingestion, boolean prefixes, and Id naming standard
@@ -140,7 +142,7 @@
 - `02-spec/22-app-issues/60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md`, why: 4-Part RCA for rootcore commit dispatch shadowing and stale binary execution
 - `.ai-memory/issues/26-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md`, why: Memory RCA for rootcore commit dispatch shadowing and stale binary execution
 - `02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md`, why: Spec 201 Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation
-- `.ai-memory/plans/pending/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md`, why: Pending Plan 64 Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation
+- `.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md`, why: Completed Plan 64 Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation
 - `.ai-memory/spec/commands/14-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md`, why: Command specification for GitIgnore Split-DB cache and concurrency governance commands
 - `02-spec/22-app-issues/61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md`, why: 4-Part RCA for pull-all unconstrained ignore subprocess deadlock and SSH concurrency multiplication
 - `.ai-memory/issues/27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md`, why: Memory RCA for pull-all unconstrained ignore subprocess deadlock and SSH concurrency multiplication

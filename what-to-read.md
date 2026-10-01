@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.447.0**
+**Pinned version: v6.447.1**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -47,9 +47,9 @@ GitMap is a **Windows-first** project. The commands below install the latest rel
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 ```
 
-#### Pinned Version Install (v6.447.0)
+#### Pinned Version Install (v6.447.1)
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.447.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.447.1/install.ps1 | iex
 ```
 
 ---
@@ -61,9 +61,9 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.447.0/install.
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-#### Pinned Version Install (v6.447.0)
+#### Pinned Version Install (v6.447.1)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.447.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.447.1/install.sh | sh
 ```
 
 ### 🎯 Install — Quick (pick your install drive)
@@ -3470,9 +3470,25 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [.ai-memory/plans/completed/60-gitmap-pas-command-fix.md](.ai-memory/plans/completed/60-gitmap-pas-command-fix.md) - Completed Plan 60: GitMap PAS formula, ignore grouping engine, CPAR suite & split-DB repo cache.
 - [.ai-memory/plans/completed/197-pas-fix.md](.ai-memory/plans/completed/197-pas-fix.md) - Completed Plan 197: GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache.
 - [.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md](.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md) - Plan 56: VMware hardware customization, multi-VM batch operations, and macro orchestration.
-- [.ai-memory/plans/pending/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](.ai-memory/plans/pending/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) - Plan 61: PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry.
 - [02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md](02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md) - Spec 181: GitMap ignore and split-DB repo cache engine architecture.
 - [02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) - Spec 198: PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry.
+- [.ai-memory/plans/completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](.ai-memory/plans/completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) - Completed Plan 61: PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry.
+- [02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md) - Spec 199: Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence.
+- [.ai-memory/plans/completed/62-devtools-cache-discovery-tree-and-split-db.md](.ai-memory/plans/completed/62-devtools-cache-discovery-tree-and-split-db.md) - Completed Plan 62: Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence.
+- [02-spec/21-app/200-semantic-flat-commit-and-auto-stage-command.md](02-spec/21-app/200-semantic-flat-commit-and-auto-stage-command.md) - Spec 200: Semantic Flat Commit & Auto-Stage Command (`gitmap commit`, `cm`, `commit-all`, `ca`) and Macro Execution Resilience.
+- [.ai-memory/plans/completed/63-semantic-flat-commit-suite.md](.ai-memory/plans/completed/63-semantic-flat-commit-suite.md) - Completed Plan 63: Semantic Flat Commit Suite & Auto-Stage Command.
+- [.ai-memory/spec/commands/10-pas-formula-ignore-suite-cpar-and-cache.md](.ai-memory/spec/commands/10-pas-formula-ignore-suite-cpar-and-cache.md) - Command Spec 10: GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine.
+- [.ai-memory/spec/commands/11-pas-worker-concurrency-pull-error-and-telemetry.md](.ai-memory/spec/commands/11-pas-worker-concurrency-pull-error-and-telemetry.md) - Command Spec 11: Machine telemetry, paswh command, pull-error subsystem, and wincredman remediation.
+- [.ai-memory/spec/commands/12-devtools-cache-discovery-tree-and-split-db.md](.ai-memory/spec/commands/12-devtools-cache-discovery-tree-and-split-db.md) - Command Spec 12: Devtools cache dynamic discovery, tree view, and Split-DB persistence.
+- [.ai-memory/spec/commands/13-semantic-flat-commit-suite.md](.ai-memory/spec/commands/13-semantic-flat-commit-suite.md) - Command Spec 13: Semantic flat commit auto-staging suite (`gitmap commit`, `cm`, `ca`).
+- [02-spec/22-app-issues/60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md](02-spec/22-app-issues/60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md) - 4-Part RCA for rootcore commit dispatch shadowing and stale binary execution.
+- [.ai-memory/issues/26-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md](.ai-memory/issues/26-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md) - Memory RCA for rootcore commit dispatch shadowing and stale binary execution.
+- [02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) - Spec 201: GitMap Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation.
+- [.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) - Plan 64: Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation.
+- [.ai-memory/spec/commands/14-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](.ai-memory/spec/commands/14-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) - Command Spec 14: GitIgnore Split-DB cache and concurrency governance commands.
+- [02-spec/22-app-issues/61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](02-spec/22-app-issues/61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md) - 4-Part RCA for pull-all unconstrained ignore subprocess deadlock and SSH concurrency multiplication.
+- [.ai-memory/issues/27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](.ai-memory/issues/27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md) - Memory RCA for pull-all unconstrained ignore subprocess deadlock and SSH concurrency multiplication.
+- [.ai-memory/ambiguous-questions/01-new-ambiguity/03-gitmap-mcp-server-api-endpoint.md](.ai-memory/ambiguous-questions/01-new-ambiguity/03-gitmap-mcp-server-api-endpoint.md) - Ambiguity 03: GitMap as an MCP Server API Endpoint for autonomous AI agents.
 
 
 

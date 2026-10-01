@@ -21,9 +21,8 @@ Windows PowerShell's `Remove-Item` fails terminatingly on missing targets, the i
 
 1. Recompiled and installed the fresh GitMap binary to all active binary locations:
    - `./gitmap.exe` and `./bin/gitmap.exe`
-   - `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` (`C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`)
-   - `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`
-   - `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`
+   - `%LOCALAPPDATA%\gitmap-cli\gitmap.exe`
+   - `%LOCALAPPDATA%\gitmap\gitmap.exe`
 2. Consolidated `CmdCommit`, `CmdCommitAlias`, `CmdCommitAlias2`, `CmdCommitAlias3` in `cli/cmd/rootcore.go` routing to `runCommit(argsTail())`.
 3. Deleted `cli/cmd/commit_cli.go` and removed the duplicate routing entry from `cli/cmd/roottooling.go`.
 4. Decomposed `commit_cmd.go` to adhere to <= 15 line functions and added unit tests in `cli/cmd/commit_cmd_test.go`.

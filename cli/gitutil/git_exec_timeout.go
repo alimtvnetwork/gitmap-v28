@@ -45,7 +45,7 @@ func handleGitTimeoutError(ctx context.Context, err error) ([]byte, error) {
 		return nil, apperror.NewSimple("git command timed out after deadline", "E_GIT_TIMEOUT")
 	}
 	if ctx.Err() != nil {
-		return nil, apperror.WrapSimple(ctx.Err(), "git command cancelled")
+		return nil, apperror.WrapSimple(ctx.Err(), "git command canceled")
 	}
 
 	return nil, err

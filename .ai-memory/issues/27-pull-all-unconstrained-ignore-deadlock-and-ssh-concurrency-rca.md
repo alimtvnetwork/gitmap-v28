@@ -2,7 +2,7 @@
 
 Spec Reference: [02-spec/22-app-issues/61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](../../02-spec/22-app-issues/61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md)  
 Parent Spec: [02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](../../02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)  
-Plan Reference: [.ai-memory/plans/pending/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](../plans/pending/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)
+Plan Reference: [.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](../plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)
 
 ---
 

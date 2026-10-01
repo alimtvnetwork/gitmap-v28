@@ -12,7 +12,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -26,7 +25,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/utils"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
@@ -598,28 +596,6 @@ func (h *IgnoreScanHandle) Collect() []IgnoreRepoIssue {
 		return nil
 	}
 	return <-h.done
-}
-
-func scanRecordsForIgnoreIssues(records []model.ScanRecord) []IgnoreRepoIssue {
-	if len(records) == 0 {
-		return nil
-	}
-	var mu sync.Mutex
-	var issues []IgnoreRepoIssue
-	workers := CalculateIgnoreWorkersForPull(len(records))
-	utils.ProcessAsync(workers, len(records), func(i int) {
-		issue := inspectRepoForIgnoreIssues(records[i].AbsolutePath, records[i].RepoName)
-		if issue.HasIssues() {
-			mu.Lock()
-			issues = append(issues, issue)
-			mu.Unlock()
-		}
-	})
-	return sortIgnoreIssues(issues)
-}
-
-func calculateIgnoreWorkers(total int) int {
-	return CalculateIgnoreWorkersForPull(total)
 }
 
 func sortIgnoreIssues(issues []IgnoreRepoIssue) []IgnoreRepoIssue {

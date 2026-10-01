@@ -4,7 +4,7 @@
 - **Spec ID:** 201
 - **Scope:** Application Architecture, CLI Subsystems, Performance Optimization, Database Caching
 - **Created At:** 2026-10-01
-- **Tracking Plan:** [.ai-memory/plans/pending/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](../../.ai-memory/plans/pending/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)
+- **Tracking Plan:** [.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](../../.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)
 
 ---
 
