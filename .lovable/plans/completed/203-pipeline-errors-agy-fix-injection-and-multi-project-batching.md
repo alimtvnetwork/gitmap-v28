@@ -3,28 +3,28 @@
 ## User Request (Verbatim)
 
 ```text
-PS D:\work\Antigravity-Manager> gitmap pipeline errors agy fix                                                              
-                                                                                                                            
-  ✔ Prepared CI/CD pipeline fix prompt for Antigravity IDE!                                                                 
-                                                                                                                            
-    • Target Repo:    alimtvnetwork/Antigravity-Manager                                                                     
-    • Pipeline Logs:  12.9 KB (failing error logs)                                                                          
-    • Fix Prompt:     47.3 KB (D:\work\Antigravity-Manager\01-prompts\07-bug-fix\01-fix-with-rca.md)                        
-    • Total Payload:  47.3 KB                                                                                               
-    • Saved Payload:  .ai-memory/temp/active-agy-pipeline-fix-prompt.txt                                                    
-    • Clipboard:      Copied to OS clipboard ✅                                                                              
-                                                                                                                            
-  Ready! Paste into Antigravity IDE chat window (Ctrl+V / Cmd+V) to start the fix loop.                                     
-                                                                                                                            
-  ✓ Follow-up Verification Prompt Queued: .ai-memory/temp/queued-agy-followup-prompt.txt ("Is it fixed?")                   
-    • Queue Ledger:   .ai-memory/temp/agy-prompt-queue.json                                                                 
-    • Antigravity CLI: Detected at C:\Users\Administrator\AppData\Local\agy\bin\agy.exe (run: agy -c)                       
-                                                                                                                            
-PS D:\work\Antigravity-Manager>                                                                                             
+PS D:\work\Antigravity-Manager> gitmap pipeline errors agy fix
+
+  ✔ Prepared CI/CD pipeline fix prompt for Antigravity IDE!
+
+    • Target Repo:    alimtvnetwork/Antigravity-Manager
+    • Pipeline Logs:  12.9 KB (failing error logs)
+    • Fix Prompt:     47.3 KB (D:\work\Antigravity-Manager\01-prompts\07-bug-fix\01-fix-with-rca.md)
+    • Total Payload:  47.3 KB
+    • Saved Payload:  .ai-memory/temp/active-agy-pipeline-fix-prompt.txt
+    • Clipboard:      Copied to OS clipboard ✅
+
+  Ready! Paste into Antigravity IDE chat window (Ctrl+V / Cmd+V) to start the fix loop.
+
+  ✓ Follow-up Verification Prompt Queued: .ai-memory/temp/queued-agy-followup-prompt.txt ("Is it fixed?")
+    • Queue Ledger:   .ai-memory/temp/agy-prompt-queue.json
+    • Antigravity CLI: Detected at C:\Users\Administrator\AppData\Local\agy\bin\agy.exe (run: agy -c)
+
+PS D:\work\Antigravity-Manager>
 
 File Prompt text also not good and doen't contain the error logs and it didn't run with AGY at all for that project, full bug not done??
 
-FILE:  .ai-memory/temp/active-agy-pipeline-fix-prompt.txt   
+FILE:  .ai-memory/temp/active-agy-pipeline-fix-prompt.txt
 
 # Verification Check: Is It Fixed?
 

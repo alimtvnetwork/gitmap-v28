@@ -1,9 +1,9 @@
 # Search Performance Benchmarks: GitMap Native AUM (`DH2D` SQLite + Hot-Cache) vs PowerShell vs Go Walk vs Python Fast Grep
 
-> **Benchmark Date:** 2026-09-24  
-> **Target Queries:** `"SSHConnection"` (212 matches), `"Resolve-Version"` (18 matches), `"AppError"` (1,480 matches)  
-> **Repository Context:** `alimtvnetwork/gitmap-v28` (4,200+ tests, 150+ packages, 2,900+ source files across Go/TypeScript/Python/PowerShell)  
-> **Environment:** Windows x86_64, NVMe SSD, PowerShell 7.4 (`pwsh`) & Go 1.23+  
+> **Benchmark Date:** 2026-09-24
+> **Target Queries:** `"SSHConnection"` (212 matches), `"Resolve-Version"` (18 matches), `"AppError"` (1,480 matches)
+> **Repository Context:** `alimtvnetwork/gitmap-v28` (4,200+ tests, 150+ packages, 2,900+ source files across Go/TypeScript/Python/PowerShell)
+> **Environment:** Windows x86_64, NVMe SSD, PowerShell 7.4 (`pwsh`) & Go 1.23+
 > **Visual Evidence:** ![Search Benchmark Comparison Table](../../assets/screenshots/MNRD-mOPioTv.png)
 
 ---

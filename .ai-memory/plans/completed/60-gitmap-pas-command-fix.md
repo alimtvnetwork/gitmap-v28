@@ -19,13 +19,13 @@ WAVES = ceil(subtasks / (A x H))
 ```
 
 > [!IMPORTANT]
-> **Plan Slug:** `60-gitmap-pas-command-fix`  
-> **Tracking Specs:** [02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md](../../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md](../../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md)  
-> **Related Plans:** [59-gitmap-pas-fix-and-repo-cache.md](59-gitmap-pas-fix-and-repo-cache.md) & [181-gitmap-ignore-and-cache-engine.md](181-gitmap-ignore-and-cache-engine.md)  
-> **Runtime:** Google Antigravity 2.0 (IDE and CLI)  
-> **Invoke Command:** `/execute-parent-task-with-n-steps-v6 60-gitmap-pas-command-fix`  
+> **Plan Slug:** `60-gitmap-pas-command-fix`
+> **Tracking Specs:** [02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md](../../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md](../../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md)
+> **Related Plans:** [59-gitmap-pas-fix-and-repo-cache.md](59-gitmap-pas-fix-and-repo-cache.md) & [181-gitmap-ignore-and-cache-engine.md](181-gitmap-ignore-and-cache-engine.md)
+> **Runtime:** Google Antigravity 2.0 (IDE and CLI)
+> **Invoke Command:** `/execute-parent-task-with-n-steps-v6 60-gitmap-pas-command-fix`
 >
-> **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**  
+> **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
 ---

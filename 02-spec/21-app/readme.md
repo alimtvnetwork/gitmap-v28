@@ -51,6 +51,7 @@
 - [193-in-process-fleet-pull-json-and-wincredman-isolation.md](193-in-process-fleet-pull-json-and-wincredman-isolation.md) — In-Process Fleet Pull JSON Delegation and Wincredman Concurrency Isolation (Status: `active`)
 - [194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Status: `active`)
 - [195-pas-formula-fix-ignores-cpar-and-repo-cache.md](195-pas-formula-fix-ignores-cpar-and-repo-cache.md) — GitMap PAS Formula, Ignore Management Suite, CPAR, and Repository Split-DB Cache Engine (Status: `active`)
+- [196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md](196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md) — Fleet Nodes Clone Table Spacing Alignment & W3 Reachability Resilience (Status: `active`)
 - [197-gitmap-pas-fix-and-repo-cache-commands.md](197-gitmap-pas-fix-and-repo-cache-commands.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Status: `active`)
 - [181-gitmap-ignore-and-cache-engine](181-gitmap-ignore-and-cache-engine/01-overview.md) — GitMap Ignore and Cache Engine Architecture (Status: `active`)
-
+- [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) — PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry (Status: `active`)

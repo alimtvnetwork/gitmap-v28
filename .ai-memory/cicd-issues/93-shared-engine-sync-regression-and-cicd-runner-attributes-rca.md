@@ -1,9 +1,9 @@
 # RCA-093: Shared Engine Sync Regression and CI/CD Runner Attribute Deletion
 
-**Date:** 2026-09-30  
-**Status:** Resolved  
-**Severity:** Critical (CI/CD Pipeline Failure across Boolean Linter, Relative Path Check, Nested If Linter, and Script Unit Tests)  
-**Affected Workflows:** `CI` (`Boolean & Enum Linter`, `Relative Path Check`, `Nested If Linter`, `Lint Script Unit Tests`)  
+**Date:** 2026-09-30
+**Status:** Resolved
+**Severity:** Critical (CI/CD Pipeline Failure across Boolean Linter, Relative Path Check, Nested If Linter, and Script Unit Tests)
+**Affected Workflows:** `CI` (`Boolean & Enum Linter`, `Relative Path Check`, `Nested If Linter`, `Lint Script Unit Tests`)
 **Run ID:** `36730811906`
 
 ---

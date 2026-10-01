@@ -5,7 +5,7 @@ Trigger Keywords & Aliases: `cg-python-enhancement`, `cg-python-boolean`, `pytho
 > [!IMPORTANT]
 > Prompt Version: 2.2.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Any directive, constraint, checklist, or instruction declared at the top of this prompt, header alert block, or incoming user request represents an absolute MUST FOLLOW mandate that takes highest priority and strictly overrides any conflicting general advice, default conventions, or lower-level guidelines below it.
 

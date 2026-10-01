@@ -2,6 +2,7 @@ package cmdssh
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -53,16 +54,24 @@ func printFleetPASBanner(label string, probes []fleetNodeLiveness) {
 	for _, p := range probes {
 		c := p.conn
 		if p.isOnline {
-			fmt.Printf("    • Remote Node [%s] (%s): %sOnline → Enqueued (async)%s\n",
-				c.Alias, c.IPAddress, constants.ColorGreen, constants.ColorReset)
+			verStr := p.version
+			if verStr != "" && verStr != "unknown" && !strings.HasPrefix(verStr, "v") {
+				verStr = "v" + verStr
+			}
+			fmt.Printf("    • Remote Node [%s] (%s) [GitMap %s]: %sOnline → Enqueued (async)%s\n",
+				c.Alias, c.IPAddress, verStr, constants.ColorGreen, constants.ColorReset)
 			continue
 		}
 		fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
 			c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
 	}
 	host := resolveLocalHostname()
-	fmt.Printf("    • Current Machine [%s (127.0.0.1)]: %sRunning locally (direct execution, not enqueued)%s\n\n",
-		host, constants.ColorGreen, constants.ColorReset)
+	localVer := constants.Version
+	if !strings.HasPrefix(localVer, "v") {
+		localVer = "v" + localVer
+	}
+	fmt.Printf("    • Current Machine [%s (127.0.0.1)] [GitMap %s]: %sRunning locally (direct execution, not enqueued)%s\n\n",
+		host, localVer, constants.ColorGreen, constants.ColorReset)
 }
 
 func dispatchPASFleetWork(conns []db.SSHConnection, remoteCmd string, localFn func() error) []FleetPASOutcome {
@@ -164,4 +173,55 @@ func printIndentedOutput(output string) {
 			fmt.Printf("        %s\n", trimmed)
 		}
 	}
+}
+
+// ParsePASConcurrencyFlags extracts worker and hand concurrency flags from command args.
+func ParsePASConcurrencyFlags(args []string) []string {
+	var forwarded []string
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "--wwoh" || a == "--worker-with-one-hand":
+			forwarded = append(forwarded, a)
+		case a == "--w" || a == "--worker" || a == "--workers" || a == "-w":
+			forwarded = append(forwarded, a)
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				i++
+				forwarded = append(forwarded, args[i])
+			}
+		case a == "--hand" || a == "--hands" || a == "--h":
+			forwarded = append(forwarded, a)
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				i++
+				forwarded = append(forwarded, args[i])
+			}
+		case a == "-h":
+			if i+1 < len(args) {
+				if _, err := strconv.Atoi(args[i+1]); err == nil {
+					forwarded = append(forwarded, "--hand", args[i+1])
+					i++
+				}
+			}
+		case strings.HasPrefix(a, "--w=") || strings.HasPrefix(a, "--worker=") || strings.HasPrefix(a, "--workers="):
+			forwarded = append(forwarded, a)
+		case strings.HasPrefix(a, "--hand=") || strings.HasPrefix(a, "--hands=") || strings.HasPrefix(a, "--h="):
+			forwarded = append(forwarded, a)
+		}
+	}
+	return forwarded
+}
+
+// dispatchOnlineFleetPAS constructs remote commands forwarding concurrency flags and dispatches fleet work.
+func dispatchOnlineFleetPAS(conns []db.SSHConnection, baseRemoteCmd string, args []string, localFn func() error) []FleetPASOutcome {
+	forwardedFlags := ParsePASConcurrencyFlags(args)
+	remoteCmd := baseRemoteCmd
+	if len(forwardedFlags) > 0 {
+		remoteCmd = remoteCmd + " " + strings.Join(forwardedFlags, " ")
+	}
+	return dispatchPASFleetWork(conns, remoteCmd, localFn)
+}
+
+// RunSSHPASFleet executes pull-all across SSH fleet nodes, forwarding concurrency flags to remote nodes.
+func RunSSHPASFleet(cleanArgs []string) error {
+	return RunSSHPullAllFleet(cleanArgs)
 }

@@ -4,7 +4,7 @@
 This specification consolidates the feature requests from the multi-part prompt provided in `02-spec/21-app/pas-fix-parts/`. It covers sweeping enhancements to GitMap's repository management capabilities, async task handling, ignoring logic, and a new high-performance SQLite-based repository cache.
 
 ## 1. PAS Formula & Async Execution
-- **`gitmap pull all (pa)`**: Modifies behavior to prioritize the actual pull operation over `gitignore` checks. Ignore checks should run asynchronously (e.g., 5 projects per worker) to find duplicates or tracked ignored files. 
+- **`gitmap pull all (pa)`**: Modifies behavior to prioritize the actual pull operation over `gitignore` checks. Ignore checks should run asynchronously (e.g., 5 projects per worker) to find duplicates or tracked ignored files.
 - **`gitmap pull all ssh (pas)`**: Applies the "Gitmap PAS formula". Runs `pa` on the current machine and delegates to SSH nodes using GitMap's task servers. SSH delegation must be highly efficient: 1 or 2 workers handling 2 async operations maximum to preserve delicate SSH resource constraints.
 - All actions enqueue tasks on the task server and record results in the history/errors DB.
 

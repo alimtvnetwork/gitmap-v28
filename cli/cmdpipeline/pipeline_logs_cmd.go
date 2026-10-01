@@ -8,7 +8,6 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
-	"github.com/atotto/clipboard"
 )
 
 // PipelineLogsOptions encapsulates flags and arguments for gitmap pipeline logs.
@@ -303,7 +302,7 @@ func dispatchLogsOutput(combined string, items []CommitWorkflowLogItem, opts Pip
 		return writeLogsToTempFile(opts.TempFileName, combined)
 	}
 	if opts.DoCopy {
-		_ = clipboard.WriteAll(combined)
+		_ = writeClipboard(combined)
 		fmt.Println("✓ Copied pipeline logs to system clipboard.")
 	}
 

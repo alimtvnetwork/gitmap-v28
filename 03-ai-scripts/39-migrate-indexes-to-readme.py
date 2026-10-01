@@ -62,7 +62,7 @@ def rename_index_files(index_files):
         target_path = file_path.parent / "readme.md"
         rel_src = file_path.relative_to(ROOT_DIR).as_posix()
         rel_dst = target_path.relative_to(ROOT_DIR).as_posix()
-        
+
         # Try git mv first
         res = subprocess.run(["git", "mv", rel_src, rel_dst], capture_output=True, text=True)
         if res.returncode == 0:
@@ -90,23 +90,23 @@ def update_file_references():
             file_path = root_path / f
             if file_path.suffix.lower() in BINARY_EXTENSIONS:
                 continue
-            
+
             try:
                 content = file_path.read_text(encoding="utf-8")
             except (UnicodeDecodeError, PermissionError):
                 continue
-            
+
             new_content = content
             rep_count = 0
-            
+
             if "readme.md" in new_content:
                 rep_count += new_content.count("readme.md")
                 new_content = new_content.replace("readme.md", "readme.md")
-                
+
             if "readme.md" in new_content:
                 rep_count += new_content.count("readme.md")
                 new_content = new_content.replace("readme.md", "readme.md")
-                
+
             if rep_count > 0:
                 written = False
                 for attempt in range(5):

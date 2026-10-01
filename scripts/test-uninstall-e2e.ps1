@@ -38,7 +38,7 @@ New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
 try {
     # 1. Test CLI Help Output & Routing
     Write-Host "`n[Step 1/5] Verifying CLI Command Registration & Help Flags..." -ForegroundColor Yellow
-    
+
     $HelpCommands = @(
         "uninstall --help",
         "winutil --help",
@@ -58,7 +58,7 @@ try {
     # 2. Test AGY Restore Snapshot Generation
     Write-Host "`n[Step 2/5] Testing AGY Project & Conversation Snapshot Generation..." -ForegroundColor Yellow
     $SnapFile = if ($BackupPath) { $BackupPath } else { Join-Path $TempDir "agy-snapshot-e2e.json" }
-    
+
     Write-Host "  • Running snapshot export to: $SnapFile"
     & $GitMapExe agy uninstall --all --dry-run --force --backup $SnapFile
     Write-Host "  • AGY dry-run purge validated successfully." -ForegroundColor Green

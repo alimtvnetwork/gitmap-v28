@@ -26,7 +26,7 @@ func runAgyWatchPrompts(args []string) *apperror.AppError {
 	for {
 		queues := cmdagy.DiscoverAllWorkspaceQueues()
 		fmt.Printf("Discovered %d active queues\\n", len(queues))
-		
+
 		time.Sleep(30 * time.Second)
 	}
 	return nil

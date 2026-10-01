@@ -3,7 +3,7 @@
 This document outlines the API and structural contracts for the new ignore engine, PAS formula task queue, and commit-push review structures.
 
 ## 1. PAS Formula Task Queue Contract
-The GitMap PAS Formula (Pull-All-SSH Standard) enforces a resilient async orchestration pattern for fleet-wide delegation (e.g., `gitmap pull all ssh` and `gitmap fix-ignores-all-ssh`). 
+The GitMap PAS Formula (Pull-All-SSH Standard) enforces a resilient async orchestration pattern for fleet-wide delegation (e.g., `gitmap pull all ssh` and `gitmap fix-ignores-all-ssh`).
 
 **Table: `TaskQueue`**
 - `QueueId` (String, Primary Key)

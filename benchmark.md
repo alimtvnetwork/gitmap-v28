@@ -1,9 +1,9 @@
 # GitMap Search Performance Benchmarks: Polyglot Comparison Matrix
 
-> **Target Codebase:** `alimtvnetwork/gitmap-v28`  
-> **Repository Size:** 2,900+ files, 150+ Go packages, multi-language polyglot repository  
-> **Benchmark Suite:** `python 03-ai-scripts/43-run-search-benchmarks.py`  
-> **Execution Environment:** Windows 10/11 Enterprise x64, NVMe PCIe 4.0 SSD, Multi-Core CPU  
+> **Target Codebase:** `alimtvnetwork/gitmap-v28`
+> **Repository Size:** 2,900+ files, 150+ Go packages, multi-language polyglot repository
+> **Benchmark Suite:** `python 03-ai-scripts/43-run-search-benchmarks.py`
+> **Execution Environment:** Windows 10/11 Enterprise x64, NVMe PCIe 4.0 SSD, Multi-Core CPU
 
 ---
 

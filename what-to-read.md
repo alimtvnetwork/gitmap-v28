@@ -134,7 +134,7 @@ gitmap install custom-cli
 
 ![Search Benchmark Evidence](assets/screenshots/MNRD-mOPioTv.png)
 
-> **Measured on `alimtvnetwork/gitmap-v28` (`2,900+` files, `150+` Go packages).**  
+> **Measured on `alimtvnetwork/gitmap-v28` (`2,900+` files, `150+` Go packages).**
 > Complete benchmark methodology and hardware specifications: **[`benchmark.md`](benchmark.md)**
 
 ### Table 1: Wildcard File Search Benchmarks (`*config*.json`)
@@ -3470,7 +3470,10 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [.ai-memory/plans/completed/60-gitmap-pas-command-fix.md](.ai-memory/plans/completed/60-gitmap-pas-command-fix.md) - Completed Plan 60: GitMap PAS formula, ignore grouping engine, CPAR suite & split-DB repo cache.
 - [.ai-memory/plans/completed/197-pas-fix.md](.ai-memory/plans/completed/197-pas-fix.md) - Completed Plan 197: GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache.
 - [.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md](.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md) - Plan 56: VMware hardware customization, multi-VM batch operations, and macro orchestration.
+- [.ai-memory/plans/pending/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](.ai-memory/plans/pending/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) - Plan 61: PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry.
 - [02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md](02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md) - Spec 181: GitMap ignore and split-DB repo cache engine architecture.
+- [02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) - Spec 198: PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry.
+
 
 
 

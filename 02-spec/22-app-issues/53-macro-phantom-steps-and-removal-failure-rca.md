@@ -38,6 +38,8 @@ During interactive macro execution and editing in GitMap:
 
 ## 2. Root Cause
 
+Windows PowerShell's `rm` (`Remove-Item`) fails terminatingly on non-existent targets rather than being idempotent, the installed GitMap binary at `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` was stale (built before safe removal and edit recording shims), and interactive edit mode treated workspace-modifying commands as transient unrecorded helpers.
+
 1. **Platform Non-Idempotent `rm` Behavior on Windows:**
    On Windows PowerShell, `rm` is an alias for the `Remove-Item` cmdlet. Unlike POSIX shells (`rm -f`), PowerShell throws a terminating `ItemNotFoundException` if the specified target does not exist. GitMap's macro step runner directly piped `rm <target>` into the shell without existence checking or suppression flags, causing immediate step failure.
 2. **In-Builder Helper Hijack in Macro Editor:**

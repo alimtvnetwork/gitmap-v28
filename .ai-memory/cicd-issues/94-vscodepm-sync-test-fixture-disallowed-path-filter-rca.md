@@ -1,10 +1,10 @@
 # RCA-094: VS Code PM Sync Test Fixture Disallowed Path Filter Exclusion
 
-**Date:** 2026-10-01  
-**Status:** Resolved  
-**Severity:** Critical (Full Suite Guard and Cross-Platform Build CI failure on Linux & macOS)  
-**Affected Packages:** `cli/cmdvscode`  
-**Run IDs:** `36750229027`, `36750228882`  
+**Date:** 2026-10-01
+**Status:** Resolved
+**Severity:** Critical (Full Suite Guard and Cross-Platform Build CI failure on Linux & macOS)
+**Affected Packages:** `cli/cmdvscode`
+**Run IDs:** `36750229027`, `36750228882`
 
 ---
 

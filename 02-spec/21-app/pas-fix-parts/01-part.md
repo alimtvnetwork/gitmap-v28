@@ -1,10 +1,10 @@
 Part 1
 
-Output is still wrong for 
+Output is still wrong for
 
 gitmap nodes clone https://github.com/alimtvnetwork/awansoft-v10
 
-I can still acess to w3 machine fix it and release minor please and 
+I can still acess to w3 machine fix it and release minor please and
 
 PS C:\Users\Alim\awansoft-v10> gitmap pa --ssh
 

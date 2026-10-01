@@ -14,7 +14,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/atotto/clipboard"
 )
 
 func extractNegativeOffset(args []string) (int, bool) {
@@ -162,13 +161,17 @@ func renderPositionalCommitTerminal(repo string, runs []ghRunItem, groups []Comm
 	renderRecentCommitsSummaryToBuilder(&sb, groups, 5)
 	output := CollapseConsecutiveEmptyLines(sb.String())
 	fmt.Print(output)
-	copyPositionalReportToClipboard(output)
+	copyPositionalReportToClipboard(output, isCommitGroupFailure(group))
 }
 
-func copyPositionalReportToClipboard(terminalOutput string) {
+func copyPositionalReportToClipboard(terminalOutput string, isFailure bool) {
 	cleanOutput := stripANSI(terminalOutput)
-	_ = clipboard.WriteAll(cleanOutput)
-	fmt.Printf("\n  %s📋 Copied positional pipeline error report to clipboard%s\n", constants.ColorCyan, constants.ColorReset)
+	_ = writeClipboard(cleanOutput)
+	label := "positional pipeline report"
+	if isFailure {
+		label = "positional pipeline error report"
+	}
+	fmt.Printf("\n  %s📋 Copied %s to clipboard%s\n", constants.ColorCyan, label, constants.ColorReset)
 }
 
 func isCommitGroupFailure(group *CommitPipelineGroup) bool {

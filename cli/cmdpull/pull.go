@@ -38,6 +38,9 @@ type pullOptions struct {
 	verbose       bool
 	stopOnFail    bool
 	parallel      int
+	workers       int
+	hands         int
+	isWWOH        bool
 	onlyAvailable bool
 	autoFix       bool
 	yes           bool
@@ -59,10 +62,23 @@ func NormalizePullArgs(args []string) []string {
 			i++
 			continue
 		}
+		if isHandShortFlagWithVal(args, i) {
+			normalized = append(normalized, "--hand", args[i+1])
+			i++
+			continue
+		}
 		normalized = appendNormalizedPullToken(normalized, args[i])
 	}
 
 	return reorderPullFlags(normalized)
+}
+
+func isHandShortFlagWithVal(args []string, i int) bool {
+	if args[i] != "-h" || i+1 >= len(args) {
+		return false
+	}
+	_, err := strconv.Atoi(args[i+1])
+	return err == nil
 }
 
 func reorderPullFlags(args []string) []string {
@@ -102,7 +118,9 @@ func isPullFlagTakingValue(arg string) bool {
 		return false
 	}
 
-	return arg == "-g" || arg == "--group" || arg == "-p" || arg == "--parallel"
+	return arg == "-g" || arg == "--group" || arg == "-p" || arg == "--parallel" ||
+		arg == "-w" || arg == "--w" || arg == "--worker" || arg == "--workers" ||
+		arg == "--hand" || arg == "--hands" || arg == "--h"
 }
 
 func isPullAllTableSeq(args []string, i int) bool {
@@ -137,6 +155,7 @@ func isAllToken(token string) bool {
 
 // runPull handles the "pull" subcommand.
 func runPull(args []string) error {
+	args = NormalizePullArgs(args)
 	isPullAll := isPullAllInvocation(args)
 	checkPullHelp(isPullAll, args)
 	if handled, err := checkEfficientSubcommand(args); handled {
@@ -1356,11 +1375,17 @@ func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 }
 
 func executePull(records []model.ScanRecord, bar *PullProgressBar, opts pullOptions) {
-	workers, isResolved := cloneconcurrency.Resolve(opts.parallel)
-	if !isResolved {
+	if opts.parallel < 0 || opts.workers < 0 || opts.hands < 0 {
 		cliexit.HandleError(apperror.NewSimple("invalid concurrency", "E9000"), 1)
 	}
-	opts.parallel = workers
+	effectiveWorkers := opts.workers
+	if effectiveWorkers <= 0 {
+		effectiveWorkers = opts.parallel
+	}
+	workers, hands := cloneconcurrency.ResolveWorkerHands(effectiveWorkers, opts.hands, opts.isWWOH, opts.useSSH)
+	opts.workers = workers
+	opts.hands = hands
+	opts.parallel = workers * hands
 	if opts.parallel > 1 {
 		runPullParallel(records, bar, opts.parallel)
 		return
@@ -1399,8 +1424,9 @@ func dispatchRemediationSummary(remItems []RemediationItem, opts pullOptions) {
 type pullFlagHolders struct {
 	vFlag, aFlag, sFlag, oFlag, fixFlag, yFlag, noFixFlag, rawFlag *bool
 	sshFlag, httpsFlag, statusFlag, jsonFlag, probeFlag            *bool
+	wwohFlag                                                       *bool
 	gFlag                                                          *string
-	pFlag                                                          *int
+	pFlag, wFlag, handFlag                                         *int
 }
 
 func initPullFlagSet() (*flag.FlagSet, *pullFlagHolders) {
@@ -1424,6 +1450,18 @@ func registerPullCoreFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 	h.sshFlag = fs.Bool("ssh", false, "Pull using SSH transport")
 	h.httpsFlag = fs.Bool("https", false, "Pull using HTTPS transport")
 	fs.StringVar(h.gFlag, "g", "", constants.FlagDescGroup)
+	fs.IntVar(h.pFlag, "p", 0, constants.FlagDescPullParallel)
+
+	h.wFlag = fs.Int("w", 0, "Worker pool size")
+	fs.IntVar(h.wFlag, "worker", 0, "Worker pool size")
+	fs.IntVar(h.wFlag, "workers", 0, "Worker pool size")
+
+	h.handFlag = fs.Int("hand", 0, "Hands per worker")
+	fs.IntVar(h.handFlag, "hands", 0, "Hands per worker")
+	fs.IntVar(h.handFlag, "h", 0, "Hands per worker")
+
+	h.wwohFlag = fs.Bool("wwoh", false, "Worker with one hand")
+	fs.BoolVar(h.wwohFlag, "worker-with-one-hand", false, "Worker with one hand")
 }
 
 func registerPullRemediationFlags(fs *flag.FlagSet, h *pullFlagHolders) {
@@ -1445,8 +1483,10 @@ func registerPullOutputFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 func buildPullOptions(h *pullFlagHolders) pullOptions {
 	opts := pullOptions{
 		group: *h.gFlag, all: *h.aFlag, verbose: *h.vFlag,
-		stopOnFail: *h.sFlag, parallel: *h.pFlag, onlyAvailable: *h.oFlag,
-		autoFix: *h.fixFlag, yes: *h.yFlag, noFix: *h.noFixFlag,
+		stopOnFail: *h.sFlag, parallel: *h.pFlag,
+		workers: *h.wFlag, hands: *h.handFlag, isWWOH: *h.wwohFlag,
+		onlyAvailable: *h.oFlag,
+		autoFix:       *h.fixFlag, yes: *h.yFlag, noFix: *h.noFixFlag,
 		isRaw: *h.rawFlag, useSSH: *h.sshFlag, useHTTPS: *h.httpsFlag,
 		showStatus: *h.statusFlag, isJSON: *h.jsonFlag, isProbe: *h.probeFlag,
 	}

@@ -5,7 +5,7 @@ Trigger Keywords & Aliases: `cg-string-efficiency`, `cg-strings`, `cg-string-com
 > [!IMPORTANT]
 > Prompt Version: 2.2.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Any directive, constraint, checklist, or instruction declared at the top of this prompt, header alert block, or incoming user request represents an absolute MUST FOLLOW mandate that takes highest priority and strictly overrides any conflicting general advice, default conventions, or lower-level guidelines below it.
 
@@ -97,7 +97,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 > 1. **Exact Case-Insensitive Equality** (`full match`)
 > 2. **Case-Insensitive Substring Containment** (`partial match / search filter`)
 > 3. **Case-Insensitive Prefix or Suffix Matching** (`starts with / ends with`)
-> 
+>
 > Changing a substring search (`Contains`) to an equality check (`EqualFold`) is a CATASTROPHIC BUG that breaks filters and searches!
 
 ### Semantic Intent Mapping Matrix

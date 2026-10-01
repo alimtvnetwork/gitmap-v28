@@ -5,7 +5,7 @@ Trigger Keywords & Aliases: `cg-result-wrapper`, `cg-apperror-returns`, `cg-exec
 > [!IMPORTANT]
 > Prompt Version: 2.4.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Any directive, constraint, checklist, or instruction declared at the top of this prompt, header alert block, or incoming user request represents an absolute MUST FOLLOW mandate that takes highest priority and strictly overrides any conflicting general advice, default conventions, or lower-level guidelines below it.
 
@@ -827,4 +827,3 @@ To survive large codebases without hitting step limits or context loss, execute 
 - **NO ABSOLUTE PATHS:** Never write absolute filesystem paths (`C:\...`, `/home/...`) or `file:///` URIs. Use strict relative Git paths starting from the repository root.
 - **NO UPPERCASE FILENAMES:** Every file created or edited must be strictly lowercase.
 - **NO MULTI-VALUE TUPLES:** Eliminate `(T, error)` in favor of `Result[T]`, `ResultMap[K, V]`, or `ResultSlice[T]`.
-

@@ -1,8 +1,8 @@
 # Rule R18: GitHub Actions Zero-Storage Mandate & Artifact Hygiene
 
-**Status:** Active  
-**Scope:** Universal (All Repositories, Workflows & Languages)  
-**Strictness:** Non-Negotiable (Banned Anti-Pattern)  
+**Status:** Active
+**Scope:** Universal (All Repositories, Workflows & Languages)
+**Strictness:** Non-Negotiable (Banned Anti-Pattern)
 
 ---
 

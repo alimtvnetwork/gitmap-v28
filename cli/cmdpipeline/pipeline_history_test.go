@@ -10,6 +10,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
+func init() {
+	writeClipboard = func(text string) error {
+		return nil
+	}
+}
+
 func TestParseNegativeIndex(t *testing.T) {
 	val, hasVal := ParseNegativeIndex("-2")
 	if !hasVal || val != -2 {

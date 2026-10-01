@@ -259,7 +259,7 @@ if ($workingInstall -and -not $ForceReinstall) {
         if ($winget) {
             Write-Host "  Running winget to repair VS Code binaries..." -ForegroundColor Yellow
             & winget.exe install --id Microsoft.VisualStudioCode --force --accept-source-agreements --accept-package-agreements
-            
+
             $postTest = & code --version 2>&1
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "  Winget repair successful! VS Code version: $postTest" -ForegroundColor Green

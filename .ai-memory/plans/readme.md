@@ -35,12 +35,15 @@
 - [57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet Nodes Clone Output Alignment & W3 Liveness Resilience (Spec: [194](../../02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md))
 - [58-pas-formula-fix-ignores-cpar-and-repo-cache.md](completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) — GitMap PAS Formula, Windows Credential Store Fix, Ignore Management Suite, CPAR, and Split-DB Cache Engine (Spec: [195](../../02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md))
 - [60-gitmap-pas-command-fix.md](completed/60-gitmap-pas-command-fix.md) — GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite & Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md) & [181](../../02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md))
+- [61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) — PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry (Spec: [198](../../02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md))
 
 - [197-pas-fix.md](completed/197-pas-fix.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
 
 ## Pending Plans
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
+
+
 
 
 ## Subtasks Directory
@@ -91,3 +94,10 @@
 - [02-pull-first-and-gitignore-deduplication.md](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/02-pull-first-and-gitignore-deduplication.md): Pull first and gitignore deduplication
 - [03-ignore-management-suite-and-pas-formula.md](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/03-ignore-management-suite-and-pas-formula.md): Ignore management suite and PAS formula
 - [04-cpar-see-suite-and-split-db-cache.md](subtasks/201-pas-formula-ignore-suite-cpar-and-cache/04-cpar-see-suite-and-split-db-cache.md): CPAR see suite and Split-DB cache
+
+### Plan 61 Subtasks (subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/)
+- [01-gitmap-machine-telemetry-and-startup-version.md](subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/01-gitmap-machine-telemetry-and-startup-version.md): Dedicated machine telemetry and startup node version
+- [02-concurrency-worker-hands-flags-and-paswh.md](subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/02-concurrency-worker-hands-flags-and-paswh.md): Concurrency worker and hands flags and paswh command
+- [03-heartbeat-ticker-and-structured-output-grouping.md](subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/03-heartbeat-ticker-and-structured-output-grouping.md): Heartbeat ticker and structured output grouping
+- [04-pull-error-subsystem-and-split-db-engine.md](subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/04-pull-error-subsystem-and-split-db-engine.md): Pull-error subsystem and split-DB engine
+- [05-wincredman-credential-remediation-hints.md](subtasks/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry/05-wincredman-credential-remediation-hints.md): Wincredman credential store remediation hints

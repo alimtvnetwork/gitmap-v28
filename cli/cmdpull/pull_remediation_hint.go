@@ -17,22 +17,36 @@ func ResolvePullErrorDetails(s *PullRepoState) string {
 }
 
 func classifyPullErrorString(msg string) string {
+	if isWincredmanFailure(msg) {
+		return "Windows Credential Manager (wincredman) failed to persist credentials"
+	}
+	if summary := classifyStandardError(msg); summary != "" {
+		return summary
+	}
+	return extractFirstMeaningfulErrorLine(msg)
+}
+
+func classifyStandardError(msg string) string {
+	if isAuthFailure(msg) {
+		return classifyAuthError(msg)
+	}
+	if isConflictFailure(msg) {
+		return "Merge conflict detected during pull"
+	}
+	if isDivergedFailure(msg) {
+		return "Cannot fast-forward - local and remote branches have diverged"
+	}
+	if isMissingRepoFailure(msg) {
+		return "Repository directory does not exist on disk"
+	}
+	return ""
+}
+
+func classifyAuthError(msg string) string {
 	if strings.Contains(msg, "Permission denied (publickey)") {
 		return "Permission denied (publickey) - SSH key or token rejected"
 	}
-	if strings.Contains(msg, "Authentication failed") {
-		return "Authentication failed - credentials or personal access token rejected"
-	}
-	if strings.Contains(msg, "CONFLICT") || strings.Contains(msg, "conflict") {
-		return "Merge conflict detected during pull"
-	}
-	if strings.Contains(msg, "Not possible to fast-forward") || strings.Contains(msg, "diverged") {
-		return "Cannot fast-forward - local and remote branches have diverged"
-	}
-	if strings.Contains(msg, "missing repository directory") {
-		return "Repository directory does not exist on disk"
-	}
-	return extractFirstMeaningfulErrorLine(msg)
+	return "Authentication failed - credentials or personal access token rejected"
 }
 
 func extractFirstMeaningfulErrorLine(msg string) string {
@@ -43,6 +57,10 @@ func extractFirstMeaningfulErrorLine(msg string) string {
 			return trimmed
 		}
 	}
+	return fallbackErrorLine(lines)
+}
+
+func fallbackErrorLine(lines []string) string {
 	if len(lines) == 0 {
 		return "pull execution failed"
 	}
@@ -68,6 +86,16 @@ func ResolvePullRemediationHint(s *PullRepoState) string {
 }
 
 func buildActionableRemediation(repoName, repoPath, msg string) string {
+	if isWincredmanFailure(msg) {
+		return "Run 'gitmap fix-credential' (alias: fc) or check Windows Credential Manager service"
+	}
+	if hint := buildSpecificRemediation(repoName, msg); hint != "" {
+		return hint
+	}
+	return fmt.Sprintf("gitmap status %s or gitmap fix %s", repoName, repoName)
+}
+
+func buildSpecificRemediation(repoName, msg string) string {
 	if isAuthFailure(msg) {
 		return fmt.Sprintf("gitmap status %s or gitmap fix %s", repoName, repoName)
 	}
@@ -80,10 +108,21 @@ func buildActionableRemediation(repoName, repoPath, msg string) string {
 	if isMissingRepoFailure(msg) {
 		return fmt.Sprintf("gitmap clone %s", repoName)
 	}
-	if strings.Contains(msg, "Can not use the 'cache' credential store on Windows") || strings.Contains(msg, "lack of UNIX socket support") {
+	if isCacheFailure(msg) {
 		return "Run 'gitmap fix-credential' (alias: fc) to repair Windows git credential store"
 	}
-	return fmt.Sprintf("gitmap status %s or gitmap fix %s", repoName, repoName)
+	return ""
+}
+
+func isWincredmanFailure(msg string) bool {
+	return strings.Contains(msg, "wincredman") ||
+		strings.Contains(msg, "Unable to persist credentials with the 'wincredman' credential store") ||
+		strings.Contains(msg, "Unable to persist credentials")
+}
+
+func isCacheFailure(msg string) bool {
+	return strings.Contains(msg, "Can not use the 'cache' credential store on Windows") ||
+		strings.Contains(msg, "lack of UNIX socket support")
 }
 
 func isAuthFailure(msg string) bool {

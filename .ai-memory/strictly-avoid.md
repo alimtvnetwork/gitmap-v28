@@ -617,4 +617,3 @@ Allowed work:
 - ✅ Dispatch bounded asynchronous tasks (`A=2`, `H=2`) strictly to external remote fleet nodes over SSH.
 
 **Why:** Local in-process execution guarantees zero SSH overhead, eliminates credential/key requirements for localhost, preserves interactive color/progress display, and adheres to the canonical GitMap PAS standard.
-
