@@ -11,5 +11,5 @@ Implement hermetic unit tests verifying flag parsing, positional argument handli
 ## Implementation Details
 1. `TestParseCommitFlags` tests positional message concatenation, `--push` flag, `-p` flag, `--dry-run` flag, and `-n` flag combinations.
 2. `TestCommitConstants` verifies constants parity across aliases (`commit`, `cm`, `commit-all`, `ca`).
-3. Rebuilt `d:\work\gitmap\gitmap.exe` and synchronized `%LOCALAPPDATA%\gitmap-cli\gitmap.exe`.
+3. Rebuilt `./gitmap.exe` and synchronized `%LOCALAPPDATA%\gitmap-cli\gitmap.exe`.
 4. Executed and passed live CLI checks: `gitmap cm --help` and `gitmap safe-rm`.

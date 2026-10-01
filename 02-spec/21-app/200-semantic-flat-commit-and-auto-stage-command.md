@@ -76,7 +76,7 @@ foreach ($__target in @(<targets>)) {
     }
 }
 ```
-Furthermore, the compiled binary at `d:\work\gitmap\gitmap.exe` and `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` must remain synchronized with the repository code to prevent stale binary execution.
+Furthermore, the compiled binary at `./gitmap.exe` and `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` must remain synchronized with the repository code to prevent stale binary execution.
 
 ---
 

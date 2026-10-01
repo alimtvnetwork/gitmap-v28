@@ -54,4 +54,4 @@ Developers frequently need to stage all changes (`git add -A`) and commit flat w
 - `go test -v ./macro/...` passed.
 - `gitmap.exe cm --help` rendered the formatted box menu cleanly.
 - `gitmap.exe safe-rm non_existent_dummy_file_test123` verified safe removal without terminating errors.
-- Both workspace binary (`d:\work\gitmap\gitmap.exe`) and user app data binary (`%LOCALAPPDATA%\gitmap-cli\gitmap.exe`) updated.
+- Both workspace binary (`./gitmap.exe`) and user app data binary (`%LOCALAPPDATA%\gitmap-cli\gitmap.exe`) updated.

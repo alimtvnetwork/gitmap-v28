@@ -19,7 +19,7 @@ Developers needed a 1-step auto-staging flat git commit command (`gitmap commit`
 3. **Macro Platform Resilience on Windows:**
    - On Windows, `rm` is an alias for PowerShell's `Remove-Item` cmdlet, which throws terminating errors if the target is absent.
    - `cli/macro/safe_rm.go` transforms removal commands into idempotent PowerShell scripts that check `Test-Path` before invoking `Remove-Item`.
-   - The compiled binary at both `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` and `d:\work\gitmap\gitmap.exe` must be updated and kept current.
+   - The compiled binary at both `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` and `./gitmap.exe` must be updated and kept current.
 
 ---
 
