@@ -1772,8 +1772,7 @@ func loadJSONRecords(path string) ([]model.ScanRecord, error) {
 }
 
 func findBySlug(records []model.ScanRecord, slug string) []model.ScanRecord {
-	slugLower := strings.ToLower(slug)
-	exact, partial := partitionBySlug(records, slugLower)
+	exact, partial := partitionBySlug(records, slug)
 	if len(exact) > 0 {
 		return exact
 	}
@@ -1781,13 +1780,12 @@ func findBySlug(records []model.ScanRecord, slug string) []model.ScanRecord {
 	return partial
 }
 
-func partitionBySlug(records []model.ScanRecord, slugLower string) ([]model.ScanRecord, []model.ScanRecord) {
+func partitionBySlug(records []model.ScanRecord, slug string) ([]model.ScanRecord, []model.ScanRecord) {
 	var exact, partial []model.ScanRecord
 	for _, r := range records {
-		nameLower := strings.ToLower(r.RepoName)
-		if nameLower == slugLower {
+		if strings.EqualFold(r.RepoName, slug) {
 			exact = append(exact, r)
-		} else if strings.Contains(nameLower, slugLower) {
+		} else if strings.Contains(strings.ToLower(r.RepoName), strings.ToLower(slug)) {
 			partial = append(partial, r)
 		}
 	}
