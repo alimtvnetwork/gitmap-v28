@@ -8,7 +8,7 @@ See full documentation in [gitmap pull-error](file:///cli/helptext/pull-error.md
 gitmap pulle [repo-slug|all] [flags]
 ```
 
-## Quick Examples
+## Examples
 
 ```bash
 # Query current repo pull error

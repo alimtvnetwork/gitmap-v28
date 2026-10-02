@@ -8,7 +8,7 @@ See full documentation in [gitmap devtools](file:///cli/helptext/devtools.md).
 gitmap devtool [flags]
 ```
 
-## Quick Examples
+## Examples
 
 ```bash
 # Render cache hierarchy tree in dry-run mode

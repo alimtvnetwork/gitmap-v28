@@ -14,9 +14,10 @@ import (
 )
 
 // NormalizeStoragePath produces a canonical, clean absolute path for database persistence.
+// Storage paths use forward slashes for cross-platform portability.
 // On Windows, drive letters are capitalized to ensure consistent visual presentation.
 func NormalizeStoragePath(pathStr string) string {
-	clean := filepath.Clean(strings.TrimSpace(pathStr))
+	clean := filepath.ToSlash(filepath.Clean(strings.TrimSpace(pathStr)))
 	vol := filepath.VolumeName(clean)
 	if len(vol) >= 2 && vol[1] == ':' {
 		clean = strings.ToUpper(string(vol[0])) + clean[1:]

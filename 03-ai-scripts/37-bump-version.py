@@ -189,7 +189,7 @@ def update_readme_pins(current_ver, next_version, dry_run=False):
         content = f.read()
 
     escaped_curr = re.escape(current_ver)
-    new_content = re.sub(rf"\bv?{escaped_curr}\b", f"v{next_version}", content)
+    new_content = re.sub(rf"\bv{escaped_curr}\b", f"v{next_version}", content)
     # Also handle bare version without 'v' if previously bare
     new_content = re.sub(rf"\b{escaped_curr}\b", next_version, new_content)
 
@@ -257,7 +257,7 @@ def update_what_to_read_pins(current_ver, next_version, dry_run=False):
         content = f.read()
 
     escaped_curr = re.escape(current_ver)
-    new_content = re.sub(rf"\bv?{escaped_curr}\b", f"v{next_version}", content)
+    new_content = re.sub(rf"\bv{escaped_curr}\b", f"v{next_version}", content)
     new_content = re.sub(rf"\b{escaped_curr}\b", next_version, new_content)
 
     if new_content == content:

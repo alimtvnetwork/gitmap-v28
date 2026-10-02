@@ -11,7 +11,16 @@ import (
 
 // NormalizeToForwardSlashes converts all backslashes to forward slashes.
 func NormalizeToForwardSlashes(p string) string {
-	return strings.ReplaceAll(filepath.Clean(p), "\\", "/")
+	replaced := strings.ReplaceAll(strings.TrimSpace(p), "\\", "/")
+	if replaced == "/" {
+		return "/"
+	}
+	cleaned := filepath.ToSlash(filepath.Clean(replaced))
+	if cleaned != "/" {
+		cleaned = strings.TrimRight(cleaned, "/")
+	}
+
+	return cleaned
 }
 
 // MakeRelativeToRoot calculates relative path from root and normalizes with forward slashes.
@@ -46,19 +55,30 @@ func NormalizeSlashes(p string) string {
 	return NormalizeToForwardSlashes(p)
 }
 
+// IsWindowsDrivePath reports whether the path starts with a Windows drive letter (e.g. C:, d:\, D:/).
+func IsWindowsDrivePath(p string) bool {
+	trimmed := strings.TrimSpace(p)
+	if len(trimmed) < 2 {
+		return false
+	}
+
+	ch := trimmed[0]
+	isAlpha := (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+	if !isAlpha || trimmed[1] != ':' {
+		return false
+	}
+
+	return len(trimmed) == 2 || trimmed[2] == '/' || trimmed[2] == '\\'
+}
+
 // IsPathCaseInsensitive reports whether the given path should be treated case-insensitively.
 // It returns true on Windows (runtime.GOOS == "windows") or if the path exhibits Windows volume syntax (e.g. C:\ or c:/).
 func IsPathCaseInsensitive(p string) bool {
 	if runtime.GOOS == "windows" {
 		return true
 	}
-	clean := filepath.Clean(strings.TrimSpace(p))
-	vol := filepath.VolumeName(clean)
-	if len(vol) >= 2 && vol[1] == ':' {
-		return true
-	}
 
-	return false
+	return IsWindowsDrivePath(p)
 }
 
 // EqualPaths checks if two paths are identical after normalization, respecting OS case sensitivity.
@@ -81,7 +101,7 @@ func CanonicalPathKey(path string) string {
 	if trimmed == "" {
 		return ""
 	}
-	slashed := filepath.ToSlash(filepath.Clean(trimmed))
+	slashed := NormalizeToForwardSlashes(trimmed)
 	if IsPathCaseInsensitive(slashed) {
 		return strings.ToLower(slashed)
 	}

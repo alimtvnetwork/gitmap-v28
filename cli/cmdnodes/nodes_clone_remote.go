@@ -170,6 +170,9 @@ func buildUnixWorkDirExecString(kindStr, args, targetDir string) string {
 		workDir = targetDir
 	}
 	execArgs := appendJSONFlag(args)
+	if workDir == "~/work" {
+		return fmt.Sprintf("mkdir -p ~/work && cd ~/work && gitmap %s %s", kindStr, execArgs)
+	}
 	return fmt.Sprintf("mkdir -p \"%s\" && cd \"%s\" && gitmap %s %s", workDir, workDir, kindStr, execArgs)
 }
 
