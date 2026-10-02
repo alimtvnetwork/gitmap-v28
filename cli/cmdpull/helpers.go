@@ -74,15 +74,17 @@ func openDB() (*store.DB, error) {
 
 func loadAllRecordsDB() []model.ScanRecord {
 	if LoadAllRecordsDBFn != nil {
-		return LoadAllRecordsDBFn()
+		return deduplicatePullRecords(LoadAllRecordsDBFn())
 	}
+
 	return nil
 }
 
 func loadRecordsByGroup(group string) []model.ScanRecord {
 	if LoadRecordsByGroupFn != nil {
-		return LoadRecordsByGroupFn(group)
+		return deduplicatePullRecords(LoadRecordsByGroupFn(group))
 	}
+
 	return nil
 }
 

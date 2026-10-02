@@ -148,8 +148,19 @@ const SQLUpsertRepoByPath = `INSERT INTO Repo (Slug, RepoName, HttpsUrl, SshUrl,
 		CloneInstruction=excluded.CloneInstruction, Notes=excluded.Notes,
 		IdentifiedTransport=excluded.IdentifiedTransport, UpdatedAt=CURRENT_TIMESTAMP`
 
-// SQL: create unique index on AbsolutePath for upsert-by-path (v15: IdxRepo_AbsolutePath).
-const SQLCreateAbsPathIndex = "CREATE UNIQUE INDEX IF NOT EXISTS IdxRepo_AbsolutePath ON Repo(AbsolutePath)"
+// SQL: create unique index on AbsolutePath with case-insensitive collation (IdxRepo_AbsolutePath).
+const SQLCreateAbsPathIndex = "CREATE UNIQUE INDEX IF NOT EXISTS IdxRepo_AbsolutePath ON Repo(AbsolutePath COLLATE NOCASE)"
+
+// SQL: drop existing index prior to collation recreation.
+const SQLDropRepoAbsPathIndex = "DROP INDEX IF EXISTS IdxRepo_AbsolutePath"
+
+// SQL: deduplicate Repo entries by lowercase AbsolutePath, preserving the oldest RepoId.
+const SQLDeduplicateRepos = `DELETE FROM Repo
+WHERE RepoId NOT IN (
+	SELECT MIN(RepoId)
+	FROM Repo
+	GROUP BY LOWER(AbsolutePath)
+)`
 
 // SQL: drop the legacy index name from pre-v15 installs.
 const SQLDropLegacyAbsPathIndex = "DROP INDEX IF EXISTS idx_Repos_AbsolutePath"

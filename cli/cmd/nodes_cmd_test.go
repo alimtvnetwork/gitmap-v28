@@ -72,8 +72,27 @@ func TestUnifiedNodes_RenderTable(t *testing.T) {
 	if !strings.Contains(out, "SUPPORTED COMMANDS & CLUSTERS") {
 		t.Errorf("table missing command matrix header")
 	}
-	if !strings.Contains(out, "Total: 2 registered node(s)") {
-		t.Errorf("table missing total summary count")
+	matrixIdx := strings.Index(out, "SUPPORTED COMMANDS & CLUSTERS")
+	primaryIdx := strings.Index(out, "HOST (IP:PORT)")
+	if matrixIdx == -1 || primaryIdx == -1 {
+		t.Fatalf("expected both matrix and primary headers to be present")
+	}
+	if matrixIdx > primaryIdx {
+		t.Errorf("expected commands matrix (index %d) to be rendered above primary nodes table (index %d)", matrixIdx, primaryIdx)
+	}
+
+	totalIdx := strings.Index(out, "Total: 2 registered node(s)")
+	if totalIdx == -1 || totalIdx < primaryIdx {
+		t.Errorf("expected total count summary after primary table")
+	}
+
+	nodeAliasIdx := strings.Index(out, "NODE (ALIAS)")
+	subsystemsIdx := strings.Index(out, "SUBSYSTEMS")
+	if nodeAliasIdx != -1 && subsystemsIdx != -1 && subsystemsIdx > nodeAliasIdx {
+		between := out[nodeAliasIdx:subsystemsIdx]
+		if strings.Contains(between, "ROLE") {
+			t.Errorf("expected no ROLE column between NODE (ALIAS) and SUBSYSTEMS")
+		}
 	}
 }
 

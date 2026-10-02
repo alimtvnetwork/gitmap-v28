@@ -361,9 +361,8 @@ func analyzeGitignoreData(issue IgnoreScanIssue, repoDir, data string) IgnoreSca
 	_, dupCount := deduplicateIgnoreContent(data)
 	issue.DuplicateCount = dupCount
 	issue.HasDuplicate = dupCount > 0
-	hasGitmapDir := strings.Contains(data, ".gitmap/") || strings.Contains(data, ".gitmap")
-	hasMissing := !hasGitmapDir
-	issue.MissingGitmapDir = hasMissing
+	isMissingBackup := !strings.Contains(data, ".gitmap/backup")
+	issue.MissingGitmapDir = isMissingBackup
 	return issue
 }
 
@@ -408,19 +407,16 @@ func deduplicateIgnoreContent(content string) (string, int) {
 func processIgnoreLine(raw string, seen map[string]bool, cleaned *[]string, dupCount int) int {
 	line := strings.TrimRight(raw, "\r")
 	trimmed := strings.TrimSpace(line)
-	isEmpty := trimmed == ""
-	if isEmpty {
+	if trimmed == "" || strings.HasPrefix(trimmed, "#") {
 		*cleaned = append(*cleaned, line)
 		return dupCount
 	}
-	isComment := strings.HasPrefix(trimmed, "#")
-	if isComment {
+	norm := strings.Trim(trimmed, "/ \t\r\n")
+	if norm == "" {
 		*cleaned = append(*cleaned, line)
 		return dupCount
 	}
-	norm := strings.TrimPrefix(trimmed, "/")
-	hasSeen := seen[norm]
-	if hasSeen {
+	if seen[norm] {
 		return dupCount + 1
 	}
 	seen[norm] = true
@@ -429,11 +425,10 @@ func processIgnoreLine(raw string, seen map[string]bool, cleaned *[]string, dupC
 }
 
 func assembleCleanedGitignore(cleaned []string, seen map[string]bool) string {
-	hasGitmap := seen[".gitmap/"] || seen[".gitmap"]
-	if !hasGitmap {
-		cleaned = append(cleaned, "", "# GitMap & Task Persistence", ".gitmap/", ".gitmap/backup/")
-		seen[".gitmap/"] = true
-		seen[".gitmap/backup/"] = true
+	hasBackup := seen[".gitmap/backup"] || seen[".gitmap/backup/"]
+	if !hasBackup {
+		cleaned = append(cleaned, "", "# GitMap & Task Persistence", ".gitmap/backup/")
+		seen[".gitmap/backup"] = true
 	}
 	text := strings.Join(cleaned, "\n")
 	return strings.TrimRight(text, "\r\n") + "\n"
@@ -503,7 +498,7 @@ func filterTrackedFilesInIndex(repoDir string, files []string) []string {
 }
 
 func writeDefaultGitignore(repoDir, ignorePath string) bool {
-	content := "# GitMap & Task Persistence\n.gitmap/\n.gitmap/backup/\n"
+	content := "# GitMap & Task Persistence\n.gitmap/backup/\n"
 	_ = os.WriteFile(ignorePath, []byte(content), 0644)
 	_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
 	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): add default .gitignore").Run()
@@ -512,10 +507,10 @@ func writeDefaultGitignore(repoDir, ignorePath string) bool {
 
 func sanitizeAndCommitRepo(repoDir, ignorePath, data string) bool {
 	cleaned, dupCount := deduplicateIgnoreContent(data)
-	hasGitmapDir := strings.Contains(data, ".gitmap/") || strings.Contains(data, ".gitmap")
+	hasBackupDir := strings.Contains(data, ".gitmap/backup")
 	hasDuplicates := dupCount > 0
-	isMissingGitmap := !hasGitmapDir
-	hasChanges := hasDuplicates || isMissingGitmap || (cleaned != data)
+	isMissingBackup := !hasBackupDir
+	hasChanges := hasDuplicates || isMissingBackup || (cleaned != data)
 	if hasChanges {
 		_ = os.WriteFile(ignorePath, []byte(cleaned), 0644)
 		_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
@@ -538,7 +533,7 @@ func printSingleRepoIssueSummary(issue IgnoreScanIssue) {
 	}
 	hasMissing := issue.MissingGitmapDir
 	if hasMissing {
-		fmt.Printf("      - Missing .gitmap/ ignore rule\n")
+		fmt.Printf("      - Missing .gitmap/backup/ ignore rule\n")
 	}
 	printTrackedFilesSummary(issue.TrackedResume)
 }

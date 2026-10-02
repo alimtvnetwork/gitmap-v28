@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-10-02T10:15:00Z, Memory write: Plan 66 completed, Issue 62 (RCA), Pull-All duplicate repository elimination, database case-insensitive collation (`COLLATE NOCASE`), and pull pipeline in-memory deduplication.
 - 2026-10-01T15:45:00Z, Memory write: RCA-26 / Spec 60, Avoid 06, Non-idempotent PowerShell macro removal prevention, platform-adaptive shims (Test-Path), and multi-user binary synchronization (including C:\Users\Alim\AppData\Local\gitmap\gitmap.exe).
 - 2026-10-01T15:35:00Z, Memory write: Plan 60 completed with all 7 subtasks verified, CPAR suite, Split-DB cache engine, and ignore grouping suite.
 - 2026-10-01T15:30:00Z, Memory write: Spec 201, Plan 64 (completed), Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation.

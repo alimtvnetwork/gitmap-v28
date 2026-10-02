@@ -140,3 +140,62 @@ func TestTempE2E_AUMSearchHistoryDH2DAndAIMemoryMultiPortServer(t *testing.T) {
 		t.Fatalf("expected AI memory server response to contain DH2D ID %s, got %s", dh2d, string(body))
 	}
 }
+
+func TestTempE2E_AUMSearchCacheLifecycleAndClean(t *testing.T) {
+	requireTempE2EEnvSpec150(t)
+
+	query := "sample_service_node"
+	dh2d := searcher.ComputeDH2D(query, "keyword")
+	if !strings.HasPrefix(dh2d, "DH2D-") {
+		t.Fatalf("expected DH2D- prefix, got %q", dh2d)
+	}
+
+	fakeMatches := []searcher.SearchResult{
+		{
+			MatchedText:   "sample_service_node",
+			FilePath:      "generic_alpha_repo/service.go",
+			RelativePath:  "generic_alpha_repo/service.go",
+			StartPosition: 10,
+			EndPosition:   29,
+		},
+		{
+			MatchedText:   "test_fixture_beta",
+			FilePath:      "test_fixture_beta/mock.go",
+			RelativePath:  "test_fixture_beta/mock.go",
+			StartPosition: 5,
+			EndPosition:   22,
+		},
+	}
+
+	// 1. First execution: warm tier, not yet hot-promoted
+	id1, err := searcher.RecordAUMSearchExecution(query, "keyword", true, 2, fakeMatches)
+	if err != nil || id1 != dh2d {
+		t.Fatalf("RecordAUMSearchExecution hit 1 failed: id=%s err=%v", id1, err)
+	}
+	_, _, isHot1 := searcher.LookupHotCachedSearch(query, "keyword")
+	if isHot1 {
+		t.Fatalf("expected query not to be hot-cached after first execution")
+	}
+
+	// 2. Second execution: promoted to HOT_MEMORY_CACHE
+	_, _ = searcher.RecordAUMSearchExecution(query, "keyword", true, 1, fakeMatches)
+	cached2, gotID2, isHot2 := searcher.LookupHotCachedSearch(query, "keyword")
+	if !isHot2 || gotID2 != dh2d || len(cached2) != 2 {
+		t.Fatalf("expected hot cache hit after 2 executions: isHot=%v gotID=%s len=%d", isHot2, gotID2, len(cached2))
+	}
+
+	// 3. Purge cache via CleanSearchHotCache
+	cleared, cleanErr := searcher.CleanSearchHotCache()
+	if cleanErr != nil {
+		t.Fatalf("CleanSearchHotCache failed: %v", cleanErr)
+	}
+	if cleared < 1 {
+		t.Fatalf("expected cleared >= 1, got %d", cleared)
+	}
+
+	// 4. Verify post-clean invalidation
+	_, _, isHotPost := searcher.LookupHotCachedSearch(query, "keyword")
+	if isHotPost {
+		t.Fatalf("expected query to be invalidated after CleanSearchHotCache")
+	}
+}

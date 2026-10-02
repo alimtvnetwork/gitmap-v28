@@ -51,28 +51,57 @@ func buildPullDiagnosis(repoDir, output string) string {
 }
 
 func collectDiagnosisHints(repoDir, output string) []string {
-	hints := make([]string, 0, 5)
+	hints := collectFailureHints(output)
+	hints = appendPathHints(hints, repoDir, output)
+
+	return hints
+}
+
+func collectFailureHints(output string) []string {
+	hints := make([]string, 0, 4)
+	hints = appendLockFailureHints(hints, output)
+	hints = appendConflictFailureHints(hints, output)
+
+	return hints
+}
+
+func appendLockFailureHints(hints []string, output string) []string {
 	if hasUnlinkFailure(output) {
 		hints = append(hints, "file lock/read-only attribute blocked replacing old files")
 	}
 
+	return hints
+}
+
+func appendConflictFailureHints(hints []string, output string) []string {
 	if hasUnmergedFailure(output) {
 		hints = append(hints, "unresolved merge conflict detected; run 'gitmap fix-git' or 'git merge --abort'")
 	}
-
 	if hasUntrackedOverwriteFailure(output) {
 		hints = append(hints, "untracked files conflict with incoming commits; run 'gitmap fix-git' to backup & pull")
 	}
+	if hasMultipleBranchesFailure(output) {
+		hints = append(hints, "multiple upstream branches or concurrent fetch conflict in FETCH_HEAD; run pull targeting specific branch")
+	}
 
+	return hints
+}
+
+func appendPathHints(hints []string, repoDir, output string) []string {
 	if hasPathLengthRisk(repoDir, output) {
 		hints = append(hints, "Windows path length risk detected; use a shorter base path like C:\\src")
 	}
-
 	if strings.Contains(strings.ToLower(repoDir), "onedrive") {
 		hints = append(hints, "repo is under a synced folder (OneDrive), which often locks files")
 	}
 
 	return hints
+}
+
+func hasMultipleBranchesFailure(output string) bool {
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "cannot fast-forward to multiple branches")
 }
 
 func hasUnmergedFailure(output string) bool {

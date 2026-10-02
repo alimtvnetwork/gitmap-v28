@@ -23,32 +23,111 @@ func renderConciseActiveResults(states []*PullRepoState, allRecords ...[]model.S
 
 // RenderConciseActiveResultsTo renders concise repo states grouped into categories.
 func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecords ...[]model.ScanRecord) {
-	colWidth := ResolveConciseRepoColWidth(states, allRecords...)
-	var updated, dirty, failed []*PullRepoState
-	for _, s := range states {
-		if s.IsDirty || s.Changes == "dirty" {
-			dirty = append(dirty, s)
-		} else if s.ErrorMsg != "" || s.Step == PullStepTypeError || s.Step == PullStepTypeConflict || s.Changes == "failed" {
-			failed = append(failed, s)
-		} else if isUpdatedRepoState(s) {
-			updated = append(updated, s)
-		}
-	}
-
-	if len(updated) == 0 && len(dirty) == 0 && len(failed) == 0 {
+	deduped := DeduplicateRepoStates(states)
+	colWidth := ResolveConciseRepoColWidth(deduped, allRecords...)
+	cat := categorizeRepoStates(deduped)
+	if len(cat.updated) == 0 && len(cat.dirty) == 0 && len(cat.failed) == 0 {
 		fmt.Fprintln(w)
 		fmt.Fprintln(w, "  (all repositories are up-to-date)")
 		return
 	}
+	renderCategorizedGroups(w, colWidth, cat)
+}
 
-	if len(updated) > 0 {
-		renderUpdatedGroup(w, colWidth, updated)
+type categorizedStates struct {
+	updated []*PullRepoState
+	dirty   []*PullRepoState
+	failed  []*PullRepoState
+}
+
+func categorizeRepoStates(states []*PullRepoState) categorizedStates {
+	var cat categorizedStates
+	for _, s := range states {
+		if s == nil {
+			continue
+		}
+		if s.IsDirty || s.Changes == "dirty" {
+			cat.dirty = append(cat.dirty, s)
+		} else if isFailedRepoState(s) {
+			cat.failed = append(cat.failed, s)
+		} else if isUpdatedRepoState(s) {
+			cat.updated = append(cat.updated, s)
+		}
 	}
-	if len(dirty) > 0 {
-		renderDirtyGroup(w, colWidth, dirty)
+	return cat
+}
+
+func renderCategorizedGroups(w io.Writer, colWidth int, cat categorizedStates) {
+	if len(cat.updated) > 0 {
+		renderUpdatedGroup(w, colWidth, cat.updated)
 	}
-	if len(failed) > 0 {
-		renderFailedGroup(w, colWidth, failed)
+	if len(cat.dirty) > 0 {
+		renderDirtyGroup(w, colWidth, cat.dirty)
+	}
+	if len(cat.failed) > 0 {
+		renderFailedGroup(w, colWidth, cat.failed)
+	}
+}
+
+func isFailedRepoState(s *PullRepoState) bool {
+	if s == nil {
+		return false
+	}
+	return s.ErrorMsg != "" || s.Step == PullStepTypeError || s.Step == PullStepTypeConflict || s.Changes == "failed"
+}
+
+// DeduplicateRepoStates ensures each repository appears at most once in output states.
+// When collisions occur, error/failure states take precedence over up-to-date states.
+func DeduplicateRepoStates(states []*PullRepoState) []*PullRepoState {
+	if len(states) <= 1 {
+		return states
+	}
+	seen := make(map[string]int, len(states))
+	unique := make([]*PullRepoState, 0, len(states))
+	for _, s := range states {
+		unique = appendUniqueRepoState(unique, s, seen)
+	}
+	return unique
+}
+
+func appendUniqueRepoState(unique []*PullRepoState, s *PullRepoState, seen map[string]int) []*PullRepoState {
+	if s == nil {
+		return unique
+	}
+	key := resolveRepoStateKey(s)
+	if idx, exists := seen[key]; exists {
+		mergeRepoStateIfPrioritized(unique, idx, s)
+		return unique
+	}
+	seen[key] = len(unique)
+	return append(unique, s)
+}
+
+func resolveRepoStateKey(s *PullRepoState) string {
+	key := CanonicalRepoPathKey(s.RepoPath)
+	if key != "" {
+		return key
+	}
+	return strings.ToLower(strings.TrimSpace(s.RepoName))
+}
+
+func isActionableRepoState(s *PullRepoState) bool {
+	if s == nil {
+		return false
+	}
+	return s.IsDirty || s.ErrorMsg != "" || s.Changes == "failed" || s.Step == PullStepTypeError || s.Step == PullStepTypeConflict
+}
+
+func isPassiveRepoState(s *PullRepoState) bool {
+	return !isActionableRepoState(s)
+}
+
+func mergeRepoStateIfPrioritized(unique []*PullRepoState, existingIdx int, incoming *PullRepoState) {
+	existing := unique[existingIdx]
+	isIncomingActionable := isActionableRepoState(incoming)
+	isExistingPassive := isPassiveRepoState(existing)
+	if isIncomingActionable && isExistingPassive {
+		unique[existingIdx] = incoming
 	}
 }
 
@@ -122,20 +201,25 @@ func renderItemizedDirtyFiles(w io.Writer, diag gitutil.DirtyDiagnosis) {
 }
 
 func renderFailedGroup(w io.Writer, colWidth int, failed []*PullRepoState) {
-	fmt.Fprintf(w, "\n  %s%s Failed Repositories (%d):%s\n", constants.ColorRed, constants.ColorBold, len(failed), constants.ColorReset)
-	for _, s := range failed {
-		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, "failed"))
-		errDetails := ResolvePullErrorDetails(s)
-		if errDetails == "" {
-			errDetails = "pull execution failed"
-		}
-		fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
-		remHint := ResolvePullRemediationHint(s)
-		if remHint == "" {
-			remHint = fmt.Sprintf("gitmap status %s or gitmap fix %s", s.RepoName, s.RepoName)
-		}
-		fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
+	deduped := DeduplicateRepoStates(failed)
+	fmt.Fprintf(w, "\n  %s%s Failed Repositories (%d):%s\n", constants.ColorRed, constants.ColorBold, len(deduped), constants.ColorReset)
+	for _, s := range deduped {
+		renderSingleFailedItem(w, colWidth, s)
 	}
+}
+
+func renderSingleFailedItem(w io.Writer, colWidth int, s *PullRepoState) {
+	fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, "failed"))
+	errDetails := ResolvePullErrorDetails(s)
+	if errDetails == "" {
+		errDetails = "pull execution failed"
+	}
+	fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
+	remHint := ResolvePullRemediationHint(s)
+	if remHint == "" {
+		remHint = fmt.Sprintf("gitmap status %s or gitmap fix %s", s.RepoName, s.RepoName)
+	}
+	fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
 }
 
 // ResolveConciseRepoColWidth dynamically calculates the repo column width to prevent overflow.

@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -27,7 +29,8 @@ func runPruneStaleDB(dir string, currentRecords []model.ScanRecord) error {
 func pruneStaleRecords(db *store.DB, dir string, currentRecords []model.ScanRecord) int {
 	validPaths := make(map[string]bool, len(currentRecords))
 	for _, r := range currentRecords {
-		validPaths[r.AbsolutePath] = true
+		key := strings.ToLower(filepath.ToSlash(filepath.Clean(r.AbsolutePath)))
+		validPaths[key] = true
 	}
 
 	allRepos, err := db.ListRepos()
@@ -40,15 +43,32 @@ func pruneStaleRecords(db *store.DB, dir string, currentRecords []model.ScanReco
 	return deleteStaleEntries(db, dir, allRepos, validPaths)
 }
 
+func tryDeleteStaleRepo(db *store.DB, path string) int {
+	if _, err := db.DeleteByPath(path); err == nil {
+		return 1
+	}
+
+	return 0
+}
+
+func isStaleCandidate(dir, path string, validPaths map[string]bool) bool {
+	isChild := isSubPath(dir, path)
+	if !isChild {
+		return false
+	}
+
+	key := strings.ToLower(filepath.ToSlash(filepath.Clean(path)))
+	isValid := validPaths[key]
+
+	return !isValid
+}
+
 func deleteStaleEntries(db *store.DB, dir string, allRepos []model.ScanRecord, validPaths map[string]bool) int {
 	removed := 0
 	for _, repo := range allRepos {
-		if !isSubPath(dir, repo.AbsolutePath) || validPaths[repo.AbsolutePath] {
-			continue
-		}
-
-		if _, err := db.DeleteByPath(repo.AbsolutePath); err == nil {
-			removed++
+		isCandidate := isStaleCandidate(dir, repo.AbsolutePath, validPaths)
+		if isCandidate {
+			removed += tryDeleteStaleRepo(db, repo.AbsolutePath)
 		}
 	}
 
@@ -61,5 +81,18 @@ func runReconcile(dir string, currentRecords []model.ScanRecord) error {
 }
 
 func isSubPath(parent, child string) bool {
-	return len(child) > len(parent) && child[:len(parent)] == parent
+	p := strings.ToLower(filepath.ToSlash(filepath.Clean(parent)))
+	c := strings.ToLower(filepath.ToSlash(filepath.Clean(child)))
+
+	isEqual := (p == c)
+	if isEqual {
+		return false
+	}
+
+	hasSlash := strings.HasSuffix(p, "/")
+	if !hasSlash {
+		p += "/"
+	}
+
+	return strings.HasPrefix(c, p)
 }

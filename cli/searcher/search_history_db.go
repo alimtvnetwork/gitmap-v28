@@ -70,6 +70,44 @@ func LookupHotCachedSearch(queryText, searchType string) ([]SearchResult, string
 	return nil, dh2d, false
 }
 
+func resetInMemoryHotCache() int {
+	aumHotCacheMu.Lock()
+	defer aumHotCacheMu.Unlock()
+	count := len(aumHotCache)
+	aumHotCache = make(map[string]AUMSearchStatRecord)
+	return count
+}
+
+func purgeSearchDatabase(conn *sql.DB) (int, error) {
+	res, err := conn.Exec(`DELETE FROM SearchHotCache`)
+	if err != nil {
+		return 0, apperror.WrapSimple(err, "CleanSearchHotCache.delete")
+	}
+	_, _ = conn.Exec(`DELETE FROM SearchQueryLog`)
+	_, _ = conn.Exec(`VACUUM`)
+	deleted, _ := res.RowsAffected()
+	return int(deleted), nil
+}
+
+// CleanSearchHotCache purges in-memory search caches, deletes Split-DB cache records, and vacuums SQLite.
+func CleanSearchHotCache() (int, error) {
+	memCount := resetInMemoryHotCache()
+	db, err := store.OpenSearchSplitDB()
+	if err != nil {
+		return memCount, nil
+	}
+	defer db.Close()
+
+	deleted, err := purgeSearchDatabase(db.Conn())
+	if err != nil {
+		return memCount, err
+	}
+	if memCount > deleted {
+		return memCount, nil
+	}
+	return deleted, nil
+}
+
 // RecordAUMSearchExecution logs a search into SearchSplitDB with its DH2D ID and updates the hot cache.
 func RecordAUMSearchExecution(queryText, searchType string, isAiCaller bool, durationMs int, results []SearchResult) (string, error) {
 	if searchType == "" {

@@ -58,4 +58,6 @@
 - [199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md) — Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Status: `active`)
 - [200-semantic-flat-commit-and-auto-stage-command.md](200-semantic-flat-commit-and-auto-stage-command.md) — Semantic Flat Commit & Auto-Stage Command (`gitmap commit`, `cm`, `commit-all`, `ca`) and Macro Execution Resilience (Status: `active`)
 - [201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) — GitMap Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation (Status: `active`)
+- [66-fix-gitmap-pa-duplicate-repos](66-fix-gitmap-pa-duplicate-repos/01-architecture-spec.md) — Fix Duplicate Repositories in Pull-All, Database Case-Insensitive Collation, and In-Memory Deduplication Pipeline (Status: `active`)
+- [65-gitmap-update-all-zip-and-fixes](65-gitmap-update-all-zip-and-fixes/01-architecture-spec.md) — GitMap Nodes Reordering, AUM Search Cache Lifecycle & Repo Deduplication Sub-Node Solutions (Status: `active`)
 

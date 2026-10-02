@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // MigrationReport summarizes a single Migrate() run for `gitmap db-migrate`.
@@ -215,4 +216,241 @@ func RegisterInstallerMigrations(dbConn *sql.DB, migrationVersion int, isForce b
 // MigrateInstallers creates the installer_scripts and installer_versions tables on the DB.
 func (dbInstance *DB) MigrateInstallers() error {
 	return RegisterInstallerMigration(dbInstance.conn, 1, false)
+}
+
+func isTablePresent(dbConn *sql.DB, tableName string) bool {
+	var count int
+	query := "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?"
+	err := dbConn.QueryRow(query, tableName).Scan(&count)
+	hasTable := (err == nil && count == 1)
+
+	return hasTable
+}
+
+func deleteConflictingReleases(dbConn *sql.DB) {
+	const sqlPrune = `DELETE FROM Release
+	WHERE RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
+		)
+	) AND EXISTS (
+		SELECT 1 FROM Release r2
+		JOIN Repo rDup ON rDup.RepoId = Release.RepoId
+		JOIN Repo rSurv ON LOWER(rSurv.AbsolutePath) = LOWER(rDup.AbsolutePath)
+		WHERE r2.RepoId = rSurv.RepoId AND r2.Tag = Release.Tag AND rSurv.RepoId != rDup.RepoId
+	)`
+	_, _ = dbConn.Exec(sqlPrune)
+}
+
+func executeReleaseRemap(dbConn *sql.DB) error {
+	const sqlRemap = `UPDATE Release SET RepoId = (
+		SELECT MIN(r2.RepoId) FROM Repo r1
+		JOIN Repo r2 ON LOWER(r1.AbsolutePath) = LOWER(r2.AbsolutePath)
+		WHERE r1.RepoId = Release.RepoId
+	) WHERE RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
+		)
+	)`
+	_, err := dbConn.Exec(sqlRemap)
+
+	return apperror.WrapSimple(err, "remapReleaseRepoRefs")
+}
+
+func remapReleaseRepoRefs(dbConn *sql.DB) error {
+	hasTable := isTablePresent(dbConn, "Release")
+	if !hasTable {
+		return nil
+	}
+	deleteConflictingReleases(dbConn)
+
+	return executeReleaseRemap(dbConn)
+}
+
+func insertRemappedGroupRepos(dbConn *sql.DB) error {
+	const sqlInsert = `INSERT OR IGNORE INTO GroupRepo (GroupId, RepoId)
+	SELECT gr.GroupId, (
+		SELECT MIN(r2.RepoId) FROM Repo r1
+		JOIN Repo r2 ON LOWER(r1.AbsolutePath) = LOWER(r2.AbsolutePath)
+		WHERE r1.RepoId = gr.RepoId
+	) FROM GroupRepo gr WHERE gr.RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
+		)
+	)`
+	_, err := dbConn.Exec(sqlInsert)
+
+	return apperror.WrapSimple(err, "insertRemappedGroupRepos")
+}
+
+func deleteStaleGroupRepos(dbConn *sql.DB) error {
+	const sqlDelete = `DELETE FROM GroupRepo WHERE RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
+		)
+	)`
+	_, err := dbConn.Exec(sqlDelete)
+
+	return apperror.WrapSimple(err, "deleteStaleGroupRepos")
+}
+
+func remapGroupRepoRefs(dbConn *sql.DB) error {
+	hasTable := isTablePresent(dbConn, "GroupRepo")
+	if !hasTable {
+		return nil
+	}
+	if err := insertRemappedGroupRepos(dbConn); err != nil {
+		return err
+	}
+
+	return deleteStaleGroupRepos(dbConn)
+}
+
+func remapVersionProbeRefs(dbConn *sql.DB) error {
+	hasTable := isTablePresent(dbConn, "VersionProbe")
+	if !hasTable {
+		return nil
+	}
+	const sqlRemap = `UPDATE VersionProbe SET RepoId = (
+		SELECT MIN(r2.RepoId) FROM Repo r1
+		JOIN Repo r2 ON LOWER(r1.AbsolutePath) = LOWER(r2.AbsolutePath)
+		WHERE r1.RepoId = VersionProbe.RepoId
+	) WHERE RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
+		)
+	)`
+	_, err := dbConn.Exec(sqlRemap)
+
+	return apperror.WrapSimple(err, "remapVersionProbeRefs")
+}
+
+func remapAllRepoChildRefs(dbConn *sql.DB) error {
+	if err := remapReleaseRepoRefs(dbConn); err != nil {
+		return err
+	}
+	if err := remapGroupRepoRefs(dbConn); err != nil {
+		return err
+	}
+
+	return remapVersionProbeRefs(dbConn)
+}
+
+func deduplicateRepoRows(dbConn *sql.DB) error {
+	hasTable := isTablePresent(dbConn, "Repo")
+	if !hasTable {
+		return nil
+	}
+	_, err := dbConn.Exec(constants.SQLDeduplicateRepos)
+
+	return apperror.WrapSimple(err, "deduplicateRepoRows")
+}
+
+func recreateRepoPathIndex(dbConn *sql.DB) error {
+	hasTable := isTablePresent(dbConn, "Repo")
+	if !hasTable {
+		return nil
+	}
+	if _, err := dbConn.Exec(constants.SQLDropRepoAbsPathIndex); err != nil {
+		return apperror.WrapSimple(err, "dropRepoAbsPathIndex")
+	}
+	_, err := dbConn.Exec(constants.SQLCreateAbsPathIndex)
+
+	return apperror.WrapSimple(err, "createRepoAbsPathIndex")
+}
+
+func executeScanFolderRemap(dbConn *sql.DB) error {
+	const sqlRemap = `UPDATE Repo SET ScanFolderId = (
+		SELECT MIN(sf2.ScanFolderId) FROM ScanFolder sf1
+		JOIN ScanFolder sf2 ON LOWER(sf1.AbsolutePath) = LOWER(sf2.AbsolutePath)
+		WHERE sf1.ScanFolderId = Repo.ScanFolderId
+	) WHERE ScanFolderId IS NOT NULL AND ScanFolderId IN (
+		SELECT ScanFolderId FROM ScanFolder WHERE ScanFolderId NOT IN (
+			SELECT MIN(ScanFolderId) FROM ScanFolder GROUP BY LOWER(AbsolutePath)
+		)
+	)`
+	_, err := dbConn.Exec(sqlRemap)
+
+	return apperror.WrapSimple(err, "remapScanFolderRefs")
+}
+
+func remapScanFolderRefs(dbConn *sql.DB) error {
+	hasRepo := isTablePresent(dbConn, "Repo")
+	hasScanFolder := isTablePresent(dbConn, "ScanFolder")
+	canRemap := hasRepo && hasScanFolder
+	if !canRemap {
+		return nil
+	}
+
+	return executeScanFolderRemap(dbConn)
+}
+
+func deduplicateScanFolderRows(dbConn *sql.DB) error {
+	hasTable := isTablePresent(dbConn, "ScanFolder")
+	if !hasTable {
+		return nil
+	}
+	_, err := dbConn.Exec(constants.SQLDeduplicateScanFolders)
+
+	return apperror.WrapSimple(err, "deduplicateScanFolderRows")
+}
+
+func recreateScanFolderPathIndex(dbConn *sql.DB) error {
+	hasTable := isTablePresent(dbConn, "ScanFolder")
+	if !hasTable {
+		return nil
+	}
+	if _, err := dbConn.Exec(constants.SQLDropScanFolderPathIndex); err != nil {
+		return apperror.WrapSimple(err, "dropScanFolderPathIndex")
+	}
+	_, err := dbConn.Exec(constants.SQLCreateScanFolderPathIndex)
+
+	return apperror.WrapSimple(err, "createScanFolderPathIndex")
+}
+
+func bumpSchemaVersionTo33(dbConn *sql.DB) error {
+	hasTable := isTablePresent(dbConn, "Setting")
+	if !hasTable {
+		return nil
+	}
+	const sqlBump = `INSERT INTO Setting (Key, Value) VALUES ('schema_version', '33')
+		ON CONFLICT(Key) DO UPDATE SET Value='33'`
+	_, err := dbConn.Exec(sqlBump)
+
+	return apperror.WrapSimple(err, "bumpSchemaVersionTo33")
+}
+
+func deduplicateRepoAndScanFolder(dbConn *sql.DB) error {
+	if err := deduplicateRepoRows(dbConn); err != nil {
+		return err
+	}
+	if err := recreateRepoPathIndex(dbConn); err != nil {
+		return err
+	}
+	if err := remapScanFolderRefs(dbConn); err != nil {
+		return err
+	}
+	if err := deduplicateScanFolderRows(dbConn); err != nil {
+		return err
+	}
+
+	return recreateScanFolderPathIndex(dbConn)
+}
+
+// Migration_AddRepoAbsolutePathCollateNoCase performs schema version 33 migration:
+// deduplicating Repo & ScanFolder records, remapping foreign keys, and applying COLLATE NOCASE.
+func Migration_AddRepoAbsolutePathCollateNoCase(dbConn *sql.DB) error {
+	if err := remapAllRepoChildRefs(dbConn); err != nil {
+		return err
+	}
+	if err := deduplicateRepoAndScanFolder(dbConn); err != nil {
+		return err
+	}
+
+	return bumpSchemaVersionTo33(dbConn)
+}
+
+// Migration_AddRepoAbsolutePathCollateNoCase runs the collation and deduplication migration on the DB instance.
+func (dbInstance *DB) Migration_AddRepoAbsolutePathCollateNoCase() error {
+	return Migration_AddRepoAbsolutePathCollateNoCase(dbInstance.conn)
 }

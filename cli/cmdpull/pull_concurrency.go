@@ -46,14 +46,33 @@ func filterColdIgnoreRecords(records []model.ScanRecord, ttl time.Duration) ([]m
 
 func scanColdRecordsSequentially(records []model.ScanRecord) []IgnoreRepoIssue {
 	var issues []IgnoreRepoIssue
+	seenPath := make(map[string]bool, len(records))
+
 	for i, rec := range records {
+		pathKey := CanonicalRepoPathKey(rec.AbsolutePath)
+		if isPathAlreadySeen(pathKey, seenPath) {
+			continue
+		}
 		yieldBetweenIgnoreAudits(i)
 		issue := inspectAndCacheRepoIgnore(rec)
 		if issue.HasIssues() {
 			issues = append(issues, issue)
 		}
 	}
+
 	return sortIgnoreIssues(issues)
+}
+
+func isPathAlreadySeen(pathKey string, seenPath map[string]bool) bool {
+	if pathKey == "" {
+		return false
+	}
+	if seenPath[pathKey] {
+		return true
+	}
+	seenPath[pathKey] = true
+
+	return false
 }
 
 func yieldBetweenIgnoreAudits(index int) {

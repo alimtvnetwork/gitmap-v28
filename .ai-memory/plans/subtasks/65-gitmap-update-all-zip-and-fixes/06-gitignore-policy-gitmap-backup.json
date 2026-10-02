@@ -1,0 +1,18 @@
+{
+  "task": "Task-06",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/cmdpull/pull.go",
+    "cli/cmdignore/ignore_groups.go",
+    "cli/cmdignore/fix_ignore.go"
+  ],
+  "checks": "python 03-ai-scripts/05-guideline-autofixer.py cli/cmdignore cli/cmdpull/pull.go --check-only -> exit 0, 9 files verified, 0 CR",
+  "acceptance": {
+    "ac1": "PASS buildDefaultTrackedPathsToCheck in cli/cmdpull/pull.go checks exclusively .gitmap/backup/ and resume tasks, removed isGitmapDevelopmentRepo",
+    "ac2": "PASS ImmutableDefaultRules and EnsureImmutableRules in cli/cmdignore/ignore_groups.go enforce only .gitmap/backup/",
+    "ac3": "PASS fix_ignore.go deduplicates lines normalized with strings.Trim(trimmed, \"/ \\t\\r\\n\"), recognizing dist/ and /dist as duplicates",
+    "ac4": "PASS assembleCleanedGitignore and writeDefaultGitignore append exclusively .gitmap/backup/, never .gitmap/"
+  },
+  "assumptions": [],
+  "blockers": []
+}

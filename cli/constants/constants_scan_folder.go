@@ -25,8 +25,22 @@ const SQLCreateScanFolder = `CREATE TABLE IF NOT EXISTS ScanFolder (
 	CreatedAt     TEXT DEFAULT CURRENT_TIMESTAMP
 )`
 
-// SQL: unique index on AbsolutePath so EnsureScanFolder is idempotent.
-const SQLCreateScanFolderPathIndex = "CREATE UNIQUE INDEX IF NOT EXISTS IdxScanFolder_AbsolutePath ON ScanFolder(AbsolutePath)"
+// SQL: unique index on AbsolutePath with case-insensitive collation (IdxScanFolder_AbsolutePath).
+const SQLCreateScanFolderPathIndex = "CREATE UNIQUE INDEX IF NOT EXISTS IdxScanFolder_AbsolutePath ON ScanFolder(AbsolutePath COLLATE NOCASE)"
+
+// SQLCreateScanFolderAbsPathIndex is an alias for SQLCreateScanFolderPathIndex.
+const SQLCreateScanFolderAbsPathIndex = SQLCreateScanFolderPathIndex
+
+// SQL: drop existing index prior to collation recreation.
+const SQLDropScanFolderPathIndex = "DROP INDEX IF EXISTS IdxScanFolder_AbsolutePath"
+
+// SQL: deduplicate ScanFolder entries by lowercase AbsolutePath, preserving the oldest ScanFolderId.
+const SQLDeduplicateScanFolders = `DELETE FROM ScanFolder
+WHERE ScanFolderId NOT IN (
+	SELECT MIN(ScanFolderId)
+	FROM ScanFolder
+	GROUP BY LOWER(AbsolutePath)
+)`
 
 // SQL: create VersionProbe table (populated starting Phase 2.3).
 const SQLCreateVersionProbe = `CREATE TABLE IF NOT EXISTS VersionProbe (

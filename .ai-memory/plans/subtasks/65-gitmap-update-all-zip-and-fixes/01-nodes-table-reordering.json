@@ -1,0 +1,17 @@
+{
+  "task": "Task-01",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/cmd/nodes_cmd.go",
+    "cli/cmd/nodes_cmd_test.go"
+  ],
+  "checks": "python 03-ai-scripts/05-guideline-autofixer.py cli/cmd/nodes_cmd.go --check-only -> exit 0; python 03-ai-scripts/05-guideline-autofixer.py cli/cmd/nodes_cmd_test.go --check-only -> exit 0; go test -v ./cmd -run TestUnifiedNodes -> exit 0",
+  "acceptance": {
+    "ac1": "PASS renderUnifiedNodesTable calls renderCommandsMatrixTable first and renderPrimaryNodesTable second",
+    "ac2": "PASS renderCommandsMatrixHeader prunes ROLE column and expands SUPPORTED COMMANDS & CLUSTERS column to 70 chars with leading newline",
+    "ac3": "PASS renderCommandsMatrixRow formats row without ROLE column as '%s %s %s\\n' with alias, subsys, cmds",
+    "ac4": "PASS TestUnifiedNodes_RenderTable asserts matrix table appears before primary table and does not contain ROLE between NODE (ALIAS) and SUBSYSTEMS"
+  },
+  "assumptions": [],
+  "blockers": []
+}

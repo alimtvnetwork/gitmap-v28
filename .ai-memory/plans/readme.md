@@ -39,6 +39,7 @@
 - [62-devtools-cache-discovery-tree-and-split-db.md](completed/62-devtools-cache-discovery-tree-and-split-db.md) — Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Spec: [199](../../02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md))
 - [63-semantic-flat-commit-suite.md](completed/63-semantic-flat-commit-suite.md) — Semantic Flat Commit Suite & Auto-Stage Command (Spec: [200](../../02-spec/21-app/200-semantic-flat-commit-and-auto-stage-command.md))
 - [64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) — GitMap Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation (Spec: [201](../../02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md))
+- [66-fix-gitmap-pa-duplicate-repos.md](completed/66-fix-gitmap-pa-duplicate-repos.md) — Fix Duplicate Repositories in Pull-All, Database Case-Insensitive Collation, and In-Memory Deduplication Pipeline (Spec: [66](../../02-spec/21-app/66-fix-gitmap-pa-duplicate-repos/01-architecture-spec.md))
 
 - [197-pas-fix.md](completed/197-pas-fix.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
 

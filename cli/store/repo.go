@@ -4,12 +4,26 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
+
+// NormalizeStoragePath produces a canonical, clean absolute path for database persistence.
+// On Windows, drive letters are capitalized to ensure consistent visual presentation.
+func NormalizeStoragePath(pathStr string) string {
+	clean := filepath.Clean(strings.TrimSpace(pathStr))
+	vol := filepath.VolumeName(clean)
+	if len(vol) >= 2 && vol[1] == ':' {
+		clean = strings.ToUpper(string(vol[0])) + clean[1:]
+	}
+
+	return clean
+}
 
 // UpsertRepos inserts or updates all records by absolute_path.
 func (db *DB) UpsertRepos(records []model.ScanRecord) error {
@@ -39,9 +53,10 @@ func (db *DB) upsertReposTx(tx *sql.Tx, records []model.ScanRecord) *apperror.Ap
 }
 
 func upsertOneRepo(runner sqlExecutor, r model.ScanRecord) error {
+	normalizedPath := NormalizeStoragePath(r.AbsolutePath)
 	_, err := ExecWrapper(runner, constants.SQLUpsertRepoByPath,
 		r.Slug, r.RepoName, r.HTTPSUrl, r.SSHUrl,
-		r.Branch, r.RelativePath, r.AbsolutePath,
+		r.Branch, r.RelativePath, normalizedPath,
 		r.CloneInstruction, r.Notes, r.IdentifiedTransport,
 	).Destruct()
 
@@ -51,7 +66,8 @@ func upsertOneRepo(runner sqlExecutor, r model.ScanRecord) error {
 // DeleteByPath removes the repo row whose AbsolutePath matches.
 // Returns the number of rows deleted (0 when no match).
 func (db *DB) DeleteByPath(absPath string) (int64, error) {
-	res, err := ExecWrapper(db.conn, constants.SQLDeleteRepoByPath, absPath).Destruct()
+	cleanPath := NormalizeStoragePath(absPath)
+	res, err := ExecWrapper(db.conn, constants.SQLDeleteRepoByPath, cleanPath).Destruct()
 	if err != nil {
 		return 0, err
 	}
@@ -112,7 +128,8 @@ func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error) {
 
 // FindByPath returns the repo at the given absolute path.
 func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error) {
-	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoByPath, absPath).Destruct()
+	cleanPath := NormalizeStoragePath(absPath)
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoByPath, cleanPath).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}

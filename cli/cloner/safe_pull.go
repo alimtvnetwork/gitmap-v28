@@ -278,7 +278,9 @@ func execGitPullFF(repoDir string, onProgress func(string)) (string, error) {
 func isDivergedOutput(output string) bool {
 	return strings.Contains(output, "Not possible to fast-forward") ||
 		strings.Contains(output, "diverged") ||
-		strings.Contains(output, "non-fast-forward")
+		strings.Contains(output, "non-fast-forward") ||
+		strings.Contains(output, "Cannot fast-forward to multiple branches") ||
+		strings.Contains(output, "cannot fast-forward to multiple branches")
 }
 
 func attemptAutoMergePull(repoDir string, onProgress func(string), ffOutput string) (string, error) {

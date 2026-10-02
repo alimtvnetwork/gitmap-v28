@@ -55,6 +55,7 @@ func parseSearchAiFlag(args []string) (bool, []string) {
 func printSearchUsage() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
 	fmt.Println("  gitmap search <query> [--limit <n>] [--ai]")
+	fmt.Println("  gitmap search clean")
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
 	fmt.Println("  Fast indexed keyword and symbol search across repositories using SplitDB.")
@@ -63,12 +64,26 @@ func printSearchUsage() {
 	fmt.Println("  gitmap search \"Resolve-Version\"")
 	fmt.Println("  gitmap search \"AppError\" --limit 10")
 	fmt.Println("  gitmap search \"type SearchResult struct\" --ai")
+	fmt.Println("  gitmap search clean")
+}
+
+func handleSearchCleanCommand() error {
+	cleared, err := searcher.CleanSearchHotCache()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("\n  %s✓ Search cache purged and database vacuumed (%d entries cleared).%s\n\n",
+		constants.ColorGreen, cleared, constants.ColorReset)
+	return nil
 }
 
 func executeSearchCommand(query string, limit int, isAiCaller bool) error {
 	lowQ := strings.ToLower(strings.TrimSpace(query))
 	if lowQ == "history" || lowQ == "top" || lowQ == "stats" || lowQ == "dh2d" {
 		return searcher.RenderAUMSearchHistoryTable(limit)
+	}
+	if lowQ == "clean" || lowQ == "clear" || lowQ == "purge" {
+		return handleSearchCleanCommand()
 	}
 	if cachedRes, dh2d, isHot := searcher.LookupHotCachedSearch(query, "keyword"); isHot {
 		_, _ = searcher.RecordAUMSearchExecution(query, "keyword", isAiCaller, 0, cachedRes)

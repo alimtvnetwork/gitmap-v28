@@ -1,0 +1,17 @@
+{
+  "task": "Task-03",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/searcher/search_history_db.go",
+    "cli/cmd/search.go",
+    "cli/tests/e2e/ssh_agy_nodes_agm_aum_tempe2e_test.go"
+  ],
+  "checks": "python 03-ai-scripts/05-guideline-autofixer.py cli/searcher/search_history_db.go --check-only -> exit 0; python 03-ai-scripts/05-guideline-autofixer.py cli/cmd/search.go --check-only -> exit 0; python 03-ai-scripts/05-guideline-autofixer.py cli/tests/e2e/ssh_agy_nodes_agm_aum_tempe2e_test.go --check-only -> exit 0; python linter-scripts/check-forbidden-strings.py cli/searcher/search_history_db.go cli/cmd/search.go cli/tests/e2e/ssh_agy_nodes_agm_aum_tempe2e_test.go -> exit 0; go test -v -tags=tempe2e ./tests/e2e -run TestTempE2E_AUMSearchCacheLifecycleAndClean -> exit 0",
+  "acceptance": {
+    "ac1": "PASS CleanSearchHotCache resets in-memory cache, deletes SearchHotCache and SearchQueryLog records, and vacuums SQLite safely",
+    "ac2": "PASS gitmap search clean (and clear/purge) invokes CleanSearchHotCache and prints green purge confirmation with cleared count",
+    "ac3": "PASS TestTempE2E_AUMSearchCacheLifecycleAndClean validates 4-step sequence (warm hit -> hot hit promotion -> purge -> invalidation) using purely synthetic identifiers without brand names"
+  },
+  "assumptions": [],
+  "blockers": []
+}

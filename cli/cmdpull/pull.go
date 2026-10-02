@@ -608,12 +608,47 @@ func (h *IgnoreScanHandle) Collect() []IgnoreRepoIssue {
 	return <-h.done
 }
 
+// DeduplicateIgnoreIssues eliminates duplicate issues by canonical repo path.
+func DeduplicateIgnoreIssues(issues []IgnoreRepoIssue) []IgnoreRepoIssue {
+	if len(issues) <= 1 {
+		return issues
+	}
+	seen := make(map[string]bool, len(issues))
+	unique := make([]IgnoreRepoIssue, 0, len(issues))
+	for _, issue := range issues {
+		unique = appendUniqueIgnoreIssue(unique, issue, seen)
+	}
+
+	return unique
+}
+
+func appendUniqueIgnoreIssue(unique []IgnoreRepoIssue, issue IgnoreRepoIssue, seen map[string]bool) []IgnoreRepoIssue {
+	key := resolveIgnoreIssueKey(issue)
+	if seen[key] {
+		return unique
+	}
+	seen[key] = true
+
+	return append(unique, issue)
+}
+
+func resolveIgnoreIssueKey(issue IgnoreRepoIssue) string {
+	key := CanonicalRepoPathKey(issue.RepoPath)
+	if key != "" {
+		return key
+	}
+
+	return strings.ToLower(strings.TrimSpace(issue.RepoName))
+}
+
 func sortIgnoreIssues(issues []IgnoreRepoIssue) []IgnoreRepoIssue {
-	sorted := make([]IgnoreRepoIssue, len(issues))
-	copy(sorted, issues)
+	deduped := DeduplicateIgnoreIssues(issues)
+	sorted := make([]IgnoreRepoIssue, len(deduped))
+	copy(sorted, deduped)
 	sort.Slice(sorted, func(i, j int) bool {
 		return strings.ToLower(sorted[i].RepoName) < strings.ToLower(sorted[j].RepoName)
 	})
+
 	return sorted
 }
 
@@ -670,22 +705,13 @@ func findTrackedDefaultIgnorePaths(repoDir string) []string {
 }
 
 func buildDefaultTrackedPathsToCheck(repoDir string) []string {
-	basePaths := []string{
+	return []string{
 		".gitmap/backup/",
 		"antigravity-resume_task.json",
 		".antigravity_resume_task.json",
 		"antigravity_resume_task.json",
 		".antigravity-resume_task.json",
 	}
-	if !isGitmapDevelopmentRepo(repoDir) {
-		return append([]string{".gitmap/"}, basePaths...)
-	}
-	return basePaths
-}
-
-func isGitmapDevelopmentRepo(repoDir string) bool {
-	base := strings.ToLower(filepath.Base(repoDir))
-	return base == "gitmap" || strings.Contains(strings.ToLower(repoDir), "gitmap-v28")
 }
 
 func isPathTrackedInGitIndex(repoDir, pathspec string) bool {
@@ -700,8 +726,9 @@ func collectAndRemediateIgnoreIssues(handle *IgnoreScanHandle, opts pullOptions)
 	if len(issues) == 0 {
 		return
 	}
+	deduped := DeduplicateIgnoreIssues(issues)
 	isAutoYes := opts.yes || opts.autoFix
-	handleIgnoreRemediation(issues, isAutoYes, opts.isJSON)
+	handleIgnoreRemediation(deduped, isAutoYes, opts.isJSON)
 }
 
 func handleIgnoreRemediation(issues []IgnoreRepoIssue, isAutoYes, isJSON bool) {
@@ -898,8 +925,9 @@ func runPullBatchExecution(records []model.ScanRecord, opts pullOptions) (*PullP
 		bar.Stop()
 	}
 	dur := time.Since(startTime)
+	dedupedStates := DeduplicateRepoStates(bar.States())
 
-	return bar, sortStatesAlphabetically(bar.States()), dur
+	return bar, sortStatesAlphabetically(dedupedStates), dur
 }
 
 func renderPullBatchOutput(records []model.ScanRecord, sortedStates []*PullRepoState, dur time.Duration, opts pullOptions) {
@@ -1540,7 +1568,81 @@ func initVerboseLog() {
 	log.Close()
 }
 
+// CanonicalRepoPathKey produces a normalized, lowercase forward-slash path key.
+// It resolves relative segments, eliminates trailing slashes, and handles Windows drive case-insensitivity.
+func CanonicalRepoPathKey(path string) string {
+	if strings.TrimSpace(path) == "" {
+		return ""
+	}
+	clean := filepath.Clean(path)
+	slashed := filepath.ToSlash(clean)
+
+	return strings.ToLower(slashed)
+}
+
+// deduplicatePullRecords filters duplicates from a slice of ScanRecord.
+// It ensures each repository canonical path and slug is enqueued exactly once.
+func deduplicatePullRecords(records []model.ScanRecord) []model.ScanRecord {
+	if len(records) <= 1 {
+		return records
+	}
+	seenPath := make(map[string]bool, len(records))
+	seenSlug := make(map[string]bool, len(records))
+	unique := make([]model.ScanRecord, 0, len(records))
+	for _, rec := range records {
+		unique = appendUniquePullRecord(unique, rec, seenPath, seenSlug)
+	}
+
+	return unique
+}
+
+func appendUniquePullRecord(unique []model.ScanRecord, rec model.ScanRecord, seenPath, seenSlug map[string]bool) []model.ScanRecord {
+	pathKey := CanonicalRepoPathKey(rec.AbsolutePath)
+	slugKey := resolveRecordSlugKey(rec)
+	if isRecordDuplicate(pathKey, slugKey, seenPath, seenSlug) {
+		return unique
+	}
+	markRecordSeen(pathKey, slugKey, seenPath, seenSlug)
+
+	return append(unique, rec)
+}
+
+func resolveRecordSlugKey(rec model.ScanRecord) string {
+	slug := strings.ToLower(strings.TrimSpace(rec.Slug))
+	if slug != "" {
+		return slug
+	}
+
+	return strings.ToLower(strings.TrimSpace(rec.RepoName))
+}
+
+func isRecordDuplicate(pathKey, slugKey string, seenPath, seenSlug map[string]bool) bool {
+	if pathKey != "" && seenPath[pathKey] {
+		return true
+	}
+	if slugKey != "" && seenSlug[slugKey] {
+		return true
+	}
+
+	return false
+}
+
+func markRecordSeen(pathKey, slugKey string, seenPath, seenSlug map[string]bool) {
+	if pathKey != "" {
+		seenPath[pathKey] = true
+	}
+	if slugKey != "" {
+		seenSlug[slugKey] = true
+	}
+}
+
 func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {
+	raw := resolveRawPullTargets(slug, groupName, all)
+
+	return deduplicatePullRecords(raw)
+}
+
+func resolveRawPullTargets(slug, groupName string, all bool) []model.ScanRecord {
 	if HasAlias() {
 		return resolveAliasRecord()
 	}
@@ -1661,7 +1763,7 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 		}
 	}
 
-	return children
+	return deduplicatePullRecords(children)
 }
 
 func ensureTrailingPathSep(path string) string {
@@ -1701,7 +1803,7 @@ func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
 		return nil, false
 	}
 
-	return records, true
+	return deduplicatePullRecords(records), true
 }
 
 func hasExplicitPullTarget(opts pullOptions) bool {

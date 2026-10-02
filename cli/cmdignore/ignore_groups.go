@@ -12,7 +12,6 @@ import (
 
 // ImmutableDefaultRules defines the mandatory immutable rules for GitMap.
 var ImmutableDefaultRules = []string{
-	".gitmap/",
 	".gitmap/backup/",
 }
 
@@ -106,18 +105,13 @@ func techStackGroups() map[string]IgnoreGroup {
 	}
 }
 
-// EnsureImmutableRules ensures .gitmap/ and .gitmap/backup/ are present in patterns.
+// EnsureImmutableRules ensures .gitmap/backup/ is present in patterns.
 func EnsureImmutableRules(patterns []string) []string {
-	hasGitmap := hasExactPattern(patterns, ".gitmap/")
 	hasBackup := hasExactPattern(patterns, ".gitmap/backup/")
-	res := patterns
-	if !hasGitmap {
-		res = append([]string{".gitmap/"}, res...)
+	if hasBackup {
+		return patterns
 	}
-	if !hasBackup {
-		res = append(res, ".gitmap/backup/")
-	}
-	return res
+	return append(patterns, ".gitmap/backup/")
 }
 
 func hasExactPattern(patterns []string, target string) bool {

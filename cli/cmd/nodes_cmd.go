@@ -461,10 +461,10 @@ func renderUnifiedNodesTable(out io.Writer, nodes []UnifiedFleetNode) error {
 	if len(nodes) == 0 {
 		return renderEmptyUnifiedNodesNotice(out)
 	}
-	if err := renderPrimaryNodesTable(out, nodes); err != nil {
+	if err := renderCommandsMatrixTable(out, nodes); err != nil {
 		return err
 	}
-	if err := renderCommandsMatrixTable(out, nodes); err != nil {
+	if err := renderPrimaryNodesTable(out, nodes); err != nil {
 		return err
 	}
 	renderUnifiedNodesFooter(out)
@@ -531,24 +531,21 @@ func renderCommandsMatrixTable(out io.Writer, nodes []UnifiedFleetNode) error {
 
 func renderCommandsMatrixHeader(out io.Writer) {
 	colAlias := padCell("NODE (ALIAS)", 16)
-	colRole := padCell("ROLE", 14)
-	colSys := padCell("SUBSYSTEMS", 20)
-	colCmds := padCell("SUPPORTED COMMANDS & CLUSTERS", 56)
+	colSys := padCell("SUBSYSTEMS", 22)
+	colCmds := padCell("SUPPORTED COMMANDS & CLUSTERS", 70)
 
-	headerLine := fmt.Sprintf("  %s %s %s %s\n",
-		colAlias, colRole, colSys, colCmds)
-	fmt.Fprintf(out, "%s%s%s", constants.ColorCyan, headerLine, constants.ColorReset)
+	headerLine := fmt.Sprintf("  %s %s %s\n", colAlias, colSys, colCmds)
+	fmt.Fprintf(out, "\n%s%s%s", constants.ColorCyan, headerLine, constants.ColorReset)
 	divider := strings.Repeat("-", 110)
 	fmt.Fprintf(out, "  %s%s%s\n", constants.ColorDim, divider, constants.ColorReset)
 }
 
 func renderCommandsMatrixRow(out io.Writer, n UnifiedFleetNode) {
 	alias := formatCellAlias(n.Alias, 16)
-	role := formatCellRole(n.Role, 14)
-	subsys := formatCellSubsystems(strings.Join(n.Subsystems, ", "), 20)
+	subsys := formatCellSubsystems(strings.Join(n.Subsystems, ", "), 22)
 	cmds := formatSupportedCommands(n)
 
-	fmt.Fprintf(out, "  %s %s %s %s\n", alias, role, subsys, cmds)
+	fmt.Fprintf(out, "  %s %s %s\n", alias, subsys, cmds)
 }
 
 func formatSupportedCommands(n UnifiedFleetNode) string {
