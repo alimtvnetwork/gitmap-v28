@@ -115,17 +115,18 @@ func isPromptRequired(opts DevCleanOptions) bool {
 func confirmDevClean() bool {
 	fmt.Print("  Proceed with dev tools cache cleanup? Type 'yes' to continue: ")
 	text, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	return err == nil && strings.ToLower(strings.TrimSpace(text)) == "yes"
+	return err == nil && strings.EqualFold(strings.TrimSpace(text), "yes")
 }
 
 func renderDevCleanOutput(paths []DiscoveredCachePath, opts DevCleanOptions) {
-	if opts.IsJSON {
+	switch {
+	case opts.IsJSON:
 		res := buildDiscoveryResult(paths, 0)
 		data, _ := json.MarshalIndent(res, "", "  ")
 		fmt.Println(string(data))
-	} else if opts.IsTree {
+	case opts.IsTree:
 		RenderDevTreeOutput(paths, DevTreeRenderOptions{HasColorEnabled: true})
-	} else {
+	default:
 		RenderDevCleanAnsiCards(paths, opts.IsDryRun)
 	}
 }

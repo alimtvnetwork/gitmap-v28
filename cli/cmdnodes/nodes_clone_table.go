@@ -150,7 +150,8 @@ func renderFleetPreFlightTable(out io.Writer, report FleetPreFlightReport) {
 		renderPreFlightRow(out, n)
 	}
 
-	fmt.Fprintln(out, "    --------------------------------------------------------------------------------------------------------\n")
+	fmt.Fprintln(out, "    --------------------------------------------------------------------------------------------------------")
+	fmt.Fprintln(out)
 }
 
 func renderBannerHeaderBox(out io.Writer, kind NodesCloneKind) {

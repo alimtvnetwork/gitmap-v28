@@ -122,70 +122,26 @@ func (db *DB) DeduplicateRepos(keepNewest bool) (*DeduplicationSummary, error) {
 
 		for _, grp := range groups {
 			allRecords := append([]model.ScanRecord{grp.Keeper}, grp.Duplicates...)
-			var keeper model.ScanRecord
-			var duplicates []model.ScanRecord
-
-			if keepNewest {
-				maxIdx := 0
-				for i, rec := range allRecords {
-					if rec.ID > allRecords[maxIdx].ID {
-						maxIdx = i
-					}
-				}
-				keeper = allRecords[maxIdx]
-				for i, rec := range allRecords {
-					if i != maxIdx {
-						duplicates = append(duplicates, rec)
-					}
-				}
-			} else {
-				minIdx := 0
-				for i, rec := range allRecords {
-					if rec.ID < allRecords[minIdx].ID {
-						minIdx = i
-					}
-				}
-				keeper = allRecords[minIdx]
-				for i, rec := range allRecords {
-					if i != minIdx {
-						duplicates = append(duplicates, rec)
-					}
-				}
-			}
+			keeper, duplicates := selectKeeperAndDuplicates(allRecords, keepNewest)
 
 			summary.KeeperRepoIDs = append(summary.KeeperRepoIDs, keeper.ID)
 
 			for _, dup := range duplicates {
 				dupID := dup.ID
 
-				// 1. Remap Release.RepoId (handle UNIQUE(RepoId, Tag))
-				if hasRelease {
-					if _, err := tx.Tx().Exec("UPDATE OR IGNORE Release SET RepoId = ? WHERE RepoId = ?", keeper.ID, dupID); err != nil {
-						return apperror.WrapSimple(err, "remapRelease")
-					}
-					if _, err := tx.Tx().Exec("DELETE FROM Release WHERE RepoId = ?", dupID); err != nil {
-						return apperror.WrapSimple(err, "deleteReleaseDups")
-					}
+				if err := remapDuplicateRelease(tx, keeper.ID, dupID, hasRelease); err != nil {
+					return err
 				}
 
-				// 2. Remap GroupRepo.RepoId (handle PRIMARY KEY (GroupId, RepoId))
-				if hasGroupRepo {
-					if _, err := tx.Tx().Exec("INSERT OR IGNORE INTO GroupRepo (GroupId, RepoId) SELECT GroupId, ? FROM GroupRepo WHERE RepoId = ?", keeper.ID, dupID); err != nil {
-						return apperror.WrapSimple(err, "remapGroupRepo")
-					}
-					if _, err := tx.Tx().Exec("DELETE FROM GroupRepo WHERE RepoId = ?", dupID); err != nil {
-						return apperror.WrapSimple(err, "deleteGroupRepoDups")
-					}
+				if err := remapDuplicateGroupRepo(tx, keeper.ID, dupID, hasGroupRepo); err != nil {
+					return err
 				}
 
-				// 3. Remap VersionProbe.RepoId
-				if hasVersionProbe {
-					if _, err := tx.Tx().Exec("UPDATE VersionProbe SET RepoId = ? WHERE RepoId = ?", keeper.ID, dupID); err != nil {
-						return apperror.WrapSimple(err, "remapVersionProbe")
-					}
+				if err := remapDuplicateVersionProbe(tx, keeper.ID, dupID, hasVersionProbe); err != nil {
+					return err
 				}
 
-				// 4. Purge duplicate Repo row
+				// Purge duplicate Repo row
 				res, err := tx.Tx().Exec("DELETE FROM Repo WHERE RepoId = ?", dupID)
 				if err != nil {
 					return apperror.WrapSimple(err, "deleteDuplicateRepo")
@@ -207,4 +163,99 @@ func (db *DB) DeduplicateRepos(keepNewest bool) (*DeduplicationSummary, error) {
 	}
 
 	return summary, nil
+}
+
+func selectKeeperAndDuplicates(records []model.ScanRecord, keepNewest bool) (model.ScanRecord, []model.ScanRecord) {
+	if keepNewest {
+		return selectNewestKeeper(records)
+	}
+
+	return selectOldestKeeper(records)
+}
+
+func selectNewestKeeper(records []model.ScanRecord) (model.ScanRecord, []model.ScanRecord) {
+	maxIdx := 0
+	for i, rec := range records {
+		if rec.ID > records[maxIdx].ID {
+			maxIdx = i
+		}
+	}
+
+	keeper := records[maxIdx]
+	var dups []model.ScanRecord
+	for i, rec := range records {
+		if i != maxIdx {
+			dups = append(dups, rec)
+		}
+	}
+
+	return keeper, dups
+}
+
+func selectOldestKeeper(records []model.ScanRecord) (model.ScanRecord, []model.ScanRecord) {
+	minIdx := 0
+	for i, rec := range records {
+		if rec.ID < records[minIdx].ID {
+			minIdx = i
+		}
+	}
+
+	keeper := records[minIdx]
+	var dups []model.ScanRecord
+	for i, rec := range records {
+		if i != minIdx {
+			dups = append(dups, rec)
+		}
+	}
+
+	return keeper, dups
+}
+
+func remapDuplicateRelease(tx *dbengine.Tx, keeperID, dupID int64, enabled bool) *appfault.AppError {
+	if !enabled {
+		return nil
+	}
+
+	_, err := tx.Tx().Exec("UPDATE OR IGNORE Release SET RepoId = ? WHERE RepoId = ?", keeperID, dupID)
+	if err != nil {
+		return apperror.WrapSimple(err, "remapRelease")
+	}
+
+	_, delErr := tx.Tx().Exec("DELETE FROM Release WHERE RepoId = ?", dupID)
+	if delErr != nil {
+		return apperror.WrapSimple(delErr, "deleteReleaseDups")
+	}
+
+	return nil
+}
+
+func remapDuplicateGroupRepo(tx *dbengine.Tx, keeperID, dupID int64, enabled bool) *appfault.AppError {
+	if !enabled {
+		return nil
+	}
+
+	_, err := tx.Tx().Exec("INSERT OR IGNORE INTO GroupRepo (GroupId, RepoId) SELECT GroupId, ? FROM GroupRepo WHERE RepoId = ?", keeperID, dupID)
+	if err != nil {
+		return apperror.WrapSimple(err, "remapGroupRepo")
+	}
+
+	_, delErr := tx.Tx().Exec("DELETE FROM GroupRepo WHERE RepoId = ?", dupID)
+	if delErr != nil {
+		return apperror.WrapSimple(delErr, "deleteGroupRepoDups")
+	}
+
+	return nil
+}
+
+func remapDuplicateVersionProbe(tx *dbengine.Tx, keeperID, dupID int64, enabled bool) *appfault.AppError {
+	if !enabled {
+		return nil
+	}
+
+	_, err := tx.Tx().Exec("UPDATE VersionProbe SET RepoId = ? WHERE RepoId = ?", keeperID, dupID)
+	if err != nil {
+		return apperror.WrapSimple(err, "remapVersionProbe")
+	}
+
+	return nil
 }

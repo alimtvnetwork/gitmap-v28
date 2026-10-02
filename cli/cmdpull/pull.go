@@ -1647,14 +1647,20 @@ func resolveRawPullTargets(slug, groupName string, all bool) []model.ScanRecord 
 		return loadRecordsByGroup(groupName)
 	}
 	if all {
-		if db, err := openDB(); err == nil {
-			_, _ = OptimizeRedundantRepos(db, false)
-			db.Close()
-		}
-		return loadAllRecordsDB()
+		return optimizeAndLoadAllRecordsDB()
 	}
 
 	return resolveSlugTarget(slug)
+}
+
+func optimizeAndLoadAllRecordsDB() []model.ScanRecord {
+	db, err := openDB()
+	if err == nil {
+		_, _ = OptimizeRedundantRepos(db, false)
+		db.Close()
+	}
+
+	return loadAllRecordsDB()
 }
 
 func resolveAliasRecord() []model.ScanRecord {

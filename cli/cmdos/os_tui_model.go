@@ -30,8 +30,7 @@ func (m OSTUIModel) Init() tea.Cmd {
 
 // Update routes messages to key or resize handlers.
 func (m OSTUIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch t := msg.(type) {
-	case tea.KeyMsg:
+	if t, isKey := msg.(tea.KeyMsg); isKey {
 		return m.handleKey(t)
 	}
 

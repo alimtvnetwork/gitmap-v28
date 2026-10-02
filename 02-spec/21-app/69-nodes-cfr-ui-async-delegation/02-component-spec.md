@@ -1,12 +1,12 @@
 # Component Specification: Workdir Resolution, Terminal UI Dashboard & Help Integration
 
 > **Specification Identifier:** `02-spec/21-app/69-nodes-cfr-ui-async-delegation/02-component-spec.md`  
-> **Parent Initiative:** [`69-nodes-cfr-ui-async-delegation.md`](file:///d:/work/gitmap/.ai-memory/plans/pending/69-nodes-cfr-ui-async-delegation.md)  
-> **Architecture Baseline:** [`01-architecture-spec.md`](file:///d:/work/gitmap/02-spec/21-app/69-nodes-cfr-ui-async-delegation/01-architecture-spec.md)  
+> **Parent Initiative:** `69-nodes-cfr-ui-async-delegation.md`  
+> **Architecture Baseline:** `01-architecture-spec.md`  
 > **Target Subtasks:**  
-> - [Subtask 03: Workdir Resolution, Relative Subdir Mirroring & Custom Destination](file:///d:/work/gitmap/.ai-memory/plans/subtasks/69-nodes-cfr-ui-async-delegation/03-workdir-resolution.md)  
-> - [Subtask 04: Terminal UI Dashboard Modernization, Help Documentation & Suggestion Footers](file:///d:/work/gitmap/.ai-memory/plans/subtasks/69-nodes-cfr-ui-async-delegation/04-terminal-ui-and-help.md)  
-> **Target Packages:** [`cli/cmdnodes`](file:///d:/work/gitmap/cli/cmdnodes), [`cli/helptext`](file:///d:/work/gitmap/cli/helptext)  
+> - Subtask 03: Workdir Resolution, Relative Subdir Mirroring & Custom Destination  
+> - Subtask 04: Terminal UI Dashboard Modernization, Help Documentation & Suggestion Footers  
+> **Target Packages:** `cli/cmdnodes`, `cli/helptext`  
 > **Release Target:** Minor Version Bump (`v6.454.0`)  
 > **Status:** APPROVED & SPECIFIED  
 

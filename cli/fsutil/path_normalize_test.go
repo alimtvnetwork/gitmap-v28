@@ -56,13 +56,8 @@ func TestEqualPaths_OSAware(t *testing.T) {
 		t.Errorf("IsPathCaseInsensitive(d:\\work\\gitmap) expected true")
 	}
 
-	if runtime.GOOS != "windows" {
-		// On non-Windows platforms, pure relative or Unix absolute paths must be case-sensitive
-		u1 := "/home/user/Repo"
-		u2 := "/home/user/repo"
-		if EqualPaths(u1, u2) {
-			t.Errorf("EqualPaths(%q, %q) on Unix expected false, got true", u1, u2)
-		}
+	if runtime.GOOS != "windows" && EqualPaths("/home/user/Repo", "/home/user/repo") {
+		t.Errorf("EqualPaths on Unix expected false, got true")
 	}
 }
 
@@ -79,12 +74,8 @@ func TestCanonicalPathKey(t *testing.T) {
 		t.Errorf("CanonicalPathKey(%q) = %q, expected %q", winPath, key, expectedWin)
 	}
 
-	if runtime.GOOS != "windows" {
-		unixPath := "/home/User/Code/MyRepo"
-		unixKey := CanonicalPathKey(unixPath)
-		if unixKey != "/home/User/Code/MyRepo" {
-			t.Errorf("CanonicalPathKey(%q) on Unix = %q, expected %q", unixPath, unixKey, unixPath)
-		}
+	if runtime.GOOS != "windows" && CanonicalPathKey("/home/User/Code/MyRepo") != "/home/User/Code/MyRepo" {
+		t.Errorf("CanonicalPathKey on Unix expected case preservation")
 	}
 }
 

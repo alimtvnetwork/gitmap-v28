@@ -48,11 +48,12 @@ func categorizeRepoStates(states []*PullRepoState) categorizedStates {
 		if s == nil {
 			continue
 		}
-		if s.IsDirty || s.Changes == "dirty" {
+		switch {
+		case s.IsDirty || s.Changes == "dirty":
 			cat.dirty = append(cat.dirty, s)
-		} else if isFailedRepoState(s) {
+		case isFailedRepoState(s):
 			cat.failed = append(cat.failed, s)
-		} else if isUpdatedRepoState(s) {
+		case isUpdatedRepoState(s):
 			cat.updated = append(cat.updated, s)
 		}
 	}

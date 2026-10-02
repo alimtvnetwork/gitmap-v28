@@ -2,7 +2,7 @@
 
 > **Specification Identifier:** `02-spec/21-app/69-nodes-cfr-ui-async-delegation/01-architecture-spec.md`  
 > **Parent Initiative:** `69-nodes-cfr-ui-async-delegation`  
-> **Component Scope:** [`cli/cmdnodes`](file:///d:/work/gitmap/cli/cmdnodes), [`cli/cmdssh`](file:///d:/work/gitmap/cli/cmdssh), [`cli/cmdclone`](file:///d:/work/gitmap/cli/cmdclone), [`cli/cmd`](file:///d:/work/gitmap/cli/cmd)  
+> **Component Scope:** `cli/cmdnodes`, `cli/cmdssh`, `cli/cmdclone`, `cli/cmd`  
 > **Release Target:** Minor Version Bump (`v6.454.0` / Next Minor Release)  
 > **Status:** APPROVED & SPECIFIED  
 
@@ -469,9 +469,9 @@ type RemoteCloneNodeResult struct {
 ## 7. Subtask Plan Index
 
 This architecture specification is implemented through decomposed subtask plans:
-- **Subtask 01:** [Pre-Flight Probing, Metrics & Remote Version Discovery](file:///d:/work/gitmap/.ai-memory/plans/subtasks/69-nodes-cfr-ui-async-delegation/01-preflight-probe-and-metrics.md)  
+- **Subtask 01:** Pre-Flight Probing, Metrics & Remote Version Discovery
   *Files:* `cli/cmdnodes/nodes_clone_probe.go`, `cli/cmdnodes/nodes_clone_remote.go`
-- **Subtask 02:** [Asynchronous Concurrent Multi-Node Dispatch & JSON Envelopes](file:///d:/work/gitmap/.ai-memory/plans/subtasks/69-nodes-cfr-ui-async-delegation/02-async-parallel-dispatch.md)  
+- **Subtask 02:** Asynchronous Concurrent Multi-Node Dispatch & JSON Envelopes
   *Files:* `cli/cmdnodes/nodes_clone.go`, `cli/cmdnodes/nodes_clone_remote.go`
 - **Subtask 03:** Work Directory Resolution & Relative Subdir Mirroring (Phase 2 Worker 02)
 - **Subtask 04:** Terminal UI Dashboard Modernization & Route Blueprint Rendering (Phase 2 Worker 01)

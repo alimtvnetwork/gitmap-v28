@@ -283,7 +283,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS IdxRepo_AbsolutePath ON Repo(AbsolutePath COLL
 Before any repository path enters SQL statements, it MUST be passed through `store.NormalizeStoragePath(pathStr)`:
 - Cleans relative navigation components (`.`, `..`).
 - Normalizes path separators to OS standard.
-- On Windows, capitalizes drive letters (e.g. `d:\work\gitmap` -> `D:\work\gitmap`) to eliminate case variations.
+- On Windows, capitalizes drive letters (e.g. `d:\work\repo` -> `D:\work\repo`) to eliminate case variations.
 
 #### 3.3.3 Upsert Strategy (`constants.SQLUpsertRepoByPath`)
 Repository additions are executed via `db.UpsertRepos(records)`:

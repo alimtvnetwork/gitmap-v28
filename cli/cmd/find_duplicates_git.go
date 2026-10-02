@@ -30,21 +30,7 @@ func runFindDuplicatesGit() error {
 	defer mainDB.Close()
 
 	if hasGitDupFixFlag() {
-		summary, err := mainDB.DeduplicateRepos(false)
-		if err != nil {
-			fmt.Printf("  %s✗ Error deduplicating repositories: %v%s\n\n", constants.ColorRed, err, constants.ColorReset)
-
-			return nil
-		}
-		if summary == nil || summary.RowsPurged == 0 {
-			fmt.Printf("  %s✓ Git: No redundant repositories to clean.%s\n\n", constants.ColorGreen, constants.ColorReset)
-
-			return nil
-		}
-		fmt.Printf("  %s✓ SQLite: Successfully deduplicated %d redundant repository record(s) across %d group(s).%s\n\n",
-			constants.ColorGreen, summary.RowsPurged, summary.GroupsFound, constants.ColorReset)
-
-		return nil
+		return runFixDuplicatesGit(mainDB)
 	}
 
 	dupGroups, err := mainDB.FindDuplicateRepos()
@@ -120,4 +106,24 @@ func printGitDupGroupRemediations(dupGroups []store.DuplicateRepoGroup) {
 	fmt.Printf("    %sgitmap clone --fix%s\n", constants.ColorGreen, constants.ColorReset)
 	fmt.Printf("    %sgitmap rescan%s\n", constants.ColorGreen, constants.ColorReset)
 	fmt.Printf("    %sgitmap reconcile%s\n\n", constants.ColorGreen, constants.ColorReset)
+}
+
+func runFixDuplicatesGit(mainDB *store.RepoStore) error {
+	summary, err := mainDB.DeduplicateRepos(false)
+	if err != nil {
+		fmt.Printf("  %s✗ Error deduplicating repositories: %v%s\n\n", constants.ColorRed, err, constants.ColorReset)
+
+		return nil
+	}
+
+	if summary == nil || summary.RowsPurged == 0 {
+		fmt.Printf("  %s✓ Git: No redundant repositories to clean.%s\n\n", constants.ColorGreen, constants.ColorReset)
+
+		return nil
+	}
+
+	fmt.Printf("  %s✓ SQLite: Successfully deduplicated %d redundant repository record(s) across %d group(s).%s\n\n",
+		constants.ColorGreen, summary.RowsPurged, summary.GroupsFound, constants.ColorReset)
+
+	return nil
 }

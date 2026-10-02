@@ -227,14 +227,16 @@ func buildOnlineNodeFromOutput(conn db.SSHConnection, destDir, out string, dur t
 }
 
 func resolveVersionFields(conn db.SSHConnection, p gitmapVersionPayload, out string, hasJSON bool) (string, string, string, string) {
-	if hasJSON {
-		osType := conn.OS
-		if p.OS != "" {
-			osType = p.OS
-		}
-		return p.Version, p.Commit, p.Arch, osType
+	if !hasJSON {
+		return extractFallbackVersion(out), "", "", conn.OS
 	}
-	return extractFallbackVersion(out), "", "", conn.OS
+
+	osType := conn.OS
+	if p.OS != "" {
+		osType = p.OS
+	}
+
+	return p.Version, p.Commit, p.Arch, osType
 }
 
 func createOnlineNodeInfo(conn db.SSHConnection, destDir, ver, commit, arch, osType string, dur time.Duration) PreFlightNodeInfo {

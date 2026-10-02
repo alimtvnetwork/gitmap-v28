@@ -181,12 +181,17 @@ func defaultOSWorkBase() string {
 }
 
 func resolveLocalWorkBase() string {
-	if db, err := store.OpenDefault(); err == nil {
-		defer db.Close()
-		if wd, errGet := db.GetDefaultWorkDir(); errGet == nil && wd != nil && wd.AbsolutePath != "" {
-			return filepath.Clean(wd.AbsolutePath)
-		}
+	db, err := store.OpenDefault()
+	if err != nil {
+		return defaultOSWorkBase()
 	}
+	defer db.Close()
+
+	wd, errGet := db.GetDefaultWorkDir()
+	if errGet == nil && wd != nil && wd.AbsolutePath != "" {
+		return filepath.Clean(wd.AbsolutePath)
+	}
+
 	return defaultOSWorkBase()
 }
 

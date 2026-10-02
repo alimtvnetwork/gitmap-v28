@@ -96,11 +96,8 @@ func IsSubdirectory(parent, child string) bool {
 
 	if IsPathCaseInsensitive(parent) || IsPathCaseInsensitive(child) {
 		pPrefix := p + "/"
-		if len(c) > len(pPrefix) && strings.EqualFold(c[:len(pPrefix)], pPrefix) {
-			return true
-		}
 
-		return false
+		return len(c) > len(pPrefix) && strings.EqualFold(c[:len(pPrefix)], pPrefix)
 	}
 
 	return strings.HasPrefix(c, p+"/")

@@ -134,13 +134,16 @@ func resolveTargetDirForOS(isWin bool, opts NodesCloneOptions) string {
 	if opts.TargetDir != "" {
 		return opts.TargetDir
 	}
-	if opts.RelativeSubdir == "" {
-		if isWin {
-			return `D:\work`
-		}
-		return "~/work"
+
+	if opts.RelativeSubdir != "" {
+		return resolveSubdirTargetForOS(isWin, opts.RelativeSubdir)
 	}
-	return resolveSubdirTargetForOS(isWin, opts.RelativeSubdir)
+
+	if isWin {
+		return `D:\work`
+	}
+
+	return "~/work"
 }
 
 func resolveRemoteTargetDir(conn db.SSHConnection, opts NodesCloneOptions) string {
