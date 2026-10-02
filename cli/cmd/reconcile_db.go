@@ -2,10 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -29,7 +28,7 @@ func runPruneStaleDB(dir string, currentRecords []model.ScanRecord) error {
 func pruneStaleRecords(db *store.DB, dir string, currentRecords []model.ScanRecord) int {
 	validPaths := make(map[string]bool, len(currentRecords))
 	for _, r := range currentRecords {
-		key := strings.ToLower(filepath.ToSlash(filepath.Clean(r.AbsolutePath)))
+		key := fsutil.CanonicalPathKey(r.AbsolutePath)
 		validPaths[key] = true
 	}
 
@@ -57,7 +56,7 @@ func isStaleCandidate(dir, path string, validPaths map[string]bool) bool {
 		return false
 	}
 
-	key := strings.ToLower(filepath.ToSlash(filepath.Clean(path)))
+	key := fsutil.CanonicalPathKey(path)
 	isValid := validPaths[key]
 
 	return !isValid
@@ -81,18 +80,5 @@ func runReconcile(dir string, currentRecords []model.ScanRecord) error {
 }
 
 func isSubPath(parent, child string) bool {
-	p := strings.ToLower(filepath.ToSlash(filepath.Clean(parent)))
-	c := strings.ToLower(filepath.ToSlash(filepath.Clean(child)))
-
-	isEqual := (p == c)
-	if isEqual {
-		return false
-	}
-
-	hasSlash := strings.HasSuffix(p, "/")
-	if !hasSlash {
-		p += "/"
-	}
-
-	return strings.HasPrefix(c, p)
+	return fsutil.IsSubdirectory(parent, child)
 }

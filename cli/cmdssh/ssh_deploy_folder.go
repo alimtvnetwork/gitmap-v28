@@ -40,20 +40,20 @@ func (s *conflictPromptSession) askUser(relPath string) bool {
 	if _, err := fmt.Scanln(&answer); err != nil {
 		return false
 	}
-	clean := strings.ToLower(strings.TrimSpace(answer))
+	clean := strings.TrimSpace(answer)
 	return s.applyAnswer(clean)
 }
 
 func (s *conflictPromptSession) applyAnswer(clean string) bool {
-	if clean == "a" || clean == "all" {
+	if strings.EqualFold(clean, "a") || strings.EqualFold(clean, "all") {
 		s.isAllOverwrite = true
 		return true
 	}
-	if clean == "s" || clean == "skip all" || clean == "skip" {
+	if strings.EqualFold(clean, "s") || strings.EqualFold(clean, "skip all") || strings.EqualFold(clean, "skip") {
 		s.isAllSkip = true
 		return false
 	}
-	return clean == "y" || clean == "yes"
+	return strings.EqualFold(clean, "y") || strings.EqualFold(clean, "yes")
 }
 
 // scanLocalFolder recursively scans the rootPath and returns all files as LocalFileInfo items.

@@ -386,7 +386,7 @@ func promptOrDeleteFolder(folderName, fullPath string, deleteFlag bool) bool {
 	fmt.Printf(constants.MsgCloneNextRemovePrompt, folderName)
 	var answer string
 	_, _ = fmt.Scanln(&answer)
-	shouldRemove := strings.ToLower(strings.TrimSpace(answer)) == "y"
+	shouldRemove := strings.EqualFold(strings.TrimSpace(answer), "y")
 	if shouldRemove {
 		return removeFolderWithLockCheck(folderName, fullPath)
 	}
@@ -453,7 +453,7 @@ func confirmAndKillProcs(db *store.DB, taskID int64, name, path string, procs []
 	fmt.Print(constants.MsgLockCheckKillPrompt)
 	var answer string
 	_, _ = fmt.Scanln(&answer)
-	if strings.ToLower(strings.TrimSpace(answer)) != "y" {
+	if !strings.EqualFold(strings.TrimSpace(answer), "y") {
 		failPendingTask(db, taskID, constants.ReasonUserDeclined)
 
 		return false

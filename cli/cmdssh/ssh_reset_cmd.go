@@ -20,8 +20,8 @@ func askResetConfirmation(count int, isForced bool) bool {
 	fmt.Printf("\nReset SSH registry? This removes all %d node(s) and flushes connection caches. [y/N]: ", count)
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
-	clean := strings.TrimSpace(strings.ToLower(input))
-	isConfirmed := clean == "y" || clean == "yes"
+	clean := strings.TrimSpace(input)
+	isConfirmed := strings.EqualFold(clean, "y") || strings.EqualFold(clean, "yes")
 
 	return isConfirmed
 }

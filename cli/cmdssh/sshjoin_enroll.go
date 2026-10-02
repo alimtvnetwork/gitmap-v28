@@ -115,8 +115,8 @@ func promptRetryOrRecheckCredentials(ctx context.Context, opts *SSHJoinOptions, 
 	fmt.Print("  Would you like to try again or specify a different username? [y/N]: ")
 	var answer string
 	_, _ = fmt.Fscanln(os.Stdin, &answer)
-	cleanAnswer := strings.ToLower(strings.TrimSpace(answer))
-	if cleanAnswer != "y" && cleanAnswer != "yes" {
+	cleanAnswer := strings.TrimSpace(answer)
+	if !strings.EqualFold(cleanAnswer, "y") && !strings.EqualFold(cleanAnswer, "yes") {
 		return prevSess
 	}
 

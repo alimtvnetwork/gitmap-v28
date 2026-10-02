@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [70-redundant-repos-and-equalfold-os-fix](70-redundant-repos-and-equalfold-os-fix/01-architecture-spec.md) — SQLite Redundant Repo Deduplication, EqualFold String Refactoring, OS-Aware Path Sensitivity & File Ingestion Uniqueness (Status: `active`)
 - [69-nodes-cfr-ui-async-delegation](69-nodes-cfr-ui-async-delegation/01-architecture-spec.md) — Nodes CFR Terminal UI Modernization, Pre-Flight Probing, Machine Observability & Async Delegation (Status: `active`)
 
 - [188-json-envelope-v2-terminal-clear-and-deploy-keys.md](188-json-envelope-v2-terminal-clear-and-deploy-keys.md) — JSON Envelope V2, Terminal Clear, Deploy-Keys Variants, and Friendly Import CLI (Status: `active`)

@@ -193,9 +193,9 @@ func confirmRemove(r *bufio.Reader, rec model.ScanRecord, isDbOnly bool) bool {
 	action := resolveConfirmAction(isDbOnly)
 	fmt.Printf("%s %s\n  %s ? [y/N] ", action, rec.Slug, rec.AbsolutePath)
 	line, _ := r.ReadString('\n')
-	ans := strings.ToLower(strings.TrimSpace(line))
+	ans := strings.TrimSpace(line)
 
-	return ans == "y" || ans == "yes"
+	return strings.EqualFold(ans, "y") || strings.EqualFold(ans, "yes")
 }
 
 func resolveConfirmAction(isDbOnly bool) string {

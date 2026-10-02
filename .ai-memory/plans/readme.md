@@ -2,6 +2,7 @@
 
 ## Completed Plans
 
+- [70-redundant-repos-and-equalfold-os-fix.md](completed/70-redundant-repos-and-equalfold-os-fix.md) — SQLite Redundant Repo Deduplication, Next Pull Optimization, Zero-Alloc strings.EqualFold Refactoring & OS-Aware Path Case Sensitivity (Spec: [70](../../02-spec/21-app/70-redundant-repos-and-equalfold-os-fix/01-architecture-spec.md))
 - [69-nodes-cfr-ui-async-delegation.md](completed/69-nodes-cfr-ui-async-delegation.md) — Nodes CFR Terminal UI Modernization, Pre-Flight Probing, Machine Observability & Async Delegation (Spec: [69](../../02-spec/21-app/69-nodes-cfr-ui-async-delegation/01-architecture-spec.md))
 
 - [104-which-os-cross-platform-shell-and-node-profiling.md](completed/104-which-os-cross-platform-shell-and-node-profiling.md) — OS Discovery, Enum Reusability, Cross-Platform Shell Runner, and Node OS Profiling (Spec: [156](../../02-spec/21-app/156-which-os-cross-platform-shell-and-node-profiling/01-overview.md))

@@ -6,10 +6,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // WriteEntries writes entries atomically to path.
@@ -73,23 +72,12 @@ func encodeEntries(w io.Writer, entries []Entry) error {
 }
 
 // normalizePath returns the canonical key used for rootPath comparisons.
-// Converts backslashes to forward slashes so cross-platform path representations
-// (e.g. D:\work\my-app vs D:/work/my-app) compare consistently across all operating systems.
-// Case-insensitive on Windows or for Windows-style drive paths, case-sensitive elsewhere.
+// Delegates to fsutil.CanonicalPathKey for OS-aware canonicalization.
 func normalizePath(p string) string {
-	cleaned := filepath.Clean(strings.ReplaceAll(p, "\\", "/"))
-	if runtime.GOOS == "windows" || isWindowsDrivePath(cleaned) {
-		return strings.ToLower(cleaned)
-	}
-
-	return cleaned
+	return fsutil.CanonicalPathKey(p)
 }
 
-func isWindowsDrivePath(p string) bool {
-	return len(p) >= 2 && p[1] == ':' && ((p[0] >= 'a' && p[0] <= 'z') || (p[0] >= 'A' && p[0] <= 'Z'))
-}
-
-// pathsEqual compares two paths using normalizePath.
+// pathsEqual compares two paths using fsutil.EqualPaths.
 func pathsEqual(a, b string) bool {
-	return normalizePath(a) == normalizePath(b)
+	return fsutil.EqualPaths(a, b)
 }

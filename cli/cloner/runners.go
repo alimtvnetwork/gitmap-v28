@@ -246,7 +246,7 @@ func promptAndSetClean(opts *CloneOptions, conflicts int) {
 	fmt.Printf("These will fail to clone. Do you want to forcefully clean them? [y/N]: ")
 	var response string
 	fmt.Scanln(&response)
-	if strings.ToLower(strings.TrimSpace(response)) == "y" {
+	if strings.EqualFold(strings.TrimSpace(response), "y") {
 		opts.IsClean = true
 	} else {
 		fmt.Println("Proceeding without --clean. Conflicting directories will fail.")

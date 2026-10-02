@@ -299,12 +299,12 @@ func isConnectionExcluded(c db.SSHConnection, oneBasedIdx int, tokens []string) 
 	workerId := fmt.Sprintf("worker-%d", oneBasedIdx)
 	idxStr := strconv.Itoa(oneBasedIdx)
 	for _, tok := range tokens {
-		low := strings.ToLower(strings.TrimSpace(tok))
-		if low == "" {
+		clean := strings.TrimSpace(tok)
+		if clean == "" {
 			continue
 		}
-		if low == idxStr || low == strings.ToLower(workerId) ||
-			strings.EqualFold(c.Alias, low) || strings.EqualFold(c.IPAddress, low) {
+		if clean == idxStr || strings.EqualFold(clean, workerId) ||
+			strings.EqualFold(c.Alias, clean) || strings.EqualFold(c.IPAddress, clean) {
 			return true
 		}
 	}

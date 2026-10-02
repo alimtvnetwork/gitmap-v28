@@ -182,9 +182,9 @@ func askVSCodeClearConfirmation(count int) bool {
 		constants.ColorYellow, count, constants.ColorReset)
 	reader := bufio.NewReader(os.Stdin)
 	ans, _ := reader.ReadString('\n')
-	ans = strings.TrimSpace(strings.ToLower(ans))
+	ans = strings.TrimSpace(ans)
 
-	return ans == "y" || ans == "yes"
+	return strings.EqualFold(ans, "y") || strings.EqualFold(ans, "yes")
 }
 
 func printVSCodeEntries(entries []vscodepm.Entry) {

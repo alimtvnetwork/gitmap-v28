@@ -28,7 +28,5 @@ func ParseGnomeTimeoutMinutes(output string) int {
 
 // ParseGnomeBoolean parses gsettings boolean output (e.g. "true", "false").
 func ParseGnomeBoolean(output string) bool {
-	clean := strings.TrimSpace(strings.ToLower(output))
-
-	return clean == "true"
+	return strings.EqualFold(strings.TrimSpace(output), "true")
 }

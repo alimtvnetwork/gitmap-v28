@@ -172,8 +172,8 @@ func promptAndCommit(releaseFiles, otherFiles []string, msg string, yes bool) Au
 		return commitReleaseOnly(releaseFiles, msg)
 	}
 
-	answer := strings.TrimSpace(strings.ToLower(scanner.Text()))
-	if answer == "y" || answer == "yes" {
+	answer := strings.TrimSpace(scanner.Text())
+	if strings.EqualFold(answer, "y") || strings.EqualFold(answer, "yes") {
 		return commitAll(msg)
 	}
 

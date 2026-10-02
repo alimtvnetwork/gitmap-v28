@@ -125,8 +125,8 @@ func handleOrphanedMeta(v Version) error {
 		return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())
 	}
 
-	answer := strings.TrimSpace(strings.ToLower(scanner.Text()))
-	if answer != "y" && answer != "yes" {
+	answer := strings.TrimSpace(scanner.Text())
+	if !strings.EqualFold(answer, "y") && !strings.EqualFold(answer, "yes") {
 		return fmt.Errorf(constants.ErrReleaseAborted)
 	}
 

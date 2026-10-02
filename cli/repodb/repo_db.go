@@ -16,6 +16,7 @@ import (
 func InitRepoSchema(ctx context.Context, db *sql.DB) error {
 	queries := []string{
 		"CREATE TABLE IF NOT EXISTS RepoFile ( RepoFileId INTEGER PRIMARY KEY AUTOINCREMENT, RelativePath TEXT NOT NULL UNIQUE, AbsolutePath TEXT NOT NULL, Content TEXT, IsBig INTEGER NOT NULL, WriteTime INTEGER NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );",
+		"CREATE UNIQUE INDEX IF NOT EXISTS IdxRepoFile_RelativePath ON RepoFile(RelativePath);",
 		"CREATE TABLE IF NOT EXISTS SearchCache ( SearchCacheId INTEGER PRIMARY KEY AUTOINCREMENT, Query TEXT NOT NULL UNIQUE, Hits INTEGER NOT NULL, ResultJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );",
 		"CREATE TABLE IF NOT EXISTS FileSequence ( FileSequenceId INTEGER PRIMARY KEY AUTOINCREMENT, Directory TEXT NOT NULL, Filename TEXT NOT NULL, SequenceNumber INTEGER NOT NULL, BaseName TEXT NOT NULL, UpdatedAt INTEGER NOT NULL, UNIQUE(Directory, Filename) );",
 		"CREATE TABLE IF NOT EXISTS SequenceHistory ( SequenceHistoryId INTEGER PRIMARY KEY AUTOINCREMENT, Directory TEXT NOT NULL, OperationsJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL );",

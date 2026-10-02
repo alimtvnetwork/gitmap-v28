@@ -93,9 +93,9 @@ func confirmUndoRelease(tag string) bool {
 	fmt.Printf("Delete %s locally and on origin? [y/N]: ", tag)
 	var reply string
 	_, _ = fmt.Scanln(&reply)
-	reply = strings.ToLower(strings.TrimSpace(reply))
+	trimmed := strings.TrimSpace(reply)
 
-	return reply == "y" || reply == "yes"
+	return strings.EqualFold(trimmed, "y") || strings.EqualFold(trimmed, "yes")
 }
 
 // applyReleaseUndo executes the three undo steps and returns which ones succeeded.

@@ -98,7 +98,7 @@ func confirmRevertLastN(rows []model.TransactionRecord) bool {
 		return false
 	}
 
-	return strings.TrimSpace(strings.ToLower(scanner.Text())) == "yes"
+	return strings.EqualFold(strings.TrimSpace(scanner.Text()), "yes")
 }
 
 // revertManyOrExit applies txn.Revert to each row in newest-first order.

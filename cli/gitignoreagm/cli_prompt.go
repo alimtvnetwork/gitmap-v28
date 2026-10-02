@@ -118,8 +118,8 @@ func promptUserConfirmation(affected []string) bool {
 	if err != nil && len(line) == 0 {
 		return false
 	}
-	ans := strings.ToLower(strings.TrimSpace(line))
-	return ans == "" || ans == "y" || ans == "yes"
+	ans := strings.TrimSpace(line)
+	return ans == "" || strings.EqualFold(ans, "y") || strings.EqualFold(ans, "yes")
 }
 
 func printAffectedRepoPreview(affected []string) {

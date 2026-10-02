@@ -77,10 +77,10 @@ func isShellSelected(shell string, only []string) bool {
 	if len(only) == 0 {
 		return true
 	}
-	target := strings.ToLower(strings.TrimSpace(shell))
+	target := strings.TrimSpace(shell)
 	for _, o := range only {
-		norm := strings.ToLower(strings.TrimSpace(o))
-		if norm == target || isShellAliasMatch(shell, norm) {
+		norm := strings.TrimSpace(o)
+		if strings.EqualFold(norm, target) || isShellAliasMatch(shell, norm) {
 			return true
 		}
 	}
@@ -89,7 +89,7 @@ func isShellSelected(shell string, only []string) bool {
 
 func isShellAliasMatch(shell, norm string) bool {
 	for _, c := range getShellCleaners() {
-		if c.Shell == shell && containsAlias(c.Aliases, norm) {
+		if strings.EqualFold(c.Shell, shell) && containsAliasFold(c.Aliases, norm) {
 			return true
 		}
 	}

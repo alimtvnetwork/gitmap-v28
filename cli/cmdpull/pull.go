@@ -171,6 +171,10 @@ func runPullStandardFlow(args []string, isPullAll bool) error {
 	args = NormalizePullArgs(args)
 	printHeaderUnlessJSON(isPullAll, args)
 	requireOnline()
+	if db, err := openDB(); err == nil {
+		_, _ = OptimizeRedundantRepos(db, hasJSONArg(args))
+		db.Close()
+	}
 	useSSH, useHTTPS, restArgs := ExtractTransportFlags(args)
 	if isCWDTransportEligible(isPullAll, useSSH, useHTTPS) {
 		return runPullCWDWithTransport(useSSH, useHTTPS, restArgs)
@@ -1568,16 +1572,9 @@ func initVerboseLog() {
 	log.Close()
 }
 
-// CanonicalRepoPathKey produces a normalized, lowercase forward-slash path key.
-// It resolves relative segments, eliminates trailing slashes, and handles Windows drive case-insensitivity.
+// CanonicalRepoPathKey produces a normalized path key respecting host OS case sensitivity.
 func CanonicalRepoPathKey(path string) string {
-	if strings.TrimSpace(path) == "" {
-		return ""
-	}
-	clean := filepath.Clean(path)
-	slashed := filepath.ToSlash(clean)
-
-	return strings.ToLower(slashed)
+	return fsutil.CanonicalPathKey(path)
 }
 
 // deduplicatePullRecords filters duplicates from a slice of ScanRecord.
@@ -1650,6 +1647,10 @@ func resolveRawPullTargets(slug, groupName string, all bool) []model.ScanRecord 
 		return loadRecordsByGroup(groupName)
 	}
 	if all {
+		if db, err := openDB(); err == nil {
+			_, _ = OptimizeRedundantRepos(db, false)
+			db.Close()
+		}
 		return loadAllRecordsDB()
 	}
 

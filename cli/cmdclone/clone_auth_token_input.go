@@ -20,9 +20,9 @@ func askTokenReuseConfirmation() bool {
 	fmt.Print("Reuse this access token for all repositories in this session? [Y/n]: ")
 	reader := bufio.NewReader(os.Stdin)
 	ans, _ := reader.ReadString('\n')
-	ans = strings.ToLower(strings.TrimSpace(ans))
+	ans = strings.TrimSpace(ans)
 
-	return ans == "" || ans == "y" || ans == "yes"
+	return ans == "" || strings.EqualFold(ans, "y") || strings.EqualFold(ans, "yes")
 }
 
 func handleTokenInputFlow(repoName string) (AuthPromptResult, error) {

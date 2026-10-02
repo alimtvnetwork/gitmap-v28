@@ -4,6 +4,7 @@ package repodb
 
 import (
 	"context"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/repodb/enums"
@@ -112,6 +113,32 @@ func (r *RepoFileDbRepo) Insert(ctx context.Context, item *RepoFile) dbengine.Ro
 	}
 
 	return r.db.ExecRowsAffected(ctx, query, id, item.RelativePath, item.AbsolutePath, item.Content, item.IsBig, item.WriteTime, item.CreatedAt, item.UpdatedAt)
+}
+
+// Upsert inserts a new RepoFile record or updates existing content on RelativePath conflict.
+func (r *RepoFileDbRepo) Upsert(ctx context.Context, item *RepoFile) dbengine.RowsAffectedResult {
+	query := `INSERT INTO RepoFile (
+		RelativePath, AbsolutePath, Content, IsBig, WriteTime, CreatedAt, UpdatedAt
+	) VALUES (?, ?, ?, ?, ?, ?, ?)
+	ON CONFLICT(RelativePath) DO UPDATE SET
+		AbsolutePath = excluded.AbsolutePath,
+		Content      = excluded.Content,
+		IsBig        = excluded.IsBig,
+		WriteTime    = excluded.WriteTime,
+		UpdatedAt    = excluded.UpdatedAt;`
+
+	now := time.Now().Unix()
+	createdAt := item.CreatedAt
+	if createdAt == 0 {
+		createdAt = now
+	}
+	updatedAt := now
+
+	return r.db.ExecRowsAffected(
+		ctx, query,
+		item.RelativePath, item.AbsolutePath, item.Content,
+		item.IsBig, item.WriteTime, createdAt, updatedAt,
+	)
 }
 
 // Update updates an existing RepoFile record identified by its primary key.

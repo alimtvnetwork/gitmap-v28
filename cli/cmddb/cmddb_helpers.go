@@ -101,8 +101,8 @@ func promptConfirm(msg string) (bool, error) {
 		return false, err
 	}
 
-	ans := strings.ToLower(strings.TrimSpace(line))
-	hasConfirmed := ans == "y" || ans == "yes"
+	ans := strings.TrimSpace(line)
+	hasConfirmed := strings.EqualFold(ans, "y") || strings.EqualFold(ans, "yes")
 
 	return hasConfirmed, nil
 }

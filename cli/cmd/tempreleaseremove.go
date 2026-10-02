@@ -234,7 +234,7 @@ func cleanupTRFromDB(db *store.DB, branches []string) {
 func confirmAction() bool {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(strings.ToLower(input))
+	input = strings.TrimSpace(input)
 
-	return input == "y" || input == "yes"
+	return strings.EqualFold(input, "y") || strings.EqualFold(input, "yes")
 }

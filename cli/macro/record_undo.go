@@ -75,9 +75,9 @@ func confirmUndoPrompt(count int, reader *bufio.Reader) bool {
 		return false
 	}
 
-	ans := strings.ToLower(strings.TrimSpace(line))
+	ans := strings.TrimSpace(line)
 
-	return ans == "y" || ans == "yes"
+	return strings.EqualFold(ans, "y") || strings.EqualFold(ans, "yes")
 }
 
 func applyUndo(m *Macro, redoStack *[]MacroStep, count int) {

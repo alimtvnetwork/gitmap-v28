@@ -42,9 +42,9 @@ func checkProtectionGuards(opts UserKillOptions) *apperror.AppError {
 }
 
 func isProtectedUser(username string) bool {
-	lower := strings.ToLower(strings.TrimSpace(username))
-	isRoot := lower == "root" || lower == "0"
-	isAdmin := lower == "administrator" || lower == "system"
+	clean := strings.TrimSpace(username)
+	isRoot := strings.EqualFold(clean, "root") || clean == "0"
+	isAdmin := strings.EqualFold(clean, "administrator") || strings.EqualFold(clean, "system")
 	return isRoot || isAdmin
 }
 
@@ -53,9 +53,9 @@ func isCurrentProcessUser(username string) bool {
 	if err != nil {
 		return false
 	}
-	target := strings.ToLower(strings.TrimSpace(username))
-	isUsernameMatch := strings.ToLower(curr.Username) == target
-	isUidMatch := curr.Uid == target
+	clean := strings.TrimSpace(username)
+	isUsernameMatch := strings.EqualFold(curr.Username, clean)
+	isUidMatch := curr.Uid == clean
 	return isUsernameMatch || isUidMatch
 }
 

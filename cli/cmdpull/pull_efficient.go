@@ -3,11 +3,11 @@ package cmdpull
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -193,6 +193,8 @@ func resolveAllTrackedRecords() []model.ScanRecord {
 	}
 	defer db.Close()
 
+	_, _ = OptimizeRedundantRepos(db, false)
+
 	records, err := db.ListRepos()
 	if err != nil {
 		return nil
@@ -205,7 +207,7 @@ func deduplicateTrackedRecords(records []model.ScanRecord) []model.ScanRecord {
 	seen := make(map[string]bool, len(records))
 	unique := make([]model.ScanRecord, 0, len(records))
 	for _, r := range records {
-		canonical := filepath.Clean(strings.ToLower(r.AbsolutePath))
+		canonical := fsutil.CanonicalPathKey(r.AbsolutePath)
 		isNew := r.AbsolutePath != "" && !seen[canonical]
 		if isNew {
 			seen[canonical] = true

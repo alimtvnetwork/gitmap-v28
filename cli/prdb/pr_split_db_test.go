@@ -29,7 +29,7 @@ func TestOpenPrSplitDb_SchemaAndPragmas(t *testing.T) {
 	if err := db.Conn().QueryRow("PRAGMA journal_mode;").Scan(&journalMode); err != nil {
 		t.Fatalf("failed to query journal_mode: %v", err)
 	}
-	if strings.ToLower(journalMode) != "wal" {
+	if !strings.EqualFold(journalMode, "wal") {
 		t.Errorf("expected WAL journal_mode, got %s", journalMode)
 	}
 }

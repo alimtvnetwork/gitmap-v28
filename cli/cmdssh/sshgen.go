@@ -270,7 +270,7 @@ func askConfirm(name, keyPath string) bool {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 
-	return strings.TrimSpace(strings.ToLower(input)) == "y"
+	return strings.EqualFold(strings.TrimSpace(input), "y")
 }
 
 func exitOnBackupError(err error) {

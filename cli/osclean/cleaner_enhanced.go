@@ -73,8 +73,17 @@ func filterEnhancedCategories(all []EnhancedCategoryDef, only []string) []Enhanc
 
 func isEnhancedCategoryMatched(c EnhancedCategoryDef, only []string) bool {
 	for _, o := range only {
-		norm := strings.ToLower(strings.TrimSpace(o))
-		if norm == c.ID || containsAlias(c.Aliases, norm) {
+		norm := strings.TrimSpace(o)
+		if strings.EqualFold(norm, c.ID) || containsAliasFold(c.Aliases, norm) {
+			return true
+		}
+	}
+	return false
+}
+
+func containsAliasFold(aliases []string, needle string) bool {
+	for _, a := range aliases {
+		if strings.EqualFold(a, needle) {
 			return true
 		}
 	}

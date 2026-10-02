@@ -62,18 +62,18 @@ func (db *DB) LookupRepoIdentifiedTransport(url string) (string, error) {
 // row hasn't been scanned yet — out of scope here).
 func (db *DB) SetRepoIdentifiedTransport(url, transport string) (int64, error) {
 	url = strings.TrimSpace(url)
-	transport = strings.TrimSpace(strings.ToLower(transport))
+	transport = strings.TrimSpace(transport)
 	if url == "" || transport == "" {
 		return 0, nil
 	}
 
-	if transport != RepoTransportHTTPS && transport != RepoTransportSSH {
+	if !strings.EqualFold(transport, RepoTransportHTTPS) && !strings.EqualFold(transport, RepoTransportSSH) {
 		return 0, nil
 	}
 
 	const q = `UPDATE Repo SET IdentifiedTransport = ?, UpdatedAt = CURRENT_TIMESTAMP
 		WHERE HttpsUrl = ? OR SshUrl = ?`
-	res, err := ExecWrapper(db.conn, q, transport, url, url).Destruct()
+	res, err := ExecWrapper(db.conn, q, strings.ToLower(transport), url, url).Destruct()
 	if err != nil {
 		return 0, err
 	}

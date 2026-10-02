@@ -180,7 +180,7 @@ const (
 	SQLDeleteGroupRepo = "DELETE FROM GroupRepo WHERE GroupId = ? AND RepoId = ?"
 
 	SQLSelectGroupRepos = `SELECT r.RepoId, r.Slug, r.RepoName, r.HttpsUrl, r.SshUrl, r.Branch,
-		r.RelativePath, r.AbsolutePath, r.CloneInstruction, r.Notes
+		r.RelativePath, r.AbsolutePath, r.CloneInstruction, r.Notes, r.IdentifiedTransport
 		FROM Repo r JOIN GroupRepo gr ON r.RepoId = gr.RepoId WHERE gr.GroupId = ? ORDER BY r.Slug`
 
 	SQLCountGroupRepos = "SELECT COUNT(*) FROM GroupRepo WHERE GroupId = ?"
@@ -218,6 +218,27 @@ const (
 	SQLClearLatestRelease = "UPDATE Release SET IsLatest = 0 WHERE IsLatest = 1 AND RepoId = ?"
 
 	SQLAddNotesColumn = "ALTER TABLE Release ADD COLUMN Notes TEXT DEFAULT ''"
+
+	// SQLSelectDuplicateRepoGroups finds groups of duplicate repositories by clean remote URL (HTTPS or SSH).
+	SQLSelectDuplicateRepoGroups = `SELECT 
+    LOWER(RTRIM(REPLACE(COALESCE(NULLIF(HttpsUrl, ''), SshUrl), '.git', ''), '/')) AS CleanRemote,
+    COUNT(*) AS DuplicateCount
+FROM Repo
+WHERE HttpsUrl != '' OR SshUrl != ''
+GROUP BY CleanRemote
+HAVING DuplicateCount > 1;`
+
+	// SQLSelectDuplicateRepoRows fetches all rows belonging to duplicate remote groups ordered by group and ID.
+	SQLSelectDuplicateRepoRows = `SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport
+FROM Repo
+WHERE LOWER(RTRIM(REPLACE(COALESCE(NULLIF(HttpsUrl, ''), SshUrl), '.git', ''), '/')) IN (
+    SELECT LOWER(RTRIM(REPLACE(COALESCE(NULLIF(HttpsUrl, ''), SshUrl), '.git', ''), '/'))
+    FROM Repo
+    WHERE HttpsUrl != '' OR SshUrl != ''
+    GROUP BY LOWER(RTRIM(REPLACE(COALESCE(NULLIF(HttpsUrl, ''), SshUrl), '.git', ''), '/'))
+    HAVING COUNT(*) > 1
+)
+ORDER BY LOWER(RTRIM(REPLACE(COALESCE(NULLIF(HttpsUrl, ''), SshUrl), '.git', ''), '/')), RepoId ASC;`
 )
 
 // SQL: reset operations (v15 names + legacy plurals kept for safe drop on upgraded DBs).

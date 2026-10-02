@@ -395,8 +395,8 @@ func promptInteractiveSpecialRepoResolution(db *store.SpecialReposSplitDB, rec s
 	promptMsg := formatSpecialRepoPrompt(rec.ConfiguredName, targetDir, remoteURL)
 	fmt.Print(promptMsg)
 	ans, _ := reader.ReadString('\n')
-	cleanAns := strings.ToLower(strings.TrimSpace(ans))
-	if cleanAns == "n" || cleanAns == "no" {
+	cleanAns := strings.TrimSpace(ans)
+	if strings.EqualFold(cleanAns, "n") || strings.EqualFold(cleanAns, "no") {
 		fmt.Printf("  [info] Skipped %s setup. (Recorded in settings: gitmap settings)\n\n", rec.ConfiguredName)
 		return db.MarkPromptAnswered(rec.ShortKey, "declined", "", remoteURL)
 	}

@@ -179,10 +179,11 @@ const sqlUpsertRepoFile = `
 INSERT INTO RepoFile (RelativePath, AbsolutePath, Content, IsBig, WriteTime, CreatedAt, UpdatedAt)
 VALUES (?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(RelativePath) DO UPDATE SET
-	Content=excluded.Content,
-	IsBig=excluded.IsBig,
-	WriteTime=excluded.WriteTime,
-	UpdatedAt=excluded.UpdatedAt;`
+	AbsolutePath = excluded.AbsolutePath,
+	Content      = excluded.Content,
+	IsBig        = excluded.IsBig,
+	WriteTime    = excluded.WriteTime,
+	UpdatedAt    = excluded.UpdatedAt;`
 
 func (w *Walker) upsertRepoFile(ctx context.Context, info FileInfo) (bool, error) {
 	now := time.Now().Unix()

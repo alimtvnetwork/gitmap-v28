@@ -25,7 +25,7 @@ var (
 func ParseOpenCommand(cmdText string) (bool, string) {
 	trimmed := strings.TrimSpace(cmdText)
 	fields := strings.Fields(trimmed)
-	if len(fields) == 0 || strings.ToLower(fields[0]) != "open" {
+	if len(fields) == 0 || !strings.EqualFold(fields[0], "open") {
 		return false, ""
 	}
 
@@ -89,9 +89,9 @@ func defaultOpenLauncher(ctx context.Context, target, currentDir string) error {
 }
 
 func isChromeTarget(target string) bool {
-	lower := strings.ToLower(strings.TrimSpace(target))
+	clean := strings.TrimSpace(target)
 
-	return lower == "chrome" || lower == "google-chrome" || lower == "google chrome" || lower == "chromium"
+	return strings.EqualFold(clean, "chrome") || strings.EqualFold(clean, "google-chrome") || strings.EqualFold(clean, "google chrome") || strings.EqualFold(clean, "chromium")
 }
 
 func parseURLTarget(target string) (bool, string) {

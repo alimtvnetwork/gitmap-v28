@@ -31,8 +31,8 @@ func askRemovalConfirmation(candidates []store.SSHHost, isForced bool) bool {
 	fmt.Printf("\nAre you sure you want to remove %d node(s)? [y/N]: ", len(candidates))
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
-	clean := strings.TrimSpace(strings.ToLower(input))
-	isConfirmed := clean == "y" || clean == "yes"
+	clean := strings.TrimSpace(input)
+	isConfirmed := strings.EqualFold(clean, "y") || strings.EqualFold(clean, "yes")
 
 	return isConfirmed
 }

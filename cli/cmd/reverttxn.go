@@ -229,7 +229,7 @@ func confirmRevert(r model.TransactionRecord, fileCount int) bool {
 		return false
 	}
 
-	return strings.TrimSpace(strings.ToLower(scanner.Text())) == "yes"
+	return strings.EqualFold(strings.TrimSpace(scanner.Text()), "yes")
 }
 
 // runPruneTxn forces an immediate prune cycle.

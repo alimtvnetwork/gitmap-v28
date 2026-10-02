@@ -129,8 +129,8 @@ func promptForRemediation(items []RemediationItem) {
 	fmt.Printf("  %s ", promptStyle.Render("Remediate dirty repository(ies) now? [y/N]:"))
 	reader := bufio.NewReader(os.Stdin)
 	ans, _ := reader.ReadString('\n')
-	ans = strings.TrimSpace(strings.ToLower(ans))
-	if ans == "y" || ans == "yes" {
+	ans = strings.TrimSpace(ans)
+	if strings.EqualFold(ans, "y") || strings.EqualFold(ans, "yes") {
 		_ = runInteractiveRemediation(items)
 
 		return

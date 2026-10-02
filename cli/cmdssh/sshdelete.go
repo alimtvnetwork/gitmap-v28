@@ -45,7 +45,7 @@ func runSSHDelete(args []string) error {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 
-	if strings.TrimSpace(strings.ToLower(input)) != "y" {
+	if !strings.EqualFold(strings.TrimSpace(input), "y") {
 		return nil
 	}
 

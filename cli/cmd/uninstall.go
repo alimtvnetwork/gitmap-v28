@@ -118,40 +118,36 @@ func dispatchWinUtilToolUninstall(tool, canonical string, flags *uninstallFlags)
 }
 
 func isAgyUninstallTarget(tool, canonical string) bool {
-	low := strings.ToLower(tool)
-	canLow := strings.ToLower(canonical)
-	return low == "agy" || low == "agy-all" || low == "antigravity" || low == "antigravity-all" ||
-		canLow == constants.ToolAgy || canLow == constants.ToolAntigravity
+	return strings.EqualFold(tool, "agy") || strings.EqualFold(tool, "agy-all") ||
+		strings.EqualFold(tool, "antigravity") || strings.EqualFold(tool, "antigravity-all") ||
+		strings.EqualFold(canonical, constants.ToolAgy) || strings.EqualFold(canonical, constants.ToolAntigravity)
 }
 
 func isAgmUninstallTarget(tool, canonical string) bool {
-	low := strings.ToLower(tool)
-	canLow := strings.ToLower(canonical)
-	return low == "agm" || low == "agm-all" || low == "ag-manager" || low == "ag-manager-all" ||
-		low == "antigravity-manager" || low == "antigravity-manager-all" ||
-		canLow == constants.ToolAgManager
+	return strings.EqualFold(tool, "agm") || strings.EqualFold(tool, "agm-all") ||
+		strings.EqualFold(tool, "ag-manager") || strings.EqualFold(tool, "ag-manager-all") ||
+		strings.EqualFold(tool, "antigravity-manager") || strings.EqualFold(tool, "antigravity-manager-all") ||
+		strings.EqualFold(canonical, constants.ToolAgManager)
 }
 
 func runAgyUninstallFlow(tool, canonical string, flags *uninstallFlags) error {
-	low := strings.ToLower(tool)
-	isFullPurge := flags.isPurge || low == "agy-all" || low == "antigravity-all"
+	isFullPurge := flags.isPurge || strings.EqualFold(tool, "agy-all") || strings.EqualFold(tool, "antigravity-all")
 	return cmdagy.RunAGYUninstall(isFullPurge, flags.isForce, flags.isDryRun, flags.backupPath)
 }
 
 func runAgmUninstallFlow(tool, canonical string, flags *uninstallFlags) error {
-	low := strings.ToLower(tool)
-	isFullPurge := flags.isPurge || low == "agm-all" || low == "ag-manager-all" || low == "antigravity-manager-all"
+	isFullPurge := flags.isPurge || strings.EqualFold(tool, "agm-all") || strings.EqualFold(tool, "ag-manager-all") || strings.EqualFold(tool, "antigravity-manager-all")
 	return cmdinstall.RunAGMUninstall(isFullPurge, flags.isForce, flags.isDryRun)
 }
 
 func isCopilotUninstallTarget(tool, canonical string) bool {
-	low := strings.ToLower(tool)
-	return low == "copilot" || low == "copilot-all" || canonical == "copilot" || low == "windows-copilot"
+	return strings.EqualFold(tool, "copilot") || strings.EqualFold(tool, "copilot-all") ||
+		strings.EqualFold(canonical, "copilot") || strings.EqualFold(tool, "windows-copilot")
 }
 
 func isEdgeUninstallTarget(tool, canonical string) bool {
-	low := strings.ToLower(tool)
-	return low == "edge" || low == "edge-all" || canonical == "edge" || low == "msedge"
+	return strings.EqualFold(tool, "edge") || strings.EqualFold(tool, "edge-all") ||
+		strings.EqualFold(canonical, "edge") || strings.EqualFold(tool, "msedge")
 }
 
 func runCopilotUninstallFlow(flags *uninstallFlags) error {
@@ -175,8 +171,7 @@ func buildWinUtilFlags(flags *uninstallFlags) []string {
 
 func buildWinUtilEdgeFlags(tool string, flags *uninstallFlags) []string {
 	args := buildWinUtilFlags(flags)
-	low := strings.ToLower(tool)
-	if flags.isPurge || flags.isPurgeWebView2 || low == "edge-all" {
+	if flags.isPurge || flags.isPurgeWebView2 || strings.EqualFold(tool, "edge-all") {
 		args = append(args, "--purge-webview2")
 	}
 	return args
@@ -257,9 +252,9 @@ func confirmUninstall(tool string) bool {
 	fmt.Printf(constants.MsgUninstallConfirm, tool)
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
-	trimmed := strings.TrimSpace(strings.ToLower(input))
+	trimmed := strings.TrimSpace(input)
 
-	return trimmed == "y" || trimmed == "yes"
+	return strings.EqualFold(trimmed, "y") || strings.EqualFold(trimmed, "yes")
 }
 
 func isShellModeFlag(a string) bool {

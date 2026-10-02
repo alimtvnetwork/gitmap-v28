@@ -11,7 +11,7 @@ func IsInsideWorkDir(targetPath, workDirPath string) bool {
 	cleanTarget := filepath.Clean(targetPath)
 	cleanWork := filepath.Clean(workDirPath)
 
-	if strings.EqualFold(cleanTarget, cleanWork) {
+	if EqualPaths(cleanTarget, cleanWork) {
 		return true
 	}
 

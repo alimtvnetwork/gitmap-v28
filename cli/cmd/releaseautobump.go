@@ -58,9 +58,9 @@ func readYesNo() bool {
 		return false
 	}
 
-	answer := strings.TrimSpace(strings.ToLower(scanner.Text()))
+	answer := strings.TrimSpace(scanner.Text())
 
-	return answer == "y" || answer == "yes"
+	return strings.EqualFold(answer, "y") || strings.EqualFold(answer, "yes")
 }
 
 // isAutoBumpEligible reports whether the bare-release auto-bump path should

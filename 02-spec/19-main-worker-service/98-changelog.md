@@ -1,3 +1,9 @@
+## v6.455.0 — 2026-10-02 (SQLite redundant repo optimization, zero-alloc strings.EqualFold, and OS-aware path sensitivity)
+
+**Scope:** Version bump. SQLite redundant repo optimization, zero-alloc strings.EqualFold, and OS-aware path sensitivity.
+
+---
+
 ## v6.454.0 — 2026-10-02 (modernize nodes cfr terminal ui, preflight probing, and async delegation)
 
 **Scope:** Version bump. modernize nodes cfr terminal ui, preflight probing, and async delegation.

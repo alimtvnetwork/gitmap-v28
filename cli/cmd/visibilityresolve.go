@@ -234,7 +234,7 @@ func confirmPublicOrExit(ctx visibilityContext) {
 		cliexit.HandleError(appErr, constants.ExitVisConfirmReq)
 	}
 
-	if strings.TrimSpace(strings.ToLower(line)) != "yes" {
+	if !strings.EqualFold(strings.TrimSpace(line), "yes") {
 		appErr := apperror.NewWithDetails(
 			"cmd.visibility.confirm.rejected",
 			"E1060",

@@ -147,7 +147,7 @@ func readUserConfirmation() bool {
 		return false
 	}
 
-	answer := strings.ToLower(strings.TrimSpace(line))
+	answer := strings.TrimSpace(line)
 
-	return answer == constants.CloneNowConfirmYes
+	return strings.EqualFold(answer, constants.CloneNowConfirmYes)
 }

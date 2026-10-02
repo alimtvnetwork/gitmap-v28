@@ -98,8 +98,7 @@ func parseDirectoryChange(cmdText string) (string, bool, bool) {
 }
 
 func parseStandardCd(trimmed string, parts []string) (string, bool) {
-	lower0 := strings.ToLower(parts[0])
-	isCdCmd := (lower0 == "cd" || lower0 == "chdir") && len(parts) >= 2
+	isCdCmd := (strings.EqualFold(parts[0], "cd") || strings.EqualFold(parts[0], "chdir")) && len(parts) >= 2
 	if !isCdCmd {
 		return "", false
 	}
@@ -110,14 +109,12 @@ func parseStandardCd(trimmed string, parts []string) (string, bool) {
 }
 
 func parseGitmapCd(trimmed string, parts []string) (string, bool) {
-	lower0 := strings.ToLower(parts[0])
-	isGitmapPrefix := lower0 == "gitmap" || lower0 == "gitmap.exe" || lower0 == "gitmap-v28"
+	isGitmapPrefix := strings.EqualFold(parts[0], "gitmap") || strings.EqualFold(parts[0], "gitmap.exe") || strings.EqualFold(parts[0], "gitmap-v28")
 	if !isGitmapPrefix || len(parts) < 3 {
 		return "", false
 	}
 
-	lower1 := strings.ToLower(parts[1])
-	if lower1 != "cd" {
+	if !strings.EqualFold(parts[1], "cd") {
 		return "", false
 	}
 

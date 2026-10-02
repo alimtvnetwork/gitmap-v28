@@ -236,7 +236,7 @@ func isEntryExcepted(e Entry, exceptList []string, index int) bool {
 			continue
 		}
 
-		if ex == idStr || ex == idPad || ex == lowName || ex == lowSlug || ex == lowPath {
+		if ex == idStr || ex == idPad || strings.EqualFold(ex, e.Name) || strings.EqualFold(ex, slug) || strings.EqualFold(ex, e.RootPath) {
 			return true
 		}
 
