@@ -67,7 +67,7 @@ func scanWriteTimes(rows *sql.Rows, times map[string]int64) result.ResultMap[str
 			return result.FailMap[string, int64](appErr)
 		}
 
-		times[relPath] = writeTime
+		times[filepath.ToSlash(relPath)] = writeTime
 	}
 
 	if err := rows.Err(); err != nil {
