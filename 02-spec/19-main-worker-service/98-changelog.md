@@ -1,3 +1,15 @@
+## v6.460.0 — 2026-10-02 (vmware cli command suite specification and e2e test harness)
+
+**Scope:** Version bump. VMware CLI command suite specification and AI prompt (`01-prompts/42-vmware-cli-commands.md`), VMware Workstation lifecycle/MAC mutation/status/shutdown verification in `repo-secrets/`, and Chrome extension profile export-import E2E test verification in `repo-secrets/`.
+
+---
+
+## v6.459.0 — 2026-10-02 (prepare vmware cli spec and chrome profile test harness)
+
+**Scope:** Version bump. prepare vmware cli spec and chrome profile test harness.
+
+---
+
 ## v6.458.0 — 2026-10-02 (pull-all auto ff-merge cpu-scaling and pe-limit fix)
 
 **Scope:** Version bump. pull-all auto ff-merge cpu-scaling and pe-limit fix.

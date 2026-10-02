@@ -183,6 +183,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `22-letterly` | [`22-letterly/03-execute-n-steps.md`](../01-prompts/22-letterly/03-execute-n-steps.md) | Execute N Steps |
 | `23-sync` | [`23-sync/01-sync-other-codebase.md`](../01-prompts/23-sync/01-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
 | `23-sync` | [`23-sync/readme.md`](../01-prompts/23-sync/readme.md) | Multi-Repository Synchronization Prompts (`23-sync`) — Index & Catalog |
+| `.` | [`42-vmware-cli-commands.md`](../01-prompts/42-vmware-cli-commands.md) | VMware CLI Command Suite, Workstation Engine Integration & Hypervisor Lifecycle — Systems Engineering Directive (must follow) |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
 
 ## Maintenance

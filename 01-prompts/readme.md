@@ -79,7 +79,14 @@ All 24 canonical prompt categories reside directly at the root of `01-prompts/`:
 ├── 20-ai-fix-script-prompts/
 ├── 21-temp-end-to-end-tests/
 ├── 22-letterly/
-└── 23-sync/
+├── 23-sync/
+├── 42-vmware-cli-commands.md
+└── readme.md
 ```
+
+### Canonical Subsystem & Systems Engineering Prompts
+
+- [`42-vmware-cli-commands.md`](42-vmware-cli-commands.md): VMware CLI Command Suite, Workstation Engine Integration & Hypervisor Lifecycle — Systems Engineering Directive (must follow)
+
 
 

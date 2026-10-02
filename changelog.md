@@ -1,5 +1,21 @@
 # Changelog
 
+## [v6.460.0] - 2026-10-02
+
+### Added
+- Canonical VMware CLI specification and AI instruction prompt (`01-prompts/42-vmware-cli-commands.md`) covering VM lifecycle, headless execution, snapshots, network binding, and automation interfaces.
+- VMware Workstation lifecycle, MAC mutation, status, and shutdown verification with logs in `repo-secrets/` (`04-vmware-mac-schedule/`).
+- Chrome extension profile export-import E2E test verification with logs in `repo-secrets/` (`03-chrome-profile-export/`).
+
+---
+
+## [v6.459.0] - 2026-10-02
+
+### Added
+- prepare vmware cli spec and chrome profile test harness
+
+---
+
 ## [v6.458.0] - 2026-10-02
 
 ### Added
