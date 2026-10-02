@@ -1,3 +1,9 @@
+## v6.458.0 — 2026-10-02 (pull-all auto ff-merge cpu-scaling and pe-limit fix)
+
+**Scope:** Version bump. pull-all auto ff-merge cpu-scaling and pe-limit fix.
+
+---
+
 ## v6.457.0 — 2026-10-02 (cross-platform path sensitivity, help text examples, and shared engine helpers)
 
 **Scope:** Version bump. cross-platform path sensitivity, help text examples, and shared engine helpers.

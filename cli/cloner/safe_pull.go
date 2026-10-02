@@ -3,6 +3,7 @@ package cloner
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -22,7 +23,21 @@ import (
 var (
 	unlinkOldRegex    = regexp.MustCompile(`(?i)unable to unlink old '([^']+)'`)
 	unlinkPromptRegex = regexp.MustCompile(`(?i)unlink of file '([^']+)' failed`)
+
+	// ErrMergeConflict indicates a git merge conflict encountered during auto-merge fallback.
+	ErrMergeConflict = apperror.NewWithDetails(
+		"pull_merge",
+		"E_MERGE_CONFLICT",
+		"git merge conflict detected: auto-merge pull aborted",
+		"safe_pull",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityError,
+		nil,
+	)
 )
+
+// SafePullProgressFunc defines a callback for streaming safe pull output.
+type SafePullProgressFunc func(string)
 
 type progressStreamWriter struct {
 	mu         sync.Mutex
@@ -177,14 +192,28 @@ func logSafePullStart(rec model.ScanRecord, repoDir string) {
 }
 
 func executePullAttempt(rec model.ScanRecord, repoDir string, attempt int, onProgress func(string)) (model.CloneResult, bool) {
-	output, err := runGitPullWithProgress(repoDir, onProgress)
+	output, err := runGitPullWithProgress(repoDir, rec.Branch, onProgress)
 	logPullAttempt(rec, attempt, output, err)
 	if err == nil {
 		return handleAttemptSuccess(rec, attempt, output), true
 	}
 	handleAttemptFailure(repoDir, output)
+	if isMergeConflict(err) {
+		return buildAttemptFailureResult(rec, repoDir, attempt, output, err), true
+	}
 
 	return buildAttemptFailureResult(rec, repoDir, attempt, output, err), false
+}
+
+func isMergeConflict(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, ErrMergeConflict) {
+		return true
+	}
+
+	return strings.Contains(err.Error(), "merge conflict") || strings.Contains(err.Error(), "E_MERGE_CONFLICT")
 }
 
 func logPullAttempt(rec model.ScanRecord, attempt int, output string, err error) {
@@ -253,18 +282,19 @@ func buildSafePullEnv() []string {
 	return gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
 }
 
-func runGitPullWithProgress(repoDir string, onProgress func(string)) (string, error) {
+func runGitPullWithProgress(repoDir, branch string, onProgress SafePullProgressFunc) (string, error) {
 	out, err := execGitPullFF(repoDir, onProgress)
 	if err == nil {
 		return out, nil
 	}
 	if isDivergedOutput(out) {
-		return attemptAutoMergePull(repoDir, onProgress, out)
+		return attemptAutoMergePull(repoDir, branch, onProgress)
 	}
+
 	return out, err
 }
 
-func execGitPullFF(repoDir string, onProgress func(string)) (string, error) {
+func execGitPullFF(repoDir string, onProgress SafePullProgressFunc) (string, error) {
 	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--progress", constants.GitFFOnlyFlag, "--autostash")
 	cmd.Env = buildSafePullEnv()
 	stream := newProgressStreamWriter(onProgress)
@@ -272,30 +302,48 @@ func execGitPullFF(repoDir string, onProgress func(string)) (string, error) {
 	cmd.Stderr = stream
 	err := cmd.Run()
 	stream.flush()
+
 	return stream.output(), err
 }
 
 func isDivergedOutput(output string) bool {
-	return strings.Contains(output, "Not possible to fast-forward") ||
-		strings.Contains(output, "diverged") ||
-		strings.Contains(output, "non-fast-forward") ||
-		strings.Contains(output, "Cannot fast-forward to multiple branches") ||
-		strings.Contains(output, "cannot fast-forward to multiple branches")
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "diverg") ||
+		strings.Contains(lower, "not possible to fast-forward") ||
+		strings.Contains(lower, "cannot fast-forward") ||
+		strings.Contains(lower, "reconcile divergent") ||
+		strings.Contains(lower, "need to specify how to reconcile") ||
+		strings.Contains(lower, "non-fast-forward")
 }
 
-func attemptAutoMergePull(repoDir string, onProgress func(string), ffOutput string) (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--progress", "--no-rebase", "--no-edit", "--autostash")
+func isMergeConflictOutput(output string) bool {
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "conflict") ||
+		strings.Contains(lower, "automatic merge failed")
+}
+
+func executeAutoMergeCmd(dir string, progress SafePullProgressFunc) (string, error) {
+	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, dir, constants.GitPull, "--progress", "--no-rebase", "--no-edit", "--autostash")
 	cmd.Env = buildSafePullEnv()
-	stream := newProgressStreamWriter(onProgress)
+	stream := newProgressStreamWriter(progress)
 	cmd.Stdout = stream
 	cmd.Stderr = stream
 	err := cmd.Run()
 	stream.flush()
-	if err == nil {
-		return stream.output(), nil
-	}
-	abortInProgressMerge(repoDir)
+
 	return stream.output(), err
+}
+
+func attemptAutoMergePull(dir, branch string, progress SafePullProgressFunc) (string, error) {
+	out, err := executeAutoMergeCmd(dir, progress)
+	if err == nil && !isMergeConflictOutput(out) {
+		return out, nil
+	}
+	abortInProgressMerge(dir)
+
+	return out, ErrMergeConflict
 }
 
 func abortInProgressMerge(repoDir string) {

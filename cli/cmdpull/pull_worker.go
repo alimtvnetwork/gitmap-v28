@@ -2,6 +2,7 @@ package cmdpull
 
 import (
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -81,13 +82,64 @@ func ExecuteTrackedPullWithWorker(rec model.ScanRecord, bar *PullProgressBar, wo
 }
 
 func runTrackedPullLifecycle(rec model.ScanRecord, bar *PullProgressBar, workerID int, start time.Time) *PullRepoState {
+	sanitizeScanRecordIdentity(&rec)
 	notifyWorkerStep(bar, workerID, rec.RepoName, PullStepTypeInspecting, "inspecting repo state")
+	if !isRemoteConfigured(rec) {
+		return handleNoRemoteRepoPull(rec, bar, start)
+	}
 	branch, oldSHA, isDirty := CaptureRepoPrePullState(rec.AbsolutePath)
 	if isDirty {
 		return handleDirtyRepoPull(rec, branch, oldSHA, bar, start)
 	}
 
 	return executePullStream(rec, branch, oldSHA, bar, workerID, start)
+}
+
+func isRemoteConfigured(rec model.ScanRecord) bool {
+	if len(rec.HTTPSUrl) > 0 || len(rec.SSHUrl) > 0 {
+		return true
+	}
+
+	return hasRemote(rec.AbsolutePath)
+}
+
+func hasRemote(repoPath string) bool {
+	remoteURL, err := gitutil.RemoteURL(repoPath)
+	if err != nil || len(strings.TrimSpace(remoteURL)) == 0 {
+		return false
+	}
+
+	return true
+}
+
+func handleNoRemoteRepoPull(rec model.ScanRecord, bar *PullProgressBar, start time.Time) *PullRepoState {
+	state := &PullRepoState{
+		RepoName: rec.RepoName,
+		RepoPath: rec.AbsolutePath,
+		Changes:  "local-only",
+		Step:     PullStepTypeSkipped,
+		Duration: time.Since(start),
+		ErrorMsg: "no remote configured",
+	}
+	if bar != nil {
+		bar.CompleteRepo(state)
+	}
+
+	return state
+}
+
+func sanitizeScanRecordIdentity(rec *model.ScanRecord) {
+	if rec.RepoName != "" && rec.RepoName != "unknown" {
+		return
+	}
+	clean := filepath.Clean(strings.TrimRight(rec.AbsolutePath, "/\\"))
+	base := filepath.Base(clean)
+	if base != "" && base != "." && base != "/" && base != "\\" {
+		rec.RepoName = base
+		if rec.Slug == "" || rec.Slug == "unknown" {
+			rec.Slug = strings.ToLower(base)
+		}
+	}
 }
 
 func executePullStream(rec model.ScanRecord, branch, oldSHA string, bar *PullProgressBar, workerID int, start time.Time) *PullRepoState {

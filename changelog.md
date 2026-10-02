@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.458.0] - 2026-10-02
+
+### Added
+- pull-all auto ff-merge cpu-scaling and pe-limit fix
+
+---
+
 ## [v6.457.0] - 2026-10-02
 
 ### Added

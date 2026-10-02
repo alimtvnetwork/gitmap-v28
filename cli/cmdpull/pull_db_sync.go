@@ -18,15 +18,36 @@ func RecordPullBatchSession(telemetry PullSessionTelemetry, states []*PullRepoSt
 		return apperror.WrapSimple(err, "pull_db_sync.open_db")
 	}
 	defer db.Close()
-
-	runRecord := telemetry.ConvertToStoreRunRecord()
-	runID, err := db.InsertPullRun(runRecord)
+	runID, err := db.InsertPullRun(telemetry.ConvertToStoreRunRecord())
 	if err != nil {
 		return err
 	}
+	syncPullFailuresToDB(db, states)
 
-	repoRecords := buildRepoRunRecords(states)
-	return db.InsertPullRepoRuns(runID, repoRecords)
+	return db.InsertPullRepoRuns(runID, buildRepoRunRecords(states))
+}
+
+func syncPullFailuresToDB(db *store.PullSplitDB, states []*PullRepoState) {
+	if db == nil {
+		return
+	}
+	_ = db.EnsurePullErrorsTable()
+	for _, state := range states {
+		if isStateFailure(state) {
+			rec := store.PullErrorRecord{
+				RepoSlug:       state.RepoName,
+				RepoPath:       state.RepoPath,
+				ErrorType:      string(state.Step),
+				ErrorText:      state.ErrorMsg,
+				RemediationCmd: ResolvePullRemediationHint(state),
+			}
+			_ = db.InsertPullError(rec)
+		}
+	}
+}
+
+func isStateFailure(state *PullRepoState) bool {
+	return state.ErrorMsg != "" || state.Step == PullStepTypeError
 }
 
 // RecordSinglePullSession records a single CWD pull invocation to gitmap-pull.db.

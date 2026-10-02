@@ -32,7 +32,10 @@ automatically and is idempotent (passing it again is a no-op).
 | --json | false | Suppress interactive progress bar and emit JSON summary to stdout |
 | --ssh, -s | false | Dispatch pull-all across SSH cluster fleet and Local VM concurrently |
 | --verbose | false | Enable verbose logging |
-| --parallel \<N\> | 0 (auto) | Run up to N pulls concurrently (worker pool) |
+| -p, --parallel \<N\> | 0 (auto) | Explicitly set concurrency worker count (overrides presets) |
+| --auto-scale | false | Dynamically adjust worker concurrency based on CPU core availability (default) |
+| --high-perf, --turbo | false | Maximum concurrency preset when CPU pressure is low (up to 12 parallel workers) |
+| --low-cpu, --conservative | false | Throttled concurrency preset when system is under high CPU pressure (1-2 workers) |
 | --only-available | false | Skip repos whose latest probe reports no new tag |
 | --stop-on-fail | false | Halt the batch after the first failure |
 
@@ -162,6 +165,26 @@ gitmap pat --probe
 
 # Probe companion repos and emit JSON summary
 gitmap pa --probe --json
+```
+
+### Example 10: CPU Auto-Scaling and Concurrency Presets (`--auto-scale`, `--high-perf`, `--low-cpu`)
+
+Dynamically adjust worker concurrency or choose an operational preset:
+
+```bash
+# Auto-scale concurrency dynamically based on system CPU cores (default)
+gitmap pa --auto-scale
+
+# High-performance turbo preset for machines with low CPU pressure (up to 12 workers)
+gitmap pa --high-perf
+gitmap pa --turbo
+
+# Throttled conservative preset when CPU or memory pressure is high (1-2 workers)
+gitmap pa --low-cpu
+gitmap pa --conservative
+
+# Explicit parallel worker override (overrides all presets)
+gitmap pa -p 8
 ```
 
 ## See also

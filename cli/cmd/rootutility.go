@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
@@ -423,6 +424,7 @@ func runZsh(args []string) error {
 
 func utilityPipelineEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"pull-fix", "pf"}, func() error { return cmdpull.RunBatchPullFix(argsTail()) }},
 		{[]string{"pipeline-fix", "fix-pipeline", "aef", "agy-errors-fix", "fix-agy"}, func() error { return cmdagy.RunPipelineFixAgyCLI(argsTail()) }},
 		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return runPipelineAI(argsTail()) }},
 		{[]string{"pipeline", "pipelines", "pl"}, func() error { return runPipeline(argsTail()) }},

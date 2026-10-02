@@ -13,6 +13,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
+var activeLogLineLimit int
+
 func handlePipelineErrorLogs(args []string) error {
 	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") || hasArgFlag(args, "help") {
 		printPipelineErrorLogsHelp()
@@ -89,6 +91,7 @@ func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []stri
 }
 
 func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
+	activeLogLineLimit = flags.Limit
 	decision := EvaluatePipelineErrorsCache(repo, flags)
 	if decision.IsFromCache {
 		return renderCachedErrorLogs(repo, decision, flags)
@@ -98,6 +101,7 @@ func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 }
 
 func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags PipelineErrorFlags) error {
+	activeLogLineLimit = flags.Limit
 	payload := buildErrorLogsPayloadWithFlags(repo, decision.CachedRuns, flags)
 	payload.IsFromCache = true
 	payload.CacheSource = decision.CacheSource
@@ -115,6 +119,7 @@ func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags Pi
 }
 
 func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
+	activeLogLineLimit = flags.Limit
 	printReadingProgress(flags)
 	runs := queryWorkflowRunsForTarget(repo, flags.CommitTarget)
 	RecordFetchedRunsToSplitDb(repo, runs)
@@ -798,11 +803,20 @@ func collectRunsMatchingSha(runs []ghRunItem, targetSha string) []ghRunItem {
 }
 
 func capFailedRuns(runs []ghRunItem, limit int) []ghRunItem {
-	if len(runs) > limit {
-		return runs[:limit]
+	effectiveLimit := resolveFailedRunsLimit(limit)
+	if len(runs) > effectiveLimit {
+		return runs[:effectiveLimit]
 	}
 
 	return runs
+}
+
+func resolveFailedRunsLimit(limit int) int {
+	if activeLogLineLimit > 0 {
+		return activeLogLineLimit
+	}
+
+	return limit
 }
 
 func buildLocalOrEmptyErrorPayload(payload PipelineErrorLogsPayload) PipelineErrorLogsPayload {
@@ -1172,21 +1186,22 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
 	}
 
-	renderSectionWarnings(sec.Warnings)
-	renderSectionErrorLinesDedup(sec.ErrorLines, sec.FailureSummary)
+	renderSectionWarnings(sec.Warnings, activeLogLineLimit)
+	renderSectionErrorLinesDedup(sec.ErrorLines, sec.FailureSummary, activeLogLineLimit)
 
 	if len(sec.SavedLogFile) > 0 {
 		fmt.Printf("      Log:     %s\n", filepath.ToSlash(sec.SavedLogFile))
 	}
 }
 
-func renderSectionWarnings(warnings []string) {
+func renderSectionWarnings(warnings []string, lineLimit ...int) {
 	if len(warnings) == 0 {
 		return
 	}
 
+	limit := resolveLogSectionLimit(25, lineLimit...)
 	fmt.Printf("      Warnings (%d preceding):\n", len(warnings))
-	capped := capErrorLines(warnings, 25)
+	capped := capErrorLines(warnings, limit)
 	for _, w := range capped {
 		fmt.Printf("        %s%s%s\n", constants.ColorYellow, w, constants.ColorReset)
 	}
@@ -1194,19 +1209,31 @@ func renderSectionWarnings(warnings []string) {
 	printRemainingLineCount(len(warnings), len(capped))
 }
 
-func renderSectionErrorLinesDedup(lines []string, summary string) {
+func renderSectionErrorLinesDedup(lines []string, summary string, lineLimit ...int) {
 	dedup := filterOutSummaryLine(lines, summary)
 	if len(dedup) == 0 {
 		return
 	}
 
+	limit := resolveLogSectionLimit(6, lineLimit...)
 	fmt.Printf("      Details:\n")
-	capped := capErrorLines(dedup, 6)
+	capped := capErrorLines(dedup, limit)
 	for _, l := range capped {
 		fmt.Printf("        %s%s%s\n", constants.ColorYellow, l, constants.ColorReset)
 	}
 
 	printRemainingLineCount(len(dedup), len(capped))
+}
+
+func resolveLogSectionLimit(defaultCap int, explicitLimit ...int) int {
+	if len(explicitLimit) > 0 && explicitLimit[0] > 0 {
+		return explicitLimit[0]
+	}
+	if activeLogLineLimit > 0 {
+		return activeLogLineLimit
+	}
+
+	return defaultCap
 }
 
 func printRemainingLineCount(total, capped int) {
@@ -1393,6 +1420,11 @@ func printPipelineErrorLogsUsage() {
 
 func printPipelineErrorLogsFlags() {
 	fmt.Println("Flags:")
+	printPEExecutionFlags()
+	printPEOutputFlags()
+}
+
+func printPEExecutionFlags() {
 	fmt.Println("  -f <format|file.json>          Apply custom format profile to filter and format errors (e.g. -f tauri)")
 	fmt.Println("  -f <format> -test <file>       Test format profile against a local log file")
 	fmt.Println("  -f <format> -test-commit <sha> Test format profile against remote GitHub Actions run for commit")
@@ -1403,9 +1435,13 @@ func printPipelineErrorLogsFlags() {
 	fmt.Println("  -v, --detailed, --verbose      Show full raw error logs including passing ok lines")
 	fmt.Println("  -y, --yes                      Auto-confirm prompts non-interactively")
 	fmt.Println("  --force, --no-cache            Bypass local SQLite DB cache and pull fresh from GitHub")
+}
+
+func printPEOutputFlags() {
 	fmt.Println("  --json                         Output data in structured JSON format")
 	fmt.Println("  --file <path>                  Write error logs to specified file path")
 	fmt.Println("  --tempfile <filename>          Write error logs to .ai-memory/temp/<filename>")
+	fmt.Println("  -l, --limit, -n, --lines <N>   Limit displayed error log lines and failure run records (e.g. -l 10)")
 	fmt.Println("  -n, --no-output-log            Stage error logs to disk without displaying in terminal")
 }
 
