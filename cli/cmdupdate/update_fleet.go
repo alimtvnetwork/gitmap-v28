@@ -435,7 +435,7 @@ func convertHostsToFleetTargets(hosts []store.SSHHost) []FleetTarget {
 			IP:       h.IP,
 			Username: h.Username,
 			Port:     h.Port,
-			KeyPath:  h.KeyPath,
+			Password: h.EncryptedPassword,
 			OS:       "windows",
 		})
 	}
@@ -874,12 +874,7 @@ func createUpdatePackageZip(pkg, osType string) ([]byte, error) {
 		_ = zw.Close()
 		return nil, apperror.WrapSimple(err, "addZipFileEntry.bin")
 	}
-	if shouldIncludeAgmInZip(pkg) {
-		if agmData, agmErr := locatePackageBinary("agm"); agmErr == nil && len(agmData) > 0 {
-			agmTarget := resolvePackageBinName("agm", isWin)
-			_ = addZipFileEntry(zw, agmTarget, agmData, 0755)
-		}
-	}
+	appendAgmToZipIfIncluded(zw, pkg, isWin)
 	if err := addLauncherScriptEntry(zw, isWin); err != nil {
 		_ = zw.Close()
 		return nil, apperror.WrapSimple(err, "addLauncherScriptEntry")
@@ -888,6 +883,18 @@ func createUpdatePackageZip(pkg, osType string) ([]byte, error) {
 		return nil, apperror.WrapSimple(err, "zw.Close")
 	}
 	return buf.Bytes(), nil
+}
+
+func appendAgmToZipIfIncluded(zw *zip.Writer, pkg string, isWin bool) {
+	if !isAgmIncludedInZip(pkg) {
+		return
+	}
+	agmData, agmErr := locatePackageBinary("agm")
+	if agmErr != nil || len(agmData) == 0 {
+		return
+	}
+	agmTarget := resolvePackageBinName("agm", isWin)
+	_ = addZipFileEntry(zw, agmTarget, agmData, 0755)
 }
 
 func resolvePackageBinName(pkg string, isWin bool) string {
@@ -901,7 +908,7 @@ func resolvePackageBinName(pkg string, isWin bool) string {
 	return name
 }
 
-func shouldIncludeAgmInZip(pkg string) bool {
+func isAgmIncludedInZip(pkg string) bool {
 	return strings.ToLower(pkg) == "all"
 }
 
@@ -912,31 +919,37 @@ func locatePackageBinary(pkg string) ([]byte, error) {
 	return locateGitmapBinary()
 }
 
-func locateGitmapBinary() ([]byte, error) {
-	execPath, err := os.Executable()
-	if err == nil {
-		if data, readErr := os.ReadFile(execPath); readErr == nil && len(data) > 0 {
-			return data, nil
-		}
+func readFileIfExists(path string) ([]byte, bool) {
+	if path == "" {
+		return nil, false
 	}
-	if lp, lookErr := exec.LookPath("gitmap"); lookErr == nil {
-		if data, readErr := os.ReadFile(lp); readErr == nil && len(data) > 0 {
-			return data, nil
-		}
+	data, err := os.ReadFile(path)
+	if err != nil || len(data) == 0 {
+		return nil, false
+	}
+	return data, true
+}
+
+func locateGitmapBinary() ([]byte, error) {
+	execPath, _ := os.Executable()
+	if data, ok := readFileIfExists(execPath); ok {
+		return data, nil
+	}
+	lp, _ := exec.LookPath("gitmap")
+	if data, ok := readFileIfExists(lp); ok {
+		return data, nil
 	}
 	return []byte("gitmap-payload-simulated"), nil
 }
 
 func locateAgmBinary() ([]byte, error) {
-	if lp, lookErr := exec.LookPath("agm"); lookErr == nil {
-		if data, readErr := os.ReadFile(lp); readErr == nil && len(data) > 0 {
-			return data, nil
-		}
+	lp, _ := exec.LookPath("agm")
+	if data, ok := readFileIfExists(lp); ok {
+		return data, nil
 	}
-	if lp, lookErr := exec.LookPath("agm.exe"); lookErr == nil {
-		if data, readErr := os.ReadFile(lp); readErr == nil && len(data) > 0 {
-			return data, nil
-		}
+	lpExe, _ := exec.LookPath("agm.exe")
+	if data, ok := readFileIfExists(lpExe); ok {
+		return data, nil
 	}
 	return []byte("agm-payload-simulated"), nil
 }

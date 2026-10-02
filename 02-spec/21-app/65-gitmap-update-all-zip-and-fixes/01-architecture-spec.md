@@ -185,8 +185,8 @@ Tests verifying the search cache lifecycle in `cli/tests/e2e/ssh_agy_nodes_agm_a
 
 ### 4.1 Windows Path Variation & Deduplication
 On Windows systems, filesystem paths can enter the SQLite database (`store.ListRepos()`) with slight variations in case or separators:
-- `d:\work\gitmap` vs `D:\work\gitmap`
-- `d:\work\gitmap\` vs `d:\work\gitmap`
+- `<drive>:\work\gitmap` vs `<DRIVE>:\work\gitmap`
+- `<drive>:\work\gitmap\` vs `<drive>:\work\gitmap`
 
 In batch operations (`gitmap pull-all`, `gitmap pas`, `gitmap pae`, `gitmap status`), unnormalized paths cause the same repository to be evaluated and rendered multiple times.
 

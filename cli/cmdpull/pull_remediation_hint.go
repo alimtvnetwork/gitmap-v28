@@ -199,6 +199,10 @@ func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string,
 	if strings.Contains(strings.ToLower(msg), "untracked") {
 		return resolveUntrackedDualHints(repoDir)
 	}
+	return resolveStateOrAuthDualHints(msg, repoDir, repoName)
+}
+
+func resolveStateOrAuthDualHints(msg, repoDir, repoName string) (string, string, string, string) {
 	if isDirtyTreeError(msg) {
 		return resolveDirtyTreeDualHints(repoDir)
 	}
