@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.461.0] - 2026-10-02
+
+### Added
+- store-dedup - os-aware path sensitivity and equalfold optimization
+
+---
+
 ## [v6.460.0] - 2026-10-02
 
 ### Added

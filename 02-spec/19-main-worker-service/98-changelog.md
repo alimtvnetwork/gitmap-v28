@@ -1,3 +1,9 @@
+## v6.461.0 — 2026-10-02 (store-dedup - os-aware path sensitivity and equalfold optimization)
+
+**Scope:** Version bump. store-dedup - os-aware path sensitivity and equalfold optimization.
+
+---
+
 ## v6.460.0 — 2026-10-02 (vmware cli command suite specification and e2e test harness)
 
 **Scope:** Version bump. VMware CLI command suite specification and AI prompt (`01-prompts/42-vmware-cli-commands.md`), VMware Workstation lifecycle/MAC mutation/status/shutdown verification in `repo-secrets/`, and Chrome extension profile export-import E2E test verification in `repo-secrets/`.
