@@ -1,3 +1,9 @@
+## v6.457.0 — 2026-10-02 (cross-platform path sensitivity, help text examples, and shared engine helpers)
+
+**Scope:** Version bump. cross-platform path sensitivity, help text examples, and shared engine helpers.
+
+---
+
 ## v6.456.1 — 2026-10-02 (Synchronize prompts, skills, AI scripts, and coding guidelines)
 
 **Scope:** Version bump. Synchronize prompts, skills, AI scripts, and coding guidelines.
