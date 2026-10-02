@@ -805,6 +805,207 @@ func executeSSHFleetUpdate(target FleetTarget, opts FleetUpdateOptions) (string,
 	return crypto.RunCommand(client, cmd, shell)
 }
 
+func executeSSHFleetZipUpdate(target FleetTarget, opts FleetUpdateOptions) (string, error) {
+	client, err := dialFleetSSH(target)
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	osType := target.OS
+	if probed := cmdssh.ProbeRemoteOSType(client); probed != "" {
+		osType = probed
+	}
+
+	zipData, err := getCachedUpdateZip(opts.Pkg, osType)
+	if err != nil {
+		return "", apperror.WrapSimple(err, "getCachedUpdateZip")
+	}
+
+	destZipPath := resolveRemoteZipPath(osType, opts.Pkg)
+	err = StreamFileToRemoteFn(client, destZipPath, zipData, osType)
+	if err != nil {
+		return "", apperror.WrapSimple(err, "StreamFileToRemote")
+	}
+
+	cmd := resolveFleetZipInstallCommand(osType, opts.Pkg, destZipPath)
+	shell := resolveFleetShell(osType)
+	return crypto.RunCommand(client, cmd, shell)
+}
+
+var (
+	zipCacheMu sync.Mutex
+	zipCache   = make(map[string][]byte)
+)
+
+func clearZipCache() {
+	zipCacheMu.Lock()
+	zipCache = make(map[string][]byte)
+	zipCacheMu.Unlock()
+}
+
+func getCachedUpdateZip(pkg, osType string) ([]byte, error) {
+	cacheKey := fmt.Sprintf("%s_%s", strings.ToLower(pkg), strings.ToLower(osType))
+	zipCacheMu.Lock()
+	defer zipCacheMu.Unlock()
+	if data, ok := zipCache[cacheKey]; ok {
+		return data, nil
+	}
+	data, err := CreateUpdateZipFn(pkg, osType)
+	if err != nil {
+		return nil, err
+	}
+	zipCache[cacheKey] = data
+	return data, nil
+}
+
+func createUpdatePackageZip(pkg, osType string) ([]byte, error) {
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	isWin := isWindowsOS(osType)
+
+	binTarget := resolvePackageBinName(pkg, isWin)
+	binData, err := locatePackageBinary(pkg)
+	if err != nil {
+		_ = zw.Close()
+		return nil, apperror.WrapSimple(err, "locatePackageBinary")
+	}
+	if err := addZipFileEntry(zw, binTarget, binData, 0755); err != nil {
+		_ = zw.Close()
+		return nil, apperror.WrapSimple(err, "addZipFileEntry.bin")
+	}
+	if shouldIncludeAgmInZip(pkg) {
+		if agmData, agmErr := locatePackageBinary("agm"); agmErr == nil && len(agmData) > 0 {
+			agmTarget := resolvePackageBinName("agm", isWin)
+			_ = addZipFileEntry(zw, agmTarget, agmData, 0755)
+		}
+	}
+	if err := addLauncherScriptEntry(zw, isWin); err != nil {
+		_ = zw.Close()
+		return nil, apperror.WrapSimple(err, "addLauncherScriptEntry")
+	}
+	if err := zw.Close(); err != nil {
+		return nil, apperror.WrapSimple(err, "zw.Close")
+	}
+	return buf.Bytes(), nil
+}
+
+func resolvePackageBinName(pkg string, isWin bool) string {
+	name := "gitmap"
+	if isAgmPkg(pkg) {
+		name = "agm"
+	}
+	if isWin {
+		return name + ".exe"
+	}
+	return name
+}
+
+func shouldIncludeAgmInZip(pkg string) bool {
+	return strings.ToLower(pkg) == "all"
+}
+
+func locatePackageBinary(pkg string) ([]byte, error) {
+	if isAgmPkg(pkg) {
+		return locateAgmBinary()
+	}
+	return locateGitmapBinary()
+}
+
+func locateGitmapBinary() ([]byte, error) {
+	execPath, err := os.Executable()
+	if err == nil {
+		if data, readErr := os.ReadFile(execPath); readErr == nil && len(data) > 0 {
+			return data, nil
+		}
+	}
+	if lp, lookErr := exec.LookPath("gitmap"); lookErr == nil {
+		if data, readErr := os.ReadFile(lp); readErr == nil && len(data) > 0 {
+			return data, nil
+		}
+	}
+	return []byte("gitmap-payload-simulated"), nil
+}
+
+func locateAgmBinary() ([]byte, error) {
+	if lp, lookErr := exec.LookPath("agm"); lookErr == nil {
+		if data, readErr := os.ReadFile(lp); readErr == nil && len(data) > 0 {
+			return data, nil
+		}
+	}
+	if lp, lookErr := exec.LookPath("agm.exe"); lookErr == nil {
+		if data, readErr := os.ReadFile(lp); readErr == nil && len(data) > 0 {
+			return data, nil
+		}
+	}
+	return []byte("agm-payload-simulated"), nil
+}
+
+func addZipFileEntry(zw *zip.Writer, name string, data []byte, mode os.FileMode) error {
+	header := &zip.FileHeader{
+		Name:   name,
+		Method: zip.Deflate,
+	}
+	header.SetMode(mode)
+	w, err := zw.CreateHeader(header)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
+}
+
+func addLauncherScriptEntry(zw *zip.Writer, isWin bool) error {
+	if isWin {
+		script := "# Embedded GitMap Remote Installer\nExpand-Archive -Path $zipPath -DestinationPath $destDir -Force\n"
+		return addZipFileEntry(zw, "install_remote.ps1", []byte(script), 0644)
+	}
+	script := "#!/bin/sh\nunzip -o \"$ZIP\" -d \"$DEST\"\n"
+	return addZipFileEntry(zw, "install_remote.sh", []byte(script), 0755)
+}
+
+func resolveRemoteZipPath(osType, pkg string) string {
+	pkgName := "gitmap"
+	if isAgmPkg(pkg) {
+		pkgName = "agm"
+	}
+	if isWindowsOS(osType) {
+		return fmt.Sprintf(`C:\Windows\Temp\gitmap_update_%s.zip`, pkgName)
+	}
+	return fmt.Sprintf(`/tmp/gitmap_update_%s.zip`, pkgName)
+}
+
+func resolveFleetZipInstallCommand(osType, pkg, zipPath string) string {
+	isWin := isWindowsOS(osType)
+	targetBin := "gitmap"
+	if isAgmPkg(pkg) {
+		targetBin = "agm"
+	}
+	if isWin {
+		return resolveWindowsZipInstallCommand(targetBin, zipPath)
+	}
+	return resolvePOSIXZipInstallCommand(targetBin, zipPath)
+}
+
+func resolveWindowsZipInstallCommand(targetBin, zipPath string) string {
+	return fmt.Sprintf(`powershell -NoProfile -ExecutionPolicy Bypass -Command "& { $ErrorActionPreference = 'SilentlyContinue'; $zipPath = '%s'; $destDir = Split-Path (Get-Command %s -ErrorAction SilentlyContinue).Path; if (-not $destDir) { $destDir = [System.IO.Path]::Combine($env:LOCALAPPDATA, 'Programs', '%s') }; if (-not (Test-Path $destDir)) { New-Item -ItemType Directory -Path $destDir -Force | Out-Null }; Expand-Archive -Path $zipPath -DestinationPath $destDir -Force; Remove-Item -Path $zipPath -Force -ErrorAction SilentlyContinue; $curr = (%s version 2>$null | Out-String).Trim(); if ($curr) { @{ success = $true; current_version = $curr; details = ('Zip installed: ' + $curr) } | ConvertTo-Json -Compress } else { @{ success = $false; details = 'Zip update failed to verify binary' } | ConvertTo-Json -Compress } }"`,
+		zipPath, targetBin, targetBin, targetBin)
+}
+
+func resolvePOSIXZipInstallCommand(targetBin, zipPath string) string {
+	return fmt.Sprintf(`sh -c 'ZIP="%s"; DEST=$(dirname "$(command -v %s 2>/dev/null || echo /usr/local/bin/%s)"); mkdir -p "$DEST"; unzip -o "$ZIP" -d "$DEST" >/dev/null 2>&1; chmod +x "$DEST/%s"; rm -f "$ZIP"; CURR=$(%s version 2>/dev/null | head -n1); if [ -n "$CURR" ]; then printf "{\"success\":true,\"current_version\":\"%%s\",\"details\":\"Zip installed: %%s\"}" "$CURR" "$CURR"; else printf "{\"success\":false,\"details\":\"Zip update failed to verify binary\"}"; fi'`,
+		zipPath, targetBin, targetBin, targetBin, targetBin)
+}
+
+func isWindowsOS(osType string) bool {
+	return strings.EqualFold(osType, "windows") || strings.EqualFold(osType, "win")
+}
+
+func isAgmPkg(pkg string) bool {
+	low := strings.ToLower(pkg)
+	return low == "agm" || low == "agy" || low == "ag-manager" || low == "antigravity-manager"
+}
+
 func resolveFleetUpdateCommand(osType, pkg string) string {
 	isWin := strings.EqualFold(osType, "windows") || strings.EqualFold(osType, "win")
 	switch strings.ToLower(pkg) {

@@ -363,3 +363,80 @@ func FormatWrappedInactiveList(names []string, indent string, maxLineLen int) st
 
 	return sb.String()
 }
+
+func detectRepoCollisions(states []*PullRepoState, allRecords ...[]model.ScanRecord) map[string]bool {
+	pathsByName := make(map[string]map[string]bool)
+	collectStatePaths(pathsByName, states)
+	if len(allRecords) > 0 {
+		collectRecordPaths(pathsByName, allRecords[0])
+	}
+	return filterCollidingNames(pathsByName)
+}
+
+func collectStatePaths(pathsByName map[string]map[string]bool, states []*PullRepoState) {
+	for _, s := range states {
+		if s == nil || s.RepoName == "" {
+			continue
+		}
+		pathKey := CanonicalRepoPathKey(s.RepoPath)
+		if pathKey == "" {
+			pathKey = strings.ToLower(s.RepoName)
+		}
+		if pathsByName[s.RepoName] == nil {
+			pathsByName[s.RepoName] = make(map[string]bool)
+		}
+		pathsByName[s.RepoName][pathKey] = true
+	}
+}
+
+func collectRecordPaths(pathsByName map[string]map[string]bool, records []model.ScanRecord) {
+	for _, r := range records {
+		if r.RepoName == "" {
+			continue
+		}
+		pathKey := CanonicalRepoPathKey(r.AbsolutePath)
+		if pathKey == "" {
+			pathKey = strings.ToLower(r.RepoName)
+		}
+		if pathsByName[r.RepoName] == nil {
+			pathsByName[r.RepoName] = make(map[string]bool)
+		}
+		pathsByName[r.RepoName][pathKey] = true
+	}
+}
+
+func filterCollidingNames(pathsByName map[string]map[string]bool) map[string]bool {
+	hasCollision := make(map[string]bool, len(pathsByName))
+	for name, paths := range pathsByName {
+		if len(paths) > 1 {
+			hasCollision[name] = true
+		}
+	}
+	return hasCollision
+}
+
+func resolveRepoDisplayName(s *PullRepoState, collisions map[string]bool) string {
+	if s == nil {
+		return ""
+	}
+	hasCollision := collisions[s.RepoName]
+	if hasCollision && s.RepoPath != "" {
+		rel := formatRelativeOrCleanPath(s.RepoPath)
+		return fmt.Sprintf("%s (%s)", s.RepoName, rel)
+	}
+	return s.RepoName
+}
+
+func formatRelativeOrCleanPath(repoPath string) string {
+	if repoPath == "" {
+		return ""
+	}
+	cwd, err := os.Getwd()
+	if err == nil && cwd != "" {
+		rel, relErr := filepath.Rel(cwd, repoPath)
+		if relErr == nil && !strings.HasPrefix(rel, "..") {
+			return filepath.ToSlash(rel)
+		}
+	}
+	return filepath.Clean(repoPath)
+}
