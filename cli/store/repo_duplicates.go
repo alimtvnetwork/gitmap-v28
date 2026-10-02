@@ -211,7 +211,7 @@ func selectOldestKeeper(records []model.ScanRecord) (model.ScanRecord, []model.S
 	return keeper, dups
 }
 
-func remapDuplicateRelease(tx *dbengine.Tx, keeperID, dupID int64, enabled bool) *appfault.AppError {
+func remapDuplicateRelease(tx *dbengine.TxWrapper, keeperID, dupID int64, enabled bool) *apperror.AppError {
 	if !enabled {
 		return nil
 	}
@@ -229,7 +229,7 @@ func remapDuplicateRelease(tx *dbengine.Tx, keeperID, dupID int64, enabled bool)
 	return nil
 }
 
-func remapDuplicateGroupRepo(tx *dbengine.Tx, keeperID, dupID int64, enabled bool) *appfault.AppError {
+func remapDuplicateGroupRepo(tx *dbengine.TxWrapper, keeperID, dupID int64, enabled bool) *apperror.AppError {
 	if !enabled {
 		return nil
 	}
@@ -247,7 +247,7 @@ func remapDuplicateGroupRepo(tx *dbengine.Tx, keeperID, dupID int64, enabled boo
 	return nil
 }
 
-func remapDuplicateVersionProbe(tx *dbengine.Tx, keeperID, dupID int64, enabled bool) *appfault.AppError {
+func remapDuplicateVersionProbe(tx *dbengine.TxWrapper, keeperID, dupID int64, enabled bool) *apperror.AppError {
 	if !enabled {
 		return nil
 	}
