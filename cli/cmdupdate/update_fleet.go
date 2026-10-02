@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -860,6 +861,11 @@ func getCachedUpdateZip(pkg, osType string) ([]byte, error) {
 }
 
 func createUpdatePackageZip(pkg, osType string) ([]byte, error) {
+	if isAgmPkg(pkg) {
+		if data, err := loadOrExportAgmInstallerZip(); err == nil && len(data) > 4 && string(data[:2]) == "PK" {
+			return data, nil
+		}
+	}
 	var buf bytes.Buffer
 	zw := zip.NewWriter(&buf)
 	isWin := isWindowsOS(osType)
@@ -940,6 +946,39 @@ func locateGitmapBinary() ([]byte, error) {
 		return data, nil
 	}
 	return []byte("gitmap-payload-simulated"), nil
+}
+
+func agmExportZipPath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(home, ".antigravity_tools", "update-export", "agm-update.zip")
+}
+
+func loadOrExportAgmInstallerZip() ([]byte, error) {
+	path := agmExportZipPath()
+	if data, ok := readFileIfExists(path); ok {
+		return data, nil
+	}
+	agm, err := exec.LookPath("agm")
+	if err != nil {
+		agm, err = exec.LookPath("agm.exe")
+		if err != nil {
+			return nil, err
+		}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, agm, "update", "export-zip")
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+	data, ok := readFileIfExists(path)
+	if !ok {
+		return nil, fmt.Errorf("agm update export-zip did not write %s", path)
+	}
+	return data, nil
 }
 
 func locateAgmBinary() ([]byte, error) {
