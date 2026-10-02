@@ -660,3 +660,60 @@ Allowed work:
 - ✅ Ensure `gitmap macro edit` records intended commands reliably and persists updated steps without dropping configuration.
 
 **Why:** Executing `gitmap alim1` failed with `exit status 1` (`ItemNotFoundException` from `Remove-Item`) because user `Alim` was running a stale runtime binary (`v6.442.0` at `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`) that preceded the introduction of `safe-rm` and `AdaptCommandForPlatform` platform adaptation shims. Synchronizing all active binary paths and enforcing platform-adaptive removal prevents runtime regressions.
+
+---
+
+## Lowercase String Equality Comparisons & Missing `strings.EqualFold` — TOTAL BAN
+
+🔴 **NEVER compare strings case-insensitively using `strings.ToLower(a) == strings.ToLower(b)` or `strings.ToLower(a) == "literal"`.**
+
+Forbidden:
+- ❌ Allocating new lowercased strings on the heap via `strings.ToLower(x)` just to compare equality.
+- ❌ Comparing strings with `strings.ToLower(a) == strings.ToLower(b)`.
+- ❌ Using lowercase conversions for user confirmations, flags, CLI keywords, or protocol headers.
+
+Allowed work:
+- ✅ Always use standard library `strings.EqualFold(a, b)` ("strings unfold").
+- ✅ Zero heap allocations (0 B/op, 0 allocs/op) and short-circuits immediately on first mismatched rune.
+
+**Why:** User explicitly mandated: "And also, I've seen in the code you are trying to compare the code in lowercase. Try not to do that. the specific method strings unfold, which is a lot more faster. Try to use that when you are comparing two strings without the case sensitivity."
+
+---
+
+## OS-Unaware Path Lowercasing & Filesystem Case Sensitivity — TOTAL BAN
+
+🔴 **NEVER unconditionally lowercase filesystem paths across all operating systems, and NEVER assume Unix filesystems are case-insensitive.**
+
+Forbidden:
+- ❌ Running `strings.ToLower()` on Unix paths (Linux, macOS, BSD). On Unix, `/path/to/MyRepo` and `/path/to/myrepo` are distinct files/directories. Lowercasing causes collisions and drops valid repositories.
+- ❌ Comparing Windows paths with raw `==` or byte equality without case-folding, which causes false-negative mismatches on drive letters or case variants.
+- ❌ Hardcoding `COLLATE NOCASE` on SQLite path indexes without OS gating.
+
+Allowed work:
+- ✅ Always delegate path equality to `cli/fsutil.EqualPaths(p1, p2)`.
+- ✅ On Windows (`runtime.GOOS == "windows"` or drive letter prefix): compare paths ignoring case using `strings.EqualFold()`.
+- ✅ On Unix / Linux / macOS: strictly preserve original path casing and evaluate exact byte equality (`a == b`).
+- ✅ Always generate map/deduplication keys via `cli/fsutil.CanonicalPathKey(p)`.
+
+**Why:** User explicitly mandated: "because in Unix, the different paths, different cases actually mean same thing [different things]. So you can only check ignoring the path in Windows. So you need to understand which OS you are in. So I think that is a bug we need to fix."
+
+---
+
+## Filesystem-Based Redundancy Scanning & Missing Ingestion Uniqueness — TOTAL BAN
+
+🔴 **NEVER scan the filesystem (`os.Stat`, directory walks) or perform in-memory table iterations to detect duplicate repositories, and NEVER insert files or repositories without SQLite uniqueness guarantees.**
+
+Forbidden:
+- ❌ Scanning the disk or calling `isGitRepo(dest)` via filesystem inspection to find duplicate repositories.
+- ❌ Loading entire database tables into Go application memory with `db.ListRepos()` to loop and group duplicates.
+- ❌ Raw `INSERT INTO RepoFile` without `ON CONFLICT` upsert semantics.
+- ❌ Adding repositories or files to pools without database-level uniqueness enforcement.
+
+Allowed work:
+- ✅ Always detect redundant repositories directly in SQLite via SQL aggregation:
+  `SELECT LOWER(RTRIM(CASE WHEN HttpsUrl != '' THEN HttpsUrl ELSE SshUrl END, '.git')) AS cleanUrl, COUNT(*) FROM Repo WHERE HttpsUrl != '' OR SshUrl != '' GROUP BY cleanUrl HAVING COUNT(*) > 1;`
+- ✅ Optimize and deduplicate redundant repositories in SQLite before running pull pools (`OptimizeRedundantPullPool` in `cli/cmdpull/pull_dedup.go`).
+- ✅ Enforce `UNIQUE` constraints and `ON CONFLICT(...) DO UPDATE` upsert semantics on all ingestion pipelines (`RepoFile`, `Repo`).
+
+**Why:** User explicitly mandated: "You can find the redundancy from your SQLite database, not from file system. Okay, so in future, when you add new files, you make sure that it is unique. Do you understand?"
+
