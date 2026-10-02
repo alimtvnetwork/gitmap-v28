@@ -215,6 +215,8 @@ func isKnownUpdateTargetOrFlag(token string) bool {
 	switch low {
 	case "all", "all-nodes", "allnodes", "ls", "list", "ssh", "remote", "gitmap", "agm", "agy", "ag-manager", "antigravity-manager":
 		return true
+	case "zip", "uaz", "update-all-zip", "updateallzip", "--include-others", "--include-other":
+		return true
 	default:
 		return false
 	}
@@ -233,6 +235,10 @@ func suggestUpdateTarget(token string) string {
 		return "gitmap"
 	case "rem", "ss":
 		return "ssh"
+	case "uaz", "update-all-zip", "updateallzip":
+		return "update-all-zip"
+	case "zp", "zi":
+		return "zip"
 	}
 	return ""
 }
@@ -243,6 +249,19 @@ func formatUnknownUpdateTargetHeader(token string) string {
 		return fmt.Sprintf("gitmap update: Unknown update target '%s'.\n  Did you mean: gitmap update %s?", token, suggestion)
 	}
 	return fmt.Sprintf("gitmap update: Unknown update target '%s'.", token)
+}
+
+func printUpdateUsageHelp() {
+	fmt.Println("Available update commands:")
+	fmt.Println("  gitmap update                          - Self-update local gitmap binary")
+	fmt.Println("  gitmap update all                      - Update all fleet cluster nodes in parallel (alias: gitmap ua)")
+	fmt.Println("  gitmap update all --include-others     - Update all cluster nodes and discovered hosts")
+	fmt.Println("  gitmap update all zip --include-others - Distribute zip packages via SCP across all nodes")
+	fmt.Println("  gitmap update-all-zip --include-others - Fast zip distribution across all nodes (alias: uaz)")
+	fmt.Println("  gitmap update ls                       - List installed software inventory across fleet nodes")
+	fmt.Println("  gitmap update agm                      - Update Antigravity Manager")
+	fmt.Println("  gitmap update ssh <target>             - Update package on specified SSH target")
+	fmt.Println()
 }
 
 func handleUnknownUpdateTarget(token string) {
@@ -256,13 +275,7 @@ func handleUnknownUpdateTarget(token string) {
 	}
 	store.LogFailedCommand(token, strings.Join(os.Args[1:], " "), "update", "E1001", header, suggList)
 	fmt.Printf("\n%s\n\n", header)
-	fmt.Println("Available update commands:")
-	fmt.Println("  gitmap update              - Self-update local gitmap binary")
-	fmt.Println("  gitmap update all          - Update all fleet cluster nodes in parallel (alias: gitmap ua)")
-	fmt.Println("  gitmap update ls           - List installed software inventory across fleet nodes")
-	fmt.Println("  gitmap update agm          - Update Antigravity Manager")
-	fmt.Println("  gitmap update ssh <target> - Update package on specified SSH target")
-	fmt.Println()
+	printUpdateUsageHelp()
 }
 
 func resolveUpdatePackage(args []string) string {

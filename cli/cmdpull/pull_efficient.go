@@ -3,6 +3,7 @@ package cmdpull
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -197,7 +198,25 @@ func resolveAllTrackedRecords() []model.ScanRecord {
 		return nil
 	}
 
-	return records
+	return deduplicateTrackedRecords(records)
+}
+
+func deduplicateTrackedRecords(records []model.ScanRecord) []model.ScanRecord {
+	seen := make(map[string]bool, len(records))
+	unique := make([]model.ScanRecord, 0, len(records))
+	for _, r := range records {
+		if r.AbsolutePath == "" {
+			continue
+		}
+		canonical := filepath.Clean(strings.ToLower(r.AbsolutePath))
+		isSeen := seen[canonical]
+		if isSeen {
+			continue
+		}
+		seen[canonical] = true
+		unique = append(unique, r)
+	}
+	return unique
 }
 
 func printNothingToPull() {
