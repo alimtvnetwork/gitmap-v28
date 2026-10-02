@@ -167,6 +167,9 @@ func checkErrorLogsSubcmd(subcmd string, args []string) (bool, error) {
 	if subcmd == "last-failed-logs" {
 		return true, HandlePipelineLastFailedLogs(args[1:])
 	}
+	if IsHistoryAISubcmd(subcmd) {
+		return HandlePipelineHistoryAI(args)
+	}
 	if IsNegativeIndexToken(subcmd) {
 		return true, handlePipelineErrorLogs(args)
 	}
@@ -246,6 +249,9 @@ func dispatchCorePipelineSubcmd(subcmd string, args []string) error {
 		return handlePipelineStages(args[1:])
 	case "db":
 		return handlePipelineDB(args[1:])
+	case "history-ai", "hai":
+		_, err := HandlePipelineHistoryAI(args)
+		return err
 	case "help", "-h", "--help":
 		return showPipelineHelp()
 	default:

@@ -28,6 +28,7 @@ gitmap pl <subcommand> [flags]
 | `fix errors agy` | Feed errors, git log & RCA prompt to Antigravity, inject prompt & queue (alias: `aef`) |
 | `clear-db, db clear` | Reset/purge local pipeline split SQLite database and telemetry error logs (`-y`) |
 | `history, hist` | Visual pipeline run tree and commit status summary for recent commits (`-n 5`) |
+| `history-ai [N], pe history-ai [N]` | Extract historical CI/CD errors across last N commits to train AI agents (default: 5) |
 | `logs` | Full step logs for target commit, offset, or latest workflow run |
 | `pipeline-ai status` | Auto-delay (-t <sec>), stream live errors, and switch to fix |
 | `pipeline-ai errors` | Extract failing workflow errors with AI remediation guidance |
@@ -63,6 +64,7 @@ gitmap pl <subcommand> [flags]
 |----------|-------------------|
 | `gitmap pd` | `gitmap pipeline details` |
 | `gitmap pe` | `gitmap pipeline errors` |
+| `gitmap pe history-ai [N]` | `gitmap pipeline errors history-ai [N]` |
 | `gitmap pe clear -y` | `gitmap pipeline errors clear -y` |
 | `gitmap aef` | `gitmap pipeline fix errors agy` |
 | `gitmap pipeline-fix` | `gitmap pipeline fix errors agy` |
@@ -108,6 +110,11 @@ gitmap aef
 
 # View pipeline history tree
 gitmap pipeline history -n 5
+
+# Extract historical CI/CD errors across the last 5 commits for AI agent training
+gitmap pe history-ai 5
+gitmap pe history-ai --json
+gitmap pe history-ai --file ./historical-errors.md
 ```
 
 ---

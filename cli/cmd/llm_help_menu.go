@@ -50,6 +50,7 @@ func buildLlmCommandsSection() termhelp.HelpSection {
 			{Command: "train / chain", Description: "Execute chained curriculum and generate Antigravity skill"},
 			{Command: "llm-train", Description: "Direct alias for 'gitmap llm train'"},
 			{Command: "llm-docs (ld)", Description: "Generate complete LLM Markdown reference document"},
+			{Command: "pe history-ai [N]", Description: "Dumps historical failure dossiers to prevent AI repeating mistakes"},
 		},
 	}
 }
@@ -62,7 +63,7 @@ func buildLlmLifecycleSection() termhelp.HelpSection {
 			{Command: "2. Refactoring", Description: "replace, replace-regex, targeted zero-nesting edits"},
 			{Command: "3. Verification", Description: "python linters, go test, smart test runner"},
 			{Command: "4. Semantic Commit", Description: "commit-push-feature (cpf), commit-push-bug (cpb)"},
-			{Command: "5. Telemetry & Heal", Description: "pipeline-ai status --json, dynamic ETA sleep, RCA logs"},
+			{Command: "5. Telemetry & Heal", Description: "pipeline-ai status --json, dynamic ETA sleep, pe history-ai"},
 		},
 	}
 }

@@ -22,6 +22,9 @@ func handlePipelineErrorLogs(args []string) error {
 	if hasArgFlag(args, "last-failed-logs") {
 		return HandlePipelineLastFailedLogs(args)
 	}
+	if handled, err := HandlePipelineHistoryAI(args); handled {
+		return err
+	}
 	if handled, err := HandlePEFormatCommands(args); handled {
 		return err
 	}

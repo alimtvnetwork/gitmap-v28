@@ -180,13 +180,16 @@ func resolveStateDualHints(s *PullRepoState) (string, string, string, string) {
 }
 
 func resolveDirtyStateDualHints(s *PullRepoState) (string, string, string, string) {
-	if s.RepoPath != "" {
-		diag := gitutil.InspectDirtyState(s.RepoPath)
-		hasOnlyUntracked := diag.UntrackedCount > 0 && diag.ModifiedCount == 0 && diag.StagedCount == 0 && diag.DeletedCount == 0
-		if hasOnlyUntracked {
-			return resolveUntrackedDualHints(s.RepoPath)
-		}
+	if s.RepoPath == "" {
+		return resolveDirtyTreeDualHints(s.RepoPath)
 	}
+
+	diag := gitutil.InspectDirtyState(s.RepoPath)
+	hasOnlyUntracked := diag.UntrackedCount > 0 && diag.ModifiedCount == 0 && diag.StagedCount == 0 && diag.DeletedCount == 0
+	if hasOnlyUntracked {
+		return resolveUntrackedDualHints(s.RepoPath)
+	}
+
 	return resolveDirtyTreeDualHints(s.RepoPath)
 }
 

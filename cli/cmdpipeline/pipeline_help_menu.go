@@ -16,6 +16,7 @@ func buildPipelineHelpMenu() termhelp.HelpMenu {
 			"gitmap pipeline [command] [flags]",
 			"gitmap pd [commit|-N] [flags]  (runner details table shortcut)",
 			"gitmap pe [commit|-N] [flags]  (error logs & clean status shortcut)",
+			"gitmap pe history-ai [N]      (extract historical CI errors to train AI)",
 			"gitmap pipeline-ai [cmd]       (AI telemetry & timeout waiting)",
 		},
 		Sections: []termhelp.HelpSection{
@@ -27,6 +28,7 @@ func buildPipelineHelpMenu() termhelp.HelpMenu {
 		Tips: []string{
 			"Use shortcut 'gitmap pd' for runner target breakdown and step timings.",
 			"Use shortcut 'gitmap pe' to inspect failing jobs and actionable snippets.",
+			"Run 'gitmap pe history-ai 5' to export past failure dossiers for AI training.",
 			"Pass commit SHA or offset ('gitmap pe 7b1a2c', 'gitmap pe -1', 'gitmap pe HEAD~1') to target past runs.",
 			"Run 'gitmap pe clear -y' to reset pipeline failure history for repo.",
 		},
@@ -69,6 +71,7 @@ func buildPipelineHealingSection() termhelp.HelpSection {
 			{Command: "fix", Description: "Feed pipeline errors to Antigravity IDE (alias: fix errors agy)"},
 			{Command: "pipeline-ai status", Description: "Auto-delay (-t <sec>), stream live errors, and switch to fix"},
 			{Command: "pipeline-ai errors", Description: "Extract failing workflow errors with AI remediation guidance"},
+			{Command: "pe history-ai [N]", Description: "Extract historical failures across N commits to train AI"},
 		},
 	}
 }

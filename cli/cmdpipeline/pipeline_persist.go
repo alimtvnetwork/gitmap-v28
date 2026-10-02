@@ -53,9 +53,6 @@ func isCorruptOrFallbackErrorLog(content string) bool {
 	if strings.Contains(content, "gh command failed") {
 		return true
 	}
-	if strings.Contains(content, "at github.com/alimtvnetwork/") {
-		return true
-	}
 	if strings.Contains(content, "Unable to fetch failed logs via gh CLI") {
 		return true
 	}

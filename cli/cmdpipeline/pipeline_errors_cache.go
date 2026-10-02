@@ -30,9 +30,33 @@ func QueryLocalPipelineDbBySha(repo, sha string) (*pipelinedb.PipelineRunRecord,
 	return db.QueryRunBySha(sha)
 }
 
+// ResolveRepoHeadCommitSha resolves the HEAD commit SHA for target repository.
+func ResolveRepoHeadCommitSha(repo string) string {
+	headSha := ResolveLocalHeadCommitSha()
+	if len(headSha) > 0 && isCurrentRepoMatch(repo) {
+		return headSha
+	}
+	repoDir := findLocalRepoDirForSlug(repo)
+	if len(repoDir) == 0 {
+		return headSha
+	}
+	out, err := exec.Command("git", "-C", repoDir, "rev-parse", "HEAD").Output()
+	if err == nil && len(out) > 0 {
+		return strings.TrimSpace(string(out))
+	}
+	return headSha
+}
+
+func isCurrentRepoMatch(repo string) bool {
+	if len(repo) == 0 {
+		return true
+	}
+	return strings.EqualFold(resolveCurrentRepoSlug(), repo)
+}
+
 // CheckHeadCommitCachedInDb checks if current local HEAD commit SHA is recorded in SQLite DB.
 func CheckHeadCommitCachedInDb(repo string) (*pipelinedb.PipelineRunRecord, bool) {
-	headSha := ResolveLocalHeadCommitSha()
+	headSha := ResolveRepoHeadCommitSha(repo)
 	if headSha == "" {
 		return nil, false
 	}

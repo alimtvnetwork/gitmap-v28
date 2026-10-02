@@ -143,3 +143,35 @@ func TestWriteAndReadCacheSyncMeta(t *testing.T) {
 		t.Errorf("expected sync meta to be written and read successfully")
 	}
 }
+
+func TestCheckCommitTargetCacheHit(t *testing.T) {
+	runs := []pipelinedb.PipelineRunRecord{
+		{RunId: 1, Sha: "commit12345", Status: "completed", Conclusion: "failure"},
+		{RunId: 2, Sha: "commit67890", Status: "in_progress"},
+	}
+	if !checkCommitTargetCacheHit(runs, "commit12345") {
+		t.Errorf("expected hit for completed commit")
+	}
+	if checkCommitTargetCacheHit(runs, "commit67890") {
+		t.Errorf("expected miss for in-progress commit")
+	}
+	if checkCommitTargetCacheHit(runs, "nonexistent") {
+		t.Errorf("expected miss for nonexistent commit")
+	}
+}
+
+func TestCheckCompletedCommitCacheHit(t *testing.T) {
+	runsCompleted := []pipelinedb.PipelineRunRecord{
+		{RunId: 1, Sha: "commit12345", Status: "completed", Conclusion: "success"},
+	}
+	if !isCommitRunsCompleted(runsCompleted, "commit12345") {
+		t.Errorf("expected completed runs to return true")
+	}
+
+	runsRunning := []pipelinedb.PipelineRunRecord{
+		{RunId: 2, Sha: "commit12345", Status: "in_progress"},
+	}
+	if isCommitRunsCompleted(runsRunning, "commit12345") {
+		t.Errorf("expected in_progress runs to return false")
+	}
+}

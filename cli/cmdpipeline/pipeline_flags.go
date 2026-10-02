@@ -232,7 +232,7 @@ func isSkipTokenForCommit(token string) bool {
 	switch token {
 	case "-f", "-c", "-v", "-V", "-t", "-w", "-h", "-n", "-y", "-j":
 		return true
-	case "clear", "last-failed-logs", "errors", "error-logs", "pe":
+	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "history-ai", "hai":
 		return true
 	default:
 		return false
@@ -301,7 +301,8 @@ func isSkipTokenForRepoTarget(token string) bool {
 	}
 	switch strings.ToLower(token) {
 	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "ee", "help",
-		"format", "add-format", "rm-format", "remove-format", "add-all", "list-formats", "preview-format":
+		"format", "add-format", "rm-format", "remove-format", "add-all", "list-formats", "preview-format",
+		"history-ai", "hai":
 		return true
 	default:
 		return false

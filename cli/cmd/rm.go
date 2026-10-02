@@ -345,8 +345,27 @@ func executeRemoveRepoTx(ctx context.Context, tx *dbengine.TxWrapper, repoID int
 		return err
 	}
 
-	query := "DELETE FROM Repo WHERE AbsolutePath = ?"
-	if _, err := tx.Exec(ctx, query, absPath); err != nil {
+	if repoID > 0 {
+		return deleteRepoByIDAndPath(ctx, tx, repoID, absPath)
+	}
+
+	return deleteRepoByPath(ctx, tx, absPath)
+}
+
+func deleteRepoByIDAndPath(ctx context.Context, tx *dbengine.TxWrapper, repoID int64, absPath string) *apperror.AppError {
+	normalizedPath := store.NormalizeStoragePath(absPath)
+	query := "DELETE FROM Repo WHERE RepoId = ? OR AbsolutePath = ? OR AbsolutePath = ?"
+	if _, err := tx.Exec(ctx, query, repoID, absPath, normalizedPath); err != nil {
+		return apperror.WrapSimple(err, "rm: delete repo")
+	}
+
+	return recordRmHistory(ctx, tx, absPath)
+}
+
+func deleteRepoByPath(ctx context.Context, tx *dbengine.TxWrapper, absPath string) *apperror.AppError {
+	normalizedPath := store.NormalizeStoragePath(absPath)
+	query := "DELETE FROM Repo WHERE AbsolutePath = ? OR AbsolutePath = ?"
+	if _, err := tx.Exec(ctx, query, absPath, normalizedPath); err != nil {
 		return apperror.WrapSimple(err, "rm: delete repo")
 	}
 

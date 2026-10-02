@@ -83,9 +83,20 @@ func purgeSearchDatabase(conn *sql.DB) (int, error) {
 	if err != nil {
 		return 0, apperror.WrapSimple(err, "CleanSearchHotCache.delete")
 	}
-	_, _ = conn.Exec(`DELETE FROM SearchQueryLog`)
-	_, _ = conn.Exec(`VACUUM`)
-	deleted, _ := res.RowsAffected()
+
+	if _, err := conn.Exec(`DELETE FROM SearchQueryLog`); err != nil {
+		return 0, apperror.WrapSimple(err, "CleanSearchHotCache.delete_log")
+	}
+
+	if _, err := conn.Exec(`VACUUM`); err != nil {
+		return 0, apperror.WrapSimple(err, "CleanSearchHotCache.vacuum")
+	}
+
+	deleted, err := res.RowsAffected()
+	if err != nil {
+		return 0, apperror.WrapSimple(err, "CleanSearchHotCache.rows_affected")
+	}
+
 	return int(deleted), nil
 }
 

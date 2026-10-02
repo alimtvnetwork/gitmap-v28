@@ -48,7 +48,7 @@ func outputTrainJSON() *apperror.AppError {
 			{"phase": "2. Refactoring", "commands": "gitmap replace, replace-regex, surgical edits", "purpose": "Safe code transformation with rollback support"},
 			{"phase": "3. Verification", "commands": "python go-format-check.py, go test", "purpose": "Local AST syntax and regression checks"},
 			{"phase": "4. Semantic Commit", "commands": "gitmap cpf, gitmap cpb, gitmap cpr", "purpose": "Structured Conventional commits and branch push"},
-			{"phase": "5. Telemetry & Heal", "commands": "gitmap pipeline-ai status --json, error-logs", "purpose": "Dynamic ETA waiting and automated CI repair"},
+			{"phase": "5. Telemetry & Heal", "commands": "gitmap pipeline-ai status --json, pe, pe history-ai", "purpose": "Dynamic ETA waiting, error diagnosis, and anti-mistake AI dossiers"},
 		},
 		"efficiency_factors": map[string]string{
 			"search_speedup":    "830,000x faster than Python regex grep with DH2D SQLite hot cache",
@@ -180,10 +180,11 @@ func printChainedSequence() {
 	fmt.Println("4. gitmap aum sequence --help                   - Numbering gap detector & H1 title validator")
 	fmt.Println("5. gitmap aum exclude list                      - Query persistent search exclusions from SQLite")
 	fmt.Println("6. gitmap pipeline-ai status --json             - Check remote CI workflow state, live errors, dynamic ETA")
-	fmt.Println("7. gitmap install --list                        - Discover toolchains, profiles, and runtimes")
-	fmt.Println("8. gitmap cluster --help                        - Multi-node SSH and cluster execution")
-	fmt.Println("9. gitmap cargo status                          - Inspect Rust and Cargo toolchain status")
-	fmt.Println("10. gitmap db status                            - Check repository SQLite database health")
+	fmt.Println("7. gitmap pe history-ai 5                       - Dump CI historical failure dossiers to prevent repeated mistakes")
+	fmt.Println("8. gitmap install --list                        - Discover toolchains, profiles, and runtimes")
+	fmt.Println("9. gitmap cluster --help                        - Multi-node SSH and cluster execution")
+	fmt.Println("10. gitmap cargo status                          - Inspect Rust and Cargo toolchain status")
+	fmt.Println("11. gitmap db status                            - Check repository SQLite database health")
 	fmt.Println()
 }
 

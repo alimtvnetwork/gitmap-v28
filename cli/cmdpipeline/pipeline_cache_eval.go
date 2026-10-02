@@ -85,16 +85,16 @@ func EvaluatePipelineErrorsCache(repo string, flags PipelineErrorFlags) Pipeline
 	}
 	defer db.Close()
 
-	return evaluateOpenDbCache(db, flags)
+	return evaluateOpenDbCache(db, repo, flags)
 }
 
-func evaluateOpenDbCache(db *pipelinedb.PipelineSplitDb, flags PipelineErrorFlags) PipelineCacheDecision {
+func evaluateOpenDbCache(db *pipelinedb.PipelineSplitDb, repo string, flags PipelineErrorFlags) PipelineCacheDecision {
 	runRes := db.QueryRecentRuns(20)
 	if runRes.IsFailure() || len(runRes.Data) == 0 {
 		return PipelineCacheDecision{IsFromCache: false, Reason: "empty_db"}
 	}
 
-	return evaluateDecisionFromRuns(db, runRes.Data, flags)
+	return evaluateDecisionFromRuns(db, repo, runRes.Data, flags)
 }
 
 func isPipelineCacheBypassed(flags PipelineErrorFlags) bool {
@@ -105,13 +105,13 @@ func isPipelineCacheBypassed(flags PipelineErrorFlags) bool {
 	return false
 }
 
-func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, dbRuns []pipelinedb.PipelineRunRecord, flags PipelineErrorFlags) PipelineCacheDecision {
+func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, repo string, dbRuns []pipelinedb.PipelineRunRecord, flags PipelineErrorFlags) PipelineCacheDecision {
 	latest := dbRuns[0]
-	if checkTargetIndexCacheHit(dbRuns, flags) {
-		return buildCacheHitDecision(dbRuns, latest.Sha, "target_index_matched")
+	if hit, decision := evaluateTargetOrHeadCacheHit(repo, dbRuns, flags, latest.Sha); hit {
+		return decision
 	}
-	if checkHeadShaCacheHit(dbRuns) {
-		return buildCacheHitDecision(dbRuns, latest.Sha, "head_sha_matched")
+	if checkCompletedCommitCacheHit(repo, dbRuns) {
+		return buildCacheHitDecision(dbRuns, latest.Sha, "latest_commit_completed")
 	}
 	if checkTtlCacheHit(db.Path) {
 		return buildCacheHitDecision(dbRuns, latest.Sha, "within_ttl")
@@ -120,8 +120,33 @@ func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, dbRuns []pipelined
 	return PipelineCacheDecision{IsFromCache: false, Reason: "cache_expired"}
 }
 
-func checkHeadShaCacheHit(dbRuns []pipelinedb.PipelineRunRecord) bool {
-	headSha := ResolveLocalHeadCommitSha()
+func evaluateTargetOrHeadCacheHit(repo string, dbRuns []pipelinedb.PipelineRunRecord, flags PipelineErrorFlags, latestSha string) (bool, PipelineCacheDecision) {
+	if checkCommitTargetCacheHit(dbRuns, flags.CommitTarget) {
+		return true, buildCacheHitDecision(dbRuns, flags.CommitTarget, "commit_target_matched")
+	}
+	if checkTargetIndexCacheHit(dbRuns, flags) {
+		return true, buildCacheHitDecision(dbRuns, latestSha, "target_index_matched")
+	}
+	if checkHeadShaCacheHit(repo, dbRuns) {
+		return true, buildCacheHitDecision(dbRuns, latestSha, "head_sha_matched")
+	}
+	return false, PipelineCacheDecision{}
+}
+
+func checkCommitTargetCacheHit(dbRuns []pipelinedb.PipelineRunRecord, target string) bool {
+	if len(target) == 0 {
+		return false
+	}
+	for _, r := range dbRuns {
+		if matchCommitSha(r.Sha, target) && isRunCompleted(r.Status, r.Conclusion) {
+			return true
+		}
+	}
+	return false
+}
+
+func checkHeadShaCacheHit(repo string, dbRuns []pipelinedb.PipelineRunRecord) bool {
+	headSha := ResolveRepoHeadCommitSha(repo)
 	if len(headSha) == 0 {
 		return false
 	}
@@ -131,6 +156,33 @@ func checkHeadShaCacheHit(dbRuns []pipelinedb.PipelineRunRecord) bool {
 		}
 	}
 	return false
+}
+
+func checkCompletedCommitCacheHit(repo string, dbRuns []pipelinedb.PipelineRunRecord) bool {
+	if len(dbRuns) == 0 {
+		return false
+	}
+	headSha := ResolveRepoHeadCommitSha(repo)
+	latestSha := dbRuns[0].Sha
+	if len(headSha) > 0 && !matchCommitSha(headSha, latestSha) {
+		return false
+	}
+	return isCommitRunsCompleted(dbRuns, latestSha)
+}
+
+func isCommitRunsCompleted(dbRuns []pipelinedb.PipelineRunRecord, sha string) bool {
+	hasCompleted := false
+	for _, r := range dbRuns {
+		if !matchCommitSha(r.Sha, sha) {
+			continue
+		}
+		if !isRunCompleted(r.Status, r.Conclusion) {
+			return false
+		}
+		hasCompleted = true
+	}
+
+	return hasCompleted
 }
 
 func resolvePipelineCacheTTL() time.Duration {

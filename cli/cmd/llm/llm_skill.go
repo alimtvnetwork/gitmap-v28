@@ -43,7 +43,8 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 ### 3. Autonomous CI/CD Self-Healing (Pipeline AI)
 - ` + "`gitmap pipeline-ai status --json`" + ` — Check workflow execution state, active branch, and ETA
 - ` + "`gitmap pipeline-ai status -t <eta>`" + ` — Wait dynamically for pipeline completion without tight polling
-- ` + "`gitmap pipeline error-logs`" + ` — Extract failing step logs to file for 4-part RCA
+- ` + "`gitmap pipeline error-logs`" + ` (alias: ` + "`gitmap pe`" + `) — Extract failing step logs to file for 4-part RCA
+- ` + "`gitmap pe history-ai [N]`" + ` — Extract historical errors across last N commits into .ai-memory/pipeline-ai/ to prevent AI repeating mistakes
 - ` + "`gitmap pipeline purge`" + ` — Actions zero-storage purge maintaining 0.0 GB footprint (Rule R18)
 
 ### 4. Fast File Discovery & Refactoring

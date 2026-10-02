@@ -48,7 +48,7 @@ Failed Repositories (37):
 2. **Missing In-Memory Deduplication**: `loadAllRecordsDB()` and `resolvePullTargets()` queried `SELECT ... FROM Repo ORDER BY Slug` via `db.ListRepos()` and passed all 139 rows to `pull-all` worker channels and the `.gitignore` background scanner without canonical path or slug deduplication.
 
 ### Compound Failure:
-When parallel workers consumed the job queue, Worker A pulled `D:\work\gitmap` and Worker B pulled `d:\work\gitmap` simultaneously on the same `.git` directory. Concurrent `git fetch` operations wrote multiple branch heads into `.git/FETCH_HEAD`. Git's merge fast-forward logic (`builtin/pull.c`) saw multiple merge heads (`merge_heads.nr > 1`) and aborted with `fatal: Cannot fast-forward to multiple branches.`.
+When parallel workers consumed the job queue, Worker A pulled `D:\repos\myrepo` and Worker B pulled `d:\repos\myrepo` simultaneously on the same `.git` directory. Concurrent `git fetch` operations wrote multiple branch heads into `.git/FETCH_HEAD`. Git's merge fast-forward logic (`builtin/pull.c`) saw multiple merge heads (`merge_heads.nr > 1`) and aborted with `fatal: Cannot fast-forward to multiple branches.`.
 
 ### Reporting Flaw:
 The concise output renderer and ignore scanner had no deduplication on `failed` states or `issues`, multiplying terminal output and inflating failure metrics.

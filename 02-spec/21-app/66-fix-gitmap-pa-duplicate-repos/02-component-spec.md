@@ -55,8 +55,8 @@ This component specification establishes an end-to-end in-memory defense-in-dept
 ## 2. Component 1: In-Memory Target Deduplication Pipeline
 
 ### 2.1 File Location & Responsibilities
-- **Primary Source:** [pull.go](file:///d:/work/gitmap/cli/cmdpull/pull.go)
-- **Helpers:** [helpers.go](file:///d:/work/gitmap/cli/cmdpull/helpers.go)
+- **Primary Source:** [pull.go](cli/cmdpull/pull.go)
+- **Helpers:** [helpers.go](cli/cmdpull/helpers.go)
 
 ### 2.2 Canonical Path Normalization
 Windows paths can vary by drive letter casing (`D:\` vs `d:\`), slash direction (`\` vs `/`), trailing slashes (`D:\work\` vs `D:\work`), and dot segments (`D:\work\.\repo`). Canonicalization maps any path variant of a physical repository to a single deterministic key.
@@ -78,10 +78,10 @@ func CanonicalRepoPathKey(path string) string {
 #### Normalization Examples
 | Raw Input Path | `filepath.Clean` | `filepath.ToSlash` | `CanonicalRepoPathKey` |
 | :--- | :--- | :--- | :--- |
-| `D:\work\gitmap` | `D:\work\gitmap` | `D:/work/gitmap` | `d:/work/gitmap` |
-| `d:\work\gitmap\` | `d:\work\gitmap` | `d:/work/gitmap` | `d:/work/gitmap` |
-| `D:/work/./gitmap` | `D:\work\gitmap` | `D:/work/gitmap` | `d:/work/gitmap` |
-| `d:/WORK/gitmap` | `d:\WORK\gitmap` | `d:/WORK/gitmap` | `d:/work/gitmap` |
+| `D:\repos\myproject` | `D:\repos\myproject` | `D:/repos/myproject` | `d:/repos/myproject` |
+| `d:\repos\myproject\` | `d:\repos\myproject` | `d:/repos/myproject` | `d:/repos/myproject` |
+| `D:/repos/./myproject` | `D:\repos\myproject` | `D:/repos/myproject` | `d:/repos/myproject` |
+| `d:/REPOS/myproject` | `d:\REPOS\myproject` | `d:/REPOS/myproject` | `d:/repos/myproject` |
 
 ### 2.3 Record Deduplication Algorithm
 Records must be deduplicated across two dimensions:
@@ -177,8 +177,8 @@ The deduplication filter must be injected into all target ingestion pathways:
 ## 3. Component 2: Background `.gitignore` Scanner Deduplication
 
 ### 3.1 File Location & Responsibilities
-- **Concurrency Orchestration:** [pull_concurrency.go](file:///d:/work/gitmap/cli/cmdpull/pull_concurrency.go)
-- **Issue Aggregation & Remediation:** [pull.go](file:///d:/work/gitmap/cli/cmdpull/pull.go)
+- **Concurrency Orchestration:** [pull_concurrency.go](cli/cmdpull/pull_concurrency.go)
+- **Issue Aggregation & Remediation:** [pull.go](cli/cmdpull/pull.go)
 
 ### 3.2 Problem in Existing Scanner
 When `StartThrottledAsyncIgnoreScan` executes, background worker thread scans cold records sequentially via `scanColdRecordsSequentially(records)`. If `records` contains duplicates, `inspectAndCacheRepoIgnore` runs multiple times for the same directory, producing duplicate entries in `issues []IgnoreRepoIssue`.
@@ -268,8 +268,8 @@ func collectAndRemediateIgnoreIssues(handle *IgnoreScanHandle, opts pullOptions)
 ## 4. Component 3: Summary Render Deduplication
 
 ### 4.1 File Location & Responsibilities
-- **Summary Render Pipeline:** [pull_efficient_render.go](file:///d:/work/gitmap/cli/cmdpull/pull_efficient_render.go)
-- **Batch Output Coordinator:** [pull.go](file:///d:/work/gitmap/cli/cmdpull/pull.go)
+- **Summary Render Pipeline:** [pull_efficient_render.go](cli/cmdpull/pull_efficient_render.go)
+- **Batch Output Coordinator:** [pull.go](cli/cmdpull/pull.go)
 
 ### 4.2 State Deduplication Logic
 The function `RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecords ...[]model.ScanRecord)` groups states into `updated`, `dirty`, and `failed`.
@@ -361,8 +361,8 @@ In `cli/cmdpull/pull.go`:
 ## 5. Component 4: Worker Concurrency Safety & Fast-Forward Guard
 
 ### 5.1 File Location & Responsibilities
-- **Safe Pull Execution:** [safe_pull.go](file:///d:/work/gitmap/cli/cloner/safe_pull.go)
-- **Pull Diagnostics:** [pulldiag.go](file:///d:/work/gitmap/cli/cloner/pulldiag.go)
+- **Safe Pull Execution:** [safe_pull.go](cli/cloner/safe_pull.go)
+- **Pull Diagnostics:** [pulldiag.go](cli/cloner/pulldiag.go)
 
 ### 5.2 Handling `Cannot fast-forward to multiple branches.`
 When Git executes `git pull --progress --ff-only --autostash` and `.git/FETCH_HEAD` contains multiple entries, Git outputs:
@@ -440,7 +440,7 @@ Worker threads are completely isolated from cross-process race conditions.
 
 ### 7.1 Automated Unit Tests
 1. **`CanonicalRepoPathKey` Tests:**
-   - Verify `D:\work\gitmap`, `d:\work\gitmap`, `D:/work/gitmap`, and `d:\work\gitmap\` all resolve to identical string `"d:/work/gitmap"`.
+   - Verify `D:\repos\myproject`, `d:\repos\myproject`, `D:/repos/myproject`, and `d:\repos\myproject\` all resolve to identical string `"d:/repos/myproject"`.
 2. **`deduplicatePullRecords` Tests:**
    - Given a slice of 4 records containing 2 duplicates with varying path case and matching slugs, output slice has length exactly 2.
 3. **`DeduplicateIgnoreIssues` Tests:**

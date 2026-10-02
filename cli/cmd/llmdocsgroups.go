@@ -250,6 +250,7 @@ func buildPipelineGroup() llmCmdGroup {
 			{"pipeline status", "pl status", "Check live CI/CD pipeline state, active workflow, ETA, and pending PRs", "gitmap pipeline status --json"},
 			{"pipeline eta", "pipeline waittime, eta", "Output remaining estimated CI/CD wait time in seconds", "gitmap eta"},
 			{"pipeline error-logs", "error-logs, err", "Extract failure step logs or remaining wait time into JSON/temp file", "gitmap pipeline error-logs --json --tempfile ci-err.json"},
+			{"pe history-ai [N]", "history-ai, hai", "Extract historical CI failures across last N commits into AI training dossiers", "gitmap pe history-ai 5"},
 			{"pipeline logs", "logs, l", "Display full workflow step logs for current pipeline run", "gitmap logs"},
 		},
 	}

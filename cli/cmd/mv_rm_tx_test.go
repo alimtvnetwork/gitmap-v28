@@ -78,7 +78,9 @@ func assertRepoUpdated(t *testing.T, db *store.DB, repoID int64, expectedPath, e
 		t.Fatalf("failed to query updated repo: %v", err)
 	}
 
-	if actualPath != expectedPath || actualName != expectedName {
+	normalizedExpected := store.NormalizeStoragePath(expectedPath)
+	isPathMatch := actualPath == expectedPath || actualPath == normalizedExpected
+	if !isPathMatch || actualName != expectedName {
 		t.Errorf("repo mismatch: got (%s, %s), want (%s, %s)", actualPath, actualName, expectedPath, expectedName)
 	}
 }

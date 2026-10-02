@@ -227,7 +227,7 @@ func isTablePresent(dbConn *sql.DB, tableName string) bool {
 	return hasTable
 }
 
-func deleteConflictingReleases(dbConn *sql.DB) {
+func deleteConflictingReleases(dbConn *sql.DB) error {
 	const sqlPrune = `DELETE FROM Release
 	WHERE RepoId IN (
 		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
@@ -239,7 +239,11 @@ func deleteConflictingReleases(dbConn *sql.DB) {
 		JOIN Repo rSurv ON LOWER(rSurv.AbsolutePath) = LOWER(rDup.AbsolutePath)
 		WHERE r2.RepoId = rSurv.RepoId AND r2.Tag = Release.Tag AND rSurv.RepoId != rDup.RepoId
 	)`
-	_, _ = dbConn.Exec(sqlPrune)
+	if _, err := dbConn.Exec(sqlPrune); err != nil {
+		return apperror.WrapSimple(err, "deleteConflictingReleases")
+	}
+
+	return nil
 }
 
 func executeReleaseRemap(dbConn *sql.DB) error {
@@ -252,9 +256,11 @@ func executeReleaseRemap(dbConn *sql.DB) error {
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
 		)
 	)`
-	_, err := dbConn.Exec(sqlRemap)
+	if _, err := dbConn.Exec(sqlRemap); err != nil {
+		return apperror.WrapSimple(err, "remapReleaseRepoRefs")
+	}
 
-	return apperror.WrapSimple(err, "remapReleaseRepoRefs")
+	return nil
 }
 
 func remapReleaseRepoRefs(dbConn *sql.DB) error {
@@ -262,7 +268,9 @@ func remapReleaseRepoRefs(dbConn *sql.DB) error {
 	if !hasTable {
 		return nil
 	}
-	deleteConflictingReleases(dbConn)
+	if err := deleteConflictingReleases(dbConn); err != nil {
+		return err
+	}
 
 	return executeReleaseRemap(dbConn)
 }
@@ -278,9 +286,11 @@ func insertRemappedGroupRepos(dbConn *sql.DB) error {
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
 		)
 	)`
-	_, err := dbConn.Exec(sqlInsert)
+	if _, err := dbConn.Exec(sqlInsert); err != nil {
+		return apperror.WrapSimple(err, "insertRemappedGroupRepos")
+	}
 
-	return apperror.WrapSimple(err, "insertRemappedGroupRepos")
+	return nil
 }
 
 func deleteStaleGroupRepos(dbConn *sql.DB) error {
@@ -289,9 +299,11 @@ func deleteStaleGroupRepos(dbConn *sql.DB) error {
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
 		)
 	)`
-	_, err := dbConn.Exec(sqlDelete)
+	if _, err := dbConn.Exec(sqlDelete); err != nil {
+		return apperror.WrapSimple(err, "deleteStaleGroupRepos")
+	}
 
-	return apperror.WrapSimple(err, "deleteStaleGroupRepos")
+	return nil
 }
 
 func remapGroupRepoRefs(dbConn *sql.DB) error {
@@ -320,9 +332,11 @@ func remapVersionProbeRefs(dbConn *sql.DB) error {
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
 		)
 	)`
-	_, err := dbConn.Exec(sqlRemap)
+	if _, err := dbConn.Exec(sqlRemap); err != nil {
+		return apperror.WrapSimple(err, "remapVersionProbeRefs")
+	}
 
-	return apperror.WrapSimple(err, "remapVersionProbeRefs")
+	return nil
 }
 
 func remapAllRepoChildRefs(dbConn *sql.DB) error {
@@ -341,9 +355,11 @@ func deduplicateRepoRows(dbConn *sql.DB) error {
 	if !hasTable {
 		return nil
 	}
-	_, err := dbConn.Exec(constants.SQLDeduplicateRepos)
+	if _, err := dbConn.Exec(constants.SQLDeduplicateRepos); err != nil {
+		return apperror.WrapSimple(err, "deduplicateRepoRows")
+	}
 
-	return apperror.WrapSimple(err, "deduplicateRepoRows")
+	return nil
 }
 
 func recreateRepoPathIndex(dbConn *sql.DB) error {
@@ -354,9 +370,11 @@ func recreateRepoPathIndex(dbConn *sql.DB) error {
 	if _, err := dbConn.Exec(constants.SQLDropRepoAbsPathIndex); err != nil {
 		return apperror.WrapSimple(err, "dropRepoAbsPathIndex")
 	}
-	_, err := dbConn.Exec(constants.SQLCreateAbsPathIndex)
+	if _, err := dbConn.Exec(constants.SQLCreateAbsPathIndex); err != nil {
+		return apperror.WrapSimple(err, "createRepoAbsPathIndex")
+	}
 
-	return apperror.WrapSimple(err, "createRepoAbsPathIndex")
+	return nil
 }
 
 func executeScanFolderRemap(dbConn *sql.DB) error {
@@ -369,9 +387,11 @@ func executeScanFolderRemap(dbConn *sql.DB) error {
 			SELECT MIN(ScanFolderId) FROM ScanFolder GROUP BY LOWER(AbsolutePath)
 		)
 	)`
-	_, err := dbConn.Exec(sqlRemap)
+	if _, err := dbConn.Exec(sqlRemap); err != nil {
+		return apperror.WrapSimple(err, "remapScanFolderRefs")
+	}
 
-	return apperror.WrapSimple(err, "remapScanFolderRefs")
+	return nil
 }
 
 func remapScanFolderRefs(dbConn *sql.DB) error {
@@ -390,9 +410,11 @@ func deduplicateScanFolderRows(dbConn *sql.DB) error {
 	if !hasTable {
 		return nil
 	}
-	_, err := dbConn.Exec(constants.SQLDeduplicateScanFolders)
+	if _, err := dbConn.Exec(constants.SQLDeduplicateScanFolders); err != nil {
+		return apperror.WrapSimple(err, "deduplicateScanFolderRows")
+	}
 
-	return apperror.WrapSimple(err, "deduplicateScanFolderRows")
+	return nil
 }
 
 func recreateScanFolderPathIndex(dbConn *sql.DB) error {
@@ -403,9 +425,11 @@ func recreateScanFolderPathIndex(dbConn *sql.DB) error {
 	if _, err := dbConn.Exec(constants.SQLDropScanFolderPathIndex); err != nil {
 		return apperror.WrapSimple(err, "dropScanFolderPathIndex")
 	}
-	_, err := dbConn.Exec(constants.SQLCreateScanFolderPathIndex)
+	if _, err := dbConn.Exec(constants.SQLCreateScanFolderPathIndex); err != nil {
+		return apperror.WrapSimple(err, "createScanFolderPathIndex")
+	}
 
-	return apperror.WrapSimple(err, "createScanFolderPathIndex")
+	return nil
 }
 
 func bumpSchemaVersionTo33(dbConn *sql.DB) error {
@@ -415,9 +439,11 @@ func bumpSchemaVersionTo33(dbConn *sql.DB) error {
 	}
 	const sqlBump = `INSERT INTO Setting (Key, Value) VALUES ('schema_version', '33')
 		ON CONFLICT(Key) DO UPDATE SET Value='33'`
-	_, err := dbConn.Exec(sqlBump)
+	if _, err := dbConn.Exec(sqlBump); err != nil {
+		return apperror.WrapSimple(err, "bumpSchemaVersionTo33")
+	}
 
-	return apperror.WrapSimple(err, "bumpSchemaVersionTo33")
+	return nil
 }
 
 func deduplicateRepoAndScanFolder(dbConn *sql.DB) error {

@@ -17,7 +17,8 @@ func updateRepoInDB(db *store.DB, repoID int64, newPath, newName string) error {
 		return appErr
 	}
 
-	if txErr := runUpdateMoveTx(ctx, wrapper, repoID, newPath, newName); txErr != nil {
+	cleanPath := store.NormalizeStoragePath(newPath)
+	if txErr := runUpdateMoveTx(ctx, wrapper, repoID, cleanPath, newName); txErr != nil {
 		return txErr
 	}
 

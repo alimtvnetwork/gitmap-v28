@@ -88,11 +88,9 @@ func TestUnifiedNodes_RenderTable(t *testing.T) {
 
 	nodeAliasIdx := strings.Index(out, "NODE (ALIAS)")
 	subsystemsIdx := strings.Index(out, "SUBSYSTEMS")
-	if nodeAliasIdx != -1 && subsystemsIdx != -1 && subsystemsIdx > nodeAliasIdx {
-		between := out[nodeAliasIdx:subsystemsIdx]
-		if strings.Contains(between, "ROLE") {
-			t.Errorf("expected no ROLE column between NODE (ALIAS) and SUBSYSTEMS")
-		}
+	hasValidIndices := nodeAliasIdx != -1 && subsystemsIdx > nodeAliasIdx
+	if hasValidIndices && strings.Contains(out[nodeAliasIdx:subsystemsIdx], "ROLE") {
+		t.Errorf("expected no ROLE column between NODE (ALIAS) and SUBSYSTEMS")
 	}
 }
 

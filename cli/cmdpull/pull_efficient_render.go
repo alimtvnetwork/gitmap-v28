@@ -432,12 +432,17 @@ func formatRelativeOrCleanPath(repoPath string) string {
 	if repoPath == "" {
 		return ""
 	}
+
 	cwd, err := os.Getwd()
-	if err == nil && cwd != "" {
-		rel, relErr := filepath.Rel(cwd, repoPath)
-		if relErr == nil && !strings.HasPrefix(rel, "..") {
-			return filepath.ToSlash(rel)
-		}
+	if err != nil || cwd == "" {
+		return filepath.Clean(repoPath)
 	}
+
+	rel, relErr := filepath.Rel(cwd, repoPath)
+	isDescendant := relErr == nil && !strings.HasPrefix(rel, "..")
+	if isDescendant {
+		return filepath.ToSlash(rel)
+	}
+
 	return filepath.Clean(repoPath)
 }
