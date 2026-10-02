@@ -21,6 +21,9 @@ func applyChromeExportZIPWithOptions(zipPath, dstProfile string, limit int) erro
 	defer r.Close()
 
 	targetDir := filepath.Join(chromeUserDataDir(), dstProfile)
+	if filepath.IsAbs(dstProfile) {
+		targetDir = dstProfile
+	}
 	_, _ = snapshotChromeProfile(targetDir, "pre-import")
 
 	m := readZipManifest(r)
@@ -28,14 +31,14 @@ func applyChromeExportZIPWithOptions(zipPath, dstProfile string, limit int) erro
 		return extractMultiProfileZipWithOptions(r, dstProfile, limit)
 	}
 
-	return extractSingleProfileZip(r, dstProfile)
+	return extractSingleProfileZip(r, targetDir)
 }
 
 func isMultiProfileArchive(m *chromeProfileManifest, r *zip.ReadCloser) bool {
 	if m != nil {
 		checkSnapshotVersion(m.GitMapVersion)
 
-		return len(m.Profiles) > 1 || isMultiProfileZip(r)
+		return len(m.Profiles) > 1
 	}
 
 	return isMultiProfileZip(r)
@@ -67,13 +70,24 @@ func decodeZipManifestFile(f *zip.File) *chromeProfileManifest {
 }
 
 func isMultiProfileZip(r *zip.ReadCloser) bool {
+	profileDirs := make(map[string]bool)
 	for _, f := range r.File {
-		if strings.Contains(f.Name, "/") && !strings.HasPrefix(f.Name, "__") {
-			return true
+		parts := strings.Split(filepath.ToSlash(f.Name), "/")
+		if len(parts) >= 2 && !isStandardChromeSubdir(parts[0]) && !strings.HasPrefix(parts[0], "__") {
+			profileDirs[parts[0]] = true
 		}
 	}
 
-	return false
+	return len(profileDirs) > 1
+}
+
+func isStandardChromeSubdir(name string) bool {
+	switch name {
+	case "Network", "Extensions", "IndexedDB", "Local Storage", "Sessions", "blob_storage", "Sync Data", "GPUCache":
+		return true
+	default:
+		return false
+	}
 }
 
 func extractMultiProfileZipWithOptions(r *zip.ReadCloser, targetProfile string, limit int) error {

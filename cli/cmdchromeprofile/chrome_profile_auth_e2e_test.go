@@ -132,7 +132,7 @@ func verifyImportedPreferencesAuth(t *testing.T, destDir, expectedEmail string) 
 
 	signin, _ := root["signin"].(map[string]any)
 	if signin == nil || signin["allowed"] != true {
-		t.Errorf("expected signin.allowed == true in imported Preferences")
+		t.Errorf("expected signin.allowed to be true in imported Preferences")
 	}
 
 	accs, _ := root["account_info"].([]any)
