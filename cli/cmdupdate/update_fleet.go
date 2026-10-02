@@ -392,6 +392,91 @@ func loadDefaultFleetTargets() ([]FleetTarget, error) {
 	return convertConnectionsToFleetTargets(conns), nil
 }
 
+func resolveFleetTargets(includeOthers bool) ([]FleetTarget, error) {
+	targets, err := LoadFleetTargetsFn()
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "LoadFleetTargetsFn")
+	}
+	if !includeOthers {
+		return targets, nil
+	}
+	clusterTargets, err := LoadClusterTargetsFn()
+	if err != nil {
+		return targets, nil
+	}
+	return mergeFleetTargets(targets, clusterTargets), nil
+}
+
+func loadDefaultClusterTargets() ([]FleetTarget, error) {
+	ctx := context.Background()
+	storeDB, err := store.OpenDefault()
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "store.OpenDefault")
+	}
+	defer storeDB.Close()
+
+	var targets []FleetTarget
+	if hosts, hostErr := store.ListHosts(ctx, storeDB.Conn()); hostErr == nil {
+		targets = append(targets, convertHostsToFleetTargets(hosts)...)
+	}
+	nodesRes := db.ListClusterNodes(ctx, storeDB.Conn())
+	if nodesRes.IsSuccess() {
+		targets = append(targets, convertClusterNodesToFleetTargets(nodesRes.Data)...)
+	}
+	return targets, nil
+}
+
+func convertHostsToFleetTargets(hosts []store.SSHHost) []FleetTarget {
+	targets := make([]FleetTarget, 0, len(hosts))
+	for _, h := range hosts {
+		targets = append(targets, FleetTarget{
+			ID:       h.Alias,
+			Alias:    h.Alias,
+			IP:       h.IP,
+			Username: h.Username,
+			Port:     h.Port,
+			KeyPath:  h.KeyPath,
+			OS:       "windows",
+		})
+	}
+	return targets
+}
+
+func convertClusterNodesToFleetTargets(nodes []db.ClusterNode) []FleetTarget {
+	targets := make([]FleetTarget, 0, len(nodes))
+	for _, n := range nodes {
+		targets = append(targets, FleetTarget{
+			ID:       n.NodeId,
+			Alias:    n.Alias,
+			IP:       n.IPAddress,
+			Username: "root",
+			Port:     22,
+			OS:       resolveOS(n.OS),
+		})
+	}
+	return targets
+}
+
+func mergeFleetTargets(primary []FleetTarget, additional []FleetTarget) []FleetTarget {
+	seen := make(map[string]bool)
+	merged := make([]FleetTarget, 0, len(primary)+len(additional))
+	for _, t := range primary {
+		key := strings.ToLower(strings.TrimSpace(t.IP))
+		if key != "" && !seen[key] {
+			seen[key] = true
+			merged = append(merged, t)
+		}
+	}
+	for _, t := range additional {
+		key := strings.ToLower(strings.TrimSpace(t.IP))
+		if key != "" && !seen[key] {
+			seen[key] = true
+			merged = append(merged, t)
+		}
+	}
+	return merged
+}
+
 func convertConnectionsToFleetTargets(conns []db.SSHConnection) []FleetTarget {
 	seen := make(map[string]bool)
 	var targets []FleetTarget
