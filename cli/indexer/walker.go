@@ -214,11 +214,12 @@ func (w *Walker) inspectAndQueueFile(path string, d fs.DirEntry, cachedTimes map
 		return nil
 	}
 
+	cleanRelPath := filepath.ToSlash(relPath)
 	writeTime := info.ModTime().Unix()
-	if isFileModified(cachedTimes, relPath, writeTime) {
+	if isFileModified(cachedTimes, cleanRelPath, writeTime) {
 		fileChan <- FileInfo{
 			AbsolutePath: path,
-			RelativePath: relPath,
+			RelativePath: cleanRelPath,
 			IsBig:        info.Size() > maxFileSize,
 			WriteTime:    writeTime,
 		}
