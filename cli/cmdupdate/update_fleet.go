@@ -1,12 +1,15 @@
 package cmdupdate
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 	"sync"
 	"time"
@@ -16,6 +19,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
 	"golang.org/x/crypto/ssh"
 )
@@ -34,12 +38,14 @@ type FleetTarget struct {
 
 // FleetUpdateOptions contains parsed parameters for fleet update.
 type FleetUpdateOptions struct {
-	Target   string
-	Pkg      string
-	Except   string
-	IsAll    bool
-	IsDryRun bool
-	IsForce  bool
+	Target        string
+	Pkg           string
+	Except        string
+	IsAll         bool
+	IsZip         bool
+	IncludeOthers bool
+	IsDryRun      bool
+	IsForce       bool
 }
 
 // FleetUpdateTelemetry is the structured JSON summary returned from a remote node.

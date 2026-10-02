@@ -3,6 +3,8 @@ package cmdpull
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
 // ResolvePullErrorDetails extracts a clean, human-readable error summary from pull state.
@@ -139,4 +141,146 @@ func isDivergedFailure(msg string) bool {
 
 func isMissingRepoFailure(msg string) bool {
 	return strings.Contains(msg, "missing repository directory")
+}
+
+// RemediationOption represents an actionable alternative fix command.
+type RemediationOption struct {
+	OptionNumber int    `json:"option_number"`
+	Title        string `json:"title"`
+	Command      string `json:"command"`
+}
+
+// StructuredRemediation captures error reason and dual-option actionable fixes.
+type StructuredRemediation struct {
+	Reason  string              `json:"reason"`
+	Options []RemediationOption `json:"options"`
+}
+
+// ResolveStructuredRemediation resolves structured dual options for a repository state.
+func ResolveStructuredRemediation(s *PullRepoState) StructuredRemediation {
+	if s == nil {
+		return StructuredRemediation{}
+	}
+	reason := ResolvePullErrorDetails(s)
+	if reason == "" {
+		reason = "pull execution failed"
+	}
+	l1, c1, l2, c2 := resolveStateDualHints(s)
+	return StructuredRemediation{
+		Reason:  reason,
+		Options: buildRemediationOptions(l1, c1, l2, c2),
+	}
+}
+
+func resolveStateDualHints(s *PullRepoState) (string, string, string, string) {
+	if s.IsDirty || s.Changes == "dirty" {
+		return resolveDirtyStateDualHints(s)
+	}
+	return ResolveDualPullRemediationHints(s.ErrorMsg, s.RepoPath, s.RepoName)
+}
+
+func resolveDirtyStateDualHints(s *PullRepoState) (string, string, string, string) {
+	if s.RepoPath != "" {
+		diag := gitutil.InspectDirtyState(s.RepoPath)
+		hasOnlyUntracked := diag.UntrackedCount > 0 && diag.ModifiedCount == 0 && diag.StagedCount == 0 && diag.DeletedCount == 0
+		if hasOnlyUntracked {
+			return resolveUntrackedDualHints(s.RepoPath)
+		}
+	}
+	return resolveDirtyTreeDualHints(s.RepoPath)
+}
+
+// ResolveDualPullRemediationHints produces dual remediation options for an error condition.
+func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string, string, string, string) {
+	msg := extractErrorString(err)
+	if isDivergedFailure(msg) {
+		return resolveDivergedDualHints(repoDir, repoName)
+	}
+	if strings.Contains(strings.ToLower(msg), "untracked") {
+		return resolveUntrackedDualHints(repoDir)
+	}
+	if isDirtyTreeError(msg) {
+		return resolveDirtyTreeDualHints(repoDir)
+	}
+	if isAuthFailure(msg) {
+		return resolveAuthDualHints()
+	}
+	return resolveFallbackDualHints(repoDir, repoName)
+}
+
+func isDirtyTreeError(msg string) bool {
+	low := strings.ToLower(msg)
+	return strings.Contains(low, "dirty") || strings.Contains(low, "uncommitted") || strings.Contains(low, "local changes")
+}
+
+func resolveDivergedDualHints(repoDir, repoName string) (string, string, string, string) {
+	rebaseCmd := formatRepoGitCmd(repoDir, "pull --rebase")
+	if repoDir == "" && repoName != "" {
+		rebaseCmd = fmt.Sprintf("gitmap pull --rebase %s", repoName)
+	}
+	resetCmd := formatRepoGitCmd(repoDir, "reset --hard @{u}")
+	return "Preserve Local / Rebase", rebaseCmd, "Discard Local / Hard Reset", resetCmd
+}
+
+func resolveUntrackedDualHints(repoDir string) (string, string, string, string) {
+	stageCmd := formatRepoGitCmd(repoDir, "add .")
+	cleanCmd := formatRepoGitCmd(repoDir, "clean -fd")
+	return "Track / Stage", stageCmd, "Clean untracked", cleanCmd
+}
+
+func resolveDirtyTreeDualHints(repoDir string) (string, string, string, string) {
+	commitCmd := `gitmap cpar "wip: save changes"`
+	stashCmd := formatRepoGitCmd(repoDir, "stash")
+	if repoDir == "" {
+		stashCmd = "gitmap stash"
+	}
+	return "Commit WIP", commitCmd, "Stash Changes", stashCmd
+}
+
+func resolveAuthDualHints() (string, string, string, string) {
+	return "Fix Windows Credentials", "gitmap fix-credential", "Deploy SSH Keys", "gitmap ssh deploy-keys"
+}
+
+func resolveFallbackDualHints(repoDir, repoName string) (string, string, string, string) {
+	statusCmd := fmt.Sprintf("gitmap status %s", repoName)
+	if repoName == "" {
+		statusCmd = formatRepoGitCmd(repoDir, "status")
+	}
+	pullCmd := fmt.Sprintf("gitmap pull %s", repoName)
+	if repoName == "" {
+		pullCmd = formatRepoGitCmd(repoDir, "pull")
+	}
+	return "Inspect Status", statusCmd, "Re-pull Repo", pullCmd
+}
+
+func formatRepoGitCmd(repoDir, gitArgs string) string {
+	if repoDir == "" {
+		return "git " + gitArgs
+	}
+	return fmt.Sprintf("git -C %q %s", repoDir, gitArgs)
+}
+
+func extractErrorString(err any) string {
+	if err == nil {
+		return ""
+	}
+	switch v := err.(type) {
+	case error:
+		return v.Error()
+	case string:
+		return v
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func buildRemediationOptions(l1, c1, l2, c2 string) []RemediationOption {
+	var opts []RemediationOption
+	if l1 != "" && c1 != "" {
+		opts = append(opts, RemediationOption{OptionNumber: 1, Title: l1, Command: c1})
+	}
+	if l2 != "" && c2 != "" {
+		opts = append(opts, RemediationOption{OptionNumber: 2, Title: l2, Command: c2})
+	}
+	return opts
 }
