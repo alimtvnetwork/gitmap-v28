@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // ProjectOptimizationAdvice provides relocation and deduplication advice for duplicate repository checkouts.
@@ -40,20 +43,17 @@ func OptimizeProjectsAt(filePath string, exceptList []string, dryRun bool) (Opti
 		return OptimizeSummary{}, err
 	}
 
-	validEntries, missingCount := pruneMissingEntries(entries, exceptList)
-	deduped, dupCount := deduplicateEntries(validEntries, exceptList)
-	advices := generateRelocationAdvice(deduped)
-
-	totalRemoved := missingCount + dupCount
+	valid, missing := pruneMissingEntries(entries, exceptList)
+	deduped, dups := deduplicateEntries(valid, exceptList)
 	summary := OptimizeSummary{
-		RemovedDuplicates: dupCount,
-		RemovedMissing:    missingCount,
-		Removed:           totalRemoved,
+		RemovedDuplicates: dups,
+		RemovedMissing:    missing,
+		Removed:           missing + dups,
 		Remaining:         len(deduped),
-		Advices:           advices,
+		Advices:           generateRelocationAdvice(deduped),
 	}
 
-	if isWriteEnabled(dryRun, totalRemoved) {
+	if isWriteEnabled(dryRun, summary.Removed) {
 		return commitOptimizedEntries(filePath, deduped, summary)
 	}
 
@@ -84,38 +84,54 @@ func pruneMissingEntries(entries []Entry, exceptList []string) ([]Entry, int) {
 func generateRelocationAdvice(entries []Entry) []ProjectOptimizationAdvice {
 	byBaseName := make(map[string][]Entry)
 	for _, e := range entries {
-		base := strings.ToLower(filepath.Base(e.RootPath))
+		base := fsutil.CanonicalPathKey(filepath.Base(e.RootPath))
 		byBaseName[base] = append(byBaseName[base], e)
 	}
 
 	var advices []ProjectOptimizationAdvice
 	for base, group := range byBaseName {
-		if len(group) <= 1 {
+		advices = append(advices, adviseGroup(base, group)...)
+	}
+
+	return advices
+}
+
+func adviseGroup(base string, group []Entry) []ProjectOptimizationAdvice {
+	if len(group) <= 1 {
+		return nil
+	}
+
+	canonical := pickCanonicalEntry(group)
+	var advices []ProjectOptimizationAdvice
+
+	for _, e := range group {
+		if fsutil.EqualPaths(e.RootPath, canonical.RootPath) {
 			continue
 		}
-		canonical := pickCanonicalEntry(group)
-		for _, e := range group {
-			if normalizePath(e.RootPath) == normalizePath(canonical.RootPath) {
-				continue
-			}
-			advices = append(advices, ProjectOptimizationAdvice{
-				ProjectName:   base,
-				DuplicatePath: e.RootPath,
-				CanonicalPath: canonical.RootPath,
-				Advice:        fmt.Sprintf("Relocate work from duplicate directory %q to canonical %q", e.RootPath, canonical.RootPath),
-			})
-		}
+
+		advices = append(advices, makeRelocationAdvice(base, e.RootPath, canonical.RootPath))
 	}
+
 	return advices
+}
+
+func makeRelocationAdvice(base, dupPath, canonicalPath string) ProjectOptimizationAdvice {
+	return ProjectOptimizationAdvice{
+		ProjectName:   base,
+		DuplicatePath: dupPath,
+		CanonicalPath: canonicalPath,
+		Advice:        fmt.Sprintf("Relocate work from duplicate directory %q to canonical %q", dupPath, canonicalPath),
+	}
 }
 
 func pickCanonicalEntry(group []Entry) Entry {
 	for _, e := range group {
-		low := strings.ToLower(e.RootPath)
-		if strings.Contains(low, "\\work\\") || strings.Contains(low, "/work/") {
+		low := strings.ToLower(fsutil.NormalizeToForwardSlashes(e.RootPath))
+		if strings.Contains(low, "/work/") {
 			return e
 		}
 	}
+
 	return group[0]
 }
 
@@ -223,28 +239,24 @@ func GetClearTargets(entries []Entry, exceptList []string, onlyMissing bool) ([]
 }
 
 func isEntryExcepted(e Entry, exceptList []string, index int) bool {
-	idStr := fmt.Sprintf("%d", index)
-	idPad := fmt.Sprintf("%02d", index)
+	idStr, idPad := fmt.Sprintf("%d", index), fmt.Sprintf("%02d", index)
 	slug := filepath.Base(e.RootPath)
 	lowName := strings.ToLower(e.Name)
-	lowSlug := strings.ToLower(slug)
-	lowPath := strings.ToLower(e.RootPath)
+	lowSlug := fsutil.CanonicalPathKey(slug)
+	lowPath := fsutil.CanonicalPathKey(e.RootPath)
 
 	for _, rawEx := range exceptList {
 		ex := strings.ToLower(strings.TrimSpace(rawEx))
+
 		if ex == "" {
 			continue
 		}
 
-		if ex == idStr || ex == idPad || strings.EqualFold(ex, e.Name) || strings.EqualFold(ex, slug) || strings.EqualFold(ex, e.RootPath) {
+		if ex == idStr || ex == idPad || strutil.EqualFoldAny(ex, e.Name, slug, e.RootPath) {
 			return true
 		}
 
-		if strings.HasPrefix(lowName, ex) || strings.HasPrefix(lowSlug, ex) {
-			return true
-		}
-
-		if matchesPathException(lowPath, ex) {
+		if strings.HasPrefix(lowName, ex) || strings.HasPrefix(lowSlug, ex) || matchesPathException(lowPath, ex) {
 			return true
 		}
 	}
@@ -257,7 +269,7 @@ func matchesPathException(lowPath, ex string) bool {
 		return false
 	}
 
-	cleanEx := strings.ToLower(filepath.Clean(ex))
+	cleanEx := fsutil.CanonicalPathKey(filepath.Clean(ex))
 
 	return lowPath == cleanEx || strings.HasSuffix(lowPath, cleanEx)
 }
