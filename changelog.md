@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.453.0] - 2026-10-02
+
+### Added
+- fix pull-all duplicate repositories, SQLite collation migration, and fleet updates
+
+---
+
 ## [v6.452.0] - 2026-10-01
 
 ### Added

@@ -1,3 +1,9 @@
+## v6.453.0 — 2026-10-02 (fix pull-all duplicate repositories, SQLite collation migration, and fleet updates)
+
+**Scope:** Version bump. fix pull-all duplicate repositories, SQLite collation migration, and fleet updates.
+
+---
+
 ## v6.452.0 — 2026-10-01 (fix shared engine attributes, canceled pipeline status, US spelling, and complete command helptext)
 
 **Scope:** Version bump. fix shared engine attributes, canceled pipeline status, US spelling, and complete command helptext.
