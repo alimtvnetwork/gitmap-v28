@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.456.0] - 2026-10-02
+
+### Added
+- Redundant repo optimization, EqualFold string comparisons, OS path sensitivity, and bump script fixes
+
+---
+
 ## [v6.455.2] - 2026-10-02
 
 ### Added
