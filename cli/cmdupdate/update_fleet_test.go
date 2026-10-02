@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -527,5 +528,23 @@ func TestCreateUpdatePackageZip(t *testing.T) {
 	}
 	if !foundScript {
 		t.Errorf("expected install_remote.ps1 in zip")
+	}
+}
+
+func TestRemoteExportZipProbeUsesHome(t *testing.T) {
+	win := remoteExportZipProbe("windows")
+	if !strings.Contains(win, "USERPROFILE") || !strings.Contains(win, "agm-update.zip") {
+		t.Fatalf("windows probe = %s", win)
+	}
+	posix := remoteExportZipProbe("linux")
+	if !strings.Contains(posix, "HOME") || !strings.Contains(posix, "agm-update.zip") {
+		t.Fatalf("linux probe = %s", posix)
+	}
+	rememberCollectedZip("agm", "linux", []byte("PK\x03\x04"))
+	zipCacheMu.Lock()
+	got := zipCache["agm_linux"]
+	zipCacheMu.Unlock()
+	if string(got) != "PK\x03\x04" {
+		t.Fatalf("cache = %q", got)
 	}
 }

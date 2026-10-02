@@ -3,6 +3,7 @@ package cmdssh
 import (
 	"archive/tar"
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"strings"
 	"time"
@@ -152,6 +153,36 @@ func streamDirectToRemote(client *ssh.Client, remotePath string, data []byte, is
 		return apperror.WrapSimple(err, fmt.Sprintf("streamDirectToRemote.Wait: %s", stderr.String()))
 	}
 	return nil
+}
+
+// StreamFileFromRemote reads a remote file and returns its bytes.
+// The remote command prints base64 so a binary zip survives the SSH text channel.
+func StreamFileFromRemote(client *ssh.Client, remotePath, osType string) ([]byte, error) {
+	isWin := isWindowsOS(osType)
+	var cmd string
+	if isWin {
+		cmd = fmt.Sprintf(
+			`powershell -NoProfile -Command "[Convert]::ToBase64String([IO.File]::ReadAllBytes('%s'))"`,
+			strings.ReplaceAll(remotePath, "'", "''"),
+		)
+	} else {
+		cmd = fmt.Sprintf("base64 '%s'", strings.ReplaceAll(remotePath, "'", "'\\''"))
+	}
+	out, err := crypto.RunCommand(client, cmd, "")
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "StreamFileFromRemote")
+	}
+	cleaned := strings.Map(func(r rune) rune {
+		if r == '\n' || r == '\r' || r == ' ' {
+			return -1
+		}
+		return r
+	}, out)
+	data, err := base64.StdEncoding.DecodeString(cleaned)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "StreamFileFromRemote.Decode")
+	}
+	return data, nil
 }
 
 // ProbeRemoteOSTypeForTest exports probeRemoteOSType for testing.

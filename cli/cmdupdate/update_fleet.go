@@ -94,6 +94,9 @@ var CheckConnLivenessFn = cmdssh.CheckConnLiveness
 // StreamFileToRemoteFn is a mockable SSH file streaming provider.
 var StreamFileToRemoteFn = cmdssh.StreamFileToRemote
 
+// StreamFileFromRemoteFn is a mockable reader for the remote update zip.
+var StreamFileFromRemoteFn = cmdssh.StreamFileFromRemote
+
 // CreateUpdateZipFn is a mockable zip archive packaging provider.
 var CreateUpdateZipFn = createUpdatePackageZip
 
@@ -803,7 +806,11 @@ func executeSSHFleetUpdate(target FleetTarget, opts FleetUpdateOptions) (string,
 
 	cmd := resolveFleetUpdateCommand(osType, opts.Pkg)
 	shell := resolveFleetShell(osType)
-	return crypto.RunCommand(client, cmd, shell)
+	out, err := crypto.RunCommand(client, cmd, shell)
+	if err == nil && isAgmPkg(opts.Pkg) {
+		collectAgmUpdateZip(client, osType)
+	}
+	return out, err
 }
 
 func executeSSHFleetZipUpdate(target FleetTarget, opts FleetUpdateOptions) (string, error) {
@@ -831,7 +838,11 @@ func executeSSHFleetZipUpdate(target FleetTarget, opts FleetUpdateOptions) (stri
 
 	cmd := resolveFleetZipInstallCommand(osType, opts.Pkg, destZipPath)
 	shell := resolveFleetShell(osType)
-	return crypto.RunCommand(client, cmd, shell)
+	out, err := crypto.RunCommand(client, cmd, shell)
+	if err == nil && isAgmPkg(opts.Pkg) {
+		collectAgmUpdateZip(client, osType)
+	}
+	return out, err
 }
 
 var (
@@ -861,8 +872,10 @@ func getCachedUpdateZip(pkg, osType string) ([]byte, error) {
 }
 
 func createUpdatePackageZip(pkg, osType string) ([]byte, error) {
-	if data, hasZip := tryLoadAgmInstallerZip(pkg); hasZip {
-		return data, nil
+	if isAgmPkg(pkg) {
+		if data, err := loadOrExportAgmInstallerZip(); err == nil && len(data) > 4 && string(data[:2]) == "PK" {
+			return data, nil
+		}
 	}
 	var buf bytes.Buffer
 	zw := zip.NewWriter(&buf)
@@ -954,36 +967,17 @@ func agmExportZipPath() string {
 	return filepath.Join(home, ".antigravity_tools", "update-export", "agm-update.zip")
 }
 
-func tryLoadAgmInstallerZip(pkg string) ([]byte, bool) {
-	if !isAgmPkg(pkg) {
-		return nil, false
-	}
-
-	data, err := loadOrExportAgmInstallerZip()
-	if err == nil && len(data) > 4 && string(data[:2]) == "PK" {
-		return data, true
-	}
-
-	return nil, false
-}
-
-func findAgmExecutable() (string, error) {
-	if agm, err := exec.LookPath("agm"); err == nil {
-		return agm, nil
-	}
-
-	return exec.LookPath("agm.exe")
-}
-
 func loadOrExportAgmInstallerZip() ([]byte, error) {
 	path := agmExportZipPath()
 	if data, ok := readFileIfExists(path); ok {
 		return data, nil
 	}
-
-	agm, err := findAgmExecutable()
+	agm, err := exec.LookPath("agm")
 	if err != nil {
-		return nil, err
+		agm, err = exec.LookPath("agm.exe")
+		if err != nil {
+			return nil, err
+		}
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
@@ -1031,6 +1025,32 @@ func addLauncherScriptEntry(zw *zip.Writer, isWin bool) error {
 	}
 	script := "#!/bin/sh\nunzip -o \"$ZIP\" -d \"$DEST\"\n"
 	return addZipFileEntry(zw, "install_remote.sh", []byte(script), 0755)
+}
+
+func remoteExportZipProbe(osType string) string {
+	if isWindowsOS(osType) {
+		return `powershell -NoProfile -Command "Join-Path $env:USERPROFILE '.antigravity_tools\update-export\agm-update.zip'"`
+	}
+	return `sh -c 'printf %s "$HOME/.antigravity_tools/update-export/agm-update.zip"'`
+}
+
+func collectAgmUpdateZip(client *ssh.Client, osType string) {
+	pathOut, err := crypto.RunCommand(client, remoteExportZipProbe(osType), "")
+	if err != nil {
+		return
+	}
+	data, err := StreamFileFromRemoteFn(client, strings.TrimSpace(pathOut), osType)
+	if err != nil || len(data) < 4 || string(data[:2]) != "PK" {
+		return
+	}
+	rememberCollectedZip("agm", osType, data)
+}
+
+func rememberCollectedZip(pkg, osType string, data []byte) {
+	cacheKey := fmt.Sprintf("%s_%s", strings.ToLower(pkg), strings.ToLower(osType))
+	zipCacheMu.Lock()
+	zipCache[cacheKey] = data
+	zipCacheMu.Unlock()
 }
 
 func resolveRemoteZipPath(osType, pkg string) string {
