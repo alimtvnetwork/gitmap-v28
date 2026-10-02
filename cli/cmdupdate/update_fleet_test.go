@@ -304,3 +304,228 @@ func TestParseFleetUpdateTelemetry(t *testing.T) {
 		}
 	})
 }
+
+func TestParseFleetUpdateOptions_ZipAndIncludeOthers(t *testing.T) {
+	cases := []struct {
+		name       string
+		args       []string
+		wantZip    bool
+		wantOthers bool
+		wantPkg    string
+		wantAll    bool
+	}{
+		{
+			name:       "flag --zip and --include-others",
+			args:       []string{"all", "--zip", "--include-others"},
+			wantZip:    true,
+			wantOthers: true,
+			wantPkg:    "all",
+			wantAll:    true,
+		},
+		{
+			name:       "positional zip and --include-other",
+			args:       []string{"all", "zip", "--include-other"},
+			wantZip:    true,
+			wantOthers: true,
+			wantPkg:    "all",
+			wantAll:    true,
+		},
+		{
+			name:       "agm target with zip",
+			args:       []string{"agm", "--zip", "--include-others"},
+			wantZip:    true,
+			wantOthers: true,
+			wantPkg:    "agm",
+			wantAll:    false,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			opts := parseFleetUpdateOptions(tc.args)
+			if opts.IsZip != tc.wantZip {
+				t.Errorf("IsZip: got %v, want %v", opts.IsZip, tc.wantZip)
+			}
+			if opts.IncludeOthers != tc.wantOthers {
+				t.Errorf("IncludeOthers: got %v, want %v", opts.IncludeOthers, tc.wantOthers)
+			}
+			if opts.Pkg != tc.wantPkg {
+				t.Errorf("Pkg: got %s, want %s", opts.Pkg, tc.wantPkg)
+			}
+			if opts.IsAll != tc.wantAll {
+				t.Errorf("IsAll: got %v, want %v", opts.IsAll, tc.wantAll)
+			}
+		})
+	}
+}
+
+func TestIsFleetUpdateCommand_ZipAndAliases(t *testing.T) {
+	cmdAliases := []string{"uaz", "update-all-zip", "updateallzip"}
+	for _, cmd := range cmdAliases {
+		if !IsFleetUpdateCommand(cmd, nil) {
+			t.Errorf("expected IsFleetUpdateCommand(%q) to be true", cmd)
+		}
+	}
+
+	if !IsFleetUpdateCommand("update", []string{"all", "zip"}) {
+		t.Errorf("expected IsFleetUpdateCommand('update', ['all', 'zip']) to be true")
+	}
+	if !IsFleetUpdateCommand("update", []string{"--zip"}) {
+		t.Errorf("expected IsFleetUpdateCommand('update', ['--zip']) to be true")
+	}
+	if !IsFleetUpdateCommand("update", []string{"--include-others"}) {
+		t.Errorf("expected IsFleetUpdateCommand('update', ['--include-others']) to be true")
+	}
+}
+
+func TestExecuteFleetUpdate_ZipDistribution(t *testing.T) {
+	origLoad := LoadFleetTargetsFn
+	origExec := ExecuteFleetZipUpdateFn
+	origZip := CreateUpdateZipFn
+	origLive := CheckConnLivenessFn
+	defer func() {
+		LoadFleetTargetsFn = origLoad
+		ExecuteFleetZipUpdateFn = origExec
+		CreateUpdateZipFn = origZip
+		CheckConnLivenessFn = origLive
+		clearZipCache()
+	}()
+
+	CheckConnLivenessFn = func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, string) {
+		return true, "online"
+	}
+	mockTargets := createMockFleetTargets()
+	LoadFleetTargetsFn = func() ([]FleetTarget, error) {
+		return mockTargets, nil
+	}
+
+	var mu sync.Mutex
+	zipUpdatedNodes := make(map[string]bool)
+	ExecuteFleetZipUpdateFn = func(target FleetTarget, opts FleetUpdateOptions) (string, error) {
+		mu.Lock()
+		zipUpdatedNodes[target.IP] = true
+		mu.Unlock()
+		if !opts.IsZip {
+			return `{"success": false, "details": "not zip"}`, nil
+		}
+		return `{"success": true, "current_version": "v6.320.0", "details": "Zip installed: v6.320.0"}`, nil
+	}
+
+	CreateUpdateZipFn = func(pkg, osType string) ([]byte, error) {
+		return []byte("mock-zip-bytes"), nil
+	}
+
+	testCommands := []struct {
+		cmd  string
+		args []string
+	}{
+		{cmd: "uaz", args: []string{}},
+		{cmd: "update-all-zip", args: []string{}},
+		{cmd: "update", args: []string{"all", "zip"}},
+	}
+
+	for _, tc := range testCommands {
+		mu.Lock()
+		zipUpdatedNodes = make(map[string]bool)
+		mu.Unlock()
+
+		err := RunFleetUpdateDispatch(tc.cmd, tc.args)
+		if err != nil {
+			t.Fatalf("command %s %v failed: %v", tc.cmd, tc.args, err)
+		}
+		if len(zipUpdatedNodes) != 3 {
+			t.Errorf("command %s %v: expected 3 nodes updated via zip, got %d", tc.cmd, tc.args, len(zipUpdatedNodes))
+		}
+	}
+}
+
+func TestExecuteFleetUpdate_IncludeOthers(t *testing.T) {
+	origLoad := LoadFleetTargetsFn
+	origCluster := LoadClusterTargetsFn
+	origExec := ExecuteRemoteUpdateFn
+	origLive := CheckConnLivenessFn
+	defer func() {
+		LoadFleetTargetsFn = origLoad
+		LoadClusterTargetsFn = origCluster
+		ExecuteRemoteUpdateFn = origExec
+		CheckConnLivenessFn = origLive
+	}()
+
+	CheckConnLivenessFn = func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, string) {
+		return true, "online"
+	}
+	LoadFleetTargetsFn = func() ([]FleetTarget, error) {
+		return []FleetTarget{
+			{ID: "node-1", Alias: "worker-1", IP: "10.0.0.1", OS: "linux"},
+		}, nil
+	}
+	LoadClusterTargetsFn = func() ([]FleetTarget, error) {
+		return []FleetTarget{
+			{ID: "cluster-1", Alias: "cluster-worker", IP: "10.0.0.99", OS: "windows"},
+			{ID: "node-1-dup", Alias: "worker-1-dup", IP: "10.0.0.1", OS: "linux"},
+		}, nil
+	}
+
+	var mu sync.Mutex
+	updatedIPs := make(map[string]bool)
+	ExecuteRemoteUpdateFn = func(target FleetTarget, opts FleetUpdateOptions) (string, error) {
+		mu.Lock()
+		updatedIPs[target.IP] = true
+		mu.Unlock()
+		return `{"success": true, "details": "ok"}`, nil
+	}
+
+	err := ExecuteFleetUpdate([]string{"all"})
+	if err != nil {
+		t.Fatalf("ExecuteFleetUpdate failed: %v", err)
+	}
+	if len(updatedIPs) != 1 || !updatedIPs["10.0.0.1"] {
+		t.Errorf("expected only 10.0.0.1 without --include-others, got %v", updatedIPs)
+	}
+
+	mu.Lock()
+	updatedIPs = make(map[string]bool)
+	mu.Unlock()
+
+	err = ExecuteFleetUpdate([]string{"all", "--include-others"})
+	if err != nil {
+		t.Fatalf("ExecuteFleetUpdate with --include-others failed: %v", err)
+	}
+	if len(updatedIPs) != 2 {
+		t.Errorf("expected 2 unique nodes with --include-others, got %d (%v)", len(updatedIPs), updatedIPs)
+	}
+	if !updatedIPs["10.0.0.1"] || !updatedIPs["10.0.0.99"] {
+		t.Errorf("expected 10.0.0.1 and 10.0.0.99 updated, got %v", updatedIPs)
+	}
+}
+
+func TestCreateUpdatePackageZip(t *testing.T) {
+	data, err := createUpdatePackageZip("gitmap", "windows")
+	if err != nil {
+		t.Fatalf("createUpdatePackageZip failed: %v", err)
+	}
+	if len(data) == 0 {
+		t.Fatalf("expected non-empty zip bytes")
+	}
+
+	r, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
+	if err != nil {
+		t.Fatalf("failed to read zip: %v", err)
+	}
+	foundBin := false
+	foundScript := false
+	for _, f := range r.File {
+		if f.Name == "gitmap.exe" {
+			foundBin = true
+		}
+		if f.Name == "install_remote.ps1" {
+			foundScript = true
+		}
+	}
+	if !foundBin {
+		t.Errorf("expected gitmap.exe in zip")
+	}
+	if !foundScript {
+		t.Errorf("expected install_remote.ps1 in zip")
+	}
+}

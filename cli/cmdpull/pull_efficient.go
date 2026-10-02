@@ -205,16 +205,12 @@ func deduplicateTrackedRecords(records []model.ScanRecord) []model.ScanRecord {
 	seen := make(map[string]bool, len(records))
 	unique := make([]model.ScanRecord, 0, len(records))
 	for _, r := range records {
-		if r.AbsolutePath == "" {
-			continue
-		}
 		canonical := filepath.Clean(strings.ToLower(r.AbsolutePath))
-		isSeen := seen[canonical]
-		if isSeen {
-			continue
+		isNew := r.AbsolutePath != "" && !seen[canonical]
+		if isNew {
+			seen[canonical] = true
+			unique = append(unique, r)
 		}
-		seen[canonical] = true
-		unique = append(unique, r)
 	}
 	return unique
 }
