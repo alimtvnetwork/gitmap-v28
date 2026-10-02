@@ -509,6 +509,9 @@ func resolveOS(osName string) string {
 }
 
 func executeParallelFleetUpdate(targets []FleetTarget, opts FleetUpdateOptions) []FleetUpdateNodeResult {
+	if opts.IsZip {
+		clearZipCache()
+	}
 	results := make([]FleetUpdateNodeResult, len(targets))
 	var wg sync.WaitGroup
 	var mu sync.Mutex
@@ -748,6 +751,9 @@ func buildFallbackTelemetry(target FleetTarget, execErr error, raw string) Fleet
 func executeDefaultRemoteUpdate(target FleetTarget, opts FleetUpdateOptions) (string, error) {
 	if opts.IsDryRun {
 		return `{"success": true, "details": "dry-run simulated"}`, nil
+	}
+	if opts.IsZip {
+		return ExecuteFleetZipUpdateFn(target, opts)
 	}
 	if out, ok := tryRestFleetUpdate(target, opts); ok {
 		return out, nil

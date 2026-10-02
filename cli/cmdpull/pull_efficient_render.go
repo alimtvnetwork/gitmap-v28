@@ -140,11 +140,12 @@ func isUpdatedRepoState(s *PullRepoState) bool {
 	return status != "up-to-date" && status != "dirty" && status != "failed"
 }
 
-func renderUpdatedGroup(w io.Writer, colWidth int, updated []*PullRepoState) {
+func renderUpdatedGroup(w io.Writer, colWidth int, updated []*PullRepoState, collisions map[string]bool) {
 	fmt.Fprintf(w, "\n  %s%s Updated Repositories (%d):%s\n", constants.ColorGreen, constants.ColorBold, len(updated), constants.ColorReset)
 	for _, s := range updated {
 		statusLabel := resolveUpdatedStatusLabel(s)
-		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, statusLabel))
+		displayName := resolveRepoDisplayName(s, collisions)
+		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, displayName, statusLabel))
 		if s.CommitRange != "" {
 			fmt.Fprintf(w, "        %s↳ Commits: %s%s\n", constants.ColorDim, s.CommitRange, constants.ColorReset)
 		}
@@ -165,23 +166,37 @@ func resolveUpdatedStatusLabel(s *PullRepoState) string {
 	return statusLabel
 }
 
-func renderDirtyGroup(w io.Writer, colWidth int, dirty []*PullRepoState) {
+func renderDirtyGroup(w io.Writer, colWidth int, dirty []*PullRepoState, collisions map[string]bool) {
 	fmt.Fprintf(w, "\n  %s%s Dirty Repositories (%d):%s\n", constants.ColorYellow, constants.ColorBold, len(dirty), constants.ColorReset)
 	for _, s := range dirty {
-		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, "dirty"))
-		if s.RepoPath != "" {
-			diag := gitutil.InspectDirtyState(s.RepoPath)
-			renderItemizedDirtyFiles(w, diag)
-		}
-		errDetails := ResolvePullErrorDetails(s)
-		if errDetails != "" {
-			fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
-		}
-		remHint := ResolvePullRemediationHint(s)
-		if remHint != "" {
-			fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
-		}
+		renderSingleDirtyItem(w, colWidth, s, collisions)
 	}
+}
+
+func renderSingleDirtyItem(w io.Writer, colWidth int, s *PullRepoState, collisions map[string]bool) {
+	displayName := resolveRepoDisplayName(s, collisions)
+	fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, displayName, "dirty"))
+	maybeRenderDirtyFiles(w, s.RepoPath)
+	renderDirtyReasonsAndOptions(w, s)
+}
+
+func maybeRenderDirtyFiles(w io.Writer, repoPath string) {
+	if repoPath != "" {
+		diag := gitutil.InspectDirtyState(repoPath)
+		renderItemizedDirtyFiles(w, diag)
+	}
+}
+
+func renderDirtyReasonsAndOptions(w io.Writer, s *PullRepoState) {
+	errDetails := ResolvePullErrorDetails(s)
+	if errDetails != "" {
+		fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
+	}
+	remHint := ResolvePullRemediationHint(s)
+	if remHint != "" {
+		fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
+	}
+	renderStructuredOptions(w, s)
 }
 
 func renderItemizedDirtyFiles(w io.Writer, diag gitutil.DirtyDiagnosis) {
@@ -201,16 +216,17 @@ func renderItemizedDirtyFiles(w io.Writer, diag gitutil.DirtyDiagnosis) {
 	}
 }
 
-func renderFailedGroup(w io.Writer, colWidth int, failed []*PullRepoState) {
+func renderFailedGroup(w io.Writer, colWidth int, failed []*PullRepoState, collisions map[string]bool) {
 	deduped := DeduplicateRepoStates(failed)
 	fmt.Fprintf(w, "\n  %s%s Failed Repositories (%d):%s\n", constants.ColorRed, constants.ColorBold, len(deduped), constants.ColorReset)
 	for _, s := range deduped {
-		renderSingleFailedItem(w, colWidth, s)
+		renderSingleFailedItem(w, colWidth, s, collisions)
 	}
 }
 
-func renderSingleFailedItem(w io.Writer, colWidth int, s *PullRepoState) {
-	fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, "failed"))
+func renderSingleFailedItem(w io.Writer, colWidth int, s *PullRepoState, collisions map[string]bool) {
+	displayName := resolveRepoDisplayName(s, collisions)
+	fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, displayName, "failed"))
 	errDetails := ResolvePullErrorDetails(s)
 	if errDetails == "" {
 		errDetails = "pull execution failed"
@@ -221,6 +237,16 @@ func renderSingleFailedItem(w io.Writer, colWidth int, s *PullRepoState) {
 		remHint = fmt.Sprintf("gitmap status %s or gitmap fix %s", s.RepoName, s.RepoName)
 	}
 	fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
+	renderStructuredOptions(w, s)
+}
+
+func renderStructuredOptions(w io.Writer, s *PullRepoState) {
+	structured := ResolveStructuredRemediation(s)
+	for _, opt := range structured.Options {
+		fmt.Fprintf(w, "        %s↳ Option %d (%s):%s %s%s%s\n",
+			constants.ColorCyan, opt.OptionNumber, opt.Title, constants.ColorReset,
+			constants.ColorDim, opt.Command, constants.ColorReset)
+	}
 }
 
 // ResolveConciseRepoColWidth dynamically calculates the repo column width to prevent overflow.
@@ -235,9 +261,11 @@ func ResolveConciseRepoColWidth(states []*PullRepoState, allRecords ...[]model.S
 			colWidth = len(r.RepoName)
 		}
 	}
+	collisions := detectRepoCollisions(states, allRecords...)
 	for _, s := range states {
-		if len(s.RepoName) > colWidth {
-			colWidth = len(s.RepoName)
+		name := resolveRepoDisplayName(s, collisions)
+		if len(name) > colWidth {
+			colWidth = len(name)
 		}
 	}
 
