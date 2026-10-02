@@ -28,7 +28,7 @@ Before producing any report or analysis, the AI must:
 2. Read workflow memory - specifically `.ai-memory/plan.md` - to understand what has been done and what is pending. This avoids repeated work.
 3. Read all relevant memory files under `.ai-memory/memory/`, including workflow, suggestions, rules, decisions, history, issue references, and any protocol or process files present.
 
-[/goal](slashCommand:goal) 1. Reconstruct project requirements by reading:
+[/goal](slashCommand;goal) 1. Reconstruct project requirements by reading:
 
    1. the .ai-memory memory content
    2. the existing spec files and idea files across all projects

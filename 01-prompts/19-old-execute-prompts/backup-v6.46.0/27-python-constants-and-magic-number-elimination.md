@@ -15,27 +15,27 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, plan, refactor, and fix all magic numbers, repeated literal tuples, cryptic inline arithmetic, unlabelled multiplications, and oversized functions in Python code. Modifying source files directly, enforce typed constants (`Final`), semantic domain aliases, explicit geometric/typographical variables, strict function length caps (target <= 8 lines, hard cap <= 15 lines), and purposeful helper function extraction until 100% compliant.
+[/goal](slashCommand;goal) Autonomously scan, plan, refactor, and fix all magic numbers, repeated literal tuples, cryptic inline arithmetic, unlabelled multiplications, and oversized functions in Python code. Modifying source files directly, enforce typed constants (`Final`), semantic domain aliases, explicit geometric/typographical variables, strict function length caps (target <= 8 lines, hard cap <= 15 lines), and purposeful helper function extraction until 100% compliant.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all magic numbers, repeated literal tuples, naked multiplications, and functions exceeding 15 lines without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Open each target file and perform surgical refactoring: extract repeated tuples and numbers into typed `Final` constants, replace cryptic variables (`x2`, `y2`) with meaningful names (`right_x`, `bottom_y`), and assign explicit semantic variables to all calculations.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Enforce <= 8–15 line function decomposition: decompose compound rendering or transformation routines into focused single-responsibility helper functions.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
-9. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-10. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-13. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/14-constants-enums.md` for constants and enums standards.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
-16. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-17. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all magic numbers, repeated literal tuples, naked multiplications, and functions exceeding 15 lines without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A): Open each target file and perform surgical refactoring: extract repeated tuples and numbers into typed `Final` constants, replace cryptic variables (`x2`, `y2`) with meaningful names (`right_x`, `bottom_y`), and assign explicit semantic variables to all calculations.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B): Enforce <= 8–15 line function decomposition: decompose compound rendering or transformation routines into focused single-responsibility helper functions.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
+9. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+10. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+11. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+13. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/14-constants-enums.md` for constants and enums standards.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+16. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+17. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase for Magic Numbers/Functions, Write .ai-memory/plans/pending/ Spec, Create .ai-memory/plans/subtasks/, Verify/Create Linter Hook)

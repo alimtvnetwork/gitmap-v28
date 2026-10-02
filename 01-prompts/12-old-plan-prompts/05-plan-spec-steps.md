@@ -53,36 +53,36 @@ For every task, you MUST check if the following files or folders exist. If they 
 
 1. Root Memory Guidelines
 
-- [/learn](slashCommand:learn) `.ai-memory/coding-guidelines.md` (and/or `.ai-memory/coding-guidelines.md`)
+- [/learn](slashCommand;learn) `.ai-memory/coding-guidelines.md` (and/or `.ai-memory/coding-guidelines.md`)
 
 2. Master Consolidated Guide & Coding Guidelines
 
-- [/learn](slashCommand:learn) `02-spec/17-consolidated-guidelines/05-coding-guidelines.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/readme.md`
+- [/learn](slashCommand;learn) `02-spec/17-consolidated-guidelines/05-coding-guidelines.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/readme.md`
 
 3. Error Management (Must Follow for all Coding Tasks)
 
-- [/learn](slashCommand:learn) `02-spec/03-error-manage/readme.md`
-- [/learn](slashCommand:learn) *Include most of the files from the error manage directory to ensure robust error handling is implemented per task.*
+- [/learn](slashCommand;learn) `02-spec/03-error-manage/readme.md`
+- [/learn](slashCommand;learn) *Include most of the files from the error manage directory to ensure robust error handling is implemented per task.*
 
 4. Boolean Conditions, Wrappers & Samples
 
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`
 
 5. Code Style & File Size Limits (80-100 lines max)
 
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/04-code-style/readme.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/04-code-style/readme.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md`
 
 6. Variable Naming & Definitions
 
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md`
-- [/learn](slashCommand:learn) `02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md`
+- [/learn](slashCommand;learn) `02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`
 
 ## 5. End-of-Loop Commit Fix (Non-Negotiable)
 
@@ -137,7 +137,7 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 
 - [ ] Anti-Boilerplate Check: Did I copy-paste the exact same "How" steps across multiple tasks? (If yes, you are acting stupid. Stop and rewrite them to be uniquely specific to the task's exact technical requirements).
 - [ ] Cognitive Check: Does every task contain "all the brains" (exact logic, specific paths, deep architectural context) so a lower-level agent can execute it without guessing?
-- [ ] [/learn](slashCommand:learn) the overarching main task plan.
+- [ ] [/learn](slashCommand;learn) the overarching main task plan.
 - [ ] Read `.ai-memory/memory/readme.md` and `.ai-memory/plans/readme.md` before planning.
 - [ ] Ensure the git repository starts completely clean.
 - [ ] Complete all work on the current branch only.

@@ -15,7 +15,7 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, audit, plan, and refactor inefficient Python conditionals, naive inline ternary branching in loops/comprehensions, and magic number thresholds into production-grade, typed, lookup-table-accelerated architectures. Enforce centralized constants, safe clamping, affirmative booleans, and provide high-performance Golang equivalents where required.
+[/goal](slashCommand;goal) Autonomously scan, audit, plan, and refactor inefficient Python conditionals, naive inline ternary branching in loops/comprehensions, and magic number thresholds into production-grade, typed, lookup-table-accelerated architectures. Enforce centralized constants, safe clamping, affirmative booleans, and provide high-performance Golang equivalents where required.
 
 ---
 

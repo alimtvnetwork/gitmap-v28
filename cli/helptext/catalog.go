@@ -179,6 +179,16 @@ var topicSummaries = map[string]string{
 	"node":                        "Unified fleet infrastructure command aggregating nodes across SSH, Cluster DB, and Server-Client networks with live probing and machine ping.",
 	"ping":                        "Run machine ping command and network reachability probes concurrently against all fleet nodes with tabular terminal display.",
 	"nodes-ping":                  "Run machine ping command and network reachability probes concurrently against all fleet nodes with tabular terminal display.",
+	"pull-error":                  "Inspect, query, filter, and remediate persistent Git pull error diagnostics and stack traces recorded across local or SSH fleet repositories.",
+	"pull-errors":                 "Inspect, query, filter, and remediate persistent Git pull error diagnostics and stack traces recorded across local or SSH fleet repositories.",
+	"pulle":                       "Inspect, query, filter, and remediate persistent Git pull error diagnostics and stack traces recorded across local or SSH fleet repositories.",
+	"pull-e":                      "Inspect, query, filter, and remediate persistent Git pull error diagnostics and stack traces recorded across local or SSH fleet repositories.",
+	"devtool":                     "Developer tools cache discovery, hierarchical tree analysis, SQLite Split-DB caching, and high-speed multi-ecosystem cache reclamation.",
+	"devtools":                    "Developer tools cache discovery, hierarchical tree analysis, SQLite Split-DB caching, and high-speed multi-ecosystem cache reclamation.",
+	"clean-dev":                   "Developer tools cache discovery, hierarchical tree analysis, SQLite Split-DB caching, and high-speed multi-ecosystem cache reclamation.",
+	"ignore":                      "Audit, configure, and enforce .gitignore patterns across repositories with SQLite Split-DB check caching, frequency intervals, and automated remediation.",
+	"fia":                         "Audit and remediate .gitignore patterns across repositories with SQLite Split-DB check caching and automated remediation.",
+	"fias":                        "Audit and remediate .gitignore patterns across repositories with SQLite Split-DB check caching and automated remediation.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

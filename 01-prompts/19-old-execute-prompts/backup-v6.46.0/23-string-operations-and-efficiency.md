@@ -15,7 +15,7 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform (configurable per run).
 
-[/goal](slashCommand:goal) Autonomously scan, audit, plan, and refactor inefficient string operations, comparisons, case conversions, and loop allocations across the codebase. Enforce zero-allocation case-folding (`strings.EqualFold` in Go, `StringComparison.OrdinalIgnoreCase` in C#, `eq_ignore_ascii_case` in Rust, `strcasecmp` in PHP), short-circuiting lazy evaluation, loop hoisting, and string builder patterns without altering underlying business logic. Preserve semantic behavior as the absolute first priority, keep functions <= 8–15 lines, enforce boolean conventions, and defer build verification strictly to the final step without running intermediate tests or builds.
+[/goal](slashCommand;goal) Autonomously scan, audit, plan, and refactor inefficient string operations, comparisons, case conversions, and loop allocations across the codebase. Enforce zero-allocation case-folding (`strings.EqualFold` in Go, `StringComparison.OrdinalIgnoreCase` in C#, `eq_ignore_ascii_case` in Rust, `strcasecmp` in PHP), short-circuiting lazy evaluation, loop hoisting, and string builder patterns without altering underlying business logic. Preserve semantic behavior as the absolute first priority, keep functions <= 8–15 lines, enforce boolean conventions, and defer build verification strictly to the final step without running intermediate tests or builds.
 
 ---
 
@@ -31,25 +31,25 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Subtasks, Logic-Safe String 
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all string comparison, case conversion, and allocation anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B - Business Logic Intent Analysis): For every discovered violation, inspect the surrounding context to understand the exact business logic intent: Was exact case-insensitive equality intended? Was substring containment intended? Was prefix/suffix matching intended?
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C - Master Plan Generation): Write the master architectural specification into `.ai-memory/plans/pending/xx-string-efficiency.md` with an exhaustive Violation Ledger table (File, Line, Current Pattern, Logic Intent, Safe Optimized Pattern, Status).
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D - Subtask Decomposition): Decompose the master plan into lean, bounded subtask files in `.ai-memory/plans/subtasks/xx-string-efficiency/01-<subtask>.md`, `02-<subtask>.md`, etc.
-5. [ ] [/goal](slashCommand:goal) Phase 1 (Step E - Mandatory Auto-Loop): As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step A - Logic-Safe Refactoring): Execute each subtask, applying the safe optimized string pattern. Under NO circumstances change substring matching to equality checking or alter filtering behavior.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step B - Lazy Evaluation & Short-Circuiting): Replace eager boolean assignments with early-returning guard clauses to avoid unnecessary secondary case conversions and string evaluations.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step C - Loop Hoisting & Zero-Allocation Builders): Hoist invariant case conversions (e.g. lowering search terms or filter strings) outside iterations. Replace repeated `+` string concatenations in loops with dedicated builders (`strings.Builder`, `StringBuilder`, array join).
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step D - Function & File Size Compliance): Ensure all refactored functions remain <= 8 lines of body logic (hard cap of <= 15 lines) and files remain under 100 lines.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step E - Boolean & Style Conventions): Enforce affirmative boolean naming (`is*`, `has*`), zero explicit `== true`, zero negative polarity in conditionals, and flatten nested `if` statements to depth <= 1 using guard clauses.
-11. [ ] [/goal](slashCommand:goal) Phase 2 (Step F - Banned Intermediate Verification): DO NOT run unit tests (`go test`, `pytest`, `npm test`) and DO NOT verify builds during intermediate micro-refactoring steps.
-12. [ ] [/goal](slashCommand:goal) Phase 2 (Step G - Final Step Build Verification): At the conclusion of all refactoring subtasks, run targeted syntax/build checks to resolve any compilation errors or import issues across all modified files.
-13. [ ] [/goal](slashCommand:goal) Phase 3 (Step A - Task Consolidation): Consolidate all completed subtasks into `.ai-memory/plans/completed/xx-string-efficiency.md`, delete granular subtask files, and update `.ai-memory/plans/readme.md`.
-14. [ ] [/goal](slashCommand:goal) Phase 3 (Step B - Final Step Git Commit & Push): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit, and push to git. Never commit per-file.
-15. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-16. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-17. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
-18. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/03-golang/06-string-slice-internals.md` for string allocation internals.
-19. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all string comparison, case conversion, and allocation anti-patterns without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B - Business Logic Intent Analysis): For every discovered violation, inspect the surrounding context to understand the exact business logic intent: Was exact case-insensitive equality intended? Was substring containment intended? Was prefix/suffix matching intended?
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C - Master Plan Generation): Write the master architectural specification into `.ai-memory/plans/pending/xx-string-efficiency.md` with an exhaustive Violation Ledger table (File, Line, Current Pattern, Logic Intent, Safe Optimized Pattern, Status).
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D - Subtask Decomposition): Decompose the master plan into lean, bounded subtask files in `.ai-memory/plans/subtasks/xx-string-efficiency/01-<subtask>.md`, `02-<subtask>.md`, etc.
+5. [ ] [/goal](slashCommand;goal) Phase 1 (Step E - Mandatory Auto-Loop): As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step A - Logic-Safe Refactoring): Execute each subtask, applying the safe optimized string pattern. Under NO circumstances change substring matching to equality checking or alter filtering behavior.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step B - Lazy Evaluation & Short-Circuiting): Replace eager boolean assignments with early-returning guard clauses to avoid unnecessary secondary case conversions and string evaluations.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step C - Loop Hoisting & Zero-Allocation Builders): Hoist invariant case conversions (e.g. lowering search terms or filter strings) outside iterations. Replace repeated `+` string concatenations in loops with dedicated builders (`strings.Builder`, `StringBuilder`, array join).
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step D - Function & File Size Compliance): Ensure all refactored functions remain <= 8 lines of body logic (hard cap of <= 15 lines) and files remain under 100 lines.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Step E - Boolean & Style Conventions): Enforce affirmative boolean naming (`is*`, `has*`), zero explicit `== true`, zero negative polarity in conditionals, and flatten nested `if` statements to depth <= 1 using guard clauses.
+11. [ ] [/goal](slashCommand;goal) Phase 2 (Step F - Banned Intermediate Verification): DO NOT run unit tests (`go test`, `pytest`, `npm test`) and DO NOT verify builds during intermediate micro-refactoring steps.
+12. [ ] [/goal](slashCommand;goal) Phase 2 (Step G - Final Step Build Verification): At the conclusion of all refactoring subtasks, run targeted syntax/build checks to resolve any compilation errors or import issues across all modified files.
+13. [ ] [/goal](slashCommand;goal) Phase 3 (Step A - Task Consolidation): Consolidate all completed subtasks into `.ai-memory/plans/completed/xx-string-efficiency.md`, delete granular subtask files, and update `.ai-memory/plans/readme.md`.
+14. [ ] [/goal](slashCommand;goal) Phase 3 (Step B - Final Step Git Commit & Push): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit, and push to git. Never commit per-file.
+15. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+16. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+17. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
+18. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/03-golang/06-string-slice-internals.md` for string allocation internals.
+19. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 
 ---
 

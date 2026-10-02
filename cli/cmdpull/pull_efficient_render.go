@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -20,36 +21,119 @@ func renderConciseActiveResults(states []*PullRepoState, allRecords ...[]model.S
 	RenderConciseActiveResultsTo(os.Stdout, states, allRecords...)
 }
 
-// RenderConciseActiveResultsTo renders concise repo states to the provided writer,
-// suppressing unchanged up-to-date repositories to eliminate terminal bloat.
+// RenderConciseActiveResultsTo renders concise repo states grouped into categories.
 func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecords ...[]model.ScanRecord) {
 	colWidth := ResolveConciseRepoColWidth(states, allRecords...)
-	hasActive := false
+	var updated, dirty, failed []*PullRepoState
 	for _, s := range states {
-		statusLabel := ResolveRepoStatusLabel(s.Changes)
-		if statusLabel == "up-to-date" {
-			continue
+		if s.IsDirty || s.Changes == "dirty" {
+			dirty = append(dirty, s)
+		} else if s.ErrorMsg != "" || s.Step == PullStepTypeError || s.Step == PullStepTypeConflict || s.Changes == "failed" {
+			failed = append(failed, s)
+		} else if isUpdatedRepoState(s) {
+			updated = append(updated, s)
 		}
-		if !hasActive {
-			fmt.Fprintln(w)
-			hasActive = true
-		}
-		renderConciseRepoEntry(w, colWidth, s, statusLabel)
 	}
-	if !hasActive {
+
+	if len(updated) == 0 && len(dirty) == 0 && len(failed) == 0 {
 		fmt.Fprintln(w)
 		fmt.Fprintln(w, "  (all repositories are up-to-date)")
+		return
+	}
+
+	if len(updated) > 0 {
+		renderUpdatedGroup(w, colWidth, updated)
+	}
+	if len(dirty) > 0 {
+		renderDirtyGroup(w, colWidth, dirty)
+	}
+	if len(failed) > 0 {
+		renderFailedGroup(w, colWidth, failed)
 	}
 }
 
-func renderConciseRepoEntry(w io.Writer, colWidth int, s *PullRepoState, statusLabel string) {
-	fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, statusLabel))
-	errDetails := ResolvePullErrorDetails(s)
-	if errDetails != "" {
-		fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
+func isUpdatedRepoState(s *PullRepoState) bool {
+	if s.Step == PullStepTypeFastForward || s.Step == PullStepTypeMerging {
+		return true
 	}
-	remHint := ResolvePullRemediationHint(s)
-	if remHint != "" {
+	status := ResolveRepoStatusLabel(s.Changes)
+	return status != "up-to-date" && status != "dirty" && status != "failed"
+}
+
+func renderUpdatedGroup(w io.Writer, colWidth int, updated []*PullRepoState) {
+	fmt.Fprintf(w, "\n  %s%s Updated Repositories (%d):%s\n", constants.ColorGreen, constants.ColorBold, len(updated), constants.ColorReset)
+	for _, s := range updated {
+		statusLabel := resolveUpdatedStatusLabel(s)
+		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, statusLabel))
+		if s.CommitRange != "" {
+			fmt.Fprintf(w, "        %s↳ Commits: %s%s\n", constants.ColorDim, s.CommitRange, constants.ColorReset)
+		}
+	}
+}
+
+func resolveUpdatedStatusLabel(s *PullRepoState) string {
+	statusLabel := ResolveRepoStatusLabel(s.Changes)
+	if statusLabel != "up-to-date" {
+		return statusLabel
+	}
+	if s.Step == PullStepTypeFastForward {
+		return "fast-forward"
+	}
+	if s.Step == PullStepTypeMerging {
+		return "merged"
+	}
+	return statusLabel
+}
+
+func renderDirtyGroup(w io.Writer, colWidth int, dirty []*PullRepoState) {
+	fmt.Fprintf(w, "\n  %s%s Dirty Repositories (%d):%s\n", constants.ColorYellow, constants.ColorBold, len(dirty), constants.ColorReset)
+	for _, s := range dirty {
+		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, "dirty"))
+		if s.RepoPath != "" {
+			diag := gitutil.InspectDirtyState(s.RepoPath)
+			renderItemizedDirtyFiles(w, diag)
+		}
+		errDetails := ResolvePullErrorDetails(s)
+		if errDetails != "" {
+			fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
+		}
+		remHint := ResolvePullRemediationHint(s)
+		if remHint != "" {
+			fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
+		}
+	}
+}
+
+func renderItemizedDirtyFiles(w io.Writer, diag gitutil.DirtyDiagnosis) {
+	for i, f := range diag.ModifiedFiles {
+		if i >= 5 {
+			fmt.Fprintf(w, "        %s... and %d more modified files%s\n", constants.ColorDim, len(diag.ModifiedFiles)-5, constants.ColorReset)
+			break
+		}
+		fmt.Fprintf(w, "        %smodified: %s%s\n", constants.ColorDim, f, constants.ColorReset)
+	}
+	for i, f := range diag.UntrackedFiles {
+		if i >= 5 {
+			fmt.Fprintf(w, "        %s... and %d more untracked files%s\n", constants.ColorDim, len(diag.UntrackedFiles)-5, constants.ColorReset)
+			break
+		}
+		fmt.Fprintf(w, "        %suntracked: %s%s\n", constants.ColorDim, f, constants.ColorReset)
+	}
+}
+
+func renderFailedGroup(w io.Writer, colWidth int, failed []*PullRepoState) {
+	fmt.Fprintf(w, "\n  %s%s Failed Repositories (%d):%s\n", constants.ColorRed, constants.ColorBold, len(failed), constants.ColorReset)
+	for _, s := range failed {
+		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, "failed"))
+		errDetails := ResolvePullErrorDetails(s)
+		if errDetails == "" {
+			errDetails = "pull execution failed"
+		}
+		fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
+		remHint := ResolvePullRemediationHint(s)
+		if remHint == "" {
+			remHint = fmt.Sprintf("gitmap status %s or gitmap fix %s", s.RepoName, s.RepoName)
+		}
 		fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
 	}
 }

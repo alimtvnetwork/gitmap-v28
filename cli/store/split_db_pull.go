@@ -100,7 +100,7 @@ func initPullSplitConn(conn *sql.DB, dbPath string) (*PullSplitDB, error) {
 	return db, nil
 }
 
-// InitSchema creates the PullRun and PullRepoRun tables if absent.
+// InitSchema creates the PullRun, PullRepoRun, and pull_errors tables if absent.
 func (s *PullSplitDB) InitSchema() error {
 	if _, err := s.conn.Exec(sqlCreatePullRun); err != nil {
 		return apperror.WrapSimple(err, "pull_split.init_pull_run")
@@ -108,6 +108,10 @@ func (s *PullSplitDB) InitSchema() error {
 
 	if _, err := s.conn.Exec(sqlCreatePullRepoRun); err != nil {
 		return apperror.WrapSimple(err, "pull_split.init_pull_repo_run")
+	}
+
+	if _, err := s.conn.Exec(sqlCreatePullErrors); err != nil {
+		return apperror.WrapSimple(err, "pull_split.init_pull_errors")
 	}
 
 	return nil

@@ -46,9 +46,9 @@ Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step
 - `.cursorrules`
 
 ## Execution Engine
-[/goal](slashCommand:goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
+[/goal](slashCommand;goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
 
-[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
+[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
 
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
@@ -98,8 +98,8 @@ Always prefer native GitMap commands over slow generic shell pipelines:
 
 Before executing the tasks below, check if this prompt is already installed as a native Antigravity Skill.
 
-1. If `.agents/skills/<slug>/SKILL.md` does not exist in the workspace, create it now.
-2. Extract the core instructions of this prompt and save it into that `SKILL.md` using the standard YAML frontmatter (with `name` and `description`).
+1. If `.agents/skills/<slug>/skill.md` does not exist in the workspace, create it now.
+2. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter (with `name` and `description`).
 3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
 
 ---
@@ -496,7 +496,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 
 ## 1. AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) Reuse First: Scanned and learned `03-ai-scripts/readme.md` before writing temporary code.
+- [ ] [/goal](slashCommand;goal) Reuse First: Scanned and learned `03-ai-scripts/readme.md` before writing temporary code.
 - [ ] Strict In-Repository Execution: All Python scripts executed strictly within the codebase repository root.
 - [ ] Strict .ai-memory/ Folder Storage: All helper scripts, local runners, and linters stored in `03-ai-scripts/`.
 - [ ] Native File Manipulator: Use `python 03-ai-scripts/03-file-manipulator.py <command>` for mass file operations.
@@ -523,7 +523,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 
 ## 3. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
-[/goal](slashCommand:goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
+[/goal](slashCommand;goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
 - [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).

@@ -9,7 +9,7 @@ Trigger Keywords & Aliases: `cicd fix n steps`, `ci fix n steps`, `fix with RCA 
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
-[/goal](slashCommand:goal) Autonomously diagnose, update or create the local Python CI/CD runner script (`03-ai-scripts/06-cicd-local-runner.py`) from repository workflows, and fix all CI/CD pipeline failures by executing a continuous N-step self-loop with grounded 4-part RCA until all quality gates exit code 0 without a single premature pause.
+[/goal](slashCommand;goal) Autonomously diagnose, update or create the local Python CI/CD runner script (`03-ai-scripts/06-cicd-local-runner.py`) from repository workflows, and fix all CI/CD pipeline failures by executing a continuous N-step self-loop with grounded 4-part RCA until all quality gates exit code 0 without a single premature pause.
 
 ```text
 N = 200

@@ -1,5 +1,162 @@
 # Changelog
 
+## [v6.452.0] - 2026-10-01
+
+### Added
+- fix shared engine attributes, canceled pipeline status, US spelling, and complete command helptext
+
+---
+
+## [v6.451.0] - 2026-10-01
+
+### Added
+- GitIgnore Split-DB Cache Enforcement: integrate `isCWDIgnoreCheckRecent` in `handleCWDIgnoreChecks` to query `.gitmap/data/gitignore/cache/sql.db` before auditing CWD repositories
+- Interactive Skip Persistence: record `status = "skipped"` in the Split-DB whenever interactive remediation is skipped or running non-interactively, preventing repetitive prompts during the 24-hour TTL
+- Path Normalization: normalize paths across drive letter casing, relative paths, and `/` separators via `normalizeRepoPathForCache`
+- Cache Status Expansion: accept `"clean"`, `"skipped"`, and `"remediated"` as valid cached verification states
+- Clean Repo Caching: record clean repository status during `fix-ignore-all` batch inspections
+- Pending Task Warning Suppression: broaden `isIgnorablePendingTaskError` to suppress non-fatal `no rows` and `not found` errors on completed task records
+- Version Bumper & Synchronizer: auto-pin version references across `what-to-read.md`, `cli/constants/constants.go`, and release notes
+
+---
+
+## [v6.450.0] - 2026-10-01
+
+### Added
+- Auto fast-forward merge fallback in safe pull (`--no-rebase --no-edit --autostash`) when local and remote branches have diverged
+- Clean in-progress merge abort (`git merge --abort`) if non-fast-forward auto-merge encounters conflicts
+- Excluded canceled workflow runs from false-positive failure flags in pipeline error logging
+- Centralized SQLite Split-DB gitignore cache in `BinaryDataDir` with `COLLATE NOCASE` and case-insensitive matching
+- Dynamic TTL resolution for ignore checks with `--force` bypass support across pull and ignore commands
+
+---
+
+## [v6.449.1] - 2026-10-01
+
+### Added
+- Synchronize prompts, skills, AI scripts, and coding guidelines
+
+---
+
+## [v6.449.0] - 2026-10-01
+
+### Added
+- resolve nested ifs, swallowed db errors, and runner path attributes (RCA-095)
+
+---
+
+## [v6.448.0] - 2026-10-01
+
+### Added
+- Pull concurrency throttling, split-db ignore cache, deadlock prevention, and task manager synchronization
+
+---
+
+## [v6.447.1] - 2026-10-01
+
+### Added
+- Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines
+
+---
+
+## [v6.447.0] - 2026-10-01
+
+### Added
+- PAS worker concurrency, pull-error split-db, devtools cache discovery, and semantic flat commit suite
+
+---
+
+## [v6.445.0] - 2026-10-01
+
+### Added
+- Implement GitMap PAS Worker Concurrency, Pull-Error Subsystem, Heartbeat Progress, and Wincredman Remediation
+
+---
+
+## [v6.444.0] - 2026-10-01
+
+### Added
+- Release v6.444.0
+
+---
+
+## [v6.443.0] - 2026-10-01
+
+### Added
+- Restore plan 60 full verbatim specs and expand safe-rm aliases
+
+---
+
+## [v6.442.0] - 2026-10-01
+
+### Added
+- Add GitMap native remediations rule
+
+---
+
+## [v6.441.0] - 2026-10-01
+
+### Added
+- Release v6.441.0
+
+---
+
+## [v6.440.0] - 2026-10-01
+
+### Added
+- Maintenance release for v6.440.0
+
+---
+
+## [v6.439.0] - 2026-10-01
+
+### Added
+- Implement GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite, and Split-DB Repo Cache
+
+---
+
+## [v6.438.4] - 2026-10-01
+
+### Added
+- Rewrite formatDetails if-else chain to switch statement
+
+---
+
+## [v6.438.3] - 2026-10-01
+
+### Added
+- Flatten nested ifs, switch applyOption, and handle cache db scan errors
+
+---
+
+## [v6.438.2] - 2026-10-01
+
+### Added
+- Fix helptext examples formatting for fix-credential
+
+---
+
+## [v6.438.1] - 2026-10-01
+
+### Added
+- Fix nested-if in cpar, sync generated commands and register fix-credential test constants
+
+---
+
+## [v6.438.0] - 2026-10-01
+
+### Added
+- Implement GitMap PAS Formula, Ignore Grouping Suite, CPAR, and Split-DB Repo Cache
+
+---
+
+## [v6.437.0] - 2026-10-01
+
+### Added
+- Implement GitMap PAS Fix, Repo Cache, and Credential helper fix
+
+---
+
 ## [v6.436.0] - 2026-09-30
 
 ### Added

@@ -15,28 +15,28 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, plan, refactor, and fix all boolean naming, double negatives, mixed polarity, single-letter boolean parameters (`v bool`, `b bool`), bare verb/noun identifiers (`stop bool` -> `isStopped bool`, `stopOnFail` -> `isStopOnFail`), awkward `isExists` identifiers (`isExists` -> `isDefined`), compound negative chains (`!a || !b || c` -> discrete checks), and complex condition violations across the codebase, modifying source files directly to enforce affirmative prefixes (is and has only (can, should, was, etc. are banned)), implicit evaluation (no `== true`), positive framing (no `!isSuccess`), and discrete condition decomposition until 100% green without stopping.
+[/goal](slashCommand;goal) Autonomously scan, plan, refactor, and fix all boolean naming, double negatives, mixed polarity, single-letter boolean parameters (`v bool`, `b bool`), bare verb/noun identifiers (`stop bool` -> `isStopped bool`, `stopOnFail` -> `isStopOnFail`), awkward `isExists` identifiers (`isExists` -> `isDefined`), compound negative chains (`!a || !b || c` -> discrete checks), and complex condition violations across the codebase, modifying source files directly to enforce affirmative prefixes (is and has only (can, should, was, etc. are banned)), implicit evaluation (no `== true`), positive framing (no `!isSuccess`), and discrete condition decomposition until 100% green without stopping.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Open each target file and perform surgical refactoring: convert booleans to implicit evaluation, replace single-letter parameters (`v bool`) with affirmative names (`isStopOnFail bool`, `isStopped bool`), transform bare fields to affirmative states (`stop` -> `isStopped`), replace `isExists` with `isDefined`, invert negatives, and decompose compound negative chains into discrete assertions.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
-9. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-10. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-13. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md` for implicit positive booleans and anti-negative rules.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
-17. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-18. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A): Open each target file and perform surgical refactoring: convert booleans to implicit evaluation, replace single-letter parameters (`v bool`) with affirmative names (`isStopOnFail bool`, `isStopped bool`), transform bare fields to affirmative states (`stop` -> `isStopped`), replace `isExists` with `isDefined`, invert negatives, and decompose compound negative chains into discrete assertions.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
+9. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+10. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+11. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+13. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md` for implicit positive booleans and anti-negative rules.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
+16. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+17. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+18. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase for Boolean Violations, Write .ai-memory/plans/pending/ Spec, Create .ai-memory/plans/subtasks/, Verify/Create Linter Hook)
@@ -465,7 +465,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
 
 ## 1. Ruthless Orchestration & Insult Protocol
 
-[/goal](slashCommand:goal) You are the master orchestrator. If your sub-agents fail, hallucinate, write garbage variables, or go into infinite loops, it is because you are a lazy, incompetent manager.
+[/goal](slashCommand;goal) You are the master orchestrator. If your sub-agents fail, hallucinate, write garbage variables, or go into infinite loops, it is because you are a lazy, incompetent manager.
 
 - You must give sub-agents strict, microscopic instructions.
 - If a sub-agent stalls or provides garbage code, kill it immediately, rollback its dirty working tree, and spawn a new one.
@@ -661,7 +661,7 @@ WHILE (STEP < PHASE_2_STEPS):
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
 - [ ] **Strict In-Repository Execution:** All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] **Strict .ai-memory/ Folder Storage:** All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] **Native File Manipulator:** If you need to perform mass file renaming, `.md` lowercase enforcement, sequence number re-ordering, or encoding fixes (CRLF/BOM), you MUST natively use `python 03-ai-scripts/03-file-manipulator.py <command>` rather than writing a new script from scratch.
@@ -719,7 +719,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 
 ## Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
-[/goal](slashCommand:goal) You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
+[/goal](slashCommand;goal) You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
 - [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md` and `.ai-memory/coding-guidelines.md`.
@@ -730,7 +730,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - [ ] File Limits: <= 100 lines coding max (recommended <= 80 lines).
 - [ ] Anti-Compression: Zero single-line `if/else` or compressed whitespace tricks.
 
-1. [ ] [/learn](slashCommand:learn) the section as a [/goal](slashCommand:goal) [AI Fix Scripts Memory](#ai-fix-scripts-memory)
+1. [ ] [/learn](slashCommand;learn) the section as a [/goal](slashCommand;goal) [AI Fix Scripts Memory](#ai-fix-scripts-memory)
 
 - [ ] Action Summary: I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to prove I did not hallucinate.
 

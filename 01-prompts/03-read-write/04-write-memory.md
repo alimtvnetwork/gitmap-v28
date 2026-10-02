@@ -3,9 +3,9 @@
 > **Prompt Version:** 2.2.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-[/goal](slashCommand:goal) Persist what happened this turn so the next AI knows everything without guessing. Every decision, plan change, unresolved ambiguity, newly discovered pattern, and fixed bug must be written to `.ai-memory/` before this turn ends.
+[/goal](slashCommand;goal) Persist what happened this turn so the next AI knows everything without guessing. Every decision, plan change, unresolved ambiguity, newly discovered pattern, and fixed bug must be written to `.ai-memory/` before this turn ends.
 
-[/learn](slashCommand:learn) Persist all user corrections, resolved setups, directives, learned architectural decisions, and mistakes avoided into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md` so Antigravity learns permanently and never repeats past errors.
+[/learn](slashCommand;learn) Persist all user corrections, resolved setups, directives, learned architectural decisions, and mistakes avoided into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md` so Antigravity learns permanently and never repeats past errors.
 
 Memory in chat is lost the moment the turn finishes. Memory in `.ai-memory/` is permanent. If you did not write it down, it did not happen.
 

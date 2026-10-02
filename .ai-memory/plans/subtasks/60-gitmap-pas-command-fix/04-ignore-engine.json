@@ -1,0 +1,19 @@
+{
+  "task": "Task-04",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/cmdignore/ignore_cli.go",
+    "cli/cmdignore/ignore_groups.go",
+    "cli/store/split_db_ignore.go"
+  ],
+  "checks": "go test ./cmdignore/... -> exit 0; python linter-scripts/check-enum-and-boolean.py -> exit 0; python linter-scripts/check-error-management.py -> exit 0",
+  "acceptance": {
+    "ac1": "PASS: Central SQLite split-DB backing in store.IgnoreSplitDB with IgnoreGroup and IgnoreRepoBinding tables",
+    "ac2": "PASS: Enforce immutable presence of .gitmap/ and .gitmap/backup/ via EnsureImmutableRules across default and all groups",
+    "ac3": "PASS: Implemented AddGroup, RemoveGroup, SetDefaultGroup, AddGroupToDefault, ConnectGroupWithRepo, and ApplyAllToRepo",
+    "ac4": "PASS: Binding persistence via SaveRepoBinding, DeleteRepoBinding, LoadBindingsForRepo, and LoadRepoBindings",
+    "ac5": "PASS: CLI command routing for gitmap ignore connect-group-with-repo (cgwp) and add-grp-to-default (agtd) with help documentation"
+  },
+  "assumptions": [],
+  "blockers": []
+}

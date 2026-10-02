@@ -34,4 +34,7 @@ Registry of application bugs, regressions, root cause analyses (RCA), and resolu
 | [23-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md](23-fleet-nodes-clone-misalignment-and-w3-liveness-rca.md) | Fleet Nodes Clone Table Misalignment, Stderr Escape Leaks, and Remote Liveness False-Offline (RCA-57) | Resolved |
 | [24-windows-git-cache-credential-store-failure-rca.md](24-windows-git-cache-credential-store-failure-rca.md) | Windows Git Cache Credential Store Failure, Pull-First Workflow, and GitIgnore Duplication (RCA-58) | Resolved |
 | [25-fleet-nodes-clone-table-alignment-and-w3-reachability-rca.md](25-fleet-nodes-clone-table-alignment-and-w3-reachability-rca.md) | Fleet Nodes Clone Duration Alignment, Column Gutter Spacing & W3 Reachability Diagnostics (RCA-59) | Resolved |
+| [26-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md](26-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md) | RootCore Commit Dispatch Shadowing and Stale Binary Macro Execution Failure (RCA-60) | Resolved |
+| [27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md) | Pull-All Unconstrained Ignore Subprocess Deadlock and SSH Concurrency Multiplication (RCA-61) | Resolved |
 | [agy-vm-status.md](agy-vm-status.md) | Antigravity virtual machine status inspection | Resolved |
+

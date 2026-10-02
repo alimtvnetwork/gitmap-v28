@@ -26,22 +26,21 @@ func RunDevToolClear(args []string) error {
 }
 
 func isHelpDevTool(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return arg == "-h" || arg == "--help" || arg == "help" || arg == "/?"
 }
 
 func printDevToolUsage() {
 	fmt.Println("Usage: gitmap devtool clear [flags]")
 	fmt.Println("       gitmap devtools clear [flags]")
 	fmt.Println("       gitmap clear devtools [flags]")
-	fmt.Println("       gitmap clear dev-tools [flags]")
-	fmt.Println("       gitmap clear dev-tools-cache [flags]")
-	fmt.Println("       gitmap devtools-cache clear [flags]")
 	fmt.Println("       gitmap clean-dev [flags]")
 	fmt.Println()
 	fmt.Println("Commands:")
-	fmt.Println("  clear, clean       Scan and sweep 10 categories of developer caches")
+	fmt.Println("  clear, clean       Scan and sweep developer caches with Split-DB speed")
 	fmt.Println()
 	fmt.Println("Flags:")
+	fmt.Println("  -f, --force        Invalidate Split-DB cache and force fresh dynamic discovery")
+	fmt.Println("  -t, --tree         Render hierarchical directory tree view with file counts and sizes")
 	fmt.Println("  -n, --dry-run      Preview space reclaimed without deleting")
 	fmt.Println("  -y, --yes          Bypass confirmation prompt")
 	fmt.Println("      --json         Output structured JSON summary")

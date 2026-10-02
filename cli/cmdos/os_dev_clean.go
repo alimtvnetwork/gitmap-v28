@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/osclean"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // RunOSDevClean dispatches the developer tools cache cleaner.
@@ -16,139 +17,115 @@ func RunOSDevClean(args []string) error {
 		printOSDevCleanUsage()
 		return nil
 	}
-
-	opts := parseDevCleanOptions(args)
+	opts := ParseDevCleanOptions(args)
 	if isPromptRequired(opts) && !confirmDevClean() {
 		fmt.Println("  Aborted by operator.")
 		return nil
 	}
+	paths := DiscoverDevToolCaches(opts)
+	return executeAndRenderClean(paths, opts)
+}
 
-	res := osclean.CleanDevCaches(opts)
-	if res.IsFailure() {
-		return res.AppError()
+func executeAndRenderClean(paths []DiscoveredCachePath, opts DevCleanOptions) error {
+	if !opts.IsDryRun {
+		purgeDiscoveredPaths(paths)
+		_ = osccleanFallbackClean()
 	}
-
-	renderDevCleanOutput(res.Value, opts)
+	renderDevCleanOutput(paths, opts)
 	return nil
 }
 
-func isHelpDevClean(args []string) bool {
-	for _, a := range args {
-		low := strings.ToLower(a)
-		if low == "-h" || low == "--help" || low == "help" || low == "/?" {
-			return true
+func purgeDiscoveredPaths(paths []DiscoveredCachePath) {
+	for _, p := range paths {
+		_ = osclean.SweepTarget(p.Path, false, true)
+	}
+}
+
+func osccleanFallbackClean() error {
+	res := osclean.CleanDevCaches(osclean.DevCleanOptions{IsDryRun: false, HasAutoYes: true})
+	if res.IsFailure() {
+		return res.AppError()
+	}
+	return nil
+}
+
+// DiscoverDevToolCaches discovers active cache paths, leveraging Split-DB persistence.
+func DiscoverDevToolCaches(opts DevCleanOptions) []DiscoveredCachePath {
+	sdb, err := store.OpenDevtoolsCacheSplitDB()
+	if err != nil || sdb == nil {
+		disc := DiscoverAllDevCaches(DevDiscoveryOptions{TargetEcosystems: opts.OnlyCategories, HasForceRescan: true, IsVerbose: opts.IsVerbose})
+		return filterByOnlyCategories(disc.Paths, opts.OnlyCategories)
+	}
+	defer sdb.Close()
+	return filterByOnlyCategories(resolveCacheFromSplitDB(sdb, opts), opts.OnlyCategories)
+}
+
+func filterByOnlyCategories(paths []DiscoveredCachePath, only []string) []DiscoveredCachePath {
+	if len(only) == 0 {
+		return paths
+	}
+	var filtered []DiscoveredCachePath
+	for _, p := range paths {
+		if containsEcosystem(only, getPathEcosystemKey(p)) {
+			filtered = append(filtered, p)
 		}
 	}
-
-	return false
+	return filtered
 }
 
-func parseDevCleanOptions(args []string) osclean.DevCleanOptions {
-	opts := osclean.DevCleanOptions{}
-	for i := 0; i < len(args); i++ {
-		a := strings.ToLower(args[i])
-		parseDevCleanFlag(a, args, &i, &opts)
+func resolveCacheFromSplitDB(sdb *store.DevtoolsCacheSplitDB, opts DevCleanOptions) []DiscoveredCachePath {
+	if opts.IsForce {
+		_ = sdb.InvalidateCache("")
+		return discoverAndPersistDevCaches(sdb, opts)
 	}
 
-	return opts
-}
-
-func parseDevCleanFlag(a string, args []string, i *int, opts *osclean.DevCleanOptions) {
-	if isDevCleanIgnoredToken(a) {
-		return
+	cachedPaths := resolveExistingCachedPaths(sdb)
+	if len(cachedPaths) > 0 {
+		return measureDiscoveredPaths(cachedPaths)
 	}
-	switch {
-	case a == "--dry-run" || a == "-n" || a == "-d" || a == "dry-run":
-		opts.IsDryRun = true
-	case a == "--yes" || a == "-y" || a == "/y" || a == "yes":
-		opts.HasAutoYes = true
-	case a == "--json":
-		opts.IsJSON = true
-	case a == "--verbose" || a == "-v":
-		opts.IsVerbose = true
-	case strings.HasPrefix(a, "--only="):
-		opts.OnlyCategories = strings.Split(strings.TrimPrefix(a, "--only="), ",")
-	case a == "--only" && *i+1 < len(args):
-		*i++
-		opts.OnlyCategories = strings.Split(args[*i], ",")
+
+	return discoverAndPersistDevCaches(sdb, opts)
+}
+
+func resolveExistingCachedPaths(sdb *store.DevtoolsCacheSplitDB) []DiscoveredCachePath {
+	cached, err := sdb.GetCachedPaths("")
+	if err != nil || len(cached) == 0 {
+		return nil
 	}
+
+	valid := filterExistingCachePaths(ConvertSplitRecordsToDiscovered(cached))
+	if len(valid) == 0 {
+		return nil
+	}
+
+	return valid
 }
 
-func isDevCleanIgnoredToken(a string) bool {
-	return a == "clear" || a == "clean" || a == "cleanup" || a == "cache" ||
-		a == "caches" || a == "dev" || a == "devs" || a == "developer" ||
-		a == "devtool" || a == "devtools" || a == "dev-tool" || a == "dev-tools" ||
-		a == "tool" || a == "tools" || a == "devtool-cache" || a == "devtools-cache" ||
-		a == "dev-tool-cache" || a == "dev-tools-cache"
+func discoverAndPersistDevCaches(sdb *store.DevtoolsCacheSplitDB, opts DevCleanOptions) []DiscoveredCachePath {
+	disc := DiscoverAllDevCaches(DevDiscoveryOptions{TargetEcosystems: opts.OnlyCategories, HasForceRescan: opts.IsForce, IsVerbose: opts.IsVerbose})
+	_ = sdb.SaveDiscoveredPaths(ConvertDiscoveredToSplitRecords(disc.Paths))
+
+	return disc.Paths
 }
 
-func isPromptRequired(opts osclean.DevCleanOptions) bool {
+func isPromptRequired(opts DevCleanOptions) bool {
 	return !opts.IsDryRun && !opts.HasAutoYes && !opts.IsJSON
 }
 
 func confirmDevClean() bool {
 	fmt.Print("  Proceed with dev tools cache cleanup? Type 'yes' to continue: ")
-	reader := bufio.NewReader(os.Stdin)
-	text, err := reader.ReadString('\n')
-	if err != nil {
-		return false
-	}
-
-	return strings.ToLower(strings.TrimSpace(text)) == "yes"
+	text, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	return err == nil && strings.ToLower(strings.TrimSpace(text)) == "yes"
 }
 
-func renderDevCleanOutput(summary osclean.DevCleanSummary, opts osclean.DevCleanOptions) {
+func renderDevCleanOutput(paths []DiscoveredCachePath, opts DevCleanOptions) {
 	if opts.IsJSON {
-		data, _ := json.MarshalIndent(summary, "", "  ")
+		res := buildDiscoveryResult(paths, 0)
+		data, _ := json.MarshalIndent(res, "", "  ")
 		fmt.Println(string(data))
-		return
+	} else if opts.IsTree {
+		RenderDevTreeOutput(paths, DevTreeRenderOptions{HasColorEnabled: true})
+	} else {
+		RenderDevCleanAnsiCards(paths, opts.IsDryRun)
 	}
-
-	osclean.RenderEnhancedSummaryTable(summary)
-	if opts.IsVerbose {
-		renderVerboseDevNotes(summary.Categories)
-	}
-	printDevCleanOptimizationSuggestions()
-}
-
-func printDevCleanOptimizationSuggestions() {
-	fmt.Println("  💡 Clean & Cache Optimization Suggestions:")
-	fmt.Println("    • Preview space without deleting:    gitmap clear devtools --dry-run")
-	fmt.Println("    • Clean specific ecosystems only:    gitmap clear devtools --only go,npm,pnpm -y")
-	fmt.Println("    • Clear shell history & suggestions: gitmap clear terminal -y")
-	fmt.Println("    • Clean Antigravity IDE caches:      gitmap agy clean-cache")
-	fmt.Println()
-}
-
-func renderVerboseDevNotes(categories []osclean.CategoryCleanStats) {
-	for _, cat := range categories {
-		printVerboseNotes(cat.Notes, cat.Errors)
-	}
-}
-
-func printVerboseNotes(notes, errors []string) {
-	for _, n := range notes {
-		fmt.Printf("      note: %s\n", n)
-	}
-	for _, e := range errors {
-		fmt.Printf("      warning: %s\n", e)
-	}
-}
-
-func printOSDevCleanUsage() {
-	fmt.Println("Usage: gitmap clear devtools [flags]")
-	fmt.Println("       gitmap clear dev-tools [flags]")
-	fmt.Println("       gitmap clear dev-tools-cache [flags]")
-	fmt.Println("       gitmap devtools-cache clear [flags]")
-	fmt.Println("       gitmap clean-dev [flags]")
-	fmt.Println()
-	fmt.Println("Flags:")
-	fmt.Println("  -n, --dry-run      Preview space reclaimed without deleting")
-	fmt.Println("  -y, --yes          Bypass confirmation prompt")
-	fmt.Println("      --json         Output structured JSON summary")
-	fmt.Println("  -v, --verbose      Display individual subpaths and command notes")
-	fmt.Println("      --only <cats>  Comma-separated categories to clean (e.g. go,npm,pnpm)")
-	fmt.Println("  -h, --help         Show this documentation")
-	fmt.Println()
-	printDevCleanOptimizationSuggestions()
 }

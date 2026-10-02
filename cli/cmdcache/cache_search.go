@@ -7,41 +7,53 @@ import (
 	"regexp"
 	"strings"
 
+	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // SearchCache searches through split database tables.
-func SearchCache(opts CacheSearchOptions) error {
+func SearchCache(opts CacheSearchOptions) *appfault.AppError {
+	opts = normalizeSearchOpts(opts)
 	repoRoot := findRepoRoot()
-	rootDB, err := OpenRootCacheDB(repoRoot)
-	if err != nil {
+	rootDb, err := store.OpenRootCacheDB(repoRoot)
+	hasErr := err != nil
+	if hasErr {
 		return err
 	}
-	defer rootDB.Close()
+	defer rootDb.Close()
 
-	slugs := collectIndexedSlugs(rootDB)
-	var allMatches []SearchMatch
-	limit := resolveSearchLimit(opts.ResultLimit)
-
-	for _, slug := range slugs {
-		matches := searchSlug(slug, repoRoot, opts, limit-len(allMatches))
-		allMatches = append(allMatches, matches...)
-		if len(allMatches) >= limit {
-			break
-		}
-	}
-
+	allMatches := searchAllSlugs(rootDb, repoRoot, opts)
 	renderSearchResults(allMatches, opts)
 	return nil
 }
 
-func collectIndexedSlugs(rootDB *sql.DB) []string {
-	rows, err := rootDB.Query("SELECT DISTINCT FolderSlug FROM Files")
-	if err != nil {
+func searchAllSlugs(rootDb *sql.DB, repoRoot string, opts CacheSearchOptions) []SearchMatch {
+	slugs := collectIndexedSlugs(rootDb)
+	var allMatches []SearchMatch
+	for _, slug := range slugs {
+		maxRem := opts.ResultLimit - len(allMatches)
+		matches := searchSlug(slug, repoRoot, opts, maxRem)
+		allMatches = append(allMatches, matches...)
+		hasReachedLimit := len(allMatches) >= opts.ResultLimit
+		if hasReachedLimit {
+			break
+		}
+	}
+	return allMatches
+}
+
+func collectIndexedSlugs(rootDb *sql.DB) []string {
+	rows, err := rootDb.Query("SELECT DISTINCT FolderSlug FROM Files")
+	hasErr := err != nil
+	if hasErr {
 		return nil
 	}
 	defer rows.Close()
+	return scanSlugs(rows)
+}
 
+func scanSlugs(rows *sql.Rows) []string {
 	var slugs []string
 	for rows.Next() {
 		var s string
@@ -53,93 +65,170 @@ func collectIndexedSlugs(rootDB *sql.DB) []string {
 }
 
 func searchSlug(slug, repoRoot string, opts CacheSearchOptions, maxRemaining int) []SearchMatch {
-	slugDB, err := OpenSlugCacheDB(slug, repoRoot)
-	if err != nil {
+	slugDb, err := store.OpenSlugCacheDB(slug, repoRoot)
+	hasErr := err != nil
+	if hasErr {
 		return nil
 	}
-	defer slugDB.Close()
+	defer slugDb.Close()
+	return executeSlugSearch(slugDb, opts, maxRemaining)
+}
 
-	query := "SELECT RelativePath, LineNumber, Content FROM Lines ORDER BY RelativePath, LineNumber"
-	rows, queryErr := slugDB.Query(query)
-	if queryErr != nil {
+func executeSlugSearch(slugDb *sql.DB, opts CacheSearchOptions, maxRemaining int) []SearchMatch {
+	rows, queryErr := slugDb.Query("SELECT RelativePath, LineNumber, Content FROM Lines ORDER BY RelativePath, LineNumber")
+	hasQueryErr := queryErr != nil
+	if hasQueryErr {
 		return nil
 	}
 	defer rows.Close()
 
-	return filterRows(rows, opts, maxRemaining)
+	regexes := prepareCompiledRegexes(opts.Patterns, opts.IsRegex)
+	return scanAndMatchRows(slugDb, rows, opts, regexes, maxRemaining)
 }
 
-func filterRows(rows *sql.Rows, opts CacheSearchOptions, maxRemaining int) []SearchMatch {
+func prepareCompiledRegexes(patterns []string, isRegex bool) []*regexp.Regexp {
+	if !isRegex {
+		return nil
+	}
+	var regexes []*regexp.Regexp
+	for _, p := range patterns {
+		re, err := regexp.Compile(p)
+		hasErr := err != nil
+		if !hasErr {
+			regexes = append(regexes, re)
+		}
+	}
+	return regexes
+}
+
+func scanAndMatchRows(slugDb *sql.DB, rows *sql.Rows, opts CacheSearchOptions, regexes []*regexp.Regexp, maxRemaining int) []SearchMatch {
 	var matches []SearchMatch
 	for rows.Next() && len(matches) < maxRemaining {
-		m, ok := scanAndMatchRow(rows, opts)
-		if ok {
+		m, hasMatch := scanMatchRow(slugDb, rows, opts, regexes)
+		if hasMatch {
 			matches = append(matches, m)
 		}
 	}
 	return matches
 }
 
-func scanAndMatchRow(rows *sql.Rows, opts CacheSearchOptions) (SearchMatch, bool) {
+func scanMatchRow(slugDb *sql.DB, rows *sql.Rows, opts CacheSearchOptions, regexes []*regexp.Regexp) (SearchMatch, bool) {
 	var m SearchMatch
-	if scanErr := rows.Scan(&m.RelativePath, &m.LineNumber, &m.Content); scanErr != nil {
+	scanErr := rows.Scan(&m.RelativePath, &m.LineNumber, &m.Content)
+	hasScanErr := scanErr != nil
+	if hasScanErr {
 		return m, false
 	}
-	if !isFileMatch(m.RelativePath, opts.FileGlobs) || !isContentMatch(m.Content, opts) {
+	isEligible := isRowEligible(m, opts, regexes)
+	if !isEligible {
 		return m, false
 	}
+	m.ContextLines = attachContextLines(slugDb, m.RelativePath, m.LineNumber, opts.LinesToShow)
 	return m, true
 }
 
+func attachContextLines(slugDb *sql.DB, relPath string, lineNum, linesToShow int) []store.CacheContextLine {
+	if linesToShow <= 0 {
+		return nil
+	}
+	return store.FetchContextLines(slugDb, relPath, lineNum, linesToShow)
+}
+
+func isRowEligible(m SearchMatch, opts CacheSearchOptions, regexes []*regexp.Regexp) bool {
+	isMatchedFile := isFileMatch(m.RelativePath, opts.FileGlobs)
+	if !isMatchedFile {
+		return false
+	}
+	return isContentMatch(m.Content, opts.Patterns, regexes, opts.IsRegex)
+}
+
 func isFileMatch(relPath string, globs []string) bool {
-	if len(globs) == 0 {
+	hasGlobs := len(globs) > 0
+	if !hasGlobs {
 		return true
 	}
-	base := filepath.Base(relPath)
 	for _, g := range globs {
 		clean := strings.TrimSpace(g)
-		matched, _ := filepath.Match(clean, base)
-		if matched {
+		if isGlobMatch(relPath, clean) {
 			return true
 		}
 	}
 	return false
 }
 
-func isContentMatch(content string, opts CacheSearchOptions) bool {
-	for _, pat := range opts.Patterns {
-		if checkPatternMatch(content, pat, opts.IsRegex) {
-			return true
-		}
+func isGlobMatch(relPath, pattern string) bool {
+	base := filepath.Base(relPath)
+	isMatched, _ := filepath.Match(pattern, base)
+	if isMatched {
+		return true
 	}
-	return false
+	pathMatched, _ := filepath.Match(pattern, relPath)
+	return pathMatched
 }
 
-func checkPatternMatch(content, pat string, isRegex bool) bool {
+func isContentMatch(content string, patterns []string, regexes []*regexp.Regexp, isRegex bool) bool {
 	if isRegex {
-		re, err := regexp.Compile(pat)
-		return err == nil && re.MatchString(content)
+		return hasRegexMatch(content, regexes)
 	}
-	return strings.Contains(strings.ToLower(content), strings.ToLower(pat))
+	return hasTextMatch(content, patterns)
 }
 
-func resolveSearchLimit(userLimit int) int {
-	if userLimit > 0 {
-		return userLimit
+func hasRegexMatch(content string, regexes []*regexp.Regexp) bool {
+	for _, re := range regexes {
+		if re.MatchString(content) {
+			return true
+		}
 	}
-	return 50
+	return false
+}
+
+func hasTextMatch(content string, patterns []string) bool {
+	lowerContent := strings.ToLower(content)
+	for _, pat := range patterns {
+		cleanPat := strings.ToLower(strings.TrimSpace(pat))
+		hasPat := cleanPat != "" && strings.Contains(lowerContent, cleanPat)
+		if hasPat {
+			return true
+		}
+	}
+	return false
 }
 
 func renderSearchResults(matches []SearchMatch, opts CacheSearchOptions) {
-	if len(matches) == 0 {
+	hasMatches := len(matches) > 0
+	if !hasMatches {
 		fmt.Printf("\n%sNo matching lines found in cache.%s\n\n", constants.ColorYellow, constants.ColorReset)
 		return
 	}
-	fmt.Printf("\n%s  === CACHE SEARCH RESULTS (%d matches) ===%s\n",
-		constants.ColorCyan, len(matches), constants.ColorReset)
-	for _, m := range matches {
-		fmt.Printf("  %s%s:%d%s  %s\n",
-			constants.ColorCyan, m.RelativePath, m.LineNumber, constants.ColorReset, strings.TrimSpace(m.Content))
-	}
+	fmt.Printf("\n%s  === CACHE SEARCH RESULTS (%d matches, context ±%d lines) ===%s\n",
+		constants.ColorCyan, len(matches), opts.LinesToShow, constants.ColorReset)
+	renderMatchList(matches)
 	fmt.Println()
+}
+
+func renderMatchList(matches []SearchMatch) {
+	for _, m := range matches {
+		hasContext := len(m.ContextLines) > 0
+		if hasContext {
+			renderMatchWithContext(m)
+			continue
+		}
+		renderSimpleMatch(m)
+	}
+}
+
+func renderMatchWithContext(m SearchMatch) {
+	fmt.Printf("\n  %s[%s:%d]%s\n", constants.ColorCyan, m.RelativePath, m.LineNumber, constants.ColorReset)
+	for _, cl := range m.ContextLines {
+		if cl.IsMatch {
+			fmt.Printf("  %s> %5d | %s%s\n", constants.ColorGreen, cl.LineNumber, cl.Content, constants.ColorReset)
+		} else {
+			fmt.Printf("    %5d | %s\n", cl.LineNumber, cl.Content)
+		}
+	}
+}
+
+func renderSimpleMatch(m SearchMatch) {
+	fmt.Printf("  %s%s:%d%s  %s\n",
+		constants.ColorCyan, m.RelativePath, m.LineNumber, constants.ColorReset, strings.TrimSpace(m.Content))
 }

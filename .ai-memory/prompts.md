@@ -74,6 +74,9 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `14-execute` | [`14-execute/08-excute-parent-old.md`](../01-prompts/14-execute/08-excute-parent-old.md) | Subtask [01]: [Descriptive Subtask Name] |
 | `14-execute` | [`14-execute/09-parent-task-in-below-steps.md`](../01-prompts/14-execute/09-parent-task-in-below-steps.md) | Subtask [01]: [Descriptive Subtask Name] |
 | `14-execute` | [`14-execute/10-execute-parent-task-with-n-steps-v3.md`](../01-prompts/14-execute/10-execute-parent-task-with-n-steps-v3.md) | [V3] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
+| `14-execute` | [`14-execute/11-execute-parent-task-with-n-steps-v4.md`](../01-prompts/14-execute/11-execute-parent-task-with-n-steps-v4.md) | [V4] Parent Task N-Step Loop: Antigravity-Native Orchestrator (must follow) |
+| `14-execute` | [`14-execute/12-execute-parent-task-with-n-steps-v5.md`](../01-prompts/14-execute/12-execute-parent-task-with-n-steps-v5.md) | [V5] Parent Task N-Step Loop: Antigravity-Native Ultra-Orchestrator — Workflow (must follow) |
+| `14-execute` | [`14-execute/13-execute-parent-task-with-n-steps-v6.md`](../01-prompts/14-execute/13-execute-parent-task-with-n-steps-v6.md) | [V6] Parent Task N-Step Loop: Antigravity-Native Ultra-Orchestrator — Workflow (must follow) |
 | `15-cg-execute` | [`15-cg-execute/01-execute-coding-guideline-fix.md`](../01-prompts/15-cg-execute/01-execute-coding-guideline-fix.md) | 01-execute-coding-guideline-fix.md |
 | `15-cg-execute` | [`15-cg-execute/02-error-management.md`](../01-prompts/15-cg-execute/02-error-management.md) | 02-error-management.md |
 | `15-cg-execute` | [`15-cg-execute/03-nested-if-and-guard-clauses.md`](../01-prompts/15-cg-execute/03-nested-if-and-guard-clauses.md) | 03-nested-if-and-guard-clauses.md |
@@ -107,8 +110,8 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `15-cg-execute` | [`15-cg-execute/31-cg-execute-in-below-steps.md`](../01-prompts/15-cg-execute/31-cg-execute-in-below-steps.md) | 31-cg-execute-in-below-steps.md |
 | `15-cg-execute` | [`15-cg-execute/32-cg-follow-other-prompts.md`](../01-prompts/15-cg-execute/32-cg-follow-other-prompts.md) | 32-cg-follow-other-prompts.md |
 | `15-cg-execute` | [`15-cg-execute/33-branch-immutability-and-clean-construction.md`](../01-prompts/15-cg-execute/33-branch-immutability-and-clean-construction.md) | 33-branch-immutability-and-clean-construction.md |
-| `15-cg-execute` | [`15-cg-execute/34-clean-work-artifacts-and-os-caches.md`](../01-prompts/15-cg-execute/34-clean-work-artifacts-and-os-caches.md) | Automatic execution after displaying the Plan table: |
 | `15-cg-execute` | [`15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md`](../01-prompts/15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md) | 34-golang-pointer-reduction-and-value-semantics.md |
+| `15-cg-execute` | [`15-cg-execute/35-clean-work-artifacts-and-os-caches.md`](../01-prompts/15-cg-execute/35-clean-work-artifacts-and-os-caches.md) | Automatic execution after displaying the Plan table: |
 | `15-cg-execute` | [`15-cg-execute/readme.md`](../01-prompts/15-cg-execute/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
 | `16-ci-cd` | [`16-ci-cd/01-ci-cd-fix-tweak.md`](../01-prompts/16-ci-cd/01-ci-cd-fix-tweak.md) | CI/CD Fix Tweak with Targeted Smart Testing & RCA — Workflow (must follow) |
 | `16-ci-cd` | [`16-ci-cd/02-ci-cd-fix-with-release-tweak.md`](../01-prompts/16-ci-cd/02-ci-cd-fix-with-release-tweak.md) | Release-Triggered CI/CD Fix Tweak with Targeted Smart Testing — Workflow (must follow) |

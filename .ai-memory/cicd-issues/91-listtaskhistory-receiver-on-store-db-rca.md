@@ -1,8 +1,8 @@
 # RCA-091: ListTaskHistory Undefined on *store.DB in cmd/tasks_list.go
 
-**Date:** 2026-09-30  
-**Status:** Resolved  
-**Severity:** Critical (CI/CD Pipeline Failure on Build & Race Detector)  
+**Date:** 2026-09-30
+**Status:** Resolved
+**Severity:** Critical (CI/CD Pipeline Failure on Build & Race Detector)
 **Affected Workflow:** Release (`v6.429.0`), `race-detector`, `Cross-Platform Build`
 
 ---

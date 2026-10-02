@@ -66,6 +66,9 @@ Follow this sequence before and during any repository modification task:
 | **38** | `38-sync-prompts-skills-scripts.py` | Synchronizes prompts, skills, and scripts across connected repositories | ~40ms | `sync`, `prompts`, `skills`, `multi-repo` |
 | **39** | `39-migrate-indexes-to-readme.py` | Autonomous repository-wide index migrator (renames index files to readme.md) | ~150ms | `migrator`, `index`, `readme`, `references` |
 | **44** | `44-work-and-system-cache-cleaner.py` | Multi-layer work build artifact, Go/npm/pnpm/Node/DevTools cache, OS temp, SoftwareDistribution, Recycle Bin & Git cache cleaner with Plan & -y modes | ~50ms | `clean`, `cache`, `artifacts`, `go-cache`, `npm-cache`, `pnpm`, `devtools`, `temp`, `recycle-bin` |
+| **45** | `45-antigravity-run-audit.py` | Audits Antigravity runs, transcript events, and subagent lifecycles | ~20ms | `audit`, `antigravity`, `transcripts`, `subagents` |
+| **46** | `46-agent-sqlite-task-manager.py` | Concurrency-safe SQLite task coordination and crash forensics engine | ~10ms | `task-manager`, `sqlite`, `acid`, `multi-agent`, `crash-forensics` |
+| **47** | `47-git-reconcile-and-resolve-conflict.py` | Autonomous Git divergence reconciliation, mechanical conflict resolver & push | ~30ms | `git`, `reconcile`, `merge`, `conflict-resolver`, `push`, `divergence` |
 
 ---
 
@@ -1178,6 +1181,91 @@ python 03-ai-scripts/37-bump-version.py --tier patch --scope "Fix release orches
 
 # Explicit version bump
 python 03-ai-scripts/37-bump-version.py --version 6.42.0
+```
+
+</details>
+
+<details>
+<summary><strong>46 — <code>46-agent-sqlite-task-manager.py</code>: Antigravity Multi-Agent SQLite Task Manager & Crash Forensics Engine</strong></summary>
+
+#### Why It Exists
+
+Provides ACID-compliant, concurrency-safe task coordination and crash forensics for multi-agent runs (V6 workflow). Replaces fragile markdown file editing with WAL-mode SQLite micro-transactions, completely preventing Windows OS file lock collisions and state drift.
+
+#### What It Does
+
+- Generates deterministic, lowercase kebab-case task slugs from prompt titles or descriptions.
+- Automatically scans `.ai-memory/temp-agents/` for prior matching/similar runs to enable instant resume or crash diagnosis.
+- Initializes run-scoped SQLite databases (`.ai-memory/temp-agents/<nn>-<slug>/agent-task.db`) in WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
+- Manages atomic subtask claiming, status transitions (`PENDING -> IN_PROGRESS -> DONE / FAILED`), and evidence storage.
+- Logs in-flight agent actions (`write_to_file`, `replace_file_content`, `run_linter`, `gitmap_search`) before files are touched.
+- Executes crash diagnostics to identify abandoned in-progress tasks, reporting the exact agent, target file, and action when a crash occurs.
+
+#### CLI Usage & Examples
+
+```bash
+# Initialize task run or detect prior run to resume
+python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "validate regex syntax and prevent nil fallback"
+
+# Populate decomposed subtasks
+python 03-ai-scripts/46-agent-sqlite-task-manager.py add-subtasks --db <db-path> --tasks-json '[{"code": "Task-01", "title": "...", "owned_files": ["..."]}]'
+
+# Worker atomically claims next available subtask
+python 03-ai-scripts/46-agent-sqlite-task-manager.py claim --db <db-path> --agent "Worker 01"
+
+# Worker logs in-flight action before touching a file
+python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <db-path> --subtask-id 1 --agent "Worker 01" --action "write_to_file" --file "pkg/aum/regex.go" --details "updating parser"
+
+# Worker marks subtask completed with evidence
+python 03-ai-scripts/46-agent-sqlite-task-manager.py complete --db <db-path> --subtask-id 1 --agent "Worker 01" --evidence "PASS exit 0"
+
+# Diagnose crashed or abandoned tasks
+python 03-ai-scripts/46-agent-sqlite-task-manager.py diagnose --db <db-path>
+
+# High-level task execution status
+python 03-ai-scripts/46-agent-sqlite-task-manager.py status --db <db-path>
+```
+
+</details>
+
+<details>
+<summary><strong>47 — <code>47-git-reconcile-and-resolve-conflict.py</code>: Autonomous Git Reconciliation & Conflict Resolver</strong></summary>
+
+#### Why It Exists
+
+Safely synchronizes diverged branches without rewriting published Git history (strictly adhering to Lovable and continuous integration guidelines). When multiple agents, developers, or automated releases push concurrent commits, branches diverge. This script automates safe standard merge reconciliation, mechanical conflict resolution for known file patterns, and post-merge push verification.
+
+#### What It Does
+
+- Evaluates local vs remote tracking branches for ahead/behind commit counts and common merge-base commit.
+- Automatically handles fast-forward merges when local is behind with zero ahead commits.
+- Executes non-destructive standard merges (`git merge --no-ff`) when branches have diverged.
+- Scans and detects git conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
+- Provides domain-specific mechanical conflict resolution engines:
+  - Deduplicated line unions for ignore/set files (`.gitignore`, `.gitattributes`).
+  - SemVer comparison and adoption for version manifests (`version.json`, `package.json`).
+  - Chronological section preservation for markdown changelogs and release notes.
+  - Pluggable fallback strategies (`smart`, `ours`, `theirs`, `union`).
+- Audits resolved files to verify 0 conflict markers remain before staging with `git add`.
+- Commits the resolved merge and autonomously pushes to remote, verifying 0 divergence post-push.
+
+#### CLI Usage & Examples
+
+```bash
+# Check divergence status and simulate merge (dry-run)
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py --check
+
+# Reconcile diverged branches, mechanically resolve conflicts, and push to origin
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py --push
+
+# Reconcile using specific strategy without pushing
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py --strategy smart --no-push
+
+# Mechanically resolve active conflict markers in working tree
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py resolve-conflicts --strategy smart
+
+# Output structured JSON report for programmatic agent consumption
+python 03-ai-scripts/47-git-reconcile-and-resolve-conflict.py --check --json
 ```
 
 </details>

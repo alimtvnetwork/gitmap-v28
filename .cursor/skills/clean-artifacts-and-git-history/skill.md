@@ -1,19 +1,18 @@
 ---
 name: clean-artifacts-and-git-history
-description: "Executes the Artifact Sanitization & Git History Preservation prompt. Ensure that NO assets, zip files from artifacts, test data, temporary scratch scripts, or extraneous generated code are accidentally committed to or retained in the Git repository. Use when the user asks to run clean-artifacts-and-git-history, or the task is about commits, boolean cleanups, or multi-agent code fixes."
+description: Safely clean build artifacts, test outputs, and temporary files while preserving git hygiene.
 ---
 
-# Artifact Sanitization & Git History Preservation
+# Clean Artifacts and Git History
 
-Source prompt: `01-prompts/09-commit-and-multi-agent-code-fix/07-clean-artifacts-and-git-history.md`
+Enforces repository cleanliness and guards against accidental commit of generated files.
 
-## Instructions
+## Actions
 
-1. Read `01-prompts/09-commit-and-multi-agent-code-fix/07-clean-artifacts-and-git-history.md` in full before doing the task.
-2. Execute that prompt verbatim. It is the source of truth for this workflow.
-3. A direct instruction in the current user message overrides the prompt when they conflict.
-4. Do not shorten, paraphrase, or skip checklist items in the source prompt.
-
-## Goal
-
-Ensure that NO assets, zip files from artifacts, test data, temporary scratch scripts, or extraneous generated code are accidentally committed to or retained in the Git repository.
+- Clean pycache, build artifacts, test logs, coverage dumps.
+- Run `python 03-ai-scripts/19-artifact-remover.py`.
+- **Zero Actions Storage & Remote Purge:** Enforce zero unnecessary `actions/upload-artifact` and bounded dependency caches in CI workflows. When GitHub Actions storage approaches quota, purge obsolete remote artifacts and caches using `python 03-ai-scripts/34-purge-github-actions-artifacts.py --repo <repo-slug>` or trigger `.github/workflows/purge-actions-artifacts.yml`.
+- Ensure `.gitignore` rules cover all newly introduced intermediate files.
+- **Consolidated Atomic Commits:** NEVER make piecemeal 1-2 file commits. Commit all modified files and plans together as a single atomic unit.
+- **Immediate Git Push:** ALWAYS push immediately to GitHub (`git push origin <branch>`) after creating any commit.
+- **No Routine Builds:** NEVER execute full builds (`npm run build`, `go build ./...`) or `06-cicd-local-runner.py` during routine cleanup.

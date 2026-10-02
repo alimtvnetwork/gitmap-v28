@@ -53,6 +53,10 @@ func topLevelCmds() map[string]string {
 		"CmdMultiCloneAlias":            CmdMultiCloneAlias,
 		"CmdMutliCloneAlias":            CmdMutliCloneAlias,
 		"CmdUpdate":                     CmdUpdate,
+		"CmdCommit":                     CmdCommit,
+		"CmdCommitAlias":                CmdCommitAlias,
+		"CmdCommitAlias2":               CmdCommitAlias2,
+		"CmdCommitAlias3":               CmdCommitAlias3,
 		"CmdCommitPush":                 CmdCommitPush,
 		"CmdCommitPushAlias":            CmdCommitPushAlias,
 		"CmdPullCommitPush":             CmdPullCommitPush,
@@ -516,6 +520,8 @@ func topLevelCmds() map[string]string {
 		"CmdAutomationAlias":            CmdAutomationAlias,
 		"CmdAutomationAumAlias":         CmdAutomationAumAlias,
 		"CmdAutomationPyAlias":          CmdAutomationPyAlias,
+		"CmdFixCredential":              CmdFixCredential,
+		"CmdFixCredentialAlias":         CmdFixCredentialAlias,
 	}
 }
 

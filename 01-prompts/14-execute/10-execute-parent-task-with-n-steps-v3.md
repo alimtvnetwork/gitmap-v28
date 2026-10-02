@@ -19,9 +19,11 @@ N, A, H, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Ne
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
 
-[/goal](slashCommand:goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop (`N = 300` default) until completion without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). You MUST spawn autonomous subagents (`A = 2`, `H = 2`) via `invoke_subagent` for parallel reading, modular spec generation, and disjoint code execution (solo execution without calling `invoke_subagent` is an auto-reject failure), use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
+[/goal](slashCommand;goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop (`N = 300` default) until completion without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). You MUST spawn autonomous subagents (`A = 2`, `H = 2`) via `invoke_subagent` for parallel reading, modular spec generation, and disjoint code execution (solo execution without calling `invoke_subagent` is an auto-reject failure), use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
 
-[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, enforce mandatory `invoke_subagent` (`A = 2, H = 2`) spawning, and persist all progress into `.ai-memory/plans/` and memory logs.
+[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, enforce mandatory `invoke_subagent` (`A = 2, H = 2`) spawning, and persist all progress into `.ai-memory/plans/` and memory logs.
+
+[/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution. Ensure all deliverables, architecture boundaries, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
 
 - **N = 300 (Editable Top-Header Parameter):** Total self-loop steps budget that the orchestrator and subagents will perform (`Steps 1 .. 150` in Phase 1; `Steps 151 .. 300` in Phase 2). Users can edit `N = 300` at the top of the prompt header to any desired step count before running.
 - **A = 2 (Mandatory Subagents):** Count of autonomous subagents running concurrently (`invoke_subagent` MUST launch `A = 2` subagents in parallel).
@@ -63,7 +65,7 @@ Always prefer native GitMap commands over slow generic shell pipelines:
    - **List Indexed Repo Files:** `gitmap list-files [pattern] [-ext <ext>]` (alias `gitmap lf`)
    - **Directory Tree & Scaffolding:** `gitmap folder-tree` (alias `gitmap ft`)
    - **Zero-Write File Stream:** `gitmap cat <filepath>`
-   - **Instant Multi-Core Regex Search:** `gitmap search "<term>"` or `gitmap aum search "<query>" [dir] --ext <ext>`
+   - **Instant Multi-Core Regex Search:** `gitmap aum search "<query>" [dir] [-e <.ext>] [-r] [-i]` (alias `gitmap aum grep`) or `gitmap search "<term>"`. TOTAL BAN on PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr`.
 2. **Fast Repository Hygiene, Lowercase & Symlink Repair:**
    - **Auto-Lowercase Files (Safe 2-Step `git mv`):** `gitmap lowercase` (alias `gitmap lcf [--dry-run]`)
    - **Lowercase Root Readme:** `gitmap lowercase-readme`
@@ -484,7 +486,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 
 ## 1. AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) Reuse First: Scanned and learned `03-ai-scripts/readme.md` before writing temporary code.
+- [ ] [/goal](slashCommand;goal) Reuse First: Scanned and learned `03-ai-scripts/readme.md` before writing temporary code.
 - [ ] Strict In-Repository Execution: All Python scripts executed strictly within the codebase repository root.
 - [ ] Strict .ai-memory/ Folder Storage: All helper scripts, local runners, and linters stored in `03-ai-scripts/`.
 - [ ] Native File Manipulator: Use `python 03-ai-scripts/03-file-manipulator.py <command>` for mass file operations.
@@ -507,12 +509,13 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] NO HORIZONTAL TASK CONCATENATION (TOTAL BAN): Never concatenate tasks horizontally in the Task Completion Summary (e.g. NEVER `✅ #1... ✅ #2...` run-on). Every completed task MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
 - [ ] INDEPENDENT AI VERIFICATION PROMPT MANDATE: Emitted the self-contained independent AI verification and audit prompt linking to the canonical spec, consolidated plan, and modified files with verbatim score audit criteria.
 - [ ] GITMAP HEAVY USAGE & ROUTINE PULL BAN: Heavily leveraged GitMap commands (`cpf`, `cpb`, `cpr`, `search`, `find`, `pwsh`) for discovery, execution, and commits. Never ran `pull-all` (`gitmap pa` or `gitmap pae`) unconditionally during routine turns; only ran `gitmap pae --json` when explicitly commanded by the user.
+- [ ] NO POWERSHELL OR SHELL SEARCHES (TOTAL BAN): Never run `Select-String`, `Get-ChildItem -Recurse`, `grep`, `git grep`, `findstr`, or slow shell search pipelines to search code. All code searching and symbol discovery MUST use GitMap high-speed search tools: `gitmap aum search "<query>" [dir] [-e <.ext>] [-r]` (streaming multi-core text/regex search) or `gitmap search "<query>"` (indexed symbol search). Running `Select-String` or `git grep` is an immediate auto-reject failure.
 
 ---
 
 ## 3. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
-[/goal](slashCommand:goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
+[/goal](slashCommand;goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
 - [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).
@@ -532,7 +535,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] Pre-Commit Diff Proof: Verified `git status` shows actual modified files before committing.
 - [ ] No Placeholder Search: Confirmed zero `TODO` or `\[.*\]` placeholders remain in modified files.
 - [ ] Index Sync Deadman Switch: Every new file is explicitly linked in `readme.md` and enqueued in `.ai-memory/what-to-read.md`.
-- [ ] Blast Radius Acknowledgment: Global search across codebase performed to update all callers of modified symbols.
+- [ ] Blast Radius Acknowledgment: Global search across codebase performed via `gitmap aum search "<symbol>" [dir]` to update all callers of modified symbols (never `Select-String` or `git grep`).
 - [ ] Continuous Loop Maintained: Continuous self-loop executed until 100% complete without running banned test/build commands.
 - [ ] Final Step Commit & Push Verified: Staged all changes (`git add -A`), committed everything in a single grouped atomic commit, and pushed to git before ending the turn (no per-file commits).
 

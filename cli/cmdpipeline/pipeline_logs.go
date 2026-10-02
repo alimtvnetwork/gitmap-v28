@@ -11,7 +11,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
-	"github.com/atotto/clipboard"
 )
 
 func handlePipelineErrorLogs(args []string) error {
@@ -865,7 +864,7 @@ func dispatchErrorLogPresentation(params ErrorLogOutputParams, content string) e
 
 func outputJSONErrorLogs(content string) error {
 	fmt.Println(content)
-	_ = clipboard.WriteAll(content)
+	_ = writeClipboard(content)
 
 	return nil
 }
@@ -881,7 +880,7 @@ func printSuppressedStagingNotice(reportFile string) {
 }
 
 func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
-	_ = clipboard.WriteAll(content)
+	_ = writeClipboard(content)
 	if len(params.TempFile) > 0 {
 		targetPath := filepath.Join(resolveTempDir(), params.TempFile)
 
@@ -1131,7 +1130,7 @@ func copyReportToClipboard(content string, isFailure bool) {
 		return
 	}
 
-	err := clipboard.WriteAll(content)
+	err := writeClipboard(content)
 	if err != nil {
 		return
 	}

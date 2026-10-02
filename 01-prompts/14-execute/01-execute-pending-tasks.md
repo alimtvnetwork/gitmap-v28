@@ -1,6 +1,8 @@
-[/goal](slashCommand:goal) Autonomously orchestrate and execute ALL pending tasks in a continuous N-step self-loop until the entire queue is completely resolved without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
+[/goal](slashCommand;goal) Autonomously orchestrate and execute ALL pending tasks in a continuous N-step self-loop until the entire queue is completely resolved without a single failure with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and modular spec generation, use GitMap high-speed commands as primary, establish a single-agent blueprint in Phase 1 (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
 
-[/learn](slashCommand:learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
+[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
+
+[/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution. Ensure all deliverables, architecture boundaries, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
 
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
@@ -31,7 +33,7 @@ Always prefer native GitMap commands over slow generic shell pipelines:
    - **List Indexed Repo Files:** `gitmap list-files [pattern] [-ext <ext>]` (alias `gitmap lf`)
    - **Directory Tree & Scaffolding:** `gitmap folder-tree` (alias `gitmap ft`)
    - **Zero-Write File Stream:** `gitmap cat <filepath>`
-   - **Instant Multi-Core Regex Search:** `gitmap search "<term>"` or `gitmap aum search "<query>" [dir] --ext <ext>`
+   - **Instant Multi-Core Regex Search:** `gitmap aum search "<query>" [dir] [-e <.ext>] [-r] [-i]` (alias `gitmap aum grep`) or `gitmap search "<term>"`. TOTAL BAN on PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr`.`
 2. **Fast Repository Hygiene, Lowercase & Symlink Repair:**
    - **Auto-Lowercase Files (Safe 2-Step `git mv`):** `gitmap lowercase` (alias `gitmap lcf [--dry-run]`)
    - **Lowercase Root Readme:** `gitmap lowercase-readme`
@@ -50,8 +52,8 @@ Always prefer native GitMap commands over slow generic shell pipelines:
 
 Before executing the tasks below, you must check if this prompt is already installed as a native Antigravity Skill.
 
-1. If `.agents/skills/<slug>/SKILL.md` does not exist in the workspace, you MUST create it now.
-2. Extract the core instructions of this prompt and save it into that `SKILL.md` using the standard YAML frontmatter (with `name` and `description`).
+1. If `.agents/skills/<slug>/skill.md` does not exist in the workspace, you MUST create it now.
+2. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter (with `name` and `description`).
 3. Once installed, you can rely on progressive disclosure for future runs. Do not keep the entire prompt in your active memory if you don't need it.
 
 ## Non-Negotiable Rules (Auto-Reject on Violation)
@@ -62,14 +64,14 @@ Before executing the tasks below, you must check if this prompt is already insta
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) Reuse First: I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
-- [ ] [/goal](slashCommand:goal) Learn Error Skills: I have [/learn](slashCommand:learn)ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
+- [ ] [/goal](slashCommand;goal) Reuse First: I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) Learn Error Skills: I have [/learn](slashCommand;learn)ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
 - [ ] Strict In-Repository Execution: All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] Strict .ai-memory/ Folder Storage: All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] Native File Manipulator & Fast Reader: If you need to perform mass file renaming, sequence fixing, rapid file reading, or cached searching, you MUST natively use `python 03-ai-scripts/17-fast-file-reader.py` (for fast reads/listing/searching) and other fast scripts rather than generic tools.
   - How it works: It provides sub-millisecond file reading and directory exploration via `tmp/cache/` for instant lookups (<1ms) and live disk fallback.
   - If Missing (Re-creation): If `03-ai-scripts/17-fast-file-reader.py` is not found, immediately recreate it using Python standard libraries (`os`, `sys`, `pathlib`, `re`, `argparse`, `json`). It MUST support flags: `--list-folder <path> [--ext .md,.ts]`, `--read-file <path> [--max-bytes N]`, and `--search-pattern "<regex>" [--path <dir>]`. Ensure strict UTF-8 output (`sys.stdout.reconfigure(encoding="utf-8")`) and implement local caching.
-- [ ] Go Generate Sync: If you modify Go constants, enums, or stringers, you MUST run `go generate ./...` in the relevant directory and commit the resulting generated files to prevent CI drift.
+- [ ] Go Generate Sync: If you modify Go constants, enums, or stringers, run `go generate ./...` in the relevant package. Commit the regenerated files only if `git ls-files` shows the repo already tracks them (so CI sees no drift); otherwise never commit generated files (Hard Rule 1).
 - [ ] Commit & Track: All new helper scripts were written strictly to `03-ai-scripts/` and committed to Git for future reuse.
 - [ ] Index Documentation: I have updated `03-ai-scripts/readme.md` using sequential script naming (e.g., `01-parse-files.py`). For every script, I have included a `<details>` collapsible tag explaining exactly why the script is there and what it does.
 
@@ -109,14 +111,14 @@ Before executing the tasks below, you must check if this prompt is already insta
 ## Phase 1: Load Pending Tasks & Project State
 
 1. [ ] Check git status first. The working tree must be clean and committed before executing anything.
-2. [ ] Read  and [/learn](slashCommand:learn) `.ai-memory/memory/readme.md` and `.ai-memory/what-to-read.md`. Verify root readme is strictly lowercase `readme.md`.
-3. [ ] Read and [/learn](slashCommand:learn) `.ai-memory/plans/readme.md`. Then read every file in `.ai-memory/plans/pending/xx-<slug>.md` and all associated subtasks in `.ai-memory/plans/subtasks/xx-<slug>/` (Note: for coding guidelines, check `.ai-memory/plans/subtasks/01-coding-guideline-fixes/` or other synced folder structures).
+2. [ ] Read  and [/learn](slashCommand;learn) `.ai-memory/memory/readme.md` and `.ai-memory/what-to-read.md`. Verify root readme is strictly lowercase `readme.md`.
+3. [ ] Read and [/learn](slashCommand;learn) `.ai-memory/plans/readme.md`. Then read every file in `.ai-memory/plans/pending/xx-<slug>.md` and all associated subtasks in `.ai-memory/plans/subtasks/xx-<slug>/` (Note: for coding guidelines, check `.ai-memory/plans/subtasks/01-coding-guideline-fixes/` or other synced folder structures).
 4. [ ] Group pending tasks into sequenced Execution Waves:
    - Wave 1: Schemas, DB, and query wrappers
    - Wave 2: Business logic and services
    - Wave 3: UI and documentation
-5. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md`, `.ai-memory/strictly-avoid.md`, `02-spec/02-coding-guidelines/`, and `02-spec/03-error-manage/`, `.ai-memory/coding-guidelines.md` before taking action and also create agent rules in the repo if required to or missing from rules set of agent memory.
-6. [ ] [/learn](slashCommand:learn) `.ai-memory/coding-guidelines.md` and it is must and [/goal](slashCommand:goal) apply the guidelines in coding every aspect.
+5. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md`, `.ai-memory/strictly-avoid.md`, `02-spec/02-coding-guidelines/`, and `02-spec/03-error-manage/`, `.ai-memory/coding-guidelines.md` before taking action and also create agent rules in the repo if required to or missing from rules set of agent memory.
+6. [ ] [/learn](slashCommand;learn) `.ai-memory/coding-guidelines.md` and it is must and [/goal](slashCommand;goal) apply the guidelines in coding every aspect.
 7. [ ] Screenshot & Print Screen Base64 Ingestion: If any task or prompt contains a screenshot URL, print screen link, or base64 data URI (e.g. `data:image/png;base64,...`):
    - Immediately decode and persist the image to the filesystem under `assets/screenshots/<task-slug>-<NN>.png` or `assets/ui/<task-slug>-<NN>.png`.
    - Never leave raw base64 strings or ephemeral external URLs in task plans, specs, or subtasks.
@@ -365,7 +367,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/learn](slashCommand:learn) and apply as a [/goal](slashCommand:goal)  `.ai-memory/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
+1. [ ] [/learn](slashCommand;learn) and apply as a [/goal](slashCommand;goal)  `.ai-memory/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
 
 - [ ] Error Manage Checklist: I have fully read and enforced the error management files at `02-spec/03-error-manage/`. I understand which files to follow (architecture, response envelopes) and how to follow them (never swallow errors, always wrap with context).
 - [ ] Boolean Examples & Fixations: All boolean variables MUST begin with is and has only (can, should, was, etc. are banned) (e. NEVER use explicit true/false comparisons (e.g., `if isReady == true` is FORBIDDEN, use `if isReady`).g., `isReady`, `hasData`). NEVER use negative booleans (e.g., `isNotReady`, `disableCache`). NEVER invert success checks (e.g., `!response.isSuccess` is banned; use `response.isFail`).
@@ -376,7 +378,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - [ ] Code adheres to explicit booleans, `Type` suffixed Enums, and error wrapper rules.
 - [ ] Formatting & Acronyms: Spacing rules are strictly followed. Acronyms are strictly PascalCase (`SwapIpWindows` not `SwapIPWindows`).
 - [ ] Fast-forward commits created and pushed without rewriting published git history.
-- [ ] [/goal](slashCommand:goal) Final Step Commit & Push (NO Per-File Commits): Accumulate all changes across the turn without committing individual files one-by-one. In the final step, stage all changes (`git add -A`), create a single grouped atomic commit (`git commit -m "<summary>"`), and push to the remote git branch (`git push origin <branch>`).
+- [ ] [/goal](slashCommand;goal) Final Step Commit & Push (NO Per-File Commits): Accumulate all changes across the turn without committing individual files one-by-one. In the final step, stage every file this task changed by explicit path (`git add -- <paths>`), create a single grouped atomic commit (`git commit -m "<summary>"`), and push to the remote git branch (`git push origin <branch>`).
 - [ ] Continuous loop maintained; only pausing to ask for "continue" on critical unrecoverable failures.
 
 ## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
@@ -440,11 +442,11 @@ When all subtasks for a parent task (`.ai-memory/plans/pending/xx-<slug>.md`) ar
 3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-<slug>/` so that only the single consolidated file remains.
 4. Delete the original parent plan `.ai-memory/plans/pending/xx-<slug>.md`.
 5. Update `.ai-memory/plans/readme.md` to point to the newly consolidated completed file.
-6. Final Step Git Commit & Push (MANDATORY): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
+6. Final Step Git Commit & Push (MANDATORY): Stage the modified files, consolidated plans, and memory records by explicit path (`git add -- <paths>`, never the whole tree), commit them in a single clean grouped atomic commit (`git commit -m "<summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
 
 ## Final Step Git Commit & Push Mandate (Strict Checklist)
 
-- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. These GitMap commands stage every file, so use them only when `git status --porcelain` was clean before the task started; otherwise, or if GitMap CLI is unavailable, run `git add -- <paths this task changed> && git commit && git push`. Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
 - [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` or `gitmap cpf` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.
 
 ---

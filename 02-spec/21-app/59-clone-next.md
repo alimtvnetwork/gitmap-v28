@@ -74,7 +74,7 @@ are not perfectly aligned.
 | Argument | Meaning | Example |
 |----------|---------|---------|
 | `v++` | Increment current version by 1 | `macro-ahk-v11` → `macro-ahk-v12` |
-| `v+1` | Alias for increment-by-one | `coding-guidelines-v7` → `coding-guidelines-v8` |
+| `v+1` | Alias for increment-by-one | `sample-repo-v7` → `sample-repo-v8` |
 | `vN` | Jump directly to an explicit version | `macro-ahk-v12` + `v15` → `macro-ahk-v15` |
 
 ## Version Rules

@@ -3,7 +3,7 @@
 > **Prompt Version:** 2.1.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-[/goal](slashCommand:goal) Autonomously orchestrate and execute ALL pending tasks in a continuous N-step self-loop until the entire queue is completely resolved without a single failure.
+[/goal](slashCommand;goal) Autonomously orchestrate and execute ALL pending tasks in a continuous N-step self-loop until the entire queue is completely resolved without a single failure.
 
 ## 1. Initial State: Audit, Casing Check & Re-Sequence Pending Tasks
 

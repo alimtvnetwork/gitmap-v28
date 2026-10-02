@@ -42,7 +42,7 @@ func tryRenderCoreRichTopic(topic string) bool {
 		RenderFindHelp()
 
 		return true
-	case "commit", "cm", "commit-both", "commit-left", "commit-right", "cmb", "cml", "cmr", "cpf", "cpb", "cpr", "pcp", "commit-pull", "cpull":
+	case "commit", "cm", "commit-all", "ca", "commit-both", "commit-left", "commit-right", "cmb", "cml", "cmr", "cpf", "cpb", "cpr", "pcp", "commit-pull", "cpull":
 		RenderCommitHelp()
 
 		return true

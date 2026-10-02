@@ -3,24 +3,24 @@
 > **Prompt Version:** 2.1.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-[/goal](slashCommand:goal) Load the project's identity, specifications, conventions, active plans, recent git commit history, and Root Cause Analysis (RCA) records into your context before starting any task. Never repeat a logged past failure.
+[/goal](slashCommand;goal) Load the project's identity, specifications, conventions, active plans, recent git commit history, and Root Cause Analysis (RCA) records into your context before starting any task. Never repeat a logged past failure.
 
-[/learn](slashCommand:learn) Ingest and internalize all past learnings, user corrections, patterns, coding rules, error philosophies, RCA logs, and project specifications from `.ai-memory/memory/learned/`, `.ai-memory/memory/`, `.ai-memory/issues/`, `.ai-memory/cicd-issues/`, and `.ai-memory/strictly-avoid.md` so Antigravity operates with zero hallucination.
+[/learn](slashCommand;learn) Ingest and internalize all past learnings, user corrections, patterns, coding rules, error philosophies, RCA logs, and project specifications from `.ai-memory/memory/learned/`, `.ai-memory/memory/`, `.ai-memory/issues/`, `.ai-memory/cicd-issues/`, and `.ai-memory/strictly-avoid.md` so Antigravity operates with zero hallucination.
 
 The specs, `.ai-memory/` folder, `what-to-read.md`, recent git commit history, root `readme.md`, and the codebase as a whole are the single source of truth. Your training data is not. If the two disagree, the repo wins, every time.
 
 Autonomously self-loop and read:
 
-- [/learn](slashCommand:learn) the last 10 git commits (via `git log -n 10 --stat` and diffs) to understand what changes were made across the files so you understand the latest changes and can work with them seamlessly.
-- [/learn](slashCommand:learn) `.ai-memory/what-to-read.md` first as the authoritative reading priority list before exploring the rest of the codebase.
-- [/learn](slashCommand:learn) the entire codebase as a whole to create memory.
-- [/learn](slashCommand:learn) the root `readme.md` to create memory.
-- [/learn](slashCommand:learn) the entire `.ai-memory/` folder (especially `what-to-read.md`, `.ai-memory/coding-guidelines.md` and all files they reference) to create memory.
-- [/learn](slashCommand:learn) every single folder, subfolder, and nested markdown file in the `02-spec/` directory (specifically `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, enum fixes, database conventions) to create memory.
-- [/learn](slashCommand:learn) all recent Root Cause Analysis (RCA) records, retrospectives, and past failure post-mortems in `.ai-memory/issues/01-<slug>.md`, `.ai-memory/cicd-issues/01-<slug>.md`, and `02-spec/03-error-manage/01-error-resolution/03-retrospectives/` to ensure past mistakes are never repeated.
-- [/learn](slashCommand:learn) all hard prohibitions in `.ai-memory/strictly-avoid.md`.
+- [/learn](slashCommand;learn) the last 10 git commits (via `git log -n 10 --stat` and diffs) to understand what changes were made across the files so you understand the latest changes and can work with them seamlessly.
+- [/learn](slashCommand;learn) `.ai-memory/what-to-read.md` first as the authoritative reading priority list before exploring the rest of the codebase.
+- [/learn](slashCommand;learn) the entire codebase as a whole to create memory.
+- [/learn](slashCommand;learn) the root `readme.md` to create memory.
+- [/learn](slashCommand;learn) the entire `.ai-memory/` folder (especially `what-to-read.md`, `.ai-memory/coding-guidelines.md` and all files they reference) to create memory.
+- [/learn](slashCommand;learn) every single folder, subfolder, and nested markdown file in the `02-spec/` directory (specifically `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, enum fixes, database conventions) to create memory.
+- [/learn](slashCommand;learn) all recent Root Cause Analysis (RCA) records, retrospectives, and past failure post-mortems in `.ai-memory/issues/01-<slug>.md`, `.ai-memory/cicd-issues/01-<slug>.md`, and `02-spec/03-error-manage/01-error-resolution/03-retrospectives/` to ensure past mistakes are never repeated.
+- [/learn](slashCommand;learn) all hard prohibitions in `.ai-memory/strictly-avoid.md`.
 - Read every pending task across `.ai-memory/plans/pending/01-<slug>.md`, `.ai-memory/plans/subtasks/01-<slug>/01-<subslug>.md`, `.ai-memory/issues/`, and `.ai-memory/cicd-issues/`, listing them out in full.
-- [/learn](slashCommand:learn) Spawning Agents Mandate (2-Agent Orchestration): The running time must spawn 2 agents all the time for reading, exploring, and ingesting codebase context in parallel.
+- [/learn](slashCommand;learn) Spawning Agents Mandate (2-Agent Orchestration): The running time must spawn 2 agents all the time for reading, exploring, and ingesting codebase context in parallel.
 
 Note on spec folder naming: Spec folders follow the hyphenated pattern `02-spec/<NN>-<slug>/` where `<NN>` is a sequence prefix and `<slug>` is the descriptive name. These numbers and folder placements are not rigidly fixed and may switch or be reorganized between projects. This canonical layout represents the general architecture the AI must dynamically discover, inspect, and read in full.
 
@@ -449,26 +449,26 @@ Then stop. No next-step suggestions, no exploratory questions.
 
 ## Pre-Reply Checklist (All Must Be True)
 
-[/goal](slashCommand:goal) Complete the checklist properly until done can do self-looping.
+[/goal](slashCommand;goal) Complete the checklist properly until done can do self-looping.
 
 1. [ ] Inspected the last 10 git commits (messages, file change stats, and diffs via `git log -n 10 --stat`) to understand recent modifications and file evolutions.
-2. [ ] [/learn](slashCommand:learn) `.ai-memory/what-to-read.md` first and followed its prioritized reading sequence in full.
+2. [ ] [/learn](slashCommand;learn) `.ai-memory/what-to-read.md` first and followed its prioritized reading sequence in full.
 3. [ ] Confirmed root readme is strictly lowercase `readme.md` (auto-fixed, committed, and pushed if uppercase or missing).
-4. [ ] [/learn](slashCommand:learn) the root `readme.md` file (casing rules, architecture, entry points).
+4. [ ] [/learn](slashCommand;learn) the root `readme.md` file (casing rules, architecture, entry points).
 5. [ ] Walked `.ai-memory/` recursively, no folder or file skipped silently, and flagged all `.ai-memory/*.md` files.
-6. [ ] [/learn](slashCommand:learn) `.ai-memory/memory/readme.md` and every file it points at.
-7. [ ] [/learn](slashCommand:learn) `.ai-memory/plans/readme.md`, every file in `pending/` (sequenced as `01-`, `02-`), and all active subtasks.
+6. [ ] [/learn](slashCommand;learn) `.ai-memory/memory/readme.md` and every file it points at.
+7. [ ] [/learn](slashCommand;learn) `.ai-memory/plans/readme.md`, every file in `pending/` (sequenced as `01-`, `02-`), and all active subtasks.
 8. [ ] Skimmed `.ai-memory/plans/completed/` for recent history.
-9. [ ] [/learn](slashCommand:learn) every file in `.ai-memory/spec/commands/`.
-10. [ ] [/learn](slashCommand:learn) every file in `.ai-memory/issues/` and `.ai-memory/cicd-issues/`.
-11. [ ] [/learn](slashCommand:learn) every file in `.ai-memory/ambiguous-questions/01-new-ambiguity/` and `02-ambiguity-resolved/`.
+9. [ ] [/learn](slashCommand;learn) every file in `.ai-memory/spec/commands/`.
+10. [ ] [/learn](slashCommand;learn) every file in `.ai-memory/issues/` and `.ai-memory/cicd-issues/`.
+11. [ ] [/learn](slashCommand;learn) every file in `.ai-memory/ambiguous-questions/01-new-ambiguity/` and `02-ambiguity-resolved/`.
 12. [ ] Scanned for broken links or missing docs and surfaced them under open ambiguities.
 13. [ ] Ingested active schema models, DB column conventions, and API route shapes.
 14. [ ] Verified runtime dependencies and package compatibility.
 15. [ ] Recursively traversed and read every subfolder, nested markdown file (`*.md`), overview, and consistency report within `02-spec/` (e.g. `02-spec/01-spec-authoring-guide/`, `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, `02-spec/04-database-conventions/`, `02-spec/21-app/`, etc.).
 16. [ ] Autonomously surveyed and looped through the entire codebase as a whole (all application code, entry points, routes, components, state stores, utilities, and configuration files).
-17. [ ] [/learn](slashCommand:learn) `02-spec/17-consolidated-guidelines/` (or `02-spec/17-consolidated-guidelines/`) in numeric order (or noted missing).
-18. [ ] [/learn](slashCommand:learn) `02-spec/01-spec-authoring-guide/` in numeric order (or noted missing).
+17. [ ] [/learn](slashCommand;learn) `02-spec/17-consolidated-guidelines/` (or `02-spec/17-consolidated-guidelines/`) in numeric order (or noted missing).
+18. [ ] [/learn](slashCommand;learn) `02-spec/01-spec-authoring-guide/` in numeric order (or noted missing).
 19. [ ] Can name CODE RED rules, naming conventions, error-handling philosophy without guessing.
 20. [ ] Can list every pending plan slug and subtask from memory.
 21. [ ] Checked whether the repo contains explicit tone, strictly-avoid, or prior-stupidity instructions and applied them without softening.
@@ -478,24 +478,24 @@ Then stop. No next-step suggestions, no exploratory questions.
 
 ## Actionable Items & Checklist
 
-[/goal](slashCommand:goal) Complete the checklist properly until done can do self-looping.
+[/goal](slashCommand;goal) Complete the checklist properly until done can do self-looping.
 
 1. [ ] Inspect the last 10 git commits via `git log -n 10 --stat` to understand recent file changes and ensure seamless continuity with the latest code state.
-2. [ ] [/learn](slashCommand:learn) `.ai-memory/what-to-read.md` and follow all prioritized reading entries before exploring the codebase.
-3. [ ] [/learn](slashCommand:learn) the coding guidelines in: `.ai-memory/coding-guidelines.md` and create memory.
-4. [ ] [/learn](slashCommand:learn) the condition extraction in: `02-spec/02-coding-guidelines/01-cross-language/readme.md` and create memory.
-5. [ ] [/learn](slashCommand:learn) the formatting and braces in: `02-spec/02-coding-guidelines/01-cross-language/readme.md` and create memory.
-6. [ ] [/learn](slashCommand:learn) the multi-line formatting in: `02-spec/02-coding-guidelines/01-cross-language/readme.md` and create memory.
-7. [ ] [/learn](slashCommand:learn) the boolean guidelines in: `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md` and create memory.
-8. [ ] [/learn](slashCommand:learn) the anti-hallucination rules in: `02-spec/02-coding-guidelines/01-cross-language/readme.md` and create memory.
-9. [ ] [/learn](slashCommand:learn) the error management architecture in: `02-spec/03-error-manage/readme.md` (and related error manage files) and create memory.
-10. [ ] [/learn](slashCommand:learn) all recent Root Cause Analysis (RCA) files in `.ai-memory/issues/`, `.ai-memory/cicd-issues/`, and `02-spec/03-error-manage/01-error-resolution/03-retrospectives/` to prevent recurring errors.
-11. [ ] [/learn](slashCommand:learn) all hard prohibitions in `.ai-memory/strictly-avoid.md` and verify zero violations.
-12. [ ] [/learn](slashCommand:learn) the enum standards and fixes in: `02-spec/17-consolidated-guidelines/07-enum-standards.md` and `02-spec/17-consolidated-guidelines/07-enum-standards.md` and create memory.
-13. [ ] [/learn](slashCommand:learn) ALL other single-file specs in `02-spec/02-coding-guidelines/` and create memory.
-14. [ ] [/learn](slashCommand:learn) the overarching main task plan.
+2. [ ] [/learn](slashCommand;learn) `.ai-memory/what-to-read.md` and follow all prioritized reading entries before exploring the codebase.
+3. [ ] [/learn](slashCommand;learn) the coding guidelines in: `.ai-memory/coding-guidelines.md` and create memory.
+4. [ ] [/learn](slashCommand;learn) the condition extraction in: `02-spec/02-coding-guidelines/01-cross-language/readme.md` and create memory.
+5. [ ] [/learn](slashCommand;learn) the formatting and braces in: `02-spec/02-coding-guidelines/01-cross-language/readme.md` and create memory.
+6. [ ] [/learn](slashCommand;learn) the multi-line formatting in: `02-spec/02-coding-guidelines/01-cross-language/readme.md` and create memory.
+7. [ ] [/learn](slashCommand;learn) the boolean guidelines in: `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md` and create memory.
+8. [ ] [/learn](slashCommand;learn) the anti-hallucination rules in: `02-spec/02-coding-guidelines/01-cross-language/readme.md` and create memory.
+9. [ ] [/learn](slashCommand;learn) the error management architecture in: `02-spec/03-error-manage/readme.md` (and related error manage files) and create memory.
+10. [ ] [/learn](slashCommand;learn) all recent Root Cause Analysis (RCA) files in `.ai-memory/issues/`, `.ai-memory/cicd-issues/`, and `02-spec/03-error-manage/01-error-resolution/03-retrospectives/` to prevent recurring errors.
+11. [ ] [/learn](slashCommand;learn) all hard prohibitions in `.ai-memory/strictly-avoid.md` and verify zero violations.
+12. [ ] [/learn](slashCommand;learn) the enum standards and fixes in: `02-spec/17-consolidated-guidelines/07-enum-standards.md` and `02-spec/17-consolidated-guidelines/07-enum-standards.md` and create memory.
+13. [ ] [/learn](slashCommand;learn) ALL other single-file specs in `02-spec/02-coding-guidelines/` and create memory.
+14. [ ] [/learn](slashCommand;learn) the overarching main task plan.
 15. [ ] Ensure the git repository starts completely clean.
-16. [ ] [/goal](slashCommand:goal) Complete all work on the current branch only.
+16. [ ] [/goal](slashCommand;goal) Complete all work on the current branch only.
 17. [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
 18. [ ] Confirmed zero repository files modified or created during reading (strict read-only workflow).
 19. [ ] Confirmed zero git commits or pushes triggered during reading.

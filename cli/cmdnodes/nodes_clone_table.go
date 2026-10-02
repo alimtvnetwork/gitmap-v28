@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -67,22 +68,22 @@ func padVisual(s string, width int) string {
 	return s + strings.Repeat(" ", width-vl)
 }
 
-func renderFleetResultsTable(out io.Writer, results []RemoteCloneNodeResult, isLocalSuccess bool, localDetails string, opts NodesCloneOptions) {
-	fmt.Fprintf(out, "  %-16s %-22s %-10s %-14s %-10s %s\n",
+func renderFleetResultsTable(out io.Writer, results []RemoteCloneNodeResult, isLocalSuccess bool, localDetails string, localDuration time.Duration, opts NodesCloneOptions) {
+	fmt.Fprintf(out, "  %-16s %-22s %-10s %-14s %-12s %s\n",
 		"NODE (ALIAS)", "HOST", "ROLE", "STATUS", "DURATION", "DETAILS")
-	fmt.Fprintln(out, "  --------------------------------------------------------------------------------------------------------------")
-	renderLocalRow(out, isLocalSuccess, opts.IsSkipLocal, localDetails)
+	fmt.Fprintln(out, "  ------------------------------------------------------------------------------------------------------------------")
+	renderLocalRow(out, isLocalSuccess, opts.IsSkipLocal, localDetails, localDuration)
 	for _, r := range results {
 		renderRemoteRow(out, r)
 	}
-	fmt.Fprintln(out, "  --------------------------------------------------------------------------------------------------------------")
+	fmt.Fprintln(out, "  ------------------------------------------------------------------------------------------------------------------")
 	renderFleetSummaryFooter(out, results, isLocalSuccess, opts.IsSkipLocal)
 }
 
-func renderLocalRow(out io.Writer, isLocalSuccess bool, isSkipLocal bool, localDetails string) {
+func renderLocalRow(out io.Writer, isLocalSuccess bool, isSkipLocal bool, localDetails string, localDur time.Duration) {
 	if isSkipLocal {
 		statusTag := constants.ColorCyan + "○ skipped" + constants.ColorReset
-		fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-10s %s\n",
+		fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-12s %s\n",
 			"local (current)", "127.0.0.1", "master", padVisual(statusTag, 14), "-", "skipped local execution (except-self)")
 		return
 	}
@@ -94,8 +95,9 @@ func renderLocalRow(out io.Writer, isLocalSuccess bool, isSkipLocal bool, localD
 	if localDetails != "" {
 		details = localDetails
 	}
-	fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-10s %s\n",
-		"local (current)", "127.0.0.1", "master", padVisual(statusTag, 14), "in-process", details)
+	durStr := fmt.Sprintf("%dms", localDur.Milliseconds())
+	fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-12s %s\n",
+		"local (current)", "127.0.0.1", "master", padVisual(statusTag, 14), durStr, details)
 }
 
 func renderRemoteRow(out io.Writer, r RemoteCloneNodeResult) {
@@ -105,7 +107,7 @@ func renderRemoteRow(out io.Writer, r RemoteCloneNodeResult) {
 	if r.DurationMs == 0 {
 		durStr = "-"
 	}
-	fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-10s %s\n",
+	fmt.Fprintf(out, "  %-16s %-22s %-10s %s %-12s %s\n",
 		r.Alias, r.Host, r.Role, padVisual(statusTag, 14), durStr, details)
 }
 
@@ -164,16 +166,16 @@ func sanitizeStdout(stdout string) string {
 }
 
 func formatDetails(r RemoteCloneNodeResult) string {
-	if r.Details != "" {
-		return r.Details
+	res := "done"
+	switch {
+	case r.Details != "":
+		res = r.Details
+	case r.Error != "":
+		res = sanitizeError(r.Error)
+	case r.Stdout != "":
+		res = sanitizeStdout(r.Stdout)
 	}
-	if r.Error != "" {
-		return sanitizeError(r.Error)
-	}
-	if r.Stdout != "" {
-		return sanitizeStdout(r.Stdout)
-	}
-	return "done"
+	return strings.ReplaceAll(res, "(machine is off)", "(unreachable or port 22 closed)")
 }
 
 func renderFleetSummaryFooter(out io.Writer, results []RemoteCloneNodeResult, isLocalSuccess bool, isSkipLocal bool) {

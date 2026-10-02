@@ -1051,12 +1051,14 @@ def run_worker_pool(
     )
 
 
-def chunk_items(items: list[Any], chunk_size: int = 8) -> list[list[Any]]:
-    """Splits a flat list into chunks of chunk_size items."""
-    effective_size = max(1, chunk_size)
-    chunks = [items[i:i + effective_size] for i in range(0, len(items), effective_size)]
-
-    return chunks
+def chunk_items(items: Any, chunk_size: int = 8) -> list[list[Any]]:
+    """Splits an iterable or list into a list of chunks of chunk_size."""
+    if not items:
+        return []
+    if chunk_size <= 0:
+        chunk_size = 1
+    item_list = list(items) if not isinstance(items, list) else items
+    return [item_list[i : i + chunk_size] for i in range(0, len(item_list), chunk_size)]
 
 
 class WorkerHeartbeatMonitor:
@@ -1116,4 +1118,3 @@ class WorkerHeartbeatMonitor:
         pct = (self.processed_count / self.total_items * 100.0) if self.total_items > 0 else 100.0
         msg = f"[Snapshot {elapsed:4.1f}s] Processed {self.processed_count}/{self.total_items} ({pct:5.1f}%) | {self.worker_count} workers | {fps:5.1f} {self.item_noun}/sec"
         print(msg)
-

@@ -21,7 +21,7 @@ Listen, past write-memory turns have been sloppy as fuck: memory dumped into cha
 
 ## Actionable Items & Checklist
 
-- [ ] [/learn](slashCommand:learn) the overarching main task plan.
+- [ ] [/learn](slashCommand;learn) the overarching main task plan.
 - [ ] Ensure the git repository starts completely clean.
 - [ ] Complete all work on the current branch only.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.

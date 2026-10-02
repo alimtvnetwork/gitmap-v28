@@ -5,9 +5,9 @@
 
 # Instruction (must follow): Execute Batched Loop (3 Agents, Chunked Commits)
 
-[/goal](slashCommand:goal) Execute pending tasks from `.ai-memory/plans/pending/` using a strictly batched multi-agent loop. Use exactly 3 sub-agents, assign small micro-task chunks per agent, enforce file collision safety through a locking matrix, sanitize artifacts before commits, handle crashes via `.ai-memory/temp/`, and push chunked commits to git without failure. At the end of every loop, explicitly list task statistics in your output window. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
+[/goal](slashCommand;goal) Execute pending tasks from `.ai-memory/plans/pending/` using a strictly batched multi-agent loop. Use exactly 3 sub-agents, assign small micro-task chunks per agent, enforce file collision safety through a locking matrix, sanitize artifacts before commits, handle crashes via `.ai-memory/temp/`, and push chunked commits to git without failure. At the end of every loop, explicitly list task statistics in your output window. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
 
-[/learn](slashCommand:learn) Capture every pattern, convention, fix, and correction discovered during execution into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md`. Never repeat a mistake that was logged.
+[/learn](slashCommand;learn) Capture every pattern, convention, fix, and correction discovered during execution into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md`. Never repeat a mistake that was logged.
 
 ## Phase 0: Antigravity Skill Bootstrap (Memory Optimization)
 
@@ -25,8 +25,8 @@ Before executing the tasks below, you must check if this prompt is already insta
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) Reuse First: I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
-- [ ] [/goal](slashCommand:goal) Learn Error Skills: I have [/learn](slashCommand:learn)ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
+- [ ] [/goal](slashCommand;goal) Reuse First: I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) Learn Error Skills: I have [/learn](slashCommand;learn)ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
 - [ ] Strict In-Repository Execution: All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] Strict .ai-memory/ Folder Storage: All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] Native File Manipulator & Fast Reader: If you need to perform mass file renaming, sequence fixing, rapid file reading, or cached searching, you MUST natively use `python 03-ai-scripts/17-fast-file-reader.py` (for fast reads/listing/searching) and other fast scripts rather than generic tools.

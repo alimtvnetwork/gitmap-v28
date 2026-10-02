@@ -885,12 +885,15 @@ func init() {
 	cmdpull.RunRemoteSSHPullFn = cmdssh.RunSSHPullJSON
 	cmdpull.RunRemoteSSHPullAllFleetFn = cmdssh.RunSSHPullAllFleet
 	cmdssh.RunLocalPullAllJSONFn = cmdpull.RunPullAllJSON
-	cmdignore.RunFixIgnoresAllSSHFn = func(args []string) error {
-		return cmdssh.RunFleetPASCommand("fix-ignore-all", "gitmap fix-ignore-all -y", func() error {
+	cmdignore.RunFixIgnoresAllSSHFn = func(args []string) *apperror.AppError {
+		err := cmdssh.RunFleetPASCommand("fix-ignore-all", "gitmap fix-ignore-all -y", func() error {
 			return cmdignore.RunFixIgnoreAll(args)
 		})
+		return apperror.WrapSimple(err, "fix-ignore-all")
 	}
-	cmdsee.HistoryRunnerFn = runHistory
+	cmdsee.HistoryRunnerFn = func(args []string) *apperror.AppError {
+		return apperror.WrapSimple(runHistory(args), "history")
+	}
 	cmdpull.HasAliasFn = HasAlias
 	cmdpull.GetAliasSlugFn = GetAliasSlug
 	cmdpull.GetAliasPathFn = GetAliasPath

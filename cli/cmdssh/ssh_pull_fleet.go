@@ -4,14 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -47,6 +53,7 @@ type FleetNodePullOutcome struct {
 type fleetNodeLiveness struct {
 	conn     db.SSHConnection
 	isOnline bool
+	version  string
 }
 
 // RunSSHPullAllFleet executes pull-all across SSH fleet nodes and Local VM concurrently.
@@ -58,8 +65,33 @@ func RunSSHPullAllFleet(cleanArgs []string) error {
 		printFleetEnqueueBanner(probes)
 	}
 	outcomes := executeFleetPullAll(probes, cleanArgs)
+	renderErr := renderFleetPullAllOutcomes(outcomes, isJSON)
+	if renderErr != nil {
+		return renderErr
+	}
+	failures := countFleetFailures(outcomes)
+	if failures > 0 {
+		return apperror.NewSimple(fmt.Sprintf("SSH fleet pull-all had %d node failure(s)", failures), "E_SSH_FLEET_FAIL")
+	}
 
-	return renderFleetPullAllOutcomes(outcomes, isJSON)
+	return nil
+}
+
+func countFleetFailures(outcomes []FleetNodePullOutcome) int {
+	failures := 0
+	for _, o := range outcomes {
+		if hasOutcomeFailed(o) {
+			failures++
+		}
+	}
+	return failures
+}
+
+func hasOutcomeFailed(o FleetNodePullOutcome) bool {
+	if o.IsSkipped {
+		return false
+	}
+	return !o.Success
 }
 
 func probeFleetLiveness(conns []db.SSHConnection) []fleetNodeLiveness {
@@ -72,12 +104,108 @@ func probeFleetLiveness(conns []db.SSHConnection) []fleetNodeLiveness {
 		go func() {
 			defer wg.Done()
 			isOnline, _ := CheckConnLiveness(context.Background(), targetConn.IPAddress, 22, 0)
-			results[idx] = fleetNodeLiveness{conn: targetConn, isOnline: isOnline}
+			ver := "unknown"
+			if isOnline {
+				ver = queryFleetNodeVersion(targetConn)
+			}
+			if ver == "" {
+				ver = "unknown"
+			}
+			results[idx] = fleetNodeLiveness{conn: targetConn, isOnline: isOnline, version: ver}
 		}()
 	}
 	wg.Wait()
 
 	return results
+}
+
+func queryFleetNodeVersion(c db.SSHConnection) string {
+	if ver := tryRESTNodeVersion(c.IPAddress); ver != "" {
+		return ver
+	}
+	if ver := tryQuickSSHProbe(c); ver != "" {
+		return ver
+	}
+	if c.BuildVersion != "" {
+		return cleanFleetVersionString(c.BuildVersion)
+	}
+	return "unknown"
+}
+
+func tryRESTNodeVersion(ip string) string {
+	endpoints := []string{
+		fmt.Sprintf("http://%s:49152/api/v1/version", ip),
+		fmt.Sprintf("http://%s:49152/api/v1/status", ip),
+	}
+	client := http.Client{Timeout: 1500 * time.Millisecond}
+	for _, u := range endpoints {
+		resp, err := client.Get(u)
+		if err != nil {
+			continue
+		}
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			continue
+		}
+		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		resp.Body.Close()
+		if readErr != nil {
+			continue
+		}
+		var statusResp struct {
+			Version string `json:"version"`
+		}
+		if err := json.Unmarshal(body, &statusResp); err == nil && statusResp.Version != "" {
+			return cleanFleetVersionString(statusResp.Version)
+		}
+		trimmed := strings.TrimSpace(string(body))
+		if trimmed != "" && !strings.HasPrefix(trimmed, "<") && !strings.HasPrefix(trimmed, "{") {
+			return cleanFleetVersionString(trimmed)
+		}
+	}
+	return ""
+}
+
+func tryQuickSSHProbe(c db.SSHConnection) string {
+	type probeResult struct {
+		ver string
+	}
+	ch := make(chan probeResult, 1)
+	go func() {
+		client, err := dialNodeWithFallback(c, "")
+		if err != nil || client == nil {
+			ch <- probeResult{ver: ""}
+			return
+		}
+		defer client.Close()
+		osType := resolveTargetNodeOS(client, c)
+		ver, isInstalled := queryNodeVersionViaSSH(client, osType)
+		if isInstalled && ver != "" {
+			ch <- probeResult{ver: cleanFleetVersionString(ver)}
+			return
+		}
+		ch <- probeResult{ver: ""}
+	}()
+
+	select {
+	case res := <-ch:
+		return res.ver
+	case <-time.After(1500 * time.Millisecond):
+		return ""
+	}
+}
+
+func cleanFleetVersionString(v string) string {
+	s := strings.TrimSpace(v)
+	if idx := strings.IndexAny(s, "\r\n"); idx != -1 {
+		s = strings.TrimSpace(s[:idx])
+	}
+	s = strings.TrimPrefix(s, "gitmap")
+	s = strings.TrimSpace(s)
+	s = strings.TrimPrefix(s, "version")
+	s = strings.TrimSpace(s)
+	s = strings.TrimPrefix(s, "v")
+	return strings.TrimSpace(s)
 }
 
 func hasFleetJSONFlag(args []string) bool {
@@ -94,17 +222,25 @@ func printFleetEnqueueBanner(probes []fleetNodeLiveness) {
 	fmt.Printf("\n%s  Enqueuing 'pull-all' across SSH fleet:%s\n", constants.ColorCyan, constants.ColorReset)
 	for _, p := range probes {
 		c := p.conn
-		if p.isOnline {
-			fmt.Printf("    • Remote Node [%s] (%s): %sOnline → Enqueued (async)%s\n",
-				c.Alias, c.IPAddress, constants.ColorGreen, constants.ColorReset)
+		if !p.isOnline {
+			fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
+				c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
 			continue
 		}
-		fmt.Printf("    • Remote Node [%s] (%s): %sOffline (skipped, no task enqueued)%s\n",
-			c.Alias, c.IPAddress, constants.ColorYellow, constants.ColorReset)
+		verStr := p.version
+		if verStr != "" && verStr != "unknown" && !strings.HasPrefix(verStr, "v") {
+			verStr = "v" + verStr
+		}
+		fmt.Printf("    • Remote Node [%s] (%s) [GitMap %s]: %sOnline → Enqueued (async)%s\n",
+			c.Alias, c.IPAddress, verStr, constants.ColorGreen, constants.ColorReset)
 	}
 	host := resolveLocalHostname()
-	fmt.Printf("    • Current Machine [%s (127.0.0.1)]: %sRunning locally (direct execution, not enqueued)%s\n\n",
-		host, constants.ColorGreen, constants.ColorReset)
+	localVer := constants.Version
+	if !strings.HasPrefix(localVer, "v") {
+		localVer = "v" + localVer
+	}
+	fmt.Printf("    • Current Machine [%s (127.0.0.1)] [GitMap %s]: %sRunning locally (direct execution, not enqueued)%s\n\n",
+		host, localVer, constants.ColorGreen, constants.ColorReset)
 }
 
 func resolveLocalHostname() string {
@@ -125,7 +261,8 @@ func executeFleetPullAll(probes []fleetNodeLiveness, cleanArgs []string) []Fleet
 		}
 		skipped = append(skipped, buildSkippedFleetOutcome(p.conn.Alias, p.conn.IPAddress))
 	}
-	dispatched := dispatchOnlineFleetPull(online, cleanArgs)
+	concurrencyFlags := ParsePASConcurrencyFlags(cleanArgs)
+	dispatched := dispatchOnlineFleetPull(online, cleanArgs, concurrencyFlags)
 
 	return append(dispatched, skipped...)
 }
@@ -141,37 +278,105 @@ func buildSkippedFleetOutcome(name, ip string) FleetNodePullOutcome {
 	}
 }
 
-func dispatchOnlineFleetPull(conns []db.SSHConnection, cleanArgs []string) []FleetNodePullOutcome {
+const (
+	// MaxPASWorkers is the maximum concurrency for remote nodes under the PAS Formula.
+	MaxPASWorkers = 2
+	// MaxAsyncOpsPerNode is the maximum parallel operations per remote node.
+	MaxAsyncOpsPerNode = 2
+)
+
+func resolvePASWorkerCount() int {
+	if isHighCPUPressure() {
+		return 1
+	}
+	return MaxPASWorkers
+}
+
+func isHighCPUPressure() bool {
+	if os.Getenv("GITMAP_HIGH_CPU") == "1" {
+		return true
+	}
+	return runtime.NumCPU() <= 2
+}
+
+func dispatchOnlineFleetPull(conns []db.SSHConnection, cleanArgs, concurrencyFlags []string) []FleetNodePullOutcome {
 	total := len(conns) + 1
 	outcomes := make([]FleetNodePullOutcome, total)
 	var wg sync.WaitGroup
+	dispatchLocalVMPullAsync(&wg, outcomes, cleanArgs, concurrencyFlags)
+	dispatchRemoteFleetNodes(&wg, outcomes, conns, concurrencyFlags)
+
+	stopHeartbeat := startFleetPullHeartbeat(len(conns), hasFleetJSONFlag(cleanArgs))
+	wg.Wait()
+	stopHeartbeat()
+
+	return outcomes
+}
+
+func startFleetPullHeartbeat(nodeCount int, isJSON bool) func() {
+	if isJSON {
+		return func() {}
+	}
+	stopCh := make(chan struct{})
+	doneCh := make(chan struct{})
+	start := time.Now()
+	go func() {
+		defer close(doneCh)
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-stopCh:
+				return
+			case now := <-ticker.C:
+				elapsed := now.Sub(start)
+				if elapsed >= 30*time.Second {
+					fmt.Printf("    %s[⏳ %ds elapsed] Pulling across SSH fleet (%d online nodes, 1 local)...%s\n",
+						constants.ColorDim, int(elapsed.Seconds()), nodeCount, constants.ColorReset)
+				}
+			}
+		}
+	}()
+	return func() {
+		close(stopCh)
+		<-doneCh
+	}
+}
+
+func dispatchLocalVMPullAsync(wg *sync.WaitGroup, outcomes []FleetNodePullOutcome, cleanArgs, concurrencyFlags []string) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		outcomes[0] = executeLocalVMPull(cleanArgs)
+		outcomes[0] = executeLocalVMPull(cleanArgs, concurrencyFlags)
 	}()
+}
+
+func dispatchRemoteFleetNodes(wg *sync.WaitGroup, outcomes []FleetNodePullOutcome, conns []db.SSHConnection, concurrencyFlags []string) {
+	workerCount := resolvePASWorkerCount()
+	sem := make(chan struct{}, workerCount)
 	for idx, c := range conns {
 		wg.Add(1)
 		slot := idx + 1
 		targetConn := c
-		go func() {
-			defer wg.Done()
-			outcomes[slot] = executeRemoteNodePull(targetConn)
-		}()
+		go executeBoundedRemotePull(wg, sem, outcomes, slot, targetConn, concurrencyFlags)
 	}
-	wg.Wait()
+}
 
-	return outcomes
+func executeBoundedRemotePull(wg *sync.WaitGroup, sem chan struct{}, outcomes []FleetNodePullOutcome, slot int, c db.SSHConnection, concurrencyFlags []string) {
+	defer wg.Done()
+	sem <- struct{}{}
+	defer func() { <-sem }()
+	outcomes[slot] = executeRemoteNodePull(c, concurrencyFlags)
 }
 
 // RunLocalPullAllJSONFn executes pull-all in-process and returns structured JSON output.
 var RunLocalPullAllJSONFn func(args []string) (string, error)
 
-func executeLocalVMPull(cleanArgs []string) FleetNodePullOutcome {
+func executeLocalVMPull(cleanArgs, concurrencyFlags []string) FleetNodePullOutcome {
 	if RunLocalPullAllJSONFn != nil {
 		return executeLocalVMPullInProcess(cleanArgs)
 	}
-	return executeLocalVMPullSubprocess(cleanArgs)
+	return executeLocalVMPullSubprocess(cleanArgs, concurrencyFlags)
 }
 
 func executeLocalVMPullInProcess(cleanArgs []string) FleetNodePullOutcome {
@@ -182,9 +387,12 @@ func executeLocalVMPullInProcess(cleanArgs []string) FleetNodePullOutcome {
 	return parseFleetPullOutcome("Local VM", "127.0.0.1", true, out)
 }
 
-func executeLocalVMPullSubprocess(cleanArgs []string) FleetNodePullOutcome {
+func executeLocalVMPullSubprocess(cleanArgs, concurrencyFlags []string) FleetNodePullOutcome {
 	cmdName := resolveLocalGitmapExecutable()
 	subArgs := []string{"pa", "--json"}
+	if len(concurrencyFlags) > 0 {
+		subArgs = append(subArgs, concurrencyFlags...)
+	}
 	cmd := exec.Command(cmdName, subArgs...)
 	out, runErr := cmd.CombinedOutput()
 	if runErr != nil && len(out) == 0 {
@@ -202,7 +410,7 @@ func resolveLocalGitmapExecutable() string {
 	return "gitmap"
 }
 
-func executeRemoteNodePull(c db.SSHConnection) FleetNodePullOutcome {
+func executeRemoteNodePull(c db.SSHConnection, concurrencyFlags []string) FleetNodePullOutcome {
 	isOnline, _ := CheckConnLiveness(context.Background(), c.IPAddress, 22, 0)
 	if !isOnline {
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, "offline: node unreachable")
@@ -214,12 +422,23 @@ func executeRemoteNodePull(c db.SSHConnection) FleetNodePullOutcome {
 	}
 	defer client.Close()
 	ensureRemoteNodeGitmap(client, c)
-	out, err := runRemotePullJSON(client, c)
+	remoteCmd := buildRemoteFleetPullCmd(concurrencyFlags)
+	out, err := runRemotePullJSON(client, c, remoteCmd)
 	if err != nil && len(out) == 0 {
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, err.Error())
 	}
 
 	return parseFleetPullOutcome(c.Alias, c.IPAddress, false, out)
+}
+
+func buildRemoteFleetPullCmd(concurrencyFlags []string) string {
+	cmd := "gitmap pa --json"
+	if len(concurrencyFlags) > 0 {
+		cmd += " " + strings.Join(concurrencyFlags, " ")
+	} else {
+		cmd += " --parallel 2"
+	}
+	return cmd
 }
 
 func ensureRemoteNodeGitmap(client *ssh.Client, c db.SSHConnection) {
@@ -248,31 +467,29 @@ func resolveTargetNodeOS(client *ssh.Client, c db.SSHConnection) string {
 	return osType
 }
 
-const remotePullCmd = "gitmap pa --json --parallel 2"
-
-func runRemotePullJSON(client *ssh.Client, c db.SSHConnection) (string, error) {
-	out, err := crypto.RunCommand(client, remotePullCmd, "")
+func runRemotePullJSON(client *ssh.Client, c db.SSHConnection, remoteCmd string) (string, error) {
+	out, err := crypto.RunCommand(client, remoteCmd, "")
 	if strings.Contains(out, "flag provided but not defined: -json") {
-		return handleLegacyRemotePull(client, c)
+		return handleLegacyRemotePull(client, c, remoteCmd)
 	}
 	if strings.Contains(out, "pending task already exists for pa") {
-		return recoverRemotePendingTask(client, out)
+		return recoverRemotePendingTask(client, out, remoteCmd)
 	}
 	return out, err
 }
 
-func handleLegacyRemotePull(client *ssh.Client, c db.SSHConnection) (string, error) {
+func handleLegacyRemotePull(client *ssh.Client, c db.SSHConnection, remoteCmd string) (string, error) {
 	osType := resolveTargetNodeOS(client, c)
 	updateTargetNodeGitmap(client, osType)
-	return crypto.RunCommand(client, remotePullCmd, "")
+	return crypto.RunCommand(client, remoteCmd, "")
 }
 
-func recoverRemotePendingTask(client *ssh.Client, rawOutput string) (string, error) {
+func recoverRemotePendingTask(client *ssh.Client, rawOutput string, remoteCmd string) (string, error) {
 	taskID := extractPendingTaskID(rawOutput)
 	if taskID != "" {
 		_, _ = crypto.RunCommand(client, "gitmap task cancel "+taskID, "")
 	}
-	return crypto.RunCommand(client, remotePullCmd, "")
+	return crypto.RunCommand(client, remoteCmd, "")
 }
 
 func extractPendingTaskID(s string) string {
@@ -290,6 +507,7 @@ func extractPendingTaskID(s string) string {
 }
 
 func buildFailedFleetOutcome(name, ip string, isLocal bool, msg string) FleetNodePullOutcome {
+	logFleetFailure(isLocal, msg, ip)
 	return FleetNodePullOutcome{
 		NodeName: name,
 		IP:       ip,
@@ -297,6 +515,14 @@ func buildFailedFleetOutcome(name, ip string, isLocal bool, msg string) FleetNod
 		Success:  false,
 		ErrorMsg: msg,
 	}
+}
+
+func logFleetFailure(isLocal bool, msg, ip string) {
+	errType := "SSH_DELEGATION_ERROR"
+	if isLocal {
+		errType = "LOCAL_PULL_ERROR"
+	}
+	store.LogInternalError("PULL_ALL_SSH", errType, msg, ip, "")
 }
 
 func parseFleetPullOutcome(name, ip string, isLocal bool, rawOutput string) FleetNodePullOutcome {

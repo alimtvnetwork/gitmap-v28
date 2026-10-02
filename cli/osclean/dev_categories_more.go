@@ -5,68 +5,43 @@ import (
 )
 
 func cleanYarnCache(isDryRun bool) CategoryCleanStats {
-	res := CategoryCleanStats{
-		Category: "yarn-cache",
-		Label:    "Yarn package cache",
+	res := CategoryCleanStats{Category: "yarn-cache", Label: "Yarn package cache"}
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	paths := []string{filepath.Join(local, "Yarn", "Cache"), filepath.Join(home, ".yarn", "cache"), filepath.Join(home, ".cache", "yarn")}
+	for _, dir := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
 	}
 	if !isDryRun && hasTool("yarn") {
 		_, _ = runToolCommand("yarn", "cache", "clean")
 		res.Notes = append(res.Notes, "Invoked 'yarn cache clean'")
 	}
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
-	paths := []string{
-		filepath.Join(local, "Yarn", "Cache"),
-		filepath.Join(home, ".yarn", "cache"),
-		filepath.Join(home, ".cache", "yarn"),
-	}
-	for _, dir := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
-	}
-
 	return res
 }
 
 func cleanBunCache(isDryRun bool) CategoryCleanStats {
-	res := CategoryCleanStats{
-		Category: "bun-cache",
-		Label:    "Bun package cache",
+	res := CategoryCleanStats{Category: "bun-cache", Label: "Bun package cache"}
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	paths := []string{filepath.Join(local, "bun", "install", "cache"), filepath.Join(home, ".bun", "install", "cache")}
+	for _, dir := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
 	}
 	if !isDryRun && hasTool("bun") {
 		_, _ = runToolCommand("bun", "pm", "cache", "rm")
 		res.Notes = append(res.Notes, "Invoked 'bun pm cache rm'")
 	}
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
-	paths := []string{
-		filepath.Join(local, "bun", "install", "cache"),
-		filepath.Join(home, ".bun", "install", "cache"),
-	}
-	for _, dir := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
-	}
-
 	return res
 }
 
 func cleanPipCache(isDryRun bool) CategoryCleanStats {
-	res := CategoryCleanStats{
-		Category: "pip-cache",
-		Label:    "Python pip download cache",
+	res := CategoryCleanStats{Category: "pip-cache", Label: "Python pip download cache"}
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	paths := []string{filepath.Join(local, "pip", "cache"), filepath.Join(home, ".cache", "pip")}
+	for _, dir := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
 	}
 	if !isDryRun && (hasTool("pip") || hasTool("python")) {
 		invokePipClean(&res)
 	}
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
-	paths := []string{
-		filepath.Join(local, "pip", "cache"),
-		filepath.Join(home, ".cache", "pip"),
-	}
-	for _, dir := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
-	}
-
 	return res
 }
 

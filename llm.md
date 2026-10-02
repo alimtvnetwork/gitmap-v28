@@ -353,5 +353,3 @@ When an AI coding agent is tasked with consolidating legacy and intermediate rep
     "tree": true
   }
   ```
-
-

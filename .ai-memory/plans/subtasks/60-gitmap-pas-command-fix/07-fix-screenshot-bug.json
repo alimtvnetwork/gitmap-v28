@@ -1,0 +1,18 @@
+{
+  "subtask_id": "07-fix-screenshot-bug",
+  "status": "COMPLETED",
+  "verified_features": [
+    "Pull remediation hints recommend actionable native GitMap verbs (gitmap fix, gitmap cpar, gitmap stash)",
+    "Untracked ignore files are never falsely prompted (cli/gitignoreagm/cli_prompt.go checks git ls-files --error-unmatch in index)",
+    "GitMap Errors DB integration verified via store.LogInternalError and cmderrors suite"
+  ],
+  "target_files": [
+    "cli/cmdpull/pull_remediation_hint.go",
+    "cli/gitignoreagm/cli_prompt.go",
+    "cli/gitutil/remediation_commit.go",
+    "cli/gitutil/remediation_stash.go",
+    "cli/gitutil/remediation_discard.go"
+  ],
+  "guideline_check": "PASS",
+  "details": "Remediation hints emit native GitMap verbs, untracked ignore safety verified against git ls-files index, and guideline checks passed."
+}

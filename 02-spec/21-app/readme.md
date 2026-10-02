@@ -53,4 +53,9 @@
 - [195-pas-formula-fix-ignores-cpar-and-repo-cache.md](195-pas-formula-fix-ignores-cpar-and-repo-cache.md) — GitMap PAS Formula, Ignore Management Suite, CPAR, and Repository Split-DB Cache Engine (Status: `active`)
 - [196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md](196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md) — Fleet Nodes Clone Table Spacing Alignment & W3 Reachability Resilience (Status: `active`)
 - [197-gitmap-pas-fix-and-repo-cache-commands.md](197-gitmap-pas-fix-and-repo-cache-commands.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Status: `active`)
+- [181-gitmap-ignore-and-cache-engine](181-gitmap-ignore-and-cache-engine/01-overview.md) — GitMap Ignore and Cache Engine Architecture (Status: `active`)
+- [198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) — PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry (Status: `active`)
+- [199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md) — Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence (Status: `active`)
+- [200-semantic-flat-commit-and-auto-stage-command.md](200-semantic-flat-commit-and-auto-stage-command.md) — Semantic Flat Commit & Auto-Stage Command (`gitmap commit`, `cm`, `commit-all`, `ca`) and Macro Execution Resilience (Status: `active`)
+- [201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) — GitMap Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation (Status: `active`)
 

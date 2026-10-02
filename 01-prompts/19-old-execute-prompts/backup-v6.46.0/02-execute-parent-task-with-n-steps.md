@@ -7,7 +7,7 @@
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
-[/goal](slashCommand:goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure.
+[/goal](slashCommand;goal) Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure.
 
 ```text
 N = 150
@@ -26,23 +26,23 @@ N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never mo
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Preamble Precedence Verification: Whatever is given before this section or prompt (user preamble, header constraints, prior instructions) has been verified as highest priority and non-negotiable, and is strictly incorporated into the task scope ahead of all other guidelines.
-2. [ ] [/goal](slashCommand:goal) Phase 1A (Step 0 - Verbatim Prompt Recording & Task Extraction Gate): Immediately capture the user prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`. If screenshot URLs or base64 data URIs are provided, decode/save them as image files (`assets/screenshots/<task-slug>-<NN>.png`) and refer back to them via relative paths in specs. Extract actionable deliverables with traceable IDs (`Task-01`, `Task-02`), and output this confirmed task breakdown directly in chat in cleanly indented markdown with vertical blank lines, task state (`State: [PENDING]`), and understanding indicator bracket (`Understood: [YES — ...]`) before any file exploration, scanning, or spec writing.
-3. [ ] [/goal](slashCommand:goal) Phase 1B (Step 1 - Canonical Spec Generation in Folder 21): Write the canonical specification in `02-spec/21-app/xx-<slug>.md` (or directory `02-spec/21-app/xx-<slug>/` for complex features) with lossless verbatim prompt capture and visual assets, register it in `02-spec/21-app/readme.md`, and initialize the execution plan in `.ai-memory/plans/pending/xx-<slug>.md` linking back to the spec.
-4. [ ] [/goal](slashCommand:goal) Phase 1B (Step 2 - Scan & Discover): Use fast Python discovery scripts (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) to inventory files and map call sites without tool truncation limits.
-5. [ ] [/goal](slashCommand:goal) Phase 1B (Step 3 - Lean Subtask Decomposition): Decompose the plan into lean subtask files in `.ai-memory/plans/subtasks/xx-<slug>/01-<subslug>.md` cross-referencing the canonical spec. Subtasks must focus purely on unique task deliverables without repeating common repository boilerplate. Complete all spec and subtask writing within 50% of the steps budget (`PHASE_1_STEPS = N / 2`).
-6. [ ] [/goal](slashCommand:goal) Phase 1B (Step 4 - Readiness Audit Gate): Confirm canonical spec is registered in `02-spec/21-app/readme.md`, all `Task-xx` deliverables are mapped to subtasks linking back to the spec, and disjoint files are assigned before execution.
-7. [ ] [/goal](slashCommand:goal) Phase 1B (Step 5 - Unconditional Zero-Question Execution Mandate): Immediately upon completing Phase 1, self-loop and transition directly into Phase 2 code execution without pausing, asking questions, or seeking user confirmation. Stopping after spec writing is strictly banned and constitutes an auto-reject failure.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Execution & Code Refactoring, Steps N/2+1..N): Unconditionally execute the code refactoring in the remaining 50% of the steps budget (`PHASE_2_STEPS = N / 2`). Spawn at most 2 execution subagents (max 2 threads each) to execute subtasks on disjoint files in parallel.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents must read the failure log first to remediate root causes.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters on specifically modified files (`exit 0`). Do not run `06-cicd-local-runner.py`, unit tests, or build checks (deferred to CI/CD).
-11. [ ] [/goal](slashCommand:goal) Phase 3 (Consolidation & Atomic Push): Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md` preserving the canonical spec reference (canonical spec in `02-spec/21-app/` remains permanently intact), delete granular subtasks and pending plan, stage all changes, and push in a single grouped commit.
-12. [ ] [/goal](slashCommand:goal) Phase 3 (Completion & Confidence Reporting): Emit the final Task Completion Summary with green check mark emojis, modified files summary, and implementation confidence score.
-13. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-14. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/` for error handling architectures and *appfault.AppError.
-17. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+1. [ ] [/goal](slashCommand;goal) Preamble Precedence Verification: Whatever is given before this section or prompt (user preamble, header constraints, prior instructions) has been verified as highest priority and non-negotiable, and is strictly incorporated into the task scope ahead of all other guidelines.
+2. [ ] [/goal](slashCommand;goal) Phase 1A (Step 0 - Verbatim Prompt Recording & Task Extraction Gate): Immediately capture the user prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`. If screenshot URLs or base64 data URIs are provided, decode/save them as image files (`assets/screenshots/<task-slug>-<NN>.png`) and refer back to them via relative paths in specs. Extract actionable deliverables with traceable IDs (`Task-01`, `Task-02`), and output this confirmed task breakdown directly in chat in cleanly indented markdown with vertical blank lines, task state (`State: [PENDING]`), and understanding indicator bracket (`Understood: [YES — ...]`) before any file exploration, scanning, or spec writing.
+3. [ ] [/goal](slashCommand;goal) Phase 1B (Step 1 - Canonical Spec Generation in Folder 21): Write the canonical specification in `02-spec/21-app/xx-<slug>.md` (or directory `02-spec/21-app/xx-<slug>/` for complex features) with lossless verbatim prompt capture and visual assets, register it in `02-spec/21-app/readme.md`, and initialize the execution plan in `.ai-memory/plans/pending/xx-<slug>.md` linking back to the spec.
+4. [ ] [/goal](slashCommand;goal) Phase 1B (Step 2 - Scan & Discover): Use fast Python discovery scripts (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) to inventory files and map call sites without tool truncation limits.
+5. [ ] [/goal](slashCommand;goal) Phase 1B (Step 3 - Lean Subtask Decomposition): Decompose the plan into lean subtask files in `.ai-memory/plans/subtasks/xx-<slug>/01-<subslug>.md` cross-referencing the canonical spec. Subtasks must focus purely on unique task deliverables without repeating common repository boilerplate. Complete all spec and subtask writing within 50% of the steps budget (`PHASE_1_STEPS = N / 2`).
+6. [ ] [/goal](slashCommand;goal) Phase 1B (Step 4 - Readiness Audit Gate): Confirm canonical spec is registered in `02-spec/21-app/readme.md`, all `Task-xx` deliverables are mapped to subtasks linking back to the spec, and disjoint files are assigned before execution.
+7. [ ] [/goal](slashCommand;goal) Phase 1B (Step 5 - Unconditional Zero-Question Execution Mandate): Immediately upon completing Phase 1, self-loop and transition directly into Phase 2 code execution without pausing, asking questions, or seeking user confirmation. Stopping after spec writing is strictly banned and constitutes an auto-reject failure.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Execution & Code Refactoring, Steps N/2+1..N): Unconditionally execute the code refactoring in the remaining 50% of the steps budget (`PHASE_2_STEPS = N / 2`). Spawn at most 2 execution subagents (max 2 threads each) to execute subtasks on disjoint files in parallel.
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents must read the failure log first to remediate root causes.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters on specifically modified files (`exit 0`). Do not run `06-cicd-local-runner.py`, unit tests, or build checks (deferred to CI/CD).
+11. [ ] [/goal](slashCommand;goal) Phase 3 (Consolidation & Atomic Push): Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md` preserving the canonical spec reference (canonical spec in `02-spec/21-app/` remains permanently intact), delete granular subtasks and pending plan, stage all changes, and push in a single grouped commit.
+12. [ ] [/goal](slashCommand;goal) Phase 3 (Completion & Confidence Reporting): Emit the final Task Completion Summary with green check mark emojis, modified files summary, and implementation confidence score.
+13. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+14. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+16. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/` for error handling architectures and *appfault.AppError.
+17. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 
 ---
 
@@ -58,7 +58,7 @@ Before executing the tasks below, check if this prompt is already installed as a
 
 ## 1. 2-Agent Concurrency & Ruthless Orchestration
 
-[/goal](slashCommand:goal) You are the master orchestrator. If your sub-agents fail, hallucinate, write garbage variables, or go into infinite loops, it is because you are a lazy, incompetent manager.
+[/goal](slashCommand;goal) You are the master orchestrator. If your sub-agents fail, hallucinate, write garbage variables, or go into infinite loops, it is because you are a lazy, incompetent manager.
 
 - Strict 2-Agent Limit (Max 2 Threads Each): When dispatching work in Phase 1 (planning) or Phase 2 (execution), spawn at most 2 sub-agents concurrently, with no more than 2 threads per agent.
 - Strict Folder Bounding (`.ai-memory/`): Subagents are strictly restricted to writing planning files, subtasks, status reports, and logs inside `.ai-memory/` (`.ai-memory/plans/`, `.ai-memory/readme.md`, `.ai-memory/memory/issues/`).
@@ -286,7 +286,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 
 ## 9. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
-[/goal](slashCommand:goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
+[/goal](slashCommand;goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
 - [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).

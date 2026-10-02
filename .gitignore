@@ -1,7 +1,6 @@
 # Logs
 logs
 *.log
-*.pid
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -86,7 +85,6 @@ cli/data/account-switch/
 *.db-shm
 *.db-wal
 *.lock
-.*.pid
 vmpass.json
 gitmap-final.json
 .antigravity_resume_task.json

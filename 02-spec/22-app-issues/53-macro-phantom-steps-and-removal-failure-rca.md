@@ -38,6 +38,8 @@ During interactive macro execution and editing in GitMap:
 
 ## 2. Root Cause
 
+Windows PowerShell's `rm` (`Remove-Item`) fails terminatingly on non-existent targets rather than being idempotent, the installed GitMap binary at `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` was stale (built before safe removal and edit recording shims), and interactive edit mode treated workspace-modifying commands as transient unrecorded helpers.
+
 1. **Platform Non-Idempotent `rm` Behavior on Windows:**
    On Windows PowerShell, `rm` is an alias for the `Remove-Item` cmdlet. Unlike POSIX shells (`rm -f`), PowerShell throws a terminating `ItemNotFoundException` if the specified target does not exist. GitMap's macro step runner directly piped `rm <target>` into the shell without existence checking or suppression flags, causing immediate step failure.
 2. **In-Builder Helper Hijack in Macro Editor:**
@@ -55,9 +57,15 @@ During interactive macro execution and editing in GitMap:
 ## 3. Resolution
 
 1. **Idempotent Removal Shim in Macro Step Execution:**
-   - In `cli/macro/execute.go`, when running on Windows PowerShell and encountering steps beginning with `rm `, `rmdir `, or `Remove-Item `, transform the command into an idempotent script:
+   - In `cli/macro/safe_rm.go` and `cli/macro/execute.go`, when running on Windows PowerShell and encountering steps beginning with `rm `, `rmdir `, `Remove-Item `, `rd `, `del `, or `erase `, transform the command into an idempotent script:
      ```powershell
-     if (Test-Path '<target>') { Remove-Item -Recurse -Force '<target>' }
+     foreach ($__target in @(<targets>)) {
+         if (Test-Path -LiteralPath $__target) {
+             Remove-Item -Recurse -Force -LiteralPath $__target
+         } elseif (Test-Path -Path $__target) {
+             Remove-Item -Recurse -Force -Path $__target
+         }
+     }
      ```
    - Provide a native `gitmap rm` / `safe-rm` command in `cli/cmd/` that safely removes files/directories and returns exit 0 if they already do not exist.
 2. **Interactive Macro Edit Recording Polish:**

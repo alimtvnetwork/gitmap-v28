@@ -15,30 +15,30 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously inventory, scan, partition, refactor, and fix all coding style, vertical newline spacing, blank line before `if`, blank line after `}`, blank line before `return`, blank lines around parameter struct instantiations and sequential function invocations, nested `if` elimination, function length (<= 8–15 lines), file size (<= 100 lines), LF line endings (`\n`), and UTF-8 (no BOM) encoding across ALL source files in the repository in bounded micro-batches of 5–8 files per subtask, running a continuous 2-agent unstoppable self-loop until 100% of codebase files are verified and refactored without stopping.
+[/goal](slashCommand;goal) Autonomously inventory, scan, partition, refactor, and fix all coding style, vertical newline spacing, blank line before `if`, blank line after `}`, blank line before `return`, blank lines around parameter struct instantiations and sequential function invocations, nested `if` elimination, function length (<= 8–15 lines), file size (<= 100 lines), LF line endings (`\n`), and UTF-8 (no BOM) encoding across ALL source files in the repository in bounded micro-batches of 5–8 files per subtask, running a continuous 2-agent unstoppable self-loop until 100% of codebase files are verified and refactored without stopping.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-style-guidelines-audit.md` with an exhaustive File Inventory Manifest and Violation Ledger.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C): Decompose ALL source files into granular, bounded subtask batches of **5–8 files each** in `.ai-memory/plans/subtasks/XX-style/batch-01.md`, `batch-02.md`, etc.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D): Verify or create the automated style autofixer in `03-ai-scripts/05-guideline-autofixer.py` and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Spawn 2 execution subagents (max 2 threads each) to process subtasks concurrently, opening and surgically editing each 5–8 file batch line-by-line.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Enforce Return New Line rules (R13-R16): blank line before `if`, blank line after `}`, blank line before `return`, blank lines around multiline struct calls, and zero clumped guard clauses.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Decompose functions exceeding 8–15 lines into focused single-responsibility helpers and flatten nested conditionals (depth 0).
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Verify that actual source files (`*.go`, `*.ts`, etc.) have real modifications via `git diff --stat` (auto-reject if only `.ai-memory/` markdown files were changed).
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step E): Move completed batch subtasks to `.ai-memory/plans/completed/` and immediately self-loop to dispatch the next pending batches until 0 batches remain.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step F): Execute local linters (`python linter-scripts/check-newline-styling.py`, `check-function-lengths.py`) to verify 0 remaining violations.
-11. [ ] [/goal](slashCommand:goal) Phase 2 (Step G): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
-12. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-13. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
-17. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
-18. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` for newline styling examples.
-19. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-20. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-style-guidelines-audit.md` with an exhaustive File Inventory Manifest and Violation Ledger.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C): Decompose ALL source files into granular, bounded subtask batches of **5–8 files each** in `.ai-memory/plans/subtasks/XX-style/batch-01.md`, `batch-02.md`, etc.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D): Verify or create the automated style autofixer in `03-ai-scripts/05-guideline-autofixer.py` and register in `03-ai-scripts/readme.md`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A): Spawn 2 execution subagents (max 2 threads each) to process subtasks concurrently, opening and surgically editing each 5–8 file batch line-by-line.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B): Enforce Return New Line rules (R13-R16): blank line before `if`, blank line after `}`, blank line before `return`, blank lines around multiline struct calls, and zero clumped guard clauses.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C): Decompose functions exceeding 8–15 lines into focused single-responsibility helpers and flatten nested conditionals (depth 0).
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D): Verify that actual source files (`*.go`, `*.ts`, etc.) have real modifications via `git diff --stat` (auto-reject if only `.ai-memory/` markdown files were changed).
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step E): Move completed batch subtasks to `.ai-memory/plans/completed/` and immediately self-loop to dispatch the next pending batches until 0 batches remain.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Step F): Execute local linters (`python linter-scripts/check-newline-styling.py`, `check-function-lengths.py`) to verify 0 remaining violations.
+11. [ ] [/goal](slashCommand;goal) Phase 2 (Step G): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
+12. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+13. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+16. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+17. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
+18. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` for newline styling examples.
+19. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+20. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Inventory ALL Source Files, Partition into 5-8 File Batches in .ai-memory/plans/subtasks/, Verify Autofixer)

@@ -15,7 +15,7 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform (configurable per run).
 
-[/goal](slashCommand:goal) Autonomously scan, plan, decompose, and refactor files exceeding the 100-line cap (recommended <= 80 lines) and functions exceeding 8–15 lines across the codebase. Enforce a two-part decomposition strategy (functions first, then files), preserve all formatting and whitespace (zero line-compression cheating), utilize wrapper objects for multi-value returns, enforce boolean conventions, and defer build verification strictly to the final step without running intermediate tests or builds.
+[/goal](slashCommand;goal) Autonomously scan, plan, decompose, and refactor files exceeding the 100-line cap (recommended <= 80 lines) and functions exceeding 8–15 lines across the codebase. Enforce a two-part decomposition strategy (functions first, then files), preserve all formatting and whitespace (zero line-compression cheating), utilize wrapper objects for multi-value returns, enforce boolean conventions, and defer build verification strictly to the final step without running intermediate tests or builds.
 
 ---
 
@@ -31,22 +31,22 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Function & File Extraction, 
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B - Master Plan Generation): Write the master architectural specification into `.ai-memory/plans/pending/xx-size-reduction.md` with an exhaustive Violation Ledger table (File, Initial Lines, Functions to Extract, Planned Destination Files, Wrapper Structs Needed).
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C - Subtask Decomposition): Decompose the master plan into lean, single-responsibility subtask files in `.ai-memory/plans/subtasks/xx-size-reduction/01-<subtask>.md`, `02-<subtask>.md`, etc.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D - Mandatory Auto-Loop): As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A - Two-Part Decomposition): For each target file, execute Part 1 (decompose large functions to <= 8 lines, max 15 lines) and Part 2 (extract decomposed functions and helpers into separate sibling files to bring the file under 100 lines).
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B - Wrapper Objects & Clean Signatures): If an extracted function returns multiple interrelated values or requires >2–3 parameters, encapsulate them into a dedicated wrapper object/struct.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C - Zero Line-Compression & Style Preservation): Strictly preserve all blank lines, block separation, and indentation. NEVER delete whitespace, collapse `if/else`, or merge statements to artificially lower line counts.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D - Boolean & Control Flow Concurrency): Enforce positive boolean naming (`is*`, `has*`), zero explicit `== true`, zero negative polarity in conditionals, and flatten nested `if` statements to depth <= 1 using guard clauses.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step E - Banned Intermediate Verification): DO NOT run unit tests (`go test`, `pytest`, npm test) and DO NOT verify builds during intermediate micro-refactoring steps.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step F - Final Step Build Verification): At the conclusion of all refactoring subtasks, run targeted syntax/build checks to resolve any compilation errors or import issues across all modified files.
-11. [ ] [/goal](slashCommand:goal) Phase 3 (Step A - Task Consolidation): Consolidate all completed subtasks into `.ai-memory/plans/completed/xx-size-reduction.md`, delete granular subtask files, and update `.ai-memory/plans/readme.md`.
-12. [ ] [/goal](slashCommand:goal) Phase 3 (Step B - Final Step Git Commit & Push): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit, and push to git. Never commit per-file.
-13. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-14. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
-16. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B - Master Plan Generation): Write the master architectural specification into `.ai-memory/plans/pending/xx-size-reduction.md` with an exhaustive Violation Ledger table (File, Initial Lines, Functions to Extract, Planned Destination Files, Wrapper Structs Needed).
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C - Subtask Decomposition): Decompose the master plan into lean, single-responsibility subtask files in `.ai-memory/plans/subtasks/xx-size-reduction/01-<subtask>.md`, `02-<subtask>.md`, etc.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D - Mandatory Auto-Loop): As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A - Two-Part Decomposition): For each target file, execute Part 1 (decompose large functions to <= 8 lines, max 15 lines) and Part 2 (extract decomposed functions and helpers into separate sibling files to bring the file under 100 lines).
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B - Wrapper Objects & Clean Signatures): If an extracted function returns multiple interrelated values or requires >2–3 parameters, encapsulate them into a dedicated wrapper object/struct.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C - Zero Line-Compression & Style Preservation): Strictly preserve all blank lines, block separation, and indentation. NEVER delete whitespace, collapse `if/else`, or merge statements to artificially lower line counts.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D - Boolean & Control Flow Concurrency): Enforce positive boolean naming (`is*`, `has*`), zero explicit `== true`, zero negative polarity in conditionals, and flatten nested `if` statements to depth <= 1 using guard clauses.
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step E - Banned Intermediate Verification): DO NOT run unit tests (`go test`, `pytest`, npm test) and DO NOT verify builds during intermediate micro-refactoring steps.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Step F - Final Step Build Verification): At the conclusion of all refactoring subtasks, run targeted syntax/build checks to resolve any compilation errors or import issues across all modified files.
+11. [ ] [/goal](slashCommand;goal) Phase 3 (Step A - Task Consolidation): Consolidate all completed subtasks into `.ai-memory/plans/completed/xx-size-reduction.md`, delete granular subtask files, and update `.ai-memory/plans/readme.md`.
+12. [ ] [/goal](slashCommand;goal) Phase 3 (Step B - Final Step Git Commit & Push): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit, and push to git. Never commit per-file.
+13. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+14. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
+16. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 
 ---
 

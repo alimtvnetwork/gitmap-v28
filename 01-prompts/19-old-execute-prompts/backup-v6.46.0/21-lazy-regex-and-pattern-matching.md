@@ -15,27 +15,27 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, plan, refactor, and verify all regular expression usage across the codebase, eliminating raw `regexp.MustCompile` and `regexp.Compile` outside package `lazyregex`, replacing inline compilation and blind `re.MatchString` test assertions with thread-safe `lazyregex.New(...)` and wrapped `lazyregex.MatchResult(...)` returning `*MatchResult` (`ResultGroup`) and structured `*appfault.AppError` diagnostics, enforcing affirmative evaluation (`rs.IsMatch()`, `rs.IsSuccess()`, `rs.IsFailed()`), and providing rich failure diagnostics showing pattern, compared text, character count, and failure cause until 100% green without stopping.
+[/goal](slashCommand;goal) Autonomously scan, plan, refactor, and verify all regular expression usage across the codebase, eliminating raw `regexp.MustCompile` and `regexp.Compile` outside package `lazyregex`, replacing inline compilation and blind `re.MatchString` test assertions with thread-safe `lazyregex.New(...)` and wrapped `lazyregex.MatchResult(...)` returning `*MatchResult` (`ResultGroup`) and structured `*appfault.AppError` diagnostics, enforcing affirmative evaluation (`rs.IsMatch()`, `rs.IsSuccess()`, `rs.IsFailed()`), and providing rich failure diagnostics showing pattern, compared text, character count, and failure cause until 100% green without stopping.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-lazy-regex-audit.md` with an exhaustive Violation Ledger.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/XX-lazy-regex/`.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Open each target file and refactor raw `regexp.MustCompile` / `regexp.Compile` to centralized `lazyregex.New(...)`.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Modernize all test assertions from blind `if !re.MatchString(s) { t.Error(...) }` to `rs := lazyRegex.MatchResult(s); if rs.IsFailed() { t.Error(rs.AppError()) }`.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Refactor group and submatch extraction to fluent methods: `rs.Items()`, `rs.Map()`, `rs.First()`, `rs.Last()`, `rs.FirstOrDefault()`, `rs.At()`.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Enforce <= 8–15 line function decomposition and clean blank-line spacing.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step E): Execute targeted package tests and linters (`golangci-lint run -c .golangci.yml`) to verify 0 remaining violations. DO NOT run full CI runner during routine turns.
-10. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-11. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-12. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-13. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/17-regex-usage-guidelines.md` for lazy regex and pattern caching rules.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
-16. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-17. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-lazy-regex-audit.md` with an exhaustive Violation Ledger.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/XX-lazy-regex/`.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A): Open each target file and refactor raw `regexp.MustCompile` / `regexp.Compile` to centralized `lazyregex.New(...)`.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B): Modernize all test assertions from blind `if !re.MatchString(s) { t.Error(...) }` to `rs := lazyRegex.MatchResult(s); if rs.IsFailed() { t.Error(rs.AppError()) }`.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C): Refactor group and submatch extraction to fluent methods: `rs.Items()`, `rs.Map()`, `rs.First()`, `rs.Last()`, `rs.FirstOrDefault()`, `rs.At()`.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D): Enforce <= 8–15 line function decomposition and clean blank-line spacing.
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step E): Execute targeted package tests and linters (`golangci-lint run -c .golangci.yml`) to verify 0 remaining violations. DO NOT run full CI runner during routine turns.
+10. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+11. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+12. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+13. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/17-regex-usage-guidelines.md` for lazy regex and pattern caching rules.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
+16. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+17. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Raw Regex & Blind Test Matches, Spec in .ai-memory/plans/pending/, Subtasks, Linter Hook)

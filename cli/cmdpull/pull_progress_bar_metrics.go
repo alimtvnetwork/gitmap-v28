@@ -40,7 +40,6 @@ func (p *PullProgressBar) incrementSuccessCounters(step PullStepType) bool {
 		p.succeeded++
 		return true
 	}
-
 	return false
 }
 
@@ -58,7 +57,6 @@ func (p *PullProgressBar) incrementFailureOrSkipCounters(step PullStepType) {
 func (p *PullProgressBar) IsStopped() bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-
 	return p.isStopped
 }
 
@@ -66,7 +64,6 @@ func (p *PullProgressBar) IsStopped() bool {
 func (p *PullProgressBar) States() []*PullRepoState {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-
 	return p.states
 }
 
@@ -74,7 +71,6 @@ func (p *PullProgressBar) States() []*PullRepoState {
 func (p *PullProgressBar) Failed() int {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-
 	return p.failed
 }
 
@@ -82,6 +78,19 @@ func (p *PullProgressBar) Failed() int {
 func (p *PullProgressBar) Succeeded() int {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-
 	return p.succeeded
+}
+
+// Total returns total repository count.
+func (p *PullProgressBar) Total() int {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.total
+}
+
+// Completed returns completed repository count.
+func (p *PullProgressBar) Completed() int {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.completed
 }

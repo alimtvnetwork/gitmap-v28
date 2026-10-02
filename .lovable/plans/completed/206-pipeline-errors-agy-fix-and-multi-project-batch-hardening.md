@@ -1,7 +1,7 @@
 # Plan 206: Pipeline Errors AGY Fix Hardening and Multi-Project Batch Orchestration
 
-> **Task Type:** Hardening, Background Injection Detachment, Payload Formatting, Documentation & Help Parity  
-> **Execution Context:** Root Task N-Step Loop (Steps 1 to 5)  
+> **Task Type:** Hardening, Background Injection Detachment, Payload Formatting, Documentation & Help Parity
+> **Execution Context:** Root Task N-Step Loop (Steps 1 to 5)
 > **Outcome:** Successfully verified and deployed direct Antigravity injection with headless permissions bypass, process detachment (`DETACHED_PROCESS`), full absolute file path display, full CI/CD error log embedding, prompt queue ledger management, and multi-project parallel batching across single-repo and workspace scopes.
 
 ## Background & Starting Context

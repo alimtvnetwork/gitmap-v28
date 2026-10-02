@@ -47,6 +47,7 @@ Sequence numbers are stable — never renumber, only append.
 | Sync `01-app`, `02-app-issues`, `03-general`, `03-tasks`, `12-consolidated-guidelines` from sibling repos | Maintain locally | `mem://constraints/avoid-app-sync` |
 | Hand-edit `version.json` auto fields | Run `node scripts/sync-version.mjs` | `04-spec-authoring.md` §X.3 |
 | Hand-edit `src/data/specTree.json` | Run `node scripts/sync-spec-tree.mjs` | `04-spec-authoring.md` §X |
+| Commit secrets/private/auth email or password credentials, or specify repo URLs/absolute paths | Store in `repo-secrets` if it exists in the default work directory; never commit secrets or specify repo URLs/absolute paths | `31-special-repos-secrets-and-cache.md` |
 
 ## Error handling 🔴 CODE RED
 

@@ -1,19 +1,419 @@
 ---
 name: ci-cd-fix
-description: "Executes the CI/CD Fix Loop with 4-Part RCA & Local Runner prompt. Preamble Precedence Verification: Whatever is given before this section or prompt. Use when the user asks to run ci-cd-fix, or the task is about CI/CD fixes, pipeline creation, or zero-storage Actions."
+description: >-
+  Use this skill to autonomously diagnose, fix, and verify CI/CD pipelines using local runner scripts, 4-part RCA, and self-looping.
 ---
 
-# CI/CD Fix Loop with 4-Part RCA & Local Runner
+# Instruction (must follow): Autonomous CI/CD Fix Loop (with Local Runner & RCA)
 
-Source prompt: `01-prompts/16-ci-cd/03-ci-cd-fix.md`
+> [!IMPORTANT]
+> Prompt Version: 2.5.0
+> Synchronization: Main Meta-Repo & Connected Workspaces
+>
+> **Top-Instruction Priority Mandate (Preamble Precedence):**
+> Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
-## Instructions
+Trigger Keywords & Aliases: `fix with RCA`, `fix`, `fix, fix`, `CI/CD fix`, `cicd fix`
 
-1. Read `01-prompts/16-ci-cd/03-ci-cd-fix.md` in full before doing the task.
-2. Execute that prompt verbatim. It is the source of truth for this workflow.
-3. A direct instruction in the current user message overrides the prompt when they conflict.
-4. Do not shorten, paraphrase, or skip checklist items in the source prompt.
+[/goal](slashCommand:goal) Autonomously diagnose, update or create the local Python CI/CD runner script (`03-ai-scripts/06-cicd-local-runner.py`) from repository workflows or screenshot pipeline names, and fix all failures by executing a singly-done self-looping sequence (zeroing in on one failure at a time) until the runner exits with code 0 without stopping.
 
-## Goal
+[/learn](slashCommand:learn) Ingest recent RCAs from `.ai-memory/cicd-issues/`, `.ai-memory/issues/`, `02-spec/02-coding-guidelines/02-canonical-size-tier.md`, `02-spec/02-coding-guidelines/01-cross-language/readme.md`, `02-spec/02-coding-guidelines/01-cross-language/readme.md`, and `02-spec/03-error-manage/` before touching any code so past mistakes are never repeated.
 
-Preamble Precedence Verification: Whatever is given before this section or prompt.
+---
+
+## Variables — Configurable at Runtime
+
+```text
+N = 200  (Total self-loop steps budget. The user may override this when triggering the prompt.)
+
+PHASE_1_STEPS = N / 2  (Steps 1 .. N/2: Screenshot Pipeline Discovery, Update 06-cicd-local-runner.py, Register New JOBS)
+PHASE_2_STEPS = N / 2  (Steps N/2+1 .. N: Singly-Done Self-Loop Fixing, Zero in on Errors, 4-Part RCA, Green Gate Verification)
+```
+
+Both N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after the user sets them.
+
+---
+
+## Strict In-Repository Execution & `.ai-memory/` Bounding Mandate
+
+> [!IMPORTANT]
+> **STRICT IN-REPOSITORY EXECUTION & `.ai-memory/` STORAGE CONTRACT:**
+>
+> 1. **In-Codebase Execution Only:** Whenever a Python script (runner, autofixer, linter, test aggregator) is executed or created, it MUST be executed **strictly within the repository root** (current working directory), NEVER outside the codebase or against external arbitrary directories.
+> 2. **Strict Folder Bounding (`.ai-memory/`):** All AI scripts, local runners, autofixers, helper utilities, memory issue logs, and planning files MUST be created inside the `.ai-memory/` folder:
+>    - Python AI Scripts: `03-ai-scripts/` (e.g. `01-file-manipulator.py`, `05-guideline-autofixer.py`, `06-cicd-local-runner.py`).
+>    - RCA & Issue Logs: `.ai-memory/memory/issues/` and `.ai-memory/cicd-issues/`.
+>    - Execution Plans & Subtasks: `.ai-memory/plans/pending/`, `.ai-memory/plans/subtasks/`.
+>    - Coding Guidelines Mirror: `.ai-memory/coding-guidelines.md`.
+> 3. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.ai-memory/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `02-spec/03-error-manage/readme.md`, `.ai-memory/plans/readme.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
+>    - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...)`
+>    - ✅ **GOOD:** `[SSH Commands]`02-spec/13-generic-cli/readme.md)`
+> 4. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
+> 5. **Cross-Platform Python CI Mandate (TOTAL BAN on new `.sh` scripts in CI):** All newly created or refactored CI/CD verification tools, determinism checks, fixtures, and linter jobs MUST be implemented in pure, cross-platform Python (`.py`). Legacy `.sh` scripts must be converted to `.py` scripts so all pipelines run natively across Linux, macOS, and Windows without relying on bash emulation.
+> 6. **Temp & Failure Folder Isolation:** All temporary directories, runner caches, and test artifacts MUST be strictly placed in `.ai-memory/temp/`. Creating `.tmp/` at the repository root or outside `.ai-memory/` is strictly forbidden.
+>    - Dedicated Failure Directory: `.ai-memory/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
+>    - Passing Tests Completely Silent: Passing tests must produce ZERO filesystem artifacts (zero files written) and remain completely silent in output logs.
+> 7. **Runner In-Flight ETA Wait & GitMap Dynamic Waiting Protocol:**
+>    - **Local Runner:** The runner dynamically writes live status and remaining ETA to `.ai-memory/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.ai-memory/temp/runner-eta.json` instead of busy-polling or querying in loops.
+>    - **Remote CI/CD Pipelines (GitMap Mandate):** When checking remote pipeline workflows, the agent MUST use `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status --json`). To inspect running pipelines without burning tokens or user credits, use `gitmap pipeline-ai status -t <etaSeconds>` (or alias `gitmap pl-ai status -t <sec>`). Tight-loop polling (e.g. `gh run view` in rapid loops) is STRICTLY BANNED. Adaptive sleep intervals: ETA > 120s wait 20s-30s; 60s < ETA <= 120s wait 10s-20s; ETA <= 60s wait 5s-10s.
+>    - **Targeted Failure Extraction:** Extract targeted failure lines (`##[error]`, `FAIL:`, compile errors) from GitMap output directly into 4-part RCA files without reading noisy passing step logs.
+> 8. **Targeted Smart Testing & Incremental Caching:** NEVER run full test suites. Tests are strictly restricted to: (1) packages/functions explicitly failing in the provided stack trace, and (2) packages changed between the last git hash and current working tree (`git diff --name-only HEAD~1`). Every fix must persist modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). Verify targeted packages via `python 03-ai-scripts/06-cicd-local-runner.py --changed-only` or `--pkg <target>` to achieve the fastest green exit without running extraneous linters or spellcheckers.
+> 9. **Dual-Queue Worker Pools:** Slow tests run in a dedicated 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until all are complete.
+> 10. **Dynamic ETA Sleep Protocol:** The AI agent reads `.ai-memory/temp/runner-eta.json` (or `gitmap pipeline-ai status --json`), sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
+> 11. **Zero-Storage GitHub Actions Mandate (Total Ban on CI Artifact Uploads):** Workflows MUST NOT upload test outputs, coverage files, Playwright reports, or drift summaries via `actions/upload-artifact`. Free-tier accounts have a strict 0.5 GB shared quota across all repositories. All reports, failures, and summaries MUST be emitted directly to `$GITHUB_STEP_SUMMARY`, console stdout (`cat log.txt`), or sticky PR comments with zero storage consumption. Only true GitHub release assets (binaries/tarballs on tagged releases) are permitted.
+
+---
+
+## Fast File Discovery & Diagnostic Toolchain (Mandatory Acceleration)
+
+To rapidly locate failing pipeline definitions, broken source files, test fixtures, and error logs without hitting 50-result tool caps, the AI agent MUST utilize the diagnostic toolchain:
+- **Remote Pipeline AI Status (<50ms):** `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status --json`)
+- **Remote Dynamic Timeout Wait:** `gitmap pipeline-ai status -t <etaSeconds>` (or alias `gitmap pl-ai status -t <sec>`)
+- **Extract Failing Logs & RCA Snippets:** `gitmap pipeline errors` (alias `gitmap pe`)
+- **Runner Details & Timings:** `gitmap pipeline details` (alias `gitmap pd`)
+- **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]` (alias `gitmap f`)
+- **Stream Workflow / Log File:** `gitmap cat <filepath>` (zero disk writes)
+- **Instant Code Search:** `gitmap search "<symbol>"`
+- **Fallback Fast File Scanner:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts,py --limit 100 --stats`
+- **Fallback Fast Cached Grep:** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<error-or-symbol>" --limit 50`
+- **Fallback Read File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file .github/workflows/ci.yml`
+- **Record Modified Files Under Lock:** `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`
+
+> [!NOTE]
+> **CI/CD Fix Verification Allowance:** Unlike routine refactoring turns, CI/CD Fix workflows ARE explicitly authorized and expected to run local builds, tests, and runner scripts (`python 03-ai-scripts/06-cicd-local-runner.py`) to diagnose failures, reproduce errors, and verify that all quality gates pass (exit code 0).
+
+---
+
+## Screenshot & Pipeline Discovery Protocol (Execute First When Any Image Is Provided)
+
+> [!IMPORTANT]
+> **If the user provides any image or screenshot showing a CI/CD pipeline name, failing workflow, or error log:**
+>
+> 1. **FIRST ACTION — Update Python Runner:** Locate the pipeline/job in `.github/workflows/*.yml` (or repo CI configs) to find whatever new jobs, steps, or linters were added, and **immediately update `03-ai-scripts/06-cicd-local-runner.py`** to include them in the `JOBS` dictionary.
+> 2. **SECOND ACTION — Singly-Done Self-Loop Execution:** Run the Python script iteratively, zeroing in on one failing error at a time using strictly bounded self-loop turns until all checks exit with code 0 (`exit 0`).
+
+### Bounded Single-Step Self-Loop Sequence (Singly Done — No Overloaded Steps)
+
+Every step must be **singly done** using bounded self-looping turns:
+
+- **Self-Loop Step 1 (Extract Pipeline Name from Screenshot or GitMap):**
+  1. Read image or query `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status -t <etaSeconds>`) to extract the pipeline name, failing job name, and targeted failure diagnostics (`##[error]`, `FAIL:`, compile errors).
+  2. Scan `.github/workflows/*.yml` to identify the corresponding shell commands and dependencies.
+
+- **Self-Loop Step 2 (FIRST ACTION: Update Python Runner Script):**
+  1. Open `03-ai-scripts/06-cicd-local-runner.py`.
+  2. If new jobs/steps are found in workflows, strip Docker wrappers and register the new commands in the `JOBS` dictionary.
+  3. Save the runner script and verify syntax.
+
+- **Self-Loop Step 3 (Execute Runner & Baseline Failures):**
+  1. Run `python 03-ai-scripts/06-cicd-local-runner.py`.
+  2. If exit code = 0, proceed to End of Tunnel. If exit code != 0, zero in on the first specific failure.
+
+- **Self-Loop Step 4 (RCA & Zero In on Error):**
+  1. Write 4-part RCA in `.ai-memory/memory/issues/xx-<slug>.md`.
+  2. Register in `.ai-memory/readme.md` and `.ai-memory/strictly-avoid.md`.
+
+- **Self-Loop Step 5 (Surgical Code Fix):**
+  1. Open the specific file and line, apply minimal surgical fix.
+  2. Run `python 03-ai-scripts/05-guideline-autofixer.py <modified-files>`.
+  3. Record modified files safely under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <modified-files>`.
+
+- **Self-Loop Step 6 (Re-Verify & Loop):**
+  1. Re-run `python 03-ai-scripts/06-cicd-local-runner.py`.
+  2. If resolved and more errors remain, self-loop to Step 4 to zero in on the next error until exit code = 0.
+
+---
+
+## Phase 1: Local Runner Script Generation (Steps 1 to PHASE_1_STEPS)
+
+> [!IMPORTANT]
+> **This phase is dedicated ONLY to creating `03-ai-scripts/06-cicd-local-runner.py`.**
+> Do NOT fix code in this phase. Read, understand, and generate the script.
+
+### Step 1: Check for Existing Script & Force Override
+
+- Check if `03-ai-scripts/06-cicd-local-runner.py` already exists.
+- **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
+- If it EXISTS and the user did **not** say `force`: skip to Phase 2.
+- If MISSING or `force` was requested: execute Steps 2–4 for up to PHASE_1_STEPS iterations.
+
+### Step 2: Deep CI/CD Configuration Scan
+
+Spend up to PHASE_1_STEPS self-loop iterations reading in this order:
+
+1. **CI/CD configuration files:**
+   - GitHub Actions: `.github/workflows/*.yml` (ALL files)
+   - GitLab CI: `.gitlab-ci.yml`
+   - Azure Pipelines: `azure-pipelines.yml`
+   - Bitbucket: `bitbucket-pipelines.yml`
+   - CircleCI: `.circleci/config.yml`
+   - Custom runners: `Makefile`, `03-ai-scripts/06-cicd-local-runner.py`, `run.sh`, `run.ps1`
+2. **Language configuration:** `.nvmrc`, `.python-version`, `go.mod`, `pyproject.toml`, `tsconfig.json`, lockfiles
+3. **For every CI/CD job, record:**
+   - `runs-on` image (e.g., `ubuntu-latest`, `node:20-alpine`)
+   - All `run:` shell commands and `uses:` action steps
+   - Environment variables from `env:` blocks
+   - Dependency install commands (`npm ci`, `go mod download`, `pip install -r requirements.txt`)
+   - Lint, typecheck, build, and test commands
+4. **Check local toolchain:** Run `node --version`, `go version`, `python3 --version`, etc. to know what is available natively.
+
+### Step 3: Docker Translation Rule (CRITICAL)
+
+The host machine IS the Docker container. Strip all Docker wrappers:
+
+- `docker run --rm node:20 npm ci` → `npm ci`
+- `docker run --rm python:3.12 pytest` → `python3 -m pytest`
+- `docker run --rm golang:1.22 go test ./...` → `go test ./...`
+- Replace Docker `env` injection with Python `os.environ` assignments.
+- **Skip entirely:** `docker login`, image tagging, container registry pushes — these are deployment steps, not CI checks.
+
+### Step 4: Write `06-cicd-local-runner.py` (Worker Pool & Log Aggregation Architecture)
+
+Generate `03-ai-scripts/06-cicd-local-runner.py` that:
+
+1. **Round-Robin Worker Process / Thread Pool Architecture:** Runs tasks (tests, linters, builds) concurrently using `concurrent.futures.ThreadPoolExecutor(max_workers=3)` (2–3 concurrent tasks).
+2. **Enqueuing Announcement:** The script MUST announce upfront how many tasks it has enqueued across the worker pool (e.g. `[INFO] Enqueued 20 quality gates across 3 concurrent workers...`).
+3. **Real-Time Progress & Timing:** Prints job completions in real time with individual runtimes (e.g. `PASS [Job Name] (X.XXs)`).
+4. **Graceful Non-canceling Failure Handling:** If one job fails in a running batch, the runner DOES NOT abort or cancel other active workers. It lets running tasks finish gracefully, capturing all stdout and stderr.
+5. **Consolidated Summary Report & Full Diagnostic Logs:** Prints a complete final summary with total executed, passed, failed, and timeouts. For every failed or timed-out job, it outputs the full command line, return code, stdout, and stderr so the agent has 100% complete RCA context.
+6. **Clean Exit Code:** Exits with code 0 only when ALL jobs pass; exits non-zero if ANY job fails.
+
+**Template (adapt JOBS dict from actual CI/CD config):**
+
+```python
+#!/usr/bin/env python3
+"""Auto-generated CI/CD local runner with concurrent worker pool and log aggregation.
+Do not edit manually. Re-generate by running:
+python 03-ai-scripts/06-cicd-local-runner.py --rebuild
+"""
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FuturesTimeout
+import os
+import subprocess
+import sys
+import time
+
+# ── Configurable Variables ──────────────────────────────────────────────────
+BATCH_SIZE      = 3    # Number of jobs to run concurrently (round-robin worker pool)
+JOB_TIMEOUT_SEC = 300  # Maximum seconds before a single job is timed out
+
+# ── Environment Configuration ───────────────────────────────────────────────
+os.environ.setdefault("CI", "true")
+os.environ.setdefault("NODE_ENV", "test")
+
+# ── Job Definitions (extracted from CI/CD workflow steps) ───────────────────
+JOBS = {
+    "install":   ["npm", "ci"],
+    "lint":      ["npm", "run", "lint"],
+    "typecheck": ["npx", "tsc", "--noEmit"],
+    "build":     ["npm", "run", "build"],
+    "test":      ["npm", "test", "--", "--watchAll=false"],
+}
+
+def run_job(name, cmd):
+    start = time.monotonic()
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=JOB_TIMEOUT_SEC)
+        elapsed = round(time.monotonic() - start, 2)
+        return name, cmd, result.returncode, result.stdout, result.stderr, elapsed
+    except subprocess.TimeoutExpired as e:
+        elapsed = round(time.monotonic() - start, 2)
+        return name, cmd, "timeout", e.stdout or "", f"Job timed out after {JOB_TIMEOUT_SEC}s", elapsed
+    except Exception as e:
+        elapsed = round(time.monotonic() - start, 2)
+        return name, cmd, 1, "", str(e), elapsed
+
+def main():
+    job_items = list(JOBS.items())
+    total_jobs = len(job_items)
+    print(f"[INFO] Enqueued {total_jobs} quality gates across {BATCH_SIZE} concurrent workers...\n")
+
+    all_results = {}
+    total_start = time.monotonic()
+
+    # Execute jobs using concurrent worker pool
+    with ThreadPoolExecutor(max_workers=BATCH_SIZE) as executor:
+        futures = {executor.submit(run_job, name, cmd): name for name, cmd in job_items}
+        for future in as_completed(futures):
+            try:
+                name, cmd, code, out, err, elapsed = future.result()
+                all_results[name] = (code, out, err, elapsed, cmd)
+                if code == 0:
+                    print(f"  PASS [{name}] ({elapsed}s)")
+                elif code == "timeout":
+                    print(f"  TIMEOUT [{name}] ({elapsed}s)")
+                else:
+                    print(f"  FAIL [{name}] ({elapsed}s)")
+            except Exception as ex:
+                job_name = futures[future]
+                all_results[job_name] = (1, "", str(ex), 0, JOBS.get(job_name, []))
+                print(f"  FAIL [{job_name}] (Exception: {ex})")
+
+    total_elapsed = round(time.monotonic() - total_start, 2)
+
+    # ── Final Consolidated Summary Report ──────────────────────────────────
+    print("\n" + "=" * 60)
+    print("           CI/CD EXECUTION SUMMARY REPORT")
+    print("=" * 60)
+
+    passed_jobs = []
+    failed_jobs = []
+    timeout_jobs = []
+
+    for name, (code, out, err, elapsed, cmd) in all_results.items():
+        if code == 0:
+            passed_jobs.append((name, elapsed))
+        elif code == "timeout":
+            timeout_jobs.append((name, elapsed, err, cmd))
+        else:
+            failed_jobs.append((name, elapsed, out, err, cmd))
+
+    print(f"Total: {total_jobs} | Passed: {len(passed_jobs)} | Failed: {len(failed_jobs)} | Timeouts: {len(timeout_jobs)} | Time: {total_elapsed}s\n")
+
+    if failed_jobs or timeout_jobs:
+        print("Detailed Failure Logs:")
+        print("-" * 60)
+        for name, elapsed, out, err, cmd in failed_jobs:
+            print(f"\n[FAILURE LOG] Job: {name} (Duration: {elapsed}s)")
+            print(f"Command: {' '.join(cmd)}")
+            if out.strip():
+                print(f"Stdout:\n{out.strip()}")
+            if err.strip():
+                print(f"Stderr:\n{err.strip()}")
+            print("-" * 60)
+
+        for name, elapsed, err, cmd in timeout_jobs:
+            print(f"\n[TIMEOUT LOG] Job: {name} (Duration: {elapsed}s)")
+            print(f"Command: {' '.join(cmd)}")
+            print(f"Reason: {err}")
+            print("-" * 60)
+
+        print(f"\n[FAILURE] CI/CD quality gates failed with {len(failed_jobs) + len(timeout_jobs)} error(s).")
+        sys.exit(1)
+    else:
+        print(f"\n[SUCCESS] All {total_jobs} CI/CD quality gates passed (exit 0)!")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+## Phase 2: Autonomous Fix Loop (Steps PHASE_1_STEPS+1 to N)
+
+> [!IMPORTANT]
+> **AUTONOMOUS EXECUTION MANDATE — DO NOT STOP.**
+> Never stop to tell the user "here are the errors". Fix them. Never await remote CI/CD results.
+
+```text
+STEP = 0
+WHILE (STEP < PHASE_2_STEPS):
+    STEP += 1
+
+    1. Run: python 03-ai-scripts/06-cicd-local-runner.py
+    2. Capture exit_code and full output.
+
+    IF exit_code == 0:
+        BREAK  ← All checks pass. Proceed to End of Tunnel.
+
+    ELSE:
+        3. Parse failure: identify exact failing job, error message, file, and line.
+        4. Document 4-part RCA in .ai-memory/memory/issues/xx-<slug>.md
+        5. Apply the minimal surgical code fix.
+        6. Run: python 03-ai-scripts/05-guideline-autofixer.py <modified-files>
+        7. Loop immediately to step 1. DO NOT stop.
+
+IF STEP >= PHASE_2_STEPS AND exit_code != 0:
+    Report remaining failures clearly in chat and ask the user for guidance.
+```
+
+**Sub-Agent Parallelization:** If multiple unrelated jobs fail (e.g., lint + test + typecheck), spawn one dedicated sub-agent per failure with a single-file bounding box. Parent agent collects results and re-runs the runner.
+
+---
+
+## Phase 3: 4-Part RCA Requirement
+
+For each distinct failure (encountered locally or extracted via `gitmap pipeline-ai status --json`), write `.ai-memory/memory/issues/xx-<slug>.md` with:
+
+1. **Why it happened:** High-level architectural reason.
+2. **How it happened:** Exact execution flow that triggered the error (using GitMap targeted failure extraction `##[error]`, `FAIL:`, compile errors for remote pipelines).
+3. **Root Cause:** Exact file, line number, and dependency responsible.
+4. **Code Fix:** Before/after code snippet.
+
+Also append any new forbidden patterns to `.ai-memory/strictly-avoid.md`.
+
+---
+
+## STRICT AVOIDANCE: Never Disable CLI Linting, Static Analysis, or CI/CD Checks (No Shortcut Cheating)
+
+> [!CAUTION]
+> **TOTAL BAN ON DISABLING, SKIPPING, OR BYPASSING CLI LINTERS AND CI/CD GATES:**
+>
+> - **NEVER** disable, comment out, delete, or skip any CLI linting command (`golangci-lint`, `eslint`, `markdownlint`, `tsc`, `pytest`, `phpstan`, `mypy`, `check-*.py`), build step, or test suite.
+> - **NEVER** add `|| true`, `continue-on-error: true`, `# nolint`, `// eslint-disable`, or ignore flags to "quickly win the race" or fake a pipeline pass.
+> - **Your job is to legitimately fix the underlying source code.** If resolving complex lint errors or test failures requires multiple sub-steps, sub-agents, or nested self-looping turns, you MUST execute all necessary turns until the code is 100% clean and compliant.
+> - Disabling or bypassing any CI/CD or CLI lint check is an automatic and immediate rejection.
+
+---
+
+## Strictly Avoid: No Automatic Releases & Run All Tests (Strict Policy)
+
+> [!CAUTION]
+> **NO AUTOMATIC RELEASES (TOTAL BAN IN STANDARD CI-CD-FIX):** This is a development fix workflow. You MUST NOT bump versions, update changelogs, or cut a release. Releases are exclusively handled by `04-ci-cd-fix-with-release.md` or `release-orchestrator`.
+> **NO ROUTINE UNIT TEST RUNNING (EXCLUSIVE TO CI-CD WITH RELEASE):** Routine heavy unit test execution is STRICTLY RESERVED for `04-ci-cd-fix-with-release.md` and release workflows! In standard `ci-cd-fix`, do NOT run full unit test suites or test runner pools (`go test ./...`, `06-cicd-local-runner.py --run-tests`). Instead, diagnose and verify fixes using targeted file-level linters, AST validators, and syntax checks on the specific modified files. ONLY `04-ci-cd-fix-with-release.md` will execute the full test suite (`--run-tests` / `--all`) before cutting the release!
+> **NO PER-FILE COMMITTING (TOTAL BAN):** Never commit each file individually. All modified files across the turn must be accumulated in the working tree and committed together in a single atomic commit at the final step.
+
+---
+
+## Non-Negotiable Coding Standards
+
+- [ ] **GitMap Pipeline-AI & Dynamic Waiting:** If diagnosing remote pipeline failures, used `gitmap pipeline-ai status --json` / `gitmap pl-ai status -t <sec>` with adaptive sleep to prevent credit waste, and extracted targeted diagnostics (`##[error]`, `FAIL:`, compile errors).
+- [ ] **Atomic Change Tracking:** All modified files were recorded safely under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+- [ ] **No Disabling CLI Linting (Zero Bypassing):** All CLI linters and CI/CD quality gates executed fully without `|| true`, `continue-on-error`, or suppression comments. Code was legitimately fixed.
+- [ ] **Zero Actions Storage (Total Ban on CI Artifacts):** Confirmed that NO `actions/upload-artifact` steps exist in CI workflows; all diagnostic outputs stream to `$GITHUB_STEP_SUMMARY` or console logs.
+- [ ] **Legitimate Multi-Step Self-Looping:** If complex errors occurred, I performed dedicated, single-step self-loop iterations to resolve each underlying failure instead of taking shortcuts.
+- [ ] **Return New Line (R13-R16):** Blank line before `return`/`throw` (unless sole statement). Blank line after `}`. Never two blank lines in a row.
+- [ ] **No Explicit True Checks:** Never `== true`. Write `if isReady`.
+- [ ] **No Mixed Polarity:** Never `if isA && !isB`. Extract to a named boolean.
+- [ ] **Affirmative IsDefined:** Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty`).
+- [ ] **Strict Lowercase Files:** All generated/modified files use lowercase naming.
+
+---
+
+## End of Tunnel Checklist
+
+- [ ] **Zero Linting/CI/CD Bypass:** Confirmed that NO CLI linters, static analysis tools, or test scripts were disabled, commented out, skipped, or bypassed with `|| true`.
+- [ ] **Zero Actions Storage:** Confirmed that NO `actions/upload-artifact` steps exist in CI workflows, eliminating quota depletion.
+- [ ] `python 03-ai-scripts/06-cicd-local-runner.py` exited with code 0 (with all quality gates and tests passing).
+- [ ] All failures documented in `.ai-memory/cicd-issues/xx-<slug>.md` (or `02-spec/22-app-issues/` for non-CI/CD issues).
+- [ ] **Modified Files Recorded:** Confirmed all modified files were tracked via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+- [ ] Changes committed: `fix(ci): resolve <summary>`.
+- [ ] Pushed to the current branch.
+- [ ] File change summary posted in chat (file, what changed, why).
+
+---
+
+## Metadata
+
+- slug: cicd-fix
+- status: active
+
+---
+
+## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
+
+- [ ] **TOP-INSTRUCTION PRIORITY MANDATE:** Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) are verified as highest priority and non-negotiable, overriding all lower-level guidelines below.
+- [ ] **ISSUE & RCA DESTINATION ROUTING:** Whenever resolving an issue or performing a fix with RCA, verified that CI/CD failures are documented in .ai-memory/cicd-issues/NN-<slug>.md (indexed in .ai-memory/cicd-index.md), while non-CI/CD issues (application bugs, logic/runtime defects) are documented in 02-spec/22-app-issues/NN-<slug>.md (indexed in 02-spec/22-app-issues/readme.md).
+- [ ] **NO STOPPING AFTER RCA (TOTAL BAN):** Never halt execution or ask user permission after writing the RCA. Proceed unconditionally to Phase 2 code execution.
+- [ ] **NO ROUTINE UNIT TEST RUNNING (TOTAL BAN IN STANDARD CI-CD-FIX):** NEVER run heavy unit test suites (`go test ./...`, `06-cicd-local-runner.py --run-tests`, runner scripts) during standard CI/CD fix turns. All full test suite runs are strictly reserved for `04-ci-cd-fix-with-release.md` and release workflows.
+- [ ] **NO ROUTINE BUILD CHECKING (TOTAL BAN):** NEVER run broad build commands (`go build ./...`, `npm run build`) to verify compilation during intermediate micro-refactoring steps.
+- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
+- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN IN STANDARD CI-CD-FIX):** NEVER bump versions, update changelogs, or trigger releases in standard `ci-cd-fix`. Releases are exclusively handled by `04-ci-cd-fix-with-release.md` or `release-orchestrator`.
+- [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work. Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+
+---
+
+## Final Step Git Commit & Push Mandate (Strict Checklist)
+
+- [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the FINAL step of the turn, after all targeted files have been refactored and verified with targeted linters, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "fix(ci): <description>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] **TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY):** You MUST NOT create separate git commits for each individual file as you edit them. All modified files across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before pushing!

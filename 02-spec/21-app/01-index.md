@@ -104,6 +104,12 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 195: GitMap PAS Formula, Ignore Management Suite, CPAR, and Repository Split-DB Cache Engine](./195-pas-formula-fix-ignores-cpar-and-repo-cache.md)
 - [Spec 196: Fleet Nodes Clone Table Spacing Alignment & W3 Reachability Resilience](./196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md)
 - [Spec 197: GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache](./197-gitmap-pas-fix-and-repo-cache-commands.md)
+- [Spec 181: GitMap Ignore and Cache Engine Architecture](./181-gitmap-ignore-and-cache-engine/01-overview.md)
+- [Spec 198: PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry](./198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md)
+- [Spec 199: Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence](./199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md)
+- [Spec 200: Semantic Flat Commit & Auto-Stage Command (`gitmap commit`, `cm`, `commit-all`, `ca`) & Macro Execution Resilience](./200-semantic-flat-commit-and-auto-stage-command.md)
+- [Spec 201: GitMap Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation](./201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md)
+
 
 ---
 

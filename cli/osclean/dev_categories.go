@@ -11,11 +11,11 @@ func cleanGoCache(isDryRun bool) CategoryCleanStats {
 		Category: "go-buildcache",
 		Label:    "Go build cache + module downloads (~/go/bin SAFE)",
 	}
-	invokeGoClean(isDryRun, &res)
 	for _, dir := range resolveGoPaths() {
 		sub := SweepTarget(dir, isDryRun, true)
 		mergeCleanStats(&res, sub)
 	}
+	invokeGoClean(isDryRun, &res)
 
 	return res
 }
@@ -37,12 +37,11 @@ func resolveGoPaths() []string {
 	if out, ok := runToolCommand("go", "env", "GOMODCACHE"); ok && len(out) > 0 {
 		paths = append(paths, out)
 	}
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
-	paths = append(paths, filepath.Join(local, "go-build"))
-	paths = append(paths, filepath.Join(home, "go", "pkg", "mod"))
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	paths = append(paths, filepath.Join(local, "go-build"), filepath.Join(home, "go", "pkg", "mod"))
 	paths = append(paths, filepath.Join(home, ".cache", "go-build"))
 	paths = append(paths, resolveDevDrives("go/pkg/mod")...)
+	paths = append(paths, resolveDevDrives("go/cache")...)
 
 	return filterUniquePaths(paths)
 }
@@ -52,28 +51,29 @@ func cleanPnpmCache(isDryRun bool) CategoryCleanStats {
 		Category: "pnpm-store",
 		Label:    "pnpm CAS store + download cache (runtime SAFE)",
 	}
-	if !isDryRun && hasTool("pnpm") {
-		_, _ = runToolCommand("pnpm", "store", "prune")
-		res.Notes = append(res.Notes, "Invoked 'pnpm store prune'")
-	}
 	for _, dir := range resolvePnpmPaths() {
 		sub := SweepTarget(dir, isDryRun, false)
 		mergeCleanStats(&res, sub)
+	}
+	if !isDryRun && hasTool("pnpm") {
+		_, _ = runToolCommand("pnpm", "store", "prune")
+		res.Notes = append(res.Notes, "Invoked 'pnpm store prune'")
 	}
 
 	return res
 }
 
 func resolvePnpmPaths() []string {
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
+	home, local := resolveHomeDir(), resolveLocalAppData()
 	paths := []string{
-		filepath.Join(home, ".pnpm-store"),
-		filepath.Join(local, "pnpm", "store"),
-		filepath.Join(local, "pnpm-cache"),
-		filepath.Join(home, ".local", "share", "pnpm", "store"),
+		filepath.Join(home, ".pnpm-store"), filepath.Join(local, "pnpm", "store"),
+		filepath.Join(local, "pnpm-cache"), filepath.Join(home, ".local", "share", "pnpm", "store"),
+	}
+	if out, ok := runToolCommand("pnpm", "store", "path"); ok && len(out) > 0 {
+		paths = append(paths, out)
 	}
 	paths = append(paths, resolveDevDrives("pnpm/store")...)
+	paths = append(paths, resolveDevDrives("pnpm/store/v10")...)
 
 	return filterUniquePaths(paths)
 }
@@ -83,19 +83,17 @@ func cleanNpmCache(isDryRun bool) CategoryCleanStats {
 		Category: "npm-cache",
 		Label:    "npm cache + tarball store",
 	}
-	if !isDryRun && hasTool("npm") {
-		_, _ = runToolCommand("npm", "cache", "clean", "--force")
-		res.Notes = append(res.Notes, "Invoked 'npm cache clean --force'")
-	}
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
-	paths := []string{
-		filepath.Join(local, "npm-cache"),
-		filepath.Join(home, ".npm"),
-		filepath.Join(home, "AppData", "Roaming", "npm-cache"),
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	paths := []string{filepath.Join(local, "npm-cache"), filepath.Join(home, ".npm"), filepath.Join(home, "AppData", "Roaming", "npm-cache")}
+	if out, ok := runToolCommand("npm", "config", "get", "cache"); ok && len(out) > 0 {
+		paths = append(paths, out)
 	}
 	for _, dir := range filterUniquePaths(paths) {
 		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
+	}
+	if !isDryRun && hasTool("npm") {
+		_, _ = runToolCommand("npm", "cache", "clean", "--force")
+		res.Notes = append(res.Notes, "Invoked 'npm cache clean --force'")
 	}
 
 	return res

@@ -15,27 +15,27 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, plan, refactor, and fix all code hygiene, file size, parameter bloat, LF line ending (`\n`), UTF-8 (no BOM) encoding, and trailing newline violations across the codebase, enforcing 100-line standard file caps (recommended <= 80 lines), 8–15 line function caps, specialized parameter-reducing helper functions, extracting inline types, and sanitizing build artifacts until 100% green without stopping.
+[/goal](slashCommand;goal) Autonomously scan, plan, refactor, and fix all code hygiene, file size, parameter bloat, LF line ending (`\n`), UTF-8 (no BOM) encoding, and trailing newline violations across the codebase, enforcing 100-line standard file caps (recommended <= 80 lines), 8–15 line function caps, specialized parameter-reducing helper functions, extracting inline types, and sanitizing build artifacts until 100% green without stopping.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Open each target file and perform surgical refactoring following authoritative guidelines.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
-9. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-10. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-13. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/08-file-folder-naming/` for lowercase naming and continuous file sequencing.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
-16. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-17. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A): Open each target file and perform surgical refactoring following authoritative guidelines.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
+9. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+10. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+11. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+13. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/08-file-folder-naming/` for lowercase naming and continuous file sequencing.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
+16. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+17. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase, Write .ai-memory/plans/pending/ Spec, Create .ai-memory/plans/subtasks/, Verify/Create Linter Hook)
@@ -259,7 +259,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
 - [ ] **Strict In-Repository Execution:** All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] **Strict .ai-memory/ Folder Storage:** All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] **Automated File & Hygiene Fixer:** Use `python 03-ai-scripts/03-file-manipulator.py` and `05-guideline-autofixer.py` to normalize LF endings, remove trailing whitespace, and fix file size boundaries.
@@ -286,7 +286,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 - [ ] **Function Sizing:** All functions <= 8 lines preferred (hard cap 15 lines).
 - [ ] Coding Guidelines & Master Consolidated File: I have fully read, checked, and strictly enforced every file in `02-spec/02-coding-guidelines/`, as well as the master consolidated coding guideline file at `.ai-memory/coding-guidelines.md`.
 
-1. [ ] [/learn](slashCommand:learn) and apply as a [/goal](slashCommand:goal) `.ai-memory/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
+1. [ ] [/learn](slashCommand;learn) and apply as a [/goal](slashCommand;goal) `.ai-memory/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
 
 - [ ] `python linter-scripts/check-file-sizes.py` and `python linter-scripts/check-newline-styling.py` exited with code 0.
 - [ ] **Atomic File Recording:** Modified files recorded to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). Builds, tests, and CI runner are deferred to CI/CD fix.
@@ -295,7 +295,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 
 ## Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
-[/goal](slashCommand:goal) You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
+[/goal](slashCommand;goal) You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
 - [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/02-canonical-size-tier.md`, `02-spec/02-coding-guidelines/08-file-folder-naming/`, and `.ai-memory/coding-guidelines.md`.
@@ -303,7 +303,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 - [ ] Boolean Principles & IsDefined: Positive prefixes only (`is`/`has`). MANDATORY: Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty` / `!res.IsEmpty()`). Never write `if !isEmpty`. Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`.
 - [ ] GitHub Actions Zero Storage (Rule R18): Never use `actions/upload-artifact` in CI workflows; maintain zero Actions storage usage.
 
-1. [ ] [/learn](slashCommand:learn) the section as a [/goal](slashCommand:goal) [AI Fix Scripts Memory](#ai-fix-scripts-memory)
+1. [ ] [/learn](slashCommand;learn) the section as a [/goal](slashCommand;goal) [AI Fix Scripts Memory](#ai-fix-scripts-memory)
 
 - [ ] Action Summary: I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to prove I did not hallucinate.
 

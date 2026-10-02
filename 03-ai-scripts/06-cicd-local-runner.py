@@ -53,6 +53,7 @@ CI_JOBS_MATRIX = engine.CI_JOBS_MATRIX
 
 DEFAULT_CONCURRENCY_WORKERS = engine.DEFAULT_CONCURRENCY_WORKERS
 
+
 REPO_ROOT = getattr(engine, "REPO_ROOT", Path(__file__).resolve().parent.parent)
 CICD_DIR = getattr(engine, "CICD_DIR", REPO_ROOT / ".ai-memory" / "cicd")
 
@@ -119,7 +120,6 @@ class JobResult:
             self.return_code = kwargs.get("return_code", 0)
 
 
-
 @dataclass
 class PipelineSummary:
     """Complete summary of a quality gate pipeline run."""
@@ -146,7 +146,6 @@ def resolve_job_command(job_name: str, command: list[str]) -> list[str]:
     return list(command)
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 TMP_CACHE_DIR = REPO_ROOT / ".ai-memory" / "temp"
 FAILURES_DIR = TMP_CACHE_DIR / "failures"
 RUNNER_ETA_FILE = TMP_CACHE_DIR / "runner-eta.json"

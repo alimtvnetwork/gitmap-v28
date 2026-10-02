@@ -31,17 +31,31 @@ func RunSearch(opts SearchOptions) (SearchResult, *apperror.AppError) {
 }
 
 func validateSearchOptions(opts *SearchOptions) *apperror.AppError {
-	isEmpty := len(opts.Pattern) == 0
-	if isEmpty {
+	if len(opts.Pattern) == 0 {
 		return apperror.NewValidationError("search pattern is required")
 	}
+	if err := validateRegexOption(opts); err != nil {
+		return err
+	}
+	normalizeSearchDefaults(opts)
+	return nil
+}
+
+func validateRegexOption(opts *SearchOptions) *apperror.AppError {
+	if !opts.IsRegex {
+		return nil
+	}
+	_, err := GetRegex(opts.Pattern, opts.IsCaseInsensitive)
+	return err
+}
+
+func normalizeSearchDefaults(opts *SearchOptions) {
 	if opts.Dir == "" {
 		opts.Dir = "."
 	}
 	if opts.Workers <= 0 {
 		opts.Workers = runtime.NumCPU()
 	}
-	return nil
 }
 
 func collectSearchFiles(opts SearchOptions) []string {

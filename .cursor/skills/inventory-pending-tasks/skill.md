@@ -1,19 +1,21 @@
 ---
 name: inventory-pending-tasks
-description: "Executes the Inventory Audit of Pending Tasks - Read-Only Proposal prompt. Perform a strictly read-only scan of the entire repository, 02-spec/, and .ai-memory/ directory to compile a comprehensive, deduplicated inventory of every pending task, subtask, unresolved issue, and open requirement. Use when the user asks to run inventory-pending-tasks, or the task is about planning, spec steps, or an app-spec audit."
+description: Discover, catalog, and sequence all pending plans, subtasks, and unresolved issues across .ai-memory/.
 ---
 
-# Inventory Audit of Pending Tasks - Read-Only Proposal
+# Inventory Pending Tasks
 
-Source prompt: `01-prompts/13-plan-audit/01-inventory-pending-tasks.md`
+Audits and catalogs pending work across `.ai-memory/plans/pending/`, `.ai-memory/plans/subtasks/`, `.ai-memory/issues/`, and `.ai-memory/cicd-issues/`.
 
-## Instructions
+## Workflow
 
-1. Read `01-prompts/13-plan-audit/01-inventory-pending-tasks.md` in full before doing the task.
-2. Execute that prompt verbatim. It is the source of truth for this workflow.
-3. A direct instruction in the current user message overrides the prompt when they conflict.
-4. Do not shorten, paraphrase, or skip checklist items in the source prompt.
-
-## Goal
-
-Perform a strictly read-only scan of the entire repository, 02-spec/, and .ai-memory/ directory to compile a comprehensive, deduplicated inventory of every pending task, subtask, unresolved issue, and open requirement.
+1. **Discover Pending Work (GitMap AUM Acceleration - PRIMARY):**
+   - Universal Pending Scan: `gitmap find "*.md" -ext "md"` scoped to `.ai-memory/plans/pending/`
+   - List Subtasks: `gitmap list-files ".ai-memory/plans/subtasks/*"` (alias `gitmap lf`)
+   - Read Manifests: `gitmap cat .ai-memory/plans/readme.md`
+2. **Fallback Discovery (Python Scripts):**
+   - `python 03-ai-scripts/11-fast-file-scanner.py --search "pending" --limit 20`
+   - `python 03-ai-scripts/17-fast-file-reader.py --read-file .ai-memory/plans/readme.md`
+3. **Verify Subtask Batch Linkages:** Check `.ai-memory/plans/subtasks/` against canonical spec in `02-spec/21-app/`.
+4. **Check Unresolved Issues:** Inspect `.ai-memory/issues/` and `.ai-memory/cicd-issues/`.
+5. **Present Aligned Sequence:** Output execution readiness and priority execution roadmap.

@@ -4,7 +4,7 @@
 This specification consolidates the feature requests from the multi-part prompt provided in `02-spec/21-app/pas-fix-parts/`. It covers sweeping enhancements to GitMap's repository management capabilities, async task handling, ignoring logic, and a new high-performance SQLite-based repository cache.
 
 ## 1. PAS Formula & Async Execution
-- **`gitmap pull all (pa)`**: Modifies behavior to prioritize the actual pull operation over `gitignore` checks. Ignore checks should run asynchronously (e.g., 5 projects per worker) to find duplicates or tracked ignored files. 
+- **`gitmap pull all (pa)`**: Modifies behavior to prioritize the actual pull operation over `gitignore` checks. Ignore checks should run asynchronously (e.g., 5 projects per worker) to find duplicates or tracked ignored files.
 - **`gitmap pull all ssh (pas)`**: Applies the "Gitmap PAS formula". Runs `pa` on the current machine and delegates to SSH nodes using GitMap's task servers. SSH delegation must be highly efficient: 1 or 2 workers handling 2 async operations maximum to preserve delicate SSH resource constraints.
 - All actions enqueue tasks on the task server and record results in the history/errors DB.
 
@@ -35,6 +35,14 @@ This specification consolidates the feature requests from the multi-part prompt 
   - `[slug].db` (Folder): Each subfolder gets its own SQLite DB containing its exact relative path and files.
   - Avoids nesting DBs for sub-subfolders.
 - **`gitmap cache search / multi-search / search-multi-grep`**: Performs regex/text searches directly against SQLite for massive performance gains. Displays 10 lines of context by default (limit 20 matches).
+  - `gitmap cache search "text search" "*.md" [--lines 10] [--limit 20]`
+  - `gitmap cache search "text search" -file-pattern (fp) "a*.md", "b*.md" [--lines 10] [--limit 20]`
+  - `gitmap cache search-multi "text search", "multi *" -file-pattern (fp) "a*.md" [--lines 10] [--limit 20]`
+  - `gitmap cache search-multi-grep "regex search", "multi *" -file-pattern (fp) "a*.md" [--lines 10] [--limit 20]`
+  - `gitmap cache recache/reconcile/sync`
+- **History Commands**:
+  - `gitmap history ssh`
+  - `gitmap nodes histories/history`
 - **Auto-Reconciliation**: If search finds outdated `last_modified` times, async workers seamlessly update the SQLite DB from the filesystem.
 
 ## 5. UI and Help

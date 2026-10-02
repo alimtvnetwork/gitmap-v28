@@ -15,31 +15,31 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, discover, plan, refactor, and format all function signatures across the codebase, enforcing argument reduction via dedicated value-based parameter Structs/DTOs for signatures with >2–3 parameters, affirmative boolean prefixing (is and has only (can, should, was, etc. are banned)) on all struct fields, mandatory `*appfault.AppError` returns (eliminating bare "void" functions in Go), wrapping external framework errors into `*AppError`, and single `Result[T]` return envelopes until 100% green without stopping.
+[/goal](slashCommand;goal) Autonomously scan, discover, plan, refactor, and format all function signatures across the codebase, enforcing argument reduction via dedicated value-based parameter Structs/DTOs for signatures with >2–3 parameters, affirmative boolean prefixing (is and has only (can, should, was, etc. are banned)) on all struct fields, mandatory `*appfault.AppError` returns (eliminating bare "void" functions in Go), wrapping external framework errors into `*AppError`, and single `Result[T]` return envelopes until 100% green without stopping.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-argument-reduction-audit.md` with an exhaustive Parameter & Return Ledger table.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/XX-argument-reduction/`.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D): Verify or create the automated parameter linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Refactor multi-argument functions (>2–3 params) by encapsulating parameters into dedicated value-based Structs (`TrackResultParams`, `CloneOptions`) or parameter objects.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Enforce strict boolean prefixes (is and has only (can, should, was, etc. are banned)) on all struct fields and queued tasks (e.g. `safePull` -> `isSafePull`).
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Eliminate all bare "void" functions in Go domain/service logic by mandating `*appfault.AppError` returns for side-effect operations and `Result[T]` for data operations.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Convert all external/framework standard `error` returns to `*appfault.AppError` context wrappers (`appfault.WrapSimple(err, caller)`).
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step E): Execute local linters (`python linter-scripts/check-function-lengths.py`, `check-newline-styling.py`) to verify 0 remaining violations.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step F): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
-11. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-12. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-13. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for Rule 9a/9b multi-line parameter and call formatting.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md` for semantic verb and predicate prefix standards.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-17. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
-18. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/readme.md` for universal AppError wrapping and error envelopes.
-19. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/readme.md` for Result[T] and standardized API envelopes.
-20. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-21. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-argument-reduction-audit.md` with an exhaustive Parameter & Return Ledger table.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/XX-argument-reduction/`.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D): Verify or create the automated parameter linter and register in `03-ai-scripts/readme.md`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A): Refactor multi-argument functions (>2–3 params) by encapsulating parameters into dedicated value-based Structs (`TrackResultParams`, `CloneOptions`) or parameter objects.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B): Enforce strict boolean prefixes (is and has only (can, should, was, etc. are banned)) on all struct fields and queued tasks (e.g. `safePull` -> `isSafePull`).
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C): Eliminate all bare "void" functions in Go domain/service logic by mandating `*appfault.AppError` returns for side-effect operations and `Result[T]` for data operations.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D): Convert all external/framework standard `error` returns to `*appfault.AppError` context wrappers (`appfault.WrapSimple(err, caller)`).
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step E): Execute local linters (`python linter-scripts/check-function-lengths.py`, `check-newline-styling.py`) to verify 0 remaining violations.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Step F): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
+11. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+12. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+13. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for Rule 9a/9b multi-line parameter and call formatting.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md` for semantic verb and predicate prefix standards.
+16. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+17. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+18. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/readme.md` for universal AppError wrapping and error envelopes.
+19. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/readme.md` for Result[T] and standardized API envelopes.
+20. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+21. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Loose Parameters & Void Functions, Build Violation Ledger, Subtasks)
@@ -463,7 +463,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
 - [ ] **Strict In-Repository Execution:** All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] **Strict 03-ai-scripts/ Tooling Storage:** All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] **Automated Naming & Style Fixers:** Use `python 03-ai-scripts/08-naming-autofixer.py` and `05-guideline-autofixer.py` to audit boolean prefixes and newlines.
@@ -501,7 +501,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 
 ## Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
-[/goal](slashCommand:goal) You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
+[/goal](slashCommand;goal) You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
 - [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/01-cross-language/readme.md` and `.ai-memory/coding-guidelines.md`.
@@ -514,7 +514,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 - [ ] Blank Line After `}`: Verified blank line after every closing brace `}` followed by code.
 - [ ] Blank Line Before `return`: Verified blank line before every `return`/`throw` in multi-line blocks.
 - [ ] Zero Nested `if`: Zero nested `if` statements (depth > 1).
-- [ ] [/learn](slashCommand:learn) the section as a [/goal](slashCommand:goal) [AI Fix Scripts Catalog](03-ai-scripts/readme.md)
+- [ ] [/learn](slashCommand;learn) the section as a [/goal](slashCommand;goal) [AI Fix Scripts Catalog](03-ai-scripts/readme.md)
 - [ ] Action Summary: I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to prove I did not hallucinate.
 
 ---

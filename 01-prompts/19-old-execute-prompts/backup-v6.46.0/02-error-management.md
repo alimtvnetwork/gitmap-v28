@@ -15,7 +15,7 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, plan, refactor, and fix all error management violations across the codebase, modifying source files directly to implement `*appfault.AppError` wrappers, outer error handling, specialized exit helpers, and universal response envelopes until 100% green without stopping.
+[/goal](slashCommand;goal) Autonomously scan, plan, refactor, and fix all error management violations across the codebase, modifying source files directly to implement `*appfault.AppError` wrappers, outer error handling, specialized exit helpers, and universal response envelopes until 100% green without stopping.
 
 ---
 
@@ -31,27 +31,27 @@ Before executing the tasks below, check if this prompt is already installed as a
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1A (Step 0 - Verbatim Prompt Recording & Task Extraction Gate): Immediately capture the user prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`, extract actionable deliverables with traceable IDs (`Task-01`, `Task-02`), and output this confirmed task breakdown directly in chat in cleanly indented markdown with vertical blank lines, task state (`State: [PENDING]`), and understanding indicator bracket (`Understood: [YES — ...]`) before any file exploration, scanning, or spec writing.
-2. [ ] [/goal](slashCommand:goal) Phase 1B (Step 1 - Master Spec Generation): Write the master architectural plan in `.ai-memory/plans/pending/xx-<slug>.md`, documenting an exhaustive Violation Ledger tracking every bare error return, swallowed error, and missing fault wrapper.
-3. [ ] [/goal](slashCommand:goal) Phase 1B (Step 2 - Scan & Discover): Use GitMap AUM discovery (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery scripts (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
-4. [ ] [/goal](slashCommand:goal) Phase 1B (Step 3 - Lean Subtask Decomposition): Decompose the master plan into granular, lean subtasks in `.ai-memory/plans/subtasks/xx-<slug>/01-<subslug>.md`. Subtasks must focus purely on unique task deliverables without repeating common repository boilerplate.
-5. [ ] [/goal](slashCommand:goal) Phase 1B (Step 4 - Readiness Audit Gate): Confirm all `Task-xx` deliverables are mapped to subtasks and disjoint files before execution.
-6. [ ] [/goal](slashCommand:goal) Phase 1B (Zero-Stop Transition): Immediately upon completing Phase 1, self-loop and transition directly into Phase 2 execution mode without pausing or asking for permission.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step A - Active Execution & Refactoring): Open each target file and perform surgical refactoring following authoritative guidelines: wrap all received Go errors in `*appfault.AppError`, enforce monadic `result.Wrap[T]`, eliminate bare returns, and remove all swallowed errors.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step B - Size Tier & Formatting Enforcement): Enforce <= 8–15 line function decomposition, single return types, guard clause flattening, and clean formatting.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step C - Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents must read the failure log first to remediate root causes.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step D - Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters on specifically modified files (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`), unit tests, or build checks during routine turns.
-11. [ ] [/goal](slashCommand:goal) Phase 3 (Step A - Consolidation & Atomic Push): Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md`, delete granular subtasks and pending plan, stage all changes, and push in a single grouped commit.
-12. [ ] [/goal](slashCommand:goal) Phase 3 (Step B - Completion & Confidence Reporting): Emit the final Task Completion Summary with green check mark emojis, modified files summary, and implementation confidence score.
-13. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-14. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
-17. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
-18. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
-19. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
-20. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-21. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1A (Step 0 - Verbatim Prompt Recording & Task Extraction Gate): Immediately capture the user prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`, extract actionable deliverables with traceable IDs (`Task-01`, `Task-02`), and output this confirmed task breakdown directly in chat in cleanly indented markdown with vertical blank lines, task state (`State: [PENDING]`), and understanding indicator bracket (`Understood: [YES — ...]`) before any file exploration, scanning, or spec writing.
+2. [ ] [/goal](slashCommand;goal) Phase 1B (Step 1 - Master Spec Generation): Write the master architectural plan in `.ai-memory/plans/pending/xx-<slug>.md`, documenting an exhaustive Violation Ledger tracking every bare error return, swallowed error, and missing fault wrapper.
+3. [ ] [/goal](slashCommand;goal) Phase 1B (Step 2 - Scan & Discover): Use GitMap AUM discovery (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery scripts (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
+4. [ ] [/goal](slashCommand;goal) Phase 1B (Step 3 - Lean Subtask Decomposition): Decompose the master plan into granular, lean subtasks in `.ai-memory/plans/subtasks/xx-<slug>/01-<subslug>.md`. Subtasks must focus purely on unique task deliverables without repeating common repository boilerplate.
+5. [ ] [/goal](slashCommand;goal) Phase 1B (Step 4 - Readiness Audit Gate): Confirm all `Task-xx` deliverables are mapped to subtasks and disjoint files before execution.
+6. [ ] [/goal](slashCommand;goal) Phase 1B (Zero-Stop Transition): Immediately upon completing Phase 1, self-loop and transition directly into Phase 2 execution mode without pausing or asking for permission.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step A - Active Execution & Refactoring): Open each target file and perform surgical refactoring following authoritative guidelines: wrap all received Go errors in `*appfault.AppError`, enforce monadic `result.Wrap[T]`, eliminate bare returns, and remove all swallowed errors.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step B - Size Tier & Formatting Enforcement): Enforce <= 8–15 line function decomposition, single return types, guard clause flattening, and clean formatting.
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step C - Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents must read the failure log first to remediate root causes.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Step D - Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters on specifically modified files (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`), unit tests, or build checks during routine turns.
+11. [ ] [/goal](slashCommand;goal) Phase 3 (Step A - Consolidation & Atomic Push): Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md`, delete granular subtasks and pending plan, stage all changes, and push in a single grouped commit.
+12. [ ] [/goal](slashCommand;goal) Phase 3 (Step B - Completion & Confidence Reporting): Emit the final Task Completion Summary with green check mark emojis, modified files summary, and implementation confidence score.
+13. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+14. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+16. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+17. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+18. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+19. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
+20. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+21. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase, Write .ai-memory/plans/pending/ Spec, Create .ai-memory/plans/subtasks/, Verify/Create Linter Hook)

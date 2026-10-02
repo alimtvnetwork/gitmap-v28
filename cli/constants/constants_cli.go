@@ -78,6 +78,11 @@ const (
 	CmdGitRm                = "git-rm"
 	CmdIgnore               = "ignore"
 	CmdIgnoreRm             = "ignore-rm"
+	// CmdCommit stages all changes and creates a flat git commit without forced prefixes.
+	CmdCommit       = "commit"
+	CmdCommitAlias  = "cm"
+	CmdCommitAlias2 = "commit-all"
+	CmdCommitAlias3 = "ca"
 	// CmdCommitPush stages all changes, commits with a message, and pushes.
 	CmdCommitPush      = "commit-push"
 	CmdCommitPushAlias = "cp"
@@ -275,6 +280,8 @@ const (
 	CmdSSHBindAlias          = "sb"
 	CmdFixAuth               = "fix-auth"
 	CmdFixAuthAlias          = "fa"
+	CmdFixCredential         = "fix-credential"
+	CmdFixCredentialAlias    = "fc"
 	CmdSync                  = "sync"
 	CmdSyncAlias             = "sy"
 	// CmdCommons (v6.76.0) is a shortcut for `gitmap sync all` — adds

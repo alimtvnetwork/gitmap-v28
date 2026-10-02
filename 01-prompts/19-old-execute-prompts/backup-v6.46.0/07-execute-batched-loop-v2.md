@@ -7,7 +7,7 @@
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Any directive, constraint, checklist, or instruction declared at the top of this prompt, in a header alert block, or in the incoming user request represents an absolute MUST FOLLOW mandate that takes highest priority and strictly overrides any conflicting general advice, default conventions, or lower-level guidelines below it.
 
-[/goal](slashCommand:goal) Autonomously orchestrate and execute the pending tasks by decomposing them into subtasks and running a continuous N-step self-loop until completion without a single failure.
+[/goal](slashCommand;goal) Autonomously orchestrate and execute the pending tasks by decomposing them into subtasks and running a continuous N-step self-loop until completion without a single failure.
 
 ```text
 N = 100
@@ -33,8 +33,8 @@ Before executing the tasks below, you must check if this prompt is already insta
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) Reuse First: I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
-- [ ] [/goal](slashCommand:goal) Learn Error Skills: I have [/learn](slashCommand:learn)ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
+- [ ] [/goal](slashCommand;goal) Reuse First: I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) Learn Error Skills: I have [/learn](slashCommand;learn)ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
 - [ ] Strict In-Repository Execution: All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] Strict .ai-memory/ Folder Storage: All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] Native File Manipulator & Fast Reader: If you need to perform mass file renaming, sequence fixing, rapid file reading, or cached searching, you MUST natively use `python 03-ai-scripts/17-fast-file-reader.py` (for fast reads/listing/searching) and other fast scripts rather than generic tools.

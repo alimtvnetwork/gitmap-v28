@@ -13,7 +13,8 @@ func buildCommitHelpMenu() termhelp.HelpMenu {
 	return termhelp.HelpMenu{
 		Title: "Semantic Commit & Transfer Suite (gitmap commit)",
 		UsageLines: []string{
-			"gitmap commit [git-commit-args...]",
+			"gitmap commit \"<message>\" (flat commit with auto-add)",
+			"gitmap cm \"<message>\" (short alias for commit)",
 			"gitmap commit-both <left> <right> [flags]",
 			"gitmap commit-left <left> <right> [flags]",
 			"gitmap commit-right <left> <right> [flags]",
@@ -27,6 +28,7 @@ func buildCommitHelpMenu() termhelp.HelpMenu {
 		},
 		FooterFlags: buildCommitFooterFlags(),
 		Tips: []string{
+			"Use 'gitmap commit \"message\"' (or 'gitmap cm') for 1-step auto-stage and flat commit.",
 			"Use 'gitmap commit-both' to synchronize commits bidirectionally between repositories.",
 			"Use 'gitmap cpf \"feat: description\"' for 1-step stage, commit, and push.",
 		},
@@ -59,8 +61,9 @@ func buildCommitTransferSection() termhelp.HelpSection {
 
 func buildCommitAIWorkflowSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
-		Title: "AI Semantic Shortcuts",
+		Title: "Commit & AI Workflow Shortcuts",
 		Entries: []termhelp.CommandEntry{
+			{Command: "commit, cm <msg>", Description: "Flat git commit with auto-stage (git add -A)"},
 			{Command: "cpf <msg>", Description: "commit-push-feature: stage all, commit feat, and push"},
 			{Command: "cpb <msg>", Description: "commit-push-bug: stage all, commit bugfix, and push"},
 			{Command: "cpr <msg>", Description: "commit-push-release: stage, commit release chore, and push"},

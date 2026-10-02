@@ -3,7 +3,7 @@
 > **Prompt Version:** 2.1.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-[/goal](slashCommand:goal) Your objective is to deeply audit the `.ai-memory/plans/` directory for any subtask files that incorrectly use the `SS-` or `SS-XX-` prefix and fix them. The correct prefix MUST always be strictly `xx-<subslug>.md` (where `XX` is the zero-padded sequence number).
+[/goal](slashCommand;goal) Your objective is to deeply audit the `.ai-memory/plans/` directory for any subtask files that incorrectly use the `SS-` or `SS-XX-` prefix and fix them. The correct prefix MUST always be strictly `xx-<subslug>.md` (where `XX` is the zero-padded sequence number).
 You must also update all markdown files that reference the old filenames, and update the project's memory.
 
 ## MUST FOLLOW NON-NEGOTIABLE

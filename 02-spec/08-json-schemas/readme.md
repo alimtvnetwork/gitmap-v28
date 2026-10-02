@@ -44,7 +44,7 @@ treated as an unknown annotation per §6.4 of the 2020-12 spec).
 
 # Fetch the schema
 
-curl -O https://raw.githubusercontent.com/.../02-spec/08-json-schemas/startup-list.schema.json
+curl -O https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/08-json-schemas/startup-list.schema.json
 
 # Validate a real output (using ajv-cli as one example)
 

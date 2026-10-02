@@ -4,7 +4,7 @@
 > **Target:** `01-prompts/08-dry-code/01-python-dry-architecture-and-caching.md`
 > **Synchronization:** Meta-Repo & AI Scripting Ecosystem
 
-[/goal](slashCommand:goal) Standardize the architectural design of all Python CI/CD, linting, and fix scripts using strict Python Enum conventions (PascalCase class name ending in Type, UPPER_CASE members, string values mirroring member names), centralized configuration maps, thread-safe lazy regex compilation with pre-initialized None mapping, zero magic strings/numbers, shallow guard clauses (ban nested if pyramids), fast substring pre-filtering, DRY shared engines, multi-folder scoping, customizable extensions, pluggable `tmp/cache/` storage, cross-process atomic file locking, and two-phase incremental `mtime` caching.
+[/goal](slashCommand;goal) Standardize the architectural design of all Python CI/CD, linting, and fix scripts using strict Python Enum conventions (PascalCase class name ending in Type, UPPER_CASE members, string values mirroring member names), centralized configuration maps, thread-safe lazy regex compilation with pre-initialized None mapping, zero magic strings/numbers, shallow guard clauses (ban nested if pyramids), fast substring pre-filtering, DRY shared engines, multi-folder scoping, customizable extensions, pluggable `tmp/cache/` storage, cross-process atomic file locking, and two-phase incremental `mtime` caching.
 
 ## 🎯 Architectural Philosophy
 

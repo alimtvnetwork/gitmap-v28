@@ -27,6 +27,10 @@ func dispatchGitSubcommand(subCmd string, subArgs []string) error {
 	if subCmd == "pull" {
 		return runPull(subArgs)
 	}
+	return dispatchGitPullSubcommands(subCmd, subArgs)
+}
+
+func dispatchGitPullSubcommands(subCmd string, subArgs []string) error {
 	if subCmd == "pull-all-ssh" || subCmd == "pas" {
 		return runPullAll(append([]string{"--ssh"}, subArgs...))
 	}
@@ -80,7 +84,9 @@ func isShortPullEfficientGitSubCmd(subCmd string) bool {
 }
 
 func runGitPassthrough(args []string) error {
-	if err := execGitInheritCP(args...); err != nil {
+	err := execGitInheritCP(args...)
+	hasErr := err != nil
+	if hasErr {
 		return apperror.WrapSimple(err, "git passthrough failed")
 	}
 

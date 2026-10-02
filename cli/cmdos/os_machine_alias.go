@@ -52,7 +52,13 @@ func dispatchMachineOrAlias(mode string, args []string) error {
 	isSSH := hasFlag(args, "--ssh") || hasFlag(args, "-s")
 	isJSON := hasFlag(args, "--json") || hasFlag(args, "-j")
 	clean := filterPositionalMachineArgs(args)
-	if len(clean) == 0 || isOSHelpArg(clean[0]) {
+	if len(clean) == 0 && isSSH {
+		return renderFleetMachineAliasList(mode, isJSON)
+	}
+	if len(clean) == 0 {
+		return renderSingleMachineIdentity(resolveLocalMachineIdentity(), isJSON)
+	}
+	if isOSHelpArg(clean[0]) {
 		RenderMachineAliasHelp(mode)
 		return executeMachineAliasList(mode, isSSH, isJSON)
 	}
@@ -83,6 +89,9 @@ func filterPositionalMachineArgs(args []string) []string {
 }
 
 func isSkippedMachineArg(arg string, count int) bool {
+	if isOSHelpArg(arg) {
+		return false
+	}
 	if strings.HasPrefix(arg, "-") {
 		return true
 	}
@@ -166,40 +175,27 @@ func executeMachineAliasList(mode string, isSSH, isJSON bool) error {
 		return renderFleetMachineAliasList(mode, isJSON)
 	}
 	local := resolveLocalMachineIdentity()
+	return renderSingleMachineIdentity(local, isJSON)
+}
+
+func renderSingleMachineIdentity(id MachineIdentity, isJSON bool) error {
 	if isJSON {
-		return printIdentityJSON(local)
+		return printIdentityJSON([]MachineIdentity{id})
 	}
-	renderSingleMachineIdentity(mode, local)
-	return nil
-}
-
-func renderSingleMachineIdentity(mode string, id MachineIdentity) {
-	title := "Machine Identity & OS Hostname"
-	if mode == "alias" {
-		title = "Machine Alias & Network Identifier"
-	}
-	fmt.Printf("%s● %s%s\n", constants.ColorCyan, title, constants.ColorReset)
-	fmt.Printf("  Machine IP:      %s%s%s\n", constants.ColorGreen, id.IPAddress, constants.ColorReset)
-	fmt.Printf("  Machine Alias:   %s%s%s (auto-defaults to IP if unset)\n", constants.ColorYellow, id.Alias, constants.ColorReset)
-	fmt.Printf("  Machine Name:    %s%s%s (OS Hostname: %s)\n", constants.ColorCyan, id.MachineName, constants.ColorReset, id.OSHostname)
-	if id.CurrentUser != "" {
-		fmt.Printf("  Current User:    %s\n", id.CurrentUser)
-	}
-	fmt.Printf("  Previous Value:  name=%q | alias=%q\n", id.PreviousName, id.PreviousAlias)
-	renderSystemDetails(id)
-}
-
-func renderSystemDetails(id MachineIdentity) {
-	fmt.Printf("  OS Platform:     %s\n", id.OSPlatform)
+	fmt.Printf("%s● Machine Identity:%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  • %-17s%s\n", "Alias:", id.Alias)
+	fmt.Printf("  • %-17s%s\n", "Hostname:", id.MachineName)
+	fmt.Printf("  • %-17s%s\n", "IP Address:", id.IPAddress)
+	osDesc := id.OSPlatform
 	if id.OSVersion != "" {
-		fmt.Printf("  OS Version:      %s%s%s\n", constants.ColorGreen, id.OSVersion, constants.ColorReset)
+		osDesc = fmt.Sprintf("%s (%s)", id.OSPlatform, id.OSVersion)
 	}
-	if id.Architecture != "" || id.CPUCores > 0 {
-		fmt.Printf("  System Hardware: %s, %d CPU core(s)\n", id.Architecture, id.CPUCores)
-	}
-	if id.GitMapVersion != "" {
-		fmt.Printf("  GitMap Version:  %s\n", id.GitMapVersion)
-	}
+	fmt.Printf("  • %-17s%s\n", "OS Platform:", osDesc)
+	archDesc := formatArchWithCores(id.Architecture, id.CPUCores)
+	fmt.Printf("  • %-17s%s\n", "Architecture:", archDesc)
+	fmt.Printf("  • %-17s%s\n", "User:", id.CurrentUser)
+	fmt.Printf("  • %-17s%s\n", "GitMap Version:", id.GitMapVersion)
+	return nil
 }
 
 func renderFleetMachineAliasList(mode string, isJSON bool) error {
@@ -208,16 +204,40 @@ func renderFleetMachineAliasList(mode string, isJSON bool) error {
 		return printIdentityJSON(items)
 	}
 	fmt.Printf("%s● SSH Fleet & Local Machine Identifiers (%s --ssh)%s\n", constants.ColorCyan, mode, constants.ColorReset)
+	if hasFleetGitMapVersion(items) {
+		return renderFleetVersionTable(items)
+	}
+	return renderFleetStandardTable(items)
+}
+
+func hasFleetGitMapVersion(items []MachineIdentity) bool {
+	for _, it := range items {
+		if it.GitMapVersion != "" {
+			return true
+		}
+	}
+	return false
+}
+
+func renderFleetVersionTable(items []MachineIdentity) error {
+	fmt.Printf("  %-4s %-12s %-16s %-18s %-18s %-20s %-14s %s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "USER", "OS PLATFORM", "OS VERSION", "GITMAP VERSION")
+	fmt.Printf("  %s\n", strings.Repeat("─", 125))
+	for _, it := range items {
+		user := fallbackDash(it.CurrentUser)
+		osVer := fallbackDash(it.OSVersion)
+		gmVer := fallbackDash(it.GitMapVersion)
+		fmt.Printf("  #%-3d %-12s %-16s %-18s %-18s %-20s %-14s %s\n",
+			it.Sequence, it.NodeID, it.IPAddress, it.Alias, user, it.OSPlatform, osVer, gmVer)
+	}
+	return nil
+}
+
+func renderFleetStandardTable(items []MachineIdentity) error {
 	fmt.Printf("  %-4s %-12s %-16s %-18s %-18s %-20s %s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "USER", "OS PLATFORM", "OS VERSION")
 	fmt.Printf("  %s\n", strings.Repeat("─", 110))
 	for _, it := range items {
-		user, osVer := it.CurrentUser, it.OSVersion
-		if user == "" {
-			user = "-"
-		}
-		if osVer == "" {
-			osVer = "-"
-		}
+		user := fallbackDash(it.CurrentUser)
+		osVer := fallbackDash(it.OSVersion)
 		fmt.Printf("  #%-3d %-12s %-16s %-18s %-18s %-20s %s\n",
 			it.Sequence, it.NodeID, it.IPAddress, it.Alias, user, it.OSPlatform, osVer)
 	}
@@ -256,7 +276,8 @@ func convertSSHConnToIdentity(seq int, conn db.SSHConnection) MachineIdentity {
 		Sequence: seq, NodeID: nodeID, IPAddress: conn.IPAddress, Alias: alias,
 		MachineName: alias, OSHostname: alias, PreviousAlias: prev,
 		OSPlatform: osPlatform, OSVersion: conn.OSVersion, CurrentUser: conn.Username,
-		Scope: "ssh",
+		GitMapVersion: conn.BuildVersion,
+		Scope:         "ssh",
 	}
 }
 
@@ -447,4 +468,21 @@ func buildMachineAliasFooterFlags() []termhelp.CommandEntry {
 		{Command: "-j, --json", Description: "Output machine identity or SSH fleet table as structured JSON"},
 		{Command: "-h, --help", Description: "Display help and current machine summary"},
 	}
+}
+
+func formatArchWithCores(arch string, cores int) string {
+	if cores <= 0 {
+		return arch
+	}
+	if arch != "" {
+		return fmt.Sprintf("%s (%d CPUs)", arch, cores)
+	}
+	return fmt.Sprintf("%d CPUs", cores)
+}
+
+func fallbackDash(val string) string {
+	if val == "" {
+		return "-"
+	}
+	return val
 }

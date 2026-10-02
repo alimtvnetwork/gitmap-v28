@@ -68,8 +68,8 @@ func searchFileContent(path string, ctx workerSearchContext) []SearchMatch {
 }
 
 func hasFileMatch(data []byte, ctx workerSearchContext) bool {
-	if ctx.opts.IsRegex && ctx.reg != nil {
-		return ctx.reg.Match(data)
+	if ctx.opts.IsRegex {
+		return ctx.reg != nil && ctx.reg.Match(data)
 	}
 	if ctx.opts.IsCaseInsensitive {
 		return bytes.Contains(bytes.ToLower(data), ctx.lowerBytes)
@@ -107,8 +107,8 @@ func scanMatchingLines(path string, data []byte, ctx workerSearchContext) []Sear
 }
 
 func isLineMatch(line []byte, ctx workerSearchContext) bool {
-	if ctx.opts.IsRegex && ctx.reg != nil {
-		return ctx.reg.Match(line)
+	if ctx.opts.IsRegex {
+		return ctx.reg != nil && ctx.reg.Match(line)
 	}
 	if ctx.opts.IsCaseInsensitive {
 		return bytes.Contains(bytes.ToLower(line), ctx.lowerBytes)

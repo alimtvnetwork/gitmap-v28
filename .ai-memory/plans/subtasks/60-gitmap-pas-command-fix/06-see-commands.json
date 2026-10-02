@@ -1,0 +1,15 @@
+{
+  "subtask_id": "06-see-commands",
+  "status": "COMPLETED",
+  "verified_commands": [
+    "gitmap see commit pending (c commit pending)",
+    "gitmap see git-ignore issues (c ig issues)",
+    "gitmap see errors (c errors)",
+    "gitmap see errors ssh (ses) following GitMap PAS Formula",
+    "gitmap history ssh (nodes history)",
+    "gitmap repo-manage ui"
+  ],
+  "target_file": "cli/cmdsee/see.go",
+  "guideline_check": "PASS",
+  "details": "All see (c) suite commands, PAS formula delegation via cmdssh.RunFleetPASCommand, and aliases verified and compliant with positive booleans and coding guidelines."
+}

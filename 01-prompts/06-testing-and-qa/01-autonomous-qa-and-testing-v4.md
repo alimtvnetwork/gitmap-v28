@@ -3,9 +3,9 @@
 > **Prompt Version:** 2.1.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-[/goal](slashCommand:goal) Create a comprehensive execution plan to achieve 100% test coverage across the repository, split the work into logical subtasks, and autonomously spawn subagents in a continuous self-loop to execute the testing plan until complete.
+[/goal](slashCommand;goal) Create a comprehensive execution plan to achieve 100% test coverage across the repository, split the work into logical subtasks, and autonomously spawn subagents in a continuous self-loop to execute the testing plan until complete.
 
-[/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md`, `.ai-memory/strictly-avoid.md`, and `02-spec/02-coding-guidelines/` before touching any code.
+[/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md`, `.ai-memory/strictly-avoid.md`, and `02-spec/02-coding-guidelines/` before touching any code.
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
@@ -71,7 +71,7 @@ N = 200 (Default loop limit. User can override.)
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
 - [ ] **Strict In-Repository Execution:** All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] **Strict .ai-memory/ Folder Storage:** All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] **Native File Manipulator:** If you need to perform mass file renaming, `.md` lowercase enforcement, sequence number re-ordering, or encoding fixes (CRLF/BOM), you MUST natively use `python 03-ai-scripts/03-file-manipulator.py <command>` rather than writing a new script from scratch.

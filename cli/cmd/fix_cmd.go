@@ -289,7 +289,52 @@ func buildFixNotFoundError(items []RemediationItem, repoQuery string) error {
 func isFixIgnoreRequest(args []string) bool {
 	for _, a := range args {
 		low := strings.ToLower(a)
-		if low == "ignore" || low == "ignores" || low == "gitignore" {
+		if isIgnoreRoutingKeyword(low) {
+			return true
+		}
+	}
+	return false
+}
+
+func isIgnoreRoutingKeyword(low string) bool {
+	switch low {
+	case "ignore", "ignores", "gitignore", "fia", "fias", "fix-ignore-all", "fix-ignores-all":
+		return true
+	}
+	return false
+}
+
+func isSSHArgKeyword(low string) bool {
+	if low == "ssh" || low == "--ssh" || low == "fias" {
+		return true
+	}
+	return false
+}
+
+func isIgnoreFilterKeyword(low string) bool {
+	switch low {
+	case "ignore", "ignores", "gitignore", "all", "fia", "fias", "ssh", "--ssh":
+		return true
+	}
+	return false
+}
+
+func filterIgnoreArgs(args []string) []string {
+	var remaining []string
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if isIgnoreFilterKeyword(low) {
+			continue
+		}
+		remaining = append(remaining, a)
+	}
+	return remaining
+}
+
+func isSSHRequested(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if isSSHArgKeyword(low) {
 			return true
 		}
 	}
@@ -297,21 +342,26 @@ func isFixIgnoreRequest(args []string) bool {
 }
 
 func runFixIgnoreDispatch(args []string) error {
-	hasSSH := false
-	var remaining []string
-	for _, a := range args {
-		low := strings.ToLower(a)
-		if low == "ignore" || low == "ignores" || low == "gitignore" || low == "all" {
-			continue
-		}
-		if low == "ssh" || low == "--ssh" {
-			hasSSH = true
-			continue
-		}
-		remaining = append(remaining, a)
-	}
+	hasSSH := isSSHRequested(args)
+	remaining := filterIgnoreArgs(args)
 	if hasSSH {
-		return cmdignore.RunFixIgnoresAllSSH(remaining)
+		return runFixIgnoreSSH(remaining)
 	}
-	return cmdignore.RunFixIgnoreAll(remaining)
+	return runFixIgnoreLocal(remaining)
+}
+
+func runFixIgnoreSSH(args []string) error {
+	appErr := cmdignore.RunFixIgnoresAllSSH(args)
+	if appErr != nil {
+		return appErr
+	}
+	return nil
+}
+
+func runFixIgnoreLocal(args []string) error {
+	appErr := cmdignore.RunFixIgnoreAll(args)
+	if appErr != nil {
+		return appErr
+	}
+	return nil
 }

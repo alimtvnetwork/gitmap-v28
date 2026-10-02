@@ -15,34 +15,34 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, discover, plan, extract, refactor, and verify all scattered domain payload models, raw generic Result wrappers (`ResultSlice[T]`, `ResultMap[K, V]`, `Result[T]`, `Wrap[T]`), and repeated generic signatures across the codebase, centralizing them into dedicated, package-level `types.go` files (or language-equivalent leaf `types/` modules) as single reusable named types, eliminating unexported inline structs, eliminating ad-hoc generic parameterization at call sites and function signatures, and enforcing strict single-type reuse across all implementation files and callers until 100% green without stopping.
+[/goal](slashCommand;goal) Autonomously scan, discover, plan, extract, refactor, and verify all scattered domain payload models, raw generic Result wrappers (`ResultSlice[T]`, `ResultMap[K, V]`, `Result[T]`, `Wrap[T]`), and repeated generic signatures across the codebase, centralizing them into dedicated, package-level `types.go` files (or language-equivalent leaf `types/` modules) as single reusable named types, eliminating unexported inline structs, eliminating ad-hoc generic parameterization at call sites and function signatures, and enforcing strict single-type reuse across all implementation files and callers until 100% green without stopping.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-types-go-extraction-audit.md` with an exhaustive Types & Generics Violation Ledger table.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/XX-types-go-extraction/`.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Open each target package and create or inspect the dedicated `types.go` file (or leaf `types/` folder).
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Extract and export all domain payload structs (e.g. `ScheduleExportBundle`, `PluginSummary`, `UserProfile`) into `types.go`, eliminating local, unexported struct declarations from implementation files.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Define single reusable type aliases for all Result envelopes (e.g. `type ScheduleExportBundleResult = result.ResultSlice[ScheduleExportBundle]`, `type PluginSummaryResult = result.Wrap[PluginSummary]`) in `types.go`.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Refactor all function signatures and return types to use the canonical `types.go` single type alias instead of repetitive generic instantiations.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step E): Modernize all call sites, test assertions, and consumers to use the single reusable type and fluent pointer-safe predicates (`IsCountOtherThan`, `IsEmpty`, `HasRecord`, `IsDefined`).
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step F): Enforce <= 8–15 line function decomposition, clean blank-line spacing, and affirmative boolean fields (`isDefined bool`).
-11. [ ] [/goal](slashCommand:goal) Phase 2 (Step G): Execute targeted file-level linters (`python linter-scripts/check-function-lengths.py`, `check-mws-error-codes.py`, `check-newline-styling.py`, `check-enum-and-boolean.py`) to verify 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
-12. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
-13. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for single return type mandates and micro-tasking.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/27-types-folder-convention.md` for types folder convention and Rule 2 (Type Aliases for Repeated Generics).
-17. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/readme.md` for universal AppError wrapping and error envelopes.
-18. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` for error handling architecture and Result wrappers.
-19. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/03-error-code-registry/02-registry.md` for structured error code catalog.
-20. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/02-error-architecture/05-response-envelope/05-response-envelope-reference.md` for response envelope schemas.
-21. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md` for Go AppError implementation specifications.
-22. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md` for Result[T], ResultSlice[T], and ResultMap[K, V] method specifications and Section 6.4 types.go mandate.
-23. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-24. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-types-go-extraction-audit.md` with an exhaustive Types & Generics Violation Ledger table.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/XX-types-go-extraction/`.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A): Open each target package and create or inspect the dedicated `types.go` file (or leaf `types/` folder).
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B): Extract and export all domain payload structs (e.g. `ScheduleExportBundle`, `PluginSummary`, `UserProfile`) into `types.go`, eliminating local, unexported struct declarations from implementation files.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C): Define single reusable type aliases for all Result envelopes (e.g. `type ScheduleExportBundleResult = result.ResultSlice[ScheduleExportBundle]`, `type PluginSummaryResult = result.Wrap[PluginSummary]`) in `types.go`.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D): Refactor all function signatures and return types to use the canonical `types.go` single type alias instead of repetitive generic instantiations.
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step E): Modernize all call sites, test assertions, and consumers to use the single reusable type and fluent pointer-safe predicates (`IsCountOtherThan`, `IsEmpty`, `HasRecord`, `IsDefined`).
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Step F): Enforce <= 8–15 line function decomposition, clean blank-line spacing, and affirmative boolean fields (`isDefined bool`).
+11. [ ] [/goal](slashCommand;goal) Phase 2 (Step G): Execute targeted file-level linters (`python linter-scripts/check-function-lengths.py`, `check-mws-error-codes.py`, `check-newline-styling.py`, `check-enum-and-boolean.py`) to verify 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
+12. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+13. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for single return type mandates and micro-tasking.
+16. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/01-cross-language/27-types-folder-convention.md` for types folder convention and Rule 2 (Type Aliases for Repeated Generics).
+17. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/readme.md` for universal AppError wrapping and error envelopes.
+18. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` for error handling architecture and Result wrappers.
+19. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/03-error-code-registry/02-registry.md` for structured error code catalog.
+20. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/02-error-architecture/05-response-envelope/05-response-envelope-reference.md` for response envelope schemas.
+21. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md` for Go AppError implementation specifications.
+22. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md` for Result[T], ResultSlice[T], and ResultMap[K, V] method specifications and Section 6.4 types.go mandate.
+23. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+24. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Inline Structs & Raw Generics, Build Violation Ledger in .ai-memory/plans/pending/, Subtasks)

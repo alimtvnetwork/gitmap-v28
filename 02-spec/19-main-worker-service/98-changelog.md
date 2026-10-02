@@ -1,3 +1,129 @@
+## v6.452.0 — 2026-10-01 (fix shared engine attributes, canceled pipeline status, US spelling, and complete command helptext)
+
+**Scope:** Version bump. fix shared engine attributes, canceled pipeline status, US spelling, and complete command helptext.
+
+---
+
+## v6.451.0 — 2026-10-01 (enforce gitignore split-db cache across pull commands and suppress pending task no-rows warning)
+
+**Scope:** Version bump. enforce gitignore split-db cache across pull commands and suppress pending task no-rows warning.
+
+---
+
+## v6.450.0 — 2026-10-01 (auto fast-forward merge fallback on diverged pull and pipeline cancel filtering)
+
+**Scope:** Version bump. auto fast-forward merge fallback on diverged pull and pipeline cancel filtering.
+
+---
+
+## v6.449.1 — 2026-10-01 (Synchronize prompts, skills, AI scripts, and coding guidelines)
+
+**Scope:** Version bump. Synchronize prompts, skills, AI scripts, and coding guidelines.
+
+---
+
+## v6.449.0 — 2026-10-01 (resolve nested ifs, swallowed db errors, and runner path attributes (RCA-095))
+
+**Scope:** Version bump. resolve nested ifs, swallowed db errors, and runner path attributes (RCA-095).
+
+---
+
+## v6.448.0 — 2026-10-01 (Pull concurrency throttling, split-db ignore cache, deadlock prevention, and task manager synchronization)
+
+**Scope:** Version bump. Pull concurrency throttling, split-db ignore cache, deadlock prevention, and task manager synchronization.
+
+---
+
+## v6.447.1 — 2026-10-01 (Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines)
+
+**Scope:** Version bump. Synchronize V6 prompts, SQLite task manager, skills, and coding guidelines.
+
+---
+
+## v6.447.0 — 2026-10-01 (PAS worker concurrency, pull-error split-db, devtools cache discovery, and semantic flat commit suite)
+
+**Scope:** Version bump. PAS worker concurrency, pull-error split-db, devtools cache discovery, and semantic flat commit suite.
+
+---
+
+## v6.445.0 — 2026-10-01 (Implement GitMap PAS Worker Concurrency, Pull-Error Subsystem, Heartbeat Progress, and Wincredman Remediation)
+
+**Scope:** Version bump. Implement GitMap PAS Worker Concurrency, Pull-Error Subsystem, Heartbeat Progress, and Wincredman Remediation.
+
+---
+
+## v6.444.0 — 2026-10-01 (Release v6.444.0)
+
+**Scope:** Version bump. Release v6.444.0.
+
+---
+
+## v6.443.0 — 2026-10-01 (Restore plan 60 full verbatim specs and expand safe-rm aliases)
+
+**Scope:** Version bump. Restore plan 60 full verbatim specs and expand safe-rm aliases.
+
+---
+
+## v6.442.0 — 2026-10-01 (Add GitMap native remediations rule)
+
+**Scope:** Version bump. Add GitMap native remediations rule.
+
+---
+
+## v6.441.0 — 2026-10-01 (Release v6.441.0)
+
+**Scope:** Version bump. Release v6.441.0.
+
+---
+
+## v6.440.0 — 2026-10-01 (Maintenance release for v6.440.0)
+
+**Scope:** Version bump. Maintenance release for v6.440.0.
+
+---
+
+## v6.439.0 — 2026-10-01 (Implement GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite, and Split-DB Repo Cache)
+
+**Scope:** Version bump. Implement GitMap PAS Formula, Ignore Grouping Engine, CPAR Suite, and Split-DB Repo Cache.
+
+---
+
+## v6.438.4 — 2026-10-01 (Rewrite formatDetails if-else chain to switch statement)
+
+**Scope:** Version bump. Rewrite formatDetails if-else chain to switch statement.
+
+---
+
+## v6.438.3 — 2026-10-01 (Flatten nested ifs, switch applyOption, and handle cache db scan errors)
+
+**Scope:** Version bump. Flatten nested ifs, switch applyOption, and handle cache db scan errors.
+
+---
+
+## v6.438.2 — 2026-10-01 (Fix helptext examples formatting for fix-credential)
+
+**Scope:** Version bump. Fix helptext examples formatting for fix-credential.
+
+---
+
+## v6.438.1 — 2026-10-01 (Fix nested-if in cpar, sync generated commands and register fix-credential test constants)
+
+**Scope:** Version bump. Fix nested-if in cpar, sync generated commands and register fix-credential test constants.
+
+---
+
+## v6.438.0 — 2026-10-01 (Implement GitMap PAS Formula, Ignore Grouping Suite, CPAR, and Split-DB Repo Cache)
+
+**Scope:** Version bump. Implement GitMap PAS Formula, Ignore Grouping Suite, CPAR, and Split-DB Repo Cache.
+
+---
+
+## v6.437.0 — 2026-10-01 (Implement GitMap PAS Fix, Repo Cache, and Credential helper fix)
+
+**Scope:** Version bump. Implement GitMap PAS Fix, Repo Cache, and Credential helper fix.
+
+---
+
 ## v6.436.0 — 2026-09-30 (RCA-57: Align Fleet Clone Table, Suppress Stderr Escape Leaks, and Harden W3 Liveness Resilience)
 
 **Scope:** Version bump. RCA-57: Align Fleet Clone Table, Suppress Stderr Escape Leaks, and Harden W3 Liveness Resilience.

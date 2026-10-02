@@ -28,3 +28,44 @@ package cloneconcurrency
 func Resolve(n int) (int, bool) {
 	return ResolveWithPriority(n, IsSSHSession())
 }
+
+// ResolveWorkerHands translates worker and hand parameters into effective concurrency.
+// When isWWOH is true, enforces workerCount = 1, handCount = 1 (or keeps workerCount > 0 with handCount = 1).
+// When workerCount <= 0, resolves via ResolveWithPriority.
+// When handCount <= 0, defaults handCount = 1.
+func ResolveWorkerHands(workerCount, handCount int, isWWOH bool, isSSH bool) (int, int) {
+	if isWWOH {
+		return resolveWWOHWorkerHands(workerCount)
+	}
+	workerCount = normalizeWorkerCount(workerCount, isSSH)
+	handCount = normalizeHandCount(handCount)
+	return workerCount, handCount
+}
+
+func resolveWWOHWorkerHands(workerCount int) (int, int) {
+	if workerCount <= 0 {
+		return 1, 1
+	}
+	return workerCount, 1
+}
+
+func normalizeWorkerCount(workerCount int, isSSH bool) int {
+	if workerCount > 0 {
+		return workerCount
+	}
+	resolved, ok := ResolveWithPriority(workerCount, isSSH)
+	if !ok {
+		return 1
+	}
+	if resolved <= 0 {
+		return 1
+	}
+	return resolved
+}
+
+func normalizeHandCount(handCount int) int {
+	if handCount <= 0 {
+		return 1
+	}
+	return handCount
+}

@@ -18,4 +18,3 @@ content = content.replace(
 
 with open('cli/cmdagy/agy_inject_prompts.go', 'w') as f:
     f.write(content)
-

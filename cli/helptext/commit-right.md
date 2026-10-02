@@ -54,7 +54,7 @@ either a local folder path or an `https://` / `git@` URL with optional
 
 - Both endpoints resolvable (local folder OR clonable URL).
 - Target side must be on a writable branch.
-- Spec §18 Phase 1 implementation merged.
+- Spec §18 Phase 1 merged.
 
 ## Examples (planned UX, from spec §3)
 

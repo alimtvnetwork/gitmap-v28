@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -47,18 +46,16 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 		return handleEmptyRecords(isJSON)
 	}
 
-	pullErr := processEfficientPullLifecycle(records, opts)
-	checkAgmResumeTaskEfficient(records, isJSON, args)
-
-	return pullErr
+	return processEfficientPullLifecycle(records, opts)
 }
 
-func checkAgmResumeTaskEfficient(records []model.ScanRecord, isJSON bool, args []string) {
-	paths := make([]string, 0, len(records))
-	for _, r := range records {
-		paths = append(paths, r.AbsolutePath)
+func collectAndRemediateEfficientIgnore(handle *IgnoreScanHandle, args []string, isJSON bool) {
+	if handle == nil {
+		return
 	}
-	_ = gitignoreagm.CheckAndPromptRepos(paths, isJSON, hasEfficientAutoYes(args))
+	issues := handle.Collect()
+	isAutoYes := hasEfficientAutoYes(args)
+	handleIgnoreRemediation(issues, isAutoYes, isJSON)
 }
 
 func hasEfficientAutoYes(args []string) bool {
@@ -231,29 +228,45 @@ func printEfficientPartitionNotice(total, activeCount, inactiveCount int) {
 }
 
 func executeActiveEfficientBatch(partition EfficientPullPartition, opts EfficientPullOptions, total int, allRecords []model.ScanRecord) error {
-	pullOpts := pullOptions{
-		all:      true,
-		useSSH:   opts.UseSSH,
-		useHTTPS: opts.UseHTTPS,
-	}
-
 	bar := NewPullProgressBar(len(partition.ActiveRecords), false, false)
 	if !opts.IsJSON {
 		bar.Start()
+		defer bar.Stop()
 	}
 	startTime := time.Now()
-	executePull(partition.ActiveRecords, bar, pullOpts)
-	if !opts.IsJSON {
-		bar.Stop()
-	}
-	dur := time.Since(startTime)
+	stopHeartbeat := startActiveBatchHeartbeat(bar, opts.IsJSON)
+	defer stopHeartbeat()
 
+	ignoreHandle := launchThrottledActiveIgnoreScan(allRecords)
+	executePull(partition.ActiveRecords, bar, pullOptions{all: true, useSSH: opts.UseSSH, useHTTPS: opts.UseHTTPS})
+	collectAndRemediateEfficientIgnore(ignoreHandle, opts.Args, opts.IsJSON)
+
+	return handleEfficientBatchFinish(total, bar, partition, allRecords, opts, time.Since(startTime))
+}
+
+func startActiveBatchHeartbeat(bar *PullProgressBar, isJSON bool) func() {
+	return StartPullHeartbeat(30*time.Second, 5*time.Second, func() string {
+		return fmt.Sprintf("%d/%d completed • %d active workers • %d failures so far...",
+			bar.Completed(), bar.Total(), len(bar.ActiveWorkers()), bar.Failed())
+	}, isJSON)
+}
+
+func launchThrottledActiveIgnoreScan(records []model.ScanRecord) *IgnoreScanHandle {
+	ttl := resolvePullIgnoreTTL()
+	cold, err := store.FilterReposNeedingIgnoreCheck(records, ttl)
+	if err != nil || len(cold) == 0 {
+		return nil
+	}
+	return StartThrottledAsyncIgnoreScan(cold, ttl)
+}
+
+func handleEfficientBatchFinish(total int, bar *PullProgressBar, part EfficientPullPartition, all []model.ScanRecord, opts EfficientPullOptions, dur time.Duration) error {
 	sortedStates := sortStatesAlphabetically(bar.States())
 	if opts.IsJSON {
-		return renderJSONEfficientResults(total, sortedStates, partition.InactiveRepos, dur)
+		return renderJSONEfficientResults(total, sortedStates, part.InactiveRepos, dur)
 	}
-	renderEfficientResults(sortedStates, partition.InactiveRepos, opts.IsTableMode, allRecords)
-	recordEfficientPullTelemetry(total, sortedStates, partition.InactiveRepos, dur, opts.IsTableMode)
+	renderEfficientResults(sortedStates, part.InactiveRepos, opts.IsTableMode, all)
+	recordEfficientPullTelemetry(total, sortedStates, part.InactiveRepos, dur, opts.IsTableMode)
 
 	return nil
 }
@@ -366,7 +379,7 @@ func recordEfficientPullTelemetry(total int, states []*PullRepoState, inactive [
 	}
 
 	repoRuns := buildCombinedRepoRuns(states, inactive)
-	_ = recordTelemetryToDB(telemetry, repoRuns)
+	_ = recordTelemetryToDB(telemetry, repoRuns, states)
 }
 
 func buildCombinedRepoRuns(states []*PullRepoState, inactive []InactiveRepoDetail) []store.PullRepoRunRecord {
@@ -386,7 +399,7 @@ func buildCombinedRepoRuns(states []*PullRepoState, inactive []InactiveRepoDetai
 	return runs
 }
 
-func recordTelemetryToDB(telemetry PullSessionTelemetry, records []store.PullRepoRunRecord) error {
+func recordTelemetryToDB(telemetry PullSessionTelemetry, records []store.PullRepoRunRecord, states []*PullRepoState) error {
 	db, err := store.OpenPullSplitDB()
 	if err != nil {
 		return err
@@ -398,7 +411,26 @@ func recordTelemetryToDB(telemetry PullSessionTelemetry, records []store.PullRep
 		return err
 	}
 
+	recordPullErrorsToDB(db, states)
+
 	return db.InsertPullRepoRuns(runID, records)
+}
+
+func recordPullErrorsToDB(db *store.PullSplitDB, states []*PullRepoState) {
+	for _, s := range states {
+		if s.ErrorMsg != "" || s.Step == PullStepTypeError {
+			_ = db.InsertPullError(store.PullErrorRecord{
+				RepoSlug:       s.RepoName,
+				RepoPath:       s.RepoPath,
+				NodeID:         "local-01",
+				NodeVersion:    constants.Version,
+				ErrorType:      ResolvePullErrorDetails(s),
+				ErrorText:      s.ErrorMsg,
+				RemediationCmd: ResolvePullRemediationHint(s),
+				CreatedAt:      time.Now().UTC(),
+			})
+		}
+	}
 }
 
 func maybeExecuteEfficientProbe(args []string, isJSON bool) {

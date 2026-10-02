@@ -1,7 +1,7 @@
 # Plan 207: Pipeline Errors AGY Fix Comprehensive Verification and Audit
 
-> **Task Type:** Comprehensive Verification, Process Detachment, Headless Permissions, Help Parity, System Binary Deployment  
-> **Execution Context:** Root Task N-Step Loop (Steps 1 to 5)  
+> **Task Type:** Comprehensive Verification, Process Detachment, Headless Permissions, Help Parity, System Binary Deployment
+> **Execution Context:** Root Task N-Step Loop (Steps 1 to 5)
 > **Outcome:** Completed full end-to-end verification of all 7 deliverables across single-repo and multi-project batch scopes. Verified live execution in external project workspace and repo root.
 
 ## Background & Starting Context

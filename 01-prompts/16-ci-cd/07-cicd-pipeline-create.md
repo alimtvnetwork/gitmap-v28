@@ -17,25 +17,25 @@ N = total self-loop steps budget for end-to-end CI/CD creation and cross-platfor
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Preamble Precedence Verification: Whatever is given before this section or prompt (user preamble, header constraints, prior instructions) has been verified as highest priority and non-negotiable, and is strictly incorporated into the task scope ahead of all other guidelines.
-2. [ ] [/goal](slashCommand:goal) Phase 1A (Step 0 - Requirement Ingestion & Chat Output Gate): Capture incoming pipeline requirements verbatim, decode any base64 screenshot images to assets/screenshots/<slug>-<NN>.png, output confirmed deliverable breakdown in chat, and chain the first discovery tool call in the exact same turn (TOTAL BAN on closing conversation or waiting for approval).
-3. [ ] [/goal](slashCommand:goal) Phase 1B (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns.
-4. [ ] [/goal](slashCommand:goal) Phase 1B (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
-5. [ ] [/goal](slashCommand:goal) Phase 1B (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
-6. [ ] [/goal](slashCommand:goal) Phase 1B (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step A): Open each target file and perform surgical refactoring following authoritative guidelines.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step B): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step D): Execute local CI quality gates via `python 03-ai-scripts/06-cicd-local-runner.py` with exit code 0 (`exit 0`).
-11. [ ] [/learn](slashCommand:learn) Ingest `02-spec/12-cicd-pipeline-workflows/` for domain-specific architectural specifications.
-12. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/06-cicd-integration/` for domain-specific architectural specifications.
-13. [ ] [/learn](slashCommand:learn) Ingest `02-spec/11-powershell-integration/` for domain-specific architectural specifications.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/14-update/` for domain-specific architectural specifications.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/15-distribution-and-runner/` for domain-specific architectural specifications.
-16. [ ] [/learn](slashCommand:learn) Ingest `02-spec/16-generic-release/` for domain-specific architectural specifications.
-17. [ ] [/learn](slashCommand:learn) Ingest `02-spec/17-consolidated-guidelines/18-cicd-pipeline-workflows.md` for domain-specific architectural specifications.
-18. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-19. [ ] [/goal](slashCommand:goal) Create or update agent rules in the repository if missing from agent memory.
+1. [ ] [/goal](slashCommand;goal) Preamble Precedence Verification: Whatever is given before this section or prompt (user preamble, header constraints, prior instructions) has been verified as highest priority and non-negotiable, and is strictly incorporated into the task scope ahead of all other guidelines.
+2. [ ] [/goal](slashCommand;goal) Phase 1A (Step 0 - Requirement Ingestion & Chat Output Gate): Capture incoming pipeline requirements verbatim, decode any base64 screenshot images to assets/screenshots/<slug>-<NN>.png, output confirmed deliverable breakdown in chat, and chain the first discovery tool call in the exact same turn (TOTAL BAN on closing conversation or waiting for approval).
+3. [ ] [/goal](slashCommand;goal) Phase 1B (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns.
+4. [ ] [/goal](slashCommand;goal) Phase 1B (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
+5. [ ] [/goal](slashCommand;goal) Phase 1B (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
+6. [ ] [/goal](slashCommand;goal) Phase 1B (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step A): Open each target file and perform surgical refactoring following authoritative guidelines.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step B): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Step D): Execute local CI quality gates via `python 03-ai-scripts/06-cicd-local-runner.py` with exit code 0 (`exit 0`).
+11. [ ] [/learn](slashCommand;learn) Ingest `02-spec/12-cicd-pipeline-workflows/` for domain-specific architectural specifications.
+12. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/06-cicd-integration/` for domain-specific architectural specifications.
+13. [ ] [/learn](slashCommand;learn) Ingest `02-spec/11-powershell-integration/` for domain-specific architectural specifications.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/14-update/` for domain-specific architectural specifications.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/15-distribution-and-runner/` for domain-specific architectural specifications.
+16. [ ] [/learn](slashCommand;learn) Ingest `02-spec/16-generic-release/` for domain-specific architectural specifications.
+17. [ ] [/learn](slashCommand;learn) Ingest `02-spec/17-consolidated-guidelines/18-cicd-pipeline-workflows.md` for domain-specific architectural specifications.
+18. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+19. [ ] [/goal](slashCommand;goal) Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. 150: Spec Ingestion, Python Automation Design, Local Runner Setup)

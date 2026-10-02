@@ -395,6 +395,7 @@ func utilitySystemEntries() []dispatchEntry {
 		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
+		{[]string{constants.CmdFixCredential, constants.CmdFixCredentialAlias}, func() error { checkHelp("fix-credential", argsTail()); return runFixCredential(argsTail()) }},
 		{[]string{"ai-clean", "aiclean", "clean-ai"}, func() error { return cmdos.RunOSAICleanCLI(argsTail()) }},
 		{[]string{constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen}, func() error { return cmdagy.RunSUGCLI(argsTail()) }},
 		{[]string{constants.CmdWatchPromptsRunning, constants.CmdWatchPromptsRunningAlias, "watch-running-prompts"}, func() error { return cmdagy.RunWPRCLI(argsTail()) }},

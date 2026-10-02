@@ -88,7 +88,7 @@ $failedCount = 0
 foreach ($repo in $repos) {
     $repoName = if ($repo.repoName) { $repo.repoName } else { $repo.slug }
     $relPath = if ($repo.relativePath) { $repo.relativePath } else { $repoName }
-    
+
     # Expand ${workDir}
     $targetPath = Join-Path $resolvedWorkDir $relPath
     $targetPath = [System.IO.Path]::GetFullPath($targetPath)
@@ -131,7 +131,7 @@ foreach ($repo in $repos) {
 
     Write-Host "  [clone] $repoName (branch: $branch) -> $targetPath" -ForegroundColor White
     $cloneArgs = @("clone", "-b", $branch, $cloneUrl, $targetPath)
-    
+
     & git $cloneArgs
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  [done]  $repoName cloned successfully." -ForegroundColor Green

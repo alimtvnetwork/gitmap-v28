@@ -61,7 +61,12 @@ func downloadInstaller(version string) (string, error) {
 	}
 
 	// Write UTF-8 BOM for PowerShell compatibility
-	tmpFile.Write([]byte{0xEF, 0xBB, 0xBF})
+	if _, err := tmpFile.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpFile.Name())
+
+		return "", err
+	}
 
 	if _, err := io.Copy(tmpFile, resp.Body); err != nil {
 		tmpFile.Close()

@@ -15,7 +15,7 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-[/goal](slashCommand:goal) Autonomously scan, audit, refactor, and verify repository-wide unit tests to ensure that tests NEVER trigger real OS shutdown, reboot, power-off, system modifications, or heavy unmocked system calls, enforcing injectable executors and mock duration verification across all test suites. Keep functions <= 8–15 lines, enforce affirmative booleans, and defer build verification strictly to the final step without running intermediate tests or builds.
+[/goal](slashCommand;goal) Autonomously scan, audit, refactor, and verify repository-wide unit tests to ensure that tests NEVER trigger real OS shutdown, reboot, power-off, system modifications, or heavy unmocked system calls, enforcing injectable executors and mock duration verification across all test suites. Keep functions <= 8–15 lines, enforce affirmative booleans, and defer build verification strictly to the final step without running intermediate tests or builds.
 
 ---
 
@@ -31,22 +31,22 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Subtasks, Injectable Executo
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand:goal) Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) to inventory all direct OS commands, system altering functions, or unmocked filesystem cleaners.
-2. [ ] [/goal](slashCommand:goal) Phase 1 (Step B - Violation Ledger Mapping): Identify every site where `exec.Command` or raw system calls (`shutdown`, `reboot`, `poweroff`, `apt-get`, `Get-WindowsUpdate`, `os.Remove`) could be reached from test suites.
-3. [ ] [/goal](slashCommand:goal) Phase 1 (Step C - Master Plan Generation): Write the master architectural specification into `.ai-memory/plans/pending/xx-isolate-destructive-os-and-heavy-unit-tests.md` with an exhaustive Violation Ledger table.
-4. [ ] [/goal](slashCommand:goal) Phase 1 (Step D - Subtask Decomposition): Decompose the plan into granular subtasks in `.ai-memory/plans/subtasks/xx-isolate-destructive-os-and-heavy-unit-tests/`.
-5. [ ] [/goal](slashCommand:goal) Phase 2 (Step A - Injectable Executor Introduction): Refactor target production code to introduce injectable executors (`DefaultOSActionExecutor`, `FileRemover`, `OSCommandRunner`, `TempDirResolver`) and parameter structs.
-6. [ ] [/goal](slashCommand:goal) Phase 2 (Step B - Hermetic Mock Testing): Refactor unit tests to swap the executor with a mock and assert captured parameters using `defer` restoration blocks.
-7. [ ] [/goal](slashCommand:goal) Phase 2 (Step C - Fast Duration Math): Verify countdown timers and delays use duration arithmetic and short simulated ticks (1s, 2s) without sleeping or arming host OS power timers.
-8. [ ] [/goal](slashCommand:goal) Phase 2 (Step D - Function & File Size Compliance): Ensure all refactored functions remain <= 8 lines of body logic (hard cap of <= 15 lines) and files remain under 100 lines.
-9. [ ] [/goal](slashCommand:goal) Phase 2 (Step E - Boolean & Style Conventions): Enforce affirmative boolean naming (`is*`, `has*`), zero explicit `== true`, and zero negative booleans.
-10. [ ] [/goal](slashCommand:goal) Phase 2 (Step F - Banned Intermediate Verification): DO NOT run unit tests (`go test`, `pytest`, `npm test`) during intermediate micro-refactoring steps.
-11. [ ] [/goal](slashCommand:goal) Phase 2 (Step G - Final Step Build Verification): At the conclusion of all refactoring subtasks, run targeted syntax and quality gate checks to verify clean compilation.
-12. [ ] [/goal](slashCommand:goal) Phase 3 (Step A - Task Consolidation): Consolidate completed subtasks into `.ai-memory/plans/completed/`, delete granular subtask files, and update `.ai-memory/plans/readme.md`.
-13. [ ] [/goal](slashCommand:goal) Phase 3 (Step B - Atomic Git Commit & Push): Stage all modified files (`git add -A`), commit them in a single clean grouped atomic commit, and push to git.
-14. [ ] [/learn](slashCommand:learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
-15. [ ] [/learn](slashCommand:learn) Ingest `02-spec/03-error-manage/` for AppError wrapping.
-16. [ ] [/learn](slashCommand:learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) to inventory all direct OS commands, system altering functions, or unmocked filesystem cleaners.
+2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B - Violation Ledger Mapping): Identify every site where `exec.Command` or raw system calls (`shutdown`, `reboot`, `poweroff`, `apt-get`, `Get-WindowsUpdate`, `os.Remove`) could be reached from test suites.
+3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C - Master Plan Generation): Write the master architectural specification into `.ai-memory/plans/pending/xx-isolate-destructive-os-and-heavy-unit-tests.md` with an exhaustive Violation Ledger table.
+4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D - Subtask Decomposition): Decompose the plan into granular subtasks in `.ai-memory/plans/subtasks/xx-isolate-destructive-os-and-heavy-unit-tests/`.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A - Injectable Executor Introduction): Refactor target production code to introduce injectable executors (`DefaultOSActionExecutor`, `FileRemover`, `OSCommandRunner`, `TempDirResolver`) and parameter structs.
+6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B - Hermetic Mock Testing): Refactor unit tests to swap the executor with a mock and assert captured parameters using `defer` restoration blocks.
+7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C - Fast Duration Math): Verify countdown timers and delays use duration arithmetic and short simulated ticks (1s, 2s) without sleeping or arming host OS power timers.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D - Function & File Size Compliance): Ensure all refactored functions remain <= 8 lines of body logic (hard cap of <= 15 lines) and files remain under 100 lines.
+9. [ ] [/goal](slashCommand;goal) Phase 2 (Step E - Boolean & Style Conventions): Enforce affirmative boolean naming (`is*`, `has*`), zero explicit `== true`, and zero negative booleans.
+10. [ ] [/goal](slashCommand;goal) Phase 2 (Step F - Banned Intermediate Verification): DO NOT run unit tests (`go test`, `pytest`, `npm test`) during intermediate micro-refactoring steps.
+11. [ ] [/goal](slashCommand;goal) Phase 2 (Step G - Final Step Build Verification): At the conclusion of all refactoring subtasks, run targeted syntax and quality gate checks to verify clean compilation.
+12. [ ] [/goal](slashCommand;goal) Phase 3 (Step A - Task Consolidation): Consolidate completed subtasks into `.ai-memory/plans/completed/`, delete granular subtask files, and update `.ai-memory/plans/readme.md`.
+13. [ ] [/goal](slashCommand;goal) Phase 3 (Step B - Atomic Git Commit & Push): Stage all modified files (`git add -A`), commit them in a single clean grouped atomic commit, and push to git.
+14. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+15. [ ] [/learn](slashCommand;learn) Ingest `02-spec/03-error-manage/` for AppError wrapping.
+16. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 
 ---
 

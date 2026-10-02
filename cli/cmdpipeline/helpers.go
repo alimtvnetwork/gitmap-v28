@@ -8,7 +8,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/atotto/clipboard"
 )
+
+type clipboardWriterFunc func(text string) error
+
+var writeClipboard clipboardWriterFunc = clipboard.WriteAll
 
 func checkHelp(command string, args []string) {
 	for _, a := range args {

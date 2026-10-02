@@ -3,9 +3,9 @@
 > **Prompt Version:** 2.1.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-[/goal](slashCommand:goal) Read all pending tasks from `.ai-memory/`, allocate small micro-portions of work to sub-agents, and execute them in a continuous self-loop. Manage sub-agent crashes gracefully, enforce file collision safety, sanitize artifacts before commits, and ensure the pipeline runs without halting until the queue is empty. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
+[/goal](slashCommand;goal) Read all pending tasks from `.ai-memory/`, allocate small micro-portions of work to sub-agents, and execute them in a continuous self-loop. Manage sub-agent crashes gracefully, enforce file collision safety, sanitize artifacts before commits, and ensure the pipeline runs without halting until the queue is empty. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
 
-[/learn](slashCommand:learn) Capture every pattern, convention, fix, and correction discovered during execution into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md`. Never repeat a mistake that was logged.
+[/learn](slashCommand;learn) Capture every pattern, convention, fix, and correction discovered during execution into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md`. Never repeat a mistake that was logged.
 
 ## Non-Negotiable Rules (Auto-Reject on Violation)
 
@@ -14,7 +14,7 @@
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] [/goal](slashCommand:goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand:learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] [/goal](slashCommand;goal) **Reuse First:** I have rigorously scanned and [/learn](slashCommand;learn)ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
 - [ ] **Strict In-Repository Execution:** All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] **Strict .ai-memory/ Folder Storage:** All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] **Native File Manipulator:** If you need to perform mass file renaming, `.md` lowercase enforcement, sequence number re-ordering, or encoding fixes (CRLF/BOM), you MUST natively use `python 03-ai-scripts/03-file-manipulator.py <command>` rather than writing a new script from scratch.

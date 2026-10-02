@@ -618,3 +618,45 @@ Allowed work:
 
 **Why:** Local in-process execution guarantees zero SSH overhead, eliminates credential/key requirements for localhost, preserves interactive color/progress display, and adheres to the canonical GitMap PAS standard.
 
+---
+
+## Piping Commands to Select-String / Grep & Running `--help` Discovery — TOTAL BAN
+
+🔴 **NEVER run `gitmap --help | Select-String "..."`, `gitmap <cmd> --help | grep "..."`, or pipe commands to `Select-String`, `grep`, or `findstr`.**
+
+Forbidden:
+- ❌ Running `gitmap --help | Select-String "..."` or `<cmd> --help | grep "..."` to discover flags or subcommands.
+- ❌ Using PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr` across the repository.
+- ❌ Running `--help` to check whether a command exists. Rule R4 states: verify commands with a harmless call (`gitmap lf readme.md`), not `--help`.
+
+Allowed work:
+- ✅ Use GitMap high-speed streaming live search: `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]`.
+- ✅ Use indexed symbol search: `gitmap search "<query>"`.
+- ✅ Use fast file finding: `gitmap find "<pattern>" [-ext <ext>]` or `gitmap lf [path]`.
+- ✅ Inspect CLI command routing directly in Go code (`cli/cmd/rootcore.go`, `cli/cmd/`).
+
+**Why:** User explicitly flagged `Ran gitmap --help | Select-String "cpb"` with "make sure we have remedy for this". Running generic shell search pipelines and piping `--help` violates GitMap high-speed primacy, wastes execution turn budget, and violates Rule R4.
+
+---
+
+## Non-Idempotent Windows PowerShell Removal in Macro Steps & Stale User-Profile Binaries — TOTAL BAN
+
+🔴 **NEVER permit macro execution on Windows PowerShell to invoke raw, unshimmed removal commands (`rm`, `rmdir`, `del`, `Remove-Item`, `erase`) that abort terminatingly with `ItemNotFoundException` (`exit status 1`) when encountering absent targets, and NEVER deploy or update `gitmap.exe` to only a single system path while neglecting user-specific installation targets (`C:\Users\<user>\AppData\Local\gitmap\gitmap.exe` and `AppData\Local\gitmap-cli\gitmap.exe`).**
+
+Forbidden:
+- ❌ Allowing macro execution engines to dispatch raw `rm <target>` directly to Windows PowerShell without platform adaptation shims.
+- ❌ Relying on PowerShell's default `rm` alias (`Remove-Item`) without idempotent existence guards (`Test-Path`), which triggers `ItemNotFoundException` whenever the target file or directory is already absent.
+- ❌ Compiling or installing `gitmap.exe` exclusively to `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` (`Administrator`) while leaving stale binaries in other active user profiles (`C:\Users\Alim\AppData\Local\gitmap\gitmap.exe` and `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`).
+- ❌ Leaving user shell sessions invoking legacy binaries that lack recent platform adaptation and safe removal enhancements.
+
+Allowed work:
+- ✅ Always route macro execution through `macro.AdaptCommandForPlatform(cmdText)` (`cli/macro/safe_rm.go`), dynamically transforming Windows removal commands into safe, idempotent PowerShell loops with `Test-Path`.
+- ✅ Use native `gitmap safe-rm <path...> [--force]` (alias `gitmap rm-safe`), which guarantees exit code 0 when targets are already absent.
+- ✅ Synchronize all 4 active binary targets upon compilation or deployment:
+  1. `./gitmap.exe` and `./bin/gitmap.exe`
+  2. `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` (`C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`)
+  3. `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`
+  4. `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`
+- ✅ Ensure `gitmap macro edit` records intended commands reliably and persists updated steps without dropping configuration.
+
+**Why:** Executing `gitmap alim1` failed with `exit status 1` (`ItemNotFoundException` from `Remove-Item`) because user `Alim` was running a stale runtime binary (`v6.442.0` at `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`) that preceded the introduction of `safe-rm` and `AdaptCommandForPlatform` platform adaptation shims. Synchronizing all active binary paths and enforcing platform-adaptive removal prevents runtime regressions.

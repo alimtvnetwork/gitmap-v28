@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.436.0**
+**Pinned version: v6.452.0**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -36,46 +36,6 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 ---
 
-## ⚡ Polyglot Search Benchmarks: GitMap Native vs PowerShell vs Python (File, Project, Grid)
-
-![Search Benchmark Evidence](assets/screenshots/MNRD-mOPioTv.png)
-
-> **Measured on `alimtvnetwork/gitmap-v28` (`2,900+` files, `150+` Go packages).**  
-> Complete benchmark methodology and hardware specifications: **[`benchmark.md`](benchmark.md)**
-
-### Table 1: Wildcard File Search Benchmarks (`*config*.json`)
-
-| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **GitMap Native Find (`gitmap find / ff`)** | Compiled Go Zero-Alloc File Walker + Filter Index | **103.56 ms** | **11** | **< 8 KB** | **1.20x faster** | **1.40x faster** |
-| **Python `Path.rglob` / `os.walk`** | Python 3 Standard Library Directory Iteration | **85.63 ms** | **12** | 45 MB | 1x (Baseline) | 1.69x faster |
-| **PowerShell `Get-ChildItem -Recurse`** | PowerShell CLR Directory Enumerator Pipeline | **145.10 ms** | **42** | 120 MB | 0.59x | 1x (Baseline) |
-
-### Table 2: Project Content Search Benchmarks (`SSHConnection`)
-
-| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **GitMap AUM Hot-Cache (`DH2D` SQLite + RAM)** | Deterministic `DH2D` SQL ID + Auto-Promoted Memory Cache (`HitCount >= 2`) | **0.04 ms (`40 µs`)** | **212** | **< 4 KB** | **315,970x faster** | **8,545x faster** |
-| **GitMap Native AUM Searcher (`cli/searcher`)** | Compiled Go Zero-Alloc Streaming + SplitDB Index | **0.82 ms (`< 1 ms`)** | **212** | **12 KB** | **15,413x faster** | **416.84x faster** |
-| **PowerShell Standard (`Get-ChildItem \| Select-String`)** | CLR `FileInfo` Object Pipeline + UTF-16 Regex Matching | **341.81 ms** | 212 | 390 MB | 36.98x faster | 1x (Baseline) |
-| **Python Fast Cached Grep** (`03-ai-scripts/12-fast-cached-grep.py`) | Python Process Spawn + Multiprocessing Regex | **12.64 s** | 212 | 210 MB | 1x (Baseline) | 0.03x |
-
-### Table 3: Grid Search Benchmarks (Multi-Filter: `func Run` in `cli/*.go`)
-
-| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **GitMap AUM Scoped Search (`gitmap aum search`)** | Multi-Core Streaming + Lazy Regex + Extension Filter | **91.30 ms** | **145** | **< 16 KB** | **1.61x faster** | **3.13x faster** |
-| **Python Scoped Multi-Filter Grep** | Python `os.walk` + in-memory Regex Stream | **146.64 ms** | 145 | 95 MB | 1x (Baseline) | 1.95x faster |
-| **PowerShell Scoped Pipeline (`Get-ChildItem \| Select-String`)** | PowerShell Directory Filter + String Match Pipeline | **285.35 ms** | 145 | 180 MB | 0.51x | 1x (Baseline) |
-
-- **Automatic `DH2D` SQLite Search History & Hot-Query Optimization**: Every `gitmap search <query>` is persisted in `SearchSplitDB` (`SearchHotCache`) with a deterministic `DH2D-<HEX>` SQL identifier and `HitCount`. Inspect history and top-optimized queries anytime via:
-  ```bash
-  gitmap search "SSHConnection"
-  gitmap search history
-  ```
-
----
-
 ## 🚀 Install in One Line
 
 GitMap is a **Windows-first** project. The commands below install the latest release with sensible defaults - no prompts, no drive picker. Use the Quick block if you want to pick a custom install drive.
@@ -87,9 +47,9 @@ GitMap is a **Windows-first** project. The commands below install the latest rel
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 ```
 
-#### Pinned Version Install (v6.436.0)
+#### Pinned Version Install (v6.452.0)
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.436.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.452.0/install.ps1 | iex
 ```
 
 ---
@@ -101,9 +61,9 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.436.0/install.
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-#### Pinned Version Install (v6.436.0)
+#### Pinned Version Install (v6.452.0)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.436.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.452.0/install.sh | sh
 ```
 
 ### 🎯 Install — Quick (pick your install drive)
@@ -170,6 +130,46 @@ gitmap install custom-cli
 
 ---
 
+## ⚡ Polyglot Search Benchmarks: GitMap Native vs PowerShell vs Python (File, Project, Grid)
+
+![Search Benchmark Evidence](assets/screenshots/MNRD-mOPioTv.png)
+
+> **Measured on `alimtvnetwork/gitmap-v28` (`2,900+` files, `150+` Go packages).**
+> Complete benchmark methodology and hardware specifications: **[`benchmark.md`](benchmark.md)**
+
+### Table 1: Wildcard File Search Benchmarks (`*config*.json`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap Native Find (`gitmap find / ff`)** | Compiled Go Zero-Alloc File Walker + Filter Index | **103.56 ms** | **11** | **< 8 KB** | **1.20x faster** | **1.40x faster** |
+| **Python `Path.rglob` / `os.walk`** | Python 3 Standard Library Directory Iteration | **85.63 ms** | **12** | 45 MB | 1x (Baseline) | 1.69x faster |
+| **PowerShell `Get-ChildItem -Recurse`** | PowerShell CLR Directory Enumerator Pipeline | **145.10 ms** | **42** | 120 MB | 0.59x | 1x (Baseline) |
+
+### Table 2: Project Content Search Benchmarks (`SSHConnection`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap AUM Hot-Cache (`DH2D` SQLite + RAM)** | Deterministic `DH2D` SQL ID + Auto-Promoted Memory Cache (`HitCount >= 2`) | **0.04 ms (`40 µs`)** | **212** | **< 4 KB** | **315,970x faster** | **8,545x faster** |
+| **GitMap Native AUM Searcher (`cli/searcher`)** | Compiled Go Zero-Alloc Streaming + SplitDB Index | **0.82 ms (`< 1 ms`)** | **212** | **12 KB** | **15,413x faster** | **416.84x faster** |
+| **PowerShell Standard (`Get-ChildItem \| Select-String`)** | CLR `FileInfo` Object Pipeline + UTF-16 Regex Matching | **341.81 ms** | 212 | 390 MB | 36.98x faster | 1x (Baseline) |
+| **Python Fast Cached Grep** (`03-ai-scripts/12-fast-cached-grep.py`) | Python Process Spawn + Multiprocessing Regex | **12.64 s** | 212 | 210 MB | 1x (Baseline) | 0.03x |
+
+### Table 3: Grid Search Benchmarks (Multi-Filter: `func Run` in `cli/*.go`)
+
+| Search Engine | Engine Mechanism | Measured Latency | Matches Found | Memory Overhead | Speedup (vs Python) | Speedup (vs PowerShell) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GitMap AUM Scoped Search (`gitmap aum search`)** | Multi-Core Streaming + Lazy Regex + Extension Filter | **91.30 ms** | **145** | **< 16 KB** | **1.61x faster** | **3.13x faster** |
+| **Python Scoped Multi-Filter Grep** | Python `os.walk` + in-memory Regex Stream | **146.64 ms** | 145 | 95 MB | 1x (Baseline) | 1.95x faster |
+| **PowerShell Scoped Pipeline (`Get-ChildItem \| Select-String`)** | PowerShell Directory Filter + String Match Pipeline | **285.35 ms** | 145 | 180 MB | 0.51x | 1x (Baseline) |
+
+- **Automatic `DH2D` SQLite Search History & Hot-Query Optimization**: Every `gitmap search <query>` is persisted in `SearchSplitDB` (`SearchHotCache`) with a deterministic `DH2D-<HEX>` SQL identifier and `HitCount`. Inspect history and top-optimized queries anytime via:
+  ```bash
+  gitmap search "SSHConnection"
+  gitmap search history
+  ```
+
+---
+
 ## Why GitMap? Why Was GitMap Invented?
 
 ### The Core Problem: The Multi-Machine & Multi-Repository Bottleneck
@@ -227,7 +227,7 @@ Without a centralized, high-speed management layer, developers and autonomous ag
 - **AI & Antigravity Suite:** Project tracking (`gitmap agy ls`), empty project cleanup, configuration sync, and prompt pipeline orchestration.
 - **CI/CD Pipeline Telemetry:** Live status, historical success baseline ETA calculation, dynamic `-t` retry timers, segment step monitoring, and isolated split error logging.
 - **Database Control Plane:** Master SQLite DB management, per-repo split databases (`gitmap repo db`), pipeline telemetry DBs (`gitmap pipeline db`), and global cross-tier optimization (`gitmap db optimize`).
-- **Developer Productivity & OS Hygiene:** Developer tools cache remover (`gitmap clean-dev`, `gitmap os dev-clean`) sweeping Go, pnpm, npm, Chocolatey, Cargo, pip, NuGet, Gradle across 10 categories with Windows read-only attribute stripping; file sequence renaming, full-text regex AST search, markdown-to-SVG generation, cron-like scheduling, and one-liner cross-platform installers.
+- **Developer Productivity & OS Hygiene:** Developer tools cache remover (`gitmap clear devtools`, `gitmap clean-dev`, `gitmap os dev-clean`) sweeping Go, pnpm, npm, Chocolatey, Cargo, pip, NuGet, Gradle across 10 categories with Windows read-only attribute stripping; file sequence renaming, full-text regex AST search, markdown-to-SVG generation, cron-like scheduling, and one-liner cross-platform installers.
 
 ---
 
@@ -3467,8 +3467,29 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 - [.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md](.ai-memory/plans/completed/54-vmware-macro-audit-task-and-installer-chain.md) - Completed Plan 54.
 - [.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md](.ai-memory/plans/completed/57-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) - Completed Plan 57: Fleet nodes clone output alignment.
 - [.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md](.ai-memory/plans/completed/58-pas-formula-fix-ignores-cpar-and-repo-cache.md) - Completed Plan 58: GitMap PAS formula, ignore management suite, CPAR, and Split-DB cache engine.
+- [.ai-memory/plans/completed/60-gitmap-pas-command-fix.md](.ai-memory/plans/completed/60-gitmap-pas-command-fix.md) - Completed Plan 60: GitMap PAS formula, ignore grouping engine, CPAR suite & split-DB repo cache.
+- [.ai-memory/plans/completed/197-pas-fix.md](.ai-memory/plans/completed/197-pas-fix.md) - Completed Plan 197: GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache.
 - [.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md](.ai-memory/plans/pending/56-vmware-hardware-batch-and-macro-orchestration.md) - Plan 56: VMware hardware customization, multi-VM batch operations, and macro orchestration.
-- [.ai-memory/plans/pending/59-gitmap-pas-fix-and-repo-cache.md](.ai-memory/plans/pending/59-gitmap-pas-fix-and-repo-cache.md) - Plan 59: GitMap PAS fix, ignore grouping, CPAR, and split-DB repo cache.
+- [02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md](02-spec/21-app/181-gitmap-ignore-and-cache-engine/01-overview.md) - Spec 181: GitMap ignore and split-DB repo cache engine architecture.
+- [02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) - Spec 198: PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry.
+- [.ai-memory/plans/completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md](.ai-memory/plans/completed/61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md) - Completed Plan 61: PAS worker concurrency, pull-error split-DB subsystem, and machine telemetry.
+- [02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md](02-spec/21-app/199-devtools-cache-dynamic-discovery-tree-view-and-split-db.md) - Spec 199: Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence.
+- [.ai-memory/plans/completed/62-devtools-cache-discovery-tree-and-split-db.md](.ai-memory/plans/completed/62-devtools-cache-discovery-tree-and-split-db.md) - Completed Plan 62: Devtools Cache Dynamic Discovery, Tree View Rendering & Split-DB Persistence.
+- [02-spec/21-app/200-semantic-flat-commit-and-auto-stage-command.md](02-spec/21-app/200-semantic-flat-commit-and-auto-stage-command.md) - Spec 200: Semantic Flat Commit & Auto-Stage Command (`gitmap commit`, `cm`, `commit-all`, `ca`) and Macro Execution Resilience.
+- [.ai-memory/plans/completed/63-semantic-flat-commit-suite.md](.ai-memory/plans/completed/63-semantic-flat-commit-suite.md) - Completed Plan 63: Semantic Flat Commit Suite & Auto-Stage Command.
+- [.ai-memory/spec/commands/10-pas-formula-ignore-suite-cpar-and-cache.md](.ai-memory/spec/commands/10-pas-formula-ignore-suite-cpar-and-cache.md) - Command Spec 10: GitMap PAS formula, ignore management suite, CPAR, and split-DB cache engine.
+- [.ai-memory/spec/commands/11-pas-worker-concurrency-pull-error-and-telemetry.md](.ai-memory/spec/commands/11-pas-worker-concurrency-pull-error-and-telemetry.md) - Command Spec 11: Machine telemetry, paswh command, pull-error subsystem, and wincredman remediation.
+- [.ai-memory/spec/commands/12-devtools-cache-discovery-tree-and-split-db.md](.ai-memory/spec/commands/12-devtools-cache-discovery-tree-and-split-db.md) - Command Spec 12: Devtools cache dynamic discovery, tree view, and Split-DB persistence.
+- [.ai-memory/spec/commands/13-semantic-flat-commit-suite.md](.ai-memory/spec/commands/13-semantic-flat-commit-suite.md) - Command Spec 13: Semantic flat commit auto-staging suite (`gitmap commit`, `cm`, `ca`).
+- [02-spec/22-app-issues/60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md](02-spec/22-app-issues/60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md) - 4-Part RCA for rootcore commit dispatch shadowing and stale binary execution.
+- [.ai-memory/issues/26-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md](.ai-memory/issues/26-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md) - Memory RCA for rootcore commit dispatch shadowing and stale binary execution.
+- [02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) - Spec 201: GitMap Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation.
+- [.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](.ai-memory/plans/completed/64-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) - Plan 64: Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation.
+- [.ai-memory/spec/commands/14-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](.ai-memory/spec/commands/14-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) - Command Spec 14: GitIgnore Split-DB cache and concurrency governance commands.
+- [02-spec/22-app-issues/61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](02-spec/22-app-issues/61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md) - 4-Part RCA for pull-all unconstrained ignore subprocess deadlock and SSH concurrency multiplication.
+- [.ai-memory/issues/27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](.ai-memory/issues/27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md) - Memory RCA for pull-all unconstrained ignore subprocess deadlock and SSH concurrency multiplication.
+- [.ai-memory/ambiguous-questions/01-new-ambiguity/03-gitmap-mcp-server-api-endpoint.md](.ai-memory/ambiguous-questions/01-new-ambiguity/03-gitmap-mcp-server-api-endpoint.md) - Ambiguity 03: GitMap as an MCP Server API Endpoint for autonomous AI agents.
+
 
 
 
