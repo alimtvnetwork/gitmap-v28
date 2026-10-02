@@ -99,8 +99,9 @@ python 03-ai-scripts/29-release-orchestrator.py --tier patch
 
 ---
 
-## 5. Non-Negotiable Quality Gates
-
+- [ ] **NEVER Sync `02-spec/21-*` (`02-spec/21-app`):** Spec 21 is target-repo exclusive. If target repositories have updates, leave them completely as-is; never sync or overwrite `21-*`.
+- [ ] **AI Scripts Additive-Only:** New AI scripts are added to target repositories, but existing scripts already in the target repository that were modified by the repo MUST NOT be touched or overwritten.
+- [ ] **Bump Script Protection:** NEVER modify or overwrite version bump scripts (`bump-version.mjs`, `bump_versions.py`, `37-bump-version.py`, etc.) in target repos; each repo maintains its own bump script logic.
 - [ ] All mirrored skill files must use strictly lowercase `skill.md` filenames.
 - [ ] No temporary files (`.pyc`, `.tmp`, `__pycache__`) are synced.
 - [ ] Every target repository MUST have a backup branch pushed before any modifications.

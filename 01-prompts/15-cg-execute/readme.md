@@ -108,6 +108,51 @@ Prompts are sequenced according to priority. Error management, control-flow flat
 | **34** | [`34-golang-pointer-reduction-and-value-semantics.md`](./34-golang-pointer-reduction-and-value-semantics.md) | Golang Pointer Reduction & Value Semantics (300 Steps) | `cg-pointer-reduction`, `cg-golang-pointers`, `golang-value-semantics` | 3-phase 300-step execution (100 Audit / 100 Spec / 100 Refactor), reduce heap escapes, value semantics for small structs & query receivers | `golangci-lint`, `validate-guidelines.py` |
 | **35** | [`35-clean-work-artifacts-and-os-caches.md`](./35-clean-work-artifacts-and-os-caches.md) | Work Directory & OS Cache Cleaner (Dry-Run Plan First) | `clean-work-artifacts-and-os-caches` | Plan preview first, then purge work-repo build artifacts, Go/npm/pnpm/Bun caches (keeping `node_modules`), browser/editor caches, OS temp, and Git caches, reporting space reclaimed per layer | `44-work-and-system-cache-cleaner.py`, `scripts-fixer` |
 | **36** | [`36-variadic-and-spread-parameters.md`](./36-variadic-and-spread-parameters.md) | Variadic & Spread Parameters, Rest Elements & Slices | `cg-variadic`, `cg-spread-params`, `cg-execute variadic`, `audit variadic` | Replace rigid slice/array parameters with variadic/spread (`...T`, `...items`, `&[T]`), eliminate single-item wrapper allocations (`[]string{id}`), enforce parameter count caps and safe empty handling | `validate-guidelines.py`, `check-function-lengths.py` |
+| **37** | [`37-string-normalization-and-equalfoldany.md`](./37-string-normalization-and-equalfoldany.md) | String Normalization, `EqualFoldAny` & Centralized Utility Discovery | `cg-string-normalization`, `cg-equalfoldany`, `strutil-normalization`, `audit-string-comparisons` | Replace repetitive trimming and chained `EqualFold` / `ToLower` OR-chains with centralized `strutil.EqualFoldAny` and `strutil.EqualFoldAnyTrim` helpers, enforce Search First Directive for `pkg/strutil` (or repo string utility), zero-allocation case folding | `validate-guidelines.py`, `check-function-lengths.py` |
+
+### Directory Tree
+
+```text
+01-prompts/15-cg-execute/
+├── 01-execute-coding-guideline-fix.md
+├── 02-error-management.md
+├── 03-nested-if-and-guard-clauses.md
+├── 04-booleans-and-complex-conditions.md
+├── 05-naming-conventions-and-boolean-prefixes.md
+├── 06-constants-and-enums.md
+├── 07-data-and-schema.md
+├── 08-react-frontend-guidelines.md
+├── 09-code-hygiene.md
+├── 10-style-guidelines.md
+├── 11-testing-and-coverage.md
+├── 12-relative-paths.md
+├── 13-cli-commands-and-help.md
+├── 14-function-signatures-and-return-types.md
+├── 15-typescript-guidelines-and-types.md
+├── 16-multi-language-enums-and-traits.md
+├── 17-terminal-ui-and-cli-styling.md
+├── 18-function-argument-reduction-and-params.md
+├── 19-result-wrapper-and-apperror-returns.md
+├── 20-extract-generic-types-to-types-go.md
+├── 21-lazy-regex-and-pattern-matching.md
+├── 22-file-size-and-function-reduction.md
+├── 23-string-operations-and-efficiency.md
+├── 24-isolate-destructive-os-and-heavy-unit-tests.md
+├── 25-nuclear-package-modularization-and-unit-test-optimization.md
+├── 26-python-boolean-and-conditional-enhancement.md
+├── 27-python-constants-and-magic-number-elimination.md
+├── 28-python-array-constants-and-dynamic-enums.md
+├── 29-code-dryness-and-library-extraction.md
+├── 30-clean-repo-build-and-caches.md
+├── 31-cg-execute-in-below-steps.md
+├── 32-cg-follow-other-prompts.md
+├── 33-branch-immutability-and-clean-construction.md
+├── 34-golang-pointer-reduction-and-value-semantics.md
+├── 35-clean-work-artifacts-and-os-caches.md
+├── 36-variadic-and-spread-parameters.md
+├── 37-string-normalization-and-equalfoldany.md
+└── readme.md
+```
 
 ---
 

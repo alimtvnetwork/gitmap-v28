@@ -77,6 +77,7 @@ Strict typing, casting elimination, null safety, mutation avoidance.
 | 19 | `19-null-pointer-safety.md` | Null/nil safety guards |
 | 32 | `32-branch-immutability-and-clean-construction.md` | Branch immutability, constructor helper returns, condition decomposition |
 | 33 | `33-variadic-and-spread-parameters.md` | Variadic and spread parameters, zero wrapper calls, slice forwarding |
+| 34 | `34-string-normalization-and-equalfoldany.md` | String normalization, EqualFoldAnyTrim utility standard, Search First protocol |
 
 ### 🔧 Patterns & Techniques
 
@@ -140,11 +141,12 @@ Consolidated reference, audit logs, contradiction checks.
 | 28 | `28-slug-conventions.md` | Naming |
 | 32 | `32-branch-immutability-and-clean-construction.md` | Type Safety |
 | 33 | `33-variadic-and-spread-parameters.md` | Type Safety |
+| 34 | `34-string-normalization-and-equalfoldany.md` | Type Safety |
 | 97 | `97-acceptance-criteria.md` | Meta |
 | 98 | `98-changelog.md` | Meta |
 | 99 | `99-consistency-report.md` | Meta |
 
-**Total:** 31 files (27 spec files + 1 overview + 3 meta)
+**Total:** 32 files (28 spec files + 1 overview + 3 meta)
 
 ---
 
@@ -180,6 +182,7 @@ Consolidated reference, audit logs, contradiction checks.
 | 27-types-folder-convention.md |
 | 32-branch-immutability-and-clean-construction.md |
 | 33-variadic-and-spread-parameters.md |
+| 34-string-normalization-and-equalfoldany.md |
 | 97-acceptance-criteria.md |
 | 98-changelog.md |
 | 99-consistency-report.md |
