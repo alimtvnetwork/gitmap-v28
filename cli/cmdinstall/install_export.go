@@ -112,7 +112,7 @@ func resolveExportDefaults(opts *ExportOptions) {
 }
 
 func pickExportExtension(opts *ExportOptions) string {
-	isJSON := strings.ToLower(opts.Format) == "json" || strings.HasSuffix(strings.ToLower(opts.OutputPath), ".json")
+	isJSON := strings.EqualFold(opts.Format, "json") || strings.HasSuffix(strings.ToLower(opts.OutputPath), ".json")
 	if isJSON {
 		return ".json"
 	}
@@ -134,7 +134,7 @@ func executeInstallerExport(db *store.DB, opts *ExportOptions) error {
 		return errScripts
 	}
 
-	isJSON := strings.ToLower(opts.Format) == "json" || strings.HasSuffix(strings.ToLower(opts.OutputPath), ".json")
+	isJSON := strings.EqualFold(opts.Format, "json") || strings.HasSuffix(strings.ToLower(opts.OutputPath), ".json")
 	if isJSON {
 		return writeJSONExport(scripts, opts)
 	}

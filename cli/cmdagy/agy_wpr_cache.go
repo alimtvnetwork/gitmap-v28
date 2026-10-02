@@ -116,13 +116,13 @@ func resolveEffectiveMachineName(alias, machineName string) string {
 
 // FindCachedMachine returns a cached machine entry matching query by alias, machine name, or IP.
 func FindCachedMachine(query string) (WPRMachineCacheEntry, bool) {
-	clean := strings.ToLower(strings.TrimSpace(query))
+	clean := strings.TrimSpace(query)
 	if len(clean) == 0 {
 		return WPRMachineCacheEntry{}, false
 	}
 
 	for _, entry := range LoadWPRMachineCache() {
-		if strings.ToLower(entry.Alias) == clean || strings.ToLower(entry.MachineName) == clean || entry.IPAddress == clean {
+		if strings.EqualFold(entry.Alias, clean) || strings.EqualFold(entry.MachineName, clean) || strings.EqualFold(entry.IPAddress, clean) {
 			return entry, true
 		}
 	}

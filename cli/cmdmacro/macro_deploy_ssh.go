@@ -101,9 +101,8 @@ func filterMacrosByName(macros []macro.Macro, targetName string) []macro.Macro {
 		return macros
 	}
 	var filtered []macro.Macro
-	targetLower := strings.ToLower(cleanName)
 	for _, m := range macros {
-		if strings.ToLower(m.Name) == targetLower {
+		if strings.EqualFold(m.Name, cleanName) {
 			filtered = append(filtered, m)
 		}
 	}

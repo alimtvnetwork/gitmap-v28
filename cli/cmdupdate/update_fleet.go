@@ -926,7 +926,7 @@ func resolvePackageBinName(pkg string, isWin bool) string {
 }
 
 func isAgmIncludedInZip(pkg string) bool {
-	return strings.ToLower(pkg) == "all"
+	return strings.EqualFold(pkg, "all")
 }
 
 func locatePackageBinary(pkg string) ([]byte, error) {

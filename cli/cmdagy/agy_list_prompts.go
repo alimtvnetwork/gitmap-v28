@@ -64,7 +64,7 @@ func parsePromptLimit(args []string) int {
 		return 50
 	}
 
-	if strings.ToLower(cleanArgs[0]) == "all" {
+	if strings.EqualFold(cleanArgs[0], "all") {
 		return 10000
 	}
 

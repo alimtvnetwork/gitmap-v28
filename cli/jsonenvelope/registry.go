@@ -115,12 +115,12 @@ func GetRegisteredTypes() []TypeDescriptor {
 
 // FindDescriptorByType looks up a descriptor by its type identifier.
 func FindDescriptorByType(typeName string) (TypeDescriptor, bool) {
-	norm := strings.ToLower(strings.TrimSpace(typeName))
-	if norm == TypeMacroBundle {
+	norm := strings.TrimSpace(typeName)
+	if strings.EqualFold(norm, TypeMacroBundle) {
 		norm = TypeMacro
 	}
 	for _, d := range registeredTypes {
-		if strings.ToLower(d.Type) == norm {
+		if strings.EqualFold(d.Type, norm) {
 			return d, true
 		}
 	}

@@ -78,7 +78,7 @@ func hasSubcommandArg(args []string, target string) bool {
 		return false
 	}
 
-	return strings.ToLower(args[0]) == target
+	return strings.EqualFold(args[0], target)
 }
 
 func calculateAICleanTotals(categories []AICleanCategory) (int, int64) {

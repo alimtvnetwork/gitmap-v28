@@ -25,22 +25,23 @@ const SQLCreateScanFolder = `CREATE TABLE IF NOT EXISTS ScanFolder (
 	CreatedAt     TEXT DEFAULT CURRENT_TIMESTAMP
 )`
 
-// SQL: unique index on AbsolutePath with case-insensitive collation (IdxScanFolder_AbsolutePath).
-const SQLCreateScanFolderPathIndex = "CREATE UNIQUE INDEX IF NOT EXISTS IdxScanFolder_AbsolutePath ON ScanFolder(AbsolutePath COLLATE NOCASE)"
-
-// SQLCreateScanFolderAbsPathIndex is an alias for SQLCreateScanFolderPathIndex.
-const SQLCreateScanFolderAbsPathIndex = SQLCreateScanFolderPathIndex
+// SQL: unique index on AbsolutePath with OS-aware collation (IdxScanFolder_AbsolutePath).
+const (
+	SQLCreateScanFolderPathIndexWindows = "CREATE UNIQUE INDEX IF NOT EXISTS IdxScanFolder_AbsolutePath ON ScanFolder(AbsolutePath COLLATE NOCASE)"
+	SQLCreateScanFolderPathIndexUnix    = "CREATE UNIQUE INDEX IF NOT EXISTS IdxScanFolder_AbsolutePath ON ScanFolder(AbsolutePath)"
+	SQLCreateScanFolderPathIndex        = SQLCreateScanFolderPathIndexWindows
+	SQLCreateScanFolderAbsPathIndex     = SQLCreateScanFolderPathIndex
+)
 
 // SQL: drop existing index prior to collation recreation.
 const SQLDropScanFolderPathIndex = "DROP INDEX IF EXISTS IdxScanFolder_AbsolutePath"
 
-// SQL: deduplicate ScanFolder entries by lowercase AbsolutePath, preserving the oldest ScanFolderId.
-const SQLDeduplicateScanFolders = `DELETE FROM ScanFolder
-WHERE ScanFolderId NOT IN (
-	SELECT MIN(ScanFolderId)
-	FROM ScanFolder
-	GROUP BY LOWER(AbsolutePath)
-)`
+// SQL: deduplicate ScanFolder entries by AbsolutePath, preserving the oldest ScanFolderId.
+const (
+	SQLDeduplicateScanFoldersWindows = "DELETE FROM ScanFolder WHERE ScanFolderId NOT IN (SELECT MIN(ScanFolderId) FROM ScanFolder GROUP BY LOWER(AbsolutePath))"
+	SQLDeduplicateScanFoldersUnix    = "DELETE FROM ScanFolder WHERE ScanFolderId NOT IN (SELECT MIN(ScanFolderId) FROM ScanFolder GROUP BY AbsolutePath)"
+	SQLDeduplicateScanFolders        = SQLDeduplicateScanFoldersWindows
+)
 
 // SQL: create VersionProbe table (populated starting Phase 2.3).
 const SQLCreateVersionProbe = `CREATE TABLE IF NOT EXISTS VersionProbe (

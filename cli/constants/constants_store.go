@@ -148,19 +148,22 @@ const SQLUpsertRepoByPath = `INSERT INTO Repo (Slug, RepoName, HttpsUrl, SshUrl,
 		CloneInstruction=excluded.CloneInstruction, Notes=excluded.Notes,
 		IdentifiedTransport=excluded.IdentifiedTransport, UpdatedAt=CURRENT_TIMESTAMP`
 
-// SQL: create unique index on AbsolutePath with case-insensitive collation (IdxRepo_AbsolutePath).
-const SQLCreateAbsPathIndex = "CREATE UNIQUE INDEX IF NOT EXISTS IdxRepo_AbsolutePath ON Repo(AbsolutePath COLLATE NOCASE)"
+// SQL: create unique index on AbsolutePath with case-insensitive collation (Windows) or binary collation (Unix).
+const (
+	SQLCreateAbsPathIndexWindows = "CREATE UNIQUE INDEX IF NOT EXISTS IdxRepo_AbsolutePath ON Repo(AbsolutePath COLLATE NOCASE)"
+	SQLCreateAbsPathIndexUnix    = "CREATE UNIQUE INDEX IF NOT EXISTS IdxRepo_AbsolutePath ON Repo(AbsolutePath)"
+	SQLCreateAbsPathIndex        = SQLCreateAbsPathIndexWindows
+)
 
 // SQL: drop existing index prior to collation recreation.
 const SQLDropRepoAbsPathIndex = "DROP INDEX IF EXISTS IdxRepo_AbsolutePath"
 
-// SQL: deduplicate Repo entries by lowercase AbsolutePath, preserving the oldest RepoId.
-const SQLDeduplicateRepos = `DELETE FROM Repo
-WHERE RepoId NOT IN (
-	SELECT MIN(RepoId)
-	FROM Repo
-	GROUP BY LOWER(AbsolutePath)
-)`
+// SQL: deduplicate Repo entries by AbsolutePath, preserving the oldest RepoId.
+const (
+	SQLDeduplicateReposWindows = "DELETE FROM Repo WHERE RepoId NOT IN (SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath))"
+	SQLDeduplicateReposUnix    = "DELETE FROM Repo WHERE RepoId NOT IN (SELECT MIN(RepoId) FROM Repo GROUP BY AbsolutePath)"
+	SQLDeduplicateRepos        = SQLDeduplicateReposWindows
+)
 
 // SQL: drop the legacy index name from pre-v15 installs.
 const SQLDropLegacyAbsPathIndex = "DROP INDEX IF EXISTS idx_Repos_AbsolutePath"

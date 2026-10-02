@@ -45,7 +45,6 @@ func resolveCurrentDirProject() (*AgyProject, *apperror.AppError) {
 }
 
 func matchAgyProject(projects []AgyProject, target string) *AgyProject {
-	low := strings.ToLower(target)
 	cleanPath := filepath.Clean(target)
 
 	for i := range projects {
@@ -54,7 +53,7 @@ func matchAgyProject(projects []AgyProject, target string) *AgyProject {
 			return p
 		}
 
-		if strings.ToLower(p.Name) == low || filepath.Clean(p.GetPath()) == cleanPath {
+		if strings.EqualFold(p.Name, target) || filepath.Clean(p.GetPath()) == cleanPath {
 			return p
 		}
 	}

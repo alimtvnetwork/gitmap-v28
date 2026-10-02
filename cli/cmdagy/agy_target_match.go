@@ -7,7 +7,7 @@ func matchByID(token string, projects []AgyProject) []AgyProject {
 	var matches []AgyProject
 	lower := strings.ToLower(token)
 	for _, p := range projects {
-		if strings.ToLower(p.ID) == lower || strings.HasPrefix(strings.ToLower(p.ID), lower) {
+		if strings.EqualFold(p.ID, lower) || strings.HasPrefix(strings.ToLower(p.ID), lower) {
 			matches = append(matches, p)
 		}
 	}

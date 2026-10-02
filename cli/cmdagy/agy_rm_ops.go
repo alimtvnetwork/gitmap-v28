@@ -37,7 +37,7 @@ func resolveRemovalTargets(args []string, folderFlag string, projects []AgyProje
 		return ResolveAgyFolderTargets(folderFlag, projects)
 	}
 
-	if len(args) >= 2 && (strings.ToLower(args[0]) == "folder" || strings.ToLower(args[0]) == "dir") {
+	if len(args) >= 2 && (strings.EqualFold(args[0], "folder") || strings.EqualFold(args[0], "dir")) {
 		return ResolveAgyFolderTargets(args[1], projects)
 	}
 

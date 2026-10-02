@@ -49,7 +49,7 @@ func isPinnedProjectMatch(p *PinnedProject, target, low, cleanPath string) bool 
 	if p.ID == target || strings.HasPrefix(strings.ToLower(p.ID), low) {
 		return true
 	}
-	return strings.ToLower(p.Name) == low || strings.HasPrefix(strings.ToLower(p.Name), low) || filepath.Clean(p.Path) == cleanPath
+	return strings.EqualFold(p.Name, target) || strings.HasPrefix(strings.ToLower(p.Name), low) || filepath.Clean(p.Path) == cleanPath
 }
 
 func getPinnedProjectsMap() map[string]bool {

@@ -208,10 +208,8 @@ func pickProfileBySequenceOrName(
 		return num - 1, profiles[num-1], nil
 	}
 
-	lower := strings.ToLower(val)
-
 	for i, p := range profiles {
-		if strings.ToLower(p.Name) == lower || strings.ToLower(p.ID) == lower {
+		if strings.EqualFold(p.Name, val) || strings.EqualFold(p.ID, val) {
 			return i, p, nil
 		}
 	}

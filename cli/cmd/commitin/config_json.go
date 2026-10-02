@@ -390,13 +390,14 @@ func matchStateHookByRef(ref string, vars map[string]string) []string {
 
 func matchImportedByRef(ref string, imported []ImportedTemplateItem, vars map[string]string) []string {
 	var out []string
-	lowerRef := strings.ToLower(strings.TrimSpace(ref))
+	cleanRef := strings.TrimSpace(ref)
+	isAll := strings.EqualFold(cleanRef, "all")
 	for _, item := range imported {
-		isMatch := strings.ToLower(item.Category) == lowerRef ||
-			strings.ToLower(item.SubCategory) == lowerRef ||
-			strings.ToLower(item.Slug) == lowerRef ||
-			strings.ToLower(item.ID) == lowerRef ||
-			lowerRef == "all"
+		isMatch := isAll ||
+			strings.EqualFold(item.Category, cleanRef) ||
+			strings.EqualFold(item.SubCategory, cleanRef) ||
+			strings.EqualFold(item.Slug, cleanRef) ||
+			strings.EqualFold(item.ID, cleanRef)
 		if isMatch {
 			out = append(out, formatCompiledItem(item, vars))
 		}

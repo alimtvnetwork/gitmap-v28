@@ -19,7 +19,7 @@ func ParseIgnoreInterval(val string) (time.Duration, error) {
 
 // RunIgnoreConfig handles inspection and updating of gitignore cache settings.
 func RunIgnoreConfig(args []string) error {
-	if len(args) > 0 && strings.ToLower(args[0]) == "set" {
+	if len(args) > 0 && strings.EqualFold(args[0], "set") {
 		return runIgnoreConfigSet(args[1:])
 	}
 	return printIgnoreConfigDetails()
@@ -217,7 +217,7 @@ func isCacheClearCommand(args []string) bool {
 
 func isJSONOutput(args []string) bool {
 	for _, a := range args {
-		if strings.ToLower(a) == "--json" {
+		if strings.EqualFold(a, "--json") {
 			return true
 		}
 	}

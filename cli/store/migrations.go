@@ -16,6 +16,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -228,7 +229,19 @@ func isTablePresent(dbConn *sql.DB, tableName string) bool {
 }
 
 func deleteConflictingReleases(dbConn *sql.DB) error {
-	const sqlPrune = `DELETE FROM Release
+	sqlPrune := `DELETE FROM Release
+	WHERE RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY AbsolutePath
+		)
+	) AND EXISTS (
+		SELECT 1 FROM Release r2
+		JOIN Repo rDup ON rDup.RepoId = Release.RepoId
+		JOIN Repo rSurv ON rSurv.AbsolutePath = rDup.AbsolutePath
+		WHERE r2.RepoId = rSurv.RepoId AND r2.Tag = Release.Tag AND rSurv.RepoId != rDup.RepoId
+	)`
+	if runtime.GOOS == "windows" {
+		sqlPrune = `DELETE FROM Release
 	WHERE RepoId IN (
 		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
@@ -239,6 +252,7 @@ func deleteConflictingReleases(dbConn *sql.DB) error {
 		JOIN Repo rSurv ON LOWER(rSurv.AbsolutePath) = LOWER(rDup.AbsolutePath)
 		WHERE r2.RepoId = rSurv.RepoId AND r2.Tag = Release.Tag AND rSurv.RepoId != rDup.RepoId
 	)`
+	}
 	if _, err := dbConn.Exec(sqlPrune); err != nil {
 		return apperror.WrapSimple(err, "deleteConflictingReleases")
 	}
@@ -247,7 +261,17 @@ func deleteConflictingReleases(dbConn *sql.DB) error {
 }
 
 func executeReleaseRemap(dbConn *sql.DB) error {
-	const sqlRemap = `UPDATE Release SET RepoId = (
+	sqlRemap := `UPDATE Release SET RepoId = (
+		SELECT MIN(r2.RepoId) FROM Repo r1
+		JOIN Repo r2 ON r1.AbsolutePath = r2.AbsolutePath
+		WHERE r1.RepoId = Release.RepoId
+	) WHERE RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY AbsolutePath
+		)
+	)`
+	if runtime.GOOS == "windows" {
+		sqlRemap = `UPDATE Release SET RepoId = (
 		SELECT MIN(r2.RepoId) FROM Repo r1
 		JOIN Repo r2 ON LOWER(r1.AbsolutePath) = LOWER(r2.AbsolutePath)
 		WHERE r1.RepoId = Release.RepoId
@@ -256,6 +280,7 @@ func executeReleaseRemap(dbConn *sql.DB) error {
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
 		)
 	)`
+	}
 	if _, err := dbConn.Exec(sqlRemap); err != nil {
 		return apperror.WrapSimple(err, "remapReleaseRepoRefs")
 	}
@@ -276,7 +301,18 @@ func remapReleaseRepoRefs(dbConn *sql.DB) error {
 }
 
 func insertRemappedGroupRepos(dbConn *sql.DB) error {
-	const sqlInsert = `INSERT OR IGNORE INTO GroupRepo (GroupId, RepoId)
+	sqlInsert := `INSERT OR IGNORE INTO GroupRepo (GroupId, RepoId)
+	SELECT gr.GroupId, (
+		SELECT MIN(r2.RepoId) FROM Repo r1
+		JOIN Repo r2 ON r1.AbsolutePath = r2.AbsolutePath
+		WHERE r1.RepoId = gr.RepoId
+	) FROM GroupRepo gr WHERE gr.RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY AbsolutePath
+		)
+	)`
+	if runtime.GOOS == "windows" {
+		sqlInsert = `INSERT OR IGNORE INTO GroupRepo (GroupId, RepoId)
 	SELECT gr.GroupId, (
 		SELECT MIN(r2.RepoId) FROM Repo r1
 		JOIN Repo r2 ON LOWER(r1.AbsolutePath) = LOWER(r2.AbsolutePath)
@@ -286,6 +322,7 @@ func insertRemappedGroupRepos(dbConn *sql.DB) error {
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
 		)
 	)`
+	}
 	if _, err := dbConn.Exec(sqlInsert); err != nil {
 		return apperror.WrapSimple(err, "insertRemappedGroupRepos")
 	}
@@ -294,11 +331,18 @@ func insertRemappedGroupRepos(dbConn *sql.DB) error {
 }
 
 func deleteStaleGroupRepos(dbConn *sql.DB) error {
-	const sqlDelete = `DELETE FROM GroupRepo WHERE RepoId IN (
+	sqlDelete := `DELETE FROM GroupRepo WHERE RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY AbsolutePath
+		)
+	)`
+	if runtime.GOOS == "windows" {
+		sqlDelete = `DELETE FROM GroupRepo WHERE RepoId IN (
 		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
 		)
 	)`
+	}
 	if _, err := dbConn.Exec(sqlDelete); err != nil {
 		return apperror.WrapSimple(err, "deleteStaleGroupRepos")
 	}
@@ -323,7 +367,17 @@ func remapVersionProbeRefs(dbConn *sql.DB) error {
 	if !hasTable {
 		return nil
 	}
-	const sqlRemap = `UPDATE VersionProbe SET RepoId = (
+	sqlRemap := `UPDATE VersionProbe SET RepoId = (
+		SELECT MIN(r2.RepoId) FROM Repo r1
+		JOIN Repo r2 ON r1.AbsolutePath = r2.AbsolutePath
+		WHERE r1.RepoId = VersionProbe.RepoId
+	) WHERE RepoId IN (
+		SELECT RepoId FROM Repo WHERE RepoId NOT IN (
+			SELECT MIN(RepoId) FROM Repo GROUP BY AbsolutePath
+		)
+	)`
+	if runtime.GOOS == "windows" {
+		sqlRemap = `UPDATE VersionProbe SET RepoId = (
 		SELECT MIN(r2.RepoId) FROM Repo r1
 		JOIN Repo r2 ON LOWER(r1.AbsolutePath) = LOWER(r2.AbsolutePath)
 		WHERE r1.RepoId = VersionProbe.RepoId
@@ -332,6 +386,7 @@ func remapVersionProbeRefs(dbConn *sql.DB) error {
 			SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath)
 		)
 	)`
+	}
 	if _, err := dbConn.Exec(sqlRemap); err != nil {
 		return apperror.WrapSimple(err, "remapVersionProbeRefs")
 	}
@@ -355,7 +410,11 @@ func deduplicateRepoRows(dbConn *sql.DB) error {
 	if !hasTable {
 		return nil
 	}
-	if _, err := dbConn.Exec(constants.SQLDeduplicateRepos); err != nil {
+	dedupSQL := constants.SQLDeduplicateReposUnix
+	if runtime.GOOS == "windows" {
+		dedupSQL = constants.SQLDeduplicateReposWindows
+	}
+	if _, err := dbConn.Exec(dedupSQL); err != nil {
 		return apperror.WrapSimple(err, "deduplicateRepoRows")
 	}
 
@@ -370,7 +429,11 @@ func recreateRepoPathIndex(dbConn *sql.DB) error {
 	if _, err := dbConn.Exec(constants.SQLDropRepoAbsPathIndex); err != nil {
 		return apperror.WrapSimple(err, "dropRepoAbsPathIndex")
 	}
-	if _, err := dbConn.Exec(constants.SQLCreateAbsPathIndex); err != nil {
+	indexSQL := constants.SQLCreateAbsPathIndexUnix
+	if runtime.GOOS == "windows" {
+		indexSQL = constants.SQLCreateAbsPathIndexWindows
+	}
+	if _, err := dbConn.Exec(indexSQL); err != nil {
 		return apperror.WrapSimple(err, "createRepoAbsPathIndex")
 	}
 
@@ -378,7 +441,17 @@ func recreateRepoPathIndex(dbConn *sql.DB) error {
 }
 
 func executeScanFolderRemap(dbConn *sql.DB) error {
-	const sqlRemap = `UPDATE Repo SET ScanFolderId = (
+	sqlRemap := `UPDATE Repo SET ScanFolderId = (
+		SELECT MIN(sf2.ScanFolderId) FROM ScanFolder sf1
+		JOIN ScanFolder sf2 ON sf1.AbsolutePath = sf2.AbsolutePath
+		WHERE sf1.ScanFolderId = Repo.ScanFolderId
+	) WHERE ScanFolderId IS NOT NULL AND ScanFolderId IN (
+		SELECT ScanFolderId FROM ScanFolder WHERE ScanFolderId NOT IN (
+			SELECT MIN(ScanFolderId) FROM ScanFolder GROUP BY AbsolutePath
+		)
+	)`
+	if runtime.GOOS == "windows" {
+		sqlRemap = `UPDATE Repo SET ScanFolderId = (
 		SELECT MIN(sf2.ScanFolderId) FROM ScanFolder sf1
 		JOIN ScanFolder sf2 ON LOWER(sf1.AbsolutePath) = LOWER(sf2.AbsolutePath)
 		WHERE sf1.ScanFolderId = Repo.ScanFolderId
@@ -387,6 +460,7 @@ func executeScanFolderRemap(dbConn *sql.DB) error {
 			SELECT MIN(ScanFolderId) FROM ScanFolder GROUP BY LOWER(AbsolutePath)
 		)
 	)`
+	}
 	if _, err := dbConn.Exec(sqlRemap); err != nil {
 		return apperror.WrapSimple(err, "remapScanFolderRefs")
 	}
@@ -410,7 +484,11 @@ func deduplicateScanFolderRows(dbConn *sql.DB) error {
 	if !hasTable {
 		return nil
 	}
-	if _, err := dbConn.Exec(constants.SQLDeduplicateScanFolders); err != nil {
+	dedupSQL := constants.SQLDeduplicateScanFoldersUnix
+	if runtime.GOOS == "windows" {
+		dedupSQL = constants.SQLDeduplicateScanFoldersWindows
+	}
+	if _, err := dbConn.Exec(dedupSQL); err != nil {
 		return apperror.WrapSimple(err, "deduplicateScanFolderRows")
 	}
 
@@ -425,7 +503,11 @@ func recreateScanFolderPathIndex(dbConn *sql.DB) error {
 	if _, err := dbConn.Exec(constants.SQLDropScanFolderPathIndex); err != nil {
 		return apperror.WrapSimple(err, "dropScanFolderPathIndex")
 	}
-	if _, err := dbConn.Exec(constants.SQLCreateScanFolderPathIndex); err != nil {
+	indexSQL := constants.SQLCreateScanFolderPathIndexUnix
+	if runtime.GOOS == "windows" {
+		indexSQL = constants.SQLCreateScanFolderPathIndexWindows
+	}
+	if _, err := dbConn.Exec(indexSQL); err != nil {
 		return apperror.WrapSimple(err, "createScanFolderPathIndex")
 	}
 
