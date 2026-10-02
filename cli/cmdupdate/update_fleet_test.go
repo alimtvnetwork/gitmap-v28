@@ -1,6 +1,8 @@
 package cmdupdate
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"errors"
 	"sync"

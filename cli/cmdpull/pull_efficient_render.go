@@ -32,7 +32,8 @@ func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecor
 		fmt.Fprintln(w, "  (all repositories are up-to-date)")
 		return
 	}
-	renderCategorizedGroups(w, colWidth, cat)
+	collisions := detectRepoCollisions(deduped, allRecords...)
+	renderCategorizedGroups(w, colWidth, cat, collisions)
 }
 
 type categorizedStates struct {
@@ -58,15 +59,15 @@ func categorizeRepoStates(states []*PullRepoState) categorizedStates {
 	return cat
 }
 
-func renderCategorizedGroups(w io.Writer, colWidth int, cat categorizedStates) {
+func renderCategorizedGroups(w io.Writer, colWidth int, cat categorizedStates, collisions map[string]bool) {
 	if len(cat.updated) > 0 {
-		renderUpdatedGroup(w, colWidth, cat.updated)
+		renderUpdatedGroup(w, colWidth, cat.updated, collisions)
 	}
 	if len(cat.dirty) > 0 {
-		renderDirtyGroup(w, colWidth, cat.dirty)
+		renderDirtyGroup(w, colWidth, cat.dirty, collisions)
 	}
 	if len(cat.failed) > 0 {
-		renderFailedGroup(w, colWidth, cat.failed)
+		renderFailedGroup(w, colWidth, cat.failed, collisions)
 	}
 }
 
