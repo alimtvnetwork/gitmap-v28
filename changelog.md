@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.454.0] - 2026-10-02
+
+### Added
+- modernize nodes cfr terminal ui, preflight probing, and async delegation
+
+---
+
 ## [v6.453.0] - 2026-10-02
 
 ### Added

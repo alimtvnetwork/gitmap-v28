@@ -2,6 +2,8 @@
 
 ## Active Specifications
 
+- [69-nodes-cfr-ui-async-delegation](69-nodes-cfr-ui-async-delegation/01-architecture-spec.md) — Nodes CFR Terminal UI Modernization, Pre-Flight Probing, Machine Observability & Async Delegation (Status: `active`)
+
 - [188-json-envelope-v2-terminal-clear-and-deploy-keys.md](188-json-envelope-v2-terminal-clear-and-deploy-keys.md) — JSON Envelope V2, Terminal Clear, Deploy-Keys Variants, and Friendly Import CLI (Status: `active`)
 - [186-fleet-nodes-machine-ping-command.md](186-fleet-nodes-machine-ping-command.md) — Fleet Nodes Machine Ping Command (`gitmap nodes ping` & `gitmap ping`), Dual-Stack ICMP & TCP Probe (Status: `active`)
 - [185-unified-fleet-nodes-command.md](185-unified-fleet-nodes-command.md) — Unified Fleet Nodes Command (`gitmap nodes`), Subsystem Aggregation, and Liveness Probing (Status: `active`)

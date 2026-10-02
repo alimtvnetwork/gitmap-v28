@@ -19,21 +19,33 @@ const (
 	CloneKindCFRP NodesCloneKind = "cfrp"
 )
 
+// NodesCloneDestination describes resolved destination directory settings for clone operations.
+type NodesCloneDestination struct {
+	TargetDir          string `json:"targetDir,omitempty"`
+	RelativeSubdir     string `json:"relativeSubdir,omitempty"`
+	HasCustomTargetDir bool   `json:"hasCustomTargetDir"`
+	IsInsideWorkDir    bool   `json:"isInsideWorkDir"`
+}
+
 // NodesCloneOptions stores configuration for fleet clone execution.
 type NodesCloneOptions struct {
-	Kind          NodesCloneKind `json:"kind"`
-	TargetFilter  string         `json:"targetFilter,omitempty"`
-	ExcludeFilter string         `json:"excludeFilter,omitempty"`
-	ExceptOS      string         `json:"exceptOS,omitempty"`
-	TargetOS      string         `json:"targetOS,omitempty"`
-	TargetDir     string         `json:"targetDir,omitempty"`
-	IsDryRun      bool           `json:"isDryRun"`
-	IsJSON        bool           `json:"isJSON"`
-	IsSkipLocal   bool           `json:"isSkipLocal"`
-	RawArgs       []string       `json:"rawArgs"`
-	PassArgs      []string       `json:"passArgs"`
-	DetectedFile  string         `json:"detectedFile,omitempty"`
-	HasFile       bool           `json:"hasFile"`
+	Kind               NodesCloneKind        `json:"kind"`
+	TargetFilter       string                `json:"targetFilter,omitempty"`
+	ExcludeFilter      string                `json:"excludeFilter,omitempty"`
+	ExceptOS           string                `json:"exceptOS,omitempty"`
+	TargetOS           string                `json:"targetOS,omitempty"`
+	TargetDir          string                `json:"targetDir,omitempty"`
+	RelativeSubdir     string                `json:"relativeSubdir,omitempty"`
+	HasCustomTargetDir bool                  `json:"hasCustomTargetDir"`
+	IsInsideWorkDir    bool                  `json:"isInsideWorkDir"`
+	Destination        NodesCloneDestination `json:"destination"`
+	IsDryRun           bool                  `json:"isDryRun"`
+	IsJSON             bool                  `json:"isJSON"`
+	IsSkipLocal        bool                  `json:"isSkipLocal"`
+	RawArgs            []string              `json:"rawArgs"`
+	PassArgs           []string              `json:"passArgs"`
+	DetectedFile       string                `json:"detectedFile,omitempty"`
+	HasFile            bool                  `json:"hasFile"`
 }
 
 // RemoteCloneNodeResult captures the execution output from an individual node.
@@ -51,8 +63,8 @@ type RemoteCloneNodeResult struct {
 }
 
 // SetFleetCloneActive toggles recursion suppression for inner suggestions.
-func SetFleetCloneActive(active bool) {
-	cmdclone.SetFleetCloneActive(active)
+func SetFleetCloneActive(isActive bool) {
+	cmdclone.SetFleetCloneActive(isActive)
 }
 
 // IsFleetCloneActive checks if fleet clone execution is currently active.

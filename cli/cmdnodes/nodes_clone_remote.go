@@ -121,13 +121,44 @@ func appendJSONFlag(args string) string {
 	return args + " --json"
 }
 
+func resolveSubdirTargetForOS(isWin bool, subdir string) string {
+	if isWin {
+		cleanSub := strings.ReplaceAll(subdir, "/", "\\")
+		return `D:\work\` + strings.Trim(cleanSub, "\\")
+	}
+	cleanSub := strings.Trim(subdir, "/")
+	return "~/work/" + cleanSub
+}
+
+func resolveTargetDirForOS(isWin bool, opts NodesCloneOptions) string {
+	if opts.TargetDir != "" {
+		return opts.TargetDir
+	}
+	if opts.RelativeSubdir == "" {
+		if isWin {
+			return `D:\work`
+		}
+		return "~/work"
+	}
+	return resolveSubdirTargetForOS(isWin, opts.RelativeSubdir)
+}
+
+func resolveRemoteTargetDir(conn db.SSHConnection, opts NodesCloneOptions) string {
+	return resolveTargetDirForOS(isWindowsNode(conn), opts)
+}
+
+func resolveRemoteDisplayTargetDir(conn db.SSHConnection, opts NodesCloneOptions) string {
+	return resolveRemoteTargetDir(conn, opts)
+}
+
 func buildWindowsWorkDirExecString(kindStr, args, targetDir string) string {
 	workDir := `D:\work`
 	if targetDir != "" {
 		workDir = targetDir
 	}
 	execArgs := appendJSONFlag(args)
-	return fmt.Sprintf("Set-Location \"%s\"; gitmap %s %s", workDir, kindStr, execArgs)
+	return fmt.Sprintf("if (!(Test-Path \"%s\")) { New-Item -ItemType Directory -Force -Path \"%s\" | Out-Null }; Set-Location \"%s\"; gitmap %s %s",
+		workDir, workDir, workDir, kindStr, execArgs)
 }
 
 func buildUnixWorkDirExecString(kindStr, args, targetDir string) string {
@@ -136,28 +167,36 @@ func buildUnixWorkDirExecString(kindStr, args, targetDir string) string {
 		workDir = targetDir
 	}
 	execArgs := appendJSONFlag(args)
-	return fmt.Sprintf("cd %s && gitmap %s %s", workDir, kindStr, execArgs)
+	return fmt.Sprintf("mkdir -p \"%s\" && cd \"%s\" && gitmap %s %s", workDir, workDir, kindStr, execArgs)
 }
 
 func buildRemoteExecString(opts NodesCloneOptions, fileName string, isWin bool) string {
 	cmdArgs := resolveRemoteArgs(opts.PassArgs, opts.DetectedFile, fileName)
 	kindStr := string(opts.Kind)
+	targetDir := resolveTargetDirForOS(isWin, opts)
 	if isWin {
-		return buildWindowsWorkDirExecString(kindStr, cmdArgs, opts.TargetDir)
+		return buildWindowsWorkDirExecString(kindStr, cmdArgs, targetDir)
 	}
-	return buildUnixWorkDirExecString(kindStr, cmdArgs, opts.TargetDir)
+	return buildUnixWorkDirExecString(kindStr, cmdArgs, targetDir)
 }
 
 func isOfflineError(errStr string) bool {
 	low := strings.ToLower(errStr)
+	return isNetworkOfflineErr(low) || isHostUnreachableErr(low)
+}
+
+func isNetworkOfflineErr(low string) bool {
 	return strings.Contains(low, "network unreachable") ||
 		strings.Contains(low, "offline") ||
 		strings.Contains(low, "timeout") ||
 		strings.Contains(low, "i/o timeout") ||
 		strings.Contains(low, "connectex") ||
 		strings.Contains(low, "connection refused") ||
-		strings.Contains(low, "actively refused") ||
-		strings.Contains(low, "machine is off") ||
+		strings.Contains(low, "actively refused")
+}
+
+func isHostUnreachableErr(low string) bool {
+	return strings.Contains(low, "machine is off") ||
 		strings.Contains(low, "no route to host") ||
 		strings.Contains(low, "host is down") ||
 		strings.Contains(low, "unreachable host") ||
@@ -255,10 +294,12 @@ func buildLegacyWindowsExec(kindStr, cmdArgs, targetDir string) string {
 	if targetDir != "" {
 		workDir = targetDir
 	}
-	if cmdArgs == "" {
-		return fmt.Sprintf("Set-Location \"%s\"; gitmap %s", workDir, kindStr)
+	cmd := fmt.Sprintf("gitmap %s", kindStr)
+	if cmdArgs != "" {
+		cmd = fmt.Sprintf("gitmap %s %s", kindStr, cmdArgs)
 	}
-	return fmt.Sprintf("Set-Location \"%s\"; gitmap %s %s", workDir, kindStr, cmdArgs)
+	return fmt.Sprintf("if (!(Test-Path \"%s\")) { New-Item -ItemType Directory -Force -Path \"%s\" | Out-Null }; Set-Location \"%s\"; %s",
+		workDir, workDir, workDir, cmd)
 }
 
 func buildLegacyUnixExec(kindStr, cmdArgs, targetDir string) string {
@@ -266,10 +307,11 @@ func buildLegacyUnixExec(kindStr, cmdArgs, targetDir string) string {
 	if targetDir != "" {
 		workDir = targetDir
 	}
-	if cmdArgs == "" {
-		return fmt.Sprintf("cd %s && gitmap %s", workDir, kindStr)
+	cmd := fmt.Sprintf("gitmap %s", kindStr)
+	if cmdArgs != "" {
+		cmd = fmt.Sprintf("gitmap %s %s", kindStr, cmdArgs)
 	}
-	return fmt.Sprintf("cd %s && gitmap %s %s", workDir, kindStr, cmdArgs)
+	return fmt.Sprintf("mkdir -p \"%s\" && cd \"%s\" && %s", workDir, workDir, cmd)
 }
 
 func buildLegacyExecString(kindStr, cmdArgs, targetDir string, isWin bool) string {
@@ -281,7 +323,8 @@ func buildLegacyExecString(kindStr, cmdArgs, targetDir string, isWin bool) strin
 
 func retryWithoutJSON(client *ssh.Client, opts NodesCloneOptions, fileName string, isWin bool, shell string) (string, error) {
 	cmdArgs := resolveRemoteArgs(opts.PassArgs, opts.DetectedFile, fileName)
-	cmdStr := buildLegacyExecString(string(opts.Kind), cmdArgs, opts.TargetDir, isWin)
+	targetDir := resolveTargetDirForOS(isWin, opts)
+	cmdStr := buildLegacyExecString(string(opts.Kind), cmdArgs, targetDir, isWin)
 	return crypto.RunCommand(client, cmdStr, shell)
 }
 
@@ -303,6 +346,10 @@ func populateExecutionResult(res RemoteCloneNodeResult, out string, errRun error
 		populateFromJSON(&res, payload)
 		return res
 	}
+	return applyFallbackExecutionStatus(res, out, errRun)
+}
+
+func applyFallbackExecutionStatus(res RemoteCloneNodeResult, out string, errRun error) RemoteCloneNodeResult {
 	if errRun != nil {
 		res.Status = "failed"
 		res.Error = errRun.Error()
@@ -313,21 +360,30 @@ func populateExecutionResult(res RemoteCloneNodeResult, out string, errRun error
 	return res
 }
 
+func resolveNodeShell(isWin bool) string {
+	if isWin {
+		return "ps"
+	}
+	return "bash"
+}
+
 func runRemoteExecOverSSH(client *ssh.Client, conn db.SSHConnection, opts NodesCloneOptions, fileName string, res RemoteCloneNodeResult, start time.Time) RemoteCloneNodeResult {
 	isWin := isWindowsNode(conn)
-	shell := "bash"
-	if isWin {
-		shell = "ps"
-	}
+	shell := resolveNodeShell(isWin)
 	cmdStr := buildRemoteExecString(opts, fileName, isWin)
 	out, errRun := crypto.RunCommand(client, cmdStr, shell)
+	out, errRun = handleFallbackRetries(client, conn, opts, fileName, isWin, shell, out, errRun)
+	return populateExecutionResult(res, out, errRun, start)
+}
+
+func handleFallbackRetries(client *ssh.Client, conn db.SSHConnection, opts NodesCloneOptions, fileName string, isWin bool, shell, out string, errRun error) (string, error) {
 	if errRun != nil && !isWin && isBashMissingError(out, errRun) {
 		out, errRun = retryWithPowerShell(client, opts, fileName, conn.Alias)
 	}
 	if isJSONFlagUnsupportedError(out) {
-		out, errRun = retryWithoutJSON(client, opts, fileName, isWin, shell)
+		return retryWithoutJSON(client, opts, fileName, isWin, shell)
 	}
-	return populateExecutionResult(res, out, errRun, start)
+	return out, errRun
 }
 
 func executeFleetNodesParallel(conns []db.SSHConnection, opts NodesCloneOptions, fileBytes []byte, fileName string) []RemoteCloneNodeResult {
@@ -336,14 +392,16 @@ func executeFleetNodesParallel(conns []db.SSHConnection, opts NodesCloneOptions,
 	results := make([]RemoteCloneNodeResult, 0, len(conns))
 	for _, c := range conns {
 		wg.Add(1)
-		go func(conn db.SSHConnection) {
-			defer wg.Done()
-			r := runRemoteNodeWorker(conn, opts, fileBytes, fileName)
-			mu.Lock()
-			results = append(results, r)
-			mu.Unlock()
-		}(c)
+		go spawnFleetWorker(&wg, &mu, c, opts, fileBytes, fileName, &results)
 	}
 	wg.Wait()
 	return results
+}
+
+func spawnFleetWorker(wg *sync.WaitGroup, mu *sync.Mutex, conn db.SSHConnection, opts NodesCloneOptions, fileBytes []byte, fileName string, results *[]RemoteCloneNodeResult) {
+	defer wg.Done()
+	r := runRemoteNodeWorker(conn, opts, fileBytes, fileName)
+	mu.Lock()
+	*results = append(*results, r)
+	mu.Unlock()
 }
