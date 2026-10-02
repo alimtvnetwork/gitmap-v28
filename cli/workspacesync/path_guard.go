@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // IsTempOrTestPath reports whether a path is located in an OS temp dir or test directory.
@@ -11,10 +13,12 @@ func IsTempOrTestPath(path string) bool {
 	if strings.TrimSpace(path) == "" {
 		return false
 	}
-	clean := strings.ToLower(filepath.Clean(path))
+
+	clean := fsutil.CanonicalPathKey(path)
 	if isTempEnvironment() || matchesTempPrefix(clean) {
 		return true
 	}
+
 	return matchesTestKeywords(clean)
 }
 
@@ -23,16 +27,21 @@ func isTempEnvironment() bool {
 }
 
 func matchesTempPrefix(clean string) bool {
-	tempDir := strings.ToLower(filepath.Clean(os.TempDir()))
+	tempDir := fsutil.CanonicalPathKey(os.TempDir())
 	if tempDir != "" && strings.HasPrefix(clean, tempDir) {
 		return true
 	}
-	if tempEnv := strings.ToLower(filepath.Clean(os.Getenv("TEMP"))); tempEnv != "" && strings.HasPrefix(clean, tempEnv) {
+
+	tempEnv := fsutil.CanonicalPathKey(os.Getenv("TEMP"))
+	if tempEnv != "" && strings.HasPrefix(clean, tempEnv) {
 		return true
 	}
-	if tmpEnv := strings.ToLower(filepath.Clean(os.Getenv("TMP"))); tmpEnv != "" && strings.HasPrefix(clean, tmpEnv) {
+
+	tmpEnv := fsutil.CanonicalPathKey(os.Getenv("TMP"))
+	if tmpEnv != "" && strings.HasPrefix(clean, tmpEnv) {
 		return true
 	}
+
 	return strings.HasPrefix(clean, "/tmp") || strings.HasPrefix(clean, "/var/tmp")
 }
 

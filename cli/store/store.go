@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 
@@ -194,7 +195,7 @@ func (db *DB) Migrate() error {
 
 	statements := []string{
 		constants.SQLCreateRepo,
-		constants.SQLCreateAbsPathIndex,
+		getRepoAbsPathIndexQuery(),
 		constants.SQLCreateGroup,
 		constants.SQLCreateGroupRepo,
 		constants.SQLCreateRelease,
@@ -222,7 +223,7 @@ func (db *DB) Migrate() error {
 		constants.SQLCreateCompletedTask,
 		constants.SQLCreateRepoVersionHistory,
 		constants.SQLCreateScanFolder,
-		constants.SQLCreateScanFolderPathIndex,
+		getScanFolderPathIndexQuery(),
 		constants.SQLCreateVersionProbe,
 		constants.SQLCreateVersionProbeRepoIndex,
 		constants.SQLCreateVSCodeProject,
@@ -563,4 +564,20 @@ func lockDBIfNotMem(dbDir string, isMem bool) error {
 	}
 
 	return acquireLock(dbDir)
+}
+
+func getRepoAbsPathIndexQuery() string {
+	if runtime.GOOS == "windows" {
+		return constants.SQLCreateAbsPathIndexWindows
+	}
+
+	return constants.SQLCreateAbsPathIndexUnix
+}
+
+func getScanFolderPathIndexQuery() string {
+	if runtime.GOOS == "windows" {
+		return constants.SQLCreateScanFolderPathIndexWindows
+	}
+
+	return constants.SQLCreateScanFolderPathIndexUnix
 }

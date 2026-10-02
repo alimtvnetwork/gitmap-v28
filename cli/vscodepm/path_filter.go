@@ -2,8 +2,9 @@ package vscodepm
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // BypassDisallowedPathFilterForTesting allows unit tests using t.TempDir() to test optimize logic.
@@ -14,27 +15,35 @@ func IsDisallowedProjectPath(path string) bool {
 	if BypassDisallowedPathFilterForTesting {
 		return false
 	}
+
 	if strings.TrimSpace(path) == "" {
 		return true
 	}
-	clean := strings.ToLower(filepath.Clean(path))
+
+	clean := fsutil.CanonicalPathKey(path)
 	if isTempDirectory(clean) || isTestArtifactPath(clean) {
 		return true
 	}
+
 	return false
 }
 
 func isTempDirectory(clean string) bool {
-	tempDir := strings.ToLower(filepath.Clean(os.TempDir()))
+	tempDir := fsutil.CanonicalPathKey(os.TempDir())
 	if tempDir != "" && strings.HasPrefix(clean, tempDir) {
 		return true
 	}
-	if tempEnv := strings.ToLower(filepath.Clean(os.Getenv("TEMP"))); tempEnv != "" && strings.HasPrefix(clean, tempEnv) {
+
+	tempEnv := fsutil.CanonicalPathKey(os.Getenv("TEMP"))
+	if tempEnv != "" && strings.HasPrefix(clean, tempEnv) {
 		return true
 	}
-	if tmpEnv := strings.ToLower(filepath.Clean(os.Getenv("TMP"))); tmpEnv != "" && strings.HasPrefix(clean, tmpEnv) {
+
+	tmpEnv := fsutil.CanonicalPathKey(os.Getenv("TMP"))
+	if tmpEnv != "" && strings.HasPrefix(clean, tmpEnv) {
 		return true
 	}
+
 	return strings.HasPrefix(clean, "/tmp") || strings.HasPrefix(clean, "/var/tmp")
 }
 

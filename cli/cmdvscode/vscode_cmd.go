@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
@@ -35,23 +36,22 @@ func runVSCode(args []string) error {
 }
 
 func dispatchVSCodeAction(args []string) error {
-	sub := strings.ToLower(args[0])
-	if isVSCodeProjectSubcommand(sub) {
-		return result.AsError(routeVSCodeProjectAction(sub, args))
+	if isVSCodeProjectSubcommand(args[0]) {
+		return result.AsError(routeVSCodeProjectAction(args[0], args))
 	}
 
-	return result.AsError(routeVSCodeMaintenanceAction(sub, args))
+	return result.AsError(routeVSCodeMaintenanceAction(args[0], args))
 }
 
 func isVSCodeProjectSubcommand(sub string) bool {
-	return sub == "ls" || sub == "list" || sub == "add" || sub == "add-project" || sub == "ap" || sub == "rm" || sub == "remove" || sub == "delete" || sub == "del"
+	return strutil.EqualFoldAny(sub, "ls", "list", "add", "add-project", "ap", "rm", "remove", "delete", "del")
 }
 
 func routeVSCodeProjectAction(sub string, args []string) result.ErrorWrapper {
-	switch sub {
-	case "ls", "list":
+	switch {
+	case strutil.EqualFoldAny(sub, "ls", "list"):
 		return result.MatchWrapper(runVSCodeLs())
-	case "add", "add-project", "ap":
+	case strutil.EqualFoldAny(sub, "add", "add-project", "ap"):
 		handleVSCodeAdd(args)
 
 		return result.SuccessWrapper()
@@ -63,24 +63,24 @@ func routeVSCodeProjectAction(sub string, args []string) result.ErrorWrapper {
 }
 
 func routeVSCodeMaintenanceAction(sub string, args []string) result.ErrorWrapper {
-	switch sub {
-	case "pap", "prompt-all-project", "plugins", "plugin":
+	switch {
+	case strutil.EqualFoldAny(sub, "pap", "prompt-all-project", "plugins", "plugin"):
 		fmt.Printf("Feature [vscode %s] is not yet implemented\n", sub)
 
 		return result.SuccessWrapper()
-	case "profiles", "profile":
+	case strutil.EqualFoldAny(sub, "profiles", "profile"):
 		return result.MatchWrapper(runVSCodeProfiles(args[1:]))
-	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup":
+	case strutil.EqualFoldAny(sub, "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup"):
 		return result.MatchWrapper(runVSCodeOptimize(args[1:]))
-	case "clear", "clean":
+	case strutil.EqualFoldAny(sub, "clear", "clean"):
 		return result.MatchWrapper(runVSCodeClear(args[1:]))
-	case "group", "groups", "grp":
+	case strutil.EqualFoldAny(sub, "group", "groups", "grp"):
 		return result.MatchWrapper(runVSCodeGroup(args[1:]))
-	case "find-duplicates", "duplicates", "dups", "find-dups":
+	case strutil.EqualFoldAny(sub, "find-duplicates", "duplicates", "dups", "find-dups"):
 		return result.MatchWrapper(runFindDuplicatesVSCode())
-	case "repair", "fix", "doctor":
+	case strutil.EqualFoldAny(sub, "repair", "fix", "doctor"):
 		return result.MatchWrapper(runVSCodeRepair(args[1:]))
-	case "remote":
+	case strutil.EqualFoldAny(sub, "remote"):
 		return result.MatchWrapper(runVSCodeRemote(args[1:]))
 	default:
 		printVSCodeUsage()

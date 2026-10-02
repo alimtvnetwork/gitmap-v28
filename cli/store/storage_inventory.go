@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func normalizeStorageDbPath(rawPath string) string {
@@ -12,7 +14,7 @@ func normalizeStorageDbPath(rawPath string) string {
 		clean = abs
 	}
 
-	return filepath.ToSlash(strings.ToLower(clean))
+	return fsutil.CanonicalPathKey(clean)
 }
 
 // CollectAllDatabaseEntries returns an inventory of all SQLite databases managed by Gitmap.

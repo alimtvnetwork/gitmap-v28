@@ -2,12 +2,12 @@ package cmdvmware
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // Run dispatches gitmap vmware CLI commands.
@@ -19,22 +19,20 @@ func Run(args []string) error {
 		return nil
 	}
 
-	subCmd := strings.ToLower(args[0])
-
-	return dispatchVmwareSubcommand(subCmd, args[1:])
+	return dispatchVmwareSubcommand(args[0], args[1:])
 }
 
 func dispatchVmwareSubcommand(subCmd string, rest []string) error {
-	switch subCmd {
-	case constants.SubCmdVmwareShared:
+	switch {
+	case strutil.EqualFoldAny(subCmd, constants.SubCmdVmwareShared):
 		return auditVmwareCommand("shared", func() error { return runVmwareShared(rest) })
-	case "shared-enable", "mount":
+	case strutil.EqualFoldAny(subCmd, "shared-enable", "mount"):
 		return auditVmwareCommand("shared-enable", func() error { return runVmwareSharedEnable(rest) })
-	case "shared-status":
+	case strutil.EqualFoldAny(subCmd, "shared-status"):
 		return auditVmwareCommand("shared-status", func() error { return runVmwareStatus(rest) })
-	case constants.CmdInstall, constants.CmdInstallAlias:
+	case strutil.EqualFoldAny(subCmd, constants.CmdInstall, constants.CmdInstallAlias):
 		return auditVmwareCommand("install", func() error { return runVmwareInstall(rest) })
-	case constants.SubCmdSharedStatus:
+	case strutil.EqualFoldAny(subCmd, constants.SubCmdSharedStatus):
 		return auditVmwareCommand("status", func() error { return runVmwareStatus(rest) })
 	default:
 		return unknownVmwareSubcommandError(subCmd)
