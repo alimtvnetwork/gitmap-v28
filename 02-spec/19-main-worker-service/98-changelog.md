@@ -1,3 +1,9 @@
+## v6.455.2 — 2026-10-02 (Synchronize prompts, skills, AI scripts, and coding guidelines)
+
+**Scope:** Version bump. Synchronize prompts, skills, AI scripts, and coding guidelines.
+
+---
+
 ## v6.455.1 — 2026-10-02 (Synchronize prompts, skills, AI scripts, and coding guidelines)
 
 **Scope:** Version bump. Synchronize prompts, skills, AI scripts, and coding guidelines.
