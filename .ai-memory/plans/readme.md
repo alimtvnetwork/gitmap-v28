@@ -2,6 +2,7 @@
 
 ## Completed Plans
 
+- [74-refresh-token-and-vmware-spec-validation.md](completed/74-refresh-token-and-vmware-spec-validation.md) — Profile 1 OAuth Refresh Token Verification (100% Bit Parity), ZIP Import Fix & VMware 10-Item Spec/Skill Audit (Spec: [202](../../02-spec/21-app/202-vmware-cli-commands-and-fleet-management.md))
 - [73-vmware-canonical-spec-and-skill.md](completed/73-vmware-canonical-spec-and-skill.md) — Canonical Flat Specification 202 in 02-spec/21-app/ & Native Antigravity Skill for VMware CLI (Spec: [202](../../02-spec/21-app/202-vmware-cli-commands-and-fleet-management.md))
 - [72-chrome-ext-test-and-vmware-spec.md](completed/72-chrome-ext-test-and-vmware-spec.md) — Chrome Extension Profile Export/Import E2E Testing, Repo-Secrets Logging, VMware CLI Command Suite Specification & VM Lifecycle Operations (Spec: [72](../../02-spec/21-app/72-chrome-ext-test-and-vmware-spec/01-architecture-spec.md))
 - [70-redundant-repos-and-equalfold-os-fix.md](completed/70-redundant-repos-and-equalfold-os-fix.md) — SQLite Redundant Repo Deduplication, Next Pull Optimization, Zero-Alloc strings.EqualFold Refactoring & OS-Aware Path Case Sensitivity (Spec: [70](../../02-spec/21-app/70-redundant-repos-and-equalfold-os-fix/01-architecture-spec.md))

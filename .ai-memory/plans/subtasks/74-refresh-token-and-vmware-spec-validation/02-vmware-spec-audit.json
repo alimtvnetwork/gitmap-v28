@@ -1,0 +1,122 @@
+{
+  "taskId": "Task-02",
+  "subtaskId": 2,
+  "parentTaskId": "74-refresh-token-and-vmware-spec-validation",
+  "assignedAgent": "Worker 02",
+  "status": "DONE",
+  "auditedFiles": [
+    "02-spec/21-app/202-vmware-cli-commands-and-fleet-management.md",
+    "01-prompts/42-vmware-cli-commands.md",
+    ".agents/skills/vmware-cli/skill.md"
+  ],
+  "summary": "Comprehensive audit of VMware specification (Spec 202), prompt instruction (Prompt 42), and agent skill (vmware-cli) against the complete 10-item user checklist. All 10 items are verified 100% present with exact command grammar, operational workflows, and parameter definitions.",
+  "checklistAudit": [
+    {
+      "id": 1,
+      "requirement": "Add VMs",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 3.1: 'gitmap vm add <alias> <vmx-path> [flags]' with --group, --description, --set-default (lines 91-112)",
+        "prompt_42": "Section 3.2: 'gitmap vm add <alias> <vmx-path> [flags]' (line 111) & Phase 2 implementation breakdown (line 306)",
+        "skill_vmware": "Section 4: 'gitmap vm add <alias> <vmx-path>' (line 127) & Section 5.1 operational workflow examples (lines 147-153)"
+      }
+    },
+    {
+      "id": 2,
+      "requirement": "Install VMware / tools",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 3.3: 'gitmap vm install [flags]' with --silent, --verify-only, winget and open-vm-tools discovery (lines 135-151)",
+        "prompt_42": "Section 3.2: 'gitmap vm install [flags]' (line 113) & Phase 4 implementation breakdown (line 322)",
+        "skill_vmware": "Section 4: 'gitmap vm install' (line 129) & Section 2 Candidate Search Hierarchy (lines 76-83)"
+      }
+    },
+    {
+      "id": 3,
+      "requirement": "Selected VMs to default group and work with default group",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 2: Target Selector Mechanics & Default Group Fallback (lines 52-80); Section 3.4 'gitmap vm group' (lines 153-173); Section 3.5 'gitmap vm default [target]' (lines 175-187)",
+        "prompt_42": "Section 3.1 & 3.2: Target selector fallback with omitted target defaulting to active default group (lines 88-102, 114-115)",
+        "skill_vmware": "Section 3: Target Selector Mechanics & Default Group Fallback (lines 96-114); Section 5.1 group assignment and set-default workflow (lines 154-165)"
+      }
+    },
+    {
+      "id": 4,
+      "requirement": "Status query",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 3.7: 'gitmap vm status [target] [flags]' with --detailed, --json, live vmrun interrogation (lines 211-229)",
+        "prompt_42": "Section 3.2: 'gitmap vm status [target] [flags]' (line 117) & Phase 4 (line 319)",
+        "skill_vmware": "Section 4: 'gitmap vm status [target]' (line 133) & Section 5.2 Power Lifecycle Workflows (lines 175-177)"
+      }
+    },
+    {
+      "id": 5,
+      "requirement": "Snapshot counts and operations",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 3.12: 'gitmap vm snapshot <alias> <subaction> [flags]' (list, create, revert, delete, clone) (lines 322-344) & status --detailed snapshot counts (line 217)",
+        "prompt_42": "Section 3.2: 'gitmap vm snapshot <alias> <subaction> [flags]' (line 122) & Phase 5 (line 331)",
+        "skill_vmware": "Section 4: 'gitmap vm snapshot <alias> <action>' (line 138) & Section 5.5 Snapshot Lifecycle & Tree Management (lines 215-228)"
+      }
+    },
+    {
+      "id": 6,
+      "requirement": "Network configuration",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 1.1, Section 3.7 (interrogates guest IP via VMware Tools or ARP table cache, lines 222-223), Section 3.10 network adapter targeting (--adapter <name>, lines 275-296), Section 5.1 primary_mac schema",
+        "prompt_42": "Section 3.2: Network adapter flags, guest IP resolution via Tools / ARP (lines 117, 120), Section 4.2",
+        "skill_vmware": "Section 4: status guest IP interrogation and mac --adapter flag (lines 133, 136), Section 5.3 (lines 188-201)"
+      }
+    },
+    {
+      "id": 7,
+      "requirement": "Change MAC addresses",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 3.10: 'gitmap vm mac <alias> <mac|generate> [flags]' with --adapter, --type, automatic .vmx.bak backup (lines 274-296)",
+        "prompt_42": "Section 3.2: 'gitmap vm mac <alias> <mac|generate> [flags]' (line 120), Section 4.2 PowerShell Set-MAC bridge (lines 165-184), Phase 5 (line 327)",
+        "skill_vmware": "Section 4: 'gitmap vm mac <alias> <mac|generate>' (line 136) & Section 5.3 MAC Address Mutation Workflow (lines 188-201)"
+      }
+    },
+    {
+      "id": 8,
+      "requirement": "Expand hard drive",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 3.11: 'gitmap vm disk <alias> <subaction> [flags]' with expand subaction and vmware-vdiskmanager.exe -x <size> (lines 298-320)",
+        "prompt_42": "Section 3.2: 'gitmap vm disk <alias> <subaction> [flags]' (line 121) & Phase 5 (line 330)",
+        "skill_vmware": "Section 4: 'gitmap vm disk <alias> <action>' (line 137) & Section 5.4 Disk Expansion & Repair Workflow (lines 203-213)"
+      }
+    },
+    {
+      "id": 9,
+      "requirement": "Fix VMX files",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 3.13: 'gitmap vm vmx <alias> <subaction> [flags]' with inspect, repair (line ending normalization & duplicate removal), optimize (lines 345-360)",
+        "prompt_42": "Section 3.2: 'gitmap vm vmx <alias> <subaction> [flags]' (line 123) & Phase 5 (line 328)",
+        "skill_vmware": "Section 4: 'gitmap vm vmx <alias> <action>' (line 139) & Section 5.6 VMX Optimization & Repair (lines 230-240)"
+      }
+    },
+    {
+      "id": 10,
+      "requirement": "Start machine, check running, shut down machine, and shut down scheduler",
+      "status": "PASS",
+      "evidence": {
+        "spec_202": "Section 3.8 'gitmap vm start' (lines 231-250); Section 3.7 'gitmap vm status' (lines 211-229); Section 3.9 'gitmap vm stop' (lines 252-273); Section 3.14 'gitmap vm scheduler shutdown' with queue drain and soft VM shutdown (lines 361-382)",
+        "prompt_42": "Section 3.2: start, status, stop, scheduler shutdown (lines 117-119, 124) & Phase 4 implementation plan (lines 318-323)",
+        "skill_vmware": "Section 4: start, status, stop, scheduler shutdown (lines 133-135, 140); Section 5.2 (lines 167-186); Section 5.7 (lines 242-249)"
+      }
+    }
+  ],
+  "verificationConclusion": {
+    "itemsTotal": 10,
+    "itemsPassed": 10,
+    "itemsFailed": 0,
+    "complianceRate": "100%",
+    "result": "PASS"
+  }
+}
