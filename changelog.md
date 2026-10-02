@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.463.0] - 2026-10-02
+
+### Added
+- store-dedup - os-aware path sensitivity equalfold and sqlite uniqueness
+
+---
+
 ## [v6.461.0] - 2026-10-02
 
 ### Added
