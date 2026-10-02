@@ -78,21 +78,42 @@ type FleetUpdateNodeResult struct {
 // LoadFleetTargetsFn is a mockable target provider.
 var LoadFleetTargetsFn = loadDefaultFleetTargets
 
+// LoadClusterTargetsFn is a mockable additional cluster target provider for --include-others.
+var LoadClusterTargetsFn = loadDefaultClusterTargets
+
 // ExecuteRemoteUpdateFn is a mockable remote executor.
 var ExecuteRemoteUpdateFn = executeDefaultRemoteUpdate
+
+// ExecuteFleetZipUpdateFn is a mockable zip update executor.
+var ExecuteFleetZipUpdateFn = executeSSHFleetZipUpdate
 
 // CheckConnLivenessFn is a mockable connectivity liveness checker.
 var CheckConnLivenessFn = cmdssh.CheckConnLiveness
 
+// StreamFileToRemoteFn is a mockable SSH file streaming provider.
+var StreamFileToRemoteFn = cmdssh.StreamFileToRemote
+
+// CreateUpdateZipFn is a mockable zip archive packaging provider.
+var CreateUpdateZipFn = createUpdatePackageZip
+
 // IsFleetUpdateCommand reports whether the command invocation routes to fleet update.
 func IsFleetUpdateCommand(cmd string, args []string) bool {
-	if cmd == "ua" || cmd == "update-all" || cmd == "updateall" {
+	if isFleetUpdateCmdToken(cmd) {
 		return true
 	}
 	if cmd != "update" {
 		return false
 	}
 	return isFleetUpdateArgs(args)
+}
+
+func isFleetUpdateCmdToken(cmd string) bool {
+	switch cmd {
+	case "ua", "update-all", "updateall", "uaz", "update-all-zip", "updateallzip":
+		return true
+	default:
+		return false
+	}
 }
 
 func isFleetUpdateArgs(args []string) bool {
@@ -103,13 +124,31 @@ func isFleetUpdateArgs(args []string) bool {
 	if first == "ls" || first == "list" {
 		return true
 	}
-	if isAllFleetToken(first) {
+	if isAllFleetToken(first) || hasZipFlag(args) || hasIncludeOthersFlag(args) {
 		return true
 	}
 	if hasExceptFlag(args) {
 		return true
 	}
 	return hasFleetNodeTarget(args)
+}
+
+func hasZipFlag(args []string) bool {
+	for _, a := range args {
+		if isZipToken(a) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasIncludeOthersFlag(args []string) bool {
+	for _, a := range args {
+		if isIncludeOthersToken(a) {
+			return true
+		}
+	}
+	return false
 }
 
 func isAllFleetToken(token string) bool {
@@ -137,6 +176,9 @@ func hasFleetNodeTarget(args []string) bool {
 
 // RunFleetUpdateDispatch routes to the appropriate fleet update action.
 func RunFleetUpdateDispatch(cmd string, args []string) error {
+	if isFleetZipCmdToken(cmd) {
+		return ExecuteFleetUpdate(append([]string{"--all", "--zip"}, args...))
+	}
 	if cmd == "ua" || cmd == "update-all" || cmd == "updateall" {
 		return ExecuteFleetUpdate(append([]string{"--all"}, args...))
 	}
@@ -144,6 +186,10 @@ func RunFleetUpdateDispatch(cmd string, args []string) error {
 		return ExecuteFleetUpdateLS(args[1:])
 	}
 	return ExecuteFleetUpdate(args)
+}
+
+func isFleetZipCmdToken(cmd string) bool {
+	return cmd == "uaz" || cmd == "update-all-zip" || cmd == "updateallzip"
 }
 
 func isLSKeyword(token string) bool {
@@ -154,9 +200,9 @@ func isLSKeyword(token string) bool {
 // ExecuteFleetUpdate updates applications across cluster nodes in parallel.
 func ExecuteFleetUpdate(args []string) error {
 	opts := parseFleetUpdateOptions(args)
-	targets, err := LoadFleetTargetsFn()
+	targets, err := resolveFleetTargets(opts.IncludeOthers)
 	if err != nil {
-		return apperror.WrapSimple(err, "ExecuteFleetUpdate.LoadFleetTargets")
+		return apperror.WrapSimple(err, "ExecuteFleetUpdate.resolveFleetTargets")
 	}
 
 	exclusionSet := parseFleetExclusionSet(opts.Except)
@@ -179,7 +225,7 @@ func parseFleetUpdateOptions(args []string) FleetUpdateOptions {
 		a := args[i]
 		processUpdateFlag(a, args, &i, &opts)
 	}
-	if opts.IsAll {
+	if opts.IsAll && opts.Pkg == "gitmap" {
 		opts.Pkg = "all"
 	}
 	return opts
@@ -188,6 +234,14 @@ func parseFleetUpdateOptions(args []string) FleetUpdateOptions {
 func processUpdateFlag(arg string, args []string, index *int, opts *FleetUpdateOptions) {
 	if isAllFleetToken(arg) {
 		opts.IsAll = true
+		return
+	}
+	if isZipToken(arg) {
+		opts.IsZip = true
+		return
+	}
+	if isIncludeOthersToken(arg) {
+		opts.IncludeOthers = true
 		return
 	}
 	if isExceptParam(arg) {
@@ -206,10 +260,26 @@ func processUpdateFlag(arg string, args []string, index *int, opts *FleetUpdateO
 		opts.IsForce = true
 		return
 	}
-	isPositionalPkg := !strings.HasPrefix(arg, "-") && arg != "update" && arg != "ua" && arg != "update-all" && arg != "updateall"
-	if isPositionalPkg && opts.Pkg == "gitmap" {
+	processPositionalPkg(arg, opts)
+}
+
+func processPositionalPkg(arg string, opts *FleetUpdateOptions) {
+	if strings.HasPrefix(arg, "-") || isFleetUpdateCmdToken(arg) || arg == "update" || arg == "zip" {
+		return
+	}
+	if opts.Pkg == "gitmap" || opts.Pkg == "all" {
 		opts.Pkg = arg
 	}
+}
+
+func isZipToken(arg string) bool {
+	low := strings.ToLower(arg)
+	return low == "--zip" || low == "-zip" || low == "zip"
+}
+
+func isIncludeOthersToken(arg string) bool {
+	low := strings.ToLower(arg)
+	return low == "--include-others" || low == "--include-other" || low == "--includeothers" || low == "--includeother"
 }
 
 func isExceptParam(arg string) bool {
