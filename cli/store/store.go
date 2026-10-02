@@ -574,10 +574,6 @@ func getRepoAbsPathIndexDDL() string {
 	return constants.SQLCreateAbsPathIndexUnix
 }
 
-func getRepoAbsPathIndexQuery() string {
-	return getRepoAbsPathIndexDDL()
-}
-
 func getScanFolderPathIndexQuery() string {
 	if runtime.GOOS == "windows" {
 		return constants.SQLCreateScanFolderPathIndexWindows

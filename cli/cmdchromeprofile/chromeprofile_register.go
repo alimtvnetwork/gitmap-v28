@@ -38,13 +38,6 @@ func registerChromeProfileInLocalState(srcDir, dstDir, displayName string) error
 	return writeChromeLocalState(path, rootRes.Data)
 }
 
-// registerChromeProfileWithFullSchema registers a profile in Local State
-// ensuring all 13 Chromium UI attributes are populated so Chrome's
-// profile picker UI displays the profile tile without dropping it.
-func registerChromeProfileWithFullSchema(dstDir, displayName, email string) error {
-	return registerChromeProfileWithFullSchemaAndGAIA(dstDir, displayName, email, "", "", "")
-}
-
 // registerChromeProfileWithFullSchemaAndGAIA registers a profile in Local State
 // ensuring UI attributes and Google GAIA identity metadata are populated.
 func registerChromeProfileWithFullSchemaAndGAIA(
