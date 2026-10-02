@@ -8,15 +8,10 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// OptimizeRedundantRepos checks SQLite for duplicate repositories and cleans them before pulling.
+// OptimizeRedundantRepos checks SQLite for duplicate repositories (both remote URL and path-level) and cleans them before pulling.
 func OptimizeRedundantRepos(db *store.DB, isQuiet bool) (*store.DeduplicationSummary, error) {
 	if db == nil {
 		return nil, nil
-	}
-
-	groups, err := db.FindDuplicateRepos()
-	if err != nil || len(groups) == 0 {
-		return nil, err
 	}
 
 	summary, err := db.DeduplicateRepos(false)

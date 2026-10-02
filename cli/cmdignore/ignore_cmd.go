@@ -42,7 +42,7 @@ func extractIntervalValue(args []string) string {
 	if len(args) == 0 {
 		return ""
 	}
-	if strings.ToLower(args[0]) == "interval" && len(args) > 1 {
+	if strings.EqualFold(args[0], "interval") && len(args) > 1 {
 		return args[1]
 	}
 	return args[0]

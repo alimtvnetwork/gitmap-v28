@@ -4,8 +4,11 @@ package repodb
 
 import (
 	"context"
+	"database/sql"
+	"runtime"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/repodb/enums"
 )
@@ -151,4 +154,24 @@ func (r *RepoFileDbRepo) Update(ctx context.Context, item *RepoFile) dbengine.Ro
 // DeleteById deletes a RepoFile record by its primary key identifier.
 func (r *RepoFileDbRepo) DeleteById(ctx context.Context, id uint64) dbengine.RowsAffectedResult {
 	return r.repo.DeleteBy(ctx, enums.RepoFileDb.RepoFileId, id)
+}
+
+func getFileUniqueQuery() string {
+	if runtime.GOOS == "windows" {
+		return "SELECT COUNT(*) FROM RepoFile WHERE RelativePath = ? COLLATE NOCASE"
+	}
+
+	return "SELECT COUNT(*) FROM RepoFile WHERE RelativePath = ?"
+}
+
+// EnsureFileUniqueInDB checks if a relative file path is unique in the repository database.
+func EnsureFileUniqueInDB(ctx context.Context, db *sql.DB, relPath string) (bool, error) {
+	query := getFileUniqueQuery()
+	var count int
+
+	if err := db.QueryRowContext(ctx, query, relPath).Scan(&count); err != nil {
+		return false, apperror.WrapSimple(err, "EnsureFileUniqueInDB")
+	}
+
+	return count == 0, nil
 }

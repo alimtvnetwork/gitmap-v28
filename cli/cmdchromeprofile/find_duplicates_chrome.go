@@ -2,10 +2,10 @@ package cmdchromeprofile
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -67,7 +67,7 @@ func queryChromeProfileDetails(db *store.DB) []chromeProfileDetail {
 func groupChromeDuplicates(profiles []chromeProfileDetail) map[string][]chromeProfileDetail {
 	groups := make(map[string][]chromeProfileDetail)
 	for _, p := range profiles {
-		key := strings.ToLower(filepath.Clean(p.SourcePath))
+		key := fsutil.CanonicalPathKey(p.SourcePath)
 		if key == "" || key == "." {
 			key = strings.ToLower(p.Name)
 		}

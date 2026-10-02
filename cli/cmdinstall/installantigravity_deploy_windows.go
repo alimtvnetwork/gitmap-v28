@@ -140,9 +140,9 @@ func createDualWindowsShims(targetExe string) error {
 
 func hasDirInPathString(pathStr, dir string) bool {
 	parts := strings.Split(pathStr, ";")
-	targetLow := strings.ToLower(filepath.Clean(dir))
+	cleanDir := filepath.Clean(dir)
 	for _, part := range parts {
-		if strings.ToLower(filepath.Clean(strings.TrimSpace(part))) == targetLow {
+		if strings.EqualFold(filepath.Clean(strings.TrimSpace(part)), cleanDir) {
 			return true
 		}
 	}

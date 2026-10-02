@@ -2,10 +2,10 @@ package cmdvscode
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
@@ -41,7 +41,7 @@ func runFindDuplicatesVSCode() error {
 func groupVSCodeDuplicates(entries []vscodepm.Entry) map[string][]vscodepm.Entry {
 	groups := make(map[string][]vscodepm.Entry)
 	for _, e := range entries {
-		norm := strings.ToLower(filepath.Clean(e.RootPath))
+		norm := fsutil.CanonicalPathKey(e.RootPath)
 		if norm == "" {
 			continue
 		}

@@ -6,23 +6,35 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// InitRepoSchema initializes the repository-specific SQLite DB tables.
-func InitRepoSchema(ctx context.Context, db *sql.DB) error {
-	queries := []string{
+func getRepoFileIndexQuery() string {
+	if runtime.GOOS == "windows" {
+		return "CREATE UNIQUE INDEX IF NOT EXISTS IdxRepoFile_RelativePath ON RepoFile(RelativePath COLLATE NOCASE);"
+	}
+
+	return "CREATE UNIQUE INDEX IF NOT EXISTS IdxRepoFile_RelativePath ON RepoFile(RelativePath);"
+}
+
+func getRepoSchemaQueries() []string {
+	return []string{
 		"CREATE TABLE IF NOT EXISTS RepoFile ( RepoFileId INTEGER PRIMARY KEY AUTOINCREMENT, RelativePath TEXT NOT NULL UNIQUE, AbsolutePath TEXT NOT NULL, Content TEXT, IsBig INTEGER NOT NULL, WriteTime INTEGER NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );",
-		"CREATE UNIQUE INDEX IF NOT EXISTS IdxRepoFile_RelativePath ON RepoFile(RelativePath);",
+		getRepoFileIndexQuery(),
 		"CREATE TABLE IF NOT EXISTS SearchCache ( SearchCacheId INTEGER PRIMARY KEY AUTOINCREMENT, Query TEXT NOT NULL UNIQUE, Hits INTEGER NOT NULL, ResultJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL, UpdatedAt INTEGER NOT NULL );",
 		"CREATE TABLE IF NOT EXISTS FileSequence ( FileSequenceId INTEGER PRIMARY KEY AUTOINCREMENT, Directory TEXT NOT NULL, Filename TEXT NOT NULL, SequenceNumber INTEGER NOT NULL, BaseName TEXT NOT NULL, UpdatedAt INTEGER NOT NULL, UNIQUE(Directory, Filename) );",
 		"CREATE TABLE IF NOT EXISTS SequenceHistory ( SequenceHistoryId INTEGER PRIMARY KEY AUTOINCREMENT, Directory TEXT NOT NULL, OperationsJson TEXT NOT NULL, CreatedAt INTEGER NOT NULL );",
 		"CREATE TABLE IF NOT EXISTS RepoScanLog ( RepoScanLogId INTEGER PRIMARY KEY AUTOINCREMENT, RepoId INTEGER NOT NULL, RepoSlug TEXT NOT NULL, Action TEXT NOT NULL, Status TEXT NOT NULL, ErrorMessage TEXT, Details TEXT, Notes TEXT, Comments TEXT, CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP );",
 	}
+}
 
+// InitRepoSchema initializes the repository-specific SQLite DB tables.
+func InitRepoSchema(ctx context.Context, db *sql.DB) error {
+	queries := getRepoSchemaQueries()
 	for _, q := range queries {
 		if _, err := db.ExecContext(ctx, q); err != nil {
 			return apperror.WrapSimple(err, "init repo schema")

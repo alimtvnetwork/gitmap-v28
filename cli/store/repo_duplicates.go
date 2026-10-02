@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -116,10 +117,6 @@ func (db *DB) DeduplicateRepos(keepNewest bool) (*DeduplicationSummary, error) {
 			return apperror.WrapSimple(err, "findDuplicateReposRunner")
 		}
 
-		if len(groups) == 0 {
-			return nil
-		}
-
 		for _, grp := range groups {
 			allRecords := append([]model.ScanRecord{grp.Keeper}, grp.Duplicates...)
 			keeper, duplicates := selectKeeperAndDuplicates(allRecords, keepNewest)
@@ -154,6 +151,13 @@ func (db *DB) DeduplicateRepos(keepNewest bool) (*DeduplicationSummary, error) {
 
 			summary.GroupsFound++
 		}
+
+		pathRows, err := pruneDuplicateRepoPathRows(tx)
+		if err != nil {
+			return apperror.WrapSimple(err, "pruneDuplicateRepoPathRows")
+		}
+
+		summary.RowsPurged += pathRows
 
 		return nil
 	})
@@ -258,4 +262,20 @@ func remapDuplicateVersionProbe(tx *dbengine.TxWrapper, keeperID, dupID int64, e
 	}
 
 	return nil
+}
+
+func pruneDuplicateRepoPathRows(tx *dbengine.TxWrapper) (int64, error) {
+	dedupSQL := constants.SQLDeduplicateReposUnix
+	if runtime.GOOS == "windows" {
+		dedupSQL = constants.SQLDeduplicateReposWindows
+	}
+
+	res, err := tx.Tx().Exec(dedupSQL)
+	if err != nil {
+		return 0, apperror.WrapSimple(err, "pruneDuplicateRepoPathRows")
+	}
+
+	rows, _ := res.RowsAffected()
+
+	return rows, nil
 }
