@@ -26,7 +26,9 @@ func SanitizeUnknownRepos(db *sql.DB) error {
 
 	targets := collectUnknownRepoTargets(rows)
 	for _, target := range targets {
-		sanitizeSingleUnknownRepo(db, target.repoID, target.absPath)
+		if err := sanitizeSingleUnknownRepo(db, target.repoID, target.absPath); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -44,17 +46,21 @@ func collectUnknownRepoTargets(rows *sql.Rows) []unknownRepoRow {
 	return targets
 }
 
-func sanitizeSingleUnknownRepo(db *sql.DB, repoID int64, absPath string) {
+func sanitizeSingleUnknownRepo(db *sql.DB, repoID int64, absPath string) error {
 	cleanPath := filepath.Clean(strings.TrimRight(absPath, "/\\"))
 	if _, statErr := os.Stat(cleanPath); statErr != nil {
-		return
+		return nil
 	}
 	baseName := filepath.Base(cleanPath)
 	if !isValidSanitizedRepoName(baseName) {
-		return
+		return nil
 	}
 	slug := strings.ToLower(baseName)
-	_, _ = db.Exec("UPDATE Repo SET RepoName = ?, Slug = ? WHERE RepoId = ?", baseName, slug, repoID)
+	if _, err := db.Exec("UPDATE Repo SET RepoName = ?, Slug = ? WHERE RepoId = ?", baseName, slug, repoID); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func isValidSanitizedRepoName(name string) bool {

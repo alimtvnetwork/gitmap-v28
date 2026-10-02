@@ -107,40 +107,72 @@ func (r *RepoFileDbRepo) Count(ctx context.Context) dbengine.Int64Result {
 	return r.Query().Count(ctx)
 }
 
-// Insert inserts a new RepoFile record into the database.
-func (r *RepoFileDbRepo) Insert(ctx context.Context, item *RepoFile) dbengine.RowsAffectedResult {
-	query := "INSERT INTO RepoFile (RepoFileId, RelativePath, AbsolutePath, Content, IsBig, WriteTime, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
-	var id any = item.RepoFileId
-	if item.RepoFileId == 0 {
-		id = nil
+func resolveInsertId(id uint64) any {
+	if id == 0 {
+		return nil
 	}
+
+	return id
+}
+
+func checkFileUniqueInDb(ctx context.Context, db *dbengine.DbWrapper, relPath string) *apperror.AppError {
+	if db == nil || db.Conn() == nil {
+		return nil
+	}
+
+	isUnique, err := EnsureFileUniqueInDB(ctx, db.Conn(), relPath)
+	if err != nil {
+		return apperror.WrapSimple(err, "check file unique")
+	}
+
+	if isUnique {
+		return nil
+	}
+
+	return apperror.New("RepoFileDbRepo.Insert", "E_DUPLICATE_FILE", map[string]any{
+		"relativePath": relPath,
+	})
+}
+
+// Insert inserts a new RepoFile record into the database, verifying path uniqueness.
+func (r *RepoFileDbRepo) Insert(ctx context.Context, item *RepoFile) dbengine.RowsAffectedResult {
+	if checkErr := checkFileUniqueInDb(ctx, r.db, item.RelativePath); checkErr != nil {
+		return dbengine.FailureRowsAffected(checkErr)
+	}
+
+	query := "INSERT INTO RepoFile (RepoFileId, RelativePath, AbsolutePath, Content, IsBig, WriteTime, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
+	id := resolveInsertId(item.RepoFileId)
 
 	return r.db.ExecRowsAffected(ctx, query, id, item.RelativePath, item.AbsolutePath, item.Content, item.IsBig, item.WriteTime, item.CreatedAt, item.UpdatedAt)
 }
 
+const sqlRepoFileUpsert = `INSERT INTO RepoFile (
+	RelativePath, AbsolutePath, Content, IsBig, WriteTime, CreatedAt, UpdatedAt
+) VALUES (?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(RelativePath) DO UPDATE SET
+	AbsolutePath = excluded.AbsolutePath,
+	Content      = excluded.Content,
+	IsBig        = excluded.IsBig,
+	WriteTime    = excluded.WriteTime,
+	UpdatedAt    = excluded.UpdatedAt;`
+
+func resolveCreatedAt(createdAt, now int64) int64 {
+	if createdAt == 0 {
+		return now
+	}
+
+	return createdAt
+}
+
 // Upsert inserts a new RepoFile record or updates existing content on RelativePath conflict.
 func (r *RepoFileDbRepo) Upsert(ctx context.Context, item *RepoFile) dbengine.RowsAffectedResult {
-	query := `INSERT INTO RepoFile (
-		RelativePath, AbsolutePath, Content, IsBig, WriteTime, CreatedAt, UpdatedAt
-	) VALUES (?, ?, ?, ?, ?, ?, ?)
-	ON CONFLICT(RelativePath) DO UPDATE SET
-		AbsolutePath = excluded.AbsolutePath,
-		Content      = excluded.Content,
-		IsBig        = excluded.IsBig,
-		WriteTime    = excluded.WriteTime,
-		UpdatedAt    = excluded.UpdatedAt;`
-
 	now := time.Now().Unix()
-	createdAt := item.CreatedAt
-	if createdAt == 0 {
-		createdAt = now
-	}
-	updatedAt := now
+	createdAt := resolveCreatedAt(item.CreatedAt, now)
 
 	return r.db.ExecRowsAffected(
-		ctx, query,
+		ctx, sqlRepoFileUpsert,
 		item.RelativePath, item.AbsolutePath, item.Content,
-		item.IsBig, item.WriteTime, createdAt, updatedAt,
+		item.IsBig, item.WriteTime, createdAt, now,
 	)
 }
 
@@ -173,5 +205,7 @@ func EnsureFileUniqueInDB(ctx context.Context, db *sql.DB, relPath string) (bool
 		return false, apperror.WrapSimple(err, "EnsureFileUniqueInDB")
 	}
 
-	return count == 0, nil
+	isUnique := count == 0
+
+	return isUnique, nil
 }

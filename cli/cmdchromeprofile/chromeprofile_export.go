@@ -17,19 +17,19 @@ import (
 // chromeExport is the JSON snapshot format. Keep additive — new
 // fields must default-zero so old exports remain importable.
 type chromeExport struct {
-	SchemaVersion    int               `json:"schemaVersion" yaml:"schemaVersion"`
-	GitMapVersion    string            `json:"gitmapVersion,omitempty" yaml:"gitmapVersion,omitempty"`
-	Name             string            `json:"name" yaml:"name"`
-	DisplayName      string            `json:"displayName,omitempty" yaml:"displayName,omitempty"`
-	Email            string            `json:"email,omitempty" yaml:"email,omitempty"`
-	GaiaID           string            `json:"gaiaId,omitempty" yaml:"gaiaId,omitempty"`
-	GaiaName         string            `json:"gaiaName,omitempty" yaml:"gaiaName,omitempty"`
-	GaiaGivenName    string            `json:"gaiaGivenName,omitempty" yaml:"gaiaGivenName,omitempty"`
-	ExportedAt       string            `json:"exportedAt" yaml:"exportedAt"`
-	Bookmarks        json.RawMessage   `json:"bookmarks,omitempty" yaml:"bookmarks,omitempty"`
-	Preferences      json.RawMessage   `json:"preferences,omitempty" yaml:"preferences,omitempty"`
-	CookiesRawBase64 string            `json:"cookiesRawBase64,omitempty" yaml:"cookiesRawBase64,omitempty"`
-	WebDataRawBase64 string            `json:"webDataRawBase64,omitempty" yaml:"webDataRawBase64,omitempty"`
+	SchemaVersion        int               `json:"schemaVersion" yaml:"schemaVersion"`
+	GitMapVersion        string            `json:"gitmapVersion,omitempty" yaml:"gitmapVersion,omitempty"`
+	Name                 string            `json:"name" yaml:"name"`
+	DisplayName          string            `json:"displayName,omitempty" yaml:"displayName,omitempty"`
+	Email                string            `json:"email,omitempty" yaml:"email,omitempty"`
+	GaiaID               string            `json:"gaiaId,omitempty" yaml:"gaiaId,omitempty"`
+	GaiaName             string            `json:"gaiaName,omitempty" yaml:"gaiaName,omitempty"`
+	GaiaGivenName        string            `json:"gaiaGivenName,omitempty" yaml:"gaiaGivenName,omitempty"`
+	ExportedAt           string            `json:"exportedAt" yaml:"exportedAt"`
+	Bookmarks            json.RawMessage   `json:"bookmarks,omitempty" yaml:"bookmarks,omitempty"`
+	Preferences          json.RawMessage   `json:"preferences,omitempty" yaml:"preferences,omitempty"`
+	CookiesRawBase64     string            `json:"cookiesRawBase64,omitempty" yaml:"cookiesRawBase64,omitempty"`
+	WebDataRawBase64     string            `json:"webDataRawBase64,omitempty" yaml:"webDataRawBase64,omitempty"`
 	ExtensionIDs         []string          `json:"extensionIds,omitempty" yaml:"extensionIds,omitempty"`
 	TokenVault           *ChromeTokenVault `json:"tokenVault,omitempty" yaml:"tokenVault,omitempty"`
 	SecurePreferences    json.RawMessage   `json:"securePreferences,omitempty" yaml:"securePreferences,omitempty"`
@@ -66,16 +66,16 @@ func buildExportSnapshot(srcProfile, name string) chromeExport {
 	refineGaiaAndDisplay(&gaiaInfo, &dispName, &email, vault)
 
 	return chromeExport{
-		SchemaVersion:    chromeExportSchemaVersion,
-		GitMapVersion:    constants.Version,
-		Name:             name,
-		DisplayName:      dispName,
-		Email:            email,
-		GaiaID:           gaiaInfo.GaiaID,
-		GaiaName:         gaiaInfo.GaiaName,
-		GaiaGivenName:    gaiaInfo.GaiaGivenName,
-		ExportedAt:       time.Now().UTC().Format(time.RFC3339),
-		Bookmarks:        readOptionalJSON(filepath.Join(srcProfile, "Bookmarks")),
+		SchemaVersion:        chromeExportSchemaVersion,
+		GitMapVersion:        constants.Version,
+		Name:                 name,
+		DisplayName:          dispName,
+		Email:                email,
+		GaiaID:               gaiaInfo.GaiaID,
+		GaiaName:             gaiaInfo.GaiaName,
+		GaiaGivenName:        gaiaInfo.GaiaGivenName,
+		ExportedAt:           time.Now().UTC().Format(time.RFC3339),
+		Bookmarks:            readOptionalJSON(filepath.Join(srcProfile, "Bookmarks")),
 		Preferences:          prefs,
 		CookiesRawBase64:     readProfileCookiesBase64(srcProfile),
 		WebDataRawBase64:     readProfileWebDataBase64(srcProfile),

@@ -195,7 +195,7 @@ func (db *DB) Migrate() error {
 
 	statements := []string{
 		constants.SQLCreateRepo,
-		getRepoAbsPathIndexQuery(),
+		getRepoAbsPathIndexDDL(),
 		constants.SQLCreateGroup,
 		constants.SQLCreateGroupRepo,
 		constants.SQLCreateRelease,
@@ -566,12 +566,16 @@ func lockDBIfNotMem(dbDir string, isMem bool) error {
 	return acquireLock(dbDir)
 }
 
-func getRepoAbsPathIndexQuery() string {
+func getRepoAbsPathIndexDDL() string {
 	if runtime.GOOS == "windows" {
 		return constants.SQLCreateAbsPathIndexWindows
 	}
 
 	return constants.SQLCreateAbsPathIndexUnix
+}
+
+func getRepoAbsPathIndexQuery() string {
+	return getRepoAbsPathIndexDDL()
 }
 
 func getScanFolderPathIndexQuery() string {

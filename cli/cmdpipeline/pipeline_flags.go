@@ -362,15 +362,21 @@ func findPositionalRepoTarget(args []string, flags *PipelineErrorFlags) {
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		if isValueFlag(a) {
-			if a != "-n" || flags.HasLimit {
-				i++
-			}
+			i += advanceValueFlagOffset(a, flags.HasLimit)
 			continue
 		}
 		if applyCandidateRepoTarget(a, flags) {
 			return
 		}
 	}
+}
+
+func advanceValueFlagOffset(flagName string, hasLimit bool) int {
+	if flagName != "-n" || hasLimit {
+		return 1
+	}
+
+	return 0
 }
 
 func applyCandidateRepoTarget(arg string, flags *PipelineErrorFlags) bool {

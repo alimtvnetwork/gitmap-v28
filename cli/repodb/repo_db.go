@@ -55,18 +55,18 @@ func ResolveRepoDBPath(rootDbDir, absolutePath string, repoId int64) string {
 	return filepath.Join(repoSearchDir, fmt.Sprintf("%s-%d.db", slug, repoId))
 }
 
+func buildCloseInitErr(closeErr, initErr error) *apperror.AppError {
+	msg := "close db failed after: " + initErr.Error()
+
+	return apperror.WrapWithDetails(
+		closeErr, "close db after init failure", "E9000",
+		msg, "repodb", apperror.ErrorTypeExecution, apperror.SeverityError, nil,
+	)
+}
+
 func closeAndWrapInitError(db *sql.DB, initErr error) *apperror.AppError {
 	if closeErr := db.Close(); closeErr != nil {
-		return apperror.WrapWithDetails(
-			closeErr,
-			"close db after init failure",
-			"E9000",
-			"close db failed after: "+initErr.Error(),
-			"repodb",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityError,
-			nil,
-		)
+		return buildCloseInitErr(closeErr, initErr)
 	}
 
 	return apperror.WrapSimple(initErr, "init repo db schema")

@@ -30,26 +30,38 @@ func IsPathDuplicateCaseInsensitive(pathA, pathB string) bool {
 	return normA == normB
 }
 
-// EnsureRepoUniqueInDB queries the Repo table in SQLite by NormalizeStoragePath(absPath)
-// (using case folding on Windows, exact matching on Unix) to confirm uniqueness before inserting.
-// Returns true if unique (no duplicate found), or false if an existing record already exists.
-func EnsureRepoUniqueInDB(db *DB, absPath string) (bool, error) {
+func buildRepoUniqueQuery(normPath string) string {
+	query := "SELECT COUNT(*) FROM Repo WHERE AbsolutePath = ?"
+	isCaseInsensitive := runtime.GOOS == "windows" || fsutil.IsPathCaseInsensitive(normPath)
+	if isCaseInsensitive {
+		query = "SELECT COUNT(*) FROM Repo WHERE AbsolutePath = ? COLLATE NOCASE"
+	}
+
+	return query
+}
+
+func validateDBConn(db *DB) *apperror.AppError {
 	if db == nil || db.conn == nil {
-		return false, apperror.New("EnsureRepoUniqueInDB", "E_DB_NIL", map[string]any{
+		return apperror.New("EnsureRepoUniqueInDB", "E_DB_NIL", map[string]any{
 			"error": "database connection is nil",
 		})
 	}
 
-	normPath := NormalizeStoragePath(absPath)
-	query := "SELECT COUNT(*) FROM Repo WHERE AbsolutePath = ?"
-	isCaseInsensitive := runtime.GOOS == "windows" || fsutil.IsPathCaseInsensitive(normPath)
-	if isCaseInsensitive {
-		query = "SELECT COUNT(*) FROM Repo WHERE LOWER(AbsolutePath) = LOWER(?)"
+	return nil
+}
+
+// EnsureRepoUniqueInDB queries the Repo table in SQLite by NormalizeStoragePath(absPath)
+// (using case folding on Windows, exact matching on Unix) to confirm uniqueness before inserting.
+// Returns true if unique (no duplicate found), or false if an existing record already exists.
+func EnsureRepoUniqueInDB(db *DB, absPath string) (bool, error) {
+	if appErr := validateDBConn(db); appErr != nil {
+		return false, appErr
 	}
 
+	normPath := NormalizeStoragePath(absPath)
+	query := buildRepoUniqueQuery(normPath)
 	var count int
-	err := db.conn.QueryRow(query, normPath).Scan(&count)
-	if err != nil {
+	if err := db.conn.QueryRow(query, normPath).Scan(&count); err != nil {
 		return false, apperror.WrapSimple(err, "EnsureRepoUniqueInDB")
 	}
 

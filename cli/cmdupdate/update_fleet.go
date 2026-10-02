@@ -872,10 +872,8 @@ func getCachedUpdateZip(pkg, osType string) ([]byte, error) {
 }
 
 func createUpdatePackageZip(pkg, osType string) ([]byte, error) {
-	if isAgmPkg(pkg) {
-		if data, err := loadOrExportAgmInstallerZip(); err == nil && len(data) > 4 && string(data[:2]) == "PK" {
-			return data, nil
-		}
+	if data, ok := tryLoadAgmInstallerZip(pkg); ok {
+		return data, nil
 	}
 	var buf bytes.Buffer
 	zw := zip.NewWriter(&buf)
@@ -967,17 +965,34 @@ func agmExportZipPath() string {
 	return filepath.Join(home, ".antigravity_tools", "update-export", "agm-update.zip")
 }
 
+func tryLoadAgmInstallerZip(pkg string) ([]byte, bool) {
+	if !isAgmPkg(pkg) {
+		return nil, false
+	}
+	data, err := loadOrExportAgmInstallerZip()
+	if err == nil && len(data) > 4 && string(data[:2]) == "PK" {
+		return data, true
+	}
+
+	return nil, false
+}
+
+func findAgmExecutable() (string, error) {
+	if agm, err := exec.LookPath("agm"); err == nil {
+		return agm, nil
+	}
+
+	return exec.LookPath("agm.exe")
+}
+
 func loadOrExportAgmInstallerZip() ([]byte, error) {
 	path := agmExportZipPath()
 	if data, ok := readFileIfExists(path); ok {
 		return data, nil
 	}
-	agm, err := exec.LookPath("agm")
+	agm, err := findAgmExecutable()
 	if err != nil {
-		agm, err = exec.LookPath("agm.exe")
-		if err != nil {
-			return nil, err
-		}
+		return nil, err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()

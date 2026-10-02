@@ -134,11 +134,12 @@ func sanitizeScanRecordIdentity(rec *model.ScanRecord) {
 	}
 	clean := filepath.Clean(strings.TrimRight(rec.AbsolutePath, "/\\"))
 	base := filepath.Base(clean)
-	if base != "" && base != "." && base != "/" && base != "\\" {
-		rec.RepoName = base
-		if rec.Slug == "" || rec.Slug == "unknown" {
-			rec.Slug = strings.ToLower(base)
-		}
+	if base == "" || base == "." || base == "/" || base == "\\" {
+		return
+	}
+	rec.RepoName = base
+	if rec.Slug == "" || rec.Slug == "unknown" {
+		rec.Slug = strings.ToLower(base)
 	}
 }
 

@@ -190,8 +190,11 @@ func (w *Walker) upsertRepoFile(ctx context.Context, info FileInfo) (bool, error
 	_, err := w.RepoDB.ExecContext(ctx, sqlUpsertRepoFile,
 		info.RelativePath, info.AbsolutePath, info.Content, info.IsBig, info.WriteTime, now, now,
 	)
+	if err != nil {
+		return false, apperror.WrapSimple(err, "upsert repo file")
+	}
 
-	return err == nil, err
+	return true, nil
 }
 
 func (w *Walker) processFile(ctx context.Context, info FileInfo) (bool, error) {

@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [72-repo-dedup-os-aware-equalfold](72-repo-dedup-os-aware-equalfold/01-architecture-spec.md) — Redundant Repo Deduplication, EqualFold Modernization, OS-Aware Path Sensitivity & File Ingestion Uniqueness (Status: `active`)
 - [71-repo-dedup-equalfold-os-guarantee](71-repo-dedup-equalfold-os-guarantee/01-architecture-spec.md) — Redundant Repo Deduplication (URL & Path), EqualFold Modernization, OS-Aware Path Sensitivity & File Ingestion Uniqueness (Status: `active`)
 - [202-vmware-cli-commands-and-fleet-management.md](202-vmware-cli-commands-and-fleet-management.md) — VMware Workstation CLI Command Suite, Fleet Management, Dual-Engine Hypervisor Driver, and Coordinated Scheduler Shutdown (Status: `active`)
 - [72-chrome-ext-test-and-vmware-spec](72-chrome-ext-test-and-vmware-spec/01-architecture-spec.md) — Chrome Extension Profile Export/Import E2E Testing, Repo-Secrets Logging, VMware CLI Command Suite Specification & VM Lifecycle Operations (Status: `active`)

@@ -1,3 +1,9 @@
+## v6.464.0 — 2026-10-02 (store-dedup - os-aware path sensitivity equalfold and sqlite uniqueness)
+
+**Scope:** Version bump. store-dedup - os-aware path sensitivity equalfold and sqlite uniqueness.
+
+---
+
 ## v6.463.0 — 2026-10-02 (store-dedup - os-aware path sensitivity equalfold and sqlite uniqueness)
 
 **Scope:** Version bump. store-dedup - os-aware path sensitivity equalfold and sqlite uniqueness.
