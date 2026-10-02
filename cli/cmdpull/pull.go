@@ -40,6 +40,9 @@ type pullOptions struct {
 	workers       int
 	hands         int
 	isWWOH        bool
+	isAutoScale   bool
+	isHighPerf    bool
+	isLowCPU      bool
 	onlyAvailable bool
 	autoFix       bool
 	yes           bool
@@ -119,7 +122,7 @@ func isPullFlagTakingValue(arg string) bool {
 
 	return arg == "-g" || arg == "--group" || arg == "-p" || arg == "--parallel" ||
 		arg == "-w" || arg == "--w" || arg == "--worker" || arg == "--workers" ||
-		arg == "--hand" || arg == "--hands" || arg == "--h"
+		arg == "--hand" || arg == "--hands" || arg == "--h" || arg == "--concurrency"
 }
 
 func isPullAllTableSeq(args []string, i int) bool {
@@ -554,7 +557,7 @@ func finalizePullBatchStandard(taskDB *store.DB, taskID int64, tDB *store.TasksS
 	collectAndRemediateIgnoreIssues(ignoreHandle, opts)
 	finalizePullTaskQueueOutput(isAll, tDB, queueId, failedCount)
 
-	return finalizePullBatchTask(taskDB, taskID, failedCount)
+	return finalizePullBatchTask(taskDB, taskID, failedCount, ExtractPullFailures(states))
 }
 
 func finalizePullTaskQueueJSON(isAll bool, tDB *store.TasksSplitDB, queueId string) {
@@ -1225,11 +1228,12 @@ func buildRemediationItem(rec model.ScanRecord, diag gitutil.DirtyDiagnosis) Rem
 	}
 }
 
-func finalizePullBatchTask(taskDB *store.DB, taskID int64, failCount int) error {
+func finalizePullBatchTask(taskDB *store.DB, taskID int64, failCount int, failures []PullFailureSummary) error {
 	if failCount > 0 {
 		errMsg := fmt.Sprintf("pull batch finished with %d failure(s)", failCount)
 		failPendingTask(taskDB, taskID, errMsg)
 		fmt.Fprintf(os.Stderr, "\n  %s%s%s\n\n", constants.ColorRed, errMsg, constants.ColorReset)
+		handleBatchFailuresRemediation(failures)
 		cliexit.Exit(1)
 
 		return nil
@@ -1237,6 +1241,13 @@ func finalizePullBatchTask(taskDB *store.DB, taskID int64, failCount int) error 
 	completePendingTask(taskDB, taskID)
 
 	return nil
+}
+
+func handleBatchFailuresRemediation(failures []PullFailureSummary) {
+	hasFailures := len(failures) > 0
+	if hasFailures {
+		_ = PromptInteractiveBatchFix(failures)
+	}
 }
 
 func isPullCWDEnabled(opts pullOptions) bool {
@@ -1439,15 +1450,19 @@ func clampPullConcurrencyForSSH(opts pullOptions) pullOptions {
 		opts.parallel = 1
 		return opts
 	}
-	effectiveWorkers := opts.workers
-	if effectiveWorkers <= 0 {
-		effectiveWorkers = opts.parallel
-	}
+	effectiveWorkers := resolveEffectiveWorkers(opts.workers, opts.parallel)
 	workers, hands := cloneconcurrency.ResolveWorkerHands(effectiveWorkers, opts.hands, opts.isWWOH, false)
 	opts.workers = workers
 	opts.hands = hands
 	opts.parallel = workers * hands
 	return opts
+}
+
+func resolveEffectiveWorkers(workers, parallel int) int {
+	if workers <= 0 {
+		return parallel
+	}
+	return workers
 }
 
 func runSerialPull(records []model.ScanRecord, bar *PullProgressBar) {
@@ -1482,6 +1497,7 @@ type pullFlagHolders struct {
 	vFlag, aFlag, sFlag, oFlag, fixFlag, yFlag, noFixFlag, rawFlag *bool
 	sshFlag, httpsFlag, statusFlag, jsonFlag, probeFlag            *bool
 	wwohFlag                                                       *bool
+	autoScaleFlag, highPerfFlag, lowCPUFlag                        *bool
 	gFlag                                                          *string
 	pFlag, wFlag, handFlag                                         *int
 }
@@ -1497,6 +1513,12 @@ func initPullFlagSet() (*flag.FlagSet, *pullFlagHolders) {
 }
 
 func registerPullCoreFlags(fs *flag.FlagSet, h *pullFlagHolders) {
+	registerPullBasicFlags(fs, h)
+	registerPullWorkerFlags(fs, h)
+	registerPullConcurrencyPresetFlags(fs, h)
+}
+
+func registerPullBasicFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 	h.vFlag = fs.Bool("verbose", false, constants.FlagDescVerbose)
 	h.gFlag = fs.String("group", "", constants.FlagDescGroup)
 	h.aFlag = fs.Bool("all", false, constants.FlagDescAll)
@@ -1508,17 +1530,26 @@ func registerPullCoreFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 	h.httpsFlag = fs.Bool("https", false, "Pull using HTTPS transport")
 	fs.StringVar(h.gFlag, "g", "", constants.FlagDescGroup)
 	fs.IntVar(h.pFlag, "p", 0, constants.FlagDescPullParallel)
+	fs.IntVar(h.pFlag, "concurrency", 0, constants.FlagDescPullParallel)
+}
 
+func registerPullWorkerFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 	h.wFlag = fs.Int("w", 0, "Worker pool size")
 	fs.IntVar(h.wFlag, "worker", 0, "Worker pool size")
 	fs.IntVar(h.wFlag, "workers", 0, "Worker pool size")
-
 	h.handFlag = fs.Int("hand", 0, "Hands per worker")
 	fs.IntVar(h.handFlag, "hands", 0, "Hands per worker")
 	fs.IntVar(h.handFlag, "h", 0, "Hands per worker")
-
 	h.wwohFlag = fs.Bool("wwoh", false, "Worker with one hand")
 	fs.BoolVar(h.wwohFlag, "worker-with-one-hand", false, "Worker with one hand")
+}
+
+func registerPullConcurrencyPresetFlags(fs *flag.FlagSet, h *pullFlagHolders) {
+	h.autoScaleFlag = fs.Bool("auto-scale", false, "Auto-scale pull concurrency based on CPU availability")
+	h.highPerfFlag = fs.Bool("high-perf", false, "High-performance pull concurrency preset for low CPU pressure")
+	fs.BoolVar(h.highPerfFlag, "turbo", false, "High-performance pull concurrency preset for low CPU pressure")
+	h.lowCPUFlag = fs.Bool("low-cpu", false, "Conservative pull concurrency preset for high CPU pressure")
+	fs.BoolVar(h.lowCPUFlag, "conservative", false, "Conservative pull concurrency preset for high CPU pressure")
 }
 
 func registerPullRemediationFlags(fs *flag.FlagSet, h *pullFlagHolders) {
@@ -1537,15 +1568,34 @@ func registerPullOutputFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 	fs.BoolVar(h.probeFlag, "probe-repos", false, constants.FlagDescPullProbe)
 }
 
-func buildPullOptions(h *pullFlagHolders) pullOptions {
-	opts := pullOptions{
+func initBasePullOptions(h *pullFlagHolders) pullOptions {
+	return pullOptions{
 		group: *h.gFlag, all: *h.aFlag, verbose: *h.vFlag,
 		stopOnFail: *h.sFlag, parallel: *h.pFlag,
 		workers: *h.wFlag, hands: *h.handFlag, isWWOH: *h.wwohFlag,
+		isAutoScale: *h.autoScaleFlag, isHighPerf: *h.highPerfFlag, isLowCPU: *h.lowCPUFlag,
 		onlyAvailable: *h.oFlag,
 		autoFix:       *h.fixFlag, yes: *h.yFlag, noFix: *h.noFixFlag,
 		isRaw: *h.rawFlag, useSSH: *h.sshFlag, useHTTPS: *h.httpsFlag,
 		showStatus: *h.statusFlag, isJSON: *h.jsonFlag, isProbe: *h.probeFlag,
+	}
+}
+
+func resolvePullCPUProfile(h *pullFlagHolders) cloneconcurrency.CPUProfile {
+	if *h.highPerfFlag {
+		return cloneconcurrency.CPUProfileHighPerf
+	}
+	if *h.lowCPUFlag {
+		return cloneconcurrency.CPUProfileLowCPU
+	}
+	return cloneconcurrency.CPUProfileAuto
+}
+
+func buildPullOptions(h *pullFlagHolders) pullOptions {
+	opts := initBasePullOptions(h)
+	profile := resolvePullCPUProfile(h)
+	if opts.parallel <= 0 {
+		opts.parallel = cloneconcurrency.ResolveAdaptivePullConcurrency(profile, 0)
 	}
 
 	return opts

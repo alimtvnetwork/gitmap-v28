@@ -20,6 +20,8 @@ type PipelineErrorFlags struct {
 	HasLastFailedLogs    bool
 	IsDetailed           bool
 	HasSuppressOutputLog bool
+	HasLimit             bool
+	Limit                int
 	CommitTarget         string
 	FilePath             string
 	TempFileName         string
@@ -48,6 +50,7 @@ func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.HasCheck = hasArgFlag(args, "--check") || hasArgFlag(args, "-c")
 	flags.IsDetailed = hasDetailedArg(args)
 	flags.HasSuppressOutputLog = hasSuppressOutputArg(args)
+	flags.Limit, flags.HasLimit = parseLimitFlag(args)
 	flags.FilePath = extractFlagVal(args, "--file")
 	flags.TempFileName = extractFlagVal(args, "--tempfile")
 	flags.HasForce = hasForceArg(args)
@@ -74,8 +77,86 @@ func hasForceArg(args []string) bool {
 }
 
 func hasSuppressOutputArg(args []string) bool {
-	return hasArgFlag(args, "--no-output-log") || hasArgFlag(args, "-n") ||
-		hasArgFlag(os.Args, "--no-output-log") || hasArgFlag(os.Args, "-n")
+	if hasArgFlag(args, "--no-output-log") || hasArgFlag(os.Args, "--no-output-log") {
+		return true
+	}
+
+	return hasStandaloneShortNFlag(args) || hasStandaloneShortNFlag(os.Args)
+}
+
+func hasStandaloneShortNFlag(args []string) bool {
+	for i, a := range args {
+		if a == "-n" && !hasNextTokenPositiveInt(args, i) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func hasNextTokenPositiveInt(args []string, idx int) bool {
+	if idx+1 >= len(args) {
+		return false
+	}
+	_, isPositive := parsePositiveIntStr(args[idx+1])
+
+	return isPositive
+}
+
+func parseLimitFlag(args []string) (int, bool) {
+	for i := 0; i < len(args); i++ {
+		if val, isMatched := matchLimitFlagToken(args, i); isMatched {
+			return val, true
+		}
+	}
+
+	return 0, false
+}
+
+func matchLimitFlagToken(args []string, idx int) (int, bool) {
+	arg := args[idx]
+	if val, isInline := parseInlineLimit(arg); isInline {
+		return val, true
+	}
+	if !isLimitFlagPrefix(arg) || idx+1 >= len(args) {
+		return 0, false
+	}
+
+	return parsePositiveIntStr(args[idx+1])
+}
+
+func isLimitFlagPrefix(arg string) bool {
+	switch {
+	case strings.EqualFold(arg, "-l"),
+		strings.EqualFold(arg, "-limit"),
+		strings.EqualFold(arg, "--limit"),
+		strings.EqualFold(arg, "-lines"),
+		strings.EqualFold(arg, "--lines"),
+		strings.EqualFold(arg, "-n"):
+		return true
+	default:
+		return false
+	}
+}
+
+func parseInlineLimit(arg string) (int, bool) {
+	prefixes := []string{"--limit=", "-limit=", "--lines=", "-lines=", "-l=", "-n="}
+	for _, p := range prefixes {
+		if len(arg) >= len(p) && strings.EqualFold(arg[:len(p)], p) {
+			return parsePositiveIntStr(arg[len(p):])
+		}
+	}
+
+	return 0, false
+}
+
+func parsePositiveIntStr(raw string) (int, bool) {
+	val, err := strconv.Atoi(strings.TrimSpace(raw))
+	if err != nil || val <= 0 {
+		return 0, false
+	}
+
+	return val, true
 }
 
 func hasDetailedArg(args []string) bool {
@@ -256,35 +337,57 @@ func isCommitHexSha(s string) bool {
 }
 
 func parseRepoTarget(args []string, flags *PipelineErrorFlags) {
+	if applyExplicitRepoTarget(args, flags) {
+		return
+	}
+
+	findPositionalRepoTarget(args, flags)
+}
+
+func applyExplicitRepoTarget(args []string, flags *PipelineErrorFlags) bool {
 	explicit := extractFlagVal(args, "--repo")
 	if explicit == "" {
 		explicit = extractFlagVal(args, "-r")
 	}
-	if len(explicit) > 0 {
-		flags.RawRepoTarget = explicit
-		flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(explicit)
-		return
+	if len(explicit) == 0 {
+		return false
 	}
+	flags.RawRepoTarget = explicit
+	flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(explicit)
 
+	return true
+}
+
+func findPositionalRepoTarget(args []string, flags *PipelineErrorFlags) {
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		if isValueFlag(a) {
-			i++
+			if a != "-n" || flags.HasLimit {
+				i++
+			}
 			continue
 		}
-		trimmed := strings.TrimSpace(a)
-		if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget || isConsumedFlagValue(trimmed, flags) {
-			continue
+		if applyCandidateRepoTarget(a, flags) {
+			return
 		}
-		flags.RawRepoTarget = trimmed
-		flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(trimmed)
-		return
 	}
+}
+
+func applyCandidateRepoTarget(arg string, flags *PipelineErrorFlags) bool {
+	trimmed := strings.TrimSpace(arg)
+	if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget || isConsumedFlagValue(trimmed, flags) {
+		return false
+	}
+	flags.RawRepoTarget = trimmed
+	flags.RepoTarget, flags.ResolvedPath = ResolvePipelineTargetAndPath(trimmed)
+
+	return true
 }
 
 func isValueFlag(flag string) bool {
 	switch strings.ToLower(flag) {
-	case "--file", "--tempfile", "--format", "--repo", "-r", "--last-failures":
+	case "--file", "--tempfile", "--format", "--repo", "-r", "--last-failures",
+		"-l", "-limit", "--limit", "--lines", "-lines", "-n":
 		return true
 	default:
 		return false
@@ -292,6 +395,10 @@ func isValueFlag(flag string) bool {
 }
 
 func isConsumedFlagValue(val string, flags *PipelineErrorFlags) bool {
+	if flags.HasLimit && val == strconv.Itoa(flags.Limit) {
+		return true
+	}
+
 	return val == flags.FilePath || val == flags.TempFileName || val == flags.FormatProfile
 }
 

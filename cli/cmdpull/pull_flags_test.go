@@ -14,8 +14,8 @@ func TestParsePullFlags_NoFlags(t *testing.T) {
 	if len(opts.group) > 0 || opts.all || opts.verbose {
 		t.Error("expected no group/all/verbose")
 	}
-	if opts.parallel != 0 || opts.onlyAvailable {
-		t.Errorf("expected default parallel=0 and onlyAvailable=false, got %+v", opts)
+	if opts.parallel <= 0 || opts.onlyAvailable {
+		t.Errorf("expected auto parallel > 0 and onlyAvailable=false, got %+v", opts)
 	}
 }
 
@@ -238,5 +238,48 @@ func TestExtractEfficientFlags_Probe(t *testing.T) {
 		if r == "--probe" {
 			t.Fatalf("expected --probe stripped from rest, got %v", rest)
 		}
+	}
+}
+
+func TestParsePullFlags_AutoScale(t *testing.T) {
+	opts := parsePullFlags([]string{"--all", "--auto-scale"})
+	if !opts.isAutoScale || opts.parallel <= 0 {
+		t.Fatalf("expected isAutoScale=true parallel>0, got %+v", opts)
+	}
+}
+
+func TestParsePullFlags_HighPerfAndTurbo(t *testing.T) {
+	optsHigh := parsePullFlags([]string{"--all", "--high-perf"})
+	if !optsHigh.isHighPerf || optsHigh.parallel <= 0 {
+		t.Fatalf("expected isHighPerf=true parallel>0, got %+v", optsHigh)
+	}
+	optsTurbo := parsePullFlags([]string{"--all", "--turbo"})
+	if !optsTurbo.isHighPerf || optsTurbo.parallel <= 0 {
+		t.Fatalf("expected isHighPerf=true via turbo, got %+v", optsTurbo)
+	}
+}
+
+func TestParsePullFlags_LowCPUAndConservative(t *testing.T) {
+	optsLow := parsePullFlags([]string{"--all", "--low-cpu"})
+	if !optsLow.isLowCPU || optsLow.parallel <= 0 || optsLow.parallel > 2 {
+		t.Fatalf("expected isLowCPU=true parallel 1-2, got %+v", optsLow)
+	}
+	optsCons := parsePullFlags([]string{"--all", "--conservative"})
+	if !optsCons.isLowCPU || optsCons.parallel <= 0 || optsCons.parallel > 2 {
+		t.Fatalf("expected isLowCPU=true via conservative, got %+v", optsCons)
+	}
+}
+
+func TestParsePullFlags_ParallelOverridesPreset(t *testing.T) {
+	opts := parsePullFlags([]string{"--all", "--high-perf", "-p", "7"})
+	if opts.parallel != 7 {
+		t.Fatalf("expected parallel=7 override, got %d", opts.parallel)
+	}
+}
+
+func TestParsePullFlags_ConcurrencyFlag(t *testing.T) {
+	opts := parsePullFlags([]string{"--all", "--concurrency", "5"})
+	if opts.parallel != 5 {
+		t.Fatalf("expected parallel=5 via --concurrency, got %d", opts.parallel)
 	}
 }

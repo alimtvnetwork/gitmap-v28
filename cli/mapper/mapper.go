@@ -92,36 +92,59 @@ func relativePathFor(repo scanner.RepoInfo, relRoot string) string {
 
 // buildOneRecord creates a single ScanRecord from a RepoInfo. The
 // fallback branch name is taken from opts.DefaultBranch when set and
+// buildOneRecord creates a single ScanRecord from a RepoInfo. The
+// fallback branch name is taken from opts.DefaultBranch when set and
 // from constants.DefaultBranch otherwise — see resolveDefaultBranch.
 func buildOneRecord(repo scanner.RepoInfo, opts BuildOptions) model.ScanRecord {
 	remoteURL, _ := gitutil.RemoteURL(repo.AbsolutePath)
-	branch, branchSource := gitutil.DetectBranchWithDefault(
-		repo.AbsolutePath, resolveDefaultBranch(opts.DefaultBranch))
 	httpsURL := toHTTPS(remoteURL)
 	sshURL := toSSH(remoteURL)
 	transport := classifyTransport(remoteURL)
-	// Per-repo transport drives clone-URL selection so an SSH-origin
-	// repo never gets a silent HTTPS clone command (which triggers
-	// browser auth on private remotes). The scan-wide --mode flag is
-	// the tiebreaker only when transport is "other".
 	cloneURL := selectCloneURLForTransport(httpsURL, sshURL, transport, opts.Mode)
-	repoName := extractRepoName(remoteURL)
-	noteText := buildNote(remoteURL, opts.DefaultNote)
-	instruction := buildInstruction(cloneURL, branch, repo.RelativePath)
-	repoID := gitutil.CanonicalRepoID(remoteURL)
+	repoName := resolveRepoName(remoteURL, repo.AbsolutePath)
 
-	return model.ScanRecord{
-		Slug:     buildSlug(httpsURL, repoName),
-		RepoID:   repoID,
-		RepoName: repoName, HTTPSUrl: httpsURL, SSHUrl: sshURL,
-		DiscoveredURL: remoteURL,
-		Branch:        branch, BranchSource: branchSource,
-		RelativePath: repo.RelativePath, AbsolutePath: repo.AbsolutePath,
-		CloneInstruction: instruction, Notes: noteText,
-		Depth:               repo.Depth,
-		Transport:           transport,
-		IdentifiedTransport: transport,
+	return populateScanRecord(repo, opts, recordMetaParams{
+		remoteURL: remoteURL, httpsURL: httpsURL, sshURL: sshURL,
+		transport: transport, cloneURL: cloneURL, repoName: repoName,
+	})
+}
+
+type recordMetaParams struct {
+	remoteURL string
+	httpsURL  string
+	sshURL    string
+	transport string
+	cloneURL  string
+	repoName  string
+}
+
+func populateScanRecord(repo scanner.RepoInfo, opts BuildOptions, p recordMetaParams) model.ScanRecord {
+	branch, branchSource := gitutil.DetectBranchWithDefault(
+		repo.AbsolutePath, resolveDefaultBranch(opts.DefaultBranch))
+	instruction := buildInstruction(p.cloneURL, branch, repo.RelativePath)
+	rec := model.ScanRecord{
+		Slug: buildSlug(p.httpsURL, p.repoName), RepoID: gitutil.CanonicalRepoID(p.remoteURL),
+		RepoName: p.repoName, HTTPSUrl: p.httpsURL, SSHUrl: p.sshURL, DiscoveredURL: p.remoteURL,
+		Branch: branch, BranchSource: branchSource, RelativePath: repo.RelativePath,
+		AbsolutePath: repo.AbsolutePath, CloneInstruction: instruction, Notes: buildNote(p.remoteURL, opts.DefaultNote),
+		Depth: repo.Depth, Transport: p.transport, IdentifiedTransport: p.transport,
 	}
+
+	return rec
+}
+
+func resolveRepoName(remoteURL, absPath string) string {
+	name := extractRepoName(remoteURL)
+	if name != "" && name != constants.UnknownRepoName {
+		return name
+	}
+	clean := filepath.Clean(strings.TrimRight(absPath, "/\\"))
+	base := filepath.Base(clean)
+	if base != "" && base != "." && base != "/" && base != "\\" {
+		return base
+	}
+
+	return constants.UnknownRepoName
 }
 
 // selectCloneURLForTransport picks the URL whose transport matches the
@@ -230,7 +253,7 @@ func buildInstruction(url, branch, relPath string) string {
 }
 
 // buildSlug derives a lowercase slug from the HTTPS URL.
-// Falls back to repoName when the URL is empty.
+// Falls back to repoName when the URL is empty or resolves to unknown.
 func buildSlug(httpsURL, repoName string) string {
 	if len(httpsURL) == 0 {
 		return strings.ToLower(repoName)
@@ -238,6 +261,10 @@ func buildSlug(httpsURL, repoName string) string {
 
 	base := filepath.Base(httpsURL)
 	trimmed := strings.TrimSuffix(base, constants.ExtGit)
+	slug := strings.ToLower(trimmed)
+	if slug == constants.UnknownRepoName && len(repoName) > 0 {
+		return strings.ToLower(repoName)
+	}
 
-	return strings.ToLower(trimmed)
+	return slug
 }
