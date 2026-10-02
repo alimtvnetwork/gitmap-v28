@@ -101,7 +101,7 @@ Theme variables should be exposable through WordPress admin:
 
 The variable architecture makes this possible because:
 
-- All visual changes flow from ~40 CSS custom properties
+- All visual changes flow from 40 CSS custom properties
 - No component-level overrides needed
 - WordPress Customizer can write `<style>` blocks with variable overrides
 

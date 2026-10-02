@@ -48,6 +48,9 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `10-ui-and-design` | [`10-ui-and-design/04-youtube-thumbnail-create.md`](../01-prompts/10-ui-and-design/04-youtube-thumbnail-create.md) | YouTube Thumbnail & Banner Design — Visual Identity & Typography Workflow |
 | `10-ui-and-design` | [`10-ui-and-design/05-linkedin-profile-banner.md`](../01-prompts/10-ui-and-design/05-linkedin-profile-banner.md) | LinkedIn Profile Banner Design — Visual Identity & Authority Workflow |
 | `10-ui-and-design` | [`10-ui-and-design/06-linkedin-company-banner.md`](../01-prompts/10-ui-and-design/06-linkedin-company-banner.md) | LinkedIn Company Page Banner Design — Corporate Branding & Conversion Workflow |
+| `10-ui-and-design` | [`10-ui-and-design/07-follow-ui-ux-design-system.md`](../01-prompts/10-ui-and-design/07-follow-ui-ux-design-system.md) | Follow UI/UX Design System Specification & Component Assembly |
+| `10-ui-and-design` | [`10-ui-and-design/08-create-slide-deck.md`](../01-prompts/10-ui-and-design/08-create-slide-deck.md) | Create Presentation Slide Deck & Live Builder System |
+| `10-ui-and-design` | [`10-ui-and-design/09-write-and-enhance-design-spec.md`](../01-prompts/10-ui-and-design/09-write-and-enhance-design-spec.md) | Write and Enhance a Design Spec That a Blind AI Can Follow |
 | `11-content-and-seo` | [`11-content-and-seo/01-jokes-ideas-generate.md`](../01-prompts/11-content-and-seo/01-jokes-ideas-generate.md) | Humor Generation & Content Ideation — Content Workflow (must follow) |
 | `11-content-and-seo` | [`11-content-and-seo/02-lowercase-readme-and-sequence.md`](../01-prompts/11-content-and-seo/02-lowercase-readme-and-sequence.md) | Lowercase Filename Enforcement & Sequence Re-Ordering — Workflow (must follow) |
 | `11-content-and-seo` | [`11-content-and-seo/03-seo-optimization.md`](../01-prompts/11-content-and-seo/03-seo-optimization.md) | SEO Content Optimization & Meta Tag Auditing — Content Workflow (must follow) |
@@ -76,42 +79,43 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `14-execute` | [`14-execute/10-execute-parent-task-with-n-steps-v3.md`](../01-prompts/14-execute/10-execute-parent-task-with-n-steps-v3.md) | [V3] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
 | `14-execute` | [`14-execute/11-execute-parent-task-with-n-steps-v4.md`](../01-prompts/14-execute/11-execute-parent-task-with-n-steps-v4.md) | [V4] Parent Task N-Step Loop: Antigravity-Native Orchestrator (must follow) |
 | `14-execute` | [`14-execute/12-execute-parent-task-with-n-steps-v5.md`](../01-prompts/14-execute/12-execute-parent-task-with-n-steps-v5.md) | [V5] Parent Task N-Step Loop: Antigravity-Native Ultra-Orchestrator — Workflow (must follow) |
-| `14-execute` | [`14-execute/13-execute-parent-task-with-n-steps-v6.md`](../01-prompts/14-execute/13-execute-parent-task-with-n-steps-v6.md) | [V6] Parent Task N-Step Loop: Antigravity-Native Ultra-Orchestrator — Workflow (must follow) |
-| `15-cg-execute` | [`15-cg-execute/01-execute-coding-guideline-fix.md`](../01-prompts/15-cg-execute/01-execute-coding-guideline-fix.md) | 01-execute-coding-guideline-fix.md |
-| `15-cg-execute` | [`15-cg-execute/02-error-management.md`](../01-prompts/15-cg-execute/02-error-management.md) | 02-error-management.md |
-| `15-cg-execute` | [`15-cg-execute/03-nested-if-and-guard-clauses.md`](../01-prompts/15-cg-execute/03-nested-if-and-guard-clauses.md) | 03-nested-if-and-guard-clauses.md |
-| `15-cg-execute` | [`15-cg-execute/04-booleans-and-complex-conditions.md`](../01-prompts/15-cg-execute/04-booleans-and-complex-conditions.md) | 04-booleans-and-complex-conditions.md |
-| `15-cg-execute` | [`15-cg-execute/05-naming-conventions-and-boolean-prefixes.md`](../01-prompts/15-cg-execute/05-naming-conventions-and-boolean-prefixes.md) | ❌ FORBIDDEN: Negative boolean flag |
-| `15-cg-execute` | [`15-cg-execute/06-constants-and-enums.md`](../01-prompts/15-cg-execute/06-constants-and-enums.md) | ❌ FORBIDDEN: Magic string comparisons |
-| `15-cg-execute` | [`15-cg-execute/07-data-and-schema.md`](../01-prompts/15-cg-execute/07-data-and-schema.md) | 07-data-and-schema.md |
-| `15-cg-execute` | [`15-cg-execute/08-react-frontend-guidelines.md`](../01-prompts/15-cg-execute/08-react-frontend-guidelines.md) | 08-react-frontend-guidelines.md |
-| `15-cg-execute` | [`15-cg-execute/09-code-hygiene.md`](../01-prompts/15-cg-execute/09-code-hygiene.md) | 09-code-hygiene.md |
-| `15-cg-execute` | [`15-cg-execute/10-style-guidelines.md`](../01-prompts/15-cg-execute/10-style-guidelines.md) | ❌ WRONG: Assignment directly followed by if without blank line |
-| `15-cg-execute` | [`15-cg-execute/11-testing-and-coverage.md`](../01-prompts/15-cg-execute/11-testing-and-coverage.md) | 11-testing-and-coverage.md |
-| `15-cg-execute` | [`15-cg-execute/12-relative-paths.md`](../01-prompts/15-cg-execute/12-relative-paths.md) | 12-relative-paths.md |
-| `15-cg-execute` | [`15-cg-execute/13-cli-commands-and-help.md`](../01-prompts/15-cg-execute/13-cli-commands-and-help.md) | ❌ WRONG: Undocumented arguments and missing help |
-| `15-cg-execute` | [`15-cg-execute/14-function-signatures-and-return-types.md`](../01-prompts/15-cg-execute/14-function-signatures-and-return-types.md) | Python |
-| `15-cg-execute` | [`15-cg-execute/15-typescript-guidelines-and-types.md`](../01-prompts/15-cg-execute/15-typescript-guidelines-and-types.md) | 15-typescript-guidelines-and-types.md |
-| `15-cg-execute` | [`15-cg-execute/16-multi-language-enums-and-traits.md`](../01-prompts/15-cg-execute/16-multi-language-enums-and-traits.md) | 16-multi-language-enums-and-traits.md |
-| `15-cg-execute` | [`15-cg-execute/17-terminal-ui-and-cli-styling.md`](../01-prompts/15-cg-execute/17-terminal-ui-and-cli-styling.md) | 17-terminal-ui-and-cli-styling.md |
-| `15-cg-execute` | [`15-cg-execute/18-function-argument-reduction-and-params.md`](../01-prompts/15-cg-execute/18-function-argument-reduction-and-params.md) | 18-function-argument-reduction-and-params.md |
-| `15-cg-execute` | [`15-cg-execute/19-result-wrapper-and-apperror-returns.md`](../01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md) | 1. Find functions returning multi-value map tuples: (map[...], error) |
-| `15-cg-execute` | [`15-cg-execute/20-extract-generic-types-to-types-go.md`](../01-prompts/15-cg-execute/20-extract-generic-types-to-types-go.md) | 1. Find unexported domain structs declared inline in implementation files (should be in types.go): |
-| `15-cg-execute` | [`15-cg-execute/21-lazy-regex-and-pattern-matching.md`](../01-prompts/15-cg-execute/21-lazy-regex-and-pattern-matching.md) | 21-lazy-regex-and-pattern-matching.md |
-| `15-cg-execute` | [`15-cg-execute/22-file-size-and-function-reduction.md`](../01-prompts/15-cg-execute/22-file-size-and-function-reduction.md) | 22-file-size-and-function-reduction.md |
-| `15-cg-execute` | [`15-cg-execute/23-string-operations-and-efficiency.md`](../01-prompts/15-cg-execute/23-string-operations-and-efficiency.md) | 23-string-operations-and-efficiency.md |
-| `15-cg-execute` | [`15-cg-execute/24-isolate-destructive-os-and-heavy-unit-tests.md`](../01-prompts/15-cg-execute/24-isolate-destructive-os-and-heavy-unit-tests.md) | 24-isolate-destructive-os-and-heavy-unit-tests.md |
-| `15-cg-execute` | [`15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md`](../01-prompts/15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md) | 25-nuclear-package-modularization-and-unit-test-optimization.md |
-| `15-cg-execute` | [`15-cg-execute/26-python-boolean-and-conditional-enhancement.md`](../01-prompts/15-cg-execute/26-python-boolean-and-conditional-enhancement.md) | ANTI-PATTERN: Magic numbers, per-pixel branching in hot loop, weak type hints |
-| `15-cg-execute` | [`15-cg-execute/27-python-constants-and-magic-number-elimination.md`](../01-prompts/15-cg-execute/27-python-constants-and-magic-number-elimination.md) | ❌ ANTI-PATTERN: Repeated magic tuples, magic calculations (* 4 + 2, 7), cryptic coordinates (x2, y2) |
-| `15-cg-execute` | [`15-cg-execute/28-python-array-constants-and-dynamic-enums.md`](../01-prompts/15-cg-execute/28-python-array-constants-and-dynamic-enums.md) | ❌ ANTI-PATTERN: Hardcoded string permutations repeating host + port combinations |
-| `15-cg-execute` | [`15-cg-execute/29-code-dryness-and-library-extraction.md`](../01-prompts/15-cg-execute/29-code-dryness-and-library-extraction.md) | 29-code-dryness-and-library-extraction.md |
-| `15-cg-execute` | [`15-cg-execute/30-clean-repo-build-and-caches.md`](../01-prompts/15-cg-execute/30-clean-repo-build-and-caches.md) | 30-clean-repo-build-and-caches.md |
+| `14-execute` | [`14-execute/13-execute-parent-task-with-n-steps-v6.md`](../01-prompts/14-execute/13-execute-parent-task-with-n-steps-v6.md) | [V6] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
+| `15-cg-execute` | [`15-cg-execute/01-execute-coding-guideline-fix.md`](../01-prompts/15-cg-execute/01-execute-coding-guideline-fix.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/02-error-management.md`](../01-prompts/15-cg-execute/02-error-management.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/03-nested-if-and-guard-clauses.md`](../01-prompts/15-cg-execute/03-nested-if-and-guard-clauses.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/04-booleans-and-complex-conditions.md`](../01-prompts/15-cg-execute/04-booleans-and-complex-conditions.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/05-naming-conventions-and-boolean-prefixes.md`](../01-prompts/15-cg-execute/05-naming-conventions-and-boolean-prefixes.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/06-constants-and-enums.md`](../01-prompts/15-cg-execute/06-constants-and-enums.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/07-data-and-schema.md`](../01-prompts/15-cg-execute/07-data-and-schema.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/08-react-frontend-guidelines.md`](../01-prompts/15-cg-execute/08-react-frontend-guidelines.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/09-code-hygiene.md`](../01-prompts/15-cg-execute/09-code-hygiene.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/10-style-guidelines.md`](../01-prompts/15-cg-execute/10-style-guidelines.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/11-testing-and-coverage.md`](../01-prompts/15-cg-execute/11-testing-and-coverage.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/12-relative-paths.md`](../01-prompts/15-cg-execute/12-relative-paths.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/13-cli-commands-and-help.md`](../01-prompts/15-cg-execute/13-cli-commands-and-help.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/14-function-signatures-and-return-types.md`](../01-prompts/15-cg-execute/14-function-signatures-and-return-types.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/15-typescript-guidelines-and-types.md`](../01-prompts/15-cg-execute/15-typescript-guidelines-and-types.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/16-multi-language-enums-and-traits.md`](../01-prompts/15-cg-execute/16-multi-language-enums-and-traits.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/17-terminal-ui-and-cli-styling.md`](../01-prompts/15-cg-execute/17-terminal-ui-and-cli-styling.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/18-function-argument-reduction-and-params.md`](../01-prompts/15-cg-execute/18-function-argument-reduction-and-params.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/19-result-wrapper-and-apperror-returns.md`](../01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/20-extract-generic-types-to-types-go.md`](../01-prompts/15-cg-execute/20-extract-generic-types-to-types-go.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/21-lazy-regex-and-pattern-matching.md`](../01-prompts/15-cg-execute/21-lazy-regex-and-pattern-matching.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/22-file-size-and-function-reduction.md`](../01-prompts/15-cg-execute/22-file-size-and-function-reduction.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/23-string-operations-and-efficiency.md`](../01-prompts/15-cg-execute/23-string-operations-and-efficiency.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/24-isolate-destructive-os-and-heavy-unit-tests.md`](../01-prompts/15-cg-execute/24-isolate-destructive-os-and-heavy-unit-tests.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md`](../01-prompts/15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/26-python-boolean-and-conditional-enhancement.md`](../01-prompts/15-cg-execute/26-python-boolean-and-conditional-enhancement.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/27-python-constants-and-magic-number-elimination.md`](../01-prompts/15-cg-execute/27-python-constants-and-magic-number-elimination.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/28-python-array-constants-and-dynamic-enums.md`](../01-prompts/15-cg-execute/28-python-array-constants-and-dynamic-enums.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/29-code-dryness-and-library-extraction.md`](../01-prompts/15-cg-execute/29-code-dryness-and-library-extraction.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/30-clean-repo-build-and-caches.md`](../01-prompts/15-cg-execute/30-clean-repo-build-and-caches.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/31-cg-execute-in-below-steps.md`](../01-prompts/15-cg-execute/31-cg-execute-in-below-steps.md) | 31-cg-execute-in-below-steps.md |
-| `15-cg-execute` | [`15-cg-execute/32-cg-follow-other-prompts.md`](../01-prompts/15-cg-execute/32-cg-follow-other-prompts.md) | 32-cg-follow-other-prompts.md |
-| `15-cg-execute` | [`15-cg-execute/33-branch-immutability-and-clean-construction.md`](../01-prompts/15-cg-execute/33-branch-immutability-and-clean-construction.md) | 33-branch-immutability-and-clean-construction.md |
-| `15-cg-execute` | [`15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md`](../01-prompts/15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md) | 34-golang-pointer-reduction-and-value-semantics.md |
-| `15-cg-execute` | [`15-cg-execute/35-clean-work-artifacts-and-os-caches.md`](../01-prompts/15-cg-execute/35-clean-work-artifacts-and-os-caches.md) | Automatic execution after displaying the Plan table: |
+| `15-cg-execute` | [`15-cg-execute/32-cg-follow-other-prompts.md`](../01-prompts/15-cg-execute/32-cg-follow-other-prompts.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/33-branch-immutability-and-clean-construction.md`](../01-prompts/15-cg-execute/33-branch-immutability-and-clean-construction.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md`](../01-prompts/15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/35-clean-work-artifacts-and-os-caches.md`](../01-prompts/15-cg-execute/35-clean-work-artifacts-and-os-caches.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/36-variadic-and-spread-parameters.md`](../01-prompts/15-cg-execute/36-variadic-and-spread-parameters.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/readme.md`](../01-prompts/15-cg-execute/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
 | `16-ci-cd` | [`16-ci-cd/01-ci-cd-fix-tweak.md`](../01-prompts/16-ci-cd/01-ci-cd-fix-tweak.md) | CI/CD Fix Tweak with Targeted Smart Testing & RCA — Workflow (must follow) |
 | `16-ci-cd` | [`16-ci-cd/02-ci-cd-fix-with-release-tweak.md`](../01-prompts/16-ci-cd/02-ci-cd-fix-with-release-tweak.md) | Release-Triggered CI/CD Fix Tweak with Targeted Smart Testing — Workflow (must follow) |
@@ -172,6 +176,9 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `19-old-execute-prompts/backup-v6.46.0` | [`19-old-execute-prompts/backup-v6.46.0/readme.md`](../01-prompts/19-old-execute-prompts/backup-v6.46.0/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
 | `20-ai-fix-script-prompts` | [`20-ai-fix-script-prompts/01-python-file-manipulator.md`](../01-prompts/20-ai-fix-script-prompts/01-python-file-manipulator.md) | Python File Manipulator CLI Specification — Tooling Spec (must follow) |
 | `21-temp-end-to-end-tests` | [`21-temp-end-to-end-tests/01-temp-end-to-end-test.md`](../01-prompts/21-temp-end-to-end-tests/01-temp-end-to-end-test.md) | Temporary End-to-End Tests & Isolated On-Demand Validation — Workflow (must follow) |
+| `22-letterly` | [`22-letterly/01-mobile.md`](../01-prompts/22-letterly/01-mobile.md) | Mobile Mode |
+| `22-letterly` | [`22-letterly/02-desktop.md`](../01-prompts/22-letterly/02-desktop.md) | Desktop |
+| `22-letterly` | [`22-letterly/03-execute-n-steps.md`](../01-prompts/22-letterly/03-execute-n-steps.md) | Execute N Steps |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
 
 ## Maintenance

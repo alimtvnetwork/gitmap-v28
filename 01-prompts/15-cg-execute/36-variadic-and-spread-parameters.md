@@ -10,9 +10,9 @@ PHASE_2_BUDGET = N / 2   (Steps 151 .. 300: Mandatory Parallel Subagent Executio
 WAVES = ceil(subtasks / (A x H))
 ```
 
-[/goal](slashCommand;goal) Autonomously ingest, follow, and execute the referenced external prompts, task instructions, and coding guideline directives across the target codebase in bounded 5-8 file micro-batches: FIRST showcase and list out the given task in visible chat during Turn 1, capture it verbatim, plan it in the repo, spawn autonomous subagents via `invoke_subagent` (A = 2, H = 2; solo execution without calling `invoke_subagent` is an auto-reject failure) in disjoint file boxes using GitMap high-speed commands as primary, prove every single claim with concrete evidence, enforce coding guidelines to 100%, and finish with one atomic GitMap commit that holds strictly this task's files.
+[/goal](slashCommand;goal) Autonomously scan, plan, refactor, and fix all rigid slice and array parameters across Go, TypeScript, and Rust codebases. Modifying source files directly, convert rigid slice/array parameters to variadic and spread patterns (`...T` in Go, `...items: readonly T[]` or `SingleOrArray<T>` in TypeScript, `&[T]` / `impl IntoIterator<Item = T>` in Rust), eliminate artificial slice wrappers (`[]string{x}`, `[x]`, `vec![x]`) at all call sites, support multi-item and slice-spread invocations seamlessly, enforce parameter position rules (variadic parameter is last, <= 2-3 parameters total or parameter struct), maintain functions <= 8-15 lines, and defer verification strictly to targeted linters without running intermediate tests or builds: FIRST showcase and list out the given task in visible chat during Turn 1, capture it verbatim, plan it in the repo, spawn autonomous subagents via `invoke_subagent` (A = 2, H = 2; solo execution without calling `invoke_subagent` is an auto-reject failure) in disjoint file boxes using GitMap high-speed commands as primary, prove every single claim with concrete evidence, enforce coding guidelines to 100%, and finish with one atomic GitMap commit that holds strictly this task's files.
 
-[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt outrank everything below. Turn 1 MUST showcase the given task list in visible chat before any background execution. Each rule is stated once (R1 to R16) and cited by ID. Progress lives in the ledger and in `.ai-memory/plans/`, never only in chat.
+[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt outrank everything below. Turn 1 MUST showcase the given task list in visible chat before any background execution. Master the variadic parameter conventions: `02-spec/02-coding-guidelines/01-cross-language/33-variadic-and-spread-parameters.md` and `02-spec/21-app/01-variadic-spread-params-and-multi-repo/01-architecture-spec.md`. Each rule is stated once (R1 to R16) and cited by ID. Progress lives in the ledger and in `.ai-memory/plans/`, never only in chat.
 
 [/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution. Ensure all deliverables, architecture boundaries, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
 
@@ -31,7 +31,7 @@ WAVES = ceil(subtasks / (A x H))
 
 Before executing the tasks below, check if this prompt is already installed as a native Antigravity Skill.
 
-1. If `.agents/skills/<slug>/skill.md` does not exist in the workspace, create it now.
+1. If `.agents/skills/cg-variadic-and-spread-parameters/skill.md` does not exist in the workspace, create it now.
 2. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter (with `name` and `description`).
 3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
 
@@ -177,6 +177,7 @@ Tools: invoke_subagent=yes send_message=yes ask_question=yes gitmap=yes
 Assumptions: <list or none>
 Conflicts: <list or none>
 Stage list: <every path this run creates or modifies>
+```
 
 ---
 
@@ -245,12 +246,13 @@ You are Worker <NN> for task NN-<slug>. You have no prior chat context; this bri
 ### 100% Non-Negotiable Coding Guidelines (AUTO-REJECT ON VIOLATION):
 1. Positive booleans ONLY: use `is` and `has` prefixes exclusively. NEVER evaluate explicit `== true`. NEVER combine positive and negative checks in the same condition (`if isA && !isB` is BANNED).
 2. Go Structured Errors: return `*appfault.AppError`, never bare `error`.
-3. Function Sizing: <= 8 lines preferred, hard cap 15 lines. Extract domain structs and raw generics to `types.go`.
-4. Strict Relative Git Paths: zero absolute filesystem paths and zero `file:///` URIs.
-5. Repo Secrets: if any credentials or private tokens are needed, store them in the `repo-secrets` folder in the default work directory (via `gitmap rs`). Never commit secrets.
-6. Zero Builds or Tests: NEVER run `go build`, `npm run build`, `go test`, or `pytest`.
-7. Targeted Verification: Run only fast file-scoped linters (e.g. `python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only`). A check scanning 0 files is a FAIL.
-8. GitMap Search Primacy (TOTAL BAN on Select-String / git grep): NEVER execute PowerShell `Select-String`, `Get-ChildItem`, `git grep`, `grep`, or `findstr`. Always use `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r]` for live symbol/regex discovery.
+3. Variadic & Spread Parameters: replace rigid slice parameters (`ids []string`, `events: string[]`, `ids: Vec<String>`) with variadic/spread types (`...string`, `...events: readonly string[]`, `&[&str]`). Eliminate call-site wrappers (`[]string{id}`, `[id]`, `vec![id]`).
+4. Function Sizing: <= 8 lines preferred, hard cap 15 lines. Extract domain structs and raw generics to `types.go`.
+5. Strict Relative Git Paths: zero absolute filesystem paths and zero `file:///` URIs.
+6. Repo Secrets: if any credentials or private tokens are needed, store them in the `repo-secrets` folder in the default work directory (via `gitmap rs`). Never commit secrets.
+7. Zero Builds or Tests: NEVER run `go build`, `npm run build`, `go test`, or `pytest`.
+8. Targeted Verification: Run only fast file-scoped linters (e.g. `python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only`). A check scanning 0 files is a FAIL.
+9. GitMap Search Primacy (TOTAL BAN on Select-String / git grep): NEVER execute PowerShell `Select-String`, `Get-ChildItem`, `git grep`, `grep`, or `findstr`. Always use `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r]` for live symbol/regex discovery.
 
 ### Output Contract:
 Write your subtask output to .ai-memory/plans/subtasks/NN-<slug>/01-<name>.json and reply with this JSON block, once per subtask, then stop:
@@ -364,6 +366,7 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 [/goal](slashCommand;goal) You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
+- [ ] Variadic & Spread Parameters: Enforced `02-spec/02-coding-guidelines/01-cross-language/33-variadic-and-spread-parameters.md` by replacing rigid slice parameters with variadic/spread types, eliminating wrapper syntax at call sites, and placing variadic arguments in the final parameter slot.
 - [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).
 - [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `*appfault.AppError`, never generic error.
 - [ ] Boolean Conventions: All booleans begin with is or has only (all other prefixes like can, should, was, will, did, must are banned). No negatives (`!isSuccess` is banned; use `isFail`).

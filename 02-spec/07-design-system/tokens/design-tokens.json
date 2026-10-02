@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "Global Multi-Theme Design Tokens",
   "version": "1.0.0",
-  "description": "Unified machine-readable design tokens covering light high-trust, dark obsidian navy, riseup corporate, and electric indigo palettes.",
+  "description": "Unified machine-readable design tokens covering light high-trust, dark obsidian navy, corporate gold, and electric indigo palettes.",
   "meta": {
     "preferredLanguage": "less",
     "zeroBannedWordsEnforced": true
@@ -52,8 +52,8 @@
         "shadowHover": "0 25px 50px -12px rgba(2, 6, 23, 0.70)"
       }
     },
-    "riseupCorporate": {
-      "name": "Riseup Asia Corporate",
+    "corpGold": {
+      "name": "Corporate Gold",
       "mode": "dark",
       "description": "High-authority corporate dark canvas with rich gold badges and emerald success indicators.",
       "colors": {

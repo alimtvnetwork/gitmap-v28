@@ -52,7 +52,7 @@ flowchart TD
     end
 
     subgraph Tier4["Tier 4: Live Component Composition"]
-        T4_Header["Sticky Header (~70px)"]
+        T4_Header["Sticky Header (70px)"]
         T4_Hero["Split Headline Hero + Search Card"]
         T4_Chips["Pill Filter Chips with Border Shifts"]
         T4_Section["Team Greenhouse Atmospheric Gas Grid"]
@@ -73,7 +73,7 @@ The Sweet Digs specification suite is organized into modular documents:
 | Specification Document | Focus Area | Key Architectural Deliverables |
 |:---|:---|:---|
 | [`01-colors-and-themes.md`](01-colors-and-themes.md) | Colors & Multi-Theme Engine | HSL tokens, 5 runtime themes (Emerald Green, Pink/Red, Obsidian Navy, Sunset Amber, Cyber Indigo), dark mode overrides |
-| [`02-menu-and-navigation.md`](02-menu-and-navigation.md) | Navigation & Sticky Header | Sticky ~70px header, simultaneous 300ms hover transitions (text color, background, 75% expanding underline), chevron rotation |
+| [`02-menu-and-navigation.md`](02-menu-and-navigation.md) | Navigation & Sticky Header | Sticky 70px header, simultaneous 300ms hover transitions (text color, background, 75% expanding underline), chevron rotation |
 | [`03-button-and-animation-system.md`](03-button-and-animation-system.md) | Buttons & CSS3 Animation | Ban on zoom-in, soft shadow elevation, CSS3 fluid water/color-switching animation, "Join Us" text slide, "Climate AI" glowing FAB |
 | [`04-cards-and-sections.md`](04-cards-and-sections.md) | Cards & Section Layout DNA | "Team Greenhouse" section layout DNA, Gas Card patterns, 16–20px rounded cards, ambient elevation, staggered entry animations |
 

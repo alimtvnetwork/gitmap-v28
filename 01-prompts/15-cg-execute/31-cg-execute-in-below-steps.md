@@ -1,3 +1,15 @@
+```text
+N = 300 (Total self-loop steps budget — editable top-header parameter, default: 300)
+A = 2   (MANDATORY number of spawned autonomous subagents running concurrently via invoke_subagent, default: 2)
+H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
+C = 30  (Tool calls per worker before it must report, default: 30)
+
+System Concurrency Capacity = A × H = 2 agents × 2 hands = 4 concurrent subtask operations
+PHASE_1_BUDGET = N / 2   (Steps 1 .. 150: Planning, Parallel Discovery Subagents, Detailed Spec, and Lean Subtask Generation)
+PHASE_2_BUDGET = N / 2   (Steps 151 .. 300: Mandatory Parallel Subagent Execution, Self-Looping, Targeted Quality Linting)
+WAVES = ceil(subtasks / (A x H))
+```
+
 [/goal](slashCommand;goal) Autonomously orchestrate and apply concrete, surgical refactoring fixes for all coding guideline violations requested in the below instructions across the target codebase in bounded 5-8 file micro-batches with strict no-build and no-test execution (NEVER run build commands like `go build` or `npm run build`, and NEVER run test suites like `go test ./...` or `pytest` during routine execution turns; all compilation and testing are strictly verified later in CI/CD). Spawn autonomous subagents (A = 2, H = 2) for parallel reading and AST inspection, use GitMap AUM as primary, establish a single-agent blueprint during Phase 1 planning (first 50% steps budget), and execute disjoint refactoring in Phase 2 (remaining 50% steps budget) with continuous self-looping until 100% complete and finalized with an atomic push.
 
 [/learn](slashCommand;learn) Enforce the Bottom-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are appended BELOW this prompt (following the `--` divider border at the bottom) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the bottom instructions ahead of all default conventions above, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
@@ -7,20 +19,7 @@
 > **Bottom-Instruction Priority Mandate (Below Precedence / Suffix Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given BELOW this prompt (following the `--` divider border at the bottom) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or guidelines above. The agent MUST inspect and follow the instructions below with absolute precedence.
 
-```text
-N = 200 (Total self-loop steps budget)
-A = 2   (Number of spawned autonomous subagents running concurrently, default: 2)
-H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
-
-System Concurrency Capacity = A × H = 2 agents × 2 hands = 4 concurrent subtask operations
-```
-
-```text
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan, Spec with Violation Ledger in .ai-memory/plans/pending/, Subtasks)
-PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Active Code Refactoring, Targeted Linters, Consolidation, Atomic Push)
-```
-
-N, A, H, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
+N, A, H, C, PHASE_1_BUDGET, and PHASE_2_BUDGET are read-only after initialization. Never modify them mid-execution.
 
 ### Multi-Agent Parallel Task Allocation & Orchestration (A = 2, H = 2)
 
@@ -69,7 +68,7 @@ Proceeding directly to Phase 1B: Spec & Subtask Generation (Active Tool Call Run
    - `gitmap aum search "<query>" [dir] [-e <.ext>] [-r] [-i]` (alias `gitmap aum grep`), `gitmap list-files [pattern] [-ext <ext>]` (`gitmap lf`), `gitmap cat <filepath>`, `gitmap search "<term>"`, `gitmap folder-tree` (`gitmap ft`). TOTAL BAN on PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr`.
 2. **Actionable Execution Plan & Lean Subtasks:**
    - Write parent plan `.ai-memory/plans/pending/xx-<slug>.md` and lean, disjoint subtasks in `.ai-memory/plans/subtasks/xx-<slug>/01-<subtask>.md`.
-   - Complete all spec and subtask writing within the first 50% budget (`PHASE_1_STEPS = N / 2`) and unconditionally transition to Phase 2 without stopping.
+   - Complete all spec and subtask writing within the first 50% budget (`PHASE_1_BUDGET = N / 2`) and unconditionally transition to Phase 2 without stopping.
 
 ---
 
@@ -90,7 +89,7 @@ Proceeding directly to Phase 1B: Spec & Subtask Generation (Active Tool Call Run
 
 1. Consolidate completed subtasks from `.ai-memory/plans/subtasks/xx-<slug>/*.md` into `.ai-memory/plans/completed/xx-<slug>.md`, delete granular subtasks and pending plan, and update `.ai-memory/plans/readme.md`.
 2. Commit and push all modified files in a single grouped atomic commit via GitMap:
-   - `gitmap cpf "<summary>"` or `gitmap cpb "<summary>"` or `gitmap pcp "<summary>"`.
+   - `gitmap cpf "<module> - <summary>"` or `gitmap cpb "<module> - <summary>"` or `gitmap pcp "<module> - <summary>"`.
 
 ---
 
@@ -162,7 +161,7 @@ Proceeding directly to Phase 1B: Spec & Subtask Generation (Active Tool Call Run
 
 ## 15. Final Step Git Commit & Push Mandate (Strict Checklist)
 
-- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<module> - <summary>"` (features), `gitmap cpb "<module> - <summary>"` (bugs), or `gitmap cpr "<module> - <summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
 - [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` or `gitmap cpf` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.
 
 ## MUST FOLLOW NON-NEGOTIABLE

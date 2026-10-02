@@ -1,180 +1,180 @@
 # 24 — Slide Presentation System & Presenter Engine Architecture
 
-> **/goal** Specify the comprehensive architecture for web-based slide presentations, 16:9 responsive canvas scaling, draggable webcam picture-in-picture (PIP) overlays, incremental step reveals, and multi-deck routing synthesized from local presentation repositories.
-> **/learn** Master the responsive coordinate transforms (`1920x1080` canvas), `PresenterWebcamOverlay` webcam stream integration, `stepMotionOverride` state tracking, dual-screen presenter consoles, and modular LESS slide styling.
+> **/goal** Architect and enforce the complete, production-grade presentation presenter engine, dual-window presenter console, draggable webcam PIP overlay, incremental step reveals, overview thumbnail grid, and keyboard orchestration.
+> **/learn** Master the responsive 1920×1080 canvas scaling, BroadcastChannel dual-screen console synchronization, `PresenterWebcamOverlay` video stream mechanics, progressive step-motion reveals, `G` key overview grid, `J` key top slide jumper, and the complete deck keyboard map.
 
-**Version:** 1.0.0
-**Updated:** 2026-09-24
+**Version:** 4.1.0
 **Status:** Active
 **AI Confidence:** High
 **Ambiguity:** None
 
 ---
 
-## 1. System Overview & Presentation Repositories Synthesis
+## 1. System Overview & The 5 Presenter Pillars
 
-Web-based presentation decks combine the interactivity and fluidity of the browser with the structured delivery of professional slide software. Based on architectural patterns synthesized across active presentation systems (e.g. `remix-of-presentation-riseup-asia`, `flat-slide-show`, and `slides-app`), modern presentation systems operate on five core pillars:
-
-1. **Fixed-Aspect Ratio Virtual Canvas:** Standard `1920x1080` coordinate space scaled down dynamically using CSS `transform: scale(min(w/1920, h/1080))` so layouts never shift or distort across screens.
-2. **Floating Draggable Webcam PIP (`PresenterWebcamOverlay`):** Video stream with circular boundary, glowing accent perimeter, draggable coordinate snapping, mirror toggle, and customizable opacity.
-3. **Step-by-Step Progressive Reveals:** Sub-slide animations where individual bullets, code blocks, or diagram nodes reveal on subsequent arrow key presses before advancing slides.
-4. **Presenter Dual-Screen Console:** Broadcast channel sync communicating between audience display and presenter control view (notes, elapsed timer, next slide preview).
-5. **Standalone Vector Layouts:** System illustrated via standalone SVG diagrams in `01-svg/slide-layout.svg`.
+The **Slide Presentation System** delivers high-authority interactive slide presentations running in web browsers:
+1. **Fixed-Aspect Ratio Virtual Canvas:** Standard `1920×1080` (16:9) coordinate space scaled uniformly using CSS vector scaling so diagrams, cards, and typography never wrap or break.
+2. **Dual-Screen Presenter Console:** BroadcastChannel synchronized console running at `/present` in a separate `1280×800` window for speaker notes, pacing clock, and next-slide previews.
+3. **Floating Draggable Webcam PIP (`PresenterWebcamOverlay`):** Hardware-accelerated webcam feed with mirrored preview, circular boundary, glowing accent perimeter, and hotkey sizing.
+4. **Incremental Step Reveals:** Sub-slide sequential reveals where individual points, code blocks, or cards activate before the deck advances.
+5. **Presenter Tools & Hotkeys:** `G` key slide grid, `J` key quick jumper, `C` key camera toggle, `F` key fullscreen, `B`/`E` builder mode, and `/` keyboard shortcut modal.
 
 ---
 
-## 2. 16:9 Canvas Virtual Coordinate Architecture
-
-To guarantee that typography, diagrams, and cards render identically regardless of audience screen resolution, all presentation slides render inside an isolated virtual canvas:
+## 2. 16:9 Virtual Canvas Scaling Architecture
 
 ```text
 +-------------------------------------------------------------------------------+
 | BROWSER VIEWPORT (Window W x H)                                               |
 |                                                                               |
 |   +-----------------------------------------------------------------------+   |
-|   | VIRTUAL SLIDE CANVAS (Fixed 1920px x 1080px)                          |   |
-|   |                                                                       |   |
+|   | VIRTUAL SLIDE STAGE (Fixed 1920px x 1080px)                           |   |
 |   | transform-origin: center center;                                      |   |
 |   | transform: scale(min(viewportWidth / 1920, viewportHeight / 1080));  |   |
+|   | contain: layout paint; isolation: isolate; will-change: transform;    |   |
 |   |                                                                       |   |
-|   | [Slide Content: Header, Body Cards, Metrics, Diagrams]               |   |
+|   | [Slide Content: 20 Master Enterprise Layout Models]                  |   |
 |   |                                                                       |   |
-|   |                             [Draggable Webcam PIP: 160px x 160px]     |   |
+|   |                          [Draggable Webcam PIP: 120px / 180px / 240px]|   |
 |   +-----------------------------------------------------------------------+   |
 |                                                                               |
 +-------------------------------------------------------------------------------+
 ```
 
-### 2.1 Responsive Canvas Scaling (TypeScript)
+All slide geometry is authored strictly in pixels on `1920 × 1080`. The container detects resizing via `ResizeObserver` and updates `--stage-scale`:
 
 ```typescript
-export interface ViewportScale {
-  scale: number;
-  offsetX: number;
-  offsetY: number;
-}
-
-export function calculateSlideScale(
-  containerWidth: number,
-  containerHeight: number,
-  baseWidth = 1920,
-  baseHeight = 1080
-): ViewportScale {
-  const scale = Math.min(containerWidth / baseWidth, containerHeight / baseHeight);
-  const offsetX = (containerWidth - baseWidth * scale) / 2;
-  const offsetY = (containerHeight - baseHeight * scale) / 2;
-
-  return { scale, offsetX, offsetY };
+export function calculateSlideScale(viewportWidth: number, viewportHeight: number): number {
+  return Math.min(viewportWidth / 1920, viewportHeight / 1080);
 }
 ```
 
 ---
 
-## 3. Draggable Webcam PIP Overlay (`PresenterWebcamOverlay`)
+## 3. Dual-Screen Presenter Console (`/present`)
 
-The presenter's camera stream floats above the presentation canvas to maintain eye contact with the audience without occluding content.
+For rehearsals and live stage presentations, the presenter launches the dedicated console via the Deck Menu or by navigating to `/present`:
 
-### 3.1 Component Features
-- Circular or squircle geometry with customizable corner radius (`border-radius: 9999px` or `2rem`).
-- Real-time drag positioning with bounded edge collision detection.
-- Subtle violet/gold glowing shadow bloom.
-- Video flip/mirror control (`transform: scaleX(-1)`).
-- Quick keyboard shortcut (`C` key) to cycle size presets (Small 120px, Medium 180px, Large 240px, Hidden).
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ [● LIVE 14:22] PACING: ON TRACK   Slide 5 / 37          [⤢ Full] [× Close]  │
+├──────────────────────────────────────┬──────────────────────────────────────┤
+│ CURRENT SLIDE (Scaled 16:9 Preview)  │ SPEAKER NOTES (20px Ubuntu/Poppins)  │
+│ ┌──────────────────────────────────┐ │ • Emphasize 12-minute release cycle  │
+│ │                                  │ │ • Direct audience to ROI metrics     │
+│ │      Live Audience View          │ │ • Pause 3 seconds for slide ingest   │
+│ │                                  │ │ • Call out security compliance       │
+│ └──────────────────────────────────┘ ├──────────────────────────────────────┤
+│ NEXT SLIDE PREVIEW (Upcoming: #6)    │ PRESENTATION PACING & TIMERS         │
+│ ┌──────────────────────────────────┐ │ Elapsed: 14m 22s / Budget: 25m 00s   │
+│ │  Next: SaaS Pricing Matrix       │ │ Progress: [████████░░░░░░░░░░░░] 57% │
+│ └──────────────────────────────────┘ │ Next Milestone: Product Deep Dive    │
+└──────────────────────────────────────┴──────────────────────────────────────┘
+```
 
-### 3.2 LESS Styling (Preferred)
+### 3.1 BroadcastChannel Synchronization
+The audience window and the presenter console communicate via `BroadcastChannel("deck-sync")` with fallback to `localStorage` events:
 
-```less
-// ============================================================================
-// PRESENTER WEBCAM OVERLAY (LESS PREFERRED)
-// ============================================================================
-
-.presenter-webcam-container {
-  position: absolute;
-  z-index: 9999;
-  width: 180px;
-  height: 180px;
-  border-radius: 9999px;
-  overflow: hidden;
-  border: 3px solid #8b5cf6;
-  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5),
-              0 0 0 1px rgba(255, 255, 255, 0.1);
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
-  transition: box-shadow 200ms ease, border-color 200ms ease;
-
-  &:active {
-    cursor: grabbing;
-    box-shadow: 0 15px 35px -5px rgba(139, 92, 246, 0.7);
-  }
-
-  video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    pointer-events: none;
-
-    &.mirrored {
-      transform: scaleX(-1);
-    }
-  }
-
-  .status-dot {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 10px;
-    height: 10px;
-    border-radius: 9999px;
-    background-color: #10b981;
-    border: 2px solid #0b1329;
-  }
+```typescript
+export interface DeckSyncMessage {
+  type: "NAVIGATE" | "STEP" | "THEME_CHANGE" | "RELOAD";
+  slideIndex: number;
+  stepIndex: number;
+  themeId?: string;
+  timestamp: number;
 }
 ```
 
+- When the presenter presses Next in `/present`, the audience display navigates instantly (`< 5ms` latency).
+- Window parameters: Opens at `1280×800` pixels (`window.open('/present', 'PresenterConsole', 'width=1280,height=800')`).
+
 ---
 
-## 4. Incremental Step Reveal Architecture
+## 4. Draggable Webcam PIP Overlay (`PresenterWebcamOverlay`)
 
-Slides frequently contain multiple sequential ideas that must reveal one at a time. The engine models this using a two-tier position tracker:
+The presenter webcam floats in a dedicated layer above the slide canvas (`z-index: 55`):
+
+### 4.1 Component Specifications
+- **Hardware Integration:** Captured via `navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false })`.
+- **Render Element:** `<video autoPlay playsInline muted className="mirrored" />` with `transform: scaleX(-1)` for natural mirrored feedback.
+- **Sizing Presets (Cycled via `C` Key):**
+  1. `Small`: `120×120px` circle (`rounded-full`).
+  2. `Medium` *(Default)*: `180×180px` circle (`rounded-full`).
+  3. `Large`: `240×160px` rounded squircle (`rounded-2xl`).
+  4. `Hidden`: Component unmounts, camera stream stops to conserve battery.
+- **Interactive Dragging:** Framer Motion `drag` with drag constraints bounded to the viewport edges and a `24px` padding snap.
+- **Visual Styling:** `2.5px solid hsl(var(--primary))` with ambient glow `0 12px 32px rgba(0,0,0,0.4)` and a green `status-dot` (`10×10px`, `#10B981`) in the top-right.
+
+---
+
+## 5. Incremental Step Reveals Architecture
+
+Slides with complex multi-step diagrams, code progressions, or bullet points reveal items sequentially:
 
 ```typescript
-export interface PresentationState {
+export interface StepPresentationState {
   currentSlideIndex: number;
   currentStepIndex: number;
-  totalSlides: number;
   totalStepsInCurrentSlide: number;
 }
 ```
 
-### 4.1 Step Motion Execution
-Elements with `data-step="1"`, `data-step="2"` stay hidden or dimmed (`opacity: 0.15; filter: blur(2px);`) until the presenter reaches their respective step. Upon activation, they animate to full prominence using `@ease-emphasized` (`cubic-bezier(0.16, 1, 0.3, 1)`).
+- **Resting (Unrevealed) State:** Elements tagged with `data-step="N"` have `opacity: 0.15; filter: blur(2px); transform: translateY(8px);` when `currentStepIndex < N`.
+- **Activated State:** When `currentStepIndex >= N`, elements transition to `opacity: 1; filter: blur(0px); transform: translateY(0);` over `300ms cubic-bezier(0.16, 1, 0.3, 1)`.
+- **Advance Contract:** Pressing `ArrowRight` or `Space` increments `currentStepIndex` until `totalStepsInCurrentSlide` is reached, then navigates to the next slide.
 
 ---
 
-## 5. Deck Registry & URL Routing
+## 6. Overview Thumbnail Grid (`G` Key)
 
-Multi-deck presentation repositories organize decks modularly:
+Pressing `G` opens a full-screen interactive slide gallery:
+- **Layout:** Responsive thumbnail grid (`grid-cols-2 md:grid-cols-3 lg:grid-cols-4`, gap `24px`, padding `48px`).
+- **Thumbnail Item:** Renders an accurately scaled miniature of each slide (`280×157px`), slide number badge (`05`), and slide title.
+- **Navigation:** Arrow keys move focus across thumbnails; `Enter` or click activates that slide and dismisses the grid.
+- **Search Filter:** Top input bar allows instant typing to filter slides by title keywords.
 
-```text
-slides-app/
-├── src/
-│   ├── decks/
-│   │   ├── 01-agentic-ai/
-│   │   │   ├── 01-intro.tsx
-│   │   │   ├── 02-architecture.tsx
-│   │   │   └── manifest.json
-│   │   └── 02-coding-guidelines/
-│   │       ├── 01-booleans.tsx
-│   │       ├── 02-error-handling.tsx
-│   │       └── manifest.json
-│   ├── components/
-│   │   ├── SlideViewport.tsx
-│   │   ├── PresenterWebcamOverlay.tsx
-│   │   └── SpeakerNotesView.tsx
-│   └── main.tsx
-```
+---
 
-Decks are accessible via hash or path routing:
-- Audience View: `/deck/01-agentic-ai/#/4` (Slide 4)
-- Presenter Console: `/deck/01-agentic-ai/presenter#/4` (Slide 4 with notes & timer)
+## 7. Top Slide Jumper (`J` Key)
+
+Pressing `J` or double-clicking the slide counter in the controller HUD opens the Quick Jumper:
+- A compact floating input chip anchored at `top: 24px, center`: `[ Jump to slide: (1–37) ]`.
+- Typing a number and pressing `Enter` navigates immediately and updates `#slide-{n}`. `Escape` dismisses.
+
+---
+
+## 8. Complete Keyboard Shortcut Map
+
+| Key / Shortcut | Action | Description |
+|:---|:---|:---|
+| `ArrowRight` / `Space` | **Next** | Advances step reveal, or moves to next slide |
+| `ArrowLeft` / `Shift+Space` | **Previous** | Regresses step reveal, or moves to previous slide |
+| `PageDown` / `PageUp` | **Slide Jump** | Direct previous/next slide navigation |
+| `F` | **Fullscreen** | Toggles HTML5 Fullscreen API |
+| `B` or `E` | **Slide Builder** | Toggles live in-canvas slide builder mode |
+| `C` | **Camera PIP** | Cycles webcam PIP presets (Hidden ➔ Small ➔ Medium ➔ Large) |
+| `G` | **Overview Grid** | Opens thumbnail overview gallery |
+| `J` | **Slide Jumper** | Opens quick numeric jump input |
+| `P` | **Presenter Console** | Opens `/present` dual-screen console window |
+| `1` through `0` | **Theme Switch** | Instantly switches between the 10 built-in themes |
+| `/` or `?` | **Keyboard Help** | Opens keyboard shortcuts dialog |
+| `Escape` | **Dismiss** | Closes active modal, popover, or exits fullscreen |
+
+---
+
+## 9. LLM Guide Download & Copy
+
+Inside the Deck Menu (`FileJson` icon in HUD), presenters and AI agents can export the complete presentation deck manifest:
+- **Download LLM Guide:** Generates a structured `.md` document detailing every slide's type, title, body content, metrics, and tokens.
+- **Copy LLM Guide:** Writes the markdown deck manifest directly to clipboard for AI inspection.
+
+---
+
+## 10. Anti-Hallucination & Quality Verification Checklist
+
+- [ ] All coordinates author strictly on the virtual `1920×1080` reference grid.
+- [ ] Dual-screen presenter console syncs via BroadcastChannel with sub-5ms latency.
+- [ ] Webcam PIP overlay includes mirror preview, edge clamping, and sizing hotkeys.
+- [ ] Incremental step reveals preserve dimmed blur state (`opacity: 0.15; filter: blur(2px)`) until triggered.
+- [ ] Complete keyboard map is bound to window event listeners with input tag suppression.
+- [ ] All 10 themes and 20 layout models operate seamlessly through the presenter engine.

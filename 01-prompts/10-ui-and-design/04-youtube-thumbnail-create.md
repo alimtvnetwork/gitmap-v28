@@ -127,16 +127,16 @@ The background must never be a flat solid color or an artificial neon gradient. 
 
 Before generating any design concepts or prompts, capture and validate the following inputs:
 
-1. `channel_name` / `host_name`: Exact name of the creator or brand (e.g., "MD ALIM UL KARIM").
+1. `channel_name` / `host_name`: Exact name of the creator or brand (e.g., "{CREATOR_NAME}").
 2. `primary_title`: Main headline or topic (e.g., "Better Ideas, Bigger Impact").
 3. `subtitles_and_credentials`: Professional titles or roles separated by vertical bars (e.g., `Author | Marketer | Trainer | Consultant | Podcaster`).
 4. `core_pillars`: 3 key thematic words (e.g., `Ideas | Strategy | Impact`).
 5. `achievement_callout`: Main authority badge or metric (e.g., `"Top 1%"`).
 6. `supporting_statement`: 1–2 line hook (e.g., `"Real Stories, Real People, Real Growth."`).
-7. `youtube_handle`: Exact channel handle (e.g., `@alimulkarim`).
-8. `youtube_url`: Full channel URL (e.g., `https://youtube.com/@alimulkarim`).
-9. `website_url`: Creator or brand website URL (e.g., `https://alimulkarim.com`).
-10. `email_address`: Contact or business inquiry email address to embed (e.g., `contact@alimulkarim.com`).
+7. `youtube_handle`: Exact channel handle (e.g., `@{CHANNEL_HANDLE}`).
+8. `youtube_url`: Full channel URL (e.g., `https://youtube.com/@{CHANNEL_HANDLE}`).
+9. `website_url`: Creator or brand website URL (e.g., `https://{SITE_DOMAIN}`).
+10. `email_address`: Contact or business inquiry email address to embed (e.g., `{OWNER_EMAIL}`).
 11. `qr_code`: Optional scannable QR code destination URL or asset to embed (optional).
 12. `channel_icon_or_avatar`: Profile picture, logo mark, or avatar image (optional — ask user if available, or skip).
 13. `person_photo_or_avatar`: High-resolution photo of the person, visual description, or subject cutout (optional — ask user if available, or skip).
@@ -201,8 +201,8 @@ Professional YouTube thumbnails require deliberate cinematic direction rather th
 
 - **Exact Stacked Wording:** e.g.,
   ```
-  MD ALIM UL
-  KARIM
+  {FIRST_NAME_PREFIX}
+  {LAST_NAME}
   ```
 - **Position:** Left edge `x = 660`, top `y = 85`, max width `300 px`. Keep `30–45 px` clear space from subject head, and `18–26 px` from Zone D. Both lines share the same left edge.
 - **Font Family (Ubuntu Standard):** `Ubuntu Bold` or extra-bold geometric sans-serif (weight 800–900), tightly stacked with line height 0.82–0.9.
@@ -285,7 +285,7 @@ Professional YouTube thumbnails require deliberate cinematic direction rather th
 When generating prompts for image engines (Flux, Midjourney v6, Ideogram) or compositing layers:
 
 1. **Explicit Text Quoting:** Always specify text inside literal quotes in the generation prompt:
-   - `with the exact text "MD ALIM UL" in bold white Ubuntu letters, and "KARIM" in bold warm-gold Ubuntu letters`
+   - `with the exact text "{FIRST_NAME_PREFIX}" in bold white Ubuntu letters, and "{LAST_NAME}" in bold warm-gold Ubuntu letters`
 2. **Character Verification Gate:** Inspect the generated output. If even a single character is warped, merged, or misspelled, the image MUST be rejected or the text layer must be re-rendered as a clean vector overlay.
 3. **Hybrid Compositing (Recommended):** For production-grade thumbnails:
    - Use AI to generate the photographic background, cinematic lighting, wood table, and subject portrait.
@@ -352,8 +352,8 @@ Create a highly polished, cinematic personal-brand YouTube thumbnail at exactly 
 
 IMPORTANT: Recreate the reference image’s overall composition, visual hierarchy, spacing, lighting, and professional atmosphere, but change the featured name to:
 
-MD ALIM UL
-KARIM
+{FIRST_NAME_PREFIX}
+{LAST_NAME}
 
 Use the supplied portrait, books, logo, and other real assets as references whenever available. Preserve the person’s actual identity, face, complexion, hairstyle, beard, glasses, clothing, and body shape. Do not invent a different person.
 
@@ -383,7 +383,7 @@ B. PORTRAIT ZONE:
 
 C. NAME AND CREDENTIAL ZONE:
 - Horizontal position: x = 655 to 965 pixels
-- Contains “MD ALIM UL KARIM,” professional titles, and the short values line.
+- Contains “{CREATOR_NAME},” professional titles, and the short values line.
 - Approximate width: 310 pixels.
 
 D. ACHIEVEMENT ZONE:
@@ -627,15 +627,15 @@ TABLE:
 - Keep the surface glossy enough to show a soft reflection, but not mirror-like.
 
 ==================================================
-7. MAIN NAME: “MD ALIM UL KARIM”
+7. MAIN NAME: “{CREATOR_NAME}”
 ==================================================
 
 Place the name immediately to the right of the person’s head and upper torso.
 
 EXACT WORDING AND LINE BREAK:
 
-MD ALIM UL
-KARIM
+{FIRST_NAME_PREFIX}
+{LAST_NAME}
 
 Use uppercase lettering for stronger thumbnail readability.
 
@@ -658,35 +658,35 @@ FONT:
 - No handwritten styling
 - No outline
 
-FIRST NAME COLOR — MD ALIM UL:
+FIRST NAME COLOR — {FIRST_NAME_PREFIX}:
 - Main fill: soft white #F7F7F4
 - Subtle lower shading: #D7D9DC
 - Dark shadow: #02060D at 65% opacity
 - Shadow offset: 5 pixels down and 5 pixels right
 - Very subtle depth only; do not make it look metallic.
 
-LAST NAME COLOR — KARIM:
+LAST NAME COLOR — {LAST_NAME}:
 - Main fill: warm golden yellow #F5A817
 - Bright top highlight: #FFB51B
 - Dark lower shadow: #B96E08
 - External dark shadow: #02060D at 70% opacity
 - Shadow offset: 5 pixels down and 5 pixels right
-- “KARIM” must be the strongest color accent in the central section.
-- Do not color “KARIM” orange-red.
+- “{LAST_NAME}” must be the strongest color accent in the central section.
+- Do not color “{LAST_NAME}” orange-red.
 - Do not use a gold metallic texture.
 - Do not apply an outline.
 
 FONT SIZE AND SPACING:
-- “MD ALIM UL”: approximately 82–94 pixels
-- “KARIM”: approximately 82–94 pixels
+- “{FIRST_NAME_PREFIX}”: approximately 82–94 pixels
+- “{LAST_NAME}”: approximately 82–94 pixels
 - Line height: approximately 0.82–0.9 of the font size
 - Gap between the visual bottoms and tops of the two lines: approximately 0–8 pixels
 - The two lines should appear tightly stacked, as in a professional poster.
-- “KARIM” should begin directly beneath “MD ALIM UL,” not indented.
+- “{LAST_NAME}” should begin directly beneath “{FIRST_NAME_PREFIX},” not indented.
 
 READING HIERARCHY:
 - The person’s face is the first visual focus.
-- “MD ALIM UL KARIM” is the second focus.
+- “{CREATOR_NAME}” is the second focus.
 - “Top 1%” is the third focus.
 - The white first name and gold last name must be instantly distinguishable.
 
@@ -784,7 +784,7 @@ POSITION:
 - Do not overlap the name block.
 
 FONT:
-- Use the same heavy geometric sans-serif used for “MD ALIM UL KARIM” (e.g. “Ubuntu Bold”).
+- Use the same heavy geometric sans-serif used for “{CREATOR_NAME}” (e.g. “Ubuntu Bold”).
 - Weight: 800–900
 - Letter spacing: 0
 - No italics
@@ -1015,7 +1015,7 @@ Maintain these approximate spacing rules:
 - Canvas edge to important text: minimum 55 pixels
 - Person’s face to name: 30–45 pixels
 - Name to “Top 1%” area: 18–26 pixels
-- “MD ALIM UL” to “KARIM”: 0–8 pixels
+- “{FIRST_NAME_PREFIX}” to “{LAST_NAME}”: 0–8 pixels
 - Name to credential block: 18–25 pixels
 - Credential line 1 to line 2: 4–8 pixels
 - Credentials to values line: 16–22 pixels
@@ -1036,7 +1036,7 @@ No text should touch another section. No element should look accidentally squeez
 At small mobile-thumbnail size, the viewer must notice elements in this order:
 
 1. The featured person’s face
-2. “MD ALIM UL KARIM”
+2. “{CREATOR_NAME}”
 3. “Top 1%”
 4. “Author | Marketer | Trainer / Consultant | Podcaster”
 5. The four colorful books
@@ -1054,7 +1054,7 @@ Render only these approved phrases:
 “Better Ideas
 Bigger Impact”
 
-“MD ALIM UL KARIM”
+“{CREATOR_NAME}”
 
 “Author | Marketer | Trainer
 Consultant | Podcaster”
@@ -1081,7 +1081,7 @@ Consultant”
 Every word must be spelled exactly as written.
 
 Do not:
-- Write “ALIM UL KARIM” (without MD) or misspelling
+- Misspell the featured creator’s name or credentials
 - Add another person’s name
 - Invent awards, statistics, testimonials, prices, or claims
 - Invent a YouTube handle
@@ -1194,8 +1194,8 @@ Cinematic 16:9 YouTube thumbnail scene. Seated professional subject captured in 
 
 ## Zone C: Main Name (x: 660, y: 85)
 
-- First Line: "MD ALIM UL" (Font: Ubuntu Bold, Color: #F7F7F4, Size: 86pt, Shadow: #02060D 65% 5px down-right)
-- Second Line: "KARIM" (Font: Ubuntu Bold, Color: #F5A817, Size: 86pt, Shadow: #02060D 70% 5px down-right)
+- First Line: "{FIRST_NAME_PREFIX}" (Font: Ubuntu Bold, Color: #F7F7F4, Size: 86pt, Shadow: #02060D 65% 5px down-right)
+- Second Line: "{LAST_NAME}" (Font: Ubuntu Bold, Color: #F5A817, Size: 86pt, Shadow: #02060D 70% 5px down-right)
 - Credentials (y: 305): "Author | Marketer | Trainer | Consultant | Podcaster" (Font: Ubuntu Medium, Color: #ECEBE6, Size: 28pt)
 - Values (y: 400): "Ideas  |  Strategy  |  Impact" (Font: Ubuntu Medium, Color: #B8BBC2, Size: 23pt)
 - Values Underline: Hand-painted gold stroke (Color: #E6A51D, Width: 200px, Height: 5px, y: 435px)

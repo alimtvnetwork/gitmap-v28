@@ -26,9 +26,34 @@ Before authoring components or generating code, AI agents MUST read and master t
 - [ ] `/learn` **Phase 5: Modern CSS3 & Building Blocks**
   - Read [`21-css3-animations-and-interactions.md`](./21-css3-animations-and-interactions.md) — Marquees, fluid accordions, neon borders.
   - Read [`22-native-css-select-and-border-shapes.md`](./22-native-css-select-and-border-shapes.md) — `base-select`, `::picker(select)`, `border-shape`.
-  - Read [`23-building-block-components.md`](./23-building-block-components.md) — Curriculum cards, 4-cell subgrids, 3-tier pricing tables, SVGs.
-- [ ] `/learn` **Phase 6: Slide Presentation Engine**
-  - Read [`24-slide-presentation-system.md`](./24-slide-presentation-system.md) — 16:9 virtual canvas, draggable webcam PIP, step reveals.
+  - Read [`23-building-block-components.md`](./23-building-block-components.md) — Curriculum cards, 4-cell subgrids, standalone SVGs.
+  - Read [`38-card-and-pricing-components.md`](./38-card-and-pricing-components.md) — 3-tier pricing tables and floating editorial containers.
+  - Read [`41-homepage-and-blog-sections.md`](./41-homepage-and-blog-sections.md) — The 15 flagship homepage sections and complete blog editorial templates.
+- [ ] `/learn` **Phase 6: Slide Presentation Engine & Canvas Architecture**
+  - Read [`24-slide-presentation-system.md`](./24-slide-presentation-system.md) — Fixed 16:9 canvas scaling (`1920×1080`), dual-screen presenter console (`/present`), BroadcastChannel sync, webcam PIP, step reveals, overview grid (`G`), top jumper (`J`).
+  - Read [`27-slide-canvas-and-themes.md`](./27-slide-canvas-and-themes.md) — Virtual canvas scale math, 10 production themes (`bright-gold` default, `noir-gold`, `vscode-dark`, `dracula`, `monokai`, `github-light`, `paper-ink`, `macos-sonoma`, `windows-11`, `navy-blue`), and the Light Theme Contract.
+  - Read [`40-theme-switch.md`](./40-theme-switch.md) — 8 slide themes, shared color variables, and the runtime color switch.
+  - Read [`28-slide-layouts.md`](./28-slide-layouts.md) — Base slot models and closed layout union.
+  - Read [`29-slide-navigation-and-builder.md`](./29-slide-navigation-and-builder.md) — HUD, transitions, keys, slide builder.
+  - Read [`30-slide-palette-type-and-shell.md`](./30-slide-palette-type-and-shell.md) — Dark amber palette, type scale, shell layers.
+  - Read [`31-slide-controller-buttons.md`](./31-slide-controller-buttons.md) — Floating HUD controller pill, action buttons, webcam PIP overlay, timer, dots.
+  - Read [`32-slide-color-options.md`](./32-slide-color-options.md) — 10-step gradient precision system ($S_0$–$S_9$) across 7 flagship themes, per-slide gradient editor, pill presets, 9-cell align.
+- [ ] `/learn` **Phase 6b: Master Slide Layout Catalog & Pure DOM Typography**
+  - Read [`34-slide-layout-catalog.md`](./34-slide-layout-catalog.md) — Non-Image Text Mandate and 20 master enterprise slide layouts (Title, Executive, Key Player, Split, Pricing, Steps Chain, Funnel, Hardware Tabletop, Tech Stack, etc.).
+- [ ] `/learn` **Phase 6c: Live Slide Builder Mode & Canvas Inspector**
+  - Read [`35-slide-builder-canvas-inspector.md`](./35-slide-builder-canvas-inspector.md) — Decoupled dual-store architecture, 7 visual layers, draggable `BuilderPanel`, `convertSlideType` engine across all 20 layouts, multi-format export.
+- [ ] `/learn` **Phase 6d: Avant-Garde Navigation & Mega Menu System**
+  - Read [`10-header-navigation.md`](./10-header-navigation.md) & [`33-mega-menu-components.md`](./33-mega-menu-components.md) — Sticky `72px` glass header, `SlideSwapLabel` CSS keyframes, growing left hairline, 3D flip promo card, and safe-region hover mechanics.
+- [ ] `/learn` **Phase 6e: Website Content Builder Mode & In-Page Visual Editor**
+  - Read [`36-website-content-builder-mode.md`](./36-website-content-builder-mode.md) & [`26-visual-builder.md`](./26-visual-builder.md) — Production-grade website visual builder overlay: review-only gate (`?builder=1&email={OWNER_EMAIL}`), in-place `contentEditable` text editing, images/icon replacement modal, menu link editor, floating side panel diff tracking, and deterministic `content-changes--all-pages--*.zip` export.
+- [ ] `/learn` **Phase 6f0: Bright Gold Tech, Logo & Theme Switch**
+  - Read [`05-bright-gold-tech/readme.md`](./05-bright-gold-tech/readme.md) — Dark gold tokens, dot-field background, definition page, and page types.
+  - Read [`39-logo-construction.md`](./39-logo-construction.md) — One-archetype SVG mark. Missing name, idea, or colors stops the job.
+  - Read [`40-theme-switch.md`](./40-theme-switch.md) — 8 slide themes and runtime color switch.
+  - Read [`98-confidence-report.md`](./98-confidence-report.md) — What to build and what to refuse.
+- [ ] `/learn` **Phase 6f: Standalone Image & Banner Specifications**
+  - Read [`37-image-specifications.md`](./37-image-specifications.md) — Canvas geometries, safe zones, text rules, and image palette.
+  - Follow [`01-prompts/10-ui-and-design/09-write-and-enhance-design-spec.md`](../../01-prompts/10-ui-and-design/09-write-and-enhance-design-spec.md) to author/enhance specs.
 - [ ] `/learn` **Phase 7: AI-Adaptable Modern SaaS Design System**
   - Read [`02-ai-system-design/readme.md`](./02-ai-system-design/readme.md) — Variable-driven theme swapping (Pink to Green), sticky nav, search module, "Join Us" CSS3 text-slide animation, "Climate AI" highlight, and "Team Greenhouse" section.
 - [ ] `/learn` **Phase 8: Sweet Digs Design System & Interactive Theme Tester**
@@ -44,14 +69,14 @@ Before authoring components or generating code, AI agents MUST read and master t
 
 ## Offered Design Systems & Multi-Theme Catalog
 
-We offer 9 production-grade theme families available in both light and dark variations. Each theme has a standardized short-form identifier:
+The slide switcher has 8 themes. The procedure, the count, and the CSS are [`40-theme-switch.md`](./40-theme-switch.md). The 9 rows below are reference families. They are not the switcher. Do not add them to `data-theme` unless file 40 is edited with all six colors.
 
 | Short-Form ID | Theme Name | Base Ground | Accent | Mood & Best For |
 |:---|:---|:---|:---|:---|
 | `WHITE-BLUE` | White Blue Enterprise Editorial | `#FFFFFF` / `rgb(255, 255, 255)` / `hsl(0, 0%, 100%)` | `#2563EB` (`rgb(37, 99, 235)`, `hsl(221, 83%, 53%)`) / `#822EE8` | Light-first B2B SaaS, cloud ERP/CRM platforms, enterprise consulting |
 | `LIGHT-TRUST` | Light High-Trust Editorial | `#ffffff` | `#6366f1` / `#f43f5e` | Clean SaaS, education, agency, certification portals |
 | `DARK-NAVY` | Dark Obsidian Navy | `#0b1329` | `#8b5cf6` (Electric Violet) | AI engineering, developer tools, technical infrastructure |
-| `RISEUP-CORP` | Riseup Asia Corporate | `#0f172a` | `#facc15` (Gold) / `#10b981` | High-authority corporate events, keynote presentations |
+| `CORP-GOLD` | Corporate Gold | `#0f172a` | `#facc15` (Gold) / `#10b981` | High-authority corporate events, keynote presentations |
 | `CYBER-INDIGO`| Cyber Indigo Slate | `#030712` | `#6366f1` (Neon Indigo) | Dark-first developer dashboards, cyber security |
 | `VSCODE-DARK` | VS Code Modern Dark | `#1e1e1e` | `#007acc` (Editor Blue) | Code-heavy developer tools, IDE extensions |
 | `TOKYO-NIGHT` | Tokyo Night Storm | `#1a1b26` | `#bb9af7` (Magenta) | Modern developer portals, aesthetic CLI docs |
@@ -80,140 +105,20 @@ All animations are hardware-accelerated (`transform` and `opacity`) and include 
 
 > [!IMPORTANT]
 > **LESS is explicitly preferred over CSS across this repository.**
-> LESS provides modular parametric mixins, mathematical color tinting, nested scoping, and zero runtime overhead when compiled. Components must provide LESS mixins alongside raw CSS equivalents.
-
-### Live Code Sample 1: The Curriculum Module Card
-
-```html
-<!-- HTML Structure -->
-<div class="curriculum-module-card">
-  <span class="module-badge">FOUNDATIONAL MODULE</span>
-  <h3 class="module-title">Enterprise AI Engineering</h3>
-  <p class="module-description">Master full-lifecycle autonomous agents, vector search, and evaluation gates.</p>
-
-  <div class="subgrid-container">
-    <div class="subgrid-cell">
-      <span class="cell-number">01</span>
-      <h4 class="cell-title">Agent Architecture</h4>
-      <p class="cell-desc">Bounded loops, tools, and subagents.</p>
-    </div>
-    <div class="subgrid-cell">
-      <span class="cell-number">02</span>
-      <h4 class="cell-title">Memory & State</h4>
-      <p class="cell-desc">Vector embeddings and split DB storage.</p>
-    </div>
-  </div>
-
-  <a href="#syllabus" class="module-footer-link">Explore Complete Syllabus →</a>
-</div>
-```
-
-```less
-// ============================================================================
-// LESS STYLING (PREFERRED)
-// ============================================================================
-
-.curriculum-module-card {
-  display: flex;
-  flex-direction: column;
-  padding: 2rem;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1.25rem;
-  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
-  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 150ms ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    border-color: rgba(99, 102, 241, 0.40);
-    box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
-  }
-
-  .module-badge {
-    align-self: flex-start;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    background-color: #e0e7ff;
-    color: #4338ca;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-  }
-
-  .module-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin-bottom: 0.5rem;
-  }
-
-  .module-description {
-    font-size: 0.9375rem;
-    color: #64748b;
-    line-height: 1.5;
-    margin-bottom: 1.75rem;
-  }
-
-  .subgrid-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.75rem;
-
-    .subgrid-cell {
-      padding: 1rem;
-      background-color: #f8fafc;
-      border: 1px solid #f1f5f9;
-      border-radius: 0.75rem;
-
-      &:hover {
-        background-color: #f1f5f9;
-        border-color: #cbd5e1;
-      }
-
-      .cell-number {
-        font-family: monospace;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #6366f1;
-      }
-
-      .cell-title {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #1e293b;
-        margin: 0.25rem 0;
-      }
-
-      .cell-desc {
-        font-size: 0.75rem;
-        color: #64748b;
-      }
-    }
-  }
-
-  .module-footer-link {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #6366f1;
-    text-decoration: none;
-    margin-top: auto;
-  }
-}
-```
+> LESS provides modular parametric mixins, mathematical color tinting, nested scoping, and zero runtime overhead when compiled. Components must provide LESS mixins alongside raw CSS equivalents. Full implementations, anatomy breakdowns, and parametric LESS mixins are documented in:
+- [`23-building-block-components.md`](./23-building-block-components.md) — Curriculum cards, 4-cell subgrids, and interactive list rows.
+- [`38-card-and-pricing-components.md`](./38-card-and-pricing-components.md) — 3-Tier modular pricing tables and floating editorial cards.
 
 ---
 
-. **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
+> [!IMPORTANT]
+> **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
 
-**Version:** 4.1.0
-**Updated:** 2026-09-24
+**Version:** 4.3.0
+**Updated:** 2026-10-02
 **Status:** Active
-**AI Confidence:** Production-Ready
-**Ambiguity:** None
+**AI Confidence:** See [`98-confidence-report.md`](./98-confidence-report.md). Bright gold tech is the deck an agent can build today.
+**Ambiguity:** The website builder is file 26 only. Slide types `usp-strike` and `bullets` have no component. A black slide catalog is not in this folder.
 
 ---
 
@@ -249,16 +154,6 @@ All animations and transitions prioritize **GPU-composited CSS3 transforms and o
 
 ---
 
-## Scoring
-
-| Metric | Value |
-|--------|-------|
-| AI Confidence | Production-Ready ✅ |
-| Ambiguity | None 🟢 |
-| Health Score | 100/100 |
-
----
-
 ## Keywords
 
 `design-system` · `multi-theme` · `navy-purple` · `vscode-themes` · `heatmaps` · `css-variables` · `4-plane-depth` · `sliding-carousels` · `anti-ai-slop` · `60-30-10-rule` · `von-restorff` · `typography` · `motion-system` · `ai-training`
@@ -291,10 +186,29 @@ All animations and transitions prioritize **GPU-composited CSS3 transforms and o
 | 19 | [21-css3-animations-and-interactions.md](./21-css3-animations-and-interactions.md) | Motion & Hover | CSS3 keyframes, cubic-bezier easing, darkish hover shades, line hover highlights |
 | 20 | [22-native-css-select-and-border-shapes.md](./22-native-css-select-and-border-shapes.md) | Native Controls | Modern base-select, ::picker(select), and organic border-shape geometry |
 | 21 | [23-building-block-components.md](./23-building-block-components.md) | Components | Curriculum card anatomy, 4-cell subgrids, standalone SVGs, LESS mixins |
-| 22 | [24-slide-presentation-system.md](./24-slide-presentation-system.md) | Presentation | 16:9 virtual canvas, draggable webcam PIP, step reveals, dual-screen console |
-| 23 | [02-ai-system-design/readme.md](./02-ai-system-design/readme.md) | Sub-System | AI-adaptable modern SaaS theme swapping and section blueprints |
-| 24 | [03-sweet-digs-design-system/readme.md](./03-sweet-digs-design-system/readme.md) | Sub-System | Sweet Digs HSL multi-theme architecture and zoom-free interaction suite |
-| 25 | [04-white-blue-theme/readme.md](./04-white-blue-theme/readme.md) | Sub-System | White Blue Theme 3-format color architecture (`HEX`, `RGB`/`RGBA`, `HSL` + `OKLCH`), 3D flip Mega-Menu, `WhiteBlueButton`, and enterprise section library |
+| 22 | [24-slide-presentation-system.md](./24-slide-presentation-system.md) | Presentation | Webcam PIP, step reveals, dual-screen console |
+| 23 | [25-page-assembly.md](./25-page-assembly.md) | Guide | Site and blog shells from the White Blue section library |
+| 24 | [26-visual-builder.md](./26-visual-builder.md) | Builder | Review overlay for text, images, menu labels, in-group order |
+| 25 | [27-slide-canvas-and-themes.md](./27-slide-canvas-and-themes.md) | Presentation | `1920×1080` canvas, amber tokens, JSON themes, noir-gold |
+| 26 | [28-slide-layouts.md](./28-slide-layouts.md) | Presentation | Closed slide layout union |
+| 27 | [29-slide-navigation-and-builder.md](./29-slide-navigation-and-builder.md) | Presentation | HUD, transition families, keys, slide builder |
+| 30 | [30-slide-palette-type-and-shell.md](./30-slide-palette-type-and-shell.md) | Presentation | Dark amber palette, type scale, spotlight, shell layers |
+| 31 | [31-slide-controller-buttons.md](./31-slide-controller-buttons.md) | Presentation | Floating HUD controller pill, 8-position mounting, audio synthesis, webcam PIP |
+| 32 | [32-slide-color-options.md](./32-slide-color-options.md) | Presentation | 10-step gradient precision system ($S_0$–$S_9$), pill presets, relative luminance formula, 9-cell align |
+| 33 | [33-mega-menu-components.md](./33-mega-menu-components.md) | Navigation | Avant-garde mega panel dropdown, 3D flip card, growing left hairline, link staggers |
+| 34 | [34-slide-layout-catalog.md](./34-slide-layout-catalog.md) | Presentation | Pure DOM text mandate and 20 master slide layout models |
+| 35 | [35-slide-builder-canvas-inspector.md](./35-slide-builder-canvas-inspector.md) | Slide Builder | Dual-store architecture, 7 visual layers, selection overlays, hotkeys, acoustic audio cues, headless PDF |
+| 36 | [36-website-content-builder-mode.md](./36-website-content-builder-mode.md) | Web Builder | In-page review-only builder overlay, `contentEditable` inline text editing, media modal, and ZIP diff exports |
+| 37 | [37-image-specifications.md](./37-image-specifications.md) | Images | Exact canvas geometries, safe zones, text rules, and closed image palette |
+| 38 | [38-card-and-pricing-components.md](./38-card-and-pricing-components.md) | Components | 3-Tier modular pricing tables, split pricing, What We Do, Ruled Paper workflow, Enterprise Hero |
+| 39 | [39-logo-construction.md](./39-logo-construction.md) | Brand | Reusable SVG mark construction rules, archetypes, and theme variables |
+| 40 | [40-theme-switch.md](./40-theme-switch.md) | Theme | 8 slide themes, shared color variables, and runtime color switcher |
+| 41 | [41-homepage-and-blog-sections.md](./41-homepage-and-blog-sections.md) | Homepage & Blog | 15 modular homepage inspiration sections, blog index, reading progress, and editorial layout |
+| 05c | [05-bright-gold-tech/readme.md](./05-bright-gold-tech/readme.md) | Theme | Bright gold tech deck and website bands |
+| 98 | [98-confidence-report.md](./98-confidence-report.md) | Meta | What an agent can build, and what it must refuse |
+| 02b | [02-ai-system-design/readme.md](./02-ai-system-design/readme.md) | Sub-System | AI-adaptable modern SaaS theme swapping and section blueprints |
+| 03b | [03-sweet-digs-design-system/readme.md](./03-sweet-digs-design-system/readme.md) | Sub-System | Sweet Digs HSL multi-theme architecture and zoom-free interaction suite |
+| 04b | [04-white-blue-theme/readme.md](./04-white-blue-theme/readme.md) | Sub-System | White Blue Theme 3-format color architecture (`HEX`, `RGB`/`RGBA`, `HSL` + `OKLCH`), 3D flip Mega-Menu, `WhiteBlueButton`, and enterprise section library |
 | 97 | [97-acceptance-criteria.md](./97-acceptance-criteria.md) | Testing | Testable criteria for design system compliance |
 | 99 | [99-consistency-report.md](./99-consistency-report.md) | Meta | Consistency validation report |
 
@@ -379,20 +293,5 @@ Every heading gradient, link color, button, code block glow, and hover effect up
 
 ## Verification
 
-_Auto-generated section — see `02-spec/07-design-system/97-acceptance-criteria.md` for the full criteria index._
+Full compliance criteria and automated verification suites are defined in [`97-acceptance-criteria.md`](./97-acceptance-criteria.md) and tracked in [`99-consistency-report.md`](./99-consistency-report.md).
 
-### AC-DS-001: Design-system conformance: Index
-
-**Given** Scan `src/` for raw color literals, hard-coded spacing, and untokenized typography.
-**When** Run the verification command shown below.
-**Then** All visual properties resolve to semantic tokens declared in `index.css` / `tailwind.config.ts`; no `text-white`, `bg-#fff`, or hex literals appear in components.
-
-**Verification command:**
-
-```bash
-npm run lint
-```
-
-**Expected:** exit 0. Any non-zero exit is a hard fail and blocks merge.
-
-_Verification section last updated: 2026-08-30_

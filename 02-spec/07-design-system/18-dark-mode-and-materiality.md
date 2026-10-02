@@ -50,16 +50,16 @@ Every dark mode interface must be structured across **four distinct elevation pl
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
-│ PLANE 3: Elevated (L: ~18–22%)                             │
+│ PLANE 3: Elevated (L: 18%–22%)                             │
 │ Modals, popovers, dropdowns, hovered cards                │
 ├────────────────────────────────────────────────────────────┤
-│ PLANE 2: Surface (L: ~14–17%)                              │
+│ PLANE 2: Surface (L: 14%–17%)                              │
 │ Content cards, table bodies, input fields, code blocks    │
 ├────────────────────────────────────────────────────────────┤
-│ PLANE 1: Raised (L: ~10–13%)                               │
+│ PLANE 1: Raised (L: 10%–13%)                               │
 │ Section wells, alternating rows, sidebar panels, toolbars  │
 ├────────────────────────────────────────────────────────────┤
-│ PLANE 0: Canvas Base (L: ~6–9%)                            │
+│ PLANE 0: Canvas Base (L: 6%–9%)                            │
 │ The deepest page foundation; outer document ground         │
 └────────────────────────────────────────────────────────────┘
 ```

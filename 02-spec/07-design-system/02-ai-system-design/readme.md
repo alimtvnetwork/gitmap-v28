@@ -10,7 +10,7 @@ Before authoring components or generating code, AI agents MUST read and master t
 - [ ] `/learn` **Phase 1: Color Tokens & Variable Architecture**
   - Read [`01-colors-themes/01-color-and-theme-system.md`](01-colors-themes/01-color-and-theme-system.md) — Single source of truth for color tokens, Pink/Red default (`#FF2D6F`), Green swap (`#22C55E`), surface, border, and state tokens.
 - [ ] `/learn` **Phase 2: Header, Menu & Icon Transitions**
-  - Read [`02-menu/01-navigation-and-menu.md`](02-menu/01-navigation-and-menu.md) — Sticky ~70px header, border styling, hover underline/accent transitions, and micro-interaction icon state shifts.
+  - Read [`02-menu/01-navigation-and-menu.md`](02-menu/01-navigation-and-menu.md) — Sticky 70px header, border styling, hover underline/accent transitions, and micro-interaction icon state shifts.
 - [ ] `/learn` **Phase 3: Hero Section, Search Module & Filter Chips**
   - Read [`03-hero-section/01-hero-and-search.md`](03-hero-section/01-hero-and-search.md) — Centered hero, split headline ("Find Your Dream" / "Home"), soft-shadow 16–20px search card, full-width input, and pill-shaped filter chips with dropdown indicators.
 - [ ] `/learn` **Phase 4: Button System & Sliding Text Animations**
@@ -65,7 +65,7 @@ flowchart TD
     end
 
     subgraph Tier4["Tier 4: Page-Level Composition"]
-        P1["Sticky Top Nav (~70px)"]
+        P1["Sticky Top Nav (70px)"]
         P2["Centered Hero & Search Module"]
         P3["Pill Filter Chips"]
         P4["Team Greenhouse Feature Section"]
