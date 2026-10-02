@@ -220,7 +220,7 @@ const (
 	SQLAddNotesColumn = "ALTER TABLE Release ADD COLUMN Notes TEXT DEFAULT ''"
 
 	// SQLSelectDuplicateRepoGroups finds groups of duplicate repositories by clean remote URL (HTTPS or SSH).
-	SQLSelectDuplicateRepoGroups = `SELECT 
+	SQLSelectDuplicateRepoGroups = `SELECT
     LOWER(RTRIM(REPLACE(COALESCE(NULLIF(HttpsUrl, ''), SshUrl), '.git', ''), '/')) AS CleanRemote,
     COUNT(*) AS DuplicateCount
 FROM Repo
