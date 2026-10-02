@@ -45,7 +45,7 @@ func utilityCoreEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"binary", "info"}, printIdentityLong},
 		{[]string{"error"}, func() error { return runErrorCmd(argsTail()) }},
-		{[]string{constants.CmdUpdate, "ua", "update-all", "updateall"}, runUpdateHelp},
+		{[]string{constants.CmdUpdate, "ua", "update-all", "updateall", "uaz", "update-all-zip", "updateallzip"}, runUpdateHelp},
 		{[]string{constants.CmdUpdateRunner}, runUpdateRunner},
 		{[]string{constants.CmdUpdateCleanup}, runUpdateCleanup},
 		{[]string{constants.CmdInstalledDir, constants.CmdInstalledDirAlias}, runInstalledDirHelp},
