@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [202-vmware-cli-commands-and-fleet-management.md](202-vmware-cli-commands-and-fleet-management.md) — VMware Workstation CLI Command Suite, Fleet Management, Dual-Engine Hypervisor Driver, and Coordinated Scheduler Shutdown (Status: `active`)
 - [72-chrome-ext-test-and-vmware-spec](72-chrome-ext-test-and-vmware-spec/01-architecture-spec.md) — Chrome Extension Profile Export/Import E2E Testing, Repo-Secrets Logging, VMware CLI Command Suite Specification & VM Lifecycle Operations (Status: `active`)
 - [70-redundant-repos-and-equalfold-os-fix](70-redundant-repos-and-equalfold-os-fix/01-architecture-spec.md) — SQLite Redundant Repo Deduplication, EqualFold String Refactoring, OS-Aware Path Sensitivity & File Ingestion Uniqueness (Status: `active`)
 - [69-nodes-cfr-ui-async-delegation](69-nodes-cfr-ui-async-delegation/01-architecture-spec.md) — Nodes CFR Terminal UI Modernization, Pre-Flight Probing, Machine Observability & Async Delegation (Status: `active`)
