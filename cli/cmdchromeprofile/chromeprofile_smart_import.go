@@ -746,7 +746,21 @@ func isChromeSnapshotYAML(path string) bool {
 }
 
 func registerImportedProfileToLocalState(dstDir, displayName, email string) error {
-	return registerChromeProfileWithFullSchema(dstDir, displayName, email)
+	dstPath := chromeProfilePath(dstDir)
+	prefsRaw := readOptionalJSON(filepath.Join(dstPath, "Preferences"))
+	gaiaInfo := resolveProfileGaiaInfo(dstDir, prefsRaw, dstPath)
+	if email == "" && gaiaInfo.Email != "" {
+		email = gaiaInfo.Email
+	}
+
+	return registerChromeProfileWithFullSchemaAndGAIA(
+		dstDir,
+		displayName,
+		email,
+		gaiaInfo.GaiaID,
+		gaiaInfo.GaiaName,
+		gaiaInfo.GaiaGivenName,
+	)
 }
 
 func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {

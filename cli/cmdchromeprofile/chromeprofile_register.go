@@ -100,6 +100,9 @@ func applyChromeInfoEntryGAIA(entry map[string]any, gaiaID, gaiaName, gaiaGivenN
 	if gaiaGivenName != "" {
 		entry["gaia_given_name"] = gaiaGivenName
 	}
+	if entry["hosted_domain"] == nil || entry["hosted_domain"] == "" {
+		entry["hosted_domain"] = "NO_HOSTED_DOMAIN"
+	}
 }
 
 func readOrCreateLocalStateRoot(path string) result.ResultMap[string, any] {
