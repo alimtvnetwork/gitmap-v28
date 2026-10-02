@@ -63,8 +63,14 @@ func registerChromeProfileWithFullSchemaAndGAIA(
 	applyChromeInfoEntryGAIA(entry, gaiaID, gaiaName, gaiaGivenName)
 	infoCache[dstDir] = entry
 	appendChromeProfileToOrder(profile, dstDir)
+	setChromeProfileActive(profile, dstDir)
 
 	return writeChromeLocalState(path, rootRes.Data)
+}
+
+func setChromeProfileActive(profile map[string]any, dir string) {
+	profile["last_used"] = dir
+	profile["last_active_profiles"] = []any{dir}
 }
 
 func prepareChromeInfoEntry(infoCache map[string]any, dstDir, gaiaID string) map[string]any {

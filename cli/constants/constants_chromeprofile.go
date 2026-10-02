@@ -229,6 +229,10 @@ var ChromeProfileSQLiteEntries = []string{
 	"Network Action Predictor",
 	"Network/Cookies",
 	"Cookies",
+	"Secure Preferences",
+	"Account Web Data",
+	"trusted_vault.pb",
+	"Affiliation Database",
 }
 
 var ChromeProfileCopyEntries = []string{

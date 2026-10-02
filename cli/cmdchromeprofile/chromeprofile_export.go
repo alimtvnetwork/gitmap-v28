@@ -30,8 +30,10 @@ type chromeExport struct {
 	Preferences      json.RawMessage   `json:"preferences,omitempty" yaml:"preferences,omitempty"`
 	CookiesRawBase64 string            `json:"cookiesRawBase64,omitempty" yaml:"cookiesRawBase64,omitempty"`
 	WebDataRawBase64 string            `json:"webDataRawBase64,omitempty" yaml:"webDataRawBase64,omitempty"`
-	ExtensionIDs     []string          `json:"extensionIds,omitempty" yaml:"extensionIds,omitempty"`
-	TokenVault       *ChromeTokenVault `json:"tokenVault,omitempty" yaml:"tokenVault,omitempty"`
+	ExtensionIDs         []string          `json:"extensionIds,omitempty" yaml:"extensionIds,omitempty"`
+	TokenVault           *ChromeTokenVault `json:"tokenVault,omitempty" yaml:"tokenVault,omitempty"`
+	SecurePreferences    json.RawMessage   `json:"securePreferences,omitempty" yaml:"securePreferences,omitempty"`
+	AccountWebDataBase64 string            `json:"accountWebDataBase64,omitempty" yaml:"accountWebDataBase64,omitempty"`
 }
 
 const chromeExportSchemaVersion = 1
@@ -74,11 +76,13 @@ func buildExportSnapshot(srcProfile, name string) chromeExport {
 		GaiaGivenName:    gaiaInfo.GaiaGivenName,
 		ExportedAt:       time.Now().UTC().Format(time.RFC3339),
 		Bookmarks:        readOptionalJSON(filepath.Join(srcProfile, "Bookmarks")),
-		Preferences:      prefs,
-		CookiesRawBase64: readProfileCookiesBase64(srcProfile),
-		WebDataRawBase64: readProfileWebDataBase64(srcProfile),
-		ExtensionIDs:     listExtensionIDs(filepath.Join(srcProfile, "Extensions")),
-		TokenVault:       vault,
+		Preferences:          prefs,
+		CookiesRawBase64:     readProfileCookiesBase64(srcProfile),
+		WebDataRawBase64:     readProfileWebDataBase64(srcProfile),
+		ExtensionIDs:         listExtensionIDs(filepath.Join(srcProfile, "Extensions")),
+		TokenVault:           vault,
+		SecurePreferences:    readOptionalJSON(filepath.Join(srcProfile, "Secure Preferences")),
+		AccountWebDataBase64: readOptionalBase64(filepath.Join(srcProfile, "Account Web Data")),
 	}
 }
 
@@ -118,6 +122,7 @@ func restoreExportBaseFiles(exp *chromeExport, dstProfile string) error {
 	if err := writeOptional(filepath.Join(dstProfile, "Bookmarks"), exp.Bookmarks); err != nil {
 		return err
 	}
+	_ = writeOptional(filepath.Join(dstProfile, "Secure Preferences"), exp.SecurePreferences)
 
 	return writeOptional(filepath.Join(dstProfile, "Preferences"), exp.Preferences)
 }
@@ -126,6 +131,7 @@ func restoreExportAuthPayloads(exp *chromeExport, dstProfile string) {
 	_ = restoreProfileWebData(dstProfile, exp.WebDataRawBase64)
 	_ = restoreChromeTokenService(dstProfile, exp.TokenVault)
 	_ = restoreProfileCookies(dstProfile, exp.CookiesRawBase64)
+	_ = restoreOptionalBase64(filepath.Join(dstProfile, "Account Web Data"), exp.AccountWebDataBase64)
 }
 
 func writePendingExtensions(dstProfile string, ids []string) error {

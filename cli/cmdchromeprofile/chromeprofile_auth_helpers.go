@@ -139,14 +139,18 @@ func restoreProfileCookies(profileDir, cookiesB64 string) error {
 }
 
 func restoreProfileWebData(profileDir, webDataB64 string) error {
-	if webDataB64 == "" {
+	return restoreOptionalBase64(filepath.Join(profileDir, "Web Data"), webDataB64)
+}
+
+func restoreOptionalBase64(destPath, b64 string) error {
+	if b64 == "" {
 		return nil
 	}
 
-	raw, err := base64.StdEncoding.DecodeString(webDataB64)
+	raw, err := base64.StdEncoding.DecodeString(b64)
 	if err != nil {
-		return fmt.Errorf("decode web data: %w", err)
+		return fmt.Errorf("decode base64 payload: %w", err)
 	}
 
-	return os.WriteFile(filepath.Join(profileDir, "Web Data"), raw, constants.FilePermission)
+	return os.WriteFile(destPath, raw, constants.FilePermission)
 }
