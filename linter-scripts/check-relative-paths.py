@@ -44,6 +44,13 @@ ALLOWLIST_FILES = {
     "03-ai-scripts/07-relative-path-fixer.py",
 }
 
+ALLOWLIST_PREFIXES = (
+    ".ai-memory/pipeline-ai/",
+    ".ai-memory/cicd/",
+    ".ai-memory/temp/",
+)
+
+
 
 def parse_arguments() -> argparse.Namespace:
     """Parses CLI flags for parallel relative paths checker."""
@@ -98,7 +105,7 @@ def deduplicate_candidate_files(raw_files: list[str], repo_root: Path) -> list[s
     for f in raw_files:
         norm = f.replace("\\", "/").strip()
         ext = os.path.splitext(norm)[1].lower()
-        if ext in EXCLUDE_EXTS or norm in ALLOWLIST_FILES:
+        if ext in EXCLUDE_EXTS or norm in ALLOWLIST_FILES or norm.startswith(ALLOWLIST_PREFIXES):
             continue
         if (repo_root / norm).is_file():
             seen[norm] = norm

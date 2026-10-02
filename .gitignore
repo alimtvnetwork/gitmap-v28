@@ -71,6 +71,7 @@ __pycache__/
 .ai-memory/temp/
 .ai-memory/temp-agents/
 .ai-memory/cicd/
+.ai-memory/pipeline-ai/
 /data
 cli/data/pipeline/
 /tmp/

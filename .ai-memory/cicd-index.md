@@ -45,6 +45,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 94 | VS Code PM Sync Test Fixture Disallowed Path Filter Exclusion | Full Suite Guard / Cross-Platform Build | ✅ Resolved | [94-vscodepm-sync-test-fixture-disallowed-path-filter-rca.md](cicd-issues/94-vscodepm-sync-test-fixture-disallowed-path-filter-rca.md) |
 | 95 | Pipeline Nested Ifs, Swallowed DB Errors & Runner Path Regression | CI Quality Gates | ✅ Resolved | [95-pipeline-nested-if-error-management-and-runner-attributes-rca.md](cicd-issues/95-pipeline-nested-if-error-management-and-runner-attributes-rca.md) |
 | 96 | Shared Engine Attributes, Canceled Pipeline Workflows, US Misspell & Helptext | CI Pipeline / Build Gate | ✅ Resolved | [96-shared-engine-attributes-canceled-pipeline-misspell-and-helptext-rca.md](cicd-issues/96-shared-engine-attributes-canceled-pipeline-misspell-and-helptext-rca.md) |
+| 97 | Pipeline Typed Nil Interface, Swallowed DB Errors, Nested Ifs & Relative Paths | CI & Build Quality Gates | ✅ Resolved | [97-pipeline-typed-nil-error-management-nested-ifs-and-relative-paths-rca.md](cicd-issues/97-pipeline-typed-nil-error-management-nested-ifs-and-relative-paths-rca.md) |
 
 ## Patterns Learned
 
