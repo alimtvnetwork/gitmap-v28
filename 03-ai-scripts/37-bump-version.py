@@ -39,6 +39,7 @@ CHANGELOG_MD = REPO_ROOT / "changelog.md"
 SPEC19_CHANGELOG = REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md"
 TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
 CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
+LATEST_JSON = REPO_ROOT / ".gitmap" / "release" / "latest.json"
 RELEASE_NOTES_DIR = REPO_ROOT / ".ai-memory" / "release"
 
 
@@ -297,6 +298,28 @@ def update_constants_go(next_version, dry_run=False):
     print(f"[*] Updated cli/constants/constants.go -> {next_version}")
 
 
+def update_latest_json(next_version, dry_run=False):
+    """Updates version, tag, branch in .gitmap/release/latest.json."""
+    if not LATEST_JSON.parent.is_dir():
+        LATEST_JSON.parent.mkdir(parents=True, exist_ok=True)
+
+    data = {
+        "version": next_version,
+        "tag": f"v{next_version}",
+        "branch": f"release/v{next_version}",
+    }
+
+    if dry_run:
+        print(f"[DRY RUN] Would write {LATEST_JSON.name} -> {data}")
+        return
+
+    with open(LATEST_JSON, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+    print(f"[*] Updated {LATEST_JSON.relative_to(REPO_ROOT)} -> v{next_version}")
+
+
 def create_release_notes(next_version, scope, dry_run=False):
     """Creates a release notes markdown document in .ai-memory/release/."""
     notes_file = RELEASE_NOTES_DIR / f"release-notes-v{next_version}.md"
@@ -330,7 +353,18 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_ver
 
 
 def run_repo_sync_if_available(dry_run=False):
-    """Executes `npm run sync` if defined in package.json to regenerate spec trees and manifests."""
+    """Executes `go generate ./...` in cli/ and `npm run sync` if defined in package.json."""
+    cli_dir = REPO_ROOT / "cli"
+    if cli_dir.is_dir():
+        if dry_run:
+            print("[DRY RUN] Would run: go generate ./... in cli/")
+        else:
+            try:
+                run_cmd(["go", "generate", "./..."], cwd=str(cli_dir), check=False)
+                print("[*] Completed go generate ./... in cli/")
+            except Exception as e:
+                print(f"[!] Warning running go generate ./...: {e}")
+
     if not PACKAGE_JSON.is_file():
         return
 
@@ -369,6 +403,7 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
     update_version_json(next_ver, today_str, dry_run=dry_run)
     update_package_json(next_ver, dry_run=dry_run)
     update_template_version(next_ver, dry_run=dry_run)
+    update_latest_json(next_ver, dry_run=dry_run)
     update_readme_pins(current_ver, next_ver, dry_run=dry_run)
     update_what_to_read_pins(current_ver, next_ver, dry_run=dry_run)
     update_constants_go(next_ver, dry_run=dry_run)

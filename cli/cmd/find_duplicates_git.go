@@ -108,7 +108,7 @@ func printGitDupGroupRemediations(dupGroups []store.DuplicateRepoGroup) {
 	fmt.Printf("    %sgitmap reconcile%s\n\n", constants.ColorGreen, constants.ColorReset)
 }
 
-func runFixDuplicatesGit(mainDB *store.RepoStore) error {
+func runFixDuplicatesGit(mainDB *store.DB) error {
 	summary, err := mainDB.DeduplicateRepos(false)
 	if err != nil {
 		fmt.Printf("  %s✗ Error deduplicating repositories: %v%s\n\n", constants.ColorRed, err, constants.ColorReset)

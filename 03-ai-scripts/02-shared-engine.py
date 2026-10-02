@@ -279,6 +279,8 @@ CI_JOBS_MATRIX: dict[str, list[str]] = {
 }
 
 # --- Module-Level Directory & File Constants ---
+REPO_ROOT = Path(__file__).resolve().parent.parent
+CICD_DIR = REPO_ROOT / ".ai-memory" / "cicd"
 CACHE_BASE_DIR = Path("tmp/cache")
 CACHE_PATHS_DIR = CACHE_BASE_DIR / "paths"
 CACHE_LOCKS_DIR = CACHE_BASE_DIR / "locks"
