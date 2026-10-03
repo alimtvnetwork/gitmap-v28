@@ -67,6 +67,8 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 59 | [59-fleet-nodes-clone-duration-alignment-and-w3-liveness-rca.md](59-fleet-nodes-clone-duration-alignment-and-w3-liveness-rca.md) | Fleet Nodes Clone Duration Alignment, Column Gutter Spacing, and W3 Reachability Diagnostics: RCA & Fix | Resolved |
 | 60 | [60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md](60-rootcore-commit-dispatch-shadowing-and-stale-binary-rca.md) | RootCore Commit Dispatch Shadowing and Stale Binary Macro Execution Failure: RCA & Fix | Resolved |
 | 61 | [61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](61-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md) | Pull-All Unconstrained Ignore Subprocess Deadlock and SSH Concurrency Multiplication: RCA & Fix | Resolved |
+| 62 | [62-pull-all-duplicate-repositories-and-case-sensitivity-rca.md](62-pull-all-duplicate-repositories-and-case-sensitivity-rca.md) | Pull-All Duplicate Repositories, Database Case-Sensitivity & Concurrent Fetch Failures: RCA & Fix | Resolved |
+| 63 | [63-commit-push-clean-working-tree-exit-failure-rca.md](63-commit-push-clean-working-tree-exit-failure-rca.md) | Commit-Push Clean Working Tree Exit Status 1 Failure & Missing Staged Changes Guard: RCA & Fix | Resolved |
 
 ---
 

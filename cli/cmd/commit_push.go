@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -322,11 +323,52 @@ func getCommitSubject(sha string) string {
 	return strings.TrimSpace(out)
 }
 
+// hasStagedChangesCP checks whether there are any staged or unstaged changes in the working tree.
+func hasStagedChangesCP() (bool, error) {
+	out, err := execGitOutputCP("status", "--porcelain")
+	if err != nil {
+		return false, err
+	}
+
+	hasChanges := len(strings.TrimSpace(out)) > 0
+
+	return hasChanges, nil
+}
+
+// countUnpushedCommitsCP returns the count of unpushed commits ahead of upstream remote tracking branch.
+func countUnpushedCommitsCP() int {
+	branch, errBranch := getCurrentBranchName()
+	if errBranch != nil || !hasRemoteTracking(branch) {
+		return 0
+	}
+
+	out, errCount := execGitOutputCP("rev-list", "--count", "@{u}..HEAD")
+	if errCount != nil {
+		return 0
+	}
+
+	count, errParse := strconv.Atoi(strings.TrimSpace(out))
+	if errParse != nil {
+		return 0
+	}
+
+	return count
+}
+
 // executeCommitPush is the shared logic for all commit-push variants.
 func executeCommitPush(commitMessage string) *apperror.AppError {
 	printPaddedInfo("Staging all changes...")
 	if err := execGitInheritCP("add", "-A"); err != nil {
 		return apperror.WrapSimple(err, "git add failed:")
+	}
+
+	hasChanges, errStatus := hasStagedChangesCP()
+	if errStatus != nil {
+		return apperror.WrapSimple(errStatus, "check git status failed:")
+	}
+
+	if !hasChanges {
+		return handleCleanWorkingTreeCP()
 	}
 
 	printPaddedInfo("Committing: %s", commitMessage)
@@ -339,7 +381,30 @@ func executeCommitPush(commitMessage string) *apperror.AppError {
 		return apperror.WrapSimple(err, "git push failed:")
 	}
 
-	printPaddedSuccess("Changes committed and pushed.")
+	return nil
+}
+
+func handleCleanWorkingTreeCP() *apperror.AppError {
+	printPaddedInfo("Working tree clean, nothing to commit.")
+
+	unpushed := countUnpushedCommitsCP()
+	if unpushed == 0 {
+		printPaddedSuccess("Everything is up to date.")
+
+		return nil
+	}
+
+	return pushUnpushedCommitsCP(unpushed)
+}
+
+func pushUnpushedCommitsCP(unpushed int) *apperror.AppError {
+	printPaddedInfo("Pushing %d unpushed commit(s) to remote...", unpushed)
+
+	if errPush := execGitInheritCP("push"); errPush != nil {
+		return apperror.WrapSimple(errPush, "git push failed:")
+	}
+
+	printPaddedSuccess("Pushed %d commit(s) to remote.", unpushed)
 
 	return nil
 }

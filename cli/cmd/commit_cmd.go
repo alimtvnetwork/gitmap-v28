@@ -47,28 +47,73 @@ func previewCommitChanges() error {
 
 func executeCommit(args []string, hasPush bool) error {
 	printPaddedInfo("Staging all changes...")
+
 	if err := execGitInheritCP("add", "-A"); err != nil {
 		return apperror.WrapSimple(err, "git add failed:")
+	}
+
+	hasChanges, err := hasStagedChangesCP()
+	if err != nil {
+		return apperror.WrapSimple(err, "check git status failed:")
+	}
+
+	if !hasChanges {
+		printPaddedInfo("Working tree clean, nothing to commit.")
+
+		return handleCleanWorkingTree(hasPush)
 	}
 
 	if err := dispatchGitCommit(args); err != nil {
 		return apperror.WrapSimple(err, "git commit failed:")
 	}
+
 	return handleOptionalPush(hasPush)
+}
+
+func handleCleanWorkingTree(hasPush bool) error {
+	if !hasPush {
+		printPaddedSuccess("Working tree clean.")
+
+		return nil
+	}
+
+	unpushed := countUnpushedCommitsCP()
+	if unpushed == 0 {
+		printPaddedSuccess("Everything is up to date.")
+
+		return nil
+	}
+
+	return pushUnpushedCommits(unpushed)
+}
+
+func pushUnpushedCommits(unpushed int) error {
+	printPaddedInfo("Pushing %d unpushed commit(s) to remote...", unpushed)
+
+	if err := execGitInheritCP("push"); err != nil {
+		return apperror.WrapSimple(err, "git push failed:")
+	}
+
+	printPaddedSuccess("Pushed %d commit(s) to remote.", unpushed)
+
+	return nil
 }
 
 func handleOptionalPush(hasPush bool) error {
 	if !hasPush {
 		printPaddedSuccess("Changes committed successfully.")
+
 		return nil
 	}
 
 	printPaddedInfo("Pushing to remote...")
+
 	if err := execGitInheritCP("push"); err != nil {
 		return apperror.WrapSimple(err, "git push failed:")
 	}
 
 	printPaddedSuccess("Changes committed and pushed successfully.")
+
 	return nil
 }
 
