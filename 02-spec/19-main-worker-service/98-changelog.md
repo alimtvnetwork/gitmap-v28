@@ -1,3 +1,9 @@
+## v6.466.0 — 2026-10-03 (validate chrome profile import export and vmware automation)
+
+**Scope:** Version bump. validate chrome profile import export and vmware automation.
+
+---
+
 ## v6.465.0 — 2026-10-03 (ports inspection and cross-platform openssh daemon management)
 
 **Scope:** Version bump. ports inspection and cross-platform openssh daemon management.

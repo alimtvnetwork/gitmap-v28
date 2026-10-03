@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.466.0] - 2026-10-03
+
+### Added
+- validate chrome profile import export and vmware automation
+
+---
+
 ## [v6.465.0] - 2026-10-03
 
 ### Added

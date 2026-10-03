@@ -21,17 +21,71 @@ func chromeUserDataDir() string {
 	home, _ := os.UserHomeDir()
 	switch runtime.GOOS {
 	case "windows":
-		if local := os.Getenv("LOCALAPPDATA"); len(local) > 0 {
-			return filepath.Join(local, "Google", "Chrome", "User Data")
-		}
-
-		return filepath.Join(home, "AppData", "Local", "Google", "Chrome", "User Data")
+		return resolveWindowsChromeUserDataDir(home)
 	case "darwin":
 		return filepath.Join(home, "Library", "Application Support", "Google", "Chrome")
 	default:
 		return filepath.Join(home, ".config", "google-chrome")
 	}
 }
+
+func resolveWindowsSystemDrive() string {
+	drive := os.Getenv("SystemDrive")
+
+	if len(drive) == 0 {
+		return "C:" + string(filepath.Separator)
+	}
+
+	if !strings.HasSuffix(drive, string(filepath.Separator)) {
+		return drive + string(filepath.Separator)
+	}
+
+	return drive
+}
+
+func defaultWindowsChromeCandidate(home string) string {
+	local := os.Getenv("LOCALAPPDATA")
+
+	if len(local) > 0 {
+		return filepath.Join(local, "Google", "Chrome", "User Data")
+	}
+
+	return filepath.Join(home, "AppData", "Local", "Google", "Chrome", "User Data")
+}
+
+func fallbackHostChromeUserDataDir() string {
+	username := os.Getenv("USERNAME")
+
+	if len(username) == 0 {
+		return ""
+	}
+
+	drive := resolveWindowsSystemDrive()
+	hostDir := filepath.Join(drive, "Users", username, "AppData", "Local", "Google", "Chrome", "User Data")
+
+	if chromeProfilePathExists(hostDir) {
+		return hostDir
+	}
+
+	return ""
+}
+
+func resolveWindowsChromeUserDataDir(home string) string {
+	candidate := defaultWindowsChromeCandidate(home)
+
+	if chromeProfilePathExists(candidate) {
+		return candidate
+	}
+
+	fallback := fallbackHostChromeUserDataDir()
+
+	if len(fallback) > 0 {
+		return fallback
+	}
+
+	return candidate
+}
+
 
 // chromeProfilePath joins the user-data root with a named profile dir.
 // Accepts both raw names ("Default", "Profile 1") and absolute paths.
@@ -56,6 +110,7 @@ func chromeProfilePathExists(path string) bool {
 // hint without aborting.
 func availableChromeProfileNames() []string {
 	entries, err := os.ReadDir(chromeUserDataDir())
+
 	if err != nil {
 		return nil
 	}
@@ -84,6 +139,7 @@ func chromeProfileNamesFromEntries(entries []os.DirEntry, stateDirs map[string]b
 func chromeLocalStateProfileDirs() map[string]bool {
 	out := map[string]bool{}
 	state := readChromeLocalState()
+
 	if state == nil {
 		return out
 	}
