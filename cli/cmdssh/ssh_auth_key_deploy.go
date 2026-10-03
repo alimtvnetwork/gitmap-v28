@@ -167,6 +167,17 @@ func resolveTargetOS(osType string, isForceUnix bool) string {
 	return osType
 }
 
+func resolveEffectiveRemoteOS(client *ssh.Client, storedOS string, isForceUnix bool) string {
+	if isForceUnix {
+		return "linux"
+	}
+	probed := probeRemoteOSType(client)
+	if probed != "" {
+		return probed
+	}
+	return resolveTargetOS(storedOS, isForceUnix)
+}
+
 func deployAuthKeyToNode(c db.SSHConnection, pubKey string, isForceUnix bool) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
 	client, isConnected := connectAuthKeyNode(c, header)
@@ -175,7 +186,7 @@ func deployAuthKeyToNode(c db.SSHConnection, pubKey string, isForceUnix bool) {
 	}
 	defer client.Close()
 
-	osType := resolveTargetOS(c.OS, isForceUnix)
+	osType := resolveEffectiveRemoteOS(client, c.OS, isForceUnix)
 	executeKeyInjection(client, header, osType, pubKey)
 }
 
