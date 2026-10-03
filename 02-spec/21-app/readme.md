@@ -67,4 +67,6 @@
 - [201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md](201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md) — GitMap Pull Concurrency Throttling, Split-DB GitIgnore Cache Engine, Subprocess Deadlock Prevention, and Single-Hand SSH Delegation (Status: `active`)
 - [66-fix-gitmap-pa-duplicate-repos](66-fix-gitmap-pa-duplicate-repos/01-architecture-spec.md) — Fix Duplicate Repositories in Pull-All, Database Case-Insensitive Collation, and In-Memory Deduplication Pipeline (Status: `active`)
 - [65-gitmap-update-all-zip-and-fixes](65-gitmap-update-all-zip-and-fixes/01-architecture-spec.md) — GitMap Nodes Reordering, Update-All-Zip SCP Distribution, AUM Search Cache Lifecycle, Repo Deduplication, and Gitignore Policy (Specs: [Architecture](65-gitmap-update-all-zip-and-fixes/01-architecture-spec.md), [Component](65-gitmap-update-all-zip-and-fixes/02-component-spec.md)) (Status: `active`)
+- [202-vmware-cli-commands-and-fleet-management.md](202-vmware-cli-commands-and-fleet-management.md) — VMware Workstation CLI Commands & Fleet Management Architecture (Status: `active`)
+- [203-ports-inspection-and-ssh-daemon-enablement.md](203-ports-inspection-and-ssh-daemon-enablement.md) — Ports Inspection, Firewall Audit & Cross-Platform OpenSSH Daemon Management (Status: `active`)
 

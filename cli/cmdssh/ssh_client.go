@@ -15,6 +15,7 @@ import (
 	"golang.org/x/term"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // SSHExecutor is the command factory used for executing SSH commands.
@@ -111,15 +112,66 @@ func runSSHOnce(ctx context.Context, target SSHTarget, args []string, password s
 	return err, errBuf.String()
 }
 
+func isConnectionOrDaemonError(err error, errStr string) bool {
+	if err == nil {
+		return false
+	}
+
+	lowerErr := strings.ToLower(err.Error())
+	lowerBuf := strings.ToLower(errStr)
+
+	if strings.Contains(lowerErr, "connection timed out") || strings.Contains(lowerBuf, "connection timed out") {
+		return true
+	}
+
+	if strings.Contains(lowerErr, "connection refused") || strings.Contains(lowerBuf, "connection refused") {
+		return true
+	}
+
+	if strings.Contains(lowerErr, "255") || strings.Contains(lowerBuf, "255") {
+		return true
+	}
+
+	return false
+}
+
+func printSSHDiagnosticFooter(target SSHTarget) {
+	fmt.Fprintf(os.Stderr, "\n%s[gitmap] SSH Connection Failed to %s%s\n", constants.ColorYellow, target.IP, constants.ColorReset)
+	fmt.Fprintf(os.Stderr, "  • OpenSSH Server might not be running or enabled on target machine.\n")
+	fmt.Fprintf(os.Stderr, "  • To diagnose: run '%sgitmap ssh troubleshoot %s%s'\n", constants.ColorCyan, target.IP, constants.ColorReset)
+	fmt.Fprintf(os.Stderr, "  • On target machine, run '%sgitmap ssh enable%s' to automatically install & start sshd.\n\n", constants.ColorCyan, constants.ColorReset)
+}
+
+func checkAndPrintDiagnosticFooter(target SSHTarget, err error, errStr string) {
+	if !isConnectionOrDaemonError(err, errStr) {
+		return
+	}
+
+	printSSHDiagnosticFooter(target)
+}
+
+func retrySSHAfterHostKeyRecovery(ctx context.Context, target SSHTarget, args []string, password string, errStr string) error {
+	handleHostKeyRecovery(ctx, &target, errStr)
+	retryErr, retryStr := runSSHOnce(ctx, target, args, password)
+	checkAndPrintDiagnosticFooter(target, retryErr, retryStr)
+
+	return retryErr
+}
+
 func SpawnSSHWithPassword(ctx context.Context, target SSHTarget, args []string, password string) error {
 	autoTrustTargetHostFn(ctx, &target)
 	err, errStr := runSSHOnce(ctx, target, args, password)
-	if err == nil || !isHostKeyChangedError(errStr) {
-		return err
+	if err == nil {
+		return nil
 	}
-	handleHostKeyRecovery(ctx, &target, errStr)
-	retryErr, _ := runSSHOnce(ctx, target, args, password)
-	return retryErr
+
+	if isHostKeyChangedError(errStr) {
+		return retrySSHAfterHostKeyRecovery(ctx, target, args, password, errStr)
+	}
+
+	checkAndPrintDiagnosticFooter(target, err, errStr)
+
+	return err
 }
 
 func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {

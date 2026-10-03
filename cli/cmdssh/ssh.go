@@ -230,9 +230,25 @@ func dispatchExportImportSSH(sub string, args []string) result.ErrorWrapper {
 	}
 }
 
+func dispatchDaemonSSH(ctx context.Context, sub string, args []string) result.ErrorWrapper {
+	switch sub {
+	case "enable", "enable-server", "sshd", "enable-sshd":
+		return result.MatchWrapper(RunSSHEnableCLI(args))
+	case "port", "ports", "set-port":
+		return result.MatchWrapper(RunSSHPortCLI(args))
+	case "troubleshoot", "doctor", "diagnose":
+		return result.MatchWrapper(RunSSHTroubleshootCLI(ctx, args))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
 func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
 	if resCore := dispatchCoreSSH(ctx, sub, args, parent); resCore.IsMatched() {
 		return resCore
+	}
+	if resDaemon := dispatchDaemonSSH(ctx, sub, args); resDaemon.IsMatched() {
+		return resDaemon
 	}
 	if resPkg := dispatchPackageSSH(sub, args); resPkg.IsMatched() {
 		return resPkg
@@ -246,6 +262,7 @@ func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *
 	if resSync := dispatchExportImportSSH(sub, args); resSync.IsMatched() {
 		return resSync
 	}
+
 	return dispatchFilesSSH(sub, args)
 }
 

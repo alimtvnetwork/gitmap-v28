@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.465.0] - 2026-10-03
+
+### Added
+- ports inspection and cross-platform openssh daemon management
+
+---
+
 ## [v6.464.0] - 2026-10-02
 
 ### Added

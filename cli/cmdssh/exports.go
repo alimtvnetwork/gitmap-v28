@@ -186,3 +186,19 @@ func ConnectSSHClientWithErr(c db.SSHConnection, headers ...string) (*ssh.Client
 func ProbeRemoteOSType(client *ssh.Client) string {
 	return probeRemoteOSType(client)
 }
+
+// RunSSHEnableCLI routes to ssh daemon enabling entrypoint.
+func RunSSHEnableCLI(args []string) error {
+	return runSSHEnableCLI(args)
+}
+
+// RunSSHPortCLI routes to ssh port configuration entrypoint.
+func RunSSHPortCLI(args []string) error {
+	return runSSHPortCLI(args)
+}
+
+// RunSSHTroubleshootCLI routes to ssh troubleshooting entrypoint.
+func RunSSHTroubleshootCLI(ctx context.Context, args []string) error {
+	return runSSHTroubleshootCLI(ctx, args)
+}
+

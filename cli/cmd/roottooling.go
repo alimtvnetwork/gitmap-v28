@@ -6,6 +6,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdasset"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdports"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservice"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtoken"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvmware"
@@ -297,6 +298,7 @@ func toolingNetworkEntries() []dispatchEntry {
 			return nil
 		}},
 		{[]string{"ip"}, func() error { return runIP(argsTail()) }},
+		{[]string{"ports", "port", "open-ports", "listening-ports"}, func() error { return cmdports.Run(argsTail()) }},
 	}
 }
 

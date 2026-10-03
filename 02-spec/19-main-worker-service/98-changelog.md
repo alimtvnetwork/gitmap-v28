@@ -1,3 +1,9 @@
+## v6.465.0 — 2026-10-03 (ports inspection and cross-platform openssh daemon management)
+
+**Scope:** Version bump. ports inspection and cross-platform openssh daemon management.
+
+---
+
 ## v6.464.0 — 2026-10-02 (store-dedup - os-aware path sensitivity equalfold and sqlite uniqueness)
 
 **Scope:** Version bump. store-dedup - os-aware path sensitivity equalfold and sqlite uniqueness.

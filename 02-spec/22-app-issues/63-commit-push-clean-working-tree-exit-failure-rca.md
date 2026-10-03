@@ -23,13 +23,13 @@ nothing to commit, working tree clean
 [E9000:EXECUTION] git commit failed:: exit status 1 (at=cmd/commit_push.go:334)
 Stack Trace:
   [0] github.com/alimtvnetwork/gitmap-v28/cli/cmd.executeCommitPush
-      d:/work/gitmap/cli/cmd/commit_push.go:334
+      cli/cmd/commit_push.go:334
   [1] github.com/alimtvnetwork/gitmap-v28/cli/cmd.runCommitPushFeature
-      d:/work/gitmap/cli/cmd/commit_push.go:123
+      cli/cmd/commit_push.go:123
   [2] github.com/alimtvnetwork/gitmap-v28/cli/cmd.Execute
-      d:/work/gitmap/cli/cmd/root.go:88
+      cli/cmd/root.go:88
   [3] main.main
-      d:/work/gitmap/cli/main.go:24
+      cli/main.go:24
 ```
 
 ### Symptoms:
