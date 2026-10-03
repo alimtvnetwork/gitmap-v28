@@ -38,6 +38,7 @@ func readMaskedPassword(prompt string, fd int) (string, error) {
 	fmt.Print(prompt)
 	passBytes, err := readPasswordHook(fd)
 	fmt.Println()
+
 	if err != nil {
 		return "", err
 	}
@@ -60,6 +61,7 @@ func readInteractiveConsent(r *bufio.Reader) (bool, error) {
 
 func verifyTargetPassword(target *SSHTarget, pass string) bool {
 	client, err := dialTargetPassHook(target, pass)
+
 	if err != nil {
 		return false
 	}
@@ -88,6 +90,7 @@ func reportFailedAttempt(target *SSHTarget, attempt int) {
 func promptAttempt(target *SSHTarget, attempt int) (string, bool) {
 	prompt := buildAttemptPrompt(target, attempt)
 	pass, err := readMaskedPassword(prompt, int(os.Stdin.Fd()))
+
 	if err != nil || pass == "" {
 		return "", false
 	}
@@ -97,18 +100,29 @@ func promptAttempt(target *SSHTarget, attempt int) (string, bool) {
 	return pass, isValid
 }
 
+func handlePromptAttempt(ctx context.Context, target *SSHTarget, attempt int) (string, bool) {
+	if ctx.Err() != nil {
+		return "", false
+	}
+
+	pass, isValid := promptAttempt(target, attempt)
+
+	if isValid {
+		return pass, true
+	}
+
+	reportFailedAttempt(target, attempt)
+
+	return "", false
+}
+
 func promptAndVerifyPassword(ctx context.Context, target *SSHTarget) (string, bool) {
 	for attempt := 1; attempt <= 3; attempt++ {
-		if ctx.Err() != nil {
-			return "", false
-		}
+		pass, isValid := handlePromptAttempt(ctx, target, attempt)
 
-		pass, isValid := promptAttempt(target, attempt)
 		if isValid {
 			return pass, true
 		}
-
-		reportFailedAttempt(target, attempt)
 	}
 
 	return "", false
@@ -117,6 +131,7 @@ func promptAndVerifyPassword(ctx context.Context, target *SSHTarget) (string, bo
 func promptConsentAndPersist(ctx context.Context, alias string, target *SSHTarget, pass string) {
 	fmt.Print(formatConsentPrompt())
 	line, _ := readConsentHook('\n')
+
 	if isConsentAffirmative(line) {
 		saveExplicitPassword(ctx, alias, target, pass)
 		fmt.Println("✓ Password saved in local RSA vault for future logins.")
@@ -151,16 +166,22 @@ func promptAndPersistPassword(ctx context.Context, target string, sshTarget *SSH
 	return "", apperror.NewValidationError("authentication failed: invalid password")
 }
 
+func isStoredPasswordValid(sshTarget *SSHTarget, pass string) bool {
+	if verifyTargetPassword(sshTarget, pass) {
+		return true
+	}
+
+	fmt.Printf("⚠ Stored password for %s@%s is invalid or expired. Prompting for updated password.\n", sshTarget.Username, sshTarget.IP)
+
+	return false
+}
+
 func interceptSSHPasswordIfNeeded(ctx context.Context, target string, sshTarget *SSHTarget, currentPass string) (string, error) {
-	if currentPass != "" {
+	if currentPass != "" && isStoredPasswordValid(sshTarget, currentPass) {
 		return currentPass, nil
 	}
 
-	if hasKeyAuth(sshTarget) {
-		return "", nil
-	}
-
-	if !isTerminalHook() {
+	if hasKeyAuth(sshTarget) || !isTerminalHook() {
 		return "", nil
 	}
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.472.0] - 2026-10-03
+
+### Added
+- fix stats avgduration float scan error, ss alias ssh routing, and ssh stale password re-prompt
+
+---
+
 ## [v6.471.0] - 2026-10-03
 
 ### Added

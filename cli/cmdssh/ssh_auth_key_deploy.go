@@ -190,18 +190,37 @@ func connectAuthKeyNode(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	return nil, false
 }
 
-func promptAndConnectSSH(c db.SSHConnection, header string) (*ssh.Client, bool) {
+func promptTargetPassword(c db.SSHConnection, header string) (string, error) {
 	prompt := fmt.Sprintf("%s Enter SSH password for %s@%s: ", header, c.Username, c.IPAddress)
-	pass, err := PromptSSHPassword(context.Background(), prompt, int(os.Stdin.Fd()))
+
+	return PromptSSHPassword(context.Background(), prompt, int(os.Stdin.Fd()))
+}
+
+func persistAuthDeploymentPassword(c db.SSHConnection, pass string) {
+	alias := c.Alias
+	if alias == "" {
+		alias = c.IPAddress
+	}
+
+	target := SSHTarget{Username: c.Username, IP: c.IPAddress, Port: 22}
+	saveExplicitPassword(context.Background(), alias, &target, pass)
+}
+
+func promptAndConnectSSH(c db.SSHConnection, header string) (*ssh.Client, bool) {
+	pass, err := promptTargetPassword(c, header)
 	if err != nil || pass == "" {
 		return nil, false
 	}
+
 	client, connErr := crypto.ConnectWithPassword(c.IPAddress, c.Username, pass)
 	if connErr != nil {
 		printHeaderError(header, "Password connect failed", connErr)
+
 		return nil, false
 	}
-	saveSSHPasswordOnAuth(c.Alias, c.IPAddress, pass)
+
+	persistAuthDeploymentPassword(c, pass)
+
 	return client, true
 }
 

@@ -1,0 +1,16 @@
+{
+  "task": "Task-01",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/store/stats.go",
+    "cli/cmd/stats.go",
+    "cli/cmd/stats_test.go"
+  ],
+  "checks": "targeted linters exit 0",
+  "acceptance": {
+    "ac1": "PASS SQLite AVG(DurationMs) float64 scan converted safely to int64",
+    "ac2": "PASS ss fix-auth forwarded to runSSH"
+  },
+  "assumptions": [],
+  "blockers": []
+}

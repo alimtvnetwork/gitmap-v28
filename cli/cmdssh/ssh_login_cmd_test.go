@@ -26,17 +26,25 @@ func setupTestDB(t *testing.T) *store.DB {
 	return testDB
 }
 
+func hookTargetDialSuccess(t *testing.T) {
+	origDial := dialTargetPassHook
+	dialTargetPassHook = func(*SSHTarget, string) (*ssh.Client, error) { return nil, nil }
+	t.Cleanup(func() { dialTargetPassHook = origDial })
+}
+
 func hookTestDB(t *testing.T, db *store.DB) {
 	orig := openSSHDB
 	openSSHDB = func() (*store.DB, error) {
 		if testLoginDBPath != "" {
 			return store.OpenAt(testLoginDBPath)
 		}
+
 		return db, nil
 	}
 	t.Cleanup(func() { openSSHDB = orig })
 	t.Cleanup(SetConnectProbeClientForTesting(func(*SSHTarget, string) *ssh.Client { return nil }))
 	t.Cleanup(SetAutoTrustTargetHostForTesting(func(context.Context, *SSHTarget) {}))
+	hookTargetDialSuccess(t)
 }
 
 func hookTestSpawner(t *testing.T) *int {
@@ -482,4 +490,69 @@ func TestVerifyTargetPassword(t *testing.T) {
 	if verifyTargetPassword(target, "wrong") {
 		t.Errorf("expected false for wrong password")
 	}
+}
+
+func hookValidStoredDial(t *testing.T) {
+	origDial := dialTargetPassHook
+	dialTargetPassHook = func(target *SSHTarget, pass string) (*ssh.Client, error) {
+		if pass == "validStoredPass" {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("auth fail")
+	}
+	t.Cleanup(func() { dialTargetPassHook = origDial })
+}
+
+func hookPromptSpy(t *testing.T, isPrompted *bool) {
+	origPass := readPasswordHook
+	readPasswordHook = func(int) ([]byte, error) {
+		*isPrompted = true
+
+		return []byte("newPass"), nil
+	}
+	t.Cleanup(func() { readPasswordHook = origPass })
+}
+
+func TestInterceptSSHPassword_ValidStoredPasswordBypass(t *testing.T) {
+	isPrompted := false
+	hookValidStoredDial(t)
+	hookPromptSpy(t, &isPrompted)
+	target := &SSHTarget{Username: "admin", IP: "10.0.0.1", Port: 22}
+
+	pass, err := interceptSSHPasswordIfNeeded(context.Background(), "h1", target, "validStoredPass")
+	if err != nil {
+		t.Fatalf("expected nil error, got: %v", err)
+	}
+
+	if pass != "validStoredPass" || isPrompted {
+		t.Errorf("expected validStoredPass and no prompt, got pass=%q prompted=%v", pass, isPrompted)
+	}
+}
+
+func hookStalePasswordDial(t *testing.T, validPass string) {
+	origDial := dialTargetPassHook
+	dialTargetPassHook = func(target *SSHTarget, pass string) (*ssh.Client, error) {
+		if pass == validPass {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("stale password auth failed")
+	}
+	t.Cleanup(func() { dialTargetPassHook = origDial })
+}
+
+func TestInterceptSSHPassword_InvalidStoredPasswordReprompt(t *testing.T) {
+	testDB := setupTestDB(t)
+	hookTestDB(t, testDB)
+	setupInteractiveMockHooks(t, "y\n", "newFreshPass")
+	hookStalePasswordDial(t, "newFreshPass")
+	target := &SSHTarget{Username: "admin", IP: "10.0.0.95", Port: 22}
+
+	pass, err := interceptSSHPasswordIfNeeded(context.Background(), "reprompt-box", target, "stalePass")
+	if err != nil || pass != "newFreshPass" {
+		t.Fatalf("expected newFreshPass, got: %s (err: %v)", pass, err)
+	}
+
+	verifyEncryptedHostPassword(t, testDB, "reprompt-box")
 }
