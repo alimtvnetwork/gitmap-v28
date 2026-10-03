@@ -217,22 +217,47 @@ func executeSSHLogin(ctx context.Context, target string, force bool) error {
 	return executeSSHLoginWithPassword(ctx, target, "", force)
 }
 
-func executeSSHLoginWithPassword(ctx context.Context, target string, explicitPass string, force bool) error {
+func resolveTargetIPAndAlias(ctx context.Context, target string, sshTarget *SSHTarget) error {
+	checkAndResolveIP(ctx, target, sshTarget)
+
+	return checkAndResolveAlias(ctx, target, sshTarget)
+}
+
+func prepareSSHTarget(ctx context.Context, target string) (*SSHTarget, error) {
 	sshTarget, err := ParseSSHTarget(target, "root", 22)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := resolveTargetIPAndAlias(ctx, target, sshTarget); err != nil {
+		return nil, err
+	}
+
+	autoTrustTargetHostFn(ctx, sshTarget)
+
+	return sshTarget, nil
+}
+
+func resolveAndInterceptPassword(ctx context.Context, target string, sshTarget *SSHTarget, explicitPass string) (string, error) {
+	password := resolvePassword(ctx, target, sshTarget, explicitPass)
+
+	return interceptSSHPasswordIfNeeded(ctx, target, sshTarget, password)
+}
+
+func executeSSHLoginWithPassword(ctx context.Context, target string, explicitPass string, force bool) error {
+	sshTarget, err := prepareSSHTarget(ctx, target)
 	if err != nil {
 		return err
 	}
 
-	checkAndResolveIP(ctx, target, sshTarget)
-	if err := checkAndResolveAlias(ctx, target, sshTarget); err != nil {
+	pass, err := resolveAndInterceptPassword(ctx, target, sshTarget, explicitPass)
+	if err != nil {
 		return err
 	}
 
-	autoTrustTargetHostFn(ctx, sshTarget)
-	password := resolvePassword(ctx, target, sshTarget, explicitPass)
-	probeAndEnsureNodeProfile(ctx, target, sshTarget, password)
+	probeAndEnsureNodeProfile(ctx, target, sshTarget, pass)
 
-	return spawnSSHFn(ctx, *sshTarget, nil, password)
+	return spawnSSHFn(ctx, *sshTarget, nil, pass)
 }
 
 func checkAndResolveAlias(ctx context.Context, target string, sshTarget *SSHTarget) error {

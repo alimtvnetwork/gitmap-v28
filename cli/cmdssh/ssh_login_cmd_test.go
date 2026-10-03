@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"path/filepath"
@@ -307,5 +308,178 @@ func testDirectIPRecall(t *testing.T, capturedPass *string) {
 	}
 	if *capturedPass != "ipSecret999" {
 		t.Errorf("expected ipSecret999 recalled, got: %s", *capturedPass)
+	}
+}
+
+func checkConsentAffirmativeCases(t *testing.T, cases []struct {
+	input string
+	want  bool
+}) {
+	for _, tc := range cases {
+		if got := isConsentAffirmative(tc.input); got != tc.want {
+			t.Errorf("isConsentAffirmative(%q) = %v, want %v", tc.input, got, tc.want)
+		}
+	}
+}
+
+func TestIsConsentAffirmative(t *testing.T) {
+	checkConsentAffirmativeCases(t, []struct {
+		input string
+		want  bool
+	}{
+		{"y", true}, {"Y", true}, {"yes", true}, {"YES", true}, {"  y  ", true},
+		{"n", false}, {"no", false}, {"", false}, {"invalid", false},
+	})
+}
+
+func TestFormatPrompts(t *testing.T) {
+	passPrompt := formatPasswordPrompt("admin", "192.168.1.10")
+	if passPrompt != "Enter password for admin@192.168.1.10: " {
+		t.Errorf("unexpected password prompt: %q", passPrompt)
+	}
+
+	consentPrompt := formatConsentPrompt()
+	if !strings.Contains(consentPrompt, "RSA algorithm") {
+		t.Errorf("expected consent prompt to mention RSA, got: %q", consentPrompt)
+	}
+}
+
+func hookKeyAuthSuccess(t *testing.T) *bool {
+	isPrompted := false
+	origKey, origPass := tryConnectKeyHook, readPasswordHook
+	tryConnectKeyHook = func(*SSHTarget) *ssh.Client { return &ssh.Client{} }
+	readPasswordHook = func(int) ([]byte, error) {
+		isPrompted = true
+		return []byte("pass"), nil
+	}
+	t.Cleanup(func() {
+		tryConnectKeyHook, readPasswordHook = origKey, origPass
+	})
+
+	return &isPrompted
+}
+
+func TestInterceptSSHPassword_KeyAuthBypass(t *testing.T) {
+	isPrompted := hookKeyAuthSuccess(t)
+	target := &SSHTarget{Username: "root", IP: "10.0.0.1", Port: 22}
+
+	pass, err := interceptSSHPasswordIfNeeded(context.Background(), "t1", target, "")
+	if err != nil {
+		t.Fatalf("expected nil error, got: %v", err)
+	}
+
+	if pass != "" || *isPrompted {
+		t.Errorf("expected empty password and no prompt, got pass=%q prompted=%v", pass, *isPrompted)
+	}
+}
+
+func setupInteractiveMockHooks(t *testing.T, consent string, pass string) {
+	origTerm, origKey := isTerminalHook, tryConnectKeyHook
+	origPass, origDial, origConsent := readPasswordHook, dialTargetPassHook, readConsentHook
+	isTerminalHook = func() bool { return true }
+	tryConnectKeyHook = func(*SSHTarget) *ssh.Client { return nil }
+	dialTargetPassHook = func(*SSHTarget, string) (*ssh.Client, error) { return nil, nil }
+	readPasswordHook = func(int) ([]byte, error) { return []byte(pass), nil }
+	readConsentHook = func(byte) (string, error) { return consent, nil }
+	t.Cleanup(func() {
+		isTerminalHook, tryConnectKeyHook = origTerm, origKey
+		readPasswordHook, dialTargetPassHook, readConsentHook = origPass, origDial, origConsent
+	})
+}
+
+func TestInterceptSSHPassword_ConsentAffirmative(t *testing.T) {
+	testDB := setupTestDB(t)
+	hookTestDB(t, testDB)
+	setupInteractiveMockHooks(t, "y\n", "secret123")
+	target := &SSHTarget{Username: "admin", IP: "10.0.0.88", Port: 22}
+
+	pass, err := interceptSSHPasswordIfNeeded(context.Background(), "vault-box", target, "")
+	if err != nil || pass != "secret123" {
+		t.Fatalf("expected pass secret123, got: %s (err: %v)", pass, err)
+	}
+
+	verifyEncryptedHostPassword(t, testDB, "vault-box")
+}
+
+func assertHostPasswordNotSaved(t *testing.T, db *store.DB, alias string) {
+	host, err := store.GetHostByAlias(context.Background(), alias, db.Conn())
+	if err == nil && host.EncryptedPassword != "" {
+		t.Errorf("expected no saved password for host %s, got: %s", alias, host.EncryptedPassword)
+	}
+}
+
+func TestInterceptSSHPassword_ConsentNegative(t *testing.T) {
+	testDB := setupTestDB(t)
+	hookTestDB(t, testDB)
+	setupInteractiveMockHooks(t, "n\n", "sessionOnly456")
+	target := &SSHTarget{Username: "admin", IP: "10.0.0.89", Port: 22}
+
+	pass, err := interceptSSHPasswordIfNeeded(context.Background(), "ephemeral-box", target, "")
+	if err != nil || pass != "sessionOnly456" {
+		t.Fatalf("expected pass sessionOnly456, got: %s (err: %v)", pass, err)
+	}
+
+	assertHostPasswordNotSaved(t, testDB, "ephemeral-box")
+}
+
+func hookNonInteractiveTerminal(t *testing.T) *bool {
+	origTerm := isTerminalHook
+	isTerminalHook = func() bool { return false }
+	t.Cleanup(func() { isTerminalHook = origTerm })
+
+	isPrompted := hookKeyAuthSuccess(t)
+	*isPrompted = false
+
+	return isPrompted
+}
+
+func TestInterceptSSHPassword_NonInteractive(t *testing.T) {
+	isPrompted := hookNonInteractiveTerminal(t)
+	target := &SSHTarget{Username: "ci-user", IP: "10.0.0.90", Port: 22}
+
+	pass, err := interceptSSHPasswordIfNeeded(context.Background(), "ci-box", target, "")
+	if err != nil {
+		t.Fatalf("expected nil error for non-interactive pass-through, got: %v", err)
+	}
+
+	if pass != "" || *isPrompted {
+		t.Errorf("expected empty password and no prompt, got pass=%q prompted=%v", pass, *isPrompted)
+	}
+}
+
+func TestReadInteractiveConsent(t *testing.T) {
+	rYes := bufio.NewReader(strings.NewReader("yes\n"))
+	if isOk, err := readInteractiveConsent(rYes); err != nil || !isOk {
+		t.Errorf("expected yes to be true, got %v (err: %v)", isOk, err)
+	}
+
+	rNo := bufio.NewReader(strings.NewReader("no\n"))
+	if isOk, err := readInteractiveConsent(rNo); err != nil || isOk {
+		t.Errorf("expected no to be false, got %v (err: %v)", isOk, err)
+	}
+}
+
+func setupVerifyTargetTestHook(t *testing.T) {
+	origDial := dialTargetPassHook
+	dialTargetPassHook = func(target *SSHTarget, pass string) (*ssh.Client, error) {
+		if pass == "valid" {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("auth fail")
+	}
+	t.Cleanup(func() { dialTargetPassHook = origDial })
+}
+
+func TestVerifyTargetPassword(t *testing.T) {
+	setupVerifyTargetTestHook(t)
+	target := &SSHTarget{Username: "admin", IP: "10.0.0.1"}
+
+	if !verifyTargetPassword(target, "valid") {
+		t.Errorf("expected true for valid password")
+	}
+
+	if verifyTargetPassword(target, "wrong") {
+		t.Errorf("expected false for wrong password")
 	}
 }

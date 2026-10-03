@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.471.0] - 2026-10-03
+
+### Added
+- ssh password interception masked prompt rsa consent and credential vault
+
+---
+
 ## [v6.470.0] - 2026-10-03
 
 ### Added
