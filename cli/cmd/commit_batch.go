@@ -67,7 +67,11 @@ func handleNonGitRepoCommit(cleanArgs []string, hasPush, isDryRun bool) error {
 		return err
 	}
 
-	childRepos, _ := fsutil.DiscoverChildGitRepos(cwd)
+	return handleNonGitRepoCommitInDir(cleanArgs, hasPush, isDryRun, cwd)
+}
+
+func handleNonGitRepoCommitInDir(cleanArgs []string, hasPush, isDryRun bool, dir string) error {
+	childRepos, _ := fsutil.DiscoverChildGitRepos(dir)
 	isAll := isAllCommitRequested(cleanArgs)
 
 	if isAll && len(childRepos) > 0 {

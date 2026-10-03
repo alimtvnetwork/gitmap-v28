@@ -102,11 +102,8 @@ func assertStripAllFlags(t *testing.T, args, want []string) {
 
 func TestHandleNonGitRepoCommit_AbortError(t *testing.T) {
 	tempDir := t.TempDir()
-	origWd, _ := os.Getwd()
-	_ = os.Chdir(tempDir)
-	defer func() { _ = os.Chdir(origWd) }()
 
-	err := handleNonGitRepoCommit([]string{"msg"}, false, false)
+	err := handleNonGitRepoCommitInDir([]string{"msg"}, false, false, tempDir)
 	assertNonGitAbortError(t, err)
 }
 
@@ -127,14 +124,11 @@ func assertNonGitAbortError(t *testing.T, err error) {
 
 func TestHandleNonGitRepoCommit_DryRunChildRepo(t *testing.T) {
 	tempDir := t.TempDir()
-	origWd, _ := os.Getwd()
-	_ = os.Chdir(tempDir)
-	defer func() { _ = os.Chdir(origWd) }()
 
 	childGit := filepath.Join(tempDir, "child-repo", ".git")
 	_ = os.MkdirAll(childGit, 0755)
 
-	err := handleNonGitRepoCommit([]string{"all"}, false, true)
+	err := handleNonGitRepoCommitInDir([]string{"all"}, false, true, tempDir)
 	if err != nil {
 		t.Errorf("expected nil for dry run on child repos, got %v", err)
 	}
