@@ -32,7 +32,6 @@ var serviceNameToPortMap = map[string]int{
 	"redis":       6379,
 }
 
-
 // Run executes the ports inspection CLI command.
 func Run(args []string) error {
 	opts, isHelp, err := parsePortsFlags(args)
@@ -61,7 +60,6 @@ func Run(args []string) error {
 
 	return nil
 }
-
 
 func parsePortsFlags(args []string) (PortsOptions, bool, error) {
 	opts := PortsOptions{}

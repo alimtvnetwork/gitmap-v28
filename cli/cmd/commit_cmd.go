@@ -15,46 +15,58 @@ func RunCommit(args []string) error {
 func runCommit(args []string) error {
 	if isCommitPushHelpArg(args) {
 		RenderCommitHelp()
+
 		return nil
 	}
+
+	return dispatchCommit(args)
+}
+
+func dispatchCommit(args []string) error {
 	cleanArgs, hasPush, isDryRun := parseCommitFlags(args)
+	if !isGitRepoCWD() {
+		return handleNonGitRepoCommit(cleanArgs, hasPush, isDryRun)
+	}
+
 	if isDryRun {
 		return previewCommitChanges()
 	}
+
 	return executeCommit(cleanArgs, hasPush)
 }
 
 func parseCommitFlags(args []string) ([]string, bool, bool) {
 	var clean []string
 	hasPush, isDryRun := false, false
+
 	for _, a := range args {
-		switch a {
-		case "--push", "-p":
-			hasPush = true
-		case "--dry-run", "-n":
-			isDryRun = true
-		default:
-			clean = append(clean, a)
-		}
+		clean, hasPush, isDryRun = evaluateCommitFlag(a, clean, hasPush, isDryRun)
 	}
+
 	return clean, hasPush, isDryRun
+}
+
+func evaluateCommitFlag(arg string, clean []string, hasPush, isDryRun bool) ([]string, bool, bool) {
+	switch arg {
+	case "--push", "-p":
+		return clean, true, isDryRun
+	case "--dry-run", "-n":
+		return clean, hasPush, true
+	default:
+		return append(clean, arg), hasPush, isDryRun
+	}
 }
 
 func previewCommitChanges() error {
 	printPaddedInfo("Dry run: previewing changes to be committed...")
+
 	return execGitInheritCP("status", "--short")
 }
 
 func executeCommit(args []string, hasPush bool) error {
-	printPaddedInfo("Staging all changes...")
-
-	if err := execGitInheritCP("add", "-A"); err != nil {
-		return apperror.WrapSimple(err, "git add failed:")
-	}
-
-	hasChanges, err := hasStagedChangesCP()
+	hasChanges, err := stageAndCheckStaged()
 	if err != nil {
-		return apperror.WrapSimple(err, "check git status failed:")
+		return err
 	}
 
 	if !hasChanges {
@@ -63,6 +75,25 @@ func executeCommit(args []string, hasPush bool) error {
 		return handleCleanWorkingTree(hasPush)
 	}
 
+	return commitAndOptionalPush(args, hasPush)
+}
+
+func stageAndCheckStaged() (bool, error) {
+	printPaddedInfo("Staging all changes...")
+
+	if err := execGitInheritCP("add", "-A"); err != nil {
+		return false, apperror.WrapSimple(err, "git add failed:")
+	}
+
+	hasChanges, err := hasStagedChangesCP()
+	if err != nil {
+		return false, apperror.WrapSimple(err, "check git status failed:")
+	}
+
+	return hasChanges, nil
+}
+
+func commitAndOptionalPush(args []string, hasPush bool) error {
 	if err := dispatchGitCommit(args); err != nil {
 		return apperror.WrapSimple(err, "git commit failed:")
 	}
@@ -120,12 +151,16 @@ func handleOptionalPush(hasPush bool) error {
 func dispatchGitCommit(args []string) error {
 	if len(args) == 0 {
 		printPaddedInfo("Opening git commit editor...")
+
 		return execGitInheritCP("commit")
 	}
+
 	if args[0] == "-m" {
 		return execGitInheritCP(append([]string{"commit"}, args...)...)
 	}
+
 	msg := strings.Join(args, " ")
 	printPaddedInfo("Committing: %s", msg)
+
 	return execGitInheritCP("commit", "-m", msg)
 }

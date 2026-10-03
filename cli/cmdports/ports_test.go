@@ -16,7 +16,6 @@ func TestParsePortsFlags(t *testing.T) {
 		t.Fatalf("expected zeroed options, got %+v", opts)
 	}
 
-
 	optsPort, _, err := parsePortsFlags([]string{"-p", "22"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -262,4 +261,3 @@ func TestResolveServiceNamePort(t *testing.T) {
 		t.Fatalf("expected false for unknown service")
 	}
 }
-

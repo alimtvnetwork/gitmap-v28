@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strconv"
@@ -75,7 +76,10 @@ func runPullCommitPush(args []string) error {
 		return apperror.NewSimple("Usage: gitmap pull-commit-push \"<commit message>\"", "E9000")
 	}
 
-	commitMessage := strings.Join(args, " ")
+	return executePullCommitPush(strings.Join(args, " "))
+}
+
+func executePullCommitPush(commitMessage string) error {
 	printPaddedInfo("Pulling latest changes first...")
 
 	if err := execGitInheritCP("pull", "--rebase"); err != nil {
@@ -147,18 +151,23 @@ func parseRewriteFlags(args []string) (string, bool) {
 	targetSha := ""
 
 	for _, arg := range args {
-		if arg == "--no-push" || arg == "--local" || arg == "-n" {
-			isPush = false
-			continue
-		}
+		targetSha, isPush = evaluateRewriteFlag(arg, targetSha, isPush)
+	}
 
-		if strings.HasPrefix(arg, "-") {
-			continue
-		}
+	return targetSha, isPush
+}
 
-		if targetSha == "" {
-			targetSha = arg
-		}
+func evaluateRewriteFlag(arg, targetSha string, isPush bool) (string, bool) {
+	if arg == "--no-push" || arg == "--local" || arg == "-n" {
+		return targetSha, false
+	}
+
+	if strings.HasPrefix(arg, "-") {
+		return targetSha, isPush
+	}
+
+	if targetSha == "" {
+		return arg, isPush
 	}
 
 	return targetSha, isPush
@@ -177,6 +186,10 @@ func runRmGit(args []string) error {
 		return apperror.NewSimple("Usage: gitmap rm-git <sha-fragment> [--no-push]", "E9000")
 	}
 
+	return executeRmGit(targetSha, isPush)
+}
+
+func executeRmGit(targetSha string, isPush bool) error {
 	fmt.Println()
 	fullSha, errResolve := resolveSHAFragment(targetSha)
 	if errResolve != nil {
@@ -186,6 +199,10 @@ func runRmGit(args []string) error {
 	printPaddedInfo("Resolved SHA: %s", fullSha)
 	printPaddedWarning("This will rewrite history. Use with caution.")
 
+	return finishRmGit(fullSha, isPush)
+}
+
+func finishRmGit(fullSha string, isPush bool) error {
 	if errDrop := executeDropCommit(fullSha); errDrop != nil {
 		return errDrop
 	}
@@ -214,6 +231,10 @@ func runGitReset(args []string) error {
 		return apperror.NewSimple("Usage: gitmap git-reset <target-sha> [--no-push]", "E9000")
 	}
 
+	return executeGitReset(targetSha, isPush)
+}
+
+func executeGitReset(targetSha string, isPush bool) error {
 	fmt.Println()
 	fullSha, errResolve := resolveSHAFragment(targetSha)
 	if errResolve != nil {
@@ -226,6 +247,10 @@ func runGitReset(args []string) error {
 	printPaddedInfo("Resolved target SHA: %s", fullSha)
 	printPaddedWarning("Resetting branch history to %s (%s).", fullSha[:8], subject)
 
+	return finishGitReset(fullSha, subject, preSha, isPush)
+}
+
+func finishGitReset(fullSha, subject, preSha string, isPush bool) error {
 	if errReset := execGitPadded("reset", "--hard", fullSha); errReset != nil {
 		printPaddedError("Failed to reset branch: %v", errReset)
 
@@ -238,13 +263,16 @@ func runGitReset(args []string) error {
 		syncRemoteAfterRewrite()
 	}
 
-	if len(preSha) >= 8 {
-		printPaddedInfo("To undo this reset locally: git reset --hard %s", strings.TrimSpace(preSha)[:8])
-	}
-
+	printUndoResetHint(preSha)
 	printCommandVersionFooter()
 
 	return nil
+}
+
+func printUndoResetHint(preSha string) {
+	if len(preSha) >= 8 {
+		printPaddedInfo("To undo this reset locally: git reset --hard %s", strings.TrimSpace(preSha)[:8])
+	}
 }
 
 // RunGitReset is the exported entry point for git-reset.
@@ -265,6 +293,10 @@ func executeDropCommit(fullSha string) error {
 		return execGitPadded("reset", "--hard", "HEAD~1")
 	}
 
+	return rebaseDropCommit(fullSha)
+}
+
+func rebaseDropCommit(fullSha string) error {
 	if errRebase := execGitPadded("rebase", "--onto", fullSha+"^", fullSha, "HEAD"); errRebase != nil {
 		execGitOutputCP("rebase", "--abort")
 		printPaddedError("Failed to rebase commit %s: %v", fullSha[:8], errRebase)
@@ -342,6 +374,10 @@ func countUnpushedCommitsCP() int {
 		return 0
 	}
 
+	return parseUnpushedCount()
+}
+
+func parseUnpushedCount() int {
 	out, errCount := execGitOutputCP("rev-list", "--count", "@{u}..HEAD")
 	if errCount != nil {
 		return 0
@@ -357,31 +393,79 @@ func countUnpushedCommitsCP() int {
 
 // executeCommitPush is the shared logic for all commit-push variants.
 func executeCommitPush(commitMessage string) *apperror.AppError {
-	printPaddedInfo("Staging all changes...")
-	if err := execGitInheritCP("add", "-A"); err != nil {
-		return apperror.WrapSimple(err, "git add failed:")
+	if !isGitRepoCWD() {
+		return handleNonGitRepoCommitPush()
 	}
 
-	hasChanges, errStatus := hasStagedChangesCP()
-	if errStatus != nil {
-		return apperror.WrapSimple(errStatus, "check git status failed:")
+	hasChanges, errPrep := stageAndCheckChanges()
+	if errPrep != nil {
+		return errPrep
 	}
 
 	if !hasChanges {
 		return handleCleanWorkingTreeCP()
 	}
 
+	return performCommitPush(commitMessage)
+}
+
+func stageAndCheckChanges() (bool, *apperror.AppError) {
+	printPaddedInfo("Staging all changes...")
+
+	if err := execGitPaddedFiltered("add", "-A"); err != nil {
+		return false, apperror.WrapSimple(err, "git add failed:")
+	}
+
+	hasChanges, errStatus := hasStagedChangesCP()
+	if errStatus != nil {
+		return false, apperror.WrapSimple(errStatus, "check git status failed:")
+	}
+
+	return hasChanges, nil
+}
+
+func performCommitPush(commitMessage string) *apperror.AppError {
 	printPaddedInfo("Committing: %s", commitMessage)
-	if err := execGitInheritCP("commit", "-m", commitMessage); err != nil {
+
+	if err := execGitPaddedFiltered("commit", "-m", commitMessage); err != nil {
 		return apperror.WrapSimple(err, "git commit failed:")
 	}
 
 	printPaddedInfo("Pushing to remote...")
-	if err := execGitInheritCP("push"); err != nil {
+
+	if err := execGitPaddedFiltered("push"); err != nil {
 		return apperror.WrapSimple(err, "git push failed:")
 	}
 
+	renderSuccessSummary(commitMessage)
+
 	return nil
+}
+
+func renderSuccessSummary(commitMessage string) {
+	branch := resolveCurrentBranchOrHead()
+	sha := resolveShortHeadSha()
+
+	renderCommitPushSummaryCard(branch, sha, commitMessage, "pushed")
+}
+
+func resolveCurrentBranchOrHead() string {
+	branch, _ := getCurrentBranchName()
+	if branch == "" {
+		return "HEAD"
+	}
+
+	return branch
+}
+
+func resolveShortHeadSha() string {
+	headSha, _ := execGitOutputCP("rev-parse", "--short", "HEAD")
+	sha := strings.TrimSpace(headSha)
+	if sha == "" {
+		return "-"
+	}
+
+	return sha
 }
 
 func handleCleanWorkingTreeCP() *apperror.AppError {
@@ -400,7 +484,7 @@ func handleCleanWorkingTreeCP() *apperror.AppError {
 func pushUnpushedCommitsCP(unpushed int) *apperror.AppError {
 	printPaddedInfo("Pushing %d unpushed commit(s) to remote...", unpushed)
 
-	if errPush := execGitInheritCP("push"); errPush != nil {
+	if errPush := execGitPaddedFiltered("push"); errPush != nil {
 		return apperror.WrapSimple(errPush, "git push failed:")
 	}
 
@@ -440,13 +524,16 @@ func execGitPadded(gitArgs ...string) error {
 		return err
 	}
 
-	scanner := bufio.NewScanner(stdoutPipe)
-	for scanner.Scan() {
-		line := scanner.Text()
-		fmt.Printf("  %s\n", line)
-	}
+	scanPaddedLines(stdoutPipe)
 
 	return cmd.Wait()
+}
+
+func scanPaddedLines(r io.Reader) {
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		fmt.Printf("  %s\n", scanner.Text())
+	}
 }
 
 func resolveSHAFragment(shaFragment string) (string, error) {
@@ -455,10 +542,15 @@ func resolveSHAFragment(shaFragment string) (string, error) {
 		return strings.TrimSpace(fullSha), nil
 	}
 
-	fullSha, err = execGitOutputCP("log", "--all", "--format=%H", "--grep="+shaFragment)
+	return searchSHAFragment(shaFragment)
+}
+
+func searchSHAFragment(shaFragment string) (string, error) {
+	fullSha, err := execGitOutputCP("log", "--all", "--format=%H", "--grep="+shaFragment)
 	if err != nil {
 		return "", apperror.WrapSimple(err, "resolve SHA fragment: "+shaFragment)
 	}
+
 	if fullSha == "" {
 		return "", apperror.NewSimple("Could not resolve SHA fragment: "+shaFragment, "E9000")
 	}

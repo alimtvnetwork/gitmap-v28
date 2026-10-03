@@ -86,7 +86,6 @@ func resolveWindowsChromeUserDataDir(home string) string {
 	return candidate
 }
 
-
 // chromeProfilePath joins the user-data root with a named profile dir.
 // Accepts both raw names ("Default", "Profile 1") and absolute paths.
 func chromeProfilePath(name string) string {

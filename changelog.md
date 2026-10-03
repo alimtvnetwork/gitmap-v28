@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.468.0] - 2026-10-03
+
+### Added
+- fix commit all non-git crash, child repo batch delegation, and beautify commit push UI
+
+---
+
 ## [v6.467.1] - 2026-10-03
 
 ### Added

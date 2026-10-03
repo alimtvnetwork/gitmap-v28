@@ -18,4 +18,3 @@ type PortsOptions struct {
 	FirewallOnly bool `json:"firewall_only"`
 	JSONOutput   bool `json:"json_output"`
 }
-

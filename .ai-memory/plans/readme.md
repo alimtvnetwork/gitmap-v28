@@ -2,6 +2,7 @@
 
 ## Completed Plans
 
+- [65-commit-non-git-rca.md](completed/65-commit-non-git-rca.md) — Commit Non-Git Repository Execution Crash, Child Batch Delegation & Terminal UI Output (Spec: [65](../../02-spec/22-app-issues/65-commit-non-git-repo-crash-and-commit-all-delegation-rca.md))
 - [72-repo-dedup-os-aware-equalfold.md](completed/72-repo-dedup-os-aware-equalfold.md) — Redundant Repo Deduplication, EqualFold Modernization, OS-Aware Path Sensitivity & SQLite File Uniqueness Guarantee (Spec: [72](../../02-spec/21-app/72-repo-dedup-os-aware-equalfold/01-architecture-spec.md))
 - [71-repo-dedup-equalfold-os-guarantee.md](completed/71-repo-dedup-equalfold-os-guarantee.md) — Redundant Repo Deduplication (URL & Path), EqualFold Modernization, OS-Aware Path Sensitivity, and SQLite File Uniqueness Guarantee (Spec: [71](../../02-spec/21-app/71-repo-dedup-equalfold-os-guarantee/01-architecture-spec.md))
 - [74-refresh-token-and-vmware-spec-validation.md](completed/74-refresh-token-and-vmware-spec-validation.md) — Profile 1 OAuth Refresh Token Verification (100% Bit Parity), ZIP Import Fix & VMware 10-Item Spec/Skill Audit (Spec: [202](../../02-spec/21-app/202-vmware-cli-commands-and-fleet-management.md))

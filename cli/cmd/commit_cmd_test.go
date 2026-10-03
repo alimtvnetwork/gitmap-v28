@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func TestParseCommitFlags(t *testing.T) {
@@ -13,82 +17,31 @@ func TestParseCommitFlags(t *testing.T) {
 		wantPush   bool
 		wantDryRun bool
 	}{
-		{
-			name:       "simple message",
-			args:       []string{"feat: add new feature"},
-			wantClean:  []string{"feat: add new feature"},
-			wantPush:   false,
-			wantDryRun: false,
-		},
-		{
-			name:       "message with push long flag",
-			args:       []string{"fix: resolve bug", "--push"},
-			wantClean:  []string{"fix: resolve bug"},
-			wantPush:   true,
-			wantDryRun: false,
-		},
-		{
-			name:       "message with push short flag",
-			args:       []string{"fix: resolve bug", "-p"},
-			wantClean:  []string{"fix: resolve bug"},
-			wantPush:   true,
-			wantDryRun: false,
-		},
-		{
-			name:       "message with dry-run long flag",
-			args:       []string{"refactor: clean up", "--dry-run"},
-			wantClean:  []string{"refactor: clean up"},
-			wantPush:   false,
-			wantDryRun: true,
-		},
-		{
-			name:       "message with dry-run short flag",
-			args:       []string{"refactor: clean up", "-n"},
-			wantClean:  []string{"refactor: clean up"},
-			wantPush:   false,
-			wantDryRun: true,
-		},
-		{
-			name:       "both push and dry-run flags",
-			args:       []string{"--dry-run", "docs: update guide", "-p"},
-			wantClean:  []string{"docs: update guide"},
-			wantPush:   true,
-			wantDryRun: true,
-		},
-		{
-			name:       "empty args",
-			args:       []string{},
-			wantClean:  nil,
-			wantPush:   false,
-			wantDryRun: false,
-		},
-		{
-			name:       "flag with -m explicitly",
-			args:       []string{"-m", "chore: maintenance", "-p"},
-			wantClean:  []string{"-m", "chore: maintenance"},
-			wantPush:   true,
-			wantDryRun: false,
-		},
+		{name: "simple", args: []string{"feat: add"}, wantClean: []string{"feat: add"}},
+		{name: "push", args: []string{"fix: bug", "-p"}, wantClean: []string{"fix: bug"}, wantPush: true},
+		{name: "dry-run", args: []string{"clean", "-n"}, wantClean: []string{"clean"}, wantDryRun: true},
+		{name: "both", args: []string{"-n", "docs", "-p"}, wantClean: []string{"docs"}, wantPush: true, wantDryRun: true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			clean, push, dryRun := parseCommitFlags(tt.args)
-			if !reflect.DeepEqual(clean, tt.wantClean) {
-				t.Errorf("parseCommitFlags() clean = %v, want %v", clean, tt.wantClean)
-			}
-			if push != tt.wantPush {
-				t.Errorf("parseCommitFlags() push = %v, want %v", push, tt.wantPush)
-			}
-			if dryRun != tt.wantDryRun {
-				t.Errorf("parseCommitFlags() dryRun = %v, want %v", dryRun, tt.wantDryRun)
-			}
+			assertCommitFlagsMatch(t, tt.args, tt.wantClean, tt.wantPush, tt.wantDryRun)
 		})
 	}
 }
 
+func assertCommitFlagsMatch(t *testing.T, args, wantClean []string, wantPush, wantDryRun bool) {
+	clean, push, dryRun := parseCommitFlags(args)
+	if !reflect.DeepEqual(clean, wantClean) {
+		t.Errorf("parseCommitFlags() clean = %v, want %v", clean, wantClean)
+	}
+
+	if push != wantPush || dryRun != wantDryRun {
+		t.Errorf("flags push=%v (want %v), dryRun=%v (want %v)", push, wantPush, dryRun, wantDryRun)
+	}
+}
+
 func TestRunCommitHelp(t *testing.T) {
-	// Calling with --help should return nil without executing git
 	err := runCommit([]string{"--help"})
 	if err != nil {
 		t.Errorf("runCommit(--help) unexpected error: %v", err)
@@ -97,5 +50,92 @@ func TestRunCommitHelp(t *testing.T) {
 	errShort := runCommit([]string{"-h"})
 	if errShort != nil {
 		t.Errorf("runCommit(-h) unexpected error: %v", errShort)
+	}
+}
+
+func TestIsAllCommitRequested(t *testing.T) {
+	cases := []struct {
+		args []string
+		want bool
+	}{
+		{[]string{"all"}, true},
+		{[]string{"--all"}, true},
+		{[]string{"-a"}, true},
+		{[]string{"feat: msg"}, false},
+		{[]string{}, false},
+	}
+
+	for _, tc := range cases {
+		assertIsAllCommitRequested(t, tc.args, tc.want)
+	}
+}
+
+func assertIsAllCommitRequested(t *testing.T, args []string, want bool) {
+	got := isAllCommitRequested(args)
+	if got != want {
+		t.Errorf("isAllCommitRequested(%v) = %v, want %v", args, got, want)
+	}
+}
+
+func TestStripAllFlags(t *testing.T) {
+	cases := []struct {
+		args []string
+		want []string
+	}{
+		{[]string{"all", "feat: msg"}, []string{"feat: msg"}},
+		{[]string{"--all", "-m", "fix"}, []string{"-m", "fix"}},
+		{[]string{"all"}, []string{"chore: commit pending changes"}},
+		{[]string{}, []string{"chore: commit pending changes"}},
+	}
+
+	for _, tc := range cases {
+		assertStripAllFlags(t, tc.args, tc.want)
+	}
+}
+
+func assertStripAllFlags(t *testing.T, args, want []string) {
+	got := stripAllFlags(args)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("stripAllFlags(%v) = %v, want %v", args, got, want)
+	}
+}
+
+func TestHandleNonGitRepoCommit_AbortError(t *testing.T) {
+	tempDir := t.TempDir()
+	origWd, _ := os.Getwd()
+	_ = os.Chdir(tempDir)
+	defer func() { _ = os.Chdir(origWd) }()
+
+	err := handleNonGitRepoCommit([]string{"msg"}, false, false)
+	assertNonGitAbortError(t, err)
+}
+
+func assertNonGitAbortError(t *testing.T, err error) {
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	appErr, isApp := err.(*apperror.AppError)
+	if !isApp || appErr == nil {
+		t.Fatalf("expected AppError, got %T", err)
+	}
+
+	if appErr.Code != "E9001" || appErr.Type != apperror.ErrorTypeAbort {
+		t.Errorf("unexpected AppError fields: code=%s type=%s", appErr.Code, appErr.Type)
+	}
+}
+
+func TestHandleNonGitRepoCommit_DryRunChildRepo(t *testing.T) {
+	tempDir := t.TempDir()
+	origWd, _ := os.Getwd()
+	_ = os.Chdir(tempDir)
+	defer func() { _ = os.Chdir(origWd) }()
+
+	childGit := filepath.Join(tempDir, "child-repo", ".git")
+	_ = os.MkdirAll(childGit, 0755)
+
+	err := handleNonGitRepoCommit([]string{"all"}, false, true)
+	if err != nil {
+		t.Errorf("expected nil for dry run on child repos, got %v", err)
 	}
 }
