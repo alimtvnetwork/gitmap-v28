@@ -71,6 +71,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 63 | [63-commit-push-clean-working-tree-exit-failure-rca.md](63-commit-push-clean-working-tree-exit-failure-rca.md) | Commit-Push Clean Working Tree Exit Status 1 Failure & Missing Staged Changes Guard: RCA & Fix | Resolved |
 | 64 | [64-ssh-connection-timeout-and-target-firewall-sshd-rca.md](64-ssh-connection-timeout-and-target-firewall-sshd-rca.md) | SSH Connection Timeout, Target OpenSSH Server Absence & Firewall Block: RCA & Fix | Resolved |
 | 65 | [65-commit-non-git-repo-crash-and-commit-all-delegation-rca.md](65-commit-non-git-repo-crash-and-commit-all-delegation-rca.md) | Commit Non-Git Repository Execution Crash, Child Batch Delegation & Terminal UI Output: RCA & Fix | Resolved |
+| 66 | [66-ssh-enable-wuauserv-disabled-capability-crash-rca.md](66-ssh-enable-wuauserv-disabled-capability-crash-rca.md) | OpenSSH Server Capability Installation Crash When Windows Update (wuauserv) Service is Disabled: RCA & Fix | Resolved |
 
 ---
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -132,11 +133,11 @@ func printSSHEnableHelp() {
 }
 
 func buildWindowsCheckCapabilityCmd() string {
-	return "(Get-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0).State"
+	return "if ((Get-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0 -ErrorAction SilentlyContinue).State -eq 'Installed') { 'Installed' } elseif (Get-Service -Name sshd -ErrorAction SilentlyContinue) { 'Installed' } else { 'NotPresent' }"
 }
 
 func buildWindowsAddCapabilityCmd() string {
-	return "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0"
+	return "$s = Get-Service wuauserv -ErrorAction SilentlyContinue; $d = ($s -and $s.StartType -eq 'Disabled'); if ($d) { Set-Service wuauserv -StartupType Manual -ErrorAction SilentlyContinue; Start-Service wuauserv -ErrorAction SilentlyContinue }; try { Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0 -ErrorAction Stop } finally { if ($d) { Stop-Service wuauserv -ErrorAction SilentlyContinue; Set-Service wuauserv -StartupType Disabled -ErrorAction SilentlyContinue } }"
 }
 
 func buildWindowsFirewallRuleCmd(port int) string {
@@ -167,7 +168,26 @@ func runWindowsPowerShellScript(script string, desc string) error {
 	return nil
 }
 
+func isWindowsSSHDFilePresent() bool {
+	sysRoot := os.Getenv("SystemRoot")
+	if sysRoot == "" {
+		sysRoot = "C:\\Windows"
+	}
+
+	sshdPath := filepath.Join(sysRoot, "System32", "OpenSSH", "sshd.exe")
+	info, err := os.Stat(sshdPath)
+	if err != nil || info.IsDir() {
+		return false
+	}
+
+	return true
+}
+
 func isWindowsCapabilityInstalled() bool {
+	if isWindowsSSHDFilePresent() {
+		return true
+	}
+
 	out, err := runWindowsPowerShell(buildWindowsCheckCapabilityCmd())
 	if err != nil {
 		return false
@@ -176,12 +196,28 @@ func isWindowsCapabilityInstalled() bool {
 	return out == "Installed"
 }
 
+func printWindowsCapabilityFailureNotice(err error) {
+	fmt.Printf("\n  %s[!] OpenSSH Server capability installation failed:%s\n      %v\n\n", constants.ColorYellow, constants.ColorReset, err)
+	fmt.Println("  Remediation steps:")
+	fmt.Println("  1. Run as Administrator: Ensure your terminal is running with elevated privileges.")
+	fmt.Println("  2. Windows Update: If Windows Update (wuauserv) is disabled, temporarily enable it:")
+	fmt.Println("     Set-Service -Name wuauserv -StartupType Manual; Start-Service -Name wuauserv")
+	fmt.Println("  3. Alternative Install: Install OpenSSH Server via winget or chocolatey:")
+	fmt.Printf("     winget install Microsoft.OpenSSH.Beta\n\n")
+}
+
+func newSSHCapabilityAbortError(err error) *apperror.AppError {
+	printWindowsCapabilityFailureNotice(err)
+
+	return apperror.NewWithDetails("ssh", "E9001", "OpenSSH Server installation aborted", "cli", apperror.ErrorTypeAbort, apperror.SeverityWarn, map[string]any{"reported": true})
+}
+
 func handleCapabilityError(err error, isForce bool) error {
 	if isForce {
 		return nil
 	}
 
-	return err
+	return newSSHCapabilityAbortError(err)
 }
 
 func ensureWindowsCapability(isForce bool) error {
@@ -201,24 +237,42 @@ func ensureWindowsCapability(isForce bool) error {
 	return nil
 }
 
+func handleSSHDServiceError(err error, stepDesc string) *apperror.AppError {
+	fmt.Printf("\n  %s[!] Operation failed at step '%s':%s\n      %v\n\n", constants.ColorYellow, stepDesc, constants.ColorReset, err)
+	fmt.Println("  Ensure you are running GitMap from an elevated PowerShell prompt (Run as Administrator).")
+
+	return apperror.NewWithDetails("ssh", "E9002", fmt.Sprintf("%s failed: %v", stepDesc, err), "cli", apperror.ErrorTypeAbort, apperror.SeverityWarn, map[string]any{"reported": true})
+}
+
+func configureSSHWindowsService(port int) error {
+	fmt.Printf("  %s[2/4]%s Setting sshd service startup type to Automatic...\n", constants.ColorCyan, constants.ColorReset)
+	if err := runWindowsPowerShellScript("Set-Service -Name sshd -StartupType Automatic", "Set-Service sshd Automatic"); err != nil {
+		return handleSSHDServiceError(err, "Set-Service sshd Automatic")
+	}
+
+	fmt.Printf("  %s[3/4]%s Configuring inbound firewall rule for TCP port %d...\n", constants.ColorCyan, constants.ColorReset, port)
+	if err := runWindowsPowerShellScript(buildWindowsFirewallEnsureCmd(port), "Configure NetFirewallRule"); err != nil {
+		return handleSSHDServiceError(err, "Configure NetFirewallRule")
+	}
+
+	return nil
+}
+
 func enableSSHWindows(port int, isForce bool) error {
 	if err := ensureWindowsCapability(isForce); err != nil {
 		return err
 	}
 
-	fmt.Printf("  %s[2/4]%s Setting sshd service startup type to Automatic...\n", constants.ColorCyan, constants.ColorReset)
-	if err := runWindowsPowerShellScript("Set-Service -Name sshd -StartupType Automatic", "Set-Service sshd Automatic"); err != nil {
-		return err
-	}
-
-	fmt.Printf("  %s[3/4]%s Configuring inbound firewall rule for TCP port %d...\n", constants.ColorCyan, constants.ColorReset, port)
-	if err := runWindowsPowerShellScript(buildWindowsFirewallEnsureCmd(port), "Configure NetFirewallRule"); err != nil {
+	if err := configureSSHWindowsService(port); err != nil {
 		return err
 	}
 
 	fmt.Printf("  %s[4/4]%s Starting sshd service...\n", constants.ColorCyan, constants.ColorReset)
+	if err := runWindowsPowerShellScript("Start-Service sshd", "Start-Service sshd"); err != nil {
+		return handleSSHDServiceError(err, "Start-Service sshd")
+	}
 
-	return runWindowsPowerShellScript("Start-Service sshd", "Start-Service sshd")
+	return nil
 }
 
 func buildDebianEnableSteps(port int) []LinuxStep {

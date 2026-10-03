@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.470.0] - 2026-10-03
+
+### Added
+- fix ssh enable capability crash when wuauserv is disabled and polish daemon setup
+
+---
+
 ## [v6.469.0] - 2026-10-03
 
 ### Added
