@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.467.0] - 2026-10-03
+
+### Added
+- ports-sshd - support named services in ports command and cross-platform openssh daemon automation
+
+---
+
 ## [v6.466.0] - 2026-10-03
 
 ### Added

@@ -13,7 +13,9 @@ type PortEntry struct {
 
 // PortsOptions configures port inspection behaviors and output formatting.
 type PortsOptions struct {
-	TargetPort int  `json:"target_port"`
-	CommonOnly bool `json:"common_only"`
-	JSONOutput bool `json:"json_output"`
+	TargetPort   int  `json:"target_port"`
+	CommonOnly   bool `json:"common_only"`
+	FirewallOnly bool `json:"firewall_only"`
+	JSONOutput   bool `json:"json_output"`
 }
+

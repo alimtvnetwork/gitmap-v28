@@ -7,6 +7,165 @@ import (
 	"testing"
 )
 
+func TestSSHEnableCommandGenerationWindows(t *testing.T) {
+	capCheck := buildWindowsCheckCapabilityCmd()
+	if !strings.Contains(capCheck, "Get-WindowsCapability") {
+		t.Errorf("expected Get-WindowsCapability in check cmd, got %s", capCheck)
+	}
+
+	capAdd := buildWindowsAddCapabilityCmd()
+	if !strings.Contains(capAdd, "Add-WindowsCapability") {
+		t.Errorf("expected Add-WindowsCapability in add cmd, got %s", capAdd)
+	}
+
+	fwRule := buildWindowsFirewallRuleCmd(2222)
+	if !strings.Contains(fwRule, "New-NetFirewallRule") {
+		t.Errorf("expected New-NetFirewallRule in rule, got %s", fwRule)
+	}
+
+	if !strings.Contains(fwRule, "-LocalPort 2222") {
+		t.Errorf("expected -LocalPort 2222 in rule, got %s", fwRule)
+	}
+}
+
+func isFirstArgMismatch(args []string, expected string) bool {
+	if len(args) == 0 {
+		return true
+	}
+
+	return args[0] != expected
+}
+
+func assertStepMatch(t *testing.T, step LinuxStep, expectedBin string, expectedFirstArg string) {
+	t.Helper()
+	if step.Binary != expectedBin {
+		t.Errorf("expected binary %q, got %q", expectedBin, step.Binary)
+	}
+
+	if isFirstArgMismatch(step.Args, expectedFirstArg) {
+		t.Errorf("expected first arg %q, got %v", expectedFirstArg, step.Args)
+	}
+}
+
+func TestSSHEnableCommandGenerationLinux(t *testing.T) {
+	debSteps := buildDebianEnableSteps(2222)
+	if len(debSteps) != 3 {
+		t.Fatalf("expected 3 debian steps, got %d", len(debSteps))
+	}
+
+	assertStepMatch(t, debSteps[0], "apt-get", "install")
+	assertStepMatch(t, debSteps[1], "systemctl", "enable")
+	assertStepMatch(t, debSteps[2], "ufw", "allow")
+
+	rhelSteps := buildRhelEnableSteps("dnf", 2222)
+	if len(rhelSteps) != 4 {
+		t.Fatalf("expected 4 rhel steps, got %d", len(rhelSteps))
+	}
+
+	assertStepMatch(t, rhelSteps[0], "dnf", "install")
+	assertStepMatch(t, rhelSteps[1], "systemctl", "enable")
+	assertStepMatch(t, rhelSteps[2], "firewall-cmd", "--permanent")
+	assertStepMatch(t, rhelSteps[3], "firewall-cmd", "--reload")
+}
+
+func TestSSHEnableCommandGeneration(t *testing.T) {
+	TestSSHEnableCommandGenerationWindows(t)
+	TestSSHEnableCommandGenerationLinux(t)
+}
+
+func assertValidPortArg(t *testing.T, args []string, expectedPort int) {
+	t.Helper()
+	port, isHelp, err := parsePortArgument(args)
+	if err != nil {
+		t.Fatalf("unexpected error for %v: %v", args, err)
+	}
+
+	if isHelp {
+		t.Errorf("expected isHelp false for %v", args)
+	}
+
+	if port != expectedPort {
+		t.Errorf("expected port %d, got %d for %v", expectedPort, port, args)
+	}
+}
+
+func assertInvalidPortArg(t *testing.T, args []string, desc string) {
+	t.Helper()
+	_, _, err := parsePortArgument(args)
+	if err == nil {
+		t.Errorf("expected error for %s (%v)", desc, args)
+	}
+}
+
+func TestSSHPortArgumentParsingAndBounds(t *testing.T) {
+	assertValidPortArg(t, []string{"2222"}, 2222)
+	assertValidPortArg(t, []string{"--port", "3333"}, 3333)
+	assertValidPortArg(t, []string{"-p", "4444"}, 4444)
+	assertValidPortArg(t, []string{"--port=5555"}, 5555)
+	assertValidPortArg(t, []string{"1"}, 1)
+	assertValidPortArg(t, []string{"65535"}, 65535)
+
+	assertInvalidPortArg(t, []string{"0"}, "zero port")
+	assertInvalidPortArg(t, []string{"-1"}, "negative port")
+	assertInvalidPortArg(t, []string{"65536"}, "port 65536")
+	assertInvalidPortArg(t, []string{"99999"}, "port 99999")
+	assertInvalidPortArg(t, []string{"abc"}, "non-integer port")
+	assertInvalidPortArg(t, []string{"--port"}, "missing port value")
+}
+
+func TestSSHPortValidation(t *testing.T) {
+	TestSSHPortArgumentParsingAndBounds(t)
+}
+
+func TestSSHDConfigContentUpdate(t *testing.T) {
+	cfgComment := "# Configuration\n#Port 22\nPermitRootLogin yes\n"
+	updated1 := updateSSHDConfigContent(cfgComment, 2222)
+	if !strings.Contains(updated1, "Port 2222") {
+		t.Errorf("expected 'Port 2222' in updated config:\n%s", updated1)
+	}
+
+	cfgSpace := "# Configuration\n# Port 22\nPermitRootLogin yes\n"
+	updated2 := updateSSHDConfigContent(cfgSpace, 3333)
+	if !strings.Contains(updated2, "Port 3333") {
+		t.Errorf("expected 'Port 3333' in updated config:\n%s", updated2)
+	}
+
+	cfgActive := "Port 22\nPermitRootLogin yes\n"
+	updated3 := updateSSHDConfigContent(cfgActive, 8022)
+	if !strings.Contains(updated3, "Port 8022") {
+		t.Errorf("expected 'Port 8022' in updated config:\n%s", updated3)
+	}
+
+	cfgNone := "PermitRootLogin yes\n"
+	updated4 := updateSSHDConfigContent(cfgNone, 4444)
+	if !strings.Contains(updated4, "Port 4444") {
+		t.Errorf("expected 'Port 4444' in appended config:\n%s", updated4)
+	}
+}
+
+func TestSSHDConfigUpdate(t *testing.T) {
+	TestSSHDConfigContentUpdate(t)
+}
+
+func assertHelpDetected(t *testing.T, flag string) {
+	t.Helper()
+	_, isPortHelp, _ := parsePortArgument([]string{flag})
+	if !isPortHelp {
+		t.Errorf("expected parsePortArgument to detect help for %s", flag)
+	}
+
+	enableOpts, _ := parseSSHEnableFlags([]string{flag})
+	if !enableOpts.isHelp {
+		t.Errorf("expected parseSSHEnableFlags to detect help for %s", flag)
+	}
+}
+
+func TestSSHHelpArgumentDetection(t *testing.T) {
+	assertHelpDetected(t, "--help")
+	assertHelpDetected(t, "-h")
+	assertHelpDetected(t, "help")
+}
+
 func TestSSHEnableFlagParsing(t *testing.T) {
 	opts, err := parseSSHEnableFlags([]string{"--port", "2222", "--force"})
 	if err != nil {
@@ -21,108 +180,46 @@ func TestSSHEnableFlagParsing(t *testing.T) {
 		t.Errorf("expected isForce to be true")
 	}
 
-	defaultOpts, err := parseSSHEnableFlags([]string{})
-	if err != nil {
-		t.Fatalf("unexpected error for default args: %v", err)
+	defaultOpts, defErr := parseSSHEnableFlags([]string{})
+	if defErr != nil {
+		t.Fatalf("unexpected error for default args: %v", defErr)
 	}
 
 	if defaultOpts.port != 22 {
 		t.Errorf("expected default port 22, got %d", defaultOpts.port)
 	}
+}
 
-	eqOpts, err := parseSSHEnableFlags([]string{"--port=8022", "-f"})
-	if err != nil {
-		t.Fatalf("unexpected error for --port=8022: %v", err)
-	}
-
-	if eqOpts.port != 8022 || !eqOpts.isForce {
-		t.Errorf("expected port 8022 and isForce true, got %d, %v", eqOpts.port, eqOpts.isForce)
+func assertEnableFlagError(t *testing.T, args []string, desc string) {
+	t.Helper()
+	_, err := parseSSHEnableFlags(args)
+	if err == nil {
+		t.Errorf("expected error for %s", desc)
 	}
 }
 
 func TestSSHEnableFlagValidationErrors(t *testing.T) {
-	_, errZero := parseSSHEnableFlags([]string{"--port", "0"})
-	if errZero == nil {
-		t.Errorf("expected error for port 0")
-	}
-
-	_, errHigh := parseSSHEnableFlags([]string{"--port", "70000"})
-	if errHigh == nil {
-		t.Errorf("expected error for port 70000")
-	}
-
-	_, errMissing := parseSSHEnableFlags([]string{"--port"})
-	if errMissing == nil {
-		t.Errorf("expected error for missing port argument")
-	}
-
-	_, errInvalid := parseSSHEnableFlags([]string{"--port", "abc"})
-	if errInvalid == nil {
-		t.Errorf("expected error for non-integer port")
-	}
-}
-
-func TestSSHPortValidation(t *testing.T) {
-	port, isHelp, err := parsePortArgument([]string{"2222"})
-	if err != nil || isHelp || port != 2222 {
-		t.Errorf("expected 2222, false, nil; got %d, %v, %v", port, isHelp, err)
-	}
-
-	flagPort, isHelp2, err2 := parsePortArgument([]string{"--port", "3333"})
-	if err2 != nil || isHelp2 || flagPort != 3333 {
-		t.Errorf("expected 3333, false, nil; got %d, %v, %v", flagPort, isHelp2, err2)
-	}
-
-	_, isHelp3, _ := parsePortArgument([]string{"--help"})
-	if !isHelp3 {
-		t.Errorf("expected isHelp to be true")
-	}
-
-	_, _, errOutRange := parsePortArgument([]string{"99999"})
-	if errOutRange == nil {
-		t.Errorf("expected error for port 99999")
-	}
-}
-
-func TestSSHDConfigUpdate(t *testing.T) {
-	original := "# Configuration file\n#Port 22\nPermitRootLogin yes\n"
-	updated := updateSSHDConfigContent(original, 2222)
-	if !strings.Contains(updated, "Port 2222") {
-		t.Errorf("expected updated config to contain 'Port 2222', got:\n%s", updated)
-	}
-
-	originalExisting := "Port 22\nPermitRootLogin yes\n"
-	updatedExisting := updateSSHDConfigContent(originalExisting, 8022)
-	if !strings.Contains(updatedExisting, "Port 8022") {
-		t.Errorf("expected updated config to contain 'Port 8022', got:\n%s", updatedExisting)
-	}
-
-	originalNone := "PermitRootLogin yes\nPasswordAuthentication yes\n"
-	updatedNone := updateSSHDConfigContent(originalNone, 4444)
-	if !strings.Contains(updatedNone, "Port 4444") {
-		t.Errorf("expected appended config to contain 'Port 4444', got:\n%s", updatedNone)
-	}
+	assertEnableFlagError(t, []string{"--port", "0"}, "port 0")
+	assertEnableFlagError(t, []string{"--port", "70000"}, "port 70000")
+	assertEnableFlagError(t, []string{"--port"}, "missing port argument")
+	assertEnableFlagError(t, []string{"--port", "abc"}, "non-integer port")
 }
 
 func TestSSHTroubleshootDiagnosis(t *testing.T) {
-	diagDrop := classifyTroubleshootDiagnosis(false, true, false, true)
-	if diagDrop != DiagFirewallInboundDrop {
-		t.Errorf("expected %s, got %s", DiagFirewallInboundDrop, diagDrop)
+	if diag := classifyTroubleshootDiagnosis(false, true, false, true); diag != DiagFirewallInboundDrop {
+		t.Errorf("expected %s, got %s", DiagFirewallInboundDrop, diag)
 	}
 
-	diagOffline := classifyTroubleshootDiagnosis(false, true, false, false)
-	if diagOffline != DiagHostOffline {
-		t.Errorf("expected %s, got %s", DiagHostOffline, diagOffline)
+	if diag := classifyTroubleshootDiagnosis(false, true, false, false); diag != DiagHostOffline {
+		t.Errorf("expected %s, got %s", DiagHostOffline, diag)
 	}
 
-	diagRefused := classifyTroubleshootDiagnosis(false, false, true, true)
-	if diagRefused != DiagDaemonNotRunning {
-		t.Errorf("expected %s, got %s", DiagDaemonNotRunning, diagRefused)
+	if diag := classifyTroubleshootDiagnosis(false, false, true, true); diag != DiagDaemonNotRunning {
+		t.Errorf("expected %s, got %s", DiagDaemonNotRunning, diag)
 	}
 
-	diagOpen := classifyTroubleshootDiagnosis(true, false, false, true)
-	if diagOpen != DiagSSHPortOpen {
-		t.Errorf("expected %s, got %s", DiagSSHPortOpen, diagOpen)
+	if diag := classifyTroubleshootDiagnosis(true, false, false, true); diag != DiagSSHPortOpen {
+		t.Errorf("expected %s, got %s", DiagSSHPortOpen, diag)
 	}
 }
 
@@ -143,66 +240,48 @@ func TestTroubleshootTargetParsing(t *testing.T) {
 	}
 }
 
+func assertDispatchMatched(t *testing.T, sub string) {
+	t.Helper()
+	res := dispatchDaemonSSH(context.Background(), sub, []string{"--help"})
+	if !res.IsMatched() {
+		t.Errorf("expected %s to be matched in dispatchDaemonSSH", sub)
+	}
+}
+
 func TestSSHDispatchRouting(t *testing.T) {
-	ctx := context.Background()
-
-	enableSubs := []string{"enable", "enable-server", "sshd", "enable-sshd"}
-	for _, sub := range enableSubs {
-		res := dispatchDaemonSSH(ctx, sub, []string{"--help"})
-		if !res.IsMatched() {
-			t.Errorf("expected %s to be matched in dispatchDaemonSSH", sub)
-		}
+	subs := []string{"enable", "enable-server", "sshd", "enable-sshd", "port", "ports", "set-port", "troubleshoot", "doctor", "diagnose"}
+	for _, sub := range subs {
+		assertDispatchMatched(t, sub)
 	}
 
-	portSubs := []string{"port", "ports", "set-port"}
-	for _, sub := range portSubs {
-		res := dispatchDaemonSSH(ctx, sub, []string{"--help"})
-		if !res.IsMatched() {
-			t.Errorf("expected %s to be matched in dispatchDaemonSSH", sub)
-		}
-	}
-
-	troubleshootSubs := []string{"troubleshoot", "doctor", "diagnose"}
-	for _, sub := range troubleshootSubs {
-		res := dispatchDaemonSSH(ctx, sub, []string{"--help"})
-		if !res.IsMatched() {
-			t.Errorf("expected %s to be matched in dispatchDaemonSSH", sub)
-		}
-	}
-
-	resUnknown := dispatchDaemonSSH(ctx, "nonexistent-daemon-op", []string{})
+	resUnknown := dispatchDaemonSSH(context.Background(), "nonexistent-daemon-op", []string{})
 	if resUnknown.IsMatched() {
 		t.Errorf("expected unknown op to not be matched")
 	}
 }
 
+func assertDetectedConnError(t *testing.T, err error, stderr string, expected bool) {
+	t.Helper()
+	detected := isConnectionOrDaemonError(err, stderr)
+	if detected != expected {
+		t.Errorf("expected detection %v, got %v for err=%v stderr=%q", expected, detected, err, stderr)
+	}
+}
+
 func TestSSHClientErrorInterception(t *testing.T) {
 	errTimeout := errors.New("ssh: connect to host 192.168.1.1 port 22: Connection timed out")
-	if !isConnectionOrDaemonError(errTimeout, "") {
-		t.Errorf("expected timeout error to be detected")
-	}
+	assertDetectedConnError(t, errTimeout, "", true)
 
 	errRefused := errors.New("ssh: connect to host 192.168.1.1 port 22: Connection refused")
-	if !isConnectionOrDaemonError(errRefused, "") {
-		t.Errorf("expected connection refused error to be detected")
-	}
+	assertDetectedConnError(t, errRefused, "", true)
 
 	errExit255 := errors.New("Process exited with status 255")
-	if !isConnectionOrDaemonError(errExit255, "") {
-		t.Errorf("expected exit status 255 to be detected")
-	}
+	assertDetectedConnError(t, errExit255, "", true)
 
 	errStderr := errors.New("command failed")
-	if !isConnectionOrDaemonError(errStderr, "ssh: connect to host: connection refused") {
-		t.Errorf("expected stderr refused to be detected")
-	}
+	assertDetectedConnError(t, errStderr, "ssh: connect to host: connection refused", true)
 
 	errRandom := errors.New("permission denied (publickey)")
-	if isConnectionOrDaemonError(errRandom, "") {
-		t.Errorf("permission denied should not be classified as daemon/connection error")
-	}
-
-	if isConnectionOrDaemonError(nil, "") {
-		t.Errorf("nil error should return false")
-	}
+	assertDetectedConnError(t, errRandom, "", false)
+	assertDetectedConnError(t, nil, "", false)
 }

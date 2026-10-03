@@ -26,31 +26,34 @@ var daemonExecRunner daemonCmdRunner = func(name string, args ...string) ([]byte
 	return cmd.CombinedOutput()
 }
 
+type LinuxStep struct {
+	Binary string
+	Args   []string
+	Desc   string
+}
+
+func isPortOutOfBounds(port int) bool {
+	return port < 1 || port > 65535
+}
+
 func parsePortFlagValue(val string) (int, error) {
 	port, err := strconv.Atoi(val)
 	if err != nil {
 		return 0, apperror.NewValidationError(fmt.Sprintf("invalid port value %q: must be integer", val))
 	}
 
-	if port < 1 || port > 65535 {
+	if isPortOutOfBounds(port) {
 		return 0, apperror.NewValidationError(fmt.Sprintf("port %d out of range: must be between 1 and 65535", port))
 	}
 
 	return port, nil
 }
 
-func parsePortFlagToken(arg string, next string, hasNext bool, opts *sshEnableOptions) (int, error) {
-	if strings.HasPrefix(arg, "--port=") {
-		val := strings.TrimPrefix(arg, "--port=")
-		p, err := parsePortFlagValue(val)
-		opts.port = p
-		return 1, err
-	}
+func isPortFlag(arg string) bool {
+	return arg == "--port" || arg == "-p"
+}
 
-	if arg != "--port" && arg != "-p" {
-		return 0, nil
-	}
-
+func parsePortFlagValueWithNext(next string, hasNext bool, opts *sshEnableOptions) (int, error) {
 	if !hasNext {
 		return 1, apperror.NewValidationError("missing argument for --port flag")
 	}
@@ -61,44 +64,62 @@ func parsePortFlagToken(arg string, next string, hasNext bool, opts *sshEnableOp
 	return 2, err
 }
 
+func parsePortFlagToken(arg string, next string, hasNext bool, opts *sshEnableOptions) (int, error) {
+	if strings.HasPrefix(arg, "--port=") {
+		p, err := parsePortFlagValue(strings.TrimPrefix(arg, "--port="))
+		opts.port = p
+
+		return 1, err
+	}
+
+	if !isPortFlag(arg) {
+		return 1, nil
+	}
+
+	return parsePortFlagValueWithNext(next, hasNext, opts)
+}
+
+func isForceFlag(arg string) bool {
+	return arg == "--force" || arg == "-f"
+}
+
+func peekNextArg(args []string, idx int) (string, bool) {
+	if idx+1 < len(args) {
+		return args[idx+1], true
+	}
+
+	return "", false
+}
+
 func parseSingleEnableFlag(args []string, idx int, opts *sshEnableOptions) (int, error) {
 	arg := args[idx]
-	if arg == "--help" || arg == "-h" || arg == "help" {
+	if isHelpFlag(arg) {
 		opts.isHelp = true
+
 		return 1, nil
 	}
 
-	if arg == "--force" || arg == "-f" {
+	if isForceFlag(arg) {
 		opts.isForce = true
+
 		return 1, nil
 	}
 
-	hasNext := idx+1 < len(args)
-	next := ""
-	if hasNext {
-		next = args[idx+1]
-	}
+	next, hasNext := peekNextArg(args, idx)
 
-	consumed, err := parsePortFlagToken(arg, next, hasNext, opts)
-	if err != nil {
-		return 0, err
-	}
-
-	if consumed > 0 {
-		return consumed, nil
-	}
-
-	return 1, nil
+	return parsePortFlagToken(arg, next, hasNext, opts)
 }
 
 func parseSSHEnableFlags(args []string) (sshEnableOptions, error) {
 	opts := sshEnableOptions{port: 22}
 	idx := 0
+
 	for idx < len(args) {
 		consumed, err := parseSingleEnableFlag(args, idx, &opts)
 		if err != nil {
 			return opts, err
 		}
+
 		idx += consumed
 	}
 
@@ -107,84 +128,137 @@ func parseSSHEnableFlags(args []string) (sshEnableOptions, error) {
 
 func printSSHEnableHelp() {
 	fmt.Printf("\n%sUsage:%s gitmap ssh enable [flags]\n\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Println("Installs, configures, starts OpenSSH Server daemon (sshd) and opens firewall ports.")
-	fmt.Println("\nFlags:")
-	fmt.Println("  --port, -p <port>   Port to listen on (default 22)")
-	fmt.Println("  --force, -f         Force installation even if prerequisites exist")
-	fmt.Println("  --help, -h          Show this help text")
-	fmt.Println()
+	fmt.Println("Installs, configures, starts OpenSSH Server daemon (sshd) and opens firewall ports.\n\nFlags:\n  --port, -p <port>   Port to listen on (default 22)\n  --force, -f         Force installation even if prerequisites exist\n  --help, -h          Show this help text")
+}
+
+func buildWindowsCheckCapabilityCmd() string {
+	return "(Get-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0).State"
+}
+
+func buildWindowsAddCapabilityCmd() string {
+	return "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0"
+}
+
+func buildWindowsFirewallRuleCmd(port int) string {
+	return fmt.Sprintf("New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort %d", port)
+}
+
+func buildWindowsFirewallEnsureCmd(port int) string {
+	return fmt.Sprintf("if (Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue) { Set-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -LocalPort %d -Enabled True } else { %s }", port, buildWindowsFirewallRuleCmd(port))
+}
+
+func runWindowsPowerShell(script string) (string, error) {
+	args := []string{"-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", script}
+	out, err := daemonExecRunner("powershell.exe", args...)
+	trimmed := strings.TrimSpace(string(out))
+	if err != nil {
+		return trimmed, apperror.NewExecutionError(fmt.Sprintf("powershell failed: %v (%s)", err, trimmed))
+	}
+
+	return trimmed, nil
 }
 
 func runWindowsPowerShellScript(script string, desc string) error {
-	psArgs := []string{
-		"-NoProfile",
-		"-NonInteractive",
-		"-ExecutionPolicy",
-		"Bypass",
-		"-Command",
-		script,
+	_, err := runWindowsPowerShell(script)
+	if err != nil {
+		return apperror.NewExecutionError(fmt.Sprintf("%s failed: %v", desc, err))
 	}
 
-	out, err := daemonExecRunner("powershell.exe", psArgs...)
+	return nil
+}
+
+func isWindowsCapabilityInstalled() bool {
+	out, err := runWindowsPowerShell(buildWindowsCheckCapabilityCmd())
 	if err != nil {
-		return apperror.NewExecutionError(fmt.Sprintf("%s failed: %v (output: %s)", desc, err, strings.TrimSpace(string(out))))
+		return false
+	}
+
+	return out == "Installed"
+}
+
+func handleCapabilityError(err error, isForce bool) error {
+	if isForce {
+		return nil
+	}
+
+	return err
+}
+
+func ensureWindowsCapability(isForce bool) error {
+	if isWindowsCapabilityInstalled() {
+		fmt.Printf("  %s[1/4]%s OpenSSH Server Windows Capability is already installed.\n", constants.ColorGreen, constants.ColorReset)
+
+		return nil
+	}
+
+	fmt.Printf("  %s[1/4]%s Installing OpenSSH Server Windows Capability...\n", constants.ColorCyan, constants.ColorReset)
+	capCmd := buildWindowsAddCapabilityCmd()
+	err := runWindowsPowerShellScript(capCmd, "Add-WindowsCapability")
+	if err != nil {
+		return handleCapabilityError(err, isForce)
 	}
 
 	return nil
 }
 
 func enableSSHWindows(port int, isForce bool) error {
-	fmt.Printf("  %s[1/4]%s Installing OpenSSH Server Windows Capability...\n", constants.ColorCyan, constants.ColorReset)
-	capCmd := "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0"
-	if err := runWindowsPowerShellScript(capCmd, "Add-WindowsCapability"); err != nil && !isForce {
+	if err := ensureWindowsCapability(isForce); err != nil {
 		return err
 	}
 
 	fmt.Printf("  %s[2/4]%s Setting sshd service startup type to Automatic...\n", constants.ColorCyan, constants.ColorReset)
-	setSvcCmd := "Set-Service -Name sshd -StartupType Automatic"
-	if err := runWindowsPowerShellScript(setSvcCmd, "Set-Service sshd Automatic"); err != nil {
+	if err := runWindowsPowerShellScript("Set-Service -Name sshd -StartupType Automatic", "Set-Service sshd Automatic"); err != nil {
 		return err
 	}
 
 	fmt.Printf("  %s[3/4]%s Configuring inbound firewall rule for TCP port %d...\n", constants.ColorCyan, constants.ColorReset, port)
-	fwCmd := fmt.Sprintf(
-		"if (Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue) { Set-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -LocalPort %d -Enabled True } else { New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort %d }",
-		port, port,
-	)
-	if err := runWindowsPowerShellScript(fwCmd, "Configure NetFirewallRule"); err != nil {
+	if err := runWindowsPowerShellScript(buildWindowsFirewallEnsureCmd(port), "Configure NetFirewallRule"); err != nil {
 		return err
 	}
 
 	fmt.Printf("  %s[4/4]%s Starting sshd service...\n", constants.ColorCyan, constants.ColorReset)
-	startCmd := "Start-Service sshd"
-	if err := runWindowsPowerShellScript(startCmd, "Start-Service sshd"); err != nil {
-		return err
+
+	return runWindowsPowerShellScript("Start-Service sshd", "Start-Service sshd")
+}
+
+func buildDebianEnableSteps(port int) []LinuxStep {
+	portRule := fmt.Sprintf("%d/tcp", port)
+
+	return []LinuxStep{
+		{Binary: "apt-get", Args: []string{"install", "-y", "openssh-server"}, Desc: "Installing openssh-server via apt-get"},
+		{Binary: "systemctl", Args: []string{"enable", "--now", "ssh"}, Desc: "Enabling and starting ssh service via systemctl"},
+		{Binary: "ufw", Args: []string{"allow", portRule}, Desc: fmt.Sprintf("Opening firewall port %s via ufw", portRule)},
+	}
+}
+
+func buildRhelEnableSteps(pkgMgr string, port int) []LinuxStep {
+	portRule := fmt.Sprintf("--add-port=%d/tcp", port)
+
+	return []LinuxStep{
+		{Binary: pkgMgr, Args: []string{"install", "-y", "openssh-server"}, Desc: fmt.Sprintf("Installing openssh-server via %s", pkgMgr)},
+		{Binary: "systemctl", Args: []string{"enable", "--now", "sshd"}, Desc: "Enabling and starting sshd service via systemctl"},
+		{Binary: "firewall-cmd", Args: []string{"--permanent", portRule}, Desc: fmt.Sprintf("Opening firewall port %d/tcp via firewall-cmd", port)},
+		{Binary: "firewall-cmd", Args: []string{"--reload"}, Desc: "Reloading firewall-cmd"},
+	}
+}
+
+func readOSRelease() string {
+	data, err := os.ReadFile("/etc/os-release")
+	if err != nil {
+		return ""
 	}
 
-	return nil
+	return strings.ToLower(string(data))
 }
 
 func detectLinuxDistro() string {
-	data, err := os.ReadFile("/etc/os-release")
-	if err != nil {
-		return detectLinuxDistroFromFiles()
-	}
-
-	content := strings.ToLower(string(data))
+	content := readOSRelease()
 	if strings.Contains(content, "ubuntu") || strings.Contains(content, "debian") {
 		return "debian"
 	}
 
-	if strings.Contains(content, "rhel") || strings.Contains(content, "centos") || strings.Contains(content, "fedora") {
+	if strings.Contains(content, "rhel") || strings.Contains(content, "centos") {
 		return "rhel"
-	}
-
-	return detectLinuxDistroFromFiles()
-}
-
-func detectLinuxDistroFromFiles() string {
-	if _, err := os.Stat("/etc/debian_version"); err == nil {
-		return "debian"
 	}
 
 	if _, err := os.Stat("/etc/redhat-release"); err == nil {
@@ -194,53 +268,46 @@ func detectLinuxDistroFromFiles() string {
 	return "debian"
 }
 
-func enableSSHDebian(port int) error {
-	fmt.Printf("  %s[1/3]%s Installing openssh-server via apt-get...\n", constants.ColorCyan, constants.ColorReset)
-	if _, err := daemonExecRunner("apt-get", "install", "-y", "openssh-server"); err != nil {
-		return apperror.NewExecutionError(fmt.Sprintf("apt-get install failed: %v", err))
+func detectRhelPackageManager() string {
+	_, err := exec.LookPath("dnf")
+	if err == nil {
+		return "dnf"
 	}
 
-	fmt.Printf("  %s[2/3]%s Enabling and starting ssh service via systemctl...\n", constants.ColorCyan, constants.ColorReset)
-	if _, err := daemonExecRunner("systemctl", "enable", "--now", "ssh"); err != nil {
-		return apperror.NewExecutionError(fmt.Sprintf("systemctl enable ssh failed: %v", err))
+	return "yum"
+}
+
+func isFatalLinuxStepError(bin string, err error) bool {
+	if err == nil {
+		return false
 	}
 
-	fmt.Printf("  %s[3/3]%s Opening firewall port %d/tcp via ufw...\n", constants.ColorCyan, constants.ColorReset, port)
-	portRule := fmt.Sprintf("%d/tcp", port)
-	_, _ = daemonExecRunner("ufw", "allow", portRule)
+	return bin != "ufw" && bin != "firewall-cmd"
+}
+
+func executeLinuxSteps(steps []LinuxStep) error {
+	for i, step := range steps {
+		fmt.Printf("  %s[%d/%d]%s %s...\n", constants.ColorCyan, i+1, len(steps), constants.ColorReset, step.Desc)
+		_, err := daemonExecRunner(step.Binary, step.Args...)
+		if isFatalLinuxStepError(step.Binary, err) {
+			return apperror.NewExecutionError(fmt.Sprintf("%s failed: %v", step.Desc, err))
+		}
+	}
 
 	return nil
+}
+
+func enableSSHDebian(port int) error {
+	return executeLinuxSteps(buildDebianEnableSteps(port))
 }
 
 func enableSSHRhel(port int) error {
-	fmt.Printf("  %s[1/4]%s Installing openssh-server via dnf/yum...\n", constants.ColorCyan, constants.ColorReset)
-	pkgMgr := "dnf"
-	if _, lookErr := exec.LookPath("dnf"); lookErr != nil {
-		pkgMgr = "yum"
-	}
-
-	if _, err := daemonExecRunner(pkgMgr, "install", "-y", "openssh-server"); err != nil {
-		return apperror.NewExecutionError(fmt.Sprintf("%s install failed: %v", pkgMgr, err))
-	}
-
-	fmt.Printf("  %s[2/4]%s Enabling and starting sshd service via systemctl...\n", constants.ColorCyan, constants.ColorReset)
-	if _, err := daemonExecRunner("systemctl", "enable", "--now", "sshd"); err != nil {
-		return apperror.NewExecutionError(fmt.Sprintf("systemctl enable sshd failed: %v", err))
-	}
-
-	fmt.Printf("  %s[3/4]%s Opening firewall port %d/tcp via firewall-cmd...\n", constants.ColorCyan, constants.ColorReset, port)
-	portArg := fmt.Sprintf("--add-port=%d/tcp", port)
-	_, _ = daemonExecRunner("firewall-cmd", "--permanent", portArg)
-
-	fmt.Printf("  %s[4/4]%s Reloading firewall-cmd...\n", constants.ColorCyan, constants.ColorReset)
-	_, _ = daemonExecRunner("firewall-cmd", "--reload")
-
-	return nil
+	return executeLinuxSteps(buildRhelEnableSteps(detectRhelPackageManager(), port))
 }
 
 func enableSSHLinux(port int, isForce bool) error {
-	distro := detectLinuxDistro()
-	if distro == "rhel" {
+	_ = isForce
+	if detectLinuxDistro() == "rhel" {
 		return enableSSHRhel(port)
 	}
 
@@ -248,20 +315,14 @@ func enableSSHLinux(port int, isForce bool) error {
 }
 
 func printSSHEnableBanner(targetOS string, port int) {
-	fmt.Println()
-	fmt.Printf("%s╔══════════════════════════════════════════════════════════════════╗%s\n", constants.ColorGreen, constants.ColorReset)
+	fmt.Printf("\n%s╔══════════════════════════════════════════════════════════════════╗%s\n", constants.ColorGreen, constants.ColorReset)
 	fmt.Printf("%s║         OPENSSH SERVER DAEMON SUCCESSFULLY ENABLED               ║%s\n", constants.ColorGreen, constants.ColorReset)
 	fmt.Printf("%s╚══════════════════════════════════════════════════════════════════╝%s\n", constants.ColorGreen, constants.ColorReset)
-	fmt.Printf("  Target OS:       %s%s%s\n", constants.ColorCyan, targetOS, constants.ColorReset)
-	fmt.Printf("  Service Name:    %ssshd (Automatic, Running)%s\n", constants.ColorGreen, constants.ColorReset)
-	fmt.Printf("  Listening Port:  %s%d/TCP (Inbound Allowed)%s\n", constants.ColorCyan, port, constants.ColorReset)
-	fmt.Printf("  Verify Command:  %sgitmap ssh troubleshoot 127.0.0.1%s\n", constants.ColorYellow, constants.ColorReset)
-	fmt.Println()
+	fmt.Printf("  Target OS:       %s%s%s\n  Service Name:    %ssshd (Automatic, Running)%s\n  Listening Port:  %s%d/TCP (Inbound Allowed)%s\n  Verify Command:  %sgitmap ssh troubleshoot 127.0.0.1%s\n\n", constants.ColorCyan, targetOS, constants.ColorReset, constants.ColorGreen, constants.ColorReset, constants.ColorCyan, port, constants.ColorReset, constants.ColorYellow, constants.ColorReset)
 }
 
 func runEnableSSHWindows(opts sshEnableOptions) error {
-	err := enableSSHWindows(opts.port, opts.isForce)
-	if err != nil {
+	if err := enableSSHWindows(opts.port, opts.isForce); err != nil {
 		return err
 	}
 
@@ -271,14 +332,25 @@ func runEnableSSHWindows(opts sshEnableOptions) error {
 }
 
 func runEnableSSHLinux(opts sshEnableOptions) error {
-	err := enableSSHLinux(opts.port, opts.isForce)
-	if err != nil {
+	if err := enableSSHLinux(opts.port, opts.isForce); err != nil {
 		return err
 	}
 
 	printSSHEnableBanner("Linux ("+detectLinuxDistro()+")", opts.port)
 
 	return nil
+}
+
+func dispatchSSHEnableOS(opts sshEnableOptions) error {
+	if runtime.GOOS == "windows" {
+		return runEnableSSHWindows(opts)
+	}
+
+	if runtime.GOOS == "linux" {
+		return runEnableSSHLinux(opts)
+	}
+
+	return apperror.NewExecutionError(fmt.Sprintf("unsupported OS %q for automated sshd enabling", runtime.GOOS))
 }
 
 func runSSHEnableCLI(args []string) error {
@@ -289,17 +361,9 @@ func runSSHEnableCLI(args []string) error {
 
 	if opts.isHelp {
 		printSSHEnableHelp()
+
 		return nil
 	}
 
-	targetOS := runtime.GOOS
-	if targetOS == "windows" {
-		return runEnableSSHWindows(opts)
-	}
-
-	if targetOS == "linux" {
-		return runEnableSSHLinux(opts)
-	}
-
-	return apperror.NewExecutionError(fmt.Sprintf("unsupported operating system %q for automated sshd enabling", targetOS))
+	return dispatchSSHEnableOS(opts)
 }

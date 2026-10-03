@@ -13,19 +13,42 @@ import (
 
 var commonPortsList = []int{22, 80, 443, 3389, 5985, 5986, 8080}
 
+var serviceNameToPortMap = map[string]int{
+	"ssh":         22,
+	"sshd":        22,
+	"rdp":         3389,
+	"http":        80,
+	"web":         80,
+	"https":       443,
+	"ssl":         443,
+	"winrm":       5985,
+	"winrm-https": 5986,
+	"winrm-ssl":   5986,
+	"dns":         53,
+	"smb":         445,
+	"mysql":       3306,
+	"postgres":    5432,
+	"postgresql":  5432,
+	"redis":       6379,
+}
+
+
 // Run executes the ports inspection CLI command.
 func Run(args []string) error {
 	opts, isHelp, err := parsePortsFlags(args)
+
 	if err != nil {
 		return err
 	}
 
 	if isHelp {
 		printPortsHelp()
+
 		return nil
 	}
 
 	entries, err := inspectPorts(opts)
+
 	if err != nil {
 		return apperror.WrapSimple(err, "ports inspection failed:")
 	}
@@ -38,6 +61,7 @@ func Run(args []string) error {
 
 	return nil
 }
+
 
 func parsePortsFlags(args []string) (PortsOptions, bool, error) {
 	opts := PortsOptions{}
@@ -56,6 +80,13 @@ func parsePortsFlags(args []string) (PortsOptions, bool, error) {
 			continue
 		}
 
+		if isFirewallFlag(arg) {
+			opts.CommonOnly = true
+			opts.FirewallOnly = true
+			i++
+			continue
+		}
+
 		if isJSONFlag(arg) {
 			opts.JSONOutput = true
 			i++
@@ -63,6 +94,7 @@ func parsePortsFlags(args []string) (PortsOptions, bool, error) {
 		}
 
 		consumed, err := handlePortFlag(arg, args, i, &opts)
+
 		if err != nil {
 			return opts, false, err
 		}
@@ -73,8 +105,17 @@ func parsePortsFlags(args []string) (PortsOptions, bool, error) {
 		}
 
 		portNum, isInt := parsePortNumber(arg)
+
 		if isInt {
 			opts.TargetPort = portNum
+			i++
+			continue
+		}
+
+		servicePort, isService := resolveServiceNamePort(arg)
+
+		if isService {
+			opts.TargetPort = servicePort
 			i++
 			continue
 		}
@@ -93,8 +134,37 @@ func isCommonFlag(arg string) bool {
 	return arg == "-c" || arg == "--common" || arg == "common"
 }
 
+func isFirewallFlag(arg string) bool {
+	norm := strings.ToLower(strings.TrimSpace(arg))
+
+	return norm == "firewall" || norm == "fw" || norm == "--firewall"
+}
+
 func isJSONFlag(arg string) bool {
 	return arg == "--json" || arg == "json"
+}
+
+func resolveServiceNamePort(name string) (int, bool) {
+	key := strings.ToLower(strings.TrimSpace(name))
+	port, isFound := serviceNameToPortMap[key]
+
+	return port, isFound
+}
+
+func parsePortOrService(arg string) (int, bool) {
+	portNum, isInt := parsePortNumber(arg)
+
+	if isInt {
+		return portNum, true
+	}
+
+	servicePort, isService := resolveServiceNamePort(arg)
+
+	if isService {
+		return servicePort, true
+	}
+
+	return 0, false
 }
 
 func handlePortFlag(arg string, args []string, index int, opts *PortsOptions) (int, error) {
@@ -115,9 +185,9 @@ func handlePortFlag(arg string, args []string, index int, opts *PortsOptions) (i
 
 func parseEqualPort(arg string, prefix string, opts *PortsOptions) (int, error) {
 	val := strings.TrimPrefix(arg, prefix)
-	port, err := strconv.Atoi(val)
+	port, isValid := parsePortOrService(val)
 
-	if err != nil || port < 1 || port > 65535 {
+	if !isValid || port < 1 || port > 65535 {
 		return 0, apperror.NewValidationError(fmt.Sprintf("invalid port number: %s", val))
 	}
 
@@ -128,14 +198,15 @@ func parseEqualPort(arg string, prefix string, opts *PortsOptions) (int, error) 
 
 func parseNextArgPort(args []string, index int, opts *PortsOptions) (int, error) {
 	nextIndex := index + 1
+
 	if nextIndex >= len(args) {
 		return 0, apperror.NewValidationError("missing port value for flag")
 	}
 
 	val := args[nextIndex]
-	port, err := strconv.Atoi(val)
+	port, isValid := parsePortOrService(val)
 
-	if err != nil || port < 1 || port > 65535 {
+	if !isValid || port < 1 || port > 65535 {
 		return 0, apperror.NewValidationError(fmt.Sprintf("invalid port number: %s", val))
 	}
 
@@ -146,6 +217,7 @@ func parseNextArgPort(args []string, index int, opts *PortsOptions) (int, error)
 
 func parsePortNumber(arg string) (int, bool) {
 	p, err := strconv.Atoi(arg)
+
 	if err != nil || p < 1 || p > 65535 {
 		return 0, false
 	}
@@ -155,21 +227,35 @@ func parsePortNumber(arg string) (int, bool) {
 
 func printPortsHelp() {
 	fmt.Println()
-	fmt.Println(constants.ColorCyan + "Usage: gitmap ports [options]" + constants.ColorReset)
+	fmt.Println(constants.ColorCyan + "Usage: gitmap ports [options] [port|service]" + constants.ColorReset)
 	fmt.Println()
 	fmt.Println("Inspect listening TCP network ports, process owners, and firewall status.")
 	fmt.Println()
 	fmt.Println("Options:")
-	fmt.Println("  -p, --port <port>   Inspect a specific port number (e.g. -p 22)")
+	fmt.Println("  -p, --port <port>   Inspect a specific port number (e.g. -p 22) or service name")
 	fmt.Println("  -c, --common        Inspect common administrative ports (22, 80, 443, 3389, etc.)")
+	fmt.Println("      --firewall, fw  Display firewall statuses for common management ports")
 	fmt.Println("      --json          Output results in JSON format")
 	fmt.Println("  -h, --help          Show this help message")
+	fmt.Println()
+	fmt.Println("Named Services:")
+	fmt.Println("  gitmap ports ssh            # Inspect SSH service (port 22)")
+	fmt.Println("  gitmap ports rdp            # Inspect Remote Desktop (port 3389)")
+	fmt.Println("  gitmap ports winrm          # Inspect Windows Remote Management (port 5985)")
+	fmt.Println("  gitmap ports firewall       # Display firewall status for all common ports")
+	fmt.Println()
+	fmt.Println("Supported Services:")
+	fmt.Println("  ssh, sshd, rdp, http, web, https, ssl, winrm, winrm-https, winrm-ssl, dns, smb, mysql, postgres, postgresql, redis")
 	fmt.Println()
 	fmt.Println("Examples:")
 	fmt.Println("  gitmap ports                # List active listening TCP ports")
 	fmt.Println("  gitmap ports --common       # Check standard management and web ports")
-	fmt.Println("  gitmap ports -p 22          # Check SSH server status and firewall")
-	fmt.Println("  gitmap ports -p 22 --json   # Export port 22 diagnosis to JSON")
+	fmt.Println("  gitmap ports firewall       # Check firewall status on common ports")
+	fmt.Println("  gitmap ports ssh            # Check SSH server status and firewall")
+	fmt.Println("  gitmap ports rdp            # Check Remote Desktop port")
+	fmt.Println("  gitmap ports winrm          # Check WinRM HTTP port")
+	fmt.Println("  gitmap ports -p 22          # Check port 22 directly")
+	fmt.Println("  gitmap ports ssh --json     # Export SSH port diagnosis to JSON")
 	fmt.Println()
 }
 
@@ -306,16 +392,26 @@ func resolveListeningRecommendation(port int, isAllowed bool) string {
 	switch port {
 	case 22:
 		return "SSH service active and accessible"
+	case 53:
+		return "DNS service active"
 	case 80:
 		return "HTTP web service active"
 	case 443:
 		return "HTTPS secure web service active"
+	case 445:
+		return "SMB file sharing service active"
+	case 3306:
+		return "MySQL database service active"
 	case 3389:
 		return "Remote Desktop active"
+	case 5432:
+		return "PostgreSQL database service active"
 	case 5985:
 		return "WinRM HTTP active"
 	case 5986:
 		return "WinRM HTTPS active"
+	case 6379:
+		return "Redis cache service active"
 	case 8080:
 		return "HTTP Alt service active"
 	default:
@@ -327,16 +423,26 @@ func resolveClosedRecommendation(port int) string {
 	switch port {
 	case 22:
 		return "Install/start OpenSSH Server: gitmap ssh enable"
+	case 53:
+		return "Start DNS server service"
 	case 80:
 		return "Start HTTP web service (IIS/Nginx/Apache)"
 	case 443:
 		return "Start HTTPS web service / TLS listener"
+	case 445:
+		return "Start SMB / Server service"
+	case 3306:
+		return "Start MySQL database service"
 	case 3389:
 		return "Enable Remote Desktop in System Settings"
+	case 5432:
+		return "Start PostgreSQL database service"
 	case 5985:
 		return "Enable WinRM service: winrm quickconfig"
 	case 5986:
 		return "Enable WinRM HTTPS listener"
+	case 6379:
+		return "Start Redis cache service"
 	case 8080:
 		return "Start secondary HTTP service / proxy"
 	default:

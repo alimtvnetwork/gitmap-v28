@@ -12,9 +12,10 @@ func TestParsePortsFlags(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if isHelp || opts.TargetPort != 0 || opts.CommonOnly || opts.JSONOutput {
+	if isHelp || opts.TargetPort != 0 || opts.CommonOnly || opts.FirewallOnly || opts.JSONOutput {
 		t.Fatalf("expected zeroed options, got %+v", opts)
 	}
+
 
 	optsPort, _, err := parsePortsFlags([]string{"-p", "22"})
 	if err != nil {
@@ -168,3 +169,97 @@ func TestOutputPortsJSON(t *testing.T) {
 		t.Fatalf("JSON roundtrip mismatch: %+v", parsed)
 	}
 }
+
+func TestParseServiceNames(t *testing.T) {
+	testCases := []struct {
+		arg          string
+		expectedPort int
+	}{
+		{"ssh", 22},
+		{"sshd", 22},
+		{"SSH", 22},
+		{"rdp", 3389},
+		{"RDP", 3389},
+		{"winrm", 5985},
+		{"WinRM", 5985},
+		{"winrm-https", 5986},
+		{"winrm-ssl", 5986},
+		{"http", 80},
+		{"web", 80},
+		{"https", 443},
+		{"ssl", 443},
+		{"dns", 53},
+		{"smb", 445},
+		{"mysql", 3306},
+		{"postgres", 5432},
+		{"postgresql", 5432},
+		{"redis", 6379},
+	}
+
+	for _, tc := range testCases {
+		opts, isHelp, err := parsePortsFlags([]string{tc.arg})
+
+		if err != nil {
+			t.Fatalf("unexpected error parsing %s: %v", tc.arg, err)
+		}
+
+		if isHelp {
+			t.Fatalf("expected isHelp to be false for %s", tc.arg)
+		}
+
+		if opts.TargetPort != tc.expectedPort {
+			t.Fatalf("expected port %d for %s, got %d", tc.expectedPort, tc.arg, opts.TargetPort)
+		}
+	}
+}
+
+func TestParseFirewallFlags(t *testing.T) {
+	firewallArgs := []string{"firewall", "fw", "--firewall"}
+
+	for _, arg := range firewallArgs {
+		opts, isHelp, err := parsePortsFlags([]string{arg})
+
+		if err != nil {
+			t.Fatalf("unexpected error parsing firewall flag %s: %v", arg, err)
+		}
+
+		if isHelp {
+			t.Fatalf("expected isHelp false for %s", arg)
+		}
+
+		if !opts.CommonOnly {
+			t.Fatalf("expected CommonOnly to be true for %s", arg)
+		}
+
+		if !opts.FirewallOnly {
+			t.Fatalf("expected FirewallOnly to be true for %s", arg)
+		}
+	}
+}
+
+func TestResolveServiceNamePort(t *testing.T) {
+	port, isFound := resolveServiceNamePort("ssh")
+
+	if !isFound || port != 22 {
+		t.Fatalf("expected 22, true for ssh, got %d, %v", port, isFound)
+	}
+
+	portSSHUpper, isFoundUpper := resolveServiceNamePort("SSH")
+
+	if !isFoundUpper || portSSHUpper != 22 {
+		t.Fatalf("expected 22, true for SSH, got %d, %v", portSSHUpper, isFoundUpper)
+	}
+
+	portRDP, isFoundRDP := resolveServiceNamePort("Rdp")
+
+	if !isFoundRDP || portRDP != 3389 {
+		t.Fatalf("expected 3389, true for Rdp, got %d, %v", portRDP, isFoundRDP)
+	}
+
+	_, isFoundUnknown := resolveServiceNamePort("nonexistent-service")
+
+	if isFoundUnknown {
+		t.Fatalf("expected false for unknown service")
+	}
+}
+

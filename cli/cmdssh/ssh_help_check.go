@@ -80,10 +80,58 @@ func checkSSHHelp(args []string) bool {
 		return true
 	}
 
+	if hasHelp && hasDaemonEnableToken(args) {
+		printSSHEnableHelp()
+
+		return true
+	}
+
+	if hasHelp && hasPortToken(args) {
+		printSSHPortHelp()
+
+		return true
+	}
+
+	if hasHelp && hasTroubleshootToken(args) {
+		printTroubleshootHelp()
+
+		return true
+	}
+
 	if hasHelp {
 		RenderSSHHelp()
 
 		return true
+	}
+
+	return false
+}
+
+func hasDaemonEnableToken(args []string) bool {
+	for _, a := range args {
+		if a == "enable" || a == "enable-server" || a == "sshd" || a == "enable-sshd" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func hasPortToken(args []string) bool {
+	for _, a := range args {
+		if a == "port" || a == "ports" || a == "set-port" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func hasTroubleshootToken(args []string) bool {
+	for _, a := range args {
+		if a == "troubleshoot" || a == "doctor" || a == "diagnose" {
+			return true
+		}
 	}
 
 	return false
