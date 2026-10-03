@@ -1,4 +1,16 @@
-# Regex Usage Guidelines
+# Regex Usage Guidelines (AI Execution Prompt)
+
+> **/goal** Minimize expensive regex usage by prioritizing fast static string utilities, compile all mandatory regular expressions at package initialization, and eliminate regex evaluation inside tight loops.
+> **/learn** Understand the severe CPU and memory cost of backtracking regular expressions; master `strings.Split`, `strings.Contains`, `strings.HasPrefix`, and package-level `regexp.MustCompile` caching.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace simple pattern matching, delimiters, and prefix/suffix checks with native string functions (`strings.Split`, `strings.HasPrefix`, `strings.Contains`).
+- [ ] `/learn` Ban inline regex compilation inside functions and loops; compile patterns once at package scope using `regexp.MustCompile` (Go) or top-level RegExp literals.
+- [ ] `/goal` Document every regular expression pattern with concrete sample match comments explaining valid inputs.
+- [ ] `/learn` Verify zero uncompiled or redundant regex instances across the repository via automated guideline checks.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -90,6 +102,24 @@ Moving regex from inside a function to a package-level `var` can yield significa
 
 - [Code Style](./04-code-style/readme.md) — Performance considerations
 - [Master Coding Guidelines](./15-master-coding-guidelines/readme.md) — §8 Magic Strings (regex patterns are not magic strings)
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PERF-017: Optimized Regex Usage and Package-Level Compilation
+
+**Given** Regular expression patterns and string evaluation logic across Go, TypeScript, and polyglot codebases.
+**When** Guidelines/linters audit the codebase for regex performance and compilation boundaries.
+**Then** Static string methods are preferred over regex, all mandatory patterns are compiled once at package initialization, and verification returns exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

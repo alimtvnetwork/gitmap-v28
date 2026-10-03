@@ -1,4 +1,16 @@
-# Enum Naming Quick Reference — All Languages
+# Enum Naming Quick Reference — All Languages (AI Execution Prompt)
+
+> **/goal** Standardize enum declarations, value representations, type-safe comparison methods, and JSON serialization across Go, TypeScript, PHP, and Rust.
+> **/learn** Eliminate magic strings, enforce `Variant byte` in Go, string enums with UPPER_SNAKE values in TypeScript, `Type` suffixes in PHP, and `rename_all = "PascalCase"` serde attributes in Rust.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce proper enum types across all languages without raw magic string literals in comparisons.
+- [ ] `/learn` Apply language-specific enum patterns (`Variant byte` with `Invalid = iota` in Go, `Type` suffix with `isEqual()` in PHP).
+- [ ] `/goal` Guarantee exhaustive `switch` / `match` handling with mandatory `default` fallback branches.
+- [ ] `/learn` Verify PascalCase serialized values and trait derives across all cross-language enum schemas.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -297,3 +309,21 @@ Before generating any enum-related code:
 ---
 
 *Enum naming quick reference v1.1.0 — 2026-04-11*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-ai-optimization/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-AI-007: Cross-Language Enum Standards Enforcement
+
+**Given** AI agents operating within the repository and codebase guidelines.
+**When** Audited against this optimization specification.
+**Then** Zero compliance or citation failures are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-ai-optimization --check-only
+```
+**Expected:** exit 0. Zero violations.

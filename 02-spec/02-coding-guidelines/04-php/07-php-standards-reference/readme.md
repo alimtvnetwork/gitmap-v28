@@ -1,6 +1,16 @@
-# PHP Coding Standards
+# PHP Coding Standards (AI Execution Prompt)
 
-. **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
+> **/goal** Provide a unified entry point, architectural index, and compliance roadmap for all PHP coding standards across naming, error handling, enums, booleans, code style, and database access.
+> **/learn** Master the modular PHP standards reference architecture, WordPress integration patterns, structured response arrays, and automated verification protocols across the 07-php-standards-reference directory.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce all PHP coding standards reference specifications across WordPress plugins and backend services.
+- [ ] `/learn` Never violate modular boundaries, file sizing limits (100-300 lines), or error handling conventions defined in referenced standards.
+- [ ] `/goal` Verify all cross-references to positive boolean standards, structured responses, and DRY principles are maintained.
+- [ ] `/learn` Ensure zero static analysis or guideline autofixer violations across all PHP standards reference files.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below. This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -56,3 +66,21 @@ Previously a single 841-line file, now split into focused modules under 300 line
 - [Cross-Language Code Style](../../01-cross-language/04-code-style/readme.md) — Braces, nesting & spacing rules (canonical)
 - [Function Naming](../../01-cross-language/10-function-naming.md) — No boolean flag parameters (all languages)
 - [Strict Typing](../../01-cross-language/13-strict-typing.md) — Type declarations & docblock rules (all languages)
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-REF-000: PHP Standards Reference Index Conformance
+
+**Given** PHP standards reference files and companion plugin implementations.
+**When** Audited against this reference specification.
+**Then** Zero violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php/07-php-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,4 +1,16 @@
-# Go — golangci-lint Enforcement Rule Mapping
+# Go — golangci-lint Enforcement Rule Mapping (AI Execution Prompt)
+
+> **/goal** Configure and enforce golangci-lint, revive, gocognit, nestif, and funlen to automate Go coding standards in CI/CD pipelines.
+> **/learn** Enforce zero nested if statements, max 15 lines per function, max 3 parameters, cognitive complexity ≤ 10, affirmative boolean naming, and banned package stutter.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce `nestif` (`min-complexity: 1`) to block all nested `if` statements with zero tolerance.
+- [ ] `/learn` Configure `funlen` (`lines: 15, statements: 10`) and `cyclop` (`max-complexity: 10`) to eliminate oversized, complex functions.
+- [ ] `/goal` Require strict `nolintlint` rules with mandatory explanations for any lint suppressions.
+- [ ] `/learn` Verify zero usage of `interface{}`/`any` in exported APIs and enforce `*appfault.AppError` return contracts.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -230,6 +242,24 @@ issues:
 - [Cross-Language Code Style](../04-code-style/readme.md) — Formatting rules
 - [Boolean Principles](../02-boolean-principles/readme.md) — Boolean naming rules
 - [DRY Principles](../08-dry-principles.md) — Deduplication rules
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-GO: Go golangci-lint Static Analysis & Linter Enforcement
+
+**Given** Go source files and repository configuration (`.golangci.yml`).
+**When** Linters and static analysis tools audit the Go codebase during local checks or CI runs.
+**Then** Zero nested `if` statements are permitted (`nestif: 1`), functions do not exceed 15 lines (`funlen`), cognitive complexity does not exceed 10, and all unchecked errors are caught.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

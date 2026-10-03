@@ -1,9 +1,9 @@
 ---
 name: plan-spec-steps-v2
-description: "Executes the any uppercase character, space, or underscore in an authored path = FAIL prompt. Reuse First: I have rigorously scanned and ed 03-ai-scripts/readme.md to check if a helper script already exists before writing any new temporary code with strict no-build and no-test execution. Use when the user asks to run plan-spec-steps-v2, or the task is about planning, spec steps, or an app-spec audit."
+description: "Executes the Specification Planning Engine (v2) prompt. Autonomously author comprehensive application specifications in 02-spec/21-app/ and lean subtask plans in .ai-memory/plans/ with strict no-build and no-test execution. Use when the user asks to run plan-spec-steps-v2, or the task is about planning, spec steps, or an app-spec audit."
 ---
 
-# any uppercase character, space, or underscore in an authored path = FAIL
+# Plan Spec Steps (v2) — Specification Planning Engine
 
 Source prompt: `01-prompts/13-plan-audit/02-plan-spec-steps-v2.md`
 
@@ -16,4 +16,4 @@ Source prompt: `01-prompts/13-plan-audit/02-plan-spec-steps-v2.md`
 
 ## Goal
 
-Reuse First: I have rigorously scanned and ed 03-ai-scripts/readme.md to check if a helper script already exists before writing any new temporary code with strict no-build and no-test execution.
+Reuse First: I have rigorously scanned and learned `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code with strict no-build and no-test execution.

@@ -1,4 +1,16 @@
-# PascalCase Key Naming Standard
+# PascalCase Key Naming Standard (AI Execution Prompt)
+
+> **/goal** Enforce PascalCase key naming across all serialized formats (JSON, YAML, PHP array keys, Go log key constants, database columns) across the entire project.
+> **/learn** Master the unified PascalCase serialization standard, understand exemptions for external third-party protocols/APIs, and eliminate camelCase or snake_case key drift.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce PascalCase formatting on all JSON request/response keys, YAML configuration keys, and database column names.
+- [ ] `/learn` Ban camelCase and snake_case in project-controlled data structures, PHP array keys, and Go log key constants.
+- [ ] `/goal` Allow exemptions strictly for uncontrollable third-party APIs, Prometheus metrics, or external protocol specifications.
+- [ ] `/learn` Verify zero key naming violations across Go, PHP, and TypeScript codebases via automated guideline linters.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-09
@@ -136,3 +148,21 @@ See [Master Coding Guidelines §1.2](./15-master-coding-guidelines/02-naming-and
 - Go Backend Prompt — PascalCase mandate <!-- external: 02-spec/02-spec-management-software/12-prompts/01-coding-guideline/01-backend-go.md -->
 - Coding Standards Foundation §10 — Log key constants <!-- external: 02-spec/01-general-spec/01-foundation/01-coding-standards-foundation.md -->
 - [Database Naming](./07-database-naming.md) — Column naming
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-NAME-011: PascalCase Key Naming Standard
+
+**Given** Serialized data structures, JSON payloads, YAML configurations, PHP array keys, and log constants in Go, PHP, or TypeScript.
+**When** Codebases and data payloads are evaluated by CI/CD linters and guideline auditors.
+**Then** All internal keys use PascalCase with zero unauthorized camelCase or snake_case occurrences, achieving deterministic compliance with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

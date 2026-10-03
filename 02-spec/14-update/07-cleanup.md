@@ -5,7 +5,6 @@
 Define how temporary artifacts from the update process are identified
 and removed after a successful update.
 
-
 ## Flow Diagram
 
 See [`images/cleanup-flow.mmd`](images/cleanup-flow.mmd)

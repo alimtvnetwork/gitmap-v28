@@ -1,4 +1,16 @@
-# `install.sh` / `install.ps1` & `release-install.*` — Normative Contract
+# `install.sh` / `install.ps1` & `release-install.*` — Normative Contract (AI Execution Prompt)
+
+> **/goal** Define the complete flag surface, pre-network banner contract, pinned vs implicit mode resolution precedence, SHA-256 verification, and downstream fix-repo handoff.
+> **/learn** Master the strict pinning constraints of `release-install.*` (never query latest, never fallback to main), SHA-256 integrity gates, and unified exit code taxonomy.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Print mandatory configuration banner before initiating any network probe or download request.
+- [ ] `/learn` Never allow pinned mode to query GitHub releases/latest or silently downgrade to implicit branch mode.
+- [ ] `/goal` Verify SHA-256 archive checksums against `checksums.txt` before extraction and exit with code `4` on mismatch.
+- [ ] `/learn` Propagate fix-repo exit codes (2–7) cleanly to caller when `--run-fix-repo` is specified.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0 · **Updated:** 2026-04-28
 > Implements: `install.sh`, `install.ps1`, `release-install.sh`, `release-install.ps1`
@@ -144,3 +156,21 @@ When the flag is set (or `INSTALL_RUN_FIX_REPO=1`):
 - Zero nested conditionals; guard-and-return.
 - Every error logged to stderr AND reflected in the exit code.
 - No magic numbers in branching — every exit code is a named constant.
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-INSTALL-003: Installer Scripts Specification Conformance
+
+**Given** Installer and auto-fix repository management specifications.
+**When** Audited against this installation specification.
+**Then** Zero contract or visibility violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,7 +1,7 @@
 # Phase 2 — Enums and Coding Style
 
 > **Purpose:** Define how enums eliminate magic strings and how code must be written for consistency.
-> **Cross-reference:** [`../../02-coding-guidelines/01-cross-language/04-code-style/01-index.md`](../../02-coding-guidelines/01-cross-language/04-code-style/01-index.md) for all formatting rules (R1–R13).
+> **Cross-reference:** [`../../02-coding-guidelines/01-cross-language/04-code-style/readme.md`](../../02-coding-guidelines/01-cross-language/04-code-style/readme.md) for all formatting rules (R1–R13).
 
 ---
 
@@ -21,7 +21,7 @@ Every plugin should define at minimum these enum types:
 | `HttpStatusType` | `int` | HTTP status codes (200, 400, 401, 403, 404, 500) |
 | `HookType` | `string` | WordPress hook names (`rest_api_init`, `admin_menu`, etc.) |
 | `LogLevelType` | `string` | Log severity levels (Debug, Info, Warn, Error) |
-| `ResponseKeyType` | `string` | Standardized keys in API response envelopes (PascalCase) |
+| `ResponseKeyType` | `string` | Standardised keys in API response envelopes (PascalCase) |
 | `CapabilityType` | `string` | WordPress capabilities (`activate_plugins`, `manage_options`) |
 | `WpErrorCodeType` | `string` | WP_Error code constants |
 | `PathLogFileType` | `string` | Log file name fragments (`/info.log`, `/error.log`) |
@@ -90,7 +90,7 @@ When multiple cases share a domain concept, add a group helper:
 
 ## 2.2 PluginConfigType — The Identity Enum
 
-This is the most important enum. It centralizes every identity value the plugin uses:
+This is the most important enum. It centralises every identity value the plugin uses:
 
 | Case | Example value | Used for |
 |------|--------------|----------|
@@ -205,7 +205,7 @@ $value = $shouldUseData ? $data : $default;
 
 ## 2.5 Coding Style — Formatting
 
-These rules apply to all PHP code. Full details in [`../../02-coding-guidelines/01-cross-language/04-code-style/01-index.md`](../../02-coding-guidelines/01-cross-language/04-code-style/01-index.md).
+These rules apply to all PHP code. Full details in [`../../02-coding-guidelines/01-cross-language/04-code-style/readme.md`](../../02-coding-guidelines/01-cross-language/04-code-style/readme.md).
 
 | Rule | Summary |
 |------|---------|

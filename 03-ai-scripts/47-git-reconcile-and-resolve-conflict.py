@@ -45,6 +45,7 @@ Usage:
 """
 
 import argparse
+import ast
 import json
 import os
 import re
@@ -334,6 +335,237 @@ def verify_no_conflict_markers(file_path: Path) -> bool:
         return False
 
 
+def resolve_markdown_list_and_table_conflict(file_path: Path) -> bool:
+    """Resolve markdown conflict by unifying lists, checklists, and table rows cleanly."""
+    try:
+        content = file_path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return False
+
+    conflict_regex = re.compile(
+        r"^<<<<<<< [^\n]*\n(.*?)\n=======\n(.*?)\n>>>>>>> [^\n]*$",
+        re.MULTILINE | re.DOTALL,
+    )
+
+    def replace_block(match: re.Match) -> str:
+        ours_lines = match.group(1).splitlines()
+        theirs_lines = match.group(2).splitlines()
+        combined = ours_lines + theirs_lines
+
+        has_table = any(line.strip().startswith("|") for line in combined)
+        if has_table:
+            seen_rows: Set[str] = set()
+            unified_table: List[str] = []
+            for line in combined:
+                stripped = line.strip()
+                if not stripped:
+                    continue
+
+                if re.match(r"^\|(\s*:?-+:?\s*\|)+$", stripped):
+                    if "table_sep" in seen_rows:
+                        continue
+                    seen_rows.add("table_sep")
+                    unified_table.append(line)
+                    continue
+
+                if stripped in seen_rows:
+                    continue
+                seen_rows.add(stripped)
+                unified_table.append(line)
+            return "\n".join(unified_table)
+
+        has_list = any(re.match(r"^\s*([-*+]|\d+\.)\s+", line) for line in combined)
+        if has_list:
+            seen_items: Set[str] = set()
+            unified_list: List[str] = []
+            checked_items: Set[str] = set()
+
+            for line in combined:
+                chk_match = re.match(r"^\s*([-*+]|\d+\.)\s+\[([ xX])\]\s+(.*)$", line)
+                if chk_match:
+                    item_mark = chk_match.group(2)
+                    item_body = chk_match.group(3).strip()
+                    if item_mark.lower() == "x":
+                        checked_items.add(item_body)
+
+            for line in combined:
+                chk_match = re.match(r"^\s*([-*+]|\d+\.)\s+\[([ xX])\]\s+(.*)$", line)
+                if chk_match:
+                    prefix = chk_match.group(1)
+                    item_body = chk_match.group(3).strip()
+                    if item_body in seen_items:
+                        continue
+                    seen_items.add(item_body)
+                    mark = "x" if item_body in checked_items else " "
+                    indent = line[: len(line) - len(line.lstrip())]
+                    unified_list.append(f"{indent}{prefix} [{mark}] {item_body}")
+                else:
+                    stripped = line.strip()
+                    if not stripped:
+                        continue
+                    if stripped in seen_items:
+                        continue
+                    seen_items.add(stripped)
+                    unified_list.append(line)
+            return "\n".join(unified_list)
+
+        if match.group(1).strip() == match.group(2).strip():
+            return match.group(1)
+        return f"{match.group(1)}\n{match.group(2)}"
+
+    resolved_content = conflict_regex.sub(replace_block, content)
+    file_path.write_text(resolved_content, encoding="utf-8")
+    return True
+
+
+def resolve_requirements_conflict(file_path: Path) -> bool:
+    """Resolve Python requirements conflict by unioning packages and adopting higher versions."""
+    try:
+        content = file_path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return False
+
+    conflict_regex = re.compile(
+        r"^<<<<<<< [^\n]*\n(.*?)\n=======\n(.*?)\n>>>>>>> [^\n]*$",
+        re.MULTILINE | re.DOTALL,
+    )
+
+    def replace_block(match: re.Match) -> str:
+        ours_lines = match.group(1).splitlines()
+        theirs_lines = match.group(2).splitlines()
+        req_map: Dict[str, str] = {}
+        order: List[str] = []
+
+        for line in ours_lines + theirs_lines:
+            stripped = line.strip()
+            if not stripped:
+                continue
+
+            if stripped.startswith("#"):
+                order.append(line)
+                continue
+
+            pkg_match = re.match(r"^([a-zA-Z0-9_\-\.]+)(.*)$", stripped)
+            if pkg_match:
+                pkg_name = pkg_match.group(1).lower()
+                if pkg_name not in req_map:
+                    req_map[pkg_name] = stripped
+                    order.append(pkg_name)
+                else:
+                    old_line = req_map[pkg_name]
+                    old_v = re.search(r"(\d+\.\d+(\.\d+)?)", old_line)
+                    new_v = re.search(r"(\d+\.\d+(\.\d+)?)", stripped)
+                    if old_v:
+                        if new_v:
+                            if parse_semver(new_v.group(1)) > parse_semver(old_v.group(1)):
+                                req_map[pkg_name] = stripped
+            else:
+                order.append(line)
+
+        output: List[str] = []
+        for item in order:
+            if item in req_map:
+                output.append(req_map.pop(item))
+            else:
+                if item.lower() not in req_map:
+                    output.append(item)
+        return "\n".join(output)
+
+    resolved_content = conflict_regex.sub(replace_block, content)
+    file_path.write_text(resolved_content, encoding="utf-8")
+    return True
+
+
+def check_is_import_block_conflict(file_path: Path) -> bool:
+    """Check if all conflict markers in a file appear strictly within code import blocks."""
+    try:
+        content = file_path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return False
+
+    conflict_regex = re.compile(
+        r"^<<<<<<< [^\n]*\n(.*?)\n=======\n(.*?)\n>>>>>>> [^\n]*$",
+        re.MULTILINE | re.DOTALL,
+    )
+    matches = list(conflict_regex.finditer(content))
+    if not matches:
+        return False
+
+    import_patterns = (
+        re.compile(r"^\s*(import\s+|from\s+\S+\s+import\s+)"),
+        re.compile(r"^\s*import\s+"),
+        re.compile(r'^\s*("[^"]+"|\S+\s+"[^"]+")'),
+        re.compile(r"^\s*use\s+\S+;"),
+    )
+
+    for match in matches:
+        lines = match.group(1).splitlines() + match.group(2).splitlines()
+        non_empty = [
+            l.strip()
+            for l in lines
+            if l.strip() and not l.strip().startswith("//") and not l.strip().startswith("#")
+        ]
+        if not non_empty:
+            continue
+        is_all_imports = all(any(p.search(line) for p in import_patterns) for line in non_empty)
+        if not is_all_imports:
+            return False
+
+    return True
+
+
+def resolve_code_imports_conflict(file_path: Path) -> bool:
+    """Resolve import block conflict by deduplicating import statements."""
+    try:
+        content = file_path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return False
+
+    conflict_regex = re.compile(
+        r"^<<<<<<< [^\n]*\n(.*?)\n=======\n(.*?)\n>>>>>>> [^\n]*$",
+        re.MULTILINE | re.DOTALL,
+    )
+
+    def replace_block(match: re.Match) -> str:
+        ours_lines = match.group(1).splitlines()
+        theirs_lines = match.group(2).splitlines()
+        seen: Set[str] = set()
+        output: List[str] = []
+        for line in ours_lines + theirs_lines:
+            stripped = line.strip()
+            if stripped in seen:
+                continue
+            seen.add(stripped)
+            output.append(line)
+        return "\n".join(output)
+
+    resolved_content = conflict_regex.sub(replace_block, content)
+    file_path.write_text(resolved_content, encoding="utf-8")
+    return True
+
+
+def validate_syntax_post_resolve(file_path: Path) -> bool:
+    """Verify syntax validity of resolved file if applicable."""
+    suffix = file_path.suffix.lower()
+    if suffix == ".py":
+        try:
+            content = file_path.read_text(encoding="utf-8", errors="replace")
+            ast.parse(content, filename=str(file_path))
+            return True
+        except Exception:
+            return False
+
+    if suffix == ".json":
+        try:
+            content = file_path.read_text(encoding="utf-8", errors="replace")
+            json.loads(content)
+            return True
+        except Exception:
+            return False
+
+    return True
+
+
 def resolve_file_mechanically(
     repo_root: Path,
     rel_path: str,
@@ -346,6 +578,7 @@ def resolve_file_mechanically(
         return False
 
     filename = target.name.lower()
+    suffix = target.suffix.lower()
 
     if strategy == ResolutionStrategyType.OURS:
         run_git(["checkout", "--ours", rel_path], repo_root, check_exit=False)
@@ -360,17 +593,30 @@ def resolve_file_mechanically(
         return verify_no_conflict_markers(target)
 
     # Strategy: SMART (domain-specific mechanical resolution)
-    if filename in (".gitignore", ".gitattributes", ".npmignore"):
+    if filename in (".gitignore", ".gitattributes", ".npmignore", ".dockerignore"):
         resolve_gitignore_conflict(target)
     elif filename in ("version.json", "package.json", "prompt-version.template.json"):
         resolve_json_version_conflict(target)
     elif "changelog" in filename or "release-notes" in filename:
         resolve_changelog_conflict(target)
+    elif "requirements" in filename and suffix in (".txt", ".in"):
+        resolve_requirements_conflict(target)
+    elif suffix in (".md", ".markdown"):
+        resolve_markdown_list_and_table_conflict(target)
     else:
-        # Default smart fallback: try clean union if non-colliding
-        resolve_generic_union(target)
+        has_imports = check_is_import_block_conflict(target)
+        if has_imports:
+            resolve_code_imports_conflict(target)
+        else:
+            # Default smart fallback: try clean union if non-colliding
+            resolve_generic_union(target)
 
-    return verify_no_conflict_markers(target)
+    has_no_markers = verify_no_conflict_markers(target)
+    if not has_no_markers:
+        return False
+
+    is_syntax_valid = validate_syntax_post_resolve(target)
+    return is_syntax_valid
 
 
 def execute_mechanical_resolution(
@@ -551,6 +797,133 @@ def main() -> None:
         dest="push",
         help="Perform reconciliation and merge without pushing to remote",
     )
+def run_self_tests() -> bool:
+    """Run internal unit self-tests for all mechanical conflict resolvers."""
+    import tempfile
+
+    print("=== Running Self-Tests for Mechanical Conflict Resolvers ===")
+    test_results: List[Tuple[str, bool]] = []
+
+    with tempfile.TemporaryDirectory() as tmp_dir_str:
+        tmp_dir = Path(tmp_dir_str)
+
+        # Test 1: .gitignore deduplication
+        gi_path = tmp_dir / ".gitignore"
+        gi_path.write_text(
+            "<<<<<<< HEAD\nnode_modules/\n.cache/\n=======\n.cache/\nbuild/\n>>>>>>> origin/main\n",
+            encoding="utf-8",
+        )
+        is_gi_ok = resolve_gitignore_conflict(gi_path)
+        gi_content = gi_path.read_text(encoding="utf-8")
+        is_gi_verified = is_gi_ok and verify_no_conflict_markers(gi_path) and gi_content.count(".cache/") == 1
+        test_results.append((".gitignore deduplication union", is_gi_verified))
+
+        # Test 2: version.json SemVer resolution
+        v_path = tmp_dir / "version.json"
+        v_path.write_text(
+            '{\n<<<<<<< HEAD\n  "version": "1.2.0"\n=======\n  "version": "1.3.0"\n>>>>>>> origin/main\n}\n',
+            encoding="utf-8",
+        )
+        is_v_ok = resolve_json_version_conflict(v_path)
+        v_content = v_path.read_text(encoding="utf-8")
+        is_v_verified = is_v_ok and verify_no_conflict_markers(v_path) and '"1.3.0"' in v_content
+        test_results.append(("version.json SemVer resolution", is_v_verified))
+
+        # Test 3: changelog combining
+        cl_path = tmp_dir / "changelog.md"
+        cl_path.write_text(
+            "<<<<<<< HEAD\n## v1.2.0\n- Feature A\n=======\n## v1.3.0\n- Feature B\n>>>>>>> origin/main\n",
+            encoding="utf-8",
+        )
+        is_cl_ok = resolve_changelog_conflict(cl_path)
+        cl_content = cl_path.read_text(encoding="utf-8")
+        is_cl_verified = is_cl_ok and verify_no_conflict_markers(cl_path) and "## v1.3.0" in cl_content and "## v1.2.0" in cl_content
+        test_results.append(("changelog release combining", is_cl_verified))
+
+        # Test 4: markdown checklist & table
+        md_path = tmp_dir / "tasks.md"
+        md_path.write_text(
+            "<<<<<<< HEAD\n- [ ] Task 1: Auth\n- [x] Task 2: Core\n=======\n- [ ] Task 2: Core\n- [ ] Task 3: Test\n>>>>>>> origin/main\n",
+            encoding="utf-8",
+        )
+        is_md_ok = resolve_markdown_list_and_table_conflict(md_path)
+        md_content = md_path.read_text(encoding="utf-8")
+        is_md_verified = is_md_ok and verify_no_conflict_markers(md_path) and "- [x] Task 2: Core" in md_content and "- [ ] Task 3: Test" in md_content
+        test_results.append(("markdown checklist deduplicated union", is_md_verified))
+
+        # Test 5: requirements.txt resolution
+        req_path = tmp_dir / "requirements.txt"
+        req_path.write_text(
+            "<<<<<<< HEAD\nrequests==2.31.0\nfastapi>=0.100.0\n=======\nrequests==2.32.3\npytest>=8.0.0\n>>>>>>> origin/main\n",
+            encoding="utf-8",
+        )
+        is_req_ok = resolve_requirements_conflict(req_path)
+        req_content = req_path.read_text(encoding="utf-8")
+        is_req_verified = is_req_ok and verify_no_conflict_markers(req_path) and "requests==2.32.3" in req_content and "pytest>=8.0.0" in req_content
+        test_results.append(("requirements.txt version & package union", is_req_verified))
+
+        # Test 6: Python import block resolution
+        imp_path = tmp_dir / "sample.py"
+        imp_path.write_text(
+            "<<<<<<< HEAD\nimport os\nimport sys\n=======\nimport json\nimport os\n>>>>>>> origin/main\n",
+            encoding="utf-8",
+        )
+        is_imp_ok = resolve_code_imports_conflict(imp_path)
+        imp_content = imp_path.read_text(encoding="utf-8")
+        is_imp_verified = is_imp_ok and verify_no_conflict_markers(imp_path) and imp_content.count("import os") == 1 and validate_syntax_post_resolve(imp_path)
+        test_results.append(("code import block deduplication", is_imp_verified))
+
+    all_passed = True
+    for name, is_passed in test_results:
+        status_label = "[PASS]" if is_passed else "[FAIL]"
+        print(f"  {status_label} {name}")
+        if not is_passed:
+            all_passed = False
+
+    print(f"\nSelf-test overall status: {'SUCCESS' if all_passed else 'FAILURE'}")
+    return all_passed
+
+
+def main() -> None:
+    """CLI entry point for Git Reconcile & Mechanical Conflict Resolver."""
+    parser = argparse.ArgumentParser(
+        description="Autonomous Git Reconciliation & Mechanical Conflict Resolution Engine",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--remote",
+        default="origin",
+        help="Git remote name to synchronize with (default: origin)",
+    )
+    parser.add_argument(
+        "--strategy",
+        type=str,
+        default=ResolutionStrategyType.SMART.value,
+        choices=[s.value for s in ResolutionStrategyType],
+        help="Conflict resolution strategy: smart, ours, theirs, union (default: smart)",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Check and audit git divergence status without performing merge or push",
+    )
+    parser.add_argument(
+        "--push",
+        action="store_true",
+        default=True,
+        help="Push synchronized branch to remote (enabled by default)",
+    )
+    parser.add_argument(
+        "--no-push",
+        action="store_false",
+        dest="push",
+        help="Perform reconciliation and merge without pushing to remote",
+    )
+    parser.add_argument(
+        "--self-test",
+        action="store_true",
+        help="Run internal self-tests for all mechanical conflict resolvers",
+    )
     parser.add_argument(
         "--json",
         action="store_true",
@@ -574,6 +947,11 @@ def main() -> None:
 
     args = parser.parse_args()
     repo_root = get_repo_root()
+
+    if args.self_test:
+        is_passed = run_self_tests()
+        sys.exit(0 if is_passed else 1)
+
     strategy_enum = ResolutionStrategyType(args.strategy)
 
     if args.subcommand == "resolve-conflicts":

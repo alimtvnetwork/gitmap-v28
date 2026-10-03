@@ -1,4 +1,16 @@
-# C# — StyleCop Analyzers + Roslyn Enforcement Rule Mapping
+# C# — StyleCop Analyzers + Roslyn Enforcement Rule Mapping (AI Execution Prompt)
+
+> **/goal** Configure and enforce StyleCop.Analyzers, Microsoft.CodeAnalysis.NetAnalyzers, Roslynator, and SonarAnalyzer for C# projects to automate coding guidelines in CI/CD pipelines.
+> **/learn** Enforce zero nested if statements, max 15 lines per function, max 3 parameters, cognitive complexity ≤ 10, nullable reference types (`Nullable = enable`), and ban magic strings.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce `TreatWarningsAsErrors = true` and `Nullable = enable` across all C# project files.
+- [ ] `/learn` Map Roslynator (RCS1208), StyleCop (SA1503), and SonarAnalyzer (S134) rules to eliminate nested `if` statements and enforce curly braces.
+- [ ] `/goal` Configure function length caps (`dotnet_diagnostic.S138.severity = error`) and parameter count caps (`dotnet_diagnostic.S107.severity = error`).
+- [ ] `/learn` Enforce affirmative `is`/`has` boolean prefixes and ban magic string literals via SonarAnalyzer rule `S1192`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -233,6 +245,24 @@ dotnet_diagnostic.S107.severity = error
 - [Strict Typing](../13-strict-typing.md) — Type safety rules
 - [Null Safety](../19-null-pointer-safety.md) — Null/nil safety guards
 - [DRY Principles](../08-dry-principles.md) — Deduplication rules
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-CSHARP: C# StyleCop Analyzers & Roslyn Static Analysis Enforcement
+
+**Given** C# source files and solution configurations (`.csproj`, `Directory.Build.props`, `.editorconfig`).
+**When** Roslyn analyzers and StyleCop audit the codebase during compilation or CI pipelines.
+**Then** All warnings are treated as errors (`TreatWarningsAsErrors = true`), nesting depth is ≤ 1, functions do not exceed 15 lines, and zero analyzer violations occur.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

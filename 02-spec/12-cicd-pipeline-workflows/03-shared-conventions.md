@@ -84,7 +84,7 @@ concurrency:
   cancel-in-progress: false
 ```
 
-**Why**: Every release commit must produce a complete set of artifacts. Canceling a release build could leave a partial release in an inconsistent state.
+**Why**: Every release commit must produce a complete set of artifacts. canceling a release build could leave a partial release in an inconsistent state.
 
 ---
 
@@ -184,14 +184,18 @@ Never use `cd` in CI steps to change directories. Use the `working-directory` ke
 
 ---
 
-## Artifact Retention
+## Zero-Storage Actions Standard (Total Ban on CI Artifact Uploads)
 
-| Context | Retention |
-|---------|-----------|
-| Inter-job artifacts (CI) | 1 day |
-| Test results and coverage | 7 days |
-| Build artifacts (CI) | 14 days |
-| Release assets | Permanent (attached to GitHub Release) |
+GitHub free-tier accounts provide only **0.5 GB** of shared Actions storage per month across all account repositories. Uploading test outputs, Playwright reports, build logs, coverage files, or drift reports via `actions/upload-artifact` rapidly consumes 90%+ of quota within days, triggering account-wide workflow blocking.
+
+| Artifact Type | Allowed in CI? | Approved Zero-Storage Alternative | Storage Cost |
+|:---|:---|:---|:---|
+| Test Results & Playwright Reports | ❌ **BANNED** | `$GITHUB_STEP_SUMMARY` + console stdout | **0 bytes** |
+| Lint & Drift Reports | ❌ **BANNED** | `$GITHUB_STEP_SUMMARY` | **0 bytes** |
+| Spec Coverage & Cross-Links | ❌ **BANNED** | Sticky PR Comments + `$GITHUB_STEP_SUMMARY` | **0 bytes** |
+| Diagrams & Rendered PNGs | ❌ **BANNED** | Direct git commit / verify with `--check` | **0 bytes** |
+| Inter-Job Transient Transfers | ⚠️ *Emergency Only* | Direct step aggregation or `retention-days: 1` | Near-zero |
+| Release Distribution Assets | ✅ **Permitted** | Attached to GitHub Releases (`gh release create`) | Exempt |
 
 ---
 
@@ -203,6 +207,7 @@ Never use `cd` in CI steps to change directories. Use the `working-directory` ke
 4. Minimum permissions are always used
 5. `working-directory` is used instead of `cd`
 6. Validate directories before operating: `test -d "$DIR" || exit 1`
+7. Zero Actions storage policy: zero `actions/upload-artifact` steps in CI workflows
 
 ---
 
@@ -212,8 +217,8 @@ Never use `cd` in CI steps to change directories. Use the `working-directory` ke
 - [Vulnerability Scanning](./06-vulnerability-scanning.md) — Scanning classification rules
 - [Install Script Generation](./07-install-script-generation.md) — Placeholder strategy, checksum verification
 - [Code Signing](./10-code-signing.md) — SignPath integration, feature-flag gating
-- [Browser Extension Deploy](./01-browser-extension-deploy/01-index.md) — Node.js pipeline archetype
-- [Go Binary Deploy](./02-go-binary-deploy/01-index.md) — Go pipeline archetype
+- [Browser Extension Deploy](./01-browser-extension-deploy/readme.md) — Node.js pipeline archetype
+- [Go Binary Deploy](./02-go-binary-deploy/readme.md) — Go pipeline archetype
 
 ---
 

@@ -1,4 +1,16 @@
-# Cross-Language Rule: Test Naming & Structure
+# Cross-Language Rule: Test Naming & Structure (AI Execution Prompt)
+
+> **/goal** Enforce deterministic test file placement, three-part test function naming (Unit_Scenario_Outcome), table-driven testing structures, and Arrange-Act-Assert isolation across all test suites.
+> **/learn** Eliminate vague test names, multi-source test files, branching logic inside test assertions, and shared mutable test fixtures across Go, TypeScript, and PHP.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Mirror source file names 1:1 with standard language test suffixes (`_test.go`, `.test.tsx`, `Test.php`) in colocated or mirrored paths.
+- [ ] `/learn` Name test functions strictly using the three-part convention `Test{Unit}_{Scenario}_{ExpectedOutcome}` with zero ambiguous descriptions.
+- [ ] `/goal` Structure test functions into distinct Arrange, Act, and Assert phases separated by blank vertical lines, keeping cyclomatic complexity at 0–1.
+- [ ] `/learn` Verify all unit and integration tests pass cleanly and conform to naming standards via automated guideline linters.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-11
@@ -368,6 +380,24 @@ describe.skipIf(process.env.CI !== 'true')('DatabaseSync', () => {
 - [Function Naming](./10-function-naming.md) — Test helpers follow the same no-boolean-flag rule
 - [Boolean Principles](./02-boolean-principles/readme.md) — Table case fields use `is`/`has` prefixes for boolean columns
 - [Master Coding Guidelines — §13](./15-master-coding-guidelines/readme.md) — Summary table in the master reference
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TEST-014: Standardized Test Naming, Structure, and Isolation
+
+**Given** Test files and test suites across Go, TypeScript, and PHP codebases.
+**When** Guidelines/linters audit the codebase.
+**Then** All test files mirror source files, test functions adhere to `Unit_Scenario_ExpectedOutcome` naming, test bodies follow Arrange-Act-Assert without branching logic, and verification returns exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

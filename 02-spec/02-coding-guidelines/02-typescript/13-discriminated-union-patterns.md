@@ -1,4 +1,16 @@
-# Discriminated Union & Action Type Patterns
+# TypeScript Discriminated Union & Action Type Patterns (AI Execution Prompt)
+
+> **/goal** Enforce named variant interfaces, PascalCase enums for discriminant fields, and exhaustive type narrowing across all union types.
+> **/learn** Master discriminated union architecture: replace inline `{ type: ...; payload: ... }` objects with named interfaces and eliminate bracket enum indexing in favor of dot notation.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Define discrete, named interfaces for every variant within a discriminated union.
+- [ ] `/learn` Never use inline object shapes or bracket indexing (`ActionType["AddToast"]`); use dot notation (`ActionType.AddToast`).
+- [ ] `/goal` Require PascalCase values for all discriminant action type enums.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [TypeScript Standards](./readme.md)
 > **Version:** 1.0.0
@@ -179,3 +191,21 @@ type: ActionType.AddToast
 | Consolidated Review Guide (Type Safety) | [../05-05-consolidated-review-guide.md](../05-consolidated-review-guide.md) |
 | Condensed Review Guide (Types — CODE RED) | [../04-04-consolidated-review-guide-condensed.md](../04-consolidated-review-guide-condensed.md) |
 | AI Quick-Reference Checklist | [../06-ai-optimization/02-ai-quick-reference-checklist.md](../06-ai-optimization/03-ai-quick-reference-checklist.md) |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-013: TypeScript Discriminated Unions and Exhaustive Type Narrowing
+
+**Given** TypeScript source code under implementation or review.
+**When** Codebases are audited against TypeScript language standards.
+**Then** Discriminated unions strictly employ named variant interfaces and PascalCase enum discriminants with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

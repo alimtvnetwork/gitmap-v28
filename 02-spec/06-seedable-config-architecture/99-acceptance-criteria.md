@@ -7,7 +7,7 @@
 
 ---
 
-## Core Seeding Flow (01-index.md)
+## Core Seeding Flow (readme.md)
 
 ### SC-01: First-Run Seeding
 

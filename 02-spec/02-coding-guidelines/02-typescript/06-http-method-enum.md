@@ -1,4 +1,16 @@
-# TypeScript HttpMethod Enum — `src/lib/enums/http-method-type.ts`
+# TypeScript HttpMethod Enum — `src/lib/enums/http-method-type.ts` (AI Execution Prompt)
+
+> **/goal** Eliminate all magic string HTTP method literals (`"GET"`, `"POST"`, `"PUT"`, `"PATCH"`, `"DELETE"`, `"HEAD"`, `"OPTIONS"`) in `fetch()` calls and endpoint configs by standardizing on `HttpMethod`.
+> **/learn** Master frontend HTTP method typing: `export enum HttpMethod` with kebab-case `-type.ts` file convention, typed webhook/endpoint config arrays, and full parity with Go `httpmethodtype.Variant`.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw HTTP method string literals in `fetch()` and API clients with `HttpMethod` enum members (e.g., `HttpMethod.Post`).
+- [ ] `/learn` Never use string union types (`"POST" | "PUT"`) for HTTP methods in configuration interfaces; use `HttpMethod.Post | HttpMethod.Put`.
+- [ ] `/goal` Standardize endpoint configuration tables and route definitions to use `HttpMethod` constants.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version**: 2.0.0
 > **Last updated**: 2026-02-28
@@ -106,3 +118,21 @@ interface WebhookConfig {
 ---
 
 *TypeScript HttpMethod enum v1.0.0 — 2026-02-27*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-006: HttpMethodEnum Definition and Validation
+
+**Given** TypeScript source code defining domain types, enums, and API models.
+**When** Codebases are audited against TypeScript enum standards.
+**Then** All HTTP request method assignments and configuration tables strictly utilize `HttpMethod` enum constants, with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

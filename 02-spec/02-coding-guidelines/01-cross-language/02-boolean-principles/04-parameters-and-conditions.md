@@ -1,8 +1,20 @@
-# Boolean Principles — P5: explicit params, P6: no mixed booleans, P7: no inline statements, P8: no raw system calls
+# Boolean Principles — P5: explicit params, P6: no mixed booleans, P7: no inline statements, P8: no raw system calls (AI Execution Prompt)
+
+> **/goal** Eliminate bare boolean parameters, mixed polarity conditions, inline condition statements, raw filesystem calls, and explicit `true` evaluations across all codebases.
+> **/learn** Apply options objects or dedicated methods instead of bare boolean literals, extract mixed polarity into single-intent booleans, use filesystem wrapper packages with structured errors, and enforce implicit boolean evaluation.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace bare boolean parameters at call sites with options objects or dedicated descriptive function names.
+- [ ] `/learn` Never combine positive and negative booleans in a single condition; extract the combined intent into a named affirmative variable.
+- [ ] `/goal` Eliminate inline variable assignments and expressions inside `if`/`while` conditions (except Go comma-ok).
+- [ ] `/learn` Ban raw filesystem calls (`os.Stat`, `fs.existsSync`, `file_exists`) in favor of structured wrapper utilities, and strictly ban `== true` evaluations.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Boolean Principles](./readme.md)
 > **Version:** 2.6.0
-> **Updated:** 2026-03-31
+> **Updated:** 2026-10-02
 
 ---
 
@@ -327,7 +339,7 @@ Never check data, collections, or records presence using inverted empty checks (
 - **When `isEmpty` is Allowed:** `isEmpty` is strictly reserved for affirmative handling of the empty or missing path: `if res.IsEmpty() { return ErrNotFound }`.
 - **Map Lookups vs `isDefined`:** For map lookups, the original canonical names are `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`. Do NOT use `isDefined` for map lookups; `isDefined` is strictly reserved for replacing inverted `!isEmpty`.
 
-## Principle 9: No Explicit True Checks (TOTAL BAN)
+## Principle 12: No Explicit True Checks (TOTAL BAN)
 
 > **CRITICAL RULE:** Never evaluate a boolean variable explicitly against `true` (`== true`, `=== true`). Positive booleans MUST ALWAYS be evaluated implicitly.
 
@@ -356,3 +368,21 @@ if (isValid) {
     // ...
 }
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-BOOL-004: Explicit Parameters, Polarity Isolation, and Condition Hygiene
+
+**Given** Control flow constructs, parameter lists, and boolean checks across application modules.
+**When** Codebases are scanned for bare boolean literals, mixed-polarity conditions, inline statements, and explicit true checks.
+**Then** All conditions use implicit boolean evaluation, zero mixed polarities or inline statements exist, and system calls are abstracted behind structured wrappers.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles --check-only
+```
+**Expected:** exit 0. Zero violations.

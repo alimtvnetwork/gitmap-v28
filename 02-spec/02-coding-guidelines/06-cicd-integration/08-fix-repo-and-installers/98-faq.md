@@ -1,4 +1,17 @@
-# FAQ — Fix-Repo & Installers
+# FAQ — Fix-Repo & Installers (AI Execution Prompt)
+
+> **/goal** Provide authoritative, actionable answers and operational guidance for fix-repo scripts, version token replacement, and multi-channel installer operations.
+> **/learn** Understand differences between implicit and release installer modes, offline installation requirements, numeric-overflow guards (`v17` vs `v170`), visibility change confirmation flows, and log pruning policies.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Clarify usage boundaries between `install.sh` (implicit/latest) and `release-install.sh` (pinned tag).
+- [ ] `/learn` Master `--offline` installation requirements and prevent unexpected network calls (exit code 2).
+- [ ] `/goal` Verify numeric-overflow guards preventing false positive version rewrites (e.g., `v17` must not match `v170`).
+- [ ] `/learn` Enforce interactive confirmation guards during visibility transitions unless explicitly overridden with `--yes`.
+- [ ] `/goal` Verify compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0 · **Updated:** 2026-04-28
 
@@ -75,3 +88,37 @@ matching CLI in `apply.sh`.
 Run `./linters-cicd/run-all.sh --path . --output report.sarif` and open
 an issue with the SARIF file attached. For installer-specific bugs,
 also include the output of `./install.sh --dry-run --version vX.Y.Z`.
+
+---
+
+## Cross-References
+
+- [Fix-Repo & Installers Index](./readme.md)
+- [Fix-Repo Contract](./02-fix-repo-contract.md)
+- [Installer Contract](./03-installer-contract.md)
+- [Visibility Change Contract](./04-visibility-change-contract.md)
+- [Acceptance Criteria](./97-acceptance-criteria.md)
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-FIX-FAQ-001: Fix-Repo and Installer Scripts FAQ Conformance
+
+- [ ] Installer modes distinguish implicit branch tracking (`install.sh`) from immutable release downloads (`release-install.sh`).
+- [ ] Offline flag (`--offline` / `--use-local-archive`) semantics enforce zero network activity and deterministic error handling.
+- [ ] Numeric-overflow guard rationale is documented to prevent substring corruption of overlapping version tokens.
+- [ ] Script logging limits (`--max-fix-repo-logs`) and environment variable overrides are clearly specified.
+- [ ] Cross-references point to authoritative installer contracts and acceptance criteria registries.
+
+**Given** Repository migration scripts, installer harnesses, and user operational queries.
+**When** Audited against this fix-repo and installer FAQ specification.
+**Then** All installer behaviors, flags, and guard mechanisms comply with specification requirements with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers/98-faq.md --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -58,7 +58,7 @@ Database files use **kebab-case** with `.db` extension:
 ❌ app.db               (too generic — name by domain)
 ```
 
-> **Rule:** File names use kebab-case per [../02-coding-guidelines/08-file-folder-naming/01-index.md](../02-coding-guidelines/08-file-folder-naming/01-index.md). Table/column names inside the DB use PascalCase per [./02-naming-conventions.md](./02-naming-conventions.md).
+> **Rule:** File names use kebab-case per [../02-coding-guidelines/08-file-folder-naming/readme.md](../02-coding-guidelines/08-file-folder-naming/readme.md). Table/column names inside the DB use PascalCase per [./02-naming-conventions.md](./02-naming-conventions.md).
 
 ---
 
@@ -311,5 +311,5 @@ When adding a new bounded context:
 | Naming conventions | [./02-naming-conventions.md](./02-naming-conventions.md) |
 | ORM and views | [./04-orm-and-views.md](./04-orm-and-views.md) |
 | Testing strategy | [./05-testing-strategy.md](./05-testing-strategy.md) |
-| File & folder naming | [../02-coding-guidelines/08-file-folder-naming/01-index.md](../02-coding-guidelines/08-file-folder-naming/01-index.md) |
-| Database conventions overview | [./01-index.md](./01-index.md) |
+| File & folder naming | [../02-coding-guidelines/08-file-folder-naming/readme.md](../02-coding-guidelines/08-file-folder-naming/readme.md) |
+| Database conventions overview | [./readme.md](./readme.md) |

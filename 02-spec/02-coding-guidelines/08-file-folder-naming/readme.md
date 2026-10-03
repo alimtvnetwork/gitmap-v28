@@ -1,6 +1,16 @@
-# File & Folder Naming Conventions
+# File & Folder Naming Conventions (AI Execution Prompt)
 
-. **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
+> **/goal** Standardize, audit, and enforce uniform file and directory naming conventions across all repository languages (Go, TypeScript, PHP, Rust, C#).
+> **/learn** Master cross-language casing rules (strict lowercase repository hygiene, kebab-case, snake_case), framework-specific idioms, and zero-space folder patterns.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce strict lowercase file and folder naming across all documentation, scripts, and configuration files.
+- [ ] `/learn` Never use spaces, uppercase characters, or invalid delimiters in repository filenames.
+- [ ] `/goal` Apply language-idiomatic file naming conventions according to the specific language sub-specification.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/08-file-folder-naming --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Status:** Active
@@ -44,11 +54,12 @@ Defines file and folder naming conventions for **every language** in the project
 
 | # | File | Language | Convention Summary |
 |---|------|----------|-------------------|
-| 01 | [01-cross-language.md](./02-cross-language.md) | All | Universal rules that apply everywhere |
-| 02 | [02-php-wordpress.md](./03-php-wordpress.md) | PHP / WordPress | WordPress plugin/theme file & folder naming |
-| 03 | [03-golang.md](./04-golang.md) | Go | Package-based naming, flat structure |
-| 04 | [04-typescript-javascript.md](./05-typescript-javascript.md) | TypeScript / JS | Component files, hooks, utilities |
-| 05 | [05-rust-csharp.md](./06-rust-csharp.md) | Rust / C# | snake_case (Rust) and PascalCase (C#) |
+| 01 | [02-cross-language.md](./02-cross-language.md) | All | Universal rules that apply everywhere |
+| 02 | [03-php-wordpress.md](./03-php-wordpress.md) | PHP / WordPress | WordPress plugin/theme file & folder naming |
+| 03 | [04-golang.md](./04-golang.md) | Go | Package-based naming, flat structure |
+| 04 | [05-typescript-javascript.md](./05-typescript-javascript.md) | TypeScript / JS | Component files, hooks, utilities |
+| 05 | [06-rust-csharp.md](./06-rust-csharp.md) | Rust / C# | snake_case (Rust) and PascalCase (C#) |
+| 06 | [97-acceptance-criteria.md](./97-acceptance-criteria.md) | All | Acceptance criteria registry for file & folder naming |
 
 ---
 
@@ -78,3 +89,21 @@ Defines file and folder naming conventions for **every language** in the project
 ---
 
 *Single source of truth for file & folder naming across all languages.*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/08-file-folder-naming/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-FILE-000: File & Folder Naming Conventions Overview
+
+**Given** Repository file and directory structures across polyglot stacks.
+**When** Audited against this file and folder naming specification.
+**Then** Zero uppercase or invalid naming patterns are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/08-file-folder-naming --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,8 +1,20 @@
-# Rule R18: GitHub Actions Zero-Storage Mandate & Artifact Hygiene
+# Rule R18: GitHub Actions Zero-Storage Mandate & Artifact Hygiene (AI Execution Prompt)
 
-**Status:** Active  
-**Scope:** Universal (All Repositories, Workflows & Languages)  
-**Strictness:** Non-Negotiable (Banned Anti-Pattern)  
+> **/goal** Eliminate all persistent GitHub Actions artifact storage consumption in CI workflows, maintaining account-wide usage strictly at 0.0 GB while delegating official releases to GitHub Releases.
+> **/learn** Master the ephemeral compilation verification pattern, enforce a total ban on `actions/upload-artifact` in CI/PR pipelines, restrict emergency diagnostic uploads to 1-day retention on failure, and maintain automated nightly purge workflows.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Maintain 0.0 GB persistent artifact storage in GitHub Actions across all routine workflows and pull request pipelines.
+- [ ] `/learn` Never use `actions/upload-artifact` for compiled binaries, test logs, coverage files, or inter-job data passing.
+- [ ] `/goal` Route official downloadable binary distributions exclusively through GitHub Releases (`release.yml`), which do not count against the 0.5 GB Actions quota.
+- [ ] `/learn` Gate any diagnostic artifact upload with `if: failure()` and enforce a strict 1-day retention limit (`retention-days: 1`).
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+**Status:** Active
+**Scope:** Universal (All Repositories, Workflows & Languages)
+**Strictness:** Non-Negotiable (Banned Anti-Pattern)
 
 ---
 
@@ -67,3 +79,21 @@ Every active repository must maintain a scheduled purge workflow (`.github/workf
 - [ ] Release binaries are uploaded to GitHub Releases, not Actions artifacts.
 - [ ] If any diagnostic artifact upload exists, it is gated with `if: failure()` and `retention-days: 1`.
 - [ ] Scheduled artifact purge workflow is installed and active.
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-030: GitHub Actions Zero-Storage Mandate and Ephemeral Verification
+
+**Given** GitHub Actions workflow YAML files across `.github/workflows/`.
+**When** Workflow linters and CI storage audits evaluate action steps, retention configurations, and artifact uploads.
+**Then** Standard CI workflows contain zero calls to `actions/upload-artifact`, build matrices execute ephemeral compilation without persistent storage, emergency diagnostic uploads enforce `retention-days: 1`, and account storage remains at 0.0 GB, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

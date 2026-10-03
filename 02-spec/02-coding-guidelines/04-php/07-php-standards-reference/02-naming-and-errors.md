@@ -1,4 +1,16 @@
-# PHP Coding Standards — Naming conventions, error handling, structured responses
+# PHP Coding Standards — Naming conventions, error handling, structured responses (AI Execution Prompt)
+
+> **/goal** Enforce PHP naming conventions (PSR-12 with project overrides, PSR-4 PascalCase filenames, enum Type suffixes), robust Throwable error handling, and structured JSON error responses.
+> **/learn** Master class and method naming rules, safe execution wrappers (`safeExecute`), `ErrorChecker` fatal error detection, and dual logging contracts (`stackTraceFrames` and raw backtraces).
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce PascalCase class files, camelCase methods, and PascalCase backed enums ending with the `Type` suffix.
+- [ ] `/learn` Never catch bare `Exception`; always catch root `Throwable` across all try/catch blocks and safe wrappers.
+- [ ] `/goal` Standardize structured error responses to include `message`, `StackTrace`, and `StackTraceFrames`.
+- [ ] `/learn` Delegate fatal error detection in global shutdown handlers to `ErrorChecker::isFatalError()`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [PHP Coding Standards](./readme.md)
 > **Version:** 5.1.0
@@ -157,3 +169,19 @@ public function logException(Throwable $e, string $context = '') {
 - [Boolean Flag Method Splitting](../../01-cross-language/24-boolean-flag-methods.md) — Split bool-flag methods into two named methods (PHP examples included)
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-REF-002: PHP Naming Conventions, Error Handling, and Structured Responses
+
+**Given** PHP standards reference files and companion plugin implementations.
+**When** Audited against this reference specification.
+**Then** Zero violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php/07-php-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -197,17 +197,16 @@ Key details:
 - `-count=1` disables test caching for reliable CI results
 - `-covermode=atomic` enables safe concurrent coverage collection
 
-### Artifact Upload
+### Zero-Storage Test Reporting
+
+Emit test results directly to `$GITHUB_STEP_SUMMARY` without consuming storage:
 
 ```yaml
-- uses: actions/upload-artifact@v4
-  if: always()  # upload even on failure
-  with:
-    name: test-results-${{ matrix.name }}
-    path: |
-      test-output.txt
-      coverage-${{ matrix.name }}.out
-    retention-days: 7
+- name: Publish test summary
+  if: always()
+  run: |
+    echo "### Test Results: ${{ matrix.name }}" >> "$GITHUB_STEP_SUMMARY"
+    tail -n 20 test-output.txt >> "$GITHUB_STEP_SUMMARY"
 ```
 
 ---

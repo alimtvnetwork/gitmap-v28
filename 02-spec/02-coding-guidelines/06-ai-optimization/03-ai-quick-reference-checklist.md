@@ -1,4 +1,16 @@
-# AI Quick Reference Checklist
+# AI Quick Reference Checklist (AI Execution Prompt)
+
+> **/goal** Provide a rapid, machine-parsable 78-check pre-output validation checklist for AI agents to verify code correctness in under 30 seconds.
+> **/learn** Internalize pre-flight checks across naming, structure, Go/PHP/TypeScript/C# conventions, error management, and caching boundaries.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify all logic identifiers follow camelCase variables, PascalCase types/JSON keys, and first-letter abbreviation casing.
+- [ ] `/learn` Flatten all conditional structures to ensure zero nested `if` blocks and maximum 15-line function bodies.
+- [ ] `/goal` Require `Promise.all()` or `Task.WhenAll()` for all independent asynchronous operations across polyglot stacks.
+- [ ] `/learn` Verify that all pre-output checks pass before returning code or modifying repository files.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -170,3 +182,21 @@ Check every generated code block against these rules before outputting.
 ---
 
 *AI quick reference checklist v2.1.0 — 2026-03-31*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-ai-optimization/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-AI-003: AI Quick-Reference Checklist Validation
+
+**Given** AI agents operating within the repository and codebase guidelines.
+**When** Audited against this optimization specification.
+**Then** Zero compliance or citation failures are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-ai-optimization --check-only
+```
+**Expected:** exit 0. Zero violations.

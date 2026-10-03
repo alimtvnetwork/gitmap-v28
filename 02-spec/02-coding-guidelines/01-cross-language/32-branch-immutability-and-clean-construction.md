@@ -1,4 +1,16 @@
-# Branch Immutability, Clean Construction & Condition Decomposition
+# Branch Immutability, Clean Construction & Condition Decomposition (AI Execution Prompt)
+
+> **/goal** Ban piecemeal struct/object mutation across conditional branches and eliminate compound mixed-polarity conditions by enforcing pure constructor helper returns and discrete affirmative boolean decomposition.
+> **/learn** Understand the fragility, cognitive load, and regression hazards of dirtying partially initialized objects in `if`/`else` ladders. Master discrete pre-computed affirmative intent booleans (`is`, `has`) and compact factory helper functions.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce branch immutability: completely ban field mutation of existing object/struct instances within `if`/`else` branches.
+- [ ] `/learn` Delegate conditional configuration and struct creation to dedicated pure constructor helpers returning immutable literals.
+- [ ] `/goal` Decompose complex expressions into discrete affirmative booleans with a hard limit of max-2 clauses per condition and zero mixed polarity.
+- [ ] `/learn` Verify branch immutability and clean construction patterns across all languages via guideline linters and CI checks.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 1.0.0
 **Updated:** 2026-09-29
@@ -314,3 +326,21 @@ def _create_standard_profile(tokens: list[str], base: ProfileOptions) -> ClientP
 - [Magic Values & Immutability](./26-magic-values-and-immutability.md) — Immutable by default
 - [Canonical Sizing Tier](../02-canonical-size-tier.md) — Function size caps (8–15 lines)
 - [Nested If Elimination](../01-cross-language/20-nesting-resolution-patterns.md) — Guard clauses and flat returns
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TYPE-032: Branch Immutability and Clean Object Construction
+
+**Given** Conditional branching logic and object construction across Go, TypeScript, Python, PHP, and Rust codebases.
+**When** Codebases are analyzed by static analyzers and guideline linters.
+**Then** Zero in-place object mutations occur inside conditional branches, all configuration paths delegate to pure constructor helpers, and all branching conditions evaluate pre-computed affirmative intent booleans with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

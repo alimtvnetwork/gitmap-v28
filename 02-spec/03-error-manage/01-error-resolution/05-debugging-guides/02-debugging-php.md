@@ -317,6 +317,6 @@ putenv('PLUGIN_ERROR_LOGGING=false');
 
 ## Cross-Reference
 
-- [Error Resolution Overview](../../01-index.md)
+- [Error Resolution Overview](../../readme.md)
 - PHP Coding Guidelines *(external spec)*
 - WordPress Guidelines *(external spec)*

@@ -1,4 +1,16 @@
-# Rules Mapping — Spec → Check → Severity
+# Rules Mapping — Spec → Check → Severity (AI Execution Prompt)
+
+> **/goal** Maintain a definitive single source of truth mapping repository coding rules to specification chapters, check scripts, language plugins, and SARIF severities.
+> **/learn** Master coordinated rule tiering (e.g. strict-8 vs hard-15 function caps), SARIF error vs warning classifications, and database rule classifications.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Map every CODE RED rule directly to its specification anchor, implementation script, and blocking `error` severity.
+- [ ] `/learn` Enforce the coordinated function length tier where CODE-RED-005 (strict 8) binds and CODE-RED-004 (hard 15) serves as defense-in-depth.
+- [ ] `/goal` Maintain unified database linting rules preventing negative boolean column names and missing description columns.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 2.0.0
 > **Updated:** 2026-04-27
@@ -83,7 +95,7 @@ reserved for future soft rules.)*
 
 Added to this table as they ship. Removing a rule requires a major
 version bump of the linter pack and a deprecation note in
-[`03-language-roadmap.md`](./04-language-roadmap.md).
+[`04-language-roadmap.md`](./04-language-roadmap.md).
 
 ---
 
@@ -98,3 +110,21 @@ version bump of the linter pack and a deprecation note in
 ---
 
 *Part of [CI/CD Integration](./readme.md)*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CI-007: Rule Taxonomy, Severity Mapping, and Tier Coordination
+
+**Given** CI/CD pipeline infrastructure and linter configurations.
+**When** Audited against this integration specification.
+**Then** Zero configuration or SARIF contract defects exist and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,6 +1,5 @@
 # Error Code Registry - Integration Guide
 
-
 **Last Updated:** 2026-04-16
 
 > **Version:** 1.0.0

@@ -1,4 +1,16 @@
-# Function Naming — No Boolean Flag Parameters
+# Function Naming — No Boolean Flag Parameters (AI Execution Prompt)
+
+> **/goal** Eliminate boolean flag parameters from function signatures by decomposing divergent behaviors into explicitly named, intention-revealing functions.
+> **/learn** Understand why boolean flags obscure call-site intent, create combinatorial complexity, and violate single-responsibility principles across Go, TypeScript, and PHP.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce verb-led, intention-revealing function names that clearly communicate operational behavior without inspecting argument values.
+- [ ] `/learn` Ban boolean flag parameters that alter the fundamental control flow or return behavior of a function; split into distinct functions instead.
+- [ ] `/goal` Restrict boolean parameters strictly to minor formatting options or encapsulated parameter structs where behavior does not fork.
+- [ ] `/learn` Verify zero boolean flag violations across PHP, TypeScript, and Go codebases via automated guideline linters.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-09
@@ -133,6 +145,24 @@ return ErrorResponse::logAndReturnWithTrace($this->fileLogger, $e, 'Middleware e
 - [TypeScript Standards](../02-typescript/09-typescript-standards-reference.md)
 - [Go Standards](../03-golang/04-golang-standards-reference/readme.md)
 - [Cross-Language Code Style](./04-code-style/readme.md)
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-NAME-010: Explicit Function Naming and Boolean Flag Elimination
+
+**Given** Function declarations across Go, TypeScript, and PHP codebases.
+**When** Codebases are analyzed by coding guideline linters or CI/CD verification checks.
+**Then** All functions communicate intent explicitly with zero boolean flags altering execution paths, maintaining deterministic compliance with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

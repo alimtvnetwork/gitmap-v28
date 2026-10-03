@@ -592,6 +592,6 @@ func TestOverlapPercentageValidation(t *testing.T) {
 | Reference | Location |
 |-----------|----------|
 | RAG Chunk Settings | `./01-rag-chunk-settings.md` |
-| Error Code Registry | `../03-error-manage/03-error-code-registry/01-index.md` |
-| AI Bridge Error Codes | `../03-error-manage/03-error-code-registry/01-index.md` |
-| Seedable Config Overview | `../01-index.md` |
+| Error Code Registry | `../03-error-manage/03-error-code-registry/readme.md` |
+| AI Bridge Error Codes | `../03-error-manage/03-error-code-registry/readme.md` |
+| Seedable Config Overview | `../readme.md` |

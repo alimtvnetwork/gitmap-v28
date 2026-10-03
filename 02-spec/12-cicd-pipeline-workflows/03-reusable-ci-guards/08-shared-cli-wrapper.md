@@ -210,7 +210,7 @@ dispatches to the six guards under `.github/scripts/`.
 
 ## Cross-References
 
-- [01-index.md](./01-index.md) — Pattern inventory
+- [readme.md](./readme.md) — Pattern inventory
 - [01-forbidden-name-guard.md](./02-forbidden-name-guard.md) through [06-matrix-test-aggregator.md](./07-matrix-test-aggregator.md) — The six dispatched guards
 - [99-ai-implementation-guide.md](./99-ai-implementation-guide.md) — Workflow skeleton wiring the wrapper
 

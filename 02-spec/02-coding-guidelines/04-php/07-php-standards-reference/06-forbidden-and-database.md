@@ -1,4 +1,16 @@
-# PHP Coding Standards — Forbidden patterns, database wrapper
+# PHP Coding Standards — Forbidden patterns, database wrapper (AI Execution Prompt)
+
+> **/goal** Catalog and enforce all prohibited PHP anti-patterns, and mandate typed database access via the `TypedQuery` wrapper and `DbResult` envelope hierarchy.
+> **/learn** Master the comprehensive forbidden patterns catalog (catch Throwable, no magic strings, no nested if, 15-line limit, strict typing) and type-safe PDO query abstraction with row mappers.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Eliminate all forbidden patterns (magic strings, raw negations, untyped parameters/returns, nested `if`) across the codebase.
+- [ ] `/learn` Never use raw PDO queries or `wpdb` calls directly in service layers; route queries through `TypedQuery`.
+- [ ] `/goal` Enforce typed result envelopes (`DbResult<T>`, `DbResultSet<T>`, `DbExecResult`) for all database operations.
+- [ ] `/learn` Use static domain model factories (e.g., `PluginInfo::fromRow($row)`) inside type-safe mapper closures.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [PHP Coding Standards](./readme.md)
 > **Version:** 5.1.0
@@ -34,6 +46,22 @@
 | Untyped return values | No contract enforcement | Add return type declarations |
 | Redundant `@param` on typed signatures | Noisy duplication | Remove; keep summary only (see [Strict Typing](../../01-cross-language/13-strict-typing.md)) |
 | Boolean flag changing operation meaning | Unreadable call sites | Split into named methods (see [Function Naming](../../01-cross-language/10-function-naming.md)) |
+
+```php
+// ❌ FORBIDDEN: Catching Exception instead of Throwable, and using magic strings
+try {
+    do_action('custom_hook');
+} catch (Exception $e) {
+    error_log($e->getMessage());
+}
+
+// ✅ REQUIRED: Catching Throwable and using typed enum constants
+try {
+    do_action(HookType::CustomAction->value);
+} catch (Throwable $throwableErr) {
+    Logger::error('Failed custom action', ['error' => $throwableErr->getMessage()]);
+}
+```
 
 ---
 
@@ -89,3 +117,19 @@ echo $res->affectedRows();
 Callers provide a `Closure(array): T` mapper for type-safe row mapping (equivalent to Go's scanner functions). Use static `fromRow()` factory methods on domain models for consistency.
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-REF-006: PHP Forbidden Patterns Catalog and Typed Database Access
+
+**Given** PHP standards reference files and companion plugin implementations.
+**When** Audited against this reference specification.
+**Then** Zero violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php/07-php-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,6 +1,6 @@
 # AppError Package Reference — JSON serialization, Result guard rule
 
-> **Parent:** [AppError Package Reference](./01-index.md)
+> **Parent:** [AppError Package Reference](./readme.md)
 > **Version:** 1.3.0
 > **Updated:** 2026-03-31
 
@@ -34,7 +34,7 @@ All core structs use implicit PascalCase (redundant tags removed). Only function
 
 The `Cause` field is excluded from default JSON marshaling (`json:"-"`) because it's a Go `error` interface. A custom `MarshalJSON` must serialize the cause message as a string:
 
-**File:** `backend/pkg/apperror/error_json.go`
+**File:** `backend/pkg/appfault/error_json.go`
 
 ```go
 func (e *AppError) MarshalJSON() ([]byte, error) {
@@ -73,7 +73,7 @@ func (e *AppError) UnmarshalJSON(data []byte) error {
     var alias appErrorJson
 
     if err := json.Unmarshal(data, &alias); err != nil {
-        return fmt.Errorf("apperror.UnmarshalJSON: failed to decode AppError (received %d bytes: %s): %w",
+        return fmt.Errorf("appfault.UnmarshalJSON: failed to decode AppError (received %d bytes: %s): %w",
             len(data), truncateData(data, 200), err)
     }
 
@@ -134,7 +134,6 @@ func truncateData(data []byte, maxLen int) string {
 ```
 
 ---
-
 
 ---
 

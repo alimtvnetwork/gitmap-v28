@@ -1,6 +1,6 @@
 # Session Diagnostics (JSON)
 
-> **Parent:** [Copy Formats Index](./01-index.md)
+> **Parent:** [Copy Formats Index](./readme.md)
 > **Version:** 3.2.0
 > **Updated:** 2026-03-31
 > **Purpose:** Session-linked request/response data fetched when a sessionId is available on the error.

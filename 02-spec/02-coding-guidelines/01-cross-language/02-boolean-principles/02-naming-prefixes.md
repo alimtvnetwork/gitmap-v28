@@ -1,8 +1,20 @@
-# Boolean Principles — P1: is/has prefixes, P2: no negative words
+# Boolean Principles — P1: is/has prefixes, P2: no negative words (AI Execution Prompt)
+
+> **/goal** Enforce affirmative `is` and `has` prefixes across all boolean identifiers, properties, and parameters while completely eliminating negative words and bare `ok` variables.
+> **/learn** Understand semantic affirmative synonyms, eliminate `not`/`no`/`non` in variable names, ban bare `ok` in Go and other languages, and mandate descriptive parameter naming.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Prefix every boolean variable, property, struct field, and method with `is` or `has`.
+- [ ] `/learn` Ban negative tokens (`not`, `no`, `non`) in boolean names; replace with positive semantic synonyms (e.g., `isPending` instead of `isNotReady`).
+- [ ] `/goal` Replace bare `ok` variables in Go type assertions and map lookups with semantic affirmative identifiers (`isFound`, `isAppErr`).
+- [ ] `/learn` Prohibit single-letter boolean parameters (`v bool`, `b bool`) and bare verb setters; require full affirmative names.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Boolean Principles](./readme.md)
 > **Version:** 2.6.0
-> **Updated:** 2026-03-31
+> **Updated:** 2026-10-02
 
 ---
 
@@ -231,3 +243,21 @@ if !isFound {
     return nil, ErrUserNotFound
 }
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-BOOL-002: Affirmative Naming Prefixes and Negative Word Elimination
+
+**Given** Source files in any supported language (Go, TypeScript, PHP, Rust, C#).
+**When** Codebases are audited for boolean identifiers, struct properties, parameters, and return signatures.
+**Then** All boolean identifiers begin with affirmative `is` or `has` prefixes, contain zero negative words (`not`, `no`, `non`), and avoid bare `ok` names.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles --check-only
+```
+**Expected:** exit 0. Zero violations.

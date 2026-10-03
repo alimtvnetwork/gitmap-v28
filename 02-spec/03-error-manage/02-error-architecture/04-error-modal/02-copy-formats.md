@@ -1,6 +1,6 @@
 # ⚠️ THIS FILE HAS BEEN SPLIT INTO A SUBFOLDER
 
-> **Moved to:** [01-copy-formats/01-index.md](./01-copy-formats/01-index.md)
+> **Moved to:** [01-copy-formats/readme.md](./01-copy-formats/readme.md)
 > **Date:** 2026-03-31
 > **Reason:** 871-line file split into 10 focused files for easier AI consumption.
 
@@ -10,7 +10,7 @@
 
 | File | Content |
 |------|---------|
-| [01-index.md](./01-copy-formats/01-index.md) | Index, format overview, copy/download menu patterns |
+| [readme.md](./01-copy-formats/readme.md) | Index, format overview, copy/download menu patterns |
 | [01-compact-report.md](./01-copy-formats/02-compact-report.md) | ⭐ DEFAULT — Compact Report (instant, includes delegated server info) |
 | [02-full-report.md](./01-copy-formats/03-full-report.md) | Full Report — all sections, verbose |
 | [03-full-report-with-backend-logs.md](./01-copy-formats/04-full-report-with-backend-logs.md) | Full Report + error.log.txt appended |

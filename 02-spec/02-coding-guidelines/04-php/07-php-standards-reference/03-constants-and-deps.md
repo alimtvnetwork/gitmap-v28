@@ -1,4 +1,16 @@
-# PHP Coding Standards — Constants, enums, dependency checks, file paths
+# PHP Coding Standards — Constants, enums, dependency checks, file paths (AI Execution Prompt)
+
+> **/goal** Eliminate magic strings using PHP 8.1+ native backed enums, compose descriptive named constants, centralize dependency checks in `ErrorChecker`, and resolve file paths exclusively via typed `PathHelper` accessors.
+> **/learn** Master the prohibition against call-site string concatenation, hook name centralization in `HookType`, `ErrorChecker` dependency assertions, and the single typed path accessor architecture.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw hook strings, action names, and status codes with native backed enums or composed constants.
+- [ ] `/learn` Never concatenate strings or path fragments at call sites; compose named constants in `constants.php`.
+- [ ] `/goal` Route external dependency validations (PDO, extensions) through `ErrorChecker` rather than inline functions.
+- [ ] `/learn` Access file and database paths exclusively through dedicated, typed `PathHelper` accessor methods.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [PHP Coding Standards](./readme.md)
 > **Version:** 5.1.0
@@ -140,3 +152,19 @@ $path = PathHelper::getRootDb();
 > **Rule:** If a path does not have a typed accessor in `PathHelper`, create one before using it. See [PHP Enum Spec](../02-enums.md) for full `PathEnum` and `PathHelper` listings.
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-REF-003: PHP Constants, Enums, Dependency Verification, and Path Accessors
+
+**Given** PHP standards reference files and companion plugin implementations.
+**When** Audited against this reference specification.
+**Then** Zero violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php/07-php-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

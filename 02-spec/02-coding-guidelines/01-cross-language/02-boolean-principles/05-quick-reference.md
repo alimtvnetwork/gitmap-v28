@@ -1,8 +1,20 @@
-# Boolean Principles — Quick reference table, common mistakes
+# Boolean Principles — Quick reference table, common mistakes (AI Execution Prompt)
+
+> **/goal** Provide an immediate lookup table of forbidden vs required patterns and catalog the most frequent boolean anti-patterns and their clean remediations.
+> **/learn** Review the quick-reference cheat sheet, learn the 8 common boolean mistakes (explicit true, missing prefixes, negative words, raw negations, mixed polarity, inline statements, raw fs calls, bare comparisons), and apply idiomatic Go exemptions.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify compliance against the Quick Reference forbidden vs required matrix before submitting code.
+- [ ] `/learn` Never use `== true` or `=== true`; convert all positive evaluations to implicit conditional checks.
+- [ ] `/goal` Ensure every boolean mistake pattern (Mistakes 0 through 8) is identified and systematically refactored.
+- [ ] `/learn` Verify that language-specific exemptions (such as Go comma-ok) are applied strictly within their approved scope.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Boolean Principles](./readme.md)
 > **Version:** 2.6.0
-> **Updated:** 2026-03-31
+> **Updated:** 2026-10-02
 
 ---
 
@@ -184,3 +196,21 @@ if ($isActive == false) { ... }
 if ($isActive) { ... }
 if (!$isActive) { ... } // Or prefer a positive inverse guard: if ($isInactive)
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-BOOL-005: Quick Reference and Boolean Anti-Pattern Remediation
+
+**Given** The boolean quick reference cheat sheet and common mistakes catalog.
+**When** Codebases are checked against the matrix of forbidden vs required patterns.
+**Then** Zero instances of Mistakes 0 through 8 remain in production source code, and all boolean conditionals evaluate implicitly.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles --check-only
+```
+**Expected:** exit 0. Zero violations.

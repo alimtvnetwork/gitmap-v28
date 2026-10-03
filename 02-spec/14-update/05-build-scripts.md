@@ -6,7 +6,6 @@ Define the cross-platform build scripts (`run.ps1` and `run.sh`) that
 automate the full pipeline: pull → build → deploy. These scripts are
 the primary way developers build and deploy the CLI tool.
 
-
 ## Flow Diagram
 
 See [`images/build-scripts-flow.mmd`](images/build-scripts-flow.mmd)

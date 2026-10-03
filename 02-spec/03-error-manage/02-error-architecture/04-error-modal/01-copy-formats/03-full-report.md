@@ -1,6 +1,6 @@
 # Full Report (Markdown)
 
-> **Parent:** [Copy Formats Index](./01-index.md)
+> **Parent:** [Copy Formats Index](./readme.md)
 > **Version:** 3.2.0
 > **Updated:** 2026-03-31
 > **Purpose:** The primary verbose error report format — all frontend-captured diagnostic data.

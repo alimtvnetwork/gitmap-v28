@@ -1,4 +1,16 @@
-# Golang Coding Standards — Typed constants, enums, DRY enforcement
+# Golang Coding Standards — Typed constants, enums, DRY enforcement (AI Execution Prompt)
+
+> **/goal** Eliminate all magic strings and numbers in Go codebases by enforcing byte-based enums, typed const blocks, and DRY abstractions across errors, schemas, and API clients.
+> **/learn** Internalize the Go enum standard (byte representation, iota, variantLabels, Type suffix), Result[T] client returns, and reusable validation methods.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all magic strings, HTTP methods, status codes, and config keys with typed constants and byte-based enums.
+- [ ] `/learn` Never return tuple `(*T, error)` from API client helper functions; return `apperror.Result[T]` with structured error context.
+- [ ] `/goal` Enforce DRY principles across duplicate error handling, validation, JSON access, and database query patterns.
+- [ ] `/learn` Ensure all enum variants define PascalCase `variantLabels` and conform to the canonical Go enum specification.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Golang Coding Standards](./readme.md)
 > **Version:** 3.7.0
@@ -61,3 +73,19 @@ func (c *Client) CleanupSnapshots(opts SnapshotCleanupOptions) apperror.Result[S
 | Repeated string constants | Typed const blocks with `Type` suffix |
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-REF-006: Go Enum Architecture, Constants, and Code Reuse
+
+**Given** Go source code under review or development.
+**When** Codebases are audited against Go coding standards.
+**Then** All magic literals are replaced with typed enums/constants, API helpers return Result types, and repeated patterns are consolidated with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/04-golang-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

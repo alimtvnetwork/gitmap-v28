@@ -1,4 +1,16 @@
-# Master Coding Guidelines — Lint, enum sync, tests, lazy eval, regex, mutation, null safety, nesting, newlines, defer
+# Master Coding Guidelines — Lint, enum sync, tests, lazy eval, regex, mutation, null safety, nesting, newlines, defer (AI Execution Prompt)
+
+> **/goal** Master advanced architectural and code quality patterns including cross-language enum synchronization, Arrange-Act-Assert test structuring, lazy evaluation, mutation prevention, null safety, nesting resolution, vertical newline styling, and Go defer hygiene.
+> **/learn** Enforce zero nested `if` statements, eliminate in-place object mutations across conditional branches, restrict Go functions to a single defer at boundary edges, and guard all nil/null dereferences safely.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Synchronize enum updates across PHP, Go, TypeScript, DB migrations, and API documentation following the cross-language enum workflow.
+- [ ] `/learn` Structure unit tests with three-part naming (`Test{Unit}_{Scenario}_{ExpectedOutcome}`), AAA separation, and `t.Helper()` calls.
+- [ ] `/goal` Flatten all conditional branches to achieve zero nested `if` statements using early returns, inverted guards, and extracted functions.
+- [ ] `/learn` Restrict Go functions to at most one `defer` statement positioned strictly at the top or bottom boundary of the function.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Master Coding Guidelines](./readme.md)
 > **Version:** 2.1.0
@@ -165,3 +177,19 @@ Supplements Code Style rules R4, R5, R10, R12, R13 with detailed before/after ex
 | D3 | Need multiple defers? Extract into separate functions, each with its own single defer |
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-MASTER-PATTERNS: Advanced Cross-Language Architectural Patterns & Hygiene
+
+**Given** Production codebases implementing complex business logic, tests, concurrency, and control flow.
+**When** Static analysis scripts and guideline autofixers audit code structure and formatting conventions.
+**Then** Code strictly conforms to zero nested if statements, single defer placement, immutable object construction, proper vertical line gaps, and nil-safe access with zero violations.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines --check-only
+```
+**Expected:** exit 0. Zero violations.

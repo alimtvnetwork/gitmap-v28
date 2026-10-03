@@ -1,4 +1,16 @@
-# Validation Checklist
+# Validation Checklist (AI Execution Prompt)
+
+> **/goal** Provide a comprehensive 50-point compliance audit checklist and grep tooling for verifying Go enum implementations.
+> **/learn** Master enum audit scoring, identify legacy string comparisons in switches, detect missing predicate methods, and eliminate hardcoded string constants.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify each enum meets the 50-point compliance criteria across structure, declaration, methods, lookup tables, and string elimination.
+- [ ] `/learn` Audit switch statements and condition blocks to ensure zero string literals are used for enum variants.
+- [ ] `/goal` Verify compile-time validation rules and grep commands detect all legacy enum anti-patterns.
+- [ ] `/learn` Ensure zero tolerance for legacy `Unknown` zero values; enforce replacement with `Invalid Variant = iota`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Status:** Complete
@@ -274,3 +286,21 @@ grep -rn 'Unknown.*Variant.*=.*iota' --include="*.go" internal/enums/
 ---
 
 *Validation checklist for enum compliance audits.*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-ENUM-005: Go Enum Validation and Compile-Time Verification
+
+**Given** Go source code defining domain enums.
+**When** Enum implementations are audited against Go enum specifications.
+**Then** Full compliance across the 50-point audit checklist, zero string comparisons in switch cases, and exhaustive verification are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/01-enum-specification --check-only
+```
+**Expected:** exit 0. Zero violations.

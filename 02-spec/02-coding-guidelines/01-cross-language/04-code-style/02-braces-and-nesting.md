@@ -1,5 +1,18 @@
-# Braces, Nesting & Exemptions
+# Braces, Nesting & Exemptions (AI Execution Prompt)
 
+> **/goal** Eliminate all single-line brace-less statements and ban nested `if` blocks across PHP, TypeScript, and Go using guard clauses, early returns, and discrete helper functions.
+> **/learn** Master early guard return patterns, loop continuation flattening, switch/match conversions, condition extraction, and valid nesting exemptions (anonymous functions, closure callbacks, IIFEs).
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce curly braces `{}` on all `if`, `for`, `foreach`, `while` control blocks; ban single-line control statements.
+- [ ] `/learn` Eliminate nested `if` statements entirely; refactor using guard clauses with inverted conditions and early returns (`return`, `continue`, `break`).
+- [ ] `/goal` Extract if-inside-loop bodies into dedicated helper functions or use `continue` guards to maintain flat loop depth.
+- [ ] `/learn` Verify that only approved exemptions (closure/callback bodies, type switch guards) nest control structures.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+> **Parent:** [Code Style](./readme.md)
 > **Version:** 4.0.0
 > **Updated:** 2026-03-31
 > **Applies to:** PHP, TypeScript, Go
@@ -322,3 +335,21 @@ if ($hasValidFile) {
 ---
 
 *Part of [Code Style](./readme.md) — Rules 1, 2, 7*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-STYLE-002: Brace Enforcement and Zero-Nesting Ban
+
+**Given** Control flow statements in PHP, TypeScript, and Go source files.
+**When** Codebases are analyzed for brace presence and nested conditional blocks (`if` within `if`).
+**Then** All control blocks use explicit curly braces, nested conditionals are zero, and flow is flattened using guard clauses or extracted functions.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/04-code-style --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,4 +1,16 @@
-# Cross-Spec Contradiction Check Process
+# Cross-Spec Contradiction Check Process (AI Execution Prompt)
+
+> **/goal** Detect, eliminate, and prevent conflicting rules, contradictory code snippets, and stale architectural guidelines across specifications.
+> **/learn** Master canonical rule domain authority (canonical vs secondary sources), contradiction detection search patterns, and issue classification.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Run contradiction scans across all specifications whenever a new rule is proposed or updated.
+- [ ] `/learn` Resolve rule divergence by deferring to canonical domain authorities identified in Section 3.1.
+- [ ] `/goal` Update code snippets across all specs to adhere strictly to current affirmative boolean and typing invariants.
+- [ ] `/learn` Validate zero absolute paths, zero stale exemptions, and 100% cross-spec consistency across all domains.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-09
@@ -163,3 +175,21 @@ These areas have historically produced contradictions and need extra scrutiny:
 - [Master Coding Guidelines](./15-master-coding-guidelines/readme.md)
 - [PascalCase Key Naming](./11-key-naming-pascalcase.md)
 - [Boolean Standards](../03-golang/02-boolean-standards.md)
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CROSS-005: Cross-Spec Invariant Consistency Audit
+
+**Given** Cross-specification guidelines, code snippets, and naming invariants in `02-spec/02-coding-guidelines/01-cross-language/05-cross-spec-contradiction-checks.md`.
+**When** Audited against this reference specification and coding guidelines.
+**Then** All rules maintain consistency across domains, zero cross-spec contradictions exist, and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,4 +1,16 @@
-# Anti-Hallucination Rules
+# Anti-Hallucination Rules (AI Execution Prompt)
+
+> **/goal** Eliminate AI code generation errors across 8 core categories by enforcing strict negative constraints, required alternative patterns, and explicit architectural rules.
+> **/learn** Master zero-underscore logic variables, PascalCase JSON/API keys, Go single-return Result patterns, zero-nested conditionals, and CODE RED caching guards.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce naming rules: camelCase variables, PascalCase JSON keys, and single-capitalized abbreviations (`Id`, `Url`, `Api`).
+- [ ] `/learn` Apply single-return `Result[T]` types and `apperror.Wrap()` error handling in all Go code blocks.
+- [ ] `/goal` Eliminate nested `if` statements and enforce positive boolean naming with `is`/`has` prefixes.
+- [ ] `/learn` Enforce CODE RED caching rules: mandatory TTLs, mutation invalidation, and strict ban on caching errors as success.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -21,9 +33,9 @@ AI agents **MUST** check every generated code block against these rules before o
 
 ### AH-00: No Generated Code or Artifacts
 
-? **Never generate/commit:** Generated code (`*.generated.*`, ORM models, gRPC clients), test results, test reports, or compiled binaries.
-? **Always generate:** `.gitignore` entries to exclude them from the repository.
-?? Auto-generated code clutters the repository, creates diff noise, and should be produced dynamically at build time or in CI.
+❌ **Never generate/commit:** Generated code (`*.generated.*`, ORM models, gRPC clients), test results, test reports, or compiled binaries.
+✅ **Always generate:** `.gitignore` entries to exclude them from the repository.
+📖 Auto-generated code clutters the repository, creates diff noise, and should be produced dynamically at build time or in CI.
 
 ---
 
@@ -355,3 +367,21 @@ try {
 ---
 
 *Anti-hallucination rules v1.1.0 — 2026-04-04*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-ai-optimization/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-AI-002: Anti-Hallucination Rules Enforcement
+
+**Given** AI agents operating within the repository and codebase guidelines.
+**When** Audited against this optimization specification.
+**Then** Zero compliance or citation failures are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-ai-optimization --check-only
+```
+**Expected:** exit 0. Zero violations.

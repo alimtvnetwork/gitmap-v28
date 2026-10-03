@@ -1,6 +1,6 @@
 # Generator Code Reference
 
-> **Parent:** [Copy Formats Index](./01-index.md)
+> **Parent:** [Copy Formats Index](./readme.md)
 > **Version:** 3.2.0
 > **Updated:** 2026-03-31
 > **Purpose:** Source files, function signatures, and replication guide for the error report generation system.
@@ -64,7 +64,7 @@ To replicate this error reporting system in another project:
 5. **Implement `parseEnvelope()`** — Extract `Errors`, `MethodsStack`, `Attributes` from API responses
 6. **Implement click path tracking** — DOM click listener that records interactive element clicks
 7. **Implement execution logger** — Optional debug-mode call chain tracker
-8. **Wire Copy/Download menus** — Use the menu structures documented in [01-index.md](./01-index.md)
+8. **Wire Copy/Download menus** — Use the menu structures documented in [readme.md](./readme.md)
 
 ---
 

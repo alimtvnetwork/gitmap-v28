@@ -1,6 +1,6 @@
 # Error Store (Zustand)
 
-> **Parent:** [React Components Index](./01-index.md)
+> **Parent:** [React Components Index](./readme.md)
 > **Version:** 4.0.0
 > **Updated:** 2026-04-01
 

@@ -323,6 +323,6 @@ function Validate-Config($config) {
 
 ## Cross-References
 
-- [Overview](./01-index.md) - Architecture and quick start
+- [Overview](./readme.md) - Architecture and quick start
 - [Script Reference](./04-script-reference.md) - How the script uses this config
 - [Integration Guide](./05-integration-guide.md) - Setup instructions

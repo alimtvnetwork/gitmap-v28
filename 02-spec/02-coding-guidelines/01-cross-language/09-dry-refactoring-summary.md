@@ -1,4 +1,16 @@
-# DRY Refactoring Project — Complete Summary
+# DRY Refactoring Project — Complete Summary (AI Execution Prompt)
+
+> **/goal** Master the full-stack DRY architectural patterns, deduplication strategies, and shared abstractions established across Go, TypeScript, and PHP.
+> **/learn** Understand factory hooks (`useApiQuery`), response envelope schemas, single error stores, modular client extraction, and backend helper sharing.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Eliminate duplicated logic across all tiers by leveraging shared abstractions and canonical schemas.
+- [ ] `/learn` Decompose monolithic files and components exceeding 300 lines into focused sub-modules.
+- [ ] `/goal` Enforce single source of truth for cross-stack models via JSON Schema definitions.
+- [ ] `/learn` Verify that all data fetching hooks utilize the canonical `useApiQuery` factory pattern.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Status:** 100% Complete
 > **Duration:** 10 Phases
@@ -179,3 +191,21 @@ The 10-phase DRY (Don't Repeat Yourself) refactoring initiative modernized the f
 ---
 
 *10-phase DRY refactoring completed 2026-02-09*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CROSS-009: Code DRYness and Framework Extraction Standards
+
+**Given** Cross-stack DRY refactoring patterns, schema contracts, and modular extractions in `02-spec/02-coding-guidelines/01-cross-language/09-dry-refactoring-summary.md`.
+**When** Audited against this reference specification and coding guidelines.
+**Then** All full-stack abstractions maintain single sources of truth, module sizing stays <= 300 lines, and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

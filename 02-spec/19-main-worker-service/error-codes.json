@@ -4,7 +4,7 @@
   "Name": "Main / Worker Service",
   "Version": "1.2.0",
   "Generated": "2026-05-05",
-  "Source": "02-spec/19-main-worker-service/13-error-codes.md",
+  "Source": "02-spec/19-main-worker-service/14-error-codes.md",
   "Range": {
     "Min": 21000,
     "Max": 21199
@@ -31,7 +31,7 @@
       "HttpStatus": 500,
       "Tier": "Worker",
       "Message": "Required bootstrap config key missing.",
-      "Source": "`10-worker-bootstrap-protocol.md` \u00a76",
+      "Source": "`11-worker-bootstrap-protocol.md` \u00a76",
       "Retryable": false
     },
     {
@@ -61,7 +61,7 @@
       "HttpStatus": 401,
       "Tier": "Worker",
       "Message": "JWT signing key id not in trust store.",
-      "Source": "`12-jwt-delivery-contract.md` \u00a77",
+      "Source": "`13-jwt-delivery-contract.md` \u00a77",
       "Retryable": false
     },
     {
@@ -121,7 +121,7 @@
       "HttpStatus": 403,
       "Tier": "Worker",
       "Message": "Caller role lacks `RolePageAccess` for requested page.",
-      "Source": "`07-role-based-dashboards.md`",
+      "Source": "`08-role-based-dashboards.md`",
       "Retryable": false
     },
     {
@@ -131,7 +131,7 @@
       "HttpStatus": 400,
       "Tier": "Worker",
       "Message": "Required `X-Idempotency-Key` header absent on POST/PUT/PATCH.",
-      "Source": "`06-core-api-endpoints.md` \u00a71",
+      "Source": "`07-core-api-endpoints.md` \u00a71",
       "Retryable": false
     },
     {
@@ -221,7 +221,7 @@
       "HttpStatus": 500,
       "Tier": "Worker",
       "Message": "Write to App or Session tier DB failed.",
-      "Source": "`11-split-db-tier-reconciliation.md`",
+      "Source": "`12-split-db-tier-reconciliation.md`",
       "Retryable": false
     },
     {
@@ -311,7 +311,7 @@
       "HttpStatus": 502,
       "Tier": "Worker",
       "Message": "Main could not reach worker on `WorkerEndpointPublic`.",
-      "Source": "`04-worker-routing.md`",
+      "Source": "`05-worker-routing.md`",
       "Retryable": true
     },
     {
@@ -321,7 +321,7 @@
       "HttpStatus": 401,
       "Tier": "Main",
       "Message": "Sign-in credentials invalid.",
-      "Source": "`05-auth-and-2fa.md`",
+      "Source": "`06-auth-and-2fa.md`",
       "Retryable": false
     },
     {
@@ -381,7 +381,7 @@
       "HttpStatus": 400,
       "Tier": "Main",
       "Message": "Required `X-Correlation-Id` header absent.",
-      "Source": "`04-worker-routing.md` \u00a77.4 + `02-spec/04-database-conventions/06-rest-api-format.md`",
+      "Source": "`05-worker-routing.md` \u00a77.4 + `02-spec/04-database-conventions/07-rest-api-format.md`",
       "Retryable": false
     },
     {
@@ -391,7 +391,7 @@
       "HttpStatus": 409,
       "Tier": "Main",
       "Message": "Replay with different request body for same `X-Idempotency-Key`.",
-      "Source": "`04-worker-routing.md` \u00a77.3",
+      "Source": "`05-worker-routing.md` \u00a77.3",
       "Retryable": false
     },
     {
@@ -401,7 +401,7 @@
       "HttpStatus": 404,
       "Tier": "Main",
       "Message": "Could not resolve `(CompanyId) -> WorkerNode` mapping.",
-      "Source": "`04-worker-routing.md` \u00a77.2",
+      "Source": "`05-worker-routing.md` \u00a77.2",
       "Retryable": false
     },
     {
@@ -411,7 +411,7 @@
       "HttpStatus": 404,
       "Tier": "Main",
       "Message": "No `Tenant` row for given `CompanySlug`.",
-      "Source": "`04-worker-routing.md`",
+      "Source": "`05-worker-routing.md`",
       "Retryable": false
     },
     {
@@ -441,7 +441,7 @@
       "HttpStatus": 401,
       "Tier": "Main",
       "Message": "TOTP submitted for unknown / expired challenge id.",
-      "Source": "`04-worker-routing.md` \u00a77.2 (`/Auth/TwoFactor/Verify`)",
+      "Source": "`05-worker-routing.md` \u00a77.2 (`/Auth/TwoFactor/Verify`)",
       "Retryable": false
     },
     {
@@ -451,7 +451,7 @@
       "HttpStatus": 401,
       "Tier": "Main",
       "Message": "JWT not within refresh window or already rotated.",
-      "Source": "`04-worker-routing.md` \u00a77.2 (`/Auth/Refresh`)",
+      "Source": "`05-worker-routing.md` \u00a77.2 (`/Auth/Refresh`)",
       "Retryable": false
     },
     {
@@ -461,7 +461,7 @@
       "HttpStatus": 401,
       "Tier": "Main",
       "Message": "Single-use refresh JWT replayed after rotation.",
-      "Source": "`04-worker-routing.md` \u00a77.2 + diagrams/seq-login-routing",
+      "Source": "`05-worker-routing.md` \u00a77.2 + diagrams/seq-login-routing",
       "Retryable": false
     },
     {
@@ -471,7 +471,7 @@
       "HttpStatus": 400,
       "Tier": "Main",
       "Message": "Required `X-Auth-Action` header absent on multi-step auth flow.",
-      "Source": "`04-worker-routing.md` \u00a77.4",
+      "Source": "`05-worker-routing.md` \u00a77.4",
       "Retryable": false
     },
     {
@@ -481,7 +481,7 @@
       "HttpStatus": 500,
       "Tier": "Main",
       "Message": "Write to Main Root tier DB failed.",
-      "Source": "`03-main-db-schema.md`",
+      "Source": "`04-main-db-schema.md`",
       "Retryable": false
     },
     {
@@ -511,7 +511,7 @@
       "HttpStatus": 403,
       "Tier": "Main",
       "Message": "Endpoint pattern matches the lock-list (`/API/V1/Workers/*` or `/API/V1/SelfUpdate`) and cannot be reconfigured via `PATCH /API/V1/Settings/EndpointAuth`.",
-      "Source": "`06-core-api-endpoints.md` \u00a75.4 R-5 + `05-auth-and-2fa.md` \u00a78",
+      "Source": "`07-core-api-endpoints.md` \u00a75.4 R-5 + `06-auth-and-2fa.md` \u00a78",
       "Retryable": false
     }
   ]

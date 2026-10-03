@@ -1,4 +1,17 @@
-# Troubleshooting — Linter Pack Operations
+# Troubleshooting — Linter Pack Operations (AI Execution Prompt)
+
+> **/goal** Rapidly diagnose, resolve, and prevent common operational failures, runner environment misconfigurations, and AST dependency issues across linter CI/CD runs.
+> **/learn** Master resolution protocols for missing Python 3 runtime binaries, tree-sitter C extension compilation errors, SARIF schema upload mismatches, exit code propagation anomalies, and `.codeguidelines.toml` configuration syntax errors.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify runner Python 3 runtime meets `>= 3.10` requirement across hosted, self-hosted, and Windows environments.
+- [ ] `/learn` Diagnose pure-Python regex execution vs tree-sitter C extension requirements in Phase 2+.
+- [ ] `/goal` Validate SARIF 2.1.0 JSON payloads against schema before upload to prevent CI parser failures.
+- [ ] `/learn` Ensure correct exit code handling (`0` clean, `1` lint findings, `2` operational failure).
+- [ ] `/goal` Verify compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-04-19
@@ -470,3 +483,27 @@ python3 linters-cicd/scripts/load-config.py --config .codeguidelines.toml
 ---
 
 *Part of [CI/CD Integration](./readme.md)*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CICD-TROUBLE-001: Linter Pack Operations Troubleshooting Conformance
+
+- [ ] Python 3 runtime requirements (>= 3.10) and setup actions (`actions/setup-python@v5`) are documented across platforms.
+- [ ] Native C dependency requirements for AST parsers (tree-sitter, python3-dev, build-essential) are explicitly detailed.
+- [ ] SARIF schema validation and upload troubleshooting cover GitHub, GitLab, and Azure DevOps integration.
+- [ ] Exit code semantics (0=pass, 1=violations, 2=configuration/runtime error) are verified with reproducible remediation steps.
+- [ ] Configuration parsing (`.codeguidelines.toml`) errors provide actionable validation commands.
+
+**Given** CI/CD pipeline infrastructure, runner execution environments, and diagnostic incident reports.
+**When** Audited against this troubleshooting specification.
+**Then** All operational failure modes have actionable diagnosis and remediation steps with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/99-troubleshooting.md --check-only
+```
+**Expected:** exit 0. Zero violations.

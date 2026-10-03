@@ -1,4 +1,16 @@
-# Canonical Size Tier (Single Source of Truth)
+# Canonical Size Tier (Single Source of Truth) (AI Execution Prompt)
+
+> **/goal** Enforce canonical sizing limits across all codebases (≤8 lines preferred / ≤15 lines hard cap per function, ≤300 lines per file, ≤100 lines per React component, ≤120 lines per struct/class, ≤3 parameters, ≤10 cognitive complexity).
+> **/learn** Master single-responsibility decomposition, early return guard clauses, options parameter structs, and strict avoidance of monolithic files or unconstrained function bloat.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Keep all function bodies within ≤8 lines (preferred) and never exceed ≤15 lines (hard cap build error).
+- [ ] `/learn` Never allow file lengths to exceed ≤300 lines (or ≤100 lines for React TSX components); immediately decompose oversized units.
+- [ ] `/goal` Limit function parameters to ≤3; refactor 4+ arguments into dedicated parameter options structs or objects.
+- [ ] `/learn` Verify zero sizing and complexity drift across linters and CI/CD quality gates with explicit waivers where domain-justified.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **This file is the ONLY authoritative source for function-length, file-length, and component-size limits.**
 > All other locations (`.cursorrules`, `eslint.config.js`, `linters-cicd/`, `02-spec/13-generic-cli/08-code-style.md`, `02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md`) mirror this table and MUST reference it. If any of those drift, this file wins and the others get patched.
@@ -51,3 +63,21 @@ function mapKind(k: Kind): Label { ... }
 1. Edit this file first.
 2. Update the mirrors above in the **same commit**.
 3. Bump patch version and add an entry to `changelog.md` under "Canonical tier change".
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ROOT-002: Canonical Size Tier Enforcement
+
+**Given** Source files in the repository.
+**When** Codebases are audited by coding guideline scanners and lint rules.
+**Then** Function lengths (≤8 preferred, ≤15 hard cap), file lengths (≤300 lines, TSX ≤100 lines), struct lengths (≤120 lines), and parameter counts (≤3) are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only
+```
+**Expected:** exit 0. Zero violations.

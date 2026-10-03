@@ -1,4 +1,19 @@
-# C# Method Design
+# C# Method Design (AI Execution Prompt)
+
+> **/goal** Architect clean, maintainable C# methods by eliminating boolean flag parameters, enforcing strict line count limits, applying pure async patterns, and utilizing readable LINQ.
+> **/learn** Split methods branching on booleans into distinct intention-revealing operations, cap methods at 15 lines and 3 parameters, avoid blocking async calls, and extract complex LINQ expressions.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Eliminate boolean flag parameters that branch control flow by splitting into dedicated methods (`SaveDraft` vs `PublishDocument`).
+- [ ] `/learn` Cap method bodies at 15 lines (excluding error handling) and restrict parameter counts to at most 3 (use options classes for 4+).
+- [ ] `/goal` Ban blocking calls (`.Result`, `.GetAwaiter().GetResult()`) on async tasks; enforce async/await throughout.
+- [ ] `/learn` Use `Task.WhenAll` for independent concurrent async operations rather than sequential awaits.
+- [ ] `/goal` Suffix all asynchronous methods with `Async`.
+- [ ] `/learn` Prefer LINQ over imperative loops for collections, and extract complex or nested predicates into named private methods.
+- [ ] `/goal` Verify compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/07-csharp --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [C# Coding Standards](./readme.md)
 > **Version:** 1.0.0
@@ -11,7 +26,7 @@
 🔴 **CODE RED:** If a method branches on a boolean parameter, split it into two named methods.
 
 ```csharp
-// ❌ BAD — boolean flag hides intent
+// ❌ FORBIDDEN — boolean flag hides intent
 public void SaveDocument(Document doc, bool isDraft)
 {
     if (isDraft) { /* draft logic */ }
@@ -20,7 +35,7 @@ public void SaveDocument(Document doc, bool isDraft)
 
 // Caller: SaveDocument(doc, true)  — What does true mean?
 
-// ✅ GOOD — two methods, intent is obvious
+// ✅ REQUIRED — two methods, intent is obvious
 public void SaveDraft(Document doc)
 {
     // draft logic
@@ -66,10 +81,10 @@ private void NotifyAuthor(Document doc) { /* ... */ }
 - **Single responsibility** — one method does one thing
 
 ```csharp
-// ❌ BAD — too many params
+// ❌ FORBIDDEN — too many params
 public void CreateUser(string name, string email, string role, bool isActive, int age)
 
-// ✅ GOOD — options class
+// ✅ REQUIRED — options class
 public void CreateUser(CreateUserOptions options)
 
 public class CreateUserOptions
@@ -87,18 +102,18 @@ public class CreateUserOptions
 ## Async Patterns
 
 ```csharp
-// ❌ BAD — blocking async
+// ❌ FORBIDDEN — blocking async
 var result = GetDataAsync().Result;
 var data = GetDataAsync().GetAwaiter().GetResult();
 
-// ✅ GOOD — async all the way
+// ✅ REQUIRED — async all the way
 var result = await GetDataAsync();
 
-// ❌ BAD — sequential independent calls
+// ❌ FORBIDDEN — sequential independent calls
 var users = await GetUsersAsync();
 var orders = await GetOrdersAsync();
 
-// ✅ GOOD — parallel independent calls
+// ✅ REQUIRED — parallel independent calls
 var usersTask = GetUsersAsync();
 var ordersTask = GetOrdersAsync();
 await Task.WhenAll(usersTask, ordersTask);
@@ -113,20 +128,20 @@ var orders = ordersTask.Result;
 ## LINQ Usage
 
 ```csharp
-// ❌ BAD — manual loops for simple transforms
+// ❌ FORBIDDEN — manual loops for simple transforms
 var names = new List<string>();
 foreach (var user in users)
 {
     names.Add(user.Name);
 }
 
-// ✅ GOOD — LINQ
+// ✅ REQUIRED — LINQ
 var names = users.Select(u => u.Name).ToList();
 
-// ❌ BAD — nested LINQ (hard to read)
+// ❌ FORBIDDEN — nested LINQ (hard to read)
 var result = items.Where(x => x.Orders.Any(o => o.Items.Any(i => i.Price > 100)));
 
-// ✅ GOOD — extract to named method
+// ✅ REQUIRED — extract to named method
 var result = items.Where(HasExpensiveOrderItem);
 
 private static bool HasExpensiveOrderItem(Item item)
@@ -144,3 +159,19 @@ private static bool HasExpensiveOrderItem(Item item)
 - [Nesting Resolution](../01-cross-language/20-nesting-resolution-patterns.md) — flatten nested conditions
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CS-003: C# Method Signatures, Parameter Limits and Guard Clauses
+
+**Given** C# methods, constructors, and async implementations.
+**When** Method structures and signatures are analyzed against design guidelines.
+**Then** Zero boolean flag parameters branch method logic, method bodies remain within 15 lines, parameter lists are capped at 3 or refactored into options objects, async methods use non-blocking patterns with `Async` suffix, and complex LINQ operations are cleanly factored out with zero violations detected.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/07-csharp --check-only
+```
+**Expected:** exit 0. Zero violations.

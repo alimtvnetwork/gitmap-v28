@@ -1,4 +1,16 @@
-# Consolidated Code Review Guide
+# Consolidated Code Review Guide (AI Execution Prompt)
+
+> **/goal** Establish the comprehensive master review standard across Go, TypeScript, PHP, C#, and Rust, covering architecture, sizing, booleans, error handling, type safety, database conventions, and security.
+> **/learn** Master end-to-end quality discipline: guard clauses over nesting, monadic `Result[T]` error propagation, OWASP Top 10 defenses, PascalCase database conventions, and bounded caching lifecycles.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify all functions remain ≤15 lines, files ≤300 lines, and parameters ≤3 using structured options and orchestrators.
+- [ ] `/learn` Prohibit raw negations (`!`) on function calls and explicit `== true` checks; enforce implicit evaluation and semantic inverses.
+- [ ] `/goal` Ensure every error is wrapped with full stack traces (`apperror.Wrap`) and never swallowed or cached as success.
+- [ ] `/learn` Validate PascalCase table/column naming, parameterized SQL queries, and deterministic cache invalidation on mutations.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -749,3 +761,21 @@ useQuery({
 - [ ] OWASP checklist reviewed
 - [ ] Spec/issue file written before code
 - [ ] Logger calls at key points
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ROOT-005: Consolidated Master Review Rules
+
+**Given** Source files in the repository.
+**When** Codebases are audited by coding guideline scanners and lint rules.
+**Then** All cross-language review standards across sizing, conditionals, errors, types, database schemas, and security are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only
+```
+**Expected:** exit 0. Zero violations.

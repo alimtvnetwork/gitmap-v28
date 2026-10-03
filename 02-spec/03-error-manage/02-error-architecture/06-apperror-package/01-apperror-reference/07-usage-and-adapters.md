@@ -1,95 +1,98 @@
 # AppError Package Reference — Usage examples, service adapter unwrap pattern
 
-> **Parent:** [AppError Package Reference](./01-index.md)
+> **Parent:** [AppError Package Reference](./readme.md)
 > **Version:** 1.3.0
 > **Updated:** 2026-03-31
 
 ---
 
-## 9. Usage Examples
+## 9. Usage Examples (Canonical Reference: `04-code/golang/examples/`)
 
-### Service Method Returning Result[T]
+> Real-world implementations are maintained in [`04-code/golang/examples/database_query.go`](../../../../../04-code/golang/examples/database_query.go) and [`04-code/golang/examples/workflow_service.go`](../../../../../04-code/golang/examples/workflow_service.go).
+
+### Service Method Returning Concrete Result Type (`types.go`)
 
 ```go
-func (s *PluginService) GetById(context stdctx.Context, id int64) apperror.Result[Plugin] {
-    plugin, err := s.repo.FindById(context, id)
+// -----------------------------------------------------------------------------
+// Step 1: Declare Concrete Types in `types.go` (Mandatory Rule)
+// -----------------------------------------------------------------------------
+// In types.go:
+// type PluginWrapResult = result.Wrap[Plugin]
+// -----------------------------------------------------------------------------
+
+func (s *PluginService) GetById(ctx context.Context, id int64) PluginWrapResult {
+    if id <= 0 {
+        fault := appfault.New(errtype.Validation, "plugin id must be positive").
+            WithOp("PluginService.GetById").
+            WithVar("id", id)
+
+        return result.WrapFailure[Plugin](fault)
+    }
+
+    plugin, err := s.repo.FindById(ctx, id)
 
     if err != nil {
-        return apperror.FailWrap[Plugin](err, apperror.ErrDatabaseQuery, "get plugin by id").
-            WithValue("PluginId", fmt.Sprintf("%d", id))
+        fault := appfault.Wrap(errtype.Database, err, "failed to get plugin by id").
+            WithOp("PluginService.GetById").
+            WithVar("id", id)
+
+        return result.WrapFailure[Plugin](fault)
     }
 
-    if plugin == nil {
-        return apperror.FailNew[Plugin](apperror.ErrNotFound, "plugin not found")
-    }
-
-    return apperror.Ok(*plugin)
+    return result.WrapSuccess(*plugin)
 }
 ```
 
-### Handler Consuming Result[T]
+### Handler Consuming `result.Wrap[T]`
 
 ```go
 func (h *Handler) GetPlugin(w http.ResponseWriter, r *http.Request) {
-    result := h.plugins.GetById(r.Context(), pluginId)
+    res := h.plugins.GetById(r.Context(), pluginId)
 
-    if result.HasError() {
-        writeError(w, result.AppError())
+    if res.IsFailed() {
+        writeErrorEnvelope(w, res.Fault())
 
         return
     }
 
-    writeJson(w, result.Value())
+    writeJsonEnvelope(w, res.Value())
 }
 ```
 
-### Error with Values
+### Direct Error Typing (No Type Branching or Nested Ifs)
 
 ```go
-return apperror.Wrap(err, apperror.ErrFSRead, "failed to read config").
-    WithValue("path", configPath).
-    WithValue("format", "yaml")
+// Direct error typing: select the error type reflecting this layer (errtype.IO).
+// Never branch on error types or nest ifs!
+fault := appfault.WrapFile(errtype.IO, err, relativePath, "failed to read config").
+    WithOp("config.Load").
+    WithVar("format", "yaml")
+
+    return result.WrapFailure[Config](fault)
+}
 ```
 
-### Using `apperrtype` Enums (Preferred)
-
-Three escalating levels of type safety — Level 3 is the target for all new code:
+### Error Construction with Variation Enum & Fluent Builders
 
 ```go
-// ❌ Level 1 — raw strings (flagged by CODE-RED-008 lint rule)
-apperror.New("E2010", "site not found")
+// Direct constructor from Variation enum
+fault := appfault.New(errtype.Validation, "site not found").
+    WithOp("site.Find").
+    WithVar("siteId", siteId)
 
-// ✅ Level 2 — enum code, manual message
-apperror.New(apperrtype.SiteNotFound.Code(), "site not found")
-
-// ✅✅ Level 3 — enum with built-in message (best)
-apperror.NewType(apperrtype.SiteNotFound)
+return result.WrapFailure[Site](fault)
 ```
 
-> **Side note:** `FailBool` is a convenience constructor for `Result[bool]`. It creates a failed
-> `Result[bool]` from an `*AppError` — saving you from writing `apperror.Fail[bool](err)` everywhere.
-> The same pattern applies to `FailSettings`, `FailString`, etc. — each is a type alias shortcut.
-
-### With Convenience Constructors (Type Aliases)
+### Error with Diagnostics, Variables, and Fluent Properties
 
 ```go
-// ✅ Best practice — enum + type alias + convenience constructor
-return apperror.FailBool(apperror.NewType(apperrtype.SiteNotFound))
-return apperror.FailSettings(apperror.NewType(apperrtype.ConfigKeyMissing))
+fault := appfault.Wrap(errtype.IO, err, "failed during health check").
+    WithOp("site.CheckHealth").
+    WithVar("url", siteURL).
+    WithVar("plugin", pluginSlug).
+    WithVar("statusCode", resp.StatusCode)
 
-// Equivalent long-form (what FailBool replaces):
-return apperror.Fail[bool](apperror.NewType(apperrtype.SiteNotFound))
-```
-
-### Error with Diagnostics + Values + ErrorType
-
-```go
-return apperror.WrapType(err, apperrtype.WPConnectionFailed).
-    WithValue("url", siteURL).
-    WithValue("plugin", pluginSlug).
-    WithStatusCode(resp.StatusCode).
-    WithMethod("GET").
-    WithEndpoint("/wp-json/wp/v2/plugins")
+return result.WrapFailure[Site](fault)
 ```
 
 ---

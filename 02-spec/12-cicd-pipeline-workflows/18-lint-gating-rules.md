@@ -14,7 +14,7 @@
 
 ## Modular Guard Execution Checklist
 
-All concrete guard implementations and patterns are located under [`03-reusable-ci-guards/`](./03-reusable-ci-guards/01-index.md). Follow this numbered checklist:
+All concrete guard implementations and patterns are located under [`03-reusable-ci-guards/`](./03-reusable-ci-guards/readme.md). Follow this numbered checklist:
 
 1. [ ] `/learn` [02-forbidden-name-guard.md](./03-reusable-ci-guards/02-forbidden-name-guard.md) — Block collision-prone helper names in flat-namespace packages.
 2. [ ] `/learn` [03-grandfather-baseline-naming.md](./03-reusable-ci-guards/03-grandfather-baseline-naming.md) — Enforce naming conventions on new identifiers only.

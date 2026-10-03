@@ -1,5 +1,18 @@
-# Blank Lines & Spacing
+# Blank Lines & Spacing (AI Execution Prompt)
 
+> **/goal** Enforce strict vertical blank line spacing rules across PHP, TypeScript, and Go, ensuring mandatory breathing room before `if` statements, after closing braces `}`, before `return`/`throw` statements, and around multiline structures.
+> **/learn** Master vertical spacing hygiene, separation of logic from exits, blank line requirements between consecutive control structures, and exemptions for single-statement blocks.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Insert a blank line before `return` or `throw` when preceded by other statements in the same block.
+- [ ] `/learn` Omit blank lines when `return` or `throw` is the only statement inside a block.
+- [ ] `/goal` Insert a blank line after every closing brace `}` unless followed immediately by another closing brace `}`.
+- [ ] `/learn` Insert a mandatory blank line before any `if` statement when preceded by other code or assignments.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+> **Parent:** [Code Style](./readme.md)
 > **Version:** 4.0.0
 > **Updated:** 2026-03-31
 > **Applies to:** PHP, TypeScript, Go
@@ -402,3 +415,21 @@ if err != nil {
 ---
 
 *Part of [Code Style](./readme.md) — Rules 4, 5, 10*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-STYLE-004: Blank Lines and Vertical Spacing Hygiene
+
+**Given** PHP, TypeScript, and Go source files with control structures and exit points.
+**When** Codebases are audited for vertical spacing rules (before `if`, after `}`, before `return`/`throw`).
+**Then** All statements follow vertical blank line spacing rules with clean block separation and zero spacing violations.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/04-code-style --check-only
+```
+**Expected:** exit 0. Zero violations.

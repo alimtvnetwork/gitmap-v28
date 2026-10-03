@@ -1,4 +1,18 @@
-# Rust Async Patterns
+# Rust Async Patterns (AI Execution Prompt)
+
+> **/goal** Standardize async architecture, Tokio runtime execution, bounded channel communication, and cancellation-safe async patterns across Rust codebases.
+> **/learn** Master async concurrency principles: multi-threaded Tokio runtime configuration, bounded MPSC and broadcast channels, cooperative cancellation tokens, and avoiding lost writes in `select!` branches.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Configure multi-threaded Tokio runtimes with bounded worker thread allocations.
+- [ ] `/learn` Mandate bounded channel buffers (`mpsc::channel(capacity)`) and non-blocking `try_send` for high-throughput producers.
+- [ ] `/goal` Implement graceful shutdown handlers using `broadcast` or `watch` channels to signal cooperative cancellation across tasks.
+- [ ] `/learn` Ensure `tokio::select!` branches are strictly cancellation-safe, ensuring critical I/O operations finish before dropping futures.
+- [ ] `/goal` Enforce `Send + Sync + 'static` trait bounds on all futures and shared state across spawned async tasks.
+- [ ] `/learn` Verify zero guideline violations via `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -47,7 +61,7 @@ pub fn create_event_bus() -> (EventSender, EventReceiver) {
 ### Sending Events (Non-Blocking)
 
 ```rust
-// ✅ Correct — try_send to avoid blocking collectors
+// ✅ REQUIRED — try_send to avoid blocking collectors
 match sender.try_send(event) {
     Ok(()) => {},
     Err(mpsc::error::TrySendError::Full(_)) => {
@@ -59,7 +73,7 @@ match sender.try_send(event) {
     }
 }
 
-// ❌ Forbidden — blocking send in collector (could deadlock)
+// ❌ FORBIDDEN — blocking send in collector (could deadlock)
 sender.send(event).await?;
 ```
 
@@ -127,12 +141,12 @@ let encoded = tokio::task::spawn_blocking(move || {
     encode_image(&raw_buffer, ImageFormat::WebP, quality)
 }).await??;
 
-// ✅ Correct — SQLite is blocking I/O
+// ✅ REQUIRED — SQLite is blocking I/O
 let results = tokio::task::spawn_blocking(move || {
     storage.query_activities(from, to)
 }).await??;
 
-// ❌ Forbidden — blocking call on async thread
+// ❌ FORBIDDEN — blocking call on async thread
 let encoded = encode_image(&raw_buffer, ImageFormat::WebP, quality)?;
 ```
 
@@ -216,15 +230,44 @@ tokio::select! {
 ### Unsafe Patterns to Avoid
 
 ```rust
-// ❌ Dangerous — partial write may be lost if canceled
+// ❌ FORBIDDEN — partial write may be lost if canceled
 tokio::select! {
     result = write_batch_to_database(&events) => { /* ... */ }
     _ = shutdown.changed() => { break; }  // Batch partially written!
 }
 
-// ✅ Fix — complete the write before checking shutdown
+// ✅ REQUIRED — complete the write before checking shutdown
 write_batch_to_database(&events).await?;
 if *shutdown.borrow() { break; }
+```
+
+---
+
+## Send and Sync Bounds for Multi-Threaded Tokio
+
+When spawning concurrent asynchronous tasks using `tokio::spawn`, all spawned futures and captured state must satisfy `Send + Sync + 'static`:
+
+```rust
+// ❌ FORBIDDEN — non-thread-safe reference counted pointers across tasks
+use std::rc::Rc;
+use std::cell::RefCell;
+
+let shared_state = Rc::new(RefCell::new(Vec::new()));
+tokio::spawn(async move {
+    // Compile error: Rc is not Send
+    shared_state.borrow_mut().push(1);
+});
+
+// ✅ REQUIRED — atomic reference counting with async-aware synchronization
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
+let shared_state = Arc::new(Mutex::new(Vec::new()));
+let state_clone = Arc::clone(&shared_state);
+tokio::spawn(async move {
+    let mut lock = state_clone.lock().await;
+    lock.push(1);
+});
 ```
 
 ---
@@ -234,3 +277,21 @@ if *shutdown.borrow() { break; }
 | Reference | Location |
 |-----------|----------|
 | Cross-Language Guidelines | `../01-cross-language/readme.md` |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/05-rust/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-RUST-004: Rust Async Tokio Cancellation and Send Bounds
+
+**Given** Rust asynchronous tasks, channel endpoints, and Tokio event loops.
+**When** Audited against async runtime discipline and cancellation safety standards.
+**Then** All spawned futures satisfy `Send + Sync + 'static`, channels use bounded buffers, cancel-safe idioms protect I/O from lost writes, and zero violations are detected with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only
+```
+**Expected:** exit 0. Zero violations.

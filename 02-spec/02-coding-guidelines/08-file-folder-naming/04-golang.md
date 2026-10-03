@@ -1,4 +1,16 @@
-# File & Folder Naming — Go
+# File & Folder Naming — Go (AI Execution Prompt)
+
+> **/goal** Enforce idiomatic Go file and directory naming standards (`snake_case.go`, flat lowercase package names, test/platform suffixes).
+> **/learn** Master Go package-to-folder mappings, standard test suffixes (`_test.go`), OS/architecture build tags (`_linux.go`), and hyphen bans in package paths.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce `snake_case.go` for all Go source files with appropriate suffix semantics (`_test.go`, `_windows.go`).
+- [ ] `/learn` Never use hyphens, camelCase, or PascalCase in Go package directory names.
+- [ ] `/goal` Maintain flat, single-word package names directly matching their folder path (`pkg/appfault/`).
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/08-file-folder-naming --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -123,4 +135,22 @@ Enum packages MUST end with `type` suffix:
 |-----------|----------|
 | Golang Standards | [../03-golang/readme.md](../03-golang/readme.md) |
 | Enum Specification | [../03-golang/01-enum-specification/readme.md](../03-golang/01-enum-specification/readme.md) |
-| Cross-Language Rules | [./01-cross-language.md](./02-cross-language.md) |
+| Cross-Language Rules | [./02-cross-language.md](./02-cross-language.md) |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/08-file-folder-naming/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-FILE-004: Go File and Package Directory Conventions
+
+**Given** Repository file and directory structures across polyglot stacks.
+**When** Audited against this file and folder naming specification.
+**Then** Zero uppercase or invalid naming patterns are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/08-file-folder-naming --check-only
+```
+**Expected:** exit 0. Zero violations.

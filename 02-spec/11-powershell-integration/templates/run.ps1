@@ -1,7 +1,7 @@
 # PowerShell Build & Run Script — Generic Template
 # Version: 1.3.0
 # Generic template for Go backend + React frontend projects with pnpm PnP support
-# Configure via powershell.json — see 02-spec/powershell-integration/01-configuration-schema.md
+# Configure via powershell.json — see 02-spec/powershell-integration/02-configuration-schema.md
 #
 # USAGE:
 #   Copy this file and powershell.json to your project root.
@@ -69,7 +69,7 @@
 #   Example:
 #     .\run.ps1 -u              # Upload default plugin
 #     .\run.ps1 -u -d           # Upload with debug output
-#     .\run.ps1 -u -pp "C:\custom-plugin"  # Upload custom path
+#     .\run.ps1 -u -pp "/custom-plugin"  # Upload custom path
 #
 # See 02-spec/powershell-integration/ for full documentation.
 
@@ -112,7 +112,7 @@ $ConfigPath = Join-Path $ScriptDir "powershell.json"
 if (-not (Test-Path $ConfigPath)) {
     Write-Host "ERROR: powershell.json not found at: $ConfigPath" -ForegroundColor Red
     Write-Host "Create a powershell.json configuration file in the script directory." -ForegroundColor Yellow
-    Write-Host "See 02-spec/powershell-integration/01-configuration-schema.md for format." -ForegroundColor Yellow
+    Write-Host "See 02-spec/powershell-integration/02-configuration-schema.md for format." -ForegroundColor Yellow
     exit 1
 }
 
@@ -204,7 +204,7 @@ if ($help) {
     Write-Host "  .\run.ps1 -p -f        # Clean build without git pull"
     Write-Host "  .\run.ps1 -u           # Upload default plugin to WordPress"
     Write-Host "  .\run.ps1 -u -d        # Upload with debug output"
-    Write-Host "  .\run.ps1 -u -pp 'C:\path'  # Upload custom plugin path"
+    Write-Host "  .\run.ps1 -u -pp '/path'  # Upload custom plugin path"
     Write-Host ""
     Write-Host "CONFIGURATION:" -ForegroundColor Yellow
     Write-Host "  Config file: $ConfigPath"
@@ -586,7 +586,7 @@ if ($upload) {
         try {
             $wpConfigData = Get-Content $wpConfig -Raw | ConvertFrom-Json
             Write-Host "  Site:   $($wpConfigData.wordPressSiteURL)" -ForegroundColor Gray
-        } catch {}
+        } catch { Write-Warning "  ⚠️  failed to read config $wpConfig: $($_.Exception.Message)" }
     }
     Write-Host ""
 

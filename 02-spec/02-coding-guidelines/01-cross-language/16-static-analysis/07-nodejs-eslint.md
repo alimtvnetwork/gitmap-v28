@@ -1,4 +1,16 @@
-# Node.js — ESLint Enforcement (Server-Side)
+# Node.js — ESLint Enforcement (Server-Side) (AI Execution Prompt)
+
+> **/goal** Enforce strict server-side Node.js and TypeScript linting with ESLint, `typescript-eslint`, `sonarjs`, `eslint-plugin-n`, and `eslint-plugin-promise`.
+> **/learn** Enforce max 15 lines per function, max 3 parameters, cognitive complexity ≤ 10, zero nested if statements, ESM modules, and zero unhandled floating promises.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Configure flat ESLint (`eslint.config.mjs`) with zero warning tolerance (`--max-warnings 0`) in CI/CD pipelines.
+- [ ] `/learn` Enforce `max-depth: 1`, `no-else-return`, and `@typescript-eslint/naming-convention` with affirmative `is/has` boolean prefixes.
+- [ ] `/goal` Ban synchronous file I/O (`n/no-sync`), bare `require()` imports, and untracked promises (`@typescript-eslint/no-floating-promises`).
+- [ ] `/learn` Enforce structural metrics via `sonarjs/cognitive-complexity` (≤ 10) and `max-lines-per-function` (≤ 15).
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -212,6 +224,24 @@ npx eslint . --max-warnings 0
 - [Cross-Language Code Style](../04-code-style/readme.md) — Source rules
 - [Master Coding Guidelines](../15-master-coding-guidelines/readme.md) — Full checklist
 - [Promise/Await Patterns](../../02-typescript/10-promise-await-patterns.md) — Async guidelines
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-NODE: Node.js ESLint Enforcement
+
+**Given** Server-side Node.js or TypeScript codebases.
+**When** ESLint and associated plugins run during local verification or CI quality gates.
+**Then** Flat config enforces max 15-line functions, max 3 parameters, complexity ≤ 10, async promise handling, and zero warnings or errors.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

@@ -1,4 +1,16 @@
-# Go Utility Packages: `pathutil` and `fileutil`
+# Go Utility Packages: `pathutil` and `fileutil` (AI Execution Prompt)
+
+> **/goal** Eliminate all raw `os` and `io` calls from application code by strictly enforcing positively-named boolean guards from `pathutil` and structured `apperror.Result[T]` wrappers from `fileutil`.
+> **/learn** Master the anti-patterns of raw filesystem negations (`!os.IsNotExist`, `!pathutil.IsDir`), eliminate raw `error` returns at stdlib boundaries, map filesystem errors to the GEN-700 error taxonomy, and maintain parity with PHP `PathHelper`.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw `os.Open`, `os.Stat`, `os.ReadFile`, `os.WriteFile`, `os.MkdirAll`, and `os.Remove` calls in application code with `fileutil` or `pathutil` equivalents.
+- [ ] `/learn` Never use raw negation on path checks (`!pathutil.IsDir()`); invoke the corresponding positive semantic counterpart (`pathutil.IsDirMissing()`).
+- [ ] `/goal` Ensure every `fileutil` function wraps lower-level errors into `apperror.Result[T]` with appropriate GEN-700 error codes (`ErrFileNotFound`, `ErrFileReadFailed`, `ErrFileWriteFailed`).
+- [ ] `/learn` Keep `pathutil` boolean checks for preconditions and `fileutil` operations for I/O execution, maintaining clean separation between guards and operations.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-31
@@ -271,3 +283,21 @@ See [no-negatives spec](../01-cross-language/12-no-negatives.md) for the full PH
 [ ] Error codes match GEN-700 range from error-code-registry
 [ ] PHP PathHelper methods mirror Go pathutil naming
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-008: Unified PathUtil & FileUtil Cross-Platform Specification
+
+**Given** Go source code across packages and CLI modules.
+**When** Guideline linters audit the codebase.
+**Then** Zero raw `os`/`io` calls exist in application packages, boolean path checks utilize positive `pathutil` functions, and all file operations return wrapped `Result[T]` types.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang --check-only
+```
+**Expected:** exit 0. Zero violations detected.

@@ -1,4 +1,16 @@
-# 13. Enum Checking and Validation Guidelines
+# TypeScript Enum Checking and Validation Guidelines (AI Execution Prompt)
+
+> **/goal** Eliminate all magic string comparisons and enforce runtime validation with type guard utilities for untrusted input.
+> **/learn** Master TypeScript enum validation: implement `isValidEnum` parse guards, utilize `as const` object maps or TypeScript enums, and avoid blind type assertions (`as EnumType`).
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw magic strings for statuses, events, and categories with strict enums or `as const` maps.
+- [ ] `/learn` Never perform blind type casting (`response.status as StatusType`) on unverified external input.
+- [ ] `/goal` Implement safe type guard functions (`isStatus(val)`) to validate runtime data before narrowing.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 2.0.0 (V2)
 > **Applies to:** TypeScript Codebase
@@ -136,3 +148,21 @@ function handleEvent(eventName: typeof UIEvents[keyof typeof UIEvents]) {
   if (eventName === UIEvents.MouseOver) { ... }
 }
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-014: TypeScript Enum Runtime Validation and Parse Guard Utilities
+
+**Given** TypeScript source code under implementation or review.
+**When** Codebases are audited against TypeScript language standards.
+**Then** Runtime inputs are strictly verified through type guards with zero blind assertions and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,4 +1,16 @@
-# TypeScript ExecutionStatus Enum — `src/lib/enums/execution-status.ts`
+# TypeScript ExecutionStatus Enum — `src/lib/enums/execution-status.ts` (AI Execution Prompt)
+
+> **/goal** Eliminate all magic string execution status literals (`'running'`, `'idle'`, `'paused'`, `'completed'`, `'failed'`, `'canceled'`) across pipeline, automation, and frontend specs by standardizing on `ExecutionStatus`.
+> **/learn** Master execution lifecycle typing: `export enum ExecutionStatus` with uppercase string values, terminal state helper sets, and typed execution result interfaces.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw string execution state comparisons (`status === 'running'`) with `ExecutionStatus.Running`.
+- [ ] `/learn` Never use loose union types (`'pending' | 'running' | 'success' | 'failed'`) for execution status in models or interfaces; use `ExecutionStatus`.
+- [ ] `/goal` Use `TERMINAL_STATES` set lookup with `ExecutionStatus` constants for terminal execution checks.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version**: 1.0.0
 > **Last updated**: 2026-02-27
@@ -115,3 +127,21 @@ function isTerminal(status: ExecutionStatus): boolean {
 ---
 
 *ExecutionStatus enum v1.0.0 — 2026-02-27*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-004: ExecutionStatusEnum Definition and Validation
+
+**Given** TypeScript source code defining domain types, enums, and API models.
+**When** Codebases are audited against TypeScript enum standards.
+**Then** All task and pipeline execution lifecycle states strictly utilize `ExecutionStatus` enum constants, with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

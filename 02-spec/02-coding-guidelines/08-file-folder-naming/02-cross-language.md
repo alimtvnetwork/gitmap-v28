@@ -1,4 +1,16 @@
-# File & Folder Naming — Cross-Language Rules
+# File & Folder Naming — Cross-Language Rules (AI Execution Prompt)
+
+> **/goal** Enforce universal cross-language file and folder naming invariants (zero spaces, no special characters, strict lowercase for system files, dot-prefixed hidden files).
+> **/learn** Master cross-language naming rules, PowerShell `.ps1` kebab-case standards, leading zero numbering (`01-`, `02-`), and case-sensitivity safety.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Eliminate all spaces and special characters from repository filenames across all platforms.
+- [ ] `/learn` Never use uppercase letters in markdown, system files, scripts, or documentation (strict lowercase mandate).
+- [ ] `/goal` Enforce lowercase kebab-case for PowerShell scripts and numbered files (`01-file.ps1`).
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/08-file-folder-naming --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -149,3 +161,21 @@ Functions and cmdlets inside `.ps1` files follow the standard PowerShell **Verb-
 | **File names** (`.ps1`, `.psm1`, `.psd1`) | `lowercase-kebab-case` |
 | **Function names** (inside scripts) | `PascalCase Verb-Noun` |
 | **Folders** | `lowercase` (universal rule) |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/08-file-folder-naming/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-FILE-002: Universal Cross-Language Naming Invariants
+
+**Given** Repository file and directory structures across polyglot stacks.
+**When** Audited against this file and folder naming specification.
+**Then** Zero uppercase or invalid naming patterns are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/08-file-folder-naming --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,8 +1,20 @@
-# Boolean Principles — Static factory exemption, Result wrapper API
+# Boolean Principles — Static factory exemption, Result wrapper API (AI Execution Prompt)
+
+> **/goal** Define explicit exemptions for static factory constructors and linter allowlists while enforcing structured Result wrapper query APIs across Go and PHP.
+> **/learn** Distinguish static constructors (e.g., `DbResult::empty()`) from boolean queries (`$result->isEmpty()`), understand language-scoped linter exemptions, and adhere to structured `*appfault.AppError` return contracts.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Preserve static factory constructor naming (`empty()`, `of()`) while enforcing `is`/`has` prefixes on all state query methods.
+- [ ] `/learn` Adhere to audited linter exempt names (`ok`, `err`, `error`, `true`, `false`) and enforce Go-scoped idioms strictly.
+- [ ] `/goal` Standardize monadic Result wrappers (`Result[T]`, `ResultSlice[T]`, `ResultMap[K, V]`, `DbResult<T>`) to provide structured `AppError()` accessors.
+- [ ] `/learn` Verify zero usage of raw string errors in Result wrappers and validate contracts across polyglot implementations.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Boolean Principles](./readme.md)
 > **Version:** 2.7.0
-> **Updated:** 2026-04-19
+> **Updated:** 2026-10-02
 
 ---
 
@@ -183,3 +195,19 @@ This split preserves the existing Go behavior while restoring P1 enforcement for
 | `stackTrace()` | `string` | Captured stack trace if error occurred |
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-BOOL-006: Static Factory Exemptions and Structured Result Wrapper API
+
+**Given** Static factory constructors and structured Result wrapper implementations across Go and PHP.
+**When** Linters and CI pipelines inspect constructor signatures and Result wrapper query methods.
+**Then** Factory constructors retain concise creation names (`empty()`, `of()`), query methods enforce `is`/`has` prefixes, and error accessors return structured application error types.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles --check-only
+```
+**Expected:** exit 0. Zero violations.

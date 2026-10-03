@@ -56,7 +56,7 @@ How to prevent recurrence? Name the rule, lint check, or test that should catch 
 
 ### Step 3: Update the Error Resolution Index
 
-Add the new issue to `01-error-resolution/01-index.md` inventory.
+Add the new issue to `01-error-resolution/readme.md` inventory.
 
 ---
 

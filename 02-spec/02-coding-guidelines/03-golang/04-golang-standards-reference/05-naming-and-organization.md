@@ -1,4 +1,16 @@
-# Golang Coding Standards — File organization, naming conventions, negations, guards
+# Golang Coding Standards — File organization, naming conventions, negations, guards (AI Execution Prompt)
+
+> **/goal** Enforce clean file organization, package naming without stuttering, positive boolean conventions, and dedicated guard functions (IsDefined, IsDefinedAndValid, IsEmpty) across all Go packages.
+> **/learn** Eliminate raw negations and complex nil checks by implementing guard methods on pointer receiver types and leveraging Result[T] built-in inspection semantics.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ensure Go packages use single lowercase names without underscores or uppercase letters, avoiding package-stutter in exported types.
+- [ ] `/learn` Never use raw `!` negations or compound nil checks; implement and use `IsDefined()`, `IsDefinedAndValid()`, and `IsEmpty()`.
+- [ ] `/goal` Map one primary exported type per file, organizing large types using suffix conventions (`_crud.go`, `_helpers.go`, `_validation.go`).
+- [ ] `/learn` Ensure all boolean functions and methods use positive semantic prefixes (`Is`, `Has`) with zero double negatives.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Golang Coding Standards](./readme.md)
 > **Version:** 3.7.0
@@ -265,3 +277,19 @@ func (h *Handler) ListPlugins(w http.ResponseWriter, r *http.Request) {
 ```
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-REF-005: Go Semantic Naming and Package Organization
+
+**Given** Go source code under review or development.
+**When** Codebases are audited against Go coding standards.
+**Then** Package declarations, file organizations, and guard functions strictly adhere to semantic naming and positive boolean rules with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/04-golang-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

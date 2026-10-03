@@ -1,84 +1,98 @@
-# 09 — Pipeline Specifications
+# CI/CD Pipeline Workflows
 
-Generic, portable documentation for the project's CI/CD pipeline architecture. These specs describe **what** each pipeline does, **why** each pattern exists, and **how** to implement it — in enough detail for any AI or engineer to reproduce the workflows from scratch.
+> **/goal** Master and enforce the architectural standards, specifications, and CI/CD validation rules for CI/CD Pipeline Workflows.
+> **/learn** Read the sequentially ordered specification files in this directory, follow the actionable CI/CD checklist, and apply mandatory rules before generating code.
 
----
+## 🎯 Actionable CI/CD & Agent Checklist
 
-## Documents
-
-| Document | Purpose |
-|----------|---------|
-| [01-ci-pipeline.md](./01-ci-pipeline.md) | Continuous integration: lint, vulnerability scan, parallel tests, cross-compiled builds |
-| [02-release-pipeline.md](./02-release-pipeline.md) | Release automation: version resolution, binary packaging, install scripts, GitHub releases |
-| [03-vulnerability-scanning.md](./03-vulnerability-scanning.md) | Standalone vulnerability scanning: scheduled and manual |
-| [04-installation-flow.md](./04-installation-flow.md) | End-to-end installation: one-liner scripts, terminal output, upgrade, uninstall |
-| [05-changelog-integration.md](./05-changelog-integration.md) | Changelog format, CI extraction, release body assembly, terminal display |
-| [06-version-and-help.md](./06-version-and-help.md) | Version display, help system, command-level docs, CI version verification |
-| [07-environment-variable-setup.md](./07-environment-variable-setup.md) | `env` command: persistent variables, PATH registration, auto-home, drive setup |
-| [08-terminal-output-standards.md](./08-terminal-output-standards.md) | Output formatting conventions: icons, tables, progress, errors, CI summaries |
-| [09-binary-icon-branding.md](./09-binary-icon-branding.md) | Windows binary icon embedding via `go-winres`: icon, manifest, version info |
-| [03-reusable-ci-guards/00-overview.md](./03-reusable-ci-guards/00-overview.md) | **Reusable CI guards** — six language-agnostic patterns (forbidden-name, grandfather baseline, collision audit, baseline-diff lint gate, lint suggestions, matrix test aggregator) with Go/Node/Python/Rust adaptations and an AI implementation guide |
+1. [ ] `/goal` Read and understand all numbered specifications under `12-cicd-pipeline-workflows/`.
+2. [ ] `/learn` Adhere strictly to `.ai-memory/folder-structure.md` and `.ai-memory/strictly-avoid.md`.
+3. [ ] `/goal` Verify zero explicit `true` boolean evaluations and no mixed-polarity conditionals.
+4. [ ] `/learn` Run all local verification linters via `python 03-ai-scripts/06-cicd-local-runner.py`.
 
 ---
 
-## CI/CD Pipeline Diagram
-
-See the Mermaid diagram: [`images/ci-pipeline-flow.mmd`](images/ci-pipeline-flow.mmd)
-
-## Unified Architecture Diagram
-
-See the Mermaid diagram: [`images/unified-architecture.mmd`](images/unified-architecture.mmd)
-
-Shows how all nine pipeline specs connect — from CI validation through
-release automation, installation, changelog, versioning, environment setup,
-terminal standards, and binary branding.
+**Version:** 4.1.0
+**Updated:** 2026-08-30
+**AI Confidence:** Production-Ready
+**Ambiguity:** None
 
 ---
 
-## Quick Reference
+## Purpose
 
-### Pipeline Triggers
+Central location for all CI/CD pipeline specifications, deployment automation, and related infrastructure-as-code documentation. All pipeline-related content — build pipelines, deployment workflows, environment promotion strategies, and CI/CD tooling configurations — MUST be documented in this folder.
 
-| Workflow | Trigger | Branch/Tag |
-|----------|---------|------------|
-| CI | Push, Pull Request | `main` |
-| Release | Push | `release/**`, `v*` tags |
-| Vulnerability Scan | Weekly schedule, Manual | Any (default branch) |
+---
 
-### Shared Conventions
+## Scope
 
-- **Platform**: GitHub Actions
-- **Runner**: `ubuntu-latest`
-- **Language toolchain**: Go (version from `go.mod`)
-- **Node.js compatibility**: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` environment variable
-- **Action versions**: Pinned to exact tags (e.g., `@v6`), never `@latest` or `@main`
-- **Tool versions**: Pinned to exact versions (e.g., `golangci-lint@v1.64.8`, `govulncheck@v1.1.4`)
-- **Build mode**: Static linking (`CGO_ENABLED=0`) for all binaries
-- **Cross-compilation targets**: `windows/amd64`, `windows/arm64`, `linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`
+This module covers two distinct pipeline archetypes, shared conventions, reusable quality guards, and cross-cutting concerns:
 
-### Pinned Tool Versions
+| Archetype | Subfolder | Description |
+|-----------|-----------|-------------|
+| Browser Extension Deploy | `01-browser-extension-deploy/` | Node.js/pnpm multi-component builds, zip packaging, Chrome Web Store |
+| Go Binary Deploy | `02-go-binary-deploy/` | Cross-compiled Go binaries, tar.gz/zip, install scripts, code signing |
+| Reusable CI Guards | `03-reusable-ci-guards/` | 13 language-agnostic baseline diff gating and quality guards |
+| Shared Conventions | Root files | Common patterns used across all pipeline types |
 
-| Tool | Version | Used In |
-|------|---------|---------|
-| `golangci-lint` | `v1.64.8` | CI pipeline |
-| `govulncheck` | `v1.1.4` | CI pipeline, Vulnerability scan |
-| `actions/checkout` | `@v6` | All workflows |
-| `actions/setup-go` | `@v6` | All workflows |
-| `actions/cache` | `@v4` | CI pipeline |
-| `actions/upload-artifact` | `@v4` | CI, Release |
-| `actions/download-artifact` | `@v4` | CI pipeline |
-| `softprops/action-gh-release` | `@v2` | Release pipeline |
-| `golangci/golangci-lint-action` | `@v6` | CI pipeline |
+---
 
-### AI Handoff Checklist
+## Feature Inventory
 
-When handing this project to any AI or engineer, they should read these specs in order:
+### Root (Shared Conventions & Workflows)
 
-1. **08** — Terminal output standards (understand the visual conventions first)
-2. **06** — Version and help system (how commands present themselves)
-3. **04** — Installation flow (how users get the tool)
-4. **07** — Environment variable setup (how the tool configures the system)
-5. **05** — Changelog integration (how changes are tracked and published)
-6. **01** — CI pipeline (how code is validated)
-7. **02** — Release pipeline (how releases are built and published)
-8. **03** — Vulnerability scanning (security baseline)
+| # | File | Description | Status |
+|---|------|-------------|--------|
+| 02 | [02-ci-pipeline.md](./02-ci-pipeline.md) | Core CI pipeline execution matrix and stages | ✅ Active |
+| 03 | [03-shared-conventions.md](./03-shared-conventions.md) | Platform, triggers, concurrency, version resolution, checksums | ✅ Active |
+| 04 | [04-github-release-standard.md](./04-github-release-standard.md) | Release body assembly, pre-release detection, asset matrix | ✅ Active |
+| 05 | [05-release-pipeline.md](./05-release-pipeline.md) | Release workflow, deployment triggers, and AI release sync protocol | ✅ Active |
+| 06 | [06-vulnerability-scanning.md](./06-vulnerability-scanning.md) | Standalone and in-CI vulnerability scanning patterns | ✅ Active |
+| 07 | [07-install-script-generation.md](./07-install-script-generation.md) | Reusable PS1+Bash installer pattern, placeholder strategy, checksum verification | ✅ Active |
+| 08 | [08-installation-flow.md](./08-installation-flow.md) | End-to-end install: one-liners, terminal output, upgrade, uninstall | ✅ Active |
+| 09 | [09-changelog-integration.md](./09-changelog-integration.md) | Changelog format, CI extraction, release body assembly, terminal display | ✅ Active |
+| 10 | [10-code-signing.md](./10-code-signing.md) | SignPath integration, feature-flag gating, signature verification | ✅ Active |
+| 11 | [11-self-update-mechanism.md](./11-self-update-mechanism.md) | Generic CLI self-update blueprint: deploy path, rename-first, handoff, cleanup | ✅ Active |
+| 12 | [12-version-and-help.md](./12-version-and-help.md) | Version display, help system, command-level docs, CI verification | ✅ Active |
+| 13 | [13-environment-variable-setup.md](./13-environment-variable-setup.md) | `env` command: persistent variables, PATH registration, auto-home | ✅ Active |
+| 14 | [14-release-body-and-changelog.md](./14-release-body-and-changelog.md) | Changelog extraction, release body template, asset matrix assembly | ✅ Active |
+| 15 | [15-terminal-output-standards.md](./15-terminal-output-standards.md) | Output formatting: icons, tables, progress, errors, CI summaries | ✅ Active |
+| 16 | [16-binary-icon-branding.md](./16-binary-icon-branding.md) | Windows binary icon embedding via `go-winres`: icon, manifest, version info | ✅ Active |
+| 17 | [17-release-pipeline-issues-rca.md](./17-release-pipeline-issues-rca.md) | 🔴 Unified Root-Cause Analysis ledger of 13 CI/CD failure post-mortems and standing rules | ✅ Active |
+| 18 | [18-lint-gating-rules.md](./18-lint-gating-rules.md) | Strict lint gating strategies, baseline diff rules, and CI guards master index | ✅ Active |
+| 19 | [19-blue-green-deployment.md](./19-blue-green-deployment.md) | Zero-downtime blue/green deployment strategy | ✅ Active |
+| 20 | [20-flaky-test-quarantine.md](./20-flaky-test-quarantine.md) | Flaky test detection and automated quarantine pattern | ✅ Active |
+| 21 | [21-contract-testing.md](./21-contract-testing.md) | Microservice and API consumer contract testing | ✅ Active |
+| 22 | [22-e2e-testing-pattern.md](./22-e2e-testing-pattern.md) | End-to-end integration and smoke test runner patterns | ✅ Active |
+| 99 | [99-consistency-report.md](./99-consistency-report.md) | Consistency validation report for CI/CD workflows | ✅ Active |
+
+---
+
+## Subfolders
+
+1. [ ] `/learn` [01-browser-extension-deploy/readme.md](./01-browser-extension-deploy/readme.md) — Chrome extension automated build and packaging.
+2. [ ] `/learn` [02-go-binary-deploy/readme.md](./02-go-binary-deploy/readme.md) — Cross-platform Go binary packaging, signing, and release.
+3. [ ] `/learn` [03-reusable-ci-guards/readme.md](./03-reusable-ci-guards/readme.md) — 13 modular, language-agnostic CI guards and checkers.
+
+---
+
+## Verification
+
+_Auto-generated section — see `02-spec/12-cicd-pipeline-workflows/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CI-001: CI/CD pipeline conformance: Index
+
+**Given** Validate `.github/workflows/*.yml` against the documented job matrix.
+**When** Run the verification command shown below.
+**Then** Required jobs (`lint`, `cross-links`, `sync-drift`) are present; concurrency groups follow the `<workflow>-<ref>` pattern; `permissions:` is least-privilege.
+
+**Verification command:**
+
+```bash
+npm run sync && npm run lint && npm run test
+```
+
+**Expected:** exit 0. Any non-zero exit is a hard fail and blocks merge.
+
+_Verification section last updated: 2026-08-30_

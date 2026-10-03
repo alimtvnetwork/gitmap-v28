@@ -1,4 +1,16 @@
-# Folder Structure
+# Folder Structure (AI Execution Prompt)
+
+> **/goal** Enforce the canonical enum folder layout under internal/enums/ or pkg/enums/ with mandatory type package suffixes and variant.go file naming.
+> **/learn** Master package-level isolation of enums, lowercase package naming rules without underscores, and prevention of package-stutter.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Place all domain enum packages under `internal/enums/` or `pkg/enums/` with `variant.go` as the primary file.
+- [ ] `/learn` Append mandatory `type` suffix to all Go enum package names (e.g., `providertype`, `httpmethodtype`).
+- [ ] `/goal` Enforce single enum per package to prevent naming collisions and cross-coupling.
+- [ ] `/learn` Avoid underscores or camelCase in Go package names; keep package identifiers strictly lowercase.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Status:** Complete
@@ -366,3 +378,21 @@ func (v *Variant) UnmarshalJSON(data []byte) error {
 ---
 
 *Folder structure standard for enum organization.*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-ENUM-004: Go Enum Architecture and Folder Layout
+
+**Given** Go source code defining domain enums.
+**When** Enum implementations are audited against Go enum specifications.
+**Then** Standard directory layout, `type` package suffix, `variant.go` naming, and isolated package structure are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/01-enum-specification --check-only
+```
+**Expected:** exit 0. Zero violations.

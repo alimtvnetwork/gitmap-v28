@@ -46,7 +46,7 @@
 │       │              │              ▼              │                     │
 │       │              │     ┌──────────────────┐    │                     │
 │       │              │     │ Go Error Handler  │◀──┘                     │
-│       │              │     │ - apperror.Wrap() │                         │
+│       │              │     │ - appfault.Wrap() │                         │
 │       │              │     │ - session logger  │                         │
 │       │              │     │ - envelope builder│                         │
 │       │              │     └────────┬─────────┘                         │

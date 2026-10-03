@@ -1,38 +1,21 @@
 ---
 name: letterly-mobile
-description: Formats input text verbatim into mobile single-paragraph goal and learn execution directives followed by execute-parent-task-with-n-steps-v6 skill suffix without extra action items or conversational prefixes.
+description: >-
+  Formats raw voice dictation into mobile single-paragraph goal and learn execution directives followed by execute-parent-task-with-n-steps-v6 skill suffix without extra action items or conversational prefixes.
 ---
 
-# Letterly Mobile Mode
+# Mobile Mode — Letterly Prompt Formatter
 
-> **[/goal](slashCommand;goal)** Formats input text verbatim into mobile single-paragraph goal and learn execution directives followed by `execute-parent-task-with-n-steps-v6` skill suffix without extra action items or conversational prefixes.
-> **[/learn](slashCommand;learn)** Whatever is given as an input, do not add filler or conversational conversational prefixes. Follow the single-paragraph mobile format and append the mandatory V6 skill reference.
+Format whatever input text is provided according to the exact mobile single-line output template below.
 
-**Source prompt:** `01-prompts/22-letterly/01-mobile.md`
+1. Clean the input text verbatim without conversational filler words (`um`, `ah`, `uh`, `like`).
+2. Do NOT add `[/goal]` or `[/learn]` at the beginning.
+3. Start the line immediately with `# High Priority Instruction: `.
+4. Append `${Input Text Verbatim}`.
+5. Conclude the single line with ` - must follow the skill [execute-parent-task-with-n-steps-v6](file;.cursor/skills/execute-parent-task-with-n-steps-v6)`.
+6. Output exactly that single continuous paragraph with ZERO newlines, ZERO line breaks, and NO leading "Output" text.
 
----
+${Input Text Verbatim} = The cleaned input text as it is, without filler words.
 
-## 1. When to Use
-
-Activate this skill when:
-- Processing mobile-formatted prompt inputs for immediate autonomous execution.
-- Compacting multi-paragraph requests into a single continuous paragraph directive.
-- Appending the mandatory `[06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)` suffix.
-
----
-
-## 2. Formatting Rules
-
-1. **Zero Conversational Framing:** Never output "Certainly! Here's the output based on your instructions:" or similar filler phrases.
-2. **Single Paragraph Output:** Combine all input parts into a single continuous line/paragraph without newlines.
-3. **No Intermediate Action Items:** Do not generate extra markdown lists or actionable checklists before the directive.
-4. **Clean Verbatim Input:** Strip spoken filler words (`um`, `ah`, `wh`) while preserving the core technical directive verbatim.
-5. **Mandatory Suffix:** Append `- must follow the skill [06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)` at the end of the line.
-
----
-
-## 3. Output Format
-
-```
-[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim} - must follow the skill [06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)
-```
+Output Format:
+# High Priority Instruction: ${Input Text Verbatim} - must follow the skill [execute-parent-task-with-n-steps-v6](file;.cursor/skills/execute-parent-task-with-n-steps-v6)

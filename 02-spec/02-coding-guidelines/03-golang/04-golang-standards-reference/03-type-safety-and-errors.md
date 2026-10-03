@@ -1,4 +1,16 @@
-# Golang Coding Standards — Type safety, error handling, Result types
+# Golang Coding Standards — Type safety, error handling, Result types (AI Execution Prompt)
+
+> **/goal** Enforce strict type safety and structured error management across all Go packages: ban interface{}/any in exported APIs, wrap all errors into *appfault.AppError with stack traces, and mandate monadic Result[T] return types.
+> **/learn** Master the apperror/appfault architecture, bridge methods (ToAppResult, ToAppResultSlice), fileutil wrappers, and zero-raw-error boundaries to guarantee robust failure semantics.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ban `interface{}` and `any` in all exported Go functions and APIs in favor of concrete types or generic parameters.
+- [ ] `/learn` Never return raw `error` from application services or repositories; wrap immediately with `*appfault.AppError` or `apperror.Result[T]`.
+- [ ] `/goal` Ensure every error carries an automated stack trace and structured error code via `appfault` / `apperror`.
+- [ ] `/learn` Use Result bridge methods (`ToAppResult`, `ToAppResultSlice`) instead of redundant unwrap and re-wrap patterns.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Golang Coding Standards](./readme.md)
 > **Version:** 3.7.0
@@ -358,3 +370,19 @@ func (h *Handler) GetPlugin(w http.ResponseWriter, r *http.Request) {
 > ```
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-REF-003: Go Type Safety, Generic Result Wrappers, and AppError Wrapping
+
+**Given** Go source code under review or development.
+**When** Codebases are audited against Go coding standards.
+**Then** Exported APIs use concrete or generic types, all application errors return `*appfault.AppError` or `Result[T]` with stack traces, and raw error returns are prohibited with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/04-golang-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

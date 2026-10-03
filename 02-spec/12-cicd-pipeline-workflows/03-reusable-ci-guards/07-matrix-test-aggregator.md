@@ -161,6 +161,7 @@ jobs:
         with:
           name: test-results-${{ matrix.shard }}
           path: test-output.txt
+          retention-days: 1 # Zero-storage mandate: ephemeral inter-job transfer only
 
   summarize:
     needs: test
@@ -196,7 +197,7 @@ See `.github/scripts/test-summary.sh` in reference CLI implementations.
 
 ## Cross-References
 
-- [01-index.md](./01-index.md)
+- [readme.md](./readme.md)
 - [Shared Conventions](../03-shared-conventions.md) — Pinned `actions/download-artifact@v4`
 
 ---

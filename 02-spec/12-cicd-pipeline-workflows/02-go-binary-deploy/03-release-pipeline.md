@@ -379,7 +379,7 @@ fi
 - [Release Body and Changelog](../14-release-body-and-changelog.md) — Changelog extraction, body template
 - [Binary Icon Branding](../16-binary-icon-branding.md) — `go-winres make` and version injection
 - [Self-Update Mechanism](../11-self-update-mechanism.md) — How CLI tools consume release assets
-- [Self-Update Full Specs](../../14-update/01-index.md) — Client-side update implementation
+- [Self-Update Full Specs](../../14-update/readme.md) — Client-side update implementation
 - [Updater Binary](../../14-update/20-updater-binary.md) — Standalone updater architecture
 
 ---

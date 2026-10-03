@@ -1,4 +1,16 @@
-# TypeScript LogLevel Enum — `src/lib/enums/log-level.ts`
+# TypeScript LogLevel Enum — `src/lib/enums/log-level.ts` (AI Execution Prompt)
+
+> **/goal** Eliminate all magic string log severity levels (`'debug'`, `'info'`, `'warn'`, `'error'`, `'fatal'`) across logging, error display, and theme maps by standardizing on `LogLevel`.
+> **/learn** Master log severity typing: `export enum LogLevel` with uppercase string values, typed `Record<LogLevel, string>` color theme mappings, and log entry interfaces.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw string log level comparisons (`entry.level === 'error'`) with `LogLevel.Error`.
+- [ ] `/learn` Never use raw strings in theme mapping dictionary keys; use `Record<LogLevel, string>` with enum member computed keys (`[LogLevel.Error]`).
+- [ ] `/goal` Strongly type all `LogEntry` interfaces using `LogLevel` instead of string union literals.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version**: 1.0.0
 > **Last updated**: 2026-03-31
@@ -112,3 +124,21 @@ interface LogEntry {
 ---
 
 *LogLevel enum v1.0.0 — 2026-03-31*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-011: LogLevelEnum Definition and Validation
+
+**Given** TypeScript source code defining domain types, enums, and API models.
+**When** Codebases are audited against TypeScript enum standards.
+**Then** All log level comparisons, interface models, and theme mappings strictly utilize `LogLevel` enum constants, with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,6 +1,6 @@
 # Integration Guide
 
-> **Parent:** [React Components Index](./01-index.md)
+> **Parent:** [React Components Index](./readme.md)
 > **Version:** 3.2.0
 > **Updated:** 2026-03-31
 

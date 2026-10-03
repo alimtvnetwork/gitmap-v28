@@ -1,4 +1,16 @@
-# Info-Object Pattern for Go Enums
+# Info-Object Pattern for Go Enums (AI Execution Prompt)
+
+> **/goal** Attach rich metadata (labels, descriptions, icons, CSS classes, sort order) to Go enum variants using a centralized VariantInfo struct and lookup map.
+> **/learn** Eliminate scattered switch statements, enforce compile-time safety for metadata fields, and use value-type structs for optimal memory and cache locality.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Centralize rich enum metadata into a single exported `VariantInfo` struct per package.
+- [ ] `/learn` Never scatter metadata across multiple per-attribute `switch` statements; use a single `variantInfoMap` lookup.
+- [ ] `/goal` Implement `(v Variant) Info() VariantInfo` method returning the struct with a safe fallback to `Invalid`.
+- [ ] `/learn` Expose thin accessor methods (`Label()`, `Description()`, `Icon()`, `CssClass()`) delegating directly to `v.Info()`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Status:** Complete
@@ -348,3 +360,21 @@ func (v Variant) IsTerminal() bool    { return v.Info().IsTerminal }
 ---
 
 *Info-object pattern for Go enums — v3.2.0 — 2026-04-16*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-ENUM-006: Go Enum Info Object Metadata Pattern
+
+**Given** Go source code defining domain enums.
+**When** Enum implementations are audited against Go enum specifications.
+**Then** Info-object pattern, `VariantInfo` struct, single lookup map, and delegating accessor methods are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/01-enum-specification --check-only
+```
+**Expected:** exit 0. Zero violations.

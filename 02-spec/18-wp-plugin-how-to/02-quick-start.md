@@ -1,7 +1,7 @@
 # Phase 00 — Quick Start Guide
 
 > **Purpose:** Condensed onboarding for AI models. Read this first, then dive into individual phases as needed.
-> **Full index:** [01-index.md](01-index.md)
+> **Full index:** [readme.md](readme.md)
 > **Rule:** Every decision below links to the authoritative phase. When in doubt, the phase document wins.
 
 ---
@@ -20,7 +20,7 @@ An 18-phase, self-contained guide for building WordPress plugins following the *
 | Minimum WordPress | **5.6+** | [Phase 1, §1.1](03-foundation-and-architecture.md) |
 | Array syntax | `[]` only — never `array()` | [Phase 1, §1.1](03-foundation-and-architecture.md) |
 | Exception catching | Always `Throwable`, never `Exception` | [Phase 1, §1.1](03-foundation-and-architecture.md) |
-| Magic strings | **Forbidden** — use backed enums everywhere | [Phase 2](02-enums-and-coding-style/01-index.md) |
+| Magic strings | **Forbidden** — use backed enums everywhere | [Phase 2](02-enums-and-coding-style/readme.md) |
 
 ---
 
@@ -113,7 +113,7 @@ enum HttpMethodType: string {
 }
 ```
 
-> [Phase 2](02-enums-and-coding-style/01-index.md) — Enum architecture (4 subcategories)
+> [Phase 2](02-enums-and-coding-style/readme.md) — Enum architecture (4 subcategories)
 
 ### safeExecute() — Universal Error Boundary
 
@@ -168,7 +168,7 @@ When adding a feature (e.g., "manage widgets"):
 
 | Step | Action | Phase |
 |------|--------|-------|
-| 1 | Create enum(s) in `Enums/` for any new constants | [Phase 2](02-enums-and-coding-style/01-index.md) |
+| 1 | Create enum(s) in `Enums/` for any new constants | [Phase 2](02-enums-and-coding-style/readme.md) |
 | 2 | Create trait(s) in `Traits/[Feature]/` | [Phase 3](04-traits-and-composition.md) |
 | 3 | Add `use` statement in `Plugin.php` | [Phase 1, §1.5](03-foundation-and-architecture.md) |
 | 4 | Register routes in `RouteRegistrationTrait` | [Phase 3, §3.6](04-traits-and-composition.md) |
@@ -219,7 +219,7 @@ Read in this order for fastest onboarding:
 |----------|-------|-------|
 | Call WordPress functions in constructors | Use lazy initialization / hook callbacks | [Phase 1](03-foundation-and-architecture.md) |
 | Use `is_array()` directly | Use `TypeCheckerTrait::isArray()` | [Phase 3, §3.8](04-traits-and-composition.md) |
-| Hardcode strings | Use backed enums | [Phase 2](02-enums-and-coding-style/01-index.md) |
+| Hardcode strings | Use backed enums | [Phase 2](02-enums-and-coding-style/readme.md) |
 | Let exceptions escape handlers | Wrap in `safeExecute()` | [Phase 3, §3.4](04-traits-and-composition.md) |
 | Use `array()` syntax | Use `[]` short syntax | [Phase 1, §1.1](03-foundation-and-architecture.md) |
 | Put business logic in Plugin.php | Compose via traits | [Phase 3](04-traits-and-composition.md) |

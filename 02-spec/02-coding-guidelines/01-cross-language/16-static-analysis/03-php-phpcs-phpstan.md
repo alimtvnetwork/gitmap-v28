@@ -1,4 +1,16 @@
-# PHP — PHP_CodeSniffer + PHPStan Enforcement Rule Mapping
+# PHP — PHP_CodeSniffer + PHPStan Enforcement Rule Mapping (AI Execution Prompt)
+
+> **/goal** Configure and enforce PHP_CodeSniffer (PHPCS) and PHPStan at Level 9 to automate PHP coding standards and type safety in CI/CD pipelines.
+> **/learn** Enforce zero nested if statements, max 15 lines per function, max 3 parameters, cognitive complexity ≤ 10, strict return types, and affirmative boolean naming.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce `Generic.Metrics.NestingLevel` (`absoluteNestingLevel: 1`) and early returns via `SlevomatCodingStandard.ControlStructures.EarlyExit`.
+- [ ] `/learn` Configure `PHPStan` at `level: 9` with `phpstan-strict-rules` enabled to eliminate unhandled types and dead code.
+- [ ] `/goal` Configure `Generic.Metrics.FunctionLength` (`maxLength: 15`) and `SlevomatCodingStandard.ControlStructures.JumpStatementsSpacing` for clean vertical spacing.
+- [ ] `/learn` Enforce affirmative `is`/`has` boolean naming and ban raw negations (`!$this->isValid()`) across all PHP codebases.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -208,6 +220,24 @@ rules:
 - [Boolean Principles](../02-boolean-principles/readme.md) — Boolean naming rules
 - [Strict Typing](../13-strict-typing.md) — Type safety rules
 - [DRY Principles](../08-dry-principles.md) — Deduplication rules
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-PHP: PHP PHP_CodeSniffer & PHPStan Static Analysis Enforcement
+
+**Given** PHP source files and configuration (`phpcs.xml`, `phpstan.neon`).
+**When** PHPCS and PHPStan audit the codebase during local checks or CI runs.
+**Then** Nesting depth is ≤ 1, functions do not exceed 15 lines, PHPStan passes at Level 9 with strict rules, and all coding standard violations trigger build failures.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

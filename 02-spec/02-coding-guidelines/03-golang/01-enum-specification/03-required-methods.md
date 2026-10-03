@@ -1,4 +1,16 @@
-# Required Methods
+# Required Methods (AI Execution Prompt)
+
+> **/goal** Enforce the full suite of mandatory methods (String, Label, IsValid, Is{Value}, All, ByIndex, Parse, MarshalJSON, UnmarshalJSON) on all Go enum types.
+> **/learn** Master single lookup table delegation, avoid redundant label allocations, implement case-insensitive parsing, and ensure complete JSON serialization contracts.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Implement all 11 required methods on each enum type (`String`, `Label`, `IsValid`, `Is{Value}`, `IsOther`, `IsAnyOf`, `All`, `ByIndex`, `Parse`, `MarshalJSON`, `UnmarshalJSON`).
+- [ ] `/learn` Ensure `Label()` delegates to `String()` and both rely on a single `variantLabels` array lookup table.
+- [ ] `/goal` Implement dedicated `Is{Value}()` helper methods for every variant to eliminate raw equality comparisons.
+- [ ] `/learn` Implement `Parse(s string)` using `strings.EqualFold()` against `variantLabels` to safely handle case variations.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Status:** Complete
@@ -486,3 +498,21 @@ func (v *Variant) UnmarshalJSON(data []byte) error {
 ---
 
 *Required methods for enum compliance.*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-ENUM-003: Go Enum Required Methods Implementation
+
+**Given** Go source code defining domain enums.
+**When** Enum implementations are audited against Go enum specifications.
+**Then** All mandatory methods including serialization, deserialization, parsing, validation, and variant predicates are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/01-enum-specification --check-only
+```
+**Expected:** exit 0. Zero violations.

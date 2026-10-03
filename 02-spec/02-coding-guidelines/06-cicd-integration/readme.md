@@ -1,6 +1,16 @@
-# CI/CD Integration — Coding-Guidelines Linter Pack
+# CI/CD Integration — Coding-Guidelines Linter Pack (AI Execution Prompt)
 
-. **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
+> **/goal** Master and deploy the portable, language-agnostic CI/CD linter pack (`linters-cicd/`) to enforce repository CODE RED rules across any CI engine with zero external dependencies.
+> **/learn** Internalize SARIF 2.1.0 reporting contracts, modular language plugin architectures, one-line CI platform templates, and strict exit code semantics.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Integrate portable `linters-cicd/` checks emitting compliant SARIF 2.1.0 reports for automated pull request annotations.
+- [ ] `/learn` Never require local repository dependencies or external package installation for Phase 1 check execution.
+- [ ] `/goal` Maintain isolated language plugins adhering to standard CLI flags (`--path`, `--format`, `--severity`).
+- [ ] `/learn` Validate compliance across the directory using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Status:** Active (Phase 1 shipping)
@@ -40,13 +50,13 @@ The pack must:
 | File | Purpose |
 |------|---------|
 | `readme.md` | This file — high-level architecture |
-| `01-sarif-contract.md` | SARIF 2.1.0 output schema each check must emit |
-| `02-plugin-model.md` | How a new-language check is added |
-| `03-language-roadmap.md` | Phase 1/2/3 rollout, current status per language |
-| `04-ci-templates.md` | Inventory of CI platform templates |
-| `05-distribution.md` | ZIP, composite Action, install.sh contract |
-| `06-rules-mapping.md` | Each rule → spec source → check script → severity |
-| `07-performance.md` | Middle-out probe order, parallel jobs, timeout budgets |
+| `02-sarif-contract.md` | SARIF 2.1.0 output schema each check must emit |
+| `03-plugin-model.md` | How a new-language check is added |
+| `04-language-roadmap.md` | Phase 1/2/3 rollout, current status per language |
+| `05-ci-templates.md` | Inventory of CI platform templates |
+| `06-distribution.md` | ZIP, composite Action, install.sh contract |
+| `07-rules-mapping.md` | Each rule → spec source → check script → severity |
+| `08-performance.md` | Middle-out probe order, parallel jobs, timeout budgets |
 | [`08-fix-repo-and-installers/`](./08-fix-repo-and-installers/readme.md) | Canonical contract for `install.*`, `release-install.*`, `fix-repo.*`, `visibility-change.*` |
 | `97-acceptance-criteria.md` | Testable AC for every public artifact |
 | `98-faq.md` | Suppression, baselining, single-rule runs, version pinning |
@@ -97,3 +107,21 @@ under `linters-cicd/action.yml`.
 
 - **Md. Alim Ul Karim** — Creator & Lead Architect
 - **Riseup Asia LLC** — Sponsor
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CI-001: CI/CD Integration Architecture Conformance
+
+**Given** CI/CD pipeline infrastructure and linter configurations.
+**When** Audited against this integration specification.
+**Then** Zero configuration or SARIF contract defects exist and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only
+```
+**Expected:** exit 0. Zero violations.

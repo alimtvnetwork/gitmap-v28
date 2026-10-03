@@ -1,4 +1,16 @@
-# PHP Enums — Complete Reference
+# PHP Enums — Complete Reference (AI Execution Prompt)
+
+> **/goal** Enforce PHP 8.1+ native backed enums across the codebase, requiring the `Type` suffix, PascalCase cases, string backing, and mandatory `isEqual()` comparison methods.
+> **/learn** Eliminate legacy pseudo-enum classes, raw `define()` constants, and inline `===` comparisons in favor of strongly-typed backed enums, domain-specific path enums, and central validation methods.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ensure all PHP enums use PHP 8.1+ native backed enums with mandatory `Type` suffix in `includes/Enums/`.
+- [ ] `/learn` Use PascalCase for all enum cases (e.g. `case RestApi`, not `case REST_API`).
+- [ ] `/goal` Implement `isEqual(self $other): bool` on all backed enums and enforce its usage over raw `===` operator.
+- [ ] `/learn` Never use `define()` constants for enum-like domain sets; migrate to domain enums under `RiseupAsia\Enums`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 7.1.0
 > **Updated:** 2026-03-09
@@ -86,7 +98,7 @@ public function isEqual(self $other): bool
 
 ### Why isEqual() Instead of Raw `===`
 
-| Aspect | `===` (forbidden) | `isEqual()` (required) |
+| Aspect | `===` (❌ FORBIDDEN) | `isEqual()` (✅ REQUIRED) |
 |--------|-------------------|----------------------|
 | Readability | `$status === StatusType::Success` | `$status->isEqual(StatusType::Success)` |
 | Fluency | Operator-based, breaks chain | Method-based, reads like English |
@@ -780,3 +792,21 @@ $this->fileLogger->warn('Duplicate detected', array('duplicateDir' => $dir));
 ---
 
 *PHP Enum specification v7.1.0 — 2026-02-23*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-002: PHP Backed Enums and Type Suffix Conformance
+
+**Given** PHP enums and constant definitions across the codebase.
+**When** Guideline linters audit enum classes and usage call sites.
+**Then** All enums use PHP 8.1+ native backed enums, mandatory `Type` suffix, PascalCase cases, and universal `isEqual()` method comparisons with zero raw `===` comparisons and zero violations detected.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php --check-only
+```
+**Expected:** exit 0. Zero violations.

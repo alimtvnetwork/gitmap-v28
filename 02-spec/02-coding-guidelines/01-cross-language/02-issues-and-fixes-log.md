@@ -1,4 +1,16 @@
-# Issues & Fixes Log — Historical Reference
+# Issues & Fixes Log — Historical Reference (AI Execution Prompt)
+
+> **/goal** Preserve and enforce historical lessons, root cause analyses, and permanent prevention rules from previous coding standard remediations.
+> **/learn** Master historical patterns across naming, database casing, boolean logic, enum definitions, formatting, and type safety to prevent regressions.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Review historical violations before refactoring to avoid recurring patterns in naming, database casing, and type safety.
+- [ ] `/learn` Internalize prevention rules across all 19 categorized issues to prevent repeating legacy anti-patterns.
+- [ ] `/goal` Ensure every new standard violation fix documents root cause, impact, before/after diffs, and preventative rules.
+- [ ] `/learn` Validate that all historical code examples and file references maintain 100% relative repository paths.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-09
@@ -540,3 +552,21 @@ func (s *PluginService) GetById(ctx context.Context, id int64) apperror.Result[P
 ---
 
 *Issues and fixes log v1.0.0 — 2026-02-23*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CROSS-002: Historical Issues and Fixes Root Cause Catalog
+
+**Given** Historical coding standard violations, diagnoses, and prevention rules in `02-spec/02-coding-guidelines/01-cross-language/02-issues-and-fixes-log.md`.
+**When** Audited against this reference specification and coding guidelines.
+**Then** All 19 categorized issues retain root cause analysis, prevention rules, and relative links with zero violations and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

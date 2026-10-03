@@ -1,4 +1,16 @@
-# Cross-Language Rule Matrix
+# Cross-Language Rule Matrix (AI Execution Prompt)
+
+> **/goal** Provide an exhaustive cross-language static analysis mapping of coding guidelines to SonarQube rule IDs and native linter configurations across 8 languages.
+> **/learn** Enforce unified thresholds: function length ≤ 15 lines (S138), parameters ≤ 3 (S107), cognitive complexity ≤ 10 (S3776), nesting depth ≤ 1 (S134), and zero unused symbols (S1481).
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Harmonize static analysis enforcement across all 8 language ecosystems using SonarQube rule IDs and native linters.
+- [ ] `/learn` Verify universal thresholds across all configurations: max 15 lines per function, max 3 parameters, cognitive complexity ≤ 10.
+- [ ] `/goal` Map native linter equivalents (ESLint, golangci-lint, PHPCS/PHPStan, StyleCop/Roslyn, Clippy, Ruff) for every core guideline.
+- [ ] `/learn` Maintain zero-tolerance error severity across CI gates for nested branching, duplicate code, and unused variables.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-04-01
@@ -141,3 +153,21 @@ Side-by-side mapping of every enforced rule across all 8 languages, with SonarQu
 - [CI Pipeline Quality Gate](./09-ci-pipeline-quality-gate.md)
 - [Static Analysis Overview](./readme.md)
 - [TypeScript ESLint Enforcement](../../02-typescript/12-eslint-enforcement.md)
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-MATRIX: Cross-Language Linter Rule Matrix
+
+**Given** Supported programming languages and their respective static analysis configs.
+**When** Coding guideline specifications are evaluated against native linter and SonarQube rules.
+**Then** All 8 languages enforce standardized thresholds for function length, parameters, complexity, nesting, and dead code removal.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.

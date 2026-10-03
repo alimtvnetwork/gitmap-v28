@@ -1,4 +1,16 @@
-# VB.NET — .NET Analyzers + StyleCop Enforcement
+# VB.NET — .NET Analyzers + StyleCop Enforcement (AI Execution Prompt)
+
+> **/goal** Configure and enforce .NET Analyzers, StyleCop.Analyzers, Roslynator, and SonarAnalyzer for VB.NET projects to automate coding guidelines in CI/CD pipelines.
+> **/learn** Enforce `Option Strict On`, max 15 lines per function, max 3 parameters, cognitive complexity ≤ 10, zero nested if statements, and ban magic values and late binding.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce `Option Strict On` and zero late binding across all VB.NET project configurations.
+- [ ] `/learn` Map SonarAnalyzer (S134, S138, S107, S3776) and Roslynator (RCS1004) rules to block nested `If`, oversized functions (>15 lines), and redundant `Else` clauses.
+- [ ] `/goal` Configure `.editorconfig` and `.globalconfig` to treat coding guideline analyzer warnings as build errors (`TreatWarningsAsErrors = true`).
+- [ ] `/learn` Ban magic strings (S1192) and magic numbers (S109) by extracting them into named `Const` identifiers.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -201,6 +213,24 @@ dotnet_diagnostic.S907.severity = error
 - [C# StyleCop Enforcement](./04-csharp-stylecop.md) — Sibling .NET language
 - [Cross-Language Code Style](../04-code-style/readme.md) — Source rules
 - [Master Coding Guidelines](../15-master-coding-guidelines/readme.md) — Full checklist
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-VB: VB.NET Static Analysis & Analyzer Enforcement
+
+**Given** VB.NET source files and project configurations (`.vb`, `.vbproj`).
+**When** Linters and .NET analyzers audit the codebase during local builds or CI.
+**Then** Option Strict is enabled, nesting depth is ≤ 1, functions do not exceed 15 lines, parameters do not exceed 3, and zero analyzer violations occur with `TreatWarningsAsErrors`.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

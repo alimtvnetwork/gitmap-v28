@@ -617,7 +617,7 @@ When `-q` is used **without** `-pp`:
 
 ## Cross-References
 
-- [Overview](./01-index.md) - Architecture and quick start
+- [Overview](./readme.md) - Architecture and quick start
 - [Configuration Schema](./02-configuration-schema.md) - JSON config format
 - [Error Codes](./06-error-codes.md) - Detailed error handling
 - Upload Scripts - WordPress plugin deployment scripts — *folder pending creation*

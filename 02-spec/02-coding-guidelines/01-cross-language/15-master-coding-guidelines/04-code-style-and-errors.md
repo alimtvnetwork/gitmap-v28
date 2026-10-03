@@ -1,8 +1,20 @@
-# Master Coding Guidelines — Code style formatting, error handling
+# Master Coding Guidelines — Code style formatting, error handling (AI Execution Prompt)
+
+> **/goal** Enforce strict code formatting rules, brace hygiene, flat control flow, and zero-error-suppression error handling architectures.
+> **/learn** Master R1-R13 formatting rules (mandatory braces, zero nested if, vertical line gaps, max 15 lines per function) and Result/AppError propagation contracts.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce mandatory braces on all control structures, ban nested `if` statements, and cap function bodies at 15 lines.
+- [ ] `/learn` Maintain vertical newline gaps before `return`/`throw`, after closing braces `}`, and before control structures preceded by assignments.
+- [ ] `/goal` Ensure every Result wrapper is explicitly guarded (`HasError()`, `IsSafe()`) prior to accessing `.Value()` or `.Items()`.
+- [ ] `/learn` Validate compliance across code style and error specifications using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Master Coding Guidelines](./readme.md)
-> **Version:** 2.1.0
-> **Updated:** 2026-03-31
+> **Version:** 3.2.0
+> **Updated:** 2026-10-02
 
 ---
 
@@ -274,3 +286,19 @@ catch (Throwable $e) { ... }
 ```
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-MASTER-STYLE: Code Style & Error Handling Architecture Conformance
+
+**Given** Source files across Go, PHP, and TypeScript containing control flow, functions, and error handling.
+**When** Codebases are audited for brace usage, nesting depth, vertical spacing, function length, and Result guard enforcement.
+**Then** Zero single-line ifs, zero nested ifs, max 15-line functions, and 100% guarded Result value accesses are verified with zero violations.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines --check-only
+```
+**Expected:** exit 0. Zero violations.

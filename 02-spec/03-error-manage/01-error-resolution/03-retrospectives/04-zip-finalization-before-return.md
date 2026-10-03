@@ -3,7 +3,6 @@
 **Version:** 3.2.0
 **Last Updated:** 2026-04-16
 
-
  ## Issue ID: ZIP-FINALIZE-001
 
  ## Summary

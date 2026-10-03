@@ -32,7 +32,7 @@ All database objects use **PascalCase**. This document summarizes the rules and 
 
 ## Boolean Column Rules
 
-Boolean columns follow the same principles as the [cross-language boolean conventions](../02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md) and [no-negatives rule](../02-coding-guidelines/01-cross-language/12-no-negatives.md).
+Boolean columns follow the same principles as the [cross-language boolean conventions](../02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md) and [no-negatives rule](../02-coding-guidelines/01-cross-language/12-no-negatives.md).
 
 ### Rule 1: Always Use `Is` or `Has` Prefix
 
@@ -524,5 +524,5 @@ See full details: [../02-coding-guidelines/01-cross-language/07-database-naming.
 |-----------|----------|
 | Full naming spec | [../02-coding-guidelines/01-cross-language/07-database-naming.md](../02-coding-guidelines/01-cross-language/07-database-naming.md) |
 | Key naming PascalCase | [../02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md](../02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md) |
-| Boolean principles | [../02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md](../02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md) |
+| Boolean principles | [../02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md](../02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md) |
 | No-negatives rule | [../02-coding-guidelines/01-cross-language/12-no-negatives.md](../02-coding-guidelines/01-cross-language/12-no-negatives.md) |

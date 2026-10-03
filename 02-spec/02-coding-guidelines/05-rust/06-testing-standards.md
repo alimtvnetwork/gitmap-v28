@@ -1,4 +1,17 @@
-# Rust Testing Standards
+# Rust Testing Standards (AI Execution Prompt)
+
+> **/goal** Enforce structured Rust unit and integration testing conventions, descriptive three-part test naming, AAA structuring, and trait-based mock isolation.
+> **/learn** Master testing disciplines: `test_{function}_{scenario}_{expected_result}` naming, `#[cfg(test)]` unit test isolation, `tests/` directory integration tests, trait mocking for platform APIs, and strict isolation preventing real OS system side-effects.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Adhere to the standard three-part test naming pattern: `test_{function}_{scenario}_{expected_result}`.
+- [ ] `/learn` Structure test functions cleanly with the Arrange-Act-Assert (AAA) pattern.
+- [ ] `/goal` Isolate OS and platform dependencies using trait-based mocks (`PlatformApi`, `ScreenCapture`) to prevent unmocked OS modifications.
+- [ ] `/learn` Separate unit tests in `#[cfg(test)]` modules within source files from integration tests in the root `tests/` directory.
+- [ ] `/learn` Verify zero guideline violations via `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -20,7 +33,7 @@ Pattern: `test_{function}_{scenario}_{expected_result}`
 mod tests {
     use super::*;
 
-    // ✅ Correct — descriptive three-part name
+    // ✅ REQUIRED — descriptive three-part name
     #[test]
     fn test_parse_browser_title_chrome_returns_page_title() {
         let title = "GitHub - Google Chrome";
@@ -41,6 +54,10 @@ mod tests {
         let completed = tracker.on_tab_change(tab_info("Site A"));
         assert!(completed.is_none()); // First visit, nothing to complete
     }
+
+    // ❌ FORBIDDEN — vague test names without scenario/expected outcome
+    // #[test]
+    // fn test_browser() { ... }
 }
 ```
 
@@ -104,16 +121,16 @@ async fn test_storage_write_and_read_round_trip() {
 ## Assertion Patterns
 
 ```rust
-// ✅ Use assert_eq! with descriptive messages
+// ✅ REQUIRED — assert_eq! with descriptive messages
 assert_eq!(result.dwell_seconds, 45.0, "Dwell time should be 45 seconds");
 
-// ✅ Use assert! for boolean conditions
+// ✅ REQUIRED — assert! for boolean conditions
 assert!(filter.should_track("https://github.com", false), "GitHub should be tracked");
 
-// ✅ Use assert_matches! for enum variants (nightly or matches! macro)
+// ✅ REQUIRED — assert_matches! for enum variants (or matches! macro)
 assert!(matches!(error, CollectorError::StartFailed { .. }));
 
-// ✅ Test error cases explicitly
+// ✅ REQUIRED — test error cases explicitly
 let result = Config::load(Path::new("/nonexistent"));
 assert!(result.is_err());
 assert!(matches!(result.unwrap_err(), ConfigError::FileNotFound(_)));
@@ -156,7 +173,7 @@ mod test_helpers {
 ## Async Test Patterns
 
 ```rust
-// ✅ Use #[tokio::test] for async tests
+// ✅ REQUIRED — #[tokio::test] for async tests
 #[tokio::test]
 async fn test_event_bus_sends_and_receives() {
     let (sender, mut receiver) = create_event_bus();
@@ -170,7 +187,7 @@ async fn test_event_bus_sends_and_receives() {
     assert!(matches!(event, ActivityEvent::SessionStart { .. }));
 }
 
-// ✅ Use tokio::time::pause for time-dependent tests
+// ✅ REQUIRED — tokio::time::pause for time-dependent tests
 #[tokio::test]
 async fn test_idle_detection_triggers_after_threshold() {
     tokio::time::pause();
@@ -241,4 +258,22 @@ impl ScreenCapture for MockScreenCapture {
 | Reference | Location |
 |-----------|----------|
 | Cross-Language Test Standards | `../01-cross-language/14-test-naming-and-03-structure.md` |
-| Error Handling (testing error paths) | `./02-error-handling.md` |
+| Error Handling (testing error paths) | `./03-error-handling.md` |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/05-rust/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-RUST-006: Rust Test Suite Organization and Mocking Safety
+
+**Given** Rust unit and integration test suites across crates and services.
+**When** Audited against test architecture, naming standards, and isolation guidelines.
+**Then** All test functions follow standard naming, async tests use isolated Tokio runtimes, OS dependencies are mocked via traits, and zero violations are detected with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only
+```
+**Expected:** exit 0. Zero violations.

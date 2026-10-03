@@ -83,7 +83,7 @@ The Docs Viewer (`/docs`) is a React-based specification browser that renders ma
 
 ## Cross-References
 
-- [Spec Authoring Guide](../01-spec-authoring-guide/01-index.md) — Folder conventions
+- [Spec Authoring Guide](../01-spec-authoring-guide/readme.md) — Folder conventions
 - [App Project Template](../01-spec-authoring-guide/07-app-project-template.md) — Template this spec follows
 
 ---

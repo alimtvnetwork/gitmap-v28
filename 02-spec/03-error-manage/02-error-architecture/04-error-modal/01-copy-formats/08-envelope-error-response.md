@@ -1,6 +1,6 @@
 # Envelope Error Response (JSON)
 
-> **Parent:** [Copy Formats Index](./01-index.md)
+> **Parent:** [Copy Formats Index](./readme.md)
 > **Version:** 3.2.0
 > **Updated:** 2026-03-31
 > **Purpose:** Raw JSON response structure from the Go backend when an error occurs.

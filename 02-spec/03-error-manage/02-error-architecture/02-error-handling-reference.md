@@ -37,7 +37,7 @@ The project implements a **three-tier error handling architecture** spanning the
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        Backend (Go)                                  │
 │  ┌─────────────────┐    ┌──────────────────┐    ┌───────────────┐   │
-│  │ apperror.Wrap() │───▸│ Session Logger    │───▸│ error.log.txt │   │
+│  │ appfault.Wrap() │───▸│ Session Logger    │───▸│ error.log.txt │   │
 │  │ + .WithContext() │    │ (per-request ID)  │    │ (deduped)     │   │
 │  └─────────────────┘    └──────────────────┘    └───────────────┘   │
 │         │                       │                                    │
@@ -195,30 +195,56 @@ Every `error()` and `logException()` call automatically captures:
 
 ## Tier 2: Go Backend Error Handling
 
-### `appfault` Package & `*appfault.AppError` Return Type
+### `appfault` Package & `*appfault.AppError` Return Type (AI Skill Checklist)
 
-All structured errors crossing service boundaries in Go must use `*appfault.AppError` (package `appfault`) or `result.Result[T]`:
+All structured errors crossing service boundaries in Go MUST use `*appfault.AppError` (package `appfault`). Do NOT use `fmt.Errorf` or `errors.New` when returning an error from a service.
+
+**Strict Context Enrichment Checklist:**
+Every AI agent modifying or creating Go code MUST ensure `*appfault.AppError` instances include rich metadata. No error can be bypassed without injecting relative file paths and relevant variables:
+
+- [ ] `/goal` **Top-Instruction Priority Mandate:** Preamble and top-level directives take absolute precedence as MUST FOLLOW over general guidelines.
+- [ ] `/goal` **Zero Swallowed Errors Policy:** Never discard errors (`_ = err`), use empty catch blocks, or return silent fallback dummy values.
+- [ ] `/goal` **Strict Golang Error Wrapping:** Every Go error (`err != nil`) MUST be wrapped with `appfault.Wrap(errType, err, message)` or `result.WrapFailure[T]`. Bare error returns are banned.
+- [ ] `/goal` **Relative Path Logging (`WithPath` / `WithFilePath`):** If an error involves a file or directory, attach the clean repository-relative path via `.WithPath(relativePath)` (TOTAL BAN on absolute paths or `file:///` URIs).
+- [ ] `/goal` **Variable Logging (`WithVar` / `WithVars`):** Attach the variable name and value via `.WithVar("variableName", variableValue)`. Do NOT branch on error types with nested `if` statements — directly select the appropriate `errtype.Variation`.
+- [ ] `/goal` **Operation Context (`WithOp`):** Use `.WithOp("Package.Function")` to mark where the error originated.
+- [ ] `/goal` **HTTP Context (`WithStatusCode`, `WithEndpoint`):** Use `.WithStatusCode(int)` and `.WithEndpoint(url)` for networking errors.
+
+**Example Usage (See `04-code/golang/examples/database_query.go`):**
 
 ```go
-// Functions returning structured error metadata use *appfault.AppError
-func validateSlug(slug string) *appfault.AppError {
-    if len(slug) == 0 {
-        return appfault.NewValidationError("slug cannot be empty")
+// -----------------------------------------------------------------------------
+// In types.go:
+// type FileDataResult = result.Wrap[[]byte]
+// -----------------------------------------------------------------------------
+
+// Creating new structured errors with full context, concrete types from types.go, and blank line gaps
+func ProcessFile(relativePath string, maxSize int64) FileDataResult {
+    if relativePath == "" {
+        fault := appfault.New(errtype.Validation, "file path cannot be empty").
+            WithOp("processor.ProcessFile").
+            WithVar("maxSize", maxSize)
+
+        return result.WrapFailure[[]byte](fault)
     }
 
-    return nil
+    data, err := os.ReadFile(relativePath)
+
+    if err != nil {
+        // Direct error typing reflecting this layer (errtype.IO)
+        // Attach relative path and variable context directly without error type branching
+        fault := appfault.WrapFile(errtype.IO, err, relativePath, "failed to read file").
+            WithOp("processor.ProcessFile").
+            WithVar("maxSize", maxSize)
+
+        return result.WrapFailure[[]byte](fault)
+    }
+
+    return result.WrapSuccess(data)
 }
-
-// Wrap existing errors with code and context
-return appfault.Wrap(err, "wp.plugin.upload", map[string]any{"slug": pluginSlug}).
-    WithPluginContext(pluginId, pluginSlug).
-    WithEndpoint(requestUrl)
-
-// Create new errors
-return appfault.NewSimple("wp.plugin.validate", appfault.ErrFileRead.String())
 ```
 
-> **AI Migration Note:** Package `appfault` eliminates package stutter (`appfault.AppError`). For backward compatibility, `appfault` provides `type Fault = AppError` and package `apperror` provides alias forwarders to `appfault`.
+> **AI Migration Note:** Package `appfault` (`04-code/golang/pkg/appfault`) is the standard package. `type Fault = AppError`. All functions returning structured failure metadata must use `*appfault.AppError` and concrete named Result envelopes declared in `types.go` (e.g. `type FileDataResult = result.Wrap[[]byte]`). Bare generic parameters across signatures are banned.
 
 **Forbidden:** `fmt.Errorf` for errors leaving a service (no stack trace).
 
@@ -616,8 +642,8 @@ The Errors page implements a 3-tier fallback:
 - [Copy Format Samples](./04-error-modal/02-copy-formats.md)
 - [Response Envelope Schema](./05-response-envelope/envelope.schema.json)
 - [Envelope Configurability](./05-response-envelope/02-adr.md)
-- [PHP Standards](../../02-coding-guidelines/04-php/07-php-standards-reference/01-index.md)
-- [Golang Standards](../../02-coding-guidelines/03-golang/04-golang-standards-reference/01-index.md)
+- [PHP Standards](../../02-coding-guidelines/04-php/07-php-standards-reference/readme.md)
+- [Golang Standards](../../02-coding-guidelines/03-golang/04-golang-standards-reference/readme.md)
 
 ---
 

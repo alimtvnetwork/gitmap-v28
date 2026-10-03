@@ -1,48 +1,40 @@
 ---
 name: letterly-desktop
-description: Formats input text verbatim into desktop high-priority instructions, non-negotiable action items, and execute-parent-task-with-n-steps-v6 skill invocation suffix without conversational boilerplate.
+description: >-
+  Formats raw voice dictation into desktop high-priority instructions, non-negotiable action items starting with write spec and plan, and execute-parent-task-with-n-steps-v6 skill suffix.
 ---
 
-# Letterly Desktop Mode
+# Desktop Mode — Letterly Prompt Formatter
 
-> **[/goal](slashCommand;goal)** Formats input text verbatim into desktop high-priority instructions, non-negotiable action items, and `execute-parent-task-with-n-steps-v6` skill invocation suffix without conversational boilerplate.
-> **[/learn](slashCommand;learn)** Ingest user input verbatim, structure into High Priority Instruction followed by Actionable Items, and append the V6 execution skill reference as a suffix.
+Format whatever input text is provided according to the exact output template below following the execute N-steps structure. Do NOT add conversational filler (never write "Certainly! Here is your output:").
 
-**Source prompt:** `01-prompts/22-letterly/02-desktop.md`
+1. Clean the input text verbatim by removing conversational filler words (`um`, `ah`, `uh`, `like`) while strictly preserving every technical detail, requirement, file path, command, and directive.
+2. Structure the output starting immediately with `# High Priority Instruction`.
+3. Put `${Input Text Verbatim}` directly under the high priority header.
+4. Under `# Actionable Items Must Follow Non-Negotiable`, ensure the first item is ALWAYS:
+   `1. Write spec and plan first`
+   followed by discrete technical action items extracted from the input text.
+5. End with the mandatory agent invocation suffix pointing to `[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)`.
+6. Output ONLY the resulting markdown block.
 
----
+${Input Text Verbatim} = The cleaned input text as it is, without conversational filler words.
 
-## 1. When to Use
+Output Format:
 
-Activate this skill when:
-- Formatting structured desktop execution prompts from transcribed or raw user requests.
-- Preparing high-priority tasks requiring explicit numbered action items.
-- Appending the mandatory `[06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)` skill invocation.
-
----
-
-## 2. Formatting Rules
-
-1. **Zero Conversational Framing:** Never output conversational greetings or introductions like "Certainly! Here's the output:".
-2. **High Priority Section:** Lead with `# High Priority Instruction` followed by `[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim}`.
-3. **Actionable Items Section:** Follow with `# Actionable Items Must Follow Non-Negotiable` listing concrete steps derived from the instructions.
-4. **Mandatory Suffix:** Append the subagent spawn directive pointing to `[06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)` as a suffix.
-
----
-
-## 3. Output Format
-
-```markdown
 # High Priority Instruction
 
-[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim}
+${Input Text Verbatim}
 
 # Actionable Items Must Follow Non-Negotiable
 
-1. Write a plan and spec first
-2. ...
+1. Write spec and plan first
+2. [Second actionable technical directive extracted from input]
+3. [Third actionable technical directive extracted from input]
 
-Must follow and spawn an agent using the following skill
+Must follow and spawn agent using
 
-[06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)
-```
+[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)
+
+## Additional Instructions
+
+learn [/learn](slashCommand;learn) if you have to learn something and [/plan](slashCommand;plan) stuff before working please.

@@ -1,4 +1,16 @@
-# Cross-Language Database Naming Convention — PascalCase
+# Cross-Language Database Naming Convention — PascalCase (AI Execution Prompt)
+
+> **/goal** Enforce strict PascalCase naming across all custom database tables, columns, indexes, and associative data keys in PHP, Go, and TypeScript, while strictly preserving snake_case for WordPress core tables.
+> **/learn** Understand the cross-language database naming contract, PascalCase table/column/index schema definitions, abbreviation casing rules (`Id`, `Url`, `Md5`), elimination of table prefixes, and zero-redundancy Go struct tagging.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce PascalCase for all custom database tables (`AgentSites`, `Transaction`, `SnapshotProgress`) without table prefixes.
+- [ ] `/learn` Keep WordPress core tables and columns strictly in their native `snake_case` (e.g., `wp_posts`, `option_value`).
+- [ ] `/goal` Ensure all custom column names and composite index names use PascalCase with single-capitalized abbreviations (`Id`, `Url`, `CreatedAt`, `IdxTransactions_CreatedAt`).
+- [ ] `/learn` Verify PHP array record keys and Go struct `db` tags precisely mirror PascalCase schema definitions without redundant JSON tags.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-09
@@ -310,3 +322,21 @@ type Project struct {
 - [Go Coding Standards](../03-golang/04-golang-standards-reference/readme.md) — Go-specific naming
 - [Master Coding Guidelines](./15-master-coding-guidelines/readme.md) — Consolidated cross-language reference
 - [Issues & Fixes Log](./02-issues-and-fixes-log.md) — Full historical fixes
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-NAME-007: PascalCase Database Naming Compliance
+
+**Given** Database schema migrations, ORM entities, SQL queries, and struct definitions across PHP, Go, and TypeScript.
+**When** Codebase linters, migration scanners, or CI autofixers validate database definitions and query statements.
+**Then** All custom tables, columns, indexes, and data record keys strictly adhere to PascalCase with word-cased abbreviations (`Id`, `Url`), while WordPress core tables remain in exempt snake_case with zero violations.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

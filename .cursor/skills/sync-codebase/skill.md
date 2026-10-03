@@ -5,7 +5,7 @@ description: Autonomously synchronize prompts, skills, coding guidelines, and AI
 
 # Multi-Repository Codebase Synchronization (Alias)
 
-Source prompt: `01-prompts/23-sync/01-sync-other-codebase.md`  
+Source prompt: `01-prompts/23-sync/01-sync-other-codebase.md`
 Companion skill: `.agents/skills/sync-other-codebase/skill.md`
 
 ## Instructions

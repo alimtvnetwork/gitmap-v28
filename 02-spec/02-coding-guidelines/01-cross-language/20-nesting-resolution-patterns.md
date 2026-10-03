@@ -1,4 +1,16 @@
-# Nesting Resolution Patterns
+# Nesting Resolution Patterns (AI Execution Prompt)
+
+> **/goal** Eliminate nested conditionals and multi-level branching across all codebases, enforcing zero nested `if` statements through guard clauses, early returns, helper extraction, and switch conversions.
+> **/learn** Master the three nesting resolution methods (helper function extraction, inverse logic with early returns, switch/pattern matching), understand the anti-pattern of `else` after returning blocks, and flatten complex control flows from Level 4 to Level 1.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce zero nested `if` statements by restructuring branches into linear guard clauses with early returns.
+- [ ] `/learn` Never use `else` or `else if` when the preceding `if` block returns, throws, or terminates execution.
+- [ ] `/goal` Extract multi-condition branches and deep logic into single-purpose, positively named helper functions.
+- [ ] `/learn` Convert cascading discrete condition ladders into clean `switch` statements or dictionary/map dispatches.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -217,6 +229,24 @@ See [How to Reduce Code Nested Branching in Go](https://hackmd.io/@akarimevatix/
 - [Cyclomatic Complexity](./06-cyclomatic-complexity.md) — Complexity limits
 - [Boolean Principles](./02-boolean-principles/readme.md) — Named boolean extraction
 - [Master Coding Guidelines §5](./15-master-coding-guidelines/readme.md) — Formatting rules
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-020: Nesting Resolution and Branch Flattening
+
+**Given** Conditional branching structures across Go, TypeScript, PHP, Rust, or C# functions.
+**When** Code guideline linters or CI autofixers analyze code blocks for nesting depth and cyclomatic complexity.
+**Then** All functions maintain zero nested `if` statements, eliminate unnecessary `else` blocks after returns, and flatten control flow via early exit guards with deterministic compliance.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

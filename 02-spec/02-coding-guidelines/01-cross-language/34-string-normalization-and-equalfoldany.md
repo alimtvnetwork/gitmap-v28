@@ -1,4 +1,16 @@
-# String Normalization & EqualFoldAny Specification
+# String Normalization & EqualFoldAny Specification (AI Execution Prompt)
+
+> **/goal** Eliminate ad-hoc chained string comparisons, repeated trimming, and case-transformation allocations by centralizing all candidate matching behind canonical `strutil.EqualFoldAnyTrim` and `strutil.EqualFoldAny` utilities across Go, TypeScript, Rust, and Python.
+> **/learn** Master the Search First protocol to locate existing `strutil` helpers, understand Unicode case folding vs lowercase allocations, short-circuiting candidate iteration, and variadic candidate signatures.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace ad-hoc chained equality or `strings.EqualFold()` OR-chains with canonical `strutil.EqualFoldAnyTrim(target, ...candidates)`.
+- [ ] `/learn` Enforce Search First protocol: scan `pkg/strutil` for existing helpers before authoring one-off string comparison functions.
+- [ ] `/goal` Guarantee zero-allocation upfront trimming and short-circuit evaluation for multi-candidate string matching.
+- [ ] `/learn` Verify strict target-first variadic candidate parameter signatures and 100% relative repository paths.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 1.0.0
 **Updated:** 2026-10-02
@@ -25,9 +37,11 @@ if strings.EqualFold(trimmed, "y") || strings.EqualFold(trimmed, "yes") {
 While functional on the surface, this ubiquitous idiom introduces severe architectural, performance, and maintenance friction when repeated ad-hoc across codebases:
 
 ### 1.1 Redundant Allocations & Computational Waste
+
 In garbage-collected environments such as Go and Python, functions like `strings.ToLower()` or `str.lower()` allocate brand-new string objects on the heap. Even when utilizing case-insensitive comparisons such as Go's `strings.EqualFold()`, call sites frequently combine it with repeated `strings.TrimSpace()` calls. When matching against multiple candidates (`"y"`, `"yes"`, `"true"`, `"1"`), callers either allocate intermediate transformed strings or repeatedly execute transformation routines across chained conditions.
 
 ### 1.2 Cognitive Bloat & Call-Site Clutter
+
 Chained boolean expressions using logical OR (`||`) bury core business logic underneath layers of mechanical string manipulation boilerplate:
 - **Go:** `strings.EqualFold(trimmed, "y") || strings.EqualFold(trimmed, "yes") || strings.EqualFold(trimmed, "true")`
 - **TypeScript:** `input.trim().toLowerCase() === 'y' || input.trim().toLowerCase() === 'yes' || input.trim().toLowerCase() === 'true'`
@@ -37,6 +51,7 @@ Chained boolean expressions using logical OR (`||`) bury core business logic und
 Every additional candidate broadens horizontal complexity and cyclomatic branching, expanding the surface area for logic errors and cluttering code reviews.
 
 ### 1.3 Asymmetry & Inconsistent Edge-Case Handling
+
 Because individual developers implement string checks ad-hoc at each call site, edge-case handling fractures:
 - Caller A trims whitespace but performs case-sensitive matching (`trimmed == "y"`).
 - Caller B performs case-insensitive matching but neglects whitespace trimming (`strings.EqualFold(raw, "y")`).
@@ -44,6 +59,7 @@ Because individual developers implement string checks ad-hoc at each call site, 
 - Caller D applies lowercase transformation instead of Unicode case folding.
 
 ### 1.4 Code Duplication & Re-Invention Fatigue
+
 Without an authoritative canonical utility, AI agents and engineers repeatedly author one-off helper functions inside individual command or handler files (such as `isYes(s string) bool`, `checkConfirm(str string) bool`, or `matchesOption(opt string) bool`). This fragments repositories into unshared micro-helpers that violate the DRY (Don't Repeat Yourself) principle.
 
 ---
@@ -162,6 +178,7 @@ func confirmUndoRelease(tag string) bool {
 ```
 
 #### Deficiencies in this implementation:
+
 1. **Redundant intermediate variable:** `trimmed` is declared solely to feed two successive `strings.EqualFold()` calls.
 2. **Horizontal expansion:** Supporting additional confirmations (`"true"`, `"1"`, or localized equivalents) multiplies the `||` chain linearly.
 3. **Zero reusability:** Any other command requiring user confirmation must duplicate this identical logic or create a divergent variant.
@@ -222,6 +239,7 @@ func EqualFoldAnyTrim(target string, candidates ...string) bool {
 ### 5.2 TypeScript (`src/lib/strutil.ts`)
 
 #### ❌ Anti-Pattern: Inefficient Repeated Chaining
+
 ```typescript
 // ❌ WRONG: Inefficient repeated chaining and array inclusion
 function isAffirmative(input: string): boolean {
@@ -231,6 +249,7 @@ function isAffirmative(input: string): boolean {
 ```
 
 #### ✅ Canonical Implementation & Usage
+
 ```typescript
 // ✅ Canonical implementation in src/lib/strutil.ts:
 export function equalFoldAny(
@@ -267,6 +286,7 @@ const isConfirmed = equalFoldAnyTrim(userInput, 'y', 'yes', 'true');
 ### 5.3 Rust (`src/util/strutil.rs`)
 
 #### ❌ Anti-Pattern: Manual Trimming and Chained Calls
+
 ```rust
 // ❌ WRONG: Manual trimming and chained eq_ignore_ascii_case
 fn is_positive_response(input: &str) -> bool {
@@ -276,6 +296,7 @@ fn is_positive_response(input: &str) -> bool {
 ```
 
 #### ✅ Canonical Implementation & Usage
+
 ```rust
 // ✅ Canonical implementation in src/util/strutil.rs:
 pub fn equal_fold_any(target: &str, candidates: &[&str]) -> bool {
@@ -304,6 +325,7 @@ let is_positive = equal_fold_any_trim(user_input, &["y", "yes"]);
 ### 5.4 Python (`pkg/strutil/strutil.py`)
 
 #### ❌ Anti-Pattern: Chained Transforms Across Scripts
+
 ```python
 # ❌ WRONG: Chained lower/strip checks scattered across scripts
 if s.strip().lower() == "y" or s.strip().lower() == "yes":
@@ -311,6 +333,7 @@ if s.strip().lower() == "y" or s.strip().lower() == "yes":
 ```
 
 #### ✅ Canonical Implementation & Usage
+
 ```python
 # ✅ Canonical implementation in pkg/strutil/strutil.py:
 def equal_fold_any(target: str, *candidates: str) -> bool:
@@ -354,7 +377,24 @@ if equal_fold_any_trim(user_input, "y", "yes"):
 
 ---
 
-## 7. Verification & Acceptance Criteria
+## 7. Related Specifications
+
+- [`02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`](02-boolean-principles/readme.md) — Boolean naming and implicit condition standards
+- [`02-spec/02-coding-guidelines/01-cross-language/08-dry-principles.md`](08-dry-principles.md) — Deduplication and DRY principles
+- [`02-spec/02-coding-guidelines/01-cross-language/33-variadic-and-spread-parameters.md`](33-variadic-and-spread-parameters.md) — Variadic and spread parameter standard
+- [`02-spec/21-app/02-string-normalization-and-equalfoldany/01-architecture-spec.md`](../../21-app/02-string-normalization-and-equalfoldany/01-architecture-spec.md) — Parent architecture specification
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TYPE-034: String Normalization & EqualFoldAny Conformance
+
+**Given** String equality, case-insensitive comparison, and trimming operations across Go, TypeScript, Rust, and Python.
+**When** Linters and CI suites scan codebase repositories for string matching patterns.
+**Then** Multi-candidate comparisons invoke canonical `EqualFoldAnyTrim` / `EqualFoldAny` without inline OR chaining, preserving zero unnecessary heap allocations, positive booleans, and 100% relative paths.
 
 - **AC-CG-034-A:** Spec file `02-spec/02-coding-guidelines/01-cross-language/34-string-normalization-and-equalfoldany.md` exists and contains 100% relative paths.
 - **AC-CG-034-B:** Registry in `02-spec/02-coding-guidelines/01-cross-language/readme.md` contains sequence #34 without gap.
@@ -362,11 +402,8 @@ if equal_fold_any_trim(user_input, "y", "yes"):
 - **AC-CG-034-D:** Includes verbatim documentation of the `releaseundo.go` case study.
 - **AC-CG-034-E:** Function signatures across Go, TypeScript, Rust, and Python adhere to the target-first variadic candidate parameter architecture.
 
----
-
-## 8. Related Specifications
-
-- [`02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`](02-boolean-principles/readme.md) — Boolean naming and implicit condition standards
-- [`02-spec/02-coding-guidelines/01-cross-language/08-dry-principles.md`](08-dry-principles.md) — Deduplication and DRY principles
-- [`02-spec/02-coding-guidelines/01-cross-language/33-variadic-and-spread-parameters.md`](33-variadic-and-spread-parameters.md) — Variadic and spread parameter standard
-- [`02-spec/21-app/02-string-normalization-and-equalfoldany/01-architecture-spec.md`](../../21-app/02-string-normalization-and-equalfoldany/01-architecture-spec.md) — Parent architecture specification
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/34-string-normalization-and-equalfoldany.md --check-only
+```
+**Expected:** exit 0. Zero violations detected.

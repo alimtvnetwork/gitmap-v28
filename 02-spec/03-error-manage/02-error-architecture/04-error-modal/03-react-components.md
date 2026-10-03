@@ -1,6 +1,6 @@
 # ⚠️ THIS FILE HAS BEEN SPLIT INTO A SUBFOLDER
 
-> **Moved to:** [02-react-components/01-index.md](./02-react-components/01-index.md)
+> **Moved to:** [02-react-components/readme.md](./02-react-components/readme.md)
 > **Date:** 2026-04-02
 > **Reason:** 751-line deprecated v3.0.0 file replaced by 9 focused v4.0.0 files.
 
@@ -10,7 +10,7 @@
 
 | File | Content |
 |------|---------|
-| [01-index.md](./02-react-components/01-index.md) | Index, component architecture, cross-references |
+| [readme.md](./02-react-components/readme.md) | Index, component architecture, cross-references |
 | [01-typescript-interfaces.md](./02-react-components/02-typescript-interfaces.md) | All TypeScript interfaces and types |
 | [02-error-store.md](./02-react-components/03-error-store.md) | Zustand error store |
 | [03-api-types.md](./02-react-components/04-api-types.md) | API request/response types |

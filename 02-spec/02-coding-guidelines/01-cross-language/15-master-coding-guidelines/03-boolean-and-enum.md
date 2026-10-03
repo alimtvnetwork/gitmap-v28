@@ -1,8 +1,20 @@
-# Master Coding Guidelines — Boolean standards, isDefined guards, enum standards
+# Master Coding Guidelines — Boolean standards, isDefined guards, enum standards (AI Execution Prompt)
+
+> **/goal** Enforce affirmative boolean standards, positive existence guards, and type-safe enum definitions across all languages.
+> **/learn** Master the 6 boolean principles (is/has prefix, no negative words, named guards, decomposed conditions, no boolean flags, no mixed polarity), isDefined guards, and PascalCase enum variants.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Require affirmative `is` and `has` prefixes on all boolean variables, properties, methods, and flags.
+- [ ] `/learn` Replace raw negations on function calls and nil/null checks with semantic inverses (`isInvalid`) and positive existence guards (`isDefined`, `isDefinedAndValid`).
+- [ ] `/goal` Enforce PascalCase enum members, exhaustive switch/match default branches, and typed comparison helpers.
+- [ ] `/learn` Validate compliance across boolean and enum specifications using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Master Coding Guidelines](./readme.md)
-> **Version:** 2.1.0
-> **Updated:** 2026-03-31
+> **Version:** 3.2.0
+> **Updated:** 2026-10-02
 
 ---
 
@@ -173,3 +185,19 @@ if (isDefined(config)) {
 See the canonical sources above for full declaration patterns, required methods, and folder structure.
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-MASTER-BOOL: Boolean Standards & Enum Conformance
+
+**Given** Cross-language boolean variables, conditions, guards, and enum declarations.
+**When** Codebases are audited for affirmative prefixes, negative token absence, positive null guards, and enum conventions.
+**Then** Zero negative boolean identifiers, zero raw negations on function calls, and 100% PascalCase enum variants are enforced deterministically.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,4 +1,22 @@
-# 31. Special Default Repositories (`repo-secrets` = `rs` & `repo-cache` = `rc`)
+# 31. Special Default Repositories (`repo-secrets` = `rs` & `repo-cache` = `rc`) (AI Execution Prompt)
+
+> **/goal** Prevent credential leakage into public git repositories and eliminate throwaway script clutter by offloading secrets to `repo-secrets` and archiving reusable engineering scripts to `repo-cache`.
+> **/learn** Master GitMap special repository shortcuts (`gitmap rs`, `gitmap rc`), enforce monotonic sequence prefixes (`XX-<repo-name>/NN-<slug>.ext`), prohibit hardcoded repository URLs or absolute paths for secrets, and leverage default work directory context.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Offload all passwords, API keys, tokens, and `.env` configurations to `repo-secrets` using `gitmap rs`.
+- [ ] `/learn` Never commit credentials or secrets to standard or public repositories; never hardcode remote URLs or absolute paths in secret configurations.
+- [ ] `/goal` Archive temporary verification scripts, diagnostic harnesses, and migration helpers into `repo-cache` using `gitmap rc`.
+- [ ] `/learn` Enforce monotonic sequencing (`XX-<repo-name>/NN-<slug>.ext`) and automated commit/push behavior inside special repositories.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+**Status:** Active
+**Scope:** Universal (All Repositories, Workflows & Languages)
+**Strictness:** Non-Negotiable (Banned Anti-Pattern)
+
+---
 
 ## 1. Purpose & Architecture
 
@@ -29,3 +47,21 @@ Inside both `repo-secrets` and `repo-cache`:
      - `gitmap rc file ./verify-cluster.ps1`
      - `gitmap rc folder ./test-harnesses`
      - `gitmap rc text "Get-Process | Select-Object -First 5" --slug check-procs --ext .ps1`
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-031: Credential Offloading to `repo-secrets` and Script Archival to `repo-cache`
+
+**Given** Application configurations, secret tokens, environment files, and temporary automation scripts across projects.
+**When** Security linters, secret scanners, and repository hygiene auditors inspect the codebase.
+**Then** Standard repositories contain zero committed secrets or plain-text credentials, secrets are segregated into `repo-secrets` with monotonic sequencing, and reusable temporary harnesses are preserved in `repo-cache`, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

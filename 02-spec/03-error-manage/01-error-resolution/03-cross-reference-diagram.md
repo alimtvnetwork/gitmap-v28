@@ -15,7 +15,7 @@
                                     │  02-spec/03-error-manage/01-error-resolution/  │
                                     │                                              │
                                     │  ┌──────────────────────────────────────┐   │
-                                    │  │ 01-index.md                       │   │
+                                    │  │ readme.md                       │   │
                                     │  │ 01-retrospectives/                   │   │
                                     │  │ 02-verification-patterns/            │   │
                                     │  │ 03-debugging-guides/                 │   │

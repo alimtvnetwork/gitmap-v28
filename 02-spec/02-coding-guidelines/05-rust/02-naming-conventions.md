@@ -1,4 +1,18 @@
-# Rust Naming Conventions
+# Rust Naming Conventions (AI Execution Prompt)
+
+> **/goal** Standardize all Rust identifier naming, casing conventions, module structure, and boundary serialization according to RFC 430 and project guidelines.
+> **/learn** Master the naming rules: community snake_case default for functions/methods/variables/modules, SCREAMING_SNAKE_CASE for constants, and strictly isolate PascalCase to database identifiers and enum string values.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce standard Rust snake_case for functions, methods, variables, modules, and crates (RFC 430).
+- [ ] `/learn` Maintain SCREAMING_SNAKE_CASE for constants and static variables.
+- [ ] `/goal` Restrict PascalCase strictly to database identifiers (tables, columns, primary keys) and serialized enum string values.
+- [ ] `/learn` Configure Serde serialization with `#[serde(rename_all = "PascalCase")]` on transfer structs while keeping Rust field names in snake_case.
+- [ ] `/goal` Enforce affirmative boolean naming (`is_*`, `has_*`) and implicit evaluation (prohibit `== true` and mixed polarity).
+- [ ] `/learn` Verify zero guideline violations via `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -77,7 +91,7 @@ All database identifiers MUST use PascalCase regardless of Rust's naming convent
 ### Table and Column Names
 
 ```sql
--- ✅ Correct — PascalCase for all database identifiers
+-- ✅ REQUIRED — PascalCase for all database identifiers
 -- linter-waive: MISSING-DESC-001 reason="Cross-language naming example; not a real schema"
 CREATE TABLE BrowserActivities (
     BrowserActivitiesId  INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -89,7 +103,7 @@ CREATE TABLE BrowserActivities (
     FOREIGN KEY (SessionId) REFERENCES Sessions(SessionsId)
 );
 
--- ❌ Forbidden — snake_case database names
+-- ❌ FORBIDDEN — snake_case database names
 CREATE TABLE browser_activities (
     id          INTEGER PRIMARY KEY,
     session_id  INTEGER NOT NULL,
@@ -102,7 +116,7 @@ CREATE TABLE browser_activities (
 When a Rust struct maps to a database table, the struct fields use `snake_case` (Rust convention) but the database column names use `PascalCase`:
 
 ```rust
-// ✅ Correct — Rust fields are snake_case, DB columns are PascalCase
+// ✅ REQUIRED — Rust fields are snake_case, DB columns are PascalCase
 #[derive(Debug, FromRow)]
 pub struct BrowserActivity {
     #[sqlx(rename = "BrowserActivitiesId")]
@@ -126,7 +140,7 @@ pub struct BrowserActivity {
 ```
 
 ```rust
-// ❌ Forbidden — using snake_case DB column names
+// ❌ FORBIDDEN — using snake_case DB column names
 #[derive(FromRow)]
 pub struct BrowserActivity {
     pub id: i64,             // Maps to "id" column — wrong
@@ -137,7 +151,7 @@ pub struct BrowserActivity {
 ### SQL Queries in Rust
 
 ```rust
-// ✅ Correct — PascalCase column names in SQL strings
+// ✅ REQUIRED — PascalCase column names in SQL strings
 let activity = sqlx::query_as::<_, BrowserActivity>(
     "SELECT BrowserActivitiesId, SessionId, Url, Title, DwellSeconds, StartedAt
      FROM BrowserActivities
@@ -151,7 +165,7 @@ let activity = sqlx::query_as::<_, BrowserActivity>(
 ### View Names
 
 ```sql
--- ✅ Correct — PascalCase with Vw prefix
+-- ✅ REQUIRED — PascalCase with Vw prefix
 CREATE VIEW VwActiveSessionSummary AS
 SELECT s.SessionsId, s.StartedAt, COUNT(a.BrowserActivitiesId) AS ActivityCount
 FROM Sessions s
@@ -168,7 +182,7 @@ When an enum variant is serialized to a string (JSON, database column, API respo
 ### JSON Serialization
 
 ```rust
-// ✅ Correct — PascalCase variants serialize to PascalCase strings by default
+// ✅ REQUIRED — PascalCase variants serialize to PascalCase strings by default
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ScreenshotTrigger {
     Periodic,       // Serializes to: "Periodic"
@@ -182,7 +196,7 @@ pub enum ScreenshotTrigger {
 Serde's default behavior for PascalCase Rust enum variants produces PascalCase strings, so **no `rename_all` attribute is needed on enums**. This is the one case where Rust convention and the project convention naturally align.
 
 ```rust
-// ❌ Forbidden — snake_case or SCREAMING_CASE string values
+// ❌ FORBIDDEN — snake_case or SCREAMING_CASE string values
 #[derive(Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ScreenshotTrigger {
@@ -201,7 +215,7 @@ pub enum ScreenshotTrigger {
 When enum values are stored in a database column, the stored string must be PascalCase:
 
 ```rust
-// ✅ Correct — PascalCase string stored in DB
+// ✅ REQUIRED — PascalCase string stored in DB
 sqlx::query("INSERT INTO Screenshots (TriggeredBy) VALUES (?1)")
     .bind(serde_json::to_string(&trigger).unwrap().trim_matches('"'))
     // Stores: "TabChange" — correct
@@ -240,7 +254,7 @@ impl std::str::FromStr for ScreenshotTrigger {
 All JSON serialization of structs uses PascalCase keys to match the project-wide standard. This is where the `rename_all = "PascalCase"` attribute is necessary because Rust struct fields are `snake_case`:
 
 ```rust
-// ✅ Correct — derive with rename_all for struct serialization
+// ✅ REQUIRED — derive with rename_all for struct serialization
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BrowserActivity {
@@ -255,7 +269,7 @@ pub struct BrowserActivity {
 ```
 
 ```rust
-// ❌ Forbidden — default serde (produces snake_case JSON keys)
+// ❌ FORBIDDEN — default serde (produces snake_case JSON keys)
 #[derive(Serialize)]
 pub struct BrowserActivity {
     pub id: i64,           // Would serialize as "id" — wrong
@@ -283,7 +297,7 @@ pub struct SessionSummary {
 
 > **Inherited rule:** All identifiers must use full, descriptive names. The abbreviation `ctx` is prohibited — use `context` instead.
 
-| ❌ Forbidden | ✅ Required |
+| ❌ FORBIDDEN | ✅ REQUIRED |
 |-------------|------------|
 | `ctx` | `context` |
 | `cfg` | `config` |
@@ -299,10 +313,10 @@ pub struct SessionSummary {
 **Exception:** Single-letter variables in closures and iterators are acceptable when the scope is ≤ 3 lines:
 
 ```rust
-// ✅ Acceptable — short closure
+// ✅ REQUIRED — short closure
 let total: f64 = activities.iter().map(|a| a.dwell_seconds).sum();
 
-// ❌ Forbidden — longer closure needs descriptive name
+// ❌ FORBIDDEN — longer closure needs descriptive name
 let results: Vec<_> = activities.iter().filter(|activity| {
     activity.dwell_seconds > min_threshold
         && activity.category == UrlCategory::Work
@@ -311,11 +325,42 @@ let results: Vec<_> = activities.iter().filter(|activity| {
 
 ---
 
+## Boolean Naming and Positive Evaluation Rules
+
+All boolean identifiers across Rust codebases must enforce affirmative semantics, consistent `is_*` or `has_*` prefixes, and implicit evaluation:
+
+1. **Mandatory Affirmative Prefixes:** Boolean variables, struct fields, and functions returning `bool` MUST start with `is_` or `has_` (e.g., `is_active`, `has_permission`, `is_valid`, `has_finished`).
+2. **Negative Names Strict Ban:** NEVER name a boolean negatively (e.g., prohibited: `is_not_empty`, `has_no_errors`, `disabled`, `unauthenticated`). Invert the condition at the call site or define an affirmative identifier.
+3. **Implicit Boolean Evaluation (TOTAL BAN on `== true`):** Positive booleans MUST ALWAYS be evaluated implicitly. Explicit comparison against `true` (`if is_valid == true`) is an auto-reject failure.
+4. **No Mixed Polarity:** NEVER combine a positive check and a negative check in the same `if` condition. Split into guard clauses or separate branch evaluations.
+
+```rust
+// ❌ FORBIDDEN — explicit true check, negative naming, mixed polarity
+if is_not_empty == true {
+    // ...
+}
+if is_authenticated && !is_expired {
+    // mixed polarity banned
+}
+
+// ✅ REQUIRED — affirmative naming, implicit checks, guard separation
+if is_valid {
+    // implicit positive check
+}
+if has_permission {
+    if !is_expired {
+        // separated guard checks
+    }
+}
+```
+
+---
+
 ## Abbreviation Casing
 
 Abbreviations are treated as regular words in PascalCase — only capitalize the first letter:
 
-| ❌ Forbidden | ✅ Required |
+| ❌ FORBIDDEN | ✅ REQUIRED |
 |-------------|------------|
 | `URLParser` | `UrlParser` |
 | `HTTPClient` | `HttpClient` |
@@ -410,3 +455,21 @@ Use this table to instantly decide which casing to apply:
 ---
 
 *Rust naming conventions — v3.2.0 — 2026-04-11*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/05-rust/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-RUST-002: Rust Naming Conventions and Positive Booleans
+
+**Given** Rust source code across crate modules, database structs, serde models, and functions.
+**When** Guideline linters audit the codebase for naming convention and boolean compliance.
+**Then** All functions, methods, variables, modules, and crates adhere to RFC 430 snake_case, database identifiers and serialized enum values use PascalCase, and booleans strictly employ affirmative `is_*`/`has_*` naming with implicit evaluations and zero violations detected.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only
+```
+**Expected:** exit 0. Zero violations.

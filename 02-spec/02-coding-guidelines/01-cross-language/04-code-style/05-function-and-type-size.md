@@ -1,5 +1,18 @@
-# Function & Type Size Limits
+# Function & Type Size Limits (AI Execution Prompt)
 
+> **/goal** Enforce strict size limits across PHP, TypeScript, and Go: maximum 15 lines per function body and maximum 120 lines per struct/class/type file through decomposition into focused, single-responsibility helpers.
+> **/learn** Master small function design, error handling line count exemptions (error wrappers do not count), and file decomposition strategies (splitting large types/classes across dedicated files).
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Restrict function bodies to 15 lines or fewer of business logic, decomposing larger routines into small, well-named helper functions.
+- [ ] `/learn` Treat structural error guards (`if err != nil`) and error-wrapping chains (`apperror.Wrap`) as exempt from the 15-line limit.
+- [ ] `/goal` Cap structs, classes, and types at 120 lines; split oversized types across multiple files by concern (e.g. crud, helpers, types).
+- [ ] `/learn` Decompose multi-step processes into separate setup, execution, and response transformation helpers.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+> **Parent:** [Code Style](./readme.md)
 > **Version:** 4.0.0
 > **Updated:** 2026-03-31
 > **Applies to:** PHP, TypeScript, Go
@@ -204,3 +217,21 @@ Every struct, class, or interface definition (including its methods in the same 
 ---
 
 *Part of [Code Style](./readme.md) — Rules 6, 17*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-STYLE-005: Function and Type Size Caps
+
+**Given** Function declarations and type definitions across PHP, TypeScript, and Go codebases.
+**When** Linters and AST analyzers measure function lengths and type file sizes.
+**Then** All functions remain within the 15-line limit (excluding exempt error handling) and all type files stay within 120 lines.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/04-code-style --check-only
+```
+**Expected:** exit 0. Zero violations.

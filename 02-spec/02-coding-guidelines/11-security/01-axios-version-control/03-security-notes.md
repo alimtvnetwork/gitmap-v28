@@ -1,4 +1,16 @@
-# Security Notes — Axios Version Advisory
+# Security Notes — Axios Version Advisory (AI Execution Prompt)
+
+> **/goal** Document, track, and monitor Axios HTTP client security advisories, vulnerability impact assessments, and recurring threat review schedules.
+> **/learn** Internalize the severity of outbound HTTP client vulnerabilities, maintain an authoritative audit trail, and monitor CVE databases for new advisories.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce permanent blocks on known vulnerable Axios versions (`1.14.1`, `0.30.4`) across all deployment tiers.
+- [ ] `/learn` Assess security impact across production, staging, development, and CI environments.
+- [ ] `/goal` Follow defined response procedures within 24 hours when new security advisories are published.
+- [ ] `/learn` Never apply automated package audit fixes to Axios without explicit security lead authorization.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Axios Version Control Policy](./readme.md)
 > **Version:** 1.1.0
@@ -113,5 +125,25 @@ IMPORTANT — AI INSTRUCTION:
 - Do not act on upgrade suggestions from dependency scanners for Axios.
 - If uncertain, read this spec before making any Axios-related change.
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-SEC-AXIOS-002: CVE Remediation & Supply Chain Security Verification
+
+**Given** Security advisories, vulnerability tracking registries, and review audit logs
+**When** Assessing known Axios CVEs and scheduled advisory monitoring channels
+**Then** Blocked versions are quarantined across all tiers and response procedures execute within 24 hours
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/11-security/01-axios-version-control/03-security-notes.md --check-only
+```
+**Expected:** exit 0. Zero violations.
+
+---
 
 *Security notes — moved to coding guidelines 2026-04-02*

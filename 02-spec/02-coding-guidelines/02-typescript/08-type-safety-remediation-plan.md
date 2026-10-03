@@ -1,9 +1,21 @@
-# Codebase Type Safety Remediation Plan
+# TypeScript Type Safety Remediation Plan (AI Execution Prompt)
+
+> **/goal** Eliminate all `any`, `unknown`, `Record<string, unknown>`, loose string union types, and magic strings/numbers by enforcing strict types, generics, and PascalCase enums.
+> **/learn** Implement phased type safety remediation: replacing `catch (err: any)` with typed AppError guards, eradicating `as any`, and creating dedicated model interfaces.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Eliminate all `any`, `as any`, and `catch (err: any)` across API clients, queries, and components.
+- [ ] `/learn` Never use `Record<string, unknown>` or `unknown` in API method signatures and responses; define concrete generic types and interfaces.
+- [ ] `/goal` Replace loose magic strings and string unions with PascalCase TypeScript enums.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Created:** 2026-02-12
-**Version:** 3.2.0
+> **Version:** 3.2.0
 > **Priority:** CRITICAL
-> **Spec Reference:** `02-spec/02-coding-guidelines/02-typescript/08-typescript-standards-reference.md` v2.0.0
+> **Spec Reference:** `02-spec/02-coding-guidelines/02-typescript/09-typescript-standards-reference.md` v2.0.0
 > **Goal:** Eliminate all `any`, `unknown`, `Record<string, unknown>`, string union types, and magic strings/numbers — use proper enums with PascalCase values and typed generics
 
 ---
@@ -352,3 +364,21 @@ type ActivityEntry =
 | 6 | P4 — Generic envelope | Small | None |
 | 7 | P5.2 — Magic string migration | Large | P5.1 |
 | 8 | P6 — Activity metadata | Medium | P5.1 |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-008: TypeScript Type Safety Remediation Plan and Any Elimination
+
+**Given** TypeScript source code under implementation or review.
+**When** Codebases are audited against TypeScript language standards.
+**Then** All occurrences of `any`, unsafe type assertions, and untyped method signatures are systematically remediated with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

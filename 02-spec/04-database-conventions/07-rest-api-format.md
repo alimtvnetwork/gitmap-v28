@@ -517,7 +517,7 @@ type TransactionListResponse = ApiResponse<Transaction>;
 
 ### Validation rules
 
-1. Missing `X-Idempotency-Key` on `POST/PUT/PATCH` → `400` with envelope error code `WORKER-300-01` (spec/19 tier) or analogous code in other specs.
+1. Missing `X-Idempotency-Key` on `POST/PUT/PATCH` → `400` with envelope error code `WORKER-300-01` (02-spec/19 tier) or analogous code in other specs.
 2. Missing `X-Correlation-Id` → server generates, no error. NEVER reject solely for absent correlation id.
 3. `X-Auth-Action` is REQUIRED on endpoints whose path matches `/Auth/*` (multi-step flows). Optional elsewhere.
 4. Header names are case-insensitive on the wire (per RFC 9110); spec uses canonical casing for documentation.

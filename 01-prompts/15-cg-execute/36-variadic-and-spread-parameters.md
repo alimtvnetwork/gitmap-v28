@@ -9,6 +9,14 @@ PHASE_1_BUDGET = N / 2   (Steps 1 .. 150: Planning, Parallel Discovery Subagents
 PHASE_2_BUDGET = N / 2   (Steps 151 .. 300: Mandatory Parallel Subagent Execution, Self-Looping, Targeted Quality Linting)
 WAVES = ceil(subtasks / (A x H))
 ```
+> [!IMPORTANT]
+> Prompt Version: 6.0.0
+> Runtime: Google Antigravity 2.0 (IDE and CLI)
+> Invoke: /variadic-and-spread-parameters <task>
+>
+> **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
+> Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
+
 
 [/goal](slashCommand;goal) Autonomously scan, plan, refactor, and fix all rigid slice and array parameters across Go, TypeScript, and Rust codebases. Modifying source files directly, convert rigid slice/array parameters to variadic and spread patterns (`...T` in Go, `...items: readonly T[]` or `SingleOrArray<T>` in TypeScript, `&[T]` / `impl IntoIterator<Item = T>` in Rust), eliminate artificial slice wrappers (`[]string{x}`, `[x]`, `vec![x]`) at all call sites, support multi-item and slice-spread invocations seamlessly, enforce parameter position rules (variadic parameter is last, <= 2-3 parameters total or parameter struct), maintain functions <= 8-15 lines, and defer verification strictly to targeted linters without running intermediate tests or builds: FIRST showcase and list out the given task in visible chat during Turn 1, capture it verbatim, plan it in the repo, spawn autonomous subagents via `invoke_subagent` (A = 2, H = 2; solo execution without calling `invoke_subagent` is an auto-reject failure) in disjoint file boxes using GitMap high-speed commands as primary, prove every single claim with concrete evidence, enforce coding guidelines to 100%, and finish with one atomic GitMap commit that holds strictly this task's files.
 
@@ -231,8 +239,10 @@ Subagents spawn with clean context. The prompt envelope MUST inject complete ins
 ```text
 You are Worker <NN> for task NN-<slug>. You have no prior chat context; this brief is your complete specification.
 
-### Boundaries:
-- Read any file in the workspace; edit only your Owned Files: <relative paths>.
+### Boundaries & Crash Prevention:
+- Read any file in the workspace; edit ONLY your Owned Files: <relative paths>.
+- TOTAL BAN ON GIT COMMANDS (LOCK COLLISION PREVENTION): NEVER run ANY git commands (`git add`, `git commit`, `git push`, `git status`, `git diff`, `git checkout`). In shared workspaces, worker git calls create `.git/index.lock` collisions that immediately crash parallel agents. Only the lead orchestrator runs git commands after workers complete.
+- TOTAL BAN ON COMMITS: Workers NEVER commit, stage, or push. Committing is exclusively reserved for the Lead Agent at Phase 3 via GitMap (`gitmap cpf "<module> - <summary>"` using hyphen `-`; no colon needed in GitMap cpf as colon is already provided).
 - Code & Symbol Search: Use GitMap exclusively: `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]` or `gitmap search`. TOTAL BAN on PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr`.
 - After C tool calls, stop and report what you have.
 - A tool failing twice: reply "STATUS: BLOCKED" with exact error and stop. Never guess paths and never troubleshoot machine.
@@ -266,6 +276,13 @@ Write your subtask output to .ai-memory/plans/subtasks/NN-<slug>/01-<name>.json 
   "blockers": []
 }
 ```
+
+4. **Concurrency-Safe SQLite Action Logging:**
+   - Database location: `.ai-memory/temp-agents/<slug>/agent-task.db`
+   - Workers log file changes and intermediate milestones:
+     `python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <db-path> --subtask-id <id> --agent "Worker NN" --action "<action>" --file "<file>" --details "<details>"`
+   - Workers mark completed subtasks upon meeting acceptance criteria:
+     `python 03-ai-scripts/46-agent-sqlite-task-manager.py complete --db <db-path> --subtask-id <id> --agent "Worker NN" --evidence "<proof>"`
 
 ### 7.3 Turn-Yielding & Verification Protocol
 

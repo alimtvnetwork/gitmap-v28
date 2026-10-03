@@ -3,20 +3,33 @@ name: fix-spec-from-audit
 description: Autonomously ingest the latest specification audit file from 02-spec/25-app-spec-audit/, decompose every finding into an exhaustive 1:1 remediation checklist, spawn parallel subagents to fix the specifications, verify 100% compliance, and remove the audit gap at the final stage.
 ---
 
-# Specification Remediation from Audit Findings — Execution Spec (must follow)
-
-> **Prompt Version:** 2.2.0
-> **Synchronization:** Main Meta-Repo & Connected Workspaces
-
-[/goal](slashCommand:goal) Autonomously ingest the latest specification audit file from `02-spec/25-app-spec-audit/`, decompose every finding into an exhaustive 1:1 remediation checklist, spawn parallel subagents to fix the specifications, verify 100% compliance, and remove the audit gap at the final stage.
-
 ```text
-N = 100
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Audit Ingestion, Finding Matrix & Subtask Decomposition)
-PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Remediation, CI Verification & Gap Removal)
+N = 300 (Total self-loop steps budget — editable top-header parameter, default: 300)
+A = 2   (MANDATORY number of spawned autonomous subagents running concurrently via invoke_subagent, default: 2)
+H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
+C = 30  (Tool calls per worker before it must report, default: 30)
+
+System Concurrency Capacity = A × H = 2 agents × 2 hands = 4 concurrent subtask operations
+PHASE_1_BUDGET = N / 2   (Steps 1 .. 150: Planning, Parallel Discovery Subagents, Detailed Spec, and Lean Subtask Generation)
+PHASE_2_BUDGET = N / 2   (Steps 151 .. 300: Mandatory Parallel Subagent Execution, Self-Looping, Targeted Quality Linting)
+WAVES = ceil(subtasks / (A x H))
 ```
 
-N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
+> [!IMPORTANT]
+> Prompt Version: 6.0.0
+> Runtime: Google Antigravity 2.0 (IDE and CLI)
+> Invoke: /fix-spec-from-audit <task>
+>
+> **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
+> Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE.
+
+[/goal](slashCommand;goal) Autonomously ingest the latest specification audit file from `02-spec/25-app-spec-audit/`, decompose every finding into an exhaustive 1:1 remediation checklist, spawn parallel subagents to fix the specifications, verify 100% compliance, and remove the audit gap at the final stage.
+
+[/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt (in the user preamble or header above) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Ingest and execute the top instructions ahead of all default conventions below, internalize the single-agent architectural blueprint, and persist all progress into `.ai-memory/plans/` and memory logs.
+
+[/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution. Ensure all deliverables, architecture boundaries, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
+
+N, A, H, C, PHASE_1_BUDGET, and PHASE_2_BUDGET are read-only after initialization. Never modify them mid-execution.
 
 ---
 
@@ -45,7 +58,7 @@ Before executing the tasks below, you must check if this prompt is already insta
 
 You MUST execute this task via a strict 4-Phase continuous loop. Do not skip steps.
 
-### Phase 1: Audit Ingestion & 1:1 Finding Matrix (Steps 1 to PHASE_1_STEPS)
+### Phase 1: Audit Ingestion & 1:1 Finding Matrix (Steps 1 to PHASE_1_BUDGET)
 
 1. **Locate Latest Audit:** Scan `02-spec/25-app-spec-audit/` using `03-ai-scripts/17-fast-file-reader.py` and select the file with the highest numerical sequence prefix (`NN-audit-*.md`).
 2. **Exhaustive Finding Parsing:** Parse the Markdown Summary Table at the bottom of the audit file. Extract every single row without skipping a single issue.
@@ -64,7 +77,7 @@ You MUST execute this task via a strict 4-Phase continuous loop. Do not skip ste
    ```
 5. **MANDATORY AUTO-LOOP (DO NOT STOP):** As soon as Phase 1 completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2.
 
-### Phase 2: Parallel Multi-Agent Remediation (Steps PHASE_1_STEPS+1 to N)
+### Phase 2: Parallel Multi-Agent Remediation (Steps PHASE_1_BUDGET+1 to N)
 
 1. **Parallel Dispatch:** Use the `invoke_subagent` tool to spawn up to 2 execution subagents concurrently (max 2 threads each), assigning disjoint subtasks from `.ai-memory/plans/subtasks/xx-spec-fix/`.
 2. **Minimal Context Diet:** Provide subagents with minimal instructions (e.g., "Read `.ai-memory/plans/subtasks/xx-spec-fix/01-<slug>.md` and execute the fixes on the specified spec file").

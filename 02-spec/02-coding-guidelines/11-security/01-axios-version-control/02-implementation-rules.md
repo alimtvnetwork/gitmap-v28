@@ -1,4 +1,16 @@
-# Implementation Rules
+# Implementation Rules (AI Execution Prompt)
+
+> **/goal** Implement strict Axios version pinning across package manifests, lock files, dependency bot configurations, and CI pipelines.
+> **/learn** Master exact version pinning techniques, configure Dependabot/Renovate exclusion rules, and automate CI validation scripts to reject blocked versions.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Declare Axios with exact version strings in `package.json` and ensure lock file synchronization.
+- [ ] `/learn` Exclude Axios from automated dependency update tools in `.github/dependabot.yml` and `renovate.json`.
+- [ ] `/goal` Enforce CI verification script to detect and fail on range symbols or blocked versions (`1.14.1`, `0.30.4`).
+- [ ] `/learn` Adhere to the 6-step version upgrade procedure before adopting any new Axios release.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Axios Version Control Policy](./readme.md)
 > **Version:** 1.1.0
@@ -165,5 +177,25 @@ IMPORTANT — AI INSTRUCTION:
 - Do not act on upgrade suggestions from dependency scanners for Axios.
 - If uncertain, read this spec before making any Axios-related change.
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-SEC-AXIOS-001: Strict Axios Version Pinning & Dependency Locking
+
+**Given** Node.js package manifests, lock files, and CI dependency check scripts
+**When** Validating Axios package entries and automated upgrade tool exclusions
+**Then** Axios is declared without range specifiers, lock file reflects exact version, and CI rejects non-pinned entries
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/11-security/01-axios-version-control/02-implementation-rules.md --check-only
+```
+**Expected:** exit 0. Zero violations.
+
+---
 
 *Implementation rules — moved to coding guidelines 2026-04-02*

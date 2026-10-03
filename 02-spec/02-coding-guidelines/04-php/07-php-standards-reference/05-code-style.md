@@ -1,4 +1,16 @@
-# PHP Coding Standards — Braces, nesting, spacing, function size
+# PHP Coding Standards — Braces, nesting, spacing, function size (AI Execution Prompt)
+
+> **/goal** Enforce strict cross-language code style: mandatory braces for all control blocks, absolute zero nested if statements, condition decomposition, vertical line spacing rules, and 15-line function ceilings.
+> **/learn** Master guard-clause flattening, condition extraction to named booleans or helper methods, vertical whitespace cadence (blank line before return and after closing braces), and function decomposition.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Require braces for every control block (`if`, `for`, `foreach`, `while`) with zero single-line returns.
+- [ ] `/learn` Never nest `if` statements; invert conditions, use early returns, and flatten branching logic.
+- [ ] `/goal` Extract conditions with 2+ operators into named `$is*` / `$has*` booleans or dedicated helper functions.
+- [ ] `/learn` Enforce vertical line gaps: blank line before `return` when preceded by code, blank line after `}` when followed by code, and function lengths <= 15 lines.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [PHP Coding Standards](./readme.md)
 > **Version:** 5.1.0
@@ -231,3 +243,19 @@ public function handleUpload(WP_REST_Request $request): WP_REST_Response {
 ```
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-REF-005: PHP Code Style, Braces, Nesting Flattening, Spacing, and Function Ceilings
+
+**Given** PHP standards reference files and companion plugin implementations.
+**When** Audited against this reference specification.
+**Then** Zero violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php/07-php-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

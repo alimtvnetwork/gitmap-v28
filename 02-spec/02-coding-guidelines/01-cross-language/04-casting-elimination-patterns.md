@@ -1,4 +1,16 @@
-# Casting Elimination Patterns
+# Casting Elimination Patterns (AI Execution Prompt)
+
+> **/goal** Eliminate raw type assertions and uncontrolled casting across business logic by enforcing type-safe generics, centralized accessor functions, and mandatory `// EXEMPTED:` annotations at strict boundary layers.
+> **/learn** Understand the runtime panic risks, nil dereferences, and architectural rot caused by scattered `.(Type)` assertions. Master typed context accessors, monadic container guards, and the `CastOrFail[T]` centralized utility pattern.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ban raw type assertions (`.(Type)`) from business logic; centralize all unavoidable casts into typed accessor functions.
+- [ ] `/learn` Require explicit `// EXEMPTED:` annotations on every type assertion at external deserialization and standard library boundaries.
+- [ ] `/goal` Never swallow cast errors; wrap failed type conversions with `*appfault.AppError` and propagate with full diagnostic context.
+- [ ] `/learn` Verify zero unannotated type assertions across Go and polyglot codebases via targeted linter and grep checks.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 2.0.0
 > **Updated:** 2026-03-09
@@ -503,6 +515,24 @@ grep -rn 'ctx\.Value\|context\.Value' spec/ --include="*.md" \
 | Control Flow Rules | `.ai-memory/memories/architecture/coding-standards/control-flow.md` |
 | Contradiction Checks | `02-spec/02-coding-guidelines/01-cross-language/05-cross-spec-contradiction-checks.md` |
 | Context Accessors | `02-spec/02-spec-management-software/13-shared-packages/04-pkg-logging.md` |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TYPE-004: Type Casting Elimination and Centralized Accessors
+
+**Given** Type assertions, interface conversions, and context value retrievals across Go and polyglot codebases.
+**When** Codebases are analyzed by coding guideline linters or CI/CD verification checks.
+**Then** Zero raw type assertions exist in business logic, all boundary casts carry `// EXEMPTED:` annotations, and failed conversions return structured `*appfault.AppError` instances, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

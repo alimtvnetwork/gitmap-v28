@@ -1,4 +1,16 @@
-# File & Folder Naming — PHP / WordPress
+# File & Folder Naming — PHP / WordPress (AI Execution Prompt)
+
+> **/goal** Standardize PHP and WordPress file and folder naming adhering strictly to WordPress Coding Standards (WPCS) and plugin structure conventions.
+> **/learn** Master WPCS file patterns (`class-*.php`, `trait-*.php`, `interface-*.php`, `kebab-case.php`), asset directory hygiene, and flat class hierarchies.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce `class-<name>.php`, `trait-<name>.php`, and `interface-<name>.php` prefixes for object-oriented PHP files.
+- [ ] `/learn` Never use camelCase, snake_case, or PascalCase filenames in WordPress plugins and themes.
+- [ ] `/goal` Maintain strictly lowercase plugin slugs and folder structures (`includes/`, `admin/`, `public/`).
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/08-file-folder-naming --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -140,4 +152,22 @@ my-awesome-plugin/               ← kebab-case plugin slug
 | Reference | Location |
 |-----------|----------|
 | PHP Standards | [../04-php/readme.md](../04-php/readme.md) |
-| Cross-Language Rules | [./01-cross-language.md](./02-cross-language.md) |
+| Cross-Language Rules | [./02-cross-language.md](./02-cross-language.md) |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/08-file-folder-naming/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-FILE-003: PHP and WordPress File and Folder Conventions
+
+**Given** Repository file and directory structures across polyglot stacks.
+**When** Audited against this file and folder naming specification.
+**Then** Zero uppercase or invalid naming patterns are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/08-file-folder-naming --check-only
+```
+**Expected:** exit 0. Zero violations.

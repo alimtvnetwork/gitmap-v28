@@ -1,8 +1,14 @@
 # AppError Package Reference — AppError struct and constructors
 
-> **Parent:** [AppError Package Reference](./01-index.md)
-> **Version:** 2.0.0
-> **Updated:** 2026-04-02
+> **Parent:** [AppError Package Reference](./readme.md)
+> **Version:** 2.1.0
+> **Updated:** 2026-09-22
+
+> [!IMPORTANT]
+> **Modernized Standard: `pkg/appfault` (`*appfault.AppError`):**
+> Per global AI guidelines and `06-appfault-package-migration.md`, all structured errors must be constructed using `coding-guidelines/common/pkg/appfault` (`*appfault.AppError` / `appfault.Fault`).
+> Convenience constructors (`appfault.New`, `appfault.Wrap`, `appfault.WrapFile`, `appfault.WrapUrl`) are defined in `pkg/appfault`.
+> Any service functions returning result envelopes must define concrete named types in `types.go` (e.g. `type ConfigResult = result.Wrap[*Config]`).
 
 ---
 
@@ -139,9 +145,9 @@ return apperror.WrapTypeMsg(err, apperrtype.WPConnectionFailed, "failed during h
     WithStatusCode(resp.StatusCode)
 ```
 
-### 2.2.1 Path Convenience Constructors
+### 2.2.1 Path and Variable Convenience Constructors
 
-Shorthand constructors for file system errors — automatically set the `path` diagnostic and use the appropriate `Variation`:
+Shorthand constructors for file system and variable errors — automatically embed the target path and variable context:
 
 ```go
 // PathError creates a path-related AppError with the given Variation.
@@ -151,29 +157,47 @@ func PathError(errType apperrtype.ErrorType, path string) *AppError
 // WrapPathError wraps a cause with a path-related Variation.
 // Automatically sets WithPath(path) diagnostic.
 func WrapPathError(cause error, errType apperrtype.ErrorType, path string) *AppError
+
+// NewWithPath creates an AppError embedding the target file/directory path.
+func NewWithPath(errType errtype.Variation, message string, path string) *AppError
+
+// WrapWithPath wraps an existing cause error and embeds the target file/directory path.
+func WrapWithPath(errType errtype.Variation, cause error, message string, path string) *AppError
+
+// NewWithVar creates an AppError embedding a named variable and its value.
+func NewWithVar(errType errtype.Variation, message string, varName string, varValue any) *AppError
+
+// WrapWithVar wraps an existing cause error and embeds a named variable.
+func WrapWithVar(errType errtype.Variation, cause error, message string, varName string, varValue any) *AppError
+
+// NewWithVars creates an AppError embedding multiple variables from a map.
+func NewWithVars(errType errtype.Variation, message string, vars map[string]any) *AppError
+
+// WrapWithVars wraps an existing cause error and embeds multiple variables from a map.
+func WrapWithVars(errType errtype.Variation, cause error, message string, vars map[string]any) *AppError
 ```
 
-**Usage with path variants:**
+**Usage with path and variable constructors:**
 
 ```go
 // Path validation — no underlying error
 if path == "" {
-    return apperror.FailBool(apperror.PathError(apperrtype.EmptyFilePath, path))
+    return apperror.FailBool(appfault.NewWithPath(errtype.Validation, "path is required", path))
 }
 
 if !isValidPath(path) {
-    return apperror.FailBool(apperror.PathError(apperrtype.PathInvalid, path))
+    return apperror.FailBool(appfault.NewWithVar(errtype.Validation, "invalid path provided", "filePath", path))
 }
 
-// Wrapping an OS error with path context
+// Wrapping an OS error with path and variable context
 data, err := os.ReadFile(path)
 if err != nil {
-    return apperror.FailBytes(apperror.WrapPathError(err, apperrtype.PathFailedToRead, path))
+    return apperror.FailBytes(appfault.WrapWithPath(errtype.IO, err, "failed to read path", path).WithVar("filePath", path))
 }
 
 // Creating a directory
 if err := os.MkdirAll(dir, 0755); err != nil {
-    return apperror.FailBool(apperror.WrapPathError(err, apperrtype.PathFailedToCreate, dir))
+    return apperror.FailBool(appfault.WrapWithPath(errtype.IO, err, "failed to create directory", dir))
 }
 ```
 
@@ -454,9 +478,9 @@ apperrtype.ConfigFileMissing.Structure().Panic("required key: db_host")
 | `ErrorNoRefs()` | `VariantStructure` | `error` | `errors.New("[code] message")` (lowercased) |
 | `Panic(detail)` | `VariantStructure` | — | Panics with `Error(detail)` |
 
-### 2.4 Values — Variable Injection
+### 2.4 Values & Context — Path and Variable Injection
 
-Anytime an error occurs while working with a variable (path, ID, name, URL), that variable **must** be injected into the error's `Values` map so no context is lost.
+Anytime an error occurs while working with a variable (file path, ID, name, URL), that variable **must** be injected into the error's context map so no context is lost.
 
 ```go
 // WithValue adds a single key-value pair.
@@ -464,17 +488,38 @@ func (e *AppError) WithValue(key, value string) *AppError
 
 // WithValues merges multiple key-value pairs.
 func (e *AppError) WithValues(values map[string]string) *AppError
+
+// WithPath embeds a file or directory path into context keys "Path" and "FilePath".
+func (e *AppError) WithPath(path string) *AppError
+
+// WithFilePath is an alias for WithPath emphasizing targeted file destinations.
+func (e *AppError) WithFilePath(filePath string) *AppError
+
+// WithPaths embeds multiple target paths into context key "Paths" and sets primary "Path".
+func (e *AppError) WithPaths(paths ...string) *AppError
+
+// WithVar embeds a named variable and its value into context and the "Variables" map.
+func (e *AppError) WithVar(name string, value any) *AppError
+
+// WithVars embeds multiple variables from a map into context.
+func (e *AppError) WithVars(vars map[string]any) *AppError
 ```
 
 **Usage:**
 ```go
+// Single path and variable injection:
+return appfault.Wrap(errtype.IO, err, "failed to read configuration").
+    WithPath(filePath).
+    WithVar("filePath", filePath)
 
-return apperror.Wrap(err, ErrFSRead, "failed to read plugin file").
-    WithValue("path", filePath).
-    WithValue("plugin", pluginSlug)
+// Multiple paths and variable context (e.g. atomic operations, copying):
+return appfault.Wrap(errtype.IO, renameErr, "failed to atomically rename file").
+    WithPaths(tempPath, destPath).
+    WithVar("tempPath", tempPath).
+    WithVar("destPath", destPath)
 ```
 
-The `Values` map is included in `FullString()`, `String()`, and `ToClipboard()` output, compiling into a readable error message.
+The context and `Values` maps are included in `FullString()`, `String()`, and `ToClipboard()` output, compiling into a readable and fully debuggable error message.
 
 ### 2.5 Flow Control Methods
 

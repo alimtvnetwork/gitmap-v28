@@ -1,4 +1,17 @@
-# Rust Memory Safety
+# Rust Memory Safety (AI Execution Prompt)
+
+> **/goal** Enforce strict Rust ownership idioms, borrow semantics, lifetime hygiene, and mandatory safety justification comments for all unsafe blocks.
+> **/learn** Master memory safety principles: preferring borrowing over cloning, using `Arc` for cross-task shared state, `&str` over `&String`, lifetime elision idioms, and zero unannotated `unsafe` code.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Prefer borrowing (`&T`, `&str`, `&[T]`) over cloning (`.clone()`) and taking owned types unnecessarily.
+- [ ] `/learn` Utilize `Arc<T>` for thread-safe shared ownership across concurrent async tasks without unnecessary deep copies.
+- [ ] `/goal` Document every `unsafe` block with a clear, mandatory `// SAFETY:` rationale explaining pointer validity and invariant preservation.
+- [ ] `/learn` Provide collection capacity hints via `Vec::with_capacity()` when allocation size is known ahead of time.
+- [ ] `/learn` Verify zero guideline violations via `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -16,12 +29,12 @@ Ownership idioms, lifetime guidelines, and strict `unsafe` policy for Rust proje
 ### Rule 1: Prefer borrowing over cloning
 
 ```rust
-// ✅ Correct — borrow when ownership isn't needed
+// ✅ REQUIRED — borrow when ownership isn't needed
 fn classify_url(url: &str, categories: &[UrlCategory]) -> CategoryMatch {
     categories.iter().find(|category| category.matches(url))
 }
 
-// ❌ Avoid — unnecessary clone
+// ❌ FORBIDDEN — unnecessary clone
 fn classify_url(url: String, categories: Vec<UrlCategory>) -> CategoryMatch {
     categories.iter().find(|category| category.matches(&url))
 }
@@ -30,7 +43,7 @@ fn classify_url(url: String, categories: Vec<UrlCategory>) -> CategoryMatch {
 ### Rule 2: Use `Arc` for shared ownership across tasks
 
 ```rust
-// ✅ Correct — config shared across multiple collector tasks
+// ✅ REQUIRED — config shared across multiple collector tasks
 let config = Arc::new(config);
 
 for collector in collectors {
@@ -44,10 +57,10 @@ for collector in collectors {
 ### Rule 3: Prefer `&str` over `&String` in function parameters
 
 ```rust
-// ✅ Correct — accepts both &String and &str
+// ✅ REQUIRED — accepts both &String and &str
 fn parse_browser_title(title: &str) -> Option<TabInfo> { ... }
 
-// ❌ Avoid — unnecessarily restrictive
+// ❌ FORBIDDEN — unnecessarily restrictive
 fn parse_browser_title(title: &String) -> Option<TabInfo> { ... }
 ```
 
@@ -58,17 +71,17 @@ fn parse_browser_title(title: &String) -> Option<TabInfo> { ... }
 ### Keep lifetimes simple — avoid naming when elision works
 
 ```rust
-// ✅ Correct — elision handles this
+// ✅ REQUIRED — elision handles this
 fn get_name(&self) -> &str { &self.name }
 
-// ❌ Unnecessary — explicit lifetime adds noise
+// ❌ FORBIDDEN — explicit lifetime adds noise
 fn get_name<'a>(&'a self) -> &'a str { &self.name }
 ```
 
 ### Name lifetimes descriptively when multiple are needed
 
 ```rust
-// ✅ Clear what each lifetime represents
+// ✅ REQUIRED — clear what each lifetime represents
 fn merge_activities<'session, 'filter>(
     session: &'session Session,
     filter: &'filter ActivityFilter,
@@ -87,7 +100,7 @@ Every `unsafe` block **must** include:
 2. The invariants being upheld
 
 ```rust
-// ✅ Correct — justified FFI call
+// ✅ REQUIRED — justified FFI call
 // SAFETY: GetForegroundWindow returns a valid HWND or null.
 // Null is checked immediately after the call.
 let handle = unsafe { GetForegroundWindow() };
@@ -95,7 +108,7 @@ if handle.is_invalid() {
     return Err(OsError::WindowInfoFailed);
 }
 
-// ❌ Forbidden — no safety comment
+// ❌ FORBIDDEN — no safety comment
 let handle = unsafe { GetForegroundWindow() };
 ```
 
@@ -111,7 +124,7 @@ let handle = unsafe { GetForegroundWindow() };
 ### Wrap `unsafe` in safe abstractions
 
 ```rust
-// ✅ Correct — unsafe FFI wrapped in safe public API
+// ✅ REQUIRED — unsafe FFI wrapped in safe public API
 pub fn get_active_window() -> Result<WindowInfo, OsError> {
     // SAFETY: GetForegroundWindow is safe to call and returns
     // HWND(0) when no window has focus, which we handle below.
@@ -123,7 +136,7 @@ pub fn get_active_window() -> Result<WindowInfo, OsError> {
     Ok(info)
 }
 
-// ❌ Forbidden — exposing unsafe to callers
+// ❌ FORBIDDEN — exposing unsafe to callers
 pub unsafe fn get_active_window_raw() -> HWND {
     GetForegroundWindow()
 }
@@ -170,10 +183,10 @@ pub fn normalize_app_name(name: &str) -> Cow<'_, str> {
 ### Capacity hints
 
 ```rust
-// ✅ Correct — pre-allocate when size is known
+// ✅ REQUIRED — pre-allocate when size is known
 let mut events = Vec::with_capacity(batch_size);
 
-// ❌ Avoid — repeated reallocations
+// ❌ FORBIDDEN — repeated reallocations
 let mut events = Vec::new();
 for _ in 0..1000 {
     events.push(event); // May reallocate multiple times
@@ -186,5 +199,23 @@ for _ in 0..1000 {
 
 | Reference | Location |
 |-----------|----------|
-| FFI & Platform Abstraction | `./06-ffi-platform.md` |
+| FFI & Platform Abstraction | `./07-ffi-platform.md` |
 | Cross-Language Guidelines | `../01-cross-language/readme.md` |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/05-rust/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-RUST-005: Rust Zero Unsafe and RAII Lifetime Safety
+
+**Given** Rust codebases handling memory allocations, lifetimes, references, and unsafe blocks.
+**When** Audited against memory safety standards and lifetime hygiene rules.
+**Then** Borrowing is preferred over cloning, every `unsafe` block includes a mandatory `// SAFETY:` comment justifying pointer validity and sound invariants, all unsafe calls are encapsulated in safe RAII wrappers, and zero violations are detected with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only
+```
+**Expected:** exit 0. Zero violations.

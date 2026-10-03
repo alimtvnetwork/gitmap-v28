@@ -1,4 +1,16 @@
-# Golang Coding Standards — Concurrency, forbidden patterns, imports, common mistakes
+# Golang Coding Standards — Concurrency, forbidden patterns, imports, common mistakes (AI Execution Prompt)
+
+> **/goal** Enforce safe concurrency patterns (sync.Once, context propagation, errgroup discipline), three-group import organization, and strict elimination of forbidden patterns and legacy anti-patterns across Go packages.
+> **/learn** Master concurrent execution safety, context cancellation hierarchies, positive boolean extraction in compound statements, and deterministic package imports.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ensure all long-running and concurrent operations accept `context.Context` and use `sync.Once` or errgroups safely.
+- [ ] `/learn` Never use `init()` functions, global mutable state, panics in handlers, or untyped `interface{}`/`any` in APIs.
+- [ ] `/goal` Organize Go imports strictly into three clean groups: standard library, internal packages, and third-party dependencies.
+- [ ] `/learn` Extract compound negated boolean logic into positive counterpart variables before evaluating branching decisions.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Golang Coding Standards](./readme.md)
 > **Version:** 3.7.0
@@ -267,3 +279,19 @@ if isBuildMissing {
 ```
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-REF-007: Go Concurrency Patterns, Channels, and Errgroup Discipline
+
+**Given** Go source code under review or development.
+**When** Codebases are audited against Go coding standards.
+**Then** Concurrency patterns propagate contexts safely, forbidden anti-patterns are zeroed, and imports conform to the 3-group standard with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/04-golang-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

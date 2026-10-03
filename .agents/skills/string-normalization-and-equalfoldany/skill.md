@@ -5,7 +5,7 @@ description: Executes the String Normalization & EqualFoldAny prompt. Autonomous
 
 # String Normalization & EqualFoldAny
 
-Source prompt: `01-prompts/15-cg-execute/37-string-normalization-and-equalfoldany.md`  
+Source prompt: `01-prompts/15-cg-execute/37-string-normalization-and-equalfoldany.md`
 Companion skill: `.agents/skills/cg-string-normalization-and-equalfoldany/skill.md`
 
 ## Instructions

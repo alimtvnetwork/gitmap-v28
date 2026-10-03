@@ -1,6 +1,16 @@
-# Golang Coding Standards
+# Golang Coding Standards (AI Execution Prompt)
 
-. **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
+> **/goal** Provide a unified entry point, architectural index, and compliance roadmap for all Go coding standards across file limits, error handling, struct conventions, naming, enums, and concurrency.
+> **/learn** Master the modular Go standards reference architecture, cross-language alignments, and automated verification protocols across the 04-golang-standards-reference directory.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce all Go coding standards reference documents across every Go package and module with 100% compliance.
+- [ ] `/learn` Never violate modular boundaries, file sizing limits (100-300 lines), or error handling conventions defined in referenced standards.
+- [ ] `/goal` Verify all cross-references to positive boolean standards, apperror packages, and DRY principles are maintained.
+- [ ] `/learn` Ensure zero static analysis or guideline autofixer violations across all Go standards reference files.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below. This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -61,3 +71,21 @@ Previously a single 1281-line file, now split into focused modules under 300 lin
 - [Master Coding Guidelines](../../01-cross-language/15-master-coding-guidelines/readme.md) — Consolidated cross-language reference
 - [Issues & Fixes Log](../../01-cross-language/02-issues-and-fixes-log.md) — Full historical fixes
 - [golangci-lint Enforcement](../../01-cross-language/16-static-analysis/02-go-golangci-lint.md) — Linter rule mapping for Go guidelines
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-REF-000: Go Standards Reference Index Conformance
+
+**Given** Go source code under review or development.
+**When** Codebases are audited against Go coding standards.
+**Then** Go standards reference index and modular specifications are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/04-golang-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

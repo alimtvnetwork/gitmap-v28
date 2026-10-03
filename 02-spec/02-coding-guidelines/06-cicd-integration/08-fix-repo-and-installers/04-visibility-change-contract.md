@@ -1,4 +1,16 @@
-# `visibility-change.sh` / `visibility-change.ps1` — Normative Contract
+# `visibility-change.sh` / `visibility-change.ps1` — Normative Contract (AI Execution Prompt)
+
+> **/goal** Define provider detection, authentication backends, toggle logic, interactive safety prompts, and verification gates for repo visibility alteration scripts.
+> **/learn** Master multi-provider CLI integration (gh/glab), non-interactive stdin safety bailouts (exit 7), post-apply verification (exit 8), and CODE RED boolean conventions.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Auto-detect provider host (GitHub vs GitLab) from git remote origin or configured custom host variables.
+- [ ] `/learn` Never perform private → public changes without explicit confirmation prompt or `--yes` bypass flag.
+- [ ] `/goal` Abort with exit code `7` if private → public visibility transition is requested in non-interactive stdin without `--yes`.
+- [ ] `/learn` Re-read visibility post-apply to verify state transition and raise exit code `8` on mismatch.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0 · **Updated:** 2026-04-28
 > Implements: `visibility-change.sh`, `visibility-change.ps1`, `scripts/visibility-change/*`
@@ -125,3 +137,21 @@ runner adds ≤ 5 lines per language.
 - Booleans positively named (`HasOrigin`, `IsGitHub`, `IsDryRun`).
 - Errors never swallowed: every `try` has a logging `catch` + exit.
 - Max 2 boolean operands per expression.
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-INSTALL-004: Visibility Change Script Specification Conformance
+
+**Given** Installer and auto-fix repository management specifications.
+**When** Audited against this installation specification.
+**Then** Zero contract or visibility violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only
+```
+**Expected:** exit 0. Zero violations.

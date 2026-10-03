@@ -112,7 +112,7 @@ The session-based logging system provides complete request/response traceability
 
 1. Go middleware creates session UUID → stored in `context.Value("SessionId")`
 2. Handler proxies to delegated server → captures `DelegatedRequestServer` data
-3. On error (status ≥ 400): `respondErrorWithSession` extracts `sessionId` from `apperror.AppError.Context` and attaches it to the envelope response as `Attributes.SessionId`
+3. On error (status ≥ 400): `respondErrorWithSession` extracts `sessionId` from `appfault.AppError.Context` and attaches it to the envelope response as `Attributes.SessionId`
 4. Frontend receives envelope → extracts `Attributes.SessionId` → stores in `CapturedError.sessionId`
 5. Error modal auto-fetches diagnostics via `GET /api/v1/sessions/{id}/diagnostics`
 
@@ -256,7 +256,7 @@ The `SessionId` field connects session logs to the error envelope:
 func respondErrorWithSession(
 	w http.ResponseWriter,
 	r *http.Request,
-	appErr *apperror.AppError,
+	appErr *appfault.AppError,
 ) {
     sessionId := extractSessionId(appErr, r)
     envelope := buildErrorEnvelope(appErr)
@@ -267,7 +267,7 @@ func respondErrorWithSession(
     // ... write response
 }
 
-func extractSessionId(appErr *apperror.AppError, r *http.Request) string {
+func extractSessionId(appErr *appfault.AppError, r *http.Request) string {
     if sid, ok := appErr.Context["SessionId"]; ok {
         return sid.(string)
     }
@@ -510,7 +510,7 @@ Sessions auto-expire after 7 days to:
 | `backend/internal/api/handlers/handler_factory.go` | Handler factory (delegated request capture) |
 | `backend/internal/api/router.go` | Route registration |
 | `backend/cmd/server/main.go` | Initialization |
-| `backend/internal/apperror/respond.go` | `respondErrorWithSession` helper |
+| `backend/internal/appfault/respond.go` | `respondErrorWithSession` helper |
 
 ---
 

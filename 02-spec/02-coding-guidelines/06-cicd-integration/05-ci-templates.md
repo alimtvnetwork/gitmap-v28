@@ -1,4 +1,16 @@
-# CI Templates Inventory
+# CI Templates Inventory (AI Execution Prompt)
+
+> **/goal** Provide standardized, copy-paste ready CI/CD workflow templates across GitHub Actions, GitLab CI, Azure DevOps, Bitbucket, and Jenkins.
+> **/learn** Master single-command composite actions, language target filters, unified SARIF PR annotations, and zero-storage CI compliance.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Provide verified CI template configurations for all major CI platforms calling `run-all.sh`.
+- [ ] `/learn` Never trigger auto-detection blindly; pass explicit `--languages` flags in CI workflow definitions.
+- [ ] `/goal` Configure SARIF report ingestion so rule violations render inline as code annotations on pull requests.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-04-19
@@ -94,3 +106,21 @@ curl -fsSL https://github.com/alimtvnetwork/coding-guidelines-v24/releases/lates
 ---
 
 *Part of [CI/CD Integration](./readme.md)*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CI-005: Cross-Platform CI Templates and Invocation Standards
+
+**Given** CI/CD pipeline infrastructure and linter configurations.
+**When** Audited against this integration specification.
+**Then** Zero configuration or SARIF contract defects exist and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only
+```
+**Expected:** exit 0. Zero violations.

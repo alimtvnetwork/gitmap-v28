@@ -25,7 +25,6 @@
 | 10 | Install-script placeholder unreplaced | release: script gen | 🟠 High | sibling-ref |
 | 11 | Missing `GITHUB_TOKEN` silently skips upload | release: asset upload | 🟡 Medium | sibling-ref |
 | 12 | Asset name mismatch between checksum and upload | release: packaging | 🟠 High | sibling-ref |
-| 13 | Nested `if` in reconcile prompt breaks CI linters | CI: lint | 🔴 Blocker | This repo |
 
 ---
 
@@ -263,7 +262,7 @@ Error: Process completed with exit code 1.
 
 ---
 
-### Issue #9 — Release Branch Run Canceled by Follow-Up Commit
+### Issue #9 — Release Branch Run canceled by Follow-Up Commit
 
 **Symptom:** A push to `release/vX.Y.Z` started the release workflow. A follow-up commit (changelog typo fix) on the same branch canceled the in-progress run, leaving artifacts half-built and the GitHub Release inconsistent.
 
@@ -340,48 +339,6 @@ sed -i "s|VERSION_PLACEHOLDER|${VERSION}|g; s|REPO_PLACEHOLDER|${GITHUB_REPOSITO
 
 ---
 
-### Issue #13 — Nested `if` in Reconcile Prompt Breaks CI Linters
-
-**Date observed:** 2026-09-04
-**Workflow:** `ci.yml` / `Nested If Linter` & `Boolean & Enum Linter` (CI run `#33837801657`)
-**Commit:** `44009a3`
-
-**Symptom:**
-```text
-=== Running Nested If Linter (check-nested-ifs.py) in /home/runner/work/gitmap-v28/gitmap-v28 ===
-❌ FAIL: Found 1 nested-if / anti-compression violation(s) across 1 file(s):
-  cli/cmd/reconcile_prompt.go:32: Nested if statement found (depth 2 inside conditional block): if err != nil {
-```
-
-**Trigger:**
-Commit `44009a3` implemented the interactive reconciliation prompt to display dirty/modified files, placing `if err != nil` inside `if idx >= 0 && idx < len(item.Recipes)` (depth 2).
-
-**Root cause:**
-Missing guard inversion in `executeAllAction()`. Violates repository coding standard `02-spec/02-coding-guidelines/02-anti-patterns/01-nested-ifs.md` requiring zero nested `if` statements.
-
-**Fix applied:**
-Inverted the bounds check into an early return guard:
-```go
-func executeAllAction(item *RemediationItem, action string) {
-	idx := parseRecipeIndex(action, item.Recipes)
-	isInvalidIndex := idx < 0 || idx >= len(item.Recipes)
-	if isInvalidIndex {
-		return
-	}
-	err := executeFixRecipe(item, item.Recipes[idx])
-	if err != nil {
-		fmt.Printf("Warning: fix action failed on %s: %v\n", item.RepoName, err)
-	}
-}
-```
-
-**Prevention rule:**
-🔴 **Zero nested ifs in Go code.** Always invert preconditions into early returns (`isInvalidIndex`). Run `python 03-ai-scripts/06-cicd-local-runner.py` before push to catch violations locally.
-
-
----
-
-
 ---
 
 ### Issue #13 — Release Skew & Out-of-Band Tagging
@@ -416,7 +373,6 @@ A `git tag vX.Y.Z` was pushed out-of-band to trigger a release before `version.j
 **Prevention rule:**
 
 🔴 **Source control dictates the tag; tags NEVER dictate source control.** Always run `npm run sync` and push to the `main` branch before creating any release tag.
-
 
 ## Standing Rules (apply to every CI/CD change)
 
@@ -485,7 +441,7 @@ Before committing changes to `.github/workflows/*.yml`, `release.sh`, `install.s
 | Current CI workflow | `.github/workflows/ci.yml` |
 | Current Release workflow | `.github/workflows/release.yml` |
 | Current release script | `release.sh` |
-| Coding standards | `02-spec/02-coding-guidelines/01-index.md` |
+| Coding standards | `02-spec/02-coding-guidelines/readme.md` |
 
 ---
 

@@ -1,4 +1,23 @@
-# ResponseKeyType — Case Inventory & Usage Map
+# ResponseKeyType — Case Inventory & Usage Map (AI Execution Prompt)
+
+> **/goal** Eliminate all magic string response keys across PHP and polyglot boundaries by enforcing complete adoption of the 176-case `ResponseKeyType` backed enum.
+> **/learn** Master the centralized response key taxonomy, cross-language synchronization (PHP, Go, TypeScript), PascalCase value casing, and safe comparison helper methods (`isEqual`, `isOtherThan`, `isAnyOf`).
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify all response payload and result array keys use `ResponseKeyType` enum cases or values.
+- [ ] `/learn` Enforce PascalCase formatting for all 176 enum case definitions and string values.
+- [ ] `/learn` Maintain cross-language alignment across PHP (`ResponseKeyType`), Go (`responsekey.Variant`), and TypeScript (`ResponseKeyType`).
+- [ ] `/learn` Leverage helper methods `isEqual()`, `isOtherThan()`, and `isAnyOf()` for robust enum evaluations.
+- [ ] `/goal` Verify compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Status:** Active
+**AI Confidence:** Production-Ready
+**Ambiguity:** None
 
 > **Enum**: `RiseupAsia\Enums\ResponseKeyType`
 > **File**: `includes/Enums/ResponseKeyType.php`
@@ -563,3 +582,21 @@ $key->isAnyOf(ResponseKeyType::Success, ResponseKeyType::Data);
 | TypeScript | `src/lib/constants.ts` → `ResponseKeyType` | Pending — must be updated to match 176 PascalCase values |
 
 All values use **PascalCase** (e.g., `'Success'`, `'SnapshotId'`, `'DeletedByPolicy'`, `'FilePath'`).
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-008: PHP Response Key Type Inventory & Taxonomy
+
+**Given** PHP source code and result dictionaries across services and REST controllers.
+**When** Codebases are audited against the 176-case `ResponseKeyType` inventory.
+**Then** All internal result keys and REST envelopes strictly utilize `ResponseKeyType` enum instances with PascalCase values, zero unapproved magic strings, and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php --check-only
+```
+**Expected:** exit 0. Zero violations.

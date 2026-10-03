@@ -1,4 +1,16 @@
-# DRY Principles — Coding Guidelines
+# DRY Principles — Coding Guidelines (AI Execution Prompt)
+
+> **/goal** Eliminate code duplication across all languages by establishing single sources of truth, extracting shared logic into focused reusable modules, and enforcing cross-stack schema contracts.
+> **/learn** Master the "extract, don't copy" discipline (3+ identical lines or 2+ shared components), composition over inheritance, and machine-readable schema synchronization across polyglot implementations.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Define every concept, constant, configuration, and endpoint path in exactly one authoritative source of truth.
+- [ ] `/learn` Immediately extract duplicated logic: 3+ lines of identical code, 2+ components sharing state, or 2+ endpoints sharing validation.
+- [ ] `/goal` Decompose monolithic files exceeding 300 lines into focused, modular sub-components and domain helpers.
+- [ ] `/learn` Verify zero code duplication and schema drift across Go, TypeScript, PHP, and PowerShell via CI quality gates.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-09
@@ -138,6 +150,24 @@ Ask these questions:
 - [TypeScript Standards](../02-typescript/09-typescript-standards-reference.md) — TS-specific rules
 - [Golang Standards](../03-golang/04-golang-standards-reference/readme.md) — Go-specific rules
 - [PHP Standards](../04-php/07-php-standards-reference/readme.md) — PHP-specific rules
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-008: DRY Principles and Code Deduplication
+
+**Given** Implementation code across Go, TypeScript, PHP, and PowerShell repositories.
+**When** Codebases are analyzed by duplication scanners, static analysis tools, or guideline linters.
+**Then** Shared logic is centralized into single authoritative utilities, file sizes remain within sizing caps (<=300 lines), and cross-stack contracts synchronize from shared schemas, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

@@ -1,4 +1,16 @@
-# Unified CI Pipeline & Quality Gate Specification
+# Unified CI Pipeline & Quality Gate Specification (AI Execution Prompt)
+
+> **/goal** Implement and enforce a unified 5-stage CI pipeline and zero-tolerance quality gate across all supported programming languages.
+> **/learn** Enforce cognitive complexity ≤ 10, max 15 lines per function, max 3 parameters, max nesting depth ≤ 1, zero warnings as errors, and 80% test coverage gating.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Configure mandatory 5-stage CI pipelines: Lint, Typecheck, Test with coverage, Build, and SonarQube quality gate.
+- [ ] `/learn` Treat all linter warnings as fatal errors across every language runner (`--max-warnings 0`, `-D warnings`, `/warnaserror`).
+- [ ] `/goal` Enforce blocking merge gates on cognitive complexity (≤ 10), function length (≤ 15), parameter count (≤ 3), and nesting depth (≤ 1).
+- [ ] `/learn` Ban unauthorized linter suppressions (`nolint`, `noqa`, `eslint-disable`) without documented pull request exemptions.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -450,6 +462,24 @@ When a rule must be suppressed:
 - [Node.js ESLint](./07-nodejs-eslint.md) — Node.js linter config
 - [Python Ruff](./08-python-ruff.md) — Python linter config
 - [Cross-Language Code Style](../04-code-style/readme.md) — Source rules
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-GATE: CI Pipeline Quality Gate Enforcement
+
+**Given** CI/CD pipeline definitions and workflows across all 8 supported languages.
+**When** Automated pipelines execute on pull requests or commits.
+**Then** All 5 pipeline stages run, universal quality gate thresholds are strictly evaluated, and failure in any linter or quality metric blocks the merge.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

@@ -1,4 +1,16 @@
-# PHP Coding Standards — Constructor rules, boolean logic, isDefined guards
+# PHP Coding Standards — Constructor rules, boolean logic, isDefined guards (AI Execution Prompt)
+
+> **/goal** Enforce lazy initialization without WordPress hooks in constructors, ban raw negations in conditions, prohibit trivial boolean wrapper helpers, and mandate `isDefined()` and `isDefinedAndValid()` positive existence guards.
+> **/learn** Master the lifecycle separation between constructor instantiation and initialization routines, semantic inverse methods (`isDisabled()` vs `!isActive()`), domain-specific helper safety, and positive null-checking patterns.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Defer all WordPress hook registrations to explicit initialization methods using `HookType` cases.
+- [ ] `/learn` Never use raw negation `!` on method calls or conditions; invoke positive semantic inverses or positive guards.
+- [ ] `/goal` Eliminate deprecated trivial wrappers (`isFalsy`, `isNull`) in favor of native PHP operators, while preserving domain helpers (`isDirMissing`, `isClassMissing`).
+- [ ] `/learn` Implement and leverage `isDefined()` and `isDefinedAndValid()` for objects and optional value wrappers.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [PHP Coding Standards](./readme.md)
 > **Version:** 5.1.0
@@ -246,3 +258,19 @@ public function update(UpdateSiteInput $input): AppResult
 ```
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-REF-004: PHP Initialization, Boolean Principles, and Positive Existence Guards
+
+**Given** PHP standards reference files and companion plugin implementations.
+**When** Audited against this reference specification.
+**Then** Zero violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php/07-php-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

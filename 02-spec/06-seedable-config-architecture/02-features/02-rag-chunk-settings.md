@@ -4,7 +4,7 @@
 **Created:** 2026-02-02
 **Updated:** 2026-04-16
 **Status:** Active
-**Parent:** [01-index.md](../01-index.md)
+**Parent:** [readme.md](../readme.md)
 
 ---
 
@@ -349,7 +349,7 @@ POST /api/v1/rag/reindex
 
 | Reference | Location |
 |-----------|----------|
-| Seedable Config Overview | `../01-index.md` |
+| Seedable Config Overview | `../readme.md` |
 | AI Bridge Database | `../22-ai-bridge-cli/01-backend/12-database-architecture.md` |
 | RAG Reindexing | `../22-ai-bridge-cli/01-backend/11-rag-reindexing.md` |
-| Error Codes | `../03-error-manage/03-error-code-registry/01-index.md` |
+| Error Codes | `../03-error-manage/03-error-code-registry/readme.md` |

@@ -13,6 +13,7 @@
 **AND** the error code falls within the tool's assigned range per the Error Code Registry
 
 **Edge Cases:**
+
 - **GIVEN** the error originates from a third-party library **WHEN** the stack trace is captured **THEN** both the library frames and the application frames are included with clear delineation
 - **GIVEN** the error code is not registered in the Error Code Registry **WHEN** it is returned **THEN** a fallback generic code within the tool's range is used and a warning is logged
 - **GIVEN** the error `Details` field contains sensitive data (file paths, credentials) **WHEN** the response is generated **THEN** sensitive values are redacted before sending to the client
@@ -27,6 +28,7 @@
 **AND** "Copy All" copies both frontend and backend context
 
 **Edge Cases:**
+
 - **GIVEN** the clipboard API is unavailable **WHEN** "Copy All" is clicked **THEN** a fallback textarea is shown with the content pre-selected
 - **GIVEN** the backend returns an error with no `Code` field **WHEN** the frontend processes it **THEN** a synthetic code `GEN-1000` is assigned and a parsing warning is logged
 
@@ -67,4 +69,4 @@
 
 ## Cross-References
 
-- [Overview](./00-overview.md)
+- [Overview](./readme.md)

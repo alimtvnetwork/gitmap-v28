@@ -177,7 +177,7 @@ See `.github/scripts/check-constants-collisions.py` in reference CLI implementat
 
 ## Cross-References
 
-- [01-index.md](./01-index.md)
+- [readme.md](./readme.md)
 - [02-grandfather-baseline-naming.md](./03-grandfather-baseline-naming.md) — Shares the string-literal-aware extractor
 
 ---

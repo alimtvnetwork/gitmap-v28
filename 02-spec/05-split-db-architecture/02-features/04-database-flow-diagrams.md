@@ -3,7 +3,7 @@
 **Version:** 3.2.0
 **Status:** Active
 **Updated:** 2026-04-16
-**Parent:** [01-index.md](../01-index.md)
+**Parent:** [readme.md](../readme.md)
 
 ---
 
@@ -348,7 +348,7 @@ This document provides visual architecture diagrams showing the complete databas
 
 | Reference | Location |
 |-----------|----------|
-| Split DB Overview | `../01-index.md` |
+| Split DB Overview | `../readme.md` |
 | CLI Examples | `./01-cli-examples.md` |
 | Reset API Standard | `./02-reset-api-standard.md` |
 | AI Bridge DB | `../22-ai-bridge-cli/01-backend/12-database-architecture.md` |

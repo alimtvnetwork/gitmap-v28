@@ -33,6 +33,7 @@ JSON body NEVER carries epoch seconds. DB rows NEVER carry ISO strings. This spl
 Each request fixture's top-level `_headers` block is **non-wire metadata** (the underscore prefix marks it as such) showing the HTTP headers a literal client must send. The body proper sits under `_body`. Splitting body and headers in one file keeps the fixture self-contained without needing a curl script.
 
 Mandatory headers on every Main↔Worker call (per `06-` §1):
+
 - `X-Correlation-Id` — ULID (Crockford base32, 26 chars). Server generates if missing on inbound.
 - `X-Idempotency-Key` — UUID v4, mandatory on POST/PUT/PATCH. Optional on GET/DELETE.
 - `Content-Type: application/json; charset=utf-8` on bodies.

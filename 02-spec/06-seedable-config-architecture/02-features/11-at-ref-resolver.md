@@ -27,7 +27,7 @@ Code     := alpha-numeric + underscore (regex: ^[A-Za-z0-9_]+$)
 - Exactly one `.` separates `TableName` and `Code`.
 - Whitespace around any token is illegal (no trimming).
 - Case sensitivity is strict (`@Role.PowerAdmin` ≠ `@role.poweradmin`).
-- A row value that does not start with `@` is taken literally and bypasses the resolver.
+- A row value that does not start with `@` is taken as-is and bypasses the resolver.
 
 The JSON-Schema pattern in `08-config-schema-tables-block.md` §2 (`AtRefString`) catches violations at lint time.
 
@@ -211,7 +211,7 @@ Total: 4 functions, 22 lines combined. All inputs are validated; no error swallo
 | T-4 | `"@.PowerAdmin"` | rejected by JSON-Schema |
 | T-5 | `"@Role."` | rejected by JSON-Schema |
 | T-6 | `"@Role.PowerAdmin.Extra"` | rejected by JSON-Schema |
-| T-7 | `"PowerAdmin"` (no `@`) | passes through literally |
+| T-7 | `"PowerAdmin"` (no `@`) | passes through as-is |
 | T-8 | Reference to a table without `<T>Code` column | `CodeColumnMissingError` → `MWS-21002` |
 
 ---

@@ -1,4 +1,16 @@
-# Promise & Await Patterns
+# TypeScript Promise & Await Patterns (AI Execution Prompt)
+
+> **/goal** Eliminate redundant Promise construction over awaited calls and mandate `Promise.all` parallel execution for all independent asynchronous tasks.
+> **/learn** Master async/await concurrency control: detect independent operations to prevent sequential blocking, and structure error handling with typed AppError results.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Execute all independent asynchronous operations concurrently using `Promise.all`.
+- [ ] `/learn` Never wrap `async/await` in redundant `new Promise(async (resolve) => ...)` constructs.
+- [ ] `/goal` Standardize async error handling using structured result types and typed error envelopes.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -158,3 +170,21 @@ async function fetchData(): Promise<Result<Data>> {
 ---
 
 *Promise & await patterns — consolidated from pre-code review guides.*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-010: TypeScript Promise, Async/Await, and Concurrency Patterns
+
+**Given** TypeScript source code under implementation or review.
+**When** Codebases are audited against TypeScript language standards.
+**Then** All asynchronous flows execute independent promises in parallel and eliminate redundant Promise wrappers with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

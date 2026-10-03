@@ -28,7 +28,7 @@ Used for small specifications (< 15 files) that don't need subfolder organizatio
 
 ```
 {NN}-{module-name}/
-├── 01-index.md
+├── readme.md
 ├── 01-{topic}.md
 ├── 02-{topic}.md
 ├── ...
@@ -41,7 +41,7 @@ Used for small specifications (< 15 files) that don't need subfolder organizatio
 
 ```
 17-ai-research/
-├── 01-index.md
+├── readme.md
 ├── 01-llm-comparison.md
 ├── 02-embedding-strategies.md
 ├── 03-rag-patterns.md
@@ -57,15 +57,15 @@ Used for large specifications that group content into logical categories.
 
 ```
 {NN}-{module-name}/
-├── 01-index.md               # MUST list all categories with file counts
+├── readme.md               # MUST list all categories with file counts
 │
 ├── 01-{category}/
-│   ├── 01-index.md
+│   ├── readme.md
 │   ├── 01-{topic}.md
 │   └── 99-consistency-report.md
 │
 ├── 02-{category}/
-│   ├── 01-index.md
+│   ├── readme.md
 │   ├── 01-{topic}.md
 │   └── 99-consistency-report.md
 │
@@ -76,21 +76,21 @@ Used for large specifications that group content into logical categories.
 
 ```
 03-coding-guidelines/
-├── 01-index.md
+├── readme.md
 ├── 01-cross-language/           # Language-agnostic rules
-│   ├── 01-index.md
+│   ├── readme.md
 │   ├── 01-issues-and-fixes-log.md
 │   ├── 02-boolean-principles.md
 │   ├── ...
 │   ├── 15-master-coding-guidelines.md
 │   └── 99-consistency-report.md
 ├── 02-typescript/               # TypeScript-specific
-│   ├── 01-index.md
+│   ├── readme.md
 │   └── ...
 ├── 03-golang/                   # Go-specific (includes enum sub-spec)
-│   ├── 01-index.md
+│   ├── readme.md
 │   ├── 01-enum-specification/   # Nested sub-module
-│   │   └── 01-index.md
+│   │   └── readme.md
 │   └── ...
 ├── 04-php/                      # PHP-specific
 │   └── ...
@@ -104,7 +104,7 @@ Used for large specifications that group content into logical categories.
 
 ```
 01-general-spec/
-├── 01-index.md
+├── readme.md
 ├── 01-foundation/               # Architecture foundations
 ├── 02-systems/                  # System patterns
 ├── 03-quality/                  # Quality standards
@@ -121,7 +121,7 @@ Used for large specifications that group content into logical categories.
 └── 99-consistency-report.md
 ```
 
-**Key observation:** This module has **11 subfolders** (the most of any module) because it covers architecture-wide standards. Each subfolder has its own `01-index.md`.
+**Key observation:** This module has **11 subfolders** (the most of any module) because it covers architecture-wide standards. Each subfolder has its own `readme.md`.
 
 ---
 
@@ -131,7 +131,7 @@ Used when multiple related modules share acceptance criteria or summary data.
 
 ```
 {NN}-{combined-name}/
-├── 01-index.md
+├── readme.md
 ├── 00-acceptance-criteria-summary.md   # Aggregated criteria from child modules
 └── 99-consistency-report.md
 ```
@@ -148,7 +148,7 @@ This module aggregates acceptance criteria from `34-time-log-cli` and `35-time-l
 
 ```
 02-spec-management-software/
-├── 01-index.md
+├── readme.md
 ├── 01-ideas/                    # Feature ideas and brainstorming
 ├── 02-instructions/             # Implementation instructions
 ├── 03-project-overview/         # Project-level documentation
@@ -172,16 +172,16 @@ This module aggregates acceptance criteria from `34-time-log-cli` and `35-time-l
 └── 99-consistency-report.md
 ```
 
-**Key lesson:** Even at 500+ files, the same conventions apply — every folder has `01-index.md`, files are numbered sequentially, and kebab-case is universal.
+**Key lesson:** Even at 500+ files, the same conventions apply — every folder has `readme.md`, files are numbered sequentially, and kebab-case is universal.
 
 ---
 
 ## Checklist: New Non-CLI Module
 
 - [ ] Module number selected (next available)
-- [ ] Root `01-index.md` created with file/subfolder inventory
+- [ ] Root `readme.md` created with file/subfolder inventory
 - [ ] Decided on flat vs. multi-category structure
-- [ ] If multi-category: each subfolder has `01-index.md`
+- [ ] If multi-category: each subfolder has `readme.md`
 - [ ] `99-consistency-report.md` at root
-- [ ] `02-02-02-spec/01-index.md` master index updated
+- [ ] `02-02-spec/readme.md` master index updated
 - [ ] Cross-references added to related modules

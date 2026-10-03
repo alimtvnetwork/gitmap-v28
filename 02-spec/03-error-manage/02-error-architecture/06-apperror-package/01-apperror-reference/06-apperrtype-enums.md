@@ -1,6 +1,6 @@
 # AppError Package Reference — Domain Error Type Enums (`apperrtype`)
 
-> **Parent:** [AppError Package Reference](./01-index.md)
+> **Parent:** [AppError Package Reference](./readme.md)
 > **Version:** 2.0.0
 > **Updated:** 2026-04-02
 > **Breaking:** Migrated from per-domain `byte` enums to single `uint16` Variation enum (inspired by [evatix-go/errorwrapper/errtype](https://gitlab.com/auk-go/errorwrapper/-/tree/develop/errtype))
@@ -627,7 +627,6 @@ The ecosystem uses **two complementary error code systems**:
 
 ---
 
-
 ## AI Implementation Examples & Non-Negotiable Checklist (`auk-go/errorwrapper`)
 
 To ensure AI agents properly construct the `errtype` structure without hallucination, you MUST use the following files from `auk-go/errorwrapper` as your canonical reference. **Do not just copy URLs; you must read them and strictly implement the following non-negotiable checklist for each file.**
@@ -682,7 +681,7 @@ To ensure AI agents properly construct the `errtype` structure without hallucina
 |-----------|----------|
 | Error Code Convention | [04-codes-and-policy.md](./05-codes-and-policy.md) |
 | Error Code Registry | [03-error-code-registry/01-registry.md](../../../03-error-code-registry/02-registry.md) |
-| Enum Specification | [03-golang/01-enum-specification](../../../../02-coding-guidelines/03-golang/01-enum-specification/01-index.md) |
+| Enum Specification | [03-golang/01-enum-specification](../../../../02-coding-guidelines/03-golang/01-enum-specification/readme.md) |
 | Lint Rule CODE-RED-008 | `linter-scripts/validate-guidelines.go` |
 | Source Inspiration | [evatix-go/errorwrapper/errtype](https://gitlab.com/auk-go/errorwrapper/-/tree/develop/errtype) |
 

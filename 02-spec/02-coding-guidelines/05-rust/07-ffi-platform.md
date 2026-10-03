@@ -1,4 +1,17 @@
-# Rust FFI & Platform Abstraction
+# Rust FFI & Platform Abstraction (AI Execution Prompt)
+
+> **/goal** Architect robust, cross-platform Rust abstractions, conditional compilation architectures, and strictly encapsulated FFI boundaries across Windows, Linux, and macOS.
+> **/learn** Master platform isolation principles: trait-based `PlatformApi` contracts, OS-specific module segregation via `#[cfg(target_os)]`, safe RAII wrappers around native OS handles, and vetting platform binding crates.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Encapsulate all platform-specific logic behind unified, platform-agnostic traits (`PlatformApi`).
+- [ ] `/learn` Organize OS-specific code into discrete submodules (`windows.rs`, `linux.rs`, `macos.rs`) gated by `#[cfg(target_os)]`.
+- [ ] `/goal` Wrap raw FFI pointers, window handles, and system hooks in safe RAII types that implement `Drop`.
+- [ ] `/learn` Prioritize well-maintained, official binding crates (e.g., Microsoft `windows`, `x11rb`, `objc2`) over unmaintained bindings.
+- [ ] `/learn` Verify zero guideline violations via `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -89,13 +102,13 @@ impl PlatformApi for WindowsPlatform {
 ### Rule 1: Use `cfg` at module level, not scattered inline
 
 ```rust
-// ✅ Correct — entire module is platform-specific
+// ✅ REQUIRED — entire module is platform-specific
 #[cfg(target_os = "windows")]
 mod windows_hooks {
     pub fn register_mouse_hook() -> Result<HookHandle, OsError> { ... }
 }
 
-// ❌ Avoid — scattered cfg attributes throughout a function
+// ❌ FORBIDDEN — scattered cfg attributes throughout a function
 pub fn register_hook() -> Result<HookHandle, OsError> {
     #[cfg(target_os = "windows")]
     { return windows_register(); }
@@ -198,5 +211,23 @@ impl Drop for HookHandle {
 
 | Reference | Location |
 |-----------|----------|
-| Memory Safety (unsafe policy) | `./04-memory-safety.md` |
+| Memory Safety (unsafe policy) | `./05-memory-safety.md` |
 | Cross-Language Guidelines | `../01-cross-language/readme.md` |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/05-rust/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-RUST-007: Rust FFI Safety Boundaries and Platform Isolation
+
+**Given** Rust codebases integrating with external C libraries, Win32 APIs, or Unix system calls.
+**When** Audited against FFI safety guidelines and platform isolation architecture.
+**Then** All external C interfaces are isolated behind safe `PlatformApi` trait boundaries, every OS handle implements deterministic RAII drop cleanup, conditional compilation is confined to module boundaries, and zero violations are detected with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only
+```
+**Expected:** exit 0. Zero violations.

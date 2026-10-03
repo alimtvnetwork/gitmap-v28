@@ -8,10 +8,10 @@ description: Autonomously construct production-grade marketing websites, blogs, 
 > **[/goal](slashCommand;goal)** Autonomously construct production-grade marketing websites, blogs, dashboards, navigation systems, avant-garde mega menus, buttons, and responsive sections by strictly following grounded design specifications without inventing values or hallucinating aesthetics.
 > **[/learn](slashCommand;learn)** Ingest the sequentially numbered design system specifications under `02-spec/07-design-system/` in exact order before authoring HTML, JSX, CSS, LESS, or Tailwind code.
 
-**Version:** 2.1.0  
-**Status:** Active  
-**AI Confidence:** High  
-**Ambiguity:** None  
+**Version:** 2.1.0
+**Status:** Active
+**AI Confidence:** High
+**Ambiguity:** None
 
 ---
 

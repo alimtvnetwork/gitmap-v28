@@ -1,8 +1,20 @@
-# Boolean Principles — P3: named guards, P4: extract complex expressions
+# Boolean Principles — P3: named guards, P4: extract complex expressions (AI Execution Prompt)
+
+> **/goal** Eliminate raw call-site negations by utilizing affirmative named guards and decompose complex boolean expressions exceeding two operands or mixing operators into dedicated intermediate variables.
+> **/learn** Master semantic inverse helpers (e.g., `isInvalid()`, `isFileMissing()`), the 2-operand rule (P4a), strict isolation between `&&` and `||` (P4b), and separation of negative checks from positive conditions (P4c).
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace raw negations on function calls (`!fn()`) with semantic named guard methods or utilities (`fnInvalid()`, `isMissing()`).
+- [ ] `/learn` Cap chained boolean operands at a maximum of two per expression; break 3+ conditions into intermediate variables.
+- [ ] `/goal` Never mix `&&` and `||` operators in a single conditional statement; decompose into separate named booleans.
+- [ ] `/learn` Never combine negative checks (`err != nil`, `isNil`) and positive checks in the same expression; isolate guards first.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Boolean Principles](./readme.md)
 > **Version:** 2.6.0
-> **Updated:** 2026-03-31
+> **Updated:** 2026-10-02
 
 ---
 
@@ -200,3 +212,19 @@ const isReady = response.status === 200;
 See also: [code-style.md — Rule 3](../04-code-style/03-conditions-and-extraction.md#rule-3-extract-complex-conditions--no-inline-multi-part-checks)
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-BOOL-003: Named Guard Inversion and Complex Expression Extraction
+
+**Given** Complex conditionals and raw boolean negations across application source code.
+**When** Codebases are analyzed for logical operator density, raw negation patterns, and operator mixing.
+**Then** Raw negations are replaced by affirmative named guards, all conditional expressions contain at most two operands without mixing `&&` and `||`, and mixed-polarity expressions are eliminated.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles --check-only
+```
+**Expected:** exit 0. Zero violations.

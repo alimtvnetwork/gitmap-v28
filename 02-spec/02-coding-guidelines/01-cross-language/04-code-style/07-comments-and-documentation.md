@@ -1,4 +1,16 @@
-# Comments, Documentation & Dead Code
+# Comments, Documentation & Dead Code (AI Execution Prompt)
+
+> **/goal** Eliminate all dead code, commented-out logic, and redundant documentation across PHP, TypeScript, and Go while enforcing self-documenting naming, global type conventions without leading backslashes, and purposeful commentary.
+> **/learn** Understand the cognitive burden of obsolete comments, memorize the ban on leading backslashes for PHP global types (`Throwable`), eradicate dead or commented-out code blocks, and apply the documentation decision checklist before writing docs.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Remove all commented-out code, unreachable dead statements, and obsolete temporary stubs from the codebase.
+- [ ] `/learn` Omit leading backslashes on PHP global typehints (`Throwable $e`, not `\Throwable $e`).
+- [ ] `/goal` Replace redundant doc comments that restate signatures with clean, self-describing function and variable names.
+- [ ] `/learn` Restrict comments exclusively to non-obvious business rationale, mathematical algorithms, ordering constraints, or citations.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 4.0.0
 > **Updated:** 2026-03-31
@@ -206,6 +218,24 @@ public function distance(string $a, string $b, int $maxDistance): int { ... }
 5. Does the team run automated doc generation? If yes, one-liner on exported APIs is fine.
 
 Trivial getters, setters, single-expression helpers, and any function whose name fully describes its behavior get no doc comment. Adding one is a review-blocking violation of "comments lie, code does not".
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-STYLE-007: Comments and Self-Documenting Code
+
+**Given** Source code files containing inline comments, docblocks, and statement flows in PHP, TypeScript, or Go.
+**When** Code linters, dead code detectors, or documentation checkers inspect source files.
+**Then** Zero commented-out code or unreachable statements remain, PHP global types omit leading backslashes, and documentation is present only where non-obvious business logic or architectural rationale requires explanation.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

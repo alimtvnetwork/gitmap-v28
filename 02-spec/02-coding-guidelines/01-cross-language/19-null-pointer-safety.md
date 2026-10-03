@@ -1,4 +1,16 @@
-# Null Pointer Safety
+# Null Pointer Safety (AI Execution Prompt)
+
+> **/goal** Eliminate runtime null-pointer dereferences and nil-panic crashes across Go, PHP, TypeScript, and polyglot codebases by enforcing error-first guards, pre-dereference checks, and affirmative `isDefined` validation.
+> **/learn** Master the defensive null-safety sequence (check errors before values, check pointers before dereferences, validate slice/array bounds before index access), use positive guard helpers (`isDefined`), and eliminate chained unchecked invocations.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ensure errors and results are validated before referencing any returned pointer or object.
+- [ ] `/learn` Never chain method calls on unchecked return values (e.g. `exec.Command(...).Output()`).
+- [ ] `/goal` Enforce pointer and slice bounds validation before dereferencing (`*ptr`) or indexing (`slice[0]`).
+- [ ] `/learn` Standardize null checks across languages using positive guard patterns (`isDefined()`) rather than bare negations.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -128,6 +140,24 @@ See [Master Coding Guidelines §3.1](./15-master-coding-guidelines/readme.md) fo
 - [Boolean Principles](./02-boolean-principles/readme.md) — Positive null guards (`isDefined`)
 - [Master Coding Guidelines §3.1](./15-master-coding-guidelines/readme.md) — Guard table
 - [Casting Elimination Patterns](./04-casting-elimination-patterns.md) — Type-safe access
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-019: Null Pointer Safety and Nil Dereference Prevention
+
+**Given** Pointer handling, collection indexing, and multi-value returns across Go, TypeScript, PHP, or Rust.
+**When** Code guideline linters or CI autofixers analyze pointer dereferencing and function return consumption.
+**Then** All pointer accesses, slice indexing, and method invocations are guarded by prior error/nil checks or `isDefined` helpers, achieving zero unhandled nil-panic paths with deterministic compliance.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

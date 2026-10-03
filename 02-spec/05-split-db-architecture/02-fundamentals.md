@@ -2,7 +2,7 @@
 
 **Version:** 3.4.0
 **Updated:** 2026-05-06
-**Parent:** [01-index.md](./01-index.md)
+**Parent:** [readme.md](./readme.md)
 
 > **v3.4.0 — DB convention propagation (Phase 2):** Every tier in this architecture inherits the global DB conventions:
 >
@@ -741,9 +741,9 @@ func (m *DbManager) ImportProjectFromZip(zipPath, projectSlug string, overwrite 
     projectDir := filepath.Join(m.dataDir, projectSlug)
 
     // Check if project exists
-    isProjectExists := pathutil.IsDir(projectDir)
+    isProjectDirDefined := pathutil.IsDir(projectDir)
     isReadOnly := !overwrite
-    isProjectConflict := isProjectExists && isReadOnly
+    isProjectConflict := isProjectDirDefined && isReadOnly
 
     if isProjectConflict {
         return apperror.FailNew[ImportResult](
@@ -1025,7 +1025,7 @@ This pattern is used by:
 
 | Reference | Location |
 |-----------|----------|
-| Seedable Config | [Seedable Config Architecture](../06-seedable-config-architecture/01-index.md) |
+| Seedable Config | [Seedable Config Architecture](../06-seedable-config-architecture/readme.md) |
 
 ---
 

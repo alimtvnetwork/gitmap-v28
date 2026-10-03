@@ -3,7 +3,7 @@
 **Version:** 1.0.0
 **Created:** 2026-04-20
 **Status:** Active
-**Purpose:** Register the `Update.*` and `Storage.Backend` keys consumed by the update-check subsystem ([02-spec/14-update/24-update-check-mechanism](../../14-update/24-update-check-mechanism/01-index.md))
+**Purpose:** Register the `Update.*` and `Storage.Backend` keys consumed by the update-check subsystem ([02-spec/14-update/24-update-check-mechanism](../../14-update/24-update-check-mechanism/readme.md))
 
 ---
 
@@ -112,7 +112,7 @@ When upgrading a project that does not yet have these keys:
 
 | Reference | Description |
 |-----------|-------------|
-| [Update Check Mechanism — Overview](../../14-update/24-update-check-mechanism/01-index.md) | Subsystem that consumes these keys |
+| [Update Check Mechanism — Overview](../../14-update/24-update-check-mechanism/readme.md) | Subsystem that consumes these keys |
 | [Pre-Command Hook](../../14-update/24-update-check-mechanism/08-pre-command-hook.md) | Reads both `Update.*` boolean switches |
 | [JSON Fallback Store](../../14-update/24-update-check-mechanism/10-json-fallback-store.md) | Activated when `Storage.Backend = "JsonFile"` |
 | [Validation Helpers](./03-rag-validation-helpers.md) | Helper pattern these validators follow |

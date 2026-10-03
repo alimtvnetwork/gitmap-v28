@@ -1,9 +1,9 @@
 # Error Report Generation
 
-> **Parent:** [Error Modal Reference](./01-index.md)
+> **Parent:** [Error Modal Reference](./readme.md)
 > **Version:** 2.2.0
 > **Updated:** 2026-03-31
-> **See also:** [Copy Format Samples](../01-copy-formats/01-index.md) for complete output examples.
+> **See also:** [Copy Format Samples](../01-copy-formats/readme.md) for complete output examples.
 
 ---
 

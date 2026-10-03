@@ -1,4 +1,16 @@
-# PHP Response Array Standard
+# PHP Response Array Standard (AI Execution Prompt)
+
+> **/goal** Enforce structured PHP response arrays across internal services using `ResultHelper` factory methods and `ResponseKeyType` enum keys.
+> **/learn** Distinguish internal `ResultHelper` arrays from HTTP `EnvelopeBuilder` envelopes, eliminating bare string keys, inline error payloads, and unstructured arrays.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Construct all service result arrays using `ResultHelper::ok()`, `ResultHelper::error()`, or `ResultHelper::errorWithCode()`.
+- [ ] `/learn` Never use bare string keys (`'rows'`, `'total'`); access keys via `ResponseKeyType::*->value`.
+- [ ] `/goal` Format all multi-item result arrays with one key-value pair per line for clean diffing.
+- [ ] `/learn` Import `RiseupAsia\Helpers\ResultHelper` and `RiseupAsia\Enums\ResponseKeyType` at file level in all consumer files.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Last Updated:** 2026-04-16
 
@@ -38,36 +50,36 @@ Internal PHP service methods return structured arrays to communicate success/fai
 ### 2.2 Usage Examples
 
 ```php
-// ✅ CORRECT — Simple success
+// ✅ REQUIRED — Simple success
 return ResultHelper::ok();
 
-// ✅ CORRECT — Success with extra data
+// ✅ REQUIRED — Success with extra data
 return ResultHelper::ok(array(
     ResponseKeyType::Rows->value => $totalRows,
 ));
 
-// ✅ CORRECT — Error with message
+// ✅ REQUIRED — Error with message
 return ResultHelper::error('Table not found in snapshot');
 
-// ✅ CORRECT — Error with extra context
+// ✅ REQUIRED — Error with extra context
 return ResultHelper::error(
     'Table not found in snapshot',
     array(ResponseKeyType::Rows->value => 0),
 );
 
-// ✅ CORRECT — Error with code (typically from an error-domain enum)
+// ✅ REQUIRED — Error with code (typically from an error-domain enum)
 return ResultHelper::errorWithCode(
     'Database unavailable',
     SnapshotErrorType::ExportBuildFailed->value,
 );
 
-// ✅ CORRECT — Error from exception in catch block
+// ✅ REQUIRED — Error from exception in catch block
 return ResultHelper::errorFromException(
     $e,
     array(ResponseKeyType::Rows->value => 0),
 );
 
-// ✅ CORRECT — Bare failure (no message needed)
+// ✅ REQUIRED — Bare failure (no message needed)
 return ResultHelper::failed();
 ```
 
@@ -140,7 +152,7 @@ All response arrays **must** use one key-value pair per line. This improves:
 ### 4.1 Formatting Rules
 
 ```php
-// ✅ CORRECT — One pair per line, trailing comma
+// ✅ REQUIRED — One pair per line, trailing comma
 return ResultHelper::ok(array(
     ResponseKeyType::Total->value  => $query->found_posts,
     ResponseKeyType::Limit->value  => $args['posts_per_page'],
@@ -148,7 +160,7 @@ return ResultHelper::ok(array(
     ResponseKeyType::Posts->value   => $posts,
 ));
 
-// ✅ CORRECT — Non-ResultHelper arrays also use multi-line
+// ✅ REQUIRED — Non-ResultHelper arrays also use multi-line
 return array(
     ResponseKeyType::Count->value    => $count,
     ResponseKeyType::TotalSize->value => $total_size,
@@ -221,3 +233,21 @@ The following files have been refactored as reference implementations:
 - `Traits/Snapshot/SnapshotExportHandlerTrait.php` — `Export` key read-side update
 
 > **Remaining files:** ~30+ additional trait files contain `return array(ResponseKeyType::...` patterns that should be migrated in subsequent passes.
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-005: PHP REST API PascalCase Response Keys Conformance
+
+**Given** PHP service methods, traits, and REST response handlers.
+**When** Guideline linters audit response arrays and return structures.
+**Then** All response arrays use `ResultHelper` factory methods, `ResponseKeyType` enum cases with PascalCase values, and multi-line formatting with trailing commas with zero bare string keys and zero violations detected.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,4 +1,16 @@
-# PHP Forbidden Patterns — Quick Reference Checklist
+# PHP Forbidden Patterns — Quick Reference Checklist (AI Execution Prompt)
+
+> **/goal** Identify and eliminate all prohibited PHP patterns, unsafe error handling, raw global usage, unescaped queries, and non-standard response keys across all PHP modules.
+> **/learn** Master the required replacements: `Throwable` over `Exception`, `ErrorChecker` over inline type checks, `FileLogger` over `error_log()`, `HookType` enums over magic strings, and `ResultHelper` over ad-hoc arrays.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce `catch (Throwable $e)` across all try-catch blocks and ban `catch (Exception $e)`.
+- [ ] `/learn` Never use `wp_die()` inside REST API handlers; use `wp_send_json_error()` or structured error envelopes.
+- [ ] `/goal` Replace all raw hook strings, capability strings, and HTTP method literals with their corresponding backed enums.
+- [ ] `/learn` Eliminate raw `error_log()` invocations; route diagnostic logging through `FileLogger` with structured context arrays.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 4.0.0
 > **Updated:** 2026-03-09
@@ -406,6 +418,22 @@ The `Autoloader` class is **exempt** — it loads before enums are available.
 - WordPress Initialization <!-- external: 02-spec/28-wp-plugin-development/01-initialization-patterns.md -->
 - WordPress API Design <!-- external: 02-spec/28-wp-plugin-development/04-api-design.md -->
 
+*Forbidden patterns checklist v5.0.0 — 2026-02-25*
+
 ---
 
-*Forbidden patterns checklist v5.0.0 — 2026-02-25*
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-003: PHP Forbidden Patterns Elimination
+
+**Given** PHP source code across classes, traits, and service endpoints.
+**When** Guideline linters audit the codebase for forbidden patterns.
+**Then** All forbidden patterns (raw Exception catches, magic hook strings, unimported trait namespaces, raw boolean negations, and single-line ifs) are eliminated and replaced with conforming standards with zero violations detected.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php --check-only
+```
+**Expected:** exit 0. Zero violations.

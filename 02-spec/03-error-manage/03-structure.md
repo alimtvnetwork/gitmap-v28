@@ -11,14 +11,14 @@
 
 ```
 04-error-manage/
-├── 01-index.md                        ← START HERE
+├── readme.md                        ← START HERE
 ├── 97-acceptance-criteria.md
 ├── 98-changelog.md
 ├── 99-consistency-report.md
 ├── 03-structure.md                          ← THIS FILE
 │
 ├── 01-error-resolution/                  (14 files)
-│   ├── 01-index.md
+│   ├── readme.md
 │   ├── 01-cross-reference-diagram.md
 │   ├── 02-debugging-cheat-sheet.md
 │   ├── 03-retrospectives/               (4 retrospectives)
@@ -34,7 +34,7 @@
 │       └── 03-debugging-typescript.md
 │
 ├── 02-error-architecture/                (22 files + 6 JSON)
-│   ├── 01-index.md
+│   ├── readme.md
 │   ├── 01-error-handling-reference.md     ← 3-tier error flow
 │   ├── 02-go-delegation-fix.md            ← DelegatedRequestServer
 │   ├── 03-notification-colors.md          ← Toast color tokens
@@ -55,7 +55,7 @@
 │   ├── 06-apperror-package/             (2 docs)
 │   │   ├── 01-apperror-reference.md
 │   │   └── 01-apperror-reference/
-│   │       ├── 01-index.md
+│   │       ├── readme.md
 │   │       ├── 01-overview-and-stack.md
 │   │       ├── 02-apperror-struct.md
 │   │       ├── 03-result-types.md
@@ -69,7 +69,7 @@
 │       └── 02-session-based-logging.md
 │
 └── 03-error-code-registry/               (18 files + 3 JSON)
-    ├── 01-index.md
+    ├── readme.md
     ├── 01-registry.md                     ← Master error code list
     ├── 02-integration-guide.md
     ├── 03-collision-resolution-summary.md

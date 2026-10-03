@@ -1,4 +1,16 @@
-# Cross-Language Rule: Reduce Cyclomatic Complexity to Near-Zero
+# Cross-Language Rule: Reduce Cyclomatic Complexity to Near-Zero (AI Execution Prompt)
+
+> **/goal** Reduce function cyclomatic complexity to near-zero (target 0–1, max 3) by replacing nested branching with inverted guard clauses, early returns, and linear control flow.
+> **/learn** Understand how deep nesting and chained condition branches exponentially increase cognitive load and defect rates. Master guard inversion, discrete affirmative boolean variables, and helper function extraction.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce cyclomatic complexity cap: target 0–1 branches per function with an absolute maximum of 3 in exceptional cases.
+- [ ] `/learn` Eliminate nested `if` blocks entirely; invert conditions into early guard clauses returning or throwing immediately.
+- [ ] `/goal` Place the unindented "happy path" at the bottom of the function body with zero nesting levels.
+- [ ] `/learn` Verify function complexity and zero nested branching across all languages via guideline linters and CI checks.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-09
@@ -16,7 +28,7 @@ Cyclomatic complexity measures the number of linearly independent paths through 
 
 The following pattern is **absolutely forbidden** in this project. Every nested `if` adds a branch, increases indentation, and forces readers to mentally track multiple conditions simultaneously.
 
-### ❌ BAD — Deeply Nested (Cyclomatic Complexity: 5)
+### ❌ FORBIDDEN — Deeply Nested (Cyclomatic Complexity: 5)
 
 ```csharp
 public void Process(Order? order)
@@ -59,7 +71,7 @@ public void Process(Order? order)
 
 Invert every condition and return/throw early. The function body becomes a **flat sequence of guards** followed by the happy path at the bottom with zero indentation.
 
-### ✅ GOOD — Flat Guard Clauses (Cyclomatic Complexity: 1)
+### ✅ REQUIRED — Flat Guard Clauses (Cyclomatic Complexity: 1)
 
 ```csharp
 public void Process(Order? order)
@@ -334,6 +346,24 @@ This spec works in concert with:
 - [Boolean Principles](./02-boolean-principles/readme.md) — Named boolean variables
 - [No Raw Negations](./12-no-negatives.md) — Positive guard function names
 - [Function Naming](./10-function-naming.md) — Explicit method names over boolean flags
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-006: Cyclomatic Complexity Reduction and Guard Clauses
+
+**Given** Function declarations and conditional branching structures across polyglot codebases (Go, TypeScript, PHP, C#).
+**When** Codebases are analyzed by complexity analyzers, linter suites, or CI/CD pipelines.
+**Then** All functions maintain cyclomatic complexity between 0 and 1 (max 3), zero nested `if` statements exist, and all guard clauses execute early returns, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

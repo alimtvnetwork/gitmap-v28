@@ -4,7 +4,7 @@
 **Version:** 2.0.0
 **Created:** 2026-05-04 · **Last applied:** 2026-05-06 (Phase 13.2)
 **Status:** ✅ Applied — was a follow-up tracker, now collapsed into a 5-line stub.
-**Authority:** This file is the canonical **mapping** between Main/Worker spec and `02-spec/05-split-db-architecture/`. On any tier-count or tier-name conflict, **`spec/05` wins** and this file translates.
+**Authority:** This file is the canonical **mapping** between Main/Worker spec and `02-spec/05-split-db-architecture/`. On any tier-count or tier-name conflict, **`02-spec/05` wins** and this file translates.
 
 ---
 
@@ -14,7 +14,7 @@
 
 - **Main** uses **3 tiers** — Root, Settings, Session. Main has no App tier (it owns no business data).
 - **Worker** uses **4 tiers** — Root, Settings, App, Session.
-- **Cache** and **Document** tiers are reserved by `spec/05` for future RAG and are **not used in v1.0**.
+- **Cache** and **Document** tiers are reserved by `02-spec/05` for future RAG and are **not used in v1.0**.
 
 Any "3-tier (Root/App/Session)" wording in older drafts is stale; the table above wins.
 
@@ -93,7 +93,7 @@ Every Mermaid file under `02-spec/19/diagrams/` that touches DB tiers MUST inclu
 | FU-3 | Settings tier note added | `19/10-self-update-pointer.md` top | ✅ Applied |
 | FU-4 | Settings box + banner on worker ERD | `19/diagrams/erd-worker-split-db.mmd` | ✅ Applied (banner present; Settings tables documented in §2/§3 above rather than redrawn) |
 | FU-5 | `WorkerUpdateInstruction` Settings tier | `02-spec/14-update/28-…md` §7 | ⏭ Out of scope for spec/19 — tracked in spec/14 |
-| FU-6 | Back-link from `spec/05` | `02-spec/05-split-db-architecture/02-fundamentals.md` | ⏭ Out of scope for spec/19 — tracked in spec/05 |
+| FU-6 | Back-link from `02-spec/05` | `02-spec/05-split-db-architecture/02-fundamentals.md` | ⏭ Out of scope for spec/19 — tracked in spec/05 |
 
 ---
 

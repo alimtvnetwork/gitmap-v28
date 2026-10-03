@@ -36,19 +36,19 @@ See: [Error Codes](./07-error-codes.md)
 ### Parent folder
 
 ```markdown
-See: [Module Overview](../01-index.md)
+See: [Module Overview](../readme.md)
 ```
 
 ### Another module (one level up, then into sibling)
 
 ```markdown
-See: [Coding Guidelines](../02-coding-guidelines/01-index.md)
+See: [Coding Guidelines](../02-coding-guidelines/readme.md)
 ```
 
 ### Deep cross-reference (from a subfolder to another module's subfolder)
 
 ```markdown
-See: [GSearch Backend](../../09-gsearch-cli/01-backend/01-index.md)
+See: [GSearch Backend](../../09-gsearch-cli/01-backend/readme.md)
 ```
 
 ### From spec to memories
@@ -61,7 +61,7 @@ See: [Database Standards](../../.ai-memory/memories/architecture/database-standa
 
 ## Cross-Reference Table Pattern
 
-Every `01-index.md` file should end with a cross-reference table:
+Every `readme.md` file should end with a cross-reference table:
 
 ```markdown
 
@@ -69,8 +69,8 @@ Every `01-index.md` file should end with a cross-reference table:
 
 | Reference | Location |
 |-----------|----------|
-| Module A | `../XX-module-a/01-index.md` |
-| Module B | `../YY-module-b/01-index.md` |
+| Module A | `../XX-module-a/readme.md` |
+| Module B | `../YY-module-b/readme.md` |
 | Memory X | `../../.ai-memory/memories/category/file.md` |
 ```
 
@@ -81,7 +81,7 @@ Every `01-index.md` file should end with a cross-reference table:
 ### ❌ Root-relative paths
 
 ```markdown
-See: [Guidelines](/02-spec/02-coding-guidelines/01-index.md)
+See: [Guidelines](/02-spec/02-coding-guidelines/readme.md)
 ```
 
 **Why wrong:** Root-relative paths break depending on the viewer's base URL.
@@ -89,7 +89,7 @@ See: [Guidelines](/02-spec/02-coding-guidelines/01-index.md)
 ### ❌ Absolute filesystem paths
 
 ```markdown
-See: [Guidelines](/dev-server/02-spec/02-coding-guidelines/01-index.md)
+See: [Guidelines](/dev-server/02-spec/02-coding-guidelines/readme.md)
 ```
 
 **Why wrong:** Filesystem paths are environment-specific.
@@ -97,7 +97,7 @@ See: [Guidelines](/dev-server/02-spec/02-coding-guidelines/01-index.md)
 ### ❌ Mixed case in paths
 
 ```markdown
-See: [Guidelines](../03-Coding-Guidelines/01-index.md)
+See: [Guidelines](../03-Coding-Guidelines/readme.md)
 ```
 
 **Why wrong:** Paths must be entirely lowercase to match the kebab-case convention.
@@ -118,9 +118,9 @@ To write the correct relative path, count directory levels:
 
 | From | To | Path |
 |------|----|------|
-| `02-spec/09-gsearch-cli/01-backend/01-arch.md` | `02-spec/02-coding-guidelines/01-index.md` | `../../02-coding-guidelines/01-index.md` |
-| `02-spec/09-gsearch-cli/01-index.md` | `02-spec/02-coding-guidelines/01-index.md` | `../02-coding-guidelines/01-index.md` |
-| `02-spec/09-gsearch-cli/01-backend/01-arch.md` | `02-spec/09-gsearch-cli/01-index.md` | `../01-index.md` |
+| `02-spec/09-gsearch-cli/01-backend/01-arch.md` | `02-spec/02-coding-guidelines/readme.md` | `../../02-coding-guidelines/readme.md` |
+| `02-spec/09-gsearch-cli/readme.md` | `02-spec/02-coding-guidelines/readme.md` | `../02-coding-guidelines/readme.md` |
+| `02-spec/09-gsearch-cli/01-backend/01-arch.md` | `02-spec/09-gsearch-cli/readme.md` | `../readme.md` |
 
 **Formula:** Count how many directories UP you need to go, then navigate DOWN to the target.
 
@@ -154,7 +154,7 @@ When a module's numeric prefix changes (e.g., `09-gsearch-cli` → `09-gsearch-c
 1. **Other spec files** — Any `../09-gsearch-cli/...` → `../09-gsearch-cli/...`
 2. **Memory files** — Any reference to the old path
 3. **Dashboard code** — `SpecFileViewer.tsx` module definitions
-4. **Master index** — `02-02-02-spec/01-index.md` module table
+4. **Master index** — `02-02-spec/readme.md` module table
 5. **Consistency reports** — If they mention module paths
 
 **This is why module renaming should be done carefully and in batches.**

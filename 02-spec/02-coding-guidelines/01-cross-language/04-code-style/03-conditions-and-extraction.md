@@ -1,5 +1,18 @@
-# Condition Extraction
+# Condition Extraction (AI Execution Prompt)
 
+> **/goal** Eliminate complex inline multi-part conditional expressions in `if` statements across PHP, TypeScript, and Go by extracting them into named boolean variables, dedicated methods, or constants.
+> **/learn** Understand single-intent control flow, 2+ operator extraction triggers (`&&`, `||`, `!`), affirmative boolean naming (`is*`, `has*`), and reusable type-guard function patterns.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ban inline multi-part conditions containing 2 or more operators (`&&`, `||`, `!`) in `if` statements.
+- [ ] `/learn` Extract local, one-off multi-part checks into positively named boolean variables (`is*`, `has*`).
+- [ ] `/goal` Extract multi-part conditions reused across multiple places or carrying domain significance into dedicated helper functions or type guards.
+- [ ] `/learn` Separate error checks from domain logic guards so error paths exit immediately before evaluating domain booleans.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+> **Parent:** [Code Style](./readme.md)
 > **Version:** 4.0.0
 > **Updated:** 2026-03-31
 > **Applies to:** PHP, TypeScript, Go
@@ -103,3 +116,21 @@ if isUpstreamError {
 ---
 
 *Part of [Code Style](./readme.md) — Rule 3*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-STYLE-003: Multi-Part Condition Extraction and Guard Inversion
+
+**Given** Conditional logic expressions across PHP, TypeScript, and Go codebases.
+**When** Linters and static analysis check `if` statements for multiple logical operators (`&&`, `||`, `!`).
+**Then** All conditions with 2+ operators are extracted into named boolean variables or dedicated functions, reading as a single intent.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/04-code-style --check-only
+```
+**Expected:** exit 0. Zero violations.

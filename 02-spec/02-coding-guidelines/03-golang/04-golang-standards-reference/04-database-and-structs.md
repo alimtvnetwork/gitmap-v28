@@ -1,4 +1,16 @@
-# Golang Coding Standards — Database naming, dbutil wrapper, struct design
+# Golang Coding Standards — Database naming, dbutil wrapper, struct design (AI Execution Prompt)
+
+> **/goal** Standardize database interaction, schema mapping, and struct design across Go applications: enforce PascalCase database identifiers, mandatory dbutil generic wrappers, omission of redundant json tags, and a maximum of 2-3 function parameters.
+> **/learn** Master the dbutil result wrappers (Result[T], ResultSet[T], ExecResult), .AppError() accessors, PascalCase schema alignment, and parameter struct refactoring.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ensure all database table, column, and index names use PascalCase matching Go struct definitions and `db:"ColumnName"` tags.
+- [ ] `/learn` Never use raw `database/sql` queries directly; execute queries through generic `dbutil` functions returning typed result wrappers.
+- [ ] `/goal` Omit redundant `json:"FieldName"` tags that repeat field names verbatim, retaining only `json:",omitempty"` or `json:"-"`.
+- [ ] `/learn` Restrict function parameters to a maximum of 2-3; refactor functions with 4+ arguments into dedicated parameter/options structs.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Golang Coding Standards](./readme.md)
 > **Version:** 3.7.0
@@ -118,3 +130,19 @@ func GetById(ctx context.Context, id int64) apperror.Result[Model]
 ```
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-REF-004: Go Database Schema Mapping and Parameter Struct Conventions
+
+**Given** Go source code under review or development.
+**When** Codebases are audited against Go coding standards.
+**Then** Database entities use PascalCase and `dbutil` wrappers, redundant json tags are omitted, and functions adhere to the 2-3 parameter limit with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/04-golang-standards-reference --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -10,9 +10,9 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dir, '../../..');
-const MASTER = resolve(ROOT, '02-spec/07-error-code-registry/error-codes-master.json');
-const OUTPUT = resolve(ROOT, '02-spec/07-error-code-registry/error-code-utilization-report.md');
+const ROOT = resolve(__dir, '../../../..');
+const MASTER = resolve(__dir, '../error-codes-master.json');
+const OUTPUT = resolve(__dir, '../05-error-code-utilization-report.md');
 
 const master = JSON.parse(readFileSync(MASTER, 'utf-8'));
 const today = new Date().toISOString().slice(0, 10);

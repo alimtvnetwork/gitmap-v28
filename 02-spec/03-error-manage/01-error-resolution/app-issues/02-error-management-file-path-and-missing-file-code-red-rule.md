@@ -38,6 +38,12 @@ The operation field must use one of these values:
 Read | Write | Copy | Move | Inject | Load | Extract | Resolve
 ```
 
+### 2.2 Variable Name Tracking & Multiple Paths (Mandatory)
+
+1. **Preserve Variable Name:** Every time a path or input parameter is validated or engaged, the exact variable name (e.g., `opts.FilePath`, `sourceDir`, `targetFile`, `batchSize`) must be recorded in the error metadata alongside its value.
+2. **Multiple Paths:** For operations involving multiple files or directories (such as `Copy`, `Move`, `Rename`, `Atomic Write`, or `Diff`), **all** involved paths must be recorded with explicit roles (e.g., `sourcePath`, `destinationPath`, or `.WithPaths(src, dst)`).
+3. **Absolute/Resolved Path Embedding:** The resolved system path must always be attached so logs immediately reveal the physical location where the fault occurred.
+
 ---
 
 ## 3. Acceptable Failure Reasons
@@ -113,27 +119,25 @@ The failure reason **must** be specific. Acceptable values include:
 
 ## 5. Implementation Patterns
 
-### 5.1 Go
+### 5.1 Go (with `pkg/appfault`)
 
 ```go
-// ✅ Correct — exact path + reason
-appfault.NewWithDetails(
-    "ThemeInstaller.Read",
-    appfault.ErrFileNotFound.String(),
-    "File does not exist",
-    "theme_installer",
-    appfault.ErrorTypeNotFound,
-    appfault.SeverityError,
-    map[string]any{
-        "path":      filePath,
-        "operation": "Read",
-        "reason":    "FileDoesNotExist",
-        "module":    "ThemeInstaller",
-    },
-)
+// ✅ Correct — Single File Path + Variable Name
+appfault.WrapWithPath(errtype.IO, err, "failed to write payload to file destination", destPath).
+    WithVar("payloadBytesLen", len(data))
 
-// 🔴 VIOLATION — generic message, no path, no reason
-appfault.NewSimple("ThemeInstaller.Read", "file not found")
+// ✅ Correct — Parameter Validation with Variable Name + Path
+appfault.NewWithVar(errtype.Validation, "file path cannot be empty", "opts.FilePath", opts.FilePath).
+    WithPath(opts.FilePath)
+
+// ✅ Correct — Multiple Paths (Copy, Move, Rename, Atomic Write)
+appfault.Wrap(errtype.IO, renameErr, "failed to atomically rename file").
+    WithPaths(sourceTempPath, destinationPath).
+    WithVar("sourceTempPath", sourceTempPath).
+    WithVar("destinationPath", destinationPath)
+
+// 🔴 VIOLATION — Generic message, no path embedded, no variable name
+appfault.Wrap(errtype.IO, err, "failed to write payload to file destination")
 ```
 
 ### 5.2 TypeScript
@@ -194,13 +198,17 @@ This rule applies to **all** areas where file/path errors can occur:
 
 ---
 
-## 7. Validation Rule
+## 7. Validation Rule & Mandatory Checklist
 
-A linter or code review check **must** reject any file/path error log that:
+A linter or code review check **must** reject any file/path error log that fails this checklist:
 
-1. Does not include the exact file path
-2. Does not include a failure reason from the approved list (§ 3)
-3. Uses a generic message like "file not found" without context
+### Mandatory Error Context Checklist (Zero Tolerance)
+
+- [ ] **Exact Path Embedded:** Error metadata contains `Path` or `FilePath` with the full resolved path (`appfault.WrapWithPath(...)` or `.WithPath(p)`).
+- [ ] **Variable Name Recorded:** Variable name (e.g. `opts.FilePath`, `sourceDir`, `batchSize`) is explicitly recorded in `Variables` or context (`.WithVar(name, val)`).
+- [ ] **Multiple Paths Differentiated:** Operations touching multiple files/directories log all involved paths (e.g. `sourcePath`, `destinationPath`, or `.WithPaths(src, dst)`).
+- [ ] **Specific Failure Reason:** Specific failure reason from the approved list (§ 3) is included.
+- [ ] **No Generic Failures:** Rejects any generic message like `"file not found"` or `"write failed"` without attached path and variable context.
 
 ---
 

@@ -1,4 +1,16 @@
-# Lazy Evaluation Patterns
+# Lazy Evaluation Patterns (AI Execution Prompt)
+
+> **/goal** Enforce lazy evaluation patterns for expensive computations, static shared data, and optional fields across codebases to eliminate eager initialization bottlenecks and reduce memory overhead.
+> **/learn** Master lazy evaluation triggers (heavy computations, invariant results, multi-caller lookups), non-exported field backing with getter methods, thread-safe synchronization (`sync.Mutex`), and avoid eager anti-patterns.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Identify expensive computations, static lookups, and optional payload fields that qualify for deferred lazy evaluation.
+- [ ] `/learn` Ensure lazy fields remain non-exported with thread-safe getter methods returning cached pointers or collections.
+- [ ] `/goal` Eliminate direct access to uninitialized private backing fields and replace eager constructors with deferred resolution.
+- [ ] `/learn` Verify that dynamic, per-request, or parameterized results are never cached under lazy evaluation patterns.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -149,6 +161,24 @@ if g.Members().Length() > 0 { ... }
 - [Code Mutation Avoidance](./18-code-mutation-avoidance.md) — Lazy fields are an exempted mutation case
 - [Cyclomatic Complexity](./06-cyclomatic-complexity.md) — Lazy getters keep callers simple
 - [Master Coding Guidelines](./15-master-coding-guidelines/readme.md) — §7 Type Safety
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-016: Lazy Evaluation and Deferred Initialization
+
+**Given** Data models and service structures containing expensive computations, static lookups, or optional fields.
+**When** Code guideline linters or CI autofixers scan struct definitions and initialization patterns.
+**Then** Expensive or optional fields utilize deferred lazy getters with non-exported backing fields and thread safety, ensuring zero eager initialization bottlenecks with deterministic compliance.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

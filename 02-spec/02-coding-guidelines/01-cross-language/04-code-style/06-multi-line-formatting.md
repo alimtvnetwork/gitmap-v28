@@ -1,4 +1,16 @@
-# Multi-Line Formatting
+# Multi-Line Formatting (AI Execution Prompt)
+
+> **/goal** Enforce strict multi-line formatting and trailing comma standards for all function signatures, function calls, constructor invocations, and collection literals with more than two arguments/items across PHP, TypeScript, and Go.
+> **/learn** Master the rules for multi-line expansion (>2 arguments/parameters/elements), trailing comma requirements across syntax-supporting languages, indentation consistency, and nested wrapper/apperror call expansion.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Expand any function/method signature, call, or constructor with >2 arguments into multi-line format with one item per line.
+- [ ] `/learn` Append mandatory trailing commas to multi-line argument lists, parameter lists, arrays, maps, and struct initializations where syntax permits.
+- [ ] `/goal` Format chained method calls and nested error wrappers (`appfault.Wrap`, `Result.Fail`) on dedicated lines with consistent indentation.
+- [ ] `/learn` Keep single-argument calls or 2-argument calls inline unless individual arguments are themselves complex multiline expressions.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 4.0.0
 > **Updated:** 2026-03-31
@@ -307,6 +319,24 @@ Calls with exactly **one argument** may remain inline:
 // ✅ OK — single arg
 return apperror.Fail[Plugin](appErr)
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-STYLE-006: Multi-Line Formatting and Trailing Commas
+
+**Given** Source code files containing function signatures, call sites, collection literals, or chained invocations in PHP, TypeScript, or Go.
+**When** Code style linters or CI autofixers scan parameter lists, call arguments, and data structures.
+**Then** All signatures, calls, arrays, and structs with more than two items are expanded across multiple lines with one argument per line and mandatory trailing commas with zero syntax violations.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

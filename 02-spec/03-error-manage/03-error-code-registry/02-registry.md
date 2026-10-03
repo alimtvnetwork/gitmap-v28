@@ -449,7 +449,6 @@ All CLI frontends use a consistent error code pattern at offset +50 from their b
 - The `AppError` includes `.WithSkip(1)` so stack traces point to the caller
 - Cast errors must **never** be swallowed — see §7.2 and §10 in [03-casting-elimination-patterns.md](../../02-coding-guidelines/01-cross-language/04-casting-elimination-patterns.md)
 
-
 ### GEN-700: File System
 
 | Code | Name | Message |

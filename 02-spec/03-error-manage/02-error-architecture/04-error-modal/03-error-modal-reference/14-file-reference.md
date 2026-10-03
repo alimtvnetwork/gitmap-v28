@@ -1,6 +1,6 @@
 # File Reference
 
-> **Parent:** [Error Modal Reference](./01-index.md)
+> **Parent:** [Error Modal Reference](./readme.md)
 > **Version:** 2.2.0
 > **Updated:** 2026-03-31
 
@@ -33,8 +33,8 @@
 ## Cross-References
 
 - [Error Handling Cross-Stack Spec](../../02-error-handling-reference.md) — PHP, Go, frontend error chain + DelegatedRequestServer flow
-- [Copy Format Samples](../01-copy-formats/01-index.md) — Complete samples for all copy/export formats
-- [React Components Reference](../02-react-components/01-index.md) — Portable React code for rebuilding the modal
+- [Copy Format Samples](../01-copy-formats/readme.md) — Complete samples for all copy/export formats
+- [React Components Reference](../02-react-components/readme.md) — Portable React code for rebuilding the modal
 - [Response Envelope Schema](../../05-response-envelope/envelope.schema.json) — JSON Schema for envelope (incl. DelegatedRequestServer)
 - [Session-Based Logging](../../07-logging-and-diagnostics/03-session-based-logging.md) — Backend session system
 - [React Execution Logger](../../07-logging-and-diagnostics/02-react-execution-logger.md) — Frontend debug logger

@@ -1,4 +1,16 @@
-# Consolidated Review Guide — Condensed
+# Consolidated Review Guide — Condensed (AI Execution Prompt)
+
+> **/goal** Provide a high-velocity, condensed checklist of non-negotiable coding standards covering size limits, naming, zero nested ifs, error non-swallowing, concrete generics, and caching safety.
+> **/learn** Master rapid PR pre-merge auditing across all languages, eliminating pyramid nesting, forbidden boolean negations, untyped primitives, and silent failures.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Audit function body size (≤15 lines), file length (≤300 lines), and parameter counts (≤3) before every submission.
+- [ ] `/learn` Enforce zero nested `if` statements and affirmative boolean prefixes (`is`/`has`) with semantic inverses (`isMissing`, `isDisabled`).
+- [ ] `/goal` Never swallow errors; wrap Go errors at first contact with `apperror.Wrap()` and check `HasError()` on Results.
+- [ ] `/learn` Avoid `any` or loose interfaces; prefer concrete generics (`Result[T]`), PascalCase DB schemas, and deterministic caching TTLs.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > One-liner rules. No fluff. Scan before every PR.
 
@@ -210,3 +222,21 @@ function bad(): number {
 - **Spec first → code second**
 - **Bug → issue file first** (`02-spec/.../03-issues/{NN}-{name}.md`) → root cause → fix
 - Follow folder naming: `readme.md` + `99-consistency-report.md`
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ROOT-004: Condensed Review Guide Rules
+
+**Given** Source files in the repository.
+**When** Codebases are audited by coding guideline scanners and lint rules.
+**Then** Sizing caps, naming conventions, flat conditionals, structured error wrapping, and type safety constraints are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only
+```
+**Expected:** exit 0. Zero violations.

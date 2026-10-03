@@ -1,9 +1,29 @@
-# Secret Management
+# Secret Management (AI Execution Prompt)
+
+> **/goal** Enforce zero hardcoded secrets across all repositories, mandate secure dynamic vault injection, and isolate credentials and scratch scripts using `repo-secrets` and `repo-cache`.
+> **/learn** Internalize the absolute ban on committing `.env` files or API tokens, master dynamic runtime secret retrieval, and utilize `gitmap rs` and `gitmap rc` for non-polluting off-repo storage.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce zero hardcoded secrets, API tokens, passwords, or committed `.env` files in standard code repositories.
+- [ ] `/learn` Configure `.gitignore` to prevent secret files from ever entering git index or commit history.
+- [ ] `/goal` Delegate secret persistence to `repo-secrets` using GitMap commands (`gitmap rs file`, `gitmap rs text`).
+- [ ] `/learn` Delegate temporary test harnesses and diagnostic scripts to `repo-cache` using `gitmap rc` commands.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 ## 1. Zero Hardcoded Secrets
 
 - Code MUST NEVER contain hardcoded secrets, API keys, passwords, or tokens.
 - `.env` files containing secrets MUST NOT be committed to version control. Ensure `.env` is in `.gitignore`.
+
+```typescript
+// ❌ FORBIDDEN: Hardcoding credentials directly in source files
+const apiKey = "sk_live_abcdef1234567890";
+
+// ✅ REQUIRED: Injected environment variables or vault secret retrieval
+const apiKey = process.env.SERVICE_API_KEY;
+```
 
 ## 2. Secret Vaults
 
@@ -33,3 +53,21 @@
   - `gitmap rc text "<powershell-script>" [--slug <slug>] [--ext .ps1]`: Writes inline PowerShell snippet into `repo-cache/XX-<repo-name>/01-<slug>.ps1` with auto-sequencing, commits, and pushes.
   - Jump directly to the cache repository: `gitmap cd rc`.
   - Configurable repository name via settings: `gitmap settings set special_repos.cache_name repo-cache`.
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-SEC-004: Zero Secrets in Source Control & Environment Vaulting
+
+**Given** Application repositories, configuration files, and script automation
+**When** Audited for secret segregation and special repository routing
+**Then** Zero credentials exist in source trees and secrets are routed to `repo-secrets` via GitMap
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/11-security/05-secret-management.md --check-only
+```
+**Expected:** exit 0. Zero violations.

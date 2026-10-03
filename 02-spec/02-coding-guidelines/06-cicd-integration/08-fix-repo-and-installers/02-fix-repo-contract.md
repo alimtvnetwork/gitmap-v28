@@ -1,4 +1,16 @@
-# `fix-repo.sh` / `fix-repo.ps1` — Normative Contract
+# `fix-repo.sh` / `fix-repo.ps1` — Normative Contract (AI Execution Prompt)
+
+> **/goal** Define the normative detection algorithm, flag set, replacement rules, and exit code contract for `fix-repo.sh` and `fix-repo.ps1` cross-platform repository name rewriters.
+> **/learn** Master numeric-overflow guards, regex URL parsing without altering host segments, lossless UTF-8 file traversal via git ls-files -z, and closed flag validation.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Parse remote URL into `{Host, Owner, RepoFull}` and validate `-v(\d+)$` version suffix with CurrentVersion >= 1.
+- [ ] `/learn` Never modify non-target numeric suffixes (e.g. numeric-overflow guard: `coding-guidelines-v170` must never match `v17`).
+- [ ] `/goal` Enforce closed mode flags (`-2`, `-3`, `-5`, `-all`) and propagate deterministic exit codes (`2` through `7`).
+- [ ] `/learn` Verify dry-run safety and idempotency where a second consecutive run produces zero file modifications.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0 · **Updated:** 2026-04-28
 > Implements: `fix-repo.sh`, `fix-repo.ps1`, `scripts/fix-repo/*`
@@ -154,3 +166,21 @@ mode:    <write|dry-run>
 - Touching files not tracked by git.
 - Migrating away from `-vN` naming.
 - `.bak` files or auto-staging — recovery is `git checkout -- .`.
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-INSTALL-002: Fix-Repo Version Token Rewriter Specification Conformance
+
+**Given** Installer and auto-fix repository management specifications.
+**When** Audited against this installation specification.
+**Then** Zero contract or visibility violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only
+```
+**Expected:** exit 0. Zero violations.

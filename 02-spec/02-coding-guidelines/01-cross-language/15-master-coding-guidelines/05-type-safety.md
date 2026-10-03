@@ -1,4 +1,16 @@
-# Master Coding Guidelines — Type safety, single return value, no casting
+# Master Coding Guidelines — Type safety, single return value, no casting (AI Execution Prompt)
+
+> **/goal** Enforce absolute type safety, concrete domain models, zero runtime type casting in business logic, and the single return value rule returning `Result[T]` or `*appfault.AppError` across all languages.
+> **/learn** Eliminate type erasure (`interface{}`, `any`, `map[string]any`), prohibit multi-value return signatures in custom Go functions, replace runtime type assertions with safe domain accessors, and require native parameter and return typing.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce concrete domain models and native type signatures across PHP, Go, and TypeScript while banning `any`/`interface{}` in business logic.
+- [ ] `/learn` Never use multiple return values in custom Go functions; return a single `Result[T]` or `*appfault.AppError` container struct.
+- [ ] `/goal` Replace all raw runtime type casting in business logic with typed domain accessors, generic wrappers, or safe conversion utilities.
+- [ ] `/learn` Ensure PHP methods declare native parameter and return types and eliminate redundant PHPDoc annotations.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Master Coding Guidelines](./readme.md)
 > **Version:** 2.1.0
@@ -220,3 +232,19 @@ if val, ok := s.cache.Load(key); ok {
 ```
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-MASTER-TYPE: Master Type Safety, Single Return Value & Zero Casting
+
+**Given** Cross-language source files (PHP, Go, TypeScript) across production packages.
+**When** Linters and CI autofixers scan for type definitions, return signatures, and type casting.
+**Then** All functions adhere to strict typing, Go functions return a single typed `Result[T]` or `*appfault.AppError`, and raw runtime type assertions are replaced with typed accessors or domain models with zero violations.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines --check-only
+```
+**Expected:** exit 0. Zero violations.

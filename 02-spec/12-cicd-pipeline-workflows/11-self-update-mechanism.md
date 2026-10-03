@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Defines the CI/CD-relevant aspects of CLI self-update: what the release pipeline must produce and support for self-updating tools. The full client-side update implementation is in [`02-spec/14-update/`](../14-update/01-index.md) — this document covers the **pipeline's responsibilities** toward enabling that flow.
+Defines the CI/CD-relevant aspects of CLI self-update: what the release pipeline must produce and support for self-updating tools. The full client-side update implementation is in [`02-spec/14-update/`](../14-update/readme.md) — this document covers the **pipeline's responsibilities** toward enabling that flow.
 
 ---
 

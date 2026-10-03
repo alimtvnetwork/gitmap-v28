@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Defines the pattern for integrating code signing into the release pipeline. Windows binaries SHOULD be signed to avoid SmartScreen warnings and to establish publisher trust. SHOULD (not MUST) is intentional: code signing requires a paid certificate that may be unavailable in early-stage or fork builds. When the certificate is unavailable, the release pipeline MUST (a) skip signing without failing the build, and (b) emit a clearly-labeled `signing-skipped` banner in the GitHub Step Summary so reviewers see the unsigned status. This spec covers SignPath integration as the primary signing provider, with a feature-flag gating pattern for gradual rollout.
+Defines the pattern for integrating code signing into the release pipeline. Windows binaries SHOULD be signed to avoid SmartScreen warnings and to establish publisher trust. SHOULD (not MUST) is intentional: code signing requires a paid certificate that may be unavailable in early-stage or fork builds. When the certificate is unavailable, the release pipeline MUST (a) skip signing without failing the build, and (b) emit a clearly-labelled `signing-skipped` banner in the GitHub Step Summary so reviewers see the unsigned status. This spec covers SignPath integration as the primary signing provider, with a feature-flag gating pattern for gradual rollout.
 
 ---
 
@@ -170,7 +170,7 @@ If signing is disabled, steps 2–3 are skipped and unsigned binaries proceed di
 - [Shared Conventions](./03-shared-conventions.md) — Platform, runner, action version rules
 - [Install Script Generation](./07-install-script-generation.md) — Scripts that download signed binaries
 - [Self-Update Mechanism](./11-self-update-mechanism.md) — Update flow that distributes signed binaries
-- [Self-Update & App Update (Full Specs)](../14-update/01-index.md) — Client-side update implementation
+- [Self-Update & App Update (Full Specs)](../14-update/readme.md) — Client-side update implementation
 
 ---
 

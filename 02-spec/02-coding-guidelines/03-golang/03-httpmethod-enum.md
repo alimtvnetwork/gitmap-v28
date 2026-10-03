@@ -1,4 +1,16 @@
-# HttpMethod Enum — `pkg/enums/httpmethodtype/variant.go`
+# HttpMethod Enum — `pkg/enums/httpmethodtype/variant.go` (AI Execution Prompt)
+
+> **/goal** Eliminate all magic string HTTP method literals (`"GET"`, `"POST"`, `"PUT"`, `"DELETE"`) across Go services and CLIs by standardizing on the shared `pkg/enums/httpmethodtype` enum.
+> **/learn** Master the Go enum architecture: typed `byte` variant with iota, PascalCase string lookup tables, `.HttpVerb()` representation, domain predicate helpers (`.HasBody()`, `.IsSafe()`, `.IsIdempotent()`), and JSON un/marshaling.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw HTTP method string literals in `http.NewRequest` and API calls with `httpmethodtype.Variant` or `.HttpVerb()`.
+- [ ] `/learn` Never define local ad-hoc HTTP method constants or strings; import from the shared `pkg/enums/httpmethodtype` package.
+- [ ] `/goal` Use variant checker methods (`.IsGet()`, `.IsPost()`) and semantic predicates (`.HasBody()`, `.IsSafe()`) instead of manual string comparisons.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version**: 3.0.0
 > **Last updated**: 2026-02-28
@@ -246,3 +258,21 @@ type Request struct {
 - Enum architecture: `02-spec/10-brun-cli/01-backend/19-enum-architecture.md` §7
 - Audit report: `02-spec/23-how-app-issues-track/07-magic-string-tuple-return-audit.md`
 - Enum standard memory: `architecture/enum-standard`
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-003: HttpMethod Enum Standard and Magic String Elimination
+
+**Given** Go source code across packages and CLI modules.
+**When** Guideline linters audit the codebase.
+**Then** All HTTP request construction, routing, and method comparisons utilize `pkg/enums/httpmethodtype` rather than magic string literals, with zero violations detected.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang --check-only
+```
+**Expected:** exit 0. Zero violations detected.

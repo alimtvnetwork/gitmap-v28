@@ -1,4 +1,16 @@
-# Common AI Mistakes
+# Common AI Mistakes (AI Execution Prompt)
+
+> **/goal** Prevent the top 20 recurring AI coding mistakes through concrete before-and-after examples and proactive pattern recognition warnings.
+> **/learn** Recognize early hallucination signals such as camelCase JSON tags, `(T, error)` Go returns, unhandled promise chaining, and missing cache TTLs.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Eliminate camelCase JSON keys, multi-return Go signatures, and raw `fmt.Errorf` calls before code emission.
+- [ ] `/learn` Replace sequential `await` calls with parallel execution constructs whenever asynchronous tasks are independent.
+- [ ] `/goal` Invalidate cache stores immediately following entity mutations and enforce explicit query cache stale times.
+- [ ] `/learn` Cross-reference generated code against the top 20 common mistake catalog prior to completing tasks.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -461,3 +473,21 @@ const { data } = useQuery({
 ---
 
 *Common AI mistakes v1.1.0 — 2026-04-04*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-ai-optimization/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-AI-004: Common AI Mistakes Prevention & Remediation
+
+**Given** AI agents operating within the repository and codebase guidelines.
+**When** Audited against this optimization specification.
+**Then** Zero compliance or citation failures are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-ai-optimization --check-only
+```
+**Expected:** exit 0. Zero violations.

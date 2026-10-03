@@ -1,4 +1,16 @@
-# Performance — Probe Order, Parallelism, Timeouts
+# Performance — Probe Order, Parallelism, Timeouts (AI Execution Prompt)
+
+> **/goal** Enforce strict performance budgets (< 30s wall-clock on 50 kLOC repos), middle-out probe ordering, worker pool parallelism, and robust timeout guards.
+> **/learn** Master median-outward directory sorting, rule-language tuple parallelism (`--jobs auto`), and tiered per-check timeout failure handling.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Apply middle-out probe ordering to surface violations from dense code paths first.
+- [ ] `/learn` Parallelize execution at the (rule, language) tuple level using worker pools sized to `nproc - 1`.
+- [ ] `/goal` Enforce hard timeout budgets: 20s per check, 120s total orchestrator run, and 2s per file parse.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-04-19
@@ -138,3 +150,21 @@ findings (`1`).
 ---
 
 *Part of [CI/CD Integration](./readme.md)*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CI-008: Probe Ordering, Parallelism, and Timeout Budgets
+
+**Given** CI/CD pipeline infrastructure and linter configurations.
+**When** Audited against this integration specification.
+**Then** Zero configuration or SARIF contract defects exist and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -13,9 +13,9 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, '../../..');
+const ROOT = resolve(__dirname, '../../../..');
 
-const MASTER_INDEX = resolve(ROOT, '02-spec/07-error-code-registry/error-codes-master.json');
+const MASTER_INDEX = resolve(__dirname, '../error-codes-master.json');
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -24,15 +24,24 @@ function loadJson(path) {
   return JSON.parse(readFileSync(path, 'utf-8'));
 }
 
-function extractEcosystemCodes(index) {
+function extractEcosystemCodes(index, ranges) {
   const codes = [];
   if (!index?.Categories) return codes;
+
+  function inRange(code) {
+    if (!ranges || ranges.length === 0) return true;
+    return ranges.some(r => {
+      const rMin = r.Min ?? r.min;
+      const rMax = r.Max ?? r.max;
+      return code >= rMin && code <= rMax;
+    });
+  }
 
   for (const cat of index.Categories) {
     if (!cat.Codes) continue;
     for (const entry of cat.Codes) {
       // Integer code = ecosystem code
-      if (typeof entry.Code === 'number') {
+      if (typeof entry.Code === 'number' && inRange(entry.Code)) {
         codes.push({
           Code: entry.Code,
           Constant: entry.Constant,
@@ -44,6 +53,29 @@ function extractEcosystemCodes(index) {
     }
   }
   return codes;
+}
+
+function groupModulesByIndex(modules) {
+  const groups = new Map();
+
+  for (const mod of modules) {
+    const key = mod.IndexFile ?? mod.indexFile;
+    if (!key) continue; // Skip modules with no index file yet
+    if (!groups.has(key)) {
+      groups.set(key, { projects: [], ranges: [], names: [] });
+    }
+    const g = groups.get(key);
+    const proj = mod.Project ?? mod.project;
+    g.projects.push(proj);
+    g.names.push(mod.Name ?? mod.name);
+    const rawRanges = mod.Ranges ?? mod.ranges ?? (mod.Range ? [mod.Range] : (mod.range ? [mod.range] : []));
+    const rs = rawRanges.map(r => ({ min: r.Min ?? r.min, max: r.Max ?? r.max }));
+    const remap = mod.EcosystemRemapRange ?? mod.ecosystemRemapRange;
+    if (remap) rs.push({ min: remap.Min ?? remap.min, max: remap.Max ?? remap.max });
+    g.ranges.push(...rs);
+  }
+
+  return groups;
 }
 
 // ── Main ─────────────────────────────────────────────────────────────
@@ -66,29 +98,37 @@ function main() {
   let filesScanned = 0;
 
   for (const mod of master.Modules) {
-    const indexPath = resolve(ROOT, mod.IndexFile);
+    if (!mod.IndexFile) {
+      moduleResults.push({ Project: mod.Project, Name: mod.Name, Status: 'UNINDEXED', Codes: 0 });
+    }
+  }
+
+  const groups = groupModulesByIndex(master.Modules);
+
+  for (const [indexFile, group] of groups) {
+    const indexPath = resolve(ROOT, indexFile);
     const index = loadJson(indexPath);
 
     if (!index) {
-      moduleResults.push({ Project: mod.Project, Name: mod.Name, Status: 'MISSING', Codes: 0 });
+      moduleResults.push({ Project: group.projects.join('/'), Name: group.names.join(' & '), Status: 'MISSING', Codes: 0 });
       continue;
     }
 
     filesScanned++;
-    const codes = extractEcosystemCodes(index);
+    const codes = extractEcosystemCodes(index, group.ranges);
     totalCodes += codes.length;
 
-    moduleResults.push({ Project: mod.Project, Name: mod.Name, Status: 'OK', Codes: codes.length });
+    moduleResults.push({ Project: group.projects.join('/'), Name: group.names.join(' & '), Status: 'OK', Codes: codes.length });
 
     for (const c of codes) {
       if (!allCodes.has(c.Code)) {
         allCodes.set(c.Code, []);
       }
       allCodes.get(c.Code).push({
-        Project: mod.Project,
+        Project: group.projects.join('/'),
         Constant: c.Constant,
         Category: c.Category,
-        File: mod.IndexFile,
+        File: indexFile,
       });
     }
   }
@@ -103,7 +143,7 @@ function main() {
     console.log(`  ${icon} ${m.Project.padEnd(8)} ${m.Name.padEnd(40)} ${codesStr}`);
   }
   console.log('─'.repeat(60));
-  console.log(`  Files: ${filesScanned}/${master.Modules.length}  |  Ecosystem codes: ${totalCodes}\n`);
+  console.log(`  Files: ${filesScanned}/${groups.size}  |  Ecosystem codes: ${totalCodes}\n`);
 
   // ── Collision detection ──────────────────────────────────────────
 
@@ -130,10 +170,18 @@ function main() {
       const a = moduleRanges[i];
       const b = moduleRanges[j];
       if (a.Min <= b.Max && b.Min <= a.Max) {
-        // Check if it's the known intentional PS/AB overlap
-        const knownOverlap =
+        // Check if it's the known intentional PS/AB, AB/AB-LR, or GS/BR overlap
+        const isKnownPsAb =
           (a.Project === 'AB' || b.Project === 'AB') &&
           master.SpecialRanges?.some(s => s.Project === 'PS/AB');
+        const isAbSubset =
+          (a.Project === 'AB' && b.Project === 'AB-LR') ||
+          (a.Project === 'AB-LR' && b.Project === 'AB');
+        const isGsBr =
+          (a.Project === 'GS' && b.Project === 'BR') ||
+          (a.Project === 'BR' && b.Project === 'GS');
+        const knownOverlap = isKnownPsAb || isAbSubset || isGsBr;
+
         rangeOverlaps.push({
           A: `${a.Project} [${a.Min}-${a.Max}]`,
           B: `${b.Project} [${b.Min}-${b.Max}]`,
@@ -158,8 +206,8 @@ function main() {
   // ── Duplicate constant detection (within same module) ────────────
 
   const dupConstants = [];
-  for (const mod of master.Modules) {
-    const indexPath = resolve(ROOT, mod.IndexFile);
+  for (const [indexFile, group] of groups) {
+    const indexPath = resolve(ROOT, indexFile);
     const index = loadJson(indexPath);
     if (!index?.Categories) continue;
 
@@ -169,7 +217,7 @@ function main() {
       for (const entry of cat.Codes) {
         if (seen.has(entry.Constant)) {
           dupConstants.push({
-            Project: mod.Project,
+            Project: group.projects.join('/'),
             Constant: entry.Constant,
             First: seen.get(entry.Constant),
             Second: typeof entry.Code === 'number' ? entry.Code : entry.LocalCode ?? entry.Code,

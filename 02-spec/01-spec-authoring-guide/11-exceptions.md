@@ -123,7 +123,7 @@ spec/
 34-time-log-cli/                  # Headless CLI
 ├── 01-backend/                  # ✅ Present
 ├── 03-deploy/                   # ✅ Present (note: still uses 03, NOT 02)
-├── 01-index.md
+├── readme.md
 └── 99-consistency-report.md
                                  # 02-frontend/ intentionally omitted
 
@@ -152,7 +152,7 @@ spec/
 └── ...
 ```
 
-**Policy:** Additional subfolders are permitted when a CLI has significant feature areas beyond the core 3. They MUST follow the same naming convention and contain `01-index.md`.
+**Policy:** Additional subfolders are permitted when a CLI has significant feature areas beyond the core 3. They MUST follow the same naming convention and contain `readme.md`.
 
 ---
 
@@ -175,7 +175,7 @@ spec/
 └── 03-coding-guidelines/            # Level 1
     └── 03-golang/                    # Level 2
         └── 01-enum-specification/    # Level 3 (maximum)
-            ├── 01-index.md
+            ├── readme.md
             ├── 01-{file}.md
             └── ...
 ```
@@ -227,7 +227,7 @@ spec/
 - **Never** suggest, recommend, hint at, ask about, or auto-add anything
   related to timestamps inside `readme.txt`.
 - **Never** mention "git update time", commit time, last-modified time,
-  scheduled regeneration, cron jobs, or any time-flavored workflow in
+  scheduled regeneration, cron jobs, or any time-flavoured workflow in
   or about `readme.txt`.
 - **Never** propose helper scripts, hooks, or CI tasks whose purpose is
   to keep `readme.txt` time fresh.

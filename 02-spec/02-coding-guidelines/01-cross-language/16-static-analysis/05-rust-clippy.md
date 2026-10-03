@@ -1,4 +1,16 @@
-# Rust — Clippy Lint Enforcement
+# Rust — Clippy Lint Enforcement (AI Execution Prompt)
+
+> **/goal** Configure and enforce Clippy lints, compiler warnings, and rustfmt to automate Rust coding guidelines in CI/CD pipelines.
+> **/learn** Enforce zero nested if statements, max 15 lines per function, max 3 parameters, cognitive complexity ≤ 10, ban `unwrap()` in production, and handle all Results.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Deny `clippy::collapsible_if` and `clippy::collapsible_else_if` to block nested `if` statements with zero tolerance.
+- [ ] `/learn` Enforce function size (`too-many-lines-threshold = 15`) and argument limit (`too-many-arguments-threshold = 3`) via `clippy.toml`.
+- [ ] `/goal` Deny `clippy::unwrap_used` and `clippy::expect_used` to mandate safe error handling in production code.
+- [ ] `/learn` Enforce cognitive complexity caps (`cognitive-complexity-threshold = 10`) and compiler warnings as errors (`#![deny(unused_must_use)]`).
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -169,6 +181,24 @@ cargo fmt --all -- --check
 - [Rust Coding Standards](../../05-rust/readme.md) — Rust-specific guidelines
 - [Cross-Language Code Style](../04-code-style/readme.md) — Source rules
 - [Master Coding Guidelines](../15-master-coding-guidelines/readme.md) — Full checklist
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-RUST: Rust Clippy Lint & Compiler Warning Static Analysis Enforcement
+
+**Given** Rust crate sources and configuration (`clippy.toml`, `rustfmt.toml`).
+**When** Cargo Clippy and rustc audit the codebase during local checks or CI runs.
+**Then** All Clippy warnings are denied (`-D warnings`), nesting depth is ≤ 1, functions do not exceed 15 lines, and zero unhandled Results or unwraps occur.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

@@ -1,6 +1,6 @@
 # Backend error.log.txt with Delegated Server Info
 
-> **Parent:** [Copy Formats Index](./01-index.md)
+> **Parent:** [Copy Formats Index](./readme.md)
 > **Version:** 3.2.0
 > **Updated:** 2026-03-31
 > **Purpose:** Enhanced error.log.txt format that includes the Delegated Server Info section when the Go backend proxied a request to a downstream server.

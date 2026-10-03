@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 const THRESHOLD = 0.30; // 30%
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const MASTER = resolve(__dir, '../../..', '02-spec/07-error-code-registry/error-codes-master.json');
+const MASTER = resolve(__dir, '../error-codes-master.json');
 const master = JSON.parse(readFileSync(MASTER, 'utf-8'));
 
 function rangeCapacity(mod) {

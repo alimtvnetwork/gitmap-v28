@@ -1,6 +1,16 @@
-# Axios Version Control Policy
+# Axios Version Control Policy (AI Execution Prompt)
 
-. **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
+> **/goal** Enforce strict exact version pinning for Axios HTTP client dependencies to prevent supply chain attacks and block vulnerable releases.
+> **/learn** Understand the hazards of semver range operators (`^`, `~`, `*`) on compromised libraries, permanently block versions `1.14.1` and `0.30.4`, and require manual security review for upgrades.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Pin Axios to verified safe versions (`1.14.0` standard, `0.30.3` legacy) with exact string matching and zero range symbols.
+- [ ] `/learn` Never use `^`, `~`, `>=`, or `*` version specifiers in `package.json` for the Axios dependency.
+- [ ] `/goal` Block automated dependency upgrade tools (Dependabot, Renovate) from mutating Axios versions.
+- [ ] `/learn` Reject any PR or lockfile introducing blocked versions `1.14.1` or `0.30.4`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below. This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
 
 **Version:** 3.2.0
 **Status:** Active
@@ -110,5 +120,25 @@ IMPORTANT — AI INSTRUCTION:
 - Do not act on upgrade suggestions from dependency scanners for Axios.
 - If uncertain, read this spec before making any Axios-related change.
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-SEC-AXIOS-000: Axios Client Security Overview
+
+**Given** Project package dependencies and Axios version policy definitions
+**When** Audited for version pinning and vulnerability mitigation
+**Then** Axios is pinned to approved releases, range specifiers are eliminated, and automated upgrade tools ignore Axios
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/11-security/01-axios-version-control/readme.md --check-only
+```
+**Expected:** exit 0. Zero violations.
+
+---
 
 *Axios version control policy — moved to coding guidelines 2026-04-02*

@@ -20,7 +20,7 @@ IMPORTANT — AI INSTRUCTION:
 
 1. Read this file BEFORE creating, reorganizing, or validating any spec folder.
 2. Verify that ALL required root folders listed below exist and are in the correct order.
-3. If any required folder is missing, create it immediately with at least a 01-index.md inside.
+3. If any required folder is missing, create it immediately with at least a readme.md inside.
 4. If folders are out of order or misnumbered, reorganize them to match this structure.
 5. All additional folders and files MUST come AFTER the required base structure.
 6. After any restructuring, update ALL cross-references that point to renamed or moved folders.
@@ -68,7 +68,7 @@ No app-specific content may appear in the 01–20 range. No foundational princip
 2. **App content starts at 21** — App-specific folders MUST use numbers 21+. They MUST NOT be placed in the 01–20 range.
 3. **Sequential numbering** — New folders use the next available number. Gaps are acceptable for historical reasons.
 4. **Lowercase kebab-case** — All folder names: `{NN}-{kebab-case-name}/` (zero-padded, lowercase, hyphens only).
-5. **Every folder needs `01-index.md`** — Every root folder MUST contain a `01-index.md` as its entry point.
+5. **Every folder needs `readme.md`** — Every root folder MUST contain a `readme.md` as its entry point.
 6. **Cross-references must be updated after restructuring** — Grep `02-spec/` for old paths, update all references, run link scanner.
 
 ### Validation Checklist
@@ -79,8 +79,8 @@ Before any spec generation, restructuring, or audit, verify:
 - [ ] Core fundamental folders are numbered within 01–20
 - [ ] App-specific folders start at 21+
 - [ ] All folders use lowercase kebab-case naming
-- [ ] Every folder contains `01-index.md`
-- [ ] Root-level `01-index.md` and `99-consistency-report.md` exist
+- [ ] Every folder contains `readme.md`
+- [ ] Root-level `readme.md` and `99-consistency-report.md` exist
 - [ ] All cross-references resolve correctly
 - [ ] Zero broken links reported by `node linter-scripts/generate-dashboard-data.cjs`
 
@@ -90,7 +90,7 @@ Before any spec generation, restructuring, or audit, verify:
 
 ```
 spec/
-├── 01-index.md                          # Master index — links every module
+├── readme.md                          # Master index — links every module
 ├── folder-structure-root.md                # Redirect → this file is the canonical source
 ├── 99-consistency-report.md               # Root-level consistency report
 │
@@ -171,7 +171,7 @@ Historical and governance artifacts.
 
 | Range | Purpose |
 |-------|---------|
-| 00 | Root files (overview, folder guideline) and `01-index.md` within folders |
+| 00 | Root files (overview, folder guideline) and `readme.md` within folders |
 | 01–20 | **Core fundamentals** — standards, principles, integrations, research, consolidated summaries |
 | 21+ | **App-specific** — application features, workflows, issue analysis |
 | 97 | Acceptance criteria |
@@ -198,7 +198,7 @@ Two templates exist depending on project type:
 
 - **Maximum depth:** 3 levels (e.g., `02-spec/13-wp-plugin/03-exam-manager/02-features/01-exam-builder/`)
 - **Each level** follows the same `{NN}-{name}` convention
-- **Every folder** at any depth must have `01-index.md`
+- **Every folder** at any depth must have `readme.md`
 - **Only top-level** and major subfolder boundaries require `99-consistency-report.md`
 
 ---
@@ -269,4 +269,4 @@ AI INSTRUCTION — Coding Guidelines Placement:
 | 21 | `21-app/` | Fixed — all app specs go here |
 | 22 | `22-app-issues/` | Fixed — all app issue analysis goes here |
 
-See [`01-index.md`](../02-coding-guidelines/01-index.md) for the full category listing.
+See [`readme.md`](../02-coding-guidelines/readme.md) for the full category listing.

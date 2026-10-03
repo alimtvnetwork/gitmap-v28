@@ -1,6 +1,6 @@
 # Envelope Parsing & Enrichment
 
-> **Parent:** [Error Modal Reference](./01-index.md)
+> **Parent:** [Error Modal Reference](./readme.md)
 > **Version:** 2.2.0
 > **Updated:** 2026-03-31
 

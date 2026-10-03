@@ -3,7 +3,7 @@
 **Version:** 3.2.0
 **Created:** 2026-03-09
 **Status:** Active
-**Parent:** [01-index.md](../01-index.md)
+**Parent:** [readme.md](../readme.md)
 
 ---
 
@@ -647,6 +647,6 @@ func (m *UserDbManager) DeleteAllUserData(appName, userId string, companySlug ..
 
 ## References
 
-- [01-index.md](../01-index.md) - Split DB Architecture Overview
+- [readme.md](../readme.md) - Split DB Architecture Overview
 - [01-cli-examples.md](./02-cli-examples.md) - CLI-specific Examples
 - [04-rbac-casbin.md](./05-rbac-casbin.md) - RBAC with Casbin

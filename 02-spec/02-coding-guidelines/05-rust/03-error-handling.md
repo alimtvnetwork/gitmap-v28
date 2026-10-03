@@ -1,4 +1,17 @@
-# Rust Error Handling
+# Rust Error Handling (AI Execution Prompt)
+
+> **/goal** Enforce structured, robust Rust error handling using the dual `thiserror` and `anyhow` pattern with numerical error codes and wire-format serialization.
+> **/learn** Master the error handling taxonomy: `thiserror` for strongly-typed domain errors with project error codes, `anyhow` with context for application workflows, and serialized PascalCase `ErrorResponse` envelopes.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Define domain and library errors using `thiserror::Error` with strongly typed variants and numerical error codes.
+- [ ] `/learn` Propagate application and CLI workflow errors using `anyhow::Result` with `.context()` annotations.
+- [ ] `/goal` Map domain errors to serialized `ErrorResponse` and `ErrorDetail` structs using `#[serde(rename_all = "PascalCase")]`.
+- [ ] `/learn` Prohibit bare `.unwrap()` or `.expect()` in production code paths; handle all `Result` and `Option` types explicitly.
+- [ ] `/learn` Verify zero guideline violations via `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -49,7 +62,7 @@ AppError (thiserror)
 ```rust
 use thiserror::Error;
 
-// ✅ Correct — each error variant maps to an error code
+// ✅ REQUIRED — each error variant maps to an error code
 #[derive(Debug, Error)]
 pub enum CollectorError {
     #[error("Collector '{name}' failed to start: {source}")]
@@ -85,7 +98,7 @@ impl CollectorError {
 ### Rule 1: Use `Result<T, E>` everywhere — never panic in production code
 
 ```rust
-// ✅ Correct
+// ✅ REQUIRED
 pub fn load_config(path: &Path) -> Result<Config, ConfigError> {
     let content = std::fs::read_to_string(path)
         .map_err(|_| ConfigError::FileNotFound(path.to_path_buf()))?;
@@ -93,7 +106,7 @@ pub fn load_config(path: &Path) -> Result<Config, ConfigError> {
         .map_err(|error| ConfigError::ParseError { path: path.to_path_buf(), error })
 }
 
-// ❌ Forbidden — unwrap in non-test code
+// ❌ FORBIDDEN — unwrap in non-test code
 pub fn load_config(path: &Path) -> Config {
     let content = std::fs::read_to_string(path).unwrap();
     toml::from_str(&content).unwrap()
@@ -103,7 +116,7 @@ pub fn load_config(path: &Path) -> Config {
 ### Rule 2: Use `anyhow` at application boundaries only
 
 ```rust
-// ✅ Correct — main.rs uses anyhow for top-level error handling
+// ✅ REQUIRED — main.rs uses anyhow for top-level error handling
 use anyhow::{Context, Result};
 
 #[tokio::main]
@@ -120,7 +133,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-// ❌ Forbidden — anyhow in library/domain code
+// ❌ FORBIDDEN — anyhow in library/domain code
 pub fn start_collector(&mut self) -> anyhow::Result<()> {
     // Domain code should use specific error types
 }
@@ -129,14 +142,14 @@ pub fn start_collector(&mut self) -> anyhow::Result<()> {
 ### Rule 3: Always add context when converting errors
 
 ```rust
-// ✅ Correct — context explains what operation failed
+// ✅ REQUIRED — context explains what operation failed
 let database = SqliteStorage::open(&database_path)
     .map_err(|error| DatabaseError::OpenFailed {
         path: database_path.clone(),
         source: error,
     })?;
 
-// ❌ Forbidden — bare ? without context
+// ❌ FORBIDDEN — bare ? without context
 let database = SqliteStorage::open(&database_path)?;
 ```
 
@@ -154,10 +167,10 @@ let database = SqliteStorage::open(&database_path)?;
 ### `expect()` vs `unwrap()`
 
 ```rust
-// ✅ Correct in tests — expect() with descriptive message
+// ✅ REQUIRED in tests — expect() with descriptive message
 let config = Config::load(&path).expect("test config should be valid");
 
-// ❌ Forbidden in tests — bare unwrap gives no context
+// ❌ FORBIDDEN in tests — bare unwrap gives no context
 let config = Config::load(&path).unwrap();
 ```
 
@@ -228,3 +241,21 @@ impl From<&AppError> for ErrorResponse {
 | Error Code Registry | `../../03-error-manage/03-error-code-registry/01-registry.md` |
 | Error Resolution Spec | `../../03-error-manage/readme.md` |
 | Cross-Language Guidelines | `../01-cross-language/readme.md` |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/05-rust/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-RUST-003: Rust Result Handling, Error Trait and No Panics
+
+**Given** Rust source code across library crates, domain modules, and application binaries.
+**When** Audited against this specification using guideline linters and static checks.
+**Then** All domain errors implement `std::error::Error` (via `thiserror`), application orchestration uses `anyhow::Result` with context, production code avoids `.unwrap()` and `.expect()` panics, and zero violations are detected with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/05-rust --check-only
+```
+**Expected:** exit 0. Zero violations.

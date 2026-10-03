@@ -1,4 +1,16 @@
-# Enum Specification
+# Enum Specification (AI Execution Prompt)
+
+> **/goal** Define and enforce the universal byte-based enum pattern, required methods, folder layout, and info-object metadata across all Go CLI applications.
+> **/learn** Master byte-based enum efficiency, Invalid zero-value requirement, PascalCase labels, single lookup tables, and compile-time validation rules.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce byte-based `Variant` type definitions starting with `Invalid Variant = iota` zero-value.
+- [ ] `/learn` Ban string-based or int-based enums, legacy `Unknown` constants, and loose multi-file enum scattering.
+- [ ] `/goal` Verify each enum package implements required methods (`String`, `Label`, `IsValid`, `Is{Value}`, `All`, `Parse`, `MarshalJSON`).
+- [ ] `/learn` Ensure all enum directories live under `internal/enums/` or `pkg/enums/` with mandatory `type` package suffix.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 . **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
 
@@ -157,3 +169,21 @@ internal/enums/
 ---
 
 *Universal enum standard for Go CLI ecosystem.*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-ENUM-000: Go Enum Specification Index Conformance
+
+**Given** Go source code defining domain enums.
+**When** Enum implementations are audited against Go enum specifications.
+**Then** Universal enum architecture, byte-based typing, required methods, and directory conventions are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/01-enum-specification --check-only
+```
+**Expected:** exit 0. Zero violations.

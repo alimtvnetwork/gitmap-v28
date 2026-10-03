@@ -1,12 +1,39 @@
-# Acceptance Criteria — Fix-Repo & Installers
+# Acceptance Criteria — Fix-Repo & Installers (AI Execution Prompt)
 
-> **Version:** 1.0.0 · **Updated:** 2026-04-28
-> Each item is a binary check. The "Test" column points at an executable
-> proof in `tests/installer/` (Bash) or `linter-scripts/tests/` (Python).
+> **/goal** Provide a consolidated, traceable acceptance criteria registry and verification test matrix for fix-repo, installer, and visibility-change scripts.
+> **/learn** Master the AC-CG-INSTALL criteria taxonomy, binary verification proofs, test suite bindings in tests/installer/, and CODE RED limits.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify all script contracts map 1:1 to executable test cases in `tests/installer/` and `linter-scripts/`.
+- [ ] `/learn` Maintain zero behavioral divergence between Bash (`.sh`) and PowerShell (`.ps1`) implementations.
+- [ ] `/goal` Enforce CODE RED limits (≤ 300 script lines, ≤ 8–15 function lines, zero nested conditionals, positive booleans).
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+**Version:** 1.0.0
+**Updated:** 2026-04-28
+**Status:** Active
+**AI Confidence:** Production-Ready
+**Ambiguity:** None — every criterion is backed by an executable test in `tests/installer/`.
 
 ---
 
-## AC-FR — fix-repo
+## 1. Fix-Repo & Installers Criteria Inventory (`AC-CG-INSTALL-`)
+
+| ID | Title | Authoritative Specification | Verification Command |
+|:---|:---|:---|:---|
+| `AC-CG-INSTALL-001` | Fix-Repo & Installer Scripts Index Conformance | [`readme.md`](readme.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only` |
+| `AC-CG-INSTALL-002` | Fix-Repo Version Token Rewriter Specification Conformance | [`02-fix-repo-contract.md`](02-fix-repo-contract.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only` |
+| `AC-CG-INSTALL-003` | Installer Scripts Specification Conformance | [`03-installer-contract.md`](03-installer-contract.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only` |
+| `AC-CG-INSTALL-004` | Visibility Change Script Specification Conformance | [`04-visibility-change-contract.md`](04-visibility-change-contract.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only` |
+
+---
+
+## 2. Binary Test Suite Mappings
+
+### AC-FR — fix-repo
 
 | # | Criterion | Test |
 |---|---|---|
@@ -22,7 +49,7 @@
 
 ---
 
-## AC-INST — install.sh / install.ps1
+### AC-INST — install.sh / install.ps1
 
 | # | Criterion | Test |
 |---|---|---|
@@ -38,7 +65,7 @@
 
 ---
 
-## AC-REL — release-install.sh / .ps1
+### AC-REL — release-install.sh / .ps1
 
 | # | Criterion | Test |
 |---|---|---|
@@ -52,7 +79,7 @@
 
 ---
 
-## AC-VC — visibility-change
+### AC-VC — visibility-change
 
 | # | Criterion | Test |
 |---|---|---|
@@ -64,7 +91,7 @@
 
 ---
 
-## AC-CR — CODE RED compliance (all four scripts)
+### AC-CR — CODE RED compliance (all four scripts)
 
 | # | Criterion | Verification |
 |---|---|---|
@@ -80,18 +107,98 @@
 
 ---
 
-## How to run the matrix
+## 3. Detailed Acceptance Criteria Specifications
+
+### AC-CG-INSTALL-001: Fix-Repo and Installer Scripts Index Conformance
+
+- [ ] Root `readme.md` provides complete module navigation, execution prompts, and cross-references.
+- [ ] All specification files in `08-fix-repo-and-installers/` adhere to active prompt anatomy, checklist headers, and acceptance criteria blocks.
+- [ ] Dual Bash (`.sh`) and PowerShell (`.ps1`) script siblings maintain 100% behavioral parity.
+
+**Given** Installer and auto-fix repository management specifications.
+**When** Audited against this installation specification.
+**Then** Zero contract or visibility violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only
+```
+**Expected:** exit 0. Zero violations.
+
+---
+
+### AC-CG-INSTALL-002: Fix-Repo Version Token Rewriter Specification Conformance
+
+- [ ] `fix-repo.sh` and `fix-repo.ps1` both exist at repo root, parse origin remote URL, and validate `-v(\d+)$` version suffix.
+- [ ] Default mode replaces last 2 prior versions; `--3`, `--5`, `--all` are accepted, and closed set rejects `--4`, `--6` with exit `6`.
+- [ ] Numeric-overflow guard ensures non-target versions (`coding-guidelines-v170`) are untouched, while URLs are rewritten with host preserved.
+- [ ] Execution is idempotent, honors `.gitignore` via `git ls-files -z`, and supports `--dry-run` without modifying files.
+- [ ] Deterministic exit codes `2` (`E_NOT_A_REPO`), `3` (`E_NO_REMOTE`), `4` (`E_NO_VERSION_SUFFIX`), `5` (`E_BAD_VERSION`), `6` (`E_BAD_FLAG`), `7` (`E_WRITE_FAILED`) are enforced.
+
+**Given** Installer scripts and repository fix infrastructure.
+**When** Audited against this contract specification.
+**Then** Zero contract drift is detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only
+```
+**Expected:** exit 0. Zero violations.
+
+---
+
+### AC-CG-INSTALL-003: Installer Scripts Specification Conformance
+
+- [ ] Mandatory configuration banner is printed before any network call or remote probe across `install.*` and `release-install.*`.
+- [ ] `-n` / `--no-latest` skips latest probe, while `--version <tag>` engages pinned mode end-to-end.
+- [ ] Pinned mode never queries `/releases/latest`, never falls back to `main`, and never crosses repository boundaries.
+- [ ] Resolution precedence enforces `--version` > `INSTALLER_VERSION` > baked placeholder, emitting `WARN` on disagreement.
+- [ ] SHA-256 verification against `checksums.txt` exits `4` on checksum mismatch.
+- [ ] Downstream fix-repo execution via `--run-fix-repo` captures logs, rotates history, and propagates exit codes 1:1.
+- [ ] Unified exit codes `0` (Success), `1` (Generic failure), `2` (Offline/Invalid version), `3` (Asset 404), `4` (Verify failed), `5` (Handoff rejected) are strictly raised.
+
+**Given** Installer scripts and repository fix infrastructure.
+**When** Audited against this contract specification.
+**Then** Zero contract drift is detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only
+```
+**Expected:** exit 0. Zero violations.
+
+---
+
+### AC-CG-INSTALL-004: Visibility Change Script Specification Conformance
+
+- [ ] Provider auto-detection distinguishes GitHub vs GitLab from origin remote URL, exiting `4` on unsupported hosts.
+- [ ] `--visible pub|pri` and default toggle parse cleanly; invalid values exit `6`.
+- [ ] Interactive confirmation prompt protects `private → public` transitions unless `--yes` / `-y` is provided.
+- [ ] Non-interactive stdin without `--yes` aborts with exit `7`.
+- [ ] `--dry-run` performs no API calls and prefixes output with `[dry-run]`.
+- [ ] Verification re-reads visibility post-apply and raises exit code `8` if unchanged.
+- [ ] CODE RED standards enforced across all scripts: functions ≤ 8–15 effective lines, zero nested conditionals, positive booleans.
+
+**Given** Installer scripts and repository fix infrastructure.
+**When** Audited against this contract specification.
+**Then** Zero contract drift is detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only
+```
+**Expected:** exit 0. Zero violations.
+
+---
+
+## 4. How to Run the Verification Matrix
 
 ```bash
-
 # All installer + fix-repo + visibility tests
-
 bash tests/installer/run-tests.sh
 
 # CODE RED check on the 8 scripts
-
 bash linters-cicd/run-all.sh --path . --format text
 ```
 
-A green run of both commands satisfies every AC above except AC-CR-002
-(see note).
+A green run of both commands satisfies every AC above except AC-CR-002 (see note).

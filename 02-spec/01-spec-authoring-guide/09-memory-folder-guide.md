@@ -138,7 +138,7 @@ When an AI model first encounters this project, it should read `.ai-memory/` fil
 1. **`overview.md`** — Understand the project
 2. **`strictly-avoid.md`** — Know what NOT to do
 3. **`user-preferences`** — Adapt communication style
-4. **`memory/01-index.md`** — Survey all institutional knowledge
+4. **`memory/readme.md`** — Survey all institutional knowledge
 5. **`29-plan.md`** — Understand current work context
 6. **`suggestions.md`** — See pending improvement ideas
 7. **Individual memory files** — Deep-dive as needed per task
@@ -176,7 +176,7 @@ suggestions.md (summary) → suggestions/ (details) → suggestions/completed/
 |--------|---------|-------------|
 | Purpose | Formal specifications | Institutional knowledge & AI context |
 | Naming | Numeric prefix **required** | Numeric prefix **optional** |
-| Required files | `01-index.md`, `99-consistency-report.md` | `overview.md`, `memory/01-index.md` |
+| Required files | `readme.md`, `99-consistency-report.md` | `overview.md`, `memory/readme.md` |
 | Health scoring | ✅ Tracked by dashboard | ❌ Not scored |
 | AI consumption | Referenced during implementation | Referenced during **all** interactions |
 | Depth | Up to 3 levels | Up to 2 levels (category/file) |

@@ -1,4 +1,16 @@
-# Variadic & Spread Parameters Specification
+# Variadic & Spread Parameters Specification (AI Execution Prompt)
+
+> **/goal** Eliminate rigid slice and array parameters for APIs operating on homogenous collections by enforcing trailing variadic and spread parameter patterns across Go, TypeScript, and Rust.
+> **/learn** Master the anti-patterns of single-item slice wrappers (`[]string{id}`, `[id]`, `vec![id]`), understand compiler allocation avoidance, enforce the 2–3 parameter ceiling with trailing variadic positions, and apply native spread operators.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace rigid slice parameters (`items []string`) with variadic parameters (`...T` in Go, `...items: readonly T[]` in TypeScript, `&[T]` in Rust) for collection APIs.
+- [ ] `/learn` Never wrap single items in artificial slice or array literals at call sites (`fn(id)` instead of `fn([]string{id})` or `fn([id])`).
+- [ ] `/goal` Restrict signatures to a maximum of 2–3 parameters, placing the variadic collection strictly in the trailing position and packing options into a `*Params` struct.
+- [ ] `/learn` Forward variadic parameters to downstream functions using native spread syntax (`fn(items...)`, `fn(...items)`).
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 1.0.0
 **Updated:** 2026-10-02
@@ -359,7 +371,25 @@ ingest_records(std::iter::once("single-entry"))?;
 
 ---
 
-## 5. Verification & Acceptance Criteria
+## 5. Related Specifications
+
+- [`02-spec/02-coding-guidelines/01-cross-language/13-strict-typing.md`](13-strict-typing.md) — Strict typing rules and parameter count limits
+- [`02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`](18-code-mutation-avoidance.md) — Immutability patterns and avoiding side effects
+- [`02-spec/02-coding-guidelines/01-cross-language/32-branch-immutability-and-clean-construction.md`](32-branch-immutability-and-clean-construction.md) — Branch immutability and condition decomposition
+- [`02-spec/03-error-manage/02-error-architecture/06-apperror-package/02-apperror-reference.md`](../../03-error-manage/02-error-architecture/06-apperror-package/02-apperror-reference.md) — `*appfault.AppError` structured error return architecture
+- [`02-spec/21-app/01-variadic-spread-params-and-multi-repo/01-architecture-spec.md`](../../21-app/01-variadic-spread-params-and-multi-repo/01-architecture-spec.md) — Parent architecture specification
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TYPE-033: Variadic & Spread Parameter Conformance
+
+**Given** APIs accepting collections of homogenous elements across Go, TypeScript, and Rust.
+**When** Codebases and specifications are analyzed by linters or guideline verification suites.
+**Then** Trailing collection parameters are variadic (`...T`, `...items`, `&[T]`), callers pass single items without artificial wrapper literals, signatures do not exceed 2–3 parameters, and all examples strictly enforce affirmative booleans and relative paths.
 
 - **AC-CG-033-A:** All file paths and cross-references within this document use strictly relative git paths.
 - **AC-CG-033-B:** Function signatures across Go, TypeScript, and Rust adhere strictly to the maximum 2–3 parameter rule, placing variadic parameters in the trailing position.
@@ -367,12 +397,8 @@ ingest_records(std::iter::once("single-entry"))?;
 - **AC-CG-033-D:** All code examples strictly observe vertical blank line spacing rules (blank lines before `if`, after `}`, and before `return`).
 - **AC-CG-033-E:** All boolean conditions evaluate affirmatively using implicit checks with `is` or `has` prefixes, completely eliminating `== true` and mixed-polarity checks.
 
----
-
-## 6. Related Specifications
-
-- [`02-spec/02-coding-guidelines/01-cross-language/13-strict-typing.md`](13-strict-typing.md) — Strict typing rules and parameter count limits
-- [`02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`](18-code-mutation-avoidance.md) — Immutability patterns and avoiding side effects
-- [`02-spec/02-coding-guidelines/01-cross-language/32-branch-immutability-and-clean-construction.md`](32-branch-immutability-and-clean-construction.md) — Branch immutability and condition decomposition
-- [`02-spec/03-error-manage/01-apperror-architecture.md`](../../03-error-manage/01-apperror-architecture.md) — `*appfault.AppError` structured error return architecture
-- [`02-spec/21-app/01-variadic-spread-params-and-multi-repo/01-architecture-spec.md`](../../21-app/01-variadic-spread-params-and-multi-repo/01-architecture-spec.md) — Parent architecture specification
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/33-variadic-and-spread-parameters.md --check-only
+```
+**Expected:** exit 0. Zero violations detected.

@@ -1,4 +1,16 @@
-# Plugin Model — Adding a New Language
+# Plugin Model — Adding a New Language (AI Execution Prompt)
+
+> **/goal** Architect, implement, and register modular language plugins under `linters-cicd/checks/` to support new programming languages without modifying central orchestrators.
+> **/learn** Master the standard plugin contract (CLI flags `--path`, `--format`, standard exit codes `0/1/2`), fixture structures, and `registry.json` bindings.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Create isolated language plugins under `linters-cicd/checks/<rule>/<language>.py` implementing AST or regex analysis.
+- [ ] `/learn` Never modify `run-all.sh` or `action.yml` when adding a new language plugin; rely on `registry.json`.
+- [ ] `/goal` Supply mandatory positive and negative test fixtures under `linters-cicd/checks/<rule>/fixtures/<language>/`.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-04-19
@@ -44,7 +56,7 @@ Every check script:
 
 1. Is invoked as `python3 <script> --path <dir> [--format sarif|text]`.
 2. Walks files matching its language extensions only.
-3. Emits SARIF 2.1.0 per [`01-sarif-contract.md`](./02-sarif-contract.md).
+3. Emits SARIF 2.1.0 per [`02-sarif-contract.md`](./02-sarif-contract.md).
 4. Exits `0` (clean) / `1` (findings) / `2` (tool error).
 5. Has a sibling `<plugin>_test.py` with at least one bad fixture and
    one good fixture under `linters-cicd/checks/<rule>/fixtures/`.
@@ -83,3 +95,21 @@ Every check script:
 ---
 
 *Part of [CI/CD Integration](./readme.md)*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CI-003: Language Plugin Architecture and Registry Standards
+
+**Given** CI/CD pipeline infrastructure and linter configurations.
+**When** Audited against this integration specification.
+**Then** Zero configuration or SARIF contract defects exist and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only
+```
+**Expected:** exit 0. Zero violations.

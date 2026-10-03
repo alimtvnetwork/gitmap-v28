@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
-"""Multi-Repository Prompts, Skills, Coding Guidelines, and AI Scripts Synchronizer & Release Orchestrator.
+"""Multi-Repository Prompts, Skills, Shared Specs (01-20), and AI Scripts Synchronizer.
 
 Synchronizes canonical prompts (01-prompts/), Antigravity & Cursor skills (.agents/skills/, .cursor/skills/),
-AI scripts (03-ai-scripts/ and .agents/scripts/), and coding guidelines / design system specs
-(02-spec/02-coding-guidelines/, 02-spec/07-design-system/, 02-spec/17-consolidated-guidelines/,
-.ai-memory/coding-guidelines.md, .ai-memory/prompts.md) from coding-guidelines across all 43 connected repositories.
+shared specifications (02-spec/01-* through 02-spec/20-*), and additive AI scripts
+(03-ai-scripts/ and .agents/scripts/) from coding-guidelines across all 43 connected repositories.
 
-IMPORTANT: Never synchronizes 06-old-prompts/ (archived v1/v2/v3 prompts).
+Strict Non-Negotiable Boundaries:
+1. Spec 21 Exclusion: Never sync 02-spec/21-* through 02-spec/25-* (domain application specs).
+2. Additive-Only AI Scripts: Add new scripts; never overwrite scripts modified by target repos.
+3. Bump Script Protection: Never overwrite version bump scripts (bump*).
+4. Memory & Plans Protection: Never touch or overwrite .ai-memory/memory/ or .ai-memory/plans/.
+5. Archive Exclusion: Never synchronize 06-archive/ or 06-old-prompts/.
 
 Performs the complete, safe multi-branch backup and release ceremony per repo:
-1. Detect base/current branch and pull latest changes (`git pull origin <base_branch> --no-rebase`).
-2. Create and push pre-change backup branch (`backup/pre-v3-nsteps-sync-<timestamp>`).
-3. Ensure a pre-change release tag (`vX.Y.Z`) and release branch (`release/vX.Y.Z`) exist and are pushed before changes.
-4. Mirror 01-prompts/, .agents/skills/, .cursor/skills/, 03-ai-scripts/, .agents/scripts/, and conditional 02-spec / .ai-memory guidelines cleanly.
-5. Commit and push changes on the main/base branch.
-6. Create post-change release branch (`release/v<next_ver>`) and tag (`v<next_ver>`) and push to origin.
-7. Merge release branch back into base branch with `[skip ci]` and push.
+1. Detect base branch and pull latest changes (`git pull origin <base_branch> --no-rebase`).
+2. Create and push pre-change backup branch (`backup/sync-<timestamp>`).
+3. Return to base branch (`git checkout <base_branch>`).
+4. Ensure pre-change release tag exists.
+5. Mirror canonical assets with boundary protections.
+6. Commit and push changes on base branch.
+7. Post-change release ceremony with version bump and tag push.
 """
 from __future__ import annotations
 
@@ -81,19 +85,37 @@ TARGET_REPOS = [
     WORK_ROOT / "wp-onboarding",
 ]
 
-SYNC_DIRS = [
-    ("01-prompts", "01-prompts"),
-    (".agents/skills", ".agents/skills"),
-    (".cursor/skills", ".cursor/skills"),
-    ("03-ai-scripts", "03-ai-scripts"),
-    (".agents/scripts", ".agents/scripts"),
-    ("02-spec/02-coding-guidelines", "02-spec/02-coding-guidelines"),
-]
+def get_sync_dirs() -> list[tuple[str, str, bool]]:
+    """Build dynamic sync directory mappings including shared specs 01 to 20."""
+    dirs: list[tuple[str, str, bool]] = [
+        ("01-prompts", "01-prompts", False),
+        (".agents/skills", ".agents/skills", False),
+        (".cursor/skills", ".cursor/skills", False),
+        ("03-ai-scripts", "03-ai-scripts", True),
+        (".agents/scripts", ".agents/scripts", True),
+    ]
 
-CONDITIONAL_SPEC_DIRS = [
-    "02-spec/07-design-system",
-    "02-spec/17-consolidated-guidelines",
-]
+    spec_root = SOURCE_ROOT / "02-spec"
+
+    if spec_root.exists():
+        for p in sorted(spec_root.iterdir()):
+            if p.is_dir():
+                name = p.name
+                m = re.match(r"^(\d+)-", name)
+
+                if m:
+                    num = int(m.group(1))
+
+                    if 1 <= num <= 20:
+                        rel = f"02-spec/{name}"
+                        dirs.append((rel, rel, False))
+
+    return dirs
+
+
+SYNC_DIRS = get_sync_dirs()
+
+CONDITIONAL_SPEC_DIRS: list[str] = []
 
 CONDITIONAL_MEMORY_FILES = [
     ".ai-memory/coding-guidelines.md",
@@ -106,7 +128,20 @@ EXCLUDE_NAMES = {
     ".pytest_cache",
     ".mypy_cache",
     ".DS_Store",
+    "06-archive",
     "06-old-prompts",
+    "21-app",
+    "21-app-issues",
+    "21-app-db",
+    "21-app-ui-design-system",
+    "22-app-issues",
+    "23-app-db",
+    "24-app-ui-design-system",
+    "25-spec-audits",
+    "plans",
+    "temp-agents",
+    "cicd-issues",
+    "ambiguous-questions",
 }
 
 EXCLUDE_EXTS = {
@@ -114,6 +149,80 @@ EXCLUDE_EXTS = {
     ".pyo",
     ".tmp",
 }
+
+
+def is_spec_21(path: Path) -> bool:
+    """Check if directory/file belongs to 02-spec/21-* or higher application specs which must NEVER be synced."""
+    norm = str(path).replace("\\", "/").lower()
+
+    for i in range(21, 30):
+        if f"/{i:02d}-" in norm:
+            return True
+
+        if f"/{i}-" in norm:
+            return True
+
+        if f"spec/{i}" in norm:
+            return True
+
+    for part in path.parts:
+        for i in range(21, 30):
+            if part.startswith(f"{i:02d}-"):
+                return True
+
+            if part.startswith(f"{i}-"):
+                return True
+
+    return False
+
+
+def is_bump_script(path: Path) -> bool:
+    """Check if file is a version bump script that must not be overwritten."""
+    name = path.name.lower()
+    is_bump = "bump" in name
+    is_version = "version" in name or name.startswith("bump")
+
+    if is_bump:
+        if is_version:
+            return True
+
+    return False
+
+
+def is_protected_memory_or_plan(path: Path) -> bool:
+    """Check if file or directory belongs to protected .ai-memory areas.
+
+    Protects plans/, temp-agents/, cicd-issues/, memory/, ambiguous-questions/,
+    and operational memory files in target repositories.
+    Target repositories own their operational memory logs and execution plans.
+    These files must NEVER be overwritten, mirrored, or deleted during sync.
+    """
+    norm = str(path).replace("\\", "/").lower()
+
+    if ".ai-memory/memory" in norm:
+        return True
+
+    if ".ai-memory/plans" in norm:
+        return True
+
+    if ".ai-memory/temp-agents" in norm:
+        return True
+
+    if ".ai-memory/cicd-issues" in norm:
+        return True
+
+    if ".ai-memory/ambiguous-questions" in norm:
+        return True
+
+    for part in path.parts:
+        norm_part = part.lower()
+
+        if norm_part in ("memory", "plans", "temp-agents", "cicd-issues", "ambiguous-questions"):
+            if ".ai-memory" in norm:
+                return True
+
+    return False
+
 
 
 def run_cmd(cmd: str | list[str], cwd: Path) -> tuple[int, str, str]:
@@ -200,10 +309,66 @@ def bump_patch_version(ver_str: str) -> str:
     return f"{ver_str}.1"
 
 
-def copy_single_file(src_file: Path, dst_file: Path, is_dry_run: bool = False) -> int:
-    """Copy a single file if missing or changed. Returns 1 if copied, 0 otherwise."""
+def copy_single_file(
+    src_file: Path,
+    dst_file: Path,
+    repo_root: Path | None = None,
+    is_dry_run: bool = False,
+    is_additive_only: bool = False,
+) -> int:
+    """Copy a single file respecting the non-negotiable boundaries.
+
+    Boundary 1: Spec 21 Exclusion (never sync 02-spec/21-* to 25-*).
+    Boundary 2: Additive-Only AI Scripts (preserve repo modifications, update unmodified, add new).
+    Boundary 3: Bump Script Protection (never overwrite target bump scripts).
+    Boundary 4: Memory & Plans Protection (never overwrite or delete target memory/plans).
+    Boundary 5: Archive Exclusion (never sync 06-archive).
+    """
     if not src_file.exists():
         return 0
+
+    # Boundary 1: Spec 21 Exclusion
+    if is_spec_21(src_file):
+        return 0
+
+    if is_spec_21(dst_file):
+        return 0
+
+    # Boundary 4: Memory & Plans Protection
+    if is_protected_memory_or_plan(dst_file):
+        if dst_file.exists():
+            return 0
+
+    # Boundary 3: Bump Script Protection
+    is_bump = is_bump_script(dst_file)
+
+    if is_bump:
+        if dst_file.exists():
+            return 0
+
+    # Boundary 2: Additive-Only AI Scripts with repo modification checks
+    if is_additive_only:
+        if dst_file.exists():
+            if repo_root is not None:
+                try:
+                    rel_to_repo = dst_file.relative_to(repo_root)
+                    _, out_status, _ = run_cmd(["git", "status", "--porcelain", rel_to_repo.as_posix()], repo_root)
+
+                    if out_status.strip():
+                        return 0
+
+                    code_log, out_log, _ = run_cmd(["git", "log", "-n", "1", "--format=%s", "--", rel_to_repo.as_posix()], repo_root)
+
+                    if code_log == 0:
+                        if out_log.strip():
+                            last_commit = out_log.strip().lower()
+
+                            if "sync" not in last_commit:
+                                return 0
+                except Exception:
+                    return 0
+            else:
+                return 0
 
     is_copy_needed = False
 
@@ -228,45 +393,110 @@ def copy_single_file(src_file: Path, dst_file: Path, is_dry_run: bool = False) -
     return 0
 
 
-def mirror_directory(src: Path, dst: Path, is_dry_run: bool = False) -> tuple[int, int]:
-    """Mirror src into dst, removing stale files and copying new/updated ones."""
+def mirror_directory(
+    src: Path,
+    dst: Path,
+    repo_root: Path | None = None,
+    is_dry_run: bool = False,
+    is_additive_only: bool = False,
+) -> tuple[int, int]:
+    """Mirror src into dst, removing stale files and copying new/updated ones.
+
+    If is_additive_only is True (used for AI scripts):
+      - Stale files in dst are NEVER deleted.
+      - Existing scripts modified by repo are NEVER overwritten.
+      - Unmodified scripts have upstream prioritized.
+      - New scripts from src are added.
+
+    Memory & plans protection (Boundary 4):
+      - Never delete or overwrite target repo memory or plans.
+    """
     copied = 0
     removed = 0
 
     if not src.exists():
         return 0, 0
 
+    if is_spec_21(src):
+        return 0, 0
+
+    if is_spec_21(dst):
+        return 0, 0
+
+    if is_protected_memory_or_plan(dst):
+        if dst.exists():
+            return 0, 0
+
     if not is_dry_run:
         dst.mkdir(parents=True, exist_ok=True)
 
-    # 1. Clean stale files/dirs in dst that are no longer in src
-    if dst.exists():
-        for root, dirs, files in os.walk(dst, topdown=False):
-            rel_root = Path(root).relative_to(dst)
-            src_root = src / rel_root
+    # 1. Clean stale files/dirs in dst that are no longer in src (SKIPPED in additive mode)
+    if not is_additive_only:
+        if dst.exists():
+            for root, dirs, files in os.walk(dst, topdown=False):
+                rel_root = Path(root).relative_to(dst)
+                src_root = src / rel_root
 
-            for f in files:
-                dst_file = Path(root) / f
-                src_file = src_root / f
-                is_excluded = f in EXCLUDE_NAMES or dst_file.suffix.lower() in EXCLUDE_EXTS
+                for f in files:
+                    dst_file = Path(root) / f
+                    src_file = src_root / f
 
-                if is_excluded or not src_file.exists():
-                    if not is_dry_run:
-                        dst_file.unlink(missing_ok=True)
-                    removed += 1
+                    if f in EXCLUDE_NAMES:
+                        continue
 
-            for d in dirs:
-                dst_dir = Path(root) / d
-                src_dir = src_root / d
+                    if dst_file.suffix.lower() in EXCLUDE_EXTS:
+                        continue
 
-                if d in EXCLUDE_NAMES or not src_dir.exists():
-                    if not is_dry_run:
-                        shutil.rmtree(dst_dir, ignore_errors=True)
-                    removed += 1
+                    if is_spec_21(dst_file):
+                        continue
+
+                    if is_protected_memory_or_plan(dst_file):
+                        continue
+
+                    if not src_file.exists():
+                        if not is_dry_run:
+                            dst_file.unlink(missing_ok=True)
+
+                        removed += 1
+
+                for d in dirs:
+                    dst_dir = Path(root) / d
+                    src_dir = src_root / d
+
+                    if d in EXCLUDE_NAMES:
+                        continue
+
+                    if is_spec_21(dst_dir):
+                        continue
+
+                    if is_protected_memory_or_plan(dst_dir):
+                        continue
+
+                    if not src_dir.exists():
+                        if not is_dry_run:
+                            shutil.rmtree(dst_dir, ignore_errors=True)
+
+                        removed += 1
 
     # 2. Copy files from src to dst
     for root, dirs, files in os.walk(src):
-        dirs[:] = [d for d in dirs if d not in EXCLUDE_NAMES]
+        valid_dirs = []
+
+        for d in dirs:
+            if d in EXCLUDE_NAMES:
+                continue
+
+            child_src = Path(root) / d
+
+            if is_spec_21(child_src):
+                continue
+
+            if is_protected_memory_or_plan(child_src):
+                continue
+
+            valid_dirs.append(d)
+
+        dirs[:] = valid_dirs
 
         rel_root = Path(root).relative_to(src)
         target_dir = dst / rel_root
@@ -275,14 +505,36 @@ def mirror_directory(src: Path, dst: Path, is_dry_run: bool = False) -> tuple[in
             target_dir.mkdir(parents=True, exist_ok=True)
 
         for f in files:
-            is_excluded = f in EXCLUDE_NAMES or Path(f).suffix.lower() in EXCLUDE_EXTS
-
-            if is_excluded:
-                continue
-
             src_file = Path(root) / f
             dst_file = target_dir / f
-            copied += copy_single_file(src_file, dst_file, is_dry_run=is_dry_run)
+
+            if f in EXCLUDE_NAMES:
+                continue
+
+            if Path(f).suffix.lower() in EXCLUDE_EXTS:
+                continue
+
+            if is_spec_21(src_file):
+                continue
+
+            if is_protected_memory_or_plan(src_file):
+                continue
+
+            if is_protected_memory_or_plan(dst_file):
+                if dst_file.exists():
+                    continue
+
+            if is_bump_script(dst_file):
+                if dst_file.exists():
+                    continue
+
+            copied += copy_single_file(
+                src_file,
+                dst_file,
+                repo_root=repo_root,
+                is_dry_run=is_dry_run,
+                is_additive_only=is_additive_only,
+            )
 
     return copied, removed
 
@@ -297,6 +549,7 @@ def mirror_conditional_guidelines(target: Path, is_dry_run: bool = False) -> tup
             c, r = mirror_directory(
                 SOURCE_ROOT / spec_rel,
                 target / spec_rel,
+                repo_root=target,
                 is_dry_run=is_dry_run,
             )
             copied += c
@@ -307,6 +560,7 @@ def mirror_conditional_guidelines(target: Path, is_dry_run: bool = False) -> tup
             copied += copy_single_file(
                 SOURCE_ROOT / mem_rel,
                 target / mem_rel,
+                repo_root=target,
                 is_dry_run=is_dry_run,
             )
 
@@ -377,10 +631,6 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
     # 1. Checkout base branch and pull latest
     if not is_dry_run:
         run_cmd(f"git checkout {base_branch}", target)
-
-    is_live_push = not is_dry_run and not is_no_push
-
-    if is_live_push:
         run_cmd(f"git pull origin {base_branch} --no-rebase", target)
 
     # 2. Create and push pre-change backup branch from HEAD, then return to base branch
@@ -407,20 +657,28 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
     result["pre_release_tag"] = pre_tag
     current_ver = pre_tag.lstrip("v")
 
-    # Ensure 06-old-prompts is never present in target repository
-    old_prompts_dir = target / "06-old-prompts"
+    # Ensure 06-archive and 06-old-prompts are never present in target repository
+    if not is_dry_run:
+        for legacy_dir_name in ("06-archive", "06-old-prompts"):
+            legacy_dir = target / legacy_dir_name
 
-    if old_prompts_dir.exists() and not is_dry_run:
-        shutil.rmtree(old_prompts_dir, ignore_errors=True)
+            if legacy_dir.exists():
+                shutil.rmtree(legacy_dir, ignore_errors=True)
 
     # 4. Mirror directories and conditional coding guidelines cleanly
     total_copied = 0
     total_removed = 0
 
-    for src_rel, dst_rel in SYNC_DIRS:
+    for src_rel, dst_rel, is_additive in SYNC_DIRS:
         src_path = SOURCE_ROOT / src_rel
         dst_path = target / dst_rel
-        c, r = mirror_directory(src_path, dst_path, is_dry_run=is_dry_run)
+        c, r = mirror_directory(
+            src_path,
+            dst_path,
+            repo_root=target,
+            is_dry_run=is_dry_run,
+            is_additive_only=is_additive,
+        )
         total_copied += c
         total_removed += r
 

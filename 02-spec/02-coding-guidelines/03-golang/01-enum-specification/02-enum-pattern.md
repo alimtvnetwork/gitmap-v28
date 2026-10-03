@@ -1,4 +1,16 @@
-# Enum Pattern
+# Enum Pattern (AI Execution Prompt)
+
+> **/goal** Enforce byte-based Variant enum declarations, iota-driven sequential constants, PascalCase names and labels, and Invalid zero-values across all Go enums.
+> **/learn** Master byte-based enum efficiency, eliminate string-based enum anti-patterns, prevent magic string comparisons, and enforce exhaustive switch statements.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Declare all enums using `type Variant byte` with `Invalid Variant = iota` as the first constant.
+- [ ] `/learn` Never use `string` or `int` as the underlying type for domain enums, and never use `Unknown` as the zero value.
+- [ ] `/goal` Enforce PascalCase for both constant identifiers and serialized `variantLabels` string entries.
+- [ ] `/learn` Ban hardcoded string comparisons; use `(v Variant) Is{Value}()` methods or `Parse()` instead.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Status:** Complete
@@ -238,3 +250,21 @@ const (
 ---
 
 *Core enum pattern specification.*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/03-golang/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-ENUM-002: Go Enum Type Definition and Constant Declarations
+
+**Given** Go source code defining domain enums.
+**When** Enum implementations are audited against Go enum specifications.
+**Then** Byte-based underlying type, Invalid zero-value declaration, iota-based sequence, and PascalCase labels are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang/01-enum-specification --check-only
+```
+**Expected:** exit 0. Zero violations.

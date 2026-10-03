@@ -1,8 +1,23 @@
-# PHP–Go Cross-Language Consistency Audit
+# PHP–Go Cross-Language Consistency Audit (AI Execution Prompt)
 
-> **Version:** 1.0.0
-> **Updated:** 2026-02-23
-> **Status:** All phases complete
+> **/goal** Enforce strict structural, architectural, and naming parity between PHP (companion plugins) and Go (backend services) across database schemas, enums, identifier casing, and API responses.
+> **/learn** Master the cross-language architectural mapping: PascalCase SQLite tables/columns, mirrored enum contracts (`StatusType` vs `status.Variant`), identical casing conventions (`Id`, `Url`, `Md5`), and documented framework exemptions.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify database schema parity: PascalCase table names, column names, and index names across PHP and Go.
+- [ ] `/learn` Enforce enum pattern parity: PascalCase cases, label values, and symmetric comparison helpers.
+- [ ] `/learn` Audit identifier casing: camelCase variables/methods, PascalCase structs/classes, and camelCase log context keys.
+- [ ] `/learn` Ensure API response contracts match across PHP (`ResponseKeyType`) and Go (`responsekey.Variant`).
+- [ ] `/goal` Verify compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
+
+**Version:** 3.2.0
+**Updated:** 2026-04-16
+**Status:** Active
+**AI Confidence:** Production-Ready
+**Ambiguity:** None
 
 ---
 
@@ -116,6 +131,22 @@ Documents the cross-language alignment between PHP (WordPress plugin) and Go (ba
 - [Go Enum Specification](../03-golang/01-enum-specification/readme.md)
 - [Go Required Methods](../03-golang/01-enum-specification/03-required-methods.md)
 
+*Cross-language consistency audit v1.0.0 — 2026-02-23*
+
 ---
 
-*Cross-language consistency audit v1.0.0 — 2026-02-23*
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-009: PHP-Go Cross-Language Architecture Consistency
+
+**Given** Polyglot implementations spanning PHP WordPress companion plugins and Go backend services.
+**When** Cross-language architectures are audited for naming, enum patterns, and schema contracts.
+**Then** All tables, columns, enums, response keys, and HTTP status handling remain 100% aligned with zero architectural drift and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php --check-only
+```
+**Expected:** exit 0. Zero violations.

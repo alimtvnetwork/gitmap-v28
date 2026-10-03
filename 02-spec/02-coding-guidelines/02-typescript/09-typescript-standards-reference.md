@@ -1,4 +1,16 @@
-# TypeScript Coding Standards
+# TypeScript Coding Standards Reference (AI Execution Prompt)
+
+> **/goal** Enforce generics-first architecture, zero-`any` strict typing, PascalCase enums, and bounded function lengths across all frontend TypeScript code.
+> **/learn** Master TypeScript core standards: generic envelopes, strict type guards, isolated boolean properties (`is*` and `has*` only), and early-return patterns.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ensure all reusable utilities, API clients, and response envelopes utilize generics first without loose types.
+- [ ] `/learn` Never use `any`, `unknown`, or `Record<string, unknown>` in application code where concrete interfaces or generics apply.
+- [ ] `/goal` Enforce PascalCase enum definitions and eliminate all magic string comparisons.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 3.0.0
 > **Updated:** 2026-03-09
@@ -593,3 +605,21 @@ All standardized TypeScript enums for the frontend. Each enum has a dedicated sp
 ---
 
 *TypeScript standards v3.2.0 — generics-first, zero-any, no-magic-strings, max-15-lines, zero-nesting, isDefined-guards — 2026-02-25*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-009: TypeScript Standards Reference and Architectural Patterns
+
+**Given** TypeScript source code under implementation or review.
+**When** Codebases are audited against TypeScript language standards.
+**Then** Generics-first typing, strict enum conventions, function length bounds, and clean boolean principles are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

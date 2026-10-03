@@ -159,7 +159,7 @@ See `.github/scripts/check-constants-naming.sh` in reference CLI implementations
 
 ## Cross-References
 
-- [01-index.md](./01-index.md)
+- [readme.md](./readme.md)
 - [01-forbidden-name-guard.md](./02-forbidden-name-guard.md) — Companion for new-code naming
 - [03-cross-file-collision-audit.md](./04-cross-file-collision-audit.md) — Detect duplicates across files
 - [04-baseline-diff-lint-gate.md](./05-baseline-diff-lint-gate.md) — Same "grandfather + diff" idea applied to lint findings

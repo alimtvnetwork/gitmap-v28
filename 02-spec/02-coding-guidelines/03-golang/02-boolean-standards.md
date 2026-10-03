@@ -1,4 +1,16 @@
-# Go Boolean Standards — Positive Logic & Naming
+# Go Boolean Standards — Positive Logic & Naming (AI Execution Prompt)
+
+> **/goal** Eliminate all negative booleans, inverted conditions, mixed polarity checks, bare `ok` identifiers, and raw filesystem assertions in Go code by enforcing affirmative naming, positive counterpart variables, and dedicated guard functions.
+> **/learn** Internalize the 9 Go boolean rules (P1-P9): positive naming (`is*`, `has*`), negation elimination, dual boolean declarations upfront, named numeric comparisons, isolated single-error checks, and `pathutil` abstraction over raw `os` calls.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ensure every boolean variable, struct field, and method uses affirmative `is` or `has` prefixes (strictly ban `not`, `no`, `non`, and bare `ok`).
+- [ ] `/learn` Never combine positive and negative checks in the same condition (`if isA && !isB` is prohibited); declare a positive counterpart variable first.
+- [ ] `/goal` Replace all raw filesystem operations (`os.Stat`, `os.MkdirAll`) with `pathutil` wrapper methods returning `*appfault.AppError` or affirmative booleans.
+- [ ] `/learn` Ensure `err != nil` is never combined with `&&` or `||`; error checks must be discrete and isolated guards.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version**: 1.4.0
 > **Last updated**: 2026-02-28
@@ -749,3 +761,21 @@ if hasMatch {
     // ...
 }
 ```
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-001: Go Positive Boolean Naming, Negation Elimination, and Guard Clauses
+
+**Given** Go source code across packages and CLI modules.
+**When** Guideline linters audit the codebase.
+**Then** All boolean identifiers use affirmative prefixes (`is`/`has`), negations are eliminated via positive counterpart variables, mixed-polarity conditions are prohibited, and error checks remain strictly isolated with zero violations detected.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang --check-only
+```
+**Expected:** exit 0. Zero violations detected.

@@ -1,4 +1,16 @@
-# Cross-Language Rule: No Raw Negations — Use Positive Guard Functions
+# Cross-Language Rule: No Raw Negations — Use Positive Guard Functions (AI Execution Prompt)
+
+> **/goal** Eliminate all raw negation operators (`!`, `not`) on function calls and existence checks across PHP, TypeScript, and Go by wrapping them in positively named utility guard functions or semantic inverses.
+> **/learn** Master the anti-patterns of raw negation in conditionals, understand cognitive overhead of hidden `!` operators, memorize standard guard functions (e.g., `PathHelper::isFileMissing`, `isMissing`), and enforce semantic object inverses.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw negated file/dir/class/function existence checks with positive guard functions (`isFileMissing`, `isDirMissing`, `isClassMissing`).
+- [ ] `/learn` Never use negative function names like `isNotExisting()` or `isNotActive()`; use affirmative names like `isMissing()` or `isDisabled()`.
+- [ ] `/goal` Ensure every boolean query method on custom classes/structs provides a paired semantic inverse (e.g., `isActive()` and `isDisabled()`).
+- [ ] `/learn` Centralize all common guard helpers in dedicated utility classes (`PathHelper`, `BooleanHelpers`, `strutil`) rather than inlining negated checks.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 2.1.0
 > **Updated:** 2026-03-31
@@ -332,6 +344,24 @@ Raw negation is **only** acceptable for:
 - [Cross-Language Code Style](./04-code-style/readme.md) — Braces, nesting, spacing
 - [TypeScript Standards](../02-typescript/09-typescript-standards-reference.md)
 - [Golang Standards](../03-golang/04-golang-standards-reference/readme.md)
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-BOOL-012: Positive Guard Functions (No Raw Negations)
+
+**Given** Codebase containing condition checks and function existence queries in PHP, TypeScript, or Go.
+**When** Code guideline linters or CI autofixers scan all conditional expressions.
+**Then** Zero raw negation operators (`!`, `not`) are used on function calls or existence checks; all checks invoke positively named guard functions or semantic inverse methods with deterministic compliance.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

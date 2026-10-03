@@ -2,7 +2,7 @@
 
 > **Related specs:**
 >
-> - [01-index.md](01-index.md) — design philosophy guiding each phase
+> - [readme.md](readme.md) — design philosophy guiding each phase
 > - [02-project-03-structure.md](./02-project-structure.md) — scaffold phase package layout
 > - [11-build-deploy.md](11-build-deploy.md) — build and deploy phase details
 

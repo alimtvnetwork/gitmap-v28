@@ -1,10 +1,20 @@
-# TypeScript Standards
+# TypeScript Standards (AI Execution Prompt)
+
+> **/goal** Master and enforce TypeScript coding standards, typed enum conventions, type safety enforcement, and zero magic strings across frontend and shared codebases.
+> **/learn** Internalize PascalCase string enum rules, prohibition of string union types for domain states, complete eradication of `any` and `unknown`, and strict type safety patterns.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce typed `enum` constructs with PascalCase members for domain and status models; ban raw string union types.
+- [ ] `/learn` Eliminate all usages of `any`, `unknown`, and `Record<string, unknown>` in favor of strongly-typed domain interfaces.
+- [ ] `/goal` Replace all magic string literals in status checks and HTTP calls with canonical enum constants.
+- [ ] `/learn` Validate compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only`.
 
 . **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
 
 **Version:** 3.2.0
 **Status:** Active
-**Updated:** 2026-04-16
+**Updated:** 2026-10-02
 **AI Confidence:** Production-Ready
 **Ambiguity:** None
 
@@ -49,7 +59,6 @@ TypeScript-specific coding standards, enum definitions, and type safety enforcem
 | 11 | [11-eslint-enforcement.md](./12-eslint-enforcement.md) | Enforcement | ESLint rule mapping + SonarQube integration |
 | 12 | [12-discriminated-union-patterns.md](./13-discriminated-union-patterns.md) | Patterns | Discriminated union & action type patterns — no inline types, PascalCase enums |
 | 97 | [97-acceptance-criteria.md](./97-acceptance-criteria.md) | Testing | Acceptance criteria |
-| 98 | [98-changelog.md](./98-changelog.md) | Meta | Changelog |
 
 ---
 
@@ -66,3 +75,21 @@ TypeScript-specific coding standards, enum definitions, and type safety enforcem
 | Parent Overview | `../readme.md` |
 | Cross-Language Rules | `../01-cross-language/readme.md` |
 | Coding Guidelines Memory | `../../../.ai-memory/memories/constraints/coding-guidelines.md` |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/02-typescript/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TS-000: TypeScript Guidelines Index Conformance
+
+**Given** TypeScript source code defining domain types, enums, and API models.
+**When** Codebases are audited against TypeScript enum standards.
+**Then** All TypeScript guidelines and directory index standards are strictly satisfied with zero violations and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/02-typescript --check-only
+```
+**Expected:** exit 0. Zero violations.

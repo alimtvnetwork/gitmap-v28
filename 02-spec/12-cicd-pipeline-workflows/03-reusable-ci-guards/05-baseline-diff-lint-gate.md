@@ -205,7 +205,7 @@ See `.github/scripts/lint-diff.py` in reference CLI implementations.
 
 ## Cross-References
 
-- [01-index.md](./01-index.md)
+- [readme.md](./readme.md)
 - [05-actionable-lint-suggestions.md](./06-actionable-lint-suggestions.md) — Companion script that turns NEW findings into PR comments
 - [02-grandfather-baseline-naming.md](./03-grandfather-baseline-naming.md) — Same "grandfather" idea for identifier names
 

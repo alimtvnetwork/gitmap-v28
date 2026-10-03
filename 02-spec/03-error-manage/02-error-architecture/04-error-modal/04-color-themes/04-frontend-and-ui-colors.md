@@ -1,6 +1,6 @@
 # Frontend Section & UI Element Colors
 
-> **Parent:** [Color Themes Index](./01-index.md)
+> **Parent:** [Color Themes Index](./readme.md)
 > **Version:** 2.1.0
 > **Updated:** 2026-03-31
 

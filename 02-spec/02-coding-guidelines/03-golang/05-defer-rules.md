@@ -1,4 +1,16 @@
-# Go Defer Rules
+# Go Defer Rules (AI Execution Prompt)
+
+> **/goal** Prevent deferred resource exhaustion, LIFO execution confusion, and loop-defer memory leaks in Go by enforcing a maximum of one `defer` per function and banning `defer` inside loops.
+> **/learn** Master Go defer mechanics: LIFO execution ordering, deferred function evaluation, function-scoped cleanup lifetime, loop-defer stack accumulation anti-patterns, and subroutine decomposition.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Restrict every Go function to at most one single `defer` statement.
+- [ ] `/learn` Never place `defer` inside a `for` or `range` loop; decompose loop bodies into helper functions to ensure prompt resource release.
+- [ ] `/goal` Position `defer` statements immediately following resource acquisition or at function boundaries, never buried mid-routine.
+- [ ] `/learn` Decompose functions with multiple resources into nested helper functions or closure wrappers, each managing a single defer.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -93,3 +105,21 @@ func processWithFile(tx *sql.Tx, path string) error {
 ---
 
 *Go defer rules — consolidated from pre-code review guides.*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-GO-005: Resource Defer Rules and Loop Safety Standards
+
+**Given** Go source code across packages and CLI modules.
+**When** Guideline linters audit the codebase.
+**Then** Go functions contain at most one defer statement, zero defers execute inside loop bodies, and resources are closed deterministically with zero leaks and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/03-golang --check-only
+```
+**Expected:** exit 0. Zero violations detected.

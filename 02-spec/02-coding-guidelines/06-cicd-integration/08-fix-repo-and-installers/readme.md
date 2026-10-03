@@ -1,6 +1,16 @@
-# Fix-Repo & Installer Scripts — CI/CD Spec
+# Fix-Repo & Installer Scripts Specification (AI Execution Prompt)
 
-. **CRITICAL AI INSTRUCTION:** This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
+> **/goal** Provide the authoritative contract and index for all top-level shell and PowerShell installer and repository utility scripts, ensuring cross-platform behavioral parity and CODE RED compliance.
+> **/learn** Master the dual Bash/PowerShell architecture, version token rewriting, pinned vs implicit installer modes, repository visibility management, and strict zero-network banner preflights.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Ensure every shell script has an identical Bash (`.sh`) and PowerShell (`.ps1`) implementation matching the normative contracts.
+- [ ] `/learn` Avoid behavioral divergence between platforms; verify exit codes, flags, and error reporting match across siblings.
+- [ ] `/goal` Enforce CODE RED limits (≤ 300 script lines, ≤ 8–15 function lines, zero nested conditionals, positive boolean naming).
+- [ ] `/learn` Validate all installer and utility specifications using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below. This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
 
 > **Version:** 1.0.0
 > **Status:** Active
@@ -53,9 +63,9 @@ contract defined here.
 | File | Purpose |
 |------|---------|
 | `readme.md` | This file — scope, authority, cross-refs |
-| `01-fix-repo-contract.md` | Normative spec for `fix-repo.sh` / `fix-repo.ps1` |
-| `02-installer-contract.md` | Normative spec for `install.sh` / `install.ps1` and `release-install.*` |
-| `03-visibility-change-contract.md` | Normative spec for `visibility-change.sh` / `.ps1` |
+| `02-fix-repo-contract.md` | Normative spec for `fix-repo.sh` / `fix-repo.ps1` |
+| `03-installer-contract.md` | Normative spec for `install.sh` / `install.ps1` and `release-install.*` |
+| `04-visibility-change-contract.md` | Normative spec for `visibility-change.sh` / `.ps1` |
 | `97-acceptance-criteria.md` | Binary AC list + test-matrix table referencing `tests/installer/*` |
 | `98-faq.md` | Common questions: pinning, dry-run, offline, log dir |
 
@@ -87,3 +97,21 @@ honor.
 
 - **Md. Alim Ul Karim** — Creator & Lead Architect
 - **Riseup Asia LLC** — Sponsor
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-INSTALL-001: Fix-Repo and Installer Scripts Index Conformance
+
+**Given** Installer and auto-fix repository management specifications.
+**When** Audited against this installation specification.
+**Then** Zero contract or visibility violations are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/08-fix-repo-and-installers --check-only
+```
+**Expected:** exit 0. Zero violations.

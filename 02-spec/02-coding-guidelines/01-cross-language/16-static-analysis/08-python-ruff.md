@@ -1,4 +1,16 @@
-# Python — Ruff / Pylint / Flake8 Enforcement
+# Python — Ruff / Pylint / Flake8 Enforcement (AI Execution Prompt)
+
+> **/goal** Enforce ultrafast, comprehensive Python static analysis, formatting, and type-checking using Ruff, Pylint, and mypy across all Python projects.
+> **/learn** Enforce max 15 lines per function (`max-statements = 10`), max 3 parameters (`max-args = 3`), cognitive complexity ≤ 10 (C901), zero nested if statements (SIM102), and strict type hints without `Any`.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Configure `[tool.ruff]` and `[tool.mypy]` in `pyproject.toml` with strict guideline thresholds.
+- [ ] `/learn` Enforce collapsible if checks (SIM102), early returns (RET505-RET508), and magic value bans (PLR2004).
+- [ ] `/goal` Gate CI/CD pipelines with `ruff check`, `ruff format --check`, and `mypy --strict`.
+- [ ] `/learn` Ban wildcard imports (`F403`), unused variables (`F841`), and legacy string formatting in favor of f-strings (`UP032`).
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -221,6 +233,24 @@ pip install ruff mypy
 - [Cross-Language Code Style](../04-code-style/readme.md) — Source rules
 - [Master Coding Guidelines](../15-master-coding-guidelines/readme.md) — Full checklist
 - [Node.js ESLint Enforcement](./07-nodejs-eslint.md) — Sibling server-side spec
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-PY: Python Ruff & Static Analysis Enforcement
+
+**Given** Python codebases and `pyproject.toml` configurations.
+**When** Ruff, mypy, and static analysis linters execute during local checks or CI quality gates.
+**Then** Functions adhere to ≤ 15 lines, parameters ≤ 3, complexity ≤ 10, no nested if statements, and zero lint or type errors.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

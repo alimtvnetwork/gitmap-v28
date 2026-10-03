@@ -1,4 +1,17 @@
-# FAQ — Linter Pack Consumer Questions
+# FAQ — Linter Pack Consumer Questions (AI Execution Prompt)
+
+> **/goal** Provide authoritative, actionable answers and operational guidance for teams adopting the coding guidelines CI/CD linter pack.
+> **/learn** Understand inline finding suppression syntax (`codeguidelines:disable`), legacy baseline workflows (`.codeguidelines-baseline.sarif`), single-rule and single-language filter executions, and immutable version pinning across distribution channels.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce strict format and mandatory justification for inline suppressions (`// codeguidelines:disable=RULE — reason`).
+- [ ] `/learn` Baseline existing legacy violations so that only newly introduced findings fail the build.
+- [ ] `/goal` Support targeted rule or language filtering flags without running the entire test suite.
+- [ ] `/learn` Pin exact linter pack versions across GitHub Actions, curl installers, and ZIP releases.
+- [ ] `/goal` Verify compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-04-19
@@ -228,3 +241,27 @@ run so audit trails always show what enforced what:
 ---
 
 *Part of [CI/CD Integration](./readme.md)*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-cicd-integration/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CICD-FAQ-001: Linter Pack FAQ & Consumer Operations Conformance
+
+- [ ] Inline suppression syntax mandates rule ID and reason text (`// codeguidelines:disable=RULE — reason`).
+- [ ] Suppressions lacking justification trigger synthetic warning finding `STYLE-099`.
+- [ ] Baseline workflows support `--baseline` and `--refresh-baseline` flags to isolate legacy violations.
+- [ ] Filter flags (`--rules`, `--languages`, `--exclude-rules`) and configuration files (`.codeguidelines.toml`) operate deterministically.
+- [ ] Version pinning instructions mandate exact semantic versions or commit SHAs with zero floating tags (`@latest`, `@main`).
+
+**Given** CI/CD pipeline infrastructure, configuration files, and linter consumer queries.
+**When** Audited against this FAQ specification.
+**Then** All suppression patterns, baselining steps, and version pins conform to documented standards with exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-cicd-integration/98-faq.md --check-only
+```
+**Expected:** exit 0. Zero violations.

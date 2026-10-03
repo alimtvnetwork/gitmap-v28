@@ -1,4 +1,16 @@
-# PHP Naming Conventions
+# PHP Naming Conventions (AI Execution Prompt)
+
+> **/goal** Standardize all PHP identifier naming, casing conventions, file structure, and enum suffixes according to PSR-12 and RiseupAsia guidelines.
+> **/learn** Master the naming rules: PascalCase for classes/enums with `Type` suffix, camelCase for methods/variables/properties, zero-underscore policy, and positive boolean naming.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce PascalCase for all classes, traits, interfaces, and enums (enums must include `Type` suffix).
+- [ ] `/learn` Use camelCase for all method names, function names, and variable identifiers.
+- [ ] `/goal` Ensure boolean variables and methods use positive prefixes (`$isValid`, `$hasAccess`) and never negative words.
+- [ ] `/learn` Ban raw underscores in logical identifiers; enforce one class per file matching the filename exactly.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.3.0
 > **Updated:** 2026-03-09
@@ -48,10 +60,10 @@ function getRetryCount() {}
 - Avoid prefixes like `do`, `handle`, `run`
 
 ```php
-// ✅ Good
+// ✅ REQUIRED
 calculateChecksum()
 
-// ❌ Bad
+// ❌ FORBIDDEN
 doChecksumThing()
 ```
 
@@ -308,14 +320,14 @@ These are real violations found and fixed across the codebase. Use as a checklis
 ### Mistake 1: snake_case Log Context Keys
 
 ```php
-// ❌ WRONG — snake_case in log context
+// ❌ FORBIDDEN — snake_case in log context
 $this->fileLogger->info('Post created', array(
     'post_id'    => $postId,     // Wrong
     'master_dir' => $dir,        // Wrong
     'agent_id'   => $agentId,    // Wrong
 ));
 
-// ✅ CORRECT — camelCase
+// ✅ REQUIRED — camelCase
 $this->fileLogger->info('Post created', array(
     'postId'    => $postId,
     'masterDir' => $dir,
@@ -326,25 +338,25 @@ $this->fileLogger->info('Post created', array(
 ### Mistake 2: camelCase or snake_case for DB Column / API Response Keys
 
 ```php
-// ❌ WRONG — camelCase/snake_case for DB columns
+// ❌ FORBIDDEN — camelCase/snake_case for DB columns
 $this->db->insert(TableType::Snapshots->value, array(
     'totalRows'     => $rows,      // Wrong — camelCase
     'trigger_source' => $trigger,  // Wrong — snake_case
     'status'        => $status,    // Wrong — lowercase
 ));
 
-// ✅ CORRECT — PascalCase matching schema
+// ✅ REQUIRED — PascalCase matching schema
 $this->db->insert(TableType::Snapshots->value, array(
     'TotalRows'     => $rows,
     'TriggerSource' => $trigger,
     'Status'        => $status,
 ));
 
-// ❌ WRONG — snake_case in API response
+// ❌ FORBIDDEN — snake_case in API response
 $data['plugin_version'] = PluginConfigType::Version->value;
 $data['log_hint'] = $this->getLogHint($status);
 
-// ✅ CORRECT — PascalCase in API response
+// ✅ REQUIRED — PascalCase in API response
 $data['PluginVersion'] = PluginConfigType::Version->value;
 $data['LogHint'] = $this->getLogHint($status);
 ```
@@ -352,11 +364,11 @@ $data['LogHint'] = $this->getLogHint($status);
 ### Mistake 3: snake_case Method Names
 
 ```php
-// ❌ WRONG — WordPress-style snake_case
+// ❌ FORBIDDEN — WordPress-style snake_case
 public function get_plugin_file() { ... }
 private function handle_upload_error() { ... }
 
-// ✅ CORRECT — camelCase
+// ✅ REQUIRED — camelCase
 public function getPluginFile() { ... }
 private function handleUploadError() { ... }
 ```
@@ -364,11 +376,11 @@ private function handleUploadError() { ... }
 ### Mistake 4: Missing `Type` Suffix on Enums
 
 ```php
-// ❌ WRONG — no Type suffix
+// ❌ FORBIDDEN — no Type suffix
 enum UploadSource: string { ... }
 enum Capability: string { ... }
 
-// ✅ CORRECT — Type suffix required
+// ✅ REQUIRED — Type suffix required
 enum UploadSourceType: string { ... }
 enum CapabilityType: string { ... }
 ```
@@ -376,11 +388,11 @@ enum CapabilityType: string { ... }
 ### Mistake 5: Leading Backslash on Global Types
 
 ```php
-// ❌ WRONG — backslash-qualified
+// ❌ FORBIDDEN — backslash-qualified
 catch (\Throwable $e) { ... }
 $db = new \PDO($dsn);
 
-// ✅ CORRECT — import via use
+// ✅ REQUIRED — import via use
 use Throwable;
 use PDO;
 catch (Throwable $e) { ... }
@@ -390,27 +402,43 @@ $db = new PDO($dsn);
 ### Mistake 6: Raw `===` for Enum Comparison
 
 ```php
-// ❌ WRONG — raw operator
+// ❌ FORBIDDEN — raw operator
 if ($status === StatusType::Success) { ... }
 
-// ✅ CORRECT — isEqual() method
+// ✅ REQUIRED — isEqual() method
 if ($status->isEqual(StatusType::Success)) { ... }
 ```
 
 ### Mistake 7: Uppercase Abbreviations
 
 ```php
-// ❌ WRONG
+// ❌ FORBIDDEN
 $postId = 5;
 $fileUrl = '/path';
 $hashMD5 = md5($data);
 
-// ✅ CORRECT
+// ✅ REQUIRED
 $postId = 5;
 $fileUrl = '/path';
 $hashMd5 = md5($data);
 ```
 
+> **Reminder:** This is the PSR-12 baseline. Project-level specs (e.g., WordPress plugin conventions in this same folder's [readme.md](./07-php-standards-reference/readme.md)) may override specific rules — those overrides take precedence.
+
 ---
 
-> **Reminder:** This is the PSR-12 baseline. Project-level specs (e.g., WordPress plugin conventions in this same folder's [readme.md](./07-php-standards-reference/readme.md)) may override specific rules — those overrides take precedence.
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-PHP-004: PHP Naming Conventions Conformance
+
+**Given** PHP source code across classes, traits, enums, and functions.
+**When** Guideline linters audit the codebase for naming convention compliance.
+**Then** All classes, traits, and enums follow PascalCase (with `Type` suffix on enums), methods and variables follow camelCase (with affirmative `$is*`/`$has*` boolean prefixes), and enum cases use PascalCase with zero violations detected.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/04-php --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -1,4 +1,16 @@
-# Condensed Master Coding Guidelines — AI Context Reference
+# Condensed Master Coding Guidelines — AI Context Reference (AI Execution Prompt)
+
+> **/goal** Provide a high-density, sub-200-line distillation of all master coding guidelines optimized for AI prompt injection and context window efficiency.
+> **/learn** Internalize core tenets including Rule Zero (no committed artifacts), positive boolean logic, enum standards, error envelopes, and CODE RED caching guards.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce strict adherence to Rule Zero: never commit generated code, build artifacts, or test output files.
+- [ ] `/learn` Apply positive boolean logic principles: `is`/`has` prefixes, semantic positive synonyms, and no mixed polarity.
+- [ ] `/goal` Maintain zero nested `if` statements and limit function bodies to 15 executable lines across all languages.
+- [ ] `/learn` Ensure independent async operations use `Promise.all` and all cache mutations perform immediate invalidation.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -244,3 +256,21 @@ Three-part naming: `Test{Unit}_{Scenario}_{ExpectedOutcome}`. Table-driven for 3
 ---
 
 *Condensed master guidelines v1.2.0 — AI context optimized — 2026-04-04*
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/06-ai-optimization/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-AI-005: Condensed Master Guidelines Conformance
+
+**Given** AI agents operating within the repository and codebase guidelines.
+**When** Audited against this optimization specification.
+**Then** Zero compliance or citation failures are detected and exit code is 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/06-ai-optimization --check-only
+```
+**Expected:** exit 0. Zero violations.

@@ -3,7 +3,6 @@
 **Version:** 3.2.0
 **Last Updated:** 2026-04-16
 
-
  ## Issue ID: ACTIVATE-404-001
 
  ## Summary

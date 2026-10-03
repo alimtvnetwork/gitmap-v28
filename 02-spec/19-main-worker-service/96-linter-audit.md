@@ -25,7 +25,7 @@ two repo-resident spec linters.
 
 ---
 
-## 2. Per-Table Audit (`03-main-db-schema.md`)
+## 2. Per-Table Audit (`04-main-db-schema.md`)
 
 | Table | Class | Required Cols | Present | Verdict |
 |---|---|---|---|---|

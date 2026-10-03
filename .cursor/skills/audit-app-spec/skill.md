@@ -1,9 +1,9 @@
 ---
 name: audit-app-spec
-description: "Executes the 1. the audited scope, with line counts prompt. Reuse First: I have rigorously scanned and ed 03-ai-scripts/readme.md to check if a helper script already exists before writing any new temporary code with strict no-build and no-test execution. Use when the user asks to run audit-app-spec, or the task is about planning, spec steps, or an app-spec audit."
+description: "Executes the Application Specification Audit prompt. Autonomously perform blind-AI readiness audits on application specs, generate scorecards and remediation matrices in 02-spec/25-app-spec-audit/ with strict no-build and no-test execution. Use when the user asks to run audit-app-spec, or the task is about planning, spec steps, or an app-spec audit."
 ---
 
-# 1. the audited scope, with line counts
+# Application Specification Audit
 
 Source prompt: `01-prompts/13-plan-audit/03-audit-app-spec.md`
 
@@ -16,4 +16,4 @@ Source prompt: `01-prompts/13-plan-audit/03-audit-app-spec.md`
 
 ## Goal
 
-Reuse First: I have rigorously scanned and ed 03-ai-scripts/readme.md to check if a helper script already exists before writing any new temporary code with strict no-build and no-test execution.
+Reuse First: I have rigorously scanned and learned `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code with strict no-build and no-test execution.

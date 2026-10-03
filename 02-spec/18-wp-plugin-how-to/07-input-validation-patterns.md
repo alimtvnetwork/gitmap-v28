@@ -60,7 +60,7 @@ private function executeCreateWidget(WP_REST_Request $request): WP_REST_Response
         }
     }
 
-    // ── Step 5: Sanitize ──
+    // ── Step 5: Sanitise ──
     $sanitisedName = sanitize_text_field($name);
     $resolvedPriority = $hasPriority ? absint($priority) : 0;
 
@@ -303,7 +303,7 @@ Use dotted field paths (`config.retry_count`) in error messages so the caller kn
 
 ## 6.7 Sanitisation Reference
 
-After validation passes, sanitize all string values before use:
+After validation passes, sanitise all string values before use:
 
 | Input type | Sanitisation function | Notes |
 |------------|----------------------|-------|
@@ -315,13 +315,13 @@ After validation passes, sanitize all string values before use:
 | Integer (allow negative) | `intval($value)` | Preserves sign |
 | HTML content | `wp_kses($value, $allowedTags)` | Whitelist-based HTML sanitisation |
 
-### Rule: Sanitize after validation, not instead of validation
+### Rule: Sanitise after validation, not instead of validation
 
 ```
-// ❌ WRONG — sanitize without validating type first
+// ❌ WRONG — sanitise without validating type first
 $name = sanitize_text_field($body['name'] ?? '');
 
-// ✅ CORRECT — validate type, reject if invalid, then sanitize
+// ✅ CORRECT — validate type, reject if invalid, then sanitise
 $name = $body['name'] ?? null;
 $hasName = ($name !== null && $this->isString($name));
 
@@ -345,7 +345,7 @@ When adding a new endpoint, verify:
 - [ ] Integer ranges are validated (min/max)
 - [ ] Enum-constrained fields use `tryFrom()` with allowed-values error message
 - [ ] Nested objects validate each level with dotted field paths in errors
-- [ ] All strings are sanitized after validation
+- [ ] All strings are sanitised after validation
 - [ ] Optional fields fall back to explicit defaults (not `null`)
 - [ ] Validation errors use `$this->validationError()` (not `EnvelopeBuilder::error()` directly)
 - [ ] No business logic executes before all validation passes

@@ -1,4 +1,16 @@
-# Cross-Language Static Analysis & Linter Enforcement
+# Cross-Language Static Analysis & Linter Enforcement (AI Execution Prompt)
+
+> **/goal** Map cross-language coding guidelines to machine-verifiable static analysis tools and linter configurations across all supported languages.
+> **/learn** Master language-specific linter selection, rule mappings, cognitive complexity enforcement, and automated quality gate thresholds.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Enforce machine-verifiable linter rules for every coding guideline across TypeScript, Go, PHP, C#, Rust, and Python.
+- [ ] `/learn` Maintain zero tolerance for disabling CI/CD quality gates, suppressing linter errors globally, or bypassing checks.
+- [ ] `/goal` Integrate language-specific linters into CI pipelines and SonarQube quality gates with strict cognitive complexity thresholds.
+- [ ] `/learn` Validate static analysis guideline compliance using `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only`.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below. This `readme.md` file is the primary entry point for this directory. AI agents MUST read this file first before exploring other files in this folder.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -125,6 +137,24 @@ sonar.qualitygate.conditions:
 - [Cross-Language Code Style](../04-code-style/readme.md) — Source rules
 - [Master Coding Guidelines](../15-master-coding-guidelines/readme.md) — Full checklist
 - [Boolean Principles](../02-boolean-principles/readme.md) — Boolean naming rules
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-LINT-OVERVIEW: Cross-Language Static Analysis & Linter Enforcement Directory Conformance
+
+**Given** The static analysis guideline directory `02-spec/02-coding-guidelines/01-cross-language/16-static-analysis/`.
+**When** Guidelines and linters audit the codebase and directory specifications for static analysis mapping.
+**Then** Every machine-enforceable rule maps to a deterministic linter configuration with zero unverified suppressions and strict quality gate compliance.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language/16-static-analysis --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 
