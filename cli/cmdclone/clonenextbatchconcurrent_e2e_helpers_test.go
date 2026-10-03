@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -37,6 +38,7 @@ func stubProcessor(concurrentSeen *int64) func(string) batchRowResult {
 
 		base := filepath.Base(path)
 		last := base[len(base)-1] - '0'
+		time.Sleep(time.Duration(last%5+1) * 200 * time.Microsecond)
 		for i := 0; i < int(last%5+1); i++ {
 			runtime.Gosched()
 		}
