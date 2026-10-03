@@ -188,16 +188,19 @@ def update_readme_pins(current_ver, next_version, dry_run=False):
     with open(README_MD, "r", encoding="utf-8") as f:
         content = f.read()
 
+    new_content = re.sub(r"\*\*Pinned version: v\d+\.\d+\.\d+\*\*", f"**Pinned version: v{next_version}**", content)
+    new_content = re.sub(r"#### Pinned Version Install \(v\d+\.\d+\.\d+\)", f"#### Pinned Version Install (v{next_version})", new_content)
+    new_content = re.sub(r"https://raw\.githubusercontent\.com/alimtvnetwork/gitmap-v28/v\d+\.\d+\.\d+/install\.(ps1|sh)", rf"https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.\1", new_content)
+
     escaped_curr = re.escape(current_ver)
-    new_content = re.sub(rf"\bv{escaped_curr}\b", f"v{next_version}", content)
-    # Also handle bare version without 'v' if previously bare
+    new_content = re.sub(rf"\bv{escaped_curr}\b", f"v{next_version}", new_content)
     new_content = re.sub(rf"\b{escaped_curr}\b", next_version, new_content)
 
     if new_content == content:
         return
 
     if dry_run:
-        print(f"[DRY RUN] Would update version references in readme.md: {current_ver} -> {next_version}")
+        print(f"[DRY RUN] Would update version references in readme.md -> v{next_version}")
         return
 
     with open(README_MD, "w", encoding="utf-8", newline="\n") as f:
@@ -256,15 +259,19 @@ def update_what_to_read_pins(current_ver, next_version, dry_run=False):
     with open(WHAT_TO_READ_MD, "r", encoding="utf-8") as f:
         content = f.read()
 
+    new_content = re.sub(r"\*\*Pinned version: v\d+\.\d+\.\d+\*\*", f"**Pinned version: v{next_version}**", content)
+    new_content = re.sub(r"#### Pinned Version Install \(v\d+\.\d+\.\d+\)", f"#### Pinned Version Install (v{next_version})", new_content)
+    new_content = re.sub(r"https://raw\.githubusercontent\.com/alimtvnetwork/gitmap-v28/v\d+\.\d+\.\d+/install\.(ps1|sh)", rf"https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.\1", new_content)
+
     escaped_curr = re.escape(current_ver)
-    new_content = re.sub(rf"\bv{escaped_curr}\b", f"v{next_version}", content)
+    new_content = re.sub(rf"\bv{escaped_curr}\b", f"v{next_version}", new_content)
     new_content = re.sub(rf"\b{escaped_curr}\b", next_version, new_content)
 
     if new_content == content:
         return
 
     if dry_run:
-        print(f"[DRY RUN] Would update version references in what-to-read.md: {current_ver} -> {next_version}")
+        print(f"[DRY RUN] Would update version references in what-to-read.md -> v{next_version}")
         return
 
     with open(WHAT_TO_READ_MD, "w", encoding="utf-8", newline="\n") as f:

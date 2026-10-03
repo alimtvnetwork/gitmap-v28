@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.469.0] - 2026-10-03
+
+### Added
+- fix commit all outside git repo, UI polish, and test isolation
+
+---
+
 ## [v6.468.0] - 2026-10-03
 
 ### Added
