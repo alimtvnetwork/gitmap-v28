@@ -40,7 +40,7 @@ const (
 	CmdPush          = "push"
 	CmdPushAlias     = "ph"
 	CmdPushFix       = "push-fix"
-	CmdPushFixAlias  = "pfx"
+	CmdPushFixAlias  = "pf"
 	CmdPushFixSolid  = "pushfix"
 	CmdPushFixInvert = "fix-push"
 	CmdRescan        = "rescan"

@@ -4,7 +4,7 @@ package constants
 // Profile CLI commands.
 const (
 	CmdProfile       = "profile"
-	CmdProfileAlias  = "pf"
+	CmdProfileAlias  = "prf"
 	CmdProfiles      = "profiles"
 	CmdProfilesAlias = "profs"
 )
@@ -28,7 +28,7 @@ const (
 )
 
 // Profile help text.
-const HelpProfile = "  profile (pf) <sub>  Manage profiles (create, list, switch, delete, show, import, export, inspect)"
+const HelpProfile = "  profile (prf) <sub>  Manage profiles (create, list, switch, delete, show, import, export, inspect)"
 
 // Profile file and defaults.
 const (

@@ -2,6 +2,7 @@
 
 ## Completed Plans
 
+- [80-gitmap-push-fix-command-and-auth-recovery.md](completed/80-gitmap-push-fix-command-and-auth-recovery.md) — GitMap Push-Fix Command Suite, SSH Auth Self-Healing, Non-Fast-Forward Auto-Rebase & Stack Trace Suppression (Spec: [210](../../02-spec/21-app/210-gitmap-push-fix-command-and-auth-recovery/01-architecture-spec.md))
 - [79-ai-agent-task-orchestrator-and-split-db.md](completed/79-ai-agent-task-orchestrator-and-split-db.md) — AI Agent Task Orchestrator, 3-Tier Multi-Agent SQLite Split-DB Hierarchy, Native `gitmap agent` CLI, Telemetry Logging, Crash Forensics & Interactive Web UI (Spec: [209](../../02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md))
 - [78-detectedproject-foreign-key-and-ssh-lifecycle-hardening.md](completed/78-detectedproject-foreign-key-and-ssh-lifecycle-hardening.md) — DetectedProject Foreign Key RCA, Database Reset Engine, SSH Terminal Layout Reorder, Dedicated Key Viewer, and Cross-OS Port Management (Spec: [208](../../02-spec/21-app/208-detectedproject-foreign-key-and-ssh-lifecycle-hardening/01-architecture-spec.md))
 - [76-windows-to-ubuntu-fleet-migration-and-secrets-vault.md](completed/76-windows-to-ubuntu-fleet-migration-and-secrets-vault.md) — Windows to Ubuntu Fleet Migration, Zero-to-End Autonomous Provisioning & Secrets Vault Isolation (Spec: [206](../../02-spec/21-app/206-windows-to-ubuntu-fleet-migration-and-secrets-vault/01-architecture-spec.md))

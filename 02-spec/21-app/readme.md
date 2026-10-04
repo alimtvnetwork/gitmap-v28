@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [210-gitmap-push-fix-command-and-auth-recovery](210-gitmap-push-fix-command-and-auth-recovery/01-architecture-spec.md) — GitMap Push-Fix Command Suite, SSH Auth Self-Healing, Non-Fast-Forward Auto-Rebase & Stack Trace Suppression (Status: `completed`)
 - [209-ai-agent-task-orchestrator-and-split-db](209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md) — AI Agent Task Orchestrator, 3-Tier Multi-Agent SQLite Split-DB Hierarchy, Native `gitmap agent` CLI, Telemetry Logging, Crash Forensics & Interactive Web UI (Status: `active`)
 - [208-detectedproject-foreign-key-and-ssh-lifecycle-hardening](208-detectedproject-foreign-key-and-ssh-lifecycle-hardening/01-architecture-spec.md) — DetectedProject Foreign Key RCA, Database Reset Engine, SSH Terminal Layout Reorder, Dedicated Key Viewer, and Cross-OS Port Management (Status: `active`)
 - [72-repo-dedup-os-aware-equalfold](72-repo-dedup-os-aware-equalfold/01-architecture-spec.md) — Redundant Repo Deduplication, EqualFold Modernization, OS-Aware Path Sensitivity & File Ingestion Uniqueness (Status: `active`)

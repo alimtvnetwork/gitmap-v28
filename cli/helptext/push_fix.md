@@ -7,7 +7,9 @@ Autonomous diagnosis, self-healing, and direct GitHub push recovery.
 ```bash
 gitmap push-fix [flags]
 gitmap push fix [flags]
-gitmap pfx [flags]
+gitmap pf [flags]
+gitmap pushfix [flags]
+gitmap fix-push [flags]
 ```
 
 ## Description
@@ -43,6 +45,9 @@ gitmap pfx [flags]
 ```bash
 # Diagnose and fix push authentication in current repository
 gitmap push-fix
+
+# Run recovery using short alias
+gitmap pf
 
 # Dry-run test without pushing
 gitmap push-fix --dry-run
