@@ -45,9 +45,10 @@ gitmap ssh enable [--port <n>]
 # Target Node: Inspect listening ports, process PIDs, and firewall rules
 gitmap ports ssh
 gitmap ports --common
+gitmap ports firewall
 
 # Host/Client: Troubleshoot remote node reachability and port 22 timeout
-gitmap ssh troubleshoot <alias|ip>
+gitmap ssh troubleshoot <alias|ip>   # Alias: gitmap ssh doctor <alias|ip>
 
 # Inspect or reconfigure remote/local SSH port
 gitmap ssh port <alias|ip> [new-port]
@@ -72,28 +73,39 @@ gitmap sc list
 6. **OpenSSH Client vs. Server Asymmetry on Windows:** The availability of the `ssh.exe` client binary (which ships by default with Windows 10/11) does NOT imply that OpenSSH Server (`sshd`) is installed or running. When a target node times out on port 22, never assume SSH is operational because `ssh` runs locally. Run `gitmap ssh enable` on the target to ensure the Windows Capability `OpenSSH.Server~~~~0.0.1.0` is installed, the service is started with `Automatic` startup, and inbound port 22 is allowed in Windows Defender Firewall.
 7. **Timeout vs. Refusal Diagnostic Heuristic:** `Connection timed out` (exit code 255) almost always indicates packet drop by host or network firewalls, whereas `Connection refused` indicates an unblocked network path with no listening daemon. Always check firewall rules via `gitmap ports firewall` or `gitmap ssh troubleshoot`.
 8. **Worker Node Binary Version Parity:** If a worker node outputs `[E1001:VALIDATION] cmd.dispatch: Unknown command: ports`, the remote binary is outdated (pre-v6.467.0). Perform `gitmap self-update` or redeploy the binary before diagnostic commands.
+9. **Target IP Verification & DHCP Drift Guardrail:** Before debugging SSH daemons or firewalls, verify that the IP registered on the client matches the target host's actual network adapter address (`ipconfig` or `Get-NetIPAddress -AddressFamily IPv4`). Connecting to an unassigned IP or a stale DHCP lease causes identical multi-second timeout drops (exit code 255).
+10. **The `ssh` Client False-Positive Trap:** Typing `ssh` in PowerShell only verifies that the OpenSSH *client* binary (`System32\OpenSSH\ssh.exe`) is present (default on Windows 10/11). It does *not* indicate that the OpenSSH *server* service (`sshd`) is installed or listening. Always check `Get-Service sshd` or `gitmap ports ssh`.
 
 ---
 
 ## 4. Windows Target Node Bootstrap & Troubleshooting Playbook
 
-When a Windows worker node shows `○ offline (timeout)` or `Connection timed out` on port 22:
+When a Windows worker node shows `○ offline (timeout)` or `Connection timed out` on port 22, execute the following end-to-end resolution sequence:
 
-1. **Step 1: Elevate Terminal**
+### Phase A: Target Node Verification & Setup
+
+1. **Step 0: Confirm Actual Target IP**
+   On the target machine, inspect active IPv4 addresses:
+   ```powershell
+   Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPAddress, InterfaceAlias
+   ```
+   *Ensure the client uses this exact IP rather than an assumed or outdated DHCP lease.*
+
+2. **Step 1: Elevate Terminal**
    Open PowerShell as Administrator (`pwsh` or `powershell` with "Run as administrator").
 
-2. **Step 2: Update GitMap on Target (Resolves `Unknown command: ports`)**
+3. **Step 2: Update GitMap on Target (Resolves `Unknown command: ports`)**
    ```powershell
-   gitmap update
+   gitmap update        # or: gitmap self-update
    ```
 
-3. **Step 3: Automated Enablement via GitMap**
+4. **Step 3: Automated Enablement via GitMap**
    ```powershell
    gitmap ssh enable
    ```
    *This automatically installs the `OpenSSH.Server~~~~0.0.1.0` Windows capability, starts `sshd`, sets startup type to `Automatic`, and adds the inbound firewall rule for TCP port 22.*
 
-4. **Step 4: Alternative Native PowerShell Fallback**
+5. **Step 4: Alternative Native PowerShell Fallback**
    ```powershell
    # Install OpenSSH Server capability
    Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
@@ -108,15 +120,32 @@ When a Windows worker node shows `○ offline (timeout)` or `Connection timed ou
    }
    ```
 
-5. **Step 5: Verify on Target**
+6. **Step 5: Verify on Target**
    ```powershell
    gitmap ports ssh
+   Get-Service sshd
    ```
-   *Expected output: Port 22 LISTENING by `sshd.exe` with Firewall rule `Allow`.*
+   *Expected output: Port 22 LISTENING by `sshd.exe` with Firewall rule `Allow`, and service `sshd` status `Running`.*
 
-6. **Step 6: Verify on Client Machine**
+### Phase B: Client Machine Recovery & Re-enrollment
+
+7. **Step 6: Diagnose Connectivity from Client**
    ```powershell
-   gitmap ssh troubleshoot <alias|ip>
+   gitmap ssh troubleshoot <target-ip>
+   ```
+   *Identifies whether packet drop is network firewall, wrong IP, or unstarted daemon.*
+
+8. **Step 7: Re-enroll with Confirmed Target IP**
+   If the node was previously joined with an incorrect or stale IP:
+   ```powershell
+   # Remove old stale node registration:
+   gitmap ssh undo
+   # Or re-join with explicit alias:
+   gitmap ssh join administrator@<confirmed-ip> <alias>
+   ```
+
+9. **Step 8: Verify Fleet Status**
+   ```powershell
    gitmap ssh <alias>
    gitmap nodes
    ```
