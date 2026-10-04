@@ -58,6 +58,7 @@
 ## Pending Plans
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
+- [75-gitmap-u1-ubuntu-agm-fleet-integration.md](pending/75-gitmap-u1-ubuntu-agm-fleet-integration.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Spec: [205](../../02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md))
 
 ## Subtasks Directory
 

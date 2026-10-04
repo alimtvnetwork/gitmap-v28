@@ -70,4 +70,5 @@
 - [202-vmware-cli-commands-and-fleet-management.md](202-vmware-cli-commands-and-fleet-management.md) — VMware Workstation CLI Commands & Fleet Management Architecture (Status: `active`)
 - [203-ports-inspection-and-ssh-daemon-enablement.md](203-ports-inspection-and-ssh-daemon-enablement.md) — Ports Inspection, Firewall Audit & Cross-Platform OpenSSH Daemon Management (Status: `active`)
 - [204-ssh-password-interception-and-rsa-credential-vault](204-ssh-password-interception-and-rsa-credential-vault/01-architecture-spec.md) — SSH Password Interception, Masked Terminal Prompt, User RSA Consent, and RSA-OAEP Salt Credential Vault (Specs: [Architecture](204-ssh-password-interception-and-rsa-credential-vault/01-architecture-spec.md), [Component](204-ssh-password-interception-and-rsa-credential-vault/02-component-spec.md)) (Status: `active`)
+- [205-gitmap-u1-ubuntu-agm-fleet-integration](205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Status: `active`)
 
