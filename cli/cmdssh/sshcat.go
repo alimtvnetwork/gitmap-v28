@@ -15,12 +15,20 @@ import (
 
 // runSSHCat displays the public key for a named SSH key.
 func runSSHCat(args []string) error {
-	fs := flag.NewFlagSet("ssh-cat", flag.ExitOnError)
+	fs := flag.NewFlagSet("ssh-view", flag.ContinueOnError)
 	nameFlag := fs.String("name", constants.DefaultSSHKeyName, "Key name")
 	fs.StringVar(nameFlag, "n", constants.DefaultSSHKeyName, "Key name (short)")
-	fs.Parse(args)
+	rawFlag := fs.Bool("raw", false, "Output only raw public key")
+	fs.BoolVar(rawFlag, "r", false, "Output only raw public key (short)")
+	_ = fs.Parse(args)
 
 	name := *nameFlag
+	isRaw := *rawFlag
+	for _, a := range args {
+		if a == "-r" || a == "--raw" {
+			isRaw = true
+		}
+	}
 	// Allow positional: `gitmap ssh view mykey`.
 	for _, a := range fs.Args() {
 		if !strings.HasPrefix(a, "-") {
@@ -57,8 +65,7 @@ func runSSHCat(args []string) error {
 	// If key was found
 	if err == nil {
 		pub := strings.TrimSpace(key.PublicKey)
-		fmt.Println(pub)
-		copyPubKeyAndAnnounce(pub)
+		printSSHKeyViewCard(key.Name, key.PrivatePath, pub, key.Fingerprint, isRaw)
 
 		return nil
 	}
@@ -77,10 +84,35 @@ func runSSHCat(args []string) error {
 	pub := strings.TrimSpace(string(pubBytes))
 	fp := readFingerprint(diskPath)
 	upsertExistingKeyToDB(db, name, diskPath, string(pubBytes), fp)
-	fmt.Println(pub)
-	copyPubKeyAndAnnounce(pub)
+	printSSHKeyViewCard(name, diskPath, pub, fp, isRaw)
 
 	return nil
+}
+
+func printSSHKeyViewCard(name, keyPath, pub, fp string, isRaw bool) {
+	if isRaw {
+		fmt.Println(pub)
+
+		return
+	}
+
+	fmt.Println()
+	fmt.Printf("%s╔══════════════════════════════════════════════════════════════════╗%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("%s║                     SSH PUBLIC KEY & IDENTITY                    ║%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("%s╚══════════════════════════════════════════════════════════════════╝%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  Key Label:    %s%s%s\n", constants.ColorWhite, name, constants.ColorReset)
+	if keyPath != "" {
+		fmt.Printf("  Key Path:     %s%s%s\n", constants.ColorDim, keyPath, constants.ColorReset)
+	}
+	if fp != "" {
+		fmt.Printf("  Fingerprint:  %s%s%s\n", constants.ColorCyan, fp, constants.ColorReset)
+	}
+	fmt.Println()
+	displayPub := formatDisplayPublicKey(pub, false)
+	fmt.Printf("  Public Key:\n    %s\n\n", displayPub)
+	copyPubKeyAndAnnounce(pub)
+	fmt.Printf("\n  %s[tip]%s To regenerate this key: %sgitmap ssh create -y%s (or pass --force)\n\n",
+		constants.ColorYellow, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
 }
 
 func printSSHNotFound(db *store.DB, name string) {

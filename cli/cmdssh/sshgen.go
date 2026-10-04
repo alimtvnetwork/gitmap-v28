@@ -2,6 +2,7 @@ package cmdssh
 
 import (
 	"bufio"
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -14,6 +15,93 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
+
+// runSSHCreate handles explicit `gitmap ssh create` with overwrite guard and backup undo/redo.
+func runSSHCreate(args []string) error {
+	name, keyPath, email, force, host, confirm := parseSSHGenFlags(args)
+
+	if err := validateSSHKeygen(); err != nil {
+		return apperror.NewWithDetails(
+			"cmd.sshgen.validate",
+			"E1076",
+			constants.ErrSSHKeygenMissing,
+			"cmd.sshgen",
+			apperror.ErrorTypePrecondition,
+			apperror.SeverityError,
+			nil,
+		)
+	}
+
+	if len(email) == 0 {
+		email = resolveGitEmail()
+	}
+
+	if len(email) == 0 {
+		return apperror.NewWithDetails(
+			"cmd.sshgen.resolveEmail",
+			"E1077",
+			constants.ErrSSHEmailResolve,
+			"cmd.sshgen",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			nil,
+		)
+	}
+
+	keyPath = expandHome(keyPath)
+
+	db, err := openDB()
+	if err != nil {
+		return apperror.WrapWithDetails(
+			err,
+			"cmd.sshgen.openDB",
+			"E1078",
+			"failed to open database for ssh key generation",
+			"cmd.sshgen",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityFatal,
+			nil,
+		)
+	}
+
+	defer db.Close()
+
+	if keyExistsOnDisk(keyPath) {
+		hasBypass := force || confirm
+		if !hasBypass {
+			fmt.Printf("  %s⚠ Warning:%s SSH key already exists at %s\n", constants.ColorYellow, constants.ColorReset, keyPath)
+			prompt := fmt.Sprintf("  Overwrite and backup existing key? [y/N]: ")
+			if !askConfirmSimple(prompt) {
+				fmt.Println(constants.ColorDim + "  SSH key creation canceled." + constants.ColorReset)
+
+				return nil
+			}
+		}
+
+		backupPath, errBak := backupKeyWithTimestamp(keyPath)
+		if errBak != nil {
+			exitOnBackupError(errBak)
+		}
+		fmt.Printf("  %s✔ Backed up existing SSH key to: %s%s\n", constants.ColorGreen, backupPath, constants.ColorReset)
+		_, _ = RecordSSHKeyBackupTask(context.Background(), name, keyPath, backupPath)
+	}
+
+	generateAndStore(db, name, keyPath, email, host)
+
+	return nil
+}
+
+func askConfirmSimple(prompt string) bool {
+	fmt.Print(prompt)
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return false
+	}
+	trimmed := strings.ToLower(strings.TrimSpace(input))
+
+	return trimmed == "y" || trimmed == "yes"
+}
 
 // runSSHGenerate generates a new SSH key pair.
 func runSSHGenerate(args []string) error {
@@ -101,7 +189,7 @@ func runSSHGenerate(args []string) error {
 
 // parseSSHGenFlags parses flags for SSH key generation.
 func parseSSHGenFlags(args []string) (name, keyPath, email string, force bool, host string, confirm bool) {
-	fs := flag.NewFlagSet(constants.CmdSSH, flag.ExitOnError)
+	fs := flag.NewFlagSet(constants.CmdSSH, flag.ContinueOnError)
 	nameFlag := fs.String("name", constants.DefaultSSHKeyName, "Key label")
 	fs.StringVar(nameFlag, "n", constants.DefaultSSHKeyName, "Key label (short)")
 	pathFlag := fs.String("path", "", "Key file path")
@@ -110,13 +198,22 @@ func parseSSHGenFlags(args []string) (name, keyPath, email string, force bool, h
 	fs.StringVar(emailFlag, "e", "", "Email comment (short)")
 	forceFlag := fs.Bool("force", false, "Skip prompt if key exists")
 	fs.BoolVar(forceFlag, "f", false, "Skip prompt (short)")
+	yesFlag := fs.Bool("yes", false, "Confirm overwrite without prompt")
+	fs.BoolVar(yesFlag, "y", false, "Confirm overwrite without prompt (short)")
 	hostFlag := fs.String("host", constants.DefaultSSHHost, "Git provider hostname")
 	fs.StringVar(hostFlag, "H", constants.DefaultSSHHost, "Git provider hostname (short)")
 	confirmFlag := fs.Bool("confirm", false, "Require explicit confirmation")
-	fs.Parse(args)
+	_ = fs.Parse(args)
 
 	name = *nameFlag
 	email = *emailFlag
+	isConfirmed := *confirmFlag || *yesFlag
+	for _, a := range args {
+		trimmed := strings.TrimSpace(a)
+		if trimmed == "-y" || trimmed == "--yes" || trimmed == "--confirm" {
+			isConfirmed = true
+		}
+	}
 	// Accept positional args: an "@"-bearing token is treated as the
 	// email comment, anything else as the key name. Lets users write
 	// `gitmap ssh create me@x.com` or `gitmap ssh create mykey me@x.com`.
@@ -143,7 +240,7 @@ func parseSSHGenFlags(args []string) (name, keyPath, email string, force bool, h
 		path = defaultSSHKeyPath(name)
 	}
 
-	return name, path, email, *forceFlag, *hostFlag, *confirmFlag
+	return name, path, email, *forceFlag, *hostFlag, isConfirmed
 }
 
 // handleExistingKey prompts the user when a key already exists.

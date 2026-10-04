@@ -140,6 +140,16 @@ func upsertProjectRecords(
 	repoIDs := collectRepoIDs(results)
 	for i := range results {
 		r := &results[i]
+		if r.Project.RepoID <= 0 {
+			if id, err := db.SelectRepoIDByPath(r.Project.RepoPath); err == nil && id > 0 {
+				r.Project.RepoID = id
+			} else if id, err := db.SelectRepoIDByPath(r.Project.AbsolutePath); err == nil && id > 0 {
+				r.Project.RepoID = id
+			}
+		}
+		if r.Project.RepoID <= 0 {
+			continue
+		}
 		err := db.UpsertDetectedProject(r.Project)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, constants.ErrProjectUpsert, err)

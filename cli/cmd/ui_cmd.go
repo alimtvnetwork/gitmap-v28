@@ -1,8 +1,13 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 )
+
+func init() {
+	cmdssh.RunSSHUIFn = cmdui.RunUI
+}
 
 // runUI dispatches gitmap ui and gitmap <module> ui.
 func runUI(args []string) error {

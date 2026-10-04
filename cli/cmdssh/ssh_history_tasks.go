@@ -64,3 +64,10 @@ func RecordSSHDeleteKeyTask(ctx context.Context, key model.SSHKey) (string, erro
 	inverse, _ := json.Marshal(key)
 	return EnqueueSSHTask(ctx, ActionRmKey, key.Name, string(forward), string(inverse))
 }
+
+// RecordSSHKeyBackupTask records a key overwrite and backup operation with inverse restore payload.
+func RecordSSHKeyBackupTask(ctx context.Context, keyName, keyPath, backupPath string) (string, error) {
+	forward, _ := json.Marshal(map[string]string{"name": keyName, "path": keyPath, "backup": backupPath})
+	inverse, _ := json.Marshal(map[string]string{"name": keyName, "path": keyPath, "restoreFrom": backupPath})
+	return EnqueueSSHTask(ctx, "backup-key", keyName, string(forward), string(inverse))
+}

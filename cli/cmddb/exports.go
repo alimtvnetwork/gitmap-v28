@@ -39,3 +39,13 @@ func ParseConfirmFlag(cmdName string, args []string) bool {
 func TruncateStr(s string, maxLen int) string {
 	return truncateStr(s, maxLen)
 }
+
+// PerformComprehensiveResetExport exposes PerformComprehensiveReset to cmd.
+func PerformComprehensiveResetExport(opts ResetOptions) error {
+	return PerformComprehensiveReset(opts)
+}
+
+// ParseResetOptionsExport exposes ParseResetOptions to cmd.
+func ParseResetOptionsExport(args []string) ResetOptions {
+	return ParseResetOptions(args)
+}

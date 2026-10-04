@@ -84,12 +84,12 @@ const SQLCreateCsharpKeyFile = `CREATE TABLE IF NOT EXISTS CsharpKeyFile (
 )`
 
 // SQL: seed project types.
-const SQLSeedProjectTypes = `INSERT OR IGNORE INTO ProjectType (Key, Name, Description) VALUES
-	('go',     'Go',      'Go modules and packages'),
-	('node',   'Node.js', 'Node.js projects'),
-	('react',  'React',   'React applications'),
-	('cpp',    'C++',     'C and C++ projects'),
-	('csharp', 'C#',      '.NET and C# projects')`
+const SQLSeedProjectTypes = `INSERT OR IGNORE INTO ProjectType (ProjectTypeId, Key, Name, Description) VALUES
+	(1, 'go',     'Go',      'Go modules and packages'),
+	(2, 'node',   'Node.js', 'Node.js projects'),
+	(3, 'react',  'React',   'React applications'),
+	(4, 'cpp',    'C++',     'C and C++ projects'),
+	(5, 'csharp', 'C#',      '.NET and C# projects')`
 
 // SQL: upsert detected project.
 const SQLUpsertDetectedProject = `INSERT INTO DetectedProject

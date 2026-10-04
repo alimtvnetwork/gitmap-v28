@@ -140,6 +140,23 @@ func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error) {
 	return scanRows(rows)
 }
 
+// SelectRepoIDByPath returns the persisted RepoId for a repository absolute path.
+func (db *DB) SelectRepoIDByPath(absPath string) (int64, error) {
+	cleanPath := NormalizeStoragePath(absPath)
+	var id int64
+	err := db.conn.QueryRow(constants.SQLSelectRepoIDByPath, cleanPath).Scan(&id)
+	if err == nil && id > 0 {
+		return id, nil
+	}
+
+	errNocase := db.conn.QueryRow("SELECT RepoId FROM Repo WHERE AbsolutePath = ? COLLATE NOCASE", cleanPath).Scan(&id)
+	if errNocase == nil && id > 0 {
+		return id, nil
+	}
+
+	return 0, err
+}
+
 // scanRows reads ScanRecord values from query result rows.
 func scanRows(rows interface {
 	Next() bool

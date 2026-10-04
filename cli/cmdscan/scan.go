@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
@@ -308,14 +309,23 @@ func alignRecordsWithDB(records []model.ScanRecord, outputDir string) []model.Sc
 		return records
 	}
 
-	idsByPath := make(map[string]int64, len(repos))
+	idsByPath := make(map[string]int64, len(repos)*2)
 	for _, repo := range repos {
 		idsByPath[repo.AbsolutePath] = repo.ID
+		norm := store.NormalizeStoragePath(repo.AbsolutePath)
+		idsByPath[norm] = repo.ID
+		idsByPath[strings.ToLower(norm)] = repo.ID
 	}
 
 	aligned := make([]model.ScanRecord, 0, len(records))
 	for _, rec := range records {
-		if id, ok := idsByPath[rec.AbsolutePath]; ok {
+		norm := store.NormalizeStoragePath(rec.AbsolutePath)
+		lowerNorm := strings.ToLower(norm)
+		if id, ok := idsByPath[lowerNorm]; ok {
+			rec.ID = id
+		} else if id, ok := idsByPath[norm]; ok {
+			rec.ID = id
+		} else if id, ok := idsByPath[rec.AbsolutePath]; ok {
 			rec.ID = id
 		}
 

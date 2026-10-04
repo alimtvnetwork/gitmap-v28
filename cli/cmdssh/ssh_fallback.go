@@ -5,7 +5,7 @@ import (
 )
 
 func isSSHViewSub(sub string) bool {
-	return sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS
+	return sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS || sub == "show"
 }
 
 func isSSHCopySub(sub string) bool {
@@ -49,9 +49,8 @@ func dispatchOtherFallbackSSH(sub string, args []string) bool {
 }
 
 func dispatchCreateSSH(sub string, args []string) bool {
-	if sub == constants.SubCmdSSHCreate {
-		runSSHGenerate(args)
-		RenderSSHHelp()
+	if sub == constants.SubCmdSSHCreate || sub == "generate" || sub == "gen" {
+		_ = runSSHCreate(args)
 		return true
 	}
 	return false

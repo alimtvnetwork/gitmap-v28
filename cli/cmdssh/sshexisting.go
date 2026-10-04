@@ -117,7 +117,20 @@ func backupKeyForRegenerate(keyPath string) error {
 		return fmt.Errorf("backup public key: %w", errRename)
 	}
 
-	return nil
+// backupKeyWithTimestamp creates a timestamped backup of key and .pub files.
+func backupKeyWithTimestamp(keyPath string) (string, error) {
+	stamp := time.Now().Unix()
+	suffix := fmt.Sprintf(".bak.%d", stamp)
+	bakPath := keyPath + suffix
+	if err := os.Rename(keyPath, bakPath); err != nil {
+		return "", fmt.Errorf("backup private key: %w", err)
+	}
+
+	if _, errStat := os.Stat(keyPath + ".pub"); errStat == nil {
+		_ = os.Rename(keyPath+".pub", keyPath+".pub"+suffix)
+	}
+
+	return bakPath, nil
 }
 
 // (backupKeyForRegenerate is consumed by sshgen.go in the --force branch.)

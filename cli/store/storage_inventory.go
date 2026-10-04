@@ -42,6 +42,7 @@ func collectAllDataSources(dataDir string, add func(SplitDatabaseEntry)) {
 	collectParentSubdirDatabases(dataDir, "pipeline", "pipeline", add)
 	collectParentSubdirDatabases(dataDir, "repodb", "repodb", add)
 	collectUserHomeDatabases(add)
+	collectGlobalUserDatabases(add)
 	collectLocalRepoDatabases(add)
 	collectLooseDatabases(dataDir, add)
 }
@@ -164,4 +165,15 @@ func collectUserHomeDatabases(add func(SplitDatabaseEntry)) {
 	collectSubdirDatabases(gitmapDir, "repodb", "repodb", add)
 	collectSubdirDatabases(filepath.Join(gitmapDir, "data"), "pipeline", "pipeline", add)
 	collectSubdirDatabases(filepath.Join(gitmapDir, "data"), "automation", "automation", add)
+}
+
+func collectGlobalUserDatabases(add func(SplitDatabaseEntry)) {
+	globalDir := GlobalUserDataDir()
+	if globalDir == "" {
+		return
+	}
+	collectCoreDatabases(globalDir, add)
+	collectDataSubdirs(globalDir, add)
+	collectLooseDatabases(globalDir, add)
+	CollectDataTreeDatabases(globalDir, add)
 }

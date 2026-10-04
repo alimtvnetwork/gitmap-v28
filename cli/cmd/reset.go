@@ -2,32 +2,36 @@ package cmd
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// runReset handles the "reset" subcommand: deletes the active profile's
-// SQLite database file from disk, recreates the schema, and reseeds it.
+// runReset handles the "reset" subcommand: deletes all database files from disk,
+// recreates the schemas, and reseeds clean baseline data.
 func runReset(args []string) error {
 	checkHelp(constants.CmdReset, args)
-	isConfirm, isRescan := parseResetFlags(args)
-	if !isConfirm {
-		printResetNoConfirm(isRescan)
-		cliexit.Exit(1)
+	opts := cmddb.ParseResetOptionsExport(args)
+	if !opts.IsDryRun && !opts.IsConfirm {
+		msg := fmt.Sprintf("\n  %s⚠ Warning:%s This will permanently delete all database files and rebuild them from scratch. [y/N]: ", constants.ColorYellow, constants.ColorReset)
+		if !cmddb.ConfirmOrSkip(msg, args) {
+			printResetNoConfirm(opts.IsRescan)
 
-		return nil
+			return nil
+		}
+		opts.IsConfirm = true
 	}
 
-	executeReset()
-	if isRescan {
-		runRescan()
+	if err := cmddb.PerformComprehensiveResetExport(opts); err != nil {
+		return err
+	}
+
+	if opts.IsRescan && !opts.IsDryRun {
+		_ = runRescan()
 	}
 
 	return nil
@@ -40,50 +44,23 @@ func printResetNoConfirm(isRescan bool) {
 	}
 
 	fmt.Println()
-	fmt.Printf("  %s⚠ Warning:%s This will permanently delete the database file and rebuild it from scratch.\n", constants.ColorYellow, constants.ColorReset)
-	fmt.Printf("  Run with %s--confirm%s to proceed:\n\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  %s⚠ Warning:%s This will permanently delete the database files and rebuild them from scratch.\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("  Run with %s--confirm%s (or %s-y%s) to proceed:\n\n", constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %s%s%s\n\n", constants.ColorGreen, cmd, constants.ColorReset)
 }
 
 // parseResetFlags parses the --confirm flag for the reset command.
 func parseResetFlags(args []string) (bool, bool) {
-	fs := flag.NewFlagSet(constants.CmdReset, flag.ExitOnError)
-	var isConfirm bool
-	var isRescan bool
-	fs.BoolVar(&isConfirm, constants.FlagConfirm, false, constants.FlagDescConfirm)
-	fs.BoolVar(&isRescan, constants.FlagRescan, false, constants.FlagDescRescan)
-	_ = fs.Parse(args)
+	opts := cmddb.ParseResetOptionsExport(args)
 
-	return isConfirm || hasConfirmFlag(args), isRescan
+	return opts.IsConfirm, opts.IsRescan
 }
 
 // executeReset removes the active DB file, reopens to rebuild schema, then
 // reapplies any JSON-based seeds.
 func executeReset() {
-	if err := removeActiveDbFile(); err != nil {
-		appErr := apperror.WrapWithDetails(
-			err,
-			"db.reset",
-			"E2011",
-			fmt.Sprintf(constants.ErrResetRemoveFile, activeDbPath(), err),
-			"cmd.reset",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityError,
-			map[string]any{"path": activeDbPath()},
-		)
-		cliexit.HandleError(appErr, 1)
-	}
-
-	db, err := openDb()
-	if err != nil {
-		cliexit.HandleError(err, 1)
-	}
-
-	defer db.Close()
-
-	reseedFromJSON(db)
-
-	fmt.Print(constants.MsgResetDone)
+	opts := cmddb.ResetOptions{IsConfirm: true}
+	_ = cmddb.PerformComprehensiveResetExport(opts)
 }
 
 // removeActiveDbFile deletes the SQLite file for the active profile.

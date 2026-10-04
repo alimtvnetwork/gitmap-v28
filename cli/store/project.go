@@ -11,6 +11,17 @@ import (
 
 // UpsertDetectedProject inserts or updates a detected project record.
 func (db *DB) UpsertDetectedProject(p model.DetectedProject) error {
+	if p.RepoID <= 0 {
+		if id, err := db.SelectRepoIDByPath(p.RepoPath); err == nil && id > 0 {
+			p.RepoID = id
+		} else if id, err := db.SelectRepoIDByPath(p.AbsolutePath); err == nil && id > 0 {
+			p.RepoID = id
+		}
+	}
+	if p.RepoID <= 0 {
+		return fmt.Errorf("cannot upsert detected project: invalid RepoID %d for %s", p.RepoID, p.AbsolutePath)
+	}
+
 	_, err := ExecWrapper(db.conn, constants.SQLUpsertDetectedProject,
 		p.RepoID, p.ProjectTypeID, p.ProjectName,
 		p.AbsolutePath, p.RepoPath, p.RelativePath, p.PrimaryIndicator).Destruct()

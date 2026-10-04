@@ -14,8 +14,8 @@ func runSSH(args []string) error {
 		return nil
 	}
 	if len(args) == 0 {
-		runSSHGenerate(args)
 		RenderSSHHelp()
+		runSSHGenerate(args)
 		return nil
 	}
 	return result.AsError(dispatchSSH(context.Background(), args, nil))
@@ -32,8 +32,11 @@ func dispatchKeyOpsSSH(sub string, args []string) result.ErrorWrapper {
 				return result.MatchWrapper(runSSHDelete(args[1:]))
 			case "manage", "list", "ls":
 				return result.MatchWrapper(runSSHKeysManage(args[1:]))
+			case "view", "v", "show", "cat":
+				return result.MatchWrapper(runSSHCat(args[1:]))
 			}
 		}
+		return result.MatchWrapper(runSSHCat(args))
 	}
 
 	return result.UnmatchedWrapper()
@@ -168,6 +171,8 @@ func dispatchToolsSSH(ctx context.Context, sub string, args []string) result.Err
 		return result.MatchWrapper(RunSSHCloneCLI(args))
 	case "compare", "matrix":
 		return result.MatchWrapper(runSSHCompareCLI(args))
+	case "ui", "web", "dashboard":
+		return result.MatchWrapper(runSSHUI(args))
 	default:
 		return result.UnmatchedWrapper()
 	}
@@ -274,8 +279,8 @@ func runSSHProfile(args []string) error {
 }
 
 func handleEmptySSHArgs() error {
-	runSSHGenerate(nil)
 	RenderSSHHelp()
+	runSSHGenerate(nil)
 	return nil
 }
 
