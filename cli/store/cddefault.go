@@ -44,5 +44,10 @@ func SaveCDDefaults(outputDir string, defaults map[string]string) error {
 
 // cdDefaultsPath returns the full path to cd-defaults.json.
 func cdDefaultsPath(outputDir string) string {
+	binDir := BinaryDataDir()
+	if binDir != "" {
+		return filepath.Join(binDir, constants.CDDefaultsFile)
+	}
+
 	return filepath.Join(outputDir, constants.DBDir, constants.CDDefaultsFile)
 }
