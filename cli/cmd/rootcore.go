@@ -85,6 +85,10 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, runCloneSync},
 		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() error { return runPull(argsTail()) }},
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},
+		{[]string{
+			constants.CmdPushFix, constants.CmdPushFixAlias,
+			constants.CmdPushFixSolid, constants.CmdPushFixInvert,
+		}, func() error { return runPushFix(argsTail()) }},
 		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias, "ta"}, func() error { return runPullAll(argsTail()) }},
 		{[]string{"pull-all-table", "pat"}, func() error { return runPullAll(append([]string{"--status"}, argsTail()...)) }},
 		{[]string{

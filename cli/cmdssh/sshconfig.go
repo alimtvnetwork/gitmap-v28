@@ -113,6 +113,11 @@ func hasFlag(args []string, flags ...string) bool {
 	return false
 }
 
+// RunSSHConfig regenerates and displays the managed SSH config block.
+func RunSSHConfig(args []string) error {
+	return runSSHConfig(args)
+}
+
 // runSSHConfig regenerates and displays the managed SSH config block.
 func runSSHConfig(args []string) error {
 	hasSanitizeOnly := hasFlag(args, "--sanitize", "-s")

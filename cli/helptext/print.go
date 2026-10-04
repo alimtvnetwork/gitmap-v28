@@ -82,6 +82,11 @@ func PrintRaw(command string) {
 }
 
 var helpAliases = map[string]string{
+	"push-fix":                    "push_fix",
+	"push fix":                    "push_fix",
+	"pfx":                         "push_fix",
+	"pushfix":                     "push_fix",
+	"fix-push":                    "push_fix",
 	"cpi-all":                     "import-all",
 	"all-profile-import":          "import-all",
 	"import-all-profiles":         "import-all",

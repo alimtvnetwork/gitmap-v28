@@ -27,6 +27,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpushfix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsee"
@@ -728,7 +729,14 @@ func runPullReleaseCD(args []string) error {
 }
 
 func runPush(args []string) error {
+	if len(args) > 0 && (args[0] == "fix" || args[0] == "push-fix") {
+		return runPushFix(args[1:])
+	}
 	return cmdpull.RunPush(args)
+}
+
+func runPushFix(args []string) error {
+	return cmdpushfix.RunPushFix(args)
 }
 
 func findBySlug(records []model.ScanRecord, slug string) []model.ScanRecord {

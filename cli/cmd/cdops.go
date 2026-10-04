@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -93,7 +95,7 @@ func findCDRecords(db *store.DB, name string) []model.ScanRecord {
 	repos, err := db.FindBySlug(strings.ToLower(cleanName))
 	hasValidRepos := err == nil && len(repos) > 0
 	if hasValidRepos {
-		return repos
+		return deduplicateCDRecords(repos)
 	}
 
 	all, listErr := db.ListRepos()
@@ -101,7 +103,27 @@ func findCDRecords(db *store.DB, name string) []model.ScanRecord {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not list repos: %v\n", listErr)
 	}
 
-	return findBySlug(all, cleanName)
+	return deduplicateCDRecords(findBySlug(all, cleanName))
+}
+
+func deduplicateCDRecords(records []model.ScanRecord) []model.ScanRecord {
+	if len(records) <= 1 {
+		return records
+	}
+
+	seen := make(map[string]bool)
+	var deduped []model.ScanRecord
+	for _, r := range records {
+		norm := filepath.Clean(r.AbsolutePath)
+		if runtime.GOOS == "windows" {
+			norm = strings.ToLower(norm)
+		}
+		if !seen[norm] {
+			seen[norm] = true
+			deduped = append(deduped, r)
+		}
+	}
+	return deduped
 }
 
 // resolveCDPath picks the correct path from matches.

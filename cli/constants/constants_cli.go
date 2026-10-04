@@ -37,9 +37,13 @@ const (
 	// CmdPush is the cwd-scoped `git push` wrapper added in v5.29.0.
 	// Alias is `ph` (NOT `p` — collides with CmdPullAlias). Supports
 	// shared `--ssh` / `--https` transport flags.
-	CmdPush        = "push"
-	CmdPushAlias   = "ph"
-	CmdRescan      = "rescan"
+	CmdPush          = "push"
+	CmdPushAlias     = "ph"
+	CmdPushFix       = "push-fix"
+	CmdPushFixAlias  = "pfx"
+	CmdPushFixSolid  = "pushfix"
+	CmdPushFixInvert = "fix-push"
+	CmdRescan        = "rescan"
 	CmdRescanAlias = "rsc"
 	// CmdRescanSubtree narrowly re-runs `gitmap scan` against the
 	// absolutePath of an at-cap row from a previous scan output. Default

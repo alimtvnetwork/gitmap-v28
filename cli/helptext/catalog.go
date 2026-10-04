@@ -6,6 +6,8 @@ import (
 )
 
 var topicSummaries = map[string]string{
+	"push-fix":                    "Autonomous diagnosis, SSH key synchronization, dual-profile config healing, and direct GitHub push recovery.",
+	"pfx":                         "Autonomous diagnosis, SSH key synchronization, dual-profile config healing, and direct GitHub push recovery.",
 	"commit-in":                   "Comprehensive commit automation engine with JSON author rotation, SEO templates, deduplication heuristics, and AST function intelligence.",
 	"clone-only-missing":          "Clone only missing repositories from JSON manifests or URLs, skipping existing directories on disk without pulling.",
 	"com":                         "Clone only missing repositories from JSON manifests or URLs, skipping existing directories on disk without pulling.",
