@@ -142,9 +142,7 @@ func ExecuteBatchInstall(opts installOptions) error {
 	}
 
 	response.DurationMs = time.Since(startTime).Milliseconds()
-	if response.FailedCount > 0 && !response.IsSuccess {
-		response.IsSuccess = false
-	}
+	response.IsSuccess = response.FailedCount == 0
 
 	if opts.IsJson {
 		return outputBatchJSON(response)

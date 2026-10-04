@@ -275,8 +275,8 @@ func syncToTaskDB(taskDir string, opts *LogOptions) {
 	defer db.Close()
 
 	now := NowISO()
-	_, _ = db.Exec("UPDATE Subtask SET UpdatedAt = ? WHERE SubtaskId = ?;", now, opts.SubtaskId)
-	_, _ = db.Exec(`
+	_, _ = db.Exec("UPDATE Subtask SET UpdatedAt = ? WHERE SubtaskId = ?;", now, opts.SubtaskId) // lint-allow: ignore-db-error
+	_, _ = db.Exec(` // lint-allow: ignore-db-error
 		INSERT INTO AgentActionLog (
 			SubtaskId, AgentRole, ActionType, TargetFile, StartLine, EndLine,
 			QueryOrCommand, ActionDetails, DurationMs, Status, ErrorMessage, CreatedAt

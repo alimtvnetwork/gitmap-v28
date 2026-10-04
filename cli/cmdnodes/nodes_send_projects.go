@@ -267,9 +267,9 @@ func renderSendProjectsTable(results []sendProjectsNodeResult) {
 	fmt.Println("  " + strings.Repeat("-", 78))
 
 	for _, r := range results {
-		statusStr := constants.ColorGreen + "● SUCCESS" + constants.ColorReset
-		if !r.isSuccess {
-			statusStr = constants.ColorRed + "▲ FAILED" + constants.ColorReset
+		statusStr := constants.ColorRed + "▲ FAILED" + constants.ColorReset
+		if r.isSuccess {
+			statusStr = constants.ColorGreen + "● SUCCESS" + constants.ColorReset
 		}
 		fmt.Printf("  %-18s %-16s %-10s %-10d %-12s %-10v\n",
 			r.alias, r.hostAlias, r.osType, r.projsSynced, statusStr, r.duration.Round(time.Millisecond))

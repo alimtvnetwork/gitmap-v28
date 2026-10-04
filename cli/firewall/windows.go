@@ -5,13 +5,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
-)
-
-var (
-	winPortRegex = lazyregex.New(`(?i)LocalPort:\s*(\d+)`)
-	winRuleRegex = lazyregex.New(`(?i)Rule Name:\s*(.+)`)
 )
 
 func runNetsh(args ...string) (string, error) {

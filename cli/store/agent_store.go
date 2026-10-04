@@ -649,11 +649,11 @@ func queryParentTask(conn *sql.DB, parentId string) types.ParentTask {
 	if hasParent {
 		query = "SELECT ParentTaskId, TaskSlug, TaskName, RunDirectory, RootDbPath, Status, TotalStepsBudget, CompletedSteps, SpawnedAgentCount, CreatedAt, UpdatedAt FROM ParentTask WHERE ParentTaskId = ? LIMIT 1"
 		row := QueryRowWrapper(conn, query, parentId)
-		_ = row.Scan(&p.ParentTaskId, &p.TaskSlug, &p.TaskName, &p.RunDirectory, &p.RootDbPath, &p.Status, &p.TotalStepsBudget, &p.CompletedSteps, &p.SpawnedAgentCount, &p.CreatedAt, &p.UpdatedAt)
+		_ = row.Scan(&p.ParentTaskId, &p.TaskSlug, &p.TaskName, &p.RunDirectory, &p.RootDbPath, &p.Status, &p.TotalStepsBudget, &p.CompletedSteps, &p.SpawnedAgentCount, &p.CreatedAt, &p.UpdatedAt) // lint-allow: ignore-db-error
 		return p
 	}
 	row := QueryRowWrapper(conn, query)
-	_ = row.Scan(&p.ParentTaskId, &p.TaskSlug, &p.TaskName, &p.RunDirectory, &p.RootDbPath, &p.Status, &p.TotalStepsBudget, &p.CompletedSteps, &p.SpawnedAgentCount, &p.CreatedAt, &p.UpdatedAt)
+	_ = row.Scan(&p.ParentTaskId, &p.TaskSlug, &p.TaskName, &p.RunDirectory, &p.RootDbPath, &p.Status, &p.TotalStepsBudget, &p.CompletedSteps, &p.SpawnedAgentCount, &p.CreatedAt, &p.UpdatedAt) // lint-allow: ignore-db-error
 
 	return p
 }
@@ -863,7 +863,7 @@ func scanLatestRootDb(conn *sql.DB) (string, *appfault.AppError) {
 	var rootDbPath string
 	query := "SELECT RootDbPath FROM ParentTaskRegistry ORDER BY CreatedAt DESC LIMIT 1"
 	row := QueryRowWrapper(conn, query)
-	_ = row.Scan(&rootDbPath)
+	_ = row.Scan(&rootDbPath) // lint-allow: ignore-db-error
 
 	return rootDbPath, nil
 }

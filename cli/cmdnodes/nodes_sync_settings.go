@@ -198,9 +198,9 @@ func renderSyncSettingsTable(results []syncSettingsResult) {
 	fmt.Println("  " + strings.Repeat("-", 70))
 
 	for _, r := range results {
-		statusStr := constants.ColorGreen + "● SUCCESS" + constants.ColorReset
-		if !r.isSuccess {
-			statusStr = constants.ColorRed + "▲ FAILED" + constants.ColorReset
+		statusStr := constants.ColorRed + "▲ FAILED" + constants.ColorReset
+		if r.isSuccess {
+			statusStr = constants.ColorGreen + "● SUCCESS" + constants.ColorReset
 		}
 		fmt.Printf("  %-18s %-16s %-10s %-12s %-10v\n",
 			r.alias, r.hostAlias, r.osType, statusStr, r.duration.Round(time.Millisecond))

@@ -409,11 +409,11 @@ func parseAgyDeployArgs(args []string) AgyDeployOptions {
 // RenderAgyDeploySummary prints a structured terminal status table for deployment results.
 func RenderAgyDeploySummary(res *AgyDeployResultJSON) {
 	fmt.Println()
-	statusColor := constants.ColorGreen
-	statusText := "SUCCESS"
-	if !res.IsSuccess {
-		statusColor = constants.ColorRed
-		statusText = "FAILED"
+	statusColor := constants.ColorRed
+	statusText := "FAILED"
+	if res.IsSuccess {
+		statusColor = constants.ColorGreen
+		statusText = "SUCCESS"
 	}
 
 	fmt.Printf("  %s🚀 GitMap Antigravity Fleet Deployment: %s (%s)%s\n",

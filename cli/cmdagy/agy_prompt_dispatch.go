@@ -111,13 +111,12 @@ func resolveActiveAntigravityPID() int {
 
 func dispatchAndRenderResult(repoRoot, stageFile, title, content string, pid int) error {
 	res := DispatchPromptToAntigravity(repoRoot, stageFile, title, content, pid)
-	if !res.IsSuccess {
-		return apperror.NewExecutionError(res.Message)
+	if res.IsSuccess {
+		printDispatchSuccess(res, repoRoot, title)
+		return nil
 	}
 
-	printDispatchSuccess(res, repoRoot, title)
-
-	return nil
+	return apperror.NewExecutionError(res.Message)
 }
 
 func printDispatchSuccess(res AgyInjectionResult, repoRoot, title string) {
