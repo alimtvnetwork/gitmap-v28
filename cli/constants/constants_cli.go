@@ -44,7 +44,7 @@ const (
 	CmdPushFixSolid  = "pushfix"
 	CmdPushFixInvert = "fix-push"
 	CmdRescan        = "rescan"
-	CmdRescanAlias = "rsc"
+	CmdRescanAlias   = "rsc"
 	// CmdRescanSubtree narrowly re-runs `gitmap scan` against the
 	// absolutePath of an at-cap row from a previous scan output. Default
 	// MaxDepth is bumped to RescanSubtreeDefaultMaxDepth so users get a

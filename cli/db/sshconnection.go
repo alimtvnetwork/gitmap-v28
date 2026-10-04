@@ -43,15 +43,15 @@ const (
 			BuildVersion = ?
 		WHERE Alias = ?
 	`
-	sqlSelectSSHConnections        = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSGroup, ''), COALESCE(OSVersion, ''), COALESCE(BuildVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection`
-	sqlSelectSSHConnectionByAlias  = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSGroup, ''), COALESCE(OSVersion, ''), COALESCE(BuildVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
-	sqlSelectSSHConnectionByIP     = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSGroup, ''), COALESCE(OSVersion, ''), COALESCE(BuildVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE IPAddress = ? LIMIT 1`
+	sqlSelectSSHConnections         = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSGroup, ''), COALESCE(OSVersion, ''), COALESCE(BuildVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection`
+	sqlSelectSSHConnectionByAlias   = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSGroup, ''), COALESCE(OSVersion, ''), COALESCE(BuildVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
+	sqlSelectSSHConnectionByIP      = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSGroup, ''), COALESCE(OSVersion, ''), COALESCE(BuildVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE IPAddress = ? LIMIT 1`
 	sqlUpdateSSHConnectionPassword  = `UPDATE SSHConnection SET EncryptedPassword = ? WHERE Alias = ? OR IPAddress = ?`
 	sqlUpdateSSHConnectionOS        = `UPDATE SSHConnection SET OS = ? WHERE Alias = ? OR IPAddress = ?`
 	sqlUpdateSSHConnectionTelemetry = `UPDATE SSHConnection SET OS = ?, OSVersion = ?, BuildVersion = ? WHERE Alias = ? OR IPAddress = ?`
 	sqlDeleteSSHConnection          = `DELETE FROM SSHConnection WHERE Alias = ?`
-	sqlDeleteSSHConnectionByTarget = `DELETE FROM SSHConnection WHERE Alias = ? OR IPAddress = ?`
-	sqlDeleteAllSSHConnections     = `DELETE FROM SSHConnection`
+	sqlDeleteSSHConnectionByTarget  = `DELETE FROM SSHConnection WHERE Alias = ? OR IPAddress = ?`
+	sqlDeleteAllSSHConnections      = `DELETE FROM SSHConnection`
 )
 
 func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnection) *apperror.AppError {

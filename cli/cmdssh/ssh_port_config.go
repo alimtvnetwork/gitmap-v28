@@ -477,4 +477,3 @@ func runSSHPortEnablePublic(args []string) error {
 
 	return nil
 }
-
