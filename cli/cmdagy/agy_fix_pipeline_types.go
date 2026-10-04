@@ -23,12 +23,13 @@ type SentAgyErrorsStore struct {
 
 // AgyPromptQueueEntry records prompt queue items for Antigravity sessions.
 type AgyPromptQueueEntry struct {
-	ID        int    `json:"id"`
-	Type      string `json:"type"`
-	Title     string `json:"title"`
-	Prompt    string `json:"prompt"`
-	Status    string `json:"status"`
-	CreatedAt string `json:"createdAt"`
+	ID          int    `json:"id"`
+	Type        string `json:"type"`
+	Title       string `json:"title"`
+	ProjectName string `json:"projectName,omitempty"`
+	Prompt      string `json:"prompt"`
+	Status      string `json:"status"`
+	CreatedAt   string `json:"createdAt"`
 }
 
 // AgyPromptQueueFile stores active and queued prompts for Antigravity verification.

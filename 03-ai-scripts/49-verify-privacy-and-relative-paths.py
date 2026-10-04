@@ -33,7 +33,7 @@ TARGET_31_FILES = [
     # Group B: Root Plans & Completed Plans (.ai-memory/plans/)
     ".ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md",
     ".ai-memory/plans/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation.md",
-    ".ai-memory/plans/218-nodes-agy-ui-remote-settings-and-cursor-automation.md",
+    ".ai-memory/plans/completed/218-nodes-agy-ui-remote-settings-and-cursor-automation.md",
     ".ai-memory/plans/completed/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager.md",
     ".ai-memory/plans/completed/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation.md",
     # Group C: Subtask Execution Plans (.ai-memory/plans/subtasks/)

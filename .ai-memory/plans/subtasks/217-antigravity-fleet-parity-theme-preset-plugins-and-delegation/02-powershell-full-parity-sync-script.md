@@ -106,7 +106,7 @@ param(
   - Read all project descriptors in `<user-home>/.gemini/config/projects/`.
   - Inject `"settings": { "fileAccessPolicy": "AGENT_SETTING_POLICY_ALLOW", "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER" }`.
   - Inject `"permissionGrants": { "allow": ["read_file(/home/a/git-work)", "write_file(/home/a/git-work)", "command(*)"] }`.
-  - Normalize `folderUri` to `file:///home/a/git-work/<repo>`.
+  - Normalize `folderUri` to `file:///<user-home>/git-work/<repo>`.
 
 ### Step 3: Bundle Plugins & Skills Directory Tree
 - Verify source folder `<user-home>/.gemini/config/plugins` exists.

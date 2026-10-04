@@ -12,18 +12,18 @@ func TestSelectRepoIDByPath_SlashAgnostic(t *testing.T) {
 	rec := model.ScanRecord{
 		Slug:         "gitmap-v28",
 		RepoName:     "gitmap",
-		AbsolutePath: `D:\work\gitmap`,
+		AbsolutePath: `D:\mock\slashrepo`,
 	}
 	if err := db.UpsertRepos([]model.ScanRecord{rec}); err != nil {
 		t.Fatalf("UpsertRepos failed: %v", err)
 	}
 
-	id, err := db.SelectRepoIDByPath("D:/work/gitmap")
+	id, err := db.SelectRepoIDByPath("D:/mock/slashrepo")
 	if err != nil || id <= 0 {
 		t.Fatalf("expected to find repo by forward slash path, got id=%d, err=%v", id, err)
 	}
 
-	nestedID, nestedErr := db.SelectRepoIDByPath("D:/work/gitmap/nested/project")
+	nestedID, nestedErr := db.SelectRepoIDByPath("D:/mock/slashrepo/nested/project")
 	if nestedErr != nil || nestedID != id {
 		t.Fatalf("expected nested prefix match to find parent repo id %d, got %d, err=%v", id, nestedID, nestedErr)
 	}

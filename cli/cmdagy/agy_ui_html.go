@@ -192,17 +192,17 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       return;
     }
 
-    strip.innerHTML = '<span class="fleet-strip-label">Fleet Nodes:</span>' + nodes.map(n => `
-      <div class="fleet-node-card ${n.isOnline ? 'online' : 'offline'}">
-        <span class="dot ${n.isOnline ? 'online' : 'offline'}"></span>
-        <strong>${escapeHtml(n.alias || n.hostAlias)}</strong>
-        <span style="color:var(--dim); font-size:11px;">(${escapeHtml(n.os || 'os')})</span>
-      </div>
-    `).join('');
+    strip.innerHTML = '<span class="fleet-strip-label">Fleet Nodes:</span>' + nodes.map(n => 
+      '<div class="fleet-node-card ' + (n.isOnline ? 'online' : 'offline') + '">' +
+        '<span class="dot ' + (n.isOnline ? 'online' : 'offline') + '"></span>' +
+        '<strong>' + escapeHtml(n.alias || n.hostAlias) + '</strong>' +
+        '<span style="color:var(--dim); font-size:11px;">(' + escapeHtml(n.os || 'os') + ')</span>' +
+      '</div>'
+    ).join('');
 
-    select.innerHTML = nodes.map(n => `
-      <option value="${escapeHtml(n.alias)}">${escapeHtml(n.alias)} (${escapeHtml(n.hostAlias || 'host')})</option>
-    `).join('');
+    select.innerHTML = nodes.map(n => 
+      '<option value="' + escapeHtml(n.alias) + '">' + escapeHtml(n.alias) + ' (' + escapeHtml(n.hostAlias || 'host') + ')</option>'
+    ).join('');
 
     if (currentVal) {
       select.value = currentVal;
@@ -216,14 +216,14 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       tbody.innerHTML = '<tr><td colspan="4" style="color:var(--dim)">No active Antigravity projects</td></tr>';
       return;
     }
-    tbody.innerHTML = projects.map(p => `
-      <tr>
-        <td><strong>${escapeHtml(p.projectName)}</strong></td>
-        <td><span class="status-tag ${p.hasActivePrompt ? 'running' : 'saved'}">${p.status || 'IDLE'}</span></td>
-        <td class="snippet" title="${escapeHtml(p.promptPreview || '')}">${escapeHtml(p.promptPreview || 'None')}</td>
-        <td><button onclick="selectProject('${escapeHtml(p.projectName || p.projectPath)}')">Target</button></td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = projects.map(p => 
+      '<tr>' +
+        '<td><strong>' + escapeHtml(p.projectName) + '</strong></td>' +
+        '<td><span class="status-tag ' + (p.hasActivePrompt ? 'running' : 'saved') + '">' + (p.status || 'IDLE') + '</span></td>' +
+        '<td class="snippet" title="' + escapeHtml(p.promptPreview || '') + '">' + escapeHtml(p.promptPreview || 'None') + '</td>' +
+        '<td><button onclick="selectProject(\'' + escapeHtml(p.projectName || p.projectPath) + '\')">Target</button></td>' +
+      '</tr>'
+    ).join('');
   }
 
   function renderQueue(queued) {
@@ -233,14 +233,14 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       tbody.innerHTML = '<tr><td colspan="4" style="color:var(--dim)">No prompts in queue</td></tr>';
       return;
     }
-    tbody.innerHTML = queued.map(q => `
-      <tr>
-        <td>#${q.id}</td>
-        <td>${escapeHtml(q.title || 'Untitled')}</td>
-        <td>${escapeHtml(q.projectName || '-')}</td>
-        <td><span class="status-tag queued">${q.status || 'QUEUED'}</span></td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = queued.map(q => 
+      '<tr>' +
+        '<td>#' + q.id + '</td>' +
+        '<td>' + escapeHtml(q.title || 'Untitled') + '</td>' +
+        '<td>' + escapeHtml(q.projectName || '-') + '</td>' +
+        '<td><span class="status-tag queued">' + (q.status || 'QUEUED') + '</span></td>' +
+      '</tr>'
+    ).join('');
   }
 
   function renderSavedPrompts(saved) {
@@ -249,17 +249,17 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       tbody.innerHTML = '<tr><td colspan="4" style="color:var(--dim)">No saved templates</td></tr>';
       return;
     }
-    tbody.innerHTML = saved.map(s => `
-      <tr>
-        <td><strong>${escapeHtml(s.title || 'Template')}</strong></td>
-        <td>${escapeHtml(s.projectTarget || '.')}</td>
-        <td><span class="status-tag saved">${s.status || 'SAVED'}</span></td>
-        <td>
-          <button onclick="loadTemplate('${escapeHtml(s.projectTarget || '')}', '${escapeHtml(s.title || '')}', '${escapeHtml(s.promptText || '')}')">Load</button>
-          <button onclick="resendPrompt('${escapeHtml(s.id)}')">↻ Resend</button>
-        </td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = saved.map(s => 
+      '<tr>' +
+        '<td><strong>' + escapeHtml(s.title || 'Template') + '</strong></td>' +
+        '<td>' + escapeHtml(s.projectTarget || '.') + '</td>' +
+        '<td><span class="status-tag saved">' + (s.status || 'SAVED') + '</span></td>' +
+        '<td>' +
+          '<button onclick="loadTemplate(\'' + escapeHtml(s.projectTarget || '') + '\', \'' + escapeHtml(s.title || '') + '\', \'' + escapeHtml(s.promptText || '') + '\')">Load</button> ' +
+          '<button onclick="resendPrompt(\'' + escapeHtml(s.id) + '\')">↻ Resend</button>' +
+        '</td>' +
+      '</tr>'
+    ).join('');
   }
 
   function selectProject(path) {

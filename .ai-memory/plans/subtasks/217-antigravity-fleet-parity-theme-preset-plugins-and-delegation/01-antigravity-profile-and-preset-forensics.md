@@ -132,7 +132,7 @@ Every file matching `/home/a/.gemini/config/projects/*.json` must be updated to 
 1. `settings.autoExecutionPolicy` $\to$ `"CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"`
 2. `settings.fileAccessPolicy` $\to$ `"AGENT_SETTING_POLICY_ALLOW"`
 3. `settings.sandboxMode` $\to$ `false`
-4. Path remap in `projectResources`: Replace `file:///d%3A/work/` with `file:///home/a/work/`.
+4. Path remap in `projectResources`: Replace `file:///<old-windows-work>/` with `file:///<user-home>/work/`.
 
 ### 3.4 4 Plugins & 43 Skills Packaging Specification
 The deployment engine must archive and sync:

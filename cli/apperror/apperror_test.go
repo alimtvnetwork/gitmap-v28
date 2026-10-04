@@ -152,3 +152,20 @@ func TestAppError_NewNotFound(t *testing.T) {
 		t.Errorf("expected empty stack for not found error, got %s", err.Stack)
 	}
 }
+
+func TestAppError_NewValidation(t *testing.T) {
+	err := NewValidation("target_node", "E400", "target node cannot be empty")
+
+	if err.Type != ErrorTypeValidation {
+		t.Errorf("expected ErrorTypeValidation, got %s", err.Type)
+	}
+	if err.Op != "target_node" {
+		t.Errorf("expected op 'target_node', got %s", err.Op)
+	}
+	if err.Code != "E400" {
+		t.Errorf("expected code E400, got %s", err.Code)
+	}
+	if err.Message != "target node cannot be empty" {
+		t.Errorf("expected message 'target node cannot be empty', got %s", err.Message)
+	}
+}

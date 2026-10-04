@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.473.0] - 2026-10-04
+
+### Added
+- fix cursor sync and agy ui html compilation errors
+
+---
+
 ## [v6.472.0] - 2026-10-03
 
 ### Added

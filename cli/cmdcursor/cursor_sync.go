@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -91,8 +90,12 @@ func fetchGitMapRepoPaths() ([]string, error) {
 	}
 	paths := make([]string, 0, len(repos))
 	for _, r := range repos {
-		if r.Path != "" {
-			paths = append(paths, r.Path)
+		p := r.AbsolutePath
+		if p == "" {
+			p = r.RelativePath
+		}
+		if p != "" {
+			paths = append(paths, p)
 		}
 	}
 	return paths, nil

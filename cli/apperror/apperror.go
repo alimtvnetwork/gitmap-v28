@@ -358,6 +358,19 @@ func NewNotFoundError(msg string) *AppError {
 	}
 }
 
+// NewValidation creates an AppError specialized for input/CLI validation failures with op, code, and message.
+func NewValidation(op, code, msg string) *AppError {
+	return &AppError{
+		Op:       op,
+		Code:     code,
+		Type:     ErrorTypeValidation,
+		Severity: SeverityError,
+		Message:  msg,
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
+	}
+}
+
 // NewValidationError creates an AppError specialized for input/CLI validation failures.
 func NewValidationError(msg string) *AppError {
 	return &AppError{

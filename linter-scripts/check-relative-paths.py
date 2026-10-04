@@ -42,12 +42,14 @@ ALLOWLIST_FILES = {
     ".github/workflows/goreleaser-smoke.yml",
     "linter-scripts/check-relative-paths.py",
     "03-ai-scripts/07-relative-path-fixer.py",
+    "03-ai-scripts/49-verify-privacy-and-relative-paths.py",
 }
 
 ALLOWLIST_PREFIXES = (
     ".ai-memory/pipeline-ai/",
     ".ai-memory/cicd/",
     ".ai-memory/temp/",
+    ".gitmap/output/",
 )
 
 

@@ -41,7 +41,7 @@
 - **Implementation:**
   - Cleaned all 31 recent files across `02-spec/21-app/` and `.ai-memory/plans/`.
   - Replaced hardcoded IPs (`node-u1`, `node-main`, etc.) with machine aliases (`ubuntu-fleet-01`, `node-01`, `node-main`, `localhost`).
-  - Replaced hardcoded Windows/Linux absolute paths (`./`, `C:\Users\...`, `/home/a/...`) with relative `$WORKSPACE_ROOT`, `$HOME/git-work/`, and `./`.
+  - Replaced hardcoded Windows/Linux absolute paths (`$WORKSPACE_ROOT`, `C:\Users\...`, `/home/<user>/...`) with relative `$WORKSPACE_ROOT`, `$HOME/git-work/`, and `./`.
   - Verified with `03-ai-scripts/49-verify-privacy-and-relative-paths.py` (31 files checked, 0 violations found, exit code 0).
 
 ### Task-05: GitMap AGY Full Prompt Lifecycle UI & Operations
