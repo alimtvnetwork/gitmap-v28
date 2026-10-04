@@ -104,14 +104,29 @@ In `sync-antigravity-projects.ps1`, project JSON descriptors were generated with
 The instance metadata file `~/.antigravity_tools/instances/instances.json` tracks registered IDE instances:
 ```json
 {
-  "id": "default",
-  "name": "Default",
-  "data_dir": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity"
+  "active_instance_id": "gitmap-7845",
+  "instances": [
+    {
+      "id": "default",
+      "name": "Default",
+      "data_dir": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity",
+      "executable_path": null,
+      "extensions_dir": null,
+      "bound_account_id": "e4035d54-2f0d-4938-ab46-b284c9c4679a",
+      "bound_email": "anirban.datta.rasia@gmail.com",
+      "created_at": 1790039257,
+      "last_used": 1791133935,
+      "is_default": true,
+      "pid": 9688,
+      "seq_num": 1
+    }
+  ]
 }
 ```
 - **Forensic Mechanism:** When `instances.json` was copied or synced across machines without path sanitization, the Linux instance manager attempted to resolve or ensure `data_dir`.
 - On Linux, the string `C:\Users\Administrator\AppData\Roaming\Antigravity` was interpreted literally as a single folder name relative to `$HOME`.
 - This caused `mkdir` to create the stray directory `/home/a/C:\Users\Administrator\AppData\Roaming\Antigravity`.
+- **Format Discrepancy:** Additionally, early synchronization scripts flattened all instances to `/home/a/.config/Antigravity` and set `executable_path` on the default instance to a non-null string, breaking parity with the Windows instance schema where `default` uses `null` for `executable_path` and isolated instances maintain discrete instance storage directories. All machines must strictly adhere to the unified `snake_case` JSON schema.
 
 ### 2.4 Missing Plugin Filesystem Distribution & Chrome Sandbox Hardening
 

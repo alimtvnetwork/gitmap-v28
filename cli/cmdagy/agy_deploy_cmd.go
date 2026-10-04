@@ -79,6 +79,7 @@ official plugins (4), plugin skills (43), and sanitized instance paths to remote
 	cmd.Flags().BoolVar(&opts.IsJSON, "json", false, "Output structured JSON telemetry")
 	cmd.Flags().BoolVar(&opts.IsForce, "force", false, "Overwrite existing remote configurations")
 	cmd.Flags().BoolVar(&opts.IsRestart, "restart", false, "Restart remote Antigravity services after deployment")
+	cmd.Flags().StringVar(&opts.ActiveInstanceID, "instance", "gitmap-7845", "Active instance ID to synchronize and select (default: gitmap-7845)")
 
 	return cmd
 }
@@ -171,6 +172,10 @@ func normalizeDeployOptions(opts *AgyDeployOptions) {
 		return
 	}
 
+	if opts.ActiveInstanceID == "" {
+		opts.ActiveInstanceID = "gitmap-7845"
+	}
+
 	hasAnyOption := opts.HasPlugins || opts.HasSkills || opts.HasBinaries || opts.HasProjects || opts.Preset != "" || opts.Theme != ""
 	if !hasAnyOption {
 		opts.IsAll = true
@@ -214,6 +219,7 @@ func resolveAgyTargetNodes(target string) ([]db.SSHConnection, error) {
 
 func populateDryRunResults(res *AgyDeployResultJSON, opts AgyDeployOptions, start time.Time) {
 	res.IsSuccess = true
+	res.ActiveInstanceID = opts.ActiveInstanceID
 
 	if opts.IsAll || opts.Theme != "" {
 		res.DeployedComponents[ComponentTheme] = true
@@ -272,6 +278,8 @@ func populateDryRunResults(res *AgyDeployResultJSON, opts AgyDeployOptions, star
 func executeLiveDeployment(client *ssh.Client, node db.SSHConnection, res *AgyDeployResultJSON, opts AgyDeployOptions, start time.Time) {
 	isWin := isWindowsOS(node.OS)
 	shell := resolveNodeShell(node.OS)
+
+	res.ActiveInstanceID = opts.ActiveInstanceID
 
 	cleanCmd := "rm -rf /home/a/C:* /home/a/'C:\\Users'* 2>/dev/null || true"
 	if isWin {

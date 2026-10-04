@@ -46,6 +46,9 @@ func DispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 }
 
 func tryDispatchAgyShortcut(args []string) (error, bool) {
+	if len(args) > 0 && strings.EqualFold(args[0], "deploy") {
+		return RunAgyDeployCLI(args[1:]), true
+	}
 	if len(args) > 0 && strings.EqualFold(args[0], "machine") && MachineCLIRunner != nil {
 		return MachineCLIRunner(args[1:]), true
 	}

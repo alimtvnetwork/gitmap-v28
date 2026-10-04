@@ -24,18 +24,19 @@ const (
 
 // AgyDeployOptions holds parsed CLI parameters for Antigravity deployment.
 type AgyDeployOptions struct {
-	TargetNode  string `json:"targetNode"`
-	Preset      string `json:"preset"`
-	Theme       string `json:"theme"`
-	IsAll       bool   `json:"isAll"`
-	HasPlugins  bool   `json:"hasPlugins"`
-	HasSkills   bool   `json:"hasSkills"`
-	HasBinaries bool   `json:"hasBinaries"`
-	HasProjects bool   `json:"hasProjects"`
-	IsDryRun    bool   `json:"isDryRun"`
-	IsJSON      bool   `json:"isJson"`
-	IsForce     bool   `json:"isForce"`
-	IsRestart   bool   `json:"isRestart"`
+	TargetNode       string `json:"targetNode"`
+	ActiveInstanceID string `json:"active_instance_id,omitempty"`
+	Preset           string `json:"preset"`
+	Theme            string `json:"theme"`
+	IsAll            bool   `json:"isAll"`
+	HasPlugins       bool   `json:"hasPlugins"`
+	HasSkills        bool   `json:"hasSkills"`
+	HasBinaries      bool   `json:"hasBinaries"`
+	HasProjects      bool   `json:"hasProjects"`
+	IsDryRun         bool   `json:"isDryRun"`
+	IsJSON           bool   `json:"isJson"`
+	IsForce          bool   `json:"isForce"`
+	IsRestart        bool   `json:"isRestart"`
 }
 
 // AgyDeployItemResult represents the status of an individual deployment component.
@@ -58,6 +59,7 @@ type AgyDeployMetrics struct {
 // AgyDeployResultJSON defines the structured machine-readable output contract.
 type AgyDeployResultJSON struct {
 	IsSuccess          bool                  `json:"success"`
+	ActiveInstanceID   string                `json:"active_instance_id,omitempty"`
 	Node               string                `json:"node"`
 	IP                 string                `json:"ip"`
 	Timestamp          time.Time             `json:"timestamp"`

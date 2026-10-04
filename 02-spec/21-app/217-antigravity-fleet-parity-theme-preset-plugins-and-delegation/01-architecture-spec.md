@@ -391,11 +391,66 @@ Antigravity tracks installed and active IDE instances in `~/.antigravity_tools/i
   1. The filesystem contained an unsightly, corrupted directory `/home/a/C:\Users\Administrator\...`.
   2. The Linux Antigravity process, which natively searches `/home/a/.config/Antigravity`, never found the intended user settings.
 
-### 6.3 Normalization Protocol for Linux
-1. **Registry Path Transformation:** In `/home/a/.antigravity_tools/instances/instances.json`, `data_dir` must strictly be rewritten to the canonical XDG path:
-   `"data_dir": "/home/a/.config/Antigravity"`
-2. **Executable Path Transformation:** `executable_path` must be set to `/usr/share/antigravity/antigravity` or `/home/a/.local/bin/antigravity`.
-3. **Filesystem Cleanup:** The deployment engine must execute an automated sanitization sweep:
+### 6.3 Unified JSON Data Format Protocol Across Fleet Nodes
+To ensure complete parity between Windows host instances and Linux fleet nodes, all systems must adhere strictly to the unified JSON data format:
+
+```json
+{
+  "active_instance_id": "gitmap-7845",
+  "instances": [
+    {
+      "id": "default",
+      "name": "Default",
+      "data_dir": "/home/a/.config/Antigravity",
+      "executable_path": null,
+      "extensions_dir": null,
+      "bound_account_id": "e4035d54-2f0d-4938-ab46-b284c9c4679a",
+      "bound_email": "anirban.datta.rasia@gmail.com",
+      "created_at": 1790039257,
+      "last_used": 1791133935,
+      "is_default": true,
+      "pid": 9688,
+      "seq_num": 1
+    },
+    {
+      "id": "default-copy-8159",
+      "name": "8159",
+      "data_dir": "/home/a/.antigravity_tools/instances/default-copy-8159/data",
+      "executable_path": "/home/a/.local/share/antigravity-ide/antigravity",
+      "extensions_dir": null,
+      "bound_account_id": "b5522331-6ea6-438a-8a99-4c2600844e03",
+      "bound_email": "erfan.office.n@gmail.com",
+      "created_at": 1790958159,
+      "last_used": 1791110334,
+      "is_default": false,
+      "pid": 11984,
+      "seq_num": 3
+    },
+    {
+      "id": "gitmap-7845",
+      "name": "gitmap",
+      "data_dir": "/home/a/.antigravity_tools/instances/gitmap-7845/data",
+      "executable_path": "/home/a/.local/share/antigravity-ide/antigravity",
+      "extensions_dir": null,
+      "bound_account_id": "2cf0b4e2-1f2c-46e8-b249-d386e1ec5926",
+      "bound_email": "marufssp@gmail.com",
+      "created_at": 1791097845,
+      "last_used": 1791129649,
+      "is_default": false,
+      "pid": 12484,
+      "seq_num": 4
+    }
+  ]
+}
+```
+
+#### Rules for Format Parity:
+1. **Schema & Case Conformity:** Root level uses `active_instance_id` (`snake_case`) and `instances` array. Per-instance keys strictly use `snake_case` (`data_dir`, `executable_path`, `extensions_dir`, `bound_account_id`, `bound_email`, `created_at`, `last_used`, `is_default`, `seq_num`).
+2. **Default Instance Executable Path:** On Linux, `default` instance preserves `"executable_path": null` matching the Windows default instance structure.
+3. **Isolated Instance Paths:** Custom named instances (`gitmap-7845`, `default-copy-8159`) resolve to dedicated instance directories (`/home/a/.antigravity_tools/instances/<id>/data`), while `default` resolves to canonical user config (`/home/a/.config/Antigravity`).
+4. **SQLite State Alignment:** The `active_instance_selection` table in `instances.db` must always be synchronized to match `active_instance_id`:
+   `INSERT OR REPLACE INTO active_instance_selection (id, instance_id, updated_at) VALUES (1, 'gitmap-7845', strftime('%s', 'now'))`.
+5. **Filesystem Cleanup:** The deployment engine must execute an automated sanitization sweep:
    ```bash
    rm -rf /home/a/C:* /home/a/'C:\Users'* 2>/dev/null || true
    ```
