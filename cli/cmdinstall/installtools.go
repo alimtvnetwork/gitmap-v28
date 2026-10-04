@@ -167,7 +167,7 @@ func buildBrewCommand(tool, pkg string) []string {
 }
 
 func buildSnapCommand(pkg string) []string {
-	if pkg == constants.CmdCode {
+	if pkg == constants.CmdCode || pkg == constants.SnapPkgPowerShell {
 		return []string{"sudo", "snap", "install", pkg, "--classic"}
 	}
 

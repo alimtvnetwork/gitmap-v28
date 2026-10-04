@@ -375,12 +375,13 @@ const (
 	AptPkgStarship        = "starship"
 	AptPkgOhMyPosh        = "oh-my-posh"
 	AptPkgScoop           = "scoop"
+	AptPkgPowerShell      = "powershell"
 )
 
 // Brew package IDs.
 const (
 	BrewPkgNodeJS          = "node"
-	BrewPkgPython          = "python"
+	BrewPkgPython          = "python3"
 	BrewPkgGo              = "go"
 	BrewPkgGit             = "git"
 	BrewPkgGitLFS          = "git-lfs"
@@ -437,6 +438,7 @@ const (
 	BrewPkgStarship        = "starship"
 	BrewPkgOhMyPosh        = "oh-my-posh"
 	BrewPkgScoop           = "scoop"
+	BrewPkgPowerShell      = "powershell"
 )
 
 // Snap package IDs.
@@ -467,6 +469,7 @@ const (
 	SnapPkgStarship        = "starship"
 	SnapPkgOhMyPosh        = "oh-my-posh"
 	SnapPkgScoop           = "scoop"
+	SnapPkgPowerShell      = "powershell"
 )
 
 // Install terminal messages.

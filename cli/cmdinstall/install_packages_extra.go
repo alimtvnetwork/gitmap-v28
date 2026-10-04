@@ -63,6 +63,7 @@ var aptPackageMap = map[string]string{
 	constants.ToolStarship:        constants.AptPkgStarship,
 	constants.ToolOhMyPosh:        constants.AptPkgOhMyPosh,
 	constants.ToolScoop:           constants.AptPkgScoop,
+	constants.ToolPowerShell:      constants.AptPkgPowerShell,
 }
 
 // resolveAptPackage maps tool names to apt package IDs.
@@ -135,6 +136,7 @@ var brewPackageMap = map[string]string{
 	constants.ToolStarship:        constants.BrewPkgStarship,
 	constants.ToolOhMyPosh:        constants.BrewPkgOhMyPosh,
 	constants.ToolScoop:           constants.BrewPkgScoop,
+	constants.ToolPowerShell:      constants.BrewPkgPowerShell,
 }
 
 // resolveBrewPackage maps tool names to Homebrew package IDs.
@@ -175,6 +177,7 @@ var snapPackageMap = map[string]string{
 	constants.ToolStarship:        constants.SnapPkgStarship,
 	constants.ToolOhMyPosh:        constants.SnapPkgOhMyPosh,
 	constants.ToolScoop:           constants.SnapPkgScoop,
+	constants.ToolPowerShell:      constants.SnapPkgPowerShell,
 }
 
 // resolveSnapPackage maps tool names to Snap package IDs.

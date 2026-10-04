@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -109,10 +110,20 @@ func probeOnlineNodeVersion(c db.SSHConnection) NodeVersionInfo {
 		osType = probed
 	}
 
+	osVer := probeRemoteOSVersion(client, osType)
 	ver, isInstalled := queryNodeVersionViaSSH(client, osType)
 	info.Version = ver
 	info.IsInstalled = isInstalled
 	info.Comparison = resolveNodeVersionComparison(ver, isInstalled)
+
+	go func(target, ost, osv, gmv string) {
+		dbConn, err := store.OpenDefault()
+		if err == nil {
+			defer dbConn.Close()
+			_ = db.UpdateConnectionTelemetry(context.Background(), dbConn.SQL(), target, ost, osv, gmv)
+		}
+	}(c.Alias, osType, osVer, ver)
+
 	return info
 }
 
