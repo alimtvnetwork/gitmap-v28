@@ -6,7 +6,7 @@
 **Author:** Spec Writer 02  
 **Date:** 2026-10-05  
 **Target Components:**
-- PowerShell Automation Script: `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1`
+- PowerShell Automation Script: `repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1`
 - GitMap CLI Native Delegation: `gitmap agy deploy <node>` (`cli/cmdagy/`, `cli/cmdssh/`, `cli/cmd/`)
 
 ---
@@ -18,7 +18,7 @@ When migrating or operating multi-node development environments across Windows w
 2. Conversations reverting to the "Default" permission preset requiring manual confirmation for every action instead of unattended eager execution (`CASCADE_COMMANDS_AUTO_EXECUTION_EAGER`, `BROWSER_JS_EXECUTION_POLICY_TURBO`, `ARTIFACT_REVIEW_MODE_TURBO`).
 3. Zero installed plugins under `~/.gemini/config/plugins/`.
 4. Absence of the 43 plugin skills under the agent prompt HUD.
-5. Path corruption where serialized Windows paths (`C:\Users\Administrator\...`) leak onto Linux filesystems, creating stray directories with literal backslashes.
+5. Path corruption where serialized Windows paths (`<user-home>\...`) leak onto Linux filesystems, creating stray directories with literal backslashes.
 
 This specification defines the two-tiered synchronization and delegation architecture:
 1. **Tier 1 (Immediate Automation):** `sync-antigravity-full-profile.ps1` — an idempotent, standalone PowerShell script residing in `repo-secrets` that extracts, sanitizes, packages, and deploys the entire Antigravity configuration profile over SSH.
@@ -38,7 +38,7 @@ flowchart TD
         GitMapCLI["gitmap agy deploy &lt;node&gt;<br/>(Native Go Fleet Delegation)"]
     end
 
-    subgraph Remote_Ubuntu ["Remote Linux Workstation (u1: 192.168.1.22)"]
+    subgraph Remote_Ubuntu ["Remote Linux Workstation (node u1)"]
         Sanitizer["Linux Path Sanitizer & SUID Root Fix<br/>(/home/a/ sanitization)"]
         TargetConfig["/home/a/.gemini/config/config.json<br/>(Eager + Dracula Theme)"]
         TargetPlugins["/home/a/.gemini/config/plugins/<br/>(4 Plugins + 43 Skills Active)"]
@@ -70,7 +70,7 @@ flowchart TD
 
 ### 2.1 Script Metadata & Location
 
-- **File Path:** `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1`
+- **File Path:** `scripts/sync-antigravity-full-profile.ps1`
 - **Execution Runtime:** Windows PowerShell 5.1 / PowerShell 7+
 - **Privilege Requirements:** Standard user locally; elevated (`sudo`) execution on the target remote node via SSH.
 - **Idempotency:** Safe to run repeatedly; overwrites target configurations deterministically while backing up existing files.
@@ -83,7 +83,7 @@ The script MUST expose the following strongly-typed parameters with positive boo
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [string]$TargetHost = "192.168.1.22",
+    [string]$TargetHost = "u1",
 
     [Parameter(Position = 1)]
     [string]$TargetUser = "a",
@@ -135,13 +135,13 @@ param(
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `-TargetHost` | `string` | `192.168.1.22` | Hostname or IP of the target Linux node (supports SSH alias `u1`). |
+| `-TargetHost` | `string` | `u1` | Hostname or alias of the target Linux node (supports SSH alias `u1`). |
 | `-TargetUser` | `string` | `a` | Remote SSH login username. |
 | `-Preset` | `string` | `turbo` | Execution preset: `turbo` (eager command & JS execution, unattended), `eager`, or `default`. |
 | `-Theme` | `string` | `dark-dracula` | UI Color Theme: `dark-dracula` (`#19191C` background, `#BD93F9` primary seed). |
 | `-SyncPlugins` | `switch` | `$true` | When enabled, syncs all 4 official plugins from `~/.gemini/config/plugins`. |
 | `-SyncSkills` | `switch` | `$true` | When enabled, syncs all nested skills inside plugins. |
-| `-SanitizePaths` | `switch` | `$true` | Scans and strips Windows backslashes; eradicates stray `C:\Users` directories on Linux. |
+| `-SanitizePaths` | `switch` | `$true` | Scans and strips Windows backslashes; eradicates stray Windows path directories on Linux. |
 | `-RestartIDE` | `switch` | `$true` | Restarts running Antigravity instances on Linux post-deployment. |
 | `-DryRun` | `switch` | `$false` | Emits planned payload and actions without modifying target host files. |
 | `-Force` | `switch` | `$false` | Bypasses safety prompts and forcefully overwrites remote target files. |
@@ -153,7 +153,7 @@ param(
 The script performs five distinct transformation steps before transmitting data over SSH:
 
 #### 1. `config.json` Generation & Transformation
-The script reads `C:\Users\Administrator\.gemini\config\config.json`. If missing, it constructs a complete, valid configuration JSON object incorporating:
+The script reads `<user-home>/.gemini/config/config.json`. If missing, it constructs a complete, valid configuration JSON object incorporating:
 - **Dark Dracula Theme Seeds:**
   ```json
   "customThemeSeedsDark": {
@@ -236,13 +236,13 @@ The script reads `C:\Users\Administrator\.gemini\config\config.json`. If missing
   ```
 
 #### 2. `instances.json` Path Sanitization
-The script inspects `C:\Users\Administrator\.antigravity_tools\instances\instances.json`. On Windows, this file contains:
-- `"data_dir": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity"`
-- `"executable_path": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\antigravity\\Antigravity.exe"`
+The script inspects `<windows-appdata>\instances.json`. On Windows, this file contains:
+- `"data_dir": "<windows-appdata>\\Antigravity"`
+- `"executable_path": "<windows-install-dir>\\Antigravity.exe"`
 
 The transformer translates paths to Linux equivalents:
-- Windows `C:\Users\Administrator\AppData\Roaming\Antigravity` $\to$ `/home/a/.config/Antigravity`
-- Windows `C:\Users\Administrator\.antigravity_tools\instances\<id>\data` $\to$ `/home/a/.antigravity_tools/instances/<id>/data`
+- Windows `<windows-appdata>\Antigravity` $\to$ `/home/a/.config/Antigravity`
+- Windows `<windows-tools>\instances\<id>\data` $\to$ `/home/a/.antigravity_tools/instances/<id>/data`
 - Windows executable path $\to$ `/home/a/.local/share/antigravity-ide/antigravity`
 - Strips any backslashes `\` and replaces them with standard forward slashes `/`.
 
@@ -265,10 +265,10 @@ The script scans all project JSON files in `~/.gemini/config/projects/`. For eac
     ]
   }
   ```
-- Translates `folderUri` from Windows (`file:///d%3A/work/...`) to Linux RFC 3986 format (`file:///home/a/git-work/...`).
+- Translates `folderUri` from Windows (`file:///<workspace-root>/...`) to Linux RFC 3986 format (`file:///home/a/git-work/...`).
 
 #### 4. Plugins & Skills Bundle Packaging
-The script gathers the entire directory tree from `C:\Users\Administrator\.gemini\config\plugins`:
+The script gathers the entire directory tree from `<user-home>/.gemini/config/plugins`:
 - `chrome-devtools-plugin` (including `skills/` with 5 skills)
 - `data-agent-kit-plugin` (including `skills/` with 11 skills)
 - `google-antigravity-sdk` (including `skills/` with 12 skills)
@@ -384,7 +384,7 @@ When `--json` is supplied, `gitmap agy deploy <node>` returns a standardized JSO
   "code": 0,
   "message": "Antigravity full profile deployed successfully to u1",
   "data": {
-    "targetHost": "192.168.1.22",
+    "targetHost": "u1",
     "targetNode": "u1",
     "targetUser": "a",
     "preset": "turbo",
@@ -536,13 +536,13 @@ func NewAgyDeployCmd() *cobra.Command {
 1. **Positive Boolean Naming:** All boolean fields and variables across PowerShell and Go code MUST use positive prefixes (`is`, `has`, `can`, `should`). The use of negative booleans (`isNotSandbox`, `disabledPlugins`, `noRestart`) is strictly forbidden.
 2. **RFC 3986 URI Standards:** When registering project roots, file paths on Linux MUST conform to `file:///home/a/git-work/<repo>`. Windows backslashes MUST NEVER be emitted in project descriptors.
 3. **Sandbox Compliance:** Modern Linux distributions with AppArmor unconfined restrictions require either SUID root permissions (`4755`) on `chrome-sandbox` or running Electron binaries with `--no-sandbox`. The deployment scripts MUST enforce both the SUID permission and the wrapper flag in launcher scripts.
-4. **Clean Filesystem Boundary:** Remote paths MUST stay contained within `/home/a/.gemini` and `/home/a/.antigravity_tools`. Stray path artifacts such as `/home/a/C:\...` or `/home/a/~` MUST be aggressively guarded against and eradicated.
+4. **Clean Filesystem Boundary:** Remote paths MUST stay contained within `/home/a/.gemini` and `/home/a/.antigravity_tools`. Stray path artifacts such as `/home/a/<windows-appdata>\...` or `/home/a/~` MUST be aggressively guarded against and eradicated.
 
 ---
 
 ## 5. Verification & Acceptance Criteria
 
-- [ ] **AC-CLI-01:** `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` executes with zero syntax errors on PowerShell 5.1 and 7+.
+- [ ] **AC-CLI-01:** `repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` executes with zero syntax errors on PowerShell 5.1 and 7+.
 - [ ] **AC-CLI-02:** Target node `u1` receives complete `config.json` with dark Dracula theme seeds (`#19191C`, `#BD93F9`) and eager auto-execution policy.
 - [ ] **AC-CLI-03:** All 4 plugins (`chrome-devtools`, `data-agent-kit`, `google-antigravity-sdk`, `modern-web-guidance`) are unpacked to `/home/a/.gemini/config/plugins` with 43 active skills.
 - [ ] **AC-CLI-04:** `instances.json` on `u1` contains zero Windows drive letters (`C:`) or backslashes (`\`).

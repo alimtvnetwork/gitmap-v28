@@ -10,7 +10,7 @@
 
 ## 1. Symptom
 
-During the migration and fleet onboarding of the remote Ubuntu workstation (`u1`, `192.168.1.22`), the user reported multiple visual, behavioral, and filesystem inconsistencies within the Google Antigravity IDE:
+During the migration and fleet onboarding of the remote Ubuntu workstation (`u1`), the user reported multiple visual, behavioral, and filesystem inconsistencies within the Google Antigravity IDE:
 
 1. **Permission Preset Reverting to "Default":**
    - In the Antigravity user interface (under Settings $\to$ Conversations, and in the per-project prompt bar), the permission preset displayed as **"Default"** instead of the configured unattended mode (**"Turbo" / Eager**).
@@ -28,7 +28,7 @@ During the migration and fleet onboarding of the remote Ubuntu workstation (`u1`
 5. **Filesystem Anomaly — Windows Path Tree Leaked onto Linux:**
    - On the Linux host `/home/a/`, a bizarre stray directory was detected:
      ```text
-     /home/a/C:\Users\Administrator\AppData\Roaming\Antigravity
+     /home/a/<windows-appdata>\Antigravity
      ```
    - Linux filesystems treat backslashes `\` as regular characters rather than path separators. When Windows paths were serialized into configuration files and read on Linux, the runtime created literal folders containing drive letters and backslashes in their names.
 
@@ -109,7 +109,7 @@ The instance metadata file `~/.antigravity_tools/instances/instances.json` track
     {
       "id": "default",
       "name": "Default",
-      "data_dir": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity",
+      "data_dir": "<windows-appdata>\\Antigravity",
       "executable_path": null,
       "extensions_dir": null,
       "bound_account_id": "e4035d54-2f0d-4938-ab46-b284c9c4679a",
@@ -124,13 +124,13 @@ The instance metadata file `~/.antigravity_tools/instances/instances.json` track
 }
 ```
 - **Forensic Mechanism:** When `instances.json` was copied or synced across machines without path sanitization, the Linux instance manager attempted to resolve or ensure `data_dir`.
-- On Linux, the string `C:\Users\Administrator\AppData\Roaming\Antigravity` was interpreted literally as a single folder name relative to `$HOME`.
-- This caused `mkdir` to create the stray directory `/home/a/C:\Users\Administrator\AppData\Roaming\Antigravity`.
+- On Linux, the string `<windows-appdata>\Antigravity` was interpreted literally as a single folder name relative to `$HOME`.
+- This caused `mkdir` to create the stray directory `/home/a/<windows-appdata>\Antigravity`.
 - **Format Discrepancy:** Additionally, early synchronization scripts flattened all instances to `/home/a/.config/Antigravity` and set `executable_path` on the default instance to a non-null string, breaking parity with the Windows instance schema where `default` uses `null` for `executable_path` and isolated instances maintain discrete instance storage directories. All machines must strictly adhere to the unified `snake_case` JSON schema.
 
 ### 2.4 Missing Plugin Filesystem Distribution & Chrome Sandbox Hardening
 
-1. **Plugin Distribution:** The physical plugin directories under `C:\Users\Administrator\.gemini\config\plugins\` (containing 4 plugins and 43 skill directories with `SKILL.md` definitions) were never archived or transferred by any automated script. As a result, even if plugins were registered in JSON, the physical files were missing.
+1. **Plugin Distribution:** The physical plugin directories under `<user-home>/.gemini/config/plugins/` (containing 4 plugins and 43 skill directories with `SKILL.md` definitions) were never archived or transferred by any automated script. As a result, even if plugins were registered in JSON, the physical files were missing.
 2. **Sandbox Hardening:** Modern Linux distros (Ubuntu 24.04+) enforce strict user namespace restrictions on unconfined binaries. Without setting SUID root (`chown root:root; chmod 4755`) on `chrome-sandbox`, Electron crashes unless explicitly passed `--no-sandbox`.
 
 ---
@@ -157,12 +157,12 @@ flowchart LR
 
 ### 3.1 Tier 1: Standalone Idempotent Script (`sync-antigravity-full-profile.ps1`)
 
-Authored `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` with the following architectural components:
+Authored `repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` with the following architectural components:
 
 1. **Full Config & Theme Injection:**
    - Bundles `config.json` with dark Dracula seeds (`#19191C`, `#BD93F9`), turbo policies (`CASCADE_COMMANDS_AUTO_EXECUTION_EAGER`, `BROWSER_JS_EXECUTION_POLICY_TURBO`), and global grants.
 2. **Plugins & Skills Packaging:**
-   - Gathers all 4 official plugins and 43 skills from `C:\Users\Administrator\.gemini\config\plugins/` and streams them as an in-memory tarball archive directly to `/home/a/.gemini/config/plugins/`.
+   - Gathers all 4 official plugins and 43 skills from `<user-home>/.gemini/config/plugins/` and streams them as an in-memory tarball archive directly to `/home/a/.gemini/config/plugins/`.
 3. **Project Descriptors Patching:**
    - Scans all projects in `/home/a/.gemini/config/projects/` and ensures explicit eager execution settings:
      ```json

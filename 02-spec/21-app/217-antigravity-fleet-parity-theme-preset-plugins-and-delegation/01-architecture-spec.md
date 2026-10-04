@@ -12,7 +12,7 @@
 ## 1. Executive Summary & Problem Formulation
 
 ### 1.1 Context & Background
-GitMap orchestrates polyglot developer environments, repository clusters, and AI-assisted workflows across multi-node workstation fleets comprising Windows workstations and remote Ubuntu Linux compute nodes (e.g. `u1` at `192.168.1.50`). Antigravity (Google's AI-first code generation and agentic IDE) serves as the primary development workbench across this fleet.
+GitMap orchestrates polyglot developer environments, repository clusters, and AI-assisted workflows across multi-node workstation fleets comprising Windows workstations and remote Ubuntu Linux compute nodes (e.g. `u1`). Antigravity (Google's AI-first code generation and agentic IDE) serves as the primary development workbench across this fleet.
 
 When provisioning remote compute nodes or migrating developer sessions from Windows hosts to Ubuntu fleet instances, Antigravity was observed to suffer from multiple severe environment divergences, missing extensions, and unconfigured policy fallbacks.
 
@@ -38,9 +38,9 @@ Forensic investigation across the active Windows host and remote Ubuntu node `u1
 
 5. **Windows Backslash Path Leakage on Linux Filesystems:**
    - In `~/.antigravity_tools/instances/instances.json`, the default instance record specified:
-     `"data_dir": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity"`
+     `"data_dir": "<windows-appdata>\\Antigravity"`
    - Because POSIX filesystems treat backslashes (`\`) as valid literal filename characters rather than path delimiters, naive replication to Linux created an anomaly directory literally named:
-     `/home/a/C:\Users\Administrator\AppData\Roaming\Antigravity`
+     `/home/a/<windows-appdata>\Antigravity`
    - This corrupts XDG Base Directory conventions, orphanizes settings, and prevents the Linux Antigravity process from discovering canonical configuration files at `/home/a/.config/Antigravity`.
 
 6. **Absence of Unified CLI Delegation in GitMap:**
@@ -70,12 +70,12 @@ flowchart TD
         CLI3["gitmap migrate host <node>\n(Automated Post-Migration Step)"]
         
         P1["Profile Packager & In-Memory Archive Builder"]
-        S1["Cross-Platform Path Sanitizer\n(C:\\Users\\... -> /home/a/...)"]
+        S1["Cross-Platform Path Sanitizer\n(Windows AppData -> Linux .config)"]
         S2["Project Descriptor Normalizer\n(Inject fileAccessPolicy & eager execution)"]
         T1["SSH SFTP & Streaming Transport Pipeline"]
     end
 
-    subgraph TargetHost["Target Fleet Node (Ubuntu u1 @ 192.168.1.50)"]
+    subgraph TargetHost["Target Fleet Node (Ubuntu node u1)"]
         L1["/home/a/.gemini/config/config.json\n(Custom Dark Theme, EAGER Policies, Grants)"]
         L2["/home/a/.gemini/config/plugins/\n(4 plugins deployed, 43 skills linked)"]
         L3["/home/a/.config/Antigravity/User/settings.json\n(Canonical XDG Path, turboMode, UI Title)"]
@@ -369,7 +369,7 @@ Antigravity tracks installed and active IDE instances in `~/.antigravity_tools/i
     {
       "id": "default",
       "name": "Default",
-      "data_dir": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity",
+      "data_dir": "<windows-appdata>\\Antigravity",
       "executable_path": null,
       "extensions_dir": null,
       "bound_account_id": "c644a942-e910-4c1b-9570-e16b920b504e",
@@ -386,9 +386,9 @@ Antigravity tracks installed and active IDE instances in `~/.antigravity_tools/i
 
 ### 6.2 Anomaly Mechanism on POSIX Systems
 - On Linux and macOS, the character `\` is not a path separator; only `/` is.
-- When `data_dir` containing `C:\Users\Administrator\AppData\Roaming\Antigravity` was copied verbatim to Ubuntu, any script or tool invoking `mkdir -p "$data_dir"` created a directory literally named `C:\Users\Administrator\AppData\Roaming\Antigravity` inside the current working directory (`/home/a`).
+- When `data_dir` containing `<windows-appdata>\Antigravity` was copied verbatim to Ubuntu, any script or tool invoking `mkdir -p "$data_dir"` created a directory literally named `<windows-appdata>\Antigravity` inside the current working directory (`/home/a`).
 - As a consequence:
-  1. The filesystem contained an unsightly, corrupted directory `/home/a/C:\Users\Administrator\...`.
+  1. The filesystem contained an unsightly, corrupted directory `/home/a/<windows-appdata>\...`.
   2. The Linux Antigravity process, which natively searches `/home/a/.config/Antigravity`, never found the intended user settings.
 
 ### 6.3 Unified JSON Data Format Protocol Across Fleet Nodes
@@ -494,7 +494,7 @@ sequenceDiagram
     participant Node as Remote Fleet Node (u1)
 
     Admin->>CLI: gitmap agy deploy u1 --all
-    CLI->>CLI: Resolve node credentials from SSH vault (u1 @ 192.168.1.50)
+    CLI->>CLI: Resolve node credentials from SSH vault (node u1)
     CLI->>Pack: Package local ~/.gemini/config/config.json (Theme + Presets)
     CLI->>Pack: Package local ~/.gemini/config/plugins/ (4 plugins, 43 skills)
     CLI->>Pack: Package local settings.json & sanitized instances.json
@@ -518,7 +518,7 @@ When invoked with `--json`, `gitmap agy deploy` emits a structured payload:
 {
   "success": true,
   "node": "u1",
-  "ip": "192.168.1.50",
+  "host": "u1",
   "timestamp": "2026-10-05T00:50:00Z",
   "deployedComponents": {
     "theme": true,
@@ -544,7 +544,7 @@ When invoked with `--json`, `gitmap agy deploy` emits a structured payload:
 ## 8. Security, RBAC & Isolation Guarantees
 
 1. **Least-Privilege Transport:** Deployment operates strictly over established SSH credentials stored in GitMap's encrypted credential vault (`~/.gitmap/credentials.db` / `ssh_vault_rsa.go`). No plaintext passwords are transmitted.
-2. **Workspace Boundary Enforcement:** Path normalization strictly remaps Windows drive letters (`D:\work`) to user workspace paths (`/home/a/work`). Absolute paths outside `/home/a` are forbidden.
+2. **Workspace Boundary Enforcement:** Path normalization strictly remaps Windows drive letters (`<user-home>/work`) to user workspace paths (`/home/a/work`). Absolute paths outside `/home/a` are forbidden.
 3. **Safe File Removal:** Anomaly sanitization (`rm -rf`) is strictly bounded to the literal Windows backslash pattern (`/home/a/C:\*` and `/home/a/C:*`) and never traverses root or parent paths.
 
 ---

@@ -3,7 +3,7 @@
 **Subtask Code:** 217.02  
 **Parent Task:** `217-antigravity-fleet-parity-theme-preset-plugins-and-delegation`  
 **Owner:** Worker 02  
-**Target File:** `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1`  
+**Target File:** `repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1`  
 **Status:** Ready for Implementation  
 **Date:** 2026-10-05  
 
@@ -11,14 +11,14 @@
 
 ## 1. Context & Objective
 
-During initial migration of workstation repositories to Ubuntu node `u1` (`192.168.1.22`), the Antigravity IDE configuration was only partially synchronized. This resulted in:
+During initial migration of workstation repositories to Ubuntu node `u1`, the Antigravity IDE configuration was only partially synchronized. This resulted in:
 1. Missing `config.json`, leaving UI theme unbranded and permission presets at the restrictive "Default" prompt mode.
 2. Missing plugins (`~/.gemini/config/plugins/` was empty).
 3. Missing 43 skills from the agent prompt HUD.
-4. Serialized Windows backslashes causing a stray `/home/a/C:\Users\Administrator\...` folder to be created on Linux.
+4. Serialized Windows backslashes causing a stray `/home/a/<windows-appdata>\...` folder to be created on Linux.
 5. Missing SUID permissions on `chrome-sandbox`.
 
-The objective of this subtask is to author a complete, standalone, idempotent PowerShell script `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` that packages the complete Antigravity profile from Windows, sanitizes all paths for Linux, streams the payload over SSH to `u1`, applies elevated system hardening, and restarts the IDE with full theme, preset, and plugin parity.
+The objective of this subtask is to author a complete, standalone, idempotent PowerShell script `repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` that packages the complete Antigravity profile from Windows, sanitizes all paths for Linux, streams the payload over SSH to `u1`, applies elevated system hardening, and restarts the IDE with full theme, preset, and plugin parity.
 
 ---
 
@@ -30,7 +30,7 @@ The script MUST expose the following parameters with positive boolean switches:
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [string]$TargetHost = "192.168.1.22",
+    [string]$TargetHost = "u1",
 
     [Parameter(Position = 1)]
     [string]$TargetUser = "a",
@@ -89,7 +89,7 @@ param(
 
 ### Step 2: Ingest & Transform Local Windows Configuration
 - **Read `config.json`**:
-  - Ingest `C:\Users\Administrator\.gemini\config\config.json`.
+  - Ingest `<user-home>/.gemini/config/config.json`.
   - Ensure `customThemeSeedsDark` is set to Dracula (`#19191C` background, `#BD93F9` primary, `#F8F8F2` foreground).
   - Ensure `userSettings` contains `CASCADE_COMMANDS_AUTO_EXECUTION_EAGER`, `BROWSER_JS_EXECUTION_POLICY_TURBO`, and wide `globalPermissionGrants`.
   - Ensure all 4 plugins are enabled in the `plugins` map:
@@ -98,18 +98,18 @@ param(
     - `google-antigravity-sdk` (v0.0.9)
     - `modern-web-guidance-plugin` (v1.0.6)
 - **Sanitize `instances.json`**:
-  - Ingest `C:\Users\Administrator\.antigravity_tools\instances\instances.json`.
+  - Ingest `<user-home>/.antigravity_tools/instances/instances.json`.
   - Replace `data_dir` Windows path with Linux path: `/home/a/.config/Antigravity`.
   - Replace `executable_path` with `/home/a/.local/share/antigravity-ide/antigravity`.
   - Strip all backslashes and drive letters.
 - **Transform `projects/*.json`**:
-  - Read all project descriptors in `C:\Users\Administrator\.gemini\config\projects/`.
+  - Read all project descriptors in `<user-home>/.gemini/config/projects/`.
   - Inject `"settings": { "fileAccessPolicy": "AGENT_SETTING_POLICY_ALLOW", "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER" }`.
   - Inject `"permissionGrants": { "allow": ["read_file(/home/a/git-work)", "write_file(/home/a/git-work)", "command(*)"] }`.
   - Normalize `folderUri` to `file:///home/a/git-work/<repo>`.
 
 ### Step 3: Bundle Plugins & Skills Directory Tree
-- Verify source folder `C:\Users\Administrator\.gemini\config\plugins` exists.
+- Verify source folder `<user-home>/.gemini/config/plugins` exists.
 - Ingest all 4 plugin directories, manifests (`plugin.json`, `gemini-extension.json`), and all 43 skill subdirectories containing `SKILL.md`.
 - Create a temporary staging archive (or in-memory tar.gz stream) containing:
   - `config.json`
@@ -159,9 +159,9 @@ param(
 
 ## 4. Verification & Acceptance Checklist
 
-- [ ] Script is saved at `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1`.
-- [ ] Contains all specified parameters with defaults matching `u1` (`192.168.1.22`, user `a`, preset `turbo`, theme `dark-dracula`).
+- [ ] Script is saved at `repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1`.
+- [ ] Contains all specified parameters with defaults matching `u1` (host `u1`, user `a`, preset `turbo`, theme `dark-dracula`).
 - [ ] Uses positive booleans (`$SyncPlugins`, `$SyncSkills`, `$SanitizePaths`, `$RestartIDE`).
 - [ ] Correctly packages `config.json`, 4 plugins, 43 skills, and transformed project descriptors.
-- [ ] Eliminates stray `C:\Users` folder on Linux and configures SUID 4755 on `chrome-sandbox`.
+- [ ] Eliminates stray Windows path folders on Linux and configures SUID 4755 on `chrome-sandbox`.
 - [ ] Powershell syntax passes validation with zero syntax errors.

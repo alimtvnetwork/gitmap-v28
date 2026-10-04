@@ -9,7 +9,7 @@
 
 ## 1. Objective
 
-Formulate, document, and verify the exhaustive configuration mapping from the master Windows Antigravity default instance (`C:\Users\Administrator\...`) to the canonical Linux fleet node environment (`/home/a/...` on Ubuntu `u1`). This ensures complete visual, permission, plugin, and skill parity, eradicating unconfigured fallbacks and filesystem path leakages.
+Formulate, document, and verify the exhaustive configuration mapping from the master Windows Antigravity default instance (`<user-home>/...`) to the canonical Linux fleet node environment (`/home/a/...` on Ubuntu `u1`). This ensures complete visual, permission, plugin, and skill parity, eradicating unconfigured fallbacks and filesystem path leakages.
 
 ---
 
@@ -32,9 +32,9 @@ Formulate, document, and verify the exhaustive configuration mapping from the ma
 - **Root Cause:** Antigravity does not automatically download plugins across offline instances without explicit user marketplace interaction. The 4 official core plugins and their 43 nested skills must be bundled and deployed directly from the master instance.
 
 ### 2.4 Windows Backslash Path Leakage on Linux
-- **Forensic Discovery:** The filesystem on Ubuntu `u1` contained an anomaly directory literally named `/home/a/C:\Users\Administrator\AppData\Roaming\Antigravity`.
+- **Forensic Discovery:** The filesystem on Ubuntu `u1` contained an anomaly directory literally named `/home/a/<windows-appdata>\Antigravity`.
 - **Root Cause:** `~/.antigravity_tools/instances/instances.json` contained Windows backslash paths:
-  `"data_dir": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity"`. On Linux, backslashes are valid literal characters in file and directory names. Any tool executing directory operations created the literal Windows path on disk, failing to locate user configurations at `/home/a/.config/Antigravity`.
+  `"data_dir": "<windows-appdata>\\Antigravity"`. On Linux, backslashes are valid literal characters in file and directory names. Any tool executing directory operations created the literal Windows path on disk, failing to locate user configurations at `/home/a/.config/Antigravity`.
 
 ---
 
@@ -44,12 +44,12 @@ Formulate, document, and verify the exhaustive configuration mapping from the ma
 
 | Component | Source Path (Windows Default Instance) | Target Path (Ubuntu Fleet Node `u1`) |
 | :--- | :--- | :--- |
-| **Global Config** | `C:\Users\Administrator\.gemini\config\config.json` | `/home/a/.gemini/config/config.json` |
-| **Official Plugins** | `C:\Users\Administrator\.gemini\config\plugins\` | `/home/a/.gemini/config/plugins/` |
-| **Project Descriptors** | `C:\Users\Administrator\.gemini\config\projects\*.json` | `/home/a/.gemini/config/projects/*.json` |
-| **VS Code User Settings** | `C:\Users\Administrator\AppData\Roaming\Antigravity\User\settings.json` | `/home/a/.config/Antigravity/User/settings.json` |
-| **Instance Registry** | `C:\Users\Administrator\.antigravity_tools\instances\instances.json` | `/home/a/.antigravity_tools/instances/instances.json` |
-| **Workspace Repos** | `D:\work\<repo>` | `/home/a/work/<repo>` |
+| **Global Config** | `<user-home>/.gemini/config/config.json` | `/home/a/.gemini/config/config.json` |
+| **Official Plugins** | `<user-home>/.gemini/config/plugins/` | `/home/a/.gemini/config/plugins/` |
+| **Project Descriptors** | `<user-home>/.gemini/config/projects/*.json` | `/home/a/.gemini/config/projects/*.json` |
+| **VS Code User Settings** | `<windows-appdata>\Antigravity\User\settings.json` | `/home/a/.config/Antigravity/User/settings.json` |
+| **Instance Registry** | `<user-home>/.antigravity_tools/instances/instances.json` | `/home/a/.antigravity_tools/instances/instances.json` |
+| **Workspace Repos** | `<user-home>/work/<repo>` | `/home/a/work/<repo>` |
 
 ### 3.2 Global Config JSON Specification (`config.json`)
 The Linux target `/home/a/.gemini/config/config.json` must be written with the following exact payload:

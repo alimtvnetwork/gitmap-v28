@@ -16,6 +16,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcursor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddoctor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
@@ -75,6 +76,10 @@ func runMkfileCmd(args []string) error {
 
 func runVSCode(args []string) error {
 	return cmdvscode.RunVSCode(args)
+}
+
+func runCursor(args []string) error {
+	return cmdcursor.RunCursor(args)
 }
 
 func runVSCodePMSync(args []string) error {

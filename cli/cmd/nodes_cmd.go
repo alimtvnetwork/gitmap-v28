@@ -105,6 +105,8 @@ func printUnifiedNodesHelp() error {
 	fmt.Println("    gitmap nodes clone except-self <targets>      Clone strictly to remote fleet nodes (skipping local)")
 	fmt.Println("    gitmap nodes cfr [flags] [targets] [dest]     Clone, fix, and auto-setup across all fleet nodes")
 	fmt.Println("    gitmap nodes cfrp [flags] [targets] [dest]    Clone, fix, and promote public across all fleet nodes")
+	fmt.Println("    gitmap nodes agy [ui]                         Launch Antigravity web studio dashboard")
+	fmt.Println("    gitmap nodes agy query                        Query active Antigravity instances and prompts")
 	fmt.Println("    gitmap nodes <alias|ip>                       Filter output to a specific node or host")
 	fmt.Println("    gitmap nodes --ssh                            Filter only SSH-enrolled nodes")
 	fmt.Println("    gitmap nodes --cluster                        Filter only Cluster DB registered nodes")
@@ -150,8 +152,31 @@ func runNodesHistoryCLI(args []string) error {
 	})
 }
 
+func isNodesAgyRequest(args []string) bool {
+	return len(args) > 0 && strings.EqualFold(args[0], "agy")
+}
+
+func runNodesAgyDispatch(args []string) error {
+	if len(args) == 0 {
+		return cmdnodes.RunNodesAgyUI(nil)
+	}
+	if strings.EqualFold(args[0], "query") {
+		return cmdnodes.RunNodesAgyQuery(args[1:])
+	}
+	if strings.EqualFold(args[0], "ui") || strings.EqualFold(args[0], "dashboard") || strings.EqualFold(args[0], "studio") {
+		return cmdnodes.RunNodesAgyUI(args[1:])
+	}
+	return cmdnodes.RunNodesAgyUI(args)
+}
+
 // runUnifiedNodesCLI handles `gitmap nodes [flags] [target]`.
 func runUnifiedNodesCLI(args []string) error {
+	if len(args) > 0 && strings.EqualFold(args[0], "nodes") {
+		return runUnifiedNodesCLI(args[1:])
+	}
+	if isNodesAgyRequest(args) {
+		return runNodesAgyDispatch(args[1:])
+	}
 	if len(args) > 0 && (strings.EqualFold(args[0], "history") || strings.EqualFold(args[0], "histories")) {
 		return runNodesHistoryCLI(args[1:])
 	}

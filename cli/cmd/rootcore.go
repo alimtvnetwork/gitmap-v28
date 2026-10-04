@@ -130,6 +130,7 @@ func coreWorkflowEntries() []dispatchEntry {
 		{[]string{constants.CmdInject, constants.CmdInjectAlias}, func() error { return runInject(argsTail()) }},
 		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() error { return runOpen(argsTail()) }},
 		{[]string{constants.CmdCloneFrom, constants.CmdCloneFromAlias}, func() error { return runCloneFrom(argsTail()) }},
+		{[]string{"cursor", "cur"}, func() error { return runCursor(argsTail()) }},
 	}
 }
 

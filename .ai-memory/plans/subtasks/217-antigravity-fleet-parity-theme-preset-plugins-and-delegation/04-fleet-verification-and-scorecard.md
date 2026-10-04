@@ -14,7 +14,7 @@
 
 ## 1. Context & Objective
 
-Following the generation of the component & CLI specification, 4-part RCA document, and implementation of `sync-antigravity-full-profile.ps1` and `gitmap agy deploy`, rigorous end-to-end fleet verification must be conducted on target workstation `u1` (`192.168.1.22`).
+Following the generation of the component & CLI specification, 4-part RCA document, and implementation of `sync-antigravity-full-profile.ps1` and `gitmap agy deploy`, rigorous end-to-end fleet verification must be conducted on target workstation `u1`.
 
 The objective of this subtask is to execute and validate the complete verification scorecard across UI theme, permission presets, plugins, skills, path hygiene, and security hardening, and register App Issue 69 in the master contents catalog of `02-spec/22-app-issues/readme.md`.
 
@@ -55,7 +55,7 @@ In `02-spec/22-app-issues/readme.md`, append App Issue 69 to the master Contents
 
 ### Step 1: Remote Configuration Verification via SSH
 ```bash
-ssh a@192.168.1.22 'python3 -c "
+ssh a@u1 'python3 -c "
 import json
 with open(\"/home/a/.gemini/config/config.json\") as f:
     cfg = json.load(f)
@@ -68,19 +68,19 @@ print(\"CONFIG_PARITY_VERIFIED\")
 
 ### Step 2: Remote Skills Inventory Check
 ```bash
-ssh a@192.168.1.22 'find /home/a/.gemini/config/plugins -name "SKILL.md" | wc -l'
+ssh a@u1 'find /home/a/.gemini/config/plugins -name "SKILL.md" | wc -l'
 # Expected output: >= 42
 ```
 
 ### Step 3: Filesystem Hygiene Check
 ```bash
-ssh a@192.168.1.22 'find /home/a -maxdepth 1 -name "C:*" | wc -l'
+ssh a@u1 'find /home/a -maxdepth 1 -name "C:*" | wc -l'
 # Expected output: 0
 ```
 
 ### Step 4: Chrome Sandbox Permissions Check
 ```bash
-ssh a@192.168.1.22 'stat -c "%a %U:%G" /home/a/.local/share/antigravity-ide/chrome-sandbox'
+ssh a@u1 'stat -c "%a %U:%G" /home/a/.local/share/antigravity-ide/chrome-sandbox'
 # Expected output: 4755 root:root
 ```
 
@@ -94,7 +94,7 @@ ssh a@192.168.1.22 'stat -c "%a %U:%G" /home/a/.local/share/antigravity-ide/chro
 
 - [ ] All 6 verification gates in Section 2 pass with 100% compliance.
 - [ ] Remote node `u1` runs Antigravity IDE with Dracula Dark theme and Turbo permission preset.
-- [ ] Stray `C:\Users` folder is completely purged from `/home/a/`.
+- [ ] Stray Windows path folder is completely purged from `/home/a/`.
 - [ ] Chrome sandbox has SUID root permissions (`4755`).
 - [ ] `02-spec/22-app-issues/readme.md` is updated with Issue 69 properly linked.
 - [ ] AC-AI-001 audit criteria are fully satisfied.

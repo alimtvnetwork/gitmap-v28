@@ -58,6 +58,9 @@ func tryDispatchAgyShortcut(args []string) (error, bool) {
 	if len(args) > 0 && strings.EqualFold(args[0], "settings") {
 		return RunAgySettingsCLI(args[1:]), true
 	}
+	if len(args) > 0 && IsAgyUICommand(args[0]) {
+		return RunAgyUI(args[1:]), true
+	}
 	return tryDispatchAgyMaintenanceShortcut(args)
 }
 
@@ -263,6 +266,9 @@ func normalizeRwiAndMessagingSubcommands(low string) string {
 }
 
 func normalizeCoreWorkflowAliases(low string) string {
+	if IsAgyUICommand(low) {
+		return "ui"
+	}
 	if low == "list-prompts" || low == "listprompts" || low == "lp" || low == "list-prompt" {
 		return "list-prompts"
 	}
@@ -455,6 +461,16 @@ func registerAgyUtilityCommands() {
 	AgyCmd.AddCommand(agySendMessageCmd)
 	AgyCmd.AddCommand(agyListPromptsCmd)
 	AgyCmd.AddCommand(agyHistoryCmd)
+	AgyCmd.AddCommand(agyUICmd)
+}
+
+var agyUICmd = &cobra.Command{
+	Use:     "ui",
+	Aliases: []string{"dashboard", "studio"},
+	Short:   "Launch interactive Antigravity web UI dashboard",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return RunAgyUI(args)
+	},
 }
 
 var agyQueueCmd = &cobra.Command{

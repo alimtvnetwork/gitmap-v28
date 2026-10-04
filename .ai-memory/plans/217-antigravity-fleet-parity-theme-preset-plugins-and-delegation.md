@@ -12,7 +12,7 @@
 2. **Permission Preset Default Fallback**: In Antigravity Settings $\to$ Conversations (and per-project conversation prompt bar), Permission Preset displays as `Default` instead of the expected unattended execution mode (`CASCADE_COMMANDS_AUTO_EXECUTION_EAGER`, `BROWSER_JS_EXECUTION_POLICY_TURBO`, `ARTIFACT_REVIEW_MODE_TURBO`, and wide `globalPermissionGrants`).
 3. **Plugins Missing**: `/home/a/.gemini/config/plugins/` is completely empty (0 plugins installed).
 4. **Skills Missing**: All 43 plugin skills (`chrome-devtools`, `data-agent-kit`, `google-antigravity-sdk`, `modern-web-guidance`) are absent from the UI.
-5. **Windows Path Leak on Linux**: An anomaly directory `/home/a/C:\Users\Administrator\AppData\Roaming\Antigravity` was created on Linux because `data_dir` in `instances.json` serialized Windows backslashes.
+5. **Windows Path Leak on Linux**: An anomaly directory `/home/a/<windows-appdata>\Antigravity` was created on Linux because `data_dir` in `instances.json` serialized Windows backslashes.
 
 ### Forensic Root Causes
 - **Antigravity Custom Theme & Settings Architecture**:
@@ -41,7 +41,7 @@
 | Task ID | Subtask Code & Title | Owner | Target Files | Scope & Deliverable |
 | :--- | :--- | :--- | :--- | :--- |
 | **Task-01** | `01-antigravity-profile-and-preset-forensics` | Spec Writer 01 / Worker 01 | `02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/01-architecture-spec.md` | Formalize the complete protobuf/JSON schema for Antigravity themes (`customThemeSeedsDark`), permission presets (`CASCADE_COMMANDS_AUTO_EXECUTION_EAGER`), plugin manifests, and skills directories. |
-| **Task-02** | `02-powershell-full-parity-sync-script` | Spec Writer 02 / Worker 02 | `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` | Author standalone, idempotent PowerShell script in `repo-secrets` packaging default theme, turbo presets, 4 plugins, 43 skills, and deploying to `u1` via SSH with path sanitization. |
+| **Task-02** | `02-powershell-full-parity-sync-script` | Spec Writer 02 / Worker 02 | `repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` | Author standalone, idempotent PowerShell script in `repo-secrets` packaging default theme, turbo presets, 4 plugins, 43 skills, and deploying to `u1` via SSH with path sanitization. |
 | **Task-03** | `03-gitmap-agy-deploy-delegation-engine` | Spec Writer 01 / Worker 01 | `cli/cmdagy/agy_deploy_cmd.go`, `cli/cmdagy/agy_deploy_types.go`, `cli/cmdssh/ssh_deploy_router.go`, `cli/cmd/roottooling.go`, `cli/cmd/help.go` | Implement `gitmap agy deploy <node>` (`--preset`, `--theme`, `--plugins`, `--skills`, `--all`, `--json`) and wire into `gitmap deploy ide <node>` and `gitmap migrate host`. |
 | **Task-04** | `04-fleet-verification-and-scorecard` | Spec Writer 02 / Worker 02 | `02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/02-component-and-cli-spec.md`, `02-spec/22-app-issues/69-antigravity-fleet-parity-theme-preset-plugins-rca.md`, `02-spec/22-app-issues/readme.md` | Author component CLI spec, 4-part RCA document, and index in app-issues catalog. |
 | **Task-05** | `05-live-execution-verification-and-push` | Lead Orchestrator | `repo-secrets`, `gitmap` codebase, master registries | Execute live sync on `u1`, verify Antigravity IDE UI state, run linters, update registries, and commit/push atomically via GitMap. |
