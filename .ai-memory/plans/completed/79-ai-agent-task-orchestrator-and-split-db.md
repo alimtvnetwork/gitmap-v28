@@ -1,4 +1,4 @@
-# Plan: 79-ai-agent-task-orchestrator-and-split-db
+# Plan Completed: 79-ai-agent-task-orchestrator-and-split-db
 
 ## User Request (Verbatim)
 
@@ -29,12 +29,18 @@ Okay. Once you apply all this, I want you to update in the coding guideline the 
 
 ---
 
-## Subtask Decomposition & Ownership
+## Completed Subtasks Summary
 
-- **Subtask 01:** Multi-Tiered Split-DB Hierarchy Architecture Spec & Database Schemas (`02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md`)
-- **Subtask 02:** `gitmap agent` (and alias `gitmap ai-agents`) CLI Command Suite (`cli/cmdagent/`, `cli/store/`)
-- **Subtask 03:** Action Types Enum & Detailed Granular Telemetry with Crash Forensics (`cli/cmdagent/`, `cli/types/`)
-- **Subtask 04:** Interactive Web Visualizer Dashboard (`gitmap agent ui` / `gitmap ai-agents ui`) (`cli/cmdui/`, `cli/cmdagent/`)
-- **Subtask 05:** Configurable Temp Directory & Lifecycle Cleanup (`clear`, `reset`, `temp-clear`) (`cli/cmdagent/`, `cli/config/`)
-- **Subtask 06:** Coding Guidelines & Execute Prompts Migration (updating `execute-parent-task-with-n-steps-v6` and skills)
-- **Subtask 07:** Dedicated GitMap Agent Skill (`.agents/skills/gitmap-agent-orchestrator/skill.md`) & End-to-End Verification
+- ✅ **Subtask 01: Multi-Tiered Split-DB Hierarchy Architecture Specification** (`02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md`, `02-component-and-ui-spec.md`)
+- ✅ **Subtask 02: gitmap agent CLI Command Suite and Routing** (`cli/constants/constants_cli.go`, `cli/cmd/root.go`, `cli/types/agent_types.go`, `cli/store/agent_store.go`, `cli/cmdagent/agent_cmd.go`, `cli/cmdagent/agent_task.go`, `cli/cmdagent/agent_subtask.go`)
+- ✅ **Subtask 03: Action Types Enum, Granular Telemetry and Crash Forensics Engine** (`cli/cmdagent/agent_log.go`, `cli/cmdagent/agent_diagnose.go`)
+- ✅ **Subtask 04: Interactive Web Visualizer Dashboard (gitmap agent ui)** (`cli/cmdagent/agent_ui.go`, `cli/cmdagent/agent_ui_server.go`, `cli/cmdagent/agent_ui_assets.go`)
+- ✅ **Subtask 05: Configurable Temp Directory and Lifecycle Cleanup** (`cli/cmdagent/agent_config.go`, `cli/cmdagent/agent_cleanup.go`)
+- ✅ **Subtask 06: Coding Guidelines and Execute Prompts Migration** (`.agents/skills/execute-parent-task-with-n-steps-v6/skill.md`, `01-prompts/14-execute/13-execute-parent-task-with-n-steps-v6.md`)
+- ✅ **Subtask 07: Dedicated GitMap Agent Skill and E2E Verification** (`.agents/skills/gitmap-agent-orchestrator/skill.md`, `.agents/skills/gitmap/SKILL.md`)
+
+---
+
+## Specifications Created
+- Canonical Architecture Spec: [01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md)
+- Component & Web UI Spec: [02-component-and-ui-spec.md](file:///d:/work/gitmap/02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/02-component-and-ui-spec.md)

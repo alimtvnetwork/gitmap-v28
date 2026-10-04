@@ -13,6 +13,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagent"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
@@ -734,8 +735,29 @@ func dispatchExtraCommand(cmd string, shouldAudit bool, id int64, start time.Tim
 	if dispatchPromptSubsystem(cmd, shouldAudit, id, start) {
 		return true
 	}
+	if dispatchAgentSubsystem(cmd, shouldAudit, id, start) {
+		return true
+	}
 
 	return dispatchGeneralCommands(cmd, shouldAudit, id, start)
+}
+
+func dispatchAgentSubsystem(
+	command string,
+	shouldAudit bool,
+	auditID int64,
+	auditStart time.Time,
+) bool {
+	switch command {
+	case constants.CmdAgent, constants.CmdAgentAlias, constants.CmdAgentAlias2:
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return cmdagent.DispatchAgent(args)
+		}, shouldAudit, auditID, auditStart)
+
+		return true
+	default:
+		return false
+	}
 }
 
 func dispatchSmartTestSubsystem(

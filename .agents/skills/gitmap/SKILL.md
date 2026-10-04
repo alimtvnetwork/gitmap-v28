@@ -1,6 +1,6 @@
 ---
 name: gitmap
-description: Autonomous developer companion and CLI for ultra-fast repository scanning, polyglot automation (AUM), cluster/SSH delegation, pipeline self-healing, and coding guideline enforcement.
+description: Autonomous developer companion and CLI for ultra-fast repository scanning, polyglot automation (AUM), cluster/SSH delegation, pipeline self-healing, multi-tier AI agent task orchestration, and coding guideline enforcement.
 ---
 
 # GitMap Autonomous Engineering Skill
@@ -68,6 +68,22 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap cargo status` — Inspect Rust and Cargo toolchain status
 - `gitmap install cargo` — Install Rust toolchain if missing
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages
+
+### 9. AI Agent Task Orchestrator & Multi-Tier Split-DB (`gitmap agent` / `gitmap ai-agents`)
+- `gitmap agent task init --name "<name>" [--budget <n>]` — Initialize parent task & register in master `ai_agents.db`
+- `gitmap agent task ls [--limit <n>] [--all] [--status <s>]` — List active and completed parent tasks
+- `gitmap agent task status [--task-id <id>]` — Show task rollup, budget consumption, and subtask progress
+- `gitmap agent subtask add --parent <id> --file <file>` (or `--json '<json>'`) — Enqueue atomic subtasks
+- `gitmap agent subtask claim --agent "<role>"` — Atomically claim next available pending subtask
+- `gitmap agent subtask start <subtask-id> --agent "<role>"` — Mark claimed subtask as in-progress
+- `gitmap agent log --agent "<role>" --subtask <id> --action "<action>" --file "<file>" --details "<details>"` — Record granular telemetry into agent split DB
+- `gitmap agent subtask complete <subtask-id> --agent "<role>" --evidence "<ev>"` — Mark subtask done with evidence
+- `gitmap agent subtask fail <subtask-id> --agent "<role>" --reason "<reason>"` — Mark subtask failed with RCA
+- `gitmap agent crashed [--task-id <id>]` (alias: `gitmap agent diagnose`) — Detect abandoned/crashed workers and display autopsy report
+- `gitmap agent ui [--port <p>] [--browse]` — Launch interactive browser dashboard with tree view and live action timeline
+- `gitmap agent clear [--task-id <id>] [-y]` — Clean completed tasks or specific task runs
+- `gitmap agent reset [-y]` — Reset agent database tables while preserving directory structures
+- `gitmap agent temp-clear [-y]` — Purge entire agent temp directory (`.ai-memory/temp-agents/`)
 
 ## Operational Guardrails
 1. **Learning & Skill Acquisition:** Run `gitmap llm train` to initialize or update GitMap skills. Never run broad keyword searches like `gitmap aum search "train"` to discover how commands work.

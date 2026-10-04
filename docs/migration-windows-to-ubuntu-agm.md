@@ -7,13 +7,13 @@ This guide details the procedure for exporting Antigravity Manager (AGM) setting
 ### Path & Directory Mappings
 | Component | Windows Source Path | Ubuntu Target Path |
 | :--- | :--- | :--- |
-| AGM Config Root | `C:\Users\Administrator\.antigravity_tools` | `/home/a/.antigravity_tools` |
-| Accounts Index | `C:\Users\Administrator\.antigravity_tools\accounts.json` | `/home/a/.antigravity_tools/accounts.json` |
-| Accounts Profiles | `C:\Users\Administrator\.antigravity_tools\accounts\*.json` | `/home/a/.antigravity_tools/accounts/` |
-| SQLite Databases | `user_tokens.db`, `security.db` | `/home/a/.antigravity_tools/*.db` |
-| IDE Credentials | `C:\Users\Administrator\.gemini\oauth_creds.json` | `/home/a/.gemini/oauth_creds.json` |
-| Global Storage | `C:\Users\Administrator\AppData\Roaming\Antigravity\User\globalStorage` | `/home/a/.config/Antigravity/User/globalStorage` |
-| Binary Launcher | `C:\Users\Administrator\AppData\Local\Programs\Antigravity` | `/home/a/.local/share/antigravity-ide` |
+| AGM Config Root | `%USERPROFILE%\.antigravity_tools` | `~/.antigravity_tools` |
+| Accounts Index | `%USERPROFILE%\.antigravity_tools\accounts.json` | `~/.antigravity_tools/accounts.json` |
+| Accounts Profiles | `%USERPROFILE%\.antigravity_tools\accounts\*.json` | `~/.antigravity_tools/accounts/` |
+| SQLite Databases | `user_tokens.db`, `security.db` | `~/.antigravity_tools/*.db` |
+| IDE Credentials | `%USERPROFILE%\.gemini\oauth_creds.json` | `~/.gemini/oauth_creds.json` |
+| Global Storage | `%APPDATA%\Antigravity\User\globalStorage` | `~/.config/Antigravity/User/globalStorage` |
+| Binary Launcher | `%LOCALAPPDATA%\Programs\Antigravity` | `~/.local/share/antigravity-ide` |
 
 ---
 

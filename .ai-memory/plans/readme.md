@@ -2,6 +2,8 @@
 
 ## Completed Plans
 
+- [79-ai-agent-task-orchestrator-and-split-db.md](completed/79-ai-agent-task-orchestrator-and-split-db.md) — AI Agent Task Orchestrator, 3-Tier Multi-Agent SQLite Split-DB Hierarchy, Native `gitmap agent` CLI, Telemetry Logging, Crash Forensics & Interactive Web UI (Spec: [209](../../02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md))
+- [78-detectedproject-foreign-key-and-ssh-lifecycle-hardening.md](completed/78-detectedproject-foreign-key-and-ssh-lifecycle-hardening.md) — DetectedProject Foreign Key RCA, Database Reset Engine, SSH Terminal Layout Reorder, Dedicated Key Viewer, and Cross-OS Port Management (Spec: [208](../../02-spec/21-app/208-detectedproject-foreign-key-and-ssh-lifecycle-hardening/01-architecture-spec.md))
 - [76-windows-to-ubuntu-fleet-migration-and-secrets-vault.md](completed/76-windows-to-ubuntu-fleet-migration-and-secrets-vault.md) — Windows to Ubuntu Fleet Migration, Zero-to-End Autonomous Provisioning & Secrets Vault Isolation (Spec: [206](../../02-spec/21-app/206-windows-to-ubuntu-fleet-migration-and-secrets-vault/01-architecture-spec.md))
 - [68-stats-float-scan-and-ssh-vault-interception.md](completed/68-stats-float-scan-and-ssh-vault-interception.md) — Stats AvgDuration Float Scan Fix, SS Alias SSH Forwarding & SSH Stale Password Invalidation
 - [67-ssh-password-interception-and-rsa-vault.md](completed/67-ssh-password-interception-and-rsa-vault.md) — SSH Password Interception, Masked Terminal Prompt, User RSA Consent & RSA-OAEP Salt Credential Vault (Spec: [204](../../02-spec/21-app/204-ssh-password-interception-and-rsa-credential-vault/01-architecture-spec.md))

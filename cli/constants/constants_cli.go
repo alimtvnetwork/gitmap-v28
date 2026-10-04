@@ -505,6 +505,9 @@ const (
 	CmdAutomationAlias    = "auto"
 	CmdAutomationAumAlias = "aum"
 	CmdAutomationPyAlias  = "py-auto"
+	CmdAgent              = "agent"
+	CmdAgentAlias         = "ai-agents"
+	CmdAgentAlias2        = "agents"
 )
 
 // vscode-pm-sync flag names + descriptions.

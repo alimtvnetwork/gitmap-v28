@@ -2,6 +2,8 @@
 
 ## Active Specifications
 
+- [209-ai-agent-task-orchestrator-and-split-db](209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md) — AI Agent Task Orchestrator, 3-Tier Multi-Agent SQLite Split-DB Hierarchy, Native `gitmap agent` CLI, Telemetry Logging, Crash Forensics & Interactive Web UI (Status: `active`)
+- [208-detectedproject-foreign-key-and-ssh-lifecycle-hardening](208-detectedproject-foreign-key-and-ssh-lifecycle-hardening/01-architecture-spec.md) — DetectedProject Foreign Key RCA, Database Reset Engine, SSH Terminal Layout Reorder, Dedicated Key Viewer, and Cross-OS Port Management (Status: `active`)
 - [72-repo-dedup-os-aware-equalfold](72-repo-dedup-os-aware-equalfold/01-architecture-spec.md) — Redundant Repo Deduplication, EqualFold Modernization, OS-Aware Path Sensitivity & File Ingestion Uniqueness (Status: `active`)
 - [71-repo-dedup-equalfold-os-guarantee](71-repo-dedup-equalfold-os-guarantee/01-architecture-spec.md) — Redundant Repo Deduplication (URL & Path), EqualFold Modernization, OS-Aware Path Sensitivity & File Ingestion Uniqueness (Status: `active`)
 - [202-vmware-cli-commands-and-fleet-management.md](202-vmware-cli-commands-and-fleet-management.md) — VMware Workstation CLI Command Suite, Fleet Management, Dual-Engine Hypervisor Driver, and Coordinated Scheduler Shutdown (Status: `active`)
