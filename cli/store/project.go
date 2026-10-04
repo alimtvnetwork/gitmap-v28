@@ -11,30 +11,67 @@ import (
 
 // UpsertDetectedProject inserts or updates a detected project record.
 func (db *DB) UpsertDetectedProject(p model.DetectedProject) error {
-	var exists bool
-	_ = db.conn.QueryRow("SELECT EXISTS(SELECT 1 FROM Repo WHERE RepoId = ?)", p.RepoID).Scan(&exists)
-	if !exists {
-		if id, err := db.SelectRepoIDByPath(p.RepoPath); err == nil && id > 0 {
-			p.RepoID = id
-			exists = true
-		} else if id, err := db.SelectRepoIDByPath(p.AbsolutePath); err == nil && id > 0 {
-			p.RepoID = id
-			exists = true
-		}
-	}
-	if !exists {
-		return fmt.Errorf("cannot upsert detected project: RepoId %d not found in Repo table for %s", p.RepoID, p.AbsolutePath)
+	validated, err := db.validateProjectForeignKeys(p)
+	if err != nil {
+		return err
 	}
 
-	if p.ProjectTypeID <= 0 {
-		return fmt.Errorf("cannot upsert detected project: invalid ProjectTypeID %d for %s", p.ProjectTypeID, p.AbsolutePath)
-	}
-
-	_, err := ExecWrapper(db.conn, constants.SQLUpsertDetectedProject,
-		p.RepoID, p.ProjectTypeID, p.ProjectName,
-		p.AbsolutePath, p.RepoPath, p.RelativePath, p.PrimaryIndicator).Destruct()
+	_, err = ExecWrapper(db.conn, constants.SQLUpsertDetectedProject,
+		validated.RepoID, validated.ProjectTypeID, validated.ProjectName,
+		validated.AbsolutePath, validated.RepoPath, validated.RelativePath, validated.PrimaryIndicator).Destruct()
 
 	return err
+}
+
+func (db *DB) validateProjectForeignKeys(p model.DetectedProject) (model.DetectedProject, error) {
+	repoID, err := db.resolveProjectRepoID(p)
+	if err != nil {
+		return p, err
+	}
+
+	p.RepoID = repoID
+	if err := db.ensureProjectTypeExists(p.ProjectTypeID); err != nil {
+		return p, err
+	}
+
+	return p, nil
+}
+
+func (db *DB) resolveProjectRepoID(p model.DetectedProject) (int64, error) {
+	var exists bool
+	_ = db.conn.QueryRow("SELECT EXISTS(SELECT 1 FROM Repo WHERE RepoId = ?)", p.RepoID).Scan(&exists)
+	if exists {
+		return p.RepoID, nil
+	}
+
+	if id, err := db.SelectRepoIDByPath(p.RepoPath); err == nil && id > 0 {
+		return id, nil
+	}
+
+	if id, err := db.SelectRepoIDByPath(p.AbsolutePath); err == nil && id > 0 {
+		return id, nil
+	}
+
+	return 0, fmt.Errorf("cannot upsert detected project: RepoId %d not found in Repo table for %s", p.RepoID, p.AbsolutePath)
+}
+
+func (db *DB) ensureProjectTypeExists(typeID int64) error {
+	if typeID <= 0 {
+		return fmt.Errorf("cannot upsert detected project: invalid ProjectTypeID %d", typeID)
+	}
+
+	var exists bool
+	_ = db.conn.QueryRow("SELECT EXISTS(SELECT 1 FROM ProjectType WHERE ProjectTypeId = ?)", typeID).Scan(&exists)
+	if !exists {
+		_ = db.SeedProjectTypes()
+		_ = db.conn.QueryRow("SELECT EXISTS(SELECT 1 FROM ProjectType WHERE ProjectTypeId = ?)", typeID).Scan(&exists)
+	}
+
+	if !exists {
+		return fmt.Errorf("cannot upsert detected project: ProjectTypeId %d not found in ProjectType table", typeID)
+	}
+
+	return nil
 }
 
 // SelectDetectedProjectID returns the persisted ID for a project identity tuple.
