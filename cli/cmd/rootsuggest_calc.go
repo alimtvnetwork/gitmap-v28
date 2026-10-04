@@ -117,6 +117,11 @@ func rankCandidateCommands(input string, candidates []string) []commandScore {
 		if scores[i].dist != scores[j].dist {
 			return scores[i].dist < scores[j].dist
 		}
+		prefixI := strings.HasPrefix(scores[i].cmd, input)
+		prefixJ := strings.HasPrefix(scores[j].cmd, input)
+		if prefixI != prefixJ {
+			return prefixI
+		}
 		diffI := candidateLenDiff(scores[i].cmd, input)
 		diffJ := candidateLenDiff(scores[j].cmd, input)
 		return diffI < diffJ

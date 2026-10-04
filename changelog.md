@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.474.0] - 2026-10-04
+
+### Added
+- fix rootsuggest typo prefix ranking and cdfunction powershell shim test assertion
+
+---
+
 ## [v6.473.0] - 2026-10-04
 
 ### Added

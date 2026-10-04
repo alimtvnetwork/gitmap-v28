@@ -213,7 +213,7 @@ func TestRenderPowerShellCommandShimPinsInstalledExe(t *testing.T) {
 	got := renderPowerShellCommandShim(`C:\Tools\git'map`)
 	wants := []string{
 		`Join-Path -Path 'C:\Tools\git''map' -ChildPath 'gitmap.exe'`,
-		"Set-Location -LiteralPath ([string]$dest)",
+		"Set-Location -LiteralPath ([string]$target)",
 		constants.EnvGitmapCommandWrapper,
 		constants.EnvGitmapHandoffFile,
 	}
