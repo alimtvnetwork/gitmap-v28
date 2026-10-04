@@ -1,10 +1,10 @@
 # Plan 77: GitMap Database Reset, SSH Key Lifecycle, Cross-OS Firewall, and DetectedProject Foreign Key RCA
 
-## Status: Active
+## Status: Completed
 - **Plan ID:** 77
 - **Spec Reference:** [02-spec/21-app/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/01-architecture-spec.md](../../02-spec/21-app/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/01-architecture-spec.md)
 - **Scope:** Database Engine, SSH Key Lifecycle, Cross-OS Firewall, Web UI, Scanner Project Detection
-- **Created At:** 2026-10-04
+- **Completed At:** 2026-10-04
 - **Parent Goal:** Implement full database purge and reseed (`gitmap reset`), reorder SSH terminal output, add `gitmap ssh view`, safeguard `gitmap ssh create` with overwrite prompt and undo/redo, fix DetectedProject foreign key bug, implement cross-OS SSH port and firewall automation, introduce `gitmap ssh ui`, and build intelligent SSH connection troubleshooting.
 
 ---

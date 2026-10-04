@@ -308,12 +308,14 @@ func printTroubleshootHelp() {
 func runSSHTroubleshootCLI(ctx context.Context, args []string) error {
 	if len(args) == 0 {
 		printTroubleshootHelp()
+
 		return apperror.NewValidationError("missing required target host or IP address")
 	}
 
 	first := args[0]
 	if first == "--help" || first == "-h" || first == "help" {
 		printTroubleshootHelp()
+
 		return nil
 	}
 
@@ -321,4 +323,30 @@ func runSSHTroubleshootCLI(ctx context.Context, args []string) error {
 	renderTroubleshootHUD(rep)
 
 	return nil
+}
+
+// PrintSevenStepTroubleshootGuide renders the 7-step remediation workflow when SSH connection fails.
+func PrintSevenStepTroubleshootGuide(target string, err error) {
+	fmt.Printf("\n%s╔══════════════════════════════════════════════════════════════════╗%s\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("%s║           SSH CONNECTION TROUBLESHOOTING & REMEDIATION           ║%s\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("%s╚══════════════════════════════════════════════════════════════════╝%s\n", constants.ColorYellow, constants.ColorReset)
+	if err != nil {
+		fmt.Printf("  %sFailure Cause:%s %v\n\n", constants.ColorRed, constants.ColorReset, err)
+	}
+
+	fmt.Printf("  %s7-Step Remediation Checklist for '%s':%s\n", constants.ColorBold, target, constants.ColorReset)
+	fmt.Printf("    1. %sCheck Host Power & Ping:%s Confirm the machine is online.\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("       → ping %s\n", target)
+	fmt.Printf("    2. %sEnable OpenSSH Server:%s Install Gitmap or enable sshd on the target.\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("       → Run 'gitmap ssh enable' (or 'sudo systemctl enable --now ssh') on target\n")
+	fmt.Printf("    3. %sCheck Target SSH Port:%s Verify what port sshd is listening on.\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("       → Run 'gitmap ssh port ls' on target machine (default: 22)\n")
+	fmt.Printf("    4. %sVerify Firewall Rules:%s Ensure inbound TCP port is allowed through the firewall.\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("       → Run 'gitmap ssh port add <port>' or 'gitmap ssh enable-public <port>'\n")
+	fmt.Printf("    5. %sDeploy Authentication Key:%s Push this machine's public key to the target.\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("       → gitmap ssh copy-id %s (or gitmap ssh view to inspect key)\n", target)
+	fmt.Printf("    6. %sRun Deep Diagnostics:%s Execute automated reachability and port probe.\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("       → gitmap ssh troubleshoot %s\n", target)
+	fmt.Printf("    7. %sManual Verbose Connection:%s Test with OpenSSH client directly.\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("       → ssh -vvv %s\n\n", target)
 }

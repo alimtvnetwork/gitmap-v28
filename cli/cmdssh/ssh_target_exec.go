@@ -59,13 +59,12 @@ func handleTargetNotFound(target string, isJSON bool, err error) error {
 			"suggestions": sugg,
 		}
 		_ = json.NewEncoder(os.Stdout).Encode(out)
+
 		return apperror.WrapSimple(err, "resolveConnectionForTarget")
 	}
-	fmt.Fprintf(os.Stderr, "\n  💡 SSH Suggestions for '%s':\n", target)
-	for _, s := range sugg {
-		fmt.Fprintf(os.Stderr, "    • %s\n", s)
-	}
-	fmt.Fprintln(os.Stderr)
+
+	PrintSevenStepTroubleshootGuide(target, err)
+
 	return apperror.WrapSimple(err, "resolveConnectionForTarget")
 }
 

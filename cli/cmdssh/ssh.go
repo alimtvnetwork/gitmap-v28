@@ -239,6 +239,8 @@ func dispatchDaemonSSH(ctx context.Context, sub string, args []string) result.Er
 	switch sub {
 	case "enable", "enable-server", "sshd", "enable-sshd":
 		return result.MatchWrapper(RunSSHEnableCLI(args))
+	case "enable-public", "public":
+		return result.MatchWrapper(RunSSHPublicCLI(args))
 	case "port", "ports", "set-port":
 		return result.MatchWrapper(RunSSHPortCLI(args))
 	case "troubleshoot", "doctor", "diagnose":

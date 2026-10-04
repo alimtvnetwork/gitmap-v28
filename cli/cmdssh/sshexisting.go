@@ -117,6 +117,9 @@ func backupKeyForRegenerate(keyPath string) error {
 		return fmt.Errorf("backup public key: %w", errRename)
 	}
 
+	return nil
+}
+
 // backupKeyWithTimestamp creates a timestamped backup of key and .pub files.
 func backupKeyWithTimestamp(keyPath string) (string, error) {
 	stamp := time.Now().Unix()

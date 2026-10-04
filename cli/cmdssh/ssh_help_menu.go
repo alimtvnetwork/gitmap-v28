@@ -18,6 +18,7 @@ func buildSSHHelpMenu() termhelp.HelpMenu {
 		},
 		Sections: []termhelp.HelpSection{
 			buildSSHKeySection(),
+			buildSSHDaemonSection(),
 			buildSSHNodeSection(),
 			buildSSHClusterSection(),
 			buildSSHSecuritySection(),
@@ -26,10 +27,11 @@ func buildSSHHelpMenu() termhelp.HelpMenu {
 		},
 		FooterFlags: []termhelp.CommandEntry{
 			{Command: "-h, --help", Description: "Show this SSH help menu"},
-			{Command: "-y, --yes", Description: "Bypass confirmation prompts for rm/reset"},
+			{Command: "-y, --yes", Description: "Bypass confirmation prompts for rm/reset/create"},
 		},
 		Tips: []string{
 			"Run 'gitmap ssh <command> --help' for details on any subcommand.",
+			"Use 'gitmap ssh view' to inspect public key and auto-copy to clipboard.",
 			"Use 'gitmap ssh join user@ip alias' to enroll a remote machine.",
 		},
 	}
@@ -39,12 +41,25 @@ func buildSSHKeySection() termhelp.HelpSection {
 	return termhelp.HelpSection{
 		Title: "Key Management",
 		Entries: []termhelp.CommandEntry{
-			{Command: "create [name]", Description: "Generate or reuse an SSH key pair"},
-			{Command: "list (ls)", Description: "List all managed SSH keys"},
+			{Command: "view (v, show) [name]", Description: "Display SSH public key card, copy to clipboard & hint regeneration"},
+			{Command: "create [name] [-y]", Description: "Generate SSH key pair with overwrite guard, backup & undo/redo"},
 			{Command: "copy (cp) [name]", Description: "Copy public key to clipboard"},
-			{Command: "cat (view) [name]", Description: "Print public key to terminal"},
+			{Command: "list (ls)", Description: "List all managed SSH keys"},
 			{Command: "delete (rm) <name>", Description: "Remove a key from GitMap and disk"},
 			{Command: "config", Description: "Rebuild ~/.ssh/config for all managed keys"},
+		},
+	}
+}
+
+func buildSSHDaemonSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Server Daemon, Firewall & Web UI",
+		Entries: []termhelp.CommandEntry{
+			{Command: "enable [--port <p>]", Description: "Enable OpenSSH Server daemon and start service"},
+			{Command: "port <ls|add|rm|set>", Description: "Manage SSH ports in sshd_config with cross-OS firewall sync"},
+			{Command: "enable-public [port]", Description: "Open host firewall and bind 0.0.0.0 for public internet access"},
+			{Command: "ui (web, dashboard)", Description: "Open interactive fleet management web dashboard in browser"},
+			{Command: "troubleshoot (doctor)", Description: "Diagnose connection failures with 7-step guided remediation"},
 		},
 	}
 }

@@ -197,6 +197,11 @@ func RunSSHPortCLI(args []string) error {
 	return runSSHPortCLI(args)
 }
 
+// RunSSHPublicCLI routes to public ssh enablement.
+func RunSSHPublicCLI(args []string) error {
+	return runSSHPortEnablePublic(args)
+}
+
 // RunSSHTroubleshootCLI routes to ssh troubleshooting entrypoint.
 func RunSSHTroubleshootCLI(ctx context.Context, args []string) error {
 	return runSSHTroubleshootCLI(ctx, args)
