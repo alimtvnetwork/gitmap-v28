@@ -104,9 +104,17 @@ func PerformComprehensiveReset(opts ResetOptions) error {
 			continue
 		}
 
-		_ = os.Remove(dbPath)
+		errRem := os.Remove(dbPath)
 		for _, ext := range companions {
 			_ = os.Remove(dbPath + ext)
+		}
+		parentDir := filepath.Dir(dbPath)
+		_ = os.Remove(filepath.Join(parentDir, "gitmap.lock"))
+
+		if errRem != nil && !os.IsNotExist(errRem) {
+			fmt.Printf("  %s⚠ Could not remove database:%s %s (%v)\n", constants.ColorYellow, constants.ColorReset, dbPath, errRem)
+
+			continue
 		}
 
 		fmt.Printf("  %s✔ Removed database:%s %s (%s)\n", constants.ColorGreen, constants.ColorReset, dbPath, formatBytes(totalSize))
@@ -173,6 +181,17 @@ func collectAllResetTargets() []string {
 	}
 	addPath(filepath.Join(".gitmap", constants.DBFile))
 	addPath(filepath.Join(constants.DefaultOutputFolder, constants.DBDir, constants.DBFile))
+
+	if searchMatches, err := filepath.Glob(filepath.Join(".gitmap", "output", "repo_search", "*.db")); err == nil {
+		for _, m := range searchMatches {
+			addPath(m)
+		}
+	}
+	if cacheMatches, err := filepath.Glob(filepath.Join(".gitmap", "cache", "repos", "*", "*.db")); err == nil {
+		for _, m := range cacheMatches {
+			addPath(m)
+		}
+	}
 
 	return targets
 }
