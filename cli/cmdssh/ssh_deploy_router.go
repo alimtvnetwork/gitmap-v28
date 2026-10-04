@@ -1,15 +1,17 @@
-// Package cmdssh — ssh_deploy_router.go routes ssh deploy subcommands (keys, node-config).
+// Package cmdssh — ssh_deploy_router.go routes ssh deploy subcommands (keys, node-config, ide).
 package cmdssh
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// RunSSHDeployRouterCLI routes `gitmap ssh deploy` to keys or node-config.
+// RunSSHDeployRouterCLI routes `gitmap ssh deploy` to keys, node-config, or IDE configuration.
 func RunSSHDeployRouterCLI(args []string) error {
 	if len(args) == 0 {
 		printDeployHelp()
@@ -17,6 +19,8 @@ func RunSSHDeployRouterCLI(args []string) error {
 	}
 	sub := strings.ToLower(args[0])
 	switch sub {
+	case "ide", "agy", "antigravity":
+		return routeDeployIdeOrAgy(args[1:])
 	case "config", "config-ssh", "ssh-config":
 		if len(args) > 1 && strings.EqualFold(args[1], "ssh") {
 			return RunSSHDeployConfigSSHCLI(args[2:])
@@ -57,6 +61,78 @@ func RunSSHDeployRouterCLI(args []string) error {
 	}
 }
 
+func routeDeployIdeOrAgy(args []string) error {
+	opts := cmdagy.AgyDeployOptions{
+		IsAll: true,
+	}
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		switch {
+		case arg == "--all":
+			opts.IsAll = true
+		case arg == "--plugins":
+			opts.HasPlugins = true
+		case arg == "--skills":
+			opts.HasSkills = true
+		case arg == "--binaries":
+			opts.HasBinaries = true
+		case arg == "--projects":
+			opts.HasProjects = true
+		case arg == "--dry-run":
+			opts.IsDryRun = true
+		case arg == "--json":
+			opts.IsJSON = true
+		case arg == "--force":
+			opts.IsForce = true
+		case arg == "--restart":
+			opts.IsRestart = true
+		case arg == "--preset" && i+1 < len(args):
+			i++
+			opts.Preset = args[i]
+		case strings.HasPrefix(arg, "--preset="):
+			opts.Preset = strings.TrimPrefix(arg, "--preset=")
+		case arg == "--preset":
+			opts.Preset = "eager"
+		case arg == "--theme" && i+1 < len(args):
+			i++
+			opts.Theme = args[i]
+		case strings.HasPrefix(arg, "--theme="):
+			opts.Theme = strings.TrimPrefix(arg, "--theme=")
+		case arg == "--theme":
+			opts.Theme = "dark"
+		case arg == "--target" && i+1 < len(args):
+			i++
+			opts.TargetNode = args[i]
+		case strings.HasPrefix(arg, "--target="):
+			opts.TargetNode = strings.TrimPrefix(arg, "--target=")
+		case !strings.HasPrefix(arg, "-") && opts.TargetNode == "":
+			opts.TargetNode = arg
+		}
+	}
+
+	if opts.TargetNode == "" || opts.TargetNode == "help" || opts.TargetNode == "-h" || opts.TargetNode == "--help" {
+		printDeployHelp()
+		return nil
+	}
+
+	res, err := cmdagy.ExecuteAgyDeploy(opts)
+	if err != nil {
+		return err
+	}
+
+	if opts.IsJSON {
+		payload, marshalErr := json.MarshalIndent(res, "", "  ")
+		if marshalErr != nil {
+			return marshalErr
+		}
+		fmt.Println(string(payload))
+		return nil
+	}
+
+	cmdagy.RenderAgyDeploySummary(res)
+	return nil
+}
+
 func isDeployKeysSubToken(s string) bool {
 	return s == "keys" || s == "key" || s == "k" || s == "all-keys" || s == "keys-all"
 }
@@ -86,6 +162,9 @@ func routeFallbackDeploy(args []string) error {
 
 func printDeployHelp() {
 	fmt.Printf("\n  %s🚀 GitMap SSH Fleet Deploy Commands%s\n\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("    gitmap deploy ide <target> [flags] (alias: gitmap deploy agy)")
+	fmt.Println("        Deploy Antigravity IDE themes, presets, 4 official plugins, and 43 skills across fleet.")
+	fmt.Println()
 	fmt.Println("    gitmap deploy keys [all] [--except <id,ip,alias>] (alias: deploy-keys-all)")
 	fmt.Println("        Gather local and remote public keys, deduplicate unique keys,")
 	fmt.Println("        and deploy into authorized_keys across all nodes for passwordless SSH.")
@@ -103,9 +182,10 @@ func printDeployHelp() {
 	fmt.Println("        Deploy local GitMap binary across remote fleet nodes and verify version.")
 	fmt.Println()
 	fmt.Println("  💡 Suggestions & Cross-Section Guidance:")
-	fmt.Println("    • Export nodes on this machine:  gitmap ssh export-json")
-	fmt.Println("    • Import nodes on other machine: gitmap ssh import-json gitmap-ssh-nodes.json")
-	fmt.Println("    • Deploy keys to all nodes:      gitmap deploy keys all  (or: gitmap deploy-keys-all)")
-	fmt.Println("    • Verify passwordless status:    gitmap ssh check")
+	fmt.Println("    • Deploy Antigravity to fleet node: gitmap deploy ide u1 --all")
+	fmt.Println("    • Export nodes on this machine:     gitmap ssh export-json")
+	fmt.Println("    • Import nodes on other machine:    gitmap ssh import-json gitmap-ssh-nodes.json")
+	fmt.Println("    • Deploy keys to all nodes:         gitmap deploy keys all  (or: gitmap deploy-keys-all)")
+	fmt.Println("    • Verify passwordless status:       gitmap ssh check")
 	fmt.Println()
 }

@@ -3,6 +3,7 @@ package cmd
 import (
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdasset"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
@@ -68,6 +69,8 @@ func toolingDevEntries() []dispatchEntry {
 func toolingDevDeployEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"deploy"}, func() error { return runSSHDeploy("deploy", argsTail()) }},
+		{[]string{"deploy-ide", "ide-deploy"}, func() error { return cmdagy.RunAgyDeployCLI(append([]string{"--all"}, argsTail()...)) }},
+		{[]string{"agy-deploy", "deploy-agy"}, func() error { return cmdagy.RunAgyDeployCLI(argsTail()) }},
 		{[]string{"deploy-right"}, func() error { return runSSHDeploy("deploy-right", argsTail()) }},
 		{[]string{"deploy-left"}, func() error { return runSSHDeploy("deploy-left", argsTail()) }},
 		{[]string{"deploy-config", "deploy-config-ssh", "deploy-ssh-config"}, func() error { return runSSHDeployConfig(argsTail()) }},
