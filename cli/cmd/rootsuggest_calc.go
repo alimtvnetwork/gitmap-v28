@@ -4,6 +4,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
@@ -13,13 +14,43 @@ type commandScore struct {
 }
 
 func collectTopCommandCandidates() []string {
-	candidates := append([]string{}, primaryTopCommands...)
-	candidates = append(candidates, "run", "run-until")
-	macroList := macro.ListMacros()
-	if macroList.IsSuccess() {
-		for _, m := range macroList.Data {
-			candidates = append(candidates, m.Name)
+	seen := make(map[string]bool)
+	var candidates []string
+
+	candidates = appendCommandSlice(candidates, seen, primaryTopCommands)
+	candidates = appendCommandSlice(candidates, seen, completion.AllCommands())
+	candidates = appendCommandSlice(candidates, seen, []string{"run", "run-until"})
+	candidates = appendMacroCandidates(candidates, seen)
+
+	return candidates
+}
+
+func appendCommandSlice(candidates []string, seen map[string]bool, items []string) []string {
+	for _, item := range items {
+		clean := strings.TrimSpace(item)
+		hasItem := len(clean) > 0
+		hasSeen := seen[clean]
+
+		if hasItem && !hasSeen {
+			seen[clean] = true
+			candidates = append(candidates, clean)
 		}
+	}
+
+	return candidates
+}
+
+func appendMacroCandidates(candidates []string, seen map[string]bool) []string {
+	macroList := macro.ListMacros()
+	isSuccess := macroList.IsSuccess()
+
+	if isSuccess {
+		var names []string
+		for _, m := range macroList.Data {
+			names = append(names, m.Name)
+		}
+
+		return appendCommandSlice(candidates, seen, names)
 	}
 
 	return candidates
@@ -27,18 +58,21 @@ func collectTopCommandCandidates() []string {
 
 func suggestTopLevelCommands(command string) []string {
 	norm := strings.ToLower(strings.TrimSpace(command))
-	if norm == "" {
+	hasNorm := len(norm) > 0
+	if !hasNorm {
 		return nil
 	}
 
-	if norm == "pleae" || norm == "please" {
+	isPlease := norm == "pleae" || norm == "please"
+	if isPlease {
 		return []string{"pull", "release", "pull-release"}
 	}
 
 	candidates := collectTopCommandCandidates()
 	scores := rankCandidateCommands(norm, candidates)
 	best := selectBestSuggestions(scores)
-	if len(best) > 0 {
+	hasBest := len(best) > 0
+	if hasBest {
 		return best
 	}
 
@@ -102,13 +136,16 @@ func candidateLenDiff(candidate, input string) int {
 func selectBestSuggestions(scores []commandScore) []string {
 	var result []string
 	seen := make(map[string]bool)
+
 	for _, sc := range scores {
-		if !seen[sc.cmd] {
+		hasSeen := seen[sc.cmd]
+		if !hasSeen {
 			seen[sc.cmd] = true
 			result = append(result, sc.cmd)
 		}
 
-		if len(result) >= 3 {
+		hasLimit := len(result) >= 3
+		if hasLimit {
 			break
 		}
 	}

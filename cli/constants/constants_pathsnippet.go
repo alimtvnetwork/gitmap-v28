@@ -65,17 +65,6 @@ function global:Invoke-GitmapAndSetLocation {
   param([string[]]$GitMapArgs)
   $real = Get-GitmapCommand
   if (-not $real) { Write-Error "gitmap executable not found"; return }
-  if ($GitMapArgs.Count -gt 0 -and ($GitMapArgs[0] -eq 'cd' -or $GitMapArgs[0] -eq 'go')) {
-    $env:GITMAP_WRAPPER = "1"
-    $env:GITMAP_COMMAND_WRAPPER = "1"
-    $dest = [string](& $real @GitMapArgs | Out-String)
-    if ($LASTEXITCODE -ne 0) { return }
-    $dest = $dest.Trim()
-    if ($dest -and (Test-Path -LiteralPath ([string]$dest))) { Set-Location -LiteralPath ([string]$dest) }
-
-    return
-  }
-
   $handoff = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "gitmap-handoff-$([System.Guid]::NewGuid().ToString('N')).txt")
   try {
     $env:GITMAP_HANDOFF_FILE = $handoff

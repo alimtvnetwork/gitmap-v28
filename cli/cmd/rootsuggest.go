@@ -11,6 +11,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+// primaryTopCommands contains the fast core primary tier. The full repository
+// command space is dynamically pooled from completion.AllCommands() in
+// collectTopCommandCandidates() for exhaustive typo suggestion matching.
 var primaryTopCommands = []string{
 	"scan", "clone", "clone-only-missing", "com", "create", "clone-sync", "pull", "push", "pull-all",
 	"pull-all-efficient", "pae", "pull-ae", "pull-all-efficient-table", "paet",
@@ -18,6 +21,7 @@ var primaryTopCommands = []string{
 	"release", "pull-release", "changelog", "cd", "group", "open",
 	"history", "stats", "export", "import", "profile", "bookmark",
 	"dashboard", "version", "help", "diff", "amend", "sync",
+	"commit", "cpf", "cpb", "cpr", "search", "find", "apps", "install", "uninstall", "login", "setup",
 	"add", "rm", "mv", "prune", "revert", "ip", "zsh", "user",
 	"service", "schedule", "macro", "os", "storage", "pipeline", "pe", "pd", "ee",
 	"servers-clients", "servers-client", "sc", "clients", "cluster",

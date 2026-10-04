@@ -189,24 +189,7 @@ gitm() { gitmap "$@"; }
 
 // CDFuncPowerShell installs gitmap and gcd wrappers for PowerShell.
 const CDFuncPowerShell = `function gcd {
-  $real = Get-GitmapCommand
-  if (-not $real) {
-    Write-Error "gitmap executable not found"
-
-    return
-  }
-
-  $env:GITMAP_WRAPPER = "1"
-  $env:GITMAP_COMMAND_WRAPPER = "1"
-  $dest = [string](& $real cd @args | Out-String)
-  if ($LASTEXITCODE -ne 0) {
-    return
-  }
-
-  $dest = $dest.Trim()
-  if ($dest -and (Test-Path -LiteralPath ([string]$dest))) {
-    Set-Location -LiteralPath ([string]$dest)
-  }
+  gitmap cd @args
 }
 
 function Get-GitmapCommand {
@@ -227,22 +210,6 @@ function gitmap {
   $real = Get-GitmapCommand
   if (-not $real) {
     Write-Error "gitmap executable not found"
-
-    return
-  }
-
-  if ($args.Count -gt 0 -and ($args[0] -eq 'cd' -or $args[0] -eq 'go')) {
-    $env:GITMAP_WRAPPER = "1"
-    $env:GITMAP_COMMAND_WRAPPER = "1"
-    $dest = [string](& $real @args | Out-String)
-    if ($LASTEXITCODE -ne 0) {
-      return
-    }
-
-    $dest = $dest.Trim()
-    if ($dest -and (Test-Path -LiteralPath ([string]$dest))) {
-      Set-Location -LiteralPath ([string]$dest)
-    }
 
     return
   }

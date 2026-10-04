@@ -26,13 +26,11 @@ const (
 func initConsole() {
 	kernel32 := syscall.NewLazyDLL("kernel32.dll")
 	setConsoleOutputCP := kernel32.NewProc("SetConsoleOutputCP")
-	setConsoleCP := kernel32.NewProc("SetConsoleCP")
 	getConsoleMode := kernel32.NewProc("GetConsoleMode")
 	setConsoleMode := kernel32.NewProc("SetConsoleMode")
 	getStdHandle := kernel32.NewProc("GetStdHandle")
 
 	_, _, _ = setConsoleOutputCP.Call(uintptr(consoleCodePageUTF8))
-	_, _, _ = setConsoleCP.Call(uintptr(consoleCodePageUTF8))
 
 	enableVTOnHandle(getStdHandle, getConsoleMode, setConsoleMode, consoleStdOutHandle)
 	enableVTOnHandle(getStdHandle, getConsoleMode, setConsoleMode, consoleStdErrHandle)

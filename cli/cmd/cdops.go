@@ -204,7 +204,12 @@ func promptCDPick(name string, records []model.ScanRecord) (string, error) {
 // readCDSelection reads and validates the user's numeric choice.
 func readCDSelection(records []model.ScanRecord, name ...string) (string, error) {
 	scanner := bufio.NewScanner(os.Stdin)
-	if !scanner.Scan() {
+	hasScan := scanner.Scan()
+	if !hasScan {
+		scanErr := scanner.Err()
+		if scanErr != nil {
+			fmt.Fprintf(os.Stderr, "  ⚠ Input scan error: %v\n", scanErr)
+		}
 		if len(records) > 0 {
 			fmt.Fprintf(os.Stderr, "  (auto-selected default: %s)\n", records[0].AbsolutePath)
 			return records[0].AbsolutePath, nil
@@ -221,7 +226,8 @@ func readCDSelection(records []model.ScanRecord, name ...string) (string, error)
 	}
 
 	idx, err := strconv.Atoi(text)
-	if err != nil || idx < 1 || idx > len(records) {
+	hasValidIndex := err == nil && idx >= 1 && idx <= len(records)
+	if !hasValidIndex {
 		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
 		return "", fmt.Errorf("%s", constants.ErrCDInvalidPick)
 	}
