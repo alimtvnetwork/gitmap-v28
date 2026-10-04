@@ -164,6 +164,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdCargo, constants.CmdCargoAlias}, func() error { return runCargo(argsTail()) }},
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() error { return runInstall(argsTail()) }},
 		{[]string{constants.CmdUninstall, constants.CmdUninstallAlias}, func() error { return runUninstall(argsTail()) }},
+		{[]string{"apps", "app"}, func() error { return runAppsDispatch(argsTail()) }},
 		{[]string{"uninstall-agy"}, func() error { return runUninstall(append([]string{"agy"}, argsTail()...)) }},
 		{[]string{"uninstall-agy-all"}, func() error { return runUninstall(append([]string{"agy-all"}, argsTail()...)) }},
 		{[]string{"uninstall-agm"}, func() error { return runUninstall(append([]string{"agm"}, argsTail()...)) }},

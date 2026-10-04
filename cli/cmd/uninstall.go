@@ -72,6 +72,9 @@ func runUninstall(args []string) error {
 func executeUninstallFlow(args []string) error {
 	fs, flags := parseUninstallFlags(args)
 	tool := fs.Arg(0)
+	if strings.EqualFold(tool, "app") || strings.EqualFold(tool, "apps") {
+		return runAppsUninstall(fs.Args()[1:])
+	}
 	if isSelfUninstallTool(tool) {
 		runSelfUninstall(args)
 

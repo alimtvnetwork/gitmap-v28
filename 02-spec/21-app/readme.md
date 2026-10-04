@@ -2,6 +2,8 @@
 
 ## Active Specifications
 
+- [215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager](215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager/01-architecture-spec.md) — Ubuntu Fleet Filesystem Hygiene (Purge locked `~` folder & stray home files), Antigravity Projects Registry Engine (76 project descriptors & SQLite stitching), App Uninstaller Subsystem (`gitmap apps list/uninstall`), Legacy Yellow Icon Purge (`antigravity-tools`), and Modular Multi-Tool CLI (`gitmap install --tools`) (Status: `completed`)
+- [214-ubuntu-fleet-automation-and-workstation-governance](214-ubuntu-fleet-automation-and-workstation-governance/01-architecture-spec.md) — Ubuntu Fleet Automation, 74 Workspaces Clone & Parity Audit, GNOME Ergonomics (140% Font Scaling, Keybindings), VMware Automount, Antigravity Update & Master Embedded Runner (Status: `completed`)
 - [213-antigravity-ubuntu-update-and-macro-automation](213-antigravity-ubuntu-update-and-macro-automation/01-architecture-spec.md) — Antigravity Ubuntu Update (2.13.0 -> 2.19.1), In-App Updater RCA, SUID Sandbox Hardening, GitMap Macro Automation & Installer Constants Sync (Status: `completed`)
 - [211-ubuntu-fleet-git-clone-and-os-customization](211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md) — Ubuntu Fleet Git Clone, Desktop Ergonomics (140% font scaling, Windows keybindings), VMware Automount & Antigravity Cross-OS Sync (Status: `completed`)
 - [210-gitmap-push-fix-command-and-auth-recovery](210-gitmap-push-fix-command-and-auth-recovery/01-architecture-spec.md) — GitMap Push-Fix Command Suite, SSH Auth Self-Healing, Non-Fast-Forward Auto-Rebase & Stack Trace Suppression (Status: `completed`)

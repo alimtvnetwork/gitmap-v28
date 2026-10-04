@@ -1,0 +1,205 @@
+// Package cmd — help.go provides terminal help renderers and documentation
+// for compact GitMap workflows including modular multi-tool installation
+// (`gitmap install --tools`) and desktop application discovery & uninstallation (`gitmap apps`).
+package cmd
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+)
+
+// AppsHelpSummary is the concise overview of the apps management subsystem.
+const AppsHelpSummary = "Discover, inspect, inventory, and cleanly uninstall desktop and system applications across Linux and Windows."
+
+// InstallToolsHelpSummary is the concise overview of the modular multi-tool installer.
+const InstallToolsHelpSummary = "Batch install multiple developer tools sequentially with comma-delimited flags, variadic arguments, and JSON telemetry."
+
+// RenderAppsHelpMenu renders the modern framed-box help menu for the `gitmap apps` subsystem.
+func RenderAppsHelpMenu() {
+	menu := termhelp.HelpMenu{
+		Title: "gitmap apps",
+		UsageLines: []string{
+			"gitmap apps [command] [flags]",
+			"gitmap apps list [--filter <pattern>] [--json] [--system] [--user] [--all]",
+			"gitmap apps uninstall <app-id> [--purge] [--force] [--json]",
+			"gitmap apps help",
+		},
+		Sections: []termhelp.HelpSection{
+			{
+				Title: "Description",
+				Entries: []termhelp.CommandEntry{
+					{Command: "apps", Description: AppsHelpSummary},
+				},
+			},
+			{
+				Title: "Subcommands",
+				Entries: []termhelp.CommandEntry{
+					{Command: "list, ls", Description: "Inventory desktop apps (.desktop, registry), package managers (apt, snap, winget, choco, npm), and CLI binaries"},
+					{Command: "uninstall, rm", Description: "Surgically remove an app, purging desktop launchers, icon assets, symlinks, and cache directories"},
+					{Command: "help, -h", Description: "Display this comprehensive apps help documentation"},
+				},
+			},
+			{
+				Title: "List Flags",
+				Entries: []termhelp.CommandEntry{
+					{Command: "-f, --filter <str>", Description: "Fuzzy match by application name, executable path, or package ID"},
+					{Command: "--json", Description: "Emit machine-readable JSON array envelope for automated auditing"},
+					{Command: "--system", Description: "Filter exclusively system-wide applications (/usr/share/applications, Program Files)"},
+					{Command: "--user", Description: "Filter exclusively user-scoped applications (~/.local/share/applications, AppData)"},
+					{Command: "-a, --all", Description: "Include system utilities, hidden entries, and NoDisplay launchers"},
+				},
+			},
+			{
+				Title: "Uninstall Flags",
+				Entries: []termhelp.CommandEntry{
+					{Command: "--purge", Description: "Completely purge associated application configuration, caches, and icon files"},
+					{Command: "--force", Description: "Bypass confirmation prompts and forcefully execute uninstallation"},
+					{Command: "--json", Description: "Emit structured AppUninstallResponse JSON telemetry to stdout"},
+				},
+			},
+			{
+				Title: "Examples",
+				Entries: []termhelp.CommandEntry{
+					{Command: "gitmap apps list", Description: "List all installed desktop applications in interactive table format"},
+					{Command: "gitmap apps list --filter antigravity --json", Description: "Discover applications matching 'antigravity' in structured JSON"},
+					{Command: "gitmap apps uninstall antigravity-tools --purge --force", Description: "Completely purge an obsolete app and its launcher icon"},
+					{Command: "gitmap apps uninstall clot --json", Description: "Remove an npm global CLI tool with JSON telemetry"},
+				},
+			},
+		},
+		FooterFlags: []termhelp.CommandEntry{
+			{Command: "-h, --help", Description: "Display this formatted help screen"},
+			{Command: "--json", Description: "Emit results formatted as JSON"},
+		},
+		Tips: []string{
+			"Use 'gitmap apps list --json' for CI/CD and automated workstation audits.",
+			"Run 'gitmap apps uninstall <id> --purge' to clean up orphaned desktop entries and caches.",
+		},
+	}
+
+	termhelp.RenderMenu(menu)
+	printUsageFooterShort()
+}
+
+// RenderInstallToolsHelpMenu renders the modern framed-box help menu for `gitmap install --tools`.
+func RenderInstallToolsHelpMenu() {
+	menu := termhelp.HelpMenu{
+		Title: "gitmap install --tools",
+		UsageLines: []string{
+			"gitmap install --tools <tool1,tool2,...> [flags]",
+			"gitmap in <tool1> <tool2> <tool3>... [flags]",
+			"gitmap install --tools <list> --json [--ignore-errors]",
+		},
+		Sections: []termhelp.HelpSection{
+			{
+				Title: "Description",
+				Entries: []termhelp.CommandEntry{
+					{Command: "install --tools", Description: InstallToolsHelpSummary},
+				},
+			},
+			{
+				Title: "Execution Syntax & Flags",
+				Entries: []termhelp.CommandEntry{
+					{Command: "--tools <list>", Description: "Comma-separated list of developer tools to install sequentially (e.g. antigravity,chrome,vscode)"},
+					{Command: "<tool1> <tool2>...", Description: "Variadic multiple arguments for fast multi-tool setup (e.g. gitmap in chrome vscode)"},
+					{Command: "--json", Description: "Output BatchInstallResponse JSON envelope with per-tool status, version, and durations"},
+					{Command: "--ignore-errors", Description: "Continue batch installation even if an individual tool installation encounters an error"},
+					{Command: "-y, --yes", Description: "Automatic yes to installation confirmation prompts"},
+					{Command: "--manager <mgr>", Description: "Specify explicit package manager override (apt, snap, winget, choco, direct)"},
+				},
+			},
+			{
+				Title: "Examples",
+				Entries: []termhelp.CommandEntry{
+					{Command: "gitmap install --tools antigravity,chrome,vscode,flameshot", Description: "Install 4 essential developer tools sequentially in one command"},
+					{Command: "gitmap in antigravity chrome vscode flameshot", Description: "Variadic multi-tool installation syntax without commas"},
+					{Command: "gitmap install --tools chrome,vscode --manager apt", Description: "Install tools sequentially enforcing apt package manager"},
+					{Command: "gitmap install --tools chrome,vscode --json", Description: "Batch install emitting machine-readable JSON envelope to stdout"},
+					{Command: "gitmap install --tools node,python,go --ignore-errors", Description: "Batch install continuing past any tool failures"},
+				},
+			},
+		},
+		FooterFlags: []termhelp.CommandEntry{
+			{Command: "-h, --help", Description: "Display this formatted help screen"},
+			{Command: "--json", Description: "Emit results formatted as JSON"},
+			{Command: "--ignore-errors", Description: "Continue past tool failures"},
+			{Command: "-y, --yes", Description: "Automatic yes to prompts"},
+		},
+		Tips: []string{
+			"Combine with 'gitmap ssh <host>' to migrate entire toolchains to remote nodes in 1 command:",
+			"  $ gitmap ssh u1 \"gitmap install --tools antigravity,chrome,vscode,flameshot --json\"",
+			"Use '--json' for automated pipeline verification and telemetry tracking.",
+		},
+	}
+
+	termhelp.RenderMenu(menu)
+	printUsageFooterShort()
+}
+
+// PrintAppsTerminalHelp writes the plain-text manual help page for gitmap apps to os.Stdout.
+func PrintAppsTerminalHelp() {
+	helpText := fmt.Sprintf(`gitmap apps - %s
+
+Usage:
+  gitmap apps [command] [flags]
+  gitmap apps list [--filter <pattern>] [--json] [--system] [--user] [--all]
+  gitmap apps uninstall <app-id> [--purge] [--force] [--json]
+
+Available Commands:
+  list, ls         List all installed applications, desktop launchers, and CLI tools
+  uninstall, rm    Surgically remove or purge an application and its desktop entries
+  help             Show this help message
+
+Flags:
+  --filter, -f     Fuzzy match name, executable, or package identifier
+  --json           Output structured JSON array
+  --system         Filter only system-wide applications
+  --user           Filter only user-scoped applications
+  --all, -a        Include utilities and NoDisplay desktop entries
+  --purge          Delete associated application configuration and icon files
+  --force          Bypass confirmation prompts
+  --help, -h       Show help for apps command
+
+Examples:
+  # List all desktop applications in interactive table format:
+  $ gitmap apps list
+
+  # Discover applications matching 'antigravity' in structured JSON:
+  $ gitmap apps list --filter antigravity --json
+
+  # Completely purge an obsolete app and its launcher icon:
+  $ gitmap apps uninstall antigravity-tools --purge --force
+
+  # Remove an npm global CLI tool on Windows:
+  $ gitmap apps uninstall clot --json
+`, AppsHelpSummary)
+	fmt.Fprint(os.Stdout, helpText)
+}
+
+// PrintInstallToolsTerminalHelp writes the plain-text manual help page for gitmap install --tools to os.Stdout.
+func PrintInstallToolsTerminalHelp() {
+	helpText := fmt.Sprintf(`gitmap install --tools - %s
+
+Usage:
+  gitmap install --tools <tool1,tool2,...> [flags]
+  gitmap in <tool1> <tool2> <tool3>... [flags]
+  gitmap install --tools <list> --json [--ignore-errors]
+
+Flags:
+  --tools          Comma-separated list of developer tools to install
+  --json           Output installation progress and summary in structured JSON
+  --ignore-errors  Continue batch install even if an individual tool fails
+  --manager        Specify package manager override (apt, snap, winget, choco)
+  --yes, -y        Automatic yes to prompts
+  --help, -h       Show this install tools help
+
+Examples:
+  $ gitmap install --tools antigravity,chrome,vscode,flameshot
+  $ gitmap in antigravity chrome vscode flameshot
+  $ gitmap install --tools chrome,vscode --json
+  $ gitmap install --tools node,python,go --ignore-errors
+`, InstallToolsHelpSummary)
+	fmt.Fprint(os.Stdout, helpText)
+}

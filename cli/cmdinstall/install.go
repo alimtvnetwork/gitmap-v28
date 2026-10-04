@@ -25,6 +25,9 @@ func bindInstallFlags(fs *flag.FlagSet, opts *installOptions, list *bool) {
 	fs.BoolVar(&opts.Explain, constants.FlagInstallExplain, false, constants.FlagDescInstallExplain)
 	fs.BoolVar(&opts.Tree, "tree", false, "Preview full tool hierarchy of a profile before installing")
 	fs.BoolVar(&opts.Tree, "t", false, "Preview tree")
+	fs.StringVar(&opts.Tools, "tools", "", "Comma-separated list of developer tools to install")
+	fs.BoolVar(&opts.IsJson, "json", false, "Output installation progress and summary in structured JSON")
+	fs.BoolVar(&opts.HasIgnoreErrors, "ignore-errors", false, "Continue batch install even if an individual tool fails")
 	bindInstallAdvancedFlags(fs, opts)
 }
 
@@ -49,6 +52,7 @@ func parseInstallFlags(args []string) (installOptions, bool) {
 	bindInstallFlags(fs, &opts, &list)
 	fs.Parse(reorderFlagsBeforeArgs(args))
 	opts.Tool = fs.Arg(0)
+	opts.ToolList = ResolveBatchTools(opts.Tools, fs.Args())
 
 	return opts, list
 }
@@ -108,6 +112,10 @@ func runInstall(args []string) error {
 		return nil
 	}
 
+	if len(opts.ToolList) > 1 || (len(opts.ToolList) > 0 && opts.IsJson) {
+		return ExecuteBatchInstall(opts)
+	}
+
 	if opts.Tool == "" {
 		return handleMissingInstallTool()
 	}
@@ -131,25 +139,29 @@ func handleMissingInstallTool() error {
 }
 
 func printInstallUsageHints() {
-	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool|profile> [flags]\n  gitmap in <tool|profile> [flags]\n  gitmap install tar <archive-file> [flags]\n\n")
-	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  tar <file>             Install .tar, .tar.gz, .tgz, .gz, or .zip archive on Linux\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal, base, fullstack...)\n  --tree, -t             Preview full tool tree of a profile before installing\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
-	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install tar ./myapp.tar.gz\n  $ gitmap install tar ./package.zip --name mytool\n  $ gitmap install qtorrent\n  $ gitmap install profile dev --tree\n  $ gitmap in logs\n\n")
+	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool|profile> [flags]\n  gitmap in <tool|profile> [flags]\n  gitmap install --tools <list> [flags]\n  gitmap in <tool1> <tool2> [flags]\n  gitmap install tar <archive-file> [flags]\n\n")
+	fmt.Fprintf(os.Stderr, "Options:\n  --tools <list>         Install multiple tools sequentially (comma-separated)\n  --json                 Output installation progress and summary in structured JSON\n  --ignore-errors        Continue batch install even if an individual tool fails\n  --list, ls, list       List all available developer tools & profiles\n  tar <file>             Install .tar, .tar.gz, .tgz, .gz, or .zip archive on Linux\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal, base, fullstack...)\n  --tree, -t             Preview full tool tree of a profile before installing\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
+	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install --tools antigravity,chrome,vscode,flameshot\n  $ gitmap in antigravity chrome vscode flameshot\n  $ gitmap install --tools chrome,vscode --json\n  $ gitmap install tar ./myapp.tar.gz\n  $ gitmap install tar ./package.zip --name mytool\n  $ gitmap install qtorrent\n  $ gitmap install profile dev --tree\n  $ gitmap in logs\n\n")
 }
 
 // installOptions holds parsed install flags.
 type installOptions struct {
-	Tool           string
-	Manager        string
-	Version        string
-	Prefix         string
-	Force          bool
-	Verbose        bool
-	DryRun         bool
-	Check          bool
-	Yes            bool
-	Explain        bool
-	Tree           bool
-	IsDownloadMust bool
+	Tool            string
+	Tools           string
+	ToolList        []string
+	Manager         string
+	Version         string
+	Prefix          string
+	Force           bool
+	Verbose         bool
+	DryRun          bool
+	Check           bool
+	Yes             bool
+	Explain         bool
+	Tree            bool
+	IsDownloadMust  bool
+	IsJson          bool
+	HasIgnoreErrors bool
 }
 
 func isRemoteArchiveURL(raw string) bool {
