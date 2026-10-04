@@ -1,7 +1,6 @@
 package cmdagent
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"

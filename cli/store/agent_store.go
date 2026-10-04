@@ -82,7 +82,7 @@ func openAgentDB(dbPath string) (*sql.DB, *appfault.AppError) {
 	return OpenSQLiteDB(dbPath)
 }
 
-func executeTableDDL(conn *sql.DB, queries []string, op string) *appfault.AppError {
+func executeAgentDDL(conn *sql.DB, queries []string, op string) *appfault.AppError {
 	for _, q := range queries {
 		res := ExecWrapper(conn, q)
 		if res.IsFailure {
@@ -106,7 +106,7 @@ func InitMasterAgentDB(dbPath string) (*sql.DB, *appfault.AppError) {
 	if hasOpenErr {
 		return nil, openErr
 	}
-	execErr := executeTableDDL(conn, masterAgentDDL, "InitMasterAgentDB")
+	execErr := executeAgentDDL(conn, masterAgentDDL, "InitMasterAgentDB")
 	hasExecErr := execErr != nil
 	if hasExecErr {
 		_ = conn.Close()
@@ -287,7 +287,7 @@ func InitTaskDB(dbPath string) (*sql.DB, *appfault.AppError) {
 	if hasOpenErr {
 		return nil, openErr
 	}
-	execErr := executeTableDDL(conn, taskDDL, "InitTaskDB")
+	execErr := executeAgentDDL(conn, taskDDL, "InitTaskDB")
 	hasExecErr := execErr != nil
 	if hasExecErr {
 		_ = conn.Close()
@@ -693,7 +693,7 @@ func InitAgentSplitDB(dbPath string) (*sql.DB, *appfault.AppError) {
 		return nil, openErr
 	}
 	ddl := []string{sqlCreateAgentActionLog}
-	execErr := executeTableDDL(conn, ddl, "InitAgentSplitDB")
+	execErr := executeAgentDDL(conn, ddl, "InitAgentSplitDB")
 	hasExecErr := execErr != nil
 	if hasExecErr {
 		_ = conn.Close()

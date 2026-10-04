@@ -91,10 +91,76 @@ func toError(appErr *appfault.AppError) error {
 	return nil
 }
 
+var (
+	logCmd = &cobra.Command{
+		Use:                "log",
+		Short:              "Record granular in-flight telemetry into agent split database",
+		DisableFlagParsing: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return toError(RunAgentLog(args))
+		},
+	}
+
+	crashedCmd = &cobra.Command{
+		Use:                "crashed",
+		Aliases:            []string{"crash"},
+		Short:              "Detect crashed or abandoned agents and display autopsy report",
+		DisableFlagParsing: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return toError(RunAgentCrashed(args))
+		},
+	}
+
+	diagnoseCmd = &cobra.Command{
+		Use:                "diagnose",
+		Aliases:            []string{"diag", "autopsy"},
+		Short:              "Perform deep forensic inspection of agent tasks and logs",
+		DisableFlagParsing: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return toError(RunAgentDiagnose(args))
+		},
+	}
+
+	clearCmd = &cobra.Command{
+		Use:                "clear",
+		Short:              "Clear or archive completed agent task runs",
+		DisableFlagParsing: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return toError(RunAgentClear(args))
+		},
+	}
+
+	resetCmd = &cobra.Command{
+		Use:                "reset",
+		Short:              "Reset agent databases and telemetry",
+		DisableFlagParsing: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return toError(RunAgentReset(args))
+		},
+	}
+
+	tempClearCmd = &cobra.Command{
+		Use:                "temp-clear",
+		Aliases:            []string{"clean-temp", "purge-temp"},
+		Short:              "Delete entire ephemeral .ai-memory/temp-agents/ directory",
+		DisableFlagParsing: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return toError(RunAgentTempClear(args))
+		},
+	}
+)
+
 func init() {
 	AgentCmd.AddCommand(TaskCmd)
 	AgentCmd.AddCommand(SubtaskCmd)
+	AgentCmd.AddCommand(logCmd)
+	AgentCmd.AddCommand(crashedCmd)
+	AgentCmd.AddCommand(diagnoseCmd)
+	AgentCmd.AddCommand(clearCmd)
+	AgentCmd.AddCommand(resetCmd)
+	AgentCmd.AddCommand(tempClearCmd)
 
 	initTaskCommands()
 	initSubtaskCommands()
 }
+
