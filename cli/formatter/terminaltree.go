@@ -105,7 +105,7 @@ func renderTermNode(w io.Writer, node *termNode, prefix, connector string) {
 	if node.IsRepo {
 		fmt.Fprintf(w, "%s%s%s ■ %s%s%s %s(%s)%s\n",
 			constants.ColorDim, prefix, connector,
-			constants.ColorGreen, node.Name, constants.ColorReset,
+			constants.ColorNeonGreen, node.Name, constants.ColorReset,
 			constants.ColorDim, node.Branch, constants.ColorReset)
 
 		return
@@ -113,5 +113,5 @@ func renderTermNode(w io.Writer, node *termNode, prefix, connector string) {
 
 	fmt.Fprintf(w, "%s%s%s ■ %s%s%s\n",
 		constants.ColorDim, prefix, connector,
-		constants.ColorYellow, node.Name, constants.ColorReset)
+		constants.ColorNeonGold, node.Name, constants.ColorReset)
 }

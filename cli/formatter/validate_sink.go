@@ -18,6 +18,7 @@ import (
 var (
 	validationSink io.Writer = os.Stderr
 	sinkMu         sync.RWMutex
+	seenWarnings   = make(map[string]struct{})
 )
 
 // SetValidationSink redirects validation warnings to w. Pass os.Stderr to
@@ -27,13 +28,22 @@ func SetValidationSink(w io.Writer) io.Writer {
 	defer sinkMu.Unlock()
 	prev := validationSink
 	validationSink = w
+	seenWarnings = make(map[string]struct{})
 
 	return prev
 }
 
+// ResetValidationWarnings clears the seen warnings deduplication cache.
+func ResetValidationWarnings() {
+	sinkMu.Lock()
+	defer sinkMu.Unlock()
+	seenWarnings = make(map[string]struct{})
+}
+
 // emitValidationWarnings runs the validator over records and writes one
-// `gitmap: validation: <issue>` line per finding to the active sink.
-// Returns the number of issues found so the caller can include the
+// `gitmap: validation: <issue>` line per distinct finding to the active sink.
+// Duplicate findings across multiple export passes (CSV, JSON, text) are suppressed.
+// Returns the total number of issues found so the caller can include the
 // count in a post-write summary line. Never returns an error — by
 // policy the write proceeds regardless.
 func emitValidationWarnings(records []model.ScanRecord) int {
@@ -42,10 +52,16 @@ func emitValidationWarnings(records []model.ScanRecord) int {
 		return 0
 	}
 
-	w := activeSink()
+	sinkMu.Lock()
+	w := validationSink
 	for _, issue := range issues {
-		fmt.Fprintf(w, "gitmap: validation: %s\n", issue.String())
+		msg := issue.String()
+		if _, seen := seenWarnings[msg]; !seen {
+			seenWarnings[msg] = struct{}{}
+			fmt.Fprintf(w, "gitmap: validation: %s\n", msg)
+		}
 	}
+	sinkMu.Unlock()
 
 	return len(issues)
 }

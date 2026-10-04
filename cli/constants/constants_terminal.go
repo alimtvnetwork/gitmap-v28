@@ -25,6 +25,10 @@ const (
 	ColorBlue    = "\033[1;94m"            // bright bold blue — info banners
 	ColorOrange  = "\033[38;5;208m\033[1m" // 256-color bold orange — upload/transfer accents
 
+	// High-Intensity Neon / TrueColor palette for high-contrast tree and visualizer nodes.
+	ColorNeonGreen = "\033[38;2;0;255;127m\033[1m" // Vibrant High-Intensity Neon Spring Green (#00FF7F)
+	ColorNeonGold  = "\033[38;2;255;220;0m\033[1m" // Vibrant Electric Gold Yellow (#FFDC00)
+
 	// TrueColor Pastel Palette (Catppuccin Macchiato) for multi-item lists (clone-all, pull-all).
 	ColorPastelGreen   = "\033[38;2;166;227;161m"
 	ColorPastelCyan    = "\033[38;2;137;220;235m"

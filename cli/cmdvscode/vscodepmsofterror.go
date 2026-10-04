@@ -43,7 +43,12 @@ func reportVSCodePMSoftError(err error) {
 	case errors.Is(err, vscodepm.ErrUserDataMissing):
 		fmt.Fprintln(os.Stderr, constants.MsgVSCodePMPathRootMissing)
 	case errors.Is(err, vscodepm.ErrExtensionMissing):
-		fmt.Fprintf(os.Stderr, constants.MsgVSCodePMPathExtMissing, err.Error())
+		path, _ := vscodepm.ProjectsJSONPath()
+		if path != "" {
+			fmt.Fprintf(os.Stderr, constants.MsgVSCodePMPathExtMissing, path)
+		} else {
+			fmt.Fprintf(os.Stderr, constants.MsgVSCodePMPathExtMissing, "default extension directory")
+		}
 	default:
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 	}
