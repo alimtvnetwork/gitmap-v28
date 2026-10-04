@@ -138,39 +138,60 @@ func upsertProjectRecords(
 	results []detector.DetectionResult,
 	records []model.ScanRecord,
 ) {
-	count := 0
+	count := processProjectUpsertLoop(db, results)
 	repoIDs := collectRepoIDs(results)
-	for i := range results {
-		r := &results[i]
-		if r.Project.RepoID <= 0 {
-			if id, err := db.SelectRepoIDByPath(r.Project.RepoPath); err == nil && id > 0 {
-				r.Project.RepoID = id
-			} else if id, err := db.SelectRepoIDByPath(r.Project.AbsolutePath); err == nil && id > 0 {
-				r.Project.RepoID = id
-			}
-		}
-		if r.Project.RepoID <= 0 {
-			continue
-		}
-		err := db.UpsertDetectedProject(r.Project)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrProjectUpsert, err)
-
-			continue
-		}
-
-		if err := resolveDetectedProjectID(db, r); err != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrProjectUpsert, err)
-
-			continue
-		}
-
-		count++
-		upsertProjectMetadata(db, *r)
-	}
-
 	cleanStaleProjects(db, repoIDs, results)
 	fmt.Printf(constants.MsgProjectUpsertDone, count)
+}
+
+func processProjectUpsertLoop(db *store.DB, results []detector.DetectionResult) int {
+	count := 0
+	for i := range results {
+		if upsertSingleProjectResult(db, &results[i]) {
+			count++
+		}
+	}
+
+	return count
+}
+
+func upsertSingleProjectResult(db *store.DB, r *detector.DetectionResult) bool {
+	resolveProjectRepo(db, r)
+	if r.Project.RepoID <= 0 || !db.RepoExists(r.Project.RepoID) {
+		return false
+	}
+
+	if err := db.UpsertDetectedProject(r.Project); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrProjectUpsert, err)
+
+		return false
+	}
+
+	if err := resolveDetectedProjectID(db, r); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrProjectUpsert, err)
+
+		return false
+	}
+
+	upsertProjectMetadata(db, *r)
+
+	return true
+}
+
+func resolveProjectRepo(db *store.DB, r *detector.DetectionResult) {
+	if r.Project.RepoID > 0 && db.RepoExists(r.Project.RepoID) {
+		return
+	}
+
+	if id, err := db.SelectRepoIDByPath(r.Project.RepoPath); err == nil && id > 0 {
+		r.Project.RepoID = id
+
+		return
+	}
+
+	if id, err := db.SelectRepoIDByPath(r.Project.AbsolutePath); err == nil && id > 0 {
+		r.Project.RepoID = id
+	}
 }
 
 // resolveDetectedProjectID syncs the project ID with the persisted DB row.

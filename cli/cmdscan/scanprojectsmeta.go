@@ -117,7 +117,9 @@ func upsertCsharpKeyFiles(db *store.DB, meta *model.CsharpProjectMetadata) []int
 func collectRepoIDs(results []detector.DetectionResult) map[int64]bool {
 	ids := make(map[int64]bool)
 	for _, r := range results {
-		ids[r.Project.RepoID] = true
+		if r.Project.RepoID > 0 {
+			ids[r.Project.RepoID] = true
+		}
 	}
 
 	return ids

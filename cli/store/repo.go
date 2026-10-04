@@ -140,26 +140,48 @@ func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error) {
 	return scanRows(rows)
 }
 
+// RepoExists returns true if a repository with the given RepoId exists.
+func (db *DB) RepoExists(repoID int64) bool {
+	if repoID <= 0 {
+		return false
+	}
+
+	var isPresent bool
+	_ = db.conn.QueryRow("SELECT EXISTS(SELECT 1 FROM Repo WHERE RepoId = ?)", repoID).Scan(&isPresent)
+
+	return isPresent
+}
+
 // SelectRepoIDByPath returns the persisted RepoId for a repository absolute path.
 func (db *DB) SelectRepoIDByPath(absPath string) (int64, error) {
 	cleanPath := NormalizeStoragePath(absPath)
+	if id := db.queryRepoIDExact(cleanPath); id > 0 {
+		return id, nil
+	}
+
+	return db.queryRepoIDPrefix(cleanPath)
+}
+
+func (db *DB) queryRepoIDExact(cleanPath string) int64 {
 	var id int64
-	err := db.conn.QueryRow(constants.SQLSelectRepoIDByPath, cleanPath).Scan(&id)
-	if err == nil && id > 0 {
-		return id, nil
-	}
-
-	errNocase := db.conn.QueryRow("SELECT RepoId FROM Repo WHERE AbsolutePath = ? COLLATE NOCASE", cleanPath).Scan(&id)
-	if errNocase == nil && id > 0 {
-		return id, nil
-	}
-
-	// Longest prefix match for nested projects inside repository subtrees
-	errPrefix := db.conn.QueryRow(
-		"SELECT RepoId FROM Repo WHERE ? LIKE (AbsolutePath || '%') ORDER BY LENGTH(AbsolutePath) DESC LIMIT 1",
+	err := db.conn.QueryRow(
+		"SELECT RepoId FROM Repo WHERE REPLACE(AbsolutePath, '\\', '/') = ? COLLATE NOCASE",
 		cleanPath,
 	).Scan(&id)
-	if errPrefix == nil && id > 0 {
+	if err == nil && id > 0 {
+		return id
+	}
+
+	return 0
+}
+
+func (db *DB) queryRepoIDPrefix(cleanPath string) (int64, error) {
+	var id int64
+	err := db.conn.QueryRow(
+		"SELECT RepoId FROM Repo WHERE ? LIKE (REPLACE(AbsolutePath, '\\', '/') || '%') ORDER BY LENGTH(AbsolutePath) DESC LIMIT 1",
+		cleanPath,
+	).Scan(&id)
+	if err == nil && id > 0 {
 		return id, nil
 	}
 

@@ -38,9 +38,7 @@ func (db *DB) validateProjectForeignKeys(p model.DetectedProject) (model.Detecte
 }
 
 func (db *DB) resolveProjectRepoID(p model.DetectedProject) (int64, error) {
-	var exists bool
-	_ = db.conn.QueryRow("SELECT EXISTS(SELECT 1 FROM Repo WHERE RepoId = ?)", p.RepoID).Scan(&exists)
-	if exists {
+	if db.RepoExists(p.RepoID) {
 		return p.RepoID, nil
 	}
 
