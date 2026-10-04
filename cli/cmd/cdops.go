@@ -114,7 +114,7 @@ func deduplicateCDRecords(records []model.ScanRecord) []model.ScanRecord {
 	seen := make(map[string]bool)
 	var deduped []model.ScanRecord
 	for _, r := range records {
-		norm := filepath.Clean(r.AbsolutePath)
+		norm := filepath.Clean(filepath.FromSlash(r.AbsolutePath))
 		if runtime.GOOS == "windows" {
 			norm = strings.ToLower(norm)
 		}

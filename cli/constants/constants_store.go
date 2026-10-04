@@ -160,7 +160,7 @@ const SQLDropRepoAbsPathIndex = "DROP INDEX IF EXISTS IdxRepo_AbsolutePath"
 
 // SQL: deduplicate Repo entries by AbsolutePath, preserving the oldest RepoId.
 const (
-	SQLDeduplicateReposWindows = "DELETE FROM Repo WHERE RepoId NOT IN (SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(AbsolutePath))"
+	SQLDeduplicateReposWindows = "DELETE FROM Repo WHERE RepoId NOT IN (SELECT MIN(RepoId) FROM Repo GROUP BY LOWER(REPLACE(AbsolutePath, '/', char(92))))"
 	SQLDeduplicateReposUnix    = "DELETE FROM Repo WHERE RepoId NOT IN (SELECT MIN(RepoId) FROM Repo GROUP BY AbsolutePath)"
 	SQLDeduplicateRepos        = SQLDeduplicateReposWindows
 )

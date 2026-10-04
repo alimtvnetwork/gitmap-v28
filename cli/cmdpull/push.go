@@ -323,7 +323,7 @@ func isNonFastForwardRejection(stderr string) bool {
 	return strings.Contains(lower, "fetch first") || strings.Contains(lower, "non-fast-forward")
 }
 
-func handleGitExit(label string, runErr error) {
+func handleGitExit(_ string, runErr error) {
 	fmt.Fprintf(os.Stderr, "\n  %s[tip]%s To diagnose and auto-repair SSH authentication & push issues, run:\n    %sgitmap push-fix%s  (or: %sgitmap push fix%s)\n\n",
 		constants.ColorCyan, constants.ColorReset,
 		constants.ColorGreen, constants.ColorReset,
@@ -332,24 +332,11 @@ func handleGitExit(label string, runErr error) {
 
 	var exitErr *exec.ExitError
 	if errors.As(runErr, &exitErr) {
-		appErr := apperror.WrapSimple(exitErr, label)
-		appErr.Type = apperror.ErrorTypeAbort
-		if appErr.Ctx == nil {
-			appErr.Ctx = make(map[string]any)
-		}
-		appErr.Ctx["reported"] = true
-		cliexit.HandleError(appErr, exitErr.ExitCode())
-
+		cliexit.Exit(exitErr.ExitCode())
 		return
 	}
 
-	appErr := apperror.WrapSimple(runErr, label)
-	appErr.Type = apperror.ErrorTypeAbort
-	if appErr.Ctx == nil {
-		appErr.Ctx = make(map[string]any)
-	}
-	appErr.Ctx["reported"] = true
-	cliexit.HandleGeneralError(appErr)
+	cliexit.Exit(1)
 }
 
 func joinForLog(args []string) string {
