@@ -75,6 +75,7 @@ gitmap sc list
 8. **Worker Node Binary Version Parity:** If a worker node outputs `[E1001:VALIDATION] cmd.dispatch: Unknown command: ports`, the remote binary is outdated (pre-v6.467.0). Perform `gitmap self-update` or redeploy the binary before diagnostic commands.
 9. **Target IP Verification & DHCP Drift Guardrail:** Before debugging SSH daemons or firewalls, verify that the IP registered on the client matches the target host's actual network adapter address (`ipconfig` or `Get-NetIPAddress -AddressFamily IPv4`). Connecting to an unassigned IP or a stale DHCP lease causes identical multi-second timeout drops (exit code 255).
 10. **The `ssh` Client False-Positive Trap:** Typing `ssh` in PowerShell only verifies that the OpenSSH *client* binary (`System32\OpenSSH\ssh.exe`) is present (default on Windows 10/11). It does *not* indicate that the OpenSSH *server* service (`sshd`) is installed or listening. Always check `Get-Service sshd` or `gitmap ports ssh`.
+11. **Client TCP Pre-Flight Probing:** When diagnosing timeouts, use `Test-NetConnection -ComputerName <ip> -Port 22` from the client. `TcpTestSucceeded : False` confirms packet drop (firewall or dead daemon) immediately without waiting for multi-second SSH client retry timeouts.
 
 ---
 
@@ -96,7 +97,11 @@ When a Windows worker node shows `○ offline (timeout)` or `Connection timed ou
 
 3. **Step 2: Update GitMap on Target (Resolves `Unknown command: ports`)**
    ```powershell
+   # If gitmap self-update is supported:
    gitmap update        # or: gitmap self-update
+
+   # If target has a legacy binary missing self-update:
+   irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
    ```
 
 4. **Step 3: Automated Enablement via GitMap**
@@ -131,6 +136,10 @@ When a Windows worker node shows `○ offline (timeout)` or `Connection timed ou
 
 7. **Step 6: Diagnose Connectivity from Client**
    ```powershell
+   # Quick TCP handshake check:
+   Test-NetConnection -ComputerName <target-ip> -Port 22
+
+   # GitMap deep diagnostics:
    gitmap ssh troubleshoot <target-ip>
    ```
    *Identifies whether packet drop is network firewall, wrong IP, or unstarted daemon.*
