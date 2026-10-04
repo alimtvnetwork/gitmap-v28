@@ -140,7 +140,7 @@ func PrintPhaseStepWithStatus(step int, name, status string) {
 	isSafe := glyphs.Resolve() == glyphs.ModeSafe
 	icon := resolvePhaseStepIcon(step, isSafe)
 	fmt.Printf("  [%d/4] %s%-55s %s%s%s\n",
-		step, icon+name+"...",
+		step, icon, name+"...",
 		constants.ColorGreen, status, constants.ColorReset,
 	)
 }
