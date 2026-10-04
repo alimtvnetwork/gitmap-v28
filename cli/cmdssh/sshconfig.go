@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -142,30 +143,51 @@ func runSSHConfig(args []string) error {
 
 // updateSSHConfig writes the managed block to ~/.ssh/config.
 func updateSSHConfig(db *store.DB) {
-	configPath := sshConfigPath()
+	block := buildManagedBlock(db)
+	paths := resolveAllSSHConfigPaths()
+	for _, p := range paths {
+		writeManagedSSHConfig(p, block)
+	}
 
+	fmt.Fprint(os.Stdout, constants.MsgSSHConfigDone)
+}
+
+func writeManagedSSHConfig(configPath, block string) {
 	existing := ""
 	if data, err := os.ReadFile(configPath); err == nil {
 		existing = string(data)
 	}
 
-	block := buildManagedBlock(db)
 	updated := replaceManagedBlock(existing, block)
 	updated, _ = SanitizeSSHConfigContent(updated)
 
-	if err := ensureSSHDir(sshDir()); err != nil {
+	dir := filepath.Dir(configPath)
+	if err := ensureSSHDir(dir); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHConfig, configPath, err)
-
 		return
 	}
 
 	if err := os.WriteFile(configPath, []byte(updated), 0o600); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHConfig, configPath, err)
-
-		return
 	}
+}
 
-	fmt.Fprint(os.Stdout, constants.MsgSSHConfigDone)
+func resolveAllSSHConfigPaths() []string {
+	paths := []string{sshConfigPath()}
+	sysPath := resolveSystemProfileSSHConfig()
+	if len(sysPath) > 0 && sysPath != sshConfigPath() {
+		paths = append(paths, sysPath)
+	}
+	return paths
+}
+
+func resolveSystemProfileSSHConfig() string {
+	drive := os.Getenv("SystemDrive")
+	user := os.Getenv("USERNAME")
+	if len(drive) == 0 || len(user) == 0 {
+		return ""
+	}
+	return filepath.Join(drive, "\\Users", user, ".ssh", "config")
 }
 
 // buildManagedBlock generates the managed SSH config block from DB keys.
@@ -179,18 +201,28 @@ func buildManagedBlock(db *store.DB) string {
 	b.WriteString(constants.SSHConfigMarkerStart + "\n")
 
 	for _, k := range keys {
-		host := "github.com"
-		if len(keys) > 1 || k.Name != constants.DefaultSSHKeyName {
-			host = "github.com-" + k.Name
-		}
-
-		b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, host, "github.com", k.PrivatePath))
-		b.WriteString("\n")
+		appendManagedHostEntry(&b, k, len(keys))
 	}
 
 	b.WriteString(constants.SSHConfigMarkerEnd)
 
 	return b.String()
+}
+
+func appendManagedHostEntry(b *strings.Builder, k model.SSHKey, totalKeys int) {
+	if k.Name == constants.DefaultSSHKeyName {
+		b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, "github.com", "github.com", k.PrivatePath))
+		b.WriteString("\n")
+		if totalKeys > 1 {
+			b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, "github.com-default", "github.com", k.PrivatePath))
+			b.WriteString("\n")
+		}
+		return
+	}
+
+	host := "github.com-" + k.Name
+	b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, host, "github.com", k.PrivatePath))
+	b.WriteString("\n")
 }
 
 // replaceManagedBlock replaces or appends the managed block in the config.

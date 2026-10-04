@@ -218,14 +218,19 @@ func parseSSHGenFlags(args []string) (name, keyPath, email string, force bool, h
 	// email comment, anything else as the key name. Lets users write
 	// `gitmap ssh create me@x.com` or `gitmap ssh create mykey me@x.com`.
 	for _, a := range fs.Args() {
-		if strings.Contains(a, "@") && len(email) == 0 {
-			email = a
+		trimmed := strings.TrimSpace(a)
+		if strings.HasPrefix(trimmed, "-") {
+			continue
+		}
+
+		if strings.Contains(trimmed, "@") && len(email) == 0 {
+			email = trimmed
 
 			continue
 		}
 
 		if name == constants.DefaultSSHKeyName {
-			name = a
+			name = trimmed
 		}
 	}
 
