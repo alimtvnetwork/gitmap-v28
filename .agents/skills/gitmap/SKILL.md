@@ -60,8 +60,11 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap cluster --help` — Orchestrate multi-node clusters and health checks
 - `gitmap sc --help` — Servers-clients topology and background task manager
 - `gitmap ssh --help` — SSH discovery, connection pooling, and remote command execution
+- `gitmap ports [service|--common]` — Inspect local listening ports, active PIDs, and firewall rules
+- `gitmap ssh enable [--port <n>]` — Cross-platform OpenSSH Server installation, auto-start, and firewall configuration
+- `gitmap ssh troubleshoot <alias|ip>` — Diagnostic connectivity probe for SSH timeouts and firewall blocks
 
-### 7. Rust & Toolchain Package Management
+### 8. Rust & Toolchain Package Management
 - `gitmap cargo status` — Inspect Rust and Cargo toolchain status
 - `gitmap install cargo` — Install Rust toolchain if missing
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages
