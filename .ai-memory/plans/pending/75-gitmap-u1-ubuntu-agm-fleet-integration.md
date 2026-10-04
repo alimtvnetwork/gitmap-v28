@@ -1,6 +1,6 @@
 # Plan 75: GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation
 
-## Status: Pending
+## Status: Completed
 - **Plan ID:** 75
 - **Spec Reference:** [02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md](../../02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md)
 - **Scope:** Cross-Platform Fleet Management, Terminal UI Polish, Cross-OS Toolchain, AGM Linux Migration

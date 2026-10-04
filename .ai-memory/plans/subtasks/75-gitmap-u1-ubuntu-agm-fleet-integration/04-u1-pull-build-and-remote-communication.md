@@ -2,7 +2,7 @@
 
 - **Parent Plan:** [75-gitmap-u1-ubuntu-agm-fleet-integration.md](../../pending/75-gitmap-u1-ubuntu-agm-fleet-integration.md)
 - **Spec Reference:** [02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md](../../../../02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md)
-- **Status:** Pending
+- **Status:** Completed
 - **Target Area:** Remote Node `U1` (`/home/a/git-work/gitmap`), `cli/cmdssh`
 
 ## Objective
