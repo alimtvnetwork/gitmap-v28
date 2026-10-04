@@ -56,6 +56,7 @@ func buildSSHDaemonSection() termhelp.HelpSection {
 		Title: "Server Daemon, Firewall & Web UI",
 		Entries: []termhelp.CommandEntry{
 			{Command: "enable [--port <p>]", Description: "Enable OpenSSH Server daemon and start service"},
+			{Command: "disable", Description: "Stop OpenSSH Server daemon and close firewall ports"},
 			{Command: "port <ls|add|rm|set>", Description: "Manage SSH ports in sshd_config with cross-OS firewall sync"},
 			{Command: "enable-public [port]", Description: "Open host firewall and bind 0.0.0.0 for public internet access"},
 			{Command: "ui (web, dashboard)", Description: "Open interactive fleet management web dashboard in browser"},

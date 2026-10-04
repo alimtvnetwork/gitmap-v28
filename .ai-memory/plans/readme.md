@@ -60,8 +60,18 @@
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
 - [75-gitmap-u1-ubuntu-agm-fleet-integration.md](pending/75-gitmap-u1-ubuntu-agm-fleet-integration.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Spec: [205](../../02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md))
+- [77-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca.md](pending/77-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca.md) — GitMap Database Reset, SSH Key Lifecycle, Cross-OS Firewall, and DetectedProject Foreign Key RCA (Spec: [207](../../02-spec/21-app/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/01-architecture-spec.md))
 
 ## Subtasks Directory
+
+### Plan 77 Subtasks (subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/)
+- [01-detectedproject-foreign-key-rca-and-fix.md](subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/01-detectedproject-foreign-key-rca-and-fix.md): DetectedProject foreign key constraint RCA & fix
+- [02-database-reset-and-reseed-engine.md](subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/02-database-reset-and-reseed-engine.md): Comprehensive database reset and reseed engine
+- [03-ssh-output-layout-and-ssh-view.md](subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/03-ssh-output-layout-and-ssh-view.md): SSH output layout reorder & gitmap ssh view command
+- [04-ssh-create-overwrite-guard-and-backup-undo-redo.md](subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/04-ssh-create-overwrite-guard-and-backup-undo-redo.md): SSH key creation overwrite guard, backup & undo/redo
+- [05-cross-os-ssh-port-and-firewall-automation.md](subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/05-cross-os-ssh-port-and-firewall-automation.md): Cross-OS SSH port management & firewall automation
+- [06-interactive-ssh-web-ui.md](subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/06-interactive-ssh-web-ui.md): Interactive SSH management web UI (gitmap ssh ui)
+- [07-guided-ssh-troubleshooting-and-diagnostics.md](subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/07-guided-ssh-troubleshooting-and-diagnostics.md): Guided SSH connection failure diagnostics & 7-step troubleshooting engine
 
 ### Plan 63 Subtasks (subtasks/63-semantic-flat-commit-suite/)
 - [01-commit-cmd-implementation-and-auto-stage.md](subtasks/63-semantic-flat-commit-suite/01-commit-cmd-implementation-and-auto-stage.md): Commit command implementation and auto-stage

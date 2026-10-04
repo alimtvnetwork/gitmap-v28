@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"os/exec"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // SSHExecutor is the command factory used for executing SSH commands.
@@ -136,10 +138,56 @@ func isConnectionOrDaemonError(err error, errStr string) bool {
 }
 
 func printSSHDiagnosticFooter(target SSHTarget) {
-	fmt.Fprintf(os.Stderr, "\n%s[gitmap] SSH Connection Failed to %s%s\n", constants.ColorYellow, target.IP, constants.ColorReset)
-	fmt.Fprintf(os.Stderr, "  • OpenSSH Server might not be running or enabled on target machine.\n")
-	fmt.Fprintf(os.Stderr, "  • To diagnose: run '%sgitmap ssh troubleshoot %s%s'\n", constants.ColorCyan, target.IP, constants.ColorReset)
-	fmt.Fprintf(os.Stderr, "  • On target machine, run '%sgitmap ssh enable%s' to automatically install & start sshd.\n\n", constants.ColorCyan, constants.ColorReset)
+	port := target.Port
+	if port <= 0 {
+		port = 22
+	}
+	user := target.Username
+	if user == "" {
+		user = resolveDefaultUsername()
+	}
+	alias := ""
+	if dbConn, err := store.OpenDefault(); err == nil {
+		if host, found := findHostInStore(dbConn, target.IP); found && host.Alias != "" {
+			alias = host.Alias
+		}
+		dbConn.Close()
+	}
+	if alias == "" {
+		if net.ParseIP(target.IP) == nil && target.IP != "" {
+			alias = target.IP
+		} else {
+			alias = generateDefaultAlias(target.IP, port)
+		}
+	}
+	if alias == "" {
+		alias = "target-host"
+	}
+
+	{
+		target := struct {
+			IP    string
+			Port  int
+			User  string
+			Alias string
+		}{
+			IP:    target.IP,
+			Port:  port,
+			User:  user,
+			Alias: alias,
+		}
+
+		fmt.Fprintf(os.Stderr, "\n%s  ▲ SSH Connection Failed to %s%s\n", constants.ColorRed, target.IP, constants.ColorReset)
+		fmt.Fprintf(os.Stderr, "  ────────────────────────────────────────────────────────────────────────\n")
+		fmt.Fprintf(os.Stderr, "  %sRecommended Troubleshooting Steps:%s\n", constants.ColorBold, constants.ColorReset)
+		fmt.Fprintf(os.Stderr, "    1. Ensure GitMap & SSH are enabled on target:\n       Run on target machine: %sgitmap ssh enable --port %d%s\n", constants.ColorCyan, target.Port, constants.ColorReset)
+		fmt.Fprintf(os.Stderr, "    2. Check target network reachability:\n       Run locally: %sgitmap ping %s%s\n", constants.ColorCyan, target.IP, constants.ColorReset)
+		fmt.Fprintf(os.Stderr, "    3. Verify target username and credentials:\n       Run locally: %sgitmap ssh pass show %s%s\n", constants.ColorCyan, target.Alias, constants.ColorReset)
+		fmt.Fprintf(os.Stderr, "    4. Attempt manual connection probe:\n       Run locally: %sssh %s@%s -p %d%s\n", constants.ColorCyan, target.User, target.IP, target.Port, constants.ColorReset)
+		fmt.Fprintf(os.Stderr, "    5. Test authentication via GitMap interactive prompt:\n       Run locally: %sgitmap ssh join %s@%s %s%s\n", constants.ColorCyan, target.User, target.IP, target.Alias, constants.ColorReset)
+		fmt.Fprintf(os.Stderr, "    6. Deploy current machine's public SSH key:\n       Run locally: %sgitmap ssh copy-id %s%s\n", constants.ColorCyan, target.Alias, constants.ColorReset)
+		fmt.Fprintf(os.Stderr, "    7. Inspect target firewall status:\n       Run on target machine: %sgitmap ssh port ls%s\n\n", constants.ColorCyan, constants.ColorReset)
+	}
 }
 
 func checkAndPrintDiagnosticFooter(target SSHTarget, err error, errStr string) {

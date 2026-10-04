@@ -421,3 +421,75 @@ func runSSHEnableCLI(args []string) error {
 
 	return dispatchSSHEnableOS(opts)
 }
+
+func printSSHDisableHelp() {
+	fmt.Printf("\n%sUsage:%s gitmap ssh disable [flags]\n\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("Stops OpenSSH Server daemon (sshd), disables auto-start, and closes firewall ports.\n\nFlags:\n  --help, -h          Show this help text")
+}
+
+func printSSHDisableBanner(targetOS string) {
+	fmt.Printf("%s✔ SSH daemon stopped and disabled on %s.%s\n", constants.ColorGreen, targetOS, constants.ColorReset)
+}
+
+func disableSSHWindows() error {
+	script := "Stop-Service sshd -ErrorAction SilentlyContinue; Set-Service sshd -StartupType Manual -ErrorAction SilentlyContinue; Disable-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue; Remove-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue"
+	_, err := runWindowsPowerShell(script)
+	if err != nil {
+		return apperror.NewExecutionError(fmt.Sprintf("failed to disable sshd on Windows: %v", err))
+	}
+
+	return nil
+}
+
+func disableSSHLinux() error {
+	_, _ = daemonExecRunner("systemctl", "stop", "ssh")
+	_, _ = daemonExecRunner("systemctl", "stop", "sshd")
+	_, _ = daemonExecRunner("systemctl", "disable", "ssh")
+	_, _ = daemonExecRunner("systemctl", "disable", "sshd")
+	_, _ = daemonExecRunner("ufw", "delete", "allow", "22/tcp")
+	_, _ = daemonExecRunner("ufw", "deny", "22/tcp")
+	_, _ = daemonExecRunner("firewall-cmd", "--permanent", "--remove-service=ssh")
+	_, _ = daemonExecRunner("firewall-cmd", "--permanent", "--remove-port=22/tcp")
+	_, _ = daemonExecRunner("firewall-cmd", "--reload")
+
+	return nil
+}
+
+func disableSSHDarwin() error {
+	_, err := daemonExecRunner("systemsetup", "-setremotelogin", "off")
+	if err != nil {
+		return apperror.NewExecutionError(fmt.Sprintf("systemsetup failed: %v", err))
+	}
+
+	return nil
+}
+
+func dispatchSSHDisableOS() (string, error) {
+	switch runtime.GOOS {
+	case "windows":
+		return "Windows", disableSSHWindows()
+	case "linux":
+		return "Linux", disableSSHLinux()
+	case "darwin":
+		return "Darwin", disableSSHDarwin()
+	default:
+		return runtime.GOOS, apperror.NewExecutionError(fmt.Sprintf("unsupported OS %q for automated sshd disabling", runtime.GOOS))
+	}
+}
+
+func runSSHDisableCLI(args []string) error {
+	if hasHelpFlag(args) {
+		printSSHDisableHelp()
+
+		return nil
+	}
+
+	targetOS, err := dispatchSSHDisableOS()
+	if err != nil {
+		return err
+	}
+
+	printSSHDisableBanner(targetOS)
+
+	return nil
+}

@@ -154,6 +154,15 @@ func (db *DB) SelectRepoIDByPath(absPath string) (int64, error) {
 		return id, nil
 	}
 
+	// Longest prefix match for nested projects inside repository subtrees
+	errPrefix := db.conn.QueryRow(
+		"SELECT RepoId FROM Repo WHERE ? LIKE (AbsolutePath || '%') ORDER BY LENGTH(AbsolutePath) DESC LIMIT 1",
+		cleanPath,
+	).Scan(&id)
+	if errPrefix == nil && id > 0 {
+		return id, nil
+	}
+
 	return 0, err
 }
 

@@ -199,6 +199,20 @@ const IndexHTML = `<!DOCTYPE html>
     <!-- SSH TAB -->
     <div id="tab-ssh" class="content-area">
       <div class="card">
+        <h3>Public Key &amp; Firewall Management</h3>
+        <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem;">
+          Quick actions for node authentication keys, listening ports, and firewall rules.
+        </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn" onclick="viewSSHPublicKeyUI()">View SSH Public Key</button>
+          <button class="btn btn-secondary" onclick="managePortsAndFirewallUI()">Manage Ports &amp; Firewall</button>
+        </div>
+        <div id="ssh-quick-card-output" style="margin-top: 0.75rem; display: none;">
+          <textarea id="ssh-quick-display" rows="5" readonly style="font-family: monospace; font-size: 0.85rem;"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
         <h3>SSH Cluster Nodes & Fleet Operations</h3>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem;">
           <button class="btn" onclick="refreshNodes()">Refresh Node Fleet</button>
@@ -627,6 +641,43 @@ const IndexHTML = `<!DOCTYPE html>
       } catch (e) {
         alert('Invalid JSON or import error: ' + e.message);
       }
+    }
+
+    async function viewSSHPublicKeyUI() {
+      const out = document.getElementById('ssh-quick-card-output');
+      const txt = document.getElementById('ssh-quick-display');
+      if (out) out.style.display = 'block';
+      if (txt) txt.value = 'Retrieving public key...';
+      try {
+        const res = await fetch('/api/ssh/export');
+        const data = await res.json();
+        const payload = data.payload || data;
+        let key = payload.publicKey || payload.PublicKey || '';
+        if (!key && payload.connections && payload.connections.length > 0) {
+          key = payload.connections[0].publicKey || payload.connections[0].PublicKey || '';
+        }
+        if (!key) {
+          key = 'Local Public Key (run locally: gitmap ssh key show):\nUse "gitmap ssh copy-id <alias>" to deploy keys to remote nodes.';
+        }
+        if (txt) txt.value = key;
+      } catch (e) {
+        if (txt) txt.value = 'Run locally to view key: gitmap ssh key show\nError: ' + e.message;
+      }
+    }
+
+    function managePortsAndFirewallUI() {
+      const out = document.getElementById('ssh-quick-card-output');
+      const txt = document.getElementById('ssh-quick-display');
+      if (out) out.style.display = 'block';
+      if (txt) txt.value = 'SSH Ports & Firewall Management Commands:\n' +
+        '  • List open ports & firewall status:  gitmap ssh port ls\n' +
+        '  • Open & enable port on target:       gitmap ssh enable --port 22\n' +
+        '  • Configure listening SSH port:       gitmap ssh port set <port>\n' +
+        '  • Diagnose connectivity & firewall:   gitmap ssh troubleshoot <ip>';
+    }
+
+    function openImportNodesModal() {
+      showTab('import-export');
     }
 
     // Auto-detect route on load

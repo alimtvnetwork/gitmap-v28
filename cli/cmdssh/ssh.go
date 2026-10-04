@@ -23,6 +23,8 @@ func runSSH(args []string) error {
 
 func dispatchKeyOpsSSH(sub string, args []string) result.ErrorWrapper {
 	switch sub {
+	case "view", "v", "show", "pubkey":
+		return result.MatchWrapper(runSSHCat(args))
 	case "key", "keys", "ssh-key":
 		if len(args) > 0 {
 			switch args[0] {
@@ -36,6 +38,7 @@ func dispatchKeyOpsSSH(sub string, args []string) result.ErrorWrapper {
 				return result.MatchWrapper(runSSHCat(args[1:]))
 			}
 		}
+
 		return result.MatchWrapper(runSSHCat(args))
 	}
 
@@ -239,6 +242,8 @@ func dispatchDaemonSSH(ctx context.Context, sub string, args []string) result.Er
 	switch sub {
 	case "enable", "enable-server", "sshd", "enable-sshd":
 		return result.MatchWrapper(RunSSHEnableCLI(args))
+	case "disable", "disable-server", "disable-sshd", "stop-sshd":
+		return result.MatchWrapper(RunSSHDisableCLI(args))
 	case "enable-public", "public":
 		return result.MatchWrapper(RunSSHPublicCLI(args))
 	case "port", "ports", "set-port":

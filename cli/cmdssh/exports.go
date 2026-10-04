@@ -192,6 +192,11 @@ func RunSSHEnableCLI(args []string) error {
 	return runSSHEnableCLI(args)
 }
 
+// RunSSHDisableCLI routes to ssh daemon disabling entrypoint.
+func RunSSHDisableCLI(args []string) error {
+	return runSSHDisableCLI(args)
+}
+
 // RunSSHPortCLI routes to ssh port configuration entrypoint.
 func RunSSHPortCLI(args []string) error {
 	return runSSHPortCLI(args)

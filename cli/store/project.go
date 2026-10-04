@@ -11,15 +11,23 @@ import (
 
 // UpsertDetectedProject inserts or updates a detected project record.
 func (db *DB) UpsertDetectedProject(p model.DetectedProject) error {
-	if p.RepoID <= 0 {
+	var exists bool
+	_ = db.conn.QueryRow("SELECT EXISTS(SELECT 1 FROM Repo WHERE RepoId = ?)", p.RepoID).Scan(&exists)
+	if !exists {
 		if id, err := db.SelectRepoIDByPath(p.RepoPath); err == nil && id > 0 {
 			p.RepoID = id
+			exists = true
 		} else if id, err := db.SelectRepoIDByPath(p.AbsolutePath); err == nil && id > 0 {
 			p.RepoID = id
+			exists = true
 		}
 	}
-	if p.RepoID <= 0 {
-		return fmt.Errorf("cannot upsert detected project: invalid RepoID %d for %s", p.RepoID, p.AbsolutePath)
+	if !exists {
+		return fmt.Errorf("cannot upsert detected project: RepoId %d not found in Repo table for %s", p.RepoID, p.AbsolutePath)
+	}
+
+	if p.ProjectTypeID <= 0 {
+		return fmt.Errorf("cannot upsert detected project: invalid ProjectTypeID %d for %s", p.ProjectTypeID, p.AbsolutePath)
 	}
 
 	_, err := ExecWrapper(db.conn, constants.SQLUpsertDetectedProject,

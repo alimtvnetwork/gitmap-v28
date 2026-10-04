@@ -127,6 +127,8 @@ func upsertProjectsToDB(
 		return
 	}
 
+	_ = db.SeedProjectTypes()
+
 	upsertProjectRecords(db, results, records)
 }
 
