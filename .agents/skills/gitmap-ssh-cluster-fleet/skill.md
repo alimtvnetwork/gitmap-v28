@@ -72,3 +72,53 @@ gitmap sc list
 6. **OpenSSH Client vs. Server Asymmetry on Windows:** The availability of the `ssh.exe` client binary (which ships by default with Windows 10/11) does NOT imply that OpenSSH Server (`sshd`) is installed or running. When a target node times out on port 22, never assume SSH is operational because `ssh` runs locally. Run `gitmap ssh enable` on the target to ensure the Windows Capability `OpenSSH.Server~~~~0.0.1.0` is installed, the service is started with `Automatic` startup, and inbound port 22 is allowed in Windows Defender Firewall.
 7. **Timeout vs. Refusal Diagnostic Heuristic:** `Connection timed out` (exit code 255) almost always indicates packet drop by host or network firewalls, whereas `Connection refused` indicates an unblocked network path with no listening daemon. Always check firewall rules via `gitmap ports firewall` or `gitmap ssh troubleshoot`.
 8. **Worker Node Binary Version Parity:** If a worker node outputs `[E1001:VALIDATION] cmd.dispatch: Unknown command: ports`, the remote binary is outdated (pre-v6.467.0). Perform `gitmap self-update` or redeploy the binary before diagnostic commands.
+
+---
+
+## 4. Windows Target Node Bootstrap & Troubleshooting Playbook
+
+When a Windows worker node shows `○ offline (timeout)` or `Connection timed out` on port 22:
+
+1. **Step 1: Elevate Terminal**
+   Open PowerShell as Administrator (`pwsh` or `powershell` with "Run as administrator").
+
+2. **Step 2: Update GitMap on Target (Resolves `Unknown command: ports`)**
+   ```powershell
+   gitmap update
+   ```
+
+3. **Step 3: Automated Enablement via GitMap**
+   ```powershell
+   gitmap ssh enable
+   ```
+   *This automatically installs the `OpenSSH.Server~~~~0.0.1.0` Windows capability, starts `sshd`, sets startup type to `Automatic`, and adds the inbound firewall rule for TCP port 22.*
+
+4. **Step 4: Alternative Native PowerShell Fallback**
+   ```powershell
+   # Install OpenSSH Server capability
+   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+
+   # Start service and set to Automatic startup
+   Start-Service sshd
+   Set-Service -Name sshd -StartupType 'Automatic'
+
+   # Ensure inbound port 22 is allowed through Windows Defender Firewall
+   if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue)) {
+       New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH SSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+   }
+   ```
+
+5. **Step 5: Verify on Target**
+   ```powershell
+   gitmap ports ssh
+   ```
+   *Expected output: Port 22 LISTENING by `sshd.exe` with Firewall rule `Allow`.*
+
+6. **Step 6: Verify on Client Machine**
+   ```powershell
+   gitmap ssh troubleshoot <alias|ip>
+   gitmap ssh <alias>
+   gitmap nodes
+   ```
+   *Target node will transition from `○ offline (timeout)` to `● ready`.*
+
