@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdapps"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfoldertree"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
@@ -32,6 +33,7 @@ func GetRootCompletionCmd() *cobra.Command {
 	root := &cobra.Command{
 		Use:   "gitmap",
 		Short: "GitMap — Developer CLI for repository scanning, SSH fleet delegation, and AGY automation",
+		Run:   func(cmd *cobra.Command, args []string) {},
 	}
 
 	root.AddCommand(cmdagy.AgyCmd)
@@ -52,6 +54,9 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelCFRCmd())
 	root.AddCommand(makeTopLevelWPRCmd())
 	root.AddCommand(makeTopLevelFolderTreeCmd())
+	root.AddCommand(makeTopLevelCDCmd())
+	root.AddCommand(makeTopLevelAppsCmd())
+	root.AddCommand(makeTopLevelInstallCmd())
 
 	populateRemainingCommands(root)
 
@@ -106,6 +111,7 @@ func makeTopLevelRunningPromptsCmd() *cobra.Command {
 		Use:               "running-prompts [command]",
 		Aliases:           []string{"running-prompt", "rp-prompts", "backup-running-prompts", "restore-running-prompts"},
 		Short:             "Manage running and queued Antigravity prompts",
+		Run:               func(cmd *cobra.Command, args []string) {},
 		ValidArgsFunction: cmdagy.RunningPromptsCmd.ValidArgsFunction,
 	}
 }
@@ -115,6 +121,7 @@ func makeTopLevelRunningProjectsCmd() *cobra.Command {
 		Use:               "running-projects [ls]",
 		Aliases:           []string{"runningprojects", "rp"},
 		Short:             "List projects hosting active or queued Antigravity prompts",
+		Run:               func(cmd *cobra.Command, args []string) {},
 		ValidArgsFunction: cmdagy.AgyRunningProjectsCmd.ValidArgsFunction,
 	}
 	cmd.Flags().AddFlagSet(cmdagy.AgyRunningProjectsCmd.Flags())
@@ -126,6 +133,7 @@ func makeTopLevelFPUGCmd() *cobra.Command {
 		Use:               "finish-prompts-until-green [targets...]",
 		Aliases:           []string{"fpug"},
 		Short:             "Monitor target projects until prompts finish and CI/CD pipelines turn green",
+		Run:               func(cmd *cobra.Command, args []string) {},
 		ValidArgsFunction: cmdagy.AgyFPUGCmd.ValidArgsFunction,
 	}
 	cmd.Flags().AddFlagSet(cmdagy.AgyFPUGCmd.Flags())
@@ -136,6 +144,7 @@ func makeTopLevelSSHCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:               "ssh [target-node]",
 		Short:             "Connect to or manage SSH fleet nodes",
+		Run:               func(cmd *cobra.Command, args []string) {},
 		ValidArgsFunction: cmdssh.SSHValidArgsFunction,
 	}
 }
@@ -145,6 +154,7 @@ func makeTopLevelUpdateCmd() *cobra.Command {
 		Use:     "update [flags]",
 		Aliases: []string{"ua", "update-all", "updateall"},
 		Short:   "Update gitmap binary, dependencies, and cluster fleet",
+		Run:     func(cmd *cobra.Command, args []string) {},
 	}
 	cmd.Flags().String("remote", "", "Update target remote cluster node")
 	cmd.Flags().BoolP("all", "a", false, "Update all cluster fleet nodes")
@@ -162,6 +172,7 @@ func makeTopLevelHistoryCmd() *cobra.Command {
 		Use:     "history [command]",
 		Aliases: []string{"hist"},
 		Short:   "View past command execution history and reuse suggestions",
+		Run:     func(cmd *cobra.Command, args []string) {},
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
 				return []string{
@@ -183,6 +194,7 @@ func makeTopLevelCompletionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "completion [shell|install]",
 		Short: "Generate shell completion scripts or install profile hooks",
+		Run:   func(cmd *cobra.Command, args []string) {},
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
 				return []string{
@@ -218,6 +230,7 @@ func populateRemainingCommands(root *cobra.Command) {
 		root.AddCommand(&cobra.Command{
 			Use:   cmdName,
 			Short: desc,
+			Run:   func(cmd *cobra.Command, args []string) {},
 		})
 		existing[cmdName] = true
 	}
@@ -300,6 +313,7 @@ func makeTopLevelHelpCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "help [command|group]",
 		Short: "Display comprehensive help for commands or functional groups",
+		Run:   func(c *cobra.Command, args []string) {},
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
 				return buildHelpCompletions(), cobra.ShellCompDirectiveNoFileComp
@@ -341,6 +355,7 @@ func makeTopLevelPECmd() *cobra.Command {
 		Use:     "pe [path|alias|url] [flags]",
 		Aliases: []string{"pipeline-errors", "pipeline_errors", "ee"},
 		Short:   "Inspect CI/CD pipeline error logs and status for target repository",
+		Run:     func(c *cobra.Command, args []string) {},
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
 				return filterRepoCompletions(toComplete), cobra.ShellCompDirectiveNoFileComp
@@ -360,6 +375,7 @@ func makeTopLevelCFRCmd() *cobra.Command {
 		Use:     "cfr [repo|alias|url] [flags]",
 		Aliases: []string{"clone-fix-repo", "cfrp", "clone-fix-repo-pub", "clone"},
 		Short:   "Clone, inspect, and fix repository with desktop sync",
+		Run:     func(c *cobra.Command, args []string) {},
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			if len(args) == 0 {
 				return filterRepoCompletions(toComplete), cobra.ShellCompDirectiveNoFileComp
@@ -369,6 +385,7 @@ func makeTopLevelCFRCmd() *cobra.Command {
 	}
 	cmd.Flags().Bool("https", false, "Force HTTPS clone")
 	cmd.Flags().Bool("ssh", false, "Force SSH clone")
+	cmd.Flags().String("branch", "", "Target branch to clone")
 	return cmd
 }
 
@@ -450,4 +467,162 @@ func makeTopLevelFolderTreeCmd() *cobra.Command {
 			return cmdfoldertree.RunFolderTree(args)
 		},
 	}
+}
+
+func makeTopLevelCDCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "cd [repo|alias] [flags]",
+		Aliases: []string{"go"},
+		Short:   "Navigate directly to a tracked repository directory",
+		Run:     func(c *cobra.Command, args []string) {},
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				subcommands := []string{
+					"repos\tList all tracked repository locations",
+					"set-default\tSet a default directory for ambiguous repository",
+					"clear-default\tClear default directory mapping",
+				}
+				repos := filterRepoCompletions(toComplete)
+				return append(subcommands, repos...), cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	cmd.Flags().BoolP("pick", "p", false, "Force interactive picker even if default set")
+	cmd.Flags().String("group", "", "Filter repos list by group")
+	return cmd
+}
+
+func makeTopLevelAppsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "apps [list|uninstall|help] [flags]",
+		Aliases: []string{"app"},
+		Short:   "Manage, inspect, and uninstall desktop and system applications",
+		Run:     func(c *cobra.Command, args []string) {},
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return []string{
+					"list\tList installed applications across user and system scopes",
+					"ls\tAlias for list",
+					"uninstall\tUninstall an application by name or ID",
+					"rm\tAlias for uninstall",
+					"purge\tPurge application with user data",
+					"help\tShow apps usage guide",
+				}, cobra.ShellCompDirectiveNoFileComp
+			}
+			if len(args) == 1 && (args[0] == "uninstall" || args[0] == "rm" || args[0] == "remove" || args[0] == "purge") {
+				return getInstalledAppCompletions(toComplete), cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	cmd.Flags().Bool("json", false, "Output apps in JSON format")
+	cmd.Flags().Bool("system", false, "Filter only system-wide applications")
+	cmd.Flags().Bool("user", false, "Filter only user-scoped applications")
+	cmd.Flags().BoolP("all", "a", false, "Include utilities and hidden apps")
+	cmd.Flags().StringP("filter", "f", "", "Fuzzy match name or package identifier")
+	cmd.Flags().Bool("purge", false, "Purge configuration and user data")
+	cmd.Flags().Bool("force", false, "Force uninstall without confirmation")
+	cmd.Flags().Bool("dry-run", false, "Simulate uninstall without changes")
+	return cmd
+}
+
+func getInstalledAppCompletions(toComplete string) []string {
+	resp, err := cmdapps.ListApps(cmdapps.ListOptions{IsAll: true})
+	hasValidData := err == nil && len(resp.Data) > 0
+	if !hasValidData {
+		return nil
+	}
+	clean := strings.ToLower(strings.TrimSpace(toComplete))
+	var out []string
+	seen := make(map[string]bool)
+	for _, app := range resp.Data {
+		targetName := app.Name
+		if targetName == "" {
+			targetName = app.ID
+		}
+		if seen[targetName] {
+			continue
+		}
+		seen[targetName] = true
+		desc := string(app.Manager)
+		if app.Version != "" {
+			desc += " " + app.Version
+		}
+		entry := targetName + "\t" + desc
+		isMatch := clean == "" || strings.Contains(strings.ToLower(targetName), clean) || strings.Contains(strings.ToLower(app.ID), clean)
+		if isMatch {
+			out = append(out, entry)
+		}
+	}
+	return out
+}
+
+func makeTopLevelInstallCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "install [tool] [flags]",
+		Aliases: []string{"in"},
+		Short:   "Install developer tools and workstation software packages",
+		Run:     func(c *cobra.Command, args []string) {},
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return getSupportedToolCompletions(toComplete), cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	cmd.Flags().String("tools", "", "Comma-separated list of tools to install")
+	cmd.Flags().Bool("dry-run", false, "Simulate installation without changes")
+	cmd.Flags().BoolP("yes", "y", false, "Auto-confirm all installation prompts")
+	return cmd
+}
+
+func getSupportedToolCompletions(toComplete string) []string {
+	prefix := ""
+	clean := strings.ToLower(strings.TrimSpace(toComplete))
+	idx := strings.LastIndex(toComplete, ",")
+	hasComma := idx >= 0
+	if hasComma {
+		prefix = toComplete[:idx+1]
+		clean = strings.ToLower(strings.TrimSpace(toComplete[idx+1:]))
+	}
+
+	var out []string
+	seen := make(map[string]bool)
+
+	for tool, desc := range constants.InstallToolDescriptions {
+		if !seen[tool] {
+			seen[tool] = true
+			isMatch := clean == "" || strings.HasPrefix(strings.ToLower(tool), clean) || strings.Contains(strings.ToLower(tool), clean)
+			if isMatch {
+				out = append(out, prefix+tool+"\t"+desc)
+			}
+		}
+	}
+
+	extras := []struct {
+		name string
+		desc string
+	}{
+		{"copilot", "Windows Copilot assistant tool"},
+		{"cc", "Conventional commits assistant / cache cleaner"},
+	}
+	for _, extra := range extras {
+		if !seen[extra.name] {
+			seen[extra.name] = true
+			isMatch := clean == "" || strings.HasPrefix(strings.ToLower(extra.name), clean) || strings.Contains(strings.ToLower(extra.name), clean)
+			if isMatch {
+				out = append(out, prefix+extra.name+"\t"+extra.desc)
+			}
+		}
+	}
+
+	if len(out) > 0 {
+		return out
+	}
+
+	for tool, desc := range constants.InstallToolDescriptions {
+		out = append(out, prefix+tool+"\t"+desc)
+	}
+	return out
 }

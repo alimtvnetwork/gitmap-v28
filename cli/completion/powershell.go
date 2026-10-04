@@ -57,6 +57,23 @@ func generatePowerShell() string {
         return
     }
 
+    if ($cmd -eq "apps" -or $cmd -eq "app") {
+        $items = @("list", "ls", "uninstall", "rm", "purge", "help", "--json", "--system", "--user", "--all", "-a")
+        $items | Where-Object { $_ -like "$wordToComplete*" } |
+            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
+    if ($cmd -eq "install" -or $cmd -eq "in") {
+        $tools = @("antigravity", "chrome", "vscode", "node", "yarn", "bun", "pnpm", "python", "go", "git", "git-compact", "docker", "flameshot", "copilot", "cc")
+        $items = $tools + @("--dry-run", "--yes", "-y", "--tools")
+        $items | Where-Object { $_ -like "$wordToComplete*" } |
+            ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
+        return
+    }
+
     if ($cmd -eq "deploy" -or $cmd -eq "deploy-right" -or $cmd -eq "deploy-left") {
         if ($sub -eq "config") {
             $items = @("ssh", "--file", "--dry-run", "--json")
