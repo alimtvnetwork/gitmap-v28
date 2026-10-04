@@ -1,8 +1,8 @@
 # Subtask 02: GNOME Ergonomics & Windows Keybindings
 
 > **Task Reference:** `214-ubuntu-fleet-automation-and-workstation-governance`  
-> **Parent Plan:** [.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md](file:///d:/work/gitmap/.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md)  
-> **Target Node:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`)  
+> **Parent Plan:** [.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md](./.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md)  
+> **Target Node:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`)  
 
 ---
 
@@ -23,8 +23,8 @@
 - D-Bus user session bridge dynamically resolved: `export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"`.
 - Execution command:
   ```powershell
-  pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action desktop
-  pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action wallpaper
+  pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action desktop
+  pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action wallpaper
   ```
 
 ---

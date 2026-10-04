@@ -39,7 +39,7 @@ The log must capture the exact technical mechanics and decisions across five pha
 - **Permissions:** Enforce mount options `allow_other,uid=1000,gid=1000,umask=022` so user `a` has unfettered read/write access to host folders without `sudo`.
 
 ### Phase 4: Antigravity Brain & SQLite Path Normalization
-- **Challenge:** Windows workspace references (`d:\work\`, `file:///d%3A/work/`) serialized into SQLite databases (`conversation_summaries.db`) cause broken workspace links and history errors on Linux.
+- **Challenge:** Windows workspace references (`$WORKSPACE_DIR/`, `$WORKSPACE_DIR/`) serialized into SQLite databases (`conversation_summaries.db`) cause broken workspace links and history errors on Linux.
 - **Solution:** Executing parameterized SQLite transactions using `REPLACE()` functions and regex-based streaming normalization across JSONL transcripts before launching the IDE.
 
 ### Phase 5: Self-Contained Embedded PowerShell Architecture
@@ -78,8 +78,8 @@ sudo apt-get update && sudo apt-get install -y \
 ```
 
 ### 3.2 Standardized Directory Layout
-- Workspace Root: `/home/a/git-work/`
-- Tooling Root: `/home/a/.antigravity_tools/`
+- Workspace Root: `$HOME/git-work/`
+- Tooling Root: `$HOME/.antigravity_tools/`
 - Binary Links: `/usr/local/bin/gitmap`, `/usr/local/bin/antigravity`, `/usr/local/bin/agm`
 - VMware Mount: `/mnt/hgfs/`
 

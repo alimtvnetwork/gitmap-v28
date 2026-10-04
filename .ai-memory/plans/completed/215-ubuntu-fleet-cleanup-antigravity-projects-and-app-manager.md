@@ -16,33 +16,33 @@ Hi there. I really liked what you have done. I really like the background now, w
 ### Task-01: Ubuntu Node `u1` Deep Filesystem Hygiene
 - **Owner:** Worker 01
 - **Status:** COMPLETED (PASS)
-- **Script Authored:** `d:/work/repo-secrets/04-ubuntu-migration/clean-u1-filesystem.ps1`
-- **Actions Executed Elevated via SSH on `u1` (`192.168.1.22`):**
-  1. Eradicated root-owned literal tilde directory `/home/a/git-work/~`.
-  2. Purged cross-platform path leak `/home/a/C:\Users\Administrator\AppData\Roaming\Antigravity`.
+- **Script Authored:** `$SECRETS_DIR/04-ubuntu-migration/clean-u1-filesystem.ps1`
+- **Actions Executed Elevated via SSH on `u1` (`ubuntu-fleet-01`):**
+  1. Eradicated root-owned literal tilde directory `$HOME/git-work/~`.
+  2. Purged cross-platform path leak `$HOME/$USERPROFILE/AppData\Roaming\Antigravity`.
   3. Purged loose `.deb` installer (`GitHubDesktop-linux-amd64-3.4.13-linux1.deb`) and `installGitHubDesktop.sh`.
-  4. Purged loose OAuth tokens and metadata in `/home/a/` (`google_accounts.json`, `oauth_creds.json`, `jetski-standalone-oauth-token`, `package.json`, `antigravity-*-keyring-unavailable`).
-  5. Purged hollow duplicate repositories `/home/a/repo-cache` and `/home/a/repo-secrets`.
-  6. Verified `/home/a/git-work/repo-secrets` is intact and initialized `/home/a/git-work/repo-cache` (`a:a`).
+  4. Purged loose OAuth tokens and metadata in `$HOME/` (`google_accounts.json`, `oauth_creds.json`, `jetski-standalone-oauth-token`, `package.json`, `antigravity-*-keyring-unavailable`).
+  5. Purged hollow duplicate repositories `$HOME/repo-cache` and `$HOME/repo-secrets`.
+  6. Verified `$HOME/git-work/repo-secrets` is intact and initialized `$HOME/git-work/repo-cache` (`a:a`).
 - **Evidence:**
-  - `ls -d /home/a/git-work/~` -> `No such file or directory` (exit code 1)
+  - `ls -d $HOME/git-work/~` -> `No such file or directory` (exit code 1)
   - `find /home/a -maxdepth 1 -name 'C:*'` -> 0 entries
   - `find /home/a -maxdepth 1 -name '*.deb'` -> 0 entries
   - `find /home/a -maxdepth 1 -name '*.sh'` -> 0 entries
-  - `/home/a/git-work/repo-secrets/.git` -> Present & tracking `main`
-  - `/home/a/git-work/repo-cache/.git` -> Initialized cleanly
+  - `$HOME/git-work/repo-secrets/.git` -> Present & tracking `main`
+  - `$HOME/git-work/repo-cache/.git` -> Initialized cleanly
 
 ### Task-02: Antigravity Projects & Workspaces Registration Engine
 - **Owner:** Worker 02
 - **Status:** COMPLETED (PASS)
-- **Script Authored:** `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-projects.ps1`
+- **Script Authored:** `$SECRETS_DIR/04-ubuntu-migration/sync-antigravity-projects.ps1`
 - **Actions Executed on `u1`:**
-  1. Ingested all 74 workspace repositories under `/home/a/git-work/`.
-  2. Ingested 48 Windows project descriptors from `C:\Users\Administrator\.gemini\config\projects\`. Mapped 46 repos to authoritative Windows GUIDs and deterministically generated 28 UUIDv5 IDs.
-  3. Generated and deployed 74 RFC 3986 project JSON descriptors (`folderUri: file:///home/a/git-work/<repo>`) and 2 auxiliary profiles (`outside-of-project.json`, `default-cli-project.json`) totaling 76 files to `u1:/home/a/.gemini/config/projects/` (mode `0644`, owner `a:a`).
-  4. Stitched `u1:/home/a/.gemini/antigravity/conversation_summaries.db`: updated `project_id` on matching rows; resolved blanks to `outside-of-project`.
+  1. Ingested all 74 workspace repositories under `$HOME/git-work/`.
+  2. Ingested 48 Windows project descriptors from `$USERPROFILE/.gemini\config\projects\`. Mapped 46 repos to authoritative Windows GUIDs and deterministically generated 28 UUIDv5 IDs.
+  3. Generated and deployed 74 RFC 3986 project JSON descriptors (`folderUri: file://$HOME/git-work/<repo>`) and 2 auxiliary profiles (`outside-of-project.json`, `default-cli-project.json`) totaling 76 files to `u1:$HOME/.gemini/config/projects/` (mode `0644`, owner `a:a`).
+  4. Stitched `u1:$HOME/.gemini/antigravity/conversation_summaries.db`: updated `project_id` on matching rows; resolved blanks to `outside-of-project`.
 - **Evidence:**
-  - `ls -1 /home/a/.gemini/config/projects/*.json | wc -l` -> **76** files
+  - `ls -1 $HOME/.gemini/config/projects/*.json | wc -l` -> **76** files
   - `outside-of-project.json` and `default-cli-project.json` -> Present & valid
   - Orphaned conversations in SQLite -> **0**
   - Linked conversations -> **98**

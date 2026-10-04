@@ -1,12 +1,12 @@
 # Architecture Spec 213: Antigravity Ubuntu Update & Macro Automation
 
 > **Specification Status:** Active  
-> **Target Workstation:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`, user `a`)  
+> **Target Workstation:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`, user `a`)  
 > **Source Workstation:** Windows 11 (`desktop-corei9-direct`)  
 > **Installed Version:** Antigravity 2.13.0 (Build 6362815968182272)  
 > **Target Version:** Antigravity 2.19.1 (Build 6046815158665216)  
 > **Artifact URL:** `https://storage.googleapis.com/antigravity-public/antigravity-hub/2.19.1-6046815158665216/linux-x64/Antigravity.tar.gz`  
-> **Install Path:** `/home/a/.local/share/antigravity-ide/`  
+> **Install Path:** `$HOME/.local/share/antigravity-ide/`  
 > **Global Symlink:** `/usr/local/bin/antigravity`  
 > **Subsystem Focus:** Remote Upgrade Pipeline, SUID Sandbox Hardening, GitMap Type Constants Sync, Headless SSH Execution  
 
@@ -17,7 +17,7 @@
 ```
 Author 02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/01-architecture-spec.md detailing:
 - System Overview: Updating Antigravity on Ubuntu from 2.13.0 (Build 6362815968182272) to 2.19.1 (Build 6046815158665216).
-- Target environment: Ubuntu node u1, user a, install path /home/a/.local/share/antigravity-ide/.
+- Target environment: Ubuntu node u1, user a, install path $HOME/.local/share/antigravity-ide/.
 - Binary artifacts: https://storage.googleapis.com/antigravity-public/antigravity-hub/2.19.1-6046815158665216/linux-x64/Antigravity.tar.gz.
 - Remote SSH upgrade pipeline: process termination (pkill -f antigravity), archive download and extraction, SUID sandbox configuration (chmod 4755 chrome-sandbox), symlink preservation, and verification (antigravity --version).
 - Integration with GitMap: updating cli/cmdinstall/installantigravity_types.go default version constants.
@@ -27,16 +27,16 @@ Author 02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/01-arch
 
 ## 1. System Overview & Problem Statement
 
-The developer fleet uses Antigravity as the primary agentic IDE across both Windows 11 host environments and remote Linux workstations. Node `u1` is an Ubuntu 24.04 LTS machine hosting developer toolchains and repositories at `/home/a/git-work/`.
+The developer fleet uses Antigravity as the primary agentic IDE across both Windows 11 host environments and remote Linux workstations. Node `u1` is an Ubuntu 24.04 LTS machine hosting developer toolchains and repositories at `$HOME/git-work/`.
 
 ### 1.1 The Stale Binary State
-The existing installation on `u1` is pinned at version **2.13.0 (Build 6362815968182272)**, located at `/home/a/.local/share/antigravity-ide/`. Meanwhile, host nodes and active development run version **2.19.1 (Build 6046815158665216)**. This version divergence causes:
+The existing installation on `u1` is pinned at version **2.13.0 (Build 6362815968182272)**, located at `$HOME/.local/share/antigravity-ide/`. Meanwhile, host nodes and active development run version **2.19.1 (Build 6046815158665216)**. This version divergence causes:
 - Discrepancies in agent runtime APIs, memory management protocols, and subagent invocation semantics.
 - Potential breaking schema differences in conversation transcripts and internal databases (`conversation_summaries.db`).
 - Inability to use recent IDE features, tool improvements, and updated sandboxing capabilities.
 
 ### 1.2 Non-Standard Auto-Update on Linux
-Unlike packaged distributions via APT or Snap, Antigravity on Linux is deployed as a standalone Electron tarball extracted into user space (`/home/a/.local/share/antigravity-ide/`). Electron auto-updaters often fail silently or fail to preserve root-owned SUID sandbox permissions when executing in user-space sessions. Consequently, updating `u1` requires a deterministic, automated remote SSH upgrade pipeline.
+Unlike packaged distributions via APT or Snap, Antigravity on Linux is deployed as a standalone Electron tarball extracted into user space (`$HOME/.local/share/antigravity-ide/`). Electron auto-updaters often fail silently or fail to preserve root-owned SUID sandbox permissions when executing in user-space sessions. Consequently, updating `u1` requires a deterministic, automated remote SSH upgrade pipeline.
 
 ### 1.3 Linux SUID Sandbox Requirement
 Electron requires a privileged helper binary (`chrome-sandbox`) configured with setuid root permissions:
@@ -81,22 +81,22 @@ flowchart TD
 3. **Backup and Extraction**:
    Move the existing install directory to a timestamped backup before unpacking the new release:
    ```bash
-   mv /home/a/.local/share/antigravity-ide /home/a/.local/share/antigravity-ide.bak-2.13.0
-   mkdir -p /home/a/.local/share/antigravity-ide
-   tar -xzf /tmp/Antigravity.tar.gz -C /home/a/.local/share/antigravity-ide --strip-components=1
+   mv $HOME/.local/share/antigravity-ide $HOME/.local/share/antigravity-ide.bak-2.13.0
+   mkdir -p $HOME/.local/share/antigravity-ide
+   tar -xzf /tmp/Antigravity.tar.gz -C $HOME/.local/share/antigravity-ide --strip-components=1
    ```
 
 4. **SUID Sandbox Hardening**:
    Restore required SUID root permissions to `chrome-sandbox`:
    ```bash
-   sudo chown root:root /home/a/.local/share/antigravity-ide/chrome-sandbox
-   sudo chmod 4755 /home/a/.local/share/antigravity-ide/chrome-sandbox
+   sudo chown root:root $HOME/.local/share/antigravity-ide/chrome-sandbox
+   sudo chmod 4755 $HOME/.local/share/antigravity-ide/chrome-sandbox
    ```
 
 5. **Symlink Preservation & PATH Verification**:
-   Ensure `/usr/local/bin/antigravity` points to `/home/a/.local/share/antigravity-ide/antigravity`:
+   Ensure `/usr/local/bin/antigravity` points to `$HOME/.local/share/antigravity-ide/antigravity`:
    ```bash
-   sudo ln -sf /home/a/.local/share/antigravity-ide/antigravity /usr/local/bin/antigravity
+   sudo ln -sf $HOME/.local/share/antigravity-ide/antigravity /usr/local/bin/antigravity
    ```
 
 6. **Post-Upgrade Verification**:
@@ -151,9 +151,9 @@ This matches the exact tested binary artifact URL.
 
 | Path / Binary | Owner | Group | Mode | Rationale |
 | :--- | :--- | :--- | :--- | :--- |
-| `/home/a/.local/share/antigravity-ide/` | `a` | `a` | `0755` | User workspace application directory |
-| `/home/a/.local/share/antigravity-ide/antigravity` | `a` | `a` | `0755` | Main executable binary |
-| `/home/a/.local/share/antigravity-ide/chrome-sandbox` | `root` | `root` | `4755` | Chromium SUID sandbox requires root UID and SUID bit |
+| `$HOME/.local/share/antigravity-ide/` | `a` | `a` | `0755` | User workspace application directory |
+| `$HOME/.local/share/antigravity-ide/antigravity` | `a` | `a` | `0755` | Main executable binary |
+| `$HOME/.local/share/antigravity-ide/chrome-sandbox` | `root` | `root` | `4755` | Chromium SUID sandbox requires root UID and SUID bit |
 | `/usr/local/bin/antigravity` | `root` | `root` | `0777` (symlink) | System-wide path pointer to user binary |
 | `/tmp/Antigravity.tar.gz` | `a` | `a` | `0644` | Ephemeral downloaded archive (cleaned post-run) |
 
@@ -163,12 +163,12 @@ This matches the exact tested binary artifact URL.
 
 If the download fails, extraction errors occur, or the 2.19.1 binary fails smoke verification:
 1. Terminate any half-started processes: `pkill -f antigravity || true`.
-2. Delete the broken target directory: `rm -rf /home/a/.local/share/antigravity-ide`.
-3. Restore backup: `mv /home/a/.local/share/antigravity-ide.bak-2.13.0 /home/a/.local/share/antigravity-ide`.
+2. Delete the broken target directory: `rm -rf $HOME/.local/share/antigravity-ide`.
+3. Restore backup: `mv $HOME/.local/share/antigravity-ide.bak-2.13.0 $HOME/.local/share/antigravity-ide`.
 4. Ensure SUID sandbox permissions on restored directory:
    ```bash
-   sudo chown root:root /home/a/.local/share/antigravity-ide/chrome-sandbox
-   sudo chmod 4755 /home/a/.local/share/antigravity-ide/chrome-sandbox
+   sudo chown root:root $HOME/.local/share/antigravity-ide/chrome-sandbox
+   sudo chmod 4755 $HOME/.local/share/antigravity-ide/chrome-sandbox
    ```
 5. Re-verify restored binary: `antigravity --version`.
 
@@ -177,8 +177,8 @@ If the download fails, extraction errors occur, or the 2.19.1 binary fails smoke
 ## 6. Acceptance Criteria
 
 - [ ] **AC-1:** Node `u1` Antigravity version command `antigravity --version` outputs version `2.19.1`.
-- [ ] **AC-2:** File `/home/a/.local/share/antigravity-ide/chrome-sandbox` has ownership `root:root` and mode `-rwsr-xr-x` (`4755`).
-- [ ] **AC-3:** Global symlink `/usr/local/bin/antigravity` resolves correctly to `/home/a/.local/share/antigravity-ide/antigravity`.
+- [ ] **AC-2:** File `$HOME/.local/share/antigravity-ide/chrome-sandbox` has ownership `root:root` and mode `-rwsr-xr-x` (`4755`).
+- [ ] **AC-3:** Global symlink `/usr/local/bin/antigravity` resolves correctly to `$HOME/.local/share/antigravity-ide/antigravity`.
 - [ ] **AC-4:** GUI launch via `systemd-run --user /usr/local/bin/antigravity` launches without sandbox or display abort errors.
 - [ ] **AC-5:** `cli/cmdinstall/installantigravity_types.go` has default version constants set to `2.19.1` and build ID `6046815158665216`.
 - [ ] **AC-6:** Temporary artifact `/tmp/Antigravity.tar.gz` is completely purged post-installation.

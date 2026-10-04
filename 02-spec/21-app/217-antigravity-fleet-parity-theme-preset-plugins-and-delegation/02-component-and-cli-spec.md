@@ -39,10 +39,10 @@ flowchart TD
     end
 
     subgraph Remote_Ubuntu ["Remote Linux Workstation (node u1)"]
-        Sanitizer["Linux Path Sanitizer & SUID Root Fix<br/>(/home/a/ sanitization)"]
-        TargetConfig["/home/a/.gemini/config/config.json<br/>(Eager + Dracula Theme)"]
-        TargetPlugins["/home/a/.gemini/config/plugins/<br/>(4 Plugins + 43 Skills Active)"]
-        TargetProjects["/home/a/.gemini/config/projects/*.json<br/>(Eager Permission Grants)"]
+        Sanitizer["Linux Path Sanitizer & SUID Root Fix<br/>($HOME/ sanitization)"]
+        TargetConfig["$HOME/.gemini/config/config.json<br/>(Eager + Dracula Theme)"]
+        TargetPlugins["$HOME/.gemini/config/plugins/<br/>(4 Plugins + 43 Skills Active)"]
+        TargetProjects["$HOME/.gemini/config/projects/*.json<br/>(Eager Permission Grants)"]
         TargetIDE["Antigravity IDE Instance<br/>(PID refreshed, clean UI state)"]
     end
 
@@ -115,13 +115,13 @@ param(
     [string]$WindowsToolsDir = "$HOME\.antigravity_tools",
 
     [Parameter()]
-    [string]$RemoteGeminiDir = "/home/a/.gemini",
+    [string]$RemoteGeminiDir = "$HOME/.gemini",
 
     [Parameter()]
-    [string]$RemoteToolsDir = "/home/a/.antigravity_tools",
+    [string]$RemoteToolsDir = "$HOME/.antigravity_tools",
 
     [Parameter()]
-    [string]$RemoteIdeInstallDir = "/home/a/.local/share/antigravity-ide",
+    [string]$RemoteIdeInstallDir = "$HOME/.local/share/antigravity-ide",
 
     [Parameter()]
     [switch]$DryRun,
@@ -188,8 +188,8 @@ The script reads `<user-home>/.gemini/config/config.json`. If missing, it constr
     "globalPermissionGrants": {
       "allow": [
         "command(git status && git remote -v && git log --oneline -5 && git config user.name && git config user.email)",
-        "read_file(/home/a/git-work)",
-        "write_file(/home/a/git-work)",
+        "read_file($HOME/git-work)",
+        "write_file($HOME/git-work)",
         "execute_url(*)",
         "read_url(prnt.sc)",
         "read_url(*)"
@@ -241,9 +241,9 @@ The script inspects `<windows-appdata>\instances.json`. On Windows, this file co
 - `"executable_path": "<windows-install-dir>\\Antigravity.exe"`
 
 The transformer translates paths to Linux equivalents:
-- Windows `<windows-appdata>\Antigravity` $\to$ `/home/a/.config/Antigravity`
-- Windows `<windows-tools>\instances\<id>\data` $\to$ `/home/a/.antigravity_tools/instances/<id>/data`
-- Windows executable path $\to$ `/home/a/.local/share/antigravity-ide/antigravity`
+- Windows `<windows-appdata>\Antigravity` $\to$ `$HOME/.config/Antigravity`
+- Windows `<windows-tools>\instances\<id>\data` $\to$ `$HOME/.antigravity_tools/instances/<id>/data`
+- Windows executable path $\to$ `$HOME/.local/share/antigravity-ide/antigravity`
 - Strips any backslashes `\` and replaces them with standard forward slashes `/`.
 
 #### 3. Project Descriptors Parity (`projects/*.json`)
@@ -259,13 +259,13 @@ The script scans all project JSON files in `~/.gemini/config/projects/`. For eac
   ```json
   "permissionGrants": {
     "allow": [
-      "read_file(/home/a/git-work)",
-      "write_file(/home/a/git-work)",
+      "read_file($HOME/git-work)",
+      "write_file($HOME/git-work)",
       "command(*)"
     ]
   }
   ```
-- Translates `folderUri` from Windows (`file:///<workspace-root>/...`) to Linux RFC 3986 format (`file:///home/a/git-work/...`).
+- Translates `folderUri` from Windows (`file:///<workspace-root>/...`) to Linux RFC 3986 format (`file://$HOME/git-work/...`).
 
 #### 4. Plugins & Skills Bundle Packaging
 The script gathers the entire directory tree from `<user-home>/.gemini/config/plugins`:
@@ -292,9 +292,9 @@ The remote receiver executes in an elevated bash context:
 set -euo pipefail
 
 # 1. Unpack into target paths
-mkdir -p /home/a/.gemini/config/plugins
-mkdir -p /home/a/.gemini/config/projects
-mkdir -p /home/a/.antigravity_tools/instances
+mkdir -p $HOME/.gemini/config/plugins
+mkdir -p $HOME/.gemini/config/projects
+mkdir -p $HOME/.antigravity_tools/instances
 
 # 2. Filesystem hygiene & eradicate stray Windows path trees
 find /home/a -maxdepth 1 \( -name 'C:*' -o -name 'c:*' -o -name 'C:\\*' \) -print0 2>/dev/null | while IFS= read -r -d '' stray_dir; do
@@ -303,15 +303,15 @@ find /home/a -maxdepth 1 \( -name 'C:*' -o -name 'c:*' -o -name 'C:\\*' \) -prin
 done
 
 # 3. Secure chrome-sandbox with SUID root permissions
-CHROME_SANDBOX="/home/a/.local/share/antigravity-ide/chrome-sandbox"
+CHROME_SANDBOX="$HOME/.local/share/antigravity-ide/chrome-sandbox"
 if [ -f "$CHROME_SANDBOX" ]; then
     sudo chown root:root "$CHROME_SANDBOX"
     sudo chmod 4755 "$CHROME_SANDBOX"
 fi
 
 # 4. Correct ownership of all Antigravity directories
-chown -R a:a /home/a/.gemini
-chown -R a:a /home/a/.antigravity_tools
+chown -R a:a $HOME/.gemini
+chown -R a:a $HOME/.antigravity_tools
 
 # 5. Refresh Antigravity state if restart requested
 if [ "$RESTART_IDE" = "1" ]; then
@@ -526,7 +526,7 @@ func NewAgyDeployCmd() *cobra.Command {
 | **Node Unreachable** | SSH Dial probe fails (timeout 5s) | Fast-fail before packaging; suggest `gitmap ping <node>` or `gitmap ssh test` | `AppError(ErrCodeSshDialFailed)`: "Node '<node>' unreachable via SSH" |
 | **Missing Local Config** | `~/.gemini/config/config.json` absent | Automatically generate standard Dracula + Turbo preset payload from internal template | Log `[WARN] Using default built-in Dracula Turbo template` |
 | **Sudo Failure on Remote** | Remote bash `sudo -S` fails authentication | Report passwordless sudo requirement or prompt for elevation token | `AppError(ErrCodeSudoAuthFailed)`: "Remote user requires sudo privileges for sandbox hardening" |
-| **Windows Path Leak Detected** | Pre-deployment scan on `/home/a/` | Automatically invoke hygiene purge `rm -rf /home/a/C:*` | Log `[CLEAN] Eradicated stray Windows directory on remote host` |
+| **Windows Path Leak Detected** | Pre-deployment scan on `$HOME/` | Automatically invoke hygiene purge `rm -rf $HOME/C:*` | Log `[CLEAN] Eradicated stray Windows directory on remote host` |
 | **Process Hang on Restart** | `pkill` times out or IDE fails to spawn | Send `SIGTERM`, wait 2s, send `SIGKILL`, spawn via `.local/bin/antigravity` | Log `[RECOVERY] Forcefully terminated stale PID, spawned fresh instance` |
 
 ---
@@ -534,9 +534,9 @@ func NewAgyDeployCmd() *cobra.Command {
 ## 4. Cross-Platform Parity & Path Translation Invariants
 
 1. **Positive Boolean Naming:** All boolean fields and variables across PowerShell and Go code MUST use positive prefixes (`is`, `has`, `can`, `should`). The use of negative booleans (`isNotSandbox`, `disabledPlugins`, `noRestart`) is strictly forbidden.
-2. **RFC 3986 URI Standards:** When registering project roots, file paths on Linux MUST conform to `file:///home/a/git-work/<repo>`. Windows backslashes MUST NEVER be emitted in project descriptors.
+2. **RFC 3986 URI Standards:** When registering project roots, file paths on Linux MUST conform to `file://$HOME/git-work/<repo>`. Windows backslashes MUST NEVER be emitted in project descriptors.
 3. **Sandbox Compliance:** Modern Linux distributions with AppArmor unconfined restrictions require either SUID root permissions (`4755`) on `chrome-sandbox` or running Electron binaries with `--no-sandbox`. The deployment scripts MUST enforce both the SUID permission and the wrapper flag in launcher scripts.
-4. **Clean Filesystem Boundary:** Remote paths MUST stay contained within `/home/a/.gemini` and `/home/a/.antigravity_tools`. Stray path artifacts such as `/home/a/<windows-appdata>\...` or `/home/a/~` MUST be aggressively guarded against and eradicated.
+4. **Clean Filesystem Boundary:** Remote paths MUST stay contained within `$HOME/.gemini` and `$HOME/.antigravity_tools`. Stray path artifacts such as `$HOME/<windows-appdata>\...` or `$HOME/~` MUST be aggressively guarded against and eradicated.
 
 ---
 
@@ -544,7 +544,7 @@ func NewAgyDeployCmd() *cobra.Command {
 
 - [ ] **AC-CLI-01:** `repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` executes with zero syntax errors on PowerShell 5.1 and 7+.
 - [ ] **AC-CLI-02:** Target node `u1` receives complete `config.json` with dark Dracula theme seeds (`#19191C`, `#BD93F9`) and eager auto-execution policy.
-- [ ] **AC-CLI-03:** All 4 plugins (`chrome-devtools`, `data-agent-kit`, `google-antigravity-sdk`, `modern-web-guidance`) are unpacked to `/home/a/.gemini/config/plugins` with 43 active skills.
+- [ ] **AC-CLI-03:** All 4 plugins (`chrome-devtools`, `data-agent-kit`, `google-antigravity-sdk`, `modern-web-guidance`) are unpacked to `$HOME/.gemini/config/plugins` with 43 active skills.
 - [ ] **AC-CLI-04:** `instances.json` on `u1` contains zero Windows drive letters (`C:`) or backslashes (`\`).
 - [ ] **AC-CLI-05:** `gitmap agy deploy u1` command is properly registered in Cobra CLI under `cmdagy`, exposes all required flags, and outputs compliant JSON envelope with `--json`.
 - [ ] **AC-CLI-06:** Chrome sandbox binary on remote node is hardened with `chown root:root` and `chmod 4755`.

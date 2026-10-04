@@ -2,7 +2,7 @@
 
 > **Specification Reference:** `02-spec/21-app/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager/02-component-and-cli-spec.md`  
 > **Parent Spec:** [01-architecture-spec.md](01-architecture-spec.md)  
-> **Target Node:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`), Windows 11 Host (`Administrator`), Cross-Platform Fleet  
+> **Target Node:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`), Windows 11 Host (`Administrator`), Cross-Platform Fleet  
 > **Subsystems:** `cli/cmdapps`, `cli/cmdinstall`, `cli/cmdmigrate`, `cli/cmdssh`, `cli/cmdnode`  
 > **Status:** APPROVED & SPECIFIED  
 
@@ -413,7 +413,7 @@ Flags:
   --tools <list>          Tools to provision on the remote node (e.g. antigravity,chrome,vscode)
   --sync-projects         Stream and register all workspace project JSONs into ~/.gemini/config/projects/
   --sync-conversations    Stream conversation summaries and transcripts from conversation_summaries.db
-  --sync-workspaces       Clone/pull all 74 workspace repositories into /home/a/git-work/
+  --sync-workspaces       Clone/pull all 74 workspace repositories into $HOME/git-work/
   --desktop               Apply font scaling (1.4x) and Windows shortcut remaps
   --json                  Output end-to-end migration telemetry in JSON
 ```

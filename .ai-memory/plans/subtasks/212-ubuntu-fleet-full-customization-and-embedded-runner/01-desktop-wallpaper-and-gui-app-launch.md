@@ -3,10 +3,10 @@
 > **Parent Plan:** [82-ubuntu-fleet-full-customization-and-embedded-runner.md](../../82-ubuntu-fleet-full-customization-and-embedded-runner.md)  
 > **Spec Reference:** [01-architecture-spec.md](../../../../02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md)  
 > **Status:** PENDING  
-> **Target Node:** Ubuntu U1 (`192.168.1.22`)  
+> **Target Node:** Ubuntu U1 (`ubuntu-fleet-01`)  
 > **Target Files:**  
-> - `d:/work/repo-secrets/04-ubuntu-migration/set-desktop-wallpaper.sh`  
-> - `d:/work/repo-secrets/04-ubuntu-migration/launch-gui-app.sh`  
+> - `$SECRETS_DIR/04-ubuntu-migration/set-desktop-wallpaper.sh`  
+> - `$SECRETS_DIR/04-ubuntu-migration/launch-gui-app.sh`  
 
 ---
 
@@ -43,8 +43,8 @@ This subtask delivers two hardened, modular bash utilities:
 
 #### GSettings Schema & Keys
 - Schema: `org.gnome.desktop.background`
-  - `picture-uri`: `"file:///home/a/..."`
-  - `picture-uri-dark`: `"file:///home/a/..."`
+  - `picture-uri`: `"file://$HOME/..."`
+  - `picture-uri-dark`: `"file://$HOME/..."`
   - `picture-options`: `"zoom"`
 
 #### Fallback & Path Normalization
@@ -61,7 +61,7 @@ This subtask delivers two hardened, modular bash utilities:
 ./launch-gui-app.sh [OPTIONS] <app-name-or-path> [args...]
 ```
 - **Supported Application Aliases:**
-  - `antigravity` / `agy`: Resolves `/usr/local/bin/antigravity` (or `/home/a/bin/antigravity`).
+  - `antigravity` / `agy`: Resolves `/usr/local/bin/antigravity` (or `$HOME/bin/antigravity`).
   - `editor` / `text`: Resolves `/usr/bin/gnome-text-editor`.
   - `code` / `vscode`: Resolves `/usr/bin/code` or `/snap/bin/code`.
   - `terminal`: Resolves `/usr/bin/gnome-terminal`.
@@ -130,12 +130,12 @@ ssh u1 "bash -s" < set-desktop-wallpaper.sh --file /usr/share/backgrounds/warty-
 
 ### Test Case 2: Remote Antigravity Launch
 ```bash
-ssh u1 "bash -s" < launch-gui-app.sh antigravity /home/a/git-work/gitmap
+ssh u1 "bash -s" < launch-gui-app.sh antigravity $HOME/git-work/gitmap
 ```
 - **Expected Output:**
   - `Resolved application: /usr/local/bin/antigravity`
   - `Running as unit: gui-app-antigravity-...`
-  - Antigravity window appears on active Ubuntu desktop displaying repository `/home/a/git-work/gitmap`.
+  - Antigravity window appears on active Ubuntu desktop displaying repository `$HOME/git-work/gitmap`.
 - **Exit Code:** `0`
 
 ### Test Case 3: Remote Text Editor Launch

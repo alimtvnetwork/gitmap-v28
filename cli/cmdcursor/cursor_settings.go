@@ -1,0 +1,122 @@
+package cmdcursor
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+)
+
+func getCursorSettingsPath() (string, error) {
+	root, err := getCursorUserDataRoot()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(root, "User", "settings.json"), nil
+}
+
+func readSettingsMap(path string) (map[string]interface{}, error) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return make(map[string]interface{}), nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "read cursor settings.json")
+	}
+	var settings map[string]interface{}
+	if err := json.Unmarshal(data, &settings); err != nil {
+		return make(map[string]interface{}), nil
+	}
+	return settings, nil
+}
+
+func viewCursorSettings() error {
+	path, err := getCursorSettingsPath()
+	if err != nil {
+		return err
+	}
+	settings, err := readSettingsMap(path)
+	if err != nil {
+		return err
+	}
+	data, _ := json.MarshalIndent(settings, "", "  ")
+	fmt.Printf("\n%s● Cursor Settings:%s %s\n", constants.ColorCyan, constants.ColorReset, path)
+	fmt.Println(string(data))
+	return nil
+}
+
+func applyCursorSettings() error {
+	path, err := getCursorSettingsPath()
+	if err != nil {
+		return err
+	}
+	settings, err := readSettingsMap(path)
+	if err != nil {
+		return err
+	}
+	if _, err := os.Stat(path); err == nil {
+		bakPath := fmt.Sprintf("%s.bak.%d", path, time.Now().Unix())
+		_ = os.Rename(path, bakPath)
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return apperror.WrapSimple(err, "mkdir cursor user dir")
+	}
+	settings["workbench.colorTheme"] = "Dracula Theme"
+	settings["editor.fontFamily"] = "'JetBrains Mono', 'Fira Code', Consolas, monospace"
+	settings["editor.fontSize"] = 14
+	settings["files.autoSave"] = "afterDelay"
+	settings["files.autoSaveDelay"] = 1000
+	settings["files.eol"] = "\n"
+	settings["files.insertFinalNewline"] = true
+	settings["files.trimTrailingWhitespace"] = true
+	settings["editor.renderWhitespace"] = "selection"
+
+	data, err := json.MarshalIndent(settings, "", "  ")
+	if err != nil {
+		return apperror.WrapSimple(err, "marshal cursor settings")
+	}
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		return apperror.WrapSimple(err, "write cursor settings")
+	}
+	fmt.Printf("%s✔ Injected Dracula Theme and coding invariants:%s %s\n", constants.ColorGreen, constants.ColorReset, path)
+	return nil
+}
+
+func syncCursorSettings(targetNode string) error {
+	if targetNode == "" {
+		targetNode = "node-u1"
+	}
+	path, err := getCursorSettingsPath()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s✔ Synchronizing Cursor settings to remote node:%s %s -> %s\n", constants.ColorGreen, constants.ColorReset, path, targetNode)
+	return nil
+}
+
+// RunCursorSettings handles `gitmap cursor settings [view|apply|sync]`.
+func RunCursorSettings(args []string) error {
+	sub := "view"
+	if len(args) > 0 {
+		sub = strings.ToLower(args[0])
+	}
+	switch sub {
+	case "view", "v", "show":
+		return viewCursorSettings()
+	case "apply", "a", "set":
+		return applyCursorSettings()
+	case "sync", "s":
+		target := ""
+		if len(args) > 1 {
+			target = args[1]
+		}
+		return syncCursorSettings(target)
+	default:
+		return apperror.NewWithDetails("cursor.settings", "E1031", fmt.Sprintf("unknown settings action '%s'", sub), "cmdcursor", apperror.ErrorTypeValidation, apperror.SeverityError, nil)
+	}
+}

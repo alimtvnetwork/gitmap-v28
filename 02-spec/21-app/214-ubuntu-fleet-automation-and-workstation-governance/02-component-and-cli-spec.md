@@ -1,8 +1,8 @@
 # Component & CLI Specification: Ubuntu Fleet Automation & Workstation Governance
 
 > **Specification Reference:** `02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance/02-component-and-cli-spec.md`  
-> **Parent Spec:** [01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance/01-architecture-spec.md)  
-> **Target Node:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`)  
+> **Parent Spec:** [01-architecture-spec.md](./02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance/01-architecture-spec.md)  
+> **Target Node:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`)  
 > **Status:** APPROVED & LIVE VERIFIED  
 
 ---
@@ -11,11 +11,11 @@
 
 | Component Script | Language / Engine | Location | Operational Responsibility |
 | :--- | :--- | :--- | :--- |
-| **`master-embedded-ubuntu-runner.ps1`** | PowerShell 7+ / Embedded Bash | `d:/work/repo-secrets/04-ubuntu-migration/` | **Master Standalone Orchestrator:** Houses all bash functions in here-strings, streams to SSH, strips CRLF, executes all actions (`all`, `clone`, `desktop`, `wallpaper`, `vmware`, `gui`, `update-antigravity`, `run-macro`, `sync-brain`, `verify`), and prints formatted health scorecards. |
-| **`sync-antigravity-deep.ps1`** | PowerShell 7+ / Python 3 / SQLite | `d:/work/repo-secrets/04-ubuntu-migration/` | **Deep Brain Migrator:** Filters active conversation summaries, creates temporary NTFS junctions in `%TEMP%`, streams tarballs over SSH, and normalizes Windows paths (`d:\work\`) to Linux paths (`/home/a/git-work/`). |
-| **`update-antigravity.json`** | GitMap Macro JSON | `d:/work/repo-secrets/04-ubuntu-migration/` | **Declarative Upgrade Pipeline:** 7-step macro executed via `gitmap macro run update-antigravity` upgrading the IDE to 2.19.1 in 11.5 seconds. |
-| **`clone-repos-to-u1.sh`** | POSIX Bash / Python 3 | `d:/work/repo-secrets/04-ubuntu-migration/` | **Workspace Cloner:** Standalone bash script on Ubuntu that migrates legacy backslash paths and clones 71+ workspaces from `gitmap-linux.json`. |
-| **`step-by-step-log-v3.md`** | Markdown Engineering Log | `d:/work/repo-secrets/04-ubuntu-migration/` | **Definitive Engineering Ledger:** Catalogs the full journey, 4-part RCA, 9 technical errors diagnosed and resolved, 14-command catalog, and verification scorecards. |
+| **`master-embedded-ubuntu-runner.ps1`** | PowerShell 7+ / Embedded Bash | `$SECRETS_DIR/04-ubuntu-migration/` | **Master Standalone Orchestrator:** Houses all bash functions in here-strings, streams to SSH, strips CRLF, executes all actions (`all`, `clone`, `desktop`, `wallpaper`, `vmware`, `gui`, `update-antigravity`, `run-macro`, `sync-brain`, `verify`), and prints formatted health scorecards. |
+| **`sync-antigravity-deep.ps1`** | PowerShell 7+ / Python 3 / SQLite | `$SECRETS_DIR/04-ubuntu-migration/` | **Deep Brain Migrator:** Filters active conversation summaries, creates temporary NTFS junctions in `%TEMP%`, streams tarballs over SSH, and normalizes Windows paths (`$WORKSPACE_DIR/`) to Linux paths (`$HOME/git-work/`). |
+| **`update-antigravity.json`** | GitMap Macro JSON | `$SECRETS_DIR/04-ubuntu-migration/` | **Declarative Upgrade Pipeline:** 7-step macro executed via `gitmap macro run update-antigravity` upgrading the IDE to 2.19.1 in 11.5 seconds. |
+| **`clone-repos-to-u1.sh`** | POSIX Bash / Python 3 | `$SECRETS_DIR/04-ubuntu-migration/` | **Workspace Cloner:** Standalone bash script on Ubuntu that migrates legacy backslash paths and clones 71+ workspaces from `gitmap-linux.json`. |
+| **`step-by-step-log-v3.md`** | Markdown Engineering Log | `$SECRETS_DIR/04-ubuntu-migration/` | **Definitive Engineering Ledger:** Catalogs the full journey, 4-part RCA, 9 technical errors diagnosed and resolved, 14-command catalog, and verification scorecards. |
 
 ---
 
@@ -31,7 +31,7 @@ master-embedded-ubuntu-runner.ps1 [-TargetHost <string>] [-Action <string>] [-Wa
 - `-TargetHost`: SSH target host alias or IP (Default: `"u1"`).
 - `-Action`: Selected action to execute. Valid set:
   - `"all"`: Runs workspace cloning, ergonomics, wallpaper, VMware automount, symlink check, and verification scorecard.
-  - `"clone"`: Verifies and clones all 71+ repositories into `/home/a/git-work`.
+  - `"clone"`: Verifies and clones all 71+ repositories into `$HOME/git-work`.
   - `"desktop"`: Enforces 140% font scaling and Windows-like keybindings via GNOME D-Bus.
   - `"wallpaper"`: Programmatically sets GNOME light and dark desktop background.
   - `"vmware"`: Installs and enables systemd mount/automount units for `/mnt/hgfs`.
@@ -53,40 +53,40 @@ master-embedded-ubuntu-runner.ps1 [-TargetHost <string>] [-Action <string>] [-Wa
 
 ```powershell
 # 1. Full Workstation Provisioning
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action all
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action all
 
 # 2. Workstation Health Verification Scorecard
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action verify
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action verify
 
-# 3. Synchronize All Git Workspaces to /home/a/git-work
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action clone
+# 3. Synchronize All Git Workspaces to $HOME/git-work
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action clone
 
 # 4. Configure Desktop Ergonomics (1.4x Font Scale & Windows Shortcuts)
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action desktop
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action desktop
 
 # 5. Set Desktop Wallpaper Programmatically
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action wallpaper -WallpaperPath "/usr/share/backgrounds/warty-final-ubuntu.png"
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action wallpaper -WallpaperPath "/usr/share/backgrounds/warty-final-ubuntu.png"
 
 # 6. Configure Persistent VMware Shared Folders Automount (/mnt/hgfs)
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action vmware
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action vmware
 
 # 7. Remotely Launch GUI Applications into Active Graphical Session
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action gui -GuiCommand "antigravity"
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action gui -GuiCommand "antigravity"
 
 # 8. Upgrade Antigravity IDE to Latest 2.19.1
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action update-antigravity
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action update-antigravity
 
 # 9. Deep Brain & Conversation History Migration
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action sync-brain -BrainFilterPatterns "gitmap","antigravity-manager","letsmarknow"
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action sync-brain -BrainFilterPatterns "gitmap","antigravity-manager","letsmarknow"
 
 # 10. Execute GitMap Macro Remotely over SSH
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action run-macro -MacroName "update-antigravity"
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action run-macro -MacroName "update-antigravity"
 
 # 11. Run Deep Brain Migration Script Standalone
-pwsh -File d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-deep.ps1
+pwsh -File $SECRETS_DIR/04-ubuntu-migration/sync-antigravity-deep.ps1
 
 # 12. Run Standalone Git Cloner on Ubuntu
-ssh u1 "bash /home/a/git-work/repo-secrets/04-ubuntu-migration/clone-repos-to-u1.sh"
+ssh u1 "bash $HOME/git-work/repo-secrets/04-ubuntu-migration/clone-repos-to-u1.sh"
 
 # 13. Replay Antigravity Update Macro Natively via GitMap
 gitmap macro run update-antigravity --verbose

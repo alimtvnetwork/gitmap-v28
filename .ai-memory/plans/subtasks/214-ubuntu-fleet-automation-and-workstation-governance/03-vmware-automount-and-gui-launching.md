@@ -1,8 +1,8 @@
 # Subtask 03: VMware Automount & Remote GUI Launching
 
 > **Task Reference:** `214-ubuntu-fleet-automation-and-workstation-governance`  
-> **Parent Plan:** [.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md](file:///d:/work/gitmap/.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md)  
-> **Target Node:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`)  
+> **Parent Plan:** [.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md](./.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md)  
+> **Target Node:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`)  
 
 ---
 
@@ -18,8 +18,8 @@
 - Remote GUI invocation implemented via `systemd-run --user antigravity`.
 - Execution command:
   ```powershell
-  pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action vmware
-  pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action gui -GuiCommand "antigravity"
+  pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action vmware
+  pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action gui -GuiCommand "antigravity"
   ```
 
 ---

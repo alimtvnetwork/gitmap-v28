@@ -1,18 +1,18 @@
 # Component Spec 211: Ubuntu Fleet Git Clone, Desktop Ergonomics & Remote OS Customization
 
 > **Specification Status:** Active  
-> **Parent Spec:** [01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md)  
-> **Parent Plan:** [.ai-memory/plans/81-ubuntu-fleet-git-clone-and-os-customization.md](file:///d:/work/gitmap/.ai-memory/plans/81-ubuntu-fleet-git-clone-and-os-customization.md)  
-> **Execution Base:** `d:/work/repo-secrets/04-ubuntu-migration/`  
-> **Target Node:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`)  
+> **Parent Spec:** [01-architecture-spec.md](./02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md)  
+> **Parent Plan:** [.ai-memory/plans/81-ubuntu-fleet-git-clone-and-os-customization.md](./.ai-memory/plans/81-ubuntu-fleet-git-clone-and-os-customization.md)  
+> **Execution Base:** `$SECRETS_DIR/04-ubuntu-migration/`  
+> **Target Node:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`)  
 > **Target User:** `a`  
-> **Target Work Dir:** `/home/a/git-work/`  
+> **Target Work Dir:** `$HOME/git-work/`  
 
 ---
 
 ## 1. Subsystem Architecture & Script Catalog
 
-All migration, cloning, and desktop customization tools reside under `d:/work/repo-secrets/04-ubuntu-migration/`. The scripts operate idempotently and can be executed either directly over SSH from Windows or natively on the target Ubuntu workstation.
+All migration, cloning, and desktop customization tools reside under `$SECRETS_DIR/04-ubuntu-migration/`. The scripts operate idempotently and can be executed either directly over SSH from Windows or natively on the target Ubuntu workstation.
 
 ```mermaid
 flowchart TD
@@ -25,12 +25,12 @@ flowchart TD
         CloneWrapper["clone-repos-to-u1.ps1"]
     end
 
-    subgraph RemoteNode["Ubuntu 24.04 LTS Node (u1 / 192.168.1.22)"]
+    subgraph RemoteNode["Ubuntu 24.04 LTS Node (u1 / ubuntu-fleet-01)"]
         CloneEngine["clone-repos-to-u1.sh"]
         DesktopEngine["configure-ubuntu-desktop.sh"]
         VMwareEngine["setup-vmware-shared-folders.sh"]
         AntigravityEngine["sync-antigravity-settings.sh"]
-        WorkDir["/home/a/git-work/<br/>(26 Existing + 45 Cloned = 71 Total)"]
+        WorkDir["$HOME/git-work/<br/>(26 Existing + 45 Cloned = 71 Total)"]
         GnomeEnv["GNOME Shell / Mutter<br/>(D-Bus /run/user/1000/bus)"]
     end
 
@@ -45,14 +45,14 @@ flowchart TD
 
 | Script Name | Environment | Language | Target Location / Execution | Purpose |
 | :--- | :--- | :--- | :--- | :--- |
-| `convert-gitmap-to-linux.ps1` | Windows | PowerShell 7+ | `d:/work/repo-secrets/04-ubuntu-migration/` | Sanitizes `gitmap-final.json` into `gitmap-linux.json`: normalizes backslashes `\` to forward slashes `/`, recalculates paths for `/home/a/git-work/`. |
-| `clone-repos-to-u1.ps1` | Windows | PowerShell 7+ | `d:/work/repo-secrets/04-ubuntu-migration/` | Windows wrapper that validates SSH connectivity to `Host u1`, transfers `gitmap-linux.json` and `clone-repos-to-u1.sh`, and triggers remote cloning. |
+| `convert-gitmap-to-linux.ps1` | Windows | PowerShell 7+ | `$SECRETS_DIR/04-ubuntu-migration/` | Sanitizes `gitmap-final.json` into `gitmap-linux.json`: normalizes backslashes `\` to forward slashes `/`, recalculates paths for `$HOME/git-work/`. |
+| `clone-repos-to-u1.ps1` | Windows | PowerShell 7+ | `$SECRETS_DIR/04-ubuntu-migration/` | Windows wrapper that validates SSH connectivity to `Host u1`, transfers `gitmap-linux.json` and `clone-repos-to-u1.sh`, and triggers remote cloning. |
 | `clone-repos-to-u1.sh` | Ubuntu | Bash 5.2+ | `/tmp/clone-repos-to-u1.sh` (or local run) | Parses `gitmap-linux.json`, verifies `[ -d "$path/.git" ]`, skips 26 existing repos, and clones the 45 missing repos with progress telemetry. |
 | `configure-ubuntu-desktop.sh` | Ubuntu | Bash 5.2+ | `/tmp/configure-ubuntu-desktop.sh` | Discovers active D-Bus session bus, applies 140% font scaling, and binds Windows-identical keybindings in GNOME. |
 | `setup-vmware-shared-folders.sh` | Ubuntu | Bash 5.2+ | `/tmp/setup-vmware-shared-folders.sh` | Configures FUSE `user_allow_other` and registers systemd mount/automount units for `/mnt/hgfs`. |
 | `sync-antigravity-settings.sh` | Ubuntu | Bash 5.2+ | `/tmp/sync-antigravity-settings.sh` | Creates `/d/work` symlink, exports Antigravity configs, and rewrites workspace paths in transcripts. |
-| `master-ubuntu-setup.ps1` | Windows | PowerShell 7+ | `d:/work/repo-secrets/04-ubuntu-migration/` | Master orchestrator invoking all stages sequentially with pre-flight assertions and summary reporting. |
-| `step-by-step-log.md` | Windows | Markdown | `d:/work/repo-secrets/04-ubuntu-migration/` | Detailed retrospective audit log recording execution timestamps, repository statuses, and verification output. |
+| `master-ubuntu-setup.ps1` | Windows | PowerShell 7+ | `$SECRETS_DIR/04-ubuntu-migration/` | Master orchestrator invoking all stages sequentially with pre-flight assertions and summary reporting. |
+| `step-by-step-log.md` | Windows | Markdown | `$SECRETS_DIR/04-ubuntu-migration/` | Detailed retrospective audit log recording execution timestamps, repository statuses, and verification output. |
 
 ---
 
@@ -60,14 +60,14 @@ flowchart TD
 
 ### 2.1 SSH Client Configuration (`Host u1`)
 
-To enable seamless, key-based remote execution without interactive passphrase or password prompts, the canonical `Host u1` block is registered in `C:\Users\Administrator\.ssh\config`:
+To enable seamless, key-based remote execution without interactive passphrase or password prompts, the canonical `Host u1` block is registered in `$USERPROFILE/.ssh\config`:
 
 ```sshconfig
 Host u1
-    HostName 192.168.1.22
+    HostName ubuntu-fleet-01
     User a
     Port 22
-    IdentityFile C:\Users\Administrator\.ssh\id_rsa.backup-devorg
+    IdentityFile $USERPROFILE/.ssh\id_rsa.backup-devorg
     IdentitiesOnly yes
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
@@ -77,7 +77,7 @@ Host u1
 
 ### 2.2 Key Hierarchy & Security Constraints
 
-1. **Private Key Path**: `C:\Users\Administrator\.ssh\id_rsa.backup-devorg`.
+1. **Private Key Path**: `$USERPROFILE/.ssh\id_rsa.backup-devorg`.
 2. **File Permissions (Windows)**: Owned by `Administrator` or `SYSTEM`; inheritance disabled (`icacls id_rsa.backup-devorg /inheritance:r /grant:r "%USERNAME%:R"`).
 3. **SSH Options for Automation**:
    - `BatchMode=yes`: Prevents hanging on interactive prompts; fails fast if keys are rejected.
@@ -101,14 +101,14 @@ SSH_ONLINE: u1 a 6.8.0-xx-generic
 
 ### 3.1 Repository Inventory & Manifest Transformation
 
-The master repository manifest `d:/work/repo-secrets/gitmap-final.json` contains 71 tracked repositories. The script `convert-gitmap-to-linux.ps1` produces `gitmap-linux.json` adhering to the following structure:
+The master repository manifest `$SECRETS_DIR/gitmap-final.json` contains 71 tracked repositories. The script `convert-gitmap-to-linux.ps1` produces `gitmap-linux.json` adhering to the following structure:
 
 ```json
 {
   "attributes": {
     "source": "gitmap-final.json",
     "targetHost": "u1",
-    "targetBaseDir": "/home/a/git-work",
+    "targetBaseDir": "$HOME/git-work",
     "totalRepos": 71,
     "generatedAt": "2026-10-04T12:00:00Z"
   },
@@ -119,7 +119,7 @@ The master repository manifest `d:/work/repo-secrets/gitmap-final.json` contains
       "sshUrl": "git@github.com:alimtvnetwork/ai-empathy-prompt-tuner-v1.git",
       "httpsUrl": "https://github.com/alimtvnetwork/ai-empathy-prompt-tuner-v1.git",
       "relativePath": "02-prompts/ai-empathy-prompt-tuner",
-      "targetPath": "/home/a/git-work/02-prompts/ai-empathy-prompt-tuner",
+      "targetPath": "$HOME/git-work/02-prompts/ai-empathy-prompt-tuner",
       "branch": "main"
     }
   ]
@@ -128,7 +128,7 @@ The master repository manifest `d:/work/repo-secrets/gitmap-final.json` contains
 
 #### Sanitization Rules:
 1. `relativePath`: Replace all Windows backslashes `\` with forward slashes `/`.
-2. `targetPath`: Concatenate `/home/a/git-work/` with the normalized `relativePath`.
+2. `targetPath`: Concatenate `$HOME/git-work/` with the normalized `relativePath`.
 3. URL fallback: Prefer `sshUrl`; fall back to `httpsUrl` if SSH URL is empty.
 
 ### 3.2 Detection & Selective Cloning Pipeline (`clone-repos-to-u1.sh`)
@@ -140,7 +140,7 @@ The Bash cloning script executes with strict idempotency:
 set -euo pipefail
 
 MANIFEST="${1:-/tmp/gitmap-linux.json}"
-BASE_DIR="/home/a/git-work"
+BASE_DIR="$HOME/git-work"
 LOG_FILE="/tmp/gitmap-clone.log"
 
 mkdir -p "$BASE_DIR"
@@ -184,7 +184,7 @@ echo "==> Summary: Total=$TOTAL_REPOS, Existing=$EXISTING_COUNT, Cloned=$CLONED_
 - **Total Repositories**: 71
 - **Existing Repositories (Already Present on u1)**: 26
 - **Missing Repositories to be Cloned**: 45
-- **Post-Execution Target**: Exactly 71 valid Git repositories under `/home/a/git-work/`.
+- **Post-Execution Target**: Exactly 71 valid Git repositories under `$HOME/git-work/`.
 
 ---
 
@@ -263,8 +263,8 @@ flowchart LR
 | Verification Check | Target Command | Expected Result |
 | :--- | :--- | :--- |
 | **SSH Connectivity** | `ssh u1 "whoami"` | Outputs `a` |
-| **Repo Count Validation** | `ssh u1 "find /home/a/git-work -name .git -type d \| wc -l"` | Outputs `71` |
-| **No Corrupted Clones** | `ssh u1 "find /home/a/git-work -name .git -execdir git status -s \; \| head -n 1"` | Clean status |
+| **Repo Count Validation** | `ssh u1 "find $HOME/git-work -name .git -type d \| wc -l"` | Outputs `71` |
+| **No Corrupted Clones** | `ssh u1 "find $HOME/git-work -name .git -execdir git status -s \; \| head -n 1"` | Clean status |
 | **Font Scaling Factor** | `ssh u1 "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings get org.gnome.desktop.interface text-scaling-factor"` | `1.4` |
 | **Win+D Show Desktop** | `ssh u1 "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings get org.gnome.desktop.wm.keybindings show-desktop"` | `['<Super>d']` |
 | **Win+Tab Task View** | `ssh u1 "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings get org.gnome.shell.keybindings toggle-overview"` | Contains `'<Super>Tab'` |

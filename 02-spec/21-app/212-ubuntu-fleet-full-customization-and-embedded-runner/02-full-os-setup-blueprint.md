@@ -1,9 +1,9 @@
 # Full OS Setup Blueprint: Ubuntu Fleet Customization & Embedded Automation Architecture
 
 > **Specification Reference:** 212-ubuntu-fleet-full-customization-and-embedded-runner  
-> **Parent Spec:** [01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md)  
+> **Parent Spec:** [01-architecture-spec.md](./02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md)  
 > **Target OS:** Ubuntu 24.04 LTS Desktop (`x86_64`)  
-> **Target Nodes:** Ubuntu Fleet (`U1`: `192.168.1.22`, `U2`, `U3`...)  
+> **Target Nodes:** Ubuntu Fleet (`U1`: `ubuntu-fleet-01`, `U2`, `U3`...)  
 > **Default Workstation User:** `a` (UID 1000, GID 1000)  
 > **Subsystem Scope:** VS Code & Antigravity Themes, Flameshot Wayland, Google Chrome & Brave, GitMap CLI & Cluster, Embedded Runner Architecture  
 
@@ -18,7 +18,7 @@ flowchart TD
     subgraph Layer1["1. Base OS & Virtualization"]
         B1[Ubuntu 24.04 LTS Noble Numbat] --> B2[Open-VM-Tools & FUSE 3]
         B2 --> B3[VMware Shared Folders /mnt/hgfs Automount]
-        B3 --> B4[Filesystem Root Symlink /d/work -> /home/a/git-work]
+        B3 --> B4[Filesystem Root Symlink /d/work -> $HOME/git-work]
     end
 
     subgraph Layer2["2. Developer Toolchain & GitMap Engine"]
@@ -107,7 +107,7 @@ Headless SSH sessions lack `$DISPLAY` and Wayland socket grants. To execute GUI 
 
 ```bash
 # Launch Antigravity IDE on specific repository
-ssh u1 "systemd-run --user /usr/local/bin/antigravity /home/a/git-work/gitmap"
+ssh u1 "systemd-run --user /usr/local/bin/antigravity $HOME/git-work/gitmap"
 
 # Launch GNOME Text Editor
 ssh u1 "systemd-run --user /usr/bin/gnome-text-editor"
@@ -122,7 +122,7 @@ ssh u1 "systemd-run --user google-chrome --remote-debugging-port=9222"
 - **Workspaces:** `~/.config/Antigravity/User/workspaceStorage/`
 - **Agent Brain & Transcripts:** `~/.gemini/antigravity/brain/`
 - **Active Summaries DB:** `~/.gemini/antigravity/conversation_summaries.db`
-- **Path Normalization Protocol:** Automatic transformation of `file:///d%3A/work/` and `d:\work\` to `/home/a/git-work/`.
+- **Path Normalization Protocol:** Automatic transformation of `$WORKSPACE_DIR/` and `$WORKSPACE_DIR/` to `$HOME/git-work/`.
 
 ### 3.3 VS Code Themes & Extensions Blueprint
 Provisioning VS Code on Ubuntu fleet nodes:
@@ -206,7 +206,7 @@ EOF
 Deploy the high-performance GitMap CLI binary:
 ```bash
 # Binary location: /usr/local/bin/gitmap
-sudo cp /home/a/git-work/gitmap/bin/gitmap-linux-amd64 /usr/local/bin/gitmap
+sudo cp $HOME/git-work/gitmap/bin/gitmap-linux-amd64 /usr/local/bin/gitmap
 sudo chmod +x /usr/local/bin/gitmap
 
 # Verify installation
@@ -218,13 +218,13 @@ gitmap version
 {
   "nodeId": "u1",
   "nodeRole": "fleet-workstation",
-  "workspacesRoot": "/home/a/git-work",
+  "workspacesRoot": "$HOME/git-work",
   "splitDb": {
     "engine": "sqlite3",
-    "directory": "/home/a/.gitmap/db"
+    "directory": "$HOME/.gitmap/db"
   },
   "cluster": {
-    "orchestratorHost": "192.168.1.10",
+    "orchestratorHost": "node-main",
     "telemetryIntervalSec": 5
   }
 }
@@ -252,7 +252,7 @@ git config --global pull.rebase true
 Preserves absolute Windows paths across transcripts, scripts, and logs:
 ```bash
 sudo mkdir -p /d
-sudo ln -sfn /home/a/git-work /d/work
+sudo ln -sfn $HOME/git-work /d/work
 sudo chown -h a:a /d/work
 ```
 
@@ -289,7 +289,7 @@ $BashScript | ssh.exe -o BatchMode=yes $TargetHost "tr -d '\r' | bash -s -- $Arg
 | **Desktop Wallpaper** | `gsettings get org.gnome.desktop.background picture-uri-dark` | Returns valid image URI |
 | **VMware Automount** | `systemctl is-active mnt-hgfs.automount` | Returns `active` |
 | **Shared Directory** | `ls -ld /mnt/hgfs/SharedDirectories` | Read/write without sudo |
-| **Root Symlink** | `readlink -f /d/work` | Resolves to `/home/a/git-work` |
+| **Root Symlink** | `readlink -f /d/work` | Resolves to `$HOME/git-work` |
 | **Antigravity Binary** | `which antigravity` | Resolves `/usr/local/bin/antigravity` |
 | **Remote GUI Launch** | `systemd-run --user /usr/local/bin/antigravity --version` | Exits 0 in user session |
 | **Brain DB Sync** | `sqlite3 ~/.gemini/antigravity/conversation_summaries.db "SELECT count(*) FROM conversation_summaries"` | >= 98 active records |

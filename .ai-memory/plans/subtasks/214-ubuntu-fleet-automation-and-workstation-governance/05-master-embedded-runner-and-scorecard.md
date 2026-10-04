@@ -1,8 +1,8 @@
 # Subtask 05: Master Embedded Runner & Health Scorecard
 
 > **Task Reference:** `214-ubuntu-fleet-automation-and-workstation-governance`  
-> **Parent Plan:** [.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md](file:///d:/work/gitmap/.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md)  
-> **Target Node:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`)  
+> **Parent Plan:** [.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md](./.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md)  
+> **Target Node:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`)  
 
 ---
 
@@ -14,11 +14,11 @@
 ---
 
 ## 2. Implementation & Commands
-- Implemented in `d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1`.
-- Fully documented in `d:/work/repo-secrets/04-ubuntu-migration/step-by-step-log-v3.md`.
+- Implemented in `$SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1`.
+- Fully documented in `$SECRETS_DIR/04-ubuntu-migration/step-by-step-log-v3.md`.
 - Execution command:
   ```powershell
-  pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action verify
+  pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action verify
   ```
 
 ---
@@ -30,7 +30,7 @@
    [PASS] SCALE : 1.3999999999999999
    [PASS] WALLPAPER : 'file:///usr/share/backgrounds/warty-final-ubuntu.png'
    [PASS] AUTOMOUNT : active
-   [PASS] SYMLINK : /home/a/git-work
+   [PASS] SYMLINK : $HOME/git-work
    [PASS] ANTIGRAVITY : 2.19.1
    [PASS] REPOS : 74
    [PASS] BRAINS : 98

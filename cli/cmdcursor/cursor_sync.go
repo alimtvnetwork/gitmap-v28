@@ -157,18 +157,3 @@ func RunCursorListProjects(_ []string) error {
 	return nil
 }
 
-// RunCursorInstall prints guidance or runs provisioning scripts for Cursor.
-func RunCursorInstall(_ []string) error {
-	fmt.Println()
-	fmt.Printf("%s● Cursor IDE Provisioning Guide:%s\n", constants.ColorCyan, constants.ColorReset)
-	if runtime.GOOS == "windows" {
-		fmt.Println("  Windows: Download and run Cursor Setup from https://cursor.com")
-		fmt.Println("  Or install via winget: winget install Anysphere.Cursor")
-		return nil
-	}
-	fmt.Println("  Ubuntu/Debian: Execute the automated provisioning script:")
-	fmt.Println("    bash scripts/install-cursor-ubuntu.sh")
-	fmt.Println("  Or using PowerShell on Linux:")
-	fmt.Println("    pwsh scripts/install-cursor-ubuntu.ps1")
-	return nil
-}

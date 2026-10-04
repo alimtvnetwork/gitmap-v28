@@ -162,7 +162,7 @@ sequenceDiagram
     Bin->>IPC: WriteShellHandoff(targetPath) writes to disk
     Bin-->>PS: Process exits with code 0
     PS->>IPC: Test-Path $handoff && Get-Content
-    IPC-->>PS: Returns targetPath ("D:\work\web-frontend")
+    IPC-->>PS: Returns targetPath ("$WORKSPACE_DIR/web-frontend")
     PS->>PS: Set-Location -LiteralPath targetPath
     PS->>IPC: Remove-Item $handoff (Cleanup)
     PS->>PS: Remove $env:GITMAP_HANDOFF_FILE

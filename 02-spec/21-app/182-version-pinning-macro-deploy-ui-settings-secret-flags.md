@@ -21,7 +21,7 @@ This specification defines four key operational capabilities in GitMap:
      - Pull direction orientation (`pull-left`, `pull-right`, `bidirectional`).
      - Commit-pull PR Replay mode (`merges`, `feature-per-commit`, `direct`).
 4. **Repo Secrets GitMap Configuration Deduplication**:
-   - Pull latest changes on `D:\work\repo-secrets`.
+   - Pull latest changes on `$SECRETS_DIR`.
    - In `01-gitmap/commit-pull-config.json` and `00-commit-pull-config.json`, remove redundant/repetitive flag aliases, maintaining canonical flags (e.g., `isApplyCd`, `isApplyTree`, `isApplyFinalSync`), and clean up Go struct field redundancy in `cli/cmd/commitin/config_json.go`.
 
 ---
@@ -62,7 +62,7 @@ This specification defines four key operational capabilities in GitMap:
 
 ### 2.4 Repo Secrets JSON Deduplication
 - **JSON Configuration**:
-  - Standardize `D:\work\repo-secrets\01-gitmap\commit-pull-config.json` and `00-commit-pull-config.json`.
+  - Standardize `$SECRETS_DIR/01-gitmap\commit-pull-config.json` and `00-commit-pull-config.json`.
   - Clean up Go struct `CommitInConfigJSON` in `cli/cmd/commitin/config_json.go`, keeping canonical names (`isApplyCd`, `isApplyTree`, `isApplyFinalSync`, `isRecreate`, `isPushImmediate`) without redundant duplicated struct tags.
 
 ---

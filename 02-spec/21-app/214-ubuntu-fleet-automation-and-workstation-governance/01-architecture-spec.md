@@ -2,7 +2,7 @@
 
 > **Specification Reference:** `02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance/01-architecture-spec.md`  
 > **Status:** APPROVED & LIVE VERIFIED  
-> **Target Node:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`)  
+> **Target Node:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`)  
 > **Source Host:** Windows 11 (`desktop-corei9-direct`)  
 > **Target User:** `a` (UID 1000, GID 1000)  
 > **Toolchain:** GitMap CLI, PowerShell 7+, SSH, POSIX Bash, systemd, D-Bus, Node.js ASAR  
@@ -28,14 +28,14 @@ flowchart TD
         W4["SQLite Workspace DBs (conversation_summaries.db)"]
     end
 
-    subgraph SecureTransport["Encrypted SSH Pipe (Node u1: 192.168.1.22)"]
+    subgraph SecureTransport["Encrypted SSH Pipe (Node u1: ubuntu-fleet-01)"]
         T1["ssh.exe -o BatchMode=yes u1"]
         T2["Embedded Bash Stream: tr -d '\\r' | bash -s -- <action>"]
         T3["Streaming Tarball Pipe: tar.exe -czf - | ssh tar -xzf -"]
     end
 
     subgraph UbuntuWorkstationNode["Ubuntu 24.04 LTS Fleet Node (Node u1)"]
-        U1["Workspaces Layer (/home/a/git-work/ - 74 Repositories)"]
+        U1["Workspaces Layer ($HOME/git-work/ - 74 Repositories)"]
         U2["Ergonomics Layer (D-Bus: text-scaling-factor 1.40 + Win Keybindings)"]
         U3["Storage Layer (systemd: mnt-hgfs.automount -> /mnt/hgfs)"]
         U4["IDE Toolchain (Antigravity 2.19.1 + SUID Root Sandbox 4755)"]
@@ -58,10 +58,10 @@ flowchart TD
 - **CRLF Immunity:** Streamed via `tr -d '\r' | bash -s -- <action>`, preventing Windows carriage return syntax errors in Linux shells.
 
 ### 3.2 Workspace Integrity & Deduplicated Clone Pipeline
-- **Target Location:** `/home/a/git-work/`
+- **Target Location:** `$HOME/git-work/`
 - **Legacy Path Migration:** Re-sequences legacy backslash directories (e.g. `02-prompts\prompt-architect` -> `02-prompts/prompt-architect`, `movie-cli-v8` -> `movie-cli`).
 - **Idempotence:** Inspects `[ -d "$target/.git" ]` before issuing clone operations, preventing duplicate network I/O.
-- **Capacity:** 74 verified repositories mapped directly from Windows `d:\work\`.
+- **Capacity:** 74 verified repositories mapped directly from Windows `$WORKSPACE_DIR/`.
 
 ### 3.3 Headless D-Bus Session Bridge & Windows Ergonomics
 - **Challenge:** Headless SSH environments lack graphical session environment variables (`DBUS_SESSION_BUS_ADDRESS`).
@@ -88,8 +88,8 @@ flowchart TD
 
 ### 3.6 Deep Brain Migration & Relative Path Preservation
 - **Database Extraction:** Extracted active conversation records from Windows SQLite (`conversation_summaries.db`).
-- **Tarball Pipe:** Staged NTFS junctions in `%TEMP%` and streamed compressed tarballs over SSH to `/home/a/.gemini/antigravity/`.
-- **Path Normalization:** Replaced Windows absolute paths (`file:///d:/work/`, `d:\work\`) with Linux relative targets (`file:///home/a/git-work/`, `/home/a/git-work/`). Rewrote 2,321 path references across 98 conversation sessions.
+- **Tarball Pipe:** Staged NTFS junctions in `%TEMP%` and streamed compressed tarballs over SSH to `$HOME/.gemini/antigravity/`.
+- **Path Normalization:** Replaced Windows absolute paths (`$WORKSPACE_DIR/`, `$WORKSPACE_DIR/`) with Linux relative targets (`file://$HOME/git-work/`, `$HOME/git-work/`). Rewrote 2,321 path references across 98 conversation sessions.
 
 ---
 
@@ -98,11 +98,11 @@ flowchart TD
 | Component | Target Parameter | Expected State | Verified Result | Scorecard Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **SSH Transport** | Node `u1` Reachability | Online & Responsive | Responsive (<50ms) | **PASS** |
-| **Workspaces** | Git Repositories in `/home/a/git-work` | >= 71 Workspaces | 74 Workspaces | **PASS** |
+| **Workspaces** | Git Repositories in `$HOME/git-work` | >= 71 Workspaces | 74 Workspaces | **PASS** |
 | **Ergonomics** | GNOME Text Scaling Factor | 1.40 (140%) | 1.3999999999999999 | **PASS** |
 | **Wallpaper** | Desktop Background URI | Dark URI Configured | `file:///usr/share/...` | **PASS** |
 | **Automount** | VMware Shared Folders | `mnt-hgfs.automount` active | `active` | **PASS** |
-| **Symlink** | Cross-Platform Root Link | `/d/work -> /home/a/git-work` | `/home/a/git-work` | **PASS** |
+| **Symlink** | Cross-Platform Root Link | `/d/work -> $HOME/git-work` | `$HOME/git-work` | **PASS** |
 | **IDE Version** | Antigravity Runtime Version | `2.19.1` | `2.19.1` | **PASS** |
 | **Sandbox** | Chromium SUID Root Sandbox | Mode `4755`, Owner `root:root` | `-rwsr-xr-x root:root` | **PASS** |
 | **Brain Sync** | Synchronized Conversation Sessions | > 50 Sessions | 98 Sessions | **PASS** |

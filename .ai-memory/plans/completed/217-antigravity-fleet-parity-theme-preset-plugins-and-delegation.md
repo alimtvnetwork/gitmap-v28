@@ -10,12 +10,12 @@
 ### Identified Gaps & Deficiencies
 1. **Appearance / UI Theme**: Antigravity on Ubuntu `u1` defaulted to unbranded styling because `customThemeSeedsDark` (background `#19191C`, Dracula purple primary seed `#BD93F9`, foreground `#F8F8F2`) and `themeMode: "THEME_MODE_DARK"` in `~/.gemini/config/config.json` were never copied.
 2. **Permission Presets**: Settings $\to$ Conversations fell back to `Default` because project descriptors had empty `"settings": {}` and `"permissionGrants": {"permissionGrants": {"allow": []}}`, and global `turboMode` was `false`.
-3. **Plugins & Skills**: `/home/a/.gemini/config/plugins/` was empty (0 plugins, 0 skills). The 4 official plugins and 43 skills from the Windows host were missing.
-4. **Linux Filesystem Anomaly**: In `instances.json`, `data_dir` contained the raw Windows string `"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity"`, causing an erroneous `/home/a/C:\Users\...` folder on Linux.
+3. **Plugins & Skills**: `$HOME/.gemini/config/plugins/` was empty (0 plugins, 0 skills). The 4 official plugins and 43 skills from the Windows host were missing.
+4. **Linux Filesystem Anomaly**: In `instances.json`, `data_dir` contained the raw Windows string `"$USERPROFILE/AppData\\Roaming\\Antigravity"`, causing an erroneous `$HOME/C:\Users\...` folder on Linux.
 5. **Delegation Automation**: GitMap lacked a first-class CLI command to package and deploy the full Antigravity environment remotely over SSH.
 
 ### Resolutions Implemented
-1. **PowerShell Full-Parity Provisioner**: Created `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1`. Bundles `config.json` with Dracula Dark theme seeds, eager execution policies, and official plugins. Synchronizes 4 official plugins and 43 skills to `/home/a/.gemini/config/plugins/`. Updates all 76 projects in `~/.gemini/config/projects/` to eager execution policies. Sanitizes `instances.json`, removes `/home/a/C:\Users\...`, applies `4755 root:root` to `chrome-sandbox`, and restarts the IDE.
+1. **PowerShell Full-Parity Provisioner**: Created `$SECRETS_DIR/04-ubuntu-migration/sync-antigravity-full-profile.ps1`. Bundles `config.json` with Dracula Dark theme seeds, eager execution policies, and official plugins. Synchronizes 4 official plugins and 43 skills to `$HOME/.gemini/config/plugins/`. Updates all 76 projects in `~/.gemini/config/projects/` to eager execution policies. Sanitizes `instances.json`, removes `$HOME/C:\Users\...`, applies `4755 root:root` to `chrome-sandbox`, and restarts the IDE.
 2. **GitMap Fleet IDE Delegation Engine**:
    - `cli/cmdagy/agy_deploy_cmd.go` & `cli/cmdagy/agy_deploy_types.go`: Implemented `gitmap agy deploy <node>` supporting `--preset`, `--theme`, `--plugins`, `--skills`, `--binaries`, `--projects`, `--all`, `--dry-run`, `--json`, `--restart`, `--force`.
    - `cli/cmdssh/ssh_deploy_router.go`: Routed `gitmap deploy ide <node>` and `gitmap deploy agy <node>`.
@@ -28,7 +28,7 @@
 | Task ID | Subtask Code & Title | Owner | Target Files | Status | Evidence |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Task-01** | `01-antigravity-profile-and-preset-forensics` | Worker 01 | `02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/01-architecture-spec.md` | **DONE** | Complete Protobuf/JSON schema analysis, theme seeds, eager policies, plugins/skills mapping. |
-| **Task-02** | `02-powershell-full-parity-sync-script` | Worker 02 | `d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-full-profile.ps1` | **DONE** | Production-grade script authored and executed live against `u1` (192.168.1.22); all 6 verification gates passed. |
+| **Task-02** | `02-powershell-full-parity-sync-script` | Worker 02 | `$SECRETS_DIR/04-ubuntu-migration/sync-antigravity-full-profile.ps1` | **DONE** | Production-grade script authored and executed live against `u1` (ubuntu-fleet-01); all 6 verification gates passed. |
 | **Task-03** | `03-gitmap-agy-deploy-delegation-engine` | Worker 01 | `cli/cmdagy/agy_deploy_cmd.go`, `cli/cmdagy/agy_deploy_types.go`, `cli/cmdssh/ssh_deploy_router.go`, `cli/cmd/roottooling.go`, `cli/cmd/help.go` | **DONE** | `gitmap agy deploy` & `gitmap deploy ide` implemented, wired into CLI routing, and documented in help. |
 | **Task-04** | `04-fleet-verification-and-scorecard` | Worker 02 | `02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/02-component-and-cli-spec.md`, `02-spec/22-app-issues/69-antigravity-fleet-parity-theme-preset-plugins-rca.md`, `02-spec/22-app-issues/readme.md` | **DONE** | Component CLI spec and 4-part RCA authored; indexed as row 69 in issue catalog. |
 | **Task-05** | `05-live-execution-verification-and-push` | Lead | Master registries, plan consolidation, atomic commit | **DONE** | Verified quality gates, secrets check passed, staged and pushed atomically via GitMap. |

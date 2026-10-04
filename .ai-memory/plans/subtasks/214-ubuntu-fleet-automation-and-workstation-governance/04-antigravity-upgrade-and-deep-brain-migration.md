@@ -1,8 +1,8 @@
 # Subtask 04: Antigravity Upgrade & Deep Brain Migration
 
 > **Task Reference:** `214-ubuntu-fleet-automation-and-workstation-governance`  
-> **Parent Plan:** [.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md](file:///d:/work/gitmap/.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md)  
-> **Target Node:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`)  
+> **Parent Plan:** [.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md](./.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md)  
+> **Target Node:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`)  
 
 ---
 
@@ -10,7 +10,7 @@
 - Upgrade Antigravity IDE on Ubuntu from `2.13.0` to the latest `2.19.1`.
 - Secure Chromium SUID root sandbox permissions (`chmod 4755 chrome-sandbox`, owned by `root:root`).
 - Document Root Cause Analysis (RCA) explaining why the in-app "Check for Updates" GUI button fails on Linux.
-- Migrate deep brain conversation transcripts and SQLite summaries from Windows to Ubuntu with relative path preservation (`d:\work\` -> `/home/a/git-work/`).
+- Migrate deep brain conversation transcripts and SQLite summaries from Windows to Ubuntu with relative path preservation (`$WORKSPACE_DIR/` -> `$HOME/git-work/`).
 
 ---
 
@@ -20,8 +20,8 @@
 - GitMap macro staged in `update-antigravity.json`.
 - Execution command:
   ```powershell
-  pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action update-antigravity
-  pwsh -File d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action sync-brain
+  pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action update-antigravity
+  pwsh -File $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action sync-brain
   ```
 
 ---

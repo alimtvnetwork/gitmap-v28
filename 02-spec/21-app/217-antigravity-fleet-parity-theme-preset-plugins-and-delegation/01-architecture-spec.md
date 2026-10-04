@@ -30,7 +30,7 @@ Forensic investigation across the active Windows host and remote Ubuntu node `u1
 
 3. **Total Absence of Plugins Ecosystem:**
    - The primary workstation configures four official core plugins (`chrome-devtools-plugin`, `data-agent-kit-plugin`, `google-antigravity-sdk`, and `modern-web-guidance-plugin`) in `~/.gemini/config/config.json`.
-   - On remote node `u1`, `/home/a/.gemini/config/plugins/` was completely empty (0 plugins installed, 0 manifests present).
+   - On remote node `u1`, `$HOME/.gemini/config/plugins/` was completely empty (0 plugins installed, 0 manifests present).
 
 4. **Missing Agent Skills Ecosystem (43 Plugin Skills Missing):**
    - The four core plugins physically bundle 43 specialized agent skills (`SKILL.md` manifests) spanning automated browser debugging, data analysis, SDK integration, and modern web frameworks.
@@ -40,8 +40,8 @@ Forensic investigation across the active Windows host and remote Ubuntu node `u1
    - In `~/.antigravity_tools/instances/instances.json`, the default instance record specified:
      `"data_dir": "<windows-appdata>\\Antigravity"`
    - Because POSIX filesystems treat backslashes (`\`) as valid literal filename characters rather than path delimiters, naive replication to Linux created an anomaly directory literally named:
-     `/home/a/<windows-appdata>\Antigravity`
-   - This corrupts XDG Base Directory conventions, orphanizes settings, and prevents the Linux Antigravity process from discovering canonical configuration files at `/home/a/.config/Antigravity`.
+     `$HOME/<windows-appdata>\Antigravity`
+   - This corrupts XDG Base Directory conventions, orphanizes settings, and prevents the Linux Antigravity process from discovering canonical configuration files at `$HOME/.config/Antigravity`.
 
 6. **Absence of Unified CLI Delegation in GitMap:**
    - GitMap CLI lacked a dedicated, single-command delegation engine to bundle, transport, sanitize, and verify Antigravity IDE configurations across remote SSH fleet nodes.
@@ -76,11 +76,11 @@ flowchart TD
     end
 
     subgraph TargetHost["Target Fleet Node (Ubuntu node u1)"]
-        L1["/home/a/.gemini/config/config.json\n(Custom Dark Theme, EAGER Policies, Grants)"]
-        L2["/home/a/.gemini/config/plugins/\n(4 plugins deployed, 43 skills linked)"]
-        L3["/home/a/.config/Antigravity/User/settings.json\n(Canonical XDG Path, turboMode, UI Title)"]
-        L4["/home/a/.gemini/config/projects/*.json\n(Explicit FileAccess & Eager Policies)"]
-        L5["/home/a/.antigravity_tools/instances/instances.json\n(Sanitized data_dir: /home/a/.config/Antigravity)"]
+        L1["$HOME/.gemini/config/config.json\n(Custom Dark Theme, EAGER Policies, Grants)"]
+        L2["$HOME/.gemini/config/plugins/\n(4 plugins deployed, 43 skills linked)"]
+        L3["$HOME/.config/Antigravity/User/settings.json\n(Canonical XDG Path, turboMode, UI Title)"]
+        L4["$HOME/.gemini/config/projects/*.json\n(Explicit FileAccess & Eager Policies)"]
+        L5["$HOME/.antigravity_tools/instances/instances.json\n(Sanitized data_dir: $HOME/.config/Antigravity)"]
         
         LS["Antigravity language_server (Linux ELF)\nEvaluates Presets -> Active: TURBO / EAGER"]
         UI["Antigravity Frontend React Webview\nLoads CSS Variables from #BD93F9 & #19191C"]
@@ -138,7 +138,7 @@ Antigravity's user interface is constructed using a modern web-based framework (
 ### 3.2 VS Code Editor Theme Integration (`User/settings.json`)
 The outer IDE shell is built upon the VS Code / Code-OSS workbench architecture. The editor workspace settings live in:
 - **Windows:** `%APPDATA%\Antigravity\User\settings.json`
-- **Linux:** `/home/a/.config/Antigravity/User/settings.json`
+- **Linux:** `$HOME/.config/Antigravity/User/settings.json`
 
 #### Canonical Settings Content
 ```json
@@ -214,7 +214,7 @@ message AgentUserSettings {
 When inspecting the Antigravity UI on Ubuntu `u1`, the permission preset badge displayed `Default` rather than `Turbo / Unattended`.
 
 #### Forensic Mechanism
-1. **Empty Project Descriptors:** During earlier migration steps, project files in `/home/a/.gemini/config/projects/*.json` were generated with:
+1. **Empty Project Descriptors:** During earlier migration steps, project files in `$HOME/.gemini/config/projects/*.json` were generated with:
    ```json
    {
      "id": "...",
@@ -223,7 +223,7 @@ When inspecting the Antigravity UI on Ubuntu `u1`, the permission preset badge d
      "isWorkspaceOnly": false
    }
    ```
-2. **Missing Global User Settings:** `/home/a/.gemini/config/config.json` lacked the explicit `userSettings` block containing `autoExecutionPolicy`, `browserJsExecutionPolicy`, and `artifactReviewMode`.
+2. **Missing Global User Settings:** `$HOME/.gemini/config/config.json` lacked the explicit `userSettings` block containing `autoExecutionPolicy`, `browserJsExecutionPolicy`, and `artifactReviewMode`.
 3. **Language Server Fallback Evaluation:**
    - At startup, `language_server` reads the project configuration corresponding to the active workspace.
    - If `project.settings.autoExecutionPolicy` is missing or empty, it checks `config.json -> userSettings.autoExecutionPolicy`.
@@ -245,8 +245,8 @@ To guarantee unattended agent execution without user interruptions, the configur
     "globalPermissionGrants": {
       "allow": [
         "command(git status && git remote -v && git log --oneline -5 && git config user.name && git config user.email)",
-        "read_file(/home/a/work)",
-        "write_file(/home/a/work)",
+        "read_file($HOME/work)",
+        "write_file($HOME/work)",
         "execute_url(*)",
         "read_url(prnt.sc)",
         "read_url(*)"
@@ -265,7 +265,7 @@ To guarantee unattended agent execution without user interruptions, the configur
     "resources": [
       {
         "gitFolder": {
-          "folderUri": "file:///home/a/work/<repo-path>",
+          "folderUri": "file://$HOME/work/<repo-path>",
           "defaultBranch": "main"
         }
       }
@@ -353,7 +353,7 @@ The plugins physically reside in `~/.gemini/config/plugins/`. Across these 4 plu
     └── skills/ ... (Frontend patterns, hydration debugging, CSS audits)
 ```
 
-On Linux fleet nodes, this directory tree must be replicated to `/home/a/.gemini/config/plugins/` with POSIX permissions `0755` for directories and `0644` for files.
+On Linux fleet nodes, this directory tree must be replicated to `$HOME/.gemini/config/plugins/` with POSIX permissions `0755` for directories and `0644` for files.
 
 ---
 
@@ -388,8 +388,8 @@ Antigravity tracks installed and active IDE instances in `~/.antigravity_tools/i
 - On Linux and macOS, the character `\` is not a path separator; only `/` is.
 - When `data_dir` containing `<windows-appdata>\Antigravity` was copied verbatim to Ubuntu, any script or tool invoking `mkdir -p "$data_dir"` created a directory literally named `<windows-appdata>\Antigravity` inside the current working directory (`/home/a`).
 - As a consequence:
-  1. The filesystem contained an unsightly, corrupted directory `/home/a/<windows-appdata>\...`.
-  2. The Linux Antigravity process, which natively searches `/home/a/.config/Antigravity`, never found the intended user settings.
+  1. The filesystem contained an unsightly, corrupted directory `$HOME/<windows-appdata>\...`.
+  2. The Linux Antigravity process, which natively searches `$HOME/.config/Antigravity`, never found the intended user settings.
 
 ### 6.3 Unified JSON Data Format Protocol Across Fleet Nodes
 To ensure complete parity between Windows host instances and Linux fleet nodes, all systems must adhere strictly to the unified JSON data format:
@@ -401,7 +401,7 @@ To ensure complete parity between Windows host instances and Linux fleet nodes, 
     {
       "id": "default",
       "name": "Default",
-      "data_dir": "/home/a/.config/Antigravity",
+      "data_dir": "$HOME/.config/Antigravity",
       "executable_path": null,
       "extensions_dir": null,
       "bound_account_id": "e4035d54-2f0d-4938-ab46-b284c9c4679a",
@@ -415,8 +415,8 @@ To ensure complete parity between Windows host instances and Linux fleet nodes, 
     {
       "id": "default-copy-8159",
       "name": "8159",
-      "data_dir": "/home/a/.antigravity_tools/instances/default-copy-8159/data",
-      "executable_path": "/home/a/.local/share/antigravity-ide/antigravity",
+      "data_dir": "$HOME/.antigravity_tools/instances/default-copy-8159/data",
+      "executable_path": "$HOME/.local/share/antigravity-ide/antigravity",
       "extensions_dir": null,
       "bound_account_id": "b5522331-6ea6-438a-8a99-4c2600844e03",
       "bound_email": "erfan.office.n@gmail.com",
@@ -429,8 +429,8 @@ To ensure complete parity between Windows host instances and Linux fleet nodes, 
     {
       "id": "gitmap-7845",
       "name": "gitmap",
-      "data_dir": "/home/a/.antigravity_tools/instances/gitmap-7845/data",
-      "executable_path": "/home/a/.local/share/antigravity-ide/antigravity",
+      "data_dir": "$HOME/.antigravity_tools/instances/gitmap-7845/data",
+      "executable_path": "$HOME/.local/share/antigravity-ide/antigravity",
       "extensions_dir": null,
       "bound_account_id": "2cf0b4e2-1f2c-46e8-b249-d386e1ec5926",
       "bound_email": "marufssp@gmail.com",
@@ -447,12 +447,12 @@ To ensure complete parity between Windows host instances and Linux fleet nodes, 
 #### Rules for Format Parity:
 1. **Schema & Case Conformity:** Root level uses `active_instance_id` (`snake_case`) and `instances` array. Per-instance keys strictly use `snake_case` (`data_dir`, `executable_path`, `extensions_dir`, `bound_account_id`, `bound_email`, `created_at`, `last_used`, `is_default`, `seq_num`).
 2. **Default Instance Executable Path:** On Linux, `default` instance preserves `"executable_path": null` matching the Windows default instance structure.
-3. **Isolated Instance Paths:** Custom named instances (`gitmap-7845`, `default-copy-8159`) resolve to dedicated instance directories (`/home/a/.antigravity_tools/instances/<id>/data`), while `default` resolves to canonical user config (`/home/a/.config/Antigravity`).
+3. **Isolated Instance Paths:** Custom named instances (`gitmap-7845`, `default-copy-8159`) resolve to dedicated instance directories (`$HOME/.antigravity_tools/instances/<id>/data`), while `default` resolves to canonical user config (`$HOME/.config/Antigravity`).
 4. **SQLite State Alignment:** The `active_instance_selection` table in `instances.db` must always be synchronized to match `active_instance_id`:
    `INSERT OR REPLACE INTO active_instance_selection (id, instance_id, updated_at) VALUES (1, 'gitmap-7845', strftime('%s', 'now'))`.
 5. **Filesystem Cleanup:** The deployment engine must execute an automated sanitization sweep:
    ```bash
-   rm -rf /home/a/C:* /home/a/'C:\Users'* 2>/dev/null || true
+   rm -rf $HOME/C:* $HOME/'C:\Users'* 2>/dev/null || true
    ```
 
 ---
@@ -502,9 +502,9 @@ sequenceDiagram
     
     CLI->>SSH: Dial SSH session to u1:22
     SSH->>Node: Stream archive to /tmp/gitmap-agy-deploy.tar.gz
-    SSH->>Node: Extract to /home/a/.gemini and /home/a/.config/Antigravity
-    SSH->>Node: Normalize project descriptors in /home/a/.gemini/config/projects/
-    SSH->>Node: Run filesystem sanitization (rm -rf /home/a/C:*)
+    SSH->>Node: Extract to $HOME/.gemini and $HOME/.config/Antigravity
+    SSH->>Node: Normalize project descriptors in $HOME/.gemini/config/projects/
+    SSH->>Node: Run filesystem sanitization (rm -rf $HOME/C:*)
     SSH->>Node: Set POSIX permissions (chmod 0755 dirs, 0644 files)
     Node-->>SSH: Execution summary & verification probe
     SSH-->>CLI: Return deployment results
@@ -544,8 +544,8 @@ When invoked with `--json`, `gitmap agy deploy` emits a structured payload:
 ## 8. Security, RBAC & Isolation Guarantees
 
 1. **Least-Privilege Transport:** Deployment operates strictly over established SSH credentials stored in GitMap's encrypted credential vault (`~/.gitmap/credentials.db` / `ssh_vault_rsa.go`). No plaintext passwords are transmitted.
-2. **Workspace Boundary Enforcement:** Path normalization strictly remaps Windows drive letters (`<user-home>/work`) to user workspace paths (`/home/a/work`). Absolute paths outside `/home/a` are forbidden.
-3. **Safe File Removal:** Anomaly sanitization (`rm -rf`) is strictly bounded to the literal Windows backslash pattern (`/home/a/C:\*` and `/home/a/C:*`) and never traverses root or parent paths.
+2. **Workspace Boundary Enforcement:** Path normalization strictly remaps Windows drive letters (`<user-home>/work`) to user workspace paths (`$HOME/work`). Absolute paths outside `/home/a` are forbidden.
+3. **Safe File Removal:** Anomaly sanitization (`rm -rf`) is strictly bounded to the literal Windows backslash pattern (`$HOME/C:\*` and `$HOME/C:*`) and never traverses root or parent paths.
 
 ---
 
@@ -553,12 +553,12 @@ When invoked with `--json`, `gitmap agy deploy` emits a structured payload:
 
 | Verification Gate | Validation Command / Inspection | Expected Result |
 | :--- | :--- | :--- |
-| **Theme Verification** | Inspect `/home/a/.gemini/config/config.json` | Contains `customThemeSeedsDark.primary: "#BD93F9"`, `background: "#19191C"` |
+| **Theme Verification** | Inspect `$HOME/.gemini/config/config.json` | Contains `customThemeSeedsDark.primary: "#BD93F9"`, `background: "#19191C"` |
 | **Preset Verification** | Inspect UI prompt bar on `u1` | Shows active unattended execution mode, not "Default" |
 | **Project Policies** | `grep -rn "autoExecutionPolicy" ~/.gemini/config/projects/` | Every project contains `"autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"` |
-| **Plugins Deployed** | `ls -la /home/a/.gemini/config/plugins/` | Exactly 4 directories: `chrome-devtools-plugin`, `data-agent-kit-plugin`, `google-antigravity-sdk`, `modern-web-guidance-plugin` |
-| **Skills Deployed** | `find /home/a/.gemini/config/plugins/ -name "*skill*.md" \| wc -l` | Returns 43 skills |
-| **Path Sanitization** | `ls -d /home/a/C:* 2>/dev/null` | 0 matches (no Windows backslash directories present) |
-| **Instance Data Dir** | Inspect `/home/a/.antigravity_tools/instances/instances.json` | `"data_dir": "/home/a/.config/Antigravity"` |
+| **Plugins Deployed** | `ls -la $HOME/.gemini/config/plugins/` | Exactly 4 directories: `chrome-devtools-plugin`, `data-agent-kit-plugin`, `google-antigravity-sdk`, `modern-web-guidance-plugin` |
+| **Skills Deployed** | `find $HOME/.gemini/config/plugins/ -name "*skill*.md" \| wc -l` | Returns 43 skills |
+| **Path Sanitization** | `ls -d $HOME/C:* 2>/dev/null` | 0 matches (no Windows backslash directories present) |
+| **Instance Data Dir** | Inspect `$HOME/.antigravity_tools/instances/instances.json` | `"data_dir": "$HOME/.config/Antigravity"` |
 | **CLI Help Rendering** | `gitmap agy deploy --help` | Renders rich help, flags documentation, and examples |
 | **CLI JSON Telemetry** | `gitmap agy deploy u1 --all --dry-run --json` | Emits valid JSON conforming to `AgyDeployResultJSON` |

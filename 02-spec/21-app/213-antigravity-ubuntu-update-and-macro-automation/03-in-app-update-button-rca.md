@@ -2,9 +2,9 @@
 
 > **Specification Status:** Active  
 > **Subsystem:** Electron Auto-Updater (`electron-updater`), Application Packaging & Runtime Environment  
-> **Target Environment:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`, user `a`)  
+> **Target Environment:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`, user `a`)  
 > **Application:** Antigravity IDE (Linux x64 Standalone Extraction)  
-> **Installed Location:** `/home/a/.local/share/antigravity-ide/`  
+> **Installed Location:** `$HOME/.local/share/antigravity-ide/`  
 > **Related Incident / Symptom:** In-app "Restart to Update" or "Check for Updates" fails silently with log `APPIMAGE env is not defined, current application is not an AppImage`  
 
 ---
@@ -48,9 +48,9 @@ Inspecting DevTools console logs (`Ctrl+Shift+I` or `--enable-logging`), standar
 [main 2026-10-04T10:14:23.115Z] [electron-updater] AppImageProvider selected.
 [main 2026-10-04T10:14:23.118Z] [electron-updater] WARN: APPIMAGE env is not defined, current application is not an AppImage
 [main 2026-10-04T10:14:23.120Z] [electron-updater] Error: Cannot update application: APPIMAGE environment variable is not defined
-    at new AppImageUpdater (/home/a/.local/share/antigravity-ide/resources/app.asar/node_modules/electron-updater/out/AppImageUpdater.js:24:19)
-    at Object.createUpdater (/home/a/.local/share/antigravity-ide/resources/app.asar/node_modules/electron-updater/out/main.js:68:14)
-    at AutoUpdateService.initialize (/home/a/.local/share/antigravity-ide/resources/app.asar/out/vs/platform/update/electron-main/updateService.js:84:32)
+    at new AppImageUpdater ($HOME/.local/share/antigravity-ide/resources/app.asar/node_modules/electron-updater/out/AppImageUpdater.js:24:19)
+    at Object.createUpdater ($HOME/.local/share/antigravity-ide/resources/app.asar/node_modules/electron-updater/out/main.js:68:14)
+    at AutoUpdateService.initialize ($HOME/.local/share/antigravity-ide/resources/app.asar/out/vs/platform/update/electron-main/updateService.js:84:32)
 ```
 
 ---
@@ -60,7 +60,7 @@ Inspecting DevTools console logs (`Ctrl+Shift+I` or `--enable-logging`), standar
 A granular technical dissection reveals five interdependent failure points:
 
 #### 2.1 Missing `package-type` File in `resourcesPath`
-In standard `electron-updater` architecture, the Linux updater factory evaluates the distribution format by inspecting `process.resourcesPath` (e.g., `/home/a/.local/share/antigravity-ide/resources/`):
+In standard `electron-updater` architecture, the Linux updater factory evaluates the distribution format by inspecting `process.resourcesPath` (e.g., `$HOME/.local/share/antigravity-ide/resources/`):
 - If a file named `package-type` exists containing `deb`, `electron-updater` delegates to Debian package managers or suppresses direct file updates.
 - If `package-type` contains `rpm`, it delegates to RPM package management.
 - If `package-type` contains `snap`, updates are delegated to Snapd.
@@ -89,7 +89,7 @@ APPIMAGE="/path/to/executable.AppImage"
 ```
 The updater requires this path to download the new `.AppImage` file, make it executable (`chmod +x`), replace the old binary, and spawn the new instance upon restart.
 
-Because Antigravity was unpacked from a raw `.tar.gz` archive directly into `/home/a/.local/share/antigravity-ide/` and executed directly via `/home/a/.local/share/antigravity-ide/antigravity`, **`process.env.APPIMAGE` is completely undefined**.
+Because Antigravity was unpacked from a raw `.tar.gz` archive directly into `$HOME/.local/share/antigravity-ide/` and executed directly via `$HOME/.local/share/antigravity-ide/antigravity`, **`process.env.APPIMAGE` is completely undefined**.
 
 #### 2.4 Premature Assertion Abort
 Upon checking `process.env.APPIMAGE`, `AppImageUpdater` encounters a null/empty string and immediately executes its safety guard:
@@ -146,12 +146,12 @@ flowchart LR
 ```
 
 #### 4.1 Tier 1: GitMap Macro Automation (`gitmap macro run update-antigravity`)
-Encapsulate the full download, backup, extraction, SUID elevation, and symlink update into an idempotent, version-controlled GitMap macro stored at `/home/a/.gitmap/macros/update-antigravity.json`.
+Encapsulate the full download, backup, extraction, SUID elevation, and symlink update into an idempotent, version-controlled GitMap macro stored at `$HOME/.gitmap/macros/update-antigravity.json`.
 
 #### 4.2 Tier 2: Master Embedded Runner (`master-embedded-ubuntu-runner.ps1`)
 Provide a single-command remote update invocation from Windows developer workstations:
 ```powershell
-pwsh d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action update-antigravity
+pwsh $SECRETS_DIR/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1 -Action update-antigravity
 ```
 This script streams elevated bash commands over SSH, bypassing CRLF issues, performing atomic swaps, and verifying version output programmatically.
 
@@ -180,6 +180,6 @@ To prevent operator confusion inside the IDE GUI:
 ## 4. Acceptance Criteria & Audit Verification
 
 - [ ] **RCA-1:** Verification that `~/.config/antigravity/logs/main.log` or console output on node `u1` explicitly records `APPIMAGE env is not defined`.
-- [ ] **RCA-2:** Verification that `/home/a/.local/share/antigravity-ide/resources/package-type` does not exist in raw tarball releases.
+- [ ] **RCA-2:** Verification that `$HOME/.local/share/antigravity-ide/resources/package-type` does not exist in raw tarball releases.
 - [ ] **RCA-3:** Proof that `gitmap macro run update-antigravity` bypasses in-app updater limitations and updates Antigravity to `2.19.1` with full SUID root sandbox compliance.
 - [ ] **RCA-4:** Operational runbooks updated to document that Linux fleet updates must be driven by GitMap automation rather than GUI buttons.

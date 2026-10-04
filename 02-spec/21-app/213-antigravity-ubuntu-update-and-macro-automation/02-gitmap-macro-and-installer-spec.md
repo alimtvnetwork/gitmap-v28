@@ -2,11 +2,11 @@
 
 > **Specification Status:** Active  
 > **Target Subsystems:** `cli/macro`, `cli/cmdmacro`, `cli/cmdinstall`, Node Automation  
-> **Target Workstation:** Ubuntu 24.04 LTS (`u1` / `192.168.1.22`, user `a`)  
+> **Target Workstation:** Ubuntu 24.04 LTS (`u1` / `ubuntu-fleet-01`, user `a`)  
 > **Source Workstation:** Windows 11 (`desktop-corei9-direct`)  
 > **Artifact URL:** `https://storage.googleapis.com/antigravity-public/antigravity-hub/2.19.1-6046815158665216/linux-x64/Antigravity.tar.gz`  
-> **Macro Storage Location (Ubuntu):** `/home/a/.gitmap/macros/update-antigravity.json`  
-> **Macro Staging Location (Windows):** `d:/work/repo-secrets/04-ubuntu-migration/update-antigravity.json`  
+> **Macro Storage Location (Ubuntu):** `$HOME/.gitmap/macros/update-antigravity.json`  
+> **Macro Staging Location (Windows):** `$SECRETS_DIR/04-ubuntu-migration/update-antigravity.json`  
 > **Installer Types File:** `cli/cmdinstall/installantigravity_types.go`  
 
 ---
@@ -16,9 +16,9 @@
 This specification governs the automated orchestration of Antigravity updates and maintenance workflows across Linux fleet nodes using GitMap's built-in macro automation engine (`gitmap macro`) and platform installer subsystem (`gitmap install`).
 
 Specifically, this document defines:
-1. **The GitMap Macro Engine Schema & Storage Architecture:** Complete data contracts, directory resolution semantics, and atomic file serialization for `/home/a/.gitmap/macros/update-antigravity.json`.
+1. **The GitMap Macro Engine Schema & Storage Architecture:** Complete data contracts, directory resolution semantics, and atomic file serialization for `$HOME/.gitmap/macros/update-antigravity.json`.
 2. **The End-to-End Upgrade Macro Workflow:** Concrete 7-step sequence executing process termination, artifact retrieval, directory swap, Chromium SUID sandbox hardening, symlink reconciliation, and version verification.
-3. **Bi-Directional Macro Synchronization:** Protocol for recording/editing macros on Ubuntu, exporting to JSON, staging in the fleet vault (`d:/work/repo-secrets/04-ubuntu-migration/`), and importing into Windows workstations.
+3. **Bi-Directional Macro Synchronization:** Protocol for recording/editing macros on Ubuntu, exporting to JSON, staging in the fleet vault (`$SECRETS_DIR/04-ubuntu-migration/`), and importing into Windows workstations.
 4. **GitMap Installer Constants Synchronization:** Surgical updates to `cli/cmdinstall/installantigravity_types.go` ensuring GitMap commands default to Antigravity `2.19.1` (Build `6046815158665216`).
 
 ---
@@ -28,7 +28,7 @@ Specifically, this document defines:
 ```mermaid
 flowchart TD
     subgraph Staging["Windows Host Staging (Fleet Vault)"]
-        W1["d:/work/repo-secrets/04-ubuntu-migration/update-antigravity.json"]
+        W1["$SECRETS_DIR/04-ubuntu-migration/update-antigravity.json"]
         W2["gitmap macro import <path>"]
         W3["cli/cmdinstall/installantigravity_types.go (v2.19.1)"]
     end
@@ -40,10 +40,10 @@ flowchart TD
     end
 
     subgraph UbuntuNode["Ubuntu Node U1 (/home/a)"]
-        U1["/home/a/.gitmap/macros/update-antigravity.json"]
+        U1["$HOME/.gitmap/macros/update-antigravity.json"]
         U2["gitmap macro run update-antigravity"]
         U3["Local Macro Engine (cli/macro)"]
-        U4["Antigravity 2.19.1 (/home/a/.local/share/antigravity-ide)"]
+        U4["Antigravity 2.19.1 ($HOME/.local/share/antigravity-ide)"]
         U5["chrome-sandbox (root:root, mode 4755)"]
     end
 
@@ -60,14 +60,14 @@ flowchart TD
 
 ### 3.1 Macro Storage Resolution Mechanics
 The GitMap macro engine resolves storage directories dynamically via `cli/macro/storage_dirs.go`. On Linux, the resolution hierarchy inspects candidate paths in the following priority order:
-1. `$XDG_CONFIG_HOME/gitmap/macros` (defaulting to `/home/a/.config/gitmap/macros`)
-2. `$XDG_DATA_HOME/gitmap/macros` (defaulting to `/home/a/.local/share/gitmap/macros`)
-3. `$HOME/.gitmap/macros` (primary canonical directory: `/home/a/.gitmap/macros`)
+1. `$XDG_CONFIG_HOME/gitmap/macros` (defaulting to `$HOME/.config/gitmap/macros`)
+2. `$XDG_DATA_HOME/gitmap/macros` (defaulting to `$HOME/.local/share/gitmap/macros`)
+3. `$HOME/.gitmap/macros` (primary canonical directory: `$HOME/.gitmap/macros`)
 4. `./.gitmap/macros` (repository-local workspace fallback)
 
 For workstation `u1`, the canonical macro file is stored at:
 ```text
-/home/a/.gitmap/macros/update-antigravity.json
+$HOME/.gitmap/macros/update-antigravity.json
 ```
 
 ### 3.2 Data Contracts (Go Structs & JSON Schema)
@@ -97,7 +97,7 @@ type MacroStep struct {
 ```
 
 ### 3.3 Canonical Macro Payload: `update-antigravity.json`
-The exact JSON file persisted at `/home/a/.gitmap/macros/update-antigravity.json` and mirrored in `d:/work/repo-secrets/04-ubuntu-migration/update-antigravity.json` is formatted as follows:
+The exact JSON file persisted at `$HOME/.gitmap/macros/update-antigravity.json` and mirrored in `$SECRETS_DIR/04-ubuntu-migration/update-antigravity.json` is formatted as follows:
 
 ```json
 {
@@ -131,7 +131,7 @@ The exact JSON file persisted at `/home/a/.gitmap/macros/update-antigravity.json
       "id": 3,
       "macro_id": 1,
       "step_num": 3,
-      "command_line": "if [ -d /home/a/.local/share/antigravity-ide ]; then rm -rf /home/a/.local/share/antigravity-ide.bak-2.13.0 && mv /home/a/.local/share/antigravity-ide /home/a/.local/share/antigravity-ide.bak-2.13.0; fi && mkdir -p /home/a/.local/share/antigravity-ide && tar -xzf /tmp/Antigravity.tar.gz -C /home/a/.local/share/antigravity-ide --strip-components=1",
+      "command_line": "if [ -d $HOME/.local/share/antigravity-ide ]; then rm -rf $HOME/.local/share/antigravity-ide.bak-2.13.0 && mv $HOME/.local/share/antigravity-ide $HOME/.local/share/antigravity-ide.bak-2.13.0; fi && mkdir -p $HOME/.local/share/antigravity-ide && tar -xzf /tmp/Antigravity.tar.gz -C $HOME/.local/share/antigravity-ide --strip-components=1",
       "working_dir": "/home/a",
       "continue_on_error": false,
       "timeout_seconds": 120
@@ -140,8 +140,8 @@ The exact JSON file persisted at `/home/a/.gitmap/macros/update-antigravity.json
       "id": 4,
       "macro_id": 1,
       "step_num": 4,
-      "command_line": "echo a | sudo -S chown root:root /home/a/.local/share/antigravity-ide/chrome-sandbox && echo a | sudo -S chmod 4755 /home/a/.local/share/antigravity-ide/chrome-sandbox",
-      "working_dir": "/home/a/.local/share/antigravity-ide",
+      "command_line": "echo a | sudo -S chown root:root $HOME/.local/share/antigravity-ide/chrome-sandbox && echo a | sudo -S chmod 4755 $HOME/.local/share/antigravity-ide/chrome-sandbox",
+      "working_dir": "$HOME/.local/share/antigravity-ide",
       "continue_on_error": false,
       "timeout_seconds": 30
     },
@@ -149,7 +149,7 @@ The exact JSON file persisted at `/home/a/.gitmap/macros/update-antigravity.json
       "id": 5,
       "macro_id": 1,
       "step_num": 5,
-      "command_line": "echo a | sudo -S ln -sf /home/a/.local/share/antigravity-ide/antigravity /usr/local/bin/antigravity",
+      "command_line": "echo a | sudo -S ln -sf $HOME/.local/share/antigravity-ide/antigravity /usr/local/bin/antigravity",
       "working_dir": "/usr/local/bin",
       "continue_on_error": false,
       "timeout_seconds": 15
@@ -199,7 +199,7 @@ gitmap macro record update-antigravity
 ```
 - Operates inside an interactive shell session tracking directory transitions.
 - Supports runtime undo/redo commands (`undo`, `redo`, `list`, `save`).
-- Atomically flushes to `/home/a/.gitmap/macros/update-antigravity.json`.
+- Atomically flushes to `$HOME/.gitmap/macros/update-antigravity.json`.
 
 ### 4.3 Bi-Directional Sync Workflow
 To maintain macro parity across fleet control workstations:
@@ -209,12 +209,12 @@ To maintain macro parity across fleet control workstations:
    ```
    The archive or JSON file is transferred via SCP or VMware Shared Folders to Windows staging:
    ```text
-   d:/work/repo-secrets/04-ubuntu-migration/update-antigravity.json
+   $SECRETS_DIR/04-ubuntu-migration/update-antigravity.json
    ```
 2. **Windows Staging -> Local GitMap Import:**
    On Windows host machines:
    ```powershell
-   gitmap macro import d:/work/repo-secrets/04-ubuntu-migration/update-antigravity.json
+   gitmap macro import $SECRETS_DIR/04-ubuntu-migration/update-antigravity.json
    ```
    This loads the macro into the Windows local macro registry (`%USERPROFILE%\.gitmap\macros\update-antigravity.json` or SQLite Split-DB `installation.db`), allowing Windows operators to inspect, edit, or dispatch the macro remotely.
 
@@ -285,10 +285,10 @@ The Chromium multi-process sandbox relies on `chrome-sandbox` having the setuid 
 
 ## 7. Acceptance Criteria & Quality Gates
 
-- [ ] **MACRO-1:** JSON macro file is stored at `/home/a/.gitmap/macros/update-antigravity.json` and passes `gitmap macro list` discovery.
-- [ ] **MACRO-2:** Windows staging file `d:/work/repo-secrets/04-ubuntu-migration/update-antigravity.json` contains identical step definitions and checksum parity.
+- [ ] **MACRO-1:** JSON macro file is stored at `$HOME/.gitmap/macros/update-antigravity.json` and passes `gitmap macro list` discovery.
+- [ ] **MACRO-2:** Windows staging file `$SECRETS_DIR/04-ubuntu-migration/update-antigravity.json` contains identical step definitions and checksum parity.
 - [ ] **MACRO-3:** Executing `gitmap macro run update-antigravity` executes all 7 steps with return code `0`.
 - [ ] **CONST-1:** `cli/cmdinstall/installantigravity_types.go` has `AntigravityDefaultVersion` set to `"2.19.1"`.
 - [ ] **CONST-2:** `cli/cmdinstall/installantigravity_types.go` has `AntigravityDefaultBuildID` set to `"6046815158665216"`.
 - [ ] **CONST-3:** Go package `cli/cmdinstall` builds cleanly and passes all unit tests without regression.
-- [ ] **SEC-1:** `/home/a/.local/share/antigravity-ide/chrome-sandbox` has ownership `root:root` and mode `4755`.
+- [ ] **SEC-1:** `$HOME/.local/share/antigravity-ide/chrome-sandbox` has ownership `root:root` and mode `4755`.

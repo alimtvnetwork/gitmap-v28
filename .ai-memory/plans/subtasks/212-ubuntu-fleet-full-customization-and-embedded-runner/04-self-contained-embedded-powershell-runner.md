@@ -27,7 +27,7 @@ Rather than transferring physical files to `/tmp` on remote nodes, the PowerShel
 ```powershell
 function Invoke-RemoteBashTemplate {
     param (
-        [string]$Node = "192.168.1.22",
+        [string]$Node = "ubuntu-fleet-01",
         [string]$User = "a",
         [string]$TemplateName,
         [string]$BashScriptContent,
@@ -75,7 +75,7 @@ function Invoke-RemoteBashTemplate {
 
 ### Module 1: GNOME Wallpaper Synchronization (`$Bash_SetWallpaper`)
 - Locates active user D-Bus session bus socket at `unix:path=/run/user/1000/bus`.
-- Ensures default wallpaper directory `/home/a/Pictures/Wallpapers/` exists.
+- Ensures default wallpaper directory `$HOME/Pictures/Wallpapers/` exists.
 - Executes `gsettings set org.gnome.desktop.background picture-uri` and `picture-uri-dark`.
 - Sets scaling style to `picture-options "zoom"`.
 
@@ -83,7 +83,7 @@ function Invoke-RemoteBashTemplate {
 - Configures environment wrappers for Wayland/XWayland graphical sessions.
 - Deploys or executes `systemd-run --user` wrappers to spawn graphical apps without display authorization errors:
   ```bash
-  systemd-run --user /usr/local/bin/antigravity /home/a/git-work/gitmap
+  systemd-run --user /usr/local/bin/antigravity $HOME/git-work/gitmap
   ```
 - Verifies process execution and reports PID via `systemctl --user status`.
 
@@ -94,12 +94,12 @@ function Invoke-RemoteBashTemplate {
 - Verifies write access for non-root user `a`.
 
 ### Module 4: Antigravity IDE Launcher & Account Switcher Check (`$Bash_CheckAntigravitySetup`)
-- Verifies that `/home/a/.local/bin/antigravity` or `/usr/local/bin/antigravity` ELF binary wrapper resolves without recursion bugs.
+- Verifies that `$HOME/.local/bin/antigravity` or `/usr/local/bin/antigravity` ELF binary wrapper resolves without recursion bugs.
 - Checks `~/.gemini/oauth_creds.json` permissions (`600`).
 - Validates `agm` binary availability and account synchronization.
 
 ### Module 5: Path Normalization & Integrity Check Receiver (`$Bash_NormalizeReceiver`)
-- Validates SQLite database tables in `/home/a/.gemini/antigravity/conversation_summaries.db`.
+- Validates SQLite database tables in `$HOME/.gemini/antigravity/conversation_summaries.db`.
 - Executes SQL replacement for remaining Windows paths.
 - Validates JSON formatting with `jq`.
 
@@ -111,7 +111,7 @@ The runner provides flexible switches for targeted or end-to-end execution:
 
 ```powershell
 param (
-    [string]$TargetHost = "192.168.1.22",
+    [string]$TargetHost = "ubuntu-fleet-01",
     [string]$User = "a",
     [switch]$All,
     [switch]$Wallpaper,
@@ -119,7 +119,7 @@ param (
     [switch]$MountHgfs,
     [switch]$SyncBrain,
     [switch]$CheckHealth,
-    [string]$WallpaperPath = "/home/a/Pictures/Wallpapers/default.png"
+    [string]$WallpaperPath = "$HOME/Pictures/Wallpapers/default.png"
 )
 ```
 

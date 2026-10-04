@@ -3,15 +3,15 @@
 > **Parent Plan:** [82-ubuntu-fleet-full-customization-and-embedded-runner.md](../../82-ubuntu-fleet-full-customization-and-embedded-runner.md)  
 > **Spec Reference:** [01-architecture-spec.md](../../../../02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md)  
 > **Status:** PENDING  
-> **Target Node:** Ubuntu U1 (`192.168.1.22`)  
+> **Target Node:** Ubuntu U1 (`ubuntu-fleet-01`)  
 > **Target Files:**  
-> - `d:/work/repo-secrets/04-ubuntu-migration/verify-vmware-mount.sh`  
+> - `$SECRETS_DIR/04-ubuntu-migration/verify-vmware-mount.sh`  
 
 ---
 
 ## 1. Technical Context & Scope
 
-VMware Workstation Shared Folders (`vmhgfs-fuse`) allow host folders (e.g. `d:\work` or `SharedDirectories`) to be dynamically mapped into `/mnt/hgfs` on Ubuntu guest `u1`. Persistent automounting is configured via `/etc/systemd/system/mnt-hgfs.automount` and `/etc/systemd/system/mnt-hgfs.mount`.
+VMware Workstation Shared Folders (`vmhgfs-fuse`) allow host folders (e.g. `$WORKSPACE_DIR` or `SharedDirectories`) to be dynamically mapped into `/mnt/hgfs` on Ubuntu guest `u1`. Persistent automounting is configured via `/etc/systemd/system/mnt-hgfs.automount` and `/etc/systemd/system/mnt-hgfs.mount`.
 
 However, guest sleep states, host hypervisor reboots, or FUSE mount drops can cause stale file handles or silent unmounting.
 

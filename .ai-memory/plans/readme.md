@@ -2,6 +2,7 @@
 
 ## Completed Plans
 
+- [218-nodes-agy-ui-remote-settings-and-cursor-automation.md](completed/218-nodes-agy-ui-remote-settings-and-cursor-automation.md) — Fleet Nodes Settings Sync, Remote Project-Scoped Prompting, Nodes AGY UI Dashboard, Privacy IP Scrub, and Cursor Subsystem Automation (Spec: [218](../../02-spec/21-app/218-nodes-agy-ui-remote-settings-and-cursor-automation/01-architecture-spec.md))
 - [202-fleet-nodes-agy-ui-prompt-manager-and-cursor-integration.md](completed/202-fleet-nodes-agy-ui-prompt-manager-and-cursor-integration.md) — Fleet Nodes AGY UI, Prompt Lifecycle Manager, Target Project Dispatch, and Cursor Integration (Spec: [190](../../02-spec/21-app/190-fleet-nodes-agy-ui-prompt-manager-and-cursor-integration.md))
 - [217-antigravity-fleet-parity-theme-preset-plugins-and-delegation.md](completed/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation.md) — Antigravity Fleet Parity (UI Theme Seeds, Turbo Permission Preset, 4 Plugins & 43 Skills Sync, SUID Sandbox Hardening), Automated PowerShell Migration Script, and GitMap Remote IDE Delegation Engine (`gitmap agy deploy` / `gitmap deploy ide`) (Spec: [217](../../02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/01-architecture-spec.md))
 - [216-gitmap-prompting-freeze-and-suggestion-engine-fix.md](completed/216-gitmap-prompting-freeze-and-suggestion-engine-fix.md) — GitMap Terminal Prompt Input Freeze Remediation (Win32 Console CP & PowerShell Wrapper Handoff IPC), Typo Suggestion Engine Overhaul (`completion.AllCommands()` Integration), and Cobra Shell Tab Completion Restoration (Spec: [216](../../02-spec/21-app/216-gitmap-prompting-freeze-and-suggestion-engine-fix/01-architecture-spec.md))
@@ -71,6 +72,8 @@
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
 - [75-gitmap-u1-ubuntu-agm-fleet-integration.md](pending/75-gitmap-u1-ubuntu-agm-fleet-integration.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Spec: [205](../../02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md))
 - [77-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca.md](pending/77-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca.md) — GitMap Database Reset, SSH Key Lifecycle, Cross-OS Firewall, and DetectedProject Foreign Key RCA (Spec: [207](../../02-spec/21-app/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/01-architecture-spec.md))
+
+
 
 ## Subtasks Directory
 

@@ -10,9 +10,9 @@
 ### User Symptoms & Observations
 1. **Theme Mismatch**: Antigravity on Ubuntu `u1` is rendered in raw default unbranded styling rather than the default Windows instance's custom theme (`customThemeSeedsDark`: `#19191C` background, `#BD93F9` Dracula purple primary seed).
 2. **Permission Preset Default Fallback**: In Antigravity Settings $\to$ Conversations (and per-project conversation prompt bar), Permission Preset displays as `Default` instead of the expected unattended execution mode (`CASCADE_COMMANDS_AUTO_EXECUTION_EAGER`, `BROWSER_JS_EXECUTION_POLICY_TURBO`, `ARTIFACT_REVIEW_MODE_TURBO`, and wide `globalPermissionGrants`).
-3. **Plugins Missing**: `/home/a/.gemini/config/plugins/` is completely empty (0 plugins installed).
+3. **Plugins Missing**: `$HOME/.gemini/config/plugins/` is completely empty (0 plugins installed).
 4. **Skills Missing**: All 43 plugin skills (`chrome-devtools`, `data-agent-kit`, `google-antigravity-sdk`, `modern-web-guidance`) are absent from the UI.
-5. **Windows Path Leak on Linux**: An anomaly directory `/home/a/<windows-appdata>\Antigravity` was created on Linux because `data_dir` in `instances.json` serialized Windows backslashes.
+5. **Windows Path Leak on Linux**: An anomaly directory `$HOME/<windows-appdata>\Antigravity` was created on Linux because `data_dir` in `instances.json` serialized Windows backslashes.
 
 ### Forensic Root Causes
 - **Antigravity Custom Theme & Settings Architecture**:

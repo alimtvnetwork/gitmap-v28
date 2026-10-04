@@ -1,10 +1,10 @@
 # Full OS Setup Blueprint: Ubuntu 24.04 LTS Workstation Architecture
 
 > **Specification Reference:** 211-ubuntu-fleet-git-clone-and-os-customization  
-> **Parent Spec:** [01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md)  
-> **Component Spec:** [02-component-spec.md](file:///d:/work/gitmap/02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/02-component-spec.md)  
+> **Parent Spec:** [01-architecture-spec.md](./02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md)  
+> **Component Spec:** [02-component-spec.md](./02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/02-component-spec.md)  
 > **Target OS:** Ubuntu 24.04 LTS Desktop (x86_64)  
-> **Primary Target Node:** `u1` (`192.168.1.22`)  
+> **Primary Target Node:** `u1` (`ubuntu-fleet-01`)  
 > **Default User:** `a` (UID 1000, GID 1000)  
 
 ---
@@ -211,7 +211,7 @@ sudo apt-get update && sudo apt-get install -y code
 Cross-OS parity requires `/d/work` to exist as an unprivileged symlink:
 ```bash
 sudo mkdir -p /d
-sudo ln -sfn /home/a/git-work /d/work
+sudo ln -sfn $HOME/git-work /d/work
 sudo chown -h a:a /d/work
 ```
 
@@ -240,8 +240,8 @@ Deploy user configurations to `~/.config/Antigravity/User/settings.json` with:
 
 ### 6.2 Workspace URI Normalization Engine
 Transform all workspace storage items:
-- Input: `file:///d:/work/<repo>`
-- Output: `file:///home/a/git-work/<repo>`
+- Input: `$WORKSPACE_DIR/<repo>`
+- Output: `file://$HOME/git-work/<repo>`
 
 ### 6.3 GitMap Systemd Daemon (Cluster Telemetry)
 Run GitMap agent in user session:
@@ -252,7 +252,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/a/.local/bin/gitmap agent daemon
+ExecStart=$HOME/.local/bin/gitmap agent daemon
 Restart=always
 RestartSec=10
 
@@ -273,4 +273,4 @@ WantedBy=default.target
 | **Font Scaling** | `gsettings get org.gnome.desktop.interface text-scaling-factor` | `1.4` |
 | **Shortcuts** | `gsettings get org.gnome.desktop.wm.keybindings show-desktop` | `['<Super>d']` |
 | **Shared Folders** | `systemctl is-active mnt-hgfs.automount` | `active` |
-| **Root Symlink** | `readlink -f /d/work` | `/home/a/git-work` |
+| **Root Symlink** | `readlink -f /d/work` | `$HOME/git-work` |

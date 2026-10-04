@@ -105,18 +105,28 @@ func printUnifiedNodesHelp() error {
 	fmt.Println("    gitmap nodes clone except-self <targets>      Clone strictly to remote fleet nodes (skipping local)")
 	fmt.Println("    gitmap nodes cfr [flags] [targets] [dest]     Clone, fix, and auto-setup across all fleet nodes")
 	fmt.Println("    gitmap nodes cfrp [flags] [targets] [dest]    Clone, fix, and promote public across all fleet nodes")
-	fmt.Println("    gitmap nodes agy [ui]                         Launch Antigravity web studio dashboard")
-	fmt.Println("    gitmap nodes agy query                        Query active Antigravity instances and prompts")
-	fmt.Println("    gitmap nodes <alias|ip>                       Filter output to a specific node or host")
-	fmt.Println("    gitmap nodes --ssh                            Filter only SSH-enrolled nodes")
-	fmt.Println("    gitmap nodes --cluster                        Filter only Cluster DB registered nodes")
-	fmt.Println("    gitmap nodes --sc                             Filter only Server-Client broadcast nodes")
-	fmt.Println("    gitmap nodes --fast                           Skip network liveness check for instant display")
-	fmt.Println("    gitmap nodes --json                           Output machine-readable JSON telemetry")
+	fmt.Println("    gitmap nodes push-settings <node>     Export and push Antigravity settings to target node")
+	fmt.Println("    gitmap nodes sync-settings            Broadcast Antigravity settings across all fleet nodes")
+	fmt.Println("    gitmap nodes send-projects [node]     Forward VS Code / Cursor Project Manager workspaces")
+	fmt.Println("    gitmap nodes agy prompt <node> <p>    Dispatch prompt directly to target project on node")
+	fmt.Println("    gitmap nodes agy query [--ssh]        Query active Antigravity instances and prompts")
+	fmt.Println("    gitmap nodes agy [ui]                 Launch Antigravity web studio dashboard")
+	fmt.Println("    gitmap nodes <alias|ip>               Filter output to a specific node or host")
+	fmt.Println("    gitmap nodes --ssh                    Filter only SSH-enrolled nodes")
+	fmt.Println("    gitmap nodes --cluster                Filter only Cluster DB registered nodes")
+	fmt.Println("    gitmap nodes --sc                     Filter only Server-Client broadcast nodes")
+	fmt.Println("    gitmap nodes --fast                   Skip network liveness check for instant display")
+	fmt.Println("    gitmap nodes --json                   Output machine-readable JSON telemetry")
 	fmt.Println()
 	fmt.Println("  Examples:")
 	fmt.Println("    gitmap nodes")
 	fmt.Println("    gitmap nodes ping")
+	fmt.Println("    gitmap nodes push-settings worker-1")
+	fmt.Println("    gitmap nodes sync-settings")
+	fmt.Println("    gitmap nodes send-projects worker-1")
+	fmt.Println("    gitmap nodes agy prompt worker-1 gitmap \"Run test suite\"")
+	fmt.Println("    gitmap nodes agy query --ssh")
+	fmt.Println("    gitmap nodes agy ui")
 	fmt.Println("    gitmap nodes clone ChrisTitusTech/winutil")
 	fmt.Println("    gitmap nodes clone https://github.com/user/repo D:\\work\\custom")
 	fmt.Println("    gitmap nodes clone except-self https://github.com/user/repo")
@@ -153,40 +163,59 @@ func runNodesHistoryCLI(args []string) error {
 }
 
 func isNodesAgyRequest(args []string) bool {
-	return len(args) > 0 && strings.EqualFold(args[0], "agy")
+	if len(args) == 0 {
+		return false
+	}
+	tok := strings.ToLower(args[0])
+	return tok == "agy" || tok == "agy-ui" || tok == "nodes-agy-ui" || tok == "studio" || tok == "dashboard"
 }
 
 func runNodesAgyDispatch(args []string) error {
 	if len(args) == 0 {
 		return cmdnodes.RunNodesAgyUI(nil)
 	}
-	if strings.EqualFold(args[0], "query") {
+	sub := strings.ToLower(args[0])
+	switch sub {
+	case "query":
 		return cmdnodes.RunNodesAgyQuery(args[1:])
-	}
-	if strings.EqualFold(args[0], "ui") || strings.EqualFold(args[0], "dashboard") || strings.EqualFold(args[0], "studio") {
+	case "prompt":
+		return cmdnodes.RunNodesAgyPrompt(args[1:])
+	case "push-settings", "pushsettings":
+		return cmdnodes.RunNodesPushSettings(args[1:])
+	case "sync-settings", "syncsettings":
+		return cmdnodes.RunNodesSyncSettings(args[1:])
+	case "send-projects", "sendprojects", "sync-projects", "syncprojects":
+		return cmdnodes.RunNodesSendProjects(args[1:])
+	case "ui", "dashboard", "studio":
 		return cmdnodes.RunNodesAgyUI(args[1:])
+	default:
+		return cmdnodes.RunNodesAgyUI(args)
 	}
-	return cmdnodes.RunNodesAgyUI(args)
 }
 
 // runUnifiedNodesCLI handles `gitmap nodes [flags] [target]`.
 func runUnifiedNodesCLI(args []string) error {
-	if len(args) > 0 && strings.EqualFold(args[0], "nodes") {
-		return runUnifiedNodesCLI(args[1:])
+	for len(args) > 0 && strings.EqualFold(args[0], "nodes") {
+		args = args[1:]
 	}
-	if isNodesAgyRequest(args) {
+	if len(args) == 0 {
+		// Proceed to default nodes listing
+	} else if isNodesAgyRequest(args) {
 		return runNodesAgyDispatch(args[1:])
-	}
-	if len(args) > 0 && (strings.EqualFold(args[0], "history") || strings.EqualFold(args[0], "histories")) {
+	} else if strings.EqualFold(args[0], "push-settings") || strings.EqualFold(args[0], "pushsettings") {
+		return cmdnodes.RunNodesPushSettings(args[1:])
+	} else if strings.EqualFold(args[0], "sync-settings") || strings.EqualFold(args[0], "syncsettings") {
+		return cmdnodes.RunNodesSyncSettings(args[1:])
+	} else if strings.EqualFold(args[0], "send-projects") || strings.EqualFold(args[0], "sendprojects") ||
+		strings.EqualFold(args[0], "sync-projects") || strings.EqualFold(args[0], "syncprojects") {
+		return cmdnodes.RunNodesSendProjects(args[1:])
+	} else if strings.EqualFold(args[0], "history") || strings.EqualFold(args[0], "histories") {
 		return runNodesHistoryCLI(args[1:])
-	}
-	if len(args) > 0 && isNodesPingCommand(args[0]) {
+	} else if isNodesPingCommand(args[0]) {
 		return runUnifiedNodesPingCLI(args[1:])
-	}
-	if isNodesCloneRequest(args) {
+	} else if isNodesCloneRequest(args) {
 		return cmdnodes.RunNodesClone(args)
-	}
-	if isNodesHelpRequest(args) {
+	} else if isNodesHelpRequest(args) {
 		return printUnifiedNodesHelp()
 	}
 

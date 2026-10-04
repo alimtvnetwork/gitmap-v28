@@ -1,7 +1,7 @@
 # Architecture Spec 212: Ubuntu Fleet Full Customization & Self-Contained Embedded Runner
 
 > **Specification Status:** Active  
-> **Target Workstation:** Ubuntu 24.04 LTS (`U1` / `192.168.1.22`)  
+> **Target Workstation:** Ubuntu 24.04 LTS (`U1` / `ubuntu-fleet-01`)  
 > **Source Workstation:** Windows 11 (`desktop-corei9-direct`)  
 > **Subsystem Focus:** GNOME Wallpaper CLI, Remote GUI App Launching, VMware Shared Folders, Antigravity Brain Migration, Embedded PowerShell Architecture  
 
@@ -13,7 +13,7 @@ This specification provides the architecture and executable protocols to complet
 1. **Desktop Wallpaper Synchronization**: Remotely set GNOME desktop wallpaper via `gsettings` (`picture-uri` & `picture-uri-dark` with `picture-options "zoom"` and user D-Bus socket).
 2. **Remote GUI Application Launching**: Launch desktop applications (such as Antigravity IDE, Text Editor, or VS Code) from headless SSH into the active Wayland/XWayland graphical desktop session using `systemd-run --user`.
 3. **VMware Shared Folders Automount & Verification**: Ensure `/mnt/hgfs` is mounted via `mnt-hgfs.automount` and accessible by user `a`, allowing any host folder shared in VMware Workstation to appear dynamically.
-4. **Antigravity Brain & Conversation History Portability**: Selectively export conversation histories and `conversation_summaries.db` from Windows, stream over SSH, and normalize workspace paths from `file:///d:/work/` to `file:///home/a/git-work/`.
+4. **Antigravity Brain & Conversation History Portability**: Selectively export conversation histories and `conversation_summaries.db` from Windows, stream over SSH, and normalize workspace paths from `$WORKSPACE_DIR/` to `file://$HOME/git-work/`.
 5. **Self-Contained Embedded PowerShell Architecture**: Consolidate all bash provisioning scripts as embedded multi-line string templates (`@' ... '@`) inside a single standalone PowerShell runner (`master-embedded-ubuntu-runner.ps1`), streaming via `tr -d '\r' | bash -s` to eliminate CRLF pitfalls and require zero external script files.
 
 ---
@@ -45,7 +45,7 @@ gsettings set org.gnome.desktop.background picture-options "zoom"
 To launch GUI applications from an SSH session into the user's active graphical display without X11 authorization errors:
 ```bash
 ssh u1 "systemd-run --user /usr/local/bin/antigravity"
-ssh u1 "systemd-run --user /usr/local/bin/antigravity /home/a/git-work/gitmap"
+ssh u1 "systemd-run --user /usr/local/bin/antigravity $HOME/git-work/gitmap"
 ssh u1 "systemd-run --user /usr/bin/gnome-text-editor"
 ```
 
@@ -54,8 +54,8 @@ Host-guest shared folders mount under `/mnt/hgfs/` managed by `/etc/systemd/syst
 
 ### 3.4 Antigravity Brain Migration
 Normalizes paths across `transcript.jsonl`, `messages/`, and `conversation_summaries.db`:
-- `file:///d%3A/work/` $\rightarrow$ `file:///home/a/git-work/`
-- `d:\work\` $\rightarrow$ `/home/a/git-work/`
+- `$WORKSPACE_DIR/` $\rightarrow$ `file://$HOME/git-work/`
+- `$WORKSPACE_DIR/` $\rightarrow$ `$HOME/git-work/`
 
 ### 3.5 Embedded Master PowerShell Runner
 Embeds all bash logic inside a single `.ps1` script and streams directly via SSH:
