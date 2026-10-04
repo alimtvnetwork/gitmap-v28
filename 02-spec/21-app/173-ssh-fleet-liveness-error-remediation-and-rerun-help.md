@@ -17,9 +17,9 @@ PS [REPO_ROOT]> gitmap pa --ssh
     • Remote Node [alpha-win] (10.20.0.11): Enqueued (async)
     • Remote Node [beta-linux] (10.20.0.12): Enqueued (async)
     • Remote Node [gamma-mac] (10.20.0.13): Enqueued (async)
-    • Remote Node [w1] (192.168.1.3): Enqueued (async)
-    • Remote Node [w2] (192.168.1.7): Enqueued (async)
-    • Remote Node [w3] (192.168.1.12): Enqueued (async)
+    • Remote Node [w1] (node-w1): Enqueued (async)
+    • Remote Node [w2] (node-w2): Enqueued (async)
+    • Remote Node [w3] (node-w3): Enqueued (async)
     • Local VM (127.0.0.1 - localhost): Running locally
 
   [alpha-win|10.20.0.11] Offline: [E9000:EXECUTION] execution: node [alpha-win|10.20.0.11] is unreachable: connection timed out (at=cmdssh/ssh_target_nodes.go:28)
@@ -51,7 +51,7 @@ PS [REPO_ROOT]> gitmap pa --ssh
   ▶ Node [gamma-mac] (IP: 10.20.0.13): failed
       (offline: node unreachable)
 
-  ▶ [w1] (IP: 192.168.1.3): 61 pulled (16 active, 45 up-to-date)
+  ▶ [w1] (IP: node-w1): 61 pulled (16 active, 45 up-to-date)
       • alim-cv-v8                             dirty
       • bright-buddy-block                     failed
       • bsrm-presentation-hiltrax-v4           failed
@@ -69,7 +69,7 @@ PS [REPO_ROOT]> gitmap pa --ssh
       • slides-spec                            failed
       • wp-exam-v2                             dirty
 
-  ▶ [w2] (IP: 192.168.1.7): 64 pulled (7 active, 57 up-to-date)
+  ▶ [w2] (IP: node-w2): 64 pulled (7 active, 57 up-to-date)
       • Antigravity-Manager             dirty
       • coding-guidelines-v24           +7/-7 (3)
       • gitmap-v28                      dirty
@@ -77,7 +77,7 @@ PS [REPO_ROOT]> gitmap pa --ssh
       • hiltrax-v1                      failed
       • pwp-mobile                      failed
       • riseup-asia-website-project-v6  failed
-  ▶ Node [w3] (IP: 192.168.1.12): failed
+  ▶ Node [w3] (IP: node-w3): failed
       (invalid JSON: -> gitmap pull-all (cwd: C:\Users\Administrator)
 pending task already exists for pa at C:\Users\Administrator (Id 234)
 flag provided but not defined: -json

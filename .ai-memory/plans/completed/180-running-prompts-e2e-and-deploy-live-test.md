@@ -16,14 +16,14 @@ Okay. Currently, most of the things are working fine. I think it's good, but I t
 ## Consolidated Outcomes & Verifications
 
 ### 1. Live Trace Prompt Injection & Running Prompts Verification
-- Injected sample trace item (`sleep 2; echo 'hi there - alim-status-sample trace test'`) into `d:\work\alim-status-sample\agy-prompt-queue.json`.
+- Injected sample trace item (`sleep 2; echo 'hi there - alim-status-sample trace test'`) into `./alim-status-sample\agy-prompt-queue.json`.
 - Ran `gitmap agy running-prompts ls` and verified it appeared with `RUNNING`, 9 words, and project name `alim-status-sample`.
 
 ### 2. End-to-End Backup & Restore Running Prompts Test
 - Ran `gitmap backup-running-prompts` across all projects, creating batch `b-c8bb7ec0` in Split-DB (`data/backup-prompts/sql.db`) with 10 total prompts.
 - Simulated queue loss by removing the queue file from disk.
 - Verified removal via `gitmap agy running-prompts ls`.
-- Executed `gitmap restore-running-prompts --keep` and verified restoration back into `d:\work\alim-status-sample\agy-prompt-queue.json`.
+- Executed `gitmap restore-running-prompts --keep` and verified restoration back into `./alim-status-sample\agy-prompt-queue.json`.
 
 ### 3. Smart Deploy & Servers-Clients Integration
 - Verified `gitmap deploy-right`, `gitmap deploy-left` with sync flags and dry-run mode.

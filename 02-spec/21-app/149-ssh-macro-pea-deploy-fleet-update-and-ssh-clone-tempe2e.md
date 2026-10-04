@@ -38,8 +38,8 @@ This specification formalizes the SSH fleet deployment commands, remote package 
 ## 2. Verification & Acceptance Criteria
 
 ### AC-APP-149-001: Macro, PEAT, and PEA Exclusion Filtering
-**Given** Joined SSH nodes `w1 (192.168.1.3)`, `w2 (192.168.1.7)`, and `w3 (192.168.1.12)`.
-**When** `gitmap macro deploy ssh --except w3,192.168.1.12` or `gitmap peat deploy ssh --excep w2` is executed.
+**Given** Joined SSH nodes `w1 (node-w1)`, `w2 (node-w2)`, and `w3 (node-w3)`.
+**When** `gitmap macro deploy ssh --except w3,node-w3` or `gitmap peat deploy ssh --excep w2` is executed.
 **Then** Excluded nodes are skipped, active nodes receive parallel deployments, and the summary table reports exact succeeded and excluded counts.
 
 ### AC-APP-149-002: Fleet Update & Inventory JSON-to-Table Rendering

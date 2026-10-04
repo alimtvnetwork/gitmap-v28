@@ -345,7 +345,7 @@ When the user runs `commit-right` again, it looks at `HEAD` of the source reposi
 
 ##### Root Cause
 
-The `commit-right` command only processed 8 commits because the user provided the path `..\prompt-architect-v2\` from `D:\work\commit-fix`, which resolved to `D:\work\prompt-architect-v2` (a directory that explicitly only contains those 8 commits). The actual 238-commit repository was located at `.\prompt-architect-v2\` (which was cloned subsequently).
+The `commit-right` command only processed 8 commits because the user provided the path `..\prompt-architect-v2\` from `./commit-fix`, which resolved to `./prompt-architect-v2` (a directory that explicitly only contains those 8 commits). The actual 238-commit repository was located at `.\prompt-architect-v2\` (which was cloned subsequently).
 
 However, per user instructions, we must bolster the system's end-to-end testing and ensure `apperror` management is perfectly applied across `committransfer`.
 

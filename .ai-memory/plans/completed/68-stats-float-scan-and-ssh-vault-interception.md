@@ -7,11 +7,11 @@
 ## User Request (Verbatim)
 ```text
 administrator@W19-BASE-FEB-20 C:\Users\Administrator>exit
-Connection to 192.168.1.17 closed.
+Connection to node-t1 closed.
 PS C:\Users\Alim> gitmap ssh t1
-administrator@192.168.1.17's password:
-Connection reset by 192.168.1.17 port 22
-gitmap ssh: execute failed: [E_INTERNAL_ERROR:EXECUTION] SpawnSSH: exit status 255 (at=cmdssh/ssh_client.go:37) (ctx=map[args:[] target:administrator@192.168.1.17])
+administrator@node-t1's password:
+Connection reset by node-t1 port 22
+gitmap ssh: execute failed: [E_INTERNAL_ERROR:EXECUTION] SpawnSSH: exit status 255 (at=cmdssh/ssh_client.go:37) (ctx=map[args:[] target:administrator@node-t1])
 Stack Trace:
     at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.executeClientCmd (cmdssh/ssh_client.go:38)
     at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.runSSHOnce (cmdssh/ssh_client.go:110)

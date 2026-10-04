@@ -26,13 +26,13 @@ Plan Path: `.ai-memory/plans/completed/50-finalize-missing-elements-pipeline-tas
 
 ### Subtask 02: Beyond Compare Integration in scripts-fixer
 - **Files Modified/Created:**
-  - `d:/work/scripts-fixer/scripts/os/ubuntu/install-bcompare.sh`
-  - `d:/work/scripts-fixer/scripts/os/windows/install-bcompare.ps1`
-  - `d:/work/scripts-fixer/scripts/72-install-bcompare/run.ps1`
-  - `d:/work/scripts-fixer/scripts-linux/72-install-bcompare/run.sh`
-  - `d:/work/scripts-fixer/scripts/os/ubuntu/profile-ubuntu-dev.sh`
-  - `d:/work/scripts-fixer/scripts/12-install-all-dev-tools/config.json`
-  - `d:/work/scripts-fixer/scripts-linux/12-install-all-dev-tools/profiles.json`
+  - `./scripts-fixer/scripts/os/ubuntu/install-bcompare.sh`
+  - `./scripts-fixer/scripts/os/windows/install-bcompare.ps1`
+  - `./scripts-fixer/scripts/72-install-bcompare/run.ps1`
+  - `./scripts-fixer/scripts-linux/72-install-bcompare/run.sh`
+  - `./scripts-fixer/scripts/os/ubuntu/profile-ubuntu-dev.sh`
+  - `./scripts-fixer/scripts/12-install-all-dev-tools/config.json`
+  - `./scripts-fixer/scripts-linux/12-install-all-dev-tools/profiles.json`
 - **Accomplishments:**
   - Upgraded Ubuntu installer to support BC4 and BC5 with `--version` and silent uninstallation (`--uninstall`).
   - Built Windows PowerShell installer for BC4 and BC5 with silent Inno Setup `/VERYSILENT /NORESTART` and uninstallation support.

@@ -25,7 +25,7 @@ The user identified two major functional gaps and requested an advanced virtuali
 - `cli/cmdmacro/`: Macro interactive editor, helper dispatch, export/import, and deploy (`macro_edit.go`, `macro_add.go`, `macro_cmd.go`).
 - `cli/cmdtask/`: Task history terminal table formatting, audit logging, and inspection (`task_history_cmd.go`, `task_audit.go`).
 - `cli/cmdssh/`, `cli/cmdinstall/`: Audit interception hooks for SSH and installer events (`cluster_exec_runner.go`, `install.go`, `install_add.go`).
-- `scripts/vmware/`, `D:/work/repo-secrets/vmware/`: Standalone PowerShell automation engine (`manage-vm.ps1`).
+- `scripts/vmware/`, `./repo-secrets/vmware/`: Standalone PowerShell automation engine (`manage-vm.ps1`).
 
 ---
 
@@ -37,7 +37,7 @@ The user identified two major functional gaps and requested an advanced virtuali
 | **Task-02** | `02-macro-export-import-and-deploy.md` | Macro export, import, and fleet SSH deployment | `cli/cmdmacro/macro_export.go`, `cli/cmdmacro/macro_import.go`, `cli/cmdmacro/macro_deploy_ssh.go` | Completed |
 | **Task-03** | `03-audit-task-logging-and-tui-viewer.md` | Universal audit interceptor & polished terminal task history view | `cli/cmdtask/task_history_cmd.go`, `cli/cmdtask/task_audit.go`, `cli/store/tasks_split_db.go`, `cli/model/pendingtask.go` | Completed |
 | **Task-04** | `04-modular-installer-and-subinstaller-chain.md` | OS-specific installer & sub-installer command chaining | `cli/cmdinstall/install.go`, `cli/cmdinstall/install_add.go` | Completed |
-| **Task-05** | `05-vmware-powershell-automation-script.md` | Comprehensive single-file VMware automation PowerShell script | `D:/work/repo-secrets/vmware/manage-vm.ps1`, `scripts/vmware/manage-vm.ps1` | Completed |
+| **Task-05** | `05-vmware-powershell-automation-script.md` | Comprehensive single-file VMware automation PowerShell script | `./repo-secrets/vmware/manage-vm.ps1`, `scripts/vmware/manage-vm.ps1` | Completed |
 | **Task-06** | `06-future-roadmap-and-specs-consolidation.md` | Architectural specs, RCA reports, and plan consolidation | `02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md`, `02-spec/22-app-issues/53-macro-phantom-steps-and-removal-failure-rca.md` | Completed |
 
 ---
@@ -71,7 +71,7 @@ The user identified two major functional gaps and requested an advanced virtuali
 - Modular recipe structures and chained sub-installer validation in `cli/cmdinstall/installer_types.go`.
 
 ### 3.5 Task-05: Single-File Enterprise VMware Automation PowerShell Script
-- Authored 980+ line production PowerShell engine at `scripts/vmware/manage-vm.ps1` and mirrored to `D:/work/repo-secrets/vmware/manage-vm.ps1`.
+- Authored 980+ line production PowerShell engine at `scripts/vmware/manage-vm.ps1` and mirrored to `./repo-secrets/vmware/manage-vm.ps1`.
 - Fully supports: `Scan`, `Inspect`, `Set-MAC` (e.g. `00:50:56:38:57:7B`), `Set-Network` (Bridged, NAT, HostOnly, Custom), `Set-Hardware` (RAM, vCPUs), `Manage-Disk` (List, Repair, Expand), `Manage-Printer` (remove/disable), `Manage-Snapshot` (list, create, clone, revert), and `Optimize-VM`.
 - Includes automated clipboard export (`-CopyLog`) and detailed error diagnostics with script stack traces.
 - Mirrored and committed cleanly to `repo-secrets` git repository.

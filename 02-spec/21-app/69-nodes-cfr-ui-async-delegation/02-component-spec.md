@@ -17,7 +17,7 @@
 In distributed repository management across a fleet of heterogeneous developer workstations and remote servers, operators interact with GitMap via the `gitmap nodes cfr`, `gitmap nodes clone`, and `gitmap nodes cfrp` commands. While basic remote command dispatch exists, real-world fleet workflows exposed four fundamental component deficiencies:
 
 1. **Unintelligent Work Directory Placement & Blind Mirroring Failures:**  
-   When an engineer operates locally inside a nested project subfolder (e.g. `D:\work\presentations-repos` or `~/work/infrastructure/tools`), running `gitmap nodes cfr` dispatches clones blindly into remote root work folders (`D:\work` on Windows or `~/work` on Linux) instead of preserving the relative hierarchy (`D:\work\presentations-repos` and `~/work/presentations-repos`). If the remote target directory does not yet exist, remote shell execution immediately crashes with path-not-found errors.
+   When an engineer operates locally inside a nested project subfolder (e.g. `./presentations-repos` or `~/work/infrastructure/tools`), running `gitmap nodes cfr` dispatches clones blindly into remote root work folders (`D:\work` on Windows or `~/work` on Linux) instead of preserving the relative hierarchy (`./presentations-repos` and `~/work/presentations-repos`). If the remote target directory does not yet exist, remote shell execution immediately crashes with path-not-found errors.
 2. **Missing Custom Destination Flags & Positional Flexibility:**  
    Operators have no unified mechanism to specify explicit destination directories. Standard directory flags (`-d`, `--dest`, `--dir`, `--target-dir`) and positional destination overrides (`gitmap nodes cfr <target> [dest]`) are either unparsed or collide with target arguments.
 3. **Rudimentary Terminal UI & Missing Execution Route Visibility:**  
@@ -217,14 +217,14 @@ func isWindowsOS(osType string) bool {
 
 | Scenario | Local CWD | Local WorkDir | User Flag / Dest | Remote Windows Node | Remote Linux Node |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Inside WorkDir Subfolder** | `D:\work\presentations-repos` | `D:\work` | *(none)* | `D:\work\presentations-repos` | `~/work/presentations-repos` |
-| **Inside Nested Subfolder** | `D:\work\internal\tool` | `D:\work` | *(none)* | `D:\work\internal\tool` | `~/work/internal/tool` |
+| **Inside WorkDir Subfolder** | `./presentations-repos` | `D:\work` | *(none)* | `./presentations-repos` | `~/work/presentations-repos` |
+| **Inside Nested Subfolder** | `./internal\tool` | `D:\work` | *(none)* | `./internal\tool` | `~/work/internal/tool` |
 | **Inside WorkDir Root** | `D:\work` | `D:\work` | *(none)* | `D:\work` | `~/work` |
 | **Outside WorkDir** | `C:\Users\Admin` | `D:\work` | *(none)* | `D:\work` | `~/work` |
 | **Outside WorkDir (Linux)** | `/home/dev/downloads` | `~/work` | *(none)* | `D:\work` | `~/work` |
-| **Explicit Flag Override** | `D:\work\presentations-repos` | `D:\work` | `-d D:\work\custom` | `D:\work\custom` | `~/work/custom` |
-| **Explicit Flag Override** | `D:\work\presentations-repos` | `D:\work` | `--dest=~/work/special` | `D:\work\special` | `~/work/special` |
-| **Positional Destination** | `C:\Temp` | `D:\work` | `D:\work\special` | `D:\work\special` | `~/work/special` |
+| **Explicit Flag Override** | `./presentations-repos` | `D:\work` | `-d ./custom` | `./custom` | `~/work/custom` |
+| **Explicit Flag Override** | `./presentations-repos` | `D:\work` | `--dest=~/work/special` | `./special` | `~/work/special` |
+| **Positional Destination** | `C:\Temp` | `D:\work` | `./special` | `./special` | `~/work/special` |
 
 ---
 
@@ -325,9 +325,9 @@ func isDestFlag(arg string) bool {
 │                                                                                        │
 │    NODE (ALIAS)     HOST               OS         VERSION        DESTINATION   STATUS  │
 │    ----------------------------------------------------------------------------------  │
-│    w1               192.168.1.10       windows    v6.454.0       D:\work\sub   ● online│
-│    w2               192.168.1.11       linux      v6.453.0       ~/work/sub    ● online│
-│    w3               192.168.1.12       linux      -              -             ○ off   │
+│    w1               node-main       windows    v6.454.0       ./sub   ● online│
+│    w2               gateway-node1       linux      v6.453.0       ~/work/sub    ● online│
+│    w3               node-w3       linux      -              -             ○ off   │
 └────────────────────────────────────────┬───────────────────────────────────────────────┘
                                          ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -339,8 +339,8 @@ func isDestFlag(arg string) bool {
 │    • Target:      https://github.com/org/repo.git                                      │
 │    • Workdir:     D:\work (preserved relative: sub)                                    │
 │    • Scope:       Local host + 2 active remote worker(s)                               │
-│    • Dispatch:    w1 -> 192.168.1.10:D:\work\sub                                       │
-│                   w2 -> 192.168.1.11:~/work/sub                                        │
+│    • Dispatch:    w1 -> node-main:./sub                                       │
+│                   w2 -> gateway-node1:~/work/sub                                        │
 └────────────────────────────────────────┬───────────────────────────────────────────────┘
                                          ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -348,8 +348,8 @@ func isDestFlag(arg string) bool {
 │    NODE (ALIAS)     HOST        ROLE    STATUS     VERSION   DURATION   DETAILS        │
 │    ----------------------------------------------------------------------------------  │
 │    local (current)  127.0.0.1   master  ● success  v6.454.0  1250ms     cloned ok      │
-│    w1               192.168.1.1 worker  ● success  v6.454.0  1840ms     cloned ok      │
-│    w2               192.168.1.2 worker  ● success  v6.453.0  2120ms     cloned ok      │
+│    w1               gateway-node worker  ● success  v6.454.0  1840ms     cloned ok      │
+│    w2               node-alias worker  ● success  v6.453.0  2120ms     cloned ok      │
 │    ----------------------------------------------------------------------------------  │
 │  ✔ Fleet CFR Summary: 3/3 node(s) completed successfully (0 failed)                    │
 │                                                                                        │
@@ -387,12 +387,12 @@ func isDestFlag(arg string) bool {
 - **Metadata Fields:**
   - `• Mode:` Formatted kind (`clone (multi-node clone)`, `cfr (clone-fix-repo)`, `cfrp (clone-fix-repo-pub)`).
   - `• Target:` Target repository, URL, or manifest name.
-  - `• Workdir:` Formatted workdir with relative note (e.g. `D:\work (preserved relative: presentations-repos)` or `D:\work\custom (custom destination)`).
+  - `• Workdir:` Formatted workdir with relative note (e.g. `D:\work (preserved relative: presentations-repos)` or `./custom (custom destination)`).
   - `• Scope:` Worker breakdown (`Local host + %d active remote worker(s)` or `%d active remote worker(s) (remote-only)`).
   - `• Dispatch:` Direct route mapping for each online node:
     ```text
-    • Dispatch:    w1 -> 192.168.1.10:D:\work\presentations-repos
-                   w2 -> 192.168.1.11:~/work/presentations-repos
+    • Dispatch:    w1 -> node-main:./presentations-repos
+                   w2 -> gateway-node1:~/work/presentations-repos
     ```
 
 ---
@@ -466,7 +466,7 @@ Because ANSI color escape sequences occupy bytes but zero terminal columns, dire
 4. **Parameters & Flags Section:** Fully documents `-t/--target`, `--exclude`, `-d/--dest/--dir/--target-dir`, `--except-self/--no-self/--skip-local`, `--dry-run`, `-j/--json`, `-h/--help`.
 5. **Rich Concrete Examples:**
    - Clone repo by name across fleet: `gitmap nodes cfr ChrisTitusTech/winutil`
-   - Clone URL into custom target directory: `gitmap nodes clone https://github.com/u/repo D:\work\custom`
+   - Clone URL into custom target directory: `gitmap nodes clone https://github.com/u/repo ./custom`
    - Clone strictly across remote nodes: `gitmap nodes cfr except-self ChrisTitusTech/winutil`
    - Query machine network and SSH telemetry: `gitmap machine --ssh`
    - Probe fleet reachability and latency: `gitmap nodes ping`

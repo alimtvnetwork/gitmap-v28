@@ -26,7 +26,7 @@ Fix test and release new version please
 ## Actionable Deliverables & Task Breakdown
 
 - **Task-01: Machine `main` Connectivity & SSH Join Disambiguation**
-  - Diagnose connection failure to `main` (`192.168.1.20`) with password ending in `@` (`rtyrty123@`).
+  - Diagnose connection failure to `main` (`node-main`) with password ending in `@` (`rtyrty123@`).
   - Update `sshjoin_cmd.go`, `ssh_parser.go`, and `sshjoin_add_pass_cmd.go` to support symmetric argument order (`[alias] [user@host]` and `[user@host] [alias]`).
   - Guard trailing `@` in passwords to prevent misidentification as host address targets.
   - Verify live connectivity and command execution to `main`.

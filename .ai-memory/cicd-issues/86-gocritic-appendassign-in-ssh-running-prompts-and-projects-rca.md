@@ -31,7 +31,7 @@
 - Verified with `python linter-scripts/check-nested-ifs.py` (0 issues).
 - Verified with `python linter-scripts/check-enum-and-boolean.py` (PASS).
 - Verified with `python linter-scripts/check-error-management.py` (PASS).
-- Rebuilt global binary at `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`.
+- Rebuilt global binary at `%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`.
 - Tested `gitmap running-prompts ls --ssh` locally (aggregated successfully across nodes).
 - Pushed commit `3afac642b7b3fc7114ff4feadea0bff9295481e3` to `main`.
 - Remote GitHub Actions CI run `#36285040528` passed 100% green across all checks (CI, Cross-Platform Build, race-detector, History Rewrite Smoke, CI Beacon).

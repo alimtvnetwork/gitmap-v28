@@ -9,12 +9,12 @@ I can still acess to w3 machine fix it and release minor please and
 PS C:\Users\Alim\awansoft-v10> gitmap pa --ssh
 
   Enqueuing 'pull-all' across SSH fleet:
-    • Remote Node [w3] (192.168.1.12): Offline (skipped, no task enqueued)
-    • Remote Node [w1] (192.168.1.3): Online → Enqueued (async)
-    • Remote Node [w2] (192.168.1.7): Online → Enqueued (async)
-    • Remote Node [w4] (192.168.1.13): Online → Enqueued (async)
-    • Remote Node [u1] (192.168.1.22): Offline (skipped, no task enqueued)
-    • Remote Node [main] (192.168.1.20): Offline (skipped, no task enqueued)
+    • Remote Node [w3] (node-w3): Offline (skipped, no task enqueued)
+    • Remote Node [w1] (node-w1): Online → Enqueued (async)
+    • Remote Node [w2] (node-w2): Online → Enqueued (async)
+    • Remote Node [w4] (node-w4): Online → Enqueued (async)
+    • Remote Node [u1] (node-u1): Offline (skipped, no task enqueued)
+    • Remote Node [main] (node-main): Offline (skipped, no task enqueued)
     • Current Machine [Alim-Desktop (127.0.0.1)]: Running locally (direct execution, not enqueued)
 
   ▶ Local VM (127.0.0.1 - localhost): 45 pulled (22 active, 23 up-to-date)

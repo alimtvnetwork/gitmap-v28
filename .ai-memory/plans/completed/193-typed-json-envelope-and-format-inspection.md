@@ -30,10 +30,10 @@
   - Update UI settings reader (`cli/cmdui`) to accept both typed envelope and legacy formats.
 
 - **Task-04: Repo-Secrets JSON Manifests Normalization**
-  - Pull `D:\work\repo-secrets`.
+  - Pull `./repo-secrets`.
   - Convert all JSON manifests in `01-gitmap/` and machine folders to the standard typed envelope.
   - Guard secrets: ensure zero plaintext credentials leak into `gitmap` codebase or test logs.
-  - Commit and push `D:\work\repo-secrets`.
+  - Commit and push `./repo-secrets`.
 
 - **Task-05: Automated Unit Tests, Safe Fixtures & E2E Validation**
   - Create safe, mocked test fixtures in `cli/jsonenvelope/fixtures/`.

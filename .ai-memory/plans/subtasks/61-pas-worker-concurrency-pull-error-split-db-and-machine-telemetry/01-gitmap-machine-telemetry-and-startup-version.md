@@ -23,7 +23,7 @@ Implement dedicated `gitmap machine` telemetry and remote node version discovery
   - Retain flag parsing for `-h`/`--help` to display help usage when explicitly requested.
 - **`cli/cmdssh/ssh_pull_fleet.go`:**
   - Enhance node liveness probe to query `gitmap --version` asynchronously.
-  - Format startup banner lines: `• Remote Node [w1] (192.168.1.3) [GitMap v6.442.0]: Online → Enqueued (async)`.
+  - Format startup banner lines: `• Remote Node [w1] (node-w1) [GitMap v6.442.0]: Online → Enqueued (async)`.
   - Fall back to `[GitMap unknown]` on timeout or connection error.
 
 ---

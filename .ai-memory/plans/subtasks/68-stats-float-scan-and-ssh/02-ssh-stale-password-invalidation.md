@@ -15,8 +15,8 @@
 ## 1. Technical Context & Scope
 If `ssh_hosts` contains an outdated, invalid, or expired password:
 1. `interceptSSHPasswordIfNeeded` previously saw `currentPass != ""` and bypassed prompting.
-2. OpenSSH ran with the stale password, failed, and fell back to prompting directly on the terminal: `administrator@192.168.1.17's password:`.
-3. If the remote host terminated the connection, OpenSSH crashed with exit status 255 (`Connection reset by 192.168.1.17 port 22`).
+2. OpenSSH ran with the stale password, failed, and fell back to prompting directly on the terminal: `administrator@node-t1's password:`.
+3. If the remote host terminated the connection, OpenSSH crashed with exit status 255 (`Connection reset by node-t1 port 22`).
 
 ## 2. Implementation Directives
 1. In `cli/cmdssh/ssh_login_pass_prompt.go`:

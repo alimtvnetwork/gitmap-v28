@@ -197,7 +197,7 @@ Okay. So, a couple of issues in the terminal actually. So there is one macro tha
 
 ### 4.5 VMware Automation PowerShell Engine (`secrets/vmware/manage-vm.ps1`)
 1. **Target File:**
-   - Stored in repo secrets folder: `D:\work\repo-secrets\vmware\manage-vm.ps1` and mirrored to `scripts/vmware/manage-vm.ps1`.
+   - Stored in repo secrets folder: `./repo-secrets\vmware\manage-vm.ps1` and mirrored to `scripts/vmware/manage-vm.ps1`.
 2. **Functionality:**
    - **Discover:** `.\manage-vm.ps1 -Action Scan -Path <dir>` recursively discovers `.vmx` files with summary table.
    - **Inspect:** `.\manage-vm.ps1 -Action Inspect -VM <vmx-path>` parses and displays all virtual hardware attributes.
@@ -219,4 +219,4 @@ Okay. So, a couple of issues in the terminal actually. So there is one macro tha
 - [x] `gitmap macro export` and `gitmap macro import` perform lossless JSON roundtrips (`cli/cmdmacro/macro_export.go` and `cli/cmdmacro/macro_import.go`).
 - [x] Every macro, SSH, and installer execution is logged to `TaskHistory` in SQLite split-DB (`cli/cmdtask/task_audit.go`).
 - [x] `gitmap task history` renders a formatted, high-aesthetic terminal view (`cli/cmdtask/task_history_cmd.go`).
-- [x] `manage-vm.ps1` successfully validates, modifies, and backs up VMware `.vmx` files with error stack traces and `-CopyLog` (`scripts/vmware/manage-vm.ps1` and `D:\work\repo-secrets\vmware\manage-vm.ps1`).
+- [x] `manage-vm.ps1` successfully validates, modifies, and backs up VMware `.vmx` files with error stack traces and `-CopyLog` (`scripts/vmware/manage-vm.ps1` and `./repo-secrets\vmware\manage-vm.ps1`).

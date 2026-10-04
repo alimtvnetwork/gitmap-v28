@@ -12,7 +12,7 @@
 This specification defines the multi-node infrastructure orchestration, remote OS telemetry persistence, Antigravity IDE restart replay, project re-read optimization, and native high-speed search benchmarking across the GitMap platform:
 
 1. **SSH Batch Common Join (`sjc` / `ssh-join-common`)**:
-   - Implements concise shorthand notation for bulk node joining with embedded alias mapping (e.g. `gitmap ssh-join-common administrator 192.168.1.3(w1),7(w2),12(w3) --pass <secret>`).
+   - Implements concise shorthand notation for bulk node joining with embedded alias mapping (e.g. `gitmap ssh-join-common administrator node-w1(w1),7(w2),12(w3) --pass <secret>`).
    - Automatically expands base IP subnets across comma-delimited last octets or full IPs while extracting human-readable host aliases.
    - Establishes SSH connections, encrypts and stores credentials in the local secure SQLite vault (`gitmap.db`), and probes remote OS metadata upon first successful handshake.
    - Persists the probed `OSVersion` and platform architecture directly to the `SSHConnection` SQLite record.
@@ -61,10 +61,10 @@ The common join parser accepts an IP specification string adhering to the follow
 When an `<Octet>` is encountered, it inherits the subnet prefix (`a.b.c.`) from the most recently encountered `<FullIP>`.
 
 **Example:**
-`192.168.1.3(w1),7(w2),12(w3)` expands to:
-- `192.168.1.3` with alias `w1`
-- `192.168.1.7` with alias `w2`
-- `192.168.1.12` with alias `w3`
+`node-w1(w1),7(w2),12(w3)` expands to:
+- `node-w1` with alias `w1`
+- `node-w2` with alias `w2`
+- `node-w3` with alias `w3`
 
 ### 2.2 SSHConnection Database Schema Extension
 

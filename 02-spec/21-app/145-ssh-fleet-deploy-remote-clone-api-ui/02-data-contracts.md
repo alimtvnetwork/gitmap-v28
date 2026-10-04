@@ -19,7 +19,7 @@ All inter-node REST communication utilizes mutual HMAC authentication via the `X
 ### 1.2 Web UI Internal REST APIs (`127.0.0.1:8080`)
 | Method | Endpoint | Description | Request Body | Response Body |
 |---|---|---|---|---|
-| `GET` | `/api/ssh/nodes` | List all cluster nodes | None | `[{"node_id":"worker-1","alias":"worker-1","host":"192.168.1.10","is_online":true}]` |
+| `GET` | `/api/ssh/nodes` | List all cluster nodes | None | `[{"node_id":"worker-1","alias":"worker-1","host":"node-main","is_online":true}]` |
 | `POST` | `/api/editor/read` | Fetch file content | `{"node_alias":"worker-1","file_path":"/etc/app.conf"}` | `{"is_success":true,"content":"...","language":"shell"}` |
 | `POST` | `/api/editor/save` | Save file content | `{"node_alias":"worker-1","file_path":"/etc/app.conf","content":"..."}` | `{"success":true}` |
 | `POST` | `/api/commitin/exec`| Execute visual commit | `{"message":"feat: add ui","amend":false}` | `{"success":true,"output":"[main abc1234]..."}` |

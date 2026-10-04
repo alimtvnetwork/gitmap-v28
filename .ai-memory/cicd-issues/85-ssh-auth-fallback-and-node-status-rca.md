@@ -2,11 +2,11 @@
 
 ## 1. Reproduction & Symptoms
 1. **Premature Authentication Failure on Fleet Update (`gitmap agm update --ssh` / `gitmap update --ssh`):**
-   - When executing `gitmap agm update --ssh` across live cluster nodes (`w1` at `192.168.1.3`, `w2` at `192.168.1.7`, `w3` at `192.168.1.12`), nodes failed with:
+   - When executing `gitmap agm update --ssh` across live cluster nodes (`w1` at `node-w1`, `w2` at `node-w2`, `w3` at `node-w3`), nodes failed with:
      ```text
-     [w2|192.168.1.7] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
-     [w1|192.168.1.3] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
-     [w3|192.168.1.12] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
+     [w2|node-w2] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
+     [w1|node-w1] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
+     [w3|node-w3] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
      ```
    - If a node's configured key file (`KeyPath`) was rejected by the remote OpenSSH server (e.g. key missing from server's `administrators_authorized_keys`), the client immediately logged `Connect error` and failed before falling back to decrypted password authentication.
    - Offline nodes (`alpha-win`, `beta-linux`, `gamma-mac` at `10.20.0.11-13`) were misreported as `FAILED: unable to connect` in the fleet summary table instead of `○ OFFLINE`.

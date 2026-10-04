@@ -20,7 +20,7 @@
 
 ## 2. Execution Log
 
-- [x] Enrolled cluster nodes `w1` (`192.168.1.3`), `w2` (`192.168.1.7`), `w3` (`192.168.1.12`) into central `gitmap.db` using credentials from `vmpass.json` via `gitmap sjc`.
+- [x] Enrolled cluster nodes `w1` (`node-w1`), `w2` (`node-w2`), `w3` (`node-w3`) into central `gitmap.db` using credentials from `vmpass.json` via `gitmap sjc`.
 - [x] Identified that `Antigravity.Manager.Tools_4.70.0_x64-setup.exe` is an NSIS installer requiring `/S`, not Inno Setup (`/VERYSILENT`).
 - [x] Implemented `BuildRemoteInstallerExecCmdWithPayload` and `resolveDefaultSilentInstallerArgs` in `cli/cmdssh/ssh_install_exec.go`.
 - [x] Defaulted `SSHInstallExecOptions.IsSilent = true` in `ParseInstallExecArgs`.
@@ -29,7 +29,7 @@
 - [x] Added mock test hooks `SetConnectProbeClientForTesting`, `SetAutoTrustTargetHostForTesting`, and `SetCryptoConnectWithKeyForTesting`.
 - [x] Pinned `Timeout: 4 * time.Second` in `cli/crypto/ssh_client.go` to prevent unbounded network hanging.
 - [x] Verified unit tests and isolated temporary E2E tests (`TestTempE2E_SSH*`).
-- [x] Tested live fleet deployment from `C:\Users\Administrator\Downloads>` on `w1`, `w2`, `w3` with 100% success (`✔ INSTALLED (0)` in 2.7s - 3.8s).
+- [x] Tested live fleet deployment from `%USERPROFILE%\Downloads>` on `w1`, `w2`, `w3` with 100% success (`✔ INSTALLED (0)` in 2.7s - 3.8s).
 - [x] Authored canonical Spec 158 and RCA 44.
 
 ---

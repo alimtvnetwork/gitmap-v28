@@ -133,10 +133,10 @@ sequenceDiagram
   
     NODE (ALIAS)     HOST             OS         VERSION      DESTINATION                    STATUS
     --------------------------------------------------------------------------------------------------------
-    w1               192.168.1.10     windows    v6.453.0     work/gitmap-v28                ● online
-    w2               192.168.1.11     linux      v6.452.1     ~/work/gitmap-v28              ● online
-    w3               192.168.1.12     windows    v6.453.0     work/gitmap-v28                ● online
-    w4               192.168.1.13     linux      -            -                              ○ offline
+    w1               node-main     windows    v6.453.0     work/gitmap-v28                ● online
+    w2               gateway-node1     linux      v6.452.1     ~/work/gitmap-v28              ● online
+    w3               node-w3     windows    v6.453.0     work/gitmap-v28                ● online
+    w4               node-w4     linux      -            -                              ○ offline
   ```
 - **Modernized Start Banner Layout:**
   ```text
@@ -147,19 +147,19 @@ sequenceDiagram
     • Target:      github.com/alimtvnetwork/gitmap-v28
     • Workdir:     D:\work (preserved relative: .)
     • Scope:       Local host + 3 active remote worker(s)
-    • Dispatch:    w1 -> 192.168.1.10:D:\work
-                   w2 -> 192.168.1.11:~/work
-                   w3 -> 192.168.1.12:D:\work
+    • Dispatch:    w1 -> node-main:D:\work
+                   w2 -> gateway-node1:~/work
+                   w3 -> node-w3:D:\work
   ```
 - **Telemetry Results Table Layout:**
   ```text
     NODE (ALIAS)     HOST             ROLE       STATUS         VERSION      DURATION    DETAILS
     --------------------------------------------------------------------------------------------------------
     local (current)  127.0.0.1        master     ● success      v6.454.0     1250ms      cloned successfully
-    w1               192.168.1.10     worker     ● success      v6.453.0     2410ms      cloned successfully
-    w2               192.168.1.11     worker     ● success      v6.452.1     2890ms      cloned successfully
-    w3               192.168.1.12     worker     ● success      v6.453.0     2520ms      already exists on disk
-    w4               192.168.1.13     worker     ○ offline      -            -           node unreachable (port 22)
+    w1               node-main     worker     ● success      v6.453.0     2410ms      cloned successfully
+    w2               gateway-node1     worker     ● success      v6.452.1     2890ms      cloned successfully
+    w3               node-w3     worker     ● success      v6.453.0     2520ms      already exists on disk
+    w4               node-w4     worker     ○ offline      -            -           node unreachable (port 22)
     --------------------------------------------------------------------------------------------------------
   
     ✔ Fleet CFR Summary: 4/5 node(s) completed successfully (1 skipped/offline)
@@ -213,9 +213,9 @@ sequenceDiagram
   - Windows: `D:\work` (or custom override).
   - Unix/Linux/macOS: `~/work` (or `/home/<user>/work`).
 - **Relative Subfolder Calculation:**
-  - If current working directory is `D:\work\repos\web\site`, the relative path is `repos\web\site`.
+  - If current working directory is `./repos\web\site`, the relative path is `repos\web\site`.
   - On dispatch to Linux nodes, the relative path is normalized to forward slashes: `~/work/repos/web/site`.
-  - On dispatch to Windows nodes, backslashes are preserved: `D:\work\repos\web\site`.
+  - On dispatch to Windows nodes, backslashes are preserved: `./repos\web\site`.
 - **Target Directory Creation:**
   - The remote runner ensures directory existence prior to cloning (`mkdir -p` or `New-Item -ItemType Directory`).
 - **User Override Flag:**

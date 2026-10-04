@@ -4,7 +4,7 @@
 
 ### 1.1 Deep Recursive Walk
 
-Current scanner implementations can terminate shallowly or miss repositories nested several levels deep within project workspaces (e.g. `D:\work\client-projects\team-a\repo1`).
+Current scanner implementations can terminate shallowly or miss repositories nested several levels deep within project workspaces (e.g. `./client-projects\team-a\repo1`).
 - The directory walker MUST traverse child directories recursively up to a configurable max depth (default: 16 levels).
 - Standard exclusion lists MUST be respected (`.git`, `node_modules`, `vendor`, `.terraform`, `dist`, `bin`, `.cache`).
 - When a `.git` directory is found, the containing folder is recorded as a repository, and the walker DOES NOT descend further into that `.git` folder, but continues scanning sibling directories.
@@ -77,8 +77,8 @@ At the conclusion of `gitmap scan` and `gitmap status`, if missing repos exist, 
 ```text
   ────────────────────────────────────────────────────────────────────
   ⚠  2 missing repositories detected:
-     • prompt-architect-v2  (expected at D:\work\prompt-architect-v2)
-     • global-ppt-v1        (expected at D:\work\global-ppt-v1)
+     • prompt-architect-v2  (expected at ./prompt-architect-v2)
+     • global-ppt-v1        (expected at ./global-ppt-v1)
 
   To resolve missing repositories:
   1. Relocate to a new folder:

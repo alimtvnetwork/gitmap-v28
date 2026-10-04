@@ -10,7 +10,7 @@
 
 ## 1. Reproduction Steps
 
-1. Enroll Windows node `w4` (`192.168.1.13`) into the SSH fleet database.
+1. Enroll Windows node `w4` (`node-w4`) into the SSH fleet database.
 2. Run fleet clone against any Git repository:
    ```powershell
    gitmap nodes clone https://github.com/alimtvnetwork/awansoft-v10

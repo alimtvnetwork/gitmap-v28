@@ -20,14 +20,14 @@ PS Z:\VmDownloads\04. SharedSoft> gitmap ssh install-exec .\Antigravity.Manager.
 
   ALIAS            HOST (IP)            OS         REMOTE PATH                RESULT           DURATION
   ----------------------------------------------------------------------------------------------------
-  w1               192.168.1.3:22       linux      /tmp/Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
-  w2               192.168.1.7:22       windows    C:\Windows\Temp\Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
-  w3               192.168.1.12:22      windows    C:\Windows\Temp\Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
-  u1               192.168.1.22:22      linux                                 ○ OFFLINE        0ms
-  w4               192.168.1.13:22      windows                               ○ OFFLINE        0ms
+  w1               node-w1:22       linux      /tmp/Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
+  w2               node-w2:22       windows    %TEMP%\Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
+  w3               node-w3:22      windows    %TEMP%\Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
+  u1               node-u1:22      linux                                 ○ OFFLINE        0ms
+  w4               node-w4:22      windows                               ○ OFFLINE        0ms
 ```
 
-Additionally, running the command from a directory like `C:\Users\Administrator\Downloads` with `--os win` returned:
+Additionally, running the command from a directory like `%USERPROFILE%\Downloads` with `--os win` returned:
 `No matching SSH machines to deploy setup to (filtered by except: "", except-os: "", os: "win").`
 
 ---

@@ -21,7 +21,7 @@ Now, coming to a little bit of detail. So when we have the repo secrets, any env
   - `DefaultName TEXT NOT NULL` (`"repo-secrets"`, `"repo-cache"`)
   - `ConfiguredName TEXT NOT NULL` (configurable via `gitmap settings --repo-secrets <name> --repo-cache <name>`)
   - `Category TEXT NOT NULL` (`"secrets"`, `"cache"`)
-  - `LocalPath TEXT NOT NULL` (e.g. `D:\work\repo-secrets`, `D:\work\repo-cache`)
+  - `LocalPath TEXT NOT NULL` (e.g. `./repo-secrets`, `./repo-cache`)
   - `RemoteURL TEXT NOT NULL DEFAULT ''`
   - `Purpose TEXT NOT NULL`
   - `IsPromptAnswered INTEGER NOT NULL DEFAULT 0` (1 once user answers or repo is detected/created, ensuring `gitmap scan` asks at most ONCE)
@@ -34,8 +34,8 @@ Now, coming to a little bit of detail. So when we have the repo secrets, any env
 
 ### 1.2 Navigation & CLI Commands
 - **Navigation Shortcuts:**
-  - `gitmap cd rs` -> navigates directly to `repo-secrets` (`D:\work\repo-secrets`).
-  - `gitmap cd rc` -> navigates directly to `repo-cache` (`D:\work\repo-cache`).
+  - `gitmap cd rs` -> navigates directly to `repo-secrets` (`./repo-secrets`).
+  - `gitmap cd rc` -> navigates directly to `repo-cache` (`./repo-cache`).
 - **Special Repo Operations (`gitmap rs` / `gitmap repo-secrets` and `gitmap rc` / `gitmap repo-cache` / `gitmap repo-storage`):**
   - `gitmap rs file <filepath> [--repo <name>]`: copies `<filepath>` into `<repo-secrets>/<XX-repo-name>/<NN-filename>`, then stages, commits (`Secret: add <NN-filename> for <XX-repo-name>`), and pushes.
   - `gitmap rs folder <folderpath> [--repo <name>]`: copies `<folderpath>` into `<repo-secrets>/<XX-repo-name>/<NN-foldername>`, then stages, commits, and pushes.

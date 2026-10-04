@@ -21,7 +21,7 @@
 4. **Task-04: Remote Inventory Aggregation (`gitmap ssh pull-inventory`):**
    - Implemented `gitmap ssh pull-inventory [target]` (aliases: `fetch-inventory`, `sync-inventory`).
    - Executed remote scans on `w1`, `w2`, `w3`, fetching `gitmap.json`, `gitmap-ssh-nodes.json`, `gitmap-ssh.json`, `ooshutup10.cfg`.
-   - Populated `D:\work\repo-secrets\04-w1-machine\`, `05-w2-machine\`, and `06-w3-machine\`.
+   - Populated `./repo-secrets\04-w1-machine\`, `05-w2-machine\`, and `06-w3-machine\`.
    - Committed and pushed to `alimtvnetwork/repo-secrets` on GitHub.
 5. **Task-05: Linter Verification & Nested If Flattening:**
    - Passed `check-nested-ifs.py` (0 violations across 28 files).

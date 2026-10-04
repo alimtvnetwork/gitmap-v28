@@ -7,12 +7,12 @@ PS D:\work> gitmap agy rerun 1
 
 Antigravity IDE Rerun & Restart Suite:
   • Target Project:   #1 - wp-html-automate
-  • Workspace Path:   d:\work\wp-html-automate
+  • Workspace Path:   ./wp-html-automate
   • Conversation:     default
 
   [1/2] Terminating active Antigravity IDE process...
     ✔ Terminated Antigravity IDE (PID: 1596)
-  [2/2] Launching Antigravity IDE in d:\work\wp-html-automate...
+  [2/2] Launching Antigravity IDE in ./wp-html-automate...
 
   ✔ Injected prompt into active Antigravity session (2911e8ac-d82b-4d4c-af65-4a0b4db4d63c) via agentapi!
   ✔ Completed prompt replay for project #1 (wp-html-automate)!

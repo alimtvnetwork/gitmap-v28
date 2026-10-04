@@ -91,7 +91,7 @@ In `cmd/rootsuggest.go`, `handleUnknownCommand`:
         "workerId": "worker-1",
         "id": 1,
         "alias": "w3",
-        "ipAddress": "192.168.1.12",
+        "ipAddress": "node-w3",
         "username": "Administrator",
         "port": 22,
         "os": "windows",

@@ -35,7 +35,7 @@
 - ✅ **Native CLI Safe Removal:** Use `gitmap safe-rm <path...> [--force]` (alias `gitmap rm-safe`), which guarantees exit code 0 when targets are already absent.
 - ✅ **Multi-Target Binary Synchronization:** Whenever compiling or deploying runtime binaries, ensure synchronization across all active binary targets on the host:
   1. `./gitmap.exe` and `./bin/gitmap.exe`
-  2. `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` (`C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`)
+  2. `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` (`%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`)
   3. `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`
   4. `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`
 - ✅ **Macro Editor Step Persistence:** Ensure `gitmap macro edit` clearly distinguishes between persistent macro steps and in-builder diagnostic commands so user steps are reliably recorded.

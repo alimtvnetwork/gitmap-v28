@@ -16,7 +16,7 @@ Implemented SUG subcommand normalization, target existence verification, watch p
 1. `01-sug-normalization-target-validation-and-ui.md` — SUG Subcommand Normalization, Help Guard, Target Existence Verification, Status Loop, and Local UI Dashboard.
 2. `02-pe-path-alias-and-url-resolution.md` — Pipeline Errors (`gitmap pe`) Target Resolution for paths, aliases, and Git URLs.
 3. `03-help-groups-search-distinction-and-agm-docs.md` — Category Group Filtering (`gitmap help <group>`), Tab Completion, Search Differentiation, and AGM Documentation.
-4. `04-templates-pascal-array-vars-and-repo-secrets.md` — PascalCase & Array Template Variable Pre-Compilation, `d:\work\repo-secrets` Normalization & Push, and `D:\test-gitmap` Test Script.
+4. `04-templates-pascal-array-vars-and-repo-secrets.md` — PascalCase & Array Template Variable Pre-Compilation, `./repo-secrets` Normalization & Push, and `D:\test-gitmap` Test Script.
 
 ## Verification Checklist
 - [x] `gitmap sug agy-running projects` / `arp` normalizes and registers active projects.
@@ -27,5 +27,5 @@ Implemented SUG subcommand normalization, target existence verification, watch p
 - [x] `gitmap pe [path|alias|url]` resolves non-cwd repos.
 - [x] `gitmap help <group>` filters commands and tab-completes groups.
 - [x] PascalCase variables and array segment lookups expand accurately.
-- [x] `d:\work\repo-secrets` directory renamed to `01-gitmap`, variables updated, committed, and pushed.
+- [x] `./repo-secrets` directory renamed to `01-gitmap`, variables updated, committed, and pushed.
 - [x] `D:\test-gitmap` verified at root of drive `D:\`.

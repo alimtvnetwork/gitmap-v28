@@ -12,7 +12,7 @@
 
 ### 1.1 Symptoms
 1. **Empty Fleet Discovery in Ad-Hoc Directories:**
-   Running `gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run` from `C:\Users\Administrator\Downloads>` resulted in:
+   Running `gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run` from `%USERPROFILE%\Downloads>` resulted in:
    `No matching SSH machines to deploy setup to (filtered by except: "", except-os: "", os: "win").`
    The CLI failed to communicate whether any SSH nodes were enrolled in the registry.
 2. **Interactive Hanging on Remote Windows Nodes:**
@@ -33,12 +33,12 @@
 - When invoked without arguments over SSH, NSIS launched its GUI installer in Session 0 without desktop access, blocking on window creation until terminated.
 
 ### 2.2 Split-DB Registry Enrolment
-- `fetchAllSSHConnections()` queries `C:\Users\Administrator\AppData\Local\gitmap-cli\data\gitmap.db`.
+- `fetchAllSSHConnections()` queries `%USERPROFILE%\AppData\Local\gitmap-cli\data\gitmap.db`.
 - The database tables `ssh_hosts` and `SSHConnection` were unpopulated, resulting in 0 connections. The CLI did not distinguish between a filter mismatch and an empty registry.
 
 ### 2.3 Unmocked Network Dials in Unit Tests
 - `executeSSHLoginWithPassword` called `autoTrustTargetHost` and `probeAndEnsureNodeProfile` unconditionally.
-- In unit tests with mock IPs (e.g. `192.168.1.88`, `10.0.0.5`), `autoTrustTargetHost` and `connectProbeClient` called `net.DialTimeout` and `ssh.Dial`.
+- In unit tests with mock IPs (e.g. `node-alias`, `10.0.0.5`), `autoTrustTargetHost` and `connectProbeClient` called `net.DialTimeout` and `ssh.Dial`.
 - Without a test hook, each non-routable IP caused TCP SYN retransmissions and 4-second to 2-minute timeouts, totaling over 600 seconds on CI runners.
 
 ---
@@ -74,8 +74,8 @@
    - `TestSSHClient`: 0.01s (previously 4.0s).
    - `TestConnectWithDefaultKey_Unreachable`: 0.00s (previously 16.0s).
 3. **Live Fleet Verification:**
-   - Enrolled cluster nodes `w1` (`192.168.1.3`), `w2` (`192.168.1.7`), `w3` (`192.168.1.12`) via `gitmap sjc`.
-   - Tested deployment of `Antigravity.Manager.Tools_4.70.0_x64-setup.exe` from `C:\Users\Administrator\Downloads>`:
+   - Enrolled cluster nodes `w1` (`node-w1`), `w2` (`node-w2`), `w3` (`node-w3`) via `gitmap sjc`.
+   - Tested deployment of `Antigravity.Manager.Tools_4.70.0_x64-setup.exe` from `%USERPROFILE%\Downloads>`:
      - Node `w1`: `✔ INSTALLED (0)` in 2736ms.
      - Node `w2`: `✔ INSTALLED (0)` in 2720ms.
      - Node `w3`: `✔ INSTALLED (0)` in 3813ms.

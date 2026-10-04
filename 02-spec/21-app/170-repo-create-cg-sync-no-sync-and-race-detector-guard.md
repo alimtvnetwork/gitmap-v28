@@ -5,7 +5,7 @@
 
 ## Context & Motivation
 1. **Coding Guideline Auto-Sync Failure in `create-repo`:**
-   When running `gitmap create-repo <name> --cg`, previous versions failed to synchronize the repository coding guidelines (`02-spec/02-coding-guidelines`). This was caused by `resolveCGBaseDir()` attempting to inspect `filepath.Dir(filepath.Dir(os.Executable()))` when running from the compiled binary installation path (`C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`), where no source specs reside. As a result, it fell back to generating only an empty `00-overview.md` file rather than synchronizing the complete 30-document coding guidelines suite.
+   When running `gitmap create-repo <name> --cg`, previous versions failed to synchronize the repository coding guidelines (`02-spec/02-coding-guidelines`). This was caused by `resolveCGBaseDir()` attempting to inspect `filepath.Dir(filepath.Dir(os.Executable()))` when running from the compiled binary installation path (`%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`), where no source specs reside. As a result, it fell back to generating only an empty `00-overview.md` file rather than synchronizing the complete 30-document coding guidelines suite.
 2. **Selective Workspace Synchronization (`--no-sync`):**
    Users working with lightweight or automated repository creation requested a `--no-sync` / `--skip-sync` flag to bypass launching GitHub Desktop and opening VS Code, while still registering with Google Antigravity (`[vsc: skipped] [desktop: skipped] [agy: ok]`).
 3. **CI/CD Race Detector & Linter Guard:**
@@ -18,7 +18,7 @@
   1. `constants.RepoPath` (when set at build time).
   2. `GITMAP_CODING_GUIDELINES_DIR` environment variable.
   3. Current working directory and parent directory walk (`resolveCGBaseDirFromCwd()`).
-  4. Local development drives (`D:\work\coding-guidelines`, `C:\work\coding-guidelines`).
+  4. Local development drives (`./coding-guidelines`, `C:\work\coding-guidelines`).
   5. Dynamic remote installer fallback via `cmdcg.RunCgScriptInRepo(absDir)` if no local source directory exists.
 - In `applyCGFiles`: recursively copy the full `02-spec/02-coding-guidelines` directory into the destination repository, stage, and commit with `docs(spec): synchronize latest coding guidelines to 02-spec/02-coding-guidelines/`.
 

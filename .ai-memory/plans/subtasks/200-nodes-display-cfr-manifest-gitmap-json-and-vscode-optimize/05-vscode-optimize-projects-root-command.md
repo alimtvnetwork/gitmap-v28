@@ -31,7 +31,7 @@
      b) Multiple projects sharing the same base repo name located in different folders (duplicate checkouts).
      c) Missing project directories (where `rootPath` does not exist on disk).
    - Provide Advice:
-     - For duplicate copies: print recommended relocation/consolidation target directory (e.g. `Advise: consolidate duplicate copy 'D:\other\repo' into canonical location 'D:\work\repo'`).
+     - For duplicate copies: print recommended relocation/consolidation target directory (e.g. `Advise: consolidate duplicate copy 'D:\other\repo' into canonical location './repo'`).
    - Clean & Prune:
      - Prune missing project paths from `projects.json`.
      - Prune duplicate entries.

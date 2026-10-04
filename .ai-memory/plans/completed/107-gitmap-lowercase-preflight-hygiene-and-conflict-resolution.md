@@ -10,11 +10,11 @@ Execution Summary: Completed in 2 orchestration loops across 4 subtask domains w
 https://prnt.sc/n_O_kOGNEJqZ
 
 
-PS D:\work\presentations-repos\hiltrax> gitmap lowercase "*.md"
+PS ./presentations-repos\hiltrax> gitmap lowercase "*.md"
 
 ⚡ GitMap Lowercase File Renamer
   ● Mode:        Git Repository (2-step git mv)
-  ● Working Dir: D:\work\presentations-repos\hiltrax
+  ● Working Dir: ./presentations-repos\hiltrax
   ● Filter:      *.md
   ● Scanned:     1043 files in directory
   ● Matched:     18 uppercase file(s)

@@ -3,8 +3,8 @@
 > **Plan Status:** Active  
 > **Traceability IDs:** Subtask 212-01 .. Subtask 212-05  
 > **Spec Reference:** [02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md](../../02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md)  
-> **Target Node:** Ubuntu U1 (`192.168.1.22`)  
-> **Execution Location:** `d:\work\repo-secrets\04-ubuntu-migration\`  
+> **Target Node:** Ubuntu U1 (`node-u1`)  
+> **Execution Location:** `./repo-secrets\04-ubuntu-migration\`  
 
 ---
 

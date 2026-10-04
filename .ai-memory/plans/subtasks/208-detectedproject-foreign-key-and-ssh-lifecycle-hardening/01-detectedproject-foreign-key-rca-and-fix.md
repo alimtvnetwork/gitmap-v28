@@ -21,4 +21,4 @@ The objective is to identify why these 8 failed, ensure complete ProjectType see
 - [ ] Ensure all project types (Go=1, React=2, Node=3, Python=4, Rust=5) are always present in the database.
 - [ ] In `scanprojects.go`, if `RepoId <= 0`, dynamically query `Repo` table matching the closest parent path.
 - [ ] If no parent repository is found in database, fail safely or log diagnostic warning rather than executing an invalid SQL insert.
-- [ ] Run full project scan across `D:\work\` or local repos and verify 0 foreign key errors.
+- [ ] Run full project scan across `./` or local repos and verify 0 foreign key errors.

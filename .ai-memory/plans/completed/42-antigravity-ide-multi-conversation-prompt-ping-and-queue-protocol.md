@@ -8,7 +8,7 @@ This plan enforces the **IDE-first, Filesystem-First** architecture for all Anti
    - `FindMatchingConversations(repoRoot)` discovers and sorts conversations by user activity descending.
    - `SelectMatchingConversation(repoRoot)` automatically selects single matches, gracefully defaults in non-interactive environments, and interactively prompts the user when multiple conversations match.
 4. **Antigravity Ping Command (`gitmap agy ping`)**:
-   - Diagnostic checks for executable presence (`C:\Users\Administrator\AppData\Local\Programs\antigravity\Antigravity.exe` and cross-platform paths), running IDE desktop process, filesystem health (`~/.gemini/antigravity`), workspace conversation execution state (`RUNNING` vs `IDLE`), and prompt queue status.
+   - Diagnostic checks for executable presence (`%USERPROFILE%\AppData\Local\Programs\antigravity\Antigravity.exe` and cross-platform paths), running IDE desktop process, filesystem health (`~/.gemini/antigravity`), workspace conversation execution state (`RUNNING` vs `IDLE`), and prompt queue status.
    - Supports `--json` (`-j`) and `--workspace` (`-w`) flags.
 5. **Antigravity Prompt Inspection (`gitmap agy prompt read` & `gitmap agy prompt ls`)**:
    - `gitmap agy prompt read [conv-id]`: Reads and renders user prompts from conversation transcripts.

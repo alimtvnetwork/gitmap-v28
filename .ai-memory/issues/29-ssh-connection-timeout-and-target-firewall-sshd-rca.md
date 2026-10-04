@@ -6,17 +6,17 @@ Spec Reference: [02-spec/22-app-issues/64-ssh-connection-timeout-and-target-fire
 
 ## 1. Symptom
 
-Attempting to join or connect to a Windows target node (`t1` at `192.168.1.17`) failed with connection timeouts:
+Attempting to join or connect to a Windows target node (`t1` at `node-t1`) failed with connection timeouts:
 
 ```text
-$ gitmap ssh join administrator@192.168.1.17 t1
+$ gitmap ssh join administrator@node-t1 t1
   WARN Node t1 responded with connection timeout. Registered as offline.
 
 $ gitmap nodes
-| 3  | t1   | 192.168.1.17          | admin   | 22     | offline | timeout (3000ms) |
+| 3  | t1   | node-t1          | admin   | 22     | offline | timeout (3000ms) |
 
 $ gitmap ssh t1
-ssh: connect to host 192.168.1.17 port 22: Connection timed out
+ssh: connect to host node-t1 port 22: Connection timed out
 [exit code 255]
 ```
 

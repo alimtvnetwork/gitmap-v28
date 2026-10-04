@@ -22,12 +22,12 @@ PS C:\Users\Administrator> gitmap ssh deploy keys all
 
     #    ALIAS                IP ADDRESS       STATUS       KEYS ADDED
     ──────────────────────────────────────────────────────────────────────
-    1    w3                   192.168.1.12     failed already synced
-    2    w1                   192.168.1.3      failed already synced
-    3    w2                   192.168.1.7      offline +0 key(s)
-    4    w4                   192.168.1.13     offline +0 key(s)
-    5    u1                   192.168.1.22     offline +0 key(s)
-    6    main                 192.168.1.20     failed already synced
+    1    w3                   node-w3     failed already synced
+    2    w1                   node-w1      failed already synced
+    3    w2                   node-w2      offline +0 key(s)
+    4    w4                   node-w4     offline +0 key(s)
+    5    u1                   node-u1     offline +0 key(s)
+    6    main                 node-main     failed already synced
 
   ✓ Mesh public key synchronization complete! All nodes now trust cluster keys passwordlessly.
 ```

@@ -102,12 +102,12 @@ Unless `--fast` / `--no-probe` is specified, `gitmap nodes` runs non-blocking co
 
   ALIAS            ROLE           HOST (IP:PORT)         USER           SUBSYSTEMS         STATUS                ENROLLED
   ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  main             worker         192.168.1.20:22        administrator  SSH, Cluster, SC   ● ready               2026-09-29 12:27:18
-  w3               worker         192.168.1.12:22        Administrator  SSH, Cluster, SC   ● ready               2026-09-29 12:33:35
-  w1               worker         192.168.1.3:22         Administrator  SSH, Cluster, SC   ● ready               2026-09-29 12:33:35
-  u1               worker         192.168.1.22:22        a              SSH, Cluster, SC   ○ offline (timeout)   2026-09-29 12:33:35
-  w2               worker         192.168.1.7:22         Administrator  SSH, Cluster, SC   ○ offline (timeout)   2026-09-29 12:33:35
-  w4               worker         192.168.1.13:22        Administrator  SSH, Cluster, SC   ○ offline (timeout)   2026-09-29 12:33:35
+  main             worker         node-main:22        administrator  SSH, Cluster, SC   ● ready               2026-09-29 12:27:18
+  w3               worker         node-w3:22        Administrator  SSH, Cluster, SC   ● ready               2026-09-29 12:33:35
+  w1               worker         node-w1:22         Administrator  SSH, Cluster, SC   ● ready               2026-09-29 12:33:35
+  u1               worker         node-u1:22        a              SSH, Cluster, SC   ○ offline (timeout)   2026-09-29 12:33:35
+  w2               worker         node-w2:22         Administrator  SSH, Cluster, SC   ○ offline (timeout)   2026-09-29 12:33:35
+  w4               worker         node-w4:22        Administrator  SSH, Cluster, SC   ○ offline (timeout)   2026-09-29 12:33:35
 
 ==============================================================================================================================
  TIP: Run 'gitmap ssh <alias>' for shell access, or 'gitmap sc exec <cmd>' to broadcast across all nodes.
@@ -121,7 +121,7 @@ Unless `--fast` / `--no-probe` is specified, `gitmap nodes` runs non-blocking co
   {
     "alias": "main",
     "role": "worker",
-    "host": "192.168.1.20",
+    "host": "node-main",
     "port": 22,
     "user": "administrator",
     "status": "● ready",

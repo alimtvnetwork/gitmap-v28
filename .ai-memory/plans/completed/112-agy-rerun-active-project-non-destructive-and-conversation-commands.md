@@ -32,4 +32,4 @@ Resolved `gitmap agy rerun` process termination and inverted project selection:
 - Verified live CLI dry-runs:
   - `gitmap agy rerun -d 1` selects `#1` without restart prompts.
   - `gitmap agy rerun -d wp-xampp` resolves to `wp-exam`.
-  - Inside `d:\work\wp-exam`, `gitmap agy rerun -d` automatically selects `wp-exam`.
+  - Inside `./wp-exam`, `gitmap agy rerun -d` automatically selects `wp-exam`.

@@ -14,7 +14,7 @@
 ## 1. Objective
 
 Enable intelligent current working directory (CWD) relative path preservation and custom destination path overrides for `gitmap nodes cfr`, `nodes clone`, and `nodes cfrp`:
-1. If the user invokes the command from a subfolder inside their local work directory (e.g. `d:\work\presentations-repos`), automatically mirror and clone into `<remoteWorkDir>/presentations-repos` on all remote fleet nodes (`D:\work\presentations-repos` on Windows, `~/work/presentations-repos` on Linux).
+1. If the user invokes the command from a subfolder inside their local work directory (e.g. `./presentations-repos`), automatically mirror and clone into `<remoteWorkDir>/presentations-repos` on all remote fleet nodes (`./presentations-repos` on Windows, `~/work/presentations-repos` on Linux).
 2. If the user invokes the command from outside their work directory (e.g. `C:\Users\Admin` or `/tmp`), default to the remote work directory roots (`D:\work` / `~/work`).
 3. Support explicit custom destination paths via flags (`-d`, `--dir`, `--dest`, `--target-dir`) or an optional positional destination argument (`gitmap nodes cfr <target> [dest]`).
 4. Ensure target directories are created safely on remote machines (`mkdir -p` on Linux, `New-Item -ItemType Directory -Force` on Windows) prior to executing `gitmap <kind>`.
@@ -42,7 +42,7 @@ Implement concise, modular functions (each $\le 15$ lines):
   - Return relative subpath normalized with forward slashes (`filepath.ToSlash`), or empty string if at work directory root.
 - `ResolveRemoteTargetDir(osType, relativeSubDir, customDest string) string`:
   - If `customDest != ""`, format and return `customDest`.
-  - If `relativeSubDir != ""`, append to base remote work root (`D:\work\<rel>` on Windows, `~/work/<rel>` on Linux).
+  - If `relativeSubDir != ""`, append to base remote work root (`./<rel>` on Windows, `~/work/<rel>` on Linux).
   - Otherwise, return base remote work root (`D:\work` / `~/work`).
 
 ### 2.3 Argument & Flag Parsing (`cli/cmdnodes/nodes_clone.go`)

@@ -10,16 +10,16 @@
 
 ```text
 gitmap ssh-join-common administrator ip1(aliasing),ip2(aliasing),lastchangedpartoftheIP(aliasing)
-gitmap ssh-join-common administrator 192.168.1.3(w1),7(w2),12(w3) --pass <...>
+gitmap ssh-join-common administrator node-w1(w1),7(w2),12(w3) --pass <...>
 
 gitmap ssh scan # see how many ips are available in the network
 
-D:\work\03-aukgo\enum\osdetect
+./03-aukgo\enum\osdetect
 
 gitmap agy reread-optimize-project(rop) N # 5
 
 
-Okay, fix this third issue for the Git map. Also, at the same time. Oh, sorry. Yeah. Fix this issue for the Git map. Okay, a couple of issues. So what I want using the SSH is that scan command that will try to scan the IPs in the network. For example, you try to connect all these machines, right? Together, connect, join. How can I connect them very easily? What is the process, okay, rather than doing it one at a time? Or probably I can do lots of IPs if they have same username. I could just provide that, and there should be an easier version to connect. And what I do think is that can we get SSH join command SJC, where we could just say administrator, and 192.168.1.3(w1),7(w2),12(w3) --pass <...>
+Okay, fix this third issue for the Git map. Also, at the same time. Oh, sorry. Yeah. Fix this issue for the Git map. Okay, a couple of issues. So what I want using the SSH is that scan command that will try to scan the IPs in the network. For example, you try to connect all these machines, right? Together, connect, join. How can I connect them very easily? What is the process, okay, rather than doing it one at a time? Or probably I can do lots of IPs if they have same username. I could just provide that, and there should be an easier version to connect. And what I do think is that can we get SSH join command SJC, where we could just say administrator, and node-w1(w1),7(w2),12(w3) --pass <...>
 ```
 
 ---
@@ -31,7 +31,7 @@ This specification addresses 5 critical capabilities extending GitMap's SSH Clus
 1. **Batch Common SSH Join (`gitmap ssh-join-common` / `sjc`)**:
    - Enables rapid batch onboarding of multiple SSH nodes sharing the same administrative credential.
    - Syntax: `gitmap ssh-join-common <username> <ip-tokens> [--pass <password>] [flags]` (short-form alias: `gitmap sjc`).
-   - Supports shorthand octet notation: the first IP provides the base IPv4 subnet prefix (e.g. `192.168.1.3(w1)` sets prefix `192.168.1.`), and subsequent tokens may specify only the modified host octet (e.g. `7(w2)` resolves to `192.168.1.7`, alias `w2`; `12(w3)` resolves to `192.168.1.12`, alias `w3`). If a subsequent token specifies a full IPv4 address, the base prefix is dynamically updated.
+   - Supports shorthand octet notation: the first IP provides the base IPv4 subnet prefix (e.g. `node-w1(w1)` sets prefix `<subnet>.`), and subsequent tokens may specify only the modified host octet (e.g. `7(w2)` resolves to `node-w2`, alias `w2`; `12(w3)` resolves to `node-w3`, alias `w3`). If a subsequent token specifies a full IPv4 address, the base prefix is dynamically updated.
    - Captures node alias enclosed in parentheses `(<alias>)`. If omitted, defaults to `node-<IP>`.
    - Uses common username and `--pass` password for all targets, authenticating and persisting hosts in the SQLite database (`installation.db` and `gitmap.db`).
 

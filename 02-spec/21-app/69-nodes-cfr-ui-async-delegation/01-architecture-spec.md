@@ -23,7 +23,7 @@ However, the existing implementation exhibits several critical architectural and
 4. **Unvalidated Remote Binaries & Version Mismatches:**  
    Remote commands are executed without probing whether GitMap is installed on the remote target or which version is present. Version disparities between master and worker nodes trigger silent flag incompatibilities.
 5. **Rigid Working Directory Handling:**  
-   The CLI lacks intelligent local working directory inspection. If an operator invokes `gitmap nodes cfr` from within a subdirectory of the work directory (e.g. `D:\work\internal\microservices`), the system fails to preserve and replicate this relative path on remote targets. Furthermore, custom destination paths provided by the user are not consistently propagated.
+   The CLI lacks intelligent local working directory inspection. If an operator invokes `gitmap nodes cfr` from within a subdirectory of the work directory (e.g. `./internal\microservices`), the system fails to preserve and replicate this relative path on remote targets. Furthermore, custom destination paths provided by the user are not consistently propagated.
 6. **Inefficient Synchronous or Unbounded Dispatch:**  
    Delegation across remote machines must be executed fully asynchronously in parallel with deterministic timeout bounds and structured JSON responses (`--json`) rather than unparsed raw stdout.
 7. **Incomplete Command Guidance & Missing Suggestions:**  
@@ -144,7 +144,7 @@ sequenceDiagram
             CLI->>LocalHost: ExecuteLocalClone(opts, dest)
             LocalHost-->>CLI: Local Success / Failure Payload
         and Remote Windows Dispatch
-            CLI->>RemoteWin: Exec: Set-Location "D:\work\sub"; gitmap cfr ... --json
+            CLI->>RemoteWin: Exec: Set-Location "./sub"; gitmap cfr ... --json
             RemoteWin-->>CLI: Return DirectCloneJSONResponse
         and Remote Unix Dispatch
             CLI->>RemoteUnix: Exec: cd ~/work/sub && gitmap cfr ... --json
@@ -209,7 +209,7 @@ The engine inspects the current working directory (`os.Getwd()`):
 - **Inside Work Directory:**  
   If the local path resides within a recognized work root (`D:\work` on Windows or `~/work` / `/home/<user>/work` on Unix):
   - The relative subdirectory is extracted.  
-    *Example:* Local CWD is `D:\work\frontend\portal` -> Relative Subdir is `frontend\portal` (or `frontend/portal`).
+    *Example:* Local CWD is `./frontend\portal` -> Relative Subdir is `frontend\portal` (or `frontend/portal`).
   - The destination engine mirrors this relative path on remote machines.
 - **Outside Work Directory:**  
   If the local path is outside the work directory (e.g. `C:\Users\Admin\Desktop` or `/tmp`):
@@ -220,7 +220,7 @@ The engine inspects the current working directory (`os.Getwd()`):
 
 #### 3.2.2 Cross-Platform Destination Normalization
 Destination paths are resolved per target node based on its registered OS:
-- **Windows Worker:** Target path normalized to backslashes (`D:\work\<relativeSubdir>`).
+- **Windows Worker:** Target path normalized to backslashes (`./<relativeSubdir>`).
 - **Unix / Linux / macOS Worker:** Target path normalized to POSIX forward slashes (`~/work/<relativeSubdir>`).
 
 #### 3.2.3 Remote Directory Pre-Creation
@@ -232,8 +232,8 @@ Prior to launching clone commands, the remote executor ensures the destination d
 The route resolution produces a route map for every active node:
 ```text
 Dispatch Routes:
-  • w1 -> 192.168.1.10:D:\work\frontend\portal
-  • w2 -> 192.168.1.11:~/work/frontend/portal
+  • w1 -> node-main:./frontend\portal
+  • w2 -> gateway-node1:~/work/frontend/portal
 ```
 
 ---
@@ -249,9 +249,9 @@ Rendered immediately after pre-flight probing:
 
     NODE (ALIAS)     HOST               OS         VERSION        DESTINATION                      STATUS        
     --------------------------------------------------------------------------------------------------------
-    w1               192.168.1.10       windows    v6.454.0       D:\work\internal\tool            ● online      
-    w2               192.168.1.11       linux      v6.453.0       ~/work/internal/tool             ● online      
-    edge-03          192.168.1.25       linux      -              -                                ○ offline     
+    w1               node-main       windows    v6.454.0       ./internal\tool            ● online      
+    w2               gateway-node1       linux      v6.453.0       ~/work/internal/tool             ● online      
+    edge-03          node-alias       linux      -              -                                ○ offline     
     --------------------------------------------------------------------------------------------------------
 ```
 
@@ -264,8 +264,8 @@ Rendered immediately after pre-flight probing:
     • Target:      https://github.com/org/repo.git
     • Workdir:     D:\work (preserved relative: internal\tool)
     • Scope:       Local host + 2 active remote worker(s)
-    • Dispatch:    w1 -> 192.168.1.10:D:\work\internal\tool
-                   w2 -> 192.168.1.11:~/work\internal\tool
+    • Dispatch:    w1 -> node-main:./internal\tool
+                   w2 -> gateway-node1:~/work\internal\tool
 ```
 
 #### 3.3.3 Telemetry Results Table
@@ -274,8 +274,8 @@ Rendered upon completion of all parallel tasks:
     NODE (ALIAS)     HOST               ROLE       STATUS         VERSION      DURATION     DETAILS
     --------------------------------------------------------------------------------------------------------
     local (current)  127.0.0.1          master     ● success      v6.454.0     1250ms       executed directly on host machine
-    w1               192.168.1.10       worker     ● success      v6.454.0     1840ms       cloned successfully into D:\work\internal\tool
-    w2               192.168.1.11       worker     ● success      v6.453.0     2120ms       cloned successfully into ~/work/internal/tool
+    w1               node-main       worker     ● success      v6.454.0     1840ms       cloned successfully into ./internal\tool
+    w2               gateway-node1       worker     ● success      v6.453.0     2120ms       cloned successfully into ~/work/internal/tool
     --------------------------------------------------------------------------------------------------------
 
   ✔ Fleet CFR Summary: 3/3 node(s) completed successfully (0 failed)
@@ -353,7 +353,7 @@ The help screen provides comprehensive guidance, parameter descriptions, and con
   - `-j, --json`: Output machine-readable JSON telemetry.
 - **Rich Examples:**
   - Standard fleet clone: `gitmap nodes cfr ChrisTitusTech/winutil`
-  - URL with custom destination: `gitmap nodes clone https://github.com/u/repo D:\work\custom`
+  - URL with custom destination: `gitmap nodes clone https://github.com/u/repo ./custom`
   - Remote-only clone: `gitmap nodes cfr except-self owner/repo`
   - Query machine telemetry: `gitmap machine --ssh`
   - Single target filter: `gitmap nodes cfr --target w1 user/repo`

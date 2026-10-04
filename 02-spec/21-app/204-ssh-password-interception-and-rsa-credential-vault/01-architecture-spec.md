@@ -14,7 +14,7 @@
 ### 1.1 Problem Statement
 When operators execute SSH commands (`gitmap ssh <node>`, `gitmap cluster exec`, `gitmap nodes`, `gitmap sj`), OpenSSH by default opens the controlling terminal device (`/dev/tty` on Unix, or the active console input handle on Windows) to prompt for credentials interactively:
 ```text
-administrator@192.168.1.15's password: 
+administrator@gateway-node5's password: 
 ```
 
 This direct terminal hijack bypasses GitMap runtime entirely, producing three critical operational failures:

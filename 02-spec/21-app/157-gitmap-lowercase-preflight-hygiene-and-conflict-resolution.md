@@ -13,11 +13,11 @@
 https://prnt.sc/n_O_kOGNEJqZ
 
 
-PS D:\work\presentations-repos\hiltrax> gitmap lowercase "*.md"
+PS ./presentations-repos\hiltrax> gitmap lowercase "*.md"
 
 ⚡ GitMap Lowercase File Renamer
   ● Mode:        Git Repository (2-step git mv)
-  ● Working Dir: D:\work\presentations-repos\hiltrax
+  ● Working Dir: ./presentations-repos\hiltrax
   ● Filter:      *.md
   ● Scanned:     1043 files in directory
   ● Matched:     18 uppercase file(s)
@@ -120,7 +120,7 @@ Type 'confirm' or 'yes' (or 'y') to proceed: y
     4. Step 4 (Atomic Commit):   git commit -m "chore: rename ..."
 ════════════════════════════════════════════════════════════════
 
-PS D:\work\presentations-repos\hiltrax>
+PS ./presentations-repos\hiltrax>
 
 
 Okay. So here the big problem is that even if you fix those uppercase to lowercase, the first thing you created is the Git conflict, and you didn't resolve the Git conflict. Okay, and it looks like that there are too many Git merge happen, conflict resolved. Why? Because you are doing this change, you should make sure that it is done properly. Okay, if there is something pending, you make sure that you discard it, you don't care it, and you confirm with the user. You list out all the files that you are dealing with, make sure there is no hidden stuff. And then when you start, you make sure you commit and resolve and push to the Git, which is missing from your task. Is it understood? Can you please fix it and bump the minor version and release it

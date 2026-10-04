@@ -9,7 +9,7 @@
      ```text
      [1/2] Terminating active Antigravity IDE process...
        ✔ Terminated Antigravity IDE (PID: 1596)
-     [2/2] Launching Antigravity IDE in d:\work\wp-html-automate...
+     [2/2] Launching Antigravity IDE in ./wp-html-automate...
      ```
    - Antigravity IDE is forcefully terminated via `taskkill /F /PID` and `taskkill /F /IM Antigravity.exe`, closing the user's active window and losing work state.
 
@@ -71,7 +71,7 @@
 1. **Unit & Integration Tests (`cli/cmdagy/agy_rerun_test.go`, `cli/cmdagy/agy_agentapi_cmds_test.go`):**
    - Verified that `agy rerun -d 1` selects `#1` from pinned/active projects without killing the IDE.
    - Verified that `agy rerun -d wp-xampp` resolves to `wp-exam`.
-   - Verified that running `agy rerun -d` inside `d:\work\wp-exam` selects `wp-exam`.
+   - Verified that running `agy rerun -d` inside `./wp-exam` selects `wp-exam`.
    - Verified argument formatting and option propagation for `new-conversation` and `send-message`.
 2. **Quality Gates:**
    - `check-nested-ifs.py`: PASS (0 violations).

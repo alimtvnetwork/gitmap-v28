@@ -4,8 +4,8 @@
 > **Completed At:** 2026-10-04  
 > **Traceability IDs:** Subtask 212-01 .. Subtask 212-05  
 > **Spec Reference:** [02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md](../../../02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md)  
-> **Target Node:** Ubuntu U1 (`192.168.1.22`)  
-> **Deliverable Path:** `d:\work\repo-secrets\04-ubuntu-migration\`  
+> **Target Node:** Ubuntu U1 (`node-u1`)  
+> **Deliverable Path:** `./repo-secrets\04-ubuntu-migration\`  
 
 ---
 
@@ -13,20 +13,20 @@
 
 All 5 core objectives for full customization, remote controls, and embedded execution have been implemented, tested live on Ubuntu U1, and verified:
 1. **Desktop Wallpaper Synchronization**:
-   - Implemented [set-desktop-wallpaper.sh](file:///d:/work/repo-secrets/04-ubuntu-migration/set-desktop-wallpaper.sh) setting both `picture-uri` and `picture-uri-dark` via D-Bus session.
+   - Implemented [set-desktop-wallpaper.sh](file:///./repo-secrets/04-ubuntu-migration/set-desktop-wallpaper.sh) setting both `picture-uri` and `picture-uri-dark` via D-Bus session.
    - Tested live on U1 setting wallpaper to `file:///usr/share/backgrounds/warty-final-ubuntu.png`.
 2. **Remote GUI Application Launching**:
-   - Implemented [launch-gui-app.sh](file:///d:/work/repo-secrets/04-ubuntu-migration/launch-gui-app.sh) using `systemd-run --user /usr/local/bin/antigravity` into the active graphical display without X11 authorization errors.
+   - Implemented [launch-gui-app.sh](file:///./repo-secrets/04-ubuntu-migration/launch-gui-app.sh) using `systemd-run --user /usr/local/bin/antigravity` into the active graphical display without X11 authorization errors.
    - Verified that Antigravity launches into `app.slice` cleanly detached from the SSH terminal.
 3. **VMware Shared Folders Deep Verification**:
-   - Implemented [verify-vmware-mount.sh](file:///d:/work/repo-secrets/04-ubuntu-migration/verify-vmware-mount.sh) executing an 8-point diagnostic.
+   - Implemented [verify-vmware-mount.sh](file:///./repo-secrets/04-ubuntu-migration/verify-vmware-mount.sh) executing an 8-point diagnostic.
    - Verified that `/mnt/hgfs/SharedDirectories` is active, accessible, and writable by user `a`.
 4. **Antigravity Brain & Conversation History Portability**:
-   - Implemented [sync-antigravity-deep.ps1](file:///d:/work/repo-secrets/04-ubuntu-migration/sync-antigravity-deep.ps1).
-   - Streamed 100 conversation folders and normalized `conversation_summaries.db` (148 KB) on U1 with path remapping from `file:///d%3A/work/` and `d:\work\` to `/home/a/git-work/`.
+   - Implemented [sync-antigravity-deep.ps1](file:///./repo-secrets/04-ubuntu-migration/sync-antigravity-deep.ps1).
+   - Streamed 100 conversation folders and normalized `conversation_summaries.db` (148 KB) on U1 with path remapping from `file:///d%3A/work/` and `./` to `/home/a/git-work/`.
 5. **Self-Contained Embedded Master PowerShell Runner**:
-   - Implemented [master-embedded-ubuntu-runner.ps1](file:///d:/work/repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1) embedding all bash scripts internally as multi-line string templates (`@' ... '@`) and streaming via `tr -d '\r' | bash -s -- $EscapedArgs`, requiring zero external script files!
-   - Authored [step-by-step-log-v2.md](file:///d:/work/repo-secrets/04-ubuntu-migration/step-by-step-log-v2.md) and future full OS setup blueprint [02-full-os-setup-blueprint.md](file:///d:/work/gitmap/02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/02-full-os-setup-blueprint.md).
+   - Implemented [master-embedded-ubuntu-runner.ps1](file:///./repo-secrets/04-ubuntu-migration/master-embedded-ubuntu-runner.ps1) embedding all bash scripts internally as multi-line string templates (`@' ... '@`) and streaming via `tr -d '\r' | bash -s -- $EscapedArgs`, requiring zero external script files!
+   - Authored [step-by-step-log-v2.md](file:///./repo-secrets/04-ubuntu-migration/step-by-step-log-v2.md) and future full OS setup blueprint [02-full-os-setup-blueprint.md](file:///./gitmap/02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/02-full-os-setup-blueprint.md).
 
 ---
 

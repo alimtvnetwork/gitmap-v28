@@ -26,7 +26,7 @@ Following the comprehensive audit and creation of Specifications 131 through 134
    - Verified persistent host aliasing (`gitmap ssh ip as 'alias'`).
    - Verified automatic known-hosts trust (`accept-new`).
    - Verified masked terminal password prompt and AES-256-GCM encrypted Split-DB vault (`gitmap ssh pass ls` / `gitmap ssh pass show`).
-   - Verified universal cross-platform IP discovery: `gitmap ip` returned local interface `192.168.1.8` with zero latency.
+   - Verified universal cross-platform IP discovery: `gitmap ip` returned local interface `node-alias` with zero latency.
    - Verified `gitmap ip-change` with automated Google DNS (`8.8.8.8`) ping verification and auto-revert loop.
    - Verified `gitmap cluster join help` documentation differentiating ad-hoc SSH access from distributed swarm membership.
 
@@ -55,7 +55,7 @@ Following the comprehensive audit and creation of Specifications 131 through 134
 
 ### Subtask 03: Spec 133 SSH Interactive Join, Vault & Cluster Verification
 - **Files Verified:** `cli/cmdssh/sshjoin_enroll.go`, `cli/cmdssh/ssh_pass_cmd.go`, `cli/cmd/ip_cmd.go`, `cli/cmd/ipchange_cmd.go`, `cli/helptext/cluster-join.md`
-- **Result:** `gitmap ip` (192.168.1.8), `gitmap ssh pass ls`, and cluster join help successfully verified.
+- **Result:** `gitmap ip` (node-alias), `gitmap ssh pass ls`, and cluster join help successfully verified.
 
 ### Subtask 04: Spec 134 Antigravity IDE-First Integration & Dynamic Queue Verification
 - **Files Verified:** `cli/cmdagy/agy_ping.go`, `cli/cmdagy/agy_list_prompts.go`, `cli/cmdagy/agy_conv_selector.go`, `cli/cmdagy/agy_fix_pipeline_queue.go`

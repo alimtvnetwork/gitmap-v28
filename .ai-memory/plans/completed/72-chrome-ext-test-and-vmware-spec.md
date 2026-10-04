@@ -36,7 +36,7 @@ Okay, I think this is a time that you need to test the Chrome extension. What do
 
 ### Subtask 02: Repo Secrets Sequence Provisioning & Discovery Logging
 - **Status**: Completed (`PASS exit 0`)
-- **Target Folder**: `d:/work/repo-secrets/01-gitmap/10-chrome-ext-test-and-vmware/`
+- **Target Folder**: `./repo-secrets/01-gitmap/10-chrome-ext-test-and-vmware/`
 - **Subdirectories**: `logs/`, `exports/`, `reports/`, `artifacts/`
 - **Files Initialized**: `logs/execution.log`, `logs/audit-trace.json`, `logs/error.log`, `reports/verification-report.md`.
 - **Host Discovery**: Discovered 47 Chrome profile folders, 46 registered profiles in `Local State`, cataloged `Profile 6` (isolated test sandbox) and `Profile 1` (rich extension candidate with 7 extensions).

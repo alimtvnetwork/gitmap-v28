@@ -2,28 +2,28 @@
 
 ## User Request (Verbatim)
 ```
-PS C:\Users\Alim> gitmap ssh join administrator@192.168.1.17
-✓ Machine 'host-192.168.1.17' (administrator@192.168.1.17) joined successfully.
-  Recall anytime: gitmap ssh host-192.168.1.17
-  Or connect directly: gitmap ssh administrator@192.168.1.17
+PS C:\Users\Alim> gitmap ssh join administrator@node-t1
+✓ Machine 'host-node-t1' (administrator@node-t1) joined successfully.
+  Recall anytime: gitmap ssh host-node-t1
+  Or connect directly: gitmap ssh administrator@node-t1
   Undo anytime: gitmap ssh undo
-PS C:\Users\Alim> gitmap ssh join administrator@192.168.1.17 t1
-✓ Machine 't1' (administrator@192.168.1.17) joined successfully.
+PS C:\Users\Alim> gitmap ssh join administrator@node-t1 t1
+✓ Machine 't1' (administrator@node-t1) joined successfully.
   Recall anytime: gitmap ssh t1
-  Or connect directly: gitmap ssh administrator@192.168.1.17
+  Or connect directly: gitmap ssh administrator@node-t1
   Undo anytime: gitmap ssh undo
 PS C:\Users\Alim> gitmap nodes
 
   ALIAS            ROLE           HOST (IP:PORT)         USER           STATUS                ENROLLED
   --------------------------------------------------------------------------------------------------------------
-  w1               worker         192.168.1.3:22         Administrator  ○ offline (timeout)   2026-09-30 06:04:29
-  w2               worker         192.168.1.7:22         Administrator  ○ offline (timeout)   2026-09-30 06:04:29
-  w4               worker         192.168.1.13:22        Administrator  ○ offline (timeout)   2026-09-30 06:04:29
-  u1               worker         192.168.1.22:22        a              ○ offline (timeout)   2026-09-30 06:04:29
-  t1               worker         192.168.1.17:22        administrator  ○ offline (timeout)   2026-10-03 07:00:23
+  w1               worker         node-w1:22         Administrator  ○ offline (timeout)   2026-09-30 06:04:29
+  w2               worker         node-w2:22         Administrator  ○ offline (timeout)   2026-09-30 06:04:29
+  w4               worker         node-w4:22        Administrator  ○ offline (timeout)   2026-09-30 06:04:29
+  u1               worker         node-u1:22        a              ○ offline (timeout)   2026-09-30 06:04:29
+  t1               worker         node-t1:22        administrator  ○ offline (timeout)   2026-10-03 07:00:23
   ip               worker         exec:22                Alim           ○ offline (timeout)   2026-10-01 04:26:08
-  main             worker         192.168.1.20:22        administrator  ○ offline (timeout)   2026-09-30 06:06:48
-  w3               worker         192.168.1.12:22        Administrator  ● ready               2026-09-30 06:04:29
+  main             worker         node-main:22        administrator  ○ offline (timeout)   2026-09-30 06:06:48
+  w3               worker         node-w3:22        Administrator  ● ready               2026-09-30 06:04:29
 ```
 
 Target Machine:

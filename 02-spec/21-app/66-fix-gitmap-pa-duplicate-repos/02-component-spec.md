@@ -33,9 +33,9 @@ In the target workspace, there were only **78 physical repositories**. However, 
 
 ### 1.2 Root Cause Analysis
 1. **Unsanitized Pipeline Ingestion:**
-   Even though database migrations address primary key collation in `gitmap.db`, `loadAllRecordsDB()` and `resolvePullTargets()` in `cli/cmdpull/` ingested raw records directly into the pull queue. Any existing case discrepancy (such as `D:\work\repo` vs `d:\work\repo` or multiple database entries for identical repo slugs) was fed straight into the concurrency worker pool.
+   Even though database migrations address primary key collation in `gitmap.db`, `loadAllRecordsDB()` and `resolvePullTargets()` in `cli/cmdpull/` ingested raw records directly into the pull queue. Any existing case discrepancy (such as `./repo` vs `./repo` or multiple database entries for identical repo slugs) was fed straight into the concurrency worker pool.
 2. **Concurrent Worker Collision on the Same Working Tree:**
-   When both `D:\work\repo` and `d:\work\repo` were enqueued simultaneously, two independent worker goroutines in `cli/cmdpull/` spawned `git pull --progress --ff-only --autostash` on the exact same `.git` directory at the same time. The concurrent fetch operations wrote duplicate branch references into `.git/FETCH_HEAD`, causing Git to emit `fatal: Cannot fast-forward to multiple branches.` and abort the fast-forward.
+   When both `./repo` and `./repo` were enqueued simultaneously, two independent worker goroutines in `cli/cmdpull/` spawned `git pull --progress --ff-only --autostash` on the exact same `.git` directory at the same time. The concurrent fetch operations wrote duplicate branch references into `.git/FETCH_HEAD`, causing Git to emit `fatal: Cannot fast-forward to multiple branches.` and abort the fast-forward.
 3. **Multiplied Ignore Scanning:**
    The asynchronous background ignore scanner in `cli/cmdpull/pull_concurrency.go` received the same un-deduplicated record slice. Consequently, it audited the same physical directories twice, generating duplicate `IgnoreRepoIssue` entries and reporting inflated issue tallies.
 4. **Duplicate Terminal Summary Rendering:**
@@ -59,7 +59,7 @@ This component specification establishes an end-to-end in-memory defense-in-dept
 - **Helpers:** [helpers.go](cli/cmdpull/helpers.go)
 
 ### 2.2 Canonical Path Normalization
-Windows paths can vary by drive letter casing (`D:\` vs `d:\`), slash direction (`\` vs `/`), trailing slashes (`D:\work\` vs `D:\work`), and dot segments (`D:\work\.\repo`). Canonicalization maps any path variant of a physical repository to a single deterministic key.
+Windows paths can vary by drive letter casing (`D:\` vs `d:\`), slash direction (`\` vs `/`), trailing slashes (`./` vs `D:\work`), and dot segments (`./.\repo`). Canonicalization maps any path variant of a physical repository to a single deterministic key.
 
 #### Implementation Contract
 ```go
@@ -444,7 +444,7 @@ Worker threads are completely isolated from cross-process race conditions.
 2. **`deduplicatePullRecords` Tests:**
    - Given a slice of 4 records containing 2 duplicates with varying path case and matching slugs, output slice has length exactly 2.
 3. **`DeduplicateIgnoreIssues` Tests:**
-   - Given 2 `IgnoreRepoIssue` structs pointing to `D:\work\repo` and `d:\work\repo`, output slice has length 1.
+   - Given 2 `IgnoreRepoIssue` structs pointing to `./repo` and `./repo`, output slice has length 1.
 4. **`DeduplicateRepoStates` Tests:**
    - Given multiple states for the same repo (one failed, one up-to-date), output retains the failed state for diagnostic visibility, length is 1.
 5. **`isDivergedOutput` Tests:**

@@ -7,11 +7,11 @@ Subtasks: [.ai-memory/plans/subtasks/91-ssh-join-common-scan-and-agy-rop/](../su
 
 ```text
 gitmap ssh-join-common administrator ip1(aliasing),ip2(aliasing),lastchangedpartoftheIP(aliasing)
-gitmap ssh-join-common administrator 192.168.1.3(w1),7(w2),12(w3) --pass <...>
+gitmap ssh-join-common administrator node-w1(w1),7(w2),12(w3) --pass <...>
 
 gitmap ssh scan # see how many ips are available in the network
 
-D:\work\03-aukgo\enum\osdetect
+./03-aukgo\enum\osdetect
 
 gitmap agy reread-optimize-project(rop) N # 5
 
@@ -22,7 +22,7 @@ Okay, fix this third issue for the Git map. Also, at the same time. Oh, sorry. Y
 ## Problem Summary & Architectural Scope
 1. **SSH Batch Common Join (`gitmap ssh-join-common` / `sjc`)**:
    - Needed an ergonomic shorthand syntax for enrolling multi-node clusters sharing common credentials and base IP subnets.
-   - Suffix/octet expansion: `192.168.1.3(w1),7(w2),12(w3)` dynamically resolves base prefix `192.168.1.` across subsequent octets (`192.168.1.7`, `192.168.1.12`).
+   - Suffix/octet expansion: `node-w1(w1),7(w2),12(w3)` dynamically resolves base prefix `192.168.1.` across subsequent octets (`node-w2`, `node-w3`).
    - Automated concurrent joining, credential distribution, host key recording, and SQLite enrollment.
 2. **Subnet Discovery Scanner (`gitmap ssh scan`)**:
    - Needed network discovery across the active IPv4 subnet to find hosts listening on SSH port 22.
@@ -45,7 +45,7 @@ Okay, fix this third issue for the Git map. Also, at the same time. Oh, sorry. Y
 
 ### 1. SSH Common Join (`cli/cmdssh/`)
 - `sshjoin_common_types.go`: Core data models (`SSHCommonJoinInput`, `ParsedCommonNodeTarget`, `SSHCommonJoinResult`).
-- `sshjoin_common_parser.go`: Parses shorthand octet targets (`192.168.1.3(w1),7(w2),12(w3)`) with parenthesized alias extraction and IP prefix state tracking.
+- `sshjoin_common_parser.go`: Parses shorthand octet targets (`node-w1(w1),7(w2),12(w3)`) with parenthesized alias extraction and IP prefix state tracking.
 - `sshjoin_common.go`: High-speed concurrent worker pool joining nodes via common credentials and enrolling into DB.
 - `sshjoin_common_cmd.go`: CLI command wiring for `ssh-join-common` and alias `sjc`.
 

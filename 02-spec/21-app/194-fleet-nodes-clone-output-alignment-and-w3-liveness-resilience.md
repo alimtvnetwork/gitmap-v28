@@ -41,12 +41,12 @@ I can still acess to w3 machine fix it and release minor please and
 
   NODE (ALIAS)     HOST                   ROLE       STATUS        DURATION   DETAILS
   --------------------------------------------------------------------------------------------------------------
-  local (current)  127.0.0.1              master     ● success     in-process already exists on disk (D:\work\awansoft-v10)
-  w1               192.168.1.3            worker     ● success     4120ms     already exists on disk
-  w4               192.168.1.13           worker     ● success     4280ms     already exists on disk
-  w3               192.168.1.12           worker     ○ offline     3010ms     node offline or unreachable
-  main             192.168.1.20           worker     ○ offline     3015ms     node offline or unreachable
-  u1               192.168.1.22           worker     ○ offline     3020ms     node offline or unreachable
+  local (current)  127.0.0.1              master     ● success     in-process already exists on disk (./awansoft-v10)
+  w1               node-w1            worker     ● success     4120ms     already exists on disk
+  w4               node-w4           worker     ● success     4280ms     already exists on disk
+  w3               node-w3           worker     ○ offline     3010ms     node offline or unreachable
+  main             node-main           worker     ○ offline     3015ms     node offline or unreachable
+  u1               node-u1           worker     ○ offline     3020ms     node offline or unreachable
   --------------------------------------------------------------------------------------------------------------
 
   ✔ Fleet Clone Summary: 3/6 node(s) completed successfully (3 failed)

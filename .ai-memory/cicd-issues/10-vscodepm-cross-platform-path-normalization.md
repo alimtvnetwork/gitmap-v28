@@ -9,9 +9,9 @@
 `TestUpdateRootPathAndRemoveEntry` and `TestPathsEqualCrossPlatformSlashes` failed exclusively on Linux/macOS CI runners while passing locally on Windows:
 ```
 --- FAIL: TestUpdateRootPathAndRemoveEntry (0.00s)
-update_remove_test.go:23: UpdateRootPathAt failed: project not found with rootPath D:/work/my-app
+update_remove_test.go:23: UpdateRootPathAt failed: project not found with rootPath ./my-app
 --- FAIL: TestPathsEqualCrossPlatformSlashes (0.00s)
-update_remove_test.go:63: pathsEqual("D:\work\my-app", "D:/work/my-app") = false, want true
+update_remove_test.go:63: pathsEqual("./my-app", "./my-app") = false, want true
 ```
 
 ## 2. Root Cause Analysis
@@ -19,7 +19,7 @@ update_remove_test.go:63: pathsEqual("D:\work\my-app", "D:/work/my-app") = false
 - The previous fix used `filepath.ToSlash(p)` followed by `filepath.Clean(p)`.
 - `filepath.ToSlash` is OS-aware: it only replaces characters matching `filepath.Separator`.
 - On Linux and macOS, `filepath.Separator` is `/`. Therefore, `filepath.ToSlash` does absolutely nothing to backslashes (`\`), as backslashes are technically valid filename characters in POSIX systems.
-- As a result, `"D:\work\my-app"` remained unchanged and evaluated as a distinct string from `"D:/work/my-app"`.
+- As a result, `"./my-app"` remained unchanged and evaluated as a distinct string from `"./my-app"`.
 
 ## 3. Solution
 

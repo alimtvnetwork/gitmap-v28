@@ -12,7 +12,7 @@
 
 ## 1. Executive Summary
 
-This plan orchestrates the creation and verification of automated provisioning scripts connecting the Windows workstation to target machine `u1`. It guarantees that all private tokens, accounts, and licenses reside strictly in `d:\work\repo-secrets\`, confirms zero secrets in the public repository, and verifies complete headless account switching on `u1`.
+This plan orchestrates the creation and verification of automated provisioning scripts connecting the Windows workstation to target machine `u1`. It guarantees that all private tokens, accounts, and licenses reside strictly in `./repo-secrets\`, confirms zero secrets in the public repository, and verifies complete headless account switching on `u1`.
 
 All 5 subtasks completed with 100% pass rate. Live execution of `migrate-to-u1.ps1` succeeded with exit code 0, deploying GitMap v6.472.0, AGM native CLI companion, dual enterprise licenses, and switching instance `default` to `rokixshohag1@gmail.com`.
 
@@ -29,24 +29,24 @@ All 5 subtasks completed with 100% pass rate. Live execution of `migrate-to-u1.p
 ### Subtask 76.2: External Repo Secrets Vault & Dual Licenses Storage Setup
 - **Status:** COMPLETED [x]
 - **Spec Reference:** Spec 206 §5
-- **File:** `d:\work\repo-secrets\08-licenses\`
-- **Outcome:** PASS. Initialized `d:\work\repo-secrets\08-licenses\` and generated typed envelopes:
+- **File:** `./repo-secrets\08-licenses\`
+- **Outcome:** PASS. Initialized `./repo-secrets\08-licenses\` and generated typed envelopes:
   - `01-primary-enterprise.json`: Enterprise tier workstation license with unlimited quota, multi-node sync.
   - `02-cluster-fleet-node.json`: Cluster node worker license bound to Ubuntu hardware target `u1`.
 
 ### Subtask 76.3: Windows-to-Target One-Click PowerShell Migration Script
 - **Status:** COMPLETED [x]
 - **Spec Reference:** Spec 206 §3
-- **File:** `d:\work\repo-secrets\migrate-to-u1.ps1`
+- **File:** `./repo-secrets\migrate-to-u1.ps1`
 - **Outcome:** PASS. Created standalone PowerShell migration runner in external secrets vault. Packages vault, licenses, and Linux installer using native Windows `tar.exe`, transfers via SCP to `u1`, executes installer remotely, streams stdout/stderr, and performs health checks.
 
 ### Subtask 76.4: Target Machine Zero-to-End Autonomous Installation Script
 - **Status:** COMPLETED [x]
 - **Spec Reference:** Spec 206 §4
-- **File:** `d:\work\repo-secrets\install-zero-to-end.sh`
+- **File:** `./repo-secrets\install-zero-to-end.sh`
 - **Outcome:** PASS. Created autonomous Bash installer in external secrets vault. Compiles latest `gitmap` from source, configures `/usr/bin/agm` wrapper routing to native CLI companion `/usr/bin/agm-alim`, installs anti-recursion IDE wrapper `/home/a/.local/bin/antigravity-launcher.sh`, injects all 35 accounts, Supabase, Telegram, and dual licenses with POSIX 700/600 permissions.
 
 ### Subtask 76.5: End-to-End Remote Verification & Proof Capture
 - **Status:** COMPLETED [x]
 - **Spec Reference:** Spec 206 §6
-- **Outcome:** PASS. Executed `migrate-to-u1.ps1` from Windows against node `u1` (`192.168.1.22:22`). Exit code: 0. Verified GitMap v6.472.0 active, 37 account profiles synchronized, instance `default` switched to `rokixshohag1@gmail.com`, and active license bound.
+- **Outcome:** PASS. Executed `migrate-to-u1.ps1` from Windows against node `u1` (`node-u1:22`). Exit code: 0. Verified GitMap v6.472.0 active, 37 account profiles synchronized, instance `default` switched to `rokixshohag1@gmail.com`, and active license bound.

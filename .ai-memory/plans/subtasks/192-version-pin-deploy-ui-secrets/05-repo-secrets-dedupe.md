@@ -5,8 +5,8 @@
 
 ## Deliverables
 1. **Repo Secrets Synchronization**:
-   - `git pull` on `D:\work\repo-secrets` (already verified and up to date).
-   - In `D:\work\repo-secrets\01-gitmap\commit-pull-config.json` and `00-commit-pull-config.json`, ensure single clean canonical flags (e.g., `isApplyCd`, `isApplyTree`, `isApplyFinalSync`, `isRecreate`, `isPushImmediate`) without redundant duplicate keys.
+   - `git pull` on `./repo-secrets` (already verified and up to date).
+   - In `./repo-secrets\01-gitmap\commit-pull-config.json` and `00-commit-pull-config.json`, ensure single clean canonical flags (e.g., `isApplyCd`, `isApplyTree`, `isApplyFinalSync`, `isRecreate`, `isPushImmediate`) without redundant duplicate keys.
    - Commit and push changes to `repo-secrets`.
 2. **Go Struct Normalization**:
    - In `cli/cmd/commitin/config_json.go`, clean up `CommitInConfigJSON` struct, eliminating confusing redundant fields while safely preserving compatibility with existing configs.

@@ -3,15 +3,15 @@
 > **Parent Plan:** `200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize.md`
 > **Status:** `PENDING`
 > **Target Files:**
-> - `D:\work\repo-secrets\07-final-network-machine\gitmap.json`
-> - `D:\work\repo-secrets\07-final-network-machine\clone-gitmap.ps1`
+> - `./repo-secrets\07-final-network-machine\gitmap.json`
+> - `./repo-secrets\07-final-network-machine\clone-gitmap.ps1`
 > - `scripts/clone-gitmap.ps1`
 
 ---
 
 ## Technical Specification
 
-1. **`D:\work\repo-secrets\07-final-network-machine\gitmap.json`**:
+1. **`./repo-secrets\07-final-network-machine\gitmap.json`**:
    - Set `"version": "2.0"` in `attributes`.
    - Update `workDirectory`:
      ```json
@@ -48,7 +48,7 @@
      `"workDir": "D:\\work"`, `"repoDir": "${workDir}\\gitmap"`, `"secretsDir": "."`.
    - `data`:
      - 1-based indexing: `id` starts at 1 (1 to 66).
-     - Replace hardcoded `D:\work\` with `${workDir}\` in `absolutePath`.
+     - Replace hardcoded `./` with `${workDir}\` in `absolutePath`.
 
 2. **Standalone `clone-gitmap.ps1`**:
    - Works with PowerShell 5.1 and Core (pwsh 7+).

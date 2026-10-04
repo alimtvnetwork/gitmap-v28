@@ -15,7 +15,7 @@ Visual Asset: `assets/screenshots/nodes-clone-fleet-ui-and-windows-bash-failure.
 
 ### 1.1 Context
 During fleet clone dispatch (`gitmap nodes clone https://github.com/alimtvnetwork/awansoft-v10`), the user identified several critical limitations and requested specific enhancements:
-1. Windows node `w4` (`192.168.1.13`) aborted with `'bash' is not recognized as an internal or external command` because GitMap unconditionally wrapped commands in `bash -c ...` due to a misdetected or stale OS profile in the database.
+1. Windows node `w4` (`node-w4`) aborted with `'bash' is not recognized as an internal or external command` because GitMap unconditionally wrapped commands in `bash -c ...` due to a misdetected or stale OS profile in the database.
 2. When cloning direct Git URLs (without a manifest file), the dispatcher ran `gitmap clone <url>` in the remote user's home directory rather than navigating to the default work directory (`D:\work` / `~/work`).
 3. Users could not provide a custom target directory after the URL (e.g. `gitmap nodes clone <url> [target_path]`).
 4. Users could not run `except-self` to clone strictly across remote fleet nodes without cloning to the local master host.

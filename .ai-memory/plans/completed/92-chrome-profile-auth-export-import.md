@@ -79,9 +79,9 @@ Four root cause failure mechanisms were identified and resolved:
    - `TestSmartImportTokenRestore`: PASS
    - `TestChromeProfileZipExport`: PASS
 4. **Live VM CLI Verification:**
-   - `gitmap chrome export "Profile 1" d:\work\test_profile1_export.json`:
+   - `gitmap chrome export "Profile 1" ./test_profile1_export.json`:
      - Populated: `GaiaID: 113336085041923585255`, `CookiesRawBase64: 92844 bytes`, `WebDataRawBase64: 262144 bytes`, `TokenVault count: 1`.
-   - `gitmap chrome import "d:\work\test_profile1_export.json" --target "Profile 999"`:
+   - `gitmap chrome import "./test_profile1_export.json" --target "Profile 999"`:
      - SQLite `token_service`: `[('AccountId-113336085041923585255', 134)]`
      - SQLite `Network/Cookies`: 102 active session cookies restored
      - `Preferences`: `account_info` count 1 (`rokixshohag1@gmail.com`), `signin.allowed: True`

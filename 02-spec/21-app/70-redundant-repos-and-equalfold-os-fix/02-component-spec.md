@@ -283,7 +283,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS IdxRepo_AbsolutePath ON Repo(AbsolutePath COLL
 Before any repository path enters SQL statements, it MUST be passed through `store.NormalizeStoragePath(pathStr)`:
 - Cleans relative navigation components (`.`, `..`).
 - Normalizes path separators to OS standard.
-- On Windows, capitalizes drive letters (e.g. `d:\work\repo` -> `D:\work\repo`) to eliminate case variations.
+- On Windows, capitalizes drive letters (e.g. `./repo` -> `./repo`) to eliminate case variations.
 
 #### 3.3.3 Upsert Strategy (`constants.SQLUpsertRepoByPath`)
 Repository additions are executed via `db.UpsertRepos(records)`:
@@ -325,5 +325,5 @@ While `AbsolutePath` is unique at the filesystem level, repositories with the sa
 
 ### 4.2 SQLite Uniqueness Acceptance Criteria
 1. **Duplicate File Ingestion Test**: Ingesting the same relative path 100 times into `RepoFile` via `Upsert` or `Walker` produces exactly 1 row in the SQLite database, with updated `UpdatedAt` timestamp.
-2. **Duplicate Repo Ingestion Test**: Ingesting the same absolute path with different casing (e.g. `D:\Work\repo` vs `d:\work\repo`) into `Repo` resolves to a single row due to `IdxRepo_AbsolutePath (COLLATE NOCASE)`.
+2. **Duplicate Repo Ingestion Test**: Ingesting the same absolute path with different casing (e.g. `D:\Work\repo` vs `./repo`) into `Repo` resolves to a single row due to `IdxRepo_AbsolutePath (COLLATE NOCASE)`.
 3. **Foreign Key and Cascading Integrity**: Updating or deduplicating records leaves no orphaned entries in `GroupRepo` or `Release`.

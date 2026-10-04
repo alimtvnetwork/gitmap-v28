@@ -11,12 +11,12 @@
 
 | Node Alias | IP Address | Operating System | Reachability | Antigravity IDE Executable | IDE Process State |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`w1`** | `192.168.1.3` | Windows 10/11 x64 | **ONLINE** (22 Open) | `FOUND` (`AppData\Local\Programs\Antigravity\antigravity.exe`) | **RUNNING** (PID: 10316) |
-| **`w2`** | `192.168.1.7` | Windows 10/11 x64 (Local Host) | **ONLINE** (22 Open) | `FOUND` (`AppData\Local\Programs\Antigravity\antigravity.exe`) | **RUNNING** (PID: 13828) |
-| **`w3`** | `192.168.1.12` | Windows 10/11 x64 | **ONLINE** (22 Open) | `FOUND` (`AppData\Local\Programs\Antigravity\Antigravity.exe`) | **RUNNING** (PID: 4092) |
-| **`u1`** | `192.168.1.22` | Ubuntu 24.04 LTS x64 | **ONLINE** (22 Open) | `FOUND` (`/home/a/.local/bin/antigravity`) | **STOPPED** (Offline filesystem mode active) |
-| **`w4`** | `192.168.1.13` | Windows x64 | **OFFLINE** (Powered Off) | — | — (Excluded from fleet executions) |
-| **`AI Main`** | `192.168.1.20` | — | **OFFLINE** (Powered Off) | — | — (Excluded from fleet executions) |
+| **`w1`** | `node-w1` | Windows 10/11 x64 | **ONLINE** (22 Open) | `FOUND` (`AppData\Local\Programs\Antigravity\antigravity.exe`) | **RUNNING** (PID: 10316) |
+| **`w2`** | `node-w2` | Windows 10/11 x64 (Local Host) | **ONLINE** (22 Open) | `FOUND` (`AppData\Local\Programs\Antigravity\antigravity.exe`) | **RUNNING** (PID: 13828) |
+| **`w3`** | `node-w3` | Windows 10/11 x64 | **ONLINE** (22 Open) | `FOUND` (`AppData\Local\Programs\Antigravity\Antigravity.exe`) | **RUNNING** (PID: 4092) |
+| **`u1`** | `node-u1` | Ubuntu 24.04 LTS x64 | **ONLINE** (22 Open) | `FOUND` (`/home/a/.local/bin/antigravity`) | **STOPPED** (Offline filesystem mode active) |
+| **`w4`** | `node-w4` | Windows x64 | **OFFLINE** (Powered Off) | — | — (Excluded from fleet executions) |
+| **`AI Main`** | `node-main` | — | **OFFLINE** (Powered Off) | — | — (Excluded from fleet executions) |
 
 ---
 

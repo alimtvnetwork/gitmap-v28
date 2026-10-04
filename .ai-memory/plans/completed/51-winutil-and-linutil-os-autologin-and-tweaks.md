@@ -3,14 +3,14 @@
 - **Slug:** `51-winutil-and-linutil-os-autologin-and-tweaks`
 - **Status:** Completed
 - **Author:** Antigravity (Pair Programming with Alim Karim)
-- **Source Repositories Analyzed:** `D:\work\chris\winutil` and `D:\work\chris\linutil`
+- **Source Repositories Analyzed:** `./chris\winutil` and `./chris\linutil`
 - **Target Architecture:** Native Go subsystem under `cli/cmdos/` with zero PowerShell dependency, hermetic testing, and two-column terminal menus.
 
 ---
 
 ## 1. Executive Summary & Insights from Chris Titus Repositories
 
-After analyzing `D:\work\chris\winutil` and `D:\work\chris\linutil`, we identified high-value system management components that can be natively ported to GitMap. Rather than relying on external executables (`autologon.exe`), slow PowerShell cmdlets (`Invoke-WPFPanelAutologin`), or shell scripts, GitMap will implement these capabilities in **pure, high-performance Go**:
+After analyzing `./chris\winutil` and `./chris\linutil`, we identified high-value system management components that can be natively ported to GitMap. Rather than relying on external executables (`autologon.exe`), slow PowerShell cmdlets (`Invoke-WPFPanelAutologin`), or shell scripts, GitMap will implement these capabilities in **pure, high-performance Go**:
 
 1. **OS Auto-Login (Windows & Ubuntu):**
    - **WinUtil Approach:** Downloads Sysinternals `Autologon.exe` (or sets Winlogon registry keys). Requires 3 parameters: `username`, `domain`, and `password`.

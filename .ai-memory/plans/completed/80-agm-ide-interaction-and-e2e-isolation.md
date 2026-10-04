@@ -37,7 +37,7 @@ FIx it with RCA and release minor bump
 ## 4-Part Root Cause Analysis & Architectural Findings
 
 ### 1. Architectural Investigation: Antigravity-Manager (AGM)
-- **Codebase Topology**: `d:\work\Antigravity-Manager` is a desktop application built on Tauri (Rust backend in `src-tauri` and React/TypeScript frontend in `src`).
+- **Codebase Topology**: `./Antigravity-Manager` is a desktop application built on Tauri (Rust backend in `src-tauri` and React/TypeScript frontend in `src`).
 - **Profile & Credential Management**: AGM focuses on multi-instance profile isolation (`InstanceConfig`), storing data in `instances/` using isolated `--user-data-dir`. It directly injects OAuth credentials and tokens into Antigravity's internal SQLite database `User/globalStorage/state.vscdb` (`modules/db.rs:inject_token`).
 - **Process & Window Focus**: In `modules/process.rs`, AGM scans system processes using `sysinfo::System` to locate Antigravity instances by PID or `--user-data-dir`. On Windows, it activates windows using a PowerShell script that invokes `WScript.Shell.AppActivate($p)` and Win32 `SetForegroundWindow` / `ShowWindow(hWnd, 9)`.
 - **Contrast with GitMap (`cmdagy`)**:

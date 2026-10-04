@@ -16,7 +16,7 @@ When deploying software installers across distributed SSH fleet nodes using `git
 2. **Missing Host Registry Guidance in Ad-Hoc Directories:**
    When running `gitmap ssh install-exec` in directories without a populated local or global database (e.g. `Downloads`), the command returned `No matching SSH machines to deploy setup to (filtered by ...)` without explaining that 0 nodes were enrolled in the central database.
 3. **Unmocked Network Dials in Unit Test Suites:**
-   Tests executing SSH login flows previously made unmocked TCP connection attempts to non-existent IPs (`192.168.1.88`, `10.0.0.5`, `192.0.2.1`) during host key trust scans and OS profiling, which timed out after 10 minutes on CI/CD runner environments.
+   Tests executing SSH login flows previously made unmocked TCP connection attempts to non-existent IPs (`node-alias`, `10.0.0.5`, `192.0.2.1`) during host key trust scans and OS profiling, which timed out after 10 minutes on CI/CD runner environments.
 
 ---
 

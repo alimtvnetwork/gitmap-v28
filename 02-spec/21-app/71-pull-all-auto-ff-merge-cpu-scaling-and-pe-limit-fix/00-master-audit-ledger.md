@@ -57,7 +57,7 @@ Hi there. Can you please try to fix this error? And also when we do the git map 
    - Ensure numbers like `10` are recognized as the line/entry limit rather than positional repository slugs.
 
 2. **Task-02: Investigate and Resolve Unknown Repo-Cache Issue in Pull-All**
-   - Root-cause why repository paths in `repo-cache` or `d:\work\repo...` resolve as slug/name "unknown".
+   - Root-cause why repository paths in `repo-cache` or `./repo...` resolve as slug/name "unknown".
    - Fix name/slug resolution fallback to derive repository names from path basename or remote URL.
 
 3. **Task-03: Implement Auto Fast-Forward Merge Fallback (No Rebase) in Pull-All**

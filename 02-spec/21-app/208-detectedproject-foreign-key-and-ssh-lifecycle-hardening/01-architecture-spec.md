@@ -46,7 +46,7 @@ failed to upsert detected project: constraint failed: FOREIGN KEY constraint fai
 ... (8 errors total)
   [OK] Saved 45 detected project(s) to database
   ✔ projects.json synced: 0 added, 0 updated, 37 unchanged (73 total)
-  [stats] Benchmark log: D:\work\.gitmap\output\scan-benchmark.log
+  [stats] Benchmark log: ./.gitmap\output\scan-benchmark.log
   [wait] Waiting for background probes to finish (37 remaining)...
 
 # High Priority Instruction

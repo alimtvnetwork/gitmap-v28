@@ -127,7 +127,7 @@ The embedded HTTP dashboard runs at `http://127.0.0.1:7430` (or dynamically sele
 
 ## 5. Acceptance Criteria
 
-1. **AC-01 (IP & Path Sanitization):** All recent markdown files (`02-spec/21-app/217-*/`, `02-spec/22-app-issues/69-*/`, `.ai-memory/plans/217-*/`) are 100% free of raw IPv4 strings (`192.168.1.*`) and absolute paths (`C:\Users\...`, `d:\work\...`), using host aliases and relative paths instead.
+1. **AC-01 (IP & Path Sanitization):** All recent markdown files (`02-spec/21-app/217-*/`, `02-spec/22-app-issues/69-*/`, `.ai-memory/plans/217-*/`) are 100% free of raw IPv4 strings (`<subnet>.*`) and absolute paths (`C:\Users\...`, `./...`), using host aliases and relative paths instead.
 2. **AC-02 (Cross-OS Settings Confirmation):** `gitmap agy settings export` and `gitmap agy settings import` are verified for cross-OS Antigravity configuration portability.
 3. **AC-03 (Target-Project Prompt Dispatch & Query):** `gitmap agy send-prompt --project <slug> --prompt "<text>"` accurately dispatches to the specified project. `gitmap nodes agy query` lists running instances and prompts.
 4. **AC-04 (Nodes AGY UI Studio):** `gitmap nodes agy ui`, `gitmap nodes nodes agy ui`, and `gitmap agy ui` launch the interactive web dashboard and open the default browser.

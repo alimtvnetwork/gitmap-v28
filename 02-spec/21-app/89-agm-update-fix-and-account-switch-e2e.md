@@ -27,7 +27,7 @@ gitmap: [E9000:EXECUTION] cmd.verifyInstallation: post-install verification fail
 - **Root Cause 1 (Pinned Version Hijack):** When `gitmap agm update` executed `install.ps1` without an explicit `-Version` flag, `Resolve-PinnedVersion` inside `install.ps1` scanned `ConsoleHost_history.txt` (`Get-PSReadLineOption.HistorySavePath`), matched an unrelated command version (`v2.336.0`), and attempted to download a non-existent `agm-alim_2.336.0_x64-setup.exe` asset.
 - **Fix 1:**
   - In `cli/cmdinstall/installagmanager.go`, dynamically resolve the latest release version from `https://api.github.com/repos/alimtvnetwork/Antigravity-Manager/releases/latest` (or redirect header from `/releases/latest`) when `version == ""`, pass `-Version '<resolved>' -Update -NoLaunch` with a cache-busting query string (`?cb=<timestamp>`), and inject `AGM_VERSION=<resolved>` into the subprocess environment.
-- **Root Cause 2 (Post-Install Binary Verification Failure):** `isAgManagerInstalled()` and `findAgManagerWindowsPath()` searched only for `ag-manager.exe` or `Antigravity.Tools.exe`, missing `C:\Users\Administrator\AppData\Local\Programs\agm-alim\agm-alim.exe`.
+- **Root Cause 2 (Post-Install Binary Verification Failure):** `isAgManagerInstalled()` and `findAgManagerWindowsPath()` searched only for `ag-manager.exe` or `Antigravity.Tools.exe`, missing `%USERPROFILE%\AppData\Local\Programs\agm-alim\agm-alim.exe`.
 - **Fix 2:**
   - Register `agm-alim` and `%LOCALAPPDATA%\Programs\agm-alim\agm-alim.exe` as the primary binary candidate in `cli/cmdinstall/installagmanager_windows.go` and `cli/cmdinstall/installagmanager_exec.go`.
 

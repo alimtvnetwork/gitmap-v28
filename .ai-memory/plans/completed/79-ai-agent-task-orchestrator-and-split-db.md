@@ -42,5 +42,5 @@ Okay. Once you apply all this, I want you to update in the coding guideline the 
 ---
 
 ## Specifications Created
-- Canonical Architecture Spec: [01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md)
-- Component & Web UI Spec: [02-component-and-ui-spec.md](file:///d:/work/gitmap/02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/02-component-and-ui-spec.md)
+- Canonical Architecture Spec: [01-architecture-spec.md](file:///./gitmap/02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md)
+- Component & Web UI Spec: [02-component-and-ui-spec.md](file:///./gitmap/02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/02-component-and-ui-spec.md)

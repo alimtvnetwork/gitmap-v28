@@ -69,8 +69,8 @@ flowchart TD
 ### 2.1 Problem Statement & Zero-Trust Hygiene
 
 During recent automated task executions, multiple plan and specification documents recorded local workstation artifacts, specifically:
-1. Hardcoded private IPv4 addresses (e.g., `192.168.1.22`, `192.168.1.10`, `192.168.1.20`) used for SSH testing.
-2. Workstation-specific absolute filesystem paths (e.g., `d:\work\gitmap`, `d:\work\...`, `C:\Users\Administrator\...`, `/home/a/...`).
+1. Hardcoded private IPv4 addresses (e.g., `node-u1`, `node-main`, `node-main`) used for SSH testing.
+2. Workstation-specific absolute filesystem paths (e.g., `./gitmap`, `./...`, `%USERPROFILE%\...`, `/home/a/...`).
 
 This violates the following architectural invariants:
 - **Zero Privacy Leaks:** Internal IP topologies must never be committed to repository documentation or shared memory plans.
@@ -83,15 +83,15 @@ The sanitization engine applies the following deterministic substitutions:
 
 | Leaked Value Pattern | Replacement Alias / Token | Context / Rationale |
 | :--- | :--- | :--- |
-| `192.168.1.22` | `ubuntu-fleet-01` (or `node-u1`) | Primary remote Ubuntu workstation node |
-| `192.168.1.10` | `node-main` (or `localhost`) | Workstation server / local orchestrator |
-| `192.168.1.20` | `worker-1` (or `node-u2`) | Secondary Linux cluster node |
-| `192.168.1.14` | `devbox` | Developer workstation alias |
-| `192.168.1.3` | `node-w1` | Windows cluster node 1 |
-| `192.168.1.7` | `node-w2` | Windows cluster node 2 |
-| `192.168.1.12` | `node-w3` | Windows cluster node 3 |
-| `d:\work\gitmap` / `D:/work/gitmap` | `$WORKSPACE_ROOT` | Current repository root |
-| `d:\work\` / `D:/work/` | `$WORKSPACE_DIR/` | Work directory parent |
+| `node-u1` | `ubuntu-fleet-01` (or `node-u1`) | Primary remote Ubuntu workstation node |
+| `node-main` | `node-main` (or `localhost`) | Workstation server / local orchestrator |
+| `node-main` | `worker-1` (or `node-u2`) | Secondary Linux cluster node |
+| `gateway-node4` | `devbox` | Developer workstation alias |
+| `node-w1` | `node-w1` | Windows cluster node 1 |
+| `node-w2` | `node-w2` | Windows cluster node 2 |
+| `node-w3` | `node-w3` | Windows cluster node 3 |
+| `./gitmap` / `./gitmap` | `$WORKSPACE_ROOT` | Current repository root |
+| `./` / `./` | `$WORKSPACE_DIR/` | Work directory parent |
 | `d:\\work\\` / `D:\\work\\` | `$WORKSPACE_DIR/` | Escaped Windows backslashes |
 | `C:\Users\Administrator` | `<user-home>` or `$USERPROFILE` | Windows Administrator home |
 | `/home/a/` | `$HOME/` or `~/` | Remote Linux user home |
@@ -103,37 +103,37 @@ The 31 files identified across `02-spec/21-app/` and `.ai-memory/plans/` that mu
 
 | # | Relative Path | Target Leak Categories |
 | :--- | :--- | :--- |
-| 01 | `02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
-| 02 | `02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/02-component-spec.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 03 | `02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/02-full-os-setup-blueprint.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 04 | `02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
-| 05 | `02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/02-full-os-setup-blueprint.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 06 | `02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/01-architecture-spec.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 07 | `02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/02-gitmap-macro-and-installer-spec.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 08 | `02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/03-in-app-update-button-rca.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 09 | `02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance/01-architecture-spec.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
-| 10 | `02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance/02-component-and-cli-spec.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
-| 11 | `02-spec/21-app/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager/01-architecture-spec.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
-| 12 | `02-spec/21-app/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager/02-component-and-cli-spec.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
+| 01 | `02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
+| 02 | `02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/02-component-spec.md` | Raw IP (`node-u1`), `/home/a/` |
+| 03 | `02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/02-full-os-setup-blueprint.md` | Raw IP (`node-u1`), `/home/a/` |
+| 04 | `02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/01-architecture-spec.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
+| 05 | `02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner/02-full-os-setup-blueprint.md` | Raw IP (`node-u1`), `/home/a/` |
+| 06 | `02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/01-architecture-spec.md` | Raw IP (`node-u1`), `/home/a/` |
+| 07 | `02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/02-gitmap-macro-and-installer-spec.md` | Raw IP (`node-u1`), `/home/a/` |
+| 08 | `02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/03-in-app-update-button-rca.md` | Raw IP (`node-u1`), `/home/a/` |
+| 09 | `02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance/01-architecture-spec.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
+| 10 | `02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance/02-component-and-cli-spec.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
+| 11 | `02-spec/21-app/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager/01-architecture-spec.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
+| 12 | `02-spec/21-app/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager/02-component-and-cli-spec.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
 | 13 | `02-spec/21-app/216-gitmap-prompting-freeze-and-suggestion-engine-fix/01-architecture-spec.md` | Absolute paths `d:\work` |
 | 14 | `02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/01-architecture-spec.md` | Absolute paths `d:\work`, `/home/a/` |
 | 15 | `02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/02-component-and-cli-spec.md` | Absolute paths `d:\work`, `/home/a/` |
 | 16 | `02-spec/21-app/182-version-pinning-macro-deploy-ui-settings-secret-flags.md` | Absolute paths `d:\work` |
-| 17 | `.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
+| 17 | `.ai-memory/plans/214-ubuntu-fleet-automation-and-workstation-governance.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
 | 18 | `.ai-memory/plans/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation.md` | Absolute paths `d:\work`, `/home/a/` |
-| 19 | `.ai-memory/plans/218-nodes-agy-ui-remote-settings-and-cursor-automation.md` | Raw IP (`192.168.1.22`, `192.168.1.10`), `d:\work` |
-| 20 | `.ai-memory/plans/completed/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
-| 21 | `.ai-memory/plans/completed/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation.md` | Raw IP (`192.168.1.22`), `/home/a/`, `d:\work` |
-| 22 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/01-desktop-wallpaper-and-gui-app-launch.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 23 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/02-vmware-shared-folder-deep-verification.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 24 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/03-antigravity-deep-conversation-and-settings-sync.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 25 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/04-self-contained-embedded-powershell-runner.md` | Raw IP (`192.168.1.22`), `/home/a/` |
+| 19 | `.ai-memory/plans/218-nodes-agy-ui-remote-settings-and-cursor-automation.md` | Raw IP (`node-u1`, `node-main`), `d:\work` |
+| 20 | `.ai-memory/plans/completed/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
+| 21 | `.ai-memory/plans/completed/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation.md` | Raw IP (`node-u1`), `/home/a/`, `d:\work` |
+| 22 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/01-desktop-wallpaper-and-gui-app-launch.md` | Raw IP (`node-u1`), `/home/a/` |
+| 23 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/02-vmware-shared-folder-deep-verification.md` | Raw IP (`node-u1`), `/home/a/` |
+| 24 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/03-antigravity-deep-conversation-and-settings-sync.md` | Raw IP (`node-u1`), `/home/a/` |
+| 25 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/04-self-contained-embedded-powershell-runner.md` | Raw IP (`node-u1`), `/home/a/` |
 | 26 | `.ai-memory/plans/subtasks/212-ubuntu-fleet-full-customization-and-embedded-runner/05-detailed-engineering-log-and-future-roadmap.md` | Absolute paths `d:\work`, `/home/a/` |
-| 27 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/01-git-workspaces-clone-and-validation.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 28 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/02-gnome-ergonomics-and-keybindings.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 29 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/03-vmware-automount-and-gui-launching.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 30 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/04-antigravity-upgrade-and-deep-brain-migration.md` | Raw IP (`192.168.1.22`), `/home/a/` |
-| 31 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/05-master-embedded-runner-and-scorecard.md` | Raw IP (`192.168.1.22`), `/home/a/` |
+| 27 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/01-git-workspaces-clone-and-validation.md` | Raw IP (`node-u1`), `/home/a/` |
+| 28 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/02-gnome-ergonomics-and-keybindings.md` | Raw IP (`node-u1`), `/home/a/` |
+| 29 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/03-vmware-automount-and-gui-launching.md` | Raw IP (`node-u1`), `/home/a/` |
+| 30 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/04-antigravity-upgrade-and-deep-brain-migration.md` | Raw IP (`node-u1`), `/home/a/` |
+| 31 | `.ai-memory/plans/subtasks/214-ubuntu-fleet-automation-and-workstation-governance/05-master-embedded-runner-and-scorecard.md` | Raw IP (`node-u1`), `/home/a/` |
 
 ### 2.4 Automated Leak Prevention Checker
 
@@ -630,7 +630,7 @@ param(
 ## 6. Verification & Acceptance Criteria
 
 - [ ] **AC-SPEC-01 (Privacy Scrubbing Matrix):**
-  - All 31 identified specification and plan files are completely scrubbed of raw IP addresses (`192.168.1.22`, `192.168.1.10`, etc.) and hardcoded Windows/Linux absolute paths (`d:\work\`, `/home/a/...`).
+  - All 31 identified specification and plan files are completely scrubbed of raw IP addresses (`node-u1`, `node-main`, etc.) and hardcoded Windows/Linux absolute paths (`./`, `/home/a/...`).
   - Automated regex linter reports 0 privacy violations across `02-spec/` and `.ai-memory/plans/`.
 
 - [ ] **AC-SPEC-02 (AGY UI Full Lifecycle Endpoints):**

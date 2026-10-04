@@ -22,7 +22,7 @@ Three interacting factors caused this failure:
 
 1. **Unbounded `tls.Dial` Connection Hanging in `cluster/dispatcher.go`**:
    - `cluster.Dispatch()` invoked `tls.Dial("tcp", node.IP+":8081", conf)` without a connection dialer timeout.
-   - When executing `TestClusterCommand`, `node-2` has a dummy unreachable IP (`192.168.1.11`). On Linux CI runners, the TCP SYN retransmission timeout blocked `tls.Dial` for 130-150 seconds per remote node attempt before timing out at the OS socket level.
+   - When executing `TestClusterCommand`, `node-2` has a dummy unreachable IP (`gateway-node1`). On Linux CI runners, the TCP SYN retransmission timeout blocked `tls.Dial` for 130-150 seconds per remote node attempt before timing out at the OS socket level.
 
 2. **Relative `cmd.Dir = ".."` in `buildGitmapBinaryOnce` during Parallel Tests**:
    - `buildGitmapBinaryOnce` in `cmd/cliexit_helpers_test.go` compiled the test binary with `cmd.Dir = ".."`.

@@ -13,7 +13,7 @@ Aliases: `gitmap move <source> <destination>`
 - `<destination>`: Target directory. Supports:
   - `..` (moves repository into the parent folder)
   - Relative directory (`../new-home`, `./archive/prompt-architect`)
-  - Absolute directory (`D:\work\archive\prompt-architect`)
+  - Absolute directory (`./archive\prompt-architect`)
 
 ### Options:
 

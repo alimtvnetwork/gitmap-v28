@@ -33,14 +33,14 @@ This specification formalizes the **SSH Multi-Node Parallel Execution, Cross-Hos
 
 ```bash
 # Execute command on a single specific node by IP or alias
-gitmap ssh exec 192.168.1.50 "uptime"
+gitmap ssh exec node-alias "uptime"
 gitmap ssh exec m1 "gitmap --version"
 
 # Execute a sequence of commands on all active cluster nodes
 gitmap ssh exec "git pull,gitmap scan,gitmap build"
 
 # Execute across all cluster nodes except specified exclusions
-gitmap ssh exec "systemctl restart nginx" --except node-worker-3,m2,192.168.1.104
+gitmap ssh exec "systemctl restart nginx" --except node-worker-3,m2,node-main4
 ```
 
 ### 2.2 Cross-Host Copy & Move (`gitmap ssh copy` / `gitmap ssh mv`)
@@ -148,7 +148,7 @@ sequenceDiagram
 ### 4.2 Exclusion Filtering (`--except`)
 
 When transferring or executing across fleets, the `--except` flag parses comma-separated identifiers matching against:
-1. Exact IP addresses (e.g. `192.168.1.50`).
+1. Exact IP addresses (e.g. `node-alias`).
 2. Node Hostnames (e.g. `ubuntu-runner-01`).
 3. Registered User Aliases (e.g. `m1`, `builder-win`).
 4. Database Node IDs (e.g. `node-4`).

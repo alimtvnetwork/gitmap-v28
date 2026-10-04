@@ -39,12 +39,12 @@ ONLY IN default:
   docs-site          C:\repos\docs-site
 
 ONLY IN work:
-  client-portal      D:\work\client-portal
+  client-portal      ./client-portal
 
 DIFFERENT:
   shared-lib
     default: C:\repos\github\shared-lib  (https)
-    work:    D:\work\shared-lib           (ssh)
+    work:    ./shared-lib           (ssh)
 
 SAME: 12 repos (use --all to show)
 

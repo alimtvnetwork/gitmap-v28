@@ -4,15 +4,15 @@
 
 1. **SSH Authentication Handshake Abort:**
    - Execute `gitmap agm update --ssh` across the cluster fleet.
-   - Nodes `w1` (192.168.1.3), `w2` (192.168.1.7), and `w3` (192.168.1.12) are active and running.
+   - Nodes `w1` (node-w1), `w2` (node-w2), and `w3` (node-w3) are active and running.
    - Output immediately fails with connection errors:
      ```text
-     [w2|192.168.1.7] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
-     [w1|192.168.1.3] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
-     [w3|192.168.1.12] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
-     [FLEET FAIL]  [w2|192.168.1.7]: FAILED - unable to connect to [w2|192.168.1.7] (took 104ms)
-     [FLEET FAIL]  [w3|192.168.1.12]: FAILED - unable to connect to [w3|192.168.1.12] (took 122ms)
-     [FLEET FAIL]  [w1|192.168.1.3]: FAILED - unable to connect to [w1|192.168.1.3] (took 120ms)
+     [w2|node-w2] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
+     [w1|node-w1] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
+     [w3|node-w3] Connect error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
+     [FLEET FAIL]  [w2|node-w2]: FAILED - unable to connect to [w2|node-w2] (took 104ms)
+     [FLEET FAIL]  [w3|node-w3]: FAILED - unable to connect to [w3|node-w3] (took 122ms)
+     [FLEET FAIL]  [w1|node-w1]: FAILED - unable to connect to [w1|node-w1] (took 120ms)
      ```
    - Total execution reports 0 succeeded and 6 failed.
 
@@ -36,7 +36,7 @@
    - The system did not check default key files (`~/.ssh/id_ed25519`, `~/.ssh/id_rsa`), did not inspect SQLite vaulted passwords (`encrypted_password` in `ssh_hosts`), and did not fall back to `vmpass.json` credential stores.
 
 2. **Windows Server 2022 OpenSSH Key Authentication Isolation:**
-   - On Windows Server nodes (`administrator@192.168.1.7` / `w2`), OpenSSH server runs under the Windows security subsystem. For accounts in the `Administrators` local group, OpenSSH strictly ignores `%USERPROFILE%\.ssh\authorized_keys`.
+   - On Windows Server nodes (`administrator@node-w2` / `w2`), OpenSSH server runs under the Windows security subsystem. For accounts in the `Administrators` local group, OpenSSH strictly ignores `%USERPROFILE%\.ssh\authorized_keys`.
    - Instead, Windows OpenSSH requires keys to be placed in `C:\ProgramData\ssh\administrators_authorized_keys` with strict ACL permissions (`icacls` restricted to `SYSTEM` and `Administrators`). When public key authentication failed against `w2`, the absence of password fallback completely blocked SSH commands.
 
 3. **Static Default Status in `RenderSSHHostsTable`:**
@@ -102,9 +102,9 @@
        alpha-win        10.20.0.11        ○ OFFLINE      1501ms  offline: node [alpha-win|10.20.0.11] is unreachable
        beta-linux       10.20.0.12        ○ OFFLINE      1501ms  offline: node [beta-linux|10.20.0.12] is unreachable
        gamma-mac        10.20.0.13        ○ OFFLINE      1501ms  offline: node [gamma-mac|10.20.0.13] is unreachable
-       w1               192.168.1.3       SUCCESS         12276ms  OK
-       w2               192.168.1.7       SUCCESS         12228ms  OK
-       w3               192.168.1.12      SUCCESS         12462ms  OK
+       w1               node-w1       SUCCESS         12276ms  OK
+       w2               node-w2       SUCCESS         12228ms  OK
+       w3               node-w3      SUCCESS         12462ms  OK
      ================================================================================
      ```
    - Executed `go run . ssh nodes`:

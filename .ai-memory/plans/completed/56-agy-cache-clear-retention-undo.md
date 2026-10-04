@@ -9,7 +9,7 @@
 
 ## User Request (Verbatim)
 ```text
-D:\work\scripts-fixer
+./scripts-fixer
 
 PowerShell AST Parser: Verified 0 syntax or parsing errors across run.ps1 and all 7 extracted scripts in scripts/dispatcher/.
 .\run.ps1 -Help: Verified exit 0; prints full help screen, scripts table, and version footer.

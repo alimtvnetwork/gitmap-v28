@@ -178,7 +178,7 @@ Restore full shell autocompletion and tab suggestions across GitMap's entire 500
   - Running `gitmap __complete ""` yields 500+ suggestions (matching the full set of registered commands in `completion.AllCommands()`).
   - No commands are pruned due to `c.Runnable() == false`.
 - **Dynamic Argument Autocompletion Verified:**
-  - `gitmap cd <Tab>` suggests database-tracked repositories (e.g. `gitmap\td:\work\gitmap`).
+  - `gitmap cd <Tab>` suggests database-tracked repositories (e.g. `gitmap\t./gitmap`).
   - `gitmap apps <Tab>` suggests `list`, `uninstall`, `help`.
   - `gitmap apps uninstall <Tab>` suggests installed applications.
   - `gitmap install <Tab>` suggests supported tool names (`antigravity`, `chrome`, `vscode`, etc.).

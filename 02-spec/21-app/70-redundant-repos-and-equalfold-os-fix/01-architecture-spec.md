@@ -30,7 +30,7 @@ A rigorous audit of the GitMap codebase confirms the following:
    - Neither `gitmap pull` nor `gitmap pull-all` performs pre-pull database deduplication, allowing redundant records to persist in SQLite and trigger duplicate worker jobs.
 
 2. **Flawed Path Normalization & OS Casing Sensitivity**:
-   - `cli/fsutil/path_normalize.go:EqualPaths(p1, p2)` evaluates `NormalizeToForwardSlashes(p1) == NormalizeToForwardSlashes(p2)`. Because it performs strict byte equality (`==`) without OS awareness, path comparisons on Windows fail when drive letters or directories differ in casing (e.g. `d:/work/repo` vs `D:/work/repo`).
+   - `cli/fsutil/path_normalize.go:EqualPaths(p1, p2)` evaluates `NormalizeToForwardSlashes(p1) == NormalizeToForwardSlashes(p2)`. Because it performs strict byte equality (`==`) without OS awareness, path comparisons on Windows fail when drive letters or directories differ in casing (e.g. `./repo` vs `./repo`).
    - `cli/cmdpull/pull.go:CanonicalRepoPathKey(path)` and `cli/cmdpull/pull_efficient.go:deduplicateTrackedRecords(records)` unconditionally invoke `strings.ToLower(...)` on filesystem paths. On Unix/Linux, paths differing only by case (e.g., `/home/user/Project` and `/home/user/project`) are distinct directories. Lowercasing them causes distinct repositories to collide into the same key, dropping records or corrupting pull state.
    - Repetitive calls to `strings.ToLower(a) == strings.ToLower(b)` cause needless heap allocations and garbage collection overhead, whereas `strings.EqualFold(a, b)` provides zero-allocation ASCII and Unicode case-folding.
 
@@ -310,7 +310,7 @@ In `cli/cmdpull/pull.go` and `cli/cmdpull/pull_efficient.go`:
   canonical := fsutil.CanonicalPathKey(r.AbsolutePath)
   ```
 - This guarantees:
-  - On **Windows**: `d:\work\repo` and `D:\work\repo` map to the identical key `d:/work/repo`. One is pulled, preventing the fatal Git error: `Cannot fast-forward to multiple branches`.
+  - On **Windows**: `./repo` and `./repo` map to the identical key `./repo`. One is pulled, preventing the fatal Git error: `Cannot fast-forward to multiple branches`.
   - On **Unix/Linux**: `/work/repo` and `/work/Repo` map to distinct keys `/work/repo` and `/work/Repo`. Both are legitimately pulled without false duplicate suppression.
 
 ---

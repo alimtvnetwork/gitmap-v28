@@ -7,7 +7,7 @@
    - `RemoteCloneNodeResult` struct.
 2. Implement `cli/cmdnodes/nodes_clone_file.go`:
    - Detect if arguments refer to a file or if `gitmap.json` exists locally.
-   - Read file bytes and compute target remote path (`D:\work\<filename>` for Windows, `~/work/<filename>` for Unix/Linux).
+   - Read file bytes and compute target remote path (`./<filename>` for Windows, `~/work/<filename>` for Unix/Linux).
    - Stage file to remote node over SSH via `cmdssh.StreamFileToRemote`.
 3. Implement `cli/cmdnodes/nodes_clone_remote.go`:
    - Filter remote connections (exclude current local machine).

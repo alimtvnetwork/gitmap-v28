@@ -712,7 +712,7 @@ Ensure complete documentation, help parity, and full CI/CD quality gate complian
 
 ##### 1. Executive Summary
 
-This plan fulfills the integration of cross-platform developer tools, package management workflows, and installation scripts from `D:\work\scripts-fixer` directly into GitMap:
+This plan fulfills the integration of cross-platform developer tools, package management workflows, and installation scripts from `./scripts-fixer` directly into GitMap:
 
 1. **Dedicated Installation Split Database (`installation.db`)**:
    - Strictly adheres to `02-spec/04-database-conventions/07-split-db-pattern.md` and repository database conventions.
@@ -2733,17 +2733,17 @@ Author comprehensive regression tests and verify against all repository quality 
 #### Subtask 93.01: Scripts-Fixer Antigravity Desktop & CLI Split
 
 ##### Goal
-In `D:\work\scripts-fixer`, refactor script `69-install-antigravity` to install the **Google Antigravity Desktop IDE Application**, and create `78-install-antigravity-cli` for the `agy` command-line tool.
+In `./scripts-fixer`, refactor script `69-install-antigravity` to install the **Google Antigravity Desktop IDE Application**, and create `78-install-antigravity-cli` for the `agy` command-line tool.
 
 ##### Files Impacted
-- `D:\work\scripts-fixer\scripts\69-install-antigravity\run.ps1`
-- `D:\work\scripts-fixer\scripts\os\ubuntu\install-antigravity.sh`
-- `D:\work\scripts-fixer\scripts\78-install-antigravity-cli\run.ps1` (NEW)
-- `D:\work\scripts-fixer\scripts\os\ubuntu\install-antigravity-cli.sh` (NEW)
-- `D:\work\scripts-fixer\scripts\shared\install-keywords.json`
-- `D:\work\scripts-fixer\scripts\os\ubuntu\profile-ubuntu-dev-ai.sh`
-- `D:\work\scripts-fixer\run.ps1`
-- `D:\work\scripts-fixer\scripts\run.sh`
+- `./scripts-fixer\scripts\69-install-antigravity\run.ps1`
+- `./scripts-fixer\scripts\os\ubuntu\install-antigravity.sh`
+- `./scripts-fixer\scripts\78-install-antigravity-cli\run.ps1` (NEW)
+- `./scripts-fixer\scripts\os\ubuntu\install-antigravity-cli.sh` (NEW)
+- `./scripts-fixer\scripts\shared\install-keywords.json`
+- `./scripts-fixer\scripts\os\ubuntu\profile-ubuntu-dev-ai.sh`
+- `./scripts-fixer\run.ps1`
+- `./scripts-fixer\scripts\run.sh`
 
 ##### Acceptance Criteria
 1. `69-install-antigravity\run.ps1` downloads `Antigravity-x64.exe` from Google Storage, checks `%LOCALAPPDATA%\Programs\Antigravity\Antigravity.exe`, runs silent install `/S`, and supports `uninstall`.

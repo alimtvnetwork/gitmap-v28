@@ -1,9 +1,9 @@
 # Subtask [05]: Single-File Enterprise VMware Automation PowerShell Script
 Traceability ID: Task-05
 Spec Reference: [02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md](../../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md)
-Target Files: [D:/work/repo-secrets/vmware/manage-vm.ps1, scripts/vmware/manage-vm.ps1]
+Target Files: [./repo-secrets/vmware/manage-vm.ps1, scripts/vmware/manage-vm.ps1]
 Action:
-- Author comprehensive `manage-vm.ps1` in `D:/work/repo-secrets/vmware/manage-vm.ps1` and mirror to `scripts/vmware/manage-vm.ps1`.
+- Author comprehensive `manage-vm.ps1` in `./repo-secrets/vmware/manage-vm.ps1` and mirror to `scripts/vmware/manage-vm.ps1`.
 - Implement robust `.vmx` configuration parser, validator, and modifier:
   - `-Action Scan`: Recursively find `.vmx` virtual machines in a target folder.
   - `-Action Inspect`: Show all virtual machine hardware properties (RAM, vCPUs, Disks, Network Adapters, MAC addresses).

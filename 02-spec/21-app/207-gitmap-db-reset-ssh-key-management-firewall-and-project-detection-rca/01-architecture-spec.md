@@ -91,7 +91,7 @@ When `gitmap ssh` is executed without arguments:
      ╔════════════════════════════════════════════════════════════════════════════════╗
      ║ SSH Public Key Information                                                     ║
      ╚════════════════════════════════════════════════════════════════════════════════╝
-       Path:        C:\Users\Administrator\.ssh\id_rsa.pub
+       Path:        %USERPROFILE%\.ssh\id_rsa.pub
        Algorithm:   RSA (3072-bit) / ED25519
        Fingerprint: SHA256:...
        Status:      Copied to clipboard! ✔
@@ -149,19 +149,19 @@ When `gitmap ssh` is executed without arguments:
 When any SSH connection or dial failure occurs:
 Render a structured, formatted diagnostic box:
 ```text
-  ▲ SSH Connection Failed to a@192.168.1.22:22
+  ▲ SSH Connection Failed to a@node-u1:22
   ────────────────────────────────────────────────────────────────────────
   Recommended Troubleshooting Steps:
     1. Ensure GitMap & SSH are enabled on target:
        Run on target machine: gitmap ssh enable --port 22
     2. Check target network reachability:
-       Run locally: gitmap ping 192.168.1.22
+       Run locally: gitmap ping node-u1
     3. Verify target username and credentials:
        Run locally: gitmap ssh pass show u1
     4. Attempt manual connection probe:
-       Run locally: ssh a@192.168.1.22
+       Run locally: ssh a@node-u1
     5. Test authentication via GitMap interactive prompt:
-       Run locally: gitmap ssh join a@192.168.1.22 u1
+       Run locally: gitmap ssh join a@node-u1 u1
     6. Deploy current machine's public SSH key:
        Run locally: gitmap ssh copy-id u1
     7. Inspect target firewall status:

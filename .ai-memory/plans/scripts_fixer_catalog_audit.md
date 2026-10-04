@@ -1,7 +1,7 @@
 # scripts-fixer Comprehensive Script Catalog & Chrome Installation Audit
 
 **Date:** 2026-09-08
-**Repository:** `D:\work\scripts-fixer`
+**Repository:** `./scripts-fixer`
 **Version:** v1.34.0
 **Scope:** Windows (`scripts/`), Linux/macOS (`scripts-linux/`), and Ubuntu (`scripts/os/ubuntu/` & `scripts/run.sh`)
 

@@ -12,7 +12,7 @@
 
 ### Root Causes
 1. **Hardcoded Drive Letters in RCA-13**:
-   RCA-13 document contained literal Windows drive paths (`d:/work/gitmap/...`) and `file:///` URIs which were flagged by `linter-scripts/check-relative-paths.py`.
+   RCA-13 document contained literal Windows drive paths (`./gitmap/...`) and `file:///` URIs which were flagged by `linter-scripts/check-relative-paths.py`.
 2. **Missing In-Progress Job Inspection in `collectFailedRuns`**:
    In GitHub Actions, multi-job workflows remain `status: "in_progress"` and `conclusion: ""` until all jobs complete. `collectFailedRuns` in `cli/cmdpipeline/pipeline_logs.go` only checked `isFailingConclusion(r.Conclusion)`. Because `r.Conclusion` is empty while running, failed jobs inside in-progress workflows were ignored, leading `len(p.FailedRuns) == 0`. In `renderErrorLogsTerminal`, `if p.IsRunning && len(p.FailedRuns) == 0` returned immediately, hiding the failure.
 3. **Test State Pollution in `TestPersistErrorReport`**:

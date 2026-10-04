@@ -61,7 +61,7 @@ Any command may append `--except` (or `-except`) to exclude a subset of nodes. N
 | Exclusion type | Example | Resolves to |
 |---------------|---------|-------------|
 | Display ID (integer) | `--except 2,4` | Nodes with `DisplayId` 2 and 4 |
-| IP address | `--except 192.168.1.24,192.168.1.151` | Nodes matching those IPs |
+| IP address | `--except node-alias,gateway-node51` | Nodes matching those IPs |
 | Partial trailing IP octet | `--except 24,151` | Nodes whose last octet of IP is 24 or 151 |
 | Range | `--except 2-5` | Nodes with `DisplayId` 2 through 5 |
 
@@ -73,7 +73,7 @@ The inverse of exclusion: run on **only** the named subset.
 
 | Flag | Example | Resolves to |
 |------|---------|-------------|
-| `--ip` | `--ip 192.168.1.10,192.168.1.11` | Those IP addresses only |
+| `--ip` | `--ip node-main,gateway-node1` | Those IP addresses only |
 | `--id` | `--id 1,3,5` | Nodes with those `DisplayId` values only |
 
 `--except`, `--ip`, and `--id` are mutually exclusive. Providing two or more raises a validation error.
@@ -144,7 +144,7 @@ gitmap client cmd "<cmd-command>", ps "<ps-command>", install "<pkg1>,<pkg2>" --
 
 **Examples:**
 ```
-gitmap client cmd "whoami", ps "Get-Date" --ip 192.168.1.10,192.168.1.11
+gitmap client cmd "whoami", ps "Get-Date" --ip node-main,gateway-node1
 gitmap client ps "Set-ExecutionPolicy Bypass", install "git,nodejs" --id 1,3
 ```
 
@@ -262,7 +262,7 @@ Before dispatching any command, `gitmap` displays a preflight summary:
 ```
 ┌─ Preflight ────────────────────────────────────────────────┐
 │ Target   : servers-clients (8 nodes)                       │
-│ Excluded : Node 2 (192.168.1.24), Node 4 (192.168.1.151)  │
+│ Excluded : Node 2 (node-alias), Node 4 (gateway-node51)  │
 │ Effective: 6 nodes                                         │
 │ Command  : ps "Get-Date"                                   │
 │ Audit ID : RUN-20260817-001                                │
@@ -405,7 +405,7 @@ Lists all server nodes (nodes with `NodeRole = 'server'`).
 ```
   ID  IP Address       Machine Name      OS       Status    Last Heartbeat
   ──  ───────────────  ────────────────  ───────  ────────  ──────────────
-   1  192.168.1.10     build-server-01   windows  online    2s ago
+   1  node-main     build-server-01   windows  online    2s ago
 ```
 
 ---

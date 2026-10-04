@@ -41,9 +41,9 @@ Implement seven core improvements across GitMap CLI:
   - Create `cli/cmd/merge_json_cmd.go` with deduplication and 1-based ID re-indexing.
   - Wire command in `cli/cmd/roottooling.go` and `cli/cmd/root_cobra_completion.go`.
 - [x] Task 7: Repo-Secrets Updates
-  - Refactor `D:\work\repo-secrets\01-gitmap\import-ssh-nodes.ps1` to use `$PSScriptRoot` and relative paths.
-  - Convert `D:\work\repo-secrets\01-gitmap\gitmap-ssh-nodes.json` to camelCase and Envelope V2.
-  - Update `D:\work\repo-secrets\gitmap-final.json` and `07-final-network-machine/gitmap-final.json` to 1-based IDs and Envelope V2.
+  - Refactor `./repo-secrets\01-gitmap\import-ssh-nodes.ps1` to use `$PSScriptRoot` and relative paths.
+  - Convert `./repo-secrets\01-gitmap\gitmap-ssh-nodes.json` to camelCase and Envelope V2.
+  - Update `./repo-secrets\gitmap-final.json` and `07-final-network-machine/gitmap-final.json` to 1-based IDs and Envelope V2.
 - [x] Task 8: Verification & Release
   - Complete release bump to `v6.415.0`.
   - Commit, tag, push, and consolidate plan.

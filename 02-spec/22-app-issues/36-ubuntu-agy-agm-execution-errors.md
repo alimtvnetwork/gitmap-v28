@@ -9,8 +9,8 @@
 
 | Component | Target Node | Reported Symptom | Root Cause | Status |
 |---|---|---|---|---|
-| **Antigravity (AGY)** | Ubuntu 01 (`u1` / `192.168.1.22`) | `line 10: Argument list too long` | Recursive self-execution in `/home/a/.local/bin/antigravity` wrapper script | Analyzed & Remediation Documented |
-| **Antigravity Manager (AGM)** | Ubuntu 01 (`u1` / `192.168.1.22`) | `sudo: A terminal is required to authenticate` | Non-interactive SSH session without tty or NOPASSWD in sudoers | Analyzed & Remediation Documented |
+| **Antigravity (AGY)** | Ubuntu 01 (`u1` / `node-u1`) | `line 10: Argument list too long` | Recursive self-execution in `/home/a/.local/bin/antigravity` wrapper script | Analyzed & Remediation Documented |
+| **Antigravity Manager (AGM)** | Ubuntu 01 (`u1` / `node-u1`) | `sudo: A terminal is required to authenticate` | Non-interactive SSH session without tty or NOPASSWD in sudoers | Analyzed & Remediation Documented |
 | **GitMap Remote Update** | All Nodes (`w1`, `w2`, `w3`, `u1`) | Out of sync versions (`v6.311.0`, `v6.302.0`) | Resolved via `gitmap remote update --node <node> gitmap` | Synchronized to latest release |
 
 ---

@@ -46,12 +46,12 @@ Two primary deficiencies were identified:
 ```text
   NODE (ALIAS)     HOST                   ROLE       STATUS         DURATION     DETAILS
   ------------------------------------------------------------------------------------------------------------------
-  local (current)  127.0.0.1              master     ● success      14ms         already exists on disk (D:\work\awansoft-v10)
-  w4               192.168.1.13           worker     ● success      3687ms       already exists on disk (D:\work\awansoft-v10)
-  w1               192.168.1.3            worker     ● success      3688ms       already exists on disk (D:\work\awansoft-v10)
-  w3               192.168.1.12           worker     ○ offline      4516ms       node unreachable (host offline or IP changed)
-  main             192.168.1.20           worker     ○ offline      4517ms       node unreachable (host offline or IP changed)
-  u1               192.168.1.22           worker     ○ offline      4525ms       node unreachable (host offline or IP changed)
+  local (current)  127.0.0.1              master     ● success      14ms         already exists on disk (./awansoft-v10)
+  w4               node-w4           worker     ● success      3687ms       already exists on disk (./awansoft-v10)
+  w1               node-w1            worker     ● success      3688ms       already exists on disk (./awansoft-v10)
+  w3               node-w3           worker     ○ offline      4516ms       node unreachable (host offline or IP changed)
+  main             node-main           worker     ○ offline      4517ms       node unreachable (host offline or IP changed)
+  u1               node-u1           worker     ○ offline      4525ms       node unreachable (host offline or IP changed)
   ------------------------------------------------------------------------------------------------------------------
 ```
 

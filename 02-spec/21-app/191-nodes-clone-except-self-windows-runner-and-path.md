@@ -15,7 +15,7 @@
 
 ### 1.1 Problems Identified in Real-Life Fleet Runs
 1. **Windows SSH Shell Failure on Remote Nodes:**
-   - In real-world fleet deployments, Windows nodes (such as `w4` at `192.168.1.13`) run OpenSSH server with `cmd.exe` or `powershell.exe` as the default shell.
+   - In real-world fleet deployments, Windows nodes (such as `w4` at `node-w4`) run OpenSSH server with `cmd.exe` or `powershell.exe` as the default shell.
    - When a node is recorded with an outdated or misdetected OS profile (e.g., recorded as `linux` instead of `windows`), the remote runner unconditionally executes `bash -c ...`.
    - Windows returns:
      `'bash' is not recognized as an internal or external command, operable program or batch file.`

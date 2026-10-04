@@ -8,10 +8,10 @@ Implement `gitmap ssh-join-common` and short-form alias `gitmap sjc` allowing ba
 
 ## Functional Requirements
 1. **Shorthand Octet Parser:**
-   - Parse IP string like `192.168.1.3(w1),7(w2),12(w3)`.
-   - First token `192.168.1.3(w1)` has full IPv4 `192.168.1.3`, alias `w1`, setting base subnet prefix `192.168.1.`.
-   - Second token `7(w2)` is recognized as an octet since it contains no dots; appended to `192.168.1.` yielding `192.168.1.7`, alias `w2`.
-   - Third token `12(w3)` resolves to `192.168.1.12`, alias `w3`.
+   - Parse IP string like `node-w1(w1),7(w2),12(w3)`.
+   - First token `node-w1(w1)` has full IPv4 `node-w1`, alias `w1`, setting base subnet prefix `192.168.1.`.
+   - Second token `7(w2)` is recognized as an octet since it contains no dots; appended to `192.168.1.` yielding `node-w2`, alias `w2`.
+   - Third token `12(w3)` resolves to `node-w3`, alias `w3`.
    - If subsequent token contains full IP (e.g. `10.0.0.5(u1)`), updates the base prefix to `10.0.0.`.
    - If alias in `(...)` is omitted, defaults to `node-<IP>`.
 2. **Batch Runner:**

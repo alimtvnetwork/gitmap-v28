@@ -44,7 +44,7 @@ Failed Repositories (37):
 `gitmap pa` dispatched 139 pull jobs and reported 37 failures containing repeated entries.
 
 ### Direct Cause:
-1. **SQLite Default Binary Collation**: `IdxRepo_AbsolutePath` on `Repo(AbsolutePath)` lacked `COLLATE NOCASE`. Under SQLite default binary collation, `D:\work\...` and `d:\work\...` were treated as distinct strings.
+1. **SQLite Default Binary Collation**: `IdxRepo_AbsolutePath` on `Repo(AbsolutePath)` lacked `COLLATE NOCASE`. Under SQLite default binary collation, `./...` and `./...` were treated as distinct strings.
 2. **Missing In-Memory Deduplication**: `loadAllRecordsDB()` and `resolvePullTargets()` queried `SELECT ... FROM Repo ORDER BY Slug` via `db.ListRepos()` and passed all 139 rows to `pull-all` worker channels and the `.gitignore` background scanner without canonical path or slug deduplication.
 
 ### Compound Failure:

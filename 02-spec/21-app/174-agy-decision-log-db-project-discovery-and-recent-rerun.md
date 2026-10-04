@@ -12,7 +12,7 @@ PS C:\Users\Administrator> gitmap rerun help
 
 Antigravity IDE Rerun Suite:
   • Target Project:   #37 - strhelper
-  • Workspace Path:   d:\work\03-aukgo\strhelper
+  • Workspace Path:   ./03-aukgo\strhelper
   • Conversation:     default
 
 
@@ -23,7 +23,7 @@ PS C:\Users\Administrator> gitmap rerun 1
 
 Antigravity IDE Rerun Suite:
   • Target Project:   #1 - white-presentation-v1
-  • Workspace Path:   D:\work\presentations-repos\white-presentation-v1
+  • Workspace Path:   ./presentations-repos\white-presentation-v1
   • Conversation:     8e34ebc6-e0e2-4182-96d3-809d5d5065ac
 
 
@@ -34,7 +34,7 @@ PS C:\Users\Administrator> gitmap rerun 2
 
 Antigravity IDE Rerun Suite:
   • Target Project:   #2 - rasia-logo
-  • Workspace Path:   D:\work\presentations-repos\rasia-logo
+  • Workspace Path:   ./presentations-repos\rasia-logo
   • Conversation:     default
 
 
@@ -60,21 +60,21 @@ PS C:\Users\Administrator> gitmap agy ls
    d:\work (5 projects)
   SEQ   CONV NAME          ID           PROJECT               PATH
   ──────────────────────────────────────────────────────────────────────
-  002   cv                 e714aa58     alim-cv               d:\work\alim-cv
-  003   profile            2862a47e     alim-karim-profile    d:\work\alim-karim-profile
-  004   status             96fb39c3     alim-status-sample    d:\work\alim-status-sample
-  005   —                  57f0b96a     Antigravity-Manager   d:\work\Antigravity-Manager
-  007   cat                14e40fc0     cat-my-ui-v12         d:\work\cat-my
+  002   cv                 e714aa58     alim-cv               ./alim-cv
+  003   profile            2862a47e     alim-karim-profile    ./alim-karim-profile
+  004   status             96fb39c3     alim-status-sample    ./alim-status-sample
+  005   —                  57f0b96a     Antigravity-Manager   ./Antigravity-Manager
+  007   cat                14e40fc0     cat-my-ui-v12         ./cat-my
 
-   d:\work\02-prompts (1 projects)
+   ./02-prompts (1 projects)
   SEQ   CONV NAME          ID           PROJECT                   PATH
   ──────────────────────────────────────────────────────────────────────
-  001   —                  1a65a4ff     ai-empathy-prompt-tuner   d:\work\02-prompts\ai-empathy-prompt-tuner
+  001   —                  1a65a4ff     ai-empathy-prompt-tuner   ./02-prompts\ai-empathy-prompt-tuner
 
-   d:\work\presentations-repos (1 projects)
+   ./presentations-repos (1 projects)
   SEQ   CONV NAME                  ID           PROJECT                    PATH
   ──────────────────────────────────────────────────────────────────────
-  006   Memory Ret...t Ingestion   d2dcb704     bsrm-prese...ion-hiltrax   d:\work\presentatio...presentation-hiltrax
+  006   Memory Ret...t Ingestion   d2dcb704     bsrm-prese...ion-hiltrax   ./presentatio...presentation-hiltrax
 
 
   ──────────────────────────────────────────────────────────────────────

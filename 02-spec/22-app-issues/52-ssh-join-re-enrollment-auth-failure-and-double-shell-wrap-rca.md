@@ -2,9 +2,9 @@
 
 ## 1. Symptom
 
-When enrolling or re-enrolling an SSH node via `gitmap ssh join a@192.168.1.20 main`:
+When enrolling or re-enrolling an SSH node via `gitmap ssh join a@node-main main`:
 1. On initial join, the user is prompted for credentials and the machine joins successfully.
-2. However, upon re-running the join command (`gitmap ssh join a@192.168.1.20 main`), GitMap repeatedly prompts for the password again rather than reusing stored vault credentials or falling back to configuration files (`vmpass.json` / `06-vmpass.json`).
+2. However, upon re-running the join command (`gitmap ssh join a@node-main main`), GitMap repeatedly prompts for the password again rather than reusing stored vault credentials or falling back to configuration files (`vmpass.json` / `06-vmpass.json`).
 3. Furthermore, public key authentication (`○ [3] Public Key Auth: checked 1 default user keys, none accepted`) fails to authenticate on subsequent runs because the initial public key deployment via PowerShell failed silently on the remote Windows host.
 4. If the user presses Enter or enters a mismatched password on the subsequent join attempt, the command aborts with:
    ```

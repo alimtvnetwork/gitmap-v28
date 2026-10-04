@@ -114,7 +114,7 @@ When `opts.IsZip` is true:
 
 1. **Remote Destination Staging:**
    - Destination directory on remote target:
-     - Windows: `C:\Windows\Temp\gitmap_update_<pkg>.zip`
+     - Windows: `%TEMP%\gitmap_update_<pkg>.zip`
      - POSIX: `/tmp/gitmap_update_<pkg>.zip`
 2. **Direct SSH Streaming:**
    - Use `cmdssh.StreamFileToRemote(client, destZipPath, zipData, target.OS)`.
@@ -125,7 +125,7 @@ When `opts.IsZip` is true:
        ```powershell
        powershell -NoProfile -ExecutionPolicy Bypass -Command "& {
            $ErrorActionPreference = 'Stop'
-           $zipPath = 'C:\Windows\Temp\gitmap_update_gitmap.zip'
+           $zipPath = '%TEMP%\gitmap_update_gitmap.zip'
            $destDir = Split-Path (Get-Command gitmap -ErrorAction SilentlyContinue).Path
            if (-not $destDir) { $destDir = [System.IO.Path]::Combine($env:LOCALAPPDATA, 'Programs', 'gitmap') }
            Expand-Archive -Path $zipPath -DestinationPath $destDir -Force

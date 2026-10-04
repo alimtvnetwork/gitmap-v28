@@ -16,14 +16,14 @@ Okay, I think this is a time that you need to test the Chrome extension. What do
 ## Verified Deliverables & Audit Findings
 
 ### 1. Verified Chrome Profile with OAuth Refresh Token: `Profile 1`
-- **Target Profile**: `Profile 1` (`C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Profile 1`)
+- **Target Profile**: `Profile 1` (`%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Profile 1`)
 - **Account Identity**: `Roki` (`rokixshohag1@gmail.com`)
 - **OAuth Refresh Token**: `AccountId-113336085041923585255` in `Web Data/token_service` table.
 - **Payload Size**: 134 bytes
 - **SHA256**: `8a3da36065e9bc4b70db9420769bfaa4be14316e9ee1dc51b845a40d92c8a340`
 - **Roundtrip Test Outcome**: Both JSON export snapshot and ZIP archive restore the token into `token_service` with 100% bit-for-bit exact match.
 - **Code Bug Identified & Fixed**: Fixed single-profile ZIP extraction logic in `cli/cmdchromeprofile/chromeprofile_zip_import.go` that previously misclassified archives containing `Network/Cookies` as multi-profile archives. Committed and pushed to remote `main`.
-- **Full Verification Report**: `d:/work/repo-secrets/01-gitmap/10-chrome-ext-test-and-vmware/reports/refresh-token-verification.md`
+- **Full Verification Report**: `./repo-secrets/01-gitmap/10-chrome-ext-test-and-vmware/reports/refresh-token-verification.md`
 
 ### 2. VMware Canonical Specifications & AI Instructions Audit
 - **Canonical Specification in Spec Folder**: [`02-spec/21-app/202-vmware-cli-commands-and-fleet-management.md`](../../02-spec/21-app/202-vmware-cli-commands-and-fleet-management.md) (596 lines).

@@ -21,8 +21,8 @@
 2. **`ssh: handshake failed: ssh: unexpected message type 51 (expected 60)` on `gitmap ssh join`:**
    When enrolling a remote Windows or Linux node with password:
    ```text
-   PS C:\Users\Alim> gitmap ssh join a@192.168.1.3 w1
-   Enter SSH password for a@192.168.1.3:
+   PS C:\Users\Alim> gitmap ssh join a@node-w1 w1
+   Enter SSH password for a@node-w1:
      ℹ Saving password as encrypted representation (RSA-OAEP/AES) in local vault.
      ℹ Review saved password anytime with: gitmap ssh pass show w1
      ⚠ Failed to authenticate with remote machine: ssh: handshake failed: ssh: unexpected message type 51 (expected 60)
@@ -39,7 +39,7 @@
    In `cli/cmdssh/ssh_history_db.go`, `migrateLegacySSHHistoryTables()` executed `SELECT ..., forward_payload, inverse_payload FROM ssh_task_history;`. Legacy `ssh_task_history` tables created prior to commit `c2d192e` only contained `task_id, action, target, payload_json, created_at, restored_at`. Because `forward_payload` did not exist in the table, SQLite threw `SQL logic error: no such column: forward_payload (1)`. Furthermore, the legacy table was never dropped after migration, causing the failed query to repeat on every subsequent command.
 
 2. **Simultaneous Password and Keyboard-Interactive Auth in Go SSH Client:**
-   In `cli/cmdssh/sshjoin_enroll.go`, `dialNodeWithPassword()` provided both `ssh.Password(pass)` and `buildKeyboardInteractiveAuth(pass)` in a single `ClientConfig.Auth` slice. The target host (`192.168.1.3`) is running `OpenSSH_for_Windows_9.5`. When password authentication failed, Go's `x/crypto/ssh` client immediately fell back to `keyboard-interactive`. Windows OpenSSH does not implement interactive challenge prompts and responds immediately with `SSH_MSG_USERAUTH_FAILURE` (packet type 51). Because Go's `client_auth.go` expected `SSH_MSG_USERAUTH_INFO_REQUEST` (packet type 60), it aborted the handshake with `ssh: handshake failed: ssh: unexpected message type 51 (expected 60)`, completely masking the underlying credential rejection.
+   In `cli/cmdssh/sshjoin_enroll.go`, `dialNodeWithPassword()` provided both `ssh.Password(pass)` and `buildKeyboardInteractiveAuth(pass)` in a single `ClientConfig.Auth` slice. The target host (`node-w1`) is running `OpenSSH_for_Windows_9.5`. When password authentication failed, Go's `x/crypto/ssh` client immediately fell back to `keyboard-interactive`. Windows OpenSSH does not implement interactive challenge prompts and responds immediately with `SSH_MSG_USERAUTH_FAILURE` (packet type 51). Because Go's `client_auth.go` expected `SSH_MSG_USERAUTH_INFO_REQUEST` (packet type 60), it aborted the handshake with `ssh: handshake failed: ssh: unexpected message type 51 (expected 60)`, completely masking the underlying credential rejection.
 
 3. **Premature UI Notification Before Transaction Completion:**
    `notifyPasswordEncryptedStorage` was called inside `promptAndConnectTarget()` immediately after receiving the password string from the console prompt, prior to calling `connectWithGivenPass()` and before verifying that the password successfully authenticated.

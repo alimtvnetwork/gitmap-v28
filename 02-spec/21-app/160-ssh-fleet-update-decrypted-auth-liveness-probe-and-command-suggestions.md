@@ -9,9 +9,9 @@ PS C:\Users\Administrator> gitmap ssh nodes
 
   ALIAS            ROLE           HOST (IP:PORT)         USER           STATUS     ENROLLED
   ----------------------------------------------------------------------------------------------------
-  w3               worker         192.168.1.12:22        administrator  ● ready    2026-09-24 20:24:25
-  w2               worker         192.168.1.7:22         administrator  ● ready    2026-09-24 20:24:25
-  w1               worker         192.168.1.3:22         administrator  ● ready    2026-09-24 20:24:24
+  w3               worker         node-w3:22        administrator  ● ready    2026-09-24 20:24:25
+  w2               worker         node-w2:22         administrator  ● ready    2026-09-24 20:24:25
+  w1               worker         node-w1:22         administrator  ● ready    2026-09-24 20:24:24
 
   Total: 3 registered node(s)
 
@@ -22,7 +22,7 @@ PS C:\Users\Administrator> gitmap ssh exec ip
     • [gamma-mac | 10.20.0.13] (machine is off)
     • [beta-linux | 10.20.0.12] (machine is off)
 
-  ● Commands injected for 3 machine(s) [w2:192.168.1.7, w1:192.168.1.3, w3:192.168.1.12] (batch: 50, timeout: 60s)
+  ● Commands injected for 3 machine(s) [w2:node-w2, w1:node-w1, w3:node-w3] (batch: 50, timeout: 60s)
   ────────────────────────────────────────────────────────────────────────────────
   ...
   Execution completed in 4.39s (3 succeeded, 0 failed, 3 offline)
@@ -34,9 +34,9 @@ PS C:\Users\Administrator> gitmap update all
   ✖ [alpha-win|10.20.0.11] FAILED: ssh dial failed for administrator@10.20.0.11 (7303ms)
   ✖ [beta-linux|10.20.0.12] FAILED: ssh dial failed for administrator@10.20.0.12 (7289ms)
   ✖ [gamma-mac|10.20.0.13] FAILED: ssh dial failed for administrator@10.20.0.13 (7300ms)
-  ✖ [w1|192.168.1.3] FAILED: ssh dial failed for administrator@192.168.1.3 (11105ms)
-  ✖ [w2|192.168.1.7] FAILED: ssh dial failed for administrator@192.168.1.7 (11090ms)
-  ✖ [w3|192.168.1.12] FAILED: ssh dial failed for administrator@192.168.1.12 (11075ms)
+  ✖ [w1|node-w1] FAILED: ssh dial failed for administrator@node-w1 (11105ms)
+  ✖ [w2|node-w2] FAILED: ssh dial failed for administrator@node-w2 (11090ms)
+  ✖ [w3|node-w3] FAILED: ssh dial failed for administrator@node-w3 (11075ms)
 
 ================================================================================
  SSH Fleet Update Summary [all]: Total: 6 | Succeeded: 0 | Failed: 6 | Offline: 0 | Excluded: 0
@@ -46,9 +46,9 @@ PS C:\Users\Administrator> gitmap update all
   alpha-win        10.20.0.11        FAILED         7303ms  ssh dial failed for administrator@10.20.0.11
   beta-linux       10.20.0.12        FAILED         7289ms  ssh dial failed for administrator@10.20.0.12
   gamma-mac        10.20.0.13        FAILED         7300ms  ssh dial failed for administrator@10.20.0.13
-  w1               192.168.1.3       FAILED        11105ms  ssh dial failed for administrator@192.168.1.3
-  w2               192.168.1.7       FAILED        11090ms  ssh dial failed for administrator@192.168.1.7
-  w3               192.168.1.12      FAILED        11075ms  ssh dial failed for administrator@192.168.1.12
+  w1               node-w1       FAILED        11105ms  ssh dial failed for administrator@node-w1
+  w2               node-w2       FAILED        11090ms  ssh dial failed for administrator@node-w2
+  w3               node-w3      FAILED        11075ms  ssh dial failed for administrator@node-w3
 ================================================================================
 
 here the 3 machines are on as you can see but it is not updating if a command is mistaken then it shouk,d should show the ssuggestions pelasede

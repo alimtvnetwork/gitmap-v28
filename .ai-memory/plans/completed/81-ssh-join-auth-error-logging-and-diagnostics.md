@@ -1,7 +1,7 @@
 # Plan 81 (Completed): SSH Join Authentication Error Logging, Execution Tracing & Diagnostic Command
 
 ## 1. Goal Description
-The user reported that `gitmap ssh join a@192.168.1.3 w1` failed authentication with a generic message:
+The user reported that `gitmap ssh join a@node-w1 w1` failed authentication with a generic message:
 `⚠ Failed to authenticate with remote machine: ssh: authentication failed: invalid password or remote server rejected credentials`
 without displaying what actions were run, what auth methods were attempted, or what the internal error was, leaving the user unable to diagnose or share the failure details.
 
@@ -25,7 +25,7 @@ The goal was to:
 ## 2. 4-Part Root Cause Analysis (RCA)
 
 ### Part 1: Symptoms
-- User entered SSH password for `a@192.168.1.3`.
+- User entered SSH password for `a@node-w1`.
 - Terminal showed:
   `⚠ Failed to authenticate with remote machine: ssh: authentication failed: invalid password or remote server rejected credentials`
 - The stacktrace pointed to `checkEnrollAuth (cmdssh/sshjoin_enroll.go:323)`.

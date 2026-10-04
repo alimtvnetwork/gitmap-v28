@@ -42,10 +42,10 @@ In `cli/cmdssh/ssh_pull_fleet.go` and `cli/cmdssh/ssh_pas_fleet.go`:
 - The startup enqueue banner displays the resolved GitMap version for each reachable remote node and the local machine:
   ```text
   Enqueuing 'pull-all' across SSH fleet:
-    • Remote Node [w3] (192.168.1.12) [GitMap v6.306.0]: Online → Enqueued (async)
-    • Remote Node [w1] (192.168.1.3)  [GitMap v6.307.0]: Online → Enqueued (async)
-    • Remote Node [w2] (192.168.1.7)  [GitMap v6.307.0]: Online → Enqueued (async)
-    • Remote Node [w4] (192.168.1.13): Offline (skipped, no task enqueued)
+    • Remote Node [w3] (node-w3) [GitMap v6.306.0]: Online → Enqueued (async)
+    • Remote Node [w1] (node-w1)  [GitMap v6.307.0]: Online → Enqueued (async)
+    • Remote Node [w2] (node-w2)  [GitMap v6.307.0]: Online → Enqueued (async)
+    • Remote Node [w4] (node-w4): Offline (skipped, no task enqueued)
     • Current Machine [Alim-Desktop (127.0.0.1)] [GitMap v6.307.0]: Running locally (direct execution, not enqueued)
   ```
 - Node liveness probing queries `gitmap --version` or REST `/api/v1/version` in parallel with a 1.5s timeout. If unavailable, falls back to `[GitMap unknown]`.

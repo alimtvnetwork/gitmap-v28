@@ -1,7 +1,7 @@
 # Plan 52: Advanced WinUtil & LinUtil Native Go Integration (DM Settings, OS Tweaks, DNS Switcher & Bubbletea TUI)
 
 ## 1. Context & Motivation
-Following the successful initial integration of native Go OS auto-login and core Windows desktop tweaks (Plan 51, released in `v6.299.0` and `v6.299.1`), a deep exploration of Chris Titus Tech's repositories in `D:\work\chris` (`winutil` and `linutil`) reveals several high-value capabilities that can be brought into GitMap in pure native Go:
+Following the successful initial integration of native Go OS auto-login and core Windows desktop tweaks (Plan 51, released in `v6.299.0` and `v6.299.1`), a deep exploration of Chris Titus Tech's repositories in `./chris` (`winutil` and `linutil`) reveals several high-value capabilities that can be brought into GitMap in pure native Go:
 1. **Display Manager (`dm.settings`) & Session Management (Linux / Ubuntu):**
    - LinUtil inspects and configures Display Managers (GDM3, LightDM, SDDM) and Desktop Environments (GNOME, KDE Plasma, XFCE).
    - GitMap currently handles auto-login and display blanking timeouts, but lacks a dedicated `gitmap os dm` subsystem to inspect active display managers, toggle Wayland vs X11 session modes (critical for headless VMs, remote desktop, and GPU stability), switch active DMs, and restart greeters.

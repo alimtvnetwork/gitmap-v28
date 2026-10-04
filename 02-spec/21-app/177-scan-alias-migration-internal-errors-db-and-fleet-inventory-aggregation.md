@@ -31,12 +31,12 @@ Okay. So I want you to run Git map scan on the work directory and take the JSON 
    - Solution: Implement a dedicated SQLite Split-DB `gitmap-errors.db` with table `InternalErrorLog`.
    - Provide `gitmap errors` and `gitmap e` CLI commands supporting listing, single-record detail view (`gitmap e <id>`), clearing (`gitmap e clear`), and JSON output (`gitmap e --json`).
 
-3. **Fleet Inventory Aggregation in `D:\work\repo-secrets`:**
-   - SSH nodes: `w1` (192.168.1.3), `w2` (192.168.1.7), `w3` (192.168.1.12).
+3. **Fleet Inventory Aggregation in `./repo-secrets`:**
+   - SSH nodes: `w1` (node-w1), `w2` (node-w2), `w3` (node-w3).
    - Target folders:
-     - `D:\work\repo-secrets\04-w1-machine\`
-     - `D:\work\repo-secrets\05-w2-machine\` (existing reference)
-     - `D:\work\repo-secrets\06-w3-machine\`
+     - `./repo-secrets\04-w1-machine\`
+     - `./repo-secrets\05-w2-machine\` (existing reference)
+     - `./repo-secrets\06-w3-machine\`
    - Required files: `gitmap.json`, `gitmap-ssh-nodes.json`, `gitmap-ssh.json`, `ooshutup10.cfg` (if present).
 
 ---
@@ -75,6 +75,6 @@ CREATE INDEX IF NOT EXISTS IdxInternalErrorLog_IsResolved ON InternalErrorLog(Is
 - [x] **AC-02:** `gitmap e` and `gitmap errors` display recorded internal errors or a clean state message.
 - [x] **AC-03:** `gitmap e <id>` displays full detail card with code, type, stack trace, and context.
 - [x] **AC-04:** `gitmap e clear` flushes all recorded errors from `gitmap-errors.db`.
-- [x] **AC-05:** `D:\work\.gitmap\output\gitmap.json` contains fresh inventory of all local repositories.
+- [x] **AC-05:** `./.gitmap\output\gitmap.json` contains fresh inventory of all local repositories.
 - [x] **AC-06:** Remote nodes W1, W2, and W3 are scanned via SSH and their inventories retrieved.
-- [x] **AC-07:** `D:\work\repo-secrets\04-w1-machine` and `D:\work\repo-secrets\06-w3-machine` are populated matching `05-w2-machine` format.
+- [x] **AC-07:** `./repo-secrets\04-w1-machine` and `./repo-secrets\06-w3-machine` are populated matching `05-w2-machine` format.

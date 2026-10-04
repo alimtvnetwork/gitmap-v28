@@ -34,6 +34,6 @@ Because `resolveFetchConcurrency(10)` now yields 8, the test assertion failed ac
 ### 2.2 Version Bump & Packaging
 - Bump `cli/constants/constants.go` to `6.355.2`.
 - Record changes in `changelog.md`.
-- Deploy locally to `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`.
-- Deploy to remote node `w1` (`192.168.1.3`).
+- Deploy locally to `%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`.
+- Deploy to remote node `w1` (`node-w1`).
 - Push tag `v6.355.2` and commit to `main`.

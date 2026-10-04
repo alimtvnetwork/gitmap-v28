@@ -9,11 +9,11 @@
 
 ## 1. Reproduction
 
-When attempting to join a remote Windows machine (node `t1` at `192.168.1.17`) into the GitMap SSH fleet cluster:
+When attempting to join a remote Windows machine (node `t1` at `node-t1`) into the GitMap SSH fleet cluster:
 
 ```text
-$ gitmap ssh join administrator@192.168.1.17 t1
-  INFO Registering node t1 (administrator@192.168.1.17:22)...
+$ gitmap ssh join administrator@node-t1 t1
+  INFO Registering node t1 (administrator@node-t1:22)...
   INFO Testing SSH reachability to t1...
   WARN Node t1 responded with connection timeout. Registered as offline.
   SUCCESS Node t1 registered in cluster vault.
@@ -26,13 +26,13 @@ $ gitmap nodes
 +----+------+-----------------------+---------+--------+---------+------------------+
 | #  | NODE | HOST                  | USER    | PORT   | STATUS  | LATENCY          |
 +----+------+-----------------------+---------+--------+---------+------------------+
-| 1  | w1   | 192.168.1.12          | admin   | 22     | online  | 1.4ms            |
-| 2  | w2   | 192.168.1.13          | admin   | 22     | online  | 2.1ms            |
-| 3  | t1   | 192.168.1.17          | admin   | 22     | offline | timeout (3000ms) |
+| 1  | w1   | node-w3          | admin   | 22     | online  | 1.4ms            |
+| 2  | w2   | node-w4          | admin   | 22     | online  | 2.1ms            |
+| 3  | t1   | node-t1          | admin   | 22     | offline | timeout (3000ms) |
 +----+------+-----------------------+---------+--------+---------+------------------+
 
 $ gitmap ssh t1
-ssh: connect to host 192.168.1.17 port 22: Connection timed out
+ssh: connect to host node-t1 port 22: Connection timed out
 [exit code 255]
 ```
 
@@ -51,7 +51,7 @@ Get-Service : Cannot find any service with service name 'sshd'.
 
 ### Symptoms:
 1. `gitmap ssh join` registered the node, but reachability ping failed with a 3000ms connection timeout.
-2. Direct SSH attempts (`gitmap ssh t1` or `ssh administrator@192.168.1.17`) timed out with exit code 255.
+2. Direct SSH attempts (`gitmap ssh t1` or `ssh administrator@node-t1`) timed out with exit code 255.
 3. The target machine possessed the OpenSSH Client binary (`ssh.exe`), giving the false impression that SSH was enabled, but the OpenSSH Server capability (`sshd`) was neither installed nor running.
 4. GitMap lacked an integrated cross-platform port and firewall diagnostic utility (`gitmap ports`), forcing developers to fumble with opaque manual PowerShell and `netstat` commands.
 
@@ -60,7 +60,7 @@ Get-Service : Cannot find any service with service name 'sshd'.
 ## 2. Root Cause Analysis (4-Part RCA)
 
 ### Symptom:
-SSH operations to remote target node `t1` fail with `ssh: connect to host 192.168.1.17 port 22: Connection timed out` (exit code 255), and the target host cannot be managed in the GitMap multi-node fleet.
+SSH operations to remote target node `t1` fail with `ssh: connect to host node-t1 port 22: Connection timed out` (exit code 255), and the target host cannot be managed in the GitMap multi-node fleet.
 
 ### Direct Cause:
 Modern Windows client editions (Windows 10/11) install the OpenSSH Client capability by default, but the OpenSSH Server capability (`OpenSSH.Server~~~~0.0.1.0`) is optional and **uninstalled by default**. Consequently:

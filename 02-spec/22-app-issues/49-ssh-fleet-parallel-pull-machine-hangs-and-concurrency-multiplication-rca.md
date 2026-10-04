@@ -4,7 +4,7 @@
 
 1. **Triggering Fleet Pull-All:**
    - Execute `gitmap pa --ssh` (or `gitmap pae --ssh`) from the host machine.
-   - Fleet contains multiple registered nodes (e.g. `w1` on 192.168.1.3, `w2` on 192.168.1.7, `w3` on 192.168.1.12, and the local host machine).
+   - Fleet contains multiple registered nodes (e.g. `w1` on node-w1, `w2` on node-w2, `w3` on node-w3, and the local host machine).
    - The fleet dispatch launches `executeLocalVMPull` locally and `executeRemoteNodePull` concurrently across all online nodes.
 
 2. **Observed System Freeze:**

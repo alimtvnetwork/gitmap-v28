@@ -11,7 +11,7 @@
 
 ### User Invocation & Observed Behavior:
 ```text
-PS D:\work\presentations-repos\hiltrax> gitmap lowercase "*.md"
+PS ./presentations-repos\hiltrax> gitmap lowercase "*.md"
 ...
   ● Found: 18 uppercase file(s) to rename:
     • SKILL.md -> skill.md

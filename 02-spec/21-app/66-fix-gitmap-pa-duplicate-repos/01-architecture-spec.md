@@ -46,10 +46,10 @@ An end-to-end investigation of the GitMap database layer, scan lifecycle, and pu
    ```sql
    CREATE UNIQUE INDEX IF NOT EXISTS IdxScanFolder_AbsolutePath ON ScanFolder(AbsolutePath)
    ```
-   SQLite text columns default to `BINARY` collation. Under `BINARY` collation, string comparisons evaluate raw byte values (`'D'` is `0x44` while `'d'` is `0x64`). On Windows, drive letters and directory paths frequently differ in casing depending on how they were launched (e.g. `d:\repos\myproject` from bash vs `D:\repos\myproject` from cmd/powershell, or absolute path resolution via `filepath.Abs`). Because the unique index was case-sensitive, SQLite's `INSERT ... ON CONFLICT(AbsolutePath) DO UPDATE` failed to recognize `d:\work\...` as a conflict against `D:\work\...`. As a direct consequence, 61 physical repositories were inserted twice, inflating the `Repo` table from 78 physical repositories to 139 database records.
+   SQLite text columns default to `BINARY` collation. Under `BINARY` collation, string comparisons evaluate raw byte values (`'D'` is `0x44` while `'d'` is `0x64`). On Windows, drive letters and directory paths frequently differ in casing depending on how they were launched (e.g. `d:\repos\myproject` from bash vs `D:\repos\myproject` from cmd/powershell, or absolute path resolution via `filepath.Abs`). Because the unique index was case-sensitive, SQLite's `INSERT ... ON CONFLICT(AbsolutePath) DO UPDATE` failed to recognize `./...` as a conflict against `./...`. As a direct consequence, 61 physical repositories were inserted twice, inflating the `Repo` table from 78 physical repositories to 139 database records.
 
 2. **Concurrent Worker Collision on Identical Working Directories**:
-   When `gitmap pa` runs, it executes `db.ListRepos()`, retrieving all 139 database rows. Because each duplicate pair (`d:\work\repo` and `D:\work\repo`) references the exact same physical folder on the Windows NTFS filesystem, the concurrent worker pool dispatched parallel `git pull` commands to both instances simultaneously. Two separate `git` processes concurrently executed fetch and fast-forward merges inside the same `.git` directory, corrupting `.git/FETCH_HEAD` and causing Git to abort with:
+   When `gitmap pa` runs, it executes `db.ListRepos()`, retrieving all 139 database rows. Because each duplicate pair (`./repo` and `./repo`) references the exact same physical folder on the Windows NTFS filesystem, the concurrent worker pool dispatched parallel `git pull` commands to both instances simultaneously. Two separate `git` processes concurrently executed fetch and fast-forward merges inside the same `.git` directory, corrupting `.git/FETCH_HEAD` and causing Git to abort with:
    ```text
    fatal: Cannot fast-forward to multiple branches.
    ```
@@ -412,7 +412,7 @@ func deleteStaleEntries(db *store.DB, dir string, allRepos []model.ScanRecord, v
 ### 7.1 Verification Criteria
 
 1. **Collation Verification**:
-   - Given an empty database, inserting `'D:\work\repo'` followed by `'d:\work\repo'` results in exactly **1** row in table `Repo`.
+   - Given an empty database, inserting `'./repo'` followed by `'./repo'` results in exactly **1** row in table `Repo`.
    - The row's attributes are updated via `ON CONFLICT(AbsolutePath) DO UPDATE`.
 2. **Deduplication Migration Verification**:
    - Given a database containing duplicate rows (`RepoId=1, AbsolutePath="D:\repos\myproject"` and `RepoId=2, AbsolutePath="d:\repos\myproject"`):

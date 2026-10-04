@@ -26,7 +26,7 @@ Can you please find the root cause and try to fix it as well
 ## 1. Root Cause Summary
 - **Primary Root Cause (Database Case-Sensitivity)**: In `gitmap.db`, `IdxRepo_AbsolutePath` on `Repo(AbsolutePath)` and `IdxScanFolder_AbsolutePath` on `ScanFolder(AbsolutePath)` lacked `COLLATE NOCASE`. On Windows, drive letter casing variants (`D:\work` vs `d:\work`) were stored as distinct rows, accumulating 139 rows in `Repo` for only 78 physical repositories (61 repos duplicated).
 - **Secondary Root Cause (Missing In-Memory Deduplication)**: `loadAllRecordsDB()` and `resolvePullTargets()` directly queried `SELECT ... FROM Repo ORDER BY Slug` via `db.ListRepos()` and passed all 139 records to `pull-all` worker channels and the `.gitignore` background scanner without canonical path or slug deduplication.
-- **Tertiary Root Cause (Worker Concurrency Collision)**: Parallel workers dispatched `D:\work\X` and `d:\work\X` simultaneously on the same `.git` folder, triggering concurrent `git fetch` operations that wrote competing branch heads into `.git/FETCH_HEAD`, causing `fatal: Cannot fast-forward to multiple branches.`.
+- **Tertiary Root Cause (Worker Concurrency Collision)**: Parallel workers dispatched `./X` and `./X` simultaneously on the same `.git` folder, triggering concurrent `git fetch` operations that wrote competing branch heads into `.git/FETCH_HEAD`, causing `fatal: Cannot fast-forward to multiple branches.`.
 - **Quaternary Root Cause (Unfiltered Reporting)**: Both the pull failed summary (`renderFailedGroup`) and `.gitignore` audit (`printIgnoreIssuesReport`) printed every worker state without deduplication, inflating the failure tally to 37 and listing duplicate bullet points.
 
 ---

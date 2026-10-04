@@ -23,7 +23,7 @@
 
 ## 2. Verified Outcomes
 
-1. **SSH Batch Common Join**: Added `cli/cmdssh/sshjoin_common.go` with shorthand IP/octet parsing (e.g. `192.168.1.3(w1),7(w2),12(w3)`), automated remote OS detection upon initial join, and persistence to `SSHConnection.OSVersion` in SQLite.
+1. **SSH Batch Common Join**: Added `cli/cmdssh/sshjoin_common.go` with shorthand IP/octet parsing (e.g. `node-w1(w1),7(w2),12(w3)`), automated remote OS detection upon initial join, and persistence to `SSHConnection.OSVersion` in SQLite.
 2. **OS Telemetry CLI**: Integrated `RunOSInfoCLI` in `cli/cmdos/os.go`, ensuring `gitmap os info --json` and `gitmap os-info` cleanly output structured hardware, CPU, memory, and OS details.
 3. **AGY IDE Rerun & Restart**: Hardened `cli/cmdagy/agy_rerun_restart.go` to reliably terminate active Antigravity instances, restart in the project workspace, and replay the complete transcript including media/picture attachments.
 4. **AGY Project Re-Read & Optimization**: Implemented `gitmap agy rop` with split-DB persistence at `data/AGY/<slug>.db` and 10-item context retention.

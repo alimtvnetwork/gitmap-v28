@@ -20,7 +20,7 @@ GitMap's fleet orchestration command `gitmap nodes cfr` (and related commands `g
 In practical everyday operations, engineers encountered several major usability, directory placement, and discoverability deficiencies:
 
 1. **Blind Remote Directory Placement:**
-   Currently, remote nodes default unconditionally to root work folders (`D:\work` on Windows, `~/work` on Linux). When an engineer is operating inside a specialized workspace subfolder locally (for example, `d:\work\presentations-repos`), executing `gitmap nodes cfr` places repositories into `D:\work` or `~/work` on remote machines instead of mirroring the local subfolder hierarchy (`D:\work\presentations-repos` and `~/work/presentations-repos`).
+   Currently, remote nodes default unconditionally to root work folders (`D:\work` on Windows, `~/work` on Linux). When an engineer is operating inside a specialized workspace subfolder locally (for example, `./presentations-repos`), executing `gitmap nodes cfr` places repositories into `D:\work` or `~/work` on remote machines instead of mirroring the local subfolder hierarchy (`./presentations-repos` and `~/work/presentations-repos`).
 2. **Missing Destination Overrides:**
    Users lacked flexible CLI mechanisms to specify an explicit target directory. There was no support for standard destination flags (`-d`, `--dir`, `--dest`, `--target-dir`) or an intuitive optional positional destination argument (`gitmap nodes cfr <target> [dest]`).
 3. **Remote Execution Failure on Missing Subdirectories:**
@@ -218,13 +218,13 @@ func ResolveRemoteTargetDir(osType, relativeSubDir, customDest string) string {
 ### 3.4 Resolution Decision Matrix
 | Execution Scenario | Local CWD | Local WorkDir | User Flag / Dest | Remote Windows Node | Remote Linux Node |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Inside WorkDir Subfolder** | `D:\work\presentations-repos` | `D:\work` | *(none)* | `D:\work\presentations-repos` | `~/work/presentations-repos` |
-| **Inside Nested Subfolder** | `D:\work\clients\alpha` | `D:\work` | *(none)* | `D:\work\clients\alpha` | `~/work/clients/alpha` |
+| **Inside WorkDir Subfolder** | `./presentations-repos` | `D:\work` | *(none)* | `./presentations-repos` | `~/work/presentations-repos` |
+| **Inside Nested Subfolder** | `./clients\alpha` | `D:\work` | *(none)* | `./clients\alpha` | `~/work/clients/alpha` |
 | **Inside WorkDir Root** | `D:\work` | `D:\work` | *(none)* | `D:\work` | `~/work` |
 | **Outside WorkDir** | `C:\Users\Admin` | `D:\work` | *(none)* | `D:\work` | `~/work` |
 | **Outside WorkDir** | `/home/user/downloads` | `~/work` | *(none)* | `D:\work` | `~/work` |
-| **Explicit Flag Override** | `D:\work\presentations-repos` | `D:\work` | `-d D:\work\custom` | `D:\work\custom` | `~/work/custom` |
-| **Explicit Positional Override** | `C:\Temp` | `D:\work` | `D:\work\special` | `D:\work\special` | `~/work/special` |
+| **Explicit Flag Override** | `./presentations-repos` | `D:\work` | `-d ./custom` | `./custom` | `~/work/custom` |
+| **Explicit Positional Override** | `C:\Temp` | `D:\work` | `./special` | `./special` | `~/work/special` |
 
 ### 3.5 Pre-Creation of Remote Target Directories
 Prior to navigating or executing `gitmap <kind>` on remote nodes, the target directory must exist. Shell execution strings are constructed to safely ensure the directory exists:
@@ -359,7 +359,7 @@ Aggregates, discovers, monitors, and executes commands across all registered mac
 ## Work Directory & Path Resolution
 
 GitMap intelligently detects your current working directory:
-1. **Inside Work Directory Subfolder:** If executed from `D:\work\presentations-repos`, repositories are cloned into `<remote-work-dir>/presentations-repos` on all remote nodes.
+1. **Inside Work Directory Subfolder:** If executed from `./presentations-repos`, repositories are cloned into `<remote-work-dir>/presentations-repos` on all remote nodes.
 2. **Outside Work Directory:** If executed outside a work directory, repositories default to remote work roots (`D:\work` on Windows, `~/work` on Linux).
 3. **Explicit Override:** Specifying `[dest]` or `--dest <path>` directs clones to that explicit directory across all nodes.
 4. **Auto-Directory Creation:** Target folders are created automatically (`mkdir -p` / `New-Item -ItemType Directory`) prior to cloning.
@@ -370,7 +370,7 @@ GitMap intelligently detects your current working directory:
     gitmap nodes cfr ChrisTitusTech/winutil
 
     # Clone into a custom target directory
-    gitmap nodes cfr https://github.com/user/project.git D:\work\custom
+    gitmap nodes cfr https://github.com/user/project.git ./custom
 
     # Clone strictly across remote nodes, preserving relative subfolder
     gitmap nodes cfr except-self user/project

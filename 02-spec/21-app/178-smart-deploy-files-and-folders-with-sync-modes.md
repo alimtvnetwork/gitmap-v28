@@ -38,7 +38,7 @@ gitmap deploy <target> <source> <destination> [flags]
 Where:
 - `<target>`: Identifies the remote host using `<alias, ip, seq, id>`:
   - Alias: `w1`, `w2`, `alpha-win`
-  - IP Address: `192.168.1.3`, `10.20.0.11`
+  - IP Address: `node-w1`, `10.20.0.11`
   - Sequence Index: `1`, `4` (1-indexed matching `gitmap ssh ls`)
   - Host ID: Database ID from `ssh_hosts` table (e.g. `host-1`)
 - `<source>`: Local file or folder path (relative to current working directory or absolute).
@@ -74,9 +74,9 @@ When `--json` is supplied, suppresses interactive terminal progress bars and ren
 ```json
 {
   "target": "w1",
-  "ip": "192.168.1.3",
+  "ip": "node-w1",
   "source": "dist/",
-  "destination": "D:/work/dist",
+  "destination": "./dist",
   "mode": "sync-right",
   "totalFiles": 142,
   "transferredFiles": 18,

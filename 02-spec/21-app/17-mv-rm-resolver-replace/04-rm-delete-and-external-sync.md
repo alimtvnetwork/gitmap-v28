@@ -20,7 +20,7 @@ Resolves all target formats seamlessly:
 
 1. **Interactive Prompt**:
    - Unless `-y` / `--yes` is passed, prompts:
-     `Delete folder and untrack prompt-architect (D:\work\prompt-architect)? [y/N]`
+     `Delete folder and untrack prompt-architect (./prompt-architect)? [y/N]`
 2. **Physical Disk Deletion**:
    - If `--db-only` is omitted, removes the folder recursively from disk with long-path safety.
 3. **Database Cascade Untrack**:

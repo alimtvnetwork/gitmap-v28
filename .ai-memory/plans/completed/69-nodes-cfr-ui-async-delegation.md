@@ -12,7 +12,7 @@ Okay. So you can see the nodes CFR has issues. First of all, the UI is very crap
    - Cached remote GitMap versions in memory via `recordNodeVersion` for display in pre-flight and results tables.
 2. **Target Directory & Workdir Resolution (`nodes_clone.go`, `nodes_clone_types.go`, `nodes_clone_remote.go`):**
    - Implemented local CWD detection relative to workdir (`D:\work` on Windows, `~/work` on Linux).
-   - Preserves relative subdirectories when inside work directory (e.g. `D:\work\internal\tooling` replicates to `<remote-work-root>/internal/tooling`).
+   - Preserves relative subdirectories when inside work directory (e.g. `./internal\tooling` replicates to `<remote-work-root>/internal/tooling`).
    - Defaults to root workdir when outside work directory.
    - Supports explicit destination flags (`-d`, `--dest`, `--dir`, `--target-dir`) and positional second argument `[dest]`.
    - Pre-creates remote target directories automatically (`mkdir -p` / `New-Item -ItemType Directory -Force`).

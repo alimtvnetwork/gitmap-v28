@@ -17,15 +17,15 @@ gitmap pe and fix the below installer issue by e2e test running and trying to in
 
 
 
-PS C:\Users\Administrator\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run
+PS %USERPROFILE%\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run
 No matching SSH machines to deploy setup to (filtered by except: "", except-os: "", os: "").
-PS C:\Users\Administrator\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win
+PS %USERPROFILE%\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win
 No matching SSH machines to deploy setup to (filtered by except: "", except-os: "", os: "win").
-PS C:\Users\Administrator\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win --except unix
+PS %USERPROFILE%\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win --except unix
 No matching SSH machines to deploy setup to (filtered by except: "unix", except-os: "", os: "win").
-PS C:\Users\Administrator\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win --except-os unix
+PS %USERPROFILE%\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win --except-os unix
 No matching SSH machines to deploy setup to (filtered by except: "", except-os: "unix", os: "win").
-PS C:\Users\Administrator\Downloads>
+PS %USERPROFILE%\Downloads>
 
 
 
@@ -36,11 +36,11 @@ PS Z:\VmDownloads\04. SharedSoft> gitmap ssh install-exec .\Antigravity.Manager.
 
   ALIAS            HOST (IP)            OS         REMOTE PATH                RESULT           DURATION
   ----------------------------------------------------------------------------------------------------
-  w1               192.168.1.3:22       linux      /tmp/Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
-  w2               192.168.1.7:22       windows    C:\Windows\Temp\Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
-  w3               192.168.1.12:22      windows    C:\Windows\Temp\Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
-  u1               192.168.1.22:22      linux                                 ○ OFFLINE        0ms
-  w4               192.168.1.13:22      windows                               ○ OFFLINE        0ms
+  w1               node-w1:22       linux      /tmp/Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
+  w2               node-w2:22       windows    %TEMP%\Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
+  w3               node-w3:22      windows    %TEMP%\Antigravity.Manager.Tools_4.70.0_x64-setup.exe ✖ UPLOAD FAILED  0ms
+  u1               node-u1:22      linux                                 ○ OFFLINE        0ms
+  w4               node-w4:22      windows                               ○ OFFLINE        0ms
 
 PS Z:\VmDownloads\04. SharedSoft>
 
@@ -49,11 +49,11 @@ PS Z:\VmDownloads\04. SharedSoft> gitmap ssh nodes
 
   ALIAS            ROLE           HOST (IP:PORT)         USER           STATUS     ENROLLED
   ----------------------------------------------------------------------------------------------------
-  w4               worker         192.168.1.13:22        Administrator  ● ready    2026-09-23 02:40:20
-  w1               worker         192.168.1.3:22         Administrator  ● ready    2026-09-23 02:31:21
-  u1               worker         192.168.1.22:22        a              ● ready    2026-09-23 02:12:22
-  w3               worker         192.168.1.12:22        Administrator  ● ready    2026-09-23 02:12:22
-  w2               worker         192.168.1.7:22         Administrator  ● ready    2026-09-23 02:12:22
+  w4               worker         node-w4:22        Administrator  ● ready    2026-09-23 02:40:20
+  w1               worker         node-w1:22         Administrator  ● ready    2026-09-23 02:31:21
+  u1               worker         node-u1:22        a              ● ready    2026-09-23 02:12:22
+  w3               worker         node-w3:22        Administrator  ● ready    2026-09-23 02:12:22
+  w2               worker         node-w2:22         Administrator  ● ready    2026-09-23 02:12:22
 
   Total: 5 registered node(s)
 
@@ -68,7 +68,7 @@ PS Z:\VmDownloads\04. SharedSoft>
 ![SSH Install-Exec Failure Evidence](assets/screenshots/ssh-install-exec-failure-01.png)
 
 ### Key Observations from User Run:
-1. `C:\Users\Administrator\Downloads` produced `No matching SSH machines to deploy setup to` when using `--dry-run` and OS filters because co-located or isolated databases lacked the registered fleet, or the filter logic failed on unclassified nodes.
+1. `%USERPROFILE%\Downloads` produced `No matching SSH machines to deploy setup to` when using `--dry-run` and OS filters because co-located or isolated databases lacked the registered fleet, or the filter logic failed on unclassified nodes.
 2. In `Z:\VmDownloads\04. SharedSoft`, 5 machines were identified:
    - Node `w1` was erroneously classified as `linux` and targeted for `/tmp/...exe`, despite running Windows Server.
    - `w1`, `w2`, `w3` all failed immediately with `✖ UPLOAD FAILED  0ms`.
@@ -114,7 +114,7 @@ For an installer like `Antigravity.Manager.Tools_4.70.0_x64-setup.exe` (17.3 MB)
 1. If `store.BinaryDataDir()` returns a co-located `./data` directory that does not contain `gitmap.db` or has 0 registered nodes, `store.OpenDefault()` automatically falls back to the canonical system user installation path:
    - Windows: `%LOCALAPPDATA%\gitmap-cli\data\gitmap.db`
    - Linux/macOS: `~/.gitmap/data/gitmap.db`
-2. Guarantees that invoking `gitmap ssh install-exec` from `C:\Users\Administrator\Downloads`, temporary folders, or arbitrary directories discovers the 5 registered cluster fleet nodes.
+2. Guarantees that invoking `gitmap ssh install-exec` from `%USERPROFILE%\Downloads`, temporary folders, or arbitrary directories discovers the 5 registered cluster fleet nodes.
 
 ### 2.4 Error Surfacing in Terminal Results Table
 

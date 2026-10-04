@@ -52,7 +52,7 @@ Returns the `Cluster & Network` group with direct usage lines and flags.
 Returns the daemon join commands (`gitmap serve`, `gitmap-node-join`, join token flags, and cluster onboarding steps) along with runnable examples:
 ```text
   $ gitmap serve --port 9999
-  $ gitmap-node-join --server 192.168.1.10:9999 --token <token>
+  $ gitmap-node-join --server node-main:9999 --token <token>
   $ gitmap cluster nodes
 ```
 

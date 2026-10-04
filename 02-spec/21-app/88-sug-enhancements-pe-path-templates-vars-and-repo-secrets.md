@@ -3,7 +3,7 @@
 ## User Request (Verbatim)
 
 ```text
-PS D:\work\antigravity-manager> gitmap sug help
+PS ./antigravity-manager> gitmap sug help
 
   ╔════════════════════════════════════════════════════════╗
   ║   Shutdown Until Green (gitmap shutdown-until / sug)   ║
@@ -37,7 +37,7 @@ PS D:\work\antigravity-manager> gitmap sug help
     Tip: Run 'gitmap sug run --dry-run' to test the watch loop safely without OS shutdown.
     Tip: Use 'gitmap sug ls' to inspect currently registered watch targets.
 
-PS D:\work\antigravity-manager> gitmap agy sug help
+PS ./antigravity-manager> gitmap agy sug help
 
   ╔════════════════════════════════════════════════════════╗
   ║   Shutdown Until Green (gitmap shutdown-until / sug)   ║
@@ -71,7 +71,7 @@ PS D:\work\antigravity-manager> gitmap agy sug help
     Tip: Run 'gitmap sug run --dry-run' to test the watch loop safely without OS shutdown.
     Tip: Use 'gitmap sug ls' to inspect currently registered watch targets.
 
-PS D:\work\antigravity-manager> gitmap agy sug agy-running projects
+PS ./antigravity-manager> gitmap agy sug agy-running projects
 Error: [E1000:VALIDATION] validation: unknown sug subcommand: agy-running (at=cmdagy/agy_sug.go:72)
 Usage:
   agy shutdown-until-green [command] [flags]
@@ -86,16 +86,16 @@ Flags:
 
 gitmap: [E1000:VALIDATION] validation: unknown sug subcommand: agy-running
   origin: cmdagy/agy_sug.go:72
-PS D:\work\antigravity-manager> gitmap sug add-projects help
+PS ./antigravity-manager> gitmap sug add-projects help
   ✔ Added 1 project(s) to shutdown watch list (total: 1)
-PS D:\work\antigravity-manager>
+PS ./antigravity-manager>
 
-PS D:\work\antigravity-manager> gitmap sug ls
+PS ./antigravity-manager> gitmap sug ls
 
   ╔════ SHUTDOWN-UNTIL-GREEN WATCH LIST (1 projects) ════╗
   [1] help
 
-PS D:\work\antigravity-manager>
+PS ./antigravity-manager>
 ```
 
 ![Screenshot](../../assets/screenshots/sug-enhancements-01.png)
@@ -106,9 +106,9 @@ I think we need to improve this. It is the shut down until green. Okay? So this 
 ## 1. Context & Purpose
 This specification formalizes enhancements across four core subsystems:
 1. **Shutdown Until Green (`gitmap sug` / `shutdown-until`):** Subcommand normalization for multi-word/spaced tokens (e.g. `agy-running projects`), help-keyword protection on `add-projects help`, target existence verification with diagnostic resolution guidance, direct path invocations, watch loop process monitoring (`status` / `watch` / `w`), and dark-mode local browser UI (`ui` / `web`).
-2. **Pipeline Errors (`gitmap pe`):** Target-aware resolution allowing path-based (`d:/work/antigravity-manager`), alias-based (`antigravity-manager`), or Git URL based queries without requiring the user to `cd` into the target directory.
+2. **Pipeline Errors (`gitmap pe`):** Target-aware resolution allowing path-based (`./antigravity-manager`), alias-based (`antigravity-manager`), or Git URL based queries without requiring the user to `cd` into the target directory.
 3. **Help & Navigation CLI Documentation:** Dedicated help group filtering (`gitmap help <group>`) with tab completion, explicit documentation distinguishing `search` (content walk), `aum search` (macro index), and `file-search` / `find` (filename indexing), and Antigravity Manager (`agm`) integration guidance.
-4. **Templates Pre-Compilation & Secrets Hygiene (`d:\work\repo-secrets`):** Deterministic PascalCase variable resolution (`${VarName}`), array variable random selection (`${Var}`) and indexed lookup (`${Var[i]}`), directory normalization from `01-git-map` to `01-gitmap`, boolean flag positive standardization (`is*`, `has*`), and hermetic test script verification directly under `D:\test-gitmap`.
+4. **Templates Pre-Compilation & Secrets Hygiene (`./repo-secrets`):** Deterministic PascalCase variable resolution (`${VarName}`), array variable random selection (`${Var}`) and indexed lookup (`${Var[i]}`), directory normalization from `01-git-map` to `01-gitmap`, boolean flag positive standardization (`is*`, `has*`), and hermetic test script verification directly under `D:\test-gitmap`.
 
 ---
 
@@ -165,13 +165,13 @@ This specification formalizes enhancements across four core subsystems:
   - If variable value is formatted as a JSON array (e.g. `["A", "B", "C"]`) or slice:
     - `${Var}` randomly selects one element from the array.
     - `${Var[i]}` selects the element at index `i` (0-indexed).
-- **Repo-Secrets (`d:\work\repo-secrets`):**
+- **Repo-Secrets (`./repo-secrets`):**
   - Rename directory `01-git-map` -> `01-gitmap`.
   - Standardize `seo-templates.json` with `RISEUP ASIA LLC`, `https://alimkarim.com`, and name variations (`MD. Alim Ul Karim`, `MD Alim Ul Karim`, `Alim Karim`).
   - Standardize boolean fields in `commit-pull-config.json` with positive prefix (`isRecreate`, `isTree`, `isFinalSync`, `isPushImmediate`, `isApply`, `isApplyCD`).
-  - Commit and push all updates in `d:\work\repo-secrets` to `origin/main`.
+  - Commit and push all updates in `./repo-secrets` to `origin/main`.
 - **Test Repo Script:**
-  - Verification script strictly targets `D:\test-gitmap` (at root `D:\`, never under `D:\work\`).
+  - Verification script strictly targets `D:\test-gitmap` (at root `D:\`, never under `./`).
 
 ---
 
@@ -184,5 +184,5 @@ This specification formalizes enhancements across four core subsystems:
 6. `gitmap pe <path|alias|url>` resolves and checks pipeline status for target repositories outside cwd.
 7. `gitmap help <group>` filters commands by category, and `gitmap help <Tab>` provides group suggestions.
 8. PascalCase variables and array indexed/random expansions function deterministically.
-9. `d:\work\repo-secrets` has `01-gitmap`, updated variables, and is cleanly committed and pushed to git.
+9. `./repo-secrets` has `01-gitmap`, updated variables, and is cleanly committed and pushed to git.
 10. `D:\test-gitmap` script runs and cleans up strictly at `D:\test-gitmap`.

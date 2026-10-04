@@ -23,7 +23,7 @@ Implement `02-spec/21-app/91-special-repos-repo-secrets-repo-cache-cd-and-coding
 - **Help Text & V2 Prompts**:
   - Authored `cli/helptext/repo-secrets.md`, `cli/helptext/repo-cache.md`, registered in `cli/helptext/catalog.go`, and authored `01-prompts/special-repos-secrets-and-cache.md`.
 - **Coding Guidelines Sync**:
-  - Pulled `d:\work\coding-guidelines`, updated `agents.md`, `01-prompts/v2/00-folder-structure/01-canonical-folder-structure.md`, `01-prompts/v2/04-coding-standards/01-coding-guidelines.md`, authored `02-spec/02-coding-guidelines/01-cross-language/30-special-repos-secrets-and-cache.md`, committed, and pushed (`fdef19d1`).
+  - Pulled `./coding-guidelines`, updated `agents.md`, `01-prompts/v2/00-folder-structure/01-canonical-folder-structure.md`, `01-prompts/v2/04-coding-standards/01-coding-guidelines.md`, authored `02-spec/02-coding-guidelines/01-cross-language/30-special-repos-secrets-and-cache.md`, committed, and pushed (`fdef19d1`).
 
 ## 3. Verification & CI Gates
 - Unit tests: `TestSpecialReposNormalizeAndSchema`, `TestDeriveTextSlugAndFilename`, `TestIsSpecialRepoCDAlias`, `TestAllocateSequencedItemPath` all passed.

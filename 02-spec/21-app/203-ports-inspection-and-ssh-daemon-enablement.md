@@ -13,7 +13,7 @@
 
 In distributed fleet and cluster operations (`gitmap ssh`, `gitmap nodes`, `gitmap cluster exec`), operators frequently encounter connection timeouts:
 ```text
-ssh: connect to host 192.168.1.17 port 22: Connection timed out
+ssh: connect to host node-t1 port 22: Connection timed out
 gitmap ssh: execute failed: [E_INTERNAL_ERROR:EXECUTION] SpawnSSH: exit status 255
 ```
 Investigating the target host often reveals:

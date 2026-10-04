@@ -113,7 +113,7 @@ func truncateData(data []byte, maxLen int) string {
 {
     "Code": "E3001",
     "Message": "failed to connect to WordPress",
-    "Details": "dial tcp 192.168.1.100:443: connect: connection refused",
+    "Details": "dial tcp node-main0:443: connect: connection refused",
     "Values": {
         "url": "https://example.com",
         "plugin": "my-plugin"
@@ -129,7 +129,7 @@ func truncateData(data []byte, maxLen int) string {
             {"Function": "sync.(*Service).CheckSync", "File": "service.go", "Line": 128}
         ]
     },
-    "Cause": "dial tcp 192.168.1.100:443: connect: connection refused"
+    "Cause": "dial tcp node-main0:443: connect: connection refused"
 }
 ```
 

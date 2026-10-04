@@ -6,28 +6,28 @@ When executing `gitmap ssh exec ip` (or related remote fleet commands) across ac
 PS repo> gitmap ssh exec ip
 
   Notice: The following machine(s) are currently OFF or unreachable:
-    • [w4 | 192.168.1.13] (machine is off)
-    • [u1 | 192.168.1.22] (machine is off)
+    • [w4 | node-w4] (machine is off)
+    • [u1 | node-u1] (machine is off)
 
-  ● Commands injected for 3 machine(s) [w1:192.168.1.3, w3:192.168.1.12, w2:192.168.1.7]:
+  ● Commands injected for 3 machine(s) [w1:node-w1, w3:node-w3, w2:node-w2]:
     Command(s): sh -c ip -br a 2>/dev/null || ip a 2>/dev/null || hostname -I 2>/dev/null || ifconfig
     Processing execution across active node(s)...
 
-  ─── [w2 | 192.168.1.7] ───
+  ─── [w2 | node-w2] ───
     Execute error: command execution failed: Process exited with status 1 (output: 'sh' is not recognized as an internal or external command,
 operable program or batch file.
 )
     'sh' is not recognized as an internal or external command,
     operable program or batch file.
 
-  ─── [w1 | 192.168.1.3] ───
+  ─── [w1 | node-w1] ───
     Execute error: command execution failed: Process exited with status 1 (output: 'sh' is not recognized as an internal or external command,
 operable program or batch file.
 )
     'sh' is not recognized as an internal or external command,
     operable program or batch file.
 
-  ─── [w3 | 192.168.1.12] ───
+  ─── [w3 | node-w3] ───
     Execute error: command execution failed: Process exited with status 1 (output: 'sh' is not recognized as an internal or external command,
 operable program or batch file.
 )
@@ -35,8 +35,8 @@ operable program or batch file.
     operable program or batch file.
 
   Summary of offline machines (2 machine(s) off):
-    • [w4 | 192.168.1.13] (off)
-    • [u1 | 192.168.1.22] (off)
+    • [w4 | node-w4] (off)
+    • [u1 | node-u1] (off)
 
   ✓ SSH Execution completed across 3 active node(s).
 ```

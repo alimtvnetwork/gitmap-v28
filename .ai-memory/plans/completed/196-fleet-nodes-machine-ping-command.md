@@ -23,7 +23,7 @@
    - Implemented `cli/cmd/nodes_ping_cmd_test.go` covering option parsing, Windows ping output parsing, Linux ping output parsing, status resolution, ANSI table rendering, JSON serialization, and help text.
    - All 7 tests passed (100% PASS).
 4. **Live Verification**:
-   - Built and updated `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`.
+   - Built and updated `%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`.
    - Tested `gitmap nodes ping`, `gitmap ping`, `gitmap ping w1`, `gitmap ping --raw w1`, `gitmap ping --json w1`, `gitmap ping 127.0.0.1`, and `gitmap nodes ping --help`.
 5. **Documentation & Specs**:
    - Authored specification `02-spec/21-app/186-fleet-nodes-machine-ping-command.md`.

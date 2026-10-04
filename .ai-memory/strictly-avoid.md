@@ -654,7 +654,7 @@ Allowed work:
 - ✅ Use native `gitmap safe-rm <path...> [--force]` (alias `gitmap rm-safe`), which guarantees exit code 0 when targets are already absent.
 - ✅ Synchronize all 4 active binary targets upon compilation or deployment:
   1. `./gitmap.exe` and `./bin/gitmap.exe`
-  2. `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` (`C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`)
+  2. `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` (`%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`)
   3. `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`
   4. `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`
 - ✅ Ensure `gitmap macro edit` records intended commands reliably and persists updated steps without dropping configuration.

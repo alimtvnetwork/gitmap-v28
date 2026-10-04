@@ -20,7 +20,7 @@ Great. Just we have installed the IDE, set up settings, and things that, I hope 
 ### Subtask 01: Sanitize Markdown Files of IPs and Absolute Paths
 - **Traceability ID:** Task-01
 - **Status:** `[Completed]`
-- **Scope & Delivery:** Audited and scrubbed all raw IPv4 strings (`192.168.1.22`, `192.168.1.50`, etc.) and absolute paths (`C:\Users\Administrator`, `d:\work\`) across:
+- **Scope & Delivery:** Audited and scrubbed all raw IPv4 strings (`node-u1`, `node-alias`, etc.) and absolute paths (`C:\Users\Administrator`, `./`) across:
   - `02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/01-architecture-spec.md`
   - `02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/02-component-and-cli-spec.md`
   - `02-spec/22-app-issues/69-antigravity-fleet-parity-theme-preset-plugins-rca.md`

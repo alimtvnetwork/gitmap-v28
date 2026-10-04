@@ -22,11 +22,11 @@ Implement intelligent SSH connection failure diagnostics and an automated 7-step
   ╔══════════════════════════════════════════════════════════════════╗
   ║           SSH CONNECTION TROUBLESHOOTING & REMEDIATION           ║
   ╚══════════════════════════════════════════════════════════════════╝
-    Failure Cause: dial tcp 192.168.1.22:22: connectex: A connection attempt failed...
+    Failure Cause: dial tcp node-u1:22: connectex: A connection attempt failed...
 
-    7-Step Remediation Checklist for '192.168.1.22':
+    7-Step Remediation Checklist for 'node-u1':
       1. Check Host Power & Ping: Confirm the machine is online.
-         → ping 192.168.1.22
+         → ping node-u1
       2. Enable OpenSSH Server: Install GitMap or enable sshd on the target.
          → Run 'gitmap ssh enable --port 22' (or 'sudo systemctl enable --now ssh') on target
       3. Check Target SSH Port: Verify what port sshd is listening on.
@@ -34,16 +34,16 @@ Implement intelligent SSH connection failure diagnostics and an automated 7-step
       4. Verify Firewall Rules: Ensure inbound TCP port is allowed through the firewall.
          → Run 'gitmap ssh port add <port>' or 'gitmap ssh enable-public <port>'
       5. Deploy Authentication Key: Push this machine's public key to the target.
-         → gitmap ssh copy-id 192.168.1.22 (or gitmap ssh view to inspect key)
+         → gitmap ssh copy-id node-u1 (or gitmap ssh view to inspect key)
       6. Run Deep Diagnostics: Execute automated reachability and port probe.
-         → gitmap ssh troubleshoot 192.168.1.22
+         → gitmap ssh troubleshoot node-u1
       7. Manual Verbose Connection: Test with OpenSSH client directly.
-         → ssh -vvv 192.168.1.22
+         → ssh -vvv node-u1
   ```
 
 ### 2. Deep Diagnostic CLI Command (`cli/cmdssh/ssh_troubleshoot.go`)
 - Command: `gitmap ssh troubleshoot <target>` (aliases: `doctor`, `diagnose`).
-- Target parsing: handles bare IP (`192.168.1.22`), host:port (`192.168.1.22:2222`), user@host (`a@192.168.1.22`), or enrolled node alias (`u1`).
+- Target parsing: handles bare IP (`node-u1`), host:port (`node-u1:2222`), user@host (`a@node-u1`), or enrolled node alias (`u1`).
 - Multi-probe diagnostic pipeline:
   - **Ping Probe:** ICMP echo test (1-second timeout) to determine if host hardware and OS network stack are alive.
   - **SSH TCP Probe:** Direct dial to target port (default 22 or parsed port).

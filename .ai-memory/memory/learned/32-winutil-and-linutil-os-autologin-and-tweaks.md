@@ -3,7 +3,7 @@
 - **Number:** 32
 - **Date:** 2026-09-22
 - **Topic:** Native Go integration of Windows/Ubuntu auto-login, desktop shell tweaks, power schemes, and system cleanups.
-- **Reference:** `D:\work\chris\winutil` and `D:\work\chris\linutil`
+- **Reference:** `./chris\winutil` and `./chris\linutil`
 
 ## 1. Context & Architecture
 

@@ -99,12 +99,12 @@ This specification introduces:
 
   ALIAS          ROLE         HOST (IP:PORT)         ICMP STATS      LOSS     AVG RTT    TCP (PORT)       STATUS
   ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  w1             worker       192.168.1.3:22         2/2 rcvd        0%       <1ms       ● 22 (<1ms)      ● ONLINE
-  main           worker       192.168.1.20:22        0/2 rcvd        100%     -          ● 22 (2ms)       ● REACHABLE (TCP)
-  w3             worker       192.168.1.12:22        0/2 rcvd        100%     -          ● 22 (2ms)       ● REACHABLE (TCP)
-  u1             worker       192.168.1.22:22        0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
-  w2             worker       192.168.1.7:22         0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
-  w4             worker       192.168.1.13:22        0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
+  w1             worker       node-w1:22         2/2 rcvd        0%       <1ms       ● 22 (<1ms)      ● ONLINE
+  main           worker       node-main:22        0/2 rcvd        100%     -          ● 22 (2ms)       ● REACHABLE (TCP)
+  w3             worker       node-w3:22        0/2 rcvd        100%     -          ● 22 (2ms)       ● REACHABLE (TCP)
+  u1             worker       node-u1:22        0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
+  w2             worker       node-w2:22         0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
+  w4             worker       node-w4:22        0/2 rcvd        100%     -          ○ timeout        ○ OFFLINE
 
   ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
   Fleet Ping: 3/6 reachable (1 online ICMP, 2 reachable via TCP) | 3 offline | Max Elapsed: 2.01s
@@ -117,12 +117,12 @@ This specification introduces:
 ### 4.2 Raw Command Execution Output (`--raw`)
 
 ```text
---- [w1 | 192.168.1.3] command: C:\Windows\system32\ping.exe -n 2 -w 1500 192.168.1.3 ---
-Pinging 192.168.1.3 with 32 bytes of data:
-Reply from 192.168.1.3: bytes=32 time<1ms TTL=128
-Reply from 192.168.1.3: bytes=32 time<1ms TTL=128
+--- [w1 | node-w1] command: C:\Windows\system32\ping.exe -n 2 -w 1500 node-w1 ---
+Pinging node-w1 with 32 bytes of data:
+Reply from node-w1: bytes=32 time<1ms TTL=128
+Reply from node-w1: bytes=32 time<1ms TTL=128
 
-Ping statistics for 192.168.1.3:
+Ping statistics for node-w1:
     Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
 Approximate round trip times in milli-seconds:
     Minimum = 0ms, Maximum = 0ms, Average = 0ms
@@ -135,11 +135,11 @@ Approximate round trip times in milli-seconds:
   {
     "alias": "w1",
     "role": "worker",
-    "host": "192.168.1.3",
+    "host": "node-w1",
     "port": 22,
     "user": "Administrator",
     "subsystems": ["SSH", "Cluster", "SC"],
-    "command": "C:\\Windows\\system32\\ping.exe -n 2 -w 1500 192.168.1.3",
+    "command": "C:\\Windows\\system32\\ping.exe -n 2 -w 1500 node-w1",
     "packets_sent": 2,
     "packets_received": 2,
     "packets_lost": 0,

@@ -20,7 +20,7 @@
 4. **Unit Tests**:
    - Implemented `cli/cmd/nodes_cmd_test.go` covering help displays, table rendering, subsystem filtering, and JSON serialization.
 5. **Live Verification**:
-   - Rebuilt `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`.
+   - Rebuilt `%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`.
    - Verified `gitmap nodes`, `gitmap nodes --fast`, `gitmap nodes --json`, `gitmap nodes main`, `gitmap node`, `gitmap allnodes`.
 6. **Documentation**:
    - Authored specification `02-spec/21-app/185-unified-fleet-nodes-command.md`.

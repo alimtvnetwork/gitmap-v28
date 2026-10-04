@@ -12,7 +12,7 @@
    - Execute an unattended installer that previously launched interactively in Windows OpenSSH Session 0.
    - Re-attempt deployment: `gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe`.
    - Result: `streamTarToRemote.Wait: Can't unlink already-existing object: Permission denied`, followed by `streamDirectToRemote.Write: EOF` (`0ms`).
-   - Cause: The previous instance (e.g. PID 12576) remained alive in Session 0, holding an exclusive read/execute lock on `C:\Windows\Temp\Antigravity.Manager.Tools_4.70.0_x64-setup.exe`.
+   - Cause: The previous instance (e.g. PID 12576) remained alive in Session 0, holding an exclusive read/execute lock on `%TEMP%\Antigravity.Manager.Tools_4.70.0_x64-setup.exe`.
 
 ## 2. Root Cause Analysis
 
@@ -42,6 +42,6 @@
 - Ran `go test -count=1 ./cli/cmdssh/...`: all unit tests passed in 33.9s.
 - Verified central `gitmap.db` retention: `ssh_hosts` maintained all 3 cluster nodes (`w1`, `w2`, `w3`) through test runs without modification.
 - Executed live installation across all 3 nodes:
-  - `w1` (192.168.1.3:22): `✔ INSTALLED (0)` in 2680ms
-  - `w2` (192.168.1.7:22): `✔ INSTALLED (0)` in 2727ms
-  - `w3` (192.168.1.12:22): `✔ INSTALLED (0)` in 2743ms
+  - `w1` (node-w1:22): `✔ INSTALLED (0)` in 2680ms
+  - `w2` (node-w2:22): `✔ INSTALLED (0)` in 2727ms
+  - `w3` (node-w3:22): `✔ INSTALLED (0)` in 2743ms

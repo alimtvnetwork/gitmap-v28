@@ -46,12 +46,12 @@ Okay. Can we do a little bit changes here? Inside your, let's say, JSON, if you 
    - `cli/cmdssh/sshjoin_cmd.go`: Added commented sample for interactive password prompt and salted RSA vault storage.
    - `cli/cmd/clean_dev_entry.go`: Routed `runDevToolTopLevel` to `runDevTopLevel(args)` to resolve `unused` lint findings.
 3. **Subtask 03 (`03-repo-secrets-01-gitmap-consistency.md`)**:
-   - `D:\work\repo-secrets\01-gitmap\07-seo-templates.json`: v2.0 envelope schema with structured `workDirectory` object and `variables`.
-   - `D:\work\repo-secrets\01-gitmap\08-seo-templates-cli.json`: v2.0 envelope schema with `data` wrapper.
-   - `D:\work\repo-secrets\01-gitmap\03-git-setup.json`, `06-vmpass.json`, `vmpass.json`: Added `data` wrapper for standard envelope parsing.
+   - `./repo-secrets\01-gitmap\07-seo-templates.json`: v2.0 envelope schema with structured `workDirectory` object and `variables`.
+   - `./repo-secrets\01-gitmap\08-seo-templates-cli.json`: v2.0 envelope schema with `data` wrapper.
+   - `./repo-secrets\01-gitmap\03-git-setup.json`, `06-vmpass.json`, `vmpass.json`: Added `data` wrapper for standard envelope parsing.
 4. **Subtask 04 (`04-repo-secrets-machine-manifests-variables.md`)**:
-   - `D:\work\repo-secrets\07-final-network-machine\gitmap-ssh-nodes.json` & `gitmap-ssh.json`
-   - `D:\work\repo-secrets\04-w1-machine\gitmap-ssh-nodes.json` & `gitmap-ssh.json`
-   - `D:\work\repo-secrets\05-w2-machine\gitmap-ssh-nodes.json` & `gitmap-ssh.json`
-   - `D:\work\repo-secrets\06-w3-machine\gitmap-ssh-nodes.json` & `gitmap-ssh.json`
+   - `./repo-secrets\07-final-network-machine\gitmap-ssh-nodes.json` & `gitmap-ssh.json`
+   - `./repo-secrets\04-w1-machine\gitmap-ssh-nodes.json` & `gitmap-ssh.json`
+   - `./repo-secrets\05-w2-machine\gitmap-ssh-nodes.json` & `gitmap-ssh.json`
+   - `./repo-secrets\06-w3-machine\gitmap-ssh-nodes.json` & `gitmap-ssh.json`
    - Harmonized to v2.0 envelope, lowerCamelCase keys (`ipAddress`, `authMethod`, `keyPath`, `workerId`), `mainMachine` info, and `${keyPath}` variable reuse.

@@ -69,7 +69,7 @@ func ResolveAdaptiveConcurrency(preset ConcurrencyPreset, userLimit int) int
    - `gitmap pe -n 10` parses `Limit = 10` and does NOT suppress output log.
    - `gitmap pe -n` without trailing number sets `HasSuppressOutputLog = true`.
 2. **AC-2 (Local Repository Identity & Skip)**:
-   - Repositories without remotes (e.g. `d:\work\repo-cache`) obtain `RepoName = "repo-cache"` and `Slug = "repo-cache"` instead of `"unknown"`.
+   - Repositories without remotes (e.g. `./repo-cache`) obtain `RepoName = "repo-cache"` and `Slug = "repo-cache"` instead of `"unknown"`.
    - `gitmap pa` checks if a repo has remotes before attempting pull; if local-only, records as `skipped` without 4x retry delay.
 3. **AC-3 (Auto Fast-Forward Merge Fallback)**:
    - When pulling a divergent branch where git requires reconciling divergent branches, GitMap detects divergence and executes `git pull --progress --no-rebase --no-edit --autostash`.

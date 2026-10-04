@@ -29,7 +29,7 @@
   - Verify and ensure settings for commit in, commit pull in, pull left, right, layout orientation, etc.
 
 - **Task-05: Repo Secrets GitMap JSON Cleanup & Deduplication**
-  - Git pull latest changes in `D:\work\repo-secrets`.
+  - Git pull latest changes in `./repo-secrets`.
   - Locate `01-gitmap/` commit/pull JSON configuration files.
   - Deduplicate repeating flags (e.g. keeping `ECD apply`, removing duplicate `ECD`).
   - Align Go code parsing if needed, commit, and push changes in repo-secrets.

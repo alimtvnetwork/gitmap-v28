@@ -12,10 +12,10 @@
 Running `gitmap update` or `gitmap` in Windows PowerShell (`powershell.exe`) failed with:
 ```text
 Program 'gitmap.exe' failed to run: The specified executable is not a valid application for this OS platform.At
-C:\Users\Administrator\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1:123 char:5
+%USERPROFILE%\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1:123 char:5
 +     & $real @args
 +     ~~~~~~~~~~~~~.
-At C:\Users\Administrator\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1:123 char:5
+At %USERPROFILE%\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1:123 char:5
 +     & $real @args
 +     ~~~~~~~~~~~~~
     + CategoryInfo          : ResourceUnavailable: (:) [], ParentContainsErrorRecordException
@@ -29,7 +29,7 @@ At C:\Users\Administrator\Documents\WindowsPowerShell\Microsoft.PowerShell_profi
 1. **Building Archive Instead of Executable PE**:
    When building locally with `go build -o bin/gitmap.exe ./cmd` in directory `cli/`, the target path `./cmd` is a library package (`package cmd`), not `package main` (which resides in `cli/main.go`). Go built a static archive (`.a`) with magic bytes `!<arch>\n` (`[33, 60, 97, 114, 99, 104, 62]`) instead of a portable executable (`MZ`).
 2. **Copying Non-Executable File to Local Bin**:
-   The resulting `.a` file was copied to `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`. When Windows PowerShell resolved `$real` via `Get-GitmapCommand` and attempted process creation (`& $real`), the Windows OS loader rejected the file as not a valid executable for this platform (`ERROR_BAD_EXE_FORMAT` / 193).
+   The resulting `.a` file was copied to `%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`. When Windows PowerShell resolved `$real` via `Get-GitmapCommand` and attempted process creation (`& $real`), the Windows OS loader rejected the file as not a valid executable for this platform (`ERROR_BAD_EXE_FORMAT` / 193).
 
 ---
 
@@ -46,7 +46,7 @@ At C:\Users\Administrator\Documents\WindowsPowerShell\Microsoft.PowerShell_profi
 2. **Verify PE Executable Header**:
    Verified magic bytes are `MZ` (`b'MZ'`), confirming valid Windows PE structure.
 3. **Deploy & End-to-End Test**:
-   Installed to `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`. Ran `gitmap update` in Windows PowerShell (`powershell.exe`), which downloaded the official `v6.317.0` release package via `aria2c`, verified SHA256 checksums, executed `gitmap setup`, and confirmed:
+   Installed to `%USERPROFILE%\AppData\Local\gitmap-cli\gitmap.exe`. Ran `gitmap update` in Windows PowerShell (`powershell.exe`), which downloaded the official `v6.317.0` release package via `aria2c`, verified SHA256 checksums, executed `gitmap setup`, and confirmed:
    ```text
    ✔ Successfully updated from v6.317.0 to v6.317.0
    PASS Version: gitmap v6.317.0

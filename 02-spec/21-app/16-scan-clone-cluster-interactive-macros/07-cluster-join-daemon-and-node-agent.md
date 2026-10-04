@@ -10,7 +10,7 @@ A lightweight, minimal-dependency binary compiled separately from the main `gitm
 - **CLI Syntax**:
   ```bash
   # Interactive or parameterized join
-  gitmap-node-join --server 192.168.1.10:9999 --token <join-token> [--alias "workstation-02"] [--auto-start]
+  gitmap-node-join --server node-main:9999 --token <join-token> [--alias "workstation-02"] [--auto-start]
   ```
 
 ### 1.2 Windows Auto-Startup Registration
@@ -40,8 +40,8 @@ Whenever a cluster command (`gitmap cluster nodes`, `gitmap servers-clients`, `g
 ```text
   ────────────────────────────────────────────────────────────
   ▲ WARNING: 2 cluster machines are offline or unreachable:
-     • Node 3 [ws-build-03] (192.168.1.13) - Last seen 42m ago (timeout)
-     • Node 5 [render-box]  (192.168.1.15) - Connection refused
+     • Node 3 [ws-build-03] (node-w4) - Last seen 42m ago (timeout)
+     • Node 5 [render-box]  (gateway-node5) - Connection refused
 
   These are the machines that cannot connect or be found.
   Excluded automatically from current broadcast.

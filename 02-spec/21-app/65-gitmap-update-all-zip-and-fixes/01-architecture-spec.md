@@ -224,12 +224,12 @@ func resolveAllTrackedRecords() []model.ScanRecord {
 ```
 
 ### 4.2 Disambiguation of Distinct Repositories with Same Name
-If two repositories legitimately have the same base folder name but different paths (e.g., `D:\work\frontend` and `D:\external\frontend`):
+If two repositories legitimately have the same base folder name but different paths (e.g., `./frontend` and `D:\external\frontend`):
 - In `cli/cmdpull/pull_efficient_render.go`, when formatting results:
 - Detect duplicate repository names across `allRecords`.
 - If a repository name is ambiguous (`nameCount > 1`), format the display line with its distinct path:
   ```text
-  • frontend (D:\work\frontend)         up-to-date
+  • frontend (./frontend)         up-to-date
   • frontend (D:\external\frontend)     +1/-0
   ```
 
@@ -268,9 +268,9 @@ For failed or dirty repositories:
         ↳ Reason: Cannot fast-forward - local and remote branches have diverged
         ↳ Sub-node Option 1 (Preserve Local / Rebase):
           Command: gitmap pull --rebase alpha-backend
-          (or: git -C "D:\work\alpha-backend" pull --rebase)
+          (or: git -C "./alpha-backend" pull --rebase)
         ↳ Sub-node Option 2 (Discard Local / Hard Reset):
-          Command: git -C "D:\work\alpha-backend" reset --hard origin/main
+          Command: git -C "./alpha-backend" reset --hard origin/main
 ```
 
 For dirty working trees:
@@ -281,7 +281,7 @@ For dirty working trees:
         ↳ Sub-node Option 1 (Commit WIP):
           Command: gitmap cpar "wip: save local work"
         ↳ Sub-node Option 2 (Stash Changes):
-          Command: gitmap stash (or: git -C "D:\work\beta-api" stash)
+          Command: gitmap stash (or: git -C "./beta-api" stash)
 ```
 
 ---

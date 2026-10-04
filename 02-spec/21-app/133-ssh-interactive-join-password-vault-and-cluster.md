@@ -38,20 +38,20 @@ GitMap parses both positional permutations:
 
 ```bash
 # Both permutations supported identically for login:
-gitmap ssh login 192.168.1.50@deployer
-gitmap ssh login deployer@192.168.1.50
+gitmap ssh login node-alias@deployer
+gitmap ssh login deployer@node-alias
 
 # Direct execution shortcuts:
-gitmap ssh deployer@192.168.1.50
-gitmap ssh 192.168.1.50@deployer
+gitmap ssh deployer@node-alias
+gitmap ssh node-alias@deployer
 ```
 
 ### 2.2 Alias Registration and Reuse
 
 ```bash
 # Register an IP or connection string under an alias
-gitmap ssh 192.168.1.50 as 'm1'
-gitmap ssh deployer@192.168.1.50 as 'builder-win'
+gitmap ssh node-alias as 'm1'
+gitmap ssh deployer@node-alias as 'builder-win'
 
 # Subsequent invocations resolve the target from SQLite
 gitmap ssh m1
@@ -110,7 +110,7 @@ gitmap ssh vault rm m1
 
 ```bash
 # Log in to remote host, detect remote OS & architecture, download & install GitMap
-gitmap ssh login-install deployer@192.168.1.50
+gitmap ssh login-install deployer@node-alias
 ```
 
 ### 4.2 Fleet Join & Membership Grammar (`ssh-join` & `sj`)

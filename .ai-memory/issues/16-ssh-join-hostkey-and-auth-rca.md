@@ -2,7 +2,7 @@
 
 ## 1. Symptom
 1. **`gitmap ssh add <user@ip> <alias>` Failed:**
-   Running `gitmap ssh add a@192.168.1.9 w2` threw:
+   Running `gitmap ssh add a@node-alias w2` threw:
    ```text
    gitmap ssh: execute failed: [E_INTERNAL_ERROR:] ParseSSHTarget: 'add' is a reserved command, not a host target (ctx=map[raw:add])
    ```

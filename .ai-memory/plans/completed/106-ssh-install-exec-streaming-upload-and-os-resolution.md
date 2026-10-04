@@ -9,13 +9,13 @@ Execution Summary: Completed in 2 orchestration loops across 3 subtask domains w
 ```text
 gitmap pe and fix the below installer issue by e2e test running and trying to install properly, clear???
 
-PS C:\Users\Administrator\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run
+PS %USERPROFILE%\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run
 No matching SSH machines to deploy setup to (filtered by except: "", except-os: "", os: "").
-PS C:\Users\Administrator\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win
+PS %USERPROFILE%\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win
 No matching SSH machines to deploy setup to (filtered by except: "", except-os: "", os: "win").
-PS C:\Users\Administrator\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win --except unix
+PS %USERPROFILE%\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win --except unix
 No matching SSH machines to deploy setup to (filtered by except: "unix", except-os: "", os: "win").
-PS C:\Users\Administrator\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win --except-os unix
+PS %USERPROFILE%\Downloads> gitmap ssh install-exec .\Antigravity.Manager.Tools_4.70.0_x64-setup.exe --dry-run --os win --except-os unix
 No matching SSH machines to deploy setup to (filtered by except: "", except-os: "unix", os: "win").
 ```
 
@@ -34,7 +34,7 @@ No matching SSH machines to deploy setup to (filtered by except: "", except-os: 
 ### Subtask 02: Dynamic Remote OS Probing & AppData Database Fallback
 - **Target Files:** `cli/cmdssh/ssh_install_exec.go`, `cli/store/location.go`, `cli/db/sshconnection.go`
 - **Delivered:**
-  - Updated `store/location.go` to provide persistent fallback to user AppData data directory (`C:\Users\Administrator\.gitmap` or `~/.gitmap`) when GitMap is invoked outside git repositories (e.g. from `C:\Users\Administrator\Downloads`).
+  - Updated `store/location.go` to provide persistent fallback to user AppData data directory (`%USERPROFILE%\.gitmap` or `~/.gitmap`) when GitMap is invoked outside git repositories (e.g. from `%USERPROFILE%\Downloads`).
   - Added schema migration for `ssh_hosts` table to guarantee `OS` column persistence and avoid falling back to `"linux"`.
   - Added dynamic remote OS probing upon SSH connection in `ssh_install_exec.go`: if target node has blank or unknown OS in SQLite, it runs `which-os` probe and updates SQLite cache instantly.
 

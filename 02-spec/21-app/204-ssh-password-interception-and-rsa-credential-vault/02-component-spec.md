@@ -92,7 +92,7 @@ The complete end-to-end interception and authentication lifecycle is structured 
 ```
 
 ### 2.1 Phase 1: Target Host Resolution
-1. Target input argument (e.g. `t1`, `192.168.1.50`, `admin@10.0.0.12:2222`) is parsed via `ParseSSHTarget`.
+1. Target input argument (e.g. `t1`, `node-alias`, `admin@10.0.0.12:2222`) is parsed via `ParseSSHTarget`.
 2. If target is an alias, `lookupSSHHostOrReport` queries SQLite `ssh_hosts` (and `ssh_connections` fallback) to resolve IP address, port, username, and any pre-existing `EncryptedPassword`.
 3. If target is an IP address, `checkAndResolveIP` maps IP to known host records.
 4. Auto-trust verification ensures known_hosts records are checked or initialized (`autoTrustTargetHostFn`).
@@ -142,7 +142,7 @@ When neither public keys nor valid vault passwords exist:
 - **Probe Failure**:
   - If remote sshd rejects the password, display clean error message:
     ```
-    ✗ Authentication failed: Invalid password for admin@192.168.1.50. Please try again.
+    ✗ Authentication failed: Invalid password for admin@node-alias. Please try again.
     ```
   - Reprompt user (up to 3 total attempts). If all attempts fail, abort cleanly with exit code 1.
   - Crucially: **Invalid passwords are NEVER saved to the database.**
@@ -197,7 +197,7 @@ When neither public keys nor valid vault passwords exist:
 All terminal messages must adhere strictly to GitMap's terminal styling guidelines, using ANSI colors from `cli/constants` and affirmative phrasing:
 
 ```text
-Enter password for admin@192.168.1.50: **********
+Enter password for admin@node-alias: **********
   • Verifying credentials with remote host...
   ✓ Authentication verified.
 Do you want to save this password for future use? (y/n) [Encrypted locally with RSA algorithm]: y
@@ -225,10 +225,10 @@ root@server:~$
 When incorrect credentials are supplied:
 
 ```text
-Enter password for ubuntu@192.168.1.200: **********
+Enter password for ubuntu@node-main0: **********
   • Verifying credentials with remote host...
   ✗ Authentication failed: invalid password or remote server rejected credentials.
-Enter password for ubuntu@192.168.1.200 (attempt 2 of 3): 
+Enter password for ubuntu@node-main0 (attempt 2 of 3): 
 ```
 
 ### 3.4 Key UX Requirements & Invariants

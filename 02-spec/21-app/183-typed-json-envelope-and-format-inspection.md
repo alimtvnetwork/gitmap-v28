@@ -14,7 +14,7 @@ To prevent format ambiguity, enable autonomous format discovery, and provide cle
    - Flags unmatched/unsupported files clearly without crashing.
    - Provides a single-line batch command with `-y` bypass recommendations.
 3. **Dual-Format Ingestion**: All subsystem importers transparently accept both the new typed envelope and legacy flat JSONs.
-4. **Repo-Secrets Normalization**: Standardizes all JSON manifests in `D:\work\repo-secrets` to the typed envelope while strictly guarding secret data.
+4. **Repo-Secrets Normalization**: Standardizes all JSON manifests in `./repo-secrets` to the typed envelope while strictly guarding secret data.
 
 ---
 
@@ -72,6 +72,6 @@ For each file:
 ---
 
 ## 4. Repo-Secrets Normalization & Security Constraints
-- All JSON manifests in `D:\work\repo-secrets\01-gitmap\` and machine folders (`04-w1-machine`, `05-w2-machine`, etc.) are transformed to the typed envelope.
-- Sensitive credentials, passwords, and private keys remain strictly inside `D:\work\repo-secrets`.
+- All JSON manifests in `./repo-secrets\01-gitmap\` and machine folders (`04-w1-machine`, `05-w2-machine`, etc.) are transformed to the typed envelope.
+- Sensitive credentials, passwords, and private keys remain strictly inside `./repo-secrets`.
 - Automated test suites in `gitmap` use isolated, sanitized mock fixtures in `cli/jsonenvelope/fixtures/` with zero production secrets.

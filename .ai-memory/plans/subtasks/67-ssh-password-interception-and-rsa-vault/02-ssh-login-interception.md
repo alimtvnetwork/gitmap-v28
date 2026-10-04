@@ -165,7 +165,7 @@ Add the following targeted tests to `cli/cmdssh/ssh_login_cmd_test.go`:
    - Tests `"y"`, `"Y"`, `"yes"`, `"Yes"`, `"YES"`, `"  y  "` -> all return `true`.
    - Tests `"n"`, `"N"`, `"no"`, `""`, `"cancel"`, `"maybe"`, `"1"` -> all return `false`.
 2. `TestFormatPrompts(t *testing.T)`:
-   - Verifies `formatPasswordPrompt("admin", "192.168.1.10")` produces `"Enter password for admin@192.168.1.10: "`.
+   - Verifies `formatPasswordPrompt("admin", "node-main")` produces `"Enter password for admin@node-main: "`.
    - Verifies `formatConsentPrompt()` contains `[Encrypted locally with RSA algorithm]`.
 3. `TestInterceptPassword_KeyAuthBypassesPrompt(t *testing.T)`:
    - Hooks `tryConnectKeyHook` to return a dummy `*ssh.Client`.

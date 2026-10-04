@@ -11,17 +11,17 @@
 
 When running `gitmap cfr <name>` or `gitmap clone <name>` with a bare repository slug:
 ```text
-PS D:\work\project-watch-pro> gitmap cfr pwp-mobile
+PS ./project-watch-pro> gitmap cfr pwp-mobile
 Cloning pwp-mobile into pwp-mobile...
-  [clone] target free, cloning directly into D:\work\project-watch-pro\pwp-mobile
+  [clone] target free, cloning directly into ./project-watch-pro\pwp-mobile
 
   ▸ git clone  pwp-mobile
-    target  D:\work\project-watch-pro\pwp-mobile
-    exec    git clone pwp-mobile D:\work\project-watch-pro\pwp-mobile
+    target  ./project-watch-pro\pwp-mobile
+    exec    git clone pwp-mobile ./project-watch-pro\pwp-mobile
 fatal: repository 'pwp-mobile' does not exist
 
   ✖ git clone failed
-    command  git clone pwp-mobile D:\work\project-watch-pro\pwp-mobile
+    command  git clone pwp-mobile ./project-watch-pro\pwp-mobile
     exit     128
     error    exit status 128
 ```

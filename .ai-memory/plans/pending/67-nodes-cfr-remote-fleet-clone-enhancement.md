@@ -32,8 +32,8 @@ Okay. So you can see the nodes CFR has issues. First of all, the UI is very crap
 
 ### 4. Intelligent Work Directory & Relative Path Resolution
 - Check if CWD is inside the default workspace (`fsutil.IsInsideWorkDir`).
-- If CWD is a relative subfolder inside the work directory (e.g. `d:\work\presentations-repos`), compute relative path (`filepath.Rel`).
-- Replicate this relative path on remote machines: `<remoteWorkDir>/<relSubfolder>` (e.g. `D:\work\presentations-repos` on Windows, `~/work/presentations-repos` on Linux).
+- If CWD is a relative subfolder inside the work directory (e.g. `./presentations-repos`), compute relative path (`filepath.Rel`).
+- Replicate this relative path on remote machines: `<remoteWorkDir>/<relSubfolder>` (e.g. `./presentations-repos` on Windows, `~/work/presentations-repos` on Linux).
 - If CWD is outside the work directory, default to the canonical work root (`D:\work` / `~/work`).
 - Support an optional explicit user-provided destination path argument or flag (`-d`, `--dir`, `--dest`, `--target-dir`).
 - Ensure remote directory creation (`mkdir -p` / `New-Item -ItemType Directory`) prior to clone execution.

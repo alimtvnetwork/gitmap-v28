@@ -18,16 +18,16 @@
 ```text
 https://prnt.sc/2wxb74N-bomk
 
-AI Main	192.168.1.20	off
-AI VM 01	192.168.1.3	w1
-AI VM 02	192.168.1.7	w2
-AI VM 03	192.168.1.12	w3
-AI VM 04	192.168.1.13	w4
-AI Ubuntu 01	192.168.1.22	u1
+AI Main	node-main	off
+AI VM 01	node-w1	w1
+AI VM 02	node-w2	w2
+AI VM 03	node-w3	w3
+AI VM 04	node-w4	w4
+AI Ubuntu 01	node-u1	u1
 
 vmpass.json
-D:\work\chris\winutil
-D:\work\chris\linutil
+./chris\winutil
+./chris\linutil
 
 
 Okay. So these are the VMs. I am going to open all the VM. All the VMs are running. The reason I'm sharing all this with you is that so that you could test locally, and you don't need to run this test on CI/CD. So you can mark this on local only and VM. If the user only requests, then and only then it will run. It's not like it will run every time, but only the test case, that's a special case, it will run again if we want it to. So remember, this is how you are going to write the end-to-end test, and I'm going to give you all the IPs, all the machine aliases. So W1, W2, these are the aliasing, so you could have the aliasing. So here, the AI main, the main machine, which is the IP 20, which is off. Okay? So you can mark this as off. So we have AI VM one, two, three, four. That means W1, W2, W3, W4, and we have Ubuntu, which is U1.
@@ -52,12 +52,12 @@ Screenshot captured from Lightshot link:
 
 | Machine Name | MAC Address | IP Address | Alias | Operating System | State |
 |---|---|---|---|---|---|
-| AI Main | - | 192.168.1.20 | - | Windows | OFF (Offline / Excluded) |
-| AI VM 01 | 00:50:56:39:B8:4E | 192.168.1.3 | `w1` | Windows | ONLINE |
-| AI VM 02 | 00:50:56:38:57:7B | 192.168.1.7 | `w2` | Windows | ONLINE |
-| AI VM 03 | 00:50:56:29:FA:2D | 192.168.1.12 | `w3` | Windows | ONLINE |
-| AI VM 04 | 00:50:56:28:35:94 | 192.168.1.13 | `w4` | Windows | ONLINE |
-| AI Ubuntu 01 | 00:50:56:2C:CD:4D | 192.168.1.22 | `u1` | Ubuntu Linux | ONLINE |
+| AI Main | - | node-main | - | Windows | OFF (Offline / Excluded) |
+| AI VM 01 | 00:50:56:39:B8:4E | node-w1 | `w1` | Windows | ONLINE |
+| AI VM 02 | 00:50:56:38:57:7B | node-w2 | `w2` | Windows | ONLINE |
+| AI VM 03 | 00:50:56:29:FA:2D | node-w3 | `w3` | Windows | ONLINE |
+| AI VM 04 | 00:50:56:28:35:94 | node-w4 | `w4` | Windows | ONLINE |
+| AI Ubuntu 01 | 00:50:56:2C:CD:4D | node-u1 | `u1` | Ubuntu Linux | ONLINE |
 
 Credentials source: `vmpass.json` (gitignored, contains Windows user/pass and Ubuntu user/pass).
 
@@ -77,18 +77,18 @@ flowchart TD
 
     I["AGY Prompt Remote Execution"] --> J["Command Verification & Status Audit<br/>(.ai-memory/issues/agy-vm-status.md)"]
 
-    K["OS Tweaks Audit"] --> L["WinUtil (D:/work/chris/winutil)<br/>LinUtil (D:/work/chris/linutil)<br/>Auto-Login, Auto-Scheduling, Tweaks"]
+    K["OS Tweaks Audit"] --> L["WinUtil (./chris/winutil)<br/>LinUtil (./chris/linutil)<br/>Auto-Login, Auto-Scheduling, Tweaks"]
 
     M["Strict Quality Gates"] --> N["*apperror.AppError Envelopes<br/>Verbose Stack Traces, Zero Swallowed Errors"]
     M --> O["Release Version Bump & CI/CD<br/>Dynamic Waiting via gitmap pl-ai status -t"]
 ```
 
 ### Pillar 1: Local-Only E2E Test Suite (`//go:build e2e`)
-- CI/CD Exemption: The E2E tests target local IP addresses (`192.168.1.x`) and must **NEVER** run in routine GitHub Actions CI runs.
+- CI/CD Exemption: The E2E tests target local IP addresses (`<subnet>.x`) and must **NEVER** run in routine GitHub Actions CI runs.
 - Guarded by Go build tags `//go:build e2e` and environment variable checks (e.g. `GITMAP_E2E_LIVE_VMS=1`).
 - Tests load credentials dynamically from `vmpass.json` if present; if `vmpass.json` is missing or nodes are unreachable, tests skip gracefully with informative logs without failing standard test runs.
 - Covers:
-  1. SSH connection by IP (`192.168.1.3`, etc.) and alias (`w1`, `w2`, `w3`, `w4`, `u1`).
+  1. SSH connection by IP (`node-w1`, etc.) and alias (`w1`, `w2`, `w3`, `w4`, `u1`).
   2. JSON output conformance (`--json`).
   3. Interactive/Automated SSH Join (`gitmap ssh-join`).
   4. Multi-node command execution (`gitmap cluster exec`).
@@ -108,7 +108,7 @@ flowchart TD
 - Compile comprehensive audit report documenting working vs failing commands with root causes and remediation.
 
 ### Pillar 5: WinUtil & LinUtil Integration Audit
-- Inspect local reference repositories at `D:\work\chris\winutil` and `D:\work\chris\linutil`.
+- Inspect local reference repositories at `./chris\winutil` and `./chris\linutil`.
 - Compare against existing native Go implementations in `cli/cmdos/` (auto-login, auto-scheduling, tweaks).
 - Verify functionality and ensure all feature paths are wired up and tested.
 
@@ -125,7 +125,7 @@ flowchart TD
 ## 3. Extracted Actionable Task List
 
 - **Task-01**: Author Local-Only Live VM End-to-End Test Suite (`cli/tests/vm_cluster_e2e_test.go`).
-- **Task-02**: Audit WinUtil (`D:\work\chris\winutil`) & LinUtil (`D:\work\chris\linutil`) Feature Parity in `cli/cmdos/`.
+- **Task-02**: Audit WinUtil (`./chris\winutil`) & LinUtil (`./chris\linutil`) Feature Parity in `cli/cmdos/`.
 - **Task-03**: Diagnose and Fix `gitmap ssh <ip|alias>` and JSON Output Formatter.
 - **Task-04**: Diagnose and Fix `gitmap ssh-join` / `gitmap sj` Interactive & Vault Authentication.
 - **Task-05**: Diagnose, Implement, and Verify Remote Update for GitMap & AGM on Ubuntu and Windows.

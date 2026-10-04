@@ -51,8 +51,8 @@ This subtask overhauls the terminal rendering engine to implement a high-clarity
   - `• Workdir:` Active base directory with preserved relative path.
   - `• Scope:` Local master plus count of active online worker nodes.
   - `• Dispatch:` Destination routing mapping for all online targets:
-    `  w1 -> 192.168.1.10:D:\work`
-    `  w2 -> 192.168.1.11:~/work`
+    `  w1 -> node-main:D:\work`
+    `  w2 -> gateway-node1:~/work`
 
 ### 2.3 Overhauled Results Telemetry Table
 - **Function:** `renderFleetResultsTable(out io.Writer, results []RemoteCloneNodeResult, isLocalSuccess bool, localDetails string, localDuration time.Duration, opts NodesCloneOptions)`

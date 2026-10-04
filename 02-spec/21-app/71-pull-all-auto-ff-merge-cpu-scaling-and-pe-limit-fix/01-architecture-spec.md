@@ -69,7 +69,7 @@ This specification establishes the architectural design for five core capabiliti
   - Apply `flags.Limit` in `pipeline_logs.go` to cap rendered errors, warnings, and failure history runs.
 
 ### 3.2 Repository Identity & Remote-Less Handling (`cli/mapper`, `cli/store`, `cli/cmdpull`)
-- **Problem**: Local repositories created without remote origins (such as `d:\work\repo-cache` created by special repository helpers) have empty `git config --get remote.origin.url`. `extractRepoName("")` returns `"unknown"`, causing the repository to be saved in SQLite with `Slug = "unknown"` and `RepoName = "unknown"`. During `gitmap pa`, `SafePull` fails 4 times trying to pull a repository without remotes.
+- **Problem**: Local repositories created without remote origins (such as `./repo-cache` created by special repository helpers) have empty `git config --get remote.origin.url`. `extractRepoName("")` returns `"unknown"`, causing the repository to be saved in SQLite with `Slug = "unknown"` and `RepoName = "unknown"`. During `gitmap pa`, `SafePull` fails 4 times trying to pull a repository without remotes.
 - **Solution**:
   - In `cli/mapper/mapper.go`, when `remoteURL` is empty, derive `repoName` from `filepath.Base(repo.AbsolutePath)`.
   - In `cli/store/repo_sanitize.go` / `repo_duplicates.go`, add self-healing: on startup or maintenance, any repository where `Slug = "unknown"` or `RepoName = "unknown"` is updated to `filepath.Base(AbsolutePath)`.

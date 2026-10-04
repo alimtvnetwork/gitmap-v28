@@ -14,9 +14,9 @@ PS [REPO_ROOT]> gitmap pa --ssh
     • Remote Node [alpha-win] (10.20.0.11): Enqueued (async)
     • Remote Node [beta-linux] (10.20.0.12): Enqueued (async)
     • Remote Node [gamma-mac] (10.20.0.13): Enqueued (async)
-    • Remote Node [w1] (192.168.1.3): Enqueued (async)
-    • Remote Node [w2] (192.168.1.7): Enqueued (async)
-    • Remote Node [w3] (192.168.1.12): Enqueued (async)
+    • Remote Node [w1] (node-w1): Enqueued (async)
+    • Remote Node [w2] (node-w2): Enqueued (async)
+    • Remote Node [w3] (node-w3): Enqueued (async)
     • Local VM (127.0.0.1 - localhost): Running locally
 
   [alpha-win|10.20.0.11] Offline: [E9000:EXECUTION] execution: node [alpha-win|10.20.0.11] is unreachable: connection timed out (at=cmdssh/ssh_target_nodes.go:28)

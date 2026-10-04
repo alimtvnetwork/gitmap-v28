@@ -63,7 +63,7 @@ flowchart TD
 
 All telemetry output, documentation, and fleet data exchange MUST strictly conform to privacy and portability constraints:
 1. **Zero Raw IP Addresses:** No IPv4 or IPv6 addresses may appear in markdown documentation, console banners, or UI default views. All machines must be referenced by logical host aliases (e.g. `node-01`, `ubuntu-fleet-01`, `node-w1`, `node-main`, `localhost`).
-2. **Zero Absolute Local Paths:** No local drive roots (e.g. `C:\Users\...`, `d:\work\...`, `/home/user/...`) are permitted in persistent spec files. All paths must be parameterized as `<user-home>`, `<repo-root>`, `$WORKSPACE_ROOT`, or repository-relative links.
+2. **Zero Absolute Local Paths:** No local drive roots (e.g. `C:\Users\...`, `./...`, `/home/user/...`) are permitted in persistent spec files. All paths must be parameterized as `<user-home>`, `<repo-root>`, `$WORKSPACE_ROOT`, or repository-relative links.
 
 ---
 
@@ -110,7 +110,7 @@ When migrating configuration between Windows (`node-w1`) and Linux (`node-u1`):
    - Windows: `%USERPROFILE%\.gemini\antigravity\config.json`
    - Linux: `$HOME/.gemini/antigravity/config.json`
 2. **Project Workspace Roots:**
-   - Path prefixes like `d:\work\<repo>` or `C:\Users\<user>\work\<repo>` are mapped dynamically using remote GitMap workspace discovery or canonical relative folder names:
+   - Path prefixes like `./<repo>` or `C:\Users\<user>\work\<repo>` are mapped dynamically using remote GitMap workspace discovery or canonical relative folder names:
      $$\text{RemotePath} = \text{RemoteWorkspaceRoot} + \text{"/"} + \text{BaseRepoName}$$
 3. **Project Manager (`projects.json`):**
    - Windows: `%APPDATA%\Code\User\globalStorage\alefragnani.project-manager\projects.json`

@@ -24,7 +24,7 @@ Yeah, a couple of issues. So first of all, when we do the git-map nodes and when
 
 make sure at the end you release minor bump and check ci cd
 
-D:\work\repo-secrets\07-final-network-machine\gitmap.json
+./repo-secrets\07-final-network-machine\gitmap.json
 
 Also add one more command to the root command section. That would be git map VS Code optimize projects. That would actually remove the duplicates and also tell us where to move to duplicates projects. And if in the project section, if we have missing projects, that would also remove. So add the VS Code project optimizations for the project manager tool. Okay, mention this and also add it. Very important
 ```
@@ -35,7 +35,7 @@ Also add one more command to the root command section. That would be git map VS 
 
 - [x] **Task-01:** Harmonize `gitmap nodes` to match `gitmap ssh nodes` clean compact table formatting, add secondary Supported Commands Matrix table, and suggestions footer.
 - [x] **Task-02:** Update `gitmap cfr` and `gitmap clone` to auto-detect `gitmap.json` when run without args or with `.json` manifests, cloning missing repositories only and avoiding auth hangs on existing repos.
-- [x] **Task-03:** Refactor `D:\work\repo-secrets\07-final-network-machine\gitmap.json` to eliminate redundant work directory declarations, reuse `${workDir}`, upgrade `attributes.help` to rich object with examples, use 1-based indexing, and use `${workDir}` in `absolutePath`.
+- [x] **Task-03:** Refactor `./repo-secrets\07-final-network-machine\gitmap.json` to eliminate redundant work directory declarations, reuse `${workDir}`, upgrade `attributes.help` to rich object with examples, use 1-based indexing, and use `${workDir}` in `absolutePath`.
 - [x] **Task-04:** Provide standalone `clone-gitmap.ps1` script (in `repo-secrets` and `scripts/`) to clone missing repositories from `gitmap.json` without requiring `gitmap` CLI binary.
 - [x] **Task-05:** Implement expandable `autoGitignoreAgm` setting in settings store, config, and `gitmap gitignore agm` subcommands to automate AGM remediation on scan.
 - [x] **Task-06:** Implement `gitmap vscode optimize-projects` (and aliases `vsc optimize-projects`, `vpm optimize`) to remove duplicates, advise relocation/consolidation, prune missing projects, and write clean `projects.json`.

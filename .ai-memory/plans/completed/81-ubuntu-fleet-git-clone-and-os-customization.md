@@ -4,8 +4,8 @@
 > **Completed At:** 2026-10-04  
 > **Traceability IDs:** Subtask 211-01 .. Subtask 211-05  
 > **Spec Reference:** [02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md](../../../02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md)  
-> **Target Node:** Ubuntu U1 (`192.168.1.22`)  
-> **Deliverable Path:** `d:\work\repo-secrets\04-ubuntu-migration\`  
+> **Target Node:** Ubuntu U1 (`node-u1`)  
+> **Deliverable Path:** `./repo-secrets\04-ubuntu-migration\`  
 
 ---
 
@@ -13,7 +13,7 @@
 
 All 5 core objectives have been executed, tested live on Ubuntu U1, and verified:
 1. **SSH Fleet & Git Clone Pipeline**:
-   - Registered `Host u1` in `C:\Users\Administrator\.ssh\config` pointing to `id_rsa.backup-devorg` and `192.168.1.22`.
+   - Registered `Host u1` in `%USERPROFILE%\.ssh\config` pointing to `id_rsa.backup-devorg` and `node-u1`.
    - Sanitized all 71 repositories from `gitmap.json` into Unix format `gitmap-linux.json` with forward slashes `/`.
    - Executed `clone-repos-to-u1.sh` and `clone-repos-to-u1.ps1` over SSH, safely cloning the 45 missing repositories into `/home/a/git-work/` while skipping all existing repositories.
    - Total verified repositories in `/home/a/git-work`: **74** (all 71 manifest repositories + legacy variations).

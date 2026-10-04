@@ -1,7 +1,7 @@
 # Plan 77: AGY Scripts-Fixer Parity Verification, SSH-First Access Probe & Interactive Terminal Auth Prompt
 
 ## Task Execution Header
-- **Initial Trigger**: User request to verify AGY clear implementation parity against `D:\work\scripts-fixer`, verify AGY commands/prompts/end-to-end tests, and implement an SSH-first access check for parallel pulls/clones with terminal authentication fallback (PAT entry or browser login, repository attribution, and global token reuse).
+- **Initial Trigger**: User request to verify AGY clear implementation parity against `./scripts-fixer`, verify AGY commands/prompts/end-to-end tests, and implement an SSH-first access check for parallel pulls/clones with terminal authentication fallback (PAT entry or browser login, repository attribution, and global token reuse).
 - **Execution Lifecycle**: Completed in 1 continuous multi-phase loop (Phases 1A, 1B, 2, 3) across 10 modified/created files.
 - **Verification Gates**: Targeted quality linting (`go vet ./...` exit 0), strict file size limits (<= 100 lines per file), function limits (<= 15 lines), zero nested ifs.
 
@@ -19,7 +19,7 @@ Can you please read the scripts fixture and check the AGY new implementation, an
 ## Consolidated Subtasks & Delivered Features
 
 ### 1. Subtask 01: Audit AGY Clear Implementation & Verify E2E Parity (Task-01)
-- Verified `D:\work\scripts-fixer\scripts\69-install-antigravity\helpers\agy_optimizer.py` and confirmed full native parity in GitMap's `cli/cmdagy/`:
+- Verified `./scripts-fixer\scripts\69-install-antigravity\helpers\agy_optimizer.py` and confirmed full native parity in GitMap's `cli/cmdagy/`:
   - `gitmap agy clean-cache` / `cache-clear` with configurable retention (`--keep 10` by default).
   - Direct convenience shortcuts: `gitmap ccko` (`cache-clear-keep-one`), `gitmap cckf` (`cache-clear-keep-five`).
   - Preflight simulation flags: `--pre`, `--precheck`, `--preflight`.

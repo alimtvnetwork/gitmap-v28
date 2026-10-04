@@ -17,7 +17,7 @@ This specification details the behavior, cross-platform implementation, and data
 ### 2.2 SSH Aliases (`gitmap ssh <ip> as <alias>`)
 
 **Behavior:** Registers a shorthand alias for an IP/User combination.
-- Usage: `gitmap ssh 192.168.1.9 as m1`
+- Usage: `gitmap ssh node-alias as m1`
 - Resolves subsequent calls to `gitmap ssh m1` by querying the SQLite `ssh_hosts` table.
 
 ### 2.3 Remote Installation (`gitmap ssh login-install <target>`)
