@@ -270,6 +270,7 @@ func (db *DB) Migrate() error {
 	db.migrateRepoIdentifiedTransport()
 	db.migrateVSCodeProjectPaths()
 	db.migrateAliasColumns()
+	db.purgeOrphanRepoReferences()
 
 	if err := db.EnsurePurgeHistoryTable(); err != nil {
 		return fmt.Errorf("ensure purge history table: %w", err)
@@ -400,6 +401,25 @@ func (db *DB) migrateRepoLastClonedAt() {
 // installs and on already-migrated databases (handled by addColumnIfNotExists).
 func (db *DB) migrateVSCodeProjectPaths() {
 	db.addColumnIfNotExists(constants.SQLAddVSCodeProjectPathsColumn)
+}
+
+// purgeOrphanRepoReferences removes rows in child tables referencing deleted or missing RepoIds.
+func (db *DB) purgeOrphanRepoReferences() {
+	orphanTables := []string{
+		"DetectedProject",
+		"Release",
+		"VersionProbe",
+		"Alias",
+		"GroupRepo",
+		"RepoVersionHistory",
+	}
+
+	for _, tbl := range orphanTables {
+		if db.tableExists(tbl) {
+			query := fmt.Sprintf("DELETE FROM %s WHERE RepoId NOT IN (SELECT RepoId FROM Repo)", tbl)
+			_, _ = ExecWrapper(db.conn, query).Destruct()
+		}
+	}
 }
 
 // migrateZipGroupItemPaths adds RepoPath, RelativePath, FullPath columns

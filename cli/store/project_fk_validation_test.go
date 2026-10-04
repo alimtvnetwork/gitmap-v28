@@ -77,3 +77,25 @@ func TestUpsertDetectedProject_ForeignKeyValidation(t *testing.T) {
 		t.Fatalf("expected UpsertDetectedProject to fail when RepoID and paths do not exist")
 	}
 }
+
+func TestPurgeOrphanRepoReferences(t *testing.T) {
+	db := openTempDB(t)
+
+	_, _ = db.conn.Exec("PRAGMA foreign_keys = OFF")
+	_, err := db.conn.Exec(`INSERT INTO DetectedProject
+		(RepoId, ProjectTypeId, ProjectName, AbsolutePath, RepoPath, RelativePath, PrimaryIndicator)
+		VALUES (9999, 1, 'orphan', '/orphan/abs', '/orphan/repo', '.', 'go.mod')`)
+	if err != nil {
+		t.Fatalf("failed to insert orphan: %v", err)
+	}
+
+	_, _ = db.conn.Exec("PRAGMA foreign_keys = ON")
+
+	db.purgeOrphanRepoReferences()
+
+	var count int
+	_ = db.conn.QueryRow("SELECT count(*) FROM DetectedProject WHERE RepoId = 9999").Scan(&count)
+	if count != 0 {
+		t.Fatalf("expected orphan count to be 0 after purge, got %d", count)
+	}
+}
