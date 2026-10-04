@@ -2,6 +2,7 @@
 
 ## Completed Plans
 
+- [76-windows-to-ubuntu-fleet-migration-and-secrets-vault.md](completed/76-windows-to-ubuntu-fleet-migration-and-secrets-vault.md) — Windows to Ubuntu Fleet Migration, Zero-to-End Autonomous Provisioning & Secrets Vault Isolation (Spec: [206](../../02-spec/21-app/206-windows-to-ubuntu-fleet-migration-and-secrets-vault/01-architecture-spec.md))
 - [68-stats-float-scan-and-ssh-vault-interception.md](completed/68-stats-float-scan-and-ssh-vault-interception.md) — Stats AvgDuration Float Scan Fix, SS Alias SSH Forwarding & SSH Stale Password Invalidation
 - [67-ssh-password-interception-and-rsa-vault.md](completed/67-ssh-password-interception-and-rsa-vault.md) — SSH Password Interception, Masked Terminal Prompt, User RSA Consent & RSA-OAEP Salt Credential Vault (Spec: [204](../../02-spec/21-app/204-ssh-password-interception-and-rsa-credential-vault/01-architecture-spec.md))
 - [65-commit-non-git-rca.md](completed/65-commit-non-git-rca.md) — Commit Non-Git Repository Execution Crash, Child Batch Delegation & Terminal UI Output (Spec: [65](../../02-spec/22-app-issues/65-commit-non-git-repo-crash-and-commit-all-delegation-rca.md))
