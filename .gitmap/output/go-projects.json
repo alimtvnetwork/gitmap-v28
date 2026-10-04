@@ -2,37 +2,70 @@
   {
     "Project": {
       "id": 0,
-      "repoId": 1,
+      "repoId": 266,
       "repoName": "gitmap-v28",
       "projectTypeId": 1,
       "projectType": "go",
-      "projectName": "github.com/alimtvnetwork/gitmap-v28/gitmap",
-      "absolutePath": "D:\\work\\gitmap\\gitmap",
+      "projectName": "coding-guidelines/common",
+      "absolutePath": "D:\\work\\gitmap\\04-code\\golang",
       "repoPath": "D:\\work\\gitmap",
-      "relativePath": "gitmap",
+      "relativePath": "04-code\\golang",
       "primaryIndicator": "go.mod",
       "detectedAt": ""
     },
     "GoMeta": {
       "id": 0,
       "detectedProjectId": 0,
-      "goModPath": "D:\\work\\gitmap\\gitmap\\go.mod",
-      "goSumPath": "D:\\work\\gitmap\\gitmap\\go.sum",
-      "moduleName": "github.com/alimtvnetwork/gitmap-v28/gitmap",
-      "goVersion": "1.25.0",
+      "goModPath": "D:\\work\\gitmap\\04-code\\golang\\go.mod",
+      "goSumPath": "D:\\work\\gitmap\\04-code\\golang\\go.sum",
+      "moduleName": "coding-guidelines/common",
+      "goVersion": "1.23",
+      "runnables": [
+        {
+          "id": 0,
+          "goMetadataId": 0,
+          "runnableName": "streamwriter-demo",
+          "filePath": "D:\\work\\gitmap\\04-code\\golang\\cmd\\streamwriter-demo\\main.go",
+          "relativePath": "cmd\\streamwriter-demo\\main.go"
+        }
+      ]
+    },
+    "Csharp": null
+  },
+  {
+    "Project": {
+      "id": 0,
+      "repoId": 266,
+      "repoName": "gitmap-v28",
+      "projectTypeId": 1,
+      "projectType": "go",
+      "projectName": "github.com/alimtvnetwork/gitmap-v28/cli",
+      "absolutePath": "D:\\work\\gitmap\\cli",
+      "repoPath": "D:\\work\\gitmap",
+      "relativePath": "cli",
+      "primaryIndicator": "go.mod",
+      "detectedAt": ""
+    },
+    "GoMeta": {
+      "id": 0,
+      "detectedProjectId": 0,
+      "goModPath": "D:\\work\\gitmap\\cli\\go.mod",
+      "goSumPath": "D:\\work\\gitmap\\cli\\go.sum",
+      "moduleName": "github.com/alimtvnetwork/gitmap-v28/cli",
+      "goVersion": "1.26.0",
       "runnables": [
         {
           "id": 0,
           "goMetadataId": 0,
           "runnableName": "gitmap-node-join",
-          "filePath": "D:\\work\\gitmap\\gitmap\\cmd\\gitmap-node-join\\main.go",
+          "filePath": "D:\\work\\gitmap\\cli\\cmd\\gitmap-node-join\\main.go",
           "relativePath": "cmd\\gitmap-node-join\\main.go"
         },
         {
           "id": 0,
           "goMetadataId": 0,
-          "runnableName": "gitmap",
-          "filePath": "D:\\work\\gitmap\\gitmap\\main.go",
+          "runnableName": "cli",
+          "filePath": "D:\\work\\gitmap\\cli\\main.go",
           "relativePath": "main.go"
         }
       ]
@@ -42,30 +75,30 @@
   {
     "Project": {
       "id": 0,
-      "repoId": 1,
+      "repoId": 266,
       "repoName": "gitmap-v28",
       "projectTypeId": 1,
       "projectType": "go",
-      "projectName": "github.com/alimtvnetwork/gitmap-v28/gitmap-updater",
-      "absolutePath": "D:\\work\\gitmap\\gitmap-updater",
+      "projectName": "github.com/alimtvnetwork/gitmap-v28/cli-updater",
+      "absolutePath": "D:\\work\\gitmap\\cli-updater",
       "repoPath": "D:\\work\\gitmap",
-      "relativePath": "gitmap-updater",
+      "relativePath": "cli-updater",
       "primaryIndicator": "go.mod",
       "detectedAt": ""
     },
     "GoMeta": {
       "id": 0,
       "detectedProjectId": 0,
-      "goModPath": "D:\\work\\gitmap\\gitmap-updater\\go.mod",
+      "goModPath": "D:\\work\\gitmap\\cli-updater\\go.mod",
       "goSumPath": "",
-      "moduleName": "github.com/alimtvnetwork/gitmap-v28/gitmap-updater",
+      "moduleName": "github.com/alimtvnetwork/gitmap-v28/cli-updater",
       "goVersion": "1.23.0",
       "runnables": [
         {
           "id": 0,
           "goMetadataId": 0,
-          "runnableName": "gitmap-updater",
-          "filePath": "D:\\work\\gitmap\\gitmap-updater\\main.go",
+          "runnableName": "cli-updater",
+          "filePath": "D:\\work\\gitmap\\cli-updater\\main.go",
           "relativePath": "main.go"
         }
       ]
@@ -75,7 +108,7 @@
   {
     "Project": {
       "id": 0,
-      "repoId": 1,
+      "repoId": 266,
       "repoName": "gitmap-v28",
       "projectTypeId": 1,
       "projectType": "go",

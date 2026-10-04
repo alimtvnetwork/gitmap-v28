@@ -56,5 +56,5 @@ Write-Host "  OK Registered: $succeeded" -ForegroundColor Green
 Write-Host "  XX Failed:     $failed" -ForegroundColor Red
 Write-Host "  ======================================" -ForegroundColor DarkCyan
 Write-Host ""
-Write-Host "  Done!" -ForegroundColor Green
+Write-Host "  !Done" -ForegroundColor Green
 Write-Host ""

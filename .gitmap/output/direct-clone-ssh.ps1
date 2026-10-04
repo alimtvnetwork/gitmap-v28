@@ -1,2 +1,2 @@
 
-git clone -b main https://github.com/alimtvnetwork/gitmap-v28 "."
+git clone -b main git@github.com:alimtvnetwork/gitmap-v28 "."

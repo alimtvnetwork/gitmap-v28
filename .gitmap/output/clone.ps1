@@ -15,7 +15,7 @@ Set-Location $TargetDir
 
 # ── Repository data ───────────────────────────────────────────
 $repos = @(
-    @{ Name = "gitmap-v28"; Branch = "main"; URL = "https://github.com/alimtvnetwork/gitmap-v28"; Path = "." }
+    @{ Name = "gitmap-v28"; Branch = "main"; URL = "git@github.com:alimtvnetwork/gitmap-v28"; Path = "." }
 )
 
 # ── Banner ────────────────────────────────────────────────────
