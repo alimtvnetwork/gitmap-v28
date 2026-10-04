@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [213-antigravity-ubuntu-update-and-macro-automation](213-antigravity-ubuntu-update-and-macro-automation/01-architecture-spec.md) — Antigravity Ubuntu Update (2.13.0 -> 2.19.1), In-App Updater RCA, SUID Sandbox Hardening, GitMap Macro Automation & Installer Constants Sync (Status: `completed`)
 - [211-ubuntu-fleet-git-clone-and-os-customization](211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md) — Ubuntu Fleet Git Clone, Desktop Ergonomics (140% font scaling, Windows keybindings), VMware Automount & Antigravity Cross-OS Sync (Status: `completed`)
 - [210-gitmap-push-fix-command-and-auth-recovery](210-gitmap-push-fix-command-and-auth-recovery/01-architecture-spec.md) — GitMap Push-Fix Command Suite, SSH Auth Self-Healing, Non-Fast-Forward Auto-Rebase & Stack Trace Suppression (Status: `completed`)
 - [209-ai-agent-task-orchestrator-and-split-db](209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md) — AI Agent Task Orchestrator, 3-Tier Multi-Agent SQLite Split-DB Hierarchy, Native `gitmap agent` CLI, Telemetry Logging, Crash Forensics & Interactive Web UI (Status: `active`)

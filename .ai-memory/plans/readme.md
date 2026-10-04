@@ -2,6 +2,7 @@
 
 ## Completed Plans
 
+- [83-antigravity-ubuntu-update-and-macro-automation.md](completed/83-antigravity-ubuntu-update-and-macro-automation.md) — Antigravity Ubuntu Update (2.13.0 -> 2.19.1), In-App Updater RCA, SUID Sandbox Hardening, GitMap Macro Automation & Installer Constants Sync (Spec: [213](../../02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation/01-architecture-spec.md))
 - [81-ubuntu-fleet-git-clone-and-os-customization.md](completed/81-ubuntu-fleet-git-clone-and-os-customization.md) — Ubuntu Fleet Git Clone, Desktop Ergonomics (140% font scaling, Windows keybindings), VMware Automount & Antigravity Cross-OS Sync (Spec: [211](../../02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization/01-architecture-spec.md))
 - [80-gitmap-push-fix-command-and-auth-recovery.md](completed/80-gitmap-push-fix-command-and-auth-recovery.md) — GitMap Push-Fix Command Suite, SSH Auth Self-Healing, Non-Fast-Forward Auto-Rebase & Stack Trace Suppression (Spec: [210](../../02-spec/21-app/210-gitmap-push-fix-command-and-auth-recovery/01-architecture-spec.md))
 - [79-ai-agent-task-orchestrator-and-split-db.md](completed/79-ai-agent-task-orchestrator-and-split-db.md) — AI Agent Task Orchestrator, 3-Tier Multi-Agent SQLite Split-DB Hierarchy, Native `gitmap agent` CLI, Telemetry Logging, Crash Forensics & Interactive Web UI (Spec: [209](../../02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db/01-architecture-spec.md))
