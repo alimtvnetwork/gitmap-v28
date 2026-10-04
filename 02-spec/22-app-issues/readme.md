@@ -74,6 +74,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 66 | [66-ssh-enable-wuauserv-disabled-capability-crash-rca.md](66-ssh-enable-wuauserv-disabled-capability-crash-rca.md) | OpenSSH Server Capability Installation Crash When Windows Update (wuauserv) Service is Disabled: RCA & Fix | Resolved |
 | 67 | [67-detectedproject-foreign-key-constraint-787-rca.md](67-detectedproject-foreign-key-constraint-787-rca.md) | DetectedProject Foreign Key Constraint (787) During Repository Scan: RCA & Fix | Resolved |
 | 68 | [68-gitmap-prompt-input-freeze-and-suggestion-engine-rca.md](68-gitmap-prompt-input-freeze-and-suggestion-engine-rca.md) | GitMap Interactive Prompt Input Freeze and Suggestion Engine Collapse: RCA & Fix | Resolved |
+| 69 | [69-antigravity-fleet-parity-theme-preset-plugins-rca.md](69-antigravity-fleet-parity-theme-preset-plugins-rca.md) | Antigravity Fleet Parity, Theme & Preset Synchronization, and Delegation: RCA & Fix | Resolved |
 
 ---
 

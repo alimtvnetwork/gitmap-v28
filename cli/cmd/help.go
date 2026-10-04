@@ -203,3 +203,104 @@ Examples:
 `, InstallToolsHelpSummary)
 	fmt.Fprint(os.Stdout, helpText)
 }
+
+// AgyDeployHelpSummary is the concise overview of the Antigravity fleet deployment subsystem.
+const AgyDeployHelpSummary = "Deploy Antigravity IDE themes, presets, official plugins (4), and skills (43) to remote SSH fleet nodes."
+
+// RenderAgyDeployHelpMenu renders the modern framed-box help menu for `gitmap agy deploy` and `gitmap deploy ide`.
+func RenderAgyDeployHelpMenu() {
+	menu := termhelp.HelpMenu{
+		Title: "gitmap agy deploy / gitmap deploy ide",
+		UsageLines: []string{
+			"gitmap agy deploy <target-node> [flags]",
+			"gitmap deploy ide <target-node> [flags]",
+			"gitmap agy deploy u1 --all [--json] [--dry-run]",
+		},
+		Sections: []termhelp.HelpSection{
+			{
+				Title: "Description",
+				Entries: []termhelp.CommandEntry{
+					{Command: "agy deploy", Description: AgyDeployHelpSummary},
+					{Command: "deploy ide", Description: "Convenience alias for deploying complete Antigravity IDE bundle to fleet nodes"},
+				},
+			},
+			{
+				Title: "Deployment Flags",
+				Entries: []termhelp.CommandEntry{
+					{Command: "--all", Description: "Deploy complete bundle (preset + theme + plugins + skills + sanitization)"},
+					{Command: "--preset", Description: "Deploy execution and permission presets (eager, turbo, default)"},
+					{Command: "--theme", Description: "Deploy UI theme seeds (#BD93F9, #19191C, #F8F8F2) and settings.json"},
+					{Command: "--plugins", Description: "Deploy 4 core official plugins (chrome-devtools, data-agent-kit, sdk, web-guidance)"},
+					{Command: "--skills", Description: "Deploy all 43 plugin skills into ~/.gemini/config/plugins/"},
+					{Command: "--binaries", Description: "Verify and configure language_server binary permissions"},
+					{Command: "--projects", Description: "Normalize per-project descriptors in ~/.gemini/config/projects/"},
+					{Command: "--dry-run", Description: "Simulate operations and display planned changes without modifying remote state"},
+					{Command: "--json", Description: "Output structured AgyDeployResultJSON telemetry to stdout"},
+					{Command: "--restart", Description: "Restart remote Antigravity background services after deployment"},
+					{Command: "--force", Description: "Overwrite existing remote configurations without prompting"},
+				},
+			},
+			{
+				Title: "Examples",
+				Entries: []termhelp.CommandEntry{
+					{Command: "gitmap agy deploy u1 --all", Description: "Deploy complete Antigravity configuration to Ubuntu node u1"},
+					{Command: "gitmap deploy ide u1", Description: "Deploy full IDE configuration to u1 via the fleet deploy router"},
+					{Command: "gitmap agy deploy u1 --all --dry-run --json", Description: "Simulate deployment with machine-readable JSON telemetry"},
+					{Command: "gitmap agy deploy u1 --plugins --skills", Description: "Deploy only plugins and agent skills without modifying themes"},
+				},
+			},
+		},
+		FooterFlags: []termhelp.CommandEntry{
+			{Command: "-h, --help", Description: "Display this formatted help screen"},
+			{Command: "--json", Description: "Emit results formatted as JSON"},
+			{Command: "--dry-run", Description: "Simulate deployment mutations"},
+		},
+		Tips: []string{
+			"Use 'gitmap deploy ide <target>' for fast turnkey IDE replication to new compute nodes.",
+			"Run 'gitmap agy deploy <target> --dry-run --json' to verify configuration diffs in CI/CD pipelines.",
+		},
+	}
+
+	termhelp.RenderMenu(menu)
+	printUsageFooterShort()
+}
+
+// PrintAgyDeployTerminalHelp writes the plain-text manual help page for gitmap agy deploy to os.Stdout.
+func PrintAgyDeployTerminalHelp() {
+	helpText := fmt.Sprintf(`gitmap agy deploy / gitmap deploy ide - %s
+
+Usage:
+  gitmap agy deploy <target-node> [flags]
+  gitmap deploy ide <target-node> [flags]
+
+Flags:
+  --all            Deploy complete bundle (preset + theme + plugins + skills + sanitization)
+  --preset         Deploy execution and permission presets (eager, turbo)
+  --theme          Deploy UI theme seeds (#BD93F9, #19191C) and settings.json
+  --plugins        Deploy the 4 core official plugins
+  --skills         Deploy all 43 plugin skills
+  --binaries       Verify and set language_server binary permissions
+  --projects       Normalize per-project descriptors in ~/.gemini/config/projects/
+  --dry-run        Simulate deployment and display planned mutations without changes
+  --json           Output structured AgyDeployResultJSON telemetry to stdout
+  --restart        Restart remote Antigravity services after deployment
+  --force          Overwrite existing configurations without prompting
+  --target <node>  Explicit target node selector
+  --help, -h       Show help for deployment command
+
+Examples:
+  # Deploy complete Antigravity configuration to Ubuntu fleet node u1:
+  $ gitmap agy deploy u1 --all
+
+  # Turnkey IDE deployment via fleet router:
+  $ gitmap deploy ide u1
+
+  # Simulate deployment with machine-readable JSON output:
+  $ gitmap agy deploy u1 --all --dry-run --json
+
+  # Deploy only plugins and skills:
+  $ gitmap agy deploy u1 --plugins --skills
+`, AgyDeployHelpSummary)
+	fmt.Fprint(os.Stdout, helpText)
+}
+
