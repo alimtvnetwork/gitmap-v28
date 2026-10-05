@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.487.0] - 2026-10-05
+
+### Added
+- ubuntu cursor start menu dock position and profile migration
+
+---
+
 ## [v6.486.0] - 2026-10-05
 
 ### Added
