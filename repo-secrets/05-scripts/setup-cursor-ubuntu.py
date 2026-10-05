@@ -142,10 +142,30 @@ def download_appimage(target_file: Path, download_url: str, is_force: bool, is_d
 
 
 
+def ensure_appimage_extracted(appimage_path: Path, is_dry_run: bool) -> Path:
+    extract_dir = appimage_path.parent / "squashfs-root"
+    cli_bin = extract_dir / "usr" / "share" / "cursor" / "bin" / "cursor"
+    if cli_bin.exists() or is_dry_run:
+        return cli_bin
+    try:
+        subprocess.run([str(appimage_path), "--appimage-extract"], cwd=str(appimage_path.parent), check=False)
+    except Exception:
+        pass
+    return cli_bin
+
+
 def create_wrapper_at_path(wrapper_path: Path, appimage_path: Path, is_dry_run: bool) -> bool:
     if is_dry_run:
         return True
-    content = f'#!/bin/sh\nexport ELECTRON_ENABLE_LOGGING=0\nexec "{appimage_path}" --no-sandbox "$@"\n'
+    cli_bin = appimage_path.parent / "squashfs-root" / "usr" / "share" / "cursor" / "bin" / "cursor"
+    content = (
+        "#!/bin/sh\n"
+        f'CLI_BIN="{cli_bin}"\n'
+        'if [ -x "$CLI_BIN" ]; then\n'
+        '  exec "$CLI_BIN" --no-sandbox "$@"\n'
+        "fi\n"
+        f'exec "{appimage_path}" --no-sandbox "$@"\n'
+    )
     try:
         wrapper_path.parent.mkdir(parents=True, exist_ok=True)
         wrapper_path.write_text(content, encoding="utf-8")
@@ -169,6 +189,7 @@ def deploy_desktop_entry(appimage_path: Path, is_dry_run: bool) -> bool:
 
 
 def deploy_launchers(appimage_path: Path, is_dry_run: bool) -> Path:
+    ensure_appimage_extracted(appimage_path, is_dry_run)
     system_wrapper = Path("/usr/local/bin/cursor")
     user_wrapper = Path.home() / ".local" / "bin" / "cursor"
     create_wrapper_at_path(system_wrapper, appimage_path, is_dry_run)

@@ -42,12 +42,7 @@ func runSearchCmd(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return apperror.NewValidationError("search pattern is required")
 	}
-	searchOpts.Pattern = cleanSearchPattern(args[0])
-	if len(args) > 1 {
-		searchOpts.Dir = args[1]
-	} else {
-		searchOpts.Dir = ""
-	}
+	searchOpts.Pattern, searchOpts.Dir = parseSearchPositionalArgs(args)
 	res, err := RunSearch(searchOpts)
 	if err != nil {
 		return err
