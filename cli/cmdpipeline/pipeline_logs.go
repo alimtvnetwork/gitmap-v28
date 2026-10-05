@@ -1188,10 +1188,30 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 
 	renderSectionWarnings(sec.Warnings, activeLogLineLimit)
 	renderSectionErrorLinesDedup(sec.ErrorLines, sec.FailureSummary, activeLogLineLimit)
+	if len(sec.StackTrace) > 0 {
+		renderSectionStackTrace(sec.StackTrace, activeLogLineLimit)
+	}
 
 	if len(sec.SavedLogFile) > 0 {
 		fmt.Printf("      Log:     %s\n", filepath.ToSlash(sec.SavedLogFile))
 	}
+}
+
+func renderSectionStackTrace(stack string, lineLimit ...int) {
+	if len(stack) == 0 {
+		return
+	}
+
+	limit := resolveLogSectionLimit(20, lineLimit...)
+	lines := strings.Split(strings.TrimSpace(stack), "\n")
+	capped := capErrorLines(lines, limit)
+
+	fmt.Printf("      Stack Trace:\n")
+	for _, l := range capped {
+		fmt.Printf("        %s%s%s\n", constants.ColorDim, l, constants.ColorReset)
+	}
+
+	printRemainingLineCount(len(lines), len(capped))
 }
 
 func renderSectionWarnings(warnings []string, lineLimit ...int) {

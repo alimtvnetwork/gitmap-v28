@@ -522,6 +522,12 @@ func renderSingleDetailsFailure(sec SectionFailure, idx, total int) {
 	}
 	renderSectionWarnings(sec.Warnings)
 	renderSectionErrorLinesDedup(sec.ErrorLines, sec.FailureSummary)
+	if len(sec.StackTrace) > 0 {
+		fmt.Printf("      Stack Trace:\n")
+		for _, line := range strings.Split(strings.TrimSpace(sec.StackTrace), "\n") {
+			fmt.Printf("        %s%s%s\n", constants.ColorDim, line, constants.ColorReset)
+		}
+	}
 	if len(sec.SavedLogFile) > 0 {
 		fmt.Printf("      Log:     %s\n", filepath.ToSlash(sec.SavedLogFile))
 	}

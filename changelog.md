@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.476.0] - 2026-10-05
+
+### Added
+- pipeline-pe: enhance unit test traceback extraction and heatmap display
+
+---
+
 ## [v6.475.0] - 2026-10-05
 
 ### Added

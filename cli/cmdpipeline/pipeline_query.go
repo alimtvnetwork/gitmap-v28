@@ -237,10 +237,57 @@ func queryFailedRunLogs(repo string, runId uint64) string {
 	}
 
 	if cached, ok := readCachedPipelineLogForRepo(repo, runId); ok {
-		return cached
+		if !isOnlyFallbackLogs(cached) {
+			return cached
+		}
 	}
 
 	return fetchAndCacheRunLogs(repo, runId)
+}
+
+func isOnlyFallbackLogs(content string) bool {
+	trimmed := strings.TrimSpace(content)
+	if len(trimmed) == 0 {
+		return true
+	}
+
+	lines := strings.Split(trimmed, "\n")
+	hasFallbackLine := false
+	for _, rawLine := range lines {
+		line := strings.TrimSpace(rawLine)
+		if len(line) == 0 {
+			continue
+		}
+		if isFallbackLine(line) {
+			hasFallbackLine = true
+
+			continue
+		}
+
+		return false
+	}
+
+	return hasFallbackLine
+}
+
+func isFallbackLine(line string) bool {
+	if strings.Contains(line, " (step #") || (strings.Contains(line, "Step '") && strings.Contains(line, "step #")) {
+		return true
+	}
+	if strings.Contains(line, "Job Execution\tFAIL:") || strings.Contains(line, "Job Execution\tCANCELED:") || strings.Contains(line, "Job Execution\tTIMED_OUT:") {
+		return true
+	}
+	if strings.Contains(line, "\tJob Execution\t") || strings.HasPrefix(line, "Workflow Execution\t") {
+		return true
+	}
+	if strings.Contains(line, "ended with conclusion '") {
+		return true
+	}
+	if strings.HasPrefix(line, "gh command notice") || strings.HasPrefix(line, "Unable to fetch failed logs") || strings.HasPrefix(line, "gh command failed") {
+		return true
+	}
+
+	return false
 }
 
 func fetchAndCacheRunLogs(repo string, runId uint64) string {
@@ -259,7 +306,9 @@ func fetchAndCacheRunLogs(repo string, runId uint64) string {
 func handleFailedRunLogsFallback(repo string, runId uint64, err error, out []byte) string {
 	fallback := buildFallbackRunLogs(repo, runId)
 	if len(fallback) > 0 {
-		_ = writeCachedPipelineLog(runId, fallback, repo)
+		if !isRunInProgress(repo, runId) {
+			_ = writeCachedPipelineLog(runId, fallback, repo)
+		}
 
 		return fallback
 	}
@@ -269,6 +318,40 @@ func handleFailedRunLogsFallback(repo string, runId uint64, err error, out []byt
 	}
 
 	return "Unable to fetch failed logs via gh CLI."
+}
+
+func isRunInProgress(repo string, runId uint64) bool {
+	if runId == 0 {
+		return false
+	}
+
+	idStr := strconv.FormatUint(runId, 10)
+	args := []string{"run", "view", idStr, "--json", "status,conclusion"}
+	if len(repo) > 0 {
+		args = append(args, "--repo", repo)
+	}
+	out, err := runGHCommandWithTimeout(args...)
+	if err == nil && len(out) > 0 {
+		var resp struct {
+			Status     string `json:"status"`
+			Conclusion string `json:"conclusion"`
+		}
+		if json.Unmarshal(out, &resp) == nil {
+			if resp.Status == "in_progress" || resp.Status == "queued" || resp.Status == "waiting" || resp.Status == "pending" {
+				return true
+			}
+			if resp.Status == "completed" {
+				return false
+			}
+		}
+	}
+
+	jobs := queryRunJobs(repo, runId)
+	if len(jobs) > 0 {
+		return !isAllJobsCompleted(jobs)
+	}
+
+	return false
 }
 
 func buildFallbackRunLogs(repo string, runId uint64) string {

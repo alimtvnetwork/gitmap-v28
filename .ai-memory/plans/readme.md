@@ -1,5 +1,9 @@
 # Master Plans Registry
 
+## Active Plans
+
+- [220-pipeline-pe-unit-test-traceback-and-heatmap.md](220-pipeline-pe-unit-test-traceback-and-heatmap.md) — Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation (Spec: [220](../../02-spec/21-app/220-pipeline-pe-unit-test-traceback-and-heatmap/01-architecture-spec.md))
+
 ## Completed Plans
 
 - [218-nodes-agy-ui-remote-settings-and-cursor-automation.md](completed/218-nodes-agy-ui-remote-settings-and-cursor-automation.md) — Fleet Nodes Settings Sync, Remote Project-Scoped Prompting, Nodes AGY UI Dashboard, Privacy IP Scrub, and Cursor Subsystem Automation (Spec: [218](../../02-spec/21-app/218-nodes-agy-ui-remote-settings-and-cursor-automation/01-architecture-spec.md))
@@ -72,10 +76,17 @@
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
 - [75-gitmap-u1-ubuntu-agm-fleet-integration.md](pending/75-gitmap-u1-ubuntu-agm-fleet-integration.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Spec: [205](../../02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md))
 - [77-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca.md](pending/77-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca.md) — GitMap Database Reset, SSH Key Lifecycle, Cross-OS Firewall, and DetectedProject Foreign Key RCA (Spec: [207](../../02-spec/21-app/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/01-architecture-spec.md))
-
-
+- [219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging.md](219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging.md) — Ubuntu Pull-All Remediation Engine, Oh-My-Zsh & Default System Directory Scanner Exclusions, Cross-OS Path Healing, Failure Subtree Formatting, and Structured Error Logging (Spec: [219](../../02-spec/21-app/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/01-architecture-spec.md))
 
 ## Subtasks Directory
+
+### Plan 219 Subtasks (subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/)
+- [01-omz-scanner-exclusions-and-force-flag.md](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/01-omz-scanner-exclusions-and-force-flag.md): Oh-My-Zsh & default directory scanner exclusions with --force-include and --force override
+- [02-cross-os-path-healing-and-missing-repo-pull.md](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/02-cross-os-path-healing-and-missing-repo-pull.md): Cross-OS backslash path normalization & pre-pull auto-healing in gitmap pa/pull
+- [03-pull-remediation-engine-and-clone-fallback.md](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/03-pull-remediation-engine-and-clone-fallback.md): Enhanced pull remediation engine with clone fallback and safe database-only removal
+- [04-failure-tree-subtrees-and-dual-options.md](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/04-failure-tree-subtrees-and-dual-options.md): Pull failure tree formatting & hierarchical nested subtrees with box connectors
+- [05-pull-error-logging-stacktrace-and-pe-hints.md](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/05-pull-error-logging-stacktrace-and-pe-hints.md): Structured error logging, stack trace capture, and diagnostic hints
+- [06-remote-ubuntu-ssh-healing-script-in-repo-secrets.md](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/06-remote-ubuntu-ssh-healing-script-in-repo-secrets.md): Remote Ubuntu node diagnostic & healing scripts in repo-secrets
 
 ### Plan 77 Subtasks (subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/)
 - [01-detectedproject-foreign-key-rca-and-fix.md](subtasks/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca/01-detectedproject-foreign-key-rca-and-fix.md): DetectedProject foreign key constraint RCA & fix

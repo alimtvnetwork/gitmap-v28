@@ -194,4 +194,3 @@ func collectAllResetTargets() []string {
 
 	return targets
 }
-

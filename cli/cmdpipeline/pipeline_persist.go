@@ -57,7 +57,7 @@ func isCorruptOrFallbackErrorLog(content string) bool {
 		return true
 	}
 
-	return false
+	return isOnlyFallbackLogs(content)
 }
 
 func readCachedPipelineLog(runId uint64) (string, bool) {

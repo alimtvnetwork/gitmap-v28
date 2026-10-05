@@ -291,10 +291,10 @@ func constructAutopsy(subtaskId int64, code, title, role, actionType, targetFile
 
 func querySubtaskCounts(db *sql.DB) (SubtaskCounts, *appfault.AppError) {
 	var counts SubtaskCounts
-	_ = db.QueryRow("SELECT COUNT(*) FROM Subtask WHERE Status = 'DONE';").Scan(&counts.Done) // lint-allow: ignore-db-error
-	_ = db.QueryRow("SELECT COUNT(*) FROM Subtask WHERE Status = 'PENDING';").Scan(&counts.Pending) // lint-allow: ignore-db-error
+	_ = db.QueryRow("SELECT COUNT(*) FROM Subtask WHERE Status = 'DONE';").Scan(&counts.Done)              // lint-allow: ignore-db-error
+	_ = db.QueryRow("SELECT COUNT(*) FROM Subtask WHERE Status = 'PENDING';").Scan(&counts.Pending)        // lint-allow: ignore-db-error
 	_ = db.QueryRow("SELECT COUNT(*) FROM Subtask WHERE Status = 'IN_PROGRESS';").Scan(&counts.InProgress) // lint-allow: ignore-db-error
-	_ = db.QueryRow("SELECT COUNT(*) FROM Subtask WHERE Status = 'FAILED';").Scan(&counts.Failed) // lint-allow: ignore-db-error
+	_ = db.QueryRow("SELECT COUNT(*) FROM Subtask WHERE Status = 'FAILED';").Scan(&counts.Failed)          // lint-allow: ignore-db-error
 
 	return counts, nil
 }

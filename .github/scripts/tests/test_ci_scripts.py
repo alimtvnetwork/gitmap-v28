@@ -12,7 +12,7 @@ import tempfile
 import unittest
 
 SCRIPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-REPO_ROOT = os.path.abspath(os.path.join(SCRIPTS_DIR, ".."))
+REPO_ROOT = os.path.abspath(os.path.join(SCRIPTS_DIR, "..", ".."))
 
 
 class TestSingleLinterDiff(unittest.TestCase):

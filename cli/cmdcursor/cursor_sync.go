@@ -159,4 +159,3 @@ func RunCursorListProjects(_ []string) error {
 	fmt.Println()
 	return nil
 }
-

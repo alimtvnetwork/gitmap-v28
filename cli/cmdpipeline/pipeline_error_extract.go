@@ -418,7 +418,12 @@ func isRunnerSetupNoise(trimmed string) bool {
 	return strings.HasPrefix(trimmed, "hint: ") || strings.Contains(lower, "node.js 20 is deprecated")
 }
 
+var ranTestsNoiseRegex = lazyregex.New(`^Ran\s+\d+\s+tests?\s+in\s+`)
+
 func isToolProgressNoise(trimmed string) bool {
+	if isRanTestsNoise(trimmed) {
+		return true
+	}
 	if strings.HasPrefix(trimmed, "go: downloading ") || strings.HasPrefix(trimmed, "go install ") {
 		return true
 	}
@@ -439,6 +444,14 @@ func isToolProgressNoise(trimmed string) bool {
 	}
 
 	return strings.HasPrefix(trimmed, "Installed versions")
+}
+
+func isRanTestsNoise(trimmed string) bool {
+	if !strings.HasPrefix(trimmed, "Ran ") {
+		return false
+	}
+
+	return ranTestsNoiseRegex.CompileMust().MatchString(trimmed)
 }
 
 func hasFailureMarker(line string) bool {
@@ -485,11 +498,27 @@ func isStrongerSummary(candidate, current string) bool {
 		return true
 	}
 
+	if isTestFailureSummary(candidate) {
+		if isGenericExitCode(current) || isStepFailureNotice(current) || !isTestFailureSummary(current) {
+			return true
+		}
+	}
+
+	if isTestFailureSummary(current) {
+		if !isTestFailureSummary(candidate) {
+			return false
+		}
+	}
+
 	if isGenericExitCode(candidate) && !isGenericExitCode(current) {
 		return false
 	}
 
-	if isLocationSummary(candidate) && !isLocationSummary(current) {
+	if isStepFailureNotice(candidate) && !isStepFailureNotice(current) {
+		return false
+	}
+
+	if isLocationSummary(candidate) && !isLocationSummary(current) && !isTestFailureSummary(current) {
 		return true
 	}
 
@@ -505,7 +534,24 @@ func isStrongerSummary(candidate, current string) bool {
 		return true
 	}
 
-	return isGenericExitCode(current)
+	return isGenericExitCode(current) || isStepFailureNotice(current)
+}
+
+func isTestFailureSummary(s string) bool {
+	trimmed := strings.TrimSpace(s)
+
+	return strings.HasPrefix(trimmed, "FAIL: test_") || strings.HasPrefix(trimmed, "FAIL:\ttest_") || strings.Contains(trimmed, "FAIL: test_")
+}
+
+func isStepFailureNotice(s string) bool {
+	if strings.Contains(s, "Step '") && strings.Contains(s, "step #") {
+		return true
+	}
+	if strings.Contains(s, "Job Execution\t") || strings.Contains(s, "Workflow Execution") {
+		return true
+	}
+
+	return strings.Contains(s, "ended with conclusion")
 }
 
 func isBundlerOrBuildFailure(s string) bool {

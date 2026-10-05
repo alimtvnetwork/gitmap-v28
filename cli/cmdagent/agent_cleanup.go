@@ -210,8 +210,8 @@ func resetAiAgentsMasterDB(tempDir string) {
 	}
 	defer db.Close()
 
-	_, _ = db.Exec("DELETE FROM ParentTaskRegistry;") // lint-allow: ignore-db-error
-	_, _ = db.Exec("DELETE FROM AgentRegistry;") // lint-allow: ignore-db-error
+	_, _ = db.Exec("DELETE FROM ParentTaskRegistry;")     // lint-allow: ignore-db-error
+	_, _ = db.Exec("DELETE FROM AgentRegistry;")          // lint-allow: ignore-db-error
 	_, _ = db.Exec("DELETE FROM GlobalLifecycleMetrics;") // lint-allow: ignore-db-error
 }
 
@@ -235,7 +235,7 @@ func resetTaskRunDir(taskDir string) {
 	defer db.Close()
 
 	_, _ = db.Exec("UPDATE Subtask SET Status = 'PENDING', HasCompleted = 0, IsBlocked = 0, AssignedAgentRole = NULL, Evidence = NULL;") // lint-allow: ignore-db-error
-	_, _ = db.Exec("DELETE FROM AgentActionLog;") // lint-allow: ignore-db-error
+	_, _ = db.Exec("DELETE FROM AgentActionLog;")                                                                                        // lint-allow: ignore-db-error
 }
 
 func executeTempClear(tempDir string, isJson bool) *appfault.AppError {
