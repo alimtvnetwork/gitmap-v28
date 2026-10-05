@@ -75,7 +75,7 @@ func DefaultConfig() Config {
 		DefaultMode:           constants.ModeHTTPS,
 		DefaultOutput:         constants.OutputTerminal,
 		OutputDir:             constants.DefaultOutputDir,
-		ExcludeDirs:           []string{},
+		ExcludeDirs:           append([]string{}, constants.DefaultScanExcludeDirs...),
 		Notes:                 "",
 		DashboardRefresh:      constants.DefaultDashboardRefresh,
 		ErrorDisplay:          "full",

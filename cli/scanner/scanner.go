@@ -108,6 +108,8 @@ type ScanProgress struct {
 type ScanOptions struct {
 	// ExcludeDirs is the list of directory base names to skip.
 	ExcludeDirs []string
+	// ForceIncludeDirs is the list of directory base names to include even if in default excludes.
+	ForceIncludeDirs []string
 	// Workers is the worker-pool size; <=0 picks the platform default.
 	Workers int
 	// Progress, when non-nil, is invoked from a single goroutine with
@@ -161,7 +163,7 @@ func ScanDirWithOptions(root string, opts ScanOptions) ([]RepoInfo, error) {
 
 	return walkParallel(
 		absRoot,
-		buildExcludeSet(opts.ExcludeDirs),
+		buildExcludeSet(opts.ExcludeDirs, opts.ForceIncludeDirs),
 		resolveWorkerCount(opts.Workers),
 		resolveMaxDepth(opts.MaxDepth),
 		opts.Progress,
@@ -209,11 +211,43 @@ func defaultWorkerCount() int {
 	return n
 }
 
-// buildExcludeSet converts a slice to a set for O(1) lookups.
-func buildExcludeSet(dirs []string) map[string]bool {
-	set := make(map[string]bool, len(dirs))
-	for _, d := range dirs {
+// buildExcludeSet converts exclude patterns to a set, incorporating DefaultScanExcludeDirs
+// unless overridden by forceIncludes.
+func buildExcludeSet(customExcludes []string, forceIncludes []string) map[string]bool {
+	for _, fi := range forceIncludes {
+		if fi == "all" || fi == "*" {
+			return make(map[string]bool)
+		}
+	}
+
+	forceSet := make(map[string]bool, len(forceIncludes)*2)
+	for _, fi := range forceIncludes {
+		trimmed := strings.TrimSpace(fi)
+		if trimmed != "" {
+			forceSet[trimmed] = true
+			forceSet[strings.ToLower(trimmed)] = true
+		}
+	}
+
+	set := make(map[string]bool)
+	for _, d := range constants.DefaultScanExcludeDirs {
+		isForced := forceSet[d] || forceSet[strings.ToLower(d)]
+		if isForced {
+			continue
+		}
+
 		set[d] = true
+		set[strings.ToLower(d)] = true
+	}
+
+	for _, d := range customExcludes {
+		isForced := forceSet[d] || forceSet[strings.ToLower(d)]
+		if isForced {
+			continue
+		}
+
+		set[d] = true
+		set[strings.ToLower(d)] = true
 	}
 
 	return set
@@ -424,7 +458,8 @@ func isGitdirFile(path string) bool {
 // re-check, since processDir's outer guard already did.
 func (st *scanState) handleSubdir(parent string, childDepth int, entry os.DirEntry) {
 	name := entry.Name()
-	if st.isExcluded[name] {
+	isExcluded := st.isExcluded[name] || st.isExcluded[strings.ToLower(name)]
+	if isExcluded {
 		return
 	}
 
