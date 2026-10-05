@@ -220,6 +220,16 @@ func buildPersistRecords(repo string, runId uint64, workflow, raw, clean string)
 	return detail, compact
 }
 
+func isLogAlreadyPersisted(pipeDb *pipelinedb.PipelineSplitDb, runId uint64) bool {
+	if !pipeDb.HasDetailErrorLog(runId) || !pipeDb.HasCompactErrorLog(runId) {
+		return false
+	}
+
+	existing, ok := queryDetailLogFromDb(pipeDb, runId)
+
+	return ok && !isCorruptOrFallbackErrorLog(existing)
+}
+
 func persistLogToRepoSplitDb(repo string, runId uint64, logContent string) {
 	pipeDb, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
@@ -227,10 +237,9 @@ func persistLogToRepoSplitDb(repo string, runId uint64, logContent string) {
 	}
 
 	defer pipeDb.Close()
-	if pipeDb.HasDetailErrorLog(runId) && pipeDb.HasCompactErrorLog(runId) {
-		if existing, ok := queryDetailLogFromDb(pipeDb, runId); ok && !isCorruptOrFallbackErrorLog(existing) {
-			return
-		}
+
+	if isLogAlreadyPersisted(pipeDb, runId) {
+		return
 	}
 
 	clean := extractCleanErrorLines(logContent)

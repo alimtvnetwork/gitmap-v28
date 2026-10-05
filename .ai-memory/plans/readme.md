@@ -6,6 +6,7 @@ None
 
 ## Completed Plans
 
+- [221-ci-cd-fix-nested-if-and-test-summary-remediation.md](completed/221-ci-cd-fix-nested-if-and-test-summary-remediation.md) — CI/CD Fix: Nested If Linter & Test Failure Summary Remediation (Spec: [221](../../02-spec/21-app/221-ci-cd-fix-nested-if-and-test-summary-remediation/01-architecture-spec.md))
 - [220-pipeline-pe-unit-test-traceback-and-heatmap.md](completed/220-pipeline-pe-unit-test-traceback-and-heatmap.md) — Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation (Spec: [220](../../02-spec/21-app/220-pipeline-pe-unit-test-traceback-and-heatmap/01-architecture-spec.md))
 
 - [218-nodes-agy-ui-remote-settings-and-cursor-automation.md](completed/218-nodes-agy-ui-remote-settings-and-cursor-automation.md) — Fleet Nodes Settings Sync, Remote Project-Scoped Prompting, Nodes AGY UI Dashboard, Privacy IP Scrub, and Cursor Subsystem Automation (Spec: [218](../../02-spec/21-app/218-nodes-agy-ui-remote-settings-and-cursor-automation/01-architecture-spec.md))

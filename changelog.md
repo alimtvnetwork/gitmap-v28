@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.479.0] - 2026-10-05
+
+### Added
+- ci: resolve nested-if, boolean conventions, and full test suite failure
+
+---
+
 ## [v6.478.0] - 2026-10-05
 
 ### Added

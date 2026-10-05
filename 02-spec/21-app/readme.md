@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [221-ci-cd-fix-nested-if-and-test-summary-remediation](221-ci-cd-fix-nested-if-and-test-summary-remediation/01-architecture-spec.md) — CI/CD Fix: Nested If Linter & Test Failure Summary Remediation (Status: `completed`)
 - [220-pipeline-pe-unit-test-traceback-and-heatmap](220-pipeline-pe-unit-test-traceback-and-heatmap/01-architecture-spec.md) — Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation (Status: `completed`)
 - [218-nodes-agy-ui-remote-settings-and-cursor-automation](218-nodes-agy-ui-remote-settings-and-cursor-automation/01-architecture-spec.md) — Fleet Nodes Settings Sync, Remote Project-Scoped Prompting, Nodes AGY UI Dashboard, Privacy IP Scrub, and Cursor Subsystem Automation (Status: `completed`)
 - [217-antigravity-fleet-parity-theme-preset-plugins-and-delegation](217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/01-architecture-spec.md) — Antigravity Fleet Parity (UI Theme Seeds, Turbo Permission Preset, 4 Plugins & 43 Skills Sync, SUID Sandbox Hardening), Automated PowerShell Migration Script, and GitMap Remote IDE Delegation Engine (`gitmap agy deploy` / `gitmap deploy ide`) (Status: `completed`)

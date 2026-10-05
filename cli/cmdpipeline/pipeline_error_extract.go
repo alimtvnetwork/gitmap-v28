@@ -502,6 +502,10 @@ func isStrongerSummary(candidate, current string) bool {
 		return true
 	}
 
+	if isTestStatusBanner(current) && (isLocationSummary(candidate) || strings.Contains(candidate, "Expected ") || strings.Contains(candidate, "AssertionError")) {
+		return true
+	}
+
 	if isTestFailureSummary(current) && !isTestFailureSummary(candidate) {
 		return false
 	}
@@ -531,6 +535,15 @@ func isStrongerSummary(candidate, current string) bool {
 	}
 
 	return isGenericExitCode(current) || isStepFailureNotice(current)
+}
+
+func isTestStatusBanner(s string) bool {
+	trimmed := strings.TrimSpace(s)
+	if strings.HasPrefix(trimmed, "FAIL: ") && strings.Contains(trimmed, "(") {
+		return false
+	}
+
+	return strings.HasPrefix(trimmed, "--- FAIL: ") || strings.HasPrefix(trimmed, "FAIL\t") || strings.HasPrefix(trimmed, "FAIL: ")
 }
 
 func isTestFailureSummary(s string) bool {
