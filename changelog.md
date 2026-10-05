@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.480.0] - 2026-10-05
+
+### Added
+- resolve nested-if and boolean linter checks in CI pipeline, release v6.480.0
+
+---
+
 ## [v6.479.0] - 2026-10-05
 
 ### Added
