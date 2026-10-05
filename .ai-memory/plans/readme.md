@@ -2,7 +2,7 @@
 
 ## Active Plans
 
-None
+- [226-ubuntu-cursor-memories-conversations-and-projects-migration.md](226-ubuntu-cursor-memories-conversations-and-projects-migration.md) — Migrate Cursor IDE internal state, memories, conversations, and projects from local Windows workstation to Ubuntu node u1 (Spec: [226](../../02-spec/21-app/226-ubuntu-cursor-memories-conversations-and-projects-migration/01-architecture-spec.md))
 
 ## Completed Plans
 
