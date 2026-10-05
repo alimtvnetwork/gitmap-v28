@@ -62,35 +62,8 @@ func NormalizeDockPosition(raw string) (DockPosition, error) {
 	}
 }
 
-// ParseDockCLIOptions parses CLI args into options and cleaned args.
-func ParseDockCLIOptions(args []string) (DockCLIOptions, []string, error) {
-	var opts DockCLIOptions
-	var cleaned []string
-	for i := 0; i < len(args); i++ {
-		adv, err := parseDockArg(args, i, &opts, &cleaned)
-		if err != nil {
-			return opts, nil, err
-		}
-		i += adv
-	}
-	return opts, cleaned, nil
-}
-
-func parseDockArg(args []string, i int, opts *DockCLIOptions, cleaned *[]string) (int, error) {
-	adv, isFlag := checkDockFlag(args, i, opts, cleaned)
-	if isFlag {
-		return adv, nil
-	}
-	pos, err := NormalizeDockPosition(args[i])
-	if err != nil {
-		return 0, err
-	}
-	opts.Position, opts.HasPosition = pos, true
-	*cleaned = append(*cleaned, string(pos))
-	return 0, nil
-}
-
-func checkDockFlag(args []string, i int, opts *DockCLIOptions, cleaned *[]string) (int, bool) {
+// CheckDockFlag parses help, json, and node flags from CLI args.
+func CheckDockFlag(args []string, i int, opts *DockCLIOptions, cleaned *[]string) (int, bool) {
 	a := args[i]
 	if a == "-h" || a == "--help" || a == "help" {
 		opts.IsHelp = true
