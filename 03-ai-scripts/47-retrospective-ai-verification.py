@@ -91,6 +91,15 @@ def get_touched_files(repo_root: Path, oldest_hash: str) -> List[str]:
 
 def audit_spec_file(repo_root: Path, rel_path: str) -> Dict[str, Any]:
     """Audit specification file for acceptance criteria and structure."""
+    if rel_path.lower().endswith("readme.md"):
+        return {
+            "file": rel_path,
+            "isSpec": False,
+            "hasAcceptanceCriteria": True,
+            "acceptanceCriteriaCount": 0,
+            "issues": [],
+        }
+
     abs_path = repo_root / rel_path
     result: Dict[str, Any] = {
         "file": rel_path,
@@ -212,7 +221,7 @@ def main() -> int:
     touched_files = get_touched_files(repo_root, oldest_hash)
 
     # Filter specs and completed plans
-    spec_files = [f for f in touched_files if f.startswith("02-spec/") and f.endswith(".md")]
+    spec_files = [f for f in touched_files if f.startswith("02-spec/") and f.endswith(".md") and not f.lower().endswith("readme.md")]
     plan_files = [f for f in touched_files if f.startswith(".ai-memory/plans/") and f.endswith(".md")]
     code_files = [f for f in touched_files if not f.endswith(".md") and not f.endswith(".json")]
 

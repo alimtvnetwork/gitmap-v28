@@ -335,7 +335,7 @@ To guarantee total traceability requested by the user:
 
 ---
 
-## 9. Verification & Acceptance Criteria
+## Acceptance Criteria
 
 ### 9.1 Scanner Exclusions
 - [ ] Running `gitmap scan` across a directory containing `.oh-my-zsh` or any variant (`oh-my-zsh`, `ohmyzsh`, `omz`, `omizssh`) does NOT capture it in results.

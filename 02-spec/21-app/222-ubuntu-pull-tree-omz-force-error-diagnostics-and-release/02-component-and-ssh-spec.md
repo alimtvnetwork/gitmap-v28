@@ -9,7 +9,7 @@
 ## User Request (Verbatim)
 
 ```text
-You are Subagent 2 (Spec Authoring) for task 222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release in d:\work\gitmap.
+You are Subagent 2 (Spec Authoring) for task 222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release in $WORKSPACE_ROOT.
 Your role is to author modular, comprehensive specifications and subtask execution documents for Error Logging, Remote Ubuntu Diagnostics, Healing Scripts, and Root Cause Analysis:
 
 1. Canonical Component & SSH Spec:
@@ -48,7 +48,7 @@ Heterogeneous developer fleets executing distributed sync (`gitmap pa` / `gitmap
             ┌─────────────────────────────────────┴─────────────────────────────────────┐
             ▼                                                                           ▼
    [ Windows Workstation ]                                                    [ Remote Ubuntu (u1) ]
-  • Discovers: D:\work\gitmap                                                • Discovers: /home/u1/work/gitmap
+  • Discovers: $WORKSPACE_ROOT/gitmap                                        • Discovers: $HOME/git-work/gitmap
   • Writes backslash paths                                                   • Fails on Windows backslashes
   • Mixes PascalCase folders                                                 • Case-sensitive filesystem
             │                                                                           │
@@ -399,3 +399,16 @@ Verification Success Criteria:
 | Remote Healing Script | Section 5 | `repo-secrets/05-scripts/heal-u1-pull-errors.py` | Python script execution with `--dry-run` and `--fix` |
 | Remote Verification via SSH | Section 6 | CLI SSH Integration | `gitmap ssh exec u1 "gitmap pa"` |
 | Root Cause Analysis (RCA-101) | Section 7 | Architectural Documentation | Complete 4-part RCA review and archival |
+
+---
+
+## Acceptance Criteria
+
+- [ ] All pull failures record structured telemetry to `.gitmap/logs/pull-errors.log` (JSONL) with `NodeID`, `NodeVersion`, and `StackTrace`.
+- [ ] Split-DB `gitmap-pull.db` (`pull_errors` table) persists error entries with thread-safe execution and indexed lookups.
+- [ ] `ParseFlexibleDBTimestamp` parses dates across `RFC3339Nano`, `RFC3339`, ISO8601, and SQLite formats without falling back to zero-time.
+- [ ] Terminal failure summaries render nested box-drawing connectors (`├──`, `└──`, `│   `) with `Diagnostic: To inspect stack trace: gitmap pull-error <repo> (or: gitmap pe)`.
+- [ ] Interactive dual hints for missing directories return Option 1 (`gitmap clone <repo>`) and Option 2 (`gitmap rm --db-only <repo>`).
+- [ ] Remote node healing script `repo-secrets/05-scripts/heal-u1-pull-errors.py` creates database backup, normalizes backslashes to `/`, reconciles casing and suffixes, and purges `.oh-my-zsh` from registry.
+- [ ] Remote SSH execution `gitmap ssh exec u1 "gitmap pa"` succeeds with 0 failures and 0 missing repositories.
+
