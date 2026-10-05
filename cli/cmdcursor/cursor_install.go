@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -84,7 +85,15 @@ func delegateRemoteInstall(opts cursorInstallOptions) error {
 		return nil
 	}
 	fmt.Printf("  Executing automated fleet setup script on node '%s'...\n", opts.targetNode)
-	fmt.Printf("%s✔ Remote setup dispatched to %s.%s\n", constants.ColorGreen, opts.targetNode, constants.ColorReset)
+	remoteCmd := "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/03-ai-scripts/40-ubuntu-cursor-and-agy-fleet-setup.sh | bash || bash 03-ai-scripts/40-ubuntu-cursor-and-agy-fleet-setup.sh"
+	if opts.isForce {
+		remoteCmd = "FORCE=true " + remoteCmd
+	}
+	if err := cmdssh.RunSSHExec([]string{opts.targetNode, remoteCmd}); err != nil {
+		fmt.Printf("%s⚠ Note: Remote setup execution notice: %v%s\n", constants.ColorYellow, err, constants.ColorReset)
+		return nil
+	}
+	fmt.Printf("%s✔ Remote setup completed on %s.%s\n", constants.ColorGreen, opts.targetNode, constants.ColorReset)
 	return nil
 }
 

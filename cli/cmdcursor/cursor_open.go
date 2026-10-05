@@ -6,13 +6,22 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func findWindowsCursor() (string, bool) {
+	username := os.Getenv("USERNAME")
+	sysDrive := os.Getenv("SystemDrive")
+	if sysDrive == "" {
+		sysDrive = "C:"
+	}
 	candidates := []string{
+		filepath.Join(sysDrive, "Users", username, "AppData", "Local", "Programs", "cursor", "Cursor.exe"),
 		filepath.Join(os.Getenv("LOCALAPPDATA"), "Programs", "cursor", "Cursor.exe"),
 		filepath.Join(os.Getenv("ProgramFiles"), "Cursor", "Cursor.exe"),
 		filepath.Join(os.Getenv("USERPROFILE"), "AppData", "Local", "Programs", "cursor", "Cursor.exe"),
@@ -85,6 +94,50 @@ func FindCursorExecutable() (string, bool) {
 	}
 }
 
+func isPathPresent(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+func matchRepoByExactName(repos []model.ScanRecord, target string) (string, bool) {
+	for _, r := range repos {
+		if strings.EqualFold(r.RepoName, target) || strings.EqualFold(r.Slug, target) {
+			return r.AbsolutePath, true
+		}
+	}
+	return "", false
+}
+
+func matchRepoBySubstring(repos []model.ScanRecord, targetLower string) (string, bool) {
+	for _, r := range repos {
+		if strings.Contains(strings.ToLower(r.Slug), targetLower) || strings.Contains(strings.ToLower(r.RepoName), targetLower) {
+			return r.AbsolutePath, true
+		}
+	}
+	return "", false
+}
+
+func findRepoPathByTarget(target string) (string, bool) {
+	s, err := store.OpenDefault()
+	if err != nil {
+		return "", false
+	}
+	defer s.Close()
+
+	records, _ := s.FindBySlug(target)
+	if len(records) > 0 {
+		return records[0].AbsolutePath, true
+	}
+	repos, err := s.ListRepos()
+	if err != nil {
+		return "", false
+	}
+	if match, found := matchRepoByExactName(repos, target); found {
+		return match, true
+	}
+	return matchRepoBySubstring(repos, strings.ToLower(target))
+}
+
 func resolveOpenTarget(args []string) (string, error) {
 	target := "."
 	if len(args) > 0 && args[0] != "" {
@@ -93,6 +146,12 @@ func resolveOpenTarget(args []string) (string, error) {
 	absPath, err := filepath.Abs(target)
 	if err != nil {
 		return "", apperror.WrapSimple(err, "resolve target path")
+	}
+	if isPathPresent(absPath) {
+		return absPath, nil
+	}
+	if repoPath, found := findRepoPathByTarget(target); found {
+		return repoPath, nil
 	}
 	return absPath, nil
 }

@@ -5,12 +5,26 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+
+func getSecondaryCursorSettingsPath() string {
+	if runtime.GOOS != "windows" {
+		return ""
+	}
+	username := os.Getenv("USERNAME")
+	sysDrive := os.Getenv("SystemDrive")
+	if sysDrive == "" {
+		sysDrive = "C:"
+	}
+	return filepath.Join(sysDrive, "Users", username, "AppData", "Roaming", "Cursor", "User", "settings.json")
+}
 
 func getCursorSettingsPath() (string, error) {
 	root, err := getCursorUserDataRoot()
@@ -83,19 +97,33 @@ func applyCursorSettings() error {
 	if err := os.WriteFile(path, data, 0644); err != nil {
 		return apperror.WrapSimple(err, "write cursor settings")
 	}
+	if sec := getSecondaryCursorSettingsPath(); sec != "" && sec != path {
+		_ = os.MkdirAll(filepath.Dir(sec), 0755)
+		_ = os.WriteFile(sec, data, 0644)
+	}
 	fmt.Printf("%s✔ Injected Dracula Theme and coding invariants:%s %s\n", constants.ColorGreen, constants.ColorReset, path)
 	return nil
 }
 
 func syncCursorSettings(targetNode string) error {
 	if targetNode == "" {
-		targetNode = "node-u1"
+		targetNode = "u1"
 	}
 	path, err := getCursorSettingsPath()
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s✔ Synchronizing Cursor settings to remote node:%s %s -> %s\n", constants.ColorGreen, constants.ColorReset, path, targetNode)
+	data, readErr := os.ReadFile(path)
+	if readErr != nil {
+		return apperror.WrapSimple(readErr, "read cursor settings.json")
+	}
+	fmt.Printf("%s● Synchronizing Cursor settings to remote node:%s %s -> %s\n", constants.ColorCyan, constants.ColorReset, path, targetNode)
+	remoteCmd := fmt.Sprintf("mkdir -p ~/.config/Cursor/User && cat << 'EOF' > ~/.config/Cursor/User/settings.json\n%s\nEOF", string(data))
+	if errExec := cmdssh.RunSSHExec([]string{targetNode, remoteCmd}); errExec != nil {
+		fmt.Printf("%s⚠ Note: Remote execution to %s: %v%s\n", constants.ColorYellow, targetNode, errExec, constants.ColorReset)
+		return nil
+	}
+	fmt.Printf("%s✔ Synchronized Cursor settings to remote node:%s %s\n", constants.ColorGreen, constants.ColorReset, targetNode)
 	return nil
 }
 

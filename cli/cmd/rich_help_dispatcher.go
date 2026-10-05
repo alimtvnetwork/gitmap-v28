@@ -4,6 +4,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcursor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
@@ -134,6 +135,10 @@ func tryRenderToolRichTopic(topic string) bool {
 		return true
 	case "vscode", "code":
 		cmdvscode.RenderVSCodeHelp()
+
+		return true
+	case "cursor", "cur":
+		cmdcursor.RenderCursorHelp()
 
 		return true
 	case "github-desktop", "gd", "github", "desktop-sync", "ds":

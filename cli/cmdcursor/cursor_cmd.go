@@ -29,9 +29,10 @@ func RenderCursorHelp() {
 	fmt.Println("    gitmap cur <subcommand> [arguments]")
 	fmt.Println()
 	fmt.Println("  Subcommands:")
-	fmt.Println("    open [target]                 Open target repository or path in Cursor")
+	fmt.Println("    open [target]                 Open target repository, project name, or path in Cursor")
 	fmt.Println("    sync                          Sync GitMap repos with Cursor Project Manager")
-	fmt.Println("    list-projects, lp, ls         List projects registered in Cursor Project Manager")
+	fmt.Println("    list-projects, lp, ls, p      List projects registered in Cursor Project Manager")
+	fmt.Println("    settings, set, config         Manage Cursor settings, Dracula theme & invariants")
 	fmt.Println("    install                       Install Cursor or run Ubuntu provisioning script")
 	fmt.Println("    help                          Show this help menu")
 	fmt.Println()
@@ -48,8 +49,10 @@ func routeCursorSubcommand(sub string, args []string) error {
 		return RunCursorOpen(args[1:])
 	case "sync", "s":
 		return RunCursorSync(args[1:])
-	case "list-projects", "lp", "ls", "list":
+	case "list-projects", "lp", "ls", "list", "projects", "p":
 		return RunCursorListProjects(args[1:])
+	case "settings", "setting", "set", "config", "cfg":
+		return RunCursorSettings(args[1:])
 	case "install", "in", "i":
 		return RunCursorInstall(args[1:])
 	default:

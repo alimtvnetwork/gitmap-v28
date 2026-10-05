@@ -124,6 +124,18 @@ func mergeReposIntoCursorProjects(existing []ProjectManagerEntry, repoPaths []st
 	return existing, addedCount
 }
 
+func getSecondaryProjectsJSONPath() string {
+	if runtime.GOOS != "windows" {
+		return ""
+	}
+	username := os.Getenv("USERNAME")
+	sysDrive := os.Getenv("SystemDrive")
+	if sysDrive == "" {
+		sysDrive = "C:"
+	}
+	return filepath.Join(sysDrive, "Users", username, "AppData", "Roaming", "Cursor", "User", "globalStorage", "alefragnani.project-manager", "projects.json")
+}
+
 // RunCursorSync synchronizes GitMap repositories into Cursor Project Manager.
 func RunCursorSync(_ []string) error {
 	jsonPath, err := GetCursorProjectsJSONPath()
@@ -138,6 +150,9 @@ func RunCursorSync(_ []string) error {
 	merged, added := mergeReposIntoCursorProjects(existing, repoPaths)
 	if saveErr := saveProjectsToDisk(jsonPath, merged); saveErr != nil {
 		return saveErr
+	}
+	if secPath := getSecondaryProjectsJSONPath(); secPath != "" && secPath != jsonPath {
+		_ = saveProjectsToDisk(secPath, merged)
 	}
 	fmt.Printf("%s✔ Synchronized Cursor Project Manager:%s %s\n", constants.ColorGreen, constants.ColorReset, jsonPath)
 	fmt.Printf("    • Added:     %d\n", added)
