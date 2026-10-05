@@ -2,19 +2,21 @@ package cmdos
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
 func discoverUpdateToolchains() []UpdateToolchain {
 	candidates := []UpdateToolchain{
-		{"winget", "winget", []string{"upgrade"}, []string{"upgrade", "--all", "--include-unknown"}},
-		{"apt", "apt-get", []string{"update"}, []string{"dist-upgrade", "-y"}},
-		{"dnf", "dnf", []string{"check-update"}, []string{"upgrade", "-y"}},
-		{"pacman", "pacman", []string{"-Sy"}, []string{"-Syu", "--noconfirm"}},
-		{"flatpak", "flatpak", []string{"update", "--appstream"}, []string{"update", "-y"}},
-		{"snap", "snap", []string{"refresh", "--list"}, []string{"refresh"}},
-		{"brew", "brew", []string{"update"}, []string{"upgrade"}},
+		{Name: "winget", Binary: "winget", UpdateArgs: []string{"upgrade"}, UpgradeArgs: []string{"upgrade", "--all", "--include-unknown"}},
+		{Name: "apt", Binary: "apt-get", UpdateArgs: []string{"update"}, UpgradeArgs: []string{"dist-upgrade", "-y"}, NeedsSudo: true, RequiresSudo: true},
+		{Name: "dnf", Binary: "dnf", UpdateArgs: []string{"check-update"}, UpgradeArgs: []string{"upgrade", "-y"}, NeedsSudo: true, RequiresSudo: true},
+		{Name: "pacman", Binary: "pacman", UpdateArgs: []string{"-Sy"}, UpgradeArgs: []string{"-Syu", "--noconfirm"}, NeedsSudo: true, RequiresSudo: true},
+		{Name: "flatpak", Binary: "flatpak", UpdateArgs: []string{"update", "--appstream"}, UpgradeArgs: []string{"update", "-y"}},
+		{Name: "snap", Binary: "snap", UpdateArgs: []string{"refresh", "--list"}, UpgradeArgs: []string{"refresh"}},
+		{Name: "brew", Binary: "brew", UpdateArgs: []string{"update"}, UpgradeArgs: []string{"upgrade"}},
 	}
 
 	var discovered []UpdateToolchain
@@ -27,25 +29,56 @@ func discoverUpdateToolchains() []UpdateToolchain {
 	return discovered
 }
 
-func executeToolchain(tc UpdateToolchain, isUpgrade bool, isDryRun bool) UpdateResult {
-	args := tc.UpdateArgs
+func isLinuxNonRoot() bool {
+	return runtime.GOOS == "linux" && os.Geteuid() != 0
+}
+
+func hasSudoBinary() bool {
+	_, err := exec.LookPath("sudo")
+	return err == nil
+}
+
+func isElevationRequired(tc UpdateToolchain) bool {
+	return (tc.NeedsSudo || tc.RequiresSudo) && isLinuxNonRoot() && hasSudoBinary()
+}
+
+func resolveUpdateArgs(tc UpdateToolchain, isUpgrade bool) []string {
 	if isUpgrade {
-		args = tc.UpgradeArgs
+		return tc.UpgradeArgs
 	}
+	return tc.UpdateArgs
+}
 
+func printDryRunToolchain(tc UpdateToolchain, args []string, isElevated bool) UpdateResult {
+	prefix := ""
+	if isElevated {
+		prefix = "sudo -n "
+	}
+	fmt.Printf("  • [dry-run] %s%s %s\n", prefix, tc.Binary, strings.Join(args, " "))
+
+	return UpdateResult{Name: tc.Name, Success: true}
+}
+
+func buildUpdateCmd(binary string, args []string, isElevated bool) *exec.Cmd {
+	if isElevated {
+		return exec.Command("sudo", append([]string{"-n", binary}, args...)...)
+	}
+	return exec.Command(binary, args...)
+}
+
+func executeToolchain(tc UpdateToolchain, isUpgrade bool, isDryRun bool) UpdateResult {
+	args := resolveUpdateArgs(tc, isUpgrade)
+	isElevated := isElevationRequired(tc)
 	if isDryRun {
-		fmt.Printf("  • [dry-run] %s %s\n", tc.Binary, strings.Join(args, " "))
-
-		return UpdateResult{Name: tc.Name, Success: true}
+		return printDryRunToolchain(tc, args, isElevated)
 	}
 
-	cmd := exec.Command(tc.Binary, args...)
+	cmd := buildUpdateCmd(tc.Binary, args, isElevated)
 	out, err := cmd.CombinedOutput()
-	isSuccess := err == nil
 
 	return UpdateResult{
 		Name:    tc.Name,
-		Success: isSuccess,
+		Success: err == nil,
 		Output:  string(out),
 		Error:   err,
 	}

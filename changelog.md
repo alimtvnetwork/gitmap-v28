@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.486.0] - 2026-10-05
+
+### Added
+- ubuntu cursor dock pin, projects sync, os update sudo elevation, and dev tools remote uninstall
+
+---
+
 ## [v6.485.0] - 2026-10-05
 
 ### Added

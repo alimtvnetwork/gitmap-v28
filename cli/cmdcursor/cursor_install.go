@@ -30,6 +30,7 @@ func parseCursorInstallArgs(args []string) cursorInstallOptions {
 	}
 	return opts
 }
+
 func installOnWindows(opts cursorInstallOptions) error {
 	if _, err := exec.LookPath("winget"); err != nil {
 		fmt.Printf("\n%s● Windows Setup:%s winget not found. Visit https://cursor.com\n", constants.ColorCyan, constants.ColorReset)
@@ -63,11 +64,14 @@ func installOnLinux(opts cursorInstallOptions) error {
 }
 
 func buildRemoteSetupCmd(opts cursorInstallOptions) string {
-	cmd := "python3 repo-secrets/05-scripts/setup-cursor-ubuntu.py --node " + opts.targetNode + " || bash repo-secrets/05-scripts/setup-cursor-ubuntu.sh " + opts.targetNode
+	base := "python3 repo-secrets/05-scripts/setup-cursor-ubuntu.py --node " + opts.targetNode
 	if opts.isForce {
-		return "FORCE=true " + cmd
+		base += " --force"
 	}
-	return cmd
+	if opts.isDryRun {
+		base += " --dry-run"
+	}
+	return base
 }
 
 func delegateRemoteInstall(opts cursorInstallOptions) error {

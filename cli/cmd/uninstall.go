@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdwinutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -20,6 +21,7 @@ type uninstallFlags struct {
 	isPurge         bool
 	isPurgeWebView2 bool
 	backupPath      string
+	node            string
 }
 
 func parseUninstallFlags(args []string) (*flag.FlagSet, *uninstallFlags) {
@@ -34,10 +36,13 @@ func parseUninstallFlags(args []string) (*flag.FlagSet, *uninstallFlags) {
 
 func bindCoreUninstallFlags(fs *flag.FlagSet, f *uninstallFlags) {
 	fs.BoolVar(&f.isDryRun, constants.FlagUninstallDryRun, false, constants.FlagDescUninstallDryRun)
+	fs.BoolVar(&f.isDryRun, "d", false, "Dry run alias")
 	fs.BoolVar(&f.isDryRun, "n", false, "Dry run alias")
 	fs.BoolVar(&f.isForce, constants.FlagUninstallForce, false, constants.FlagDescUninstallForce)
 	fs.BoolVar(&f.isForce, "yes", false, "Force alias")
 	fs.BoolVar(&f.isForce, "y", false, "Force alias")
+	fs.BoolVar(&f.isForce, "f", false, "Force alias")
+	fs.StringVar(&f.node, "node", "", "Remote node alias for SSH delegation")
 }
 
 func bindPurgeAndBackupFlags(fs *flag.FlagSet, f *uninstallFlags) {
@@ -60,6 +65,9 @@ func isCtxTool(tool, canonical string) bool {
 // runUninstall handles the "uninstall" command.
 func runUninstall(args []string) error {
 	checkHelp("uninstall", args)
+	if hasNodeFlagInArgs(args) {
+		return executeUninstallFlow(args)
+	}
 	if !hasPositionalToolArg(args) {
 		runSelfUninstall(args)
 
@@ -69,9 +77,21 @@ func runUninstall(args []string) error {
 	return executeUninstallFlow(args)
 }
 
+func hasNodeFlagInArgs(args []string) bool {
+	for _, a := range args {
+		if a == "--node" || a == "-node" || strings.HasPrefix(a, "--node=") || strings.HasPrefix(a, "-node=") {
+			return true
+		}
+	}
+	return false
+}
+
 func executeUninstallFlow(args []string) error {
 	fs, flags := parseUninstallFlags(args)
 	tool := fs.Arg(0)
+	if flags.node != "" {
+		return delegateRemoteUninstall(tool, flags)
+	}
 	if strings.EqualFold(tool, "app") || strings.EqualFold(tool, "apps") {
 		return runAppsUninstall(fs.Args()[1:])
 	}
@@ -84,9 +104,35 @@ func executeUninstallFlow(args []string) error {
 	return processToolUninstall(tool, flags)
 }
 
+func delegateRemoteUninstall(tool string, flags *uninstallFlags) error {
+	remoteCmd := buildRemoteUninstallCmd(tool, flags)
+	fmt.Printf("● Delegating uninstall to remote node '%s'...\n", flags.node)
+	return cmdssh.RunSSHExec([]string{flags.node, remoteCmd})
+}
+
+func buildRemoteUninstallCmd(tool string, flags *uninstallFlags) string {
+	remoteCmd := "gitmap uninstall"
+	if tool != "" {
+		remoteCmd = fmt.Sprintf("gitmap uninstall %s", tool)
+	}
+	if flags.isDryRun {
+		remoteCmd += " --dry-run"
+	}
+	if flags.isForce {
+		remoteCmd += " --force"
+	}
+	if flags.isPurge {
+		remoteCmd += " --purge"
+	}
+	return remoteCmd
+}
+
 func processToolUninstall(tool string, flags *uninstallFlags) error {
-	validateToolName(tool)
 	canonical := resolveToolAlias(tool)
+	if handled, err := dispatchDevToolUninstall(tool, canonical, flags); handled {
+		return err
+	}
+	validateToolName(tool)
 	if isCtxTool(tool, canonical) {
 		runUninstallCtx()
 		return nil
@@ -98,6 +144,38 @@ func processToolUninstall(tool string, flags *uninstallFlags) error {
 		return err
 	}
 	return executeValidatedUninstall(tool, canonical, flags)
+}
+
+func dispatchDevToolUninstall(tool, canonical string, flags *uninstallFlags) (bool, error) {
+	if isDevToolUninstallTarget(tool, canonical) {
+		return true, cmdinstall.RunToolUninstall(canonical, flags.isDryRun, flags.isForce, flags.isPurge)
+	}
+	return false, nil
+}
+
+func isDevToolUninstallTarget(tool, canonical string) bool {
+	return isPwshTarget(tool, canonical) || isAgmUninstallTarget(tool, canonical) ||
+		isVimTarget(tool, canonical) || isVSCodeTarget(tool, canonical) || isCursorTarget(tool, canonical)
+}
+
+func isPwshTarget(tool, canonical string) bool {
+	return strings.EqualFold(tool, "pwsh") || strings.EqualFold(tool, "powershell") ||
+		strings.EqualFold(canonical, constants.ToolPowerShell)
+}
+
+func isVimTarget(tool, canonical string) bool {
+	return strings.EqualFold(tool, "vim") || strings.EqualFold(tool, "vi") ||
+		strings.EqualFold(canonical, "vim")
+}
+
+func isVSCodeTarget(tool, canonical string) bool {
+	return strings.EqualFold(tool, "vscode") || strings.EqualFold(tool, "code") ||
+		strings.EqualFold(tool, "vs-code") || strings.EqualFold(canonical, constants.ToolVSCode)
+}
+
+func isCursorTarget(tool, canonical string) bool {
+	return strings.EqualFold(tool, "cursor") || strings.EqualFold(tool, "cur") ||
+		strings.EqualFold(canonical, "cursor")
 }
 
 func dispatchAgyAgmUninstall(tool, canonical string, flags *uninstallFlags) (bool, error) {
@@ -264,27 +342,26 @@ func isShellModeFlag(a string) bool {
 	return isFlagToken(a) && (a == "--shell-mode" || a == "-shell-mode")
 }
 
+func isNodeFlag(a string) bool {
+	return a == "--node" || a == "-node"
+}
+
 // hasPositionalToolArg reports whether args contain at least one non-flag token.
 func hasPositionalToolArg(args []string) bool {
 	hasSkipNext := false
 	for _, a := range args {
 		if hasSkipNext {
 			hasSkipNext = false
-
 			continue
 		}
-
-		if isShellModeFlag(a) {
+		if isShellModeFlag(a) || isNodeFlag(a) {
 			hasSkipNext = true
-
 			continue
 		}
-
 		if !isFlagToken(a) {
 			return true
 		}
 	}
-
 	return false
 }
 

@@ -36,6 +36,8 @@ var knownValueFlags = map[string]bool{
 	"--type": true, "--domain": true, "--root": true,
 	"--port": true, "--fastcgi": true, "--php-sock": true,
 	"--aliases": true, "--sites-available": true, "--sites-enabled": true,
+	// remote node delegation flags
+	"--node": true, "-node": true,
 }
 
 // isKnownValueFlag reports whether the specified flag expects a value argument.

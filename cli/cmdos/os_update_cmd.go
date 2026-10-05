@@ -2,6 +2,7 @@ package cmdos
 
 import (
 	"fmt"
+	"strings"
 )
 
 func runOSUpdateCommand(isUpgrade bool, args []string) error {
@@ -48,7 +49,24 @@ func printUpdateSummary(results []UpdateResult) {
 			status = "✖ FAILED"
 		}
 		fmt.Printf("  • %-10s : %s\n", r.Name, status)
+		if !r.Success {
+			printFailureDiagnostics(r)
+		}
 	}
+}
+
+func printFailureDiagnostics(r UpdateResult) {
+	if r.Error != nil {
+		fmt.Printf("    ↳ Error: %v\n", r.Error)
+	}
+	if isPermissionError(r) {
+		fmt.Println("    ↳ Hint: Package manager requires root. Run with sudo or configure passwordless sudo.")
+	}
+}
+
+func isPermissionError(r UpdateResult) bool {
+	errMsg := fmt.Sprint(r.Error)
+	return strings.Contains(r.Output, "Permission denied") || strings.Contains(errMsg, "exit status 100")
 }
 
 func printOSUpdateHelp(isUpgrade bool) {
