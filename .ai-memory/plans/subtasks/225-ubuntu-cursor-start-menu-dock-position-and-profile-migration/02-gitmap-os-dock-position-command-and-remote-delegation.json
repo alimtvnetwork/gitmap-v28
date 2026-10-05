@@ -1,0 +1,28 @@
+{
+  "task": "Subtask-225.2",
+  "subtaskId": 2,
+  "parentTaskId": "225-ubuntu-cursor-start-menu-dock-position-and-profile-migration",
+  "assignedAgent": "Worker 01",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/cmdos/os_dock_types.go",
+    "cli/cmdos/os_dock_cmd.go",
+    "cli/cmdos/os_dock_linux.go",
+    "cli/cmdos/os_dock_win.go",
+    "cli/cmdos/os_dock_darwin.go",
+    "cli/cmdos/os_dock_test.go",
+    "cli/cmdos/os.go",
+    "cli/cmdos/os_help_modern.go"
+  ],
+  "checks": "go test ./cmdos/... -> PASS; check-relative-paths -> PASS; check-nested-ifs -> PASS; check-boolean-guidelines -> PASS",
+  "acceptance": {
+    "AC-225.2-1": "PASS gitmap os dock routes dock, panel, start-menu, taskbar subcommands",
+    "AC-225.2-2": "PASS Cardinal positions normalized (bottom, left, right, top, center)",
+    "AC-225.2-3": "PASS Remote node delegation over SSH via cmdssh runner",
+    "AC-225.2-4": "PASS Windows registry TaskbarAl reading and writing",
+    "AC-225.2-5": "PASS GNOME Shell dash-to-dock position control with live DBus session resolution",
+    "AC-225.2-6": "PASS Darwin defaults orientation control and other platform fallback"
+  },
+  "assumptions": [],
+  "blockers": []
+}

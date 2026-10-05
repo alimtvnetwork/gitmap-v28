@@ -74,6 +74,7 @@ func buildOSSystemAndNetworkSection() termhelp.HelpSection {
 			{Command: "os ai-clean / dev-clean / clean", Description: "Purge AI brain caches, compiler caches, and ephemeral temp directories"},
 			{Command: "os storage (disk)", Description: "Inspect disk drive capacities, partitions, and storage utilization"},
 			{Command: "os display / theme / tweak", Description: "Configure display resolution, dark/light theme, and power schemes"},
+			{Command: "os dock [bottom|left|right|top] [--node]", Description: "Inspect or configure desktop dock / taskbar position (aliases: panel, start-menu)"},
 			{Command: "os user / group / autologin", Description: "Manage OS users, groups, and automatic login credentials"},
 			{Command: "os change-password [user] [pass]", Description: "Change OS user password cross-platform (Windows / Linux / macOS)"},
 		},
