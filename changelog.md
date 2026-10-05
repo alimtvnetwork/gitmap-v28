@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.489.0] - 2026-10-05
+
+### Added
+- ubuntu cursor start menu dock position and profile migration, os dock win fixes, relative path rca-103
+
+---
+
 ## [v6.488.0] - 2026-10-05
 
 ### Added
