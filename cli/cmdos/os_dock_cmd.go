@@ -24,16 +24,12 @@ func RunOSDockCommand(args []string) error {
 		return err
 	}
 	if opts.IsHelp {
-		printDockUsage()
+		fmt.Println("Usage: gitmap os dock [bottom|left|right|top] [--node <alias>] [--json]")
 		return nil
 	}
 	if opts.TargetNode != "" {
 		return delegateRemoteDock(opts.TargetNode, cleaned)
 	}
-	return dispatchLocalDockAction(opts)
-}
-
-func dispatchLocalDockAction(opts DockCLIOptions) error {
 	if opts.HasPosition {
 		return executeSetDock(opts.Position)
 	}
@@ -96,8 +92,4 @@ func executeQueryDock(isJSON bool) error {
 	}
 	fmt.Printf("▶ Desktop Dock: OS=%s Pos=%s Raw=%s Panel=%t\n", cfg.OS, cfg.Position, cfg.RawPosition, cfg.IsPanelMode)
 	return nil
-}
-
-func printDockUsage() {
-	fmt.Println("Usage: gitmap os dock [bottom|left|right|top] [--node <alias>] [--json]")
 }
