@@ -16,12 +16,8 @@ import (
 
 func findWindowsCursor() (string, bool) {
 	username := os.Getenv("USERNAME")
-	sysDrive := os.Getenv("SystemDrive")
-	if sysDrive == "" {
-		sysDrive = "C:"
-	}
 	candidates := []string{
-		filepath.Join(sysDrive, "Users", username, "AppData", "Local", "Programs", "cursor", "Cursor.exe"),
+		filepath.Join(getWindowsSystemDriveRoot(), "Users", username, "AppData", "Local", "Programs", "cursor", "Cursor.exe"),
 		filepath.Join(os.Getenv("LOCALAPPDATA"), "Programs", "cursor", "Cursor.exe"),
 		filepath.Join(os.Getenv("ProgramFiles"), "Cursor", "Cursor.exe"),
 		filepath.Join(os.Getenv("USERPROFILE"), "AppData", "Local", "Programs", "cursor", "Cursor.exe"),

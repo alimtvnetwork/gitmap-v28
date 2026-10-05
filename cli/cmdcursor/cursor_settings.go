@@ -19,11 +19,7 @@ func getSecondaryCursorSettingsPath() string {
 		return ""
 	}
 	username := os.Getenv("USERNAME")
-	sysDrive := os.Getenv("SystemDrive")
-	if sysDrive == "" {
-		sysDrive = "C:"
-	}
-	return filepath.Join(sysDrive, "Users", username, "AppData", "Roaming", "Cursor", "User", "settings.json")
+	return filepath.Join(getWindowsSystemDriveRoot(), "Users", username, "AppData", "Roaming", "Cursor", "User", "settings.json")
 }
 
 func getCursorSettingsPath() (string, error) {
@@ -31,7 +27,15 @@ func getCursorSettingsPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(root, "User", "settings.json"), nil
+	primary := filepath.Join(root, "User", "settings.json")
+	if isPathPresent(primary) {
+		return primary, nil
+	}
+	sec := getSecondaryCursorSettingsPath()
+	if sec != "" && isPathPresent(sec) {
+		return sec, nil
+	}
+	return primary, nil
 }
 
 func readSettingsMap(path string) (map[string]interface{}, error) {
@@ -118,7 +122,8 @@ func syncCursorSettings(targetNode string) error {
 		return apperror.WrapSimple(readErr, "read cursor settings.json")
 	}
 	fmt.Printf("%s● Synchronizing Cursor settings to remote node:%s %s -> %s\n", constants.ColorCyan, constants.ColorReset, path, targetNode)
-	remoteCmd := fmt.Sprintf("mkdir -p ~/.config/Cursor/User && cat << 'EOF' > ~/.config/Cursor/User/settings.json\n%s\nEOF", string(data))
+	normalized := strings.ReplaceAll(string(data), "\r\n", "\n")
+	remoteCmd := fmt.Sprintf("mkdir -p ~/.config/Cursor/User && cat << 'EOF' > ~/.config/Cursor/User/settings.json\n%s\nEOF", strings.TrimSpace(normalized))
 	if errExec := cmdssh.RunSSHExec([]string{targetNode, remoteCmd}); errExec != nil {
 		fmt.Printf("%s⚠ Note: Remote execution to %s: %v%s\n", constants.ColorYellow, targetNode, errExec, constants.ColorReset)
 		return nil

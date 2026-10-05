@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -23,6 +24,17 @@ type ProjectManagerEntry struct {
 	Enabled  bool     `json:"enabled"`
 }
 
+func getWindowsSystemDriveRoot() string {
+	sysDrive := os.Getenv("SystemDrive")
+	if sysDrive == "" {
+		sysDrive = "C:"
+	}
+	if !strings.HasSuffix(sysDrive, "\\") && !strings.HasSuffix(sysDrive, "/") {
+		return sysDrive + string(filepath.Separator)
+	}
+	return sysDrive
+}
+
 func resolvePlatformConfigRoot(home string) string {
 	if runtime.GOOS == "darwin" {
 		return filepath.Join(home, "Library", "Application Support", "Cursor")
@@ -36,10 +48,18 @@ func resolvePlatformConfigRoot(home string) string {
 
 func resolveWindowsAppData(home string) string {
 	appData := os.Getenv("APPDATA")
-	if appData == "" {
-		return filepath.Join(home, "AppData", "Roaming")
+	if appData != "" && isPathPresent(filepath.Join(appData, "Cursor")) {
+		return appData
 	}
-	return appData
+	username := os.Getenv("USERNAME")
+	hostAppData := filepath.Join(getWindowsSystemDriveRoot(), "Users", username, "AppData", "Roaming")
+	if isPathPresent(filepath.Join(hostAppData, "Cursor")) {
+		return hostAppData
+	}
+	if appData != "" {
+		return appData
+	}
+	return filepath.Join(home, "AppData", "Roaming")
 }
 
 func getCursorUserDataRoot() (string, error) {
@@ -57,7 +77,15 @@ func GetCursorProjectsJSONPath() (string, error) {
 		return "", err
 	}
 	extDir := filepath.Join(root, "User", "globalStorage", "alefragnani.project-manager")
-	return filepath.Join(extDir, "projects.json"), nil
+	primary := filepath.Join(extDir, "projects.json")
+	if isPathPresent(primary) {
+		return primary, nil
+	}
+	sec := getSecondaryProjectsJSONPath()
+	if sec != "" && isPathPresent(sec) {
+		return sec, nil
+	}
+	return primary, nil
 }
 
 // GetCursorBackupProjectsJSONPath resolves the path to Cursor's backup projects.json.
@@ -101,11 +129,7 @@ func getSecondaryProjectsJSONPath() string {
 		return ""
 	}
 	username := os.Getenv("USERNAME")
-	sysDrive := os.Getenv("SystemDrive")
-	if sysDrive == "" {
-		sysDrive = "C:"
-	}
-	return filepath.Join(sysDrive, "Users", username, "AppData", "Roaming", "Cursor", "User", "globalStorage", "alefragnani.project-manager", "projects.json")
+	return filepath.Join(getWindowsSystemDriveRoot(), "Users", username, "AppData", "Roaming", "Cursor", "User", "globalStorage", "alefragnani.project-manager", "projects.json")
 }
 
 func saveBackupProjects(jsonPath string, merged []ProjectManagerEntry) {
