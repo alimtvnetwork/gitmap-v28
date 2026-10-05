@@ -69,12 +69,17 @@ func init() {
 func RunOSCLI(args []string) error {
 	if len(args) == 0 || isOSHelpArg(args[0]) {
 		RenderModernOSHelp()
+
 		return nil
 	}
+
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
-	if isHandled, err := tryDispatchOSIdentityOrCobra(sub, args); isHandled {
+
+	isHandled, err := tryDispatchOSIdentityOrCobra(sub, args)
+	if isHandled {
 		return err
 	}
+
 	return runOS(args)
 }
 
