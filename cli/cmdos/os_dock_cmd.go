@@ -68,15 +68,12 @@ func parseDockArg(args []string, i int, opts *DockCLIOptions, cleaned *[]string)
 }
 
 func delegateRemoteDock(node string, cleaned []string) error {
-	remoteCmd := "gitmap os dock"
-	if len(cleaned) > 0 {
-		remoteCmd = "gitmap os dock " + strings.Join(cleaned, " ")
-	}
+	remoteCmd := strings.TrimSpace("gitmap os dock " + strings.Join(cleaned, " "))
 	fmt.Printf("● Delegating dock configuration to remote node '%s'...\n", node)
-	if RunSSHExecFn != nil {
-		return RunSSHExecFn([]string{node, remoteCmd})
+	if RunSSHExecFn == nil {
+		return apperror.NewSimple("ssh runner not configured", "E_SSH_RUNNER")
 	}
-	return apperror.NewSimple("ssh delegation runner not configured", "E_SSH_RUNNER")
+	return RunSSHExecFn([]string{node, remoteCmd})
 }
 
 func executeSetDock(pos DockPosition) error {
@@ -97,18 +94,10 @@ func executeQueryDock(isJSON bool) error {
 		fmt.Println(string(data))
 		return nil
 	}
-	printDockCard(cfg)
+	fmt.Printf("▶ Desktop Dock: OS=%s Pos=%s Raw=%s Panel=%t\n", cfg.OS, cfg.Position, cfg.RawPosition, cfg.IsPanelMode)
 	return nil
-}
-
-func printDockCard(cfg DockConfig) {
-	fmt.Println("▶ Desktop Dock & Panel Configuration:")
-	fmt.Printf("  • OS: %s | Pos: %s | Raw: %s\n", cfg.OS, cfg.Position, cfg.RawPosition)
-	fmt.Printf("  • Panel Mode: %t | Apps Top: %t\n", cfg.IsPanelMode, cfg.HasAppsAtTop)
 }
 
 func printDockUsage() {
 	fmt.Println("Usage: gitmap os dock [bottom|left|right|top] [--node <alias>] [--json]")
-	fmt.Println("       gitmap os dock [bottom|left|right|top] (Set dock/panel position)")
-	fmt.Println("       gitmap os dock --node <alias>         (Configure remote dock over SSH)")
 }
