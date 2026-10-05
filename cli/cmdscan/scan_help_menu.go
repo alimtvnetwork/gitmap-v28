@@ -27,6 +27,7 @@ func buildScanHelpMenu() termhelp.HelpMenu {
 			"Run 'gitmap scan . --output json' to generate a machine-readable repo catalog.",
 			"Use 'gitmap scan --fix' to reconcile local disk with GitMap database.",
 			"Pass '--max-depth 2' to quickly scan shallow project directories.",
+			"Pass '--force-include .oh-my-zsh' to force scanning excluded shell directories.",
 		},
 	}
 }
