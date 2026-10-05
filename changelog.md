@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.485.0] - 2026-10-05
+
+### Added
+- enhance test diagnostics and stage spec 224
+
+---
+
 ## [v6.484.0] - 2026-10-05
 
 ### Added
