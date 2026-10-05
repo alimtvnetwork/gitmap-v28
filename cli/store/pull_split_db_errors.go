@@ -66,6 +66,8 @@ func (s *PullSplitDB) InsertPullError(rec PullErrorRecord) error {
 func preparePullErrorRecord(rec PullErrorRecord) PullErrorRecord {
 	if rec.CreatedAt.IsZero() {
 		rec.CreatedAt = time.Now().UTC()
+	} else {
+		rec.CreatedAt = rec.CreatedAt.UTC()
 	}
 	if rec.ErrorID == "" {
 		rec.ErrorID = fmt.Sprintf("err-%d", time.Now().UnixNano())
@@ -148,30 +150,49 @@ func scanPullErrorRows(rows *sql.Rows) ([]PullErrorRecord, error) {
 
 func scanSinglePullError(rows *sql.Rows) (PullErrorRecord, bool) {
 	var rec PullErrorRecord
-	var createdAtStr string
+	var rawCreatedAt any
 	var stackTrace, remediationCmd *string
 
 	err := rows.Scan(
 		&rec.ErrorID, &rec.RepoSlug, &rec.RepoPath, &rec.NodeID, &rec.NodeVersion,
-		&rec.ErrorType, &rec.ErrorText, &stackTrace, &remediationCmd, &createdAtStr,
+		&rec.ErrorType, &rec.ErrorText, &stackTrace, &remediationCmd, &rawCreatedAt,
 	)
 	if err != nil {
 		return rec, false
 	}
 
-	rec = assignNullableFields(rec, stackTrace, remediationCmd, createdAtStr)
+	rec = assignNullableFields(rec, stackTrace, remediationCmd, rawCreatedAt)
 	return rec, true
 }
 
-func assignNullableFields(rec PullErrorRecord, stack, remed *string, createdStr string) PullErrorRecord {
+func assignNullableFields(rec PullErrorRecord, stack, remed *string, createdVal any) PullErrorRecord {
 	if stack != nil {
 		rec.StackTrace = *stack
 	}
 	if remed != nil {
 		rec.RemediationCmd = *remed
 	}
-	rec.CreatedAt = parseFlexibleDBTimestamp(createdStr)
+	rec.CreatedAt = parseFlexibleDBValue(createdVal)
 	return rec
+}
+
+func parseFlexibleDBValue(val any) time.Time {
+	if val == nil {
+		return time.Now().UTC()
+	}
+	switch v := val.(type) {
+	case time.Time:
+		if v.IsZero() {
+			return time.Now().UTC()
+		}
+		return v.UTC()
+	case string:
+		return parseFlexibleDBTimestamp(v)
+	case []byte:
+		return parseFlexibleDBTimestamp(string(v))
+	default:
+		return parseFlexibleDBTimestamp(fmt.Sprintf("%v", v))
+	}
 }
 
 // ParseFlexibleDBTimestamp parses timestamps using fallback layouts including RFC3339, RFC3339Nano, and SQLite.
@@ -180,22 +201,37 @@ func ParseFlexibleDBTimestamp(s string) time.Time {
 }
 
 func parseFlexibleDBTimestamp(s string) time.Time {
-	clean := strings.TrimSpace(s)
+	clean := strings.Trim(strings.TrimSpace(s), "\"'")
 	if clean == "" {
 		return time.Now().UTC()
 	}
 	layouts := []string{
 		time.RFC3339Nano,
 		time.RFC3339,
+		"2006-01-02 15:04:05.999999999-07:00",
+		"2006-01-02 15:04:05.999999999Z07:00",
+		"2006-01-02 15:04:05-07:00",
+		"2006-01-02 15:04:05Z07:00",
 		"2006-01-02 15:04:05.999999999",
 		"2006-01-02 15:04:05",
+		"2006-01-02T15:04:05.999999999",
 		"2006-01-02T15:04:05",
+		"2006-01-02 15:04",
+		"2006-01-02T15:04",
 		"2006-01-02",
 	}
 	for _, layout := range layouts {
-		if t, err := time.Parse(layout, clean); err == nil {
-			return t.UTC()
+		if t, isParsed := tryParseTimeLayout(layout, clean); isParsed {
+			return t
 		}
 	}
 	return time.Now().UTC()
+}
+
+func tryParseTimeLayout(layout, clean string) (time.Time, bool) {
+	t, err := time.Parse(layout, clean)
+	if err != nil {
+		return time.Time{}, false
+	}
+	return t.UTC(), true
 }

@@ -172,3 +172,7 @@ None
 - [02-cli-routing-and-conflict-resolution.md](subtasks/63-semantic-flat-commit-suite/02-cli-routing-and-conflict-resolution.md): Elimination of shadow routing in `rootcore.go` and removal of `commit_cli.go`
 - [03-helptext-and-interactive-menu.md](subtasks/63-semantic-flat-commit-suite/03-helptext-and-interactive-menu.md): Authoring help documentation `cli/helptext/commit.md` and `commit_help_menu.go`
 - [04-unit-tests-and-verification.md](subtasks/63-semantic-flat-commit-suite/04-unit-tests-and-verification.md): Unit test suite `commit_cmd_test.go` and binary synchronization
+
+### Plan 222 (completed/222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release.md)
+- [completed/222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release.md](completed/222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release.md): Ubuntu pull-all failure tree formatting, Oh-My-Zsh scanner exclusions, structured error logging, and remote healing.
+

@@ -74,6 +74,8 @@ func LogPullErrorToFile(rec store.PullErrorRecord) error {
 func preparePullLogEntry(entry PullErrorLogEntry) PullErrorLogEntry {
 	if entry.CreatedAt.IsZero() {
 		entry.CreatedAt = time.Now().UTC()
+	} else {
+		entry.CreatedAt = entry.CreatedAt.UTC()
 	}
 	if entry.ErrorID == "" {
 		entry.ErrorID = fmt.Sprintf("err-%d", time.Now().UnixNano())

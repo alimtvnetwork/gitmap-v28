@@ -11,7 +11,7 @@ func buildScanWalkerSection() termhelp.HelpSection {
 			{Command: "--workers <n>", Description: "Parallel directory walker pool size (1-16, auto: NumCPU)"},
 			{Command: "--max-depth <n>", Description: "Max folder depth to descend (default: 4, -1: unlimited)"},
 			{Command: "--default-branch <b>", Description: "Fallback branch name when HEAD detection returns empty"},
-			{Command: "--force-include <dir>", Description: "Force scan of default excluded directories (.oh-my-zsh, etc.)"},
+			{Command: "--force-include <dir>, -fi", Description: "Force scan of default excluded directories (.oh-my-zsh, or 'all')"},
 			{Command: "--config <path>", Description: "Path to configuration file (default: ./data/config.json)"},
 		},
 	}

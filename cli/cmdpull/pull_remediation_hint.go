@@ -2,6 +2,7 @@ package cmdpull
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -10,6 +11,12 @@ import (
 
 // ResolvePullErrorDetails extracts a clean, human-readable error summary from pull state.
 func ResolvePullErrorDetails(s *PullRepoState) string {
+	if s == nil {
+		return ""
+	}
+	if isMissingRepoDir(s.RepoPath) {
+		return "Repository directory does not exist on disk"
+	}
 	if s.IsDirty || s.Changes == "dirty" {
 		return "working tree has uncommitted changes"
 	}
@@ -79,6 +86,13 @@ func fallbackErrorLine(lines []string) string {
 
 // ResolvePullRemediationHint generates an actionable next-step command for pull failures.
 func ResolvePullRemediationHint(s *PullRepoState) string {
+	if s == nil {
+		return ""
+	}
+	if isMissingRepoDir(s.RepoPath) {
+		name := resolveEffectiveRepoName(s.RepoName, s.RepoPath)
+		return fmt.Sprintf("gitmap clone %s", name)
+	}
 	if s.IsDirty || s.Changes == "dirty" {
 		return fmt.Sprintf("gitmap fix %s, gitmap cpar, or gitmap stash", s.RepoName)
 	}
@@ -89,16 +103,23 @@ func ResolvePullRemediationHint(s *PullRepoState) string {
 }
 
 func buildActionableRemediation(repoName, repoPath, msg string) string {
+	effectiveName := resolveEffectiveRepoName(repoName, repoPath)
+	if isMissingRepoFailure(msg) || isMissingRepoDir(repoPath) {
+		return fmt.Sprintf("gitmap clone %s", effectiveName)
+	}
 	if isWincredmanFailure(msg) {
 		return "Run 'gitmap fix-credential' (alias: fc) or check Windows Credential Manager service"
 	}
-	if hint := buildSpecificRemediation(repoName, msg); hint != "" {
+	if hint := buildSpecificRemediation(effectiveName, msg); hint != "" {
 		return hint
 	}
-	return fmt.Sprintf("gitmap status %s or gitmap fix %s", repoName, repoName)
+	return fmt.Sprintf("gitmap status %s or gitmap fix %s", effectiveName, effectiveName)
 }
 
 func buildSpecificRemediation(repoName, msg string) string {
+	if isMissingRepoFailure(msg) {
+		return fmt.Sprintf("gitmap clone %s", repoName)
+	}
 	if isAuthFailure(msg) {
 		return fmt.Sprintf("gitmap status %s or gitmap fix %s", repoName, repoName)
 	}
@@ -107,9 +128,6 @@ func buildSpecificRemediation(repoName, msg string) string {
 	}
 	if isDivergedFailure(msg) {
 		return fmt.Sprintf("gitmap pull %s", repoName)
-	}
-	if isMissingRepoFailure(msg) {
-		return fmt.Sprintf("gitmap clone %s", repoName)
 	}
 	if isCacheFailure(msg) {
 		return "Run 'gitmap fix-credential' (alias: fc) to repair Windows git credential store"
@@ -145,7 +163,8 @@ func isMissingRepoFailure(msg string) bool {
 	return strings.Contains(lower, "missing repository directory") ||
 		strings.Contains(lower, "directory does not exist") ||
 		strings.Contains(lower, "no such file or directory") ||
-		strings.Contains(lower, "cannot change to")
+		strings.Contains(lower, "cannot change to") ||
+		strings.Contains(lower, "does not exist")
 }
 
 // RemediationOption represents an actionable alternative fix command.
@@ -178,6 +197,12 @@ func ResolveStructuredRemediation(s *PullRepoState) StructuredRemediation {
 }
 
 func resolveStateDualHints(s *PullRepoState) (string, string, string, string) {
+	if s == nil {
+		return "", "", "", ""
+	}
+	if isMissingRepoDir(s.RepoPath) {
+		return resolveMissingRepoDualHints(s.RepoPath, s.RepoName)
+	}
 	if s.IsDirty || s.Changes == "dirty" {
 		return resolveDirtyStateDualHints(s)
 	}
@@ -201,7 +226,7 @@ func resolveDirtyStateDualHints(s *PullRepoState) (string, string, string, strin
 // ResolveDualPullRemediationHints produces dual remediation options for an error condition.
 func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string, string, string, string) {
 	msg := extractErrorString(err)
-	if isMissingRepoFailure(msg) {
+	if isMissingRepoFailure(msg) || isMissingRepoDir(repoDir) {
 		return resolveMissingRepoDualHints(repoDir, repoName)
 	}
 	if isDivergedFailure(msg) {
@@ -214,7 +239,7 @@ func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string,
 }
 
 func resolveStateOrAuthDualHints(msg, repoDir, repoName string) (string, string, string, string) {
-	if isMissingRepoFailure(msg) {
+	if isMissingRepoFailure(msg) || isMissingRepoDir(repoDir) {
 		return resolveMissingRepoDualHints(repoDir, repoName)
 	}
 	if isDirtyTreeError(msg) {
@@ -316,4 +341,22 @@ func buildRemediationOptions(l1, c1, l2, c2 string) []RemediationOption {
 		opts = append(opts, RemediationOption{OptionNumber: 2, Title: l2, Command: c2})
 	}
 	return opts
+}
+
+func isMissingRepoDir(repoDir string) bool {
+	if repoDir == "" {
+		return false
+	}
+	_, err := os.Stat(repoDir)
+	return os.IsNotExist(err)
+}
+
+func resolveEffectiveRepoName(repoName, repoPath string) string {
+	if repoName != "" {
+		return repoName
+	}
+	if repoPath != "" {
+		return filepath.Base(repoPath)
+	}
+	return "repo"
 }

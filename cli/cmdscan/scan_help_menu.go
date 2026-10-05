@@ -16,6 +16,9 @@ func buildScanHelpMenu() termhelp.HelpMenu {
 			"gitmap scan [dir] [flags]",
 			"gitmap s [dir] [flags]",
 			"gitmap scan --fix",
+			"gitmap scan ~ --force-include .oh-my-zsh",
+			"gitmap scan ~ -fi .oh-my-zsh,node_modules",
+			"gitmap scan /home/user --force-include all",
 		},
 		Sections: []termhelp.HelpSection{
 			buildScanOutputSection(),
@@ -27,7 +30,7 @@ func buildScanHelpMenu() termhelp.HelpMenu {
 			"Run 'gitmap scan . --output json' to generate a machine-readable repo catalog.",
 			"Use 'gitmap scan --fix' to reconcile local disk with GitMap database.",
 			"Pass '--max-depth 2' to quickly scan shallow project directories.",
-			"Pass '--force-include .oh-my-zsh' to force scanning excluded shell directories.",
+			"Pass '--force-include .oh-my-zsh' (alias: -fi) to force scanning excluded directories or 'all' for everything.",
 		},
 	}
 }

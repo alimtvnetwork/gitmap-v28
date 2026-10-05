@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.481.0] - 2026-10-05
+
+### Added
+- ubuntu pull-all remediation, omz scanner exclusions, and error logging
+
+---
+
 ## [v6.480.0] - 2026-10-05
 
 ### Added

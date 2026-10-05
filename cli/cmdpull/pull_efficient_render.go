@@ -249,7 +249,7 @@ func renderSingleFailedItem(w io.Writer, colWidth int, s *PullRepoState, collisi
 	if repoTarget == "" {
 		repoTarget = "all"
 	}
-	fmt.Fprintf(w, "    %sTo inspect stack trace: %sgitmap pull-error %s%s (or: %sgitmap pe%s)\n",
+	fmt.Fprintf(w, "    %sDiagnostic: To inspect stack trace: %sgitmap pull-error %s%s (or: %sgitmap pe%s)\n",
 		treeTerminal, constants.ColorYellow, repoTarget, constants.ColorReset, constants.ColorDim, constants.ColorReset)
 }
 

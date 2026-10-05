@@ -40,7 +40,9 @@ func syncPullFailuresToDB(db *store.PullSplitDB, states []*PullRepoState) {
 	for _, state := range states {
 		if isStateFailure(state) {
 			stackTrace := resolveStateStackTrace(state)
+			errorID := fmt.Sprintf("err-%d", time.Now().UnixNano())
 			rec := store.PullErrorRecord{
+				ErrorID:        errorID,
 				RepoSlug:       state.RepoName,
 				RepoPath:       state.RepoPath,
 				NodeID:         nodeID,
@@ -52,17 +54,7 @@ func syncPullFailuresToDB(db *store.PullSplitDB, states []*PullRepoState) {
 				CreatedAt:      now,
 			}
 			_ = db.InsertPullError(rec)
-			_ = AppendPullErrorLog(PullErrorLogEntry{
-				RepoSlug:       rec.RepoSlug,
-				RepoPath:       rec.RepoPath,
-				NodeID:         rec.NodeID,
-				NodeVersion:    rec.NodeVersion,
-				ErrorType:      rec.ErrorType,
-				ErrorText:      rec.ErrorText,
-				StackTrace:     rec.StackTrace,
-				RemediationCmd: rec.RemediationCmd,
-				CreatedAt:      rec.CreatedAt,
-			})
+			_ = LogPullErrorToFile(rec)
 		}
 	}
 }
@@ -89,6 +81,9 @@ func resolveStateStackTrace(state *PullRepoState) string {
 }
 
 func isStateFailure(state *PullRepoState) bool {
+	if state == nil {
+		return false
+	}
 	return state.ErrorMsg != "" || state.Step == PullStepTypeError
 }
 

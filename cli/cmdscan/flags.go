@@ -115,6 +115,8 @@ func ParseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
 		fmt.Fprintf(fs.Output(), "\nExamples:\n")
 		fmt.Fprintf(fs.Output(), "  gitmap scan ~\n")
 		fmt.Fprintf(fs.Output(), "  gitmap scan ~ --force-include .oh-my-zsh\n")
+		fmt.Fprintf(fs.Output(), "  gitmap scan ~ -fi .oh-my-zsh,node_modules\n")
+		fmt.Fprintf(fs.Output(), "  gitmap scan /home/user --force-include all\n")
 		fmt.Fprintf(fs.Output(), "  gitmap scan /work --max-depth 3\n")
 	}
 	scanFlags := newScanFlagSet(fs)
