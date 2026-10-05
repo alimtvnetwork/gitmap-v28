@@ -54,6 +54,11 @@ func executePipelineErrorLogs(args []string) error {
 	if flags.ResolvedPath != "" {
 		_ = os.Chdir(flags.ResolvedPath)
 	}
+
+	if flags.IsAll {
+		return executeAllPipelineErrorLogs(flags, args)
+	}
+
 	if err := validateTargetRepo(flags); err != nil {
 		return err
 	}
@@ -66,6 +71,10 @@ func executePipelineErrorLogs(args []string) error {
 }
 
 func validateTargetRepo(flags PipelineErrorFlags) error {
+	if flags.IsAll {
+		return nil
+	}
+
 	if flags.RawRepoTarget != "" && flags.RepoTarget == "" {
 		PrintRepoTargetNotFoundDiagnostic(flags.RawRepoTarget, QueryRepoSuggestionsFromDB(flags.RawRepoTarget))
 		return fmt.Errorf("target repository %q not found", flags.RawRepoTarget)
