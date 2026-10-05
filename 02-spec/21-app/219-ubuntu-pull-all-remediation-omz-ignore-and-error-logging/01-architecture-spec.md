@@ -18,10 +18,10 @@ On Linux/Ubuntu nodes, developers typically install Oh-My-Zsh (`~/.oh-my-zsh`), 
 
 ### 1.2 Cross-OS Path Sensitivity & Backslash Breakage
 When `gitmap.db` is copied, synchronized (via SSH cluster sync, dotfiles, or backup restores), or shared across OS boundaries:
-- Repositories discovered on Windows contain backslash-separated absolute paths (e.g., `D:\work\gitmap` or `C:\Users\admin\dev\repo`).
+- Repositories discovered on Windows contain backslash-separated absolute paths (e.g., `D:\projects\app` or `C:\Users\admin\dev\repo`).
 - On Unix/Ubuntu, backslashes (`\`) are treated as literal characters within filename strings rather than path component delimiters.
 - Calling `os.Stat(rec.AbsolutePath)` or invoking `git -C <path> pull` fails with:
-  `fatal: cannot change to 'D:\work\gitmap': No such file or directory`.
+  `fatal: cannot change to 'D:\projects\app': No such file or directory`.
 - GitMap lacked an automated, pre-flight auto-healing mechanism in SQLite to normalize Windows backslashes to Unix forward slashes.
 
 ### 1.3 Missing Repository Pull Breakdowns & Remediation Gap

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -15,8 +16,10 @@ import (
 
 // PullFailureSummary holds concise failure information for a repository.
 type PullFailureSummary struct {
+	RepoID    int64
 	RepoName  string
 	RepoPath  string
+	RemoteURL string
 	ErrorText string
 	ErrorType string
 }
@@ -112,6 +115,10 @@ func RunStepByStepRemediate(failures []PullFailureSummary) error {
 
 func promptAndRemediateSingle(reader *bufio.Reader, idx, total int, f PullFailureSummary) (bool, bool) {
 	printSingleRepoFailureHeader(idx+1, total, f)
+	if cloner.IsMissingRepo(f.RepoPath) {
+		return PromptMissingRepoAction(reader, f)
+	}
+
 	fmt.Printf("  %s?%s Remediate this repository? [Y/n/q]: ", constants.ColorCyan, constants.ColorReset)
 	line, _ := reader.ReadString('\n')
 	ans := strings.ToLower(strings.TrimSpace(line))
@@ -140,6 +147,11 @@ func remediateSingleRepo(f PullFailureSummary) bool {
 	if f.RepoPath == "" {
 		return false
 	}
+
+	if cloner.IsMissingRepo(f.RepoPath) {
+		return RemediateMissingRepo(f)
+	}
+
 	fmt.Printf("  %s→%s Remediating %s%s%s...\n",
 		constants.ColorCyan, constants.ColorReset,
 		constants.ColorBold, f.RepoName, constants.ColorReset)
@@ -215,9 +227,12 @@ func convertRecordsToFailures(records []store.PullErrorRecord) []PullFailureSumm
 		hasPath := r.RepoPath != ""
 		if hasPath && !seen[r.RepoPath] {
 			seen[r.RepoPath] = true
+			repoID, remoteURL := LookupRepoRemoteAndID(r.RepoPath)
 			failures = append(failures, PullFailureSummary{
+				RepoID:    repoID,
 				RepoName:  r.RepoSlug,
 				RepoPath:  r.RepoPath,
+				RemoteURL: remoteURL,
 				ErrorText: r.ErrorText,
 				ErrorType: r.ErrorType,
 			})
@@ -256,9 +271,12 @@ func ExtractPullFailures(states []*PullRepoState) []PullFailureSummary {
 	var failures []PullFailureSummary
 	for _, s := range states {
 		if s.ErrorMsg != "" || s.Step == PullStepTypeError {
+			repoID, remoteURL := LookupRepoRemoteAndID(s.RepoPath)
 			failures = append(failures, PullFailureSummary{
+				RepoID:    repoID,
 				RepoName:  s.RepoName,
 				RepoPath:  s.RepoPath,
+				RemoteURL: remoteURL,
 				ErrorText: s.ErrorMsg,
 				ErrorType: string(s.Step),
 			})

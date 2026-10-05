@@ -1,9 +1,12 @@
 package cmdpull
 
 import (
+	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -32,18 +35,57 @@ func syncPullFailuresToDB(db *store.PullSplitDB, states []*PullRepoState) {
 		return
 	}
 	_ = db.EnsurePullErrorsTable()
+	nodeID := resolveLocalNodeIdentifier()
+	now := time.Now().UTC()
 	for _, state := range states {
 		if isStateFailure(state) {
+			stackTrace := resolveStateStackTrace(state)
 			rec := store.PullErrorRecord{
 				RepoSlug:       state.RepoName,
 				RepoPath:       state.RepoPath,
+				NodeID:         nodeID,
+				NodeVersion:    constants.Version,
 				ErrorType:      string(state.Step),
 				ErrorText:      state.ErrorMsg,
+				StackTrace:     stackTrace,
 				RemediationCmd: ResolvePullRemediationHint(state),
+				CreatedAt:      now,
 			}
 			_ = db.InsertPullError(rec)
+			_ = AppendPullErrorLog(PullErrorLogEntry{
+				RepoSlug:       rec.RepoSlug,
+				RepoPath:       rec.RepoPath,
+				NodeID:         rec.NodeID,
+				NodeVersion:    rec.NodeVersion,
+				ErrorType:      rec.ErrorType,
+				ErrorText:      rec.ErrorText,
+				StackTrace:     rec.StackTrace,
+				RemediationCmd: rec.RemediationCmd,
+				CreatedAt:      rec.CreatedAt,
+			})
 		}
 	}
+}
+
+func resolveLocalNodeIdentifier() string {
+	host, err := os.Hostname()
+	if err != nil || host == "" {
+		return "local-01"
+	}
+	return host
+}
+
+func resolveStateStackTrace(state *PullRepoState) string {
+	if state == nil {
+		return ""
+	}
+	if strings.Contains(state.ErrorMsg, "\n") {
+		return strings.TrimSpace(state.ErrorMsg)
+	}
+	if state.ErrorMsg != "" {
+		return fmt.Sprintf("failed at step [%s]: %s", state.Step, state.ErrorMsg)
+	}
+	return fmt.Sprintf("failed at step [%s]", state.Step)
 }
 
 func isStateFailure(state *PullRepoState) bool {

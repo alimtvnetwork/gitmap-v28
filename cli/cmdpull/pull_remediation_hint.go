@@ -2,6 +2,7 @@ package cmdpull
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
@@ -140,7 +141,11 @@ func isDivergedFailure(msg string) bool {
 }
 
 func isMissingRepoFailure(msg string) bool {
-	return strings.Contains(msg, "missing repository directory")
+	lower := strings.ToLower(msg)
+	return strings.Contains(lower, "missing repository directory") ||
+		strings.Contains(lower, "directory does not exist") ||
+		strings.Contains(lower, "no such file or directory") ||
+		strings.Contains(lower, "cannot change to")
 }
 
 // RemediationOption represents an actionable alternative fix command.
@@ -196,6 +201,9 @@ func resolveDirtyStateDualHints(s *PullRepoState) (string, string, string, strin
 // ResolveDualPullRemediationHints produces dual remediation options for an error condition.
 func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string, string, string, string) {
 	msg := extractErrorString(err)
+	if isMissingRepoFailure(msg) {
+		return resolveMissingRepoDualHints(repoDir, repoName)
+	}
 	if isDivergedFailure(msg) {
 		return resolveDivergedDualHints(repoDir, repoName)
 	}
@@ -206,6 +214,9 @@ func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string,
 }
 
 func resolveStateOrAuthDualHints(msg, repoDir, repoName string) (string, string, string, string) {
+	if isMissingRepoFailure(msg) {
+		return resolveMissingRepoDualHints(repoDir, repoName)
+	}
 	if isDirtyTreeError(msg) {
 		return resolveDirtyTreeDualHints(repoDir)
 	}
@@ -213,6 +224,21 @@ func resolveStateOrAuthDualHints(msg, repoDir, repoName string) (string, string,
 		return resolveAuthDualHints()
 	}
 	return resolveFallbackDualHints(repoDir, repoName)
+}
+
+// ResolveMissingRepoDualHints produces dual remediation options for missing repository errors.
+func ResolveMissingRepoDualHints(repoDir, repoName string) (string, string, string, string) {
+	return resolveMissingRepoDualHints(repoDir, repoName)
+}
+
+func resolveMissingRepoDualHints(repoDir, repoName string) (string, string, string, string) {
+	name := repoName
+	if name == "" && repoDir != "" {
+		name = filepath.Base(repoDir)
+	}
+	cloneCmd := "gitmap clone " + name
+	removeCmd := "gitmap rm --db-only " + name
+	return "Clone from Remote", cloneCmd, "Remove from Registry", removeCmd
 }
 
 func isDirtyTreeError(msg string) bool {

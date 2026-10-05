@@ -498,16 +498,12 @@ func isStrongerSummary(candidate, current string) bool {
 		return true
 	}
 
-	if isTestFailureSummary(candidate) {
-		if isGenericExitCode(current) || isStepFailureNotice(current) || !isTestFailureSummary(current) {
-			return true
-		}
+	if isTestFailureSummary(candidate) && (isGenericExitCode(current) || isStepFailureNotice(current) || !isTestFailureSummary(current)) {
+		return true
 	}
 
-	if isTestFailureSummary(current) {
-		if !isTestFailureSummary(candidate) {
-			return false
-		}
+	if isTestFailureSummary(current) && !isTestFailureSummary(candidate) {
+		return false
 	}
 
 	if isGenericExitCode(candidate) && !isGenericExitCode(current) {

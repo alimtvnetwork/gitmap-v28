@@ -170,6 +170,32 @@ func assignNullableFields(rec PullErrorRecord, stack, remed *string, createdStr 
 	if remed != nil {
 		rec.RemediationCmd = *remed
 	}
-	rec.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", createdStr)
+	rec.CreatedAt = parseFlexibleDBTimestamp(createdStr)
 	return rec
+}
+
+// ParseFlexibleDBTimestamp parses timestamps using fallback layouts including RFC3339, RFC3339Nano, and SQLite.
+func ParseFlexibleDBTimestamp(s string) time.Time {
+	return parseFlexibleDBTimestamp(s)
+}
+
+func parseFlexibleDBTimestamp(s string) time.Time {
+	clean := strings.TrimSpace(s)
+	if clean == "" {
+		return time.Now().UTC()
+	}
+	layouts := []string{
+		time.RFC3339Nano,
+		time.RFC3339,
+		"2006-01-02 15:04:05.999999999",
+		"2006-01-02 15:04:05",
+		"2006-01-02T15:04:05",
+		"2006-01-02",
+	}
+	for _, layout := range layouts {
+		if t, err := time.Parse(layout, clean); err == nil {
+			return t.UTC()
+		}
+	}
+	return time.Now().UTC()
 }

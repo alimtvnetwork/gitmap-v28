@@ -28,7 +28,7 @@ var CheckSpecialReposOnScanFn func(workBaseDir string, isQuiet bool)
 // runScan handles the "scan" subcommand.
 func runScan(args []string) error {
 	checkHelp("scan", args)
-	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
+	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, forceInclude, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
 	cfg, err := config.LoadFromFile(cfgPath)
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrConfigLoad)
@@ -41,7 +41,9 @@ func runScan(args []string) error {
 		IsGithubDesktop: ghDesktop, IsOpenFolder: openFolder, IsQuiet: quiet,
 	}
 
-	return executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
+	forceIncludeDirs := parseForceIncludeDirs(forceInclude)
+
+	return executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch, forceIncludeDirs)
 }
 
 // executeScan performs the directory scan and outputs results.
@@ -69,6 +71,7 @@ func executeScan(
 	probeOpts ScanProbeOptions,
 	relativeRoot,
 	defaultBranch string,
+	forceIncludeDirs []string,
 ) error {
 	absDir := resolveScanTarget(dir)
 
@@ -95,11 +98,12 @@ func executeScan(
 	var err error
 	bench.Phase("scan.walk", func() {
 		repos, err = scanner.ScanDirWithOptions(absDir, scanner.ScanOptions{
-			ExcludeDirs: cfg.ExcludeDirs,
-			Workers:     workers,
-			MaxDepth:    maxDepth,
-			Progress:    progress.Callback(),
-			OnDirError:  scanDirErrorCallback(errCollector),
+			ExcludeDirs:      cfg.ExcludeDirs,
+			ForceIncludeDirs: forceIncludeDirs,
+			Workers:          workers,
+			MaxDepth:         maxDepth,
+			Progress:         progress.Callback(),
+			OnDirError:       scanDirErrorCallback(errCollector),
 		})
 	})
 	if err != nil {
@@ -396,4 +400,22 @@ func checkAgmResumeTaskOnScan(records []model.ScanRecord, quiet, fix bool) {
 	}
 	isAuto := fix || gitignoreagm.IsAutoRemediateScanEnabled()
 	_ = gitignoreagm.CheckAndPromptRepos(paths, quiet, isAuto)
+}
+
+func parseForceIncludeDirs(raw string) []string {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
+		return nil
+	}
+
+	parts := strings.Split(trimmed, ",")
+	var result []string
+	for _, p := range parts {
+		item := strings.TrimSpace(p)
+		if item != "" {
+			result = append(result, item)
+		}
+	}
+
+	return result
 }

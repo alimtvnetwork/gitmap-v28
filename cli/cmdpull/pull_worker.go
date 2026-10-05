@@ -74,11 +74,15 @@ func ExecuteTrackedPull(rec model.ScanRecord, bar *PullProgressBar) *PullRepoSta
 // ExecuteTrackedPullWithWorker executes pull associating progress with a worker ID.
 func ExecuteTrackedPullWithWorker(rec model.ScanRecord, bar *PullProgressBar, workerID int) *PullRepoState {
 	start := time.Now()
-	if cloner.IsMissingRepo(rec.AbsolutePath) {
-		return handleMissingRepoPull(rec, bar, start)
+	if !cloner.IsMissingRepo(rec.AbsolutePath) {
+		return runTrackedPullLifecycle(rec, bar, workerID, start)
 	}
 
-	return runTrackedPullLifecycle(rec, bar, workerID, start)
+	if TryHealMissingRecordPath(&rec) {
+		return runTrackedPullLifecycle(rec, bar, workerID, start)
+	}
+
+	return handleMissingRepoPull(rec, bar, start)
 }
 
 func runTrackedPullLifecycle(rec model.ScanRecord, bar *PullProgressBar, workerID int, start time.Time) *PullRepoState {

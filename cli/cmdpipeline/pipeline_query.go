@@ -236,10 +236,9 @@ func queryFailedRunLogs(repo string, runId uint64) string {
 		return ""
 	}
 
-	if cached, ok := readCachedPipelineLogForRepo(repo, runId); ok {
-		if !isOnlyFallbackLogs(cached) {
-			return cached
-		}
+	cached, ok := readCachedPipelineLogForRepo(repo, runId)
+	if ok && !isOnlyFallbackLogs(cached) {
+		return cached
 	}
 
 	return fetchAndCacheRunLogs(repo, runId)
@@ -306,10 +305,7 @@ func fetchAndCacheRunLogs(repo string, runId uint64) string {
 func handleFailedRunLogsFallback(repo string, runId uint64, err error, out []byte) string {
 	fallback := buildFallbackRunLogs(repo, runId)
 	if len(fallback) > 0 {
-		if !isRunInProgress(repo, runId) {
-			_ = writeCachedPipelineLog(runId, fallback, repo)
-		}
-
+		cacheRunFallbackIfFinished(repo, runId, fallback)
 		return fallback
 	}
 
@@ -318,6 +314,12 @@ func handleFailedRunLogsFallback(repo string, runId uint64, err error, out []byt
 	}
 
 	return "Unable to fetch failed logs via gh CLI."
+}
+
+func cacheRunFallbackIfFinished(repo string, runId uint64, fallback string) {
+	if !isRunInProgress(repo, runId) {
+		_ = writeCachedPipelineLog(runId, fallback, repo)
+	}
 }
 
 func isRunInProgress(repo string, runId uint64) bool {
@@ -331,27 +333,32 @@ func isRunInProgress(repo string, runId uint64) bool {
 		args = append(args, "--repo", repo)
 	}
 	out, err := runGHCommandWithTimeout(args...)
-	if err == nil && len(out) > 0 {
-		var resp struct {
-			Status     string `json:"status"`
-			Conclusion string `json:"conclusion"`
-		}
-		if json.Unmarshal(out, &resp) == nil {
-			if resp.Status == "in_progress" || resp.Status == "queued" || resp.Status == "waiting" || resp.Status == "pending" {
-				return true
-			}
-			if resp.Status == "completed" {
-				return false
-			}
-		}
+	if err != nil || len(out) == 0 {
+		return checkJobsActive(repo, runId)
 	}
 
+	var resp struct {
+		Status     string `json:"status"`
+		Conclusion string `json:"conclusion"`
+	}
+	if json.Unmarshal(out, &resp) == nil && isGHStatusActive(resp.Status) {
+		return true
+	}
+
+	return checkJobsActive(repo, runId)
+}
+
+func checkJobsActive(repo string, runId uint64) bool {
 	jobs := queryRunJobs(repo, runId)
 	if len(jobs) > 0 {
 		return !isAllJobsCompleted(jobs)
 	}
 
 	return false
+}
+
+func isGHStatusActive(status string) bool {
+	return status == "in_progress" || status == "queued" || status == "waiting" || status == "pending"
 }
 
 func buildFallbackRunLogs(repo string, runId uint64) string {

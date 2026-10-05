@@ -15,6 +15,11 @@ import (
 const (
 	minConciseRepoColWidth = 26
 	conciseReservedColGap  = 30
+
+	treeBranch       = "├── "
+	treeTerminal     = "└── "
+	treeContinuation = "│   "
+	treeIndent       = "    "
 )
 
 // renderConciseActiveResults prints bullet list with aligned columns to stdout.
@@ -192,11 +197,11 @@ func maybeRenderDirtyFiles(w io.Writer, repoPath string) {
 func renderDirtyReasonsAndOptions(w io.Writer, s *PullRepoState) {
 	errDetails := ResolvePullErrorDetails(s)
 	if errDetails != "" {
-		fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
+		fmt.Fprintf(w, "    %sReason: %s%s%s\n", treeBranch, constants.ColorDim, errDetails, constants.ColorReset)
 	}
 	remHint := ResolvePullRemediationHint(s)
 	if remHint != "" {
-		fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
+		fmt.Fprintf(w, "    %sNext Step: %s%s%s\n", treeBranch, constants.ColorCyan, remHint, constants.ColorReset)
 	}
 	renderStructuredOptions(w, s)
 }
@@ -233,20 +238,34 @@ func renderSingleFailedItem(w io.Writer, colWidth int, s *PullRepoState, collisi
 	if errDetails == "" {
 		errDetails = "pull execution failed"
 	}
-	fmt.Fprintf(w, "        %s↳ Reason: %s%s\n", constants.ColorDim, errDetails, constants.ColorReset)
+	fmt.Fprintf(w, "    %sReason: %s%s%s\n", treeBranch, constants.ColorDim, errDetails, constants.ColorReset)
 	remHint := ResolvePullRemediationHint(s)
 	if remHint == "" {
 		remHint = fmt.Sprintf("gitmap status %s or gitmap fix %s", s.RepoName, s.RepoName)
 	}
-	fmt.Fprintf(w, "        %s↳ Next Step: %s%s\n", constants.ColorCyan, remHint, constants.ColorReset)
+	fmt.Fprintf(w, "    %sNext Step: %s%s%s\n", treeBranch, constants.ColorCyan, remHint, constants.ColorReset)
 	renderStructuredOptions(w, s)
+	repoTarget := s.RepoName
+	if repoTarget == "" {
+		repoTarget = "all"
+	}
+	fmt.Fprintf(w, "    %sTo inspect stack trace: %sgitmap pull-error %s%s (or: %sgitmap pe%s)\n",
+		treeTerminal, constants.ColorYellow, repoTarget, constants.ColorReset, constants.ColorDim, constants.ColorReset)
 }
 
 func renderStructuredOptions(w io.Writer, s *PullRepoState) {
 	structured := ResolveStructuredRemediation(s)
-	for _, opt := range structured.Options {
-		fmt.Fprintf(w, "        %s↳ Option %d (%s):%s %s%s%s\n",
-			constants.ColorCyan, opt.OptionNumber, opt.Title, constants.ColorReset,
+	if len(structured.Options) == 0 {
+		return
+	}
+	fmt.Fprintf(w, "    %sOptions:\n", treeBranch)
+	for i, opt := range structured.Options {
+		connector := treeBranch
+		if i == len(structured.Options)-1 {
+			connector = treeTerminal
+		}
+		fmt.Fprintf(w, "    %s%sOption %d (%s): %s%s%s\n",
+			treeContinuation, connector, opt.OptionNumber, opt.Title,
 			constants.ColorDim, opt.Command, constants.ColorReset)
 	}
 }
