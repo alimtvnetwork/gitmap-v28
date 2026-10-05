@@ -72,7 +72,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap pcp "<msg>"` — Pull latest, commit, and push with preflight verification
 
 ### 6. Script Runners & Multi-Repo Operations
-- `gitmap py <script.py> [args...]` / `gitmap py -c "<code>"` (alias: `gitmap python`) — Native Python runner with process exit code propagation and Split-DB telemetry recording.
+- `gitmap py <script.py> [args...]` / `gitmap py -c "<code>"` (alias: `gitmap python`) — Native Python runner with process exit code propagation and Split-DB telemetry recording. **MANDATORY**: All Python code, one-liners, and scripts—both locally and inside remote SSH execution (`gitmap ssh exec <node> 'gitmap py -c "<code>"'` or `gitmap ssh exec <node> py ...`)—MUST be executed through `gitmap py`. NEVER invoke bare `python3` or `python` directly inside `gitmap ssh exec` or local shells.
 - `gitmap pwsh "<cmd>"` / `gitmap ps "<cmd>"` — Cross-platform PowerShell execution with `-NoProfile` and automatic fallback
 - `gitmap bash "<cmd>"` / `gitmap sh "<cmd>"` — Cross-platform Bash execution
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling)
@@ -81,6 +81,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap cluster --help` — Orchestrate multi-node clusters and health checks
 - `gitmap sc --help` — Servers-clients topology and background task manager
 - `gitmap ssh --help` — SSH discovery, connection pooling, and remote command execution
+- `gitmap ssh exec <alias> "<cmd>"` / `gitmap se <alias> "<cmd>"` — Remote command execution. Supports automatic delegation for GitMap subcommands (`gitmap ssh exec u1 py -c "<code>"`, `gitmap ssh exec u1 status`, `gitmap ssh exec u1 cursor settings view`). Always use `gitmap py` for remote Python code executions to ensure cross-platform compatibility, telemetry tracking, and exit code propagation.
 - `gitmap ports [service|--common]` — Inspect local listening ports, active PIDs, and firewall rules
 - `gitmap ssh enable [--port <n>]` — Cross-platform OpenSSH Server installation, auto-start, and firewall configuration
 - `gitmap ssh troubleshoot <alias|ip>` — Diagnostic connectivity probe for SSH timeouts and firewall blocks
@@ -112,3 +113,4 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 3. **Scoped Search:** Always provide target directories and extensions to `gitmap aum search` (e.g. `gitmap aum search "target" cli --ext .go`).
 4. **File Size & Binary Guard:** Respect 500 KB limit (Rule R19); never commit test binaries or temp artifacts.
 5. **Coding Guidelines:** Max 8–15 lines per function, single return types with `*appfault.AppError`, affirmative booleans.
+6. **Unified Python Execution via `gitmap py`**: Whenever executing Python scripts, diagnostic one-liners, or verification snippets (both locally and on remote fleet nodes via `gitmap ssh exec`), ALWAYS run through `gitmap py` (`gitmap py -c "..."` or `gitmap ssh exec <node> 'gitmap py -c "..."'`). NEVER invoke bare `python3` or `python` directly in remote exec strings.

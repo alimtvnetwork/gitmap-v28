@@ -30,6 +30,11 @@ This skill provides authoritative architectural guidance, code navigation, and e
 # Execute remote command across multiple space-delimited nodes
 gitmap ssh exec node1 node2 "uptime && uname -a"
 
+# Execute remote Python code via GitMap Python runner (MANDATORY standard)
+gitmap ssh exec <alias> 'gitmap py -c "<code>"'
+gitmap ssh exec <alias> py -c "<code>"
+gitmap ssh exec <alias> py <remote_script.py>
+
 # Positional multi-target resolution with quoted command
 gitmap ssh "ls -la /var/log" node1 node2
 
@@ -76,6 +81,7 @@ gitmap sc list
 9. **Target IP Verification & DHCP Drift Guardrail:** Before debugging SSH daemons or firewalls, verify that the IP registered on the client matches the target host's actual network adapter address (`ipconfig` or `Get-NetIPAddress -AddressFamily IPv4`). Connecting to an unassigned IP or a stale DHCP lease causes identical multi-second timeout drops (exit code 255).
 10. **The `ssh` Client False-Positive Trap:** Typing `ssh` in PowerShell only verifies that the OpenSSH *client* binary (`System32\OpenSSH\ssh.exe`) is present (default on Windows 10/11). It does *not* indicate that the OpenSSH *server* service (`sshd`) is installed or listening. Always check `Get-Service sshd` or `gitmap ports ssh`.
 11. **Client TCP Pre-Flight Probing:** When diagnosing timeouts, use `Test-NetConnection -ComputerName <ip> -Port 22` from the client. `TcpTestSucceeded : False` confirms packet drop (firewall or dead daemon) immediately without waiting for multi-second SSH client retry timeouts.
+12. **Mandatory Remote Python via `gitmap py`:** When executing Python code, one-liners, or verification scripts on remote nodes via `gitmap ssh exec`, ALWAYS execute through `gitmap py` (e.g. `gitmap ssh exec <alias> 'gitmap py -c "<code>"'` or `gitmap ssh exec <alias> py -c "<code>"`). NEVER invoke bare `python3` or `python` directly in remote exec strings.
 
 ---
 

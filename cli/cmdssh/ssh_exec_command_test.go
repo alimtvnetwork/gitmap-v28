@@ -22,6 +22,9 @@ func TestDetermineSSHCommand_GitmapDelegation(t *testing.T) {
 		{"unix", []string{"macro", "sync", "--all"}, "gitmap macro sync --all"},
 		{"linux", []string{"pull-all"}, "gitmap pull-all"},
 		{"linux", []string{"doctor"}, "gitmap doctor"},
+		{"linux", []string{"py", "-c", "print('hello')"}, "gitmap py -c print('hello')"},
+		{"linux", []string{"python", "test.py"}, "gitmap python test.py"},
+		{"linux", []string{"cursor", "settings", "view"}, "gitmap cursor settings view"},
 	}
 
 	for _, tc := range cases {
