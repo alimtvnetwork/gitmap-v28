@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpullerror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpurge"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsee"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -117,6 +118,7 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{constants.CmdCommit, constants.CmdCommitAlias, constants.CmdCommitAlias2, constants.CmdCommitAlias3}, func() error { return runCommit(argsTail()) }},
 		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},
 		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return runExec(argsTail()) }},
+		{[]string{"py", "python"}, func() error { return cmdpy.RunPy(argsTail()) }},
 	}
 }
 

@@ -57,6 +57,10 @@ func OpenCommandHistorySplitDB(customPath string) (*CommandHistorySplitDB, error
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open history sqlite")
 	}
+	if _, errPragma := conn.Exec("PRAGMA busy_timeout = 3000;"); errPragma != nil {
+		_ = conn.Close()
+		return nil, apperror.WrapSimple(errPragma, "set history busy_timeout pragma")
+	}
 	s := &CommandHistorySplitDB{conn: conn, path: dbPath}
 	if err := s.initSchema(); err != nil {
 		_ = conn.Close()
@@ -83,16 +87,44 @@ func (s *CommandHistorySplitDB) initSchema() error {
 
 // InsertCommandRecord inserts a new command execution entry.
 func (s *CommandHistorySplitDB) InsertCommandRecord(cmdLine, cmdName string, exitCode int, durationMs int64) error {
+	if s == nil || s.conn == nil {
+		return nil
+	}
 	cleanLine := strings.TrimSpace(cmdLine)
 	if cleanLine == "" {
 		return nil
 	}
 	const q = `INSERT INTO CommandHistory (CommandLine, CommandName, ExitCode, DurationMs) VALUES (?, ?, ?, ?);`
 	_, err := s.conn.Exec(q, cleanLine, cmdName, exitCode, durationMs)
-	if err != nil {
+	if isFatalDatabaseError(err) {
 		return apperror.WrapSimple(err, "insert CommandHistory entry")
 	}
 	return nil
+}
+
+func isFatalDatabaseError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return !isDatabaseBusy(err)
+}
+
+func isDatabaseBusy(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "busy") || strings.Contains(msg, "locked")
+}
+
+// RecordCommandSafely opens the default command history db, inserts the record, and closes it, ignoring errors.
+func RecordCommandSafely(cmdLine, cmdName string, exitCode int, durationMs int64) {
+	histDB, err := OpenCommandHistorySplitDB("")
+	if err != nil {
+		return
+	}
+	defer histDB.Close()
+	_ = histDB.InsertCommandRecord(cmdLine, cmdName, exitCode, durationMs)
 }
 
 // ListRecentCommands returns up to limit recent command history rows.

@@ -21,8 +21,7 @@ func parseCursorInstallArgs(args []string) cursorInstallOptions {
 	for i := 0; i < len(args); i++ {
 		arg := strings.ToLower(args[i])
 		if (arg == "--node" || arg == "-n") && i+1 < len(args) {
-			opts.targetNode = args[i+1]
-			i++
+			opts.targetNode, i = args[i+1], i+1
 		} else if arg == "--force" || arg == "-f" {
 			opts.isForce = true
 		} else if arg == "--dry-run" || arg == "-d" {
@@ -31,51 +30,44 @@ func parseCursorInstallArgs(args []string) cursorInstallOptions {
 	}
 	return opts
 }
-
 func installOnWindows(opts cursorInstallOptions) error {
-	wingetPath, err := exec.LookPath("winget")
-	if err != nil || wingetPath == "" {
-		fmt.Println()
-		fmt.Printf("%s● Cursor IDE Windows Manual Setup:%s\n", constants.ColorCyan, constants.ColorReset)
-		fmt.Println("  winget not found on PATH. Please download and run the installer from:")
-		fmt.Println("  https://cursor.com")
+	if _, err := exec.LookPath("winget"); err != nil {
+		fmt.Printf("\n%s● Windows Setup:%s winget not found. Visit https://cursor.com\n", constants.ColorCyan, constants.ColorReset)
 		return nil
 	}
-
-	fmt.Printf("%s✔ Found winget package manager:%s %s\n", constants.ColorGreen, constants.ColorReset, wingetPath)
-	fmt.Printf("%s● Executing silent winget installation for Cursor IDE...%s\n", constants.ColorCyan, constants.ColorReset)
 	if opts.isDryRun {
-		fmt.Println("  [DryRun] Would execute: winget install Anysphere.Cursor --silent --accept-source-agreements --accept-package-agreements")
+		fmt.Println("  [DryRun] Would execute: winget install Anysphere.Cursor --silent")
 		return nil
 	}
-
-	cmd := exec.Command("winget", "install", "Anysphere.Cursor", "--silent", "--accept-source-agreements", "--accept-package-agreements")
-	out, runErr := cmd.CombinedOutput()
-	if runErr != nil {
+	if out, err := exec.Command("winget", "install", "Anysphere.Cursor", "--silent", "--accept-source-agreements", "--accept-package-agreements").CombinedOutput(); err != nil {
 		fmt.Printf("%s⚠ Winget install returned:%s %s\n", constants.ColorYellow, constants.ColorReset, string(out))
 		return nil
 	}
-
 	fmt.Printf("%s✔ Cursor IDE successfully installed via winget.%s\n", constants.ColorGreen, constants.ColorReset)
 	return nil
 }
 
 func installOnLinux(opts cursorInstallOptions) error {
-	fmt.Println()
-	fmt.Printf("%s● Provisioning Cursor IDE on Linux...%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("\n%s● Provisioning Cursor IDE on Linux...%s\n", constants.ColorCyan, constants.ColorReset)
 	if opts.isDryRun {
-		fmt.Println("  [DryRun] Would invoke 03-ai-scripts/40-ubuntu-cursor-and-agy-fleet-setup.sh")
+		fmt.Println("  [DryRun] Would invoke repo-secrets/05-scripts/setup-cursor-ubuntu.py")
 		return nil
 	}
-	scriptPath := "03-ai-scripts/40-ubuntu-cursor-and-agy-fleet-setup.sh"
-	cmd := exec.Command("bash", scriptPath)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
+	cmd := exec.Command("python3", "repo-secrets/05-scripts/setup-cursor-ubuntu.py")
+	if out, err := cmd.CombinedOutput(); err != nil {
 		fmt.Printf("%s⚠ Linux setup returned:%s %s\n", constants.ColorYellow, constants.ColorReset, string(out))
-	} else {
-		fmt.Printf("%s✔ Linux setup script completed.%s\n", constants.ColorGreen, constants.ColorReset)
+		return nil
 	}
+	fmt.Printf("%s✔ Linux setup script completed.%s\n", constants.ColorGreen, constants.ColorReset)
 	return nil
+}
+
+func buildRemoteSetupCmd(opts cursorInstallOptions) string {
+	cmd := "python3 repo-secrets/05-scripts/setup-cursor-ubuntu.py --node " + opts.targetNode + " || bash repo-secrets/05-scripts/setup-cursor-ubuntu.sh " + opts.targetNode
+	if opts.isForce {
+		return "FORCE=true " + cmd
+	}
+	return cmd
 }
 
 func delegateRemoteInstall(opts cursorInstallOptions) error {
@@ -84,11 +76,7 @@ func delegateRemoteInstall(opts cursorInstallOptions) error {
 		fmt.Printf("  [DryRun] Would execute remote provisioning on node '%s'\n", opts.targetNode)
 		return nil
 	}
-	fmt.Printf("  Executing automated fleet setup script on node '%s'...\n", opts.targetNode)
-	remoteCmd := "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/03-ai-scripts/40-ubuntu-cursor-and-agy-fleet-setup.sh | bash || bash 03-ai-scripts/40-ubuntu-cursor-and-agy-fleet-setup.sh"
-	if opts.isForce {
-		remoteCmd = "FORCE=true " + remoteCmd
-	}
+	remoteCmd := buildRemoteSetupCmd(opts)
 	if err := cmdssh.RunSSHExec([]string{opts.targetNode, remoteCmd}); err != nil {
 		fmt.Printf("%s⚠ Note: Remote setup execution notice: %v%s\n", constants.ColorYellow, err, constants.ColorReset)
 		return nil

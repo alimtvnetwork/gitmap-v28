@@ -28,6 +28,7 @@ Enhance `gitmap aum search` to automatically strip shell-escaped quotes and unwr
 ## 3. Implementation Details
 
 ### Step 3.1: Pattern Normalization Algorithm in `cli/cmdautomation/search.go`
+
 Implement `cleanSearchPattern(pattern string) string`:
 1. Trim leading and trailing whitespace.
 2. In a loop, strip matching symmetric quotation pairs:
@@ -42,6 +43,7 @@ Implement `cleanSearchPattern(pattern string) string`:
 4. Boundary preservation: If the input consists solely of a single quotation mark (e.g. searching for the character `"`), preserve it to allow literal syntax searches.
 
 ### Step 3.2: Integration into CLI Handler (`cli/cmdautomation/automation_cmd.go`)
+
 - In `runSearchCmd(cmd *cobra.Command, args []string) error`:
   - Sanitize `args[0]` immediately before assigning to `searchOpts.Pattern`:
     ```go
@@ -49,11 +51,13 @@ Implement `cleanSearchPattern(pattern string) string`:
     ```
 
 ### Step 3.3: Integration into Core Search Validator (`cli/cmdautomation/search.go`)
+
 - In `validateSearchOptions(opts *SearchOptions) *apperror.AppError`:
   - Normalize `opts.Pattern = cleanSearchPattern(opts.Pattern)`.
   - Validate that the cleaned pattern is non-empty.
 
 ### Step 3.4: Benchmarking & Search Tool Cross-Verification
+
 - Compare AUM search results and latency against external tools across polyglot repositories:
   - Benchmark exact string search (`gitmap aum search "func RunSearch"`).
   - Benchmark case-insensitive search (`gitmap aum search -i "runsearch"`).

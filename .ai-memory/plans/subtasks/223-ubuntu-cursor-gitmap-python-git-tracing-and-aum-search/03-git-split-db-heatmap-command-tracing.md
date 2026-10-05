@@ -26,6 +26,7 @@ Instrument all raw Git passthrough commands (`gitmap git <cmd>`) and internal Gi
 ## 3. Implementation Details
 
 ### Step 3.1: Duration Measurement & Interception in `cli/cmd/rootgit.go`
+
 - Update `runGitPassthrough(args []string) error` to:
   1. Record `start := time.Now()`.
   2. Execute `err := execGitInheritCP(args...)`.
@@ -35,12 +36,14 @@ Instrument all raw Git passthrough commands (`gitmap git <cmd>`) and internal Gi
   6. Return wrapped error if execution failed.
 
 ### Step 3.2: Safe Exit Code Extraction Helper
+
 - Implement `extractExitCode(err error) int`:
   - If `err == nil`, return `0`.
   - Type-assert `err` to `*exec.ExitError` and return `exitErr.ExitCode()`.
   - Fall back to `1` for general execution errors.
 
 ### Step 3.3: Split-DB Persistence Routine
+
 - Implement `recordGitCommandHistory(gitArgs []string, exitCode int, durationMs int64)`:
   - Guard against empty arguments.
   - Construct `cmdName := "git " + gitArgs[0]` and `cmdLine := "git " + strings.Join(gitArgs, " ")`.
@@ -49,6 +52,7 @@ Instrument all raw Git passthrough commands (`gitmap git <cmd>`) and internal Gi
   - Ensure any database error is silently discarded so user Git commands never fail due to database access issues.
 
 ### Step 3.4: Internal Git Operation Hooking in `cli/cmd/commit_push.go`
+
 - In `cli/cmd/commit_push.go`:
   - Instrument `performCommitPush`:
     - After `git commit -m <msg>`, record entry `CommandName: "git commit"`.

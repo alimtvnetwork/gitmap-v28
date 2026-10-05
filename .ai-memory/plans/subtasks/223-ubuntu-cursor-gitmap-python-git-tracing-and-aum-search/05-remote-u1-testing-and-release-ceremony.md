@@ -26,6 +26,7 @@ Perform complete remote fleet validation of Cursor IDE on Ubuntu node `u1`, veri
 ## 3. Implementation Details
 
 ### Step 3.1: Remote Fleet Verification on `u1`
+
 - Probe Cursor on `u1`:
   ```bash
   gitmap ssh exec u1 "cursor --version"
@@ -38,6 +39,7 @@ Perform complete remote fleet validation of Cursor IDE on Ubuntu node `u1`, veri
 - Confirm state tracking in `repo-secrets/04-ubuntu-migration/cursor-fleet-status.json`.
 
 ### Step 3.2: Native GitMap Python Runner Validation
+
 - Test inline Python execution:
   ```bash
   gitmap py -c "import sys; print('GitMap Python OK:', sys.version)"
@@ -49,6 +51,7 @@ Perform complete remote fleet validation of Cursor IDE on Ubuntu node `u1`, veri
 - Confirm execution entry appears in `CommandHistory` and AI telemetry logs.
 
 ### Step 3.3: Linter Quality Gates
+
 Run three mandatory linters sequentially; every check must exit with code `0`:
 1. **Relative Paths Linter:**
    ```bash
@@ -67,6 +70,7 @@ Run three mandatory linters sequentially; every check must exit with code `0`:
    *Gate:* Zero negative boolean names or non-compliant boolean helpers.
 
 ### Step 3.4: Minor Version Bump Ceremony
+
 - Execute version bump script:
   ```bash
   python 03-ai-scripts/37-bump-version.py -t minor
@@ -78,6 +82,7 @@ Run three mandatory linters sequentially; every check must exit with code `0`:
   - `changelog.md`: New version section added with release notes
 
 ### Step 3.5: Atomic Commit & Remote Push Ceremony
+
 - Construct commit message strictly complying with the required hyphen prefix:
   ```text
   cursor - ubuntu fleet cursor setup, gitmap py runner, git heatmap tracing, aum search unquote, release v6.483.0
@@ -85,6 +90,7 @@ Run three mandatory linters sequentially; every check must exit with code `0`:
 - Commit and push to origin using GitMap release command.
 
 ### Step 3.6: Continuous CI/CD Pipeline Monitoring
+
 - Launch pipeline error and progress monitor:
   ```bash
   gitmap pe -t

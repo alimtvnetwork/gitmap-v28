@@ -29,6 +29,7 @@ This specification establishes the technical implementation details for three cr
 ## 2. Subsystem 1: Git Command Split-DB Heatmap Tracing
 
 ### 2.1 Problem Analysis in Existing Git Routing
+
 In `cli/cmd/rootgit.go`, transparent CLI routing delegates git commands:
 - High-level GitMap commands (`pull`, `pull-all`, `gitignore-agm`) are routed to specialized handlers.
 - All standard Git commands (`status`, `diff`, `log`, `branch`, `checkout`, `fetch`, `rebase`, etc.) fall through to `runGitPassthrough(args)`:
@@ -46,6 +47,7 @@ Neither execution start time, duration, command line, nor exit status is recorde
 Consequently, the Developer Contribution Heatmap in `cli/dashboard/` and timeline visualizers in `src/pages/Dashboard.tsx` suffer from observability gaps, undercounting developer and agent activity.
 
 ### 2.2 Split-DB Telemetry Architecture
+
 The Split-DB architecture maintains command execution history in a dedicated SQLite database located at:
 `data/history/commands.db` (resolved via `BinaryDataDir()/history/commands.db`).
 
@@ -66,6 +68,7 @@ CREATE INDEX IF NOT EXISTS idx_cmd_history_line ON CommandHistory(CommandLine);
 ### 2.3 Implementation Details
 
 #### 2.3.1 Passthrough Interceptor in `cli/cmd/rootgit.go`
+
 The `runGitPassthrough` function is enhanced to track execution lifecycle:
 ```go
 func runGitPassthrough(args []string) error {
@@ -88,6 +91,7 @@ func runGitPassthrough(args []string) error {
 ```
 
 #### 2.3.2 Exit Code Extractor Helper
+
 To cleanly capture exit codes across platforms without panics or platform dependencies:
 ```go
 func extractExitCode(err error) int {
@@ -102,6 +106,7 @@ func extractExitCode(err error) int {
 ```
 
 #### 2.3.3 Asynchronous Safe Recorder: `recordGitCommandHistory`
+
 Recording to Split-DB must be resilient and non-blocking so that database locks or filesystem anomalies never fail user git operations:
 ```go
 func recordGitCommandHistory(gitArgs []string, exitCode int, durationMs int64) {
@@ -122,6 +127,7 @@ func recordGitCommandHistory(gitArgs []string, exitCode int, durationMs int64) {
 ```
 
 #### 2.3.4 Commit & Push Tracing Hook in `cli/cmd/commit_push.go`
+
 Internal Git operations executed during `commit-push`, `pull-commit-push`, `rm-git`, and `git-reset` in `cli/cmd/commit_push.go` are instrumented:
 - When `performCommitPush` runs `git commit` and `git push`, record entries with `CommandName: "git commit"` and `CommandName: "git push"`.
 - When `executePullCommitPush` runs `git pull --rebase`, record `CommandName: "git pull"`.
@@ -156,6 +162,7 @@ sequenceDiagram
 ## 3. Subsystem 2: AUM Search Quote Stripping & Agent Optimization
 
 ### 3.1 Problem Analysis
+
 Autonomous agents using tool-use interfaces (such as `run_command` in Gemini/AGY/Cursor) frequently pass escaped strings when issuing search commands:
 - Command passed by agent: `gitmap aum search "\"all\""`
 - Arguments received by Go `os.Args`: `args[0] = "\"all\""` or `args[0] = "\"all\""`
@@ -174,6 +181,7 @@ Autonomous agents using tool-use interfaces (such as `run_command` in Gemini/AGY
 Because `opts.Pattern` contains literal quotes, AUM search looks for `\"all\"` rather than `all`. In typical code files where `all` appears as an identifier or keyword without surrounding quotation marks, 0 hits are returned.
 
 ### 3.2 Quote Cleaning Algorithm: `cleanSearchPattern`
+
 In `cli/cmdautomation/search.go` and `cli/cmdautomation/automation_cmd.go`, implement a pattern cleaner that unwraps outer quotation delimiters while respecting intentional inner patterns:
 
 ```go
@@ -238,6 +246,7 @@ func cleanSearchPattern(pattern string) string {
 ```
 
 ### 3.3 Integration Points
+
 1. **CLI Command Runner (`cli/cmdautomation/automation_cmd.go`):**
    ```go
    func runSearchCmd(cmd *cobra.Command, args []string) error {
@@ -256,6 +265,7 @@ func cleanSearchPattern(pattern string) string {
        return nil
    }
    ```
+
 2. **Search Engine Core (`cli/cmdautomation/search.go`):**
    ```go
    func validateSearchOptions(opts *SearchOptions) *apperror.AppError {
@@ -283,6 +293,7 @@ func cleanSearchPattern(pattern string) string {
 ## 4. Subsystem 3: Remote Fleet Testing, Linter Gates & Release Ceremony
 
 ### 4.1 Remote Fleet Node `u1` Verification
+
 - **Host Configuration:** Ubuntu node `u1` accessible via SSH (`gitmap ssh exec u1`).
 - **Binary Locations:**
   - System binary: `/usr/local/bin/cursor`
@@ -294,6 +305,7 @@ func cleanSearchPattern(pattern string) string {
   - Verify status output in `repo-secrets/04-ubuntu-migration/cursor-fleet-status.json`.
 
 ### 4.2 Linter Gate Architecture
+
 Before version bumping or commit creation, three repository linters must be executed in sequence and pass with exit code `0`:
 
 1. **Relative Paths Linter:**
@@ -307,6 +319,7 @@ Before version bumping or commit creation, three repository linters must be exec
    - Purpose: Verifies positive boolean naming conventions, absence of double negatives, and adherence to boolean style rules.
 
 ### 4.3 Minor Version Bump Protocol
+
 Following quality gate passage:
 - Run: `python 03-ai-scripts/37-bump-version.py -t minor`
 - Expected Version Transition: `v6.482.0` -> `v6.483.0`
@@ -317,6 +330,7 @@ Following quality gate passage:
   - `changelog.md` (New release header with changes)
 
 ### 4.4 Hyphen Commit & Pipeline Monitoring Ceremony
+
 1. **Commit Message Format:**
    - Must use hyphen format: `cursor - add split-db git tracing and aum search quote cleaning`
 2. **Push & Pipeline Verification:**

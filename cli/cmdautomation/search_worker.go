@@ -29,10 +29,11 @@ func searchWorkerRoutine(jobs <-chan string, results chan<- []SearchMatch, opts 
 
 func buildWorkerContext(opts SearchOptions) workerSearchContext {
 	reg, _ := resolveWorkerRegex(opts)
+	cleanPat := cleanSearchPattern(opts.Pattern)
 	var patBytes, lowerBytes []byte
 	if !opts.IsRegex {
-		patBytes = []byte(opts.Pattern)
-		lowerBytes = []byte(strings.ToLower(opts.Pattern))
+		patBytes = []byte(cleanPat)
+		lowerBytes = []byte(strings.ToLower(cleanPat))
 	}
 
 	return workerSearchContext{
@@ -47,7 +48,8 @@ func resolveWorkerRegex(opts SearchOptions) (*regexp.Regexp, error) {
 	if !opts.IsRegex {
 		return nil, nil
 	}
-	appErrReg, err := GetRegex(opts.Pattern, opts.IsCaseInsensitive)
+	cleanPat := cleanSearchPattern(opts.Pattern)
+	appErrReg, err := GetRegex(cleanPat, opts.IsCaseInsensitive)
 	if err != nil {
 		return nil, err
 	}

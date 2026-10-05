@@ -2,15 +2,18 @@ package cmd
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // isCommitPushHelpArg returns true if the first argument is a help trigger word.
@@ -412,8 +415,8 @@ func executeCommitPush(commitMessage string) *apperror.AppError {
 func stageAndCheckChanges() (bool, *apperror.AppError) {
 	printPaddedInfo("Staging all changes...")
 
-	if err := execGitPaddedFiltered("add", "-A"); err != nil {
-		return false, apperror.WrapSimple(err, "git add failed:")
+	if errAdd := executeStageAllStep(); errAdd != nil {
+		return false, errAdd
 	}
 
 	hasChanges, errStatus := hasStagedChangesCP()
@@ -424,20 +427,51 @@ func stageAndCheckChanges() (bool, *apperror.AppError) {
 	return hasChanges, nil
 }
 
+func executeStageAllStep() *apperror.AppError {
+	startTime := time.Now()
+	err := execGitPaddedFiltered("add", "-A")
+	durMs := time.Since(startTime).Milliseconds()
+	recordGitCommandDirect("git add", "git add -A", extractGitExitCode(err), durMs)
+	if err != nil {
+		return apperror.WrapSimple(err, "git add failed:")
+	}
+
+	return nil
+}
+
 func performCommitPush(commitMessage string) *apperror.AppError {
 	printPaddedInfo("Committing: %s", commitMessage)
+	if errCommit := performCommitStep(commitMessage); errCommit != nil {
+		return errCommit
+	}
+	printPaddedInfo("Pushing to remote...")
+	if errPush := performPushStep(); errPush != nil {
+		return errPush
+	}
+	renderSuccessSummary(commitMessage)
+	return nil
+}
 
-	if err := execGitPaddedFiltered("commit", "-m", commitMessage); err != nil {
+func performCommitStep(commitMessage string) *apperror.AppError {
+	startTime := time.Now()
+	err := execGitPaddedFiltered("commit", "-m", commitMessage)
+	durMs := time.Since(startTime).Milliseconds()
+	recordGitCommandDirect("git commit", "git commit -m "+commitMessage, extractGitExitCode(err), durMs)
+	if err != nil {
 		return apperror.WrapSimple(err, "git commit failed:")
 	}
 
-	printPaddedInfo("Pushing to remote...")
+	return nil
+}
 
-	if err := execGitPaddedFiltered("push"); err != nil {
+func performPushStep() *apperror.AppError {
+	startTime := time.Now()
+	err := execGitPaddedFiltered("push")
+	durMs := time.Since(startTime).Milliseconds()
+	recordGitCommandDirect("git push", "git push", extractGitExitCode(err), durMs)
+	if err != nil {
 		return apperror.WrapSimple(err, "git push failed:")
 	}
-
-	renderSuccessSummary(commitMessage)
 
 	return nil
 }
@@ -484,8 +518,8 @@ func handleCleanWorkingTreeCP() *apperror.AppError {
 func pushUnpushedCommitsCP(unpushed int) *apperror.AppError {
 	printPaddedInfo("Pushing %d unpushed commit(s) to remote...", unpushed)
 
-	if errPush := execGitPaddedFiltered("push"); errPush != nil {
-		return apperror.WrapSimple(errPush, "git push failed:")
+	if errPush := performPushStep(); errPush != nil {
+		return errPush
 	}
 
 	printPaddedSuccess("Pushed %d commit(s) to remote.", unpushed)
@@ -558,4 +592,30 @@ func searchSHAFragment(shaFragment string) (string, error) {
 	firstMatch := strings.Split(strings.TrimSpace(fullSha), "\n")[0]
 
 	return strings.TrimSpace(firstMatch), nil
+}
+
+func extractGitExitCode(err error) int {
+	if err == nil {
+		return 0
+	}
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) {
+		return exitErr.ExitCode()
+	}
+
+	return 1
+}
+
+func recordGitCommandDirect(cmdName, cmdLine string, exitCode int, durationMs int64) {
+	store.RecordCommandSafely(cmdLine, cmdName, exitCode, durationMs)
+}
+
+func recordGitCommandHistory(gitArgs []string, exitCode int, durationMs int64) {
+	if len(gitArgs) == 0 {
+		recordGitCommandDirect("git", "git", exitCode, durationMs)
+		return
+	}
+	cmdName := "git " + gitArgs[0]
+	cmdLine := "git " + strings.Join(gitArgs, " ")
+	recordGitCommandDirect(cmdName, cmdLine, exitCode, durationMs)
 }

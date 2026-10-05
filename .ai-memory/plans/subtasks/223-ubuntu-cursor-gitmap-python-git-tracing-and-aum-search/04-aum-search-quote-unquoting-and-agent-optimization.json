@@ -1,0 +1,20 @@
+{
+  "task": "Subtask-223.4",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/cmdautomation/search.go",
+    "cli/cmdautomation/automation_cmd.go",
+    "cli/cmdautomation/search_worker.go",
+    "cli/cmdautomation/search_quote_test.go"
+  ],
+  "checks": "check-relative-paths -> clean; check-nested-ifs -> clean; check-boolean-guidelines -> clean",
+  "acceptance": {
+    "AC-223.4-1": "PASS cleanSearchPattern strips outer double quotes, single quotes, escaped quotes, and backticks while unescaping internal quotes",
+    "AC-223.4-2": "PASS search CLI and core validation sanitize pattern using cleanSearchPattern before worker dispatch and regex compilation",
+    "AC-223.4-3": "PASS single-character syntax queries (such as quote and single quote) are preserved without truncation to empty string",
+    "AC-223.4-4": "PASS worker byte-level search and regex compilation operate directly on clean pattern bytes",
+    "AC-223.4-5": "PASS cli/cmdautomation/search_quote_test.go implements table-driven tests covering all quote permutations and worker context integration"
+  },
+  "assumptions": [],
+  "blockers": []
+}

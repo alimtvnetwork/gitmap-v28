@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.483.0] - 2026-10-05
+
+### Added
+- fix batch concurrency test race, resolve error management linter violations, and provision python runner
+
+---
+
 ## [v6.482.0] - 2026-10-05
 
 ### Added

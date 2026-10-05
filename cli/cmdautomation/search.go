@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -31,6 +32,7 @@ func RunSearch(opts SearchOptions) (SearchResult, *apperror.AppError) {
 }
 
 func validateSearchOptions(opts *SearchOptions) *apperror.AppError {
+	opts.Pattern = cleanSearchPattern(opts.Pattern)
 	if len(opts.Pattern) == 0 {
 		return apperror.NewValidationError("search pattern is required")
 	}
@@ -39,6 +41,68 @@ func validateSearchOptions(opts *SearchOptions) *apperror.AppError {
 	}
 	normalizeSearchDefaults(opts)
 	return nil
+}
+
+// cleanSearchPattern removes outer wrapping quotes and shell escapes from search patterns.
+func cleanSearchPattern(pattern string) string {
+	trimmed := strings.TrimSpace(pattern)
+	if len(trimmed) < 2 {
+		return trimmed
+	}
+
+	trimmed = stripOuterQuotePairs(trimmed)
+	trimmed = unescapeInternalQuotes(trimmed)
+
+	return trimmed
+}
+
+func stripOuterQuotePairs(pattern string) string {
+	current := pattern
+	for {
+		stripped, hasChanged := tryStripOuterPair(current)
+		if !hasChanged || len(stripped) < 2 {
+			return stripped
+		}
+		current = stripped
+	}
+}
+
+func tryStripOuterPair(val string) (string, bool) {
+	if stripped, hasMatch := tryStripEscapedQuotes(val); hasMatch {
+		return stripped, true
+	}
+	if stripped, hasMatch := tryStripRegularQuotes(val); hasMatch {
+		return stripped, true
+	}
+	return val, false
+}
+
+func tryStripEscapedQuotes(val string) (string, bool) {
+	if strings.HasPrefix(val, `\"`) && strings.HasSuffix(val, `\"`) && len(val) >= 4 {
+		return strings.TrimSuffix(strings.TrimPrefix(val, `\"`), `\"`), true
+	}
+	if strings.HasPrefix(val, `\'`) && strings.HasSuffix(val, `\'`) && len(val) >= 4 {
+		return strings.TrimSuffix(strings.TrimPrefix(val, `\'`), `\'`), true
+	}
+	return val, false
+}
+
+func tryStripRegularQuotes(val string) (string, bool) {
+	if strings.HasPrefix(val, `"`) && strings.HasSuffix(val, `"`) && len(val) >= 2 {
+		return strings.TrimSuffix(strings.TrimPrefix(val, `"`), `"`), true
+	}
+	if strings.HasPrefix(val, `'`) && strings.HasSuffix(val, `'`) && len(val) >= 2 {
+		return strings.TrimSuffix(strings.TrimPrefix(val, `'`), `'`), true
+	}
+	if strings.HasPrefix(val, "`") && strings.HasSuffix(val, "`") && len(val) >= 2 {
+		return strings.TrimSuffix(strings.TrimPrefix(val, "`"), "`"), true
+	}
+	return val, false
+}
+
+func unescapeInternalQuotes(val string) string {
+	result := strings.ReplaceAll(val, `\"`, `"`)
+	return strings.ReplaceAll(result, `\'`, `'`)
 }
 
 func validateRegexOption(opts *SearchOptions) *apperror.AppError {

@@ -139,7 +139,7 @@ func runGoTestPass(cfg regoldensFlags, withGate bool) int {
 	cmd.Stderr = os.Stderr
 	cmd.Env = buildPassEnv(withGate)
 	if err := cmd.Run(); err != nil {
-		return extractExitCode(err)
+		return extractRegoldensExitCode(err)
 	}
 
 	return 0
@@ -183,10 +183,10 @@ func isGoldenGateVar(kv string) bool {
 		strings.HasPrefix(kv, goldenguard.AllowUpdateEnv+"=")
 }
 
-// extractExitCode pulls the numeric exit code from an *exec.ExitError.
+// extractRegoldensExitCode pulls the numeric exit code from an *exec.ExitError.
 // Non-ExitError failures (e.g. `go` binary not on PATH) map to 127,
 // matching POSIX shell convention for "command not found".
-func extractExitCode(err error) int {
+func extractRegoldensExitCode(err error) int {
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
 		return exitErr.ExitCode()

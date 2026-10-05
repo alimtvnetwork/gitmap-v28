@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CursorFleetStatus",
+  "version": "1.0.0",
+  "lastUpdated": "2026-10-05T08:00:22.425940+00:00",
+  "nodes": {
+    "u1": {
+      "nodeAlias": "u1",
+      "cursorInstalled": false,
+      "cursorVersion": "3.23.12",
+      "appImagePath": "\\opt\\cursor\\Cursor.AppImage",
+      "wrapperPath": "C:\\Users\\Administrator\\.antigravity_tools\\instances\\gitmap-7404\\home\\.local\\bin\\cursor",
+      "sha256": "",
+      "status": "PROVISIONED",
+      "lastVerified": "2026-10-05T08:00:22.425950+00:00",
+      "details": "wrapper not found"
+    }
+  }
+}

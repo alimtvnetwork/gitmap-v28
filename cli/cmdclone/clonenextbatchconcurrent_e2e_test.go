@@ -10,7 +10,6 @@ package cmdclone
 
 import (
 	"fmt"
-	"runtime"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -112,20 +111,20 @@ func TestE2E_BatchConcurrency_CollectorReordersByInputIndex(t *testing.T) {
 	for i := range gates {
 		gates[i] = make(chan struct{})
 	}
-	go func() {
-		for i := n - 1; i >= 0; i-- {
-			close(gates[i])
-			runtime.Gosched()
-		}
-	}()
+	close(gates[n-1])
 
 	original := processOneBatchRepoFn
 	processOneBatchRepoFn = func(path string) batchRowResult {
 		idx := indexFromRepoPath(path)
 		<-gates[idx]
+
 		mu.Lock()
 		completionOrder = append(completionOrder, path)
 		mu.Unlock()
+
+		if idx > 0 {
+			close(gates[idx-1])
+		}
 
 		return batchRowResult{RepoPath: path, FromVersion: "v1", ToVersion: "v2"}
 	}

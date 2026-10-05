@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
@@ -389,6 +390,7 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{constants.CmdReinstall}, func() error { return runReinstall(argsTail()) }},
 		{[]string{"peat", "pea"}, func() error { return runPeatCmd(argsTail()) }},
 		{[]string{"install-exec", "in-exec", "setup-exec"}, func() error { return cmdssh.RunSSHInstallExecCLI(argsTail()) }},
+		{[]string{"py", "python"}, func() error { return cmdpy.RunPy(argsTail()) }},
 	}
 }
 
