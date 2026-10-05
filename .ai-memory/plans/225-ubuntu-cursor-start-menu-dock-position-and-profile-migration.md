@@ -40,7 +40,7 @@ This plan addresses the three core requirements specified by the user:
 
 ## Execution Checklist
 - [x] Phase 1: Planning, Research & Spec Authoring (A=2 Subagents)
-- [ ] Phase 2: Worker Execution (H=2 Subagents)
-- [ ] Phase 3: Remote Node `u1` Live Verification
-- [ ] Phase 4: Linter Quality Gates
-- [ ] Phase 5: Minor Version Bump & Release Ceremony
+- [x] Phase 2: Worker Execution (H=2 Subagents)
+- [x] Phase 3: Remote Node `u1` Live Verification
+- [x] Phase 4: Linter Quality Gates
+- [x] Phase 5: Minor Version Bump & Release Ceremony
