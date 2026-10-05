@@ -820,11 +820,12 @@ When tasked with auditing, reviewing, or fixing coding guidelines across a codeb
 To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the fast 2-tier discovery toolchain:
 
 ### Tier 1: GitMap AUM Acceleration (PRIMARY)
+- **Live Streaming Code & Regex Search:** `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]` (alias: `gitmap aum grep`) — multi-core streaming disk search. Auto-promotes regex alternation (`"pat1|pat2"`), normalizes BRE `\|` to `|`, strips escaped shell quotes (`\"all\"`), and auto-resolves omitted extensions (`FormRunner` -> `FormRunner.tsx`).
 - **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]` (e.g. `gitmap find "*.go" -ext "go"`, `gitmap find "01*"`)
 - **List Indexed Files:** `gitmap list-files [pattern]` (alias `gitmap lf [pattern] [-ext <ext>]`)
 - **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
 - **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
-- **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
+- **Instant Indexed Code Search:** `gitmap search "<term>"` (immediate multi-core cached symbol search)
 
 ### Tier 2: Fast Cached Python Toolchain (FALLBACK)
 - **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`

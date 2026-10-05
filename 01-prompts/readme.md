@@ -12,7 +12,7 @@ This directory hosts the canonical, production-grade prompts library (V4 archite
    - Interactive slash command links (`[/goal](slashCommand;goal)`, `[/learn](slashCommand;learn)`) combined with **GitMap AUM Engine** (`gitmap` CLI) as primary and Python scripts (`03-ai-scripts/`) as fallback.
 
 2. **High-Speed File & Content Discovery (TOTAL BAN ON `Select-String` & `git grep`):**
-   - Multi-Core Streaming Live Search: `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]` (alias: `gitmap aum grep`) — streaming live disk text/regex scanner (replaces `Select-String`, `git grep`)
+   - Multi-Core Streaming Live Search: `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r] [-i]` (alias: `gitmap aum grep`) — streaming live disk text/regex scanner (replaces `Select-String`, `git grep`). Auto-promotes regex alternation (`"pat1|pat2"`), normalizes BRE `\|` to `|`, strips escaped shell quotes (`\"all\"`), and tolerantly resolves omitted extensions (`FormRunner` -> `FormRunner.tsx`).
    - Instant Indexed Symbol Search: `gitmap search "<query>" [--limit <n>]` — cached SQLite symbol & keyword search
    - Universal Wildcard Search: `gitmap find "<pattern>" [-ext <ext>]` (<10ms across 10,000+ files)
    - Zero-Disk Streaming: `gitmap cat <filepath>`

@@ -21,7 +21,12 @@ var (
 		Use:     "search <pattern> [dir]",
 		Aliases: []string{"grep", "find-text"},
 		Short:   "Multi-core streaming search with lazy regex and literal fast path",
-		RunE:    runSearchCmd,
+		Example: `  gitmap aum search "func BinaryDataDir" cli/store
+  gitmap aum search "Candidate Response|CANDIDATE RESPONSE" cli -i
+  gitmap aum search "timer|Clock|8:47|border.*timer" src/runner.tsx -i
+  gitmap aum search "slide.*layout|slideMode" src/components/runner/FormRunner
+  gitmap aum search -r "(BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16})" .`,
+		RunE: runSearchCmd,
 	}
 
 	benchCmd = &cobra.Command{

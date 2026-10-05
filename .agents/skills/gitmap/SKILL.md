@@ -14,7 +14,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 
 ## Essential Command Cheat Sheet
 
-### 1. High-Performance Automation (AUM)
+### 1. High-Performance Automation (AUM) & Live Code Search
 - `gitmap aum search <pattern> [dir] [--ext <ext>] [-r] [-i]` (alias: `gitmap aum grep`) — Multi-core streaming live search with lazy regex and binary filtering. ALWAYS scope with target `[dir]` and `--ext`. Replaces slow PowerShell `Select-String`, `Get-ChildItem -Recurse`, and `git grep`. TOTAL BAN on PowerShell `Select-String` and `git grep`.
 - `gitmap search <query> [--limit <n>]` — Instant SQLite cached symbol & keyword search across scanned repositories.
 - `gitmap aum guard` — Enforces 500 KB limit, large JSON exclusion, and binary null-byte probe
@@ -24,6 +24,26 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap aum cache status` — Sub-millisecond in-memory cache status
 - `gitmap aum locate [tool]` — Ultra-fast tool finder (<15ms, e.g. vcvarsall.bat, msbuild; replaces slow PowerShell Get-ChildItem)
 - `gitmap aum benchmark all` — Side-by-side Go vs Python execution benchmarks
+
+#### 🔍 AUM Regex & Live Search Patterns (Autonomous Agent Standard)
+- **Auto-Promoted Regex Alternation:**
+  - `gitmap aum search "Candidate Response|CANDIDATE RESPONSE" cli -i` — Alternation pipes automatically promote search to regex even when `-r` is omitted.
+  - `gitmap aum search "Candidate Response\|CANDIDATE RESPONSE" cli -i` — BRE-style escaped pipes (`\|`) are automatically normalized to `|`.
+- **Wildcard & Multi-Branch Regex:**
+  - `gitmap aum search "timer|Clock|8:47|timerBox|border.*timer" src/components/runner/FocusQuizRunner.tsx -i` — Multiple regex branches with wildcard tokens (`.*`).
+  - `gitmap aum search "slide.*layout|slideMode|isSlide|slide-mode|effectiveLayout" src/components/runner/FormRunner.tsx` — Wildcards with auto regex promotion.
+- **Exact Phrases & Shell Quote Stripping:**
+  - `gitmap aum search "\"all\"" cli` — Outer escaped quotes from shell/JSON arguments are stripped cleanly to match literal `all`.
+  - `gitmap aum search 'import os' cli -e .py` — Extension-filtered Python imports search.
+  - `gitmap aum search "func BinaryDataDir" cli/store` — Scoped Go function declaration discovery.
+- **Tolerant Candidate File Target Resolution:**
+  - `gitmap aum search "pattern" src/components/runner/FormRunner` — Automatically resolves missing extension (`.tsx`, `.ts`, `.go`, `.py`).
+  - `gitmap aum search "pattern" src/components/runner/FormRunner.t` — Automatically resolves truncated extension prefixes (`.t` -> `FormRunner.tsx`).
+- **PowerShell Split-Escape & Multi-Word Resilience:**
+  - `gitmap aum search parseSearchPositionalArgs reconstructPowerShellSplit cli` — Multi-word patterns are re-joined when directory target is specified.
+  - Transparently repairs PowerShell token splitting when quotes contain escapes (`\"pattern\"`).
+- **Secret & Token Governance Audit:**
+  - `gitmap aum search -r "(BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})"` — Fast secret scanning across active repos.
 
 ### 2. Autonomous Agent Onboarding & Curriculum (LLM)
 - `gitmap llm train` (alias: `gitmap llm chain`) — Full 4-stage chained curriculum, auto-generates Antigravity skill, author/sponsor attribution
@@ -52,6 +72,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap pcp "<msg>"` — Pull latest, commit, and push with preflight verification
 
 ### 6. Script Runners & Multi-Repo Operations
+- `gitmap py <script.py> [args...]` / `gitmap py -c "<code>"` (alias: `gitmap python`) — Native Python runner with process exit code propagation and Split-DB telemetry recording.
 - `gitmap pwsh "<cmd>"` / `gitmap ps "<cmd>"` — Cross-platform PowerShell execution with `-NoProfile` and automatic fallback
 - `gitmap bash "<cmd>"` / `gitmap sh "<cmd>"` — Cross-platform Bash execution
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling)

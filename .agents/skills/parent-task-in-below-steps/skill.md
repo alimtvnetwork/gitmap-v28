@@ -160,7 +160,13 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use generic PowerShell sea
 ### 🔍 Code & Symbol Search Protocol (TOTAL BAN ON `Select-String` & `git grep`)
 - **Live Disk Search (Default for discovery, symbol tracking & blast radius):**
   - Search string/symbol: `gitmap aum search "<symbol>" [dir] [-e <.ext>]` (e.g. `gitmap aum search "RunFleetPASCommand" cli -e .go`)
-  - Search regex: `gitmap aum search -r "<regex>" [dir] [-e <.ext>]` (e.g. `gitmap aum search -r "(\"pas\"|\"pa\")" cli/cmd -e .go`)
+  - Auto-promoted regex alternation: `gitmap aum search "Candidate Response|CANDIDATE RESPONSE" cli -i` (pipes auto-promote to regex without needing `-r`)
+  - Normalized BRE pipes: `gitmap aum search "Candidate Response\|CANDIDATE RESPONSE" cli -i` (escaped `\|` automatically converted to `|`)
+  - Wildcard & multi-branch regex: `gitmap aum search "timer|Clock|8:47|timerBox|border.*timer" src/components/runner/FocusQuizRunner.tsx -i`
+  - Tolerant candidate paths: `gitmap aum search "pattern" src/components/runner/FormRunner` (resolves omitted `.tsx` or truncated `.t`)
+  - Escaped quote stripping: `gitmap aum search "\"all\"" cli` (strips shell-escaped quotes cleanly)
+  - Explicit regex search: `gitmap aum search -r "<regex>" [dir] [-e <.ext>]` (e.g. `gitmap aum search -r "(\"pas\"|\"pa\")" cli/cmd -e .go`)
+  - Secret & token discovery: `gitmap aum search -r "(BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})"`
   - Case-insensitive: `gitmap aum search -i "<query>" [dir]`
 - **TOTAL BAN:** NEVER run PowerShell `Select-String`, `Get-ChildItem -Recurse`, `git grep`, `grep`, or `findstr`. Running generic shell searches wastes execution steps, slows turns, and violates GitMap primacy.
 
