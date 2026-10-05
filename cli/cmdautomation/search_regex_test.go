@@ -176,4 +176,3 @@ func TestRunSearchRegexScenarios(t *testing.T) {
 		})
 	}
 }
-

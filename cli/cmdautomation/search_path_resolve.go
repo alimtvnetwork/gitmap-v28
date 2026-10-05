@@ -37,7 +37,6 @@ func tryResolveExactFile(clean string) ([]string, bool) {
 	return []string{clean}, true
 }
 
-
 func tryResolveWithExtensions(basePath string) ([]string, bool) {
 	for _, ext := range commonFileExtensions {
 		candidate := basePath + ext

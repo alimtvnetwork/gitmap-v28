@@ -56,7 +56,6 @@ func runSearchCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-
 func runBenchmarkCmd(cmd *cobra.Command, args []string) error {
 	target := "all"
 	if len(args) > 0 {

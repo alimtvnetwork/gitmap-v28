@@ -44,7 +44,6 @@ func validateSearchOptions(opts *SearchOptions) *apperror.AppError {
 	return nil
 }
 
-
 // cleanSearchPattern removes outer wrapping quotes and shell escapes from search patterns.
 func cleanSearchPattern(pattern string) string {
 	trimmed := strings.TrimSpace(pattern)
@@ -151,7 +150,6 @@ func collectSearchFiles(opts SearchOptions) []string {
 	})
 	return files
 }
-
 
 func resolveMaxJsonBytes(maxKb int) int64 {
 	if maxKb <= 0 {
