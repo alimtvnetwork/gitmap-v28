@@ -92,3 +92,4 @@
 - [101-ubuntu-pull-all-remediation-and-omz-ignore-rca.md](./101-ubuntu-pull-all-remediation-and-omz-ignore-rca.md): Fix Ubuntu pull-all remediation engine, Oh-My-Zsh scanner exclusions, cross-OS backslash path auto-healing, failure subtree formatting, and structured pull error logging.
 - [102-batch-concurrency-collector-reorders-by-input-index-scheduling-race-rca.md](./102-batch-concurrency-collector-reorders-by-input-index-scheduling-race-rca.md): Fix batch concurrency collector reordering race condition via deterministic cascading channels.
 - [103-os-dock-win-nested-if-and-boolean-linter-rca.md](./103-os-dock-win-nested-if-and-boolean-linter-rca.md): Fix nested if depth-2 statement in Windows taskbar alignment reader in os_dock_win.go.
+- [104-ssh-exec-test-is-gitmap-command-assertion-rca.md](./104-ssh-exec-test-is-gitmap-command-assertion-rca.md): Fix SSH exec command test assertion for python, py, cursor, and cur delegation.

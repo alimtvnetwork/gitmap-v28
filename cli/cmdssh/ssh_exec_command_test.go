@@ -81,6 +81,7 @@ func TestIsGitmapCommand(t *testing.T) {
 		"agy", "ag", "antigravity", "aef", "fix-pipeline", "pt",
 		"ssh", "se", "sj", "cluster", "sc", "mkdir", "cat",
 		"open", "o", "browse", "pull-all", "doctor", "profile", "ai", "cargo", "aum",
+		"py", "python", "cursor", "cur",
 	}
 
 	for _, cmd := range validCommands {
@@ -89,7 +90,7 @@ func TestIsGitmapCommand(t *testing.T) {
 		}
 	}
 
-	invalidCommands := []string{"uptime", "whoami", "curl", "python", "node", "dir"}
+	invalidCommands := []string{"uptime", "whoami", "curl", "ruby", "node", "dir"}
 	for _, cmd := range invalidCommands {
 		if isGitmapCommand(cmd) {
 			t.Errorf("expected isGitmapCommand(%q) to be false", cmd)

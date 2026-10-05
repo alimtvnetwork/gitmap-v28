@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.491.0] - 2026-10-05
+
+### Added
+- fix python delegation test assertion in ssh exec and rca-104
+
+---
+
 ## [v6.490.0] - 2026-10-05
 
 ### Added
