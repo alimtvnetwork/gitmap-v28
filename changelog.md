@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.488.0] - 2026-10-05
+
+### Added
+- fix nested if and boolean linter in os dock win
+
+---
+
 ## [v6.487.0] - 2026-10-05
 
 ### Added

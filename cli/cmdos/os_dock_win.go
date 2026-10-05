@@ -20,16 +20,22 @@ func newPlatformDockEngine() DockOperator {
 
 func (w *windowsDockEngine) GetDockConfig() (DockConfig, error) {
 	cfg := DockConfig{OS: "windows", IsPanelMode: true, Position: "bottom", RawPosition: "bottom"}
+
 	val, err := readWindowsTaskbarAl()
-	if err == nil {
-		if val == 0 {
-			cfg.Position = "left"
-			cfg.RawPosition = "0"
-		} else {
-			cfg.Position = "center"
-			cfg.RawPosition = "1"
-		}
+	if err != nil {
+		return cfg, nil
 	}
+
+	if val == 0 {
+		cfg.Position = "left"
+		cfg.RawPosition = "0"
+
+		return cfg, nil
+	}
+
+	cfg.Position = "center"
+	cfg.RawPosition = "1"
+
 	return cfg, nil
 }
 
@@ -38,9 +44,11 @@ func (w *windowsDockEngine) SetDockPosition(pos DockPosition) error {
 	if pos == DockPositionLeft {
 		val = 0
 	}
+
 	if pos == DockPositionTop || pos == DockPositionRight {
 		fmt.Printf("ℹ Note: Windows shell fixes taskbar to bottom edge; alignment updated.\n")
 	}
+
 	return writeWindowsTaskbarAl(val)
 }
 
