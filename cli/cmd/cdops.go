@@ -206,16 +206,7 @@ func readCDSelection(records []model.ScanRecord, name ...string) (string, error)
 	scanner := bufio.NewScanner(os.Stdin)
 	hasScan := scanner.Scan()
 	if !hasScan {
-		scanErr := scanner.Err()
-		if scanErr != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Input scan error: %v\n", scanErr)
-		}
-		if len(records) > 0 {
-			fmt.Fprintf(os.Stderr, "  (auto-selected default: %s)\n", records[0].AbsolutePath)
-			return records[0].AbsolutePath, nil
-		}
-		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
-		return "", fmt.Errorf("%s", constants.ErrCDInvalidPick)
+		return handleCDScanFallback(scanner.Err(), records)
 	}
 
 	text := strings.TrimSpace(scanner.Text())
@@ -235,6 +226,18 @@ func readCDSelection(records []model.ScanRecord, name ...string) (string, error)
 	selected := records[idx-1].AbsolutePath
 	saveCDDefaultChoice(name, selected)
 	return selected, nil
+}
+
+func handleCDScanFallback(scanErr error, records []model.ScanRecord) (string, error) {
+	if scanErr != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Input scan error: %v\n", scanErr)
+	}
+	if len(records) == 0 {
+		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
+		return "", fmt.Errorf("%s", constants.ErrCDInvalidPick)
+	}
+	fmt.Fprintf(os.Stderr, "  (auto-selected default: %s)\n", records[0].AbsolutePath)
+	return records[0].AbsolutePath, nil
 }
 
 func saveCDDefaultChoice(name []string, path string) {

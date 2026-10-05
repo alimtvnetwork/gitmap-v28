@@ -591,12 +591,13 @@ func getSupportedToolCompletions(toComplete string) []string {
 	seen := make(map[string]bool)
 
 	for tool, desc := range constants.InstallToolDescriptions {
-		if !seen[tool] {
-			seen[tool] = true
-			isMatch := clean == "" || strings.HasPrefix(strings.ToLower(tool), clean) || strings.Contains(strings.ToLower(tool), clean)
-			if isMatch {
-				out = append(out, prefix+tool+"\t"+desc)
-			}
+		if seen[tool] {
+			continue
+		}
+		seen[tool] = true
+		isMatch := clean == "" || strings.HasPrefix(strings.ToLower(tool), clean) || strings.Contains(strings.ToLower(tool), clean)
+		if isMatch {
+			out = append(out, prefix+tool+"\t"+desc)
 		}
 	}
 
@@ -608,12 +609,13 @@ func getSupportedToolCompletions(toComplete string) []string {
 		{"cc", "Conventional commits assistant / cache cleaner"},
 	}
 	for _, extra := range extras {
-		if !seen[extra.name] {
-			seen[extra.name] = true
-			isMatch := clean == "" || strings.HasPrefix(strings.ToLower(extra.name), clean) || strings.Contains(strings.ToLower(extra.name), clean)
-			if isMatch {
-				out = append(out, prefix+extra.name+"\t"+extra.desc)
-			}
+		if seen[extra.name] {
+			continue
+		}
+		seen[extra.name] = true
+		isMatch := clean == "" || strings.HasPrefix(strings.ToLower(extra.name), clean) || strings.Contains(strings.ToLower(extra.name), clean)
+		if isMatch {
+			out = append(out, prefix+extra.name+"\t"+extra.desc)
 		}
 	}
 

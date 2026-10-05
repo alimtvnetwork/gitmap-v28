@@ -279,7 +279,10 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       title: document.getElementById('promptTitle').value,
       promptText: document.getElementById('promptText').value
     };
-    if (!payload.promptText) { alert('Prompt Directive Text cannot be empty'); return; }
+    if (!payload.promptText) {
+      alert('Prompt Directive Text cannot be empty');
+      return;
+    }
     fetch('/api/prompts/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -297,7 +300,10 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       promptText: document.getElementById('promptText').value,
       isEnqueue: true
     };
-    if (!payload.promptText) { alert('Prompt Directive Text cannot be empty'); return; }
+    if (!payload.promptText) {
+      alert('Prompt Directive Text cannot be empty');
+      return;
+    }
     fetch('/api/prompts/enqueue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -314,7 +320,10 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       title: document.getElementById('promptTitle').value || 'Saved Template',
       promptText: document.getElementById('promptText').value
     };
-    if (!payload.promptText) { alert('Prompt Directive Text cannot be empty'); return; }
+    if (!payload.promptText) {
+      alert('Prompt Directive Text cannot be empty');
+      return;
+    }
     fetch('/api/prompts/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

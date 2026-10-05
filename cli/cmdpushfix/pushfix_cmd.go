@@ -18,10 +18,10 @@ func RunPushFix(args []string) error {
 	}
 
 	opts, err := parsePushFixFlags(args)
+	if errors.Is(err, flag.ErrHelp) {
+		return nil
+	}
 	if err != nil {
-		if errors.Is(err, flag.ErrHelp) {
-			return nil
-		}
 		return err
 	}
 	return ExecutePushFix(opts)
@@ -42,10 +42,11 @@ func parsePushFixFlags(args []string) (PushFixOptions, error) {
 	sshFlag := fs.Bool("ssh", false, "Force remote URL conversion to SSH")
 	httpsFlag := fs.Bool("https", false, "Force remote URL conversion to HTTPS")
 
-	if err := fs.Parse(args); err != nil {
-		if errors.Is(err, flag.ErrHelp) {
-			return PushFixOptions{}, err
-		}
+	err := fs.Parse(args)
+	if errors.Is(err, flag.ErrHelp) {
+		return PushFixOptions{}, err
+	}
+	if err != nil {
 		return PushFixOptions{}, apperror.WrapSimple(err, "cmdpushfix.parseFlags")
 	}
 

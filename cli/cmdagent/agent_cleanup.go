@@ -257,17 +257,17 @@ func executeTempClear(tempDir string, isJson bool) *appfault.AppError {
 }
 
 func renderCleanupSuccess(action string, payload any, isJson bool) *appfault.AppError {
-	if isJson {
-		data, err := json.MarshalIndent(payload, "", "  ")
-		hasErr := err != nil
-		if hasErr {
-			return appfault.WrapExecution(err, "failed to format cleanup json response")
-		}
-		fmt.Println(string(data))
+	if !isJson {
+		fmt.Printf("%s✓ %s completed successfully.%s\n", constants.ColorGreen, action, constants.ColorReset)
+
 		return nil
 	}
 
-	fmt.Printf("%s✓ %s completed successfully.%s\n", constants.ColorGreen, action, constants.ColorReset)
+	data, err := json.MarshalIndent(payload, "", "  ")
+	if err != nil {
+		return appfault.WrapExecution(err, "failed to format cleanup json response")
+	}
+	fmt.Println(string(data))
 
 	return nil
 }

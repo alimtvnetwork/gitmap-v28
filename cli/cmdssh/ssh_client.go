@@ -146,23 +146,7 @@ func printSSHDiagnosticFooter(target SSHTarget) {
 	if user == "" {
 		user = resolveDefaultUsername()
 	}
-	alias := ""
-	if dbConn, err := store.OpenDefault(); err == nil {
-		if host, found := findHostInStore(dbConn, target.IP); found && host.Alias != "" {
-			alias = host.Alias
-		}
-		dbConn.Close()
-	}
-	if alias == "" {
-		if net.ParseIP(target.IP) == nil && target.IP != "" {
-			alias = target.IP
-		} else {
-			alias = generateDefaultAlias(target.IP, port)
-		}
-	}
-	if alias == "" {
-		alias = "target-host"
-	}
+	alias := resolveTargetHostAlias(target.IP, port)
 
 	{
 		target := struct {
@@ -253,4 +237,34 @@ func NewAutoAcceptHostKeyConfig(user string, auth []ssh.AuthMethod) *ssh.ClientC
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Timeout:         5 * time.Second,
 	}
+}
+
+func resolveTargetHostAlias(ip string, port int) string {
+	if alias := findHostAliasInStore(ip); alias != "" {
+		return alias
+	}
+	if net.ParseIP(ip) == nil && ip != "" {
+		return ip
+	}
+	alias := generateDefaultAlias(ip, port)
+	if alias != "" {
+		return alias
+	}
+
+	return "target-host"
+}
+
+func findHostAliasInStore(ip string) string {
+	dbConn, err := store.OpenDefault()
+	if err != nil {
+		return ""
+	}
+	defer dbConn.Close()
+
+	host, found := findHostInStore(dbConn, ip)
+	if found && host.Alias != "" {
+		return host.Alias
+	}
+
+	return ""
 }

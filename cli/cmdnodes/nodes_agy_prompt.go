@@ -41,10 +41,8 @@ func parseAgyPromptArgs(args []string) (agyPromptOptions, error) {
 			i++
 			continue
 		}
-		if (a == "--timeout") && i+1 < len(args) {
-			if d, err := time.ParseDuration(args[i+1]); err == nil {
-				opts.timeout = d
-			}
+		if a == "--timeout" && i+1 < len(args) {
+			opts.timeout = parseDurationQuiet(args[i+1], opts.timeout)
 			i++
 			continue
 		}
@@ -66,6 +64,13 @@ func parseAgyPromptArgs(args []string) (agyPromptOptions, error) {
 	}
 
 	return opts, nil
+}
+
+func parseDurationQuiet(val string, fallback time.Duration) time.Duration {
+	if d, err := time.ParseDuration(val); err == nil {
+		return d
+	}
+	return fallback
 }
 
 // RunNodesAgyPrompt dispatches a prompt directly to a specific project on a local or remote node.
@@ -93,18 +98,7 @@ func isLocalTargetNode(alias string) bool {
 func dispatchLocalPrompt(opts agyPromptOptions) error {
 	start := time.Now()
 	if opts.isEnqueue {
-		payload := cmdagy.PromptPayload{
-			ProjectTarget: opts.project,
-			Title:         opts.title,
-			PromptText:    opts.promptText,
-			IsEnqueue:     true,
-		}
-		rec, err := cmdagy.EnqueuePromptPayload(payload)
-		if err != nil {
-			return err
-		}
-		printPromptDispatchConfirmation("local", opts.project, opts.title, "queued", rec.ID, time.Since(start))
-		return nil
+		return enqueueLocalPrompt(opts, start)
 	}
 
 	err := cmdagy.ExecuteSendPrompt(opts.project, opts.promptText, opts.title)
@@ -113,6 +107,21 @@ func dispatchLocalPrompt(opts agyPromptOptions) error {
 	}
 
 	printPromptDispatchConfirmation("local", opts.project, opts.title, "dispatched", "-", time.Since(start))
+	return nil
+}
+
+func enqueueLocalPrompt(opts agyPromptOptions, start time.Time) error {
+	payload := cmdagy.PromptPayload{
+		ProjectTarget: opts.project,
+		Title:         opts.title,
+		PromptText:    opts.promptText,
+		IsEnqueue:     true,
+	}
+	rec, err := cmdagy.EnqueuePromptPayload(payload)
+	if err != nil {
+		return err
+	}
+	printPromptDispatchConfirmation("local", opts.project, opts.title, "queued", rec.ID, time.Since(start))
 	return nil
 }
 

@@ -137,20 +137,20 @@ func parseDiagnoseFlagValue(key, val string, opts *DiagnoseOptions) {
 }
 
 func resolveDiagnoseTaskDir(opts *DiagnoseOptions) (string, *appfault.AppError) {
-	hasDbFlag := strings.TrimSpace(opts.DbFlag) != ""
-	if hasDbFlag {
-		cleanDb := filepath.Clean(opts.DbFlag)
-		dir := filepath.Dir(cleanDb)
-		isAgentsSubdir := filepath.Base(dir) == AgentsSubdirName
-		if isAgentsSubdir {
-			return filepath.Dir(dir), nil
-		}
-		return dir, nil
+	cleanDbFlag := strings.TrimSpace(opts.DbFlag)
+	if cleanDbFlag == "" {
+		tempDir := ResolveAgentTempDir(opts.DirFlag)
+
+		return ResolveTaskDir(tempDir, opts.TaskIdFlag)
 	}
 
-	tempDir := ResolveAgentTempDir(opts.DirFlag)
+	cleanDb := filepath.Clean(cleanDbFlag)
+	dir := filepath.Dir(cleanDb)
+	if filepath.Base(dir) == AgentsSubdirName {
+		return filepath.Dir(dir), nil
+	}
 
-	return ResolveTaskDir(tempDir, opts.TaskIdFlag)
+	return dir, nil
 }
 
 func buildDiagnosticReport(taskDir string) (*DiagnosticReport, *appfault.AppError) {
@@ -299,19 +299,33 @@ func querySubtaskCounts(db *sql.DB) (SubtaskCounts, *appfault.AppError) {
 	return counts, nil
 }
 
+func renderCrashedJSON(report *DiagnosticReport) *appfault.AppError {
+	resp := map[string]any{
+		"hasCrashesDetected": report.HasCrashesDetected,
+		"crashedAgents":      report.CrashedAgents,
+	}
+	data, err := json.MarshalIndent(resp, "", "  ")
+	if err != nil {
+		return appfault.WrapExecution(err, "failed to format crashed json output")
+	}
+	fmt.Println(string(data))
+
+	return nil
+}
+
+func renderDiagnoseJSON(report *DiagnosticReport) *appfault.AppError {
+	data, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		return appfault.WrapExecution(err, "failed to format diagnose json output")
+	}
+	fmt.Println(string(data))
+
+	return nil
+}
+
 func renderCrashedOutput(report *DiagnosticReport, isJson bool) *appfault.AppError {
 	if isJson {
-		resp := map[string]any{
-			"hasCrashesDetected": report.HasCrashesDetected,
-			"crashedAgents":      report.CrashedAgents,
-		}
-		data, err := json.MarshalIndent(resp, "", "  ")
-		hasErr := err != nil
-		if hasErr {
-			return appfault.WrapExecution(err, "failed to format crashed json output")
-		}
-		fmt.Println(string(data))
-		return nil
+		return renderCrashedJSON(report)
 	}
 
 	if !report.HasCrashesDetected {
@@ -328,13 +342,7 @@ func renderCrashedOutput(report *DiagnosticReport, isJson bool) *appfault.AppErr
 
 func renderDiagnoseOutput(report *DiagnosticReport, isJson bool) *appfault.AppError {
 	if isJson {
-		data, err := json.MarshalIndent(report, "", "  ")
-		hasErr := err != nil
-		if hasErr {
-			return appfault.WrapExecution(err, "failed to format diagnose json output")
-		}
-		fmt.Println(string(data))
-		return nil
+		return renderDiagnoseJSON(report)
 	}
 
 	renderTerminalDiagnoseSummary(report)

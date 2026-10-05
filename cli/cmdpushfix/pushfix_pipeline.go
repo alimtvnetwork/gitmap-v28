@@ -75,17 +75,21 @@ func executePushDispatch(state *PushFixState, opts PushFixOptions) error {
 		return nil
 	}
 
-	if CheckIsNonFastForward(stderr) {
-		if rebaseErr := ExecuteAutoRebase(state.RepoDir); rebaseErr == nil {
-			runRetryErr, _ := runSafePushCommand(state.RepoDir, pushArgs)
-			if runRetryErr == nil {
-				PrintPushFixSuccess(state.RemoteName, state.Branch, resolveHeadSHA(state.RepoDir), opts.IsDryRun)
-				return nil
-			}
-		}
+	if CheckIsNonFastForward(stderr) && retryPushAfterRebase(state.RepoDir, pushArgs) {
+		PrintPushFixSuccess(state.RemoteName, state.Branch, resolveHeadSHA(state.RepoDir), opts.IsDryRun)
+		return nil
 	}
 
 	return createReportedPushError(runErr)
+}
+
+func retryPushAfterRebase(repoDir string, pushArgs []string) bool {
+	if rebaseErr := ExecuteAutoRebase(repoDir); rebaseErr != nil {
+		return false
+	}
+	runRetryErr, _ := runSafePushCommand(repoDir, pushArgs)
+
+	return runRetryErr == nil
 }
 
 func buildPushArgs(state *PushFixState, opts PushFixOptions) []string {

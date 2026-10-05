@@ -215,19 +215,19 @@ func buildManagedBlock(db *store.DB) string {
 }
 
 func appendManagedHostEntry(b *strings.Builder, k model.SSHKey, totalKeys int) {
-	if k.Name == constants.DefaultSSHKeyName {
-		b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, "github.com", "github.com", k.PrivatePath))
+	if k.Name != constants.DefaultSSHKeyName {
+		host := "github.com-" + k.Name
+		b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, host, "github.com", k.PrivatePath))
 		b.WriteString("\n")
-		if totalKeys > 1 {
-			b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, "github.com-default", "github.com", k.PrivatePath))
-			b.WriteString("\n")
-		}
 		return
 	}
 
-	host := "github.com-" + k.Name
-	b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, host, "github.com", k.PrivatePath))
+	b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, "github.com", "github.com", k.PrivatePath))
 	b.WriteString("\n")
+	if totalKeys > 1 {
+		b.WriteString(fmt.Sprintf(constants.SSHConfigHostEntry, "github.com-default", "github.com", k.PrivatePath))
+		b.WriteString("\n")
+	}
 }
 
 // replaceManagedBlock replaces or appends the managed block in the config.

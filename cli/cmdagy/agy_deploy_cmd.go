@@ -54,12 +54,7 @@ official plugins (4), plugin skills (43), and sanitized instance paths to remote
 			}
 
 			if opts.IsJSON {
-				payload, marshalErr := json.MarshalIndent(res, "", "  ")
-				if marshalErr != nil {
-					return marshalErr
-				}
-				fmt.Println(string(payload))
-				return nil
+				return printDeployResultJSON(res)
 			}
 
 			RenderAgyDeploySummary(res)
@@ -98,15 +93,20 @@ func RunAgyDeployCLI(args []string) error {
 	}
 
 	if opts.IsJSON {
-		payload, marshalErr := json.MarshalIndent(res, "", "  ")
-		if marshalErr != nil {
-			return marshalErr
-		}
-		fmt.Println(string(payload))
-		return nil
+		return printDeployResultJSON(res)
 	}
 
 	RenderAgyDeploySummary(res)
+	return nil
+}
+
+func printDeployResultJSON(res *AgyDeployResultJSON) error {
+	payload, err := json.MarshalIndent(res, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(payload))
+
 	return nil
 }
 
@@ -157,18 +157,22 @@ func ExecuteAgyDeploy(opts AgyDeployOptions) (*AgyDeployResultJSON, error) {
 	return res, nil
 }
 
+func applyDefaultPresetAndTheme(opts *AgyDeployOptions) {
+	if opts.Preset == "" {
+		opts.Preset = "eager"
+	}
+	if opts.Theme == "" {
+		opts.Theme = "dark"
+	}
+}
+
 func normalizeDeployOptions(opts *AgyDeployOptions) {
 	if opts.IsAll {
 		opts.HasPlugins = true
 		opts.HasSkills = true
 		opts.HasBinaries = true
 		opts.HasProjects = true
-		if opts.Preset == "" {
-			opts.Preset = "eager"
-		}
-		if opts.Theme == "" {
-			opts.Theme = "dark"
-		}
+		applyDefaultPresetAndTheme(opts)
 		return
 	}
 
@@ -188,23 +192,33 @@ func normalizeDeployOptions(opts *AgyDeployOptions) {
 	}
 }
 
+func resolveFetchedSSHNodes(target string) ([]db.SSHConnection, bool) {
+	if SSHConnectionsFetcher == nil {
+		return nil, false
+	}
+	conns, err := SSHConnectionsFetcher()
+	if err != nil || len(conns) == 0 {
+		return nil, false
+	}
+	if target == "all" || target == "*" {
+		return conns, true
+	}
+	for _, c := range conns {
+		if strings.EqualFold(c.Alias, target) || c.IPAddress == target {
+			return []db.SSHConnection{c}, true
+		}
+	}
+
+	return nil, false
+}
+
 func resolveAgyTargetNodes(target string) ([]db.SSHConnection, error) {
 	if target == "" {
 		return nil, apperror.NewValidation("target_node", "E400", "target node cannot be empty")
 	}
 
-	if SSHConnectionsFetcher != nil {
-		conns, err := SSHConnectionsFetcher()
-		if err == nil && len(conns) > 0 {
-			if target == "all" || target == "*" {
-				return conns, nil
-			}
-			for _, c := range conns {
-				if strings.EqualFold(c.Alias, target) || c.IPAddress == target {
-					return []db.SSHConnection{c}, nil
-				}
-			}
-		}
+	if matched, found := resolveFetchedSSHNodes(target); found {
+		return matched, nil
 	}
 
 	return []db.SSHConnection{

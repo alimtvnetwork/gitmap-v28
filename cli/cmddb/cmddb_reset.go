@@ -57,13 +57,11 @@ func ParseResetOptions(args []string) ResetOptions {
 
 func runDbResetAction(args []string) error {
 	opts := ParseResetOptions(args)
-	if !opts.IsDryRun && !opts.IsConfirm {
-		msg := constants.ColorYellow + "Are you sure you want to reset all databases? All tracked repository records and split databases will be cleared. [y/N]: " + constants.ColorReset
-		if !confirmOrSkip(msg, args) {
-			fmt.Println(constants.ColorDim + "Database reset canceled." + constants.ColorReset)
+	needsPrompt := !opts.IsDryRun && !opts.IsConfirm
+	if needsPrompt && !confirmOrSkip(constants.ColorYellow+"Are you sure you want to reset all databases? All tracked repository records and split databases will be cleared. [y/N]: "+constants.ColorReset, args) {
+		fmt.Println(constants.ColorDim + "Database reset canceled." + constants.ColorReset)
 
-			return nil
-		}
+		return nil
 	}
 
 	return PerformComprehensiveReset(opts)
@@ -160,11 +158,12 @@ func collectAllResetTargets() []string {
 		}
 		clean := filepath.Clean(p)
 		key := strings.ToLower(clean)
-		if !seen[key] {
-			seen[key] = true
-			if _, err := os.Stat(clean); err == nil {
-				targets = append(targets, clean)
-			}
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		if _, err := os.Stat(clean); err == nil {
+			targets = append(targets, clean)
 		}
 	}
 
@@ -196,19 +195,3 @@ func collectAllResetTargets() []string {
 	return targets
 }
 
-func performDbReset() error {
-	return PerformComprehensiveReset(ResetOptions{IsConfirm: true})
-}
-
-func clearSplitDbFiles() int {
-	return 0
-}
-
-// Backwards-compatible aliases
-//
-//nolint:unused
-var (
-	runDBResetAction  = runDbResetAction
-	performDBReset    = performDbReset
-	clearSplitDBFiles = clearSplitDbFiles
-)

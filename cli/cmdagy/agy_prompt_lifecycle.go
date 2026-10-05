@@ -243,26 +243,39 @@ func SendPromptImmediate(payload PromptPayload) (AgyInjectionResult, error) {
 	return res, nil
 }
 
+func findPromptRecordByID(records []PromptRecord, id string) *PromptRecord {
+	for _, rec := range records {
+		if rec.ID == id {
+			r := rec
+			return &r
+		}
+	}
+
+	return nil
+}
+
+func dispatchUrgentResend(payload PromptPayload, targetNode string) (*PromptResult, error) {
+	if _, err := SendPromptImmediate(payload); err != nil {
+		return nil, err
+	}
+
+	return &PromptResult{
+		PromptID:      fmt.Sprintf("resend-%d", time.Now().UnixNano()),
+		Status:        "delivered",
+		TargetNode:    targetNode,
+		ProjectName:   payload.EffectiveTarget(),
+		DispatchedAt:  time.Now().Format(time.RFC3339),
+		OutputPreview: "Prompt re-dispatched immediately to " + targetNode,
+	}, nil
+}
+
 // ResendPrompt dispatches an existing prompt from history or template.
 func ResendPrompt(req PromptResendRequest) (*PromptResult, error) {
 	history, _ := GetPromptHistory()
-	var targetRecord *PromptRecord
-	for _, rec := range history {
-		if rec.ID == req.PromptID {
-			r := rec
-			targetRecord = &r
-			break
-		}
-	}
+	targetRecord := findPromptRecordByID(history, req.PromptID)
 	if targetRecord == nil {
 		saved, _ := LoadSavedPrompts()
-		for _, rec := range saved {
-			if rec.ID == req.PromptID {
-				r := rec
-				targetRecord = &r
-				break
-			}
-		}
+		targetRecord = findPromptRecordByID(saved, req.PromptID)
 	}
 	if targetRecord == nil {
 		return nil, apperror.NewWithDetails("agy.resend", "E404", "prompt not found", "cmdagy", apperror.ErrorTypeValidation, apperror.SeverityError, nil)
@@ -286,18 +299,7 @@ func ResendPrompt(req PromptResendRequest) (*PromptResult, error) {
 	}
 
 	if req.IsUrgent {
-		_, err := SendPromptImmediate(payload)
-		if err != nil {
-			return nil, err
-		}
-		return &PromptResult{
-			PromptID:      fmt.Sprintf("resend-%d", time.Now().UnixNano()),
-			Status:        "delivered",
-			TargetNode:    targetNode,
-			ProjectName:   payload.EffectiveTarget(),
-			DispatchedAt:  time.Now().Format(time.RFC3339),
-			OutputPreview: "Prompt re-dispatched immediately to " + targetNode,
-		}, nil
+		return dispatchUrgentResend(payload, targetNode)
 	}
 
 	queuedRec, err := EnqueuePromptPayload(payload)

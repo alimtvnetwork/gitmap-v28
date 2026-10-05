@@ -209,20 +209,20 @@ func defaultTarget(file string) string {
 }
 
 func resolveLogTargetDir(opts *LogOptions) (string, *appfault.AppError) {
-	hasDbFlag := strings.TrimSpace(opts.DbFlag) != ""
-	if hasDbFlag {
-		cleanDb := filepath.Clean(opts.DbFlag)
-		dir := filepath.Dir(cleanDb)
-		isAgentsSubdir := filepath.Base(dir) == AgentsSubdirName
-		if isAgentsSubdir {
-			return filepath.Dir(dir), nil
-		}
-		return dir, nil
+	cleanDbFlag := strings.TrimSpace(opts.DbFlag)
+	if cleanDbFlag == "" {
+		tempDir := ResolveAgentTempDir(opts.DirFlag)
+
+		return ResolveTaskDir(tempDir, opts.TaskIdFlag)
 	}
 
-	tempDir := ResolveAgentTempDir(opts.DirFlag)
+	cleanDb := filepath.Clean(cleanDbFlag)
+	dir := filepath.Dir(cleanDb)
+	if filepath.Base(dir) == AgentsSubdirName {
+		return filepath.Dir(dir), nil
+	}
 
-	return ResolveTaskDir(tempDir, opts.TaskIdFlag)
+	return dir, nil
 }
 
 func executeLogRecord(taskDir string, opts *LogOptions) (int64, *appfault.AppError) {

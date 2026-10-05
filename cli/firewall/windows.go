@@ -77,15 +77,19 @@ func isPortAllowedWindows(port int) (bool, error) {
 			currentName = strings.TrimSpace(strings.TrimPrefix(trimmed, "Rule Name:"))
 			currentAction = ""
 			currentPort = ""
-		} else if strings.HasPrefix(trimmed, "Action:") {
+			continue
+		}
+		if strings.HasPrefix(trimmed, "Action:") {
 			currentAction = strings.TrimSpace(strings.TrimPrefix(trimmed, "Action:"))
-		} else if strings.HasPrefix(trimmed, "LocalPort:") {
-			currentPort = strings.TrimSpace(strings.TrimPrefix(trimmed, "LocalPort:"))
-			if currentPort == targetPortStr && strings.EqualFold(currentAction, "Allow") {
-				if strings.Contains(strings.ToLower(currentName), "ssh") {
-					return true, nil
-				}
-			}
+			continue
+		}
+		if !strings.HasPrefix(trimmed, "LocalPort:") {
+			continue
+		}
+		currentPort = strings.TrimSpace(strings.TrimPrefix(trimmed, "LocalPort:"))
+		isMatch := currentPort == targetPortStr && strings.EqualFold(currentAction, "Allow") && strings.Contains(strings.ToLower(currentName), "ssh")
+		if isMatch {
+			return true, nil
 		}
 	}
 
@@ -113,6 +117,23 @@ func enablePublicSSHWindows(port int) error {
 	return nil
 }
 
+func parsePortInt(pStr string) int {
+	p, err := strconv.Atoi(pStr)
+	if err == nil {
+		return p
+	}
+
+	return 0
+}
+
+func appendValidRule(rules []Rule, current Rule) []Rule {
+	if current.Name != "" && current.Port > 0 {
+		return append(rules, current)
+	}
+
+	return rules
+}
+
 func listRulesWindows() ([]Rule, error) {
 	out, err := runNetsh("advfirewall", "firewall", "show", "rule", "name=all", "dir=in")
 	if err != nil {
@@ -126,30 +147,30 @@ func listRulesWindows() ([]Rule, error) {
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmed, "Rule Name:") {
-			if current.Name != "" && current.Port > 0 {
-				rules = append(rules, current)
-			}
+			rules = appendValidRule(rules, current)
 			current = Rule{
 				Name:      strings.TrimSpace(strings.TrimPrefix(trimmed, "Rule Name:")),
 				Direction: "IN",
 				Protocol:  "TCP",
 				Enabled:   true,
 			}
-		} else if strings.HasPrefix(trimmed, "Action:") {
+			continue
+		}
+		if strings.HasPrefix(trimmed, "Action:") {
 			current.Action = strings.ToUpper(strings.TrimSpace(strings.TrimPrefix(trimmed, "Action:")))
-		} else if strings.HasPrefix(trimmed, "Enabled:") {
+			continue
+		}
+		if strings.HasPrefix(trimmed, "Enabled:") {
 			current.Enabled = strings.EqualFold(strings.TrimSpace(strings.TrimPrefix(trimmed, "Enabled:")), "Yes")
-		} else if strings.HasPrefix(trimmed, "LocalPort:") {
-			pStr := strings.TrimSpace(strings.TrimPrefix(trimmed, "LocalPort:"))
-			if p, errConv := strconv.Atoi(pStr); errConv == nil {
-				current.Port = p
-			}
+			continue
+		}
+		if strings.HasPrefix(trimmed, "LocalPort:") {
+			current.Port = parsePortInt(strings.TrimSpace(strings.TrimPrefix(trimmed, "LocalPort:")))
+			continue
 		}
 	}
 
-	if current.Name != "" && current.Port > 0 {
-		rules = append(rules, current)
-	}
+	rules = appendValidRule(rules, current)
 
 	return rules, nil
 }

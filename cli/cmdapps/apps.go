@@ -10,26 +10,19 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // ListApps scans and discovers installed applications across the system.
 func ListApps(opts ListOptions) (AppListResponse, error) {
 	apps := make([]InstalledApp, 0, 32)
-
 	if runtime.GOOS == "linux" {
-		linuxApps, err := scanLinuxApps(opts)
-		if err == nil {
-			apps = append(apps, linuxApps...)
-		}
+		apps = append(apps, loadLinuxApps(opts)...)
 	} else if runtime.GOOS == "windows" {
-		windowsApps, err := scanWindowsApps(opts)
-		if err == nil {
-			apps = append(apps, windowsApps...)
-		}
+		apps = append(apps, loadWindowsApps(opts)...)
 	}
 
 	filtered := filterApps(apps, opts)
-
 	resp := AppListResponse{
 		Success:  true,
 		Count:    len(filtered),
@@ -38,6 +31,24 @@ func ListApps(opts ListOptions) (AppListResponse, error) {
 	}
 
 	return resp, nil
+}
+
+func loadLinuxApps(opts ListOptions) []InstalledApp {
+	apps, err := scanLinuxApps(opts)
+	if err == nil {
+		return apps
+	}
+
+	return nil
+}
+
+func loadWindowsApps(opts ListOptions) []InstalledApp {
+	apps, err := scanWindowsApps(opts)
+	if err == nil {
+		return apps
+	}
+
+	return nil
 }
 
 // UninstallApp performs surgical application uninstallation and cache synchronization.
@@ -83,6 +94,18 @@ func UninstallApp(target string, opts UninstallOptions) (AppUninstallResponse, e
 	return resp, nil
 }
 
+func matchesFilter(app InstalledApp, normalizedFilter string) bool {
+	if normalizedFilter == "" {
+		return true
+	}
+	hasIdMatch := strings.Contains(strings.ToLower(app.ID), normalizedFilter)
+	hasNameMatch := strings.Contains(strings.ToLower(app.Name), normalizedFilter)
+	hasPkgMatch := strings.Contains(strings.ToLower(app.Package), normalizedFilter)
+	hasExecMatch := strings.Contains(strings.ToLower(app.Exec), normalizedFilter)
+
+	return hasIdMatch || hasNameMatch || hasPkgMatch || hasExecMatch
+}
+
 func filterApps(apps []InstalledApp, opts ListOptions) []InstalledApp {
 	filtered := make([]InstalledApp, 0, len(apps))
 	normalizedFilter := strings.ToLower(strings.TrimSpace(opts.FilterStr))
@@ -94,15 +117,8 @@ func filterApps(apps []InstalledApp, opts ListOptions) []InstalledApp {
 		if opts.IsUser && app.Scope != ScopeUser {
 			continue
 		}
-
-		if normalizedFilter != "" {
-			hasIdMatch := strings.Contains(strings.ToLower(app.ID), normalizedFilter)
-			hasNameMatch := strings.Contains(strings.ToLower(app.Name), normalizedFilter)
-			hasPkgMatch := strings.Contains(strings.ToLower(app.Package), normalizedFilter)
-			hasExecMatch := strings.Contains(strings.ToLower(app.Exec), normalizedFilter)
-			if !hasIdMatch && !hasNameMatch && !hasPkgMatch && !hasExecMatch {
-				continue
-			}
+		if !matchesFilter(app, normalizedFilter) {
+			continue
 		}
 
 		filtered = append(filtered, app)
@@ -158,14 +174,7 @@ func scanLinuxApps(opts ListOptions) ([]InstalledApp, error) {
 	return apps, nil
 }
 
-func parseDesktopFile(path string, isIncludeAll bool) (InstalledApp, bool) {
-	file, err := os.Open(path)
-	if err != nil {
-		return InstalledApp{}, false
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
+func parseDesktopProps(scanner *bufio.Scanner) map[string]string {
 	isInDesktopEntry := false
 	props := make(map[string]string)
 
@@ -185,14 +194,43 @@ func parseDesktopFile(path string, isIncludeAll bool) (InstalledApp, bool) {
 		}
 
 		parts := strings.SplitN(line, "=", 2)
-		if len(parts) == 2 {
-			key := strings.TrimSpace(parts[0])
-			val := strings.TrimSpace(parts[1])
-			if _, hasKey := props[key]; !hasKey {
-				props[key] = val
-			}
+		if len(parts) != 2 {
+			continue
+		}
+		key := strings.TrimSpace(parts[0])
+		val := strings.TrimSpace(parts[1])
+		if _, hasKey := props[key]; !hasKey {
+			props[key] = val
 		}
 	}
+
+	return props
+}
+
+func resolvePackageManager(path, cleanExec string) (PackageManager, string) {
+	if strings.Contains(path, "snap") {
+		return ManagerSnap, ""
+	}
+	if strings.Contains(path, "flatpak") {
+		return ManagerFlatpak, ""
+	}
+	pkg, isTracked := traceDpkgPackage(cleanExec)
+	if isTracked {
+		return ManagerApt, pkg
+	}
+
+	return ManagerCustom, ""
+}
+
+func parseDesktopFile(path string, isIncludeAll bool) (InstalledApp, bool) {
+	file, err := os.Open(path)
+	if err != nil {
+		return InstalledApp{}, false
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	props := parseDesktopProps(scanner)
 
 	appType := props["Type"]
 	if appType != "" && appType != "Application" && !isIncludeAll {
@@ -217,19 +255,7 @@ func parseDesktopFile(path string, isIncludeAll bool) (InstalledApp, bool) {
 		scope = ScopeUser
 	}
 
-	manager := ManagerCustom
-	packageName := ""
-	if strings.Contains(path, "snap") {
-		manager = ManagerSnap
-	} else if strings.Contains(path, "flatpak") {
-		manager = ManagerFlatpak
-	} else {
-		pkg, isTracked := traceDpkgPackage(cleanExec)
-		if isTracked {
-			manager = ManagerApt
-			packageName = pkg
-		}
-	}
+	manager, packageName := resolvePackageManager(path, cleanExec)
 
 	version := ""
 	if packageName != "" {
@@ -240,45 +266,48 @@ func parseDesktopFile(path string, isIncludeAll bool) (InstalledApp, bool) {
 		ID:          appID,
 		Name:        appName,
 		Exec:        cleanExec,
-		Icon:        props["Icon"],
+		DesktopFile: path,
 		Package:     packageName,
 		Version:     version,
 		Manager:     manager,
 		Scope:       scope,
-		DesktopFile: path,
-		IsRemovable: true,
+		Icon:        props["Icon"],
+		IsRemovable: (manager != ManagerCustom && manager != ""),
 	}
 
 	return app, true
 }
 
-func cleanExecString(rawExec string) string {
-	if rawExec == "" {
-		return ""
-	}
-	fields := strings.Fields(rawExec)
+func cleanExecString(execStr string) string {
+	fields := strings.Fields(execStr)
 	cleaned := make([]string, 0, len(fields))
-	for _, field := range fields {
-		if strings.HasPrefix(field, "%") {
+	for _, f := range fields {
+		if strings.HasPrefix(f, "%") {
 			continue
 		}
-		cleaned = append(cleaned, field)
+		cleaned = append(cleaned, f)
 	}
 	return strings.Join(cleaned, " ")
+}
+
+func resolveBinaryPath(execPath string) string {
+	binary := strings.Fields(execPath)[0]
+	if filepath.IsAbs(binary) {
+		return binary
+	}
+	absPath, err := exec.LookPath(binary)
+	if err == nil {
+		return absPath
+	}
+
+	return binary
 }
 
 func traceDpkgPackage(execPath string) (string, bool) {
 	if execPath == "" {
 		return "", false
 	}
-	binary := strings.Fields(execPath)[0]
-	if !filepath.IsAbs(binary) {
-		absPath, err := exec.LookPath(binary)
-		if err == nil {
-			binary = absPath
-		}
-	}
-
+	binary := resolveBinaryPath(execPath)
 	out, err := exec.Command("dpkg", "-S", binary).Output()
 	if err != nil {
 		return "", false
@@ -301,6 +330,70 @@ func getDpkgVersion(packageName string) string {
 	return strings.TrimSpace(string(out))
 }
 
+func resolveTargetPackageInfo(targetApp *InstalledApp, defaultPkg string) (string, string) {
+	if targetApp == nil {
+		return defaultPkg, ""
+	}
+	pkg := defaultPkg
+	if targetApp.Package != "" {
+		pkg = targetApp.Package
+	}
+
+	return pkg, targetApp.DesktopFile
+}
+
+func runAptUninstall(packageName string, isPurge bool) error {
+	action := "remove"
+	if isPurge {
+		action = "purge"
+	}
+	aptCmd := exec.Command("sudo", "DEBIAN_FRONTEND=noninteractive", "apt-get", action, "-y", packageName)
+	output, err := aptCmd.CombinedOutput()
+	if err == nil {
+		return nil
+	}
+	if os.Geteuid() != 0 {
+		return fmt.Errorf("apt uninstallation failed for %s: %v (%s)", packageName, err, strings.TrimSpace(string(output)))
+	}
+	rootCmd := exec.Command("apt-get", action, "-y", packageName)
+
+	return rootCmd.Run()
+}
+
+func tryAptUninstallIfInstalled(packageName string, isPurge bool) error {
+	if !isPackageInstalledApt(packageName) {
+		return nil
+	}
+
+	return runAptUninstall(packageName, isPurge)
+}
+
+func removeDesktopFile(dPath string) bool {
+	if _, err := os.Stat(dPath); err != nil {
+		return false
+	}
+	rmErr := os.Remove(dPath)
+	if rmErr != nil {
+		_ = exec.Command("sudo", "rm", "-f", dPath).Run()
+	}
+
+	return true
+}
+
+func toTitleCase(s string) string {
+	if s == "" {
+		return ""
+	}
+	words := strings.Fields(s)
+	for i, w := range words {
+		r := []rune(w)
+		r[0] = unicode.ToUpper(r[0])
+		words[i] = string(r)
+	}
+
+	return strings.Join(words, " ")
+}
+
 func executeLinuxUninstall(target string, opts UninstallOptions, resp AppUninstallResponse) (AppUninstallResponse, error) {
 	allApps, _ := scanLinuxApps(ListOptions{IsAll: true})
 	var targetApp *InstalledApp
@@ -314,40 +407,13 @@ func executeLinuxUninstall(target string, opts UninstallOptions, resp AppUninsta
 		}
 	}
 
-	packageName := target
-	desktopFile := ""
+	packageName, desktopFile := resolveTargetPackageInfo(targetApp, target)
 	if targetApp != nil {
-		if targetApp.Package != "" {
-			packageName = targetApp.Package
-		}
-		desktopFile = targetApp.DesktopFile
 		resp.Package = packageName
 	}
 
-	// Purge or remove package via apt
-	isDpkgPackage := isPackageInstalledApt(packageName)
-	if isDpkgPackage {
-		var aptCmd *exec.Cmd
-		if opts.IsPurge {
-			aptCmd = exec.Command("sudo", "DEBIAN_FRONTEND=noninteractive", "apt-get", "purge", "-y", packageName)
-		} else {
-			aptCmd = exec.Command("sudo", "DEBIAN_FRONTEND=noninteractive", "apt-get", "remove", "-y", packageName)
-		}
-		output, err := aptCmd.CombinedOutput()
-		if err != nil {
-			// Try fallback without sudo if already root
-			if os.Geteuid() == 0 {
-				var rootCmd *exec.Cmd
-				if opts.IsPurge {
-					rootCmd = exec.Command("apt-get", "purge", "-y", packageName)
-				} else {
-					rootCmd = exec.Command("apt-get", "remove", "-y", packageName)
-				}
-				_ = rootCmd.Run()
-			} else {
-				return resp, fmt.Errorf("apt uninstallation failed for %s: %v (%s)", packageName, err, strings.TrimSpace(string(output)))
-			}
-		}
+	if err := tryAptUninstallIfInstalled(packageName, opts.IsPurge); err != nil {
+		return resp, err
 	}
 
 	// Clean desktop file if present
@@ -355,7 +421,7 @@ func executeLinuxUninstall(target string, opts UninstallOptions, resp AppUninsta
 		desktopFile,
 		filepath.Join("/usr/share/applications", target+".desktop"),
 		filepath.Join("/usr/share/applications", strings.ToLower(target)+".desktop"),
-		filepath.Join("/usr/share/applications", strings.Title(strings.ReplaceAll(target, "-", " "))+".desktop"),
+		filepath.Join("/usr/share/applications", toTitleCase(strings.ReplaceAll(target, "-", " "))+".desktop"),
 	}
 
 	homeDir, hasHomeErr := os.UserHomeDir()
@@ -370,11 +436,7 @@ func executeLinuxUninstall(target string, opts UninstallOptions, resp AppUninsta
 		if dPath == "" {
 			continue
 		}
-		if _, err := os.Stat(dPath); err == nil {
-			rmErr := os.Remove(dPath)
-			if rmErr != nil {
-				_ = exec.Command("sudo", "rm", "-f", dPath).Run()
-			}
+		if removeDesktopFile(dPath) {
 			resp.RemovedFiles = append(resp.RemovedFiles, dPath)
 		}
 	}
@@ -411,6 +473,21 @@ func scanWindowsApps(opts ListOptions) ([]InstalledApp, error) {
 	return apps, nil
 }
 
+func readPackageVersion(pkgJsonPath string) string {
+	data, readErr := os.ReadFile(pkgJsonPath)
+	if readErr != nil {
+		return ""
+	}
+	var parsed struct {
+		Version string `json:"version"`
+	}
+	if json.Unmarshal(data, &parsed) == nil {
+		return parsed.Version
+	}
+
+	return ""
+}
+
 func scanNpmGlobalPackages() ([]InstalledApp, error) {
 	apps := make([]InstalledApp, 0, 4)
 
@@ -431,16 +508,7 @@ func scanNpmGlobalPackages() ([]InstalledApp, error) {
 		}
 		pkgName := entry.Name()
 		pkgJsonPath := filepath.Join(npmModules, pkgName, "package.json")
-		version := ""
-		data, readErr := os.ReadFile(pkgJsonPath)
-		if readErr == nil {
-			var parsed struct {
-				Version string `json:"version"`
-			}
-			if json.Unmarshal(data, &parsed) == nil {
-				version = parsed.Version
-			}
-		}
+		version := readPackageVersion(pkgJsonPath)
 
 		app := InstalledApp{
 			ID:          pkgName,
@@ -464,24 +532,26 @@ func executeWindowsUninstall(target string, opts UninstallOptions, resp AppUnins
 	_ = npmCmd.Run()
 
 	appData := os.Getenv("APPDATA")
-	if appData != "" {
-		npmDir := filepath.Join(appData, "npm")
-		shims := []string{
-			filepath.Join(npmDir, target),
-			filepath.Join(npmDir, target+".cmd"),
-			filepath.Join(npmDir, target+".ps1"),
+	if appData == "" {
+		return resp, nil
+	}
+
+	npmDir := filepath.Join(appData, "npm")
+	shims := []string{
+		filepath.Join(npmDir, target),
+		filepath.Join(npmDir, target+".cmd"),
+		filepath.Join(npmDir, target+".ps1"),
+	}
+	for _, shim := range shims {
+		if _, statErr := os.Stat(shim); statErr == nil {
+			_ = os.Remove(shim)
+			resp.RemovedFiles = append(resp.RemovedFiles, shim)
 		}
-		for _, shim := range shims {
-			if _, statErr := os.Stat(shim); statErr == nil {
-				_ = os.Remove(shim)
-				resp.RemovedFiles = append(resp.RemovedFiles, shim)
-			}
-		}
-		nodeModulePath := filepath.Join(npmDir, "node_modules", target)
-		if _, statErr := os.Stat(nodeModulePath); statErr == nil {
-			_ = os.RemoveAll(nodeModulePath)
-			resp.RemovedFiles = append(resp.RemovedFiles, nodeModulePath)
-		}
+	}
+	nodeModulePath := filepath.Join(npmDir, "node_modules", target)
+	if _, statErr := os.Stat(nodeModulePath); statErr == nil {
+		_ = os.RemoveAll(nodeModulePath)
+		resp.RemovedFiles = append(resp.RemovedFiles, nodeModulePath)
 	}
 
 	return resp, nil

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.475.0] - 2026-10-05
+
+### Added
+- fix policy linters, unused symbols, and nested ifs
+
+---
+
 ## [v6.474.0] - 2026-10-04
 
 ### Added

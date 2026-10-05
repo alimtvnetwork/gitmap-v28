@@ -66,29 +66,34 @@ func runSSHCreate(args []string) error {
 
 	defer db.Close()
 
-	if keyExistsOnDisk(keyPath) {
-		hasBypass := force || confirm
-		if !hasBypass {
-			fmt.Printf("  %s⚠ Warning:%s SSH key already exists at %s\n", constants.ColorYellow, constants.ColorReset, keyPath)
-			prompt := fmt.Sprintf("  Overwrite and backup existing key? [y/N]: ")
-			if !askConfirmSimple(prompt) {
-				fmt.Println(constants.ColorDim + "  SSH key creation canceled." + constants.ColorReset)
-
-				return nil
-			}
-		}
-
-		backupPath, errBak := backupKeyWithTimestamp(keyPath)
-		if errBak != nil {
-			exitOnBackupError(errBak)
-		}
-		fmt.Printf("  %s✔ Backed up existing SSH key to: %s%s\n", constants.ColorGreen, backupPath, constants.ColorReset)
-		_, _ = RecordSSHKeyBackupTask(context.Background(), name, keyPath, backupPath)
+	if !handleExistingKeyBackup(name, keyPath, force, confirm) {
+		return nil
 	}
 
 	generateAndStore(db, name, keyPath, email, host)
 
 	return nil
+}
+
+func handleExistingKeyBackup(name, keyPath string, force, confirm bool) bool {
+	if !keyExistsOnDisk(keyPath) {
+		return true
+	}
+	needsPrompt := !force && !confirm
+	if needsPrompt && !askConfirmSimple("  Overwrite and backup existing key? [y/N]: ") {
+		fmt.Printf("  %s⚠ Warning:%s SSH key already exists at %s\n", constants.ColorYellow, constants.ColorReset, keyPath)
+		fmt.Println(constants.ColorDim + "  SSH key creation canceled." + constants.ColorReset)
+		return false
+	}
+
+	backupPath, errBak := backupKeyWithTimestamp(keyPath)
+	if errBak != nil {
+		exitOnBackupError(errBak)
+	}
+	fmt.Printf("  %s✔ Backed up existing SSH key to: %s%s\n", constants.ColorGreen, backupPath, constants.ColorReset)
+	_, _ = RecordSSHKeyBackupTask(context.Background(), name, keyPath, backupPath)
+
+	return true
 }
 
 func askConfirmSimple(prompt string) bool {

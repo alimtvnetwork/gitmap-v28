@@ -121,15 +121,20 @@ func routeDeployIdeOrAgy(args []string) error {
 	}
 
 	if opts.IsJSON {
-		payload, marshalErr := json.MarshalIndent(res, "", "  ")
-		if marshalErr != nil {
-			return marshalErr
-		}
-		fmt.Println(string(payload))
-		return nil
+		return printDeployResultJSON(res)
 	}
 
 	cmdagy.RenderAgyDeploySummary(res)
+	return nil
+}
+
+func printDeployResultJSON(res *cmdagy.AgyDeployResultJSON) error {
+	payload, err := json.MarshalIndent(res, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(payload))
+
 	return nil
 }
 

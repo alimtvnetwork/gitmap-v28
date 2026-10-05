@@ -59,16 +59,26 @@ func parseTargetNodeFilter(args []string) string {
 	return ""
 }
 
-func loadLocalProjectEntries() ([]vscodepm.Entry, error) {
+func loadProjectsJSONDirectly() ([]vscodepm.Entry, bool) {
 	path, err := vscodepm.ProjectsJSONPath()
-	if err == nil {
-		data, readErr := os.ReadFile(path)
-		if readErr == nil && len(data) > 0 {
-			var entries []vscodepm.Entry
-			if jsonErr := json.Unmarshal(data, &entries); jsonErr == nil && len(entries) > 0 {
-				return entries, nil
-			}
-		}
+	if err != nil {
+		return nil, false
+	}
+	data, readErr := os.ReadFile(path)
+	if readErr != nil || len(data) == 0 {
+		return nil, false
+	}
+	var entries []vscodepm.Entry
+	if jsonErr := json.Unmarshal(data, &entries); jsonErr != nil || len(entries) == 0 {
+		return nil, false
+	}
+
+	return entries, true
+}
+
+func loadLocalProjectEntries() ([]vscodepm.Entry, error) {
+	if entries, ok := loadProjectsJSONDirectly(); ok {
+		return entries, nil
 	}
 
 	entries, listErr := vscodepm.ListEntries()
@@ -218,6 +228,24 @@ func translateProjectEntries(entries []vscodepm.Entry, conn db.SSHConnection) []
 	return translated
 }
 
+func translatePathForWindows(path, base string) string {
+	clean := strings.ReplaceAll(path, "/", "\\")
+	if strings.HasPrefix(clean, `D:\work\`) || strings.HasPrefix(clean, `C:\`) {
+		return clean
+	}
+
+	return `D:\work\` + base
+}
+
+func translatePathForUnix(path, base string) string {
+	clean := strings.ReplaceAll(path, "\\", "/")
+	if strings.HasPrefix(clean, "~/") || strings.HasPrefix(clean, "/home/") || strings.HasPrefix(clean, "/root/") {
+		return clean
+	}
+
+	return "~/work/" + base
+}
+
 func translatePathForNode(path string, isWin bool) string {
 	if path == "" {
 		return path
@@ -227,17 +255,10 @@ func translatePathForNode(path string, isWin bool) string {
 		base = "workspace"
 	}
 	if isWin {
-		clean := strings.ReplaceAll(path, "/", "\\")
-		if strings.HasPrefix(clean, `D:\work\`) || strings.HasPrefix(clean, `C:\`) {
-			return clean
-		}
-		return `D:\work\` + base
+		return translatePathForWindows(path, base)
 	}
-	clean := strings.ReplaceAll(path, "\\", "/")
-	if strings.HasPrefix(clean, "~/") || strings.HasPrefix(clean, "/home/") || strings.HasPrefix(clean, "/root/") {
-		return clean
-	}
-	return "~/work/" + base
+
+	return translatePathForUnix(path, base)
 }
 
 func executeRemotePlacement(client *ssh.Client, stagingPath string, conn db.SSHConnection) error {

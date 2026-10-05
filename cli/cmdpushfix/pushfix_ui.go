@@ -70,12 +70,16 @@ type PushFixDiagnosticCard struct {
 // FormatPushFixBadge returns plain badge string adhering to safe or rich glyph mode.
 func FormatPushFixBadge(badge PushFixBadgeType, isSafe bool) string {
 	if isSafe {
-		if text, hasText := safePushFixBadges[badge]; hasText {
-			return text
-		}
-		return "[STATUS]"
+		return formatSafeBadge(badge)
 	}
 	if text, hasText := richPushFixBadges[badge]; hasText {
+		return text
+	}
+	return "[STATUS]"
+}
+
+func formatSafeBadge(badge PushFixBadgeType) string {
+	if text, hasText := safePushFixBadges[badge]; hasText {
 		return text
 	}
 	return "[STATUS]"

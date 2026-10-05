@@ -112,30 +112,21 @@ func ExecuteBatchInstall(opts installOptions) error {
 
 		result.DurationMs = time.Since(toolStart).Milliseconds()
 
-		if execErr != nil {
-			result.IsSuccess = false
-			result.Status = "failed"
-			result.Error = execErr.Error()
-			response.FailedCount++
-
-			if !opts.HasIgnoreErrors {
-				response.IsSuccess = false
-				response.Tools = append(response.Tools, result)
-				response.DurationMs = time.Since(startTime).Milliseconds()
-				if opts.IsJson {
-					return outputBatchJSON(response)
-				}
-				return fmt.Errorf("failed installing %s: %w", tool, execErr)
-			}
-		} else {
-			existingVer := detectInstalledVersion(tool)
-			if existingVer != "" {
-				result.Status = "installed"
-				result.Version = existingVer
-			} else {
-				result.Status = "installed"
-			}
+		if execErr == nil {
+			result.Status = "installed"
+			result.Version = detectInstalledVersion(tool)
 			response.InstalledCount++
+			response.Tools = append(response.Tools, result)
+			continue
+		}
+
+		result.IsSuccess = false
+		result.Status = "failed"
+		result.Error = execErr.Error()
+		response.FailedCount++
+
+		if !opts.HasIgnoreErrors {
+			return handleInstallToolFailure(tool, execErr, result, &response, opts, startTime)
 		}
 
 		response.Tools = append(response.Tools, result)
@@ -158,4 +149,15 @@ func outputBatchJSON(resp BatchInstallResponse) error {
 	}
 	fmt.Println(string(data))
 	return nil
+}
+
+func handleInstallToolFailure(tool string, execErr error, result ToolInstallResult, response *BatchInstallResponse, opts installOptions, startTime time.Time) error {
+	response.IsSuccess = false
+	response.Tools = append(response.Tools, result)
+	response.DurationMs = time.Since(startTime).Milliseconds()
+	if opts.IsJson {
+		return outputBatchJSON(*response)
+	}
+
+	return fmt.Errorf("failed installing %s: %w", tool, execErr)
 }

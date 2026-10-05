@@ -65,26 +65,16 @@ func runAppsList(args []string) error {
 	}
 
 	resp, err := cmdapps.ListApps(opts)
+	if err != nil && isJson {
+		printAppsListErrorJSON(err)
+		return nil
+	}
 	if err != nil {
-		if isJson {
-			errResp := cmdapps.AppListResponse{
-				Success: false,
-				Error:   err.Error(),
-			}
-			data, _ := json.MarshalIndent(errResp, "", "  ")
-			fmt.Println(string(data))
-			return nil
-		}
 		return err
 	}
 
 	if isJson {
-		data, marshalErr := json.MarshalIndent(resp, "", "  ")
-		if marshalErr != nil {
-			return marshalErr
-		}
-		fmt.Println(string(data))
-		return nil
+		return printAppsListJSON(resp)
 	}
 
 	if len(resp.Data) == 0 {
@@ -155,16 +145,7 @@ func runAppsUninstall(args []string) error {
 
 	posArgs := fs.Args()
 	if len(posArgs) == 0 {
-		errResp := cmdapps.AppUninstallResponse{
-			Success: false,
-			Error:   "missing application identifier argument to uninstall",
-		}
-		if isJson {
-			data, _ := json.MarshalIndent(errResp, "", "  ")
-			fmt.Println(string(data))
-			return nil
-		}
-		return fmt.Errorf("missing application identifier. Usage: gitmap apps uninstall <app-id> [--purge] [--force]")
+		return printAppsUninstallMissingArg(isJson)
 	}
 
 	target := posArgs[0]
@@ -176,14 +157,8 @@ func runAppsUninstall(args []string) error {
 	}
 
 	resp, err := cmdapps.UninstallApp(target, opts)
-
 	if isJson {
-		data, marshalErr := json.MarshalIndent(resp, "", "  ")
-		if marshalErr != nil {
-			return marshalErr
-		}
-		fmt.Println(string(data))
-		return nil
+		return printAppsUninstallJSON(resp)
 	}
 
 	if err != nil {
@@ -234,5 +209,45 @@ Examples:
   $ gitmap apps uninstall clot --json
 `
 	fmt.Fprint(os.Stdout, helpText)
+	return nil
+}
+
+func printAppsListErrorJSON(err error) {
+	errResp := cmdapps.AppListResponse{
+		Success: false,
+		Error:   err.Error(),
+	}
+	data, _ := json.MarshalIndent(errResp, "", "  ")
+	fmt.Println(string(data))
+}
+
+func printAppsListJSON(resp cmdapps.AppListResponse) error {
+	data, marshalErr := json.MarshalIndent(resp, "", "  ")
+	if marshalErr != nil {
+		return marshalErr
+	}
+	fmt.Println(string(data))
+	return nil
+}
+
+func printAppsUninstallMissingArg(isJson bool) error {
+	if isJson {
+		errResp := cmdapps.AppUninstallResponse{
+			Success: false,
+			Error:   "missing application identifier argument to uninstall",
+		}
+		data, _ := json.MarshalIndent(errResp, "", "  ")
+		fmt.Println(string(data))
+		return nil
+	}
+	return fmt.Errorf("missing application identifier. Usage: gitmap apps uninstall <app-id> [--purge] [--force]")
+}
+
+func printAppsUninstallJSON(resp cmdapps.AppUninstallResponse) error {
+	data, marshalErr := json.MarshalIndent(resp, "", "  ")
+	if marshalErr != nil {
+		return marshalErr
+	}
+	fmt.Println(string(data))
 	return nil
 }

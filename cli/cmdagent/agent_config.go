@@ -308,24 +308,23 @@ func InitTier3Schema(db *sql.DB) *appfault.AppError {
 
 // ResolveTaskDir finds task run folder by task identifier or finds latest run.
 func ResolveTaskDir(tempDir, taskFlag string) (string, *appfault.AppError) {
-	hasTaskFlag := strings.TrimSpace(taskFlag) != ""
-	if hasTaskFlag {
-		matchedDir, isMatch := findTaskDirByPattern(tempDir, strings.TrimSpace(taskFlag))
-		if isMatch {
-			return matchedDir, nil
-		}
-
-		directPath := filepath.Join(tempDir, strings.TrimSpace(taskFlag))
-		info, err := os.Stat(directPath)
-		hasDirect := err == nil && info.IsDir()
-		if hasDirect {
-			return directPath, nil
-		}
-
-		return "", appfault.NewNotFoundError("task directory not found for: " + taskFlag)
+	cleanFlag := strings.TrimSpace(taskFlag)
+	if cleanFlag == "" {
+		return findLatestRunDir(tempDir)
 	}
 
-	return findLatestRunDir(tempDir)
+	matchedDir, isMatch := findTaskDirByPattern(tempDir, cleanFlag)
+	if isMatch {
+		return matchedDir, nil
+	}
+
+	directPath := filepath.Join(tempDir, cleanFlag)
+	info, err := os.Stat(directPath)
+	if err == nil && info.IsDir() {
+		return directPath, nil
+	}
+
+	return "", appfault.NewNotFoundError("task directory not found for: " + taskFlag)
 }
 
 func findTaskDirByPattern(tempDir, pattern string) (string, bool) {

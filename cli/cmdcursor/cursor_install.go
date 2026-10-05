@@ -33,27 +33,29 @@ func parseCursorInstallArgs(args []string) cursorInstallOptions {
 
 func installOnWindows(opts cursorInstallOptions) error {
 	wingetPath, err := exec.LookPath("winget")
-	if err == nil && wingetPath != "" {
-		fmt.Printf("%s✔ Found winget package manager:%s %s\n", constants.ColorGreen, constants.ColorReset, wingetPath)
-		fmt.Printf("%s● Executing silent winget installation for Cursor IDE...%s\n", constants.ColorCyan, constants.ColorReset)
-		if opts.isDryRun {
-			fmt.Println("  [DryRun] Would execute: winget install Anysphere.Cursor --silent --accept-source-agreements --accept-package-agreements")
-			return nil
-		}
-		cmd := exec.Command("winget", "install", "Anysphere.Cursor", "--silent", "--accept-source-agreements", "--accept-package-agreements")
-		out, runErr := cmd.CombinedOutput()
-		if runErr != nil {
-			fmt.Printf("%s⚠ Winget install returned:%s %s\n", constants.ColorYellow, constants.ColorReset, string(out))
-		} else {
-			fmt.Printf("%s✔ Cursor IDE successfully installed via winget.%s\n", constants.ColorGreen, constants.ColorReset)
-		}
+	if err != nil || wingetPath == "" {
+		fmt.Println()
+		fmt.Printf("%s● Cursor IDE Windows Manual Setup:%s\n", constants.ColorCyan, constants.ColorReset)
+		fmt.Println("  winget not found on PATH. Please download and run the installer from:")
+		fmt.Println("  https://cursor.com")
 		return nil
 	}
 
-	fmt.Println()
-	fmt.Printf("%s● Cursor IDE Windows Manual Setup:%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Println("  winget not found on PATH. Please download and run the installer from:")
-	fmt.Println("  https://cursor.com")
+	fmt.Printf("%s✔ Found winget package manager:%s %s\n", constants.ColorGreen, constants.ColorReset, wingetPath)
+	fmt.Printf("%s● Executing silent winget installation for Cursor IDE...%s\n", constants.ColorCyan, constants.ColorReset)
+	if opts.isDryRun {
+		fmt.Println("  [DryRun] Would execute: winget install Anysphere.Cursor --silent --accept-source-agreements --accept-package-agreements")
+		return nil
+	}
+
+	cmd := exec.Command("winget", "install", "Anysphere.Cursor", "--silent", "--accept-source-agreements", "--accept-package-agreements")
+	out, runErr := cmd.CombinedOutput()
+	if runErr != nil {
+		fmt.Printf("%s⚠ Winget install returned:%s %s\n", constants.ColorYellow, constants.ColorReset, string(out))
+		return nil
+	}
+
+	fmt.Printf("%s✔ Cursor IDE successfully installed via winget.%s\n", constants.ColorGreen, constants.ColorReset)
 	return nil
 }
 

@@ -67,6 +67,14 @@ func ExecuteAgySettingsImport(inPath string) error {
 	return executeAgySettingsImport(inPath)
 }
 
+func parsePortQuiet(val string, fallback int) int {
+	if p, err := strconv.Atoi(val); err == nil && p > 0 {
+		return p
+	}
+
+	return fallback
+}
+
 func parseAgyUIOptions(args []string) agyUIOptions {
 	opts := agyUIOptions{port: 7430, noBrowser: false}
 	for i := 0; i < len(args); i++ {
@@ -76,12 +84,12 @@ func parseAgyUIOptions(args []string) agyUIOptions {
 			continue
 		}
 		if (arg == "--port" || arg == "-p") && i+1 < len(args) {
-			if val, err := strconv.Atoi(args[i+1]); err == nil && val > 0 {
-				opts.port = val
-				i++
-			}
+			opts.port = parsePortQuiet(args[i+1], opts.port)
+			i++
+			continue
 		}
 	}
+
 	return opts
 }
 
@@ -243,22 +251,10 @@ func handleAgyUIPromptResend(w http.ResponseWriter, r *http.Request) {
 	}
 
 	history, _ := GetPromptHistory()
-	var targetRec *PromptRecord
-	for _, rec := range history {
-		if rec.ID == req.ID {
-			targetRec = &rec
-			break
-		}
-	}
-
+	targetRec := findPromptRecordByID(history, req.ID)
 	if targetRec == nil {
 		saved, _ := LoadSavedPrompts()
-		for _, rec := range saved {
-			if rec.ID == req.ID {
-				targetRec = &rec
-				break
-			}
-		}
+		targetRec = findPromptRecordByID(saved, req.ID)
 	}
 
 	if targetRec == nil {

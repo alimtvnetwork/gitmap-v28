@@ -301,6 +301,22 @@ func runSSHPortCLI(args []string) error {
 	}
 }
 
+func parsePortDirective(trimmed string) (int, bool) {
+	if !portLineRegex.MatchString(trimmed) {
+		return 0, false
+	}
+	fields := strings.Fields(trimmed)
+	if len(fields) < 2 {
+		return 0, false
+	}
+	p, err := strconv.Atoi(fields[1])
+	if err != nil || p <= 0 {
+		return 0, false
+	}
+
+	return p, true
+}
+
 func parsePortsFromConfig(content string) []int {
 	var ports []int
 	lines := strings.Split(content, "\n")
@@ -309,13 +325,8 @@ func parsePortsFromConfig(content string) []int {
 		if strings.HasPrefix(trimmed, "#") {
 			continue
 		}
-		if portLineRegex.MatchString(trimmed) {
-			fields := strings.Fields(trimmed)
-			if len(fields) >= 2 {
-				if p, err := strconv.Atoi(fields[1]); err == nil && p > 0 {
-					ports = append(ports, p)
-				}
-			}
+		if p, ok := parsePortDirective(trimmed); ok {
+			ports = append(ports, p)
 		}
 	}
 	if len(ports) == 0 {
@@ -370,11 +381,15 @@ func runSSHPortAdd(args []string) error {
 	newDirective := fmt.Sprintf("Port %d", p)
 	if strings.Contains(content, newDirective) {
 		fmt.Printf("  Port %d already exists in %s\n", p, configPath)
-	} else {
-		content = content + "\n" + newDirective + "\n"
-		if err := backupAndWriteSSHDConfig(configPath, content); err != nil {
-			return err
-		}
+		_ = firewall.AllowPort(p, fmt.Sprintf("OpenSSH-Server-In-TCP-%d", p))
+		_ = restartSSHDService()
+		fmt.Printf("  %s✔ Added SSH Port %d/TCP and opened in firewall.%s\n", constants.ColorGreen, p, constants.ColorReset)
+		return nil
+	}
+
+	content = content + "\n" + newDirective + "\n"
+	if err := backupAndWriteSSHDConfig(configPath, content); err != nil {
+		return err
 	}
 
 	_ = firewall.AllowPort(p, fmt.Sprintf("OpenSSH-Server-In-TCP-%d", p))
@@ -434,13 +449,20 @@ func runSSHPortSet(args []string) error {
 	return applyPortConfiguration(configPath, port)
 }
 
-func runSSHPortEnablePublic(args []string) error {
-	port := 22
-	if len(args) > 0 {
-		if p, err := parsePortFlagValue(args[0]); err == nil && p > 0 {
-			port = p
-		}
+func parseOptionalPortArg(args []string, defaultPort int) int {
+	if len(args) == 0 {
+		return defaultPort
 	}
+	p, err := parsePortFlagValue(args[0])
+	if err == nil && p > 0 {
+		return p
+	}
+
+	return defaultPort
+}
+
+func runSSHPortEnablePublic(args []string) error {
+	port := parseOptionalPortArg(args, 22)
 
 	configPath := resolveSSHDConfigPath()
 	content := readExistingConfigContent(configPath)
