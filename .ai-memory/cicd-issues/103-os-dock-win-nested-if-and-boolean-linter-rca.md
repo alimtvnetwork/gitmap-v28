@@ -18,7 +18,7 @@
   ```text
   cli/cmdos/os_dock_win.go:25: Nested if statement found (depth 2 inside conditional block): if val == 0 {
   ❌ FAILED: Found 1 violation(s):
-    - D:\work\gitmap\cli\cmdos\os_dock_win.go:25: Nested 'if' detected (depth 2): 'if val == 0 {'
+    - cli/cmdos/os_dock_win.go:25: Nested 'if' detected (depth 2): 'if val == 0 {'
   ```
 
 ---
