@@ -50,7 +50,7 @@ var (
 
 func findStackTraceStart(raw string) int {
 	if tbIdx := strings.Index(raw, "Traceback (most recent call last):"); tbIdx != -1 {
-		return tbIdx
+		return resolveTracebackStartIndex(raw, tbIdx)
 	}
 	if gIdx := strings.Index(raw, "goroutine "); gIdx != -1 {
 		return gIdx
@@ -63,6 +63,48 @@ func findStackTraceStart(raw string) int {
 	}
 
 	return -1
+}
+
+func resolveTracebackStartIndex(raw string, tbIdx int) int {
+	headerIdx := findPrecedingTestHeaderIndex(raw, tbIdx)
+	if headerIdx >= 0 {
+		return headerIdx
+	}
+
+	return tbIdx
+}
+
+func findPrecedingTestHeaderIndex(raw string, tbIdx int) int {
+	searchStart := 0
+	if tbIdx > 500 {
+		searchStart = tbIdx - 500
+	}
+	preceding := raw[searchStart:tbIdx]
+	bestOffset := findLatestHeaderOffset(preceding)
+	if bestOffset < 0 {
+		return -1
+	}
+
+	absIdx := searchStart + bestOffset
+	lineStart := strings.LastIndex(raw[:absIdx], "\n")
+	if lineStart != -1 {
+		return lineStart + 1
+	}
+
+	return 0
+}
+
+func findLatestHeaderOffset(preceding string) int {
+	markers := []string{"FAIL: ", "ERROR: ", "--- FAIL: "}
+	bestOffset := -1
+	for _, m := range markers {
+		idx := strings.LastIndex(preceding, m)
+		if idx > bestOffset {
+			bestOffset = idx
+		}
+	}
+
+	return bestOffset
 }
 
 func extractBoundedStackLines(sub string) string {
@@ -106,11 +148,11 @@ func processStackScanLine(raw string, frames *[]string, hasHeader *bool, expectP
 }
 
 func isStackStopLine(line string, frameCount int, expectPyCode bool) bool {
-	if len(strings.TrimSpace(line)) == 0 && frameCount > 0 {
-		return true
-	}
 	if isStackTerminator(line) {
 		return true
+	}
+	if len(strings.TrimSpace(line)) == 0 {
+		return false
 	}
 	if expectPyCode {
 		return false
@@ -142,11 +184,28 @@ func isStackStartLine(line string) bool {
 	if strings.Contains(line, "Traceback (most recent call last):") {
 		return true
 	}
+	if isTestHeaderStartLine(line) {
+		return true
+	}
 
 	return strings.HasPrefix(line, "goroutine ") || strings.HasPrefix(line, "panic:") || strings.Contains(line, "panic:")
 }
 
+func isTestHeaderStartLine(line string) bool {
+	if strings.HasPrefix(line, "FAIL: ") || strings.HasPrefix(line, "ERROR: ") {
+		return true
+	}
+
+	return strings.HasPrefix(line, "--- FAIL:")
+}
+
 func isStackFrame(line string) bool {
+	if isStackHeaderLine(line) {
+		return true
+	}
+	if isTestDividerLine(line) {
+		return true
+	}
 	if strings.HasPrefix(line, "\t") || strings.HasPrefix(line, "    ") || strings.HasPrefix(line, "  ") {
 		return true
 	}
@@ -170,6 +229,23 @@ func isStackFrame(line string) bool {
 	}
 
 	return false
+}
+
+func isStackHeaderLine(line string) bool {
+	if strings.Contains(line, "Traceback (most recent call last):") {
+		return true
+	}
+
+	return strings.HasPrefix(line, "goroutine ") || strings.HasPrefix(line, "panic:")
+}
+
+func isTestDividerLine(line string) bool {
+	trimmed := strings.TrimSpace(line)
+	if len(trimmed) < 10 {
+		return false
+	}
+
+	return strings.HasPrefix(trimmed, "----------") || strings.HasPrefix(trimmed, "==========")
 }
 
 func isPythonStackFrame(line string) bool {
@@ -228,13 +304,13 @@ func isAssertionDiffLine(line string) bool {
 }
 
 func isStackTerminator(line string) bool {
-	if line == "FAIL" || line == "PASS" || strings.HasPrefix(line, "FAIL\t") || strings.HasPrefix(line, "PASS\t") {
+	if isStandardStackTerminator(line) {
 		return true
 	}
-	if strings.HasPrefix(line, "ok\t") || strings.HasPrefix(line, "ok ") || strings.HasPrefix(line, "?\t") {
+	if isRanTestsNoise(strings.TrimSpace(line)) || hasRanTestsNoisePattern(line) {
 		return true
 	}
-	if strings.HasPrefix(line, "##[") || strings.HasPrefix(line, "[command]") {
+	if isFailedSummaryNoise(line) {
 		return true
 	}
 	if isGoTestDivider(line) {
@@ -242,6 +318,29 @@ func isStackTerminator(line string) bool {
 	}
 
 	return strings.Contains(line, "Process completed with exit code")
+}
+
+func isStandardStackTerminator(line string) bool {
+	if line == "FAIL" || line == "PASS" || strings.HasPrefix(line, "FAIL\t") || strings.HasPrefix(line, "PASS\t") {
+		return true
+	}
+	if strings.HasPrefix(line, "ok\t") || strings.HasPrefix(line, "ok ") || strings.HasPrefix(line, "?\t") {
+		return true
+	}
+
+	return strings.HasPrefix(line, "##[") || strings.HasPrefix(line, "[command]")
+}
+
+func hasRanTestsNoisePattern(line string) bool {
+	trimmed := strings.TrimSpace(line)
+
+	return strings.HasPrefix(trimmed, "Ran ") && strings.Contains(trimmed, " tests in ")
+}
+
+func isFailedSummaryNoise(line string) bool {
+	trimmed := strings.TrimSpace(line)
+
+	return strings.HasPrefix(trimmed, "FAILED (failures=") || strings.HasPrefix(trimmed, "FAILED (errors=")
 }
 
 func isGoTestDivider(line string) bool {

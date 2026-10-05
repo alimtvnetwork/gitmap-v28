@@ -228,7 +228,9 @@ func persistLogToRepoSplitDb(repo string, runId uint64, logContent string) {
 
 	defer pipeDb.Close()
 	if pipeDb.HasDetailErrorLog(runId) && pipeDb.HasCompactErrorLog(runId) {
-		return
+		if existing, ok := queryDetailLogFromDb(pipeDb, runId); ok && !isCorruptOrFallbackErrorLog(existing) {
+			return
+		}
 	}
 
 	clean := extractCleanErrorLines(logContent)

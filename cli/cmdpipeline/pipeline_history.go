@@ -322,6 +322,26 @@ func printFailedJobItemToBuilder(sb *strings.Builder, j FailedJobItem) {
 		fmt.Fprintf(sb, "        Error: %s%s%s\n",
 			constants.ColorRed, j.FailureSummary, constants.ColorReset)
 	}
+	printFailedJobErrorLinesToBuilder(sb, j.ErrorLines, j.FailureSummary)
+	printFailedJobStackTraceToBuilder(sb, j.StackTrace)
+}
+
+func printFailedJobErrorLinesToBuilder(sb *strings.Builder, lines []string, summary string) {
+	dedupLines := filterOutSummaryLine(lines, summary)
+	for _, line := range dedupLines {
+		fmt.Fprintf(sb, "        %s\n", line)
+	}
+}
+
+func printFailedJobStackTraceToBuilder(sb *strings.Builder, stack string) {
+	if len(stack) == 0 {
+		return
+	}
+
+	fmt.Fprintf(sb, "        Stack Trace:\n")
+	for _, line := range strings.Split(strings.TrimSpace(stack), "\n") {
+		fmt.Fprintf(sb, "          %s\n", line)
+	}
 }
 
 func renderRecentCommitsSummaryTable(groups []CommitPipelineGroup, limit int) {

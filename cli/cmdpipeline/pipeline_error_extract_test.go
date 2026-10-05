@@ -231,3 +231,132 @@ func TestParseFailedLogLines_PythonUnitTestE2E(t *testing.T) {
 		}
 	}
 }
+
+func TestExtractStackTraceCapturesTestFailureHeader(t *testing.T) {
+	raw := strings.Join([]string{
+		"======================================================================",
+		"FAIL: test_validate_output (tests.test_cli.TestCLI.test_validate_output)",
+		"----------------------------------------------------------------------",
+		"Traceback (most recent call last):",
+		"  File \"tests/test_cli.py\", line 88, in test_validate_output",
+		"    self.assertEqual(actual, expected)",
+		"AssertionError: 'foo' != 'bar'",
+		"----------------------------------------------------------------------",
+		"Ran 5 tests in 1.23s",
+		"FAILED (failures=1)",
+	}, "\n")
+
+	stack := extractStackTraceFromLog(raw)
+	assertStackHeaderAndFrames(t, stack)
+}
+
+func assertStackHeaderAndFrames(t *testing.T, stack string) {
+	if !strings.Contains(stack, "FAIL: test_validate_output") {
+		t.Fatalf("expected stack to capture FAIL header, got: %s", stack)
+	}
+	if !strings.Contains(stack, "Traceback (most recent call last):") {
+		t.Fatalf("expected stack to contain Traceback header, got: %s", stack)
+	}
+	if !strings.Contains(stack, "AssertionError: 'foo' != 'bar'") {
+		t.Fatalf("expected stack to contain AssertionError, got: %s", stack)
+	}
+	if strings.Contains(stack, "Ran 5 tests in") {
+		t.Fatalf("stack trace captured past terminator: %s", stack)
+	}
+}
+
+func TestExtractStackTrace_AssertionDiffWithBlankLines(t *testing.T) {
+	raw := strings.Join([]string{
+		"Traceback (most recent call last):",
+		"  File \"tests/test_diff.py\", line 45, in test_multiline",
+		"    self.assertEqual(first, second)",
+		"AssertionError: Multi-line strings differ:",
+		"",
+		"--- expected",
+		"+++ actual",
+		"",
+		"- alpha",
+		"- beta",
+		"+ alpha",
+		"+ gamma",
+		"----------------------------------------------------------------------",
+		"Ran 1 test in 0.05s",
+	}, "\n")
+
+	stack := extractStackTraceFromLog(raw)
+	assertAssertionDiffFrames(t, stack)
+}
+
+func assertAssertionDiffFrames(t *testing.T, stack string) {
+	if !strings.Contains(stack, "--- expected") || !strings.Contains(stack, "+++ actual") {
+		t.Fatalf("expected diff headers in stack, got: %s", stack)
+	}
+	if !strings.Contains(stack, "- beta") || !strings.Contains(stack, "+ gamma") {
+		t.Fatalf("expected diff lines not to be clipped by blank lines, got: %s", stack)
+	}
+	if strings.Contains(stack, "Ran 1 test in") {
+		t.Fatalf("stack trace captured beyond terminator: %s", stack)
+	}
+}
+
+func TestIsTestFailureSummary_Expansions(t *testing.T) {
+	validCases := []string{
+		"FAIL: test_something (suite.TestClass)",
+		"FAIL: custom_check (suite.TestClass)",
+		"FAIL:\ttest_tab_delimited",
+		"ERROR: test_db_timeout (tests.test_db.TestDB)",
+		"ERROR: test_setup_failure",
+		"FAILED tests/test_api.py::test_create - AssertionError",
+		"--- FAIL: TestPipelineRunner (0.05s)",
+	}
+	for _, c := range validCases {
+		if !isTestFailureSummary(c) {
+			t.Errorf("expected isTestFailureSummary to return true for: %s", c)
+		}
+	}
+	assertInvalidTestSummaries(t)
+}
+
+func assertInvalidTestSummaries(t *testing.T) {
+	invalidCases := []string{
+		"Process completed with exit code 1.",
+		"Step 'Run Unit Tests' (step #4) failure",
+		"Ran 18 tests in 75.725s",
+		"FAILED (failures=1)",
+		"PASS",
+	}
+	for _, c := range invalidCases {
+		if isTestFailureSummary(c) {
+			t.Errorf("expected isTestFailureSummary to return false for: %s", c)
+		}
+	}
+}
+
+func TestPrintFailedJobItemToBuilder_RendersTracebackAndErrors(t *testing.T) {
+	var sb strings.Builder
+	j := FailedJobItem{
+		JobName:        "Test Runner",
+		StepName:       "Run Tests",
+		FailureSummary: "FAIL: test_feature (tests.TestFeature)",
+		ErrorLines: []string{
+			"FAIL: test_feature (tests.TestFeature)",
+			"    Detailed assertion message",
+		},
+		StackTrace: "FAIL: test_feature\nTraceback (most recent call last):\n  File \"test.py\", line 10\nAssertionError",
+	}
+	printFailedJobItemToBuilder(&sb, j)
+	out := sb.String()
+	assertJobItemRenderOutput(t, out)
+}
+
+func assertJobItemRenderOutput(t *testing.T, out string) {
+	if !strings.Contains(out, "[Job: Test Runner | Step: Run Tests]") {
+		t.Errorf("expected job header, got: %s", out)
+	}
+	if !strings.Contains(out, "Detailed assertion message") {
+		t.Errorf("expected error lines, got: %s", out)
+	}
+	if !strings.Contains(out, "Stack Trace:") || !strings.Contains(out, "AssertionError") {
+		t.Errorf("expected stack trace in output, got: %s", out)
+	}
+}

@@ -2,9 +2,11 @@
 
 ## Active Plans
 
-- [220-pipeline-pe-unit-test-traceback-and-heatmap.md](220-pipeline-pe-unit-test-traceback-and-heatmap.md) — Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation (Spec: [220](../../02-spec/21-app/220-pipeline-pe-unit-test-traceback-and-heatmap/01-architecture-spec.md))
+None
 
 ## Completed Plans
+
+- [220-pipeline-pe-unit-test-traceback-and-heatmap.md](completed/220-pipeline-pe-unit-test-traceback-and-heatmap.md) — Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation (Spec: [220](../../02-spec/21-app/220-pipeline-pe-unit-test-traceback-and-heatmap/01-architecture-spec.md))
 
 - [218-nodes-agy-ui-remote-settings-and-cursor-automation.md](completed/218-nodes-agy-ui-remote-settings-and-cursor-automation.md) — Fleet Nodes Settings Sync, Remote Project-Scoped Prompting, Nodes AGY UI Dashboard, Privacy IP Scrub, and Cursor Subsystem Automation (Spec: [218](../../02-spec/21-app/218-nodes-agy-ui-remote-settings-and-cursor-automation/01-architecture-spec.md))
 - [202-fleet-nodes-agy-ui-prompt-manager-and-cursor-integration.md](completed/202-fleet-nodes-agy-ui-prompt-manager-and-cursor-integration.md) — Fleet Nodes AGY UI, Prompt Lifecycle Manager, Target Project Dispatch, and Cursor Integration (Spec: [190](../../02-spec/21-app/190-fleet-nodes-agy-ui-prompt-manager-and-cursor-integration.md))

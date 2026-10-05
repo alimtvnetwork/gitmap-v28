@@ -2,7 +2,7 @@
 
 ## Active Specifications
 
-- [220-pipeline-pe-unit-test-traceback-and-heatmap](220-pipeline-pe-unit-test-traceback-and-heatmap/01-architecture-spec.md) — Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation (Status: `in_progress`)
+- [220-pipeline-pe-unit-test-traceback-and-heatmap](220-pipeline-pe-unit-test-traceback-and-heatmap/01-architecture-spec.md) — Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation (Status: `completed`)
 - [218-nodes-agy-ui-remote-settings-and-cursor-automation](218-nodes-agy-ui-remote-settings-and-cursor-automation/01-architecture-spec.md) — Fleet Nodes Settings Sync, Remote Project-Scoped Prompting, Nodes AGY UI Dashboard, Privacy IP Scrub, and Cursor Subsystem Automation (Status: `completed`)
 - [217-antigravity-fleet-parity-theme-preset-plugins-and-delegation](217-antigravity-fleet-parity-theme-preset-plugins-and-delegation/01-architecture-spec.md) — Antigravity Fleet Parity (UI Theme Seeds, Turbo Permission Preset, 4 Plugins & 43 Skills Sync, SUID Sandbox Hardening), Automated PowerShell Migration Script, and GitMap Remote IDE Delegation Engine (`gitmap agy deploy` / `gitmap deploy ide`) (Status: `completed`)
 - [216-gitmap-prompting-freeze-and-suggestion-engine-fix](216-gitmap-prompting-freeze-and-suggestion-engine-fix/01-architecture-spec.md) — GitMap Terminal Prompt Input Freeze Remediation (Win32 Console CP & PowerShell Wrapper Handoff IPC), Typo Suggestion Engine Overhaul (`completion.AllCommands()` Integration), and Cobra Shell Tab Completion Restoration (Status: `completed`)

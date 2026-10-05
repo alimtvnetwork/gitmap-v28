@@ -535,8 +535,33 @@ func isStrongerSummary(candidate, current string) bool {
 
 func isTestFailureSummary(s string) bool {
 	trimmed := strings.TrimSpace(s)
+	if hasFailPrefixOrContains(trimmed) {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "ERROR: ") || strings.Contains(trimmed, "ERROR: ") {
+		return true
+	}
+	if isPytestFailureLine(trimmed) {
+		return true
+	}
 
-	return strings.HasPrefix(trimmed, "FAIL: test_") || strings.HasPrefix(trimmed, "FAIL:\ttest_") || strings.Contains(trimmed, "FAIL: test_")
+	return strings.HasPrefix(trimmed, "--- FAIL: ") || strings.Contains(trimmed, "--- FAIL: ")
+}
+
+func isPytestFailureLine(trimmed string) bool {
+	if !strings.HasPrefix(trimmed, "FAILED ") && !strings.Contains(trimmed, "FAILED ") {
+		return false
+	}
+
+	return !strings.Contains(trimmed, "FAILED (")
+}
+
+func hasFailPrefixOrContains(trimmed string) bool {
+	if strings.HasPrefix(trimmed, "FAIL: ") || strings.HasPrefix(trimmed, "FAIL:\t") {
+		return true
+	}
+
+	return strings.Contains(trimmed, "FAIL: ")
 }
 
 func isStepFailureNotice(s string) bool {

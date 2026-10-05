@@ -1,9 +1,9 @@
 # Master Audit Ledger: Task 220 - Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation
 
-**Version:** 1.0.0  
-**Status:** Completed (Phase 3 Verified & Ready for Release)  
-**Parent Task ID:** 220  
-**Database:** `.ai-memory/temp-agents/220-pipeline-pe-unit-test-traceback/agent-task.db`  
+**Version:** 2.0.0  
+**Status:** In Progress (Phase 2 Parallel Execution)  
+**Parent Task ID:** task-20261005033654-pipeline-pe-unit-test-traceback-and-heatmap  
+**Database:** `.ai-memory/temp-agents/pipeline-pe-unit-test-traceback-and-heatmap/agent-task.db`  
 
 ---
 
@@ -31,32 +31,34 @@ When we do the heat map PE, PE is not showing the error message. That's one prob
 
 ## 2. Discrete Technical Deliverables (Traceable IDs)
 
-1. **Task-01: gofmt Code Formatting & CI Path Resolution**
-   - Format the 5 dirty Go files (`cli/cmd/help.go`, `cli/cmdagent/agent_cleanup.go`, `cli/cmdagent/agent_diagnose.go`, `cli/cmdcursor/cursor_sync.go`, `cli/cmddb/cmddb_reset.go`) using `gofmt -w`.
-   - Fix `REPO_ROOT` path resolution in `.github/scripts/tests/test_ci_scripts.py:15` (`SCRIPTS_DIR, "..", ".."`).
-   - Verify `python .github/scripts/go-format-check.py --check-only` exits 0.
+1. **Task-01: Job-Level Log Fetcher & DB Cache Self-Healing (`Worker 01`)**
+   - Query failing jobs individually via `gh run view --job <databaseId> --repo <repo> --log-failed` when run-level log fails or is in progress.
+   - Normalize job log output lines to `<job_name>\t<step_name>\t<log_line>` format.
+   - Prevent fallback stubs from locking SQLite Split-DB records permanently in `persistLogToRepoSplitDb`.
+   - Target files: `cli/cmdpipeline/pipeline_query.go`, `cli/cmdpipeline/pipeline_persist.go`.
 
-2. **Task-02: Pipeline PE Unit Test Traceback Extraction Engine**
-   - Enhance `cli/cmdpipeline/pipeline_stacktrace.go` to parse Python tracebacks (`Traceback (most recent call last):`), Python stack frames (`File "...", line \d+, in \w+`), exception lines, and Go test failures.
-   - Guard against premature stack frame termination on test divider lines (`===`, `---`).
-   - Enhance `cli/cmdpipeline/pipeline_error_extract.go` to elevate `FAIL: <test_name>` to `FailureSummary`.
-   - Filter out test progress noise like `Ran \d+ tests in ...` in `isToolProgressNoise`.
-
-3. **Task-03: Log Caching & Heatmap Terminal/Clipboard Enhancements**
-   - Guard against caching synthetic step fallbacks as permanent log files during in-progress pipeline runs.
-   - Format unit test failures prominently in `renderFailedJobSection` and clipboard payloads.
-
-4. **Task-04: Test Suite & Minor Version Release Ceremony**
+2. **Task-02: Traceback Parser & Heatmap Formatter (`Worker 02`)**
+   - Scan backwards before `Traceback (most recent call last):` to capture preceding `FAIL: <test>` or `ERROR: <test>` line.
+   - Prevent premature stack termination on empty lines in `isStackStopLine` to preserve multi-line assertion diffs.
+   - Expand `isTestFailureSummary` to match `FAIL:`, `ERROR:`, `FAILED`, `--- FAIL:`.
+   - Render `j.StackTrace` and `j.ErrorLines` in `printFailedJobItemToBuilder` for commit inspector / heatmap cards.
    - Author regression unit tests in `cli/cmdpipeline/pipeline_error_extract_test.go`.
-   - Run tests and verify 100% passing.
-   - Minor version bump from `6.475.0` to `6.476.0` (`version.json`, `package.json`, `changelog.md`).
-   - Commit and release via GitMap CLI.
+   - Target files: `cli/cmdpipeline/pipeline_stacktrace.go`, `cli/cmdpipeline/pipeline_error_extract.go`, `cli/cmdpipeline/pipeline_history.go`, `cli/cmdpipeline/pipeline_error_extract_test.go`.
+
+3. **Task-03: Targeted Verification & Quality Audit (`Lead`)**
+   - Run file-scoped targeted checks: guideline autofixer, relative paths, doc path linter, forbidden strings.
+   - Verify all 3,951 Go files remain gofmt-clean (`python .github/scripts/go-format-check.py --check-only`).
+
+4. **Task-04: Minor Version Bump & Release Ceremony (`Lead`)**
+   - Minor version bump from `v6.477.0` to `v6.478.0` (`version.json`, `package.json`, `changelog.md`).
+   - Create release notes `.ai-memory/release/release-notes-v6.478.0.md`.
+   - Execute atomic GitMap commit and release.
 
 ---
 
 ## 3. Subagent Spawning Ledger (A = 2, H = 2)
 
-| Agent ID | Type | Role | Hands/Scope | Status |
+| Agent ID | Type | Role | Hands / Scope | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `Worker-01` | `self` | Python/Go formatting & CI test fixes | Subtask 01: `cli/` gofmt & `test_ci_scripts.py` | Ready to Dispatch |
-| `Worker-02` | `self` | Pipeline error extraction & stacktrace parser | Subtask 02: `pipeline_stacktrace.go` & `pipeline_error_extract.go` | Ready to Dispatch |
+| `Worker 01` | `self` | Job-Level Log Fetcher & DB Cache Engine | `pipeline_query.go`, `pipeline_persist.go` | In Progress |
+| `Worker 02` | `self` | Traceback Parser & Heatmap Formatter | `pipeline_stacktrace.go`, `pipeline_error_extract.go`, `pipeline_history.go`, `pipeline_error_extract_test.go` | In Progress |
