@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.490.0] - 2026-10-05
+
+### Added
+- ubuntu cursor memories conversations and projects migration, path sanitization, live verification
+
+---
+
 ## [v6.489.0] - 2026-10-05
 
 ### Added
