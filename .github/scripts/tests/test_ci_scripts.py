@@ -153,8 +153,10 @@ class TestChangelogVersionSync(unittest.TestCase):
 class TestSmokeInstaller(unittest.TestCase):
     def test_smoke_installer_source_mode(self):
         script = os.path.join(SCRIPTS_DIR, "smoke-installer.py")
-        res = subprocess.run([sys.executable, script, "source"], capture_output=True, text=True, encoding="utf-8")
-        self.assertEqual(res.returncode, 0)
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
+        res = subprocess.run([sys.executable, script, "source"], capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
+        self.assertEqual(res.returncode, 0, f"smoke-installer.py failed (exit {res.returncode}):\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}")
         self.assertIn("Installer smoke test passed", res.stdout)
 
 
