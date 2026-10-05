@@ -9,6 +9,7 @@ import (
 // PipelineErrorFlags holds parsed flags and positional options for pipeline error-logs.
 type PipelineErrorFlags struct {
 	IsJSON               bool
+	IsAll                bool
 	HasTimeline          bool
 	HasFix               bool
 	HasCheck             bool
@@ -46,6 +47,7 @@ func ParsePipelineErrorFlags(args []string) PipelineErrorFlags {
 func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.HasHelp = hasArgFlag(args, "--help") || hasArgFlag(args, "-h") || hasArgFlag(args, "help")
 	flags.IsJSON = hasArgFlag(args, "--json")
+	flags.IsAll = hasArgFlag(args, "all") || hasArgFlag(args, "--all")
 	flags.HasTimeline = hasTimelineArg(args)
 	flags.HasCheck = hasArgFlag(args, "--check") || hasArgFlag(args, "-c")
 	flags.IsDetailed = hasDetailedArg(args)
@@ -381,6 +383,13 @@ func advanceValueFlagOffset(flagName string, hasLimit bool) int {
 
 func applyCandidateRepoTarget(arg string, flags *PipelineErrorFlags) bool {
 	trimmed := strings.TrimSpace(arg)
+
+	if strings.EqualFold(trimmed, "all") {
+		flags.IsAll = true
+
+		return true
+	}
+
 	if isSkipTokenForRepoTarget(trimmed) || trimmed == flags.CommitTarget || isConsumedFlagValue(trimmed, flags) {
 		return false
 	}
@@ -415,7 +424,7 @@ func isSkipTokenForRepoTarget(token string) bool {
 	switch strings.ToLower(token) {
 	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "ee", "help",
 		"format", "add-format", "rm-format", "remove-format", "add-all", "list-formats", "preview-format",
-		"history-ai", "hai":
+		"history-ai", "hai", "all":
 		return true
 	default:
 		return false
