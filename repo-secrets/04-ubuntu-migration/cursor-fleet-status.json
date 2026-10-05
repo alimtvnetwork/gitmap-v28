@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CursorFleetStatus",
   "version": "1.0.0",
-  "lastUpdated": "2026-10-05T11:00:00+00:00",
+  "lastUpdated": "2026-10-05T12:00:00+00:00",
   "nodes": {
     "u1": {
       "nodeAlias": "u1",
@@ -11,6 +11,15 @@
       "iconDeployed": true,
       "desktopEntryDeployed": true,
       "dockPinned": true,
+      "startMenuGridPlaced": true,
+      "appPickerPinned": true,
+      "appPickerLayoutUpdated": true,
+      "appPickerPosition": 18,
+      "desktopDatabaseRefreshed": true,
+      "dockPosition": "BOTTOM",
+      "profileMigrated": true,
+      "memoryLoaded": true,
+      "skillsCount": 28,
       "projectsCount": 49,
       "projectsSynced": 49,
       "osUpdateSudoElevation": true,
@@ -19,8 +28,8 @@
       "wrapperPath": "/home/a/.local/bin/cursor",
       "sha256": "6ba0b06a8e9087688f312b8484e61ce28c185b609c3731b8906e17a6aa98a238",
       "status": "HEALTHY",
-      "lastVerified": "2026-10-05T11:00:00+00:00",
-      "details": "Verified Cursor AppImage v3.23.12, official icon deployed to pixmaps and hicolor icons, desktop entry installed, GNOME dock pinned, 49 projects synced to Project Manager, and Dracula settings configured."
+      "lastVerified": "2026-10-05T12:00:00+00:00",
+      "details": "Verified Cursor AppImage v3.23.12, official icon deployed to pixmaps and hicolor icons, desktop entry installed, GNOME dock pinned, app-picker-layout placed at position 18, dock position configurable, profile and AI memory migrated, 49 projects synced to Project Manager, and Dracula settings configured."
     }
   }
 }

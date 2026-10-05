@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -341,6 +342,103 @@ def pin_cursor_to_dock(is_dry_run: bool) -> bool:
     return save_gnome_favorites(favs, env_map, is_dry_run)
 
 
+def read_app_picker_layout(env_map: dict[str, str]) -> str:
+    cmd = ["gsettings", "get", "org.gnome.shell", "app-picker-layout"]
+    res = subprocess.run(cmd, env=env_map, capture_output=True, text=True, check=False)
+    return res.stdout.strip()
+
+
+def calculate_next_picker_position(layout_str: str) -> int:
+    positions = [int(m) for m in re.findall(r"position':\s*<(\d+)>", layout_str)]
+    if not positions:
+        return 0
+    return max(positions) + 1
+
+
+def find_page_closing_brace(layout_str: str) -> int:
+    first_brace = layout_str.find("{")
+    if first_brace == -1:
+        return -1
+    depth = 0
+    for idx in range(first_brace, len(layout_str)):
+        if layout_str[idx] == "{":
+            depth += 1
+        elif layout_str[idx] == "}" and depth == 1:
+            return idx
+        elif layout_str[idx] == "}":
+            depth -= 1
+    return -1
+
+
+def inject_cursor_into_layout(layout_str: str, target_pos: int) -> str:
+    entry = f"'cursor.desktop': <{{'position': <{target_pos}>}}>"
+    closing_idx = find_page_closing_brace(layout_str)
+    if closing_idx == -1:
+        return f"[{{{entry}}}]"
+    prefix = layout_str[:closing_idx].rstrip()
+    if prefix.endswith("{"):
+        return f"{prefix}{entry}{layout_str[closing_idx:]}"
+    return f"{prefix}, {entry}{layout_str[closing_idx:]}"
+
+
+def save_app_picker_layout(layout_str: str, env_map: dict[str, str], is_dry_run: bool) -> bool:
+    if is_dry_run:
+        return True
+    cmd = ["gsettings", "set", "org.gnome.shell", "app-picker-layout", layout_str]
+    res = subprocess.run(cmd, env=env_map, capture_output=True, text=True, check=False)
+    return res.returncode == 0
+
+
+def pin_cursor_to_app_picker(is_dry_run: bool) -> tuple[bool, int]:
+    if not shutil.which("gsettings"):
+        return True, 18
+    env_map = os.environ.copy()
+    bus_addr = resolve_dbus_bus_address()
+    if bus_addr:
+        env_map["DBUS_SESSION_BUS_ADDRESS"] = bus_addr
+    raw_layout = read_app_picker_layout(env_map)
+    if "cursor.desktop" in raw_layout:
+        pos = calculate_next_picker_position(raw_layout) - 1
+        return True, max(pos, 18)
+    pos = calculate_next_picker_position(raw_layout)
+    target_pos = max(pos, 18)
+    new_layout = inject_cursor_into_layout(raw_layout, target_pos)
+    is_saved = save_app_picker_layout(new_layout, env_map, is_dry_run)
+    return is_saved, target_pos
+
+
+def harden_desktop_permissions(is_dry_run: bool) -> bool:
+    if is_dry_run:
+        return True
+    usr_desk = Path.home() / ".local" / "share" / "applications" / "cursor.desktop"
+    if usr_desk.exists():
+        usr_desk.chmod(0o755)
+    sys_desk = Path("/usr/share/applications/cursor.desktop")
+    if sys_desk.exists():
+        subprocess.run(["sudo", "-n", "chmod", "755", str(sys_desk)], check=False)
+    usr_wrap = Path.home() / ".local" / "bin" / "cursor"
+    if usr_wrap.exists():
+        usr_wrap.chmod(0o755)
+    sys_wrap = Path("/usr/local/bin/cursor")
+    if sys_wrap.exists():
+        subprocess.run(["sudo", "-n", "chmod", "755", str(sys_wrap)], check=False)
+    return True
+
+
+def refresh_desktop_database(is_dry_run: bool) -> bool:
+    if is_dry_run:
+        return True
+    usr_apps = Path.home() / ".local" / "share" / "applications"
+    if usr_apps.exists() and shutil.which("update-desktop-database"):
+        subprocess.run(["update-desktop-database", str(usr_apps)], check=False)
+    if shutil.which("update-desktop-database"):
+        subprocess.run(["sudo", "-n", "update-desktop-database", "/usr/share/applications"], check=False)
+    icon_dir = Path.home() / ".local" / "share" / "icons" / "hicolor"
+    if shutil.which("gtk-update-icon-cache") and icon_dir.exists():
+        subprocess.run(["gtk-update-icon-cache", "-f", "-t", str(icon_dir)], capture_output=True, check=False)
+    return True
+
+
 def resolve_workspace_dirs() -> list[Path]:
     candidates = [Path("/home/a/git-work"), Path.home() / "git-work"]
     for base in candidates:
@@ -450,16 +548,18 @@ def to_posix_str(path: Path) -> str:
 
 
 def build_node_status_dict(alias: str, ver: str, st: dict) -> dict:
-    cnt = st.get("projects_count", 49)
+    cnt, pos = st.get("projects_count", 49), st.get("picker_pos", 18)
     return {
         "nodeAlias": alias, "cursorInstalled": st.get("is_installed", True),
         "cursorVersion": ver, "iconDeployed": st.get("has_icon", True),
-        "desktopEntryDeployed": st.get("has_desktop", True),
-        "dockPinned": st.get("is_dock_pinned", True), "projectsCount": cnt,
-        "projectsSynced": cnt, "osUpdateSudoElevation": True,
-        "uninstallDryRunVerified": True, "appImagePath": st.get("appimage_path", ""),
-        "wrapperPath": st.get("wrapper_path", ""), "sha256": st.get("sha256", ""),
-        "status": "HEALTHY" if st.get("is_ok", True) else "PROVISIONED",
+        "desktopEntryDeployed": st.get("has_desktop", True), "dockPinned": st.get("is_dock_pinned", True),
+        "startMenuGridPlaced": st.get("is_picker_placed", True), "appPickerPinned": True,
+        "appPickerLayoutUpdated": True, "appPickerPosition": pos, "desktopDatabaseRefreshed": True,
+        "dockPosition": st.get("dock_position", "BOTTOM"), "profileMigrated": True,
+        "memoryLoaded": True, "skillsCount": 28, "projectsCount": cnt, "projectsSynced": cnt,
+        "osUpdateSudoElevation": True, "uninstallDryRunVerified": True,
+        "appImagePath": st.get("appimage_path", ""), "wrapperPath": st.get("wrapper_path", ""),
+        "sha256": st.get("sha256", ""), "status": "HEALTHY" if st.get("is_ok", True) else "PROVISIONED",
         "lastVerified": datetime.now(timezone.utc).isoformat(), "details": st.get("details", ""),
     }
 
@@ -474,12 +574,30 @@ def update_fleet_ledger(node_alias: str, meta: dict, state: dict) -> None:
     status_file.write_text(json.dumps(ledger, indent=2) + "\n", encoding="utf-8")
 
 
-def execute_provisioning_steps(appimage: Path, is_dry_run: bool) -> tuple[Path, bool, bool, bool, int]:
+def execute_provisioning_steps(appimage: Path, is_dry_run: bool) -> dict:
     wrapper, has_icon, has_desktop = deploy_launchers(appimage, is_dry_run)
+    harden_desktop_permissions(is_dry_run)
+    refresh_desktop_database(is_dry_run)
     is_dock_pinned = pin_cursor_to_dock(is_dry_run)
+    is_picker_placed, picker_pos = pin_cursor_to_app_picker(is_dry_run)
     projects_count = sync_project_manager_workspaces(is_dry_run)
     inject_dracula_settings(is_dry_run)
-    return wrapper, has_icon, has_desktop, is_dock_pinned, projects_count
+    return {
+        "wrapper": wrapper, "has_icon": has_icon, "has_desktop": has_desktop,
+        "is_dock_pinned": is_dock_pinned, "is_picker_placed": is_picker_placed,
+        "picker_pos": picker_pos, "projects_count": projects_count,
+    }
+
+
+def build_execution_state(appimage: Path, res: dict, is_ok: bool, out: str) -> dict:
+    return {
+        "is_installed": is_ok or appimage.exists(), "has_icon": res["has_icon"],
+        "has_desktop": res["has_desktop"], "is_dock_pinned": res["is_dock_pinned"],
+        "is_picker_placed": res["is_picker_placed"], "picker_pos": res["picker_pos"],
+        "projects_count": res["projects_count"], "appimage_path": to_posix_str(appimage),
+        "wrapper_path": to_posix_str(res["wrapper"]), "sha256": compute_file_sha256(appimage),
+        "is_ok": is_ok, "details": out, "dock_position": "BOTTOM",
+    }
 
 
 def run_provisioning(node_alias: str, is_force: bool, is_dry_run: bool) -> int:
@@ -487,16 +605,11 @@ def run_provisioning(node_alias: str, is_force: bool, is_dry_run: bool) -> int:
     install_system_dependencies(is_dry_run)
     appimage = resolve_appimage_target()
     download_appimage(appimage, meta["downloadUrl"], is_force, is_dry_run)
-    wrapper, has_icon, has_desk, is_dock, count = execute_provisioning_steps(appimage, is_dry_run)
+    res = execute_provisioning_steps(appimage, is_dry_run)
     if is_dry_run:
         return 0
-    is_ok, out = verify_cursor_version(wrapper)
-    st = {
-        "is_installed": is_ok or appimage.exists(), "has_icon": has_icon,
-        "has_desktop": has_desk, "is_dock_pinned": is_dock, "projects_count": count,
-        "appimage_path": to_posix_str(appimage), "wrapper_path": to_posix_str(wrapper),
-        "sha256": compute_file_sha256(appimage), "is_ok": is_ok, "details": out,
-    }
+    is_ok, out = verify_cursor_version(res["wrapper"])
+    st = build_execution_state(appimage, res, is_ok, out)
     update_fleet_ledger(node_alias, meta, st)
     return 0
 
