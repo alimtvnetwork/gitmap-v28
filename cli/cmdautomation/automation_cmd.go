@@ -45,6 +45,8 @@ func runSearchCmd(cmd *cobra.Command, args []string) error {
 	searchOpts.Pattern = cleanSearchPattern(args[0])
 	if len(args) > 1 {
 		searchOpts.Dir = args[1]
+	} else {
+		searchOpts.Dir = ""
 	}
 	res, err := RunSearch(searchOpts)
 	if err != nil {
@@ -53,6 +55,7 @@ func runSearchCmd(cmd *cobra.Command, args []string) error {
 	renderSearchResults(res)
 	return nil
 }
+
 
 func runBenchmarkCmd(cmd *cobra.Command, args []string) error {
 	target := "all"

@@ -36,12 +36,14 @@ func validateSearchOptions(opts *SearchOptions) *apperror.AppError {
 	if len(opts.Pattern) == 0 {
 		return apperror.NewValidationError("search pattern is required")
 	}
+	autoPromoteRegex(opts)
 	if err := validateRegexOption(opts); err != nil {
 		return err
 	}
 	normalizeSearchDefaults(opts)
 	return nil
 }
+
 
 // cleanSearchPattern removes outer wrapping quotes and shell escapes from search patterns.
 func cleanSearchPattern(pattern string) string {
@@ -123,12 +125,19 @@ func normalizeSearchDefaults(opts *SearchOptions) {
 }
 
 func collectSearchFiles(opts SearchOptions) []string {
+	if explicitFiles, hasExplicit := resolveSearchCandidateFiles(opts.Dir); hasExplicit {
+		return explicitFiles
+	}
 	var files []string
 	extMap := buildExtMap(opts.Extensions)
 	exclusions := loadActiveExclusions()
 	maxJsonBytes := resolveMaxJsonBytes(opts.MaxJsonKb)
 
-	_ = filepath.Walk(opts.Dir, func(p string, info os.FileInfo, err error) error {
+	walkRoot := opts.Dir
+	if walkRoot == "" {
+		walkRoot = "."
+	}
+	_ = filepath.Walk(walkRoot, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -142,6 +151,7 @@ func collectSearchFiles(opts SearchOptions) []string {
 	})
 	return files
 }
+
 
 func resolveMaxJsonBytes(maxKb int) int64 {
 	if maxKb <= 0 {

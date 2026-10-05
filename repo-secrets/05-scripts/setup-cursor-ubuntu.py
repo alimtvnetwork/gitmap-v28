@@ -15,7 +15,7 @@ import subprocess
 import sys
 import urllib.request
 
-CURSOR_API_URL = "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable"
+CURSOR_API_URL = "https://cursor.com/api/download?platform=linux-x64&releaseTrack=stable"
 
 DRACULA_SETTINGS = {
     "workbench.colorTheme": "Dracula Theme",
@@ -50,6 +50,18 @@ def extract_api_fields(data: dict, fallback_url: str) -> dict:
 
 
 def fetch_upstream_metadata() -> dict:
+    try:
+        proc = subprocess.run(
+            ["curl", "-sL", CURSOR_API_URL],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if proc.returncode == 0 and proc.stdout.strip().startswith("{"):
+            data = json.loads(proc.stdout.strip())
+            return extract_api_fields(data, CURSOR_API_URL)
+    except Exception:
+        pass
     req = urllib.request.Request(CURSOR_API_URL, headers={"User-Agent": "GitMap-Fleet/2.0"})
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
@@ -66,10 +78,14 @@ def fetch_upstream_metadata() -> dict:
 def install_system_dependencies(is_dry_run: bool) -> bool:
     if is_dry_run or not shutil.which("apt-get"):
         return True
-    pkgs = ["libfuse2", "libnss3", "libasound2", "libgbm1", "libxss1", "curl", "ca-certificates"]
+    pkgs = [
+        "libfuse2t64", "libfuse2", "libnss3", "libasound2t64", "libasound2",
+        "libgbm1", "libxss1", "curl", "ca-certificates"
+    ]
     try:
         subprocess.run(["sudo", "apt-get", "update", "-y"], check=False)
-        subprocess.run(["sudo", "apt-get", "install", "-y"] + pkgs, check=False)
+        for pkg in pkgs:
+            subprocess.run(["sudo", "apt-get", "install", "-y", pkg], check=False)
         return True
     except Exception:
         return False
@@ -105,12 +121,25 @@ def download_appimage(target_file: Path, download_url: str, is_force: bool, is_d
         return True
     tmp_path = target_file.with_suffix(".tmp")
     try:
-        urllib.request.urlretrieve(download_url, tmp_path)
-        tmp_path.chmod(0o755)
-        tmp_path.replace(target_file)
-        return True
+        if shutil.which("curl"):
+            cmd = ["curl", "-fSL", "--progress-bar", "-o", str(tmp_path), download_url]
+            res = subprocess.run(cmd, check=False)
+            if res.returncode == 0 and tmp_path.exists() and tmp_path.stat().st_size > 1000000:
+                tmp_path.chmod(0o755)
+                tmp_path.replace(target_file)
+                return True
     except Exception:
-        return False
+        pass
+    try:
+        urllib.request.urlretrieve(download_url, tmp_path)
+        if tmp_path.exists() and tmp_path.stat().st_size > 1000000:
+            tmp_path.chmod(0o755)
+            tmp_path.replace(target_file)
+            return True
+    except Exception:
+        pass
+    return False
+
 
 
 def create_wrapper_at_path(wrapper_path: Path, appimage_path: Path, is_dry_run: bool) -> bool:
@@ -176,7 +205,7 @@ def verify_cursor_version(wrapper_path: Path) -> tuple[bool, str]:
     try:
         res = subprocess.run([str(wrapper_path), "--version"], capture_output=True, text=True, timeout=15)
         output = res.stdout.strip() or res.stderr.strip()
-        is_ok = res.returncode == 0 or len(output) > 0
+        is_ok = res.returncode == 0 and "not found" not in output.lower() and len(output) > 0
         return is_ok, output
     except Exception as ex:
         return False, str(ex)
@@ -201,9 +230,10 @@ def update_fleet_ledger(node_alias: str, meta: dict, appimage: Path, wrapper: Pa
     ledger = load_ledger_file(status_file)
     ledger["lastUpdated"] = datetime.now(timezone.utc).isoformat()
     status_label = "HEALTHY" if is_ok else "PROVISIONED"
+    has_installed = is_ok or (appimage.exists() and appimage.stat().st_size > 1000000)
     ledger.setdefault("nodes", {})[node_alias] = {
         "nodeAlias": node_alias,
-        "cursorInstalled": is_ok,
+        "cursorInstalled": has_installed,
         "cursorVersion": meta.get("version", "latest"),
         "appImagePath": to_posix_str(appimage),
         "wrapperPath": to_posix_str(wrapper),
@@ -213,6 +243,7 @@ def update_fleet_ledger(node_alias: str, meta: dict, appimage: Path, wrapper: Pa
         "details": out,
     }
     status_file.write_text(json.dumps(ledger, indent=2) + "\n", encoding="utf-8")
+
 
 
 

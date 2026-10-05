@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.484.0] - 2026-10-05
+
+### Added
+- ubuntu fleet cursor setup, gitmap py runner, git heatmap tracing, aum search regex and quote unquote
+
+---
+
 ## [v6.483.0] - 2026-10-05
 
 ### Added

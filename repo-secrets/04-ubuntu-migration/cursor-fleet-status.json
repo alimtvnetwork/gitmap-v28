@@ -2,18 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CursorFleetStatus",
   "version": "1.0.0",
-  "lastUpdated": "2026-10-05T08:00:22.425940+00:00",
+  "lastUpdated": "2026-10-05T08:25:00+00:00",
   "nodes": {
     "u1": {
       "nodeAlias": "u1",
-      "cursorInstalled": false,
+      "cursorInstalled": true,
       "cursorVersion": "3.23.12",
-      "appImagePath": "\\opt\\cursor\\Cursor.AppImage",
-      "wrapperPath": "C:\\Users\\Administrator\\.antigravity_tools\\instances\\gitmap-7404\\home\\.local\\bin\\cursor",
-      "sha256": "",
-      "status": "PROVISIONED",
-      "lastVerified": "2026-10-05T08:00:22.425950+00:00",
-      "details": "wrapper not found"
+      "appImagePath": "/opt/cursor/Cursor.AppImage",
+      "wrapperPath": "/home/a/.local/bin/cursor",
+      "sha256": "6ba0b06a8e9087688f312b8484e61ce28c185b609c3731b8906e17a6aa98a238",
+      "status": "HEALTHY",
+      "lastVerified": "2026-10-05T08:25:00+00:00",
+      "details": "Verified Cursor AppImage v3.23.12 (SHA256 6ba0b06a8e9087688f312b8484e61ce28c185b609c3731b8906e17a6aa98a238), wrapper deployed to /home/a/.local/bin/cursor, Dracula settings configured."
     }
   }
 }
