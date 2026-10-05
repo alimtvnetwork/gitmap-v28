@@ -359,13 +359,80 @@ __gitmap_quick_install_main() {
 
         # ── Baseline install flow ────────────────────────────────────
 
+        find_candidate_install_dirs() {
+            local candidates=()
+            local labels=()
+
+            add_candidate() {
+                local cand_path="$1"
+                local cand_label="$2"
+                [ -z "${cand_path}" ] && return 0
+                local c
+                for c in "${candidates[@]}"; do
+                    if [ "${c}" = "${cand_path}" ]; then
+                        return 0
+                    fi
+                done
+                candidates+=("${cand_path}")
+                labels+=("${cand_label}")
+            }
+
+            # 1. Existing binary in PATH
+            local existing_bin
+            existing_bin="$(command -v gitmap 2>/dev/null || true)"
+            if [ -n "${existing_bin}" ]; then
+                local existing_dir
+                existing_dir="$(dirname "${existing_bin}")"
+                add_candidate "${existing_dir}" "Recommended - Existing Installation"
+            fi
+
+            # 2. Privileged vs Non-Privileged defaults
+            if [ "$(id -u 2>/dev/null || echo 1)" -eq 0 ]; then
+                add_candidate "/usr/local/bin" "Recommended - System Binary Directory"
+                add_candidate "/opt/gitmap" "Standalone Suite Directory"
+            else
+                add_candidate "${HOME:-~}/.local/bin" "Recommended - User Binary Directory"
+            fi
+
+            # 3. Common work and repo locations
+            add_candidate "/usr/local/bin" "System Binary Directory"
+            add_candidate "${HOME:-~}/work" "Common Workspace"
+            add_candidate "${HOME:-~}/git-work" "Git Work Directory"
+            add_candidate "${HOME:-~}/gitmap" "User GitMap Suite"
+
+            local i
+            for (( i=0; i<${#candidates[@]}; i++ )); do
+                printf '%s|%s\n' "${candidates[$i]}" "${labels[$i]}"
+            done
+        }
+
         prompt_dir() {
             printf '\n' >&2
-            printf '  \033[36mgitmap quick installer\033[0m\n' >&2
-            printf '  \033[90m---------------------\033[0m\n' >&2
-            printf '  Choose install folder. Press Enter to accept the default.\n' >&2
-            printf '  \033[90mDefault: %s\033[0m\n' "${DEFAULT_DIR}" >&2
-            printf '  Install path: ' >&2
+            printf '  \033[36mgitmap quick installer — installation directory selection\033[0m\n' >&2
+            printf '  \033[90m----------------------------------------------------------\033[0m\n' >&2
+
+            local paths=()
+            local labels=()
+            while IFS='|' read -r c_path c_label; do
+                if [ -n "${c_path}" ]; then
+                    paths+=("${c_path}")
+                    labels+=("${c_label}")
+                fi
+            done <<EOF
+$(find_candidate_install_dirs)
+EOF
+
+            local total="${#paths[@]}"
+            local i num
+            for (( i=0; i<total; i++ )); do
+                num=$(( i + 1 ))
+                printf '  \033[33m[%d]\033[0m %s \033[90m(%s)\033[0m\n' "${num}" "${paths[$i]}" "${labels[$i]}" >&2
+            done
+
+            local custom_num=$(( total + 1 ))
+            printf '  \033[33m[%d]\033[0m Custom path...\n' "${custom_num}" >&2
+            printf '\n  \033[90mDefault: [%s]\033[0m\n' "${paths[0]:-${DEFAULT_DIR}}" >&2
+            printf '  Select option [1-%d] or enter custom path (Default: [1]): ' "${custom_num}" >&2
 
             local answer=""
             if [ -r /dev/tty ]; then
@@ -374,9 +441,38 @@ __gitmap_quick_install_main() {
                 IFS= read -r answer || answer=""
             fi
 
+            answer="$(printf '%s' "${answer}" | tr -d '\r\n' | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+            if [ -z "${answer}" ] || [ "${answer}" = "1" ]; then
+                sanitize_install_dir "${paths[0]:-${DEFAULT_DIR}}"
+                return 0
+            fi
+
+            if [[ "${answer}" =~ ^[0-9]+$ ]]; then
+                local sel=$(( answer - 1 ))
+                if [ "${sel}" -ge 0 ] && [ "${sel}" -lt "${total}" ]; then
+                    sanitize_install_dir "${paths[$sel]}"
+                    return 0
+                elif [ "${answer}" -eq "${custom_num}" ]; then
+                    printf '  Enter custom install path: ' >&2
+                    local custom_input=""
+                    if [ -r /dev/tty ]; then
+                        IFS= read -r custom_input < /dev/tty || custom_input=""
+                    elif [ -t 0 ]; then
+                        IFS= read -r custom_input || custom_input=""
+                    fi
+                    custom_input="$(sanitize_install_dir "${custom_input}")"
+                    if [ -n "${custom_input}" ]; then
+                        echo "${custom_input}"
+                    else
+                        sanitize_install_dir "${paths[0]:-${DEFAULT_DIR}}"
+                    fi
+                    return 0
+                fi
+            fi
+
             answer="$(sanitize_install_dir "${answer}")"
             if [ -z "${answer}" ]; then
-                echo "${DEFAULT_DIR}"
+                sanitize_install_dir "${paths[0]:-${DEFAULT_DIR}}"
             else
                 echo "${answer}"
             fi

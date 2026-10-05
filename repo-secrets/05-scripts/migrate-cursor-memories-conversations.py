@@ -121,7 +121,30 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Force overwrite existing destination files during import",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--exclude",
+        dest="exclude",
+        default="",
+        help="Comma-separated list of project folder or repo names to exclude from sync/export",
+    )
+    parser.add_argument(
+        "--skip-settings",
+        dest="is_skip_settings",
+        action="store_true",
+        help="Exclude settings.json, preserving target host's editor settings",
+    )
+    parser.add_argument(
+        "--settings-only",
+        dest="is_settings_only",
+        action="store_true",
+        help="Package and sync ONLY settings.json and themes, skipping large database files",
+    )
+    parsed = parser.parse_args()
+    if parsed.is_skip_settings and parsed.is_settings_only:
+        parser.error("Cannot specify both --skip-settings and --settings-only")
+
+    return parsed
+
 
 
 def resolve_dirs() -> tuple[Path, Path]:
@@ -159,7 +182,12 @@ def resolve_dirs() -> tuple[Path, Path]:
     return cfg_dir, cur_dir
 
 
-def is_included_path(rel_str: str) -> bool:
+def is_included_path(
+    rel_str: str,
+    exclude_list: list[str] | None = None,
+    is_skip_settings: bool = False,
+    is_settings_only: bool = False,
+) -> bool:
     """Check if relative path should be included in migration bundle."""
     norm = rel_str.replace("\\", "/").lower()
     norm_lead = f"/{norm}" if not norm.startswith("/") else norm
@@ -170,6 +198,21 @@ def is_included_path(rel_str: str) -> bool:
 
     if norm.endswith(".sock") or norm.endswith(".lock") or norm.endswith(".log"):
         return False
+
+    if is_settings_only and not (
+        norm.endswith("settings.json")
+        or norm.endswith("keybindings.json")
+        or "theme" in norm
+    ):
+        return False
+
+    if is_skip_settings and norm.endswith("settings.json"):
+        return False
+
+    if exclude_list:
+        for ex in exclude_list:
+            if ex and ex in norm:
+                return False
 
     return True
 
@@ -340,8 +383,30 @@ def append_tar_file(tar: tarfile.TarFile, name: str, data: bytes) -> None:
     tar.addfile(ti, io.BytesIO(data))
 
 
-def add_file_to_tar(tar: tarfile.TarFile, file_path: Path, m_name: str) -> None:
+def filter_projects_json_data(raw_bytes: bytes, exclude_list: list[str]) -> bytes:
+    """Filter project entries matching exclude list from projects.json."""
+    try:
+        data = json.loads(raw_bytes.decode("utf-8", errors="surrogateescape"))
+        if not isinstance(data, list):
+            return raw_bytes
+        filtered = []
+        for entry in data:
+            entry_str = json.dumps(entry).lower()
+            matches = any(ex in entry_str for ex in exclude_list)
+            if not matches:
+                filtered.append(entry)
+        return json.dumps(filtered, indent=2).encode("utf-8")
+    except Exception:
+        return raw_bytes
+
+
+def add_file_to_tar(tar: tarfile.TarFile, file_path: Path, m_name: str, exclude_list: list[str] | None = None) -> None:
     """Add a file to the archive, performing SQLite or text transformation when appropriate."""
+    if file_path.name == "projects.json" and exclude_list:
+        filtered = filter_projects_json_data(file_path.read_bytes(), exclude_list)
+        append_tar_file(tar, m_name, transform_bytes(m_name, filtered))
+        return
+
     if file_path.name == "state.vscdb":
         with tempfile.NamedTemporaryFile(suffix=".vscdb", delete=False) as tf:
             tmp_path = Path(tf.name)
@@ -363,33 +428,67 @@ def add_file_to_tar(tar: tarfile.TarFile, file_path: Path, m_name: str) -> None:
         append_tar_file(tar, m_name, transform_bytes(m_name, file_path.read_bytes()))
 
 
-def add_tree_to_tar(tar: tarfile.TarFile, root: Path, tag: str) -> int:
+def add_tree_to_tar(
+    tar: tarfile.TarFile,
+    root: Path,
+    tag: str,
+    exclude_list: list[str] | None = None,
+    is_skip_settings: bool = False,
+    is_settings_only: bool = False,
+) -> int:
     """Recursively stage, transform, and bundle directory tree into tar archive."""
     if not root.is_dir():
         return 0
 
     cnt = 0
     for p in root.rglob("*"):
-        if p.is_file() and is_included_path(str(p.relative_to(root))):
-            m_name = map_member_path(tag, p.relative_to(root))
-            add_file_to_tar(tar, p, m_name)
-            cnt += 1
-            if cnt % 250 == 0:
-                print(f"  [staging] Packed {cnt} items from {tag}...")
+        if not p.is_file():
+            continue
+
+        rel_path = p.relative_to(root)
+        if not is_included_path(str(rel_path), exclude_list, is_skip_settings, is_settings_only):
+            continue
+
+        m_name = map_member_path(tag, rel_path)
+        add_file_to_tar(tar, p, m_name, exclude_list)
+        cnt += 1
+        if cnt % 250 == 0:
+            print(f"  [staging] Packed {cnt} items from {tag}...")
 
     return cnt
 
 
-def count_tree_files(root: Path) -> int:
+def count_tree_files(
+    root: Path,
+    exclude_list: list[str] | None = None,
+    is_skip_settings: bool = False,
+    is_settings_only: bool = False,
+) -> int:
     """Count eligible files in directory matching inclusion filter."""
     if not root.is_dir():
         return 0
-    return sum(1 for p in root.rglob("*") if p.is_file() and is_included_path(str(p.relative_to(root))))
+
+    cnt = 0
+    for p in root.rglob("*"):
+        if p.is_file() and is_included_path(str(p.relative_to(root)), exclude_list, is_skip_settings, is_settings_only):
+            cnt += 1
+
+    return cnt
 
 
-def build_bundle(out: Path, src_user: Path, src_home: Path, is_dry_run: bool) -> int:
+def build_bundle(
+    out: Path,
+    src_user: Path,
+    src_home: Path,
+    is_dry_run: bool,
+    exclude: str = "",
+    is_skip_settings: bool = False,
+    is_settings_only: bool = False,
+) -> int:
     """Build compressed tarball bundle with transformed Cursor state."""
-    c_user, c_home = count_tree_files(src_user), count_tree_files(src_home)
+    exclude_list = [x.strip().lower() for x in exclude.split(",") if x.strip()] if exclude else []
+    c_user = count_tree_files(src_user, exclude_list, is_skip_settings, is_settings_only)
+    c_home = count_tree_files(src_home, exclude_list, is_skip_settings, is_settings_only)
     total_files = c_user + c_home
 
     print(f"● Discovered {c_user} files in User config and {c_home} files in Cursor home ({total_files} total)")
@@ -400,8 +499,8 @@ def build_bundle(out: Path, src_user: Path, src_home: Path, is_dry_run: bool) ->
     out.parent.mkdir(parents=True, exist_ok=True)
     print(f"● Staging and compressing migration bundle -> {out}")
     with tarfile.open(out, "w:gz") as tar:
-        add_tree_to_tar(tar, src_user, "config_user")
-        add_tree_to_tar(tar, src_home, "cursor_home")
+        add_tree_to_tar(tar, src_user, "config_user", exclude_list, is_skip_settings, is_settings_only)
+        add_tree_to_tar(tar, src_home, "cursor_home", exclude_list, is_skip_settings, is_settings_only)
 
     size_mb = out.stat().st_size / (1024 * 1024)
     print(f"✔ Successfully bundled {total_files} items into {out} ({size_mb:.2f} MB)")
@@ -698,7 +797,15 @@ def main() -> None:
         temp_base = Path(tempfile.gettempdir()) if os.name == "nt" else Path("/tmp")
         out_archive = temp_base / DEFAULT_ARCHIVE_NAME
 
-    build_bundle(out_archive, cfg_dir, cur_dir, args.is_dry_run)
+    build_bundle(
+        out_archive,
+        cfg_dir,
+        cur_dir,
+        args.is_dry_run,
+        exclude=args.exclude,
+        is_skip_settings=args.is_skip_settings,
+        is_settings_only=args.is_settings_only,
+    )
 
     if args.is_sync:
         success = dispatch_remote(

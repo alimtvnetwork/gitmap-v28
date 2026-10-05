@@ -56,6 +56,15 @@ const IndexHTML = `<!DOCTYPE html>
     .json-str { color: #34d399; }
     .json-num { color: #60a5fa; }
     .json-bool { color: #f472b6; }
+    .sub-tab-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 0.45rem 0.9rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.15s; }
+    .sub-tab-btn:hover { background: var(--card); color: var(--text); }
+    .sub-tab-btn.active { background: var(--primary); color: #000; font-weight: 600; border-color: var(--primary); }
+    .chip { background: #131d2e; border: 1px solid var(--border); color: #cbd5e1; padding: 0.3rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; cursor: pointer; transition: 0.15s; font-family: monospace; }
+    .chip:hover { border-color: var(--primary); color: #fff; background: #1e293b; }
+    .term-stdout { color: #f8fafc; }
+    .term-stderr { color: #f87171; }
+    .term-info { color: #38bdf8; }
+    .term-prompt { color: #f59e0b; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -82,90 +91,178 @@ const IndexHTML = `<!DOCTYPE html>
 
     <!-- SETTINGS TAB -->
     <div id="tab-settings" class="content-area active">
-      <div class="card">
-        <h3>General & UI Layout Settings</h3>
+      <div class="sub-tab-bar" style="display: flex; gap: 8px; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; flex-wrap: wrap;">
+        <button type="button" class="sub-tab-btn active" onclick="showSettingsSubTab('all')" id="subnav-all">📑 All Settings</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('general')" id="subnav-general">🎨 General &amp; UI</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('cursor')" id="subnav-cursor">🛸 Cursor Fleet &amp; Sync</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('speed')" id="subnav-speed">⚡ Speed &amp; Automation</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('alerts')" id="subnav-alerts">🔔 Alerts &amp; Notifications</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('terminal')" id="subnav-terminal">💻 Embedded Terminal</button>
+      </div>
+
+      <!-- 1. GENERAL & UI APPEARANCE -->
+      <div class="card settings-subtab-pane" id="settings-pane-general">
+        <h3>🎨 General &amp; UI Appearance</h3>
         <div class="form-group">
           <label>Theme</label>
-          <select id="setting-theme"><option value="dark">Dark Theme (Standard)</option><option value="light">Light Theme</option></select>
+          <select id="setting-theme">
+            <option value="dark">Dark Theme (Standard)</option>
+            <option value="light">Light Theme</option>
+          </select>
         </div>
         <div class="form-group">
-          <label>Graphics Rendering & Hardware Acceleration</label>
-          <select id="setting-graphics"><option value="high">High Performance / Hardware Acceleration</option><option value="fast">Fast Standard</option><option value="plain">Plain / Low Graphics</option></select>
+          <label>Graphics Rendering &amp; Hardware Acceleration</label>
+          <select id="setting-graphics">
+            <option value="high">High Performance / Hardware Acceleration</option>
+            <option value="fast">Fast Standard</option>
+            <option value="plain">Plain / Low Graphics</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Auto-Open Browser on UI Launch</label>
-          <select id="setting-auto-open"><option value="true">Enabled (Launch default browser automatically)</option><option value="false">Disabled (Emit URL to console only)</option></select>
+          <select id="setting-auto-open">
+            <option value="true">Enabled (Launch default browser automatically)</option>
+            <option value="false">Disabled (Emit URL to console only)</option>
+          </select>
         </div>
         <div class="form-group">
-          <label>Commit-In Migration Studio Layout</label>
-          <select id="setting-commitin-layout"><option value="split">Split Dual-Pane (Config & Output)</option><option value="left">Left Focus (Config dominant)</option><option value="right">Right Focus (Output dominant)</option><option value="stacked">Stacked Vertical</option></select>
-        </div>
-        <div class="form-group">
-          <label>Pull Direction Orientation</label>
-          <select id="setting-pull-direction"><option value="pull-left">Pull-Left (Replay from target down to left)</option><option value="pull-right">Pull-Right (Replay from left source into right target)</option><option value="bidirectional">Bidirectional Sync</option></select>
-        </div>
-        <div class="form-group">
-          <label>Commit-Pull PR Replay Mode</label>
-          <select id="setting-pr-mode"><option value="merges">merges (Feature branches & release PRs)</option><option value="feature-per-commit">feature-per-commit</option><option value="direct">direct mainline</option></select>
+          <label>Cluster REST Port</label>
+          <input type="number" id="setting-port" value="49152">
         </div>
         <div class="form-group">
           <label>Default Remote Target</label>
           <input type="text" id="setting-remote" placeholder="origin or alias">
         </div>
         <div class="form-group">
-          <label>Cluster REST Port</label>
-          <input type="number" id="setting-port" value="49152">
+          <label>Pull Direction Orientation</label>
+          <select id="setting-pull-direction">
+            <option value="pull-left">Pull-Left (Replay from target down to left)</option>
+            <option value="pull-right">Pull-Right (Replay from left source into right target)</option>
+            <option value="bidirectional">Bidirectional Sync</option>
+          </select>
         </div>
-        <button class="btn" onclick="saveSettings()">Save Settings</button>
+        <div class="form-group">
+          <label>Commit-Pull PR Replay Mode</label>
+          <select id="setting-pr-mode">
+            <option value="merges">merges (Feature branches &amp; release PRs)</option>
+            <option value="feature-per-commit">feature-per-commit</option>
+            <option value="direct">direct mainline</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Commit-In Migration Studio Layout</label>
+          <select id="setting-commitin-layout">
+            <option value="split">Split Dual-Pane (Config &amp; Output)</option>
+            <option value="left">Left Focus (Config dominant)</option>
+            <option value="right">Right Focus (Output dominant)</option>
+            <option value="stacked">Stacked Vertical</option>
+          </select>
+        </div>
+        <button class="btn" onclick="saveSettings()">Save General Settings</button>
       </div>
 
-      <div class="card">
-        <h3>Speed Settings (AGY, LAP, Account Switch, Telegram Bot, Email &amp; Machine Identity)</h3>
+      <!-- 2. CURSOR FLEET & SYNC -->
+      <div class="card settings-subtab-pane" id="settings-pane-cursor">
+        <h3>🛸 Cursor Fleet &amp; Sync</h3>
+        <div class="form-group">
+          <label>Machine Name (<code>machine.name</code>)</label>
+          <input type="text" id="setting-machine-name" name="machine.name" data-key="machine.name" placeholder="dev-win-01 / ubuntu-node-02">
+        </div>
+        <div class="form-group">
+          <label>Network Alias (<code>machine.alias</code> &mdash; auto-defaults to Local IPv4)</label>
+          <input type="text" id="setting-machine-alias" name="machine.alias" data-key="machine.alias" placeholder="Auto-defaults to Local IPv4 if unset">
+        </div>
+        <div class="form-group">
+          <label>Special Secrets Repository Name (<code>special_repos.secrets_name</code> &mdash; shortcut: <code>gitmap rs</code> / <code>gitmap cd rs</code>)</label>
+          <input type="text" id="setting-special-secrets-name" name="special_repos.secrets_name" data-key="special_repos.secrets_name" value="repo-secrets" placeholder="repo-secrets">
+        </div>
+        <div class="form-group">
+          <label>Special Cache / Storage Repository Name (<code>special_repos.cache_name</code> &mdash; shortcut: <code>gitmap rc</code> / <code>gitmap cd rc</code>)</label>
+          <input type="text" id="setting-special-cache-name" name="special_repos.cache_name" data-key="special_repos.cache_name" value="repo-cache" placeholder="repo-cache">
+        </div>
+        <button class="btn" onclick="saveSettings()">Save Cursor Fleet Settings</button>
+      </div>
+
+      <!-- 3. SPEED & AUTOMATION -->
+      <div class="card settings-subtab-pane" id="settings-pane-speed">
+        <h3>⚡ Speed &amp; Automation</h3>
         <div class="form-group">
           <label>LAP Default Lookback Hours (N = 24) (<code>lap.default_hours</code>)</label>
           <input type="number" id="setting-lap-hours" name="lap.default_hours" data-key="lap.default_hours" value="24" placeholder="24">
         </div>
         <div class="form-group">
-          <label>Account Switch Fast-Forward Threshold (%) (<code>account_switch.threshold</code> — default 15% prod / 98% E2E test)</label>
+          <label>Account Switch Fast-Forward Threshold (%) (<code>account_switch.threshold</code> &mdash; default 15% prod / 98% E2E test)</label>
           <input type="number" id="setting-account-switch-threshold" name="account_switch.threshold" data-key="account_switch.threshold" value="15" placeholder="15 (prod) or 98 (E2E test)">
         </div>
+        <button class="btn" onclick="saveSettings()">Save Speed Settings</button>
+      </div>
+
+      <!-- 4. ALERTS & NOTIFICATIONS -->
+      <div class="card settings-subtab-pane" id="settings-pane-alerts">
+        <h3>🔔 Alerts &amp; Notifications</h3>
         <div class="form-group">
-          <label>Telegram Two-Way Bot Setup — Bot Token (<code>telegram.bot_token</code>)</label>
+          <label>Telegram Two-Way Bot Setup &mdash; Bot Token (<code>telegram.bot_token</code>)</label>
           <input type="text" id="setting-telegram-token" name="telegram.bot_token" data-key="telegram.bot_token" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
         </div>
         <div class="form-group">
-          <label>Telegram Two-Way Bot Setup — Chat ID (<code>telegram.chat_id</code>)</label>
+          <label>Telegram Two-Way Bot Setup &mdash; Chat ID (<code>telegram.chat_id</code>)</label>
           <input type="text" id="setting-telegram-chat" name="telegram.chat_id" data-key="telegram.chat_id" placeholder="-1001234567890">
         </div>
         <div class="form-group">
-          <label>Email Speed SMTP Setup — SMTP Host (<code>email.smtp_host</code>)</label>
+          <label>Email Speed SMTP Setup &mdash; SMTP Host (<code>email.smtp_host</code>)</label>
           <input type="text" id="setting-email-smtp" name="email.smtp_host" data-key="email.smtp_host" placeholder="smtp.gmail.com:587">
         </div>
         <div class="form-group">
-          <label>Email Speed SMTP Setup — From Address (<code>email.from</code>)</label>
+          <label>Email Speed SMTP Setup &mdash; From Address (<code>email.from</code>)</label>
           <input type="email" id="setting-email-from" name="email.from" data-key="email.from" placeholder="bot@example.com">
         </div>
         <div class="form-group">
-          <label>Email Speed SMTP Setup — To Address (<code>email.to</code>)</label>
+          <label>Email Speed SMTP Setup &mdash; To Address (<code>email.to</code>)</label>
           <input type="email" id="setting-email-to" name="email.to" data-key="email.to" placeholder="dev@example.com">
         </div>
-        <div class="form-group">
-          <label>Machine Identity &amp; Network Alias — Machine Name (<code>machine.name</code>)</label>
-          <input type="text" id="setting-machine-name" name="machine.name" data-key="machine.name" placeholder="dev-win-01 / ubuntu-node-02">
+        <button class="btn" onclick="saveSettings()">Save Notification Settings</button>
+      </div>
+
+      <!-- 5. INTERACTIVE EMBEDDED TERMINAL -->
+      <div class="card settings-subtab-pane" id="settings-pane-terminal">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="display:inline-flex; gap:5px; font-size:0.85rem;">
+              <span style="color:#ef4444;">●</span>
+              <span style="color:#f59e0b;">●</span>
+              <span style="color:#10b981;">●</span>
+            </span>
+            <h3 style="margin-bottom:0; color:var(--text);">GitMap Live Terminal</h3>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; flex:1; max-width:480px; justify-content:flex-end;">
+            <select id="term-node" style="width:auto; min-width:110px; padding:0.4rem 0.6rem;">
+              <option value="local">local</option>
+              <option value="u1">u1</option>
+            </select>
+            <input type="text" id="term-cwd" placeholder="cwd (optional)" style="flex:1; min-width:140px; padding:0.4rem 0.6rem;">
+            <span id="term-badge" class="badge" style="display:none; white-space:nowrap;"></span>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Machine Identity &amp; Network Alias — Network Alias (<code>machine.alias</code> — auto-defaults to Local IPv4)</label>
-          <input type="text" id="setting-machine-alias" name="machine.alias" data-key="machine.alias" placeholder="Auto-defaults to Local IPv4 if unset">
+
+        <!-- Quick command chips -->
+        <div class="chip-container" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:0.75rem; align-items:center;">
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap status')">gitmap status</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap pe')">gitmap pe</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap nodes ls')">gitmap nodes ls</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap cursor settings view')">gitmap cursor settings view</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap lap 24')">gitmap lap 24</button>
+          <button type="button" class="chip" onclick="clearTerminalOutput()" style="margin-left:auto; background:#1e293b; color:var(--muted);">🧹 Clear</button>
         </div>
-        <div class="form-group">
-          <label>Special Secrets Repository Name (<code>special_repos.secrets_name</code> — shortcut: <code>gitmap rs</code> / <code>gitmap cd rs</code>)</label>
-          <input type="text" id="setting-special-secrets-name" name="special_repos.secrets_name" data-key="special_repos.secrets_name" value="repo-secrets" placeholder="repo-secrets">
+
+        <!-- Terminal Console Output -->
+        <div id="term-output" style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; min-height:260px; max-height:420px; overflow-y:auto; padding:0.85rem; font-family:'Cascadia Code', Consolas, monospace; font-size:0.85rem; line-height:1.5; white-space:pre-wrap; color:#e2e8f0; margin-bottom:0.75rem;">GitMap Fleet Terminal ready. Type a command or click a quick action above.</div>
+
+        <!-- Command Prompt Input -->
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span style="font-family:monospace; color:var(--primary); font-weight:700; font-size:1.1rem;">$</span>
+          <input type="text" id="term-input" placeholder="Enter command... (Press Enter or Run)" style="flex:1;">
+          <button type="button" class="btn" id="term-run-btn" onclick="runTerminalCommand()">⚡ Run</button>
         </div>
-        <div class="form-group">
-          <label>Special Cache / Storage Repository Name (<code>special_repos.cache_name</code> — shortcut: <code>gitmap rc</code> / <code>gitmap cd rc</code>)</label>
-          <input type="text" id="setting-special-cache-name" name="special_repos.cache_name" data-key="special_repos.cache_name" value="repo-cache" placeholder="repo-cache">
-        </div>
-        <button class="btn" onclick="saveSettings()">Save Speed Settings</button>
       </div>
     </div>
 
@@ -471,14 +568,32 @@ const IndexHTML = `<!DOCTYPE html>
         const res = await fetch('/api/ssh/nodes');
         const data = await res.json();
         const sel = document.getElementById('editor-node');
-        sel.innerHTML = '<option value="local">local (current machine)</option>';
-        if (data && data.length) {
+        if (sel) {
+          sel.innerHTML = '<option value="local">local (current machine)</option>';
+          if (data && data.length) {
+            data.forEach(n => {
+              const opt = document.createElement('option');
+              opt.value = n.alias;
+              opt.innerText = n.alias + ' (' + n.host + ')';
+              sel.appendChild(opt);
+            });
+          }
+        }
+        const termSel = document.getElementById('term-node');
+        if (termSel && data && data.length) {
+          termSel.innerHTML = '<option value="local">local</option>';
           data.forEach(n => {
             const opt = document.createElement('option');
             opt.value = n.alias;
-            opt.innerText = n.alias + ' (' + n.host + ')';
-            sel.appendChild(opt);
+            opt.innerText = n.alias;
+            termSel.appendChild(opt);
           });
+          if (!data.some(n => n.alias === 'u1')) {
+            const u1Opt = document.createElement('option');
+            u1Opt.value = 'u1';
+            u1Opt.innerText = 'u1';
+            termSel.appendChild(u1Opt);
+          }
         }
       } catch (e) {}
     }
@@ -544,6 +659,21 @@ const IndexHTML = `<!DOCTYPE html>
       } catch (e) { out.innerText = 'Error: ' + e.message; }
     }
 
+    function showSettingsSubTab(subId) {
+      document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+      const btn = document.getElementById('subnav-' + subId);
+      if (btn) btn.classList.add('active');
+
+      const panes = document.querySelectorAll('.settings-subtab-pane');
+      if (subId === 'all') {
+        panes.forEach(p => p.style.display = 'block');
+        return;
+      }
+      panes.forEach(p => p.style.display = 'none');
+      const target = document.getElementById('settings-pane-' + subId);
+      if (target) target.style.display = 'block';
+    }
+
     async function loadSettings() {
       try {
         const res = await fetch('/api/settings');
@@ -557,20 +687,38 @@ const IndexHTML = `<!DOCTYPE html>
           if (data.commitInLayout && document.getElementById('setting-commitin-layout')) document.getElementById('setting-commitin-layout').value = data.commitInLayout;
           if (data.pullDirection && document.getElementById('setting-pull-direction')) document.getElementById('setting-pull-direction').value = data.pullDirection;
           if (data.prReplayMode && document.getElementById('setting-pr-mode')) document.getElementById('setting-pr-mode').value = data.prReplayMode;
+
+          if (data.attributes) {
+            document.querySelectorAll('[data-key]').forEach(el => {
+              const key = el.getAttribute('data-key');
+              if (data.attributes[key] !== undefined) {
+                el.value = data.attributes[key];
+              }
+            });
+          }
         }
       } catch (e) { console.error('Failed to load settings', e); }
     }
 
     async function saveSettings() {
+      const attrs = {};
+      document.querySelectorAll('[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (key) {
+          attrs[key] = el.value;
+        }
+      });
+
       const payload = {
-        theme: document.getElementById('setting-theme').value,
-        defaultRemote: document.getElementById('setting-remote').value,
-        clusterPort: parseInt(document.getElementById('setting-port').value) || 49152,
+        theme: document.getElementById('setting-theme') ? document.getElementById('setting-theme').value : 'dark',
+        defaultRemote: document.getElementById('setting-remote') ? document.getElementById('setting-remote').value : 'origin',
+        clusterPort: parseInt(document.getElementById('setting-port') ? document.getElementById('setting-port').value : 49152) || 49152,
         graphicsMode: document.getElementById('setting-graphics') ? document.getElementById('setting-graphics').value : 'high',
         autoOpenBrowser: document.getElementById('setting-auto-open') ? document.getElementById('setting-auto-open').value === 'true' : true,
         commitInLayout: document.getElementById('setting-commitin-layout') ? document.getElementById('setting-commitin-layout').value : 'split',
         pullDirection: document.getElementById('setting-pull-direction') ? document.getElementById('setting-pull-direction').value : 'pull-left',
-        prReplayMode: document.getElementById('setting-pr-mode') ? document.getElementById('setting-pr-mode').value : 'merges'
+        prReplayMode: document.getElementById('setting-pr-mode') ? document.getElementById('setting-pr-mode').value : 'merges',
+        attributes: attrs
       };
       try {
         const res = await fetch('/api/settings', {
@@ -581,8 +729,134 @@ const IndexHTML = `<!DOCTYPE html>
         const data = await res.json();
         if (data.success) {
           alert('Settings saved successfully!');
+        } else {
+          alert('Failed to save settings: ' + (data.error || 'Unknown error'));
         }
       } catch (e) { alert('Failed to save settings: ' + e.message); }
+    }
+
+    let termHistory = [];
+    let termHistoryIdx = -1;
+
+    function clearTerminalOutput() {
+      const out = document.getElementById('term-output');
+      if (out) out.innerHTML = '';
+      const badge = document.getElementById('term-badge');
+      if (badge) badge.style.display = 'none';
+    }
+
+    async function runTerminalCommand(cmdOverride) {
+      const inputEl = document.getElementById('term-input');
+      const cmd = cmdOverride ? cmdOverride.trim() : (inputEl ? inputEl.value.trim() : '');
+      if (!cmd) return;
+
+      if (!cmdOverride && inputEl) {
+        termHistory.push(cmd);
+        termHistoryIdx = termHistory.length;
+        inputEl.value = '';
+      }
+
+      const node = document.getElementById('term-node') ? document.getElementById('term-node').value : 'local';
+      const cwd = document.getElementById('term-cwd') ? document.getElementById('term-cwd').value.trim() : '';
+      const out = document.getElementById('term-output');
+      const badge = document.getElementById('term-badge');
+
+      if (out) {
+        const promptLine = document.createElement('div');
+        promptLine.className = 'term-prompt';
+        promptLine.textContent = '[' + node + (cwd ? ' ' + cwd : '') + ']$ ' + cmd;
+        out.appendChild(promptLine);
+
+        const runLine = document.createElement('div');
+        runLine.className = 'term-info';
+        runLine.textContent = '⏳ Executing...';
+        out.appendChild(runLine);
+        out.scrollTop = out.scrollHeight;
+
+        try {
+          const res = await fetch('/api/terminal/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ command: cmd, nodeAlias: node, cwd: cwd, timeoutSec: 30 })
+          });
+          const data = await res.json();
+          runLine.remove();
+
+          if (data.stdout) {
+            const stdoutEl = document.createElement('div');
+            stdoutEl.className = 'term-stdout';
+            stdoutEl.textContent = data.stdout;
+            out.appendChild(stdoutEl);
+          }
+
+          if (data.stderr) {
+            const stderrEl = document.createElement('div');
+            stderrEl.className = 'term-stderr';
+            stderrEl.textContent = data.stderr;
+            out.appendChild(stderrEl);
+          }
+
+          if (data.error && !data.stderr) {
+            const errEl = document.createElement('div');
+            errEl.className = 'term-stderr';
+            errEl.textContent = 'Error: ' + data.error;
+            out.appendChild(errEl);
+          }
+
+          const metaEl = document.createElement('div');
+          metaEl.style.fontSize = '0.75rem';
+          metaEl.style.color = 'var(--muted)';
+          metaEl.style.marginTop = '4px';
+          metaEl.style.marginBottom = '8px';
+          metaEl.textContent = 'Done in ' + (data.durationMs || 0) + 'ms (exit code ' + (data.exitCode !== undefined ? data.exitCode : (data.success ? 0 : 1)) + ')';
+          out.appendChild(metaEl);
+
+          if (badge) {
+            badge.style.display = 'inline-block';
+            if (data.success) {
+              badge.className = 'badge badge-online';
+              badge.textContent = 'Exit 0 (' + data.durationMs + 'ms)';
+            } else {
+              badge.className = 'badge badge-offline';
+              badge.textContent = 'Exit ' + data.exitCode + ' (' + data.durationMs + 'ms)';
+            }
+          }
+        } catch (e) {
+          runLine.remove();
+          const errEl = document.createElement('div');
+          errEl.className = 'term-stderr';
+          errEl.textContent = 'Network error: ' + e.message;
+          out.appendChild(errEl);
+        }
+        out.scrollTop = out.scrollHeight;
+      }
+    }
+
+    function initTerminalListeners() {
+      const termInput = document.getElementById('term-input');
+      if (termInput) {
+        termInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            runTerminalCommand();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (termHistory.length > 0 && termHistoryIdx > 0) {
+              termHistoryIdx--;
+              termInput.value = termHistory[termHistoryIdx];
+            }
+          } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (termHistoryIdx < termHistory.length - 1) {
+              termHistoryIdx++;
+              termInput.value = termHistory[termHistoryIdx];
+            } else {
+              termHistoryIdx = termHistory.length;
+              termInput.value = '';
+            }
+          }
+        });
+      }
     }
 
     async function deployKeysFleetUI() {
@@ -683,6 +957,8 @@ const IndexHTML = `<!DOCTYPE html>
     // Auto-detect route on load
     window.addEventListener('load', () => {
       loadSettings();
+      initTerminalListeners();
+      populateEditorNodes();
       const path = window.location.pathname.replace(/^\//, '');
       if (path && document.getElementById('tab-' + path)) {
         showTab(path);

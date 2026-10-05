@@ -34,6 +34,7 @@ func RenderCursorHelp() {
 	fmt.Println("    list-projects, lp, ls, p      List projects registered in Cursor Project Manager")
 	fmt.Println("    settings, set, config         Manage Cursor settings, Dracula theme & invariants")
 	fmt.Println("    install                       Install Cursor or run Ubuntu provisioning script")
+	fmt.Println("    migrate, delegate             Migrate Cursor memories, conversations & projects")
 	fmt.Println("    help                          Show this help menu")
 	fmt.Println()
 }
@@ -55,11 +56,15 @@ func routeCursorSubcommand(sub string, args []string) error {
 		return RunCursorSettings(args[1:])
 	case "install", "in", "i":
 		return RunCursorInstall(args[1:])
+	case "migrate", "m", "delegate", "del":
+		return RunCursorMigrate(args[1:])
 	default:
 		if isTargetDirectory(sub) {
 			return RunCursorOpen(args)
 		}
+
 		RenderCursorHelp()
+
 		return apperror.NewWithDetails("cmd.cursor.dispatch", "E1030", fmt.Sprintf("unknown cursor subcommand '%s'", sub), "cmdcursor", apperror.ErrorTypeValidation, apperror.SeverityError, nil)
 	}
 }

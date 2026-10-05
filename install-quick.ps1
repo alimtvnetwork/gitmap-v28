@@ -258,16 +258,119 @@ if ($alreadyDelegated) {
 # Baseline install flow (unchanged behavior).
 # ---------------------------------------------------------------------------
 
-function Read-InstallDir([string]$default) {
-    Write-Host ""
-    Write-Host "  gitmap quick installer" -ForegroundColor Cyan
-    Write-Host "  ---------------------" -ForegroundColor DarkGray
-    Write-Host "  Choose install folder. Press Enter to accept the default." -ForegroundColor Gray
-    Write-Host "  Default: $default" -ForegroundColor DarkGray
+function Find-CandidateInstallDirs([string]$preferredDefault = "D:\gitmap") {
+    $candidates = New-Object System.Collections.Generic.List[PSCustomObject]
+    $seenPaths  = New-Object System.Collections.Generic.HashSet[string] ([System.StringComparer]::OrdinalIgnoreCase)
 
-    $answer = Read-Host "  Install path"
-    if ([string]::IsNullOrWhiteSpace($answer)) { return $default }
-    return $answer.Trim('"').Trim()
+    $addCandidate = {
+        param([string]$path, [string]$label)
+        if ([string]::IsNullOrWhiteSpace($path)) { return }
+        $resolved = $path.Trim('"').Trim()
+        if ($seenPaths.Add($resolved)) {
+            $candidates.Add([pscustomobject]@{
+                Path  = $resolved
+                Label = $label
+            })
+        }
+    }
+
+    # 1. Existing PATH binary parent directory
+    try {
+        $existingCmd = Get-Command gitmap.exe -ErrorAction SilentlyContinue
+        if ($null -ne $existingCmd -and $existingCmd.Source) {
+            $existingDir = Split-Path $existingCmd.Source -Parent
+            if ($existingDir) {
+                & $addCandidate $existingDir "Recommended - Existing Installation"
+            }
+        }
+    } catch {}
+
+    # 2. Preferred default directory (e.g. D:\gitmap)
+    & $addCandidate $preferredDefault "Default Directory"
+
+    # 3. Known deployments with powershell.json
+    $probeRoots = @(
+        "D:\gitmap",
+        "C:\gitmap",
+        "E:\gitmap",
+        (Join-Path $env:USERPROFILE "gitmap")
+    )
+    foreach ($p in $probeRoots) {
+        if (Test-Path (Join-Path $p "powershell.json")) {
+            & $addCandidate $p "Existing Installation"
+        }
+    }
+
+    # 4. Common workspace locations
+    $username = if ($env:USERNAME) { $env:USERNAME } else { "Administrator" }
+    $localAppData = "C:\Users\$username\AppData\Local\gitmap-cli"
+    if ($env:LOCALAPPDATA) {
+        $localAppData = Join-Path $env:LOCALAPPDATA "gitmap-cli"
+    }
+    $userGitmap = Join-Path $env:USERPROFILE "gitmap"
+
+    & $addCandidate "D:\work" "Common Workspace"
+    & $addCandidate $localAppData "Local AppData"
+    & $addCandidate $userGitmap "User Profile"
+
+    # 5. Fixed drives with > 5GB free space
+    try {
+        $drives = Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue
+        foreach ($d in $drives) {
+            if ($d.Root -and (Test-Path $d.Root) -and $d.Free -gt 5GB) {
+                $driveCandidate = Join-Path $d.Root "gitmap"
+                $freeGB = [math]::Round($d.Free / 1GB, 0)
+                & $addCandidate $driveCandidate "Storage Drive - $freeGB GB Free"
+            }
+        }
+    } catch {}
+
+    return $candidates
+}
+
+function Read-InstallDir([string]$default, $candidates = $null) {
+    if ($null -eq $candidates -or $candidates.Count -eq 0) {
+        $candidates = Find-CandidateInstallDirs $default
+    }
+
+    Write-Host ""
+    Write-Host "  gitmap quick installer — installation directory selection" -ForegroundColor Cyan
+    Write-Host "  ----------------------------------------------------------" -ForegroundColor DarkGray
+
+    $count = $candidates.Count
+    for ($i = 0; $i -lt $count; $i++) {
+        $num = $i + 1
+        $c = $candidates[$i]
+        $tag = if ($i -eq 0) { "(Recommended - $($c.Label))" } else { "($($c.Label))" }
+        Write-Host "  [$num] $($c.Path) $tag" -ForegroundColor Gray
+    }
+    $customNum = $count + 1
+    Write-Host "  [$customNum] Custom path..." -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  Default: [$($candidates[0].Path)]" -ForegroundColor DarkGray
+
+    $promptText = "  Select option [1-$customNum] or enter custom path (Default: [1])"
+    $answer = Read-Host $promptText
+    if ([string]::IsNullOrWhiteSpace($answer)) {
+        return $candidates[0].Path
+    }
+
+    $trimmed = $answer.Trim('"').Trim()
+    [int]$selectedNum = 0
+    if ([int]::TryParse($trimmed, [ref]$selectedNum)) {
+        if ($selectedNum -ge 1 -and $selectedNum -le $count) {
+            return $candidates[$selectedNum - 1].Path
+        }
+        if ($selectedNum -eq $customNum) {
+            $customPath = Read-Host "  Enter custom install path"
+            if (-not [string]::IsNullOrWhiteSpace($customPath)) {
+                return $customPath.Trim('"').Trim()
+            }
+            return $candidates[0].Path
+        }
+    }
+
+    return $trimmed
 }
 
 function Save-DeployPath([string]$dir) {
@@ -293,10 +396,11 @@ function Save-DeployPath([string]$dir) {
 }
 
 if ([string]::IsNullOrWhiteSpace($InstallDir)) {
+    $discoveredCandidates = Find-CandidateInstallDirs $DefaultDir
     if ($Interactive) {
-        $InstallDir = Read-InstallDir $DefaultDir
+        $InstallDir = Read-InstallDir -default $DefaultDir -candidates $discoveredCandidates
     } else {
-        $InstallDir = $DefaultDir
+        $InstallDir = if ($discoveredCandidates.Count -gt 0) { $discoveredCandidates[0].Path } else { $DefaultDir }
         Write-Host "  [info] Using default install dir: $InstallDir (pass -Interactive to choose)" -ForegroundColor DarkGray
     }
 }

@@ -64,3 +64,23 @@ type CustomInstallerItem struct {
 	InstallCommand string `json:"installCommand"`
 	VerifyCommand  string `json:"verifyCommand"`
 }
+
+// TerminalExecReq encapsulates a request to execute a terminal command.
+type TerminalExecReq struct {
+	Command    string `json:"command"`
+	NodeAlias  string `json:"nodeAlias,omitempty"`
+	Cwd        string `json:"cwd,omitempty"`
+	TimeoutSec int    `json:"timeoutSec,omitempty"`
+}
+
+// TerminalExecResp encapsulates terminal execution output and status.
+type TerminalExecResp struct {
+	Success    bool   `json:"success"`
+	Stdout     string `json:"stdout"`
+	Stderr     string `json:"stderr"`
+	ExitCode   int    `json:"exitCode"`
+	Error      string `json:"error,omitempty"`
+	NodeAlias  string `json:"nodeAlias"`
+	DurationMs int64  `json:"durationMs"`
+}
+

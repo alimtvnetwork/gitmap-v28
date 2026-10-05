@@ -2,7 +2,7 @@
 
 - **Parent Spec:** [01-architecture-spec.md](../../../../02-spec/21-app/227-gitmap-cursor-fleet-delegate-settings-ui-and-cross-node-path-suggestions/01-architecture-spec.md)
 - **Master Ledger:** [00-master-audit-ledger.md](../../../../02-spec/21-app/227-gitmap-cursor-fleet-delegate-settings-ui-and-cross-node-path-suggestions/00-master-audit-ledger.md)
-- **Status:** Pending
+- **Status:** DONE
 - **Target Subsystems:** `cli/cmdui`, `cli/cmdssh`
 
 ---
@@ -133,3 +133,14 @@ Overhaul the Settings interface (`#tab-settings`) in `cli/cmdui/ui_assets.go` to
    - Run `gitmap status` from the embedded terminal and verify live output is rendered.
    - Click quick chip `gitmap db sizes` and verify response.
 4. **Linter Compliance:** Zero violations in `03-ai-scripts/09-check-nested-ifs.py` and `03-ai-scripts/10-check-enum-and-boolean.py`.
+
+---
+
+## 5. Execution Summary & Verified Results
+
+- **Terminal Request/Response Models:** Added `TerminalExecReq` and `TerminalExecResp` to `cli/cmdui/ui_types.go`.
+- **API Terminal Endpoint:** Mounted `/api/terminal/exec` in `cli/cmdui/ui_server.go` with 30s default timeout (max 120s), routing local commands via PowerShell/sh with separate stdout/stderr capture, and remote commands via cluster SSH.
+- **Two-Way Binding Preservation:** Fixed `loadSettings()` and `saveSettings()` to bidirectionally bind all `[data-key]` attribute fields; in `handleAPISettings` merged incoming `req.Attributes` to prevent data loss.
+- **Settings UI Redesign:** Reorganized `#tab-settings` in `cli/cmdui/ui_assets.go` into 5 clean categorized cards and subtab navigation (General, Cursor Fleet, Speed, Alerts, Embedded Terminal) with traffic lights (`● ● ●`), live terminal, quick action chips, and command history.
+- **Unit Tests:** Added `TestAPITerminalExec_LocalEcho` and `TestAPISettings_AttributesPreservation` in `cli/cmdui/ui_test.go` — all passed (100% PASS).
+- **Linters:** Passed `check-nested-ifs.py` and `check-enum-and-boolean.py` with 0 violations.
