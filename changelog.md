@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.482.0] - 2026-10-05
+
+### Added
+- Feature: pipeline-pe - implement aggregate multi-repo pipeline error inspector for gitmap pe all
+
+---
+
 ## [v6.481.0] - 2026-10-05
 
 ### Added
