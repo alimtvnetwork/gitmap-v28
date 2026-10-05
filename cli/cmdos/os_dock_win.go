@@ -50,7 +50,13 @@ func readWindowsTaskbarAl() (uint64, error) {
 		return 1, err
 	}
 	defer k.Close()
-	return k.GetIntegerValue("TaskbarAl")
+
+	val, _, err := k.GetIntegerValue("TaskbarAl")
+	if err != nil {
+		return 1, err
+	}
+
+	return val, nil
 }
 
 func writeWindowsTaskbarAl(val uint32) error {
@@ -59,5 +65,6 @@ func writeWindowsTaskbarAl(val uint32) error {
 		return apperror.WrapSimple(err, "failed to open Explorer Advanced registry key")
 	}
 	defer k.Close()
+
 	return k.SetDWordValue("TaskbarAl", val)
 }

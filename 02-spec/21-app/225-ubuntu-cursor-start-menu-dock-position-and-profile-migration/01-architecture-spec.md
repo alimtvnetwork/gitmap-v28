@@ -12,7 +12,7 @@
 ## User Request (Verbatim)
 
 ```text
-You are Spec Author 01 for task 225-ubuntu-cursor-start-menu-dock-position-and-profile-migration in d:\work\gitmap.
+You are Spec Author 01 for task 225-ubuntu-cursor-start-menu-dock-position-and-profile-migration in the repository.
 Your role is to author modular, comprehensive specifications and subtask execution documents for:
 1. Ubuntu Start Menu (GNOME App Grid / App Picker Layout) Cursor Integration & Desktop Database Refresh.
 2. Cross-Platform Configurable Dock / Start Menu Position Command in GitMap OS (`gitmap os dock [bottom|left|right|top]`, `gitmap os start-menu`, `gitmap os panel`) with remote node delegation.

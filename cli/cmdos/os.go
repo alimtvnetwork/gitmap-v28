@@ -1,7 +1,6 @@
 package cmdos
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -13,13 +12,9 @@ import (
 func runOS(args []string) error {
 	if len(args) == 0 || isOSHelpArg(args[0]) {
 		RenderModernOSHelp()
-
 		return nil
 	}
-
-	subCmd := strings.ToLower(args[0])
-
-	return dispatchOSSubcommand(subCmd, args[1:])
+	return dispatchOSSubcommand(strings.ToLower(args[0]), args[1:])
 }
 
 func isOSHelpArg(arg string) bool {
@@ -82,27 +77,20 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSDNSCommand(subArgs)
 	case "theme", "colorscheme":
 		return runOSThemeCommand(subArgs)
-	case "update":
-		return runOSUpdateCommand(false, subArgs)
-	case "upgrade":
-		return runOSUpdateCommand(true, subArgs)
+	case "dock", "panel", "start-menu", "dock-position", "taskbar":
+		return RunOSDockCommand(subArgs)
+	case "update", "upgrade":
+		return runOSUpdateCommand(subCmd == "upgrade", subArgs)
 	case "tui", "menu", "gui", "dashboard":
 		return RunOSTUICommand(subArgs)
 	case constants.SubCmdOSHelp:
-		return handleOSHelp()
+		printOSUsage()
+		return nil
 	default:
 		return unknownOSSubcommandError(subCmd)
 	}
 }
 
-func handleOSHelp() error {
-	printOSUsage()
-
-	return nil
-}
-
 func unknownOSSubcommandError(subCmd string) error {
-	msg := fmt.Sprintf("unknown os subcommand %q (see 'gitmap os --help')", subCmd)
-
-	return apperror.NewSimple(msg, "E_INVALID_OS_SUBCMD")
+	return apperror.NewSimple("unknown os subcommand '"+subCmd+"' (see 'gitmap os --help')", "E_INVALID_OS_SUBCMD")
 }
