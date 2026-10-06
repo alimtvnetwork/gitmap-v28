@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.502.0] - 2026-10-06
+
+### Added
+- resolve CI/CD sends push assertion and ERD parity cluster path
+
+---
+
 ## [v6.501.0] - 2026-10-06
 
 ### Added
