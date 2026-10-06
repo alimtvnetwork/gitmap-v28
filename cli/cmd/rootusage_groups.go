@@ -187,6 +187,7 @@ func printGroupTemplates() {
 	renderLine(constants.HelpTemplatesDiff)
 	renderLine(constants.HelpSync)
 	renderLine(constants.HelpCommons)
+	renderLine(constants.HelpSpace)
 }
 
 func printGroupCluster() {

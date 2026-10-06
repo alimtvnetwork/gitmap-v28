@@ -71,7 +71,7 @@ func allHelpRows() []helpRow {
 		constants.HelpAddIgnore, constants.HelpAddAttributes,
 		constants.HelpAddLFSInstall, constants.HelpTemplatesInit,
 		constants.HelpTemplatesList, constants.HelpTemplatesShow,
-		constants.HelpTemplatesDiff, constants.HelpSync, constants.HelpCommons)
+		constants.HelpTemplatesDiff, constants.HelpSync, constants.HelpCommons, constants.HelpSpace)
 	addGroup(&rows, constants.HelpGroupSearchFind,
 		constants.HelpFindFiles, constants.HelpFindFilesAny, constants.HelpFindFilesStart,
 		constants.HelpFindFilesEnd, constants.HelpFind, constants.HelpListFiles)

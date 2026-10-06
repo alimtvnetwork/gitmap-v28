@@ -44,6 +44,7 @@ const (
 	HelpTemplatesDiff = "  templates diff (tpl td)    Preview what add ignore/add attributes would change; exit codes mirror diff(1)"
 	HelpSync          = "  sync (sy) <target>         Union-merge curated defaults: ignore | attributes | lfs-install | prettier-ignore | prettier-rc | all  [--dry-run] [--force]"
 	HelpCommons       = "  commons (co)               Shortcut for 'sync all' — add/dedupe curated .gitignore, .gitattributes, .prettierignore, .prettierrc + git lfs install  [--dry-run]"
+	HelpSpace         = "  space <sub>                Space operations namespace — 'space common' applies curated .gitignore, .gitattributes, .prettierignore, .prettierrc + git lfs install  [--dry-run]"
 
 	HelpServersClients = "  servers-clients (sc) <sub>       Broadcast commands across all server + client nodes"
 	HelpClients        = "  clients <sub>              Broadcast commands across client nodes only"
