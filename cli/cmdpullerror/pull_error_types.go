@@ -9,6 +9,7 @@ type PullErrorOptions struct {
 	IsJSON   bool
 	IsSSH    bool
 	IsHelp   bool
+	IsClear  bool
 	RepoSlug string
 	Limit    int
 }

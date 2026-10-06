@@ -435,18 +435,33 @@ func recordTelemetryToDB(telemetry PullSessionTelemetry, records []store.PullRep
 
 func recordPullErrorsToDB(db *store.PullSplitDB, states []*PullRepoState) {
 	for _, s := range states {
-		if s.ErrorMsg != "" || s.Step == PullStepTypeError {
-			_ = db.InsertPullError(store.PullErrorRecord{
-				RepoSlug:       s.RepoName,
-				RepoPath:       s.RepoPath,
-				NodeID:         "local-01",
-				NodeVersion:    constants.Version,
-				ErrorType:      ResolvePullErrorDetails(s),
-				ErrorText:      s.ErrorMsg,
-				RemediationCmd: ResolvePullRemediationHint(s),
-				CreatedAt:      time.Now().UTC(),
-			})
-		}
+		recordSinglePullErrorToDB(db, s)
+	}
+}
+
+func recordSinglePullErrorToDB(db *store.PullSplitDB, s *PullRepoState) {
+	if s == nil {
+		return
+	}
+	if s.ErrorMsg != "" || s.Step == PullStepTypeError {
+		_ = db.InsertPullError(buildEfficientPullErrorRecord(s))
+
+		return
+	}
+
+	_ = db.ClearPullErrorsForRepo(s.RepoName, s.RepoPath)
+}
+
+func buildEfficientPullErrorRecord(s *PullRepoState) store.PullErrorRecord {
+	return store.PullErrorRecord{
+		RepoSlug:       s.RepoName,
+		RepoPath:       s.RepoPath,
+		NodeID:         "local-01",
+		NodeVersion:    constants.Version,
+		ErrorType:      ResolvePullErrorDetails(s),
+		ErrorText:      s.ErrorMsg,
+		RemediationCmd: ResolvePullRemediationHint(s),
+		CreatedAt:      time.Now().UTC(),
 	}
 }
 

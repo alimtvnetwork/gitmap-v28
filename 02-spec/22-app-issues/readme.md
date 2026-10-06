@@ -75,6 +75,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 67 | [67-detectedproject-foreign-key-constraint-787-rca.md](67-detectedproject-foreign-key-constraint-787-rca.md) | DetectedProject Foreign Key Constraint (787) During Repository Scan: RCA & Fix | Resolved |
 | 68 | [68-gitmap-prompt-input-freeze-and-suggestion-engine-rca.md](68-gitmap-prompt-input-freeze-and-suggestion-engine-rca.md) | GitMap Interactive Prompt Input Freeze and Suggestion Engine Collapse: RCA & Fix | Resolved |
 | 69 | [69-antigravity-fleet-parity-theme-preset-plugins-rca.md](69-antigravity-fleet-parity-theme-preset-plugins-rca.md) | Antigravity Fleet Parity, Theme & Preset Synchronization, and Delegation: RCA & Fix | Resolved |
+| 70 | [70-stale-pull-error-persistence-and-clear-subsystem-rca.md](70-stale-pull-error-persistence-and-clear-subsystem-rca.md) | Stale Pull Error Persistence, Missing Eviction, and Clear Subsystem: RCA & Fix | Resolved |
 
 ---
 

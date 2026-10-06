@@ -38,24 +38,37 @@ func syncPullFailuresToDB(db *store.PullSplitDB, states []*PullRepoState) {
 	nodeID := resolveLocalNodeIdentifier()
 	now := time.Now().UTC()
 	for _, state := range states {
-		if isStateFailure(state) {
-			stackTrace := resolveStateStackTrace(state)
-			errorID := fmt.Sprintf("err-%d", time.Now().UnixNano())
-			rec := store.PullErrorRecord{
-				ErrorID:        errorID,
-				RepoSlug:       state.RepoName,
-				RepoPath:       state.RepoPath,
-				NodeID:         nodeID,
-				NodeVersion:    constants.Version,
-				ErrorType:      string(state.Step),
-				ErrorText:      state.ErrorMsg,
-				StackTrace:     stackTrace,
-				RemediationCmd: ResolvePullRemediationHint(state),
-				CreatedAt:      now,
-			}
-			_ = db.InsertPullError(rec)
-			_ = LogPullErrorToFile(rec)
-		}
+		syncSingleStateToDB(db, state, nodeID, now)
+	}
+}
+
+func syncSingleStateToDB(db *store.PullSplitDB, state *PullRepoState, nodeID string, now time.Time) {
+	if state == nil {
+		return
+	}
+	if isStateFailure(state) {
+		rec := buildPullErrorRecordFromState(state, nodeID, now)
+		_ = db.InsertPullError(rec)
+		_ = LogPullErrorToFile(rec)
+
+		return
+	}
+
+	_ = db.ClearPullErrorsForRepo(state.RepoName, state.RepoPath)
+}
+
+func buildPullErrorRecordFromState(state *PullRepoState, nodeID string, now time.Time) store.PullErrorRecord {
+	return store.PullErrorRecord{
+		ErrorID:        fmt.Sprintf("err-%d", time.Now().UnixNano()),
+		RepoSlug:       state.RepoName,
+		RepoPath:       state.RepoPath,
+		NodeID:         nodeID,
+		NodeVersion:    constants.Version,
+		ErrorType:      string(state.Step),
+		ErrorText:      state.ErrorMsg,
+		StackTrace:     resolveStateStackTrace(state),
+		RemediationCmd: ResolvePullRemediationHint(state),
+		CreatedAt:      now,
 	}
 }
 

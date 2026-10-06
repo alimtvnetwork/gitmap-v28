@@ -6,6 +6,7 @@ Inspect, query, filter, and remediate persistent Git pull errors recorded during
 
 ```bash
 gitmap pull-error [repo-slug|all] [flags]
+gitmap pull-error clear [repo-slug|all]
 gitmap pulle [repo-slug|all] [flags]
 ```
 
@@ -17,7 +18,7 @@ gitmap pulle [repo-slug|all] [flags]
 
 Whenever a `gitmap pull` or batch `gitmap pull-all` (`pa`) fails—due to diverged branches, merge conflicts, network drops, SSH authentication issues, or Windows Credential Manager (`wincredman`) failures—the exact error details, stack traces, node context, and actionable remediation commands are automatically persisted into a local SQLite Split-DB at `.gitmap/data/pull/errors/sql.db`.
 
-`gitmap pull-error` lets developers and AI agents immediately query these failure diagnostics without rerunning expensive batch operations or manually digging through logs.
+`gitmap pull-error` lets developers and AI agents immediately query these failure diagnostics without rerunning expensive batch operations or manually digging through logs. When a subsequent pull succeeds, the resolved error records are automatically evicted. Errors can also be manually purged using `gitmap pull-error clear [target]`.
 
 ## Target Resolution
 
@@ -29,6 +30,7 @@ Whenever a `gitmap pull` or batch `gitmap pull-all` (`pa`) fails—due to diverg
 
 | Flag | Shorthand | Description |
 |------|-----------|-------------|
+| `--clear` | `-c` | Clear recorded pull error diagnostics for target repository or all repositories |
 | `--json` | `-j` | Output diagnostic records in clean structured JSON for automated tooling or AI agents |
 | `--ssh` | | Query pull errors originating from remote SSH fleet nodes |
 | `--help` | `-h` | Display usage instructions and examples |

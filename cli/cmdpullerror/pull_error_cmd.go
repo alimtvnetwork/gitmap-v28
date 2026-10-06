@@ -26,6 +26,10 @@ func RunPullErrorCLI(args []string) error {
 		return nil
 	}
 
+	if opts.IsClear {
+		return executeClearPullErrors(opts)
+	}
+
 	if opts.IsSSH {
 		return runPullErrorSSH(opts)
 	}
@@ -44,21 +48,36 @@ func isPullErrorAlias(val string) bool {
 
 func parsePullErrorOptions(args []string) PullErrorOptions {
 	opts := PullErrorOptions{Limit: 50}
-	var positional []string
+	positional := collectPositionalArgs(args, &opts)
+	opts.RepoSlug = resolveTargetRepo(positional)
 
+	return opts
+}
+
+func collectPositionalArgs(args []string, opts *PullErrorOptions) []string {
+	var positional []string
 	for i := 0; i < len(args); i++ {
-		consumed := parseOptionFlag(args, i, &opts)
+		consumed := parseOptionFlag(args, i, opts)
 		if consumed > 0 {
 			i += consumed - 1
 			continue
 		}
 		if !strings.HasPrefix(args[i], "-") {
-			positional = append(positional, args[i])
+			positional = appendOrSetClear(positional, args[i], opts)
 		}
 	}
 
-	opts.RepoSlug = resolveTargetRepo(positional)
-	return opts
+	return positional
+}
+
+func appendOrSetClear(positional []string, arg string, opts *PullErrorOptions) []string {
+	if strings.EqualFold(arg, "clear") || strings.EqualFold(arg, "clean") {
+		opts.IsClear = true
+
+		return positional
+	}
+
+	return append(positional, arg)
 }
 
 func parseOptionFlag(args []string, idx int, opts *PullErrorOptions) int {
@@ -69,6 +88,9 @@ func parseOptionFlag(args []string, idx int, opts *PullErrorOptions) int {
 		return 1
 	case "--ssh":
 		opts.IsSSH = true
+		return 1
+	case "--clear", "-c":
+		opts.IsClear = true
 		return 1
 	case "--help", "-h", "help":
 		opts.IsHelp = true
@@ -149,6 +171,9 @@ func runPullErrorSSH(opts PullErrorOptions) error {
 
 func buildRemotePullErrorCmd(opts PullErrorOptions) string {
 	cmd := "gitmap pull-errors"
+	if opts.IsClear {
+		cmd += " clear"
+	}
 	if opts.RepoSlug != "" && opts.RepoSlug != "all" {
 		cmd += " " + opts.RepoSlug
 	}
@@ -158,6 +183,7 @@ func buildRemotePullErrorCmd(opts PullErrorOptions) string {
 	if opts.Limit > 0 && opts.Limit != 50 {
 		cmd += fmt.Sprintf(" --limit %d", opts.Limit)
 	}
+
 	return cmd
 }
 

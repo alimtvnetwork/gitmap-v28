@@ -19,6 +19,7 @@ func renderPullErrorHelp() {
 func printHelpUsage() {
 	fmt.Println("  Usage:")
 	fmt.Println("    gitmap pull-error [target] [flags]")
+	fmt.Println("    gitmap pull-error clear [target]")
 	fmt.Println("    gitmap pull-errors [target] [flags]")
 	fmt.Println("    gitmap pulle [target] [flags]")
 	fmt.Println("    gitmap pull-e [target] [flags]")
@@ -30,6 +31,7 @@ func printHelpUsage() {
 
 func printHelpFlags() {
 	fmt.Println("  Flags:")
+	fmt.Println("    --clear, -c                   Clear recorded pull errors for the target or all repositories")
 	fmt.Println("    --json, -j                    Output structured JSON for AI agent ingestion")
 	fmt.Println("    --ssh                         Query pull errors across SSH fleet nodes (PAS Formula)")
 	fmt.Println("    --limit, -l <n>               Maximum number of records to return (default: 50)")
