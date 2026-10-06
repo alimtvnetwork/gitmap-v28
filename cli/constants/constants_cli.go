@@ -296,8 +296,13 @@ const (
 	// CmdCommons (v6.76.0) is a shortcut for `gitmap sync all` — adds
 	// or dedupe-merges the curated .gitignore, .gitattributes,
 	// .prettierignore, .prettierrc baselines + `git lfs install`.
-	CmdCommons           = "commons"
-	CmdCommonsAlias      = "co"
+	CmdCommons      = "commons"
+	CmdCommonsAlias = "co"
+	// CmdSpace is the top-level namespace for GitMap space operations.
+	// Subcommands: `space common` applies the curated .gitignore,
+	// .gitattributes, .prettierignore, .prettierrc baselines plus
+	// `git lfs install --local` (same logic as `gitmap commons`).
+	CmdSpace             = "space"
 	CmdRecreateRepo      = "recreate-repo"
 	CmdRecreateRepoAlias = "recreate"
 	CmdRestEnable        = "rest-enable"
