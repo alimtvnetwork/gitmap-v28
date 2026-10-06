@@ -3,6 +3,8 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -18,8 +20,6 @@ const (
     node_version    TEXT NOT NULL,
     error_type      TEXT NOT NULL,
     error_text      TEXT NOT NULL,
-    stack_trace     TEXT NULL,
-    remediation_cmd TEXT NULL,
     created_at      DATETIME NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_pull_errors_repo ON pull_errors(repo_slug);
@@ -41,7 +41,7 @@ type PullErrorRecord struct {
 }
 
 // EnsurePullErrorsTable initializes the pull_errors table and its indexes.
-func (s *PullSplitDB) EnsurePullErrorsTable() error {
+func (s *PullSplitDB) EnsurePullErrorsTable() *apperror.AppError {
 	if s.conn == nil {
 		return apperror.NewValidationError("database connection is nil")
 	}
@@ -54,7 +54,7 @@ func (s *PullSplitDB) EnsurePullErrorsTable() error {
 }
 
 // InsertPullError saves a diagnosed pull failure record into pull_errors.
-func (s *PullSplitDB) InsertPullError(rec PullErrorRecord) error {
+func (s *PullSplitDB) InsertPullError(rec PullErrorRecord) *apperror.AppError {
 	if s.conn == nil {
 		return apperror.NewValidationError("database connection is nil")
 	}
@@ -75,29 +75,44 @@ func preparePullErrorRecord(rec PullErrorRecord) PullErrorRecord {
 	return rec
 }
 
-func (s *PullSplitDB) execInsertPullError(rec PullErrorRecord) error {
+func (s *PullSplitDB) execInsertPullError(rec PullErrorRecord) *apperror.AppError {
 	query := `INSERT OR REPLACE INTO pull_errors
-		(error_id, repo_slug, repo_path, node_id, node_version, error_type, error_text, stack_trace, remediation_cmd, created_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+		(error_id, repo_slug, repo_path, node_id, node_version, error_type, error_text, created_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
 	_, err := s.conn.Exec(query,
 		rec.ErrorID, rec.RepoSlug, rec.RepoPath, rec.NodeID, rec.NodeVersion,
-		rec.ErrorType, rec.ErrorText, rec.StackTrace, rec.RemediationCmd,
+		rec.ErrorType, rec.ErrorText,
 		rec.CreatedAt.Format("2006-01-02 15:04:05"),
 	)
 	if err != nil {
 		return apperror.WrapSimple(err, "pull_errors.insert")
 	}
+
+	repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "pull_errors.db")
+	_ = os.MkdirAll(filepath.Dir(repoDBPath), 0755)
+	repoConn, repoErr := sql.Open("sqlite", repoDBPath)
+	if repoErr == nil {
+		defer repoConn.Close()
+		_, _ = repoConn.Exec(`CREATE TABLE IF NOT EXISTS RepoPullErrorDetails (
+			error_id TEXT PRIMARY KEY,
+			stack_trace TEXT,
+			remediation_cmd TEXT
+		);`)
+		_, _ = repoConn.Exec(`INSERT OR REPLACE INTO RepoPullErrorDetails (error_id, stack_trace, remediation_cmd) VALUES (?, ?, ?)`,
+			rec.ErrorID, rec.StackTrace, rec.RemediationCmd)
+	}
+
 	return nil
 }
 
 // QueryAllLatestPullErrors retrieves the most recent pull errors across all repositories.
-func (s *PullSplitDB) QueryAllLatestPullErrors(limit int) ([]PullErrorRecord, error) {
+func (s *PullSplitDB) QueryAllLatestPullErrors(limit int) ([]PullErrorRecord, *apperror.AppError) {
 	return s.QueryLatestPullErrors("all", limit)
 }
 
 // QueryLatestPullErrors retrieves the most recent pull errors, optionally filtered by repoSlug.
-func (s *PullSplitDB) QueryLatestPullErrors(repoSlug string, limit int) ([]PullErrorRecord, error) {
+func (s *PullSplitDB) QueryLatestPullErrors(repoSlug string, limit int) ([]PullErrorRecord, *apperror.AppError) {
 	if s.conn == nil {
 		return nil, apperror.NewValidationError("database connection is nil")
 	}
@@ -110,7 +125,34 @@ func (s *PullSplitDB) QueryLatestPullErrors(repoSlug string, limit int) ([]PullE
 	}
 	defer rows.Close()
 
-	return scanPullErrorRows(rows)
+	records, err := scanPullErrorRows(rows)
+	if err != nil {
+		return records, err
+	}
+
+	for i := range records {
+		records[i] = enrichPullErrorRecord(records[i])
+	}
+	return records, nil
+}
+
+func enrichPullErrorRecord(rec PullErrorRecord) PullErrorRecord {
+	repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "pull_errors.db")
+	repoConn, err := sql.Open("sqlite", repoDBPath)
+	if err == nil {
+		defer repoConn.Close()
+		row := repoConn.QueryRow(`SELECT stack_trace, remediation_cmd FROM RepoPullErrorDetails WHERE error_id = ?`, rec.ErrorID)
+		var stack, rem sql.NullString
+		if row.Scan(&stack, &rem) == nil {
+			if stack.Valid {
+				rec.StackTrace = stack.String
+			}
+			if rem.Valid {
+				rec.RemediationCmd = rem.String
+			}
+		}
+	}
+	return rec
 }
 
 func normalizePullErrorLimit(limit int) int {
@@ -122,12 +164,12 @@ func normalizePullErrorLimit(limit int) int {
 
 func buildPullErrorQuery(repoSlug string, limit int) (string, []any) {
 	if isAllReposQuery(repoSlug) {
-		query := `SELECT error_id, repo_slug, repo_path, node_id, node_version, error_type, error_text, stack_trace, remediation_cmd, created_at
+		query := `SELECT error_id, repo_slug, repo_path, node_id, node_version, error_type, error_text, created_at
 			FROM pull_errors ORDER BY created_at DESC LIMIT ?`
 		return query, []any{limit}
 	}
 
-	query := `SELECT error_id, repo_slug, repo_path, node_id, node_version, error_type, error_text, stack_trace, remediation_cmd, created_at
+	query := `SELECT error_id, repo_slug, repo_path, node_id, node_version, error_type, error_text, created_at
 		FROM pull_errors WHERE repo_slug = ? OR repo_path LIKE ? ORDER BY created_at DESC LIMIT ?`
 	return query, []any{repoSlug, "%" + repoSlug + "%", limit}
 }
@@ -137,7 +179,7 @@ func isAllReposQuery(repoSlug string) bool {
 	return clean == "" || clean == "all"
 }
 
-func scanPullErrorRows(rows *sql.Rows) ([]PullErrorRecord, error) {
+func scanPullErrorRows(rows *sql.Rows) ([]PullErrorRecord, *apperror.AppError) {
 	var records []PullErrorRecord
 	for rows.Next() {
 		rec, isOk := scanSinglePullError(rows)
@@ -145,23 +187,25 @@ func scanPullErrorRows(rows *sql.Rows) ([]PullErrorRecord, error) {
 			records = append(records, rec)
 		}
 	}
-	return records, rows.Err()
+	if rows.Err() != nil {
+		return records, apperror.WrapSimple(rows.Err(), "scan")
+	}
+	return records, nil
 }
 
 func scanSinglePullError(rows *sql.Rows) (PullErrorRecord, bool) {
 	var rec PullErrorRecord
 	var rawCreatedAt any
-	var stackTrace, remediationCmd *string
 
 	err := rows.Scan(
 		&rec.ErrorID, &rec.RepoSlug, &rec.RepoPath, &rec.NodeID, &rec.NodeVersion,
-		&rec.ErrorType, &rec.ErrorText, &stackTrace, &remediationCmd, &rawCreatedAt,
+		&rec.ErrorType, &rec.ErrorText, &rawCreatedAt,
 	)
 	if err != nil {
 		return rec, false
 	}
 
-	rec = assignNullableFields(rec, stackTrace, remediationCmd, rawCreatedAt)
+	rec.CreatedAt = parseFlexibleDBValue(rawCreatedAt)
 	return rec, true
 }
 

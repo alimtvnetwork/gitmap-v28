@@ -82,7 +82,7 @@ func handleClearErrors() error {
 
 	defer db.Close()
 
-	if err := db.ClearErrors(); err != nil {
+	if err := db.FederatedClearErrors(); err != nil {
 		return fmt.Errorf("clear errors: %w", err)
 	}
 
@@ -99,7 +99,7 @@ func handleShowError(id int64) error {
 
 	defer db.Close()
 
-	rec, err := db.GetError(id)
+	rec, err := db.FederatedGetError(id)
 	if err != nil {
 		return apperror.NewNotFound("internal_error", "E404", fmt.Sprintf("internal error #%d not found", id))
 	}
@@ -120,7 +120,7 @@ func handleListErrors(args []string) error {
 
 	defer db.Close()
 
-	records, err := db.ListErrors(limit, false)
+	records, err := db.FederatedListErrors(limit, false)
 	if err != nil {
 		return fmt.Errorf("list errors: %w", err)
 	}

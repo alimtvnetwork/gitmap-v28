@@ -96,6 +96,13 @@ func handleStepFailure(repoName string, step gitutil.RemediationStep, outStr str
 		return nil
 	}
 
+	isRecovered := recoverStashCollision(step, outStr)
+	if isRecovered {
+		fmt.Printf("%s recovered (dropped stashed untracked collision)\n", constants.ColorYellow+"•"+constants.ColorReset)
+
+		return nil
+	}
+
 	fmt.Printf("%s failed\n", constants.ColorRed+"✖"+constants.ColorReset)
 	printBluntRemediationFailure(repoName, step, outStr, err)
 
@@ -135,6 +142,53 @@ func isBenignCommitClean(step gitutil.RemediationStep, output string) bool {
 	lower := strings.ToLower(output)
 
 	return strings.Contains(lower, "nothing to commit") || strings.Contains(lower, "working tree clean")
+}
+
+func recoverStashCollision(step gitutil.RemediationStep, output string) bool {
+	hasPop := checkHasPop(step.Args)
+	if !hasPop {
+		return false
+	}
+
+	lowerOut := strings.ToLower(output)
+	hasUntracked := strings.Contains(lowerOut, "could not restore untracked files from stash")
+	hasNoCheckout := strings.Contains(lowerOut, "already exists, no checkout")
+
+	if hasUntracked {
+		if hasNoCheckout {
+			return dropStashCollision(step.Args)
+		}
+	}
+
+	return false
+}
+
+func checkHasPop(args []string) bool {
+	hasPop := false
+	for _, arg := range args {
+		if arg == "pop" {
+			hasPop = true
+		}
+	}
+
+	return hasPop
+}
+
+func dropStashCollision(args []string) bool {
+	hasArgs := len(args) >= 2
+	if !hasArgs {
+		return false
+	}
+
+	isDirFlag := args[0] == "-C"
+	if !isDirFlag {
+		return false
+	}
+
+	err := exec.Command("git", "-C", args[1], "stash", "drop").Run()
+	isSuccess := err == nil
+
+	return isSuccess
 }
 
 func executeShellFallback(item *RemediationItem, recipe gitutil.RemediationRecipe) error {

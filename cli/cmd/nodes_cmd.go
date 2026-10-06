@@ -11,7 +11,9 @@ import (
 	"unicode/utf8"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdnodes"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpullerror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	dbpkg "github.com/alimtvnetwork/gitmap-v28/cli/db"
@@ -176,6 +178,24 @@ func runNodesHistoryCLI(args []string) error {
 	})
 }
 
+func runNodesErrorsCLI(args []string) error {
+	cmdStr := "gitmap errors " + strings.Join(args, " ")
+	cmdStr = strings.TrimSpace(cmdStr)
+
+	return cmdssh.RunFleetPASCommand("nodes errors", cmdStr, func() error {
+		return cmderrors.RunErrorsCLI(args)
+	})
+}
+
+func runNodesPullErrorsCLI(args []string) error {
+	cmdStr := "gitmap pull errors " + strings.Join(args, " ")
+	cmdStr = strings.TrimSpace(cmdStr)
+
+	return cmdssh.RunFleetPASCommand("nodes pull errors", cmdStr, func() error {
+		return cmdpullerror.RunPullErrorCLI(args)
+	})
+}
+
 func isNodesAgyRequest(args []string) bool {
 	if len(args) == 0 {
 		return false
@@ -313,6 +333,10 @@ func runUnifiedNodesCLI(args []string) error {
 		return cmdnodes.RunNodesSendProjects(args[1:])
 	} else if strings.EqualFold(args[0], "history") || strings.EqualFold(args[0], "histories") {
 		return runNodesHistoryCLI(args[1:])
+	} else if strings.EqualFold(args[0], "errors") {
+		return runNodesErrorsCLI(args[1:])
+	} else if strings.EqualFold(args[0], "pull") && len(args) > 1 && strings.EqualFold(args[1], "errors") {
+		return runNodesPullErrorsCLI(args[2:])
 	} else if isNodesPingCommand(args[0]) {
 		return runUnifiedNodesPingCLI(args[1:])
 	} else if isNodesCloneRequest(args) {
