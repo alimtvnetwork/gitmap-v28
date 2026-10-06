@@ -443,6 +443,7 @@ var generatedCommands = []string{
 	"size",
 	"sl",
 	"snapshot",
+	"space",
 	"sr",
 	"srv",
 	"ss",

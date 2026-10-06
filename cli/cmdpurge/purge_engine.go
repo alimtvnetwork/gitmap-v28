@@ -55,7 +55,6 @@ type rewriteContext struct {
 	db          *store.PurgeHistoryDB
 	commitRemap map[string]string
 	commitMaps  []store.HistoryPurgeCommitMap
-	fileRecords []store.HistoryPurgeFile
 }
 
 type rawCommitInfo struct {
@@ -122,7 +121,7 @@ func confirmPurgeInteractively(report *PreflightReport) bool {
 	text, _ := reader.ReadString('\n')
 	clean := strings.ToLower(strings.TrimSpace(text))
 	if clean != "y" && clean != "yes" {
-		fmt.Println("[!] Purge cancelled by user. Repository commit graph remains unaltered.")
+		fmt.Println("[!] Purge canceled by user. Repository commit graph remains unaltered.")
 		return false
 	}
 

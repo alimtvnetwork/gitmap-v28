@@ -27,13 +27,13 @@ Verify the complete lifecycle of Google Chrome profile export and smart-import i
 
 ### Step 2: Export (`gitmap cpe`)
 ```powershell
-gitmap cpe "Profile 6" "d:\work\gitmap\repo-secrets\01-gitmap\01-chrome-import-export-test\profile-6-export.json"
+gitmap cpe "Profile 6" "repo-secrets\01-gitmap\01-chrome-import-export-test\profile-6-export.json"
 ```
 **Output:**
 ```text
 Artifacts
-  json: d:\work\gitmap\repo-secrets\01-gitmap\01-chrome-import-export-test\profile-6-export.json
-  csv:  d:\work\gitmap\repo-secrets\01-gitmap\01-chrome-import-export-test\profile-6-export.csv
+  json: repo-secrets\01-gitmap\01-chrome-import-export-test\profile-6-export.json
+  csv:  repo-secrets\01-gitmap\01-chrome-import-export-test\profile-6-export.csv
 ✔ db synced  profile Profile 6
 ```
 - Validated JSON payload schema (version 1, display name, email, bookmarks, preferences).
@@ -45,7 +45,7 @@ Artifacts
 
 ### Step 4: Smart-Import (`gitmap cpi`)
 ```powershell
-gitmap cpi "d:\work\gitmap\repo-secrets\01-gitmap\01-chrome-import-export-test\profile-6-export.json" "Profile 6"
+gitmap cpi "repo-secrets\01-gitmap\01-chrome-import-export-test\profile-6-export.json" "Profile 6"
 ```
 **Output:**
 ```text

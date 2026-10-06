@@ -21,7 +21,8 @@ type shFileOpStruct struct {
 	lpszProgressTitle     *uint16
 }
 
-func sendToRecycleBin(path string) error {
+// SendToRecycleBin moves a file or directory to the Windows Recycle Bin.
+func SendToRecycleBin(path string) error {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return err

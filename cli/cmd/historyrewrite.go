@@ -8,6 +8,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -27,9 +28,26 @@ const (
 	historyModePin   = HistoryModeTypePin
 )
 
+func hasPurgeTargetFlag(args []string) bool {
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--folder") || strings.HasPrefix(arg, "-d") ||
+			strings.HasPrefix(arg, "--file") || strings.HasPrefix(arg, "-f") ||
+			strings.HasPrefix(arg, "--commit") || strings.HasPrefix(arg, "-c") {
+			return true
+		}
+	}
+
+	return false
+}
+
 // runHistoryPurge is the dispatch entry for `history-purge` / `hp`.
 func runHistoryPurge(args []string) error {
 	checkHelp(constants.CmdHistoryPurge, args)
+
+	if hasPurgeTargetFlag(args) {
+		return RunHistoryPurgeCLI(args)
+	}
+
 	runHistoryRewrite(HistoryModeTypePurge, args)
 
 	return nil

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.505.0] - 2026-10-06
+
+### Added
+- history purge dispatch fix, recycle bin export, and relative path sanitation
+
+---
+
 ## [v6.504.0] - 2026-10-06
 
 ### Added
@@ -12,66 +19,47 @@
 
 ## [v6.503.0] - 2026-10-06
 
-
 ### Added
 - chrome profile import export e2e test verification and test suite fixes
 
-
 ---
 
-
 ## [v6.502.0] - 2026-10-06
-
 
 ### Added
 - resolve CI/CD sends push assertion and ERD parity cluster path
 
-
 ---
 
-
 ## [v6.501.0] - 2026-10-06
-
 
 ### Added
 - Deep spec consolidation, canonical 8-cluster reduction, and memory unification
 
-
 ---
 
-
 ## [v6.500.0] - 2026-10-06
-
 
 ### Added
 - Pre-deep-consolidation baseline release
 
-
 ---
 
-
 ## [v6.499.0] - 2026-10-06
-
 
 ### Added
 - App spec and completed plans consolidation and reduction
 
-
 ---
 
-
 ## [v6.498.0] - 2026-10-06
-
 
 ### Added
 - Pre-consolidation baseline release
 
-
 ---
 
-
 ## [v6.497.0] - 2026-10-06
-
 
 ### Added
 - **Ubuntu IDE and GitHub Desktop Scan Sync Suite**: Resolved omission where `gitmap scan` on Ubuntu failed to add repositories into VS Code and GitHub Desktop.

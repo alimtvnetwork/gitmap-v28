@@ -94,3 +94,5 @@
 - [103-os-dock-win-nested-if-and-boolean-linter-rca.md](./103-os-dock-win-nested-if-and-boolean-linter-rca.md): Fix nested if depth-2 statement in Windows taskbar alignment reader in os_dock_win.go.
 - [104-ssh-exec-test-is-gitmap-command-assertion-rca.md](./104-ssh-exec-test-is-gitmap-command-assertion-rca.md): Fix SSH exec command test assertion for python, py, cursor, and cur delegation.
 - [105-pipeline-pe-1-helptext-constants-nested-ifs-unused-and-bools-rca.md](./105-pipeline-pe-1-helptext-constants-nested-ifs-unused-and-bools-rca.md): Fix CI/CD failures from gitmap pe -1 across constants test parity, helptext docs, unused dead code, swallowed DB errors, SA4023 typed nil, boolean guidelines, and nested ifs.
+- [106-pipeline-history-purge-shadowing-recycle-misspell-and-relative-paths-rca.md](./106-pipeline-history-purge-shadowing-recycle-misspell-and-relative-paths-rca.md): Fix history purge dispatch shadowing, recycle bin helper export, misspell canceled, and relative paths.
+
