@@ -6,6 +6,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdasset"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlogin"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdports"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservice"
@@ -60,6 +61,8 @@ func toolingDevEntries() []dispatchEntry {
 		{[]string{constants.CmdAlias, constants.CmdAliasShort}, func() error { return runAlias(argsTail()) }},
 		{[]string{"ssh-clone", "ssh-c"}, func() error { return runSSHClone(argsTail()) }},
 		{[]string{"token", "git-token", "access-token"}, func() error { return cmdtoken.Run(argsTail()) }},
+		{[]string{"login", "signin"}, func() error { return cmdlogin.Run(argsTail()) }},
+		{[]string{"logout", "signout"}, func() error { return cmdlogin.RunLogout(argsTail()) }},
 		{[]string{constants.CmdSSH, "ssh-key", "ssh-keys", "auth-key", "auth-key-add", "ssh-key-add"}, func() error { return runSSH(argsTail()) }},
 		{[]string{"deploy-bin", "deploy-binary", "push-bin", "sync-bin"}, func() error { return runSSHDeployBin(argsTail()) }},
 		{[]string{"pull-inventory", "fetch-inventory", "sync-inventory"}, func() error { return runSSHPullInventory(argsTail()) }},
