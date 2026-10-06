@@ -4,7 +4,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -60,11 +59,32 @@ func queryRemoteCandidates(localSlugs []string) []CrossNodeCandidate {
 	if RemoteCandidateSupplier != nil {
 		return RemoteCandidateSupplier()
 	}
-	conns, err := cmdssh.FetchAllSSHConnections()
-	if err != nil || len(conns) == 0 {
+	conns := fetchSSHConnectionsDirect()
+	if len(conns) == 0 {
 		return nil
 	}
 	return buildNodeCandidates(conns, localSlugs)
+}
+
+func fetchConnectionsFromStore(openFn func() (*store.DB, error)) []db.SSHConnection {
+	conn, err := openFn()
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+	res := db.GetSSHConnections(conn.Context(), conn.SQL())
+	if res.IsFailure() {
+		return nil
+	}
+	return res.Data
+}
+
+func fetchSSHConnectionsDirect() []db.SSHConnection {
+	conns := fetchConnectionsFromStore(store.OpenDefault)
+	if len(conns) > 0 {
+		return conns
+	}
+	return fetchConnectionsFromStore(store.OpenGlobalDefault)
 }
 
 func buildNodeCandidates(conns []db.SSHConnection, slugs []string) []CrossNodeCandidate {

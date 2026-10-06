@@ -107,6 +107,8 @@ func printUnifiedNodesHelp() error {
 	fmt.Println("    gitmap nodes cfrp [flags] [targets] [dest]    Clone, fix, and promote public across all fleet nodes")
 	fmt.Println("    gitmap nodes push-settings <node>     Export and push Antigravity settings to target node")
 	fmt.Println("    gitmap nodes sync-settings            Broadcast Antigravity settings across all fleet nodes")
+	fmt.Println("    gitmap nodes deploy agm-accounts [flags] Broadcast AGM accounts & credentials across fleet nodes")
+	fmt.Println("    gitmap nodes sync-agm-accounts [flags]   Alias for deploy agm-accounts")
 	fmt.Println("    gitmap nodes send-projects [node]     Forward VS Code / Cursor Project Manager workspaces")
 	fmt.Println("    gitmap nodes agy prompt <node> <p>    Dispatch prompt directly to target project on node")
 	fmt.Println("    gitmap nodes agy query [--ssh]        Query active Antigravity instances and prompts")
@@ -123,6 +125,10 @@ func printUnifiedNodesHelp() error {
 	fmt.Println("    gitmap nodes ping")
 	fmt.Println("    gitmap nodes push-settings worker-1")
 	fmt.Println("    gitmap nodes sync-settings")
+	fmt.Println("    gitmap nodes deploy agm-accounts")
+	fmt.Println("    gitmap nodes deploy agm-accounts --target worker-1")
+	fmt.Println("    gitmap nodes deploy agm-accounts --except worker-3 --dry-run")
+	fmt.Println("    gitmap nodes sync-agm-accounts --include-main")
 	fmt.Println("    gitmap nodes send-projects worker-1")
 	fmt.Println("    gitmap nodes agy prompt worker-1 gitmap \"Run test suite\"")
 	fmt.Println("    gitmap nodes agy query --ssh")
@@ -193,6 +199,32 @@ func runNodesAgyDispatch(args []string) error {
 	}
 }
 
+func isNodesDeployAGMRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+	if first == "sync-agm-accounts" || first == "sync-agm" || first == "deploy-agm-accounts" || first == "deploy-agm" {
+		return true
+	}
+	if first != "deploy" || len(args) < 2 {
+		return false
+	}
+	sub := strings.ToLower(args[1])
+	return sub == "agm-accounts" || sub == "agm" || sub == "accounts" || sub == "agm-account"
+}
+
+func runNodesDeployAGMDispatch(args []string) error {
+	if len(args) == 0 {
+		return cmdnodes.RunNodesDeployAGMAccounts(nil)
+	}
+	first := strings.ToLower(args[0])
+	if first == "deploy" && len(args) > 1 {
+		return cmdnodes.RunNodesDeployAGMAccounts(args[2:])
+	}
+	return cmdnodes.RunNodesDeployAGMAccounts(args[1:])
+}
+
 // runUnifiedNodesCLI handles `gitmap nodes [flags] [target]`.
 func runUnifiedNodesCLI(args []string) error {
 	for len(args) > 0 && strings.EqualFold(args[0], "nodes") {
@@ -206,6 +238,8 @@ func runUnifiedNodesCLI(args []string) error {
 		return cmdnodes.RunNodesPushSettings(args[1:])
 	} else if strings.EqualFold(args[0], "sync-settings") || strings.EqualFold(args[0], "syncsettings") {
 		return cmdnodes.RunNodesSyncSettings(args[1:])
+	} else if isNodesDeployAGMRequest(args) {
+		return runNodesDeployAGMDispatch(args)
 	} else if strings.EqualFold(args[0], "send-projects") || strings.EqualFold(args[0], "sendprojects") ||
 		strings.EqualFold(args[0], "sync-projects") || strings.EqualFold(args[0], "syncprojects") {
 		return cmdnodes.RunNodesSendProjects(args[1:])

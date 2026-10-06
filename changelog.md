@@ -1,5 +1,19 @@
 # Changelog
 
+## [v6.492.0] - 2026-10-06
+
+### Added
+- **Native Multi-Node AGM Accounts Deployment & Fleet Sync (`gitmap nodes deploy agm-accounts`)**:
+  - Added native CLI command `gitmap nodes deploy agm-accounts` (with aliases `nodes deploy agm`, `nodes sync-agm-accounts`, `nodes deploy accounts`, `sync-agm-accounts`, `deploy-agm-accounts`) to securely package local Antigravity Manager accounts (`accounts.json`, `accounts/`, `user_tokens.db`) into an in-memory `.tar.gz` archive and deploy to fleet nodes.
+  - High-speed reachability probing with 1.5s timeout; automatically excludes local machine and central `main` control node by default to prevent accidental overwrite.
+  - Remote archive streaming via `cmdssh.StreamFileToRemote` and atomic extraction on Linux (`~/.antigravity_tools/`) and Windows (`%USERPROFILE%\.antigravity_tools\`) with POSIX permission hardening (`chmod 700 / 600`).
+  - Flags supported: `--target <alias>`, `--except <list>`, `--include-main`, `--open-only`, `--dry-run`, and `--json`.
+  - Companion integration in Antigravity-Manager: Tauri IPC commands (`deploy_accounts_to_fleet`, `check_gitmap_available`) and 1-click UI card in `UnifiedBackupModal.tsx`.
+  - Conducted Row Level Security (RLS) audit confirming existing Supabase schema protection and local directory isolation.
+  - Unit tests in `cli/cmdnodes/nodes_deploy_agm_test.go` and full documentation in `cli/helptext/nodes.md`.
+
+---
+
 ## [v6.491.0] - 2026-10-05
 
 ### Added

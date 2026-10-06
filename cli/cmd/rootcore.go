@@ -184,6 +184,7 @@ func coreClusterEntries() []dispatchEntry {
 		{[]string{"nodes-push-settings", "push-settings"}, func() error { return runUnifiedNodesCLI(append([]string{"push-settings"}, argsTail()...)) }},
 		{[]string{"nodes-sync-settings", "sync-settings"}, func() error { return runUnifiedNodesCLI(append([]string{"sync-settings"}, argsTail()...)) }},
 		{[]string{"nodes-send-projects", "send-projects", "sync-projects"}, func() error { return runUnifiedNodesCLI(append([]string{"send-projects"}, argsTail()...)) }},
+		{[]string{"nodes-deploy-agm-accounts", "sync-agm-accounts", "deploy-agm-accounts"}, func() error { return runUnifiedNodesCLI(append([]string{"deploy", "agm-accounts"}, argsTail()...)) }},
 		{[]string{constants.CmdServersClients, constants.CmdServersClientsAlias, constants.CmdSC}, func() error { dispatchServersClients(argsTail()); return nil }},
 		{[]string{constants.CmdClients, constants.CmdClientsAlias}, func() error { dispatchClients(argsTail()); return nil }},
 		{[]string{"servers"}, func() error { dispatchServers(argsTail()); return nil }},
