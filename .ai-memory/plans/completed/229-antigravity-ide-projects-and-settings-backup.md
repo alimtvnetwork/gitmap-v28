@@ -28,7 +28,7 @@ please all repos following the antigravity ide here in the project sections alon
 ```
 
 ## Execution Summary
-- **Canonical Spec:** [01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/229-antigravity-ide-projects-and-settings-backup/01-architecture-spec.md) and [02-component-spec.md](file:///d:/work/gitmap/02-spec/21-app/229-antigravity-ide-projects-and-settings-backup/02-component-spec.md)
+- **Canonical Spec:** [01-architecture-spec.md](../../02-spec/21-app/229-antigravity-ide-projects-and-settings-backup/01-architecture-spec.md) and [02-component-spec.md](../../02-spec/21-app/229-antigravity-ide-projects-and-settings-backup/02-component-spec.md)
 - **Subtasks Executed:**
   - `Subtask 01: Register 78 Repos in Antigravity IDE & Pin Core Projects` (Worker 01):
     - Ingested 78 Git repositories (42 direct, 36 nested) across the workspace.
@@ -40,7 +40,7 @@ please all repos following the antigravity ide here in the project sections alon
     - Created `repo-secrets/09-antigravity-backup/` with `vault/`, `scripts/`, and `temp/` subdirectories.
     - Generated 4 vault manifests: `projects-manifest.json` (78 repos), `pinned-projects.json` (23 pinned), `settings-manifest.json`, and `plugins-and-skills.json`.
     - Implemented 6 PowerShell scripts and 1 POSIX Shell script for zero-touch backup, restoration, and verification.
-    - Authored comprehensive master guide [readme.md](file:///d:/work/repo-secrets/09-antigravity-backup/readme.md) with step-by-step restoration SOP, GitMap commands, and architecture diagrams.
+    - Authored comprehensive master guide [readme.md](../../repo-secrets/09-antigravity-backup/readme.md) with step-by-step restoration SOP, GitMap commands, and architecture diagrams.
     - Verified via `verify-antigravity-backup.ps1` (7/7 gates passed: VG-01 through VG-07).
 
 ## Verification Evidence

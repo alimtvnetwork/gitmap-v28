@@ -1,5 +1,15 @@
 # Changelog
 
+## [v6.494.0] - 2026-10-06
+
+### Added
+- **Antigravity IDE 78-Repository Automated Ingestion and Dual-Profile Synchronization**: Automated discovery, scanning, and symmetric registration of all 78 local Git repositories across active instance sandbox profiles and global administrator profiles.
+- **Pinned Projects Suite (23 Projects)**: Priority pinning configuration covering Tier 1 core architectures (7 projects) and Tier 2 ecosystem packages (16 projects) via `repo-secrets/09-antigravity-backup/vault/pinned-projects.json` and GitMap CLI.
+- **Repo-Secrets Cross-Platform Migration Toolkit (`repo-secrets/09-antigravity-backup`)**: Production-ready backup, export, restoration, and verification toolchain with 4 vault manifests (`projects-manifest.json`, `pinned-projects.json`, `settings-manifest.json`, `plugins-and-skills.json`) and 7 cross-platform automation scripts (`.ps1` and `.sh`).
+- **Bidirectional End-to-End Testing Verification**: Complete bidirectional roundtrip validation (Path A: Live State -> Vault Export -> Verify; Path B: Manifests -> Non-Destructive Restore -> Post-Verification Parity) achieving 100% gate pass rate across gates VG-01 through VG-08 with zero regressions.
+
+---
+
 ## [v6.493.0] - 2026-10-06
 
 ### Added

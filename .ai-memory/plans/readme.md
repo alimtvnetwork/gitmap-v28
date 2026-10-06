@@ -6,6 +6,7 @@
 
 ## Completed Plans
 
+- [230-antigravity-backup-e2e-and-release.md](completed/230-antigravity-backup-e2e-and-release.md) — Antigravity IDE Backup E2E Validation, Logging Verification & Minor Release v6.494.0 (Spec: [230](../../02-spec/21-app/230-antigravity-backup-e2e-and-release/01-architecture-spec.md))
 - [229-antigravity-ide-projects-and-settings-backup.md](completed/229-antigravity-ide-projects-and-settings-backup.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Spec: [229](../../02-spec/21-app/229-antigravity-ide-projects-and-settings-backup/01-architecture-spec.md))
 - [229-nodes-deploy-repos-and-multi-ide-fleet-sync.md](229-nodes-deploy-repos-and-multi-ide-fleet-sync.md) — Fleet Repository Deployment, Remote Scanner Delegation & Multi-IDE Sync Engine (Spec: [229](../../02-spec/21-app/229-nodes-deploy-repos-and-multi-ide-fleet-sync/01-architecture-spec.md))
 - [228-nodes-deploy-agm-accounts-and-fleet-sync.md](completed/228-nodes-deploy-agm-accounts-and-fleet-sync.md) — Native Multi-Node AGM Accounts Deployment, Fleet Synchronization & AGM Integration (Spec: [228](../../02-spec/21-app/228-nodes-deploy-agm-accounts-and-fleet-sync/01-architecture-spec.md))

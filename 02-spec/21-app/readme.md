@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [230-antigravity-backup-e2e-and-release](230-antigravity-backup-e2e-and-release/01-architecture-spec.md) — Antigravity IDE Backup E2E Validation, Logging Verification & Minor Release v6.494.0 (Status: `completed`)
 - [229-antigravity-ide-projects-and-settings-backup](229-antigravity-ide-projects-and-settings-backup/01-architecture-spec.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Status: `completed`)
 - [229-nodes-deploy-repos-and-multi-ide-fleet-sync](229-nodes-deploy-repos-and-multi-ide-fleet-sync/01-architecture-spec.md) — Fleet Repository Deployment, Remote Scanner Delegation & Multi-IDE Sync Engine (Status: `completed`)
 - [228-nodes-deploy-agm-accounts-and-fleet-sync](228-nodes-deploy-agm-accounts-and-fleet-sync/01-architecture-spec.md) — Native Multi-Node AGM Accounts Deployment, Fleet Synchronization & AGM Integration (Status: `completed`)
