@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.503.0] - 2026-10-06
+
+### Added
+- chrome profile import export e2e test verification and test suite fixes
+
+---
+
 ## [v6.502.0] - 2026-10-06
 
 ### Added
