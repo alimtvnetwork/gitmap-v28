@@ -35,6 +35,10 @@ Every agent, tool, and subtask operating on the GitMap codebase must strictly ad
   - Open active plans in `.ai-memory/plans/` (e.g., `219`, `226`, `236`).
   - Active subtask directories under `.ai-memory/plans/subtasks/`.
 
+### Invariant 6: Subprocess Git Command Assertion Invariant
+- **Rule:** When asserting executed Git commands in unit tests (e.g., `sends_test.go`), always verify command prefixes (`strings.HasPrefix(c, "push")`) rather than exact string equality (`c == "push"`).
+- **Rationale:** Subprocess execution abstractions append destination remotes and target branch names (`push origin main`), causing strict equality comparisons to fail spuriously in CI/CD pipelines.
+
 ---
 
 ## 2. Append-Only Strictly Prohibited Registry
