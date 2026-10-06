@@ -109,11 +109,11 @@ type SendsExecutionPayload struct {
 
 // SendsOptions encapsulates CLI execution parameters for gitmap sends.
 type SendsOptions struct {
-	Verb        string
-	Target      string
-	RawMessage  string
-	IsDryRun    bool
-	IsPushed    bool
-	IsJSON      bool
-	IsVerbose   bool
+	Verb       string
+	Target     string
+	RawMessage string
+	IsDryRun   bool
+	IsPushed   bool
+	IsJSON     bool
+	IsVerbose  bool
 }

@@ -152,12 +152,10 @@ func recoverStashCollision(step gitutil.RemediationStep, output string) bool {
 
 	lowerOut := strings.ToLower(output)
 	hasUntracked := strings.Contains(lowerOut, "could not restore untracked files from stash")
-	hasNoCheckout := strings.Contains(lowerOut, "already exists, no checkout")
+	hasCollisionNotice := strings.Contains(lowerOut, "already exists, no checkout")
 
-	if hasUntracked {
-		if hasNoCheckout {
-			return dropStashCollision(step.Args)
-		}
+	if hasUntracked && hasCollisionNotice {
+		return dropStashCollision(step.Args)
 	}
 
 	return false

@@ -24,27 +24,31 @@ func init() {
 func setupMultiInstanceRunningPromptsFlags() {
 	for _, cmd := range RunningPromptsCmd.Commands() {
 		if cmd.Name() == "ls" {
-			cmd.Flags().StringVarP(&runningPromptsInstanceFlag, "instance", "i", "", "Filter by Antigravity instance ID or alias (default: primary)")
-			cmd.Flags().BoolVarP(&runningPromptsAllInstanceFlag, "all-instances", "a", false, "Aggregate prompts across all active Antigravity instances")
-
-			origRunE := cmd.RunE
-			cmd.RunE = func(c *cobra.Command, args []string) error {
-				instFlag, _ := c.Flags().GetString("instance")
-				allFlag, _ := c.Flags().GetBool("all-instances")
-				limit, _ := c.Flags().GetInt("limit")
-				wc := resolveWordCountFlag(c)
-				isFull, _ := c.Flags().GetBool("full")
-				isJSON, _ := c.Flags().GetBool("json")
-
-				if instFlag != "" || allFlag {
-					return RunMultiInstancePromptsLs(instFlag, allFlag, limit, wc, isFull, isJSON)
-				}
-				if origRunE != nil {
-					return origRunE(c, args)
-				}
-				return nil
-			}
+			attachPromptsLsHook(cmd)
 		}
+	}
+}
+
+func attachPromptsLsHook(cmd *cobra.Command) {
+	cmd.Flags().StringVarP(&runningPromptsInstanceFlag, "instance", "i", "", "Filter by Antigravity instance ID or alias (default: primary)")
+	cmd.Flags().BoolVarP(&runningPromptsAllInstanceFlag, "all-instances", "a", false, "Aggregate prompts across all active Antigravity instances")
+
+	origRunE := cmd.RunE
+	cmd.RunE = func(c *cobra.Command, args []string) error {
+		instFlag, _ := c.Flags().GetString("instance")
+		allFlag, _ := c.Flags().GetBool("all-instances")
+		limit, _ := c.Flags().GetInt("limit")
+		wc := resolveWordCountFlag(c)
+		isFull, _ := c.Flags().GetBool("full")
+		isJSON, _ := c.Flags().GetBool("json")
+
+		if instFlag != "" || allFlag {
+			return RunMultiInstancePromptsLs(instFlag, allFlag, limit, wc, isFull, isJSON)
+		}
+		if origRunE != nil {
+			return origRunE(c, args)
+		}
+		return nil
 	}
 }
 
@@ -75,11 +79,9 @@ func extractInstanceArgs(args []string) (string, bool) {
 			isAll = true
 			continue
 		}
-		if arg == "-i" || arg == "--instance" {
-			if i+1 < len(args) {
-				instID = args[i+1]
-				i++
-			}
+		if (arg == "-i" || arg == "--instance") && i+1 < len(args) {
+			instID = args[i+1]
+			i++
 			continue
 		}
 		if strings.HasPrefix(arg, "--instance=") {
@@ -137,26 +139,25 @@ func renderMultiInstancePromptsView(resp *AgyMultiInstancePromptResponse, isFull
 		for idx, item := range inst.Running {
 			fmt.Printf("  %s[%d] [RUNNING] %s (%s)%s\n", constants.ColorGreen, idx+1, item.Title, item.ProjectName, constants.ColorReset)
 			if item.PromptPreview != "" {
-				preview := item.PromptPreview
-				if !isFull && len(preview) > 120 {
-					preview = preview[:120] + "..."
-				}
-				fmt.Printf("      Preview: %s\n", preview)
+				fmt.Printf("      Preview: %s\n", formatPromptPreview(item.PromptPreview, isFull))
 			}
 		}
 
 		for idx, item := range inst.Queued {
 			fmt.Printf("  %s[%d] [QUEUED] %s%s\n", constants.ColorYellow, idx+1, item.Title, constants.ColorReset)
 			if item.Prompt != "" {
-				preview := item.Prompt
-				if !isFull && len(preview) > 120 {
-					preview = preview[:120] + "..."
-				}
-				fmt.Printf("      Prompt: %s\n", preview)
+				fmt.Printf("      Prompt: %s\n", formatPromptPreview(item.Prompt, isFull))
 			}
 		}
 	}
 	fmt.Println()
+}
+
+func formatPromptPreview(preview string, isFull bool) string {
+	if !isFull && len(preview) > 120 {
+		return preview[:120] + "..."
+	}
+	return preview
 }
 
 // RunMultiInstanceProjectsCLI filters running projects by target instance or aggregates across instances.
@@ -171,23 +172,9 @@ func RunMultiInstanceProjectsCLI(instanceID string, isAll bool, isJSON bool, arg
 		return iErr
 	}
 
-	allowedWorkspaces := make(map[string]bool)
-	targetID := strings.TrimSpace(instanceID)
-
-	if isAll || strings.EqualFold(targetID, "all") || targetID == "" {
-		for _, inst := range instances {
-			for _, ws := range inst.ActiveWorkspaces {
-				allowedWorkspaces[strings.ToLower(ws)] = true
-			}
-		}
-	} else {
-		resolved, rErr := ResolveInstance(targetID)
-		if rErr != nil {
-			return rErr
-		}
-		for _, ws := range resolved.ActiveWorkspaces {
-			allowedWorkspaces[strings.ToLower(ws)] = true
-		}
+	allowedWorkspaces, wsErr := resolveAllowedWorkspaces(instanceID, isAll, instances)
+	if wsErr != nil {
+		return wsErr
 	}
 
 	var filtered []RunningProjectRecord
@@ -205,4 +192,27 @@ func RunMultiInstanceProjectsCLI(instanceID string, isAll bool, isJSON bool, arg
 	}
 
 	return outputRunningProjects(filtered, false, "")
+}
+
+func resolveAllowedWorkspaces(instanceID string, isAll bool, instances []AgyInstanceInfo) (map[string]bool, error) {
+	allowedWorkspaces := make(map[string]bool)
+	targetID := strings.TrimSpace(instanceID)
+
+	if isAll || strings.EqualFold(targetID, "all") || targetID == "" {
+		for _, inst := range instances {
+			for _, ws := range inst.ActiveWorkspaces {
+				allowedWorkspaces[strings.ToLower(ws)] = true
+			}
+		}
+		return allowedWorkspaces, nil
+	}
+
+	resolved, rErr := ResolveInstance(targetID)
+	if rErr != nil {
+		return nil, rErr
+	}
+	for _, ws := range resolved.ActiveWorkspaces {
+		allowedWorkspaces[strings.ToLower(ws)] = true
+	}
+	return allowedWorkspaces, nil
 }

@@ -155,16 +155,23 @@ func executeFleetUpdateWithOptions(conns []db.SSHConnection, opts SSHFleetUpdate
 func collectFailedFleetConnections(conns []db.SSHConnection, results []FleetNodeResult) []db.SSHConnection {
 	var failed []db.SSHConnection
 	for _, res := range results {
-		if !res.Success || res.Error != nil {
-			for _, c := range conns {
-				if c.Alias == res.Alias || c.IPAddress == res.IP {
-					failed = append(failed, c)
-					break
-				}
-			}
+		if res.Success && res.Error == nil {
+			continue
+		}
+		if conn, ok := findMatchingSSHConnection(conns, res); ok {
+			failed = append(failed, conn)
 		}
 	}
 	return failed
+}
+
+func findMatchingSSHConnection(conns []db.SSHConnection, res FleetNodeResult) (db.SSHConnection, bool) {
+	for _, c := range conns {
+		if c.Alias == res.Alias || c.IPAddress == res.IP {
+			return c, true
+		}
+	}
+	return db.SSHConnection{}, false
 }
 
 func promptAndResolveFleetFailures(failedConns []db.SSHConnection, opts SSHFleetUpdateOptions) {
@@ -234,15 +241,7 @@ func executeSingleSSHNodeUpdate(c db.SSHConnection, pkg string, isDryRun bool) (
 func reportUpdateExecution(header, pkg, out string, err error) {
 	hasError := err != nil || isRemoteUpdateFailed(out)
 	if hasError {
-		errMsg := resolveUpdateErrorMessage(err, out)
-		fmt.Printf("  %s %s✗%s %s update failed: %v\n", header, constants.ColorRed, constants.ColorReset, pkg, errMsg)
-		if trimmed := strings.TrimSpace(out); trimmed != "" {
-			fmt.Printf("    Output: %s\n", trimmed)
-		}
-		trace := apperror.CaptureStackTrace(3)
-		if trace != "" {
-			fmt.Printf("    Stack trace:\n%s\n", trace)
-		}
+		printReportUpdateFailure(header, pkg, out, err)
 		return
 	}
 	ver := extractVersionFromOutput(out)
@@ -251,6 +250,18 @@ func reportUpdateExecution(header, pkg, out string, err error) {
 		return
 	}
 	fmt.Printf("  %s %s✓%s %s updated successfully\n", header, constants.ColorGreen, constants.ColorReset, pkg)
+}
+
+func printReportUpdateFailure(header, pkg, out string, err error) {
+	errMsg := resolveUpdateErrorMessage(err, out)
+	fmt.Printf("  %s %s✗%s %s update failed: %v\n", header, constants.ColorRed, constants.ColorReset, pkg, errMsg)
+	if trimmed := strings.TrimSpace(out); trimmed != "" {
+		fmt.Printf("    Output: %s\n", trimmed)
+	}
+	trace := apperror.CaptureStackTrace(3)
+	if trace != "" {
+		fmt.Printf("    Stack trace:\n%s\n", trace)
+	}
 }
 
 func isRemoteUpdateFailed(out string) bool {
@@ -265,36 +276,31 @@ func resolveUpdateErrorMessage(err error, out string) error {
 	return fmt.Errorf("remote update verification failed: %s", extractRemoteErrorDetails(out))
 }
 
-func extractRemoteErrorDetails(out string) string {
-	idx := strings.Index(out, `"details":"`)
-	if idx >= 0 {
-		sub := out[idx+len(`"details":"`):]
-		end := strings.Index(sub, `"`)
-		if end >= 0 {
-			return sub[:end]
-		}
+func extractJSONFieldString(out, pattern string) string {
+	idx := strings.Index(out, pattern)
+	if idx < 0 {
+		return ""
 	}
-	idxSpace := strings.Index(out, `"details": "`)
-	if idxSpace >= 0 {
-		sub := out[idxSpace+len(`"details": "`):]
-		end := strings.Index(sub, `"`)
-		if end >= 0 {
-			return sub[:end]
-		}
+	sub := out[idx+len(pattern):]
+	end := strings.Index(sub, `"`)
+	if end < 0 {
+		return ""
+	}
+	return sub[:end]
+}
+
+func extractRemoteErrorDetails(out string) string {
+	if val := extractJSONFieldString(out, `"details":"`); val != "" {
+		return val
+	}
+	if val := extractJSONFieldString(out, `"details": "`); val != "" {
+		return val
 	}
 	return strings.TrimSpace(out)
 }
 
 func extractVersionFromOutput(out string) string {
-	idx := strings.Index(out, `"current_version":"`)
-	if idx >= 0 {
-		sub := out[idx+len(`"current_version":"`):]
-		end := strings.Index(sub, `"`)
-		if end >= 0 {
-			return sub[:end]
-		}
-	}
-	return ""
+	return extractJSONFieldString(out, `"current_version":"`)
 }
 
 func connectSSHNode(c db.SSHConnection, header string) (*ssh.Client, bool) {

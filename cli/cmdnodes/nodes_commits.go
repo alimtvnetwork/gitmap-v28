@@ -527,12 +527,12 @@ func buildCommitsRows(results []NodeCommitResult, action string) []termtable.Row
 	return rows
 }
 
-func formatCommitStatusBadge(isSuccess, hasChanges, isPushed, isDryRun bool) string {
+func formatCommitStatusBadge(isOK, hasChanges, isPushed, isDryRun bool) string {
 	if isDryRun {
 		return constants.ColorYellow + "● DRY-RUN" + constants.ColorReset
 	}
 
-	if !isSuccess {
+	if !isOK {
 		return constants.ColorRed + "▲ FAILED" + constants.ColorReset
 	}
 

@@ -106,7 +106,7 @@ const (
 	CmdPendingCommits      = "pending-commits"
 	CmdPendingCommitsAlias = "pc"
 	// CmdSends dispatches semantic commits across repositories.
-	CmdSends               = "sends"
+	CmdSends = "sends"
 	// CmdRmGit removes a commit by its last 4-digit SHA prefix.
 	CmdRmGit      = "rm-git"
 	CmdRmGitAlias = "rmg"

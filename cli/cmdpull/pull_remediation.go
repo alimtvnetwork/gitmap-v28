@@ -290,14 +290,14 @@ func RunBatchPullFix(args []string) error {
 }
 
 func loadRecentPullFailuresFromDB() ([]PullFailureSummary, *apperror.AppError) {
-	db, err := store.OpenPullSplitDB()
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "open_pull_db")
+	db, errDB := store.OpenPullSplitDB()
+	if errDB != nil {
+		return nil, apperror.WrapSimple(errDB, "open_pull_db")
 	}
 	defer db.Close()
-	records, err := db.QueryAllLatestPullErrors(50)
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "query_pull_errors")
+	records, errQuery := db.QueryAllLatestPullErrors(50)
+	if errQuery != nil {
+		return nil, errQuery
 	}
 
 	return convertRecordsToFailures(records), nil

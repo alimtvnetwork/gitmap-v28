@@ -133,19 +133,8 @@ func handleAPIPromptsInstances(w http.ResponseWriter, r *http.Request) {
 	maxWordsStr := q.Get("max_words")
 	includeConvsStr := q.Get("include_convs")
 
-	limit := 10
-	if limitStr != "" {
-		if parsed, err := strconv.Atoi(limitStr); err == nil && parsed > 0 {
-			limit = parsed
-		}
-	}
-
-	maxWords := 100
-	if maxWordsStr != "" {
-		if parsed, err := strconv.Atoi(maxWordsStr); err == nil && parsed > 0 {
-			maxWords = parsed
-		}
-	}
+	limit := parsePositiveInt(limitStr, 10)
+	maxWords := parsePositiveInt(maxWordsStr, 100)
 
 	includeConvs := true
 	if includeConvsStr != "" {
@@ -743,4 +732,15 @@ func openBrowserURL(targetURL string) {
 	default:
 		_ = exec.Command("xdg-open", targetURL).Start()
 	}
+}
+
+func parsePositiveInt(str string, fallback int) int {
+	if str == "" {
+		return fallback
+	}
+	parsed, err := strconv.Atoi(str)
+	if err != nil || parsed <= 0 {
+		return fallback
+	}
+	return parsed
 }

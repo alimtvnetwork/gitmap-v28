@@ -77,22 +77,30 @@ func syncEditorTargets(repoPaths []string, opts IDEOptions, s *IDESyncSummary) {
 
 func syncOtherTargets(repoPaths []string, opts IDEOptions, s *IDESyncSummary) {
 	if opts.IsAntigravityTargeted {
-		for _, p := range repoPaths {
-			if cmdantigravity.IsRepoRegisteredInAgy(p) {
-				s.AntigravityRetained++
-			} else if !opts.IsDryRun && workspacesync.SyncAntigravity(p, filepath.Base(p)) {
-				s.AntigravityAdded++
-			}
-		}
+		syncAntigravityPaths(repoPaths, opts.IsDryRun, s)
 	}
 	cli := desktop.ResolveCLI()
 	if opts.IsDesktopTargeted && cli != "" && !opts.IsDryRun {
-		for _, p := range repoPaths {
-			if exec.Command(cli, p).Run() == nil {
-				s.DesktopAdded++
-			} else {
-				s.DesktopFailed++
-			}
+		syncDesktopPaths(repoPaths, cli, s)
+	}
+}
+
+func syncAntigravityPaths(repoPaths []string, isDryRun bool, s *IDESyncSummary) {
+	for _, p := range repoPaths {
+		if cmdantigravity.IsRepoRegisteredInAgy(p) {
+			s.AntigravityRetained++
+		} else if !isDryRun && workspacesync.SyncAntigravity(p, filepath.Base(p)) {
+			s.AntigravityAdded++
+		}
+	}
+}
+
+func syncDesktopPaths(repoPaths []string, cli string, s *IDESyncSummary) {
+	for _, p := range repoPaths {
+		if exec.Command(cli, p).Run() == nil {
+			s.DesktopAdded++
+		} else {
+			s.DesktopFailed++
 		}
 	}
 }

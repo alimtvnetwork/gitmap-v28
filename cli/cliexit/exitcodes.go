@@ -12,4 +12,3 @@ const (
 	ExitCodeNotFound        ExitCodeType = 4
 	ExitCodeValidationError ExitCodeType = 5
 )
-

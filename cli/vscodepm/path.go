@@ -78,10 +78,8 @@ func EnsureProjectsJSONPath() (string, error) {
 		constants.VSCodePMGlobalStorageDir,
 		constants.VSCodePMExtensionDir)
 
-	if !dirExists(extDir) {
-		if mkErr := os.MkdirAll(extDir, 0755); mkErr != nil {
-			return filepath.Join(extDir, constants.VSCodePMProjectsFile), ErrExtensionMissing
-		}
+	if !dirExists(extDir) && os.MkdirAll(extDir, 0755) != nil {
+		return filepath.Join(extDir, constants.VSCodePMProjectsFile), ErrExtensionMissing
 	}
 
 	return filepath.Join(extDir, constants.VSCodePMProjectsFile), nil

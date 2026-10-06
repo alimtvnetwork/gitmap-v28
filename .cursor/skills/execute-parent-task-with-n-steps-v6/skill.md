@@ -171,7 +171,14 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use generic PowerShell sea
 
 1. **Platform Handshake:** Confirm tools (`invoke_subagent`, `send_message`, `manage_subagents`, `ask_question`, `write_to_file`, `replace_file_content`, `run_command`). If `task_boundary` exists: set `PLANNING` (Phase 1), `EXECUTION` (Phase 2), `VERIFICATION` (Phase 3).
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
-3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
+3. **Working Tree Cleanliness & Multi-Repo Remediation:**
+   - Run `git status --porcelain`. Record modified files in ledger; never touch unowned files. Confirm root `readme.md` is lowercase.
+   - If working tree or multi-repo sync reports dirty or failed repositories:
+     - **Dirty working tree (uncommitted WIP):** Preserve using GitMap native tools: `gitmap cpar "wip: save changes"` or `gitmap fix <repo> stash` / `gitmap stash`. For untracked-only files, either track via `git -C <path> add .` or clean via `git -C <path> clean -fd` based on ownership.
+     - **Missing repository on disk:** Execute `gitmap clone <repo>` or `gitmap rm --db-only <repo>`.
+     - **Merge conflicts / divergence:** Execute `gitmap fix <repo>` or `gitmap pull <repo> --autostash`.
+     - **Pull errors in Split-DB:** Query diagnostics via `gitmap pull-error [slug] --json`, resolve, and clear via `gitmap pull-error clear [slug]`.
+   - Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
 4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
    - Initialize or inspect task state via the Antigravity SQLite task manager:
      `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`

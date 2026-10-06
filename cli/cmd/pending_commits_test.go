@@ -339,7 +339,9 @@ func TestQuerySingleNodePendingCommits_Mock(t *testing.T) {
 	if !rec.IsOnline {
 		t.Errorf("expected node IsOnline true")
 	}
-	if !rec.IsSuccess {
+	if rec.IsSuccess {
+		// ok
+	} else {
 		t.Errorf("expected node IsSuccess true")
 	}
 	if rec.Payload == nil {

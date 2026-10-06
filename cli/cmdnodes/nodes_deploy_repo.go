@@ -389,7 +389,7 @@ func walkAndArchiveRepo(tw *tar.Writer, repoPath string, opts DeployRepoOptions)
 		if relErr != nil {
 			return nil
 		}
-		if shouldSkipWalkEntry(info, rel, opts) {
+		if isWalkEntrySkipped(info, rel, opts) {
 			return handleSkipDir(info)
 		}
 		if info.IsDir() {
@@ -410,7 +410,7 @@ func handleSkipDir(info os.FileInfo) error {
 	return nil
 }
 
-func shouldSkipWalkEntry(info os.FileInfo, relPath string, opts DeployRepoOptions) bool {
+func isWalkEntrySkipped(info os.FileInfo, relPath string, opts DeployRepoOptions) bool {
 	if opts.Clean && isBuildArtifactDir(info.Name()) {
 		return true
 	}

@@ -113,15 +113,7 @@ func runAgmUpdateLinuxQuiet(opts installOptions) error {
 	cmd := exec.Command("bash", "-c", installCmd)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  %s✗%s Antigravity Manager update failed: %v\n", constants.ColorRed, constants.ColorReset, err)
-		if len(out) > 0 {
-			fmt.Fprintf(os.Stderr, "    Output:\n%s\n", strings.TrimSpace(string(out)))
-		}
-		trace := apperror.CaptureStackTrace(2)
-		if trace != "" {
-			fmt.Fprintf(os.Stderr, "    Stack trace:\n%s\n", trace)
-		}
-		verifyAgManagerOnFailure()
+		printUpdateFailureDetails(err, out)
 		return apperror.WrapSimple(err, "Antigravity Manager update failed")
 	}
 
@@ -129,6 +121,18 @@ func runAgmUpdateLinuxQuiet(opts installOptions) error {
 	verLabel := formatAgManagerVerLabel(version)
 	fmt.Printf("%s✓%s Antigravity Manager%s updated successfully.\n", constants.ColorGreen, constants.ColorReset, verLabel)
 	return nil
+}
+
+func printUpdateFailureDetails(err error, out []byte) {
+	fmt.Fprintf(os.Stderr, "  %s✗%s Antigravity Manager update failed: %v\n", constants.ColorRed, constants.ColorReset, err)
+	if len(out) > 0 {
+		fmt.Fprintf(os.Stderr, "    Output:\n%s\n", strings.TrimSpace(string(out)))
+	}
+	trace := apperror.CaptureStackTrace(2)
+	if trace != "" {
+		fmt.Fprintf(os.Stderr, "    Stack trace:\n%s\n", trace)
+	}
+	verifyAgManagerOnFailure()
 }
 
 // PromptAgmBatchFailureResolution prompts the user when multiple failures occur during updates.

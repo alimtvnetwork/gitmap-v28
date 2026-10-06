@@ -413,7 +413,8 @@ func TestMockSSHExecution_PendingCommits(t *testing.T) {
 		t.Errorf("expected node online true, got false")
 	}
 
-	if !res.IsSuccess {
+	if res.IsSuccess {
+	} else {
 		t.Errorf("expected node success true, got false")
 	}
 
@@ -454,7 +455,8 @@ func TestMockSSHExecution_Commits(t *testing.T) {
 		t.Errorf("expected node online true, got false")
 	}
 
-	if !res.IsSuccess {
+	if res.IsSuccess {
+	} else {
 		t.Errorf("expected node success true, got false")
 	}
 

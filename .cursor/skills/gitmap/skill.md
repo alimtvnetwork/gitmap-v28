@@ -51,17 +51,40 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap cpr "<msg>"` — Stage, commit, and push release chore
 - `gitmap pcp "<msg>"` — Pull latest, commit, and push with preflight verification
 
-### 6. Script Runners & Multi-Repo Operations
+### 6. Workspace Remediation, Dirty Repositories & Pull Diagnostics
+- `gitmap fix [target] [flags]` — Remediate dirty or conflicted repositories using guided recipes:
+  - `gitmap fix --all` (alias: `gitmap fix -a`) — Apply remediation across all pending repos (default recipe: stash)
+  - `gitmap fix <repo> stash` (`1`) — Safely save uncommitted changes to git stash stack
+  - `gitmap fix <repo> wip` (`2`) — Commit all working changes to a temporary WIP commit
+  - `gitmap fix <repo> discard` (`3`) — Hard reset and clean untracked working tree changes
+  - `gitmap fix ls` — List all repositories currently requiring remediation
+  - `gitmap fix agy` — Autonomous AI-assisted workspace remediation
+- `gitmap cpar "<msg>"` (alias: `commit-push-all-repos`) — Batch stage, commit, and push across all dirty repositories (e.g. `gitmap cpar "wip: save changes"`)
+- `gitmap pull-error [slug|all] [--json]` (alias: `gitmap pulle`) — Query persistent pull error diagnostics from SQLite Split-DB (`.gitmap/data/pull/errors/sql.db`)
+- `gitmap pull-error clear [slug|all]` — Clear resolved pull error records from Split-DB
+- `gitmap fix-credential` (alias: `gitmap fc`) — Repair Windows Credential Manager (`wincredman`) store
+
+#### 🛠️ Failure Diagnostic & Remediation Decision Matrix
+| Failure Pattern / Reason | Actionable Primary Command | Alternative / Clean Option |
+| :--- | :--- | :--- |
+| **Working tree has uncommitted changes** | `gitmap cpar "wip: save changes"` | `gitmap stash` or `gitmap fix <repo> stash` |
+| **Only untracked files present** | `git -C <path> add .` (Track/Stage) | `git -C <path> clean -fd` (Clean untracked) |
+| **Repository directory does not exist on disk** | `gitmap clone <repo>` | `gitmap rm --db-only <repo>` (deregister) |
+| **Merge conflict detected during pull** | `gitmap fix <repo>` | `gitmap stash` (autostash & re-pull) |
+| **Branch diverged (non-fast-forward)** | `gitmap pull <repo> --autostash` | `gitmap pull --rebase <repo>` |
+| **Windows Credential Manager / Auth failure**| `gitmap fix-credential` (alias: `fc`) | `gitmap ssh deploy-keys` |
+
+### 7. Script Runners & Multi-Repo Operations
 - `gitmap pwsh "<cmd>"` / `gitmap ps "<cmd>"` — Cross-platform PowerShell execution with `-NoProfile` and automatic fallback
 - `gitmap bash "<cmd>"` / `gitmap sh "<cmd>"` — Cross-platform Bash execution
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling)
 
-### 7. Multi-Node Cluster & Remote Delegation
+### 8. Multi-Node Cluster & Remote Delegation
 - `gitmap cluster --help` — Orchestrate multi-node clusters and health checks
 - `gitmap sc --help` — Servers-clients topology and background task manager
 - `gitmap ssh --help` — SSH discovery, connection pooling, and remote command execution
 
-### 7. Rust & Toolchain Package Management
+### 9. Rust & Toolchain Package Management
 - `gitmap cargo status` — Inspect Rust and Cargo toolchain status
 - `gitmap install cargo` — Install Rust toolchain if missing
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages
@@ -72,3 +95,4 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 3. **Scoped Search:** Always provide target directories and extensions to `gitmap aum search` (e.g. `gitmap aum search "target" cli --ext .go`).
 4. **File Size & Binary Guard:** Respect 500 KB limit (Rule R19); never commit test binaries or temp artifacts.
 5. **Coding Guidelines:** Max 8–15 lines per function, single return types with `*appfault.AppError`, affirmative booleans.
+6. **Workspace Remediation & Diagnostic Interpretation**: When `gitmap pull`, `gitmap pae`, or `gitmap status` reports dirty or failed repositories, always prioritize GitMap's built-in remediation commands (`gitmap fix`, `gitmap cpar`, `gitmap stash`, `gitmap clone`, `gitmap pull-error`). Never invent ad-hoc git commands when a GitMap native recipe exists.

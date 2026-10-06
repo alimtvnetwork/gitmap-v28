@@ -188,15 +188,15 @@ func buildRemotePullErrorCmd(opts PullErrorOptions) string {
 }
 
 func executeLocalPullErrors(opts PullErrorOptions) error {
-	db, err := store.OpenPullSplitDB()
-	if err != nil {
-		return fmt.Errorf("open pull split db: %w", err)
+	db, errDB := store.OpenPullSplitDB()
+	if errDB != nil {
+		return fmt.Errorf("open pull split db: %w", errDB)
 	}
 	defer db.Close()
 
-	records, err := db.QueryLatestPullErrors(opts.RepoSlug, opts.Limit)
-	if err != nil {
-		return fmt.Errorf("query pull errors: %w", err)
+	records, appErr := db.QueryLatestPullErrors(opts.RepoSlug, opts.Limit)
+	if appErr != nil {
+		return fmt.Errorf("query pull errors: %w", appErr)
 	}
 
 	return renderPullErrorsOutput(records, opts)

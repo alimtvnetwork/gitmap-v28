@@ -231,4 +231,3 @@ func TestTypedExitHelpers_InHandle(t *testing.T) {
 		t.Fatalf("expected exit code %d, got %d", ExitCodeNotFound, capturedCode)
 	}
 }
-

@@ -94,7 +94,7 @@ Deploy and synchronize Antigravity Manager (AGM) account credentials, active ses
 | `STATUS` | Status badge (`● SUCCESS`, `◌ DRY-RUN`, `○ OFFLINE`, `▲ FAILED`) |
 | `LATENCY` | Round-trip deployment latency |
 
-### Examples
+## Examples
 
 ```bash
 # Broadcast AGM accounts to all worker nodes (excluding main and local machine)

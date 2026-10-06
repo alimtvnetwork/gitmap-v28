@@ -211,7 +211,7 @@ type AgyInstancePromptPayload struct {
 	RecentConvs  []AgyConversationPreview `json:"recentConvs,omitempty"`
 }
 
-// AgyConversationPreview captures recent conversation dialogue details.
+// AgyConversationPreview captures recent conversation dialog details.
 type AgyConversationPreview struct {
 	ConversationID string `json:"conversationId"`
 	Title          string `json:"title"`

@@ -181,25 +181,24 @@ func (s *ErrorsSplitDB) Close() *apperror.AppError {
 }
 
 func (s *ErrorsSplitDB) FederatedClearErrors() *apperror.AppError {
-	// Query all distinct repo paths
 	rows, err := s.conn.Query(`SELECT DISTINCT RepoPath FROM RootErrorIndex WHERE RepoPath IS NOT NULL AND RepoPath != ''`)
-	if err == nil {
-		defer rows.Close()
-		var paths []string
-		for rows.Next() {
-			var p string
-			if err := rows.Scan(&p); err == nil {
-				paths = append(paths, p)
-			}
+	if err != nil {
+		return apperror.WrapSimple(err, "errors_split.clear.query")
+	}
+	defer rows.Close()
+
+	var paths []string
+	for rows.Next() {
+		var p string
+		scanErr := rows.Scan(&p)
+		if scanErr != nil {
+			continue
 		}
-		for _, p := range paths {
-			repoDBPath := filepath.Join(p, ".gitmap", "errors.db")
-			repoConn, err := sql.Open("sqlite", repoDBPath)
-			if err == nil {
-				_, _ = repoConn.Exec(`DELETE FROM RepoErrorDB`)
-				repoConn.Close()
-			}
-		}
+		paths = append(paths, p)
+	}
+
+	for _, p := range paths {
+		clearRepoErrorsFile(p)
 	}
 
 	_, err = s.conn.Exec(`DELETE FROM RootErrorIndex`)
@@ -207,6 +206,20 @@ func (s *ErrorsSplitDB) FederatedClearErrors() *apperror.AppError {
 		return apperror.WrapSimple(err, "errors_split.clear")
 	}
 	return nil
+}
+
+func clearRepoErrorsFile(repoPath string) {
+	repoDBPath := filepath.Join(repoPath, ".gitmap", "errors.db")
+	repoConn, err := sql.Open("sqlite", repoDBPath)
+	if err != nil {
+		return
+	}
+	defer repoConn.Close()
+
+	_, errDel := repoConn.Exec(`DELETE FROM RepoErrorDB`)
+	if errDel != nil {
+		return
+	}
 }
 
 func (s *ErrorsSplitDB) FederatedGetError(id int64) (*InternalErrorRecord, *apperror.AppError) {
@@ -223,37 +236,7 @@ func (s *ErrorsSplitDB) FederatedGetError(id int64) (*InternalErrorRecord, *appe
 	}
 
 	rec.IsResolved = isResolvedInt > 0
-
-	if rec.RepoPath != "" {
-		repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "errors.db")
-		repoConn, err := sql.Open("sqlite", repoDBPath)
-		if err == nil {
-			defer repoConn.Close()
-			row := repoConn.QueryRow(`SELECT Details, SourceFile, ContextJson, StackTrace, Notes, Comments FROM RepoErrorDB WHERE InternalErrorLogId = ?`, id)
-			var det, src, ctx, stack, notes, comm sql.NullString
-			if row.Scan(&det, &src, &ctx, &stack, &notes, &comm) == nil {
-				if det.Valid {
-					rec.Details = det.String
-				}
-				if src.Valid {
-					rec.SourceFile = src.String
-				}
-				if ctx.Valid {
-					rec.ContextJson = ctx.String
-				}
-				if stack.Valid {
-					rec.StackTrace = stack.String
-				}
-				if notes.Valid {
-					rec.Notes = notes.String
-				}
-				if comm.Valid {
-					rec.Comments = comm.String
-				}
-			}
-		}
-	}
-
+	populateRepoErrorDetails(&rec)
 	return &rec, nil
 }
 
@@ -277,43 +260,63 @@ func (s *ErrorsSplitDB) FederatedListErrors(limit int, unresolvedOnly bool) ([]I
 	for rows.Next() {
 		var rec InternalErrorRecord
 		var isResolvedInt int
-		if err := rows.Scan(&rec.ID, &rec.ErrorCode, &rec.ErrorType, &rec.Command, &rec.Message, &rec.GitMapVersion, &isResolvedInt, &rec.CreatedAt, &rec.RepoPath); err == nil {
-			rec.IsResolved = isResolvedInt > 0
-			records = append(records, rec)
+		scanErr := rows.Scan(&rec.ID, &rec.ErrorCode, &rec.ErrorType, &rec.Command, &rec.Message, &rec.GitMapVersion, &isResolvedInt, &rec.CreatedAt, &rec.RepoPath)
+		if scanErr != nil {
+			continue
 		}
+		rec.IsResolved = isResolvedInt > 0
+		records = append(records, rec)
 	}
 
-	for i, rec := range records {
-		if rec.RepoPath != "" {
-			repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "errors.db")
-			repoConn, err := sql.Open("sqlite", repoDBPath)
-			if err == nil {
-				row := repoConn.QueryRow(`SELECT Details, SourceFile, ContextJson, StackTrace, Notes, Comments FROM RepoErrorDB WHERE InternalErrorLogId = ?`, rec.ID)
-				var det, src, ctx, stack, notes, comm sql.NullString
-				if row.Scan(&det, &src, &ctx, &stack, &notes, &comm) == nil {
-					if det.Valid {
-						records[i].Details = det.String
-					}
-					if src.Valid {
-						records[i].SourceFile = src.String
-					}
-					if ctx.Valid {
-						records[i].ContextJson = ctx.String
-					}
-					if stack.Valid {
-						records[i].StackTrace = stack.String
-					}
-					if notes.Valid {
-						records[i].Notes = notes.String
-					}
-					if comm.Valid {
-						records[i].Comments = comm.String
-					}
-				}
-				repoConn.Close()
-			}
-		}
+	for i := range records {
+		populateRepoErrorDetails(&records[i])
 	}
 
 	return records, nil
+}
+
+func populateRepoErrorDetails(rec *InternalErrorRecord) {
+	if rec.RepoPath == "" {
+		return
+	}
+
+	repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "errors.db")
+	repoConn, err := sql.Open("sqlite", repoDBPath)
+	if err != nil {
+		return
+	}
+	defer repoConn.Close()
+
+	fetchAndApplyRepoErrorDetails(repoConn, rec)
+}
+
+func fetchAndApplyRepoErrorDetails(conn *sql.DB, rec *InternalErrorRecord) {
+	row := conn.QueryRow(`SELECT Details, SourceFile, ContextJson, StackTrace, Notes, Comments FROM RepoErrorDB WHERE InternalErrorLogId = ?`, rec.ID)
+	var det, src, ctx, stack, notes, comm sql.NullString
+	if errScan := row.Scan(&det, &src, &ctx, &stack, &notes, &comm); errScan != nil {
+		return
+	}
+
+	applyNullStringFields(rec, det, src, ctx, stack, notes, comm)
+}
+
+func applyNullStringFields(rec *InternalErrorRecord, det, src, ctx, stack, notes, comm sql.NullString) {
+	if det.Valid {
+		rec.Details = det.String
+	}
+	if src.Valid {
+		rec.SourceFile = src.String
+	}
+	if ctx.Valid {
+		rec.ContextJson = ctx.String
+	}
+	if stack.Valid {
+		rec.StackTrace = stack.String
+	}
+	if notes.Valid {
+		rec.Notes = notes.String
+	}
+	if comm.Valid {
+		rec.Comments = comm.String
+	}
 }

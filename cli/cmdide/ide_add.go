@@ -50,42 +50,43 @@ func addRepoToIDEs(absPath string, opts IDEOptions) IDEActionResult {
 	return res
 }
 
+func performIDEAddAction(isTargeted, isDryRun bool, applyFn func() bool) bool {
+	if !isTargeted {
+		return false
+	}
+	if isDryRun {
+		return true
+	}
+	return applyFn()
+}
+
 func addVSCodeAndCursor(absPath string, opts IDEOptions, res *IDEActionResult) {
-	if opts.IsVSCodeTargeted {
+	res.IsVSCodeAffected = performIDEAddAction(opts.IsVSCodeTargeted, opts.IsDryRun, func() bool {
 		pair := vscodepm.Pair{RootPath: absPath, Name: filepath.Base(absPath), Tags: []string{"gitmap"}}
-		if opts.IsDryRun {
-			res.IsVSCodeAffected = true
-		} else {
-			_, err := vscodepm.SyncMode([]vscodepm.Pair{pair}, vscodepm.MergeModeUnion)
-			res.IsVSCodeAffected = (err == nil)
-		}
-	}
-	if opts.IsCursorTargeted {
-		if opts.IsDryRun {
-			res.IsCursorAffected = true
-		} else {
-			_, _, err := cmdcursor.SyncCursorProjects([]string{absPath})
-			res.IsCursorAffected = (err == nil)
-		}
-	}
+		_, err := vscodepm.SyncMode([]vscodepm.Pair{pair}, vscodepm.MergeModeUnion)
+		return err == nil
+	})
+	res.IsCursorAffected = performIDEAddAction(opts.IsCursorTargeted, opts.IsDryRun, func() bool {
+		_, _, err := cmdcursor.SyncCursorProjects([]string{absPath})
+		return err == nil
+	})
 }
 
 func addAntigravityAndDesktop(absPath string, opts IDEOptions, res *IDEActionResult) {
-	if opts.IsAntigravityTargeted {
-		if opts.IsDryRun {
-			res.IsAntigravityAffected = true
-		} else {
-			res.IsAntigravityAffected = workspacesync.SyncAntigravity(absPath, filepath.Base(absPath))
-		}
-	}
+	res.IsAntigravityAffected = performIDEAddAction(opts.IsAntigravityTargeted, opts.IsDryRun, func() bool {
+		return workspacesync.SyncAntigravity(absPath, filepath.Base(absPath))
+	})
 	cli := desktop.ResolveCLI()
-	if opts.IsDesktopTargeted && cli != "" {
-		if opts.IsDryRun {
-			res.IsDesktopAffected = true
-		} else {
-			res.IsDesktopAffected = (exec.Command(cli, absPath).Run() == nil)
-		}
+	res.IsDesktopAffected = performIDEAddAction(opts.IsDesktopTargeted && cli != "", opts.IsDryRun, func() bool {
+		return exec.Command(cli, absPath).Run() == nil
+	})
+}
+
+func titleWord(s string) string {
+	if s == "" {
+		return ""
 	}
+	return strings.ToUpper(s[:1]) + strings.ToLower(s[1:])
 }
 
 func printActionResult(res IDEActionResult, isJSON, isQuiet bool) {
@@ -95,7 +96,7 @@ func printActionResult(res IDEActionResult, isJSON, isQuiet bool) {
 		return
 	}
 	if !isQuiet {
-		fmt.Printf("%s✔ IDE %s completed for:%s %s\n", constants.ColorGreen, strings.Title(res.Action), constants.ColorReset, res.Path)
+		fmt.Printf("%s✔ IDE %s completed for:%s %s\n", constants.ColorGreen, titleWord(res.Action), constants.ColorReset, res.Path)
 		fmt.Printf("  • VS Code:     %s\n", formatStatusBool(res.IsVSCodeAffected))
 		fmt.Printf("  • Cursor:      %s\n", formatStatusBool(res.IsCursorAffected))
 		fmt.Printf("  • Antigravity: %s\n", formatStatusBool(res.IsAntigravityAffected))

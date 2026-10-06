@@ -62,7 +62,7 @@ func parseSendsArguments(args []string) (SendsOptions, error) {
 		IsPushed: true,
 	}
 
-	hasNoPushFlag := false
+	isLocalOnlyRequested := false
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
@@ -70,7 +70,7 @@ func parseSendsArguments(args []string) (SendsOptions, error) {
 		case arg == "-n" || arg == "--dry-run":
 			opts.IsDryRun = true
 		case arg == "--no-push":
-			hasNoPushFlag = true
+			isLocalOnlyRequested = true
 		case arg == "-j" || arg == "--json":
 			opts.IsJSON = true
 		case arg == "-v" || arg == "--verbose":
@@ -98,7 +98,7 @@ func parseSendsArguments(args []string) (SendsOptions, error) {
 	}
 
 	// cm verb defaults to local commit only (no push)
-	if opts.Verb == "cm" || hasNoPushFlag {
+	if opts.Verb == "cm" || isLocalOnlyRequested {
 		opts.IsPushed = false
 	}
 
@@ -261,41 +261,9 @@ func handleCleanRepoSend(dir, repoName, relPath, branch string, isTargetAll bool
 	}
 
 	unpushedCount := checkRepoUnpushedCount(dir)
-	if unpushedCount > 0 && opts.IsPushed {
-		if opts.IsDryRun {
-			return RepoSendResultRecord{
-				RepoName:     repoName,
-				RelativePath: relPath,
-				Status:       "dry-run-simulated",
-				Branch:       branch,
-				FilesStaged:  0,
-				IsSuccess:    true,
-			}
-		}
-
-		_, errPush := currentSendsGitExecutor(dir, "push")
-		if errPush != nil {
-			return RepoSendResultRecord{
-				RepoName:     repoName,
-				RelativePath: relPath,
-				Status:       "failed",
-				Branch:       branch,
-				FilesStaged:  0,
-				IsSuccess:    false,
-				ErrorMessage: fmt.Sprintf("git push failed: %v", errPush),
-			}
-		}
-
-		headSha, _ := currentSendsGitExecutor(dir, "rev-parse", "--short", "HEAD")
-		return RepoSendResultRecord{
-			RepoName:     repoName,
-			RelativePath: relPath,
-			Status:       "pushed",
-			Branch:       branch,
-			HeadSHA:      strings.TrimSpace(headSha),
-			FilesStaged:  0,
-			IsSuccess:    true,
-		}
+	rec, handled := tryHandleUnpushedCleanRepo(dir, repoName, relPath, branch, unpushedCount, opts.IsPushed, opts.IsDryRun)
+	if handled {
+		return rec
 	}
 
 	return RepoSendResultRecord{
@@ -306,6 +274,50 @@ func handleCleanRepoSend(dir, repoName, relPath, branch string, isTargetAll bool
 		FilesStaged:  0,
 		IsSuccess:    true,
 	}
+}
+
+func tryHandleUnpushedCleanRepo(dir, repoName, relPath, branch string, unpushedCount int, isPushed, isDryRun bool) (RepoSendResultRecord, bool) {
+	if unpushedCount <= 0 || !isPushed {
+		return RepoSendResultRecord{}, false
+	}
+	return handleUnpushedCleanRepo(dir, repoName, relPath, branch, isDryRun)
+}
+
+func handleUnpushedCleanRepo(dir, repoName, relPath, branch string, isDryRun bool) (RepoSendResultRecord, bool) {
+	if isDryRun {
+		return RepoSendResultRecord{
+			RepoName:     repoName,
+			RelativePath: relPath,
+			Status:       "dry-run-simulated",
+			Branch:       branch,
+			FilesStaged:  0,
+			IsSuccess:    true,
+		}, true
+	}
+
+	_, errPush := currentSendsGitExecutor(dir, "push")
+	if errPush != nil {
+		return RepoSendResultRecord{
+			RepoName:     repoName,
+			RelativePath: relPath,
+			Status:       "failed",
+			Branch:       branch,
+			FilesStaged:  0,
+			IsSuccess:    false,
+			ErrorMessage: fmt.Sprintf("git push failed: %v", errPush),
+		}, true
+	}
+
+	headSha, _ := currentSendsGitExecutor(dir, "rev-parse", "--short", "HEAD")
+	return RepoSendResultRecord{
+		RepoName:     repoName,
+		RelativePath: relPath,
+		Status:       "pushed",
+		Branch:       branch,
+		HeadSHA:      strings.TrimSpace(headSha),
+		FilesStaged:  0,
+		IsSuccess:    true,
+	}, true
 }
 
 func executeRealRepoCommitAndPush(dir, repoName, relPath, branch string, filesStaged int, finalMsg string, isPushed bool) RepoSendResultRecord {
@@ -338,28 +350,40 @@ func executeRealRepoCommitAndPush(dir, repoName, relPath, branch string, filesSt
 	headShaOut, _ := currentSendsGitExecutor(dir, "rev-parse", "--short", "HEAD")
 	headSha := strings.TrimSpace(headShaOut)
 
-	statusStr := "committed"
 	if isPushed {
-		_, errPush := currentSendsGitExecutor(dir, "push")
-		if errPush != nil {
-			return RepoSendResultRecord{
-				RepoName:     repoName,
-				RelativePath: relPath,
-				Status:       "failed",
-				Branch:       branch,
-				HeadSHA:      headSha,
-				FilesStaged:  filesStaged,
-				IsSuccess:    false,
-				ErrorMessage: fmt.Sprintf("git push failed: %v", errPush),
-			}
-		}
-		statusStr = "pushed"
+		return pushCommittedRepo(dir, repoName, relPath, branch, headSha, filesStaged)
 	}
 
 	return RepoSendResultRecord{
 		RepoName:     repoName,
 		RelativePath: relPath,
-		Status:       statusStr,
+		Status:       "committed",
+		Branch:       branch,
+		HeadSHA:      headSha,
+		FilesStaged:  filesStaged,
+		IsSuccess:    true,
+	}
+}
+
+func pushCommittedRepo(dir, repoName, relPath, branch, headSha string, filesStaged int) RepoSendResultRecord {
+	_, errPush := currentSendsGitExecutor(dir, "push", "origin", branch)
+	if errPush != nil {
+		return RepoSendResultRecord{
+			RepoName:     repoName,
+			RelativePath: relPath,
+			Status:       "failed",
+			Branch:       branch,
+			HeadSHA:      headSha,
+			FilesStaged:  filesStaged,
+			IsSuccess:    false,
+			ErrorMessage: fmt.Sprintf("git push failed: %v", errPush),
+		}
+	}
+
+	return RepoSendResultRecord{
+		RepoName:     repoName,
+		RelativePath: relPath,
+		Status:       "pushed",
 		Branch:       branch,
 		HeadSHA:      headSha,
 		FilesStaged:  filesStaged,
@@ -409,7 +433,7 @@ func renderSendsTerminalSummary(payload SendsExecutionPayload) {
 
 	failedCount := 0
 	for _, r := range payload.Results {
-		if !r.IsSuccess {
+		if r.Status == "failed" {
 			failedCount++
 		}
 		line := formatSendResultLine(r)

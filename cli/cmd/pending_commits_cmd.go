@@ -144,21 +144,9 @@ func runLocalPendingCommits(opts PendingCommitsOptions) error {
 	}
 
 	records := resolveWorkspaceRepositories(cwd)
-	var recordsToInspect []model.ScanRecord
-
-	if opts.TargetRepo != "" && !strings.EqualFold(opts.TargetRepo, "all") {
-		for _, r := range records {
-			if strings.EqualFold(r.RepoName, opts.TargetRepo) ||
-				strings.EqualFold(r.Slug, opts.TargetRepo) ||
-				strings.EqualFold(r.RelativePath, opts.TargetRepo) {
-				recordsToInspect = append(recordsToInspect, r)
-			}
-		}
-		if len(recordsToInspect) == 0 {
-			return apperror.NewSimple(fmt.Sprintf("repository '%s' not found", opts.TargetRepo), "E9002")
-		}
-	} else {
-		recordsToInspect = records
+	recordsToInspect, errTarget := filterWorkspaceRepositories(records, opts.TargetRepo)
+	if errTarget != nil {
+		return errTarget
 	}
 
 	inspected := inspectRepositoriesPendingCommits(recordsToInspect)
@@ -177,11 +165,7 @@ func runLocalPendingCommits(opts PendingCommitsOptions) error {
 
 	var displayed []RepoPendingCommitRecord
 	for _, item := range inspected {
-		if opts.IsDirtyOnly {
-			if item.IsDirty || item.HasUnpushed {
-				displayed = append(displayed, item)
-			}
-		} else {
+		if isPendingCommitDisplayed(item, opts.IsDirtyOnly) {
 			displayed = append(displayed, item)
 		}
 	}
@@ -211,6 +195,32 @@ func runLocalPendingCommits(opts PendingCommitsOptions) error {
 	}
 
 	return nil
+}
+
+func filterWorkspaceRepositories(records []model.ScanRecord, targetRepo string) ([]model.ScanRecord, error) {
+	if targetRepo == "" || strings.EqualFold(targetRepo, "all") {
+		return records, nil
+	}
+
+	var matched []model.ScanRecord
+	for _, r := range records {
+		if strings.EqualFold(r.RepoName, targetRepo) ||
+			strings.EqualFold(r.Slug, targetRepo) ||
+			strings.EqualFold(r.RelativePath, targetRepo) {
+			matched = append(matched, r)
+		}
+	}
+	if len(matched) == 0 {
+		return nil, apperror.NewSimple(fmt.Sprintf("repository '%s' not found", targetRepo), "E9002")
+	}
+	return matched, nil
+}
+
+func isPendingCommitDisplayed(item RepoPendingCommitRecord, isDirtyOnly bool) bool {
+	if !isDirtyOnly {
+		return true
+	}
+	return item.IsDirty || item.HasUnpushed
 }
 
 func resolveWorkspaceRepositories(cwd string) []model.ScanRecord {
@@ -264,20 +274,7 @@ func inspectSingleRepoPendingCommits(rec model.ScanRecord) RepoPendingCommitReco
 	upstream, errUpstream := currentPendingCommitsGitExecutor(dir, "rev-parse", "--abbrev-ref", "@{u}")
 	hasUpstream := errUpstream == nil && strings.TrimSpace(upstream) != "" && !strings.Contains(strings.ToLower(upstream), "fatal")
 
-	unpushedCount := 0
-	var unpushedSHAs []string
-	if hasUpstream {
-		revCount, errCount := currentPendingCommitsGitExecutor(dir, "rev-list", "--count", "@{u}..HEAD")
-		if errCount == nil {
-			unpushedCount, _ = strconv.Atoi(strings.TrimSpace(revCount))
-		}
-		if unpushedCount > 0 {
-			revLog, errLog := currentPendingCommitsGitExecutor(dir, "log", "--oneline", "-n", "10", "@{u}..HEAD")
-			if errLog == nil {
-				unpushedSHAs = parsePendingCommitLines(revLog)
-			}
-		}
-	}
+	unpushedCount, unpushedSHAs := resolveUnpushedCommits(dir, hasUpstream)
 
 	isDirty := (untracked + modified + staged) > 0
 	hasUncommitted := isDirty
@@ -307,6 +304,37 @@ func inspectSingleRepoPendingCommits(rec model.ScanRecord) RepoPendingCommitReco
 	}
 }
 
+func resolveUnpushedCommits(dir string, hasUpstream bool) (int, []string) {
+	if !hasUpstream {
+		return 0, nil
+	}
+
+	count := queryUnpushedCommitCount(dir)
+	if count <= 0 {
+		return 0, nil
+	}
+
+	shas := queryUnpushedCommitSHAs(dir)
+	return count, shas
+}
+
+func queryUnpushedCommitCount(dir string) int {
+	revCount, errCount := currentPendingCommitsGitExecutor(dir, "rev-list", "--count", "@{u}..HEAD")
+	if errCount != nil {
+		return 0
+	}
+	count, _ := strconv.Atoi(strings.TrimSpace(revCount))
+	return count
+}
+
+func queryUnpushedCommitSHAs(dir string) []string {
+	revLog, errLog := currentPendingCommitsGitExecutor(dir, "log", "--oneline", "-n", "10", "@{u}..HEAD")
+	if errLog != nil {
+		return nil
+	}
+	return parsePendingCommitLines(revLog)
+}
+
 func parsePorcelainStatusLines(output string) (int, int, int, []string) {
 	var untracked, modified, staged int
 	var pendingFiles []string
@@ -322,19 +350,29 @@ func parsePorcelainStatusLines(output string) (int, int, int, []string) {
 			untracked++
 			continue
 		}
-		if len(line) >= 2 {
-			idxChar := line[0]
-			wtChar := line[1]
-			if idxChar != ' ' && idxChar != '?' {
-				staged++
-			}
-			if wtChar != ' ' && wtChar != '?' {
-				modified++
-			}
-		}
+		stagedDelta, modifiedDelta := classifyStatusChars(line)
+		staged += stagedDelta
+		modified += modifiedDelta
 	}
 
 	return untracked, modified, staged, pendingFiles
+}
+
+func classifyStatusChars(line string) (int, int) {
+	if len(line) < 2 {
+		return 0, 0
+	}
+	stagedDelta := 0
+	modifiedDelta := 0
+	idxChar := line[0]
+	wtChar := line[1]
+	if idxChar != ' ' && idxChar != '?' {
+		stagedDelta = 1
+	}
+	if wtChar != ' ' && wtChar != '?' {
+		modifiedDelta = 1
+	}
+	return stagedDelta, modifiedDelta
 }
 
 func parsePendingCommitLines(output string) []string {
@@ -527,17 +565,22 @@ func renderPendingCommitsInteractive(records []RepoPendingCommitRecord) {
 			}
 		}
 
-		if idx < len(dirtyList)-1 {
-			fmt.Printf("  Press [Enter] for next, or 'q' to quit: ")
-			if !scanner.Scan() {
-				break
-			}
-			input := strings.TrimSpace(scanner.Text())
-			if strings.EqualFold(input, "q") || strings.EqualFold(input, "quit") {
-				break
-			}
+		if idx >= len(dirtyList)-1 {
+			continue
+		}
+		if isDetailPromptTerminated(scanner) {
+			break
 		}
 	}
+}
+
+func isDetailPromptTerminated(scanner *bufio.Scanner) bool {
+	fmt.Printf("  Press [Enter] for next, or 'q' to quit: ")
+	if !scanner.Scan() {
+		return true
+	}
+	input := strings.TrimSpace(scanner.Text())
+	return strings.EqualFold(input, "q") || strings.EqualFold(input, "quit")
 }
 
 func runFleetSSHPendingCommits(opts PendingCommitsOptions) error {
@@ -547,16 +590,7 @@ func runFleetSSHPendingCommits(opts PendingCommitsOptions) error {
 	}
 
 	if len(conns) == 0 {
-		if opts.IsJSON {
-			return emitPendingCommitsFleetJSON(NodesPendingCommitsPayload{
-				Timestamp:    time.Now().UTC(),
-				TotalNodes:   0,
-				OnlineNodes:  0,
-				FleetResults: []NodePendingCommitsRecord{},
-			})
-		}
-		fmt.Printf("  %sNo registered SSH cluster nodes found.%s\n", constants.ColorYellow, constants.ColorReset)
-		return nil
+		return handleEmptyFleet(opts.IsJSON)
 	}
 
 	results := make([]NodePendingCommitsRecord, len(conns))
@@ -594,6 +628,19 @@ func runFleetSSHPendingCommits(opts PendingCommitsOptions) error {
 	return nil
 }
 
+func handleEmptyFleet(isJSON bool) error {
+	if isJSON {
+		return emitPendingCommitsFleetJSON(NodesPendingCommitsPayload{
+			Timestamp:    time.Now().UTC(),
+			TotalNodes:   0,
+			OnlineNodes:  0,
+			FleetResults: []NodePendingCommitsRecord{},
+		})
+	}
+	fmt.Printf("  %sNo registered SSH cluster nodes found.%s\n", constants.ColorYellow, constants.ColorReset)
+	return nil
+}
+
 func querySingleNodePendingCommits(conn db.SSHConnection, opts PendingCommitsOptions) NodePendingCommitsRecord {
 	start := time.Now()
 	rec := NodePendingCommitsRecord{
@@ -624,15 +671,7 @@ func querySingleNodePendingCommits(conn db.SSHConnection, opts PendingCommitsOpt
 	rec.LatencyMs = time.Since(start).Milliseconds()
 
 	if errExec != nil {
-		rec.ErrorMessage = errExec.Error()
-		if isOfflineErrorString(errExec.Error()) {
-			rec.IsOnline = false
-			rec.IsSuccess = false
-			return rec
-		}
-		rec.IsOnline = true
-		rec.IsSuccess = false
-		return rec
+		return handleSSHExecFailure(conn, errExec, rec.LatencyMs)
 	}
 
 	rec.IsOnline = true
@@ -645,6 +684,19 @@ func querySingleNodePendingCommits(conn db.SSHConnection, opts PendingCommitsOpt
 	}
 
 	return rec
+}
+
+func handleSSHExecFailure(conn db.SSHConnection, errExec error, latencyMs int64) NodePendingCommitsRecord {
+	isOffline := isOfflineErrorString(errExec.Error())
+	return NodePendingCommitsRecord{
+		NodeAlias:    conn.Alias,
+		Host:         conn.IPAddress,
+		OSType:       conn.OS,
+		IsOnline:     !isOffline,
+		IsSuccess:    false,
+		LatencyMs:    latencyMs,
+		ErrorMessage: errExec.Error(),
+	}
 }
 
 func isOfflineErrorString(errStr string) bool {
@@ -693,21 +745,7 @@ func renderPendingCommitsFleetTerminal(fleet NodesPendingCommitsPayload) {
 	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
 
 	for _, node := range fleet.FleetResults {
-		statusLabel := constants.ColorRed + "OFFLINE" + reset
-		dirtyStr := "-"
-		uncommitStr := "-"
-		unpushedStr := "-"
-
-		if node.IsOnline {
-			if node.IsSuccess && node.Payload != nil {
-				statusLabel = constants.ColorGreen + "ONLINE " + reset
-				dirtyStr = fmt.Sprintf("%d", node.Payload.TotalDirtyRepos)
-				uncommitStr = fmt.Sprintf("%d", node.Payload.TotalUncommittedFiles)
-				unpushedStr = fmt.Sprintf("%d", node.Payload.TotalUnpushedCommits)
-			} else {
-				statusLabel = constants.ColorYellow + "ERROR  " + reset
-			}
-		}
+		statusLabel, dirtyStr, uncommitStr, unpushedStr := formatFleetNodeRow(node, reset)
 
 		fmt.Printf("  %s│%s %-16s %-15s %-7s %-7s %-8s %-10s %5dms %s│%s\n",
 			border, reset,
@@ -722,6 +760,22 @@ func renderPendingCommitsFleetTerminal(fleet NodesPendingCommitsPayload) {
 	}
 
 	fmt.Printf("  %s└──────────────────────────────────────────────────────────────────────────────┘%s\n", border, reset)
+}
+
+func formatFleetNodeRow(node NodePendingCommitsRecord, reset string) (string, string, string, string) {
+	if !node.IsOnline {
+		return constants.ColorRed + "OFFLINE" + reset, "-", "-", "-"
+	}
+
+	if node.IsSuccess && node.Payload != nil {
+		statusLabel := constants.ColorGreen + "ONLINE " + reset
+		dirtyStr := fmt.Sprintf("%d", node.Payload.TotalDirtyRepos)
+		uncommitStr := fmt.Sprintf("%d", node.Payload.TotalUncommittedFiles)
+		unpushedStr := fmt.Sprintf("%d", node.Payload.TotalUnpushedCommits)
+		return statusLabel, dirtyStr, uncommitStr, unpushedStr
+	}
+
+	return constants.ColorYellow + "ERROR  " + reset, "-", "-", "-"
 }
 
 func printPendingCommitsHelp() {

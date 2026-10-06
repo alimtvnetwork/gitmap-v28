@@ -385,10 +385,6 @@ func SafeAbortRebase(repoDir string) bool {
 	return abort.Run() == nil
 }
 
-func abortInProgressMerge(repoDir string) {
-	SafeAbortMerge(repoDir)
-}
-
 func cleanDirIfRequested(isDirExists, isClean bool, dest string) *apperror.AppError {
 	if !isDirExists || !isClean {
 		return nil

@@ -32,39 +32,33 @@ func removeRepoFromIDEs(absPath string, opts IDEOptions) IDEActionResult {
 	return res
 }
 
+func performIDERemoveAction(isTargeted, isDryRun bool, applyFn func() bool) bool {
+	if !isTargeted {
+		return false
+	}
+	if isDryRun {
+		return true
+	}
+	return applyFn()
+}
+
 func removeVSCodeAndCursor(absPath string, opts IDEOptions, res *IDEActionResult) {
-	if opts.IsVSCodeTargeted {
-		if opts.IsDryRun {
-			res.IsVSCodeAffected = true
-		} else {
-			res.IsVSCodeAffected = (vscodepm.RemoveEntry(absPath) == nil)
-		}
-	}
-	if opts.IsCursorTargeted {
-		if opts.IsDryRun {
-			res.IsCursorAffected = true
-		} else {
-			cursorPath, _ := cmdcursor.GetCursorProjectsJSONPath()
-			res.IsCursorAffected = (vscodepm.RemoveEntryAt(cursorPath, absPath) == nil)
-		}
-	}
+	res.IsVSCodeAffected = performIDERemoveAction(opts.IsVSCodeTargeted, opts.IsDryRun, func() bool {
+		return vscodepm.RemoveEntry(absPath) == nil
+	})
+	res.IsCursorAffected = performIDERemoveAction(opts.IsCursorTargeted, opts.IsDryRun, func() bool {
+		cursorPath, _ := cmdcursor.GetCursorProjectsJSONPath()
+		return vscodepm.RemoveEntryAt(cursorPath, absPath) == nil
+	})
 }
 
 func removeAntigravityAndDesktop(absPath string, opts IDEOptions, res *IDEActionResult) {
-	if opts.IsAntigravityTargeted {
-		if opts.IsDryRun {
-			res.IsAntigravityAffected = true
-		} else {
-			res.IsAntigravityAffected = removeAgyProjectByPath(absPath)
-		}
-	}
-	if opts.IsDesktopTargeted {
-		if opts.IsDryRun {
-			res.IsDesktopAffected = true
-		} else {
-			res.IsDesktopAffected = (desktop.RemoveRepo(absPath) == nil)
-		}
-	}
+	res.IsAntigravityAffected = performIDERemoveAction(opts.IsAntigravityTargeted, opts.IsDryRun, func() bool {
+		return removeAgyProjectByPath(absPath)
+	})
+	res.IsDesktopAffected = performIDERemoveAction(opts.IsDesktopTargeted, opts.IsDryRun, func() bool {
+		return desktop.RemoveRepo(absPath) == nil
+	})
 }
 
 func removeAgyProjectByPath(absPath string) bool {

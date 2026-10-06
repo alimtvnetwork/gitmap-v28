@@ -158,4 +158,3 @@ func TestAPISettings_AttributesPreservation(t *testing.T) {
 		t.Errorf("expected existing telegram.bot_token preserved after second POST, got %q", settings2.Attributes["telegram.bot_token"])
 	}
 }
-

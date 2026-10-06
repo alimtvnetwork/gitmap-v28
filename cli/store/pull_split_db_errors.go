@@ -91,18 +91,35 @@ func (s *PullSplitDB) execInsertPullError(rec PullErrorRecord) *apperror.AppErro
 
 	repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "pull_errors.db")
 	_ = os.MkdirAll(filepath.Dir(repoDBPath), 0755)
-	repoConn, repoErr := sql.Open("sqlite", repoDBPath)
-	if repoErr == nil {
-		defer repoConn.Close()
-		_, _ = repoConn.Exec(`CREATE TABLE IF NOT EXISTS RepoPullErrorDetails (
-			error_id TEXT PRIMARY KEY,
-			stack_trace TEXT,
-			remediation_cmd TEXT
-		);`)
-		_, _ = repoConn.Exec(`INSERT OR REPLACE INTO RepoPullErrorDetails (error_id, stack_trace, remediation_cmd) VALUES (?, ?, ?)`,
-			rec.ErrorID, rec.StackTrace, rec.RemediationCmd)
+	if errDetails := saveRepoPullErrorDetails(repoDBPath, rec); errDetails != nil {
+		return errDetails
 	}
 
+	return nil
+}
+
+func saveRepoPullErrorDetails(repoDBPath string, rec PullErrorRecord) *apperror.AppError {
+	repoConn, repoErr := sql.Open("sqlite", repoDBPath)
+	if repoErr != nil {
+		return nil
+	}
+	defer repoConn.Close()
+
+	createSchema := `CREATE TABLE IF NOT EXISTS RepoPullErrorDetails (
+		error_id TEXT PRIMARY KEY,
+		stack_trace TEXT,
+		remediation_cmd TEXT
+	);`
+	_, errInit := repoConn.Exec(createSchema)
+	if errInit != nil {
+		return apperror.WrapSimple(errInit, "pull_errors.init_details_table")
+	}
+
+	insertSQL := `INSERT OR REPLACE INTO RepoPullErrorDetails (error_id, stack_trace, remediation_cmd) VALUES (?, ?, ?)`
+	_, errIns := repoConn.Exec(insertSQL, rec.ErrorID, rec.StackTrace, rec.RemediationCmd)
+	if errIns != nil {
+		return apperror.WrapSimple(errIns, "pull_errors.insert_details")
+	}
 	return nil
 }
 
@@ -139,20 +156,22 @@ func (s *PullSplitDB) QueryLatestPullErrors(repoSlug string, limit int) ([]PullE
 func enrichPullErrorRecord(rec PullErrorRecord) PullErrorRecord {
 	repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "pull_errors.db")
 	repoConn, err := sql.Open("sqlite", repoDBPath)
-	if err == nil {
-		defer repoConn.Close()
-		row := repoConn.QueryRow(`SELECT stack_trace, remediation_cmd FROM RepoPullErrorDetails WHERE error_id = ?`, rec.ErrorID)
-		var stack, rem sql.NullString
-		if row.Scan(&stack, &rem) == nil {
-			if stack.Valid {
-				rec.StackTrace = stack.String
-			}
-			if rem.Valid {
-				rec.RemediationCmd = rem.String
-			}
-		}
+	if err != nil {
+		return rec
 	}
+	defer repoConn.Close()
+
+	rec.StackTrace, rec.RemediationCmd = queryPullErrorDetails(repoConn, rec.ErrorID)
 	return rec
+}
+
+func queryPullErrorDetails(repoConn *sql.DB, errorID string) (string, string) {
+	row := repoConn.QueryRow(`SELECT stack_trace, remediation_cmd FROM RepoPullErrorDetails WHERE error_id = ?`, errorID)
+	var stack, rem sql.NullString
+	if err := row.Scan(&stack, &rem); err != nil {
+		return "", ""
+	}
+	return stack.String, rem.String
 }
 
 func normalizePullErrorLimit(limit int) int {
@@ -207,17 +226,6 @@ func scanSinglePullError(rows *sql.Rows) (PullErrorRecord, bool) {
 
 	rec.CreatedAt = parseFlexibleDBValue(rawCreatedAt)
 	return rec, true
-}
-
-func assignNullableFields(rec PullErrorRecord, stack, remed *string, createdVal any) PullErrorRecord {
-	if stack != nil {
-		rec.StackTrace = *stack
-	}
-	if remed != nil {
-		rec.RemediationCmd = *remed
-	}
-	rec.CreatedAt = parseFlexibleDBValue(createdVal)
-	return rec
 }
 
 func parseFlexibleDBValue(val any) time.Time {

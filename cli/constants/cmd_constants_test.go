@@ -529,6 +529,9 @@ func topLevelCmds() map[string]string {
 		"CmdAutomationPyAlias":          CmdAutomationPyAlias,
 		"CmdFixCredential":              CmdFixCredential,
 		"CmdFixCredentialAlias":         CmdFixCredentialAlias,
+		"CmdPendingCommits":             CmdPendingCommits,
+		"CmdPendingCommitsAlias":        CmdPendingCommitsAlias,
+		"CmdSends":                      CmdSends,
 	}
 }
 

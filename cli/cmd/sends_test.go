@@ -12,52 +12,52 @@ import (
 
 func TestParseSendsArguments_SemanticVerbs(t *testing.T) {
 	testCases := []struct {
-		args          []string
-		expectedVerb  string
-		expectedPfx   string
-		expectedMsg   string
+		args           []string
+		expectedVerb   string
+		expectedPfx    string
+		expectedMsg    string
 		expectedPushed bool
 	}{
 		{
-			args:          []string{"cpf", "all", "add feature X"},
-			expectedVerb:  "cpf",
-			expectedPfx:   "Feature: ",
-			expectedMsg:   "add feature X",
+			args:           []string{"cpf", "all", "add feature X"},
+			expectedVerb:   "cpf",
+			expectedPfx:    "Feature: ",
+			expectedMsg:    "add feature X",
 			expectedPushed: true,
 		},
 		{
-			args:          []string{"cpb", "gitmap", "resolve nil pointer"},
-			expectedVerb:  "cpb",
-			expectedPfx:   "Bug: ",
-			expectedMsg:   "resolve nil pointer",
+			args:           []string{"cpb", "gitmap", "resolve nil pointer"},
+			expectedVerb:   "cpb",
+			expectedPfx:    "Bug: ",
+			expectedMsg:    "resolve nil pointer",
 			expectedPushed: true,
 		},
 		{
-			args:          []string{"cpr", "all", "v1.2.3 release"},
-			expectedVerb:  "cpr",
-			expectedPfx:   "Release: ",
-			expectedMsg:   "v1.2.3 release",
+			args:           []string{"cpr", "all", "v1.2.3 release"},
+			expectedVerb:   "cpr",
+			expectedPfx:    "Release: ",
+			expectedMsg:    "v1.2.3 release",
 			expectedPushed: true,
 		},
 		{
-			args:          []string{"commit-fix", "my-repo", "merge resolution"},
-			expectedVerb:  "commit-fix",
-			expectedPfx:   "Fix: ",
-			expectedMsg:   "merge resolution",
+			args:           []string{"commit-fix", "my-repo", "merge resolution"},
+			expectedVerb:   "commit-fix",
+			expectedPfx:    "Fix: ",
+			expectedMsg:    "merge resolution",
 			expectedPushed: true,
 		},
 		{
-			args:          []string{"cp", "all", "regular commit and push"},
-			expectedVerb:  "cp",
-			expectedPfx:   "",
-			expectedMsg:   "regular commit and push",
+			args:           []string{"cp", "all", "regular commit and push"},
+			expectedVerb:   "cp",
+			expectedPfx:    "",
+			expectedMsg:    "regular commit and push",
 			expectedPushed: true,
 		},
 		{
-			args:          []string{"cm", "all", "local commit only"},
-			expectedVerb:  "cm",
-			expectedPfx:   "",
-			expectedMsg:   "local commit only",
+			args:           []string{"cm", "all", "local commit only"},
+			expectedVerb:   "cm",
+			expectedPfx:    "",
+			expectedMsg:    "local commit only",
 			expectedPushed: false,
 		},
 	}
@@ -146,11 +146,11 @@ func TestProcessSingleRepoSend_DirtyRepo_Mock(t *testing.T) {
 	}
 
 	opts := SendsOptions{
-		Verb:        "cpf",
-		Target:      "all",
-		RawMessage:  "add pending commits",
-		IsDryRun:    false,
-		IsPushed:    true,
+		Verb:       "cpf",
+		Target:     "all",
+		RawMessage: "add pending commits",
+		IsDryRun:   false,
+		IsPushed:   true,
 	}
 
 	finalMsg := "Feature: add pending commits"
@@ -159,7 +159,8 @@ func TestProcessSingleRepoSend_DirtyRepo_Mock(t *testing.T) {
 	if rec.Status != "pushed" {
 		t.Errorf("expected Status 'pushed', got %s", rec.Status)
 	}
-	if !rec.IsSuccess {
+	if rec.IsSuccess {
+	} else {
 		t.Errorf("expected IsSuccess true, got false")
 	}
 	if rec.FilesStaged != 2 {
@@ -223,7 +224,8 @@ func TestProcessSingleRepoSend_CleanRepoTargetAll_Mock(t *testing.T) {
 	if rec.Status != "clean-skipped" {
 		t.Errorf("expected clean repository in 'all' mode to be 'clean-skipped', got %s", rec.Status)
 	}
-	if !rec.IsSuccess {
+	if rec.IsSuccess {
+	} else {
 		t.Errorf("expected clean repository skip to be IsSuccess true")
 	}
 	if rec.FilesStaged != 0 {
@@ -265,7 +267,8 @@ func TestProcessSingleRepoSend_DryRun_Mock(t *testing.T) {
 	if rec.Status != "dry-run-simulated" {
 		t.Errorf("expected Status 'dry-run-simulated', got %s", rec.Status)
 	}
-	if !rec.IsSuccess {
+	if rec.IsSuccess {
+	} else {
 		t.Errorf("expected IsSuccess true for dry run simulation")
 	}
 	if rec.FilesStaged != 1 {

@@ -59,14 +59,9 @@ func DiscoverAllAgyInstances() ([]AgyInstanceInfo, error) {
 		seenIDs[disk.InstanceID] = true
 
 		for _, p := range procInstances {
-			if p.InstanceID == disk.InstanceID || (disk.ConfigDir != "" && strings.Contains(p.ConfigDir, disk.ConfigDir)) {
-				disk.IsRunning = true
-				if p.ProcessID > 0 {
-					disk.ProcessID = p.ProcessID
-				}
-				if p.LanguageServer != "" {
-					disk.LanguageServer = p.LanguageServer
-				}
+			isMatch := p.InstanceID == disk.InstanceID || (disk.ConfigDir != "" && strings.Contains(p.ConfigDir, disk.ConfigDir))
+			if isMatch {
+				mergeProcMatch(&disk, p)
 				break
 			}
 		}
@@ -128,17 +123,31 @@ func discoverPrimaryInstance() (AgyInstanceInfo, error) {
 	}
 
 	if !inst.IsRunning && len(procs) > 0 {
-		for _, p := range procs {
-			if p.ProcessID > 0 {
-				inst.IsRunning = true
-				inst.ProcessID = p.ProcessID
-				inst.LanguageServer = p.LanguageServer
-				break
-			}
-		}
+		attachFirstRunningProcess(&inst, procs)
 	}
 
 	return inst, nil
+}
+
+func mergeProcMatch(disk *AgyInstanceInfo, p AgyInstanceInfo) {
+	disk.IsRunning = true
+	if p.ProcessID > 0 {
+		disk.ProcessID = p.ProcessID
+	}
+	if p.LanguageServer != "" {
+		disk.LanguageServer = p.LanguageServer
+	}
+}
+
+func attachFirstRunningProcess(inst *AgyInstanceInfo, procs []AgyInstanceInfo) {
+	for _, p := range procs {
+		if p.ProcessID > 0 {
+			inst.IsRunning = true
+			inst.ProcessID = p.ProcessID
+			inst.LanguageServer = p.LanguageServer
+			break
+		}
+	}
 }
 
 func loadInstancesFromDiskRegistries() []AgyInstanceInfo {
@@ -256,18 +265,7 @@ func scanRunningProcessesWindows() []AgyInstanceInfo {
 		return nil
 	}
 
-	type winProcItem struct {
-		ProcessID   int    `json:"ProcessId"`
-		CommandLine string `json:"CommandLine"`
-	}
-
-	var items []winProcItem
-	if unmarshalErr := json.Unmarshal(output, &items); unmarshalErr != nil {
-		var single winProcItem
-		if singleErr := json.Unmarshal(output, &single); singleErr == nil {
-			items = []winProcItem{single}
-		}
-	}
+	items := unmarshalWinProcItems(output)
 
 	var found []AgyInstanceInfo
 	for _, it := range items {
@@ -280,6 +278,23 @@ func scanRunningProcessesWindows() []AgyInstanceInfo {
 	return found
 }
 
+type winProcItem struct {
+	ProcessID   int    `json:"ProcessId"`
+	CommandLine string `json:"CommandLine"`
+}
+
+func unmarshalWinProcItems(output []byte) []winProcItem {
+	var items []winProcItem
+	if err := json.Unmarshal(output, &items); err == nil {
+		return items
+	}
+	var single winProcItem
+	if err := json.Unmarshal(output, &single); err == nil {
+		return []winProcItem{single}
+	}
+	return nil
+}
+
 func parseProcessCommandLine(pid int, cmdLine string) *AgyInstanceInfo {
 	isLanguageServer := strings.Contains(cmdLine, "language_server")
 	isAntigravity := strings.Contains(cmdLine, "antigravity")
@@ -288,40 +303,9 @@ func parseProcessCommandLine(pid int, cmdLine string) *AgyInstanceInfo {
 		return nil
 	}
 
-	langServer := ""
-	if strings.Contains(cmdLine, "--host_bridge_url=") {
-		parts := strings.Split(cmdLine, "--host_bridge_url=")
-		if len(parts) > 1 {
-			val := strings.Fields(parts[1])[0]
-			langServer = strings.TrimPrefix(val, "http://")
-		}
-	}
-
-	dataDir := ""
-	if strings.Contains(cmdLine, "--user-data-dir=") {
-		parts := strings.Split(cmdLine, "--user-data-dir=")
-		if len(parts) > 1 {
-			dataDir = strings.Fields(parts[1])[0]
-		}
-	}
-
-	instanceID := "primary"
-	instanceName := "Antigravity Active Process"
-	isPrimary := false
-
-	if dataDir != "" {
-		if strings.Contains(dataDir, "instances/") {
-			seg := filepath.Base(filepath.Dir(dataDir))
-			if seg != "" && seg != "." {
-				instanceID = seg
-				instanceName = seg
-			}
-		} else if strings.Contains(dataDir, ".config/Antigravity") {
-			isPrimary = true
-		}
-	} else if isLanguageServer {
-		isPrimary = true
-	}
+	langServer := strings.TrimPrefix(extractCmdLineFlagValue(cmdLine, "--host_bridge_url="), "http://")
+	dataDir := extractCmdLineFlagValue(cmdLine, "--user-data-dir=")
+	instanceID, instanceName, isPrimary := classifyInstanceDataDir(dataDir, isLanguageServer)
 
 	return &AgyInstanceInfo{
 		InstanceID:     instanceID,
@@ -333,6 +317,46 @@ func parseProcessCommandLine(pid int, cmdLine string) *AgyInstanceInfo {
 		IsRunning:      true,
 		LastActiveAt:   time.Now().UTC().Format(time.RFC3339),
 	}
+}
+
+func extractCmdLineFlagValue(cmdLine, flag string) string {
+	if !strings.Contains(cmdLine, flag) {
+		return ""
+	}
+	parts := strings.Split(cmdLine, flag)
+	if len(parts) <= 1 {
+		return ""
+	}
+	fields := strings.Fields(parts[1])
+	if len(fields) == 0 {
+		return ""
+	}
+	return fields[0]
+}
+
+func classifyInstanceDataDir(dataDir string, isLanguageServer bool) (string, string, bool) {
+	if dataDir == "" {
+		return "primary", "Antigravity Active Process", isLanguageServer
+	}
+	seg := resolveInstanceSegment(dataDir)
+	if seg != "" {
+		return seg, seg, false
+	}
+	if strings.Contains(dataDir, ".config/Antigravity") {
+		return "primary", "Antigravity Active Process", true
+	}
+	return "primary", "Antigravity Active Process", false
+}
+
+func resolveInstanceSegment(dataDir string) string {
+	if !strings.Contains(dataDir, "instances/") {
+		return ""
+	}
+	seg := filepath.Base(filepath.Dir(dataDir))
+	if seg != "" && seg != "." {
+		return seg
+	}
+	return ""
 }
 
 func queryDistinctWorkspacesFromDB(dbPath string) []string {
@@ -382,15 +406,7 @@ func ResolveInstance(instanceID string) (*AgyInstanceInfo, error) {
 
 	target := strings.TrimSpace(strings.ToLower(instanceID))
 	if target == "" || target == "primary" || target == "default" {
-		for _, inst := range instances {
-			if inst.IsPrimary || inst.InstanceID == "primary" || inst.InstanceID == "default" {
-				return &inst, nil
-			}
-		}
-		if len(instances) > 0 {
-			return &instances[0], nil
-		}
-		return nil, apperror.NewSimple("resolve_instance", "primary instance unavailable")
+		return resolvePrimaryInstance(instances)
 	}
 
 	for _, inst := range instances {
@@ -402,6 +418,18 @@ func ResolveInstance(instanceID string) (*AgyInstanceInfo, error) {
 	return nil, apperror.NewSimple("resolve_instance", fmt.Sprintf("instance '%s' not found", instanceID))
 }
 
+func resolvePrimaryInstance(instances []AgyInstanceInfo) (*AgyInstanceInfo, error) {
+	for _, inst := range instances {
+		if inst.IsPrimary || inst.InstanceID == "primary" || inst.InstanceID == "default" {
+			return &inst, nil
+		}
+	}
+	if len(instances) > 0 {
+		return &instances[0], nil
+	}
+	return nil, apperror.NewSimple("resolve_instance", "primary instance unavailable")
+}
+
 // QueryInstancePrompts queries running, queued, and conversation prompts across instances.
 func QueryInstancePrompts(opts AgyInstancePromptQueryOptions) (*AgyMultiInstancePromptResponse, error) {
 	allInstances, err := DiscoverAllAgyInstances()
@@ -410,22 +438,15 @@ func QueryInstancePrompts(opts AgyInstancePromptQueryOptions) (*AgyMultiInstance
 	}
 
 	targetID := strings.TrimSpace(opts.InstanceID)
-	var targetInstances []AgyInstanceInfo
-
-	if opts.IsAll || strings.EqualFold(targetID, "all") || targetID == "" {
-		targetInstances = allInstances
-	} else {
-		resolved, rErr := ResolveInstance(targetID)
-		if rErr != nil {
-			return &AgyMultiInstancePromptResponse{
-				IsSuccess:      false,
-				TotalInstances: 0,
-				TotalPrompts:   0,
-				Instances:      nil,
-				Error:          rErr.Error(),
-			}, nil
-		}
-		targetInstances = []AgyInstanceInfo{*resolved}
+	targetInstances, resErr := resolveTargetInstances(targetID, opts.IsAll, allInstances)
+	if resErr != nil {
+		return &AgyMultiInstancePromptResponse{
+			IsSuccess:      false,
+			TotalInstances: 0,
+			TotalPrompts:   0,
+			Instances:      nil,
+			Error:          resErr.Error(),
+		}, nil
 	}
 
 	limit := opts.Limit
@@ -464,6 +485,17 @@ func QueryInstancePrompts(opts AgyInstancePromptQueryOptions) (*AgyMultiInstance
 	}, nil
 }
 
+func resolveTargetInstances(targetID string, isAll bool, allInstances []AgyInstanceInfo) ([]AgyInstanceInfo, error) {
+	if isAll || strings.EqualFold(targetID, "all") || targetID == "" {
+		return allInstances, nil
+	}
+	resolved, rErr := ResolveInstance(targetID)
+	if rErr != nil {
+		return nil, rErr
+	}
+	return []AgyInstanceInfo{*resolved}, nil
+}
+
 func collectPayloadForInstance(inst AgyInstanceInfo, statusFilter string, limit, maxWords int, includeConvs bool) AgyInstancePromptPayload {
 	payload := AgyInstancePromptPayload{
 		InstanceID:   inst.InstanceID,
@@ -477,19 +509,13 @@ func collectPayloadForInstance(inst AgyInstanceInfo, statusFilter string, limit,
 	queryQueued := statusFilter == "" || statusFilter == "all" || statusFilter == "queued"
 
 	if queryRunning {
-		runningItems := fetchInstanceRunningPrompts(inst, maxWords)
-		if limit > 0 && len(runningItems) > limit {
-			runningItems = runningItems[:limit]
-		}
+		runningItems := truncateSliceByLimit(fetchInstanceRunningPrompts(inst, maxWords), limit)
 		payload.Running = runningItems
 		payload.RunningCount = len(runningItems)
 	}
 
 	if queryQueued {
-		queuedItems := fetchInstanceQueuedPrompts(inst)
-		if limit > 0 && len(queuedItems) > limit {
-			queuedItems = queuedItems[:limit]
-		}
+		queuedItems := truncateSliceByLimit(fetchInstanceQueuedPrompts(inst), limit)
 		payload.Queued = queuedItems
 		payload.QueuedCount = len(queuedItems)
 	}
@@ -499,6 +525,13 @@ func collectPayloadForInstance(inst AgyInstanceInfo, statusFilter string, limit,
 	}
 
 	return payload
+}
+
+func truncateSliceByLimit[T any](items []T, limit int) []T {
+	if limit > 0 && len(items) > limit {
+		return items[:limit]
+	}
+	return items
 }
 
 func fetchInstanceRunningPrompts(inst AgyInstanceInfo, maxWords int) []AgyPromptSnapshotItem {
