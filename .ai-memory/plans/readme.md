@@ -6,6 +6,7 @@
 
 ## Completed Plans
 
+- [229-antigravity-ide-projects-and-settings-backup.md](completed/229-antigravity-ide-projects-and-settings-backup.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Spec: [229](../../02-spec/21-app/229-antigravity-ide-projects-and-settings-backup/01-architecture-spec.md))
 - [229-nodes-deploy-repos-and-multi-ide-fleet-sync.md](229-nodes-deploy-repos-and-multi-ide-fleet-sync.md) — Fleet Repository Deployment, Remote Scanner Delegation & Multi-IDE Sync Engine (Spec: [229](../../02-spec/21-app/229-nodes-deploy-repos-and-multi-ide-fleet-sync/01-architecture-spec.md))
 - [228-nodes-deploy-agm-accounts-and-fleet-sync.md](completed/228-nodes-deploy-agm-accounts-and-fleet-sync.md) — Native Multi-Node AGM Accounts Deployment, Fleet Synchronization & AGM Integration (Spec: [228](../../02-spec/21-app/228-nodes-deploy-agm-accounts-and-fleet-sync/01-architecture-spec.md))
 - [221-ci-cd-fix-nested-if-and-test-summary-remediation.md](completed/221-ci-cd-fix-nested-if-and-test-summary-remediation.md) — CI/CD Fix: Nested If Linter & Test Failure Summary Remediation (Spec: [221](../../02-spec/21-app/221-ci-cd-fix-nested-if-and-test-summary-remediation/01-architecture-spec.md))
@@ -77,6 +78,8 @@
 - [197-pas-fix.md](completed/197-pas-fix.md) — GitMap PAS Fix, Ignore Grouping, CPAR, and Split-DB Repo Cache (Spec: [197](../../02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md))
 
 ## Pending Plans
+
+- [202-gitmap-pull-errors-splitdb.md](pending/202-gitmap-pull-errors-splitdb.md) — GitMap Pull Errors and SplitDB Error Storage (Spec: [202](../../02-spec/21-app/202-gitmap-pull-errors-splitdb/01-overview.md))
 
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
 - [75-gitmap-u1-ubuntu-agm-fleet-integration.md](pending/75-gitmap-u1-ubuntu-agm-fleet-integration.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Spec: [205](../../02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration/01-architecture-spec.md))
@@ -177,4 +180,5 @@
 
 ### Plan 222 (completed/222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release.md)
 - [completed/222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release.md](completed/222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release.md): Ubuntu pull-all failure tree formatting, Oh-My-Zsh scanner exclusions, structured error logging, and remote healing.
+
 

@@ -2,6 +2,8 @@
 
 ## Active Specifications
 
+- [229-antigravity-ide-projects-and-settings-backup](229-antigravity-ide-projects-and-settings-backup/01-architecture-spec.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Status: `completed`)
+- [229-nodes-deploy-repos-and-multi-ide-fleet-sync](229-nodes-deploy-repos-and-multi-ide-fleet-sync/01-architecture-spec.md) — Fleet Repository Deployment, Remote Scanner Delegation & Multi-IDE Sync Engine (Status: `completed`)
 - [228-nodes-deploy-agm-accounts-and-fleet-sync](228-nodes-deploy-agm-accounts-and-fleet-sync/01-architecture-spec.md) — Native Multi-Node AGM Accounts Deployment, Fleet Synchronization & AGM Integration (Status: `completed`)
 - [221-ci-cd-fix-nested-if-and-test-summary-remediation](221-ci-cd-fix-nested-if-and-test-summary-remediation/01-architecture-spec.md) — CI/CD Fix: Nested If Linter & Test Failure Summary Remediation (Status: `completed`)
 - [220-pipeline-pe-unit-test-traceback-and-heatmap](220-pipeline-pe-unit-test-traceback-and-heatmap/01-architecture-spec.md) — Pipeline PE Unit Test Traceback Extraction, Heatmap Modernization & CI Test Remediation (Status: `completed`)
@@ -91,4 +93,5 @@
 - [222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release](222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release/01-architecture-spec.md) — Ubuntu Pull Failure Tree Formatting, Oh-My-Zsh Scanner Exclusions, Structured Error Logging, and Remote Healing (Specs: [Architecture](222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release/01-architecture-spec.md), [Component](222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release/02-component-and-ssh-spec.md)) (Status: `active`)
 - [228-nodes-deploy-agm-accounts-and-fleet-sync](228-nodes-deploy-agm-accounts-and-fleet-sync/01-architecture-spec.md) — Fleet AGM Accounts Automated Deployment & Encrypted SSH Sync Engine (Status: `active`)
 - [229-nodes-deploy-repos-and-multi-ide-fleet-sync](229-nodes-deploy-repos-and-multi-ide-fleet-sync/01-architecture-spec.md) — Fleet Repository Deployment, Remote Scanner Delegation & Multi-IDE Sync Engine (Specs: [Architecture](229-nodes-deploy-repos-and-multi-ide-fleet-sync/01-architecture-spec.md), [Component](229-nodes-deploy-repos-and-multi-ide-fleet-sync/02-component-and-fleet-spec.md)) (Status: `active`)
+
 
