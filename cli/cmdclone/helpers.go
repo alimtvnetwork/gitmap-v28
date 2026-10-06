@@ -277,7 +277,7 @@ func isNextArgConsumed(arg string, idx int, args []string) bool {
 func isFlagWithParam(arg string) bool {
 	clean := strings.TrimLeft(arg, "-")
 	switch clean {
-	case "target-dir", "ssh-key", "K", "default-branch", "output", "max-concurrency", "w", "workers", "only", "exclude", "E":
+	case "target-dir", "ssh-key", "K", "default-branch", "output", "max-concurrency", "w", "workers", "only", "exclude", "E", "token":
 		return true
 	default:
 		return false

@@ -11,7 +11,12 @@ import (
 )
 
 // PromptTerminalAuth displays authentication choices with repository context.
+// When stdin is not a terminal (AI agents, CI, background jobs) it fails
+// fast with ErrAuthNonInteractive instead of blocking forever on input.
 func PromptTerminalAuth(repoName, repoURL string) (AuthPromptResult, error) {
+	if !stdinIsTerminal() {
+		return AuthPromptResult{}, ErrAuthNonInteractive
+	}
 	printAuthPromptBanner(repoName, repoURL)
 	choice := readAuthChoice()
 

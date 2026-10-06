@@ -38,6 +38,7 @@ type CloneFlags struct {
 	IsJSON                          bool
 	OnlyFilter                      string
 	ExcludeFilter                   string
+	AccessToken                     string
 }
 
 type cloneFlagPointers struct {
@@ -67,6 +68,7 @@ type cloneFlagPointers struct {
 	isJSONFlag        *bool
 	onlyFlag          *string
 	excludeFlag       *string
+	tokenFlag         *string
 }
 
 func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -82,6 +84,7 @@ func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
 	flagPtrs.onlyFlag = fs.String("only", "", "Filter repositories to clone by 1-based sequential ID, slug, or prefix")
 	flagPtrs.excludeFlag = fs.String("exclude", "", "Exclude repositories matching comma-separated names, prefixes, or sequential IDs")
 	fs.StringVar(flagPtrs.excludeFlag, "E", "", "Short alias for --exclude")
+	flagPtrs.tokenFlag = fs.String("token", "", "GitHub personal access token for private repositories (non-interactive; also via GITHUB_TOKEN/GH_TOKEN env)")
 }
 
 func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -171,6 +174,7 @@ func buildCloneFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) CloneFlags {
 		Output:        *flagPtrs.outputFlag,
 		OnlyFilter:    *flagPtrs.onlyFlag,
 		ExcludeFilter: *flagPtrs.excludeFlag,
+		AccessToken:   *flagPtrs.tokenFlag,
 	}
 
 	populateCloneToggles(&cloneOpts, flagPtrs)

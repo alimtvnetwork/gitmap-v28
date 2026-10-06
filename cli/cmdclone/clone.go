@@ -1,6 +1,7 @@
 package cmdclone
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -186,6 +187,11 @@ func prepareCloneTransport(cf CloneFlags) CloneFlags {
 	requireOnline()
 	applySSHKey(cf.SSHKeyName)
 	applyCloneAssumeYesEnv(cf.IsAssumeYes || cf.UseSSH)
+	if len(cf.AccessToken) > 0 {
+		// --token supplies the PAT non-interactively (agents, CI); it takes
+		// precedence for this run and is never written to disk by gitmap.
+		SetGlobalAccessToken(cf.AccessToken)
+	}
 
 	return applyURLSchemeFlags(cf)
 }
@@ -516,6 +522,13 @@ func executeDirectClone(params DirectCloneParams) {
 	rec := model.ScanRecord{HTTPSUrl: url, RepoName: repoName}
 	if resolved, err := ResolveRepoAuth(rec); err == nil {
 		url = pickResolvedURL(resolved, url)
+	} else if errors.Is(err, ErrAuthNonInteractive) {
+		// Non-interactive run with no usable token: fail fast with guidance
+		// instead of letting git block on a credential prompt.
+		fmt.Fprintf(os.Stderr, "\n%s\n", err.Error())
+		cliexit.HandleError(err, 1)
+
+		return
 	}
 
 	printCloneStartup(params, url, absPath, repoName, folderName)
@@ -761,6 +774,12 @@ func resolveAuthForRecords(records []model.ScanRecord, targetDir string, skipExi
 			fmt.Printf("  Skipping %s per user request.\n", getRecordDisplayName(r))
 
 			continue
+		}
+		if errors.Is(err, ErrAuthNonInteractive) {
+			fmt.Fprintf(os.Stderr, "\n%s\n", err.Error())
+			cliexit.HandleError(err, 1)
+
+			return nil
 		}
 		out = append(out, resolved)
 	}

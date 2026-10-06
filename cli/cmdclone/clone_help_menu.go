@@ -27,6 +27,7 @@ func buildCloneHelpMenu() termhelp.HelpMenu {
 		Tips: []string{
 			"Run 'gitmap clone repos.json --audit' to preview clone paths safely.",
 			"Use 'gitmap clone <url> --ssh' to clone using SSH credentials.",
+			"Use 'gitmap clone <url> --token <PAT>' (or GITHUB_TOKEN env) for private repos in agents/CI.",
 			"Run 'gitmap clone next' to incrementally process a repo manifest.",
 		},
 	}
@@ -39,6 +40,7 @@ func buildCloneFooterFlags() []termhelp.CommandEntry {
 		{Command: "--safe-pull", Description: "Pull existing repos with retry and diagnostics"},
 		{Command: "--audit", Description: "Dry-run validation with diff-style command summary"},
 		{Command: "--ssh / --https", Description: "Force URL protocol conversion before cloning"},
+		{Command: "--token <PAT>", Description: "GitHub personal access token for private repos (non-interactive)"},
 		{Command: "--no-vscode-sync", Description: "Skip syncing cloned repos to VS Code Project Manager"},
 		{Command: "-v, --verbose", Description: "Emit detailed clone debug telemetry"},
 		{Command: "-h, --help", Description: "Show this clone help menu"},
