@@ -9,20 +9,23 @@ const IndexHTML = `<!DOCTYPE html>
   <title>GitMap Management & Fleet Dashboard</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --border: #334155;
+      /* 4-Plane Neutral Depth Hierarchy */
+      --bg: hsl(230, 25%, 8%);            /* Plane 0: Base Canvas */
+      --raised: hsl(230, 18%, 18%);       /* Plane 1: Raised Wells */
+      --card: hsl(230, 20%, 12%);         /* Plane 2: Surface Cards */
+      --popover: hsl(230, 20%, 16%);      /* Plane 3: Elevated Flyouts */
+      --border: hsl(230, 18%, 20%);       /* Hairline border */
       --text: #f8fafc;
       --muted: #94a3b8;
       --primary: #f59e0b;
       --primary-hover: #d97706;
       --success: #10b981;
       --error: #ef4444;
-      --code-bg: #0b1120;
+      --code-bg: hsl(230, 25%, 6%);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-    #sidebar { width: 240px; background: #090d16; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+    #sidebar { width: 240px; background: hsl(230, 28%, 6%); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
     #sidebar .logo { padding: 1.25rem 1rem; font-size: 1.15rem; font-weight: 700; color: var(--primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
     #sidebar nav { flex: 1; padding: 0.75rem 0.5rem; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
     .nav-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0.65rem 0.85rem; border: none; background: transparent; color: var(--muted); border-radius: 6px; cursor: pointer; text-align: left; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; }
@@ -33,16 +36,16 @@ const IndexHTML = `<!DOCTYPE html>
     header h2 { font-size: 1.1rem; font-weight: 600; }
     .content-area { flex: 1; padding: 1.5rem; overflow-y: auto; display: none; }
     .content-area.active { display: block; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem; }
+    .card { background: var(--card); border: 1px solid var(--border); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 4px rgba(0, 0, 0, 0.25); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem; }
     .card h3 { font-size: 1rem; margin-bottom: 0.75rem; color: var(--primary); }
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
     input, select, textarea { width: 100%; background: var(--code-bg); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 0.75rem; border-radius: 6px; font-size: 0.9rem; }
     textarea { font-family: monospace; resize: vertical; }
     .btn { background: var(--primary); color: #000; font-weight: 600; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; transition: 0.15s; }
-    .btn:hover { background: var(--primary-hover); }
-    .btn-secondary { background: #334155; color: var(--text); margin-left: 0.5rem; }
-    .btn-secondary:hover { background: #475569; }
+    .btn:hover { background: var(--primary-hover); filter: brightness(1.04); }
+    .btn-secondary { background: var(--raised); color: var(--text); margin-left: 0.5rem; }
+    .btn-secondary:hover { background: var(--popover); }
     table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
     th, td { padding: 0.65rem 0.75rem; border: 1px solid var(--border); text-align: left; font-size: 0.85rem; }
     th { background: #131d2e; color: var(--muted); }
@@ -97,6 +100,8 @@ const IndexHTML = `<!DOCTYPE html>
         <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('cursor')" id="subnav-cursor">🛸 Cursor Fleet &amp; Sync</button>
         <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('speed')" id="subnav-speed">⚡ Speed &amp; Automation</button>
         <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('alerts')" id="subnav-alerts">🔔 Alerts &amp; Notifications</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('instances')" id="subnav-instances">🤖 Antigravity Instances</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('catalog')" id="subnav-catalog">✨ UI/UX Repo Index</button>
         <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('terminal')" id="subnav-terminal">💻 Embedded Terminal</button>
       </div>
 
@@ -223,7 +228,163 @@ const IndexHTML = `<!DOCTYPE html>
         <button class="btn" onclick="saveSettings()">Save Notification Settings</button>
       </div>
 
-      <!-- 5. INTERACTIVE EMBEDDED TERMINAL -->
+      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL -->
+      <div class="card settings-subtab-pane" id="settings-pane-instances">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:8px;">
+          <h3>🤖 Antigravity Multi-Instance Engine</h3>
+          <button class="btn btn-secondary" type="button" onclick="loadAgyInstances()">🔄 Scan Instances</button>
+        </div>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1rem;">
+          Configure active Antigravity IDE instance, monitor language server host bridges, and view prompt queue partitions.
+        </p>
+        <div class="form-group">
+          <label>Target Active Instance (<code>antigravity.instance_id</code>)</label>
+          <select id="setting-agy-instance" data-key="antigravity.instance_id">
+            <option value="primary">primary (Default Workspace: ~/.gemini/antigravity)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Language Server Auto-Discovery</label>
+          <select id="setting-agy-autodiscover" data-key="antigravity.auto_discover">
+            <option value="true">Enabled (Auto-detect running language_server ports)</option>
+            <option value="false">Disabled (Static instances only)</option>
+          </select>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <h4 style="font-size:0.9rem; color:var(--text); margin-bottom:0.6rem;">Detected Instances &amp; Status</h4>
+          <div id="instances-list-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+            <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:0.85rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong style="color:var(--primary); font-size:0.9rem;">primary</strong>
+                <span class="badge badge-online">RUNNING</span>
+              </div>
+              <div style="font-size:0.8rem; color:var(--muted); line-height:1.5; font-family:monospace;">
+                PID: 4757 | Port: 127.0.0.1:33419<br>
+                Path: ~/.gemini/antigravity
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <button class="btn" onclick="saveSettings()">Save Instance Settings</button>
+        </div>
+      </div>
+
+      <!-- 6. AUTHORITATIVE UI/UX & CSS3 REPO INDEX -->
+      <div class="card settings-subtab-pane" id="settings-pane-catalog">
+        <h3>✨ Curated UI/UX &amp; CSS3 Repository Index</h3>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.25rem;">
+          High-craft architectural benchmarks for layout, accessibility primitives, HSL tokens, and micro-interactions.
+        </p>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
+          <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--text); font-size:0.95rem;">shadcn/ui</strong>
+                <span class="badge badge-online" style="background:#1e3a5f; color:#60a5fa;">Radix + Tailwind</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-bottom:6px;">Accessible Primitives &amp; Token Theming</div>
+              <p style="font-size:0.8rem; color:var(--muted); line-height:1.4;">Copy-paste accessible components built on Radix UI and Tailwind CSS with first-class HSL token architecture.</p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:0.75rem; display:flex; justify-content:space-between;">
+              <code style="color:var(--muted);">shadcn-ui/ui</code>
+              <a href="https://github.com/shadcn-ui/ui" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:600;">Visit &rarr;</a>
+            </div>
+          </div>
+
+          <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--text); font-size:0.95rem;">Radix Primitives</strong>
+                <span class="badge badge-online" style="background:#1e3a5f; color:#60a5fa;">Headless ARIA</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-bottom:6px;">WAI-ARIA Compliant Primitives</div>
+              <p style="font-size:0.8rem; color:var(--muted); line-height:1.4;">Unstyled accessible components (dialogs, tooltips, popovers, dropdowns) providing headless behavioral foundations.</p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:0.75rem; display:flex; justify-content:space-between;">
+              <code style="color:var(--muted);">radix-ui/primitives</code>
+              <a href="https://github.com/radix-ui/primitives" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:600;">Visit &rarr;</a>
+            </div>
+          </div>
+
+          <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--text); font-size:0.95rem;">Aceternity UI</strong>
+                <span class="badge badge-online" style="background:#3b1f5f; color:#c084fc;">Canvas Effects</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-bottom:6px;">Visual Craft &amp; Canvas Polish</div>
+              <p style="font-size:0.8rem; color:var(--muted); line-height:1.4;">Modern interactive components, border beams, glowing cards, and canvas animations for high-impact experiences.</p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:0.75rem; display:flex; justify-content:space-between;">
+              <code style="color:var(--muted);">mannupaaji/aceternity-ui</code>
+              <a href="https://github.com/mannupaaji/aceternity-ui" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:600;">Visit &rarr;</a>
+            </div>
+          </div>
+
+          <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--text); font-size:0.95rem;">Magic UI</strong>
+                <span class="badge badge-online" style="background:#3b1f5f; color:#c084fc;">Landing Polish</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-bottom:6px;">Micro-Interactions &amp; Grids</div>
+              <p style="font-size:0.8rem; color:var(--muted); line-height:1.4;">20+ copy-paste components: retro grids, animated border rays, particle backgrounds, and tactile buttons.</p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:0.75rem; display:flex; justify-content:space-between;">
+              <code style="color:var(--muted);">magicuidesign/magicui</code>
+              <a href="https://github.com/magicuidesign/magicui" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:600;">Visit &rarr;</a>
+            </div>
+          </div>
+
+          <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--text); font-size:0.95rem;">Tremor</strong>
+                <span class="badge badge-online" style="background:#0f402c; color:#34d399;">Analytics UI</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-bottom:6px;">Data Telemetry &amp; Charts</div>
+              <p style="font-size:0.8rem; color:var(--muted); line-height:1.4;">React dashboard and telemetry components; clean dark mode metrics cards, KPI callouts, and area charts.</p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:0.75rem; display:flex; justify-content:space-between;">
+              <code style="color:var(--muted);">tremorlabs/tremor</code>
+              <a href="https://github.com/tremorlabs/tremor" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:600;">Visit &rarr;</a>
+            </div>
+          </div>
+
+          <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--text); font-size:0.95rem;">Lucide Icons</strong>
+                <span class="badge badge-online" style="background:#422006; color:#fbbf24;">Vector Icons</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-bottom:6px;">Consistent Iconography</div>
+              <p style="font-size:0.8rem; color:var(--muted); line-height:1.4;">Pixel-precise SVG icon system maintaining uniform 24px viewports with zero third-party script bloat.</p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:0.75rem; display:flex; justify-content:space-between;">
+              <code style="color:var(--muted);">lucide-icons/lucide</code>
+              <a href="https://github.com/lucide-icons/lucide" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:600;">Visit &rarr;</a>
+            </div>
+          </div>
+
+          <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--text); font-size:0.95rem;">Modern CSS Solutions</strong>
+                <span class="badge badge-online" style="background:#1e3a5f; color:#60a5fa;">CSS3 Patterns</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-bottom:6px;">CSS3 Architecture Recipes</div>
+              <p style="font-size:0.8rem; color:var(--muted); line-height:1.4;">Modern CSS3 layout architectures: CSS grid, subgrid, container queries, and resilient responsive layouts.</p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:0.75rem; display:flex; justify-content:space-between;">
+              <code style="color:var(--muted);">moderncss.dev</code>
+              <a href="https://moderncss.dev" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:600;">Visit &rarr;</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. INTERACTIVE EMBEDDED TERMINAL -->
       <div class="card settings-subtab-pane" id="settings-pane-terminal">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:8px;">
           <div style="display:flex; align-items:center; gap:8px;">
@@ -954,9 +1115,57 @@ const IndexHTML = `<!DOCTYPE html>
       showTab('import-export');
     }
 
+    async function loadAgyInstances() {
+      try {
+        const res = await fetch('/api/instances');
+        const data = await res.json();
+        if (data && data.isSuccess && Array.isArray(data.instances)) {
+          const sel = document.getElementById('setting-agy-instance');
+          const list = document.getElementById('instances-list-container');
+          if (sel) {
+            const curVal = sel.value;
+            sel.innerHTML = '';
+            data.instances.forEach(inst => {
+              const opt = document.createElement('option');
+              opt.value = inst.instanceId;
+              opt.textContent = inst.instanceId + ' — ' + inst.instanceName + (inst.isRunning ? ' (Running)' : ' (Idle)');
+              sel.appendChild(opt);
+            });
+            if (curVal) sel.value = curVal;
+          }
+          if (list) {
+            list.innerHTML = '';
+            data.instances.forEach(inst => {
+              const card = document.createElement('div');
+              card.style.background = 'var(--code-bg)';
+              card.style.border = '1px solid var(--border)';
+              card.style.borderRadius = '6px';
+              card.style.padding = '0.85rem';
+              const badgeClass = inst.isRunning ? 'badge-online' : 'badge-offline';
+              const statusText = inst.isRunning ? 'RUNNING' : 'IDLE';
+              const bridgeInfo = inst.languageServer ? ' | Bridge: ' + inst.languageServer : '';
+              card.innerHTML =
+                '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">' +
+                  '<strong style="color:var(--primary); font-size:0.9rem;">' + inst.instanceName + ' [' + inst.instanceId + ']</strong>' +
+                  '<span class="badge ' + badgeClass + '">' + statusText + '</span>' +
+                '</div>' +
+                '<div style="font-size:0.8rem; color:var(--muted); line-height:1.5; font-family:monospace;">' +
+                  'PID: ' + (inst.processId > 0 ? inst.processId : 'N/A') + bridgeInfo + '<br>' +
+                  'Path: ' + (inst.configDir || 'N/A') +
+                '</div>';
+              list.appendChild(card);
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load AGY instances', e);
+      }
+    }
+
     // Auto-detect route on load
     window.addEventListener('load', () => {
       loadSettings();
+      loadAgyInstances();
       initTerminalListeners();
       populateEditorNodes();
       const path = window.location.pathname.replace(/^\//, '');

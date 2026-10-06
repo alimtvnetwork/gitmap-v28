@@ -165,3 +165,59 @@ type AGYSnapshotConv struct {
 	WorkspacePath string `json:"workspacePath,omitempty"`
 	StepCount     int    `json:"stepCount,omitempty"`
 }
+
+// AgyInstanceInfo encapsulates metadata for a running or configured Antigravity instance.
+type AgyInstanceInfo struct {
+	InstanceID       string   `json:"instanceId"`
+	InstanceName     string   `json:"instanceName"`
+	ProcessID        int      `json:"processId"`
+	LanguageServer   string   `json:"languageServer"`
+	ConfigDir        string   `json:"configDir"`
+	BrainDir         string   `json:"brainDir"`
+	SummariesDBPath  string   `json:"summariesDbPath"`
+	ActiveWorkspaces []string `json:"activeWorkspaces"`
+	IsPrimary        bool     `json:"isPrimary"`
+	IsRunning        bool     `json:"isRunning"`
+	LastActiveAt     string   `json:"lastActiveAt"`
+}
+
+// AgyInstancePromptQueryOptions provides filtering criteria for multi-instance prompt retrieval.
+type AgyInstancePromptQueryOptions struct {
+	InstanceID   string `json:"instanceId,omitempty"`
+	IsAll        bool   `json:"isAll"`
+	Status       string `json:"status,omitempty"` // "running", "queued", "all"
+	Limit        int    `json:"limit"`
+	MaxWords     int    `json:"maxWords"`
+	IncludeConvs bool   `json:"includeConvs"`
+}
+
+// AgyMultiInstancePromptResponse provides the top-level API envelope.
+type AgyMultiInstancePromptResponse struct {
+	IsSuccess      bool                       `json:"isSuccess"`
+	TotalInstances int                        `json:"totalInstances"`
+	TotalPrompts   int                        `json:"totalPrompts"`
+	Instances      []AgyInstancePromptPayload `json:"instances"`
+	Error          string                     `json:"error,omitempty"`
+}
+
+// AgyInstancePromptPayload groups prompt snapshots by instance.
+type AgyInstancePromptPayload struct {
+	InstanceID   string                   `json:"instanceId"`
+	InstanceName string                   `json:"instanceName"`
+	RunningCount int                      `json:"runningCount"`
+	QueuedCount  int                      `json:"queuedCount"`
+	Running      []AgyPromptSnapshotItem  `json:"running"`
+	Queued       []AgyPromptQueueEntry    `json:"queued"`
+	RecentConvs  []AgyConversationPreview `json:"recentConvs,omitempty"`
+}
+
+// AgyConversationPreview captures recent conversation dialogue details.
+type AgyConversationPreview struct {
+	ConversationID string `json:"conversationId"`
+	Title          string `json:"title"`
+	WorkspacePath  string `json:"workspacePath"`
+	LastPromptText string `json:"lastPromptText"`
+	StepCount      int    `json:"stepCount"`
+	UpdatedAt      string `json:"updatedAt"`
+	IsActive       bool   `json:"isActive"`
+}

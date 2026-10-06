@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-06T17:30:00Z",
+  "isPortable": true,
+  "isSanitized": true,
+  "ideSettings": {
+    "theme": "Antigravity Dark Modern",
+    "fontSize": 14,
+    "lineHeight": 22,
+    "tabSize": 2,
+    "insertSpaces": true,
+    "trimTrailingWhitespace": true,
+    "formatOnSave": true
+  },
+  "agentConfiguration": {
+    "defaultAgentModel": "inherit",
+    "isAutoExecutionAllowed": true,
+    "isContextCompactionEnabled": true,
+    "maxContextWindowTokens": 200000,
+    "isDryRunPreviewEnabled": true
+  },
+  "telemetryAndPrivacy": {
+    "isCrashReportingEnabled": false,
+    "isLocalTelemetryActive": true,
+    "isCredentialMaskingStrict": true
+  }
+}

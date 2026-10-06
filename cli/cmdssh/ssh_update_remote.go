@@ -1,7 +1,9 @@
 package cmdssh
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strings"
 
 	"golang.org/x/crypto/ssh"
@@ -140,7 +142,56 @@ func executeFleetUpdateWithOptions(conns []db.SSHConnection, opts SSHFleetUpdate
 		IsDryRun: opts.IsDryRun,
 	}
 
-	RunParallelFleetExecution(conns, fleetOpts, func(c db.SSHConnection) (string, error) {
+	results := RunParallelFleetExecution(conns, fleetOpts, func(c db.SSHConnection) (string, error) {
+		return executeSingleSSHNodeUpdate(c, opts.Pkg, opts.IsDryRun)
+	})
+
+	failedConns := collectFailedFleetConnections(conns, results)
+	if len(failedConns) > 1 {
+		promptAndResolveFleetFailures(failedConns, opts)
+	}
+}
+
+func collectFailedFleetConnections(conns []db.SSHConnection, results []FleetNodeResult) []db.SSHConnection {
+	var failed []db.SSHConnection
+	for _, res := range results {
+		if !res.Success || res.Error != nil {
+			for _, c := range conns {
+				if c.Alias == res.Alias || c.IPAddress == res.IP {
+					failed = append(failed, c)
+					break
+				}
+			}
+		}
+	}
+	return failed
+}
+
+func promptAndResolveFleetFailures(failedConns []db.SSHConnection, opts SSHFleetUpdateOptions) {
+	if len(failedConns) < 2 || !isInteractiveTerminal() {
+		return
+	}
+	fmt.Printf("\n  %s[?]%s %s%d nodes failed to update %s. Do you want to resolve these failures?%s [Y/n]: ",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorBold, len(failedConns), opts.Pkg, constants.ColorReset)
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	if err != nil && len(line) == 0 {
+		return
+	}
+	ans := strings.ToLower(strings.TrimSpace(line))
+	if ans == "n" || ans == "no" || ans == "q" {
+		return
+	}
+
+	fmt.Printf("\n  %s→ Resolving failures across %d node(s)...%s\n\n",
+		constants.ColorCyan, len(failedConns), constants.ColorReset)
+	retryOpts := FleetParallelOptions{
+		Target:   "failed-nodes",
+		TaskName: fmt.Sprintf("Resolve failures: Update %s", opts.Pkg),
+		IsDryRun: opts.IsDryRun,
+	}
+	RunParallelFleetExecution(failedConns, retryOpts, func(c db.SSHConnection) (string, error) {
 		return executeSingleSSHNodeUpdate(c, opts.Pkg, opts.IsDryRun)
 	})
 }
@@ -151,11 +202,15 @@ func executeSingleSSHNodeUpdate(c db.SSHConnection, pkg string, isDryRun bool) (
 		return fmt.Sprintf("[DRY-RUN] Would update %s on %s", pkg, c.Alias), nil
 	}
 	if !isNodeAvailable(c.IPAddress, header) {
-		return "", fmt.Errorf("offline: node %s is unreachable", header)
+		err := fmt.Errorf("offline: node %s is unreachable", header)
+		reportUpdateExecution(header, pkg, "", err)
+		return "", err
 	}
 	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
-		return "", fmt.Errorf("unable to connect to %s", header)
+		err := fmt.Errorf("unable to connect to %s", header)
+		reportUpdateExecution(header, pkg, "", err)
+		return "", err
 	}
 	defer client.Close()
 
@@ -166,8 +221,80 @@ func executeSingleSSHNodeUpdate(c db.SSHConnection, pkg string, isDryRun bool) (
 
 	cmd := resolveRemoteUpdateCommand(osType, pkg)
 	out, err := crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
-	reportRemoteExecution(header, "Updated", out, err)
-	return out, err
+	reportUpdateExecution(header, pkg, out, err)
+	if err != nil {
+		return out, err
+	}
+	if isRemoteUpdateFailed(out) {
+		return out, fmt.Errorf("remote %s update verification failed: %s", pkg, extractRemoteErrorDetails(out))
+	}
+	return out, nil
+}
+
+func reportUpdateExecution(header, pkg, out string, err error) {
+	hasError := err != nil || isRemoteUpdateFailed(out)
+	if hasError {
+		errMsg := resolveUpdateErrorMessage(err, out)
+		fmt.Printf("  %s %s✗%s %s update failed: %v\n", header, constants.ColorRed, constants.ColorReset, pkg, errMsg)
+		if trimmed := strings.TrimSpace(out); trimmed != "" {
+			fmt.Printf("    Output: %s\n", trimmed)
+		}
+		trace := apperror.CaptureStackTrace(3)
+		if trace != "" {
+			fmt.Printf("    Stack trace:\n%s\n", trace)
+		}
+		return
+	}
+	ver := extractVersionFromOutput(out)
+	if ver != "" {
+		fmt.Printf("  %s %s✓%s %s updated successfully (%s)\n", header, constants.ColorGreen, constants.ColorReset, pkg, ver)
+		return
+	}
+	fmt.Printf("  %s %s✓%s %s updated successfully\n", header, constants.ColorGreen, constants.ColorReset, pkg)
+}
+
+func isRemoteUpdateFailed(out string) bool {
+	low := strings.ToLower(out)
+	return strings.Contains(low, `"success":false`) || strings.Contains(low, `"success": false`)
+}
+
+func resolveUpdateErrorMessage(err error, out string) error {
+	if err != nil {
+		return err
+	}
+	return fmt.Errorf("remote update verification failed: %s", extractRemoteErrorDetails(out))
+}
+
+func extractRemoteErrorDetails(out string) string {
+	idx := strings.Index(out, `"details":"`)
+	if idx >= 0 {
+		sub := out[idx+len(`"details":"`):]
+		end := strings.Index(sub, `"`)
+		if end >= 0 {
+			return sub[:end]
+		}
+	}
+	idxSpace := strings.Index(out, `"details": "`)
+	if idxSpace >= 0 {
+		sub := out[idxSpace+len(`"details": "`):]
+		end := strings.Index(sub, `"`)
+		if end >= 0 {
+			return sub[:end]
+		}
+	}
+	return strings.TrimSpace(out)
+}
+
+func extractVersionFromOutput(out string) string {
+	idx := strings.Index(out, `"current_version":"`)
+	if idx >= 0 {
+		sub := out[idx+len(`"current_version":"`):]
+		end := strings.Index(sub, `"`)
+		if end >= 0 {
+			return sub[:end]
+		}
+	}
+	return ""
 }
 
 func connectSSHNode(c db.SSHConnection, header string) (*ssh.Client, bool) {
@@ -198,5 +325,5 @@ func resolveRemoteAgmUpdateCommand(isWin bool) string {
 	if isWin {
 		return "powershell -NoProfile -ExecutionPolicy Bypass -Command \"& { $ErrorActionPreference='SilentlyContinue'; $WarningPreference='SilentlyContinue'; $ProgressPreference='SilentlyContinue'; $prev = (agm version 2>$null | Select-Object -First 1); & { irm https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.ps1 | iex } *>$null; $curr = (agm version 2>$null | Select-Object -First 1); if ($curr) { @{ success = $true; current_version = $curr; details = ('Version: ' + $curr) } | ConvertTo-Json -Compress } else { @{ success = $false; details = 'AGM update completed' } | ConvertTo-Json -Compress } }\""
 	}
-	return "sh -c 'curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.sh | bash >/dev/null 2>&1; CURR=$(agm version 2>/dev/null | head -n1); if [ -n \"$CURR\" ]; then printf \"{\\\"success\\\":true,\\\"current_version\\\":\\\"%s\\\",\\\"details\\\":\\\"Version: %s\\\"}\" \"$CURR\" \"$CURR\"; else printf \"{\\\"success\\\":false,\\\"details\\\":\\\"AGM update completed\\\"}\"; fi'"
+	return "sh -c 'export PATH=\"$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH\"; PREV=$(agm version 2>/dev/null || agm-alim version 2>/dev/null || true); if OUT=$(curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.sh | bash 2>&1); then CURR=$(agm version 2>/dev/null || agm-alim version 2>/dev/null || ag-manager version 2>/dev/null || echo \"latest\"); printf \"{\\\"success\\\":true,\\\"current_version\\\":\\\"%s\\\",\\\"previous_version\\\":\\\"%s\\\",\\\"details\\\":\\\"Updated\\\"}\" \"$CURR\" \"$PREV\"; else printf \"{\\\"success\\\":false,\\\"details\\\":\\\"%s\\\"}\" \"$(echo \"$OUT\" | tail -n 5 | tr \"\\n\" \" \")\"; exit 1; fi'"
 }

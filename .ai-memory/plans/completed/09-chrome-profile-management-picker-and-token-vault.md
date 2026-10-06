@@ -39,8 +39,8 @@ Every individual plan and subtask merged into this milestone is preserved below 
 ##### 1. Visual Problem Evidence
 
 ###### Figure 1: Import CLI Execution (`Profile 5` Allocated)
-![Import Terminal Output](../../assets/screenshots/19-chrome-profile-import-terminal.png)
-*CLI logs confirming that `gitmap chrome profile import "erfan.office.n@gmail.com"` allocated `Profile 5` on disk.*
+![Import Terminal Output](../../assets/screenshots/sanitized-chrome-profile-import-terminal.png)
+*CLI logs confirming that `gitmap chrome profile import "user@example.com"` allocated `Profile 5` on disk.*
 
 ###### Figure 2: Chrome Profile Picker UI (`Profile 5` Missing)
 ![Chrome Profile Picker UI](../../assets/screenshots/20-chrome-profile-picker-missing-profile5.png)

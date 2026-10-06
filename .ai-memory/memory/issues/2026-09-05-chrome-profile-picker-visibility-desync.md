@@ -3,7 +3,7 @@
 **Date:** 2026-09-05
 **Status:** Documented / Remediating
 **Component:** `gitmap chrome profile import` / `gitmap chrome-profile-copy`
-**Affected Artifacts:** `.ai-memory/assets/screenshots/19-chrome-profile-import-terminal.png`, `.ai-memory/assets/screenshots/20-chrome-profile-picker-missing-profile5.png`
+**Affected Artifacts:** `.ai-memory/assets/screenshots/sanitized-chrome-profile-import-terminal.png`, `.ai-memory/assets/screenshots/20-chrome-profile-picker-missing-profile5.png`
 
 ---
 
@@ -11,7 +11,7 @@
 
 During invocation of:
 ```bash
-gitmap chrome profile import "erfan.office.n@gmail.com"
+gitmap chrome profile import "user@example.com"
 ```
 The CLI reported successful allocation and import into `Profile 5` (`"Default"`), creating the folder `%LOCALAPPDATA%\Google\Chrome\User Data\Profile 5` with `Bookmarks`, `Preferences`, and extension manifests.
 

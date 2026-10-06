@@ -1,0 +1,1427 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-06T17:30:00Z",
+  "isPortable": true,
+  "isSanitized": true,
+  "workspaceRootToken": "${WORKSPACE_ROOT}",
+  "totalProjects": 78,
+  "sectionSummary": {
+    "coreInfrastructure": 7,
+    "aiPromptsAndAgents": 6,
+    "goFoundation": 7,
+    "systemUtilities": 7,
+    "devopsAndClustering": 6,
+    "webPlatformsAndWorkflows": 8,
+    "presentationDecks": 15,
+    "contentAndMedia": 6,
+    "wordpressEcosystem": 5,
+    "fleetMonitoringAndIdentity": 11
+  },
+  "projects": [
+    {
+      "id": "18161e7d-2758-4bb9-82ab-317cabda949a",
+      "name": "gitmap",
+      "section": "Core Infrastructure & Toolchains",
+      "sectionId": 1,
+      "tier": 1,
+      "folderRelativePath": "gitmap",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/gitmap",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "650cd964-3809-4b5f-9114-4709111c7c7c",
+      "name": "scripts-fixer",
+      "section": "Core Infrastructure & Toolchains",
+      "sectionId": 1,
+      "tier": 1,
+      "folderRelativePath": "scripts-fixer",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/scripts-fixer",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "d4c6435c-c96d-4afc-adb2-c12b504734ba",
+      "name": "wp-html-automate",
+      "section": "Core Infrastructure & Toolchains",
+      "sectionId": 1,
+      "tier": 1,
+      "folderRelativePath": "wp-html-automate",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/wp-html-automate",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "5ff9856a-1344-4c03-a3f0-6ceea7b28174",
+      "name": "coding-guidelines",
+      "section": "Core Infrastructure & Toolchains",
+      "sectionId": 1,
+      "tier": 1,
+      "folderRelativePath": "coding-guidelines",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/coding-guidelines",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "fd78c430-3276-4242-95a3-2d00937e812d",
+      "name": "repo-secrets",
+      "section": "Core Infrastructure & Toolchains",
+      "sectionId": 1,
+      "tier": 1,
+      "folderRelativePath": "repo-secrets",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/repo-secrets",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "57f0b96a-8718-4248-a9d7-7f4bba28934e",
+      "name": "antigravity-manager",
+      "section": "Core Infrastructure & Toolchains",
+      "sectionId": 1,
+      "tier": 1,
+      "folderRelativePath": "antigravity-manager",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/antigravity-manager",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "53f2ee82-0af4-5246-a1f4-c79ed0091372",
+      "name": "repo-cache",
+      "section": "Core Infrastructure & Toolchains",
+      "sectionId": 1,
+      "tier": 1,
+      "folderRelativePath": "repo-cache",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/repo-cache",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "1a65a4ff-122c-41b8-b6f7-0109a3bb4ce9",
+      "name": "02-prompts/ai-empathy-prompt-tuner",
+      "section": "AI Prompts & Agent Architecture",
+      "sectionId": 2,
+      "tier": 3,
+      "folderRelativePath": "02-prompts/ai-empathy-prompt-tuner",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/02-prompts/ai-empathy-prompt-tuner",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "a9314c02-e304-4b89-a095-21d7b3e028b1",
+      "name": "02-prompts/prompt-architect",
+      "section": "AI Prompts & Agent Architecture",
+      "sectionId": 2,
+      "tier": 2,
+      "folderRelativePath": "02-prompts/prompt-architect",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/02-prompts/prompt-architect",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "a43ea727-7eb7-58e9-9c5c-f422b972d497",
+      "name": "02-prompts/prompts-connect",
+      "section": "AI Prompts & Agent Architecture",
+      "sectionId": 2,
+      "tier": 3,
+      "folderRelativePath": "02-prompts/prompts-connect",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/02-prompts/prompts-connect",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "fb855923-2b19-5a3c-b471-64382425d390",
+      "name": "commit-fix/prompt-architect-v2",
+      "section": "AI Prompts & Agent Architecture",
+      "sectionId": 2,
+      "tier": 3,
+      "folderRelativePath": "commit-fix/prompt-architect-v2",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/commit-fix/prompt-architect-v2",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "23277a6e-085e-5f3e-96ab-f7970c696f19",
+      "name": "commit-fix/prompt-architect-v3",
+      "section": "AI Prompts & Agent Architecture",
+      "sectionId": 2,
+      "tier": 3,
+      "folderRelativePath": "commit-fix/prompt-architect-v3",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/commit-fix/prompt-architect-v3",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "ea140b74-a56f-4eed-88fa-324aafef067b",
+      "name": "ui-prompts-cat",
+      "section": "AI Prompts & Agent Architecture",
+      "sectionId": 2,
+      "tier": 3,
+      "folderRelativePath": "ui-prompts-cat",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/ui-prompts-cat",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "0d44048b-b9fa-4da6-b385-030249b5578a",
+      "name": "03-aukgo/core",
+      "section": "Go Core & Foundation Libraries",
+      "sectionId": 3,
+      "tier": 2,
+      "folderRelativePath": "03-aukgo/core",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/03-aukgo/core",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "68e7f3ca-81a5-4f0e-acd4-0c2e6b345bff",
+      "name": "03-aukgo/enum",
+      "section": "Go Core & Foundation Libraries",
+      "sectionId": 3,
+      "tier": 3,
+      "folderRelativePath": "03-aukgo/enum",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/03-aukgo/enum",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "3d19d6a6-28b0-58fd-bc3c-135877927107",
+      "name": "03-aukgo/errorwrapper",
+      "section": "Go Core & Foundation Libraries",
+      "sectionId": 3,
+      "tier": 2,
+      "folderRelativePath": "03-aukgo/errorwrapper",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/03-aukgo/errorwrapper",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "d17b0937-16a8-544a-9266-8d5f4ca48a8d",
+      "name": "03-aukgo/extendcore",
+      "section": "Go Core & Foundation Libraries",
+      "sectionId": 3,
+      "tier": 3,
+      "folderRelativePath": "03-aukgo/extendcore",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/03-aukgo/extendcore",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "f6e28fb0-8b25-4885-bf3d-080e179a36b3",
+      "name": "03-aukgo/pathhelper",
+      "section": "Go Core & Foundation Libraries",
+      "sectionId": 3,
+      "tier": 3,
+      "folderRelativePath": "03-aukgo/pathhelper",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/03-aukgo/pathhelper",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "66b7b87d-e6bd-4c85-8a23-b2113fde3a7b",
+      "name": "03-aukgo/rediswrapper",
+      "section": "Go Core & Foundation Libraries",
+      "sectionId": 3,
+      "tier": 3,
+      "folderRelativePath": "03-aukgo/rediswrapper",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/03-aukgo/rediswrapper",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "4cbebbb8-f824-4983-9437-752f5c63e9a4",
+      "name": "03-aukgo/strhelper",
+      "section": "Go Core & Foundation Libraries",
+      "sectionId": 3,
+      "tier": 3,
+      "folderRelativePath": "03-aukgo/strhelper",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/03-aukgo/strhelper",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "b3e81001-c88f-4d30-bfa2-938b8120e501",
+      "name": "chris/winutil",
+      "section": "System Utilities & Workstation Automation",
+      "sectionId": 4,
+      "tier": 2,
+      "folderRelativePath": "chris/winutil",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/chris/winutil",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "c886f3c6-a35e-41ca-985d-c91a797c04df",
+      "name": "chris/linutil",
+      "section": "System Utilities & Workstation Automation",
+      "sectionId": 4,
+      "tier": 2,
+      "folderRelativePath": "chris/linutil",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/chris/linutil",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "b42714a9-cbd6-5cc9-8fc4-70309107cd64",
+      "name": "chris/ChrisTitusTech",
+      "section": "System Utilities & Workstation Automation",
+      "sectionId": 4,
+      "tier": 3,
+      "folderRelativePath": "chris/ChrisTitusTech",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/chris/ChrisTitusTech",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "bf7a34ea-3f97-5b43-9785-ac15e43b9c47",
+      "name": "chris/image-tools",
+      "section": "System Utilities & Workstation Automation",
+      "sectionId": 4,
+      "tier": 3,
+      "folderRelativePath": "chris/image-tools",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/chris/image-tools",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "2f7236cc-3cfe-4192-87fb-0262419b5c9f",
+      "name": "macro-ahk",
+      "section": "System Utilities & Workstation Automation",
+      "sectionId": 4,
+      "tier": 3,
+      "folderRelativePath": "macro-ahk",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/macro-ahk",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "c96bfffe-8ffd-5fb2-ba33-375d3c4111ae",
+      "name": "password-reset-helper-powershell",
+      "section": "System Utilities & Workstation Automation",
+      "sectionId": 4,
+      "tier": 3,
+      "folderRelativePath": "password-reset-helper-powershell",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/password-reset-helper-powershell",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "14e40fc0-7955-4322-98cf-ade71a8d8855",
+      "name": "cat-my",
+      "section": "System Utilities & Workstation Automation",
+      "sectionId": 4,
+      "tier": 2,
+      "folderRelativePath": "cat-my",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/cat-my",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "54c9ad93-0c0e-5964-b012-b15f76ce7060",
+      "name": "aukgit/common-linux-installer",
+      "section": "DevOps, Clustering & Network Infrastructure",
+      "sectionId": 5,
+      "tier": 3,
+      "folderRelativePath": "aukgit/common-linux-installer",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/aukgit/common-linux-installer",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "7ba356b8-d3b9-4a41-8c1e-8e6f8ef23a2f",
+      "name": "aukgit/kubernetes-training",
+      "section": "DevOps, Clustering & Network Infrastructure",
+      "sectionId": 5,
+      "tier": 3,
+      "folderRelativePath": "aukgit/kubernetes-training",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/aukgit/kubernetes-training",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "d68cfdac-75b2-46f9-a251-467c648b8fcb",
+      "name": "network-fixer-hub",
+      "section": "DevOps, Clustering & Network Infrastructure",
+      "sectionId": 5,
+      "tier": 2,
+      "folderRelativePath": "network-fixer-hub",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/network-fixer-hub",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "88b4490a-425b-47c8-9f09-7a6fec7ec189",
+      "name": "gitlogger-new",
+      "section": "DevOps, Clustering & Network Infrastructure",
+      "sectionId": 5,
+      "tier": 3,
+      "folderRelativePath": "gitlogger-new",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/gitlogger-new",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "4f3ccc51-1aea-5f4c-873b-0ba8a23b5d50",
+      "name": "test-repo-bootcamp-v1",
+      "section": "DevOps, Clustering & Network Infrastructure",
+      "sectionId": 5,
+      "tier": 3,
+      "folderRelativePath": "test-repo-bootcamp-v1",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/test-repo-bootcamp-v1",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "54139233-d4e7-5a45-8044-89d9c7bca39e",
+      "name": "slack-ai-agent",
+      "section": "DevOps, Clustering & Network Infrastructure",
+      "sectionId": 5,
+      "tier": 3,
+      "folderRelativePath": "slack-ai-agent",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/slack-ai-agent",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "bce5916f-cc40-4fce-b37a-eceea0d5d58d",
+      "name": "letsmarknow",
+      "section": "Web Platforms, Backend & Workflow Systems",
+      "sectionId": 6,
+      "tier": 2,
+      "folderRelativePath": "letsmarknow",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/letsmarknow",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "692d0b8e-1fdb-4f41-83dd-4e63c4641f6a",
+      "name": "letsmarknow-ui",
+      "section": "Web Platforms, Backend & Workflow Systems",
+      "sectionId": 6,
+      "tier": 2,
+      "folderRelativePath": "letsmarknow-ui",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/letsmarknow-ui",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "96caad07-2966-5858-ba22-53c4a3006211",
+      "name": "awansoft-v10",
+      "section": "Web Platforms, Backend & Workflow Systems",
+      "sectionId": 6,
+      "tier": 3,
+      "folderRelativePath": "awansoft-v10",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/awansoft-v10",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "29e36b1a-cfcb-4584-a206-64df64fede07",
+      "name": "gstack",
+      "section": "Web Platforms, Backend & Workflow Systems",
+      "sectionId": 6,
+      "tier": 3,
+      "folderRelativePath": "gstack",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/gstack",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "6c7958e8-6fec-424e-b676-efd2769de5d2",
+      "name": "workflowy",
+      "section": "Web Platforms, Backend & Workflow Systems",
+      "sectionId": 6,
+      "tier": 2,
+      "folderRelativePath": "workflowy",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/workflowy",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "fee6b80e-6bd8-4591-85d5-d3c6a86ce553",
+      "name": "workflowy-ui",
+      "section": "Web Platforms, Backend & Workflow Systems",
+      "sectionId": 6,
+      "tier": 3,
+      "folderRelativePath": "workflowy-ui",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/workflowy-ui",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "7201484b-f656-4814-9d2d-b365dd3c0b5f",
+      "name": "laravel-automation",
+      "section": "Web Platforms, Backend & Workflow Systems",
+      "sectionId": 6,
+      "tier": 2,
+      "folderRelativePath": "laravel-automation",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/laravel-automation",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "691c1d41-b419-58f4-88aa-28a3be0de11f",
+      "name": "lara-publishing",
+      "section": "Web Platforms, Backend & Workflow Systems",
+      "sectionId": 6,
+      "tier": 3,
+      "folderRelativePath": "lara-publishing",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/lara-publishing",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "ba06b8f3-a9c7-4e78-ba5f-460ae87c3c55",
+      "name": "presentations-repos/bright-buddy-block",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/bright-buddy-block",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/bright-buddy-block",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "d2dcb704-7a8e-45b6-b876-e229c3b01053",
+      "name": "presentations-repos/bsrm-presentation-hiltrax",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/bsrm-presentation-hiltrax",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/bsrm-presentation-hiltrax",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "52d057fc-ce9f-5009-9763-ce2ed4c72cad",
+      "name": "presentations-repos/flat-slide-show",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/flat-slide-show",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/flat-slide-show",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "b70d62fd-0d33-4cf8-8ccd-07201c9bc155",
+      "name": "presentations-repos/global-ppt-v1",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/global-ppt-v1",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/global-ppt-v1",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "465b89be-19dd-4e34-a477-12cdc7850f1f",
+      "name": "presentations-repos/hiltrax",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 2,
+      "folderRelativePath": "presentations-repos/hiltrax",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/hiltrax",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "1af54c42-9434-570b-aea3-b0669afd957b",
+      "name": "presentations-repos/image-create-samples-v1",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/image-create-samples-v1",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/image-create-samples-v1",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "bcd3d570-fbc4-498a-9e13-f80d3b4d1901",
+      "name": "presentations-repos/ki-health-ppt",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/ki-health-ppt",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/ki-health-ppt",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "ffafab95-5f3e-51b9-8d11-5920d789eda0",
+      "name": "presentations-repos/maid-app-spec-presentation",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/maid-app-spec-presentation",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/maid-app-spec-presentation",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "1d324f34-4882-585f-940f-26d202171919",
+      "name": "presentations-repos/presentation-aug-2026-plans-alim",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/presentation-aug-2026-plans-alim",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/presentation-aug-2026-plans-alim",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "2190b866-430b-5b9b-bc86-737b1bddafa2",
+      "name": "presentations-repos/rasia-logo",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/rasia-logo",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/rasia-logo",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "1560d2bb-7194-4a88-b8e0-18bdb5c4802e",
+      "name": "presentations-repos/remix-of-presentation-riseup-asia",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/remix-of-presentation-riseup-asia",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/remix-of-presentation-riseup-asia",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "d6b7d753-39c6-46d5-a7e2-38a198847b37",
+      "name": "presentations-repos/slides-spec",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 2,
+      "folderRelativePath": "presentations-repos/slides-spec",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/slides-spec",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "bec24848-c59e-4143-962f-9e1cc67c7139",
+      "name": "presentations-repos/white-presentation-v1",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "presentations-repos/white-presentation-v1",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/presentations-repos/white-presentation-v1",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "43c4012a-ef6d-5020-8537-4732c92f4513",
+      "name": "slide-sensei-37",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "slide-sensei-37",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/slide-sensei-37",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "4a2a051f-628b-5fee-bf41-4e682b52c62e",
+      "name": "img-pdf",
+      "section": "Presentation Decks & Visual Design Systems",
+      "sectionId": 7,
+      "tier": 3,
+      "folderRelativePath": "img-pdf",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/img-pdf",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "af03b54e-78e6-5a4c-a4da-fad8bbb189c7",
+      "name": "seo-packages",
+      "section": "Content Automation, SEO & Media Production",
+      "sectionId": 8,
+      "tier": 3,
+      "folderRelativePath": "seo-packages",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/seo-packages",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "a325e3b2-befb-54d1-b491-6b5e87bc8260",
+      "name": "seo-writing/alim-seo-writing",
+      "section": "Content Automation, SEO & Media Production",
+      "sectionId": 8,
+      "tier": 2,
+      "folderRelativePath": "seo-writing/alim-seo-writing",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/seo-writing/alim-seo-writing",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "7f4db4ef-b140-41b0-a87a-441cdfe46b29",
+      "name": "yt-descriptions",
+      "section": "Content Automation, SEO & Media Production",
+      "sectionId": 8,
+      "tier": 3,
+      "folderRelativePath": "yt-descriptions",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/yt-descriptions",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "ba88d635-8288-4e56-83a6-562bcc6d52da",
+      "name": "kita-social-media-content-calender",
+      "section": "Content Automation, SEO & Media Production",
+      "sectionId": 8,
+      "tier": 3,
+      "folderRelativePath": "kita-social-media-content-calender",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/kita-social-media-content-calender",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "314aac26-c2a4-4ba3-ac7d-e7c7460bbb6c",
+      "name": "punam-case-studies-v1",
+      "section": "Content Automation, SEO & Media Production",
+      "sectionId": 8,
+      "tier": 3,
+      "folderRelativePath": "punam-case-studies-v1",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/punam-case-studies-v1",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "474efe8c-2c43-4fe7-9dfb-a147ce23954c",
+      "name": "movie-cli",
+      "section": "Content Automation, SEO & Media Production",
+      "sectionId": 8,
+      "tier": 2,
+      "folderRelativePath": "movie-cli",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/movie-cli",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "625eb573-1e26-47f2-9a99-36eb23f9bd89",
+      "name": "wp-exam",
+      "section": "WordPress Ecosystem & Publishing Plugins",
+      "sectionId": 9,
+      "tier": 3,
+      "folderRelativePath": "wp-exam",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/wp-exam",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "6c9e3509-81d8-55e2-bf72-308801baf2cd",
+      "name": "wp-git-log",
+      "section": "WordPress Ecosystem & Publishing Plugins",
+      "sectionId": 9,
+      "tier": 3,
+      "folderRelativePath": "wp-git-log",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/wp-git-log",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "34de4fb1-6f57-5f7c-a852-ee320fedd166",
+      "name": "wp-link-manager",
+      "section": "WordPress Ecosystem & Publishing Plugins",
+      "sectionId": 9,
+      "tier": 3,
+      "folderRelativePath": "wp-link-manager",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/wp-link-manager",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "e9e4e8c6-4715-5583-81c4-37e937778912",
+      "name": "wp-onboarding",
+      "section": "WordPress Ecosystem & Publishing Plugins",
+      "sectionId": 9,
+      "tier": 3,
+      "folderRelativePath": "wp-onboarding",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/wp-onboarding",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "96fb39c3-48ac-4a68-87dc-6cef1655b01d",
+      "name": "lara-licensing",
+      "section": "WordPress Ecosystem & Publishing Plugins",
+      "sectionId": 9,
+      "tier": 3,
+      "folderRelativePath": "lara-licensing",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/lara-licensing",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "040097de-0753-448a-9f01-7eef92a8d194",
+      "name": "project-watch-pro/project-watch-pro",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 2,
+      "folderRelativePath": "project-watch-pro/project-watch-pro",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/project-watch-pro/project-watch-pro",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "2862a47e-aeee-45d2-9f31-c4a97f8504e1",
+      "name": "project-watch-pro/pwp-mobile",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "project-watch-pro/pwp-mobile",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/project-watch-pro/pwp-mobile",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "d05afe79-d15a-4099-af73-4941b8a55208",
+      "name": "alim-cv",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "alim-cv",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/alim-cv",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "ce6f4079-a42e-5ab9-a8ce-57f64c3dd7b1",
+      "name": "alim-karim-profile",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "alim-karim-profile",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/alim-karim-profile",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "77d65853-b5bb-585b-bfc8-62368f07987a",
+      "name": "alim-status-sample",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "alim-status-sample",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/alim-status-sample",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "f5c7d40c-bb3c-589e-a6ef-516fdd05bb5c",
+      "name": "digital-name-card",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "digital-name-card",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/digital-name-card",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "3a4e13da-5a26-58e9-9a1e-84febdbbc7d8",
+      "name": "aukgit/alim.karim.profile",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "aukgit/alim.karim.profile",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/aukgit/alim.karim.profile",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "676d0579-a57f-48cb-9b1e-5bc312e23af5",
+      "name": "web-system/sweet-digs-finder",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "web-system/sweet-digs-finder",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/web-system/sweet-digs-finder",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "a16cc674-7e74-5ebc-826c-03f6ee265f80",
+      "name": "spec-builder",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "spec-builder",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/spec-builder",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "e714aa58-fdc0-471e-92c4-3b4c607b4398",
+      "name": "riseup-asia-website-project",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "riseup-asia-website-project",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/riseup-asia-website-project",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    },
+    {
+      "id": "d44c6872-6796-4d57-a61f-624d6b67f62f",
+      "name": "icon-coding-guidelines",
+      "section": "Fleet Monitoring, Portfolios & Digital Identity",
+      "sectionId": 10,
+      "tier": 3,
+      "folderRelativePath": "icon-coding-guidelines",
+      "uriTemplate": "file://${WORKSPACE_ROOT}/icon-coding-guidelines",
+      "defaultBranch": "main",
+      "isWorkspaceOnly": false,
+      "isEnabled": true,
+      "permissionGrants": {
+        "v2Migrated": true
+      },
+      "settings": {
+        "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+      }
+    }
+  ]
+}

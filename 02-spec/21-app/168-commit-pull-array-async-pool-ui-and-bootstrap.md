@@ -40,7 +40,15 @@ finally do a release minor and check gitmap pe until fixes
 
 ## 3. Visual Ingestion & Telemetry
 
-The screenshot uploaded by the user ([`assets/screenshots/commit-pull-dry-run-telemetry.png`](assets/screenshots/commit-pull-dry-run-telemetry.png)) demonstrates the dry-run execution of `gitmap commit-pull --config .ai-memory/temp/commit-pull-config.json --dry-run`.
+The user telemetry output demonstrates the dry-run execution of `gitmap commit-pull --config .ai-memory/temp/commit-pull-config.json --dry-run`:
+
+```text
+▶ Probing target repositories (dry-run mode)...
+  Repo 1: git-repo-navigator (3059 commits) [OK]
+  Repo 14: gitmap-v14 [Not Found - Skipped]
+  Repo 28: gitmap-v28 (198 commits) [OK]
+```
+
 Observations:
 - The initial input staging currently probes inputs sequentially or prints notices out-of-order when remote repositories `gitmap-v14` or `gitmap-v15` return 404 / not found.
 - The walk loop currently prints sequentially after waiting for prior repos.

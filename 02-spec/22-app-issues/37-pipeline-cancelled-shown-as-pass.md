@@ -19,8 +19,6 @@
 
 In `Antigravity-Manager`, running `gitmap pe` for commit `12e40b1` (run `35844114197`) or commit `5717700` produced:
 
-![Pipeline Error Screenshot](../../assets/screenshots/pipeline-failed-shows-pass-01.png)
-
 ```text
 Saved Log: C:/Users/Administrator/AppData/Local/gitmap-cli/data/pipeline/alimtvnetwork-antigravity-manager/35844114197.log
 URL: https://github.com/alimtvnetwork/Antigravity-Manager/actions/runs/35844114197

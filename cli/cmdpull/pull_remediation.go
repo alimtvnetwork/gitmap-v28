@@ -40,10 +40,11 @@ func printRemediationPromptMenu() {
 	fmt.Printf("\n  %s[?]%s %sRemediate failed repositories?%s\n",
 		constants.ColorCyan, constants.ColorReset,
 		constants.ColorBold, constants.ColorReset)
-	fmt.Println("    [1/a] Resolve all failed repositories at once")
+	fmt.Println("    [1/a] Resolve all failed repositories at once (auto-merge)")
 	fmt.Println("    [2/s] Step through one by one")
+	fmt.Println("    [3/r] Rebase all failed repositories (pull --rebase)")
 	fmt.Println("    [q/n] Skip / Exit")
-	fmt.Printf("  %sChoice [1/2/q]:%s ", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  %sChoice [1/2/3/q]:%s ", constants.ColorCyan, constants.ColorReset)
 }
 
 func readPromptChoice() string {
@@ -63,6 +64,9 @@ func dispatchRemediationChoice(choice string, failures []PullFailureSummary) err
 	if isChoiceStepByStep(choice) {
 		return RunStepByStepRemediate(failures)
 	}
+	if isChoiceRebaseAll(choice) {
+		return RunBatchRemediateRebase(failures)
+	}
 
 	return nil
 }
@@ -73,6 +77,10 @@ func isChoiceResolveAll(choice string) bool {
 
 func isChoiceStepByStep(choice string) bool {
 	return choice == "2" || choice == "s" || choice == "step"
+}
+
+func isChoiceRebaseAll(choice string) bool {
+	return choice == "3" || choice == "r" || choice == "rebase"
 }
 
 // RunBatchRemediateAll resolves all failed repositories.
@@ -119,7 +127,7 @@ func promptAndRemediateSingle(reader *bufio.Reader, idx, total int, f PullFailur
 		return PromptMissingRepoAction(reader, f)
 	}
 
-	fmt.Printf("  %s?%s Remediate this repository? [Y/n/q]: ", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  %s?%s Remediate this repository? [Y/r/n/q] (Y=auto-merge, r=rebase, n=skip, q=quit): ", constants.ColorCyan, constants.ColorReset)
 	line, _ := reader.ReadString('\n')
 	ans := strings.ToLower(strings.TrimSpace(line))
 	if ans == "q" || ans == "quit" {
@@ -127,6 +135,9 @@ func promptAndRemediateSingle(reader *bufio.Reader, idx, total int, f PullFailur
 	}
 	if ans == "n" || ans == "no" {
 		return true, false
+	}
+	if ans == "r" || ans == "rebase" {
+		return true, remediateSingleRepoRebase(f)
 	}
 
 	return true, remediateSingleRepo(f)
@@ -152,7 +163,7 @@ func remediateSingleRepo(f PullFailureSummary) bool {
 		return RemediateMissingRepo(f)
 	}
 
-	fmt.Printf("  %s→%s Remediating %s%s%s...\n",
+	fmt.Printf("  %s→%s Remediating %s%s%s (auto-merge)...\n",
 		constants.ColorCyan, constants.ColorReset,
 		constants.ColorBold, f.RepoName, constants.ColorReset)
 	out, err := execPullAutoMerge(f.RepoPath)
@@ -173,16 +184,88 @@ func execPullAutoMerge(repoPath string) ([]byte, error) {
 }
 
 func handleRemediationFailure(repoPath, repoName, out string) bool {
-	if strings.Contains(strings.ToLower(out), "conflict") {
-		abortCmd := exec.Command("git", "-C", repoPath, "merge", "--abort")
-		abortCmd.Env = gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
-		_ = abortCmd.Run()
-		fmt.Printf("  %s✗%s [%s] Merge conflict detected (merge aborted).\n",
+	isConflict := cloner.IsMergeConflictOutput(out) || strings.Contains(strings.ToLower(out), "conflict")
+	if isConflict {
+		cloner.SafeAbortMerge(repoPath)
+		fmt.Printf("  %s✗%s [%s] Merge conflict detected (merge aborted safely to protect working tree).\n",
 			constants.ColorRed, constants.ColorReset, repoName)
+		fmt.Printf("    %sSuggested:%s inspect status or resolve conflicts manually: git -C %q status\n",
+			constants.ColorCyan, constants.ColorReset, repoPath)
 
 		return false
 	}
+
+	isDiverged := cloner.IsDivergedOutput(out)
+	if isDiverged {
+		cloner.SafeAbortMerge(repoPath)
+		fmt.Printf("  %s✗%s [%s] Diverged branch detected (merge aborted safely to protect working tree).\n",
+			constants.ColorRed, constants.ColorReset, repoName)
+		fmt.Printf("    %sSuggested:%s try rebasing: git -C %q pull --rebase\n",
+			constants.ColorCyan, constants.ColorReset, repoPath)
+
+		return false
+	}
+
+	cloner.SafeAbortMerge(repoPath)
 	fmt.Printf("  %s✗%s [%s] Remediation failed.\n",
+		constants.ColorRed, constants.ColorReset, repoName)
+
+	return false
+}
+
+// RunBatchRemediateRebase resolves all failed repositories using pull --rebase.
+func RunBatchRemediateRebase(failures []PullFailureSummary) error {
+	fmt.Printf("\n  %sRebasing %d failed repositories...%s\n\n",
+		constants.ColorBold, len(failures), constants.ColorReset)
+	successCount := 0
+	for _, f := range failures {
+		if remediateSingleRepoRebase(f) {
+			successCount++
+		}
+	}
+	printRemediationBatchSummary(successCount, len(failures))
+
+	return nil
+}
+
+func remediateSingleRepoRebase(f PullFailureSummary) bool {
+	if f.RepoPath == "" {
+		return false
+	}
+
+	if cloner.IsMissingRepo(f.RepoPath) {
+		return RemediateMissingRepo(f)
+	}
+
+	fmt.Printf("  %s→%s Rebasing %s%s%s...\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorBold, f.RepoName, constants.ColorReset)
+	out, err := execPullRebase(f.RepoPath)
+	if err == nil {
+		fmt.Printf("  %s✓%s [%s] Successfully rebased and updated.\n",
+			constants.ColorGreen, constants.ColorReset, f.RepoName)
+		return true
+	}
+
+	return handleRebaseRemediationFailure(f.RepoPath, f.RepoName, string(out))
+}
+
+func execPullRebase(repoPath string) ([]byte, error) {
+	cmd := exec.Command("git", "-C", repoPath, "pull", "--progress", "--rebase", "--autostash")
+	cmd.Env = gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
+
+	return cmd.CombinedOutput()
+}
+
+func handleRebaseRemediationFailure(repoPath, repoName, out string) bool {
+	cloner.SafeAbortRebase(repoPath)
+	isConflict := cloner.IsMergeConflictOutput(out) || strings.Contains(strings.ToLower(out), "conflict")
+	if isConflict {
+		fmt.Printf("  %s✗%s [%s] Rebase conflict detected (rebase aborted safely to protect working tree).\n",
+			constants.ColorRed, constants.ColorReset, repoName)
+		return false
+	}
+	fmt.Printf("  %s✗%s [%s] Rebase failed (rebase aborted safely).\n",
 		constants.ColorRed, constants.ColorReset, repoName)
 
 	return false
@@ -243,6 +326,9 @@ func convertRecordsToFailures(records []store.PullErrorRecord) []PullFailureSumm
 }
 
 func dispatchBatchFixArgs(args []string, failures []PullFailureSummary) error {
+	if hasBatchFlag(args, "--rebase", "-r") {
+		return RunBatchRemediateRebase(failures)
+	}
 	if hasBatchFlag(args, "--all", "-a", "--yes", "-y") {
 		return RunBatchRemediateAll(failures)
 	}

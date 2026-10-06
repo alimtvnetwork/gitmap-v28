@@ -2,6 +2,8 @@
 
 ## Active Specifications
 
+- [230-token-purge-installer-workdir-pull-agm-and-ui-modernization](230-token-purge-installer-workdir-pull-agm-and-ui-modernization/readme.md) — Security Token Purge, Installer Navigation ($work, $def), Pull Remediation, AGM Linux Update, Multi-Instance API & UI Modernization (Status: `completed`)
+- [231-antigravity-ide-projects-and-repo-secrets-restore](231-antigravity-ide-projects-and-repo-secrets-restore/01-architecture-spec.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Status: `completed`)
 - [230-antigravity-backup-e2e-and-release](230-antigravity-backup-e2e-and-release/01-architecture-spec.md) — Antigravity IDE Backup E2E Validation, Logging Verification & Minor Release v6.494.0 (Status: `completed`)
 - [229-antigravity-ide-projects-and-settings-backup](229-antigravity-ide-projects-and-settings-backup/01-architecture-spec.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Status: `completed`)
 - [229-nodes-deploy-repos-and-multi-ide-fleet-sync](229-nodes-deploy-repos-and-multi-ide-fleet-sync/01-architecture-spec.md) — Fleet Repository Deployment, Remote Scanner Delegation & Multi-IDE Sync Engine (Status: `completed`)

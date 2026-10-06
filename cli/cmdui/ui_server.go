@@ -12,12 +12,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
@@ -79,6 +81,97 @@ func mountAPIRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/commitin/exec", handleAPICommitinExec)
 	mux.HandleFunc("/api/terminal/exec", handleAPITerminalExec)
 	mux.HandleFunc("/api/settings", handleAPISettings)
+	mux.HandleFunc("/api/instances", handleAPIInstances)
+	mux.HandleFunc("/api/prompts/instances", handleAPIPromptsInstances)
+}
+
+func handleAPIInstances(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"isSuccess": false,
+			"error":     "method not allowed, GET required",
+		})
+		return
+	}
+
+	instances, err := cmdagy.DiscoverAllAgyInstances()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"isSuccess":      false,
+			"totalInstances": 0,
+			"instances":      []cmdagy.AgyInstanceInfo{},
+			"error":          err.Error(),
+		})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"isSuccess":      true,
+		"totalInstances": len(instances),
+		"instances":      instances,
+	})
+}
+
+func handleAPIPromptsInstances(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"isSuccess": false,
+			"error":     "method not allowed, GET required",
+		})
+		return
+	}
+
+	q := r.URL.Query()
+	instID := q.Get("instance")
+	status := q.Get("status")
+	limitStr := q.Get("limit")
+	maxWordsStr := q.Get("max_words")
+	includeConvsStr := q.Get("include_convs")
+
+	limit := 10
+	if limitStr != "" {
+		if parsed, err := strconv.Atoi(limitStr); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+
+	maxWords := 100
+	if maxWordsStr != "" {
+		if parsed, err := strconv.Atoi(maxWordsStr); err == nil && parsed > 0 {
+			maxWords = parsed
+		}
+	}
+
+	includeConvs := true
+	if includeConvsStr != "" {
+		includeConvs = includeConvsStr == "true" || includeConvsStr == "1"
+	}
+
+	opts := cmdagy.AgyInstancePromptQueryOptions{
+		InstanceID:   instID,
+		IsAll:        instID == "" || strings.EqualFold(instID, "all"),
+		Status:       status,
+		Limit:        limit,
+		MaxWords:     maxWords,
+		IncludeConvs: includeConvs,
+	}
+
+	resp, err := cmdagy.QueryInstancePrompts(opts)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"isSuccess": false,
+			"error":     err.Error(),
+		})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func handleAPISSHNodes(w http.ResponseWriter, r *http.Request) {

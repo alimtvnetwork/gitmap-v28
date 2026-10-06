@@ -1,9 +1,17 @@
 package cmdinstall
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 var (
@@ -61,7 +69,7 @@ func runAgmUpdateCmd(cmd *cobra.Command, args []string) error {
 			opts.Version = strings.TrimPrefix(a, "v")
 		}
 	}
-	return runUpdateAgManagerWithOpts(opts)
+	return runAgmUpdateWithQuietOutput(opts)
 }
 
 func resolveAgmUpdateTarget(target string, hasAll bool) string {
@@ -77,7 +85,89 @@ func runAgmUpdateAllCmd(cmd *cobra.Command, args []string) error {
 		return RemoteAgmUpdateFleetFn("all-nodes", agmUpdateExcept)
 	}
 	opts := buildAgmInstallOptions()
-	return runUpdateAgManagerWithOpts(opts)
+	return runAgmUpdateWithQuietOutput(opts)
+}
+
+func runAgmUpdateWithQuietOutput(opts installOptions) error {
+	if opts.DryRun {
+		fmt.Printf("  [dry-run] Would run: %s (version: %s)\n", resolveAgManagerCommandForOS(), opts.Version)
+		return nil
+	}
+	if runtime.GOOS == "windows" {
+		return runUpdateAgManagerWithOpts(opts)
+	}
+
+	return runAgmUpdateLinuxQuiet(opts)
+}
+
+func runAgmUpdateLinuxQuiet(opts installOptions) error {
+	version := opts.Version
+	if version == "" {
+		version = resolveLatestAgManagerReleaseVersion()
+	}
+	installCmd := constants.AgManagerUnixInstallCmd
+	if version != "" {
+		clean := strings.TrimPrefix(version, "v")
+		installCmd = fmt.Sprintf(`curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.sh | bash -s -- --version '%s'`, clean)
+	}
+	cmd := exec.Command("bash", "-c", installCmd)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  %s✗%s Antigravity Manager update failed: %v\n", constants.ColorRed, constants.ColorReset, err)
+		if len(out) > 0 {
+			fmt.Fprintf(os.Stderr, "    Output:\n%s\n", strings.TrimSpace(string(out)))
+		}
+		trace := apperror.CaptureStackTrace(2)
+		if trace != "" {
+			fmt.Fprintf(os.Stderr, "    Stack trace:\n%s\n", trace)
+		}
+		verifyAgManagerOnFailure()
+		return apperror.WrapSimple(err, "Antigravity Manager update failed")
+	}
+
+	recordAgManagerInstalled(resolveInstalledVerName(version))
+	verLabel := formatAgManagerVerLabel(version)
+	fmt.Printf("%s✓%s Antigravity Manager%s updated successfully.\n", constants.ColorGreen, constants.ColorReset, verLabel)
+	return nil
+}
+
+// PromptAgmBatchFailureResolution prompts the user when multiple failures occur during updates.
+func PromptAgmBatchFailureResolution(failedTargets []string, retryFunc func(string) error) error {
+	hasMultipleFailures := len(failedTargets) > 1
+	if !hasMultipleFailures || !isInteractiveStdin() {
+		return nil
+	}
+	fmt.Printf("\n  %s[?]%s %s%d targets failed during update. Do you want to resolve these failures?%s [Y/n]: ",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorBold, len(failedTargets), constants.ColorReset)
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	if err != nil && len(line) == 0 {
+		return nil
+	}
+	ans := strings.ToLower(strings.TrimSpace(line))
+	if ans == "n" || ans == "no" || ans == "q" {
+		return nil
+	}
+
+	fmt.Printf("\n  %s→ Resolving failures across %d target(s)...%s\n\n",
+		constants.ColorCyan, len(failedTargets), constants.ColorReset)
+	for _, target := range failedTargets {
+		if err := retryFunc(target); err != nil {
+			fmt.Printf("  %s✗%s Resolution for %s failed: %v\n", constants.ColorRed, constants.ColorReset, target, err)
+		} else {
+			fmt.Printf("  %s✓%s Resolution for %s succeeded.\n", constants.ColorGreen, constants.ColorReset, target)
+		}
+	}
+	return nil
+}
+
+func isInteractiveStdin() bool {
+	stat, err := os.Stdin.Stat()
+	if err != nil {
+		return false
+	}
+	return (stat.Mode() & os.ModeCharDevice) != 0
 }
 
 func hasSSHArg(args []string) bool {

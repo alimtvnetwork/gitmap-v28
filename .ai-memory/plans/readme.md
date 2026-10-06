@@ -6,9 +6,10 @@
 
 ## Completed Plans
 
-- [202-gitmap-pull-errors-splitdb.md](completed/202-gitmap-pull-errors-splitdb.md) — GitMap Pull Errors and SplitDB Error Storage (Spec: [202](../../02-spec/21-app/202-gitmap-pull-errors-splitdb/01-overview.md))
-
+- [230-token-purge-installer-workdir-pull-agm-and-ui-modernization.md](completed/230-token-purge-installer-workdir-pull-agm-and-ui-modernization.md) — Security Token Purge, Installer Navigation ($work, $def), Pull Remediation, AGM Linux Update, Multi-Instance API & UI Modernization (Spec: [230](../../02-spec/21-app/230-token-purge-installer-workdir-pull-agm-and-ui-modernization/readme.md))
+- [231-antigravity-ide-projects-and-repo-secrets-restore.md](completed/231-antigravity-ide-projects-and-repo-secrets-restore.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Spec: [231](../../02-spec/21-app/231-antigravity-ide-projects-and-repo-secrets-restore/01-architecture-spec.md))
 - [230-antigravity-backup-e2e-and-release.md](completed/230-antigravity-backup-e2e-and-release.md) — Antigravity IDE Backup E2E Validation, Logging Verification & Minor Release v6.494.0 (Spec: [230](../../02-spec/21-app/230-antigravity-backup-e2e-and-release/01-architecture-spec.md))
+- [202-gitmap-pull-errors-splitdb.md](completed/202-gitmap-pull-errors-splitdb.md) — GitMap Pull Errors and SplitDB Error Storage (Spec: [202](../../02-spec/21-app/202-gitmap-pull-errors-splitdb/01-overview.md))
 - [229-antigravity-ide-projects-and-settings-backup.md](completed/229-antigravity-ide-projects-and-settings-backup.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Spec: [229](../../02-spec/21-app/229-antigravity-ide-projects-and-settings-backup/01-architecture-spec.md))
 - [229-nodes-deploy-repos-and-multi-ide-fleet-sync.md](229-nodes-deploy-repos-and-multi-ide-fleet-sync.md) — Fleet Repository Deployment, Remote Scanner Delegation & Multi-IDE Sync Engine (Spec: [229](../../02-spec/21-app/229-nodes-deploy-repos-and-multi-ide-fleet-sync/01-architecture-spec.md))
 - [228-nodes-deploy-agm-accounts-and-fleet-sync.md](completed/228-nodes-deploy-agm-accounts-and-fleet-sync.md) — Native Multi-Node AGM Accounts Deployment, Fleet Synchronization & AGM Integration (Spec: [228](../../02-spec/21-app/228-nodes-deploy-agm-accounts-and-fleet-sync/01-architecture-spec.md))

@@ -205,6 +205,11 @@ func executePullAttempt(rec model.ScanRecord, repoDir string, attempt int, onPro
 	return buildAttemptFailureResult(rec, repoDir, attempt, output, err), false
 }
 
+// IsMergeConflict checks whether the error represents a merge conflict.
+func IsMergeConflict(err error) bool {
+	return isMergeConflict(err)
+}
+
 func isMergeConflict(err error) bool {
 	if err == nil {
 		return false
@@ -306,6 +311,11 @@ func execGitPullFF(repoDir string, onProgress SafePullProgressFunc) (string, err
 	return stream.output(), err
 }
 
+// IsDivergedOutput returns true if git output indicates diverged local and remote branches.
+func IsDivergedOutput(output string) bool {
+	return isDivergedOutput(output)
+}
+
 func isDivergedOutput(output string) bool {
 	lower := strings.ToLower(output)
 
@@ -314,14 +324,22 @@ func isDivergedOutput(output string) bool {
 		strings.Contains(lower, "cannot fast-forward") ||
 		strings.Contains(lower, "reconcile divergent") ||
 		strings.Contains(lower, "need to specify how to reconcile") ||
-		strings.Contains(lower, "non-fast-forward")
+		strings.Contains(lower, "non-fast-forward") ||
+		strings.Contains(lower, "refusing to merge unrelated histories")
+}
+
+// IsMergeConflictOutput returns true if git output indicates merge conflicts.
+func IsMergeConflictOutput(output string) bool {
+	return isMergeConflictOutput(output)
 }
 
 func isMergeConflictOutput(output string) bool {
 	lower := strings.ToLower(output)
 
 	return strings.Contains(lower, "conflict") ||
-		strings.Contains(lower, "automatic merge failed")
+		strings.Contains(lower, "automatic merge failed") ||
+		strings.Contains(lower, "fix conflicts and then commit") ||
+		strings.Contains(lower, "you have unmerged files")
 }
 
 func executeAutoMergeCmd(dir string, progress SafePullProgressFunc) (string, error) {
@@ -341,15 +359,34 @@ func attemptAutoMergePull(dir, branch string, progress SafePullProgressFunc) (st
 	if err == nil && !isMergeConflictOutput(out) {
 		return out, nil
 	}
-	abortInProgressMerge(dir)
+	SafeAbortMerge(dir)
 
 	return out, ErrMergeConflict
 }
 
-func abortInProgressMerge(repoDir string) {
+// SafeAbortMerge safely aborts any in-progress merge or resets merge state to protect the working tree.
+func SafeAbortMerge(repoDir string) bool {
 	abort := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "merge", "--abort")
 	abort.Env = buildSafePullEnv()
-	_ = abort.Run()
+	if err := abort.Run(); err == nil {
+		return true
+	}
+	reset := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "reset", "--merge")
+	reset.Env = buildSafePullEnv()
+
+	return reset.Run() == nil
+}
+
+// SafeAbortRebase safely aborts any in-progress rebase to protect the working tree.
+func SafeAbortRebase(repoDir string) bool {
+	abort := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "rebase", "--abort")
+	abort.Env = buildSafePullEnv()
+
+	return abort.Run() == nil
+}
+
+func abortInProgressMerge(repoDir string) {
+	SafeAbortMerge(repoDir)
 }
 
 func cleanDirIfRequested(isDirExists, isClean bool, dest string) *apperror.AppError {

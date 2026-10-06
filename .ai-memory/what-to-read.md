@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-10-06T18:00:00Z, Memory write: Plan 230 / Spec 230, Security Token Purge, Installer Navigation ($work, $def), Pull Auto-Remediation, AGM Linux Update quiet mode and failure resolver, Multi-Instance API (JSON/REST), and Settings UI Modernization.
 - 2026-10-02T10:25:00Z, Memory write: Plan 65 completed, Spec 65, GitMap nodes table reordering, update-all-zip SCP distribution, search clean cache invalidation, prompt search primacy, repo deduplication with dual solutions, and gitignore policy.
 - 2026-10-02T10:15:00Z, Memory write: Plan 66 completed, Issue 62 (RCA), Pull-All duplicate repository elimination, database case-insensitive collation (`COLLATE NOCASE`), and pull pipeline in-memory deduplication.
 - 2026-10-01T15:45:00Z, Memory write: RCA-26 / Spec 60, Avoid 06, Non-idempotent PowerShell macro removal prevention, platform-adaptive shims (Test-Path), and multi-user binary synchronization (including C:\Users\Alim\AppData\Local\gitmap\gitmap.exe).

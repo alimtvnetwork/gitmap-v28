@@ -9,7 +9,7 @@ This plan upgraded the default log parser to preserve multi-line context blocks 
 
 ## Deliverables & Outcomes
 - **Visual Assets & Spec 139 Authoring:**
-  - Ingested screenshots into `assets/screenshots/pe-pipeline-error-01.png`, `02.png`, `03.png`.
+  - Transcribed pipeline failure telemetry into canonical Spec 139 text blocks.
   - Authored canonical Spec 139 in `02-spec/21-app/139-pe-custom-format-and-error-capture.md`.
   - Registered Spec 139 in `02-spec/21-app/01-index.md`.
 - **Default Multi-Line Warning & Bundler Extraction:**

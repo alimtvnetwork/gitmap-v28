@@ -66,7 +66,16 @@ func resolveCDWorkDirPath(name string) (string, bool) {
 }
 
 func isWorkDirKeyword(name string) bool {
-	return name == "work" || name == "workdir" || name == "wd" || name == "default"
+	switch strings.ToLower(name) {
+	case "work", "$work", `\$work`,
+		"def", "$def", `\$def`,
+		"workdir", "$workdir", `\$workdir`,
+		"default", "$default", `\$default`,
+		"wd", "$wd", `\$wd`:
+		return true
+	default:
+		return false
+	}
 }
 
 func findWorkDirByNameOrLabel(target string) (string, bool) {

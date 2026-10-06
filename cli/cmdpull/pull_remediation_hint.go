@@ -151,11 +151,19 @@ func isAuthFailure(msg string) bool {
 }
 
 func isConflictFailure(msg string) bool {
-	return strings.Contains(msg, "CONFLICT") || strings.Contains(msg, "conflict")
+	lower := strings.ToLower(msg)
+	return strings.Contains(lower, "conflict") ||
+		strings.Contains(lower, "automatic merge failed") ||
+		strings.Contains(lower, "unmerged files")
 }
 
 func isDivergedFailure(msg string) bool {
-	return strings.Contains(msg, "Not possible to fast-forward") || strings.Contains(msg, "diverged")
+	lower := strings.ToLower(msg)
+	return strings.Contains(lower, "not possible to fast-forward") ||
+		strings.Contains(lower, "diverged") ||
+		strings.Contains(lower, "cannot fast-forward") ||
+		strings.Contains(lower, "reconcile divergent") ||
+		strings.Contains(lower, "non-fast-forward")
 }
 
 func isMissingRepoFailure(msg string) bool {

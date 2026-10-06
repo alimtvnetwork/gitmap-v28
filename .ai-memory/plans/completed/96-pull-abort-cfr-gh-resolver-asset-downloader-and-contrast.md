@@ -20,12 +20,12 @@
 
 ---
 
-## 2. Ingested Screenshots Reference
+## 2. Visual Telemetry Reference
 
-- `![Screenshot 1](assets/screenshots/8BnieUEKidCr.png)` — Search failure in untracked directory
-- `![Screenshot 2](assets/screenshots/_N8xDMM-6ylG.png)` — Dark blue contrast and pull quit failure
-- `![Screenshot 3](assets/screenshots/0J1Th8lwMNIL.png)` — Scripts fixer and installation UI
-- `![Screenshot 4](assets/screenshots/w66J-xV1NN3E.png)` — Pull batch failure on 62 repos
+- **Search Failure in Untracked Directory**: `gitmap search vmpass.txt` in untracked folder
+- **Dark Blue Contrast & Pull Quit**: `gitmap pull` interactive remediation low contrast and `[q]` abort
+- **Scripts Fixer & Installation UI**: `.run agy help` terminal output and installation status
+- **Pull Batch Failure**: `gitmap pull all` 62 repos batch lifecycle execution error
 
 ---
 

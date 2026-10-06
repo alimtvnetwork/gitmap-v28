@@ -13,8 +13,23 @@
 The terminal transcript captured during interactive execution and editing reveals two critical regressions:
 1. `rm test` executes via PowerShell's `Remove-Item` on Windows, which aborts with `ItemNotFoundException` (`exit status 1`) when `test` is absent.
 2. In `macro edit`, typing `mkdir -p test` and `ls` is handled as an ephemeral in-builder inspection helper rather than being appended as macro steps, leaving the macro unchanged with only the failing `rm test` step.
+```text
+[PWD: C:\Users\Alim]
+Edit [2]> exit
+✔ Macro "alim1" successfully updated (1 steps)
 
-![Macro Terminal Issue](../../../assets/screenshots/macro-terminal-issue.png)
+PS C:\Users\Alim> gitmap alim1
+alim1
+└── rm test
+
+▶ Executing Macro: "alim1" (1 steps)
+
+[ 1/1] ➜ rm test
+✔ ok (0.2s)
+
+[ ✔ Macro "alim1" (1/1 steps · 0.2s · ok)
+  └── [ ✔ ok (code 0, 0.2s) rm test (dir: C:\Users\Alim)
+```
 
 ### 1.2 VMware Workstation Network Adapter & Hardware Settings
 Target configuration dialog for virtual machine manipulation via PowerShell automation:

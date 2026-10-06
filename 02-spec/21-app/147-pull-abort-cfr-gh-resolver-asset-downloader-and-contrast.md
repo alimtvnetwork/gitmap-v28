@@ -44,21 +44,21 @@ This specification defines critical resilience fixes, visual styling upgrades, a
 
 The user provided four screenshot artifacts illustrating exact defects:
 
-1. `assets/screenshots/8BnieUEKidCr.png`:
+1. **Telemetry Trace 1 (Search Fallback):**
    - Command: `gitmap search vmpass.txt` executed in `D:\work>`.
    - Failure: Fatal crash `[E9000:EXECUTION] search.getRepoDB: current directory is not a tracked gitmap repository. run 'gitmap scan' first` with 8-frame Go stack trace.
    - Resolution: Catch untracked directory condition and fall back to global DB or local workspace search without stack traces.
 
-2. `assets/screenshots/_N8xDMM-6ylG.png`:
+2. **Telemetry Trace 2 (Contrast & Abort):**
    - View: `gitmap pull` interactive remediation menu showing `Path: <repo-root>` and remediation options in dark blue on black terminal background.
    - Failure: Text is virtually illegible; selecting `[q]` triggers batch execution failure.
    - Resolution: Upgrade `dimStyle` to high-contrast pastel white/cyan; handle `[q]` as clean user abort.
 
-3. `assets/screenshots/0J1Th8lwMNIL.png`:
+3. **Telemetry Trace 3 (Scripts Fixer Output):**
    - View: Scripts Fixer `.run agy help` and Antigravity installation status.
    - Observation: Verify clean high-contrast output and absence of dark blue blends.
 
-4. `assets/screenshots/w66J-xV1NN3E.png`:
+4. **Telemetry Trace 4 (Batch Pull Failure):**
    - Command: `gitmap pull all` running batch lifecycle across 62 repositories.
    - Failure: Execution failure with 2 failures dumped as `E9000:EXECUTION` at `cmdpull/pull.go:498`.
    - Resolution: Clean failure reporting without stack dump.

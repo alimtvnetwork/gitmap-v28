@@ -19,10 +19,10 @@
 > *also need to have proper import the import is not working properly it needs to create profile if the email doens't exist, it should log steps as it performs and also the don't breaking exisitn profile if no email matches and also make sure that we can check a backdir what email contains in which file can import single email account as well"*
 
 ### User Directive 2 & Problem Evidence:
-> User imported snapshot via `gitmap chrome profile import "erfan.office.n@gmail.com"`, which allocated `Profile 5` on disk.
+> User imported snapshot via `gitmap chrome profile import "user@example.com"`, which allocated `Profile 5` on disk.
 > However, Chrome's Profile Picker UI (`chrome://settings/manageProfile`) completely ignored `Profile 5`.
 > Visual evidence:
-> - Terminal: `.ai-memory/assets/screenshots/19-chrome-profile-import-terminal.png`
+> - Terminal: `.ai-memory/assets/screenshots/sanitized-chrome-profile-import-terminal.png`
 > - UI Missing Profile 5: `.ai-memory/assets/screenshots/20-chrome-profile-picker-missing-profile5.png`
 
 ---

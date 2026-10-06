@@ -17,13 +17,10 @@ This specification introduces:
 
 ---
 
-## Visual Assets & Telemetry
-- **Screenshot 1 — Multi-Line Rust Compiler Warning Block:**
-  ![Multi-Line Warning Block](../../assets/screenshots/pe-pipeline-error-01.png)
-- **Screenshot 2 — Warning Summary Line:**
-  ![Warning Summary](../../assets/screenshots/pe-pipeline-error-02.png)
-- **Screenshot 3 — Bundler Binary Copy Failure:**
-  ![Bundler Binary Copy Failure](../../assets/screenshots/pe-pipeline-error-03.png)
+## Diagnostic Error Telemetry
+- **Diagnostic Block 1 — Multi-Line Rust Compiler Warning Block:** Captured Rust compiler warnings from cargo/tauri build pipeline.
+- **Diagnostic Block 2 — Warning Summary Line:** Captured warning count summary emitted by compiler.
+- **Diagnostic Block 3 — Bundler Binary Copy Failure:** Captured target binary copy failure during bundle phase.
 
 ---
 
