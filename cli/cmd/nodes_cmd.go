@@ -109,6 +109,10 @@ func printUnifiedNodesHelp() error {
 	fmt.Println("    gitmap nodes sync-settings            Broadcast Antigravity settings across all fleet nodes")
 	fmt.Println("    gitmap nodes deploy agm-accounts [flags] Broadcast AGM accounts & credentials across fleet nodes")
 	fmt.Println("    gitmap nodes sync-agm-accounts [flags]   Alias for deploy agm-accounts")
+	fmt.Println("    gitmap nodes deploy repo <slug> [flags]  Deploy repository & register across VS Code, Cursor, Antigravity, GitHub Desktop")
+	fmt.Println("    gitmap nodes deploy repos [targets]      Batch deploy multiple repositories across fleet nodes")
+	fmt.Println("    gitmap nodes scan [target] [flags]       Broadcast remote repository scanner across fleet nodes")
+	fmt.Println("    gitmap nodes rescan [target] [flags]     Broadcast remote repository rescan across fleet nodes")
 	fmt.Println("    gitmap nodes send-projects [node]     Forward VS Code / Cursor Project Manager workspaces")
 	fmt.Println("    gitmap nodes agy prompt <node> <p>    Dispatch prompt directly to target project on node")
 	fmt.Println("    gitmap nodes agy query [--ssh]        Query active Antigravity instances and prompts")
@@ -129,6 +133,10 @@ func printUnifiedNodesHelp() error {
 	fmt.Println("    gitmap nodes deploy agm-accounts --target worker-1")
 	fmt.Println("    gitmap nodes deploy agm-accounts --except worker-3 --dry-run")
 	fmt.Println("    gitmap nodes sync-agm-accounts --include-main")
+	fmt.Println("    gitmap nodes deploy repo gitmap --dry-run")
+	fmt.Println("    gitmap nodes deploy repo my-app --target worker-1 --with-pinned")
+	fmt.Println("    gitmap nodes deploy repo api-server --with-conversations")
+	fmt.Println("    gitmap nodes scan --open-only")
 	fmt.Println("    gitmap nodes send-projects worker-1")
 	fmt.Println("    gitmap nodes agy prompt worker-1 gitmap \"Run test suite\"")
 	fmt.Println("    gitmap nodes agy query --ssh")
@@ -225,6 +233,62 @@ func runNodesDeployAGMDispatch(args []string) error {
 	return cmdnodes.RunNodesDeployAGMAccounts(args[1:])
 }
 
+func isNodesDeployRepoRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+	if first == "deploy-repo" || first == "deploy-repos" || first == "deployrepo" || first == "deployrepos" {
+		return true
+	}
+	if first != "deploy" || len(args) < 2 {
+		return false
+	}
+	sub := strings.ToLower(args[1])
+	return sub == "repo" || sub == "repos" || sub == "repository" || sub == "repositories"
+}
+
+func runNodesDeployRepoDispatch(args []string) error {
+	if len(args) == 0 {
+		return cmdnodes.RunNodesDeployRepo(nil)
+	}
+	first := strings.ToLower(args[0])
+	if first == "deploy-repos" || first == "deployrepos" {
+		return cmdnodes.RunNodesDeployRepos(args[1:])
+	}
+	if first == "deploy-repo" || first == "deployrepo" {
+		return cmdnodes.RunNodesDeployRepo(args[1:])
+	}
+	if first == "deploy" && len(args) > 1 {
+		return dispatchDeploySubcommand(args)
+	}
+	return cmdnodes.RunNodesDeployRepo(args[1:])
+}
+
+func dispatchDeploySubcommand(args []string) error {
+	sub := strings.ToLower(args[1])
+	if sub == "repos" || sub == "repositories" {
+		return cmdnodes.RunNodesDeployRepos(args[2:])
+	}
+	return cmdnodes.RunNodesDeployRepo(args[2:])
+}
+
+func isNodesScanRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+	return first == "scan" || first == "rescan"
+}
+
+func runNodesScanDispatch(args []string) error {
+	first := strings.ToLower(args[0])
+	if first == "rescan" {
+		return cmdnodes.RunNodesRescan(args[1:])
+	}
+	return cmdnodes.RunNodesScan(args[1:])
+}
+
 // runUnifiedNodesCLI handles `gitmap nodes [flags] [target]`.
 func runUnifiedNodesCLI(args []string) error {
 	for len(args) > 0 && strings.EqualFold(args[0], "nodes") {
@@ -240,6 +304,10 @@ func runUnifiedNodesCLI(args []string) error {
 		return cmdnodes.RunNodesSyncSettings(args[1:])
 	} else if isNodesDeployAGMRequest(args) {
 		return runNodesDeployAGMDispatch(args)
+	} else if isNodesDeployRepoRequest(args) {
+		return runNodesDeployRepoDispatch(args)
+	} else if isNodesScanRequest(args) {
+		return runNodesScanDispatch(args)
 	} else if strings.EqualFold(args[0], "send-projects") || strings.EqualFold(args[0], "sendprojects") ||
 		strings.EqualFold(args[0], "sync-projects") || strings.EqualFold(args[0], "syncprojects") {
 		return cmdnodes.RunNodesSendProjects(args[1:])

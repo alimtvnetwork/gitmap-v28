@@ -109,7 +109,7 @@ func isGitmapCoreCommand(cmd string) bool {
 		return true
 	case "clone-sync", "clone-only-missing", "clone-next", "clone-pick", "clone-from", "clone-now", "clone-reclone", "cfr", "cfrp":
 		return true
-	case "reconcile", "latest-branch", "discard", "stash", "wip":
+	case "reconcile", "latest-branch", "discard", "stash", "wip", "scan", "rescan":
 		return true
 	default:
 		return false

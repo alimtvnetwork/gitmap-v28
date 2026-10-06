@@ -8,6 +8,10 @@ Aggregates and orchestrates fleet operations across SSH Cluster Nodes (`SSHConne
 gitmap nodes [flags] [target]
 gitmap nodes deploy agm-accounts [flags]
 gitmap nodes sync-agm-accounts [flags]
+gitmap nodes deploy repo <slug|path> [flags]
+gitmap nodes deploy repos [targets|all] [flags]
+gitmap nodes scan [target] [flags]
+gitmap nodes rescan [target] [flags]
 gitmap nodes ping [target]
 gitmap nodes push-settings <node>
 gitmap nodes sync-settings
@@ -26,6 +30,10 @@ gitmap nodes cfrp [flags] [targets] [dest]
 |------------|-------------|
 | `deploy agm-accounts` | Broadcast Antigravity Manager accounts & credentials across fleet nodes |
 | `sync-agm-accounts` | Shorthand alias for `deploy agm-accounts` |
+| `deploy repo <slug>` | Deploy repository, run remote scan, and register across VS Code, Cursor, Antigravity, GitHub Desktop |
+| `deploy repos [list]` | Batch deploy multiple repositories across fleet nodes |
+| `scan [target]` | Broadcast remote repository discovery scanner across fleet nodes |
+| `rescan [target]` | Broadcast remote repository rescan across fleet nodes |
 | `push-settings <node>` | Export and push Antigravity settings to target node |
 | `sync-settings` | Broadcast Antigravity settings across all fleet nodes |
 | `send-projects [node]` | Forward VS Code / Cursor Project Manager workspaces to nodes |
@@ -111,6 +119,72 @@ gitmap nodes deploy agm-accounts --json
 gitmap sync-agm-accounts
 gitmap deploy-agm-accounts --open-only
 gitmap nodes-deploy-agm-accounts --target worker-1
+```
+
+---
+
+## Deploy Repository & Multi-IDE Sync (`deploy repo`, `deploy repos`)
+
+Deploy a repository from the local machine to remote fleet nodes, trigger remote `gitmap rescan`, and automatically register the repository across all installed IDEs on the target nodes:
+- **VS Code**: Added to Project Manager `projects.json`.
+- **Cursor**: Added to Project Manager `projects.json`.
+- **Antigravity IDE**: Added to `~/.gemini/config/projects/<uuid>.json`.
+- **GitHub Desktop**: Registered via the `github <path>` CLI shim.
+
+### Flags
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--target <alias>` | `-t` | `""` | Target a single node alias or IP address |
+| `--except <list>` | `-e` | `"main"` | Comma-separated list of nodes to exclude |
+| `--exclude <list>` | | | Alias for `--except` |
+| `--include <list>` | | `""` | Comma-separated whitelist of nodes to target |
+| `--accept <list>` | | `""` | Alias for `--include` |
+| `--include-main` | | `false` | Explicitly include `main` node |
+| `--open-only` | | `true` | Skip offline nodes immediately via fast preflight probe |
+| `--dest <path>` | `-d` | `""` | Destination root directory (`D:\work` on Windows, `~/work` on Linux) |
+| `--with-ides` | | `true` | Register across VS Code, Cursor, Antigravity, and GitHub Desktop |
+| `--with-pinned` | | `false` | Synchronize pinned status in `pinned_projects.json` and tag as pinned |
+| `--with-conversations` | | `false` | Bundle, remap, and transfer associated Antigravity conversations & brain logs |
+| `--from-local` | | `false` | Force direct local-to-remote archive transfer over SSH |
+| `--clone` | | `false` | Delegate remote Git clone from origin URL |
+| `--clean` | | `true` | Exclude `node_modules/`, `target/`, `.venv/`, `dist/` from archive |
+| `--dry-run` | `-n` | `false` | Simulate deployment without writing to disk |
+| `--json` | `-j` | `false` | Output machine-readable JSON array of `DeployRepoResult` |
+
+### Examples
+
+```bash
+# Preview deployment of gitmap to fleet nodes
+gitmap nodes deploy repo gitmap --dry-run
+
+# Deploy repository to worker-1 with pinned projects and conversation sync
+gitmap nodes deploy repo my-app --target worker-1 --with-pinned --with-conversations
+
+# Batch deploy multiple repositories
+gitmap nodes deploy repos api-service,web-frontend --open-only
+
+# Deploy using root-level aliases
+gitmap deploy-repo gitmap --dry-run
+gitmap nodes-deploy-repos all --dry-run
+```
+
+---
+
+## Fleet Scan & Rescan (`scan`, `rescan`)
+
+Broadcast repository discovery across all reachable fleet nodes via SSH delegation, updating remote `gitmap.db` indices.
+
+```bash
+# Scan default work directories across all online nodes
+gitmap nodes scan --open-only
+
+# Rescan repositories on a specific node
+gitmap nodes rescan --target worker-1
+
+# Using root aliases
+gitmap fleet-scan
+gitmap nodes-rescan
 ```
 
 ## See Also

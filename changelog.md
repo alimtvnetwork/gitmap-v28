@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.493.0] - 2026-10-06
+
+### Added
+- Fleet Repository Deployment, Remote Scanner Delegation & Multi-IDE Sync Engine
+
+---
+
 ## [v6.492.0] - 2026-10-06
 
 ### Added
