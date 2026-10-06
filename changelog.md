@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.498.0] - 2026-10-06
+
+### Added
+- Pre-consolidation baseline release
+
+---
+
 ## [v6.497.0] - 2026-10-06
 
 ### Added
