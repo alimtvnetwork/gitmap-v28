@@ -116,11 +116,13 @@ func parseGitHubSlug(rawUrl string) (string, string, error) {
 	trimmed = strings.TrimSuffix(trimmed, ".git")
 
 	for _, prefix := range []string{"https://github.com/", "http://github.com/", "git@github.com:"} {
-		if strings.HasPrefix(trimmed, prefix) {
-			parts := strings.Split(strings.TrimPrefix(trimmed, prefix), "/")
-			if len(parts) >= 2 {
-				return parts[0], parts[1], nil
-			}
+		if !strings.HasPrefix(trimmed, prefix) {
+			continue
+		}
+
+		parts := strings.Split(strings.TrimPrefix(trimmed, prefix), "/")
+		if len(parts) >= 2 {
+			return parts[0], parts[1], nil
 		}
 	}
 
@@ -201,12 +203,15 @@ func processReleaseItem(ctx releaseApiContext, rel ghReleaseItem, targets []stri
 func pruneMatchingAssets(ctx releaseApiContext, assets []ghAssetItem, targets []string) (int, error) {
 	count := 0
 	for _, a := range assets {
-		if isAssetTargetMatch(a.Name, targets) {
-			if err := deleteAssetById(ctx, a.ID); err != nil {
-				return count, err
-			}
-			count++
+		if !isAssetTargetMatch(a.Name, targets) {
+			continue
 		}
+
+		if err := deleteAssetById(ctx, a.ID); err != nil {
+			return count, err
+		}
+
+		count++
 	}
 
 	return count, nil

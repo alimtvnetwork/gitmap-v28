@@ -99,19 +99,25 @@ func runPreflightGate(repoDir string, opts PurgeExtendedOptions) (*PreflightRepo
 	if err != nil {
 		return nil, err
 	}
-	if len(report.AffectedCommits) == 0 {
-		if !opts.IsJson {
-			fmt.Println("No matching target found in repository history. Nothing to purge.")
-		}
+
+	if len(report.AffectedCommits) == 0 && !opts.IsJson {
+		fmt.Println("No matching target found in repository history. Nothing to purge.")
 		return report, nil
 	}
-	if !opts.IsAutoConfirm && !opts.IsJson && !opts.IsDryRun {
-		if isConfirmed := confirmPurgeInteractively(report); !isConfirmed {
-			return nil, nil
-		}
+
+	if len(report.AffectedCommits) == 0 {
+		return report, nil
+	}
+
+	if requiresInteractivePurgeConfirmation(opts) && !confirmPurgeInteractively(report) {
+		return nil, nil
 	}
 
 	return report, nil
+}
+
+func requiresInteractivePurgeConfirmation(opts PurgeExtendedOptions) bool {
+	return !opts.IsAutoConfirm && !opts.IsJson && !opts.IsDryRun
 }
 
 func confirmPurgeInteractively(report *PreflightReport) bool {
@@ -367,11 +373,11 @@ func parseIdentityEnv(prefix, identity string) []string {
 	nameAndEmail := strings.Join(parts[:len(parts)-2], " ")
 	email := ""
 	name := nameAndEmail
-	if start := strings.Index(nameAndEmail, "<"); start >= 0 {
-		if end := strings.Index(nameAndEmail, ">"); end > start {
-			email = nameAndEmail[start+1 : end]
-			name = strings.TrimSpace(nameAndEmail[:start])
-		}
+	start := strings.Index(nameAndEmail, "<")
+	end := strings.Index(nameAndEmail, ">")
+	if start >= 0 && end > start {
+		email = nameAndEmail[start+1 : end]
+		name = strings.TrimSpace(nameAndEmail[:start])
 	}
 
 	return []string{
@@ -536,14 +542,7 @@ func finalizePurgeExecution(ctx *rewriteContext, opts PurgeExtendedOptions, rep 
 	_ = ctx.db.InsertHistoryPurgeCommitMapBatch(ctx.opId, ctx.commitMaps)
 	expireReflogsAndGC(ctx.repoDir)
 
-	relDeleted, relUpdated := 0, 0
-	if opts.IsRelease {
-		relSummary, _ := PruneReleaseAssets(ctx.repoDir, []string{opts.TargetPath})
-		if relSummary != nil {
-			relDeleted = relSummary.AssetsDeletedCount
-			relUpdated = relSummary.NotesUpdatedCount
-		}
-	}
+	relDeleted, relUpdated := fetchReleasePruneSummary(opts.IsRelease, ctx.repoDir, opts.TargetPath)
 
 	_ = ctx.db.UpdateHistoryPurgeOperationStatus(store.UpdatePurgeStatusOptions{
 		OperationId: ctx.opId,
@@ -588,6 +587,19 @@ func expireReflogsAndGC(repoDir string) {
 	c3 := exec.Command("git", "gc", "--prune=now")
 	c3.Dir = repoDir
 	_ = c3.Run()
+}
+
+func fetchReleasePruneSummary(isRelease bool, repoDir, targetPath string) (int, int) {
+	if !isRelease {
+		return 0, 0
+	}
+
+	relSummary, _ := PruneReleaseAssets(repoDir, []string{targetPath})
+	if relSummary == nil {
+		return 0, 0
+	}
+
+	return relSummary.AssetsDeletedCount, relSummary.NotesUpdatedCount
 }
 
 func makeAdvisoryString(opId int64) string {

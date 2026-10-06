@@ -372,15 +372,17 @@ func toolingSystemEntries() []dispatchEntry {
 }
 
 func handleHistoryParentDispatcher(args []string) error {
-	if len(args) > 0 {
-		sub := strings.ToLower(args[0])
-		if sub == "purge" || sub == "clean" || sub == "p" {
-			return RunHistoryPurgeCLI(args[1:])
-		}
-		if sub == "undo" || sub == "restore" || sub == "u" {
-			return RunHistoryUndoCLI(args[1:])
-		}
+	if len(args) == 0 {
+		return runHistory(args)
 	}
 
-	return runHistory(args)
+	sub := strings.ToLower(args[0])
+	switch sub {
+	case "purge", "clean", "p":
+		return RunHistoryPurgeCLI(args[1:])
+	case "undo", "restore", "u":
+		return RunHistoryUndoCLI(args[1:])
+	default:
+		return runHistory(args)
+	}
 }

@@ -135,17 +135,22 @@ func resolveUndoContext(db *store.PurgeHistoryDB, repoDir string, opId int64) (*
 
 func fetchPurgeOp(db *store.PurgeHistoryDB, repoDir string, opId int64) (*store.HistoryPurgeOperation, error) {
 	if opId > 0 {
-		op, err := db.GetHistoryPurgeOperationById(opId)
-		if err != nil || op == nil {
-			return nil, apperror.NewSimple("ERR_UNDO_OP_NOT_FOUND", fmt.Sprintf("operation %d not found in splitdb", opId))
-		}
-		return op, nil
+		return fetchPurgeOpById(db, opId)
 	}
 
 	slug := store.SanitizeSlug(filepath.Base(repoDir))
 	op, err := db.GetLastHistoryPurgeOperation(slug)
 	if err != nil || op == nil {
 		return nil, apperror.NewSimple("ERR_UNDO_OP_NOT_FOUND", "no unrestored purge operation found in splitdb")
+	}
+
+	return op, nil
+}
+
+func fetchPurgeOpById(db *store.PurgeHistoryDB, opId int64) (*store.HistoryPurgeOperation, error) {
+	op, err := db.GetHistoryPurgeOperationById(opId)
+	if err != nil || op == nil {
+		return nil, apperror.NewSimple("ERR_UNDO_OP_NOT_FOUND", fmt.Sprintf("operation %d not found in splitdb", opId))
 	}
 
 	return op, nil

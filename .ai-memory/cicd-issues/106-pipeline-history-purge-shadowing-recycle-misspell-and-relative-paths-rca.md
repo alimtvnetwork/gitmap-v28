@@ -32,7 +32,7 @@ Failures detected in GitHub Actions runs (37505869271 and 37505868690) via `gitm
 1. **Dispatch Shadowing:** In `cli/cmd/roottooling.go`, the `constants.CmdHistoryPurge` registration was switched from `runHistoryPurge` to `RunHistoryPurgeCLI`. This shadowed the filter-repo mirror-clone rewrite command (`history-purge <path>`), caused `runHistoryPurge` to become dead code (flagged by `golangci-lint`), and broke the smoke test scenario expecting sandbox output.
 2. **Unused Struct Field & Unexported Cross-Platform Helper:** `rewriteContext` had a leftover `fileRecords` slice from early development that was never populated or read. In `purge_recycle_other.go` and `purge_recycle_windows.go`, `sendToRecycleBin` was unexported and unreferenced inside package `cmdpurge`.
 3. **Misspelling in Terminal Output:** `confirmPurgeInteractively` printed `Purge cancelled by user` using the non-US spelling `cancelled` instead of `canceled`.
-4. **Hardcoded Drive Letter / URI Syntax:** Recent documentation files contained copy-pasted `file:///` links and Windows drive letter paths (`d:\work\gitmap`).
+4. **Hardcoded Drive Letter / URI Syntax:** Recent documentation files contained copy-pasted `file:///` links and Windows drive letter paths (`d:\<repo-root>`).
 
 ---
 

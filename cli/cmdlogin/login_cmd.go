@@ -67,10 +67,10 @@ func parseLoginArgs(args []string) (loginOptions, []string, error) {
 			i++
 			continue
 		}
+		if arg == "--token" && i+1 >= len(args) {
+			return opts, rest, fmt.Errorf("missing value for --token (see `gitmap login --help`)")
+		}
 		if arg == "--token" {
-			if i+1 >= len(args) {
-				return opts, rest, fmt.Errorf("missing value for --token (see `gitmap login --help`)")
-			}
 			opts.tokenValue = strings.TrimSpace(args[i+1])
 			opts.hasToken = true
 			i += 2

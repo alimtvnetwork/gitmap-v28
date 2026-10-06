@@ -192,10 +192,13 @@ func parseUndoCLIOpId(args []string) (int64, []string) {
 	}
 
 	first := args[0]
-	if !strings.HasPrefix(first, "-") {
-		if id, err := strconv.ParseInt(first, 10, 64); err == nil {
-			return id, args[1:]
-		}
+	if strings.HasPrefix(first, "-") {
+		return 0, args
+	}
+
+	id, err := strconv.ParseInt(first, 10, 64)
+	if err == nil {
+		return id, args[1:]
 	}
 
 	return 0, args

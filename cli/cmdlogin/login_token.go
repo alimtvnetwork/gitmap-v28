@@ -18,6 +18,14 @@ type githubUser struct {
 	Login string `json:"login"`
 }
 
+func resolveTokenUsername(token string, skipVerify bool) (string, error) {
+	if skipVerify {
+		return "", nil
+	}
+
+	return validateGitHubToken(token)
+}
+
 // loginWithToken validates the token (unless skipped) and stores it for reuse.
 func loginWithToken(token string, skipVerify bool) error {
 	if len(strings.TrimSpace(token)) == 0 {
@@ -25,13 +33,9 @@ func loginWithToken(token string, skipVerify bool) error {
 	}
 	token = strings.TrimSpace(token)
 
-	username := ""
-	if !skipVerify {
-		name, err := validateGitHubToken(token)
-		if err != nil {
-			return err
-		}
-		username = name
+	username, err := resolveTokenUsername(token, skipVerify)
+	if err != nil {
+		return err
 	}
 
 	if err := storeGitHubToken(token); err != nil {

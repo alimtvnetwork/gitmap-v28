@@ -120,15 +120,17 @@ func renderTopologyAfterNodes(sb *strings.Builder, nodes []AffectedCommitNode, t
 	displayNodes := limitDisplayNodes(nodes, 4)
 	for _, n := range displayNodes {
 		sha := shortShaOrFallback(n)
-		if n.IsAffected {
-			if t == TargetTypeCommit {
-				sb.WriteString(padBoxLine("    * [EXCISED] commit removed from tree", width))
-			} else {
-				sb.WriteString(padBoxLine(fmt.Sprintf("    * %s (cln)   %s", sha, truncateString(n.CommitMessage, 26)), width))
-			}
-		} else {
-			sb.WriteString(padBoxLine(fmt.Sprintf("    * %s          %s", sha, truncateString(n.CommitMessage, 28)), width))
+		if n.IsAffected && t == TargetTypeCommit {
+			sb.WriteString(padBoxLine("    * [EXCISED] commit removed from tree", width))
+			continue
 		}
+
+		if n.IsAffected {
+			sb.WriteString(padBoxLine(fmt.Sprintf("    * %s (cln)   %s", sha, truncateString(n.CommitMessage, 26)), width))
+			continue
+		}
+
+		sb.WriteString(padBoxLine(fmt.Sprintf("    * %s          %s", sha, truncateString(n.CommitMessage, 28)), width))
 	}
 }
 
