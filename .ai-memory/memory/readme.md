@@ -1,166 +1,29 @@
-# Memory: index.md
+# AI Memory — Authoritative Domain Knowledge Base
 
-Updated: 2026-04-27
+Welcome to the consolidated AI Memory repository for **GitMap**. This directory contains the authoritative, non-redundant architectural references, governance invariants, and operational guidelines governing all development workflows.
 
-# Project Memory
+All previous fragmented memory notes, legacy audit reports, and temporary logs have been deeply compacted into these 9 core documents.
 
-## Core
+---
 
-- 🔴 CODE RED: Never swallow errors. Zero-nesting (no nested if). Max 2 operands. Positively named guard functions.
-- 🔴 CODE RED: Strict metrics: functions 8-15 lines, files < 300 lines, React components < 100 lines.
-- 🔴 CODE RED: Standalone scripts — NO `!important`, NO `as unknown` / `as any`, NO error-swallowing `return null` in catch, NO magic strings (use enums in `types.ts`), NO bare top-level functions (class-based, DI). Hide via class toggle + CSS transition — never nested `requestAnimationFrame`. Always blank line before `return`.
-- 🔴 PRE-WRITE: Before producing any standalone-script code, read the target repo's coding-guideline spec AND the sibling `standalone-scripts/*/src/` files first. See mem://issues/payment-banner-hider-rca.
-- 🔴 README install commands: ONE line per command, NEVER `#` comments inside install code fences. Platform shown by header above the block. Install section comes FIRST after badges, before TOC. Match on-site `InstallSection.tsx` order (4 full-repo + 7 named bundles).
-- 🔴 Release & Migration UI: exactly TWO cards (Windows PowerShell + macOS/Linux Bash), one-liner each. NEVER add "skip latest probe" variants. User locked this 2026-04-24.
-- 🔴 Canonical repo slug: `alimtvnetwork/coding-guidelines-v24`. Any v14/v15 reference is a bug — run repo-wide `grep -rn` after every rebrand.
-- 🔴 NEVER sync 01-app, 02-app-issues, 03-general, 03-tasks, or 12-consolidated-guidelines from gitmap-v3. All maintained locally.
-- 🔴 CODE RED: Never commit test results, test reports, `.test-report.*` files, compiled binaries, or temporary data to the repo. They MUST be excluded via `.gitignore`. Test outputs cause repository bloat and leak architectural/environment details. Always check `git status` before `git add .` to ensure no generated artifacts are included.
-- 🔴 STRICTLY PROHIBITED #01 — readme.txt timestamp/date/time generator: TOTAL BAN. Never build, suggest, propose, spec, document, or ask about any feature that writes a timestamp, date, time, "Malaysia-formatted" content, prefix phrase, or auto-refresh into readme.txt — no scripts, no sub-commands, no npm tasks, no sync hooks, no docs, no instructions, no clarifying questions, no follow-up offers. Only acceptable readme.txt action: one-shot manual edit of the exact text the user types that turn. See mem://constraints/readme-txt-timestamp-total-ban and `.ai-memory/strictly-avoid.md`.
-- Naming: PascalCase for all internal IDs, DB, JSON, Types. Exceptions: Rust uses snake_case identifiers.
-- DB Schema: PascalCase naming. PKs are `{TableName}Id` (INTEGER PRIMARY KEY AUTOINCREMENT). No UUIDs.
-- DB Schema Rules 10/11/12: Entity/ref tables need `Description TEXT NULL`; transactional need `Notes`+`Comments TEXT NULL`; all must be nullable, no DEFAULT. Join tables exempt.
-- Workflow: Spec-First (`02-spec/`) and Issue-First (`03-issues/`).
-- Global Namespace: Always derive module imports and repository namespaces dynamically from the repository's canonical root configuration or manifest (`package.json`, `go.mod`, `version.json`).
-- Version sync: bump package.json → `node scripts/sync-version.mjs` → `node scripts/sync-spec-tree.mjs`.
-- Execution: Break complex requests into discrete tasks. Wait for "next" prompt to continue.
-- 🔴 NO-QUESTIONS MODE active (40-task batch from 2026-04-26): never call ask_questions; log ambiguities to `.ai-memory/question-and-ambiguity/xx-title.md` and update its README index. Resume on explicit "ask questions" signal.
-- 🔴 Docs Viewer keybinds: `Cmd/Ctrl+K` = search dialog, `Cmd/Ctrl+J` = command palette ("Open Spec Overview" pinned). Do not rebind. See mem://sessions/2026-04-27-docs-viewer-quick-jump-and-sync-banner.
-- 🔴 GitHub Sync Banner reads `version.json` (`git.shortSha`, `git.branch`, `updated`). Per-SHA dismiss via `localStorage["lovable.github-sync-banner.dismissed-sha"]` — never make it permanently dismissable.
-- 🔴 Docs sidebar tree diagnostics: opt-in via `localStorage["lovable.tree-diagnostics.enabled"]="1"`. Logs prefixed `[tree:<category>]`. Off by default. Never enable by default. The Lovable IDE file tree is platform UI — NOT instrumentable from project code; do not conflate it with the in-app docs sidebar. See mem://sessions/2026-04-27-tree-diagnostics-logging.
-- 🔴 Idiomatic `-er` Go interface naming: NEVER suffix Go interfaces with `Interface` (`Writer[T]`, `Streamer[T]`, `Compiler`).
-- 🔴 Strict `Id` / `id` naming: TOTAL BAN on uppercase acronym `ID` in struct fields and variables (`UserId`, `OrderId`, `TraceId`).
-- 🔴 Strict positive boolean prefixes: ALL boolean fields and variables MUST have positive prefixes (`isActive`, `isSuccess`, `isValid`).
-- 🔴 Parallel CI/CD Local Runner: Worker group concurrency via `ThreadPoolExecutor` with selective log filtering (`--failed` suppresses noisy logs on pass; isolates failures).
-- 🔴 Running tests without owner explicit command: TOTAL BAN. Never execute unit tests or CI test jobs during standard development or prompt execution unless explicitly commanded by repository owner. Always pass `--no-tests` to `06-cicd-local-runner.py`. See [Avoid Running Tests](avoid/04-running-tests-without-owner-command.md).
-- 🔴 Running full CI/CD runner during routine tasks: TOTAL BAN. Never execute `06-cicd-local-runner.py` during routine development or coding guideline turns; verify code using targeted single-file linters/autofixers. See [Avoid Running Full CI/CD Runner in Routine Tasks](avoid/05-running-full-cicd-runner-in-routine-tasks.md).
-- 🔴 Test Inventory & Atomic Locking: Centralized `.ai-memory/test-inventory.json` and atomic file locking via `recent-file-changes.lock` when updating `.ai-memory/temp/recent-file-changes.json` using `33-test-inventory-generator.py`. See [Test Inventory & Atomic Change Tracking](learned/11-test-inventory-and-atomic-file-change-tracking.md).
-- 🔴 Consolidated Commits: Never commit 1-2 plan/doc files piecemeal. Always commit all modified source files, tests, and plans together as a coherent atomic batch.
-- 🔴 Immediate Git Push: Always push immediately to remote (`git push origin <branch>`) after every commit. Never leave commits unpushed across turns.
-- 🔴 No Builds During Routine Turns: Never run `npm run build` or `go build` during routine styling, naming, or guideline verification turns.
-- 🔴 Cross-Platform Macro Execution: Shell commands like `open` require OS-aware adapters (`explorer.exe` / `start` on Windows, `xdg-open` on Linux, `/usr/bin/open` on macOS).
+## Authoritative Domain References
 
-- [Project Context & Learned Guidelines](learned/01-project-context-and-guidelines.md) — Comprehensive ingestion of repo identity, CODE RED rules, coding guidelines, error philosophy, and active plans.
-- [Pluggable Logger & Uber Zap Architecture](learned/02-logger-swapping-and-uber-zap-architecture.md) — Architecture and code samples for dynamic Log Changer, Formatter/Writer pipeline, context.Context tracing, and Uber Zap integration.
-- [Parallel CI/CD Runner & Selective Log Filtering](learned/03-parallel-cicd-runner-and-log-filtering.md) — Concurrency workgroups via ThreadPoolExecutor, duration metrics, and clean log suppression.
-- [StreamWriter Contracts & Naming Standards](learned/04-streamwriter-contracts-and-naming-standards.md) — Idiomatic -er interfaces, ReentrantMutex, Bytes[T], JsonResult multi-source ingestion, boolean prefixes, and Id naming standard.
-- [Chrome Profile Picker Registration & Concurrency](learned/05-chrome-profile-picker-registration-and-concurrency.md) — Chromium Local State 13-attribute schema, process concurrency guards, Preferences sanitization, and orphan reconciliation engine.
-- [Macro Step Execution & Shell Open Behavior](learned/06-macro-step-execution-and-shell-open.md) — Cross-platform macro command shimming, Windows 'open' failure analysis, and pending task roadmap.
-- [Remediation Windows Pathspec & Chrome Token Vault](learned/07-remediation-windows-pathspec-and-chrome-token-vault.md) — Structured discrete arguments in exec.Command, Windows cmd /c quote stripping prevention, and Chrome profile OAuth refresh token vault.
-- [Nginx, WordPress, and Laravel Setup, VHost & Perms Engine](learned/08-nginx-wordpress-laravel-setup-and-vhost-engine.md) — Universal package installation, vhost configuration/reloading, wp-config salts generation, .env synthesis, and cross-platform permissions engine.
-- [VMware Mount Resilience, Install Command & Root Help](learned/09-vmware-mount-resilience-install-and-root-help.md) — Pre-mount FUSE cleanup, open-vm-tools-desktop requirement, fallback mounting, Error -107 diagnostic guidance, and root CLI help integration.
-- [Interactive Macro Builder PWD Header & In-Builder Commands](learned/10-interactive-macro-builder-pwd-ls-commands.md) — Dynamic PWD header display, in-builder ls/find/search/replace helpers, and offline mock release testing architecture.
-- [VMware Automation, Macro Safe Removal & Task History Audit](learned/33-vmware-macro-safe-rm-and-task-history-audit.md) — Single-file PowerShell VMware automation engine manage-vm.ps1, macro idempotent removal, interactive edit UX, and Split-DB TaskHistory audit logging.
-- [Direct Clone Structured JSON Output & Fleet Telemetry](learned/34-direct-clone-json-and-fleet-clone-details.md) — Direct clone structured JSON response, automatic legacy flag fallback, and granular offline reachability error classification.
-- [In-Process Fleet Pull JSON Delegation & Wincredman Concurrency Isolation](learned/35-in-process-fleet-pull-json-and-wincredman-isolation.md) — In-process host execution delegation for fleet pull-all tasks and Windows Credential Manager non-persist environment isolation.
-- [Fleet Nodes Clone Output Alignment & W3 Liveness Resilience](learned/36-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet nodes clone table visual padding, dual stream capture, and resilient SSH liveness probing.
-- [GitMap PAS Formula, Windows Credential Cache Safety, Ignore Management Suite, CPAR & Split-DB Cache](learned/37-pas-formula-ignore-suite-cpar-and-repo-cache.md) — GitMap PAS formula, Windows-safe Git subprocess environment (excluding GCM cache store), deduplicating gitignore sanitizer, CPAR, and Split-DB cache engine.
-- [Fleet Nodes Clone Table Spacing Alignment & W3 Reachability Resilience](learned/38-fleet-nodes-clone-table-spacing-and-w3-reachability.md) — Visual column 81 gutter alignment, measured in-process duration, and accurate offline network reachability reporting.
-- [PAS Worker Concurrency, Pull-Error Split-DB Subsystem & Machine Telemetry](learned/39-pas-concurrency-pull-error-split-db-and-machine-telemetry.md) — Dedicated machine telemetry, startup node version, concurrency resolver, paswh command, heartbeat ticker, and pull-error split-DB subsystem.
-- [Semantic Flat Commit Suite & Macro Execution Platform Resilience](learned/40-semantic-flat-commit-suite-and-macro-execution-resilience.md) — 1-step auto-staging flat git commit suite (`gitmap commit`, `cm`), dispatch consolidation, and Windows PowerShell macro execution resilience.
-- [Avoid Running Tests Without Owner Command](avoid/04-running-tests-without-owner-command.md) — Absolute ban on running unit tests in standard development turns unless explicitly requested by owner.
-- [Avoid Running Full CI/CD Runner in Routine Tasks](avoid/05-running-full-cicd-runner-in-routine-tasks.md) — Total ban on running the 28-38 gate CI runner during routine edits and coding guideline fixes.
-- [Avoid Non-Idempotent Macro Removal & Stale User Binaries](avoid/06-non-idempotent-macro-removal-and-stale-user-binaries.md) — Ban on raw non-idempotent PowerShell removal in macro steps and single-path binary compilation neglecting user-specific installation targets.
-- [Test Inventory & Atomic File Change Tracking](learned/11-test-inventory-and-atomic-file-change-tracking.md) — Centralized test cataloging, cross-platform locking, and targeted test resolution for releases.
-- [Consolidated Commits, Immediate Push, and Build Rules](learned/12-consolidated-commit-push-and-build-rules.md) — Mandatory atomic commit grouping, immediate remote push, and ban on uncommanded routine builds.
-- [CI Step Timeout Flakiness & Fixture Gofmt Dirtiness RCA](issues/2026-09-12-ci-step-timeout-and-fixture-gofmt-rca.md) — Root cause analysis for macro process timeout and fixrepo fixture gofmt backup filtering.
-- [Unused isHelpArg in cmdvmware RCA](issues/2026-09-12-unused-ishelparg-cmdvmware-rca.md) — Elimination of dead private helper symbol in cmdvmware/vmware.go.
-- [CaptureStderr Pipe Race RCA](issues/2026-09-12-testhelpers-capturestderr-pipe-race-rca.md) — Synchronization and safe pipe draining in cmdchromeprofile/testhelpers_test.go.
-- [Macro Export/Import Nested If RCA](issues/2026-09-12-macro-export-import-nested-if-rca.md) — Guard flattening in cmd/macro_export.go, cmd/macro_import.go, and macro/export.go.
-- [Gocritic Violations & CI/CD Error Reporting Enhancement](issues/2026-09-15-gocritic-violations-and-ci-error-location-reporting.md) — Elimination of gocritic appendAssign and ifElseChain violations, and CI/CD error reporting enhancement with explicit file paths and script context.
-- [AUM Polyglot Worker Compilation Failures in CI RCA](issues/2026-09-19-aum-cmdautomation-compilation-failures-rca.md) — Function name collisions, undefined identifiers in runtimes, _test.go build exclusion, and result monad alignment.
-- [Nuclear Modularization Phase 4 & Heavy Test Isolation](learned/13-nuclear-modularization-phase4.md) — Domain package extraction (cmdmacro, cmdvscode, cmdvhost, cmdzip), strict acyclic DAG, and test inventory duration estimation.
-- [Smart Test Runner, Dual Queue & Temp Isolation](learned/14-smart-test-runner-and-temp-isolation.md) — Directory isolation (.ai-memory/temp/ vs .tmp/), failure output folder (.ai-memory/temp/failures/), silent passing tests, dual worker queue architecture (4x2 slow, 4x4 fast in 100-test chunks), 25s in-flight heartbeat cadence, and 1-minute AI agent sleep discipline.
-- [CLI & CLI-Updater Folder Architecture Refactoring](learned/15-cli-and-updater-folder-refactor.md) — Elimination of root/folder name collision: cli/ to cli/ and cli-updater/ to cli-updater/, 1,608 Go files import transmutation, and full path synchronization across runners, linters, and workflows.
-- [Nuclear Modularization Phase 5 & Heavy Test Isolation](learned/16-nuclear-package-modularization-phase5.md) — Monolith subpackage decomposition (cmdfixrepo, cmddb, cmdpipeline), 53 files extracted from cli/cmd, heavy test segregation to cli/tests/heavy_test, and test inventory duration estimation.
-- [Nuclear Modularization Phase 6 & Heavy Test Isolation](learned/17-nuclear-package-modularization-phase6.md) — Monolith subpackage decomposition (cmdssh, cmdcg, cmdfixgit), 73 files extracted from cli/cmd, heavy test segregation, and test inventory duration estimation.
-- [CLI & Updater Path Refactoring](learned/19-rename-gitmap-to-cli-and-path-sync.md) — Directory structure refactoring from gitmap to cli, gitmap-updater to cli-updater, Go source path invariants, and relative path test inventory mapping.
-- [Smart Test Runner & Centralized Inventory V2](learned/18-smart-test-runner-and-inventory-v2.md) — Directory isolation (.ai-memory/temp/failures/), zero-trace passing tests, relative paths code-to-test mapping, configurable slow test threshold, dual worker queues (4w x 2 slow; 4w x 4 fast in 100-chunks), and runner-eta.json AI wait protocol.
-- [Smart Test Runner & ETA Sleep Sync](learned/20-smart-test-runner-and-eta-sleep-sync.md) — Dynamic wait protocol, in-flight heartbeats every 25 seconds, and 60s agent sleep discipline.
-- [Nuclear Modularization Phase 7](learned/21-nuclear-package-modularization-phase7.md) — Domain package extraction (cmdinstaller, cmdsetup, cmdchrome, cmdinstall), 66 files extracted from cli/cmd.
-- [Bare gitmap ssh Key Display & Clipboard Copying](ssh-public-key-display-and-clipboard.md) — Mandatory preservation of public key stdout display and OS clipboard copy on bare gitmap ssh.
-- [Nuclear Modularization Phase 8](learned/22-nuclear-package-modularization-phase8.md) — Domain package extraction (cmdclone, cmdpull, cmdupdate), 127 files extracted from cli/cmd.
-- [Agy Clean-Cache & Boolean Linter Conventions](learned/23-agy-clean-cache-and-boolean-conventions.md) — Cross-platform Antigravity cache cleaning (10 targets), process detection/killing via tasklist/ps, zero data leak preservation, and strict positive boolean prefix enforcement.
-- [Installer Paths, Seed URLs & v6.227.0 Release](learned/24-installer-paths-seed-urls-and-v6-227-0-release.md) — Elimination of legacy gitmap/scripts/ and gitmap/data/ drift, local seed fallback engine, and release dry-run contract alignment.
-- [Fast File Reader, 30-Commit Audit & Prompt 2.2.0 Protocols](learned/25-fast-file-reader-and-30-commit-audit-workflow.md) — Fast cached exploration via 17-fast-file-reader.py, mandatory 30-commit git history audit, recent 20-task register, and prompt 2.2.0 standards.
-- [Official Antigravity Artifacts & Universal Uninstall Engine](learned/26-official-antigravity-artifacts-and-universal-uninstall.md) — Official Google Cloud Storage Antigravity artifacts, Linux desktop launcher and broken symlink cleanup, universal uninstallation engine, and stack trace preservation.
-- [Linux Archive Package Installation & Intelligent Strategy Engine](learned/27-linux-archive-installer-intelligent-strategy.md) — Linux archive package installation (`gitmap install tar <archive>`), intelligent strategy detection (binary, script, source, single gz), and uninstaller integration.
-- [Git Commit History, OS Test Isolation & Project Context Ingestion](learned/28-git-commit-history-os-isolation-and-context-ingestion.md) — Last 10 git commits audit, Coding Guideline 24 destructive OS test isolation, hermetic runner decoupling, and context ingestion.
-- [SSH Multi-Target Execution, Pipeline Bounded Stacktraces & Context Ingestion](learned/29-ssh-multi-target-pipeline-bounded-stacktrace-ingestion.md) — Plans 208–214 SSH multi-command and machine join parity, pipeline log bounded stack trace extraction (RCA 58), and repo context ingestion.
-- [GitMap Subsystem Skills Set Architecture](learned/30-gitmap-subsystem-skills-set-architecture.md) — Comprehensive Antigravity skills set authored for scanner, SSH cluster fleet, Split-DB, pipeline diagnostics, AGY hygiene, and macro automation engines.
-- [Pipeline Runner Enhancements, Prompts & Skills Synchronization](learned/31-pipeline-runner-enhancements-prompts-and-skills-sync.md) — Release orchestrator & CI/CD fix with release prompts updated with priority runner shortcuts (run-smart, --fast), gitmap pipeline suite (pe, pd), and cross-repo synchronization.
-- [MultiClone, AI Split DB & Search Benchmark](learned/32-multiclone-ai-split-db-and-search-benchmark.md) — MultiClone shorthand/paste parsing, AI split DB execution history, and 46.1x automation search acceleration.
-- [WinUtil & LinUtil Native Integration](learned/32-winutil-and-linutil-os-autologin-and-tweaks.md) — Native Go Windows/Ubuntu auto-login (3-parameter credentials), Windows desktop tweaks (classic context menu, Start menu layout, Ultimate Performance power scheme, hibernation toggle), and Linux package/journal cleanup.
-- [VMware Automation Engine, Macro Safe Removal & Task History Audit](learned/33-vmware-macro-safe-rm-and-task-history-audit.md) — VMware Workstation single-file PowerShell automation (manage-vm.ps1), Windows macro idempotent removal shim (safe-rm), interactive macro editor step append UX, and unified TaskHistory audit logging.
-- [Direct Clone Structured JSON Output & Fleet Telemetry](learned/34-direct-clone-json-and-fleet-clone-details.md) — Direct clone structured JSON response, automatic legacy flag fallback, and granular offline reachability error classification.
-- [In-Process Fleet Pull JSON Delegation & Wincredman Concurrency Isolation](learned/35-in-process-fleet-pull-json-and-wincredman-isolation.md) — In-process host execution delegation for fleet pull-all tasks and Windows Credential Manager non-persist environment isolation.
-- [Fleet Nodes Clone Output Alignment & W3 Liveness Resilience](learned/36-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md) — Fleet nodes clone table visual padding, dual stream capture, and resilient SSH liveness probing.
-- [GitMap PAS Formula, Windows Credential Cache Safety, Ignore Management Suite, CPAR & Split-DB Cache](learned/37-pas-formula-ignore-suite-cpar-and-repo-cache.md) — GitMap PAS formula, Windows-safe Git subprocess environment (excluding GCM cache store), deduplicating gitignore sanitizer, CPAR, and Split-DB cache engine.
-- [Fleet Nodes Clone Table Spacing Alignment & W3 Reachability Resilience](learned/38-fleet-nodes-clone-table-spacing-and-w3-reachability.md) — Visual column 81 gutter alignment, measured in-process duration, and accurate offline network reachability reporting.
+| # | Reference Document | Domain Scope & Architectural Coverage |
+| :---: | :--- | :--- |
+| **00** | [00-project-governance-and-invariants.md](00-project-governance-and-invariants.md) | Non-negotiable architectural invariants: positive booleans (`is*`, `has*`), 100% relative paths, zero-build execution during maintenance, total git command ban for subagents, and append-only prohibited registry. |
+| **01** | [01-cli-architecture-and-contracts.md](01-cli-architecture-and-contracts.md) | Cobra command tree, typo suggestions, JSON Envelope V2, Lipgloss ANSI styling, auto-aligned `termtable`, unbuffered `StreamWriter` interface, and macro automation engine. |
+| **02** | [02-scanner-projects-and-deduplication.md](02-scanner-projects-and-deduplication.md) | High-speed filesystem traversal, polyglot project heuristics (Go, Python, TS, Rust, PHP, C#), fast file reader, `.gitmapignore` parsing, and zero-allocation deduplication. |
+| **03** | [03-git-operations-commit-and-pull.md](03-git-operations-commit-and-pull.md) | Flat commit mechanics (`gitmap commit`, `cm`), automatic staging, append-only history invariant, PAS worker concurrency formula ($\min(\text{cores}, 8)$), and pull-all OMZ ignore handling. |
+| **04** | [04-fleet-nodes-ssh-and-credentials.md](04-fleet-nodes-ssh-and-credentials.md) | Fleet nodes topology, ICMP/TCP port 22 concurrent liveness probing (1500ms timeout), RSA-OAEP encrypted credential vault (`credentials.vault`), masked password input, and remote clone engine. |
+| **05** | [05-antigravity-and-ide-ecosystem.md](05-antigravity-and-ide-ecosystem.md) | Google Antigravity (AGY) agent architecture, prompt manager, decision logs, multi-IDE synchronization (VS Code, Cursor, AGY), autonomous pipeline fix injection, and Ubuntu workstation governance. |
+| **06** | [06-database-engine-and-split-storage.md](06-database-engine-and-split-storage.md) | Three-tier SQLite Split-DB (`gitmap.db`, `installation.db`, `repodb/pipeline.db`), singular PascalCase schemas, integer Tesla ID primary keys (`{Table}Id`), reentrant `TxLockManager`, WAL mode, and safe row scanners. |
+| **07** | [07-pipeline-diagnostics-and-telemetry.md](07-pipeline-diagnostics-and-telemetry.md) | CI/CD pipeline telemetry (`gitmap pe`, `gitmap pea`), bounded stack trace extraction (5 leading + 20 trailing lines), heatmap telemetry, dynamic ETA sleep sync (`runner-eta.json`), and 4-part RCA framework. |
+| **08** | [08-distribution-installers-and-release.md](08-distribution-installers-and-release.md) | Cross-platform execution runners (`run.ps1`, `run.sh`), `run.config.json` driver, NSIS Windows installer, Linux archives (`.tar.gz`), centralized `version.json`, and untouchable CI release pipeline invariant. |
 
-- [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
-- [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.
-- [Version Source of Truth Standard](standards/version-source-of-truth.md) — Canonical `version.json` standard at repo root.
-- [Release Ceremony](preferences/release-ceremony.md) — Triggers "release"/"bump version"/"bump version + add changelog + pin to root readme". Full ceremony: pick bump tier → sync all version pins (version.json, manifest.json, src/shared/constants.ts, readme.md, standalone-scripts SDK + instruction.ts files) → changelog.md entry → pin root readme → aggregate-prompts if prompt sources touched → verify no stale refs. No confirmation, no plan mode.
-- [Install Command Formatting](mem://constraints/install-command-formatting) — One-line installs, no inline comments, per-platform headers, mirror InstallSection.tsx order.
-- [readme.txt Timestamp TOTAL BAN](mem://constraints/readme-txt-timestamp-total-ban) — No script/02-spec/doc/suggestion of any timestamp generator for readme.txt. Hard prohibition.
-- [No readme.txt Time Instructions](mem://constraints/no-readme-time-instructions) — Never produce instructions/docs/how-to-run for the readme.txt Malaysia date-time generator.
-- [2026-04-24 Batch Cleanup + Rebrand](mem://sessions/2026-04-24-batch-cleanup-and-rebrand) — Slug rebrand to v16, Release & Migration UI lock, 11 plan items closed (B5/B6/B7/B8/B10/B11/09/10/12/B2 + UI).
-- [Blank Line Between If Guards](mem://constraints/blank-line-between-if-guards) — Rule 5 applied to all markdown snippets and source code.
-- [SQL Linter Rules](mem://sessions/2026-04-sql-linter-rules) — DB-FREETEXT-001 (presence) + MISSING-DESC-001 (presence+Rule 12+waivers), shared _lib, waiver syntax.
-- [Axios Pinning](mem://constraints/axios-version-pinning) — Exact pinned versions only (1.14.0/0.30.3). Blocked versions: 1.14.1, 0.30.4.
-- [Database Architecture](mem://architecture/database-schema) — PascalCase naming, no UUIDs, Vw prefixes for views.
-- [Error Handling](mem://architecture/error-handling) — 'apperror' package, explicit file/path logging required.
-- [PowerShell Style](mem://style/powershell-naming) — lowercase-kebab-case files, PascalCase Verb-Noun functions.
-- [Development Workflow](mem://processes/development-workflow) — Spec-first workflow, linter enforcement, clean docs.
-- [React ForwardRef Warning](mem://constraints/react-app-forwardref-warning) — Ignore lovable.js App.tsx ref console warning.
-- [Code Red Guidelines](mem://standards/code-red-guidelines) — Full rules for zero-nesting, booleans, metrics.
-- [Standards Enforcement](mem://processes/automated-standards-enforcement) — linter-scripts validation requirements.
-- [Naming Conventions](mem://style/naming-conventions) — Zero-Underscore policy, full uppercase acronyms.
-- [Caching Policy](mem://architecture/caching-policy) — Explicit TTL, deterministic keys, invalidate on mutation.
-- [Nested Code Fences](mem://issues/nested-code-fence-data-corruption) — 4-backtick fences required for nested markdown blocks.
-- [TypeScript Patterns](mem://standards/typescript-patterns) — Named interfaces for unions, TypedAction, explicit types.
-- [Enum Standards](mem://standards/enum-standards) — Cross-language PascalCase enums, strict parsing methods.
-- [Split Database](mem://architecture/split-database) — Root, App, Session hierarchical SQLite with WAL and Casbin.
-- [Seedable Config](mem://architecture/seedable-configuration) — SemVer GORM merge of config.seed.json.
-- [Self Update Arch](mem://features/self-update-architecture) — Rename-first deployment, atomicity with latest.json.
-- [Doc Standards](mem://project/documentation-standards) — Mandatory numeric folders (01-20 Core, 21+ App), JSON tree syncing.
-- [Author Attribution](mem://project/author-attribution) — Md. Alim Ul Karim, Riseup Asia LLC, SEO/footer requirements.
-- [Avoid Gitmap Sync](mem://constraints/avoid-app-sync) — NEVER sync app, app-issues, general, tasks, or consolidated-guidelines from gitmap-v3.
-- [Install Command Formatting](mem://constraints/install-command-formatting) — README top install area must mirror UI order; one-line commands only; bundles before ToC.
-- [Standalone Script Standards](mem://constraints/standalone-script-standards) — Hard rules for browser/userscript files: no !important, no as-unknown, no error swallowing, class+DI, enums in types.ts, styles.ts, hide via class+transition.
-- [Payment Banner Hider RCA](mem://issues/payment-banner-hider-rca) — Root cause for the macro-ahk-v23 regression and the mandatory pre-write checklist that prevents repeats.
-- [Synthetic Comp Junk Files RCA](mem://issues/2026-09-06-synthetic-comp-junk-files-audit-rca) — Root cause analysis and audit for synthetic comp_*.go junk files, prevention rules, and cleanup.
-- [No-Questions Mode](mem://workflow/no-questions-mode) — 40-task no-questions run; ambiguity logging template, sequencing, and resume trigger.
-- [Avoid Time Suggestions in readme.txt](mem://avoid/02-no-time-suggestions-in-readme-txt) — Strictly Prohibited #01: zero time-related chatter, suggestions, or auto-updates around readme.txt; persist across sessions.
-- [2026-04-27 Docs Viewer Quick-Jump + Sync Banner](mem://sessions/2026-04-27-docs-viewer-quick-jump-and-sync-banner) — Cmd/Ctrl+J command palette with Open-Spec-Overview pinned, GithubSyncBanner reading version.json, .gitmap/ removed, spec/ visibility incident diagnosed.
-- [2026-04-27 Tree Diagnostics Logging](mem://sessions/2026-04-27-tree-diagnostics-logging) — Opt-in `[tree:*]` ring-buffer logging, floating TreeDiagnosticsPanel, instrumentation in useSpecData/DocsSidebar/SpecTreeNav. Clarified IDE-tree vs in-app-tree.
+---
 
-## Memories — Backfilled (orphans recovered 2026-04-27)
+## Governance & Hygiene Rules
 
-- [Avoid Per-Task Folders](mem://avoid/01-avoid-per-task-folders) — Folder-shape prohibitions for one-off task files.
-- [Skip Stub Spec Folders](mem://constraints/skip-stub-spec-folders) — Do not generate placeholder/stub spec subfolders.
-- [Coding-Guidelines Consolidation Plan (DONE)](mem://done/coding-guidelines-consolidation-plan) — Archived plan kept for historical reference.
-- [Exclude-Paths Glob Support](mem://features/exclude-paths-glob-support) — `.codeguidelines.toml` exclusion globs (B9).
-- [Release-Pinned Installer](mem://features/release-pinned-installer) — Pinned-version install flow.
-- [Spec Link Checker](mem://features/spec-link-checker) — Cross-spec link validation rules.
-- [Visual Rendering System](mem://features/visual-rendering-system) — Markdown viewer rendering pipeline.
-- [Nested Code Fence Rendering](mem://issues/nested-code-fence-rendering) — Companion to nested-code-fence-data-corruption; renderer specifics.
-- [README Bundle Installers](mem://project/03-readme-bundle-installers) — Bundle install matrix synced with `InstallSection.tsx`.
-- [Naming Compliance Issues](mem://project/naming-compliance-issues) — Tracker for renames + compliance fixes.
-- [Phase 2 Content-Overlap Audit](mem://project/phase2-content-overlap-audit) — Spec consolidation audit notes.
-- [Phase 3 Consolidated Structure Design](mem://project/phase3-consolidated-structure-design) — Target consolidated structure.
-- [v2.2 Error-Spec Changes](mem://project/v2.2-error-spec-changes) — Error spec migration notes.
-- [2026-04-19 Distribution Runner + Slides](mem://sessions/2026-04-19-distribution-runner-slides) — Session log.
-- [2026-04-19 Perf + Boolean Naming + Schema](mem://sessions/2026-04-19-perf-boolean-naming-schema) — Session log.
-- [2026-04-23 Quickstart + Zero Violations](mem://sessions/2026-04-23-quickstart-and-zero-violations) — Session log.
-- [2026-04-23 README Code-Red Walkthrough](mem://sessions/2026-04-23-readme-code-red-walkthrough) — Session log.
-- [Installer Behavior Standards](mem://standards/installer-behavior) — Canonical installer UX rules.
-- [Suggestions Tracker (memory mirror)](mem://suggestions/01-suggestions-tracker) — Mirrors `.ai-memory/suggestions.md` highlights.
-- [Plan Tracker (workflow)](mem://workflow/01-plan-tracker) — Workflow-state mirror of `.ai-memory/29-plan.md`.
-- [Session 2026-08-09 Code Red Refactor](mem://sessions/08-2026-08-09-code-red-refactor) — Enum enforcement and boolean fix.
-- [Absolute Paths Ban](mem://specs/01-absolute-paths-ban) — Direct user mandate to use standalone relative paths.
-- [Avoid Absolute File System Paths](mem://avoid/03-absolute-file-system-paths) — Do not use file:/// absolute paths.
-- [Version Source of Truth](mem://standards/version-source-of-truth) — `version.json` at repo root is the single canonical source of truth for versions across all languages and tools. Self-explaining metadata (`_purpose`, `_instructions`) embedded directly in the JSON. Changing version is done solely in `version.json` and propagated via `npm run sync`.
-- [Release Architecture Map](mem://standards/release-architecture-map) — Architectural map of version propagation, sync pipeline (`sync-version`, `sync-spec-tree`, `sync-health-score`, `sync-readme-stats`, `sync-guidelines`), and release ceremony.
-- [Prompt Architect Version Tracking](mem://standards/prompt-architect-version-tracking) — Installers inject a `promptArchitectByRiseupAsia` block into target repo's `version.json` when copying `.ai-memory/prompts`. Block contains author (Md. Alim Ul Karim, Chief Software Engineer), sourceRepository, installedAt, version, lastCommit, and fileMapping array. Template at `prompt-version.template.json`.
-- 🔴 Install scripts dynamically inject `codingGuideline` and `promptArchitectByRiseupAsia` sections into target repository's `version.json` without overwriting the file. The `.ai-memory/memory` directory is packaged in bundles and transferred to target repositories during install and update phases so all downstream repos inherit memory standards.
+1. **Strict File Limit:** This directory contains **strictly 10 files** (the 9 domain references above + this `readme.md`). Do not create loose files, session dumps, or uncurated scratch notes in this directory.
+2. **Authoritative Cross-Linking:** All specifications in `02-spec/` and subtask plans in `.ai-memory/plans/` must reference these documents directly via relative links.
+3. **Continuous Compaction:** When new operational learnings or architectural changes are ratified, update the corresponding domain document directly rather than creating incremental notes.

@@ -1,0 +1,147 @@
+{
+  "subtaskId": "04",
+  "taskSlug": "236-deep-spec-consolidation-and-canonical-reduction",
+  "subtaskName": "04-deep-consolidation-of-completed-plans-and-memory",
+  "status": "COMPLETED",
+  "completedAt": "2026-10-06T23:05:00+08:00",
+  "assignedWorker": "Worker 02",
+  "scope": [
+    ".ai-memory/plans/completed/",
+    ".ai-memory/memory/"
+  ],
+  "metrics": {
+    "completedPlans": {
+      "initialMilestones": 43,
+      "generationalMilestonesCreated": 2,
+      "historicalMilestonesConsolidated": 27,
+      "recentMilestonesRenumbered": 16,
+      "finalCompletedMilestoneFiles": 18,
+      "rawBloatLinesEliminated": 9245
+    },
+    "aiMemory": {
+      "initialFiles": 75,
+      "canonicalDomainReferencesAuthored": 8,
+      "governanceDocAuthored": 1,
+      "masterReadmeAuthored": 1,
+      "legacyDirectoriesPruned": 13,
+      "legacyLooseFilesPruned": 9,
+      "finalMemoryFiles": 10,
+      "reductionPercentage": 86.67
+    }
+  },
+  "completedPlansCompaction": {
+    "generation1": {
+      "file": ".ai-memory/plans/completed/01-generation-1-core-foundation-milestones.md",
+      "synthesizedMilestones": "01-15",
+      "domains": [
+        "coding-guidelines",
+        "error-management-and-cliexit",
+        "type-safety-and-contracts",
+        "cicd-runners-and-streaming",
+        "database-engine-and-joins",
+        "git-operations-and-commit",
+        "ssh-nodes-and-remote-exec",
+        "terminal-ui-and-help-parity",
+        "chrome-profile-and-vault",
+        "multios-installers-and-stacks",
+        "completed-plans-consolidation",
+        "git-history-tracer-purger",
+        "pipeline-sqlite-history",
+        "pipeline-agy-fix-injection",
+        "ssh-multicommand-and-liveness"
+      ]
+    },
+    "generation2": {
+      "file": ".ai-memory/plans/completed/02-generation-2-fleet-automation-and-modularization.md",
+      "synthesizedMilestones": "16-27",
+      "domains": [
+        "cluster-sc-kubernetes",
+        "macro-streaming-and-schedule",
+        "nuclear-package-modularization",
+        "smart-test-runner-and-inventory",
+        "errorwrapper-architecture",
+        "result-wrapper-types-go",
+        "database-transactions-schemas",
+        "installers-antigravity-archives",
+        "os-management-power-lifecycle",
+        "terminal-ui-aligned-tables",
+        "coding-guidelines-linter-audits",
+        "completed-plans-consolidation"
+      ]
+    },
+    "renumberedMilestones": [
+      { "oldFile": "28-agy-prompts-templates-and-rerun-suite.md", "newFile": "03-agy-prompts-templates-and-rerun-suite.md" },
+      { "oldFile": "29-auto-aliasing-and-error-storage-reset.md", "newFile": "04-auto-aliasing-and-error-storage-reset.md" },
+      { "oldFile": "30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md", "newFile": "05-ssh-exec-copy-mv-env-and-rm-sync-resilience.md" },
+      { "oldFile": "31-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md", "newFile": "06-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md" },
+      { "oldFile": "32-pipeline-deep-eta-and-repo-folder-parity.md", "newFile": "07-pipeline-deep-eta-and-repo-folder-parity.md" },
+      { "oldFile": "33-ai-scripts-engine-ssh-authkey-and-feature-parity.md", "newFile": "08-ai-scripts-engine-ssh-authkey-and-feature-parity.md" },
+      { "oldFile": "34-generic-ai-scripts-creator-and-scaffolding-engine.md", "newFile": "09-generic-ai-scripts-creator-and-scaffolding-engine.md" },
+      { "oldFile": "35-native-automation-engine-lazy-regex-and-benchmarks.md", "newFile": "10-native-automation-engine-lazy-regex-and-benchmarks.md" },
+      { "oldFile": "36-fleet-nodes-ping-envelope-and-remote-clone.md", "newFile": "11-fleet-nodes-ping-envelope-and-remote-clone.md" },
+      { "oldFile": "37-pas-worker-concurrency-pull-cache-and-split-db.md", "newFile": "12-pas-worker-concurrency-pull-cache-and-split-db.md" },
+      { "oldFile": "38-semantic-flat-commit-and-macro-execution-resilience.md", "newFile": "13-semantic-flat-commit-and-macro-execution-resilience.md" },
+      { "oldFile": "39-ssh-password-interception-and-rsa-credential-vault.md", "newFile": "14-ssh-password-interception-and-rsa-credential-vault.md" },
+      { "oldFile": "40-ubuntu-fleet-migration-workstation-governance-and-customization.md", "newFile": "15-ubuntu-fleet-migration-workstation-governance-and-customization.md" },
+      { "oldFile": "41-antigravity-fleet-parity-prompting-freeze-and-ide-sync.md", "newFile": "16-antigravity-fleet-parity-prompting-freeze-and-ide-sync.md" },
+      { "oldFile": "42-codebase-review-remediation-and-preconsolidation-baseline.md", "newFile": "17-codebase-review-remediation-and-preconsolidation-baseline.md" },
+      { "oldFile": "43-app-spec-and-completed-plans-consolidation-and-reduction.md", "newFile": "18-app-spec-and-completed-plans-consolidation-and-reduction.md" }
+    ]
+  },
+  "aiMemoryCompaction": {
+    "authoredAuthoritativeReferences": [
+      ".ai-memory/memory/00-project-governance-and-invariants.md",
+      ".ai-memory/memory/01-cli-architecture-and-contracts.md",
+      ".ai-memory/memory/02-scanner-projects-and-deduplication.md",
+      ".ai-memory/memory/03-git-operations-commit-and-pull.md",
+      ".ai-memory/memory/04-fleet-nodes-ssh-and-credentials.md",
+      ".ai-memory/memory/05-antigravity-and-ide-ecosystem.md",
+      ".ai-memory/memory/06-database-engine-and-split-storage.md",
+      ".ai-memory/memory/07-pipeline-diagnostics-and-telemetry.md",
+      ".ai-memory/memory/08-distribution-installers-and-release.md",
+      ".ai-memory/memory/readme.md"
+    ],
+    "prunedLegacyDirectories": [
+      ".ai-memory/memory/avoid/",
+      ".ai-memory/memory/constraints/",
+      ".ai-memory/memory/features/",
+      ".ai-memory/memory/issues/",
+      ".ai-memory/memory/learned/",
+      ".ai-memory/memory/plans/",
+      ".ai-memory/memory/project/",
+      ".ai-memory/memory/reports/",
+      ".ai-memory/memory/specs/",
+      ".ai-memory/memory/style/",
+      ".ai-memory/memory/suggestions/",
+      ".ai-memory/memory/tech/",
+      ".ai-memory/memory/workflow/"
+    ],
+    "prunedLegacyFiles": [
+      ".ai-memory/memory/01-index.md",
+      ".ai-memory/memory/01-replace-command-plan.md",
+      ".ai-memory/memory/02-v15-legacy-compat-audit.md",
+      ".ai-memory/memory/03-v3.12.1-session.md",
+      ".ai-memory/memory/index.md",
+      ".ai-memory/memory/last-failure.md",
+      ".ai-memory/memory/learned.md",
+      ".ai-memory/memory/release-architecture-map.md",
+      ".ai-memory/memory/ssh-public-key-display-and-clipboard.md"
+    ]
+  },
+  "verificationGates": {
+    "isPendingIsolated": true,
+    "isActivePlansPreserved": true,
+    "isActiveSubtasksPreserved": true,
+    "isHistoricalMilestonesConsolidated": true,
+    "isRecentMilestonesRenumbered": true,
+    "isCompletedMilestoneCountVerified": true,
+    "isLegacyMemoryPruned": true,
+    "isCanonicalMemoryReferencesAuthored": true,
+    "isMemoryFileCountVerified": true,
+    "isGoContractsPreserved": true,
+    "isRelativePathsCompliant": true,
+    "isPositiveBooleansUsed": true,
+    "isZeroGitCommandsRespected": true,
+    "isZeroBuildOrTestsRespected": true
+  }
+}

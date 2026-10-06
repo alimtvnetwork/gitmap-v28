@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.501.0] - 2026-10-06
+
+### Added
+- Deep spec consolidation, canonical 8-cluster reduction, and memory unification
+
+---
+
 ## [v6.500.0] - 2026-10-06
 
 ### Added

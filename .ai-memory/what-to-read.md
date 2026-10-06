@@ -1,10 +1,11 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-10-06T22:20:00Z
+> Last updated: 2026-10-06T23:00:00Z
 
 ## Changelog
 
+- 2026-10-06T22:55:00Z, Memory write: Plan 236 / Spec 236, Deep Spec Consolidation & Canonical Reduction, pruned 72 legacy folders and 179 loose files across `02-spec/21-app/` down to exactly 8 Canonical Clusters + active spec folder + readme (-96.2%), compacted completed plans into 18 authoritative milestones (-58.1% files, -81.1% lines), unified memory into 10 canonical domain references (-86.7%), and preserved all pending/active files.
 - 2026-10-06T22:15:00Z, Memory write: Plan 235 / Spec 235, Application Specifications & Completed Plans Consolidation & Memory Reduction, synthesized 8 Canonical Domain Clusters in `02-spec/21-app/`, consolidated 163 completed plans into Milestones 28–42 in `.ai-memory/plans/completed/`, folded 177 completed subtasks across 32 directories, compacted `.ai-memory/memory/` into 36 dense reference files, and isolated all pending/active files.
 - 2026-10-06T18:00:00Z, Memory write: Plan 230 / Spec 230, Security Token Purge, Installer Navigation ($work, $def), Pull Auto-Remediation, AGM Linux Update quiet mode and failure resolver, Multi-Instance API (JSON/REST), and Settings UI Modernization.
 - 2026-10-02T10:25:00Z, Memory write: Plan 65 completed, Spec 65, GitMap nodes table reordering, update-all-zip SCP distribution, search clean cache invalidation, prompt search primacy, repo deduplication with dual solutions, and gitignore policy.
@@ -21,22 +22,17 @@
 
 - `version.json`, why: single source of truth for the repository version, backend/frontend sections, and sub-package version tracks. All codebases must import this file for version information.
 - `.ai-memory/what-to-read.md`, why: canonical map of project state, invariants, and navigation instructions.
-- `.ai-memory/memory/learned/01-project-context-and-standards.md`, why: canonical learned memory of repo identity, CODE RED rules, coding guidelines, error philosophy, and active plans.
-- `.ai-memory/memory/learned/02-cli-contracts-and-help-architecture.md`, why: Cobra CLI hierarchy, command conventions, middle-ellipsized tables, and JSON envelope standards.
-- `.ai-memory/memory/learned/03-scanner-deduplication-and-path-collation.md`, why: scanner deduplication, path collation, `.gitmapignore` caching, and OS sensitivity.
-- `.ai-memory/memory/learned/04-git-operations-flat-commit-and-pull.md`, why: pull-all concurrency, semantic flat commit suite, push recovery, and staging safeguards.
-- `.ai-memory/memory/learned/05-ssh-fleet-ping-and-remote-exec.md`, why: unified fleet nodes, reachability probing, remote SSH delegation, and multi-node execution.
-- `.ai-memory/memory/learned/06-rsa-credential-vault-and-auth.md`, why: RSA-OAEP salt credential encryption vault, askpass mechanics, and password interception safety.
-- `.ai-memory/memory/learned/07-antigravity-integration-and-ide-sync.md`, why: Antigravity SDK workflows, multi-conversation prompts, IDE synchronization, and profile migrations.
-- `.ai-memory/memory/learned/08-sqlite-split-db-and-cache-lifecycle.md`, why: three-tier SQLite Split-DB engine (`gitmap.db`, `installation.db`, `repodb/pipeline.db`), WAL mode, and connection pooling.
-- `.ai-memory/memory/learned/09-pipeline-telemetry-and-rca-remediation.md`, why: pipeline diagnostics (`pe`/`pea`), traceback extractors, and automated 4-part RCA engine.
-- `.ai-memory/memory/learned/10-cross-platform-installers-and-runners.md`, why: NSIS Windows installers, Linux archives, cross-platform runners (`run.ps1`/`run.sh`), and release ceremony.
-- `.ai-memory/memory/learned/14-coding-guidelines-and-positive-booleans.md`, why: positive boolean conventions (`is*`, `has*`), 8-to-15 line functions, and structured errors.
-- `.ai-memory/memory/avoid/01-test-and-build-execution-guards.md`, why: strict ban on heavy build or full test executions during routine agent turns.
-- `.ai-memory/memory/avoid/04-boolean-naming-and-error-swallowing.md`, why: prohibition against double negatives, negative boolean flags, and swallowed errors.
-- `.ai-memory/memory/avoid/05-hardcoded-paths-and-secrets-exposure.md`, why: total ban on absolute filesystem paths, drive letters, and committed secrets or refresh tokens.
+- `.ai-memory/memory/00-project-governance-and-invariants.md`, why: canonical governance, positive booleans (`is*`, `has*`), relative paths, zero-build rules, and git mutation boundaries.
+- `.ai-memory/memory/01-cli-architecture-and-contracts.md`, why: Cobra CLI hierarchy, command conventions, ANSI tables, and typed JSON Envelope V2 standards.
+- `.ai-memory/memory/02-scanner-projects-and-deduplication.md`, why: scanner deduplication, path collation, `.gitmapignore` caching, and OS sensitivity.
+- `.ai-memory/memory/03-git-operations-commit-and-pull.md`, why: pull-all concurrency ($\min(\text{cores}, 8)$), semantic flat commit suite (`gitmap c`), push recovery, and staging safeguards.
+- `.ai-memory/memory/04-fleet-nodes-ssh-and-credentials.md`, why: unified fleet nodes, reachability probing, remote SSH delegation, and multi-node execution.
+- `.ai-memory/memory/05-antigravity-and-ide-ecosystem.md`, why: Antigravity SDK workflows, multi-conversation prompts, IDE synchronization, and profile migrations.
+- `.ai-memory/memory/06-database-engine-and-split-storage.md`, why: three-tier SQLite Split-DB engine (`gitmap.db`, `installation.db`, `repodb/pipeline.db`), WAL mode, and connection pooling.
+- `.ai-memory/memory/07-pipeline-diagnostics-and-telemetry.md`, why: pipeline diagnostics (`pe`/`pea`), traceback extractors, failure heatmaps, and automated 4-part RCA engine.
+- `.ai-memory/memory/08-distribution-installers-and-release.md`, why: NSIS Windows installers, Linux archives, cross-platform runners (`run.ps1`/`run.sh`), and release ceremony.
 - `.ai-memory/coding-guidelines.md`, why: baseline rules and coding standards.
-- `.ai-memory/plans/readme.md`, why: active roadmap, pending tasks, and the 42 consolidated milestone registries.
+- `.ai-memory/plans/readme.md`, why: active roadmap, pending tasks, and the 18 consolidated milestone registries.
 
 ## Before writing code
 
@@ -66,4 +62,4 @@
 
 - Root `readme.md` (must stay in sync with this file)
 - `docs/benchmarks/benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report
-- `02-spec/21-app/235-app-spec-and-completed-plans-consolidation-and-reduction/01-architecture-spec.md`, why: Master consolidation architecture and reduction ledger
+- `02-spec/21-app/236-deep-spec-consolidation-and-canonical-reduction/01-architecture-spec.md`, why: Master consolidation architecture and reduction ledger

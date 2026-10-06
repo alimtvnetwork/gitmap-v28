@@ -1,0 +1,184 @@
+{
+  "subtaskId": "03",
+  "taskSlug": "236-deep-spec-consolidation-and-canonical-reduction",
+  "subtaskName": "03-deep-consolidation-of-spec-folder-21",
+  "status": "COMPLETED",
+  "completedAt": "2026-10-06T22:54:30+08:00",
+  "assignedWorker": "Worker 01",
+  "scope": "02-spec/21-app/",
+  "metrics": {
+    "initialDirectEntries": 262,
+    "initialDirectories": 81,
+    "initialLooseFiles": 181,
+    "finalDirectEntries": 10,
+    "finalDirectories": 9,
+    "finalLooseFiles": 1,
+    "prunedLegacyDirectories": 72,
+    "prunedLooseFiles": 179,
+    "relocatedAuthoritativeAssets": 1,
+    "canonicalClusterCount": 8,
+    "activeSpecDirCount": 1,
+    "masterIndexCount": 1
+  },
+  "assetPreservation": [
+    {
+      "source": "02-spec/21-app/gitmap-database-erd.mmd",
+      "destination": "02-spec/21-app/06-database-and-split-db/gitmap-database-erd.mmd",
+      "status": "relocated_and_verified"
+    }
+  ],
+  "prunedLegacyDirectories": {
+    "emptyDirectory": [
+      "02-spec/21-app/23-app-db"
+    ],
+    "earlyLegacyDirectories": [
+      "02-spec/21-app/01-vscode-project-manager-sync",
+      "02-spec/21-app/03-commit-in",
+      "02-spec/21-app/03-general",
+      "02-spec/21-app/03-tasks",
+      "02-spec/21-app/04-generic-cli",
+      "02-spec/21-app/04-json-contract",
+      "02-spec/21-app/07-error-and-logging",
+      "02-spec/21-app/07-generic-release",
+      "02-spec/21-app/08-generic-update",
+      "02-spec/21-app/08-json-schemas",
+      "02-spec/21-app/09-pipeline",
+      "02-spec/21-app/09-pipeline-extend-v2",
+      "02-spec/21-app/09-pipeline-historical-eta",
+      "02-spec/21-app/10-pipeline-and-repo-split-db",
+      "02-spec/21-app/11-pipeline-errorlogs-timeline-and-fix",
+      "02-spec/21-app/12-repo-creation-profiles-and-cloud-backup",
+      "02-spec/21-app/15-distribution-and-runner",
+      "02-spec/21-app/16-scan-clone-cluster-interactive-macros",
+      "02-spec/21-app/17-mv-rm-resolver-replace",
+      "02-spec/21-app/18-install-cg-ssh",
+      "02-spec/21-app/19-ssh-executor",
+      "02-spec/21-app/24-app-ui-design-system",
+      "02-spec/21-app/25-app-spec-audit",
+      "02-spec/21-app/26-coding-guideline-audit",
+      "02-spec/21-app/37-project-detection",
+      "02-spec/21-app/samples"
+    ],
+    "midTierDirectories": [
+      "02-spec/21-app/65-gitmap-update-all-zip-and-fixes",
+      "02-spec/21-app/66-fix-gitmap-pa-duplicate-repos",
+      "02-spec/21-app/67-nodes-cfr-remote-fleet-clone-enhancement",
+      "02-spec/21-app/69-nodes-cfr-ui-async-delegation",
+      "02-spec/21-app/71-pull-all-auto-ff-merge-cpu-scaling-and-pe-limit-fix",
+      "02-spec/21-app/72-chrome-ext-test-and-vmware-spec",
+      "02-spec/21-app/72-repo-dedup-os-aware-equalfold",
+      "02-spec/21-app/145-ssh-fleet-deploy-remote-clone-api-ui",
+      "02-spec/21-app/156-which-os-cross-platform-shell-and-node-profiling",
+      "02-spec/21-app/181-gitmap-ignore-and-cache-engine"
+    ],
+    "twoHundredSeriesDirectories": [
+      "02-spec/21-app/202-gitmap-pull-errors-splitdb",
+      "02-spec/21-app/204-ssh-password-interception-and-rsa-credential-vault",
+      "02-spec/21-app/205-gitmap-u1-ubuntu-agm-fleet-integration",
+      "02-spec/21-app/206-windows-to-ubuntu-fleet-migration-and-secrets-vault",
+      "02-spec/21-app/207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca",
+      "02-spec/21-app/208-detectedproject-foreign-key-and-ssh-lifecycle-hardening",
+      "02-spec/21-app/209-ai-agent-task-orchestrator-and-split-db",
+      "02-spec/21-app/210-gitmap-push-fix-command-and-auth-recovery",
+      "02-spec/21-app/211-ubuntu-fleet-git-clone-and-os-customization",
+      "02-spec/21-app/212-ubuntu-fleet-full-customization-and-embedded-runner",
+      "02-spec/21-app/213-antigravity-ubuntu-update-and-macro-automation",
+      "02-spec/21-app/214-ubuntu-fleet-automation-and-workstation-governance",
+      "02-spec/21-app/215-ubuntu-fleet-cleanup-antigravity-projects-and-app-manager",
+      "02-spec/21-app/216-gitmap-prompting-freeze-and-suggestion-engine-fix",
+      "02-spec/21-app/217-antigravity-fleet-parity-theme-preset-plugins-and-delegation",
+      "02-spec/21-app/218-nodes-agy-ui-remote-settings-and-cursor-automation",
+      "02-spec/21-app/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging",
+      "02-spec/21-app/220-pipeline-pe-unit-test-traceback-and-heatmap",
+      "02-spec/21-app/221-ci-cd-fix-nested-if-and-test-summary-remediation",
+      "02-spec/21-app/222-ubuntu-pull-tree-omz-force-error-diagnostics-and-release",
+      "02-spec/21-app/223-ubuntu-cursor-gitmap-python-git-tracing-and-aum-search",
+      "02-spec/21-app/224-ubuntu-cursor-dock-pin-projects-os-update-and-remote-uninstall",
+      "02-spec/21-app/225-ubuntu-cursor-start-menu-dock-position-and-profile-migration",
+      "02-spec/21-app/226-ubuntu-cursor-memories-conversations-and-projects-migration",
+      "02-spec/21-app/227-gitmap-cursor-fleet-delegate-settings-ui-and-cross-node-path-suggestions",
+      "02-spec/21-app/228-nodes-deploy-agm-accounts-and-fleet-sync",
+      "02-spec/21-app/229-antigravity-ide-projects-and-settings-backup",
+      "02-spec/21-app/229-nodes-deploy-repos-and-multi-ide-fleet-sync",
+      "02-spec/21-app/230-antigravity-backup-e2e-and-release",
+      "02-spec/21-app/230-token-purge-installer-workdir-pull-agm-and-ui-modernization",
+      "02-spec/21-app/231-antigravity-ide-projects-and-repo-secrets-restore",
+      "02-spec/21-app/232-pending-commits-sends-and-nodes-commit-suite",
+      "02-spec/21-app/233-ubuntu-ide-and-github-desktop-scan-sync",
+      "02-spec/21-app/234-codebase-review-remediation-and-consolidation",
+      "02-spec/21-app/235-app-spec-and-completed-plans-consolidation-and-reduction"
+    ]
+  },
+  "canonicalArchitectureClusters": [
+    {
+      "cluster": "01-cli-architecture",
+      "path": "02-spec/21-app/01-cli-architecture",
+      "architectureSpec": "02-spec/21-app/01-cli-architecture/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/01-cli-architecture/02-component-spec.md",
+      "status": "ratified"
+    },
+    {
+      "cluster": "02-scanner-and-projects",
+      "path": "02-spec/21-app/02-scanner-and-projects",
+      "architectureSpec": "02-spec/21-app/02-scanner-and-projects/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/02-scanner-and-projects/02-component-spec.md",
+      "status": "ratified"
+    },
+    {
+      "cluster": "03-git-operations-and-pull",
+      "path": "02-spec/21-app/03-git-operations-and-pull",
+      "architectureSpec": "02-spec/21-app/03-git-operations-and-pull/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/03-git-operations-and-pull/02-component-spec.md",
+      "status": "ratified"
+    },
+    {
+      "cluster": "04-fleet-nodes-and-ssh",
+      "path": "02-spec/21-app/04-fleet-nodes-and-ssh",
+      "architectureSpec": "02-spec/21-app/04-fleet-nodes-and-ssh/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/04-fleet-nodes-and-ssh/02-component-spec.md",
+      "status": "ratified"
+    },
+    {
+      "cluster": "05-antigravity-and-ide",
+      "path": "02-spec/21-app/05-antigravity-and-ide",
+      "architectureSpec": "02-spec/21-app/05-antigravity-and-ide/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/05-antigravity-and-ide/02-component-spec.md",
+      "status": "ratified"
+    },
+    {
+      "cluster": "06-database-and-split-db",
+      "path": "02-spec/21-app/06-database-and-split-db",
+      "architectureSpec": "02-spec/21-app/06-database-and-split-db/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/06-database-and-split-db/02-component-spec.md",
+      "assets": ["02-spec/21-app/06-database-and-split-db/gitmap-database-erd.mmd"],
+      "status": "ratified"
+    },
+    {
+      "cluster": "07-pipeline-and-diagnostics",
+      "path": "02-spec/21-app/07-pipeline-and-diagnostics",
+      "architectureSpec": "02-spec/21-app/07-pipeline-and-diagnostics/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/07-pipeline-and-diagnostics/02-component-spec.md",
+      "status": "ratified"
+    },
+    {
+      "cluster": "08-distribution-and-release",
+      "path": "02-spec/21-app/08-distribution-and-release",
+      "architectureSpec": "02-spec/21-app/08-distribution-and-release/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/08-distribution-and-release/02-component-spec.md",
+      "status": "ratified"
+    }
+  ],
+  "verificationGates": {
+    "isAssetPreserved": true,
+    "isLegacyDirectoriesPruned": true,
+    "isLooseFilesPruned": true,
+    "isMasterIndexRewritten": true,
+    "isItemCountVerified": true,
+    "isProtectedDirsPreserved": true,
+    "isPendingIsolated": true,
+    "isZeroGitCommandsRespected": true,
+    "isZeroBuildOrTestsRespected": true,
+    "isRelativePathsCompliant": true,
+    "isPositiveBooleansUsed": true
+  }
+}
