@@ -20,15 +20,15 @@ The following plans represent open and actively maintained development streams:
 
 ---
 
-## 2. Completed Plans (Consolidated Milestones `01`–`18`)
+## 2. Completed Plans (Consolidated Milestones `01`–`20`)
 
-All completed work has been merged into 18 dense, authoritative milestone summaries preserving 100% of verified technical outcomes, Go type contracts (`*appfault.AppError`, `Result[T]`), and architectural invariants:
+All completed work has been merged into 20 dense, authoritative milestone summaries preserving 100% of verified technical outcomes, Go type contracts (`*appfault.AppError`, `Result[T]`), and architectural invariants:
 
 ### Generational Milestones (Historical Foundations)
 - [01-generation-1-core-foundation-milestones.md](completed/01-generation-1-core-foundation-milestones.md) — Core Architecture, Scanner, Types, Database, Git Operations, Terminal UI, Installers & Chrome Profile Vault (Synthesizing Historical Milestones 01–15)
 - [02-generation-2-fleet-automation-and-modularization.md](completed/02-generation-2-fleet-automation-and-modularization.md) — Cluster Fleet, Macro Engine, Nuclear Modularization, Smart Test Runner, DB Locking, Antigravity Packaging & Quality Gates (Synthesizing Historical Milestones 16–27)
 
-### Modern Milestone Sequence (Milestones 03–18)
+### Modern Milestone Sequence (Milestones 03–20)
 - [03-agy-prompts-templates-and-rerun-suite.md](completed/03-agy-prompts-templates-and-rerun-suite.md) — AGY Prompt Templates, Decision Logs, Non-Destructive Rerun Commands & Prompt Sync
 - [04-auto-aliasing-and-error-storage-reset.md](completed/04-auto-aliasing-and-error-storage-reset.md) — Auto-Aliasing Migration, Internal Errors Database & Safe DB Reset
 - [05-ssh-exec-copy-mv-env-and-rm-sync-resilience.md](completed/05-ssh-exec-copy-mv-env-and-rm-sync-resilience.md) — Remote SSH Operations, Streaming Upload, Deploy Keys & Sync Modes
@@ -46,6 +46,7 @@ All completed work has been merged into 18 dense, authoritative milestone summar
 - [17-codebase-review-remediation-and-preconsolidation-baseline.md](completed/17-codebase-review-remediation-and-preconsolidation-baseline.md) — Root Clutter Purge, README Index Reduction, Security Token Purge & Baseline Release
 - [18-app-spec-and-completed-plans-consolidation-and-reduction.md](completed/18-app-spec-and-completed-plans-consolidation-and-reduction.md) — Application Specifications Consolidation, 8 Canonical Clusters & Memory Compaction
 - [19-deep-spec-consolidation-and-canonical-reduction.md](completed/19-deep-spec-consolidation-and-canonical-reduction.md) — Deep Spec Consolidation, Canonical 8-Cluster Reduction & Memory Unification
+- [20-git-history-purge-and-undo.md](completed/20-git-history-purge-and-undo.md) — Git History Purge & Undo Engine with Pre-Flight Graph Diff & SplitDB Journal
 
 ---
 

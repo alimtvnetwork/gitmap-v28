@@ -28,6 +28,7 @@ Each domain cluster represents the authoritative, consolidated specification for
 The following application specification records the active feature development and consolidation milestone:
 
 - [236-deep-spec-consolidation-and-canonical-reduction](236-deep-spec-consolidation-and-canonical-reduction/01-architecture-spec.md) — Deep Application Specifications Consolidation & Canonical Reduction (Specs: [Master Ledger](236-deep-spec-consolidation-and-canonical-reduction/00-master-audit-ledger.md), [Architecture](236-deep-spec-consolidation-and-canonical-reduction/01-architecture-spec.md), [Component](236-deep-spec-consolidation-and-canonical-reduction/02-component-and-cli-spec.md)) (Status: `in_progress`)
+- [237-git-history-purge-and-undo](237-git-history-purge-and-undo/01-architecture-spec.md) — Git History Purge & Undo Engine with Pre-Flight Graph Diff & SplitDB Journal (Specs: [Master Ledger](237-git-history-purge-and-undo/00-master-audit-ledger.md), [Architecture](237-git-history-purge-and-undo/01-architecture-spec.md), [Component](237-git-history-purge-and-undo/02-component-and-cli-spec.md)) (Status: `in_progress`)
 
 ---
 

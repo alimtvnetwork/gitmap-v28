@@ -29,8 +29,9 @@ func toolingDispatchEntries() []dispatchEntry {
 	entries = append(entries, toolingInstallEntries()...)
 	entries = append(entries, toolingUtilEntries()...)
 	entries = append(entries, toolingChromeEntries()...)
+	entries = append(entries, toolingNetworkEntries()...)
 
-	return append(entries, toolingNetworkEntries()...)
+	return append(entries, toolingSystemEntries()...)
 }
 
 func toolingWorkspaceEntries() []dispatchEntry {
@@ -271,7 +272,7 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdFixRepo, constants.CmdFixRepoAlias}, func() error { return runFixRepo(argsTail()) }},
 		{[]string{constants.CmdFixGit, constants.CmdFixGitAlias, "--fix-git", "fixgit"}, func() error { return runFixGit(argsTail()) }},
 		{[]string{constants.CmdUndo, constants.CmdUndoAlias}, func() error { return runUndo(argsTail()) }},
-		{[]string{constants.CmdHistoryPurge, constants.CmdHistoryPurgeAlias}, func() error { return runHistoryPurge(argsTail()) }},
+		{[]string{constants.CmdHistoryPurge, constants.CmdHistoryPurgeAlias}, func() error { return RunHistoryPurgeCLI(argsTail()) }},
 		{[]string{constants.CmdHistoryPin, constants.CmdHistoryPinAlias}, func() error { return runHistoryPin(argsTail()) }},
 		{[]string{"author"}, func() error { return runAuthor(argsTail()) }},
 		{[]string{"sponsor"}, func() error { return runSponsor(argsTail()) }},
@@ -351,4 +352,32 @@ func handleJSONSubcommand(args []string) error {
 		return runImportAllJSONCLI(args[1:])
 	}
 	return runWhichFormatCLI(args)
+}
+
+func toolingSystemEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{"history-purge", "hp", "history clean", "history-clean"}, func() error {
+			return RunHistoryPurgeCLI(argsTail())
+		}},
+		{[]string{"history-undo", "hu", "history restore", "history-restore", "undo-history"}, func() error {
+			return RunHistoryUndoCLI(argsTail())
+		}},
+		{[]string{"history"}, func() error {
+			return handleHistoryParentDispatcher(argsTail())
+		}},
+	}
+}
+
+func handleHistoryParentDispatcher(args []string) error {
+	if len(args) > 0 {
+		sub := strings.ToLower(args[0])
+		if sub == "purge" || sub == "clean" || sub == "p" {
+			return RunHistoryPurgeCLI(args[1:])
+		}
+		if sub == "undo" || sub == "restore" || sub == "u" {
+			return RunHistoryUndoCLI(args[1:])
+		}
+	}
+
+	return runHistory(args)
 }

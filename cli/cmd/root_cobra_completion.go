@@ -49,6 +49,8 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelUpdateCmd())
 	root.AddCommand(makeTopLevelCompletionCmd())
 	root.AddCommand(makeTopLevelHistoryCmd())
+	root.AddCommand(makeTopLevelHPCmd())
+	root.AddCommand(makeTopLevelHUCmd())
 	root.AddCommand(makeTopLevelHelpCmd())
 	root.AddCommand(makeTopLevelPECmd())
 	root.AddCommand(makeTopLevelCFRCmd())
@@ -179,6 +181,8 @@ func makeTopLevelHistoryCmd() *cobra.Command {
 					"ls\tList recent command executions",
 					"suggest\tSuggest past commands matching prefix",
 					"clear\tClear command execution history",
+					"purge\tPurge files, folders, or commits from Git history",
+					"undo\tUndo a previous history purge operation and restore history",
 					"help\tShow command usage guide",
 				}, cobra.ShellCompDirectiveNoFileComp
 			}
@@ -187,6 +191,22 @@ func makeTopLevelHistoryCmd() *cobra.Command {
 	}
 	cmd.Flags().IntP("limit", "l", 20, "Number of commands to show")
 	cmd.Flags().BoolP("json", "j", false, "Output history in JSON format")
+	cmd.AddCommand(NewHistoryPurgeCmd())
+	cmd.AddCommand(NewHistoryUndoCmd())
+	return cmd
+}
+
+func makeTopLevelHPCmd() *cobra.Command {
+	cmd := NewHistoryPurgeCmd()
+	cmd.Use = "hp [flags]"
+	cmd.Aliases = []string{"history-purge"}
+	return cmd
+}
+
+func makeTopLevelHUCmd() *cobra.Command {
+	cmd := NewHistoryUndoCmd()
+	cmd.Use = "hu [operation-id] [flags]"
+	cmd.Aliases = []string{"history-undo", "undo-history"}
 	return cmd
 }
 
