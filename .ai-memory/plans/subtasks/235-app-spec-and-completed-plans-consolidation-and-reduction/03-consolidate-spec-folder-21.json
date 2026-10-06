@@ -1,0 +1,143 @@
+{
+  "subtaskId": "03",
+  "taskSlug": "235-app-spec-and-completed-plans-consolidation-and-reduction",
+  "subtaskName": "03-consolidate-spec-folder-21",
+  "status": "COMPLETED",
+  "completedAt": "2026-10-06T22:15:00+08:00",
+  "assignedWorker": "Worker 01",
+  "scope": "02-spec/21-app/",
+  "metrics": {
+    "initialDirectEntries": 310,
+    "initialRecursiveFiles": 672,
+    "finalDirectEntries": 261,
+    "finalRecursiveFiles": 529,
+    "totalPrunedFiles": 143,
+    "totalSynthesizedClusterSpecs": 16,
+    "canonicalClusterCount": 8
+  },
+  "prunedCategoryADeadWeight": {
+    "duplicateAndTemporaryDirectories": [
+      "02-spec/21-app/13-generic-cli",
+      "02-spec/21-app/16-generic-release",
+      "02-spec/21-app/pas-fix-parts",
+      "02-spec/21-app/70-redundant-repos-and-equalfold-os-fix",
+      "02-spec/21-app/71-repo-dedup-equalfold-os-guarantee"
+    ],
+    "obsoleteRefactorChecklists": [
+      "02-spec/21-app/58-refactor-workflowfinalize.md",
+      "02-spec/21-app/61-refactor-autocommit.md",
+      "02-spec/21-app/62-refactor-seowriteloop.md",
+      "02-spec/21-app/63-refactor-workflowbranch.md",
+      "02-spec/21-app/64-refactor-workflow.md",
+      "02-spec/21-app/65-refactor-assets.md",
+      "02-spec/21-app/66-refactor-zipgroupops.md",
+      "02-spec/21-app/67-refactor-tui.md",
+      "02-spec/21-app/68-refactor-aliasops.md",
+      "02-spec/21-app/69-refactor-tempreleaseops.md",
+      "02-spec/21-app/70-refactor-listreleases.md",
+      "02-spec/21-app/71-refactor-listversions.md",
+      "02-spec/21-app/72-refactor-sshgen.md",
+      "02-spec/21-app/73-refactor-scanprojects.md",
+      "02-spec/21-app/74-refactor-amendexec.md",
+      "02-spec/21-app/75-refactor-status.md",
+      "02-spec/21-app/76-refactor-exec.md",
+      "02-spec/21-app/77-refactor-logs.md",
+      "02-spec/21-app/78-refactor-compress.md",
+      "02-spec/21-app/90-refactor-root-dispatch.md",
+      "02-spec/21-app/91-refactor-ziparchive.md"
+    ],
+    "boilerplateConsistencyReportsCount": 31,
+    "stubOverviewDocumentsCount": 28
+  },
+  "prunedIntermediateDrafts": [
+    "02-spec/21-app/197-gitmap-pas-fix-and-repo-cache-commands.md",
+    "02-spec/21-app/198-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry.md",
+    "02-spec/21-app/195-pas-formula-fix-ignores-cpar-and-repo-cache.md",
+    "02-spec/21-app/164-pull-all-fast-mode-templates-db-and-commitin-config.md",
+    "02-spec/21-app/166-pull-all-fast-mode-and-templates-db-orchestration.md",
+    "02-spec/21-app/168-commit-pull-array-async-pool-ui-and-bootstrap.md",
+    "02-spec/21-app/169-pull-all-concise-summary-and-ssh-fleet-json.md",
+    "02-spec/21-app/201-pull-ignore-concurrency-split-db-cache-and-deadlock-prevention.md",
+    "02-spec/21-app/xx-agy-enhancements",
+    "02-spec/21-app/xx-agy-enhancements.md",
+    "02-spec/21-app/85-running-prompts-e2e-and-deploy-live-test.md",
+    "02-spec/21-app/89-agy-rp-running-projects-and-recreate-safety.md",
+    "02-spec/21-app/161-agy-rerun-active-project-non-destructive-and-conversation-commands.md",
+    "02-spec/21-app/167-agy-running-prompts-backup-restore-and-green-automation",
+    "02-spec/21-app/174-agy-decision-log-db-project-discovery-and-recent-rerun.md",
+    "02-spec/21-app/179-fleet-update-json-prompts-backup-and-deploy-polish.md",
+    "02-spec/21-app/180-agy-agm-copilot-edge-uninstall-and-devtool-clean",
+    "02-spec/21-app/190-fleet-nodes-agy-ui-prompt-manager-and-cursor-integration.md",
+    "02-spec/21-app/160-ssh-fleet-update-decrypted-auth-liveness-probe-and-command-suggestions.md",
+    "02-spec/21-app/163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md",
+    "02-spec/21-app/171-ssh-fleet-auto-update-guard-and-concise-pull-remediation.md",
+    "02-spec/21-app/172-ssh-fleet-preflight-liveness-error-details-and-clean-dispatch.md",
+    "02-spec/21-app/173-ssh-fleet-liveness-error-remediation-and-rerun-help.md",
+    "02-spec/21-app/191-nodes-clone-except-self-windows-runner-and-path.md",
+    "02-spec/21-app/192-direct-clone-json-and-fleet-clone-details.md",
+    "02-spec/21-app/193-in-process-fleet-pull-json-and-wincredman-isolation.md",
+    "02-spec/21-app/194-fleet-nodes-clone-output-alignment-and-w3-liveness-resilience.md",
+    "02-spec/21-app/196-fleet-nodes-clone-table-alignment-and-w3-reachability-resilience.md"
+  ],
+  "synthesizedCanonicalClusters": [
+    {
+      "clusterDirectory": "02-spec/21-app/01-cli-architecture",
+      "architectureSpec": "02-spec/21-app/01-cli-architecture/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/01-cli-architecture/02-component-spec.md",
+      "domain": "Core Cobra CLI, shell completions, markdown box rendering, typo suggestions, typed JSON Envelope V2."
+    },
+    {
+      "clusterDirectory": "02-spec/21-app/02-scanner-and-projects",
+      "architectureSpec": "02-spec/21-app/02-scanner-and-projects/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/02-scanner-and-projects/02-component-spec.md",
+      "domain": "High-speed repo discovery, polyglot project classification, OS-aware path collation, .gitmapignore, and deduplication."
+    },
+    {
+      "clusterDirectory": "02-spec/21-app/03-git-operations-and-pull",
+      "architectureSpec": "02-spec/21-app/03-git-operations-and-pull/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/03-git-operations-and-pull/02-component-spec.md",
+      "domain": "Pull-all 8-worker concurrency pool, semantic flat commit suite, push self-healing, and OMZ ignore rules."
+    },
+    {
+      "clusterDirectory": "02-spec/21-app/04-fleet-nodes-and-ssh",
+      "architectureSpec": "02-spec/21-app/04-fleet-nodes-and-ssh/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/04-fleet-nodes-and-ssh/02-component-spec.md",
+      "domain": "Fleet nodes orchestration, dual-stack ICMP/TCP ping probing, RSA-OAEP credential vault, and remote clone."
+    },
+    {
+      "clusterDirectory": "02-spec/21-app/05-antigravity-and-ide",
+      "architectureSpec": "02-spec/21-app/05-antigravity-and-ide/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/05-antigravity-and-ide/02-component-spec.md",
+      "domain": "Google Antigravity SDK workflows, multi-conversation prompts, project recency, theme presets, and Cursor sync."
+    },
+    {
+      "clusterDirectory": "02-spec/21-app/06-database-and-split-db",
+      "architectureSpec": "02-spec/21-app/06-database-and-split-db/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/06-database-and-split-db/02-component-spec.md",
+      "domain": "Three-tier SQLite Split-DB engine, WAL mode, single-writer pool, PascalCase schema, and AI agent task DB."
+    },
+    {
+      "clusterDirectory": "02-spec/21-app/07-pipeline-and-diagnostics",
+      "architectureSpec": "02-spec/21-app/07-pipeline-and-diagnostics/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/07-pipeline-and-diagnostics/02-component-spec.md",
+      "domain": "CI/CD pipeline telemetry, polyglot traceback extraction, traceback heatmaps, and automated 4-part RCA."
+    },
+    {
+      "clusterDirectory": "02-spec/21-app/08-distribution-and-release",
+      "architectureSpec": "02-spec/21-app/08-distribution-and-release/01-architecture-spec.md",
+      "componentSpec": "02-spec/21-app/08-distribution-and-release/02-component-spec.md",
+      "domain": "Cross-platform package installers (NSIS/Linux), SemVer release ceremony, and execution runners (run.ps1/run.sh)."
+    }
+  ],
+  "verificationGates": {
+    "isCategoryADeadWeightPruned": true,
+    "isIntermediateDraftsPruned": true,
+    "isEightCanonicalClustersEstablished": true,
+    "isFinalVersionInvariantEnforced": true,
+    "isProtectedDirectoryPreserved": true,
+    "isZeroGitCommandsRespected": true,
+    "isZeroBuildOrTestsRespected": true,
+    "isRelativePathsOnlyEnforced": true,
+    "isPositiveBooleansUsed": true
+  }
+}

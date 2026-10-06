@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.499.0] - 2026-10-06
+
+### Added
+- App spec and completed plans consolidation and reduction
+
+---
+
 ## [v6.498.0] - 2026-10-06
 
 ### Added

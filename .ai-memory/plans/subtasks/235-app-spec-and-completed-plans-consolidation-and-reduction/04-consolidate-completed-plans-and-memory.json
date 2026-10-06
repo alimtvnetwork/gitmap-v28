@@ -1,0 +1,175 @@
+{
+  "subtaskId": "04",
+  "status": "COMPLETED",
+  "assignedWorker": "Worker 02",
+  "completedAt": "2026-10-06T22:15:00+08:00",
+  "isPendingIsolated": true,
+  "isActivePlansIsolated": true,
+  "isActiveSubtasksIsolated": true,
+  "hasVerifiedOutcomes": true,
+  "isConsolidated": true,
+  "isAuthoritative": true,
+  "metrics": {
+    "completedPlans": {
+      "baselineCount": 190,
+      "consolidatedCount": 42,
+      "removedCount": 148,
+      "reductionPercentage": 77.89
+    },
+    "subtasks": {
+      "baselineDirectories": 43,
+      "deletedDirectories": 32,
+      "deletedSubtaskFiles": 174,
+      "preservedActiveDirectories": 11,
+      "preservedActiveSubtaskFiles": 55,
+      "reductionPercentage": 75.98
+    },
+    "pendingIsolation": {
+      "pendingPlansCount": 4,
+      "activeRootPlansCount": 18,
+      "isUntouched": true
+    },
+    "memoryConsolidation": {
+      "learnedFilesCount": 15,
+      "issuesFilesCount": 10,
+      "avoidFilesCount": 5,
+      "featuresFilesCount": 5,
+      "plansFilesCount": 1,
+      "totalConsolidatedDomainFiles": 36
+    }
+  },
+  "milestoneMappings": [
+    {
+      "milestone": 28,
+      "filename": "28-agy-prompts-templates-and-rerun-suite.md",
+      "sourcePlans": [112, 161, 164, 167],
+      "scope": "AGY prompt templates, decision logs, non-destructive rerun, and prompt sync"
+    },
+    {
+      "milestone": 29,
+      "filename": "29-auto-aliasing-and-error-storage-reset.md",
+      "sourcePlans": [174, 177, 202],
+      "scope": "Auto-aliasing, internal error database, and DB reset safety"
+    },
+    {
+      "milestone": 30,
+      "filename": "30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md",
+      "sourcePlans": [100, 101, 106, 163, 178],
+      "scope": "Remote SSH file operations, streaming upload, environment isolation, and sync modes"
+    },
+    {
+      "milestone": 31,
+      "filename": "31-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md",
+      "sourcePlans": [162, 175, 176],
+      "scope": "Pipeline path normalization, cache clearing, and accurate ETA forecasting"
+    },
+    {
+      "milestone": 32,
+      "filename": "32-pipeline-deep-eta-and-repo-folder-parity.md",
+      "sourcePlans": [220, 221],
+      "scope": "Deep ETA profiling, heatmap telemetry, and unit test traceback extraction"
+    },
+    {
+      "milestone": 33,
+      "filename": "33-ai-scripts-engine-ssh-authkey-and-feature-parity.md",
+      "sourcePlans": [108, 109, 110, 171, 172],
+      "scope": "Automation scripts engine, SSH authorized keys, and platform feature parity"
+    },
+    {
+      "milestone": 34,
+      "filename": "34-generic-ai-scripts-creator-and-scaffolding-engine.md",
+      "sourcePlans": [170, 173, 179],
+      "scope": "Scaffolding engine, toolchain scripts, and automation runners"
+    },
+    {
+      "milestone": 35,
+      "filename": "35-native-automation-engine-lazy-regex-and-benchmarks.md",
+      "sourcePlans": [180, 181, 182],
+      "scope": "Native automation engine, lazy regex compilation, and AUM search benchmarks"
+    },
+    {
+      "milestone": 36,
+      "filename": "36-fleet-nodes-ping-envelope-and-remote-clone.md",
+      "sourcePlans": [183, 184, 185, 186, 188, 191, 192, 194, 196],
+      "foldedSubtaskDirs": [
+        "193-typed-json-envelope",
+        "194-import-all-json-what-configs",
+        "200-nodes-display-cfr-manifest-gitmap-json-and-vscode-optimize",
+        "201-nodes-clone-cfr-cfrp-fleet-manifest-staging-and-suggestions",
+        "67-nodes-cfr-remote-fleet-clone-enhancement"
+      ],
+      "scope": "Unified fleet nodes command, ICMP/TCP ping, typed JSON envelopes, and except-self clone"
+    },
+    {
+      "milestone": 37,
+      "filename": "37-pas-worker-concurrency-pull-cache-and-split-db.md",
+      "sourcePlans": [57, 58, 60, 61, 62, 64, 66, 193, 195, 197, 198, 199, 201],
+      "foldedSubtaskDirs": [
+        "181-gitmap-ignore-and-cache-engine",
+        "201-pas-formula-ignore-suite-cpar-and-cache",
+        "61-pas-worker-concurrency-pull-error-split-db-and-machine-telemetry",
+        "62-devtools-cache-discovery-tree-and-split-db"
+      ],
+      "scope": "GitMap PAS formula, worker concurrency, ignore engine, CPAR, and split-DB repo cache"
+    },
+    {
+      "milestone": 38,
+      "filename": "38-semantic-flat-commit-and-macro-execution-resilience.md",
+      "sourcePlans": [54, 63, 65, 187, 189, 200],
+      "foldedSubtaskDirs": [
+        "54-vmware-macro-audit-task-and-installer-chain",
+        "63-semantic-flat-commit-suite",
+        "187-special-repos-repo-secrets-repo-cache-cd-and-coding-guidelines"
+      ],
+      "scope": "Semantic flat commit suite (cm), auto-staging, and macro idempotency"
+    },
+    {
+      "milestone": 39,
+      "filename": "39-ssh-password-interception-and-rsa-credential-vault.md",
+      "sourcePlans": [67, 68, 78, 80, 203, 204, 208, 210],
+      "foldedSubtaskDirs": [
+        "01-ports-and-ssh-enablement",
+        "207-gitmap-db-reset-ssh-key-management-firewall-and-project-detection-rca",
+        "208-detectedproject-foreign-key-and-ssh-lifecycle-hardening"
+      ],
+      "scope": "Masked password capture, user consent, RSA-OAEP salt credential encryption vault"
+    },
+    {
+      "milestone": 40,
+      "filename": "40-ubuntu-fleet-migration-workstation-governance-and-customization.md",
+      "sourcePlans": [52, 76, 81, 206, 211, 212, 214, 215, 222],
+      "foldedSubtaskDirs": [
+        "212-ubuntu-fleet-full-customization-and-embedded-runner",
+        "214-ubuntu-fleet-automation-and-workstation-governance"
+      ],
+      "scope": "Windows to Ubuntu fleet migration, GNOME 140% scaling, automount, and workstation governance"
+    },
+    {
+      "milestone": 41,
+      "filename": "41-antigravity-fleet-parity-prompting-freeze-and-ide-sync.md",
+      "sourcePlans": [83, 213, 216, 217, 218, 223, 224, 225, 227, 228, 229, 233],
+      "foldedSubtaskDirs": [
+        "216-gitmap-prompting-freeze-and-suggestion-engine-fix",
+        "217-antigravity-fleet-parity-theme-preset-plugins-and-delegation",
+        "223-ubuntu-cursor-gitmap-python-git-tracing-and-aum-search",
+        "224-ubuntu-cursor-dock-pin-projects-os-update-and-remote-uninstall",
+        "225-ubuntu-cursor-start-menu-dock-position-and-profile-migration",
+        "227-gitmap-cursor-fleet-delegate-settings-ui-and-cross-node-path-suggestions",
+        "229-nodes-deploy-repos-and-multi-ide-fleet-sync",
+        "231-antigravity-ide-projects-and-repo-secrets-restore"
+      ],
+      "scope": "AGY UI plugins, skills sync, Win32 terminal freeze remediation, typo suggestions, and multi-IDE scan sync"
+    },
+    {
+      "milestone": 42,
+      "filename": "42-codebase-review-remediation-and-preconsolidation-baseline.md",
+      "sourcePlans": [230, 231, 232, 234],
+      "foldedSubtaskDirs": [
+        "230-token-purge-installer-workdir-pull-agm-and-ui-modernization",
+        "232-pending-commits-sends-and-nodes-commit-suite",
+        "234-codebase-review-remediation-and-consolidation"
+      ],
+      "scope": "Root clutter purge, readme index reduction, token purge, and baseline v6.498.0 release"
+    }
+  ]
+}
