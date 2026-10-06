@@ -180,7 +180,7 @@ func TestProcessSingleRepoSend_DirtyRepo_Mock(t *testing.T) {
 		if strings.HasPrefix(c, "commit -m") {
 			hasCommit = true
 		}
-		if c == "push" {
+		if strings.HasPrefix(c, "push") {
 			hasPush = true
 		}
 	}

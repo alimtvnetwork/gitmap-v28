@@ -24,7 +24,9 @@ import (
 
 const (
 	// erdPathRel is the canonical ERD location relative to the repo root.
-	erdPathRel = "02-spec/21-app/gitmap-database-erd.mmd"
+	erdPathRel = "02-spec/21-app/06-database-and-split-db/gitmap-database-erd.mmd"
+	// erdPathRelFallback is the legacy ERD path before cluster consolidation.
+	erdPathRelFallback = "02-spec/21-app/gitmap-database-erd.mmd"
 	// constantsDirRel is the directory containing SQLCreate* constants.
 	constantsDirRel = "cli/constants"
 	// erdParityRegenHint is shown when the test fails so the fix is obvious.
@@ -50,6 +52,9 @@ func repoRoot(t *testing.T) string {
 	dir := filepath.Dir(thisFile)
 	for i := 0; i < 8; i++ {
 		if _, err := os.Stat(filepath.Join(dir, erdPathRel)); err == nil {
+			return dir
+		}
+		if _, err := os.Stat(filepath.Join(dir, erdPathRelFallback)); err == nil {
 			return dir
 		}
 
@@ -95,7 +100,11 @@ func collectSQLCreateTables(t *testing.T, root string) map[string]struct{} {
 
 func collectErdTables(t *testing.T, root string) map[string]struct{} {
 	t.Helper()
-	body, err := os.ReadFile(filepath.Join(root, erdPathRel))
+	path := filepath.Join(root, erdPathRel)
+	if _, err := os.Stat(path); err != nil {
+		path = filepath.Join(root, erdPathRelFallback)
+	}
+	body, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read ERD: %v", err)
 	}
