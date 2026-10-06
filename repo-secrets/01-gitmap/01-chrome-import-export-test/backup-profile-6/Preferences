@@ -1,0 +1,14 @@
+{
+  "account_info": [
+    {
+      "email": "test@test.com"
+    }
+  ],
+  "profile": {
+    "name": "Personal",
+    "using_default_name": false
+  },
+  "signin": {
+    "allowed": true
+  }
+}
