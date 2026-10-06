@@ -186,6 +186,9 @@ func executeScan(
 	bench.Phase("scan.vscodePMSync", func() {
 		syncRecordsToVSCodePM(records, noVSCodeSync, noAutoTags)
 	})
+	bench.Phase("scan.ideSync", func() {
+		syncRecordsToIDEs(records, os.Args, noVSCodeSync, quiet)
+	})
 	openOutputFolder(outputDir, openFolder)
 	bench.WriteLog(outputDir)
 	if !quiet {

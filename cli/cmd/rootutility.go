@@ -383,6 +383,7 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{constants.CmdSf}, func() error { return runSf(argsTail()) }},
 		{[]string{constants.CmdProbe}, func() error { return runProbe(argsTail()) }},
 		{[]string{"vscode", "vsc"}, func() error { return runVSCode(argsTail()) }},
+		{[]string{"ide", "ides"}, func() error { return runIDE(argsTail()) }},
 		{[]string{constants.CmdFindNext, constants.CmdFindNextAlias}, func() error { return runFindNext(argsTail()) }},
 		{[]string{constants.CmdVSCodePMPath, constants.CmdVSCodePMPathAlias}, func() error { return runVSCodePMPath(argsTail()) }},
 		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() error { return runVSCodeWorkspace(argsTail()) }},

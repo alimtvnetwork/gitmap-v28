@@ -40,7 +40,7 @@ func Sync(pairs []Pair) (SyncSummary, error) {
 // resolution and atomic-write semantics; only the per-entry tag
 // reconciliation changes per the MergeMode dispatcher.
 func SyncMode(pairs []Pair, mode MergeMode) (SyncSummary, error) {
-	path, err := ProjectsJSONPath()
+	path, err := EnsureProjectsJSONPath()
 	if err != nil {
 		return SyncSummary{}, err
 	}

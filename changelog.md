@@ -1,5 +1,17 @@
 # Changelog
 
+## [v6.497.0] - 2026-10-06
+
+### Added
+- **Ubuntu IDE and GitHub Desktop Scan Sync Suite**: Resolved omission where `gitmap scan` on Ubuntu failed to add repositories into VS Code and GitHub Desktop.
+- **Root Cause Analysis (Issue 71)**: Grounded 4-part RCA in `02-spec/22-app-issues/71-ubuntu-ide-github-desktop-scan-omission.md` identifying missing directory creation in VS Code Project Manager extension path and missing Linux CLI resolution candidates for GitHub Desktop.
+- **Standalone Synchronizer Tool**: Authored `03-ai-scripts/40-ubuntu-ide-desktop-sync.py` supporting auto-mkdir, idempotency, dry-run, and target filtering across VS Code, Cursor, Antigravity, and GitHub Desktop.
+- **Dedicated CLI Command Suite (`gitmap ide`)**: Added `gitmap ide add`, `gitmap ide sync`, `gitmap ide remove`, `gitmap ide list`, `gitmap ide status`, and `gitmap ide help` in `cli/cmdide/`.
+- **Scan Integration & Flags**: Integrated `--sync-ide`, `--skip-sync`, and `--exclude-sync` flags in `cli/cmdscan/` with post-scan automatic registration.
+- **Pending Commits & Cluster Sends Suite**: Added `gitmap pending-commits`, `gitmap sends`, `gitmap nodes pc`, and `gitmap nodes commits/cpf/cpb/cpr/commit-fix`.
+
+---
+
 ## [v6.496.0] - 2026-10-06
 
 ### Added

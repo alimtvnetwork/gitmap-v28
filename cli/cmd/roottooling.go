@@ -43,6 +43,8 @@ func toolingWorkspaceEntries() []dispatchEntry {
 		{[]string{constants.CmdDoctor}, func() error { checkHelp("doctor", argsTail()); return runDoctor(argsTail()) }},
 		{[]string{constants.CmdLatestBranch, constants.CmdLatestBranchAlias}, func() error { return runLatestBranch(argsTail()) }},
 		{[]string{constants.CmdBranch, constants.CmdBranchAlias}, func() error { return runBranch(argsTail()) }},
+		{[]string{constants.CmdPendingCommits, constants.CmdPendingCommitsAlias}, func() error { return runPendingCommits(argsTail()) }},
+		{[]string{constants.CmdSends}, func() error { return runSends(argsTail()) }},
 	}
 }
 

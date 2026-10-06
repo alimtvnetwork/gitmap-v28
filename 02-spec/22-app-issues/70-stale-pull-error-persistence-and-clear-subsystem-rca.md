@@ -49,10 +49,10 @@ However, checking `d:\work\gitlogger-new` showed:
 GitMap's pull telemetry synchronization (`cli/cmdpull/pull_db_sync.go` and `cli/cmdpull/pull_efficient.go`) only wrote failure records to SQLite `pull_errors` without evicting or resolving previous records on successful pull operations, and `cli/cmdpullerror/pull_error_cmd.go` lacked eviction logic and an explicit `clear` subcommand or `--clear` flag.
 
 ### 3. Resolution
-1. **Reconciled Repository Validation:** Verified `d:\work\gitlogger-new` has resolved all merge conflicts, merged upstream commit `7017153`, and committed documentation (`6dd9cf7`).
-2. **Database Eviction Engine:** Added `ClearPullErrors(repoSlug string)` and `ClearPullErrorsForRepo(repoSlug, repoPath string)` to `*PullSplitDB` in [pull_split_db_errors_clear.go](file:///d:/work/gitmap/cli/store/pull_split_db_errors_clear.go).
-3. **Automatic Lifecycle Resolution:** Updated [pull_db_sync.go](file:///d:/work/gitmap/cli/cmdpull/pull_db_sync.go) and [pull_efficient.go](file:///d:/work/gitmap/cli/cmdpull/pull_efficient.go) to automatically evict resolved repository error entries whenever a repository pulls successfully (`!isStateFailure`).
-4. **Manual Administrative Clearing:** Implemented `gitmap pull-error clear [target]` and `gitmap pull-error --clear` / `-c` support in [pull_error_cmd.go](file:///d:/work/gitmap/cli/cmdpullerror/pull_error_cmd.go) and [pull_error_clear.go](file:///d:/work/gitmap/cli/cmdpullerror/pull_error_clear.go), with remote fleet forwarding for SSH clusters.
+1. **Reconciled Repository Validation:** Verified `gitlogger-new` has resolved all merge conflicts, merged upstream commit `7017153`, and committed documentation (`6dd9cf7`).
+2. **Database Eviction Engine:** Added `ClearPullErrors(repoSlug string)` and `ClearPullErrorsForRepo(repoSlug, repoPath string)` to `*PullSplitDB` in [pull_split_db_errors_clear.go](cli/store/pull_split_db_errors_clear.go).
+3. **Automatic Lifecycle Resolution:** Updated [pull_db_sync.go](cli/cmdpull/pull_db_sync.go) and [pull_efficient.go](cli/cmdpull/pull_efficient.go) to automatically evict resolved repository error entries whenever a repository pulls successfully (`!isStateFailure`).
+4. **Manual Administrative Clearing:** Implemented `gitmap pull-error clear [target]` and `gitmap pull-error --clear` / `-c` support in [pull_error_cmd.go](cli/cmdpullerror/pull_error_cmd.go) and [pull_error_clear.go](cli/cmdpullerror/pull_error_clear.go), with remote fleet forwarding for SSH clusters.
 5. **Telemetry Sanitization:** Purged the 7 stale historical error rows for `gitlogger-new-v2` from `gitmap-pull.db`, verifying `gitmap pull-error gitlogger-new-v2` returns clean zero-error status (`✔ No pull errors recorded for gitlogger-new-v2.`).
 
 ### 4. Prevention & Learnings

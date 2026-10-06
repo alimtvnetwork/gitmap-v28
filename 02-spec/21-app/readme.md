@@ -2,6 +2,8 @@
 
 ## Active Specifications
 
+- [233-ubuntu-ide-and-github-desktop-scan-sync](233-ubuntu-ide-and-github-desktop-scan-sync/01-architecture-spec.md) — Ubuntu Multi-IDE & GitHub Desktop Scan Integration, CLI Management Suite & Storage Sync (Status: `completed`)
+- [232-pending-commits-sends-and-nodes-commit-suite](232-pending-commits-sends-and-nodes-commit-suite/01-architecture-spec.md) — Pending Commits Scanner, Sends Command Dispatcher & Remote Nodes Cluster Delegation Suite (Status: `completed`)
 - [230-token-purge-installer-workdir-pull-agm-and-ui-modernization](230-token-purge-installer-workdir-pull-agm-and-ui-modernization/readme.md) — Security Token Purge, Installer Navigation ($work, $def), Pull Remediation, AGM Linux Update, Multi-Instance API & UI Modernization (Status: `completed`)
 - [231-antigravity-ide-projects-and-repo-secrets-restore](231-antigravity-ide-projects-and-repo-secrets-restore/01-architecture-spec.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Status: `completed`)
 - [230-antigravity-backup-e2e-and-release](230-antigravity-backup-e2e-and-release/01-architecture-spec.md) — Antigravity IDE Backup E2E Validation, Logging Verification & Minor Release v6.494.0 (Status: `completed`)

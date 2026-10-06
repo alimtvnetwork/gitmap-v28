@@ -119,6 +119,13 @@ func printUnifiedNodesHelp() error {
 	fmt.Println("    gitmap nodes agy prompt <node> <p>    Dispatch prompt directly to target project on node")
 	fmt.Println("    gitmap nodes agy query [--ssh]        Query active Antigravity instances and prompts")
 	fmt.Println("    gitmap nodes agy [ui]                 Launch Antigravity web studio dashboard")
+	fmt.Println("    gitmap nodes pending-commits [flags]     Inspect uncommitted & unpushed changes across fleet")
+	fmt.Println("    gitmap nodes pc [flags]                  Alias for pending-commits")
+	fmt.Println("    gitmap nodes commits <target> <msg>      Standard atomic commit across fleet nodes")
+	fmt.Println("    gitmap nodes cpf <target> <msg>          Feature commit (Feature: <msg>) across fleet nodes")
+	fmt.Println("    gitmap nodes cpb <target> <msg>          Bug fix commit (Bug: <msg>) across fleet nodes")
+	fmt.Println("    gitmap nodes cpr <target> <msg>          Release commit (Release: <msg>) across fleet nodes")
+	fmt.Println("    gitmap nodes commit-fix <target> <msg>   Fix commit (Fix: <msg>) across fleet nodes")
 	fmt.Println("    gitmap nodes <alias|ip>               Filter output to a specific node or host")
 	fmt.Println("    gitmap nodes --ssh                    Filter only SSH-enrolled nodes")
 	fmt.Println("    gitmap nodes --cluster                Filter only Cluster DB registered nodes")
@@ -128,6 +135,11 @@ func printUnifiedNodesHelp() error {
 	fmt.Println()
 	fmt.Println("  Examples:")
 	fmt.Println("    gitmap nodes")
+	fmt.Println("    gitmap nodes pc")
+	fmt.Println("    gitmap nodes pc --sort=count --detail")
+	fmt.Println("    gitmap nodes cpf gitmap \"add nodes commit suite\"")
+	fmt.Println("    gitmap nodes cpb all \"fix nil pointer exception\"")
+	fmt.Println("    gitmap nodes commit-fix my-service \"resolve merge conflict\"")
 	fmt.Println("    gitmap nodes ping")
 	fmt.Println("    gitmap nodes push-settings worker-1")
 	fmt.Println("    gitmap nodes sync-settings")
@@ -339,6 +351,18 @@ func runUnifiedNodesCLI(args []string) error {
 		return runNodesPullErrorsCLI(args[2:])
 	} else if isNodesPingCommand(args[0]) {
 		return runUnifiedNodesPingCLI(args[1:])
+	} else if strings.EqualFold(args[0], "pending-commits") || strings.EqualFold(args[0], "pc") || strings.EqualFold(args[0], "pendingcommits") {
+		return cmdnodes.RunNodesPendingCommits(args[1:])
+	} else if strings.EqualFold(args[0], "commits") {
+		return cmdnodes.RunNodesCommits(args[1:])
+	} else if strings.EqualFold(args[0], "cpf") {
+		return cmdnodes.RunNodesCommitPushFeature(args[1:])
+	} else if strings.EqualFold(args[0], "cpb") {
+		return cmdnodes.RunNodesCommitPushBug(args[1:])
+	} else if strings.EqualFold(args[0], "cpr") {
+		return cmdnodes.RunNodesCommitPushRelease(args[1:])
+	} else if strings.EqualFold(args[0], "commit-fix") || strings.EqualFold(args[0], "commitfix") {
+		return cmdnodes.RunNodesCommitFix(args[1:])
 	} else if isNodesCloneRequest(args) {
 		return cmdnodes.RunNodesClone(args)
 	} else if isNodesHelpRequest(args) {

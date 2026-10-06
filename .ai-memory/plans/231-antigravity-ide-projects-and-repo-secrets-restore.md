@@ -68,10 +68,10 @@ This plan establishes end-to-end multi-agent orchestration for task `231-antigra
 - **Owner**: Worker 02
 - **Scope**:
   - Establish `repo-secrets/09-antigravity-backup/` with `vault/`, `scripts/`, `temp/`.
-  - Author master SOP runbook [repo-secrets/09-antigravity-backup/readme.md](file:///home/a/git-work/repo-secrets/09-antigravity-backup/readme.md).
+  - Author master SOP runbook `repo-secrets/09-antigravity-backup/readme.md`.
   - Create portable manifests: `projects-manifest.json`, `pinned-projects.json`, `settings-manifest.json`, `plugins-and-skills.json`.
   - Implement cross-platform zero-touch restoration scripts (`restore-antigravity-all.sh`, `restore-antigravity-all.ps1`, `verify-antigravity-backup.sh`).
-  - Register `09-antigravity-backup/` in [repo-secrets/readme.md](file:///home/a/git-work/repo-secrets/readme.md).
+  - Register `09-antigravity-backup/` in `repo-secrets/readme.md`.
 
 ---
 

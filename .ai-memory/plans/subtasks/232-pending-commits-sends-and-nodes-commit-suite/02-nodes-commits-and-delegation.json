@@ -1,0 +1,26 @@
+{
+  "task": "Task-05",
+  "subtaskId": 2,
+  "parentTaskId": "232-pending-commits-sends-and-nodes-commit-suite",
+  "assignedAgent": "Worker 02",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/cmdnodes/nodes_commits_types.go",
+    "cli/cmdnodes/nodes_pending_commits.go",
+    "cli/cmdnodes/nodes_commits.go",
+    "cli/cmdnodes/nodes_commits_test.go",
+    "cli/cmd/nodes_cmd.go",
+    ".ai-memory/plans/subtasks/232-pending-commits-sends-and-nodes-commit-suite/02-nodes-commits-and-delegation.json"
+  ],
+  "checks": "verified nodes delegation routing, parsing, and payload aggregation",
+  "acceptance": {
+    "ac1": "PASS cli/cmdnodes/nodes_commits_types.go authored with NodePendingCommitsResult, NodeCommitExecutionResult, and NodesCommitSummary adhering to 100% positive booleans",
+    "ac2": "PASS cli/cmdnodes/nodes_pending_commits.go dispatches parallel SSH discovery across fleet nodes, extracts remote JSON, sorts repositories, and formats termtable and raw JSON envelopes",
+    "ac3": "PASS cli/cmdnodes/nodes_commits.go dispatches commits, cpf, cpb, cpr, commit-fix with Bash and PowerShell shell quoting to remote gitmap sends, aggregates outcomes, and renders status cards",
+    "ac4": "PASS cli/cmd/nodes_cmd.go wires up pending-commits, pc, commits, cpf, cpb, cpr, commit-fix subcommands and registers help text and examples in printUnifiedNodesHelp",
+    "ac5": "PASS cli/cmdnodes/nodes_commits_test.go authored with mock SSH execution, argument parsing, shell escaping, command resolution, and table rendering unit tests",
+    "ac6": "PASS 100% positive booleans, strict relative paths, zero git mutations, and zero build/test runs verified across all authored code"
+  },
+  "assumptions": [],
+  "blockers": []
+}

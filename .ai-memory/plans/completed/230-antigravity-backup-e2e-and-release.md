@@ -29,7 +29,7 @@ I think most of the things you have implemented, now your job is to test the fun
 ```
 
 ## Execution Summary
-- **Canonical Spec:** [01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/230-antigravity-backup-e2e-and-release/01-architecture-spec.md) and [02-component-spec.md](file:///d:/work/gitmap/02-spec/21-app/230-antigravity-backup-e2e-and-release/02-component-spec.md)
+- **Canonical Spec:** [01-architecture-spec.md](02-spec/21-app/230-antigravity-backup-e2e-and-release/01-architecture-spec.md) and [02-component-spec.md](02-spec/21-app/230-antigravity-backup-e2e-and-release/02-component-spec.md)
 - **Subtasks Executed:**
   - `Subtask 01: Bidirectional E2E Testing & Logging Audit` (Worker 01):
     - Executed Path A (Live State -> Backup -> Verification Scorecard):
@@ -46,7 +46,7 @@ I think most of the things you have implemented, now your job is to test the fun
     - Bumper execution: `python 03-ai-scripts/37-bump-version.py -t minor --scope "Antigravity IDE Backup E2E Validation and Release"`.
     - Bumped `version.json` from `6.493.0` to `6.494.0` (patch reset to 0 per Rule 0).
     - Multi-manifest synchronization: updated `package.json`, `.gitmap/release/latest.json`, `readme.md`, `what-to-read.md`, `cli/constants/constants.go`, and `changelog.md`.
-    - Authored canonical release notes at [.ai-memory/release/release-notes-v6.494.0.md](file:///d:/work/gitmap/.ai-memory/release/release-notes-v6.494.0.md) with 100% relative Git paths.
+    - Authored canonical release notes at [.ai-memory/release/release-notes-v6.494.0.md](.ai-memory/release/release-notes-v6.494.0.md) with 100% relative Git paths.
 
 ## Verification Evidence
 - Path A `backup-antigravity-state.ps1` -> exit code 0

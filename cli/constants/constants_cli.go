@@ -102,6 +102,11 @@ const (
 	// CmdCommitPushRelease commits with a "Release: " prefix and pushes.
 	CmdCommitPushRelease      = "commit-push-release"
 	CmdCommitPushReleaseAlias = "cpr"
+	// CmdPendingCommits discovers uncommitted changes and unpushed commits across repos.
+	CmdPendingCommits      = "pending-commits"
+	CmdPendingCommitsAlias = "pc"
+	// CmdSends dispatches semantic commits across repositories.
+	CmdSends               = "sends"
 	// CmdRmGit removes a commit by its last 4-digit SHA prefix.
 	CmdRmGit      = "rm-git"
 	CmdRmGitAlias = "rmg"

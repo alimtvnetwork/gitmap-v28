@@ -28,6 +28,9 @@ type scanFlagPointers struct {
 	relRootFlag       *string
 	defaultBranchFlag *string
 	forceIncludeFlag  *string
+	syncIDEFlag       *string
+	skipSyncFlag      *bool
+	excludeSyncFlag   *string
 	ghDesktopFlag     *bool
 	openFlag          *bool
 	quietFlag         *bool
@@ -57,10 +60,14 @@ func registerScanStringFlags(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
 	flagPtrs.defaultBranchFlag = fs.String(constants.FlagScanDefaultBranch, "", constants.FlagDescScanDefaultBranch)
 	flagPtrs.forceIncludeFlag = fs.String(constants.FlagScanForceInclude, "", constants.FlagDescScanForceInclude)
 	fs.StringVar(flagPtrs.forceIncludeFlag, constants.FlagScanForceIncludeAlias, "", constants.FlagDescScanForceInclude)
+	flagPtrs.syncIDEFlag = fs.String("sync-ide", "", "Synchronize scanned repositories to IDEs (all, vscode, cursor, agy, desktop)")
+	flagPtrs.excludeSyncFlag = fs.String("exclude-sync", "", "Comma-separated IDE targets to exclude from synchronization")
 }
 
 func registerScanToggles(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
 	flagPtrs.ghDesktopFlag = fs.Bool("github-desktop", false, constants.FlagDescGHDesktop)
+	flagPtrs.skipSyncFlag = fs.Bool("skip-sync", false, "Skip all IDE registrations during scan (alias: --no-ide-sync)")
+	fs.BoolVar(flagPtrs.skipSyncFlag, "no-ide-sync", false, "Skip all IDE registrations during scan")
 	flagPtrs.openFlag = fs.Bool("open", false, constants.FlagDescOpen)
 	flagPtrs.quietFlag = fs.Bool("quiet", false, constants.FlagDescQuiet)
 	flagPtrs.noVSCodeSyncFlag = fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)

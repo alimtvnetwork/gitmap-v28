@@ -22,18 +22,18 @@ func TestFailedCommandTableAndOperations(t *testing.T) {
 		Suggestions: "deploy-keys, deploy-keys-all",
 	}
 
-	id1, err := db.RecordFailedCommand(rec1)
-	if err != nil {
-		t.Fatalf("RecordFailedCommand failed: %v", err)
+	id1, rErr := db.RecordFailedCommand(rec1)
+	if rErr != nil {
+		t.Fatalf("RecordFailedCommand failed: %v", rErr)
 	}
 	if id1 <= 0 {
 		t.Fatalf("expected positive ID, got %d", id1)
 	}
 
 	// Record same command again to verify HitCount increment
-	id2, err := db.RecordFailedCommand(rec1)
-	if err != nil {
-		t.Fatalf("second RecordFailedCommand failed: %v", err)
+	id2, rErr2 := db.RecordFailedCommand(rec1)
+	if rErr2 != nil {
+		t.Fatalf("second RecordFailedCommand failed: %v", rErr2)
 	}
 	if id2 != id1 {
 		t.Fatalf("expected same row ID %d on duplicate command, got %d", id1, id2)
@@ -48,13 +48,13 @@ func TestFailedCommandTableAndOperations(t *testing.T) {
 		Message:     "unknown SSH command",
 		Suggestions: "gitmap ssh key add, gitmap ssh deploy-keys",
 	}
-	if _, err := db.RecordFailedCommand(rec2); err != nil {
-		t.Fatalf("RecordFailedCommand rec2 failed: %v", err)
+	if _, rErr := db.RecordFailedCommand(rec2); rErr != nil {
+		t.Fatalf("RecordFailedCommand rec2 failed: %v", rErr)
 	}
 
-	summary, err := db.GetFailedCommandSummary(10)
-	if err != nil {
-		t.Fatalf("GetFailedCommandSummary failed: %v", err)
+	summary, sErr := db.GetFailedCommandSummary(10)
+	if sErr != nil {
+		t.Fatalf("GetFailedCommandSummary failed: %v", sErr)
 	}
 	if summary.TotalDistinctCommands != 2 {
 		t.Fatalf("expected 2 distinct failed commands, got %d", summary.TotalDistinctCommands)
@@ -73,9 +73,9 @@ func TestFailedCommandTableAndOperations(t *testing.T) {
 		t.Fatalf("ClearFailedCommands failed: %v", err)
 	}
 
-	distinctAfter, totalAfter, err := db.CountFailedCommands()
-	if err != nil {
-		t.Fatalf("CountFailedCommands after clear failed: %v", err)
+	distinctAfter, totalAfter, cErr := db.CountFailedCommands()
+	if cErr != nil {
+		t.Fatalf("CountFailedCommands after clear failed: %v", cErr)
 	}
 	if distinctAfter != 0 || totalAfter != 0 {
 		t.Fatalf("expected 0 counts after clear, got distinct=%d total=%d", distinctAfter, totalAfter)

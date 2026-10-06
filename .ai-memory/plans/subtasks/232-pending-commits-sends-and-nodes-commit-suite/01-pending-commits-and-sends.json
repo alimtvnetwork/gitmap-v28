@@ -1,0 +1,29 @@
+{
+  "task": "Task-04",
+  "subtaskId": 1,
+  "parentTaskId": "232-pending-commits-sends-and-nodes-commit-suite",
+  "assignedAgent": "Worker 01",
+  "status": "DONE",
+  "filesChanged": [
+    "cli/constants/constants_cli.go",
+    "cli/cmd/pending_commits_types.go",
+    "cli/cmd/pending_commits_cmd.go",
+    "cli/cmd/pending_commits_test.go",
+    "cli/cmd/sends_cmd.go",
+    "cli/cmd/sends_test.go",
+    "cli/cmd/roottooling.go",
+    ".ai-memory/plans/subtasks/232-pending-commits-sends-and-nodes-commit-suite/01-pending-commits-and-sends.json"
+  ],
+  "checks": "verified command routing, parsing, and data models",
+  "acceptance": {
+    "ac1": "PASS cli/cmd/pending_commits_types.go authored with PendingCommitsPayload, RepoPendingCommitRecord, UncommittedChangesSummary, UnpushedCommitSummary, and SendsExecutionPayload adhering to 100% positive booleans",
+    "ac2": "PASS cli/cmd/pending_commits_cmd.go implements RunPendingCommits with priority/name/count sorting, summary and all/1-by-1 detail views, fleet SSH aggregation via -ssh, and JSON telemetry",
+    "ac3": "PASS cli/cmd/sends_cmd.go implements RunSends supporting cpf, cpb, cpr, commit-fix, cp, and cm semantic verbs, target resolution ($repoName vs all), non-destructive clean repository skipping, dry-run safety, and execution cards",
+    "ac4": "PASS cli/cmd/roottooling.go wires up pending-commits, pc, and sends command registration in toolingWorkspaceEntries",
+    "ac5": "PASS cli/constants/constants_cli.go defines CmdPendingCommits, CmdPendingCommitsAlias, and CmdSends command constants",
+    "ac6": "PASS cli/cmd/pending_commits_test.go and cli/cmd/sends_test.go authored with mock git executors, flag parsing, sorting, prefix mapping, and JSON schema tests",
+    "ac7": "PASS 100% positive booleans, strictly relative Git paths, zero git mutations, and zero build/test runs adhered to across all authored code"
+  },
+  "assumptions": [],
+  "blockers": []
+}

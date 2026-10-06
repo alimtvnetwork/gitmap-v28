@@ -52,7 +52,22 @@ func knownInstallCandidates() []string {
 		return darwinCandidates()
 	}
 
-	return nil
+	return linuxCandidates()
+}
+
+// linuxCandidates returns common Linux installation paths for the GitHub Desktop shim.
+func linuxCandidates() []string {
+	home := os.Getenv("HOME")
+	if home == "" {
+		return nil
+	}
+
+	return []string{
+		filepath.Join(home, ".local/bin/github"),
+		filepath.Join(home, ".local/bin/github-desktop"),
+		filepath.Join(home, ".local/share/flatpak/exports/bin/io.github.shifteight9.desktop"),
+		filepath.Join(home, ".local/share/applications/github-desktop"),
+	}
 }
 
 // windowsCandidates lists `%LOCALAPPDATA%\GitHubDesktop\bin\github.bat` and

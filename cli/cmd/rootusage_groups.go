@@ -18,6 +18,7 @@ func printGroupCloning() {
 	renderLine(constants.HelpCloneNext)
 	renderLine(constants.HelpDesktopSync)
 	renderLine(constants.HelpGitHubDesktop)
+	renderLine("  ide, ides                   cross-IDE repository management (add, sync, remove, ls, status)")
 }
 
 func printGroupGitOps() {

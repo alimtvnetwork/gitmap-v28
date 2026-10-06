@@ -6,6 +6,8 @@
 
 ## Completed Plans
 
+- [233-ubuntu-ide-and-github-desktop-scan-sync.md](completed/233-ubuntu-ide-and-github-desktop-scan-sync.md) — Ubuntu Multi-IDE & GitHub Desktop Scan Integration, CLI Management Suite & Storage Sync (Spec: [233](../../02-spec/21-app/233-ubuntu-ide-and-github-desktop-scan-sync/01-architecture-spec.md))
+- [232-pending-commits-sends-and-nodes-commit-suite.md](completed/232-pending-commits-sends-and-nodes-commit-suite.md) — Pending Commits Scanner, Sends Command Dispatcher & Remote Nodes Cluster Delegation Suite (Spec: [232](../../02-spec/21-app/232-pending-commits-sends-and-nodes-commit-suite/01-architecture-spec.md))
 - [230-token-purge-installer-workdir-pull-agm-and-ui-modernization.md](completed/230-token-purge-installer-workdir-pull-agm-and-ui-modernization.md) — Security Token Purge, Installer Navigation ($work, $def), Pull Remediation, AGM Linux Update, Multi-Instance API & UI Modernization (Spec: [230](../../02-spec/21-app/230-token-purge-installer-workdir-pull-agm-and-ui-modernization/readme.md))
 - [231-antigravity-ide-projects-and-repo-secrets-restore.md](completed/231-antigravity-ide-projects-and-repo-secrets-restore.md) — Antigravity IDE Projects Ingestion (78 repos), Pinned Projects Suite & Repo-Secrets Migration Documentation (Spec: [231](../../02-spec/21-app/231-antigravity-ide-projects-and-repo-secrets-restore/01-architecture-spec.md))
 - [230-antigravity-backup-e2e-and-release.md](completed/230-antigravity-backup-e2e-and-release.md) — Antigravity IDE Backup E2E Validation, Logging Verification & Minor Release v6.494.0 (Spec: [230](../../02-spec/21-app/230-antigravity-backup-e2e-and-release/01-architecture-spec.md))

@@ -125,9 +125,9 @@ func (s *PullSplitDB) QueryLatestPullErrors(repoSlug string, limit int) ([]PullE
 	}
 	defer rows.Close()
 
-	records, err := scanPullErrorRows(rows)
-	if err != nil {
-		return records, err
+	records, scanErr := scanPullErrorRows(rows)
+	if scanErr != nil {
+		return records, scanErr
 	}
 
 	for i := range records {

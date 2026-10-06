@@ -12,6 +12,7 @@ var (
 	CompletePendingTaskFn   func(db *store.DB, taskID int64)
 	FailPendingTaskFn       func(db *store.DB, taskID int64, reason string)
 	SyncRecordsToVSCodePMFn func(records []model.ScanRecord, isSkipVSCodeSync, isSkipAutoTags bool)
+	SyncRecordsToIDEsFn     func(records []model.ScanRecord, args []string, isSkipVSCodeSync, isQuiet bool)
 	RunPruneStaleDBFn       func(absDir string, records []model.ScanRecord) error
 	CheckHelpFn             func(subcmd string, args []string)
 )

@@ -64,6 +64,29 @@ func ProjectsJSONPath() (string, error) {
 	return filepath.Join(extDir, constants.VSCodePMProjectsFile), nil
 }
 
+// EnsureProjectsJSONPath returns the absolute path to projects.json,
+// creating the parent extension storage directory with 0755 permissions
+// if it does not yet exist.
+func EnsureProjectsJSONPath() (string, error) {
+	root, err := UserDataRoot()
+	if err != nil {
+		return root, err
+	}
+
+	extDir := filepath.Join(root,
+		constants.VSCodePMUserDir,
+		constants.VSCodePMGlobalStorageDir,
+		constants.VSCodePMExtensionDir)
+
+	if !dirExists(extDir) {
+		if mkErr := os.MkdirAll(extDir, 0755); mkErr != nil {
+			return filepath.Join(extDir, constants.VSCodePMProjectsFile), ErrExtensionMissing
+		}
+	}
+
+	return filepath.Join(extDir, constants.VSCodePMProjectsFile), nil
+}
+
 // userDataCandidate returns the OS-specific user-data root candidate path.
 // Empty string when neither the primary nor the fallback env var is set.
 func userDataCandidate() string {

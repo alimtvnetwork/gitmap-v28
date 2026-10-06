@@ -21,6 +21,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddoctor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdide"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
@@ -82,6 +83,10 @@ func runCursor(args []string) error {
 	return cmdcursor.RunCursor(args)
 }
 
+func runIDE(args []string) error {
+	return cmdide.RunIDE(args)
+}
+
 func runVSCodePMSync(args []string) error {
 	return cmdvscode.RunVSCodePMSync(args)
 }
@@ -100,6 +105,63 @@ func runFindDuplicatesVSCode() error {
 
 func syncRecordsToVSCodePM(records []model.ScanRecord, isSkipVSCodeSync, isSkipAutoTags bool) {
 	cmdvscode.SyncRecordsToVSCodePM(records, isSkipVSCodeSync, isSkipAutoTags)
+}
+
+func syncScanRecordsToIDEs(records []model.ScanRecord, args []string, isSkipVSCodeSync, isQuiet bool) {
+	opts := cmdide.IDEOptions{
+		IsVSCodeTargeted:      true,
+		IsCursorTargeted:      true,
+		IsAntigravityTargeted: true,
+		IsDesktopTargeted:     true,
+		IsQuiet:               isQuiet,
+	}
+
+	for i, arg := range args {
+		if arg == "--skip-sync" || arg == "--no-ide-sync" || arg == "--no-sync" {
+			return
+		}
+		if (arg == "--sync-ide" || arg == "--ide") && i+1 < len(args) {
+			applyIDEScanTargetFilter(&opts, args[i+1])
+		}
+		if (arg == "--exclude-sync" || arg == "--skip-ide") && i+1 < len(args) {
+			applyIDEScanExcludeFilter(&opts, args[i+1])
+		}
+	}
+
+	if isSkipVSCodeSync {
+		opts.IsVSCodeTargeted = false
+	}
+
+	repoPaths := make([]string, 0, len(records))
+	for _, rec := range records {
+		if rec.AbsolutePath != "" {
+			repoPaths = append(repoPaths, rec.AbsolutePath)
+		}
+	}
+
+	summary := cmdide.SyncReposAcrossIDEsDirect(repoPaths, opts)
+	if !isQuiet {
+		fmt.Printf("  • IDE Registrations: %d repos checked across IDEs (VS Code: +%d, Cursor: +%d, Antigravity: +%d, Desktop: +%d)\n",
+			summary.TotalRepos, summary.VSCodeAdded, summary.CursorAdded, summary.AntigravityAdded, summary.DesktopAdded)
+	}
+}
+
+func applyIDEScanTargetFilter(opts *cmdide.IDEOptions, target string) {
+	low := strings.ToLower(target)
+	if low != "all" {
+		opts.IsVSCodeTargeted = strings.Contains(low, "vscode") || strings.Contains(low, "code")
+		opts.IsCursorTargeted = strings.Contains(low, "cursor")
+		opts.IsAntigravityTargeted = strings.Contains(low, "antigravity") || strings.Contains(low, "agy")
+		opts.IsDesktopTargeted = strings.Contains(low, "desktop")
+	}
+}
+
+func applyIDEScanExcludeFilter(opts *cmdide.IDEOptions, excluded string) {
+	low := strings.ToLower(excluded)
+	opts.IsVSCodeTargeted = opts.IsVSCodeTargeted && !strings.Contains(low, "vscode") && !strings.Contains(low, "code")
+	opts.IsCursorTargeted = opts.IsCursorTargeted && !strings.Contains(low, "cursor")
+	opts.IsAntigravityTargeted = opts.IsAntigravityTargeted && !strings.Contains(low, "antigravity") && !strings.Contains(low, "agy")
+	opts.IsDesktopTargeted = opts.IsDesktopTargeted && !strings.Contains(low, "desktop")
 }
 
 func reportVSCodePMSoftError(err error) {
@@ -976,6 +1038,7 @@ func init() {
 	cmdscan.CompletePendingTaskFn = completePendingTask
 	cmdscan.FailPendingTaskFn = failPendingTask
 	cmdscan.SyncRecordsToVSCodePMFn = syncRecordsToVSCodePM
+	cmdscan.SyncRecordsToIDEsFn = syncScanRecordsToIDEs
 	cmdscan.RunPruneStaleDBFn = runPruneStaleDB
 	cmdscan.CheckHelpFn = checkHelp
 	cmdscan.CheckSpecialReposOnScanFn = func(workBaseDir string, isQuiet bool) {

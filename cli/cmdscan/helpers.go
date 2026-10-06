@@ -38,6 +38,12 @@ func syncRecordsToVSCodePM(records []model.ScanRecord, isSkipVSCodeSync, isSkipA
 	}
 }
 
+func syncRecordsToIDEs(records []model.ScanRecord, args []string, isSkipVSCodeSync, isQuiet bool) {
+	if SyncRecordsToIDEsFn != nil {
+		SyncRecordsToIDEsFn(records, args, isSkipVSCodeSync, isQuiet)
+	}
+}
+
 func runPruneStaleDB(absDir string, records []model.ScanRecord) error {
 	if RunPruneStaleDBFn != nil {
 		return RunPruneStaleDBFn(absDir, records)

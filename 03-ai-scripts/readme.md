@@ -65,6 +65,7 @@ Follow this sequence before and during any repository modification task:
 | **37** | `37-bump-version.py` | Repository-aware SemVer version bumper & manifest synchronizer | ~15ms | `version`, `bump`, `semver`, `sync`, `changelog` |
 | **38** | `38-sync-prompts-skills-scripts.py` | Synchronizes prompts, skills, and scripts across connected repositories | ~40ms | `sync`, `prompts`, `skills`, `multi-repo` |
 | **39** | `39-migrate-indexes-to-readme.py` | Autonomous repository-wide index migrator (renames index files to readme.md) | ~150ms | `migrator`, `index`, `readme`, `references` |
+| **40** | `40-ubuntu-ide-desktop-sync.py` | Standalone multi-IDE (VS Code, Cursor, Antigravity) & GitHub Desktop synchronizer on Ubuntu | ~15ms | `ide`, `sync`, `ubuntu`, `vscode`, `cursor`, `antigravity`, `github-desktop` |
 | **44** | `44-work-and-system-cache-cleaner.py` | Multi-layer work build artifact, Go/npm/pnpm/Node/DevTools cache, OS temp, SoftwareDistribution, Recycle Bin & Git cache cleaner with Plan & -y modes | ~50ms | `clean`, `cache`, `artifacts`, `go-cache`, `npm-cache`, `pnpm`, `devtools`, `temp`, `recycle-bin` |
 | **45** | `45-antigravity-run-audit.py` | Audits Antigravity runs, transcript events, and subagent lifecycles | ~20ms | `audit`, `antigravity`, `transcripts`, `subagents` |
 | **46** | `46-agent-sqlite-task-manager.py` | Concurrency-safe SQLite task coordination and crash forensics engine | ~10ms | `task-manager`, `sqlite`, `acid`, `multi-agent`, `crash-forensics` |
@@ -1181,6 +1182,45 @@ python 03-ai-scripts/37-bump-version.py --tier patch --scope "Fix release orches
 
 # Explicit version bump
 python 03-ai-scripts/37-bump-version.py --version 6.42.0
+```
+
+</details>
+
+<details>
+<summary><strong>40 — <code>40-ubuntu-ide-desktop-sync.py</code>: Standalone Multi-IDE & GitHub Desktop Synchronizer</strong></summary>
+
+#### Why It Exists
+
+Eliminates developer workspace fragmentation on Ubuntu Linux by immediately discovering Git repositories across local workspace directories or the `gitmap.db` SQLite tracking database, auto-creating missing IDE storage hierarchies, and synchronizing project configurations across VS Code, Cursor, Google Antigravity, and GitHub Desktop.
+
+#### What It Does
+
+- Discovers Git repositories recursively from local directories (`--scan-dir`) or extracts tracked repositories directly from `gitmap.db` (`--from-db`).
+- Auto-creates missing IDE storage directories with `0o755` permissions prior to writes, resolving the `ErrExtensionMissing` root cause.
+- Synchronizes Visual Studio Code Project Manager storage (`~/.config/Code/User/globalStorage/alefragnani.project-manager/projects.json`).
+- Synchronizes Cursor IDE Project Manager storage (`~/.config/Cursor/User/globalStorage/alefragnani.project-manager/projects.json`).
+- Generates RFC 4122 UUID v4 workspace descriptors for Google Antigravity (`~/.gemini/config/projects/<uuid>.json`).
+- Dispatches repository registrations to GitHub Desktop on Linux via CLI shim (`/usr/bin/github open <path>`).
+- Implements atomic JSON file writing via temporary sibling files and `os.replace()`.
+- Provides `--dry-run`, `--ide`, `--skip-sync`, `--quiet`, and `--json` telemetry modes.
+
+#### CLI Usage & Examples
+
+```bash
+# Preview repository synchronization across all IDEs (dry-run check)
+python 03-ai-scripts/40-ubuntu-ide-desktop-sync.py --dry-run
+
+# Synchronize repositories discovered from gitmap.db SQLite database
+python 03-ai-scripts/40-ubuntu-ide-desktop-sync.py --from-db
+
+# Target specific IDEs (e.g. VS Code and Antigravity only)
+python 03-ai-scripts/40-ubuntu-ide-desktop-sync.py --ide vscode,antigravity
+
+# Exclude GitHub Desktop and Cursor from synchronization
+python 03-ai-scripts/40-ubuntu-ide-desktop-sync.py --skip-sync desktop,cursor
+
+# Emit structured JSON telemetry for programmatic consumption
+python 03-ai-scripts/40-ubuntu-ide-desktop-sync.py --dry-run --json
 ```
 
 </details>

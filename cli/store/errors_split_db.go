@@ -173,7 +173,11 @@ func (s *ErrorsSplitDB) Close() *apperror.AppError {
 		return nil
 	}
 
-	return s.conn.Close()
+	if err := s.conn.Close(); err != nil {
+		return apperror.WrapSimple(err, "ErrorsSplitDB.Close")
+	}
+
+	return nil
 }
 
 func (s *ErrorsSplitDB) FederatedClearErrors() *apperror.AppError {
@@ -312,39 +316,4 @@ func (s *ErrorsSplitDB) FederatedListErrors(limit int, unresolvedOnly bool) ([]I
 	}
 
 	return records, nil
-}
-
-func LogInternalErrorRecord(rec InternalErrorRecord) {
-	db, err := OpenErrorsSplitDB()
-	if err != nil {
-		return
-	}
-	defer db.Close()
-
-	resolvedVal := 0
-	if rec.IsResolved {
-		resolvedVal = 1
-	}
-
-	res, err := db.conn.Exec(`INSERT INTO RootErrorIndex (ErrorCode, ErrorType, Command, Message, GitMapVersion, IsResolved, RepoPath) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		rec.ErrorCode, rec.ErrorType, rec.Command, rec.Message, rec.GitMapVersion, resolvedVal, rec.RepoPath,
-	)
-	if err != nil {
-		return
-	}
-
-	id, _ := res.LastInsertId()
-
-	if rec.RepoPath != "" {
-		repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "errors.db")
-		_ = os.MkdirAll(filepath.Dir(repoDBPath), 0755)
-		repoConn, err := sql.Open("sqlite", repoDBPath)
-		if err == nil {
-			defer repoConn.Close()
-			_, _ = repoConn.Exec(sqlCreateRepoErrorDB)
-			_, _ = repoConn.Exec(`INSERT INTO RepoErrorDB (InternalErrorLogId, Details, SourceFile, ContextJson, StackTrace, Notes, Comments) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-				id, rec.Details, rec.SourceFile, rec.ContextJson, rec.StackTrace, rec.Notes, rec.Comments,
-			)
-		}
-	}
 }

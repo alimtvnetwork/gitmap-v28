@@ -38,5 +38,6 @@ Registry of application bugs, regressions, root cause analyses (RCA), and resolu
 | [27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md](27-pull-all-unconstrained-ignore-deadlock-and-ssh-concurrency-rca.md) | Pull-All Unconstrained Ignore Subprocess Deadlock and SSH Concurrency Multiplication (RCA-61) | Resolved |
 | [28-commit-push-clean-working-tree-exit-failure-rca.md](28-commit-push-clean-working-tree-exit-failure-rca.md) | Commit-Push Clean Working Tree Exit Status 1 Failure & Missing Staged Changes Guard (RCA-63) | Resolved |
 | [29-ssh-connection-timeout-and-target-firewall-sshd-rca.md](29-ssh-connection-timeout-and-target-firewall-sshd-rca.md) | SSH Connection Timeout, Target OpenSSH Server Absence & Firewall Block (RCA-64) | Resolved |
+| [71-ubuntu-ide-github-desktop-scan-omission.md](71-ubuntu-ide-github-desktop-scan-omission.md) | Ubuntu Multi-IDE & GitHub Desktop Scan Omission (RCA-71) | Resolved |
 | [agy-vm-status.md](agy-vm-status.md) | Antigravity virtual machine status inspection | Resolved |
 
