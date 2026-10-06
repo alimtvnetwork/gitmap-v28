@@ -13,7 +13,7 @@ func runCommitPull(args []string) error {
 	for _, a := range args {
 		if a == "--help" || a == "-h" || a == "help" {
 			printCommitPullHelp()
-			cliexit.HandleError(nil, 0)
+			cliexit.HandleSuccess()
 			return nil
 		}
 	}

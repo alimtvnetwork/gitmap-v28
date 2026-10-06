@@ -54,7 +54,7 @@ func executeCommitTransfer(spec commitTransferSpec, args []string) {
 		fmt.Fprintf(os.Stderr,
 			"%s --interleave is only valid for commit-both (got %s)\n",
 			opts.LogPrefix, spec.Name)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	cfg, _ := config.LoadFromFile(constants.DefaultConfigPath)

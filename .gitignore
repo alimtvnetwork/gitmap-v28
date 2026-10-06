@@ -27,6 +27,8 @@ test-reports/
 *.so
 *.dylib
 *.out
+*.syso
+*.syso~
 build/
 bin/
 obj/
@@ -88,6 +90,8 @@ cli/data/account-switch/
 *.db-wal
 *.lock
 vmpass.json
+accounts.json
+accounts/*.json
 gitmap-final.json
 .antigravity_resume_task.json
 antigravity-resume_task.json

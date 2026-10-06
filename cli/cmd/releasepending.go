@@ -84,7 +84,7 @@ func rejectVersionArgOnPending(args []string) {
 				"    Did you mean:  gitmap pr %s        # pull-release: pull, then release %s\n"+
 				"               or  gitmap release %s   # release %s directly\n\n",
 			a, a, a, a, a)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 }
 

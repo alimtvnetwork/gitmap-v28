@@ -42,7 +42,7 @@ func parseRAArgs(args []string, forcePull bool) (string, string, bool, bool, boo
 	rest := fs.Args()
 	if len(rest) != 2 {
 		fmt.Fprintln(os.Stderr, constants.ErrRAUsage)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	return rest[0], rest[1], *pull || forcePull, *noStash, *dryRun

@@ -75,7 +75,7 @@ func runCommitIn(args []string) error {
 	}
 	if hasCommitInHelpArg(args) {
 		fmt.Println(commitin.PrintCommitInHelp())
-		cliexit.HandleError(nil, 0)
+		cliexit.HandleSuccess()
 	}
 
 	raw, perr := commitin.Parse(args)

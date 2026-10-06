@@ -50,7 +50,7 @@ func runRegoldens(args []string) error {
 	cfg := parseRegoldensFlags(args)
 	if cfg.pattern == "" {
 		fmt.Fprintln(os.Stderr, constants.ErrRegoldensMissingPat)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	validateDiffMode(cfg.diffMode)

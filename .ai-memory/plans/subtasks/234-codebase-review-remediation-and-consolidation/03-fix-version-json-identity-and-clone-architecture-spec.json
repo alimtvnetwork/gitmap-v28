@@ -1,0 +1,33 @@
+{
+  "task": "Subtask-234.3",
+  "subtaskId": 3,
+  "parentTaskId": "234-codebase-review-remediation-and-consolidation",
+  "assignedAgent": "Worker 02",
+  "status": "DONE",
+  "filesChanged": [
+    "version.json"
+  ],
+  "filesCreated": [
+    "docs/commands/cloning-architecture.md"
+  ],
+  "checks": "version-json-identity-check -> PASS; version-pinned-check -> PASS (6.497.0); clone-engines-mapped -> PASS (5 engines + concurrency); clone-models-documented -> PASS; relative-paths-check -> PASS",
+  "acceptance": {
+    "AC-234.3-1": "PASS version.json Title updated to 'GitMap'",
+    "AC-234.3-2": "PASS version.json RepoSlug updated to 'gitmap-v28'",
+    "AC-234.3-3": "PASS version.json RepoUrl updated to 'https://github.com/alimtvnetwork/gitmap-v28'",
+    "AC-234.3-4": "PASS version.json name updated to 'gitmap'",
+    "AC-234.3-5": "PASS version.json Version strictly maintained at '6.497.0'",
+    "AC-234.3-6": "PASS docs/commands/cloning-architecture.md authored documenting all 5 clone engines and cli/cloneconcurrency",
+    "AC-234.3-7": "PASS Data models (model.ScanRecord, clonefrom.Plan, clonenow.Plan, clonepick.Plan, clonenext.ParsedRepo) documented with field breakdowns",
+    "AC-234.3-8": "PASS Rationale against monolithic single-file collapse fully articulated",
+    "AC-234.3-9": "PASS Zero absolute paths used in documentation"
+  },
+  "identity": {
+    "Title": "GitMap",
+    "RepoSlug": "gitmap-v28",
+    "RepoUrl": "https://github.com/alimtvnetwork/gitmap-v28",
+    "name": "gitmap",
+    "Version": "6.497.0"
+  },
+  "blockers": []
+}

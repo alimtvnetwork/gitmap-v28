@@ -76,7 +76,7 @@ func parseDiffArgs(args []string) (left, right string, walk diff.WalkOptions, pr
 func extractDiffPositional(rest []string) (string, string) {
 	if len(rest) != 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrDiffUsageFmt)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	return rest[0], rest[1]

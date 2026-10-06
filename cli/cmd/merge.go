@@ -46,7 +46,7 @@ func parseMergeArgs(spec mergeSpec, args []string) (string, string, movemerge.Op
 	rest := fs.Args()
 	if len(rest) != 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrMMUsageFmt, spec.cmd)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	opts := mf.toOptions(spec.cmd, spec.prefix, spec.msgFmt)

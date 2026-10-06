@@ -57,7 +57,7 @@ func runStartupAdd(args []string) error {
 	exec, ok := resolveStartupAddExec(cfg.exec)
 	if !ok {
 		fmt.Fprintln(os.Stderr, constants.ErrStartupAddMissingExec)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	backend, err := startup.ParseBackend(cfg.backend)
@@ -120,7 +120,7 @@ func parseStartupAddFlags(args []string) startupAddFlags {
 	if cfg.name == "" {
 		fmt.Fprintln(os.Stderr,
 			"startup-add: --name is required (e.g. --name myapp)")
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	return cfg

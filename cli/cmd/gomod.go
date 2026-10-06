@@ -94,7 +94,7 @@ func parseGoModFlags(args []string) goModOpts {
 func validateGoModPreconditions(oldPath, newPath string) *apperror.AppError {
 	if oldPath == newPath {
 		fmt.Printf(constants.MsgGoModNothingRename, oldPath)
-		cliexit.HandleError(nil, 0)
+		cliexit.HandleSuccess()
 	}
 
 	requireInsideWorkTree()

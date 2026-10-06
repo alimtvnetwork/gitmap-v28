@@ -1,0 +1,53 @@
+{
+  "task": "Subtask-234.1",
+  "subtaskId": 1,
+  "parentTaskId": "234-codebase-review-remediation-and-consolidation",
+  "assignedAgent": "Worker 01",
+  "status": "DONE",
+  "filesRemoved": [
+    "fix_agy_conv_ls.py",
+    "fix_agy_ls.py",
+    "fix_agy_most_conv.py",
+    "fix_cd_alias.py",
+    "fix_cg_path.py",
+    "fix_common_sync.py",
+    "fix_cr_alias.py",
+    "fix_cr_rootcore.py",
+    "fix_go_compile.py",
+    "fix_ip_aliases.py",
+    "fix_ip_conflict.py",
+    "fix_most_conv.py",
+    "fix_repo_create_init.py",
+    "fix_repo_create_init2.py",
+    "fix_watch.py",
+    "fix_words_flag.py",
+    "update_runner.py",
+    "update_runner2.py",
+    "audit_results_extra.csv",
+    "audit_results_go.csv",
+    "audit_results_ts.csv",
+    "user_prompt_full.txt",
+    "gitignore",
+    "benchmark.md"
+  ],
+  "filesChanged": [
+    ".gitignore",
+    "docs/benchmarks/benchmark.md"
+  ],
+  "checks": "clutter-files-check -> PASS; syso-ignore-check -> PASS; benchmark-elevation-check -> PASS; zero-exe-check -> PASS",
+  "acceptance": {
+    "AC-234.1-1": "PASS All 16 fix_*.py files deleted from root disk",
+    "AC-234.1-2": "PASS Both update_runner.py and update_runner2.py deleted from root disk",
+    "AC-234.1-3": "PASS All 3 audit_results_*.csv files deleted from root disk",
+    "AC-234.1-4": "PASS user_prompt_full.txt deleted from root disk",
+    "AC-234.1-5": "PASS Misplaced non-dot gitignore deleted from root disk",
+    "AC-234.1-6": "PASS .gitignore updated with *.syso and *.syso~ under compiled binaries",
+    "AC-234.1-7": "PASS docs/benchmarks/benchmark.md created consolidating benchmark numbers and referencing 03-ai-scripts/40-run-search-benchmarks.py",
+    "AC-234.1-8": "PASS Root benchmark.md elevated and removed from root",
+    "AC-234.1-9": "PASS Zero .exe files present in tracked source files"
+  },
+  "assumptions": [
+    "Untracking cli/rsrc_windows_386.syso and cli/rsrc_windows_amd64.syso from git is delegated to lead orchestrator during git staging per total git command ban"
+  ],
+  "blockers": []
+}

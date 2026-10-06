@@ -94,7 +94,7 @@ func applyGlyphsChoice(choice string) {
 			constants.GlyphsRich,
 			constants.GlyphsSafe,
 		)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	os.Setenv(constants.EnvGlyphs, choice)

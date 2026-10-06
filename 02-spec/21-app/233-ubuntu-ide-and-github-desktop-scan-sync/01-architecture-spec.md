@@ -122,7 +122,7 @@ Google Antigravity utilizes an agentic workspace model where each project is def
     "resources": [
       {
         "gitFolder": {
-          "folderUri": "file:///home/a/git-work/gitmap",
+          "folderUri": "file:///${WORKSPACE_ROOT}/gitmap",
           "defaultBranch": "main"
         }
       }
@@ -138,7 +138,7 @@ Google Antigravity utilizes an agentic workspace model where each project is def
 }
 ```
 - **Key Constraints:**
-  - `folderUri`: Canonical file URI adhering to RFC 3986 (`file:///home/...`).
+  - `folderUri`: Canonical file URI adhering to RFC 3986 (`file:///${WORKSPACE_ROOT}/...`).
   - `defaultBranch`: Discovered primary Git branch (`main` or `master`).
   - Affirmative boolean conventions (`isWorkspaceOnly: false`).
 

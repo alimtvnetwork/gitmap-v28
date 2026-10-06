@@ -60,7 +60,7 @@ func runStep(label string, name string, args ...string) error {
 func runTagRename(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprintln(os.Stderr, "tag-rename: ERROR usage: gitmap tag-rename <old> <new>")
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	oldTag, newTag := args[0], args[1]

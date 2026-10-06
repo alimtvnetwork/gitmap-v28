@@ -1,0 +1,33 @@
+{
+  "task": "Subtask-234.2",
+  "subtaskId": 2,
+  "parentTaskId": "234-codebase-review-remediation-and-consolidation",
+  "assignedAgent": "Worker 02",
+  "status": "DONE",
+  "filesChanged": [
+    "readme.md",
+    "what-to-read.md",
+    "docs/benchmarks/benchmark.md"
+  ],
+  "filesRemoved": [
+    "benchmark.md"
+  ],
+  "checks": "readme-linecount-check -> PASS (155 lines); what-to-read-dedup-check -> PASS (32 lines); benchmark-elevation-check -> PASS; relative-paths-check -> PASS",
+  "acceptance": {
+    "AC-234.2-1": "PASS docs/benchmarks/benchmark.md created with complete benchmark data from root benchmark.md",
+    "AC-234.2-2": "PASS Root benchmark.md removed from root directory",
+    "AC-234.2-3": "PASS readme.md reduced to an executive index (155 lines) linking to docs/commands/, 02-spec/, and docs/benchmarks/benchmark.md",
+    "AC-234.2-4": "PASS what-to-read.md converted into a concise agent reading sequence guide (32 lines)",
+    "AC-234.2-5": "PASS De-duplication achieved (SHA-256 hashes of readme.md and what-to-read.md are distinct)",
+    "AC-234.2-6": "PASS All markdown links adhere strictly to relative git paths",
+    "AC-234.2-7": "PASS Zero absolute paths present in documentation files"
+  },
+  "metrics": {
+    "readmeLinesBefore": 3504,
+    "readmeLinesAfter": 155,
+    "whatToReadLinesBefore": 3504,
+    "whatToReadLinesAfter": 32,
+    "totalLinesRemoved": 6821
+  },
+  "blockers": []
+}

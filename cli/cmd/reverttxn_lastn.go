@@ -48,11 +48,11 @@ func mustParseLastN(raw string) int {
 	n, err := strconv.Atoi(strings.TrimSpace(raw))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRevertLastNBadCount, constants.FlagRevertLastN, raw)
-		cliexit.HandleError(err, 2)
+		cliexit.HandleUsageError(err)
 	}
 	if n <= 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrRevertLastNBadCount, constants.FlagRevertLastN, raw)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	return n

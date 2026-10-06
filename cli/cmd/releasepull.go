@@ -137,7 +137,7 @@ func resolvePullMode(ffOnly, rebase, merge bool) string {
 
 	if count > 1 {
 		fmt.Fprintf(os.Stderr, constants.ErrRPModeConflictFmt, describePickedModes(ffOnly, rebase, merge))
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	if rebase {

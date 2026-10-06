@@ -6,6 +6,7 @@
 
 ## Completed Plans
 
+- [234-codebase-review-remediation-and-consolidation.md](completed/234-codebase-review-remediation-and-consolidation.md) — Codebase Review Remediation, Root Clutter Purge, README Index Reduction, Version Identity & Clone Spec (Spec: [234](../../02-spec/21-app/234-codebase-review-remediation-and-consolidation/01-architecture-spec.md))
 - [233-ubuntu-ide-and-github-desktop-scan-sync.md](completed/233-ubuntu-ide-and-github-desktop-scan-sync.md) — Ubuntu Multi-IDE & GitHub Desktop Scan Integration, CLI Management Suite & Storage Sync (Spec: [233](../../02-spec/21-app/233-ubuntu-ide-and-github-desktop-scan-sync/01-architecture-spec.md))
 - [232-pending-commits-sends-and-nodes-commit-suite.md](completed/232-pending-commits-sends-and-nodes-commit-suite.md) — Pending Commits Scanner, Sends Command Dispatcher & Remote Nodes Cluster Delegation Suite (Spec: [232](../../02-spec/21-app/232-pending-commits-sends-and-nodes-commit-suite/01-architecture-spec.md))
 - [230-token-purge-installer-workdir-pull-agm-and-ui-modernization.md](completed/230-token-purge-installer-workdir-pull-agm-and-ui-modernization.md) — Security Token Purge, Installer Navigation ($work, $def), Pull Remediation, AGM Linux Update, Multi-Instance API & UI Modernization (Spec: [230](../../02-spec/21-app/230-token-purge-installer-workdir-pull-agm-and-ui-modernization/readme.md))

@@ -302,7 +302,7 @@ func openCodeDB() (*store.DB, error) {
 func runCodePaths(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: gitmap code paths <add|rm|list> <alias> [path]")
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	op := args[0]
@@ -317,7 +317,7 @@ func runCodePaths(args []string) error {
 		runCodePathsList(rest)
 	default:
 		fmt.Fprintf(os.Stderr, "unknown subcommand: %s\nusage: gitmap code paths <add|rm|list> <alias> [path]\n", op)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	return nil
@@ -389,7 +389,7 @@ func runCodePathsRm(args []string) error {
 func runCodePathsList(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: gitmap code paths list <alias>")
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	alias := args[0]
@@ -411,7 +411,7 @@ func runCodePathsList(args []string) error {
 func requireAliasAndPath(args []string, op string) (string, string) {
 	if len(args) < 2 {
 		fmt.Fprintf(os.Stderr, "usage: gitmap code paths %s <alias> <path>\n", op)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	return args[0], args[1]

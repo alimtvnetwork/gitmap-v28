@@ -2,6 +2,7 @@
 
 ## Active Specifications
 
+- [234-codebase-review-remediation-and-consolidation](234-codebase-review-remediation-and-consolidation/01-architecture-spec.md) — Codebase Review Remediation, Root Clutter Purge, README Index Reduction, Version Identity & Clone Spec (Status: `completed`)
 - [233-ubuntu-ide-and-github-desktop-scan-sync](233-ubuntu-ide-and-github-desktop-scan-sync/01-architecture-spec.md) — Ubuntu Multi-IDE & GitHub Desktop Scan Integration, CLI Management Suite & Storage Sync (Status: `completed`)
 - [232-pending-commits-sends-and-nodes-commit-suite](232-pending-commits-sends-and-nodes-commit-suite/01-architecture-spec.md) — Pending Commits Scanner, Sends Command Dispatcher & Remote Nodes Cluster Delegation Suite (Status: `completed`)
 - [230-token-purge-installer-workdir-pull-agm-and-ui-modernization](230-token-purge-installer-workdir-pull-agm-and-ui-modernization/readme.md) — Security Token Purge, Installer Navigation ($work, $def), Pull Remediation, AGM Linux Update, Multi-Instance API & UI Modernization (Status: `completed`)

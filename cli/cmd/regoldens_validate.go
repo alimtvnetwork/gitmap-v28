@@ -21,5 +21,5 @@ func validateDiffMode(mode string) {
 	}
 
 	fmt.Fprintf(os.Stderr, constants.ErrRegoldensDiffMode+"\n", mode)
-	cliexit.HandleError(nil, 2)
+	cliexit.HandleUsageError(nil)
 }

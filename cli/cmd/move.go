@@ -137,7 +137,7 @@ func parseMoveArgs(args []string) (string, string, movemerge.Options) {
 	rest := fs.Args()
 	if len(rest) != constants.ExpectedMoveArgsCount {
 		fmt.Fprintf(os.Stderr, constants.ErrMMUsageFmt, constants.CmdMv)
-		cliexit.HandleError(nil, constants.ExitCodeUsage)
+		cliexit.HandleUsageError(nil)
 	}
 
 	opts := mf.toOptions(constants.CmdMv, constants.LogPrefixMv, constants.CommitMsgMv)

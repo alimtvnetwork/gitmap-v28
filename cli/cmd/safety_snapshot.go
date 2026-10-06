@@ -102,7 +102,7 @@ func runRollback(args []string) error {
 
 	if src == "" {
 		fmt.Fprintln(os.Stderr, "rollback: ERROR no snapshot found; pass <tarball> explicitly")
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	n, err := readChromeBackup(src, ".") // tar.gz extractor reused

@@ -32,7 +32,7 @@ func runHasChange(args []string) error {
 	alias, mode, all, fetch := parseHasChangeFlags(args)
 	if len(alias) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrHCUsage)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	target := resolveReleaseAliasPath(alias)
@@ -83,7 +83,7 @@ func printHasChangeOne(target, mode string) {
 		fmt.Println(boolStr(behind > 0))
 	default:
 		fmt.Fprintf(os.Stderr, constants.ErrHCBadMode, mode)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 }
 

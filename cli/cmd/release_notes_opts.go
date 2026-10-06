@@ -286,7 +286,7 @@ func formatLine(ln string) string {
 func handleReleaseNotesArgsError(err error) {
 	fmt.Fprintf(os.Stderr, "release-notes: ERROR %v\n", err)
 	fmt.Fprintln(os.Stderr, "usage: gitmap release-notes [<tagA>..<tagB>] [--since <when>] [--since-tag <tag>] [--format flat|grouped|markdown|json]")
-	cliexit.HandleError(nil, 2)
+	cliexit.HandleUsageError(nil)
 }
 
 // runReleaseNotesV2 is the flag-aware entry point used by the dispatcher.

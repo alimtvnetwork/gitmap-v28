@@ -100,7 +100,7 @@ func runBackupPrune(args []string) error {
 
 	if *keep == 0 && *olderDays == 0 {
 		fmt.Fprintln(os.Stderr, "gitmap backup prune: pass --keep=N and/or --older-than=DAYS")
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	root, err := backupRoot()

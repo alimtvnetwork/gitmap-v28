@@ -179,3 +179,56 @@ func TestHandleError_WrappedAbortSuppressesDiagnostics(t *testing.T) {
 		t.Fatalf("expected exit code 1, got %d", capturedCode)
 	}
 }
+
+func TestHandleAppError(t *testing.T) {
+	var capturedCode int
+	prev := SetExitFunc(func(c int) {
+		capturedCode = c
+	})
+	defer SetExitFunc(prev)
+
+	appErr := apperror.NewSimple("test.apperror", "E1000")
+	HandleAppError(appErr, 5)
+	if capturedCode != 5 {
+		t.Fatalf("expected exit code 5, got %d", capturedCode)
+	}
+}
+
+func TestTypedExitHelpers_InHandle(t *testing.T) {
+	var capturedCode int
+	prev := SetExitFunc(func(c int) {
+		capturedCode = c
+	})
+	defer SetExitFunc(prev)
+
+	capturedCode = -1
+	HandleSuccess()
+	if capturedCode != int(ExitCodeSuccess) {
+		t.Fatalf("expected exit code %d, got %d", ExitCodeSuccess, capturedCode)
+	}
+
+	capturedCode = -1
+	HandleUsageError(errors.New("usage test"))
+	if capturedCode != int(ExitCodeUsageError) {
+		t.Fatalf("expected exit code %d, got %d", ExitCodeUsageError, capturedCode)
+	}
+
+	capturedCode = -1
+	HandleValidationError(errors.New("validation test"))
+	if capturedCode != int(ExitCodeValidationError) {
+		t.Fatalf("expected exit code %d, got %d", ExitCodeValidationError, capturedCode)
+	}
+
+	capturedCode = -1
+	HandleGeneralError(errors.New("general error test"))
+	if capturedCode != int(ExitCodeGeneralError) {
+		t.Fatalf("expected exit code %d, got %d", ExitCodeGeneralError, capturedCode)
+	}
+
+	capturedCode = -1
+	HandleNotFound(errors.New("not found test"))
+	if capturedCode != int(ExitCodeNotFound) {
+		t.Fatalf("expected exit code %d, got %d", ExitCodeNotFound, capturedCode)
+	}
+}
+

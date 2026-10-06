@@ -119,7 +119,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 			fmt.Printf("  %s\n", sc.Kind.String())
 		}
 
-		cliexit.HandleError(nil, 0)
+		cliexit.HandleSuccess()
 	}
 
 	verbose := flags.Verbose

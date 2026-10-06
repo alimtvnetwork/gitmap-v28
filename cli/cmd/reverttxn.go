@@ -261,11 +261,11 @@ func mustParseTxnID(raw string) int64 {
 	id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "revert: invalid transaction id %q: %v\n", raw, err)
-		cliexit.HandleError(err, 2)
+		cliexit.HandleUsageError(err)
 	}
 	if id <= 0 {
 		fmt.Fprintf(os.Stderr, "revert: invalid transaction id %q\n", raw)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(nil)
 	}
 
 	return id
