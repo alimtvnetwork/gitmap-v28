@@ -74,6 +74,7 @@ checksums, install scripts, and metadata into the final GitHub Release.
   fully static executables with no runtime dependencies.
 - **Deterministic builds** — identical source + identical toolchain =
   identical output. Lock dependency versions via lock files.
+- **Strict Relative Git Paths Only** — all file paths, markdown links, release notes, changelog entries, manifests, and release documentation MUST strictly use relative Git paths (e.g. `02-spec/...`, `cmd/...`). There is a TOTAL BAN on absolute filesystem paths (`/absolute/...`, `C:\...`) and `file:///` URIs across all release pages, changelogs, and release assets.
 
 ## Placeholders
 

@@ -44,3 +44,9 @@ flowchart TD
    - Subsystem Execution: `.\run.ps1 <service>`
 4. **Verification:**
    - Confirm exit code 0 and report output.
+
+## Non-Negotiable Invariants
+
+- **Strict Relative Git Paths:** Strict Relative Git Paths Only: Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
+- **Zero Disabling CI/CD:** Never disable, bypass, or delete tests or CI workflows.
+- **GitMap Primacy:** Use GitMap (`gitmap aum search`, `gitmap find`, `gitmap ps`) for tool discovery.

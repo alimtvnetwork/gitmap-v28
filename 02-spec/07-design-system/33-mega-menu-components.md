@@ -1,9 +1,9 @@
-# 33 — Avant-Garde Mega Menu Components & Dropdown System
+# 33 — Precision Mega Menu Components & Dropdown System
 
-> **/goal** Master and enforce the component architecture, physics parameters, staggered entrance timings, left-border growth rules, SlideSwapLabel keyframes, and 3D promotional flip cards of the Avant-Garde Mega Menu.
+> **/goal** Master and enforce the component architecture, physics parameters, staggered entrance timings, left-border growth rules, SlideSwapLabel keyframes, and 3D promotional flip cards of the Precision Mega Menu.
 > **/learn** Master the exact entrance easing `cubic-bezier(0.16, 1, 0.3, 1)`, group stagger delay formula (`0.05s + gi * 0.05s`), link entrance delay formula (`0.08s + gi * 0.05s + li * 0.03s`), left hairline growth (`scaleY(0) -> scaleY(1)` over 420ms), SlideSwapLabel CSS keyframes, and 3D flip card physics (`perspective: 1400px`, `rotateY(180deg)` over 820ms).
 
-**Version:** 4.1.0
+**Version:** 4.2.0
 **Status:** Active
 **AI Confidence:** High
 **Ambiguity:** None
@@ -12,7 +12,7 @@
 
 ## 1. Executive System Overview
 
-The **Avant-Garde Mega Menu** is an ultra-polished, multi-column navigation surface deploying underneath the 72px sticky glass header:
+The **Precision Mega Menu** is an ultra-polished, multi-column navigation surface deploying underneath the 72px sticky glass header:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -201,6 +201,79 @@ export function MegaPanel({ panelKey, groups, promo, panelRef, onNavigate, onMou
 
 ---
 
+## 7.2 In-Page Navigation Editor Modal (`MenuModal.tsx`)
+
+In Website Builder mode, clicking any navigation link opens an in-page modal dialog allowing non-technical editors to update menu items in real time:
+
+```tsx
+export interface MenuEditPayload {
+  elementId: string;       // e.g. "global.nav.solutions-erp"
+  label: string;           // Display text for link
+  description?: string;    // Subtitle / descriptive blurb
+  targetUrl: string;       // Route or external URL
+}
+
+export function MenuModal({ item, isOpen, onClose, onSave }: MenuModalProps) {
+  const [label, setLabel] = useState(item.label);
+  const [description, setDescription] = useState(item.description || "");
+  const [targetUrl, setTargetUrl] = useState(item.targetUrl);
+
+  const isValidUrl = /^(https?:\/\/|\/|#|mailto:|tel:)/i.test(targetUrl);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md rounded-[var(--radius-card,20px)] border border-border bg-card p-6 shadow-[var(--shadow-lift)]">
+        <DialogHeader>
+          <DialogTitle className="font-display text-lg font-bold">Edit Navigation Link</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div>
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Link Label</label>
+            <Input value={label} onChange={(e) => setLabel(e.target.value)} className="mt-1" />
+          </div>
+          <div>
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Description (Optional)</label>
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1" />
+          </div>
+          <div>
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Target URL</label>
+            <Input value={targetUrl} onChange={(e) => setTargetUrl(e.target.value)} className={cn("mt-1", !isValidUrl && "border-destructive")} />
+            {!isValidUrl && <p className="mt-1 text-xs text-destructive">Must start with /, #, https://, http://, mailto:, or tel:</p>}
+          </div>
+        </div>
+        <DialogFooter className="flex gap-2">
+          <AppButton variant="ghost" size="sm" onClick={onClose}>Cancel</AppButton>
+          <AppButton variant="primary" size="sm" disabled={!isValidUrl || !label.trim()} onClick={() => onSave({ elementId: item.elementId, label, description, targetUrl })}>
+            Save Link
+          </AppButton>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+---
+
+## 7.3 Spacing, Padding & Distance Tokens Matrix
+
+| Interface Element | Distance / Metric | Token / Class | Exact Value |
+|:---|:---|:---|:---|
+| **Header Height** | Viewport Y-dimension | `h-[72px]` | `72px` fixed |
+| **Header Content Max-Width** | Container boundary | `max-w-[1280px]` | `1280px` centered |
+| **Header Horizontal Gutter** | Viewport edge padding | `px-6` (mobile) / `px-10` (desktop) | `24px` (<768px) / `40px` (≥768px) |
+| **MegaPanel Mount Offset** | Y-distance from header | `top-full pt-3` | `12px` vertical air gap |
+| **MegaPanel Internal Padding** | Interior container margin | `p-8` | `32px` all sides |
+| **Column Inter-Group Gap** | Horizontal gap between columns | `gap-8` | `32px` column gutter |
+| **MegaLink Item Padding** | Interactive row target | `px-3 py-2` | `12px` horizontal, `8px` vertical |
+| **Left Hairline Dimensions** | Growing accent rule | `w-px inset-y-1` | `1px` wide, `4px` top/bottom inset |
+| **Promo Card Min Height** | 3D feature box height | `min-h-[220px]` | `220px` minimum |
+| **Promo Card Padding** | Card interior margin | `p-6` | `24px` all sides |
+| **Pointer Safe Region Buffer** | Quad collision padding | `pad = 14px` | `14px` around header & panel |
+| **Close Debounce Timer** | Pointer exit delay | `220ms` | `220ms` timeout before unmount |
+
+---
+
 ## 8. Anti-Hallucination & Quality Verification Checklist
 
 - [ ] Outer dropdown container mounts at `top-full pt-3 z-40`.
@@ -211,3 +284,5 @@ export function MegaPanel({ panelKey, groups, promo, panelRef, onNavigate, onMou
 - [ ] Trailing arrow is `14px` (`size-3.5`) and reveals from `-translate-x-1 opacity-0` to `translate-x-0 opacity-100`.
 - [ ] 3D promo flip card utilizes `perspective: 1400px` and rotates `180deg` over `820ms`.
 - [ ] Reduced motion suppresses all 3D rotations, translates, and scales into an instant `120ms` opacity fade.
+- [ ] Menu link editor modal enforces protocol validation (`/`, `#`, `https://`, `http://`, `mailto:`, `tel:`).
+- [ ] Spacing metrics strictly adhere to the 72px header height, 32px panel padding, and 14px safe-region buffer.

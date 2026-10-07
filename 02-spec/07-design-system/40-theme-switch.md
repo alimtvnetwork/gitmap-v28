@@ -157,6 +157,24 @@ Do not derive a palette from a mood word. Do not copy `white-blue` onto a slide.
 
 ---
 
+## 7. Quiz embed skins (outside the count of 8)
+
+These ids are **not** slide deck themes. They do **not** appear in the section 1 table and do **not** change the count **8**.
+
+| Id | Scope element | Full token block |
+|---|---|---|
+| `botanical-light` | `.quiz-embed` or inner runner root | `42-slide-quiz-preview-chrome-and-default-shadows.md` §3 |
+| `green-choice` | Same (legacy alias) | Same custom properties as `botanical-light` |
+
+Rules:
+
+1. Set `data-theme="botanical-light"` on the quiz embed wrapper only, never on `.slide-stage`.
+2. The deck switcher control lists **only** the eight ids in section 1.
+3. Adding a quiz embed skin is **not** section 5 (adding a ninth deck theme). No amendment to section 1 is required.
+4. Contrast proof: `node scripts/verify-botanical-light-contrast.mjs` exit 0.
+
+---
+
 ## 6. Checklist
 
 - [ ] Count the `[data-theme]` blocks. The count is 8, unless section 5 was completed in this same edit.
@@ -168,3 +186,4 @@ Do not derive a palette from a mood word. Do not copy `white-blue` onto a slide.
 - [ ] Layout files were not edited during the switch.
 - [ ] `white-blue` is not in the slide control.
 - [ ] A requested id that is not in the table is refused.
+- [ ] `botanical-light` and `green-choice` appear only on quiz embed roots (section 7), not in the switcher.

@@ -88,7 +88,7 @@ Before executing the tasks below, check if this prompt is already installed as a
 > **STRICT RELATIVE GIT PATHS ONLY — NO ABSOLUTE PATHS / NO `file:///` URIs:**
 >
 > When generating plans, subtasks (`.ai-memory/plans/subtasks/`), memory issue logs (`.ai-memory/memory/issues/`), specs, code comments, or citations:
-> 1. Strictly Relative to Git Root: All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `02-spec/02-coding-guidelines/readme.md`, `cmd/main.go`).
+> 1. Strictly Relative to Git Root: All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `02-spec/02-coding-guidelines/readme.md`, `cmd/main.go`). Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well.
 > 2. Total Ban on Absolute Paths: NEVER write drive letters or absolute OS paths (`/absolute/path/to/...`, `C:\...`, `/home/...`) or absolute file URIs (`file:///...`) into ANY file.
 
 ---

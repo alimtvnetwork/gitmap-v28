@@ -70,14 +70,12 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `13-plan-audit` | [`13-plan-audit/03-audit-app-spec.md`](../01-prompts/13-plan-audit/03-audit-app-spec.md) | 1. the audited scope, with line counts |
 | `13-plan-audit` | [`13-plan-audit/04-fix-spec-from-audit.md`](../01-prompts/13-plan-audit/04-fix-spec-from-audit.md) | 04-fix-spec-from-audit.md |
 | `14-execute` | [`14-execute/01-execute-pending-tasks.md`](../01-prompts/14-execute/01-execute-pending-tasks.md) | 01-execute-pending-tasks.md |
-| `14-execute` | [`14-execute/02-execute-parent-task-with-n-steps.md`](../01-prompts/14-execute/02-execute-parent-task-with-n-steps.md) | Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Canonical V6 Workflow (must follow) |
+| `14-execute` | [`14-execute/02-execute-parent-task-with-n-steps-v6.md`](../01-prompts/14-execute/02-execute-parent-task-with-n-steps-v6.md) | [V6] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
 | `14-execute` | [`14-execute/03-execute-batched-loop.md`](../01-prompts/14-execute/03-execute-batched-loop.md) | 03-execute-batched-loop.md |
 | `14-execute` | [`14-execute/04-execute-ai-instruction-writer.md`](../01-prompts/14-execute/04-execute-ai-instruction-writer.md) | 04-execute-ai-instruction-writer.md |
 | `14-execute` | [`14-execute/05-execute-batched-loop-wor.md`](../01-prompts/14-execute/05-execute-batched-loop-wor.md) | 05-execute-batched-loop-wor.md |
-| `14-execute` | [`14-execute/07-execute-batched-loop-v2.md`](../01-prompts/14-execute/07-execute-batched-loop-v2.md) | 07-execute-batched-loop-v2.md |
-| `14-execute` | [`14-execute/09-parent-task-in-below-steps.md`](../01-prompts/14-execute/09-parent-task-in-below-steps.md) | [V6] Parent Task in Below Steps Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
-| `14-execute` | [`14-execute/13-execute-parent-task-with-n-steps-v6.md`](../01-prompts/14-execute/13-execute-parent-task-with-n-steps-v6.md) | [V6] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
-| `14-execute` | [`14-execute/14-run.md`](../01-prompts/14-execute/14-run.md) | Run Script Orchestration — Execute Workflow (`run`) |
+| `14-execute` | [`14-execute/06-execute-batched-loop-v2.md`](../01-prompts/14-execute/06-execute-batched-loop-v2.md) | 06-execute-batched-loop-v2.md |
+| `14-execute` | [`14-execute/07-run.md`](../01-prompts/14-execute/07-run.md) | Run Script Orchestration — Execute Workflow (`run`) |
 | `14-execute` | [`14-execute/readme.md`](../01-prompts/14-execute/readme.md) | Execution Prompts (`14-execute`) — Index & Catalog |
 | `15-cg-execute` | [`15-cg-execute/01-execute-coding-guideline-fix.md`](../01-prompts/15-cg-execute/01-execute-coding-guideline-fix.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/02-error-management.md`](../01-prompts/15-cg-execute/02-error-management.md) | Ledger: NN-<slug> |
@@ -140,6 +138,8 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `18-insults` | [`18-insults/02-consolidated-insults-v2.md`](../01-prompts/18-insults/02-consolidated-insults-v2.md) | Consolidated Discipline & Rigorous Code Quality Protocol — Core Discipline (must follow) |
 | `19-old-execute-prompts` | [`19-old-execute-prompts/01-execute-robust-loop.md`](../01-prompts/19-old-execute-prompts/01-execute-robust-loop.md) | Resilient Multi-Agent Loop Execution — Workflow (must follow) |
 | `19-old-execute-prompts` | [`19-old-execute-prompts/02-fix-subtask-naming-convention.md`](../01-prompts/19-old-execute-prompts/02-fix-subtask-naming-convention.md) | Subtask Naming Normalization & Sequence Repair — Workflow (must follow) |
+| `19-old-execute-prompts` | [`19-old-execute-prompts/03-execute-parent-task-with-n-steps.md`](../01-prompts/19-old-execute-prompts/03-execute-parent-task-with-n-steps.md) | Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Canonical V6 Workflow (must follow) |
+| `19-old-execute-prompts` | [`19-old-execute-prompts/04-parent-task-in-below-steps.md`](../01-prompts/19-old-execute-prompts/04-parent-task-in-below-steps.md) | [V6] Parent Task in Below Steps Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
 | `19-old-execute-prompts/backup-v6.46.0` | [`19-old-execute-prompts/backup-v6.46.0/01-execute-pending-tasks.md`](../01-prompts/19-old-execute-prompts/backup-v6.46.0/01-execute-pending-tasks.md) | Pending Tasks Continuous Loop & Multi-Agent Dispatch — Workflow (must follow) |
 | `19-old-execute-prompts/backup-v6.46.0` | [`19-old-execute-prompts/backup-v6.46.0/02-error-management.md`](../01-prompts/19-old-execute-prompts/backup-v6.46.0/02-error-management.md) | Error Management & Architecture — Coding Guideline (must follow) |
 | `19-old-execute-prompts/backup-v6.46.0` | [`19-old-execute-prompts/backup-v6.46.0/02-execute-parent-task-with-n-steps.md`](../01-prompts/19-old-execute-prompts/backup-v6.46.0/02-execute-parent-task-with-n-steps.md) | Parent Task N-Step Continuous Loop & Multi-Agent Orchestration — Workflow (must follow) |
@@ -176,13 +176,38 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `19-old-execute-prompts/backup-v6.46.0` | [`19-old-execute-prompts/backup-v6.46.0/27-python-constants-and-magic-number-elimination.md`](../01-prompts/19-old-execute-prompts/backup-v6.46.0/27-python-constants-and-magic-number-elimination.md) | Python Constants, Magic Number Elimination & Semantic Decomposition — Coding Guideline (must follow) |
 | `19-old-execute-prompts/backup-v6.46.0` | [`19-old-execute-prompts/backup-v6.46.0/28-python-array-constants-and-dynamic-enums.md`](../01-prompts/19-old-execute-prompts/backup-v6.46.0/28-python-array-constants-and-dynamic-enums.md) | Python Array Constants, Dynamic Enum Generation & Config Compilation — Coding Guideline (must follow) |
 | `19-old-execute-prompts/backup-v6.46.0` | [`19-old-execute-prompts/backup-v6.46.0/readme.md`](../01-prompts/19-old-execute-prompts/backup-v6.46.0/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
+| `19-old-execute-prompts` | [`19-old-execute-prompts/readme.md`](../01-prompts/19-old-execute-prompts/readme.md) | Old Execute Prompts (`19-old-execute-prompts`) — Index & Catalog |
 | `20-ai-fix-script-prompts` | [`20-ai-fix-script-prompts/01-python-file-manipulator.md`](../01-prompts/20-ai-fix-script-prompts/01-python-file-manipulator.md) | Python File Manipulator CLI Specification — Tooling Spec (must follow) |
 | `21-temp-end-to-end-tests` | [`21-temp-end-to-end-tests/01-temp-end-to-end-test.md`](../01-prompts/21-temp-end-to-end-tests/01-temp-end-to-end-test.md) | Temporary End-to-End Tests & Isolated On-Demand Validation — Workflow (must follow) |
-| `22-letterly` | [`22-letterly/01-mobile.md`](../01-prompts/22-letterly/01-mobile.md) | Mobile Mode |
-| `22-letterly` | [`22-letterly/02-desktop.md`](../01-prompts/22-letterly/02-desktop.md) | Desktop |
-| `22-letterly` | [`22-letterly/03-execute-n-steps.md`](../01-prompts/22-letterly/03-execute-n-steps.md) | Execute N Steps |
-| `23-sync` | [`23-sync/01-sync-other-codebase.md`](../01-prompts/23-sync/01-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
-| `23-sync` | [`23-sync/readme.md`](../01-prompts/23-sync/readme.md) | Multi-Repository Synchronization Prompts (`23-sync`) — Index & Catalog |
+| `22-letterly` | [`22-letterly/01-mobile-letterly.md`](../01-prompts/22-letterly/01-mobile-letterly.md) | Mobile Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/02-desktop-letterly.md`](../01-prompts/22-letterly/02-desktop-letterly.md) | Desktop Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/03-execute-n-steps-letterly.md`](../01-prompts/22-letterly/03-execute-n-steps-letterly.md) | Execute N-Steps — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/04-plan-letterly.md`](../01-prompts/22-letterly/04-plan-letterly.md) | Plan Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/05-release-letterly.md`](../01-prompts/22-letterly/05-release-letterly.md) | Release Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/06-cicd-fix-release-letterly.md`](../01-prompts/22-letterly/06-cicd-fix-release-letterly.md) | CI/CD Fix & Release Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/07-mobile-cicd-fix-letterly.md`](../01-prompts/22-letterly/07-mobile-cicd-fix-letterly.md) | Mobile CI/CD Fix Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/08-run-letterly.md`](../01-prompts/22-letterly/08-run-letterly.md) | Run Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/09-execute-with-verification-letterly.md`](../01-prompts/22-letterly/09-execute-with-verification-letterly.md) | Execute N-Steps — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/10-execute-with-release-letterly.md`](../01-prompts/22-letterly/10-execute-with-release-letterly.md) | Execute with Release Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/readme.md`](../01-prompts/22-letterly/readme.md) | Letterly Prompt Formatters (`22-letterly`) |
+| `23-cursor-prompts` | [`23-cursor-prompts/01-mobile-letterly-cursor.md`](../01-prompts/23-cursor-prompts/01-mobile-letterly-cursor.md) | Mobile Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/02-desktop-letterly-cursor.md`](../01-prompts/23-cursor-prompts/02-desktop-letterly-cursor.md) | Desktop Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/03-execute-n-steps-letterly-cursor.md`](../01-prompts/23-cursor-prompts/03-execute-n-steps-letterly-cursor.md) | Execute N-Steps (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/04-plan-letterly-cursor.md`](../01-prompts/23-cursor-prompts/04-plan-letterly-cursor.md) | Plan Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/05-release-letterly-cursor.md`](../01-prompts/23-cursor-prompts/05-release-letterly-cursor.md) | Release Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/06-cicd-fix-release-letterly-cursor.md`](../01-prompts/23-cursor-prompts/06-cicd-fix-release-letterly-cursor.md) | CI/CD Fix & Release Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/07-mobile-cicd-fix-letterly-cursor.md`](../01-prompts/23-cursor-prompts/07-mobile-cicd-fix-letterly-cursor.md) | Mobile CI/CD Fix Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/08-run-letterly-cursor.md`](../01-prompts/23-cursor-prompts/08-run-letterly-cursor.md) | Run Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/09-execute-with-verification-letterly-cursor.md`](../01-prompts/23-cursor-prompts/09-execute-with-verification-letterly-cursor.md) | Execute with Verification Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/10-execute-with-release-letterly-cursor.md`](../01-prompts/23-cursor-prompts/10-execute-with-release-letterly-cursor.md) | Execute with Release Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/readme.md`](../01-prompts/23-cursor-prompts/readme.md) | Cursor Letterly Prompt Formatters (`23-cursor-prompts`) |
+| `24-sync` | [`24-sync/01-sync.md`](../01-prompts/24-sync/01-sync.md) | [V6] Full-Fleet Multi-Repository Synchronization & Canonical Mirroring Engine — Workflow (must follow) |
+| `24-sync` | [`24-sync/02-sync-other-codebase.md`](../01-prompts/24-sync/02-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
+| `24-sync` | [`24-sync/readme.md`](../01-prompts/24-sync/readme.md) | Multi-Repository Synchronization Prompts (`24-sync`) — Index & Catalog |
+| `25-ai-verification` | [`25-ai-verification/01-retrospective-ai-verification.md`](../01-prompts/25-ai-verification/01-retrospective-ai-verification.md) | High Priority Instruction: Retrospective AI Verification Audit |
+| `25-ai-verification` | [`25-ai-verification/readme.md`](../01-prompts/25-ai-verification/readme.md) | AI Verification Prompts (`25-ai-verification`) |
+| `26-gitmap` | [`26-gitmap/01-gitmap-core-engine.md`](../01-prompts/26-gitmap/01-gitmap-core-engine.md) | GitMap Core Engine & Autonomous Developer Automation — Canonical Specification (must follow) |
+| `26-gitmap` | [`26-gitmap/readme.md`](../01-prompts/26-gitmap/readme.md) | GitMap AI Training & Autonomous Automation Prompts (`26-gitmap`) |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
 
 ## Maintenance

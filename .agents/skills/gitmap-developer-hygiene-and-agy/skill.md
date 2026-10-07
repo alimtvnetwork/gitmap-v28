@@ -52,15 +52,3 @@ gitmap chrome picker
 3. **Safe Process Termination:** Always confirm process name, PID, and executable path before attempting termination to prevent accidental termination of critical system processes or parent IDE hosts.
 4. **Preserve Transcript Integrity:** When cleaning AGY logs or temp files, preserve `.system_generated/logs/transcript.jsonl` files of active conversations.
 5. **No Uppercase ID Acronyms:** All identifiers must follow `ProfileId`, `ConversationId`, `processId`. Uppercase `ID` is prohibited.
-
----
-
-## 4. Chrome Profile Import/Export Verification Protocol
-
-When conducting end-to-end testing of Chrome profile export and smart-import workflows:
-1. **Secret & Log Isolation**: Isolate all test artifacts, emails, and execution traces under `repo-secrets/xx-<repo-name>/<sequence>-<task-name>/` (e.g. `repo-secrets/01-gitmap/01-chrome-import-export-test/`).
-2. **Export Phase**: Execute `gitmap cpe "<Profile>" "<Path>.json"` to produce JSON and CSV companion snapshots.
-3. **Removal Phase**: Completely delete the target profile from Chrome User Data on disk (`%LOCALAPPDATA%\Google\Chrome\User Data\<Profile>`) and verify removal (`Test-Path` returns `$false`).
-4. **Smart-Import Phase**: Execute `gitmap cpi "<Path>.json" "<Profile>"`, verifying the 5-step pipeline (inspection, target resolution, content restoration, extension hints, and Local State registration).
-5. **Post-Import Verification**: Verify on-disk recreation of `Bookmarks` and `Preferences` (with patched `profile.name`), split-DB tracking, and discovery in `gitmap cpl`.
-

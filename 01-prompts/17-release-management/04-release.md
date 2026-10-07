@@ -190,6 +190,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
         - Binary repos: `irm https://github.com/<owner>/<repo>/releases/download/vX.Y.Z/install.ps1 | iex` (PowerShell) and `curl -fsSL https://github.com/<owner>/<repo>/releases/download/vX.Y.Z/install.sh | bash` (Bash).
         - Script/Prompt repos: `Invoke-WebRequest ...` (PowerShell) and `curl -sL ... | bash -s -- ".ai-memory/prompts" "vX.Y.Z"` (Bash).
      2. **Extracted Changelog:** The exact `[vX.Y.Z]` section from `changelog.md`.
+     3. **Strict Relative Git Paths Only:** All file paths, references, and citations in `changelog.md`, release notes, manifests, and published release descriptions MUST strictly use relative Git paths (e.g. `02-spec/...`, `cmd/main.go`). Absolute filesystem paths and `file:///` URIs are STRICTLY BANNED. Only add the relative paths, never add the absolute path during your work; this must be respected on the release page and in release notes as well.
    - Pass this file via `--notes-file`:
      ```bash
      gh release create "vX.Y.Z" --title "vX.Y.Z" --notes-file ".ai-memory/release/release-notes-vX.Y.Z.md" --generate-notes

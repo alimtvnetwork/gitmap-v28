@@ -118,6 +118,41 @@ The builder settings panel floats above the viewport, draggable via a top grip h
   7. **`StepCameraPanel` & `XYPad`:** Interactive 2D pad configuring camera focal point pan (`x, y`) and zoom level (`1.0` to `2.5×`) for multi-step reveals.
   8. **`HistoryPanel`:** Visual audit ledger showing timestamped changes with instant rollback buttons.
 
+### 4.2 Slide Form Field Schemas & Draft Deck Persistence
+
+Every slide type in the builder declares a deterministic field schema and default content so authors immediately see a renderable preview:
+
+```typescript
+export type FieldKey =
+  | 'eyebrow' | 'title' | 'subtitle' | 'keywords' | 'capsules' | 'steps'
+  | 'image' | 'metrics' | 'tableColumns' | 'tableRows' | 'code' | 'diagramNodes'
+  | 'diagramEdges' | 'entities' | 'relationships' | 'layout' | 'layoutSlots';
+
+export interface SlideTypeSchema {
+  label: string;
+  blurb: string;
+  fields: FieldKey[];
+  defaults: Partial<SlideContent>;
+  slideDefaults?: Partial<SlideSpec>;
+}
+
+export interface DraftDeck {
+  draftVersion: 1;
+  deck: { deckSlug: string; deckName: string; presenter: string; theme: string };
+  slides: SlideSpec[];
+}
+export const DRAFT_DECK_KEY = 'deck.draft.v1';
+```
+
+### 4.3 Canvas Specialized Editors & Alignment HUD
+
+1. **`BoxDiagramCanvasEditor`:** Visual node/edge architecture diagram editor supporting directed connection lines, port anchors, and node label editing directly on the 1920x1080 stage.
+2. **`HotspotCanvasEditor`:** Interactive pin placement on media plates with relative `(x%, y%)` coordinates, pulsing anchor rings, and hover tooltips.
+3. **`GuideMeasurementHUD` & `GuideSnapControls`:** Smart magnetic snapping to canvas center, 1/3 grid lines, and sibling elements within a 5px threshold, with real-time pixel distance callouts.
+4. **`AnimationPreviewPanel` & `ClickRevealToggle`:** Stepped reveal scrubber previewing element entrance order, stagger delays (`0.08s`), and active camera focal positions.
+5. **`NormalizeBulletsAction`:** One-click grammar and cadence normalizer enforcing parallel imperative verbs and standard capitalization.
+6. **`validate3DSteps`:** Runtime verification ensuring 3D step arrays maintain monotonic camera coordinates and valid depth transformations.
+
 ---
 
 ## 5. Slide-Type Switching Engine (`convertSlideType`)
@@ -207,7 +242,11 @@ When an element is selected on the live canvas:
    - Renders 1 slide per page in landscape 16:9 (`1920×1080`) format with zero animation delay.
 2. **3-Up Executive Handout (`slides.handout-3up.tsx`):**
    - Formats 3 consecutive slides on the left column with structured blank ruled lines on the right column for executive note-taking.
-3. **Deck Manifest JSON Export:**
+3. **Native PowerPoint PPTX Export (`exportPptx.ts`):**
+   - Converts 1920×1080 stage DOM text, layout shapes, and raster assets into native editable Microsoft PowerPoint slides via `pptxgenjs` with matching RGB colors and typography.
+4. **Audience Companion Mode (`audience.$sessionId.tsx`):**
+   - Real-time mobile audience companion view synchronizing active slide index, speaker notes, live Q&A, and downloadable assets via BroadcastChannel or WebSockets.
+5. **Deck Manifest JSON Export:**
    - One-click export downloading the entire deck JSON schema including all slide contents, themes, gradient stops, and bounding box overrides.
 
 ---
@@ -217,6 +256,9 @@ When an element is selected on the live canvas:
 - [ ] State architecture strictly maintains dual-store separation (`useDeckStore` vs `useEditStore`).
 - [ ] Stacking context adheres strictly to the 7 defined visual layers.
 - [ ] Floating builder panel is draggable, clamped to viewport, and minimizable.
+- [ ] Slide form field schemas define deterministic starter defaults for all slide types.
+- [ ] Canvas editors provide specialized tooling for diagrams, hotspots, and alignment guides.
 - [ ] `convertSlideType` successfully maps primary and secondary text across all 20 slide types without null values.
 - [ ] Hotkeys `B` and `E` toggle builder mode; `Escape` clears selection.
 - [ ] PDF export forces 1920×1080 dimensions with background graphics enabled and animations bypassed.
+- [ ] PPTX export preserves native editable text, shapes, and font mappings.

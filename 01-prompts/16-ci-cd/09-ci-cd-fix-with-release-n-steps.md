@@ -121,7 +121,7 @@ Follow the mandatory 4-part schema:
 #### Step 3: Lean Diagnostic Subtask Decomposition
 
 - Break down the fix plan into lean subtasks in `.ai-memory/plans/subtasks/xx-<slug>/01-<subtask>.md`.
-- All file paths in subtasks MUST use strict relative Git paths (zero absolute paths or `file:///` URIs).
+- All file paths in subtasks MUST use strict relative Git paths (zero absolute paths or `file:///` URIs). Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well.
 
 #### Step 4: Unconditional Zero-Question Execution Mandate (Total Ban on Stopping After RCA)
 

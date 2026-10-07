@@ -17,3 +17,8 @@ This collection contains canonical prompts for diagnosing, creating, fixing, and
 | **09** | [`09-ci-cd-fix-with-release-n-steps.md`](09-ci-cd-fix-with-release-n-steps.md) | N-Step Release Loop | Continuous N-step remediation with release |
 | **10** | [`10-zero-storage-actions-purge.md`](10-zero-storage-actions-purge.md) | Zero-Storage Actions | Purging GitHub Actions artifacts and cache |
 | **11** | [`11-ci-cd-fix-gitmap-release.md`](11-ci-cd-fix-gitmap-release.md) | GitMap Self-Healing Release Loop | Autonomous loop with `gitmap pe -t`, 4-part RCA, and minor bump |
+
+## Core Invariants
+
+1. **Strict Relative Git Paths Only:** Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
+2. **Zero-Storage CI/CD Mandate:** Zero routine artifact uploads to GitHub Actions storage.

@@ -44,6 +44,8 @@ Trigger Keywords & Aliases: `purge actions storage`, `zero storage mandate`, `pu
    Ensure each repository includes `.github/workflows/purge-actions-artifacts.yml` configured to trigger on schedule (nightly at 02:00 UTC) and manual `workflow_dispatch`.
 8. **Final Step Atomic Commit & Immediate Push:**
    Stage all changed scripts and workflow definitions together and commit atomically (`git commit -m "ci(actions): enforce zero-storage mandate and add purge automation"`). Immediately push to origin (`git push origin <branch>`).
+9. **Strict Relative Git Paths:**
+   Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
 
 ---
 

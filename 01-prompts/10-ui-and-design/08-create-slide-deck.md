@@ -22,8 +22,11 @@ AI agents MUST sequentially ingest these specification files:
 7. `02-spec/07-design-system/32-slide-color-options.md` — 10-step gradient precision system ($S_0$ to $S_9$) across 7 flagship palettes, per-slide gradient editor, character-by-character shading engine, 7 semantic pill presets, relative luminance formula, and 9-cell text alignment.
 8. `02-spec/07-design-system/34-slide-layout-catalog.md` — The Non-Image Text Mandate (pure DOM typography; zero baked-in text) and the 20 master enterprise slide layouts: Title Hero, Executive Persona, Key Player Bio, Before/After Split, USP Strikethrough, SaaS Pricing, Steps Chain Roadmap, Social Proof, Talent Funnel, 3-Point Master Cards, Center, Left, One-Liner Quote, Process/Timeline, Counter Stat, Reveal Grid/Depth Stack, Embed, Poll/Q&A, Tabletop Hardware & Bike Showcase, and Tech Stack Matrix.
 9. `02-spec/07-design-system/35-slide-builder-canvas-inspector.md` — Decoupled dual-store architecture (`useDeckStore` persisted vs `useEditStore` ephemeral), 7 visual canvas stacking layers, draggable `BuilderPanel`, `convertSlideType` engine across all 20 layouts, builder hotkeys (`B`/`E`, `Tab`, `Cmd+Z`, `1`–`0`), bounding box coordinate overrides, and headless Chromium print-ready PDF/handout exports.
-10. `02-spec/07-design-system/37-image-specifications.md` — Non-image typography mandate, image plates, safe zones, avatar rules, and asset bounds.
-11. `02-spec/07-design-system/38-card-and-pricing-components.md` — SaaS pricing card matrix, feature list hierarchy, and highlighted tier geometry.
+10. `02-spec/07-design-system/42-slide-step-and-sound-system.md` — `StepTimelineSlide` vs `AdvanceStepSlide`, vertical chain, active focus row, gold/ember capsules, and Web Audio API synthesis engine.
+11. `02-spec/07-design-system/43-slide-webcam-overlay.md` — Presenter webcam PIP overlay, squircle gold rim, S/M/L/XL presets, autoframe face tracker, and keyboard shortcuts (`C`, `M`, `F`, `+`, `-`, `O`, `H`, `1`).
+12. `02-spec/07-design-system/44-slide-presenter-inspector-and-handouts.md` — Dedicated Presenter Inspector route (`/slides/inspector`), 3-up printable handouts with ruled writing lines, and print mode.
+13. `02-spec/07-design-system/37-image-specifications.md` — Non-image typography mandate, image plates, safe zones, avatar rules, and asset bounds.
+14. `02-spec/07-design-system/38-card-and-pricing-components.md` — SaaS pricing card matrix, feature list hierarchy, and highlighted tier geometry.
 
 ---
 

@@ -30,6 +30,7 @@ Follow the core RCA structure from [A] and review past failures in [B]. The prim
 6. **Mandatory Same-Turn Tool Chaining:** Do not end the turn after outputting the diagnostic plan; invoke the diagnostic or fix tool in the exact same turn.
 7. **Final Step Atomic Commit Mandate:** Accumulate all fixes and stage/commit them in a single atomic commit at the end (`git commit -m "fix(ci): <summary>"`). TOTAL BAN on per-file commits.
 8. **Issue & RCA Destination Routing:** Store CI/CD issue post-mortems in `.ai-memory/cicd-issues/` (indexed in `.ai-memory/cicd-index.md`). If an issue is an application bug rather than a CI/CD failure, document it in `02-spec/22-app-issues/` (indexed in `02-spec/22-app-issues/readme.md`).
+9. **Strict Relative Git Paths:** Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
 
 ---
 

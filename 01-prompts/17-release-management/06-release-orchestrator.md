@@ -181,7 +181,7 @@ The release orchestrator and all release triggers MUST strictly execute this 5-s
 - [ ] Step 5 is merge the release branch commit back into `main` and push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to origin.
 - [ ] No explicit boolean checks (`if is_success == True:` is banned; use `if is_success:`).
 - [ ] All filenames must be strictly lowercase (e.g. `readme.md`, `changelog.md`).
-- [ ] Relative Git paths only (no `file:///` URIs or absolute filesystem paths).
+- [ ] Strict Relative Git Paths Only: Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
 - [ ] The release commit, release branch, and tag MUST be pushed to Git.
 - [ ] The working tree must be on the original branch when the task completes.
 

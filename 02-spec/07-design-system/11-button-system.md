@@ -72,37 +72,61 @@ Primary and solid CTAs feature an angled 45-degree light sweep running across th
 ```
 
 ### 4.2 Radial Cursor Pointer-Fill (`.pointer-fill`)
-Outline buttons fill smoothly from the exact angle of cursor entry:
+Outline buttons fill smoothly from bottom or cursor entry angle using hardware-accelerated transforms:
 
 ```css
-.pointer-fill { position: relative; overflow: hidden; --pointer-fill: var(--brand-secondary, #2563eb); }
+.pointer-fill { isolation: isolate; position: relative; overflow: hidden; --pointer-fill: var(--brand-secondary, #2563eb); }
 .pointer-fill::before {
-  content: ""; position: absolute; inset: 0; z-index: 0; border-radius: inherit;
-  background-color: var(--pointer-fill); opacity: 0; transform: scale(0.95);
-  transition: opacity 240ms cubic-bezier(0.16, 1, 0.3, 1), transform 240ms cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  transform: scaleY(0); transform-origin: bottom;
+  transition: transform var(--dur-fast, 240ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+  background: var(--pointer-fill, var(--gradient-brand));
 }
-.pointer-fill:hover::before { opacity: 1; transform: scale(1); }
+.pointer-fill:hover::before { transform: scaleY(1); transform-origin: bottom; }
+@media (prefers-reduced-motion: reduce) { .pointer-fill::before { transition: none; } }
 ```
 
 ### 4.3 Magnetic Cursor Pull Physics
-Wrap primary hero CTAs in `<Magnetic strength={0.22}>`:
+Wrap primary hero CTAs in `<Magnetic strength={0.22}>` using Framer Motion springs for tactile responsiveness:
 
 ```typescript
-export function Magnetic({ children, strength = 0.22 }: { children: React.ReactNode; strength?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const node = ref.current;
-    if (!node) return;
-    const { clientX, clientY } = e;
-    const { left, top, width, height } = node.getBoundingClientRect();
-    setPos({ x: (clientX - (left + width / 2)) * strength, y: (clientY - (top + height / 2)) * strength });
-  };
+import { motion, useReducedMotion, useSpring } from "motion/react";
+import { type ReactNode } from "react";
+
+export function Magnetic({
+  children,
+  strength = 0.22,
+  radius = 90,
+}: {
+  children: ReactNode;
+  strength?: number;
+  radius?: number;
+}) {
+  const reduced = useReducedMotion();
+  const x = useSpring(0, { stiffness: 260, damping: 18, mass: 0.4 });
+  const y = useSpring(0, { stiffness: 260, damping: 18, mass: 0.4 });
+
+  if (reduced) return <span className="inline-flex">{children}</span>;
+
   return (
-    <motion.div ref={ref} onMouseMove={handleMouseMove} onMouseLeave={() => setPos({ x: 0, y: 0 })}
-      animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", damping: 15, stiffness: 150, mass: 0.1 }}>
+    <motion.span
+      className="inline-flex"
+      style={{ x, y }}
+      onPointerMove={(e) => {
+        if (e.pointerType !== "mouse") return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const dx = e.clientX - (rect.left + rect.width / 2);
+        const dy = e.clientY - (rect.top + rect.height / 2);
+        x.set(Math.max(-radius, Math.min(radius, dx)) * strength);
+        y.set(Math.max(-radius, Math.min(radius, dy)) * strength);
+      }}
+      onPointerLeave={() => {
+        x.set(0);
+        y.set(0);
+      }}
+    >
       {children}
-    </motion.div>
+    </motion.span>
   );
 }
 ```
@@ -147,6 +171,21 @@ The 8 particles use deterministic mathematical offsets rather than runtime rando
 ### 5.3 Variants: Dark vs Inverse
 - **Dark (Default Header):** `border border-white/10 bg-night text-white shadow-[0_15px_30px_-5px_var(--night)]` with active sheen and sparks.
 - **Inverse (In-Card Callout):** `bg-white text-ink shadow-[0_15px_35px_-18px_oklch(0_0_0/0.6)]`, static without sheen or spark layer.
+
+### 5.4 Responsive Geometry & Motion Standards
+Identical for both Dark and Inverse variants:
+
+| Property | Mobile (< 768px) | Desktop (>= 768px) |
+|:---|:---|:---|
+| **Border Radius** | `12px` (`rounded-xl`) | `16px` (`rounded-2xl`) |
+| **Padding** | `px-3 py-2` (12px h, 8px v) | `px-4 py-3` (16px h, 12px v) |
+| **Label / Icon Gap** | `4px` (`gap-1`) | `8px` (`gap-2`) |
+| **Font Size & Weight** | `16px` (`text-base`), Medium (500) | `20px` (`text-xl`), Medium (500) |
+| **Icon Size** | `16px` (`size-4`) | `20px` (`size-5`) |
+| **Sparks Layer** | `hidden` | `visible` (`block`) |
+| **Shine Duration** | 8s resting -> 4s hover | 8s resting -> 4s hover |
+
+Label never wraps (`whitespace-nowrap`). On hover, shine speed accelerates from 8s to 4s linear infinite. Under `prefers-reduced-motion: reduce`, both sparks and shine are disabled.
 
 ---
 
@@ -216,6 +255,29 @@ export function AppButton({ className, variant, size, asChild = false, magnetic 
   const Comp = asChild ? Slot : "button";
   const node = <Comp className={cn(appButtonVariants({ variant, size }), className)} {...props} />;
   return magnetic ? <Magnetic strength={0.22}>{node}</Magnetic> : node;
+}
+
+export function BookCallButton({
+  label = "Book a 45-Min Call",
+  href = "/contact",
+  className,
+}: {
+  label?: string;
+  href?: string;
+  className?: string;
+}) {
+  return (
+    <a
+      href={href}
+      className={cn(
+        "group inline-flex items-center justify-center gap-2 rounded-full bg-[image:var(--gradient-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-lift)] transition-transform duration-[var(--dur-fast,240ms)] hover:scale-[1.02]",
+        className,
+      )}
+    >
+      <span>{label}</span>
+      <ArrowRight className="size-4 transition-transform duration-[var(--dur-base,420ms)] group-hover:translate-x-1" />
+    </a>
+  );
 }
 ```
 

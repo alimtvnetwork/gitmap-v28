@@ -64,5 +64,5 @@ For every detected failure, document a 4-part RCA under `.ai-memory/cicd-issues/
 ## Non-Negotiable Invariants
 
 - **NEVER DISABLE CI/CD:** Strictly forbidden from commenting out or bypassing CI/CD steps.
-- **Strict Relative Git Paths:** Zero absolute filesystem paths or `file:///` URIs.
+- **Strict Relative Git Paths:** Strict Relative Git Paths Only: Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
 - **Strict Lowercase:** All generated files must use strictly lowercase naming.

@@ -74,7 +74,7 @@ func IsValidEmail(email string) bool {
 
 ```go
 // reIpAddress matches IPv4 addresses
-// Examples: "gateway-node", "10.0.0.1", "255.255.255.0"
+// Examples: "192.168.1.1", "10.0.0.1", "255.255.255.0"
 var reIpAddress = regexp.MustCompile(`\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b`)
 ```
 

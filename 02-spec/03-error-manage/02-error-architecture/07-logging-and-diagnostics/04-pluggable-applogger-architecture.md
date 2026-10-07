@@ -3,7 +3,7 @@
 **Version:** 3.3.0
 **Status:** Draft Specification (Pending Review)
 **Package:** `04-code/golang/pkg/applogger`
-**Reference Implementations:** `./03-aukgo\core\coreinterface\loggerinf\` (`Logger`, `StandardLogger`, `BasePersistentLogger`)
+**Reference Implementations:** `D:\work\03-aukgo\core\coreinterface\loggerinf\` (`Logger`, `StandardLogger`, `BasePersistentLogger`)
 
 ---
 

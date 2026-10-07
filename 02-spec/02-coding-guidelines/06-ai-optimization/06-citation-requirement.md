@@ -19,6 +19,7 @@ Whenever an AI agent generates code, creates plans (`.ai-memory/plans/pending/`)
 ### 1. Total Ban on Absolute Paths & `file:///` URIs in Repository Files
 
 - **TOTAL BAN:** NEVER write absolute filesystem paths (e.g. `/absolute/path/to/...`, `C:\Users\...`, `/home/...`) or absolute URI schemes (`file:///absolute/path/to/work/...`, `file:///absolute/path/to/`) inside markdown plans, subtask files, code comments, citations, or committed repository files.
+- **STRICT RELATIVE GIT PATHS ONLY:** Only add the relative paths, never add the absolute path during your work; ensure this is respected on the release page and in release notes as well.
 - **PORTABILITY REQUIREMENT:** All paths and markdown links within repository files MUST be relative to the git root so they work seamlessly across Windows, Linux, macOS, and CI/CD pipelines.
 
 ### 2. Concrete Examples

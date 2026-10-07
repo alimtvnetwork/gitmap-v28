@@ -84,6 +84,21 @@ Every icon button inside the pill uses a `40×40px` circular hit target with hov
 - **Builder Mode (`Pencil`):** Activates in-canvas drag-and-drop editing and floating `BuilderPanel`. Hotkey: `B` or `E`.
 - **Fullscreen (`Maximize2` / `Minimize2`):** Toggles HTML5 Fullscreen API. Hotkey: `F`.
 
+### 3.2.1 Keyboard shortcuts map (`Keyboard`)
+
+| Property | Value |
+|---|---|
+| **Icon** | Lucide `Keyboard` |
+| **Element id** | `ctrl-shortcuts` |
+| **Hit target** | `40×40px` circle (same as §3) |
+| **Hover / active** | Same as §3 (`hsl(0 0% 100% / 0.08)` / `0.14`) |
+| **Tooltip** | `Keyboard shortcuts (/)` |
+| **Action** | `setShortcutsOpen(true)` — same state as pressing **`/`** |
+| **Data source** | `PRESENTER_SHORTCUTS_CORE` in `42-slide-quiz-preview-chrome-and-default-shadows.md` §5.3 |
+| **Placement** | Immediately after **Theme Palette**, before **Presenter Webcam** |
+
+While the shortcuts dialog is open, auto-hide (§2) is suppressed. **`Esc`** closes the dialog.
+
 ---
 
 ## 4. Audio Chimes & Sound Synthesis (Web Audio API)

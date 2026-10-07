@@ -901,7 +901,7 @@ func toRelativeGitPath(targetPath string) string {
 	root := resolveRepoRootDir()
 	rel, err := filepath.Rel(root, targetPath)
 	if err != nil || strings.HasPrefix(rel, "..") {
-		return filepath.ToSlash(targetPath)
+		return filepath.ToSlash(FormatRelativeDbPath(targetPath))
 	}
 
 	return filepath.ToSlash(rel)

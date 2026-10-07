@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -703,20 +704,53 @@ func queryWorkflowRunsForTarget(repo string, target string) []ghRunItem {
 	if len(target) == 0 {
 		return runs
 	}
+
 	groups := GroupRunsByCommit(runs)
 	if _, isFound := ResolveCommitGroupByTarget(groups, target); isFound {
 		return runs
 	}
-	if !isCommitHexSha(target) {
+
+	targetSha := resolveTargetCommitCandidate(target)
+	if !isCommitHexSha(targetSha) {
 		return runs
 	}
 
-	commitRuns := queryWorkflowRunsByCommit(repo, target)
+	commitRuns := queryWorkflowRunsByCommit(repo, targetSha)
 	if len(commitRuns) > 0 {
 		return append(commitRuns, runs...)
 	}
 
 	return runs
+}
+
+func resolveTargetCommitCandidate(target string) string {
+	offset, isNegative := ParseNegativeIndex(target)
+	if !isNegative {
+		return target
+	}
+
+	resolved := resolveCommitShaByOffset(offset)
+	if len(resolved) > 0 {
+		return resolved
+	}
+
+	return target
+}
+
+func resolveCommitShaByOffset(offset int) string {
+	absOffset := NormalizeCommitOffset(offset)
+	if absOffset <= 0 {
+		return ""
+	}
+
+	rev := fmt.Sprintf("HEAD~%d", absOffset)
+	cmd := exec.Command("git", "rev-parse", "--short=7", rev)
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(string(out))
 }
 
 func queryWorkflowRunsByCommit(repo, sha string) []ghRunItem {
@@ -1192,7 +1226,8 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	fmt.Printf("    %s[%d/%d] %s #%d ➔ Job: %s | Step: %s%s\n",
 		constants.ColorCyan, idx, total, sec.WorkflowName, sec.RunId, sec.JobName, sec.StepName, constants.ColorReset)
 	if len(sec.FailureSummary) > 0 {
-		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
+		cleaned := cleanDisplayErrorText(sec.FailureSummary, sec.JobName, sec.StepName)
+		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, cleaned, constants.ColorReset)
 	}
 
 	renderSectionWarnings(sec.Warnings, activeLogLineLimit)
@@ -1202,8 +1237,23 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	}
 
 	if len(sec.SavedLogFile) > 0 {
-		fmt.Printf("      Log:     %s\n", filepath.ToSlash(sec.SavedLogFile))
+		fmt.Printf("      Log:     %s\n", filepath.ToSlash(FormatRelativeDbPath(sec.SavedLogFile)))
 	}
+}
+
+func cleanDisplayErrorText(text, job, step string) string {
+	clean := strings.TrimSpace(text)
+	prefixBoth := job + "\t" + step + "\t"
+	if strings.HasPrefix(clean, prefixBoth) {
+		return strings.TrimSpace(strings.TrimPrefix(clean, prefixBoth))
+	}
+
+	prefixJob := job + "\t"
+	if strings.HasPrefix(clean, prefixJob) {
+		return strings.TrimSpace(strings.TrimPrefix(clean, prefixJob))
+	}
+
+	return clean
 }
 
 func renderSectionStackTrace(stack string, lineLimit ...int) {
@@ -1316,7 +1366,7 @@ func renderRunCardBranchAndLog(fr FailedRunItem) {
 		fmt.Printf("  │ Branch:    %s | Commit: %s\n", fr.Branch, fr.Sha)
 	}
 	if len(fr.SavedLogFile) > 0 {
-		fmt.Printf("  │ Saved Log: %s\n", filepath.ToSlash(fr.SavedLogFile))
+		fmt.Printf("  │ Saved Log: %s\n", filepath.ToSlash(FormatRelativeDbPath(fr.SavedLogFile)))
 	}
 	if len(fr.Url) > 0 {
 		fmt.Printf("  │ URL:       %s\n", fr.Url)

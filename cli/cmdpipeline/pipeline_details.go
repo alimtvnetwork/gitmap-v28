@@ -529,7 +529,7 @@ func renderSingleDetailsFailure(sec SectionFailure, idx, total int) {
 		}
 	}
 	if len(sec.SavedLogFile) > 0 {
-		fmt.Printf("      Log:     %s\n", filepath.ToSlash(sec.SavedLogFile))
+		fmt.Printf("      Log:     %s\n", filepath.ToSlash(FormatRelativeDbPath(sec.SavedLogFile)))
 	}
 }
 

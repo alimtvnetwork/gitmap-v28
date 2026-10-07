@@ -136,5 +136,5 @@ The script must implement:
 
 1. **R1 (No Disabling CI/CD):** Never skip tests or bypass linters.
 2. **R8 (Atomic Commit Standard):** Use hyphen separator `gitmap cpf "<module> - <summary>"`.
-3. **R11 (Strict Relative Git Paths):** All scripts reference repository-relative paths only.
+3. **R11 (Strict Relative Git Paths):** All scripts reference repository-relative paths only. Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
 4. **Strict Lowercase:** All scripts and configurations must use lowercase filenames (`run.ps1`, `run.sh`, `run.config.json`, `local-install.ps1`, `local-install.sh`).

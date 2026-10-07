@@ -1,9 +1,9 @@
 # Follow UI/UX Design System Specification & Component Assembly
 
-> **Prompt Version:** 2.1.0
-> **Trigger keywords:** `ui-ux`, `follow-design-system`, `build-website`, `avant-garde-menu`, `design-tokens`, `button-system`, `blog-system`
+> **Prompt Version:** 2.2.0
+> **Trigger keywords:** `ui-ux`, `follow-design-system`, `build-website`, `precision-mega-menu`, `design-tokens`, `button-system`, `blog-system`
 
-**/goal** Autonomously construct production-grade marketing websites, blogs, dashboards, navigation systems, avant-garde mega menus, buttons, and responsive sections by strictly following the grounded design specifications without inventing a single value or hallucinating aesthetics.
+**/goal** Autonomously construct production-grade marketing websites, blogs, dashboards, navigation systems, precision mega menus, buttons, and responsive sections by strictly following the grounded design specifications without inventing a single value or hallucinating aesthetics.
 
 **/learn** Before authoring HTML, JSX, CSS, LESS, or Tailwind code, AI agents MUST read the sequentially numbered specification files listed below in exact order. All relative paths are from the git repository root.
 
@@ -14,22 +14,23 @@
 AI agents MUST sequentially ingest these specification files:
 
 1. `02-spec/07-design-system/02-design-principles.md` — 60/30/10 visual balance, 4-plane depth hierarchy, single-accent Von Restorff rule.
-2. `02-spec/07-design-system/04-typography.md` — Fluid type scale (`clamp()`), Ubuntu headings, Poppins body, JetBrains Mono eyebrows.
-3. `02-spec/07-design-system/05-spacing-layout.md` — Content max width (`1280px`), responsive gutters, vertical section rhythms.
-4. `02-spec/07-design-system/10-header-navigation.md` — 72px sticky glass header, 12px scroll threshold, safe-region pointer physics (`pad = 14px`, 220ms debounce), `SlideSwapLabel` nav links, sticky-safe mobile drawer.
-5. `02-spec/07-design-system/11-button-system.md` — 6 Button variants (`primary`, `solid`, `outline`, `glass`, `ghost`, `link`), 4 sizes (`sm: 36px`, `md: 44px`, `lg: 52px`, `icon: 44px`), magnetic cursor physics (`strength: 0.22`), `.shine-sweep`, `.pointer-fill`, capsule pills.
-6. `02-spec/07-design-system/16-theme-catalogue-and-palettes.md` — Multi-theme catalog, semantic color token mappings, contrast verification.
-7. `02-spec/07-design-system/21-css3-animations-and-interactions.md` — Hardware-accelerated CSS3 keyframes, marquees, accordions, neon borders.
-8. `02-spec/07-design-system/25-page-assembly.md` — Site and blog shells, copy length constraints.
-9. `02-spec/07-design-system/33-mega-menu-components.md` — Avant-garde mega panel dropdown: 260ms entrance, multi-column grid, growing left hairline over 420ms, 3D promotional flip card (`perspective: 1400px`, `rotateY(180deg)` over 820ms).
-10. `02-spec/07-design-system/36-website-content-builder-mode.md` — Comprehensive website visual builder overlay: review-only gate (`?builder=1&email={OWNER_EMAIL}`), in-place `contentEditable` text editor, images/icon replacement modal, menu link editor, floating side panel diff tracking, and deterministic `content-changes--all-pages--*.zip` export.
-11. `02-spec/07-design-system/37-image-specifications.md` — Infographics, social banners, YouTube thumbnails, safe zones, and aspect ratio standards.
-12. `02-spec/07-design-system/38-card-and-pricing-components.md` — 3-tier pricing table matrix, featured badges, floating editorial sections.
-13. `02-spec/07-design-system/41-homepage-and-blog-sections.md` — 15 Flagship homepage sections and complete blog editorial templates.
+2. `02-spec/07-design-system/03-theme-variable-architecture.md` — Complete 3-format color tables (OKLCH, HEX, RGB, HSL) for Blue/Violet/Slate ramps, 9 brand gradients, and 6 elevation shadows.
+3. `02-spec/07-design-system/04-typography.md` — Fluid type scale (`clamp()`), Ubuntu headings, Poppins body, JetBrains Mono eyebrows.
+4. `02-spec/07-design-system/05-spacing-layout.md` — Content max width (`1280px`), responsive gutters, vertical section rhythms.
+5. `02-spec/07-design-system/10-header-navigation.md` — 72px sticky glass header, 12px scroll threshold, safe-region pointer physics (`pad = 14px`, 220ms debounce), `SlideSwapLabel` nav links, sticky-safe mobile drawer.
+6. `02-spec/07-design-system/11-button-system.md` — 6 Button variants (`primary`, `solid`, `outline`, `glass`, `ghost`, `link`), 4 sizes (`sm: 36px`, `md: 44px`, `lg: 52px`, `icon: 44px`), magnetic cursor physics (`strength: 0.22`), `.shine-sweep`, `.pointer-fill`, capsule pills.
+7. `02-spec/07-design-system/16-theme-catalogue-and-palettes.md` — Multi-theme catalog, semantic color token mappings, contrast verification.
+8. `02-spec/07-design-system/21-css3-animations-and-interactions.md` — Hardware-accelerated CSS3 keyframes, marquees, accordions, neon borders.
+9. `02-spec/07-design-system/25-page-assembly.md` — Site and blog shells, copy length constraints.
+10. `02-spec/07-design-system/33-mega-menu-components.md` — Precision mega panel dropdown: 260ms entrance, multi-column grid, growing left hairline over 420ms, 3D promotional flip card (`perspective: 1400px`, `rotateY(180deg)` over 820ms).
+11. `02-spec/07-design-system/36-website-content-builder-mode.md` — Comprehensive website visual builder overlay: review-only gate (`?builder=1&email={OWNER_EMAIL}`), in-place `contentEditable` text editor, images/icon replacement modal, menu link editor, floating side panel diff tracking, and deterministic `content-changes--all-pages--*.zip` export.
+12. `02-spec/07-design-system/37-image-specifications.md` — Infographics, social banners, YouTube thumbnails, safe zones, and aspect ratio standards.
+13. `02-spec/07-design-system/38-card-and-pricing-components.md` — 3-tier pricing table matrix, featured badges, floating editorial sections.
+14. `02-spec/07-design-system/41-homepage-and-blog-sections.md` — 15 Flagship homepage sections and complete blog editorial templates.
 
 ---
 
-## 2. The Avant-Garde Navigation & Mega Menu Rules
+## 2. Precision Navigation & Mega Menu Rules
 
 When authoring header navigation, enforce these exact mechanics:
 

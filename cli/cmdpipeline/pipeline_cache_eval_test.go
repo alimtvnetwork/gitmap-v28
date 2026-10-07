@@ -175,3 +175,66 @@ func TestCheckCompletedCommitCacheHit(t *testing.T) {
 		t.Errorf("expected in_progress runs to return false")
 	}
 }
+
+func TestHasAnyActiveRun(t *testing.T) {
+	runs := []pipelinedb.PipelineRunRecord{
+		{RunId: 1, Sha: "c1", Status: "completed", Conclusion: "success"},
+		{RunId: 2, Sha: "c1", Status: "in_progress"},
+		{RunId: 3, Sha: "c2", Status: "completed", Conclusion: "failure"},
+	}
+
+	if !hasAnyActiveRun(runs, "c1") {
+		t.Errorf("expected hasAnyActiveRun to be true for c1")
+	}
+
+	if hasAnyActiveRun(runs, "c2") {
+		t.Errorf("expected hasAnyActiveRun to be false for completed c2")
+	}
+
+	if !hasAnyActiveRun(runs, "") {
+		t.Errorf("expected hasAnyActiveRun across all runs to be true")
+	}
+}
+
+func TestCheckCommitTargetCacheHit_PartialCompletedRejection(t *testing.T) {
+	runs := []pipelinedb.PipelineRunRecord{
+		{RunId: 1, Sha: "c1", Status: "completed", Conclusion: "success"},
+		{RunId: 2, Sha: "c1", Status: "in_progress"},
+	}
+
+	if checkCommitTargetCacheHit(runs, "c1") {
+		t.Errorf("expected false when one run for the commit is still in_progress")
+	}
+}
+
+func TestEvaluateDecisionFromRuns_TargetNotInCache(t *testing.T) {
+	runs := []pipelinedb.PipelineRunRecord{
+		{RunId: 1, Sha: "head_commit", Status: "completed", Conclusion: "success"},
+	}
+	flags := PipelineErrorFlags{CommitTarget: "other_commit"}
+	decision := evaluateDecisionFromRuns(nil, "dummy/repo", runs, flags)
+
+	if decision.IsFromCache {
+		t.Errorf("expected cache miss when target is not in cache")
+	}
+
+	if decision.Reason != "target_not_in_cache" {
+		t.Errorf("expected target_not_in_cache reason, got %s", decision.Reason)
+	}
+}
+
+func TestEvaluateDecisionFromRuns_ActiveRunInProgress(t *testing.T) {
+	runs := []pipelinedb.PipelineRunRecord{
+		{RunId: 1, Sha: "head_commit", Status: "in_progress"},
+	}
+	flags := PipelineErrorFlags{}
+	decision := evaluateDecisionFromRuns(nil, "dummy/repo", runs, flags)
+
+	if decision.IsFromCache {
+		t.Errorf("expected cache miss when active run is in progress")
+	}
+
+	if decision.Reason != "active_run_in_progress" {
+		t.Errorf("expected active_run_in_progress reason, got %s", decision.Reason)
+	}
+}

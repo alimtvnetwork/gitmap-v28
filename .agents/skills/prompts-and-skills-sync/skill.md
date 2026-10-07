@@ -28,7 +28,7 @@ Activate this skill when:
 
 ## 2. Connected Target Repositories (13 Repositories)
 
-The synchronizer mirrors assets to the 13 connected repositories in the workspace parent directory (`d:\work\`):
+The synchronizer mirrors assets to the connected repositories in the workspace parent directory:
 
 1. `antigravity-manager`
 2. `spec-builder`

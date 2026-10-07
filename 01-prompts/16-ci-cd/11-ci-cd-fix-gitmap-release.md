@@ -96,5 +96,5 @@ For every detected failure, document a 4-part RCA under `.ai-memory/cicd-issues/
 1. **R1 (NEVER DISABLE CI/CD):** Strictly forbidden from commenting out, bypassing, or deleting CI/CD steps. Fix the code, not the check.
 2. **R2 (Targeted Verification):** Use file-scoped linters and `gitmap pe -t`.
 3. **R8 (Atomic Commit Standard):** Hyphen separator in `gitmap cpf "<module> - <summary>"` (no colons).
-4. **R11 (Relative Git Paths):** Zero absolute paths and zero `file:///` URIs.
+4. **R11 (Relative Git Paths):** Strict Relative Git Paths Only: Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
 5. **R12 (Minor Bump Ceremony):** Always use `python 03-ai-scripts/37-bump-version.py -t minor` for consistency across all package manifests.

@@ -170,6 +170,7 @@ All patch version bumps and releases MUST strictly follow this 5-step Git releas
 2. **Root README Pinning (Fatal if missed):** You MUST pin the latest release version into the root `readme.md` file. Rewrite every occurrence of the previous version (`vX.Y.Z` and bare `X.Y.Z`) in badges, install snippets, and inline references. It is FATAL if you do not update the version pins in the root README file!
 3. **Test File Ban:** You MUST NOT read, scan, or modify test files (e.g., `*_test.*`, `*.spec.*`, `test/*`) when discovering or updating versions. Test files contain mock data, and updating mock data corrupts the tests.
 4. **Version Inheritance Protocol:** The root `version.json` file is the strict Single Source of Truth. If sub-components are set to `"inherit"`, DO NOT modify them independently; they automatically scale with the global version. Always bump the global root `"version"` property.
+5. **Strict Relative Git Paths Only:** You MUST strictly use relative Git paths (e.g. `02-spec/...`, `cmd/main.go`) in `changelog.md`, release notes, manifests, and documentation. There is a TOTAL BAN on absolute filesystem paths (`/home/...`, `C:\...`) and `file:///` URIs across all release documentation, release notes, and GitHub release pages. Only add the relative paths, never add the absolute path during your work; this must be respected on the release page and in release notes as well.
 
 ---
 

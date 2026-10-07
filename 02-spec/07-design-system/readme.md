@@ -37,23 +37,23 @@ Before authoring components or generating code, AI agents MUST read and master t
   - Read [`29-slide-navigation-and-builder.md`](./29-slide-navigation-and-builder.md) — HUD, transitions, keys, slide builder.
   - Read [`30-slide-palette-type-and-shell.md`](./30-slide-palette-type-and-shell.md) — Dark amber palette, type scale, shell layers.
   - Read [`31-slide-controller-buttons.md`](./31-slide-controller-buttons.md) — Floating HUD controller pill, action buttons, webcam PIP overlay, timer, dots.
+  - Read [`42-slide-quiz-preview-chrome-and-default-shadows.md`](./42-slide-quiz-preview-chrome-and-default-shadows.md) — Default text/box shadow pair, presentation option cards, botanical-light quiz theme, keyboard shortcut matrix, center-stage layout.
   - Read [`32-slide-color-options.md`](./32-slide-color-options.md) — 10-step gradient precision system ($S_0$–$S_9$) across 7 flagship themes, per-slide gradient editor, pill presets, 9-cell align.
+  - Read [`42-slide-step-and-sound-system.md`](./42-slide-step-and-sound-system.md) — `StepTimelineSlide` vs `AdvanceStepSlide`, active focus rows, and Web Audio API synthesis engine.
+  - Read [`43-slide-webcam-overlay.md`](./43-slide-webcam-overlay.md) — Presenter webcam PIP overlay, squircle gold rim, S/M/L/XL presets, auto-frame, and hotkeys.
+  - Read [`44-slide-presenter-inspector-and-handouts.md`](./44-slide-presenter-inspector-and-handouts.md) — Presenter inspector route (`/slides/inspector`), 3-up printable handouts, and print mode.
 - [ ] `/learn` **Phase 6b: Master Slide Layout Catalog & Pure DOM Typography**
-  - Read [`34-slide-layout-catalog.md`](./34-slide-layout-catalog.md) — Non-Image Text Mandate and 20 master enterprise slide layouts (Title, Executive, Key Player, Split, Pricing, Steps Chain, Funnel, Hardware Tabletop, Tech Stack, etc.).
+  - Read [`34-slide-layout-catalog.md`](./34-slide-layout-catalog.md) — Non-Image Text Mandate and 20 master enterprise slide layouts.
 - [ ] `/learn` **Phase 6c: Live Slide Builder Mode & Canvas Inspector**
-  - Read [`35-slide-builder-canvas-inspector.md`](./35-slide-builder-canvas-inspector.md) — Decoupled dual-store architecture, 7 visual layers, draggable `BuilderPanel`, `convertSlideType` engine across all 20 layouts, multi-format export.
-- [ ] `/learn` **Phase 6d: Avant-Garde Navigation & Mega Menu System**
+  - Read [`35-slide-builder-canvas-inspector.md`](./35-slide-builder-canvas-inspector.md) — Decoupled dual-store architecture, 7 visual layers, draggable `BuilderPanel`, layout switcher, and headless PDF.
+- [ ] `/learn` **Phase 6d: Precision Navigation & Mega Menu System**
   - Read [`10-header-navigation.md`](./10-header-navigation.md) & [`33-mega-menu-components.md`](./33-mega-menu-components.md) — Sticky `72px` glass header, `SlideSwapLabel` CSS keyframes, growing left hairline, 3D flip promo card, and safe-region hover mechanics.
 - [ ] `/learn` **Phase 6e: Website Content Builder Mode & In-Page Visual Editor**
-  - Read [`36-website-content-builder-mode.md`](./36-website-content-builder-mode.md) & [`26-visual-builder.md`](./26-visual-builder.md) — Production-grade website visual builder overlay: review-only gate (`?builder=1&email={OWNER_EMAIL}`), in-place `contentEditable` text editing, images/icon replacement modal, menu link editor, floating side panel diff tracking, and deterministic `content-changes--all-pages--*.zip` export.
+  - Read [`36-website-content-builder-mode.md`](./36-website-content-builder-mode.md) & [`26-visual-builder.md`](./26-visual-builder.md) — In-page review-only editor: `contentEditable`, media replacement modal, menu editor, and ZIP export.
 - [ ] `/learn` **Phase 6f0: Bright Gold Tech, Logo & Theme Switch**
-  - Read [`05-bright-gold-tech/readme.md`](./05-bright-gold-tech/readme.md) — Dark gold tokens, dot-field background, definition page, and page types.
-  - Read [`39-logo-construction.md`](./39-logo-construction.md) — One-archetype SVG mark. Missing name, idea, or colors stops the job.
-  - Read [`40-theme-switch.md`](./40-theme-switch.md) — 8 slide themes and runtime color switch.
-  - Read [`98-confidence-report.md`](./98-confidence-report.md) — What to build and what to refuse.
+  - Read [`05-bright-gold-tech/readme.md`](./05-bright-gold-tech/readme.md), [`39-logo-construction.md`](./39-logo-construction.md), and [`40-theme-switch.md`](./40-theme-switch.md).
 - [ ] `/learn` **Phase 6f: Standalone Image & Banner Specifications**
   - Read [`37-image-specifications.md`](./37-image-specifications.md) — Canvas geometries, safe zones, text rules, and image palette.
-  - Follow [`01-prompts/10-ui-and-design/09-write-and-enhance-design-spec.md`](../../01-prompts/10-ui-and-design/09-write-and-enhance-design-spec.md) to author/enhance specs.
 - [ ] `/learn` **Phase 7: AI-Adaptable Modern SaaS Design System**
   - Read [`02-ai-system-design/readme.md`](./02-ai-system-design/readme.md) — Variable-driven theme swapping (Pink to Green), sticky nav, search module, "Join Us" CSS3 text-slide animation, "Climate AI" highlight, and "Team Greenhouse" section.
 - [ ] `/learn` **Phase 8: Sweet Digs Design System & Interactive Theme Tester**
@@ -195,7 +195,7 @@ All animations and transitions prioritize **GPU-composited CSS3 transforms and o
 | 30 | [30-slide-palette-type-and-shell.md](./30-slide-palette-type-and-shell.md) | Presentation | Dark amber palette, type scale, spotlight, shell layers |
 | 31 | [31-slide-controller-buttons.md](./31-slide-controller-buttons.md) | Presentation | Floating HUD controller pill, 8-position mounting, audio synthesis, webcam PIP |
 | 32 | [32-slide-color-options.md](./32-slide-color-options.md) | Presentation | 10-step gradient precision system ($S_0$–$S_9$), pill presets, relative luminance formula, 9-cell align |
-| 33 | [33-mega-menu-components.md](./33-mega-menu-components.md) | Navigation | Avant-garde mega panel dropdown, 3D flip card, growing left hairline, link staggers |
+| 33 | [33-mega-menu-components.md](./33-mega-menu-components.md) | Navigation | Precision mega panel dropdown, 3D flip card, growing left hairline, link staggers |
 | 34 | [34-slide-layout-catalog.md](./34-slide-layout-catalog.md) | Presentation | Pure DOM text mandate and 20 master slide layout models |
 | 35 | [35-slide-builder-canvas-inspector.md](./35-slide-builder-canvas-inspector.md) | Slide Builder | Dual-store architecture, 7 visual layers, selection overlays, hotkeys, acoustic audio cues, headless PDF |
 | 36 | [36-website-content-builder-mode.md](./36-website-content-builder-mode.md) | Web Builder | In-page review-only builder overlay, `contentEditable` inline text editing, media modal, and ZIP diff exports |
@@ -204,6 +204,9 @@ All animations and transitions prioritize **GPU-composited CSS3 transforms and o
 | 39 | [39-logo-construction.md](./39-logo-construction.md) | Brand | Reusable SVG mark construction rules, archetypes, and theme variables |
 | 40 | [40-theme-switch.md](./40-theme-switch.md) | Theme | 8 slide themes, shared color variables, and runtime color switcher |
 | 41 | [41-homepage-and-blog-sections.md](./41-homepage-and-blog-sections.md) | Homepage & Blog | 15 modular homepage inspiration sections, blog index, reading progress, and editorial layout |
+| 42 | [42-slide-step-and-sound-system.md](./42-slide-step-and-sound-system.md) | Slide Steps & Sound | `StepTimelineSlide` vs `AdvanceStepSlide`, focus row, Web Audio API synthesis engine |
+| 43 | [43-slide-webcam-overlay.md](./43-slide-webcam-overlay.md) | Webcam PIP | Presenter webcam overlay, squircle gold rim, S/M/L/XL presets, auto-frame face tracker |
+| 44 | [44-slide-presenter-inspector-and-handouts.md](./44-slide-presenter-inspector-and-handouts.md) | Presenter & Print | Presenter inspector route (`/slides/inspector`), 3-up printable handouts, print mode |
 | 05c | [05-bright-gold-tech/readme.md](./05-bright-gold-tech/readme.md) | Theme | Bright gold tech deck and website bands |
 | 98 | [98-confidence-report.md](./98-confidence-report.md) | Meta | What an agent can build, and what it must refuse |
 | 02b | [02-ai-system-design/readme.md](./02-ai-system-design/readme.md) | Sub-System | AI-adaptable modern SaaS theme swapping and section blueprints |

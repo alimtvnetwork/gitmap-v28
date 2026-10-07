@@ -50,6 +50,24 @@ A mode selector in the floating side panel switches the entire viewport between 
 | **`Layout`** | Hover controls | Repeated card decks, feature grids, list rows | Reorder items up/down within sibling container, drag order handles |
 | **`Off`** | Panel toggle | Viewport canvas | Hides all builder outlines, chips, and panel; keeps draft modifications visible on page |
 
+### 3.2 DOM Auto-Tagging Pipeline (`assignIds()`) & Content Index Mapping
+
+To reliably map live DOM nodes back to source code files without manual JSX tagging:
+1. **Content Index (At Start):** The build module flattens all marketing data files (`src/content/*.ts`) to a depth cap of 6 into a normalized string-to-source map:
+   `index.set(normalize(value), { file: "src/content/home.ts", key: "home.hero.title" })`.
+2. **Deterministic 4-Pass DOM Tagging Order:**
+   - **Pass 1 — Menu Links:** `header a, footer nav a` tagged as `data-builder-type="menu"`, with id `global.nav.<slug>` or `global.footer.<slug>`.
+   - **Pass 2 — Images & Logo:** Every `<img>` tagged as `data-builder-type="image"`; logo tagged `global.header.logo`.
+   - **Pass 3 — Animated / Masked Headings:** Containers with `[data-bm-masked="words"|"lines"]` tagged as single editable units.
+   - **Pass 4 — Generic Text:** Evaluates remaining nodes against the text tag allowlist (`H1-H6, P, LI, SPAN, A, BUTTON, STRONG, LABEL, BLOCKQUOTE, TD, TH`).
+3. **Split on Block-Level Children:** A hero heading with stacked `<span class="block">` lines is edited line-by-line, preventing accidental text collapse on save. Decorative elements (SVGs, `aria-hidden="true"`) do not disqualify parent buttons or labels.
+4. **Attributes Written:**
+   - `data-builder-id`: Content key or generated `<page-slug>.auto.<n>`.
+   - `data-builder-type`: `"text" | "image" | "menu" | "layout"`.
+   - `data-bm-section-name`: Nearest section heading text or semantic role.
+   - `data-bm-order`: Document index for sorting exports top-to-bottom.
+   - `data-bm-source`: File path and dotted object path.
+
 ---
 
 ## 4. Text Editing Lifecycle & DOM Sanitization
@@ -173,6 +191,14 @@ content-changes--all-pages--2026-10-02-1200.zip
 ]
 ```
 
+### 7.2 Automated Before / After Section Screenshot Pairs (`shots.ts`)
+
+During the export routine, the builder captures side-by-side photographic visual verification for each modified section using `html-to-image`:
+1. **After State:** Captures the current DOM rendering with the edited element highlighted in a red accent outline (`#ef4444`, `2px solid`). Saved as `screenshots/{page-slug}/{NN}-after.png`.
+2. **Before State:** Temporarily paints the original record value back onto the DOM element via `paintSide(node, rec, "before")`, highlights it in a muted slate outline (`#64748b`, `2px solid`), captures `screenshots/{page-slug}/{NN}-before.png`, and immediately restores the active draft.
+3. **Capture Parameters:** Section bounds clamped to `1440 × 2400px`, `skipFonts: true`, `pixelRatio <= 1.5`, filtering out builder overlay chrome (`[data-bm-root]`, `.bm-chip`).
+4. **Markdown Side-by-Side Tables:** Generates GitHub-flavored markdown tables presenting side-by-side comparisons of the before and after screenshots for human code review.
+
 ---
 
 ## 8. Anti-Hallucination & Quality Verification Checklist
@@ -186,4 +212,5 @@ content-changes--all-pages--2026-10-02-1200.zip
 - [ ] Navigation on links is suppressed during editing unless modifier keys (`Cmd`, `Ctrl`, `Alt`) are held.
 - [ ] Images mode restricts uploads to PNG, JPG, WebP, SVG with a 2 MB hard cap and mandatory alt-text.
 - [ ] Menu mode validates target links against approved protocols (`/`, `#`, `http(s)://`, `mailto:`, `tel:`).
-- [ ] Export produces deterministic ZIP with `SUMMARY.md`, `manifest.json`, per-page Markdown diffs, and assets.
+- [ ] Export routine generates before/after screenshot pairs with red (`#ef4444`) and slate (`#64748b`) outlines.
+- [ ] Export produces deterministic ZIP with `SUMMARY.md`, `manifest.json`, per-page Markdown diffs, screenshots, and assets.

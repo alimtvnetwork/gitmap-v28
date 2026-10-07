@@ -3,11 +3,11 @@
 > **/goal** Say what a blind agent can build from this design system today.
 > **/learn** A row under 70 means stop and read the named file. Do not invent the missing geometry.
 
-**Version:** 4.3.0
-**Updated:** 2026-10-02
+**Version:** 4.4.0
+**Updated:** 2026-10-06
 **Status:** Active
 
-This report replaces the design-spec number ledger. A number that is not in `05-bright-gold-tech/`, `26-visual-builder.md`, `29-slide-navigation-and-builder.md`, `34-slide-layout-catalog.md`, `39-logo-construction.md`, or `40-theme-switch.md` is not a build license.
+This report replaces the design-spec number ledger. A number that is not in `05-bright-gold-tech/`, `26-visual-builder.md`, `29-slide-navigation-and-builder.md`, `34-slide-layout-catalog.md`, `39-logo-construction.md`, `40-theme-switch.md`, or `42-slide-quiz-preview-chrome-and-default-shadows.md` is not a build license.
 
 ---
 
@@ -21,6 +21,8 @@ This report replaces the design-spec number ledger. A number that is not in `05-
 | Logo | `39-logo-construction.md` | 70 | A clean SVG mark after name, idea, and colors are supplied. |
 | Noir-gold deck | Tokens below. No page catalog in this repo. | 48 | Colors only. Do not invent its page geometry. |
 | Slide theme switch | `40-theme-switch.md` | 76 | The 8 listed themes. A ninth waits for six supplied colors. |
+| Quiz preview & presenter shortcuts (closed contract) | `42-slide-quiz-preview-chrome-and-default-shadows.md` v2 + `scripts/verify-botanical-light-contrast.mjs` | **100** | §0.1 scope only: CSS §1–2,3,6, embed §9, `PRESENTER_SHORTCUTS_CORE`, §5.4 dispatch, HUD §3.2.1 in file 31. Faults: app folder `05-blind-agent-fault-register.md`. |
+| Quiz preview (full product surfaces) | Same + layouts 34/28 | 74 | Custom slide bodies and deck-specific shortcut rows still out of license. |
 | Black slide system | None | 20 | No measured black catalog exists here. Do not invent one. |
 | Blog kit | None in this folder | 20 | That kit is a separate light/dark oklch set. Do not restyle it from this file. |
 

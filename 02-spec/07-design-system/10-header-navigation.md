@@ -1,9 +1,9 @@
-# Header & Avant-Garde Navigation System Specification
+# Header & Precision Navigation System Specification
 
 > **/goal** Specify the enterprise sticky glass header, shrinking pill navbar, safe-region pointer physics, character-staggered `SlideSwapLabel` navigation links, and full responsive behavior.
 > **/learn** Master the 72px sticky header height, 12px scroll threshold, pointer safe-region collision math (`pad = 14px`, 220ms close debounce), character-staggered vertical slide swap (`stagger: 0.04`), and background scroll lock that preserves `position: sticky` without body overflow tampering.
 
-**Version:** 4.0.0
+**Version:** 4.1.0
 **Status:** Active
 **AI Confidence:** High
 **Ambiguity:** None
@@ -12,7 +12,7 @@
 
 ## 1. Executive System Overview
 
-The **Header & Avant-Garde Navigation System** anchors the site's information architecture. It balances effortless discoverability with editorial visual luxury:
+The **Header & Precision Navigation System** anchors the site's information architecture. It balances effortless discoverability with editorial visual luxury:
 1. **72px Glass Header Bar:** Fixed sticky bar with `backdrop-blur-xl` and 90% opacity surface fill.
 2. **Dynamic 12px Scroll Threshold:** Elevates from a subtle hairline border into a distinct card shadow once scrolled past 12px.
 3. **Alternative Shrinking Pill Header:** Transitions from a 1240px transparent container into a 900px floating white pill after scroll.
@@ -65,7 +65,7 @@ useEffect(() => {
 
 ---
 
-## 3. Avant-Garde Nav Link Micro-Interactions
+## 3. Nav Link Micro-Interactions
 
 Primary navigation links incorporate three concurrent micro-interactions on hover:
 

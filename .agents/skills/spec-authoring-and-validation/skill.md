@@ -157,5 +157,5 @@ At the conclusion of the specification turn, you MUST output the following struc
 ### 🚀 Next Steps: Execution Command
 
 To execute these generated subtasks in continuous sequence with 2-agent concurrency:
-> Run: `06-execute-parent-task-with-n-steps-v2.md` with plan slug `xx-<slug>`
+> Run: `02-execute-parent-task-with-n-steps-v6.md` with plan slug `xx-<slug>`
 ```

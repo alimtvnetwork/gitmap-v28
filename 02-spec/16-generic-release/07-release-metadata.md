@@ -112,6 +112,16 @@ All three changes must happen in the **same commit** that is tagged.
 
 ---
 
+## Strict Relative Git Paths Mandate in Release Metadata and Changelogs
+
+All file paths, references, diff citations, and markdown links within `changelog.md`, release descriptions, GitHub release pages, and metadata manifests MUST strictly use relative Git paths (e.g., `02-spec/...`, `cmd/...`). Only add the relative paths, never add the absolute path during your work. This MUST be respected on the release page and in release notes as well.
+
+- **TOTAL BAN on Absolute Paths:** Never include `/home/...`, `C:\Users\...`, or `/root/...` in release notes or changelogs.
+- **TOTAL BAN on `file:///` URIs:** Never use `file:///` links in public release announcements or documentation.
+- **Zero Workstation Leakage:** Relative paths preserve user privacy and prevent local environment details from leaking into public release tags.
+
+---
+
 ## Release Metadata Files
 
 Optionally maintain a `latest.json` for programmatic version queries:
