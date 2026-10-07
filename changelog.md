@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.507.0] - 2026-10-07
+
+### Added
+- pipeline pe cache invalidation relative path sanitization and error extraction fix v6.507.0
+
+---
+
 ## [v6.506.2] - 2026-10-07
 
 ### Added
