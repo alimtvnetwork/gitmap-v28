@@ -50,6 +50,6 @@
 
 | Subtask ID | File | Owner | Status | Evidence |
 | :--- | :--- | :--- | :--- | :--- |
-| Subtask-01 | `.ai-memory/plans/subtasks/238-gitmap-pe-cache-invalidation-relative-paths-and-error-extraction-remediation/01-pipeline-cache-invalidation-and-target-sha-fix.md` | Worker 01 | PENDING | Pending dispatch |
-| Subtask-02 | `.ai-memory/plans/subtasks/238-gitmap-pe-cache-invalidation-relative-paths-and-error-extraction-remediation/02-pipeline-relative-paths-and-tab-prefix-hygiene.md` | Worker 02 | PENDING | Pending dispatch |
-| Subtask-03 | `.ai-memory/plans/subtasks/238-gitmap-pe-cache-invalidation-relative-paths-and-error-extraction-remediation/03-cicd-verification-minor-bump-and-release.md` | Lead | PENDING | Pending dispatch |
+| Subtask-01 | `.ai-memory/plans/subtasks/238-gitmap-pe-cache-invalidation-relative-paths-and-error-extraction-remediation/01-pipeline-cache-invalidation-and-target-sha-fix.md` | Worker 01 | COMPLETED | Cache invalidation on active runs + strict target affinity verified |
+| Subtask-02 | `.ai-memory/plans/subtasks/238-gitmap-pe-cache-invalidation-relative-paths-and-error-extraction-remediation/02-pipeline-relative-paths-and-tab-prefix-hygiene.md` | Worker 02 | COMPLETED | FormatRelativeDbPath across all outputs + cleanDisplayErrorText verified |
+| Subtask-03 | `.ai-memory/plans/subtasks/238-gitmap-pe-cache-invalidation-relative-paths-and-error-extraction-remediation/03-cicd-verification-minor-bump-and-release.md` | Lead | IN_PROGRESS | Full test suite running, preparing minor bump and release ceremony |

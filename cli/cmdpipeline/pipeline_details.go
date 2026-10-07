@@ -518,7 +518,8 @@ func renderSingleDetailsFailure(sec SectionFailure, idx, total int) {
 	fmt.Printf("    %s[%d/%d] %s ➔ Job: %s | Step: %s%s\n",
 		constants.ColorCyan, idx, total, sec.WorkflowName, sec.JobName, sec.StepName, constants.ColorReset)
 	if len(sec.FailureSummary) > 0 {
-		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
+		cleaned := cleanDisplayErrorText(sec.FailureSummary, sec.JobName, sec.StepName)
+		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, cleaned, constants.ColorReset)
 	}
 	renderSectionWarnings(sec.Warnings)
 	renderSectionErrorLinesDedup(sec.ErrorLines, sec.FailureSummary)

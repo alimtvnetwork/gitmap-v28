@@ -1399,7 +1399,8 @@ func renderFailedJobSection(job FailedJobItem) {
 	fmt.Printf("  │ Job:   %s\n", job.JobName)
 	fmt.Printf("  │ Step:  %s\n", job.StepName)
 	if len(job.FailureSummary) > 0 {
-		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, job.FailureSummary, constants.ColorReset)
+		cleaned := cleanDisplayErrorText(job.FailureSummary, job.JobName, job.StepName)
+		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, cleaned, constants.ColorReset)
 	}
 
 	renderJobCardWarnings(job.Warnings)
