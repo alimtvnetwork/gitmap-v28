@@ -75,6 +75,7 @@ class RepoStatusType(str, Enum):
     DIVERGED = "diverged"
     DETACHED = "detached"
     NO_COMMITS = "no_commits"
+    EXCLUDED = "excluded"
     ERROR = "error"
 
 
@@ -100,6 +101,47 @@ SKIP_PARENT_PATTERNS = {
     "venv",
     ".gitmap",
 }
+
+NON_OWNED_REPO_PATTERNS = {
+    "oh-my-zsh",
+    "ohmyzsh",
+    ".oh-my-zsh",
+    "zsh",
+    ".zsh",
+    "zsh-autosuggestions",
+    "zsh-syntax-highlighting",
+    "omis",
+    "oh-my-posh",
+    ".posh",
+    "dotfiles",
+    ".dotfiles",
+    "homebrew",
+    "brew",
+    ".config",
+    ".local",
+}
+
+
+def is_non_owned_repo(repo_dir: Path, root: Path, custom_excludes: Optional[set[str]] = None) -> Tuple[bool, str]:
+    """Check if repository should be excluded as non-owned, third-party, or dotfile manager."""
+    name_lower = repo_dir.name.lower()
+    excludes = NON_OWNED_REPO_PATTERNS.union(custom_excludes or set())
+
+    # 1. Exact or substring match on directory name
+    if any(pat == name_lower or name_lower.startswith(f"{pat}-") or name_lower.endswith(f"-{pat}") for pat in excludes):
+        return True, f"Directory name '{repo_dir.name}' matches non-owned exclusion"
+
+    # 2. Match on relative path components
+    try:
+        rel_parts = [p.lower() for p in repo_dir.relative_to(root).parts]
+        for part in rel_parts:
+            if part in excludes:
+                return True, f"Path component '{part}' matches non-owned exclusion"
+    except Exception:
+        pass
+
+    return False, ""
+
 
 
 @dataclass
@@ -190,14 +232,16 @@ def detect_workspace_root(explicit_dir: Optional[str] = None) -> Path:
     return cwd.parent
 
 
-def discover_repositories(root: Path) -> List[Path]:
-    """Discover all authentic Git repositories directly or nested under root directory."""
+def discover_repositories(root: Path, custom_excludes: Optional[set[str]] = None) -> List[Path]:
+    """Discover all authentic Git repositories directly or nested under root directory, excluding non-owned repos."""
     discovered: List[Path] = []
     root_resolved = root.resolve()
 
     # If root itself is a git repository
     if (root_resolved / ".git").is_dir():
-        discovered.append(root_resolved)
+        is_skip, _ = is_non_owned_repo(root_resolved, root_resolved, custom_excludes)
+        if not is_skip:
+            discovered.append(root_resolved)
 
     for git_dir in root_resolved.glob("**/.git"):
         repo_dir = git_dir.parent
@@ -205,11 +249,18 @@ def discover_repositories(root: Path) -> List[Path]:
         parts = repo_dir.relative_to(root_resolved).parts
         if any(skip_part in parts for skip_part in SKIP_PARENT_PATTERNS):
             continue
+
+        # Skip non-owned or third-party repositories (e.g. oh-my-zsh, omis, dotfiles)
+        is_skip, _ = is_non_owned_repo(repo_dir, root_resolved, custom_excludes)
+        if is_skip:
+            continue
+
         if repo_dir not in discovered:
             discovered.append(repo_dir)
 
     discovered.sort(key=lambda p: str(p.relative_to(root_resolved)).lower())
     return discovered
+
 
 
 def audit_repository(repo_path: Path, root: Path) -> RepoAuditResult:
@@ -307,8 +358,9 @@ def execute_commit_and_push(
     is_dry_run: bool = False,
     is_commit_only: bool = False,
     is_push_only: bool = False,
+    is_no_pull: bool = False,
 ) -> RepoExecutionResult:
-    """Stage, commit, and push changes for a single repository."""
+    """Stage, commit, and push changes for a single repository with pre-commit pooling and push verification."""
     res = RepoExecutionResult(
         name=audit.name,
         relative_path=audit.relative_path,
@@ -317,14 +369,27 @@ def execute_commit_and_push(
         push_status=OperationStatusType.SKIPPED,
     )
 
-    if audit.status == RepoStatusType.NO_COMMITS:
+    if audit.status in (RepoStatusType.NO_COMMITS, RepoStatusType.EXCLUDED):
         return res
 
     if audit.is_detached:
         res.error_message = "Repository is in detached HEAD state; skipping automatic commit/push"
         return res
 
-    # 1. Commit Phase
+    remote = audit.primary_remote or "origin"
+    branch = audit.branch
+
+    # 1. Pre-Staging Pull / Pooling Phase (reconcile incoming commits cleanly)
+    if not is_no_pull and audit.has_upstream and not audit.is_detached and not is_push_only:
+        if not is_dry_run:
+            code_pull, _, err_pull = run_cmd(["git", "pull", remote, branch, "--no-rebase"], repo_path)
+            if code_pull != 0:
+                if any(kw in err_pull.lower() for kw in ("conflict", "unmerged", "automatic merge failed")):
+                    res.commit_status = OperationStatusType.FAILED
+                    res.error_message = f"Merge conflict during pre-commit pull: {err_pull[:140]}"
+                    return res
+
+    # 2. Commit Phase
     should_commit = audit.is_dirty and not is_push_only
     if should_commit:
         commit_msg = (
@@ -353,14 +418,11 @@ def execute_commit_and_push(
                 res.error_message = f"git commit failed: {err_ci}"
                 return res
 
-    # 2. Push Phase
+    # 3. Push Phase
     has_pending_commits = (audit.ahead_count > 0) or (res.commit_status == OperationStatusType.SUCCESS)
     should_push = has_pending_commits and not is_commit_only and bool(audit.primary_remote)
 
     if should_push:
-        remote = audit.primary_remote or "origin"
-        branch = audit.branch
-
         if is_dry_run:
             res.push_status = OperationStatusType.SIMULATED
         else:
@@ -372,7 +434,13 @@ def execute_commit_and_push(
 
             code_push, _, err_push = run_cmd(push_cmd, repo_path)
             if code_push == 0:
-                res.push_status = OperationStatusType.SUCCESS
+                # Post-Push Verification Gate ('No Push = Not Done')
+                code_rev, rev_out, _ = run_cmd(["git", "rev-list", "@{u}..HEAD", "--count"], repo_path)
+                if code_rev == 0 and rev_out.strip() == "0":
+                    res.push_status = OperationStatusType.SUCCESS
+                else:
+                    res.push_status = OperationStatusType.FAILED
+                    res.error_message = "Push verification failed: local commits remain ahead of remote"
             else:
                 err_clean = err_push.replace("\r", " ").replace("\n", " ")
                 if any(kw in err_push.lower() for kw in ("permission to", "denied to", "403", "forbidden")):
@@ -385,19 +453,22 @@ def execute_commit_and_push(
     return res
 
 
+
 def run_orchestration(
     target_dir: Optional[str] = None,
     is_dry_run: bool = False,
     is_check_only: bool = False,
     is_commit_only: bool = False,
     is_push_only: bool = False,
+    is_no_pull: bool = False,
+    custom_excludes: Optional[set[str]] = None,
     custom_message: Optional[str] = None,
     as_json: bool = False,
 ) -> Dict[str, Any]:
-    """Execute complete discovery, audit, and push orchestration across target workspace."""
+    """Execute complete discovery, audit, pooling, and push orchestration across target workspace."""
     start_time = time.time()
     workspace_root = detect_workspace_root(target_dir)
-    repositories = discover_repositories(workspace_root)
+    repositories = discover_repositories(workspace_root, custom_excludes=custom_excludes)
 
     audits: List[RepoAuditResult] = []
     executions: List[RepoExecutionResult] = []
@@ -414,6 +485,7 @@ def run_orchestration(
                 is_dry_run=is_dry_run,
                 is_commit_only=is_commit_only,
                 is_push_only=is_push_only,
+                is_no_pull=is_no_pull,
             )
             executions.append(exec_res)
 
@@ -431,6 +503,22 @@ def run_orchestration(
         if e.commit_status == OperationStatusType.FAILED or e.push_status == OperationStatusType.FAILED
     )
 
+    # Completion Invariant: No Push = Not Done
+    if not is_check_only and not is_dry_run:
+        failed_or_unpushed = [
+            e.name for e in executions
+            if e.commit_status == OperationStatusType.FAILED or e.push_status == OperationStatusType.FAILED
+        ]
+        is_completed_successfully = (len(failed_or_unpushed) == 0 and failed_count == 0)
+    else:
+        unsynced = [a.name for a in audits if a.status not in (RepoStatusType.CLEAN, RepoStatusType.EXCLUDED, RepoStatusType.NO_COMMITS)]
+        is_completed_successfully = (len(unsynced) == 0)
+
+    unsynchronized_repos = [
+        a.name for a in audits
+        if a.status not in (RepoStatusType.CLEAN, RepoStatusType.EXCLUDED, RepoStatusType.NO_COMMITS)
+    ]
+
     report_payload = {
         "workspace_root": str(workspace_root),
         "total_repositories": total_repos,
@@ -442,6 +530,10 @@ def run_orchestration(
         "failed_count": failed_count,
         "is_dry_run": is_dry_run,
         "duration_seconds": duration,
+        "completion_guarantee": "No Push = Not Done",
+        "completed_successfully": is_completed_successfully,
+        "unsynchronized_count": len(unsynchronized_repos),
+        "unsynchronized_repositories": unsynchronized_repos,
         "audits": [asdict(a) for a in audits],
         "executions": [asdict(e) for e in executions],
     }
@@ -449,6 +541,7 @@ def run_orchestration(
     if as_json:
         print(json.dumps(report_payload, indent=2))
         return report_payload
+
 
     # Human-Readable Formatted Console Table
     print(f"\n{'=' * 80}")
@@ -496,7 +589,7 @@ def run_self_tests() -> bool:
     """Run internal test suite validating discovery, audit, and commit/push logic."""
     print("Running self-tests for 49-commit-and-push-all-repos.py...")
     with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
+        tmp_path = Path(tmp_dir).resolve()
 
         # 1. Test Workspace Root Auto-Detection with explicit path
         detected = detect_workspace_root(str(tmp_path))
@@ -520,9 +613,19 @@ def run_self_tests() -> bool:
         fake_build.mkdir(parents=True)
         run_cmd(["git", "init"], fake_build)
 
+        # Create non-owned folders that must be skipped (oh-my-zsh, omis)
+        fake_zsh = tmp_path / "oh-my-zsh"
+        fake_zsh.mkdir()
+        run_cmd(["git", "init"], fake_zsh)
+        fake_omis = tmp_path / "omis-tool"
+        fake_omis.mkdir()
+        run_cmd(["git", "init"], fake_omis)
+
         discovered = discover_repositories(tmp_path)
         assert repo1 in discovered, "repo-alpha must be discovered"
         assert fake_build not in discovered, "nested git in target must be skipped"
+        assert fake_zsh not in discovered, "oh-my-zsh must be excluded as non-owned"
+        assert fake_omis not in discovered, "omis-tool must be excluded as non-owned"
 
         # 4. Commit test file
         test_file = repo1 / "readme.md"
@@ -586,6 +689,17 @@ def main() -> None:
         help="Push ahead repositories without creating commits for dirty working trees.",
     )
     parser.add_argument(
+        "--no-pull",
+        action="store_true",
+        help="Skip pre-commit pull/pooling phase.",
+    )
+    parser.add_argument(
+        "--exclude",
+        type=str,
+        default=None,
+        help="Comma-separated custom repository names or patterns to exclude.",
+    )
+    parser.add_argument(
         "--message",
         "-m",
         type=str,
@@ -609,6 +723,8 @@ def main() -> None:
         success = run_self_tests()
         sys.exit(0 if success else 1)
 
+    custom_excludes = set(args.exclude.split(",")) if args.exclude else None
+
     try:
         report = run_orchestration(
             target_dir=args.dir,
@@ -616,11 +732,16 @@ def main() -> None:
             is_check_only=args.check,
             is_commit_only=args.commit_only,
             is_push_only=args.push_only,
+            is_no_pull=args.no_pull,
+            custom_excludes=custom_excludes,
             custom_message=args.message,
             as_json=args.json,
         )
-        if report.get("failed_count", 0) > 0:
-            sys.exit(1)
+        if not args.check and not args.dry_run:
+            if not report.get("completed_successfully", False):
+                print("\n[CRITICAL FAILURE - INCOMPLETE] 'No Push = Not Done' invariant violated!", file=sys.stderr)
+                print("Repositories remain uncommitted, unpushed, or failed synchronization.", file=sys.stderr)
+                sys.exit(1)
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
@@ -628,3 +749,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

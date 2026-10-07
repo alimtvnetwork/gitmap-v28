@@ -12,8 +12,10 @@
 In distributed multi-agent workflows, developer workstations, and polyglot meta-repositories, dozens of Git repositories coexist in a single parent workspace root (such as `D:\work` on Windows or `~/git-work` on Linux). When working across projects:
 1. **Uncommitted Work Stranding:** Developers or automated agents frequently create or edit files in multiple repositories without committing or pushing, leading to work loss, workspace drift, and divergence when switching machines.
 2. **Cross-Platform Path Portability:** Scripts and prompts must seamlessly support Windows environments (`D:\work`, `C:\work`), POSIX/Linux paths (`~/git-work`, `/home/...`), and continuous integration environments without requiring hardcoded manual path changes.
-3. **Build Artifact & Dependency Isolation:** Scanners must strictly distinguish genuine repository working trees from transient or nested build artifacts (`node_modules`, `target/`, `dist/`, `vendor/`, `.cache/`, `tmp/`).
-4. **Upstream Safety & Monotonic History:** Commits must be clean, atomic, and structured with conventional semantics (`chore(sync): ...`). Pushes must respect upstream tracking branches (`git push -u origin <branch>` when unbound) and never force-push or rewrite published Git history.
+3. **Build Artifact & Non-Owned Repository Isolation:** Scanners must strictly distinguish genuine project repositories from transient build artifacts (`node_modules`, `target/`, `dist/`, `vendor/`, `.cache/`, `tmp/`) AND third-party/shell configurations that are NOT owned by us (e.g. `omis`, `oh-my-zsh`, `ohmyzsh`, `zsh`, `oh-my-posh`, `dotfiles`, `homebrew`, etc.).
+4. **Pre-Commit Pooling / Pulling:** Repositories must pull latest remote tracking updates (`git pull origin <branch> --no-rebase`) prior to committing dirty changes to prevent remote divergence and ensure local working trees reconcile cleanly.
+5. **Upstream Safety & Monotonic History:** Commits must be clean, atomic, and structured with conventional semantics (`chore(sync): ...`). Pushes must respect upstream tracking branches (`git push -u origin <branch>` when unbound) and never force-push or rewrite published Git history.
+6. **Mandatory Completion Invariant ("No Push = Not Done"):** If code is not committed to Git and pushed upstream to GitHub (main/master/tracking branch), the task is strictly considered INCOMPLETE and NOT DONE. Leaving uncommitted dirty changes or unpushed commits means the execution is unfinished and has failed.
 
 ---
 
@@ -29,20 +31,34 @@ Follow these structured steps sequentially to execute multi-repository audit, co
 - Confirm Git executable availability and SSH / credential health:
   - Run `ssh -T git@github.com` or verify `git config url."git@github.com:".insteadOf "https://github.com/"` for non-interactive SSH authentication.
 
-### Step 2: Multi-Repository Recursive Topology Discovery
+### Step 2: Multi-Repository Recursive Topology Discovery & Non-Owned Exclusion
 - Recursively discover all top-level directories containing `.git`.
-- **Exclusion Invariant:** Automatically ignore directories located within `node_modules`, `target`, `dist`, `build`, `vendor`, `.cache`, or `tmp`.
+- **Build Artifact Exclusion Invariant:** Automatically ignore directories located within `node_modules`, `target`, `dist`, `build`, `vendor`, `.cache`, or `tmp`.
+- **Non-Owned & Third-Party Repository Exclusion (TOTAL BAN):** Aggressively ignore third-party tools, shells, and non-owned configuration repositories that are NOT owned by us, including:
+  - `omis`
+  - `oh-my-zsh`, `ohmyzsh`, `zsh`
+  - `oh-my-posh`
+  - `dotfiles`
+  - Package manager and runtime paths (`homebrew`, `brew`, `.cargo`, `.rustup`, `.nvm`, `.asdf`, `.pyenv`)
+  - Any directory specified via `--exclude <pattern>`
 - Sort discovered repositories deterministically by relative path.
 
-### Step 3: Git Status & Divergence Triage
-For each discovered repository:
+### Step 3: Git Status, Divergence Triage & Pre-Commit Pooling
+For each discovered and non-excluded repository:
 - Run `git status --porcelain` to identify untracked (`??`), modified (`M`), staged (`A`), or deleted (`D`) files.
 - Determine the active branch: `git rev-parse --abbrev-ref HEAD`.
   - If in detached `HEAD` state, log a warning and skip automatic commit/push to prevent orphaned commits.
 - Check upstream tracking ref: `git rev-parse --abbrev-ref @{u}`.
   - If upstream exists, calculate ahead count (`git rev-list @{u}..HEAD --count`) and behind count (`git rev-list HEAD..@{u} --count`).
   - If upstream does not exist, check if the repository has commits and locate default remote (e.g. `origin`).
-- Categorize repository into `CLEAN`, `DIRTY`, `AHEAD`, `BEHIND`, `DIVERGED`, `DETACHED`, or `NO_COMMITS`.
+- **Pre-Commit Pooling / Pulling (Reconciliation Phase):**
+  - Before staging dirty changes, pull latest remote changes non-destructively:
+    ```bash
+    git pull origin <branch> --no-rebase
+    ```
+  - Reconciling remote changes prior to committing ensures upstream commits are integrated cleanly without rebase friction.
+  - If running offline or in unit tests, pass `--no-pull` to bypass this phase.
+- Categorize repository into `CLEAN`, `DIRTY`, `AHEAD`, `BEHIND`, `DIVERGED`, `DETACHED`, `EXCLUDED`, or `NO_COMMITS`.
 
 ### Step 4: Ephemeral & OS Cache Sanitization
 - Prior to staging, ensure no unintended temporary files (e.g. misplaced `~/` directories, swap files, `.DS_Store`) exist in untracked lists.
@@ -79,8 +95,11 @@ For each repository marked `AHEAD` (or newly committed):
   - Re-verify and push.
 - If push fails due to 403 authorization (e.g. read-only upstream forks), flag cleanly as `SKIPPED (External Repo)` without halting the remaining fleet.
 
-### Step 7: Post-Push Verification Gate & Telemetry Summary
-- Query all repositories to verify 0 dirty working trees and 0 ahead commits remaining.
+### Step 7: Post-Push Verification Gate & Completion Invariant ("No Push = Not Done")
+- **Mandatory Completion Invariant:** Query all non-excluded repositories to verify:
+  1. `git status --porcelain` is completely empty (zero dirty working trees).
+  2. Ahead count (`git rev-list @{u}..HEAD --count`) is exactly `0` (zero unpushed local commits).
+- **No Push = Not Done Guarantee:** If any repository has uncommitted dirty changes or unpushed commits remaining, the task is strictly considered **INCOMPLETE and NOT DONE**. The script exits with code `1`, signaling failure.
 - Render a concise structured report table displaying:
   - Repository relative path
   - Active branch
@@ -98,25 +117,31 @@ Use the canonical Python automation script in `03-ai-scripts/49-commit-and-push-
 # 1. Run internal self-tests to verify discovery, audit, and staging logic:
 python 03-ai-scripts/49-commit-and-push-all-repos.py --self-test
 
-# 2. Read-only status audit of all repositories in workspace:
+# 2. Read-only status audit of all repositories in workspace (excludes non-owned):
 python 03-ai-scripts/49-commit-and-push-all-repos.py --check
 
-# 3. Commit and push all dirty and ahead repositories in workspace:
+# 3. Pull, commit dirty working trees, and push all repositories:
 python 03-ai-scripts/49-commit-and-push-all-repos.py
 
 # 4. Target explicit workspace directory (e.g. D:\work or ~/git-work):
 python 03-ai-scripts/49-commit-and-push-all-repos.py --dir "d:/work"
 
-# 5. Preview changes safely without modifying disk or remotes:
+# 5. Skip pre-commit pull/pooling phase:
+python 03-ai-scripts/49-commit-and-push-all-repos.py --no-pull
+
+# 6. Add custom exclusion patterns:
+python 03-ai-scripts/49-commit-and-push-all-repos.py --exclude "my-external-tool"
+
+# 7. Preview changes safely without modifying disk or remotes:
 python 03-ai-scripts/49-commit-and-push-all-repos.py --dry-run
 
-# 6. Push ahead commits only (skip committing dirty working trees):
+# 8. Push ahead commits only (skip committing dirty working trees):
 python 03-ai-scripts/49-commit-and-push-all-repos.py --push-only
 
-# 7. Provide custom commit message:
+# 9. Provide custom commit message:
 python 03-ai-scripts/49-commit-and-push-all-repos.py -m "feat(fleet): synchronize multi-repo core updates"
 
-# 8. Output machine-readable JSON for automated CI/CD:
+# 10. Output machine-readable JSON for automated CI/CD:
 python 03-ai-scripts/49-commit-and-push-all-repos.py --json
 ```
 
@@ -125,11 +150,14 @@ python 03-ai-scripts/49-commit-and-push-all-repos.py --json
 ## Action Items — Must Follow (Non-Negotiable)
 
 - [ ] Discover all genuine repositories under workspace root, skipping build folders (`target`, `node_modules`, `dist`, `vendor`).
+- [ ] Aggressively exclude third-party, non-owned repositories (`omis`, `oh-my-zsh`, `ohmyzsh`, `zsh`, `oh-my-posh`, `dotfiles`).
+- [ ] Perform pre-commit pooling / pull (`git pull origin <branch> --no-rebase`) before staging changes.
 - [ ] Inspect git porcelain status, active branch, and remote divergence before mutating working trees.
 - [ ] Strictly avoid force-pushing (`--force`, `-f`) or history rewrites on published branches.
 - [ ] Stage all modifications (`git add -A`) and author atomic conventional commits (`chore(sync): ...`).
 - [ ] Push to remote tracking branches, establishing `-u` upstream tracking if unbound.
 - [ ] Handle read-only external forks and detached HEAD states gracefully without crashing.
+- [ ] Enforce the mandatory completion invariant: **No Push = Not Done**. If code is not committed and pushed to GitHub, the task is strictly incomplete. Exit code 1 on unpushed/dirty state.
 - [ ] Execute post-flight verification verifying zero stranded dirty files or unpushed local commits.
 
 ---
