@@ -1,5 +1,15 @@
 # Changelog
 
+## [v6.506.0] - 2026-10-07
+
+### Added
+- **Cursor Settings Guard Validation**: Added `requireCursorSettingsFile` in `cli/cmdcursor/cursor_settings.go` with descriptive `E1037` error envelopes prompting users to run `gitmap cursor settings apply`.
+- **Views AI Settings UI Modernization**: Refactored `src/pages/Settings.tsx` to invert `/api/instances` fetch validation into clean guard clauses, eliminating nested `if` statements.
+- **Process Discovery Spacing Hygiene**: Enforced vertical blank line spacing rules in `cli/cmdagy/agy_instance_discovery.go` and `cli/cmdcursor/cursor_settings_test.go`.
+- **Quality Gates Verification**: Verified zero violations across `check-nested-ifs.py`, `check-enum-and-boolean.py`, and `check-relative-paths.py`.
+
+---
+
 ## [v6.505.0] - 2026-10-06
 
 ### Added

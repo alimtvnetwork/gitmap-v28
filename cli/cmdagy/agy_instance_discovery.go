@@ -288,10 +288,12 @@ func unmarshalWinProcItems(output []byte) []winProcItem {
 	if err := json.Unmarshal(output, &items); err == nil {
 		return items
 	}
+
 	var single winProcItem
 	if err := json.Unmarshal(output, &single); err == nil {
 		return []winProcItem{single}
 	}
+
 	return nil
 }
 
@@ -323,14 +325,17 @@ func extractCmdLineFlagValue(cmdLine, flag string) string {
 	if !strings.Contains(cmdLine, flag) {
 		return ""
 	}
+
 	parts := strings.Split(cmdLine, flag)
 	if len(parts) <= 1 {
 		return ""
 	}
+
 	fields := strings.Fields(parts[1])
 	if len(fields) == 0 {
 		return ""
 	}
+
 	return fields[0]
 }
 
@@ -338,13 +343,16 @@ func classifyInstanceDataDir(dataDir string, isLanguageServer bool) (string, str
 	if dataDir == "" {
 		return "primary", "Antigravity Active Process", isLanguageServer
 	}
+
 	seg := resolveInstanceSegment(dataDir)
 	if seg != "" {
 		return seg, seg, false
 	}
+
 	if strings.Contains(dataDir, ".config/Antigravity") {
 		return "primary", "Antigravity Active Process", true
 	}
+
 	return "primary", "Antigravity Active Process", false
 }
 
@@ -352,10 +360,12 @@ func resolveInstanceSegment(dataDir string) string {
 	if !strings.Contains(dataDir, "instances/") {
 		return ""
 	}
+
 	seg := filepath.Base(filepath.Dir(dataDir))
 	if seg != "" && seg != "." {
 		return seg
 	}
+
 	return ""
 }
 
@@ -531,6 +541,7 @@ func truncateSliceByLimit[T any](items []T, limit int) []T {
 	if limit > 0 && len(items) > limit {
 		return items[:limit]
 	}
+
 	return items
 }
 

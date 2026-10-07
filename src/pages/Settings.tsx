@@ -178,12 +178,13 @@ export default function SettingsPage() {
     setIsLoadingInstances(true);
     try {
       const response = await fetch("/api/instances");
-      if (response.ok) {
-        const json = await response.json();
-        if (json.isSuccess && Array.isArray(json.instances)) {
-          setInstances(json.instances);
-          return;
-        }
+      if (!response.ok) {
+        return;
+      }
+      const json = await response.json();
+      if (json.isSuccess && Array.isArray(json.instances)) {
+        setInstances(json.instances);
+        return;
       }
     } catch {
       // Fallback local stub if REST server not directly mounted on same port

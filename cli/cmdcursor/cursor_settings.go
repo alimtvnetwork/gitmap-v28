@@ -81,9 +81,11 @@ func applyCursorSettings() error {
 		bakPath := fmt.Sprintf("%s.bak.%d", path, time.Now().Unix())
 		_ = os.Rename(path, bakPath)
 	}
+
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return apperror.WrapSimple(err, "mkdir cursor user dir")
 	}
+
 	settings["workbench.colorTheme"] = "Dracula Theme"
 	settings["editor.fontFamily"] = "'JetBrains Mono', 'Fira Code', Consolas, monospace"
 	settings["editor.fontSize"] = 14
@@ -98,15 +100,26 @@ func applyCursorSettings() error {
 	if err != nil {
 		return apperror.WrapSimple(err, "marshal cursor settings")
 	}
+
 	if err := os.WriteFile(path, data, 0644); err != nil {
 		return apperror.WrapSimple(err, "write cursor settings")
 	}
+
 	if sec := getSecondaryCursorSettingsPath(); sec != "" && sec != path {
 		_ = os.MkdirAll(filepath.Dir(sec), 0755)
 		_ = os.WriteFile(sec, data, 0644)
 	}
+
 	fmt.Printf("%s✔ Injected Dracula Theme and coding invariants:%s %s\n", constants.ColorGreen, constants.ColorReset, path)
 	return nil
+}
+
+func requireCursorSettingsFile(path string) error {
+	if isPathPresent(path) {
+		return nil
+	}
+
+	return apperror.NewWithDetails("cmd.cursor.settings.sync", "E1037", fmt.Sprintf("Cursor settings.json not found at %s. Run 'gitmap cursor settings apply' to create it, then retry sync.", path), "cmdcursor", apperror.ErrorTypeNotFound, apperror.SeverityError, nil)
 }
 
 func syncCursorSettings(targetNode string) error {
@@ -117,6 +130,11 @@ func syncCursorSettings(targetNode string) error {
 	if err != nil {
 		return err
 	}
+
+	if err := requireCursorSettingsFile(path); err != nil {
+		return err
+	}
+
 	data, readErr := os.ReadFile(path)
 	if readErr != nil {
 		return apperror.WrapSimple(readErr, "read cursor settings.json")
