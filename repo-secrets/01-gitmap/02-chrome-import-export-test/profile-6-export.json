@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "gitmapVersion": "6.509.0",
+  "name": "Profile 6",
+  "displayName": "Personal",
+  "email": "test@test.com",
+  "exportedAt": "2026-10-08T09:13:59Z",
+  "bookmarks": {
+    "roots": {
+      "bookmark_bar": {
+        "children": [
+          {
+            "type": "url",
+            "name": "Site1",
+            "url": "https://example.com"
+          }
+        ]
+      }
+    }
+  },
+  "preferences": {
+    "account_info": [
+      {
+        "email": "test@test.com"
+      }
+    ],
+    "profile": {
+      "name": "Personal",
+      "using_default_name": false
+    },
+    "signin": {
+      "allowed": true
+    }
+  },
+  "extensionIds": [
+    "cjpalhdlnbpafiamejdnhcphjbkeiagm"
+  ]
+}

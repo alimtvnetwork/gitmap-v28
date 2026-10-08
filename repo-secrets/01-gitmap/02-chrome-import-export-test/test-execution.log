@@ -1,0 +1,119 @@
+=== TEST EXECUTION START: 2026-10-08T17:13:59Z ===
+GitMap Version: gitmap v6.509.0
+Host OS: Microsoft Windows NT 10.0.20348.0
+
+--- STEP 1: PRE-TEST INSPECTION ---
+Target Profile: Profile 6
+Disk Path: C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Profile 6
+Contents before export:
+
+    Directory: C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Profile 6
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           08-Oct-26  5:13 PM                Extensions
+-a---           06-Oct-26 11:32 PM            211 Bookmarks
+-a---           06-Oct-26 11:32 PM            185 Preferences
+
+    Directory: C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Profile 6\Extensions
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           08-Oct-26  5:13 PM                cjpalhdlnbpafiamejdnhcphjbkeiagm
+
+    Directory: C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Profile 6\Extensions\cjpalhdlnbpafiamejdnhcphjbkeiagm
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           08-Oct-26  5:13 PM                1.0.0
+
+
+
+--- STEP 2: EXPORT PROFILE 6 ---
+Command: gitmap cpe 'Profile 6' 'repo-secrets\01-gitmap\02-chrome-import-export-test\profile-6-export.json'
+
+[1;94mArtifacts[0m
+  [2;37mjson:[0m [1;96mrepo-secrets\01-gitmap\02-chrome-import-export-test\profile-6-export.json[0m
+  [2;37mcsv: [0m [1;96mrepo-secrets\01-gitmap\02-chrome-import-export-test\profile-6-export.csv[0m
+[1;92m✔ db synced[0m  profile [1mProfile 6[0m
+
+
+--- STEP 3: REMOVAL OF PROFILE 6 FROM DISK ---
+Action: Remove-Item -Path 'C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Profile 6' -Recurse -Force
+Profile 6 exists after deletion: False
+
+--- STEP 4: RE-IMPORT PROFILE 6 ---
+Command: gitmap cpi 'repo-secrets\01-gitmap\02-chrome-import-export-test\profile-6-export.json' 'Profile 6'
+
+[1;96mStarting Chrome Profile Import (1 snapshot(s))[0m
+
+  [1;94m[Step 1/5][0m Inspecting snapshot: repo-secrets\01-gitmap\02-chrome-import-export-test\profile-6-export.json
+        -> Name: "Profile 6" | Display: "Personal" | Email: "test@test.com" | Bookmarks: 1 | Extensions: 1
+      [1;94m[Step 2/5][0m Using explicit profile target: "Profile 6"
+  [1;94m[Step 3/5][0m Restoring Bookmarks, Preferences & Auth into "Profile 6"...
+  [1;94m[Step 4/5][0m Staging extensions (1 pending hints)...
+  [1;94m[Step 5/5][0m Registering "Profile 6" in Chrome Local State...
+  [1;92m✔ Successfully imported[0m repo-secrets\01-gitmap\02-chrome-import-export-test\profile-6-export.json -> Profile 6 ("Personal")
+
+[1;92m✔ Chrome Profile Import Complete:[0m 1 of 1 profile(s) imported successfully.
+
+
+
+--- STEP 5: POST-IMPORT VERIFICATION ---
+Profile 6 Directory Exists: True
+Directory Contents:
+
+    Directory: C:\Users\Administrator\AppData\Local\Google\Chrome\User Data\Profile 6
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---           08-Oct-26  5:14 PM            211 Bookmarks
+-a---           08-Oct-26  5:14 PM             33 gitmap-pending-extensions.txt
+-a---           08-Oct-26  5:14 PM            185 Preferences
+
+
+Bookmarks Content:
+{
+    "roots": {
+      "bookmark_bar": {
+        "children": [
+          {
+            "type": "url",
+            "name": "Site1",
+            "url": "https://example.com"
+          }
+        ]
+      }
+    }
+  }
+Preferences Content:
+{
+  "account_info": [
+    {
+      "email": "test@test.com"
+    }
+  ],
+  "profile": {
+    "name": "Personal",
+    "using_default_name": false
+  },
+  "signin": {
+    "allowed": true
+  }
+}
+Pending Extensions Content:
+cjpalhdlnbpafiamejdnhcphjbkeiagm
+
+
+gitmap cpl verification output:
+
+  - Profile 6    (display: "Personal", email: test@test.com)
+  - Profile 62   (display: "Aiden Ross", email: santanunandi1985.jr@gmail.com)
+  - Profile 65   (display: "hamimkholil400@gmail.com", email: hamimkholil400@gmail.com)
+  - Profile 66   (display: "oqusaxonod40@gmail.com", email: oqusaxonod40@gmail.com)
+  - Profile 67   (display: "cirajayu11@gmail.com", email: cirajayu11@gmail.com)
+  - Profile 6                       exports=7  last=2026-10-08 09:13:59
+
+
+=== TEST EXECUTION END: 2026-10-08T17:14:28Z ===
+VERDICT: PASS (100% SUCCESSFUL IMPORT/EXPORT LIFECYCLE)
