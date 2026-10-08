@@ -4,6 +4,7 @@ package cmd
 import (
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagent"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -17,6 +18,10 @@ func runTasks(args []string) error {
 	sub := strings.ToLower(args[0])
 	rest := args[1:]
 
+	if isAgentTaskSubcommand(sub) {
+		return cmdagent.DispatchTaskSQLite(args)
+	}
+
 	if isLegacyTaskSubcommand(sub) {
 		routeTaskSub(sub, rest)
 
@@ -24,6 +29,15 @@ func runTasks(args []string) error {
 	}
 
 	return dispatchTaskSubcommand(sub, rest)
+}
+
+func isAgentTaskSubcommand(sub string) bool {
+	switch sub {
+	case "init", "add", "add-subtasks", "claim", "complete", "fail", "log-action", "status", "schema", "diagnose":
+		return true
+	default:
+		return false
+	}
 }
 
 func isLegacyTaskSubcommand(sub string) bool {

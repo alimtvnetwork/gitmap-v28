@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.507.2] - 2026-10-08
+
+### Added
+- sync - add native fleet sync and sqlite agent task engine
+
+---
+
 ## [v6.507.1] - 2026-10-07
 
 ### Added

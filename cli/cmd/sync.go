@@ -200,7 +200,7 @@ Examples:
 
 // dispatchCommon routes `gitmap common <target>` subcommands.
 func dispatchCommon(command string) (bool, error) {
-	if command != constants.CmdCommon && command != constants.CmdCommonAlias && command != constants.CmdSync && command != constants.CmdSyncAlias {
+	if command != constants.CmdCommon && command != constants.CmdCommonAlias {
 		return false, nil
 	}
 

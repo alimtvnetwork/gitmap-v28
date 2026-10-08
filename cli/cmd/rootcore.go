@@ -14,6 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsee"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 )
@@ -119,6 +120,7 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},
 		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return runExec(argsTail()) }},
 		{[]string{"py", "python"}, func() error { return cmdpy.RunPy(argsTail()) }},
+		{[]string{constants.CmdSync, constants.CmdSyncAlias}, func() error { return cmdsync.RunSync(argsTail()) }},
 	}
 }
 
