@@ -42,21 +42,6 @@ func buildUnknownCommandMessage(command string, suggestions []string) string {
 	return msg
 }
 
-func printCommandSuggestions(suggestions []string) {
-	if len(suggestions) == 0 {
-		return
-	}
-
-	fmt.Println()
-	fmt.Println("  💡 It is not there, but here is a suggestion you can try:")
-	for _, s := range suggestions {
-		fmt.Printf("    gitmap %s\n", s)
-	}
-
-	fmt.Println()
-}
-
 func handleUnknownCommand(command string) {
 	InterceptUnknownCommand(command)
 }
-

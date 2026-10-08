@@ -43,6 +43,7 @@ ALLOWLIST_FILES = {
     "linter-scripts/check-relative-paths.py",
     "03-ai-scripts/07-relative-path-fixer.py",
     "03-ai-scripts/49-verify-privacy-and-relative-paths.py",
+    "03-ai-scripts/50-fastgate.py",
 }
 
 ALLOWLIST_PREFIXES = (

@@ -113,7 +113,7 @@ def run_source_mode(repo_root: str, expected: str, workdir: str) -> str:
             pass
     gitmap_dir = os.path.join(repo_root, "cli")
 
-    cmd = ["go", "build", "-buildvcs=false", "-o", bin_path, "."]
+    cmd = ["go", "build", "-p", "4", "-buildvcs=false", "-o", bin_path, "."]
     res = subprocess.run(cmd, cwd=gitmap_dir, capture_output=True, text=True, encoding="utf-8")
     if res.returncode != 0:
         print(f"::error::go build failed (exit {res.returncode}):\n{res.stderr or res.stdout}", file=sys.stderr)

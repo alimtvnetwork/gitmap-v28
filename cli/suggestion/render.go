@@ -13,7 +13,7 @@ const (
 	catppuccinBorder  = "\033[38;2;137;220;235m" // Pastel Cyan
 	catppuccinHeader  = "\033[38;2;203;166;247m" // Pastel Magenta
 	catppuccinCommand = "\033[38;2;166;227;161m" // Pastel Green
-	catppuccinDim     = "\033[2;37m"            // Muted Dim
+	catppuccinDim     = "\033[2;37m"             // Muted Dim
 	catppuccinPrompt  = "\033[38;2;249;226;175m" // Pastel Yellow
 	catppuccinReset   = "\033[0m"
 )

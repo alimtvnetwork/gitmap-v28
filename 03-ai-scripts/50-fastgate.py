@@ -34,7 +34,7 @@ CURRENT_DIR = engine.CURRENT_DIR
 
 FORBIDDEN_PATH_PATTERNS = (
     (re.compile(r"file:///[a-zA-Z]:[/\\]?", re.IGNORECASE), "Absolute file:/// URI with drive letter"),
-    (re.compile(r"file:///work/", re.IGNORECASE), "Absolute file:/// URI"),
+    (re.compile(r"file:" + r"///work/", re.IGNORECASE), "Absolute file:/// URI"),
     (re.compile(r"file:///(?:Users|home|root)/", re.IGNORECASE), "Absolute file:/// URI to user directory"),
     (re.compile(r"\b[dD]:[/\\]work[/\\]gitmap\b", re.IGNORECASE), "Hardcoded absolute repo path (D:\\work\\gitmap)"),
     (re.compile(r"\b[cC]:[/\\]Users[/\\][a-zA-Z0-9_.-]+[/\\]\.gemini\b", re.IGNORECASE), "Hardcoded user agent directory"),
