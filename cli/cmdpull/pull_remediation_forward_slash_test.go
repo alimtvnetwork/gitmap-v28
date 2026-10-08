@@ -9,10 +9,10 @@ import (
 )
 
 func TestFormatRepoGitCmd_ForwardSlash(t *testing.T) {
-	windowsPath := `D:\work\gitmap`
+	windowsPath := `D:\repos\myproject`
 	cmd := formatRepoGitCmd(windowsPath, "stash")
 
-	expected := `git -C "D:/work/gitmap" stash`
+	expected := `git -C "D:/repos/myproject" stash`
 	if cmd != expected {
 		t.Fatalf("expected %q, got %q", expected, cmd)
 	}
@@ -22,7 +22,7 @@ func TestFormatRepoGitCmd_ForwardSlash(t *testing.T) {
 }
 
 func TestResolveDirtyTreeDualHints_PullBeforeChanges(t *testing.T) {
-	windowsPath := `D:\work\gitmap`
+	windowsPath := `D:\repos\myproject`
 	l1, c1, l2, c2 := resolveDirtyTreeDualHints(windowsPath)
 
 	if l1 != "Commit WIP" || l2 != "Stash Changes" {
@@ -37,7 +37,7 @@ func TestResolveDirtyTreeDualHints_PullBeforeChanges(t *testing.T) {
 	if strings.Contains(c1, `\`) || strings.Contains(c2, `\`) {
 		t.Fatalf("commands contain backslashes: c1=%s, c2=%s", c1, c2)
 	}
-	expectedStash := `git -C "D:/work/gitmap" stash -u && git -C "D:/work/gitmap" pull && git -C "D:/work/gitmap" stash pop`
+	expectedStash := `git -C "D:/repos/myproject" stash -u && git -C "D:/repos/myproject" pull && git -C "D:/repos/myproject" stash pop`
 	if c2 != expectedStash {
 		t.Fatalf("expected stashCmd %q, got %q", expectedStash, c2)
 	}

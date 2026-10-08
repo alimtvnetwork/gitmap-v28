@@ -20,8 +20,8 @@ func formatRepoGitCmd(repoDir, gitArgs string) string {
 }
 ```
 **Why:**
-- `fmt.Sprintf("git -C %q %s", repoDir, gitArgs)` on Windows uses Go's quoted string syntax which escapes backslashes: `"D:\\work\\gitmap"`.
-- By converting `repoDir` with `filepath.ToSlash(...)` and formatting with `git -C "%s"`, the command becomes `git -C "D:/work/gitmap" stash`.
+- `fmt.Sprintf("git -C %q %s", repoDir, gitArgs)` on Windows uses Go's quoted string syntax which escapes backslashes: `"D:\\repos\\myproject"`.
+- By converting `repoDir` with `filepath.ToSlash(...)` and formatting with `git -C "%s"`, the command becomes `git -C "D:/repos/myproject" stash`.
 - This works identically on Windows, Linux, and macOS without double-backslash escapes.
 
 ### B. `cli/cmdpull/pull_efficient_render.go`

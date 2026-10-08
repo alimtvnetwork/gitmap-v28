@@ -14,10 +14,10 @@ During large batch repository pull operations (e.g. `gitmap pa` / `gitmap pull-a
 1. **Windows Escaped Backslashes in Output:**
    - Command recommendations and remediation options printed escaped Windows backslashes:
      ```text
-     Option 2 (Stash Changes): git -C "D:\\work\\gitmap" stash
-     Option 1 (Track / Stage): git -C "D:\\work\\letsmarknow" add .
+     Option 2 (Stash Changes): git -C "D:\\repos\\myproject" stash
+     Option 1 (Track / Stage): git -C "D:\\repos\\letsmarknow" add .
      ```
-   - This causes ugly formatting in terminal UIs and complicates cross-platform copy-pasting into bash, zsh, and PowerShell environments. Paths must universally use clean forward slashes (`/`) without double-backslash escapes (`D:/work/gitmap`).
+   - This causes ugly formatting in terminal UIs and complicates cross-platform copy-pasting into bash, zsh, and PowerShell environments. Paths must universally use clean forward slashes (`/`) without double-backslash escapes (`D:/repos/myproject`).
 
 2. **Missing Remediation Prompt in `gitmap pa`:**
    - When `gitmap pa` completes with dirty (e.g. 4 repos) or failed (e.g. 2 repos) repositories, `handlePullRemediationForRecords` explicitly checked:

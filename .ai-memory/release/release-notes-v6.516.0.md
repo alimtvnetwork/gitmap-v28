@@ -5,7 +5,7 @@ GitMap `v6.516.0` delivers universal forward-slash path hygiene across all remed
 
 ## Key Enhancements & Fixes
 - **Universal Forward-Slash (`/`) Path Hygiene:**
-  - Eliminated escaped Windows double-backslashes (`D:\\work\\gitmap`) in all remediation hints and command generators (`formatRepoGitCmd`), formatting clean paths: `git -C "D:/work/gitmap" stash`.
+  - Eliminated escaped Windows double-backslashes (`D:\\repos\\myproject`) in all remediation hints and command generators (`formatRepoGitCmd`), formatting clean paths: `git -C "D:/repos/myproject" stash`.
   - Normalized itemized modified and untracked file paths in terminal output using `filepath.ToSlash(f)`.
   - Stored forward-slash normalized paths in `RemediationItem.RepoPath` and prompt status cards.
 - **Pull Before Changes Invariant:**
