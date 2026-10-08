@@ -1,6 +1,7 @@
 package cmdpull
 
 import (
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -23,32 +24,56 @@ func (x *Type008) Process() bool { return true }
 
 // CaptureRepoPrePullState queries branch, head SHA, and dirty status.
 func CaptureRepoPrePullState(repoPath string) (string, string, bool) {
-	branch := gitutil.GetActiveBranch(repoPath)
-	sha := gitutil.GetLastCommitSHA(repoPath)
-	diag := gitutil.InspectDirtyState(repoPath)
+	cleanPath := strings.TrimSpace(repoPath)
+	if cleanPath == "" {
+		return "", "-", false
+	}
+
+	branch := gitutil.GetActiveBranch(cleanPath)
+	sha := gitutil.GetLastCommitSHA(cleanPath)
+	diag := gitutil.InspectDirtyState(cleanPath)
 
 	return branch, sha, diag.IsDirty
 }
 
 // CaptureRepoPostPullState captures updated SHA, commit range, and diff changes.
 func CaptureRepoPostPullState(repoPath, oldSHA string) (string, string, string) {
-	newSHA := gitutil.GetLastCommitSHA(repoPath)
-	if oldSHA != "" && oldSHA == newSHA {
+	cleanPath := strings.TrimSpace(repoPath)
+	if cleanPath == "" {
+		return "-", "-", "updated"
+	}
+
+	newSHA := gitutil.GetLastCommitSHA(cleanPath)
+	hasValidOld := oldSHA != "" && oldSHA != "-"
+	hasValidNew := newSHA != "" && newSHA != "-"
+	hasIdenticalSHA := hasValidOld && hasValidNew && oldSHA == newSHA
+	if hasIdenticalSHA {
 		return newSHA, ShortenSHA(oldSHA), "up-to-date"
 	}
 
 	commitRange := FormatCommitRange(oldSHA, newSHA)
-	changes := queryGitDiffStat(repoPath, oldSHA, newSHA)
+	changes := queryGitDiffStat(cleanPath, oldSHA, newSHA)
 
 	return newSHA, commitRange, changes
 }
 
 func queryGitDiffStat(repoPath, oldSHA, newSHA string) string {
-	if oldSHA == "" || newSHA == "" {
+	cleanPath := strings.TrimSpace(repoPath)
+	hasEmptyPath := cleanPath == ""
+	hasInvalidOld := oldSHA == "" || oldSHA == "-"
+	hasInvalidNew := newSHA == "" || newSHA == "-"
+	hasIdenticalSHA := oldSHA == newSHA
+	if hasEmptyPath || hasInvalidOld || hasInvalidNew || hasIdenticalSHA {
 		return "updated"
 	}
 
-	cmd := exec.Command("git", "-C", repoPath, "diff", "--shortstat", oldSHA+".."+newSHA)
+	fi, err := os.Stat(cleanPath)
+	isDir := err == nil && fi.IsDir()
+	if !isDir {
+		return "updated"
+	}
+
+	cmd := exec.Command("git", "-C", cleanPath, "diff", "--shortstat", oldSHA+".."+newSHA)
 	out, err := cmd.Output()
 	if err != nil {
 		return "updated"

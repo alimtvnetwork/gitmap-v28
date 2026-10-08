@@ -17,6 +17,10 @@ func RunTrain(args []string) *apperror.AppError {
 	if opts.IsHelp {
 		return nil
 	}
+	if opts.IsURLs {
+		fmt.Print(RenderPublicDocLinksText())
+		return nil
+	}
 	if opts.IsURL {
 		fmt.Println(PublicLlmSpecURL)
 		return nil
@@ -30,9 +34,12 @@ func RunTrain(args []string) *apperror.AppError {
 	}
 
 	printAttribution()
+	fmt.Print(RenderSkillCreationDirective())
 	if err := handleSkillGeneration(opts); err != nil {
 		return err
 	}
+	fmt.Print(RenderPublicDocLinksText())
+	fmt.Print(RenderRecursiveInstructions())
 	printCurriculumSummary()
 
 	return nil
@@ -40,9 +47,10 @@ func RunTrain(args []string) *apperror.AppError {
 
 func outputTrainJSON() *apperror.AppError {
 	catalog := map[string]any{
-		"spec_url": PublicLlmSpecURL,
-		"author":   AuthorName,
-		"sponsor":  SponsorName,
+		"spec_url":  PublicLlmSpecURL,
+		"author":    AuthorName,
+		"sponsor":   SponsorName,
+		"doc_links": GetPublicDocLinks(),
 		"phases": []map[string]string{
 			{"phase": "1. Discovery", "commands": "gitmap find-files, find-files-any, search, list-files", "purpose": "Rapid context gathering without loading large trees"},
 			{"phase": "2. Refactoring", "commands": "gitmap replace, replace-regex, surgical edits", "purpose": "Safe code transformation with rollback support"},
@@ -92,6 +100,8 @@ func printCurriculumSummary() {
 }
 
 func handleSkillGeneration(opts TrainOptions) *apperror.AppError {
+	fmt.Println(SkillTemplate)
+	fmt.Println()
 	if opts.IsTextOnly {
 		return nil
 	}
@@ -107,6 +117,7 @@ func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
 	isLoop := fs.Bool("loop", false, "Execute autonomous 5-phase AI self-looping execution cycle")
 	selfLoop := fs.Int("self-loop", 0, "Number of consecutive iterations of the AI self-loop")
 	isURL := fs.Bool("url", false, "Output raw public URL to llm.md instruction specification")
+	isURLs := fs.Bool("urls", false, "Output authoritative public documentation links for LLM ingestion")
 	isJSON := fs.Bool("json", false, "Output structured machine-readable command specifications")
 
 	err := fs.Parse(args)
@@ -129,6 +140,7 @@ func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
 		IsLoop:     hasLoop,
 		LoopCount:  loopCount,
 		IsURL:      *isURL,
+		IsURLs:     *isURLs,
 		IsJSON:     *isJSON,
 	}, nil
 }
@@ -143,6 +155,7 @@ func printTrainUsage() {
 	fmt.Println("  --loop               Execute autonomous 5-phase AI self-looping execution cycle")
 	fmt.Println("  --self-loop int      Number of consecutive iterations of the AI self-loop")
 	fmt.Println("  --url                Output raw public URL to llm.md instruction specification")
+	fmt.Println("  --urls               Output authoritative public documentation links for LLM ingestion")
 	fmt.Println("  --json               Output structured machine-readable command specifications")
 	fmt.Println("  --skill-path string  Path for generated Antigravity skill (default \".agents/skills/gitmap/SKILL.md\")")
 	fmt.Println("  --text-only          Print curriculum text without writing skill file")

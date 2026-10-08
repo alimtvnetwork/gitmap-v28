@@ -1522,6 +1522,8 @@ parse_args() {
     PROBE_CEILING=30
     DUAL_SHELL=false
     SHOW_PATH=false
+    QUIET=0
+    JSON=0
     # PROFILE_MODE controls which shell profiles get the PATH snippet.
     # Accepted values:
     #   auto   = run detection (default; current behavior)
@@ -1607,6 +1609,15 @@ parse_args() {
                 # trail (detected shell, pwsh signal, every profile file
                 # touched). Diagnostic flag; no behavior change otherwise.
                 SHOW_PATH=true
+                shift
+                ;;
+            --quiet|-q)
+                QUIET=1
+                shift
+                ;;
+            --json|-j)
+                JSON=1
+                QUIET=1
                 shift
                 ;;
             --help|-h)
@@ -1909,15 +1920,19 @@ main() {
     # gitmap function) + completions are installed without a second
     # command. Setup is idempotent (marker `# gitmap shell wrapper v2`).
     # Non-fatal: install itself already succeeded.
-    if [ -x "${bin_path}" ]; then
+    if [ "${GITMAP_UPDATING:-0}" != "1" ] && [ "${QUIET:-0}" != "1" ] && [ -x "${bin_path}" ]; then
         echo ""
         printf '  \033[36m→ Running '\''gitmap setup'\'' to install shell wrapper + completions...\033[0m\n' >&2
         GITMAP_SKIP_ZSH=1 "${bin_path}" setup --skip-zsh || printf '  \033[33m(setup auto-run skipped — run '\''gitmap setup'\'' manually)\033[0m\n' >&2
     fi
 
-    echo ""
-    ok "Done! Run 'gitmap --help' to get started."
-    echo ""
+    if [ "${JSON:-0}" = "1" ]; then
+        printf '{"success":true,"status":"installed","installed_version":"%s","binary_path":"%s","install_dir":"%s"}\n' "${version}" "${bin_path}" "${install_dir}"
+    elif [ "${QUIET:-0}" != "1" ]; then
+        echo ""
+        ok "Done! Run 'gitmap --help' to get started."
+        echo ""
+    fi
 }
 
 main "$@"

@@ -253,6 +253,7 @@ func (db *DB) Migrate() error {
 		constants.SQLCreateSplitDatabaseRegistryTypeIndex,
 		constants.SQLCreateSplitDatabaseRegistryStatusIndex,
 		constants.SQLCreateSplitDatabaseRegistryUpdatedAtIndex,
+		SQLCreateReleaseCache,
 	}
 
 	for _, stmt := range statements {
@@ -600,4 +601,19 @@ func getScanFolderPathIndexQuery() string {
 	}
 
 	return constants.SQLCreateScanFolderPathIndexUnix
+}
+
+// GetCachedRelease retrieves a valid unexpired cached release from the database.
+func (db *DB) GetCachedRelease(tag, platform, arch string) (*ReleaseCacheRecord, error) {
+	return GetCachedRelease(db.conn, tag, platform, arch)
+}
+
+// UpsertReleaseCache inserts or updates a release cache entry with 24-hour expiration.
+func (db *DB) UpsertReleaseCache(record ReleaseCacheRecord) error {
+	return UpsertReleaseCache(db.conn, record)
+}
+
+// ListCachedReleases lists recent release cache records.
+func (db *DB) ListCachedReleases(limit int) ([]ReleaseCacheRecord, error) {
+	return ListCachedReleases(db.conn, limit)
 }

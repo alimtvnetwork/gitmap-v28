@@ -7,6 +7,7 @@ type TrainOptions struct {
 	IsLoop     bool
 	LoopCount  int
 	IsURL      bool
+	IsURLs     bool
 	IsJSON     bool
 	SkillPath  string
 }

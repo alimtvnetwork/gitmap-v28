@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.513.0] - 2026-10-08
+
+### Added
+- aria2c download, smart update fallback, diffstat isolation and remediation sub-node tree
+
+---
+
 ## [v6.512.0] - 2026-10-08
 
 ### Added

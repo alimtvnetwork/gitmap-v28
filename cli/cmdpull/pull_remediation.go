@@ -163,13 +163,12 @@ func remediateSingleRepo(f PullFailureSummary) bool {
 		return RemediateMissingRepo(f)
 	}
 
-	fmt.Printf("  %s→%s Remediating %s%s%s (auto-merge)...\n",
-		constants.ColorCyan, constants.ColorReset,
-		constants.ColorBold, f.RepoName, constants.ColorReset)
+	fmt.Printf("  • %s%s%s\n", constants.ColorBold, f.RepoName, constants.ColorReset)
+	fmt.Printf("    %s Attempting auto-merge...\n", constants.TreeBranch)
 	out, err := execPullAutoMerge(f.RepoPath)
 	if err == nil {
-		fmt.Printf("  %s✓%s [%s] Successfully updated.\n",
-			constants.ColorGreen, constants.ColorReset, f.RepoName)
+		fmt.Printf("    %s %s✓%s Successfully updated.\n",
+			constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
 		return true
 	}
 
@@ -184,13 +183,18 @@ func execPullAutoMerge(repoPath string) ([]byte, error) {
 }
 
 func handleRemediationFailure(repoPath, repoName, out string) bool {
+	relPath := formatRelativeOrCleanPath(repoPath)
+	if relPath == "" || relPath == "." {
+		relPath = repoName
+	}
+
 	isConflict := cloner.IsMergeConflictOutput(out) || strings.Contains(strings.ToLower(out), "conflict")
 	if isConflict {
 		cloner.SafeAbortMerge(repoPath)
-		fmt.Printf("  %s✗%s [%s] Merge conflict detected (merge aborted safely to protect working tree).\n",
-			constants.ColorRed, constants.ColorReset, repoName)
-		fmt.Printf("    %sSuggested:%s inspect status or resolve conflicts manually: git -C %q status\n",
-			constants.ColorCyan, constants.ColorReset, repoPath)
+		fmt.Printf("    %s %s✗%s Merge conflict detected (merge safely aborted to protect working tree).\n",
+			constants.TreeCorner, constants.ColorRed, constants.ColorReset)
+		fmt.Printf("        %s[hint]%s Resolve manually: git -C %s status\n",
+			constants.ColorYellow, constants.ColorReset, relPath)
 
 		return false
 	}
@@ -198,17 +202,19 @@ func handleRemediationFailure(repoPath, repoName, out string) bool {
 	isDiverged := cloner.IsDivergedOutput(out)
 	if isDiverged {
 		cloner.SafeAbortMerge(repoPath)
-		fmt.Printf("  %s✗%s [%s] Diverged branch detected (merge aborted safely to protect working tree).\n",
-			constants.ColorRed, constants.ColorReset, repoName)
-		fmt.Printf("    %sSuggested:%s try rebasing: git -C %q pull --rebase\n",
-			constants.ColorCyan, constants.ColorReset, repoPath)
+		fmt.Printf("    %s %s✗%s Diverged branch detected (merge safely aborted to protect working tree).\n",
+			constants.TreeCorner, constants.ColorRed, constants.ColorReset)
+		fmt.Printf("        %s[hint]%s Resolve manually: git -C %s pull --rebase\n",
+			constants.ColorYellow, constants.ColorReset, relPath)
 
 		return false
 	}
 
 	cloner.SafeAbortMerge(repoPath)
-	fmt.Printf("  %s✗%s [%s] Remediation failed.\n",
-		constants.ColorRed, constants.ColorReset, repoName)
+	fmt.Printf("    %s %s✗%s Remediation failed.\n",
+		constants.TreeCorner, constants.ColorRed, constants.ColorReset)
+	fmt.Printf("        %s[hint]%s Resolve manually: git -C %s status\n",
+		constants.ColorYellow, constants.ColorReset, relPath)
 
 	return false
 }
@@ -237,13 +243,12 @@ func remediateSingleRepoRebase(f PullFailureSummary) bool {
 		return RemediateMissingRepo(f)
 	}
 
-	fmt.Printf("  %s→%s Rebasing %s%s%s...\n",
-		constants.ColorCyan, constants.ColorReset,
-		constants.ColorBold, f.RepoName, constants.ColorReset)
+	fmt.Printf("  • %s%s%s\n", constants.ColorBold, f.RepoName, constants.ColorReset)
+	fmt.Printf("    %s Attempting pull --rebase...\n", constants.TreeBranch)
 	out, err := execPullRebase(f.RepoPath)
 	if err == nil {
-		fmt.Printf("  %s✓%s [%s] Successfully rebased and updated.\n",
-			constants.ColorGreen, constants.ColorReset, f.RepoName)
+		fmt.Printf("    %s %s✓%s Successfully rebased and updated.\n",
+			constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
 		return true
 	}
 
@@ -259,14 +264,25 @@ func execPullRebase(repoPath string) ([]byte, error) {
 
 func handleRebaseRemediationFailure(repoPath, repoName, out string) bool {
 	cloner.SafeAbortRebase(repoPath)
+	relPath := formatRelativeOrCleanPath(repoPath)
+	if relPath == "" || relPath == "." {
+		relPath = repoName
+	}
+
 	isConflict := cloner.IsMergeConflictOutput(out) || strings.Contains(strings.ToLower(out), "conflict")
 	if isConflict {
-		fmt.Printf("  %s✗%s [%s] Rebase conflict detected (rebase aborted safely to protect working tree).\n",
-			constants.ColorRed, constants.ColorReset, repoName)
+		fmt.Printf("    %s %s✗%s Rebase conflict detected (rebase safely aborted).\n",
+			constants.TreeCorner, constants.ColorRed, constants.ColorReset)
+		fmt.Printf("        %s[hint]%s Inspect rebase status: git -C %s status\n",
+			constants.ColorYellow, constants.ColorReset, relPath)
+
 		return false
 	}
-	fmt.Printf("  %s✗%s [%s] Rebase failed (rebase aborted safely).\n",
-		constants.ColorRed, constants.ColorReset, repoName)
+
+	fmt.Printf("    %s %s✗%s Rebase failed (rebase safely aborted).\n",
+		constants.TreeCorner, constants.ColorRed, constants.ColorReset)
+	fmt.Printf("        %s[hint]%s Inspect rebase status: git -C %s status\n",
+		constants.ColorYellow, constants.ColorReset, relPath)
 
 	return false
 }

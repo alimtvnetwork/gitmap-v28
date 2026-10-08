@@ -32,7 +32,6 @@ func PrintBinaryLocations() {
 	fmt.Printf(constants.BinaryReadoutActive, displayPath(active))
 	fmt.Printf(constants.BinaryReadoutDeployed, displayPath(deployed))
 	fmt.Printf(constants.BinaryReadoutConfig, displayPath(configPath))
-	fmt.Println()
 }
 
 // isBannerSuppressed reports whether --no-banner or GITMAP_QUIET=1 is set.

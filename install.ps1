@@ -61,7 +61,9 @@ param(
     # the install.ps1 + release-pipeline asset-naming contract is
     # honored before users hit it. Spec: 02-spec/07-generic-release/
     # 09-generic-install-script-behavior.md §6.
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$Quiet,
+    [switch]$JSON
 )
 
 if (-not $Version) {
@@ -271,11 +273,15 @@ if ($env:INSTALLER_DELEGATED -eq "1") {
 # --- Logging helpers ---
 
 function Write-Step([string]$msg) {
-    Write-Host "  $msg" -ForegroundColor Cyan
+    if (-not $Quiet -and -not $JSON) {
+        Write-Host "  $msg" -ForegroundColor Cyan
+    }
 }
 
 function Write-OK([string]$msg) {
-    Write-Host "  $msg" -ForegroundColor Green
+    if (-not $Quiet -and -not $JSON) {
+        Write-Host "  $msg" -ForegroundColor Green
+    }
 }
 
 function Write-Err([string]$msg) {
@@ -1474,6 +1480,9 @@ function Remove-FromPath([string]$dir) {
 }
 
 function Write-InstallSummary([string]$version, [string]$binPath, [string]$installDir, [hashtable]$pathResult, [bool]$isNoPath, [string]$prevVersion = "") {
+    if ($Quiet -or $JSON) {
+        return
+    }
     Write-Host ""
     Write-Host "  -----------------------------------------------" -ForegroundColor Cyan
     Write-Host "  gitmap install summary" -ForegroundColor White
@@ -1519,6 +1528,9 @@ function Write-InstallSummary([string]$version, [string]$binPath, [string]$insta
 # exists (create on miss). All checks emit PASS/WARN; none throw,
 # because the binary is already on disk and the user can recover.
 function Invoke-InstallVerification([string]$binPath, [string]$installDir, [bool]$isNoPath) {
+    if ($Quiet -or $JSON) {
+        return
+    }
     $dataDir = Join-Path $installDir "data"
 
     Write-Host ""
@@ -1837,7 +1849,7 @@ try {
     # gitmap function) + completions are installed without a second
     # command. Setup is idempotent (marker `# gitmap shell wrapper v2`).
     # Non-fatal: install itself already succeeded.
-    if (Test-Path -LiteralPath $binPath) {
+    if (-not $Quiet -and -not $JSON -and $env:GITMAP_UPDATING -ne "1" -and (Test-Path -LiteralPath $binPath)) {
         Write-Host ""
         Write-Host "  -> Running 'gitmap setup' to install shell wrapper + completions..." -ForegroundColor Cyan
         try {
@@ -1852,15 +1864,17 @@ try {
     }
 
     # Configure PowerShell profiles with PSReadLine predictive IntelliSense & completions
-    Write-Host ""
-    Write-Host "  -> Configuring PowerShell predictive suggestions & completions..." -ForegroundColor Cyan
-    try {
-        Configure-PowerShellProfileSuggestions $binPath
-    } catch {
-        Write-Warning "[Main.ConfigurePowerShellProfileSuggestions] $_"
+    if (-not $Quiet -and -not $JSON -and $env:GITMAP_UPDATING -ne "1") {
+        Write-Host ""
+        Write-Host "  -> Configuring PowerShell predictive suggestions & completions..." -ForegroundColor Cyan
+        try {
+            Configure-PowerShellProfileSuggestions $binPath
+        } catch {
+            Write-Warning "[Main.ConfigurePowerShellProfileSuggestions] $_"
+        }
     }
 
-    if ($env:GITMAP_UPDATING -ne "1" -and (Test-Path -LiteralPath $binPath)) {
+    if (-not $Quiet -and -not $JSON -and $env:GITMAP_UPDATING -ne "1" -and (Test-Path -LiteralPath $binPath)) {
         Write-Host ""
         try {
             & $binPath binary
@@ -1869,8 +1883,18 @@ try {
         }
     }
 
-    Write-Host ""
-    Write-OK "Done! Run 'gitmap --help' to get started."
+    if ($JSON) {
+        @{
+            success = $true
+            status = "installed"
+            installed_version = $installedVersion
+            binary_path = $binPath
+            install_dir = $installResult.InstallDir
+        } | ConvertTo-Json -Compress
+    } elseif (-not $Quiet) {
+        Write-Host ""
+        Write-OK "Done! Run 'gitmap --help' to get started."
+    }
     Write-Host ""
     Set-InstallerExitCode 0
 }

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
 var targetPinnedVersion string
@@ -54,6 +56,14 @@ func buildRemoteWindowsInstallerCmd(scriptPath, installDir, version string) *exe
 		args = append(args, "-Version", version)
 	}
 
+	if currentUpdateOptions.IsQuiet || currentUpdateOptions.IsJSON || !verbose.IsEnabled() {
+		args = append(args, "-Quiet")
+	}
+
+	if currentUpdateOptions.IsJSON {
+		args = append(args, "-JSON")
+	}
+
 	return exec.Command("powershell", args...)
 }
 
@@ -66,6 +76,10 @@ func buildUnixInstallerCmd(scriptPath, installDir, version string) *exec.Cmd {
 
 	if len(version) > 0 {
 		args = append(args, "--version", formatInstallerVersionFlag(version))
+	}
+
+	if currentUpdateOptions.IsQuiet || currentUpdateOptions.IsJSON || !verbose.IsEnabled() {
+		args = append(args, "--quiet")
 	}
 
 	return exec.Command(getUnixShell(), args...)

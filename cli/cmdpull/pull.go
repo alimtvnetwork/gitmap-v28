@@ -1367,10 +1367,16 @@ func buildGitPullEnv() []string {
 }
 
 func executeGitPullCommand(cwd string, extraArgs []string) error {
+	cleanDir := strings.TrimSpace(cwd)
+	if cleanDir == "" {
+		return apperror.NewValidationError("cannot execute git pull in empty directory")
+	}
+
 	gitArgs := append([]string{"pull"}, extraArgs...)
 	arrow := resolveSubArrow()
-	fmt.Printf("    %s%s%s Running: git %s (cwd: %s)\n", constants.ColorCyan, arrow, constants.ColorReset, joinForLog(gitArgs), cwd)
+	fmt.Printf("    %s%s%s Running: git %s (cwd: %s)\n", constants.ColorCyan, arrow, constants.ColorReset, joinForLog(gitArgs), cleanDir)
 	cmd := exec.Command("git", gitArgs...)
+	cmd.Dir = cleanDir
 	cmd.Env = buildGitPullEnv()
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

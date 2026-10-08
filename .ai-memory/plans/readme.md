@@ -49,6 +49,7 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [18-app-spec-and-completed-plans-consolidation-and-reduction.md](completed/18-app-spec-and-completed-plans-consolidation-and-reduction.md) — Application Specifications Consolidation, 8 Canonical Clusters & Memory Compaction
 - [19-deep-spec-consolidation-and-canonical-reduction.md](completed/19-deep-spec-consolidation-and-canonical-reduction.md) — Deep Spec Consolidation, Canonical 8-Cluster Reduction & Memory Unification
 - [20-git-history-purge-and-undo.md](completed/20-git-history-purge-and-undo.md) — Git History Purge & Undo Engine with Pre-Flight Graph Diff & SplitDB Journal
+- [21-aria2c-download-smart-update-stats-subnode-remediation.md](completed/242-aria2c-download-smart-update-stats-subnode-remediation.md) — aria2c Download Method, Smart Update Engine, 5-Tag Fallback, Diffstat Isolation & Remediation Tree UI (Spec: [242](../../02-spec/21-app/242-aria2c-download-smart-update-stats-subnode-remediation/01-architecture-spec.md))
 
 ---
 

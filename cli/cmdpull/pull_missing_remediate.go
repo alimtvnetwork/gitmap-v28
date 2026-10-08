@@ -71,8 +71,13 @@ func DeleteRepoRecordByPath(repoPath string) error {
 
 // RemediateMissingRepo attempts to restore a missing repository using clone fallback.
 func RemediateMissingRepo(f PullFailureSummary) bool {
-	fmt.Printf("  %s⚠%s [%s] Directory missing on disk: %s\n",
-		constants.ColorYellow, constants.ColorReset, f.RepoName, f.RepoPath)
+	relPath := formatRelativeOrCleanPath(f.RepoPath)
+	if relPath == "" || relPath == "." {
+		relPath = f.RepoName
+	}
+
+	fmt.Printf("  • %s%s%s\n", constants.ColorBold, f.RepoName, constants.ColorReset)
+	fmt.Printf("    %s Repository directory missing on disk: %s\n", constants.TreeBranch, relPath)
 
 	remoteURL := f.RemoteURL
 	if remoteURL == "" {
@@ -80,24 +85,23 @@ func RemediateMissingRepo(f PullFailureSummary) bool {
 	}
 
 	if remoteURL == "" {
-		fmt.Printf("  %s✗%s [%s] Cannot clone: no remote URL recorded in database.\n",
-			constants.ColorRed, constants.ColorReset, f.RepoName)
+		fmt.Printf("    %s %s✗%s Cannot clone: no remote URL recorded in database.\n",
+			constants.TreeCorner, constants.ColorRed, constants.ColorReset)
 
 		return false
 	}
 
-	fmt.Printf("  %s→%s Attempting clone fallback from %s...\n",
-		constants.ColorCyan, constants.ColorReset, remoteURL)
+	fmt.Printf("    %s Attempting clone fallback from %s...\n", constants.TreeBranch, remoteURL)
 
 	if err := ExecCloneRepo(remoteURL, f.RepoPath); err != nil {
-		fmt.Printf("  %s✗%s [%s] Clone fallback failed: %v\n",
-			constants.ColorRed, constants.ColorReset, f.RepoName, err)
+		fmt.Printf("    %s %s✗%s Clone fallback failed: %v\n",
+			constants.TreeCorner, constants.ColorRed, constants.ColorReset, err)
 
 		return false
 	}
 
-	fmt.Printf("  %s✓%s [%s] Successfully restored repository via clone fallback.\n",
-		constants.ColorGreen, constants.ColorReset, f.RepoName)
+	fmt.Printf("    %s %s✓%s Successfully restored repository via clone fallback.\n",
+		constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
 
 	return true
 }

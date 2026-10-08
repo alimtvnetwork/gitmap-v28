@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddownload"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
@@ -392,6 +393,7 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{"peat", "pea"}, func() error { return runPeatCmd(argsTail()) }},
 		{[]string{"install-exec", "in-exec", "setup-exec"}, func() error { return cmdssh.RunSSHInstallExecCLI(argsTail()) }},
 		{[]string{"py", "python"}, func() error { return cmdpy.RunPy(argsTail()) }},
+		{[]string{"download", "dl"}, func() error { return cmddownload.RunDownloadCLI(argsTail()) }},
 	}
 }
 
