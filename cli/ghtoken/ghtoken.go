@@ -36,11 +36,11 @@ func Resolve() (string, SourceType, error) {
 		return tok, src, nil
 	}
 
-	if tok, src, isDefined := resolveToolToken(); isDefined {
+	if tok, src, isDefined := resolveConfigToken(); isDefined {
 		return tok, src, nil
 	}
 
-	if tok, src, isDefined := resolveConfigToken(); isDefined {
+	if tok, src, isDefined := resolveToolToken(); isDefined {
 		return tok, src, nil
 	}
 
@@ -105,6 +105,7 @@ func tokenFromGhCLI() (string, bool) {
 
 func tokenFromGitCredential() (string, bool) {
 	cmd := exec.Command("git", "credential", "fill")
+	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
 	cmd.Stdin = strings.NewReader("protocol=https\nhost=github.com\n\n")
 
 	out, err := cmd.Output()

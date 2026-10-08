@@ -139,6 +139,7 @@ func printWhoAmIAuth(url string) {
 func probeHTTPSCachedUser(url string) string {
 	in := fmt.Sprintf("url=%s\n\n", url)
 	cmd := exec.Command("git", "credential", "fill")
+	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
 	cmd.Stdin = strings.NewReader(in)
 	out, err := cmd.Output()
 	if err != nil {
