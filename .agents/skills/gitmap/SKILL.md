@@ -36,6 +36,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` / `gitmap pe -ud` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
 | ❌ Python SQLite task manager (`python 03-ai-scripts/46-agent-sqlite-task-manager.py`) | ✅ `gitmap task <init|add|claim|complete|fail|status|schema>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, and 1:1 identical schema for multi-agent workflows. |
+| ❌ Python fleet commit script (`python 03-ai-scripts/49-commit-and-push-all-repos.py`) or manual git commit loops across repos | ✅ `gitmap cpar [-m="<msg>"] [-y] [-r] [-co]` (alias `gitmap commit-push-all-repos`) | Native compiled Go multi-repo batch commit and push across all dirty repositories with SQLite task queue auditing (<50ms). |
+| ❌ Manual git stash / checkout / clean loops when repos are dirty or pull fails | ✅ `gitmap fix [repo] [action]` or `gitmap stash / wip / discard <repo>` | Applies structured remediation recipes (stash, wip, discard) to resolve dirty working trees without corrupting git state. |
 
 ---
 
@@ -113,20 +115,44 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap pe history-ai` — Analyze CI/CD pipeline history across branches and recent runs.
 - `gitmap pipeline purge` — Actions zero-storage purge maintaining 0.0 GB footprint.
 
-### 7. Semantic Hyphen-Separated Commit & Push
+### 7. Semantic Hyphen-Separated Commit, Batch Push & Repo Remediation
 - `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (`commit-push-feature`, GitMap auto-prefixes `Feature: `).
 - `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (`commit-push-bug`, GitMap auto-prefixes `Bug: `).
 - `gitmap cpc "<module> - <summary>"` — Stage, commit, and push chore branch (`commit-push-chore`, GitMap auto-prefixes `Chore: `).
 - `gitmap cpr "<module> - <summary>"` — Stage, commit, and push release chore (`commit-push-release`, GitMap auto-prefixes `Release: `).
 - `gitmap pcp "<module> - <summary>"` — Pull latest, commit, and push with preflight verification (`pull-commit-push`).
+- `gitmap cpar [args...]` (alias `gitmap commit-push-all-repos`) — Batch commit and push all dirty repositories across workspace:
+  - `gitmap cpar "wip: save changes"` — Commit and push all dirty repositories with WIP message.
+  - `gitmap cpar -y` — Auto-confirm batch commit and push across all dirty repositories.
+  - `gitmap cpar -co` (or `--commit-only`) — Commit dirty repositories locally without pushing upstream.
+  - `gitmap cpar -r` (or `--review`) — Interactive review flow to inspect dirty files before deciding (`feature`, `bug`, `chore`, `single`, `abort`).
+- `gitmap fix [repo] [action]` — Apply remediation recipe to dirty repository:
+  - `gitmap fix <repo> stash` (alias `gitmap stash <repo>`) — Stash working tree changes.
+  - `gitmap fix <repo> wip` (alias `gitmap wip <repo>`) — Commit dirty changes as WIP commit.
+  - `gitmap fix <repo> discard` (alias `gitmap discard <repo>`) — Discard all dirty working tree changes.
+  - `gitmap fix --all <stash|wip|discard>` — Bulk-remediate all dirty repositories with specified recipe.
+  - `gitmap fix ls` — Inspect list of repositories currently having remediation issues.
+- `gitmap fix-credential` (alias `gitmap fc`) — Repair Windows git credential store (`wincredman` / UNIX socket lack).
 - `gitmap pas` — Pull all tracked repositories via parallel SSH streams (`pull-all-ssh`).
 - `gitmap pull [repo]` (alias `gitmap p`) — Pull targeted repository.
 - `gitmap pull-all` (alias `gitmap pa`) — Pull all repositories in workspace.
-- `gitmap fix [repo] [action]` — Apply remediation to repo (aliases: `stash`, `wip`, `discard`).
 - `gitmap lowercase` (alias `gitmap lcf`) — Safe 2-step `git mv` file case normalization.
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
-- **Full Forms Reference:** `cpf`: `commit-push-feature`, `cpb`: `commit-push-bug`, `cpc`: `commit-push-chore`, `cpr`: `commit-push-release`, `pcp`: `pull-commit-push`, `pas`: `pull-all-ssh`.
+- **Full Forms Reference:** `cpf`: `commit-push-feature`, `cpb`: `commit-push-bug`, `cpc`: `commit-push-chore`, `cpr`: `commit-push-release`, `cpar`: `commit-push-all-repos`, `pcp`: `pull-commit-push`, `pas`: `pull-all-ssh`, `fc`: `fix-credential`.
 - **TOTAL BAN ON COLONS IN COMMIT MESSAGES:** Never use colons inside commit arguments (e.g. `gitmap cpf "Feature: title"` is FORBIDDEN; use `gitmap cpf "module - title"`).
+
+### 7.1 Automated Pull Failure & Dirty Repository Remediation Matrix
+
+When `gitmap pull` or `gitmap pull-all` reports dirty or failed repositories, apply the following deterministic resolutions:
+
+| Failure / Status Category | Root Cause | Primary Recommended Action (Option 1) | Secondary Fallback Action (Option 2) |
+| :--- | :--- | :--- | :--- |
+| **Dirty Repo (Modified Files)** | Uncommitted working tree edits | `gitmap cpar "wip: save changes"` (commit & push) | `gitmap fix <repo> stash` or `git -C "<path>" stash` |
+| **Dirty Repo (Untracked Files Only)** | Unstaged new files/directories | `git -C "<path>" add .` | `git -C "<path>" clean -fd` |
+| **Failed Repo (Missing on Disk)** | Repo registered in DB but missing from disk | `gitmap clone <repo>` | `gitmap rm --db-only <repo>` |
+| **Failed Repo (Merge Conflict)** | Remote changes conflict with local commit/work | `gitmap fix <repo> stash` | `git -C "<path>" merge --abort` / `gitmap fix <repo> discard` |
+| **Failed Repo (Diverged Branch)** | Non-fast-forward remote updates | `git -C "<path>" pull --rebase` (or `gitmap pull --rebase <repo>`) | `git -C "<path>" reset --hard @{u}` |
+| **Failed Repo (Credential Store / Wincredman)** | Windows Credential Manager service failure | `gitmap fix-credential` (alias: `fc`) | `gitmap ssh deploy-keys` |
 
 ### 8. Multi-Project Supabase Vault & Encrypted Secrets
 - `gitmap supabase add <alias> <url> <anon_key> <service_key> [db_url]` — Register Supabase database with AES-256-GCM / RSA encrypted vault. Zero cleartext secrets stored in SQLite!
