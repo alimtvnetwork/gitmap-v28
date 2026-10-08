@@ -1,9 +1,25 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-10-06T23:00:00Z
+> Last updated: 2026-10-08T16:00:00Z
+
+## The Mindset — READ FIRST
+
+How this repository is engineered. Internalize before writing any code:
+
+1. **Staging repo — velocity over ceremony.** AI-driven, fast-forward development: versions ship fast, each a mix of many features. AI makes mistakes; we fix forward in the next version. Never slow the loop for process.
+2. **Two-tier future.** This repo stays fast. When satisfied, code moves to a separate release repository with a stricter engineering process. Strictness belongs there, not here.
+3. **Version churn is intentional.** Frequent versions are checkpoints, not milestones. Do not "fix" the cadence.
+4. **Backup-first.** Significant work starts from a backup branch (`backup/<slug>`). `gitmap space backup-branch "<task>"` creates one from current code.
+5. **Small files are engineering quality.** ~100-line median files, tiny functions, zero nesting. Enforce the cap: split files over 500 lines, never let one cross 1000.
+6. **Aliases are a feature, not sprawl.** Keep them — they make the CLI fast. Never prune for tidiness.
+7. **DRY everything.** Help text, themes, colors: single source of truth, generated output. Never hand-maintain the same content in two formats.
+8. **Enforcement beats documentation.** A rule on paper that isn't enforced is worse than no rule. Where enforcement lagged, close the gap.
+9. **Interface + struct + binding.** Extensibility pattern: small interfaces, concrete structs, bound per the coding guidelines.
 
 ## Changelog
+
+- 2026-10-08T16:00:00Z, Memory write: Added "The Mindset — READ FIRST": staging-repo velocity model, backup-first workflow, small-files enforcement, aliases-as-feature, DRY, enforcement-over-documentation, interface+struct+binding.
 
 - 2026-10-06T22:55:00Z, Memory write: Plan 236 / Spec 236, Deep Spec Consolidation & Canonical Reduction, pruned 72 legacy folders and 179 loose files across `02-spec/21-app/` down to exactly 8 Canonical Clusters + active spec folder + readme (-96.2%), compacted completed plans into 18 authoritative milestones (-58.1% files, -81.1% lines), unified memory into 10 canonical domain references (-86.7%), and preserved all pending/active files.
 - 2026-10-06T22:15:00Z, Memory write: Plan 235 / Spec 235, Application Specifications & Completed Plans Consolidation & Memory Reduction, synthesized 8 Canonical Domain Clusters in `02-spec/21-app/`, consolidated 163 completed plans into Milestones 28–42 in `.ai-memory/plans/completed/`, folded 177 completed subtasks across 32 directories, compacted `.ai-memory/memory/` into 36 dense reference files, and isolated all pending/active files.
