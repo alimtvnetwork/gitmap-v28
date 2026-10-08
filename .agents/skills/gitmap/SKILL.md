@@ -102,6 +102,14 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap user sync` — Idempotently apply bound project profile to local repository git config.
 - `gitmap user add <username> [--password <pwd>]` / `gitmap user create-root <user>` — Cross-platform OS user management.
 
+### 10. Multi-Repo Pull & Interactive Remediation
+- `gitmap pa` / `gitmap pull-all` — Multi-repository parallel pull with concise visual progress, automatic forward-slash path normalization, and interactive dirty/failed repository remediation.
+- Prompts user interactively when uncommitted changes or errors exist:
+  - `[a/1] Fix all` — Automatically stashes/commits changes with pre-pull synchronization across all dirty repositories.
+  - `[s/2] Fix single` — Steps interactively through dirty repositories.
+  - `[k/q] Skip` — Exits cleanly and prints manual CLI fix guidance.
+- Strict forward-slash (`/`) path hygiene across all remediation recipes, hints, and command generators (`git -C "D:/work/repo" ...`).
+
 ## Command Replacement Matrix (Mandatory Substitutions)
 
 | Forbidden / Anti-Pattern Command | Mandatory GitMap Replacement | Rationale |

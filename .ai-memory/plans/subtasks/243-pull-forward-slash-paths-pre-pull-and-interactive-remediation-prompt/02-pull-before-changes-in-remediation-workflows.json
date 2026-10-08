@@ -1,0 +1,11 @@
+{
+  "subtaskId": "02-pull-before-changes-in-remediation-workflows",
+  "planSlug": "243-pull-forward-slash-paths-pre-pull-and-interactive-remediation-prompt",
+  "status": "COMPLETED",
+  "summary": "Verified and enforced pull before changes invariants across remediation recipes and dual hints.",
+  "modifiedFiles": [
+    "cli/cmdpull/pull_remediation_hint.go",
+    "cli/cmdpull/pull_remediation_forward_slash_test.go"
+  ],
+  "verification": "go test -C cli -run TestResolveDirtyTreeDualHints_PullBeforeChanges ./cmdpull/... passed."
+}

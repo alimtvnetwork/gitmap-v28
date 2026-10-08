@@ -72,7 +72,7 @@ func runSerialPull(records []model.ScanRecord, bar *PullProgressBar) {
 }
 
 func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
-	if len(remItems) == 0 || isConcisePullOutput(opts.all, opts.showStatus) {
+	if len(remItems) == 0 || opts.isJSON {
 		return
 	}
 	dispatchRemediationSummary(remItems, opts)

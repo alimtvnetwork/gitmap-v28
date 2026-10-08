@@ -1,0 +1,12 @@
+{
+  "subtaskId": "03-interactive-remediation-prompt-all-single-skip",
+  "planSlug": "243-pull-forward-slash-paths-pre-pull-and-interactive-remediation-prompt",
+  "status": "COMPLETED",
+  "summary": "Implemented interactive remediation prompt for gitmap pa and gitmap pull-all with [a/1] Fix all, [s/2] Fix single, and [k/q] Skip choices.",
+  "modifiedFiles": [
+    "cli/cmdpull/pull_execute.go",
+    "cli/cmd/remediation_box.go",
+    "cli/cmd/remediation_box_prompt_test.go"
+  ],
+  "verification": "go test -C cli -run TestRemediationChoiceMatchers ./cmd/... passed."
+}

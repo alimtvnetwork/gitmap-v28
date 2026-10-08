@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -82,22 +83,22 @@ func printOverflowNote(totalCount, maxShowCount int) {
 func formatDirtyFileEntry(raw string) string {
 	if strings.HasPrefix(raw, "staged: ") {
 		tag := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b")).Render("[staged]   ")
-		return tag + " " + strings.TrimPrefix(raw, "staged: ")
+		return tag + " " + filepath.ToSlash(strings.TrimPrefix(raw, "staged: "))
 	}
 	if strings.HasPrefix(raw, "modified: ") {
 		tag := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f1fa8c")).Render("[modified] ")
-		return tag + " " + strings.TrimPrefix(raw, "modified: ")
+		return tag + " " + filepath.ToSlash(strings.TrimPrefix(raw, "modified: "))
 	}
 	if strings.HasPrefix(raw, "untracked: ") {
 		tag := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd")).Render("[untracked]")
-		return tag + " " + strings.TrimPrefix(raw, "untracked: ")
+		return tag + " " + filepath.ToSlash(strings.TrimPrefix(raw, "untracked: "))
 	}
 	if strings.HasPrefix(raw, "deleted: ") {
 		tag := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ff5555")).Render("[deleted]  ")
-		return tag + " " + strings.TrimPrefix(raw, "deleted: ")
+		return tag + " " + filepath.ToSlash(strings.TrimPrefix(raw, "deleted: "))
 	}
 
-	return raw
+	return filepath.ToSlash(raw)
 }
 
 func renderDirtyFileList(files []string) {
@@ -155,7 +156,7 @@ func promptSingleRepo(reader *bufio.Reader, idx, total int, item *RemediationIte
 	promptStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd"))
 	fmt.Printf("\n[%d/%d] %s %s\n", idx, total, titleStyle.Render(item.RepoName), dimStyle.Render("("+item.SummaryReason+")"))
 	if len(item.RepoPath) > 0 {
-		fmt.Printf("    Path: %s\n", dimStyle.Render(item.RepoPath))
+		fmt.Printf("    Path: %s\n", dimStyle.Render(filepath.ToSlash(item.RepoPath)))
 	}
 	printRepoDirtyFiles(item)
 	printPromptOptions()

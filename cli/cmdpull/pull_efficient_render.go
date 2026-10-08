@@ -212,14 +212,14 @@ func renderItemizedDirtyFiles(w io.Writer, diag gitutil.DirtyDiagnosis) {
 			fmt.Fprintf(w, "        %s... and %d more modified files%s\n", constants.ColorDim, len(diag.ModifiedFiles)-5, constants.ColorReset)
 			break
 		}
-		fmt.Fprintf(w, "        %smodified: %s%s\n", constants.ColorDim, f, constants.ColorReset)
+		fmt.Fprintf(w, "        %smodified: %s%s\n", constants.ColorDim, filepath.ToSlash(f), constants.ColorReset)
 	}
 	for i, f := range diag.UntrackedFiles {
 		if i >= 5 {
 			fmt.Fprintf(w, "        %s... and %d more untracked files%s\n", constants.ColorDim, len(diag.UntrackedFiles)-5, constants.ColorReset)
 			break
 		}
-		fmt.Fprintf(w, "        %suntracked: %s%s\n", constants.ColorDim, f, constants.ColorReset)
+		fmt.Fprintf(w, "        %suntracked: %s%s\n", constants.ColorDim, filepath.ToSlash(f), constants.ColorReset)
 	}
 }
 

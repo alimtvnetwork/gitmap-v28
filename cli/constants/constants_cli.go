@@ -306,7 +306,7 @@ const (
 	// .gitattributes, .prettierignore, .prettierrc baselines plus
 	// `git lfs install --local` (same logic as `gitmap commons`);
 	// `space backup-branch` snapshots HEAD into backup/<slug>.
-	CmdSpace             = "space"
+	CmdSpace = "space"
 	// CmdSpaceBackupBranch is the `space backup-branch` subcommand —
 	// creates backup/<slug> from HEAD for the given task string.
 	CmdSpaceBackupBranch = "backup-branch"

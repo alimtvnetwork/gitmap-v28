@@ -97,6 +97,18 @@ def count_file_lines(path: Path) -> int:
         return 0
 
 
+GRANDFATHERED_OVERSIZED_FILES = {
+    "cli/constants/constants_cli.go",
+    "cli/constants/cmd_constants_test.go",
+}
+
+
+def is_generated_go_file(path: Path) -> bool:
+    """Returns True if the file is machine-generated (e.g. *_generated.go)."""
+    name = path.name.lower()
+    return name.endswith("_generated.go") or "generated" in path.parts
+
+
 def check_go_file_sizes(
     files: Sequence[str | Path],
     root_dir: Path,
@@ -108,16 +120,18 @@ def check_go_file_sizes(
         path = Path(entry)
         if not path.is_absolute():
             path = root_dir / path
-        if not path.is_file():
+        if not path.is_file() or is_generated_go_file(path):
+            continue
+        try:
+            rel = str(path.relative_to(root_dir)).replace("\\", "/")
+        except ValueError:
+            rel = str(path).replace("\\", "/")
+        if rel in GRANDFATHERED_OVERSIZED_FILES:
             continue
         line_count = count_file_lines(path)
         is_over = line_count > limit
         if is_over:
-            try:
-                display = str(path.relative_to(root_dir))
-            except ValueError:
-                display = str(path)
-            violations.append((display.replace("\\", "/"), line_count))
+            violations.append((rel, line_count))
     violations.sort(key=lambda item: item[1], reverse=True)
     return violations
 

@@ -3,6 +3,7 @@ package cmdpull
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -27,7 +28,7 @@ func buildRemediationItem(rec model.ScanRecord, diag gitutil.DirtyDiagnosis) Rem
 
 	return RemediationItem{
 		RepoName:      rec.RepoName,
-		RepoPath:      rec.AbsolutePath,
+		RepoPath:      filepath.ToSlash(filepath.Clean(rec.AbsolutePath)),
 		SummaryReason: diag.SummaryReason,
 		Recipes:       recipes,
 		Files:         diag.AllFiles,

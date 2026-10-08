@@ -70,7 +70,7 @@ func PrintRemediationBox(repoName, repoPath string, d gitutil.DirtyDiagnosis) {
 	}
 
 	item := RemediationItem{
-		RepoPath:      repoPath,
+		RepoPath:      filepath.ToSlash(filepath.Clean(repoPath)),
 		RepoName:      repoName,
 		SummaryReason: d.SummaryReason,
 		Recipes:       recipes,
@@ -125,18 +125,44 @@ func printRemediationCLIHelp() {
 }
 
 func promptForRemediation(items []RemediationItem) {
-	promptStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ffb86c"))
-	fmt.Printf("  %s ", promptStyle.Render("Remediate dirty repository(ies) now? [y/N]:"))
+	printRemediationMenu()
 	reader := bufio.NewReader(os.Stdin)
 	ans, _ := reader.ReadString('\n')
 	ans = strings.TrimSpace(ans)
-	if strings.EqualFold(ans, "y") || strings.EqualFold(ans, "yes") {
-		_ = runInteractiveRemediation(items)
+	dispatchRemediationChoice(ans, items)
+}
 
+func printRemediationMenu() {
+	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ffb86c"))
+	itemStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd"))
+	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#a6adc8"))
+	fmt.Printf("\n  %s\n", headerStyle.Render("Remediate dirty / failed repository(ies) now?"))
+	fmt.Printf("    %s %s\n", itemStyle.Render("[a/1]"), dimStyle.Render("Fix all (stash & re-apply with pre-pull)"))
+	fmt.Printf("    %s %s\n", itemStyle.Render("[s/2]"), dimStyle.Render("Fix single / step through repositories"))
+	fmt.Printf("    %s %s\n", itemStyle.Render("[k/q]"), dimStyle.Render("Skip / Exit"))
+	fmt.Printf("  %s ", headerStyle.Render("Choice [a/s/k]:"))
+}
+
+func dispatchRemediationChoice(ans string, items []RemediationItem) {
+	if isFixAllChoice(ans) {
+		_ = runFixAll("1", items)
 		return
 	}
-
+	if isFixSingleChoice(ans) {
+		_ = runInteractiveRemediation(items)
+		return
+	}
 	printRemediationCLIHelp()
+}
+
+func isFixAllChoice(ans string) bool {
+	low := strings.ToLower(ans)
+	return low == "a" || low == "1" || low == "all" || low == "y" || low == "yes"
+}
+
+func isFixSingleChoice(ans string) bool {
+	low := strings.ToLower(ans)
+	return low == "s" || low == "2" || low == "single" || low == "step"
 }
 
 func PrintRemediationSummaryNoPrompt(items []RemediationItem) {
@@ -158,7 +184,7 @@ func PrintRemediationSummaryAutoFix(items []RemediationItem) {
 	_ = SaveRemediationState(items)
 	printRemediationStrategyBox()
 	printPendingReposList(items)
-	_ = runInteractiveRemediation(items)
+	_ = runFixAll("1", items)
 }
 
 func PrintRemediationSummary(items []RemediationItem) {

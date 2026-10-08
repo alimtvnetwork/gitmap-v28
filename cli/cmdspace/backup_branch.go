@@ -46,9 +46,7 @@ func RunBackupBranch(args []string) error {
 	fmt.Printf("%s @ %s\n", branch, sha)
 
 	if !noPush {
-		if pushErr := runGitInherit("push", "-u", "origin", branch); pushErr != nil {
-			return pushErr
-		}
+		return runGitInherit("push", "-u", "origin", branch)
 	}
 
 	return nil
