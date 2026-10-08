@@ -98,7 +98,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 | :--- | :--- | :--- |
 | `Select-String` (PowerShell) | `gitmap aum search <pat> [dir] --ext <ext>` | Up to 830,000x faster, respects boundaries |
 | `Get-ChildItem -Filter` / `-Recurse` | `gitmap find <pattern>` / `gitmap ls <dir>` | Zero pipeline overhead, instantaneous |
-| `git grep` / `grep` / `rg` / `ripgrep` | `gitmap aum search <pat> [dir] --ext <ext>` | Unified cross-platform search with caching |
+| `git grep` / `grep` / `ripgrep` | `gitmap aum search <pat> [dir] --ext <ext>` | Unified cross-platform search with caching |
 | `findstr` (Windows CMD) | `gitmap aum search <pat> [dir] --ext <ext>` | Eliminates CMD encoding & escaping errors |
 | Raw `Remove-Item` / `rm` | `gitmap rm <path> --task <id> --reason <text>` | Safe removal with backup & undo restoration |
 | Tight polling loop (`while` / `sleep`) | `gitmap pe -t --ai` / `gitmap pe -ud` | Non-blocking telemetry with dynamic ETA |

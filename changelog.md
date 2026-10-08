@@ -3,7 +3,17 @@
 ## [v6.513.0] - 2026-10-08
 
 ### Added
-- aria2c download, smart update fallback, diffstat isolation and remediation sub-node tree
+- Concise bare `gitmap` CLI display (< 15 lines) with structured suggestions:
+  - Sub-point 1: Catalog exploration via `gitmap help` and `gitmap -h`.
+  - Sub-point 2: Mandatory AI model self-training via `gitmap llm train` (and `gitmap ai llm-train`) before starting workspace tasks.
+- Elimination of redundant blank line between binary location triplet and version identity block.
+- Authoritative `gitmap llm train` subsystem:
+  - Emits full copy-pasteable Antigravity skill with YAML frontmatter directly to stdout.
+  - Automatically writes and updates `.agents/skills/gitmap/SKILL.md`.
+  - Added `--urls` flag emitting public raw GitHub documentation URLs for LLM memory ingestion.
+  - Directs autonomous AI models to generate and persist their own skill from training output.
+  - Embeds recursive Git network learning directives (multi-repo topology, prior mistake prevention via `gitmap pe history-ai`, dynamic ETA wait, memory ledgers).
+- Modernized skills documentation in `.agents/skills/gitmap/SKILL.md` and `.cursor/skills/gitmap/skill.md`.
 
 ---
 
