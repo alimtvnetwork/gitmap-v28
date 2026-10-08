@@ -10,10 +10,10 @@
 
 | ID | Code | Subtask Title | Assigned Role | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | `Task-01` | GitHub CLI Authorization Status Detection & Launch Readout | Worker 01 | PENDING |
-| 2 | `Task-02` | User Info Command & Git Configuration Inspector (Global & Local) | Worker 02 | PENDING |
-| 3 | `Task-03` | Multi-User Profile Store & Per-Project Auto-Switching Engine | Worker 01 | PENDING |
-| 4 | `Task-04` | GitMap User CLI Subcommands, Project Configuration & Release Ceremony | Worker 02 | PENDING |
+| 1 | `Task-01` | GitHub CLI Authorization Status Detection & Launch Readout | Worker 01 | COMPLETED |
+| 2 | `Task-02` | User Info Command & Git Configuration Inspector (Global & Local) | Worker 02 | COMPLETED |
+| 3 | `Task-03` | Multi-User Profile Store & Per-Project Auto-Switching Engine | Worker 01 | COMPLETED |
+| 4 | `Task-04` | GitMap User CLI Subcommands, Project Configuration & Release Ceremony | Worker 02 | COMPLETED |
 
 ---
 

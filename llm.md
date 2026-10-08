@@ -377,3 +377,16 @@ Autonomous AI agents and LLMs must read and download the authoritative documenta
 3. **Non-Blocking Telemetry:** Use `gitmap pe -t --ai` with dynamic ETA calculation instead of spinning loops.
 4. **Self-Skill Creation:** LLMs must run `gitmap llm train` and persist the emitted skill to `.agents/skills/gitmap/SKILL.md`.
 
+---
+
+## 10. Git Identity Context & Multi-User Project Switching
+
+AI agents managing multi-account environments or working on diverse repositories can inspect identities and switch Git author profiles without manual `.git/config` file editing:
+
+### Commands:
+- `gitmap user info` (or `gitmap user info --json`): Inspect GitHub CLI authorization state, local repo Git user, global Git user, active profile, and project binding with zero token leakage.
+- `gitmap user list` (or `gitmap user ls`): List configured Git profiles with active and bound indicators.
+- `gitmap user switch <alias>`: Switch active profile; with `--project` binds the repository, with `--global` configures machine-wide `~/.gitconfig`.
+- `gitmap user project bind <alias>`: Bind a Git author profile to the repository directory.
+- `gitmap user sync`: Ensure local repository git configuration matches the bound profile.
+

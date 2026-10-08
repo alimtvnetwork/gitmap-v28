@@ -21,26 +21,46 @@ func LoadGitProfiles() (model.GitProfileConfig, error) {
 	path := GitProfilesPath()
 	data, err := os.ReadFile(path)
 	if err != nil {
-		cfg := discoverDefaultProfiles()
-		saveErr := SaveGitProfiles(cfg)
-
-		return cfg, saveErr
+		return handleDefaultProfilesLoad()
 	}
 
-	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
-	if extractErr != nil {
-		payload = data
-	}
-
-	var cfg model.GitProfileConfig
-	if unmarshalErr := json.Unmarshal(payload, &cfg); unmarshalErr != nil {
+	cfg, unmarshalErr := unmarshalGitProfiles(data)
+	if unmarshalErr != nil {
 		return cfg, apperror.WrapSimple(unmarshalErr, "unmarshal git profiles:")
 	}
 
 	return cfg, nil
 }
 
+func handleDefaultProfilesLoad() (model.GitProfileConfig, error) {
+	cfg := discoverDefaultProfiles()
+	saveErr := SaveGitProfiles(cfg)
+
+	return cfg, saveErr
+}
+
+func unmarshalGitProfiles(data []byte) (model.GitProfileConfig, error) {
+	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	if extractErr != nil {
+		payload = data
+	}
+
+	var cfg model.GitProfileConfig
+	if err := json.Unmarshal(payload, &cfg); err != nil {
+		return cfg, err
+	}
+
+	if cfg.ProjectBindings == nil {
+		cfg.ProjectBindings = make(map[string]model.ProjectBinding)
+	}
+
+	return cfg, nil
+}
+
 func SaveGitProfiles(cfg model.GitProfileConfig) error {
+	if cfg.ProjectBindings == nil {
+		cfg.ProjectBindings = make(map[string]model.ProjectBinding)
+	}
 	cfg.UpdatedAt = time.Now()
 	envelope := jsonenvelope.NewEnvelope(
 		jsonenvelope.TypeGitProfiles,
@@ -49,6 +69,11 @@ func SaveGitProfiles(cfg model.GitProfileConfig) error {
 		"1.0",
 		cfg,
 	)
+
+	return writeProfilesEnvelope(envelope)
+}
+
+func writeProfilesEnvelope(envelope jsonenvelope.Envelope[model.GitProfileConfig]) error {
 	data, err := json.MarshalIndent(envelope, "", "  ")
 	if err != nil {
 		return apperror.WrapSimple(err, "marshal git profiles:")
@@ -63,29 +88,39 @@ func SaveGitProfiles(cfg model.GitProfileConfig) error {
 
 func discoverDefaultProfiles() model.GitProfileConfig {
 	cfg := model.GitProfileConfig{
-		Profiles:  make([]model.GitProfile, 0),
-		UpdatedAt: time.Now(),
+		Profiles:        make([]model.GitProfile, 0),
+		ProjectBindings: make(map[string]model.ProjectBinding),
+		UpdatedAt:       time.Now(),
 	}
 
-	user := detectGitHubUser()
-	if user != "" {
-		cfg.Profiles = append(cfg.Profiles, model.GitProfile{
-			ID:         "prof_1",
-			Name:       user,
-			Provider:   "github",
-			Type:       "user",
-			AuthMethod: "gh-cli",
-			IsDefault:  true,
-			UsageCount: 1,
-			LastUsedAt: time.Now(),
-		})
-		cfg.Active = user
-		cfg.Default = user
-	}
-
+	appendDefaultUserProfile(&cfg)
 	discoverGitHubOrgs(&cfg)
 
 	return cfg
+}
+
+func appendDefaultUserProfile(cfg *model.GitProfileConfig) {
+	user := detectGitHubUser()
+	if len(user) == 0 {
+		return
+	}
+
+	cfg.Profiles = append(cfg.Profiles, newDefaultUserProfile(user))
+	cfg.Active = user
+	cfg.Default = user
+}
+
+func newDefaultUserProfile(user string) model.GitProfile {
+	return model.GitProfile{
+		ID:         "prof_1",
+		Name:       user,
+		Provider:   "github",
+		Type:       "user",
+		AuthMethod: "gh-cli",
+		IsDefault:  true,
+		UsageCount: 1,
+		LastUsedAt: time.Now(),
+	}
 }
 
 func detectGitHubUser() string {

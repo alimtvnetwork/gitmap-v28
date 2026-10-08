@@ -1,8 +1,6 @@
 # gitmap user
 
-Manage cross-platform OS-level user accounts, root/administrative access, and SSH keys across Windows, Ubuntu, Debian, and Fedora environments.
-
-This command natively binds to `net user` on Windows and `useradd`/`userdel` on Linux distributions to seamlessly provision or decommission system users.
+Manage Git author profiles, per-project repository bindings, GitHub CLI auth inspection, and cross-platform OS-level user accounts.
 
 ## Usage
 
@@ -10,7 +8,19 @@ This command natively binds to `net user` on Windows and `useradd`/`userdel` on 
 gitmap user <command> [arguments] [flags]
 ```
 
-## Commands
+## Git Profile & Identity Commands
+
+| Command | Description |
+|---------|-------------|
+| `info`, `status` `[--json]` | Display consolidated Git identity and GitHub CLI authorization status card |
+| `list`, `ls` | List configured Git user profiles with active and bound indicators |
+| `switch`, `use <alias> [--global] [--project]` | Switch active Git profile or bind to current project |
+| `add <alias> --name <n> --email <e>` | Register a new Git author profile |
+| `project [bind <alias>\|unbind\|status]` | Manage per-repository profile bindings |
+| `config [global\|local] [--name <n>] [--email <e>]` | Inspect or configure Git `user.name` and `user.email` |
+| `sync` | Apply bound project user profile to current repository git config |
+
+## Operating System User Commands
 
 | Command | Description |
 |---------|-------------|
@@ -23,18 +33,25 @@ gitmap user <command> [arguments] [flags]
 ## Examples
 
 ```bash
-# Add a standard local user
+# Inspect GitHub CLI auth and active Git identity
+gitmap user info
+gitmap user info --json
+
+# List configured Git profiles
+gitmap user list
+
+# Switch active profile for current project
+gitmap user switch work --project
+
+# Register a new Git author profile
+gitmap user add work --name "Work Dev" --email "dev@work.com"
+
+# Bind current repository to profile
+gitmap user project bind work
+
+# Add a standard local OS user
 gitmap user add johndoe
 
 # Create a root/sudo user with ZSH and SSH public key
 gitmap user create-root deployer --password secret123 --theme fletcherm --ssh-key "ssh-ed25519 AAA..."
-
-# Install SSH public key for an existing user
-gitmap user add-ssh-key deployer ~/.ssh/id_ed25519.pub
-
-# Terminate all processes owned by user
-gitmap user kill johndoe
-
-# Remove user and their home directory / profile
-gitmap user rm johndoe
 ```

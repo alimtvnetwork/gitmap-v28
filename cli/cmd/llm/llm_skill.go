@@ -102,6 +102,16 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - ` + "`gitmap install cargo`" + ` — Install Rust toolchain if missing.
 - ` + "`gitmap install --list`" + ` — Discover developer toolchains, profiles, and runtime packages.
 
+### 9. Git Identity, Multi-User Switching & User Accounts
+- ` + "`gitmap user info`" + ` (alias: ` + "`gitmap user-info`" + `) — Inspect GitHub CLI auth status, local/global Git identity, active profile, and project binding with zero token leakage (` + "`--json`" + ` supported).
+- ` + "`gitmap user list`" + ` (alias: ` + "`gitmap user ls`" + `) — List configured Git profiles with active and bound indicators.
+- ` + "`gitmap user switch <alias>`" + ` (alias: ` + "`gitmap user use <alias>`" + `) — Switch active Git identity (` + "`--project`" + ` to bind repository, ` + "`--global`" + ` for machine-wide).
+- ` + "`gitmap user add <alias> --name \"<name>\" --email \"<email>\"`" + ` — Register a new Git author profile.
+- ` + "`gitmap user project bind <alias>`" + ` / ` + "`gitmap user project unbind`" + ` — Manage per-repository profile bindings.
+- ` + "`gitmap user config [global|local] [--name \"<n>\"] [--email \"<e>\"]`" + ` — Inspect or set Git configuration.
+- ` + "`gitmap user sync`" + ` — Idempotently apply bound project profile to local repository git config.
+- ` + "`gitmap user add <username> [--password <pwd>]`" + ` / ` + "`gitmap user create-root <user>`" + ` — Cross-platform OS user management.
+
 ## Command Replacement Matrix (Mandatory Substitutions)
 
 | Forbidden / Anti-Pattern Command | Mandatory GitMap Replacement | Rationale |
@@ -112,6 +122,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 | ` + "`findstr`" + ` (Windows CMD) | ` + "`gitmap aum search <pat> [dir] --ext <ext>`" + ` | Eliminates CMD encoding & escaping errors |
 | Raw ` + "`Remove-Item`" + ` / ` + "`rm`" + ` | ` + "`gitmap rm <path> --task <id> --reason <text>`" + ` | Safe removal with backup & undo restoration |
 | Tight polling loop (` + "`while`" + ` / ` + "`sleep`" + `) | ` + "`gitmap pe -t --ai`" + ` / ` + "`gitmap pe -ud`" + ` | Non-blocking telemetry with dynamic ETA |
+| Manual ` + "`.git/config`" + ` identity editing | ` + "`gitmap user switch <alias> --project`" + ` | Safe profile management and project-binding persistence |
 
 ## Authoritative Documentation Registry (For LLM Ingestion)
 

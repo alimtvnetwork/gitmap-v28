@@ -827,6 +827,7 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
 - **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
 - **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
+- **Git Identity & Project Switching:** `gitmap user info` (inspect GitHub CLI auth & active Git user), `gitmap user switch <alias> [--project]` (per-project profile switching)
 
 ### Tier 2: Fast Cached Python Toolchain (FALLBACK)
 - **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`

@@ -15,10 +15,18 @@ type GitProfile struct {
 	LastUsedAt time.Time `json:"lastUsedAt"`
 }
 
-// GitProfileConfig holds all configured Git profiles and active defaults.
+// ProjectBinding associates a repository folder or slug with a Git profile alias.
+type ProjectBinding struct {
+	RepoSlug     string    `json:"repoSlug"`
+	ProfileAlias string    `json:"profileAlias"`
+	BoundAt      time.Time `json:"boundAt"`
+}
+
+// GitProfileConfig holds all configured Git profiles, bindings, and active defaults.
 type GitProfileConfig struct {
-	Profiles  []GitProfile `json:"profiles"`
-	Active    string       `json:"active"`
-	Default   string       `json:"default"`
-	UpdatedAt time.Time    `json:"updatedAt"`
+	Profiles        []GitProfile              `json:"profiles"`
+	Active          string                    `json:"active"`
+	Default         string                    `json:"default"`
+	ProjectBindings map[string]ProjectBinding `json:"projectBindings,omitempty"`
+	UpdatedAt       time.Time                 `json:"updatedAt"`
 }

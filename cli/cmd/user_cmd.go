@@ -10,8 +10,12 @@ import (
 
 // dispatchUser handles the "user" command routing.
 func dispatchUser(command string) (bool, error) {
-	if command != "user" {
+	if command != "user" && command != "user-info" {
 		return false, nil
+	}
+
+	if command == "user-info" {
+		return true, runUserInfo(os.Args[2:])
 	}
 
 	args := os.Args[2:]
@@ -26,8 +30,20 @@ func dispatchUser(command string) (bool, error) {
 
 func dispatchUserSubcommand(sub string, args []string) error {
 	switch sub {
+	case "info", "status":
+		return runUserInfo(args)
+	case "list", "ls":
+		return runUserList(args)
+	case "switch", "use":
+		return runUserSwitch(args)
+	case "project":
+		return runUserProject(args)
+	case "config":
+		return runUserConfig(args)
+	case "sync":
+		return runUserSync(args)
 	case "add":
-		return runUserAdd(args)
+		return routeUserAdd(args)
 	case "rm", "delete", "remove", "del":
 		return runUserRm(args)
 	case "create-root", "root":
@@ -45,6 +61,16 @@ func dispatchUserSubcommand(sub string, args []string) error {
 		cliexit.HandleError(nil, 1)
 		return nil
 	}
+}
+
+func routeUserAdd(args []string) error {
+	hasGitFlags := hasUserFlag(args, "--email") || hasUserFlag(args, "--name")
+	hasPwd := hasUserFlag(args, "--password")
+	if hasGitFlags && !hasPwd {
+		return runUserAddProfile(args)
+	}
+
+	return runUserAdd(args)
 }
 
 func runUserAdd(args []string) error {
@@ -178,10 +204,18 @@ func hasUserFlag(args []string, flag string) bool {
 func printUserUsage() {
 	fmt.Println("Usage: gitmap user <command> [arguments]")
 	fmt.Println()
-	fmt.Println("The user command manages cross-platform OS-level user accounts (Windows, Ubuntu, Debian, Fedora).")
-	fmt.Println("It seamlessly runs the appropriate underlying native commands (e.g. net user, useradd).")
+	fmt.Println("The user command manages Git author profiles, repo bindings, and OS-level accounts.")
 	fmt.Println()
-	fmt.Println("Commands:")
+	fmt.Println("Git Profile & Identity Commands:")
+	fmt.Println("  info, status                                 Show Git and GitHub CLI user context card")
+	fmt.Println("  list, ls                                     List configured Git profiles (* active/bound)")
+	fmt.Println("  switch, use <alias> [--global] [--project]   Switch active profile or bind to project")
+	fmt.Println("  add <alias> --name <n> --email <e>           Register a new Git user profile")
+	fmt.Println("  project [bind <alias>|unbind|status]         Manage per-repository profile bindings")
+	fmt.Println("  config [global|local] [--name <n>] [--email] Inspect or set Git configuration")
+	fmt.Println("  sync                                         Apply bound project profile to local repo")
+	fmt.Println()
+	fmt.Println("Operating System User Commands:")
 	fmt.Println("  add <username> [--password <pwd>]            Create a new OS user")
 	fmt.Println("  create-root <username> [flags]               Create root/sudo user with ZSH & SSH keys")
 	fmt.Println("  rm <username> [--remove-home] [--kill]       Remove an OS user and cleanup sudoers")
@@ -189,8 +223,10 @@ func printUserUsage() {
 	fmt.Println("  add-ssh-key <username> <key-or-file>         Install public SSH key to authorized_keys")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  gitmap user add johndoe")
-	fmt.Println("  gitmap user create-root deployer --password secret --ssh-key 'ssh-ed25519 AAA...'")
-	fmt.Println("  gitmap user rm johndoe")
-	fmt.Println("  gitmap user kill johndoe")
+	fmt.Println("  gitmap user info")
+	fmt.Println("  gitmap user switch work --project")
+	fmt.Println("  gitmap user list")
+	fmt.Println("  gitmap user add work --name 'Alice' --email 'alice@work.com'")
+	fmt.Println("  gitmap user project bind work")
+	fmt.Println("  gitmap user config global --email 'alice@work.com'")
 }

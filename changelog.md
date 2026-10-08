@@ -1,5 +1,19 @@
 # Changelog
 
+## [v6.515.0] - 2026-10-08
+
+### Added
+- multi-user project switching, github cli auth status, and git config manager
+
+---
+
+## [v6.514.0] - 2026-10-08
+
+### Added
+- user - multi-user project switching, github cli auth status, and git config manager
+
+---
+
 ## [v6.513.0] - 2026-10-08
 
 ### Added
