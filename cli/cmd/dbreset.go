@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -46,7 +47,7 @@ func printDbResetNoConfirm() {
 
 // parseDbResetFlags parses the --confirm flag.
 func parseDbResetFlags(args []string) bool {
-	return parseConfirmFlag(constants.CmdDbReset, args)
+	return cmddb.ParseConfirmFlag(constants.CmdDbReset, args)
 }
 
 // executeDbReset opens the database, resets it, and prints confirmation.

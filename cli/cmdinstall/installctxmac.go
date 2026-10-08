@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // runInstallCtxMac generates one Automator Quick Action .workflow
@@ -127,9 +128,9 @@ func macShellFor(e flatCtxEntry, exe string) string {
 	}
 
 	switch e.Mode {
-	case constants.CtxModePrefill:
+	case ctxmodetype.Prefill:
 		return `osascript -e 'tell application "Terminal" to do script "cd \"'"$1"'\" && printf \"gitmap \""' -e 'tell application "Terminal" to activate'`
-	case constants.CtxModeSilent:
+	case ctxmodetype.Silent:
 		announce := ctxExplainAnnounce(target, e.Args)
 
 		return fmt.Sprintf(`cd "$1" && OUT=$(printf %%s '%s'; '%s' %s 2>&1); osascript -e "display notification \"$(echo \"$OUT\" | head -c 200)\" with title \"%s\""`, announce, target, args, e.Label)

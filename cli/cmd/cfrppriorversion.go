@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
@@ -66,7 +67,7 @@ func resolvePriorScanIdentity(absPath string) (string, int) {
 		return "", 0
 	}
 
-	repoName := repoNameFromURL(remoteURL)
+	repoName := cmdclone.RepoNameFromURL(remoteURL)
 	parsed := clonenext.ParseRepoName(repoName)
 	if !parsed.HasVersion {
 		return "", 0

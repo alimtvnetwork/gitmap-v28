@@ -15,13 +15,14 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 )
 
 // runWhoAmI prints the effective git identity + transport + probable
 // auth principal for the current repo, and offers copy-paste fixes.
 // Exits 0 always; this is a diagnostic, never a mutator.
 func runWhoAmI(_ []string) error {
-	isNonGitRepoCWD := !isGitRepoCWD()
+	isNonGitRepoCWD := !cmdpull.IsGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap whoami` inside a repo)")
 

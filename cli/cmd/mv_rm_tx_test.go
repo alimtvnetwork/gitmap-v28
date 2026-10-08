@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -181,7 +182,7 @@ func TestPipelineRecorderAndSyncCacheHelpers(t *testing.T) {
 
 func testRecordRunAndErrorInSplitDb(t *testing.T, pipeDb *pipelinedb.PipelineSplitDb, slug string) {
 	t.Helper()
-	runItem := ghRunItem{
+	runItem := cmdpipeline.GhRunItem{
 		DatabaseId: 991001,
 		Name:       "CI",
 		Status:     "completed",
@@ -191,12 +192,12 @@ func testRecordRunAndErrorInSplitDb(t *testing.T, pipeDb *pipelinedb.PipelineSpl
 		Url:        "https://github.com/test/run/991001",
 	}
 
-	if err := recordRunInSplitDb(pipeDb, slug, runItem); err != nil {
+	if err := cmdpipeline.RecordRunInSplitDb(pipeDb, slug, runItem); err != nil {
 		t.Fatalf("recordRunInSplitDb failed: %v", err)
 	}
 
-	jobs := []FailedJobItem{{StepName: "test-step", FailureSummary: "lint failed"}}
-	saveParsedFailedJobs(pipeDb, slug, runItem, jobs, "raw log output")
+	jobs := []cmdpipeline.FailedJobItem{{StepName: "test-step", FailureSummary: "lint failed"}}
+	cmdpipeline.SaveParsedFailedJobs(pipeDb, slug, runItem, jobs, "raw log output")
 
 	if !pipeDb.HasErrorLog(991001) {
 		t.Errorf("expected error log for run 991001 to exist")

@@ -18,15 +18,9 @@ const (
 	CtxRootMUIVerb       = "gitmap"
 )
 
-// CtxMode controls how an entry is wired into the registry.
-type CtxMode = string
-
-// CtxMode values.
-const (
-	CtxModeTerminal CtxMode = "terminal" // pwsh -NoExit, command runs and window stays open
-	CtxModeSilent   CtxMode = "silent"   // pwsh -WindowStyle Hidden, output via notifier
-	CtxModePrefill  CtxMode = "prefill"  // pwsh -NoExit + writes "gitmap " prompt, no command run
-)
+// CtxMode moved to cli/enums/ctxmodetype (spec 243, Wave D) — see the
+// ctxmodetype.Variant enum. The constants surface keeps no alias; use the
+// enum package directly.
 
 // CtxIconExeToken is the placeholder swapped for the resolved gitmap
 // binary path when an entry's Icon field is rendered into a registry

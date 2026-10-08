@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // runInstallCtxLinux installs the gitmap context menu into Nautilus,
@@ -128,9 +129,9 @@ func linuxShellScript(e flatCtxEntry, exe string) string {
 	echoSh := ctxExplainPrefixSh(target, e.Args)
 	announce := ctxExplainAnnounce(target, e.Args)
 	switch e.Mode {
-	case constants.CtxModePrefill:
+	case ctxmodetype.Prefill:
 		return "#!/bin/sh\n" + cd + "\nx-terminal-emulator -e sh -c 'printf \"gitmap \"; exec $SHELL' &\n"
-	case constants.CtxModeSilent:
+	case ctxmodetype.Silent:
 		return fmt.Sprintf("#!/bin/sh\n%s\n%sOUT=$(printf %%s '%s'; '%s' %s 2>&1)\nnotify-send 'gitmap' \"$(echo \"$OUT\" | head -c 200)\" || echo \"$OUT\"\n", cd, guard, announce, target, args)
 	default:
 		return fmt.Sprintf("#!/bin/sh\n%s\n%sx-terminal-emulator -e sh -c \"%s'%s' %s; exec $SHELL\" &\n", cd, guard, echoSh, target, args)
@@ -185,9 +186,9 @@ func dolphinExec(e flatCtxEntry, exe string) string {
 	echoSh := ctxExplainPrefixSh(target, e.Args)
 	announce := ctxExplainAnnounce(target, e.Args)
 	switch e.Mode {
-	case constants.CtxModePrefill:
+	case ctxmodetype.Prefill:
 		return `cd "%f" && x-terminal-emulator -e sh -c 'printf "gitmap "; exec $SHELL'`
-	case constants.CtxModeSilent:
+	case ctxmodetype.Silent:
 		return fmt.Sprintf(`cd "%%f" && %sOUT=$(printf %%%%s '%s'; '%s' %s 2>&1) && notify-send 'gitmap' "$OUT"`, guard, announce, target, args)
 	default:
 		return fmt.Sprintf(`cd "%%f" && %sx-terminal-emulator -e sh -c "%s'%s' %s; exec $SHELL"`, guard, echoSh, target, args)

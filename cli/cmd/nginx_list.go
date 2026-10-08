@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -50,5 +51,5 @@ func runNginxList(args []string) error {
 		return nil
 	}
 
-	return runVHostList(args)
+	return cmdvhost.RunVHostList(args)
 }

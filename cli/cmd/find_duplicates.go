@@ -6,6 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -16,7 +17,7 @@ func runFindDuplicates(platform string, args []string) error {
 	case "agy", "ag", "antigravity":
 		return cmdagy.RunFindDuplicates()
 	case "vscode", "vsc":
-		return runFindDuplicatesVSCode()
+		return cmdvscode.RunFindDuplicates()
 	case "chrome", "chromeprofile", "chrome-profile":
 		return cmdchromeprofile.RunFindDuplicates()
 	case "git", "repo", "clone":
@@ -58,7 +59,7 @@ func runFindDuplicatesAll() error {
 	fmt.Println("  " + constants.ColorMagenta + "═════════════════════════════════════════════════════════════════════" + constants.ColorReset)
 
 	_ = cmdagy.RunFindDuplicates()
-	_ = runFindDuplicatesVSCode()
+	_ = cmdvscode.RunFindDuplicates()
 	_ = cmdchromeprofile.RunFindDuplicates()
 	_ = runFindDuplicatesGit()
 

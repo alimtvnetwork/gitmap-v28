@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -62,7 +63,7 @@ func withCGDefaults(opts CodingGuidelinesOpts) CodingGuidelinesOpts {
 
 // dispatchCGWindows runs the v24 PowerShell installer with syntax compatibility patching.
 func dispatchCGWindows(opts CodingGuidelinesOpts, hasCustomRunner bool) error {
-	pwsh := resolvePowerShellBinaryWithLookPath(opts.LookPath)
+	pwsh := cmdinstall.ResolvePowerShellBinaryWithLookPath(opts.LookPath)
 	if pwsh == "" {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGShellNotFoundWindows, constants.DefaultCodingGuidelinesURLWindows)
 

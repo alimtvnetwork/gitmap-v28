@@ -22,9 +22,9 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // undoOptions captures parsed CLI flags.
@@ -38,11 +38,11 @@ type undoOptions struct {
 func runUndo(args []string) error {
 	checkHelp(constants.CmdUndo, args)
 	opts := parseUndoArgs(args)
-	identity := resolveFixRepoIdentity()
-	baseDir := filepath.Join(identity.root, constants.GitMapDir,
+	identity := cmdfixrepo.ResolveFixRepoIdentity()
+	baseDir := filepath.Join(identity.Root, constants.GitMapDir,
 		constants.FixRepoBackupSubdir,
-		identity.base+"-v"+strconv.Itoa(identity.current),
-		"v"+strconv.Itoa(identity.current),
+		identity.Base+"-v"+strconv.Itoa(identity.Current),
+		"v"+strconv.Itoa(identity.Current),
 		constants.CmdFixRepo)
 	snapshots := listUndoSnapshots(baseDir)
 	if opts.isList {
@@ -56,7 +56,7 @@ func runUndo(args []string) error {
 		cliexit.HandleError(nil, constants.FixRepoExitBadFlag)
 	}
 
-	restoreUndoSnapshot(filepath.Join(baseDir, chosen), identity.root, opts.isDryRun)
+	restoreUndoSnapshot(filepath.Join(baseDir, chosen), identity.Root, opts.isDryRun)
 
 	return nil
 }
@@ -183,7 +183,7 @@ func walkUndoRestore(snapDir, repoRoot string, files []string, isDryRun bool) (i
 			continue
 		}
 
-		if err := copyFileForBackup(src, dst); err != nil {
+		if err := cmdfixrepo.CopyFileForBackup(src, dst); err != nil {
 			fmt.Fprintf(os.Stderr, constants.UndoMsgRestoreErrFmt, rel, err)
 			failed++
 
@@ -198,20 +198,20 @@ func walkUndoRestore(snapDir, repoRoot string, files []string, isDryRun bool) (i
 }
 
 // readUndoManifest decodes manifest.json. Missing/invalid → false.
-func readUndoManifest(snapDir string) (fixRepoBackupManifest, bool) {
+func readUndoManifest(snapDir string) (cmdfixrepo.FixRepoBackupManifest, bool) {
 	path := filepath.Join(snapDir, constants.FixRepoBackupManifestName)
 	body, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.UndoErrManifestMissingFmt, path, err)
 
-		return fixRepoBackupManifest{}, false
+		return cmdfixrepo.FixRepoBackupManifest{}, false
 	}
 
-	var m fixRepoBackupManifest
+	var m cmdfixrepo.FixRepoBackupManifest
 	if err := json.Unmarshal(body, &m); err != nil {
 		fmt.Fprintf(os.Stderr, constants.UndoErrManifestBadFmt, path, err)
 
-		return fixRepoBackupManifest{}, false
+		return cmdfixrepo.FixRepoBackupManifest{}, false
 	}
 
 	return m, true
@@ -229,22 +229,22 @@ func countUndoFiles(snapDir string) int {
 }
 
 // readUndoManifestQuiet is the noisy-error-free variant used by --list.
-func readUndoManifestQuiet(snapDir string) (fixRepoBackupManifest, bool) {
+func readUndoManifestQuiet(snapDir string) (cmdfixrepo.FixRepoBackupManifest, bool) {
 	path := filepath.Join(snapDir, constants.FixRepoBackupManifestName)
 	f, err := os.Open(path)
 	if err != nil {
-		return fixRepoBackupManifest{}, false
+		return cmdfixrepo.FixRepoBackupManifest{}, false
 	}
 
 	defer f.Close()
 	body, err := io.ReadAll(f)
 	if err != nil {
-		return fixRepoBackupManifest{}, false
+		return cmdfixrepo.FixRepoBackupManifest{}, false
 	}
 
-	var m fixRepoBackupManifest
+	var m cmdfixrepo.FixRepoBackupManifest
 	if err := json.Unmarshal(body, &m); err != nil {
-		return fixRepoBackupManifest{}, false
+		return cmdfixrepo.FixRepoBackupManifest{}, false
 	}
 
 	return m, true

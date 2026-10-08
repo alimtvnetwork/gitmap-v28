@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Fast-Gate Pre-Commit Runner
-Scopes AST linters (relative paths, nested ifs, boolean guidelines) exclusively to staged or modified files.
+Scopes AST linters (relative paths, nested ifs, boolean guidelines) and the
+Go file-size gate (spec 243.4, via 52-file-size-check) exclusively to staged
+or modified files.
 Execution time is <1.5s for fast pre-commit feedback.
 Includes --full fallback to run on all files.
 """
@@ -240,6 +242,26 @@ def check_boolean_guidelines(files: list[str], root_dir: Path) -> list[str]:
     return violations
 
 
+def load_file_size_checker() -> Any:
+    """Loads the spec-243.4 go file-size check module (52-file-size-check)."""
+    try:
+        return import_module("52-file-size-check")
+    except Exception:
+        return None
+
+
+def check_go_file_sizes(files: list[str], root_dir: Path) -> list[str]:
+    """Runs the 500-line go file-size gate on staged cli/ .go files (diff-aware ratchet)."""
+    checker = load_file_size_checker()
+    if not checker:
+        return []
+    go_targets = [f for f in files if f.endswith(".go") and f.startswith("cli/")]
+    if not go_targets:
+        return []
+    violations = checker.check_go_file_sizes(go_targets, root_dir)
+    return [f"{rel}: {count} lines (limit 500)" for rel, count in violations]
+
+
 def print_gate_outcome(name: str, violations: list[str]) -> bool:
     """Prints single quality gate result and returns success status."""
     has_passed = (len(violations) == 0)
@@ -252,13 +274,14 @@ def print_gate_outcome(name: str, violations: list[str]) -> bool:
     return False
 
 
-def print_summary_and_status(p_vios: list[str], n_vios: list[str], b_vios: list[str], start_time: float) -> bool:
-    """Prints status of all three gates and summary duration line."""
+def print_summary_and_status(p_vios: list[str], n_vios: list[str], b_vios: list[str], s_vios: list[str], start_time: float) -> bool:
+    """Prints status of all four gates and summary duration line."""
     p_pass = print_gate_outcome("Relative Paths", p_vios)
     n_pass = print_gate_outcome("Nested Ifs", n_vios)
     b_pass = print_gate_outcome("Boolean Guidelines", b_vios)
+    s_pass = print_gate_outcome("Go File Size", s_vios)
     elapsed = time.perf_counter() - start_time
-    is_all_clean = bool(p_pass and n_pass and b_pass)
+    is_all_clean = bool(p_pass and n_pass and b_pass and s_pass)
     if is_all_clean:
         print(f"\n✔ FastGate passed in {elapsed:.3f}s (<1.5s target). Ready to commit.")
         return True
@@ -287,7 +310,8 @@ def execute_fastgate(args: argparse.Namespace) -> int:
     p_vios = check_relative_paths(files, root_dir)
     n_vios = check_nested_ifs(files, root_dir)
     b_vios = check_boolean_guidelines(files, root_dir)
-    is_success = print_summary_and_status(p_vios, n_vios, b_vios, start_time)
+    s_vios = check_go_file_sizes(files, root_dir)
+    is_success = print_summary_and_status(p_vios, n_vios, b_vios, s_vios, start_time)
     return ExitCodeType.SUCCESS.value if is_success else ExitCodeType.VIOLATIONS_FOUND.value
 
 

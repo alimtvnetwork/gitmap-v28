@@ -8,14 +8,17 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddownload"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdide"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
@@ -49,8 +52,8 @@ func utilityCoreEntries() []dispatchEntry {
 		{[]string{"binary", "info"}, printIdentityLong},
 		{[]string{"error"}, func() error { return runErrorCmd(argsTail()) }},
 		{[]string{constants.CmdUpdate, "ua", "update-all", "updateall", "uaz", "update-all-zip", "updateallzip"}, runUpdateHelp},
-		{[]string{constants.CmdUpdateRunner}, runUpdateRunner},
-		{[]string{constants.CmdUpdateCleanup}, runUpdateCleanup},
+		{[]string{constants.CmdUpdateRunner}, cmdupdate.RunUpdateRunner},
+		{[]string{constants.CmdUpdateCleanup}, cmdupdate.RunUpdateCleanup},
 		{[]string{constants.CmdInstalledDir, constants.CmdInstalledDirAlias}, runInstalledDirHelp},
 		{[]string{constants.CmdRevert}, func() error { return runRevert(argsTail()) }},
 		{[]string{constants.CmdRm, constants.CmdRmAlias, constants.CmdRmAlias2}, func() error { return runRm(argsTail()) }},
@@ -80,7 +83,7 @@ func printVersionBlock() error {
 func runInstalledDirHelp() error {
 	checkHelp("installed-dir", argsTail())
 
-	return runInstalledDir()
+	return cmdinstall.RunInstalledDir()
 }
 
 func extractRemoteUpdateTarget(args []string) (string, []string) {
@@ -151,7 +154,7 @@ func runUpdateHelp() error {
 		return nil
 	}
 
-	return runUpdate()
+	return cmdupdate.RunUpdate()
 }
 
 func applyPinIfRequested(args []string, targetVer string) {
@@ -383,11 +386,11 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{constants.CmdSetSourceRepo}, runSetSourceRepo},
 		{[]string{constants.CmdSf}, func() error { return runSf(argsTail()) }},
 		{[]string{constants.CmdProbe}, func() error { return runProbe(argsTail()) }},
-		{[]string{"vscode", "vsc"}, func() error { return runVSCode(argsTail()) }},
-		{[]string{"ide", "ides"}, func() error { return runIDE(argsTail()) }},
+		{[]string{"vscode", "vsc"}, func() error { return cmdvscode.RunVSCode(argsTail()) }},
+		{[]string{"ide", "ides"}, func() error { return cmdide.RunIDE(argsTail()) }},
 		{[]string{constants.CmdFindNext, constants.CmdFindNextAlias}, func() error { return runFindNext(argsTail()) }},
-		{[]string{constants.CmdVSCodePMPath, constants.CmdVSCodePMPathAlias}, func() error { return runVSCodePMPath(argsTail()) }},
-		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() error { return runVSCodeWorkspace(argsTail()) }},
+		{[]string{constants.CmdVSCodePMPath, constants.CmdVSCodePMPathAlias}, func() error { return cmdvscode.RunVSCodePMPath(argsTail()) }},
+		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() error { return cmdvscode.RunVSCodeWorkspace(argsTail()) }},
 		{[]string{constants.CmdLFSCommon, constants.CmdLFSCommonAlias}, func() error { return runLFSCommon(argsTail()) }},
 		{[]string{constants.CmdReinstall}, func() error { return runReinstall(argsTail()) }},
 		{[]string{"peat", "pea"}, func() error { return runPeatCmd(argsTail()) }},
@@ -407,12 +410,12 @@ func runPeatCmd(args []string) error {
 func utilitySystemEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdPower, constants.CmdPowerAlias, constants.CmdPowerAlias2}, func() error { return runPower(argsTail()) }},
-		{[]string{constants.CmdOS, "linutil"}, func() error { return runOS(argsTail()) }},
-		{[]string{"autologin", "auto-login", "al"}, func() error { return runOS(append([]string{"autologin"}, argsTail()...)) }},
+		{[]string{constants.CmdOS, "linutil"}, func() error { return cmdos.RunOS(argsTail()) }},
+		{[]string{"autologin", "auto-login", "al"}, func() error { return cmdos.RunOS(append([]string{"autologin"}, argsTail()...)) }},
 		{[]string{"zsh"}, func() error { return runZsh(argsTail()) }},
-		{[]string{constants.CmdFixLink, constants.CmdFixLinkAlias, constants.CmdFixLinkAlias2}, func() error { return runOSFixLink(argsTail()) }},
+		{[]string{constants.CmdFixLink, constants.CmdFixLinkAlias, constants.CmdFixLinkAlias2}, func() error { return cmdos.RunOSFixLink(argsTail()) }},
 		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
-		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
+		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return cmdssh.RunSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
 		{[]string{constants.CmdFixCredential, constants.CmdFixCredentialAlias}, func() error { checkHelp("fix-credential", argsTail()); return runFixCredential(argsTail()) }},
 		{[]string{"ai-clean", "aiclean", "clean-ai"}, func() error { return cmdos.RunOSAICleanCLI(argsTail()) }},
@@ -431,17 +434,17 @@ func utilityPipelineEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"pull-fix", "pf"}, func() error { return cmdpull.RunBatchPullFix(argsTail()) }},
 		{[]string{"pipeline-fix", "fix-pipeline", "aef", "agy-errors-fix", "fix-agy"}, func() error { return cmdagy.RunPipelineFixAgyCLI(argsTail()) }},
-		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return runPipelineAI(argsTail()) }},
-		{[]string{"pipeline", "pipelines", "pl"}, func() error { return runPipeline(argsTail()) }},
-		{[]string{"pe", "pipeline-errors", "pipeline_errors", "ee"}, func() error { return runPipelineErrors(argsTail()) }},
-		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return runPipelineDetails(argsTail()) }},
+		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return cmdpipeline.RunPipelineAI(argsTail()) }},
+		{[]string{"pipeline", "pipelines", "pl"}, func() error { return cmdpipeline.RunPipeline(argsTail()) }},
+		{[]string{"pe", "pipeline-errors", "pipeline_errors", "ee"}, func() error { return cmdpipeline.RunPipelineErrors(argsTail()) }},
+		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return cmdpipeline.RunPipelineDetails(argsTail()) }},
 		{[]string{"e", "errors", "internal-errors", "errs"}, func() error { return cmderrors.RunErrorsCLI(argsTail()) }},
 		{[]string{"failed-commands", "failed-command", "fc", "unknown-commands", "unknown-command", "failed-to-detect", "failed-to-detect-commands", "failed-commands-count", "fcc"}, func() error {
 			return cmderrors.RunFailedCommandsWithCmd(os.Args[1], argsTail())
 		}},
-		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},
-		{[]string{"logs", "log"}, func() error { return runPipeline(append([]string{"logs"}, argsTail()...)) }},
-		{[]string{"waittime", "wait-time", "eta"}, func() error { return runPipeline(append([]string{"waittime"}, argsTail()...)) }},
+		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return cmdpipeline.RunPipeline(append([]string{os.Args[1]}, argsTail()...)) }},
+		{[]string{"logs", "log"}, func() error { return cmdpipeline.RunPipeline(append([]string{"logs"}, argsTail()...)) }},
+		{[]string{"waittime", "wait-time", "eta"}, func() error { return cmdpipeline.RunPipeline(append([]string{"waittime"}, argsTail()...)) }},
 		{[]string{"repo"}, func() error { return runRepoCommand(argsTail()) }},
 		{[]string{"ui"}, func() error { return runUI(argsTail()) }},
 	}
@@ -453,9 +456,9 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"paste", "paste-mem"}, func() error { return runPasteCmd(argsTail()) }},
 		{[]string{"explorer", "open-explorer", "folder", "open-folder", "browse-folder"}, func() error { return runExplorerCmd(argsTail()) }},
 		{[]string{"open-url", "browse", "browse-url", "open-browser"}, func() error { return runBrowseCmd(argsTail()) }},
-		{[]string{"cat", "view", "type"}, func() error { return runCatCmd(argsTail()) }},
-		{[]string{"touch"}, func() error { return runTouchCmd(argsTail()) }},
-		{[]string{"mkfile", "create-file"}, func() error { return runMkfileCmd(argsTail()) }},
+		{[]string{"cat", "view", "type"}, func() error { return cmdmacro.RunCatCmd(argsTail()) }},
+		{[]string{"touch"}, func() error { return cmdmacro.RunTouchCmd(argsTail()) }},
+		{[]string{"mkfile", "create-file"}, func() error { return cmdmacro.RunMkfileCmd(argsTail()) }},
 	}
 }
 
@@ -469,14 +472,14 @@ func runHelpDispatch() error {
 		return nil
 	}
 
-	if hasFlag(constants.FlagJSON) {
+	if cmdupdate.HasFlag(constants.FlagJSON) {
 		printUsageJSON(resolveFilterQuery())
 
 		return nil
 	}
 
 	q := resolveFilterQuery()
-	needsFilter := len(q) > 0 || hasFlag(constants.FlagFilter) || hasFlag(constants.FlagFilterShort)
+	needsFilter := len(q) > 0 || cmdupdate.HasFlag(constants.FlagFilter) || cmdupdate.HasFlag(constants.FlagFilterShort)
 	if needsFilter {
 		printUsageFiltered(q)
 

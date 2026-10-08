@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
@@ -105,7 +106,7 @@ func runRollback(args []string) error {
 		cliexit.HandleUsageError(nil)
 	}
 
-	n, err := readChromeBackup(src, ".") // tar.gz extractor reused
+	n, err := cmdchrome.ReadChromeBackup(src, ".") // tar.gz extractor reused
 	if err != nil {
 		return apperror.WrapSimple(err, "rollback: ERROR")
 	}

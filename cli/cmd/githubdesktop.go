@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 )
@@ -48,7 +49,7 @@ func dispatchGHDesktopSubcommand(args []string) error {
 	case "clear", "clean":
 		return runGitHubDesktopClear(args[1:])
 	default:
-		return runGitHubDesktopGroup(args[1:])
+		return cmdvscode.RunGitHubDesktopGroup(args[1:])
 	}
 }
 

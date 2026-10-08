@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -375,7 +376,7 @@ func handleMissingSpecialRepoOnScan(db *store.SpecialReposSplitDB, rec store.Spe
 	if !isAutoAccept {
 		printOneTimeSpecialRepoBanner(rec, targetDir, remoteURL)
 	}
-	if isAutoAccept || !isInteractiveStdin() {
+	if isAutoAccept || !cmddb.IsInteractiveStdin() {
 		return applyAutoSpecialRepoResolution(db, rec, targetDir, remoteURL)
 	}
 	return promptInteractiveSpecialRepoResolution(db, rec, targetDir, remoteURL)

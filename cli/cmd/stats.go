@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
@@ -29,7 +30,7 @@ func isSSHForwardCandidate(args []string) bool {
 // runStats handles the "stats" subcommand.
 func runStats(args []string) error {
 	if isSSHForwardCandidate(args) {
-		return runSSH(args)
+		return cmdssh.RunSSH(args)
 	}
 
 	checkHelp("stats", args)

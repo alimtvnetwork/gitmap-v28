@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -35,10 +36,10 @@ func runRevertRunner() error {
 		cliexit.HandleError(appErr, 1)
 	}
 
-	initRunnerVerbose()
+	cmdupdate.InitRunnerVerbose()
 	fmt.Printf(constants.MsgRevertStarting)
 	executeRevert(repoPath)
-	scheduleDeployedCleanupHandoff()
+	cmdupdate.ScheduleDeployedCleanupHandoff()
 
 	return nil
 }
@@ -65,7 +66,7 @@ func writeRevertScript(repoPath string) (string, error) {
 	runPS1 := filepath.Join(repoPath, "run.ps1")
 	script := buildRevertScript(repoPath, runPS1)
 
-	return writeScriptToTemp(script)
+	return cmdupdate.WriteScriptToTemp(script)
 }
 
 // buildRevertScript generates the PowerShell script content for revert.

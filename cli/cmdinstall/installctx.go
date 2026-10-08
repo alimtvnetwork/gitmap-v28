@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // ctxExplainEnabled is set by runInstallCtx and read by the per-platform
@@ -201,7 +202,7 @@ func resolveCtxIcon(icon, exe string) string {
 // commandTemplate builds the pwsh invocation string baked into a
 // \command key's (Default) value. %V is Explorer's clicked-folder token.
 func commandTemplate(e ctxEntry, exe string) string {
-	if e.Mode == constants.CtxModePrefill {
+	if e.Mode == ctxmodetype.Prefill {
 		return `pwsh -NoExit -NoProfile -Command "Set-Location '%V'; Write-Host -NoNewline 'gitmap '"`
 	}
 
@@ -212,7 +213,7 @@ func commandTemplate(e ctxEntry, exe string) string {
 
 	args := strings.Join(e.Args, " ")
 	prefix := ctxExplainPrefixPwsh(target, e.Args)
-	if e.Mode == constants.CtxModeSilent {
+	if e.Mode == ctxmodetype.Silent {
 		return fmt.Sprintf(`pwsh -NoProfile -WindowStyle Hidden -Command "Set-Location '%%V'; %s& '%s' %s 2>&1 | Out-String | %% { msg.exe * $_ }"`, prefix, target, args)
 	}
 

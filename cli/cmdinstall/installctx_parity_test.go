@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // TestCtxParityWindowsLinuxMacEmitSameLeafSet proves all three
@@ -54,7 +54,7 @@ func TestCtxParityWindowsLinuxMacEmitSameLeafSet(t *testing.T) {
 			// Prefill mode emits a generic pwsh prompt with no target
 			// binary baked in (see commandTemplate in installctx.go) —
 			// matches Linux/macOS branches below which also exempt it.
-			if tu.Mode == string(constants.CtxModePrefill) || strings.Contains(joined, tu.Target) {
+			if tu.Mode == ctxmodetype.Prefill.String() || strings.Contains(joined, tu.Target) {
 				winSlugs[slug] = true
 			}
 		}
@@ -64,10 +64,14 @@ func TestCtxParityWindowsLinuxMacEmitSameLeafSet(t *testing.T) {
 	// script that embeds the resolved target.
 	linSlugs := map[string]bool{}
 	for slug, tu := range canonical {
+		parsedMode, parseErr := ctxmodetype.Parse(tu.Mode)
+		if parseErr != nil {
+			t.Fatalf("invalid ctx mode %q for %s: %v", tu.Mode, slug, parseErr)
+		}
 		fE := flatCtxEntry{Label: slug, Slug: slug, Args: tu.Args,
-			Mode: constants.CtxMode(tu.Mode), Extended: tu.Extended, Exe: targetToExe(tu.Target, exe)}
+			Mode: parsedMode, Extended: tu.Extended, Exe: targetToExe(tu.Target, exe)}
 		body := linuxShellScript(fE, exe)
-		if body != "" && (tu.Mode == string(constants.CtxModePrefill) || strings.Contains(body, tu.Target)) {
+		if body != "" && (tu.Mode == ctxmodetype.Prefill.String() || strings.Contains(body, tu.Target)) {
 			linSlugs[slug] = true
 		}
 	}
@@ -75,10 +79,14 @@ func TestCtxParityWindowsLinuxMacEmitSameLeafSet(t *testing.T) {
 	// macOS view: same contract via macShellFor.
 	macSlugs := map[string]bool{}
 	for slug, tu := range canonical {
+		parsedMode, parseErr := ctxmodetype.Parse(tu.Mode)
+		if parseErr != nil {
+			t.Fatalf("invalid ctx mode %q for %s: %v", tu.Mode, slug, parseErr)
+		}
 		fE := flatCtxEntry{Label: slug, Slug: slug, Args: tu.Args,
-			Mode: constants.CtxMode(tu.Mode), Extended: tu.Extended, Exe: targetToExe(tu.Target, exe)}
+			Mode: parsedMode, Extended: tu.Extended, Exe: targetToExe(tu.Target, exe)}
 		body := macShellFor(fE, exe)
-		if body != "" && (tu.Mode == string(constants.CtxModePrefill) || strings.Contains(body, tu.Target)) {
+		if body != "" && (tu.Mode == ctxmodetype.Prefill.String() || strings.Contains(body, tu.Target)) {
 			macSlugs[slug] = true
 		}
 	}
@@ -140,7 +148,7 @@ func TestCtxFlattenDedupesDuplicateTopLevelEntries(t *testing.T) {
 func TestCtxArgvParityAcrossPlatformRenders(t *testing.T) {
 	exe := fakeGitmapExe(t)
 	for _, l := range collectCtxLeaves(t) {
-		if l.Mode == constants.CtxModePrefill || len(l.Args) == 0 {
+		if l.Mode == ctxmodetype.Prefill || len(l.Args) == 0 {
 			continue
 		}
 

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 )
 
 // RunCommit is the exported entry point for commit and cm.
@@ -24,7 +25,7 @@ func runCommit(args []string) error {
 
 func dispatchCommit(args []string) error {
 	cleanArgs, hasPush, isDryRun := parseCommitFlags(args)
-	if !isGitRepoCWD() {
+	if !cmdpull.IsGitRepoCWD() {
 		return handleNonGitRepoCommit(cleanArgs, hasPush, isDryRun)
 	}
 

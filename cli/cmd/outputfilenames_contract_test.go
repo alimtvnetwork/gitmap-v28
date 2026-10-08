@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonefrom"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/errreport"
 )
@@ -126,7 +127,7 @@ func TestResolveOutFile_Precedence(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.label, func(t *testing.T) {
-			got := resolveOutFile(tc.outFile, tc.outputDir, tc.defaultName)
+			got := cmdscan.ResolveOutFile(tc.outFile, tc.outputDir, tc.defaultName)
 			if got != tc.want {
 				t.Fatalf("resolveOutFile(%q,%q,%q) = %q, want %q",
 					tc.outFile, tc.outputDir, tc.defaultName, got, tc.want)

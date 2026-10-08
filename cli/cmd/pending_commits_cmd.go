@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
@@ -224,7 +225,7 @@ func isPendingCommitDisplayed(item RepoPendingCommitRecord, isDirtyOnly bool) bo
 }
 
 func resolveWorkspaceRepositories(cwd string) []model.ScanRecord {
-	targets := ResolvePullDirectoryTargets(cwd)
+	targets := cmdpull.ResolvePullDirectoryTargets(cwd)
 	if len(targets) > 0 {
 		return targets
 	}

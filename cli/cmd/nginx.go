@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -24,13 +26,13 @@ func runNginx(args []string) error {
 func dispatchNginxVHostManage(sub string, rest []string) (bool, error) {
 	switch sub {
 	case "create", "add", "new":
-		return true, runVHostCreate(rest)
+		return true, cmdvhost.RunVHostCreate(rest)
 	case "rm", "remove", "delete", "del":
-		return true, runNginxRm(rest)
+		return true, cmdvhost.RunVHostRm(rest)
 	case "enable", "en":
-		return true, runVHostEnable(rest)
+		return true, cmdvhost.RunVHostEnable(rest)
 	case "disable", "dis":
-		return true, runVHostDisable(rest)
+		return true, cmdvhost.RunVHostDisable(rest)
 	default:
 		return false, nil
 	}
@@ -39,7 +41,7 @@ func dispatchNginxVHostManage(sub string, rest []string) (bool, error) {
 func dispatchNginxVHostSubcommand(sub string, rest []string) (bool, error) {
 	switch sub {
 	case "vhost", "vh":
-		return true, runVHost(rest)
+		return true, cmdvhost.RunVHost(rest)
 	case "list", "ls":
 		return true, runNginxList(rest)
 	case "ini", "inishowcase", "showcase":
@@ -52,11 +54,11 @@ func dispatchNginxVHostSubcommand(sub string, rest []string) (bool, error) {
 func dispatchNginxOpsSubcommand(sub string, rest []string) (bool, error) {
 	switch sub {
 	case "test", "t", "check":
-		return true, runVHostTest(rest)
+		return true, cmdvhost.RunVHostTest(rest)
 	case "reload", "r", "restart":
-		return true, runVHostReload(rest)
+		return true, cmdvhost.RunVHostReload(rest)
 	case "install", "in":
-		return true, runInstall(append([]string{constants.ToolNginx}, rest...))
+		return true, cmdinstall.RunInstall(append([]string{constants.ToolNginx}, rest...))
 	default:
 		return false, nil
 	}
@@ -113,7 +115,7 @@ func runNginxStatus() error {
 
 func printNginxDetails(path string) {
 	fmt.Printf("  Nginx Binary: %s\n", path)
-	version := getInstalledVersion("nginx")
+	version := cmdinstall.GetInstalledVersion("nginx")
 	if version != "" {
 		fmt.Printf("  Version: %s\n", version)
 	}

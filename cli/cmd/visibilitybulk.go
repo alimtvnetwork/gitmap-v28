@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -101,7 +102,7 @@ func resolveCurrentRepoBaseAndVersion() (string, int) {
 // slug, or a bare `repo[-vN]` and returns (base, version). Version
 // defaults to 1 when absent (single-repo flip).
 func extractBaseAndVersionFromArg(arg string) (string, int) {
-	repo := repoNameFromURL(arg)
+	repo := cmdclone.RepoNameFromURL(arg)
 	if len(repo) == 0 {
 		repo = arg
 	}

@@ -36,7 +36,7 @@ func checkUninstallEligibility(db *store.DB, tool, canonical string, force bool)
 }
 
 func dispatchUninstallExecution(db *store.DB, tool, canonical string, dryRun, purge bool) error {
-	if isCustomStandaloneTool(tool) || isCustomStandaloneTool(canonical) {
+	if cmdinstall.CheckCustomStandaloneTool(tool) || cmdinstall.CheckCustomStandaloneTool(canonical) {
 		return executeCustomUninstall(db, tool, canonical, dryRun, purge)
 	}
 	return executeStandardUninstall(db, tool, dryRun, purge)
@@ -47,7 +47,7 @@ func executeCustomUninstall(db *store.DB, tool, canonical string, dryRun, purge 
 		fmt.Printf("  [dry-run] Would uninstall custom tool %s\n", tool)
 		return nil
 	}
-	if err := uninstallCustomTool(canonical, purge); err != nil {
+	if err := cmdinstall.UninstallCustomTool(canonical, purge); err != nil {
 		return err
 	}
 	cleanLegacyDBRecords(db, tool, canonical)

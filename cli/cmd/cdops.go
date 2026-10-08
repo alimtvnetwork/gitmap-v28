@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -48,7 +50,7 @@ func dispatchCDPath(name string, records []model.ScanRecord, rest []string, pick
 
 	fmt.Print(path)
 	WriteShellHandoff(path)
-	warnIfNoWrapper()
+	cmdsetup.WarnIfNoWrapper()
 
 	return nil
 }
@@ -106,7 +108,7 @@ func findCDRecords(db *store.DB, name string) []model.ScanRecord {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not list repos: %v\n", listErr)
 	}
 
-	return deduplicateCDRecords(findBySlug(all, cleanName))
+	return deduplicateCDRecords(cmdpull.FindBySlug(all, cleanName))
 }
 
 func deduplicateCDRecords(records []model.ScanRecord) []model.ScanRecord {

@@ -14,6 +14,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -134,7 +135,7 @@ func isRepoCollisionOutput(output string) bool {
 }
 
 func isTerminalStdinInteractive() bool {
-	if !isInteractiveStdin() {
+	if !cmddb.IsInteractiveStdin() {
 		return false
 	}
 

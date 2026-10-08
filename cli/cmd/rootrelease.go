@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -14,7 +15,7 @@ func releaseDispatchEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdRelease, constants.CmdReleaseShort}, func() error { return runRelease(argsTail()) }},
 		{[]string{constants.CmdReleasePull, constants.CmdReleasePullAlias, constants.CmdReleasePullAlias2, constants.CmdReleasePullAlias3, constants.CmdReleasePullAlias4}, func() error { return runReleasePull(argsTail()) }},
-		{[]string{constants.CmdPullReleaseCD, constants.CmdPullReleaseCDAlias}, func() error { return runPullReleaseCD(argsTail()) }},
+		{[]string{constants.CmdPullReleaseCD, constants.CmdPullReleaseCDAlias}, func() error { return cmdpull.RunPullReleaseCD(argsTail()) }},
 		{
 			[]string{constants.CmdReleaseSelf, constants.CmdReleaseSelfAlias, constants.CmdReleaseSelfAlias2},
 			func() error { return runReleaseSelf(argsTail()) },

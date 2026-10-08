@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -20,13 +21,13 @@ func runSetSourceRepo() error {
 	}
 
 	path := args[0]
-	normalized := normalizeRepoPath(path)
+	normalized := cmdupdate.NormalizeRepoPath(path)
 	if len(normalized) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrSetSourceRepoInvalid, path)
 		cliexit.HandleError(nil, 1)
 	}
 
-	saveRepoPathToDB(normalized)
+	cmdupdate.SaveRepoPathToDB(normalized)
 	fmt.Printf(constants.MsgSetSourceRepoDone, normalized)
 
 	return nil

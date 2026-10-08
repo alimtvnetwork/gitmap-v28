@@ -3,6 +3,7 @@ package cmd
 import (
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -104,11 +105,11 @@ func TestCheckUninstallEligibilityErrorFormatting(t *testing.T) {
 func TestIsCustomStandaloneTool(t *testing.T) {
 	customTools := []string{"agy", "antigravity", "ag-manager", "scripts-fixer", "coding-guidelines", "macro-ahk"}
 	for _, tool := range customTools {
-		if !isCustomStandaloneTool(tool) {
+		if !cmdinstall.CheckCustomStandaloneTool(tool) {
 			t.Errorf("expected %s to be recognized as custom standalone tool", tool)
 		}
 	}
-	if isCustomStandaloneTool("git") {
+	if cmdinstall.CheckCustomStandaloneTool("git") {
 		t.Errorf("expected git to NOT be recognized as custom standalone tool")
 	}
 }

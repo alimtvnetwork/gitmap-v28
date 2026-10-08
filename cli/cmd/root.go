@@ -17,9 +17,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
@@ -72,13 +74,13 @@ func Run() {
 	// (and flip the env var) before any subcommand sees its flagset.
 	// Done first so even URL-shortcut and alias rewrites operate on
 	// already-cleaned args.
-	os.Args = append(os.Args[:1], stripVSCodeSyncDisabledFlag(os.Args[1:])...)
+	os.Args = append(os.Args[:1], cmdvscode.StripVSCodeSyncDisabledFlag(os.Args[1:])...)
 	// Strip the global tag-customization flags too, persisting their
 	// values into GITMAP_VSCODE_TAG_{ADD,SKIP,MARKER} so every
 	// DetectTagsCustom caller — present and future — picks them up.
-	os.Args = append(os.Args[:1], stripVSCodeTagFlags(os.Args[1:])...)
+	os.Args = append(os.Args[:1], cmdvscode.StripVSCodeTagFlags(os.Args[1:])...)
 	// Strip global `--ai` execution recording flag and track in env.
-	os.Args = append(os.Args[:1], stripAiFlag(os.Args[1:])...)
+	os.Args = append(os.Args[:1], cmdai.StripAiFlag(os.Args[1:])...)
 	if len(os.Args) < 2 {
 		printUsageCompact()
 
@@ -861,8 +863,8 @@ func dispatchAgySubsystem(
 		"rwi", "rerun-with-id",
 		"rwc", "rerun-with-convid", "rwp", "rerun-with-prompt-id",
 		"telegram", "email", "settings":
-		cmdagy.MachineCLIRunner = func(a []string) error { return RunOSCLI(append([]string{"machine"}, a...)) }
-		cmdagy.AliasCLIRunner = func(a []string) error { return RunOSCLI(append([]string{"alias"}, a...)) }
+		cmdagy.MachineCLIRunner = func(a []string) error { return cmdos.RunOSCLI(append([]string{"machine"}, a...)) }
+		cmdagy.AliasCLIRunner = func(a []string) error { return cmdos.RunOSCLI(append([]string{"alias"}, a...)) }
 		executeAndAudit(cmdagy.DispatchAgy, shouldAudit, auditID, auditStart)
 
 		return true

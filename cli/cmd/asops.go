@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -88,7 +89,7 @@ func updateAsAliasAndReturn(db *store.DB, name string, repoID int64, rec model.S
 
 	fmt.Printf(constants.MsgAsUpdatedFmt, name, rec.RepoName, rec.AbsolutePath)
 	fmt.Printf(constants.MsgAsHintNext, name)
-	renameVSCodePMByPath(rec.AbsolutePath, name)
+	cmdvscode.RenameVSCodePMByPath(rec.AbsolutePath, name)
 
 	return nil
 }
@@ -100,7 +101,7 @@ func createAsAliasAndReturn(db *store.DB, name string, repoID int64, rec model.S
 
 	fmt.Printf(constants.MsgAsRegisteredFmt, rec.RepoName, name, rec.AbsolutePath)
 	fmt.Printf(constants.MsgAsHintNext, name)
-	renameVSCodePMByPath(rec.AbsolutePath, name)
+	cmdvscode.RenameVSCodePMByPath(rec.AbsolutePath, name)
 
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -36,7 +37,7 @@ func runOpen(args []string) error {
 // root), and falls back to plain cwd when git isn't available or the folder isn't a repo.
 func resolveOpenTarget(args []string) (string, error) {
 	if len(args) > 0 && args[0] != "" {
-		expanded := expandTilde(args[0])
+		expanded := cmdupdate.ExpandTilde(args[0])
 		resolved := resolveEndpointString(expanded)
 
 		return filepath.Abs(resolved)

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -195,7 +196,7 @@ func runBackupCloudRestore(args []string) error {
 		return resolveErr
 	}
 
-	if !confirmOrSkip("Restore snapshot '"+target+"'? This replaces local databases.", args) {
+	if !cmddb.ConfirmOrSkip("Restore snapshot '"+target+"'? This replaces local databases.", args) {
 		fmt.Println("  Restore aborted.")
 
 		return nil
@@ -227,7 +228,7 @@ func resolveSnapshotTarget(snapsDir string, args []string) (string, error) {
 		return pickSnapshotByNameOrIndex(entries, targetArg)
 	}
 
-	if !isInteractiveStdin() {
+	if !cmddb.IsInteractiveStdin() {
 		return entries[len(entries)-1].Name(), nil // default to latest
 	}
 
@@ -320,7 +321,7 @@ func runBackupCloudRemove(args []string) error {
 		return resolveErr
 	}
 
-	if !confirmOrSkip("Delete cloud backup snapshot '"+target+"'?", args) {
+	if !cmddb.ConfirmOrSkip("Delete cloud backup snapshot '"+target+"'?", args) {
 		fmt.Println("  Aborted.")
 
 		return nil

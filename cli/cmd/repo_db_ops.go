@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/repodb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -58,7 +59,7 @@ func printRepoSplitStats(stats repoSplitStats) {
 	fmt.Println(constants.ColorCyan + "● Repository Split Database Summary:" + constants.ColorReset)
 	fmt.Printf("  • %-20s %s (ID: %d)\n", "Repository:", stats.RepoSlug, stats.RepoID)
 	fmt.Printf("  • %-20s %s\n", "Database File:", stats.Path)
-	fmt.Printf("  • %-20s %s\n", "File Size:", formatBytes(stats.Size))
+	fmt.Printf("  • %-20s %s\n", "File Size:", cmddb.FormatBytes(stats.Size))
 	fmt.Printf("  • %-20s %d\n", "Indexed Files:", stats.RepoFiles)
 	fmt.Printf("  • %-20s %d\n", "Cached Searches:", stats.SearchCache)
 	fmt.Printf("  • %-20s %d\n", "File Sequences:", stats.FileSeqs)
@@ -177,7 +178,7 @@ func handleRepoDBClear(args []string) error {
 	defer db.Close()
 
 	msg := fmt.Sprintf("Clear search index and cache for %s? [y/N]: ", slug)
-	if !confirmOrSkip(msg, args) {
+	if !cmddb.ConfirmOrSkip(msg, args) {
 		fmt.Println("Clear operation canceled.")
 
 		return nil
@@ -201,7 +202,7 @@ func handleRepoDBReset(args []string) error {
 	defer db.Close()
 
 	msg := fmt.Sprintf("Reset repository schema for %s? [y/N]: ", slug)
-	if !confirmOrSkip(msg, args) {
+	if !cmddb.ConfirmOrSkip(msg, args) {
 		fmt.Println("Reset operation canceled.")
 
 		return nil
@@ -230,7 +231,7 @@ func handleRepoDBOptimize(args []string) error {
 	}
 
 	fmt.Printf("%s✓ Repository split DB optimized for %s.%s Reclaimed: %s (%s)\n",
-		constants.ColorGreen, slug, constants.ColorReset, formatBytes(reclaimed), path)
+		constants.ColorGreen, slug, constants.ColorReset, cmddb.FormatBytes(reclaimed), path)
 
 	return nil
 }

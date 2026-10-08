@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsupabase"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -54,8 +56,8 @@ func dataProfileEntries() []dispatchEntry {
 func dataDatabaseEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdDBReset}, func() error { return runDBReset(argsTail()) }},
-		{[]string{constants.CmdDB}, func() error { return runDB(argsTail()) }},
-		{[]string{constants.CmdStartFresh}, func() error { return runStartFresh(argsTail()) }},
+		{[]string{constants.CmdDB}, func() error { return cmddb.RunDB(argsTail()) }},
+		{[]string{constants.CmdStartFresh}, func() error { return cmddb.RunStartFresh(argsTail()) }},
 		{[]string{constants.CmdFindDuplicates, constants.CmdFindDuplicatesAlias, constants.CmdFindDuplicatesAlias2}, func() error { return runFindDuplicates("", argsTail()) }},
 		{[]string{constants.CmdReset}, func() error { return runReset(argsTail()) }},
 		{[]string{constants.CmdDBMigrate, constants.CmdDBMigrateAlias}, func() error { return runDBMigrate(argsTail()) }},
@@ -90,6 +92,6 @@ func dataExecutionEntries() []dispatchEntry {
 		{[]string{constants.CmdStartup, constants.CmdStartupAlias}, func() error { return RunStartupCmd(argsTail()) }},
 		{[]string{constants.CmdAsync, constants.CmdAsyncAlias}, func() error { return RunAsyncCmd(argsTail()) }},
 		{[]string{constants.CmdStorage, constants.CmdStorageAlias}, func() error { return RunStorageCmd(argsTail()) }},
-		{[]string{"schedule", "sc", "crontab", "cron"}, func() error { return runSchedule(argsTail()) }},
+		{[]string{"schedule", "sc", "crontab", "cron"}, func() error { return cmdschedule.RunSchedule(argsTail()) }},
 	}
 }

@@ -15,6 +15,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 )
 
 func TestExpandHome(t *testing.T) {
@@ -72,7 +74,7 @@ func TestExpandHome(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := expandHome(tc.in)
+			got := cmdscan.ExpandHome(tc.in)
 			tc.validate(t, got)
 		})
 	}

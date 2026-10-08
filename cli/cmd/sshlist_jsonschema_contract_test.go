@@ -11,6 +11,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -62,7 +63,7 @@ func TestSSHListJSONSchema_EncoderMatchesSchema(t *testing.T) {
 
 	records := []model.SSHKey{canonicalSSHKey()}
 	var buf bytes.Buffer
-	if err := encodeSSHListJSON(&buf, records); err != nil {
+	if err := cmdssh.EncodeSSHListJSON(&buf, records); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
 

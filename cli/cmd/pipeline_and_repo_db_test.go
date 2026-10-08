@@ -3,36 +3,39 @@ package cmd
 import (
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 )
 
 func TestPipelineDBDispatch(t *testing.T) {
 	// 1. Status
-	if err := handlePipelineDB([]string{"status"}); err != nil {
+	if err := cmdpipeline.HandlePipelineDB([]string{"status"}); err != nil {
 		t.Fatalf("pipeline db status failed: %v", err)
 	}
 
 	// 2. Status JSON
-	if err := handlePipelineDB([]string{"status", "--json"}); err != nil {
+	if err := cmdpipeline.HandlePipelineDB([]string{"status", "--json"}); err != nil {
 		t.Fatalf("pipeline db status --json failed: %v", err)
 	}
 
 	// 3. Error logs
-	if err := handlePipelineDB([]string{"error-logs"}); err != nil {
+	if err := cmdpipeline.HandlePipelineDB([]string{"error-logs"}); err != nil {
 		t.Fatalf("pipeline db error-logs failed: %v", err)
 	}
 
 	// 4. Optimize
-	if err := handlePipelineDB([]string{"optimize"}); err != nil {
+	if err := cmdpipeline.HandlePipelineDB([]string{"optimize"}); err != nil {
 		t.Fatalf("pipeline db optimize failed: %v", err)
 	}
 
 	// 5. Help
-	if err := handlePipelineDB([]string{"help"}); err != nil {
+	if err := cmdpipeline.HandlePipelineDB([]string{"help"}); err != nil {
 		t.Fatalf("pipeline db help failed: %v", err)
 	}
 
 	// 6. Unknown subcommand error check
-	err := handlePipelineDB([]string{"unknown-sub"})
+	err := cmdpipeline.HandlePipelineDB([]string{"unknown-sub"})
 	if err == nil || !strings.Contains(err.Error(), "unknown pipeline db subcommand") {
 		t.Fatalf("expected unknown subcommand error, got %v", err)
 	}
@@ -71,15 +74,15 @@ func TestRepoDBDispatch(t *testing.T) {
 }
 
 func TestDBStatusAndOptimizeDispatch(t *testing.T) {
-	if err := runDB([]string{"status"}); err != nil {
+	if err := cmddb.RunDB([]string{"status"}); err != nil {
 		t.Fatalf("gitmap db status failed: %v", err)
 	}
 
-	if err := runDB([]string{"status", "--json"}); err != nil {
+	if err := cmddb.RunDB([]string{"status", "--json"}); err != nil {
 		t.Fatalf("gitmap db status --json failed: %v", err)
 	}
 
-	if err := runDB([]string{"optimize"}); err != nil {
+	if err := cmddb.RunDB([]string{"optimize"}); err != nil {
 		t.Fatalf("gitmap db optimize failed: %v", err)
 	}
 }

@@ -15,6 +15,7 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -22,7 +23,7 @@ import (
 func TestSSHListJSONContract_EmptyIsArrayNotNull(t *testing.T) {
 	assertGoldenBytesDeterministic(t, "ssh_list_empty.json", func() ([]byte, error) {
 		var buf bytes.Buffer
-		err := encodeSSHListJSON(&buf, nil)
+		err := cmdssh.EncodeSSHListJSON(&buf, nil)
 
 		return buf.Bytes(), err
 	})
@@ -46,7 +47,7 @@ func canonicalSSHKey() model.SSHKey {
 func TestSSHListJSONContract_CanonicalRow_KeyOrder(t *testing.T) {
 	records := []model.SSHKey{canonicalSSHKey()}
 	var buf bytes.Buffer
-	if err := encodeSSHListJSON(&buf, records); err != nil {
+	if err := cmdssh.EncodeSSHListJSON(&buf, records); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
 

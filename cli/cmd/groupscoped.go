@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -16,7 +17,7 @@ func runActiveGroupPull() error {
 	records := loadRecordsByGroup(name)
 
 	for _, r := range records {
-		pullOneRepo(r)
+		cmdpull.PullOneRepo(r)
 	}
 
 	return nil

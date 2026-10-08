@@ -6,24 +6,25 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 )
 
 func TestInstallCommandInvocations(t *testing.T) {
 	// 1. gitmap install (no args) -> should succeed cleanly with instructions
-	err := runInstall([]string{})
+	err := cmdinstall.RunInstall([]string{})
 	if err != nil {
 		t.Errorf("expected runInstall with no args to return nil usage guide, got %v", err)
 	}
 
 	// 2. gitmap install --list
-	err = runInstall([]string{"--list"})
+	err = cmdinstall.RunInstall([]string{"--list"})
 	if err != nil {
 		t.Errorf("expected runInstall --list to succeed, got %v", err)
 	}
 
 	// 3. gitmap install ls
-	err = runInstall([]string{"ls"})
+	err = cmdinstall.RunInstall([]string{"ls"})
 	if err != nil {
 		t.Errorf("expected runInstall ls to succeed, got %v", err)
 	}
@@ -34,57 +35,57 @@ func TestPipelineCommandInvocations(t *testing.T) {
 	cmdpipeline.PipelineAgyFixRunner = nil
 	defer func() { cmdpipeline.PipelineAgyFixRunner = origRunner }()
 	// 1. gitmap pipeline (default status)
-	err := runPipeline([]string{})
+	err := cmdpipeline.RunPipeline([]string{})
 	if err != nil {
 		t.Errorf("expected runPipeline() to succeed, got %v", err)
 	}
 
 	// 2. gitmap pipeline status --json
-	err = runPipeline([]string{"status", "--json"})
+	err = cmdpipeline.RunPipeline([]string{"status", "--json"})
 	if err != nil {
 		t.Errorf("expected runPipeline status --json to succeed, got %v", err)
 	}
 
 	// 3. gitmap pipeline waittime & eta
-	err = runPipeline([]string{"waittime"})
+	err = cmdpipeline.RunPipeline([]string{"waittime"})
 	if err != nil {
 		t.Errorf("expected runPipeline waittime to succeed, got %v", err)
 	}
 
-	err = runPipeline([]string{"eta"})
+	err = cmdpipeline.RunPipeline([]string{"eta"})
 	if err != nil {
 		t.Errorf("expected runPipeline eta to succeed, got %v", err)
 	}
 
 	// 4. gitmap pipeline error-logs
-	err = runPipeline([]string{"error-logs"})
+	err = cmdpipeline.RunPipeline([]string{"error-logs"})
 	if err != nil {
 		t.Errorf("expected runPipeline error-logs to succeed, got %v", err)
 	}
 
 	// 5. gitmap pipeline error-logs --json
-	err = runPipeline([]string{"error-logs", "--json"})
+	err = cmdpipeline.RunPipeline([]string{"error-logs", "--json"})
 	if err != nil {
 		t.Errorf("expected runPipeline error-logs --json to succeed, got %v", err)
 	}
 
 	// 6. gitmap pipeline error-logs --tempfile
 	tempFile := "test-ci-err.json"
-	err = runPipeline([]string{"error-logs", "--json", "--tempfile", tempFile})
+	err = cmdpipeline.RunPipeline([]string{"error-logs", "--json", "--tempfile", tempFile})
 	if err != nil {
 		t.Errorf("expected runPipeline error-logs --tempfile to succeed, got %v", err)
 	}
 
-	defer os.Remove(filepath.Join(resolveTempDir(), tempFile))
+	defer os.Remove(filepath.Join(cmdpipeline.ResolveTempDir(), tempFile))
 
 	// 7. gitmap pipeline help
-	err = runPipeline([]string{"help"})
+	err = cmdpipeline.RunPipeline([]string{"help"})
 	if err != nil {
 		t.Errorf("expected runPipeline help to succeed, got %v", err)
 	}
 
 	// 8. gitmap pipeline logs
-	err = runPipeline([]string{"logs"})
+	err = cmdpipeline.RunPipeline([]string{"logs"})
 	if err != nil {
 		t.Errorf("expected runPipeline logs to succeed, got %v", err)
 	}
@@ -96,19 +97,19 @@ func TestTopLevelErrorLogsAndLogs(t *testing.T) {
 	defer func() { cmdpipeline.PipelineAgyFixRunner = origRunner }()
 
 	// Top-level error-logs invocation
-	err := runPipeline([]string{"error-logs"})
+	err := cmdpipeline.RunPipeline([]string{"error-logs"})
 	if err != nil {
 		t.Errorf("expected top-level error-logs to succeed, got %v", err)
 	}
 
 	// Top-level logs invocation
-	err = runPipeline([]string{"logs"})
+	err = cmdpipeline.RunPipeline([]string{"logs"})
 	if err != nil {
 		t.Errorf("expected top-level logs to succeed, got %v", err)
 	}
 
 	// Top-level waittime invocation
-	err = runPipeline([]string{"waittime"})
+	err = cmdpipeline.RunPipeline([]string{"waittime"})
 	if err != nil {
 		t.Errorf("expected top-level waittime to succeed, got %v", err)
 	}
@@ -119,25 +120,25 @@ func TestTopLevelPipelineErrorsShortcut(t *testing.T) {
 	cmdpipeline.PipelineAgyFixRunner = nil
 	defer func() { cmdpipeline.PipelineAgyFixRunner = origRunner }()
 
-	if err := runPipelineErrors([]string{"--json"}); err != nil {
+	if err := cmdpipeline.RunPipelineErrors([]string{"--json"}); err != nil {
 		t.Errorf("expected runPipelineErrors --json to succeed, got %v", err)
 	}
-	if err := runPipeline([]string{"pe", "--json"}); err != nil {
+	if err := cmdpipeline.RunPipeline([]string{"pe", "--json"}); err != nil {
 		t.Errorf("expected runPipeline pe --json to succeed, got %v", err)
 	}
-	if err := runPipelineErrors([]string{"clear", "-y"}); err != nil {
+	if err := cmdpipeline.RunPipelineErrors([]string{"clear", "-y"}); err != nil {
 		t.Errorf("expected runPipelineErrors clear -y to succeed, got %v", err)
 	}
 }
 
 func TestTopLevelPipelineDetailsShortcut(t *testing.T) {
-	if err := runPipelineDetails([]string{"--json"}); err != nil {
+	if err := cmdpipeline.RunPipelineDetails([]string{"--json"}); err != nil {
 		t.Errorf("expected runPipelineDetails --json to succeed, got %v", err)
 	}
-	if err := runPipeline([]string{"pd", "--json"}); err != nil {
+	if err := cmdpipeline.RunPipeline([]string{"pd", "--json"}); err != nil {
 		t.Errorf("expected runPipeline pd --json to succeed, got %v", err)
 	}
-	if err := runPipeline([]string{"details", "--json"}); err != nil {
+	if err := cmdpipeline.RunPipeline([]string{"details", "--json"}); err != nil {
 		t.Errorf("expected runPipeline details --json to succeed, got %v", err)
 	}
 }
@@ -176,7 +177,7 @@ func TestBuildErrorLogsPayloadWithFallback(t *testing.T) {
 	_ = os.WriteFile(".gitmap/last_error.log", []byte("sample local test error"), 0644)
 	defer os.Remove(".gitmap/last_error.log")
 
-	payload := buildErrorLogsPayload("test-repo", []ghRunItem{})
+	payload := cmdpipeline.BuildErrorLogsPayload("test-repo", []cmdpipeline.GhRunItem{})
 	if !strings.Contains(payload.ErrorLogs, "sample local test error") {
 		t.Errorf("expected local error fallback in payload, got %s", payload.ErrorLogs)
 	}

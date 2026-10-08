@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -27,7 +28,7 @@ func runReset(args []string) error {
 	}
 
 	if opts.IsRescan && !opts.IsDryRun {
-		_ = runRescan()
+		_ = cmdscan.RunRescan()
 	}
 
 	return nil

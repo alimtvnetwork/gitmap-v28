@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // flatCtxEntry is the macOS/Linux representation of a menu item — those
@@ -14,7 +15,7 @@ type flatCtxEntry struct {
 	Label    string   // "gitmap: Release — Release next (bump minor)"
 	Slug     string   // filesystem-safe id derived from label, "gitmap-release-release-next"
 	Args     []string // {"release", "--bump", "minor"}
-	Mode     constants.CtxMode
+	Mode     ctxmodetype.Variant
 	Exe      string // override executable; empty => use the gitmap binary
 	Extended bool   // power-user action: confirm-gated on macOS/Linux (Shift+click on Windows)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -46,7 +47,7 @@ func printHistoryResetNoConfirm() {
 
 // parseHistoryResetFlags parses the --confirm flag.
 func parseHistoryResetFlags(args []string) bool {
-	return parseConfirmFlag(constants.CmdHistoryReset, args)
+	return cmddb.ParseConfirmFlag(constants.CmdHistoryReset, args)
 }
 
 // executeHistoryReset opens the database and clears all history.

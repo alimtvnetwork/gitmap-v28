@@ -19,6 +19,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 )
 
 // selfInstallOpts holds parsed flags for self-install.
@@ -83,7 +84,7 @@ func autoRunSetupAfterInstall() {
 	}()
 	fmt.Print(constants.MsgSelfInstallRunningSetup)
 	setupArgs := []string{"--skip-zsh"}
-	runSetup(setupArgs)
+	cmdsetup.RunSetup(setupArgs)
 }
 
 // acquireSelfInstallLock takes the duplicate-install guard.

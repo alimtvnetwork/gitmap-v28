@@ -17,6 +17,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fixtureversion"
 )
 
@@ -80,7 +81,7 @@ func TestFixRepoRewriteV9ToV12Fixture(t *testing.T) {
 		})
 	path := writeV9Fixture(t)
 
-	count, err := rewriteFixRepoFile(path, base, current, []int{target}, false)
+	count, err := cmdfixrepo.RewriteFixRepoFile(path, base, current, []int{target}, false)
 	if err != nil {
 		t.Fatalf("rewriteFixRepoFile: %v", err)
 	}
@@ -149,7 +150,7 @@ func assertDashFormBumped(t *testing.T, got, base string, target, current, count
 // predicate (e.g. supporting non-ASCII digits) automatically
 // propagates here. See fixrepo_rewrite_scan.go for the contract.
 func countUnguardedHits(body, token string) int {
-	return CountUnguardedTokenHits(body, token)
+	return cmdfixrepo.CountUnguardedTokenHits(body, token)
 }
 
 // assertGuardedNeighborPreserved locks the negative-lookahead guard:
@@ -254,7 +255,7 @@ func renderUnguardedHitContext(body, token string) string {
 // the rewriter's actual substitution decision use byte-identical
 // predicates. See fixrepo_rewrite_scan.go.
 func unguardedHitOffsets(body, token string) []int {
-	return ScanUnguardedTokenHits(body, token)
+	return cmdfixrepo.ScanUnguardedTokenHits(body, token)
 }
 
 // lineAtOffset returns the 1-based line number, 1-based column, and

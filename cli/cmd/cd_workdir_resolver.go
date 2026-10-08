@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -30,7 +31,7 @@ func dispatchCDWorkPath(workPath string, rest []string) error {
 
 	fmt.Print(workPath)
 	WriteShellHandoff(workPath)
-	warnIfNoWrapper()
+	cmdsetup.WarnIfNoWrapper()
 
 	return nil
 }

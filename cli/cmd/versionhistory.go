@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -67,7 +68,7 @@ func resolveVersionHistoryPath(cwd string) string {
 		return cwd
 	}
 
-	repoName := extractRepoName(remoteURL)
+	repoName := cmdclone.ExtractRepoName(remoteURL)
 	parsed := clonenext.ParseRepoName(repoName)
 
 	return filepath.Join(filepath.Dir(cwd), parsed.BaseName)

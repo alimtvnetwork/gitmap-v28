@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -74,7 +75,7 @@ func hasURLProtocol(lower string) bool {
 }
 
 func openURLInChrome(url string) error {
-	bin, err := findChromeBinaryPath()
+	bin, err := cmdchrome.FindChromeBinaryPath()
 	if err != nil {
 		return err
 	}

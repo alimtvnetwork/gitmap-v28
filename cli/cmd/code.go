@@ -9,12 +9,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
 func isCodeHelpRequested(args []string) bool {
@@ -67,7 +67,7 @@ func runCode(args []string) error {
 			"optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup", "clear", "clean",
 			"find-duplicates", "duplicates", "dups", "find-dups", "group", "groups", "grp",
 			"repair", "fix", "doctor":
-			return runVSCode(args)
+			return cmdvscode.RunVSCode(args)
 		}
 	}
 
@@ -89,7 +89,7 @@ func runCode(args []string) error {
 	}
 
 	syncCodeEntry(resolved, alias, extras)
-	openInVSCode(resolved)
+	cmdclone.OpenInVSCode(resolved)
 
 	return nil
 }
@@ -272,7 +272,7 @@ func syncCodeEntry(rootPath, name string, extras []string) {
 		Tags:     vscodepm.DetectTagsCustom(rootPath),
 	}})
 	if err != nil {
-		reportVSCodePMSoftError(err)
+		cmdvscode.ReportVSCodePMSoftError(err)
 
 		return
 	}
@@ -474,7 +474,7 @@ func syncAliasEntry(rootPath, name string, paths []string) {
 		RootPath: rootPath, Name: name, Paths: paths,
 		Tags: vscodepm.DetectTagsCustom(rootPath),
 	}}); err != nil {
-		reportVSCodePMSoftError(err)
+		cmdvscode.ReportVSCodePMSoftError(err)
 	}
 }
 
@@ -483,7 +483,7 @@ func syncAliasEntry(rootPath, name string, paths []string) {
 // re-unioned back in).
 func overwriteAliasEntry(rootPath, name string, paths []string) {
 	if err := vscodepm.OverwritePaths(rootPath, name, paths); err != nil {
-		reportVSCodePMSoftError(err)
+		cmdvscode.ReportVSCodePMSoftError(err)
 	}
 }
 

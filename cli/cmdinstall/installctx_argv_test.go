@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // TestCtxArgvCoversEveryLeaf is the cross-platform argv contract:
@@ -69,7 +70,7 @@ func TestCtxExplainAffectsEveryNonPrefillLeaf(t *testing.T) {
 	leaves := collectCtxLeaves(t)
 
 	for _, l := range leaves {
-		if l.Mode == constants.CtxModePrefill {
+		if l.Mode == ctxmodetype.Prefill {
 			continue
 		}
 

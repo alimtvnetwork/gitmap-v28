@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -17,7 +18,7 @@ func runCreate(args []string) error {
 		args = []string{"."}
 		isNoArgs = false
 	}
-	isNonInteractive := !isInteractiveStdin()
+	isNonInteractive := !cmddb.IsInteractiveStdin()
 	isHeadlessError := isNoArgs && isNonInteractive
 	if isHeadlessError {
 		return apperror.NewSimple("usage: gitmap repo-create (repoc) <name> [folder] [slug] [flags]", "E1076")
@@ -34,7 +35,7 @@ func runCreate(args []string) error {
 func runCreateLocal(args []string) error {
 	checkHelp("create", args)
 	isNoArgs := len(args) == 0
-	isNonInteractive := !isInteractiveStdin()
+	isNonInteractive := !cmddb.IsInteractiveStdin()
 	isHeadlessError := isNoArgs && isNonInteractive
 	if isHeadlessError {
 		return apperror.NewSimple("usage: gitmap create-local-repo (clr) <name> [folder] [slug] [flags]", "E1076")

@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -75,7 +76,7 @@ func printGitDupGroupFindings(dupGroups []store.DuplicateRepoGroup) {
 			if r.ID == g.Keeper.ID {
 				marker = "* "
 			}
-			fmt.Printf("  %s%-6d %-24s %s\n", marker, r.ID, truncateStr(r.Slug, 23), truncateStr(r.AbsolutePath, 42))
+			fmt.Printf("  %s%-6d %-24s %s\n", marker, r.ID, cmddb.TruncateStr(r.Slug, 23), cmddb.TruncateStr(r.AbsolutePath, 42))
 		}
 
 		fmt.Println()

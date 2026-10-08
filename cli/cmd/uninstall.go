@@ -128,13 +128,13 @@ func buildRemoteUninstallCmd(tool string, flags *uninstallFlags) string {
 }
 
 func processToolUninstall(tool string, flags *uninstallFlags) error {
-	canonical := resolveToolAlias(tool)
+	canonical := cmdinstall.ResolveToolAlias(tool)
 	if handled, err := dispatchDevToolUninstall(tool, canonical, flags); handled {
 		return err
 	}
-	validateToolName(tool)
+	cmdinstall.ValidateToolName(tool)
 	if isCtxTool(tool, canonical) {
-		runUninstallCtx()
+		cmdinstall.RunUninstallCtx()
 		return nil
 	}
 	if handled, err := dispatchAgyAgmUninstall(tool, canonical, flags); handled {
@@ -285,7 +285,7 @@ func executeStandardUninstall(db *store.DB, tool string, isDryRun, isPurge bool)
 	}
 
 	fmt.Printf(constants.MsgUninstallRemoving, tool)
-	runInstallCommand(uninstallCmd, installOptions{Tool: tool, Verbose: true})
+	cmdinstall.RunInstallCommand(uninstallCmd, cmdinstall.InstallOptions{Tool: tool, Verbose: true})
 	removeToolFromDatabase(db, tool)
 
 	fmt.Printf(constants.MsgUninstallSuccess, tool)
@@ -368,12 +368,12 @@ func hasPositionalToolArg(args []string) bool {
 // resolveUninstallManager determines which manager was used to install.
 func resolveUninstallManager(db *store.DB, tool string) string {
 	if db == nil {
-		return resolvePackageManager("", tool)
+		return cmdinstall.ResolvePackageManager("", tool)
 	}
 
 	record, err := db.GetInstalledTool(tool)
 	if err != nil || record.PackageManager == "" {
-		return resolvePackageManager("", tool)
+		return cmdinstall.ResolvePackageManager("", tool)
 	}
 
 	return record.PackageManager
@@ -398,7 +398,7 @@ func buildPkgMgrCommand(manager, pkgName string, isPurge bool) []string {
 
 // buildUninstallCommand builds the uninstall command for a manager.
 func buildUninstallCommand(manager, tool string, isPurge bool) []string {
-	pkgName := resolvePackageName(tool, manager)
+	pkgName := cmdinstall.ResolvePackageName(tool, manager)
 
 	return buildPkgMgrCommand(manager, pkgName, isPurge)
 }

@@ -6,7 +6,7 @@
 
 ## Current Version
 
-**v3.1.0** (defined in `gitmap/constants/constants.go`)
+**v6.515.0** (canonical source: `version.json` at the repo root — read-only for docs; never hardcode)
 
 ## Tech Stack
 

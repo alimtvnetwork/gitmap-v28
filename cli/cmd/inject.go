@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -65,13 +66,13 @@ func runInject(args []string) error {
 
 	// 2. GitHub Desktop registration — gated by per-tool stamp.
 	if isDesktopRunnable(target, stamps, force) {
-		registerSingleDesktop(repoName, target)
+		cmdclone.RegisterSingleDesktop(repoName, target)
 		markInjected(target, constants.InjectKindDesktop)
 	}
 
 	// 3. VS Code open — same gate.
 	if isVSCodeRunnable(target, stamps, force) {
-		openInVSCode(target)
+		cmdclone.OpenInVSCode(target)
 		markInjected(target, constants.InjectKindVSCode)
 	}
 
@@ -100,7 +101,7 @@ func resolveInjectTarget(args []string) (string, error) {
 		return "", fmt.Errorf("expected 0 or 1 folder argument, got %d", len(positional))
 	}
 
-	resolved, err := resolveCloneNextFolder(positional[0])
+	resolved, err := cmdclone.ResolveCloneNextFolder(positional[0])
 	if err != nil {
 		return "", fmt.Errorf("folder not found or not a directory %s: %w", positional[0], err)
 	}

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -413,7 +414,7 @@ func parseUnpushedCount() int {
 
 // executeCommitPush is the shared logic for all commit-push variants.
 func executeCommitPush(commitMessage string) *apperror.AppError {
-	if !isGitRepoCWD() {
+	if !cmdpull.IsGitRepoCWD() {
 		return handleNonGitRepoCommitPush()
 	}
 

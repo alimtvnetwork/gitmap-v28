@@ -3,34 +3,37 @@ package cmd
 import (
 	"reflect"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 )
 
 func TestParseCGFlags(t *testing.T) {
-	opts := parseCGFlags([]string{"install", "--all"})
+	opts := cmdcg.ParseCGFlags([]string{"install", "--all"})
 	if !opts.All || opts.Action != "install" {
 		t.Errorf("Expected All=true, Action=install, got %+v", opts)
 	}
 
-	opts2 := parseCGFlags([]string{"--exclude", "repo3", "update", "repo1", "repo2"})
+	opts2 := cmdcg.ParseCGFlags([]string{"--exclude", "repo3", "update", "repo1", "repo2"})
 	if opts2.All || opts2.Action != "update" || opts2.Exclude != "repo3" || !reflect.DeepEqual(opts2.Repos, []string{"repo1", "repo2"}) {
 		t.Errorf("Unexpected output: %+v", opts2)
 	}
 }
 
 func TestParseSEFlags(t *testing.T) {
-	opts := parseSEFlags([]string{"--exclude", "m1,m2", "mkdir", "-p", "foo"})
+	opts := cmdssh.ParseSEFlags([]string{"--exclude", "m1,m2", "mkdir", "-p", "foo"})
 	if opts.Exclude != "m1,m2" || len(opts.Args) != 3 || opts.Args[0] != "mkdir" {
 		t.Errorf("Unexpected output: %+v", opts)
 	}
 }
 
 func TestParseSJFlags(t *testing.T) {
-	opts := parseSJFlags([]string{"--list"})
+	opts := cmdssh.ParseSJFlags([]string{"--list"})
 	if !opts.List {
 		t.Errorf("Expected List=true, got %+v", opts)
 	}
 
-	opts2 := parseSJFlags([]string{"ls"})
+	opts2 := cmdssh.ParseSJFlags([]string{"ls"})
 	if !opts2.List {
 		t.Errorf("Expected List=true for ls, got %+v", opts2)
 	}

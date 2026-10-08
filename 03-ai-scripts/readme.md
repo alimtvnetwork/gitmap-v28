@@ -71,6 +71,7 @@ Follow this sequence before and during any repository modification task:
 | **47** | `47-git-reconcile-and-resolve-conflict.py` | Autonomous Git divergence reconciliation, mechanical conflict resolver & push | ~30ms | `git`, `reconcile`, `merge`, `conflict-resolver`, `push`, `divergence` |
 | **49** | `49-commit-and-push-all-repos.py` | Multi-repository workspace discoverer, atomic conventional committer & remote push | ~25ms | `git`, `multi-repo`, `commit-all`, `push-all`, `workspace`, `sync` |
 | **51** | `51-helptext-generator.py` | DRY help topic generator: renders `cli/helptext/*.md` from HelpDisplay structs via the `cli/tool/helptextemitter` Go emitter (`--topics`, `--check` drift mode) | ~2s | `help`, `helptext`, `generator`, `dry`, `cli-help-displayer` |
+| **52** | `52-file-size-check.py` | Go file line-count enforcement (spec 243.4): fails (exit 1) when any `.go` file under `cli/` crosses 500 lines (`--limit` override); diff-aware ratchet via `--staged` / `--diff REF` / `--files`; wired into `50-fastgate.py` pre-commit as the "Go File Size" gate | ~3s | `file-size`, `line-count`, `enforcement`, `pre-commit`, `fastgate`, `spec-243` |
 
 ---
 

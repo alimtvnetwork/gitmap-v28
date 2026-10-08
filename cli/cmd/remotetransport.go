@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 )
 
 // ApplyTransportFlag rewrites the `remote.origin.url` of dir to the
@@ -37,9 +39,9 @@ func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string
 	var converted string
 	var ok bool
 	if useSSH {
-		converted, ok = ConvertURLToSSH(old)
+		converted, ok = cmdclone.ConvertURLToSSH(old)
 	} else {
-		converted, ok = ConvertURLToHTTPS(old)
+		converted, ok = cmdclone.ConvertURLToHTTPS(old)
 	}
 
 	if !ok {

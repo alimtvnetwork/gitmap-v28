@@ -6,6 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 )
 
@@ -33,13 +34,13 @@ func dispatchGitSubcommand(subCmd string, subArgs []string) error {
 
 func dispatchGitPullSubcommands(subCmd string, subArgs []string) error {
 	if subCmd == "pull-all-ssh" || subCmd == "pas" {
-		return runPullAll(append([]string{"--ssh"}, subArgs...))
+		return cmdpull.RunPullAll(append([]string{"--ssh"}, subArgs...))
 	}
 	if isPullAllGitSubCmd(subCmd) {
-		return runPullAll(subArgs)
+		return cmdpull.RunPullAll(subArgs)
 	}
 	if isPullAllTableGitSubCmd(subCmd) {
-		return runPullAll(append([]string{"--status"}, subArgs...))
+		return cmdpull.RunPullAll(append([]string{"--status"}, subArgs...))
 	}
 
 	return dispatchGitEfficientOrPassthrough(subCmd, subArgs)
@@ -47,10 +48,10 @@ func dispatchGitPullSubcommands(subCmd string, subArgs []string) error {
 
 func dispatchGitEfficientOrPassthrough(subCmd string, subArgs []string) error {
 	if isPullEfficientTableGitSubCmd(subCmd) {
-		return runPullAllEfficient(subArgs, true, subCmd, isShortPullEfficientGitSubCmd(subCmd))
+		return cmdpull.RunPullAllEfficient(subArgs, true, subCmd, isShortPullEfficientGitSubCmd(subCmd))
 	}
 	if isPullEfficientGitSubCmd(subCmd) {
-		return runPullAllEfficient(subArgs, false, subCmd, isShortPullEfficientGitSubCmd(subCmd))
+		return cmdpull.RunPullAllEfficient(subArgs, false, subCmd, isShortPullEfficientGitSubCmd(subCmd))
 	}
 
 	return runGitPassthrough(append([]string{subCmd}, subArgs...))

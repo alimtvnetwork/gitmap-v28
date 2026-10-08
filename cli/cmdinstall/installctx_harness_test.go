@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // ctxFlatLeaf is the per-leaf record the harness uses to drive every
@@ -19,7 +20,7 @@ type ctxFlatLeaf struct {
 	Slug     string // flatten slug, e.g. "gitmap-release-release-next"
 	Label    string // user-visible flatten label, e.g. "gitmap: Release — Release next (bump minor)"
 	Args     []string
-	Mode     constants.CtxMode
+	Mode     ctxmodetype.Variant
 	Exe      string
 	Extended bool
 }

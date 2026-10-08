@@ -4,6 +4,7 @@ package cmd
 import (
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddoctor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/localdirs"
 )
 
@@ -18,5 +19,5 @@ func cleanCorruptedInstallDirsSilent() {
 		return
 	}
 
-	_, _ = CleanCorruptedDirs(CleanOptions{IsDryRun: false, IsForce: true})
+	_, _ = cmddoctor.CleanCorruptedDirs(cmddoctor.CleanOptions{IsDryRun: false, IsForce: true})
 }

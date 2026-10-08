@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
@@ -24,7 +25,7 @@ func handleBareCD() error {
 	if hasDefault {
 		fmt.Print(workPath)
 		WriteShellHandoff(workPath)
-		warnIfNoWrapper()
+		cmdsetup.WarnIfNoWrapper()
 
 		return nil
 	}

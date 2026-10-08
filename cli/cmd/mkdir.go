@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -32,7 +33,7 @@ func runMkdir(args []string) error {
 }
 
 func resolveMkdirAbsPath(pathArg string) (string, error) {
-	expanded := expandTilde(pathArg)
+	expanded := cmdupdate.ExpandTilde(pathArg)
 
 	return filepath.Abs(expanded)
 }

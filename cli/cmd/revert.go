@@ -7,6 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 )
@@ -73,7 +74,7 @@ func launchRevertHandoff() {
 		cliexit.HandleError(err, 1)
 	}
 
-	copyPath := createHandoffCopy(selfPath)
+	copyPath := cmdupdate.CreateHandoffCopy(selfPath)
 	fmt.Printf(constants.MsgUpdateActive, selfPath, copyPath)
 	launchRevertRunner(copyPath)
 }
@@ -81,7 +82,7 @@ func launchRevertHandoff() {
 // launchRevertRunner runs the handoff binary with revert-runner command.
 func launchRevertRunner(copyPath string) {
 	copyArgs := []string{constants.CmdRevertRunner}
-	if hasFlag(constants.FlagVerbose) {
+	if cmdupdate.HasFlag(constants.FlagVerbose) {
 		copyArgs = append(copyArgs, constants.FlagVerbose)
 	}
 
@@ -90,6 +91,6 @@ func launchRevertRunner(copyPath string) {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
-		handleHandoffError(err)
+		cmdupdate.HandleHandoffError(err)
 	}
 }

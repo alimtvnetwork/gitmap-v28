@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 
@@ -72,7 +73,7 @@ func parseImportFlags(args []string) (string, bool) {
 		file = fs.Arg(0)
 	}
 
-	return file, isConfirm || hasConfirmFlag(args)
+	return file, isConfirm || cmddb.HasConfirmFlag(args)
 }
 
 // readImportFile reads and parses the export JSON file.

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -37,7 +38,7 @@ func runCDSpecialRepo(sub string, args []string) error {
 	targetPath = maybeAppendCDSubdir(targetPath, args)
 	fmt.Print(targetPath)
 	WriteShellHandoff(targetPath)
-	warnIfNoWrapper()
+	cmdsetup.WarnIfNoWrapper()
 	return nil
 }
 

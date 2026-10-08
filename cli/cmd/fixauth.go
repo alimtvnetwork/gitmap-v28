@@ -23,6 +23,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -37,7 +38,7 @@ func runFixAuth(args []string) error {
 		return apperror.NewSimple("--user <github-username> is required", "E_FIXAUTH_USER")
 	}
 
-	isNonGitRepoCWD := !isGitRepoCWD()
+	isNonGitRepoCWD := !cmdpull.IsGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run inside the repo you want to fix)")
 
@@ -45,7 +46,7 @@ func runFixAuth(args []string) error {
 	}
 
 	keyPath := fixAuthKeyPath(user)
-	if err := ensureSSHDir(filepath.Dir(keyPath)); err != nil {
+	if err := cmdssh.EnsureSSHDir(filepath.Dir(keyPath)); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ mkdir ~/.ssh failed: %v\n", err)
 
 		return apperror.WrapSimple(err, "mkdir ~/.ssh")
@@ -85,7 +86,7 @@ func resolveFixAuthEmail(email string) string {
 		return email
 	}
 
-	resolved := resolveGitEmail()
+	resolved := cmdssh.ResolveGitEmail()
 	if resolved == "" {
 		fmt.Fprintln(os.Stderr, "  ⚠ git user.email not set; using placeholder — pass --email to override")
 
@@ -116,7 +117,7 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 		return
 	}
 
-	if err := validateSSHKeygen(); err != nil {
+	if err := cmdssh.ValidateSSHKeygen(); err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrSSHKeygenMissing)
 		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrSSHKeygenMissing))
 
@@ -218,7 +219,7 @@ func fixAuthAnnounce(user, keyPath string) {
 	fmt.Println("\n=== PUBLIC KEY (add this to GitHub) ===")
 	fmt.Println(trimmed)
 	fmt.Println("=======================================")
-	copyPubKeyAndAnnounce(trimmed)
+	cmdssh.CopyPubKeyAndAnnounce(trimmed)
 	fmt.Printf("\nNext steps for %s:\n", user)
 	fmt.Println("  1. Open https://github.com/settings/ssh/new")
 	fmt.Println("  2. Paste the key above, save.")

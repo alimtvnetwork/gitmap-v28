@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // TestCtxWindowsBuildHasBothRoots asserts that the install command set
@@ -169,9 +170,9 @@ func TestCtxWindowsCommandBodyMatchesMode(t *testing.T) {
 
 func winModeNeedles(l ctxFlatLeaf, exe string) []string {
 	switch l.Mode {
-	case constants.CtxModePrefill:
+	case ctxmodetype.Prefill:
 		return []string{`-NoExit`, `gitmap `}
-	case constants.CtxModeSilent:
+	case ctxmodetype.Silent:
 		return []string{`-WindowStyle Hidden`, `msg.exe`, l.resolvedTarget(exe)}
 	default:
 		return []string{`-NoExit`, l.resolvedTarget(exe), strings.Join(l.Args, " ")}
@@ -224,7 +225,7 @@ func TestCtxWindowsExplainTogglesCommandBody(t *testing.T) {
 func winAnnounceMarkers(leaves []ctxFlatLeaf, exe string) []string {
 	var out []string
 	for _, l := range leaves {
-		if l.Mode == constants.CtxModePrefill {
+		if l.Mode == ctxmodetype.Prefill {
 			continue
 		}
 
