@@ -229,16 +229,6 @@ func resolveTargetOrHeadSha(repo string, flags PipelineErrorFlags) string {
 	return ResolveRepoHeadCommitSha(repo)
 }
 
-func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []string) error {
-	WaitForRunnerETAIfActive()
-
-	return runPipelineErrorLogsDynamicTimeline(ErrorLogsTimelineParams{
-		Repo: repo, IsJSON: flags.IsJSON, WantFix: flags.HasFix,
-		WantCheck: flags.HasCheck, IsDetailed: flags.IsDetailed,
-		FilePath: flags.FilePath, TempFileName: flags.TempFileName, Args: args,
-	})
-}
-
 func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 	activeLogLineLimit = flags.Limit
 	if isInstant, decision := tryInstantCommitHashRetrieval(repo, flags); isInstant {

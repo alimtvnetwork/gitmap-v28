@@ -252,7 +252,7 @@ func executePingProbe(p *SupabaseProjectRecord) error {
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	reqUrl := strings.TrimRight(p.ApiUrl, "/") + "/rest/v1/"
-	req, err := http.NewRequest("GET", reqUrl, nil)
+	req, err := http.NewRequest(http.MethodGet, reqUrl, nil)
 	if err != nil {
 		return apperror.WrapSimple(err, "executePingProbe_NewRequest")
 	}

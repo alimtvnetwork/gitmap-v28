@@ -96,50 +96,6 @@ func printTimelineProgress(name string, eta, elapsed int) {
 		constants.ColorYellow, name, constants.ColorReset, formatEtaDisplay(eta), formatDurationSeconds(elapsed))
 }
 
-// ErrorLogsTimelineParams specifies parameters for running errorlogs with dynamic timeline watching.
-type ErrorLogsTimelineParams struct {
-	Repo         string
-	IsJSON       bool
-	WantFix      bool
-	WantCheck    bool
-	IsDetailed   bool
-	FilePath     string
-	TempFileName string
-	Args         []string
-}
-
-// runPipelineErrorLogsDynamicTimeline watches the pipeline dynamic timeline and surfaces error logs upon completion.
-func runPipelineErrorLogsDynamicTimeline(params ErrorLogsTimelineParams) error {
-	runs := queryWorkflowRuns(params.Repo)
-	active := findActiveWorkflowRun(runs)
-	if active != nil {
-		watchDynamicTimeline(params.Repo, active.Name, params.IsJSON)
-		runs = queryWorkflowRuns(params.Repo)
-	}
-
-	payload := buildErrorLogsPayload(params.Repo, runs)
-	applyTimelinePayloadOptions(&payload, runs, params)
-
-	return writeOrRenderErrorLogs(ErrorLogOutputParams{
-		Payload:  payload,
-		IsJSON:   params.IsJSON,
-		FilePath: params.FilePath,
-		TempFile: params.TempFileName,
-	})
-}
-
-func applyTimelinePayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, params ErrorLogsTimelineParams) {
-	if len(runs) > 0 {
-		p.RerunEtaSeconds = calculateAverageDuration(runs, p.WorkflowName)
-	}
-	if !params.IsDetailed {
-		compactErrorPayload(p)
-	}
-	if params.WantFix || params.WantCheck {
-		p.CICDChecks = runInternalCICDChecks(params.WantFix)
-	}
-}
-
 func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 	if latest.Conclusion == "success" {
 		fmt.Printf("\n%s✓ Pipeline [%s] completed successfully!%s\n", constants.ColorGreen, latest.Name, constants.ColorReset)
