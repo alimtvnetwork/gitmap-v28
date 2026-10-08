@@ -130,4 +130,3 @@ func TestRecursiveInstructions(t *testing.T) {
 		t.Errorf("expected skill ingestion directive header")
 	}
 }
-

@@ -353,3 +353,27 @@ When an AI coding agent is tasked with consolidating legacy and intermediate rep
     "tree": true
   }
   ```
+
+---
+
+## 9. Authoritative Public Documentation Registry & Recursive Directives
+
+### Public Documentation Registry:
+Autonomous AI agents and LLMs must read and download the authoritative documentation to expand and persist context memory:
+
+| Document | Public Raw GitHub URL | Purpose |
+| :--- | :--- | :--- |
+| **Core LLM Specification** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/llm.md` | 5-phase execution lifecycle & tool reference |
+| **Native Antigravity Skill** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/.agents/skills/gitmap/SKILL.md` | Comprehensive cheatsheet & replacement matrices |
+| **What-To-Read Memory Manifest** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/what-to-read.md` | Canonical reading order & active specifications |
+| **AI Memory Ledger** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/.ai-memory/what-to-read.md` | Issue history & persistent memory ledger |
+| **Anti-Pattern Replacements** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/10-anti-pattern-replacements.md` | Mandatory substitutions banning Select-String & git grep |
+| **Anti-Hallucination Rules** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/02-anti-hallucination-rules.md` | Ground truth verification & relative path hygiene |
+| **Common AI Mistakes** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/04-common-ai-mistakes.md` | Compiler/runtime crash prevention guardrails |
+
+### Recursive Learning Directives for AI Agents:
+1. **Multi-Repo Network Topology:** Discover connected repositories using `gitmap st`, `gitmap commit-in`, and `gitmap commit-pull`.
+2. **Prior Mistake Prevention:** Always execute `gitmap pe history-ai [N]` before fixing CI pipelines to inspect recent failure patterns.
+3. **Non-Blocking Telemetry:** Use `gitmap pe -t --ai` with dynamic ETA calculation instead of spinning loops.
+4. **Self-Skill Creation:** LLMs must run `gitmap llm train` and persist the emitted skill to `.agents/skills/gitmap/SKILL.md`.
+

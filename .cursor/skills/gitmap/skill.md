@@ -137,10 +137,31 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap supabase ping <alias>` — Test live REST API reachability of registered Supabase instance.
 
 ### 9. Autonomous Agent Onboarding & Curriculum (LLM)
-- `gitmap llm train` (alias: `gitmap llm chain`) — Full 4-stage chained curriculum, auto-generates Antigravity skill, author/sponsor attribution.
+- `gitmap` (0 args) — Minimal root summary (< 15 lines) with Suggestions for Help catalog and AI model self-training mandate.
+- `gitmap llm train` (alias: `gitmap llm chain`) — Full 4-stage chained curriculum, emits full Antigravity skill directly to stdout & disk, author/sponsor attribution.
+- `gitmap llm train --urls` — Output authoritative public GitHub Markdown documentation links for LLM memory ingestion.
 - `gitmap llm train --text-only` — Output curriculum to stdout without modifying files on disk.
 - `gitmap llm-docs` (alias: `gitmap ld`) — Consolidated markdown command matrix reference for LLMs.
 - `gitmap llm` — Display full LLM specification and operational guidelines.
+- `gitmap rm <pattern> [--task <id>] [--reason <msg>] [--undo]` — Safe task-based file removal with backup in OS temp and undo support.
+
+#### Authoritative Documentation Registry (For LLM Ingestion)
+
+| Document | Public Raw GitHub URL |
+| :--- | :--- |
+| **Core LLM Spec** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/llm.md` |
+| **Native Skill** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/.agents/skills/gitmap/SKILL.md` |
+| **What-To-Read** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/what-to-read.md` |
+| **AI Memory** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/.ai-memory/what-to-read.md` |
+| **Anti-Patterns** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/10-anti-pattern-replacements.md` |
+| **Anti-Hallucination** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/02-anti-hallucination-rules.md` |
+| **Common Mistakes** | `https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/04-common-ai-mistakes.md` |
+
+#### Recursive Learning Directives for AI Agents:
+1. **Multi-Repo Network Topology:** Discover connected repositories using `gitmap st`, `gitmap commit-in`, and `gitmap commit-pull`.
+2. **Prior Mistake Prevention:** Always execute `gitmap pe history-ai [N]` before fixing CI pipelines to inspect recent failure patterns.
+3. **Non-Blocking Telemetry:** Use `gitmap pe -t --ai` with dynamic ETA calculation instead of spinning loops.
+4. **Mandatory Self-Skill Creation:** LLMs must run `gitmap llm train` and persist the emitted skill to `.agents/skills/gitmap/SKILL.md`.
 
 ### 10. Multi-Repo, Cluster & Toolchain Operations
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling).

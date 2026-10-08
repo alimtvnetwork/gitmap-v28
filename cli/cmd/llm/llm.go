@@ -206,7 +206,7 @@ func Run(args []string) *apperror.AppError {
 }
 
 func isTrainCommand(arg string) bool {
-	return arg == "train" || arg == "chain"
+	return arg == "train" || arg == "chain" || arg == "llm-train" || arg == "llmtrain"
 }
 
 func runDefaultLlm(args []string) *apperror.AppError {
