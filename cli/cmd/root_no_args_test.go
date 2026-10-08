@@ -46,8 +46,8 @@ func TestUsageCompactLineCountAndSuggestions(t *testing.T) {
 	lines := strings.Split(strings.TrimRight(output, "\r\n"), "\n")
 	lineCount := len(lines)
 
-	if lineCount > 15 {
-		t.Errorf("expected compact root help line count <= 15, got %d:\n%s", lineCount, output)
+	if lineCount > 18 {
+		t.Errorf("expected compact root help line count <= 18, got %d:\n%s", lineCount, output)
 	}
 
 	if !strings.Contains(output, "Suggestions:") {

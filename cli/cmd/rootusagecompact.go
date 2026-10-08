@@ -24,7 +24,6 @@ func printUsageCompact() {
 func printCompactUserContext() {
 	printGhAuthCompact()
 	printActiveGitUserCompact()
-	fmt.Println()
 }
 
 func printGhAuthCompact() {
