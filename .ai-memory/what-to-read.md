@@ -11,7 +11,7 @@ How this repository is engineered. Internalize before writing any code:
 2. **Two-tier future.** This repo stays fast. When satisfied, code moves to a separate release repository with a stricter engineering process. Strictness belongs there, not here.
 3. **Version churn is intentional.** Frequent versions are checkpoints, not milestones. Do not "fix" the cadence.
 4. **Backup-first.** Significant work starts from a backup branch (`backup/<slug>`). `gitmap space backup-branch "<task>"` creates one from current code.
-5. **Small files are engineering quality.** ~100-line median files, tiny functions, zero nesting. Enforce the cap: split files over 500 lines, never let one cross 1000.
+5. **Small files are engineering quality — ~300 lines max per file.** ~100-line median files, tiny functions, zero nesting. Split by concern into ~300-line files; never fragment into tiny shards (9 files of ~1000 lines → ~30 files, not 80+). Enforce the cap: no file crosses 300 lines without a recorded reason.
 6. **Aliases are a feature, not sprawl.** Keep them — they make the CLI fast. Never prune for tidiness.
 7. **DRY everything.** Help text, themes, colors: single source of truth, generated output. Never hand-maintain the same content in two formats.
 8. **Enforcement beats documentation.** A rule on paper that isn't enforced is worse than no rule. Where enforcement lagged, close the gap.

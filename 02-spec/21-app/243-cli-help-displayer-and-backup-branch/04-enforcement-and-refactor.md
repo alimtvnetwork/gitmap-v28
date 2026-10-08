@@ -7,13 +7,9 @@ The small-files rule exists on paper but 87 files exceed 500 lines and 10 exceed
 `cmdupdate/update_fleet.go` (1288), `cmdpipeline/pipeline_error_extract.go` (1269),
 `cmdchromeprofile/chromeprofile_smart_import.go` (1214), `dbengine/query.go` (1147),
 `cmd/clihelpers.go` (1129), plus 3 more over 1000.
-- Split the 10 files >1000 lines first — one file per wave, junk-drawer concern
-  clusters into their own files (e.g. pull.go's gitignore-remediation cluster
-  → its own file). Functions are already tiny; this is purely file-level surgery.
-- Then the 500–1000 band, largest first.
-- Enforcement mechanism: a check script in `03-ai-scripts/` (run via `gitmap py`)
-  that fails when a `.go` file crosses 500 lines — wire it into the repo's
-  existing pre-commit path.
+- Split target: **~300 lines max per file, grouped by concern** — NOT fragmentation into tiny shards. 9 files at ~1000+ lines (≈9000 lines) → ~30 files, not 80+. Each split file owns one concern (e.g. pull.go → pull-flow, arg-normalization, gitignore-remediation as separate files). Functions are already tiny; this is purely file-level surgery.
+- Then the 500–1000 band, largest first, same 300-line target.
+- Enforcement mechanism: the check script in `03-ai-scripts/` (run via `gitmap py`) fails past **300** lines — wired into the repo's existing pre-commit path (staged-only, so grandfathered files can't block unrelated commits).
 - New files: hard guidance — past ~300 lines, split by concern early.
 
 ## 2. Stale docs ("Stelldocs" fix)
