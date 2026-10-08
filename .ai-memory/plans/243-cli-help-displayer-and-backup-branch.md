@@ -39,10 +39,13 @@ package, and stale-doc fixes.
 
 ## Deliverables & Subtask Breakdown
 
-- [ ] `subtasks/243-cli-help-displayer-and-backup-branch/01-space-backup-branch.md`
+- [x] `subtasks/243-cli-help-displayer-and-backup-branch/01-space-backup-branch.md` — Wave A DONE (commit e39b2b8, pushed; evidence in wave log)
 - [ ] `subtasks/243-cli-help-displayer-and-backup-branch/02-help-displayer-core.md`
 - [ ] `subtasks/243-cli-help-displayer-and-backup-branch/03-help-dry-migration.md`
 - [ ] `subtasks/243-cli-help-displayer-and-backup-branch/04-enforcement-refactor-docs.md`
+
+## Wave log
+- Wave A (2026-10-08): `space backup-branch` implemented per spec 02 — new `cli/cmdspace/` (backup_branch.go, backup_branch_slug.go, backup_branch_git.go, backup_branch_help.go) + `CmdSpaceBackupBranch` constant + registry test + `cli/cmd/space.go` dispatch/help wiring. Verified: `go build ./...` exit 0, `go vet` clean on cmdspace/constants/cmd, live `--help` renders, dirty tree refused with exact spec message, `backup/wave-a-verification @ e39b2b8` created with --no-push then deleted. Commit e39b2b8 pushed to main.
 
 ## Strict Constraints
 - All paths relative (`02-spec/...`, `.ai-memory/...`, `cli/...`) — never absolute paths in work, release page, or release notes.
