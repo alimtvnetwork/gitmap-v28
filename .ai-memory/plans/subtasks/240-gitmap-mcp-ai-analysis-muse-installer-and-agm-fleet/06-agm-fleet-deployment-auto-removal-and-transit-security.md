@@ -131,11 +131,11 @@ type AgmDeploymentAuditRecord struct {
 
 ## 4. Acceptance Criteria
 
-1. Running `gitmap nodes deploy agm-accounts` leaves zero intermediate staging files in `C:\Windows\Temp` or `/tmp`.
-2. All credential data transmitted across network streams is encrypted with AES-256-GCM.
-3. Upon successful fleet deployment, any temporary backup JSON files matching `D:\agm_accounts_backup_*.json` are securely shredded with 3 overwrite passes and deleted.
-4. If a deployment fails or is executed with `--dry-run`, temporary backup files are strictly preserved.
-5. Every deployment and cleanup event creates an immutable audit row in Split-DB SQLite (`AgmDeploymentAudit` and `AgmBackupCleanupAudit`).
+- [x] Running `gitmap nodes deploy agm-accounts` leaves zero intermediate staging files in OS temp storage.
+- [x] All credential data transmitted across network streams is encrypted with AES-256-GCM.
+- [x] Upon successful fleet deployment, any temporary backup JSON files matching `agm_accounts_backup_*.json` are securely shredded with 3 overwrite passes and deleted.
+- [x] If a deployment fails or is executed with `--dry-run`, temporary backup files are strictly preserved.
+- [x] Every deployment and cleanup event creates an immutable audit row in Split-DB SQLite (`AgmDeploymentAudit` and `AgmBackupCleanupAudit`).
 
 ---
 

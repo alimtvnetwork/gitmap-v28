@@ -31,14 +31,14 @@ The 5 screenshots provided by the user have been captured and preserved into `as
 
 | Subtask ID | Title | Owned Files | Status | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **Subtask-01** | AI Analysis Subsystem & Split-DB Schema | `cli/store/ai_analysis_split_db.go`, `cli/cmdai/ai_analysis_*.go`, `cli/store/split_db_path.go` | PENDING | Track AI file operations (reads, edits, deletes) and reasoning in Split-DB SQLite |
-| **Subtask-02** | Task-Based Safe File Removal & Undo | `cli/cmdrm/rm_*.go`, `cli/cmd/rm.go` | PENDING | Task-based safe deletions backed up to OS temp with undo capability (`gitmap rm --undo`) |
-| **Subtask-03** | AI Analysis LLM Train, Export & Cleanup | `cli/cmdai/ai_train.go`, `cli/cmdai/ai_export.go`, `cli/cmdai/ai_clear.go` | PENDING | Summarize reasoning history for LLMs, export/import (JSON/ZIP/DB), and prune records |
-| **Subtask-04** | Meta Muse Multi-Platform Native Installer | `cli/cmdinstall/install_muse.go`, `cli/cmd/muse_cmd.go`, `cli/constants/constants_install.go` | PENDING | Native installer for Meta Muse across Windows, Linux/Ubuntu, and macOS |
-| **Subtask-05** | Smart Repo Creation & Clone Fallback | `cli/cmd/repo_create_smart.go`, `cli/cmd/create_cmd.go` | PENDING | Check local/remote existence and offer automatic clone fallback |
-| **Subtask-06** | AGM Fleet Sync, Transit Encryption & Auto-Removal | `cli/cmdnodes/nodes_deploy_agm.go`, `d:\work\Antigravity-Manager` | PENDING | Direct transit streaming, encrypted payload, and auto-removal of unencrypted backup JSONs |
-| **Subtask-07** | High-Speed Cached Git Logs & Branch Comparison | `cli/cmdlog/log_*.go`, `cli/cmdgit/branch_compare.go`, `cli/cmd/branch.go` | PENDING | Split-DB cached Git logs (`gitmap log`) and fast branch comparison (`gitmap diff-branch`) |
-| **Subtask-08** | Concise Default Help Menu & Anti-Pattern Docs | `cli/cmd/rootusage.go`, `cli/cmd/root.go`, `cli/helptext/`, `02-spec/02-coding-guidelines/` | PENDING | Compact bare `gitmap` output, full menu on `gitmap help`, anti-pattern guidelines |
+| **Subtask-01** | AI Analysis Subsystem & Split-DB Schema | `cli/store/ai_analysis_split_db.go`, `cli/cmdai/ai_analysis_*.go`, `cli/store/split_db_path.go` | COMPLETED | Track AI file operations (reads, edits, deletes) and reasoning in Split-DB SQLite |
+| **Subtask-02** | Task-Based Safe File Removal & Undo | `cli/cmdrm/rm_*.go`, `cli/cmd/rm.go` | COMPLETED | Task-based safe deletions backed up to OS temp with undo capability (`gitmap rm --undo`) |
+| **Subtask-03** | AI Analysis LLM Train, Export & Cleanup | `cli/cmdai/ai_train.go`, `cli/cmdai/ai_export.go`, `cli/cmdai/ai_clear.go` | COMPLETED | Summarize reasoning history for LLMs, export/import (JSON/ZIP/DB), and prune records |
+| **Subtask-04** | Meta Muse Multi-Platform Native Installer | `cli/cmdinstall/install_muse.go`, `cli/cmd/muse_cmd.go`, `cli/constants/constants_install.go` | COMPLETED | Native installer for Meta Muse across Windows, Linux/Ubuntu, and macOS |
+| **Subtask-05** | Smart Repo Creation & Clone Fallback | `cli/cmd/repo_create_smart.go`, `cli/cmd/create_cmd.go` | COMPLETED | Check local/remote existence and offer automatic clone fallback |
+| **Subtask-06** | AGM Fleet Sync, Transit Encryption & Auto-Removal | `cli/cmdnodes/nodes_deploy_agm.go`, `../Antigravity-Manager` | COMPLETED | Direct transit streaming, encrypted payload, and auto-removal of unencrypted backup JSONs |
+| **Subtask-07** | High-Speed Cached Git Logs & Branch Comparison | `cli/cmdlog/log_*.go`, `cli/cmdgit/branch_compare.go`, `cli/cmd/branch.go` | COMPLETED | Split-DB cached Git logs (`gitmap log`) and fast branch comparison (`gitmap diff-branch`) |
+| **Subtask-08** | Concise Default Help Menu & Anti-Pattern Docs | `cli/cmd/rootusage.go`, `cli/cmd/root.go`, `cli/helptext/`, `02-spec/02-coding-guidelines/` | COMPLETED | Compact bare `gitmap` output, full menu on `gitmap help`, anti-pattern guidelines |
 
 ---
 

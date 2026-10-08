@@ -191,16 +191,16 @@ type RecordLineOptions struct {
 
 ## 4. Acceptance Criteria
 
-- [ ] `ResolveAiAnalysisSplitDbPath` returns a clean relative or configured path under `.gitmap/data/ai-analysis/<slug>/sql.db`.
-- [ ] Database initialization applies WAL mode and enforces foreign key constraints.
-- [ ] `AiAnalysisTask` correctly tracks `total_files_read`, `total_files_modified`, and `total_files_deleted`.
-- [ ] `AiAnalysisLine` stores `operation_type` in `('read', 'edit', 'delete')`, line ranges, and non-empty reasoning.
-- [ ] `gitmap ai analysis start` creates a valid task and exits with code 0.
-- [ ] `gitmap ai analysis record` validates line ranges and file paths, inserting line telemetry.
-- [ ] `gitmap ai analysis finish` updates status to `completed` and records end timestamp.
-- [ ] `gitmap ai analysis list` renders recent tasks in an ANSI-formatted table.
-- [ ] All unit tests in `cli/cmdai/ai_analysis_test.go` pass with 100% success rate.
-- [ ] Zero absolute paths or `file:///` URIs exist in any owned file.
+- [x] `ResolveAiAnalysisSplitDbPath` returns a clean relative or configured path under `.gitmap/data/ai-analysis/<slug>/sql.db`.
+- [x] Database initialization applies WAL mode and enforces foreign key constraints.
+- [x] `AiAnalysisTask` correctly tracks `total_files_read`, `total_files_modified`, and `total_files_deleted`.
+- [x] `AiAnalysisLine` stores `operation_type` in `('read', 'edit', 'delete')`, line ranges, and non-empty reasoning.
+- [x] `gitmap ai analysis start` creates a valid task and exits with code 0.
+- [x] `gitmap ai analysis record` validates line ranges and file paths, inserting line telemetry.
+- [x] `gitmap ai analysis finish` updates status to `completed` and records end timestamp.
+- [x] `gitmap ai analysis list` renders recent tasks in an ANSI-formatted table.
+- [x] All unit tests in `cli/cmdai/ai_analysis_test.go` pass with 100% success rate.
+- [x] Zero absolute paths or `file:///` URIs exist in any owned file.
 
 ---
 

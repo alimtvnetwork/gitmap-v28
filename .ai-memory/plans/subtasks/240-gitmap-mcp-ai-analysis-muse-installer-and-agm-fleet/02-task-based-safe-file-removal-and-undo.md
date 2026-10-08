@@ -183,16 +183,16 @@ type RmPurgeOptions struct {
 
 ## 4. Acceptance Criteria
 
-- [ ] `gitmap rm <pattern>` safely removes files from workspace without permanently destroying them.
-- [ ] Removed files are preserved in `$TEMP/gitmap-rm/<task_id>/` with accurate directory structure.
-- [ ] `manifest.json` correctly stores file sizes, modes, and SHA-256 hashes.
-- [ ] `gitmap rm undo <task_id>` restores files with original permissions and checksums.
-- [ ] Running bare `gitmap rm undo` automatically restores the most recently deleted session.
-- [ ] If temporary staging directory is missing, a clear, descriptive error is returned.
-- [ ] `gitmap rm list` renders active backup sessions with task ID, date, and file counts.
-- [ ] `gitmap rm purge --all` safely frees temporary disk space.
-- [ ] Zero absolute paths or `file:///` URIs exist in any owned file.
-- [ ] All unit tests in `cli/cmdrm/rm_test.go` pass with 100% success rate.
+- [x] `gitmap rm <pattern>` safely removes files from workspace without permanently destroying them.
+- [x] Removed files are preserved in `$TEMP/gitmap-rm/<task_id>/` with accurate directory structure.
+- [x] `manifest.json` correctly stores file sizes, modes, and SHA-256 hashes.
+- [x] `gitmap rm undo <task_id>` restores files with original permissions and checksums.
+- [x] Running bare `gitmap rm undo` automatically restores the most recently deleted session.
+- [x] If temporary staging directory is missing, a clear, descriptive error is returned.
+- [x] `gitmap rm list` renders active backup sessions with task ID, date, and file counts.
+- [x] `gitmap rm purge --all` safely frees temporary disk space.
+- [x] Zero absolute paths or `file:///` URIs exist in any owned file.
+- [x] All unit tests in `cli/cmdrm/rm_test.go` pass with 100% success rate.
 
 ---
 

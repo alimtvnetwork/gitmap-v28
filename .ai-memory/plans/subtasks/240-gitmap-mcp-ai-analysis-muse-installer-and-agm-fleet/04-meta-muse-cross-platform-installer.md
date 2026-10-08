@@ -137,15 +137,15 @@ type MuseInstallResult struct {
 
 ## 4. Acceptance Criteria
 
-- [ ] `gitmap muse install` resolves the appropriate platform command for the host OS.
-- [ ] Windows executes PowerShell one-liner `irm https://dev.meta.ai/install.ps1 | iex`.
-- [ ] Linux / Ubuntu and macOS execute `curl -fsSL https://dev.meta.ai/install.sh | bash`.
-- [ ] `--dry-run` outputs the planned execution command without invoking the network or shell.
-- [ ] `--force` allows overriding an existing `muse` installation.
-- [ ] `--platform <name>` allows explicit platform target selection.
-- [ ] Successful installation records an audit entry in `installation.db`.
-- [ ] Zero absolute paths or `file:///` URIs exist in any owned file.
-- [ ] All unit tests in `cli/cmdinstall/install_muse_test.go` pass with 100% success rate.
+- [x] `gitmap muse install` resolves the appropriate platform command for the host OS.
+- [x] Windows executes PowerShell one-liner `irm https://dev.meta.ai/install.ps1 | iex`.
+- [x] Linux / Ubuntu and macOS execute `curl -fsSL https://dev.meta.ai/install.sh | bash`.
+- [x] `--dry-run` outputs the planned execution command without invoking the network or shell.
+- [x] `--force` allows overriding an existing `muse` installation.
+- [x] `--platform <name>` allows explicit platform target selection.
+- [x] Successful installation records an audit entry in `installation.db`.
+- [x] Zero absolute paths or `file:///` URIs exist in any owned file.
+- [x] All unit tests in `cli/cmdinstall/install_muse_test.go` pass with 100% success rate.
 
 ---
 

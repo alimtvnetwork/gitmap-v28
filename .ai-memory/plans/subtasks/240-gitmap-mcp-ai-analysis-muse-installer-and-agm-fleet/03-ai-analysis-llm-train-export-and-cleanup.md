@@ -183,15 +183,15 @@ type AiClearOptions struct {
 
 ## 4. Acceptance Criteria
 
-- [ ] `gitmap ai train` formats historical reasoning into coherent Markdown summaries.
-- [ ] `gitmap ai train --format jsonl` produces valid JSONL records parseable by standard LLM loaders.
-- [ ] `gitmap ai export --format json --output out.json` writes a valid portable dataset.
-- [ ] `gitmap ai export --format zip --output out.zip` packages tasks and code snippets.
-- [ ] `gitmap ai import --input out.json` successfully restores tasks and lines into Split-DB.
-- [ ] `gitmap ai clear --task <id>` cleanly deletes the task and all linked reasoning lines.
-- [ ] `gitmap ai prune --older-than 30d` accurately removes expired records and runs `VACUUM`.
-- [ ] Zero absolute paths or `file:///` URIs exist in any owned file.
-- [ ] All unit tests in `cli/cmdai/ai_train_test.go` pass with 100% success rate.
+- [x] `gitmap ai train` formats historical reasoning into coherent Markdown summaries.
+- [x] `gitmap ai train --format jsonl` produces valid JSONL records parseable by standard LLM loaders.
+- [x] `gitmap ai export --format json --output out.json` writes a valid portable dataset.
+- [x] `gitmap ai export --format zip --output out.zip` packages tasks and code snippets.
+- [x] `gitmap ai import --input out.json` successfully restores tasks and lines into Split-DB.
+- [x] `gitmap ai clear --task <id>` cleanly deletes the task and all linked reasoning lines.
+- [x] `gitmap ai prune --older-than 30d` accurately removes expired records and runs `VACUUM`.
+- [x] Zero absolute paths or `file:///` URIs exist in any owned file.
+- [x] All unit tests in `cli/cmdai/ai_train_test.go` pass with 100% success rate.
 
 ---
 

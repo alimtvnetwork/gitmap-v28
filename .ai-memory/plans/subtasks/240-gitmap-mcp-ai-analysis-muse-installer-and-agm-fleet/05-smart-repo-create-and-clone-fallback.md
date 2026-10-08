@@ -133,12 +133,12 @@ type RepoCreateResult struct {
 
 ## 4. Acceptance Criteria
 
-1. Running `gitmap repo create "existing-repo" --clone-if-exists` detects remote repository and clones it locally without errors.
-2. Running `gitmap repo create "existing-repo"` in an interactive session prompts the user:  
+- [x] Running `gitmap repo create "existing-repo" --clone-if-exists` detects remote repository and clones it locally without errors.
+- [x] Running `gitmap repo create "existing-repo"` in an interactive session prompts the user:  
    `"⚠️ Remote repository 'existing-repo' already exists on GitHub. Would you like to clone it instead? [y/N/ui]"`.
-3. Running `gitmap repo create "existing-repo"` non-interactively without `--clone-if-exists` aborts with a descriptive conflict error without modifying local disk or remote origin.
-4. Legacy dangerous behavior of executing `git push -u origin main --force` on existing remote repos is completely eradicated.
-5. All file paths and error messages use strictly relative Git paths.
+- [x] Running `gitmap repo create "existing-repo"` non-interactively without `--clone-if-exists` aborts with a descriptive conflict error without modifying local disk or remote origin.
+- [x] Legacy dangerous behavior of executing `git push -u origin main --force` on existing remote repos is completely eradicated.
+- [x] All file paths and error messages use strictly relative Git paths.
 
 ---
 

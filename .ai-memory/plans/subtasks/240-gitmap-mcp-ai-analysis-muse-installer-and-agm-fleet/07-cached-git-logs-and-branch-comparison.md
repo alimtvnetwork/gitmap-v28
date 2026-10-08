@@ -144,11 +144,11 @@ type BranchDiffResult struct {
 
 ## 4. Acceptance Criteria
 
-1. Running `gitmap log` returns the most recent 20 commits in under 15ms on warm cache.
-2. Making a new commit advances HEAD and triggers an incremental delta sync without re-parsing full history.
-3. Running `gitmap diff-branch` accurately reports ahead/behind commit counts and file mutation statistics.
-4. Running `gitmap branch compare feature/x main` provides identical results to `gitmap diff-branch feature/x main`.
-5. All outputs strictly adhere to positive boolean naming conventions and relative path formatting.
+- [x] Running `gitmap log` returns the most recent 20 commits in under 15ms on warm cache.
+- [x] Making a new commit advances HEAD and triggers an incremental delta sync without re-parsing full history.
+- [x] Running `gitmap diff-branch` accurately reports ahead/behind commit counts and file mutation statistics.
+- [x] Running `gitmap branch compare feature/x main` provides identical results to `gitmap diff-branch feature/x main`.
+- [x] All outputs strictly adhere to positive boolean naming conventions and relative path formatting.
 
 ---
 

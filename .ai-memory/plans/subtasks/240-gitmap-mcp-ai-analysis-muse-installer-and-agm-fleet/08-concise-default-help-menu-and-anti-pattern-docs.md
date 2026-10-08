@@ -110,12 +110,12 @@ type CoreCommandPointer struct {
 
 ## 4. Acceptance Criteria
 
-1. Executing bare `gitmap` prints fewer than 25 lines of output to stdout.
-2. Executing bare `gitmap` displays the active repository name, current branch, and clean/dirty badge if run inside a Git repository.
-3. Executing `gitmap help` prints the full comprehensive categorized catalog.
-4. `02-spec/02-coding-guidelines/06-ai-optimization/10-anti-pattern-replacements.md` is published and referenced in coding guidelines.
-5. `03-ai-scripts/40-check-anti-patterns.py` runs cleanly and reports zero false positives on compliant files.
-6. All references use strictly relative Git paths.
+- [x] Executing bare `gitmap` prints fewer than 25 lines of output to stdout.
+- [x] Executing bare `gitmap` displays the active repository name, current branch, and clean/dirty badge if run inside a Git repository.
+- [x] Executing `gitmap help` prints the full comprehensive categorized catalog.
+- [x] `02-spec/02-coding-guidelines/06-ai-optimization/10-anti-pattern-replacements.md` is published and referenced in coding guidelines.
+- [x] `03-ai-scripts/40-check-anti-patterns.py` runs cleanly and reports zero false positives on compliant files.
+- [x] All references use strictly relative Git paths.
 
 ---
 
