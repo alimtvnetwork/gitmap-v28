@@ -151,6 +151,11 @@ func tryInterceptCommandHelp(command string, args []string) bool {
 	if !IsHelpFlag(args[0]) {
 		return false
 	}
+	// Pilot commands (spec 243.3) render through the HelpDisplay registry
+	// before the legacy rich-topic/helptext paths.
+	if TryPrintDisplayerHelp(command, args) {
+		return true
+	}
 	if tryRenderRichTopic(command) {
 		cliexit.Exit(0)
 		return true

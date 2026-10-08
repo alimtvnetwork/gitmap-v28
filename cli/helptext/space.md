@@ -1,48 +1,31 @@
 # gitmap space
 
-Space operations namespace. Groups repo-setup operations that apply
-GitMap's curated shared baselines, starting with `common`.
+> **Generated — do not hand-edit.** This topic is rendered from the
+> `cmdspace.SpaceHelpDisplay` HelpDisplay struct. Regenerate with:
+>
+> `gitmap py 03-ai-scripts/51-helptext-generator.py --topics space`
 
-## Subcommands
+```text
+Usage: gitmap space <subcommand> [flags]
 
-| Subcommand | Purpose |
-|------------|---------|
-| `common` | Apply the curated common baselines — same logic as `gitmap commons` |
+Subcommands
+  common  Apply the curated common baselines (.gitignore, .gitattributes, .prettierignore, .prettierrc) and run 'git lfs install --local' — same logic as 'gitmap commons'.
+    e.g. gitmap space common --dry-run
+  backup-branch  Create a backup branch (backup/<slug>) from the current HEAD for the given task string, then push it to origin.
+    e.g. gitmap space backup-branch "CLI help displayer overhaul"
+Flags (with common)
+  --dry-run, -n  Print planned additions without touching disk
+    e.g. gitmap space common --dry-run
+  --force, -f  Overwrite conflicting JSON values in .prettierrc
+    e.g. gitmap space common --force
+Flags (with backup-branch)
+  --no-push  Skip pushing the new branch to origin
+  --force  Recreate the branch at current HEAD if it already exists
+Examples
+  gitmap space common  Apply the curated baselines in the current repo
+  gitmap space common --dry-run  Preview planned additions without touching disk
+  gitmap space backup-branch "CLI help displayer overhaul"  Snapshot HEAD into backup/<slug> and push to origin
+  gitmap space backup-branch "hotfix" --no-push  Snapshot HEAD without pushing
 
-## Usage
-
-    gitmap space common [--dry-run] [--force]
-
-## `space common`
-
-Adds or dedupe-merges the curated baselines for `.gitignore`,
-`.gitattributes`, `.prettierignore`, `.prettierrc`, and runs
-`git lfs install --local` + the `lfs/common` `.gitattributes`
-block, all in one pass. Identical engine to `gitmap commons`.
-
-Behavior:
-  - Line-based targets append MISSING lines only; existing entries
-    are preserved verbatim. Safe to re-run.
-  - `.prettierrc` is JSON key-union: missing keys added, existing kept
-    unless `--force` is passed.
-  - Idempotent — a second run on an unchanged repo writes nothing.
-
-## Flags
-
-| Flag | Purpose |
-|------|---------|
-| `--dry-run`, `-n` | Print planned additions without touching disk |
-| `--force`, `-f` | For `.prettierrc` only: overwrite conflicting keys instead of preserving them |
-
-## Examples
-
-```bash
-gitmap space common
-gitmap space common --dry-run
-gitmap space common --force
+* Subcommand help: gitmap space --help <subcommand> (try: common, backup-branch)
 ```
-
-## See Also
-
-- [commons](commons.md) — Same baselines as a top-level shortcut (`co`)
-- [sync](sync.md) — Per-target union merge with the same engine
