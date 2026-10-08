@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.509.0] - 2026-10-08
+
+### Added
+- cli build verification, cpar documentation, and chrome profile automation
+
+---
+
 ## [v6.508.0] - 2026-10-08
 
 ### Added
