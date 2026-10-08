@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.508.0] - 2026-10-08
+
+### Added
+- universal file runner, supabase vault, cpc chore commits, pe-ai and muse skills v6.508.0
+
+---
+
 ## [v6.507.2] - 2026-10-08
 
 ### Added
