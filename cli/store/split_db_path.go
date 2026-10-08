@@ -18,6 +18,7 @@ const (
 	SectionStartup      = "startup"
 	SectionSites        = "sites"
 	SectionSchedule     = "schedule"
+	SectionAiAnalysis   = "ai-analysis"
 )
 
 // SanitizeSlug converts an arbitrary name or repo identifier into a clean filesystem slug.
@@ -148,6 +149,26 @@ func ResolveSearchDbPath(repoRoot string) string {
 	_ = os.MkdirAll(dir, 0755)
 
 	return filepath.ToSlash(filepath.Join(dir, DbFileName))
+}
+
+// ResolveAiAnalysisSplitDbPath resolves the AI analysis split SQLite database file path (.gitmap/data/ai-analysis/<slug>/sql.db).
+func ResolveAiAnalysisSplitDbPath(slug, repoRoot string) string {
+	cleanSlug := SanitizeSlug(slug)
+	isDefaultSlug := cleanSlug == "" || cleanSlug == "default"
+	if isDefaultSlug && repoRoot != "" {
+		cleanSlug = SanitizeSlug(filepath.Base(repoRoot))
+	}
+
+	return ResolveSplitDbPath(SectionAiAnalysis, cleanSlug, repoRoot)
+}
+
+// ResolveAiAnalysisDbPath resolves the AI analysis split SQLite database file path (.gitmap/data/ai-analysis/ai-analysis.db).
+func ResolveAiAnalysisDbPath(repoRoot string) string {
+	baseDir := resolveBaseDataDir(repoRoot)
+	dir := filepath.Join(baseDir, SectionAiAnalysis)
+	_ = os.MkdirAll(dir, 0755)
+
+	return filepath.ToSlash(filepath.Join(dir, "ai-analysis.db"))
 }
 
 func migrateLegacySplitDb(section, slug, repoRoot, targetPath string) {

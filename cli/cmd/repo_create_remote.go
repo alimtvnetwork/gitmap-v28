@@ -7,20 +7,66 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
-func buildRemoteSlug(p createRepoParams) string {
-	slug := p.Slug
-	if slug == "" {
-		slug = SlugifyRepoName(p.Name)
+func resolveBaseSlug(slug, name string) string {
+	if slug != "" {
+		return slug
 	}
 
-	hasProfile := p.Profile.Name != "" && p.Profile.Name != "default"
-	if hasProfile {
+	return SlugifyRepoName(name)
+}
+
+func isProfileSlugPrefix(prof model.GitProfile) bool {
+	if prof.Name == "" || prof.Name == "default" {
+		return false
+	}
+
+	if strings.Contains(prof.Name, " ") {
+		return false
+	}
+
+	return true
+}
+
+func buildRemoteSlug(p createRepoParams) string {
+	slug := resolveBaseSlug(p.Slug, p.Name)
+	if strings.Contains(slug, "/") {
+		return slug
+	}
+
+	if isProfileSlugPrefix(p.Profile) {
 		return p.Profile.Name + "/" + slug
 	}
 
 	return slug
+}
+
+func resolveVisibilityFlag(isPublic bool) string {
+	if isPublic {
+		return "--public"
+	}
+
+	return "--private"
+}
+
+func executeCreateRemoteRepo(absDir, slug, visibilityFlag string) (string, error) {
+	cmd := exec.Command("gh", "repo", "create", slug, visibilityFlag, "--source=.", "--remote=origin", "--push")
+	cmd.Dir = absDir
+	out, err := cmd.CombinedOutput()
+	if err != nil && isRepoCollisionOutput(string(out)) {
+		return handleExistingRemoteRepo(absDir, slug)
+	}
+
+	if err != nil {
+		return "", apperror.WrapSimple(err, fmt.Sprintf("gh repo create failed: %s", string(out)))
+	}
+
+	sshURL := fmt.Sprintf("git@github.com:%s.git", slug)
+	_ = exec.Command("git", "-C", absDir, "remote", "set-url", "origin", sshURL).Run()
+
+	return fmt.Sprintf("https://github.com/%s", slug), nil
 }
 
 func pushRemoteRepo(p createRepoParams) (string, error) {
@@ -29,37 +75,17 @@ func pushRemoteRepo(p createRepoParams) (string, error) {
 	}
 
 	absDir, _ := filepath.Abs(p.LocalDir)
-	visibilityFlag := "--private"
-	if p.IsPublic {
-		visibilityFlag = "--public"
-	}
-
+	visibilityFlag := resolveVisibilityFlag(p.IsPublic)
 	slug := buildRemoteSlug(p)
-	sshURL := fmt.Sprintf("git@github.com:%s.git", slug)
-	cmd := exec.Command("gh", "repo", "create", slug, visibilityFlag, "--source=.", "--remote=origin", "--push")
-	cmd.Dir = absDir
-	out, err := cmd.CombinedOutput()
-	if err != nil && strings.Contains(strings.ToLower(string(out)), "already exists") {
+
+	hasRemote, probeErr := probeRemoteRepoExists(slug)
+	if probeErr == nil && hasRemote {
 		return handleExistingRemoteRepo(absDir, slug)
 	}
-	if err != nil {
-		return "", apperror.WrapSimple(err, fmt.Sprintf("gh repo create failed: %s", string(out)))
-	}
 
-	_ = exec.Command("git", "-C", absDir, "remote", "set-url", "origin", sshURL).Run()
-
-	return fmt.Sprintf("https://github.com/%s", slug), nil
+	return executeCreateRemoteRepo(absDir, slug, visibilityFlag)
 }
 
 func handleExistingRemoteRepo(absDir, slug string) (string, error) {
-	sshURL := fmt.Sprintf("git@github.com:%s.git", slug)
-	cmdSet := exec.Command("git", "-C", absDir, "remote", "set-url", "origin", sshURL)
-	if err := cmdSet.Run(); err != nil {
-		cmdAdd := exec.Command("git", "-C", absDir, "remote", "add", "origin", sshURL)
-		_ = cmdAdd.Run()
-	}
-	cmdPush := exec.Command("git", "-C", absDir, "push", "-u", "origin", "main", "--force")
-	_ = cmdPush.Run()
-
-	return fmt.Sprintf("https://github.com/%s", slug), nil
+	return handleRemoteCollision(absDir, slug)
 }

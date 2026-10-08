@@ -37,8 +37,7 @@ func Run() {
 	initConsole()
 
 	if len(os.Args) < 2 {
-		PrintBinaryLocations()
-		printUsage()
+		printUsageCompact()
 
 		return
 	}
@@ -81,8 +80,7 @@ func Run() {
 	// Strip global `--ai` execution recording flag and track in env.
 	os.Args = append(os.Args[:1], stripAiFlag(os.Args[1:])...)
 	if len(os.Args) < 2 {
-		PrintBinaryLocations()
-		printUsage()
+		printUsageCompact()
 
 		return
 	}
@@ -793,6 +791,11 @@ func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.
 	case constants.CmdAi, constants.CmdAiAlias:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
 			return cmdai.DispatchAi(args)
+		}, shouldAudit, id, start)
+		return true
+	case "ai-analysis", "ai-ana", "aia":
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return cmdai.DispatchAiAnalysis(argsTail())
 		}, shouldAudit, id, start)
 		return true
 	case "lowercase", "lower", "lower-case-fix", "lowercase-fix", "lcf", "lower-case-readme", "lowercase-readme", "readme-lower", "readme-lowercase", "lcr", "lc-fix":

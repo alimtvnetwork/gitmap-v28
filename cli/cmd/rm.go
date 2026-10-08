@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
@@ -22,6 +23,10 @@ import (
 
 // rmUsage describes the `gitmap rm` command.
 const rmUsage = `Usage: gitmap rm [-y|--yes] <target>[,<target>...] [<target>...]
+       gitmap rm <pattern> [--task <id>] [--reason <text>] [--undo] [--force]
+       gitmap rm undo [<task_id>]
+       gitmap rm list
+       gitmap rm purge [--all] [--task <id>] [--older-than <duration>]
        gitmap remove ...
        gitmap del ...
 
@@ -30,6 +35,7 @@ Targets may be:
   - a path                     (./projects/foo, .\macro-ahk, /abs/path)
   - a glob over slug or path   (macro*, gitmap-*)
   - comma-joined combinations  (macro*,gitmap*)
+  - a file or file glob        (patch_*.py, temp_*.tmp)
 
 Default: prompts before deleting each repo folder on disk.
 With -y/--yes: deletes on-disk folder and DB row without prompting.
@@ -37,9 +43,10 @@ With -y/--yes: deletes on-disk folder and DB row without prompting.
 Examples:
   gitmap rm my-repo
   gitmap rm macro*
-  gitmap rm macro*,gitmap*
-  gitmap rm -y macro*
-  gitmap rm ./projects/foo ../bar
+  gitmap rm "temp_test_*.tmp" --task "task-240-verify"
+  gitmap rm undo task-240-verify
+  gitmap rm list
+  gitmap rm purge --all
 `
 
 // runRm handles `gitmap rm`. Supports globs, comma-joined targets,
@@ -47,6 +54,10 @@ Examples:
 // addition to the DB row and .gitmap/output/gitmap.json entry.
 func runRm(args []string) error {
 	checkHelp("rm", args)
+	if isSafeRmDirective(args) {
+		return cmdrm.RunSafeRmCLI(args)
+	}
+
 	yes, dbOnly, rest := parseRmFlags(args)
 	targets := expandRmTargets(rest)
 	if len(targets) == 0 {
@@ -62,11 +73,15 @@ func runRm(args []string) error {
 
 	defer db.Close()
 
-	return executeRmTargets(db, targets, yes, dbOnly)
+	return executeRmTargets(db, targets, yes, dbOnly, args)
 }
 
-func executeRmTargets(db *store.DB, targets []string, isYes, isDbOnly bool) error {
+func executeRmTargets(db *store.DB, targets []string, isYes, isDbOnly bool, origArgs []string) error {
 	matches, missing := resolveRmMatches(db, targets)
+	if len(matches) == 0 && canFallbackToSafeRm(targets) {
+		return cmdrm.RunSafeRmCLI(origArgs)
+	}
+
 	reportMissingRmTargets(db, missing)
 	if len(matches) == 0 {
 		return nil
@@ -74,6 +89,36 @@ func executeRmTargets(db *store.DB, targets []string, isYes, isDbOnly bool) erro
 
 	_ = removeRmMatches(db, matches, isYes, isDbOnly)
 	return nil
+}
+
+func isSafeRmDirective(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	first := strings.ToLower(args[0])
+	if first == "undo" || first == "list" || first == "purge" {
+		return true
+	}
+
+	for _, a := range args {
+		if a == "--undo" || a == "-u" || a == "--purge" || a == "--list" {
+			return true
+		}
+		if a == "--task" || a == "-t" || a == "--reason" || a == "-r" {
+			return true
+		}
+		if strings.HasPrefix(a, "--task=") || strings.HasPrefix(a, "--reason=") || strings.HasPrefix(a, "--older-than") {
+			return true
+		}
+	}
+
+	return false
+}
+
+func canFallbackToSafeRm(targets []string) bool {
+	expanded, err := cmdrm.ExpandFilePatterns(targets, ".")
+	return err == nil && len(expanded) > 0
 }
 
 func resolveRmMatches(db *store.DB, targets []string) ([]model.ScanRecord, []string) {

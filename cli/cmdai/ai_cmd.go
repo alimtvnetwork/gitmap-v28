@@ -149,6 +149,10 @@ func isAiSubcommand(token string) bool {
 		clean == "create" || clean == "new" || clean == "scaffold" || clean == "gen" ||
 		clean == "history" || clean == "hist" || clean == "frequent" || clean == "freq" ||
 		clean == "pwsh" || clean == "ps" || clean == "powershell" ||
+		clean == "analysis" || clean == "trace" || clean == "session" ||
+		clean == "train" || clean == "llm-train" ||
+		clean == "export" || clean == "import" ||
+		clean == "clear" || clean == "prune" ||
 		clean == "help" || clean == "--help" || clean == "-h"
 
 	return isKnown
@@ -172,6 +176,9 @@ func init() {
 
 	initListFlags()
 	initCreateCmd()
+	initTrainCommands()
+	initExportCommands()
+	initClearCommands()
 }
 
 func initListFlags() {

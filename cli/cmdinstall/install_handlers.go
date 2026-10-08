@@ -40,6 +40,18 @@ func resolveSpecialToolsMap() map[string]func(installOptions) {
 		constants.ToolBeyondCompare:    func(opts installOptions) { handleBeyondCompareInstall(opts, 5) },
 		constants.ToolBeyondCompare4:   func(opts installOptions) { handleBeyondCompareInstall(opts, 4) },
 		constants.ToolBeyondCompare5:   func(opts installOptions) { handleBeyondCompareInstall(opts, 5) },
+		constants.ToolMuse:             func(opts installOptions) { handleMuseInstall(opts) },
+		constants.ToolMetaMuse:         func(opts installOptions) { handleMuseInstall(opts) },
+	}
+}
+
+func handleMuseInstall(opts installOptions) {
+	museOpts := MuseInstallOptions{
+		Force:  opts.Force || opts.Yes,
+		DryRun: opts.DryRun,
+	}
+	if _, err := RunMuseInstaller(museOpts); err != nil {
+		cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installMuse"), 1)
 	}
 }
 

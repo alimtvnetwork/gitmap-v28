@@ -59,6 +59,8 @@ var toolProbeMap = map[string]toolProbeConfig{
 	constants.ToolBeyondCompare:  {bins: []string{"bcomp", "bcompare", "BComp.exe", "BCompare.exe"}, args: []string{"/version"}},
 	constants.ToolBeyondCompare4: {bins: []string{"bcomp", "bcompare", "BComp.exe", "BCompare.exe"}, args: []string{"/version"}},
 	constants.ToolBeyondCompare5: {bins: []string{"bcomp", "bcompare", "BComp.exe", "BCompare.exe"}, args: []string{"/version"}},
+	constants.ToolMuse:           {bins: []string{"muse", "muse.exe"}, args: []string{"--version"}},
+	constants.ToolMetaMuse:       {bins: []string{"muse", "muse.exe"}, args: []string{"--version"}},
 }
 
 func resolveToolCandidates(tool string) ([]string, []string) {

@@ -130,6 +130,9 @@ var toolAliasMap = map[string]string{
 	"vi":                  "vim",
 	"cursor":              "cursor",
 	"cur":                 "cursor",
+	"muse":                constants.ToolMuse,
+	"meta-muse":           constants.ToolMetaMuse,
+	"metamuse":            constants.ToolMetaMuse,
 }
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.

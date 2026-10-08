@@ -100,6 +100,24 @@ const (
 	ToolOllama     = "ollama"
 	ToolLlamaCpp   = "llama-cpp"
 	ToolPythonLibs = "python-libs"
+	ToolMuse       = "muse"
+	ToolMetaMuse   = "meta-muse"
+)
+
+// Meta Muse official distribution endpoints and binary names.
+const (
+	MetaMuseInstallUrlWindows = "https://dev.meta.ai/install.ps1"
+	MetaMuseInstallUrlUnix    = "https://dev.meta.ai/install.sh"
+	MetaMuseBinaryNameWindows = "muse.exe"
+	MetaMuseBinaryNameUnix    = "muse"
+)
+
+// Meta Muse installer error constants.
+const (
+	ErrMuseDownloadFailed  = "E1085"
+	ErrMissingDownloadTool = "E1086"
+	ErrMuseProbeFailed     = "E1087"
+	ErrUnsupportedArch     = "E1088"
 )
 
 // Supported tool names — DevOps & Containers.
@@ -689,6 +707,8 @@ var InstallToolDescriptions = map[string]string{
 	ToolJq:               "jq command-line JSON processor",
 	ToolYq:               "yq command-line YAML/JSON/XML processor",
 	ToolZellij:           "Zellij terminal workspace and multiplexer",
+	ToolMuse:             "Meta Muse autonomous AI developer agent",
+	ToolMetaMuse:         "Meta Muse autonomous AI developer agent (alias)",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -715,7 +735,7 @@ var InstallToolCategories = map[string][]string{
 		ToolRust, ToolCargo, ToolDotnet, ToolJava, ToolFlutter, ToolLaravel, ToolComposer,
 	},
 	ToolCategoryAI: {
-		ToolOllama, ToolLlamaCpp, ToolPythonLibs,
+		ToolOllama, ToolLlamaCpp, ToolPythonLibs, ToolMuse, ToolMetaMuse,
 	},
 	ToolCategoryDevOps: {
 		ToolDocker, ToolKubernetes, ToolJenkins, ToolNginx, ToolVMware, ToolOpenVmTools,

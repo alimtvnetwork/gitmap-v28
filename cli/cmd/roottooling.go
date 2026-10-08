@@ -146,6 +146,7 @@ func toolingSpecialRepoEntries() []dispatchEntry {
 
 func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"muse", "meta-muse", "metamuse"}, func() error { return RunMuseCLI(argsTail()) }},
 		{[]string{"installer"}, func() error { return RunInstallerCLI(argsTail()) }},
 		{[]string{"which-format", "whichformat", "format-which", "format-inspect", "format-check", "which-json"}, func() error { return runWhichFormatCLI(argsTail()) }},
 		{[]string{"which"}, func() error { return handleWhichSubcommand(argsTail()) }},
