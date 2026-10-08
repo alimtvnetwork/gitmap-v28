@@ -21,8 +21,8 @@ func MirrorAssets(sourceRoot, targetRoot string) (MirrorStats, error) {
 	var stats MirrorStats
 
 	dirs := []struct {
-		relSrc string
-		relDst string
+		relSrc  string
+		relDst  string
 		addOnly bool
 	}{
 		{"01-prompts", "01-prompts", false},
@@ -46,8 +46,8 @@ func MirrorAssets(sourceRoot, targetRoot string) (MirrorStats, error) {
 				if num >= 1 && num <= 20 {
 					rel := filepath.Join("02-spec", e.Name())
 					dirs = append(dirs, struct {
-						relSrc string
-						relDst string
+						relSrc  string
+						relDst  string
 						addOnly bool
 					}{rel, rel, false})
 				}

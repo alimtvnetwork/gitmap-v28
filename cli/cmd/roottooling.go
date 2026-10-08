@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlogin"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdports"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrun"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservice"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtoken"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvmware"
@@ -97,6 +98,8 @@ func toolingAuditEntries() []dispatchEntry {
 		{[]string{constants.CmdTagRename}, func() error { return runTagRename(argsTail()) }},
 		{[]string{constants.CmdRecent, constants.CmdRecentAlias}, func() error { return runRecent(argsTail()) }},
 		{[]string{constants.CmdTodo}, func() error { return runTodo(argsTail()) }},
+		{[]string{"run-errors", "run-err"}, func() error { return cmdrun.RunErrorsCmd(argsTail()) }},
+		{[]string{"run-history"}, func() error { return cmdrun.RunHistoryCmd(argsTail()) }},
 	}
 }
 
@@ -228,6 +231,8 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdPullCommitPush, constants.CmdPullCommitPushAlias}, func() error { return runPullCommitPush(argsTail()) }},
 		{[]string{constants.CmdCommitPushBug, constants.CmdCommitPushBugAlias}, func() error { return runCommitPushBug(argsTail()) }},
 		{[]string{constants.CmdCommitPushFeature, constants.CmdCommitPushFeatureAlias}, func() error { return runCommitPushFeature(argsTail()) }},
+		{[]string{constants.CmdCommitPushChore}, func() error { return runCommitPushChore(argsTail()) }},
+		{[]string{"cpc"}, func() error { return runCpcDisambiguated(argsTail()) }},
 		{[]string{constants.CmdCommitPushRelease, constants.CmdCommitPushReleaseAlias}, func() error { return runCommitPushRelease(argsTail()) }},
 		{[]string{constants.CmdRmGit, constants.CmdRmGitAlias}, func() error { return runRmGit(argsTail()) }},
 		{[]string{constants.CmdGitReset, constants.CmdGitResetAlias}, func() error { return runGitReset(argsTail()) }},
@@ -285,7 +290,7 @@ func toolingUtilEntries() []dispatchEntry {
 
 func toolingChromeEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdChromeProfileCopy, constants.CmdChromeProfileCopyAlias}, func() error { return cmdchromeprofile.RunProfileCopy(argsTail()) }},
+		{[]string{constants.CmdChromeProfileCopy}, func() error { return cmdchromeprofile.RunProfileCopy(argsTail()) }},
 		{[]string{constants.CmdChromeProfileExport, constants.CmdChromeProfileExportAlias}, func() error { return cmdchromeprofile.RunProfileExport(argsTail()) }},
 		{[]string{constants.CmdChromeProfileImport, constants.CmdChromeProfileImportAlias}, func() error { return cmdchromeprofile.RunProfileImport(argsTail()) }},
 		{[]string{constants.CmdChromeProfileList, constants.CmdChromeProfileListAlias, constants.CmdChromeProfileListAlias2}, func() error { return cmdchromeprofile.RunProfileList(argsTail()) }},
@@ -296,6 +301,18 @@ func toolingChromeEntries() []dispatchEntry {
 		{[]string{"chrome-profile-import-all", "cpi-all", "import-all"}, func() error { return cmdchromeprofile.RunImportAll(argsTail()) }},
 		{[]string{constants.CmdChrome, constants.CmdChromeAlias, constants.CmdChromeAlias2}, func() error { return runChrome(argsTail()) }},
 	}
+}
+
+func runCpcDisambiguated(args []string) error {
+	if isCommitPushHelpArg(args) {
+		return runCommitPushChore(args)
+	}
+
+	if isGitRepoCWD() {
+		return runCommitPushChore(args)
+	}
+
+	return cmdchromeprofile.RunProfileCopy(args)
 }
 
 func toolingNetworkEntries() []dispatchEntry {

@@ -51,6 +51,15 @@ validates runtime output against the schema on every build to prevent drift.
   to toggle the styled vs plain renderer.
 - Glyph rendering follows `--glyphs auto|rich|safe` (see `gitmap help glyphs`).
 
+## Semantic Commit Full Forms
+
+- `cpf <msg>`: `commit-push-feature` (Feature: <msg>)
+- `cpb <msg>`: `commit-push-bug` (Bug: <msg>)
+- `cpc <msg>`: `commit-push-chore` (Chore: <msg>)
+- `cpr <msg>`: `commit-push-release` (Release: <msg>)
+- `pcp <msg>`: `pull-commit-push` (pull rebase, stage, commit, and push)
+- `pas`: `pull-all-ssh` (pull all repositories using SSH transport)
+
 ## Scripting (JSON)
 
 Discover this command from a script using the machine-readable help payload:

@@ -10,6 +10,7 @@ import (
 
 // runPipelineAI handles gitmap pipeline-ai commands with automatic delays.
 func runPipelineAI(args []string) error {
+	SetGlobalAIFlag(true)
 	checkHelp("pipeline-ai", args)
 	subcmd, subArgs := extractPipelineAISubcmd(args)
 	if isErrorLogsSubcmd(subcmd) {
@@ -33,18 +34,24 @@ func extractPipelineAISubcmd(args []string) (string, []string) {
 }
 
 func handlePipelineAIStatus(args []string) error {
+	hasUntilDone := hasArgFlag(args, "-ud") || hasArgFlag(args, "--until-done")
 	delaySeconds, subArgs := parsePipelineAIDelay(args)
 	executePipelineAIDelay(delaySeconds, subArgs)
 
 	repo := resolveCurrentRepoSlug()
-	runs := queryWorkflowRuns(repo)
-	payload := buildStatusPayload(repo, queryLatestTagRelease(repo), queryPendingPRs(repo), runs)
-	payload.SleepSeconds = delaySeconds
-	resolvePipelineAINextCommand(&payload)
+	for {
+		runs := queryWorkflowRuns(repo)
+		payload := buildStatusPayload(repo, queryLatestTagRelease(repo), queryPendingPRs(repo), runs)
+		payload.SleepSeconds = delaySeconds
+		resolvePipelineAINextCommand(&payload)
+		recordPipelineInDB(payload, runs)
 
-	recordPipelineInDB(payload, runs)
+		if !hasUntilDone || !payload.IsRunning || isTimelineTestMode() {
+			return outputPipelineAIResult(payload, subArgs)
+		}
 
-	return outputPipelineAIResult(payload, subArgs)
+		time.Sleep(120 * time.Second)
+	}
 }
 
 func resolvePipelineAINextCommand(p *PipelineStatusPayload) {

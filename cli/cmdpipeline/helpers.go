@@ -13,7 +13,45 @@ import (
 
 type clipboardWriterFunc func(text string) error
 
-var writeClipboard clipboardWriterFunc = clipboard.WriteAll
+var globalAIFlag bool
+
+// SetGlobalAIFlag explicitly marks AI session tracking mode.
+func SetGlobalAIFlag(hasAI bool) {
+	globalAIFlag = hasAI
+}
+
+// IsAIFlagActive checks whether AI mode or clipboard suppression is requested.
+func IsAIFlagActive() bool {
+	if globalAIFlag {
+		return true
+	}
+	if os.Getenv("GITMAP_AI_TRACKING") == "1" || os.Getenv("GITMAP_NO_CLIPBOARD") == "1" {
+		return true
+	}
+
+	return false
+}
+
+// ShouldWriteClipboard determines whether clipboard writes are allowed.
+func ShouldWriteClipboard(hasAI bool) bool {
+	if hasAI || IsAIFlagActive() {
+		return false
+	}
+
+	return true
+}
+
+func shouldWriteClipboard(hasAI bool) bool {
+	return ShouldWriteClipboard(hasAI)
+}
+
+var writeClipboard clipboardWriterFunc = func(text string) error {
+	if !shouldWriteClipboard(false) {
+		return nil
+	}
+
+	return clipboard.WriteAll(text)
+}
 
 func checkHelp(command string, args []string) {
 	for _, a := range args {

@@ -31,6 +31,8 @@ type PipelineErrorFlags struct {
 	RepoTarget           string
 	RawRepoTarget        string
 	ResolvedPath         string
+	HasAI                bool
+	HasUntilDone         bool
 }
 
 // ParsePipelineErrorFlags parses command-line arguments for pipeline error-logs.
@@ -40,6 +42,10 @@ func ParsePipelineErrorFlags(args []string) PipelineErrorFlags {
 	parseIndexAndFailures(args, &flags)
 	parseCommitTarget(args, &flags)
 	parseRepoTarget(args, &flags)
+
+	if flags.HasAI {
+		SetGlobalAIFlag(true)
+	}
 
 	return flags
 }
@@ -58,6 +64,9 @@ func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.HasForce = hasForceArg(args)
 	flags.FormatProfile = extractFormatProfileFlag(args)
 	flags.HasFix = hasArgFlag(args, "--fix") || (hasArgFlag(args, "-f") && flags.FormatProfile == "")
+	flags.HasAI = hasArgFlag(args, "--ai") || hasArgFlag(os.Args, "--ai")
+	flags.HasUntilDone = hasArgFlag(args, "-ud") || hasArgFlag(args, "--until-done") ||
+		hasArgFlag(os.Args, "-ud") || hasArgFlag(os.Args, "--until-done")
 }
 
 func extractFormatProfileFlag(args []string) string {
@@ -313,7 +322,7 @@ func isSkipTokenForCommit(token string) bool {
 	}
 
 	switch token {
-	case "-f", "-c", "-v", "-V", "-t", "-w", "-h", "-n", "-y", "-j":
+	case "-f", "-c", "-v", "-V", "-t", "-w", "-h", "-n", "-y", "-j", "-ud":
 		return true
 	case "clear", "last-failed-logs", "errors", "error-logs", "pe", "history-ai", "hai":
 		return true

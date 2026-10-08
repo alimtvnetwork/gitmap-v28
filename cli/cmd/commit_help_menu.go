@@ -20,6 +20,9 @@ func buildCommitHelpMenu() termhelp.HelpMenu {
 			"gitmap commit-right <left> <right> [flags]",
 			"gitmap cpf \"<message>\" (commit-push-feature)",
 			"gitmap cpb \"<message>\" (commit-push-bug)",
+			"gitmap cpc \"<message>\" (commit-push-chore)",
+			"gitmap cpr \"<message>\" (commit-push-release)",
+			"gitmap pcp \"<message>\" (pull-commit-push)",
 		},
 		Sections: []termhelp.HelpSection{
 			buildCommitTransferSection(),
@@ -31,6 +34,7 @@ func buildCommitHelpMenu() termhelp.HelpMenu {
 			"Use 'gitmap commit \"message\"' (or 'gitmap cm') for 1-step auto-stage and flat commit.",
 			"Use 'gitmap commit-both' to synchronize commits bidirectionally between repositories.",
 			"Use 'gitmap cpf \"feat: description\"' for 1-step stage, commit, and push.",
+			"Use 'gitmap cpc \"chore: description\"' for 1-step chore stage, commit, and push.",
 		},
 	}
 }
@@ -63,11 +67,13 @@ func buildCommitAIWorkflowSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
 		Title: "Commit & AI Workflow Shortcuts",
 		Entries: []termhelp.CommandEntry{
-			{Command: "commit, cm <msg>", Description: "Flat git commit with auto-stage (git add -A)"},
+			{Command: "commit, cm <msg>", Description: "commit: flat git commit with auto-stage (git add -A)"},
 			{Command: "cpf <msg>", Description: "commit-push-feature: stage all, commit feat, and push"},
 			{Command: "cpb <msg>", Description: "commit-push-bug: stage all, commit bugfix, and push"},
-			{Command: "cpr <msg>", Description: "commit-push-release: stage, commit release chore, and push"},
-			{Command: "pcp <msg>", Description: "pull-commit-push: pull latest, stage, commit, and push"},
+			{Command: "cpc <msg>", Description: "commit-push-chore: stage all, commit chore/maintenance, and push"},
+			{Command: "cpr <msg>", Description: "commit-push-release: stage all, commit release chore, and push"},
+			{Command: "pcp <msg>", Description: "pull-commit-push: pull latest rebase, stage, commit, and push"},
+			{Command: "pas", Description: "pull-all-ssh: pull all repositories using SSH transport"},
 		},
 	}
 }

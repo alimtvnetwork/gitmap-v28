@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsupabase"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -62,6 +63,7 @@ func dataDatabaseEntries() []dispatchEntry {
 		{[]string{constants.CmdAmendList, constants.CmdAmendListAlias}, func() error { return runAmendList(argsTail()) }},
 		{[]string{constants.CmdDashboard, constants.CmdDashboardAlias}, func() error { return runDashboard(argsTail()) }},
 		{[]string{constants.CmdVersionHistory, constants.CmdVersionHistoryAlias}, func() error { return runVersionHistory(argsTail()) }},
+		{[]string{"supabase", "sb"}, func() error { return cmdsupabase.RunSupabaseCLI(argsTail()) }},
 	}
 }
 

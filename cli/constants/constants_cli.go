@@ -99,6 +99,9 @@ const (
 	// CmdCommitPushFeature commits with a "Feature: " prefix and pushes.
 	CmdCommitPushFeature      = "commit-push-feature"
 	CmdCommitPushFeatureAlias = "cpf"
+	// CmdCommitPushChore stages all changes, commits with a "Chore: " prefix, and pushes.
+	CmdCommitPushChore      = "commit-push-chore" // gitmap:cmd skip
+	CmdCommitPushChoreAlias = "cpc"               // gitmap:cmd skip
 	// CmdCommitPushRelease commits with a "Release: " prefix and pushes.
 	CmdCommitPushRelease      = "commit-push-release"
 	CmdCommitPushReleaseAlias = "cpr"

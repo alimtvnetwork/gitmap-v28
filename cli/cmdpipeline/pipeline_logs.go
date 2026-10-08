@@ -8,7 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
@@ -64,8 +66,13 @@ func executePipelineErrorLogs(args []string) error {
 		return err
 	}
 	repo := resolveFlagsRepoSlug(flags)
-	if flags.HasTimeline {
-		return executeTimelineErrorLogs(repo, flags, args)
+
+	if isInstant, decision := tryInstantCommitHashRetrieval(repo, flags); isInstant {
+		return renderCachedErrorLogs(repo, decision, flags)
+	}
+
+	if flags.HasTimeline || flags.HasUntilDone {
+		return executeTimelineOrUntilDoneErrorLogs(repo, flags, args)
 	}
 
 	return processAndRenderErrorLogs(repo, flags)
@@ -90,6 +97,138 @@ func resolveFlagsRepoSlug(flags PipelineErrorFlags) string {
 	return resolveCurrentRepoSlug()
 }
 
+func executeTimelineOrUntilDoneErrorLogs(repo string, flags PipelineErrorFlags, args []string) error {
+	WaitForRunnerETAIfActive()
+	if !flags.IsJSON && !flags.HasSuppressOutputLog {
+		printTimelineWatchHeader(repo, flags)
+	}
+
+	return runTimelineOrUntilDoneLoop(repo, flags)
+}
+
+func printTimelineWatchHeader(repo string, flags PipelineErrorFlags) {
+	mode := "dynamic timeline"
+	if flags.HasUntilDone {
+		mode = "until-done"
+	}
+	fmt.Printf("%s● Watching pipeline [%s] (%s, interval: 2m)...%s\n",
+		constants.ColorCyan, repo, mode, constants.ColorReset)
+}
+
+func runTimelineOrUntilDoneLoop(repo string, flags PipelineErrorFlags) error {
+	for {
+		isDone, err := pollTimelineLoopStep(repo, flags)
+		if isDone {
+			return err
+		}
+
+		if isTimelineTestMode() {
+			return nil
+		}
+
+		time.Sleep(120 * time.Second)
+	}
+}
+
+func pollTimelineLoopStep(repo string, flags PipelineErrorFlags) (bool, error) {
+	runs := queryWorkflowRunsForTarget(repo, flags.CommitTarget)
+	RecordFetchedRunsToSplitDb(repo, runs)
+	payload := buildErrorLogsPayloadWithFlags(repo, runs, flags)
+	applyPayloadOptions(&payload, runs, flags)
+
+	if hasEarlyDetectedErrors(payload) {
+		renderTimelineErrorAndExit(payload, flags)
+		return true, fmt.Errorf("pipeline errors detected in active run")
+	}
+
+	if !payload.IsRunning {
+		return true, writeTimelineOutputPayload(payload, flags)
+	}
+
+	printTimelineProgress(payload.ActiveRunName, payload.EtaSeconds, 120)
+	return false, nil
+}
+
+func renderTimelineErrorAndExit(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) {
+	_ = writeTimelineOutputPayload(payload, flags)
+	cliexit.Exit(1)
+}
+
+func writeTimelineOutputPayload(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) error {
+	return writeOrRenderErrorLogs(ErrorLogOutputParams{
+		Payload:              payload,
+		IsJSON:               flags.IsJSON,
+		HasSuppressOutputLog: flags.HasSuppressOutputLog,
+		FilePath:             flags.FilePath,
+		TempFile:             flags.TempFileName,
+		WantFix:              flags.HasFix,
+	})
+}
+
+func hasEarlyDetectedErrors(payload PipelineErrorLogsPayload) bool {
+	if len(payload.FailedRuns) > 0 || len(payload.SectionFailures) > 0 {
+		return true
+	}
+	if isFailingConclusion(payload.Conclusion) {
+		return true
+	}
+	if len(payload.CombinedErrors) > 0 {
+		return true
+	}
+	if isFailingErrorLogs(payload.ErrorLogs) {
+		return true
+	}
+
+	return false
+}
+
+func isFailingErrorLogs(logs string) bool {
+	if len(logs) == 0 {
+		return false
+	}
+	if strings.Contains(logs, "No failed pipeline steps") {
+		return false
+	}
+
+	return strings.Contains(logs, "FAIL") || strings.Contains(logs, "Error") || strings.Contains(logs, "error")
+}
+
+func tryInstantCommitHashRetrieval(repo string, flags PipelineErrorFlags) (bool, PipelineCacheDecision) {
+	if flags.HasForce {
+		return false, PipelineCacheDecision{}
+	}
+
+	db, err := pipelinedb.OpenPipelineSplitDb(repo)
+	if err != nil {
+		return false, PipelineCacheDecision{}
+	}
+	defer db.Close()
+
+	runRes := db.QueryRecentRuns(20)
+	if runRes.IsFailure() || len(runRes.Data) == 0 {
+		return false, PipelineCacheDecision{}
+	}
+
+	targetSha := resolveTargetOrHeadSha(repo, flags)
+	if len(targetSha) == 0 {
+		return false, PipelineCacheDecision{}
+	}
+
+	if checkCommitTargetCacheHit(runRes.Data, targetSha) {
+		return true, buildCacheHitDecision(runRes.Data, targetSha, "instant_hash_retrieval_completed")
+	}
+
+	return false, PipelineCacheDecision{}
+}
+
+func resolveTargetOrHeadSha(repo string, flags PipelineErrorFlags) string {
+	if len(flags.CommitTarget) > 0 && !flags.HasIndex {
+		return flags.CommitTarget
+	}
+
+	return ResolveRepoHeadCommitSha(repo)
+}
+
 func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []string) error {
 	WaitForRunnerETAIfActive()
 
@@ -102,6 +241,10 @@ func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []stri
 
 func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 	activeLogLineLimit = flags.Limit
+	if isInstant, decision := tryInstantCommitHashRetrieval(repo, flags); isInstant {
+		return renderCachedErrorLogs(repo, decision, flags)
+	}
+
 	decision := EvaluatePipelineErrorsCache(repo, flags)
 	if decision.IsFromCache {
 		return renderCachedErrorLogs(repo, decision, flags)
@@ -924,7 +1067,9 @@ func dispatchErrorLogPresentation(params ErrorLogOutputParams, content string) e
 
 func outputJSONErrorLogs(content string) error {
 	fmt.Println(content)
-	_ = writeClipboard(content)
+	if shouldWriteClipboard(false) {
+		_ = writeClipboard(content)
+	}
 
 	return nil
 }
@@ -940,7 +1085,9 @@ func printSuppressedStagingNotice(reportFile string) {
 }
 
 func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
-	_ = writeClipboard(content)
+	if shouldWriteClipboard(false) {
+		_ = writeClipboard(content)
+	}
 	if len(params.TempFile) > 0 {
 		targetPath := filepath.Join(resolveTempDir(), params.TempFile)
 
@@ -1186,6 +1333,9 @@ func appendClipboardRunStatus(sb *strings.Builder, p PipelineErrorLogsPayload) {
 }
 
 func copyReportToClipboard(content string, isFailure bool) {
+	if !shouldWriteClipboard(false) {
+		return
+	}
 	if len(content) == 0 {
 		return
 	}
@@ -1230,6 +1380,7 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, cleaned, constants.ColorReset)
 	}
 
+	renderSectionSourceDetails(sec)
 	renderSectionWarnings(sec.Warnings, activeLogLineLimit)
 	renderSectionErrorLinesDedup(sec.ErrorLines, sec.FailureSummary, activeLogLineLimit)
 	if len(sec.StackTrace) > 0 {
@@ -1239,6 +1390,25 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	if len(sec.SavedLogFile) > 0 {
 		fmt.Printf("      Log:     %s\n", filepath.ToSlash(FormatRelativeDbPath(sec.SavedLogFile)))
 	}
+}
+
+func renderSectionSourceDetails(sec SectionFailure) {
+	logger := "github-actions"
+	if len(sec.WorkflowName) > 0 {
+		logger = sec.WorkflowName
+	}
+	url := fmt.Sprintf("https://github.com/run/%d", sec.RunId)
+	logFile := filepath.ToSlash(FormatRelativeDbPath(sec.SavedLogFile))
+	if len(logFile) == 0 {
+		logFile = "in-memory / active stream"
+	}
+
+	fmt.Printf("      Source Details:\n")
+	fmt.Printf("        Logger:    %s\n", logger)
+	fmt.Printf("        Workflow:  %s\n", sec.WorkflowName)
+	fmt.Printf("        Job/Step:  %s / %s\n", sec.JobName, sec.StepName)
+	fmt.Printf("        URL:       %s\n", url)
+	fmt.Printf("        Log File:  %s\n", logFile)
 }
 
 func cleanDisplayErrorText(text, job, step string) string {
@@ -1333,10 +1503,30 @@ func renderFailedRunsBreakdown(failedRuns []FailedRunItem) {
 func renderSingleFailureTerminal(p PipelineErrorLogsPayload) {
 	fmt.Printf("  %s● Latest Pipeline Failure [%s #%d]:%s\n\n",
 		constants.ColorRed, p.WorkflowName, p.RunId, constants.ColorReset)
+	renderPayloadSourceDetails(p)
 	clean := extractCleanErrorLines(p.ErrorLogs)
 	printLogsContent(clean, p.ErrorLogs)
 	renderSavedLocationsTerminal(p)
 	printRerunETA(p.RerunEtaSeconds)
+}
+
+func renderPayloadSourceDetails(p PipelineErrorLogsPayload) {
+	logger := "github-actions"
+	if len(p.WorkflowName) > 0 {
+		logger = p.WorkflowName
+	}
+	logFile := filepath.ToSlash(FormatRelativeDbPath(p.SavedReportFile))
+	if len(logFile) == 0 {
+		logFile = "in-memory / active stream"
+	}
+
+	fmt.Printf("    Source Details:\n")
+	fmt.Printf("      Logger:    %s\n", logger)
+	fmt.Printf("      Workflow:  %s\n", p.WorkflowName)
+	if len(p.Url) > 0 {
+		fmt.Printf("      URL:       %s\n", p.Url)
+	}
+	fmt.Printf("      Log File:  %s\n\n", logFile)
 }
 
 func renderFailedRunCard(fr FailedRunItem, idx, total int) {

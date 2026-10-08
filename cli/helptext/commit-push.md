@@ -22,6 +22,17 @@ gitmap commit-push "your message"
 
 - `gitmap cp "message"`
 
+## Semantic Commit Shortcuts & Full Forms
+
+GitMap provides dedicated 1-step stage, commit, and push shortcuts for semantic git history:
+
+- `cpf <msg>`: `commit-push-feature` (Feature: <msg>)
+- `cpb <msg>`: `commit-push-bug` (Bug: <msg>)
+- `cpc <msg>`: `commit-push-chore` (Chore: <msg>)
+- `cpr <msg>`: `commit-push-release` (Release: <msg>)
+- `pcp <msg>`: `pull-commit-push` (pull rebase, stage, commit, and push)
+- `pas`: `pull-all-ssh` (pull all repositories using SSH transport)
+
 ## Examples
 
 ```bash

@@ -131,6 +131,23 @@ func runCommitPushFeature(args []string) error {
 	return executeCommitPush(commitMessage)
 }
 
+// runCommitPushChore commits with a "Chore: " prefix.
+func runCommitPushChore(args []string) error {
+	if isCommitPushHelpArg(args) {
+		checkHelp(constants.CmdCommitPushChore, []string{"--help"})
+
+		return nil
+	}
+
+	if len(args) == 0 {
+		return apperror.NewSimple("Usage: gitmap commit-push-chore \"<what chore was done>\"", "E9000")
+	}
+
+	commitMessage := "Chore: " + strings.Join(args, " ")
+
+	return executeCommitPush(commitMessage)
+}
+
 // runCommitPushRelease commits with a "Release: " prefix.
 func runCommitPushRelease(args []string) error {
 	if isCommitPushHelpArg(args) {
