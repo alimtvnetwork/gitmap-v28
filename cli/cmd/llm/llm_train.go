@@ -100,7 +100,7 @@ func printCurriculumSummary() {
 }
 
 func handleSkillGeneration(opts TrainOptions) *apperror.AppError {
-	fmt.Println(SkillTemplate)
+	fmt.Print(SkillTemplate)
 	fmt.Println()
 	if opts.IsTextOnly {
 		return nil

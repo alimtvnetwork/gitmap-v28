@@ -96,3 +96,38 @@ func TestRunLlmHelp(t *testing.T) {
 		t.Fatalf("expected nil error for Run --help, got: %v", err)
 	}
 }
+
+func TestRunTrainURLs(t *testing.T) {
+	err := RunTrain([]string{"--urls"})
+	if err != nil {
+		t.Fatalf("expected nil error for RunTrain --urls, got: %v", err)
+	}
+}
+
+func TestPublicDocLinksContent(t *testing.T) {
+	links := GetPublicDocLinks()
+	if len(links) < 5 {
+		t.Errorf("expected at least 5 public doc links, got %d", len(links))
+	}
+	for _, link := range links {
+		if !strings.HasPrefix(link.URL, "https://") {
+			t.Errorf("expected link URL to start with https://, got %s", link.URL)
+		}
+	}
+}
+
+func TestRecursiveInstructions(t *testing.T) {
+	instructions := RenderRecursiveInstructions()
+	if !strings.Contains(instructions, "STAGE 4: RECURSIVE GIT NETWORK LEARNING DIRECTIVES") {
+		t.Errorf("expected STAGE 4 in recursive instructions")
+	}
+	if !strings.Contains(instructions, "gitmap pe history-ai") {
+		t.Errorf("expected gitmap pe history-ai mention in recursive instructions")
+	}
+
+	directive := RenderSkillCreationDirective()
+	if !strings.Contains(directive, "AUTHORITATIVE SKILL INGESTION") {
+		t.Errorf("expected skill ingestion directive header")
+	}
+}
+
