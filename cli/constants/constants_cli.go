@@ -304,8 +304,12 @@ const (
 	// CmdSpace is the top-level namespace for GitMap space operations.
 	// Subcommands: `space common` applies the curated .gitignore,
 	// .gitattributes, .prettierignore, .prettierrc baselines plus
-	// `git lfs install --local` (same logic as `gitmap commons`).
+	// `git lfs install --local` (same logic as `gitmap commons`);
+	// `space backup-branch` snapshots HEAD into backup/<slug>.
 	CmdSpace             = "space"
+	// CmdSpaceBackupBranch is the `space backup-branch` subcommand —
+	// creates backup/<slug> from HEAD for the given task string.
+	CmdSpaceBackupBranch = "backup-branch"
 	CmdRecreateRepo      = "recreate-repo"
 	CmdRecreateRepoAlias = "recreate"
 	CmdRestEnable        = "rest-enable"
