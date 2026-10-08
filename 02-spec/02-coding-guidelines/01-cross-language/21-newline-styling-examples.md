@@ -1,4 +1,16 @@
-# Newline Styling Examples
+# Newline Styling Examples (AI Execution Prompt)
+
+> **/goal** Master and enforce vertical whitespace and newline styling rules across all languages, ensuring mandatory blank lines before `return`, blank lines after closing `}`, no empty lines at function starts, and zero consecutive blank lines.
+> **/learn** Internalize the vertical spacing rhythm (R4: blank line before return in multi-line blocks; R5: blank line after closing `}`; R12: no empty line at function start; R13: single blank line maximum; Unix newlines by default).
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Insert a blank line before every `return` or `throw` statement in multi-line blocks preceded by other statements.
+- [ ] `/learn` Insert a blank line after every closing brace `}` whenever followed by more executable code in the same scope.
+- [ ] `/goal` Prevent empty lines at the immediate start of function or method bodies (comments are permitted).
+- [ ] `/learn` Eliminate double blank lines throughout all source files and default to Unix newline conventions (`\n`).
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -154,6 +166,24 @@ Use `constants.NewLineUnix` (`"\n"`) in 90% of cases. Only use `constants.NewLin
 
 - [Code Style](./04-code-style/readme.md) — Formal rule definitions (R4, R5, R10, R12, R13)
 - [Master Coding Guidelines §5](./15-master-coding-guidelines/readme.md) — Formatting rules summary
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-STYLE-009: Vertical Newline Spacing & Whitespace Conformance
+
+**Given** Source code files containing function bodies, control flow blocks, and return statements across Go, TypeScript, and PHP.
+**When** Code guideline linters or CI autofixers scan vertical whitespace patterns.
+**Then** All functions adhere strictly to vertical newline rhythm: blank line before return (in multi-line functions), blank line after closing `}`, no blank line at function start, zero double blank lines, and exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

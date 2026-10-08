@@ -3,7 +3,7 @@
 **Spec ID:** 19-main-worker-service
 **Status:** Spec authoring in progress
 **Owner:** Md. Alim Ul Karim, Riseup Asia LLC
-**Default stack:** Laravel (PHP). Stack-agnostic by design — see §Stack Flexibility in `01-index.md`.
+**Default stack:** Laravel (PHP). Stack-agnostic by design — see §Stack Flexibility in `readme.md`.
 
 ---
 
@@ -31,7 +31,7 @@ Each phase is one user `next` cycle.
 ### ✅ Phase 1 — Foundation (this turn)
 
 - `29-plan.md` (this file)
-- `01-index.md` — purpose, scope, stack flexibility, terminology pointers
+- `readme.md` — purpose, scope, stack flexibility, terminology pointers
 - `02-architecture.md` — main/worker topology, request flow, boundaries
 - `03-glossary.md` — Main Server, Worker Node, Tenant Root, Power Admin, etc.
 

@@ -1,4 +1,16 @@
-# SOLID Principles Reference
+# SOLID Principles Reference (AI Execution Prompt)
+
+> **/goal** Enforce SOLID architectural design principles across Go, TypeScript, PHP, Rust, and polyglot codebases to ensure high cohesion, low coupling, decoupled abstractions, and modular maintainability.
+> **/learn** Master the five core pillars (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion), decompose multi-concern classes/functions, design minimal interfaces (1-3 methods), and depend on injectable abstractions.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify each module, class, and function possesses a single reason to change (SRP).
+- [ ] `/learn` Extend functionality through composition and new types without modifying stable existing code (OCP).
+- [ ] `/goal` Ensure derived types and interface implementations fulfill the complete behavioral contract without throwing or panicking (LSP).
+- [ ] `/learn` Split monolithic interfaces into client-specific micro-interfaces (ISP) and inject dependencies via abstractions (DIP).
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Version:** 1.0.0
 > **Updated:** 2026-03-31
@@ -205,6 +217,24 @@ const usePlugins = (fetcher: () => Promise<Plugin[]>) => {
 - [Code Style §R17](./04-code-style/readme.md) — Max 120 lines per struct/class (SRP at type level)
 - [DRY Principles](./08-dry-principles.md) — Avoid duplication (supports OCP)
 - [Strict Typing](./13-strict-typing.md) — Type safety supports LSP
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-023: SOLID Principles Conformance
+
+**Given** Architecture, interfaces, classes, and service layers across polyglot project modules.
+**When** Code guideline linters or architectural reviewers evaluate coupling, interface sizing, and dependency graphs.
+**Then** All components exhibit strict single responsibility, decoupled interface segregation, and dependency inversion with zero circular dependencies and deterministic compliance.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

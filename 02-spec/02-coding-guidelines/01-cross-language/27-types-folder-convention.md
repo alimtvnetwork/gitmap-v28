@@ -1,4 +1,16 @@
-# Types Folder Convention & Common Type Aliases
+# Types Folder Convention & Common Type Aliases (AI Execution Prompt)
+
+> **/goal** Standardize application type architecture by placing shared types, enums, and type aliases into dedicated single-type files within a centralized `types/` folder and defining reusable aliases for repeated generics.
+> **/learn** Enforce the "one definition per file" rule matching the PascalCase type name, eliminate bundled multi-type junk drawers, establish domain-specific type aliases for generic Result specializations used 3+ times, and prohibit raw string primitives where typed enums exist.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Create a dedicated `types/` folder (or language equivalent) containing shared enums, type aliases, and contract models.
+- [ ] `/learn` Never bundle unrelated types into a generic `types/common.go` file; enforce exactly one definition per file matching PascalCase naming.
+- [ ] `/goal` Define reusable type aliases (e.g., `BoolResult`, `StringResult`) whenever a generic type (e.g., `Result[T]`) is specialized 3 or more times.
+- [ ] `/learn` Use strongly-typed enums instead of raw magic strings or integers for HTTP methods, statuses, content types, and log levels.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -432,4 +444,18 @@ func Toggle() types.BoolResult { ... }
 
 ---
 
-*Types folder convention & common type aliases — cross-language specification.*
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TYPE-027: Centralized Types Folder and Single-Definition File Architecture
+
+**Given** Source code files, type definitions, domain models, and enum declarations across all languages.
+**When** Coding guideline linters or architectural analyzers inspect the repository structure and type declarations.
+**Then** Shared types reside within dedicated `types/` folders with one definition per file matching the PascalCase type name, generic Result specializations repeated 3+ times use centralized aliases, and no raw primitive strings replace declared enums, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

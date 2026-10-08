@@ -1,4 +1,16 @@
-# Magic Values, Immutability & Class-First Design
+# Magic Values, Immutability & Class-First Design (AI Execution Prompt)
+
+> **/goal** Eliminate all magic strings and numbers by replacing them with typed enums and constants, enforce immutability-by-default with single-assignment patterns, and prioritize class-first encapsulation.
+> **/learn** Master the severe risks of typos, hidden coupling, and runtime regressions caused by raw literals; eliminate in-place mutations across conditional branches and encapsulate cohesive state into class objects across Go, TypeScript, PHP, and Rust.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all raw string and numeric literals used in comparisons or control logic with typed enums or named constants.
+- [ ] `/learn` Ban post-construction mutation of data objects; initialize structs and instances completely in constructors or object literals.
+- [ ] `/goal` Prefer cohesive classes over loose scattered exported functions when operations share state or configurations (TS/JS).
+- [ ] `/learn` Verify zero magic literal regressions and strict single-assignment immutability via automated guideline linters.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -349,6 +361,24 @@ func buildResponse(data []byte) *Response {
 - [Boolean Principles](./03-boolean-principles.md) — Named booleans prevent `if (flag === true)`
 - [Master Coding Guidelines](./15-master-coding-guidelines/readme.md) — §7 Type Safety
 - [Generic Return Types](./25-generic-return-types.md) — Typed returns eliminate `any`
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-CONST-026: Magic Value Elimination, Immutability, and Class-First Design
+
+**Given** Source files containing business logic, constant definitions, and object lifecycles across polyglot codebases.
+**When** Guidelines/linters audit the codebase for magic literals, post-construction mutations, and loose state functions.
+**Then** All magic literals are replaced by enums/constants, objects are immutable post-construction, cohesive state is encapsulated, and verification returns exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.
 
 ---
 

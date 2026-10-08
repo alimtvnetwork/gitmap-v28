@@ -32,6 +32,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Saving temporary scratch or test scripts into repo git tree | ✅ `gitmap rc text "<content>" --slug <slug> --ext .ps1` | Centralized script storage in `repo-cache` (`repo-storage`) for permanent cross-repo reuse without polluting git worktrees. |
 | ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` | Strict zero-secrets policy; stores credentials exclusively in `repo-secrets` vault. |
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
+| ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
+| ❌ Python SQLite task manager (`python 03-ai-scripts/46-agent-sqlite-task-manager.py`) | ✅ `gitmap task <init|add|claim|complete|fail|status|schema>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, and 1:1 identical schema for multi-agent workflows. |
 
 ---
 
@@ -130,6 +132,24 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap cargo status` — Inspect Rust and Cargo toolchain status.
 - `gitmap install cargo` — Install Rust toolchain if missing.
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages.
+
+### 10. Native Fleet Synchronization & SQLite Agent Task Engine
+- `gitmap sync` — Synchronizes canonical prompts, skills, shared specs (`02-spec/01-20`), and additive scripts across all 43 registered fleet repositories.
+- `gitmap sync --projects <path|json>` — Accepts a path to JSON file or inline JSON array of repositories (e.g. `'[{"folder": "cat-my"}]'`).
+- `gitmap sync --repo <name>` — Synchronizes a single target repository by name.
+- `gitmap sync --workers <N>` — Sets parallel worker pool concurrency (default: 8).
+- `gitmap sync --dry-run` — Previews changes across all repositories without making git or file mutations.
+- `gitmap sync --no-push` — Applies changes and commits locally without pushing to remote.
+- `gitmap sync --no-release` — Disables post-sync SemVer release tagging.
+- `gitmap sync --list` — Lists all 43 registered fleet repositories and paths.
+- `gitmap task init --name "<task>" --budget <N>` — Initializes SQLite task manager in `.ai-memory/temp-agents/<slug>/agent-task.db`.
+- `gitmap task add --db <path> --code <code-id> --title <title> [--files <paths>] [--role <role>]` — Adds a subtask.
+- `gitmap task claim --db <path> --agent <agent-name>` — Claims the next pending subtask atomically.
+- `gitmap task log-action --db <path> --subtask-id <id> --agent <name> --action <action> --file <path> --details <desc>` — Logs in-flight agent action for crash forensics.
+- `gitmap task complete --db <path> --subtask-id <id> --evidence <evidence>` — Marks subtask completed.
+- `gitmap task fail --db <path> --subtask-id <id> --reason <reason>` — Marks subtask failed with reason.
+- `gitmap task status --db <path>` — Emits machine-readable JSON summary of task progress.
+- `gitmap task schema [--json|--ddl]` — Emits task database schema and DDL definitions.
 
 ---
 

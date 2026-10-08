@@ -1,4 +1,16 @@
-# Generic Return Types — No interface{}/any/object Returns
+# Generic Return Types — No interface{}/any/object Returns (AI Execution Prompt)
+
+> **/goal** Eliminate loose, untyped return values (`interface{}`, `any`, `object`, `unknown`) across all function signatures, enforcing compile-time type safety via parametric generics and monadic Result wrappers.
+> **/learn** Understand how untyped returns force downstream callers into error-prone runtime type assertions; master generic functions, Result wrappers, and reusable named type aliases across Go, TypeScript, C#, and Rust.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Replace all `interface{}`, `any`, and `object` return signatures with generic types (`T`) or concrete domain types.
+- [ ] `/learn` Never use unions or dynamic return types based on runtime flags; split into distinct, explicitly typed methods instead.
+- [ ] `/goal` Create named type aliases (e.g. `type UserResult = apperror.Result[User]`) when generic wrappers appear more than once.
+- [ ] `/learn` Verify zero untyped return violations and 100% type preservation across all packages via automated guideline linters.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 > **Parent:** [Cross-Language Overview](./readme.md)
 > **Version:** 1.0.0
@@ -40,12 +52,12 @@ The compiler cannot verify correctness. Bugs surface at runtime, not build time.
 ### Go
 
 ```go
-// ❌ BAD — interface{} return
+// ❌ FORBIDDEN — interface{} return
 func (c *Cache) Get(key string) interface{} {
     return c.store[key]
 }
 
-// ❌ BAD — any return (Go 1.18+)
+// ❌ FORBIDDEN — any return (Go 1.18+)
 func (s *Service) Process(input Input) any {
     if input.IsOrder {
         return processOrder(input)
@@ -53,7 +65,7 @@ func (s *Service) Process(input Input) any {
     return processRefund(input)
 }
 
-// ✅ GOOD — generic function
+// ✅ REQUIRED — generic function
 func Get[T any](c *Cache, key string) (T, bool) {
     val, ok := c.store[key]
     if !ok {
@@ -63,7 +75,7 @@ func Get[T any](c *Cache, key string) (T, bool) {
     return val.(T), true
 }
 
-// ✅ GOOD — Result wrapper (project pattern)
+// ✅ REQUIRED — Result wrapper (project pattern)
 func (s *Service) ProcessOrder(input Input) apperror.Result[OrderData] {
     // returns typed Result — caller uses .Value() after .HasError() check
 }
@@ -76,21 +88,21 @@ func (s *Service) ProcessRefund(input Input) apperror.Result[RefundData] {
 ### TypeScript
 
 ```typescript
-// ❌ BAD — any/unknown return
+// ❌ FORBIDDEN — any/unknown return
 function fetchData(endpoint: string): Promise<any> {
     return axios.get(endpoint).then(r => r.data);
 }
 
-// ❌ BAD — union that forces narrowing everywhere
+// ❌ FORBIDDEN — union that forces narrowing everywhere
 function getItem(id: string): User | Order | Product { /* ... */ }
 
-// ✅ GOOD — generic function
+// ✅ REQUIRED — generic function
 async function fetchData<T>(endpoint: string): Promise<T> {
     const response = await axios.get<T>(endpoint);
     return response.data;
 }
 
-// ✅ GOOD — separate typed methods
+// ✅ REQUIRED — separate typed methods
 async function fetchUser(id: string): Promise<User> { /* ... */ }
 async function fetchOrder(id: string): Promise<Order> { /* ... */ }
 ```
@@ -98,17 +110,17 @@ async function fetchOrder(id: string): Promise<Order> { /* ... */ }
 ### C#
 
 ```csharp
-// ❌ BAD — object return
+// ❌ FORBIDDEN — object return
 public object GetValue(string key) {
     return _store[key];
 }
 
-// ✅ GOOD — generic method
+// ✅ REQUIRED — generic method
 public T GetValue<T>(string key) {
     return (T)_store[key];
 }
 
-// ✅ GOOD — generic Result wrapper
+// ✅ REQUIRED — generic Result wrapper
 public Result<T> Process<T>(Request request) where T : class {
     // typed result
 }
@@ -117,12 +129,12 @@ public Result<T> Process<T>(Request request) where T : class {
 ### PHP
 
 ```php
-// ❌ BAD — mixed return
+// ❌ FORBIDDEN — mixed return
 function getData(string $key): mixed {
     return $this->store[$key];
 }
 
-// ✅ GOOD — typed return with PHPDoc generics
+// ✅ REQUIRED — typed return with PHPDoc generics
 /** @template T
  *  @param class-string<T> $type
  *  @return T */
@@ -134,7 +146,7 @@ function getData(string $key, string $type): object {
     return $value;
 }
 
-// ✅ GOOD — separate typed methods
+// ✅ REQUIRED — separate typed methods
 function getUser(string $id): User { /* ... */ }
 function getOrder(string $id): Order { /* ... */ }
 ```
@@ -178,12 +190,12 @@ When using generic types repeatedly, **create a named type alias** for each conc
 ### Go
 
 ```go
-// ❌ BAD — Repeated generic syntax everywhere
+// ❌ FORBIDDEN — Repeated generic syntax everywhere
 func GetUser(ctx context.Context, id int64) apperror.Result[User] { ... }
 func GetOrder(ctx context.Context, id int64) apperror.Result[Order] { ... }
 func ListUsers(ctx context.Context) apperror.Result[[]User] { ... }
 
-// ✅ GOOD — Concrete type aliases
+// ✅ REQUIRED — Concrete type aliases
 type UserResult = apperror.Result[User]
 type OrderResult = apperror.Result[Order]
 type UserListResult = apperror.Result[[]User]
@@ -196,11 +208,11 @@ func ListUsers(ctx context.Context) UserListResult { ... }
 ### TypeScript
 
 ```typescript
-// ❌ BAD — Verbose generics repeated across the codebase
+// ❌ FORBIDDEN — Verbose generics repeated across the codebase
 function fetchUser(id: string): Promise<ApiResponse<User>> { ... }
 function fetchOrder(id: string): Promise<ApiResponse<Order>> { ... }
 
-// ✅ GOOD — Named type aliases
+// ✅ REQUIRED — Named type aliases
 type UserResponse = ApiResponse<User>;
 type OrderResponse = ApiResponse<Order>;
 
@@ -244,3 +256,19 @@ type OrderResult = Result<Order, AppError>;
 - [AppError Result Types](../../03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md) — Go Result[T] pattern
 
 ---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-TYPE-025: Generic Return Types and Elimination of Untyped Values
+
+**Given** Function and method signatures returning dynamic or polymorphic values across polyglot codebases.
+**When** Guidelines/linters audit the codebase for loose `interface{}`, `any`, `object`, or `unknown` returns.
+**Then** All functions return strongly-typed generic structures or named Result aliases with zero downcasting requirements, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

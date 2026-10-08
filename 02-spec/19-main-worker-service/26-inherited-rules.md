@@ -30,7 +30,7 @@ Operative subset for spec/19 implementers (full text in [`../03-error-manage/`](
 3. **Log context MUST include explicit file path + operation name** (per `mem://architecture/error-handling`). Format: `{file: "path/to/file.go", op: "Company.Create", err: <raw>}`.
 4. **Use the `apperror` package equivalent** in the implementer's stack. Wrap every error crossing a layer boundary; preserve the cause chain.
 5. **Never `String(caught)` — pass the raw error object through.** Stringification at the boundary is the loggers' job.
-6. **Error codes are cataloged in [`14-error-codes.md`](./14-error-codes.md);** the cross-tier envelope is defined in [`09-error-contract.md`](./09-error-contract.md) §2. The envelope is the sole wire shape.
+6. **Error codes are catalogued in [`14-error-codes.md`](./14-error-codes.md);** the cross-tier envelope is defined in [`09-error-contract.md`](./09-error-contract.md) §2. The envelope is the sole wire shape.
 
 **Conflict rule:** if any of the above conflicts with `09-error-contract.md`, **`02-spec/03-error-manage/` wins** for the rule itself; the envelope shape is owned by `08-§2`.
 
@@ -50,7 +50,7 @@ Operative subset for spec/19 implementers (full text in [`../03-error-manage/`](
 
 ### 3.2 REST API headers (from `07-rest-api-format.md`)
 
-Every Main↔Worker call MUST honor:
+Every Main↔Worker call MUST honour:
 
 | Header | Direction | Required when | Notes |
 | --- | --- | --- | --- |
@@ -124,7 +124,7 @@ The RBAC adapter lives in the App tier per `mem://architecture/split-database`. 
 
 If two inherited rules disagree, resolve in this order (highest authority first):
 
-1. **Locked decisions D1–D10** (listed in `01-index.md` §3) — never override.
+1. **Locked decisions D1–D10** (listed in `readme.md` §3) — never override.
 2. The **source spec** named in §2–§5 above.
 3. The local file in `02-spec/19-…/` that re-states the rule.
 4. This `26-inherited-rules.md` summary.
@@ -136,7 +136,7 @@ A literal AI that finds a contradiction MUST stop and surface it via `MAIN-900-0
 
 ## 7. Cross-references
 
-- `01-index.md` §Inherits — points to this file from the spec entry-point.
+- `readme.md` §Inherits — points to this file from the spec entry-point.
 - `09-error-contract.md` §1 — names `02-spec/03-error-manage/` as the source of catch/log/rethrow.
 - `16-tunable-constants.md` §4 — names `02-spec/06-seedable-config-architecture/` as the source of seed semantics.
 - `12-split-db-tier-reconciliation.md` §5 — names `02-spec/05-split-db-architecture/` as the source of the tier model.

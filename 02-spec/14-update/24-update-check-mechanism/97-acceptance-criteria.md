@@ -1,7 +1,7 @@
 # Acceptance Criteria
 
 > **Version:** 1.0.0
-> **Parent:** [00-overview.md](./00-overview.md)
+> **Parent:** [readme.md](./readme.md)
 
 ---
 
@@ -41,7 +41,7 @@ in code, tests, and runtime behavior.
 | 15 | `update-check --force` bypasses the interval gate | Unit test |
 | 16 | `do-update` runs unattended (no interactive prompt) | E2E test |
 | 17 | `do-update` failure leaves `HasUpdate = true` so the warning persists | Unit test |
-| 18 | Exit codes match [06 §3](./06-cli-commands.md#3-exit-codes) | E2E test |
+| 18 | Exit codes match [06 §3](./07-cli-commands.md#3-exit-codes) | E2E test |
 
 ## D. Pre-Command Hook
 

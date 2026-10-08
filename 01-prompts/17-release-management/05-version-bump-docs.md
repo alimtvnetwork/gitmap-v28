@@ -261,6 +261,7 @@ When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `
 - [ ] Step 5: Switch to `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore starting branch.
 - [ ] Generate release notes file with Quick Install one-liners and changelog, and publish via `gh release create --notes-file` (NEVER bare `--generate-notes`).
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
+- [ ] Strict Relative Git Paths Only: Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well (TOTAL BAN on `file:///` URIs and absolute filesystem paths).
 - [ ] **File Change Summary:** Provide a highly detailed summary in chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed.
 
 ---

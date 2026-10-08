@@ -5,13 +5,13 @@
 **Created:** 2026-05-04
 **Status:** Authoritative
 **Resolves:** spec/19 audit findings F-X-14, F-X-15, F-X-17 (cross-spec); top-10 fix #5
-**Authority:** This file IS the canonical schema for the JSON instruction document referenced by `02-spec/19-main-worker-service/09-self-update-pointer.md`. Any conflicting prose in spec/19 defers to this file.
+**Authority:** This file IS the canonical schema for the JSON instruction document referenced by `02-spec/19-main-worker-service/10-self-update-pointer.md`. Any conflicting prose in spec/19 defers to this file.
 
 ---
 
 ## 1. Purpose
 
-When the Power Admin triggers `POST /API/V1/Workers/{WorkerNodeId}/Update` (single-target) or `POST /API/V1/Workers/All/Update` (fan-out), Main does **not** stream the binary itself. Instead, Main writes a **JSON Instruction Document** (JID) and POSTs it to each worker's `POST /API/V1/SelfUpdate` endpoint. The worker uses the JID to fetch, verify, stage, and swap its own binary using the standard self-update workflow defined in `02-spec/14-update/22-update-command-workflow.md` and `02-spec/14-update/03-rename-first-deploy.md`.
+When the Power Admin triggers `POST /API/V1/Workers/{WorkerNodeId}/Update` (single-target) or `POST /API/V1/Workers/All/Update` (fan-out), Main does **not** stream the binary itself. Instead, Main writes a **JSON Instruction Document** (JID) and POSTs it to each worker's `POST /API/V1/SelfUpdate` endpoint. The worker uses the JID to fetch, verify, stage, and swap its own binary using the standard self-update workflow defined in `02-spec/14-update/23-update-command-workflow.md` and `02-spec/14-update/04-rename-first-deploy.md`.
 
 The JID is the **contract** between Main (issuer) and Worker (executor). It MUST be:
 
@@ -28,12 +28,12 @@ The JID is the **contract** between Main (issuer) and Worker (executor). It MUST
 |---|---|
 | HTTP Method | `POST` |
 | Path | `/API/V1/SelfUpdate` (on the target worker) |
-| Auth | OAuth client-credentials (Main → Worker) per `02-spec/19/05-auth-and-2fa.md` |
+| Auth | OAuth client-credentials (Main → Worker) per `02-spec/19/06-auth-and-2fa.md` |
 | Content-Type | `application/json; charset=utf-8` |
 | Mandatory Headers | `X-Correlation-Id`, `X-Idempotency-Key` (= `InstructionId`), `X-Auth-Action: SelfUpdate` |
 | Body | A single JID object (see §3) |
 | Max body size | 16 KB |
-| Timeout | 30 s handshake (Main → Worker); pinned in `02-spec/19-main-worker-service/15-tunable-constants.md` §2.5 (`MainWorker.Routing.HttpHandshakeTimeoutSeconds`). |
+| Timeout | 30 s handshake (Main → Worker); pinned in `02-spec/19-main-worker-service/16-tunable-constants.md` §2.5 (`MainWorker.Routing.HttpHandshakeTimeoutSeconds`). |
 
 ---
 
@@ -79,7 +79,7 @@ The JID is the **contract** between Main (issuer) and Worker (executor). It MUST
 |---|---|---|---|
 | `InstructionId` | TEXT (ULID 26 chars) | No | Idempotency key. Worker MUST persist + dedupe for ≥ 14 days. |
 | `InstructionVersion` | TEXT (SemVer) | No | Worker rejects `Major` mismatch. |
-| `IssuedAtUtc` | TEXT (RFC3339 UTC) | No | Worker rejects skew > `WorkerPushUpdate.IssuedSkewSeconds` (default 5 min per `02-spec/19-main-worker-service/15-tunable-constants.md` §2.7). |
+| `IssuedAtUtc` | TEXT (RFC3339 UTC) | No | Worker rejects skew > `WorkerPushUpdate.IssuedSkewSeconds` (default 5 min per `02-spec/19-main-worker-service/16-tunable-constants.md` §2.7). |
 | `IssuedByUserId` | INTEGER | No | FK in Main; opaque to Worker (audit only). |
 | `IssuedByUserDisplayName` | TEXT | No | Display only. |
 | `TargetWorkerNodeId` | INTEGER | No | `0` = fan-out (worker still verifies own id matches OR is `0`). |
@@ -98,8 +98,8 @@ The JID is the **contract** between Main (issuer) and Worker (executor). It MUST
 | `ExecutionWindow.LatestStartUtc` | TEXT (RFC3339) | No | Worker drops the JID and reports `INSTRUCTION_EXPIRED` if started after. |
 | `ExecutionWindow.MaxRunDurationSeconds` | INTEGER | No | Worker self-aborts if exceeded; triggers rollback. |
 | `OnFailure.RollbackPolicy` | ENUM | No | `AutoRevertOnHandoffFailure` \| `ManualOnly` \| `RetryOnly`. |
-| `OnFailure.MaxRetries` | INTEGER | No | Single canonical value, default **3**. Pinned in `02-spec/19-main-worker-service/15-tunable-constants.md` §2.1 (`WorkerPushUpdate.MaxRetries`). Resolves audit F-A-15. |
-| `OnFailure.RetryBackoffSeconds` | INTEGER[] | No | Length MUST equal `MaxRetries`. Defaults `[30, 120, 300]` per `02-spec/19-main-worker-service/15-tunable-constants.md` §2.1. |
+| `OnFailure.MaxRetries` | INTEGER | No | Single canonical value, default **3**. Pinned in `02-spec/19-main-worker-service/16-tunable-constants.md` §2.1 (`WorkerPushUpdate.MaxRetries`). Resolves audit F-A-15. |
+| `OnFailure.RetryBackoffSeconds` | INTEGER[] | No | Length MUST equal `MaxRetries`. Defaults `[30, 120, 300]` per `02-spec/19-main-worker-service/16-tunable-constants.md` §2.1. |
 | `Notes` | TEXT | No | Free text shown in worker logs. (Per Code Red Rule 11 — transactional table.) |
 | `Description` | TEXT | Yes | Optional per Code Red Rule 10. |
 
@@ -109,7 +109,7 @@ The JID is the **contract** between Main (issuer) and Worker (executor). It MUST
 
 | Kind | v1.0 Implemented? | Description |
 |---|---|---|
-| `ZipBundle` | ✅ Yes | Standard release zip per `02-spec/14-update/13-release-assets.md`. Worker unzips, runs `RenameFirst` deploy. |
+| `ZipBundle` | ✅ Yes | Standard release zip per `02-spec/14-update/14-release-assets.md`. Worker unzips, runs `RenameFirst` deploy. |
 | `SingleBinary` | ❌ Reserved | Single executable; no zip. Future. |
 | `Patch` | ❌ Reserved | Binary diff (bsdiff). Future. |
 
@@ -119,16 +119,16 @@ A worker receiving an unimplemented kind MUST refuse with `INSTRUCTION_KIND_UNSU
 
 ## 5. DeployStrategy = `RenameFirst` (v1.0 default)
 
-The worker MUST execute the standard rename-first flow defined in `02-spec/14-update/03-rename-first-deploy.md`:
+The worker MUST execute the standard rename-first flow defined in `02-spec/14-update/04-rename-first-deploy.md`:
 
 1. Download `PayloadUrl` to `staging/<TargetVersion>.zip`.
 2. Verify size + SHA256 + RS256 signature. Abort on any mismatch → `PAYLOAD_VERIFICATION_FAIL`.
 3. Unzip into `staging/<TargetVersion>/`.
 4. Rename current binary directory: `current/` → `previous/` (atomic on same filesystem).
 5. Rename `staging/<TargetVersion>/` → `current/`.
-6. Spawn `current/<binary> --post-update-handoff` (per `02-spec/14-update/05-handoff-mechanism.md`).
+6. Spawn `current/<binary> --post-update-handoff` (per `02-spec/14-update/06-handoff-mechanism.md`).
 7. On successful handoff: write `current/latest.json` with `TargetVersion`; report success to Main via `POST /API/V1/Workers/{Id}/Heartbeat` with `LastUpdateInstructionId = InstructionId`.
-8. On handoff failure within `WorkerPushUpdate.HandoffTimeoutSeconds` (default 60 s per `02-spec/19-main-worker-service/15-tunable-constants.md` §2.7): revert (rename `current/` → `failed-<TargetVersion>/`, `previous/` → `current/`), report `HANDOFF_FAILED`.
+8. On handoff failure within `WorkerPushUpdate.HandoffTimeoutSeconds` (default 60 s per `02-spec/19-main-worker-service/16-tunable-constants.md` §2.7): revert (rename `current/` → `failed-<TargetVersion>/`, `previous/` → `current/`), report `HANDOFF_FAILED`.
 
 ---
 
@@ -152,9 +152,9 @@ All codes MUST be registered in `02-spec/03-error-manage/03-error-code-registry/
 
 ## 7. Worker-side persistence
 
-> **Tier correction (FU-5, applied 2026-05-04):** `WorkerUpdateInstruction` is **worker-wide**, not company-scoped, so it lives in the **Settings tier** — NOT the App tier. Authority: [`02-spec/19-main-worker-service/11-split-db-tier-reconciliation.md`](../19-main-worker-service/11-split-db-tier-reconciliation.md) §5. Earlier drafts of this file placed it in the App tier; that placement is now retracted.
+> **Tier correction (FU-5, applied 2026-05-04):** `WorkerUpdateInstruction` is **worker-wide**, not company-scoped, so it lives in the **Settings tier** — NOT the App tier. Authority: [`02-spec/19-main-worker-service/12-split-db-tier-reconciliation.md`](../19-main-worker-service/12-split-db-tier-reconciliation.md) §5. Earlier drafts of this file placed it in the App tier; that placement is now retracted.
 
-Worker stores each JID in the **Settings tier** DB (per `02-spec/05-split-db-architecture/`; concrete tier mapping in `02-spec/19/11-split-db-tier-reconciliation.md` §5):
+Worker stores each JID in the **Settings tier** DB (per `02-spec/05-split-db-architecture/`; concrete tier mapping in `02-spec/19/12-split-db-tier-reconciliation.md` §5):
 
 ```sql
 CREATE TABLE WorkerUpdateInstruction (
@@ -182,7 +182,7 @@ CREATE INDEX IxWorkerUpdateInstructionUlid
 
 Compliant with Code Red Schema Rules 10/11/12: `Notes`, `Comments`, `Description` all NULL-able with no DEFAULT; no UUIDs; PK is `{TableName}Id`.
 
-Retention: minimum **14 days** (`WorkerPushUpdate.InstructionRetentionDays`); pinned in `02-spec/19-main-worker-service/15-tunable-constants.md` §2.7 and overridable via Seedable-Config key `WorkerUpdateInstructionRetentionDays`.
+Retention: minimum **14 days** (`WorkerPushUpdate.InstructionRetentionDays`); pinned in `02-spec/19-main-worker-service/16-tunable-constants.md` §2.7 and overridable via Seedable-Config key `WorkerUpdateInstructionRetentionDays`.
 
 ---
 
@@ -220,13 +220,13 @@ Power Admin           Main Server                   Worker
 
 ## 10. Cross-references
 
-- `02-spec/19-main-worker-service/09-self-update-pointer.md` — calls into this contract.
-- `02-spec/14-update/03-rename-first-deploy.md` — deploy mechanics.
-- `02-spec/14-update/05-handoff-mechanism.md` — post-swap handoff.
-- `02-spec/14-update/22-update-command-workflow.md` — analogous CLI flow (sibling, not authoritative for workers).
+- `02-spec/19-main-worker-service/10-self-update-pointer.md` — calls into this contract.
+- `02-spec/14-update/04-rename-first-deploy.md` — deploy mechanics.
+- `02-spec/14-update/06-handoff-mechanism.md` — post-swap handoff.
+- `02-spec/14-update/23-update-command-workflow.md` — analogous CLI flow (sibling, not authoritative for workers).
 - `02-spec/03-error-manage/03-error-code-registry/` — MUST register `WORKER-*` codes from §6.
 - `02-spec/05-split-db-architecture/` — tier-semantic source of truth.
-- `02-spec/19-main-worker-service/11-split-db-tier-reconciliation.md` — `WorkerUpdateInstruction` placement: **Settings tier** (FU-5).
+- `02-spec/19-main-worker-service/12-split-db-tier-reconciliation.md` — `WorkerUpdateInstruction` placement: **Settings tier** (FU-5).
 - `02-spec/06-seedable-config-architecture/` — `WorkerUpdateInstructionRetentionDays` and `SigningKeyId` trust store.
 
 ---

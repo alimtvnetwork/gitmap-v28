@@ -83,6 +83,8 @@ The settings UI exposes `fade` and `camera-zoom` only. `slide` may exist on the 
 
 ## 3. Keys
 
+Minimal deck subset. Camera groups, quick jump, sidebar, and the `/` shortcut map are **`42-slide-quiz-preview-chrome-and-default-shadows.md` section 5**. Do not duplicate that table here.
+
 | Key | Action |
 |---|---|
 | `ArrowRight` or `Space` | Next step, then next slide |
@@ -91,8 +93,9 @@ The settings UI exposes `fade` and `camera-zoom` only. `slide` may exist on the 
 | `S` | Settings |
 | `E` | Toggle the slide builder |
 | `M` | Mute or unmute the deck click, only when a sound engine is already mounted. Do not invent a sound file. |
+| `/` | Open keyboard shortcuts dialog (full matrix in file 42) |
 
-Double-click a counter numeral to jump to that slide index. Do not bind `E` to the website visual builder.
+Double-click a counter numeral to jump to that slide index. Do not bind `E` to the website visual builder. Bare **`1`** is reserved for presenter camera stage-fill when camera shortcuts are enabled (file 42).
 
 ---
 

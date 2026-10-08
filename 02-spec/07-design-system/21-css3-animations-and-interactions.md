@@ -19,6 +19,8 @@ Web interfaces often suffer from washed-out hover effects where gray backgrounds
 2. **Directional Accent Indicators:** Interactive list rows and table items present a vertical accent pill (`3px` width, `border-radius: 9999px`) that expands or slides in on hover, signaling interactive readiness.
 3. **Physics-Based Cubic-Bezier Curves:** Linear transitions feel robotic. Interfaces must employ emphasized deceleration curves (`cubic-bezier(0.16, 1, 0.3, 1)`) so elements snap smoothly into place.
 
+**Paired default shadows:** Rest/hover **text-shadow** and **box-shadow** for quiz option cards, image plates, and slide chrome MUST use the semantic tokens in **`42-slide-quiz-preview-chrome-and-default-shadows.md` section 1** (`--text-shadow-rest`, `--elevation-rest`, etc.). Do not invent parallel shadow variables in feature CSS.
+
 ---
 
 ## 2. Timing Functions & Easing Tokens
@@ -36,10 +38,6 @@ Web interfaces often suffer from washed-out hover effects where gray backgrounds
 LESS is the preferred styling framework across this repository due to parametric mixins and scoped color manipulation.
 
 ```less
-// ============================================================================
-// LESS IMPLEMENTATION (PREFERRED)
-// ============================================================================
-
 @color-ground-light: #ffffff;
 @color-slate-900:    #0f172a;
 @color-slate-500:    #64748b;
@@ -109,45 +107,6 @@ LESS is the preferred styling framework across this repository due to parametric
 }
 ```
 
-```css
-/* ============================================================================
-   RAW CSS EQUIVALENT
-   ============================================================================ */
-
-.interactive-curriculum-row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 1rem 1.25rem;
-  background-color: transparent;
-  border-bottom: 1px solid #e2e8f0;
-  transition: background-color 150ms ease, padding-left 250ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.interactive-curriculum-row::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 20%;
-  bottom: 20%;
-  width: 3.5px;
-  border-radius: 9999px;
-  background-color: #f43f5e;
-  opacity: 0;
-  transform: scaleY(0.3);
-  transition: opacity 150ms ease, transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.interactive-curriculum-row:hover {
-  background-color: rgba(15, 23, 42, 0.05);
-  padding-left: 1.75rem;
-}
-
-.interactive-curriculum-row:hover::before {
-  opacity: 1;
-  transform: scaleY(1);
-}
-```
 
 ---
 
@@ -202,17 +161,9 @@ LESS is the preferred styling framework across this repository due to parametric
 ### 4.3 Infinite Marquee Ribbon (Infinite Horizontal Ticker)
 
 ```less
-// ============================================================================
-// INFINITE MARQUEE TICKER (LESS PREFERRED)
-// ============================================================================
-
 @keyframes marquee-drift {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-50%, 0, 0);
-  }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 
 .marquee-container {
@@ -220,13 +171,7 @@ LESS is the preferred styling framework across this repository due to parametric
   display: flex;
   user-select: none;
   gap: 2rem;
-  mask-image: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 0, 0, 1) 10%,
-    rgba(0, 0, 0, 1) 90%,
-    transparent 100%
-  );
+  mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
 
   .marquee-track {
     display: flex;
@@ -234,10 +179,7 @@ LESS is the preferred styling framework across this repository due to parametric
     gap: 2rem;
     animation: marquee-drift 35s infinite linear;
     will-change: transform;
-
-    &:hover {
-      animation-play-state: paused;
-    }
+    &:hover { animation-play-state: paused; }
   }
 }
 ```
@@ -247,10 +189,6 @@ LESS is the preferred styling framework across this repository due to parametric
 Traditional web accordions required calculating pixel heights with JavaScript. Modern CSS allows pure declarative height animations through CSS Grid fractions or `interpolate-size`:
 
 ```less
-// ============================================================================
-// ZERO-JS FLUID ACCORDION (LESS PREFERRED)
-// ============================================================================
-
 .accordion-item {
   border-bottom: 1px solid #e2e8f0;
 
@@ -277,27 +215,17 @@ Traditional web accordions required calculating pixel heights with JavaScript. M
     }
   }
 
-  // Smooth height transition container
   .accordion-collapse {
     display: grid;
     grid-template-rows: 0fr;
     transition: grid-template-rows 300ms cubic-bezier(0.16, 1, 0.3, 1);
-
-    .accordion-inner {
-      overflow: hidden;
-    }
+    .accordion-inner { overflow: hidden; }
   }
 
-  // Expanded State
   &[aria-expanded="true"],
   &.is-open {
-    .chevron-icon {
-      transform: rotate(-135deg);
-    }
-
-    .accordion-collapse {
-      grid-template-rows: 1fr;
-    }
+    .chevron-icon { transform: rotate(-135deg); }
+    .accordion-collapse { grid-template-rows: 1fr; }
   }
 }
 ```
@@ -305,10 +233,6 @@ Traditional web accordions required calculating pixel heights with JavaScript. M
 ### 4.5 Rotating Neon Border Gradient Sweep
 
 ```less
-// ============================================================================
-// CONTINUOUS ROTATING BORDER GRADIENT (LESS PREFERRED)
-// ============================================================================
-
 @property --gradient-angle {
   syntax: "<angle>";
   initial-value: 0deg;
@@ -316,9 +240,7 @@ Traditional web accordions required calculating pixel heights with JavaScript. M
 }
 
 @keyframes rotate-border {
-  to {
-    --gradient-angle: 360deg;
-  }
+  to { --gradient-angle: 360deg; }
 }
 
 .neon-sweep-card {
@@ -332,13 +254,7 @@ Traditional web accordions required calculating pixel heights with JavaScript. M
     position: absolute;
     inset: -2px;
     border-radius: inherit;
-    background: conic-gradient(
-      from var(--gradient-angle),
-      #8b5cf6 0%,
-      #38bdf8 25%,
-      transparent 50%,
-      #8b5cf6 100%
-    );
+    background: conic-gradient(from var(--gradient-angle), #8b5cf6 0%, #38bdf8 25%, transparent 50%, #8b5cf6 100%);
     z-index: -1;
     animation: rotate-border 6s linear infinite;
   }
@@ -348,27 +264,14 @@ Traditional web accordions required calculating pixel heights with JavaScript. M
 ### 4.6 Masked Text Reveal Grammar
 
 ```less
-// ============================================================================
-// MASKED TEXT ENTRANCE (LESS PREFERRED)
-// ============================================================================
-
 @keyframes text-reveal-up {
-  0% {
-    opacity: 0;
-    transform: translateY(100%);
-    clip-path: inset(0 0 100% 0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0%);
-    clip-path: inset(0 0 0% 0);
-  }
+  0% { opacity: 0; transform: translateY(100%); clip-path: inset(0 0 100% 0); }
+  100% { opacity: 1; transform: translateY(0%); clip-path: inset(0 0 0% 0); }
 }
 
 .reveal-heading {
   display: inline-block;
   overflow: hidden;
-
   .reveal-line {
     display: inline-block;
     animation: text-reveal-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;

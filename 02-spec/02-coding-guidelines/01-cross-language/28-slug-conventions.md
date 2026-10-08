@@ -1,4 +1,16 @@
-# Slug Conventions
+# Slug Conventions (AI Execution Prompt)
+
+> **/goal** Standardize all URL, API endpoint, routing, and entity identifier slugs to lowercase kebab-case (`a-z`, `0-9`, `-`) with hyphen separators across all languages and frameworks.
+> **/learn** Master slug formatting rules, prohibit uppercase characters, spaces, underscores, and consecutive/leading/trailing hyphens, and ensure deterministic slugification helpers across TypeScript, PHP, and Go.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Format all slugs as lowercase kebab-case (`lowercase-words-separated-by-hyphens`) across URLs, API paths, and database identifiers.
+- [ ] `/learn` Never allow uppercase letters, underscores, spaces, dots, or leading/trailing hyphens in slugs.
+- [ ] `/goal` Disallow consecutive hyphens (`--`) and restrict slug length to maximum 80 characters.
+- [ ] `/learn` Implement deterministic, regex-validated `toSlug()` / `to_slug()` helper functions across all application runtimes.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Version:** 3.2.0
 **Updated:** 2026-04-16
@@ -217,3 +229,21 @@ function to_slug(string $input): string {
 | Cross-Language Overview | [./readme.md](./readme.md) |
 | Variable Naming | [./22-variable-naming-conventions.md](./22-variable-naming-conventions.md) |
 | Key Naming PascalCase | [./11-key-naming-pascalcase.md](./11-key-naming-pascalcase.md) |
+
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-NAME-028: Deterministic Lowercase Kebab-Case Slug Compliance
+
+**Given** Application routing definitions, REST API endpoint paths, resource identifiers, database slug fields, and configuration keys across all languages.
+**When** Coding guideline linters or CI slug validators analyze identifiers and slug generation routines.
+**Then** All slug values strictly adhere to lowercase kebab-case (`[a-z0-9-]+`) with no underscores, spaces, or malformed hyphens, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

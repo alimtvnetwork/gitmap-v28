@@ -73,7 +73,7 @@ The script scans these file globs and replaces exact matches of `--from` with `-
 - `public/health-score.json`
 - `src/data/specTree.json`
 - `docs/**/*.md`
-- `spec/**/*.md`
+- `02-spec/**/*.md`
 - `scripts/**/*.{mjs,js,sh,ps1}`
 - `linter-scripts/**/*.{py,sh,ps1}`
 - `*.ps1`, `*.sh` at repo root (install scripts)
@@ -167,7 +167,7 @@ File: `.github/workflows/migrate-repo-version.yml`
 5. If old slug appears inside a longer identifier (e.g. `coding-guidelines-v24-archive`), the script does NOT rewrite it and reports the collision.
 6. If working tree is dirty at start, exits 7 before any read.
 7. After a successful `--confirm` run, `npm run lint:readme` and `npm run sync` both pass on the resulting tree.
-8. The new 02-spec/14-update/26 file is referenced from `02-spec/14-update/00-overview.md` and `02-spec/14-update/readme.md`.
+8. The new 02-spec/14-update/26 file is referenced from `02-spec/14-update/readme.md` and `02-spec/14-update/readme.md`.
 
 ---
 
@@ -186,7 +186,7 @@ File: `.github/workflows/migrate-repo-version.yml`
 2. Job 2: Implementation — BLOCKED on Open Items confirmation.
    a. Create `scripts/migrate-repo-major-version.mjs`.
    b. Create `.github/workflows/migrate-repo-version.yml`.
-   c. Add cross-references in `02-spec/14-update/00-overview.md` and `02-spec/14-update/readme.md`.
+   c. Add cross-references in `02-spec/14-update/readme.md` and `02-spec/14-update/readme.md`.
    d. Add a `npm run migrate:repo` script entry pointing at the new script.
    e. Update root `readme.md` "Power-user flags" section to mention the migrator.
 

@@ -1,4 +1,16 @@
-# 🔴 CODE RED: No Generated Code, Artifacts, or Test Results
+# 🔴 CODE RED: No Generated Code, Artifacts, or Test Results (AI Execution Prompt)
+
+> **/goal** Prevent repository bloat, secret leakage, and diff pollution by strictly prohibiting the git staging and commitment of generated code, build binaries, test reports, and temporary test artifacts.
+> **/learn** Master clean repository hygiene, namespace temporary host execution within `<temp_dir>/gitmap/<category>/`, isolate local artifacts exclusively inside `.ai-memory/temp/`, enforce mandatory pre-build cleanup, and maintain comprehensive `.gitignore` coverage.
+
+## 🎯 Actionable CI/CD & Agent Checklist
+
+- [ ] `/goal` Verify that no compiled binaries (`.exe`, `.so`, `.dylib`), build folders (`dist/`, `bin/`, `obj/`), or test reports (`.test-report.*`, coverage data) are staged or committed.
+- [ ] `/learn` Never run `git add .` blindly; actively audit staged paths to ensure generated files and test outputs are safely ignored or pruned.
+- [ ] `/goal` Restrict all host OS temp operations to `<temp_dir>/gitmap/<category>/` and in-repository temporary storage to `.ai-memory/temp/`.
+- [ ] `/learn` Perform mandatory pre-build cleanup before compiling code to prevent disk exhaustion and prevent artifact collisions.
+
+. **CRITICAL AI INSTRUCTION:** This specification is an active AI execution directive. All code generated or modified must strictly follow the rules below.
 
 **Status:** Active
 **AI Confidence:** Production-Ready
@@ -49,3 +61,20 @@ This rule is enforced globally via `.gitignore` patterns. If a new type of artif
 3. **Workspace Isolation**: In-repository temporary artifacts must reside exclusively inside `.ai-memory/temp/`. Creating `.tmp/` at the repository root is banned.
 4. **GitHub Actions Zero Storage (Total Ban on `upload-artifact` in CI)**: Never use `actions/upload-artifact` in CI pipelines. Free accounts are capped at 0.5 GB (500 MB) across the account. CI builds are ephemeral compilation verifications; binary artifacts belong exclusively in GitHub Releases via `release.yml`, never in Actions artifact storage. See `02-spec/02-coding-guidelines/01-cross-language/30-actions-zero-storage.md`.
 
+---
+
+## Verification & Acceptance Criteria
+
+_Auto-generated section — see `02-spec/02-coding-guidelines/97-acceptance-criteria.md` for the full criteria index._
+
+### AC-CG-ARCH-029: Zero Generated Code, Test Artifacts, and Binary Staging
+
+**Given** Development workspaces, build pipelines, and automated test runners producing transient outputs.
+**When** Repository git staging, file hygiene audits, and CI/CD preflight linters scan the repository.
+**Then** Zero compiled binaries, test summaries, coverage reports, un-namespaced temp files, or generated code stubs are tracked or committed, achieving exit code 0.
+
+**Verification command:**
+```bash
+python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/01-cross-language --check-only
+```
+**Expected:** exit 0. Zero violations.

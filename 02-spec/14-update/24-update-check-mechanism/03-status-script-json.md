@@ -1,7 +1,7 @@
 # Status Script JSON Contract
 
 > **Version:** 1.0.0
-> **Parent:** [01-index.md](./01-index.md)
+> **Parent:** [readme.md](./readme.md)
 
 ---
 

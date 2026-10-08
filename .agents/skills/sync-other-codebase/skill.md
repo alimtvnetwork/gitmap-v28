@@ -206,9 +206,26 @@ The following canonical directories are synchronized:
 
 ## 6. Execution Commands & Automation Engine
 
-Synchronization is driven by `03-ai-scripts/38-sync-prompts-skills-scripts.py`, which encapsulates the pre-flight checks, 5 boundaries, directory mirroring, atomic commits, and post-sync release ceremony.
+Synchronization is driven natively by `gitmap sync` (compiled Go engine, primary) with `03-ai-scripts/38-sync-prompts-skills-scripts.py` as backward-compatible fallback.
 
-### Core Script Invocation Workflow
+### Primary GitMap Sync Commands (`gitmap sync` — Go Native)
+
+```bash
+# Step 1: Pre-flight dry run inspection
+gitmap sync --repo <target-repo-name> --dry-run
+
+# Step 2: Live synchronization execution
+gitmap sync --repo <target-repo-name>
+
+# Step 3: Custom projects via JSON file or inline JSON
+gitmap sync --projects path/to/projects.json
+gitmap sync --projects '[{"folder": "cat-my"}]'
+
+# Step 4: Batch execution across all registered repositories concurrently
+gitmap sync --workers 8
+```
+
+### Legacy Python Fallback (`03-ai-scripts/38-sync-prompts-skills-scripts.py`)
 
 ```bash
 # Step 1: Pre-flight dry run inspection

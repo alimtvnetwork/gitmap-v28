@@ -20,4 +20,5 @@ Companion skill: `.agents/skills/sync-other-codebase/skill.md`
    - Additive-Only AI Scripts: Copy new scripts, diff and inspect existing scripts before modifying.
    - Memory & Plans Protection: Never overwrite or delete `.ai-memory/memory/` or `.ai-memory/plans/` in target repositories.
    - Zero Secrets: Never copy `.env` or credentials.
-6. Commit changes and push safely per repository.
+6. Prefer `gitmap sync [--projects <path|json>]` as the primary high-speed Go synchronization engine (fallback: `03-ai-scripts/38-sync-prompts-skills-scripts.py`).
+7. Commit changes and push safely per repository.
