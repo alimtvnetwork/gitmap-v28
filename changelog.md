@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.510.0] - 2026-10-08
+
+### Added
+- chrome profile import-export e2e verification and test logging in repo-secrets
+
+---
+
 ## [v6.509.0] - 2026-10-08
 
 ### Added
