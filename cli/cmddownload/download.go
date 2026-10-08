@@ -18,11 +18,7 @@ import (
 func ExecuteDownload(opts DownloadOptions) ResultDownload {
 	destDir, destFile, errDest := resolveDestination(opts.URL, opts.OutputPath)
 	if errDest != nil {
-		if appErr, isApp := errDest.(*apperror.AppError); isApp {
-			return result.Fail[DownloadResult](appErr)
-		}
-
-		return result.Fail[DownloadResult](apperror.WrapSimple(errDest, "download.dest"))
+		return result.Fail[DownloadResult](wrapDestError(errDest))
 	}
 
 	if errMkdir := os.MkdirAll(destDir, 0755); errMkdir != nil {
@@ -38,18 +34,8 @@ func ExecuteDownload(opts DownloadOptions) ResultDownload {
 	}
 
 	fullPath := filepath.Join(destDir, destFile)
-	if !opts.IsForceOverwrite {
-		if _, statErr := os.Stat(fullPath); statErr == nil {
-			return result.Fail[DownloadResult](apperror.NewWithDetails(
-				"download.file_exists",
-				"E1202",
-				fmt.Sprintf("file %s already exists; use --force to overwrite", fullPath),
-				"cmddownload",
-				apperror.ErrorTypeExecution,
-				apperror.SeverityError,
-				nil,
-			))
-		}
+	if errExists := checkTargetExists(fullPath, opts.IsForceOverwrite); errExists != nil {
+		return result.Fail[DownloadResult](errExists)
 	}
 
 	engine := opts.Engine
@@ -90,33 +76,82 @@ func ExecuteDownload(opts DownloadOptions) ResultDownload {
 	}
 }
 
-func runAutoFallbackPipeline(opts DownloadOptions, destDir, destFile string) ResultDownload {
-	fullPath := filepath.Join(destDir, destFile)
-
-	// Tier 1: aria2c
-	if HasAria2c() {
-		res, err := downloadWithAria2c(opts, destDir, destFile)
-		if err == nil {
-			return result.Ok(res)
-		}
-
-		if !opts.IsQuiet && !opts.IsJSON {
-			fmt.Fprintf(os.Stderr, "  [warn] aria2c download failed (%v), falling back to curl...\n", err)
-		}
+func wrapDestError(err error) *apperror.AppError {
+	if appErr, isApp := err.(*apperror.AppError); isApp {
+		return appErr
 	}
 
-	// Tier 2: curl
-	if HasCurl() {
-		res, err := downloadWithCurl(opts, destDir, destFile)
-		if err == nil {
-			res.HasFallbackOccurred = true
+	return apperror.WrapSimple(err, "download.dest")
+}
 
-			return result.Ok(res)
-		}
+func checkTargetExists(fullPath string, isForceOverwrite bool) *apperror.AppError {
+	if isForceOverwrite {
+		return nil
+	}
 
-		if !opts.IsQuiet && !opts.IsJSON {
-			fmt.Fprintf(os.Stderr, "  [warn] curl download failed (%v), falling back to native Go HTTP...\n", err)
-		}
+	if _, statErr := os.Stat(fullPath); statErr != nil {
+		return nil
+	}
+
+	return apperror.NewWithDetails(
+		"download.file_exists",
+		"E1202",
+		fmt.Sprintf("file %s already exists; use --force to overwrite", fullPath),
+		"cmddownload",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityError,
+		nil,
+	)
+}
+
+func tryAria2cTier(opts DownloadOptions, destDir, destFile string) (DownloadResult, bool) {
+	if !HasAria2c() {
+		return DownloadResult{}, false
+	}
+
+	res, err := downloadWithAria2c(opts, destDir, destFile)
+	if err == nil {
+		return res, true
+	}
+
+	warnFallback(opts, "aria2c", "curl", err)
+
+	return DownloadResult{}, false
+}
+
+func tryCurlTier(opts DownloadOptions, destDir, destFile string) (DownloadResult, bool) {
+	if !HasCurl() {
+		return DownloadResult{}, false
+	}
+
+	res, err := downloadWithCurl(opts, destDir, destFile)
+	if err == nil {
+		res.HasFallbackOccurred = true
+
+		return res, true
+	}
+
+	warnFallback(opts, "curl", "native Go HTTP", err)
+
+	return DownloadResult{}, false
+}
+
+func warnFallback(opts DownloadOptions, from, to string, err error) {
+	if opts.IsQuiet || opts.IsJSON {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "  [warn] %s download failed (%v), falling back to %s...\n", from, err, to)
+}
+
+func runAutoFallbackPipeline(opts DownloadOptions, destDir, destFile string) ResultDownload {
+	fullPath := filepath.Join(destDir, destFile)
+	if res, ok := tryAria2cTier(opts, destDir, destFile); ok {
+		return result.Ok(res)
+	}
+
+	if res, ok := tryCurlTier(opts, destDir, destFile); ok {
+		return result.Ok(res)
 	}
 
 	// Tier 3: Native Go net/http
@@ -174,12 +209,7 @@ func resolveDestination(urlStr, outPath string) (string, string, error) {
 	}
 
 	if outPath == "" {
-		cwd, errCwd := os.Getwd()
-		if errCwd != nil {
-			cwd = "."
-		}
-
-		return cwd, defaultName, nil
+		return resolveCurrentDir(), defaultName, nil
 	}
 
 	info, errStat := os.Stat(outPath)
@@ -194,6 +224,52 @@ func resolveDestination(urlStr, outPath string) (string, string, error) {
 	return filepath.Dir(outPath), filepath.Base(outPath), nil
 }
 
+func resolveCurrentDir() string {
+	cwd, errCwd := os.Getwd()
+	if errCwd != nil {
+		return "."
+	}
+
+	return cwd
+}
+
+func outputDownloadJSON(opts DownloadOptions, res ResultDownload) error {
+	val := resolveDownloadResultValue(opts, res)
+	encoded, errEnc := json.MarshalIndent(val, "", "  ")
+	if errEnc != nil {
+		fmt.Printf("{\"status\":\"error\",\"error\":\"%s\"}\n", errEnc.Error())
+
+		return errEnc
+	}
+
+	fmt.Println(string(encoded))
+
+	if res.IsFailure() {
+		return res.Err
+	}
+
+	return nil
+}
+
+func resolveDownloadResultValue(opts DownloadOptions, res ResultDownload) DownloadResult {
+	if !res.IsFailure() {
+		return res.Value
+	}
+
+	val := DownloadResult{
+		Status:          "error",
+		URL:             opts.URL,
+		DestinationPath: opts.OutputPath,
+		EngineUsed:      opts.Engine,
+	}
+	if res.Err != nil {
+		msg := res.Err.Error()
+		val.ErrorMessage = &msg
+	}
+
+	return val
+}
+
 // RunDownloadCLI dispatches the CLI download subcommand.
 func RunDownloadCLI(args []string) error {
 	opts, errParse := parseDownloadArgs(args)
@@ -203,34 +279,7 @@ func RunDownloadCLI(args []string) error {
 
 	res := ExecuteDownload(opts)
 	if opts.IsJSON {
-		val := res.Value
-		if res.IsFailure() {
-			val = DownloadResult{
-				Status:          "error",
-				URL:             opts.URL,
-				DestinationPath: opts.OutputPath,
-				EngineUsed:      opts.Engine,
-			}
-			if res.Err != nil {
-				msg := res.Err.Error()
-				val.ErrorMessage = &msg
-			}
-		}
-
-		encoded, errEnc := json.MarshalIndent(val, "", "  ")
-		if errEnc != nil {
-			fmt.Printf("{\"status\":\"error\",\"error\":\"%s\"}\n", errEnc.Error())
-
-			return errEnc
-		}
-
-		fmt.Println(string(encoded))
-
-		if res.IsFailure() {
-			return res.Err
-		}
-
-		return nil
+		return outputDownloadJSON(opts, res)
 	}
 
 	if res.IsFailure() {
@@ -281,11 +330,8 @@ func parseDownloadArgs(args []string) (DownloadOptions, error) {
 			opts.IsForceOverwrite = true
 
 		case arg == "-t" || arg == "--threads":
-			if i+1 < len(args) {
-				if n, err := strconv.Atoi(args[i+1]); err == nil {
-					opts.Threads = n
-				}
-
+			if n, ok := parseIntArg(args, i+1); ok {
+				opts.Threads = n
 				i++
 			}
 
@@ -295,11 +341,8 @@ func parseDownloadArgs(args []string) (DownloadOptions, error) {
 			}
 
 		case arg == "-s" || arg == "--splits":
-			if i+1 < len(args) {
-				if n, err := strconv.Atoi(args[i+1]); err == nil {
-					opts.Splits = n
-				}
-
+			if n, ok := parseIntArg(args, i+1); ok {
+				opts.Splits = n
 				i++
 			}
 
@@ -359,4 +402,17 @@ Flags:
   -q, --quiet            Suppress terminal progress output
       --engine <name>    Force downloader engine: 'aria2c', 'curl', 'go_http', or 'auto' (default)
   -h, --help             Show this help message`)
+}
+
+func parseIntArg(args []string, idx int) (int, bool) {
+	if idx >= len(args) {
+		return 0, false
+	}
+
+	n, err := strconv.Atoi(args[idx])
+	if err != nil {
+		return 0, false
+	}
+
+	return n, true
 }

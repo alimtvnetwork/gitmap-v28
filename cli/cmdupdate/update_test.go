@@ -109,12 +109,12 @@ func TestMatchPlatformAsset(t *testing.T) {
 		arch     string
 		expected bool
 	}{
-		{"gitmap-v6.513.0-windows-amd64.zip", "v6.513.0", "windows", "amd64", true},
-		{"gitmap-v6.513.0-windows-arm64.zip", "v6.513.0", "windows", "arm64", true},
-		{"gitmap-v6.513.0-windows-amd64.zip", "v6.513.0", "windows", "arm64", false},
-		{"gitmap-v6.513.0-linux-amd64.tar.gz", "v6.513.0", "linux", "amd64", true},
-		{"gitmap-v6.513.0-darwin-arm64.tar.gz", "v6.513.0", "darwin", "arm64", true},
-		{"gitmap-v6.513.0-linux-amd64.tar.gz", "v6.513.0", "windows", "amd64", false},
+		{"gitmap-v28.0.0-windows-amd64.zip", "v28.0.0", "windows", "amd64", true},
+		{"gitmap-v28.0.0-windows-arm64.zip", "v28.0.0", "windows", "arm64", true},
+		{"gitmap-v28.0.0-windows-amd64.zip", "v28.0.0", "windows", "arm64", false},
+		{"gitmap-v28.0.0-linux-amd64.tar.gz", "v28.0.0", "linux", "amd64", true},
+		{"gitmap-v28.0.0-darwin-arm64.tar.gz", "v28.0.0", "darwin", "arm64", true},
+		{"gitmap-v28.0.0-linux-amd64.tar.gz", "v28.0.0", "windows", "amd64", false},
 	}
 
 	for _, tt := range tests {

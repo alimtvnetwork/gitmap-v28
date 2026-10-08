@@ -164,7 +164,7 @@ In interactive terminal mode (when `--json` and `--quiet` are false and stdout i
    - Empty characters $C_{\text{empty}} = W_{\text{bar}} - C_{\text{fill}}$.
    - Status badge: `[=====>               ]  45%`
    - Numeric indicators: `(14.2 MB / 31.5 MB) · 4.8 MB/s · ETA 00:03`
-   - Line content: `Downloading gitmap-v6.513.0.zip  [=====>       ] 45% (14.2/31.5 MB) 4.8MB/s`
+   - Line content: `Downloading gitmap-v28.0.0.zip  [=====>       ] 45% (14.2/31.5 MB) 4.8MB/s`
 
 3. **Symmetric Padding:**
    - Padding $S = \max\left(0, \left\lfloor \frac{W_{\text{term}} - \text{len}(LineContent)}{2} \right\rfloor\right)$.
@@ -179,9 +179,9 @@ When `--json` is supplied, stdout outputs only the typed JSON envelope:
 ```json
 {
   "status": "success",
-  "url": "https://github.com/alimtvnetwork/gitmap-v28/releases/download/v6.513.0/gitmap-v6.513.0-windows-amd64.zip",
-  "destination_path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\gitmap-v6.513.0-windows-amd64.zip",
-  "file_name": "gitmap-v6.513.0-windows-amd64.zip",
+  "url": "https://github.com/alimtvnetwork/gitmap-v28/releases/download/v28.0.0/gitmap-v28.0.0-windows-amd64.zip",
+  "destination_path": "temp/gitmap-v28.0.0-windows-amd64.zip",
+  "file_name": "gitmap-v28.0.0-windows-amd64.zip",
   "file_size_bytes": 14889728,
   "downloaded_bytes": 14889728,
   "duration_ms": 1120,
@@ -336,7 +336,7 @@ The legacy 90-line setup dump is completely decoupled from standard updates:
 ```
   Checking for updates... (cache: valid)
   Target version : v6.513.0 (current: v6.512.0)
-  Downloading    : gitmap-v6.513.0-windows-amd64.zip
+  Downloading    : gitmap-v28.0.0-windows-amd64.zip
   Progress       : [========================================] 100% (14.8 MB / 14.8 MB) · 22 MB/s
   Verifying      : SHA256 checksum verified.
   Installing     : Updating binary in C:\Users\Administrator\AppData\Local\gitmap-cli...

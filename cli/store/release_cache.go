@@ -136,11 +136,11 @@ func GetCachedRelease(db *sql.DB, tag, platform, arch string) (*ReleaseCacheReco
 		&createStr,
 		&updateStr,
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
 
+	if err != nil {
 		return nil, apperror.WrapSimple(err, "store.get_cached_release")
 	}
 

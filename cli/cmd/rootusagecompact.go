@@ -16,6 +16,8 @@ func printUsageCompact() {
 
 	printGitmapIdentityBlockShort()
 
+	printCompactUserContext()
+
 	printCompactGuidanceFooter()
 }
 

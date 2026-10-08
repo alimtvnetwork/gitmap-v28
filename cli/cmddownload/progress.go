@@ -52,16 +52,7 @@ func (p *ProgressBar) Update(downloaded int64) {
 	defer p.mu.Unlock()
 
 	now := time.Now()
-	elapsedFromLast := now.Sub(p.lastTime)
-	if elapsedFromLast >= 200*time.Millisecond {
-		deltaBytes := downloaded - p.lastBytes
-		if deltaBytes > 0 && elapsedFromLast.Seconds() > 0 {
-			p.speedBps = int64(float64(deltaBytes) / elapsedFromLast.Seconds())
-		}
-
-		p.lastBytes = downloaded
-		p.lastTime = now
-	}
+	p.updateSpeed(downloaded, now)
 
 	termWidth, _, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil || termWidth <= 0 {
@@ -86,54 +77,90 @@ func (p *ProgressBar) Update(downloaded int64) {
 	fmt.Print(fullLine)
 }
 
-func (p *ProgressBar) renderLine(downloaded int64, termWidth int) string {
+func (p *ProgressBar) updateSpeed(downloaded int64, now time.Time) {
+	elapsed := now.Sub(p.lastTime)
+	if elapsed < 200*time.Millisecond {
+		return
+	}
+
+	deltaBytes := downloaded - p.lastBytes
+	secs := elapsed.Seconds()
+	if deltaBytes > 0 && secs > 0 {
+		p.speedBps = int64(float64(deltaBytes) / secs)
+	}
+
+	p.lastBytes = downloaded
+	p.lastTime = now
+}
+
+func clampBarWidth(termWidth int) int {
 	barWidth := int(float64(termWidth) * 0.35)
 	if barWidth > 30 {
-		barWidth = 30
+		return 30
 	}
 	if barWidth < 10 {
-		barWidth = 10
+		return 10
 	}
+	return barWidth
+}
 
-	var (
-		percent   float64
-		barString string
-		etaString string
-	)
-
-	if p.totalBytes > 0 {
-		percent = float64(downloaded) / float64(p.totalBytes)
-		if percent > 1.0 {
-			percent = 1.0
-		}
-
-		filled := int(math.Floor(percent * float64(barWidth)))
-		if filled > barWidth {
-			filled = barWidth
-		}
-
-		if filled == 0 {
-			barString = "[" + strings.Repeat(" ", barWidth) + "]"
-		} else if filled < barWidth {
-			barString = "[" + strings.Repeat("=", filled-1) + ">" + strings.Repeat(" ", barWidth-filled) + "]"
-		} else {
-			barString = "[" + strings.Repeat("=", barWidth) + "]"
-		}
-
-		if p.speedBps > 0 {
-			remaining := p.totalBytes - downloaded
-			if remaining > 0 {
-				etaSec := remaining / p.speedBps
-				etaString = fmt.Sprintf(" · ETA %02d:%02d", etaSec/60, etaSec%60)
-			}
-		}
-	} else {
-		barString = "[......]"
+func computePercent(downloaded, total int64) float64 {
+	if total <= 0 {
+		return 0
 	}
+	pct := float64(downloaded) / float64(total)
+	if pct > 1.0 {
+		return 1.0
+	}
+	return pct
+}
+
+func renderBarString(pct float64, barWidth int, hasTotal bool) string {
+	if !hasTotal {
+		return "[......]"
+	}
+	filled := int(math.Floor(pct * float64(barWidth)))
+	if filled > barWidth {
+		filled = barWidth
+	}
+	if filled <= 0 {
+		return "[" + strings.Repeat(" ", barWidth) + "]"
+	}
+	if filled >= barWidth {
+		return "[" + strings.Repeat("=", barWidth) + "]"
+	}
+	return "[" + strings.Repeat("=", filled-1) + ">" + strings.Repeat(" ", barWidth-filled) + "]"
+}
+
+func calculateETAString(totalBytes, downloaded, speedBps int64) string {
+	if totalBytes <= 0 || speedBps <= 0 {
+		return ""
+	}
+	remaining := totalBytes - downloaded
+	if remaining <= 0 {
+		return ""
+	}
+	etaSec := remaining / speedBps
+	return fmt.Sprintf(" · ETA %02d:%02d", etaSec/60, etaSec%60)
+}
+
+func truncateFilename(name string) string {
+	if len(name) > 24 {
+		return name[:21] + "..."
+	}
+	return name
+}
+
+func (p *ProgressBar) renderLine(downloaded int64, termWidth int) string {
+	barWidth := clampBarWidth(termWidth)
+	hasTotal := p.totalBytes > 0
+	percent := computePercent(downloaded, p.totalBytes)
+	barString := renderBarString(percent, barWidth, hasTotal)
+	etaString := calculateETAString(p.totalBytes, downloaded, p.speedBps)
 
 	pctText := fmt.Sprintf("%3.0f%%", percent*100)
 	bytesText := FormatBytes(downloaded)
-	if p.totalBytes > 0 {
+	if hasTotal {
 		bytesText += "/" + FormatBytes(p.totalBytes)
 	}
 
@@ -142,11 +169,7 @@ func (p *ProgressBar) renderLine(downloaded int64, termWidth int) string {
 		speedText = fmt.Sprintf(" · %s/s", FormatBytes(p.speedBps))
 	}
 
-	name := p.filename
-	if len(name) > 24 {
-		name = name[:21] + "..."
-	}
-
+	name := truncateFilename(p.filename)
 	return fmt.Sprintf("Downloading %s  %s %s (%s)%s%s", name, barString, pctText, bytesText, speedText, etaString)
 }
 
@@ -209,11 +232,13 @@ type ProgressReader struct {
 // Read implements io.Reader.
 func (pr *ProgressReader) Read(p []byte) (int, error) {
 	n, err := pr.Reader.Read(p)
-	if n > 0 {
-		pr.Downloaded += int64(n)
-		if pr.Bar != nil {
-			pr.Bar.Update(pr.Downloaded)
-		}
+	if n <= 0 {
+		return n, err
+	}
+
+	pr.Downloaded += int64(n)
+	if pr.Bar != nil {
+		pr.Bar.Update(pr.Downloaded)
 	}
 
 	return n, err

@@ -40,21 +40,7 @@ func startRemoteUpdateWorkflow(slug string) bool {
 
 	candidate, errCandidate := ResolveUpdateTargetWithFallback(slug, opts.TargetVersion, opts.MaxFallbackTags, opts.IsForce)
 	if errCandidate != nil {
-		if opts.IsJSON {
-			errMsg := errCandidate.Error()
-			res := UpdateResult{
-				Success:         false,
-				Status:          "error",
-				PreviousVersion: FormatVersionTag(currentVersion),
-				CurrentVersion:  FormatVersionTag(currentVersion),
-				TargetTag:       FormatVersionTag(opts.TargetVersion),
-				ErrorMessage:    &errMsg,
-			}
-			enc, _ := json.MarshalIndent(res, "", "  ")
-			fmt.Println(string(enc))
-		} else {
-			fmt.Fprintf(os.Stderr, "  Error resolving update release: %v\n", errCandidate)
-		}
+		outputResolveError(errCandidate, currentVersion, opts.TargetVersion, opts.IsJSON)
 
 		return false
 	}
@@ -66,19 +52,7 @@ func startRemoteUpdateWorkflow(slug string) bool {
 
 	// AC-06: "Already updated" Fast Path Skip
 	if IsAlreadyUpdated(currentVersion, candidate.Version, opts.IsForce) {
-		if opts.IsJSON {
-			res := AlreadyUpdatedResult{
-				Status:         "already_updated",
-				CurrentVersion: FormatVersionTag(currentVersion),
-				TargetVersion:  FormatVersionTag(candidate.Version),
-				Updated:        false,
-				Message:        "GitMap is already on the target version.",
-			}
-			enc, _ := json.MarshalIndent(res, "", "  ")
-			fmt.Println(string(enc))
-		} else {
-			fmt.Printf("  Already updated (%s is current). Use --force to reinstall.\n", FormatVersionTag(currentVersion))
-		}
+		outputAlreadyUpdated(currentVersion, candidate.Version, opts.IsJSON)
 
 		return true
 	}
@@ -87,26 +61,7 @@ func startRemoteUpdateWorkflow(slug string) bool {
 	if opts.IsDryRun {
 		downloaderEngine := resolveDownloaderEngine()
 		installDir := resolveCurrentInstallDir()
-
-		if opts.IsJSON {
-			res := UpdateResult{
-				Success:          true,
-				Status:           "dry_run",
-				PreviousVersion:  FormatVersionTag(currentVersion),
-				CurrentVersion:   FormatVersionTag(currentVersion),
-				TargetTag:        FormatVersionTag(candidate.Tag),
-				InstallDir:       installDir,
-				DownloaderEngine: downloaderEngine,
-				DownloadBytes:    candidate.AssetSize,
-				FallbackDepth:    candidate.FallbackDepth,
-				IsCached:         candidate.IsCached,
-				ScriptsUpdated:   []string{"install.ps1", "gitmap.ps1", "run.ps1"},
-			}
-			enc, _ := json.MarshalIndent(res, "", "  ")
-			fmt.Println(string(enc))
-		} else {
-			fmt.Printf("  [dry-run] Target version resolved: %s (current: %s, asset: %s, cached: %v)\n", candidate.Tag, FormatVersionTag(currentVersion), candidate.AssetURL, candidate.IsCached)
-		}
+		outputDryRun(candidate, currentVersion, downloaderEngine, installDir, opts.IsJSON)
 
 		return true
 	}
@@ -116,17 +71,7 @@ func startRemoteUpdateWorkflow(slug string) bool {
 
 	// AC-09: Concise interactive announcements
 	if !opts.IsJSON && !opts.IsQuiet {
-		cacheDesc := "fetched"
-		if candidate.IsCached {
-			cacheDesc = "valid"
-		}
-		fmt.Printf("  Checking for updates... (cache: %s)\n", cacheDesc)
-		fmt.Printf("  Target version : %s (current: %s)\n", FormatVersionTag(candidate.Tag), FormatVersionTag(currentVersion))
-		assetName := candidate.Tag
-		if candidate.AssetURL != "" {
-			assetName = filepath.Base(candidate.AssetURL)
-		}
-		fmt.Printf("  Downloading    : %s via %s\n", assetName, downloaderEngine)
+		printUpdateAnnouncement(candidate, currentVersion, downloaderEngine)
 	}
 
 	url := installerURLFor(slug)
@@ -181,6 +126,7 @@ func startRemoteUpdateWorkflow(slug string) bool {
 	}
 
 	ensurePostUpdateCompletions()
+	printPostUpdateIdentity()
 
 	return true
 }
@@ -199,13 +145,8 @@ func resolveDownloaderEngine() string {
 
 func syncLocalRunnerScripts(installDir, tag string) []string {
 	updated := make([]string, 0, 3)
-
-	if installDir != "" {
-		shimPath := filepath.Join(installDir, "gitmap.ps1")
-		shimContent := "& \"$PSScriptRoot\\gitmap.exe\" @args\r\n"
-		if err := os.WriteFile(shimPath, []byte(shimContent), 0644); err == nil {
-			updated = append(updated, "gitmap.ps1")
-		}
+	if hasWrittenShim(installDir) {
+		updated = append(updated, "gitmap.ps1")
 	}
 
 	if _, err := os.Stat("install.ps1"); err == nil {
@@ -217,13 +158,110 @@ func syncLocalRunnerScripts(installDir, tag string) []string {
 	}
 
 	if len(updated) == 0 {
-		updated = []string{"install.ps1", "gitmap.ps1", "run.ps1"}
+		return []string{"install.ps1", "gitmap.ps1", "run.ps1"}
 	}
 
 	return updated
 }
 
+func hasWrittenShim(installDir string) bool {
+	if installDir == "" {
+		return false
+	}
+
+	shimPath := filepath.Join(installDir, "gitmap.ps1")
+	shimContent := "& \"$PSScriptRoot\\gitmap.exe\" @args\r\n"
+
+	return os.WriteFile(shimPath, []byte(shimContent), 0644) == nil
+}
+
 func ensurePostUpdateCompletions() {
 	shell := completion.DetectShell()
 	_ = completion.Install(shell)
+}
+
+func outputResolveError(err error, currentVer, targetVer string, isJSON bool) {
+	if isJSON {
+		errMsg := err.Error()
+		res := UpdateResult{
+			Success:         false,
+			Status:          "error",
+			PreviousVersion: FormatVersionTag(currentVer),
+			CurrentVersion:  FormatVersionTag(currentVer),
+			TargetTag:       FormatVersionTag(targetVer),
+			ErrorMessage:    &errMsg,
+		}
+		enc, _ := json.MarshalIndent(res, "", "  ")
+		fmt.Println(string(enc))
+
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "  Error resolving update release: %v\n", err)
+}
+
+func outputAlreadyUpdated(currentVer, targetVer string, isJSON bool) {
+	if isJSON {
+		res := AlreadyUpdatedResult{
+			Status:         "already_updated",
+			CurrentVersion: FormatVersionTag(currentVer),
+			TargetVersion:  FormatVersionTag(targetVer),
+			Updated:        false,
+			Message:        "GitMap is already on the target version.",
+		}
+		enc, _ := json.MarshalIndent(res, "", "  ")
+		fmt.Println(string(enc))
+
+		return
+	}
+
+	fmt.Printf("  Already updated (%s is current). Use --force to reinstall.\n", FormatVersionTag(currentVer))
+}
+
+func outputDryRun(candidate *ReleaseCandidate, currentVer, engine, installDir string, isJSON bool) {
+	if isJSON {
+		res := UpdateResult{
+			Success:          true,
+			Status:           "dry_run",
+			PreviousVersion:  FormatVersionTag(currentVer),
+			CurrentVersion:   FormatVersionTag(currentVer),
+			TargetTag:        FormatVersionTag(candidate.Tag),
+			InstallDir:       installDir,
+			DownloaderEngine: engine,
+			DownloadBytes:    candidate.AssetSize,
+			FallbackDepth:    candidate.FallbackDepth,
+			IsCached:         candidate.IsCached,
+			ScriptsUpdated:   []string{"install.ps1", "gitmap.ps1", "run.ps1"},
+		}
+		enc, _ := json.MarshalIndent(res, "", "  ")
+		fmt.Println(string(enc))
+
+		return
+	}
+
+	fmt.Printf("  [dry-run] Target version resolved: %s (current: %s, asset: %s, cached: %v)\n", candidate.Tag, FormatVersionTag(currentVer), candidate.AssetURL, candidate.IsCached)
+}
+
+func printUpdateAnnouncement(candidate *ReleaseCandidate, currentVer, engine string) {
+	cacheDesc := resolveCandidateCacheDesc(candidate.IsCached)
+	fmt.Printf("  Checking for updates... (cache: %s)\n", cacheDesc)
+	fmt.Printf("  Target version : %s (current: %s)\n", FormatVersionTag(candidate.Tag), FormatVersionTag(currentVer))
+	assetName := resolveCandidateAsset(candidate)
+	fmt.Printf("  Downloading    : %s via %s\n", assetName, engine)
+}
+
+func resolveCandidateCacheDesc(isCached bool) string {
+	if isCached {
+		return "valid"
+	}
+
+	return "fetched"
+}
+
+func resolveCandidateAsset(candidate *ReleaseCandidate) string {
+	if len(candidate.AssetURL) > 0 {
+		return filepath.Base(candidate.AssetURL)
+	}
+
+	return candidate.Tag
 }
