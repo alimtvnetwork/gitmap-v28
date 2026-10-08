@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -30,7 +31,7 @@ func runFileSearch(args []string) error {
 	}
 
 	ctx := context.Background()
-	mainDB, db, err := getRepoDB(ctx)
+	mainDB, db, err := cmddb.GetRepoDB(ctx)
 	if err != nil {
 		return apperror.WrapSimple(err, "Error connecting to db:")
 	}

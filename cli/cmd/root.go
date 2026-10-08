@@ -2,6 +2,22 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrest"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvariable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsafe"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdip"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemplates"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommittransfer"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfoldertree"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdaudit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmigrate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconsole"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -36,7 +52,7 @@ func isVersionCommand(cmd string) bool {
 
 // Run is the main entry point for the CLI.
 func Run() {
-	initConsole()
+	cmdconsole.InitConsole()
 
 	if len(os.Args) < 2 {
 		printUsageCompact()
@@ -90,7 +106,7 @@ func Run() {
 	// Skip migration for commands that must produce clean stdout
 	cmd := os.Args[1]
 	if isVersionCommand(cmd) == false {
-		migrateLegacyDirs()
+		cmdmigrate.MigrateLegacyDirs()
 	}
 
 	// URL shortcut: `gitmap <git-url> [<url2> ...]` (and variants with
@@ -466,7 +482,7 @@ func handleDispatchResult(
 		return false
 	}
 
-	finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+	cmdaudit.FinishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 	if err != nil {
 		handleGlobalError(command, err)
 	}
@@ -476,14 +492,14 @@ func handleDispatchResult(
 
 // dispatch routes to the correct subcommand handler with audit tracking.
 func dispatch(command string) {
-	auditID, auditStart, shouldAudit := beginCommandAudit(command, os.Args[2:])
+	auditID, auditStart, shouldAudit := cmdaudit.BeginCommandAudit(command, os.Args[2:])
 
-	found, err := dispatchUser(command)
+	found, err := cmduser.DispatchUser(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
 
-	found, err = dispatchFolderTree(command)
+	found, err = cmdfoldertree.DispatchFolderTree(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
@@ -493,7 +509,7 @@ func dispatch(command string) {
 		return
 	}
 
-	found, err = dispatchCommitTransfer(command)
+	found, err = cmdcommittransfer.DispatchCommitTransfer(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
@@ -523,17 +539,17 @@ func dispatch(command string) {
 		return
 	}
 
-	found, err = dispatchDiff(command)
+	found, err = cmddiff.DispatchDiff(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
 
-	found, err = dispatchCompare(command)
+	found, err = cmddiff.DispatchCompare(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
 
-	found, err = dispatchMoveMerge(command)
+	found, err = cmdmerge.DispatchMoveMerge(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
@@ -543,7 +559,7 @@ func dispatch(command string) {
 		return
 	}
 
-	found, err = dispatchCommon(command)
+	found, err = cmdsync.DispatchCommon(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
@@ -553,12 +569,12 @@ func dispatch(command string) {
 		return
 	}
 
-	found, err = dispatchSpace(command)
+	found, err = cmdspace.DispatchSpace(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
 
-	found, err = dispatchTemplates(command)
+	found, err = cmdtemplates.DispatchTemplates(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
@@ -567,7 +583,7 @@ func dispatch(command string) {
 		return
 	}
 
-	if dispatchMacroDynamic(command, shouldAudit, auditID, auditStart) {
+	if cmdmacro.DispatchMacroDynamic(command, shouldAudit, auditID, auditStart) {
 		return
 	}
 
@@ -668,14 +684,14 @@ func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error
 
 	switch args[0] {
 	case "ip":
-		// IPCmd expects to parse args itself, so let Cobra do its thing.
-		IPCmd.SetArgs(args[1:])
+		// cmdip.IPCmd expects to parse args itself, so let Cobra do its thing.
+		cmdip.IPCmd.SetArgs(args[1:])
 
-		return IPCmd.ExecuteContext(ctx)
+		return cmdip.IPCmd.ExecuteContext(ctx)
 	case "ip-change":
-		IPChangeCmd.SetArgs(args[1:])
+		cmdip.IPChangeCmd.SetArgs(args[1:])
 
-		return IPChangeCmd.ExecuteContext(ctx)
+		return cmdip.IPChangeCmd.ExecuteContext(ctx)
 	}
 
 	return nil
@@ -816,22 +832,22 @@ func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.
 		return true
 	case "safe-rm", "rm-safe":
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
-			return runSafeRmCLI(argsTail())
+			return cmdsafe.RunSafeRmCLI(argsTail())
 		}, shouldAudit, id, start)
 		return true
 	case constants.CmdVar, constants.CmdVarAlias:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
-			return runVariableCmd(argsTail())
+			return cmdvariable.RunVariableCmd(argsTail())
 		}, shouldAudit, id, start)
 		return true
 	case constants.CmdRestEnable:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
-			return RunRestEnable(argsTail())
+			return cmdrest.RunRestEnable(argsTail())
 		}, shouldAudit, id, start)
 		return true
 	case constants.CmdMigrate:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
-			return RunMigrate(argsTail())
+			return cmdmigrate.RunMigrate(argsTail())
 		}, shouldAudit, id, start)
 		return true
 	default:
@@ -875,7 +891,7 @@ func dispatchAgySubsystem(
 
 		return true
 	case "agm", "ag-manager", "antigravity-manager":
-		executeAndAudit(dispatchAgm, shouldAudit, auditID, auditStart)
+		executeAndAudit(cmdagy.DispatchAgm, shouldAudit, auditID, auditStart)
 
 		return true
 	default:
@@ -957,5 +973,5 @@ func executeAndAudit(
 		cliexit.HandleError(err, 1)
 	}
 
-	finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+	cmdaudit.FinishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 }

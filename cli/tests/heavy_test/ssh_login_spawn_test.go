@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
 )
 
 func fakeSSHCommand(ctx context.Context, name string, args ...string) *exec.Cmd {
@@ -23,16 +23,16 @@ func TestRunSSHLogin(t *testing.T) {
 	c := &cobra.Command{}
 	ctx := context.Background()
 
-	oldExecutor := cmdssh.SSHExecutor
-	cmdssh.SSHExecutor = fakeSSHCommand
-	defer func() { cmdssh.SSHExecutor = oldExecutor }()
+	oldExecutor := cmd.SSHExecutor
+	cmd.SSHExecutor = fakeSSHCommand
+	defer func() { cmd.SSHExecutor = oldExecutor }()
 
-	err := cmdssh.RunSSHLogin(c, []string{"127.0.0.1"}, ctx)
+	err := cmd.RunSSHLogin(c, []string{"127.0.0.1"}, ctx)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	err = cmdssh.RunSSHLogin(c, []string{}, ctx)
+	err = cmd.RunSSHLogin(c, []string{}, ctx)
 	if err == nil {
 		t.Errorf("Expected error for missing arguments")
 	}

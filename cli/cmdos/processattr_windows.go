@@ -1,0 +1,17 @@
+//go:build windows
+
+package cmdos
+
+import (
+	"os/exec"
+	"syscall"
+)
+
+// setHiddenProcessAttr hides transient helper processes on Windows.
+func setHiddenProcessAttr(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+}
+
+func configureDetachedProcess(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x00000008}
+}

@@ -84,7 +84,7 @@ func scheduleDeployedCleanupHandoff() {
 // PATH is intentionally last because duplicate/stale gitmap.exe installs can
 // linger on Windows and point cleanup at the wrong binary after an update.
 func resolveDeployedBinaryPath() (string, string) {
-	deployed, _ := resolveDeployedAndConfigPaths()
+	deployed, _ := ResolveDeployedAndConfigPaths()
 	if len(deployed) > 0 {
 		return deployed, constants.UpdateCleanupSourceConfig
 	}

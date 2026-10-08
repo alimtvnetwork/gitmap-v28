@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"sort"
 	"strings"
 
@@ -102,7 +103,7 @@ func suggestByIntentKeywords(norm string) []string {
 func rankCandidateCommands(input string, candidates []string) []commandScore {
 	var scores []commandScore
 	for _, c := range candidates {
-		d := levenshtein(input, c)
+		d := cmdclone.Levenshtein(input, c)
 		isSub := strings.Contains(c, input)
 		if isSub {
 			d = 1

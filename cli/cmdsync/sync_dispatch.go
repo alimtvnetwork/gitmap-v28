@@ -1,0 +1,494 @@
+package cmdsync
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"os"
+	"sort"
+	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+)
+
+// Curated defaults sourced from the user-approved baseline (see helptext/sync.md).
+// Kept inline (not embed) because these are short, hand-curated and rarely change.
+const DefaultGitignoreBaseline = `# =======================================================================
+# System, IDEs, and Text Editor Configurations
+# =======================================================================
+.DS_Store
+Thumbs.db
+*.bak
+*.sw?
+*.swp
+
+# JetBrains / Rider / VS Code / Visual Studio
+.idea/
+.vs/
+.vscode/*
+!.vscode/extensions.json
+
+# User-specific developer overrides
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.ntvs*
+*.njsproj
+*.sln
+
+# =======================================================================
+# Logging Frameworks & Taggings
+# =======================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =======================================================================
+# GitMap & Tooling Internal Workspace Cache
+# =======================================================================
+.gitmap/
+
+# =======================================================================
+# Node.js, Modern Meta-Frameworks, and Tooling
+# =======================================================================
+node_modules/
+.pnpm-store/
+
+# Production builds and deployment artifact targets
+dist/
+dist-ssr/
+build/
+out/
+.output/
+.next/
+
+# Meta-framework runtimes (Nitro, Vinxi, TanStack, etc.)
+.nitro/
+.vinxi/
+.tanstack/
+
+# =======================================================================
+# Cloudflare / Serverless Deployment Runtimes
+# =======================================================================
+.wrangler/
+.dev.vars
+
+# =======================================================================
+# Go (Golang)
+# =======================================================================
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.prof
+bin/
+pkg/
+
+# =======================================================================
+# Python Core & Packaging Ecosystem
+# =======================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+ENV/
+pyenv/
+doc/_build/
+*.egg-info/
+
+# =======================================================================
+# .NET Ecosystem (C# / F# / VB)
+# =======================================================================
+[Bb]in/
+[Oo]bj/
+
+# =======================================================================
+# Environment Secrets & Cryptographic Keys
+# =======================================================================
+.env
+.env.local
+.env.*.local
+*.local
+*.pem
+*.key
+`
+
+const DefaultGitattributesBaseline = `# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Explicitly declare text files you want normalized to LF on check-in
+*.go text eol=lf
+*.py text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+
+# Explicitly declare dotnet C# source files
+*.cs text eol=lf
+*.sln text eol=lf
+*.csproj text eol=lf
+
+# Denote all files that are truly binary and should not be modified
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+*.ico filter=lfs diff=lfs merge=lfs -text
+`
+
+const DefaultPrettierignoreBaseline = `node_modules
+dist
+.output
+.vinxi
+pnpm-lock.yaml
+package-lock.json
+bun.lock
+routeTree.gen.ts
+`
+
+var defaultPrettierrcBaseline = map[string]any{
+	"printWidth":    100.0,
+	"semi":          true,
+	"singleQuote":   false,
+	"trailingComma": "all",
+}
+
+const commonUsage = `Usage: gitmap common <target> [flags]
+
+Targets:
+  ignore            Union-merge curated defaults into ./.gitignore
+  attributes       Union-merge curated defaults into ./.gitattributes
+  lfs-install      Run 'git lfs install --local' and merge lfs/common .gitattributes block
+                   (delegates to 'gitmap add lfs-install'; supports --dry-run)
+  prettier-ignore  Union-merge curated defaults into ./.prettierignore
+  prettier-rc      Merge curated JSON defaults into ./.prettierrc (existing keys win)
+  all              Run every target above in sequence
+
+Flags:
+  --dry-run, -n    Print planned additions without touching disk
+  --force,   -f    Overwrite conflicting JSON values in .prettierrc
+
+Behavior:
+  - Line-based targets (ignore/attributes/prettier-ignore) append MISSING lines
+    only; existing entries are preserved verbatim. Safe to re-run.
+  - lfs-install delegates to the same code path as 'gitmap add lfs-install'
+    (marker-block managed, idempotent). Requires git-lfs on PATH.
+  - .prettierrc is JSON key-union: missing keys are added; existing keys stay
+    unless --force is passed.
+  - Alias: gitmap co <target>
+
+Examples:
+  gitmap common ignore
+  gitmap common attributes --dry-run
+  gitmap common lfs-install
+  gitmap common lfs-install --dry-run
+  gitmap common all --dry-run
+  gitmap common prettier-rc --force
+`
+
+// dispatchCommon routes `gitmap common <target>` subcommands.
+func DispatchCommon(command string) (bool, error) {
+	if command != constants.CmdCommon && command != constants.CmdCommonAlias {
+		return false, nil
+	}
+
+	if len(os.Args) < 3 {
+		RunCommonLines(".gitignore", DefaultGitignoreBaseline, false)
+		RunCommonLines(".gitattributes", DefaultGitattributesBaseline, false)
+		RunCommonLFSInstall(false)
+		RunCommonLines(".prettierignore", DefaultPrettierignoreBaseline, false)
+		RunCommonPrettierRC(false, false)
+
+		return true, nil
+	}
+
+	if isCommonHelp(os.Args[2]) {
+		RenderSyncHelp()
+
+		return true, nil
+	}
+
+	sub := os.Args[2]
+	rest := os.Args[3:]
+	if strings.HasPrefix(sub, "-") {
+		// First arg is a flag, treat target as "all"
+		rest = os.Args[2:]
+		sub = "all"
+	}
+	dry, force := ParseCommonFlags(rest)
+
+	switch sub {
+	case "ignore":
+		RunCommonLines(".gitignore", DefaultGitignoreBaseline, dry)
+	case "attributes":
+		RunCommonLines(".gitattributes", DefaultGitattributesBaseline, dry)
+	case "lfs-install":
+		RunCommonLFSInstall(dry)
+	case "prettier-ignore":
+		RunCommonLines(".prettierignore", DefaultPrettierignoreBaseline, dry)
+	case "prettier-rc":
+		RunCommonPrettierRC(dry, force)
+	case "all":
+		RunCommonLines(".gitignore", DefaultGitignoreBaseline, dry)
+		RunCommonLines(".gitattributes", DefaultGitattributesBaseline, dry)
+		RunCommonLFSInstall(dry)
+		RunCommonLines(".prettierignore", DefaultPrettierignoreBaseline, dry)
+		RunCommonPrettierRC(dry, force)
+	default:
+		err := apperror.NewWithDetails(
+			"cmd.common.dispatch.unknown",
+			"E1145",
+			fmt.Sprintf("unknown sync target: %s\n\n%s", sub, commonUsage),
+			"cmd.common",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"subcommand": sub},
+		)
+		cliexit.HandleError(err, 1)
+	}
+
+	return true, nil
+}
+
+func isCommonHelp(arg string) bool {
+	return arg == "help" || arg == "-h" || arg == "--help"
+}
+
+func isSyncHelp(arg string) bool {
+	return isCommonHelp(arg)
+}
+
+// ParseCommonFlags scans args for --dry-run and --force (position agnostic).
+func ParseCommonFlags(args []string) (dry, force bool) {
+	for _, a := range args {
+		switch a {
+		case "--dry-run", "-n":
+			dry = true
+		case "--force", "-f":
+			force = true
+		}
+	}
+
+	return
+}
+
+// RunCommonLines appends every line from baseline that is not already
+// present (verbatim, trimmed compare) in the target file.
+func RunCommonLines(path, baseline string, dry bool) error {
+	existing, _ := os.ReadFile(path)
+	present := map[string]bool{}
+	for _, l := range strings.Split(string(existing), "\n") {
+		present[strings.TrimSpace(l)] = true
+	}
+
+	var toAdd []string
+	for _, l := range strings.Split(baseline, "\n") {
+		trimmed := strings.TrimSpace(l)
+		isNoise := trimmed == "" || strings.HasPrefix(trimmed, "#")
+		hasExisting := len(existing) > 0
+		if isNoise && hasExisting {
+			continue
+		}
+
+		if present[trimmed] {
+			continue
+		}
+
+		present[trimmed] = true
+		toAdd = append(toAdd, l)
+	}
+
+	if len(toAdd) == 0 {
+		fmt.Printf("  ok  %s already has all curated entries\n", path)
+
+		return nil
+	}
+
+	if dry {
+		fmt.Printf("  +   %s would gain %d line(s):\n", path, len(toAdd))
+		for _, l := range toAdd {
+			fmt.Printf("      %s\n", l)
+		}
+
+		return nil
+	}
+
+	buf := string(existing)
+	if len(buf) > 0 && !strings.HasSuffix(buf, "\n") {
+		buf += "\n"
+	}
+
+	if len(existing) > 0 {
+		buf += "\n# added by gitmap common\n"
+	}
+
+	buf += strings.Join(toAdd, "\n")
+	if !strings.HasSuffix(buf, "\n") {
+		buf += "\n"
+	}
+
+	if err := os.WriteFile(path, []byte(buf), 0o644); err != nil {
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.common.writeLines",
+			"E1146",
+			"failed to write synced lines to file",
+			"cmd.common",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
+
+		return nil
+	}
+
+	fmt.Printf("  +   %s: added %d line(s)\n", path, len(toAdd))
+
+	return nil
+}
+
+// RunCommonPrettierRC does a JSON key-union. Existing keys are kept unless
+// --force is passed; missing keys are inserted from the baseline.
+func RunCommonPrettierRC(dry, force bool) error {
+	const path = ".prettierrc"
+	current := map[string]any{}
+
+	if data, err := os.ReadFile(path); err == nil && len(data) > 0 {
+		parsePrettierRC(path, data, &current)
+	}
+
+	var added, overwritten []string
+	for k, v := range defaultPrettierrcBaseline {
+		existing, has := current[k]
+		if !has {
+			current[k] = v
+			added = append(added, k)
+			continue
+		}
+
+		if force && !syncJSONEqual(existing, v) {
+			current[k] = v
+			overwritten = append(overwritten, k)
+		}
+	}
+
+	if len(added) == 0 && len(overwritten) == 0 {
+		fmt.Printf("  ok  %s already has all curated keys\n", path)
+
+		return nil
+	}
+
+	sort.Strings(added)
+	sort.Strings(overwritten)
+
+	if dry && len(added) > 0 {
+		fmt.Printf("  +   %s would add: %s\n", path, strings.Join(added, ", "))
+	}
+
+	if dry && len(overwritten) > 0 {
+		fmt.Printf("  ~   %s would overwrite (--force): %s\n", path, strings.Join(overwritten, ", "))
+	}
+
+	if dry {
+		return nil
+	}
+
+	out, err := json.MarshalIndent(current, "", "  ")
+	if err != nil {
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.common.marshalPrettierRC",
+			"E1147",
+			"failed to marshal .prettierrc JSON",
+			"cmd.common",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			nil,
+		)
+		cliexit.HandleError(appErr, 1)
+
+		return nil
+	}
+
+	out = append(out, '\n')
+	if err := os.WriteFile(path, out, 0o644); err != nil {
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.common.writePrettierRC",
+			"E1148",
+			"failed to write .prettierrc",
+			"cmd.common",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
+
+		return nil
+	}
+
+	if len(added) > 0 {
+		fmt.Printf("  +   %s: added keys %s\n", path, strings.Join(added, ", "))
+	}
+
+	if len(overwritten) > 0 {
+		fmt.Printf("  ~   %s: overwrote keys %s\n", path, strings.Join(overwritten, ", "))
+	}
+
+	return nil
+}
+
+// syncJSONEqual compares two JSON-decoded values by re-marshaling. Small
+// payloads only, fine for .prettierrc scalars/arrays. Named uniquely to
+// avoid colliding with the identically-shaped helper in chromeprofile_merge.go.
+func syncJSONEqual(a, b any) bool {
+	ab, _ := json.Marshal(a)
+	bb, _ := json.Marshal(b)
+
+	return bytes.Equal(ab, bb)
+}
+
+// RunCommonLFSInstall delegates to `gitmap add lfs-install`. Kept as a
+// thin wrapper so the sync surface stays a single dispatch table while
+// the LFS logic (marker block, templates.Merge, git-lfs probe) lives
+// once in addlfsinstall.go.
+func RunCommonLFSInstall(dry bool) error {
+	args := []string{}
+	if dry {
+		args = append(args, "--dry-run")
+	}
+
+	runAddLFSInstall(args)
+
+	return nil
+}
+
+func parsePrettierRC(path string, data []byte, current *map[string]any) {
+	err := json.Unmarshal(data, current)
+	if err != nil {
+		appErr := apperror.WrapWithDetails(
+			err,
+			"cmd.common.parsePrettierRC",
+			"E1149",
+			"failed to parse existing .prettierrc JSON",
+			"cmd.common",
+			apperror.ErrorTypeValidation,
+			apperror.SeverityError,
+			map[string]any{"path": path},
+		)
+		cliexit.HandleError(appErr, 1)
+	}
+}

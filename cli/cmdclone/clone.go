@@ -61,7 +61,7 @@ func runCloneFixOptimization() {
 	_ = cmdagy.RunOptimize()
 	summary, _ := vscodepm.OptimizeProjects(nil, false)
 	printVSCodeOptimizeResult(summary, false)
-	_ = runGitHubDesktopOptimize(nil)
+	_ = RunGitHubDesktopOptimize(nil)
 }
 
 func resolveCloneManifest(source string) string {
@@ -709,7 +709,7 @@ func finalizeCloneExecution(summary model.CloneSummary, cf CloneFlags, taskDB *s
 
 	fmt.Println("\nRunning gitmap status on target directory...")
 	if err := os.Chdir(cf.TargetDir); err == nil {
-		runStatus([]string{})
+		RunStatus([]string{})
 	}
 }
 

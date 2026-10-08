@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 )
 
 // TestApplyTransportFlag_E2E exercises the end-to-end transport
@@ -118,7 +117,7 @@ func TestExtractTransportFlags(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			s, h, rest := cmdpull.ExtractTransportFlags(tc.in)
+			s, h, rest := cmd.ExtractTransportFlags(tc.in)
 			if s != tc.wantSSH || h != tc.wantHTTPS {
 				t.Fatalf("flags = (%v,%v), want (%v,%v)", s, h, tc.wantSSH, tc.wantHTTPS)
 			}

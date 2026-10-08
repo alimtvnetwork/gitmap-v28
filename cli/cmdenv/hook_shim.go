@@ -1,0 +1,19 @@
+package cmdenv
+
+// CheckHelpFn is wired by cmd/di_hooks.go to the canonical implementation.
+var CheckHelpFn func(command string, args []string)
+
+func checkHelp(command string, args []string) {
+	if CheckHelpFn != nil {
+		CheckHelpFn(command, args)
+	}
+}
+
+// PrintGitmapIdentityBlockShortFn is wired by cmd/di_hooks.go to the canonical implementation.
+var PrintGitmapIdentityBlockShortFn func()
+
+func printGitmapIdentityBlockShort() {
+	if PrintGitmapIdentityBlockShortFn != nil {
+		PrintGitmapIdentityBlockShortFn()
+	}
+}

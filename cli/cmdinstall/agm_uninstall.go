@@ -171,7 +171,7 @@ func findRunningAgmProcessPIDs() []int {
 
 func findAgmPIDsWindows() []int {
 	cmd := exec.Command("tasklist", "/FO", "CSV", "/NH")
-	setHiddenProcessAttr(cmd)
+	SetHiddenProcessAttr(cmd)
 	out, err := cmd.Output()
 	hasErr := err != nil
 	if hasErr {
@@ -267,7 +267,7 @@ func killSingleAgmPID(pid int) bool {
 	hasWindows := runtime.GOOS == "windows"
 	if hasWindows {
 		cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pid))
-		setHiddenProcessAttr(cmd)
+		SetHiddenProcessAttr(cmd)
 		return cmd.Run() == nil
 	}
 	proc, err := os.FindProcess(pid)
@@ -336,7 +336,7 @@ func purgeAgmRegistryEntries() {
 	keys := []string{"Antigravity Manager", "AntigravityManager", "AGM", "agm", "antigravity-manager"}
 	for _, k := range keys {
 		cmd := exec.Command("reg", "delete", `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, "/v", k, "/f")
-		setHiddenProcessAttr(cmd)
+		SetHiddenProcessAttr(cmd)
 		_ = cmd.Run()
 	}
 }

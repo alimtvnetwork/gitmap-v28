@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"errors"
 	"flag"
 	"fmt"
@@ -54,7 +56,7 @@ func parseReinstallFlags(args []string) reinstallOpts {
 	fs.StringVar(&opts.Mode, constants.FlagReinstallMode, constants.ReinstallModeAuto, constants.FlagDescReinstallMode)
 	fs.BoolVar(&opts.Yes, constants.FlagReinstallYes, false, constants.FlagDescReinstallYes)
 	fs.BoolVar(&opts.Yes, "y", false, constants.FlagDescReinstallYes)
-	fs.Parse(reorderFlagsBeforeArgs(args))
+	fs.Parse(flagutil.ReorderFlagsBeforeArgs(args))
 
 	return opts
 }
@@ -186,7 +188,7 @@ func buildReinstallScriptCmd(scriptPath string) *exec.Cmd {
 // reason). Failures in either step abort the reinstall.
 func executeReinstallSelf() {
 	fmt.Print(constants.MsgReinstallStepUninst)
-	runSelfUninstall([]string{"--confirm"})
+	cmdselfinstall.RunSelfUninstall([]string{"--confirm"})
 	fmt.Print(constants.MsgReinstallStepInst)
-	runSelfInstall([]string{"--yes"})
+	cmdselfinstall.RunSelfInstall([]string{"--yes"})
 }

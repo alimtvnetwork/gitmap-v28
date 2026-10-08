@@ -1,9 +1,7 @@
 package cmdclone
 
 import (
-	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -38,7 +36,7 @@ var (
 	RunStatusFn                    func([]string) error
 )
 
-func runStatus(args []string) error {
+func RunStatus(args []string) error {
 	if RunStatusFn != nil {
 		return RunStatusFn(args)
 	}
@@ -119,12 +117,6 @@ func maybeRunCheckHelpFn(command string, args []string) {
 	}
 }
 
-func WriteShellHandoff(targetPath string) {
-	if WriteShellHandoffFn != nil {
-		WriteShellHandoffFn(targetPath)
-	}
-}
-
 func escapeCwdIfInside(target string) (string, error) {
 	if EscapeCwdIfInsideFn != nil {
 		return EscapeCwdIfInsideFn(target)
@@ -169,21 +161,21 @@ func runCFRPPriorVersionPrivatize(absPath string, autoYes bool) error {
 	return nil
 }
 
-func runGitHubDesktopOptimize(args []string) error {
+func RunGitHubDesktopOptimize(args []string) error {
 	if RunGitHubDesktopOptimizeFn != nil {
 		return RunGitHubDesktopOptimizeFn(args)
 	}
 	return nil
 }
 
-func resolveEndpointString(raw string) string {
+func ResolveEndpointString(raw string) string {
 	if ResolveEndpointStringFn != nil {
 		return ResolveEndpointStringFn(raw)
 	}
 	return raw
 }
 
-func resolveReleaseAliasPath(alias string) string {
+func ResolveReleaseAliasPath(alias string) string {
 	if ResolveReleaseAliasPathFn != nil {
 		return ResolveReleaseAliasPathFn(alias)
 	}
@@ -217,7 +209,7 @@ func looksLikeVersion(s string) bool {
 	return versionPattern.MatchString(s)
 }
 
-func extractPositionalArgs(args []string) []string {
+func ExtractPositionalArgs(args []string) []string {
 	out := make([]string, 0, len(args))
 	skipNext := false
 	for _, a := range args {
@@ -304,15 +296,6 @@ func expandTilde(path string) string {
 func isGitRepo(dir string) bool {
 	_, err := os.Stat(filepath.Join(dir, ".git"))
 	return err == nil
-}
-
-func currentOriginURL(dir string) (string, error) {
-	out, err := exec.Command("git", "-C", dir, "config", "--get", "remote.origin.url").Output()
-	if err != nil {
-		return "", fmt.Errorf("read remote.origin.url in %s: %w", dir, err)
-	}
-
-	return strings.TrimSpace(string(out)), nil
 }
 
 func discoverDefaultCloneManifest() string {

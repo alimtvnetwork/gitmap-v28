@@ -1,6 +1,21 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstorage"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcluster"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstash"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbranch"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdaum"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemplates"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfind"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
@@ -36,51 +51,51 @@ func tryRenderRichTopic(topic string) bool {
 func tryRenderCoreRichTopic(topic string) bool {
 	switch topic {
 	case "search", "grep":
-		RenderSearchHelp()
+		cmdsearch.RenderSearchHelp()
 
 		return true
 	case "find", "find-files", "find-files-any", "find-files-startswith", "find-files-endswith", "ff", "ffa", "ffs", "ffe", "f":
-		RenderFindHelp()
+		cmdfind.RenderFindHelp()
 
 		return true
 	case "commit", "cm", "commit-all", "ca", "commit-both", "commit-left", "commit-right", "cmb", "cml", "cmr", "cpf", "cpb", "cpr", "pcp", "commit-pull", "cpull":
-		RenderCommitHelp()
+		cmdcommit.RenderCommitHelp()
 
 		return true
 	case "status", "st":
-		RenderStatusHelp()
+		cmdstatus.RenderStatusHelp()
 
 		return true
 	case "diff", "df", "diff-profiles":
-		RenderDiffHelp()
+		cmddiff.RenderDiffHelp()
 
 		return true
 	case "templates", "template", "tpl":
-		RenderTemplatesHelp()
+		cmdtemplates.RenderTemplatesHelp()
 
 		return true
 	case "ui", "gui", "web":
-		RenderUIHelp()
+		cmdui.RenderUIHelp()
 
 		return true
 	case "aum", "automation", "auto":
-		RenderAumHelp()
+		cmdaum.RenderAumHelp()
 
 		return true
 	case "llm", "llm-train", "train", "chain", "llm-docs", "ld":
-		RenderLlmHelp()
+		cmdllm.RenderLlmHelp()
 
 		return true
 	case "branch", "b", "latest-branch", "lb":
-		RenderBranchHelp()
+		cmdbranch.RenderBranchHelp()
 
 		return true
 	case "stash", "fix", "wip", "discard":
-		RenderStashHelp()
+		cmdstash.RenderStashHelp()
 
 		return true
 	case "user", "os-user":
-		RenderUserHelp()
+		cmduser.RenderUserHelp()
 
 		return true
 	}
@@ -95,11 +110,11 @@ func tryRenderInfraRichTopic(topic string) bool {
 
 		return true
 	case "cluster":
-		RenderClusterHelp()
+		cmdcluster.RenderClusterHelp()
 
 		return true
 	case "sc", "clients", "servers":
-		RenderSCHelp()
+		cmdschedule.RenderSCHelp()
 
 		return true
 	case "vhost":
@@ -126,11 +141,11 @@ func tryRenderToolRichTopic(topic string) bool {
 
 		return true
 	case "storage":
-		RenderStorageHelp()
+		cmdstorage.RenderStorageHelp()
 
 		return true
 	case "sync":
-		RenderSyncHelp()
+		cmdsync.RenderSyncHelp()
 
 		return true
 	case "vscode", "code":
@@ -142,7 +157,7 @@ func tryRenderToolRichTopic(topic string) bool {
 
 		return true
 	case "github-desktop", "gd", "github", "desktop-sync", "ds":
-		RenderGitHubDesktopHelp()
+		cmdvscode.RenderGitHubDesktopHelp()
 
 		return true
 	}

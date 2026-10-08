@@ -8,10 +8,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func checkHelp(command string, args []string) {
+func checkHelp(command string, args []string) bool {
 	if CheckHelpFn != nil {
 		CheckHelpFn(command, args)
 	}
+	return false
 }
 
 func expandHome(p string) string {
@@ -25,30 +26,6 @@ func pathExists(path string) bool {
 
 func openDB() (*store.DB, error) {
 	return store.OpenDefault()
-}
-
-func runPowerNeverSleep() error {
-	if RunPowerNeverSleepFn != nil {
-		return RunPowerNeverSleepFn()
-	}
-
-	return nil
-}
-
-func runPowerSet(args []string) error {
-	if RunPowerSetFn != nil {
-		return RunPowerSetFn(args)
-	}
-
-	return nil
-}
-
-func runPowerReset() error {
-	if RunPowerResetFn != nil {
-		return RunPowerResetFn()
-	}
-
-	return nil
 }
 
 func hasFlag(args []string, flagName string) bool {

@@ -1,6 +1,27 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservercmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcluster"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdnodes"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmigrate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitin"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvisibility"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdas"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdopen"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinject"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexec"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhaschange"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcode"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcreate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfix"
 	"context"
 	"strconv"
 	"strings"
@@ -55,15 +76,15 @@ func coreBasicMaintenanceEntries() []dispatchEntry {
 		{[]string{"clean-corrupted", "clean-corrupted-dirs"}, func() error { return cmddoctor.RunCleanCorrupted(argsTail()) }},
 		{[]string{"purge", "purge-history"}, func() error { return cmdpurge.RunPurge(argsTail()) }},
 		{[]string{"gitignore", "gitignore-agm", "gitignore-agy", "agm"}, func() error { return gitignoreagm.RunCLI(argsTail()) }},
-		{[]string{"fix"}, func() error { return runFix(argsTail(), "") }},
-		{[]string{"stash"}, func() error { return runFix(argsTail(), "stash") }},
-		{[]string{"wip"}, func() error { return runFix(argsTail(), "wip") }},
-		{[]string{"discard"}, func() error { return runFix(argsTail(), "discard") }},
+		{[]string{"fix"}, func() error { return cmdfix.RunFix(argsTail(), "") }},
+		{[]string{"stash"}, func() error { return cmdfix.RunFix(argsTail(), "stash") }},
+		{[]string{"wip"}, func() error { return cmdfix.RunFix(argsTail(), "wip") }},
+		{[]string{"discard"}, func() error { return cmdfix.RunFix(argsTail(), "discard") }},
 		{[]string{"fix-ignore-all", "fix-ignores-all", "fia"}, func() error { return cmdignore.RunFixIgnoreAll(argsTail()) }},
 		{[]string{"fix-ignores-all-ssh", "fix-ignore-all-ssh", "fias"}, func() error { return cmdignore.RunFixIgnoresAllSSH(argsTail()) }},
 		{[]string{"ignore", "ig"}, func() error { return cmdignore.RunIgnoreCLI(argsTail()) }},
 		{[]string{"cache"}, func() error { return cmdcache.RunCacheCLI(argsTail()) }},
-		{[]string{constants.CmdReconcile, constants.CmdReconcileAlias}, func() error { return RunReconcileCmd(argsTail()) }},
+		{[]string{constants.CmdReconcile, constants.CmdReconcileAlias}, func() error { return cmdreconcile.RunReconcileCmd(argsTail()) }},
 		{[]string{
 			"vscode-optimize-projects", "vscode-optimize",
 			"vsc-optimize-projects", "vsc-optimize",
@@ -82,14 +103,14 @@ func coreBasicOpEntries() []dispatchEntry {
 			constants.CmdCreate, constants.CmdCreateAlias,
 			constants.CmdRepoCreate, constants.CmdRepoCreateAlias,
 			constants.CmdCreateRepo, constants.CmdCreateRepoAlias, "cr",
-		}, func() error { return runCreate(argsTail()) }},
+		}, func() error { return cmdcreate.RunCreate(argsTail()) }},
 		{[]string{
 			constants.CmdCreateLocalRepo, constants.CmdCreateLocalRepoAlias,
 			constants.CmdCreateRepoLocal, constants.CmdRepoCreateLocal,
-		}, func() error { return runCreateLocal(argsTail()) }},
+		}, func() error { return cmdcreate.RunCreateLocal(argsTail()) }},
 		{[]string{
 			constants.CmdRecreateRepo, constants.CmdRecreateRepoAlias,
-		}, func() error { return runRecreateRepo(argsTail()) }},
+		}, func() error { return cmdrepo.RunRecreateRepo(argsTail()) }},
 		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, cmdclone.RunCloneSync},
 		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() error { return runPull(argsTail()) }},
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},
@@ -121,10 +142,10 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{"see", "c"}, func() error { return cmdsee.RunSeeCLI(argsTail()) }},
 		{[]string{"ses", "see-errors-ssh"}, func() error { return cmdsee.RunSeeErrorsSSH(argsTail()) }},
 		{[]string{"repo-manage", "repo-manage-ui"}, func() error { return cmdsee.RunRepoManageUI() }},
-		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return runStatus(argsTail()) }},
-		{[]string{constants.CmdCommit, constants.CmdCommitAlias, constants.CmdCommitAlias2, constants.CmdCommitAlias3}, func() error { return runCommit(argsTail()) }},
+		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return cmdstatus.RunStatus(argsTail()) }},
+		{[]string{constants.CmdCommit, constants.CmdCommitAlias, constants.CmdCommitAlias2, constants.CmdCommitAlias3}, func() error { return cmdcommit.RunCommit(argsTail()) }},
 		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},
-		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return runExec(argsTail()) }},
+		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return cmdexec.RunExec(argsTail()) }},
 		{[]string{"py", "python"}, func() error { return cmdpy.RunPy(argsTail()) }},
 		{[]string{constants.CmdSync, constants.CmdSyncAlias}, func() error { return cmdsync.RunSync(argsTail()) }},
 	}
@@ -132,13 +153,13 @@ func coreBasicOpEntries() []dispatchEntry {
 
 func coreWorkflowEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdHasAnyUpdates, constants.CmdHasAnyUpdatesAlias, constants.CmdHasAnyChanges, constants.CmdHasAnyChangesAlias}, func() error { return runHasAnyUpdates(argsTail()) }},
-		{[]string{constants.CmdHasChange, constants.CmdHasChangeAlias}, func() error { return runHasChange(argsTail()) }},
+		{[]string{constants.CmdHasAnyUpdates, constants.CmdHasAnyUpdatesAlias, constants.CmdHasAnyChanges, constants.CmdHasAnyChangesAlias}, func() error { return cmdhaschange.RunHasAnyUpdates(argsTail()) }},
+		{[]string{constants.CmdHasChange, constants.CmdHasChangeAlias}, func() error { return cmdhaschange.RunHasChange(argsTail()) }},
 		{[]string{constants.CmdCloneNext, constants.CmdCloneNextAlias}, func() error { return cmdclone.RunCloneNext(argsTail()) }},
-		{[]string{constants.CmdAs, constants.CmdAsAlias}, func() error { return runAs(argsTail()) }},
-		{[]string{constants.CmdCode, constants.CmdCodeAlias, constants.CmdCodeAlias2}, func() error { return runCode(argsTail()) }},
-		{[]string{constants.CmdInject, constants.CmdInjectAlias}, func() error { return runInject(argsTail()) }},
-		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() error { return runOpen(argsTail()) }},
+		{[]string{constants.CmdAs, constants.CmdAsAlias}, func() error { return cmdas.RunAs(argsTail()) }},
+		{[]string{constants.CmdCode, constants.CmdCodeAlias, constants.CmdCodeAlias2}, func() error { return cmdcode.RunCode(argsTail()) }},
+		{[]string{constants.CmdInject, constants.CmdInjectAlias}, func() error { return cmdinject.RunInject(argsTail()) }},
+		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() error { return cmdopen.RunOpen(argsTail()) }},
 		{[]string{constants.CmdCloneFrom, constants.CmdCloneFromAlias}, func() error { return cmdclone.RunCloneFrom(argsTail()) }},
 		{[]string{"cursor", "cur"}, func() error { return cmdcursor.RunCursor(argsTail()) }},
 	}
@@ -149,9 +170,9 @@ func coreCloneExtEntries() []dispatchEntry {
 		{[]string{constants.CmdMultiClone, constants.CmdMultiCloneAlias, constants.CmdMutliCloneAlias}, func() error { return cmdclone.RunMultiCloneCommand(argsTail()) }},
 		{[]string{constants.CmdCloneReclone, constants.CmdCloneRecloneAlias, constants.CmdCloneNow, constants.CmdCloneNowAlias, constants.CmdCloneRel, constants.CmdCloneRelAlias}, func() error { return cmdclone.RunCloneNow(argsTail()) }},
 		{[]string{constants.CmdClonePick, constants.CmdClonePickAlias}, func() error { return cmdclone.RunClonePick(argsTail()) }},
-		{[]string{constants.CmdCommitIn, constants.CmdCommitInAlias, "commitin"}, func() error { return runCommitIn(argsTail()) }},
-		{[]string{"commit-pull", "cpull", "pull-commits"}, func() error { return runCommitPull(argsTail()) }},
-		{[]string{"migrate", "wizard", "migration-wizard"}, func() error { return runMigrateWizard(argsTail()) }},
+		{[]string{constants.CmdCommitIn, constants.CmdCommitInAlias, "commitin"}, func() error { return cmdcommitin.RunCommitIn(argsTail()) }},
+		{[]string{"commit-pull", "cpull", "pull-commits"}, func() error { return cmdcommitpull.RunCommitPull(argsTail()) }},
+		{[]string{"migrate", "wizard", "migration-wizard"}, func() error { return cmdmigrate.RunMigrateWizard(argsTail()) }},
 		{[]string{constants.CmdCloneFixRepo, constants.CmdCloneFixRepoAlias}, func() error { return cmdclone.RunCloneFixRepo(argsTail()) }},
 		{[]string{constants.CmdCloneFixRepoPub, constants.CmdCloneFixRepoPubAlias}, func() error { return cmdclone.RunCloneFixRepoPub(argsTail()) }},
 		{[]string{constants.CmdVSCodePMSync, constants.CmdVSCodePMSyncAlias}, func() error { return cmdvscode.RunVSCodePMSync(argsTail()) }},
@@ -160,54 +181,54 @@ func coreCloneExtEntries() []dispatchEntry {
 
 func coreVisibilityActionEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdMakePublic}, func() error { return runMakePublic(argsTail()) }},
-		{[]string{constants.CmdMakePrivate}, func() error { return runMakePrivate(argsTail()) }},
-		{[]string{constants.CmdMakeAllPublic, constants.CmdMAPUB}, func() error { return runMakeAllPublic(argsTail()) }},
-		{[]string{constants.CmdMakeAllPrivate, constants.CmdMAPRI}, func() error { return runMakeAllPrivate(argsTail()) }},
-		{[]string{constants.CmdMakeAllPublicExceptLatest, constants.CmdMAPUBXL}, func() error { return runMakeAllPublicExceptLatest(argsTail()) }},
-		{[]string{constants.CmdMakeAllPrivateExceptLatest, constants.CmdMAPRIXL}, func() error { return runMakeAllPrivateExceptLatest(argsTail()) }},
-		{[]string{constants.CmdMakeLastPublic, constants.CmdMLPUB}, func() error { return runMakeLastPublic(argsTail()) }},
-		{[]string{constants.CmdMakeLastPrivate, constants.CmdMLPRI}, func() error { return runMakeLastPrivate(argsTail()) }},
+		{[]string{constants.CmdMakePublic}, func() error { return cmdvisibility.RunMakePublic(argsTail()) }},
+		{[]string{constants.CmdMakePrivate}, func() error { return cmdvisibility.RunMakePrivate(argsTail()) }},
+		{[]string{constants.CmdMakeAllPublic, constants.CmdMAPUB}, func() error { return cmdvisibility.RunMakeAllPublic(argsTail()) }},
+		{[]string{constants.CmdMakeAllPrivate, constants.CmdMAPRI}, func() error { return cmdvisibility.RunMakeAllPrivate(argsTail()) }},
+		{[]string{constants.CmdMakeAllPublicExceptLatest, constants.CmdMAPUBXL}, func() error { return cmdvisibility.RunMakeAllPublicExceptLatest(argsTail()) }},
+		{[]string{constants.CmdMakeAllPrivateExceptLatest, constants.CmdMAPRIXL}, func() error { return cmdvisibility.RunMakeAllPrivateExceptLatest(argsTail()) }},
+		{[]string{constants.CmdMakeLastPublic, constants.CmdMLPUB}, func() error { return cmdvisibility.RunMakeLastPublic(argsTail()) }},
+		{[]string{constants.CmdMakeLastPrivate, constants.CmdMLPRI}, func() error { return cmdvisibility.RunMakeLastPrivate(argsTail()) }},
 	}
 }
 
 func coreVisibilityHistoryEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdVisibilityUndo, constants.CmdVisibilityUndoAlias}, func() error { return runVisibilityUndo(argsTail()) }},
-		{[]string{constants.CmdVisibilityRedo, constants.CmdVisibilityRedoAlias}, func() error { return runVisibilityRedo(argsTail()) }},
-		{[]string{constants.CmdVisibilityHistory, constants.CmdVisibilityHistoryAlias}, func() error { return runVisibilityHistory(argsTail()) }},
+		{[]string{constants.CmdVisibilityUndo, constants.CmdVisibilityUndoAlias}, func() error { return cmdvisibility.RunVisibilityUndo(argsTail()) }},
+		{[]string{constants.CmdVisibilityRedo, constants.CmdVisibilityRedoAlias}, func() error { return cmdvisibility.RunVisibilityRedo(argsTail()) }},
+		{[]string{constants.CmdVisibilityHistory, constants.CmdVisibilityHistoryAlias}, func() error { return cmdvisibility.RunVisibilityHistory(argsTail()) }},
 	}
 }
 
 func coreClusterEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{"nodes", "node", "allnodes", "all-nodes", "fleet-nodes"}, func() error { return runUnifiedNodesCLI(argsTail()) }},
-		{[]string{"nodes-clone", "node-clone", "fleet-clone"}, func() error { return runUnifiedNodesCLI(append([]string{"clone"}, argsTail()...)) }},
-		{[]string{"nodes-cfr", "node-cfr", "fleet-cfr"}, func() error { return runUnifiedNodesCLI(append([]string{"cfr"}, argsTail()...)) }},
-		{[]string{"nodes-cfrp", "node-cfrp", "fleet-cfrp"}, func() error { return runUnifiedNodesCLI(append([]string{"cfrp"}, argsTail()...)) }},
-		{[]string{"ping", "nodes-ping", "nodeping", "fleet-ping"}, func() error { return runUnifiedNodesPingCLI(argsTail()) }},
-		{[]string{"nodes-history", "nodes-histories", "node-history"}, func() error { return runUnifiedNodesCLI(append([]string{"history"}, argsTail()...)) }},
-		{[]string{"history-ssh"}, func() error { return runHistory([]string{"ssh"}) }},
-		{[]string{"nodes-agy-ui", "nodes-agy", "nodes-ui", "agy-ui"}, func() error { return runUnifiedNodesCLI(append([]string{"agy", "ui"}, argsTail()...)) }},
-		{[]string{"nodes-push-settings", "push-settings"}, func() error { return runUnifiedNodesCLI(append([]string{"push-settings"}, argsTail()...)) }},
-		{[]string{"nodes-sync-settings", "sync-settings"}, func() error { return runUnifiedNodesCLI(append([]string{"sync-settings"}, argsTail()...)) }},
-		{[]string{"nodes-send-projects", "send-projects", "sync-projects"}, func() error { return runUnifiedNodesCLI(append([]string{"send-projects"}, argsTail()...)) }},
-		{[]string{"nodes-deploy-agm-accounts", "sync-agm-accounts", "deploy-agm-accounts"}, func() error { return runUnifiedNodesCLI(append([]string{"deploy", "agm-accounts"}, argsTail()...)) }},
-		{[]string{"nodes-deploy-repo", "deploy-repo", "node-deploy-repo"}, func() error { return runUnifiedNodesCLI(append([]string{"deploy", "repo"}, argsTail()...)) }},
-		{[]string{"nodes-deploy-repos", "deploy-repos", "node-deploy-repos"}, func() error { return runUnifiedNodesCLI(append([]string{"deploy", "repos"}, argsTail()...)) }},
-		{[]string{"nodes-scan", "fleet-scan", "node-scan"}, func() error { return runUnifiedNodesCLI(append([]string{"scan"}, argsTail()...)) }},
-		{[]string{"nodes-rescan", "fleet-rescan", "node-rescan"}, func() error { return runUnifiedNodesCLI(append([]string{"rescan"}, argsTail()...)) }},
+		{[]string{"nodes", "node", "allnodes", "all-nodes", "fleet-nodes"}, func() error { return cmdnodes.RunUnifiedNodesCLI(argsTail()) }},
+		{[]string{"nodes-clone", "node-clone", "fleet-clone"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"clone"}, argsTail()...)) }},
+		{[]string{"nodes-cfr", "node-cfr", "fleet-cfr"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"cfr"}, argsTail()...)) }},
+		{[]string{"nodes-cfrp", "node-cfrp", "fleet-cfrp"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"cfrp"}, argsTail()...)) }},
+		{[]string{"ping", "nodes-ping", "nodeping", "fleet-ping"}, func() error { return cmdnodes.RunUnifiedNodesPingCLI(argsTail()) }},
+		{[]string{"nodes-history", "nodes-histories", "node-history"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"history"}, argsTail()...)) }},
+		{[]string{"history-ssh"}, func() error { return cmdhistory.RunHistory([]string{"ssh"}) }},
+		{[]string{"nodes-agy-ui", "nodes-agy", "nodes-ui", "agy-ui"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"agy", "ui"}, argsTail()...)) }},
+		{[]string{"nodes-push-settings", "push-settings"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"push-settings"}, argsTail()...)) }},
+		{[]string{"nodes-sync-settings", "sync-settings"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"sync-settings"}, argsTail()...)) }},
+		{[]string{"nodes-send-projects", "send-projects", "sync-projects"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"send-projects"}, argsTail()...)) }},
+		{[]string{"nodes-deploy-agm-accounts", "sync-agm-accounts", "deploy-agm-accounts"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"deploy", "agm-accounts"}, argsTail()...)) }},
+		{[]string{"nodes-deploy-repo", "deploy-repo", "node-deploy-repo"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"deploy", "repo"}, argsTail()...)) }},
+		{[]string{"nodes-deploy-repos", "deploy-repos", "node-deploy-repos"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"deploy", "repos"}, argsTail()...)) }},
+		{[]string{"nodes-scan", "fleet-scan", "node-scan"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"scan"}, argsTail()...)) }},
+		{[]string{"nodes-rescan", "fleet-rescan", "node-rescan"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"rescan"}, argsTail()...)) }},
 		{[]string{constants.CmdServersClients, constants.CmdServersClientsAlias, constants.CmdSC}, func() error { dispatchServersClients(argsTail()); return nil }},
 		{[]string{constants.CmdClients, constants.CmdClientsAlias}, func() error { dispatchClients(argsTail()); return nil }},
 		{[]string{"servers"}, func() error { dispatchServers(argsTail()); return nil }},
-		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() error { return runCluster(argsTail()) }},
-		{[]string{constants.CmdServerCmd, constants.CmdServerCmds, constants.CmdServerCmdAlias}, func() error { return runServerCmd(argsTail()) }},
+		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() error { return cmdcluster.RunCluster(argsTail()) }},
+		{[]string{constants.CmdServerCmd, constants.CmdServerCmds, constants.CmdServerCmdAlias}, func() error { return cmdservercmd.RunServerCmd(argsTail()) }},
 	}
 }
 
 func dispatchServersClients(args []string) {
 	if IsHelpRequestedOrEmpty(args) {
-		RenderSCHelp()
+		cmdschedule.RenderSCHelp()
 
 		return
 	}
@@ -222,7 +243,7 @@ func dispatchServersClients(args []string) {
 		return
 	}
 
-	runClusterCommand(cluster.ServersClients, args)
+	cmdcluster.RunClusterCommand(cluster.ServersClients, args)
 }
 
 func dispatchSCCustomOps(subCmd string, rest []string) bool {
@@ -322,10 +343,10 @@ func dispatchSCDeployOps(subCmd string, rest []string) bool {
 func dispatchSCInventoryOps(subCmd string, rest []string) bool {
 	switch subCmd {
 	case "nodes", "list", "machines", "joined":
-		_ = runClusterNodes(rest)
+		_ = cmdcluster.RunClusterNodes(rest)
 		return true
 	case "rm", "remove", "delete":
-		_ = runClusterRemove(rest)
+		_ = cmdcluster.RunClusterRemove(rest)
 		return true
 	default:
 		return false
@@ -348,11 +369,11 @@ func dispatchSCNodeOps(subCmd string, rest []string) bool {
 func dispatchServersClientsPathCmd(subCmd string, rest []string) bool {
 	switch subCmd {
 	case "set-default-path":
-		runClusterSetDefaultPath(cluster.ServersClients, rest)
+		cmdcluster.RunClusterSetDefaultPath(cluster.ServersClients, rest)
 
 		return true
 	case "set-path-alias":
-		runClusterSetPathAlias(cluster.ServersClients, rest)
+		cmdcluster.RunClusterSetPathAlias(cluster.ServersClients, rest)
 
 		return true
 	default:
@@ -375,7 +396,7 @@ func dispatchClusterLS(selector cluster.TargetSelectorType, rest []string) {
 		return
 	}
 
-	_ = runClusterNodes(rest)
+	_ = cmdcluster.RunClusterNodes(rest)
 }
 
 func dispatchClusterReadWrite(
@@ -387,9 +408,9 @@ func dispatchClusterReadWrite(
 	case "ls":
 		dispatchClusterLS(selector, rest)
 	case "cat":
-		runClusterCat(selector, rest)
+		cmdcluster.RunClusterCat(selector, rest)
 	case "write":
-		runClusterWrite(selector, rest)
+		cmdcluster.RunClusterWrite(selector, rest)
 	default:
 		return false
 	}
@@ -400,11 +421,11 @@ func dispatchClusterReadWrite(
 func dispatchClusterMutate(selector cluster.TargetSelectorType, subCmd string, rest []string) bool {
 	switch subCmd {
 	case "update":
-		runClusterUpdate(selector, false, rest)
+		cmdcluster.RunClusterUpdate(selector, false, rest)
 	case "update-all":
-		runClusterUpdate(selector, true, rest)
+		cmdcluster.RunClusterUpdate(selector, true, rest)
 	case "clone", "cfr", "cfrp":
-		runClusterClone(selector, subCmd, rest)
+		cmdcluster.RunClusterClone(selector, subCmd, rest)
 	default:
 		return false
 	}
@@ -434,7 +455,7 @@ func dispatchClients(args []string) {
 		return
 	}
 
-	runClusterCommand(cluster.ClientsOnly, args)
+	cmdcluster.RunClusterCommand(cluster.ClientsOnly, args)
 }
 
 func dispatchServers(args []string) {
@@ -443,7 +464,7 @@ func dispatchServers(args []string) {
 	}
 
 	if args[0] == "ls" {
-		runClusterLS(cluster.ServersOnly, args[1:])
+		cmdcluster.RunClusterLS(cluster.ServersOnly, args[1:])
 
 		return
 	}
@@ -453,9 +474,9 @@ func dispatchServers(args []string) {
 
 func dispatchServersUpdate(subCmd string, rest []string) {
 	if subCmd == "update" {
-		runClusterUpdate(cluster.ServersOnly, false, rest)
+		cmdcluster.RunClusterUpdate(cluster.ServersOnly, false, rest)
 	} else if subCmd == "update-all" {
-		runClusterUpdate(cluster.ServersOnly, true, rest)
+		cmdcluster.RunClusterUpdate(cluster.ServersOnly, true, rest)
 	}
 }
 

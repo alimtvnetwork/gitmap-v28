@@ -8,10 +8,13 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdapps"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdwinutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -29,7 +32,7 @@ func parseUninstallFlags(args []string) (*flag.FlagSet, *uninstallFlags) {
 	f := &uninstallFlags{}
 	bindCoreUninstallFlags(fs, f)
 	bindPurgeAndBackupFlags(fs, f)
-	fs.Parse(reorderFlagsBeforeArgs(args))
+	fs.Parse(flagutil.ReorderFlagsBeforeArgs(args))
 
 	return fs, f
 }
@@ -69,7 +72,7 @@ func runUninstall(args []string) error {
 		return executeUninstallFlow(args)
 	}
 	if !hasPositionalToolArg(args) {
-		runSelfUninstall(args)
+		cmdselfinstall.RunSelfUninstall(args)
 
 		return nil
 	}
@@ -93,10 +96,10 @@ func executeUninstallFlow(args []string) error {
 		return delegateRemoteUninstall(tool, flags)
 	}
 	if strings.EqualFold(tool, "app") || strings.EqualFold(tool, "apps") {
-		return runAppsUninstall(fs.Args()[1:])
+		return cmdapps.RunAppsUninstall(fs.Args()[1:])
 	}
 	if isSelfUninstallTool(tool) {
-		runSelfUninstall(args)
+		cmdselfinstall.RunSelfUninstall(args)
 
 		return nil
 	}

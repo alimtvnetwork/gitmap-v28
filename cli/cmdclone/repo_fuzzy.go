@@ -39,13 +39,13 @@ func isSuggestionMatch(clean, name, slug, base string) bool {
 	if strings.Contains(name, clean) || (len(base) > 2 && strings.Contains(clean, base)) {
 		return true
 	}
-	if levenshtein(clean, name) <= 4 || levenshtein(clean, slug) <= 4 || levenshtein(clean, base) <= 3 {
+	if Levenshtein(clean, name) <= 4 || Levenshtein(clean, slug) <= 4 || Levenshtein(clean, base) <= 3 {
 		return true
 	}
 	return false
 }
 
-func levenshtein(a, b string) int {
+func Levenshtein(a, b string) int {
 	ar, br := []rune(a), []rune(b)
 	la, lb := len(ar), len(br)
 	if la == 0 {

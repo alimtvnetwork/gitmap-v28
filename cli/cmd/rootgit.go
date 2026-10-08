@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit"
 	"strings"
 	"time"
 
@@ -87,10 +88,10 @@ func isShortPullEfficientGitSubCmd(subCmd string) bool {
 
 func runGitPassthrough(args []string) error {
 	startTime := time.Now()
-	err := execGitInheritCP(args...)
+	err := cmdcommit.ExecGitInheritCP(args...)
 	durationMs := time.Since(startTime).Milliseconds()
-	exitCode := extractGitExitCode(err)
-	recordGitCommandHistory(args, exitCode, durationMs)
+	exitCode := cmdcommit.ExtractGitExitCode(err)
+	cmdcommit.RecordGitCommandHistory(args, exitCode, durationMs)
 	hasErr := err != nil
 	if hasErr {
 		return apperror.WrapSimple(err, "git passthrough failed")

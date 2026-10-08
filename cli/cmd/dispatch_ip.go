@@ -5,8 +5,12 @@
 // (later wave), this adapter is rewired.
 package cmd
 
-import "context"
+import (
+	"context"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdip"
+)
 
 func runIP(args []string) error {
-	return runIPCmd(nil, args, context.Background())
+	return cmdip.RunIPCmd(nil, args, context.Background())
 }

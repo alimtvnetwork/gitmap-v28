@@ -32,11 +32,11 @@ func dispatchOSDisplaySubcommand(subCmd string, subArgs []string) error {
 	case "status", "st", "info":
 		return runOSDisplayStatus()
 	case "never-sleep", "never", "ns", "off":
-		return runPowerNeverSleep()
+		return RunPowerNeverSleep()
 	case "set":
-		return runPowerSet(subArgs)
+		return RunPowerSet(subArgs)
 	case "reset", "restore":
-		return runPowerReset()
+		return RunPowerReset()
 	default:
 		return handleOSDisplayFallback(subCmd, subArgs)
 	}
@@ -46,7 +46,7 @@ func handleOSDisplayFallback(subCmd string, subArgs []string) error {
 	if _, err := strconv.Atoi(subCmd); err == nil {
 		setArgs := append([]string{subCmd}, subArgs...)
 
-		return runPowerSet(setArgs)
+		return RunPowerSet(setArgs)
 	}
 
 	msg := fmt.Sprintf("unknown os display subcommand %q (see 'gitmap os display --help')", subCmd)

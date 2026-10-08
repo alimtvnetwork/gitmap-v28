@@ -38,7 +38,6 @@ var generatedCommands = []string{
 	"automation",
 	"b",
 	"backup",
-	"backup-branch",
 	"bk",
 	"blame-stats",
 	"bookmark",

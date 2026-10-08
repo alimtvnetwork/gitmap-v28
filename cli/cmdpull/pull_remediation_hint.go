@@ -296,11 +296,9 @@ func resolveUntrackedDualHints(repoDir string) (string, string, string, string) 
 
 func resolveDirtyTreeDualHints(repoDir string) (string, string, string, string) {
 	commitCmd := `gitmap cpar "wip: save changes"`
-	stashCmd := "gitmap stash"
-	if repoDir != "" {
-		cleanDir := filepath.ToSlash(filepath.Clean(repoDir))
-		commitCmd = fmt.Sprintf("git -C \"%s\" add -A && git -C \"%s\" commit -m \"wip: local changes\" && git -C \"%s\" pull --rebase", cleanDir, cleanDir, cleanDir)
-		stashCmd = fmt.Sprintf("git -C \"%s\" stash -u && git -C \"%s\" pull && git -C \"%s\" stash pop", cleanDir, cleanDir, cleanDir)
+	stashCmd := formatRepoGitCmd(repoDir, "stash")
+	if repoDir == "" {
+		stashCmd = "gitmap stash"
 	}
 	return "Commit WIP", commitCmd, "Stash Changes", stashCmd
 }
@@ -325,8 +323,7 @@ func formatRepoGitCmd(repoDir, gitArgs string) string {
 	if repoDir == "" {
 		return "git " + gitArgs
 	}
-	cleanDir := filepath.ToSlash(filepath.Clean(repoDir))
-	return fmt.Sprintf("git -C \"%s\" %s", cleanDir, gitArgs)
+	return fmt.Sprintf("git -C %q %s", repoDir, gitArgs)
 }
 
 func extractErrorString(err any) string {

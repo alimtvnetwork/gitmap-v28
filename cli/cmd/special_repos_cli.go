@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdas"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -37,7 +38,7 @@ func runCDSpecialRepo(sub string, args []string) error {
 	}
 	targetPath = maybeAppendCDSubdir(targetPath, args)
 	fmt.Print(targetPath)
-	WriteShellHandoff(targetPath)
+	cmdas.WriteShellHandoff(targetPath)
 	cmdsetup.WarnIfNoWrapper()
 	return nil
 }

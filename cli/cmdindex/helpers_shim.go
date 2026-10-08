@@ -1,0 +1,46 @@
+package cmdindex
+
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/repodb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"context"
+	"fmt"
+	"os"
+	"database/sql"
+)
+
+func getRepoDB(ctx context.Context) (*store.DB, *sql.DB, error) {
+	mainDB, err := store.OpenDefault()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		mainDB.Close()
+
+		return nil, nil, err
+	}
+
+	repos, err := mainDB.FindByPath(cwd)
+	if err != nil {
+		mainDB.Close()
+
+		return nil, nil, fmt.Errorf("find repo by path %s failed: %w", cwd, err)
+	}
+	if len(repos) == 0 {
+		mainDB.Close()
+
+		return nil, nil, fmt.Errorf("current directory is not a tracked gitmap repository. run 'gitmap scan' first")
+	}
+
+	repoDB, err := repodb.OpenRepoDB(ctx, constants.DefaultOutputDir, repos[0].AbsolutePath, repos[0].ID)
+	if err != nil {
+		mainDB.Close()
+
+		return nil, nil, err
+	}
+
+	return mainDB, repoDB, nil
+}

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
@@ -39,7 +39,7 @@ func TestPullWorkflowE2E(t *testing.T) {
 		t.Fatalf("expected 3 remediation options, got %d", len(recipes))
 	}
 
-	targets := cmdpull.ResolvePullDirectoryTargets(tempDir)
+	targets := cmd.ResolvePullDirectoryTargets(tempDir)
 	if len(targets) != 1 {
 		t.Fatalf("expected 1 discovered target in tempDir, got %d", len(targets))
 	}

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
 )
 
 func TestRecursiveDiscoverySuite(t *testing.T) {
@@ -17,7 +17,7 @@ func TestRecursiveDiscoverySuite(t *testing.T) {
 	repo2 := filepath.Join(tempDir, "workspace", "repo2")
 	os.MkdirAll(filepath.Join(repo2, ".git"), 0755)
 
-	records := cmdpull.ResolvePullDirectoryTargets(filepath.Join(tempDir, "workspace"))
+	records := cmd.ResolvePullDirectoryTargets(filepath.Join(tempDir, "workspace"))
 	if len(records) != 2 {
 		t.Fatalf("expected 2 resolved records, got %d", len(records))
 	}

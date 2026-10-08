@@ -1,0 +1,201 @@
+// Package cmd — latest-branch command handler.
+package cmdlatestbranch
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"strconv"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+)
+
+// latestBranchConfig holds parsed flags for the latest-branch command.
+type latestBranchConfig struct {
+	remote              string
+	isRemoteFiltered    bool
+	hasContainsFallback bool
+	top                 int
+	format              string
+	isFetchEnabled      bool
+	sortBy              string
+	filter              string
+	isSwitchEnabled     bool
+}
+
+// runLatestBranch handles the 'latest-branch' / 'lb' command.
+func RunLatestBranch(args []string) error {
+	checkHelp("latest-branch", args)
+	cfg := parseLatestBranchFlags(args)
+	validateLatestBranchRepo()
+	fetchLatestBranchRefs(cfg)
+	refs := loadFilteredRefs(cfg)
+	items := readAndSortBranches(refs, cfg.sortBy)
+	result := resolveLatestResult(items, cfg)
+	dispatchLatestOutput(result, items, cfg)
+	maybeSwitchToLatest(result, cfg)
+
+	return nil
+}
+
+// validateLatestBranchRepo exits if the current directory is outside a git repo.
+func validateLatestBranchRepo() {
+	if gitutil.IsInsideWorkTree() {
+		return
+	}
+
+	cliexit.HandleError(apperror.NewSimple(constants.ErrLatestBranchNotRepo, "E9000"), 1)
+}
+
+// fetchLatestBranchRefs fetches remotes when shouldFetch is enabled.
+func fetchLatestBranchRefs(cfg latestBranchConfig) {
+	if !cfg.isFetchEnabled {
+		return
+	}
+
+	isTerminal := cfg.format == constants.OutputTerminal
+	if isTerminal {
+		fmt.Println(constants.MsgLatestBranchFetching)
+	}
+
+	err := gitutil.FetchAllPrune()
+	if err != nil && isTerminal {
+		fmt.Fprintf(os.Stderr, constants.MsgLatestBranchFetchWarning, err)
+	}
+}
+
+// loadFilteredRefs lists remote branches and applies remote + pattern filters.
+func loadFilteredRefs(cfg latestBranchConfig) []string {
+	refs, err := gitutil.ListRemoteBranches()
+	if err != nil {
+		printNoRefsError(cfg)
+		cliexit.HandleError(apperror.WrapSimple(err, "list remote branches"), 1)
+	}
+	if len(refs) == 0 {
+		printNoRefsError(cfg)
+		cliexit.HandleError(apperror.NewNotFoundError("no remote branches found"), 1)
+	}
+
+	refs = applyRemoteFilter(refs, cfg)
+	refs = applyPatternFilter(refs, cfg)
+
+	return refs
+}
+
+// printNoRefsError prints the appropriate "no refs" error message.
+func printNoRefsError(cfg latestBranchConfig) {
+	if cfg.isRemoteFiltered {
+		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoRefs, cfg.remote)
+
+		return
+	}
+
+	fmt.Fprintln(os.Stderr, constants.ErrLatestBranchNoRefsAll)
+}
+
+// applyRemoteFilter filters refs by remote when filterByRemote is set.
+func applyRemoteFilter(refs []string, cfg latestBranchConfig) []string {
+	if !cfg.isRemoteFiltered {
+		return refs
+	}
+
+	filtered := gitutil.FilterByRemote(refs, cfg.remote)
+	if len(filtered) == 0 {
+		return nil
+	}
+
+	return filtered
+}
+
+// applyPatternFilter filters refs by glob/substring when filter is set.
+func applyPatternFilter(refs []string, cfg latestBranchConfig) []string {
+	if len(cfg.filter) == 0 {
+		return refs
+	}
+
+	filtered := gitutil.FilterByPattern(refs, cfg.filter)
+	if len(filtered) == 0 {
+		return nil
+	}
+
+	return filtered
+}
+
+// readAndSortBranches reads tip commits and sorts by the given order.
+func readAndSortBranches(refs []string, sortBy string) []gitutil.RemoteBranchInfo {
+	items, err := gitutil.ReadBranchTips(refs)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoCommits+"\n")
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrLatestBranchNoCommits), 1)
+	}
+
+	if sortBy == constants.SortByName {
+		gitutil.SortByNameAsc(items)
+	} else {
+		gitutil.SortByDateDesc(items)
+	}
+
+	return items
+}
+
+// parseLatestBranchFlags parses flags and returns a config struct.
+func parseLatestBranchFlags(args []string) latestBranchConfig {
+	fs := flag.NewFlagSet(constants.CmdLatestBranch, flag.ExitOnError)
+	var cfg latestBranchConfig
+	var isAllRemotes, isSkipFetch, isJSONOut, isSwitchLong, isSwitchShort bool
+	fs.StringVar(&cfg.remote, "remote", "origin", constants.FlagDescLBRemote)
+	fs.BoolVar(&isAllRemotes, "all-remotes", false, constants.FlagDescLBAllRemotes)
+	fs.BoolVar(&cfg.hasContainsFallback, "contains-fallback", false, constants.FlagDescLBContains)
+	fs.IntVar(&cfg.top, "top", 0, constants.FlagDescLBTop)
+	fs.StringVar(&cfg.format, "format", constants.OutputTerminal, constants.FlagDescLBFormat)
+	fs.BoolVar(&isJSONOut, "json", false, constants.FlagDescLBJSON)
+	fs.BoolVar(&isSkipFetch, "no-fetch", false, constants.FlagDescLBNoFetch)
+	fs.StringVar(&cfg.sortBy, "sort", constants.SortByDate, constants.FlagDescLBSort)
+	fs.StringVar(&cfg.filter, "filter", "", constants.FlagDescLBFilter)
+	// --switch / -s. Both registered against the same effect; either
+	// being true flips cfg.isSwitchEnabled on. Go's flag package doesn't
+	// natively support aliases so we OR them in resolveLatestBranchConfig.
+	fs.BoolVar(&isSwitchLong, "switch", false, constants.FlagDescLBSwitch)
+	fs.BoolVar(&isSwitchShort, "s", false, constants.FlagDescLBSwitchShort)
+	fs.Parse(args)
+	cfg.isSwitchEnabled = isSwitchLong || isSwitchShort
+
+	return resolveLatestBranchConfig(fs, cfg, isAllRemotes, isSkipFetch, isJSONOut)
+}
+
+// resolveLatestBranchConfig converts parsed flags into positive-logic config.
+func resolveLatestBranchConfig(
+	fs *flag.FlagSet,
+	cfg latestBranchConfig,
+	isAllRemotes,
+	isSkipFetch,
+	isJSONOut bool,
+) latestBranchConfig {
+	cfg.isRemoteFiltered = !isAllRemotes
+	cfg.isFetchEnabled = !isSkipFetch
+	if isJSONOut {
+		cfg.format = constants.OutputJSON
+	}
+
+	cfg.top = resolvePositionalTop(fs, cfg.top)
+
+	return cfg
+}
+
+// resolvePositionalTop checks for a bare integer positional argument.
+func resolvePositionalTop(fs *flag.FlagSet, current int) int {
+	if current > 0 || fs.NArg() == 0 {
+		return current
+	}
+
+	n, err := strconv.Atoi(fs.Arg(0))
+	if err == nil && n > 0 {
+		return n
+	}
+
+	return current
+}

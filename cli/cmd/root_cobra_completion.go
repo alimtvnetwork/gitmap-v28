@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
 	"fmt"
 	"strings"
 
@@ -191,20 +192,20 @@ func makeTopLevelHistoryCmd() *cobra.Command {
 	}
 	cmd.Flags().IntP("limit", "l", 20, "Number of commands to show")
 	cmd.Flags().BoolP("json", "j", false, "Output history in JSON format")
-	cmd.AddCommand(NewHistoryPurgeCmd())
-	cmd.AddCommand(NewHistoryUndoCmd())
+	cmd.AddCommand(cmdhistory.NewHistoryPurgeCmd())
+	cmd.AddCommand(cmdhistory.NewHistoryUndoCmd())
 	return cmd
 }
 
 func makeTopLevelHPCmd() *cobra.Command {
-	cmd := NewHistoryPurgeCmd()
+	cmd := cmdhistory.NewHistoryPurgeCmd()
 	cmd.Use = "hp [flags]"
 	cmd.Aliases = []string{"history-purge"}
 	return cmd
 }
 
 func makeTopLevelHUCmd() *cobra.Command {
-	cmd := NewHistoryUndoCmd()
+	cmd := cmdhistory.NewHistoryUndoCmd()
 	cmd.Use = "hu [operation-id] [flags]"
 	cmd.Aliases = []string{"history-undo", "undo-history"}
 	return cmd

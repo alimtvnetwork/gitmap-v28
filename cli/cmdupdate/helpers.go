@@ -8,14 +8,14 @@ var (
 	PrintGitmapIdentityBlockLongFn  func()
 )
 
-func resolveDeployedAndConfigPaths() (string, string) {
+func ResolveDeployedAndConfigPaths() (string, string) {
 	if ResolveDeployedAndConfigPathsFn != nil {
 		return ResolveDeployedAndConfigPathsFn()
 	}
 	return "", ""
 }
 
-func runPostUpdateMigrate() error {
+func RunPostUpdateMigrate() error {
 	if RunPostUpdateMigrateFn != nil {
 		return RunPostUpdateMigrateFn()
 	}

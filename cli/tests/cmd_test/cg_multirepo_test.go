@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
@@ -22,22 +22,22 @@ func TestCGMultiRepoSuite(t *testing.T) {
 	}
 
 	// 2. Test version.json writing and reading
-	meta := cmdcg.CGMetadata{
+	meta := cmd.CGMetadata{
 		Version: "v24.2.0",
 		Status:  "active",
 	}
 
-	if errWrite := cmdcg.WriteCGMetadata(repo1, meta); errWrite != nil {
+	if errWrite := cmd.WriteCGMetadata(repo1, meta); errWrite != nil {
 		t.Fatalf("WriteCGMetadata failed: %v", errWrite)
 	}
 
-	readMeta, errRead := cmdcg.ReadCGMetadata(repo1)
+	readMeta, errRead := cmd.ReadCGMetadata(repo1)
 	if errRead != nil || readMeta.Version != "v24.2.0" {
 		t.Fatalf("ReadCGMetadata unexpected result: %+v (err: %v)", readMeta, errRead)
 	}
 
 	// 3. Test resolve target
-	resolved, ok := cmdcg.ResolveCGTarget(repo1)
+	resolved, ok := cmd.ResolveCGTarget(repo1)
 	if !ok || resolved == "" {
 		t.Fatalf("expected resolved path, got %s (ok: %v)", resolved, ok)
 	}

@@ -1,5 +1,38 @@
 package cmdui
 
+const uiAssetsJSCore = `    function showTab(tabId) {
+      document.querySelectorAll('.content-area').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.classList.add('active');
+      document.getElementById('header-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
+      event?.target?.classList.add('active');
+      if (tabId === 'ssh') refreshNodes();
+      if (tabId === 'editor') populateEditorNodes();
+    }
+
+`
+
+const uiAssetsJSCommit = `    async function execCommitin() {
+      const msg = document.getElementById('commit-msg').value;
+      const dir = document.getElementById('commit-direction').value;
+      const isAmend = document.getElementById('commit-amend').checked;
+      const isPush = document.getElementById('commit-push').checked;
+      const out = document.getElementById('commit-output');
+      out.innerText = 'Executing commitin...';
+      try {
+        const res = await fetch('/api/commitin/exec', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({message: msg, direction: dir, isAmend: isAmend, isPush: isPush})
+        });
+        const data = await res.json();
+        out.innerText = data.output || data.error || 'Done';
+      } catch (e) { out.innerText = 'Error: ' + e.message; }
+    }
+
+`
+
 const uiAssetsJSFleet = `    async function deployKeysFleetUI() {
       const out = document.getElementById('ssh-keys-output') || document.getElementById('ssh-nodes-export-area');
       if (out) out.value = 'Deploying cluster SSH keys to all nodes...';

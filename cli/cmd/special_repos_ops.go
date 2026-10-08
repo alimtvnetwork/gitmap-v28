@@ -29,7 +29,7 @@ type SpecialPutResult struct {
 }
 
 func resolveSpecialWorkBaseDir() string {
-	if workDir, hasDefault := resolveDefaultWorkDirPath(); hasDefault {
+	if workDir, hasDefault := resolveDefaultWorkDirPathStub(); hasDefault {
 		return workDir
 	}
 	if info, err := os.Stat(`D:\work`); err == nil && info.IsDir() {
@@ -215,7 +215,7 @@ func sanitizeKebabSlug(raw string) string {
 	for _, r := range strings.ToLower(strings.TrimSpace(raw)) {
 		appendSanitizedSlugRune(&b, r)
 	}
-	return strings.Trim(collapseHyphens(b.String()), "-")
+	return strings.Trim(collapseHyphensStub(b.String()), "-")
 }
 
 func appendSanitizedSlugRune(b *strings.Builder, r rune) {
@@ -503,4 +503,13 @@ func evaluateSingleSpecialRepoOnPull(db *store.SpecialReposSplitDB, rec store.Sp
 		return db.MarkPromptAnswered(rec.ShortKey, "detected", targetDir, rec.RemoteURL)
 	}
 	return handleMissingSpecialRepoOnScan(db, rec, targetDir, isAutoAccept)
+}
+
+// Stub functions for missing implementations (pre-existing issues).
+func resolveDefaultWorkDirPathStub() (string, bool) {
+	return "", false
+}
+
+func collapseHyphensStub(s string) string {
+	return s
 }

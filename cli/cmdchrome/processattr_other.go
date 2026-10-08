@@ -7,4 +7,4 @@ import (
 	"os/exec"
 )
 
-func configureDetachedProcess(_ *exec.Cmd) {}
+func ConfigureDetachedProcess(_ *exec.Cmd) {}

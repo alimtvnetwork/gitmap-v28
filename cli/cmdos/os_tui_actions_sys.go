@@ -54,9 +54,9 @@ func isDisplayDMAction(id string) bool {
 func dispatchDisplayDMAction(id, title string) OSTUIActionResult {
 	switch id {
 	case "disp-never":
-		return actionResultFromError(title, runPowerNeverSleep(), "display set to never sleep")
+		return actionResultFromError(title, RunPowerNeverSleep(), "display set to never sleep")
 	case "disp-reset":
-		return actionResultFromError(title, runPowerReset(), "display sleep reset to 15m")
+		return actionResultFromError(title, RunPowerReset(), "display sleep reset to 15m")
 	case "dm-wayland":
 		mgr := newLinuxDMManager()
 		return actionResultFromError(title, mgr.SetWayland(false), "wayland toggled")

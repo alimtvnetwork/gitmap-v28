@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
 	"fmt"
 	"os"
 
@@ -51,13 +52,13 @@ func dispatchCommons(command string) (bool, error) {
 		}
 	}
 
-	dry, force := parseCommonFlags(rest)
+	dry, force := cmdsync.ParseCommonFlags(rest)
 
-	runCommonLines(".gitignore", defaultGitignoreBaseline, dry)
-	runCommonLines(".gitattributes", defaultGitattributesBaseline, dry)
-	runCommonLFSInstall(dry)
-	runCommonLines(".prettierignore", defaultPrettierignoreBaseline, dry)
-	runCommonPrettierRC(dry, force)
+	cmdsync.RunCommonLines(".gitignore", cmdsync.DefaultGitignoreBaseline, dry)
+	cmdsync.RunCommonLines(".gitattributes", cmdsync.DefaultGitattributesBaseline, dry)
+	cmdsync.RunCommonLFSInstall(dry)
+	cmdsync.RunCommonLines(".prettierignore", cmdsync.DefaultPrettierignoreBaseline, dry)
+	cmdsync.RunCommonPrettierRC(dry, force)
 
 	return true, nil
 }

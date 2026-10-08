@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
 )
 
 // TestRunRepoRecloneEndToEnd creates a tiny local bare git repo,
@@ -50,7 +50,7 @@ func TestRunRepoRecloneEndToEnd(t *testing.T) {
 	// Invoke the in-process target. -y bypasses the prompt; the
 	// helper never reads stdin in that branch.
 	swapStdin(t)
-	cmdclone.RunRepoReclone(work, true /*yes*/)
+	cmd.RunRepoReclone(work, true /*yes*/)
 
 	assertRepoRecloned(t, work, sentinel)
 	assertRepoOrigin(t, work, bare)

@@ -7,6 +7,6 @@ import (
 	"syscall"
 )
 
-func setHiddenProcessAttr(cmd *exec.Cmd) {
+func SetHiddenProcessAttr(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 }

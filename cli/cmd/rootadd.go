@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfscommon"
 	"fmt"
 	"os"
 
@@ -50,11 +52,11 @@ func dispatchAdd(command string) (bool, error) {
 	sub, rest := os.Args[2], os.Args[3:]
 	switch sub {
 	case "ignore":
-		runAddIgnore(rest)
+		cmdignore.RunAddIgnore(rest)
 	case "attributes":
-		runAddAttributes(rest)
+		cmdignore.RunAddAttributes(rest)
 	case "lfs-install":
-		runAddLFSInstall(rest)
+		cmdlfscommon.RunAddLFSInstall(rest)
 	default:
 		fmt.Fprintf(os.Stderr, "unknown 'add' subcommand: %s\n", sub)
 		fmt.Fprint(os.Stderr, addUsage)

@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-func configureDetachedProcess(cmd *exec.Cmd) {
+func ConfigureDetachedProcess(cmd *exec.Cmd) {
 	if cmd == nil {
 		return
 	}

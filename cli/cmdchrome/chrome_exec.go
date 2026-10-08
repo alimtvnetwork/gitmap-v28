@@ -204,7 +204,7 @@ func launchSingleTarget(bin string, tgt chromeLaunchTarget, opts chromeLaunchOpt
 
 	cmdArgs := buildChromeCmdArgs(dirName, tgt.URLs, opts)
 	cmd := exec.Command(bin, cmdArgs...)
-	configureDetachedProcess(cmd)
+	ConfigureDetachedProcess(cmd)
 
 	if err := cmd.Start(); err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf("launch chrome profile %s", dirName))

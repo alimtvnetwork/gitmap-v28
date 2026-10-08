@@ -7,6 +7,10 @@ import (
 // RunAgySSHFn delegates agy SSH execution to cmdssh package.
 var RunAgySSHFn func(args []string) error
 
+// RunSSHUpdateFn delegates remote update execution to the cmdssh package.
+// Wired by the host (cmd/di_hooks.go); cmdagy must not import cmdssh (cycle).
+var RunSSHUpdateFn func(args []string) error
+
 var agySshCmd = &cobra.Command{
 	Use:                "ssh [target] [flags] <command...>",
 	Aliases:            []string{"remote"},

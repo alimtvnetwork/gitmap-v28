@@ -17,7 +17,7 @@ import (
 // Returns true when it handled the invocation, false to let the normal
 // in-place flow continue.
 func tryCrossDirCloneNext(args []string) bool {
-	positional := extractPositionalArgs(args)
+	positional := ExtractPositionalArgs(args)
 	if len(positional) != 2 {
 		return false
 	}
@@ -32,7 +32,7 @@ func tryCrossDirCloneNext(args []string) bool {
 
 	alias := positional[0]
 	version := positional[1]
-	target := resolveReleaseAliasPath(alias)
+	target := ResolveReleaseAliasPath(alias)
 	performCrossDirCloneNext(target, alias, version, args)
 
 	return true

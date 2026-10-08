@@ -41,7 +41,7 @@ var errCNFolderNotDir = errors.New("resolved path is not a directory")
 // Order of the four classification branches matters — see the
 // truth table in 02-spec/01-app/111-cn-folder-arg.md §Disambiguation.
 func tryFolderArgCloneNext(args []string) bool {
-	positional := extractPositionalArgs(args)
+	positional := ExtractPositionalArgs(args)
 
 	switch len(positional) {
 	case 1:
@@ -126,7 +126,7 @@ func tryFolderArgTwoPositional(first, second string, originalArgs []string) bool
 // the path exists but is a file; the underlying stat error otherwise.
 func resolveCloneNextFolder(token string) (string, error) {
 	expanded := expandTilde(token)
-	expanded = resolveEndpointString(expanded)
+	expanded = ResolveEndpointString(expanded)
 
 	expanded, errExpand := ensureAbsolutePath(expanded)
 	if errExpand != nil {

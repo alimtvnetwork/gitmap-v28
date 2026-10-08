@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -12,7 +13,7 @@ import (
 // printUsageCompact outputs the minimal root help summary when gitmap
 // is invoked with zero arguments, ensuring total output remains under 15 lines.
 func printUsageCompact() {
-	PrintBinaryLocations()
+	cmdinstall.PrintBinaryLocations()
 
 	printGitmapIdentityBlockShort()
 

@@ -271,7 +271,7 @@ func runUpdateRunner() error {
 	fmt.Printf(constants.MsgUpdateRepoPath, repoPath)
 	fmt.Printf(constants.MsgUpdateVersionCompare, currentVersion, targetVersion)
 	executeUpdate(repoPath, report)
-	runPostUpdateMigrate()
+	RunPostUpdateMigrate()
 	report.summarize()
 	printUpdateSummary(currentVersion, targetVersion, repoPath)
 	scheduleDeployedCleanupHandoff()

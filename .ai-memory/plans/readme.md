@@ -8,7 +8,6 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
-- [243-pull-forward-slash-paths-pre-pull-and-interactive-remediation-prompt.md](243-pull-forward-slash-paths-pre-pull-and-interactive-remediation-prompt.md) — Forward-Slash Path Hygiene, Pre-Pull Remediation & Interactive Fix Prompt (Spec: [243](../../02-spec/21-app/243-pull-forward-slash-paths-pre-pull-and-interactive-remediation-prompt/01-architecture-spec.md))
 - [240-mcp-server-ai-analysis-agm-nodes-and-git-cache.md](240-mcp-server-ai-analysis-agm-nodes-and-git-cache.md) — GitMap AI MCP Server, AI Analysis Engine, Split SQLite Storage, AGM Node Deployment & Git Cache (Spec: [240](../../02-spec/21-app/240-mcp-server-ai-analysis-agm-nodes-and-git-cache/01-architecture-spec.md))
 - [239-gitmap-runner-audit-supabase-vault-pe-ai-and-muse-skills.md](239-gitmap-runner-audit-supabase-vault-pe-ai-and-muse-skills.md) — GitMap Runner, Audit DB, Supabase Vault, PE-AI & Muse Skills (Spec: [239](../../02-spec/21-app/239-gitmap-runner-audit-supabase-vault-pe-ai-and-muse-skills/01-architecture-spec.md))
 - [236-deep-spec-consolidation-and-canonical-reduction.md](236-deep-spec-consolidation-and-canonical-reduction.md) — Deep Spec Consolidation & Canonical Reduction (Spec: [236](../../02-spec/21-app/236-deep-spec-consolidation-and-canonical-reduction/01-architecture-spec.md))

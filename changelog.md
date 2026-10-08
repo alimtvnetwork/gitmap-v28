@@ -1,12 +1,5 @@
 # Changelog
 
-## [v6.516.0] - 2026-10-08
-
-### Added
-- pull forward slash paths pre pull and interactive remediation prompt
-
----
-
 ## [v6.515.0] - 2026-10-08
 
 ### Added

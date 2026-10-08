@@ -1,0 +1,67 @@
+package cmdfind
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+)
+
+// runFindDuplicates dispatches duplicate discovery for a given platform or across all platforms.
+func RunFindDuplicates(platform string, args []string) error {
+	resolved := resolveDuplicatePlatform(platform, args)
+	switch resolved {
+	case "agy", "ag", "antigravity":
+		return cmdagy.RunFindDuplicates()
+	case "vscode", "vsc":
+		return cmdvscode.RunFindDuplicates()
+	case "chrome", "chromeprofile", "chrome-profile":
+		return cmdchromeprofile.RunFindDuplicates()
+	case "git", "repo", "clone":
+		return runFindDuplicatesGit()
+	case "all", "":
+		return runFindDuplicatesAll()
+	default:
+		return printUnknownDupPlatform(resolved)
+	}
+}
+
+func resolveDuplicatePlatform(platform string, args []string) string {
+	if platform != "" {
+		return strings.ToLower(strings.TrimSpace(platform))
+	}
+
+	if len(args) == 0 {
+		return "all"
+	}
+
+	if strings.HasPrefix(args[0], "-") {
+		return "all"
+	}
+
+	return strings.ToLower(strings.TrimSpace(args[0]))
+}
+
+func printUnknownDupPlatform(platform string) error {
+	fmt.Printf(constants.ColorRed+"Unknown platform '%s' for find-duplicates."+constants.ColorReset+"\n", platform)
+	fmt.Println("Available platforms: agy, vscode, chrome, git (or omit platform to check all)")
+
+	return nil
+}
+
+func runFindDuplicatesAll() error {
+	fmt.Println()
+	fmt.Println("  " + constants.ColorMagenta + "═════════════════════════════════════════════════════════════════════" + constants.ColorReset)
+	fmt.Println("  " + constants.ColorMagenta + "       Gitmap Cross-Platform Duplicate Project & Repo Auditor        " + constants.ColorReset)
+	fmt.Println("  " + constants.ColorMagenta + "═════════════════════════════════════════════════════════════════════" + constants.ColorReset)
+
+	_ = cmdagy.RunFindDuplicates()
+	_ = cmdvscode.RunFindDuplicates()
+	_ = cmdchromeprofile.RunFindDuplicates()
+	_ = runFindDuplicatesGit()
+
+	return nil
+}

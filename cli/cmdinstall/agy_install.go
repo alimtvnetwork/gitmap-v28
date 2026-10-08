@@ -5,8 +5,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 )
 
 const isDefaultFalse = false
@@ -35,7 +33,13 @@ var agyInstallCmd = &cobra.Command{
 
 func init() {
 	bindAgyInstallFlags()
-	cmdagy.AgyCmd.AddCommand(agyInstallCmd)
+}
+
+// RegisterAgyInstallSubcommand attaches the agy install subcommand to the given
+// parent command. Called by the owning agy package during its init so that
+// cmdinstall does not import cmdagy (import cycle).
+func RegisterAgyInstallSubcommand(parent *cobra.Command) {
+	parent.AddCommand(agyInstallCmd)
 }
 
 func bindAgyInstallBasicFlags() {
