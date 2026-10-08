@@ -26,8 +26,6 @@ var (
 		RunE:    runDefaultAnalysisCmd,
 	}
 
-	analysisCmd = AiAnalysisCmd
-
 	analysisStartCmd = &cobra.Command{
 		Use:   "start",
 		Short: "Start a new AI analysis task session",
@@ -452,8 +450,8 @@ func resolveStatus(st string) string {
 // DispatchAiAnalysis routes CLI arguments to native AI analysis commands.
 func DispatchAiAnalysis(args []string) error {
 	cleanArgs := stripAiAnalysisPrefix(args)
-	hasNoArgs := len(cleanArgs) == 0
-	if hasNoArgs {
+	isEmpty := len(cleanArgs) == 0
+	if isEmpty {
 		return runDefaultAnalysisCmd(AiAnalysisCmd, cleanArgs)
 	}
 
@@ -463,8 +461,8 @@ func DispatchAiAnalysis(args []string) error {
 }
 
 func stripAiAnalysisPrefix(args []string) []string {
-	hasNoArgs := len(args) == 0
-	if hasNoArgs {
+	isEmpty := len(args) == 0
+	if isEmpty {
 		return args
 	}
 
@@ -478,8 +476,8 @@ func stripAiAnalysisPrefix(args []string) []string {
 }
 
 func renderTasksTable(tasks []store.AiTask) {
-	hasNoTasks := len(tasks) == 0
-	if hasNoTasks {
+	isEmpty := len(tasks) == 0
+	if isEmpty {
 		fmt.Println("No AI analysis tasks found.")
 
 		return
@@ -537,8 +535,8 @@ func printTaskStatusCard(task *store.AiTask, files []store.AiTaskFile) {
 	fmt.Printf("Created     : %s\n", formatDisplayTime(task.CreatedAt))
 	fmt.Println()
 
-	hasNoFiles := len(files) == 0
-	if hasNoFiles {
+	isEmpty := len(files) == 0
+	if isEmpty {
 		fmt.Println("No files recorded for this task.")
 
 		return

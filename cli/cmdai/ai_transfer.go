@@ -134,17 +134,17 @@ func collectTransferDataset(db *store.AiAnalysisSplitDB, taskId string) (AiTrans
 }
 
 func queryExportTasks(db *store.AiAnalysisSplitDB, taskId string) ([]store.AiTask, error) {
-	hasTask := strings.TrimSpace(taskId) != ""
-	if hasTask {
-		task, err := db.GetTask(strings.TrimSpace(taskId))
-		if err != nil {
-			return nil, apperror.WrapSimple(err, "cmdai.export.get_task")
-		}
-
-		return []store.AiTask{*task}, nil
+	trimmed := strings.TrimSpace(taskId)
+	if trimmed == "" {
+		return db.ListTasks(false, 10000)
 	}
 
-	return db.ListTasks(false, 10000)
+	task, err := db.GetTask(trimmed)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "cmdai.export.get_task")
+	}
+
+	return []store.AiTask{*task}, nil
 }
 
 func collectTaskFilesAndLines(db *store.AiAnalysisSplitDB, taskId int64) ([]store.AiTaskFile, []store.AiTaskLine, error) {
@@ -375,17 +375,23 @@ func applyImportDataset(db *store.AiAnalysisSplitDB, dataset AiTransferDataset, 
 	return nil
 }
 
+func resolveTaskUuidOrReplaceExisting(db *store.AiAnalysisSplitDB, existing *store.AiTask, task *store.AiTask, isReplace bool) {
+	if existing == nil {
+		return
+	}
+
+	if isReplace {
+		_ = deleteTasksAndLines(db, []int64{existing.AiTaskId})
+
+		return
+	}
+
+	task.TaskUuid = generateNonCollidingUuid(task.TaskUuid)
+}
+
 func importSingleTask(db *store.AiAnalysisSplitDB, task store.AiTask, isReplace bool) (int64, error) {
 	existing, _ := db.GetTask(task.TaskUuid)
-	hasExisting := existing != nil
-
-	if hasExisting {
-		if isReplace {
-			_ = deleteTasksAndLines(db, []int64{existing.AiTaskId})
-		} else {
-			task.TaskUuid = generateNonCollidingUuid(task.TaskUuid)
-		}
-	}
+	resolveTaskUuidOrReplaceExisting(db, existing, &task, isReplace)
 
 	newTask := task
 	newTask.AiTaskId = 0

@@ -95,4 +95,5 @@
 - [104-ssh-exec-test-is-gitmap-command-assertion-rca.md](./104-ssh-exec-test-is-gitmap-command-assertion-rca.md): Fix SSH exec command test assertion for python, py, cursor, and cur delegation.
 - [105-pipeline-pe-1-helptext-constants-nested-ifs-unused-and-bools-rca.md](./105-pipeline-pe-1-helptext-constants-nested-ifs-unused-and-bools-rca.md): Fix CI/CD failures from gitmap pe -1 across constants test parity, helptext docs, unused dead code, swallowed DB errors, SA4023 typed nil, boolean guidelines, and nested ifs.
 - [106-pipeline-history-purge-shadowing-recycle-misspell-and-relative-paths-rca.md](./106-pipeline-history-purge-shadowing-recycle-misspell-and-relative-paths-rca.md): Fix history purge dispatch shadowing, recycle bin helper export, misspell canceled, and relative paths.
+- [107-pipeline-pe-1-nested-ifs-boolean-guidelines-relative-paths-and-misspell-rca.md](./107-pipeline-pe-1-nested-ifs-boolean-guidelines-relative-paths-and-misspell-rca.md): Fix CI/CD failures from gitmap pe -1 across nested ifs (40 violations across 10 files), boolean guidelines (15 violations), relative paths (6 violations), unused analysisCmd, and misspell canceled.
 

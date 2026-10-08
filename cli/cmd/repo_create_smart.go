@@ -23,16 +23,16 @@ var promptReaderHook func() (string, error)
 func extractOwnerFromURL(raw string) string {
 	clean := strings.TrimSuffix(strings.TrimSpace(raw), ".git")
 	parts := strings.Split(clean, "/")
-	if len(parts) >= 2 {
-		owner := parts[len(parts)-2]
-		if idx := strings.LastIndex(owner, ":"); idx >= 0 {
-			owner = owner[idx+1:]
-		}
-
-		return owner
+	if len(parts) < 2 {
+		return ""
 	}
 
-	return ""
+	owner := parts[len(parts)-2]
+	if idx := strings.LastIndex(owner, ":"); idx >= 0 {
+		owner = owner[idx+1:]
+	}
+
+	return owner
 }
 
 func resolveOwnerFromGitConfig() string {
@@ -165,7 +165,7 @@ func readInteractiveCloneAnswer(slug string) (string, error) {
 	return trimmed, nil
 }
 
-func shouldCloneFromAnswer(ans string) bool {
+func isCloneConfirmedFromAnswer(ans string) bool {
 	lower := strings.ToLower(strings.TrimSpace(ans))
 
 	return lower == "" || lower == "y" || lower == "yes"
@@ -197,7 +197,7 @@ func handleInteractiveCollision(absDir, slug string) (string, error) {
 		return "", apperror.WrapSimple(err, "read confirmation:")
 	}
 
-	if shouldCloneFromAnswer(ans) {
+	if isCloneConfirmedFromAnswer(ans) {
 		return dispatchCloneFallback(absDir, slug)
 	}
 

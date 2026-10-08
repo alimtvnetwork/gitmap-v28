@@ -34,9 +34,9 @@ gitmap
 **Output:**
 
 ```text
-  Active:   D:\work\gitmap\gitmap.exe
-  Deployed: D:\work\gitmap\bin\gitmap.exe
-  Config:   D:\work\gitmap\bin\gitmap.exe
+  Active:   /usr/local/bin/gitmap
+  Deployed: /usr/local/bin/gitmap
+  Config:   ~/.gitmap/config.json
 
   ────────────────────────────────────────────────────────────
   gitmap binary

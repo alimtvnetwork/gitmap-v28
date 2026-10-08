@@ -16,7 +16,7 @@ const (
 	AiTaskStatusInProgress AiTaskStatusType = "in_progress"
 	AiTaskStatusCompleted  AiTaskStatusType = "completed"
 	AiTaskStatusFailed     AiTaskStatusType = "failed"
-	AiTaskStatusCancelled  AiTaskStatusType = "cancelled"
+	AiTaskStatusCanceled   AiTaskStatusType = "canceled"
 )
 
 // AiOperationType defines the file interaction performed.

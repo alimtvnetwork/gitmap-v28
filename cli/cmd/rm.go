@@ -78,7 +78,7 @@ func runRm(args []string) error {
 
 func executeRmTargets(db *store.DB, targets []string, isYes, isDbOnly bool, origArgs []string) error {
 	matches, missing := resolveRmMatches(db, targets)
-	if len(matches) == 0 && canFallbackToSafeRm(targets) {
+	if len(matches) == 0 && isSafeRmFallbackAllowed(targets) {
 		return cmdrm.RunSafeRmCLI(origArgs)
 	}
 
@@ -116,7 +116,7 @@ func isSafeRmDirective(args []string) bool {
 	return false
 }
 
-func canFallbackToSafeRm(targets []string) bool {
+func isSafeRmFallbackAllowed(targets []string) bool {
 	expanded, err := cmdrm.ExpandFilePatterns(targets, ".")
 	return err == nil && len(expanded) > 0
 }

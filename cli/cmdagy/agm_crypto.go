@@ -139,6 +139,16 @@ func writeRandomPass(file *os.File, size int64) error {
 	return file.Sync()
 }
 
+func fillBufferFromReader(reader io.Reader, buf []byte) error {
+	if reader == nil {
+		return nil
+	}
+
+	_, err := io.ReadFull(reader, buf)
+
+	return err
+}
+
 func writeBufferToDisk(file *os.File, totalSize int64, buf []byte, reader io.Reader) error {
 	var remaining int64 = totalSize
 	bufSize := int64(len(buf))
@@ -147,10 +157,8 @@ func writeBufferToDisk(file *os.File, totalSize int64, buf []byte, reader io.Rea
 		if remaining < writeLen {
 			writeLen = remaining
 		}
-		if reader != nil {
-			if _, err := io.ReadFull(reader, buf[:writeLen]); err != nil {
-				return err
-			}
+		if err := fillBufferFromReader(reader, buf[:writeLen]); err != nil {
+			return err
 		}
 		if _, err := file.Write(buf[:writeLen]); err != nil {
 			return err

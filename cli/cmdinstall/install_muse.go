@@ -170,12 +170,20 @@ func CheckExistingMuseWithDir(customDir string) (string, string, bool) {
 	return foundPath, version, true
 }
 
+func isExistingMuseBinaryFile(p string) bool {
+	if p == "" {
+		return false
+	}
+
+	info, err := os.Stat(p)
+
+	return err == nil && !info.IsDir()
+}
+
 func locateMuseBinary(binName, customDir string) (string, bool) {
-	if customDir != "" {
-		p := filepath.Join(customDir, binName)
-		if info, err := os.Stat(p); err == nil && !info.IsDir() {
-			return p, true
-		}
+	customPath := filepath.Join(customDir, binName)
+	if customDir != "" && isExistingMuseBinaryFile(customPath) {
+		return customPath, true
 	}
 
 	if p, err := exec.LookPath(binName); err == nil {
@@ -186,19 +194,15 @@ func locateMuseBinary(binName, customDir string) (string, bool) {
 }
 
 func searchStandardMusePaths(binName string) (string, bool) {
-	home, err := os.UserHomeDir()
-	if err == nil {
-		localBin := filepath.Join(home, ".local", "bin", binName)
-		if info, err := os.Stat(localBin); err == nil && !info.IsDir() {
-			return localBin, true
-		}
+	home, _ := os.UserHomeDir()
+	localBin := filepath.Join(home, ".local", "bin", binName)
+	if home != "" && isExistingMuseBinaryFile(localBin) {
+		return localBin, true
 	}
 
-	if runtime.GOOS != "windows" {
-		usrBin := filepath.Join("/usr/local/bin", binName)
-		if info, err := os.Stat(usrBin); err == nil && !info.IsDir() {
-			return usrBin, true
-		}
+	usrBin := filepath.Join("/usr/local/bin", binName)
+	if runtime.GOOS != "windows" && isExistingMuseBinaryFile(usrBin) {
+		return usrBin, true
 	}
 
 	return searchWindowsMusePaths(binName, home)
@@ -209,18 +213,15 @@ func searchWindowsMusePaths(binName, home string) (string, bool) {
 		return "", false
 	}
 
-	if localApp := os.Getenv("LOCALAPPDATA"); localApp != "" {
-		p := filepath.Join(localApp, "Programs", "Muse", binName)
-		if info, err := os.Stat(p); err == nil && !info.IsDir() {
-			return p, true
-		}
+	localApp := os.Getenv("LOCALAPPDATA")
+	progPath := filepath.Join(localApp, "Programs", "Muse", binName)
+	if localApp != "" && isExistingMuseBinaryFile(progPath) {
+		return progPath, true
 	}
 
-	if home != "" {
-		p := filepath.Join(home, ".muse", "bin", binName)
-		if info, err := os.Stat(p); err == nil && !info.IsDir() {
-			return p, true
-		}
+	musePath := filepath.Join(home, ".muse", "bin", binName)
+	if home != "" && isExistingMuseBinaryFile(musePath) {
+		return musePath, true
 	}
 
 	return "", false
@@ -309,11 +310,7 @@ func handleVerifyOnly(opts InstallMuseOptions, platform MusePlatformType) (*Muse
 
 	if !isInstalled {
 		res.ErrorMessage = "meta muse is not installed"
-		if opts.IsJSON {
-			_ = emitJSONReport(res)
-		} else {
-			fmt.Printf("%s○ Meta Muse is not installed.%s\n", constants.ColorYellow, constants.ColorReset)
-		}
+		reportNotInstalled(res, opts.IsJSON)
 
 		return res, apperror.NewSimple("meta muse is not installed", constants.ErrMuseProbeFailed)
 	}
@@ -325,6 +322,16 @@ func handleVerifyOnly(opts InstallMuseOptions, platform MusePlatformType) (*Muse
 	}
 
 	return res, nil
+}
+
+func reportNotInstalled(res *MuseInstallResult, isJSON bool) {
+	if isJSON {
+		_ = emitJSONReport(res)
+
+		return
+	}
+
+	fmt.Printf("%s○ Meta Muse is not installed.%s\n", constants.ColorYellow, constants.ColorReset)
 }
 
 func buildExistingMuseResult(opts InstallMuseOptions, platform MusePlatformType, path, ver string) (*MuseInstallResult, error) {
@@ -394,20 +401,20 @@ func executeMuseInstallPipeline(opts InstallMuseOptions, bin string, args []stri
 }
 
 func resolvePlatformExecutor(platform MusePlatformType, defaultBin string) string {
-	if platform == MusePlatformWindows {
-		if pwsh := resolvePowerShellBinary(); pwsh != "" {
-			return pwsh
-		}
+	if platform != MusePlatformWindows {
+		return defaultBin
+	}
+
+	if pwsh := resolvePowerShellBinary(); pwsh != "" {
+		return pwsh
 	}
 
 	return defaultBin
 }
 
 func handleInstallFailure(opts InstallMuseOptions, runErr error, result *MuseInstallResult) (*MuseInstallResult, error) {
-	if result.Platform == MusePlatformDarwin {
-		if brewErr := executeDarwinFallback(result); brewErr == nil {
-			return handleInstallSuccess(opts, result)
-		}
+	if result.Platform == MusePlatformDarwin && executeDarwinFallback(result) == nil {
+		return handleInstallSuccess(opts, result)
 	}
 
 	result.ErrorMessage = runErr.Error()
@@ -533,20 +540,33 @@ func applyPostInstallVerification(shouldVerify bool, customDir string, result *M
 	}
 }
 
+func extractVersionArgVal(arg, nextArg string, hasNext bool) (string, bool) {
+	isVersionFlag := (arg == "--version" || arg == "-v") && hasNext
+	val := strings.TrimSpace(nextArg)
+	if isVersionFlag && !strings.HasPrefix(val, "-") {
+		return val, true
+	}
+
+	if strings.HasPrefix(arg, "--version=") {
+		return strings.TrimSpace(strings.TrimPrefix(arg, "--version=")), true
+	}
+
+	return "", false
+}
+
 func resolveEffectiveVersion(optsVersion string) string {
 	if strings.TrimSpace(optsVersion) != "" {
 		return strings.TrimSpace(optsVersion)
 	}
 
 	for i, arg := range os.Args {
-		if (arg == "--version" || arg == "-v") && i+1 < len(os.Args) {
-			val := strings.TrimSpace(os.Args[i+1])
-			if !strings.HasPrefix(val, "-") {
-				return val
-			}
+		nextArg := ""
+		hasNext := i+1 < len(os.Args)
+		if hasNext {
+			nextArg = os.Args[i+1]
 		}
-		if strings.HasPrefix(arg, "--version=") {
-			return strings.TrimSpace(strings.TrimPrefix(arg, "--version="))
+		if val, found := extractVersionArgVal(arg, nextArg, hasNext); found {
+			return val
 		}
 	}
 

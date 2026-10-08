@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.511.0] - 2026-10-08
+
+### Added
+- fix pipeline pe -1 nested ifs boolean guidelines relative paths and misspell
+
+---
+
 ## [v6.510.0] - 2026-10-08
 
 ### Added

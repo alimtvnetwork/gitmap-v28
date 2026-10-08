@@ -101,8 +101,8 @@ func NewAgmDeployCmd() *cobra.Command {
 func NewAgmDeployDirectCmd() *cobra.Command {
 	var opts AgmDeployOptions
 	cmd := &cobra.Command{
-		Use:     "agm-deploy [target] [flags]",
-		Short:   "Deploy Antigravity Manager credentials across fleet nodes with secure purge",
+		Use:   "agm-deploy [target] [flags]",
+		Short: "Deploy Antigravity Manager credentials across fleet nodes with secure purge",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 && opts.TargetNode == "" && opts.Nodes == "" {
 				opts.TargetNode = args[0]
@@ -269,13 +269,19 @@ func ExecuteAgmDeploy(opts AgmDeployOptions) (*AgmDeployReport, error) {
 	if err := executeDeployWorkflow(opts, targets, tarData, totalAccounts, report, start); err != nil {
 		return report, err
 	}
-	if opts.IsPurgeAccounts || opts.IsShred {
-		if err := executePostDeploymentPurge(toolsDir, opts.IsShred, opts.IsDryRun, report); err != nil {
-			return report, err
-		}
+	if err := handlePostDeploymentPurge(toolsDir, opts, report); err != nil {
+		return report, err
 	}
 	report.DurationMs = time.Since(start).Milliseconds()
 	return report, nil
+}
+
+func handlePostDeploymentPurge(toolsDir string, opts AgmDeployOptions, report *AgmDeployReport) error {
+	if !opts.IsPurgeAccounts && !opts.IsShred {
+		return nil
+	}
+
+	return executePostDeploymentPurge(toolsDir, opts.IsShred, opts.IsDryRun, report)
 }
 
 func buildInitialDeployReport(opts AgmDeployOptions, targetCount int) *AgmDeployReport {
@@ -404,10 +410,10 @@ func resolveAgmTargets(opts AgmDeployOptions) ([]db.SSHConnection, error) {
 		return buildDirectFallbackConnections(explicitTargets), nil
 	}
 	conns, err := fetchRegisteredConnections()
+	if (err != nil || len(conns) == 0) && len(explicitTargets) > 0 {
+		return buildDirectFallbackConnections(explicitTargets), nil
+	}
 	if err != nil || len(conns) == 0 {
-		if len(explicitTargets) > 0 {
-			return buildDirectFallbackConnections(explicitTargets), nil
-		}
 		return nil, apperror.NewSimple("no registered fleet SSH nodes found", "E9062")
 	}
 	filtered := filterAgmCandidateNodes(conns, opts)
@@ -582,14 +588,10 @@ func runRemoteDeployment(conn db.SSHConnection, res AgmDeployNodeResult, payload
 	}
 	defer client.Close()
 	tarPayload := payload
-	if isEncrypt {
-		key, _ := DeriveMachineVaultKey()
-		_, encErr := EncryptPayload(payload, key)
-		if encErr != nil {
-			res.Status = "FAILED"
-			res.Error = "encryption failed: " + encErr.Error()
-			return res
-		}
+	if encErrMsg := checkEncryptionError(payload, isEncrypt); encErrMsg != "" {
+		res.Status = "FAILED"
+		res.Error = encErrMsg
+		return res
 	}
 	receipt := ComputePayloadReceipt(tarPayload)
 	out, streamErr := streamTarToRemoteSession(client, tarPayload, isWindowsOS(conn.OS))
@@ -602,6 +604,20 @@ func runRemoteDeployment(conn db.SSHConnection, res AgmDeployNodeResult, payload
 	res.Status = "SUCCESS"
 	res.Receipt = receipt
 	return res
+}
+
+func checkEncryptionError(payload []byte, isEncrypt bool) string {
+	if !isEncrypt {
+		return ""
+	}
+
+	key, _ := DeriveMachineVaultKey()
+	_, encErr := EncryptPayload(payload, key)
+	if encErr != nil {
+		return "encryption failed: " + encErr.Error()
+	}
+
+	return ""
 }
 
 func streamTarToRemoteSession(client *ssh.Client, tarData []byte, isWin bool) (string, error) {
@@ -667,17 +683,16 @@ func executePostDeploymentPurge(toolsDir string, isShred bool, isDryRun bool, re
 func simulateLocalPurge(toolsDir string, isShred bool) []ShredAuditEntry {
 	var entries []ShredAuditEntry
 	accFolder := filepath.Join(toolsDir, "accounts")
-	if dirEntries, err := os.ReadDir(accFolder); err == nil {
-		for _, e := range dirEntries {
-			if !e.IsDir() && strings.HasSuffix(strings.ToLower(e.Name()), ".json") {
-				entries = append(entries, ShredAuditEntry{
-					FilePath:       filepath.Join(accFolder, e.Name()),
-					OriginalBytes:  512,
-					PassCount:      resolvePassCount(isShred),
-					IsVerifiedZero: true,
-					CompletedAt:    time.Now().UTC(),
-				})
-			}
+	dirEntries, _ := os.ReadDir(accFolder)
+	for _, e := range dirEntries {
+		if !e.IsDir() && strings.HasSuffix(strings.ToLower(e.Name()), ".json") {
+			entries = append(entries, ShredAuditEntry{
+				FilePath:       filepath.Join(accFolder, e.Name()),
+				OriginalBytes:  512,
+				PassCount:      resolvePassCount(isShred),
+				IsVerifiedZero: true,
+				CompletedAt:    time.Now().UTC(),
+			})
 		}
 	}
 	accJSON := filepath.Join(toolsDir, "accounts.json")
@@ -700,6 +715,14 @@ func resolvePassCount(isShred bool) int {
 	return 1
 }
 
+func purgeAccountJsonFile(accJSON string, isShred bool) (*ShredAuditEntry, error) {
+	if _, statErr := os.Stat(accJSON); statErr != nil {
+		return nil, nil
+	}
+
+	return ShredFileWithPasses(accJSON, isShred)
+}
+
 func purgeLocalAccountFiles(toolsDir string, isShred bool) ([]ShredAuditEntry, error) {
 	var allShredded []ShredAuditEntry
 	accFolder := filepath.Join(toolsDir, "accounts")
@@ -709,11 +732,11 @@ func purgeLocalAccountFiles(toolsDir string, isShred bool) ([]ShredAuditEntry, e
 	}
 	allShredded = append(allShredded, folderEntries...)
 	accJSON := filepath.Join(toolsDir, "accounts.json")
-	if _, statErr := os.Stat(accJSON); statErr == nil {
-		audit, shredErr := ShredFileWithPasses(accJSON, isShred)
-		if shredErr != nil {
-			return allShredded, shredErr
-		}
+	audit, shredErr := purgeAccountJsonFile(accJSON, isShred)
+	if shredErr != nil {
+		return allShredded, shredErr
+	}
+	if audit != nil {
 		allShredded = append(allShredded, *audit)
 	}
 	return allShredded, nil

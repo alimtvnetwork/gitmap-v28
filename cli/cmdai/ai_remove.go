@@ -26,10 +26,10 @@ var (
 		RunE:    runRemoveCmd,
 	}
 
-	removeTaskFlag    string
-	removeReasonFlag  string
-	removeDryRunFlag  bool
-	removeJsonFlag    bool
+	removeTaskFlag   string
+	removeReasonFlag string
+	removeDryRunFlag bool
+	removeJsonFlag   bool
 )
 
 // RemovalManifest encapsulates metadata about staged files in the vault.
@@ -154,12 +154,14 @@ func parsePositionalRemoveArgs(args []string) (string, []string, error) {
 
 func resolveActiveOrFallbackTask(args []string) (string, []string, error) {
 	db, err := store.OpenAiAnalysisSplitDB("", getEffectiveRepoRoot())
-	if err == nil {
-		defer db.Close()
-		activeId, activeErr := resolveActiveTaskId(db)
-		if activeErr == nil && activeId != "" {
-			return activeId, args, nil
-		}
+	if err != nil {
+		return "", nil, apperror.NewValidationError("task ID required via --task or as first argument")
+	}
+	defer db.Close()
+
+	activeId, activeErr := resolveActiveTaskId(db)
+	if activeErr == nil && activeId != "" {
+		return activeId, args, nil
 	}
 
 	return "", nil, apperror.NewValidationError("task ID required via --task or as first argument")
@@ -432,15 +434,25 @@ func countLines(data []byte) int {
 	return count + 1
 }
 
-func loadOrCreateManifest(manifestPath, taskId, reason string) *RemovalManifest {
+func tryLoadExistingManifest(manifestPath string) *RemovalManifest {
 	data, err := os.ReadFile(manifestPath)
-	hasData := err == nil && len(data) > 0
-	if hasData {
-		var m RemovalManifest
-		if jsonErr := json.Unmarshal(data, &m); jsonErr == nil {
-			m.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
-			return &m
-		}
+	if err != nil || len(data) == 0 {
+		return nil
+	}
+
+	var m RemovalManifest
+	if jsonErr := json.Unmarshal(data, &m); jsonErr != nil {
+		return nil
+	}
+
+	m.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
+
+	return &m
+}
+
+func loadOrCreateManifest(manifestPath, taskId, reason string) *RemovalManifest {
+	if existing := tryLoadExistingManifest(manifestPath); existing != nil {
+		return existing
 	}
 
 	return &RemovalManifest{

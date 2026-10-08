@@ -158,31 +158,34 @@ func isChildPathLimitFlag(arg string) bool {
 	return strings.HasPrefix(arg, "--limit=") || strings.HasPrefix(arg, "-l=") || strings.HasPrefix(arg, "-n=")
 }
 
-func parseChildPathDepthFlag(arg string, nextArg string, hasNext bool, opts *ChildPathOptions) (int, error) {
+func extractChildPathDepthRaw(arg string, nextArg string, hasNext bool) (string, int, bool) {
 	if (arg == "--depth" || arg == "-d") && hasNext {
-		val, err := strconv.Atoi(nextArg)
-		if err != nil {
-			return 0, apperror.NewValidation("child-path", "E1084", "depth must be an integer")
-		}
-
-		opts.Depth = val
-
-		return 1, nil
+		return nextArg, 1, true
 	}
 
 	if isChildPathDepthFlag(arg) {
 		parts := strings.SplitN(arg, "=", 2)
-		val, err := strconv.Atoi(parts[1])
-		if err != nil {
-			return 0, apperror.NewValidation("child-path", "E1084", "depth must be an integer")
-		}
 
-		opts.Depth = val
+		return parts[1], 0, true
+	}
 
+	return "", 0, false
+}
+
+func parseChildPathDepthFlag(arg string, nextArg string, hasNext bool, opts *ChildPathOptions) (int, error) {
+	raw, consumed, matched := extractChildPathDepthRaw(arg, nextArg, hasNext)
+	if !matched {
 		return 0, nil
 	}
 
-	return 0, nil
+	val, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, apperror.NewValidation("child-path", "E1084", "depth must be an integer")
+	}
+
+	opts.Depth = val
+
+	return consumed, nil
 }
 
 func parseChildPathExtFlag(arg string, nextArg string, hasNext bool, opts *ChildPathOptions) int {
@@ -219,31 +222,34 @@ func parseChildPathTypeFlag(arg string, nextArg string, hasNext bool, opts *Chil
 	return 0
 }
 
-func parseChildPathLimitFlag(arg string, nextArg string, hasNext bool, opts *ChildPathOptions) (int, error) {
+func extractChildPathLimitRaw(arg string, nextArg string, hasNext bool) (string, int, bool) {
 	if (arg == "--limit" || arg == "-l" || arg == "-n") && hasNext {
-		val, err := strconv.Atoi(nextArg)
-		if err != nil {
-			return 0, apperror.NewValidation("child-path", "E1000", "limit must be an integer")
-		}
-
-		opts.Limit = val
-
-		return 1, nil
+		return nextArg, 1, true
 	}
 
 	if isChildPathLimitFlag(arg) {
 		parts := strings.SplitN(arg, "=", 2)
-		val, err := strconv.Atoi(parts[1])
-		if err != nil {
-			return 0, apperror.NewValidation("child-path", "E1000", "limit must be an integer")
-		}
 
-		opts.Limit = val
+		return parts[1], 0, true
+	}
 
+	return "", 0, false
+}
+
+func parseChildPathLimitFlag(arg string, nextArg string, hasNext bool, opts *ChildPathOptions) (int, error) {
+	raw, consumed, matched := extractChildPathLimitRaw(arg, nextArg, hasNext)
+	if !matched {
 		return 0, nil
 	}
 
-	return 0, nil
+	val, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, apperror.NewValidation("child-path", "E1000", "limit must be an integer")
+	}
+
+	opts.Limit = val
+
+	return consumed, nil
 }
 
 func splitChildPathExtensions(val string) []string {
@@ -319,11 +325,11 @@ func validateChildPathOptions(opts ChildPathOptions) error {
 
 func validateChildPathTargetDir(dir string) error {
 	info, err := os.Stat(dir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return apperror.NewNotFound("child-path", "E1081", fmt.Sprintf("target directory %q does not exist", dir))
-		}
+	if os.IsNotExist(err) {
+		return apperror.NewNotFound("child-path", "E1081", fmt.Sprintf("target directory %q does not exist", dir))
+	}
 
+	if err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf("failed to access directory %q", dir))
 	}
 
@@ -361,7 +367,7 @@ func scanChildPathDepthOne(opts ChildPathOptions) ([]ChildPathItem, error) {
 
 	for _, entry := range entries {
 		name := entry.Name()
-		if entry.IsDir() && shouldSkipChildPathDir(name) {
+		if entry.IsDir() && isChildPathDirSkipped(name) {
 			continue
 		}
 
@@ -380,7 +386,7 @@ func scanChildPathDepthOne(opts ChildPathOptions) ([]ChildPathItem, error) {
 	return items, nil
 }
 
-func shouldSkipChildPathDir(name string) bool {
+func isChildPathDirSkipped(name string) bool {
 	return handleFindDirSkip(name) != nil
 }
 
@@ -403,6 +409,14 @@ func scanChildPathDepthWalk(opts ChildPathOptions) ([]ChildPathItem, error) {
 	return items, errWalk
 }
 
+func resolveBeyondDepthAction(isDir bool) error {
+	if isDir {
+		return fs.SkipDir
+	}
+
+	return nil
+}
+
 func handleChildPathWalkEntry(currentPath string, d fs.DirEntry, cleanRoot string, opts ChildPathOptions, items *[]ChildPathItem) error {
 	if d.IsDir() && handleFindDirSkip(d.Name()) != nil {
 		return fs.SkipDir
@@ -414,12 +428,9 @@ func handleChildPathWalkEntry(currentPath string, d fs.DirEntry, cleanRoot strin
 	}
 
 	depth := calculateChildPathDepth(rel)
-	if opts.Depth > 0 && depth > opts.Depth {
-		if d.IsDir() {
-			return fs.SkipDir
-		}
-
-		return nil
+	isBeyondDepth := opts.Depth > 0 && depth > opts.Depth
+	if isBeyondDepth {
+		return resolveBeyondDepthAction(d.IsDir())
 	}
 
 	return processChildPathWalkMatch(currentPath, d, opts, items)
@@ -528,14 +539,18 @@ func buildChildPathItem(parentDir string, name string, isDir bool, isAbs bool) C
 	}
 }
 
+func resolveChildPathAbsDisplayPath(fullPath string) string {
+	absPath, err := filepath.Abs(fullPath)
+	if err != nil {
+		return filepath.ToSlash(fullPath)
+	}
+
+	return filepath.ToSlash(absPath)
+}
+
 func resolveChildPathDisplayPath(fullPath string, isAbs bool) string {
 	if isAbs {
-		absPath, err := filepath.Abs(fullPath)
-		if err == nil {
-			return filepath.ToSlash(absPath)
-		}
-
-		return filepath.ToSlash(fullPath)
+		return resolveChildPathAbsDisplayPath(fullPath)
 	}
 
 	relPath, err := filepath.Rel(".", fullPath)

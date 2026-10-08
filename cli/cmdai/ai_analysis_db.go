@@ -315,7 +315,7 @@ func scanSingleLineRow(rows *sql.Rows) (AiAnalysisLine, error) {
 // UpdateAiAnalysisTaskStatus modifies status, summary, and completed timestamp.
 func UpdateAiAnalysisTaskStatus(db *sql.DB, taskID string, status AiTaskStatusType, summary string) error {
 	var completedAt *string
-	isFinished := status == AiTaskStatusCompleted || status == AiTaskStatusFailed || status == AiTaskStatusCancelled
+	isFinished := status == AiTaskStatusCompleted || status == AiTaskStatusFailed || status == AiTaskStatusCanceled
 	if isFinished {
 		now := formatTimestamp(time.Now())
 		completedAt = &now

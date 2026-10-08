@@ -93,12 +93,14 @@ func parseRevertArgs(args []string) (string, []string, error) {
 func resolveActiveRevertTask() (string, []string, error) {
 	repoRoot := getEffectiveRepoRoot()
 	db, err := store.OpenAiAnalysisSplitDB("", repoRoot)
-	if err == nil {
-		defer db.Close()
-		activeId, activeErr := resolveActiveTaskId(db)
-		if activeErr == nil && activeId != "" {
-			return activeId, nil, nil
-		}
+	if err != nil {
+		return "", nil, apperror.NewValidationError("task ID required via --task or as first argument")
+	}
+	defer db.Close()
+
+	activeId, activeErr := resolveActiveTaskId(db)
+	if activeErr == nil && activeId != "" {
+		return activeId, nil, nil
 	}
 
 	return "", nil, apperror.NewValidationError("task ID required via --task or as first argument")
@@ -153,13 +155,19 @@ func checkVaultExists(taskId string) (string, error) {
 	return vaultDir, nil
 }
 
+func queryDbFilesIfPresent(db *store.AiAnalysisSplitDB, taskId string, filter []string) []store.AiTaskFile {
+	if db == nil {
+		return nil
+	}
+
+	return queryRemovedFilesFromDb(db, taskId, filter)
+}
+
 func collectFilesToRevert(db *store.AiAnalysisSplitDB, taskId, vaultDir string, filter []string) ([]store.AiTaskFile, error) {
-	if db != nil {
-		dbFiles := queryRemovedFilesFromDb(db, taskId, filter)
-		hasDbFiles := len(dbFiles) > 0
-		if hasDbFiles {
-			return dbFiles, nil
-		}
+	dbFiles := queryDbFilesIfPresent(db, taskId, filter)
+	hasDbFiles := len(dbFiles) > 0
+	if hasDbFiles {
+		return dbFiles, nil
 	}
 
 	manifestFiles := queryRemovedFilesFromManifest(vaultDir, filter)
@@ -233,8 +241,8 @@ func queryRemovedFilesFromManifest(vaultDir string, filter []string) []store.AiT
 }
 
 func isTargetFilterMatch(relPath string, filter []string) bool {
-	hasNoFilter := len(filter) == 0
-	if hasNoFilter {
+	isEmpty := len(filter) == 0
+	if isEmpty {
 		return true
 	}
 
@@ -277,13 +285,19 @@ func restoreSingleFile(db *store.AiAnalysisSplitDB, repoRoot, taskId, vaultDir s
 	return updateDbRevertRecord(db, f.AiTaskFileId, f.AiTaskId, f.RelPath)
 }
 
+func isValidBackupFile(path string) bool {
+	if path == "" {
+		return false
+	}
+
+	info, err := os.Stat(path)
+
+	return err == nil && !info.IsDir()
+}
+
 func resolveVaultBackupPath(vaultDir string, f store.AiTaskFile) string {
-	hasPath := f.BackupPath != ""
-	if hasPath {
-		info, err := os.Stat(f.BackupPath)
-		if err == nil && !info.IsDir() {
-			return f.BackupPath
-		}
+	if isValidBackupFile(f.BackupPath) {
+		return f.BackupPath
 	}
 
 	return filepath.Join(vaultDir, filepath.FromSlash(f.RelPath))
@@ -319,6 +333,16 @@ func writeRestoredBytes(destPath string, data []byte) error {
 	return nil
 }
 
+func updateDbRevertByFileId(db *store.AiAnalysisSplitDB, now string, fileId int64) error {
+	query := `UPDATE AiTaskFile SET IsRemoved = 0, Action = 'revert', UpdatedAt = ? WHERE AiTaskFileId = ?`
+	res := store.ExecWrapper(db.Conn(), query, now, fileId)
+	if res.IsFailure {
+		return apperror.WrapSimple(res.Error, "cmdai.updateDbRevertRecord.id")
+	}
+
+	return nil
+}
+
 func updateDbRevertRecord(db *store.AiAnalysisSplitDB, fileId, taskId int64, relPath string) error {
 	if db == nil {
 		return nil
@@ -327,12 +351,7 @@ func updateDbRevertRecord(db *store.AiAnalysisSplitDB, fileId, taskId int64, rel
 	now := time.Now().UTC().Format(time.RFC3339)
 	hasFileId := fileId > 0
 	if hasFileId {
-		query := `UPDATE AiTaskFile SET IsRemoved = 0, Action = 'revert', UpdatedAt = ? WHERE AiTaskFileId = ?`
-		res := store.ExecWrapper(db.Conn(), query, now, fileId)
-		if res.IsFailure {
-			return apperror.WrapSimple(res.Error, "cmdai.updateDbRevertRecord.id")
-		}
-		return nil
+		return updateDbRevertByFileId(db, now, fileId)
 	}
 
 	query := `UPDATE AiTaskFile SET IsRemoved = 0, Action = 'revert', UpdatedAt = ? WHERE RelPath = ?`

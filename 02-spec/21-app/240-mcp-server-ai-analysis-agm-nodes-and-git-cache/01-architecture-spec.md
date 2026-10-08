@@ -91,7 +91,7 @@ Autonomous AI agents frequently prune, decompose, or delete obsolete files. To p
 
 ### 2.3 Invariant 3: Strict Relative Path Hygiene
 All database tables, JSON envelopes, telemetry payloads, and console output must strictly record and display **forward-slash normalized relative Git paths** (e.g., `02-spec/21-app/...`, `cli/store/...`, `cmd/...`).
-- **No Absolute Path Leakage:** Absolute operating system paths (such as `D:\work\gitmap\...` or `/home/user/...`) must never be stored in primary relational keys, output tables, or LLM training exports.
+- **No Absolute Path Leakage:** Absolute operating system paths (such as `C:\projects\repo\...` or `/home/user/...`) must never be stored in primary relational keys, output tables, or LLM training exports.
 - **Cross-Platform Portability:** Databases exported from Windows must be seamlessly readable and restorable on Linux and macOS workstations. An optional `AbsPath` column in `AiTaskFile` is reserved strictly for ephemeral local process debugging and is never used as a lookup key.
 
 ### 2.4 Invariant 4: Minimal Root Help Invariant
@@ -439,9 +439,9 @@ When executed with zero arguments (`len(os.Args) < 2`), GitMap strictly emits th
 GitMap v6.501.0 - Autonomous Developer Companion & AI MCP Server
 
 Locations:
-  Binary : D:\work\gitmap\gitmap.exe
-  Config : C:\Users\Administrator\.gitmap\config.json
-  Data   : D:\work\gitmap\.gitmap\data\ai-analysis\ai-analysis.db
+  Binary : /usr/local/bin/gitmap
+  Config : ~/.gitmap/config.json
+  Data   : ~/.gitmap/data/ai-analysis/ai-analysis.db
 
 Quick Start:
   gitmap scan                  Discover and index all repositories

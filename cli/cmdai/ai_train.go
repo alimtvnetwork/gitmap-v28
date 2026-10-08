@@ -396,8 +396,8 @@ func ExecuteAiAnalysisClear(db *store.AiAnalysisSplitDB, opts AiClearCliOptions)
 		return err
 	}
 
-	hasNoTasks := len(taskIds) == 0
-	if hasNoTasks {
+	isEmpty := len(taskIds) == 0
+	if isEmpty {
 		fmt.Println("No matching AI analysis tasks found to clear.")
 
 		return nil
@@ -501,22 +501,27 @@ func parseBeforeCutoff(raw string) (time.Time, error) {
 	return time.Time{}, apperror.NewValidation("cmdai.clear", "E3013", fmt.Sprintf("invalid before date format: %q", raw))
 }
 
-func parseRelativeDuration(raw string) (time.Duration, error) {
-	lower := strings.ToLower(raw)
-	isDays := strings.HasSuffix(lower, "d")
-	if isDays {
-		val, err := strconv.Atoi(strings.TrimSuffix(lower, "d"))
-		if err == nil && val > 0 {
-			return time.Duration(val) * 24 * time.Hour, nil
-		}
+func parseCustomUnitDuration(raw, suffix string, multiplier time.Duration) (time.Duration, bool) {
+	if !strings.HasSuffix(raw, suffix) {
+		return 0, false
 	}
 
-	isWeeks := strings.HasSuffix(lower, "w")
-	if isWeeks {
-		val, err := strconv.Atoi(strings.TrimSuffix(lower, "w"))
-		if err == nil && val > 0 {
-			return time.Duration(val) * 7 * 24 * time.Hour, nil
-		}
+	val, err := strconv.Atoi(strings.TrimSuffix(raw, suffix))
+	if err == nil && val > 0 {
+		return time.Duration(val) * multiplier, true
+	}
+
+	return 0, false
+}
+
+func parseRelativeDuration(raw string) (time.Duration, error) {
+	lower := strings.ToLower(raw)
+	if dur, isUnitMatch := parseCustomUnitDuration(lower, "d", 24*time.Hour); isUnitMatch {
+		return dur, nil
+	}
+
+	if dur, isUnitMatch := parseCustomUnitDuration(lower, "w", 7*24*time.Hour); isUnitMatch {
+		return dur, nil
 	}
 
 	return time.ParseDuration(lower)

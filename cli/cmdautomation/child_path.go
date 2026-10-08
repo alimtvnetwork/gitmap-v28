@@ -185,31 +185,34 @@ func isAumLimit(arg string) bool {
 	return strings.HasPrefix(arg, "--limit=") || strings.HasPrefix(arg, "-l=") || strings.HasPrefix(arg, "-n=")
 }
 
-func parseAumDepth(arg string, nextArg string, hasNext bool, opts *aumChildOptions) (int, error) {
+func extractAumDepthRaw(arg string, nextArg string, hasNext bool) (string, int, bool) {
 	if (arg == "--depth" || arg == "-d") && hasNext {
-		val, err := strconv.Atoi(nextArg)
-		if err != nil {
-			return 0, apperror.NewValidation("child-path", "E1084", "depth must be an integer")
-		}
-
-		opts.depth = val
-
-		return 1, nil
+		return nextArg, 1, true
 	}
 
 	if isAumDepth(arg) {
 		parts := strings.SplitN(arg, "=", 2)
-		val, err := strconv.Atoi(parts[1])
-		if err != nil {
-			return 0, apperror.NewValidation("child-path", "E1084", "depth must be an integer")
-		}
 
-		opts.depth = val
+		return parts[1], 0, true
+	}
 
+	return "", 0, false
+}
+
+func parseAumDepth(arg string, nextArg string, hasNext bool, opts *aumChildOptions) (int, error) {
+	raw, consumed, matched := extractAumDepthRaw(arg, nextArg, hasNext)
+	if !matched {
 		return 0, nil
 	}
 
-	return 0, nil
+	val, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, apperror.NewValidation("child-path", "E1084", "depth must be an integer")
+	}
+
+	opts.depth = val
+
+	return consumed, nil
 }
 
 func parseAumExt(arg string, nextArg string, hasNext bool, opts *aumChildOptions) int {
@@ -246,31 +249,34 @@ func parseAumType(arg string, nextArg string, hasNext bool, opts *aumChildOption
 	return 0
 }
 
-func parseAumLimit(arg string, nextArg string, hasNext bool, opts *aumChildOptions) (int, error) {
+func extractAumLimitRaw(arg string, nextArg string, hasNext bool) (string, int, bool) {
 	if (arg == "--limit" || arg == "-l" || arg == "-n") && hasNext {
-		val, err := strconv.Atoi(nextArg)
-		if err != nil {
-			return 0, apperror.NewValidation("child-path", "E1000", "limit must be an integer")
-		}
-
-		opts.limit = val
-
-		return 1, nil
+		return nextArg, 1, true
 	}
 
 	if isAumLimit(arg) {
 		parts := strings.SplitN(arg, "=", 2)
-		val, err := strconv.Atoi(parts[1])
-		if err != nil {
-			return 0, apperror.NewValidation("child-path", "E1000", "limit must be an integer")
-		}
 
-		opts.limit = val
+		return parts[1], 0, true
+	}
 
+	return "", 0, false
+}
+
+func parseAumLimit(arg string, nextArg string, hasNext bool, opts *aumChildOptions) (int, error) {
+	raw, consumed, matched := extractAumLimitRaw(arg, nextArg, hasNext)
+	if !matched {
 		return 0, nil
 	}
 
-	return 0, nil
+	val, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, apperror.NewValidation("child-path", "E1000", "limit must be an integer")
+	}
+
+	opts.limit = val
+
+	return consumed, nil
 }
 
 func splitExtensionsAum(val string) []string {
@@ -342,11 +348,11 @@ func validateAumChildOptions(opts aumChildOptions) error {
 
 func validateAumDir(dir string) error {
 	info, err := os.Stat(dir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return apperror.NewNotFound("child-path", "E1081", fmt.Sprintf("target directory %q does not exist", dir))
-		}
+	if os.IsNotExist(err) {
+		return apperror.NewNotFound("child-path", "E1081", fmt.Sprintf("target directory %q does not exist", dir))
+	}
 
+	if err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf("failed to access directory %q", dir))
 	}
 
@@ -422,6 +428,14 @@ func scanAumDepthWalk(opts aumChildOptions) ([]aumChildItem, error) {
 	return items, errWalk
 }
 
+func resolveBeyondAumDepthAction(isDir bool) error {
+	if isDir {
+		return fs.SkipDir
+	}
+
+	return nil
+}
+
 func handleAumWalkStep(currentPath string, d fs.DirEntry, cleanRoot string, opts aumChildOptions, items *[]aumChildItem) error {
 	if d.IsDir() && isAumSkipDir(d.Name()) {
 		return fs.SkipDir
@@ -433,12 +447,9 @@ func handleAumWalkStep(currentPath string, d fs.DirEntry, cleanRoot string, opts
 	}
 
 	depth := calculateAumDepth(rel)
-	if opts.depth > 0 && depth > opts.depth {
-		if d.IsDir() {
-			return fs.SkipDir
-		}
-
-		return nil
+	isBeyondDepth := opts.depth > 0 && depth > opts.depth
+	if isBeyondDepth {
+		return resolveBeyondAumDepthAction(d.IsDir())
 	}
 
 	return processAumWalkMatch(currentPath, d, opts, items)
@@ -546,14 +557,18 @@ func buildAumItem(parentDir string, name string, isDir bool, isAbs bool) aumChil
 	}
 }
 
+func resolveAumAbsDisplayPath(fullPath string) string {
+	absPath, err := filepath.Abs(fullPath)
+	if err != nil {
+		return filepath.ToSlash(fullPath)
+	}
+
+	return filepath.ToSlash(absPath)
+}
+
 func resolveAumDisplayPath(fullPath string, isAbs bool) string {
 	if isAbs {
-		absPath, err := filepath.Abs(fullPath)
-		if err == nil {
-			return filepath.ToSlash(absPath)
-		}
-
-		return filepath.ToSlash(fullPath)
+		return resolveAumAbsDisplayPath(fullPath)
 	}
 
 	relPath, err := filepath.Rel(".", fullPath)

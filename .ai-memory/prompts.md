@@ -43,6 +43,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `09-commit-and-multi-agent-code-fix` | [`09-commit-and-multi-agent-code-fix/06-insult-code-fix.md`](../01-prompts/09-commit-and-multi-agent-code-fix/06-insult-code-fix.md) | Strict Discipline Code Remediation — Quality Protocol (must follow) |
 | `09-commit-and-multi-agent-code-fix` | [`09-commit-and-multi-agent-code-fix/07-clean-artifacts-and-git-history.md`](../01-prompts/09-commit-and-multi-agent-code-fix/07-clean-artifacts-and-git-history.md) | Artifact Sanitization & Git History Preservation — Workflow (must follow) |
 | `09-commit-and-multi-agent-code-fix` | [`09-commit-and-multi-agent-code-fix/08-git-reconcile-and-resolve-conflict.md`](../01-prompts/09-commit-and-multi-agent-code-fix/08-git-reconcile-and-resolve-conflict.md) | Git Reconciliation & Mechanical Conflict Resolution — Workflow (must follow) |
+| `09-commit-and-multi-agent-code-fix` | [`09-commit-and-multi-agent-code-fix/09-commit-and-push-all-repos.md`](../01-prompts/09-commit-and-multi-agent-code-fix/09-commit-and-push-all-repos.md) | Multi-Repository Commit & Push Automation — Workflow (must follow) |
 | `10-ui-and-design` | [`10-ui-and-design/01-logo-create.md`](../01-prompts/10-ui-and-design/01-logo-create.md) | Logo Design & Branding Generation — Lovable Design Workflow |
 | `10-ui-and-design` | [`10-ui-and-design/02-react-ui-fixes-update.md`](../01-prompts/10-ui-and-design/02-react-ui-fixes-update.md) | React Component Modernization & Responsive Styling — Workflow (must follow) |
 | `10-ui-and-design` | [`10-ui-and-design/03-svg-logo.md`](../01-prompts/10-ui-and-design/03-svg-logo.md) | SVG Icon & Vector Graphic Creation — Design Workflow |
@@ -52,6 +53,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `10-ui-and-design` | [`10-ui-and-design/07-follow-ui-ux-design-system.md`](../01-prompts/10-ui-and-design/07-follow-ui-ux-design-system.md) | Follow UI/UX Design System Specification & Component Assembly |
 | `10-ui-and-design` | [`10-ui-and-design/08-create-slide-deck.md`](../01-prompts/10-ui-and-design/08-create-slide-deck.md) | Create Presentation Slide Deck & Live Builder System |
 | `10-ui-and-design` | [`10-ui-and-design/09-write-and-enhance-design-spec.md`](../01-prompts/10-ui-and-design/09-write-and-enhance-design-spec.md) | Write and Enhance a Design Spec That a Blind AI Can Follow |
+| `10-ui-and-design` | [`10-ui-and-design/10-blind-spec-creator-and-enhancer.md`](../01-prompts/10-ui-and-design/10-blind-spec-creator-and-enhancer.md) | Blind AI Specification Creator & Enhancer Protocol |
 | `10-ui-and-design` | [`10-ui-and-design/readme.md`](../01-prompts/10-ui-and-design/readme.md) | UI and Design Prompts Library |
 | `11-content-and-seo` | [`11-content-and-seo/01-jokes-ideas-generate.md`](../01-prompts/11-content-and-seo/01-jokes-ideas-generate.md) | Humor Generation & Content Ideation — Content Workflow (must follow) |
 | `11-content-and-seo` | [`11-content-and-seo/02-lowercase-readme-and-sequence.md`](../01-prompts/11-content-and-seo/02-lowercase-readme-and-sequence.md) | Lowercase Filename Enforcement & Sequence Re-Ordering — Workflow (must follow) |
@@ -69,7 +71,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `13-plan-audit` | [`13-plan-audit/02-plan-spec-steps-v2.md`](../01-prompts/13-plan-audit/02-plan-spec-steps-v2.md) | any uppercase character, space, or underscore in an authored path = FAIL |
 | `13-plan-audit` | [`13-plan-audit/03-audit-app-spec.md`](../01-prompts/13-plan-audit/03-audit-app-spec.md) | 1. the audited scope, with line counts |
 | `13-plan-audit` | [`13-plan-audit/04-fix-spec-from-audit.md`](../01-prompts/13-plan-audit/04-fix-spec-from-audit.md) | 04-fix-spec-from-audit.md |
-| `14-execute` | [`14-execute/01-execute-pending-tasks.md`](../01-prompts/14-execute/01-execute-pending-tasks.md) | 01-execute-pending-tasks.md |
+| `14-execute` | [`14-execute/01-execute-pending-tasks.md`](../01-prompts/14-execute/01-execute-pending-tasks.md) | [V6] Execute Pending Tasks N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
 | `14-execute` | [`14-execute/02-execute-parent-task-with-n-steps-v6.md`](../01-prompts/14-execute/02-execute-parent-task-with-n-steps-v6.md) | [V6] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
 | `14-execute` | [`14-execute/03-execute-batched-loop.md`](../01-prompts/14-execute/03-execute-batched-loop.md) | 03-execute-batched-loop.md |
 | `14-execute` | [`14-execute/04-execute-ai-instruction-writer.md`](../01-prompts/14-execute/04-execute-ai-instruction-writer.md) | 04-execute-ai-instruction-writer.md |
@@ -180,14 +182,17 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `20-ai-fix-script-prompts` | [`20-ai-fix-script-prompts/01-python-file-manipulator.md`](../01-prompts/20-ai-fix-script-prompts/01-python-file-manipulator.md) | Python File Manipulator CLI Specification — Tooling Spec (must follow) |
 | `21-temp-end-to-end-tests` | [`21-temp-end-to-end-tests/01-temp-end-to-end-test.md`](../01-prompts/21-temp-end-to-end-tests/01-temp-end-to-end-test.md) | Temporary End-to-End Tests & Isolated On-Demand Validation — Workflow (must follow) |
 | `22-letterly` | [`22-letterly/01-mobile-letterly.md`](../01-prompts/22-letterly/01-mobile-letterly.md) | Mobile Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/01-mobile.md`](../01-prompts/22-letterly/01-mobile.md) | Mobile Mode |
 | `22-letterly` | [`22-letterly/02-desktop-letterly.md`](../01-prompts/22-letterly/02-desktop-letterly.md) | Desktop Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/02-desktop.md`](../01-prompts/22-letterly/02-desktop.md) | Desktop |
 | `22-letterly` | [`22-letterly/03-execute-n-steps-letterly.md`](../01-prompts/22-letterly/03-execute-n-steps-letterly.md) | Execute N-Steps — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/03-execute-n-steps.md`](../01-prompts/22-letterly/03-execute-n-steps.md) | Execute N Steps |
 | `22-letterly` | [`22-letterly/04-plan-letterly.md`](../01-prompts/22-letterly/04-plan-letterly.md) | Plan Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/05-release-letterly.md`](../01-prompts/22-letterly/05-release-letterly.md) | Release Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/06-cicd-fix-release-letterly.md`](../01-prompts/22-letterly/06-cicd-fix-release-letterly.md) | CI/CD Fix & Release Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/07-mobile-cicd-fix-letterly.md`](../01-prompts/22-letterly/07-mobile-cicd-fix-letterly.md) | Mobile CI/CD Fix Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/08-run-letterly.md`](../01-prompts/22-letterly/08-run-letterly.md) | Run Mode — Letterly Prompt Formatter |
-| `22-letterly` | [`22-letterly/09-execute-with-verification-letterly.md`](../01-prompts/22-letterly/09-execute-with-verification-letterly.md) | Execute N-Steps — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/09-execute-with-verification-letterly.md`](../01-prompts/22-letterly/09-execute-with-verification-letterly.md) | Execute with Verification Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/10-execute-with-release-letterly.md`](../01-prompts/22-letterly/10-execute-with-release-letterly.md) | Execute with Release Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/readme.md`](../01-prompts/22-letterly/readme.md) | Letterly Prompt Formatters (`22-letterly`) |
 | `23-cursor-prompts` | [`23-cursor-prompts/01-mobile-letterly-cursor.md`](../01-prompts/23-cursor-prompts/01-mobile-letterly-cursor.md) | Mobile Mode (Cursor) — Letterly Prompt Formatter |
@@ -201,6 +206,10 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `23-cursor-prompts` | [`23-cursor-prompts/09-execute-with-verification-letterly-cursor.md`](../01-prompts/23-cursor-prompts/09-execute-with-verification-letterly-cursor.md) | Execute with Verification Mode (Cursor) — Letterly Prompt Formatter |
 | `23-cursor-prompts` | [`23-cursor-prompts/10-execute-with-release-letterly-cursor.md`](../01-prompts/23-cursor-prompts/10-execute-with-release-letterly-cursor.md) | Execute with Release Mode (Cursor) — Letterly Prompt Formatter |
 | `23-cursor-prompts` | [`23-cursor-prompts/readme.md`](../01-prompts/23-cursor-prompts/readme.md) | Cursor Letterly Prompt Formatters (`23-cursor-prompts`) |
+| `23-sync` | [`23-sync/01-sync-other-codebase.md`](../01-prompts/23-sync/01-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
+| `23-sync` | [`23-sync/readme.md`](../01-prompts/23-sync/readme.md) | Multi-Repository Synchronization Prompts (`23-sync`) — Index & Catalog |
+| `24-muse-prompts` | [`24-muse-prompts/01-muse-master-prompt.md`](../01-prompts/24-muse-prompts/01-muse-master-prompt.md) | MUSE MASTER ONBOARDING PROMPT — AUTONOMOUS AI AGENT DIRECTIVE |
+| `24-muse-prompts` | [`24-muse-prompts/readme.md`](../01-prompts/24-muse-prompts/readme.md) | Muse Prompts (`24-muse-prompts`) — Index & Catalog |
 | `24-sync` | [`24-sync/01-sync.md`](../01-prompts/24-sync/01-sync.md) | [V6] Full-Fleet Multi-Repository Synchronization & Canonical Mirroring Engine — Workflow (must follow) |
 | `24-sync` | [`24-sync/02-sync-other-codebase.md`](../01-prompts/24-sync/02-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
 | `24-sync` | [`24-sync/readme.md`](../01-prompts/24-sync/readme.md) | Multi-Repository Synchronization Prompts (`24-sync`) — Index & Catalog |
@@ -208,7 +217,63 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `25-ai-verification` | [`25-ai-verification/readme.md`](../01-prompts/25-ai-verification/readme.md) | AI Verification Prompts (`25-ai-verification`) |
 | `26-gitmap` | [`26-gitmap/01-gitmap-core-engine.md`](../01-prompts/26-gitmap/01-gitmap-core-engine.md) | GitMap Core Engine & Autonomous Developer Automation — Canonical Specification (must follow) |
 | `26-gitmap` | [`26-gitmap/readme.md`](../01-prompts/26-gitmap/readme.md) | GitMap AI Training & Autonomous Automation Prompts (`26-gitmap`) |
+| `27-muse-prompts` | [`27-muse-prompts/01-muse-master-prompt.md`](../01-prompts/27-muse-prompts/01-muse-master-prompt.md) | [V6] MUSE MASTER ONBOARDING & AUTONOMOUS EXECUTION PROMPT — AGENT DIRECTIVE |
+| `27-muse-prompts` | [`27-muse-prompts/readme.md`](../01-prompts/27-muse-prompts/readme.md) | Muse Prompts (`27-muse-prompts`) — Index & Catalog |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
+| `v4/13-plan-audit` | [`v4/13-plan-audit/01-inventory-pending-tasks.md`](../01-prompts/v4/13-plan-audit/01-inventory-pending-tasks.md) | Inventory Audit of Pending Tasks — Read-Only Proposal (must follow) |
+| `v4/13-plan-audit` | [`v4/13-plan-audit/02-plan-spec-steps-v2.md`](../01-prompts/v4/13-plan-audit/02-plan-spec-steps-v2.md) | any uppercase character, space, or underscore in an authored path = FAIL |
+| `v4/13-plan-audit` | [`v4/13-plan-audit/03-audit-app-spec.md`](../01-prompts/v4/13-plan-audit/03-audit-app-spec.md) | 1. the audited scope, with line counts |
+| `v4/13-plan-audit` | [`v4/13-plan-audit/04-fix-spec-from-audit.md`](../01-prompts/v4/13-plan-audit/04-fix-spec-from-audit.md) | 04-fix-spec-from-audit.md |
+| `v4/14-execute` | [`v4/14-execute/01-execute-pending-tasks.md`](../01-prompts/v4/14-execute/01-execute-pending-tasks.md) | [V6] Execute Pending Tasks N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
+| `v4/14-execute` | [`v4/14-execute/02-execute-parent-task-with-n-steps-v6.md`](../01-prompts/v4/14-execute/02-execute-parent-task-with-n-steps-v6.md) | [V6] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
+| `v4/14-execute` | [`v4/14-execute/03-execute-batched-loop.md`](../01-prompts/v4/14-execute/03-execute-batched-loop.md) | 03-execute-batched-loop.md |
+| `v4/14-execute` | [`v4/14-execute/04-execute-ai-instruction-writer.md`](../01-prompts/v4/14-execute/04-execute-ai-instruction-writer.md) | 04-execute-ai-instruction-writer.md |
+| `v4/14-execute` | [`v4/14-execute/05-execute-batched-loop-wor.md`](../01-prompts/v4/14-execute/05-execute-batched-loop-wor.md) | 05-execute-batched-loop-wor.md |
+| `v4/14-execute` | [`v4/14-execute/06-execute-batched-loop-v2.md`](../01-prompts/v4/14-execute/06-execute-batched-loop-v2.md) | 06-execute-batched-loop-v2.md |
+| `v4/14-execute` | [`v4/14-execute/07-run.md`](../01-prompts/v4/14-execute/07-run.md) | Run Script Orchestration — Execute Workflow (`run`) |
+| `v4/14-execute` | [`v4/14-execute/readme.md`](../01-prompts/v4/14-execute/readme.md) | Execution Prompts (`14-execute`) — Index & Catalog |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/01-execute-coding-guideline-fix.md`](../01-prompts/v4/15-cg-execute/01-execute-coding-guideline-fix.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/02-error-management.md`](../01-prompts/v4/15-cg-execute/02-error-management.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/03-nested-if-and-guard-clauses.md`](../01-prompts/v4/15-cg-execute/03-nested-if-and-guard-clauses.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/04-booleans-and-complex-conditions.md`](../01-prompts/v4/15-cg-execute/04-booleans-and-complex-conditions.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/05-naming-conventions-and-boolean-prefixes.md`](../01-prompts/v4/15-cg-execute/05-naming-conventions-and-boolean-prefixes.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/06-constants-and-enums.md`](../01-prompts/v4/15-cg-execute/06-constants-and-enums.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/07-data-and-schema.md`](../01-prompts/v4/15-cg-execute/07-data-and-schema.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/08-react-frontend-guidelines.md`](../01-prompts/v4/15-cg-execute/08-react-frontend-guidelines.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/09-code-hygiene.md`](../01-prompts/v4/15-cg-execute/09-code-hygiene.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/10-style-guidelines.md`](../01-prompts/v4/15-cg-execute/10-style-guidelines.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/11-testing-and-coverage.md`](../01-prompts/v4/15-cg-execute/11-testing-and-coverage.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/12-relative-paths.md`](../01-prompts/v4/15-cg-execute/12-relative-paths.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/13-cli-commands-and-help.md`](../01-prompts/v4/15-cg-execute/13-cli-commands-and-help.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/14-function-signatures-and-return-types.md`](../01-prompts/v4/15-cg-execute/14-function-signatures-and-return-types.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/15-typescript-guidelines-and-types.md`](../01-prompts/v4/15-cg-execute/15-typescript-guidelines-and-types.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/16-multi-language-enums-and-traits.md`](../01-prompts/v4/15-cg-execute/16-multi-language-enums-and-traits.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/17-terminal-ui-and-cli-styling.md`](../01-prompts/v4/15-cg-execute/17-terminal-ui-and-cli-styling.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/18-function-argument-reduction-and-params.md`](../01-prompts/v4/15-cg-execute/18-function-argument-reduction-and-params.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/19-result-wrapper-and-apperror-returns.md`](../01-prompts/v4/15-cg-execute/19-result-wrapper-and-apperror-returns.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/20-extract-generic-types-to-types-go.md`](../01-prompts/v4/15-cg-execute/20-extract-generic-types-to-types-go.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/21-lazy-regex-and-pattern-matching.md`](../01-prompts/v4/15-cg-execute/21-lazy-regex-and-pattern-matching.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/22-file-size-and-function-reduction.md`](../01-prompts/v4/15-cg-execute/22-file-size-and-function-reduction.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/23-string-operations-and-efficiency.md`](../01-prompts/v4/15-cg-execute/23-string-operations-and-efficiency.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/24-isolate-destructive-os-and-heavy-unit-tests.md`](../01-prompts/v4/15-cg-execute/24-isolate-destructive-os-and-heavy-unit-tests.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md`](../01-prompts/v4/15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/26-python-boolean-and-conditional-enhancement.md`](../01-prompts/v4/15-cg-execute/26-python-boolean-and-conditional-enhancement.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/27-python-constants-and-magic-number-elimination.md`](../01-prompts/v4/15-cg-execute/27-python-constants-and-magic-number-elimination.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/28-python-array-constants-and-dynamic-enums.md`](../01-prompts/v4/15-cg-execute/28-python-array-constants-and-dynamic-enums.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/29-code-dryness-and-library-extraction.md`](../01-prompts/v4/15-cg-execute/29-code-dryness-and-library-extraction.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/30-clean-repo-build-and-caches.md`](../01-prompts/v4/15-cg-execute/30-clean-repo-build-and-caches.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/31-cg-execute-in-below-steps.md`](../01-prompts/v4/15-cg-execute/31-cg-execute-in-below-steps.md) | 31-cg-execute-in-below-steps.md |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/32-cg-follow-other-prompts.md`](../01-prompts/v4/15-cg-execute/32-cg-follow-other-prompts.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/33-branch-immutability-and-clean-construction.md`](../01-prompts/v4/15-cg-execute/33-branch-immutability-and-clean-construction.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md`](../01-prompts/v4/15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/35-clean-work-artifacts-and-os-caches.md`](../01-prompts/v4/15-cg-execute/35-clean-work-artifacts-and-os-caches.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/36-variadic-and-spread-parameters.md`](../01-prompts/v4/15-cg-execute/36-variadic-and-spread-parameters.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/37-string-normalization-and-equalfoldany.md`](../01-prompts/v4/15-cg-execute/37-string-normalization-and-equalfoldany.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/readme.md`](../01-prompts/v4/15-cg-execute/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
+| `v4/24-sync` | [`v4/24-sync/01-sync.md`](../01-prompts/v4/24-sync/01-sync.md) | [V6] Full-Fleet Multi-Repository Synchronization & Canonical Mirroring Engine — Workflow (must follow) |
+| `v4/24-sync` | [`v4/24-sync/02-sync-other-codebase.md`](../01-prompts/v4/24-sync/02-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
+| `v4/24-sync` | [`v4/24-sync/readme.md`](../01-prompts/v4/24-sync/readme.md) | Multi-Repository Synchronization Prompts (`24-sync`) — Index & Catalog |
+| `v4` | [`v4/readme.md`](../01-prompts/v4/readme.md) | V4 Prompts Folder |
 
 ## Maintenance
 
