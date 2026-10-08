@@ -50,6 +50,18 @@ func isVersionCommand(cmd string) bool {
 	return cmd == constants.CmdVersion || cmd == constants.CmdVersionAlias || cmd == "--version" || cmd == "-version" || cmd == "-v"
 }
 
+// byteFaithfulCommands lists subcommands whose stdout must pass through
+// byte-identical. glyphs.Install wraps stdout with an emoji → ASCII
+// rewriter in safe mode (TERM=dumb), which silently corrupts file bytes
+// for content-display commands. These commands skip the filter entirely.
+var byteFaithfulCommands = map[string]bool{
+	"cat": true, "view": true, "type": true,
+}
+
+func isByteFaithfulCommand(cmd string) bool {
+	return byteFaithfulCommands[cmd]
+}
+
 // Run is the main entry point for the CLI.
 func Run() {
 	cmdconsole.InitConsole()
@@ -75,8 +87,12 @@ func Run() {
 	// Strip the global `--glyphs` switch (rich | safe | auto) and
 	// install the glyph filter. Runs AFTER theme so the safe-mode
 	// ASCII rewrites apply to bytes already past theme's SGR rewrite.
+	// Byte-faithful content commands (cat/view/type) skip the filter:
+	// it would rewrite emoji inside file bytes on dumb terminals.
 	os.Args = append(os.Args[:1], stripGlyphsFlag(os.Args[1:])...)
-	glyphs.Install()
+	if len(os.Args) < 2 || !isByteFaithfulCommand(os.Args[1]) {
+		glyphs.Install()
+	}
 
 	// Register pipe drainers so cliexit.Fail flushes them before
 	// os.Exit. Without this, a failure message written to a
