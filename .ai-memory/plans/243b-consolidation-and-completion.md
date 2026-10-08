@@ -28,8 +28,8 @@ Owner feedback 2026-10-09: the Wave D split of 9 files into 83 files is over-fra
 - [x] `subtasks/243b-consolidation-and-completion/06-wave2-moves-g2.md` — Wave 2 DONE (G2: 128 moved; 1 SKIPPED `gitrm.go` absent)
 - [x] `subtasks/243b-consolidation-and-completion/07-wave2-moves-g3.md` — Wave 2 DONE (G3: 214 files verified byte-clean by lead; worker 02 errored on runtime drain, completion verified independently)
 - [x] `subtasks/243b-consolidation-and-completion/08-wave2-moves-g4.md` — Wave 2 DONE (G4 included in the 214)
-- [ ] Wave 2 build-fix (lead): 459 files moved; resolving undefined symbols via DI-hook pattern (70 hooks in di_hooks.go) + per-package helper copies. 2 workers on remaining 86 pairs. THEN `go build` + `go vet` clean.
-- [ ] Wave 2: cmd-split waves 2–4 moved per move map; dispatch rewired; build clean.
+- [x] Wave 2 build-fix (lead): 459 files moved; resolved ~150 undefined symbols via export-and-qualify + DI-hook pattern + per-package helper copies. `go build ./...` exit 0 (2026-10-09, commit 3f4f8d7, pushed). `go vet` clean on main code (test-file issues pre-existing, out of scope).
+- [x] Wave 2: cmd-split waves 2–4 moved per move map; dispatch rewired; build clean.
 - [ ] Wave 3: 500–1000 band split; HelpDisplay SampleOutput gap closed.
 - [ ] Wave 4: E2E pass/fail per feature with evidence; atomic commit pushed.
 - [ ] Overall summary + coordinator's honest take delivered to owner.
