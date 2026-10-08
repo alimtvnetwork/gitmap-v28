@@ -186,6 +186,10 @@ func handleGlobalError(command string, err error) {
 
 	persistLastError(command, err)
 
+	if isAppErr && appErr != nil && appErr.HasSuggestions() {
+		RenderErrorSuggestions(os.Stderr, appErr)
+	}
+
 	if isAbortOrReportedError(err) {
 		cliexit.HandleError(nil, 1)
 

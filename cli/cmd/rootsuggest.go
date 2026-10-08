@@ -2,13 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // primaryTopCommands contains the fast core primary tier. The full repository
@@ -61,21 +57,6 @@ func printCommandSuggestions(suggestions []string) {
 }
 
 func handleUnknownCommand(command string) {
-	suggestions := suggestTopLevelCommands(command)
-	printCommandSuggestions(suggestions)
-	msg := buildUnknownCommandMessage(command, suggestions)
-	store.LogFailedCommand(command, strings.Join(os.Args[1:], " "), "root", "E1001", msg, suggestions)
-	fmt.Println("  Run 'gitmap help' or 'gitmap <command> --help' to view available commands.")
-	fmt.Println("  Run 'gitmap failed-commands' (or 'gitmap fc') to inspect failed command logs & suggestions.")
-	fmt.Println()
-	dispatchErr := apperror.NewWithDetails(
-		"cmd.dispatch",
-		"E1001",
-		msg,
-		"cmd.root",
-		apperror.ErrorTypeValidation,
-		apperror.SeverityError,
-		map[string]any{"command": command},
-	)
-	cliexit.HandleError(dispatchErr, 1)
+	InterceptUnknownCommand(command)
 }
+

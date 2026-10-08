@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/suggestion"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -13,16 +15,17 @@ var ErrNotFound = errors.New("not found")
 // AppError is a typed, domain-rich error that captures operation labels,
 // creator attribution, contextual metadata, severity, caller site, and root cause.
 type AppError struct {
-	Op       string
-	Code     string
-	Type     ErrorType
-	Severity SeverityType
-	Creator  string
-	Message  string
-	Caller   string
-	Stack    string
-	Ctx      map[string]any
-	Cause    error
+	Op          string
+	Code        string
+	Type        ErrorType
+	Severity    SeverityType
+	Creator     string
+	Message     string
+	Caller      string
+	Stack       string
+	Ctx         map[string]any
+	Cause       error
+	Suggestions []suggestion.Suggestion
 }
 
 // Error formats the full diagnostic description of the AppError.

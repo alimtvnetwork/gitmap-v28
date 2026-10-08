@@ -2,7 +2,7 @@
 
 > **Primary Documentation:** [readme.md](readme.md)  
 > **Autonomous Agent Memory:** [.ai-memory/what-to-read.md](.ai-memory/what-to-read.md)  
-> **Canonical Version:** [version.json](version.json) (`v6.511.0`)  
+> **Canonical Version:** [version.json](version.json) (`v6.512.0`)  
 
 This document serves as the top-level navigational reading sequence for developers and autonomous AI agents working in the GitMap repository. To eliminate documentation drift and redundancy, root [readme.md](readme.md) is the authoritative front door for human and agent interaction, while [.ai-memory/what-to-read.md](.ai-memory/what-to-read.md) contains deep agent-specific execution rules and historical changelogs.
 

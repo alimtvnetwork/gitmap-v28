@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.512.0] - 2026-10-08
+
+### Added
+- suggestion engine, fastgate pre-commit runner, and muse help clusters
+
+---
+
 ## [v6.511.0] - 2026-10-08
 
 ### Added

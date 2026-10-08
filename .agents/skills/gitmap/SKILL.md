@@ -38,6 +38,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Python SQLite task manager (`python 03-ai-scripts/46-agent-sqlite-task-manager.py`) | ✅ `gitmap task <init|add|claim|complete|fail|status|schema>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, and 1:1 identical schema for multi-agent workflows. |
 | ❌ Python fleet commit script (`python 03-ai-scripts/49-commit-and-push-all-repos.py`) or manual git commit loops across repos | ✅ `gitmap cpar [-m="<msg>"] [-y] [-r] [-co]` (alias `gitmap commit-push-all-repos`) | Native compiled Go multi-repo batch commit and push across all dirty repositories with SQLite task queue auditing (<50ms). |
 | ❌ Manual git stash / checkout / clean loops when repos are dirty or pull fails | ✅ `gitmap fix [repo] [action]` or `gitmap stash / wip / discard <repo>` | Applies structured remediation recipes (stash, wip, discard) to resolve dirty working trees without corrupting git state. |
+| ❌ Slow full-repo linter sweeps (`python 03-ai-scripts/06-cicd-local-runner.py --all`) before commit | ✅ `gitmap py 03-ai-scripts/50-fastgate.py` (FastGate Pre-Commit Runner) | Scopes AST linters exclusively to staged git files in <1.5s (dropping pre-commit latency from 25s to <0.05s) with `--full` fallback. |
+| ❌ Ad-hoc `fmt.Printf("Did you mean: ...")` prints in CLI commands | ✅ Central `suggestion.Engine` & `suggestion.RenderBox(...)` | 4-tier suggestion resolution (aliases, Levenshtein, subsequence, synonyms) with Catppuccin terminal box rendering. |
 
 ---
 
@@ -194,6 +196,14 @@ When `gitmap pull` or `gitmap pull-all` reports dirty or failed repositories, ap
 - `gitmap task fail --db <path> --subtask-id <id> --reason <reason>` — Marks subtask failed with reason.
 - `gitmap task status --db <path>` — Emits machine-readable JSON summary of task progress.
 - `gitmap task schema [--json|--ddl]` — Emits task database schema and DDL definitions.
+
+### 12. Fast-Gate Pre-Commit Validation & Central Suggestion Engine
+- `gitmap py 03-ai-scripts/50-fastgate.py` — Staged-only fast-gate pre-commit linter runner (<1.5s latency). Scopes relative paths, nested ifs, and boolean checks strictly to staged files.
+- `gitmap py 03-ai-scripts/50-fastgate.py --files <paths...>` — Directly audits specified files without querying git status.
+- `gitmap py 03-ai-scripts/50-fastgate.py --full` — Full repository fallback audit running all AST linters.
+- `cli/suggestion` — Centralized 4-tier suggestion engine (`ResolveCommand`, `ResolveFlag`, `ResolveRemediation`) with Catppuccin Macchiato rounded box rendering. Replaces ad-hoc `fmt.Printf("Did you mean: ...")` prints.
+- `termhelp.FromMarkdown(mdBytes)` — Data-driven Markdown help document parser translating Markdown tables and lists directly into Catppuccin terminal help cards.
+- 5 Semantic Clusters — Canonical command clustering: Core & Repo Operations, Release & Commits, Fleet & Remote SSH, AI & Automation, System, OS & Developer Tooling.
 
 ---
 

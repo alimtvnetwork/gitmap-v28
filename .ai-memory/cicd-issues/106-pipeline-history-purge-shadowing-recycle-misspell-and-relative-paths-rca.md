@@ -12,7 +12,7 @@
 Failures detected in GitHub Actions runs (37505869271 and 37505868690) via `gitmap pe`:
 
 1. **Relative Paths Linter Failure:**
-   - Absolute `file:///d:/work/gitmap/...` and hardcoded `D:\work\gitmap` URIs detected in `.ai-memory/cicd-issues/105-pipeline-pe-1-helptext-constants-nested-ifs-unused-and-bools-rca.md` and `repo-secrets/01-gitmap/01-chrome-import-export-test/readme.md`, failing `linter-scripts/check-relative-paths.py`.
+   - Absolute `file:///[root]/...` and hardcoded `[root]/gitmap` URIs detected in `.ai-memory/cicd-issues/105-pipeline-pe-1-helptext-constants-nested-ifs-unused-and-bools-rca.md` and `repo-secrets/01-gitmap/01-chrome-import-export-test/readme.md`, failing `linter-scripts/check-relative-paths.py`.
 
 2. **Golangci-Lint Static Checks (`Full Suite Guard`):**
    - `cmdpurge/purge_engine.go:58:2`: field `fileRecords` is unused (`unused`).
