@@ -91,10 +91,7 @@ func runTaskSQLiteInit(args []string) error {
 
 	hasDb := strings.TrimSpace(*dbFlag) != ""
 	if hasDb {
-		dbPath = filepath.Clean(*dbFlag)
-		if !filepath.IsAbs(dbPath) {
-			dbPath = filepath.Join(repoRoot, dbPath)
-		}
+		dbPath = resolveTaskDbPath(repoRoot, *dbFlag)
 		runDir = filepath.Dir(dbPath)
 	} else {
 		nextPrefix := resolveNextRunPrefix(tempDir)
@@ -162,11 +159,12 @@ func resolveNextRunPrefix(tempDir string) int {
 			continue
 		}
 		matches := re.FindStringSubmatch(entry.Name())
-		if len(matches) > 1 {
-			val, convErr := strconv.Atoi(matches[1])
-			if convErr == nil && val > maxPrefix {
-				maxPrefix = val
-			}
+		if len(matches) <= 1 {
+			continue
+		}
+		val, convErr := strconv.Atoi(matches[1])
+		if convErr == nil && val > maxPrefix {
+			maxPrefix = val
 		}
 	}
 
@@ -193,15 +191,10 @@ func runTaskSQLiteAdd(args []string) error {
 		return err
 	}
 
-	rawJson := strings.TrimSpace(*jsonStr)
-	if rawJson == "" && strings.TrimSpace(*jsonFile) != "" {
-		fileBytes, readErr := os.ReadFile(strings.TrimSpace(*jsonFile))
-		if readErr != nil {
-			return appfault.WrapExecution(readErr, "failed to read tasks-file")
-		}
-		rawJson = string(fileBytes)
+	rawJson, readErr := readTasksRawJson(*jsonStr, *jsonFile)
+	if readErr != nil {
+		return readErr
 	}
-
 	if rawJson == "" {
 		return appfault.NewValidationError("missing required flag: --tasks-json or --tasks-file")
 	}
@@ -222,13 +215,9 @@ func runTaskSQLiteAdd(args []string) error {
 	}
 	defer db.Close()
 
-	parentId := *parentIdFlag
-	if parentId <= 0 {
-		row := db.QueryRow("SELECT ParentTaskId FROM ParentTask ORDER BY ParentTaskId DESC LIMIT 1;")
-		scanErr := row.Scan(&parentId)
-		if scanErr != nil {
-			return appfault.WrapExecution(scanErr, "ParentTask record missing in database")
-		}
+	parentId, resolveErr := resolveParentTaskId(db, *parentIdFlag)
+	if resolveErr != nil {
+		return resolveErr
 	}
 
 	now := NowISO()
@@ -345,10 +334,10 @@ func runTaskSQLiteClaim(args []string) error {
 	var id int64
 	var code, title, ownedJson string
 	scanErr := row.Scan(&id, &code, &title, &ownedJson)
+	if scanErr == sql.ErrNoRows {
+		return printJson(map[string]any{"status": "NO_TASKS_AVAILABLE"})
+	}
 	if scanErr != nil {
-		if scanErr == sql.ErrNoRows {
-			return printJson(map[string]any{"status": "NO_TASKS_AVAILABLE"})
-		}
 		return appfault.WrapExecution(scanErr, "failed to query pending subtask")
 	}
 
@@ -554,7 +543,10 @@ func runTaskSQLiteStatus(args []string) error {
 
 	var parentSlug, parentName, parentStatus string
 	row := db.QueryRow("SELECT TaskSlug, TaskName, Status FROM ParentTask ORDER BY ParentTaskId DESC LIMIT 1;")
-	_ = row.Scan(&parentSlug, &parentName, &parentStatus)
+	scanErr := row.Scan(&parentSlug, &parentName, &parentStatus)
+	if scanErr != nil && scanErr != sql.ErrNoRows {
+		return appfault.WrapExecution(scanErr, "failed to scan parent task record")
+	}
 
 	rows, queryErr := db.Query(`
 		SELECT SubtaskId, TaskCode, Title, COALESCE(AssignedAgentRole, ''), Status, COALESCE(Evidence, '')
@@ -655,15 +647,20 @@ Schema Specification: agent-task.db (Tier 2 Run-Scoped SQLite Database)
 	return nil
 }
 
+func resolveTaskDbPath(repoRoot, raw string) string {
+	cleaned := filepath.Clean(strings.TrimSpace(raw))
+	if filepath.IsAbs(cleaned) {
+		return cleaned
+	}
+	return filepath.Join(repoRoot, cleaned)
+}
+
 func resolveDbPath(flagVal string) string {
 	clean := strings.TrimSpace(flagVal)
 	repoRoot := FindRepoRoot()
 
 	if clean != "" {
-		if !filepath.IsAbs(clean) {
-			return filepath.Join(repoRoot, clean)
-		}
-		return clean
+		return resolveTaskDbPath(repoRoot, clean)
 	}
 
 	tempDir := ResolveAgentTempDir("")
@@ -690,4 +687,37 @@ func printJson(data any) error {
 	}
 	fmt.Println(string(bytes))
 	return nil
+}
+
+func readTasksRawJson(jsonStr, jsonFile string) (string, error) {
+	raw := strings.TrimSpace(jsonStr)
+	if raw != "" {
+		return raw, nil
+	}
+	trimmedFile := strings.TrimSpace(jsonFile)
+	if trimmedFile == "" {
+		return "", nil
+	}
+	fileBytes, err := os.ReadFile(trimmedFile)
+	if err != nil {
+		return "", appfault.WrapExecution(err, "failed to read tasks-file")
+	}
+	return string(fileBytes), nil
+}
+
+func resolveParentTaskId(db *sql.DB, explicitId int64) (int64, error) {
+	if explicitId > 0 {
+		return explicitId, nil
+	}
+	return queryLatestParentTaskId(db)
+}
+
+func queryLatestParentTaskId(db *sql.DB) (int64, error) {
+	var parentId int64
+	row := db.QueryRow("SELECT ParentTaskId FROM ParentTask ORDER BY ParentTaskId DESC LIMIT 1;")
+	scanErr := row.Scan(&parentId)
+	if scanErr != nil {
+		return 0, appfault.WrapExecution(scanErr, "ParentTask record missing in database")
+	}
+	return parentId, nil
 }

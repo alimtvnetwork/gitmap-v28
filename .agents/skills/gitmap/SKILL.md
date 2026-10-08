@@ -23,15 +23,17 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr` | ✅ `gitmap aum search "<pattern>" [dir] [--ext <ext>]` or `gitmap search "<pattern>"` | Multi-core streaming live search (<15ms) with binary null-byte probe, 500 KB file cap, and DH2D SQLite hot cache. Prevents buffer bloat and terminal freezing. |
 | ❌ `Get-ChildItem -Recurse`, `find . -name "..."`, `dir /s /b` | ✅ `gitmap find "<pattern>" [-ext <ext>]` or `gitmap list-files [dir]` | Sub-millisecond indexed glob discovery across 10,000+ files without disk traversal overhead. |
 | ❌ Raw unbuffered `cat`, `type`, `Get-Content` on source files | ✅ `gitmap cat <filepath>` | Direct zero-disk stream of file contents directly into process stdout for resource-constrained CLI sessions. |
+| ❌ Direct execution of polyglot scripts (`python x.py`, `pwsh x.ps1`, `bash x.sh`, `node x.js`, `bun x.ts`, `go run x.go`) | ✅ `gitmap run <file> [args...]` | Auto-detects file extension or shebang, resolves verified runtime from installation cache, logs task lifecycle in SQLite task DB, and records failures in SQLite errors DB. |
 | ❌ Raw ambient `python script.py` or `python -c "..."` | ✅ `gitmap py "<code-or-script>"` or `gitmap py -c "<expression>"` | Auto-resolves verified Python interpreter from `installation.db` cache (<15ms), avoiding environment discrepancies. |
 | ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding, and automatic fallback. |
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
 | ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap status --dirty` / `gitmap status --json` / `gitmap st` | Single-shot multi-repository audit matrix displaying dirty counts, ahead/behind branches, and uncommitted stashes. |
 | ❌ `gh auth login` interactive prompts or plaintext `.env` files | ✅ `gitmap login --web`, `gitmap login --status`, `gitmap login --token <PAT>` | Token validated via GitHub API before writing; auto-resolved for all clone, pull, and push commands. |
-| ❌ Colons in commit messages (`git commit -m "feat: ..."` or `gitmap cpf "feat: ..."`) | ✅ `gitmap cpf "<module> - <summary>"` (hyphen-separated only) | GitMap automatically provides `Feature: ` or `Bug: ` prefix. Colons inside the message argument cause duplicate prefixes. |
+| ❌ Colons in commit messages (`git commit -m "feat: ..."`, `gitmap cpf "feat: ..."`, `gitmap cpc "chore: ..."`) | ✅ `gitmap cpf / cpb / cpc "<module> - <summary>"` (hyphen-separated only) | GitMap automatically provides `Feature: `, `Bug: `, or `Chore: ` prefix. Colons inside the message argument cause duplicate prefixes. |
 | ❌ Saving temporary scratch or test scripts into repo git tree | ✅ `gitmap rc text "<content>" --slug <slug> --ext .ps1` | Centralized script storage in `repo-cache` (`repo-storage`) for permanent cross-repo reuse without polluting git worktrees. |
-| ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` | Strict zero-secrets policy; stores credentials exclusively in `repo-secrets` vault. |
-| ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
+| ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` or `gitmap supabase add` (encrypted vault) | Strict zero-secrets policy; stores credentials exclusively in AES-256-GCM / RSA encrypted vaults. |
+| ❌ Bare `gitmap pe` / `gitmap pipeline error-logs` or `gh run view` from automated AI agents | ✅ `gitmap pe --ai` or `gitmap pe -t --ai` | Mandatory `--ai` flag suppresses host OS clipboard mutation and terminal clipboard notices, piping logs directly to stdout. |
+| ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` / `gitmap pe -ud` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
 | ❌ Python SQLite task manager (`python 03-ai-scripts/46-agent-sqlite-task-manager.py`) | ✅ `gitmap task <init|add|claim|complete|fail|status|schema>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, and 1:1 identical schema for multi-agent workflows. |
 
@@ -60,7 +62,10 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap latest-branch` (alias `gitmap lb`) — Discovers the most recently updated remote branch.
 - `gitmap watch` (alias `gitmap w`) — Live-refresh terminal dashboard monitoring repository status changes.
 
-### 3. Script Execution & Runner Engines
+### 3. Script Execution & Universal Runner Engines
+- `gitmap run <file> [args...]` — Universal polyglot script runner with automatic extension resolution (`.py`, `.ps1`, `.sh`, `.js`, `.ts`, `.go`) or shebang detection. Enqueues task execution in SQLite task DB and captures failures in errors DB.
+- `gitmap run errors` (alias `gitmap run-errors`) — Query failed script runs, error messages, and affected files from SQLite errors DB.
+- `gitmap run history` — View comprehensive execution audit history across all script runs.
 - `gitmap py "<code-or-script>"` — High-performance cross-platform Python script execution.
 - `gitmap py -c "<code-or-expression>"` — Direct inline Python command evaluation.
 - `gitmap pwsh "<cmd>"` / `gitmap ps "<cmd>"` — Cross-platform PowerShell execution with `-NoProfile`.
@@ -102,29 +107,42 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap pipeline-ai status --json` — Check workflow execution state, active branch, and ETA.
 - `gitmap pipeline-ai status -t <eta>` — Wait dynamically for pipeline completion without tight polling.
 - `gitmap pipeline error-logs` (alias: `gitmap pe`) — Extract failing step logs to file for 4-part RCA.
-- `gitmap pe -t` — Telemetry mode extracting concise failure summaries.
+- `gitmap pe --ai` — Mandatory AI agent mode: suppresses host OS clipboard mutation and terminal notices; outputs directly to stdout.
+- `gitmap pe -t` (or `gitmap pe -t --ai`) — Telemetry mode: checks pipeline every 2 minutes; immediately exits and displays concise failure trace upon error detection.
+- `gitmap pe -ud` (alias `--until-done`) — Continuous monitoring loop until entire pipeline completes.
 - `gitmap pe history-ai` — Analyze CI/CD pipeline history across branches and recent runs.
 - `gitmap pipeline purge` — Actions zero-storage purge maintaining 0.0 GB footprint.
 
 ### 7. Semantic Hyphen-Separated Commit & Push
-- `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: `).
-- `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: `).
-- `gitmap cpr "<module> - <summary>"` — Stage, commit, and push release chore.
-- `gitmap pcp "<module> - <summary>"` — Pull latest, commit, and push with preflight verification.
+- `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (`commit-push-feature`, GitMap auto-prefixes `Feature: `).
+- `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (`commit-push-bug`, GitMap auto-prefixes `Bug: `).
+- `gitmap cpc "<module> - <summary>"` — Stage, commit, and push chore branch (`commit-push-chore`, GitMap auto-prefixes `Chore: `).
+- `gitmap cpr "<module> - <summary>"` — Stage, commit, and push release chore (`commit-push-release`, GitMap auto-prefixes `Release: `).
+- `gitmap pcp "<module> - <summary>"` — Pull latest, commit, and push with preflight verification (`pull-commit-push`).
+- `gitmap pas` — Pull all tracked repositories via parallel SSH streams (`pull-all-ssh`).
 - `gitmap pull [repo]` (alias `gitmap p`) — Pull targeted repository.
 - `gitmap pull-all` (alias `gitmap pa`) — Pull all repositories in workspace.
 - `gitmap fix [repo] [action]` — Apply remediation to repo (aliases: `stash`, `wip`, `discard`).
 - `gitmap lowercase` (alias `gitmap lcf`) — Safe 2-step `git mv` file case normalization.
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
+- **Full Forms Reference:** `cpf`: `commit-push-feature`, `cpb`: `commit-push-bug`, `cpc`: `commit-push-chore`, `cpr`: `commit-push-release`, `pcp`: `pull-commit-push`, `pas`: `pull-all-ssh`.
 - **TOTAL BAN ON COLONS IN COMMIT MESSAGES:** Never use colons inside commit arguments (e.g. `gitmap cpf "Feature: title"` is FORBIDDEN; use `gitmap cpf "module - title"`).
 
-### 8. Autonomous Agent Onboarding & Curriculum (LLM)
+### 8. Multi-Project Supabase Vault & Encrypted Secrets
+- `gitmap supabase add <alias> <url> <anon_key> <service_key> [db_url]` — Register Supabase database with AES-256-GCM / RSA encrypted vault. Zero cleartext secrets stored in SQLite!
+- `gitmap supabase list` (alias `gitmap sb list`) — List registered Supabase database connections and active target.
+- `gitmap supabase use <alias>` — Switch active default Supabase project.
+- `gitmap supabase remove <alias>` — Remove registered Supabase project.
+- `gitmap supabase env <alias>` — Output shell environment variable exports (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`).
+- `gitmap supabase ping <alias>` — Test live REST API reachability of registered Supabase instance.
+
+### 9. Autonomous Agent Onboarding & Curriculum (LLM)
 - `gitmap llm train` (alias: `gitmap llm chain`) — Full 4-stage chained curriculum, auto-generates Antigravity skill, author/sponsor attribution.
 - `gitmap llm train --text-only` — Output curriculum to stdout without modifying files on disk.
 - `gitmap llm-docs` (alias: `gitmap ld`) — Consolidated markdown command matrix reference for LLMs.
 - `gitmap llm` — Display full LLM specification and operational guidelines.
 
-### 9. Multi-Repo, Cluster & Toolchain Operations
+### 10. Multi-Repo, Cluster & Toolchain Operations
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling).
 - `gitmap cluster --help` — Orchestrate multi-node clusters and health checks.
 - `gitmap sc --help` — Servers-clients topology and background task manager.
@@ -133,7 +151,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap install cargo` — Install Rust toolchain if missing.
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages.
 
-### 10. Native Fleet Synchronization & SQLite Agent Task Engine
+### 11. Native Fleet Synchronization & SQLite Agent Task Engine
 - `gitmap sync` — Synchronizes canonical prompts, skills, shared specs (`02-spec/01-20`), and additive scripts across all 43 registered fleet repositories.
 - `gitmap sync --projects <path|json>` — Accepts a path to JSON file or inline JSON array of repositories (e.g. `'[{"folder": "cat-my"}]'`).
 - `gitmap sync --repo <name>` — Synchronizes a single target repository by name.

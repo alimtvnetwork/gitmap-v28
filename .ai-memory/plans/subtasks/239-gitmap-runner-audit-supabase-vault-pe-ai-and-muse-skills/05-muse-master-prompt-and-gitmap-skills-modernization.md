@@ -19,7 +19,7 @@
 
 ## 1. Objectives
 
-- [ ] 1. Modernize `01-prompts/27-muse-prompts/01-muse-master-prompt.md`:
+- [x] 1. Modernize `01-prompts/27-muse-prompts/01-muse-master-prompt.md`:
   - Integrate native GitMap tool primacy into agent directives and instructions:
     - Mandate `gitmap aum search` over slow shell grep/Select-String.
     - Mandate `gitmap task` for SQLite multi-agent state tracking.
@@ -28,9 +28,9 @@
     - Mandate `gitmap sync` for multi-repo synchronization.
     - Mandate `gitmap cpc "<module> - <summary>"` for chore commits alongside `cpf`, `cpb`, and `cpr`.
   - Include full forms in help and command descriptions.
-- [ ] 2. Synchronize Muse skill definitions:
+- [x] 2. Synchronize Muse skill definitions:
   - Update `.agents/skills/muse-master-prompt/skill.md` and `.cursor/skills/muse-master-prompt/skill.md` ensuring 1:1 parity with the updated master prompt.
-- [ ] 3. Modernize GitMap engineering skills:
+- [x] 3. Modernize GitMap engineering skills:
   - In `.agents/skills/gitmap/SKILL.md` and `.cursor/skills/gitmap/skill.md`:
     - Update Non-Negotiable Command Replacement Matrix:
       - Add `gitmap pe --ai` as mandatory replacement for `gitmap pe` / `gh run view` in AI workflows.
@@ -43,7 +43,7 @@
       - `gitmap cpc "<module> - <summary>"` (commit-push-chore).
       - `gitmap pe -ud` (until-done continuous polling).
       - `gitmap pe -t` (2-minute poll with early error abort).
-- [ ] 4. Update Coding Guidelines in `02-spec/02-coding-guidelines/06-ai-optimization/`:
+- [x] 4. Update Coding Guidelines in `02-spec/02-coding-guidelines/06-ai-optimization/`:
   - In `02-anti-hallucination-rules.md`:
     - Add rule `AH-GM1: Mandate gitmap pe --ai for AI Error Telemetry`: AI agents must never run plain `gitmap pe` without `--ai` to prevent clobbering the host system clipboard.
     - Add rule `AH-GM2: Ban Raw Shell File Traversal & Ambient Interpreters`: Mandate `gitmap aum search`, `gitmap find`, and `gitmap run`.
@@ -51,7 +51,7 @@
     - Add checklist items for GitMap command substitution and clipboard-free AI inspection.
   - In `readme.md`:
     - Update catalog and file descriptions to reflect new rules.
-- [ ] 5. Verify documentation integrity and cross-references:
+- [x] 5. Verify documentation integrity and cross-references:
   - Ensure zero absolute paths and zero `file:///` URIs across all markdown files.
   - Verify skill parity between `.agents/skills/` and `.cursor/skills/`.
 

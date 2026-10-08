@@ -76,14 +76,23 @@ func ResolveSourceRoot() (string, error) {
 	}
 
 	// Sibling check from cwd
-	if err == nil {
-		sibling := filepath.Join(filepath.Dir(cwd), "coding-guidelines")
-		if isCanonicalSourceRepo(sibling) {
-			return filepath.Clean(sibling), nil
-		}
+	siblingCg := checkSiblingCodingGuidelines(cwd, err)
+	if siblingCg != "" {
+		return siblingCg, nil
 	}
 
 	return "", fmt.Errorf("canonical source repository (coding-guidelines) not found")
+}
+
+func checkSiblingCodingGuidelines(cwd string, err error) string {
+	if err != nil {
+		return ""
+	}
+	sibling := filepath.Join(filepath.Dir(cwd), "coding-guidelines")
+	if isCanonicalSourceRepo(sibling) {
+		return filepath.Clean(sibling)
+	}
+	return ""
 }
 
 func isCanonicalSourceRepo(dir string) bool {
@@ -97,25 +106,9 @@ func isCanonicalSourceRepo(dir string) bool {
 // ResolveTargetProjects resolves target repositories based on flags and defaults.
 func ResolveTargetProjects(opts SyncOptions, sourceRoot string) ([]ProjectConfig, error) {
 	workRoot := filepath.Dir(sourceRoot)
-	var targets []ProjectConfig
-
-	if strings.TrimSpace(opts.Projects) != "" {
-		parsed, parseErr := parseProjectsInput(strings.TrimSpace(opts.Projects), workRoot)
-		if parseErr != nil {
-			return nil, parseErr
-		}
-		targets = parsed
-	} else {
-		for _, rel := range DefaultTargetRepos {
-			fullPath := filepath.Join(workRoot, filepath.FromSlash(rel))
-			name := filepath.Base(rel)
-			targets = append(targets, ProjectConfig{
-				Name:   name,
-				Path:   fullPath,
-				Folder: rel,
-				Mode:   "all",
-			})
-		}
+	targets, err := resolveRawTargetProjects(opts, workRoot)
+	if err != nil {
+		return nil, err
 	}
 
 	var filtered []ProjectConfig
@@ -128,95 +121,168 @@ func ResolveTargetProjects(opts SyncOptions, sourceRoot string) ([]ProjectConfig
 		if IsNonOwnedRepo(t.Name) || IsNonOwnedRepo(t.Path) {
 			continue
 		}
-
-		if len(opts.Repos) > 0 {
-			matches := false
-			for _, r := range opts.Repos {
-				rLower := strings.ToLower(r)
-				if strings.Contains(strings.ToLower(t.Name), rLower) ||
-					strings.Contains(strings.ToLower(t.Folder), rLower) {
-					matches = true
-					break
-				}
-			}
-			if !matches {
-				continue
-			}
+		if !matchesAnyRepoFilter(t, opts.Repos) {
+			continue
 		}
-
 		filtered = append(filtered, t)
 	}
 
 	return filtered, nil
 }
 
-func parseProjectsInput(input, workRoot string) ([]ProjectConfig, error) {
-	raw := input
-	if _, err := os.Stat(input); err == nil {
-		bytes, readErr := os.ReadFile(input)
-		if readErr != nil {
-			return nil, fmt.Errorf("failed to read projects file %s: %w", input, readErr)
+func resolveRawTargetProjects(opts SyncOptions, workRoot string) ([]ProjectConfig, error) {
+	if strings.TrimSpace(opts.Projects) != "" {
+		return parseProjectsInput(strings.TrimSpace(opts.Projects), workRoot)
+	}
+	return defaultTargetProjects(workRoot), nil
+}
+
+func defaultTargetProjects(workRoot string) []ProjectConfig {
+	var targets []ProjectConfig
+	for _, rel := range DefaultTargetRepos {
+		fullPath := filepath.Join(workRoot, filepath.FromSlash(rel))
+		name := filepath.Base(rel)
+		targets = append(targets, ProjectConfig{
+			Name:   name,
+			Path:   fullPath,
+			Folder: rel,
+			Mode:   "all",
+		})
+	}
+	return targets
+}
+
+func matchesAnyRepoFilter(t ProjectConfig, filters []string) bool {
+	if len(filters) == 0 {
+		return true
+	}
+	tNameLower := strings.ToLower(t.Name)
+	tFolderLower := strings.ToLower(t.Folder)
+	for _, r := range filters {
+		rLower := strings.ToLower(r)
+		if strings.Contains(tNameLower, rLower) || strings.Contains(tFolderLower, rLower) {
+			return true
 		}
-		raw = string(bytes)
+	}
+	return false
+}
+
+func parseProjectsInput(input, workRoot string) ([]ProjectConfig, error) {
+	raw, err := readProjectsInputRaw(input)
+	if err != nil {
+		return nil, err
 	}
 
 	rawTrim := strings.TrimSpace(raw)
-	if strings.HasPrefix(rawTrim, "[") {
-		// Try parsing as []ProjectConfig
-		var list []ProjectConfig
-		if err := json.Unmarshal([]byte(rawTrim), &list); err == nil {
-			for i := range list {
-				if list[i].Path == "" && list[i].Folder != "" {
-					list[i].Path = filepath.Join(workRoot, filepath.FromSlash(list[i].Folder))
-				}
-				if list[i].Name == "" {
-					list[i].Name = filepath.Base(list[i].Path)
-				}
-			}
-			return list, nil
-		}
-
-		// Try parsing as []string
-		var strList []string
-		if err := json.Unmarshal([]byte(rawTrim), &strList); err == nil {
-			var res []ProjectConfig
-			for _, s := range strList {
-				p := s
-				if !filepath.IsAbs(p) {
-					p = filepath.Join(workRoot, filepath.FromSlash(s))
-				}
-				res = append(res, ProjectConfig{
-					Name:   filepath.Base(p),
-					Path:   p,
-					Folder: s,
-					Mode:   "all",
-				})
-			}
-			return res, nil
-		}
+	if jsonProjects, ok := tryParseJsonProjects(rawTrim, workRoot); ok {
+		return jsonProjects, nil
 	}
 
-	// If directory path provided, scan for immediate child git repos
-	if info, err := os.Stat(input); err == nil && info.IsDir() {
-		entries, _ := os.ReadDir(input)
-		var res []ProjectConfig
-		for _, e := range entries {
-			if !e.IsDir() {
-				continue
-			}
-			child := filepath.Join(input, e.Name())
-			gitDir := filepath.Join(child, ".git")
-			if _, gErr := os.Stat(gitDir); gErr == nil {
-				res = append(res, ProjectConfig{
-					Name:   e.Name(),
-					Path:   child,
-					Folder: e.Name(),
-					Mode:   "all",
-				})
-			}
-		}
-		return res, nil
+	if scanned, ok := tryScanDirectoryForGitRepos(input); ok {
+		return scanned, nil
 	}
 
 	return nil, fmt.Errorf("invalid projects input: expected JSON array or existing directory")
+}
+
+func readProjectsInputRaw(input string) (string, error) {
+	_, err := os.Stat(input)
+	if err != nil {
+		return input, nil
+	}
+	bytes, readErr := os.ReadFile(input)
+	if readErr != nil {
+		return "", fmt.Errorf("failed to read projects file %s: %w", input, readErr)
+	}
+	return string(bytes), nil
+}
+
+func tryParseJsonProjects(rawTrim string, workRoot string) ([]ProjectConfig, bool) {
+	if !strings.HasPrefix(rawTrim, "[") {
+		return nil, false
+	}
+	list, isConfigList := tryParseProjectConfigList(rawTrim, workRoot)
+	if isConfigList {
+		return list, true
+	}
+	return tryParseStringPathList(rawTrim, workRoot)
+}
+
+func tryParseProjectConfigList(raw string, workRoot string) ([]ProjectConfig, bool) {
+	var list []ProjectConfig
+	if err := json.Unmarshal([]byte(raw), &list); err != nil {
+		return nil, false
+	}
+	for i := range list {
+		normalizeProjectConfigEntry(&list[i], workRoot)
+	}
+	return list, true
+}
+
+func normalizeProjectConfigEntry(entry *ProjectConfig, workRoot string) {
+	if entry.Path == "" && entry.Folder != "" {
+		entry.Path = filepath.Join(workRoot, filepath.FromSlash(entry.Folder))
+	}
+	if entry.Name == "" {
+		entry.Name = filepath.Base(entry.Path)
+	}
+}
+
+func tryParseStringPathList(raw string, workRoot string) ([]ProjectConfig, bool) {
+	var strList []string
+	if err := json.Unmarshal([]byte(raw), &strList); err != nil {
+		return nil, false
+	}
+	var res []ProjectConfig
+	for _, s := range strList {
+		res = append(res, buildProjectConfigFromPath(s, workRoot))
+	}
+	return res, true
+}
+
+func buildProjectConfigFromPath(pathOrRel string, workRoot string) ProjectConfig {
+	p := pathOrRel
+	if !filepath.IsAbs(p) {
+		p = filepath.Join(workRoot, filepath.FromSlash(pathOrRel))
+	}
+	return ProjectConfig{
+		Name:   filepath.Base(p),
+		Path:   p,
+		Folder: pathOrRel,
+		Mode:   "all",
+	}
+}
+
+func tryScanDirectoryForGitRepos(dirPath string) ([]ProjectConfig, bool) {
+	info, err := os.Stat(dirPath)
+	if err != nil || !info.IsDir() {
+		return nil, false
+	}
+	entries, _ := os.ReadDir(dirPath)
+	var res []ProjectConfig
+	for _, e := range entries {
+		cfg, isGit := inspectChildGitRepo(dirPath, e)
+		if isGit {
+			res = append(res, cfg)
+		}
+	}
+	return res, true
+}
+
+func inspectChildGitRepo(parentDir string, e os.DirEntry) (ProjectConfig, bool) {
+	if !e.IsDir() {
+		return ProjectConfig{}, false
+	}
+	child := filepath.Join(parentDir, e.Name())
+	gitDir := filepath.Join(child, ".git")
+	_, err := os.Stat(gitDir)
+	if err != nil {
+		return ProjectConfig{}, false
+	}
+	return ProjectConfig{
+		Name:   e.Name(),
+		Path:   child,
+		Folder: e.Name(),
+		Mode:   "all",
+	}, true
 }

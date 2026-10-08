@@ -16,15 +16,17 @@ type MirrorStats struct {
 	Removed int
 }
 
+type syncDirMapping struct {
+	relSrc  string
+	relDst  string
+	addOnly bool
+}
+
 // MirrorAssets synchronizes canonical assets from source to target repo adhering to boundaries.
 func MirrorAssets(sourceRoot, targetRoot string) (MirrorStats, error) {
 	var stats MirrorStats
 
-	dirs := []struct {
-		relSrc  string
-		relDst  string
-		addOnly bool
-	}{
+	dirs := []syncDirMapping{
 		{"01-prompts", "01-prompts", false},
 		{filepath.Join(".agents", "skills"), filepath.Join(".agents", "skills"), false},
 		{filepath.Join(".cursor", "skills"), filepath.Join(".cursor", "skills"), false},
@@ -33,27 +35,7 @@ func MirrorAssets(sourceRoot, targetRoot string) (MirrorStats, error) {
 	}
 
 	specRoot := filepath.Join(sourceRoot, "02-spec")
-	if info, err := os.Stat(specRoot); err == nil && info.IsDir() {
-		entries, _ := os.ReadDir(specRoot)
-		specNumRegex := regexp.MustCompile(`^(\d+)-`)
-		for _, e := range entries {
-			if !e.IsDir() {
-				continue
-			}
-			m := specNumRegex.FindStringSubmatch(e.Name())
-			if len(m) > 1 {
-				num, _ := strconv.Atoi(m[1])
-				if num >= 1 && num <= 20 {
-					rel := filepath.Join("02-spec", e.Name())
-					dirs = append(dirs, struct {
-						relSrc  string
-						relDst  string
-						addOnly bool
-					}{rel, rel, false})
-				}
-			}
-		}
-	}
+	dirs = appendSpecDirs(specRoot, dirs)
 
 	for _, d := range dirs {
 		srcDir := filepath.Join(sourceRoot, d.relSrc)
@@ -110,9 +92,7 @@ func syncDirectory(srcDir, dstDir, sourceRoot, targetRoot string, addOnly bool) 
 		dstInfo, dstErr := os.Stat(dstPath)
 		if dstErr != nil {
 			// Destination file missing -> Add
-			if copyErr := copyFile(path, dstPath); copyErr == nil {
-				stats.Added++
-			}
+			recordFileCopy(path, dstPath, &stats.Added)
 			return nil
 		}
 
@@ -125,9 +105,7 @@ func syncDirectory(srcDir, dstDir, sourceRoot, targetRoot string, addOnly bool) 
 		// Compare content
 		isEqual, cmpErr := filesEqual(path, dstPath)
 		if cmpErr == nil && !isEqual {
-			if copyErr := copyFile(path, dstPath); copyErr == nil {
-				stats.Updated++
-			}
+			recordFileCopy(path, dstPath, &stats.Updated)
 		}
 		_ = dstInfo
 
@@ -180,4 +158,35 @@ func copyFile(src, dst string) error {
 
 	_, err = io.Copy(out, in)
 	return err
+}
+
+func recordFileCopy(src, dst string, count *int) {
+	if copyErr := copyFile(src, dst); copyErr == nil {
+		*count++
+	}
+}
+
+func appendSpecDirs(specRoot string, dirs []syncDirMapping) []syncDirMapping {
+	info, err := os.Stat(specRoot)
+	if err != nil || !info.IsDir() {
+		return dirs
+	}
+	entries, _ := os.ReadDir(specRoot)
+	specNumRegex := regexp.MustCompile(`^(\d+)-`)
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		m := specNumRegex.FindStringSubmatch(e.Name())
+		if len(m) <= 1 {
+			continue
+		}
+		num, _ := strconv.Atoi(m[1])
+		if num < 1 || num > 20 {
+			continue
+		}
+		rel := filepath.Join("02-spec", e.Name())
+		dirs = append(dirs, syncDirMapping{relSrc: rel, relDst: rel, addOnly: false})
+	}
+	return dirs
 }

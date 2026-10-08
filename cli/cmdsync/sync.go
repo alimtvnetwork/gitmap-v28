@@ -57,13 +57,10 @@ func parseSyncFlags(args []string) (SyncOptions, error) {
 		return opts, err
 	}
 
-	if repoFlag != "" {
-		parts := strings.Split(repoFlag, ",")
-		for _, p := range parts {
-			trimmed := strings.TrimSpace(p)
-			if trimmed != "" {
-				opts.Repos = append(opts.Repos, trimmed)
-			}
+	for _, p := range strings.Split(repoFlag, ",") {
+		trimmed := strings.TrimSpace(p)
+		if trimmed != "" {
+			opts.Repos = append(opts.Repos, trimmed)
 		}
 	}
 

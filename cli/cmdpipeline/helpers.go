@@ -32,8 +32,8 @@ func IsAIFlagActive() bool {
 	return false
 }
 
-// ShouldWriteClipboard determines whether clipboard writes are allowed.
-func ShouldWriteClipboard(hasAI bool) bool {
+// IsClipboardWriteAllowed determines whether clipboard writes are allowed.
+func IsClipboardWriteAllowed(hasAI bool) bool {
 	if hasAI || IsAIFlagActive() {
 		return false
 	}
@@ -41,12 +41,12 @@ func ShouldWriteClipboard(hasAI bool) bool {
 	return true
 }
 
-func shouldWriteClipboard(hasAI bool) bool {
-	return ShouldWriteClipboard(hasAI)
+func isClipboardWriteAllowed(hasAI bool) bool {
+	return IsClipboardWriteAllowed(hasAI)
 }
 
 var writeClipboard clipboardWriterFunc = func(text string) error {
-	if !shouldWriteClipboard(false) {
+	if !isClipboardWriteAllowed(false) {
 		return nil
 	}
 

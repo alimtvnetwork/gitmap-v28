@@ -1067,7 +1067,7 @@ func dispatchErrorLogPresentation(params ErrorLogOutputParams, content string) e
 
 func outputJSONErrorLogs(content string) error {
 	fmt.Println(content)
-	if shouldWriteClipboard(false) {
+	if isClipboardWriteAllowed(false) {
 		_ = writeClipboard(content)
 	}
 
@@ -1085,7 +1085,7 @@ func printSuppressedStagingNotice(reportFile string) {
 }
 
 func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
-	if shouldWriteClipboard(false) {
+	if isClipboardWriteAllowed(false) {
 		_ = writeClipboard(content)
 	}
 	if len(params.TempFile) > 0 {
@@ -1333,7 +1333,7 @@ func appendClipboardRunStatus(sb *strings.Builder, p PipelineErrorLogsPayload) {
 }
 
 func copyReportToClipboard(content string, isFailure bool) {
-	if !shouldWriteClipboard(false) {
+	if !isClipboardWriteAllowed(false) {
 		return
 	}
 	if len(content) == 0 {

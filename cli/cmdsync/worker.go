@@ -40,11 +40,7 @@ func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) Rep
 	backupBranch := fmt.Sprintf("backup/sync-%s", timestamp)
 
 	if !opts.DryRun {
-		_, _ = gitutil.ExecGitWithTimeout(15*time.Second, repoPath, "checkout", "-b", backupBranch)
-		if !opts.NoPush {
-			_, _ = gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "push", "origin", backupBranch)
-		}
-		_, _ = gitutil.ExecGitWithTimeout(15*time.Second, repoPath, "checkout", branch)
+		createSafetyBackupBranch(repoPath, branch, backupBranch, !opts.NoPush)
 	}
 
 	// 4. Mirror assets adhering to boundary invariants
@@ -94,16 +90,7 @@ func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) Rep
 	}
 
 	if opts.NoRelease {
-		if !opts.NoPush {
-			_, pushErr := gitutil.ExecGitWithTimeout(45*time.Second, repoPath, "push", "origin", branch)
-			if pushErr != nil {
-				return handlePushError(res, pushErr)
-			}
-			res.Action = "Committed & Pushed"
-		} else {
-			res.Action = "Committed"
-		}
-		return res
+		return pushNoRelease(repoPath, branch, res, opts.NoPush)
 	}
 
 	// Release ceremony with version bump
@@ -116,18 +103,7 @@ func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) Rep
 		return res
 	}
 
-	if !opts.NoPush {
-		outBytes, pushErr := gitutil.ExecGitWithTimeout(60*time.Second, repoPath, "push", "origin", branch, "--tags")
-		if pushErr != nil {
-			errStr := string(outBytes) + " " + pushErr.Error()
-			return handlePushError(res, fmt.Errorf("%s", errStr))
-		}
-		res.Action = "Released & Pushed"
-	} else {
-		res.Action = "Released Locally"
-	}
-
-	return res
+	return pushReleaseWithTags(repoPath, branch, res, opts.NoPush)
 }
 
 func handlePushError(res RepoSyncResult, err error) RepoSyncResult {
@@ -158,15 +134,55 @@ func bumpPatchTag(tag string) string {
 	re := regexp.MustCompile(`^(\d+)`)
 	m := re.FindStringSubmatch(parts[2])
 	if len(m) > 1 {
-		patchNum, err := strconv.Atoi(m[1])
-		if err == nil {
-			parts[2] = strconv.Itoa(patchNum + 1)
-		}
+		parts[2] = incrementPatchSegment(m[1], parts[2])
 	}
 
 	res := strings.Join(parts, ".")
 	if hasPrefixV {
 		res = "v" + res
 	}
+	return res
+}
+
+func incrementPatchSegment(digits, fallback string) string {
+	patchNum, err := strconv.Atoi(digits)
+	if err != nil {
+		return fallback
+	}
+	return strconv.Itoa(patchNum + 1)
+}
+
+func createSafetyBackupBranch(repoPath, branch, backupBranch string, pushBackup bool) {
+	_, _ = gitutil.ExecGitWithTimeout(15*time.Second, repoPath, "checkout", "-b", backupBranch)
+	if pushBackup {
+		_, _ = gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "push", "origin", backupBranch)
+	}
+	_, _ = gitutil.ExecGitWithTimeout(15*time.Second, repoPath, "checkout", branch)
+}
+
+func pushNoRelease(repoPath, branch string, res RepoSyncResult, noPush bool) RepoSyncResult {
+	if noPush {
+		res.Action = "Committed"
+		return res
+	}
+	_, pushErr := gitutil.ExecGitWithTimeout(45*time.Second, repoPath, "push", "origin", branch)
+	if pushErr != nil {
+		return handlePushError(res, pushErr)
+	}
+	res.Action = "Committed & Pushed"
+	return res
+}
+
+func pushReleaseWithTags(repoPath, branch string, res RepoSyncResult, noPush bool) RepoSyncResult {
+	if noPush {
+		res.Action = "Released Locally"
+		return res
+	}
+	outBytes, pushErr := gitutil.ExecGitWithTimeout(60*time.Second, repoPath, "push", "origin", branch, "--tags")
+	if pushErr != nil {
+		errStr := string(outBytes) + " " + pushErr.Error()
+		return handlePushError(res, fmt.Errorf("%s", errStr))
+	}
+	res.Action = "Released & Pushed"
 	return res
 }

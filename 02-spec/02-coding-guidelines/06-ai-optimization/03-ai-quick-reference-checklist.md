@@ -1,6 +1,6 @@
 # AI Quick Reference Checklist (AI Execution Prompt)
 
-> **/goal** Provide a rapid, machine-parsable 78-check pre-output validation checklist for AI agents to verify code correctness in under 30 seconds.
+> **/goal** Provide a rapid, machine-parsable 80-check pre-output validation checklist for AI agents to verify code correctness in under 30 seconds.
 > **/learn** Internalize pre-flight checks across naming, structure, Go/PHP/TypeScript/C# conventions, error management, and caching boundaries.
 
 ## 🎯 Actionable CI/CD & Agent Checklist
@@ -164,11 +164,16 @@ Check every generated code block against these rules before outputting.
 - [ ] Cache entries are typed — no `any` or untyped objects in cache values
 - [ ] React Query: explicit `staleTime` set (not default `0`) + `invalidateQueries` after mutations
 
+### GitMap Tooling & Telemetry Primacy (2 checks)
+
+- [ ] AI error telemetry: Always execute `gitmap pe --ai` (suppresses host clipboard pollution and terminal notices)
+- [ ] Universal execution & discovery: Execute polyglot scripts via `gitmap run <file>` and search via `gitmap aum search` (ban raw interpreters, `rg`, `Select-String`)
+
 ---
 
-## Total: 78 checks
+## Total: 80 checks
 
-**Pass criteria:** All 78 checks must pass before outputting code.
+**Pass criteria:** All 80 checks must pass before outputting code.
 
 ---
 

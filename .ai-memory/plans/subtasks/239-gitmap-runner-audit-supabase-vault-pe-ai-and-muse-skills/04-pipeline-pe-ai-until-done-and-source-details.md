@@ -18,28 +18,28 @@
 
 ## 1. Objectives
 
-- [ ] 1. Add `--ai` flag to `cli/cmdpipeline/pipeline_flags.go`:
+- [x] 1. Add `--ai` flag to `cli/cmdpipeline/pipeline_flags.go`:
   - Add `HasAI bool` to `PipelineErrorFlags`.
   - Parse `--ai` in `parseCommonErrorFlags(args []string, flags *PipelineErrorFlags)`:
     `flags.HasAI = hasArgFlag(args, "--ai") || hasArgFlag(os.Args, "--ai")`.
-- [ ] 2. Suppress clipboard copying and clipboard notices when `--ai` is enabled:
+- [x] 2. Suppress clipboard copying and clipboard notices when `--ai` is enabled:
   - In `cli/cmdpipeline/pipeline_logs.go`:
     - In `renderFailureTerminal(p)` and `renderCleanSuccessTerminal(p)`: Guard `copyReportToClipboard` behind `if !flags.HasAI`.
     - In `outputJSONErrorLogs(content string)` and `writeErrorLogsToDisk(params, content)`: Guard `writeClipboard(content)` behind `if !params.Flags.HasAI`.
   - In `cli/cmdpipeline/pipeline_history.go`: Guard `copyPositionalReportToClipboard` behind `if !hasAIFlag`.
   - In `cli/cmdpipeline/helpers.go`: Provide `shouldWriteClipboard(hasAI bool) bool`.
-- [ ] 3. Implement 2-minute polling interval in `gitmap pe -t` with early error abort:
+- [x] 3. Implement 2-minute polling interval in `gitmap pe -t` with early error abort:
   - In `cli/cmdpipeline/pipeline_dynamic_timeline.go`:
     - Configure default timeline polling interval to 2 minutes (`120s`).
     - At each polling iteration, inspect active run logs and stack traces. If errors or failures are detected in active log streams, immediately surface failure summary via `gitmap pe` and terminate execution without waiting for the timeout duration to elapse.
-- [ ] 4. Add `-ud` / `--until-done` flag:
+- [x] 4. Add `-ud` / `--until-done` flag:
   - In `cli/cmdpipeline/pipeline_flags.go`: Add `HasUntilDone bool` to `PipelineErrorFlags`, parsed from `-ud`, `--until-done`.
   - In `cli/cmdpipeline/pipeline_dynamic_timeline.go`: When `HasUntilDone` is true, run continuous polling loop until the full CI/CD run completes (all jobs succeed or any job fails), then display final `gitmap pe` status and diagnostics.
-- [ ] 5. Implement immediate Git hash retrieval from SQLite DB:
+- [x] 5. Implement immediate Git hash retrieval from SQLite DB:
   - In `cli/cmdpipeline/pipeline_cache_eval.go`:
     - If the target commit SHA (or current HEAD commit SHA) is already stored in the local SQLite split-db and all workflow runs for that commit have completed status, pull immediately from the database without waiting or issuing network requests.
     - Exempt completed SHA hits from being bypassed when `-t` is provided.
-- [ ] 6. Enhance failure diagnostics with log source details:
+- [x] 6. Enhance failure diagnostics with log source details:
   - In `cli/cmdpipeline/pipeline.go` and `cli/cmdpipeline/pipeline_logs.go`:
     - Enrich `SectionFailure` struct with `LoggerName string`, `WorkflowName string`, `RunUrl string`, `JobName string`, `StepName string`, and relative `SavedLogFile string`.
     - Render a dedicated `Source Details:` block in terminal failure output:
@@ -51,7 +51,7 @@
           URL:       <RunUrl>
           Log File:  <SavedLogFile>
       ```
-- [ ] 7. Verify compilation and linter compliance:
+- [x] 7. Verify compilation and linter compliance:
   - `go test -v ./cli/cmdpipeline/...`
   - `python linter-scripts/check-nested-ifs.py`
   - `python linter-scripts/check-enum-and-boolean.py`

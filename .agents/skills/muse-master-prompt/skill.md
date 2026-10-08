@@ -47,7 +47,7 @@ WAVES = ceil(subtasks / (A x H))
 ### 1. Onboarding Protocol (Phases 0–5)
 - **Phase 0:** Ask for the repository table in one message (ask once, all at once).
 - **Phase 1:** Terminal check (`echo ok`), `git --version`, `gh auth status`, `gitmap login --status`. Stop if blocked on auth.
-- **Phase 2:** GitMap intake: clone, build, learn the 5-phase SOP (discover → modify → verify → commit+push → telemetry). Reuse GitMap commands first (`gitmap aum search`, `gitmap find`, `gitmap cat`).
+- **Phase 2:** GitMap intake: clone, build, learn the 5-phase SOP (discover → modify → verify → commit+push → telemetry). Reuse GitMap commands first (`gitmap aum search`, `gitmap find`, `gitmap cat`, `gitmap run <file>`, `gitmap pe --ai`, `gitmap supabase`, `gitmap sync`).
 - **Phase 3:** Memory operating contract checklist: TURBO-01 through TURBO-05, GUARD-01 through GUARD-08 (never delete repos, confirm file deletions, prove claims).
 - **Phase 4:** Guideline intake: booleans (`is*`/`has*`, no `== true`), guard clauses, `*appfault.AppError`, lowercase filenames, strict relative git paths.
 - **Phase 5:** Send one short ready message, then ask for the first task.
@@ -58,7 +58,7 @@ WAVES = ceil(subtasks / (A x H))
    - Output `### 📋 Confirmed Task Breakdown & Requirement Ingestion` in visible chat (`Task-01`, `Task-02`, ... each with `State: [IN PROGRESS]` and `Understood: [YES]`).
    - In the **EXACT SAME TURN**, invoke your first tool call (SQLite task DB initialization, ledger creation, preflight checks). NEVER emit text alone.
 3. **SQLite Task DB & Ledger Preflight:**
-   - Run `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`.
+   - Run `gitmap task init --name "<task name>" --budget 300` (or `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`).
    - If `RESUME_FOUND`, inspect crash forensics and resume uncompleted subtasks.
    - Maintain human-readable `.ai-memory/temp-agents/<slug>/ledger.md`.
 4. **Mandatory Multi-Agent Execution:**
@@ -68,6 +68,9 @@ WAVES = ceil(subtasks / (A x H))
    - Targeted checks only; zero full test suites or heavy builds during routine execution (R1).
    - Pre-commit secrets gate: `python linter-scripts/check-forbidden-strings.py` and `gitmap aum search` regex. Offload via `gitmap rs`.
    - Commit and push atomically via GitMap using hyphen format (no colons in arguments):
-     - Feature: `gitmap cpf "<module> - <summary>"`
-     - Bug Fix: `gitmap cpb "<module> - <summary>"`
+     - Feature: `gitmap cpf "<module> - <summary>"` (`commit-push-feature`)
+     - Bug Fix: `gitmap cpb "<module> - <summary>"` (`commit-push-bug`)
+     - Chore: `gitmap cpc "<module> - <summary>"` (`commit-push-chore`)
+     - Release: `gitmap cpr "<module> - <summary>"` (`commit-push-release`)
+   - CI/CD Telemetry: `gitmap pe --ai` (mandatory `--ai` flag suppresses clipboard mutation) or `gitmap pe -t --ai`.
    - Report briefly and ask for the next task.
