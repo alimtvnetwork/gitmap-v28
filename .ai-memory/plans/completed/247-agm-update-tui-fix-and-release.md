@@ -49,3 +49,19 @@ U01–U06 pass.
 ## Specs
 - `02-spec/21-app/247-agm-update-tui-fix-and-release/01-rca-scope-and-plan.md`
 - `02-spec/21-app/247-agm-update-tui-fix-and-release/02-acceptance-criteria-and-evidence.md`
+
+## Result (2026-10-09)
+- TUI implemented (`cli/cmdinstall/agm_update_ui.go`, 300 lines): mutex-guarded pterm
+  renderer fed by piped child output; `CombinedOutput` silence and stdio inheritance
+  removed; structured failure panel; non-TTY plain fallback; `GITMAP_AGM_INSTALL_SCRIPT`
+  test seam. `go build ./...` exit 0 (lead-verified).
+- Lead-found defects fixed: `agm` alias misrouting (`cli/cmd/rootcore.go` — `gitmap agm update`
+  hit gitignore instead of the updater); failure-path stack-trace dump
+  (`cli/cmdinstall/installverify_diag.go` → concise + log path); `--yes` missing from
+  manual help template (`cli/cmdinstall/agm_install.go`).
+- E2E (`~/workspace/gitmap-e2e-247/run-247.log`): U01–U06 all PASS (live progress 12 lines /
+  7.6s; zero stdio inheritance; structured failure, no trace; no stray escapes; non-TTY
+  plain; help lists --yes).
+- Note: implementation commits landed via other workstreams' `git add -A` sweeps
+  (d5d3e55, 26df08b, 49c8631) — code verified byte-identical to the 247 design.
+- Release: 6.517.0 (U07).

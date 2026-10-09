@@ -115,6 +115,7 @@ func buildAgmFooterFlags() []termhelp.CommandEntry {
 		{Command: "-s, --ssh", Description: "Execute update across remote SSH cluster fleet"},
 		{Command: "-r, --remote <node>", Description: "Target a specific remote node alias or IP"},
 		{Command: "-n, --dry-run", Description: "Simulate installation or update without downloading"},
+		{Command: "-y, --yes", Description: "Automatic yes to prompts"},
 		{Command: "-h, --help", Description: "Display this Antigravity Manager help menu"},
 	}
 }
