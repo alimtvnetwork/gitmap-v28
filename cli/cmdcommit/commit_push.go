@@ -488,8 +488,15 @@ func executeStageAllStep(taskSlug string) *apperror.AppError {
 	files := scopedStageFiles(taskSlug)
 	if len(files) > 0 {
 		printPaddedInfo("Staging %d task-claimed file(s) for task %s...", len(files), taskSlug)
-		gitArgs := append([]string{"add", "--"}, files...)
-		err = execGitPaddedFiltered(gitArgs...)
+		normal, forced := partitionStageFiles(files)
+		if len(normal) > 0 {
+			gitArgs := append([]string{"add", "--"}, normal...)
+			err = execGitPaddedFiltered(gitArgs...)
+		}
+		if err == nil && len(forced) > 0 {
+			forceArgs := append([]string{"add", "-f", "--"}, forced...)
+			err = execGitPaddedFiltered(forceArgs...)
+		}
 		label = fmt.Sprintf("git add -- (%d claimed files)", len(files))
 	} else {
 		if strings.TrimSpace(taskSlug) != "" {
@@ -504,6 +511,90 @@ func executeStageAllStep(taskSlug string) *apperror.AppError {
 	}
 
 	return nil
+}
+
+// partitionStageFiles splits claimed files for staging: ignored-but-tracked
+// files need `git add -f`; ignored-and-untracked files are skipped (gitignore
+// is respected); everything else stages normally. A single ignored path must
+// never poison the whole stage.
+func partitionStageFiles(files []string) (normal []string, forced []string) {
+	ignored := ignoredPaths(files)
+	trackedIgnored := trackedPaths(ignored)
+	trackedSet := make(map[string]bool, len(trackedIgnored))
+	for _, t := range trackedIgnored {
+		trackedSet[t] = true
+	}
+	ignoredSet := make(map[string]bool, len(ignored))
+	for _, g := range ignored {
+		ignoredSet[g] = true
+	}
+	for _, f := range files {
+		if !ignoredSet[f] {
+			normal = append(normal, f)
+		} else if trackedSet[f] {
+			forced = append(forced, f)
+		}
+	}
+
+	return normal, forced
+}
+
+// ignoredPaths returns the subset of files ignored by .gitignore.
+// --no-index is required: without it, check-ignore skips tracked files even
+// though `git add` still refuses them without -f.
+func ignoredPaths(files []string) []string {
+	if len(files) == 0 {
+		return nil
+	}
+	c := exec.Command("git", "check-ignore", "--no-index", "--stdin")
+	stdin, err := c.StdinPipe()
+	if err != nil {
+		return nil
+	}
+	go func() {
+		defer stdin.Close()
+		for _, f := range files {
+			fmt.Fprintln(stdin, f)
+		}
+	}()
+	out, err := c.Output()
+	if err != nil {
+		// check-ignore exits 1 when nothing is ignored — not an error here.
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+			return nil
+		}
+
+		return nil
+	}
+	var ignored []string
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		if strings.TrimSpace(line) != "" {
+			ignored = append(ignored, strings.TrimSpace(line))
+		}
+	}
+
+	return ignored
+}
+
+// trackedPaths returns the subset of files already tracked by git.
+func trackedPaths(files []string) []string {
+	if len(files) == 0 {
+		return nil
+	}
+	args := append([]string{"ls-files", "--"}, files...)
+	cmd := exec.Command("git", args...)
+	out, err := cmd.Output()
+	if err != nil {
+		return nil
+	}
+	var tracked []string
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		if strings.TrimSpace(line) != "" {
+			tracked = append(tracked, strings.TrimSpace(line))
+		}
+	}
+
+	return tracked
 }
 
 // scopedStageFiles returns the union of a task's claimed files for scoped
