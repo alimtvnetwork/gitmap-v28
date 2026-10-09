@@ -2,24 +2,24 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvariable"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdip"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemplates"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspec"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommittransfer"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfoldertree"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdaudit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmigrate"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconsole"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdaudit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommittransfer"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconsole"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfoldertree"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdip"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmigrate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspec"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemplates"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvariable"
 	"os"
 	"strings"
 	"time"
@@ -33,6 +33,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -177,12 +178,32 @@ func runDispatch(command string) {
 	dispatch(command)
 }
 
+// isPipelineErrorsAlias reports whether the command routes to the pipeline
+// errors inspector (pe/te family), which owns its own rich help printer.
+func isPipelineErrorsAlias(command string) bool {
+	switch command {
+	case "pe", "te", "ee", "pipeline", "pipeline-errors", "pipeline_errors":
+		return true
+	}
+
+	return false
+}
+
 func tryInterceptCommandHelp(command string, args []string) bool {
 	if len(args) == 0 {
 		return false
 	}
 	if !IsHelpFlag(args[0]) {
 		return false
+	}
+	// pe/te are pipeline-errors aliases with their own rich help printer.
+	// Route them there directly instead of the generic dynamic placeholder,
+	// which knows nothing about -t, all, -f, or the format system.
+	if isPipelineErrorsAlias(command) {
+		cmdpipeline.PrintPipelineErrorsHelp()
+		cliexit.Exit(0)
+
+		return true
 	}
 	// Pilot commands (spec 243.3) render through the HelpDisplay registry
 	// before the legacy rich-topic/helptext paths.

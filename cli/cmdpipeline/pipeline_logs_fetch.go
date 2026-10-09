@@ -1,9 +1,9 @@
 package cmdpipeline
 
 import (
+	"fmt"
 	"path/filepath"
 	"sync"
-	"fmt"
 )
 
 func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineErrorLogsPayload) {
@@ -124,6 +124,7 @@ func printPipelineErrorLogsUsage() {
 	fmt.Println("Usage: gitmap pipeline error-logs [repo] [commit|-N|-Nn|HEAD~N] [flags]")
 	fmt.Println("       gitmap pipeline errors [repo] [commit|-N] [clear [-y]] [flags]")
 	fmt.Println("       gitmap pe [repo] [commit|-N|-Nn|HEAD~N] [clear [-y]] [flags]")
+	fmt.Println("       gitmap pe all [--json] [--file <path>] [flags]   (alias: gitmap te all)")
 	fmt.Println("       gitmap pe -f <format.json|alias> [flags]")
 	fmt.Println("       gitmap pe -f <alias> -test <filepath>")
 	fmt.Println("       gitmap pe -f <alias> -test-commit <commit-sha> [-repo <path>]")
@@ -134,6 +135,8 @@ func printPipelineErrorLogsUsage() {
 	fmt.Println()
 	fmt.Println("Commands:")
 	fmt.Println("  clear [-y]                     Purge error logs, reports, and reset pipeline DB for current repo")
+	fmt.Println("  all [--json] [--file <path>]   Aggregate pipeline error status across ALL catalog repos")
+	fmt.Println("                                 (alias: te all; same as pe all; --all also works)")
 	fmt.Println("  add-format <file.json> [alias] Register custom JSON format profile for error/warning filtering")
 	fmt.Println("  remove-format <name|alias>     Remove registered format profile (alias: rm-format)")
 	fmt.Println("  add-all <folder-path>          Batch register all format profiles (*.json) from folder")

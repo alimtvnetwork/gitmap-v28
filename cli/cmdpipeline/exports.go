@@ -29,6 +29,13 @@ func RunPipelineAI(args []string) error {
 	return runPipelineAI(args)
 }
 
+// PrintPipelineErrorsHelp prints the canonical pipeline errors help text.
+// Used by the root help interceptor so `pe --help` / `te --help` render the
+// real help instead of the generic dynamic placeholder.
+func PrintPipelineErrorsHelp() {
+	printPipelineErrorLogsHelp()
+}
+
 // HandlePipelineStatus handles pipeline status output.
 func HandlePipelineStatus(args []string) error {
 	return handlePipelineStatus(args)
