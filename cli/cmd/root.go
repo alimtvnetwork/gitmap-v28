@@ -218,9 +218,11 @@ func handleGlobalError(command string, err error) {
 
 	cfg, cfgErr := config.LoadFromFile(constants.DefaultConfigPath)
 	display := "full"
+	showStack := true
 
 	if cfgErr == nil {
 		display = cfg.ErrorDisplay
+		showStack = cfg.ShowStackTrace
 	}
 
 	persistLastError(command, err)
@@ -261,7 +263,7 @@ func handleGlobalError(command string, err error) {
 	cliexit.Reportf(command, "execute", "", err)
 
 	stack := resolveErrorStackTrace(err)
-	if stack != "" {
+	if stack != "" && showStack {
 		fmt.Fprintf(os.Stderr, "Stack Trace:%s\n", stack)
 	}
 

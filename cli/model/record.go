@@ -63,6 +63,7 @@ type Config struct {
 	Release               ReleaseConfig     `json:"release"`
 	DashboardRefresh      int               `json:"dashboardRefresh"`
 	ErrorDisplay          string            `json:"errorDisplay"`
+	ShowStackTrace        bool              `json:"showStackTrace"`
 	CommitReplayKeepUrl   bool              `json:"commitReplayKeepUrl"`
 	CommitReplayTemplates map[string]string `json:"commitReplayTemplates"`
 	PipelineMaxDbSizeMB   int               `json:"pipelineMaxDbSizeMb,omitempty"`
@@ -79,6 +80,7 @@ func DefaultConfig() Config {
 		Notes:                 "",
 		DashboardRefresh:      constants.DefaultDashboardRefresh,
 		ErrorDisplay:          "full",
+		ShowStackTrace:        true,
 		CommitReplayKeepUrl:   false,
 		CommitReplayTemplates: map[string]string{"Changes": "chore: apply automated updates", "Work in progress": "chore: work in progress", "Lovable update": "chore: lovable update"},
 		PipelineMaxDbSizeMB:   10,

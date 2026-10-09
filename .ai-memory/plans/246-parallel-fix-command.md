@@ -32,7 +32,9 @@ Owner 2026-10-09: "there was a AI script for fixing the file and coding right yo
 - [x] Wave 1b: `cli/cmdautofix/` engine + CLI (01, 02) — DONE (Worker 1): 17 files, `fix` parent + 9 subcommands, check→summary→prompt flow, scan cache, old `fix` displaced from rootcore (stash/wip/discard kept). Lead fixes: rich-help `fix` routing, non-TTY prompt hang (300ms piped-input window), declined-prompt exit code 1→correct. Lead-verified: `go build ./...` exit 0, all exit codes correct, `fix --help` renders new parent help.
 - [ ] Wave 1 commit: NOTE — parallel spec-248 stream's `git add -A` swept 246's new files into commit d5d3e55; lead's follow-up fixes committed as 26df08b. All content pushed. Lesson logged in AGENTS.md (targeted `git add` when streams share a branch).
 - [x] Wave 2a: UI polish (06) — DONE (Worker B): flag parsing (`-p/--port/--host/--no-browser`), help-menu honesty (10 real tabs, SSE claim removed), demo-data removal, sticky save bar, icon+label pills, alert→toast; `go build` exit 0 (lead-verified). Note: touched `ui_server.go` minimally (2 spots) to wire host/no-browser through — required, flagged.
-- [ ] Wave 2b: UI themes (05) — worker running.
+- [x] Wave 2b: UI themes (05) — DONE (Worker A): NEW `ui_assets_theme.go` (real dark+light themes, `--accent` defined, toast CSS, spacing/type scales), responsive shell, `applyTheme` + `icon()` + `showToast` JS, sidebar icon+label nav. Lead fixed 2 leftover nits (hardcoded hex → vars, 📖 emoji → icon).
+- [x] Wave 2 commit: `49c8631` pushed (targeted `git add` — cmdinstall files from spec-247 stream left untouched).
+- [x] Wave 3 (lead verification): `go build ./...` exit 0; `go vet` clean; `gitmap fix --help` renders new parent help; exit codes 0/1/2 verified; prompt fail-safe in non-TTY verified; settings UI loads (HTTP 200, light theme CSS + toasts + savebar + applyTheme present, zero `alert(`); `gitmap llm train --text-only` shows 6 stages.
 - [ ] Wave 2: UI themes (05); UI polish (06).
 - [ ] Wave 3: lead verification (build, vet, smoke tests, settings UI load); final report to owner.
 
