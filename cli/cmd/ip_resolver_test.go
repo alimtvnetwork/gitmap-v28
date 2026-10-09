@@ -5,10 +5,12 @@ import (
 	"regexp"
 	"testing"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdip"
 )
 
 func TestIPResolver(t *testing.T) {
-	resolver := IPResolver{
+	resolver := cmdip.IPResolver{
 		Cache:   make(map[string]string),
 		Timeout: 5 * time.Second,
 	}
@@ -25,9 +27,9 @@ func TestIPResolver(t *testing.T) {
 
 func TestGetLocalIP(t *testing.T) {
 	ctx := context.Background()
-	ip, err := GetLocalIP(ctx, true, "")
+	ip, err := cmdip.GetLocalIP(ctx, true, "")
 	if err != nil {
-		t.Skipf("GetLocalIP returned error (maybe no network): %v", err)
+		t.Skipf("cmdip.GetLocalIP returned error (maybe no network): %v", err)
 	}
 
 	if ip == "" {

@@ -1,0 +1,89 @@
+package cmdgomod
+
+import (
+	"testing"
+)
+
+func TestParseExtFlag_Empty(t *testing.T) {
+	exts := parseExtFlag("")
+	if exts != nil {
+		t.Errorf("expected nil, got %v", exts)
+	}
+}
+
+func TestParseExtFlag_Single(t *testing.T) {
+	exts := parseExtFlag("*.go")
+	if len(exts) != 1 || exts[0] != ".go" {
+		t.Errorf("expected [.go], got %v", exts)
+	}
+}
+
+func TestParseExtFlag_Multiple(t *testing.T) {
+	exts := parseExtFlag("*.go,*.md,*.txt")
+	if len(exts) != 3 {
+		t.Fatalf("expected 3 exts, got %d", len(exts))
+	}
+
+	expected := []string{".go", ".md", ".txt"}
+	for i, e := range expected {
+		if exts[i] != e {
+			t.Errorf("exts[%d]: expected %q, got %q", i, e, exts[i])
+		}
+	}
+}
+
+func TestParseExtFlag_WithSpaces(t *testing.T) {
+	exts := parseExtFlag("*.go , *.md")
+	if len(exts) != 2 || exts[0] != ".go" || exts[1] != ".md" {
+		t.Errorf("expected [.go .md], got %v", exts)
+	}
+}
+
+func TestParseExtFlag_NoStar(t *testing.T) {
+	exts := parseExtFlag(".go,.md")
+	if len(exts) != 2 || exts[0] != ".go" || exts[1] != ".md" {
+		t.Errorf("expected [.go .md], got %v", exts)
+	}
+}
+
+func TestParseGoModFlags_Defaults(t *testing.T) {
+	opts := parseGoModFlags([]string{"github.com/new/path"})
+	if opts.newPath != "github.com/new/path" {
+		t.Errorf("expected newPath=github.com/new/path, got %q", opts.newPath)
+	}
+
+	if opts.isDryRun || opts.isSkipMerge || opts.isSkipTidy || opts.isVerbose {
+		t.Error("expected all flags false by default")
+	}
+
+	if opts.exts != nil {
+		t.Errorf("expected nil exts, got %v", opts.exts)
+	}
+}
+
+func TestParseGoModFlags_AllFlags(t *testing.T) {
+	opts := parseGoModFlags([]string{
+		"--dry-run", "--no-merge", "--no-tidy", "--verbose",
+		"--ext", "*.go,*.md",
+		"github.com/new/path",
+	})
+	isAllSet := opts.isDryRun && opts.isSkipMerge && opts.isSkipTidy && opts.isVerbose
+	if !isAllSet {
+		t.Error("expected all flags true")
+	}
+
+	if len(opts.exts) != 2 {
+		t.Errorf("expected 2 exts, got %v", opts.exts)
+	}
+
+	if opts.newPath != "github.com/new/path" {
+		t.Errorf("expected newPath=github.com/new/path, got %q", opts.newPath)
+	}
+}
+
+func TestParseGoModFlags_NoArgs(t *testing.T) {
+	opts := parseGoModFlags([]string{})
+	if opts.newPath != "" {
+		t.Errorf("expected empty newPath, got %q", opts.newPath)
+	}
+}

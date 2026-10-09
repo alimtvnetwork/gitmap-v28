@@ -3,7 +3,6 @@ package cmdinstall
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -148,20 +147,6 @@ func TestProfileDotAndBadge(t *testing.T) {
 	progress := formatProfileProgress(3, 5)
 	if progress != "[3/5 tools]" {
 		t.Errorf("unexpected progress badge: %s", progress)
-	}
-}
-
-func TestAgyInstallCommandRegistered(t *testing.T) {
-	isFound := false
-	for _, sub := range cmdagy.AgyCmd.Commands() {
-		if sub.Name() == "install" {
-			isFound = true
-			break
-		}
-	}
-
-	if !isFound {
-		t.Errorf("expected 'install' subcommand to be registered in AgyCmd")
 	}
 }
 

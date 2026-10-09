@@ -199,3 +199,24 @@ func writeSchemaFile(s schema, observedKeys []string) error {
 
 	return nil
 }
+
+// readEveryObjectKeys returns the keys of every object in a JSON
+// array. Local copy of cmdscan's test helper.
+func readEveryObjectKeys(t *testing.T, raw []byte) [][]string {
+	t.Helper()
+	var records []map[string]any
+	if err := json.Unmarshal(raw, &records); err != nil {
+		t.Fatalf("unmarshal records: %v", err)
+	}
+
+	var out [][]string
+	for _, rec := range records {
+		var keys []string
+		for k := range rec {
+			keys = append(keys, k)
+		}
+		out = append(out, keys)
+	}
+
+	return out
+}

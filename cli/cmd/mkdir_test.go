@@ -28,9 +28,9 @@ func TestRunMkdir(t *testing.T) {
 	tempDir := t.TempDir()
 	testPath := filepath.Join(tempDir, "sample_dir")
 
-	err := runMkdir([]string{testPath})
+	err := RunMkdir([]string{testPath})
 	if err != nil {
-		t.Fatalf("runMkdir failed: %v", err)
+		t.Fatalf("RunMkdir failed: %v", err)
 	}
 
 	info, err := os.Stat(testPath)

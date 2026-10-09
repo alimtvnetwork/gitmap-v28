@@ -27,6 +27,7 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -130,3 +131,55 @@ func skipUntilFirstObjectStart(dec *json.Decoder) error {
 // here for byte-comparison normalization but was removed once no
 // test required it — snapshot helpers compare against goldens with
 // a stable trailing terminator.
+
+// collectObjectKeys reads key-value pairs from dec until the
+// closing `}` is consumed, returning just the key names in
+// wire order. dec must already have consumed the opening `{`.
+// (Duplicated from cmdstartup's test helpers; cmd's tests need a
+// local copy.)
+func collectObjectKeys(t *testing.T, dec *json.Decoder) []string {
+	t.Helper()
+	var keys []string
+	for dec.More() {
+		tok, err := dec.Token()
+		if err != nil {
+			t.Fatalf("reading object key: %v", err)
+		}
+
+		key, ok := tok.(string)
+		if !ok {
+			t.Fatalf("expected string key, got %v (%T)", tok, tok)
+		}
+
+		keys = append(keys, key)
+		// Skip the value without decoding its type.
+		var raw json.RawMessage
+		if err := dec.Decode(&raw); err != nil {
+			t.Fatalf("skipping value for key %q: %v", key, err)
+		}
+	}
+
+	// Consume the closing '}'.
+	if _, err := dec.Token(); err != nil {
+		t.Fatalf("expected closing '}': %v", err)
+	}
+
+	return keys
+}
+
+// expectDelim reads the next token and confirms it's the requested
+// JSON delimiter (`[`, `]`, `{`, or `}`). (Duplicated from
+// cmdstartup's test helpers; cmd's tests need a local copy.)
+func expectDelim(dec *json.Decoder, want byte) error {
+	tok, err := dec.Token()
+	if err != nil {
+		return err
+	}
+
+	delim, isDelim := tok.(json.Delim)
+	if !isDelim || delim != json.Delim(want) {
+		return fmt.Errorf("want delim %q, got %v (%T)", want, tok, tok)
+	}
+
+	return nil
+}

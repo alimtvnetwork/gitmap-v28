@@ -3,17 +3,19 @@ package cmd
 import (
 	"context"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 )
 
 func TestDispatchAgm(t *testing.T) {
-	err := dispatchAgm(context.Background(), []string{"agm", "install", "--dry-run"}, nil)
+	err := cmdagy.DispatchAgm(context.Background(), []string{"agm", "install", "--dry-run"}, nil)
 	if err != nil {
 		t.Errorf("expected nil error for dispatchAgm dry-run, got %v", err)
 	}
 }
 
 func TestDispatchAgmUpdate(t *testing.T) {
-	err := dispatchAgm(context.Background(), []string{"agm", "update", "--dry-run"}, nil)
+	err := cmdagy.DispatchAgm(context.Background(), []string{"agm", "update", "--dry-run"}, nil)
 	if err != nil {
 		t.Errorf("expected nil error for dispatchAgm update dry-run, got %v", err)
 	}

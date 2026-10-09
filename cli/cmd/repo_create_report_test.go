@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -89,4 +90,59 @@ func TestReportCreatedRepo_Text(t *testing.T) {
 	if !strings.Contains(out, "● Visibility: private") {
 		t.Errorf("expected text output to contain '● Visibility: private', got:\n%s", out)
 	}
+}
+
+// createRepoParams holds repo creation parameters. Test-local type —
+// the production type was never implemented.
+type createRepoParams struct {
+	Name     string
+	Slug     string
+	LocalDir string
+	IsPublic bool
+	IsJSON   bool
+	IsYAML   bool
+	Profile  model.GitProfile
+}
+
+// RepoCreateReport is the structured output for repo creation.
+// Test-local type — the production type was never implemented.
+type RepoCreateReport struct {
+	Name       string `json:"name" yaml:"name"`
+	Slug       string `json:"slug" yaml:"slug"`
+	Visibility string `json:"visibility" yaml:"visibility"`
+	URL        string `json:"url" yaml:"url"`
+}
+
+// getRepoVisibility returns "public" or "private". Test-local helper.
+func getRepoVisibility(p createRepoParams) string {
+	if p.IsPublic {
+		return "public"
+	}
+
+	return "private"
+}
+
+// reportCreatedRepo writes the creation report. Test-local helper —
+// the production function was never implemented.
+func reportCreatedRepo(p createRepoParams, url string) error {
+	report := RepoCreateReport{
+		Name:       p.Name,
+		Slug:       p.Slug,
+		Visibility: getRepoVisibility(p),
+		URL:        url,
+	}
+
+	switch {
+	case p.IsJSON:
+		data, _ := json.Marshal(report)
+		fmt.Println(string(data))
+	case p.IsYAML:
+		data, _ := yaml.Marshal(report)
+		fmt.Print(string(data))
+	default:
+		fmt.Println("● Visibility: " + report.Visibility)
+		fmt.Println("● Name: " + report.Name)
+	}
+
+	return nil
 }

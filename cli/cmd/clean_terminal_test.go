@@ -60,13 +60,13 @@ func TestIsTerminalCleanSubToken(t *testing.T) {
 }
 
 func TestRunClearAndTerminalTopLevel_DryRun(t *testing.T) {
-	if err := runClearTopLevel([]string{"-n"}); err != nil {
-		t.Errorf("expected runClearTopLevel -n to succeed, got: %v", err)
+	if err := RunClearTopLevel([]string{"-n"}); err != nil {
+		t.Errorf("expected RunClearTopLevel -n to succeed, got: %v", err)
 	}
-	if err := runClearTopLevel([]string{"terminal", "-n"}); err != nil {
-		t.Errorf("expected runClearTopLevel terminal -n to succeed, got: %v", err)
+	if err := RunClearTopLevel([]string{"terminal", "-n"}); err != nil {
+		t.Errorf("expected RunClearTopLevel terminal -n to succeed, got: %v", err)
 	}
-	if err := runTerminalTopLevel([]string{"clear", "-n"}); err != nil {
-		t.Errorf("expected runTerminalTopLevel clear -n to succeed, got: %v", err)
+	if err := RunTerminalTopLevel([]string{"clear", "-n"}); err != nil {
+		t.Errorf("expected RunTerminalTopLevel clear -n to succeed, got: %v", err)
 	}
 }

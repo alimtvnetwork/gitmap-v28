@@ -3,7 +3,15 @@ package cmd
 import (
 	"reflect"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcluster"
 )
+
+// ClusterFlags and ParseClusterFlags live in cmdcluster; alias them so this
+// internal test keeps compiling without an import cycle.
+type ClusterFlags = cmdcluster.ClusterFlags
+
+var ParseClusterFlags = cmdcluster.ParseClusterFlags
 
 type clusterFlagTestCase struct {
 	name       string

@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlist"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -20,7 +21,7 @@ func TestPrintListPreview(t *testing.T) {
 	}
 
 	out, _ := captureStdout(t, func() int {
-		PrintListPreview(records)
+		cmdlist.PrintListPreview(records)
 		return 0
 	})
 
@@ -44,13 +45,13 @@ func TestPrintListPreviewWithOptions(t *testing.T) {
 		},
 	}
 
-	opts := ListPreviewOptions{
+	opts := cmdlist.ListPreviewOptions{
 		ShowNumbers: false,
 		ShowEmoji:   false,
 	}
 
 	out, _ := captureStdout(t, func() int {
-		PrintListPreviewWithOptions(records, opts)
+		cmdlist.PrintListPreviewWithOptions(records, opts)
 		return 0
 	})
 
@@ -71,7 +72,7 @@ func TestPrintListTree(t *testing.T) {
 	}
 
 	out, _ := captureStdout(t, func() int {
-		PrintListTree(records)
+		cmdlist.PrintListTree(records)
 		return 0
 	})
 
@@ -85,7 +86,7 @@ func TestPrintListTree(t *testing.T) {
 
 func TestPrintListPreviewEmpty(t *testing.T) {
 	out, _ := captureStdout(t, func() int {
-		PrintListPreview(nil)
+		cmdlist.PrintListPreview(nil)
 		return 0
 	})
 	if !strings.Contains(out, "No repos") {
@@ -101,13 +102,13 @@ func TestPrintListPreviewRelative(t *testing.T) {
 			RelativePath: "repos/alpha",
 		},
 	}
-	opts := ListPreviewOptions{
+	opts := cmdlist.ListPreviewOptions{
 		ShowNumbers: true,
 		ShowEmoji:   true,
 		UseRelative: true,
 	}
 	out, _ := captureStdout(t, func() int {
-		PrintListPreviewWithOptions(records, opts)
+		cmdlist.PrintListPreviewWithOptions(records, opts)
 		return 0
 	})
 	if !strings.Contains(out, "repos/alpha") {

@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpending"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -145,7 +146,7 @@ func TestProcessSingleRepoSend_DirtyRepo_Mock(t *testing.T) {
 		RelativePath: ".",
 	}
 
-	opts := SendsOptions{
+	opts := cmdpending.SendsOptions{
 		Verb:       "cpf",
 		Target:     "all",
 		RawMessage: "add pending commits",
@@ -211,7 +212,7 @@ func TestProcessSingleRepoSend_CleanRepoTargetAll_Mock(t *testing.T) {
 		RelativePath: "clean-project",
 	}
 
-	opts := SendsOptions{
+	opts := cmdpending.SendsOptions{
 		Verb:       "cpf",
 		Target:     "all",
 		RawMessage: "test msg",
@@ -254,7 +255,7 @@ func TestProcessSingleRepoSend_DryRun_Mock(t *testing.T) {
 		RelativePath: "dry-run-repo",
 	}
 
-	opts := SendsOptions{
+	opts := cmdpending.SendsOptions{
 		Verb:       "cpb",
 		Target:     "dry-run-repo",
 		RawMessage: "bugfix",
@@ -277,7 +278,7 @@ func TestProcessSingleRepoSend_DryRun_Mock(t *testing.T) {
 }
 
 func TestSendsExecutionPayload_JSONSchema(t *testing.T) {
-	payload := SendsExecutionPayload{
+	payload := cmdpending.SendsExecutionPayload{
 		Timestamp:          time.Date(2026, 10, 6, 12, 0, 0, 0, time.UTC),
 		Verb:               "cpf",
 		PrefixApplied:      "Feature: ",
@@ -289,7 +290,7 @@ func TestSendsExecutionPayload_JSONSchema(t *testing.T) {
 		TotalProcessed:     2,
 		TotalCommitted:     1,
 		TotalSkipped:       1,
-		Results: []RepoSendResultRecord{
+		Results: []cmdpending.RepoSendResultRecord{
 			{
 				RepoName:     "gitmap",
 				RelativePath: ".",
@@ -312,7 +313,7 @@ func TestSendsExecutionPayload_JSONSchema(t *testing.T) {
 
 	b, errMarshal := json.Marshal(payload)
 	if errMarshal != nil {
-		t.Fatalf("failed to marshal SendsExecutionPayload JSON: %v", errMarshal)
+		t.Fatalf("failed to marshal cmdpending.SendsExecutionPayload JSON: %v", errMarshal)
 	}
 
 	var parsed map[string]any

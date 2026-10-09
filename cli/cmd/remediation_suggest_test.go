@@ -1,8 +1,13 @@
 package cmd
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
+)
+
 func TestFindRemediationItem_PathVariations(t *testing.T) {
-	items := []RemediationItem{
+	items := []cmdremediation.RemediationItem{
 		{RepoName: "scripts-fixer", RepoPath: "D:\\work\\scripts-fixer"},
 		{RepoName: "gitmap", RepoPath: "D:\\work\\gitmap"},
 	}
@@ -12,11 +17,11 @@ func TestFindRemediationItem_PathVariations(t *testing.T) {
 	assertFoundRepo(t, items, "scripts-fixer\\", "scripts-fixer")
 }
 func TestFindRemediationSuggestions(t *testing.T) {
-	items := []RemediationItem{
+	items := []cmdremediation.RemediationItem{
 		{RepoName: "scripts-fixer", RepoPath: "/path/to/scripts-fixer"},
 		{RepoName: "gitmap-engine", RepoPath: "/path/to/gitmap-engine"},
 	}
-	suggs := FindRemediationSuggestions(items, "script-fix")
+	suggs := cmdremediation.FindRemediationSuggestions(items, "script-fix")
 	if len(suggs) == 0 {
 		t.Fatalf("expected suggestions for 'script-fix', got empty")
 	}

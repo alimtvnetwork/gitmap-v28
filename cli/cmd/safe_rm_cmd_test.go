@@ -8,9 +8,9 @@ import (
 
 func TestRunSafeRmCLI_NonExistentTarget(t *testing.T) {
 	nonExistent := filepath.Join(t.TempDir(), "non_existent_folder_or_file")
-	err := runSafeRmCLI([]string{nonExistent})
+	err := RunSafeRmCLI([]string{nonExistent})
 	if err != nil {
-		t.Fatalf("expected runSafeRmCLI to succeed on non-existent path, got: %v", err)
+		t.Fatalf("expected RunSafeRmCLI to succeed on non-existent path, got: %v", err)
 	}
 }
 
@@ -26,9 +26,9 @@ func TestRunSafeRmCLI_ExistingFileAndDirectory(t *testing.T) {
 		t.Fatalf("failed to create test sub dir: %v", err)
 	}
 
-	err := runSafeRmCLI([]string{"--force", testFile, testSubDir})
+	err := RunSafeRmCLI([]string{"--force", testFile, testSubDir})
 	if err != nil {
-		t.Fatalf("expected runSafeRmCLI to succeed on existing paths, got: %v", err)
+		t.Fatalf("expected RunSafeRmCLI to succeed on existing paths, got: %v", err)
 	}
 
 	if isSafeRmPathExists(testFile) {
@@ -40,8 +40,8 @@ func TestRunSafeRmCLI_ExistingFileAndDirectory(t *testing.T) {
 }
 
 func TestRunSafeRmCLI_NoArgs(t *testing.T) {
-	err := runSafeRmCLI([]string{})
+	err := RunSafeRmCLI([]string{})
 	if err != nil {
-		t.Fatalf("expected runSafeRmCLI with no args to succeed (printing usage), got: %v", err)
+		t.Fatalf("expected RunSafeRmCLI with no args to succeed (printing usage), got: %v", err)
 	}
 }

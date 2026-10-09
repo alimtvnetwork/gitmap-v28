@@ -7,24 +7,26 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdauthor"
 )
 
 func TestRunAuthor(t *testing.T) {
-	err := runAuthor([]string{})
+	err := cmdauthor.RunAuthor([]string{})
 	if err != nil {
 		t.Fatalf("runAuthor failed: %v", err)
 	}
 }
 
 func TestRunSponsor(t *testing.T) {
-	err := runSponsor([]string{})
+	err := cmdauthor.RunSponsor([]string{})
 	if err != nil {
 		t.Fatalf("runSponsor failed: %v", err)
 	}
 }
 
 func TestRunCredits(t *testing.T) {
-	err := runCredits([]string{})
+	err := cmdauthor.RunCredits([]string{})
 	if err != nil {
 		t.Fatalf("runCredits failed: %v", err)
 	}
@@ -44,7 +46,7 @@ func captureSponsorOutput(t *testing.T) string {
 	oldStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
-	_ = runSponsor([]string{})
+	_ = cmdauthor.RunSponsor([]string{})
 	_ = w.Close()
 	os.Stdout = oldStdout
 	var buf bytes.Buffer
