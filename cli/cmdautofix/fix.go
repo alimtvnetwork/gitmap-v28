@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // Exit-code contract (spec §2): 0 clean / nothing to do / applied cleanly;
@@ -42,6 +43,9 @@ func RunFixCmd(args []string) error {
 			renderCategoryOrParentHelp(rest)
 			cliexit.Exit(0)
 		}
+		// Deprecation warning per docs/deprecation-policy.md: the old
+		// git-state `fix` surface moved; warn on stderr, then error as before.
+		fmt.Fprint(os.Stderr, constants.MsgFixGitStateDeprecated)
 		cliexit.HandleUsageError(fmt.Errorf(
 			"unknown subcommand %q — valid subcommands: %s\nNote: git-state remediation moved to 'gitmap stash' / 'gitmap wip' / 'gitmap discard'",
 			sub, strings.Join(fixSubcommands, ", ")))

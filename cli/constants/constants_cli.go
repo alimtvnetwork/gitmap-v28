@@ -773,6 +773,10 @@ const (
 	// prefixed with two-space + middle-dot to match the rest of
 	// gitmap's stderr advisory format (see MsgScanProbeConcurrencyAlias).
 	MsgScanWorkersConcurrencyAlias = "  · --concurrency is deprecated; use --workers instead\n"
+	// MsgFixGitStateDeprecated is printed to os.Stderr when the old
+	// git-state `fix` surface is invoked (now owned by the content fixer).
+	// Per docs/deprecation-policy.md: stderr one-liner naming replacements.
+	MsgFixGitStateDeprecated = "  · git-state `fix` is deprecated; use `gitmap stash` / `gitmap wip` / `gitmap discard` instead\n"
 	// FlagScanRelativeRoot lets the user pin the base path used to compute
 	// each repo's RelativePath in the output (CSV/JSON/text/structure/
 	// clone scripts). Without it, RelativePath is derived from the scan

@@ -163,6 +163,40 @@ jobs:
           GH_BASE_REF: ${{ github.base_ref }}
         run: python3 .github/scripts/misspell-changed.py
 
+  file-size-gate:
+    # 300-line file cap enforcement (spec 243.4, program 265).
+    # Fails the build when any .go file changed in this PR/push exceeds
+    # 300 lines. Grandfathered files are untouched — only the diff is
+    # checked, so this can never block unrelated commits.
+    name: File Size Gate (300-line cap)
+    runs-on: ubuntu-latest
+    needs: sha-check
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed file-size-gate"
+
+      - if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base ref for PR diff
+        if: needs.sha-check.outputs.already-built != 'true' && github.event_name == 'pull_request'
+        run: git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+
+      - name: Check changed .go files against 300-line cap
+        if: needs.sha-check.outputs.already-built != 'true'
+        env:
+          GH_EVENT_NAME: ${{ github.event_name }}
+          GH_BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "$GH_EVENT_NAME" = "pull_request" ]; then
+            python3 03-ai-scripts/52-file-size-check.py --diff "origin/$GH_BASE_REF" --limit 300
+          else
+            python3 03-ai-scripts/52-file-size-check.py --diff HEAD~1 --limit 300
+          fi
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
