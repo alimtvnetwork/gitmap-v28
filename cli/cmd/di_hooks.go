@@ -291,7 +291,7 @@ func init() {
 	cmdcd.HasAliasFn = HasAlias
 	cmdcd.GetAliasPathFn = GetAliasPath
 	cmdcd.DispatchFn = dispatch
-	cmdaudit.CreatePendingTaskFn = cmdaudit.CreatePendingTask
+	cmdaudit.CreatePendingTaskFn = cmdpending.CreatePendingTask
 	cmdauditlegacy.CheckHelpFn = checkHelp
 	cmdauthor.CheckHelpFn = checkHelp
 	cmdbookmark.CheckHelpFn = checkHelp
