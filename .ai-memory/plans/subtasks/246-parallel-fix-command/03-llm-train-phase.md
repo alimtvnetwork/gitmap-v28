@@ -47,9 +47,10 @@ Edit:
       prints the per-category table from `SummaryReason` buckets
       (`dirty-worktree`, `diverged`, `untracked`, `other`).
 - [ ] `llm_heal.go`: `healPhase` sub-step B (Fix) calls
-      `cmdautofix.RunAutofixCmd([]string{"."})` (dry-run — never `--apply`
-      from the train); re-prints the engine's per-category roll-up and the
-      canonical next action `gitmap autofix --apply`. Verify no import cycle:
-      `cli/cmdautofix` must not import `cli/cmd/llm`.
+      `cmdautofix.Scan(cmdautofix.Options{Workers: runtime.NumCPU()})`
+      directly (check-only — NEVER `RunFixCmd`, which would prompt on stdin;
+      never apply from the train); prints the per-category roll-up from the
+      `ScanResult` and the canonical next action `gitmap fix all -y`.
+      Verify no import cycle: `cli/cmdautofix` must not import `cli/cmd/llm`.
 - [ ] Report-only by default. `--heal-apply stash|wip|discard` → 
 ...[truncated 1703 chars]

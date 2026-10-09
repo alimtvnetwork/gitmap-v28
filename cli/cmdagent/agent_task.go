@@ -74,6 +74,7 @@ func initTaskCommands() {
 	initTaskInitFlags()
 	initTaskLsFlags()
 	initTaskStatusFlags()
+	initTaskSlugCommands()
 
 	TaskCmd.AddCommand(taskInitCmd)
 	TaskCmd.AddCommand(taskLsCmd)

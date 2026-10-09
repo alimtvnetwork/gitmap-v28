@@ -130,3 +130,62 @@ func TestRecursiveInstructions(t *testing.T) {
 		t.Errorf("expected skill ingestion directive header")
 	}
 }
+
+func TestTrainPhaseRegistryOrder(t *testing.T) {
+	want := []string{
+		"1. Discovery",
+		"2. Refactoring",
+		"3. Verification",
+		"4. Semantic Commit",
+		"5. Telemetry",
+		"6. Heal & Fix",
+	}
+	if len(trainPhases) != len(want) {
+		t.Fatalf("expected %d train phases, got %d", len(want), len(trainPhases))
+	}
+	for i, phase := range trainPhases {
+		if phase.Name() != want[i] {
+			t.Errorf("phase %d: expected name %q, got %q", i+1, want[i], phase.Name())
+		}
+	}
+}
+
+func TestParseTrainFlagsHealApply(t *testing.T) {
+	opts, err := parseTrainFlags([]string{"--heal-apply", "stash", "--text-only"})
+	if err != nil {
+		t.Fatalf("expected nil error for --heal-apply stash, got: %v", err)
+	}
+	if opts.HealApply != "stash" {
+		t.Errorf("expected HealApply stash, got %q", opts.HealApply)
+	}
+	if !opts.IsTextOnly {
+		t.Errorf("expected IsTextOnly true")
+	}
+}
+
+func TestParseTrainFlagsHealApplyDefault(t *testing.T) {
+	opts, err := parseTrainFlags([]string{})
+	if err != nil {
+		t.Fatalf("expected nil error for empty args, got: %v", err)
+	}
+	if opts.HealApply != "" {
+		t.Errorf("expected empty HealApply default (report-only), got %q", opts.HealApply)
+	}
+}
+
+func TestBucketHealReason(t *testing.T) {
+	cases := map[string]string{
+		"dirty: +1 modified, +2 untracked": "untracked",
+		"diverged (+2/-1)":                 "diverged",
+		"behind (3)":                       "diverged",
+		"ahead (1)":                        "diverged",
+		"uncommitted changes":              "dirty-worktree",
+		"merge conflict":                   "dirty-worktree",
+		"something unexpected":             "other",
+	}
+	for reason, want := range cases {
+		if got := bucketHealReason(reason); got != want {
+			t.Errorf("bucketHealReason(%q): expected %q, got %q", reason, want, got)
+		}
+	}
+}

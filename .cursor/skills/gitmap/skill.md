@@ -102,6 +102,18 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap user sync` — Idempotently apply bound project profile to local repository git config.
 - `gitmap user add <username> [--password <pwd>]` / `gitmap user create-root <user>` — Cross-platform OS user management.
 
+### 10. Workspace Heal & Fix (gitmap fix)
+- `gitmap fix` — Show pending remediation summary for dirty/diverged tracked repos (report-only).
+- `gitmap fix ls` — Tabular list of repos needing remediation with per-repo recipes.
+- `gitmap fix <repo> <action>` — Apply a recipe to one repo. Actions: `stash` (s/1), `wip` (w/2), `discard` (d/3).
+- `gitmap fix all <action>` — Apply one action across all pending repos.
+- `gitmap fix --prompt` — Interactive per-repo remediation picker.
+- `gitmap stash|wip|discard` — Root aliases routing into the same engine with the action pre-selected.
+- `gitmap fix agy` — Route Antigravity pipeline errors through the agy fixer.
+- `gitmap fix ignore|fia` — Batch .gitignore remediation (local or `--ssh` fleet).
+- `gitmap llm train` phase 6 ("Heal & Fix") runs this engine in-process, report-only
+  by default; `gitmap llm train --heal-apply stash|wip|discard` applies non-interactively.
+
 ## Command Replacement Matrix (Mandatory Substitutions)
 
 | Forbidden / Anti-Pattern Command | Mandatory GitMap Replacement | Rationale |

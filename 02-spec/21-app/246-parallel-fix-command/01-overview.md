@@ -40,15 +40,22 @@ sharing `02-shared-engine.py`) into a native GitMap command that:
 ## Decisions (2026-10-09, recorded)
 - D1: Pure-Go reimplementation, not subprocess calls into the Python scripts.
   The scripts stay untouched as reference; Go becomes the fast parallel path.
-- D2: NAME COLLISION — `fix` is TAKEN. `cli/cmd/rootcore.go:79` already
-  dispatches `{[]string{"fix"}, ...}` → `cmdfix.RunFix` (git-state remediation:
-  stash/wip/discard flows), and the `cli/cmdfix/` package exists with that
-  command's implementation. The new command is `gitmap autofix`
-  (short alias `afx`), implemented in a NEW package `cli/cmdautofix/`.
-  Both names were verified free of dispatch entries and package collisions.
-- D3: Dry-run by default (audit only, exit 1 on violations). `--apply` writes.
-  This unifies the scripts' inconsistent CLI shapes (`--fix` vs `--check-only`,
-  `--path/-p` vs positional) and drops script 05's inverted default-fix.
+- D2: OWNER DECISION 2026-10-09 (overrides earlier sketch) — `fix` IS the parent
+  command, with per-category subcommands (`encoding`, `newlines`, `naming`,
+  `paths`, `gofmt`, `misspell`, `markdown`, `guidelines`, `all`). This DISPLACES
+  the existing git-state `fix` (`cli/cmd/rootcore.go:79` → `cmdfix.RunFix`):
+  the `{[]string{"fix"}, ...}` entry is REMOVED from `coreBasicMaintenanceEntries()`;
+  the `stash` / `wip` / `discard` entries stay byte-identical, so git-state
+  remediation remains fully accessible. Unknown `fix` subcommand (e.g. old
+  `fix ls`) → error listing valid subcommands plus the redirect line pointing
+  to `gitmap stash` / `gitmap wip` / `gitmap discard`. New implementation lives
+  in package `cli/cmdautofix/` (internal name; the COMMAND is `fix`).
+- D3: Check-driven behavior (owner: "fixes are check-driven, not blind").
+  Default flow per subcommand: scan → MANDATORY summary (files scanned, files
+  modified, per-category fix counts, time taken) → PROMPT `Apply these fixes?
+  [y/N]` (default N). `-y` / `--yes` skips the prompt and applies. `fix all`
+  runs every check, prints ONE combined summary, ONE prompt. `--json` implies
+  no prompt unless `-y` (CI: exits 1 on findings, applies nothing).
 - D4: Categories are the 8 groups above; `--category a,b` selects a subset,
   default = all. Unknown category name = usage error (exit 2).
 - D5: The worker pool runs over FILES (not categories): each worker applies all

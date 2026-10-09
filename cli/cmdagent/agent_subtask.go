@@ -94,6 +94,7 @@ type SubtaskAddOptions struct {
 	JsonInput  string
 	Title      string
 	TaskCode   string
+	Slug       string
 	OwnedFiles string
 }
 
@@ -148,6 +149,7 @@ func initSubtaskAddFlags() {
 	subtaskAddCmd.Flags().StringVarP(&subtaskAddOpts.JsonInput, "json", "j", "", "JSON array or single subtask object")
 	subtaskAddCmd.Flags().StringVar(&subtaskAddOpts.Title, "title", "", "Subtask title")
 	subtaskAddCmd.Flags().StringVar(&subtaskAddOpts.TaskCode, "code", "", "Task code (e.g. Subtask-01)")
+	subtaskAddCmd.Flags().StringVar(&subtaskAddOpts.Slug, "slug", "", "Subtask slug (Title Case accepted; sanitized on store)")
 	subtaskAddCmd.Flags().StringVar(&subtaskAddOpts.OwnedFiles, "owned", "[]", "JSON array of owned files")
 }
 
@@ -185,12 +187,19 @@ func RunSubtaskAdd(opts SubtaskAddOptions) *appfault.AppError {
 	if hasParseErr {
 		return parseErr
 	}
-	dbPath, findErr := store.FindTaskDbPath("", opts.ParentId)
+	dbPath, canonicalParentId, findErr := resolveSubtaskParent(opts.ParentId)
 	hasFindErr := findErr != nil
 	if hasFindErr {
 		return findErr
 	}
-	addErr := store.AddSubtasks(dbPath, opts.ParentId, subtasks)
+	migErr := store.EnsureSubtaskSlugColumn(dbPath)
+	hasMigErr := migErr != nil
+	if hasMigErr {
+		return migErr
+	}
+	subtasks = normalizeSubtaskParents(subtasks, opts.ParentId, canonicalParentId)
+	subtasks = applySubtaskSlugs(subtasks, opts)
+	addErr := store.AddSubtasks(dbPath, canonicalParentId, subtasks)
 	hasAddErr := addErr != nil
 	if hasAddErr {
 		return addErr
@@ -198,6 +207,89 @@ func RunSubtaskAdd(opts SubtaskAddOptions) *appfault.AppError {
 	fmt.Printf("Successfully added %d subtask(s) to %s\n", len(subtasks), dbPath)
 
 	return nil
+}
+
+// resolveSubtaskParent resolves the parent reference to its Tier 2 DB path and
+// canonical task ID. Slug input (any case) matches via the sanitized Tier 1
+// lookup; anything else falls back to the existing ID-or-latest resolution.
+func resolveSubtaskParent(parentId string) (string, string, *appfault.AppError) {
+	trimmed := strings.TrimSpace(parentId)
+	hasInput := len(trimmed) > 0
+	if hasInput {
+		masterDb := store.ResolveMasterAgentDbPath("")
+		task, slugErr := store.FindParentTaskBySlug(masterDb, trimmed)
+		hasFound := slugErr == nil && task != nil
+		if hasFound {
+			return task.RootDbPath, task.ParentTaskId, nil
+		}
+	}
+	dbPath, findErr := store.FindTaskDbPath("", parentId)
+	hasFindErr := findErr != nil
+	if hasFindErr {
+		return "", "", findErr
+	}
+
+	return dbPath, parentId, nil
+}
+
+// normalizeSubtaskParents rewrites the stored ParentTaskId to the canonical
+// task ID when it is empty or carries the raw --parent input form.
+func normalizeSubtaskParents(subtasks []types.Subtask, rawParentId, canonicalParentId string) []types.Subtask {
+	for i := range subtasks {
+		current := subtasks[i].ParentTaskId
+		needsRewrite := len(current) == 0 || current == rawParentId
+		if needsRewrite {
+			subtasks[i].ParentTaskId = canonicalParentId
+		}
+	}
+
+	return subtasks
+}
+
+// applySubtaskSlugs resolves the TaskSlug for each subtask: explicit --slug or
+// JSON taskSlug wins (sanitized); otherwise derived from the parent task slug
+// and the subtask code.
+func applySubtaskSlugs(subtasks []types.Subtask, opts SubtaskAddOptions) []types.Subtask {
+	parentSlug := resolveParentSlugForSubtasks(opts.ParentId)
+	for i := range subtasks {
+		subtasks[i].TaskSlug = resolveSubtaskSlug(subtasks[i].TaskSlug, opts.Slug, parentSlug, subtasks[i].TaskCode)
+	}
+
+	return subtasks
+}
+
+func resolveSubtaskSlug(explicit, flagSlug, parentSlug, code string) string {
+	hasFlag := len(strings.TrimSpace(flagSlug)) > 0
+	if hasFlag {
+		return store.SanitizeSlug(flagSlug)
+	}
+	hasExplicit := len(strings.TrimSpace(explicit)) > 0
+	if hasExplicit {
+		return store.SanitizeSlug(explicit)
+	}
+	base := store.SanitizeSlug(parentSlug)
+	cleanCode := store.SanitizeSlug(code)
+	hasBase := len(base) > 0
+	if !hasBase {
+		return cleanCode
+	}
+
+	return base + "-" + cleanCode
+}
+
+func resolveParentSlugForSubtasks(parentId string) string {
+	hasId := len(strings.TrimSpace(parentId)) > 0
+	if !hasId {
+		return ""
+	}
+	masterDb := store.ResolveMasterAgentDbPath("")
+	task, findErr := store.FindParentTaskBySlug(masterDb, parentId)
+	hasMiss := findErr != nil || task == nil
+	if hasMiss {
+		return ""
+	}
+
+	return task.TaskSlug
 }
 
 func parseSubtasksInput(opts SubtaskAddOptions) ([]types.Subtask, *appfault.AppError) {

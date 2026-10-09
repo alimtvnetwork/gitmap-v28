@@ -27,13 +27,14 @@ Owner 2026-10-09: "there was a AI script for fixing the file and coding right yo
 - [x] Step 0: git pull (d018f68), backup branch `backup/246-parallel-fix-command` pushed.
 - [x] Research wave: 8-script deep-dive + llm-train/UI deep-dive (both reports in).
 - [x] Spec wave: 4 spec files + 6 subtasks written; lead reconciled heal-phase to drive both `cmdfix` (git-state) and `cmdautofix` (content).
-- [ ] Wave 0 commit: spec + plan + indexes (this commit).
-- [ ] Wave 1: `cli/cmdautofix/` engine + CLI (01, 02); llm train phase + skills (03, 04).
+- [x] Wave 0 commit: spec + plan + indexes (commit pushed via `gitmap cpf`).
+- [ ] Wave 1: `cli/cmdautofix/` engine + CLI (01, 02); llm train phase + skills (03, 04). — WORKERS DISPATCHED, then REDIRECTED to owner refinement (fix parent shape); spec + subtasks updated.
 - [ ] Wave 2: UI themes (05); UI polish (06).
 - [ ] Wave 3: lead verification (build, vet, smoke tests, settings UI load); final report to owner.
 
 ## Decisions (lead)
 - D1: Command named `autofix`/`afx` (fix/cmdfix taken). D2: dry-run default, `--apply` writes. D3: `--workers/-w`, default = NumCPU(). D4: exit codes 0/1/2 (CI compat). D5: misspell case-preserving (fix script bug, don't replicate). D6: REPO_FILE_URI parameterized via `--uri-pattern`. D7: train heal phase = cmdfix (git-state, `--heal-apply` applies) + cmdautofix (content, report-only always). D8: UI keeps Go-string asset model (no build pipeline). D9: help menu aligned to 10 real tabs (no invented pages). D10: SSE claim removed, not implemented.
+- D11 (OWNER REFINEMENT 2026-10-09, overrides D1–D4): `fix` IS the parent command with per-category subcommands (`encoding|newlines|naming|paths|gofmt|misspell|markdown|guidelines|all`). Check-driven: scan → mandatory summary → prompt `[y/N]`; `-y`/`--yes` applies. `fix all` = one summary, one prompt. `--workers N` (default CPU) + scan-result cache. The old git-state `fix` is DISPLACED (entry removed from rootcore.go); `stash`/`wip`/`discard` entries untouched. Package stays `cli/cmdautofix/`; entry `RunFixCmd`. Train sub-step B calls `cmdautofix.Scan` directly (never prompts).
 
 ## Assumptions
 - `cli/cmdautofix` will not import `cli/cmd/llm` (worker verifies at build; fallback: heal phase skips content sub-step with a warning).

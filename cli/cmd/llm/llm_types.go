@@ -10,6 +10,7 @@ type TrainOptions struct {
 	IsURLs     bool
 	IsJSON     bool
 	SkillPath  string
+	HealApply  string
 }
 
 const (
@@ -33,4 +34,5 @@ STAGE 4: OPERATIONAL BEST PRACTICES & GUARDRAIL DIRECTIVES
 4. File Size Limit (Rule R19): Reject/warn on single files > 500 KB and large JSONs.
 5. Universal AppError Envelope: Return *appfault.AppError (package appfault); never swallow errors.
 6. Clean Git Tree: Never commit generated test binaries or temp artifacts.
-7. Semantic Commits: Use 'gitmap cpf', 'gitmap cpb', or 'gitmap cpr'.`
+7. Semantic Commits: Use 'gitmap cpf', 'gitmap cpb', or 'gitmap cpr'.
+8. Heal Before Commit: Run 'gitmap fix ls' and 'gitmap autofix', clear remediation items before pushing.`

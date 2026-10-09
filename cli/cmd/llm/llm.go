@@ -20,7 +20,7 @@ Gitmap is a high-performance CLI designed for autonomous AI agents, LLMs, and de
 
 ## 1. AI Agent Standard Operating Procedure (Order of Commands)
 
-When an autonomous AI Agent is assigned a coding, refactoring, or debugging task, it MUST follow this structured 5-phase lifecycle in exact sequential order:
+When an autonomous AI Agent is assigned a coding, refactoring, or debugging task, it MUST follow this structured 6-phase lifecycle in exact sequential order:
 
 ` + "```" + `
   ┌─────────────────────────────────────────────────────────────┐
@@ -46,6 +46,11 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
   ┌─────────────────────────────────────────────────────────────┐
   │  Phase 5: Non-Blocking CI Telemetry & Self-Healing Loop     │
   │  ➔ gitmap pipeline status --json, gitmap eta, error-logs   │
+  └─────────────────────────────────────────────────────────────┘
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Phase 6: Heal & Fix (report-only)                          │
+  │  ➔ gitmap fix ls + autofix — cmdfix + cmdautofix in-process│
   └─────────────────────────────────────────────────────────────┘
 ` + "```" + `
 

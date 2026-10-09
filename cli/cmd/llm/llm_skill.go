@@ -55,7 +55,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
   - ` + "`gitmap aum search -r \"(BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})\"`" + ` — Fast secret scanning across active repos.
 
 ### 2. Autonomous Agent Onboarding & Curriculum (LLM)
-- ` + "`gitmap llm train`" + ` (alias: ` + "`gitmap llm chain`" + `) — Full 4-stage chained curriculum, emits full Antigravity skill directly to stdout & disk, author/sponsor attribution.
+- ` + "`gitmap llm train`" + ` (alias: ` + "`gitmap llm chain`" + `) — Full 6-phase chained curriculum (Discovery, Refactoring, Verification, Semantic Commit, Telemetry, Heal & Fix), emits full Antigravity skill directly to stdout & disk, author/sponsor attribution.
 - ` + "`gitmap llm train --urls`" + ` — Output authoritative public GitHub Markdown documentation links for LLM memory ingestion.
 - ` + "`gitmap llm train --text-only`" + ` — Output skill & curriculum to stdout without modifying files on disk.
 - ` + "`gitmap llm-docs`" + ` (alias: ` + "`gitmap ld`" + `) — Consolidated markdown command matrix reference for LLMs.
@@ -111,6 +111,18 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - ` + "`gitmap user config [global|local] [--name \"<n>\"] [--email \"<e>\"]`" + ` — Inspect or set Git configuration.
 - ` + "`gitmap user sync`" + ` — Idempotently apply bound project profile to local repository git config.
 - ` + "`gitmap user add <username> [--password <pwd>]`" + ` / ` + "`gitmap user create-root <user>`" + ` — Cross-platform OS user management.
+
+### 10. Workspace Heal & Fix (gitmap fix)
+- ` + "`gitmap fix`" + ` — Show pending remediation summary for dirty/diverged tracked repos (report-only).
+- ` + "`gitmap fix ls`" + ` — Tabular list of repos needing remediation with per-repo recipes.
+- ` + "`gitmap fix <repo> <action>`" + ` — Apply a recipe to one repo. Actions: ` + "`stash`" + ` (s/1), ` + "`wip`" + ` (w/2), ` + "`discard`" + ` (d/3).
+- ` + "`gitmap fix all <action>`" + ` — Apply one action across all pending repos.
+- ` + "`gitmap fix --prompt`" + ` — Interactive per-repo remediation picker.
+- ` + "`gitmap stash|wip|discard`" + ` — Root aliases routing into the same engine with the action pre-selected.
+- ` + "`gitmap fix agy`" + ` — Route Antigravity pipeline errors through the agy fixer.
+- ` + "`gitmap fix ignore|fia`" + ` — Batch .gitignore remediation (local or ` + "`--ssh`" + ` fleet).
+- ` + "`gitmap llm train`" + ` phase 6 ("Heal & Fix") runs this engine in-process, report-only
+  by default; ` + "`gitmap llm train --heal-apply stash|wip|discard`" + ` applies non-interactively.
 
 ## Command Replacement Matrix (Mandatory Substitutions)
 

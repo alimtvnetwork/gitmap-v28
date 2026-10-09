@@ -4,7 +4,7 @@
 
 Give `gitmap llm train` a real, executable 6th phase — **Heal & Fix** — with two
 in-process sub-steps: (a) **Heal**: workspace git-state remediation via the existing
-`cmdfix` engine; (b) **Fix**: file-content fixing via the NEW `gitmap autofix` engine
+`cmdfix` engine; (b) **Fix**: file-content fixing via the NEW `gitmap fix` engine
 (`cli/cmdautofix`, program 246 spec 02 — the parallel port of the 8 AI fixer
 scripts: encoding, newlines, naming, paths, gofmt, misspell, markdown, guidelines).
 Replace the current print-only 5-phase simulation with a `TrainPhase` interface +
@@ -19,11 +19,11 @@ self-loop, chained sequence, `--help`, skill template) to 6-phase consistency.
   the ASCII diagram in `llmMarkdownSpec` (`cli/cmd/llm/llm.go`), and prints in
   `executeSelfLoopSimulation()`.
 - `cmdfix.RunFix(args []string, aliasOverride string) error` (`cli/cmdfix/fix_cmd.go`)
-  is the in-process git-state engine entry — the same engine `gitmap fix` uses
+  is the in-process git-state engine entry — the same engine `gitmap stash`/`gitmap wip`/`gitmap discard` use
   (`cli/cmd/rootcore.go:79-82` registers `fix`, `stash`, `wip`, `discard` on it).
 - `cmdautofix.RunAutofixCmd(args []string) error` (`cli/cmdautofix/fix.go`, NEW in
   program 246 spec 02) is the in-process content-fix engine entry — the same
-  engine `gitmap autofix` uses. For the train's report-only needs it is invoked
+  engine `gitmap fix` uses. For the train's report-only needs it is invoked
   as `RunAutofixCmd([]string{<path>})` (dry-run by default; no `--apply`).
   NOTE: `cli/cmd/llm` importing `cli/cmdautofix` must not create an import cycle —
   `cmdautofix` must not import `cmd/llm` (implementer verifies with the build).
@@ -91,15 +91,15 @@ New file `cli/cmd/llm/llm_heal.go` (≤150 lines). `healPhase.Name()` returns
    in this file (buckets: `dirty-worktree`, `diverged`, `untracked`, `other`).
    Buckets are derived, never invented: bucket from the reason string, fallback `other`.
 4. Print a per-category table: `CATEGORY | REPOS | EXAMPLE REPO`.
-5. Report the canonical next actions: `gitmap fix ls`, `gitmap fix <repo> <action>`.
+5. Report the canonical next actions: `gitmap stash ls`, `gitmap stash <repo> <action>`.
 
-**Sub-step B — Fix (content, new autofix engine):**
+**Sub-step B — Fix (content, new fix engine):**
 
-6. Print `STAGE 6b: FIX — file-content audit via autofix engine (report-only)`.
-7. Call `cmdautofix.RunAutofixCmd([]string{"."})` — dry-run by default, so this
-   audits without writing. Capture its per-category summary (the engine prints
-   `CATEGORY | FILES FLAGGED` lines; the phase re-prints the roll-up).
-8. Report the canonical next action: `gitmap autofix --apply` to write the fixes.
+6. Print `STAGE 6b: FIX — file-content audit via fix engine (report-only)`.
+7. Call `cmdautofix.Scan(cmdautofix.Options{Workers: runtime.NumCPU()})` —
+   check-only, no prompt, no writes. Print the per-category roll-up from the
+   returned `ScanResult` (same summary shape as the CLI).
+8. Report the canonical next action: `gitmap fix all -y` to write the fixes.
 
 Safety rules (non-negotiable):
 
@@ -108,7 +108,7 @@ Safety rules (non-negotiable):
   where action is one of `stash|wip|discard` (existing `cmdfix` parsing; invalid
   actions error as today). Content fixes are NEVER applied by the train —
   `RunAutofixCmd` is always invoked without `--apply`; the train reports, the
-  operator runs `gitmap autofix --apply`.
+  operator runs `gitmap fix all -y`.
 - `--heal-apply` is **ignored under `--text-only`** (no mutations in text-only mode).
 - `RunFix` returns plain `error` → wrap with `apperror.WrapSimple(err, "healPhase.fix")`.
 - The phase never deletes files and never prunes aliases (repo hard rules).
@@ -124,13 +124,13 @@ healApply := fs.String("heal-apply", "", "Apply fix recipes non-interactively: s
 
 | File | Location | Change |
 | :--- | :--- | :--- |
-| `llm_train.go` | `outputTrainJSON()` phases array | Append `{"phase": "6. Heal & Fix", "commands": "gitmap fix ls, gitmap autofix", "purpose": "In-process remediation scan + parallel content-fix audit (report-only); optional --heal-apply for git-state recipes"}` |
-| `llm_train.go` | `executeSelfLoopSimulation()` | Header `AUTONOMOUS 5-PHASE` → `AUTONOMOUS 6-PHASE`; add line `  Phase 6 [Heal & Fix]:   In-process remediation scan (cmdfix) + autofix content audit (report-only)` |
-| `llm.go` | `llmMarkdownSpec` ASCII diagram | Append Phase 6 box after Phase 5 (same box-drawing style): `Phase 6: Heal & Fix (report-only)` / `➔ gitmap fix ls + gitmap autofix — cmdfix + cmdautofix engines in-process` |
+| `llm_train.go` | `outputTrainJSON()` phases array | Append `{"phase": "6. Heal & Fix", "commands": "gitmap stash ls, gitmap fix all", "purpose": "In-process remediation scan + parallel content-fix audit (report-only); optional --heal-apply for git-state recipes"}` |
+| `llm_train.go` | `executeSelfLoopSimulation()` | Header `AUTONOMOUS 5-PHASE` → `AUTONOMOUS 6-PHASE`; add line `  Phase 6 [Heal & Fix]:   In-process remediation scan (cmdfix) + fix content audit (report-only)` |
+| `llm.go` | `llmMarkdownSpec` ASCII diagram | Append Phase 6 box after Phase 5 (same box-drawing style): `Phase 6: Heal & Fix (report-only)` / `➔ gitmap stash ls + gitmap fix all — cmdfix + cmdautofix engines in-process` |
 | `llm.go` | `llmMarkdownSpec` §1 paragraph | "structured 5-phase lifecycle" → "structured 6-phase lifecycle" |
-| `llm_train.go` | `printChainedSequence()` | Append `12. gitmap fix ls  — List repos needing remediation with per-category heal summary` and `13. gitmap autofix — Parallel content-fix audit (encoding, newlines, naming, paths, gofmt, misspell, markdown)` |
+| `llm_train.go` | `printChainedSequence()` | Append `12. gitmap stash ls  — List repos needing remediation with per-category heal summary` and `13. gitmap fix all — Parallel content-fix audit (encoding, newlines, naming, paths, gofmt, misspell, markdown)` |
 | `llm_train.go` | `printTrainUsage()` | Description → 6-phase; add `--heal-apply string` flag line (see §6) |
-| `llm_types.go` | `OperationalDirectivesText` | Append `8. Heal Before Commit: Run 'gitmap fix ls' and 'gitmap autofix', clear remediation items before pushing.` |
+| `llm_types.go` | `OperationalDirectivesText` | Append `8. Heal Before Commit: Run 'gitmap stash ls' and 'gitmap fix all', clear remediation items before pushing.` |
 | `llm_skill.go` | `SkillTemplate` §2 | "Full 4-stage chained curriculum" → "Full 6-phase chained curriculum (Discovery, Refactoring, Verification, Semantic Commit, Telemetry, Heal & Fix)" |
 | `llm_skill.go` | `SkillTemplate` | Add §10 "Workspace Heal & Fix" — exact markdown defined in subtask `04-skills-docs.md` |
 | `llm_urls.go` | `GetPublicDocLinks()[0].Description` | "Authoritative 5-phase execution lifecycle" → "Authoritative 6-phase execution lifecycle" |

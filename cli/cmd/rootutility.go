@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexplorer"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy"
@@ -477,6 +478,7 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"cat", "view", "type"}, func() error { return cmdmacro.RunCatCmd(argsTail()) }},
 		{[]string{"touch"}, func() error { return cmdmacro.RunTouchCmd(argsTail()) }},
 		{[]string{"mkfile", "create-file"}, func() error { return cmdmacro.RunMkfileCmd(argsTail()) }},
+		{[]string{"autofix", "afx"}, func() error { return cmdautofix.RunAutofixCmd(argsTail()) }},
 	}
 }
 

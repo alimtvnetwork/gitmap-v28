@@ -316,6 +316,7 @@ const (
     SubtaskId TEXT PRIMARY KEY,
     ParentTaskId TEXT NOT NULL,
     TaskCode TEXT NOT NULL,
+    TaskSlug TEXT NOT NULL DEFAULT '',
     Title TEXT NOT NULL,
     AssignedAgentRole TEXT NOT NULL DEFAULT '',
     OwnedFilesJson TEXT NOT NULL DEFAULT '[]',
@@ -325,7 +326,8 @@ const (
     UpdatedAt TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS IdxSubtask_Parent ON Subtask(ParentTaskId);
-CREATE INDEX IF NOT EXISTS IdxSubtask_Status ON Subtask(Status);`
+CREATE INDEX IF NOT EXISTS IdxSubtask_Status ON Subtask(Status);
+CREATE INDEX IF NOT EXISTS IdxSubtask_Slug ON Subtask(TaskSlug);`
 
 	sqlCreateSubtaskAuditRollup = `CREATE TABLE IF NOT EXISTS SubtaskAuditRollup (
     RollupId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -345,10 +347,10 @@ RootDbPath=excluded.RootDbPath, Status=excluded.Status, TotalStepsBudget=exclude
 CompletedSteps=excluded.CompletedSteps, SpawnedAgentCount=excluded.SpawnedAgentCount, UpdatedAt=excluded.UpdatedAt`
 
 	sqlUpsertSubtask = `INSERT INTO Subtask (
-SubtaskId, ParentTaskId, TaskCode, Title, AssignedAgentRole, OwnedFilesJson, Status, Evidence, CreatedAt, UpdatedAt
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+SubtaskId, ParentTaskId, TaskCode, TaskSlug, Title, AssignedAgentRole, OwnedFilesJson, Status, Evidence, CreatedAt, UpdatedAt
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(SubtaskId) DO UPDATE SET
-Title=excluded.Title, AssignedAgentRole=excluded.AssignedAgentRole, OwnedFilesJson=excluded.OwnedFilesJson,
+TaskSlug=excluded.TaskSlug, Title=excluded.Title, AssignedAgentRole=excluded.AssignedAgentRole, OwnedFilesJson=excluded.OwnedFilesJson,
 Status=excluded.Status, Evidence=excluded.Evidence, UpdatedAt=excluded.UpdatedAt`
 
 	sqlCompleteSubtask = `UPDATE Subtask SET Status = 'DONE', AssignedAgentRole = ?, Evidence = ?, UpdatedAt = ? WHERE SubtaskId = ?`
@@ -398,7 +400,7 @@ func AddSubtasks(taskDbPath string, parentId string, subtasks []types.Subtask) *
 func insertSubtaskRow(conn *sql.DB, sub types.Subtask, parentId, now string) *appfault.AppError {
 	pId := resolveSubtaskParentId(sub.ParentTaskId, parentId)
 	cAt := resolveSubtaskCreatedAt(sub.CreatedAt, now)
-	res := ExecWrapper(conn, sqlUpsertSubtask, sub.SubtaskId, pId, sub.TaskCode, sub.Title, sub.AssignedAgentRole, sub.OwnedFilesJson, sub.Status, sub.Evidence, cAt, now)
+	res := ExecWrapper(conn, sqlUpsertSubtask, sub.SubtaskId, pId, sub.TaskCode, sub.TaskSlug, sub.Title, sub.AssignedAgentRole, sub.OwnedFilesJson, sub.Status, sub.Evidence, cAt, now)
 	if res.IsFailure {
 		return appfault.WrapSimple(res.Error, "insertSubtaskRow")
 	}
@@ -598,10 +600,10 @@ func querySubtaskRows(conn *sql.DB, parentId string) (*sql.Rows, *appfault.AppEr
 func buildListSubtasksQuery(parentId string) (string, []any) {
 	hasParent := len(parentId) > 0
 	if hasParent {
-		q := `SELECT SubtaskId, ParentTaskId, TaskCode, Title, AssignedAgentRole, OwnedFilesJson, Status, Evidence, CreatedAt, UpdatedAt FROM Subtask WHERE ParentTaskId = ? ORDER BY rowid ASC`
+		q := `SELECT SubtaskId, ParentTaskId, TaskCode, TaskSlug, Title, AssignedAgentRole, OwnedFilesJson, Status, Evidence, CreatedAt, UpdatedAt FROM Subtask WHERE ParentTaskId = ? ORDER BY rowid ASC`
 		return q, []any{parentId}
 	}
-	q := `SELECT SubtaskId, ParentTaskId, TaskCode, Title, AssignedAgentRole, OwnedFilesJson, Status, Evidence, CreatedAt, UpdatedAt FROM Subtask ORDER BY rowid ASC`
+	q := `SELECT SubtaskId, ParentTaskId, TaskCode, TaskSlug, Title, AssignedAgentRole, OwnedFilesJson, Status, Evidence, CreatedAt, UpdatedAt FROM Subtask ORDER BY rowid ASC`
 
 	return q, []any{}
 }
@@ -611,7 +613,7 @@ func scanSubtasks(rows *sql.Rows) ([]types.Subtask, *appfault.AppError) {
 	for rows.Next() {
 		var s types.Subtask
 		scanErr := rows.Scan(
-			&s.SubtaskId, &s.ParentTaskId, &s.TaskCode, &s.Title,
+			&s.SubtaskId, &s.ParentTaskId, &s.TaskCode, &s.TaskSlug, &s.Title,
 			&s.AssignedAgentRole, &s.OwnedFilesJson, &s.Status,
 			&s.Evidence, &s.CreatedAt, &s.UpdatedAt,
 		)
@@ -621,6 +623,126 @@ func scanSubtasks(rows *sql.Rows) ([]types.Subtask, *appfault.AppError) {
 	}
 
 	return list, nil
+}
+
+// FindParentTaskBySlug retrieves a parent task from the Tier 1 master DB by
+// sanitized slug. Returns (nil, nil) when no task matches. The input is
+// sanitized before comparison so Title Case slugs from prompts match storage.
+func FindParentTaskBySlug(masterDbPath string, slug string) (*types.ParentTask, *appfault.AppError) {
+	conn, openErr := InitMasterAgentDB(masterDbPath)
+	hasOpenErr := openErr != nil
+	if hasOpenErr {
+		return nil, openErr
+	}
+	defer conn.Close()
+
+	clean := SanitizeSlug(slug)
+	query := `SELECT ParentTaskId, TaskSlug, TaskName, RunDirectory, RootDbPath, Status, TotalStepsBudget, CompletedSteps, SpawnedAgentCount, CreatedAt, UpdatedAt FROM ParentTaskRegistry WHERE TaskSlug = ? LIMIT 1`
+	res := QueryWrapper(conn, query, clean)
+	if res.IsFailure {
+		return nil, appfault.WrapSimple(res.Error, "FindParentTaskBySlug")
+	}
+	defer res.Data.Close()
+
+	tasks, scanErr := scanParentTasks(res.Data)
+	hasScanErr := scanErr != nil
+	if hasScanErr {
+		return nil, scanErr
+	}
+	hasTask := len(tasks) > 0
+	if !hasTask {
+		return nil, nil
+	}
+
+	return &tasks[0], nil
+}
+
+// EnsureSubtaskSlugColumn adds TaskSlug to Subtask on databases created before
+// the column existed. Idempotent: no-op when the column is already present.
+func EnsureSubtaskSlugColumn(taskDbPath string) *appfault.AppError {
+	conn, openErr := InitTaskDB(taskDbPath)
+	hasOpenErr := openErr != nil
+	if hasOpenErr {
+		return openErr
+	}
+	defer conn.Close()
+
+	return ensureSubtaskSlugColumnConn(conn)
+}
+
+func ensureSubtaskSlugColumnConn(conn *sql.DB) *appfault.AppError {
+	res := QueryWrapper(conn, "PRAGMA table_info(Subtask)")
+	if res.IsFailure {
+		return appfault.WrapSimple(res.Error, "ensureSubtaskSlugColumn")
+	}
+	defer res.Data.Close()
+
+	hasColumn := false
+	for res.Data.Next() {
+		var cid int
+		var name, colType string
+		var notNull int
+		var dflt sql.NullString
+		var pk int
+		if scanErr := res.Data.Scan(&cid, &name, &colType, &notNull, &dflt, &pk); scanErr != nil {
+			continue
+		}
+		if name == "TaskSlug" {
+			hasColumn = true
+			break
+		}
+	}
+	if hasColumn {
+		return nil
+	}
+	alter := ExecWrapper(conn, "ALTER TABLE Subtask ADD COLUMN TaskSlug TEXT NOT NULL DEFAULT ''")
+	if alter.IsFailure {
+		return appfault.WrapSimple(alter.Error, "ensureSubtaskSlugColumn")
+	}
+
+	return nil
+}
+
+// ListPendingSubtasks retrieves PENDING subtasks from a Tier 2 task DB,
+// optionally scoped to parent IDs (covers both stored ID and slug forms).
+func ListPendingSubtasks(taskDbPath string, parentIds ...string) ([]types.Subtask, *appfault.AppError) {
+	conn, openErr := InitTaskDB(taskDbPath)
+	hasOpenErr := openErr != nil
+	if hasOpenErr {
+		return nil, openErr
+	}
+	defer conn.Close()
+
+	migErr := ensureSubtaskSlugColumnConn(conn)
+	hasMigErr := migErr != nil
+	if hasMigErr {
+		return nil, migErr
+	}
+
+	query, args := buildPendingSubtasksQuery(parentIds)
+	res := QueryWrapper(conn, query, args...)
+	if res.IsFailure {
+		return nil, appfault.WrapSimple(res.Error, "ListPendingSubtasks")
+	}
+	defer res.Data.Close()
+
+	return scanSubtasks(res.Data)
+}
+
+func buildPendingSubtasksQuery(parentIds []string) (string, []any) {
+	base := `SELECT SubtaskId, ParentTaskId, TaskCode, TaskSlug, Title, AssignedAgentRole, OwnedFilesJson, Status, Evidence, CreatedAt, UpdatedAt FROM Subtask WHERE Status = 'PENDING'`
+	hasParents := len(parentIds) > 0
+	if !hasParents {
+		return base + ` ORDER BY rowid ASC`, []any{}
+	}
+	placeholders := make([]string, len(parentIds))
+	args := make([]any, len(parentIds))
+	for i, id := range parentIds {
+		placeholders[i] = "?"
+		args[i] = id
+	}
+
+	return base + ` AND ParentTaskId IN (` + strings.Join(placeholders, ",") + `) ORDER BY rowid ASC`, args
 }
 
 // GetTaskStatus retrieves the overall status summary for a parent task.

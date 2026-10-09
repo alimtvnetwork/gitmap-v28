@@ -29,7 +29,7 @@ func GetPublicDocLinks() []DocLink {
 		{
 			Title:       "Core LLM Specification & AI Guidelines",
 			URL:         PublicLlmSpecURL,
-			Description: "Authoritative 5-phase execution lifecycle, CLI tool reference, and pair programming standards.",
+			Description: "Authoritative 6-phase execution lifecycle, CLI tool reference, and pair programming standards.",
 			Category:    "Specification",
 			IsMandatory: true,
 		},

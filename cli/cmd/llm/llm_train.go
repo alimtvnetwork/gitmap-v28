@@ -33,16 +33,7 @@ func RunTrain(args []string) *apperror.AppError {
 		return nil
 	}
 
-	printAttribution()
-	fmt.Print(RenderSkillCreationDirective())
-	if err := handleSkillGeneration(opts); err != nil {
-		return err
-	}
-	fmt.Print(RenderPublicDocLinksText())
-	fmt.Print(RenderRecursiveInstructions())
-	printCurriculumSummary()
-
-	return nil
+	return runTrainPhases(opts)
 }
 
 func outputTrainJSON() *apperror.AppError {
@@ -57,6 +48,7 @@ func outputTrainJSON() *apperror.AppError {
 			{"phase": "3. Verification", "commands": "python go-format-check.py, go test", "purpose": "Local AST syntax and regression checks"},
 			{"phase": "4. Semantic Commit", "commands": "gitmap cpf, gitmap cpb, gitmap cpr", "purpose": "Structured Conventional commits and branch push"},
 			{"phase": "5. Telemetry & Heal", "commands": "gitmap pipeline-ai status --json, pe, pe history-ai", "purpose": "Dynamic ETA waiting, error diagnosis, and anti-mistake AI dossiers"},
+			{"phase": "6. Heal & Fix", "commands": "gitmap fix ls, gitmap autofix", "purpose": "In-process remediation scan + parallel content-fix audit (report-only); optional --heal-apply for git-state recipes"},
 		},
 		"efficiency_factors": map[string]string{
 			"search_speedup":    "830,000x faster than Python regex grep with DH2D SQLite hot cache",
@@ -79,7 +71,7 @@ func executeSelfLoopSimulation(count int) {
 		count = 1
 	}
 	fmt.Println("======================================================================")
-	fmt.Printf("AUTONOMOUS 5-PHASE AI AGENT SELF-LOOP (ITERATIONS: %d)\n", count)
+	fmt.Printf("AUTONOMOUS 6-PHASE AI AGENT SELF-LOOP (ITERATIONS: %d)\n", count)
 	fmt.Println("======================================================================")
 	fmt.Println()
 	for iter := 1; iter <= count; iter++ {
@@ -89,6 +81,7 @@ func executeSelfLoopSimulation(count int) {
 		fmt.Println("  Phase 3 [Verification]: Running local verification (python go-format-check, go test)")
 		fmt.Println("  Phase 4 [Semantic]:     Preparing structured commit (cpf/cpb) with Conventional format")
 		fmt.Println("  Phase 5 [CI Telemetry]: Dynamic ETA sleep & telemetry loop via gitmap pipeline-ai")
+		fmt.Println("  Phase 6 [Heal & Fix]:   In-process remediation scan (cmdfix) + autofix content audit (report-only)")
 		fmt.Printf("  Iteration %d completed successfully with 0 errors.\n\n", iter)
 	}
 	fmt.Printf("[AI-SELF-LOOP] Complete: %d iteration(s) finished with 100%% green status.\n", count)
@@ -114,11 +107,12 @@ func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
 	fs.Usage = printTrainUsage
 	isTextOnly := fs.Bool("text-only", false, "Print curriculum text without writing skill file")
 	skillPath := fs.String("skill-path", DefaultSkillPath, "Path for generated Antigravity skill")
-	isLoop := fs.Bool("loop", false, "Execute autonomous 5-phase AI self-looping execution cycle")
+	isLoop := fs.Bool("loop", false, "Execute autonomous 6-phase AI self-looping execution cycle")
 	selfLoop := fs.Int("self-loop", 0, "Number of consecutive iterations of the AI self-loop")
 	isURL := fs.Bool("url", false, "Output raw public URL to llm.md instruction specification")
 	isURLs := fs.Bool("urls", false, "Output authoritative public documentation links for LLM ingestion")
 	isJSON := fs.Bool("json", false, "Output structured machine-readable command specifications")
+	healApply := fs.String("heal-apply", "", "Apply fix recipes non-interactively: stash|wip|discard (default \"\" = report-only)")
 
 	err := fs.Parse(args)
 	if err == flag.ErrHelp {
@@ -142,17 +136,23 @@ func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
 		IsURL:      *isURL,
 		IsURLs:     *isURLs,
 		IsJSON:     *isJSON,
+		HealApply:  *healApply,
 	}, nil
 }
 
 func printTrainUsage() {
 	fmt.Println("Usage: gitmap llm train [flags] (alias: gitmap llm chain, gitmap train, gitmap llm-train)")
 	fmt.Println()
-	fmt.Println("Executes autonomous LLM chained onboarding curriculum, 5-phase self-looping")
-	fmt.Println("training, and generates the official Antigravity skill (.agents/skills/gitmap/SKILL.md).")
+	fmt.Println("Executes the autonomous LLM chained onboarding curriculum: a 6-phase self-looping")
+	fmt.Println("training run (Discovery, Refactoring, Verification, Semantic Commit, Telemetry,")
+	fmt.Println("Heal & Fix) and generates the official Antigravity skill")
+	fmt.Println("(.agents/skills/gitmap/SKILL.md). Phase 6 runs the git-state heal scan (cmdfix) and")
+	fmt.Println("the parallel content-fix audit (cmdautofix) in-process — report-only; git-state")
+	fmt.Println("recipes apply only with --heal-apply.")
 	fmt.Println()
 	fmt.Println("Flags:")
-	fmt.Println("  --loop               Execute autonomous 5-phase AI self-looping execution cycle")
+	fmt.Println("  --heal-apply string  Apply fix recipes non-interactively: stash|wip|discard (default \"\" = report-only)")
+	fmt.Println("  --loop               Execute autonomous 6-phase AI self-looping execution cycle")
 	fmt.Println("  --self-loop int      Number of consecutive iterations of the AI self-loop")
 	fmt.Println("  --url                Output raw public URL to llm.md instruction specification")
 	fmt.Println("  --urls               Output authoritative public documentation links for LLM ingestion")
@@ -198,6 +198,8 @@ func printChainedSequence() {
 	fmt.Println("9. gitmap cluster --help                        - Multi-node SSH and cluster execution")
 	fmt.Println("10. gitmap cargo status                          - Inspect Rust and Cargo toolchain status")
 	fmt.Println("11. gitmap db status                            - Check repository SQLite database health")
+	fmt.Println("12. gitmap fix ls  — List repos needing remediation with per-category heal summary")
+	fmt.Println("13. gitmap autofix — Parallel content-fix audit (encoding, newlines, naming, paths, gofmt, misspell, markdown)")
 	fmt.Println()
 }
 

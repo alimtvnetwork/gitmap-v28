@@ -238,6 +238,7 @@ func InitTier2Schema(db *sql.DB) *appfault.AppError {
 		SubtaskId INTEGER PRIMARY KEY AUTOINCREMENT,
 		ParentTaskId INTEGER NOT NULL,
 		TaskCode TEXT NOT NULL,
+		TaskSlug TEXT NOT NULL DEFAULT '',
 		Title TEXT NOT NULL,
 		AssignedAgentRole TEXT NULL,
 		OwnedFilesJson TEXT NOT NULL DEFAULT '[]',

@@ -58,6 +58,7 @@ type Subtask struct {
 	SubtaskId         string `json:"subtaskId"`
 	ParentTaskId      string `json:"parentTaskId"`
 	TaskCode          string `json:"taskCode"`
+	TaskSlug          string `json:"taskSlug"`
 	Title             string `json:"title"`
 	AssignedAgentRole string `json:"assignedAgentRole"`
 	OwnedFilesJson    string `json:"ownedFilesJson"`

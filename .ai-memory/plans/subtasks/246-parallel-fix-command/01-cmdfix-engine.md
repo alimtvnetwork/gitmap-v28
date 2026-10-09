@@ -3,10 +3,11 @@
 ## File box
 `cli/cmdautofix/` ONLY (new package; create it). Do not touch any other file.
 NOTE: despite this subtask's filename, the Go package is `cli/cmdautofix/`
-(`cli/cmdfix/` is taken by the git-state `fix` command — spec 01-overview D2).
+(`cli/cmdfix/` is taken by the git-state command). The COMMAND is `gitmap fix`
+(owner decision 2026-10-09); this package implements it.
 
 ## Context
-Port the 8 autofix scripts in `03-ai-scripts/` (read-only reference; NEVER
+Port the 8 fixer scripts in `03-ai-scripts/` (read-only reference; NEVER
 modify them) to native Go, behind one parallel engine. Full design: spec
 `02-spec/21-app/246-parallel-fix-command/02-fix-command.md` (§2–§6).
 Rules: reads only via `gitmap aum search` / `gitmap find` / `gitmap cat`
@@ -15,23 +16,32 @@ every file ≤ ~300 lines; `go build ./...` from `cli/` to verify — NEVER
 `go test` without the owner's explicit command.
 
 ## Build order
-1. `engine.go` — walker, null-byte probe, worker pool, types, category registry.
+1. `engine.go` — walker, null-byte probe, worker pool, scan cache, types,
+   category registry, two-phase Scan/Apply.
 2. The 8 category files (any order; each is independent).
 3. `guidelines.go` last (composites `newlines` + `naming`).
 
 ## Engine (`engine.go`) checklist
-- [ ] `Options` struct: `Apply bool`, `Workers int`, `Exts []string`,
-      `Categories []string`, `URIPattern string`, `JSON bool`.
+- [ ] `Options` struct: `Workers int`, `Exts []string`, `Categories []string`,
+      `URIPattern string`, `JSON bool`, `NoCache bool`, `Yes bool`.
+      (No `Apply` bool — the flow is check-driven: Scan → summary → prompt → Apply.)
 - [ ] `Violation{Path, Category, Line, Detail}` and
       `Category{Name, Exts, Check, Fix}` types per spec §6 (Path always
       relative, slash-separated).
-- [ ] Walker: `filepath.WalkDir` from the scan root; skip `.git/` dirs;
-      apply `--ext` filter; emit candidate paths on `fileCh`.
+- [ ] `ScanResult{FilesScanned, FilesFromCache, Violations []Violation, Elapsed}`.
+- [ ] `Scan(opts) ScanResult`: walker (`filepath.WalkDir`, skip `.git/`,
+      `--ext` filter) → worker pool (N = `Options.Workers`, ≥1) → each worker
+      runs `Check` for every selected category on one file → aggregator sorts
+      by path (deterministic output).
+- [ ] `Apply(result ScanResult, opts) ApplyResult`: for each violation's file,
+      run the category's `Fix`; write only when bytes differ (byte-safety §5);
+      `ApplyResult{FilesModified, FixCounts map[string]int, Elapsed}`.
+      `Fix == nil` (naming) → counted as 0, never written.
+- [ ] Scan cache: `os.UserCacheDir()/gitmap/fix-scan-cache.json` (fallback
+      `os.TempDir()`); entry per absolute path
+      `{modtime_unix, size, categories, violations}`; hit = modtime+size match
+      AND requested categories ⊆ cached; `--no-cache` bypasses read+write.
 - [ ] Binary probe: first 8 KiB, `0x00` byte → skip silently (not a violation).
-- [ ] Worker pool: N = `Options.Workers` (validated ≥ 1 by `fix.go`); each
-      worker applies ALL selected categories to one file (`Check`, then `Fix`
-      when `Apply` and `Fix != nil`); results on `resultCh`.
-- [ ] Aggregator sorts by path → deterministic output under any schedule.
 - [ ] UTF-8 validity gate lives in the `encoding` category (see below), not
       the engine — other categories operate on bytes.
 
@@ -98,10 +108,13 @@ every file ≤ ~300 lines; `go build ./...` from `cli/` to verify — NEVER
 
 ### `guidelines.go` — from `05-guideline-autofixer.py` — COMPOSITE
 - [ ] Runs the `newlines` fix, then the `naming` check (D12).
-- [ ] Obeys the unified dry-run/`--apply` rule — do NOT copy script 05's
+- [ ] Obeys the unified check-driven flow — do NOT copy script 05's
       inverted default-fix behavior.
 
 ## Deliverable
 Reply with: the 10 created file paths (relative), `go build ./...` exit code
 from `cli/`, and one line per category stating its Check/Fix behavior. Then stop.
 Do NOT wire dispatch, help, or skill surfaces — that is subtask 02.
+Public entry for subtask 02 and the LLM train: `func RunFixCmd(args []string) error`
+lives in `fix.go` (subtask 02); this subtask exposes `Scan`, `Apply`, and the
+`Category` registry. (`SkillSnippetMD()` lives in `fix.go` per spec §7.)
