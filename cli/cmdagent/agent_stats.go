@@ -117,6 +117,7 @@ type statsAgentCount struct {
 }
 
 type agentStatsReport struct {
+	ElapsedMs              int64               `json:"elapsed_ms"`
 	Days                   int                 `json:"days"`
 	CompletedTasks         []statsCompletedTask `json:"completed_tasks"`
 	TotalSubtasksCompleted int                 `json:"total_subtasks_completed"`
@@ -127,6 +128,7 @@ type agentStatsReport struct {
 // RunAgentStats reports recently completed parent tasks, subtask completions,
 // per-agent completion counts, and total collision events. Read-only.
 func RunAgentStats(opts agentStatsOptions) *appfault.AppError {
+	start := time.Now()
 	days := opts.Days
 	hasDays := days > 0
 	if !hasDays {
@@ -178,9 +180,11 @@ func RunAgentStats(opts agentStatsOptions) *appfault.AppError {
 	}
 	report.TotalCollisions = collisions
 
+	report.ElapsedMs = time.Since(start).Milliseconds()
 	if opts.IsJson {
 		return renderAgentStatsJSON(report)
 	}
+	fmt.Printf("[%dms] agent stats\n", report.ElapsedMs)
 	renderAgentStatsTable(report)
 
 	return nil

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -49,13 +50,16 @@ type parentCollisionReport struct {
 // Pure read from the central FileClaim cache (millisecond path): collision
 // events are recorded at claim-files time, not here.
 func RunAgentCollisions(opts agentCollisionsOptions) *appfault.AppError {
+	start := time.Now()
 	reports, err := collectCollisionReports(strings.TrimSpace(opts.Parent))
 	if err != nil {
 		return err
 	}
+	elapsedMs := time.Since(start).Milliseconds()
 	if opts.IsJson {
-		return renderCollisionReportsJson(reports)
+		return renderCollisionReportsJson(reports, elapsedMs)
 	}
+	fmt.Printf("[%dms] agent collisions\n", elapsedMs)
 	renderCollisionReportsTable(reports)
 
 	return nil
@@ -139,16 +143,19 @@ func collectCollisionReports(parent string) ([]parentCollisionReport, *appfault.
 	return out, nil
 }
 
-func renderCollisionReportsJson(reports []parentCollisionReport) *appfault.AppError {
+func renderCollisionReportsJson(reports []parentCollisionReport, elapsedMs int64) *appfault.AppError {
 	type jsonReport struct {
 		ParentSlug string           `json:"parentSlug"`
 		Collisions []map[string]any `json:"collisions"`
 	}
-	var out []jsonReport
+	payload := struct {
+		ElapsedMs int64        `json:"elapsed_ms"`
+		Reports   []jsonReport `json:"reports"`
+	}{ElapsedMs: elapsedMs}
 	for _, r := range reports {
-		out = append(out, jsonReport{ParentSlug: r.ParentSlug, Collisions: collisionsToMaps(r.Collisions)})
+		payload.Reports = append(payload.Reports, jsonReport{ParentSlug: r.ParentSlug, Collisions: collisionsToMaps(r.Collisions)})
 	}
-	b, err := json.MarshalIndent(out, "", "  ")
+	b, err := json.MarshalIndent(payload, "", "  ")
 	if err != nil {
 		return appfault.WrapSimple(err, "renderCollisionReportsJson")
 	}

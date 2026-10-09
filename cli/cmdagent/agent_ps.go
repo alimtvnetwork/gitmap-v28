@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -42,7 +43,8 @@ type agentPsRow struct {
 }
 
 type agentPsReport struct {
-	Rows []agentPsRow `json:"rows"`
+	ElapsedMs int64        `json:"elapsed_ms"`
+	Rows      []agentPsRow `json:"rows"`
 }
 
 // terminalAgentStatuses are AgentRegistry statuses that mean the agent is no
@@ -52,6 +54,7 @@ var terminalAgentStatuses = []string{"IDLE", "COMPLETED", "FAILED", "CRASHED"}
 // RunAgentPs lists running parent tasks with active agent counts and subtask
 // progress rollups. Read-only.
 func RunAgentPs(opts agentPsOptions) *appfault.AppError {
+	start := time.Now()
 	db, openErr := openObservabilityDB()
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -92,9 +95,11 @@ func RunAgentPs(opts agentPsOptions) *appfault.AppError {
 		report.Rows = append(report.Rows, r)
 	}
 
+	report.ElapsedMs = time.Since(start).Milliseconds()
 	if opts.IsJson {
 		return renderPsJSON(report)
 	}
+	fmt.Printf("[%dms] agent ps\n", report.ElapsedMs)
 	renderPsTable(report)
 
 	return nil

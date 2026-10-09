@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -41,13 +42,15 @@ type heatmapRow struct {
 }
 
 type agentHeatmapReport struct {
-	Parent string       `json:"parent"`
-	Rows   []heatmapRow `json:"rows"`
+	ElapsedMs int64        `json:"elapsed_ms"`
+	Parent    string       `json:"parent"`
+	Rows      []heatmapRow `json:"rows"`
 }
 
 // RunAgentHeatmap ranks files by write-claim count from the central FileClaim
 // table plus per-task AgentActionLog touches. Read-only.
 func RunAgentHeatmap(opts agentHeatmapOptions) *appfault.AppError {
+	start := time.Now()
 	db, openErr := openObservabilityDB()
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -84,9 +87,11 @@ func RunAgentHeatmap(opts agentHeatmapOptions) *appfault.AppError {
 		return hasMore
 	})
 
+	report.ElapsedMs = time.Since(start).Milliseconds()
 	if opts.IsJson {
 		return renderHeatmapJSON(report)
 	}
+	fmt.Printf("[%dms] agent heatmap\n", report.ElapsedMs)
 	renderHeatmapTable(report)
 
 	return nil
