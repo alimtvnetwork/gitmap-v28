@@ -250,6 +250,22 @@ func supersedeFileClaims(conn *sql.DB, parentSlug, subtaskId string) *appfault.A
 	return nil
 }
 
+// releaseFileClaimsBySubtask marks a finished subtask's active claims as
+// released, keeping the central FileClaim cache accurate for millisecond
+// collision reads. Best-effort: failures are visible but never fail the caller.
+func releaseFileClaimsBySubtask(subtaskId string) {
+	central, openErr := openCentralCollisionDb()
+	if openErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not release file claims: %v\n", openErr)
+
+		return
+	}
+	defer central.Close()
+	if _, execErr := central.Exec(`UPDATE FileClaim SET Status='released' WHERE SubtaskId=? AND Status='active'`, subtaskId); execErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not release file claims: %v\n", execErr)
+	}
+}
+
 // insertFileClaims appends one active write claim row per file.
 func insertFileClaims(conn *sql.DB, parentSlug string, sub *types.Subtask, agentRole string, files []string) *appfault.AppError {
 	now := time.Now().UTC().Format(time.RFC3339)

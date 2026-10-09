@@ -500,6 +500,7 @@ func RunSubtaskComplete(opts SubtaskCompleteOptions) *appfault.AppError {
 	if hasCompErr {
 		return compErr
 	}
+	releaseFileClaimsBySubtask(opts.SubtaskId)
 	fmt.Printf("Subtask %s completed by %s\n", opts.SubtaskId, opts.AgentRole)
 
 	return nil
@@ -521,6 +522,7 @@ func RunSubtaskFail(opts SubtaskFailOptions) *appfault.AppError {
 	if hasFailErr {
 		return failErr
 	}
+	releaseFileClaimsBySubtask(opts.SubtaskId)
 	fmt.Printf("Subtask %s marked as FAILED by %s\n", opts.SubtaskId, opts.AgentRole)
 
 	return nil

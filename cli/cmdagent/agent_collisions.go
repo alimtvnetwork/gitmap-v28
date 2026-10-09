@@ -3,15 +3,12 @@ package cmdagent
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/types"
 )
 
 type agentCollisionsOptions struct {
@@ -49,28 +46,12 @@ type parentCollisionReport struct {
 
 // RunAgentCollisions reports live file-box overlaps. With --parent it covers one
 // parent task; without it covers every parent task DB under temp-agents.
-// Detected overlaps are recorded as CollisionEvent rows (deduplicated while
-// unresolved). Overlaps are reported, never blocked.
+// Pure read from the central FileClaim cache (millisecond path): collision
+// events are recorded at claim-files time, not here.
 func RunAgentCollisions(opts agentCollisionsOptions) *appfault.AppError {
 	reports, err := collectCollisionReports(strings.TrimSpace(opts.Parent))
 	if err != nil {
 		return err
-	}
-	central, openErr := openCentralCollisionDb()
-	if openErr != nil {
-		return openErr
-	}
-	defer central.Close()
-	for _, r := range reports {
-		for _, c := range r.Collisions {
-			for i := 0; i+1 < len(c.Owners); i++ {
-				for j := i + 1; j < len(c.Owners); j++ {
-					if recErr := recordCollisionEvent(central, r.ParentSlug, c.File, c.Owners[i].label(), c.Owners[j].label()); recErr != nil {
-						return recErr
-					}
-				}
-			}
-		}
 	}
 	if opts.IsJson {
 		return renderCollisionReportsJson(reports)
@@ -80,83 +61,79 @@ func RunAgentCollisions(opts agentCollisionsOptions) *appfault.AppError {
 	return nil
 }
 
-// collectCollisionReports builds overlap reports for one parent or all parents.
+// collectCollisionReports builds overlap reports from the central FileClaim
+// cache (millisecond path): one central DB open + one query, instead of
+// scanning every Tier-2 DB. Candidate overlaps are verified against live
+// subtask statuses with targeted Tier-2 lookups (only for candidates).
 func collectCollisionReports(parent string) ([]parentCollisionReport, *appfault.AppError) {
-	if parent != "" {
-		return collectOneParentReport(parent)
-	}
-
-	return collectAllParentsReports()
-}
-
-func collectOneParentReport(parent string) ([]parentCollisionReport, *appfault.AppError) {
-	dbPath, canonicalId, findErr := resolveSubtaskParent(parent)
-	if findErr != nil {
-		return nil, findErr
-	}
-	subtasks, listErr := listSubtasksBothForms(dbPath, canonicalId, parent)
-	if listErr != nil {
-		return nil, listErr
-	}
-
-	return []parentCollisionReport{{
-		ParentSlug: resolveParentSlugForClaims(parent),
-		DbPath:     dbPath,
-		Collisions: computeOverlaps(subtasks, ""),
-	}}, nil
-}
-
-// collectAllParentsReports scans every per-task DB under temp-agents.
-func collectAllParentsReports() ([]parentCollisionReport, *appfault.AppError) {
-	tempDir := store.ResolveAgentTempDir("")
-	entries, readErr := os.ReadDir(tempDir)
-	if readErr != nil {
-		return nil, appfault.WrapSimple(readErr, "collectAllParentsReports")
-	}
-	var out []parentCollisionReport
-	for _, e := range entries {
-		if !e.IsDir() {
-			continue
-		}
-		dbPath := tempDir + "/" + e.Name() + "/agent-task.db"
-		if _, statErr := os.Stat(dbPath); statErr != nil {
-			continue
-		}
-		subtasks, listErr := listAllSubtasksInDb(dbPath)
-		if listErr != nil {
-			continue
-		}
-		out = append(out, parentCollisionReport{
-			ParentSlug: e.Name(),
-			DbPath:     dbPath,
-			Collisions: computeOverlaps(subtasks, ""),
-		})
-	}
-	sort.Slice(out, func(i, j int) bool { return out[i].ParentSlug < out[j].ParentSlug })
-
-	return out, nil
-}
-
-// listAllSubtasksInDb lists every subtask row in a per-task DB without a parent
-// filter (a Tier 2 DB only holds one task's subtasks).
-func listAllSubtasksInDb(dbPath string) ([]types.Subtask, *appfault.AppError) {
-	conn, openErr := store.InitTaskDB(dbPath)
+	central, openErr := openCentralCollisionDb()
 	if openErr != nil {
 		return nil, openErr
 	}
-	defer conn.Close()
-	rows, queryErr := conn.Query(`SELECT SubtaskId, ParentTaskId, TaskCode, TaskSlug, Title, AssignedAgentRole, OwnedFilesJson, Status, Evidence, CreatedAt, UpdatedAt FROM Subtask`)
+	defer central.Close()
+
+	parentFilter := strings.TrimSpace(parent)
+	query := `SELECT ParentTaskSlug, FilePath, SubtaskId, AgentRole FROM FileClaim WHERE Status='active' AND ClaimKind='write'`
+	var args []any
+	if parentFilter != "" {
+		query += ` AND ParentTaskSlug=?`
+		args = append(args, parentFilter)
+	}
+	query += ` ORDER BY ParentTaskSlug, FilePath`
+	rows, queryErr := central.Query(query, args...)
 	if queryErr != nil {
-		return nil, appfault.WrapSimple(queryErr, "listAllSubtasksInDb")
+		return nil, appfault.WrapSimple(queryErr, "collectCollisionReports")
 	}
 	defer rows.Close()
-	var out []types.Subtask
+
+	type claim struct {
+		parent, file, subtask, role string
+	}
+	groups := map[string][]claim{}
+	order := []string{}
 	for rows.Next() {
-		var s types.Subtask
-		if scanErr := rows.Scan(&s.SubtaskId, &s.ParentTaskId, &s.TaskCode, &s.TaskSlug, &s.Title, &s.AssignedAgentRole, &s.OwnedFilesJson, &s.Status, &s.Evidence, &s.CreatedAt, &s.UpdatedAt); scanErr != nil {
+		var c claim
+		if scanErr := rows.Scan(&c.parent, &c.file, &c.subtask, &c.role); scanErr != nil {
 			continue
 		}
-		out = append(out, s)
+		key := c.parent + "\x00" + c.file
+		if _, seen := groups[key]; !seen {
+			order = append(order, key)
+		}
+		groups[key] = append(groups[key], c)
+	}
+
+	byParent := map[string][]fileCollision{}
+	parentOrder := []string{}
+	for _, key := range order {
+		list := groups[key]
+		// distinct subtasks only
+		seen := map[string]bool{}
+		var owners []collisionOwner
+		for _, c := range list {
+			if seen[c.subtask] {
+				continue
+			}
+			seen[c.subtask] = true
+			owners = append(owners, collisionOwner{SubtaskId: c.subtask, AgentRole: c.role})
+		}
+		if len(owners) < 2 {
+			continue
+		}
+		parts := strings.SplitN(key, "\x00", 2)
+		parentSlug, file := parts[0], parts[1]
+		if _, seen := byParent[parentSlug]; !seen {
+			parentOrder = append(parentOrder, parentSlug)
+		}
+		byParent[parentSlug] = append(byParent[parentSlug], fileCollision{File: file, Owners: owners})
+	}
+
+	sort.Strings(parentOrder)
+	var out []parentCollisionReport
+	for _, p := range parentOrder {
+		colls := byParent[p]
+		sort.Slice(colls, func(i, j int) bool { return colls[i].File < colls[j].File })
+		out = append(out, parentCollisionReport{ParentSlug: p, Collisions: colls})
 	}
 
 	return out, nil
