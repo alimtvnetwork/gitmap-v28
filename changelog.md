@@ -1,5 +1,18 @@
 # Changelog
 
+## [v6.517.0] - 2026-10-09
+
+### Fixed
+- `gitmap agm update` terminal UI: coordinated pterm progress UI (spinner + live installer log tail + stage checkmarks) fed by piped child output — no more minutes of silence, no raw installer escape sequences corrupting the screen.
+- `gitmap agm update` no longer misrouted to `gitignore`: the `agm` alias collision in the core dispatcher is removed, so the documented command reaches the real updater.
+- Failure path: structured error panel (failed stage, last installer lines, next-step hint) instead of raw output dumps + Go stack traces; verification failures point at the diagnostic log file.
+- `agm update --help` now lists the `--yes` flag.
+
+### Added
+- `GITMAP_AGM_INSTALL_SCRIPT` env override for the AGM installer source (test seam; default behavior unchanged).
+
+---
+
 ## [v6.515.0] - 2026-10-08
 
 ### Added
