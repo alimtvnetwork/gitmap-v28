@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.518.0] - 2026-10-09
+
+### Added
+- Routine release v6.518.0
+
+---
+
 ## [v6.517.0] - 2026-10-09
 
 ### Fixed
