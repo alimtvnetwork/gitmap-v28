@@ -10,6 +10,8 @@ import (
 // spellingMap ports the 30-word British→American dictionary from
 // 27-misspell-auditor.py verbatim. The script's "delegates to the misspell
 // binary" docstring is deliberately NOT ported — no shell-out here.
+//
+//nolint:misspell // dictionary keys are INTENTIONALLY British spellings.
 var spellingMap = map[string]string{
 	"behaviour": "behavior", "behaviours": "behaviors",
 	"colour": "color", "colours": "colors",

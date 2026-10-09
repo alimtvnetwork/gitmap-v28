@@ -11,18 +11,18 @@ import (
 var (
 	gofmtPath     string
 	gofmtPathOnce sync.Once
-	gofmtPathErr  error
+	errGofmtPath  error
 )
 
 // resolveGofmt locates the gofmt binary once per process.
 func resolveGofmt() error {
 	gofmtPathOnce.Do(func() {
-		gofmtPath, gofmtPathErr = exec.LookPath("gofmt")
-		if gofmtPathErr != nil {
-			gofmtPathErr = fmt.Errorf("gofmt not found in PATH — install the Go toolchain: %w", gofmtPathErr)
+		gofmtPath, errGofmtPath = exec.LookPath("gofmt")
+		if errGofmtPath != nil {
+			errGofmtPath = fmt.Errorf("gofmt not found in PATH — install the Go toolchain: %w", errGofmtPath)
 		}
 	})
-	return gofmtPathErr
+	return errGofmtPath
 }
 
 // catToolCheck runs the pre-walk tool availability check for exec categories.
