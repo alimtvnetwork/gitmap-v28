@@ -5,11 +5,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdversion"
 )
 
 func init() {
-	cmdinstall.RunAGMVersionTagsLSFn = cmdversion.RunAGMVersionTagsLS
+	cmdinstall.RunAGMVersionTagsLSFn = RunAGMVersionTagsLS
 	cmdinstall.RegisterAgyInstallSubcommand(AgyCmd)
 	cmdinstall.RemoteAgmUpdateFleetFn = func(target, except string) error {
 		args := []string{"agm", "--target", target}

@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
@@ -15,10 +14,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/detector"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/mapper"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -94,10 +91,10 @@ func executeScan(
 
 	progress := newScanProgressRenderer(quiet)
 	errCollector := newScanCollector(reportErrors)
-	var repos []scanner.RepoInfo
+	var repos []scanpipe.RepoInfo
 	var err error
 	bench.Phase("scan.walk", func() {
-		repos, err = scanner.ScanDirWithOptions(absDir, scanner.ScanOptions{
+		repos, err = scanpipe.ScanDirWithOptions(absDir, scanpipe.ScanOptions{
 			ExcludeDirs:      cfg.ExcludeDirs,
 			ForceIncludeDirs: forceIncludeDirs,
 			Workers:          workers,
@@ -116,7 +113,7 @@ func executeScan(
 	var records []model.ScanRecord
 	relRootBase := resolveRelativeRoot(relativeRoot, absDir, quiet)
 	bench.Phase("scan.buildRecords", func() {
-		records = mapper.BuildRecordsWithOptions(repos, mapper.BuildOptions{
+		records = scanpipe.BuildRecordsWithOptions(repos, scanpipe.BuildOptions{
 			Mode:          cfg.DefaultMode,
 			DefaultNote:   cfg.Notes,
 			RelRoot:       relRootBase,
@@ -194,7 +191,6 @@ func executeScan(
 	if !quiet {
 		fmt.Printf("  📊 Benchmark log: %s\n", filepath.Join(outputDir, scanBenchmarkFile))
 	}
-
 	bench.Phase("scan.backgroundProbeWait", func() {
 		drainBackgroundProbe(probeRunner, probeOpts, quiet)
 	})
@@ -203,13 +199,10 @@ func executeScan(
 	if wasFirstWorkDirRegistered && !quiet {
 		fmt.Printf("  ✓ First work directory registered and marked as default: %s\n", absDir)
 	}
-
 	// Mark scan task as completed after all steps succeed.
 	completePendingTask(taskDB, taskID)
-
 	return nil
 }
-
 // autoRegisterFirstWorkDir checks if any work directories are registered.
 // If none exist, it registers absDir as the first work directory and marks it as default.
 func autoRegisterFirstWorkDir(absDir string, quiet bool) bool {
@@ -217,24 +210,18 @@ func autoRegisterFirstWorkDir(absDir string, quiet bool) bool {
 	if err != nil {
 		return false
 	}
-
 	defer db.Close()
-
 	dirs, errList := db.ListWorkDirs()
 	if errList != nil || len(dirs) > 0 {
 		return false
 	}
-
 	label := filepath.Base(absDir)
 	if _, errEnsure := db.EnsureWorkDir(absDir, label, true); errEnsure != nil {
 		return false
 	}
-
 	_ = db.SetDefaultWorkDir(absDir)
-
 	return true
 }
-
 // tagReposWithScanFolder registers absDir as a ScanFolder and tags every
 // just-scanned repo with the resulting ScanFolderId. Failures are reported
 // to stderr but do NOT fail the scan — the underlying Repo rows still exist.
@@ -242,80 +229,59 @@ func tagReposWithScanFolder(absDir string, records []model.ScanRecord, quiet boo
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrProbeOpenDB, err)
-
 		return
 	}
-
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-
 		return
 	}
-
 	folder, err := db.EnsureScanFolder(absDir, "", "")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-
 		return
 	}
-
 	paths := make([]string, 0, len(records))
 	for _, r := range records {
 		paths = append(paths, r.AbsolutePath)
 	}
-
 	if err := db.TagReposByScanFolder(folder.ID, paths); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-
 		return
 	}
-
 	if !quiet {
 		fmt.Printf(constants.MsgScanFolderTagged, len(paths), folder.ID)
 	}
 }
-
 // upsertToDB persists scan results into the SQLite database.
 func upsertToDB(records []model.ScanRecord, outputDir string) {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
-
 		return
 	}
-
 	defer db.Close()
-
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
-
 		return
 	}
-
 	if err := db.UpsertRepos(records); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
-
 		return
 	}
-
 	fmt.Printf(constants.MsgDBUpsertDone, len(records))
 }
-
 // alignRecordsWithDB rewrites record IDs to match persisted repo IDs by path.
 func alignRecordsWithDB(records []model.ScanRecord, outputDir string) []model.ScanRecord {
 	db, err := store.OpenDefault()
 	if err != nil {
 		return records
 	}
-
 	defer db.Close()
-
 	repos, err := db.ListRepos()
 	if err != nil {
 		return records
 	}
-
 	idsByPath := make(map[string]int64, len(repos)*2)
 	for _, repo := range repos {
 		idsByPath[repo.AbsolutePath] = repo.ID
@@ -323,7 +289,6 @@ func alignRecordsWithDB(records []model.ScanRecord, outputDir string) []model.Sc
 		idsByPath[norm] = repo.ID
 		idsByPath[strings.ToLower(norm)] = repo.ID
 	}
-
 	aligned := make([]model.ScanRecord, 0, len(records))
 	for _, rec := range records {
 		norm := store.NormalizeStoragePath(rec.AbsolutePath)
@@ -335,13 +300,10 @@ func alignRecordsWithDB(records []model.ScanRecord, outputDir string) []model.Sc
 		} else if id, ok := idsByPath[rec.AbsolutePath]; ok {
 			rec.ID = id
 		}
-
 		aligned = append(aligned, rec)
 	}
-
 	return aligned
 }
-
 // addToDesktop registers repos with GitHub Desktop if requested.
 func addToDesktop(records []model.ScanRecord, enabled bool) {
 	if enabled {
@@ -349,7 +311,6 @@ func addToDesktop(records []model.ScanRecord, enabled bool) {
 		fmt.Printf(constants.MsgDesktopSummary, summary.Added, summary.Failed)
 	}
 }
-
 // openOutputFolder opens the output directory in the OS file explorer.
 func openOutputFolder(outputDir string, enabled bool) {
 	if enabled {
@@ -358,44 +319,35 @@ func openOutputFolder(outputDir string, enabled bool) {
 		fmt.Printf(constants.MsgOpenedFolder, outputDir)
 	}
 }
-
 // resolveOpenCommand returns the OS-specific command to open a folder.
 func resolveOpenCommand(dir string) *exec.Cmd {
 	if runtime.GOOS == constants.OSWindows {
 		return exec.Command(constants.CmdExplorer, dir)
 	}
-
 	if runtime.GOOS == constants.OSDarwin {
 		return exec.Command(constants.CmdOpen, dir)
 	}
-
 	return exec.Command(constants.CmdXdgOpen, dir)
 }
-
 // resolveOutputDir determines the output directory relative to scan root.
 func resolveOutputDir(cfgDir, scanDir string) string {
 	if filepath.IsAbs(cfgDir) {
 		return cfgDir
 	}
-
 	return filepath.Join(scanDir, constants.GitMapDir, constants.OutputDirName)
 }
-
 // autoPopulateScanAliases generates aliases for unaliased repositories found during scan.
 func autoPopulateScanAliases(quiet bool) {
 	db, err := store.OpenDefault()
 	if err != nil {
 		return
 	}
-
 	defer db.Close()
-
 	count, _ := cmdinstall.EnsureTrackedRepoAliases(db)
 	if count > 0 && !quiet {
 		fmt.Printf("  ✓ Auto-generated %d repository alias(es)\n", count)
 	}
 }
-
 func checkAgmResumeTaskOnScan(records []model.ScanRecord, quiet, fix bool) {
 	paths := make([]string, 0, len(records))
 	for _, r := range records {
@@ -404,13 +356,11 @@ func checkAgmResumeTaskOnScan(records []model.ScanRecord, quiet, fix bool) {
 	isAuto := fix || gitignoreagm.IsAutoRemediateScanEnabled()
 	_ = gitignoreagm.CheckAndPromptRepos(paths, quiet, isAuto)
 }
-
 func parseForceIncludeDirs(raw string) []string {
 	trimmed := strings.TrimSpace(raw)
 	if trimmed == "" {
 		return nil
 	}
-
 	parts := strings.Split(trimmed, ",")
 	var result []string
 	for _, p := range parts {
@@ -419,6 +369,5 @@ func parseForceIncludeDirs(raw string) []string {
 			result = append(result, item)
 		}
 	}
-
 	return result
 }

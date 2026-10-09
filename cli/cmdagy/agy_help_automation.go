@@ -1,14 +1,12 @@
 package cmdagy
 
 import "github.com/alimtvnetwork/gitmap-v28/cli/termout"
-
 func buildAutomationSection() termout.HelpSection {
 	return termout.HelpSection{
 		Title:   "Protocols & Automation",
 		Entries: buildAutomationEntries(),
 	}
 }
-
 func buildAutomationEntries() []termout.CommandEntry {
 	return []termout.CommandEntry{
 		{Command: "shutdown-until (sug)", Description: "Monitor designated projects & trigger OS shutdown when green (see: sug help)"},

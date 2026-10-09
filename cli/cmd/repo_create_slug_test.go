@@ -1,7 +1,6 @@
 package cmd
 
 import "testing"
-
 func TestSlugifyRepoName(t *testing.T) {
 	tests := []struct {
 		input string
@@ -16,7 +15,6 @@ func TestSlugifyRepoName(t *testing.T) {
 		{"Multiple...Dots_Under/Slashes", "multiple-dots-under-slashes"},
 		{"already-a-slug", "already-a-slug"},
 	}
-
 	for _, tc := range tests {
 		got := SlugifyRepoName(tc.input)
 		if got != tc.want {

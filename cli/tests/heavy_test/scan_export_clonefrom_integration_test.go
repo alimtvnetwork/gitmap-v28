@@ -5,8 +5,8 @@ package heavy_test
 // against real on-disk artifacts:
 //
 //   1. Build a tiny bare repo + two fake worktrees that point at it.
-//   2. scanner.ScanDirWithOptions discovers the worktrees.
-//   3. mapper.BuildRecords (mode=https / mode=ssh) populates the
+//   2. scanpipe.ScanDirWithOptions discovers the worktrees.
+//   3. scanpipe.BuildRecords (mode=https / mode=ssh) populates the
 //      HTTPSUrl + SSHUrl columns from the real git remote.
 //   4. formatter.WriteJSON / formatter.WriteCSV serialize the
 //      records to disk via a real *os.File.
@@ -30,13 +30,11 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonefrom"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
-	"github.com/alimtvnetwork/gitmap-v28/cli/mapper"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanner"
 )
 
 // TestScanExportCloneFrom_HTTPSAndSSH_RoundTrips runs the full
@@ -75,16 +73,16 @@ func runRoundTrip(t *testing.T, scanRoot, mode, format string) error {
 // the same way `gitmap scan` does at runtime.
 func scanAndBuildRecords(t *testing.T, root, mode string) []model.ScanRecord {
 	t.Helper()
-	repos, err := scanner.ScanDirWithOptions(root, scanner.ScanOptions{})
+	repos, err := scanpipe.ScanDirWithOptions(root, scanpipe.ScanOptions{})
 	if err != nil {
-		t.Fatalf("scanner.ScanDirWithOptions: %v", err)
+		t.Fatalf("scanpipe.ScanDirWithOptions: %v", err)
 	}
 
 	if len(repos) < 2 {
 		t.Fatalf("scanner found %d repos, want >=2 (root=%s)", len(repos), root)
 	}
 
-	return mapper.BuildRecords(repos, mode, "")
+	return scanpipe.BuildRecords(repos, mode, "")
 }
 
 // exportRecords writes the records via the production WriteJSON /

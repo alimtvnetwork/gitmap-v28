@@ -3,22 +3,17 @@ package cmd
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexplorer"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixauth"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdwhoami"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfscommon"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfindnext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprobe"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsf"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetsourcerepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdversion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddocs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrm"
@@ -91,7 +86,7 @@ func printIdentityLong() error {
 func printVersionBlock() error {
 	args := argsTail()
 	if isVersionListRequest(args) {
-		return cmdversion.RunGitMapVersionTagsLS()
+		return RunGitMapVersionTagsLS()
 	}
 	checkHelp("version", args)
 	fmt.Printf(constants.MsgVersionFmt, constants.Version)
@@ -144,10 +139,10 @@ func runUpdateHelp() error {
 	checkHelp("update", argsTail())
 
 	if isVersionListRequest(args) && isAgmUpdateTarget(args) {
-		return cmdversion.RunAGMVersionTagsLS()
+		return cmdagy.RunAGMVersionTagsLS()
 	}
 	if isVersionListRequest(args) {
-		return cmdversion.RunGitMapVersionTagsLS()
+		return RunGitMapVersionTagsLS()
 	}
 
 	remoteTarget, cleanArgs := extractRemoteUpdateTarget(args)
@@ -330,7 +325,7 @@ func runUpdateAgManagerTarget(args []string) error {
 		return cmdssh.RunSSHUpdateCLI([]string{"agm", remoteTarget})
 	}
 	if isVersionListRequest(cleanArgs) {
-		return cmdversion.RunAGMVersionTagsLS()
+		return cmdagy.RunAGMVersionTagsLS()
 	}
 	ver := extractVersionFromArgs(cleanArgs)
 	ver = resolveEffectiveVersion("agm", ver)
@@ -402,8 +397,8 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias, "ld"}, func() error { return cmdllm.RunLLMDocs(argsTail()) }},
 		{[]string{"llm-train", "train", "llmtrain"}, func() error { return cmdllm.RunLlm(append([]string{"train"}, argsTail()...)) }},
 		{[]string{"ai-server", "ai-ping", "aum-server"}, func() error { return cmdai.RunAIMemoryServerCmd(argsTail()) }},
-		{[]string{constants.CmdSetSourceRepo}, cmdsetsourcerepo.RunSetSourceRepo},
-		{[]string{constants.CmdSf}, func() error { return cmdsf.RunSf(argsTail()) }},
+		{[]string{constants.CmdSetSourceRepo}, RunSetSourceRepo},
+		{[]string{constants.CmdSf}, func() error { return RunSf(argsTail()) }},
 		{[]string{constants.CmdProbe}, func() error { return cmdprobe.RunProbe(argsTail()) }},
 		{[]string{"vscode", "vsc"}, func() error { return cmdvscode.RunVSCode(argsTail()) }},
 		{[]string{"ide", "ides"}, func() error { return cmdide.RunIDE(argsTail()) }},
@@ -433,7 +428,7 @@ func utilitySystemEntries() []dispatchEntry {
 		{[]string{"autologin", "auto-login", "al"}, func() error { return cmdos.RunOS(append([]string{"autologin"}, argsTail()...)) }},
 		{[]string{"zsh"}, func() error { return runZsh(argsTail()) }},
 		{[]string{constants.CmdFixLink, constants.CmdFixLinkAlias, constants.CmdFixLinkAlias2}, func() error { return cmdos.RunOSFixLink(argsTail()) }},
-		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return cmdwhoami.RunWhoAmI(argsTail()) }},
+		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return RunWhoAmI(argsTail()) }},
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return cmdssh.RunSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return cmdfixauth.RunFixAuth(argsTail()) }},
 		{[]string{constants.CmdFixCredential, constants.CmdFixCredentialAlias}, func() error { checkHelp("fix-credential", argsTail()); return cmdfixauth.RunFixCredential(argsTail()) }},
@@ -473,7 +468,7 @@ func utilityDesktopEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"copy", "cp-mem", "copy-to-memory"}, func() error { return cmdcopy.RunCopyCmd(argsTail()) }},
 		{[]string{"paste", "paste-mem"}, func() error { return cmdcopy.RunPasteCmd(argsTail()) }},
-		{[]string{"explorer", "open-explorer", "folder", "open-folder", "browse-folder"}, func() error { return cmdexplorer.RunExplorerCmd(argsTail()) }},
+		{[]string{"explorer", "open-explorer", "folder", "open-folder", "browse-folder"}, func() error { return RunExplorerCmd(argsTail()) }},
 		{[]string{"open-url", "browse", "browse-url", "open-browser"}, func() error { return cmdbrowse.RunBrowseCmd(argsTail()) }},
 		{[]string{"cat", "view", "type"}, func() error { return cmdmacro.RunCatCmd(argsTail()) }},
 		{[]string{"touch"}, func() error { return cmdmacro.RunTouchCmd(argsTail()) }},

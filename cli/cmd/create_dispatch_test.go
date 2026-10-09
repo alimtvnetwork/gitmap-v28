@@ -1,7 +1,6 @@
 package cmd
 
 import "testing"
-
 func TestNormalizeCreateArgs_RepoCreateSuite(t *testing.T) {
 	tests := []struct {
 		input []string
@@ -12,7 +11,6 @@ func TestNormalizeCreateArgs_RepoCreateSuite(t *testing.T) {
 		{[]string{"My Project"}, []string{"My Project"}},
 		{[]string{"My Project", "--local"}, []string{"My Project", "--local"}},
 	}
-
 	for _, tc := range tests {
 		got := normalizeCreateArgs(tc.input)
 		if len(got) != len(tc.want) {

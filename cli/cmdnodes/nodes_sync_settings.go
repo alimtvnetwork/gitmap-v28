@@ -8,7 +8,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -146,22 +145,18 @@ func pushSettingsToNode(conn db.SSHConnection, data []byte) (string, error) {
 	if isWindowsNode(conn) {
 		shell = "ps"
 	}
-
 	out, errExec := secrets.RunCommand(client, importCmd, shell)
 	if errExec != nil {
 		return "", apperror.WrapSimple(errExec, fmt.Sprintf("remote import failed on %q: %s", conn.Alias, out))
 	}
-
 	return destPath, nil
 }
-
 func executeSyncSettingsWorker(conn db.SSHConnection, data []byte) syncSettingsResult {
 	start := time.Now()
 	hostLabel := conn.Alias
 	if hostLabel == "" {
 		hostLabel = "fleet-worker"
 	}
-
 	_, err := pushSettingsToNode(conn, data)
 	if err != nil {
 		return syncSettingsResult{
@@ -173,7 +168,6 @@ func executeSyncSettingsWorker(conn db.SSHConnection, data []byte) syncSettingsR
 			duration:   time.Since(start),
 		}
 	}
-
 	return syncSettingsResult{
 		alias:     conn.Alias,
 		hostAlias: hostLabel,
@@ -182,7 +176,6 @@ func executeSyncSettingsWorker(conn db.SSHConnection, data []byte) syncSettingsR
 		duration:  time.Since(start),
 	}
 }
-
 func printPushSettingsSuccess(alias, remotePath, stagingPath string, dur time.Duration) {
 	fmt.Printf("\n  %s Successfully pushed Antigravity settings to node %s\n", constants.ColorGreen+"✓"+constants.ColorReset, alias)
 	fmt.Printf("    • Target Node:  %s\n", alias)
@@ -190,13 +183,11 @@ func printPushSettingsSuccess(alias, remotePath, stagingPath string, dur time.Du
 	fmt.Printf("    • Remote Dest:  %s\n", remotePath)
 	fmt.Printf("    • Duration:     %v\n\n", dur.Round(time.Millisecond))
 }
-
 func renderSyncSettingsTable(results []syncSettingsResult) {
 	fmt.Println()
 	fmt.Printf("  %s%-18s %-16s %-10s %-12s %-10s%s\n",
 		constants.ColorCyan, "NODE ALIAS", "HOST ALIAS", "OS", "STATUS", "LATENCY", constants.ColorReset)
 	fmt.Println("  " + strings.Repeat("-", 70))
-
 	for _, r := range results {
 		statusStr := constants.ColorRed + "▲ FAILED" + constants.ColorReset
 		if r.isSuccess {

@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/indexer"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 )
 
 func RunIndex(args []string) error {
@@ -20,7 +19,7 @@ func RunIndex(args []string) error {
 	defer db.Close()
 
 	cwd, _ := os.Getwd()
-	w := indexer.NewWalker(cwd, db, false)
+	w := scanpipe.NewWalker(cwd, db, false)
 	fmt.Println("Indexing starting...")
 	if err := w.Walk(ctx, 4); err != nil {
 		return apperror.WrapSimple(err, "error")

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/committransfer/graph"
 )
 
 // RunRight is the public entry point for `commit-right`.
@@ -54,14 +52,14 @@ func RenderRunGraph(targetDir string, opts Options) {
 	if len(events) == 0 {
 		return
 	}
-	out := graph.RenderExecutionGraph(events)
+	out := RenderExecutionGraph(events)
 	if out != "" {
 		fmt.Fprintf(os.Stdout, "\n%s Visual Execution Graph:\n%s\n", opts.LogPrefix, out)
 	}
 }
 
 // CollectGraphEvents reads recent commit history from targetDir and maps them to graph events.
-func CollectGraphEvents(targetDir string, limit int) []graph.GraphEvent {
+func CollectGraphEvents(targetDir string, limit int) []GraphEvent {
 	if limit <= 0 {
 		limit = 10
 	}
@@ -74,9 +72,9 @@ func CollectGraphEvents(targetDir string, limit int) []graph.GraphEvent {
 	return enrichBranchEvents(targetDir, events)
 }
 
-func parseLogLines(targetDir, out string) []graph.GraphEvent {
+func parseLogLines(targetDir, out string) []GraphEvent {
 	lines := strings.Split(strings.TrimSpace(out), "\n")
-	var events []graph.GraphEvent
+	var events []GraphEvent
 	for _, line := range lines {
 		if ev := parseCommitLineToEvent(targetDir, line); ev != nil {
 			events = append(events, *ev)
@@ -86,7 +84,7 @@ func parseLogLines(targetDir, out string) []graph.GraphEvent {
 	return events
 }
 
-func parseCommitLineToEvent(targetDir, line string) *graph.GraphEvent {
+func parseCommitLineToEvent(targetDir, line string) *GraphEvent {
 	parts := strings.Split(line, "\x1f")
 	if len(parts) < 3 {
 		return nil
@@ -100,11 +98,11 @@ func parseCommitLineToEvent(targetDir, line string) *graph.GraphEvent {
 	return buildParsedEvent(targetDir, parts[0], parts[1], parts[2], isMerge)
 }
 
-func buildParsedEvent(targetDir, sha, shortSha, subject string, isMerge bool) *graph.GraphEvent {
+func buildParsedEvent(targetDir, sha, shortSha, subject string, isMerge bool) *GraphEvent {
 	tag := resolveCommitTag(targetDir, sha)
 	branch := resolveCommitBranch(subject, shortSha, isMerge)
 
-	return &graph.GraphEvent{
+	return &GraphEvent{
 		CommitSha:  sha,
 		BranchName: branch,
 		IsMerge:    isMerge,
@@ -137,7 +135,7 @@ func resolveCommitBranch(subject, shortSha string, isMerge bool) string {
 	return "main"
 }
 
-func enrichBranchEvents(targetDir string, events []graph.GraphEvent) []graph.GraphEvent {
+func enrichBranchEvents(targetDir string, events []GraphEvent) []GraphEvent {
 	for i := range events {
 		enrichSingleMergeEvent(targetDir, &events[i], events)
 	}
@@ -145,7 +143,7 @@ func enrichBranchEvents(targetDir string, events []graph.GraphEvent) []graph.Gra
 	return events
 }
 
-func enrichSingleMergeEvent(targetDir string, ev *graph.GraphEvent, events []graph.GraphEvent) {
+func enrichSingleMergeEvent(targetDir string, ev *GraphEvent, events []GraphEvent) {
 	if !ev.IsMerge {
 		return
 	}
@@ -157,7 +155,7 @@ func enrichSingleMergeEvent(targetDir string, ev *graph.GraphEvent, events []gra
 	markFeatureCommits(targetDir, parents[0], parents[1], branch, events)
 }
 
-func markFeatureCommits(targetDir, p1, p2, branchName string, events []graph.GraphEvent) {
+func markFeatureCommits(targetDir, p1, p2, branchName string, events []GraphEvent) {
 	shas, err := gitOut(targetDir, "rev-list", p1+".."+p2)
 	if err != nil || strings.TrimSpace(shas) == "" {
 		return

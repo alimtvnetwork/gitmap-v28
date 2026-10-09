@@ -3,11 +3,8 @@ package orchestrator
 import (
 	"errors"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin"
 	"io"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/finalize"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/replay"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/walk"
 )
 
 // errConflictAborted is the sentinel recordFail receives when the
@@ -28,11 +25,11 @@ var errConflictAborted = errors.New("conflict aborted by user")
 // pipeline (zero-swallow: error is still printed via stdout).
 func conflictCheck(
 	ctx *runContext,
-	plan replay.Plan,
-	c walk.SourceCommit,
+	plan commitin.Plan,
+	c commitin.SourceCommit,
 	stdout io.Writer,
 ) (shouldAbortRun, shouldSkipCommit bool) {
-	clobbers, err := replay.DetectClobbers(plan)
+	clobbers, err := commitin.DetectClobbers(plan)
 	if err != nil {
 		fmt.Fprintf(stdout, "commit-in: conflict probe %s: %v\n", c.Sha, err)
 
@@ -43,8 +40,8 @@ func conflictCheck(
 		return false, false
 	}
 
-	decision := finalize.Resolve(ctx.Resolved.ConflictMode, c.Sha, stdout)
-	if decision == finalize.ConflictDecisionAbort {
+	decision := commitin.Resolve(ctx.Resolved.ConflictMode, c.Sha, stdout)
+	if decision == commitin.ConflictDecisionAbort {
 		ctx.aborted = true
 
 		return true, true

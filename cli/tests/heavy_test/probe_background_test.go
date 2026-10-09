@@ -5,10 +5,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/probe"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 )
 
 // recordingSink captures every (record, result) pair under its own
@@ -21,10 +19,10 @@ type recordingSink struct {
 
 type sinkRow struct {
 	record model.ScanRecord
-	result probe.Result
+	result scanpipe.Result
 }
 
-func (s *recordingSink) sink(rec model.ScanRecord, res probe.Result) {
+func (s *recordingSink) sink(rec model.ScanRecord, res scanpipe.Result) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.rows = append(s.rows, sinkRow{record: rec, result: res})
@@ -34,11 +32,11 @@ func (s *recordingSink) sink(rec model.ScanRecord, res probe.Result) {
 // returns nil for non-positive worker counts so callers can use a
 // single nil-check for the "disabled" path.
 func TestBackgroundRunner_NilWhenWorkersZero(t *testing.T) {
-	if r := probe.NewBackgroundRunner(0, 5, nil, nil); r != nil {
+	if r := scanpipe.NewBackgroundRunner(0, 5, nil, nil); r != nil {
 		t.Fatalf("expected nil runner for workers=0, got %p", r)
 	}
 
-	if r := probe.NewBackgroundRunner(-1, 5, nil, nil); r != nil {
+	if r := scanpipe.NewBackgroundRunner(-1, 5, nil, nil); r != nil {
 		t.Fatalf("expected nil runner for workers=-1, got %p", r)
 	}
 }
@@ -46,14 +44,14 @@ func TestBackgroundRunner_NilWhenWorkersZero(t *testing.T) {
 // TestBackgroundRunner_NilSafe verifies every public method tolerates
 // a nil receiver. This lets the scan command write
 //
-//	runner := probe.NewBackgroundRunner(...)  // may be nil
+//	runner := scanpipe.NewBackgroundRunner(...)  // may be nil
 //	runner.Start(rec); runner.Wait()
 //
 // without an explicit nil-check at every site.
 func TestBackgroundRunner_NilSafe(t *testing.T) {
-	var r *probe.BackgroundRunner
+	var r *scanpipe.BackgroundRunner
 	r.Start(model.ScanRecord{})
-	if got := r.Stats(); (got != probe.Stats{}) {
+	if got := r.Stats(); (got != scanpipe.Stats{}) {
 		t.Fatalf("nil Stats should be zero, got %+v", got)
 	}
 
@@ -61,7 +59,7 @@ func TestBackgroundRunner_NilSafe(t *testing.T) {
 		t.Fatalf("nil Remaining should be 0, got %d", got)
 	}
 
-	if got := r.Wait(); (got != probe.Stats{}) {
+	if got := r.Wait(); (got != scanpipe.Stats{}) {
 		t.Fatalf("nil Wait should return zero stats, got %+v", got)
 	}
 }
@@ -75,7 +73,7 @@ func TestBackgroundRunner_DrainsAllJobs(t *testing.T) {
 
 	// Force the empty-url branch so RunOne is never called (no git
 	// process spawned in the unit test).
-	r := probe.NewBackgroundRunner(3, total,
+	r := scanpipe.NewBackgroundRunner(3, total,
 		func(model.ScanRecord) string { return "" },
 		sink.sink)
 
@@ -118,7 +116,7 @@ func TestBackgroundRunner_HonorsWorkerCap(t *testing.T) {
 		return "" // empty → RunOne not invoked
 	}
 
-	r := probe.NewBackgroundRunner(2, 20, pick, sink.sink)
+	r := scanpipe.NewBackgroundRunner(2, 20, pick, sink.sink)
 	for i := 0; i < 20; i++ {
 		r.Start(model.ScanRecord{ID: int64(i + 1)})
 	}
@@ -135,9 +133,9 @@ func TestBackgroundRunner_HonorsWorkerCap(t *testing.T) {
 // explicit drain line; doing so must not panic with "close of
 // closed channel").
 func TestBackgroundRunner_WaitIdempotent(t *testing.T) {
-	r := probe.NewBackgroundRunner(1, 1,
+	r := scanpipe.NewBackgroundRunner(1, 1,
 		func(model.ScanRecord) string { return "" },
-		func(model.ScanRecord, probe.Result) {})
+		func(model.ScanRecord, scanpipe.Result) {})
 	r.Start(model.ScanRecord{ID: 1})
 	first := r.Wait()
 	second := r.Wait()
@@ -150,9 +148,9 @@ func TestBackgroundRunner_WaitIdempotent(t *testing.T) {
 // Start after Wait does not panic — it silently drops the job. This
 // is the safety net for any caller that mis-orders the lifecycle.
 func TestBackgroundRunner_StartAfterWaitSilent(t *testing.T) {
-	r := probe.NewBackgroundRunner(1, 1,
+	r := scanpipe.NewBackgroundRunner(1, 1,
 		func(model.ScanRecord) string { return "" },
-		func(model.ScanRecord, probe.Result) {})
+		func(model.ScanRecord, scanpipe.Result) {})
 	r.Wait()
 
 	defer func() {

@@ -11,14 +11,12 @@ package cmdprobe
 import (
 	"fmt"
 	"os"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/probe"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
@@ -37,24 +35,24 @@ type probeJSONEntry struct {
 
 // executeOneProbe runs a single probe and persists it, mirroring the
 // missing-URL handling that the sequential loop used. depth is forwarded
-// to the shallow-clone fallback (probe.RunOneWithDepth).
-func executeOneProbe(db *store.DB, repo model.ScanRecord, depth int) probe.Result {
+// to the shallow-clone fallback (scanpipe.RunOneWithDepth).
+func executeOneProbe(db *store.DB, repo model.ScanRecord, depth int) scanpipe.ProbeResult {
 	url := pickProbeURL(repo)
 	if url == "" {
-		result := probe.Result{Method: constants.ProbeMethodNone, Error: fmt.Sprintf(constants.ErrProbeMissingURL, repo.Slug)}
+		result := scanpipe.ProbeResult{Method: constants.ProbeMethodNone, Error: fmt.Sprintf(constants.ErrProbeMissingURL, repo.Slug)}
 		recordProbeResult(db, repo, result)
 
 		return result
 	}
 
-	result := probe.RunOneWithDepth(url, depth)
+	result := scanpipe.RunOneWithDepth(url, depth)
 	recordProbeResult(db, repo, result)
 
 	return result
 }
 
-// makeProbeEntry converts a probe.Result + repo into a JSON-friendly row.
-func makeProbeEntry(repo model.ScanRecord, r probe.Result) probeJSONEntry {
+// makeProbeEntry converts a scanpipe.ProbeResult + repo into a JSON-friendly row.
+func makeProbeEntry(repo model.ScanRecord, r scanpipe.ProbeResult) probeJSONEntry {
 	return probeJSONEntry{
 		RepoID:         repo.ID,
 		Slug:           repo.Slug,
@@ -93,7 +91,7 @@ func pickProbeURL(r model.ScanRecord) string {
 }
 
 // recordProbeResult persists the probe row, logging-but-not-exiting on error.
-func recordProbeResult(db *store.DB, repo model.ScanRecord, result probe.Result) {
+func recordProbeResult(db *store.DB, repo model.ScanRecord, result scanpipe.ProbeResult) {
 	if err := db.RecordVersionProbe(result.AsModel(repo.ID)); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
@@ -104,7 +102,7 @@ func recordProbeResult(db *store.DB, repo model.ScanRecord, result probe.Result)
 // the counters; with the worker pool that's `counterMu` in runProbePool.
 func tallyProbe(
 	repo model.ScanRecord,
-	r probe.Result,
+	r scanpipe.ProbeResult,
 	ok,
 	none,
 	fail int,
@@ -142,7 +140,7 @@ func tallyProbe(
 // The block surfaces the probe outcome in CloneCommand: a successful
 // probe shows the would-be `git clone -b <nextTag> <url>` invocation
 // the user can copy/paste; a failed probe shows the trimmed error.
-func emitProbeTermBlock(idx int, repo model.ScanRecord, r probe.Result) {
+func emitProbeTermBlock(idx int, repo model.ScanRecord, r scanpipe.ProbeResult) {
 	url := pickProbeURL(repo)
 	cmd := probeCloneCommandFor(url, r)
 	block := render.RepoTermBlock{
@@ -163,7 +161,7 @@ func emitProbeTermBlock(idx int, repo model.ScanRecord, r probe.Result) {
 // no new tag exists, and surfaces the probe error verbatim when the
 // probe failed (so the user immediately sees why no command is
 // suggested).
-func probeCloneCommandFor(url string, r probe.Result) string {
+func probeCloneCommandFor(url string, r scanpipe.ProbeResult) string {
 	if r.Error != "" {
 		return fmt.Sprintf("(probe failed: %s)", r.Error)
 	}

@@ -10,7 +10,6 @@ import (
 	"github.com/pterm/pterm"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/committransfer/prdesc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/prdb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
@@ -131,21 +130,21 @@ func fetchIngressSHAs(sourceDir, sha string) []string {
 	return strings.Split(strings.TrimSpace(out), "\n")
 }
 
-func replaySingleIngress(plan ReplayPlan, sha string, opts Options) result.Result[prdesc.PRCommitInfo] {
+func replaySingleIngress(plan ReplayPlan, sha string, opts Options) result.Result[PRCommitInfo] {
 	sub, body, author, short, when, err := readCommit(plan.SourceDir, sha)
 	if err != nil {
-		return result.Fail[prdesc.PRCommitInfo](apperror.WrapSimple(err, "read ingress commit"))
+		return result.Fail[PRCommitInfo](apperror.WrapSimple(err, "read ingress commit"))
 	}
 	if cErr := checkoutDetached(plan.SourceDir, sha); cErr != nil {
-		return result.Fail[prdesc.PRCommitInfo](apperror.WrapSimple(cErr, "checkout detached"))
+		return result.Fail[PRCommitInfo](apperror.WrapSimple(cErr, "checkout detached"))
 	}
 	if sErr := snapshotCopy(plan.SourceDir, plan.TargetDir, opts); sErr != nil {
-		return result.Fail[prdesc.PRCommitInfo](apperror.WrapSimple(sErr, "snapshot copy"))
+		return result.Fail[PRCommitInfo](apperror.WrapSimple(sErr, "snapshot copy"))
 	}
 	_ = addAll(plan.TargetDir)
 	commitIngressChanges(plan.TargetDir, sub, body, author, short, when, opts)
 
-	return result.Ok(prdesc.PRCommitInfo{ShortSHA: short, Author: author, Subject: sub})
+	return result.Ok(PRCommitInfo{ShortSHA: short, Author: author, Subject: sub})
 }
 
 func commitIngressChanges(dir, sub, body, author, short string, when time.Time, opts Options) {
@@ -156,13 +155,13 @@ func commitIngressChanges(dir, sub, body, author, short string, when time.Time, 
 	_, _ = commitWithEnv(dir, cleaned, author, when)
 }
 
-func replayIngressCommits(plan ReplayPlan, commit SourceCommit, opts Options) result.Result[[]prdesc.PRCommitInfo] {
+func replayIngressCommits(plan ReplayPlan, commit SourceCommit, opts Options) result.Result[[]PRCommitInfo] {
 	shas := fetchIngressSHAs(plan.SourceDir, commit.SHA)
-	var infos []prdesc.PRCommitInfo
+	var infos []PRCommitInfo
 	for _, sha := range shas {
 		itemRes := replaySingleIngress(plan, sha, opts)
 		if itemRes.IsFailure() {
-			return result.Fail[[]prdesc.PRCommitInfo](itemRes.Err)
+			return result.Fail[[]PRCommitInfo](itemRes.Err)
 		}
 		infos = append(infos, itemRes.Value)
 	}
@@ -170,12 +169,12 @@ func replayIngressCommits(plan ReplayPlan, commit SourceCommit, opts Options) re
 	return result.Ok(infos)
 }
 
-func computeDiffSummary(targetDir, baseRef string) prdesc.PRFileDiffSummary {
+func computeDiffSummary(targetDir, baseRef string) PRFileDiffSummary {
 	out, err := gitOut(targetDir, "diff", "--numstat", baseRef+"...HEAD")
 	if err != nil || strings.TrimSpace(out) == "" {
-		return prdesc.PRFileDiffSummary{FilesChanged: 1}
+		return PRFileDiffSummary{FilesChanged: 1}
 	}
-	var diff prdesc.PRFileDiffSummary
+	var diff PRFileDiffSummary
 	lines := strings.Split(strings.TrimSpace(out), "\n")
 	diff.FilesChanged = len(lines)
 	for _, line := range lines {
@@ -191,19 +190,19 @@ func computeDiffSummary(targetDir, baseRef string) prdesc.PRFileDiffSummary {
 	return diff
 }
 
-func computeComponentImpacts(targetDir, baseRef string) []prdesc.PRComponentImpact {
+func computeComponentImpacts(targetDir, baseRef string) []PRComponentImpact {
 	out, err := gitOut(targetDir, "diff", "--name-only", baseRef+"...HEAD")
 	if err != nil || strings.TrimSpace(out) == "" {
-		return []prdesc.PRComponentImpact{{Component: "Core", Impact: "Replayed", Files: 1}}
+		return []PRComponentImpact{{Component: "Core", Impact: "Replayed", Files: 1}}
 	}
 	counts := make(map[string]int)
 	for _, file := range strings.Split(strings.TrimSpace(out), "\n") {
 		parts := strings.Split(filepath.ToSlash(file), "/")
 		counts[parts[0]]++
 	}
-	var impacts []prdesc.PRComponentImpact
+	var impacts []PRComponentImpact
 	for comp, count := range counts {
-		impacts = append(impacts, prdesc.PRComponentImpact{Component: comp, Impact: "Modified", Files: count})
+		impacts = append(impacts, PRComponentImpact{Component: comp, Impact: "Modified", Files: count})
 	}
 
 	return impacts
@@ -213,9 +212,9 @@ func assemblePRMetadata(
 	targetDir string,
 	commit SourceCommit,
 	branchName, mainline string,
-	commits []prdesc.PRCommitInfo,
-) prdesc.PRMetadata {
-	return prdesc.PRMetadata{
+	commits []PRCommitInfo,
+) PRMetadata {
+	return PRMetadata{
 		PRNumber:         extractPRNumber(commit.Subject),
 		Title:            commit.Subject,
 		SourceBranch:     branchName,
@@ -249,7 +248,7 @@ func insertPRRecords(db *prdb.PrSplitDb, branchName, mainline, desc string, prNu
 	})
 }
 
-func recordPRInDatabase(targetDir, branchName, mainline, desc string, meta *prdesc.PRMetadata) result.Result[*prdb.PrSplitDb] {
+func recordPRInDatabase(targetDir, branchName, mainline, desc string, meta *PRMetadata) result.Result[*prdb.PrSplitDb] {
 	slug := prdb.SanitizeRepoSlug(filepath.Base(targetDir))
 	dbRes := prdb.OpenPrSplitDb(slug, targetDir)
 	if dbRes.IsFailure() {
@@ -275,7 +274,7 @@ func finalizePRInDatabase(db *prdb.PrSplitDb, prNum int, branchName, mergeSha st
 	})
 }
 
-func formatPRMergeMessage(meta prdesc.PRMetadata, branchName string) string {
+func formatPRMergeMessage(meta PRMetadata, branchName string) string {
 	if meta.Title != "" && strings.HasPrefix(meta.Title, "Merge ") {
 		return meta.Title
 	}
@@ -303,7 +302,7 @@ func executePRReplayAndMerge(plan ReplayPlan, commit SourceCommit, opts Options,
 		return result.Fail[string](ingressRes.Err)
 	}
 	meta := assemblePRMetadata(plan.TargetDir, commit, branchName, mainline, ingressRes.Value)
-	desc := prdesc.GeneratePRDescription(meta)
+	desc := GeneratePRDescription(meta)
 	dbRes := recordPRInDatabase(plan.TargetDir, branchName, mainline, desc, &meta)
 	_ = runGit(plan.TargetDir, "checkout", mainline)
 	mergeMsg := formatPRMergeMessage(meta, branchName)

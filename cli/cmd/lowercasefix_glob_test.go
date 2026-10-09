@@ -1,7 +1,6 @@
 package cmd
 
 import "testing"
-
 func TestIsPatternMatch_Wildcard(t *testing.T) {
 	if !isPatternMatch("foo/bar.md", "BAR.md", "*") {
 		t.Errorf("expected * to match BAR.md")
@@ -10,7 +9,6 @@ func TestIsPatternMatch_Wildcard(t *testing.T) {
 		t.Errorf("expected *.* to match BAR.txt")
 	}
 }
-
 func TestIsPatternMatch_Extension(t *testing.T) {
 	if !isPatternMatch("docs/README.md", "README.md", "*.md") {
 		t.Errorf("expected *.md to match README.md")
@@ -22,7 +20,6 @@ func TestIsPatternMatch_Extension(t *testing.T) {
 		t.Errorf("expected *.md not to match README.txt")
 	}
 }
-
 func TestIsPatternMatch_Prefix(t *testing.T) {
 	if !isPatternMatch("skills/SKILL.md", "SKILL.md", "SKILL*") {
 		t.Errorf("expected SKILL* to match SKILL.md")
@@ -31,7 +28,6 @@ func TestIsPatternMatch_Prefix(t *testing.T) {
 		t.Errorf("expected readme* to match README.md")
 	}
 }
-
 func TestIsPatternMatch_RelativePath(t *testing.T) {
 	if !isPatternMatch("docs/API.md", "API.md", "docs/*.md") {
 		t.Errorf("expected docs/*.md to match docs/API.md")
@@ -46,7 +42,6 @@ func TestIsPatternMatch_RelativePath(t *testing.T) {
 		t.Errorf("expected **/*.md to match docs/sub/API.md")
 	}
 }
-
 func TestIsPatternMatch_Substring(t *testing.T) {
 	if !isPatternMatch("docs/MY_DOC_FILE.txt", "MY_DOC_FILE.txt", "*doc*") {
 		t.Errorf("expected *doc* to match MY_DOC_FILE.txt")
@@ -55,7 +50,6 @@ func TestIsPatternMatch_Substring(t *testing.T) {
 		t.Errorf("expected *doc* not to match OTHER.txt")
 	}
 }
-
 func TestFindMatchingPattern(t *testing.T) {
 	matched, p := findMatchingPattern("docs/README.md", "README.md", []string{"*.txt", "*.md"})
 	if !matched || p != "*.md" {

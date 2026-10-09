@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"os"
 	"sync"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanner"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 )
 
 // scanProgressRenderer renders a single-line, CR-overwritten live status
-// for a running gitmap scan. It is wired in via scanner.ScanOptions and
+// for a running gitmap scan. It is wired in via scanpipe.ScanOptions and
 // invoked from the scanner's emitter goroutine — see
 // gitmap/scanner/progress.go for the cadence and Final-snapshot contract.
 //
@@ -30,7 +29,7 @@ import (
 type scanProgressRenderer struct {
 	enabled bool // emit live frames + final summary
 	mu      sync.Mutex
-	last    scanner.ScanProgress
+	last    scanpipe.ScanProgress
 	dirty   bool // a non-final frame is currently on the line
 }
 
@@ -43,10 +42,10 @@ func newScanProgressRenderer(quiet bool) *scanProgressRenderer {
 	}
 }
 
-// Callback returns the function passed into scanner.ScanOptions. nil is
+// Callback returns the function passed into scanpipe.ScanOptions. nil is
 // returned when the renderer is disabled — the scanner treats that as
 // "no progress hook" and skips the goroutine entirely.
-func (r *scanProgressRenderer) Callback() func(scanner.ScanProgress) {
+func (r *scanProgressRenderer) Callback() func(scanpipe.ScanProgress) {
 	if !r.enabled {
 		return nil
 	}
@@ -58,7 +57,7 @@ func (r *scanProgressRenderer) Callback() func(scanner.ScanProgress) {
 // still take a lock so the eventual Done() call (which may run on the
 // caller's goroutine after the scanner returns) cannot interleave with
 // the final snapshot.
-func (r *scanProgressRenderer) handle(p scanner.ScanProgress) {
+func (r *scanProgressRenderer) handle(p scanpipe.ScanProgress) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -73,7 +72,7 @@ func (r *scanProgressRenderer) handle(p scanner.ScanProgress) {
 }
 
 // renderFrameLocked writes one live frame. Called only with r.mu held.
-func (r *scanProgressRenderer) renderFrameLocked(p scanner.ScanProgress) {
+func (r *scanProgressRenderer) renderFrameLocked(p scanpipe.ScanProgress) {
 	fmt.Fprintf(os.Stderr,
 		constants.ScanProgressLineFmt,
 		constants.ColorCyan, constants.ScanProgressPrefix, constants.ColorReset,

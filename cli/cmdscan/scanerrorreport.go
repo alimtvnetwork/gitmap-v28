@@ -8,11 +8,10 @@ package cmdscan
 import (
 	"fmt"
 	"os"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/probe"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 )
 
 // newScanCollector returns a ready-to-use Collector when reportErrors
@@ -28,7 +27,7 @@ func newScanCollector(reportErrors bool) *diag.Collector {
 }
 
 // scanDirErrorCallback returns the OnDirError closure passed to
-// scanner.ScanOptions. Captures `c` so the goroutine-safe
+// scanpipe.ScanOptions. Captures `c` so the goroutine-safe
 // diag.Collector receives one entry per failed ReadDir.
 func scanDirErrorCallback(c *diag.Collector) func(string, error) {
 	if c == nil {
@@ -47,12 +46,12 @@ func scanDirErrorCallback(c *diag.Collector) func(string, error) {
 // installProbeFailureHook wires the background-probe runner's
 // per-failure callback into the collector. No-op when either side is
 // nil so callers can chain unconditionally.
-func installProbeFailureHook(runner *probe.BackgroundRunner, c *diag.Collector) {
+func installProbeFailureHook(runner *scanpipe.BackgroundRunner, c *diag.Collector) {
 	if runner == nil || c == nil {
 		return
 	}
 
-	runner.SetFailureHook(func(rec model.ScanRecord, res probe.Result) {
+	runner.SetFailureHook(func(rec model.ScanRecord, res scanpipe.ProbeResult) {
 		c.Add(diag.PhaseScan, diag.Entry{
 			RepoPath:  rec.RelativePath,
 			RemoteURL: rec.HTTPSUrl,

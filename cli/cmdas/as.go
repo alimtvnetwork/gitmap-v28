@@ -8,13 +8,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/mapper"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanner"
 )
 
 // runAs implements `gitmap as [alias-name] [--force]`.
@@ -112,11 +110,11 @@ func gitTopLevel() (string, error) {
 
 // buildSingleRepoRecord constructs a ScanRecord for one already-known repo.
 func buildSingleRepoRecord(absPath string) (model.ScanRecord, *apperror.AppError) {
-	repos := []scanner.RepoInfo{{
+	repos := []scanpipe.RepoInfo{{
 		AbsolutePath: absPath,
 		RelativePath: filepath.Base(absPath),
 	}}
-	records := mapper.BuildRecords(repos, constants.ModeHTTPS, "")
+	records := scanpipe.BuildRecords(repos, constants.ModeHTTPS, "")
 	if len(records) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrAsResolveFmt, absPath, "no record built")
 

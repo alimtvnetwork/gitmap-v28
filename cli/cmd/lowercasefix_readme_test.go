@@ -1,7 +1,6 @@
 package cmd
 
 import "testing"
-
 func TestIsRootReadme(t *testing.T) {
 	if !isRootReadme("README.md", "README.md") {
 		t.Errorf("expected README.md in root to be root readme")
@@ -19,7 +18,6 @@ func TestIsRootReadme(t *testing.T) {
 		t.Errorf("expected sub/dir/README.md NOT to be root readme")
 	}
 }
-
 func TestIsReadmeAlias(t *testing.T) {
 	aliases := []string{"lowercase-readme", "lower-case-readme", "readme-lower", "readme-lowercase", "lcr"}
 	for _, a := range aliases {
@@ -31,7 +29,6 @@ func TestIsReadmeAlias(t *testing.T) {
 		t.Errorf("expected lowercase not to be readme alias")
 	}
 }
-
 func TestResolveLcfPatterns_Readme(t *testing.T) {
 	patterns, isReadme := resolveLcfPatterns([]string{"readme"})
 	if !isReadme {

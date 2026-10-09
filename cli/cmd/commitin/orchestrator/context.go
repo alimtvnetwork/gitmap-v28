@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/finalize"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/workspace"
 )
@@ -30,7 +29,7 @@ type runContext struct {
 	Resolved profile.Resolved
 	RunID    int64
 	TempDir  string
-	Counters finalize.Counters
+	Counters commitin.Counters
 	// inputRepoIds caches InputRepo PKs keyed by ResolvedInput.OrderIndex
 	// so persistSource emits exactly one InputRepo row per staged input.
 	inputRepoIds map[int]int64
@@ -58,7 +57,7 @@ func newContext(
 		Resolved: resolved,
 		RunID:    runID,
 		TempDir:  filepath.Join(paths.TempRoot, runIDDir(runID)),
-		Counters: finalize.Counters{RunId: runID},
+		Counters: commitin.Counters{RunId: runID},
 	}
 }
 
@@ -69,7 +68,7 @@ func (c *runContext) Cleanup() {
 		return
 	}
 
-	finalize.CleanupTemp(c.TempDir, c.Raw.IsKeepTemp)
+	commitin.CleanupTemp(c.TempDir, c.Raw.IsKeepTemp)
 	if c.DB != nil {
 		_ = c.DB.Close()
 		c.DB = nil

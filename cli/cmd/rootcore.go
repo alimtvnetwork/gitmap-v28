@@ -38,7 +38,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpurge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpushfix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpy"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsee"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
@@ -138,9 +137,9 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{"paswh", "pas-wh"}, func() error { return runPASWH(argsTail()) }},
 		{[]string{"pull-error", "pull-errors", "pulle", "pull-e"}, func() error { return cmdpullerror.RunPullErrorCLI(argsTail()) }},
 		{[]string{"commit-push-all-repos", "cpar"}, func() error { return cmdcpar.RunCPAR(argsTail()) }},
-		{[]string{"see", "c"}, func() error { return cmdsee.RunSeeCLI(argsTail()) }},
-		{[]string{"ses", "see-errors-ssh"}, func() error { return cmdsee.RunSeeErrorsSSH(argsTail()) }},
-		{[]string{"repo-manage", "repo-manage-ui"}, func() error { return cmdsee.RunRepoManageUI() }},
+		{[]string{"see", "c"}, func() error { return RunSeeCLI(argsTail()) }},
+		{[]string{"ses", "see-errors-ssh"}, func() error { return RunSeeErrorsSSH(argsTail()) }},
+		{[]string{"repo-manage", "repo-manage-ui"}, func() error { return RunRepoManageUI() }},
 		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return cmdstatus.RunStatus(argsTail()) }},
 		{[]string{constants.CmdCommit, constants.CmdCommitAlias, constants.CmdCommitAlias2, constants.CmdCommitAlias3}, func() error { return cmdcommit.RunCommit(argsTail()) }},
 		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},

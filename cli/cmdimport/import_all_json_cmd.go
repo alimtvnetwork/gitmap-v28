@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
@@ -142,7 +141,6 @@ func runSubsystemImport(normPath string, desc jsonx.TypeDescriptor) ImportItemRe
 		return res
 	}
 }
-
 func finalizeSubsystemResult(res ImportItemResult, err error, successMsg string) ImportItemResult {
 	if err != nil {
 		fmt.Printf("%s✖ FAILED%s (%v)\n", constants.ColorRed, constants.ColorReset, err)
@@ -155,14 +153,12 @@ func finalizeSubsystemResult(res ImportItemResult, err error, successMsg string)
 	res.Details = successMsg
 	return res
 }
-
 func printImportAllSummary(results []ImportItemResult, isDryRun bool) {
 	fmt.Printf("\n%s================================================================================%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf(" %sBATCH IMPORT EXECUTION SUMMARY%s\n", constants.ColorBold, constants.ColorReset)
 	succeeded, skipped, failed := tallyImportResults(results)
 	fmt.Printf(" Total: %d | Succeeded: %d | Skipped: %d | Failed: %d\n", len(results), succeeded, skipped, failed)
 	fmt.Printf("%s--------------------------------------------------------------------------------%s\n", constants.ColorDim, constants.ColorReset)
-
 	cfg := termout.TableConfig{
 		Columns: []termout.Column{
 			{Title: "FILE", Align: termout.AlignLeft, MinWidth: 25},
@@ -175,7 +171,6 @@ func printImportAllSummary(results []ImportItemResult, isDryRun bool) {
 	termout.PrintTable(cfg)
 	fmt.Printf("%s================================================================================%s\n\n", constants.ColorCyan, constants.ColorReset)
 }
-
 func tallyImportResults(results []ImportItemResult) (int, int, int) {
 	succeeded := 0
 	skipped := 0
@@ -193,7 +188,6 @@ func tallyImportResults(results []ImportItemResult) (int, int, int) {
 	}
 	return succeeded, skipped, failed
 }
-
 func buildImportSummaryRows(results []ImportItemResult) []termout.Row {
 	rows := make([]termout.Row, 0, len(results))
 	for _, r := range results {
@@ -213,7 +207,6 @@ func buildImportSummaryRows(results []ImportItemResult) []termout.Row {
 	}
 	return rows
 }
-
 func resolveImportRowStatus(status string) string {
 	switch status {
 	case "SUCCESS":

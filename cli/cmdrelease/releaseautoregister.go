@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/mapper"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanner"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -15,7 +13,7 @@ import (
 // the user to run `gitmap scan` manually first.
 //
 // Strategy: parent dir is the ScanFolder, cwd is the single Repo. We
-// reuse mapper.BuildRecords so slug / URLs / branch are populated the
+// reuse scanpipe.BuildRecords so slug / URLs / branch are populated the
 // same way a regular scan would.
 func autoRegisterCurrentRepo(db *store.DB, cwd string) error {
 	absCwd, err := filepath.Abs(cwd)
@@ -24,12 +22,12 @@ func autoRegisterCurrentRepo(db *store.DB, cwd string) error {
 	}
 
 	parent := filepath.Dir(absCwd)
-	repoInfo := scanner.RepoInfo{
+	repoInfo := scanpipe.RepoInfo{
 		AbsolutePath: absCwd,
 		RelativePath: filepath.Base(absCwd),
 	}
 
-	records := mapper.BuildRecords([]scanner.RepoInfo{repoInfo}, "https", "")
+	records := scanpipe.BuildRecords([]scanpipe.RepoInfo{repoInfo}, "https", "")
 
 	if err := db.UpsertRepos(records); err != nil {
 		return fmt.Errorf("upsert repo failed: %w", err)

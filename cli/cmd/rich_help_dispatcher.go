@@ -5,10 +5,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstorage"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcluster"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstash"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbranch"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdaum"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemplates"
@@ -80,7 +78,7 @@ func tryRenderCoreRichTopic(topic string) bool {
 
 		return true
 	case "aum", "automation", "auto":
-		cmdaum.RenderAumHelp()
+		RenderAumHelp()
 
 		return true
 	case "llm", "llm-train", "train", "chain", "llm-docs", "ld":
@@ -92,7 +90,7 @@ func tryRenderCoreRichTopic(topic string) bool {
 
 		return true
 	case "stash", "wip", "discard":
-		cmdstash.RenderStashHelp()
+		RenderStashHelp()
 
 		return true
 	case "fix":

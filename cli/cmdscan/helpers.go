@@ -5,10 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/probe"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -78,7 +77,7 @@ func pickProbeURL(r model.ScanRecord) string {
 	return r.SSHUrl
 }
 
-func recordProbeResult(db *store.DB, repo model.ScanRecord, result probe.Result) {
+func recordProbeResult(db *store.DB, repo model.ScanRecord, result scanpipe.ProbeResult) {
 	if err := db.RecordVersionProbe(result.AsModel(repo.ID)); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}

@@ -11,7 +11,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcd"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcfrppriorversion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcluster"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcode"
@@ -28,7 +27,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsee"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
@@ -188,7 +186,7 @@ func init() {
 		})
 		return apperror.WrapSimple(err, "fix-ignore-all")
 	}
-	cmdsee.HistoryRunnerFn = func(args []string) *apperror.AppError {
+	HistoryRunnerFn = func(args []string) *apperror.AppError {
 		return apperror.WrapSimple(cmdhistory.RunHistory(args), "history")
 	}
 	cmdpull.HasAliasFn = HasAlias
@@ -250,7 +248,7 @@ func init() {
 	cmdclone.CommitCodingGuidelinesFn = func(dir string, isSkipCommit, isSkipPush bool) error {
 		return cmdclone.CommitCodingGuidelines(cmdclone.CGCommitOpts{WorkingDir: dir, IsSkipCommit: isSkipCommit, IsSkipPush: isSkipPush})
 	}
-	cmdclone.RunCFRPPriorVersionPrivatizeFn = cmdcfrppriorversion.RunCFRPPriorVersionPrivatize
+	cmdclone.RunCFRPPriorVersionPrivatizeFn = RunCFRPPriorVersionPrivatize
 	cmdclone.RunGitHubDesktopOptimizeFn = cmdclone.RunGitHubDesktopOptimize
 	cmdclone.ResolveEndpointStringFn = cmdclone.ResolveEndpointString
 	cmdclone.ResolveReleaseAliasPathFn = cmdclone.ResolveReleaseAliasPath

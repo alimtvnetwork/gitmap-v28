@@ -2,9 +2,7 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrest"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvariable"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsafe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdip"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemplates"
@@ -863,7 +861,7 @@ func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.
 		return true
 	case "safe-rm", "rm-safe":
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
-			return cmdsafe.RunSafeRmCLI(argsTail())
+			return RunSafeRmCLI(argsTail())
 		}, shouldAudit, id, start)
 		return true
 	case constants.CmdVar, constants.CmdVarAlias:
@@ -873,7 +871,7 @@ func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.
 		return true
 	case constants.CmdRestEnable:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
-			return cmdrest.RunRestEnable(argsTail())
+			return RunRestEnable(argsTail())
 		}, shouldAudit, id, start)
 		return true
 	case constants.CmdMigrate:

@@ -5,9 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"time"
-
 	"golang.org/x/crypto/ssh"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
@@ -49,7 +47,6 @@ func deployConfigPayloadToNode(client *ssh.Client, c db.SSHConnection, payload [
 	importCmd := fmt.Sprintf("gitmap ssh nodes import-json %s", remotePath)
 	return secrets.RunCommand(client, importCmd, "")
 }
-
 func cleanupRemoteTempFile(client *ssh.Client, remotePath string, isWin bool) {
 	if isWin {
 		_, _ = secrets.RunCommand(client, fmt.Sprintf("powershell.exe -NoProfile -Command \"Remove-Item -Force '%s' 2>$null\"", remotePath), "")

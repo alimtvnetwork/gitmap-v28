@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/finalize"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/runlog"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/workspace"
@@ -43,13 +42,13 @@ func Run(raw *commitin.RawArgs, stdout, stderr io.Writer) int {
 	}
 
 	_ = runlog.FinishRun(ctx.DB.Conn(), ctx.RunID, finalRunStatus(ctx.Counters), time.Now())
-	finalize.PrintSummary(stderr, ctx.Counters)
+	commitin.PrintSummary(stderr, ctx.Counters)
 	if ctx.Raw.IsDryRun {
-		finalize.PrintDryRunBanner(stderr)
+		commitin.PrintDryRunBanner(stderr)
 	}
 	maybeRunFinalSync(ctx)
 
-	return finalize.Outcome(ctx.Counters)
+	return commitin.Outcome(ctx.Counters)
 }
 
 func maybeRunFinalSync(ctx *runContext) {
@@ -66,7 +65,7 @@ func maybeRunFinalSync(ctx *runContext) {
 
 // finalRunStatus picks the spec §4 RunStatus enum for the FinishRun
 // row based on the per-commit counters.
-func finalRunStatus(c finalize.Counters) string {
+func finalRunStatus(c commitin.Counters) string {
 	if c.Failed == 0 {
 		return constants.CommitInRunStatusCompleted
 	}

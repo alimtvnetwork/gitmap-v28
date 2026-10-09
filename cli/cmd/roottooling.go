@@ -5,9 +5,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdjoin"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservercmd"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdheadtail"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdappend"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmkdir"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdregoldens"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdauditlegacy"
 	
@@ -16,7 +13,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreplace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfind"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlocate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdadd"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
@@ -28,20 +24,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstartup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpowershell"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbash"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpin"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdapps"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdimport"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclean"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdenv"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemprelease"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprune"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsafety"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdopen"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrelease"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchangelog"
@@ -51,7 +42,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstale"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdseowrite"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlist"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsends"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdgomod"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcompletion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbackup"
@@ -75,7 +65,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlogin"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmuse"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdports"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
@@ -122,7 +111,7 @@ func toolingWorkspaceEntries() []dispatchEntry {
 		{[]string{constants.CmdLatestBranch, constants.CmdLatestBranchAlias}, func() error { return cmdlatestbranch.RunLatestBranch(argsTail()) }},
 		{[]string{constants.CmdBranch, constants.CmdBranchAlias}, func() error { return cmdbranch.RunBranch(argsTail()) }},
 		{[]string{constants.CmdPendingCommits, constants.CmdPendingCommitsAlias}, func() error { return cmdpending.RunPendingCommits(argsTail()) }},
-		{[]string{constants.CmdSends}, func() error { return cmdsends.RunSends(argsTail()) }},
+		{[]string{constants.CmdSends}, func() error { return RunSends(argsTail()) }},
 	}
 }
 
@@ -183,8 +172,8 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() error { return cmdopen.RunOpen(argsTail()) }},
 		{[]string{constants.CmdPR, constants.CmdPRAlias}, func() error { return runPR(argsTail()) }},
 		{[]string{constants.CmdBlameStats}, func() error { return runBlameStats(argsTail()) }},
-		{[]string{constants.CmdSnapshot}, func() error { return cmdsafety.RunSnapshot(argsTail()) }},
-		{[]string{constants.CmdRollback}, func() error { return cmdsafety.RunRollback(argsTail()) }},
+		{[]string{constants.CmdSnapshot}, func() error { return RunSnapshot(argsTail()) }},
+		{[]string{constants.CmdRollback}, func() error { return RunRollback(argsTail()) }},
 		{[]string{constants.CmdGuard}, func() error { return cmdautomation.RunGuard(argsTail()) }},
 		{[]string{constants.CmdPrune, constants.CmdPruneAlias}, func() error { return cmdprune.RunPrune(argsTail()) }},
 		{[]string{constants.CmdTempRelease, constants.CmdTempReleaseShort}, func() error { return cmdtemprelease.RunTempRelease(argsTail()) }},
@@ -199,15 +188,15 @@ func toolingOpsEntries() []dispatchEntry {
 			"clear-devtools", "clear-dev-tools", "clear-dev-tools-cache", "clear-devtools-cache",
 			"clear-devtool", "clear-dev-tool", "clean-devtools", "clean-dev-tools", "clean-dev-tools-cache",
 			"devtools-cache-clear", "dev-tools-cache-clear",
-		}, func() error { return cmdclean.RunCleanDevTopLevel(argsTail()) }},
+		}, func() error { return RunCleanDevTopLevel(argsTail()) }},
 		{[]string{
 			"terminal", "clean-terminal", "clear-terminal", "terminal-clean", "terminal-clear",
 			"clean-term", "clear-term",
-		}, func() error { return cmdclean.RunTerminalTopLevel(argsTail()) }},
-		{[]string{"devtool", "devtools", "dev-tool", "dev-tools", "dt"}, func() error { return cmdclean.RunDevToolTopLevel(argsTail()) }},
-		{[]string{"clean"}, func() error { return cmdclean.RunCleanTopLevel(argsTail()) }},
-		{[]string{"clear", "cls"}, func() error { return cmdclean.RunClearTopLevel(argsTail()) }},
-		{[]string{"winutil"}, func() error { return cmdclean.RunWinUtilTopLevel(argsTail()) }},
+		}, func() error { return RunTerminalTopLevel(argsTail()) }},
+		{[]string{"devtool", "devtools", "dev-tool", "dev-tools", "dt"}, func() error { return RunDevToolTopLevel(argsTail()) }},
+		{[]string{"clean"}, func() error { return RunCleanTopLevel(argsTail()) }},
+		{[]string{"clear", "cls"}, func() error { return RunClearTopLevel(argsTail()) }},
+		{[]string{"winutil"}, func() error { return RunWinUtilTopLevel(argsTail()) }},
 	}
 	return append(entries, toolingSpecialRepoEntries()...)
 }
@@ -221,7 +210,7 @@ func toolingSpecialRepoEntries() []dispatchEntry {
 
 func toolingInstallEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{"muse", "meta-muse", "metamuse"}, func() error { return cmdmuse.RunMuseCLI(argsTail()) }},
+		{[]string{"muse", "meta-muse", "metamuse"}, func() error { return RunMuseCLI(argsTail()) }},
 		{[]string{"installer"}, func() error { return cmdinstaller.RunInstallerCLI(argsTail()) }},
 		{[]string{"which-format", "whichformat", "format-which", "format-inspect", "format-check", "which-json"}, func() error { return cmdconfig.RunWhichFormatCLI(argsTail()) }},
 		{[]string{"which"}, func() error { return handleWhichSubcommand(argsTail()) }},
@@ -230,8 +219,8 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"import-all-json", "import-all", "importall", "import-json-all", "importjsonall"}, func() error { return cmdimport.RunImportAllJSONCLI(argsTail()) }},
 		{[]string{"what-configs", "what-config", "whatconfigs", "whatconfig", "wc"}, func() error { return cmdconfig.RunWhatConfigsCLI(argsTail()) }},
 		{[]string{"merge-json", "mergejson", "json-merge"}, func() error { return cmdmerge.RunMergeJSONCLI(argsTail()) }},
-		{[]string{"pin", "version-pin"}, func() error { return cmdpin.RunPinCLI(argsTail()) }},
-		{[]string{"unpin", "version-unpin"}, func() error { return cmdpin.RunUnpinCLI(argsTail()) }},
+		{[]string{"pin", "version-pin"}, func() error { return RunPinCLI(argsTail()) }},
+		{[]string{"unpin", "version-unpin"}, func() error { return RunUnpinCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines", "ct"}, func() error { return cmdcg.RunCG(argsTail()) }},
 		{[]string{"install-version-json", "init-version"}, func() error { return cmdcg.RunCG(append([]string{"install-version-json"}, argsTail()...)) }},
 		{[]string{"install-prompts", "install-prompt"}, func() error { return cmdcg.RunCG(append([]string{"install-prompts"}, argsTail()...)) }},
@@ -242,9 +231,9 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"change-password", "passwd", "chpasswd"}, func() error { return cmdos.RunChangePasswordCLI(argsTail()) }},
 		{[]string{"machine", "machines", "machine-name", "hostname"}, func() error { return cmdos.RunMachineCLI(argsTail()) }},
 		{[]string{"os-info", "osinfo", "sysinfo", "system-info", "which-os", "whichos", "os-which"}, func() error { return cmdos.RunOSInfoCLI(argsTail()) }},
-		{[]string{"bash", "git-bash"}, func() error { return cmdbash.RunBash(argsTail()) }},
-		{[]string{"shell", "sh"}, func() error { return cmdbash.RunShell(argsTail()) }},
-		{[]string{"powershell", "pwsh", "ps"}, func() error { return cmdpowershell.RunPowerShell(argsTail()) }},
+		{[]string{"bash", "git-bash"}, func() error { return RunBash(argsTail()) }},
+		{[]string{"shell", "sh"}, func() error { return RunShell(argsTail()) }},
+		{[]string{"powershell", "pwsh", "ps"}, func() error { return RunPowerShell(argsTail()) }},
 		{[]string{"sj", "ssh-joiner", "ssh-join", "ssh-joined"}, func() error { return runSJ(argsTail()) }},
 		{[]string{"sjc", "ssh-join-common", "ssh-join-c", "join-common"}, func() error { return runSJC(argsTail()) }},
 		{[]string{"se", "ssh-exe", "ssh-exec", "ssh-execute", "mm", "multi-machines", "multi-machine", "multimachine", "multimachines"}, func() error { return cmdssh.RunSSHExec(argsTail()) }},
@@ -316,7 +305,7 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdIgnoreRm}, func() error { return cmdignore.RunIgnoreRm(argsTail()) }},
 		{[]string{constants.CmdAdd}, func() error { return cmdadd.RunAdd(argsTail()) }},
 		{[]string{constants.CmdLlm}, func() error { return cmdllm.RunLlm(argsTail()) }},
-		{[]string{"locate", "find-tool", "vcvars"}, func() error { return cmdlocate.RunLocateTopLevel(argsTail()) }},
+		{[]string{"locate", "find-tool", "vcvars"}, func() error { return RunLocateTopLevel(argsTail()) }},
 		{[]string{constants.CmdFind, "f"}, func() error { return cmdfind.RunFind(argsTail()) }},
 		{[]string{constants.CmdFindFiles, "ff"}, func() error { return cmdfind.RunFindFiles(argsTail()) }},
 		{[]string{constants.CmdFindFilesAny, "ffa"}, func() error { return cmdfind.RunFindFilesAny(argsTail()) }},
@@ -342,12 +331,12 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdSearchReplaceAll}, func() error { return cmdsearch.RunSearchReplaceAll(argsTail()) }},
 		{[]string{"asset", "download-prnt", "prnt", "prnt-download"}, func() error { return cmdasset.Run(argsTail()) }},
 		{[]string{constants.CmdZip}, func() error { return cmdzip.RunZip(argsTail()) }},
-		{[]string{"mkdir"}, func() error { return cmdmkdir.RunMkdir(argsTail()) }},
+		{[]string{"mkdir"}, func() error { return RunMkdir(argsTail()) }},
 		{[]string{"cat"}, func() error { return cmdmacro.RunCat(argsTail()) }},
-		{[]string{constants.CmdAppend}, func() error { return cmdappend.RunAppend(argsTail()) }},
-		{[]string{constants.CmdWrite}, func() error { return cmdappend.RunWrite(argsTail()) }},
-		{[]string{constants.CmdHead}, func() error { return cmdheadtail.RunHead(argsTail()) }},
-		{[]string{constants.CmdTail}, func() error { return cmdheadtail.RunTail(argsTail()) }},
+		{[]string{constants.CmdAppend}, func() error { return RunAppend(argsTail()) }},
+		{[]string{constants.CmdWrite}, func() error { return RunWrite(argsTail()) }},
+		{[]string{constants.CmdHead}, func() error { return RunHead(argsTail()) }},
+		{[]string{constants.CmdTail}, func() error { return RunTail(argsTail()) }},
 		{[]string{constants.CmdFileSearch}, func() error { return runFileSearch(argsTail()) }},
 		{[]string{"reset-and-rescan"}, func() error { return runReset([]string{"--confirm", "--rescan"}) }},
 		{[]string{constants.CmdReplace, constants.CmdReplaceAlias}, func() error { return cmdreplace.RunReplace(argsTail()) }},

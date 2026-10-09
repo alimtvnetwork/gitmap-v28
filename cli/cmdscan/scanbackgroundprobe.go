@@ -16,11 +16,10 @@ package cmdscan
 import (
 	"fmt"
 	"os"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/probe"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -40,7 +39,7 @@ func startBackgroundProbe(
 	opts ScanProbeOptions,
 	quiet bool,
 	errCollector *diag.Collector,
-) *probe.BackgroundRunner {
+) *scanpipe.BackgroundRunner {
 	workers := resolveProbeWorkers(records, opts, quiet)
 	if workers < 1 {
 		return nil
@@ -60,9 +59,9 @@ func startBackgroundProbe(
 		return nil
 	}
 
-	runner := probe.NewBackgroundRunner(workers, len(records),
+	runner := scanpipe.NewBackgroundRunner(workers, len(records),
 		pickProbeURL,
-		func(rec model.ScanRecord, res probe.Result) {
+		func(rec model.ScanRecord, res scanpipe.ProbeResult) {
 			recordProbeResult(db, rec, res)
 		})
 	// Install the failure hook AND clone-depth BEFORE enqueueing
@@ -111,7 +110,7 @@ func resolveProbeWorkers(records []model.ScanRecord, opts ScanProbeOptions, quie
 
 // enqueueProbeJobs hands every record to the runner. Split out so
 // startBackgroundProbe stays under the function-length budget.
-func enqueueProbeJobs(runner *probe.BackgroundRunner, records []model.ScanRecord) {
+func enqueueProbeJobs(runner *scanpipe.BackgroundRunner, records []model.ScanRecord) {
 	for _, rec := range records {
 		runner.Start(rec)
 	}
@@ -121,7 +120,7 @@ func enqueueProbeJobs(runner *probe.BackgroundRunner, records []model.ScanRecord
 // has persisted, OR — when --no-probe-wait was passed — returns
 // immediately and prints a single line so users know jobs are still
 // running. Safe to call with a nil runner.
-func drainBackgroundProbe(runner *probe.BackgroundRunner, opts ScanProbeOptions, quiet bool) {
+func drainBackgroundProbe(runner *scanpipe.BackgroundRunner, opts ScanProbeOptions, quiet bool) {
 	if runner == nil {
 		return
 	}

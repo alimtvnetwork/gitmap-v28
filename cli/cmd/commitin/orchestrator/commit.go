@@ -2,17 +2,15 @@ package orchestrator
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/dedupe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/message"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/replay"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/runlog"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/walk"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/workspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/committransfer"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -24,7 +22,7 @@ import (
 func processOneCommit(
 	ctx *runContext,
 	staged workspace.StagedInput,
-	c walk.SourceCommit,
+	c commitin.SourceCommit,
 	pick func(int,
 	) int, stdout io.Writer,
 ) bool {
@@ -60,11 +58,11 @@ func processOneCommit(
 }
 
 // persistSource inserts InputRepo (once per staged input via cache)
-// and the SourceCommit row. Returns (inputRepoID, sourceCommitID, ok).
+// and the commitin.SourceCommit row. Returns (inputRepoID, sourceCommitID, ok).
 func persistSource(
 	ctx *runContext,
 	staged workspace.StagedInput,
-	c walk.SourceCommit,
+	c commitin.SourceCommit,
 	stdout io.Writer,
 ) (int64, int64, bool) {
 	inputRepoID, err := ctx.inputRepoID(staged)
@@ -87,7 +85,7 @@ func persistSource(
 	return inputRepoID, srcID, true
 }
 
-func toSourceCommitRow(c walk.SourceCommit) runlog.SourceCommitRow {
+func toSourceCommitRow(c commitin.SourceCommit) runlog.SourceCommitRow {
 	return runlog.SourceCommitRow{
 		OrderIndex:           c.OrderIndex,
 		Sha:                  c.Sha,
@@ -102,8 +100,8 @@ func toSourceCommitRow(c walk.SourceCommit) runlog.SourceCommitRow {
 
 // handleDedupe checks ShaMap and records a Skip when it's a hit.
 // Returns true when the caller should stop processing this commit.
-func handleDedupe(ctx *runContext, srcID int64, c walk.SourceCommit, stdout io.Writer) bool {
-	v, err := dedupe.Lookup(ctx.DB.Conn(), c.Sha)
+func handleDedupe(ctx *runContext, srcID int64, c commitin.SourceCommit, stdout io.Writer) bool {
+	v, err := commitin.Lookup(ctx.DB.Conn(), c.Sha)
 	if err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrDbWrite, err)
 		ctx.Counters.Failed++
@@ -125,7 +123,7 @@ func handleDedupe(ctx *runContext, srcID int64, c walk.SourceCommit, stdout io.W
 
 func buildMessage(
 	ctx *runContext,
-	c walk.SourceCommit,
+	c commitin.SourceCommit,
 	intelBlock string,
 	pick func(int,
 	) int) message.Result {
@@ -147,7 +145,7 @@ func recordSkip(ctx *runContext, srcID int64, reason string, stdout io.Writer, s
 func doReplayAndRecord(
 	ctx *runContext,
 	staged workspace.StagedInput,
-	c walk.SourceCommit,
+	c commitin.SourceCommit,
 	msg string,
 	inputRepoID,
 	srcID int64,
@@ -170,7 +168,7 @@ func doReplayAndRecord(
 		return false
 	}
 
-	res, err := replay.ApplyCommit(plan, false)
+	res, err := commitin.ApplyCommit(plan, false)
 	if err != nil {
 		recordFail(ctx, srcID, c, msg, err, stdout)
 
@@ -181,7 +179,7 @@ func doReplayAndRecord(
 	return maybeProcessPR(plan, c, msg, ctx.Resolved.PRMode, res.NewSha, stdout)
 }
 
-func maybeProcessPR(plan replay.Plan, c walk.SourceCommit, msg, prMode, newSha string, stdout io.Writer) bool {
+func maybeProcessPR(plan commitin.Plan, c commitin.SourceCommit, msg, prMode, newSha string, stdout io.Writer) bool {
 	lowerMsg := strings.ToLower(strings.TrimSpace(c.OriginalMessage))
 	isPR := strings.Contains(lowerMsg, "pull request") ||
 		strings.Contains(lowerMsg, "merge #") ||
@@ -201,10 +199,10 @@ func maybeProcessPR(plan replay.Plan, c walk.SourceCommit, msg, prMode, newSha s
 func buildReplayPlan(
 	ctx *runContext,
 	staged workspace.StagedInput,
-	c walk.SourceCommit,
+	c commitin.SourceCommit,
 	msg string,
-) replay.Plan {
-	return replay.Plan{
+) commitin.Plan {
+	return commitin.Plan{
 		SourceRepoDir: staged.WorkPath,
 		TargetRepoDir: ctx.Source.Path,
 		SourceSha:     c.Sha,
@@ -224,7 +222,7 @@ func hasObjectAlternates(dir string) bool {
 	return err == nil
 }
 
-func pickAuthorName(ctx *runContext, c walk.SourceCommit) string {
+func pickAuthorName(ctx *runContext, c commitin.SourceCommit) string {
 	if ctx.Resolved.Author != nil && ctx.Resolved.Author.Name != "" {
 		return ctx.Resolved.Author.Name
 	}
@@ -235,7 +233,7 @@ func pickAuthorName(ctx *runContext, c walk.SourceCommit) string {
 	return c.AuthorName
 }
 
-func pickAuthorEmail(ctx *runContext, c walk.SourceCommit) string {
+func pickAuthorEmail(ctx *runContext, c commitin.SourceCommit) string {
 	if ctx.Resolved.Author != nil && ctx.Resolved.Author.Email != "" {
 		return ctx.Resolved.Author.Email
 	}
@@ -263,7 +261,7 @@ func isBotAuthor(name, email string) bool {
 func recordCreated(
 	ctx *runContext,
 	srcID int64,
-	c walk.SourceCommit,
+	c commitin.SourceCommit,
 	msg,
 	newSha string,
 	stdout io.Writer,
@@ -290,7 +288,7 @@ func recordCreated(
 func recordFail(
 	ctx *runContext,
 	srcID int64,
-	c walk.SourceCommit,
+	c commitin.SourceCommit,
 	msg string,
 	cause error,
 	stdout io.Writer,
@@ -310,10 +308,10 @@ func recordFail(
 	ctx.Counters.Failed++
 }
 
-func pickAuthorNameRow(ctx *runContext, c walk.SourceCommit) string {
+func pickAuthorNameRow(ctx *runContext, c commitin.SourceCommit) string {
 	return pickAuthorName(ctx, c)
 }
 
-func pickAuthorEmailRow(ctx *runContext, c walk.SourceCommit) string {
+func pickAuthorEmailRow(ctx *runContext, c commitin.SourceCommit) string {
 	return pickAuthorEmail(ctx, c)
 }

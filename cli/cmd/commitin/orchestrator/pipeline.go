@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin"
 	"io"
 	"math/rand"
 	"os"
@@ -12,8 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/checkpoint"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/walk"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/workspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -76,7 +75,7 @@ func expandAndStage(ctx *runContext, stdout io.Writer) ([]workspace.StagedInput,
 
 func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Writer) int {
 	registerObjectAlternate(ctx.Source.Path, staged.WorkPath)
-	commits, err := walk.WalkFirstParent(staged.WorkPath)
+	commits, err := commitin.WalkFirstParent(staged.WorkPath)
 	if err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrInputOpen, staged.Input.Original, err)
 		ctx.Counters.Failed++
@@ -120,10 +119,10 @@ func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Wr
 // openCheckpoint returns the per-input checkpoint handle, or nil when
 // the state dir cannot be created (resume becomes a best-effort no-op
 // rather than failing the run).
-func openCheckpoint(ctx *runContext, staged workspace.StagedInput) *checkpoint.File {
-	stateDir := filepath.Join(ctx.Paths.CommitInRoot, checkpoint.DirName)
+func openCheckpoint(ctx *runContext, staged workspace.StagedInput) *commitin.File {
+	stateDir := filepath.Join(ctx.Paths.CommitInRoot, commitin.DirName)
 	fp := inputFingerprint(staged)
-	cp, err := checkpoint.Open(stateDir, fp, ctx.RunID)
+	cp, err := commitin.Open(stateDir, fp, ctx.RunID)
 	if err != nil {
 		return nil
 	}

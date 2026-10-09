@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanner"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 )
 
 // scanReleaseTarget represents one repo discovered by the scan-dir release
@@ -28,7 +27,7 @@ func tryRunReleaseScanDir(yes bool) bool {
 		return false
 	}
 
-	repos, err := scanner.ScanDir(cwd, defaultScanExcludes())
+	repos, err := scanpipe.ScanDir(cwd, defaultScanExcludes())
 	if err != nil || len(repos) == 0 {
 		return false
 	}
@@ -50,7 +49,7 @@ func defaultScanExcludes() []string {
 
 // planScanReleaseTargets keeps only repos that have a prior release on disk
 // and computes the next minor version for each.
-func planScanReleaseTargets(repos []scanner.RepoInfo) []scanReleaseTarget {
+func planScanReleaseTargets(repos []scanpipe.RepoInfo) []scanReleaseTarget {
 	targets := make([]scanReleaseTarget, 0, len(repos))
 	for _, info := range repos {
 		target, ok := planOneScanTarget(info)
@@ -65,7 +64,7 @@ func planScanReleaseTargets(repos []scanner.RepoInfo) []scanReleaseTarget {
 }
 
 // planOneScanTarget reads the per-repo latest.json and bumps minor.
-func planOneScanTarget(info scanner.RepoInfo) (scanReleaseTarget, bool) {
+func planOneScanTarget(info scanpipe.RepoInfo) (scanReleaseTarget, bool) {
 	latestPath := filepath.Join(info.AbsolutePath, constants.DefaultReleaseDir, constants.DefaultLatestFile)
 	if _, err := os.Stat(latestPath); err != nil {
 		return scanReleaseTarget{}, false

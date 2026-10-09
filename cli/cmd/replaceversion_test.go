@@ -1,7 +1,6 @@
 package cmd
 
 import "testing"
-
 // TestVersionTargetsClamping pins the spec rule that `-N` and `all`
 // both clamp the lower bound at 1 and produce an ascending range that
 // stops one short of the current version K.
@@ -20,7 +19,6 @@ func TestVersionTargetsClamping(t *testing.T) {
 		{"v1 minus one is empty", 1, 1, nil},
 		{"all on v2", 2, 0, []int{1}},
 	}
-
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := versionTargets(tc.k, tc.n)
@@ -31,18 +29,15 @@ func TestVersionTargetsClamping(t *testing.T) {
 		})
 	}
 }
-
 // equalIntSlice keeps the test free of reflect.DeepEqual noise.
 func equalIntSlice(a, b []int) bool {
 	if len(a) != len(b) {
 		return false
 	}
-
 	for i := range a {
 		if a[i] != b[i] {
 			return false
 		}
 	}
-
 	return true
 }

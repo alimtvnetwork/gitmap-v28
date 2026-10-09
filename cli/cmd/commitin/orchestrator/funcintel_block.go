@@ -1,12 +1,12 @@
 package orchestrator
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin"
 	"os/exec"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/funcintel"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/walk"
 )
 
 // renderFunctionIntel returns the §6.3 block for one source commit, or
@@ -15,7 +15,7 @@ import (
 // parser failures must NOT abort a commit).
 func renderFunctionIntel(
 	repoDir string,
-	c walk.SourceCommit,
+	c commitin.SourceCommit,
 	files []string,
 	fi profile.FunctionIntel,
 ) string {
