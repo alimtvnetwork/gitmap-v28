@@ -16,7 +16,8 @@
       ".ai-memory/*",
       ".agents/*",
       "01-prompts/*",
-      "conversation/*"
+      "conversation/*",
+      "cli/cmdautofix/misspell.go"
     ],
     "include": []
   }
