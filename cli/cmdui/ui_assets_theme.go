@@ -71,6 +71,7 @@ const uiAssetsStyle = `  <style>
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sans); }
     :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    :focus { outline: 2px solid var(--primary); outline-offset: 2px; }
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; transition: background 0.15s ease, color 0.15s ease; }
     #sidebar { width: 240px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
     #sidebar .logo { padding: var(--sp-5) var(--sp-4); font-size: var(--fs-lg); font-weight: 700; color: var(--primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: var(--sp-2); }
@@ -80,7 +81,7 @@ const uiAssetsStyle = `  <style>
     .nav-btn.active { background: var(--primary); color: var(--primary-ink); font-weight: 600; }
     .nav-btn .nav-icon { display: inline-flex; width: 18px; height: 18px; flex: none; }
     .nav-btn .nav-icon svg { width: 100%; height: 100%; }
-    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); min-width: 0; }
+    #main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); min-width: 0; }
     header { min-height: 56px; border-bottom: 1px solid var(--border); padding: var(--sp-2) var(--sp-6); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); background: var(--card); }
     header h2 { font-size: var(--fs-lg); font-weight: 600; }
     .hamburger { display: none; background: transparent; border: none; color: var(--text); cursor: pointer; padding: var(--sp-2); border-radius: var(--radius-sm); align-items: center; }
@@ -114,7 +115,7 @@ const uiAssetsStyle = `  <style>
     .badge-offline { background: var(--badge-err-bg); color: var(--badge-err-fg); }
     #editor-container { display: flex; flex-direction: column; height: 500px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
     #editor-toolbar { background: var(--raised); padding: var(--sp-2) var(--sp-3); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-    #editor-area { flex: 1; width: 100%; height: 100%; background: var(--code-bg); color: var(--code-text); font-family: var(--font-mono); padding: var(--sp-3); border: none; outline: none; line-height: 1.5; font-size: var(--fs-sm); }
+    #editor-area { flex: 1; width: 100%; height: 100%; background: var(--code-bg); color: var(--code-text); font-family: var(--font-mono); padding: var(--sp-3); border: none; line-height: 1.5; font-size: var(--fs-sm); }
     .json-key { color: var(--json-key); }
     .json-str { color: var(--json-str); }
     .json-num { color: var(--json-num); }
@@ -144,6 +145,17 @@ const uiAssetsStyle = `  <style>
     .toast-msg { flex: 1; overflow-wrap: anywhere; }
     .toast-out { opacity: 0; transform: translateX(16px); transition: opacity 0.25s ease, transform 0.25s ease; }
     @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .skip-link { position: absolute; left: var(--sp-4); top: -96px; z-index: 300; background: var(--primary); color: var(--primary-ink); font-weight: 600; font-size: var(--fs-sm); padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); transition: top 0.15s ease; }
+    .skip-link:focus { top: var(--sp-2); }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .toast:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .shortcuts-overlay { position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center; padding: var(--sp-6); background: rgba(0, 0, 0, 0.55); }
+    .shortcuts-dialog { position: relative; width: 100%; max-width: 560px; max-height: 80vh; overflow-y: auto; background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--sp-6); }
+    .shortcuts-dialog h2 { font-size: var(--fs-lg); color: var(--primary); margin-bottom: var(--sp-4); padding-right: var(--sp-8); }
+    .shortcuts-close { position: absolute; top: var(--sp-4); right: var(--sp-4); }
+    .shortcuts-table td { border: none; border-bottom: 1px solid var(--border); padding: var(--sp-2) var(--sp-3); font-size: var(--fs-sm); }
+    .shortcuts-table td:first-child { width: 40%; white-space: nowrap; }
+    kbd { font-family: var(--font-mono); font-size: var(--fs-xs); background: var(--raised); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: var(--radius-sm); padding: 2px 6px; white-space: nowrap; }
     @media (max-width: 1200px) {
       #sidebar { width: 68px; }
       #sidebar .logo { justify-content: center; padding: var(--sp-4) var(--sp-2); }

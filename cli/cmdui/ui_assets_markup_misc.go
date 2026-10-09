@@ -19,15 +19,16 @@ const uiAssetsTail = `</body>
 `
 
 const uiAssetsMarkupShell = `<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <div id="sidebar">
     <div class="logo"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span class="nav-label">GitMap Fleet UI</span></div>
-    <nav id="nav-list" aria-label="Primary"></nav>
+    <nav id="nav-list" role="tablist" aria-label="Primary"></nav>
   </div>
-  <div id="sidebar-scrim" class="sidebar-scrim" onclick="toggleSidebar()"></div>
-  <div id="main">
+  <div id="sidebar-scrim" class="sidebar-scrim" tabindex="0" role="button" aria-label="Close navigation" onclick="toggleSidebar()" onkeydown="if(event.key==='Enter'||event.key==='Escape'){event.preventDefault();toggleSidebar();}"></div>
+  <div id="main-content" tabindex="-1">
     <header>
       <div style="display:flex;align-items:center;gap:var(--sp-3);">
-        <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle navigation"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
         <h2 id="header-title">Settings</h2>
       </div>
       <div id="status-indicator"><span class="status-dot" aria-hidden="true"></span><span class="badge badge-online">Connected</span></div>
@@ -39,15 +40,15 @@ const uiAssetsMarkupShell = `<body>
 const uiAssetsMarkupMisc = `    <div id="tab-editor" class="content-area">
       <div class="card" style="margin-bottom: 0.5rem;">
         <div style="display: flex; gap: 10px; align-items: flex-end;">
-          <div style="flex: 1;"><label style="font-size:0.8rem;color:var(--muted)">Target Node</label><select id="editor-node"><option value="local">local (current machine)</option></select></div>
-          <div style="flex: 3;"><label style="font-size:0.8rem;color:var(--muted)">Absolute / Relative File Path</label><input type="text" id="editor-path" placeholder="/etc/gitmap.conf or cli/main.go"></div>
+          <div style="flex: 1;"><label for="editor-node" style="font-size:0.8rem;color:var(--muted)">Target Node</label><select id="editor-node"><option value="local">local (current machine)</option></select></div>
+          <div style="flex: 3;"><label for="editor-path" style="font-size:0.8rem;color:var(--muted)">Absolute / Relative File Path</label><input type="text" id="editor-path" placeholder="/etc/gitmap.conf or cli/main.go"></div>
           <button class="btn" onclick="openRemoteFile()">Load File</button>
           <button class="btn" style="background:var(--success)" onclick="saveRemoteFile()">Save to Host</button>
         </div>
       </div>
       <div id="editor-container">
         <div id="editor-toolbar"><span id="editor-status" style="font-size:0.85rem;color:var(--muted)">No file loaded</span><span id="editor-lang" style="font-size:0.8rem;color:var(--primary)">Language: Plaintext</span></div>
-        <textarea id="editor-area" spellcheck="false" placeholder="Remote file content will appear here..."></textarea>
+        <label for="editor-area" class="visually-hidden">Remote file content</label><textarea id="editor-area" spellcheck="false" placeholder="Remote file content will appear here..."></textarea>
       </div>
     </div>
 

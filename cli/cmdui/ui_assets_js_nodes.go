@@ -1,5 +1,4 @@
 package cmdui
-
 const uiAssetsJSNodes = `    async function refreshNodes() {
       try {
         const res = await fetch('/api/ssh/nodes');
@@ -17,39 +16,31 @@ const uiAssetsJSNodes = `    async function refreshNodes() {
         });
       } catch (e) { console.error(e); }
     }
-
     async function populateEditorNodes() {
       try {
-        const res = await fetch('/api/ssh/nodes');
-        const data = await res.json();
+        const data = await (await fetch('/api/ssh/nodes')).json();
         const sel = document.getElementById('editor-node');
         if (sel) {
           sel.innerHTML = '<option value="local">local (current machine)</option>';
-          if (data && data.length) {
-            data.forEach(n => {
-              const opt = document.createElement('option');
-              opt.value = n.alias;
-              opt.innerText = n.alias + ' (' + n.host + ')';
-              sel.appendChild(opt);
-            });
-          }
+          (data || []).forEach(function (n) {
+            const opt = document.createElement('option');
+            opt.value = n.alias; opt.innerText = n.alias + ' (' + n.host + ')';
+            sel.appendChild(opt);
+          });
         }
         const termSel = document.getElementById('term-node');
         if (termSel && data && data.length) {
           termSel.innerHTML = '<option value="local">local</option>';
-          data.forEach(n => {
+          data.forEach(function (n) {
             const opt = document.createElement('option');
-            opt.value = n.alias;
-            opt.innerText = n.alias;
+            opt.value = n.alias; opt.innerText = n.alias;
             termSel.appendChild(opt);
           });
         }
       } catch (e) {}
     }
-
     async function openRemoteFile() {
-      const node = document.getElementById('editor-node').value;
-      const path = document.getElementById('editor-path').value.trim();
+      const node = document.getElementById('editor-node').value, path = document.getElementById('editor-path').value.trim();
       if (!path) { showToast('Please enter a file path', 'error'); return; }
       document.getElementById('editor-status').innerText = 'Loading ' + path + '...';
       try {
@@ -68,11 +59,8 @@ const uiAssetsJSNodes = `    async function refreshNodes() {
         }
       } catch (e) { showToast('Error reading file: ' + e.message, 'error'); }
     }
-
     async function saveRemoteFile() {
-      const node = document.getElementById('editor-node').value;
-      const path = document.getElementById('editor-path').value.trim();
-      const content = document.getElementById('editor-area').value;
+      const node = document.getElementById('editor-node').value, path = document.getElementById('editor-path').value.trim(), content = document.getElementById('editor-area').value;
       if (!path) { showToast('Please enter a file path', 'error'); return; }
       document.getElementById('editor-status').innerText = 'Saving to ' + node + '...';
       try {
@@ -89,14 +77,13 @@ const uiAssetsJSNodes = `    async function refreshNodes() {
         }
       } catch (e) { showToast('Error saving file: ' + e.message, 'error'); }
     }
-
 `
-
 const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
-      document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
-      const btn = document.getElementById('subnav-' + subId);
-      if (btn) btn.classList.add('active');
-
+      document.querySelectorAll('.sub-tab-btn').forEach(function (btn) {
+        const on = btn.id === 'subnav-' + subId;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false'); btn.tabIndex = on ? 0 : -1;
+      });
       const panes = document.querySelectorAll('.settings-subtab-pane');
       if (subId === 'all') {
         panes.forEach(p => p.style.display = 'block');
@@ -106,11 +93,35 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       const target = document.getElementById('settings-pane-' + subId);
       if (target) target.style.display = 'block';
     }
-
+    // Settings sub-tab bar: tablist pattern + roving arrows, wired in JS (Worker 02's markup untouched).
+    function wireSettingsSubTabs() {
+      const btns = Array.prototype.slice.call(document.querySelectorAll('.sub-tab-btn'));
+      if (!btns.length || btns[0].dataset.a11yWired) return;
+      btns[0].dataset.a11yWired = '1';
+      const bar = btns[0].parentElement;
+      if (bar) { bar.setAttribute('role', 'tablist'); bar.setAttribute('aria-label', 'Settings sections'); }
+      btns.forEach(function (btn, i) {
+        btn.setAttribute('role', 'tab');
+        const on = btn.classList.contains('active');
+        btn.setAttribute('aria-selected', on ? 'true' : 'false'); btn.tabIndex = on ? 0 : -1;
+        btn.addEventListener('keydown', function (e) {
+          if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+          e.preventDefault();
+          const nx = btns[(i + (e.key === 'ArrowRight' ? 1 : btns.length - 1)) % btns.length];
+          const m = /^subnav-(.+)$/.exec(nx.id || '');
+          if (m) showSettingsSubTab(m[1]);
+          nx.focus();
+        });
+      });
+      document.querySelectorAll('.settings-subtab-pane').forEach(function (p) {
+        p.setAttribute('role', 'tabpanel');
+        const m = /^settings-pane-(.+)$/.exec(p.id || '');
+        if (m) p.setAttribute('aria-labelledby', 'subnav-' + m[1]);
+      });
+    }
     async function loadSettings() {
       try {
-        const res = await fetch('/api/settings');
-        const data = await res.json();
+        const data = await (await fetch('/api/settings')).json();
         if (data) {
           if (data.theme) applyTheme(data.theme);
           if (data.defaultRemote && document.getElementById('setting-remote')) document.getElementById('setting-remote').value = data.defaultRemote;
@@ -120,28 +131,19 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
           if (data.commitInLayout && document.getElementById('setting-commitin-layout')) document.getElementById('setting-commitin-layout').value = data.commitInLayout;
           if (data.pullDirection && document.getElementById('setting-pull-direction')) document.getElementById('setting-pull-direction').value = data.pullDirection;
           if (data.prReplayMode && document.getElementById('setting-pr-mode')) document.getElementById('setting-pr-mode').value = data.prReplayMode;
-
-          if (data.attributes) {
-            document.querySelectorAll('[data-key]').forEach(el => {
-              const key = el.getAttribute('data-key');
-              if (data.attributes[key] !== undefined) {
-                el.value = data.attributes[key];
-              }
-            });
-          }
+          if (data.attributes) document.querySelectorAll('[data-key]').forEach(function (el) {
+            const key = el.getAttribute('data-key');
+            if (data.attributes[key] !== undefined) el.value = data.attributes[key];
+          });
         }
       } catch (e) { console.error('Failed to load settings', e); }
     }
-
     async function saveSettings() {
       const attrs = {};
-      document.querySelectorAll('[data-key]').forEach(el => {
+      document.querySelectorAll('[data-key]').forEach(function (el) {
         const key = el.getAttribute('data-key');
-        if (key) {
-          attrs[key] = el.value;
-        }
+        if (key) attrs[key] = el.value;
       });
-
       const payload = {
         theme: document.getElementById('setting-theme') ? document.getElementById('setting-theme').value : 'dark',
         defaultRemote: document.getElementById('setting-remote') ? document.getElementById('setting-remote').value : 'origin',
@@ -167,10 +169,7 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
         }
       } catch (e) { showToast('Failed to save settings: ' + e.message, 'error'); }
     }
-
-    let termHistory = [];
-    let termHistoryIdx = -1;
-
+    let termHistory = [], termHistoryIdx = -1;
     // ---- Theme system, icons, toasts, responsive shell (program 246, subtask 05) ----
     const ICONS = {
       settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
@@ -189,7 +188,6 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'
     };
     function icon(name) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || '') + '</svg>'; }
-
     function showToast(message, kind) {
       kind = kind || 'info';
       const stack = document.getElementById('toast-stack');
@@ -197,6 +195,8 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       while (stack.children.length >= 4) stack.removeChild(stack.firstChild);
       const el = document.createElement('div');
       el.className = 'toast toast-' + kind;
+      el.setAttribute('tabindex', '0');
+      el.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === 'Escape') { ev.preventDefault(); el.remove(); } });
       const ic = kind === 'success' ? 'check' : (kind === 'error' ? 'alert-triangle' : 'info');
       el.innerHTML = '<span class="toast-icon">' + icon(ic) + '</span><span class="toast-msg"></span>';
       el.querySelector('.toast-msg').textContent = message;
@@ -204,7 +204,10 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       stack.appendChild(el);
       setTimeout(function () { el.classList.add('toast-out'); setTimeout(function () { el.remove(); }, 250); }, 3500);
     }
-
+    // Dead-handler stubs (spec 249.2 §7): honest "not implemented yet" toasts, zero ReferenceErrors.
+    ['deployMacroFleetModal', 'loadMacros', 'saveInstaller', 'testInstaller', 'formatPromptJSON', 'importPrompt', 'exportFullConfig', 'importFullConfig', 'addSchedule', 'testNode'].forEach(function (nm) {
+      window[nm] = function () { showToast('Not implemented yet', 'info'); };
+    });
     const NAV_ITEMS = [
       { id: 'settings', label: 'Settings', icon: 'settings' },
       { id: 'commitin', label: 'Commitin', icon: 'package' },
@@ -225,9 +228,17 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
         const b = document.createElement('button');
         b.className = 'nav-btn' + (i === 0 ? ' active' : '');
         b.title = item.label;
+        b.id = 'tabbtn-' + item.id;
+        b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', 'tab-' + item.id);
+        b.setAttribute('aria-selected', i === 0 ? 'true' : 'false'); b.tabIndex = i === 0 ? 0 : -1;
         b.innerHTML = '<span class="nav-icon">' + icon(item.icon) + '</span><span class="nav-label">' + item.label + '</span>';
         b.addEventListener('click', function () { navGo(item.id, b); });
         nav.appendChild(b);
+      });
+      document.querySelectorAll('.content-area').forEach(function (p) {
+        p.setAttribute('role', 'tabpanel');
+        const pm = /^tab-(.+)$/.exec(p.id || '');
+        if (pm) p.setAttribute('aria-labelledby', 'tabbtn-' + pm[1]);
       });
     }
     function navGo(tabId, btn) {
@@ -244,8 +255,8 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       sb.classList.toggle('sidebar-open');
       const scrim = document.getElementById('sidebar-scrim');
       if (scrim) scrim.classList.toggle('open', sb.classList.contains('sidebar-open'));
+      document.querySelectorAll('.hamburger').forEach(function (h) { h.setAttribute('aria-expanded', sb.classList.contains('sidebar-open') ? 'true' : 'false'); });
     }
-
     function applyTheme(name) {
       const theme = (name === 'light') ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', theme);
@@ -270,23 +281,18 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       const sel = document.getElementById('setting-theme');
       if (sel && !sel.dataset.themeWired) { sel.dataset.themeWired = '1'; sel.addEventListener('change', onThemeChange); }
     }
-
     (function syncDocTitle() {
       if (typeof showTab !== 'function') return;
       const orig = showTab;
       showTab = function (tabId) {
         orig(tabId);
-        try {
-          const item = NAV_ITEMS.find(function (n) { return n.id === tabId; });
-          document.title = 'GitMap — ' + (item ? item.label : tabId);
-        } catch (e) {}
+        try { const item = NAV_ITEMS.find(function (n) { return n.id === tabId; }); document.title = 'GitMap — ' + (item ? item.label : tabId); } catch (e) {}
       };
     })();
-
     window.addEventListener('load', function () {
       renderNav();
       wireTheme();
+      wireSettingsSubTabs();
       document.title = 'GitMap — Settings';
     });
-
 `
