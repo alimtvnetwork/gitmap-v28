@@ -51,6 +51,7 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [20-git-history-purge-and-undo.md](completed/20-git-history-purge-and-undo.md) — Git History Purge & Undo Engine with Pre-Flight Graph Diff & SplitDB Journal
 - [21-aria2c-download-smart-update-stats-subnode-remediation.md](completed/242-aria2c-download-smart-update-stats-subnode-remediation.md) — aria2c Download Method, Smart Update Engine, 5-Tag Fallback, Diffstat Isolation & Remediation Tree UI (Spec: [242](../../02-spec/21-app/242-aria2c-download-smart-update-stats-subnode-remediation/01-architecture-spec.md))
 - [22-e2e-verify-program-243-changes.md](completed/244-e2e-verify-program-243-changes.md) — End-to-end verification of program 243 (backup-branch, help displayer, suggestions, enforcement): 26/27 assertions pass, 1 real defect found with RCA (Spec: [244](../../02-spec/21-app/244-e2e-verify-program-243-changes/01-test-scope-and-plan.md))
+- [23-fix-backup-branch-lasterror-guard.md](completed/245-fix-backup-branch-lasterror-guard.md) — Fix backup-branch's clean-tree guard to ignore untracked gitmap state (.gitmap/): the last_error.log side effect no longer defeats --force; F01–F06 all pass (Spec: [245](../../02-spec/21-app/245-fix-backup-branch-lasterror-guard/01-fix-scope-and-plan.md))
 
 ---
 

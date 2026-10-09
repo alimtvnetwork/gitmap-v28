@@ -40,18 +40,49 @@ func runGitInherit(args ...string) error {
 }
 
 // requireCleanTree refuses the backup when the working tree has any
-// uncommitted changes — backups snapshot HEAD only.
+// uncommitted changes — backups snapshot HEAD only. Untracked gitmap
+// diagnostic state (`.gitmap/`) is ignored: writeLastErrorFile drops it
+// into CWD on every dispatch error, so counting it would let gitmap's own
+// diagnostics block a retry of the failed command.
 func requireCleanTree() error {
 	status, err := runGitCapture("status", "--porcelain")
 	if err != nil {
 		return err
 	}
 
-	if status != "" {
+	if treeHasUserDirt(status) {
 		return errDirtyTree
 	}
 
 	return nil
+}
+
+// treeHasUserDirt reports whether porcelain v1 output contains any change
+// other than untracked gitmap diagnostic state. Positive naming: true
+// means the tree has user dirt worth refusing the backup for.
+func treeHasUserDirt(status string) bool {
+	for _, line := range strings.Split(status, "\n") {
+		if strings.TrimSpace(line) == "" || isGitmapUntrackedDirt(line) {
+			continue
+		}
+
+		return true
+	}
+
+	return false
+}
+
+// isGitmapUntrackedDirt reports whether a porcelain v1 line refers only to
+// untracked gitmap diagnostic state (`?? .gitmap/` or a file under it).
+// Tracked modifications under `.gitmap/` still count as user dirt.
+func isGitmapUntrackedDirt(line string) bool {
+	if len(line) < 4 || line[:3] != "?? " {
+		return false
+	}
+
+	path := line[3:]
+
+	return path == ".gitmap" || strings.HasPrefix(path, ".gitmap/")
 }
 
 // branchExists reports whether the local branch already exists.
