@@ -310,6 +310,13 @@ const (
 	// CmdSpaceBackupBranch is the `space backup-branch` subcommand —
 	// creates backup/<slug> from HEAD for the given task string.
 	CmdSpaceBackupBranch = "backup-branch"
+	// CmdSpec is the top-level namespace for spec-number issuance
+	// (spec 252). Subcommand: `spec next` issues the next free spec
+	// number for the current repository.
+	CmdSpec = "spec"
+	// CmdSpecNext is the `spec next` subcommand — issues the next
+	// free spec number and prints it on stdout.
+	CmdSpecNext = "next"
 	CmdRecreateRepo      = "recreate-repo"
 	CmdRecreateRepoAlias = "recreate"
 	CmdRestEnable        = "rest-enable"

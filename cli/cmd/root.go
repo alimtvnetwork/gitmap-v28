@@ -7,6 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemplates"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspec"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff"
@@ -599,6 +600,11 @@ func dispatch(command string) {
 	}
 
 	found, err = cmdspace.DispatchSpace(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = cmdspec.DispatchSpec(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}
