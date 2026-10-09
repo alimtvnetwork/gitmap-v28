@@ -39,14 +39,14 @@ import (
 \t"fmt"
 \t"os"
 
-\t"github.com/alimtvnetwork/gitmap-v28/cli/tool/helptextemitter"
+\t"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 func main() {
 \toutDir := flag.String("out", "", "destination directory for <topic>.md files")
 \ttopics := flag.String("topics", "", "comma-separated topic subset (default: all)")
 \tflag.Parse()
-\tif err := helptextemitter.Generate(*outDir, *topics); err != nil {
+\tif err := helpdoc.Generate(*outDir, *topics); err != nil {
 \t\tfmt.Fprintln(os.Stderr, "helptext-generator: "+err.Error())
 \t\tos.Exit(1)
 \t}

@@ -15,12 +15,17 @@ Repository Discovery Scanner (gitmap scan)
     gitmap scan ~ --force-include .oh-my-zsh
     gitmap scan ~ -fi .oh-my-zsh,node_modules
     gitmap scan /home/user --force-include all
+    gitmap scan export [--machine <name>] [--out <dir>]
+    gitmap scan merge <dir>... [--out <file>]
 
 Output & Formatting:
   --output <mode>  Output format: terminal (default), csv, or json
   --output-path <dir>  Directory to write scan artifacts (.gitmap/output)
   --manifest <dir>  Alias for --output-path (aligned with reclone)
   --relative-root <dir>  Pin base directory for byte-stable relative paths
+Portable Repo Sets:
+  export [--machine <name>] [--out <dir>]  Export cached repos to <out>/<machine-slug>/repos.json (clone with: gitmap clone-from <file> --execute)
+  merge <dir>... [--out <file>]  Merge export folders into one deduped JSON (dedupe by URL)
 Scanner Walk & Performance:
   --workers <n>  Parallel directory walker pool size (1-16, auto: NumCPU)
   --max-depth <n>  Max folder depth to descend (default: 4, -1: unlimited)
