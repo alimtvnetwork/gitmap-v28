@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.522.0] - 2026-10-09
+
+### Added
+- pipeline errors all aggregator plus te shortcut
+
+---
+
 ## [v6.521.0] - 2026-10-09
 
 ### Added
