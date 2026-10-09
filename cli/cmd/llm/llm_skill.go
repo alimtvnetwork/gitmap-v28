@@ -68,6 +68,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - ` + "`gitmap pipeline error-logs`" + ` (alias: ` + "`gitmap pe`" + `) — Extract failing step logs to file for 4-part RCA.
 - ` + "`gitmap pe -t --ai`" + ` — Dynamic 2-minute error polling without clipboard pollution.
 - ` + "`gitmap pe history-ai [N]`" + ` — Extract historical errors across last N commits into .ai-memory/pipeline-ai/ to prevent AI repeating mistakes.
+- ` + "`gitmap pe all`" + ` (shortcut: ` + "`gitmap te all`" + `) — Aggregate pipeline errors across ALL repos at once instead of checking them one by one; file each repo's failures for 4-part RCA. Use when many repos may be red; use single-repo ` + "`gitmap pe`" + ` when you already know the culprit.
 - ` + "`gitmap pipeline purge`" + ` — Actions zero-storage purge maintaining 0.0 GB footprint (Rule R18).
 
 ### 4. Fast File Discovery & Refactoring
@@ -132,6 +133,31 @@ work; never hand-roll sed/regex loops for encoding, newlines, or spelling.
 engine) and the content audit (` + "`gitmap fix`" + `, check-only) in-process — report-only
 by default; ` + "`gitmap llm train --heal-apply stash|wip|discard`" + ` applies git-state
 recipes non-interactively.
+
+### 11. Agent Task Engine (slug-based task IDs)
+` + "`gitmap agent task`" + ` / ` + "`gitmap agent subtask`" + ` — 3-tier SQLite agent task engine.
+The slug is the task ID: Title Case slugs from prompts are sanitized on store
+(` + "`SEO Writing Task`" + ` → ` + "`seo-writing-task`" + `); display names keep original case.
+- ` + "`gitmap agent task enqueue --slug \"<slug>\" [--name \"<title>\"]`" + ` — Get-or-create by slug (idempotent): existing slug reports progress instead of duplicating.
+- ` + "`gitmap agent task progress --slug \"<slug>\"`" + ` — Status + subtask rollup (pending/in-progress/done/failed) + related previous tasks.
+- ` + "`gitmap agent task pending [--count] [--task-id <id-or-slug>]`" + ` — Pending subtasks across agent tasks (` + "`--count`" + ` prints just the number).
+- ` + "`gitmap agent task recent [--limit N]`" + ` — Recently created parent tasks, newest first.
+- ` + "`gitmap agent task completed [--limit N]`" + ` — Completed root-level parent tasks.
+- ` + "`gitmap agent subtask add --parent <id-or-slug> --slug \"<Title Case slug>\" --code <code> --title \"<title>\"`" + ` — Subtask slugs derive from the parent slug when ` + "`--slug`" + ` is omitted.
+- ` + "`gitmap agent subtask claim/start/complete/fail/ls`" + ` accept ID-or-slug for ` + "`--task-id`" + `/` + "`--parent`" + ` (canonical resolution).
+- All read commands support ` + "`--json`" + `.
+
+### 12. Portable Repo Sets (scan export / merge)
+- ` + "`gitmap scan export [--machine <name>] [--out <dir>]`" + ` — Dump the cached repo list (no rescan) to ` + "`<out>/<machine-slug>/repos.json`" + `. Machine defaults to hostname. The JSON is the scan-record shape plus a ` + "`url`" + ` key, directly consumable by ` + "`clone-from`" + `.
+- ` + "`gitmap scan merge <dir>... [--out <file>]`" + ` — Merge several export folders into one deduped JSON (dedupe by URL, first wins). A direct ` + "`.json`" + ` path also works.
+- ` + "`gitmap clone-from <file> --execute`" + ` — Batch-clone a merged/exported JSON (dry-run by default).
+- Portable flow: machine A ` + "`scan export`" + ` → copy the ` + "`<slug>/`" + ` folder to machine B → ` + "`gitmap clone-from <slug>/repos.json --execute`" + ` clones exactly those repos.
+
+### 13. Prompt Templates (view / use / copy)
+- ` + "`gitmap prompt ls`" + ` — List installed prompt templates (slug, version, description).
+- ` + "`gitmap prompt show <slug>`" + ` — Print the full template text to copy. ` + "`--copy`" + ` also copies the body to the system clipboard.
+- ` + "`gitmap prompt add <slug> <file.md>`" + ` — Install/update a template from a markdown file. ` + "`gitmap prompt rm <slug>`" + ` — Delete one.
+- ` + "`gitmap prompt export [file.zip]`" + ` / ` + "`gitmap prompt import <file.zip|file.md>`" + ` — Portable template bundles across machines.
 
 ## Command Replacement Matrix (Mandatory Substitutions)
 
