@@ -34,6 +34,7 @@ var spellingMap = map[string]string{
 
 var misspellRe *regexp.Regexp
 
+//nolint:misspell // comments name British spellings to explain the regex.
 func init() {
 	words := make([]string, 0, len(spellingMap))
 	for brit := range spellingMap {

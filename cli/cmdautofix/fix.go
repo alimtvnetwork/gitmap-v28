@@ -16,7 +16,7 @@ import (
 
 // Exit-code contract (spec §2): 0 clean / nothing to do / applied cleanly;
 // 1 findings in check-only flow or unfixable findings remain; 2 tool error.
-// Signalled through the established cliexit pattern (cliexit.Exit /
+// Signaled through the established cliexit pattern (cliexit.Exit /
 // cliexit.Fail / cliexit.HandleUsageError) so the theme/glyphs pipe drainers
 // run before process teardown.
 
