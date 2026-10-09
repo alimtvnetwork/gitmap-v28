@@ -23,6 +23,8 @@ type PipelineErrorFlags struct {
 	HasSuppressOutputLog bool
 	HasLimit             bool
 	Limit                int
+	HasWorkers           bool
+	Workers              int
 	CommitTarget         string
 	FilePath             string
 	TempFileName         string
@@ -59,6 +61,7 @@ func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.IsDetailed = hasDetailedArg(args)
 	flags.HasSuppressOutputLog = hasSuppressOutputArg(args)
 	flags.Limit, flags.HasLimit = parseLimitFlag(args)
+	flags.Workers, flags.HasWorkers = parseWorkersFlag(args)
 	flags.FilePath = extractFlagVal(args, "--file")
 	flags.TempFileName = extractFlagVal(args, "--tempfile")
 	flags.HasForce = hasForceArg(args)
@@ -422,6 +425,9 @@ func isConsumedFlagValue(val string, flags *PipelineErrorFlags) bool {
 	if flags.HasLimit && val == strconv.Itoa(flags.Limit) {
 		return true
 	}
+	if flags.HasWorkers && val == strconv.Itoa(flags.Workers) {
+		return true
+	}
 
 	return val == flags.FilePath || val == flags.TempFileName || val == flags.FormatProfile
 }
@@ -438,4 +444,28 @@ func isSkipTokenForRepoTarget(token string) bool {
 	default:
 		return false
 	}
+}
+
+// parseWorkersFlag parses --workers N (worker pool size override).
+// Mirrors parseLimitFlag: accepts --workers=N or --workers N.
+func parseWorkersFlag(args []string) (int, bool) {
+	for i := 0; i < len(args); i++ {
+		if val, isMatched := matchWorkersFlagToken(args, i); isMatched {
+			return val, true
+		}
+	}
+
+	return 0, false
+}
+
+func matchWorkersFlagToken(args []string, idx int) (int, bool) {
+	arg := args[idx]
+	if strings.HasPrefix(arg, "--workers=") {
+		return parsePositiveIntStr(strings.TrimPrefix(arg, "--workers="))
+	}
+	if arg != "--workers" || idx+1 >= len(args) {
+		return 0, false
+	}
+
+	return parsePositiveIntStr(args[idx+1])
 }

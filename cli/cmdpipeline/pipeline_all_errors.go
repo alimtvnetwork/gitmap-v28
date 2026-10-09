@@ -1,11 +1,14 @@
 package cmdpipeline
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
+	"runtime"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
@@ -35,10 +38,12 @@ type AllPipelineSummary struct {
 	CleanCount        int                     `json:"cleanCount"`
 	FailedCount       int                     `json:"failedCount"`
 	NoDataCount       int                     `json:"noDataCount"`
+	CachedCount       int                     `json:"cachedCount"`
 	TotalErrorEntries int                     `json:"totalErrorEntries"`
 	FailedItems       []AllPipelineFailedItem `json:"failedItems,omitempty"`
 	CleanRepos        []string                `json:"cleanRepos,omitempty"`
 	NoDataRepos       []string                `json:"noDataRepos,omitempty"`
+	CachedRepos       []string                `json:"cachedRepos,omitempty"`
 	PullErrors        []store.PullErrorRecord `json:"pullErrors,omitempty"`
 
 	repoAbsPaths   map[string]string
@@ -68,11 +73,16 @@ type singleRepoInspection struct {
 	stepJobs        map[string]string
 	isClean         bool
 	hasPipelineData bool
+	isCached        bool
 	dataStatus      string
 }
 
 func executeAllPipelineErrorLogs(flags PipelineErrorFlags, args []string) error {
-	summary := collectAllPipelineSummary()
+	workers := 0
+	if flags.HasWorkers {
+		workers = flags.Workers
+	}
+	summary := collectAllPipelineSummaryWithWorkers(workers)
 
 	if flags.IsJSON && flags.FilePath == "" {
 		return emitAllPipelineSummaryJSON(summary)
@@ -101,6 +111,15 @@ func emitAllPipelineSummaryJSON(summary AllPipelineSummary) error {
 }
 
 func collectAllPipelineSummary() AllPipelineSummary {
+	return collectAllPipelineSummaryWithWorkers(0)
+}
+
+// collectAllPipelineSummaryWithWorkers inspects every catalog repo using a
+// worker pool. workers <= 0 means auto: max(runtime.NumCPU(), 3).
+// Each worker runs the per-repo inspection SEQUENTIALLY — no nested
+// parallelism inside a worker. Results are aggregated in catalog order,
+// so output is deterministic regardless of worker scheduling.
+func collectAllPipelineSummaryWithWorkers(workers int) AllPipelineSummary {
 	entries := discoverCatalogRepoSlugs()
 	slugs := make([]string, 0, len(entries))
 	absPaths := make(map[string]string, len(entries))
@@ -118,9 +137,18 @@ func collectAllPipelineSummary() AllPipelineSummary {
 		stepJobs:       make(map[string]map[string]string),
 	}
 
-	for _, slug := range slugs {
-		inspection := inspectSinglePipelineRepo(slug)
+	poolSize := resolvePeAllWorkers(workers, len(slugs))
+	inspections := runPeAllWorkerPool(slugs, absPaths, poolSize)
+
+	for i, slug := range slugs {
+		inspection := inspections[i]
 		summary.repoDataStatus[slug] = inspection.dataStatus
+
+		if inspection.isCached {
+			summary.CachedCount++
+			summary.CachedRepos = append(summary.CachedRepos, slug)
+			continue
+		}
 
 		if !inspection.hasPipelineData {
 			summary.NoDataCount++
@@ -152,6 +180,85 @@ func collectAllPipelineSummary() AllPipelineSummary {
 	summary.PullErrors = queryPullErrorsForAll()
 
 	return summary
+}
+
+// resolvePeAllWorkers returns the worker count: explicit override wins,
+// otherwise max(CPU threads, 3), capped at the repo count.
+func resolvePeAllWorkers(requested, repoCount int) int {
+	if requested > 0 {
+		if requested > repoCount && repoCount > 0 {
+			return repoCount
+		}
+
+		return requested
+	}
+	n := runtime.NumCPU()
+	if n < 3 {
+		n = 3
+	}
+	if n > repoCount && repoCount > 0 {
+		return repoCount
+	}
+
+	return n
+}
+
+// runPeAllWorkerPool fans the per-repo inspections out to a semaphore-
+// bounded worker pool. Each worker processes its repos sequentially.
+func runPeAllWorkerPool(slugs []string, absPaths map[string]string, poolSize int) []singleRepoInspection {
+	inspections := make([]singleRepoInspection, len(slugs))
+	if len(slugs) == 0 {
+		return inspections
+	}
+
+	cacheConn, cacheErr := openPeAllCache()
+	if cacheErr != nil {
+		cacheConn = nil
+	}
+	if cacheConn != nil {
+		defer cacheConn.Close()
+	}
+	var cacheMu sync.Mutex
+
+	sem := make(chan struct{}, poolSize)
+	var wg sync.WaitGroup
+	for i, slug := range slugs {
+		wg.Add(1)
+		go func(idx int, s string) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			inspections[idx] = inspectSingleRepoCached(s, absPaths[s], cacheConn, &cacheMu)
+		}(i, slug)
+	}
+	wg.Wait()
+
+	return inspections
+}
+
+// inspectSingleRepoCached checks the commit-hash cache before inspecting.
+// Cache hit (HEAD SHA already recorded): skip the inspection, mark done.
+// Cache miss: run the full inspection, then record the SHA.
+func inspectSingleRepoCached(slug, absPath string, cacheConn *sql.DB, cacheMu *sync.Mutex) singleRepoInspection {
+	headSha := getRepoHeadSha(absPath)
+	if headSha != "" && cacheConn != nil {
+		cacheMu.Lock()
+		cachedSha := getCachedCommitSha(cacheConn, slug)
+		cacheMu.Unlock()
+		if cachedSha == headSha {
+			return singleRepoInspection{isCached: true, dataStatus: "cached-unchanged"}
+		}
+	}
+
+	inspection := inspectSinglePipelineRepo(slug)
+
+	if headSha != "" && cacheConn != nil {
+		cacheMu.Lock()
+		recordCommitSha(cacheConn, slug, headSha)
+		cacheMu.Unlock()
+	}
+
+	return inspection
 }
 
 // discoverCatalogRepoSlugs enumerates every repository in the catalog as
