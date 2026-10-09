@@ -254,7 +254,9 @@ func inspectSingleRepoCached(slug, absPath string, cacheConn *sql.DB, cacheMu *s
 
 	if headSha != "" && cacheConn != nil {
 		cacheMu.Lock()
-		recordCommitSha(cacheConn, slug, headSha)
+		if cacheErr := recordCommitSha(cacheConn, slug, headSha); cacheErr != nil {
+			fmt.Fprintf(os.Stderr, "warning: pe-all cache write failed for %s: %v\n", slug, cacheErr)
+		}
 		cacheMu.Unlock()
 	}
 

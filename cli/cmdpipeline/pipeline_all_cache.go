@@ -55,13 +55,14 @@ func getCachedCommitSha(conn *sql.DB, slug string) string {
 	return sha
 }
 
-func recordCommitSha(conn *sql.DB, slug, sha string) {
-	_, _ = conn.Exec(
+func recordCommitSha(conn *sql.DB, slug, sha string) error {
+	_, err := conn.Exec(
 		`INSERT INTO pe_all_commit_cache (repo_slug, commit_sha, checked_at)
 		 VALUES (?, ?, ?)
 		 ON CONFLICT(repo_slug) DO UPDATE SET commit_sha = excluded.commit_sha, checked_at = excluded.checked_at`,
 		slug, sha, time.Now().UTC().Format(time.RFC3339),
 	)
+	return err
 }
 
 // getRepoHeadSha returns the HEAD commit SHA of the repo at absPath,
