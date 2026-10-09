@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.520.0] - 2026-10-09
+
+### Added
+- DB-backed spec number issuance (gitmap spec next)
+
+---
+
 ## [v6.519.0] - 2026-10-09
 
 ### Added

@@ -21,8 +21,9 @@ Owner 2026-10-09: spec numbers are hand-picked by agents scanning the filesystem
 - [ ] Wave 2: `gitmap spec next` implemented — Worker 1 DONE (cli/store/spec_numbers.go, 92 lines, builds); Worker 2 running (command layer).
 - [ ] Spec 252 written (`02-spec/21-app/252-<slug>/` + subtasks).
 - [ ] Wave 2: `gitmap spec next` implemented (DB table, atomic issuance, race-safe).
-- [ ] Wave 3: verified — `go build ./...` exit 0 (lead-run); N-parallel concurrency test → N distinct numbers; output format checks.
-- [ ] Wave 4: committed + pushed; version bumped (minor); tag pushed; GitHub release published; `~/.local/bin/gitmap` rebuilt and version verified.
+- [x] Wave 3: verified — `go build ./...` exit 0 (lead-run); 10-parallel concurrency test → 10 distinct numbers (252–261), second batch → 10 more distinct; --json shape exact; DB has 21 rows 252–272, no gaps/dups; `spec --help` renders.
+- [x] Committed + pushed: `bd2ec57` "Feature - spec - DB-backed concurrency-safe spec number issuance" (targeted adds only; 250 stream's ledger untouched).
+- [ ] Wave 4: version bump (minor) → tag → GitHub release → rebuild ~/.local/bin/gitmap.
 
 ## Decisions
 - D1: No retroactive renumbering (owner explicit).
