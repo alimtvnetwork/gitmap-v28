@@ -69,13 +69,11 @@ scanned by bare position — use `gitmap scan ./export` in that case.
    `gitmap scan <dir>` regression (normal scan still works).
 4. Skills: document in `.agents/skills/gitmap/SKILL.md` + `.cursor` mirror.
 5. Commit + push (atomic, hyphen-format).
-## 4. Known issue (out of scope)
+## 4. Known issue (resolved 2026-10-09)
 
-`03-ai-scripts/51-helptext-generator.py` is broken at HEAD: its embedded Go
-runner imports `cli/tool/helptextemitter`, which does not exist in the repo
-(likely lost in the wave-2 cmd split). The generator fails identically on the
-pristine tree, so this is pre-existing and unrelated to this spec.
-`cli/helpdoc/scan.md` could not be regenerated; `cmdscan.ScanHelpDisplay`
-already carries the new `export`/`merge` verbs and usage lines, so the next
-successful regen picks them up. Fixing the generator is a separate task.
+`03-ai-scripts/51-helptext-generator.py` was broken at HEAD: its embedded Go
+runner imported `cli/tool/helptextemitter`, which no longer exists (the
+emitter lives at `cli/helpdoc`, package `helpdoc`, since the wave-2 split).
+Fixed in commit 0785e52 (import path corrected) and `cli/helpdoc/scan.md`
+regenerated with the new `export`/`merge` verbs.
 
