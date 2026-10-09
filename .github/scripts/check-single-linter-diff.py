@@ -47,6 +47,11 @@ def run_linter(lint_dir, linter, current_out):
         "--timeout=5m",
         "--issues-exit-code=0",
         "--out-format=json",
+        # Deterministic full output: the default cap (50 issues/linter) returns a
+        # NON-DETERMINISTIC sample, which makes baseline diffs flaky. Disable caps
+        # so the baseline always sees the complete, stable finding set.
+        "--max-issues-per-linter=0",
+        "--max-same-issues=0",
         "./..."
     ]
     try:
