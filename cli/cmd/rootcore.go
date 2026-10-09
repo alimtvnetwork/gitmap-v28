@@ -75,7 +75,7 @@ func coreBasicMaintenanceEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"clean-corrupted", "clean-corrupted-dirs"}, func() error { return cmddoctor.RunCleanCorrupted(argsTail()) }},
 		{[]string{"purge", "purge-history"}, func() error { return cmdpurge.RunPurge(argsTail()) }},
-		{[]string{"gitignore", "gitignore-agm", "gitignore-agy", "agm"}, func() error { return gitignoreagm.RunCLI(argsTail()) }},
+		{[]string{"gitignore", "gitignore-agm", "gitignore-agy"}, func() error { return gitignoreagm.RunCLI(argsTail()) }},
 		{[]string{"stash"}, func() error { return cmdfix.RunFix(argsTail(), "stash") }},
 		{[]string{"wip"}, func() error { return cmdfix.RunFix(argsTail(), "wip") }},
 		{[]string{"discard"}, func() error { return cmdfix.RunFix(argsTail(), "discard") }},

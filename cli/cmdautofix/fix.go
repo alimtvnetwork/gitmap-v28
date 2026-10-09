@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
@@ -161,7 +162,7 @@ func runHumanFlow(opts Options, result *ScanResult, fixable int) error {
 	}
 	if !apply {
 		fmt.Println("No changes written.")
-		return nil
+		cliexit.Exit(1)
 	}
 
 	applied, err := Apply(result, opts)
@@ -191,10 +192,21 @@ func unfixableRemain(result *ScanResult, applied *ApplyResult) bool {
 	return false
 }
 
-// askApply prompts on stderr and reads one line from the REAL stdin —
-// /dev/stdin on unix so the prompt works even when stdout is piped.
-// (Windows fallback: os.Stdin, which has no /dev/stdin.)
+// askApply prompts on stderr and reads one line of input.
+// If stdin is a terminal, it prompts interactively (reading /dev/stdin on
+// unix so the prompt works even when stdout is piped).
+// If stdin is NOT a terminal (pipe/file/closed, e.g. CI), it waits briefly
+// for piped input (so `echo y | gitmap fix` still works) and otherwise
+// refuses to block forever: prints a hint and returns false.
 func askApply() bool {
+	if fi, err := os.Stdin.Stat(); err == nil && (fi.Mode()&os.ModeCharDevice) == 0 {
+		return askApplyPiped()
+	}
+	return askApplyTerminal()
+}
+
+// askApplyTerminal is the interactive prompt path.
+func askApplyTerminal() bool {
 	fmt.Fprint(os.Stderr, "Apply these fixes? [y/N] ")
 	in := os.Stdin
 	if runtime.GOOS != "windows" {
@@ -207,6 +219,34 @@ func askApply() bool {
 	if err != nil {
 		return false
 	}
+	return isYes(line)
+}
+
+// askApplyPiped waits briefly for a piped answer, then gives up rather than
+// hanging forever in non-interactive contexts.
+func askApplyPiped() bool {
+	type answer struct {
+		line string
+		err  error
+	}
+	ch := make(chan answer, 1)
+	go func() {
+		line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		ch <- answer{line, err}
+	}()
+	select {
+	case a := <-ch:
+		if a.err != nil {
+			return false
+		}
+		return isYes(a.line)
+	case <-time.After(300 * time.Millisecond):
+		fmt.Fprintln(os.Stderr, "Not prompting (stdin is not interactive); re-run with -y/--yes to apply, or run in a terminal.")
+		return false
+	}
+}
+
+func isYes(line string) bool {
 	answer := strings.ToLower(strings.TrimSpace(line))
 	return answer == "y" || answer == "yes"
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbranch"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdaum"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemplates"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff"
@@ -90,8 +91,12 @@ func tryRenderCoreRichTopic(topic string) bool {
 		cmdbranch.RenderBranchHelp()
 
 		return true
-	case "stash", "fix", "wip", "discard":
+	case "stash", "wip", "discard":
 		cmdstash.RenderStashHelp()
+
+		return true
+	case "fix":
+		cmdautofix.RenderFixHelp()
 
 		return true
 	case "user", "os-user":
