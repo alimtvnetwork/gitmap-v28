@@ -162,3 +162,18 @@ Test-suite gates skipped per standing rule; e2e is the evidence.
 
 `go build ./...` only (no `go test` per standing rule). E2E per acceptance spec 02,
 all artifacts outside the repo.
+
+## 9. As-built notes (lead verification 2026-10-09)
+
+- Claim command is `gitmap agent subtask claim-files` (not `claim`): `subtask claim`
+  already exists for work-queue claiming; the spec's `claim --files` form was
+  ambiguous without a subtask target.
+- Completion counting uses `Status IN ('DONE','COMPLETED')`, not `HasCompleted`:
+  the Tier-2 `Subtask` table has no `HasCompleted` column (older schema); the
+  `_ =` discards in the original code masked this.
+- Scoped staging partitions claimed files: ignored-but-tracked files stage via
+  `git add -f`, ignored-and-untracked are skipped. `git check-ignore` needs
+  `--no-index` to see tracked files (without it, one ignored path poisons the
+  whole `git add`). Found during the release's own dogfood commit.
+- `agent ps` originally scanned `ParentTaskId` as int64; it is TEXT (string task
+  IDs). Fixed during verification.
