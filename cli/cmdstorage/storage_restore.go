@@ -9,7 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func runStorageRestoreDB(args []string) error {
@@ -70,5 +70,5 @@ func checkDBIntegrity(conn *sql.DB) string {
 func printAutoHealSuccess(dbPath, checkResult string) {
 	fmt.Printf("\n  %s✔ Database verified and integrity checked: %s (status: %s)%s\n\n",
 		constants.ColorGreen, filepath.Base(dbPath), checkResult, constants.ColorReset)
-	termpad.EnsureBottomPadding("\n")
+	termout.EnsureBottomPadding("\n")
 }

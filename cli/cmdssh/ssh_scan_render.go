@@ -4,43 +4,43 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func renderScanTable(results []SSHHealthResult) {
 	fmt.Printf("\n%s SSH Fleet Liveness & Reachability Scan:%s\n\n", constants.ColorCyan, constants.ColorReset)
 
-	cfg := termtable.TableConfig{
+	cfg := termout.TableConfig{
 		Columns: scanTableColumns(),
 		Rows:    buildScanTableRows(results),
 	}
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 
 	onlineCount := countOnlineResults(results)
 	fmt.Printf("\n  Summary: %d/%d nodes online\n\n", onlineCount, len(results))
 }
 
-func scanTableColumns() []termtable.Column {
-	return []termtable.Column{
-		{Title: "ALIAS", Align: termtable.AlignLeft},
-		{Title: "IP", Align: termtable.AlignLeft},
-		{Title: "USER", Align: termtable.AlignLeft},
-		{Title: "PORT", Align: termtable.AlignRight},
-		{Title: "STATUS", Align: termtable.AlignLeft},
-		{Title: "LATENCY", Align: termtable.AlignRight},
-		{Title: "DETAILS", Align: termtable.AlignLeft},
+func scanTableColumns() []termout.Column {
+	return []termout.Column{
+		{Title: "ALIAS", Align: termout.AlignLeft},
+		{Title: "IP", Align: termout.AlignLeft},
+		{Title: "USER", Align: termout.AlignLeft},
+		{Title: "PORT", Align: termout.AlignRight},
+		{Title: "STATUS", Align: termout.AlignLeft},
+		{Title: "LATENCY", Align: termout.AlignRight},
+		{Title: "DETAILS", Align: termout.AlignLeft},
 	}
 }
 
-func buildScanTableRows(results []SSHHealthResult) []termtable.Row {
-	var rows []termtable.Row
+func buildScanTableRows(results []SSHHealthResult) []termout.Row {
+	var rows []termout.Row
 	for _, r := range results {
 		color := constants.ColorGreen
 		if !r.IsOnline {
 			color = constants.ColorRed
 		}
 
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				r.Alias,
 				r.IP,

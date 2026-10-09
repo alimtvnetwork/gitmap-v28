@@ -3,14 +3,14 @@ package cmdscan
 // Helpers wiring `--report-errors` into the scan command. Split out
 // of scan.go to keep that file under the 200-line per-file budget
 // while still expressing the (small) glue between the scanner /
-// probe-runner callbacks and the errreport.Collector.
+// probe-runner callbacks and the diag.Collector.
 
 import (
 	"fmt"
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/errreport"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/probe"
 )
@@ -19,24 +19,24 @@ import (
 // is true, otherwise nil. Returning nil (rather than an empty
 // collector) lets every downstream Add be a no-op without touching
 // the hot path — the collector's nil-receiver methods short-circuit.
-func newScanCollector(reportErrors bool) *errreport.Collector {
+func newScanCollector(reportErrors bool) *diag.Collector {
 	if !reportErrors {
 		return nil
 	}
 
-	return errreport.New(constants.Version, "scan")
+	return diag.New(constants.Version, "scan")
 }
 
 // scanDirErrorCallback returns the OnDirError closure passed to
 // scanner.ScanOptions. Captures `c` so the goroutine-safe
-// errreport.Collector receives one entry per failed ReadDir.
-func scanDirErrorCallback(c *errreport.Collector) func(string, error) {
+// diag.Collector receives one entry per failed ReadDir.
+func scanDirErrorCallback(c *diag.Collector) func(string, error) {
 	if c == nil {
 		return nil
 	}
 
 	return func(path string, err error) {
-		c.Add(errreport.PhaseScan, errreport.Entry{
+		c.Add(diag.PhaseScan, diag.Entry{
 			RepoPath: path,
 			Step:     "readdir",
 			Error:    err.Error(),
@@ -47,13 +47,13 @@ func scanDirErrorCallback(c *errreport.Collector) func(string, error) {
 // installProbeFailureHook wires the background-probe runner's
 // per-failure callback into the collector. No-op when either side is
 // nil so callers can chain unconditionally.
-func installProbeFailureHook(runner *probe.BackgroundRunner, c *errreport.Collector) {
+func installProbeFailureHook(runner *probe.BackgroundRunner, c *diag.Collector) {
 	if runner == nil || c == nil {
 		return
 	}
 
 	runner.SetFailureHook(func(rec model.ScanRecord, res probe.Result) {
-		c.Add(errreport.PhaseScan, errreport.Entry{
+		c.Add(diag.PhaseScan, diag.Entry{
 			RepoPath:  rec.RelativePath,
 			RemoteURL: rec.HTTPSUrl,
 			Step:      "probe-" + res.Method,
@@ -65,7 +65,7 @@ func installProbeFailureHook(runner *probe.BackgroundRunner, c *errreport.Collec
 // finalizeErrorReport writes the report to disk if any failures were
 // recorded. Errors writing the report are logged to stderr but never
 // fail the parent command — the report is auxiliary, not load-bearing.
-func finalizeErrorReport(c *errreport.Collector, quiet bool) {
+func finalizeErrorReport(c *diag.Collector, quiet bool) {
 	if c == nil {
 		return
 	}

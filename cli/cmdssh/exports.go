@@ -6,7 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
@@ -129,11 +129,11 @@ func EncodeSSHListJSON(w io.Writer, keys []model.SSHKey) error {
 // RunClusterAddCLI executes cluster add command.
 func RunClusterAddCLI(args []string) error {
 	if hasHelpFlag(args) {
-		helptext.Print("cluster-add")
+		helpdoc.Print("cluster-add")
 		return nil
 	}
 	if len(args) == 0 {
-		helptext.Print("cluster-add")
+		helpdoc.Print("cluster-add")
 		return apperror.NewValidationError("missing target host. Usage: gitmap cluster add <user@ip|ip> [alias] [flags]")
 	}
 	return RunSSHJoinCLI(append([]string{"add"}, args...))
@@ -142,11 +142,11 @@ func RunClusterAddCLI(args []string) error {
 // RunClusterJoinCLI executes cluster join command.
 func RunClusterJoinCLI(args []string) error {
 	if hasHelpFlag(args) {
-		helptext.Print("cluster-join")
+		helpdoc.Print("cluster-join")
 		return nil
 	}
 	if len(args) == 0 {
-		helptext.Print("cluster-join")
+		helpdoc.Print("cluster-join")
 		return apperror.NewValidationError("missing target host. Usage: gitmap cluster join <user@ip|ip> [alias] [flags]")
 	}
 	return RunSSHJoinCLI(args)

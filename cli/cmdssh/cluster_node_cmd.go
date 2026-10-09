@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -273,7 +273,7 @@ func executeClusterNodeScript(ctx context.Context, target string, script string)
 
 func runNodeAdd(ctx context.Context, args []string) error {
 	if hasHelpFlag(args) {
-		helptext.Print("cluster-node-add")
+		helpdoc.Print("cluster-node-add")
 		return nil
 	}
 	return executeEnrollCLI(ctx, args)
@@ -281,7 +281,7 @@ func runNodeAdd(ctx context.Context, args []string) error {
 
 func runNodeRm(ctx context.Context, args []string) error {
 	if hasHelpFlag(args) {
-		helptext.Print("cluster-remove")
+		helpdoc.Print("cluster-remove")
 		return nil
 	}
 	return runSJRm(nil, args, ctx)

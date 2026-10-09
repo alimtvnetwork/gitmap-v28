@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // PrintFleetStart displays immediate announcement when execution begins on a node.
@@ -83,17 +83,17 @@ func PrintFleetSummary(taskName string, results []FleetNodeResult) {
 		len(results), countFleetSuccess(results), failedCount, offlineCount)
 	fmt.Printf("%s--------------------------------------------------------------------------------%s\n", constants.ColorDim, constants.ColorReset)
 
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "ALIAS", Align: termtable.AlignLeft, MinWidth: 15},
-			{Title: "IP", Align: termtable.AlignLeft, MinWidth: 16},
-			{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 10},
-			{Title: "DURATION", Align: termtable.AlignRight, MinWidth: 10},
-			{Title: "DETAILS", Align: termtable.AlignLeft, MinWidth: 25},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "ALIAS", Align: termout.AlignLeft, MinWidth: 15},
+			{Title: "IP", Align: termout.AlignLeft, MinWidth: 16},
+			{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 10},
+			{Title: "DURATION", Align: termout.AlignRight, MinWidth: 10},
+			{Title: "DETAILS", Align: termout.AlignLeft, MinWidth: 25},
 		},
 		Rows: buildFleetSummaryRows(results),
 	}
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	fmt.Printf("%s================================================================================%s\n\n", constants.ColorCyan, constants.ColorReset)
 }
 
@@ -127,11 +127,11 @@ func countFleetFailure(results []FleetNodeResult) int {
 	return count
 }
 
-func buildFleetSummaryRows(results []FleetNodeResult) []termtable.Row {
-	rows := make([]termtable.Row, 0, len(results))
+func buildFleetSummaryRows(results []FleetNodeResult) []termout.Row {
+	rows := make([]termout.Row, 0, len(results))
 	for _, r := range results {
 		statusStr, details := resolveFleetRowStatus(r)
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				r.Alias,
 				r.IP,

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 var configVarRegex = regexp.MustCompile(`\$\{([a-zA-Z0-9_.-]+)\}|\$([a-zA-Z0-9_.-]+)`)
@@ -149,12 +149,12 @@ func applyConfigFileIfPresent(raw *RawArgs) *ParseError {
 	if raw.ConfigPath == "" {
 		return nil
 	}
-	resolvedPath := jsonenvelope.ResolveRelativeJSONPath(raw.ConfigPath)
+	resolvedPath := jsonx.ResolveRelativeJSONPath(raw.ConfigPath)
 	data, err := os.ReadFile(resolvedPath)
 	if err != nil {
 		return newBadArgs("failed to read config %q: %v", raw.ConfigPath, err)
 	}
-	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	payload, _, extractErr := jsonx.ExtractPayload(data)
 	if extractErr == nil && len(payload) > 0 {
 		data = payload
 	}
@@ -314,12 +314,12 @@ func readImportedTemplateFiles(paths []string, extraVars map[string]string) (map
 }
 
 func appendSingleTemplateFile(path string, vars map[string]string, items []ImportedTemplateItem) []ImportedTemplateItem {
-	resolved := jsonenvelope.ResolveRelativeJSONPath(path)
+	resolved := jsonx.ResolveRelativeJSONPath(path)
 	data, err := os.ReadFile(resolved)
 	if err != nil {
 		return items
 	}
-	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	payload, _, extractErr := jsonx.ExtractPayload(data)
 	if extractErr == nil && len(payload) > 0 {
 		data = payload
 	}

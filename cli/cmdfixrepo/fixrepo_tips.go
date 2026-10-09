@@ -33,7 +33,7 @@ func fixRepoFlagHint() string {
 
 // emitFixRepoTips prints the post-run options block. Always rendered
 // to stderr so it never contaminates dry-run stdout consumed by
-// scripts. Includes the gitmap-undo reminder which is the single most
+// fspath. Includes the gitmap-undo reminder which is the single most
 // common follow-up after an unintended rewrite.
 func emitFixRepoTips(opts fixRepoOptions, changed int) {
 	if opts.isDryRun {

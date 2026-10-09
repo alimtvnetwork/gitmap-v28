@@ -15,7 +15,7 @@ func tryConsumeThemeArg(args []string, i int, short, long string) (int, bool) {
 	return i, false
 }
 
-// consumeThemeVal handles positional theme value following -theme/--theme.
+// consumeThemeVal handles positional theme value following -theme/--termout.
 func consumeThemeVal(args []string, i int) (int, bool) {
 	if i+1 < len(args) {
 		applyThemeChoice(args[i+1])

@@ -14,7 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -135,10 +135,10 @@ func handleNodeScanConnectError(res NodeScanResult, err error, start time.Time) 
 func executeRemoteScanCommand(client *ssh.Client, conn db.SSHConnection, subCmd string, passArgs []string) (string, error) {
 	isWin := isWindowsNode(conn)
 	cmd, shell := resolveRemoteScanCommand(subCmd, passArgs, isWin)
-	out, err := crypto.RunCommand(client, cmd, shell)
+	out, err := secrets.RunCommand(client, cmd, shell)
 
 	if err != nil && !isWin && isBashMissingError(out, err) {
-		out, err = crypto.RunCommand(client, cmd, "sh")
+		out, err = secrets.RunCommand(client, cmd, "sh")
 	}
 
 	return out, err

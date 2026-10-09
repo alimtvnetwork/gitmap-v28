@@ -12,7 +12,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // tempReleaseList wire keys. Names + order are the contract.
@@ -28,15 +28,15 @@ const (
 
 // encodeTempReleaseListJSON writes temp-release records as stable JSON.
 func encodeTempReleaseListJSON(w io.Writer, releases []model.TempRelease) error {
-	return stablejson.WriteArray(w, buildTempReleaseListItems(releases))
+	return jsonx.WriteArray(w, buildTempReleaseListItems(releases))
 }
 
 // buildTempReleaseListItems is the single source of (field name, field
 // order, value) for temp-release rows.
-func buildTempReleaseListItems(releases []model.TempRelease) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(releases))
+func buildTempReleaseListItems(releases []model.TempRelease) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(releases))
 	for _, r := range releases {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: trlKeyID, Value: r.ID},
 			{Key: trlKeyBranch, Value: r.Branch},
 			{Key: trlKeyVersionPrefix, Value: r.VersionPrefix},

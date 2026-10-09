@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 var templateVarRefPattern = regexp.MustCompile(`\$\{([A-Za-z0-9_.-]+(?:\[\d+\])?)\}|\$([A-Za-z0-9_]+)`)
@@ -207,8 +207,8 @@ func writeExportJSONFile(destPath string, payload TemplateExportPayload) error {
 		return err
 	}
 
-	envelope := jsonenvelope.NewEnvelope(
-		jsonenvelope.TypeTemplates,
+	envelope := jsonx.NewEnvelope(
+		jsonx.TypeTemplates,
 		destPath,
 		"gitmap templates export",
 		"1.0",
@@ -280,7 +280,7 @@ func readImportPayload(srcPath string) (TemplateExportPayload, string, error) {
 		return payload, "", apperror.WrapSimple(err, "templates_split.import_read")
 	}
 
-	payloadBytes, _, extractErr := jsonenvelope.ExtractPayload(raw)
+	payloadBytes, _, extractErr := jsonx.ExtractPayload(raw)
 	if extractErr != nil {
 		payloadBytes = raw
 	}

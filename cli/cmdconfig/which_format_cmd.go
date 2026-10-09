@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // FormatInspectionResult records the inspection status of a single JSON file.
@@ -154,7 +154,7 @@ func inspectSingleFile(path string) FormatInspectionResult {
 		}
 	}
 
-	desc, attrs, isMatched := jsonenvelope.DetectFormat(content)
+	desc, attrs, isMatched := jsonx.DetectFormat(content)
 	if !isMatched {
 		return FormatInspectionResult{
 			FilePath:        path,
@@ -164,7 +164,7 @@ func inspectSingleFile(path string) FormatInspectionResult {
 	}
 
 	normPath := filepath.ToSlash(path)
-	baseName := jsonenvelope.RelativeBaseName(normPath)
+	baseName := jsonx.RelativeBaseName(normPath)
 	importCmd := fmt.Sprintf(desc.SuggestedImportCmd, baseName)
 	if attrs.ImportCommand != "" {
 		importCmd = attrs.ImportCommand

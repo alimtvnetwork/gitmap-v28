@@ -14,7 +14,7 @@ package cmdamend
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -37,15 +37,15 @@ const (
 // encodeAmendListJSON writes rows as a stablejson 2-space-indented
 // array. Empty input emits `[]\n`.
 func encodeAmendListJSON(w io.Writer, rows []store.AmendmentRow) error {
-	return stablejson.WriteArray(w, buildAmendListJSONItems(rows))
+	return jsonx.WriteArray(w, buildAmendListJSONItems(rows))
 }
 
 // buildAmendListJSONItems is the single source of (field name, field
 // order, value) for amend-list.
-func buildAmendListJSONItems(rows []store.AmendmentRow) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(rows))
+func buildAmendListJSONItems(rows []store.AmendmentRow) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(rows))
 	for _, r := range rows {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: amendListKeyID, Value: r.ID},
 			{Key: amendListKeyBranch, Value: r.Branch},
 			{Key: amendListKeyFromCommit, Value: r.FromCommit},

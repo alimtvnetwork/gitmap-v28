@@ -9,7 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/spf13/cobra"
@@ -142,7 +142,7 @@ func encryptPassAES(plain string) (string, string, error) {
 func encryptPassSalted(plain, salt string) (string, string) {
 	effectiveSalt := salt
 	if effectiveSalt == "" {
-		effectiveSalt = crypto.GenerateRandomSalt(8)
+		effectiveSalt = secrets.GenerateRandomSalt(8)
 	}
 	cipherText := EncryptSaltedPassword(plain, effectiveSalt)
 	modeDesc := fmt.Sprintf("Salted rotation cipher (salt=%s)", effectiveSalt)

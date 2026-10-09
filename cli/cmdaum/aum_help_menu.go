@@ -1,16 +1,16 @@
 package cmdaum
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderAumHelp displays the styled two-column AUM / Automation help menu.
 func RenderAumHelp() {
-	termhelp.RenderMenu(buildAumHelpMenu())
+	termout.RenderMenu(buildAumHelpMenu())
 }
 
-func buildAumHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildAumHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Polyglot Automation Engine (gitmap aum / automation)",
 		UsageLines: []string{
 			"gitmap aum <subcommand> [flags]",
@@ -18,7 +18,7 @@ func buildAumHelpMenu() termhelp.HelpMenu {
 			"gitmap aum search <query> [dir] [flags]",
 			"gitmap aum benchmark [target]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildAumToolsSection(),
 			buildAumFormattingSection(),
 		},
@@ -30,8 +30,8 @@ func buildAumHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildAumFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildAumFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-w, --workers <n>", Description: "Number of concurrent worker threads (default: CPU cores)"},
 		{Command: "--max-json-kb <n>", Description: "Maximum JSON size in KB before auto-exclusion (default: 500)"},
 		{Command: "-e, --ext <exts>", Description: "Filter search by file extensions (e.g. .go, .ts)"},
@@ -41,10 +41,10 @@ func buildAumFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildAumToolsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildAumToolsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Automation Subcommands",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "search <pattern> [dir]", Description: "Multi-core streaming search with lazy regex and literal fast path"},
 			{Command: "locate <binary>", Description: "Fast binary and toolchain locator (vswhere & vcvars fast path)"},
 			{Command: "guard", Description: "Safety probes for oversized JSONs and binary null-byte scans"},
@@ -54,10 +54,10 @@ func buildAumToolsSection() termhelp.HelpSection {
 	}
 }
 
-func buildAumFormattingSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildAumFormattingSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Normalization & Hygiene",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "newlines [dir]", Description: "Polyglot newline normalization across repositories"},
 			{Command: "format-go", Description: "Fast Go AST formatting and import grouping"},
 			{Command: "clean-artifacts", Description: "Zero-storage cleanup of test outputs, binaries, and caches"},

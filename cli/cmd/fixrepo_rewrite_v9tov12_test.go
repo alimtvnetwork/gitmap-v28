@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
-	"github.com/alimtvnetwork/gitmap-v28/cli/fixtureversion"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 // fixRepoV9ToV12FixtureBody is the on-disk fixture: every realistic
@@ -72,9 +72,9 @@ func TestFixRepoRewriteV9ToV12Fixture(t *testing.T) {
 	// this test expects. Under `make fixtures-bump` the marker is
 	// rewritten in this very source file automatically; otherwise
 	// this t.Fatals with an actionable regenerate recipe.
-	fixtureversion.MustValidateBodyWithAutobump(t, fixRepoV9ToV12FixtureBody,
+	helpdoc.MustValidateBodyWithAutobump(t, fixRepoV9ToV12FixtureBody,
 		"fixrepo_rewrite_v9tov12_test.go",
-		fixtureversion.Expectation{
+		helpdoc.Expectation{
 			MinGeneration:    1,
 			CurrentVersion:   current,
 			RegenerateRecipe: "run `make fixtures-bump RUN=TestFixRepoRewriteV9ToV12Fixture` (or hand-edit the // fixture-stamp: marker)",

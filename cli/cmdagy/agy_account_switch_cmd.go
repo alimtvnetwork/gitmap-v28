@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // AgyAccountSwitchCmd is the root command for Antigravity account switching.
@@ -129,18 +129,18 @@ func executeSetThresholdCmd(cmd *cobra.Command, args []string) error {
 
 // RenderAccountSwitchHelp renders the boxed help menu with examples for account-switch.
 func RenderAccountSwitchHelp() {
-	termhelp.RenderMenu(buildAccountSwitchHelpMenu())
+	termout.RenderMenu(buildAccountSwitchHelpMenu())
 }
 
-func buildAccountSwitchHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildAccountSwitchHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Antigravity Account Switch & Threshold Governance (account-switch / asw)",
 		UsageLines: []string{
 			"gitmap agy account-switch <subcommand> [flags]",
 			"gitmap agy asw test --threshold 98 --instance e2e-test-01",
 			"gitmap agy account-switch run --threshold 15",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildAccountSwitchSubcommandsSection(),
 			buildAccountSwitchExamplesSection(),
 		},
@@ -153,10 +153,10 @@ func buildAccountSwitchHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildAccountSwitchSubcommandsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildAccountSwitchSubcommandsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Account Switch Subcommands",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "run", Description: "Evaluate active credit and switch account when below threshold"},
 			{Command: "test", Description: "Run full 98% E2E switch test in temporary instance & reset to 15%"},
 			{Command: "status", Description: "Inspect active account, threshold (15%), and last backup batch"},
@@ -166,10 +166,10 @@ func buildAccountSwitchSubcommandsSection() termhelp.HelpSection {
 	}
 }
 
-func buildAccountSwitchExamplesSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildAccountSwitchExamplesSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Examples",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "gitmap agy account-switch test --threshold 98", Description: "Run E2E 98% switch + backup/restore + 15% reset"},
 			{Command: "gitmap agy asw run --threshold 15 --json", Description: "Run production account switch check with JSON output"},
 			{Command: "gitmap agy account-switch set-threshold 15", Description: "Persist production threshold at 15%"},
@@ -178,8 +178,8 @@ func buildAccountSwitchExamplesSection() termhelp.HelpSection {
 	}
 }
 
-func buildAccountSwitchFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildAccountSwitchFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-t, --threshold <pct>", Description: "Credit threshold percentage (default 15, E2E test 98)"},
 		{Command: "-i, --instance <name>", Description: "Temporary instance workspace name for isolated E2E testing"},
 		{Command: "--test-e2e", Description: "Trigger full E2E instance test lifecycle"},

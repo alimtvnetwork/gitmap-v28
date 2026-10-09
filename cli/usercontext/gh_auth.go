@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 	}
 	execCommandContext = exec.CommandContext
 	lookPath           = exec.LookPath
-	tokenResolver      = ghtoken.Resolve
+	tokenResolver      = secrets.Resolve
 )
 
 const (

@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -195,7 +195,7 @@ func querySingleNodeProjects(c db.SSHConnection) []AgyProject {
 	}
 	defer client.Close()
 	cmdStr := "gitmap agy ls --json"
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr != nil {
 		return nil
 	}

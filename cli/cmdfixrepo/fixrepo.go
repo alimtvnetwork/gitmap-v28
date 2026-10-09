@@ -140,7 +140,7 @@ func computeFixRepoTargets(current, span int) []int {
 }
 
 // emitFixRepoHeader prints the three-line header that matches the
-// PowerShell script verbatim. Used by tests + parity scripts.
+// PowerShell script verbatim. Used by tests + parity fspath.
 func emitFixRepoHeader(identity fixRepoIdentity, mode string, targets []int) {
 	fmt.Printf(constants.FixRepoMsgHeaderFmt, identity.base, identity.current, mode)
 	fmt.Printf(constants.FixRepoMsgTargetsFmt, formatFixRepoTargets(targets))

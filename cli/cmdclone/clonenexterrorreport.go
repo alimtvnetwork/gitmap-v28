@@ -9,7 +9,7 @@ package cmdclone
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/errreport"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 )
 
 // writeCNErrorReport converts every BatchStatusFailed row in
@@ -23,13 +23,13 @@ func writeCNErrorReport(reportErrors bool, results []batchRowResult) {
 		return
 	}
 
-	c := errreport.New(constants.Version, "clone-next")
+	c := diag.New(constants.Version, "clone-next")
 	for _, r := range results {
 		if r.Status != constants.BatchStatusFailed {
 			continue
 		}
 
-		c.Add(errreport.PhaseClone, errreport.Entry{
+		c.Add(diag.PhaseClone, diag.Entry{
 			RepoPath: r.RepoPath,
 			Step:     "clone",
 			Error:    r.Detail,

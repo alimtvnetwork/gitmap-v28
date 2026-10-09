@@ -9,7 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdisplay"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 // CheckHelpOrEmpty prints help and exits if args is empty or help flag is present.
@@ -47,9 +47,9 @@ func printHelpAndExit(command string, args []string) {
 	if tryRenderRichTopic(command) {
 		cliexit.Exit(0)
 	}
-	if helptext.HasTopic(command) {
+	if helpdoc.HasTopic(command) {
 		_, mode := ParsePrettyFlag(args)
-		helptext.PrintWithMode(command, mode)
+		helpdoc.PrintWithMode(command, mode)
 		printUsageFooterShort()
 		cliexit.Exit(0)
 	}

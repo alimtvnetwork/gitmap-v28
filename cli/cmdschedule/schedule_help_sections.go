@@ -1,13 +1,13 @@
 package cmdschedule
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
-func buildScheduleTaskSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildScheduleTaskSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Task Scheduling & Creation",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "add <name> [cmds...]", Description: "Create scheduled task with isolated split DB"},
 			{Command: "list (ls)", Description: "List all scheduled tasks, intervals, run counts & status"},
 			{Command: "status [name|*]", Description: "View detailed status and metadata of schedule(s)"},
@@ -17,10 +17,10 @@ func buildScheduleTaskSection() termhelp.HelpSection {
 	}
 }
 
-func buildScheduleLifecycleSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildScheduleLifecycleSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "State & Lifecycle",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "enable <name>", Description: "Enable a disabled scheduled task"},
 			{Command: "disable <name>", Description: "Disable a scheduled task (preserves logs)"},
 			{Command: "rm (delete) <name>", Description: "Remove scheduled task and purge split database"},
@@ -28,10 +28,10 @@ func buildScheduleLifecycleSection() termhelp.HelpSection {
 	}
 }
 
-func buildScheduleLogsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildScheduleLogsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Execution Logs & Reset",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "logs (history) <name>", Description: "View execution history and logs from split DB"},
 			{Command: "reset <name>", Description: "Purge execution logs for a specific schedule"},
 			{Command: "reset-all", Description: "Reset execution logs across all schedule split DBs"},
@@ -39,10 +39,10 @@ func buildScheduleLogsSection() termhelp.HelpSection {
 	}
 }
 
-func buildScheduleExportImportSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildScheduleExportImportSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Import & Export",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "export [name]", Description: "Export schedule(s) to JSON, YAML, SQLite, or ZIP", HasSubcommands: true},
 			{Command: "export-all", Description: "Export all schedules with exclusion filter"},
 			{Command: "import <file>", Description: "Import schedule(s) from file or archive", HasSubcommands: true},
@@ -51,10 +51,10 @@ func buildScheduleExportImportSection() termhelp.HelpSection {
 	}
 }
 
-func buildSchedulePowerSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSchedulePowerSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "System Power Operations",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "shutdown [<dur>]", Description: "Schedule OS shutdown (e.g. 1h30m, status, cancel)"},
 			{Command: "restart [<dur>]", Description: "Schedule OS restart (e.g. 1h30m, status, cancel)"},
 		},

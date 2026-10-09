@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -37,7 +37,7 @@ func deployConfigPayloadToNode(client *ssh.Client, c db.SSHConnection, payload [
 	b64 := base64.StdEncoding.EncodeToString(payload)
 	if len(b64) < 1500 {
 		cmd := fmt.Sprintf("gitmap ssh nodes import-json --base64 \"%s\"", b64)
-		return crypto.RunCommand(client, cmd, "")
+		return secrets.RunCommand(client, cmd, "")
 	}
 
 	streamErr := streamDirectToRemote(client, remotePath, payload, isWin)
@@ -47,13 +47,13 @@ func deployConfigPayloadToNode(client *ssh.Client, c db.SSHConnection, payload [
 	defer cleanupRemoteTempFile(client, remotePath, isWin)
 
 	importCmd := fmt.Sprintf("gitmap ssh nodes import-json %s", remotePath)
-	return crypto.RunCommand(client, importCmd, "")
+	return secrets.RunCommand(client, importCmd, "")
 }
 
 func cleanupRemoteTempFile(client *ssh.Client, remotePath string, isWin bool) {
 	if isWin {
-		_, _ = crypto.RunCommand(client, fmt.Sprintf("powershell.exe -NoProfile -Command \"Remove-Item -Force '%s' 2>$null\"", remotePath), "")
+		_, _ = secrets.RunCommand(client, fmt.Sprintf("powershell.exe -NoProfile -Command \"Remove-Item -Force '%s' 2>$null\"", remotePath), "")
 		return
 	}
-	_, _ = crypto.RunCommand(client, fmt.Sprintf("rm -f '%s'", remotePath), "")
+	_, _ = secrets.RunCommand(client, fmt.Sprintf("rm -f '%s'", remotePath), "")
 }

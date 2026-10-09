@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -168,9 +168,9 @@ func resolveVersionCommand(isWin bool) (string, string) {
 
 func queryRemoteVersionRaw(client *ssh.Client, isWin bool) (string, error) {
 	cmd, shell := resolveVersionCommand(isWin)
-	out, err := crypto.RunCommand(client, cmd, shell)
+	out, err := secrets.RunCommand(client, cmd, shell)
 	if err != nil && !isWin && isBashMissingError(out, err) {
-		out, err = crypto.RunCommand(client, cmd, "sh")
+		out, err = secrets.RunCommand(client, cmd, "sh")
 	}
 	return out, err
 }

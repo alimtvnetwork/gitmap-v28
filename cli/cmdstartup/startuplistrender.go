@@ -12,7 +12,7 @@ package cmdstartup
 // in caller-declared order and CANNOT be reordered by a future Go
 // release. Pretty 2-space output is byte-identical to the legacy
 // Encoder.SetIndent("", "  "), so existing golden fixtures pass
-// unchanged. See gitmap/stablejson/stablejson.go for full rationale.
+// unchanged. See gitmap/stablejson/jsonx.go for full rationale.
 
 import (
 	"encoding/csv"
@@ -21,7 +21,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/startup"
 )
 
@@ -117,7 +117,7 @@ func encodeStartupListJSON(w io.Writer, entries []startup.Entry) error {
 func encodeStartupListJSONIndent(w io.Writer, entries []startup.Entry, jsonIndent int) error {
 	indent := indentSpaces(jsonIndent)
 
-	return stablejson.WriteArrayIndent(w, buildStartupListJSONItems(entries), indent)
+	return jsonx.WriteArrayIndent(w, buildStartupListJSONItems(entries), indent)
 }
 
 // indentSpaces converts the integer --json-indent value into the
@@ -145,16 +145,16 @@ func indentSpaces(n int) string {
 // any future add/remove/rename of a column lands in both formats in
 // one diff and the contract test below catches drift.
 func encodeStartupListJSONL(w io.Writer, entries []startup.Entry) error {
-	return stablejson.WriteJSONLines(w, buildStartupListJSONItems(entries))
+	return jsonx.WriteJSONLines(w, buildStartupListJSONItems(entries))
 }
 
 // buildStartupListJSONItems is the single source of (field name,
 // field order, value) for both --format=json and --format=jsonl.
 // Centralized so a column rename or reorder is one diff, not two.
-func buildStartupListJSONItems(entries []startup.Entry) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(entries))
+func buildStartupListJSONItems(entries []startup.Entry) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(entries))
 	for _, e := range entries {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: startupListJSONKeyName, Value: e.Name},
 			{Key: startupListJSONKeyPath, Value: e.Path},
 			{Key: startupListJSONKeyExec, Value: e.Exec},

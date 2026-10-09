@@ -53,7 +53,7 @@ func TestBuildRecordsWithRoot_EmptyRootKeepsScannerValue(t *testing.T) {
 // TestBuildRecordsWithRoot_OutOfTreeFallsBack ensures repos that live
 // outside relRoot do NOT silently produce "../"-prefixed paths in the
 // output. The mapper falls back to the scanner-computed RelativePath
-// for that single row instead of corrupting downstream clone scripts.
+// for that single row instead of corrupting downstream clone fspath.
 func TestBuildRecordsWithRoot_OutOfTreeFallsBack(t *testing.T) {
 	root := filepath.Join(absRoot(t), "inside")
 	outside := filepath.Join(absRoot(t), "outside", "repo")

@@ -13,7 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -387,7 +387,7 @@ func runSSHWorkerJSON(c db.SSHConnection, args []string, results *[]NodeExecResu
 		shellType = determineFallbackShell(c.OS)
 	}
 	start := time.Now()
-	out, err := crypto.RunCommand(client, cmdStr, shellType)
+	out, err := secrets.RunCommand(client, cmdStr, shellType)
 	dur := time.Since(start).Milliseconds()
 	exitCode := resolveProcessExitCode(err)
 	mu.Lock()
@@ -448,7 +448,7 @@ func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) er
 	if isDelegate && ensureDelegateInstalled(client, c) != nil {
 		rawCmd := strings.Join(args, " ")
 		fallbackShell := determineFallbackShell(c.OS)
-		out, err := crypto.RunCommand(client, rawCmd, fallbackShell)
+		out, err := secrets.RunCommand(client, rawCmd, fallbackShell)
 		printNodeResultOutput(c.Alias, c.IPAddress, out, err)
 		return nil
 	}
@@ -456,7 +456,7 @@ func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) er
 		_ = ensurePowerShellInstalled(client, c.OS, c.Alias)
 	}
 
-	out, err := crypto.RunCommand(client, cmdStr, shellType)
+	out, err := secrets.RunCommand(client, cmdStr, shellType)
 	printNodeResultOutput(c.Alias, c.IPAddress, out, err)
 
 	return nil
@@ -527,7 +527,7 @@ func decryptPasswordCandidate(enc string) (string, error) {
 	if err == nil && plain != "" {
 		return plain, nil
 	}
-	passBytes, decErr := crypto.Decrypt(enc, getEncryptionKey())
+	passBytes, decErr := secrets.Decrypt(enc, getEncryptionKey())
 	if decErr == nil {
 		return string(passBytes), nil
 	}
@@ -548,14 +548,14 @@ func ensurePowerShellInstalled(client *ssh.Client, osType, header string) error 
 		return nil
 	}
 
-	_, err := crypto.RunCommand(client, "pwsh --version", "bash")
+	_, err := secrets.RunCommand(client, "pwsh --version", "bash")
 	if err == nil {
 		return nil
 	}
 
 	fmt.Printf("%s PowerShell not found, installing via package manager...\n", header)
 	installCmd := `if command -v apt-get &> /dev/null; then sudo apt-get update && sudo apt-get install -y powershell; elif command -v yum &> /dev/null; then sudo yum install -y powershell; elif command -v brew &> /dev/null; then brew install --cask powershell; fi`
-	_, err = crypto.RunCommand(client, installCmd, "bash")
+	_, err = secrets.RunCommand(client, installCmd, "bash")
 	if err != nil {
 		fmt.Printf("%s Note: auto-installing PowerShell failed. It may require manual setup.\n", header)
 	}

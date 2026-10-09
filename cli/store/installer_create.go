@@ -1,4 +1,4 @@
-// Package store — installer_create.go provides CreateInstaller for installer scripts.
+// Package store — installer_create.go provides CreateInstaller for installer fspath.
 package store
 
 import (

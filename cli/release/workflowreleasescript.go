@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scripts"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
@@ -64,7 +64,7 @@ func buildReleaseVersionSnapshots(version, stagingDir string) []string {
 // version-baking line just after the parameter block, and writes the
 // result to the staging directory.
 func writeReleaseScriptSnapshot(s releaseScriptSnapshot, stagingDir string) (string, error) {
-	raw, err := scripts.ReadFile(s.embeddedName)
+	raw, err := fspath.ReadFile(s.embeddedName)
 	if err != nil {
 		return "", fmt.Errorf("read embedded %s: %w", s.embeddedName, err)
 	}

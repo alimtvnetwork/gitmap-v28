@@ -41,9 +41,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/theme"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func isVersionCommand(cmd string) bool {
@@ -79,10 +79,10 @@ func Run() {
 
 	// Strip the global `--theme` palette selector first so it is
 	// honored even when no subcommand-specific args are present.
-	// theme.Install must run AFTER the env var is set but BEFORE
+	// termout.Install must run AFTER the env var is set but BEFORE
 	// any subcommand writes colored output.
 	os.Args = append(os.Args[:1], stripThemeFlag(os.Args[1:])...)
-	theme.Install()
+	termout.Install()
 
 	// Strip the global `--glyphs` switch (rich | safe | auto) and
 	// install the glyph filter. Runs AFTER theme so the safe-mode
@@ -99,7 +99,7 @@ func Run() {
 	// theme- or glyphs-wrapped os.Stderr just before os.Exit can be
 	// lost on Windows (the forwarder goroutine never gets scheduled
 	// to copy bytes from the pipe buffer to the inherited fd).
-	cliexit.RegisterFlusher(theme.Drain)
+	cliexit.RegisterFlusher(termout.Drain)
 	cliexit.RegisterFlusher(glyphs.Drain)
 
 	// Strip the global `--vscode-sync-disabled` kill switch from argv
@@ -170,7 +170,7 @@ func runDispatch(command string) {
 	// glyphs first (outermost writer) then theme (inner writer).
 	// Defer order runs LIFO, so declaring theme first + glyphs
 	// second yields the correct outer→inner drain sequence.
-	defer theme.Drain()
+	defer termout.Drain()
 	defer glyphs.Drain()
 	if tryInterceptCommandHelp(command, os.Args[2:]) {
 		return
@@ -194,7 +194,7 @@ func tryInterceptCommandHelp(command string, args []string) bool {
 		cliexit.Exit(0)
 		return true
 	}
-	if helptext.HasTopic(command) {
+	if helpdoc.HasTopic(command) {
 		printHelpAndExit(command, args)
 		return true
 	}

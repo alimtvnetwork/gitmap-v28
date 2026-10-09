@@ -1,16 +1,16 @@
 package cmdllm
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderLlmHelp displays the styled two-column LLM / Train help menu.
 func RenderLlmHelp() {
-	termhelp.RenderMenu(buildLlmHelpMenu())
+	termout.RenderMenu(buildLlmHelpMenu())
 }
 
-func buildLlmHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildLlmHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Autonomous LLM Training & AI Pairing Suite (gitmap llm)",
 		UsageLines: []string{
 			"gitmap llm [flags]",
@@ -18,7 +18,7 @@ func buildLlmHelpMenu() termhelp.HelpMenu {
 			"gitmap train [--loop] [--self-loop N]",
 			"gitmap llm-train [--loop]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildLlmCommandsSection(),
 			buildLlmLifecycleSection(),
 			buildLlmLoopSection(),
@@ -31,8 +31,8 @@ func buildLlmHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildLlmFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildLlmFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--loop", Description: "Execute autonomous 5-phase AI self-looping execution cycle"},
 		{Command: "--self-loop <N>", Description: "Run N consecutive iterations of the AI self-loop"},
 		{Command: "--url", Description: "Output raw public URL to llm.md instruction specification"},
@@ -43,10 +43,10 @@ func buildLlmFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildLlmCommandsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildLlmCommandsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Curriculum & Directives",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "train / chain", Description: "Execute chained curriculum and generate Antigravity skill"},
 			{Command: "llm-train", Description: "Direct alias for 'gitmap llm train'"},
 			{Command: "llm-docs (ld)", Description: "Generate complete LLM Markdown reference document"},
@@ -55,10 +55,10 @@ func buildLlmCommandsSection() termhelp.HelpSection {
 	}
 }
 
-func buildLlmLifecycleSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildLlmLifecycleSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "5-Phase AI Agent Lifecycle",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "1. Discovery", Description: "find-files, find-files-any, search, list-files"},
 			{Command: "2. Refactoring", Description: "replace, replace-regex, targeted zero-nesting edits"},
 			{Command: "3. Verification", Description: "python linters, go test, smart test runner"},
@@ -68,10 +68,10 @@ func buildLlmLifecycleSection() termhelp.HelpSection {
 	}
 }
 
-func buildLlmLoopSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildLlmLoopSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Autonomous Loop & Self-Training",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "--loop", Description: "Runs iterative self-training simulation through all 5 phases"},
 			{Command: "--self-loop N", Description: "Specifies loop repetition count (1 to N iterations)"},
 		},

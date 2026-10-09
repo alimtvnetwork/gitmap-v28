@@ -1,16 +1,16 @@
 package cmdclone
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderMultiCloneHelp renders the rich two-column styled help menu for multiclone.
 func RenderMultiCloneHelp() {
-	termhelp.RenderMenu(buildMultiCloneHelpMenu())
+	termout.RenderMenu(buildMultiCloneHelpMenu())
 }
 
-func buildMultiCloneHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildMultiCloneHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Batch Multi-Repository Cloner (gitmap multiclone / mc)",
 		UsageLines: []string{
 			"gitmap mc <paste|file|urls> [target-dir] [flags]",
@@ -18,7 +18,7 @@ func buildMultiCloneHelpMenu() termhelp.HelpMenu {
 			"gitmap mc repos.txt -d ./workspace",
 			"gitmap mutliclone <paste-with-descriptions> [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildMultiCloneInputSection(),
 			buildMultiCloneFeaturesSection(),
 			buildMultiCloneTargetSection(),
@@ -32,10 +32,10 @@ func buildMultiCloneHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildMultiCloneInputSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildMultiCloneInputSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Supported Input Modes",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "``` <markdown> ```", Description: "Paste Markdown codeblock with URLs or repos"},
 			{Command: "<file.txt>", Description: "Read repository list from local text file"},
 			{Command: "-f, --file <path>", Description: "Explicit path to repository list file"},
@@ -45,10 +45,10 @@ func buildMultiCloneInputSection() termhelp.HelpSection {
 	}
 }
 
-func buildMultiCloneFeaturesSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildMultiCloneFeaturesSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Parsing & Processing",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "Auto Deduplication", Description: "Case-insensitive dedup; normalizes .git suffixes"},
 			{Command: "Inline Descriptions", Description: "Strips ': description' after repository slugs"},
 			{Command: "Universal URLs", Description: "Accepts HTTPS, HTTP, SSH, and git@host:owner/repo"},
@@ -57,10 +57,10 @@ func buildMultiCloneFeaturesSection() termhelp.HelpSection {
 	}
 }
 
-func buildMultiCloneTargetSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildMultiCloneTargetSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Destination & Concurrency",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "-d, --dir <dir>", Description: "Clone all repositories into target directory"},
 			{Command: "<target-dir>", Description: "Positional destination directory argument"},
 			{Command: "-j, --concurrency <N>", Description: "Number of parallel clone workers (default: 1)"},
@@ -68,8 +68,8 @@ func buildMultiCloneTargetSection() termhelp.HelpSection {
 	}
 }
 
-func buildMultiCloneFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildMultiCloneFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--dry-run", Description: "Preview parsed repositories and destinations without cloning"},
 		{Command: "--no-replace", Description: "Fail rather than replace existing destination directories"},
 		{Command: "--no-vscode-sync", Description: "Skip registering repos in VS Code Project Manager"},

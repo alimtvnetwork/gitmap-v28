@@ -1,16 +1,16 @@
 package cmdsearch
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderSearchHelp displays the styled two-column Search help menu.
 func RenderSearchHelp() {
-	termhelp.RenderMenu(buildSearchHelpMenu())
+	termout.RenderMenu(buildSearchHelpMenu())
 }
 
-func buildSearchHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildSearchHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Global Indexed Search (gitmap search)",
 		UsageLines: []string{
 			"gitmap search <query> [flags]",
@@ -18,7 +18,7 @@ func buildSearchHelpMenu() termhelp.HelpMenu {
 			"gitmap search clean",
 			"gitmap aum search <query> [dir] [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildSearchOpsSection(),
 			buildSearchCacheSection(),
 		},
@@ -30,8 +30,8 @@ func buildSearchHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildSearchFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildSearchFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-j, --json", Description: "Emit results in structured JSON format"},
 		{Command: "-p, --path <dir>", Description: "Restrict search to target subdirectory"},
 		{Command: "-e, --ext <exts>", Description: "Comma-separated extensions filter (.go, .ts)"},
@@ -42,10 +42,10 @@ func buildSearchFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildSearchOpsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSearchOpsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Search Operations",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "<query>", Description: "Multi-core streaming keyword search across repository"},
 			{Command: "history", Description: "Display recent search history and hot query rankings"},
 			{Command: "clean", Description: "Purge search history cache and vacuum search database"},
@@ -53,10 +53,10 @@ func buildSearchOpsSection() termhelp.HelpSection {
 	}
 }
 
-func buildSearchCacheSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSearchCacheSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "High-Speed SQLite Caching",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "DH2D SQLite Cache", Description: "Deterministic SQL ID lookup caching verified matches"},
 			{Command: "RAM Hot-Cache", Description: "Auto-promotes frequent queries for microsecond retrieval"},
 		},

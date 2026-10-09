@@ -12,7 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func TestTempE2E_PAEActivityCalculationAndStability(t *testing.T) {
@@ -92,8 +92,8 @@ func TestTempE2E_PAEActivityCalculationAndStability(t *testing.T) {
 		t.Fatalf("expected 2 output lines, got %d:\n%s", len(lines), buf.String())
 	}
 
-	plain0 := termpad.StripAnsi(lines[0])
-	plain1 := termpad.StripAnsi(lines[1])
+	plain0 := termout.StripAnsi(lines[0])
+	plain1 := termout.StripAnsi(lines[1])
 	idx0 := strings.LastIndex(plain0, "up-to-date")
 	idx1 := strings.LastIndex(plain1, "up-to-date")
 

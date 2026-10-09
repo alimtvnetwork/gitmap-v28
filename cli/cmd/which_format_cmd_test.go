@@ -7,14 +7,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 func TestWhichFormat_SingleAndMultiFileInspection(t *testing.T) {
 	tempDir := t.TempDir()
 
 	// 1. Valid SSH Nodes JSON (Envelope)
-	sshEnv := jsonenvelope.NewEnvelope(jsonenvelope.TypeSSHNodes, "repo-secrets/test.json", "gitmap ssh export", "1.0", map[string]any{
+	sshEnv := jsonx.NewEnvelope(jsonx.TypeSSHNodes, "repo-secrets/test.json", "gitmap ssh export", "1.0", map[string]any{
 		"nodes": []map[string]any{
 			{"alias": "node-1", "ip_address": "192.168.1.10"},
 		},
@@ -24,7 +24,7 @@ func TestWhichFormat_SingleAndMultiFileInspection(t *testing.T) {
 	_ = os.WriteFile(sshFile, sshBytes, 0644)
 
 	// 2. Valid Macro JSON (Envelope)
-	macroEnv := jsonenvelope.NewEnvelope(jsonenvelope.TypeMacro, "test/macro.json", "gitmap macro export", "1.0", map[string]any{
+	macroEnv := jsonx.NewEnvelope(jsonx.TypeMacro, "test/macro.json", "gitmap macro export", "1.0", map[string]any{
 		"name": "build-flow",
 	})
 	macroFile := filepath.Join(tempDir, "macro.json")
@@ -41,18 +41,18 @@ func TestWhichFormat_SingleAndMultiFileInspection(t *testing.T) {
 	}
 
 	// First file: SSH Nodes
-	if !results[0].IsMatched || results[0].Type != jsonenvelope.TypeSSHNodes {
+	if !results[0].IsMatched || results[0].Type != jsonx.TypeSSHNodes {
 		t.Errorf("file 0 expected matched %s, got matched=%v, type=%s",
-			jsonenvelope.TypeSSHNodes, results[0].IsMatched, results[0].Type)
+			jsonx.TypeSSHNodes, results[0].IsMatched, results[0].Type)
 	}
 	if !strings.Contains(results[0].SuggestedImportCmd, "gitmap sj import") {
 		t.Errorf("expected suggested import command with 'gitmap sj import', got: %s", results[0].SuggestedImportCmd)
 	}
 
 	// Second file: Macro
-	if !results[1].IsMatched || results[1].Type != jsonenvelope.TypeMacro {
+	if !results[1].IsMatched || results[1].Type != jsonx.TypeMacro {
 		t.Errorf("file 1 expected matched %s, got matched=%v, type=%s",
-			jsonenvelope.TypeMacro, results[1].IsMatched, results[1].Type)
+			jsonx.TypeMacro, results[1].IsMatched, results[1].Type)
 	}
 	if !strings.Contains(results[1].SuggestedImportCmd, "gitmap macro import") {
 		t.Errorf("expected suggested import command with 'gitmap macro import', got: %s", results[1].SuggestedImportCmd)
@@ -83,7 +83,7 @@ func TestWhichFormat_ScanDirectory(t *testing.T) {
 	}
 
 	results := inspectJSONFiles(files)
-	if len(results) != 1 || !results[0].IsMatched || results[0].Type != jsonenvelope.TypeUISettings {
+	if len(results) != 1 || !results[0].IsMatched || results[0].Type != jsonx.TypeUISettings {
 		t.Errorf("expected ui-settings matched, got %+v", results)
 	}
 }

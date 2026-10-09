@@ -169,7 +169,7 @@ func assertJSONKeyOrder(t *testing.T, lineNo int, line []byte, want []string) {
 // TestStartupListJSONL_SpecialCharsMatchJSON cross-checks that the
 // escape sequences in JSONL match those in --format=json for the
 // same input. Same Field slice → same escaped values, since both
-// formats route values through encoding/json via stablejson.
+// formats route values through encoding/json via jsonx.
 func TestStartupListJSONL_SpecialCharsMatchJSON(t *testing.T) {
 	entries := []startup.Entry{
 		{Name: "gitmap-中文", Path: "/p/\"q\"\\b.desktop", Exec: "a\tb\nc\u0001d"},

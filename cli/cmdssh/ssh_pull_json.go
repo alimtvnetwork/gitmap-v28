@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 type remotePullRepoItem struct {
@@ -60,7 +60,7 @@ func executeRemotePullWorker(c db.SSHConnection) (string, error) {
 	}
 	defer client.Close()
 
-	return crypto.RunCommand(client, "gitmap pull all-efficient --json", "")
+	return secrets.RunCommand(client, "gitmap pull all-efficient --json", "")
 }
 
 func renderFleetPullResponses(results []FleetNodeResult, isTable bool) {
@@ -89,19 +89,19 @@ func renderSingleNodePullJSON(r FleetNodeResult, isTable bool) {
 }
 
 func renderRemotePullTable(states []remotePullRepoItem) {
-	var rows []termtable.Row
+	var rows []termout.Row
 	for _, s := range states {
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{s.RepoName, s.Status, s.Changes},
 		})
 	}
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "REPOSITORY", Align: termtable.AlignLeft, MinWidth: 25},
-			{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 15},
-			{Title: "CHANGES", Align: termtable.AlignLeft, MinWidth: 20},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "REPOSITORY", Align: termout.AlignLeft, MinWidth: 25},
+			{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 15},
+			{Title: "CHANGES", Align: termout.AlignLeft, MinWidth: 20},
 		},
 		Rows: rows,
 	}
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 }

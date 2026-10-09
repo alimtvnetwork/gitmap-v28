@@ -13,7 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -147,7 +147,7 @@ func pushSettingsToNode(conn db.SSHConnection, data []byte) (string, error) {
 		shell = "ps"
 	}
 
-	out, errExec := crypto.RunCommand(client, importCmd, shell)
+	out, errExec := secrets.RunCommand(client, importCmd, shell)
 	if errExec != nil {
 		return "", apperror.WrapSimple(errExec, fmt.Sprintf("remote import failed on %q: %s", conn.Alias, out))
 	}

@@ -16,7 +16,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // diff-profiles top-level wire keys.
@@ -62,7 +62,7 @@ func encodeDiffProfilesJSON(w io.Writer, profileA, profileB string, result dpRes
 		return err
 	}
 
-	return stablejson.WriteObject(w, []stablejson.Field{
+	return jsonx.WriteObject(w, []jsonx.Field{
 		{Key: dpKeyProfileA, Value: profileA},
 		{Key: dpKeyProfileB, Value: profileB},
 		{Key: dpKeyOnlyInA, Value: onlyInARaw},
@@ -75,16 +75,16 @@ func encodeDiffProfilesJSON(w io.Writer, profileA, profileB string, result dpRes
 // renderDPRepoSummariesRaw pre-renders a repo summary array in
 // compact mode for embedding.
 func renderDPRepoSummariesRaw(records []model.ScanRecord) (json.RawMessage, error) {
-	items := make([][]stablejson.Field, 0, len(records))
+	items := make([][]jsonx.Field, 0, len(records))
 	for _, r := range records {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: dpSummaryKeyName, Value: r.RepoName},
 			{Key: dpSummaryKeyPath, Value: r.AbsolutePath},
 		})
 	}
 
 	var buf bytes.Buffer
-	if err := stablejson.WriteArrayIndent(&buf, items, ""); err != nil {
+	if err := jsonx.WriteArrayIndent(&buf, items, ""); err != nil {
 		return nil, err
 	}
 
@@ -94,9 +94,9 @@ func renderDPRepoSummariesRaw(records []model.ScanRecord) (json.RawMessage, erro
 // renderDPDiffsRaw pre-renders the differences array in compact
 // mode for embedding.
 func renderDPDiffsRaw(diffs []dpDiff) (json.RawMessage, error) {
-	items := make([][]stablejson.Field, 0, len(diffs))
+	items := make([][]jsonx.Field, 0, len(diffs))
 	for _, d := range diffs {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: dpDiffKeyName, Value: d.Name},
 			{Key: dpDiffKeyPathA, Value: d.PathA},
 			{Key: dpDiffKeyPathB, Value: d.PathB},
@@ -106,7 +106,7 @@ func renderDPDiffsRaw(diffs []dpDiff) (json.RawMessage, error) {
 	}
 
 	var buf bytes.Buffer
-	if err := stablejson.WriteArrayIndent(&buf, items, ""); err != nil {
+	if err := jsonx.WriteArrayIndent(&buf, items, ""); err != nil {
 		return nil, err
 	}
 

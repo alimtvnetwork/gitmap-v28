@@ -1,23 +1,23 @@
 package cmdschedule
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderSCHelp displays the styled two-column SC help menu.
 func RenderSCHelp() {
-	termhelp.RenderMenu(buildSCHelpMenu())
+	termout.RenderMenu(buildSCHelpMenu())
 }
 
-func buildSCHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildSCHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Distributed Fleet Broadcast Engine (gitmap sc)",
 		UsageLines: []string{
 			"gitmap sc <subcommand> [args] [flags]",
 			"gitmap servers-clients <subcommand> [args] [flags]",
 			"gitmap sc bash \"<command>\" [--except <list>]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildSCBroadcastSection(),
 			buildSCInventorySection(),
 			buildSCGitSection(),
@@ -31,8 +31,8 @@ func buildSCHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildSCFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildSCFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--except <list>", Description: "Exclude nodes by ID, IP, or trailing octet"},
 		{Command: "--ip <list>", Description: "Target specific node IP addresses"},
 		{Command: "--id <list>", Description: "Target specific node Display IDs"},
@@ -43,10 +43,10 @@ func buildSCFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildSCBroadcastSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSCBroadcastSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Shell Command Broadcast",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "bash <cmd>", Description: "Execute a Bash command across Linux/macOS nodes"},
 			{Command: "sh (shell) <cmd>", Description: "Execute a POSIX shell command across all nodes"},
 			{Command: "ps <cmd>", Description: "Execute a PowerShell command on Windows cluster nodes"},
@@ -55,10 +55,10 @@ func buildSCBroadcastSection() termhelp.HelpSection {
 	}
 }
 
-func buildSCInventorySection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSCInventorySection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Machine Enrollment & Inventory",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "nodes (ls)", Description: "List all registered machines joined to the cluster"},
 			{Command: "join <t> [alias]", Description: "Join and enroll a machine into the cluster registry"},
 			{Command: "remove (rm) <t>", Description: "Remove a machine from the cluster registry"},
@@ -67,10 +67,10 @@ func buildSCInventorySection() termhelp.HelpSection {
 	}
 }
 
-func buildSCGitSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSCGitSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Fleet Synchronization & Git",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "pull --all", Description: "Run git pull --all across all repositories on all nodes"},
 			{Command: "push --all", Description: "Run git push --all across all repositories on all nodes"},
 			{Command: "status --all", Description: "Show combined dirty/clean status across all nodes"},
@@ -79,10 +79,10 @@ func buildSCGitSection() termhelp.HelpSection {
 	}
 }
 
-func buildSCPowerSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSCPowerSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Power & Architecture",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "restart [dur]", Description: "Trigger or schedule system restart across nodes"},
 			{Command: "shutdown [dur]", Description: "Trigger or schedule system shutdown across nodes"},
 			{Command: "compare (matrix)", Description: "Display architecture matrix: SSH vs Cluster vs SC"},

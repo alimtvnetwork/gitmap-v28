@@ -9,8 +9,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/errreport"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
@@ -26,7 +26,7 @@ var (
 	CheckHelpFn                    func(string, []string)
 	WriteShellHandoffFn            func(string)
 	EscapeCwdIfInsideFn            func(string) (string, error)
-	FinalizeErrorReportFn          func(*errreport.Collector, bool)
+	FinalizeErrorReportFn          func(*diag.Collector, bool)
 	RunCodingGuidelinesInstallFn   func(string) error
 	CommitCodingGuidelinesFn       func(string, bool, bool) error
 	RunCFRPPriorVersionPrivatizeFn func(string, bool) error
@@ -108,7 +108,7 @@ func renderCommandHelp(command string) {
 
 		return
 	}
-	helptext.Print(command)
+	helpdoc.Print(command)
 }
 
 func maybeRunCheckHelpFn(command string, args []string) {
@@ -124,7 +124,7 @@ func escapeCwdIfInside(target string) (string, error) {
 	return "", nil
 }
 
-func finalizeErrorReport(c *errreport.Collector, quiet bool) {
+func finalizeErrorReport(c *diag.Collector, quiet bool) {
 	if FinalizeErrorReportFn != nil {
 		FinalizeErrorReportFn(c, quiet)
 	}

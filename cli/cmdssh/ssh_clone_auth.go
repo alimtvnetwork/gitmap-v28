@@ -8,7 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -81,12 +81,12 @@ func configureRemoteGitTrust(client *ssh.Client, osType, gitHost string) {
 	} else {
 		cmd = fmt.Sprintf("mkdir -p ~/.ssh && chmod 700 ~/.ssh && (test -f ~/.ssh/id_ed25519 || ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 -q) && ssh-keyscan -H %s >> ~/.ssh/known_hosts 2>/dev/null", gitHost)
 	}
-	_, _ = crypto.RunCommand(client, cmd, shell)
+	_, _ = secrets.RunCommand(client, cmd, shell)
 }
 
 func probeRemoteRepoAccess(client *ssh.Client, osType, repoURL string) bool {
 	probeCmd := fmt.Sprintf("git ls-remote --exit-code -h '%s' HEAD", repoURL)
 	shell := resolveRemoteShell(osType)
-	out, err := crypto.RunCommand(client, probeCmd, shell)
+	out, err := secrets.RunCommand(client, probeCmd, shell)
 	return err == nil && !isAuthFailure(out, nil)
 }

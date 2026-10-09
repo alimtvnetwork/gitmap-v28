@@ -1,16 +1,16 @@
 package cmdstash
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderStashHelp displays the styled two-column Stash / Fix help menu.
 func RenderStashHelp() {
-	termhelp.RenderMenu(buildStashHelpMenu())
+	termout.RenderMenu(buildStashHelpMenu())
 }
 
-func buildStashHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildStashHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Workspace Remediation & Stash Engine (gitmap fix / stash)",
 		UsageLines: []string{
 			"gitmap fix [target] [flags]",
@@ -19,7 +19,7 @@ func buildStashHelpMenu() termhelp.HelpMenu {
 			"gitmap discard [flags]",
 			"gitmap fix --all",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildStashActionsSection(),
 			buildStashBulkSection(),
 		},
@@ -31,8 +31,8 @@ func buildStashHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildStashFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildStashFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-a, --all", Description: "Apply remediation recipe to all pending repositories"},
 		{Command: "-p, --prompt", Description: "Interactive prompt to choose remediation per repository"},
 		{Command: "-y, --yes", Description: "Bypass confirmation prompts automatically"},
@@ -41,10 +41,10 @@ func buildStashFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildStashActionsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildStashActionsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Remediation Recipes",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "stash [1]", Description: "Save working modifications to git stash stack"},
 			{Command: "wip [2]", Description: "Commit all working changes to a temporary WIP commit"},
 			{Command: "discard [3]", Description: "Hard reset and clean untracked working tree changes"},
@@ -52,10 +52,10 @@ func buildStashActionsSection() termhelp.HelpSection {
 	}
 }
 
-func buildStashBulkSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildStashBulkSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Management & Diagnostics",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "fix ls", Description: "List all repositories requiring remediation"},
 			{Command: "fix agy", Description: "Autonomous AI-assisted workspace remediation"},
 		},

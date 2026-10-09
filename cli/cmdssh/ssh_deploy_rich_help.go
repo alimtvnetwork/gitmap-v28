@@ -1,16 +1,16 @@
 package cmdssh
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderDeployRichHelp displays the styled two-column Deploy help menu.
 func RenderDeployRichHelp() {
-	termhelp.RenderMenu(buildDeployHelpMenu())
+	termout.RenderMenu(buildDeployHelpMenu())
 }
 
-func buildDeployHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildDeployHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Smart File, Configuration & Fleet Deployment (gitmap deploy)",
 		UsageLines: []string{
 			"gitmap deploy config ssh [all|<target>] [flags]",
@@ -20,7 +20,7 @@ func buildDeployHelpMenu() termhelp.HelpMenu {
 			"gitmap deploy-left <target> <source> <dest> [flags]",
 			"gitmap sc deploy <target> <source> <dest> [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildDeployConfigSection(),
 			buildDeploySyncModesSection(),
 			buildDeployTargetsSection(),
@@ -37,10 +37,10 @@ func buildDeployHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildDeployConfigSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildDeployConfigSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Configuration & Fleet Deployment",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "deploy keys [all]", Description: "Deploy SSH public keys across fleet (alias: deploy-keys-all)"},
 			{Command: "deploy config ssh [target]", Description: "Deploy local SSH topology & credentials across fleet nodes"},
 			{Command: "deploy config ssh --file <f>", Description: "Deploy SSH nodes and passwords from a JSON file to fleet"},
@@ -51,10 +51,10 @@ func buildDeployConfigSection() termhelp.HelpSection {
 	}
 }
 
-func buildDeploySyncModesSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildDeploySyncModesSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Sync Modes & Transfer Direction",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "deploy-right", Description: "Unidirectional push: transfer when local is newer"},
 			{Command: "deploy-left", Description: "Unidirectional pull: transfer when remote is newer"},
 			{Command: "--sync", Description: "Bidirectional sync: transfer newer file by mtime"},
@@ -64,10 +64,10 @@ func buildDeploySyncModesSection() termhelp.HelpSection {
 	}
 }
 
-func buildDeployTargetsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildDeployTargetsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Target Resolution",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "<alias>", Description: "Target node by alias (e.g. w1, w2, alpha-win)"},
 			{Command: "<ip>", Description: "Target node by IP address (e.g. 192.168.1.3)"},
 			{Command: "<seq>", Description: "Target node by sequence index from 'ssh ls'"},
@@ -76,8 +76,8 @@ func buildDeployTargetsSection() termhelp.HelpSection {
 	}
 }
 
-func buildDeployFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildDeployFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-p, --parallel <N>", Description: "Parallel workers for directory transfer (1-16, default 4)"},
 		{Command: "-n, --dry-run", Description: "Preview transfer actions without modifying files"},
 		{Command: "-j, --json", Description: "Output machine-readable JSON telemetry"},

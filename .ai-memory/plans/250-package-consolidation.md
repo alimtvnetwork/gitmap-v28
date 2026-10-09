@@ -21,7 +21,8 @@ Owner (2026-10-09): reduce package count by grouping logically-together packages
 - [x] Step 0: git pull (9f75232), backup branch `backup/250-package-consolidation` pushed.
 - [x] Research 01 (package graph, 313 pkgs, 0 cycles) + Research 02 (stdout/settings/guidelines) DONE.
 - [x] Spec 250 (4 files) + subtasks (4 files) DONE.
-- [ ] Wave 1: orphan triage + stack-trace setting.
+- [x] Wave 1: orphan triage + stack-trace setting. Build exit 0 (lead-run). Committed 390cc2f, pushed. NOTE: `gitmap cpf` auto-add swept the parallel 246 stream's ledger file into the commit despite targeted `git add` — content is 246's own (program complete), harmless; lesson re-logged.
+- [x] Wave 2: foundation merges (groups 1,2,3,4,5,10) DONE. 6 new packages: diag, jsonx, termout, secrets, fspath, helpdoc. Corrections: appfault stays standalone (cycle); jsonenv.Envelope→EnvEnvelope; helpdoc/docs/cmd kept as subpackage; termout filename clashes resolved via pkg-prefix rename (lead fallback); fileExists collision (fspath) resolved via rename (both were dead); 51-helptext-generator.py out-path → cli/helpdoc. 302 importer files rewritten (scripted, dedup handled). Build exit 0 (lead-run), 0 import cycles. 313→292 package dirs.
 - [ ] Wave 2: foundation merges (groups 1,2,3,4,5,10).
 - [ ] Wave 3: middle + dispatcher merges (groups 6,7,8,9).
 - [ ] Wave 4: stdout writer refactor + final sweep.

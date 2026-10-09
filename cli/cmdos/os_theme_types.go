@@ -8,7 +8,7 @@ const (
 	ThemeModeLight ThemeModeType = "light"
 )
 
-// ThemeOperator sets desktop theme.
+// ThemeOperator sets desktop termout.
 type ThemeOperator interface {
 	SetTheme(mode ThemeModeType) error
 	GetTheme() (ThemeModeType, error)

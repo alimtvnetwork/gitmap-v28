@@ -13,7 +13,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -299,7 +299,7 @@ func executeLiveDeployment(client *ssh.Client, node db.SSHConnection, res *AgyDe
 	if isWin {
 		cleanCmd = "cmd.exe /c echo sanitization verified"
 	}
-	_, _ = crypto.RunCommand(client, cleanCmd, shell)
+	_, _ = secrets.RunCommand(client, cleanCmd, shell)
 	res.DeployedComponents[ComponentSanitization] = true
 	res.DeployedComponents[ComponentInstances] = true
 	res.Items = append(res.Items, AgyDeployItemResult{

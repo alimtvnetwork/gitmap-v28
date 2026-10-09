@@ -180,7 +180,7 @@ const (
 
 // Self-install duplicate-install guard.
 const (
-	// SelfInstallLockName is the suffix passed to lockfile.Acquire. The
+	// SelfInstallLockName is the suffix passed to fspath.Acquire. The
 	// resulting file is os.TempDir()/gitmap-selfinstall.lock and prevents
 	// two `gitmap self-install` processes from racing each other.
 	SelfInstallLockName = "selfinstall"

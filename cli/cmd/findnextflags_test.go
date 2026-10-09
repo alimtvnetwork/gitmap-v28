@@ -120,7 +120,7 @@ func TestParseFindNextFlags_UnknownFlagWithSuggestion(t *testing.T) {
 
 // TestParseFindNextFlags_UnknownFlagWithoutSuggestion asserts that
 // totally unrelated flags surface a plain unknown-flag error rather
-// than a misleading suggestion.
+// than a misleading diag.
 func TestParseFindNextFlags_UnknownFlagWithoutSuggestion(t *testing.T) {
 	_, _, err := parseFindNextFlags([]string{"--quiet"})
 	if err == nil {

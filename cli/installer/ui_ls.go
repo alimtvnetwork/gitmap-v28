@@ -8,7 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
-// FormatInstallerTable produces a formatted ASCII table string of the installer scripts.
+// FormatInstallerTable produces a formatted ASCII table string of the installer fspath.
 func FormatInstallerTable(list []model.InstallerScript) string {
 	if len(list) == 0 {
 		return "No installer scripts found."

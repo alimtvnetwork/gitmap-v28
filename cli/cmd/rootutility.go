@@ -40,7 +40,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -522,7 +522,7 @@ func dispatchHelpTopic(rawTopic string) {
 	if tryRenderRichTopic(topic) {
 		return
 	}
-	_, err := helptext.ReadRaw(topic)
+	_, err := helpdoc.ReadRaw(topic)
 	if err != nil {
 		printUsageFiltered(topic)
 
@@ -530,7 +530,7 @@ func dispatchHelpTopic(rawTopic string) {
 	}
 
 	_, mode := ParsePrettyFlag(os.Args[3:])
-	helptext.PrintWithMode(topic, mode)
+	helpdoc.PrintWithMode(topic, mode)
 	printUsageFooterShort()
 }
 

@@ -1,5 +1,5 @@
 // Package cmdinstaller provides CLI subcommands for managing, creating, exporting,
-// importing, and versioning installation scripts.
+// importing, and versioning installation fspath.
 package cmdinstaller
 
 import (

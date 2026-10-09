@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -83,7 +83,7 @@ func testSingleNodeSSH(t *testing.T, node VMNodeInfo, user, pass string) {
 			t.Logf("Node %s (%s) is offline or unreachable; skipping", node.Alias, node.IP)
 			return
 		}
-		client, err := crypto.ConnectWithPassword(node.IP, user, pass)
+		client, err := secrets.ConnectWithPassword(node.IP, user, pass)
 		if err != nil {
 			t.Fatalf("SSH connect failed for node %s: %v", node.Alias, err)
 		}
@@ -93,7 +93,7 @@ func testSingleNodeSSH(t *testing.T, node VMNodeInfo, user, pass string) {
 		if node.OS == "windows" {
 			shell = "ps"
 		}
-		out, runErr := crypto.RunCommand(client, "hostname", shell)
+		out, runErr := secrets.RunCommand(client, "hostname", shell)
 		if runErr != nil {
 			t.Fatalf("SSH command execution failed on node %s: %v", node.Alias, runErr)
 		}
@@ -138,7 +138,7 @@ func testSingleNodeVersion(t *testing.T, node VMNodeInfo, user, pass string) {
 			t.Logf("Node %s is offline; skipping version check", node.Alias)
 			return
 		}
-		client, err := crypto.ConnectWithPassword(node.IP, user, pass)
+		client, err := secrets.ConnectWithPassword(node.IP, user, pass)
 		if err != nil {
 			t.Fatalf("SSH connect failed: %v", err)
 		}
@@ -151,7 +151,7 @@ func testSingleNodeVersion(t *testing.T, node VMNodeInfo, user, pass string) {
 		if node.OS == "linux" {
 			cmd = "export PATH=\"$HOME/.local/bin:$HOME/.local/bin/gitmap-cli:$PATH\"; gitmap version"
 		}
-		out, runErr := crypto.RunCommand(client, cmd, shell)
+		out, runErr := secrets.RunCommand(client, cmd, shell)
 		if runErr != nil {
 			t.Fatalf("gitmap version failed on %s: %v", node.Alias, runErr)
 		}
@@ -235,14 +235,14 @@ func testSingleNodeIP(t *testing.T, node VMNodeInfo, user, pass string) {
 			t.Logf("Node %s is offline; skipping ip check", node.Alias)
 			return
 		}
-		client, err := crypto.ConnectWithPassword(node.IP, user, pass)
+		client, err := secrets.ConnectWithPassword(node.IP, user, pass)
 		if err != nil {
 			t.Fatalf("SSH connect failed: %v", err)
 		}
 		defer client.Close()
 
 		cmd := resolveIPExecCommand(node.OS)
-		out, runErr := crypto.RunCommand(client, cmd, "")
+		out, runErr := secrets.RunCommand(client, cmd, "")
 		if runErr != nil {
 			t.Fatalf("gitmap ip failed on %s: %v", node.Alias, runErr)
 		}

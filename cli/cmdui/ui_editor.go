@@ -8,7 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -75,7 +75,7 @@ func executeRemoteRead(conn db.SSHConnection, nodeAlias, filePath string) (Remot
 	defer client.Close()
 
 	cmd := fmt.Sprintf("cat %q 2>/dev/null || type %q", filePath, filePath)
-	out, runErr := crypto.RunCommand(client, cmd, "sh")
+	out, runErr := secrets.RunCommand(client, cmd, "sh")
 
 	if runErr != nil {
 		return RemoteFileContent{NodeAlias: nodeAlias, FilePath: filePath, IsSuccess: false, Error: runErr.Error()}, apperror.WrapSimple(runErr, "remote_read")
@@ -121,7 +121,7 @@ func executeRemoteSave(conn db.SSHConnection, nodeAlias, filePath, content strin
 
 	escapedContent := strings.ReplaceAll(content, "'", "'\\''")
 	cmd := fmt.Sprintf("printf '%%s' '%s' > %q", escapedContent, filePath)
-	_, runErr := crypto.RunCommand(client, cmd, "sh")
+	_, runErr := secrets.RunCommand(client, cmd, "sh")
 
 	if runErr != nil {
 		return apperror.WrapSimple(runErr, "remote_save")

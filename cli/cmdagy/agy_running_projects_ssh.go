@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"golang.org/x/crypto/ssh"
 )
@@ -68,7 +68,7 @@ func querySingleSSHNodeRunningProjects(c db.SSHConnection) []RunningProjectRecor
 	}
 	defer client.Close()
 	cmdStr := "gitmap agy running-projects --json"
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr != nil {
 		return []RunningProjectRecord{buildNodeErrorRecord(c, runErr)}
 	}
@@ -82,8 +82,8 @@ func dialSSHNodeClient(c db.SSHConnection) (*ssh.Client, error) {
 	if SSHNodeDialer != nil {
 		return SSHNodeDialer(c)
 	}
-	plainPass, _ := crypto.DecryptStoredPassword(c.EncryptedPassword)
-	return crypto.ConnectWithFallback(c.IPAddress, c.Username, c.KeyPath, plainPass)
+	plainPass, _ := secrets.DecryptStoredPassword(c.EncryptedPassword)
+	return secrets.ConnectWithFallback(c.IPAddress, c.Username, c.KeyPath, plainPass)
 }
 
 func resolveNodeShell(osName string) string {

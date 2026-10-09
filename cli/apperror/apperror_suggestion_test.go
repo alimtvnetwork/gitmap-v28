@@ -3,7 +3,7 @@ package apperror
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/suggestion"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 )
 
 func TestAppError_WithSuggestions(t *testing.T) {
@@ -11,7 +11,7 @@ func TestAppError_WithSuggestions(t *testing.T) {
 	if err.HasSuggestions() {
 		t.Fatalf("expected HasSuggestions to be false initially")
 	}
-	err.WithSuggestions(suggestion.Suggestion{
+	err.WithSuggestions(diag.Suggestion{
 		Command:    "gitmap scan",
 		Confidence: 0.90,
 	})
@@ -26,8 +26,8 @@ func TestAppError_WithSuggestions(t *testing.T) {
 
 func TestAppError_WithSuggestionGroup(t *testing.T) {
 	err := NewNotFoundError("missing")
-	group := suggestion.SuggestionGroup{
-		Suggestions: []suggestion.Suggestion{
+	group := diag.SuggestionGroup{
+		Suggestions: []diag.Suggestion{
 			{Command: "gitmap status", Confidence: 0.95},
 			{Command: "gitmap scan", Confidence: 0.85},
 		},

@@ -5,12 +5,12 @@ import (
 	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddoctor"
-	"github.com/alimtvnetwork/gitmap-v28/cli/localdirs"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 // migrateLegacyDirs moves old directories into .gitmap/ if found.
 func MigrateLegacyDirs() {
-	localdirs.MigrateLegacyDirs()
+	fspath.MigrateLegacyDirs()
 	CleanCorruptedInstallDirsSilent()
 }
 

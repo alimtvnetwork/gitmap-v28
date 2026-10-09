@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 func TestNormalizeHelpTopic_RerunAliases(t *testing.T) {
@@ -42,12 +42,12 @@ func TestAllHelpRows_ContainsRerun(t *testing.T) {
 }
 
 func TestGetTopicDetailedSummary_Rerun(t *testing.T) {
-	summary := helptext.GetTopicDetailedSummary("rerun")
+	summary := helpdoc.GetTopicDetailedSummary("rerun")
 	if !strings.Contains(summary, "Antigravity") {
 		t.Errorf("expected summary to contain 'Antigravity', got %q", summary)
 	}
 
-	aliasSummary := helptext.GetTopicDetailedSummary("rr")
+	aliasSummary := helpdoc.GetTopicDetailedSummary("rr")
 	if !strings.Contains(aliasSummary, "Antigravity") {
 		t.Errorf("expected summary for 'rr' to contain 'Antigravity', got %q", aliasSummary)
 	}

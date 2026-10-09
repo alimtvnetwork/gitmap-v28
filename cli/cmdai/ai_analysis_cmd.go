@@ -14,7 +14,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 var (
@@ -483,19 +483,19 @@ func renderTasksTable(tasks []store.AiTask) {
 		return
 	}
 
-	cols := []termtable.Column{
-		{Title: "TASK ID", MinWidth: 20, Align: termtable.AlignLeft},
-		{Title: "STATUS", MinWidth: 10, Align: termtable.AlignLeft},
-		{Title: "CATEGORY", MinWidth: 10, Align: termtable.AlignLeft},
-		{Title: "GOAL", MinWidth: 30, Align: termtable.AlignLeft},
-		{Title: "FILES", MinWidth: 6, Align: termtable.AlignRight},
-		{Title: "LINES", MinWidth: 6, Align: termtable.AlignRight},
-		{Title: "CREATED", MinWidth: 19, Align: termtable.AlignLeft},
+	cols := []termout.Column{
+		{Title: "TASK ID", MinWidth: 20, Align: termout.AlignLeft},
+		{Title: "STATUS", MinWidth: 10, Align: termout.AlignLeft},
+		{Title: "CATEGORY", MinWidth: 10, Align: termout.AlignLeft},
+		{Title: "GOAL", MinWidth: 30, Align: termout.AlignLeft},
+		{Title: "FILES", MinWidth: 6, Align: termout.AlignRight},
+		{Title: "LINES", MinWidth: 6, Align: termout.AlignRight},
+		{Title: "CREATED", MinWidth: 19, Align: termout.AlignLeft},
 	}
 
-	rows := make([]termtable.Row, 0, len(tasks))
+	rows := make([]termout.Row, 0, len(tasks))
 	for _, t := range tasks {
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				t.TaskUuid,
 				t.Status,
@@ -508,7 +508,7 @@ func renderTasksTable(tasks []store.AiTask) {
 		})
 	}
 
-	termtable.PrintTable(termtable.TableConfig{Columns: cols, Rows: rows, HasBorders: true})
+	termout.PrintTable(termout.TableConfig{Columns: cols, Rows: rows, HasBorders: true})
 }
 
 func printSummaryCards(summary *store.AiAnalysisSummaryData) {
@@ -546,15 +546,15 @@ func printTaskStatusCard(task *store.AiTask, files []store.AiTaskFile) {
 }
 
 func renderFilesTable(files []store.AiTaskFile) {
-	cols := []termtable.Column{
-		{Title: "ID", MinWidth: 5, Align: termtable.AlignRight},
-		{Title: "REL PATH", MinWidth: 35, Align: termtable.AlignLeft},
-		{Title: "ACTION", MinWidth: 10, Align: termtable.AlignLeft},
-		{Title: "REASONING", MinWidth: 30, Align: termtable.AlignLeft},
+	cols := []termout.Column{
+		{Title: "ID", MinWidth: 5, Align: termout.AlignRight},
+		{Title: "REL PATH", MinWidth: 35, Align: termout.AlignLeft},
+		{Title: "ACTION", MinWidth: 10, Align: termout.AlignLeft},
+		{Title: "REASONING", MinWidth: 30, Align: termout.AlignLeft},
 	}
-	rows := make([]termtable.Row, 0, len(files))
+	rows := make([]termout.Row, 0, len(files))
 	for _, f := range files {
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				strconv.FormatInt(f.AiTaskFileId, 10),
 				f.RelPath,
@@ -563,7 +563,7 @@ func renderFilesTable(files []store.AiTaskFile) {
 			},
 		})
 	}
-	termtable.PrintTable(termtable.TableConfig{Columns: cols, Rows: rows, HasBorders: true})
+	termout.PrintTable(termout.TableConfig{Columns: cols, Rows: rows, HasBorders: true})
 }
 
 func printJsonOutput(v any) error {

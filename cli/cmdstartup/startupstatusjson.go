@@ -25,7 +25,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/startup"
 )
 
@@ -145,7 +145,7 @@ func removeResultToStatus(name string, res startup.RemoveResult) startupStatus {
 // single-line `{...}\n` shape suitable for line-oriented log
 // pipelines.
 func writeStartupStatusJSON(w io.Writer, s startupStatus, jsonIndent int) error {
-	fields := []stablejson.Field{
+	fields := []jsonx.Field{
 		{Key: startupStatusKeyCommand, Value: s.command},
 		{Key: startupStatusKeyAction, Value: s.action},
 		{Key: startupStatusKeyName, Value: s.name},
@@ -157,7 +157,7 @@ func writeStartupStatusJSON(w io.Writer, s startupStatus, jsonIndent int) error 
 
 	indent := indentSpaces(jsonIndent)
 
-	return stablejson.WriteArrayIndent(w, [][]stablejson.Field{fields}, indent)
+	return jsonx.WriteArrayIndent(w, [][]jsonx.Field{fields}, indent)
 }
 
 // emitStartupStatus is the dispatch boundary every CLI runner

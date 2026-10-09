@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -153,5 +153,5 @@ func executeAgyNodeWorker(c db.SSHConnection, agyArgs []string) (string, error) 
 	defer client.Close()
 
 	cmdStr := "gitmap agy " + strings.Join(agyArgs, " ")
-	return crypto.RunCommand(client, cmdStr, "")
+	return secrets.RunCommand(client, cmdStr, "")
 }

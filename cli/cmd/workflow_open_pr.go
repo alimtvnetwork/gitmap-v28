@@ -12,7 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func currentRepoOwnerRepo() (string, string, error) {
@@ -64,7 +64,7 @@ func runPR(args []string) error {
 		owner = o
 	}
 
-	token, _, _ := ghtoken.Resolve()
+	token, _, _ := secrets.Resolve()
 	url := fmt.Sprintf("https://api.github.com/search/issues?q=is:pr+is:open+user:%s&per_page=50", owner)
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	if len(token) > 0 {

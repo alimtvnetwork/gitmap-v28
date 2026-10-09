@@ -72,7 +72,7 @@ func TestListReleasesSchema_RequiredKeysMatchEncoder(t *testing.T) {
 // contract test: encode a real record, parse the resulting JSON
 // preserving key order, and assert the order matches the schema's
 // propertyOrder array. The ONLY guard that catches a reordering of
-// the stablejson.Field slice in listreleasesrender.go.
+// the jsonx.Field slice in listreleasesrender.go.
 func TestListReleasesSchema_PropertyOrderMatchesEncoder(t *testing.T) {
 	root := loadSchemaFile(t, listReleasesSchemaFilename)
 	want := stringSliceFromAny(listReleasesItemSchema(t, root)["propertyOrder"])
@@ -220,7 +220,7 @@ func TestListReleasesAllReposJSON_ByteCompatWithLegacyMarshalIndent(t *testing.T
 // byte-compat tests above pin the new encoder against that surface.
 // Kept inside the contract test file so the encoding/json import
 // only lives in test code — production listreleases.go is fully on
-// stablejson.
+// jsonx.
 func jsonMarshalIndentForTest(v any) ([]byte, error) {
 	return json.MarshalIndent(v, "", "  ")
 }

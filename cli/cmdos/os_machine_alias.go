@@ -16,7 +16,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // MachineIdentity represents the resolved identity of a local or remote SSH fleet machine.
@@ -423,7 +423,7 @@ func RenderMachineAliasHelp(mode string) {
 	if mode == "alias" {
 		title = "Machine Network Alias & Fleet Identifier (gitmap alias)"
 	}
-	termhelp.RenderMenu(termhelp.HelpMenu{
+	termout.RenderMenu(termout.HelpMenu{
 		Title: title,
 		UsageLines: []string{
 			fmt.Sprintf("gitmap %s [ls|set|change|revert|help] [--ssh] [-y] [--json]", mode),
@@ -438,11 +438,11 @@ func RenderMachineAliasHelp(mode string) {
 	})
 }
 
-func buildMachineAliasHelpSections(mode string) []termhelp.HelpSection {
-	return []termhelp.HelpSection{
+func buildMachineAliasHelpSections(mode string) []termout.HelpSection {
+	return []termout.HelpSection{
 		{
 			Title: "Subcommands",
-			Entries: []termhelp.CommandEntry{
+			Entries: []termout.CommandEntry{
 				{Command: "ls (list, status)", Description: "Display Machine IP, Alias, OS Hostname, Previous Value, and Platform"},
 				{Command: "set <name> [-y]", Description: "Set machine name/alias (sample: dev-win-01, ubuntu-node-02)"},
 				{Command: "change <name> [-y]", Description: "Change machine name/alias and record previous value for revert"},
@@ -452,7 +452,7 @@ func buildMachineAliasHelpSections(mode string) []termhelp.HelpSection {
 		},
 		{
 			Title: "SSH Fleet Delegation (--ssh)",
-			Entries: []termhelp.CommandEntry{
+			Entries: []termout.CommandEntry{
 				{Command: fmt.Sprintf("gitmap %s ls --ssh", mode), Description: "Inspect IP, Alias, Hostname, and OS across all joined SSH fleet nodes"},
 				{Command: fmt.Sprintf("gitmap %s set <node> <name> --ssh", mode), Description: "Update remote SSH machine alias/name in fleet registry"},
 				{Command: fmt.Sprintf("gitmap %s revert [node] --ssh", mode), Description: "Revert remote SSH machine alias/name to previous value"},
@@ -461,8 +461,8 @@ func buildMachineAliasHelpSections(mode string) []termhelp.HelpSection {
 	}
 }
 
-func buildMachineAliasFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildMachineAliasFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-s, --ssh", Description: "Operate across all joined SSH fleet machines and local node"},
 		{Command: "-y, --yes", Description: "Apply name/alias changes automatically without confirmation"},
 		{Command: "-j, --json", Description: "Output machine identity or SSH fleet table as structured JSON"},

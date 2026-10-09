@@ -10,7 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -159,7 +159,7 @@ func readRemoteFileBytes(conn db.SSHConnection, remotePath string) ([]byte, erro
 	defer client.Close()
 
 	readCmd := buildRemoteReadCmd(remotePath, isWindowsOS(conn.OS))
-	out, err := crypto.RunCommand(client, readCmd, "")
+	out, err := secrets.RunCommand(client, readCmd, "")
 	if err != nil {
 		return nil, apperror.WrapSimple(err, fmt.Sprintf("read remote file '%s' on %s", remotePath, conn.Alias))
 	}

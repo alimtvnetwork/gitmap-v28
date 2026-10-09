@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 // ReleasePruneOptions configures GitHub release cleanup operations.
@@ -89,7 +89,7 @@ func ExecuteReleasePrune(opts ReleasePruneOptions) (*ReleasePruneSummary, error)
 }
 
 func discoverReleaseToken() (string, error) {
-	tok, _, err := ghtoken.Resolve()
+	tok, _, err := secrets.Resolve()
 	if err != nil || len(strings.TrimSpace(tok)) == 0 {
 		return "", apperror.NewSimple("ERR_PURGE_RELEASE_NO_TOKEN", "no github token available for release pruning")
 	}

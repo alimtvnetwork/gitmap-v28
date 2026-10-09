@@ -3,7 +3,7 @@ package cmdenv
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -21,7 +21,7 @@ func RunEnv(args []string) error {
 
 func printEnvHelp() {
 	_, mode := ParsePrettyFlag(nil)
-	helptext.PrintWithMode("env", mode)
+	helpdoc.PrintWithMode("env", mode)
 	printUsageFooterShort()
 }
 

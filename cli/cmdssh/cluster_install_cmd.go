@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 type clusterInstallOptions struct {
@@ -214,7 +214,7 @@ func isClusterInstallHelp(args []string) bool {
 }
 
 func showClusterInstallHelp() error {
-	helptext.Print("cluster-install")
+	helpdoc.Print("cluster-install")
 	return nil
 }
 

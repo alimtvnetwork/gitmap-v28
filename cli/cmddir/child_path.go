@@ -14,7 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func init() {
@@ -589,19 +589,19 @@ func renderChildPathTable(items []ChildPathItem) {
 		return
 	}
 
-	columns := []termtable.Column{
-		{Title: "MODE", MinWidth: 6, Align: termtable.AlignLeft},
-		{Title: "SIZE", MinWidth: 10, Align: termtable.AlignRight},
-		{Title: "MODIFIED", MinWidth: 19, Align: termtable.AlignLeft},
-		{Title: "PATH", MinWidth: 28, Align: termtable.AlignLeft},
+	columns := []termout.Column{
+		{Title: "MODE", MinWidth: 6, Align: termout.AlignLeft},
+		{Title: "SIZE", MinWidth: 10, Align: termout.AlignRight},
+		{Title: "MODIFIED", MinWidth: 19, Align: termout.AlignLeft},
+		{Title: "PATH", MinWidth: 28, Align: termout.AlignLeft},
 	}
 
-	rows := make([]termtable.Row, 0, len(items))
+	rows := make([]termout.Row, 0, len(items))
 	for _, item := range items {
 		rows = append(rows, formatChildPathRow(item))
 	}
 
-	termtable.PrintTable(termtable.TableConfig{
+	termout.PrintTable(termout.TableConfig{
 		Columns: columns,
 		Rows:    rows,
 	})
@@ -609,7 +609,7 @@ func renderChildPathTable(items []ChildPathItem) {
 	printChildPathSummary(items)
 }
 
-func formatChildPathRow(item ChildPathItem) termtable.Row {
+func formatChildPathRow(item ChildPathItem) termout.Row {
 	modeStr := "[FILE]"
 	sizeStr := formatChildPathByteSize(item.Size)
 
@@ -620,7 +620,7 @@ func formatChildPathRow(item ChildPathItem) termtable.Row {
 
 	modStr := formatChildPathModTime(item.ModTime)
 
-	return termtable.Row{
+	return termout.Row{
 		Cells: []string{modeStr, sizeStr, modStr, item.Path},
 	}
 }

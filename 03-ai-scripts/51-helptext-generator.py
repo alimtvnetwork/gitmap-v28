@@ -2,7 +2,7 @@
 """
 51-helptext-generator.py - DRY help topic generator (spec 243.3).
 
-Renders cli/helptext/*.md topics from the HelpDisplay structs (the single
+Renders cli/helpdoc/*.md topics from the HelpDisplay structs (the single
 source of truth) so hand-editing those topics is never needed again. The Go
 emitter library at cli/tool/helptextemitter owns the topic registry; this
 script only drives it via `go run` on an ephemeral runner file, so no stray
@@ -15,7 +15,7 @@ Usage:
   --topics   Comma-separated topic subset (default: all registered topics).
   --check    Render to a temp dir and exit 1 when any committed topic drifts.
              For CI / pre-commit enforcement of the generated files.
-  --out      Destination dir for <topic>.md (default: <repo>/cli/helptext).
+  --out      Destination dir for <topic>.md (default: <repo>/cli/helpdoc).
 """
 
 import argparse
@@ -30,7 +30,7 @@ from pathlib import Path
 # Repository root discovery (script lives in <repo>/03-ai-scripts/).
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MODULE_DIR = REPO_ROOT / "cli"
-HELPTEXT_DIR = MODULE_DIR / "helptext"
+HELPTEXT_DIR = MODULE_DIR / "helpdoc"
 
 RUNNER_SOURCE = """package main
 
@@ -90,7 +90,7 @@ def run_emitter(out_dir, topics):
 def parse_args(argv):
     """Parses CLI flags."""
     parser = argparse.ArgumentParser(
-        description="Generate cli/helptext/*.md from HelpDisplay structs."
+        description="Generate cli/helpdoc/*.md from HelpDisplay structs."
     )
     parser.add_argument(
         "--topics",

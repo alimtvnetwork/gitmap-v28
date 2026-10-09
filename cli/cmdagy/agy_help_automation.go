@@ -1,16 +1,16 @@
 package cmdagy
 
-import "github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+import "github.com/alimtvnetwork/gitmap-v28/cli/termout"
 
-func buildAutomationSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildAutomationSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title:   "Protocols & Automation",
 		Entries: buildAutomationEntries(),
 	}
 }
 
-func buildAutomationEntries() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildAutomationEntries() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "shutdown-until (sug)", Description: "Monitor designated projects & trigger OS shutdown when green (see: sug help)"},
 		{Command: "finish-prompts-until-green (fpug)", Description: "Loop projects until prompt queues clear and CI/CD pipelines turn green"},
 		{Command: "running-prompts (rp-prompts)", Description: "Inspect, backup, and restore active prompt queues across workspaces"},

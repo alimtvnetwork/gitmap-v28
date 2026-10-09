@@ -5,7 +5,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-// ScriptCategoryType defines taxonomy categories for repository automation scripts.
+// ScriptCategoryType defines taxonomy categories for repository automation fspath.
 type ScriptCategoryType string
 
 const (

@@ -99,7 +99,7 @@ func (t *SSHExecutionTrace) AddStep(name, details, status string, err error) {
 	t.Steps = append(t.Steps, step)
 }
 
-// SetInternalError records the root cause internal error, raw error, stack trace and actionable suggestion.
+// SetInternalError records the root cause internal error, raw error, stack trace and actionable diag.
 func (t *SSHExecutionTrace) SetInternalError(rawErr error, suggestion string) {
 	if t == nil {
 		return

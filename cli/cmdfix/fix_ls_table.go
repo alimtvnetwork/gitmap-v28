@@ -9,7 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func renderFixLsTable(items []cmdremediation.RemediationItem) {
@@ -17,12 +17,12 @@ func renderFixLsTable(items []cmdremediation.RemediationItem) {
 		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items))
 
 	cfg := buildFixLsTableConfig(items)
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	printFixLsFooter()
 }
 
-func buildFixLsTableConfig(items []cmdremediation.RemediationItem) termtable.TableConfig {
-	return termtable.TableConfig{
+func buildFixLsTableConfig(items []cmdremediation.RemediationItem) termout.TableConfig {
+	return termout.TableConfig{
 		HeaderColor:  constants.ColorCyan,
 		BorderColor:  constants.ColorDim,
 		EllipsisText: "...",
@@ -31,18 +31,18 @@ func buildFixLsTableConfig(items []cmdremediation.RemediationItem) termtable.Tab
 	}
 }
 
-func buildFixLsColumns() []termtable.Column {
-	return []termtable.Column{
-		{Title: "#", MinWidth: 3, Align: termtable.AlignRight},
-		{Title: "Repository", MinWidth: 16, MaxWidth: 26, Align: termtable.AlignLeft},
-		{Title: "Status / Issues", MinWidth: 22, MaxWidth: 38, Align: termtable.AlignLeft},
-		{Title: "Branch", MinWidth: 10, MaxWidth: 16, Align: termtable.AlignLeft},
-		{Title: "Suggested Fix", MinWidth: 22, MaxWidth: 36, Align: termtable.AlignLeft},
+func buildFixLsColumns() []termout.Column {
+	return []termout.Column{
+		{Title: "#", MinWidth: 3, Align: termout.AlignRight},
+		{Title: "Repository", MinWidth: 16, MaxWidth: 26, Align: termout.AlignLeft},
+		{Title: "Status / Issues", MinWidth: 22, MaxWidth: 38, Align: termout.AlignLeft},
+		{Title: "Branch", MinWidth: 10, MaxWidth: 16, Align: termout.AlignLeft},
+		{Title: "Suggested Fix", MinWidth: 22, MaxWidth: 36, Align: termout.AlignLeft},
 	}
 }
 
-func buildFixLsRows(items []cmdremediation.RemediationItem) []termtable.Row {
-	rows := make([]termtable.Row, 0, len(items))
+func buildFixLsRows(items []cmdremediation.RemediationItem) []termout.Row {
+	rows := make([]termout.Row, 0, len(items))
 	for i, item := range items {
 		rows = append(rows, buildSingleFixLsRow(i+1, item))
 	}
@@ -50,13 +50,13 @@ func buildFixLsRows(items []cmdremediation.RemediationItem) []termtable.Row {
 	return rows
 }
 
-func buildSingleFixLsRow(idx int, item cmdremediation.RemediationItem) termtable.Row {
+func buildSingleFixLsRow(idx int, item cmdremediation.RemediationItem) termout.Row {
 	branch, _ := gitutil.CurrentBranch(item.RepoPath)
 	if branch == "" {
 		branch = "-"
 	}
 
-	return termtable.Row{
+	return termout.Row{
 		Cells: []string{
 			strconv.Itoa(idx),
 			item.RepoName,

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
@@ -31,7 +31,7 @@ func runGHCommandWithCustomTimeout(timeout time.Duration, args ...string) ([]byt
 }
 
 func attachGHTokenEnv(cmd *exec.Cmd) {
-	tok, _, err := ghtoken.Resolve()
+	tok, _, err := secrets.Resolve()
 	if err != nil || len(tok) == 0 {
 		return
 	}

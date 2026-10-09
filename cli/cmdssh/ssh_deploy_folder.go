@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -248,7 +248,7 @@ func saveLocalFileBytes(localPath string, data []byte) error {
 
 func pullRemoteFileBytes(client *ssh.Client, remotePath string, isWin bool) ([]byte, error) {
 	cmd := buildPullFileCmd(remotePath, isWin)
-	b64Out, err := crypto.RunCommand(client, cmd, "")
+	b64Out, err := secrets.RunCommand(client, cmd, "")
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "pullRemoteFileBytes")
 	}

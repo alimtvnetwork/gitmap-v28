@@ -1,9 +1,9 @@
 package apperror
 
-import "github.com/alimtvnetwork/gitmap-v28/cli/suggestion"
+import "github.com/alimtvnetwork/gitmap-v28/cli/diag"
 
 // WithSuggestions attaches actionable suggestion items to the AppError.
-func (e *AppError) WithSuggestions(items ...suggestion.Suggestion) *AppError {
+func (e *AppError) WithSuggestions(items ...diag.Suggestion) *AppError {
 	if e == nil {
 		return nil
 	}
@@ -20,7 +20,7 @@ func (e *AppError) HasSuggestions() bool {
 }
 
 // GetSuggestions retrieves all attached suggestions safely.
-func (e *AppError) GetSuggestions() []suggestion.Suggestion {
+func (e *AppError) GetSuggestions() []diag.Suggestion {
 	if e == nil {
 		return nil
 	}
@@ -28,7 +28,7 @@ func (e *AppError) GetSuggestions() []suggestion.Suggestion {
 }
 
 // WithSuggestionGroup attaches all suggestions from a SuggestionGroup.
-func (e *AppError) WithSuggestionGroup(group suggestion.SuggestionGroup) *AppError {
+func (e *AppError) WithSuggestionGroup(group diag.SuggestionGroup) *AppError {
 	if e == nil {
 		return nil
 	}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RunErrorsCmd displays recent execution failures in an ANSI table.
@@ -21,27 +21,27 @@ func RunErrorsCmd(args []string) error {
 	}
 
 	cfg := buildRunErrorsTableConfig(records)
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 
 	return nil
 }
 
-func buildRunErrorsTableConfig(records []RunErrorRecord) termtable.TableConfig {
-	columns := []termtable.Column{
-		{Title: "ID", MaxWidth: 22, Align: termtable.AlignLeft},
-		{Title: "FILE", MaxWidth: 32, Align: termtable.AlignLeft},
-		{Title: "INTERPRETER", MaxWidth: 14, Align: termtable.AlignLeft},
-		{Title: "EXIT", MaxWidth: 6, Align: termtable.AlignRight},
-		{Title: "DURATION", MaxWidth: 10, Align: termtable.AlignRight},
-		{Title: "ERROR", MaxWidth: 40, Align: termtable.AlignLeft},
+func buildRunErrorsTableConfig(records []RunErrorRecord) termout.TableConfig {
+	columns := []termout.Column{
+		{Title: "ID", MaxWidth: 22, Align: termout.AlignLeft},
+		{Title: "FILE", MaxWidth: 32, Align: termout.AlignLeft},
+		{Title: "INTERPRETER", MaxWidth: 14, Align: termout.AlignLeft},
+		{Title: "EXIT", MaxWidth: 6, Align: termout.AlignRight},
+		{Title: "DURATION", MaxWidth: 10, Align: termout.AlignRight},
+		{Title: "ERROR", MaxWidth: 40, Align: termout.AlignLeft},
 	}
 
-	rows := make([]termtable.Row, 0, len(records))
+	rows := make([]termout.Row, 0, len(records))
 	for _, r := range records {
 		rows = append(rows, buildRunErrorRow(r))
 	}
 
-	return termtable.TableConfig{
+	return termout.TableConfig{
 		Columns:     columns,
 		Rows:        rows,
 		HeaderColor: constants.ColorCyan,
@@ -50,11 +50,11 @@ func buildRunErrorsTableConfig(records []RunErrorRecord) termtable.TableConfig {
 	}
 }
 
-func buildRunErrorRow(r RunErrorRecord) termtable.Row {
+func buildRunErrorRow(r RunErrorRecord) termout.Row {
 	durStr := fmt.Sprintf("%dms", r.DurationMs)
 	exitStr := fmt.Sprintf("%d", r.ExitCode)
 
-	return termtable.Row{
+	return termout.Row{
 		Cells: []string{
 			r.ErrorID,
 			r.FilePath,

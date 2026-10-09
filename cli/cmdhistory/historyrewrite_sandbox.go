@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
@@ -57,7 +57,7 @@ func readOriginURL() string {
 // mirrorClone creates an os.MkdirTemp sandbox and runs
 // `git clone --mirror <origin> <sandbox>` into it.
 func mirrorClone(originURL string, opts historyOpts) string {
-	sandbox, err := os.MkdirTemp(tempdir.RepoTempDir("sandbox"), constants.HistorySandboxPrefix)
+	sandbox, err := os.MkdirTemp(fspath.RepoTempDir("sandbox"), constants.HistorySandboxPrefix)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrSandbox, err)
 		cliexit.HandleError(err, constants.HistoryExitBadArgs)

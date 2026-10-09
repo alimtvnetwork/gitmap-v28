@@ -15,7 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -180,7 +180,7 @@ func resolveRemoteDbPath(c db.SSHConnection, slug string) string {
 
 func enqueueRemoteWPRTask(client *ssh.Client, c db.SSHConnection, slug string) bool {
 	cmdStr := fmt.Sprintf("gitmap agy wpr start %s --once --json", slug)
-	out, err := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, err := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if err != nil {
 		return false
 	}

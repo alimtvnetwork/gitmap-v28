@@ -12,7 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 // isWindows is a tiny helper so other selfuninstall files can use it
@@ -47,7 +47,7 @@ func writeHandoffCopy(selfPath string) (string, error) {
 		name += ".exe"
 	}
 
-	dst := filepath.Join(tempdir.RepoTempDir("handoff"), name)
+	dst := filepath.Join(fspath.RepoTempDir("handoff"), name)
 	if err := copySelfFile(selfPath, dst); err != nil {
 		return "", err
 	}

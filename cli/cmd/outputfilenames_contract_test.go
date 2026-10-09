@@ -11,7 +11,7 @@
 //  3. The shorthand → path mapping consumed by `gitmap clone json`
 //     / `gitmap clone csv` / `gitmap clone text`.
 //  4. The timestamped report names from `clonefrom.WriteReport` and
-//     `errreport.WriteIfAny` — both must end in the documented
+//     `diag.WriteIfAny` — both must end in the documented
 //     extension (.csv / .json) so post-run pipelines globbing for
 //     `clone-from-report-*.csv` / `errors-*.json` keep matching.
 //  5. The `resolveOutFile` precedence: explicit override wins,
@@ -32,7 +32,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonefrom"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/errreport"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 )
 
 // TestScanOutputFilenames_Contract pins every default scan/clone
@@ -193,13 +193,13 @@ func TestCloneFromReportName_Contract(t *testing.T) {
 // `errors-<unix-seconds>.json`.
 var reErrorsReport = regexp.MustCompile(`^errors-\d+\.json$`)
 
-// TestErrorsReportName_Contract drives errreport.Collector through
+// TestErrorsReportName_Contract drives diag.Collector through
 // a single failure so WriteIfAny actually produces a file, then
 // validates the basename + extension + parent dir layout.
 func TestErrorsReportName_Contract(t *testing.T) {
 	dir := t.TempDir()
-	c := errreport.New("v0.0.0-test", "clone-next")
-	c.Add(errreport.PhaseClone, errreport.Entry{
+	c := diag.New("v0.0.0-test", "clone-next")
+	c.Add(diag.PhaseClone, diag.Entry{
 		RepoPath:  "/tmp/example",
 		RemoteURL: "https://example.com/x.git",
 		Step:      "clone",

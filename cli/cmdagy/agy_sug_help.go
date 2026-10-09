@@ -1,16 +1,16 @@
 package cmdagy
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderAgySugHelp renders the rich two-column boxed terminal UI help menu for shutdown-until-green.
 func RenderAgySugHelp() {
-	termhelp.RenderMenu(buildAgySugHelpMenu())
+	termout.RenderMenu(buildAgySugHelpMenu())
 }
 
-func buildAgySugHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildAgySugHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Shutdown Until Green (gitmap shutdown-until / sug)",
 		UsageLines: []string{
 			"gitmap shutdown-until <command> [flags]",
@@ -19,7 +19,7 @@ func buildAgySugHelpMenu() termhelp.HelpMenu {
 			"gitmap agy shutdown-until <command> [flags]",
 			"gitmap agy sug <command> [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildSugCommandsSection(),
 			buildSugWorkflowSection(),
 			buildSugTargetDefinitionSection(),
@@ -34,10 +34,10 @@ func buildAgySugHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildSugCommandsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSugCommandsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Watch List Commands",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "ls / status (st)", Description: "List registered targets, live watch process state & background info"},
 			{Command: "add-projects <targets...>", Description: "Register project targets into watch list (alias: add, /add, ap)"},
 			{Command: "remove <targets...> (rm)", Description: "Remove targets from watch list (alias: /rm, del, delete)"},
@@ -49,10 +49,10 @@ func buildSugCommandsSection() termhelp.HelpSection {
 	}
 }
 
-func buildSugWorkflowSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSugWorkflowSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Execution & Monitoring",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "run / watch (w) [-t <dur>]", Description: "Start continuous watch loop until all monitored pipelines turn green"},
 			{Command: "run --dry-run (-n)", Description: "Dry-run watch loop; simulates final OS shutdown when all pipelines pass"},
 			{Command: "run --once (-1)", Description: "Evaluate pipeline status once and exit without looping"},
@@ -61,10 +61,10 @@ func buildSugWorkflowSection() termhelp.HelpSection {
 	}
 }
 
-func buildSugTargetDefinitionSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSugTargetDefinitionSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Target Types & Examples",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "Local Path", Description: "Directory on disk (e.g. 'd:/work/antigravity-manager', '.', '../repo')"},
 			{Command: "Repo Alias / Name", Description: "Indexed repository in GitMap DB (e.g. 'gitmap-v28', 'antigravity-manager')"},
 			{Command: "Git Remote URL", Description: "GitHub/Git repository URL (e.g. 'https://github.com/alimtvnetwork/gitmap-v28')"},
@@ -72,8 +72,8 @@ func buildSugTargetDefinitionSection() termhelp.HelpSection {
 	}
 }
 
-func buildSugFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildSugFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-t, --time <duration>", Description: "Polling check interval (default: 5m, minimum 2m; 10s in dry-run)"},
 		{Command: "-n, --dry-run", Description: "Simulate OS shutdown execution without powering off system"},
 		{Command: "-1, --once", Description: "Execute a single status evaluation cycle and exit immediately"},

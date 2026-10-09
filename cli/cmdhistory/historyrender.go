@@ -10,7 +10,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // history wire keys. Names + order are the contract; reordering or
@@ -36,15 +36,15 @@ const (
 // special case. Split out from CLI dispatch so contract tests can
 // capture the bytes into a buffer instead of stdout.
 func encodeHistoryJSON(w io.Writer, records []model.CommandHistoryRecord) error {
-	return stablejson.WriteArray(w, buildHistoryJSONItems(records))
+	return jsonx.WriteArray(w, buildHistoryJSONItems(records))
 }
 
 // buildHistoryJSONItems is the single source of (field name, field
 // order, value) for history. Centralized so a future column
 // rename/reorder is one diff and the contract test catches schema
 // drift in the same PR.
-func buildHistoryJSONItems(records []model.CommandHistoryRecord) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(records))
+func buildHistoryJSONItems(records []model.CommandHistoryRecord) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(records))
 	for _, r := range records {
 		items = append(items, historyRecordToFields(r))
 	}
@@ -52,12 +52,12 @@ func buildHistoryJSONItems(records []model.CommandHistoryRecord) [][]stablejson.
 	return items
 }
 
-func historyRecordToFields(r model.CommandHistoryRecord) []stablejson.Field {
+func historyRecordToFields(r model.CommandHistoryRecord) []jsonx.Field {
 	return append(historyRecordMetaFields(r), historyRecordTimingFields(r)...)
 }
 
-func historyRecordMetaFields(r model.CommandHistoryRecord) []stablejson.Field {
-	return []stablejson.Field{
+func historyRecordMetaFields(r model.CommandHistoryRecord) []jsonx.Field {
+	return []jsonx.Field{
 		{Key: historyKeyID, Value: r.ID},
 		{Key: historyKeyCommand, Value: r.Command},
 		{Key: historyKeyAlias, Value: r.Alias},
@@ -67,8 +67,8 @@ func historyRecordMetaFields(r model.CommandHistoryRecord) []stablejson.Field {
 	}
 }
 
-func historyRecordTimingFields(r model.CommandHistoryRecord) []stablejson.Field {
-	return []stablejson.Field{
+func historyRecordTimingFields(r model.CommandHistoryRecord) []jsonx.Field {
+	return []jsonx.Field{
 		{Key: historyKeyFinishedAt, Value: r.FinishedAt},
 		{Key: historyKeyDurationMs, Value: r.DurationMs},
 		{Key: historyKeyExitCode, Value: r.ExitCode},

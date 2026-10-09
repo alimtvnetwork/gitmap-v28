@@ -15,7 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 var (
@@ -607,19 +607,19 @@ func renderAumTable(items []aumChildItem) {
 		return
 	}
 
-	columns := []termtable.Column{
-		{Title: "MODE", MinWidth: 6, Align: termtable.AlignLeft},
-		{Title: "SIZE", MinWidth: 10, Align: termtable.AlignRight},
-		{Title: "MODIFIED", MinWidth: 19, Align: termtable.AlignLeft},
-		{Title: "PATH", MinWidth: 28, Align: termtable.AlignLeft},
+	columns := []termout.Column{
+		{Title: "MODE", MinWidth: 6, Align: termout.AlignLeft},
+		{Title: "SIZE", MinWidth: 10, Align: termout.AlignRight},
+		{Title: "MODIFIED", MinWidth: 19, Align: termout.AlignLeft},
+		{Title: "PATH", MinWidth: 28, Align: termout.AlignLeft},
 	}
 
-	rows := make([]termtable.Row, 0, len(items))
+	rows := make([]termout.Row, 0, len(items))
 	for _, item := range items {
 		rows = append(rows, formatAumRow(item))
 	}
 
-	termtable.PrintTable(termtable.TableConfig{
+	termout.PrintTable(termout.TableConfig{
 		Columns: columns,
 		Rows:    rows,
 	})
@@ -627,7 +627,7 @@ func renderAumTable(items []aumChildItem) {
 	printAumSummary(items)
 }
 
-func formatAumRow(item aumChildItem) termtable.Row {
+func formatAumRow(item aumChildItem) termout.Row {
 	modeStr := "[FILE]"
 	sizeStr := formatAumByteSize(item.Size)
 
@@ -641,7 +641,7 @@ func formatAumRow(item aumChildItem) termtable.Row {
 		modStr = parsed.Format("2006-01-02 15:04:05")
 	}
 
-	return termtable.Row{
+	return termout.Row{
 		Cells: []string{modeStr, sizeStr, modStr, item.Path},
 	}
 }

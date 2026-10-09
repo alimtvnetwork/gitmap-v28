@@ -1,13 +1,13 @@
 package cmdclone
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
-func buildCloneSubcmdSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildCloneSubcmdSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Clone Subcommands",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "next", Description: "Clone next pending repository in active manifest"},
 			{Command: "now <url>", Description: "Immediate priority clone bypassing worker queue"},
 			{Command: "only-missing", Description: "Skip already cloned repos, only clone missing"},
@@ -18,10 +18,10 @@ func buildCloneSubcmdSection() termhelp.HelpSection {
 	}
 }
 
-func buildCloneConcurrencySection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildCloneConcurrencySection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Concurrency & Performance",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "--max-concurrency <n>", Description: "Run up to N parallel clones (default: NumCPU)"},
 			{Command: "--target-dir <dir>", Description: "Base directory for cloned repositories"},
 			{Command: "--default-branch <b>", Description: "Fallback branch when HEAD detection fails"},
@@ -30,10 +30,10 @@ func buildCloneConcurrencySection() termhelp.HelpSection {
 	}
 }
 
-func buildCloneEnvSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildCloneEnvSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Environment & Integrations",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "--github-desktop", Description: "Auto-register cloned repos with GitHub Desktop"},
 			{Command: "--key <name>", Description: "Use specific managed SSH key for Git operations"},
 			{Command: "--reclone", Description: "Alias for --force to cleanly recreate targets"},

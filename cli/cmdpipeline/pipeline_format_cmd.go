@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // HandlePEFormatCommands inspects args for format management and testing commands.
@@ -100,27 +100,27 @@ func handleListFormatsCLI() error {
 	if err != nil {
 		return err
 	}
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "NAME", Align: termtable.AlignLeft, MinWidth: 15},
-			{Title: "ALIAS", Align: termtable.AlignLeft, MinWidth: 10},
-			{Title: "STRIP PREFIXES", Align: termtable.AlignLeft, MinWidth: 16},
-			{Title: "DESCRIPTION", Align: termtable.AlignLeft, MinWidth: 40},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "NAME", Align: termout.AlignLeft, MinWidth: 15},
+			{Title: "ALIAS", Align: termout.AlignLeft, MinWidth: 10},
+			{Title: "STRIP PREFIXES", Align: termout.AlignLeft, MinWidth: 16},
+			{Title: "DESCRIPTION", Align: termout.AlignLeft, MinWidth: 40},
 		},
 		Rows: buildFormatRows(profiles),
 	}
 	fmt.Println("\nRegistered Pipeline Error Format Profiles:")
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	fmt.Println()
 
 	return nil
 }
 
-func buildFormatRows(profiles []PEFormatProfile) []termtable.Row {
-	var rows []termtable.Row
+func buildFormatRows(profiles []PEFormatProfile) []termout.Row {
+	var rows []termout.Row
 	for _, p := range profiles {
 		stripCount := fmt.Sprintf("%d prefixes", len(p.StripPrefixes))
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{p.Name, p.Alias, stripCount, p.Description},
 		})
 	}

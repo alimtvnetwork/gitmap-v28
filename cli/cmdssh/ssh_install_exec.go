@@ -12,7 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
@@ -406,7 +406,7 @@ func executeInstallerOnSingleNode(c db.SSHConnection, fileName string, data []by
 
 	// 2. Build and execute installation command
 	execCmd, execShell := BuildRemoteInstallerExecCmdWithPayload(c.OS, remoteDestPath, opts.InstallerArgs, opts.IsSilent, data)
-	stdout, errExec := crypto.RunCommand(client, execCmd, execShell)
+	stdout, errExec := secrets.RunCommand(client, execCmd, execShell)
 	dur := time.Since(start).Milliseconds()
 	res.DurationMs = dur
 	res.Stdout = strings.TrimSpace(stdout)
@@ -430,11 +430,11 @@ func killStaleInstallerProcess(client *ssh.Client, fileName, osType string) {
 	base := strings.TrimSuffix(fileName, filepath.Ext(fileName))
 	if isWindowsOS(osType) {
 		cmd := fmt.Sprintf("cmd.exe /c taskkill /F /IM \"%s*\" 2>nul", base)
-		_, _ = crypto.RunCommand(client, cmd, "")
+		_, _ = secrets.RunCommand(client, cmd, "")
 		return
 	}
 	cmd := fmt.Sprintf("pkill -9 -f '%s' || true", fileName)
-	_, _ = crypto.RunCommand(client, cmd, "bash")
+	_, _ = secrets.RunCommand(client, cmd, "bash")
 }
 
 func persistUpdatedNodeOS(c db.SSHConnection) {

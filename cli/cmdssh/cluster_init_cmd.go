@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 type clusterInitFlags struct {
@@ -113,7 +113,7 @@ func printClusterInitSuccess(path string, cfg ClusterConfigJSON) {
 
 func runClusterInit(args []string) error {
 	if hasHelpFlag(args) {
-		helptext.Print("cluster")
+		helpdoc.Print("cluster")
 		return nil
 	}
 

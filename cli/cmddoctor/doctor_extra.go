@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 const doctorHTTPTimeoutSecs = 5
@@ -59,7 +59,7 @@ func probeGitHubToken() DoctorCheck {
 		Name:    "gh-token",
 		FixHint: "set GH_TOKEN or GITHUB_TOKEN, or run `gh auth login`",
 		Run: func() (bool, string) {
-			tok, src, err := ghtoken.Resolve()
+			tok, src, err := secrets.Resolve()
 			if err == nil && len(tok) > 0 {
 				return true, string(src) + " (" + maskToken(tok) + ")"
 			}
@@ -76,7 +76,7 @@ func probeGitHubAPI() DoctorCheck {
 		FixHint: "Check internet / proxy / firewall; GitHub hosts must be reachable",
 		Run: func() (bool, string) {
 			client := &http.Client{Timeout: doctorHTTPTimeoutSecs * time.Second}
-			tok, _, _ := ghtoken.Resolve()
+			tok, _, _ := secrets.Resolve()
 			var oks, fails []string
 			for _, ep := range doctorGitHubEndpoints {
 				if ok, msg := probeGitHubEndpoint(client, ep.URL, tok); ok {

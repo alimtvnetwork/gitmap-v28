@@ -14,8 +14,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/lockfile"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scripts"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -88,12 +87,12 @@ func autoRunSetupAfterInstall() {
 }
 
 // acquireSelfInstallLock takes the duplicate-install guard.
-func acquireSelfInstallLock(opts selfInstallOpts) lockfile.Releaser {
+func acquireSelfInstallLock(opts selfInstallOpts) fspath.Releaser {
 	if opts.ForceLock {
 		return forceAcquireOrExit()
 	}
 
-	release, err := lockfile.Acquire(constants.SelfInstallLockName)
+	release, err := fspath.Acquire(constants.SelfInstallLockName)
 	if err == nil {
 		return release
 	}
@@ -104,8 +103,8 @@ func acquireSelfInstallLock(opts selfInstallOpts) lockfile.Releaser {
 }
 
 func handleLockError(err error) {
-	if errors.Is(err, lockfile.ErrAlreadyHeld) {
-		holder := lockfile.HolderPID(constants.SelfInstallLockName)
+	if errors.Is(err, fspath.ErrAlreadyHeld) {
+		holder := fspath.HolderPID(constants.SelfInstallLockName)
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallLockHeld, holder)
 		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
@@ -114,8 +113,8 @@ func handleLockError(err error) {
 	cliexit.HandleError(nil, constants.ExitCodeError)
 }
 
-func forceAcquireOrExit() lockfile.Releaser {
-	release, err := lockfile.ForceAcquire(constants.SelfInstallLockName)
+func forceAcquireOrExit() fspath.Releaser {
+	release, err := fspath.ForceAcquire(constants.SelfInstallLockName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallLock, err)
 		cliexit.HandleError(err, constants.ExitCodeError)
@@ -274,7 +273,7 @@ func promptInstallDir(def string) string {
 
 func loadInstallScript() (string, []byte) {
 	name := pickInstallScriptName()
-	body, err := scripts.ReadFile(name)
+	body, err := fspath.ReadFile(name)
 	if err == nil && len(body) > 0 {
 		fmt.Printf(constants.MsgSelfInstallEmbedded, name)
 

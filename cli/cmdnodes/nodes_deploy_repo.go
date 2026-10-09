@@ -19,7 +19,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -557,7 +557,7 @@ func runRemoteRepoDeploy(conn db.SSHConnection, opts DeployRepoOptions, repoReco
 	}
 
 	extractCmd, shell := resolveRepoExtractCommand(conn, stagingPath, destDir)
-	if _, errExtract := crypto.RunCommand(client, extractCmd, shell); errExtract != nil {
+	if _, errExtract := secrets.RunCommand(client, extractCmd, shell); errExtract != nil {
 		return buildFailedRepoResult(res, "extract failed: "+errExtract.Error(), start)
 	}
 
@@ -596,7 +596,7 @@ func runRemoteRescan(client *ssh.Client, conn db.SSHConnection) {
 	if isWindowsNode(conn) {
 		shell = "cmd"
 	}
-	_, _ = crypto.RunCommand(client, "gitmap rescan", shell)
+	_, _ = secrets.RunCommand(client, "gitmap rescan", shell)
 }
 
 func runRemoteIDEsHook(client *ssh.Client, conn db.SSHConnection, repoName, destDir string, opts DeployRepoOptions) []string {

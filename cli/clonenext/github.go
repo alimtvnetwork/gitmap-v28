@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 // RepoExists checks whether a GitHub repository exists via the API.
@@ -21,7 +21,7 @@ func RepoExists(owner, repo string) (bool, error) {
 		return false, fmt.Errorf("create request: %w", err)
 	}
 
-	token, _, _ := ghtoken.Resolve()
+	token, _, _ := secrets.Resolve()
 	if len(token) > 0 {
 		req.Header.Set("Authorization", "token "+token)
 	}
@@ -66,7 +66,7 @@ func CreateRepo(owner, repoName string, isPrivate bool) error {
 }
 
 func resolveRepoToken() (string, error) {
-	token, _, err := ghtoken.Resolve()
+	token, _, err := secrets.Resolve()
 	if err != nil {
 		return "", fmt.Errorf("resolve GitHub token failed: %w", err)
 	}

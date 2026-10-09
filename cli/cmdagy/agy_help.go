@@ -4,16 +4,16 @@ package cmdagy
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/render"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func renderAgyHelp(cmd *cobra.Command, args []string) {
 	if handleAgySubcommandHelp(cmd) {
 		return
 	}
-	termhelp.RenderMenu(buildAgyHelpMenu())
+	termout.RenderMenu(buildAgyHelpMenu())
 }
 
 func handleAgySubcommandHelp(cmd *cobra.Command) bool {
@@ -30,8 +30,8 @@ func handleAgySubcommandHelp(cmd *cobra.Command) bool {
 
 func renderSubcommandHelp(cmd *cobra.Command) bool {
 	helpName := cmd.Name()
-	if _, err := helptext.ReadRaw(helpName); err == nil {
-		helptext.PrintWithMode(helpName, render.PrettyAuto)
+	if _, err := helpdoc.ReadRaw(helpName); err == nil {
+		helpdoc.PrintWithMode(helpName, render.PrettyAuto)
 
 		return true
 	}
@@ -39,20 +39,20 @@ func renderSubcommandHelp(cmd *cobra.Command) bool {
 	return false
 }
 
-func buildAgyHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildAgyHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Antigravity CLI Management (gitmap agy)",
 		UsageLines: []string{
 			"gitmap agy [command] [flags]",
 			"agy [command] [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildProjectMgmtSection(),
 			buildActiveLapAndRerunSection(),
 			buildDiagnosticsSection(),
 			buildAutomationSection(),
 		},
-		FooterFlags: []termhelp.CommandEntry{
+		FooterFlags: []termout.CommandEntry{
 			{Command: "-h, --help", Description: "Show help for agy"},
 			{Command: "-j, --json", Description: "Output structured JSON where supported (running-projects / rp, lap, telegram, settings)"},
 			{Command: "-f, --file <path>", Description: "Export JSON output directly to <path> (running-projects / rp, lap)"},
@@ -64,10 +64,10 @@ func buildAgyHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildProjectMgmtSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildProjectMgmtSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Project Management & Onboarding",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "open [path]", Description: "Open Antigravity Desktop IDE on path (default: .)"},
 			{Command: "ls", Description: "List projects in status table grouped by root folder"},
 			{Command: "add . / add <path>", Description: "Add current repo (.) or <path> to Antigravity workspace registry"},
@@ -84,15 +84,15 @@ func buildProjectMgmtSection() termhelp.HelpSection {
 	}
 }
 
-func buildActiveLapAndRerunSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildActiveLapAndRerunSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title:   "Running Projects, Last-Active Tree (LAP), Rerun-With-ID & Bot Settings",
 		Entries: append(buildLapAndRerunEntries(), buildSpeedAndFleetEntries()...),
 	}
 }
 
-func buildLapAndRerunEntries() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildLapAndRerunEntries() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "running-projects (rp) [ls]", Description: "List running projects with 24h sequence (#1), ID, alias, path & [convID]"},
 		{Command: "running-projects (rp) prompts ls [--wc 200]", Description: "Tree view of running projects and active prompts (200 words default)"},
 		{Command: "last-active-projects (lap) [N] [ls]", Description: "Projects active in last N hours (default 24h, --limit 10, --offset, --page, --wc 200)"},
@@ -101,8 +101,8 @@ func buildLapAndRerunEntries() []termhelp.CommandEntry {
 	}
 }
 
-func buildSpeedAndFleetEntries() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildSpeedAndFleetEntries() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "fast-forward (ff, account-switch, asw)", Description: "Fast-forward switch account on 98% used / 15% remaining credit threshold"},
 		{Command: "machine / alias [ls|set|change|revert]", Description: "Manage local or SSH fleet machine name & network alias (defaults to Local IPv4)"},
 		{Command: "telegram [setup|status|send|poll]", Description: "Two-way Telegram bot setup, notifications, and remote chat commands"},
@@ -111,10 +111,10 @@ func buildSpeedAndFleetEntries() []termhelp.CommandEntry {
 	}
 }
 
-func buildDiagnosticsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildDiagnosticsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Diagnostics & Optimization",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "active (running)", Description: "List conversations with active prompts currently running"},
 			{Command: "queues (queue)", Description: "Inspect pending prompt queues across all workspaces"},
 			{Command: "ping (check)", Description: "Ping Antigravity IDE and inspect environment health"},

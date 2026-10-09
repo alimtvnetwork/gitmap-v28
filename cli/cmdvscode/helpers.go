@@ -3,7 +3,7 @@ package cmdvscode
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 func isHelpToken(a string) bool {
@@ -16,7 +16,7 @@ func printVSCodeHelpAndExit(command string) {
 		cliexit.Exit(0)
 	}
 
-	helptext.Print(command)
+	helpdoc.Print(command)
 	cliexit.Exit(0)
 }
 

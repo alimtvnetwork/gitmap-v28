@@ -1,16 +1,16 @@
 package cmdscan
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderScanHelp displays the styled two-column Scan help menu.
 func RenderScanHelp() {
-	termhelp.RenderMenu(buildScanHelpMenu())
+	termout.RenderMenu(buildScanHelpMenu())
 }
 
-func buildScanHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildScanHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Repository Discovery Scanner (gitmap scan)",
 		UsageLines: []string{
 			"gitmap scan [dir] [flags]",
@@ -20,7 +20,7 @@ func buildScanHelpMenu() termhelp.HelpMenu {
 			"gitmap scan ~ -fi .oh-my-zsh,node_modules",
 			"gitmap scan /home/user --force-include all",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildScanOutputSection(),
 			buildScanWalkerSection(),
 			buildScanIntegrationSection(),
@@ -35,8 +35,8 @@ func buildScanHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildScanFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildScanFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--quiet", Description: "Suppress interactive walker spinner and clone hints"},
 		{Command: "--open", Description: "Automatically open output directory after scan completes"},
 		{Command: "-v, --verbose", Description: "Emit verbose directory traversal and probe logs"},
@@ -44,10 +44,10 @@ func buildScanFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildScanOutputSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildScanOutputSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Output & Formatting",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "--output <mode>", Description: "Output format: terminal (default), csv, or json"},
 			{Command: "--output-path <dir>", Description: "Directory to write scan artifacts (.gitmap/output)"},
 			{Command: "--manifest <dir>", Description: "Alias for --output-path (aligned with reclone)"},

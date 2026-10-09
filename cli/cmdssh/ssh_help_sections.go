@@ -1,13 +1,13 @@
 package cmdssh
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
-func buildSSHClusterSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSSHClusterSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Cluster & Remote Operations",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "join <sub>", Description: "Join, broadcast, or enroll cluster nodes", HasSubcommands: true},
 			{Command: "nodes export-json [file]", Description: "Export SSH nodes to JSON (default: gitmap-ssh-nodes.json)"},
 			{Command: "nodes import-json [file]", Description: "Import SSH nodes from JSON or --base64 payload"},
@@ -25,10 +25,10 @@ func buildSSHClusterSection() termhelp.HelpSection {
 	}
 }
 
-func buildSSHSecuritySection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSSHSecuritySection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Known Hosts & Security",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "known-hosts (kh)", Description: "Manage, list, trust, and sync known_hosts", HasSubcommands: true},
 			{Command: "trust <target>", Description: "Auto-scan and trust host key in known_hosts"},
 			{Command: "untrust <target>", Description: "Remove machine from known_hosts and database"},
@@ -37,10 +37,10 @@ func buildSSHSecuritySection() termhelp.HelpSection {
 	}
 }
 
-func buildSSHRecoverySection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSSHRecoverySection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "State & Recovery",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "rm <nodes|keys>", Description: "Remove node(s) or key(s) with confirmation"},
 			{Command: "reset [-y]", Description: "Wipe all registered nodes and reset SSH state"},
 			{Command: "history [n]", Description: "Show SSH task and join history (default: 100)"},
@@ -52,10 +52,10 @@ func buildSSHRecoverySection() termhelp.HelpSection {
 	}
 }
 
-func buildSSHRemoteToolsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSSHRemoteToolsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Remote Tools & AGY Fleet",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "agy <subcmd> [--except]", Description: "Run any AGY command across remote SSH fleet (alias: gitmap agy ssh)"},
 			{Command: "code <args>", Description: "Open remote folder in VS Code via SSH Remote"},
 		},

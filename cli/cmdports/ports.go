@@ -8,7 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 var commonPortsList = []int{22, 80, 443, 3389, 5985, 5986, 8080}
@@ -274,24 +274,24 @@ func renderPortsTable(entries []PortEntry, opts PortsOptions) {
 		constants.ColorCyan, "ℹ", len(entries), constants.ColorReset)
 
 	cfg := buildPortsTableConfig(entries)
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	printPortsFooter(entries)
 }
 
-func buildPortsColumns() []termtable.Column {
-	return []termtable.Column{
-		{Title: "Port", MinWidth: 6, Align: termtable.AlignRight},
-		{Title: "Proto", MinWidth: 6, Align: termtable.AlignLeft},
-		{Title: "State", MinWidth: 10, Align: termtable.AlignLeft},
-		{Title: "Process", MinWidth: 14, MaxWidth: 20, Align: termtable.AlignLeft},
-		{Title: "PID", MinWidth: 6, Align: termtable.AlignRight},
-		{Title: "Firewall", MinWidth: 12, MaxWidth: 18, Align: termtable.AlignLeft},
-		{Title: "Recommendation", MinWidth: 24, MaxWidth: 48, Align: termtable.AlignLeft},
+func buildPortsColumns() []termout.Column {
+	return []termout.Column{
+		{Title: "Port", MinWidth: 6, Align: termout.AlignRight},
+		{Title: "Proto", MinWidth: 6, Align: termout.AlignLeft},
+		{Title: "State", MinWidth: 10, Align: termout.AlignLeft},
+		{Title: "Process", MinWidth: 14, MaxWidth: 20, Align: termout.AlignLeft},
+		{Title: "PID", MinWidth: 6, Align: termout.AlignRight},
+		{Title: "Firewall", MinWidth: 12, MaxWidth: 18, Align: termout.AlignLeft},
+		{Title: "Recommendation", MinWidth: 24, MaxWidth: 48, Align: termout.AlignLeft},
 	}
 }
 
-func buildPortsRows(entries []PortEntry) []termtable.Row {
-	rows := make([]termtable.Row, 0, len(entries))
+func buildPortsRows(entries []PortEntry) []termout.Row {
+	rows := make([]termout.Row, 0, len(entries))
 	for _, entry := range entries {
 		rows = append(rows, buildSinglePortRow(entry))
 	}
@@ -299,7 +299,7 @@ func buildPortsRows(entries []PortEntry) []termtable.Row {
 	return rows
 }
 
-func buildSinglePortRow(entry PortEntry) termtable.Row {
+func buildSinglePortRow(entry PortEntry) termout.Row {
 	pidStr := "-"
 	if entry.PID > 0 {
 		pidStr = strconv.Itoa(entry.PID)
@@ -312,7 +312,7 @@ func buildSinglePortRow(entry PortEntry) termtable.Row {
 
 	rowColor := resolveRowColor(entry.State, entry.FirewallStatus)
 
-	return termtable.Row{
+	return termout.Row{
 		Color: rowColor,
 		Cells: []string{
 			strconv.Itoa(entry.Port),
@@ -341,8 +341,8 @@ func resolveRowColor(state string, firewallStatus string) string {
 	return constants.ColorDim
 }
 
-func buildPortsTableConfig(entries []PortEntry) termtable.TableConfig {
-	return termtable.TableConfig{
+func buildPortsTableConfig(entries []PortEntry) termout.TableConfig {
+	return termout.TableConfig{
 		HeaderColor:  constants.ColorCyan,
 		BorderColor:  constants.ColorDim,
 		EllipsisText: "...",

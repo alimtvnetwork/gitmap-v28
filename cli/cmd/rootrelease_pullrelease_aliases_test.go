@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 // pullReleaseAliasNames lists every spelling that must route to the
@@ -57,7 +57,7 @@ func TestPullReleaseAliasesAreUnique(t *testing.T) {
 
 // TestPullReleaseAliasesResolveSameHelpPage guards that --help for any
 // alias renders the canonical pull-release.md page. checkHelp calls
-// helptext.PrintWithMode with the dispatcher-supplied command name; the
+// helpdoc.PrintWithMode with the dispatcher-supplied command name; the
 // dispatcher passes constants.CmdReleasePull for every alias because
 // they share one handler closure. We assert the help file resolves and
 // looks like pull-release help, which transitively proves every alias
@@ -96,14 +96,14 @@ func findPullReleaseDispatchEntry(t *testing.T) dispatchEntry {
 	return dispatchEntry{}
 }
 
-// captureHelp reads the embedded help markdown via helptext.PrintRaw's
+// captureHelp reads the embedded help markdown via helpdoc.PrintRaw's
 // underlying loader without invoking os.Exit. We assert against the raw
 // markdown so the test is independent of pretty-render state.
 func captureHelp(t *testing.T, command string) string {
 	t.Helper()
-	data, err := helptext.ReadRaw(command)
+	data, err := helpdoc.ReadRaw(command)
 	if err != nil {
-		t.Fatalf("helptext.ReadRaw(%q) failed: %v", command, err)
+		t.Fatalf("helpdoc.ReadRaw(%q) failed: %v", command, err)
 	}
 
 	return string(data)

@@ -584,7 +584,7 @@ const (
 // Scripts install messages.
 const (
 	MsgScriptsTarget  = "  → Scripts target: %s\n"
-	MsgScriptsCloning = "  Cloning gitmap repo for scripts...\n    %s\n"
+	MsgScriptsCloning = "  Cloning gitmap repo for fspath...\n    %s\n"
 	MsgScriptsSkip    = "  ⚠ Skipped (not found): %s\n"
 	MsgScriptsCopied  = "  ✓ Copied: %s\n"
 	MsgScriptsDone    = "\n  ✅ %d scripts installed to %s\n"

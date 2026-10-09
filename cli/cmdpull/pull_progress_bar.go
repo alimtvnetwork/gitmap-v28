@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
-	"github.com/alimtvnetwork/gitmap-v28/cli/theme"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // NewPullProgressBar initializes a new progress bar.
@@ -28,7 +28,7 @@ func NewPullProgressBar(total int, isQuiet, isStopOnFail bool) *PullProgressBar 
 }
 
 func resolveTerminalMode() bool {
-	return theme.IsStdoutTTY()
+	return termout.IsStdoutTTY()
 }
 
 // Start marks progress beginning and launches active background ticker.

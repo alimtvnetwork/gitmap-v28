@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/localdirs"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -219,7 +219,7 @@ func performRelease(v Version, sourceRef, sourceName string, opts Options) error
 
 	// Step 1: Re-run legacy directory migration on the original branch.
 	// Older branches may still track .release/, which checkout restores.
-	localdirs.MigrateLegacyDirs()
+	fspath.MigrateLegacyDirs()
 
 	// Step 2: Write metadata JSON on the original branch (picked up by auto-commit).
 	err := writeMetadataIfRequired(v, branchName, tag, sourceName, opts)

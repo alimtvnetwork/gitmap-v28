@@ -10,11 +10,11 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/archive"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 func extractArchiveStaging(ctx context.Context, srcPath, appName string) (string, error) {
-	stagingBase := tempdir.RepoTempDir("archive-install")
+	stagingBase := fspath.RepoTempDir("archive-install")
 	if isStandaloneGz(srcPath) {
 		return extractSingleGz(srcPath, stagingBase, appName)
 	}

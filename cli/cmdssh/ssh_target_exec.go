@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -144,7 +144,7 @@ func executeRemoteTargetCommand(c db.SSHConnection, target string, args []string
 		return apperror.NewExecutionError(fmt.Sprintf("failed to install gitmap delegate on host '%s'", target))
 	}
 	startTime := time.Now()
-	out, err := crypto.RunCommand(client, cmdStr, shellType)
+	out, err := secrets.RunCommand(client, cmdStr, shellType)
 	durMs := time.Since(startTime).Milliseconds()
 	exitCode := resolveProcessExitCode(err)
 

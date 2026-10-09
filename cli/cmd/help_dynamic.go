@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderDynamicCommandHelp generates and renders a modern framed box help menu
@@ -17,27 +17,27 @@ func RenderDynamicCommandHelp(command string) bool {
 		return false
 	}
 
-	summary := helptext.GetTopicDetailedSummary(cmdClean)
+	summary := helpdoc.GetTopicDetailedSummary(cmdClean)
 	if summary == "" || summary == "Gitmap command line utilities." {
 		summary = fmt.Sprintf("Execute, manage, and automate GitMap %s operations.", cmdClean)
 	}
 
-	menu := termhelp.HelpMenu{
+	menu := termout.HelpMenu{
 		Title: fmt.Sprintf("gitmap %s", cmdClean),
 		UsageLines: []string{
 			fmt.Sprintf("gitmap %s [arguments] [flags]", cmdClean),
 			fmt.Sprintf("gitmap %s help", cmdClean),
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			{
 				Title: "Description",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: cmdClean, Description: summary},
 				},
 			},
 			{
 				Title: "Commands & Execution",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: cmdClean, Description: "Run command with default parameters"},
 					{Command: fmt.Sprintf("%s --dry-run", cmdClean), Description: "Simulate execution without state modifications"},
 					{Command: fmt.Sprintf("%s --json", cmdClean), Description: "Output machine-readable JSON telemetry"},
@@ -45,24 +45,24 @@ func RenderDynamicCommandHelp(command string) bool {
 			},
 			{
 				Title: "Examples",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: fmt.Sprintf("gitmap %s", cmdClean), Description: "Standard invocation"},
 					{Command: fmt.Sprintf("gitmap %s --help", cmdClean), Description: "Inspect full options and syntax"},
 				},
 			},
 		},
-		FooterFlags: []termhelp.CommandEntry{
+		FooterFlags: []termout.CommandEntry{
 			{Command: "-h, --help", Description: "Display this formatted help screen"},
 			{Command: "--json", Description: "Emit results formatted as JSON"},
 			{Command: "--dry-run", Description: "Simulate operations without making changes"},
 		},
 		Tips: []string{
 			fmt.Sprintf("Run 'gitmap %s help' anytime for quick reference.", cmdClean),
-			"Combine with '--json' for pipeline and AI automation scripts.",
+			"Combine with '--json' for pipeline and AI automation fspath.",
 		},
 	}
 
-	termhelp.RenderMenu(menu)
+	termout.RenderMenu(menu)
 	printUsageFooterShort()
 
 	return true

@@ -19,7 +19,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // export top-level wire keys. Names + order are the contract.
@@ -35,7 +35,7 @@ const (
 
 // encodeDatabaseExportJSON writes the database export as stable JSON.
 func encodeDatabaseExportJSON(w io.Writer, e model.DatabaseExport) error {
-	fields := []stablejson.Field{
+	fields := []jsonx.Field{
 		{Key: exportKeyVersion, Value: e.Version},
 		{Key: exportKeyExportedAt, Value: e.ExportedAt},
 	}
@@ -46,10 +46,10 @@ func encodeDatabaseExportJSON(w io.Writer, e model.DatabaseExport) error {
 			return err
 		}
 
-		fields = append(fields, stablejson.Field{Key: entry.key, Value: raw})
+		fields = append(fields, jsonx.Field{Key: entry.key, Value: raw})
 	}
 
-	return stablejson.WriteObject(w, fields)
+	return jsonx.WriteObject(w, fields)
 }
 
 // exportArrayField pairs a wire key with its slice value so the

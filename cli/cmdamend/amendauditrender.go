@@ -16,7 +16,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // amend-audit wire keys. Names + order are the contract; reordering
@@ -56,7 +56,7 @@ func encodeAmendAuditJSON(w io.Writer, record model.AmendmentRecord) error {
 		return err
 	}
 
-	return stablejson.WriteObject(w, []stablejson.Field{
+	return jsonx.WriteObject(w, []jsonx.Field{
 		{Key: amendAuditKeyID, Value: record.ID},
 		{Key: amendAuditKeyTimestamp, Value: record.Timestamp},
 		{Key: amendAuditKeyBranch, Value: record.Branch},
@@ -75,7 +75,7 @@ func encodeAmendAuditJSON(w io.Writer, record model.AmendmentRecord) error {
 // mode so it embeds cleanly as a top-level object value.
 func renderAmendAuthorRaw(a model.AmendAuthor) (json.RawMessage, error) {
 	var buf bytes.Buffer
-	if err := stablejson.WriteObjectIndent(&buf, []stablejson.Field{
+	if err := jsonx.WriteObjectIndent(&buf, []jsonx.Field{
 		{Key: "name", Value: a.Name},
 		{Key: "email", Value: a.Email},
 	}, ""); err != nil {
@@ -88,16 +88,16 @@ func renderAmendAuthorRaw(a model.AmendAuthor) (json.RawMessage, error) {
 // renderCommitEntriesRaw pre-renders the commits array in compact
 // mode so it embeds cleanly as a top-level object value.
 func renderCommitEntriesRaw(entries []model.CommitEntry) (json.RawMessage, error) {
-	items := make([][]stablejson.Field, 0, len(entries))
+	items := make([][]jsonx.Field, 0, len(entries))
 	for _, e := range entries {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: "sha", Value: e.SHA},
 			{Key: "message", Value: e.Message},
 		})
 	}
 
 	var buf bytes.Buffer
-	if err := stablejson.WriteArrayIndent(&buf, items, ""); err != nil {
+	if err := jsonx.WriteArrayIndent(&buf, items, ""); err != nil {
 		return nil, err
 	}
 

@@ -1,7 +1,7 @@
 package cmdscan
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/errreport"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -53,6 +53,6 @@ func WriteAllOutputs(records []model.ScanRecord, outputDir, outFile string, quie
 }
 
 // FinalizeErrorReport exposes finalizeErrorReport.
-func FinalizeErrorReport(c *errreport.Collector, quiet bool) {
+func FinalizeErrorReport(c *diag.Collector, quiet bool) {
 	finalizeErrorReport(c, quiet)
 }

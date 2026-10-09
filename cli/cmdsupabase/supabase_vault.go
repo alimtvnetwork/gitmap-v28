@@ -10,7 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -84,7 +84,7 @@ func EncryptSecret(plaintext string) (string, error) {
 		return "", err
 	}
 
-	ciphertext, err := crypto.Encrypt([]byte(plaintext), key)
+	ciphertext, err := secrets.Encrypt([]byte(plaintext), key)
 	if err != nil {
 		return "", apperror.WrapSimple(err, "EncryptSecret")
 	}
@@ -107,7 +107,7 @@ func DecryptSecret(ciphertext string) (string, error) {
 		return "", err
 	}
 
-	plainBytes, err := crypto.Decrypt(ciphertext, key)
+	plainBytes, err := secrets.Decrypt(ciphertext, key)
 	if err == nil {
 		return string(plainBytes), nil
 	}

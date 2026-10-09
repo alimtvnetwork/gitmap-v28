@@ -11,7 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/secretsresolver"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -20,7 +20,7 @@ const migrationScriptRelative = "repo-secrets/05-scripts/migrate-cursor-memories
 func resolveMigrationScriptPath() (string, error) {
 	candidates := []string{
 		migrationScriptRelative,
-		filepath.Join(secretsresolver.ResolveRepoSecretsRoot(), "05-scripts", "migrate-cursor-memories-conversations.py"),
+		filepath.Join(secrets.ResolveRepoSecretsRoot(), "05-scripts", "migrate-cursor-memories-conversations.py"),
 		filepath.Join("..", migrationScriptRelative),
 	}
 	for _, cand := range candidates {

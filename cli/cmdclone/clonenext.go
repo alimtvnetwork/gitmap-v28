@@ -12,7 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
-	"github.com/alimtvnetwork/gitmap-v28/cli/lockcheck"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
@@ -430,7 +430,7 @@ func removeFolderWithLockCheck(name, path string) bool {
 
 func handleLockedFolderRemoval(db *store.DB, taskID int64, name, path string) bool {
 	fmt.Printf(constants.MsgLockCheckScanning, name)
-	procs, scanErr := lockcheck.FindLockingProcesses(path)
+	procs, scanErr := fspath.FindLockingProcesses(path)
 	if scanErr != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnLockCheckScanFailed, scanErr)
 		failPendingTask(db, taskID, fmt.Sprintf(constants.ReasonLockScanFailed, scanErr))
@@ -448,8 +448,8 @@ func handleLockedFolderRemoval(db *store.DB, taskID int64, name, path string) bo
 	return confirmAndKillProcs(db, taskID, name, path, procs)
 }
 
-func confirmAndKillProcs(db *store.DB, taskID int64, name, path string, procs []lockcheck.LockingProcess) bool {
-	fmt.Printf(constants.MsgLockCheckFound, lockcheck.FormatProcessList(procs))
+func confirmAndKillProcs(db *store.DB, taskID int64, name, path string, procs []fspath.LockingProcess) bool {
+	fmt.Printf(constants.MsgLockCheckFound, fspath.FormatProcessList(procs))
 	fmt.Print(constants.MsgLockCheckKillPrompt)
 	var answer string
 	_, _ = fmt.Scanln(&answer)
@@ -465,10 +465,10 @@ func confirmAndKillProcs(db *store.DB, taskID int64, name, path string, procs []
 	return retryFolderRemoval(db, taskID, name, path)
 }
 
-func killLockingProcesses(procs []lockcheck.LockingProcess) {
+func killLockingProcesses(procs []fspath.LockingProcess) {
 	for _, p := range procs {
 		fmt.Printf(constants.MsgLockCheckKilling, p.Name, p.PID)
-		if err := lockcheck.KillProcess(p.PID); err != nil {
+		if err := fspath.KillProcess(p.PID); err != nil {
 			fmt.Fprintf(os.Stderr, constants.WarnLockCheckKillFailed, p.Name, p.PID, err)
 		} else {
 			fmt.Printf(constants.MsgLockCheckKilled, p.Name)

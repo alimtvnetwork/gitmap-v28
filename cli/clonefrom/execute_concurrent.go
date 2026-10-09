@@ -11,7 +11,7 @@ package clonefrom
 //     worker count NEVER reshuffles where repos land.
 //   - Result ORDER matches input order. Per-row PROGRESS LINES are
 //     emitted in input order AFTER the pool drains, keeping
-//     `[i/total]` numbering monotonic for downstream scripts.
+//     `[i/total]` numbering monotonic for downstream fspath.
 //   - The BeforeRow hook fires synchronously on the dispatcher
 //     goroutine in input order, BEFORE the row enters the work
 //     queue.
@@ -108,7 +108,7 @@ func invokeBeforeRow(params BeforeRowInvokeParams) {
 }
 
 // emitProgressInOrder prints progress lines in input order AFTER
-// the pool drains. Keeps `[i/total]` lines monotonic for scripts.
+// the pool drains. Keeps `[i/total]` lines monotonic for fspath.
 func emitProgressInOrder(w io.Writer, out []Result) {
 	if w == nil {
 		return

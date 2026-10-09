@@ -8,7 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -68,7 +68,7 @@ func executeCloneWithHealing(client *ssh.Client, c db.SSHConnection, repoURL, de
 	shell := resolveRemoteShell(c.OS)
 	cloneCmd := buildRemoteCloneCmd(repoURL, destPath, isWindowsOS(c.OS))
 
-	out, err := crypto.RunCommand(client, cloneCmd, shell)
+	out, err := secrets.RunCommand(client, cloneCmd, shell)
 	if err == nil {
 		fmt.Printf("  %s %s✓ Successfully cloned to %s%s\n", header, constants.ColorGreen, destPath, constants.ColorReset)
 		return nil
@@ -85,7 +85,7 @@ func executeCloneWithHealing(client *ssh.Client, c db.SSHConnection, repoURL, de
 		return healErr
 	}
 
-	retryOut, retryErr := crypto.RunCommand(client, cloneCmd, shell)
+	retryOut, retryErr := secrets.RunCommand(client, cloneCmd, shell)
 	if retryErr != nil {
 		printAppErrorWithStack(header, "Clone Retry Failed", apperror.WrapSimple(retryErr, "retry clone"))
 		return retryErr

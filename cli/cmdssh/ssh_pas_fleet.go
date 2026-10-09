@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -123,7 +123,7 @@ func executeRemotePASCommand(c db.SSHConnection, remoteCmd string) FleetPASOutco
 	defer client.Close()
 
 	osType := resolveTargetNodeOS(client, c)
-	out, err := crypto.RunCommand(client, remoteCmd, resolveRemoteShell(osType))
+	out, err := secrets.RunCommand(client, remoteCmd, resolveRemoteShell(osType))
 	errMsg := ""
 	if err != nil {
 		errMsg = err.Error()

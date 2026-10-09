@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/secretsresolver"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func isDeployConfigTempE2ESkipped() bool {
@@ -53,7 +53,7 @@ func TestCloneSecretsResolver_TempE2E(t *testing.T) {
 	}
 
 	for _, token := range []string{"w1", "w2", "w3"} {
-		manifest := secretsresolver.ResolveRepoSecretsManifest(token, "gitmap.json")
+		manifest := secrets.ResolveRepoSecretsManifest(token, "gitmap.json")
 		if manifest == "" {
 			t.Fatalf("expected manifest to resolve for token %q, got empty string", token)
 		}

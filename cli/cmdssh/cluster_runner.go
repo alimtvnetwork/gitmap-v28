@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -253,14 +253,14 @@ func tryCryptoDirectCmd(host store.SSHHost, user, password, alias, formattedCmd 
 	if password == "" {
 		return ClusterRunResult{}, false
 	}
-	client, err := crypto.ConnectWithPassword(host.IP, user, password)
+	client, err := secrets.ConnectWithPassword(host.IP, user, password)
 	if err != nil {
 		return ClusterRunResult{}, false
 	}
 	defer client.Close()
 	osType := probeRemoteOSType(client)
 	shell := resolveRemoteExecShell(osType)
-	out, runErr := crypto.RunCommand(client, formattedCmd, shell)
+	out, runErr := secrets.RunCommand(client, formattedCmd, shell)
 	exitCode := resolveProcessExitCode(runErr)
 	printPrefixedLine(alias, strings.TrimRight(out, "\r\n"), false)
 	return buildClusterRunResult(host, exitCode, out, "", time.Since(startTime), runErr), true
@@ -270,7 +270,7 @@ func tryCryptoSSHProcess(host store.SSHHost, user, password, alias, shellCmd str
 	if password == "" {
 		return ClusterRunResult{}, false
 	}
-	client, err := crypto.ConnectWithPassword(host.IP, user, password)
+	client, err := secrets.ConnectWithPassword(host.IP, user, password)
 	if err != nil {
 		return ClusterRunResult{}, false
 	}
@@ -278,7 +278,7 @@ func tryCryptoSSHProcess(host store.SSHHost, user, password, alias, shellCmd str
 	osType := probeRemoteOSType(client)
 	shell := resolveRemoteExecShell(osType)
 	execCmd := resolveClusterExecCmd(shellCmd, password, isSudo, osType)
-	out, runErr := crypto.RunCommand(client, execCmd, shell)
+	out, runErr := secrets.RunCommand(client, execCmd, shell)
 	exitCode := resolveProcessExitCode(runErr)
 	printPrefixedLine(alias, strings.TrimRight(out, "\r\n"), false)
 	return buildClusterRunResult(host, exitCode, out, "", time.Since(startTime), runErr), true
@@ -331,12 +331,12 @@ func tryCryptoProbe(host store.SSHHost, user, password, probeCmd string) (int, b
 	if password == "" {
 		return 0, false
 	}
-	client, err := crypto.ConnectWithPassword(host.IP, user, password)
+	client, err := secrets.ConnectWithPassword(host.IP, user, password)
 	if err != nil {
 		return 0, false
 	}
 	defer client.Close()
-	_, runErr := crypto.RunCommand(client, probeCmd, "")
+	_, runErr := secrets.RunCommand(client, probeCmd, "")
 	return resolveProcessExitCode(runErr), true
 }
 

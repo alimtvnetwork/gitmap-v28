@@ -5,29 +5,28 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderTemplatesTable displays registered prompt templates in a formatted table.
 func RenderTemplatesTable(list []PromptTemplate) {
 	fmt.Printf("\n%s  ● Prompt Templates (%d registered)%s\n\n", constants.ColorCyan, len(list), constants.ColorReset)
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "NAME", Align: termtable.AlignLeft, MinWidth: 15},
-			{Title: "CONTENT PREVIEW", Align: termtable.AlignLeft, MinWidth: 45},
-			{Title: "UPDATED", Align: termtable.AlignLeft, MinWidth: 12},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "NAME", Align: termout.AlignLeft, MinWidth: 15},
+			{Title: "CONTENT PREVIEW", Align: termout.AlignLeft, MinWidth: 45},
+			{Title: "UPDATED", Align: termout.AlignLeft, MinWidth: 12},
 		},
 		Rows: buildTableRows(list),
 	}
-	termtable.PrintTable(cfg)
-	termpad.EnsureBottomPadding("\n")
+	termout.PrintTable(cfg)
+	termout.EnsureBottomPadding("\n")
 }
 
-func buildTableRows(list []PromptTemplate) []termtable.Row {
-	var rows []termtable.Row
+func buildTableRows(list []PromptTemplate) []termout.Row {
+	var rows []termout.Row
 	for _, item := range list {
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				item.Name,
 				truncateContent(item.Content, 45),

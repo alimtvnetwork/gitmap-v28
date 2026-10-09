@@ -10,7 +10,7 @@ import (
 	"time"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"golang.org/x/crypto/ssh"
 	"os"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
@@ -70,7 +70,7 @@ func executeSSHFleetUpdate(target FleetTarget, opts FleetUpdateOptions) (string,
 
 	cmd := resolveFleetUpdateCommand(osType, opts.Pkg)
 	shell := resolveFleetShell(osType)
-	out, err := crypto.RunCommand(client, cmd, shell)
+	out, err := secrets.RunCommand(client, cmd, shell)
 	if err == nil && isAgmPkg(opts.Pkg) {
 		collectAgmUpdateZip(client, osType)
 	}
@@ -102,7 +102,7 @@ func executeSSHFleetZipUpdate(target FleetTarget, opts FleetUpdateOptions) (stri
 
 	cmd := resolveFleetZipInstallCommand(osType, opts.Pkg, destZipPath)
 	shell := resolveFleetShell(osType)
-	out, err := crypto.RunCommand(client, cmd, shell)
+	out, err := secrets.RunCommand(client, cmd, shell)
 	if err == nil && isAgmPkg(opts.Pkg) {
 		collectAgmUpdateZip(client, osType)
 	}
@@ -122,7 +122,7 @@ func remoteExportZipProbe(osType string) string {
 }
 
 func collectAgmUpdateZip(client *ssh.Client, osType string) {
-	pathOut, err := crypto.RunCommand(client, remoteExportZipProbe(osType), "")
+	pathOut, err := secrets.RunCommand(client, remoteExportZipProbe(osType), "")
 	if err != nil {
 		return
 	}
@@ -242,11 +242,11 @@ func tryDialFleetPassword(target FleetTarget) (*ssh.Client, bool) {
 	if target.Password == "" {
 		return nil, false
 	}
-	plain, err := crypto.DecryptStoredPassword(target.Password)
+	plain, err := secrets.DecryptStoredPassword(target.Password)
 	if err != nil || plain == "" {
 		plain = target.Password
 	}
-	c, connErr := crypto.ConnectWithPassword(target.IP, target.Username, plain)
+	c, connErr := secrets.ConnectWithPassword(target.IP, target.Username, plain)
 	return c, connErr == nil
 }
 
@@ -254,7 +254,7 @@ func tryDialFleetKey(target FleetTarget) (*ssh.Client, bool) {
 	if target.KeyPath == "" {
 		return nil, false
 	}
-	c, err := crypto.ConnectWithKey(target.IP, target.Username, target.KeyPath)
+	c, err := secrets.ConnectWithKey(target.IP, target.Username, target.KeyPath)
 	return c, err == nil
 }
 
@@ -265,7 +265,7 @@ func tryDialFleetCandidateKeys(target FleetTarget) (*ssh.Client, bool) {
 		fmt.Sprintf("%s/.ssh/id_rsa", home),
 	}
 	for _, k := range candidateKeys {
-		c, err := crypto.ConnectWithKey(target.IP, target.Username, k)
+		c, err := secrets.ConnectWithKey(target.IP, target.Username, k)
 		if err == nil {
 			return c, true
 		}

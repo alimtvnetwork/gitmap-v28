@@ -9,7 +9,7 @@ package cmdprobe
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // probe-report wire keys. Names + order are the contract; reordering
@@ -31,17 +31,17 @@ const (
 // special case. Split out from CLI dispatch so contract tests can
 // capture the bytes into a buffer instead of stdout.
 func encodeProbeJSON(w io.Writer, entries []probeJSONEntry) error {
-	return stablejson.WriteArray(w, buildProbeJSONItems(entries))
+	return jsonx.WriteArray(w, buildProbeJSONItems(entries))
 }
 
 // buildProbeJSONItems is the single source of (field name, field
 // order, value) for probe-report. Centralized so a future column
 // rename/reorder is one diff and the contract test catches schema
 // drift in the same PR.
-func buildProbeJSONItems(entries []probeJSONEntry) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(entries))
+func buildProbeJSONItems(entries []probeJSONEntry) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(entries))
 	for _, e := range entries {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: probeKeyRepoID, Value: e.RepoID},
 			{Key: probeKeySlug, Value: e.Slug},
 			{Key: probeKeyAbsolutePath, Value: e.AbsolutePath},

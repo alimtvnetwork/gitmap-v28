@@ -18,7 +18,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -40,7 +40,7 @@ func registerRemoteIDEsWindows(client *ssh.Client, repoName, remoteRepoPath, uui
 	script := buildWindowsIDEScript(repoName, remoteRepoPath, uuidStr, fileURI, withPinned)
 	encoded := encodePowerShell(script)
 	cmd := "powershell.exe -NoProfile -EncodedCommand " + encoded
-	out, err := crypto.RunCommand(client, cmd, "ps")
+	out, err := secrets.RunCommand(client, cmd, "ps")
 	if err != nil {
 		return nil, fmt.Errorf("remote windows ide registration failed: %w", err)
 	}
@@ -50,7 +50,7 @@ func registerRemoteIDEsWindows(client *ssh.Client, repoName, remoteRepoPath, uui
 
 func registerRemoteIDEsLinux(client *ssh.Client, repoName, remoteRepoPath, uuidStr, fileURI string, withPinned bool) ([]string, error) {
 	script := buildLinuxIDEScript(repoName, remoteRepoPath, uuidStr, fileURI, withPinned)
-	out, err := crypto.RunCommand(client, script, "sh")
+	out, err := secrets.RunCommand(client, script, "sh")
 	if err != nil {
 		return nil, fmt.Errorf("remote linux ide registration failed: %w", err)
 	}
@@ -562,7 +562,7 @@ func streamAndExtractConversations(client *ssh.Client, conn db.SSHConnection, ta
 	}
 
 	cmd, shell := resolveConvExtractCommand(conn, stagingPath)
-	if _, errExec := crypto.RunCommand(client, cmd, shell); errExec != nil {
+	if _, errExec := secrets.RunCommand(client, cmd, shell); errExec != nil {
 		return 0, fmt.Errorf("extract conversations failed: %w", errExec)
 	}
 

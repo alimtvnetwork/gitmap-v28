@@ -1,16 +1,16 @@
 package cmduser
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderUserHelp displays the styled two-column User help menu.
 func RenderUserHelp() {
-	termhelp.RenderMenu(buildUserHelpMenu())
+	termout.RenderMenu(buildUserHelpMenu())
 }
 
-func buildUserHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildUserHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Git Identity, Multi-User Profiles & System Accounts (gitmap user)",
 		UsageLines: []string{
 			"gitmap user <subcommand> [flags]",
@@ -19,7 +19,7 @@ func buildUserHelpMenu() termhelp.HelpMenu {
 			"gitmap user list",
 			"gitmap user project bind <alias>",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildGitUserSection(),
 			buildUserAccountSection(),
 			buildUserSSHAuthSection(),
@@ -33,10 +33,10 @@ func buildUserHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildGitUserSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildGitUserSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Git Profile & Context Actions",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "info / status", Description: "Display consolidated Git and GitHub CLI user identity card"},
 			{Command: "list / ls", Description: "List configured Git profiles with active and bound indicators"},
 			{Command: "switch / use <alias>", Description: "Switch active Git profile (--global or --project)"},
@@ -47,8 +47,8 @@ func buildGitUserSection() termhelp.HelpSection {
 	}
 }
 
-func buildUserFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildUserFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--global", Description: "Apply profile switch or configuration globally"},
 		{Command: "--project", Description: "Bind profile and apply configuration to current repository"},
 		{Command: "--name <string>", Description: "Specify author name for Git profile or configuration"},
@@ -58,10 +58,10 @@ func buildUserFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildUserAccountSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildUserAccountSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Operating System User Accounts",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "add <username>", Description: "Create new operating system user with home directory"},
 			{Command: "rm / delete <user>", Description: "Remove operating system user account and home directory"},
 			{Command: "create-root <user>", Description: "Create administrative user with passwordless sudo access"},
@@ -70,10 +70,10 @@ func buildUserAccountSection() termhelp.HelpSection {
 	}
 }
 
-func buildUserSSHAuthSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildUserSSHAuthSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "SSH Credential Deployment",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "add-ssh-key <u...> <key>", Description: "Install public SSH key into target user's authorized_keys"},
 		},
 	}

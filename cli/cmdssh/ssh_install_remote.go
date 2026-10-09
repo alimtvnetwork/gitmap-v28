@@ -8,7 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -123,7 +123,7 @@ func dispatchNodePackageAction(client *ssh.Client, header, osType, pkg string) {
 }
 
 func isGitmapPresent(client *ssh.Client) bool {
-	out, err := crypto.RunCommand(client, "gitmap version 2>/dev/null || gitmap --version 2>/dev/null", "")
+	out, err := secrets.RunCommand(client, "gitmap version 2>/dev/null || gitmap --version 2>/dev/null", "")
 
 	return err == nil && strings.Contains(out, "gitmap")
 }

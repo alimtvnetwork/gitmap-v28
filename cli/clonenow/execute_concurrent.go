@@ -107,7 +107,7 @@ func enqueueConcurrentJobs(plan Plan, beforeRow BeforeRowHook,
 // emitProgressInOrder prints progress lines in input order AFTER
 // the pool drains. Trade-off: progress is post-hoc rather than
 // real-time, but ordering matches the sequential runner's contract
-// — keeping `[i/total]` lines monotonic for scripts.
+// — keeping `[i/total]` lines monotonic for fspath.
 func emitProgressInOrder(w io.Writer, out []Result) {
 	if w == nil {
 		return

@@ -5,13 +5,13 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
 // uploadToGitHub creates a GitHub release and uploads assets.
 func uploadToGitHub(v Version, assets []string, opts Options) {
-	token, source, err := ghtoken.Resolve()
+	token, source, err := secrets.Resolve()
 	if err != nil && len(assets) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrAssetNoToken)
 	}

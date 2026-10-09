@@ -1,7 +1,7 @@
 // Package helpdisplay renders themed CLI help output (spec 243.3): one DRY,
 // object-oriented help-rendering system with theme inheritance and variable
 // suggestions. Color codes are borrowed from cli/constants, so the ANSI
-// rewrite filter installed by cli/theme.Install adapts them automatically.
+// rewrite filter installed by cli/termout.Install adapts them automatically.
 package helpdisplay
 
 import (
@@ -40,7 +40,7 @@ func (c Color) Wrap(text string) string {
 //
 // Inheritance: an explicitly set field wins; otherwise the parent theme's
 // resolved value applies; a nil parent chain ends at the zero Color (unset,
-// i.e. plain text). This lets per-help tweaks layer on a shared theme.
+// i.e. plain text). This lets per-help tweaks layer on a shared termout.
 type Theme struct {
 	headerColor      Color
 	commandColor     Color
@@ -98,22 +98,22 @@ func (t *Theme) HintColor() Color {
 	return resolveThemeColor(t, fieldHint)
 }
 
-// fieldHeader extracts the headerColor role from a theme.
+// fieldHeader extracts the headerColor role from a termout.
 func fieldHeader(t *Theme) Color {
 	return t.headerColor
 }
 
-// fieldCommand extracts the commandColor role from a theme.
+// fieldCommand extracts the commandColor role from a termout.
 func fieldCommand(t *Theme) Color {
 	return t.commandColor
 }
 
-// fieldDescription extracts the descriptionColor role from a theme.
+// fieldDescription extracts the descriptionColor role from a termout.
 func fieldDescription(t *Theme) Color {
 	return t.descriptionColor
 }
 
-// fieldHint extracts the hintColor role from a theme.
+// fieldHint extracts the hintColor role from a termout.
 func fieldHint(t *Theme) Color {
 	return t.hintColor
 }

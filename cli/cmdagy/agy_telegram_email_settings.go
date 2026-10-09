@@ -15,7 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // AgyTelegramCmd provides the Cobra entrypoint for gitmap [agy] telegram.
@@ -491,16 +491,16 @@ func printSpeedJSON(v interface{}) error {
 
 // RenderAgyTelegramHelp renders the boxed help menu for gitmap telegram / gitmap agy telegram.
 func RenderAgyTelegramHelp() {
-	termhelp.RenderMenu(termhelp.HelpMenu{
+	termout.RenderMenu(termout.HelpMenu{
 		Title: "Two-Way Telegram Chatbot Integration (gitmap telegram)",
 		UsageLines: []string{
 			"gitmap telegram <setup|status|send|poll|start|help> [flags]",
 			"gitmap agy telegram <setup|status|send|poll|start|help> [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			{
 				Title: "Telegram Chatbot Subcommands",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "setup --token <T> --chat <ID>", Description: "Configure Telegram Bot Token & Chat ID and sync with AGY Manager"},
 					{Command: "status [--json]", Description: "Show bot connection state, masked token, chat ID, and handler readiness"},
 					{Command: "send \"<message>\"", Description: "Send an instant notification message to the configured Telegram chat"},
@@ -518,16 +518,16 @@ func RenderAgyTelegramHelp() {
 
 // RenderAgyEmailHelp renders the boxed help menu for gitmap email / gitmap agy email.
 func RenderAgyEmailHelp() {
-	termhelp.RenderMenu(termhelp.HelpMenu{
+	termout.RenderMenu(termout.HelpMenu{
 		Title: "Email Speed Notification Setup (gitmap email)",
 		UsageLines: []string{
 			"gitmap email <setup|status|test|help> [flags]",
 			"gitmap agy email <setup|status|test|help> [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			{
 				Title: "Email Speed Subcommands",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "setup --smtp <h:p> --from <f> --to <t>", Description: "Configure SMTP host, sender, recipient, and app password"},
 					{Command: "status [--json]", Description: "Display current Email speed notification configuration"},
 					{Command: "test", Description: "Send a test verification email using configured SMTP settings"},
@@ -544,7 +544,7 @@ func RenderAgySettingsHelp() {
 }
 
 func renderSettingsHelp() {
-	termhelp.RenderMenu(termhelp.HelpMenu{
+	termout.RenderMenu(termout.HelpMenu{
 		Title: "GitMap & Antigravity Speed Settings (gitmap settings)",
 		UsageLines: []string{
 			"gitmap settings [--lap-hours 24] [--threshold 15] [--alias <name>] [--json]",
@@ -556,11 +556,11 @@ func renderSettingsHelp() {
 	})
 }
 
-func buildSettingsHelpSections() []termhelp.HelpSection {
-	return []termhelp.HelpSection{
+func buildSettingsHelpSections() []termout.HelpSection {
+	return []termout.HelpSection{
 		{
 			Title: "Speed Settings & Configuration Keys",
-			Entries: []termhelp.CommandEntry{
+			Entries: []termout.CommandEntry{
 				{Command: "--lap-hours <N>", Description: "Set default lookback hours for last-active-projects (default: 24)"},
 				{Command: "--threshold <N>", Description: "Set account-switch remaining credit threshold percentage (default: 15)"},
 				{Command: "--alias <name>", Description: "Set machine network alias for SSH fleet recognition"},

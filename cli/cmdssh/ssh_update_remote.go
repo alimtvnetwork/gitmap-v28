@@ -10,7 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -227,7 +227,7 @@ func executeSingleSSHNodeUpdate(c db.SSHConnection, pkg string, isDryRun bool) (
 	}
 
 	cmd := resolveRemoteUpdateCommand(osType, pkg)
-	out, err := crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
+	out, err := secrets.RunCommand(client, cmd, resolveRemoteShell(osType))
 	reportUpdateExecution(header, pkg, out, err)
 	if err != nil {
 		return out, err

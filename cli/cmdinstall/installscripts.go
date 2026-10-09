@@ -107,9 +107,9 @@ func runInstallScripts() error {
 	return nil
 }
 
-// resolveScriptsDir returns the target directory for scripts.
-// Windows: reads deployPath from powershell.json, defaults to D:\gitmap-scripts.
-// Linux/macOS: ~/Desktop/gitmap-scripts.
+// resolveScriptsDir returns the target directory for fspath.
+// Windows: reads deployPath from powershell.json, defaults to D:\gitmap-fspath.
+// Linux/macOS: ~/Desktop/gitmap-fspath.
 func resolveScriptsDir() string {
 	if runtime.GOOS == constants.PlatformWindows {
 		return resolveScriptsDirWindows()

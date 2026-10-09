@@ -1,22 +1,22 @@
 package cmdssh
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderSSHHelp displays the styled two-column SSH help menu.
 func RenderSSHHelp() {
-	termhelp.RenderMenu(buildSSHHelpMenu())
+	termout.RenderMenu(buildSSHHelpMenu())
 }
 
-func buildSSHHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildSSHHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "SSH & Multi-Node Cluster Fleet (gitmap ssh)",
 		UsageLines: []string{
 			"gitmap ssh [command] [args]",
 			"gitmap sj [command] [args]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildSSHKeySection(),
 			buildSSHDaemonSection(),
 			buildSSHNodeSection(),
@@ -25,7 +25,7 @@ func buildSSHHelpMenu() termhelp.HelpMenu {
 			buildSSHRecoverySection(),
 			buildSSHRemoteToolsSection(),
 		},
-		FooterFlags: []termhelp.CommandEntry{
+		FooterFlags: []termout.CommandEntry{
 			{Command: "-h, --help", Description: "Show this SSH help menu"},
 			{Command: "-y, --yes", Description: "Bypass confirmation prompts for rm/reset/create"},
 		},
@@ -37,10 +37,10 @@ func buildSSHHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildSSHKeySection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSSHKeySection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Key Management",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "view (v, show) [name]", Description: "Display SSH public key card, copy to clipboard & hint regeneration"},
 			{Command: "create [name] [-y]", Description: "Generate SSH key pair with overwrite guard, backup & undo/redo"},
 			{Command: "copy (cp) [name]", Description: "Copy public key to clipboard"},
@@ -51,10 +51,10 @@ func buildSSHKeySection() termhelp.HelpSection {
 	}
 }
 
-func buildSSHDaemonSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSSHDaemonSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Server Daemon, Firewall & Web UI",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "enable [--port <p>]", Description: "Enable OpenSSH Server daemon and start service"},
 			{Command: "disable", Description: "Stop OpenSSH Server daemon and close firewall ports"},
 			{Command: "port <ls|add|rm|set>", Description: "Manage SSH ports in sshd_config with cross-OS firewall sync"},
@@ -65,10 +65,10 @@ func buildSSHDaemonSection() termhelp.HelpSection {
 	}
 }
 
-func buildSSHNodeSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSSHNodeSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Node & Machine Management",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "nodes (ls)", Description: "List all registered SSH nodes and machine status"},
 			{Command: "login <user@ip>", Description: "Connect & install environment on remote host"},
 			{Command: "check [target]", Description: "Probe connectivity, port 22, and health"},

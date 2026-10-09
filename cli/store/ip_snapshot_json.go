@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 // IPSnapshotRecord represents a persisted IP snapshot in SQLite or JSON fallback.
@@ -25,7 +25,7 @@ type IPSnapshotRecord struct {
 
 // GetIPSnapshotFallbackPath returns the canonical path to the JSON fallback file.
 func GetIPSnapshotFallbackPath() string {
-	dir := tempdir.RepoTempDir()
+	dir := fspath.RepoTempDir()
 
 	return filepath.Join(dir, "ip-snapshot-last.json")
 }

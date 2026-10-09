@@ -14,7 +14,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -273,7 +273,7 @@ func persistCorrectedNodeOS(alias, osType string) {
 
 func retryWithPowerShell(client *ssh.Client, opts NodesCloneOptions, fileName, alias string) (string, error) {
 	cmdStr := buildRemoteExecString(opts, fileName, true)
-	out, err := crypto.RunCommand(client, cmdStr, "ps")
+	out, err := secrets.RunCommand(client, cmdStr, "ps")
 	if err == nil {
 		go persistCorrectedNodeOS(alias, "windows")
 	}
@@ -331,7 +331,7 @@ func retryWithoutJSON(client *ssh.Client, opts NodesCloneOptions, fileName strin
 	cmdArgs := resolveRemoteArgs(opts.PassArgs, opts.DetectedFile, fileName)
 	targetDir := resolveTargetDirForOS(isWin, opts)
 	cmdStr := buildLegacyExecString(string(opts.Kind), cmdArgs, targetDir, isWin)
-	return crypto.RunCommand(client, cmdStr, shell)
+	return secrets.RunCommand(client, cmdStr, shell)
 }
 
 func extractLegacyCloneDetails(out string) string {
@@ -377,7 +377,7 @@ func runRemoteExecOverSSH(client *ssh.Client, conn db.SSHConnection, opts NodesC
 	isWin := isWindowsNode(conn)
 	shell := resolveNodeShell(isWin)
 	cmdStr := buildRemoteExecString(opts, fileName, isWin)
-	out, errRun := crypto.RunCommand(client, cmdStr, shell)
+	out, errRun := secrets.RunCommand(client, cmdStr, shell)
 	out, errRun = handleFallbackRetries(client, conn, opts, fileName, isWin, shell, out, errRun)
 	return populateExecutionResult(res, out, errRun, start)
 }

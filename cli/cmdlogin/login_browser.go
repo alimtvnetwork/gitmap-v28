@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"golang.org/x/term"
 )
 
@@ -33,7 +33,7 @@ func runGhBrowserLogin() error {
 		return fmt.Errorf("browser login via gh failed: %w", err)
 	}
 
-	token, source, err := ghtoken.Resolve()
+	token, source, err := secrets.Resolve()
 	if err != nil || len(token) == 0 {
 		return fmt.Errorf("browser login did not produce a usable token (see `gitmap login --help`)")
 	}

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"golang.org/x/crypto/ssh"
 )
@@ -110,7 +110,7 @@ func executeSSHImportAll(opts SSHImportAllOptions) error {
 func fetchRemoteExportBundle(client *ssh.Client, c db.SSHConnection) (*GitmapExportBundle, error) {
 	shell := determineFallbackShell(c.OS)
 	cmd := buildRemoteReadBundleCmd(isWindowsOS(c.OS))
-	out, err := crypto.RunCommand(client, cmd, shell)
+	out, err := secrets.RunCommand(client, cmd, shell)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "read remote export bundle from "+c.Alias)
 	}

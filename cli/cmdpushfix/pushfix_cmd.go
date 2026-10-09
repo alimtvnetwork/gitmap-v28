@@ -5,14 +5,14 @@ import (
 	"flag"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 // RunPushFix is the main entry point for the gitmap push-fix command.
 func RunPushFix(args []string) error {
 	for _, a := range args {
 		if a == "-h" || a == "--help" || a == "help" {
-			helptext.Print("push_fix")
+			helpdoc.Print("push_fix")
 			return nil
 		}
 	}

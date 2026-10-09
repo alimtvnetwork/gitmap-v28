@@ -12,7 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 // UndoOptions configures parameters for reverting a purge operation.
@@ -224,7 +224,7 @@ func restoreViaTempVault(ctx *undoContext) (*UndoResult, error) {
 	vaultPath := ctx.op.BackupVaultPath
 	if vaultPath == "" {
 		opIdStr := fmt.Sprintf("%d", ctx.op.OperationId)
-		vaultPath = tempdir.RepoTempDir("history-backup", ctx.op.RepoSlug, opIdStr)
+		vaultPath = fspath.RepoTempDir("history-backup", ctx.op.RepoSlug, opIdStr)
 	}
 
 	if _, err := os.Stat(vaultPath); os.IsNotExist(err) {

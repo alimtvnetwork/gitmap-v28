@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -215,7 +215,7 @@ func TestTempE2E_SSHInstallExecStreamingAndOSProbing(t *testing.T) {
 			t.Fatalf("StreamFileToRemote failed on %s: %v", alias, errStream)
 		}
 
-		out, errCmd := crypto.RunCommand(client, fmt.Sprintf(`powershell -NoProfile -Command "(Get-Item '%s').Length"`, remotePath), "ps")
+		out, errCmd := secrets.RunCommand(client, fmt.Sprintf(`powershell -NoProfile -Command "(Get-Item '%s').Length"`, remotePath), "ps")
 		if errCmd != nil {
 			client.Close()
 			t.Fatalf("failed to query file length on %s: %v", alias, errCmd)
@@ -227,7 +227,7 @@ func TestTempE2E_SSHInstallExecStreamingAndOSProbing(t *testing.T) {
 			t.Fatalf("expected remote file length %s on %s, got %q", expectedStr, alias, trimmed)
 		}
 
-		_, _ = crypto.RunCommand(client, fmt.Sprintf(`powershell -NoProfile -Command "Remove-Item -Force '%s' 2>$null"`, remotePath), "ps")
+		_, _ = secrets.RunCommand(client, fmt.Sprintf(`powershell -NoProfile -Command "Remove-Item -Force '%s' 2>$null"`, remotePath), "ps")
 		client.Close()
 	}
 }

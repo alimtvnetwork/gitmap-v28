@@ -1,23 +1,23 @@
 package cmdschedule
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderScheduleHelp displays the styled two-column Schedule help menu.
 func RenderScheduleHelp() {
-	termhelp.RenderMenu(buildScheduleHelpMenu())
+	termout.RenderMenu(buildScheduleHelpMenu())
 }
 
-func buildScheduleHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildScheduleHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Task Scheduler & Power Manager (gitmap schedule)",
 		UsageLines: []string{
 			"gitmap schedule [command] [args]",
 			"gitmap sched [command] [args]",
 			"gitmap schedule add <name> [cmds...] [--every <interval>]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildScheduleTaskSection(),
 			buildScheduleLifecycleSection(),
 			buildScheduleLogsSection(),
@@ -33,8 +33,8 @@ func buildScheduleHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildScheduleFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildScheduleFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--every, -i <interval>", Description: "Execution interval (e.g. 1d, 2h, 30m, 15s)"},
 		{Command: "--macro, -m <name>", Description: "Link scheduled execution to a saved macro"},
 		{Command: "--startup", Description: "Automatically register task in OS startup autorun"},

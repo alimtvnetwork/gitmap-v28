@@ -13,7 +13,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 var (
@@ -139,7 +139,7 @@ func RunAiUndo(taskId string, filePaths []string) error {
 }
 
 func checkVaultExists(taskId string) (string, error) {
-	vaultDir := filepath.Join(os.TempDir(), tempdir.RepoTempSubdir, "removed", taskId)
+	vaultDir := filepath.Join(os.TempDir(), fspath.RepoTempSubdir, "removed", taskId)
 	info, statErr := os.Stat(vaultDir)
 	isMissing := statErr != nil || !info.IsDir()
 	if isMissing {

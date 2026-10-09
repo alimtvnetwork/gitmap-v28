@@ -21,7 +21,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // llm-docs top-level wire keys. Names + order are the contract.
@@ -53,7 +53,7 @@ const (
 // encodeLLMDocsJSON writes the LLM reference document as stable JSON.
 // sections controls which top-level keys are included (nil = all).
 func encodeLLMDocsJSON(w io.Writer, sections map[string]bool) error {
-	fields := make([]stablejson.Field, 0, 8)
+	fields := make([]jsonx.Field, 0, 8)
 
 	commandsRaw, err := renderCommandsRawIfWanted(sections)
 	if err != nil {
@@ -61,7 +61,7 @@ func encodeLLMDocsJSON(w io.Writer, sections map[string]bool) error {
 	}
 
 	if commandsRaw != nil {
-		fields = append(fields, stablejson.Field{Key: llmDocsKeyCommands, Value: commandsRaw})
+		fields = append(fields, jsonx.Field{Key: llmDocsKeyCommands, Value: commandsRaw})
 	}
 
 	sectionMap := []struct {
@@ -87,11 +87,11 @@ func encodeLLMDocsJSON(w io.Writer, sections map[string]bool) error {
 		sm.write(&sb)
 		s := sb.String()
 		if s != "" {
-			fields = append(fields, stablejson.Field{Key: sm.name, Value: s})
+			fields = append(fields, jsonx.Field{Key: sm.name, Value: s})
 		}
 	}
 
-	return stablejson.WriteObject(w, fields)
+	return jsonx.WriteObject(w, fields)
 }
 
 // renderLLMDocsCommandsRaw pre-renders the command groups array in
@@ -99,7 +99,7 @@ func encodeLLMDocsJSON(w io.Writer, sections map[string]bool) error {
 func renderLLMDocsCommandsRaw() (json.RawMessage, error) {
 	var buf bytes.Buffer
 	groups := buildCommandGroups()
-	if err := stablejson.WriteArrayIndent(&buf, buildLLMDocsGroupItems(groups), ""); err != nil {
+	if err := jsonx.WriteArrayIndent(&buf, buildLLMDocsGroupItems(groups), ""); err != nil {
 		return nil, err
 	}
 
@@ -116,14 +116,14 @@ func renderCommandsRawIfWanted(sections map[string]bool) (json.RawMessage, error
 
 // buildLLMDocsGroupItems is the single source of (field name, field
 // order, value) for command groups.
-func buildLLMDocsGroupItems(groups []llmCmdGroup) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(groups))
+func buildLLMDocsGroupItems(groups []llmCmdGroup) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(groups))
 	for _, g := range groups {
-		groupFields := make([]stablejson.Field, 0, 2)
-		groupFields = append(groupFields, stablejson.Field{Key: llmDocsGroupKeyTitle, Value: g.title})
+		groupFields := make([]jsonx.Field, 0, 2)
+		groupFields = append(groupFields, jsonx.Field{Key: llmDocsGroupKeyTitle, Value: g.title})
 
 		cmdsRaw, _ := renderLLMDocsGroupCommandsRaw(g.commands)
-		groupFields = append(groupFields, stablejson.Field{Key: llmDocsGroupKeyCommands, Value: cmdsRaw})
+		groupFields = append(groupFields, jsonx.Field{Key: llmDocsGroupKeyCommands, Value: cmdsRaw})
 
 		items = append(items, groupFields)
 	}
@@ -135,7 +135,7 @@ func buildLLMDocsGroupItems(groups []llmCmdGroup) [][]stablejson.Field {
 // in compact mode.
 func renderLLMDocsGroupCommandsRaw(commands []llmCmdEntry) (json.RawMessage, error) {
 	var buf bytes.Buffer
-	if err := stablejson.WriteArrayIndent(&buf, buildLLMDocsCommandItems(commands), ""); err != nil {
+	if err := jsonx.WriteArrayIndent(&buf, buildLLMDocsCommandItems(commands), ""); err != nil {
 		return nil, err
 	}
 
@@ -144,17 +144,17 @@ func renderLLMDocsGroupCommandsRaw(commands []llmCmdEntry) (json.RawMessage, err
 
 // buildLLMDocsCommandItems is the single source of (field name, field
 // order, value) for individual commands within a group.
-func buildLLMDocsCommandItems(commands []llmCmdEntry) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(commands))
+func buildLLMDocsCommandItems(commands []llmCmdEntry) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(commands))
 	for _, c := range commands {
-		fields := []stablejson.Field{
+		fields := []jsonx.Field{
 			{Key: llmDocsCmdKeyName, Value: c.name},
 			{Key: llmDocsCmdKeyAlias, Value: c.alias},
 			{Key: llmDocsCmdKeyDescription, Value: c.desc},
 		}
 
 		if c.example != "" {
-			fields = append(fields, stablejson.Field{Key: llmDocsCmdKeyExample, Value: c.example})
+			fields = append(fields, jsonx.Field{Key: llmDocsCmdKeyExample, Value: c.example})
 		}
 
 		items = append(items, fields)

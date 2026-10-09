@@ -28,7 +28,7 @@ import (
 // allcommands_generated.go. Domain owners never need to edit the generator.
 var manualExtras = []string{"db", "start-fresh", "find-duplicates", "pe", "pd", "ping", "nodes", "node", "gitignore", "agm", "ta"}
 
-// CustomGenerator allows package cmd to provide dynamic Cobra completion scripts.
+// CustomGenerator allows package cmd to provide dynamic Cobra completion fspath.
 var CustomGenerator func(shell string) (string, error)
 
 // Generate returns the completion script for the given shell.

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 // TestFleetUpdate_RCAProof_UserScenario explicitly proves the fix for the user's reported bug:
@@ -27,7 +27,7 @@ func TestFleetUpdate_RCAProof_UserScenario(t *testing.T) {
 	}()
 
 	plainPassword := "SecretClusterPassword123!"
-	encryptedPassword, err := crypto.Encrypt([]byte(plainPassword), []byte("gitmap-ssh-secret-key-0123456789"))
+	encryptedPassword, err := secrets.Encrypt([]byte(plainPassword), []byte("gitmap-ssh-secret-key-0123456789"))
 	if err != nil {
 		t.Fatalf("failed to encrypt mock password: %v", err)
 	}
@@ -53,7 +53,7 @@ func TestFleetUpdate_RCAProof_UserScenario(t *testing.T) {
 		defer mu.Unlock()
 		executedIPs[target.IP] = true
 
-		decrypted, decErr := crypto.DecryptStoredPassword(target.Password)
+		decrypted, decErr := secrets.DecryptStoredPassword(target.Password)
 		if decErr != nil {
 			t.Errorf("failed to decrypt password for %s: %v", target.Alias, decErr)
 		}

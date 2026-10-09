@@ -14,7 +14,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -371,7 +371,7 @@ func enrollParsedTarget(ctx context.Context, opts *SSHJoinOptions) error {
 }
 
 func showJoinHelpAndExit() error {
-	helptext.Print("ssh-join")
+	helpdoc.Print("ssh-join")
 	return nil
 }
 

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // runAppsDispatch routes the "apps" subcommand.
@@ -80,16 +80,16 @@ func runAppsList(args []string) error {
 		return nil
 	}
 
-	columns := []termtable.Column{
-		{Title: "APP ID", MinWidth: 20, Align: termtable.AlignLeft},
-		{Title: "NAME", MinWidth: 22, Align: termtable.AlignLeft},
-		{Title: "VERSION", MinWidth: 12, Align: termtable.AlignLeft},
-		{Title: "MANAGER", MinWidth: 10, Align: termtable.AlignLeft},
-		{Title: "SCOPE", MinWidth: 8, Align: termtable.AlignLeft},
-		{Title: "PACKAGE", MinWidth: 20, Align: termtable.AlignLeft},
+	columns := []termout.Column{
+		{Title: "APP ID", MinWidth: 20, Align: termout.AlignLeft},
+		{Title: "NAME", MinWidth: 22, Align: termout.AlignLeft},
+		{Title: "VERSION", MinWidth: 12, Align: termout.AlignLeft},
+		{Title: "MANAGER", MinWidth: 10, Align: termout.AlignLeft},
+		{Title: "SCOPE", MinWidth: 8, Align: termout.AlignLeft},
+		{Title: "PACKAGE", MinWidth: 20, Align: termout.AlignLeft},
 	}
 
-	rows := make([]termtable.Row, 0, len(resp.Data))
+	rows := make([]termout.Row, 0, len(resp.Data))
 	for _, app := range resp.Data {
 		version := app.Version
 		if version == "" {
@@ -99,7 +99,7 @@ func runAppsList(args []string) error {
 		if pkg == "" {
 			pkg = "-"
 		}
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				app.ID,
 				app.Name,
@@ -111,12 +111,12 @@ func runAppsList(args []string) error {
 		})
 	}
 
-	tableCfg := termtable.TableConfig{
+	tableCfg := termout.TableConfig{
 		Columns:    columns,
 		Rows:       rows,
 		HasBorders: true,
 	}
-	termtable.PrintTable(tableCfg)
+	termout.PrintTable(tableCfg)
 
 	return nil
 }

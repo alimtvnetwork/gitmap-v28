@@ -1,23 +1,23 @@
 package cmdvscode
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderVSCodeHelp displays the styled two-column VS Code help menu.
 func RenderVSCodeHelp() {
-	termhelp.RenderMenu(buildVSCodeHelpMenu())
+	termout.RenderMenu(buildVSCodeHelpMenu())
 }
 
-func buildVSCodeHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildVSCodeHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "VS Code Project Manager Suite (gitmap vscode)",
 		UsageLines: []string{
 			"gitmap vscode [command] [flags]",
 			"gitmap code [alias] [path] [extras...]",
 			"gitmap vscode add <path>",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildVSCodeProjectSection(),
 			buildVSCodeDiagnosticsSection(),
 		},
@@ -30,17 +30,17 @@ func buildVSCodeHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildVSCodeFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildVSCodeFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-v, --verbose", Description: "Show verbose details during sync and optimization"},
 		{Command: "-h, --help", Description: "Show this VS Code help menu"},
 	}
 }
 
-func buildVSCodeProjectSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildVSCodeProjectSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Project Management",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "list (ls)", Description: "List all registered VS Code Project Manager entries"},
 			{Command: "add <path>", Description: "Register directory path into projects.json"},
 			{Command: "rm <target>", Description: "Remove project entry by name or directory path"},
@@ -49,10 +49,10 @@ func buildVSCodeProjectSection() termhelp.HelpSection {
 	}
 }
 
-func buildVSCodeDiagnosticsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildVSCodeDiagnosticsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Diagnostics & Optimization",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "profiles", Description: "Inspect and list VS Code configuration profiles"},
 			{Command: "optimize-projects", Description: "Clean up and deduplicate identical workspace paths"},
 			{Command: "find-duplicates", Description: "Detect multiple aliases pointing to the same folder"},

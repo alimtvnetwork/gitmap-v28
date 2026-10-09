@@ -8,32 +8,31 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func renderScriptsTable(scripts []ScriptMetadata) {
 	fmt.Printf("\n  %s● AI Scripts Catalog (%d scripts)%s\n\n", constants.ColorCyan, len(scripts), constants.ColorReset)
-	cfg := termtable.TableConfig{
+	cfg := termout.TableConfig{
 		Columns: scriptTableColumns(),
 		Rows:    buildScriptRows(scripts),
 	}
-	termtable.PrintTable(cfg)
-	termpad.EnsureBottomPadding("\n")
+	termout.PrintTable(cfg)
+	termout.EnsureBottomPadding("\n")
 }
 
-func scriptTableColumns() []termtable.Column {
-	return []termtable.Column{
-		{Title: "#", Align: termtable.AlignLeft, MinWidth: 4},
-		{Title: "NAME", Align: termtable.AlignLeft, MinWidth: 24},
-		{Title: "CATEGORY", Align: termtable.AlignLeft, MinWidth: 12},
-		{Title: "AUTOFIX", Align: termtable.AlignLeft, MinWidth: 8},
-		{Title: "DESCRIPTION", Align: termtable.AlignLeft, MinWidth: 42},
+func scriptTableColumns() []termout.Column {
+	return []termout.Column{
+		{Title: "#", Align: termout.AlignLeft, MinWidth: 4},
+		{Title: "NAME", Align: termout.AlignLeft, MinWidth: 24},
+		{Title: "CATEGORY", Align: termout.AlignLeft, MinWidth: 12},
+		{Title: "AUTOFIX", Align: termout.AlignLeft, MinWidth: 8},
+		{Title: "DESCRIPTION", Align: termout.AlignLeft, MinWidth: 42},
 	}
 }
 
-func buildScriptRows(scripts []ScriptMetadata) []termtable.Row {
-	var rows []termtable.Row
+func buildScriptRows(scripts []ScriptMetadata) []termout.Row {
+	var rows []termout.Row
 	for _, s := range scripts {
 		rows = append(rows, buildScriptRow(s))
 	}
@@ -41,11 +40,11 @@ func buildScriptRows(scripts []ScriptMetadata) []termtable.Row {
 	return rows
 }
 
-func buildScriptRow(s ScriptMetadata) termtable.Row {
+func buildScriptRow(s ScriptMetadata) termout.Row {
 	fixLabel := formatAutofixBadge(s.HasFixMode)
 	desc := truncateDescription(s.Description, 50)
 
-	return termtable.Row{
+	return termout.Row{
 		Cells: []string{
 			s.Number,
 			s.Slug,

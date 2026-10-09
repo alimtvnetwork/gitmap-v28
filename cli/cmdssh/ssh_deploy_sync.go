@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 // DeploySyncModeType defines bidirectional synchronization conflict behavior.
@@ -84,7 +84,7 @@ func probeRemoteFileInfo(client *ssh.Client, remotePath string, isWin bool) (Rem
 		return RemoteFileInfo{}, apperror.NewValidationError("ssh client cannot be nil")
 	}
 	cmd := buildRemoteProbeCmd(remotePath, isWin)
-	rawOut, err := crypto.RunCommand(client, cmd, "")
+	rawOut, err := secrets.RunCommand(client, cmd, "")
 	if err != nil {
 		return probeFallbackOnErr(rawOut, err)
 	}

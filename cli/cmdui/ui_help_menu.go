@@ -1,23 +1,23 @@
 package cmdui
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderUIHelp displays the styled two-column UI help menu.
 func RenderUIHelp() {
-	termhelp.RenderMenu(buildUIHelpMenu())
+	termout.RenderMenu(buildUIHelpMenu())
 }
 
-func buildUIHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildUIHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Interactive Web Dashboard (gitmap ui)",
 		UsageLines: []string{
 			"gitmap ui [page] [flags]",
 			"gitmap ui settings --port 8080",
 			"gitmap ui --port 9090 --no-browser",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildUIPagesSection(),
 			buildUIOptionsSection(),
 		},
@@ -29,8 +29,8 @@ func buildUIHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildUIFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildUIFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-p, --port <port>", Description: "HTTP listen port for Web UI server (default: 8080)"},
 		{Command: "--host <addr>", Description: "Bind IP address (default: 127.0.0.1; non-loopback warns — exposes the embedded terminal)"},
 		{Command: "--no-browser", Description: "Do not automatically launch system default web browser"},
@@ -38,10 +38,10 @@ func buildUIFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildUIPagesSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildUIPagesSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Available Dashboard Pages",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "settings", Description: "CLI configuration, theme picker, and path settings"},
 			{Command: "commitin", Description: "Multi-option commit engine with direction flows"},
 			{Command: "ssh", Description: "SSH cluster nodes, fleet key deployment, and firewall helpers"},
@@ -56,10 +56,10 @@ func buildUIPagesSection() termhelp.HelpSection {
 	}
 }
 
-func buildUIOptionsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildUIOptionsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Server Architecture",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "Embedded Assets", Description: "Zero-dependency single binary serving reactive web assets"},
 			{Command: "REST API", Description: "Native Go JSON endpoints (poll-based live refresh)"},
 		},

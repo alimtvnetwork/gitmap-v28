@@ -16,7 +16,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // versionHistory wire keys. Names + order are the contract.
@@ -33,15 +33,15 @@ const (
 
 // encodeVersionHistoryJSON writes version-history records as stable JSON.
 func encodeVersionHistoryJSON(w io.Writer, records []model.RepoVersionHistoryRecord) error {
-	return stablejson.WriteArray(w, buildVersionHistoryItems(records))
+	return jsonx.WriteArray(w, buildVersionHistoryItems(records))
 }
 
 // buildVersionHistoryItems is the single source of (field name, field
 // order, value) for version-history rows.
-func buildVersionHistoryItems(records []model.RepoVersionHistoryRecord) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(records))
+func buildVersionHistoryItems(records []model.RepoVersionHistoryRecord) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(records))
 	for _, r := range records {
-		row := []stablejson.Field{
+		row := []jsonx.Field{
 			{Key: vhKeyFromVersionTag, Value: r.FromVersionTag},
 			{Key: vhKeyFromVersionNum, Value: r.FromVersionNum},
 			{Key: vhKeyToVersionTag, Value: r.ToVersionTag},
@@ -49,16 +49,16 @@ func buildVersionHistoryItems(records []model.RepoVersionHistoryRecord) [][]stab
 		}
 
 		if r.FlattenedPath != "" {
-			row = append(row, stablejson.Field{Key: vhKeyFlattenedPath, Value: r.FlattenedPath})
+			row = append(row, jsonx.Field{Key: vhKeyFlattenedPath, Value: r.FlattenedPath})
 		}
 
 		if r.CreatedAt != "" {
-			row = append(row, stablejson.Field{Key: vhKeyCreatedAt, Value: r.CreatedAt})
+			row = append(row, jsonx.Field{Key: vhKeyCreatedAt, Value: r.CreatedAt})
 		}
 
 		row = append(row,
-			stablejson.Field{Key: vhKeyID, Value: r.ID},
-			stablejson.Field{Key: vhKeyRepoID, Value: r.RepoID},
+			jsonx.Field{Key: vhKeyID, Value: r.ID},
+			jsonx.Field{Key: vhKeyRepoID, Value: r.RepoID},
 		)
 		items = append(items, row)
 	}

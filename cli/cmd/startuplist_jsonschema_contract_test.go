@@ -78,7 +78,7 @@ func TestStartupListSchema_RequiredKeysMatchEncoder(t *testing.T) {
 // contract test: encode a real entry, parse the resulting JSON
 // preserving key order, and assert the order matches the schema's
 // propertyOrder array. This is the ONLY guard that catches a
-// reordering of the stablejson.Field slice in startuplistrender.go
+// reordering of the jsonx.Field slice in startuplistrender.go
 // — Go's encoding/json sorts map keys alphabetically so a generic
 // json.Unmarshal would mask the bug.
 func TestStartupListSchema_PropertyOrderMatchesEncoder(t *testing.T) {

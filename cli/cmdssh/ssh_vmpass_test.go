@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func TestResolveFallbackCredentials_SaltedAndPlain(t *testing.T) {
@@ -25,8 +25,8 @@ func TestResolveFallbackCredentials_SaltedAndPlain(t *testing.T) {
 	winPass := "rtyrty123@"
 	linuxPass := "ubuntu-secret-42"
 	saltWin := "9f8b2c4e"
-	encWin := crypto.EncryptSalted(winPass, saltWin)
-	encLinux := crypto.EncryptCaesar(linuxPass, 15, "salttest")
+	encWin := secrets.EncryptSalted(winPass, saltWin)
+	encLinux := secrets.EncryptCaesar(linuxPass, 15, "salttest")
 
 	jsonContent := `{
   "attributes": {

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 // isVSCodeAvailable checks if the VS Code CLI is on PATH.
@@ -91,7 +91,7 @@ func tryVSCodeDetached(absPath string) bool {
 		return false
 	}
 
-	userDataDir := tempdir.RepoTempDir("vscode", constants.VSCodeUserDataDirName)
+	userDataDir := fspath.RepoTempDir("vscode", constants.VSCodeUserDataDirName)
 
 	cmd := exec.Command(
 		constants.CmdWindowsShell,

@@ -9,7 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
@@ -81,7 +81,7 @@ func parseRemoteVersionOutput(raw string, err error) (string, bool) {
 
 func queryNodeVersionViaSSH(client *ssh.Client, osType string) (string, bool) {
 	cmd, shell := resolveRemoteVersionCommand(osType)
-	out, err := crypto.RunCommand(client, cmd, shell)
+	out, err := secrets.RunCommand(client, cmd, shell)
 	return parseRemoteVersionOutput(out, err)
 }
 

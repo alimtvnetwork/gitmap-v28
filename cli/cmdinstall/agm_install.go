@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 	"github.com/spf13/cobra"
 )
 
@@ -58,17 +58,17 @@ func init() {
 }
 
 func printAgmHelp() {
-	termhelp.RenderMenu(buildAgmHelpMenu())
+	termout.RenderMenu(buildAgmHelpMenu())
 }
 
-func buildAgmHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildAgmHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Antigravity Manager (AGM) Installation & Fleet Update Suite",
 		UsageLines: []string{
 			"gitmap agm <command> [flags]",
 			"gitmap agm update [--version <tag>] [--ssh]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildAgmCommandsSection(),
 			buildAgmExamplesSection(),
 		},
@@ -81,10 +81,10 @@ func buildAgmHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildAgmCommandsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildAgmCommandsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Core Commands",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "install", Description: "Install Antigravity Manager (agm-alim) desktop application"},
 			{Command: "update", Description: "Update Antigravity Manager to the latest or pinned GitHub release"},
 			{Command: "update-all", Description: "Update Antigravity Manager across all SSH fleet nodes"},
@@ -95,10 +95,10 @@ func buildAgmCommandsSection() termhelp.HelpSection {
 	}
 }
 
-func buildAgmExamplesSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildAgmExamplesSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Real-World Examples",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "gitmap agm update", Description: "Update local Antigravity Manager to the latest GitHub release"},
 			{Command: "gitmap agm update --version 4.89.0", Description: "Install or update to pinned release v4.89.0"},
 			{Command: "gitmap agm update --ssh", Description: "Update Antigravity Manager across all remote SSH nodes"},
@@ -109,8 +109,8 @@ func buildAgmExamplesSection() termhelp.HelpSection {
 	}
 }
 
-func buildAgmFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildAgmFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--version <tag>", Description: "Specific release version to install or update (e.g. 4.89.0)"},
 		{Command: "-s, --ssh", Description: "Execute update across remote SSH cluster fleet"},
 		{Command: "-r, --remote <node>", Description: "Target a specific remote node alias or IP"},

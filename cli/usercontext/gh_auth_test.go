@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func TestDetectGhAuth_AuthorizedViaStatus(t *testing.T) {
@@ -17,7 +17,7 @@ func TestDetectGhAuth_AuthorizedViaStatus(t *testing.T) {
 			}
 			return nil, errors.New("command failed")
 		},
-		func() (string, ghtoken.SourceType, error) { return "", ghtoken.SourceNone, ghtoken.ErrNoToken },
+		func() (string, secrets.SourceType, error) { return "", secrets.SourceNone, secrets.ErrNoToken },
 	)
 	defer restore()
 
@@ -39,7 +39,7 @@ func TestDetectGhAuth_AuthorizedViaApi(t *testing.T) {
 			}
 			return nil, errors.New("command failed")
 		},
-		func() (string, ghtoken.SourceType, error) { return "", ghtoken.SourceNone, ghtoken.ErrNoToken },
+		func() (string, secrets.SourceType, error) { return "", secrets.SourceNone, secrets.ErrNoToken },
 	)
 	defer restore()
 
@@ -61,8 +61,8 @@ func TestDetectGhAuth_FallbackToken(t *testing.T) {
 			}
 			return nil, errors.New("command failed")
 		},
-		func() (string, ghtoken.SourceType, error) {
-			return "ghp_mock_token", ghtoken.SourceGitCredential, nil
+		func() (string, secrets.SourceType, error) {
+			return "ghp_mock_token", secrets.SourceGitCredential, nil
 		},
 	)
 	defer restore()
@@ -74,7 +74,7 @@ func TestDetectGhAuth_FallbackToken(t *testing.T) {
 	if info.Username != "gituser" {
 		t.Fatalf("expected username gituser, got %s", info.Username)
 	}
-	if info.Source != string(ghtoken.SourceGitCredential) {
+	if info.Source != string(secrets.SourceGitCredential) {
 		t.Fatalf("expected source Git Credential Manager, got %s", info.Source)
 	}
 }
@@ -85,7 +85,7 @@ func TestDetectGhAuth_Unauthenticated(t *testing.T) {
 		func(_ context.Context, name string, args ...string) ([]byte, error) {
 			return nil, errors.New("command failed")
 		},
-		func() (string, ghtoken.SourceType, error) { return "", ghtoken.SourceNone, ghtoken.ErrNoToken },
+		func() (string, secrets.SourceType, error) { return "", secrets.SourceNone, secrets.ErrNoToken },
 	)
 	defer restore()
 
@@ -101,7 +101,7 @@ func TestDetectGhAuth_ToolMissing(t *testing.T) {
 		func(_ context.Context, name string, args ...string) ([]byte, error) {
 			return nil, errors.New("command failed")
 		},
-		func() (string, ghtoken.SourceType, error) { return "", ghtoken.SourceNone, ghtoken.ErrNoToken },
+		func() (string, secrets.SourceType, error) { return "", secrets.SourceNone, secrets.ErrNoToken },
 	)
 	defer restore()
 
@@ -113,7 +113,7 @@ func TestDetectGhAuth_ToolMissing(t *testing.T) {
 
 type lookPathFunc func() (string, error)
 type cmdOutputFunc func(context.Context, string, ...string) ([]byte, error)
-type tokenResolveFunc func() (string, ghtoken.SourceType, error)
+type tokenResolveFunc func() (string, secrets.SourceType, error)
 
 func setupTestMocks(lp lookPathFunc, co cmdOutputFunc, tr tokenResolveFunc) func() {
 	origLookPath := lookPath

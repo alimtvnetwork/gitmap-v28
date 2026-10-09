@@ -11,7 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -150,7 +150,7 @@ func dispatchRemotePrompt(opts agyPromptOptions) error {
 		shell = "ps"
 	}
 
-	out, errExec := crypto.RunCommand(client, remoteCmd, shell)
+	out, errExec := secrets.RunCommand(client, remoteCmd, shell)
 	if errExec != nil {
 		return apperror.WrapSimple(errExec, fmt.Sprintf("execute remote prompt on %q: %s", conn.Alias, out))
 	}

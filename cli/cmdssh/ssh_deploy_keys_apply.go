@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
@@ -65,10 +65,10 @@ func syncAuthorizedKeysOnClient(client *ssh.Client, res DeployKeysNodeResult, un
 func readRemoteAuthorizedKeys(client *ssh.Client, osType string) (string, error) {
 	if isWindowsOS(osType) {
 		cmd := `powershell -NoProfile -Command "Get-Content -Path (Join-Path $env:USERPROFILE '.ssh\authorized_keys') -ErrorAction SilentlyContinue; if (Test-Path (Join-Path $env:ProgramData 'ssh\administrators_authorized_keys')) { Get-Content -Path (Join-Path $env:ProgramData 'ssh\administrators_authorized_keys') -ErrorAction SilentlyContinue }"`
-		return crypto.RunCommand(client, cmd, "")
+		return secrets.RunCommand(client, cmd, "")
 	}
 	prepCmd := "mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && cat ~/.ssh/authorized_keys"
-	return crypto.RunCommand(client, prepCmd, "")
+	return secrets.RunCommand(client, prepCmd, "")
 }
 
 func buildExistingSignaturesMap(authContent string) map[string]bool {
@@ -105,7 +105,7 @@ func appendMissingKeysUnix(client *ssh.Client, res DeployKeysNodeResult, missing
 		builder.WriteString(fmt.Sprintf("printf '%%s\\n' %q >> ~/.ssh/authorized_keys\n", k))
 	}
 	builder.WriteString("chmod 600 ~/.ssh/authorized_keys\n")
-	_, err := crypto.RunCommand(client, builder.String(), "")
+	_, err := secrets.RunCommand(client, builder.String(), "")
 	if err != nil {
 		res.ErrorMsg = err.Error()
 		return res, err
@@ -116,7 +116,7 @@ func appendMissingKeysUnix(client *ssh.Client, res DeployKeysNodeResult, missing
 func appendMissingKeysWindows(client *ssh.Client, res DeployKeysNodeResult, missing []string) (DeployKeysNodeResult, error) {
 	for _, k := range missing {
 		script := buildInjectAuthKeyScript(k, "windows")
-		_, err := crypto.RunCommand(client, script, "")
+		_, err := secrets.RunCommand(client, script, "")
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			return res, err

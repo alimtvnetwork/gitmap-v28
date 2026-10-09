@@ -5,28 +5,27 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func renderPromptsTable(prompts []AgyPromptEntry) {
 	fmt.Printf("\n  %s● AGY Prompts (%d entries)%s\n\n", constants.ColorCyan, len(prompts), constants.ColorReset)
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "DATE", Align: termtable.AlignLeft, MinWidth: 16},
-			{Title: "WORKSPACE", Align: termtable.AlignLeft, MinWidth: 20},
-			{Title: "PROMPT PREVIEW", Align: termtable.AlignLeft, MinWidth: 45},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "DATE", Align: termout.AlignLeft, MinWidth: 16},
+			{Title: "WORKSPACE", Align: termout.AlignLeft, MinWidth: 20},
+			{Title: "PROMPT PREVIEW", Align: termout.AlignLeft, MinWidth: 45},
 		},
 		Rows: buildPromptRows(prompts),
 	}
-	termtable.PrintTable(cfg)
-	termpad.EnsureBottomPadding("\n")
+	termout.PrintTable(cfg)
+	termout.EnsureBottomPadding("\n")
 }
 
-func buildPromptRows(prompts []AgyPromptEntry) []termtable.Row {
-	var rows []termtable.Row
+func buildPromptRows(prompts []AgyPromptEntry) []termout.Row {
+	var rows []termout.Row
 	for _, p := range prompts {
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				p.CreatedAt.Format("2006-01-02 15:04"),
 				truncatePromptString(p.Workspace, 20),

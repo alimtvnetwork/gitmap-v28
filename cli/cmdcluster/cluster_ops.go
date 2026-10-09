@@ -19,7 +19,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -329,7 +329,7 @@ func hasClusterJSONFlag(args []string) bool {
 
 func RunClusterNodes(args []string) error {
 	if hasHelpFlag(args) {
-		helptext.Print("cluster-nodes")
+		helpdoc.Print("cluster-nodes")
 		return nil
 	}
 	ctx := context.Background()
@@ -431,7 +431,7 @@ func runClusterRemoveLegacy(args []string) error {
 
 func RunClusterRemove(args []string) error {
 	if hasHelpFlag(args) {
-		helptext.Print("cluster-remove")
+		helpdoc.Print("cluster-remove")
 		return nil
 	}
 	if hasPositionalNodeTarget(args) {

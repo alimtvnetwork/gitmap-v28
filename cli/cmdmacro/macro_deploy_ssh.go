@@ -13,11 +13,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -489,11 +489,11 @@ func tryDialPassword(target MacroDeployTarget) (*ssh.Client, bool) {
 	if target.Password == "" {
 		return nil, false
 	}
-	plain, err := crypto.DecryptStoredPassword(target.Password)
+	plain, err := secrets.DecryptStoredPassword(target.Password)
 	if err != nil || plain == "" {
 		plain = target.Password
 	}
-	c, connErr := crypto.ConnectWithPassword(target.IP, target.Username, plain)
+	c, connErr := secrets.ConnectWithPassword(target.IP, target.Username, plain)
 	return c, connErr == nil
 }
 
@@ -501,7 +501,7 @@ func tryDialKeyPath(target MacroDeployTarget) (*ssh.Client, bool) {
 	if target.KeyPath == "" {
 		return nil, false
 	}
-	c, err := crypto.ConnectWithKey(target.IP, target.Username, target.KeyPath)
+	c, err := secrets.ConnectWithKey(target.IP, target.Username, target.KeyPath)
 	return c, err == nil
 }
 
@@ -512,7 +512,7 @@ func tryDialCandidateKeys(target MacroDeployTarget) (*ssh.Client, bool) {
 		fmt.Sprintf("%s/.ssh/id_rsa", home),
 	}
 	for _, k := range candidateKeys {
-		c, err := crypto.ConnectWithKey(target.IP, target.Username, k)
+		c, err := secrets.ConnectWithKey(target.IP, target.Username, k)
 		if err == nil {
 			return c, true
 		}
@@ -527,7 +527,7 @@ func writeMacroToRemoteNode(client *ssh.Client, m macro.Macro, isWin bool, shell
 	}
 	b64 := base64.StdEncoding.EncodeToString(data)
 	cmd := buildAtomicMacroWriteScript(m.Name, b64, isWin, isForce)
-	_, runErr := crypto.RunCommand(client, cmd, shellType)
+	_, runErr := secrets.RunCommand(client, cmd, shellType)
 	return runErr
 }
 
@@ -573,18 +573,18 @@ func renderDeploySummary(results []MacroDeployNodeResult, excludedCount, macroCo
 	fmt.Printf("%s--------------------------------------------------------------------------------%s\n",
 		constants.ColorDim, constants.ColorReset)
 
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "ALIAS", Align: termtable.AlignLeft, MinWidth: 15},
-			{Title: "IP", Align: termtable.AlignLeft, MinWidth: 16},
-			{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 10},
-			{Title: "MACROS", Align: termtable.AlignRight, MinWidth: 10},
-			{Title: "DURATION", Align: termtable.AlignRight, MinWidth: 10},
-			{Title: "DETAILS", Align: termtable.AlignLeft, MinWidth: 25},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "ALIAS", Align: termout.AlignLeft, MinWidth: 15},
+			{Title: "IP", Align: termout.AlignLeft, MinWidth: 16},
+			{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 10},
+			{Title: "MACROS", Align: termout.AlignRight, MinWidth: 10},
+			{Title: "DURATION", Align: termout.AlignRight, MinWidth: 10},
+			{Title: "DETAILS", Align: termout.AlignLeft, MinWidth: 25},
 		},
 		Rows: buildDeployTableRows(results),
 	}
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	fmt.Printf("%s================================================================================%s\n\n",
 		constants.ColorCyan, constants.ColorReset)
 }
@@ -602,14 +602,14 @@ func calculateDeployMetrics(results []MacroDeployNodeResult) (int, int) {
 	return succeeded, failed
 }
 
-func buildDeployTableRows(results []MacroDeployNodeResult) []termtable.Row {
-	rows := make([]termtable.Row, 0, len(results))
+func buildDeployTableRows(results []MacroDeployNodeResult) []termout.Row {
+	rows := make([]termout.Row, 0, len(results))
 	for _, r := range results {
 		statusStr := constants.ColorRed + "FAILED" + constants.ColorReset
 		if r.IsSuccess {
 			statusStr = constants.ColorGreen + "SUCCESS" + constants.ColorReset
 		}
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				r.Alias,
 				r.IP,

@@ -12,7 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
 )
@@ -24,7 +24,7 @@ func processCommonTarget(ctx context.Context, target *SSHCommonTarget, password,
 		return
 	}
 
-	client, dialErr := crypto.ConnectWithPassword(target.FullIP, target.Username, password)
+	client, dialErr := secrets.ConnectWithPassword(target.FullIP, target.Username, password)
 	if dialErr != nil || client == nil {
 		target.IsSuccess = false
 		target.ErrorMsg = resolveDialError(dialErr)
@@ -107,7 +107,7 @@ func probeRemoteGitmapWhichOS(client *ssh.Client) (*cmdos.OSInfoReport, bool) {
 		return nil, false
 	}
 	cmd := "gitmap which-os --json 2>/dev/null || powershell -NoProfile -Command \"gitmap which-os --json\" 2>$null || \"$env:LOCALAPPDATA\\gitmap-cli\\gitmap.exe\" which-os --json 2>$null || ~/.local/bin/gitmap which-os --json 2>/dev/null"
-	out, err := crypto.RunCommand(client, cmd, "")
+	out, err := secrets.RunCommand(client, cmd, "")
 	if err != nil {
 		return nil, false
 	}

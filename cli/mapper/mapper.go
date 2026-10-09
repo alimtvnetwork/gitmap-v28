@@ -28,7 +28,7 @@ func BuildRecords(repos []scanner.RepoInfo, mode, defaultNote string) []model.Sc
 // RelativePath against `relRoot` (must be an absolute, cleaned path)
 // when non-empty. This is what powers `gitmap scan --relative-root`:
 // it pins the base used for all output artifacts so running the same
-// scan from different cwds yields byte-identical CSV/JSON/scripts.
+// scan from different cwds yields byte-identical CSV/JSON/fspath.
 //
 // When a repo lives outside relRoot, filepath.Rel returns a "../"-prefixed
 // path. We refuse that and emit a clear stderr message naming the offending

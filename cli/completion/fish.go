@@ -1,4 +1,4 @@
-// Package completion — fish.go generates Fish shell tab-completion scripts.
+// Package completion — fish.go generates Fish shell tab-completion fspath.
 package completion
 
 // generateFish returns the Fish completion script.

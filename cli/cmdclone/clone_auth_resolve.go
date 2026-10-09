@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -34,7 +34,7 @@ func resolveHTTPSAuth(rec model.ScanRecord, rawURL string) (model.ScanRecord, er
 		return rec, nil
 	}
 
-	if tok, _, err := ghtoken.Resolve(); err == nil && tok != "" {
+	if tok, _, err := secrets.Resolve(); err == nil && tok != "" {
 		rec.HTTPSUrl = InjectTokenIntoHTTPS(rawURL, tok)
 
 		return rec, nil

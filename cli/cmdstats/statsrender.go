@@ -21,7 +21,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // stats top-level wire keys. Names + order are the contract.
@@ -55,7 +55,7 @@ func encodeStatsJSON(w io.Writer, overall model.OverallStats, commands []model.C
 		return err
 	}
 
-	return stablejson.WriteObject(w, []stablejson.Field{
+	return jsonx.WriteObject(w, []jsonx.Field{
 		{Key: statsKeyTotalCommands, Value: overall.TotalCommands},
 		{Key: statsKeyUniqueCommands, Value: overall.UniqueCommands},
 		{Key: statsKeyTotalSuccess, Value: overall.TotalSuccess},
@@ -70,7 +70,7 @@ func encodeStatsJSON(w io.Writer, overall model.OverallStats, commands []model.C
 // mode so it embeds cleanly as a top-level object value.
 func renderStatsCommandsRaw(commands []model.CommandStats) (json.RawMessage, error) {
 	var buf bytes.Buffer
-	if err := stablejson.WriteArrayIndent(&buf, buildStatsCommandsItems(commands), ""); err != nil {
+	if err := jsonx.WriteArrayIndent(&buf, buildStatsCommandsItems(commands), ""); err != nil {
 		return nil, err
 	}
 
@@ -79,10 +79,10 @@ func renderStatsCommandsRaw(commands []model.CommandStats) (json.RawMessage, err
 
 // buildStatsCommandsItems is the single source of (field name, field
 // order, value) for per-command stats rows.
-func buildStatsCommandsItems(commands []model.CommandStats) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(commands))
+func buildStatsCommandsItems(commands []model.CommandStats) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(commands))
 	for _, s := range commands {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: statsCmdKeyCommand, Value: s.Command},
 			{Key: statsCmdKeyTotalRuns, Value: s.TotalRuns},
 			{Key: statsCmdKeySuccessCount, Value: s.SuccessCount},

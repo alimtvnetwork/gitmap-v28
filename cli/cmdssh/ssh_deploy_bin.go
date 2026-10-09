@@ -16,7 +16,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -346,7 +346,7 @@ func streamAndVerify(client *ssh.Client, node db.SSHConnection, binPath, destPat
 	elapsed := time.Since(t0).Round(time.Millisecond)
 	fmt.Printf("    %s✓ Uploaded in %s%s\n", constants.ColorGreen, elapsed, constants.ColorReset)
 
-	verOut, err := crypto.RunCommand(client, "gitmap version", "")
+	verOut, err := secrets.RunCommand(client, "gitmap version", "")
 	if err == nil && strings.TrimSpace(verOut) != "" {
 		fmt.Printf("    %s✓ Verified remote version: %s%s\n", constants.ColorGreen, strings.TrimSpace(verOut), constants.ColorReset)
 	}

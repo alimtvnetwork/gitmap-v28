@@ -8,7 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func partitionOnlineOffline(conns []db.SSHConnection) ([]db.SSHConnection, []db.SSHConnection) {
@@ -105,5 +105,5 @@ func printExecFinishSummary(onlineCount int, offline []db.SSHConnection) {
 	msg := fmt.Sprintf("  %s✓ SSH Execution completed across %d active node(s).%s\n",
 		constants.ColorGreen, onlineCount, constants.ColorReset)
 	fmt.Print(msg)
-	termpad.EnsureBottomPadding(msg)
+	termout.EnsureBottomPadding(msg)
 }

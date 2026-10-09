@@ -6,14 +6,14 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func handleBrowserAuthFlow(repoName string) (AuthPromptResult, error) {
 	fmt.Println("\nLaunching browser authentication...")
 	runBrowserLoginCommand()
 
-	tok, _, err := ghtoken.Resolve()
+	tok, _, err := secrets.Resolve()
 	if err != nil || tok == "" {
 		fmt.Printf("Browser login was not completed. Please create a token at: https://github.com/settings/tokens/new\n")
 		return handleTokenInputFlow(repoName)

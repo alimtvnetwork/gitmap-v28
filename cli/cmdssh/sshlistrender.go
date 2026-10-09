@@ -10,7 +10,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // ssh-list wire keys. Names + order are the contract.
@@ -27,15 +27,15 @@ const (
 // encodeSSHListJSON writes keys as a stablejson 2-space-indented
 // array. Empty input emits `[]\n`.
 func encodeSSHListJSON(w io.Writer, keys []model.SSHKey) error {
-	return stablejson.WriteArray(w, buildSSHListJSONItems(keys))
+	return jsonx.WriteArray(w, buildSSHListJSONItems(keys))
 }
 
 // buildSSHListJSONItems is the single source of (field name,
 // field order, value) for ssh-list.
-func buildSSHListJSONItems(keys []model.SSHKey) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(keys))
+func buildSSHListJSONItems(keys []model.SSHKey) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(keys))
 	for _, k := range keys {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: sshListKeyID, Value: k.ID},
 			{Key: sshListKeyName, Value: k.Name},
 			{Key: sshListKeyPrivatePath, Value: k.PrivatePath},

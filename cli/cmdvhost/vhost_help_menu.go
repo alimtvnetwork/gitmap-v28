@@ -1,22 +1,22 @@
 package cmdvhost
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderVHostHelp displays the styled two-column VHost help menu.
 func RenderVHostHelp() {
-	termhelp.RenderMenu(buildVHostHelpMenu())
+	termout.RenderMenu(buildVHostHelpMenu())
 }
 
-func buildVHostHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildVHostHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Nginx Virtual Host Manager (gitmap vhost)",
 		UsageLines: []string{
 			"gitmap vhost [command] [args]",
 			"gitmap vhost create <domain> <root> [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildVHostSiteSection(),
 			buildVHostNginxSection(),
 		},
@@ -28,8 +28,8 @@ func buildVHostHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildVHostFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildVHostFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--type <type>", Description: "Site profile (wordpress, laravel, php, static)"},
 		{Command: "--port <n>", Description: "HTTP listen port (default: 80)"},
 		{Command: "--ssl", Description: "Enable SSL on port 443 with HTTPS redirect"},
@@ -40,10 +40,10 @@ func buildVHostFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildVHostSiteSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildVHostSiteSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Virtual Host Management",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "list (ls)", Description: "List configured virtual host sites and active status"},
 			{Command: "create <dom> <dir>", Description: "Generate production-grade Nginx configuration"},
 			{Command: "enable (en) <domain>", Description: "Enable virtual host via sites-enabled symlink"},
@@ -52,10 +52,10 @@ func buildVHostSiteSection() termhelp.HelpSection {
 	}
 }
 
-func buildVHostNginxSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildVHostNginxSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Nginx Operations",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "test (check, t)", Description: "Validate Nginx configuration syntax (nginx -t)"},
 			{Command: "reload (restart, r)", Description: "Gracefully reload Nginx daemon (nginx -s reload)"},
 		},

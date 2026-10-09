@@ -11,7 +11,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -132,7 +132,7 @@ func maybeEncryptPassword(password string) (string, bool) {
 		return "", true
 	}
 
-	encPass, err := crypto.Encrypt([]byte(password), getEncryptionKey())
+	encPass, err := secrets.Encrypt([]byte(password), getEncryptionKey())
 	if err != nil {
 		fmt.Printf("Encryption failed: %v\n", err)
 

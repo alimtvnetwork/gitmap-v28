@@ -1,4 +1,4 @@
-// Package formatter — directclone.go generates plain direct clone scripts.
+// Package formatter — directclone.go generates plain direct clone fspath.
 package formatter
 
 import (

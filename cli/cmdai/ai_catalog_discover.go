@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// GetAllScripts returns master catalog scripts merged with dynamic scripts from 03-ai-scripts.
+// GetAllScripts returns master catalog scripts merged with dynamic scripts from 03-ai-fspath.
 func GetAllScripts() []ScriptMetadata {
 	base := append([]ScriptMetadata{}, masterCatalog...)
 	dir := findAiScriptsDir()

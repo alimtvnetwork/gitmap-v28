@@ -1,16 +1,16 @@
 package cmdfind
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderFindHelp displays the styled two-column Find/Find-Files help menu.
 func RenderFindHelp() {
-	termhelp.RenderMenu(buildFindHelpMenu())
+	termout.RenderMenu(buildFindHelpMenu())
 }
 
-func buildFindHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildFindHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Fast File Locator (gitmap find / find-files)",
 		UsageLines: []string{
 			"gitmap find <pattern> [flags]",
@@ -19,7 +19,7 @@ func buildFindHelpMenu() termhelp.HelpMenu {
 			"gitmap find-files-startswith <prefix>",
 			"gitmap find-files-endswith <suffix>",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildFindOpsSection(),
 			buildFindFiltersSection(),
 		},
@@ -31,8 +31,8 @@ func buildFindHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildFindFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildFindFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-e, -ext <ext>", Description: "Filter results by file extension (e.g. go, ts, json)"},
 		{Command: "-l, --limit <n>", Description: "Limit maximum number of returned file paths"},
 		{Command: "-j, --json", Description: "Emit matched paths as structured JSON array"},
@@ -41,10 +41,10 @@ func buildFindFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildFindOpsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildFindOpsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Locator Subcommands & Shortcuts",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "find / f", Description: "Universal wildcard and glob file search"},
 			{Command: "find-files / ff", Description: "Exact filename match with fast index lookup"},
 			{Command: "find-files-any / ffa", Description: "Substring matching within filenames"},
@@ -54,10 +54,10 @@ func buildFindOpsSection() termhelp.HelpSection {
 	}
 }
 
-func buildFindFiltersSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildFindFiltersSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Traversal & Performance",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "Zero-Alloc Scanner", Description: "Iterative depth traversal avoiding heap allocations"},
 			{Command: "Auto Exclusions", Description: "Automatically ignores node_modules, .git, vendor, bin"},
 		},

@@ -13,7 +13,7 @@ package cmdlist
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // list-versions wire keys. Names + order are the contract.
@@ -26,26 +26,26 @@ const (
 // encodeListVersionsJSON writes entries as a stablejson 2-space-indented
 // array. Empty input emits `[]\n`.
 func encodeListVersionsJSON(w io.Writer, entries []versionEntry) error {
-	return stablejson.WriteArray(w, buildListVersionsJSONItems(entries))
+	return jsonx.WriteArray(w, buildListVersionsJSONItems(entries))
 }
 
 // buildListVersionsJSONItems is the single source of (field name,
 // field order, value) for list-versions. `source` and `changelog`
 // are emitted only when non-empty, preserving the legacy omitempty
 // shape that downstream consumers depend on.
-func buildListVersionsJSONItems(entries []versionEntry) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(entries))
+func buildListVersionsJSONItems(entries []versionEntry) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(entries))
 	for _, e := range entries {
-		fields := []stablejson.Field{
+		fields := []jsonx.Field{
 			{Key: listVersionsKeyVersion, Value: e.Version.String()},
 		}
 
 		if e.Source != "" {
-			fields = append(fields, stablejson.Field{Key: listVersionsKeySource, Value: e.Source})
+			fields = append(fields, jsonx.Field{Key: listVersionsKeySource, Value: e.Source})
 		}
 
 		if len(e.Notes) > 0 {
-			fields = append(fields, stablejson.Field{Key: listVersionsKeyChangelog, Value: e.Notes})
+			fields = append(fields, jsonx.Field{Key: listVersionsKeyChangelog, Value: e.Notes})
 		}
 
 		items = append(items, fields)

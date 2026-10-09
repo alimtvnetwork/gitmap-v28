@@ -10,7 +10,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // project-repos wire keys. Names + order are the contract.
@@ -31,15 +31,15 @@ const (
 // encodeProjectReposJSON writes projects as a stablejson 2-space-indented
 // array. Empty input emits `[]\n`.
 func encodeProjectReposJSON(w io.Writer, projects []model.DetectedProject) error {
-	return stablejson.WriteArray(w, buildProjectReposJSONItems(projects))
+	return jsonx.WriteArray(w, buildProjectReposJSONItems(projects))
 }
 
 // buildProjectReposJSONItems is the single source of (field name,
 // field order, value) for project-repos.
-func buildProjectReposJSONItems(projects []model.DetectedProject) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(projects))
+func buildProjectReposJSONItems(projects []model.DetectedProject) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(projects))
 	for _, p := range projects {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: projectReposKeyID, Value: p.ID},
 			{Key: projectReposKeyRepoID, Value: p.RepoID},
 			{Key: projectReposKeyRepoName, Value: p.RepoName},

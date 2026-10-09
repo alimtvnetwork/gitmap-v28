@@ -35,7 +35,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 // gitmapBinary holds the path to the once-built binary. Populated
@@ -78,8 +78,8 @@ func buildGitmapBinaryOnce() {
 	}
 
 	moduleRoot := resolveHeavyTestModuleRoot()
-	_ = tempdir.ClearRepoBuildTempDir()
-	out := filepath.Join(tempdir.BuildTempDir(), gitmapBinaryName())
+	_ = fspath.ClearRepoBuildTempDir()
+	out := filepath.Join(fspath.BuildTempDir(), gitmapBinaryName())
 	if err := executeGoBuild(moduleRoot, out); err != nil {
 		errGitmapBuild = err
 
@@ -196,7 +196,7 @@ func runGitmap(t *testing.T, args []string, stdin string) (int, string, string) 
 // produce stable output if the test ever asserts on stdout).
 //
 // GITMAP_GLYPHS=rich and GITMAP_THEME=bright are pinned so neither
-// glyphs.Install nor theme.Install replaces os.Stdout / os.Stderr
+// glyphs.Install nor termout.Install replaces os.Stdout / os.Stderr
 // with pipe-backed writers. On the Windows GHA runner the pipe
 // forwarder goroutine is racy against os.Exit and can drop the
 // final stderr line, which previously forced these tests to skip
@@ -242,6 +242,6 @@ func extractTestExitCode(err error) int {
 // TestMain runs the heavy test suite and cleans up all shared repo temp directories upon completion.
 func TestMain(m *testing.M) {
 	code := m.Run()
-	_ = tempdir.ClearAllRepoTempDirs()
+	_ = fspath.ClearAllRepoTempDirs()
 	os.Exit(code)
 }

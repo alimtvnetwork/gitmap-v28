@@ -11,9 +11,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // ImportItemResult records the execution outcome of importing a single JSON file.
@@ -93,7 +93,7 @@ func executeImportSingleFile(current, total int, path string, isDryRun bool) Imp
 		return ImportItemResult{FilePath: normPath, Status: "FAILED", Details: fmt.Sprintf("read error: %v", err)}
 	}
 
-	desc, attrs, isMatched := jsonenvelope.DetectFormat(content)
+	desc, attrs, isMatched := jsonx.DetectFormat(content)
 	if !isMatched {
 		fmt.Printf("  [%d/%d] ✖ Skipped %s (unsupported or non-GitMap JSON format)\n", current, total, normPath)
 		return ImportItemResult{FilePath: normPath, Status: "SKIPPED", Details: "Could not match known GitMap JSON format"}
@@ -114,23 +114,23 @@ func executeImportSingleFile(current, total int, path string, isDryRun bool) Imp
 	return runSubsystemImport(normPath, desc)
 }
 
-func runSubsystemImport(normPath string, desc jsonenvelope.TypeDescriptor) ImportItemResult {
+func runSubsystemImport(normPath string, desc jsonx.TypeDescriptor) ImportItemResult {
 	res := ImportItemResult{FilePath: normPath, Type: desc.Type, TypeName: desc.Name}
 
 	switch desc.Type {
-	case jsonenvelope.TypeSSHNodes:
+	case jsonx.TypeSSHNodes:
 		importErr := cmdssh.RunSSHNodesImportJSON([]string{normPath})
 		return finalizeSubsystemResult(res, importErr, "Enrolled SSH nodes into installation.db")
-	case jsonenvelope.TypeMacro:
+	case jsonx.TypeMacro:
 		importErr := cmdmacro.RunMacroImport([]string{normPath, "--force"})
 		return finalizeSubsystemResult(res, importErr, "Registered macros in repository macros table")
-	case jsonenvelope.TypeUISettings:
+	case jsonx.TypeUISettings:
 		importErr := cmdui.ImportSettingsFromFile(normPath)
 		return finalizeSubsystemResult(res, importErr, "Updated UI settings (~/.gitmap/ui_settings.json)")
-	case jsonenvelope.TypeTemplates:
+	case jsonx.TypeTemplates:
 		count, _, _, importErr := store.ImportTemplatesFromFile(normPath, true)
 		return finalizeSubsystemResult(res, importErr, fmt.Sprintf("Imported %d project templates", count))
-	case jsonenvelope.TypeCommitPullConfig:
+	case jsonx.TypeCommitPullConfig:
 		fmt.Printf("%s✔ VALIDATED%s\n", constants.ColorGreen, constants.ColorReset)
 		res.Status = "SUCCESS"
 		res.Details = "Validated commit-in & pull configuration manifest"
@@ -163,16 +163,16 @@ func printImportAllSummary(results []ImportItemResult, isDryRun bool) {
 	fmt.Printf(" Total: %d | Succeeded: %d | Skipped: %d | Failed: %d\n", len(results), succeeded, skipped, failed)
 	fmt.Printf("%s--------------------------------------------------------------------------------%s\n", constants.ColorDim, constants.ColorReset)
 
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "FILE", Align: termtable.AlignLeft, MinWidth: 25},
-			{Title: "TYPE", Align: termtable.AlignLeft, MinWidth: 15},
-			{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 10},
-			{Title: "DETAILS", Align: termtable.AlignLeft, MinWidth: 30},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "FILE", Align: termout.AlignLeft, MinWidth: 25},
+			{Title: "TYPE", Align: termout.AlignLeft, MinWidth: 15},
+			{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 10},
+			{Title: "DETAILS", Align: termout.AlignLeft, MinWidth: 30},
 		},
 		Rows: buildImportSummaryRows(results),
 	}
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	fmt.Printf("%s================================================================================%s\n\n", constants.ColorCyan, constants.ColorReset)
 }
 
@@ -194,15 +194,15 @@ func tallyImportResults(results []ImportItemResult) (int, int, int) {
 	return succeeded, skipped, failed
 }
 
-func buildImportSummaryRows(results []ImportItemResult) []termtable.Row {
-	rows := make([]termtable.Row, 0, len(results))
+func buildImportSummaryRows(results []ImportItemResult) []termout.Row {
+	rows := make([]termout.Row, 0, len(results))
 	for _, r := range results {
 		statusStr := resolveImportRowStatus(r.Status)
 		typeLabel := r.Type
 		if typeLabel == "" {
 			typeLabel = "-"
 		}
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				r.FilePath,
 				typeLabel,

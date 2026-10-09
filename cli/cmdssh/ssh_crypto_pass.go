@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 const (
@@ -109,7 +109,7 @@ func deriveFallbackKey() []byte {
 }
 
 func encryptWithFallbackAES(plain string) (string, error) {
-	enc, err := crypto.Encrypt([]byte(plain), deriveFallbackKey())
+	enc, err := secrets.Encrypt([]byte(plain), deriveFallbackKey())
 	if err != nil {
 		return "", apperror.WrapSimple(err, "encryptWithFallbackAES")
 	}
@@ -118,7 +118,7 @@ func encryptWithFallbackAES(plain string) (string, error) {
 }
 
 func decryptWithFallbackAES(enc string) (string, error) {
-	plainBytes, err := crypto.Decrypt(enc, deriveFallbackKey())
+	plainBytes, err := secrets.Decrypt(enc, deriveFallbackKey())
 	if err != nil {
 		return "", apperror.WrapSimple(err, "decryptWithFallbackAES")
 	}
@@ -142,12 +142,12 @@ func EncryptSSHPassword(plain string) (string, error) {
 
 // EncryptSaltedPassword encrypts a password using the salted rotation cipher.
 func EncryptSaltedPassword(plain, salt string) string {
-	return crypto.EncryptSalted(plain, salt)
+	return secrets.EncryptSalted(plain, salt)
 }
 
 // EncryptCaesarPassword encrypts a password using a caesar rotation cipher with optional salt.
 func EncryptCaesarPassword(plain string, shift int, salt string) string {
-	return crypto.EncryptCaesar(plain, shift, salt)
+	return secrets.EncryptCaesar(plain, shift, salt)
 }
 
 func isRSACiphertext(cipherText string) bool {
@@ -173,12 +173,12 @@ func DecryptSSHPassword(cipherText string) (string, error) {
 
 func tryDecryptLegacyPrefix(cipherText string) (string, error, bool) {
 	if strings.HasPrefix(cipherText, "salt:") {
-		plain, err := crypto.DecryptSalted(cipherText)
+		plain, err := secrets.DecryptSalted(cipherText)
 		return plain, err, true
 	}
 
 	if strings.HasPrefix(cipherText, "caesar:") {
-		plain, err := crypto.DecryptCaesar(cipherText)
+		plain, err := secrets.DecryptCaesar(cipherText)
 		return plain, err, true
 	}
 
@@ -208,7 +208,7 @@ func tryDecryptPrefixedPassword(cipherText string) (string, error, bool) {
 }
 
 func decryptStoredFallback(cipherText string) (string, error) {
-	plain, decErr := crypto.DecryptStoredPassword(cipherText)
+	plain, decErr := secrets.DecryptStoredPassword(cipherText)
 	if decErr == nil && plain != cipherText {
 		return plain, nil
 	}

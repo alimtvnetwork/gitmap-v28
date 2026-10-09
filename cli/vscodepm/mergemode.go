@@ -50,7 +50,7 @@ const (
 )
 
 // String returns the canonical CLI literal for m. Matches the values
-// accepted by --mode and the values listed in the helptext.
+// accepted by --mode and the values listed in the helpdoc.
 func (m MergeMode) String() string {
 	switch m {
 	case MergeModeReplace:

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"golang.org/x/crypto/ssh"
@@ -47,7 +47,7 @@ func deployConfigWithLog(client *ssh.Client, c db.SSHConnection, bundle *GitmapE
 	}
 	b64 := base64.StdEncoding.EncodeToString(data)
 	cmd := buildRemoteExportWriteCmd(".gitmap", "config.json", b64, isWindowsOS(c.OS))
-	_, runErr := crypto.RunCommand(client, cmd, shell)
+	_, runErr := secrets.RunCommand(client, cmd, shell)
 	if runErr != nil {
 		return fmt.Sprintf("  ▲ Config: export failed (%v)", runErr)
 	}
@@ -87,7 +87,7 @@ func deployKnownHostsWithLog(client *ssh.Client, c db.SSHConnection, kh string, 
 	}
 	b64 := base64.StdEncoding.EncodeToString([]byte(kh))
 	cmd := buildRemoteExportAppendCmd(".ssh", "known_hosts", b64, isWindowsOS(c.OS))
-	_, runErr := crypto.RunCommand(client, cmd, shell)
+	_, runErr := secrets.RunCommand(client, cmd, shell)
 	if runErr != nil {
 		return fmt.Sprintf("  ▲ Known Hosts: export failed (%v)", runErr)
 	}
@@ -103,7 +103,7 @@ func deployBundleFileWithLog(client *ssh.Client, c db.SSHConnection, bundle *Git
 	}
 	b64 := base64.StdEncoding.EncodeToString(data)
 	cmd := buildRemoteExportWriteCmd(".gitmap", "export_bundle.json", b64, isWindowsOS(c.OS))
-	_, runErr := crypto.RunCommand(client, cmd, shell)
+	_, runErr := secrets.RunCommand(client, cmd, shell)
 	if runErr != nil {
 		return fmt.Sprintf("  ▲ Bundle: export failed (%v)", runErr)
 	}
@@ -116,7 +116,7 @@ func triggerRemoteImportWithLog(client *ssh.Client, osType, shell string) string
 	if isWindowsOS(osType) == false {
 		cmd = wrapUnixPath(cmd)
 	}
-	out, err := crypto.RunCommand(client, cmd, shell)
+	out, err := secrets.RunCommand(client, cmd, shell)
 	trimmed := strings.TrimSpace(out)
 	if err == nil && trimmed != "" {
 		return fmt.Sprintf("  ✓ Remote Registry: %s", trimmed)

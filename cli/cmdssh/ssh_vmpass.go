@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -69,7 +69,7 @@ func loadVMPassCreds() *vmPassCredentials {
 	if err != nil {
 		return nil
 	}
-	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	payload, _, extractErr := jsonx.ExtractPayload(data)
 	if extractErr == nil && len(payload) > 0 {
 		data = payload
 	}
@@ -90,7 +90,7 @@ func resolveDecryptedPass(pass string) string {
 	if pass == "" {
 		return ""
 	}
-	plain, err := crypto.DecryptStoredPassword(pass)
+	plain, err := secrets.DecryptStoredPassword(pass)
 	if err == nil && plain != "" {
 		return plain
 	}

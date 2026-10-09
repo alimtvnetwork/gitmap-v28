@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func findDefaultUserSSHKey() string {
@@ -55,7 +55,7 @@ func findAllUserSSHKeys() []string {
 	return found
 }
 
-var cryptoConnectWithKeyFn = crypto.ConnectWithKey
+var cryptoConnectWithKeyFn = secrets.ConnectWithKey
 
 // SetCryptoConnectWithKeyForTesting overrides ConnectWithKey in tests.
 func SetCryptoConnectWithKeyForTesting(fn func(ip, user, keyPath string) (*ssh.Client, error)) func() {

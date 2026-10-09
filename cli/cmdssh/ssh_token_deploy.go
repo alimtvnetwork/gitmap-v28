@@ -6,14 +6,13 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
 )
 
 // RunTokenDeployCLI coordinates deploying the GitHub token across remote SSH nodes.
 func RunTokenDeployCLI(args []string) error {
-	token, _, err := ghtoken.Resolve()
+	token, _, err := secrets.Resolve()
 	hasToken := err == nil && len(token) > 0
 	if !hasToken {
 		return fmt.Errorf("no GitHub token available to deploy; set GH_TOKEN, login via gh auth, or gitmap token add")
@@ -60,7 +59,7 @@ func executeSingleNodeTokenDeploy(c db.SSHConnection, token string, isDryRun boo
 
 	osType := resolveNodeOS(client, c.OS)
 	cmd := fmt.Sprintf("git config --global github.token %s", token)
-	out, err := crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
+	out, err := secrets.RunCommand(client, cmd, resolveRemoteShell(osType))
 	reportRemoteExecution(header, "Token Deployed", out, err)
 
 	return out, err

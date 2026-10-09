@@ -67,7 +67,7 @@ func printCanonicalCmdBanner(canonical, alias string) {
 // scans for already-pending branches/metadata and releases all of
 // them. Silently ignoring the version arg (the pre-v5.19.0 behavior)
 // caused users to release unrelated versions (e.g. v2.233.0) when they
-// asked for v3.1. Exit 2 with a precise suggestion.
+// asked for v3.1. Exit 2 with a precise diag.
 func rejectVersionArgOnPending(args []string) {
 	for _, a := range args {
 		if strings.HasPrefix(a, "-") {

@@ -6,12 +6,12 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // GetSemanticClusterSections returns the 5 canonical Muse semantic help clusters.
-func GetSemanticClusterSections() []termhelp.HelpSection {
-	return []termhelp.HelpSection{
+func GetSemanticClusterSections() []termout.HelpSection {
+	return []termout.HelpSection{
 		clusterCoreRepoOperations(),
 		clusterReleaseCommits(),
 		clusterFleetRemoteSSH(),
@@ -21,8 +21,8 @@ func GetSemanticClusterSections() []termhelp.HelpSection {
 }
 
 // BuildSemanticClustersMenu constructs the unified 5-cluster HelpMenu.
-func BuildSemanticClustersMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func BuildSemanticClustersMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "gitmap — 5 Semantic Clusters",
 		UsageLines: []string{
 			"gitmap <command> [flags]",
@@ -37,11 +37,11 @@ func BuildSemanticClustersMenu() termhelp.HelpMenu {
 // RenderSemanticClustersHelp prints the 5 semantic clusters menu to standard output.
 func RenderSemanticClustersHelp() {
 	menu := BuildSemanticClustersMenu()
-	termhelp.RenderMenu(menu)
+	termout.RenderMenu(menu)
 }
 
-func buildSemanticClusterFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildSemanticClusterFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-h, --help", Description: "Show detailed help card and usage guide"},
 		{Command: "-v, --verbose", Description: "Enable verbose debug logs during execution"},
 		{Command: "--json", Description: "Emit results formatted as structured JSON"},
@@ -56,16 +56,16 @@ func buildClusterTips() []string {
 	}
 }
 
-func clusterCoreRepoOperations() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func clusterCoreRepoOperations() termout.HelpSection {
+	return termout.HelpSection{
 		Title:   "1. Core & Repo Operations",
 		Color:   constants.ColorCyan,
 		Entries: resolveClusterEntriesCore(),
 	}
 }
 
-func resolveClusterEntriesCore() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func resolveClusterEntriesCore() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "scan", Description: "Fast repository scanner with parallel filesystem discovery"},
 		{Command: "list, ls", Description: "List recorded repositories with multi-format output"},
 		{Command: "clone, c", Description: "Clone repositories from manifest, URL, or selective batch"},
@@ -79,16 +79,16 @@ func resolveClusterEntriesCore() []termhelp.CommandEntry {
 	}
 }
 
-func clusterReleaseCommits() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func clusterReleaseCommits() termout.HelpSection {
+	return termout.HelpSection{
 		Title:   "2. Release & Commits",
 		Color:   constants.ColorGreen,
 		Entries: resolveClusterEntriesRelease(),
 	}
 }
 
-func resolveClusterEntriesRelease() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func resolveClusterEntriesRelease() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "release, r", Description: "Automated semantic release ceremony, tagging, and publishing"},
 		{Command: "changelog", Description: "Generate or view repository changelog from commits"},
 		{Command: "list-versions", Description: "Display repository version history and release metadata"},
@@ -100,16 +100,16 @@ func resolveClusterEntriesRelease() []termhelp.CommandEntry {
 	}
 }
 
-func clusterFleetRemoteSSH() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func clusterFleetRemoteSSH() termout.HelpSection {
+	return termout.HelpSection{
 		Title:   "3. Fleet & Remote SSH",
 		Color:   constants.ColorYellow,
 		Entries: resolveClusterEntriesFleet(),
 	}
 }
 
-func resolveClusterEntriesFleet() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func resolveClusterEntriesFleet() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "ssh", Description: "Manage remote SSH keys, nodes, and terminal sessions"},
 		{Command: "nodes", Description: "Fleet node discovery, health monitoring, and latency probes"},
 		{Command: "cluster", Description: "Multi-node cluster delegation and remote job execution"},
@@ -120,16 +120,16 @@ func resolveClusterEntriesFleet() []termhelp.CommandEntry {
 	}
 }
 
-func clusterAIAutomation() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func clusterAIAutomation() termout.HelpSection {
+	return termout.HelpSection{
 		Title:   "4. AI & Automation",
 		Color:   constants.ColorMagenta,
 		Entries: resolveClusterEntriesAI(),
 	}
 }
 
-func resolveClusterEntriesAI() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func resolveClusterEntriesAI() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "agy", Description: "Antigravity developer tools, prompts, and queue manager"},
 		{Command: "agm", Description: "Manage Antigravity agent instances and logs"},
 		{Command: "aum", Description: "Automation Unit Manager for macros, scripts, and AST transforms"},
@@ -142,16 +142,16 @@ func resolveClusterEntriesAI() []termhelp.CommandEntry {
 	}
 }
 
-func clusterSystemOSTooling() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func clusterSystemOSTooling() termout.HelpSection {
+	return termout.HelpSection{
 		Title:   "5. System, OS & Developer Tooling",
 		Color:   constants.ColorBlue,
 		Entries: resolveClusterEntriesSystem(),
 	}
 }
 
-func resolveClusterEntriesSystem() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func resolveClusterEntriesSystem() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "os", Description: "Cross-platform OS desktop and taskbar integrations"},
 		{Command: "apps", Description: "Discover, inventory, and cleanly uninstall desktop applications"},
 		{Command: "install", Description: "Install CLI companion tools and agents"},

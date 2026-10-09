@@ -39,7 +39,7 @@ func fillRandomChars(buf []byte) *apperror.AppError {
 	for i := range buf {
 		num, err := rand.Int(rand.Reader, maxVal)
 		if err != nil {
-			return apperror.WrapSimple(err, "crypto.rand.Int")
+			return apperror.WrapSimple(err, "secrets.rand.Int")
 		}
 
 		buf[i] = WpSaltCharset[num.Int64()]

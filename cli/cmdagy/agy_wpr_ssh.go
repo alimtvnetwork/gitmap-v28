@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -70,7 +70,7 @@ func querySingleNodeWPRAll(c db.SSHConnection) []store.WatchPromptsSummary {
 
 	UpdateWPRMachineCache(c, c.Alias, "online")
 	cmdStr := "gitmap agy wpr all --json"
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr != nil {
 		return nil
 	}
@@ -148,7 +148,7 @@ func querySingleNodeWPRProjects(c db.SSHConnection) []WPRProjectStatus {
 
 	UpdateWPRMachineCache(c, c.Alias, "online")
 	cmdStr := "gitmap agy wpr ls --json"
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr != nil {
 		return nil
 	}
@@ -219,7 +219,7 @@ func printRemoteNodeLogs(c db.SSHConnection, opts WPROptions) {
 	defer client.Close()
 
 	cmdStr := fmt.Sprintf("gitmap agy wpr logs %s --json", opts.Target)
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr == nil && len(out) > 0 {
 		fmt.Printf("[%s] %s\n", c.Alias, out)
 	}

@@ -15,7 +15,7 @@ package render
 import (
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/theme"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // PrettyModeType is the tri-state requested by the caller.
@@ -85,10 +85,10 @@ func Decide(mode PrettyModeType, isTTY, isMarkdown bool) bool {
 // When the theme package has wrapped os.Stdout with a pipe (standard /
 // monochrome modes) the live Stat would report "pipe" and falsely
 // disable pretty rendering — we defer to the pre-wrap TTY state
-// theme.Install captured before swapping the handle.
+// termout.Install captured before swapping the handle.
 func StdoutIsTerminal() bool {
-	if theme.Active() != theme.ModeBright {
-		return theme.IsStdoutTTY()
+	if termout.Active() != termout.ModeBright {
+		return termout.IsStdoutTTY()
 	}
 
 	info, err := os.Stdout.Stat()

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 // ShredAuditEntry records zero-fill shred details for a specific file.
@@ -45,7 +45,7 @@ func DeriveMachineVaultKey() ([]byte, error) {
 
 // EncryptPayload wraps data with AES-256-GCM authenticated encryption.
 func EncryptPayload(payload []byte, key []byte) (string, error) {
-	enc, err := crypto.Encrypt(payload, key)
+	enc, err := secrets.Encrypt(payload, key)
 	if err != nil {
 		return "", apperror.NewSimple("failed to encrypt payload: "+err.Error(), "E1094")
 	}
@@ -54,7 +54,7 @@ func EncryptPayload(payload []byte, key []byte) (string, error) {
 
 // DecryptPayload decrypts a base64 encoded AES-256-GCM ciphertext.
 func DecryptPayload(ciphertext string, key []byte) ([]byte, error) {
-	data, err := crypto.Decrypt(ciphertext, key)
+	data, err := secrets.Decrypt(ciphertext, key)
 	if err != nil {
 		return nil, apperror.NewSimple("failed to decrypt payload: "+err.Error(), "E1094")
 	}

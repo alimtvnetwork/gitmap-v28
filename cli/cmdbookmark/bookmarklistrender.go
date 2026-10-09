@@ -10,7 +10,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // bookmark-list wire keys. Names + order are the contract.
@@ -26,15 +26,15 @@ const (
 // encodeBookmarkListJSON writes records as a stablejson 2-space-indented
 // array. Empty input emits `[]\n`.
 func encodeBookmarkListJSON(w io.Writer, records []model.BookmarkRecord) error {
-	return stablejson.WriteArray(w, buildBookmarkListJSONItems(records))
+	return jsonx.WriteArray(w, buildBookmarkListJSONItems(records))
 }
 
 // buildBookmarkListJSONItems is the single source of (field name,
 // field order, value) for bookmark-list.
-func buildBookmarkListJSONItems(records []model.BookmarkRecord) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(records))
+func buildBookmarkListJSONItems(records []model.BookmarkRecord) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(records))
 	for _, r := range records {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: bookmarkListKeyID, Value: r.ID},
 			{Key: bookmarkListKeyName, Value: r.Name},
 			{Key: bookmarkListKeyCommand, Value: r.Command},

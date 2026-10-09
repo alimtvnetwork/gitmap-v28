@@ -1,4 +1,4 @@
-// Package installer — manager.go provides the central orchestrator for installer scripts.
+// Package installer — manager.go provides the central orchestrator for installer fspath.
 package installer
 
 import (

@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -74,7 +74,7 @@ func querySingleNodePrompts(c db.SSHConnection, wordCount int, isFull bool) []st
 	if isFull {
 		cmdStr += " --full"
 	}
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr != nil {
 		return []store.RunningPromptRecord{buildNodeErrorPromptRecord(c, runErr)}
 	}
@@ -212,7 +212,7 @@ func delegateNodeBackup(c db.SSHConnection, customFile string, isJSON bool) {
 	if len(customFile) > 0 {
 		cmdStr += fmt.Sprintf(" -f %q", customFile)
 	}
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr != nil {
 		printNodeSSHNotice(c.Alias, "backup command failed")
 		return
@@ -308,7 +308,7 @@ func querySingleNodeBackupBatches(c db.SSHConnection, customFile string) []store
 	if len(customFile) > 0 {
 		cmdStr += fmt.Sprintf(" -f %q", customFile)
 	}
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr != nil {
 		return nil
 	}
@@ -399,7 +399,7 @@ func delegateNodeRestore(c db.SSHConnection, opts store.RestoreOptions) {
 	if len(opts.TargetFile) > 0 {
 		cmdStr += fmt.Sprintf(" -f %q", opts.TargetFile)
 	}
-	out, runErr := crypto.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
+	out, runErr := secrets.RunCommand(client, cmdStr, resolveNodeShell(c.OS))
 	if runErr != nil {
 		printNodeSSHNotice(c.Alias, "restore command failed")
 		return

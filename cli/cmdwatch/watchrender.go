@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // watch top-level wire keys. Names + order are the contract.
@@ -67,7 +67,7 @@ func encodeWatchJSON(
 		return err
 	}
 
-	return stablejson.WriteObject(w, []stablejson.Field{
+	return jsonx.WriteObject(w, []jsonx.Field{
 		{Key: watchKeyTimestamp, Value: timestamp},
 		{Key: watchKeyRepos, Value: reposRaw},
 		{Key: watchKeySummary, Value: summaryRaw},
@@ -78,7 +78,7 @@ func encodeWatchJSON(
 // so it embeds cleanly as a top-level object value.
 func renderWatchReposRaw(snapshots []watchSnapshot) (json.RawMessage, error) {
 	var buf bytes.Buffer
-	if err := stablejson.WriteArrayIndent(&buf, buildWatchSnapshotItems(snapshots), ""); err != nil {
+	if err := jsonx.WriteArrayIndent(&buf, buildWatchSnapshotItems(snapshots), ""); err != nil {
 		return nil, err
 	}
 
@@ -89,7 +89,7 @@ func renderWatchReposRaw(snapshots []watchSnapshot) (json.RawMessage, error) {
 // mode so it embeds cleanly as a top-level object value.
 func renderWatchSummaryRaw(summary watchSummary) (json.RawMessage, error) {
 	var buf bytes.Buffer
-	if err := stablejson.WriteObjectIndent(&buf, buildWatchSummaryFields(summary), ""); err != nil {
+	if err := jsonx.WriteObjectIndent(&buf, buildWatchSummaryFields(summary), ""); err != nil {
 		return nil, err
 	}
 
@@ -98,10 +98,10 @@ func renderWatchSummaryRaw(summary watchSummary) (json.RawMessage, error) {
 
 // buildWatchSnapshotItems is the single source of (field name, field
 // order, value) for watch repo snapshots.
-func buildWatchSnapshotItems(snapshots []watchSnapshot) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(snapshots))
+func buildWatchSnapshotItems(snapshots []watchSnapshot) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(snapshots))
 	for _, s := range snapshots {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: watchRepoKeyName, Value: s.Name},
 			{Key: watchRepoKeyPath, Value: s.Path},
 			{Key: watchRepoKeyBranch, Value: s.Branch},
@@ -117,8 +117,8 @@ func buildWatchSnapshotItems(snapshots []watchSnapshot) [][]stablejson.Field {
 
 // buildWatchSummaryFields is the single source of (field name, field
 // order, value) for the watch summary.
-func buildWatchSummaryFields(summary watchSummary) []stablejson.Field {
-	return []stablejson.Field{
+func buildWatchSummaryFields(summary watchSummary) []jsonx.Field {
+	return []jsonx.Field{
 		{Key: watchSummaryKeyTotal, Value: summary.Total},
 		{Key: watchSummaryKeyDirty, Value: summary.Dirty},
 		{Key: watchSummaryKeyBehind, Value: summary.Behind},

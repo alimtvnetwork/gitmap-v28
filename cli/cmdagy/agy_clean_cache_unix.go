@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/lockcheck"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 // DiscoverCacheTargets discovers all Antigravity cache directories on Linux and macOS.
@@ -146,7 +146,7 @@ func TerminateProcesses(procs []AgyProcessInfo) (int, []string) {
 }
 
 func terminateUnixProcess(p AgyProcessInfo) (bool, string) {
-	if lockcheck.IsProtectedProcess(p.Name, p.PID) && os.Getenv("GITMAP_FORCE_IDE_KILL") != "1" {
+	if fspath.IsProtectedProcess(p.Name, p.PID) && os.Getenv("GITMAP_FORCE_IDE_KILL") != "1" {
 		return false, fmt.Sprintf("skipped protected process PID %d (%s)", p.PID, p.Name)
 	}
 

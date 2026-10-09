@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/suggestion"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 )
 
 func TestResolveCommandSuggestions_Typo(t *testing.T) {
@@ -37,7 +37,7 @@ func TestRenderErrorSuggestions_Nil(t *testing.T) {
 func TestRenderErrorSuggestions_Valid(t *testing.T) {
 	var buf bytes.Buffer
 	appErr := apperror.NewNotFoundError("unrecognized")
-	appErr.WithSuggestions(suggestion.Suggestion{
+	appErr.WithSuggestions(diag.Suggestion{
 		Command:     "gitmap scan",
 		Description: "Fast scanner",
 		Confidence:  0.95,

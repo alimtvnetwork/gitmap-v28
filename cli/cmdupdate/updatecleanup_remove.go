@@ -16,7 +16,7 @@ const (
 	cleanupRemoveRetryDelay  = 200 * time.Millisecond
 )
 
-// cleanupTempArtifacts removes update handoff copies and generated scripts.
+// cleanupTempArtifacts removes update handoff copies and generated fspath.
 func cleanupTempArtifacts(ctx updateCleanupContext) int {
 	return removeCleanupPatterns(ctx.tempPatterns, ctx.selfPath, constants.MsgUpdateTempRemoved)
 }

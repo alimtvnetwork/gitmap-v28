@@ -2,7 +2,7 @@
 // and installs an os.Stdout / os.Stderr byte-stream filter that rewrites
 // emoji into ASCII fallbacks when "safe" is active.
 //
-// Composition: chains AFTER gitmap/theme.Install — both packages wrap
+// Composition: chains AFTER gitmap/termout.Install — both packages wrap
 // the standard handles with a pipe; stacking is fine and order-
 // independent since each filter only touches its own byte patterns.
 package glyphs

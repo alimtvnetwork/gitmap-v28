@@ -12,7 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 // PurgeExtendedOptions adds CLI-specific flags to PurgeOptions.
@@ -178,12 +178,12 @@ func runRewritePipeline(db *store.PurgeHistoryDB, repoDir string, opts PurgeExte
 	return finalizePurgeExecution(rCtx, opts, preReport, newHead, vaultPath)
 }
 
-func extractBlobTargets(repoDir string, nodes []AffectedCommitNode) []tempdir.PurgeBlobTarget {
-	var targets []tempdir.PurgeBlobTarget
+func extractBlobTargets(repoDir string, nodes []AffectedCommitNode) []fspath.PurgeBlobTarget {
+	var targets []fspath.PurgeBlobTarget
 	for _, node := range nodes {
 		for _, f := range node.MatchedFiles {
 			data, _ := readBlobData(repoDir, node.CommitSha, f)
-			targets = append(targets, tempdir.PurgeBlobTarget{
+			targets = append(targets, fspath.PurgeBlobTarget{
 				CommitSha:    node.CommitSha,
 				RelativePath: f,
 				Data:         data,
@@ -202,13 +202,13 @@ func readBlobData(repoDir, commitSha, relPath string) ([]byte, error) {
 	return cmd.Output()
 }
 
-func stageBackupVault(repoDir, slug string, isNoBackup bool, targets []tempdir.PurgeBlobTarget) (string, error) {
+func stageBackupVault(repoDir, slug string, isNoBackup bool, targets []fspath.PurgeBlobTarget) (string, error) {
 	if isNoBackup || len(targets) == 0 {
 		return "", nil
 	}
 	opSubdir := fmt.Sprintf("%d", time.Now().UnixNano())
 
-	return tempdir.StageBlobsToTempBackup(repoDir, slug, opSubdir, targets)
+	return fspath.StageBlobsToTempBackup(repoDir, slug, opSubdir, targets)
 }
 
 func recordPurgeStart(db *store.PurgeHistoryDB, rep *PreflightReport, opts PurgeExtendedOptions, vaultPath string, count int) (int64, error) {

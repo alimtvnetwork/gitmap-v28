@@ -14,7 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RunNodesPendingCommits executes cluster-wide pending commits discovery across fleet nodes.
@@ -442,38 +442,38 @@ func emitNodesPendingCommitsJSON(results []NodePendingCommitsResult, opts NodesP
 }
 
 func renderNodesPendingCommitsTable(results []NodePendingCommitsResult) {
-	columns := []termtable.Column{
-		{Title: "NODE ALIAS", Align: termtable.AlignLeft, MinWidth: 14},
-		{Title: "REPOSITORY", Align: termtable.AlignLeft, MinWidth: 22},
-		{Title: "BRANCH", Align: termtable.AlignLeft, MinWidth: 12},
-		{Title: "DIRTY FILES", Align: termtable.AlignRight, MinWidth: 12},
-		{Title: "UNPUSHED", Align: termtable.AlignRight, MinWidth: 10},
-		{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 14},
+	columns := []termout.Column{
+		{Title: "NODE ALIAS", Align: termout.AlignLeft, MinWidth: 14},
+		{Title: "REPOSITORY", Align: termout.AlignLeft, MinWidth: 22},
+		{Title: "BRANCH", Align: termout.AlignLeft, MinWidth: 12},
+		{Title: "DIRTY FILES", Align: termout.AlignRight, MinWidth: 12},
+		{Title: "UNPUSHED", Align: termout.AlignRight, MinWidth: 10},
+		{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 14},
 	}
 
 	rows := buildPendingCommitsRows(results)
-	tableCfg := termtable.TableConfig{
+	tableCfg := termout.TableConfig{
 		Columns: columns,
 		Rows:    rows,
 	}
 
 	fmt.Println()
-	termtable.PrintTable(tableCfg)
+	termout.PrintTable(tableCfg)
 }
 
-func buildPendingCommitsRows(results []NodePendingCommitsResult) []termtable.Row {
-	var rows []termtable.Row
+func buildPendingCommitsRows(results []NodePendingCommitsResult) []termout.Row {
+	var rows []termout.Row
 
 	for _, res := range results {
 		if !res.IsNodeOnline {
-			rows = append(rows, termtable.Row{
+			rows = append(rows, termout.Row{
 				Cells: []string{res.NodeAlias, "-", "-", "-", "-", constants.ColorDim + "○ OFFLINE" + constants.ColorReset},
 			})
 			continue
 		}
 
 		if len(res.PendingRepos) == 0 {
-			rows = append(rows, termtable.Row{
+			rows = append(rows, termout.Row{
 				Cells: []string{res.NodeAlias, "(all clean)", "-", "0", "0", constants.ColorGreen + "● SYNCED" + constants.ColorReset},
 			})
 			continue
@@ -481,7 +481,7 @@ func buildPendingCommitsRows(results []NodePendingCommitsResult) []termtable.Row
 
 		for _, repo := range res.PendingRepos {
 			statusBadge := formatPendingBadge(repo.DirtyFileCount, repo.UnpushedCount)
-			rows = append(rows, termtable.Row{
+			rows = append(rows, termout.Row{
 				Cells: []string{
 					res.NodeAlias,
 					repo.RepoName,

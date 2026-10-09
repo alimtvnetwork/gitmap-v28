@@ -21,7 +21,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -445,7 +445,7 @@ func streamAndExtractAGM(client *ssh.Client, conn db.SSHConnection, res DeployAG
 
 func executeAGMExtraction(client *ssh.Client, conn db.SSHConnection, res DeployAGMResult, totalAccounts int, start time.Time) DeployAGMResult {
 	cmd, shell := resolveAGMExtractCommand(conn)
-	out, errExec := crypto.RunCommand(client, cmd, shell)
+	out, errExec := secrets.RunCommand(client, cmd, shell)
 	res.Latency = time.Since(start)
 	res.LatencyMs = res.Latency.Milliseconds()
 	if errExec != nil {

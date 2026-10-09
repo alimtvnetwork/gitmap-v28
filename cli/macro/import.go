@@ -13,7 +13,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -107,7 +107,7 @@ func isReservedDeviceName(name string) bool {
 
 // ParseImportJSON deserializes JSON bytes using polymorphic dual-shape detection.
 func ParseImportJSON(data []byte) MacroSliceResult {
-	payload, _, err := jsonenvelope.ExtractPayload(data)
+	payload, _, err := jsonx.ExtractPayload(data)
 	if err == nil && len(payload) > 0 {
 		data = payload
 	}

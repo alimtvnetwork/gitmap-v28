@@ -1,23 +1,23 @@
 package cmdinstall
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderInstallHelp displays the styled two-column Install help menu.
 func RenderInstallHelp() {
-	termhelp.RenderMenu(buildInstallHelpMenu())
+	termout.RenderMenu(buildInstallHelpMenu())
 }
 
-func buildInstallHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildInstallHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Tool & Profile Installer (gitmap install)",
 		UsageLines: []string{
 			"gitmap install <tool|profile> [flags]",
 			"gitmap in <tool|profile> [flags]",
 			"gitmap in profile [name] [--tree]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildInstallCoreSection(),
 			buildInstallDatabaseSection(),
 			buildInstallAISection(),
@@ -34,8 +34,8 @@ func buildInstallHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildInstallFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildInstallFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-y, --yes", Description: "Auto-confirm installation prompts without asking"},
 		{Command: "--dry-run", Description: "Preview resolved install commands without executing"},
 		{Command: "--check", Description: "Only check if tool is installed on system"},
@@ -47,10 +47,10 @@ func buildInstallFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildInstallCoreSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildInstallCoreSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Core Developer Runtimes",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "vscode (code)", Description: "Visual Studio Code editor"},
 			{Command: "git", Description: "Git version control system"},
 			{Command: "node", Description: "Node.js JavaScript runtime (npm/npx)"},

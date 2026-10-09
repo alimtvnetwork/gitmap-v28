@@ -3,14 +3,14 @@ package appfault
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/suggestion"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 )
 
 // AppError is an alias for apperror.AppError to satisfy canonical coding guidelines.
 type AppError = apperror.AppError
 
-// Suggestion is an alias for suggestion.Suggestion.
-type Suggestion = suggestion.Suggestion
+// Suggestion is an alias for diag.Suggestion.
+type Suggestion = diag.Suggestion
 
 // NewNotFoundError creates an AppError specialized for missing items or lookup misses.
 func NewNotFoundError(msg string) *AppError {

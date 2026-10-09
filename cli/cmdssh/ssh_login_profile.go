@@ -7,7 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	dbpkg "github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"golang.org/x/crypto/ssh"
 )
@@ -42,7 +42,7 @@ func connectProbeClient(sshTarget *SSHTarget, password string) *ssh.Client {
 	if password == "" {
 		return tryConnectDefaultKey(sshTarget)
 	}
-	c, err := crypto.ConnectWithPassword(sshTarget.IP, sshTarget.Username, password)
+	c, err := secrets.ConnectWithPassword(sshTarget.IP, sshTarget.Username, password)
 	if err == nil && c != nil {
 		return c
 	}

@@ -38,7 +38,7 @@ func printProjectsSummary(projects []model.DetectedProject) {
 	fmt.Fprintf(os.Stderr, constants.MsgProjectListCount, len(projects))
 }
 
-// printProjectsJSON prints projects as formatted JSON via stablejson.
+// printProjectsJSON prints projects as formatted JSON via jsonx.
 func printProjectsJSON(projects []model.DetectedProject) {
 	if err := encodeProjectReposJSON(os.Stdout, projects); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to encode projects JSON: %v\n", err)

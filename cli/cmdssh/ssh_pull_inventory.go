@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -88,7 +88,7 @@ func pullSingleNodeInventory(node db.SSHConnection, secretsRoot string) {
 func runRemoteScanAndFetch(client *ssh.Client, node db.SSHConnection, destDir string) {
 	t0 := time.Now()
 	scanCmd := "gitmap scan D:/work --output json"
-	_, _ = crypto.RunCommand(client, scanCmd, "")
+	_, _ = secrets.RunCommand(client, scanCmd, "")
 
 	fetchRemoteFile(client, node, "D:/work/.gitmap/output/gitmap.json", filepath.Join(destDir, "gitmap.json"))
 	fetchRemoteFile(client, node, "D:/work/ooshutup10.cfg", filepath.Join(destDir, "ooshutup10.cfg"))

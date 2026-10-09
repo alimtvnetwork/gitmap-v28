@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // AppsHelpSummary is the concise overview of the apps management subsystem.
@@ -18,7 +18,7 @@ const InstallToolsHelpSummary = "Batch install multiple developer tools sequenti
 
 // RenderAppsHelpMenu renders the modern framed-box help menu for the `gitmap apps` subsystem.
 func RenderAppsHelpMenu() {
-	menu := termhelp.HelpMenu{
+	menu := termout.HelpMenu{
 		Title: "gitmap apps",
 		UsageLines: []string{
 			"gitmap apps [command] [flags]",
@@ -26,16 +26,16 @@ func RenderAppsHelpMenu() {
 			"gitmap apps uninstall <app-id> [--purge] [--force] [--json]",
 			"gitmap apps help",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			{
 				Title: "Description",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "apps", Description: AppsHelpSummary},
 				},
 			},
 			{
 				Title: "Subcommands",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "list, ls", Description: "Inventory desktop apps (.desktop, registry), package managers (apt, snap, winget, choco, npm), and CLI binaries"},
 					{Command: "uninstall, rm", Description: "Surgically remove an app, purging desktop launchers, icon assets, symlinks, and cache directories"},
 					{Command: "help, -h", Description: "Display this comprehensive apps help documentation"},
@@ -43,7 +43,7 @@ func RenderAppsHelpMenu() {
 			},
 			{
 				Title: "List Flags",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "-f, --filter <str>", Description: "Fuzzy match by application name, executable path, or package ID"},
 					{Command: "--json", Description: "Emit machine-readable JSON array envelope for automated auditing"},
 					{Command: "--system", Description: "Filter exclusively system-wide applications (/usr/share/applications, Program Files)"},
@@ -53,7 +53,7 @@ func RenderAppsHelpMenu() {
 			},
 			{
 				Title: "Uninstall Flags",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "--purge", Description: "Completely purge associated application configuration, caches, and icon files"},
 					{Command: "--force", Description: "Bypass confirmation prompts and forcefully execute uninstallation"},
 					{Command: "--json", Description: "Emit structured AppUninstallResponse JSON telemetry to stdout"},
@@ -61,7 +61,7 @@ func RenderAppsHelpMenu() {
 			},
 			{
 				Title: "Examples",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "gitmap apps list", Description: "List all installed desktop applications in interactive table format"},
 					{Command: "gitmap apps list --filter antigravity --json", Description: "Discover applications matching 'antigravity' in structured JSON"},
 					{Command: "gitmap apps uninstall antigravity-tools --purge --force", Description: "Completely purge an obsolete app and its launcher icon"},
@@ -69,7 +69,7 @@ func RenderAppsHelpMenu() {
 				},
 			},
 		},
-		FooterFlags: []termhelp.CommandEntry{
+		FooterFlags: []termout.CommandEntry{
 			{Command: "-h, --help", Description: "Display this formatted help screen"},
 			{Command: "--json", Description: "Emit results formatted as JSON"},
 		},
@@ -79,29 +79,29 @@ func RenderAppsHelpMenu() {
 		},
 	}
 
-	termhelp.RenderMenu(menu)
+	termout.RenderMenu(menu)
 	printUsageFooterShort()
 }
 
 // RenderInstallToolsHelpMenu renders the modern framed-box help menu for `gitmap install --tools`.
 func RenderInstallToolsHelpMenu() {
-	menu := termhelp.HelpMenu{
+	menu := termout.HelpMenu{
 		Title: "gitmap install --tools",
 		UsageLines: []string{
 			"gitmap install --tools <tool1,tool2,...> [flags]",
 			"gitmap in <tool1> <tool2> <tool3>... [flags]",
 			"gitmap install --tools <list> --json [--ignore-errors]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			{
 				Title: "Description",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "install --tools", Description: InstallToolsHelpSummary},
 				},
 			},
 			{
 				Title: "Execution Syntax & Flags",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "--tools <list>", Description: "Comma-separated list of developer tools to install sequentially (e.g. antigravity,chrome,vscode)"},
 					{Command: "<tool1> <tool2>...", Description: "Variadic multiple arguments for fast multi-tool setup (e.g. gitmap in chrome vscode)"},
 					{Command: "--json", Description: "Output BatchInstallResponse JSON envelope with per-tool status, version, and durations"},
@@ -112,7 +112,7 @@ func RenderInstallToolsHelpMenu() {
 			},
 			{
 				Title: "Examples",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "gitmap install --tools antigravity,chrome,vscode,flameshot", Description: "Install 4 essential developer tools sequentially in one command"},
 					{Command: "gitmap in antigravity chrome vscode flameshot", Description: "Variadic multi-tool installation syntax without commas"},
 					{Command: "gitmap install --tools chrome,vscode --manager apt", Description: "Install tools sequentially enforcing apt package manager"},
@@ -121,7 +121,7 @@ func RenderInstallToolsHelpMenu() {
 				},
 			},
 		},
-		FooterFlags: []termhelp.CommandEntry{
+		FooterFlags: []termout.CommandEntry{
 			{Command: "-h, --help", Description: "Display this formatted help screen"},
 			{Command: "--json", Description: "Emit results formatted as JSON"},
 			{Command: "--ignore-errors", Description: "Continue past tool failures"},
@@ -134,7 +134,7 @@ func RenderInstallToolsHelpMenu() {
 		},
 	}
 
-	termhelp.RenderMenu(menu)
+	termout.RenderMenu(menu)
 	printUsageFooterShort()
 }
 
@@ -209,24 +209,24 @@ const AgyDeployHelpSummary = "Deploy Antigravity IDE themes, presets, official p
 
 // RenderAgyDeployHelpMenu renders the modern framed-box help menu for `gitmap agy deploy` and `gitmap deploy ide`.
 func RenderAgyDeployHelpMenu() {
-	menu := termhelp.HelpMenu{
+	menu := termout.HelpMenu{
 		Title: "gitmap agy deploy / gitmap deploy ide",
 		UsageLines: []string{
 			"gitmap agy deploy <target-node> [flags]",
 			"gitmap deploy ide <target-node> [flags]",
 			"gitmap agy deploy u1 --all [--json] [--dry-run]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			{
 				Title: "Description",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "agy deploy", Description: AgyDeployHelpSummary},
 					{Command: "deploy ide", Description: "Convenience alias for deploying complete Antigravity IDE bundle to fleet nodes"},
 				},
 			},
 			{
 				Title: "Deployment Flags",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "--all", Description: "Deploy complete bundle (preset + theme + plugins + skills + sanitization)"},
 					{Command: "--preset", Description: "Deploy execution and permission presets (eager, turbo, default)"},
 					{Command: "--theme", Description: "Deploy UI theme seeds (#BD93F9, #19191C, #F8F8F2) and settings.json"},
@@ -242,7 +242,7 @@ func RenderAgyDeployHelpMenu() {
 			},
 			{
 				Title: "Examples",
-				Entries: []termhelp.CommandEntry{
+				Entries: []termout.CommandEntry{
 					{Command: "gitmap agy deploy u1 --all", Description: "Deploy complete Antigravity configuration to Ubuntu node u1"},
 					{Command: "gitmap deploy ide u1", Description: "Deploy full IDE configuration to u1 via the fleet deploy router"},
 					{Command: "gitmap agy deploy u1 --all --dry-run --json", Description: "Simulate deployment with machine-readable JSON telemetry"},
@@ -250,7 +250,7 @@ func RenderAgyDeployHelpMenu() {
 				},
 			},
 		},
-		FooterFlags: []termhelp.CommandEntry{
+		FooterFlags: []termout.CommandEntry{
 			{Command: "-h, --help", Description: "Display this formatted help screen"},
 			{Command: "--json", Description: "Emit results formatted as JSON"},
 			{Command: "--dry-run", Description: "Simulate deployment mutations"},
@@ -261,7 +261,7 @@ func RenderAgyDeployHelpMenu() {
 		},
 	}
 
-	termhelp.RenderMenu(menu)
+	termout.RenderMenu(menu)
 	printUsageFooterShort()
 }
 

@@ -15,7 +15,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // latest-branch top-level wire keys. Names + order are the contract.
@@ -44,7 +44,7 @@ func encodeLatestBranchJSON(
 	w io.Writer, result latestBranchResult,
 	items []gitutil.RemoteBranchInfo, top int,
 ) error {
-	fields := []stablejson.Field{
+	fields := []jsonx.Field{
 		{Key: lbKeyBranch, Value: result.branchNames},
 		{Key: lbKeyRemote, Value: result.selectedRemote},
 		{Key: lbKeySha, Value: result.shortSha},
@@ -54,7 +54,7 @@ func encodeLatestBranchJSON(
 	}
 
 	if top <= 0 {
-		return stablejson.WriteObject(w, fields)
+		return jsonx.WriteObject(w, fields)
 	}
 
 	topRaw, err := renderLatestBranchTopRaw(items, top)
@@ -62,9 +62,9 @@ func encodeLatestBranchJSON(
 		return err
 	}
 
-	fields = append(fields, stablejson.Field{Key: lbKeyTop, Value: topRaw})
+	fields = append(fields, jsonx.Field{Key: lbKeyTop, Value: topRaw})
 
-	return stablejson.WriteObject(w, fields)
+	return jsonx.WriteObject(w, fields)
 }
 
 // renderLatestBranchTopRaw pre-renders the top-N array in compact
@@ -75,9 +75,9 @@ func renderLatestBranchTopRaw(items []gitutil.RemoteBranchInfo, top int) (json.R
 		count = len(items)
 	}
 
-	topItems := make([][]stablejson.Field, 0, count)
+	topItems := make([][]jsonx.Field, 0, count)
 	for _, item := range items[:count] {
-		topItems = append(topItems, []stablejson.Field{
+		topItems = append(topItems, []jsonx.Field{
 			{Key: lbTopKeyBranch, Value: gitutil.StripRemotePrefix(item.RemoteRef)},
 			{Key: lbTopKeySha, Value: gitutil.TruncSha(item.Sha)},
 			{Key: lbTopKeyCommitDate, Value: gitutil.FormatDisplayDate(item.CommitDate)},
@@ -86,7 +86,7 @@ func renderLatestBranchTopRaw(items []gitutil.RemoteBranchInfo, top int) (json.R
 	}
 
 	var buf bytes.Buffer
-	if err := stablejson.WriteArrayIndent(&buf, topItems, ""); err != nil {
+	if err := jsonx.WriteArrayIndent(&buf, topItems, ""); err != nil {
 		return nil, err
 	}
 

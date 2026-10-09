@@ -9,7 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
@@ -103,7 +103,7 @@ func readRemoteMacroData(c db.SSHConnection, name string) ([]byte, error) {
 	defer client.Close()
 	cmd := buildRemoteReadMacroCmd(name, isWindowsOS(c.OS))
 	shell := determineFallbackShell(c.OS)
-	out, err := crypto.RunCommand(client, cmd, shell)
+	out, err := secrets.RunCommand(client, cmd, shell)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "read remote macro: "+name)
 	}

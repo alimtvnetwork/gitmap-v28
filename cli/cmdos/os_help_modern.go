@@ -5,24 +5,24 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderModernOSHelp prints the boxed enterprise help menu for gitmap os.
 func RenderModernOSHelp() {
-	termhelp.RenderMenu(buildModernOSHelpMenu())
+	termout.RenderMenu(buildModernOSHelpMenu())
 	printCrossPlatformOSExamples()
 }
 
-func buildModernOSHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildModernOSHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Operating System, Machine Identity & Alias Management (gitmap os)",
 		UsageLines: []string{
 			"gitmap os <subcommand> [flags]",
 			"gitmap machine [ls|set|change|revert|help] [--ssh] [-y]",
 			"gitmap alias [ls|set|change|revert|help] [--ssh] [-y]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildOSIdentityAndAliasSection(),
 			buildOSCoreUpdateAndInfoSection(),
 			buildOSSystemAndNetworkSection(),
@@ -35,10 +35,10 @@ func buildModernOSHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildOSIdentityAndAliasSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildOSIdentityAndAliasSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Machine Identity & Alias Management (Local & --ssh Fleet)",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "os machine ls [--ssh]", Description: "Show Machine IP, Alias (auto-IP fallback), Hostname & OS (alias: gitmap machine ls)"},
 			{Command: "os machine set <name> [-y] [--ssh]", Description: "Set OS Hostname & GitMap Machine Name (sample: dev-win-01, ubuntu-node-02)"},
 			{Command: "os machine change <name> [-y]", Description: "Change machine name and snapshot previous value for instant revert"},
@@ -51,10 +51,10 @@ func buildOSIdentityAndAliasSection() termhelp.HelpSection {
 	}
 }
 
-func buildOSCoreUpdateAndInfoSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildOSCoreUpdateAndInfoSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "OS Inspection, Updates & Package Maintenance",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "os tui (menu)", Description: "Interactive Bubbletea dashboard for tweaks, DNS, auto-login, and clean"},
 			{Command: "os info (gitmap os-info)", Description: "Inspect OS distribution, kernel, architecture, CPU, RAM, and hostname"},
 			{Command: "os update (gitmap os-update)", Description: "Update OS package repositories and security patches (Windows/macOS/Ubuntu)"},
@@ -65,10 +65,10 @@ func buildOSCoreUpdateAndInfoSection() termhelp.HelpSection {
 	}
 }
 
-func buildOSSystemAndNetworkSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildOSSystemAndNetworkSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Network, Storage, Desktop & Cache Hygiene",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "os ip [show|set|change|revert]", Description: "Inspect or configure static/DHCP IPv4 with ping rollback protection"},
 			{Command: "os dns [show|set|bench|revert]", Description: "Inspect, benchmark, or configure network DNS nameservers"},
 			{Command: "os ai-clean / dev-clean / clean", Description: "Purge AI brain caches, compiler caches, and ephemeral temp directories"},
@@ -81,8 +81,8 @@ func buildOSSystemAndNetworkSection() termhelp.HelpSection {
 	}
 }
 
-func buildOSHelpFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildOSHelpFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-s, --ssh", Description: "Execute machine/alias operations across all joined SSH fleet nodes"},
 		{Command: "-y, --yes", Description: "Apply changes immediately without interactive confirmation"},
 		{Command: "-j, --json", Description: "Output structured JSON for automation and scripting"},

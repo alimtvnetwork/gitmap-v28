@@ -1,4 +1,4 @@
-// Package store — installer_get.go provides GetInstallerBySlug to retrieve installer scripts.
+// Package store — installer_get.go provides GetInstallerBySlug to retrieve installer fspath.
 package store
 
 import (

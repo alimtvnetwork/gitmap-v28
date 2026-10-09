@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -41,7 +41,7 @@ func gatherRemotePublicKeys(c db.SSHConnection) ([]string, error) {
 	}
 	defer client.Close()
 	cmd := buildGatherRemoteKeysCommand(c.OS)
-	out, err := crypto.RunCommand(client, cmd, "")
+	out, err := secrets.RunCommand(client, cmd, "")
 	if err != nil {
 		return nil, err
 	}

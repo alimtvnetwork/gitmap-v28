@@ -12,7 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -223,7 +223,7 @@ func promptAndConnectSSH(c db.SSHConnection, header string) (*ssh.Client, bool) 
 		return nil, false
 	}
 
-	client, connErr := crypto.ConnectWithPassword(c.IPAddress, c.Username, pass)
+	client, connErr := secrets.ConnectWithPassword(c.IPAddress, c.Username, pass)
 	if connErr != nil {
 		printHeaderError(header, "Password connect failed", connErr)
 
@@ -256,7 +256,7 @@ func saveSSHPasswordOnAuth(alias, ip, pass string) {
 func executeKeyInjection(client *ssh.Client, header, osType, pubKey string) {
 	script := buildInjectAuthKeyScript(pubKey, osType)
 	shellType := resolveRemoteShell(osType)
-	out, err := crypto.RunCommand(client, script, shellType)
+	out, err := secrets.RunCommand(client, script, shellType)
 	reportRemoteExecution(header, "Auth key deployment", out, err)
 }
 

@@ -1,7 +1,7 @@
 package cmdssh
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 func hasHelpToken(arg string) bool {
@@ -63,7 +63,7 @@ func checkSSHHelp(args []string) bool {
 	hasMacroHelp := hasMacro && hasHelp
 
 	if hasJoinHelp {
-		helptext.Print("ssh-join")
+		helpdoc.Print("ssh-join")
 
 		return true
 	}

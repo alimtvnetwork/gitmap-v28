@@ -14,7 +14,7 @@ package cmdlist
 //     underlying store.ReleaseAcrossRepos struct historically had NO
 //     json tags, so encoding/json emitted PascalCase field names
 //     (ReleaseID, RepoSlug, …). We preserve that surface verbatim to
-//     avoid silently breaking downstream scripts. Schema:
+//     avoid silently breaking downstream fspath. Schema:
 //     02-spec/08-json-schemas/list-releases-all-repos.schema.json.
 //
 // Both encoders take an io.Writer so the contract test in
@@ -28,7 +28,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -77,17 +77,17 @@ const (
 // encodeListReleasesJSON writes the per-repo release list as a
 // stablejson 2-space-indented array. Empty input emits `[]\n`.
 func encodeListReleasesJSON(w io.Writer, records []model.ReleaseRecord) error {
-	return stablejson.WriteArray(w, buildListReleasesJSONItems(records))
+	return jsonx.WriteArray(w, buildListReleasesJSONItems(records))
 }
 
 // buildListReleasesJSONItems is the single source of (field name,
 // field order, value) for the per-repo view. Centralized so a future
 // column rename or reorder is one diff and the contract test catches
 // schema drift in the same PR.
-func buildListReleasesJSONItems(records []model.ReleaseRecord) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(records))
+func buildListReleasesJSONItems(records []model.ReleaseRecord) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(records))
 	for _, r := range records {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: listReleasesKeyID, Value: r.ID},
 			{Key: listReleasesKeyRepoID, Value: r.RepoID},
 			{Key: listReleasesKeyVersion, Value: r.Version},
@@ -112,17 +112,17 @@ func buildListReleasesJSONItems(records []model.ReleaseRecord) [][]stablejson.Fi
 // as a stablejson 2-space-indented array. PascalCase keys preserve
 // the legacy MarshalIndent surface byte-for-byte.
 func encodeListReleasesAllReposJSON(w io.Writer, records []store.ReleaseAcrossRepos) error {
-	return stablejson.WriteArray(w, buildListReleasesAllReposJSONItems(records))
+	return jsonx.WriteArray(w, buildListReleasesAllReposJSONItems(records))
 }
 
 // buildListReleasesAllReposJSONItems mirrors buildListReleasesJSONItems
 // for the joined view. Field order follows the struct declaration in
 // store/releaseacrossrepos.go to match what json.MarshalIndent emitted
 // for years.
-func buildListReleasesAllReposJSONItems(records []store.ReleaseAcrossRepos) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(records))
+func buildListReleasesAllReposJSONItems(records []store.ReleaseAcrossRepos) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(records))
 	for _, r := range records {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: listReleasesAllKeyReleaseID, Value: r.ReleaseID},
 			{Key: listReleasesAllKeyRepoID, Value: r.RepoID},
 			{Key: listReleasesAllKeyRepoSlug, Value: r.RepoSlug},

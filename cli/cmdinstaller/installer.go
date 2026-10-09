@@ -7,7 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-// installerCmd represents the root command for managing installation scripts.
+// installerCmd represents the root command for managing installation fspath.
 var installerCmd = &cobra.Command{
 	Use:   "installer",
 	Short: "Manage, create, export, import, and version installation scripts",

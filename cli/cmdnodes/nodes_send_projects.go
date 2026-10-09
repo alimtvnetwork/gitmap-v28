@@ -15,7 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
@@ -264,12 +264,12 @@ func translatePathForNode(path string, isWin bool) string {
 func executeRemotePlacement(client *ssh.Client, stagingPath string, conn db.SSHConnection) error {
 	if isWindowsNode(conn) {
 		psCmd := fmt.Sprintf(`powershell.exe -NoProfile -Command "$appdata = [Environment]::GetFolderPath('ApplicationData'); $dir1 = Join-Path $appdata 'Code\User\globalStorage\alefragnani.project-manager'; $dir2 = Join-Path $appdata 'Cursor\User\globalStorage\alefragnani.project-manager'; foreach ($d in @($dir1, $dir2)) { if (-not (Test-Path $d)) { New-Item -ItemType Directory -Force -Path $d | Out-Null }; Copy-Item '%s' -Destination (Join-Path $d 'projects.json') -Force }"`, stagingPath)
-		_, err := crypto.RunCommand(client, psCmd, "ps")
+		_, err := secrets.RunCommand(client, psCmd, "ps")
 		return err
 	}
 
 	unixCmd := fmt.Sprintf(`sh -c "mkdir -p \"$HOME/.config/Code/User/globalStorage/alefragnani.project-manager\" \"$HOME/.config/Cursor/User/globalStorage/alefragnani.project-manager\" && cp '%s' \"$HOME/.config/Code/User/globalStorage/alefragnani.project-manager/projects.json\" && cp '%s' \"$HOME/.config/Cursor/User/globalStorage/alefragnani.project-manager/projects.json\""`, stagingPath, stagingPath)
-	_, err := crypto.RunCommand(client, unixCmd, "sh")
+	_, err := secrets.RunCommand(client, unixCmd, "sh")
 	return err
 }
 

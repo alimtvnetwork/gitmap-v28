@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/suggestion"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -25,7 +25,7 @@ type AppError struct {
 	Stack       string
 	Ctx         map[string]any
 	Cause       error
-	Suggestions []suggestion.Suggestion
+	Suggestions []diag.Suggestion
 }
 
 // Error formats the full diagnostic description of the AppError.

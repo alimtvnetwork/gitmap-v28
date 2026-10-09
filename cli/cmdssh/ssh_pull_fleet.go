@@ -15,7 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
@@ -446,7 +446,7 @@ func ensureRemoteNodeGitmap(client *ssh.Client, c db.SSHConnection) {
 	ver, isInstalled := queryNodeVersionViaSSH(client, osType)
 	if !isInstalled {
 		cmd := BuildGitmapInstallOneLiner(osType, "latest")
-		_, _ = crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
+		_, _ = secrets.RunCommand(client, cmd, resolveRemoteShell(osType))
 		return
 	}
 	if CompareSemverStrings(ver, "6.349.0") < 0 {
@@ -456,7 +456,7 @@ func ensureRemoteNodeGitmap(client *ssh.Client, c db.SSHConnection) {
 
 func updateTargetNodeGitmap(client *ssh.Client, osType string) {
 	cmd := resolveRemoteUpdateCommand(osType, "gitmap")
-	_, _ = crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
+	_, _ = secrets.RunCommand(client, cmd, resolveRemoteShell(osType))
 }
 
 func resolveTargetNodeOS(client *ssh.Client, c db.SSHConnection) string {
@@ -468,7 +468,7 @@ func resolveTargetNodeOS(client *ssh.Client, c db.SSHConnection) string {
 }
 
 func runRemotePullJSON(client *ssh.Client, c db.SSHConnection, remoteCmd string) (string, error) {
-	out, err := crypto.RunCommand(client, remoteCmd, "")
+	out, err := secrets.RunCommand(client, remoteCmd, "")
 	if strings.Contains(out, "flag provided but not defined: -json") {
 		return handleLegacyRemotePull(client, c, remoteCmd)
 	}
@@ -481,15 +481,15 @@ func runRemotePullJSON(client *ssh.Client, c db.SSHConnection, remoteCmd string)
 func handleLegacyRemotePull(client *ssh.Client, c db.SSHConnection, remoteCmd string) (string, error) {
 	osType := resolveTargetNodeOS(client, c)
 	updateTargetNodeGitmap(client, osType)
-	return crypto.RunCommand(client, remoteCmd, "")
+	return secrets.RunCommand(client, remoteCmd, "")
 }
 
 func recoverRemotePendingTask(client *ssh.Client, rawOutput string, remoteCmd string) (string, error) {
 	taskID := extractPendingTaskID(rawOutput)
 	if taskID != "" {
-		_, _ = crypto.RunCommand(client, "gitmap task cancel "+taskID, "")
+		_, _ = secrets.RunCommand(client, "gitmap task cancel "+taskID, "")
 	}
-	return crypto.RunCommand(client, remoteCmd, "")
+	return secrets.RunCommand(client, remoteCmd, "")
 }
 
 func extractPendingTaskID(s string) string {

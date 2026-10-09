@@ -2,7 +2,7 @@
 //
 // Strips `--theme <mode>` / `--theme=<mode>` (and the short `-theme`
 // form) from os.Args before subcommand dispatch and exports
-// GITMAP_THEME so gitmap/theme.Install — and any subprocess gitmap
+// GITMAP_THEME so gitmap/termout.Install — and any subprocess gitmap
 // spawns — picks up the choice. Mirrors stripVSCodeSyncDisabledFlag's
 // pattern so the global-flag inventory stays homogeneous.
 package cmd
@@ -14,14 +14,14 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/theme"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // stripThemeFlag removes every `--theme` / `-theme` occurrence from
 // args, validates its value, and sets GITMAP_THEME. Returns the
 // cleaned argv slice. On an invalid value it writes a clear error to
 // stderr and exits with status 2 — silently falling back would hide
-// typos in CI scripts.
+// typos in CI fspath.
 func stripThemeFlag(args []string) []string {
 	short := "-" + constants.FlagTheme
 	long := "--" + constants.FlagTheme
@@ -43,7 +43,7 @@ func stripThemeFlag(args []string) []string {
 // applyThemeChoice validates choice and exports GITMAP_THEME, or
 // aborts with a friendly error listing the accepted values.
 func applyThemeChoice(choice string) {
-	if !theme.IsValidLabel(choice) {
+	if !termout.IsValidLabel(choice) {
 		failInvalidThemeChoice(choice)
 	}
 

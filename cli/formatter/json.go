@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -72,7 +72,7 @@ func ParseJSON(reader io.Reader) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, err
 	}
-	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	payload, _, extractErr := jsonx.ExtractPayload(data)
 	if extractErr != nil {
 		payload = data
 	}

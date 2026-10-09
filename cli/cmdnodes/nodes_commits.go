@@ -13,7 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RunNodesCommits handles standard fleet commits without semantic prefixes.
@@ -472,38 +472,38 @@ func emitNodesCommitsJSON(results []NodeCommitResult, opts NodesCommitsOptions, 
 }
 
 func renderNodesCommitsTable(results []NodeCommitResult, action string) {
-	columns := []termtable.Column{
-		{Title: "NODE ALIAS", Align: termtable.AlignLeft, MinWidth: 14},
-		{Title: "REPOSITORY", Align: termtable.AlignLeft, MinWidth: 20},
-		{Title: "ACTION", Align: termtable.AlignLeft, MinWidth: 10},
-		{Title: "COMMIT HASH", Align: termtable.AlignLeft, MinWidth: 12},
-		{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 16},
-		{Title: "DURATION", Align: termtable.AlignRight, MinWidth: 10},
+	columns := []termout.Column{
+		{Title: "NODE ALIAS", Align: termout.AlignLeft, MinWidth: 14},
+		{Title: "REPOSITORY", Align: termout.AlignLeft, MinWidth: 20},
+		{Title: "ACTION", Align: termout.AlignLeft, MinWidth: 10},
+		{Title: "COMMIT HASH", Align: termout.AlignLeft, MinWidth: 12},
+		{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 16},
+		{Title: "DURATION", Align: termout.AlignRight, MinWidth: 10},
 	}
 
 	rows := buildCommitsRows(results, action)
-	tableCfg := termtable.TableConfig{
+	tableCfg := termout.TableConfig{
 		Columns: columns,
 		Rows:    rows,
 	}
 
 	fmt.Println()
-	termtable.PrintTable(tableCfg)
+	termout.PrintTable(tableCfg)
 }
 
-func buildCommitsRows(results []NodeCommitResult, action string) []termtable.Row {
-	var rows []termtable.Row
+func buildCommitsRows(results []NodeCommitResult, action string) []termout.Row {
+	var rows []termout.Row
 
 	for _, res := range results {
 		if !res.IsNodeOnline {
-			rows = append(rows, termtable.Row{
+			rows = append(rows, termout.Row{
 				Cells: []string{res.NodeAlias, "-", strings.ToUpper(action), "-", constants.ColorDim + "○ OFFLINE" + constants.ColorReset, "-"},
 			})
 			continue
 		}
 
 		if len(res.Repositories) == 0 {
-			rows = append(rows, termtable.Row{
+			rows = append(rows, termout.Row{
 				Cells: []string{res.NodeAlias, "(none)", strings.ToUpper(action), "-", constants.ColorDim + "○ NO REPOS" + constants.ColorReset, res.Latency.Round(time.Millisecond).String()},
 			})
 			continue
@@ -511,7 +511,7 @@ func buildCommitsRows(results []NodeCommitResult, action string) []termtable.Row
 
 		for _, repo := range res.Repositories {
 			statusStr := formatCommitStatusBadge(repo.IsSuccess, repo.HasChanges, repo.IsPushed, res.IsDryRun)
-			rows = append(rows, termtable.Row{
+			rows = append(rows, termout.Row{
 				Cells: []string{
 					res.NodeAlias,
 					repo.RepoName,

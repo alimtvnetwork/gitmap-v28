@@ -53,12 +53,12 @@ var masterCatalog = []ScriptMetadata{
 	newScript("38", "38-milestone-consolidator.py", "milestone-consolidator", []string{"milestone", "milestone-consolidate"}, CategoryPlans, "Consolidates completed plans into milestone summaries", true),
 }
 
-// MasterScriptCatalog returns all registered master automation scripts.
+// MasterScriptCatalog returns all registered master automation fspath.
 func MasterScriptCatalog() []ScriptMetadata {
 	return masterCatalog
 }
 
-// AllScripts returns all registered AI scripts in the master catalog and dynamically discovered scripts.
+// AllScripts returns all registered AI scripts in the master catalog and dynamically discovered fspath.
 func AllScripts() []ScriptMetadata {
 	return GetAllScripts()
 }

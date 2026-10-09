@@ -1,13 +1,13 @@
 package cmdinstall
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
-func buildInstallDatabaseSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildInstallDatabaseSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Databases & Cache Servers",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "mysql", Description: "MySQL relational database server"},
 			{Command: "mariadb", Description: "MariaDB SQL database (MySQL fork)"},
 			{Command: "postgresql (pg)", Description: "PostgreSQL object-relational database"},
@@ -19,10 +19,10 @@ func buildInstallDatabaseSection() termhelp.HelpSection {
 	}
 }
 
-func buildInstallAISection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildInstallAISection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Local AI & Coding Suite",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "antigravity (agy)", Description: "Autonomous AI coding assistant CLI"},
 			{Command: "ag-manager (agm)", Description: "Antigravity Manager GUI desktop app"},
 			{Command: "ollama", Description: "Local LLM runner and model daemon"},
@@ -32,10 +32,10 @@ func buildInstallAISection() termhelp.HelpSection {
 	}
 }
 
-func buildInstallProfileSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildInstallProfileSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Workstation Profiles",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "profile [name]", Description: "Install curated bundle (minimal, dev, ai...)", HasSubcommands: true},
 			{Command: "profile --list", Description: "List all available profiles and tool counts"},
 			{Command: "dev", Description: "Standard dev workstation with AI suite"},
@@ -48,10 +48,10 @@ func buildInstallProfileSection() termhelp.HelpSection {
 	}
 }
 
-func buildInstallCustomSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildInstallCustomSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Custom Scripts & Archives",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "tar <file>", Description: "Install .tar.gz/.zip archive with auto-detect"},
 			{Command: "scripts-fixer", Description: "GitMap scripts and path fixer suite"},
 			{Command: "coding-guidelines (cg)", Description: "AlimTV coding guidelines compliance (v24)"},
@@ -60,10 +60,10 @@ func buildInstallCustomSection() termhelp.HelpSection {
 	}
 }
 
-func buildInstallMgmtSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildInstallMgmtSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Management, Logs & Config",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "list (ls)", Description: "List all supported tools with installed status"},
 			{Command: "logs [tool]", Description: "View installer execution and error logs"},
 			{Command: "add <name> <ver>", Description: "Interactively register custom installer"},

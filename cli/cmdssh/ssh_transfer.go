@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -147,7 +147,7 @@ func transferWorker(c db.SSHConnection, srcPath, rawDest string, data []byte, wg
 	} else {
 		cmd := buildRemoteWriteCmd(destPath, data, isWindowsOS(c.OS))
 		shell := determineFallbackShell(c.OS)
-		_, err = crypto.RunCommand(client, cmd, shell)
+		_, err = secrets.RunCommand(client, cmd, shell)
 	}
 
 	out := ""

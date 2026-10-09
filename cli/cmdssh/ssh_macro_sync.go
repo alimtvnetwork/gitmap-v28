@@ -9,7 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"golang.org/x/crypto/ssh"
@@ -185,7 +185,7 @@ func syncSingleMacroToClient(client *ssh.Client, c db.SSHConnection, m macro.Mac
 	if isWin {
 		shellType = ""
 	}
-	out, runErr := crypto.RunCommand(client, cmd, shellType)
+	out, runErr := secrets.RunCommand(client, cmd, shellType)
 	if runErr != nil {
 		fmt.Printf("  [%s] %s✖ Remote deploy error: %v (output: %s)%s\n", c.Alias, constants.ColorRed, runErr, out, constants.ColorReset)
 	}

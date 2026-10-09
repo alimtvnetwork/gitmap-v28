@@ -22,7 +22,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 const maxPortScanAttempts = 50
@@ -203,8 +203,8 @@ func handleAPISSHExport(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": err.Error()})
 		return
 	}
-	typedEnv := jsonenvelope.NewEnvelope(
-		jsonenvelope.TypeSSHNodes,
+	typedEnv := jsonx.NewEnvelope(
+		jsonx.TypeSSHNodes,
 		"gitmap-ssh-nodes.json",
 		"gitmap ssh export",
 		"1.0",
@@ -214,7 +214,7 @@ func handleAPISSHExport(w http.ResponseWriter, r *http.Request) {
 }
 
 func parseConnectionsFromRaw(raw []byte) ([]db.SSHConnection, error) {
-	payload, _, extractErr := jsonenvelope.ExtractPayload(raw)
+	payload, _, extractErr := jsonx.ExtractPayload(raw)
 	if extractErr == nil && len(payload) > 0 {
 		raw = payload
 	}
@@ -583,7 +583,7 @@ func loadSettings() SettingsData {
 		return def
 	}
 
-	payload, _, extractErr := jsonenvelope.ExtractPayload(data)
+	payload, _, extractErr := jsonx.ExtractPayload(data)
 
 	if extractErr != nil {
 		payload = data
@@ -615,8 +615,8 @@ func saveSettingsData(s SettingsData) error {
 	}
 
 	_ = os.MkdirAll(filepath.Dir(path), 0755)
-	envelope := jsonenvelope.NewEnvelope(
-		jsonenvelope.TypeUISettings,
+	envelope := jsonx.NewEnvelope(
+		jsonx.TypeUISettings,
 		path,
 		"gitmap ui settings",
 		"1.0",
@@ -639,7 +639,7 @@ func ImportSettingsFromFile(filePath string) error {
 		return err
 	}
 
-	payload, _, err := jsonenvelope.ExtractPayload(raw)
+	payload, _, err := jsonx.ExtractPayload(raw)
 
 	if err == nil && len(payload) > 0 {
 		raw = payload

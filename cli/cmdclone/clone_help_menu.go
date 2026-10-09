@@ -1,23 +1,23 @@
 package cmdclone
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderCloneHelp displays the styled two-column Clone help menu.
 func RenderCloneHelp() {
-	termhelp.RenderMenu(buildCloneHelpMenu())
+	termout.RenderMenu(buildCloneHelpMenu())
 }
 
-func buildCloneHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildCloneHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Repository Cloner (gitmap clone)",
 		UsageLines: []string{
 			"gitmap clone <source|json|csv|text|url> [target-dir] [flags]",
 			"gitmap c <source|json|csv|text|url> [target-dir] [flags]",
 			"gitmap clone next [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildCloneSourceSection(),
 			buildCloneSubcmdSection(),
 			buildCloneConcurrencySection(),
@@ -33,8 +33,8 @@ func buildCloneHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildCloneFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildCloneFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-f, --force", Description: "Wipe and re-clone destination directories fresh"},
 		{Command: "--dry-run", Description: "Preview clone actions without modifying disk"},
 		{Command: "--safe-pull", Description: "Pull existing repos with retry and diagnostics"},
@@ -47,10 +47,10 @@ func buildCloneFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildCloneSourceSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildCloneSourceSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Input Sources & Formats",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "<git-url> [dir]", Description: "Clone single repository directly from Git URL"},
 			{Command: "<file.json>", Description: "Batch clone from GitMap scan JSON manifest"},
 			{Command: "<file.csv>", Description: "Batch clone from CSV repository inventory"},

@@ -1,23 +1,23 @@
 package cmdbranch
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderBranchHelp displays the styled two-column Branch help menu.
 func RenderBranchHelp() {
-	termhelp.RenderMenu(buildBranchHelpMenu())
+	termout.RenderMenu(buildBranchHelpMenu())
 }
 
-func buildBranchHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildBranchHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Branch Resolution & Management (gitmap branch)",
 		UsageLines: []string{
 			"gitmap branch default [flags]",
 			"gitmap b def",
 			"gitmap latest-branch",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildBranchOpsSection(),
 		},
 		FooterFlags: buildBranchFooterFlags(),
@@ -28,17 +28,17 @@ func buildBranchHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildBranchFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildBranchFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-j, --json", Description: "Output branch metadata in structured JSON format"},
 		{Command: "-h, --help", Description: "Show this branch help menu"},
 	}
 }
 
-func buildBranchOpsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildBranchOpsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Branch Operations",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "default (def)", Description: "Resolve repository's default branch using symbolic refs"},
 			{Command: "latest-branch (lb)", Description: "Inspect the newest branch with recent commit activity"},
 		},

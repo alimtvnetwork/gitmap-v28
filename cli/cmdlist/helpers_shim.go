@@ -5,7 +5,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"flag"
 	"fmt"
@@ -219,7 +219,7 @@ func printProjectsSummary(projects []model.DetectedProject) {
 	fmt.Fprintf(os.Stderr, constants.MsgProjectListCount, len(projects))
 }
 
-// printProjectsJSON prints projects as formatted JSON via stablejson.
+// printProjectsJSON prints projects as formatted JSON via jsonx.
 func printProjectsJSON(projects []model.DetectedProject) {
 	if err := encodeProjectReposJSON(os.Stdout, projects); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to encode projects JSON: %v\n", err)
@@ -244,15 +244,15 @@ const (
 // encodeProjectReposJSON writes projects as a stablejson 2-space-indented
 // array. Empty input emits `[]\n`.
 func encodeProjectReposJSON(w io.Writer, projects []model.DetectedProject) error {
-	return stablejson.WriteArray(w, buildProjectReposJSONItems(projects))
+	return jsonx.WriteArray(w, buildProjectReposJSONItems(projects))
 }
 
 // buildProjectReposJSONItems is the single source of (field name,
 // field order, value) for project-repos.
-func buildProjectReposJSONItems(projects []model.DetectedProject) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(projects))
+func buildProjectReposJSONItems(projects []model.DetectedProject) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(projects))
 	for _, p := range projects {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: projectReposKeyID, Value: p.ID},
 			{Key: projectReposKeyRepoID, Value: p.RepoID},
 			{Key: projectReposKeyRepoName, Value: p.RepoName},

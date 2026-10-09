@@ -10,7 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
-// writeAllOutputs writes terminal, CSV, JSON, text, folder structure, and clone scripts.
+// writeAllOutputs writes terminal, CSV, JSON, text, folder structure, and clone fspath.
 func writeAllOutputs(records []model.ScanRecord, outputDir, outFile string, quiet, compact bool) {
 	writeTerminalOutput(records, outputDir, quiet)
 	writeCSVOutput(records, outputDir, outFile)

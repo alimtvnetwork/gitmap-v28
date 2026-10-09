@@ -1,4 +1,4 @@
-// Package cmd — root_cobra_completion.go coordinates the Cobra completion tree and shell scripts.
+// Package cmd — root_cobra_completion.go coordinates the Cobra completion tree and shell fspath.
 package cmd
 
 import (

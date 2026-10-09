@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -226,7 +226,7 @@ func probeHostOSOrFallback(ip string, port int, user, pass, fallback string) str
 	if !probeTCPQuick(ip, port, 200*time.Millisecond) {
 		return fallback
 	}
-	client, err := crypto.ConnectWithPassword(ip, user, pass)
+	client, err := secrets.ConnectWithPassword(ip, user, pass)
 	if err != nil || client == nil {
 		return fallback
 	}

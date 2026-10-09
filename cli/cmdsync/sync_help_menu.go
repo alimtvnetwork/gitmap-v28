@@ -1,22 +1,22 @@
 package cmdsync
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderSyncHelp displays the styled two-column Sync help menu.
 func RenderSyncHelp() {
-	termhelp.RenderMenu(buildSyncHelpMenu())
+	termout.RenderMenu(buildSyncHelpMenu())
 }
 
-func buildSyncHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildSyncHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Repository Baseline Sync (gitmap sync)",
 		UsageLines: []string{
 			"gitmap sync <target> [flags]",
 			"gitmap sy <target> [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildSyncTargetsSection(),
 		},
 		FooterFlags: buildSyncFooterFlags(),
@@ -27,18 +27,18 @@ func buildSyncHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildSyncFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildSyncFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-n, --dry-run", Description: "Print planned additions without touching disk"},
 		{Command: "-f, --force", Description: "Overwrite conflicting JSON keys in .prettierrc"},
 		{Command: "-h, --help", Description: "Show this sync help menu"},
 	}
 }
 
-func buildSyncTargetsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildSyncTargetsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Configuration Sync Targets",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "all", Description: "Run every target below in sequence (full baseline)"},
 			{Command: "ignore", Description: "Union-merge curated defaults into .gitignore"},
 			{Command: "attributes", Description: "Union-merge curated defaults into .gitattributes"},

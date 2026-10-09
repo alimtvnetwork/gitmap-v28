@@ -13,7 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/secretsresolver"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
@@ -82,7 +82,7 @@ func resolveExplicitCloneSource(source string) string {
 	if isRegularFile(source) {
 		return source
 	}
-	if resolved := secretsresolver.ResolveRepoSecretsManifest(source, "gitmap.json"); resolved != "" {
+	if resolved := secrets.ResolveRepoSecretsManifest(source, "gitmap.json"); resolved != "" {
 		return resolved
 	}
 	return source

@@ -1,23 +1,23 @@
 package cmdtemplates
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderTemplatesHelp displays the styled two-column Templates help menu.
 func RenderTemplatesHelp() {
-	termhelp.RenderMenu(buildTemplatesHelpMenu())
+	termout.RenderMenu(buildTemplatesHelpMenu())
 }
 
-func buildTemplatesHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildTemplatesHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Template Engine & Variable Scaffolding (gitmap templates)",
 		UsageLines: []string{
 			"gitmap templates <subcommand> [flags]",
 			"gitmap tpl <subcommand> [flags]",
 			"gitmap templates init go node --lfs",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildTemplatesScaffoldSection(),
 			buildTemplatesStateDBSection(),
 			buildTemplatesVariablesSection(),
@@ -30,8 +30,8 @@ func buildTemplatesHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildTemplatesFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildTemplatesFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--kind <ignore|attributes|lfs>", Description: "Filter templates to specific artifact kind"},
 		{Command: "--lang <name>", Description: "Filter templates to target language (go, node, python)"},
 		{Command: "--lfs", Description: "Include Git LFS attributes during init scaffolding"},
@@ -42,10 +42,10 @@ func buildTemplatesFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildTemplatesScaffoldSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildTemplatesScaffoldSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Built-In Scaffolding",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "list (tl)", Description: "List all available embedded templates with language filter"},
 			{Command: "show (ts) <kind> <lang>", Description: "Print formatted template content directly to stdout"},
 			{Command: "init (ti) <lang...>", Description: "Scaffold .gitignore / .gitattributes into current repo"},
@@ -54,10 +54,10 @@ func buildTemplatesScaffoldSection() termhelp.HelpSection {
 	}
 }
 
-func buildTemplatesStateDBSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildTemplatesStateDBSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Database State Templates",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "ls [--category <c>]", Description: "List state templates stored in gitmap-templates.db"},
 			{Command: "add [flags]", Description: "Add or upsert custom template with category and slug"},
 			{Command: "edit <id|slug>", Description: "Update title, body, or metadata of existing template"},
@@ -67,10 +67,10 @@ func buildTemplatesStateDBSection() termhelp.HelpSection {
 	}
 }
 
-func buildTemplatesVariablesSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildTemplatesVariablesSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Variables & Interactive UI",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "var <set|ls|rm>", Description: "Manage template substitution variables ($VAR syntax)"},
 			{Command: "ui [--port 8787]", Description: "Launch the local reactive Templates & Variables Web UI"},
 		},

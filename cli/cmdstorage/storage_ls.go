@@ -9,8 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func runStorageListDatabases() error {
@@ -19,7 +18,7 @@ func runStorageListDatabases() error {
 	printStorageInventoryHeader(dataDir)
 
 	cfg := buildStorageTableConfig(dataDir, entries)
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	printStorageInventoryFooter(entries)
 
 	return nil
@@ -30,7 +29,7 @@ func printStorageInventoryFooter(entries []store.SplitDatabaseEntry) {
 	msg := fmt.Sprintf("\n  Total: %d databases (%s)\n", len(entries), cmddb.FormatBytes(totalSize))
 	fmt.Print(msg)
 	printStorageResetGuidance()
-	termpad.EnsureBottomPadding(msg)
+	termout.EnsureBottomPadding(msg)
 }
 
 func printStorageResetGuidance() {
@@ -177,33 +176,33 @@ func printStorageInventoryHeader(dataDir string) {
 	fmt.Printf("  %sRoot Folder:%s %s\n\n", constants.ColorDim, constants.ColorReset, dataDir)
 }
 
-func buildStorageTableConfig(dataDir string, entries []store.SplitDatabaseEntry) termtable.TableConfig {
-	var rows []termtable.Row
+func buildStorageTableConfig(dataDir string, entries []store.SplitDatabaseEntry) termout.TableConfig {
+	var rows []termout.Row
 	for _, e := range entries {
 		rows = append(rows, buildStorageTableRow(dataDir, e))
 	}
 
-	return termtable.TableConfig{
+	return termout.TableConfig{
 		Columns: storageTableColumns(),
 		Rows:    rows,
 	}
 }
 
-func storageTableColumns() []termtable.Column {
-	return []termtable.Column{
-		{Title: "NAME", Align: termtable.AlignLeft},
-		{Title: "TYPE", Align: termtable.AlignLeft},
-		{Title: "SIZE", Align: termtable.AlignRight},
-		{Title: "TABLES", Align: termtable.AlignRight},
-		{Title: "RECORDS", Align: termtable.AlignRight},
-		{Title: "PATH", Align: termtable.AlignLeft},
+func storageTableColumns() []termout.Column {
+	return []termout.Column{
+		{Title: "NAME", Align: termout.AlignLeft},
+		{Title: "TYPE", Align: termout.AlignLeft},
+		{Title: "SIZE", Align: termout.AlignRight},
+		{Title: "TABLES", Align: termout.AlignRight},
+		{Title: "RECORDS", Align: termout.AlignRight},
+		{Title: "PATH", Align: termout.AlignLeft},
 	}
 }
 
-func buildStorageTableRow(dataDir string, e store.SplitDatabaseEntry) termtable.Row {
+func buildStorageTableRow(dataDir string, e store.SplitDatabaseEntry) termout.Row {
 	relPath := resolveRelativeDBPath(dataDir, e.DatabasePath)
 
-	return termtable.Row{
+	return termout.Row{
 		Cells: []string{
 			e.DatabaseKey,
 			e.DatabaseType,

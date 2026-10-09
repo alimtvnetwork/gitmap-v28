@@ -153,7 +153,7 @@ const (
 	// line-oriented variant of --format=json: one compact object
 	// per line, no array wrapper, empty list emits zero bytes.
 	// Stable key order within each object is guaranteed via
-	// stablejson.WriteJSONLines (same Field-slice contract as JSON).
+	// jsonx.WriteJSONLines (same Field-slice contract as JSON).
 	StartupListFormatJSONL  = "jsonl"
 	ErrStartupListBadFormat = "startup-list: unknown --format %q (expected: table, json, jsonl, csv)"
 	// CSV header row for `--format csv`. Kept here so the column

@@ -75,7 +75,7 @@ func parseInstallWinFlags(args []string) (*InstallWinFlags, error) {
 	}, nil
 }
 
-// executeInstallWin runs the installation process for Windows scripts.
+// executeInstallWin runs the installation process for Windows fspath.
 
 func executeInstallWin(ctx context.Context, db *store.DB, flags *InstallWinFlags) error {
 	if db == nil {

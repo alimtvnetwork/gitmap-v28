@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 func TestMergeJSON_DeduplicationAndOneBasedIndex(t *testing.T) {
@@ -16,7 +16,7 @@ func TestMergeJSON_DeduplicationAndOneBasedIndex(t *testing.T) {
 	file2 := filepath.Join(tempDir, "nodes2.json")
 	outFile := filepath.Join(tempDir, "merged-nodes.json")
 
-	env1 := jsonenvelope.NewEnvelope(jsonenvelope.TypeSSHNodes, file1, "gitmap ssh export", "2.0", map[string]any{
+	env1 := jsonx.NewEnvelope(jsonx.TypeSSHNodes, file1, "gitmap ssh export", "2.0", map[string]any{
 		"nodes": []map[string]any{
 			{"id": 0, "alias": "w1", "ipAddress": "192.168.1.10", "username": "admin"},
 			{"id": 1, "alias": "w2", "ipAddress": "192.168.1.11", "username": "admin"},
@@ -25,7 +25,7 @@ func TestMergeJSON_DeduplicationAndOneBasedIndex(t *testing.T) {
 	b1, _ := json.MarshalIndent(env1, "", "  ")
 	_ = os.WriteFile(file1, b1, 0644)
 
-	env2 := jsonenvelope.NewEnvelope(jsonenvelope.TypeSSHNodes, file2, "gitmap ssh export", "2.0", map[string]any{
+	env2 := jsonx.NewEnvelope(jsonx.TypeSSHNodes, file2, "gitmap ssh export", "2.0", map[string]any{
 		"nodes": []map[string]any{
 			{"id": 0, "alias": "w2", "ipAddress": "192.168.1.11", "username": "admin"}, // Duplicate
 			{"id": 1, "alias": "w3", "ipAddress": "192.168.1.12", "username": "admin"},
@@ -36,11 +36,11 @@ func TestMergeJSON_DeduplicationAndOneBasedIndex(t *testing.T) {
 
 	opts := mergeJSONOptions{
 		OutputFile: outFile,
-		TargetType: jsonenvelope.TypeSSHNodes,
+		TargetType: jsonx.TypeSSHNodes,
 		IsYes:      true,
 	}
 
-	records := collectMergeableRecords([]string{file1, file2}, jsonenvelope.TypeSSHNodes)
+	records := collectMergeableRecords([]string{file1, file2}, jsonx.TypeSSHNodes)
 	if len(records) != 2 {
 		t.Fatalf("expected 2 mergeable records, got %d", len(records))
 	}
@@ -61,7 +61,7 @@ func TestMergeJSON_DeduplicationAndOneBasedIndex(t *testing.T) {
 	}
 
 	var parsed struct {
-		Attributes jsonenvelope.EnvelopeAttributes `json:"attributes"`
+		Attributes jsonx.EnvelopeAttributes `json:"attributes"`
 		Data       struct {
 			Nodes []struct {
 				ID        int    `json:"id"`

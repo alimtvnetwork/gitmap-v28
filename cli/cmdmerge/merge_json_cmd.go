@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 type mergeJSONOptions struct {
@@ -106,14 +106,14 @@ func readAndClassifyFile(filePath, targetType string) (mergeFileRecord, bool) {
 	if err != nil {
 		return mergeFileRecord{}, false
 	}
-	desc, _, isMatched := jsonenvelope.DetectFormat(content)
+	desc, _, isMatched := jsonx.DetectFormat(content)
 	if !isMatched {
 		return mergeFileRecord{}, false
 	}
 	if targetType != "" && !strings.EqualFold(desc.Type, targetType) {
 		return mergeFileRecord{}, false
 	}
-	payload, _, err := jsonenvelope.ExtractPayload(content)
+	payload, _, err := jsonx.ExtractPayload(content)
 	if err != nil {
 		return mergeFileRecord{}, false
 	}
@@ -239,16 +239,16 @@ func reindexMergedItems(items []map[string]any) []map[string]any {
 	return items
 }
 
-func buildMergedEnvelope(primaryType, outPath string, finalItems []map[string]any) jsonenvelope.Envelope[any] {
+func buildMergedEnvelope(primaryType, outPath string, finalItems []map[string]any) jsonx.Envelope[any] {
 	var payload any = finalItems
-	if primaryType == jsonenvelope.TypeSSHNodes {
+	if primaryType == jsonx.TypeSSHNodes {
 		payload = map[string]any{
 			"schemaVersion": "2.0",
 			"totalNodes":    len(finalItems),
 			"nodes":         finalItems,
 		}
 	}
-	return jsonenvelope.NewEnvelope(primaryType, outPath, "gitmap merge-json", "2.0", payload)
+	return jsonx.NewEnvelope(primaryType, outPath, "gitmap merge-json", "2.0", payload)
 }
 
 func renderMergeSummary(s mergeJSONSummary, opts mergeJSONOptions, data []byte) {

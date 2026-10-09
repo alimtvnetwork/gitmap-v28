@@ -7,7 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func RunTokenCommand(args []string) error {
@@ -44,7 +44,7 @@ func printTokenUsage() {
 }
 
 func runTokenList() error {
-	token, source, err := ghtoken.Resolve()
+	token, source, err := secrets.Resolve()
 	hasToken := err == nil && len(token) > 0
 	if !hasToken {
 		fmt.Printf("%s✖ No GitHub access token currently resolved.%s\n", constants.ColorYellow, constants.ColorReset)

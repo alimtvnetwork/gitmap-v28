@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func executeParallelFleetUpdate(targets []FleetTarget, opts FleetUpdateOptions) []FleetUpdateNodeResult {
@@ -134,17 +134,17 @@ func renderFleetUpdateSummary(results []FleetUpdateNodeResult, pkg string, exclu
 	fmt.Printf("%s--------------------------------------------------------------------------------%s\n",
 		constants.ColorDim, constants.ColorReset)
 
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "ALIAS", Align: termtable.AlignLeft, MinWidth: 15},
-			{Title: "IP", Align: termtable.AlignLeft, MinWidth: 16},
-			{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 10},
-			{Title: "DURATION", Align: termtable.AlignRight, MinWidth: 10},
-			{Title: "DETAILS", Align: termtable.AlignLeft, MinWidth: 25},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "ALIAS", Align: termout.AlignLeft, MinWidth: 15},
+			{Title: "IP", Align: termout.AlignLeft, MinWidth: 16},
+			{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 10},
+			{Title: "DURATION", Align: termout.AlignRight, MinWidth: 10},
+			{Title: "DETAILS", Align: termout.AlignLeft, MinWidth: 25},
 		},
 		Rows: buildFleetUpdateRows(results),
 	}
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	fmt.Printf("%s================================================================================%s\n\n",
 		constants.ColorCyan, constants.ColorReset)
 }
@@ -167,8 +167,8 @@ func calculateFleetMetrics(results []FleetUpdateNodeResult) (int, int, int) {
 	return succeeded, failed, offline
 }
 
-func buildFleetUpdateRows(results []FleetUpdateNodeResult) []termtable.Row {
-	rows := make([]termtable.Row, 0, len(results))
+func buildFleetUpdateRows(results []FleetUpdateNodeResult) []termout.Row {
+	rows := make([]termout.Row, 0, len(results))
 	for _, r := range results {
 		statusStr := constants.ColorRed + "FAILED" + constants.ColorReset
 		if r.IsSuccess {
@@ -177,7 +177,7 @@ func buildFleetUpdateRows(results []FleetUpdateNodeResult) []termtable.Row {
 			statusStr = constants.ColorYellow + "OFFLINE" + constants.ColorReset
 		}
 		detail := sanitizeTableRowDetail(r.Details)
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				r.Alias,
 				r.IP,

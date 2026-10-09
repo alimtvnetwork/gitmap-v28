@@ -18,7 +18,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/errreport"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/probe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -39,7 +39,7 @@ func startBackgroundProbe(
 	records []model.ScanRecord,
 	opts ScanProbeOptions,
 	quiet bool,
-	errCollector *errreport.Collector,
+	errCollector *diag.Collector,
 ) *probe.BackgroundRunner {
 	workers := resolveProbeWorkers(records, opts, quiet)
 	if workers < 1 {

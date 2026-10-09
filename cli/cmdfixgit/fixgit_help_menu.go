@@ -1,23 +1,23 @@
 package cmdfixgit
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderFixGitHelp displays the styled two-column FixGit help menu.
 func RenderFixGitHelp() {
-	termhelp.RenderMenu(buildFixGitHelpMenu())
+	termout.RenderMenu(buildFixGitHelpMenu())
 }
 
-func buildFixGitHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildFixGitHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Git Diagnostic & Self-Healing Engine (gitmap fix-git)",
 		UsageLines: []string{
 			"gitmap fix-git [path] [flags]",
 			"gitmap fg [path] [flags]",
 			"gitmap --fix-git [path]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildFixGitTargetsSection(),
 			buildFixGitModesSection(),
 		},
@@ -29,8 +29,8 @@ func buildFixGitHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildFixGitFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildFixGitFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-n, --dry-run", Description: "Preview detected issues without applying repairs"},
 		{Command: "-v, --verbose", Description: "Emit verbose diagnostic traces and ACL status"},
 		{Command: "--json", Description: "Output remediation summary as JSON"},
@@ -38,10 +38,10 @@ func buildFixGitFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildFixGitTargetsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildFixGitTargetsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Diagnostic & Remediation Targets",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "--permissions (--perms)", Description: "Fix Windows NTFS ACLs and remove read-only flags"},
 			{Command: "--locks (--locks-only)", Description: "Remove stale .git/index.lock and HEAD.lock files"},
 			{Command: "--index (--index-only)", Description: "Safely reconstruct corrupted or 0-byte Git index"},
@@ -50,10 +50,10 @@ func buildFixGitTargetsSection() termhelp.HelpSection {
 	}
 }
 
-func buildFixGitModesSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildFixGitModesSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Execution Modes",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "[path]", Description: "Target repository directory (default: current directory)"},
 			{Command: "--dry-run (-n)", Description: "Scan and report issues without altering files"},
 			{Command: "--json", Description: "Format diagnostic output as structured JSON"},

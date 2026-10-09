@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 func isRemoteURL(raw string) bool {
@@ -73,7 +73,7 @@ func resolveArchiveDownloadCacheDir() string {
 	if dir, hasHomeDir := getGitmapHomeDownloadDir(); hasHomeDir {
 		return dir
 	}
-	fallback := tempdir.RepoTempDir("downloads")
+	fallback := fspath.RepoTempDir("downloads")
 	_ = os.MkdirAll(fallback, 0755)
 	return fallback
 }

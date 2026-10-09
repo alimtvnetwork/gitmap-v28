@@ -13,8 +13,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // FleetInventoryItem represents an installed component on a remote node.
@@ -321,7 +321,7 @@ func executeSSHRemoteInventory(target FleetTarget) (string, error) {
 
 	cmd := resolveFleetInventoryCommand(osType)
 	shell := resolveFleetShell(osType)
-	return crypto.RunCommand(client, cmd, shell)
+	return secrets.RunCommand(client, cmd, shell)
 }
 
 func resolveFleetInventoryCommand(osType string) string {
@@ -344,18 +344,18 @@ func renderFleetLSSummary(results []FleetLSNodeResult, excludedCount int) {
 	fmt.Printf("%s--------------------------------------------------------------------------------%s\n",
 		constants.ColorDim, constants.ColorReset)
 
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "ALIAS", Align: termtable.AlignLeft, MinWidth: 15},
-			{Title: "IP", Align: termtable.AlignLeft, MinWidth: 16},
-			{Title: "PACKAGE / APP", Align: termtable.AlignLeft, MinWidth: 18},
-			{Title: "VERSION", Align: termtable.AlignLeft, MinWidth: 12},
-			{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 10},
-			{Title: "DETAILS", Align: termtable.AlignLeft, MinWidth: 20},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "ALIAS", Align: termout.AlignLeft, MinWidth: 15},
+			{Title: "IP", Align: termout.AlignLeft, MinWidth: 16},
+			{Title: "PACKAGE / APP", Align: termout.AlignLeft, MinWidth: 18},
+			{Title: "VERSION", Align: termout.AlignLeft, MinWidth: 12},
+			{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 10},
+			{Title: "DETAILS", Align: termout.AlignLeft, MinWidth: 20},
 		},
 		Rows: buildFleetLSTableRows(results),
 	}
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	fmt.Printf("%s================================================================================%s\n\n",
 		constants.ColorCyan, constants.ColorReset)
 }
@@ -368,15 +368,15 @@ func countTotalInventoryItems(results []FleetLSNodeResult) int {
 	return total
 }
 
-func buildFleetLSTableRows(results []FleetLSNodeResult) []termtable.Row {
-	var rows []termtable.Row
+func buildFleetLSTableRows(results []FleetLSNodeResult) []termout.Row {
+	var rows []termout.Row
 	for _, r := range results {
 		rows = append(rows, buildSingleNodeLSRows(r)...)
 	}
 	return rows
 }
 
-func buildSingleNodeLSRows(r FleetLSNodeResult) []termtable.Row {
+func buildSingleNodeLSRows(r FleetLSNodeResult) []termout.Row {
 	hasItems := len(r.Inventory.Items) > 0
 	isOperational := r.IsSuccess && hasItems
 	if isOperational {
@@ -385,13 +385,13 @@ func buildSingleNodeLSRows(r FleetLSNodeResult) []termtable.Row {
 	return buildFailedLSRow(r)
 }
 
-func buildFailedLSRow(r FleetLSNodeResult) []termtable.Row {
+func buildFailedLSRow(r FleetLSNodeResult) []termout.Row {
 	errDesc := "unreachable"
 	if r.Inventory.Error != "" {
 		errDesc = r.Inventory.Error
 	}
 	statusStr := constants.ColorRed + "FAILED" + constants.ColorReset
-	return []termtable.Row{{
+	return []termout.Row{{
 		Cells: []string{
 			r.Alias,
 			r.IP,
@@ -403,15 +403,15 @@ func buildFailedLSRow(r FleetLSNodeResult) []termtable.Row {
 	}}
 }
 
-func buildOperationalLSRows(r FleetLSNodeResult) []termtable.Row {
-	var rows []termtable.Row
+func buildOperationalLSRows(r FleetLSNodeResult) []termout.Row {
+	var rows []termout.Row
 	for _, item := range r.Inventory.Items {
 		statusStr := constants.ColorGreen + item.Status + constants.ColorReset
 		detail := item.InstallPath
 		if detail == "" {
 			detail = fmt.Sprintf("active (%dms)", r.DurationMs)
 		}
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				r.Alias,
 				r.IP,

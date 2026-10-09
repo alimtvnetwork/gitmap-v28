@@ -17,7 +17,7 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/stablejson"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
 // find-next top-level wire keys. Names + order are the contract;
@@ -36,17 +36,17 @@ const (
 // special case. Split out from CLI dispatch so contract tests can
 // capture the bytes into a buffer instead of stdout.
 func encodeFindNextJSON(w io.Writer, rows []model.FindNextRow) error {
-	return stablejson.WriteArray(w, buildFindNextJSONItems(rows))
+	return jsonx.WriteArray(w, buildFindNextJSONItems(rows))
 }
 
 // buildFindNextJSONItems is the single source of (field name, field
 // order, value) for find-next. Centralized so a future column
 // rename/reorder is one diff and the contract test catches schema
 // drift in the same PR.
-func buildFindNextJSONItems(rows []model.FindNextRow) [][]stablejson.Field {
-	items := make([][]stablejson.Field, 0, len(rows))
+func buildFindNextJSONItems(rows []model.FindNextRow) [][]jsonx.Field {
+	items := make([][]jsonx.Field, 0, len(rows))
 	for _, r := range rows {
-		items = append(items, []stablejson.Field{
+		items = append(items, []jsonx.Field{
 			{Key: findNextKeyRepo, Value: r.Repo},
 			{Key: findNextKeyNextVersionTag, Value: r.NextVersionTag},
 			{Key: findNextKeyNextVersionNum, Value: r.NextVersionNum},

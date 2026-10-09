@@ -2,22 +2,22 @@ package cmdssh
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
-func compareTableColumns() []termtable.Column {
-	return []termtable.Column{
-		{Title: "SUBSYSTEM", Align: termtable.AlignLeft},
-		{Title: "PRIMARY FOCUS", Align: termtable.AlignLeft},
-		{Title: "JOIN COMMAND", Align: termtable.AlignLeft},
-		{Title: "EXEC COMMAND", Align: termtable.AlignLeft},
-		{Title: "MONITORING", Align: termtable.AlignLeft},
-		{Title: "BEST USED WHEN", Align: termtable.AlignLeft},
+func compareTableColumns() []termout.Column {
+	return []termout.Column{
+		{Title: "SUBSYSTEM", Align: termout.AlignLeft},
+		{Title: "PRIMARY FOCUS", Align: termout.AlignLeft},
+		{Title: "JOIN COMMAND", Align: termout.AlignLeft},
+		{Title: "EXEC COMMAND", Align: termout.AlignLeft},
+		{Title: "MONITORING", Align: termout.AlignLeft},
+		{Title: "BEST USED WHEN", Align: termout.AlignLeft},
 	}
 }
 
-func compareTableRows() []termtable.Row {
-	return []termtable.Row{
+func compareTableRows() []termout.Row {
+	return []termout.Row{
 		{
 			Cells: []string{
 				"gitmap ssh",

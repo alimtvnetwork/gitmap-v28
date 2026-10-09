@@ -9,15 +9,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/suggestion"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 )
 
-// InterceptUnknownCommand resolves suggestions via suggestion.DefaultEngine,
+// InterceptUnknownCommand resolves suggestions via diag.DefaultEngine,
 // prints the Catppuccin suggestion box, attaches suggestions to AppError, and terminates.
 func InterceptUnknownCommand(command string) {
-	group := suggestion.DefaultEngine().ResolveCommand(command)
+	group := diag.DefaultEngine().ResolveCommand(command)
 	if group.HasSuggestions() {
-		_ = suggestion.RenderBox(os.Stderr, group)
+		_ = diag.RenderBox(os.Stderr, group)
 	}
 	logUnknownCommandTelemetry(command, group)
 	appErr := buildUnknownCommandAppError(command, group)
@@ -25,8 +25,8 @@ func InterceptUnknownCommand(command string) {
 }
 
 // ResolveCommandSuggestions resolves suggestions for any given command token.
-func ResolveCommandSuggestions(token string) suggestion.SuggestionGroup {
-	return suggestion.DefaultEngine().ResolveCommand(token)
+func ResolveCommandSuggestions(token string) diag.SuggestionGroup {
+	return diag.DefaultEngine().ResolveCommand(token)
 }
 
 // RenderErrorSuggestions renders attached suggestions from an AppError if present.
@@ -34,22 +34,22 @@ func RenderErrorSuggestions(w io.Writer, appErr *apperror.AppError) bool {
 	if appErr == nil || !appErr.HasSuggestions() {
 		return false
 	}
-	group := suggestion.SuggestionGroup{
+	group := diag.SuggestionGroup{
 		Title:       "Remediation Suggestions",
 		Reason:      appErr.Message,
 		Suggestions: appErr.Suggestions,
 	}
-	_ = suggestion.RenderBox(w, group)
+	_ = diag.RenderBox(w, group)
 	return true
 }
 
-func logUnknownCommandTelemetry(command string, group suggestion.SuggestionGroup) {
+func logUnknownCommandTelemetry(command string, group diag.SuggestionGroup) {
 	cmdList := extractSuggestionCommandList(group.Suggestions)
 	rawArgs := strings.Join(os.Args[1:], " ")
 	store.LogFailedCommand(command, rawArgs, "root", "E1001", group.Reason, cmdList)
 }
 
-func extractSuggestionCommandList(items []suggestion.Suggestion) []string {
+func extractSuggestionCommandList(items []diag.Suggestion) []string {
 	out := make([]string, 0, len(items))
 	for _, s := range items {
 		out = append(out, s.Command)
@@ -57,7 +57,7 @@ func extractSuggestionCommandList(items []suggestion.Suggestion) []string {
 	return out
 }
 
-func buildUnknownCommandAppError(command string, group suggestion.SuggestionGroup) *apperror.AppError {
+func buildUnknownCommandAppError(command string, group diag.SuggestionGroup) *apperror.AppError {
 	appErr := apperror.NewWithDetails(
 		"cmd.dispatch",
 		"E1001",

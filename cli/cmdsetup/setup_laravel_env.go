@@ -38,7 +38,7 @@ func GenerateLaravelAppKey() (string, *apperror.AppError) {
 	bytes := make([]byte, laravelAppKeyBytes)
 	_, err := rand.Read(bytes)
 	if err != nil {
-		return "", apperror.WrapSimple(err, "crypto.rand.Read")
+		return "", apperror.WrapSimple(err, "secrets.rand.Read")
 	}
 
 	encoded := base64.StdEncoding.EncodeToString(bytes)

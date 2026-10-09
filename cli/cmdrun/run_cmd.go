@@ -7,7 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // Run routes gitmap run invocations between subcommands and script execution.
@@ -97,29 +97,29 @@ func RunHistoryCmd(args []string) error {
 	}
 
 	cfg := buildRunHistoryTableConfig(records)
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 
 	return nil
 }
 
-func buildRunHistoryTableConfig(records []model.TaskHistoryRecord) termtable.TableConfig {
-	columns := []termtable.Column{
-		{Title: "TASK ID", MaxWidth: 26, Align: termtable.AlignLeft},
-		{Title: "ACTION", MaxWidth: 12, Align: termtable.AlignLeft},
-		{Title: "TARGET", MaxWidth: 36, Align: termtable.AlignLeft},
-		{Title: "STATUS", MaxWidth: 12, Align: termtable.AlignLeft},
-		{Title: "EXECUTED AT", MaxWidth: 22, Align: termtable.AlignLeft},
+func buildRunHistoryTableConfig(records []model.TaskHistoryRecord) termout.TableConfig {
+	columns := []termout.Column{
+		{Title: "TASK ID", MaxWidth: 26, Align: termout.AlignLeft},
+		{Title: "ACTION", MaxWidth: 12, Align: termout.AlignLeft},
+		{Title: "TARGET", MaxWidth: 36, Align: termout.AlignLeft},
+		{Title: "STATUS", MaxWidth: 12, Align: termout.AlignLeft},
+		{Title: "EXECUTED AT", MaxWidth: 22, Align: termout.AlignLeft},
 	}
 
-	rows := make([]termtable.Row, 0, len(records))
+	rows := make([]termout.Row, 0, len(records))
 	for _, r := range records {
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{r.TaskId, r.Action, r.Target, r.Status, r.ExecutedAt},
 			Color: constants.ColorGreen,
 		})
 	}
 
-	return termtable.TableConfig{
+	return termout.TableConfig{
 		Columns:     columns,
 		Rows:        rows,
 		HeaderColor: constants.ColorCyan,

@@ -7,7 +7,7 @@ import (
 	"github.com/atotto/clipboard"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func resolvePromptsForRerun(cwd string, count int) []AgyPromptEntry {
@@ -37,9 +37,9 @@ func buildRerunPayload(tplContent string, prompts []AgyPromptEntry) string {
 func renderRerunOutput(payload string, count int) {
 	fmt.Printf("\n  %s● Replaying Last %d Prompt(s)%s\n", constants.ColorCyan, count, constants.ColorReset)
 	fmt.Println("  ────────────────────────────────────────────────────────────────────────────────")
-	termpad.PrintPadded(payload)
+	termout.PrintPadded(payload)
 	fmt.Printf("\n  ────────────────────────────────────────────────────────────────────────────────\n")
-	termpad.EnsureBottomPadding("\n")
+	termout.EnsureBottomPadding("\n")
 }
 
 func handleRerunClipboard(payload string) {

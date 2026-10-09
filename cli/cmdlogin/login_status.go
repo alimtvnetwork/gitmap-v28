@@ -7,12 +7,12 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 // runLoginStatus prints the current GitHub login state with the token masked.
 func runLoginStatus() error {
-	token, source, err := ghtoken.Resolve()
+	token, source, err := secrets.Resolve()
 	if err != nil || len(token) == 0 {
 		fmt.Printf("%s✖ Not logged in to GitHub.%s\n", constants.ColorYellow, constants.ColorReset)
 		fmt.Println("  Run `gitmap login` to log in.")
@@ -33,7 +33,7 @@ func runLogout(args []string) error {
 		return nil
 	}
 
-	token, _, err := ghtoken.Resolve()
+	token, _, err := secrets.Resolve()
 	hasStoredToken := err == nil && len(token) > 0
 	if !hasStoredToken {
 		fmt.Printf("%sNo GitHub credential is currently stored.%s\n", constants.ColorYellow, constants.ColorReset)

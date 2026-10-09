@@ -10,7 +10,7 @@ import (
 // references compile. The Windows stderr-capture flakiness it
 // guarded against was fixed in v5.53.0 by:
 //
-//  1. Adding glyphs.Drain / theme.Drain and registering them with
+//  1. Adding glyphs.Drain / termout.Drain and registering them with
 //     cliexit.RegisterFlusher in cmd/root.go, so cliexit.Fail
 //     flushes the pipe-wrapped os.Stderr before os.Exit instead of
 //     racing the forwarder goroutine.

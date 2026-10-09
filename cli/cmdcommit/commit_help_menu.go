@@ -1,16 +1,16 @@
 package cmdcommit
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderCommitHelp displays the styled two-column Commit & Transfer help menu.
 func RenderCommitHelp() {
-	termhelp.RenderMenu(buildCommitHelpMenu())
+	termout.RenderMenu(buildCommitHelpMenu())
 }
 
-func buildCommitHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildCommitHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Semantic Commit & Transfer Suite (gitmap commit)",
 		UsageLines: []string{
 			"gitmap commit \"<message>\" (flat commit with auto-add)",
@@ -24,7 +24,7 @@ func buildCommitHelpMenu() termhelp.HelpMenu {
 			"gitmap cpr \"<message>\" (commit-push-release)",
 			"gitmap pcp \"<message>\" (pull-commit-push)",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildCommitTransferSection(),
 			buildCommitAIWorkflowSection(),
 			buildCommitPRSection(),
@@ -39,8 +39,8 @@ func buildCommitHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildCommitFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildCommitFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "--interleave", Description: "Merge commits by author date order for commit-both"},
 		{Command: "--dry-run", Description: "Preview transfer or commit actions without modifying disk"},
 		{Command: "--no-push", Description: "Create local commits without pushing to remote"},
@@ -51,10 +51,10 @@ func buildCommitFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildCommitTransferSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildCommitTransferSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Multi-Repo Commit Transfers",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "commit-both (cmb)", Description: "Bidirectional commit replay between two repositories"},
 			{Command: "commit-left (cml)", Description: "Replay commits from right repo onto left repo"},
 			{Command: "commit-right (cmr)", Description: "Replay commits from left repo onto right repo"},
@@ -63,10 +63,10 @@ func buildCommitTransferSection() termhelp.HelpSection {
 	}
 }
 
-func buildCommitAIWorkflowSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildCommitAIWorkflowSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Commit & AI Workflow Shortcuts",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "commit, cm <msg>", Description: "commit: flat git commit with auto-stage (git add -A)"},
 			{Command: "cpf <msg>", Description: "commit-push-feature: stage all, commit feat, and push"},
 			{Command: "cpb <msg>", Description: "commit-push-bug: stage all, commit bugfix, and push"},
@@ -78,10 +78,10 @@ func buildCommitAIWorkflowSection() termhelp.HelpSection {
 	}
 }
 
-func buildCommitPRSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildCommitPRSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Pull Request & Split DB Branches",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "pr list", Description: "Inspect active and merged PR branches in Split-DB"},
 			{Command: "pr clean", Description: "Delete merged PR branches locally and remotely"},
 			{Command: "pr in", Description: "Generate feature-per-commit pull request branches"},

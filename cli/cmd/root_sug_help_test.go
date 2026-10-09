@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 func TestNormalizeHelpTopic_ShutdownUntilAliases(t *testing.T) {
@@ -44,9 +44,9 @@ func TestAllHelpRows_ContainsShutdownUntil(t *testing.T) {
 func TestHelpText_ShutdownUntilReadRaw(t *testing.T) {
 	keys := []string{"shutdown-until", "sug", "shutdown-until-green"}
 	for _, k := range keys {
-		data, err := helptext.ReadRaw(k)
+		data, err := helpdoc.ReadRaw(k)
 		if err != nil {
-			t.Fatalf("helptext.ReadRaw(%q) failed: %v", k, err)
+			t.Fatalf("helpdoc.ReadRaw(%q) failed: %v", k, err)
 		}
 		if !strings.Contains(string(data), "shutdown-until") {
 			t.Errorf("expected helptext for %q to contain 'shutdown-until'", k)

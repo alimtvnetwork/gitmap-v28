@@ -3,7 +3,7 @@ package cmdagy
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 )
 
@@ -34,7 +34,7 @@ var agyFixPipelineCmd = &cobra.Command{
 
 func init() {
 	agyFixPipelineCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-		helptext.PrintWithMode("agy-fix-pipeline", render.PrettyAuto)
+		helpdoc.PrintWithMode("agy-fix-pipeline", render.PrettyAuto)
 	})
 	initAgyFixBehaviorFlags()
 	initAgyFixBatchFlags()
@@ -72,7 +72,7 @@ func RunAgyFixPipelineCLI(args []string) error {
 // RunPipelineFixAgyCLI is the unified entrypoint for pipeline fix errors agy / aef.
 func RunPipelineFixAgyCLI(args []string) error {
 	if hasHelpFlag(args) {
-		helptext.PrintWithMode("agy-fix-pipeline", render.PrettyAuto)
+		helpdoc.PrintWithMode("agy-fix-pipeline", render.PrettyAuto)
 
 		return nil
 	}

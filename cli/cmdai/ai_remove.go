@@ -15,7 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
 
 var (
@@ -239,7 +239,7 @@ func ensureTaskRecord(db *store.AiAnalysisSplitDB, taskUuid, reason string) (*st
 }
 
 func executeFileRemovals(db *store.AiAnalysisSplitDB, task *store.AiTask, repoRoot, taskId, reason string, files []string, isDryRun bool) error {
-	vaultDir := tempdir.RepoTempDir("removed", taskId)
+	vaultDir := fspath.RepoTempDir("removed", taskId)
 	manifestPath := filepath.Join(vaultDir, "manifest.json")
 	manifest := loadOrCreateManifest(manifestPath, taskId, reason)
 
@@ -501,14 +501,14 @@ func renderRemoveSuccess(taskId string, files []string, isDryRun, isJson bool) e
 			Status:     status,
 			TaskId:     taskId,
 			TotalFiles: len(files),
-			VaultDir:   tempdir.RepoTempDir("removed", taskId),
+			VaultDir:   fspath.RepoTempDir("removed", taskId),
 		}
 		return printJsonOutput(resp)
 	}
 
 	if !isDryRun {
 		fmt.Printf("Safely staged and removed %d file(s) for task %s (vault: %s)\n",
-			len(files), taskId, tempdir.RepoTempDir("removed", taskId))
+			len(files), taskId, fspath.RepoTempDir("removed", taskId))
 	}
 
 	return nil

@@ -5,7 +5,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // PushFixBadgeType designates the status badge state.
@@ -233,7 +233,7 @@ func renderCardFieldLine(label, value string, isSafe bool) {
 
 // RenderPushFixHelpMenu renders the rich CLI help menu for push-fix.
 func RenderPushFixHelpMenu() {
-	termhelp.RenderMenu(BuildPushFixHelpMenu())
+	termout.RenderMenu(BuildPushFixHelpMenu())
 }
 
 func buildPushFixUsage() []string {
@@ -245,20 +245,20 @@ func buildPushFixUsage() []string {
 }
 
 // BuildPushFixHelpMenu constructs structured help configuration conforming to spec §6.3.
-func BuildPushFixHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func BuildPushFixHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title:      "GITMAP PUSH-FIX & AUTH RECOVERY",
 		UsageLines: buildPushFixUsage(),
-		Sections:   []termhelp.HelpSection{buildPushFixRemediationSection(), buildPushFixOptionsSection()},
+		Sections:   []termout.HelpSection{buildPushFixRemediationSection(), buildPushFixOptionsSection()},
 		Tips:       []string{"Run 'gitmap pf -n' to safely preview the repair plan before modifying remotes."},
 	}
 }
 
-func buildPushFixRemediationSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildPushFixRemediationSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Autonomous Remediation",
 		Color: constants.ColorCyan,
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "gitmap pf", Description: "Diagnose and auto-repair push failures"},
 			{Command: "gitmap pf --dry-run", Description: "Simulate recovery actions safely"},
 			{Command: "gitmap pf --ssh", Description: "Convert remote to SSH and push"},
@@ -268,11 +268,11 @@ func buildPushFixRemediationSection() termhelp.HelpSection {
 	}
 }
 
-func buildPushFixOptionsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildPushFixOptionsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Options",
 		Color: constants.ColorWhite,
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "-n, --dry-run", Description: "Preview fixes without making changes"},
 			{Command: "-r, --remote <name>", Description: "Target remote (default: origin)"},
 			{Command: "-b, --branch <name>", Description: "Target branch (default: current)"},

@@ -16,7 +16,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -333,11 +333,11 @@ func probeRemoteOSType(client *ssh.Client) string {
 	if client == nil {
 		return "linux"
 	}
-	outVer, errVer := crypto.RunCommand(client, "cmd.exe /c ver", "")
+	outVer, errVer := secrets.RunCommand(client, "cmd.exe /c ver", "")
 	if errVer == nil && strings.Contains(strings.ToLower(outVer), "windows") {
 		return "windows"
 	}
-	out, err := crypto.RunCommand(client, "uname -s", "")
+	out, err := secrets.RunCommand(client, "uname -s", "")
 	if err == nil {
 		return resolveDetectedOSType(out)
 	}
@@ -359,11 +359,11 @@ func probeRemoteOSVersion(client *ssh.Client, osType string) string {
 	}
 	isWin := isWindowsOS(osType)
 	if isWin {
-		out, _ := crypto.RunCommand(client, "powershell -NoProfile -Command \"(Get-CimInstance Win32_OperatingSystem).Caption\" 2>nul || ver", "")
+		out, _ := secrets.RunCommand(client, "powershell -NoProfile -Command \"(Get-CimInstance Win32_OperatingSystem).Caption\" 2>nul || ver", "")
 
 		return strings.TrimSpace(out)
 	}
-	out, _ := crypto.RunCommand(client, "grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d= -f2 | tr -d '\"' || uname -srm", "")
+	out, _ := secrets.RunCommand(client, "grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d= -f2 | tr -d '\"' || uname -srm", "")
 
 	return strings.TrimSpace(out)
 }
@@ -379,7 +379,7 @@ func probeRemoteOSArch(client *ssh.Client, osType string) string {
 }
 
 func probeWindowsArch(client *ssh.Client) string {
-	out, _ := crypto.RunCommand(client, "powershell -NoProfile -Command \"$env:PROCESSOR_ARCHITECTURE\" 2>nul || echo %PROCESSOR_ARCHITECTURE%", "")
+	out, _ := secrets.RunCommand(client, "powershell -NoProfile -Command \"$env:PROCESSOR_ARCHITECTURE\" 2>nul || echo %PROCESSOR_ARCHITECTURE%", "")
 	trimmed := strings.ToLower(strings.TrimSpace(out))
 	if trimmed == "" {
 		return "amd64"
@@ -388,7 +388,7 @@ func probeWindowsArch(client *ssh.Client) string {
 }
 
 func probeUnixArch(client *ssh.Client) string {
-	out, _ := crypto.RunCommand(client, "uname -m 2>/dev/null || echo amd64", "")
+	out, _ := secrets.RunCommand(client, "uname -m 2>/dev/null || echo amd64", "")
 	trimmed := strings.ToLower(strings.TrimSpace(out))
 	if trimmed == "x86_64" || trimmed == "" {
 		return "amd64"
@@ -475,14 +475,14 @@ func persistEnrollmentDual(ctx context.Context, opts *SSHJoinOptions, osType, os
 
 func isRemoteGitmapInstalled(client *ssh.Client, osType string) bool {
 	shell := resolveRemoteShell(osType)
-	out, err := crypto.RunCommand(client, "gitmap --version", shell)
+	out, err := secrets.RunCommand(client, "gitmap --version", shell)
 	return err == nil && strings.Contains(out, "gitmap")
 }
 
 func bootstrapRemoteGitmap(client *ssh.Client, alias, osType string) *apperror.AppError {
 	fmt.Printf("ℹ [%s] GitMap missing on remote machine, auto-bootstrapping...\n", alias)
 	installCmd := BuildGitmapInstallOneLiner(osType, "latest")
-	out, err := crypto.RunCommand(client, installCmd, resolveRemoteShell(osType))
+	out, err := secrets.RunCommand(client, installCmd, resolveRemoteShell(osType))
 	reportRemoteExecution(fmt.Sprintf("[%s]", alias), "GitMap bootstrap", out, err)
 	if err != nil {
 		return apperror.WrapSimple(err, "bootstrapRemoteGitmap")
@@ -504,7 +504,7 @@ func deployHostPublicKey(client *ssh.Client, alias, osType string) *apperror.App
 		return nil
 	}
 	script := buildInjectAuthKeyScript(pubKey, osType)
-	out, runErr := crypto.RunCommand(client, script, resolveRemoteShell(osType))
+	out, runErr := secrets.RunCommand(client, script, resolveRemoteShell(osType))
 	reportRemoteExecution(fmt.Sprintf("[%s]", alias), fmt.Sprintf("Authorized key (%s)", filepath.Base(keyPath)), out, runErr)
 	if runErr != nil {
 		return apperror.WrapSimple(runErr, "deployHostPublicKey")
@@ -517,7 +517,7 @@ func confirmBidirectionalComm(client *ssh.Client, alias, osType string) bool {
 	if isWindowsOS(osType) {
 		checkCmd = "powershell -NoProfile -Command \"gitmap version 2>$null\""
 	}
-	out, err := crypto.RunCommand(client, checkCmd, resolveRemoteShell(osType))
+	out, err := secrets.RunCommand(client, checkCmd, resolveRemoteShell(osType))
 	hasGitmap := err == nil && strings.Contains(out, "gitmap")
 	if hasGitmap {
 		fmt.Printf("✓ [%s] Bidirectional communication confirmed (node GitMap active).\n", alias)

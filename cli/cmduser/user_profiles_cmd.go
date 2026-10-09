@@ -8,7 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 	"github.com/alimtvnetwork/gitmap-v28/cli/usercontext"
 )
 
@@ -26,21 +26,21 @@ func runUserList(args []string) error {
 	return nil
 }
 
-func renderUserProfilesTable(rows []termtable.Row) {
-	termtable.PrintTable(termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "ACT", Align: termtable.AlignLeft, MinWidth: 4},
-			{Title: "ALIAS", Align: termtable.AlignLeft, MinWidth: 16},
-			{Title: "NAME", Align: termtable.AlignLeft, MinWidth: 20},
-			{Title: "EMAIL", Align: termtable.AlignLeft, MinWidth: 26},
-			{Title: "STATUS", Align: termtable.AlignLeft, MinWidth: 14},
+func renderUserProfilesTable(rows []termout.Row) {
+	termout.PrintTable(termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "ACT", Align: termout.AlignLeft, MinWidth: 4},
+			{Title: "ALIAS", Align: termout.AlignLeft, MinWidth: 16},
+			{Title: "NAME", Align: termout.AlignLeft, MinWidth: 20},
+			{Title: "EMAIL", Align: termout.AlignLeft, MinWidth: 26},
+			{Title: "STATUS", Align: termout.AlignLeft, MinWidth: 14},
 		},
 		Rows: rows,
 	})
 }
 
-func buildProfileTableRows(profiles []model.GitProfile, active, def string, bound *model.GitProfile) []termtable.Row {
-	rows := make([]termtable.Row, 0, len(profiles))
+func buildProfileTableRows(profiles []model.GitProfile, active, def string, bound *model.GitProfile) []termout.Row {
+	rows := make([]termout.Row, 0, len(profiles))
 	for _, p := range profiles {
 		row := buildSingleProfileRow(p, active, def, bound)
 		rows = append(rows, row)
@@ -49,10 +49,10 @@ func buildProfileTableRows(profiles []model.GitProfile, active, def string, boun
 	return rows
 }
 
-func buildSingleProfileRow(p model.GitProfile, active, def string, bound *model.GitProfile) termtable.Row {
+func buildSingleProfileRow(p model.GitProfile, active, def string, bound *model.GitProfile) termout.Row {
 	mark, status := resolveProfileMarkers(p, active, def, bound)
 
-	return termtable.Row{
+	return termout.Row{
 		Cells: []string{mark, p.ID, p.Name, p.Email, status},
 	}
 }

@@ -1,16 +1,16 @@
 package cmdpipeline
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderPipelineHelp displays the styled two-column Pipeline help menu.
 func RenderPipelineHelp() {
-	termhelp.RenderMenu(buildPipelineHelpMenu())
+	termout.RenderMenu(buildPipelineHelpMenu())
 }
 
-func buildPipelineHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildPipelineHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "CI/CD Pipeline Diagnostics & Healing (gitmap pipeline)",
 		UsageLines: []string{
 			"gitmap pipeline [command] [flags]",
@@ -19,7 +19,7 @@ func buildPipelineHelpMenu() termhelp.HelpMenu {
 			"gitmap pe history-ai [N]      (extract historical CI errors to train AI)",
 			"gitmap pipeline-ai [cmd]       (AI telemetry & timeout waiting)",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildPipelineTelemetrySection(),
 			buildPipelineHealingSection(),
 			buildPipelineDBSection(),
@@ -35,8 +35,8 @@ func buildPipelineHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildPipelineFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildPipelineFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-1, -2, -3, HEAD~N", Description: "Inspect pipeline logs for past commit by negative offset or SHA"},
 		{Command: "-t, --timeline", Description: "Watch pipeline run until completion with dynamic ETA timeline"},
 		{Command: "-f, --fix", Description: "Run internal CI/CD issue diagnostic and auto-repair scripts"},
@@ -49,10 +49,10 @@ func buildPipelineFooterFlags() []termhelp.CommandEntry {
 	}
 }
 
-func buildPipelineTelemetrySection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildPipelineTelemetrySection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Live Telemetry & Diagnostics",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "status (st)", Description: "Check live CI/CD pipeline status, ETA, and pending PRs"},
 			{Command: "details (pd)", Description: "Display runner target table, step elapsed timings & diagnostics"},
 			{Command: "stages (sj)", Description: "Display single stage/job timings and combined approx runtime"},
@@ -64,10 +64,10 @@ func buildPipelineTelemetrySection() termhelp.HelpSection {
 	}
 }
 
-func buildPipelineHealingSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildPipelineHealingSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "AI & Auto-Healing",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "fix", Description: "Feed pipeline errors to Antigravity IDE (alias: fix errors agy)"},
 			{Command: "pipeline-ai status", Description: "Auto-delay (-t <sec>), stream live errors, and switch to fix"},
 			{Command: "pipeline-ai errors", Description: "Extract failing workflow errors with AI remediation guidance"},
@@ -76,10 +76,10 @@ func buildPipelineHealingSection() termhelp.HelpSection {
 	}
 }
 
-func buildPipelineDBSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildPipelineDBSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Database & Reset",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "db", Description: "Inspect or manage isolated pipeline split SQLite database"},
 			{Command: "clear (clean)", Description: "Clear logs, reports, and database for repository"},
 			{Command: "clear-db", Description: "Clear recorded pipeline runs and error logs"},

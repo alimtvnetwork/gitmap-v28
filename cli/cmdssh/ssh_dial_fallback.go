@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -19,7 +19,7 @@ func tryDialWithSpecifiedKey(c db.SSHConnection) (*ssh.Client, bool) {
 	if fi, err := os.Stat(c.KeyPath); err != nil || fi.IsDir() {
 		return nil, false
 	}
-	client, err := crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
+	client, err := secrets.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
 	if err == nil {
 		return client, true
 	}
@@ -70,7 +70,7 @@ func tryDialWithPasswordCandidate(c db.SSHConnection) (*ssh.Client, bool) {
 	if plain == "" {
 		return nil, false
 	}
-	client, err := crypto.ConnectWithPassword(c.IPAddress, c.Username, plain)
+	client, err := secrets.ConnectWithPassword(c.IPAddress, c.Username, plain)
 	if err != nil {
 		return nil, false
 	}

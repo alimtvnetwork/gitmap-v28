@@ -1,4 +1,4 @@
-// Package store — installer_list.go provides ListInstallers to retrieve all installer scripts.
+// Package store — installer_list.go provides ListInstallers to retrieve all installer fspath.
 package store
 
 import (

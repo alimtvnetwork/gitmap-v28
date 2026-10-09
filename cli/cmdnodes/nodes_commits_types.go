@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -144,9 +144,9 @@ func (e *sshProductionExecutor) Execute(conn db.SSHConnection, command string, s
 
 	defer client.Close()
 
-	out, errRun := crypto.RunCommand(client, command, shell)
+	out, errRun := secrets.RunCommand(client, command, shell)
 	if errRun != nil && shell == "bash" && isBashMissingError(out, errRun) {
-		out, errRun = crypto.RunCommand(client, command, "sh")
+		out, errRun = secrets.RunCommand(client, command, "sh")
 	}
 
 	return out, errRun

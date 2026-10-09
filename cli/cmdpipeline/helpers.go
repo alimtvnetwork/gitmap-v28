@@ -6,7 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/atotto/clipboard"
 )
@@ -56,7 +56,7 @@ var writeClipboard clipboardWriterFunc = func(text string) error {
 func checkHelp(command string, args []string) {
 	for _, a := range args {
 		if a == "--help" || a == "-h" || a == "help" {
-			helptext.Print(command)
+			helpdoc.Print(command)
 			cliexit.Exit(0)
 		}
 	}

@@ -1,16 +1,16 @@
 package cmdvscode
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // RenderGitHubDesktopHelp renders the styled two-column help menu for GitHub Desktop integration.
 func RenderGitHubDesktopHelp() {
-	termhelp.RenderMenu(buildGitHubDesktopHelpMenu())
+	termout.RenderMenu(buildGitHubDesktopHelpMenu())
 }
 
-func buildGitHubDesktopHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildGitHubDesktopHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "GitHub Desktop Integration (gitmap gd / github)",
 		UsageLines: []string{
 			"gitmap gd [folder-path] [flags]",
@@ -18,7 +18,7 @@ func buildGitHubDesktopHelpMenu() termhelp.HelpMenu {
 			"gitmap github-desktop --all",
 			"gitmap gd group <ls|add|rm> [args...]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildGHDesktopTargetSection(),
 			buildGHDesktopGroupSection(),
 			buildGHDesktopMaintenanceSection(),
@@ -32,10 +32,10 @@ func buildGitHubDesktopHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildGHDesktopTargetSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildGHDesktopTargetSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Registration Targets",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "gitmap gd", Description: "Register current repository or all tracked repos under CWD"},
 			{Command: "gitmap gd <path>", Description: "Register specific repository folder with GitHub Desktop"},
 			{Command: "gitmap gd --all", Description: "Bulk register every tracked repository in the database"},
@@ -43,10 +43,10 @@ func buildGHDesktopTargetSection() termhelp.HelpSection {
 	}
 }
 
-func buildGHDesktopGroupSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildGHDesktopGroupSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Repository Groups",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "group ls", Description: "List all defined GitHub Desktop repository groups"},
 			{Command: "group add <name> <paths...>", Description: "Add one or more repositories to a specified group"},
 			{Command: "group rm <name> [path]", Description: "Remove repository from group or delete group entirely"},
@@ -54,18 +54,18 @@ func buildGHDesktopGroupSection() termhelp.HelpSection {
 	}
 }
 
-func buildGHDesktopMaintenanceSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildGHDesktopMaintenanceSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Maintenance & Optimization",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "optimize-projects, dedupe", Description: "Deduplicate and clean stale GitHub Desktop entries"},
 			{Command: "clear, clean", Description: "Remove missing or broken repositories from GitHub Desktop"},
 		},
 	}
 }
 
-func buildGHDesktopFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildGHDesktopFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-i, --install", Description: "Auto-install GitHub Desktop CLI if missing before registering"},
 		{Command: "--all", Description: "Register all repositories in GitMap database"},
 		{Command: "-h, --help", Description: "Show this GitHub Desktop help menu"},

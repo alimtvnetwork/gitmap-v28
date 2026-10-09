@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/jsonenvelope"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
+	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // ConfigInspectionResult holds the classification metadata of a configuration file.
@@ -192,7 +192,7 @@ func inspectSingleConfigFile(path string) ConfigInspectionResult {
 }
 
 func inspectJSONConfigFile(path, base string, content []byte) ConfigInspectionResult {
-	desc, _, isMatched := jsonenvelope.DetectFormat(content)
+	desc, _, isMatched := jsonx.DetectFormat(content)
 	if isMatched {
 		return ConfigInspectionResult{
 			FilePath:     path,
@@ -208,7 +208,7 @@ func inspectJSONConfigFile(path, base string, content []byte) ConfigInspectionRe
 			Format:       "JSON",
 			Category:     "Node.js Package Manifest & Dependencies",
 			ManageCmd:    "npm install / pnpm install",
-			SystemImpact: "Defines JavaScript/TypeScript project dependencies and scripts.",
+			SystemImpact: "Defines JavaScript/TypeScript project dependencies and fspath.",
 		}
 	}
 	if base == "version.json" {
@@ -352,25 +352,25 @@ func renderWhatConfigsReport(results []ConfigInspectionResult) {
 	fmt.Printf("╚══════════════════════════════════════════════════════════════════════════════╝\n")
 	fmt.Printf("  Inspected: %d configuration file(s)\n\n", len(results))
 
-	cfg := termtable.TableConfig{
-		Columns: []termtable.Column{
-			{Title: "FILE", Align: termtable.AlignLeft, MinWidth: 24},
-			{Title: "FORMAT", Align: termtable.AlignLeft, MinWidth: 10},
-			{Title: "PURPOSE / SUBSYSTEM", Align: termtable.AlignLeft, MinWidth: 26},
-			{Title: "RECOMMENDED CLI COMMAND", Align: termtable.AlignLeft, MinWidth: 28},
+	cfg := termout.TableConfig{
+		Columns: []termout.Column{
+			{Title: "FILE", Align: termout.AlignLeft, MinWidth: 24},
+			{Title: "FORMAT", Align: termout.AlignLeft, MinWidth: 10},
+			{Title: "PURPOSE / SUBSYSTEM", Align: termout.AlignLeft, MinWidth: 26},
+			{Title: "RECOMMENDED CLI COMMAND", Align: termout.AlignLeft, MinWidth: 28},
 		},
 		Rows: buildWhatConfigsSummaryRows(results),
 	}
-	termtable.PrintTable(cfg)
+	termout.PrintTable(cfg)
 	fmt.Printf("\n%s================================================================================%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf(" TIP: Run 'gitmap import-all-json *' to automatically import all detected JSONs.\n")
 	fmt.Printf("%s================================================================================%s\n\n", constants.ColorCyan, constants.ColorReset)
 }
 
-func buildWhatConfigsSummaryRows(results []ConfigInspectionResult) []termtable.Row {
-	rows := make([]termtable.Row, 0, len(results))
+func buildWhatConfigsSummaryRows(results []ConfigInspectionResult) []termout.Row {
+	rows := make([]termout.Row, 0, len(results))
 	for _, r := range results {
-		rows = append(rows, termtable.Row{
+		rows = append(rows, termout.Row{
 			Cells: []string{
 				r.FilePath,
 				r.Format,

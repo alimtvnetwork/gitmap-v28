@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -57,11 +57,11 @@ func ensureRemoteDir(client *ssh.Client, dir string, isWin bool) error {
 	}
 	if isWin {
 		cmd := fmt.Sprintf("cmd.exe /c if not exist \"%s\" mkdir \"%s\"", dir, dir)
-		_, err := crypto.RunCommand(client, cmd, "")
+		_, err := secrets.RunCommand(client, cmd, "")
 		return err
 	}
 	cmd := fmt.Sprintf("mkdir -p '%s'", dir)
-	_, err := crypto.RunCommand(client, cmd, "")
+	_, err := secrets.RunCommand(client, cmd, "")
 	return err
 }
 
@@ -168,7 +168,7 @@ func StreamFileFromRemote(client *ssh.Client, remotePath, osType string) ([]byte
 	} else {
 		cmd = fmt.Sprintf("base64 '%s'", strings.ReplaceAll(remotePath, "'", "'\\''"))
 	}
-	out, err := crypto.RunCommand(client, cmd, "")
+	out, err := secrets.RunCommand(client, cmd, "")
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "StreamFileFromRemote")
 	}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // TruncateWords trims text to maxWords and returns the truncated string and total word count.
@@ -113,18 +113,18 @@ func printRunningPromptRow(it store.RunningPromptRecord, isFull bool) {
 
 // RenderRunningPromptsHelp prints synopsis and usage guidelines for running-prompts commands.
 func RenderRunningPromptsHelp() {
-	termhelp.RenderMenu(buildRunningPromptsHelpMenu())
+	termout.RenderMenu(buildRunningPromptsHelpMenu())
 }
 
-func buildRunningPromptsHelpMenu() termhelp.HelpMenu {
-	return termhelp.HelpMenu{
+func buildRunningPromptsHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
 		Title: "Antigravity Running Prompts Management (running-prompts)",
 		UsageLines: []string{
 			"gitmap agy running-prompts <command> [flags]",
 			"gitmap backup-running-prompts [flags]",
 			"gitmap restore-running-prompts [flags]",
 		},
-		Sections: []termhelp.HelpSection{
+		Sections: []termout.HelpSection{
 			buildRunningPromptsOpsSection(),
 			buildRunningPromptsIOSection(),
 			buildRunningPromptsExamplesSection(),
@@ -139,10 +139,10 @@ func buildRunningPromptsHelpMenu() termhelp.HelpMenu {
 	}
 }
 
-func buildRunningPromptsOpsSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildRunningPromptsOpsSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Snapshot & Restoration Commands",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "backup", Description: "Snapshot running and queued prompts to Split-DB"},
 			{Command: "restore", Description: "Restore backed-up prompts into project prompt queue"},
 			{Command: "clean", Description: "Prune old restored backup batches (or --force)"},
@@ -151,20 +151,20 @@ func buildRunningPromptsOpsSection() termhelp.HelpSection {
 	}
 }
 
-func buildRunningPromptsIOSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildRunningPromptsIOSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Export & Import Commands",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "export", Description: "Export prompts to SQLite database (.db) or JSON (.json)"},
 			{Command: "import", Description: "Import prompts from SQLite or JSON file into queues"},
 		},
 	}
 }
 
-func buildRunningPromptsExamplesSection() termhelp.HelpSection {
-	return termhelp.HelpSection{
+func buildRunningPromptsExamplesSection() termout.HelpSection {
+	return termout.HelpSection{
 		Title: "Real-World Examples",
-		Entries: []termhelp.CommandEntry{
+		Entries: []termout.CommandEntry{
 			{Command: "gitmap agy running-prompts backup", Description: "Snapshot all active & queued prompts into Split-DB"},
 			{Command: "gitmap agy running-prompts restore", Description: "Re-enqueue backed-up prompts into active workspaces"},
 			{Command: "gitmap agy account-switch test --threshold 98", Description: "Verify end-to-end backup, account rotation, and prompt restore"},
@@ -174,8 +174,8 @@ func buildRunningPromptsExamplesSection() termhelp.HelpSection {
 	}
 }
 
-func buildRunningPromptsFooterFlags() []termhelp.CommandEntry {
-	return []termhelp.CommandEntry{
+func buildRunningPromptsFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
 		{Command: "-l, --limit <N>", Description: "Maximum prompt entries to display (default 8)"},
 		{Command: "--wc <N>", Description: "Word count truncation limit (default 100)"},
 		{Command: "--full", Description: "Show full prompt text without word truncation"},

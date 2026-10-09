@@ -15,7 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
@@ -66,7 +66,7 @@ func RunSequence(args []string) error {
 	checkHelp("sequence", args)
 	if len(args) == 0 {
 		_, mode := ParsePrettyFlag(args)
-		helptext.PrintWithMode("sequence", mode)
+		helpdoc.PrintWithMode("sequence", mode)
 
 		return nil
 	}
