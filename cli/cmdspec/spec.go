@@ -121,7 +121,11 @@ func runSpecNext(args []string) error {
 	}
 
 	repoRoot := absSpecRepoRoot(findSpecRepoRoot())
-	conn, openErr := store.InitMasterAgentDB(store.ResolveMasterAgentDbPath(""))
+	// Anchor the Tier-1 DB to the spec root (where 02-spec/ lives), NOT
+	// to cwd: ResolveMasterAgentDbPath("") walks up for .gitmap/.git and
+	// a nested .gitmap dir (e.g. cli/.gitmap) would resolve a SECOND
+	// database, letting two agents issue the same number from two DBs.
+	conn, openErr := store.InitMasterAgentDB(store.ResolveMasterAgentDbPath(repoRoot))
 	if openErr != nil {
 		return openErr
 	}
