@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
 )
 
 type testPinManifestEntry struct {
@@ -34,7 +34,7 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 		t.Fatalf("write manifest: %v", err)
 	}
 
-	code := cmd.BuildPinCallbackPython(manifest)
+	code := cmdhistory.BuildPinCallbackPython(manifest)
 	script := filepath.Join(t.TempDir(), "run.py")
 	py := "" +
 		"callback_globals = {'__builtins__': __builtins__}\n" +

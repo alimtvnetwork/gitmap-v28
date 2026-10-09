@@ -101,7 +101,7 @@ INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Gamma', 'Service', 
 	return wrapper
 }
 
-func TestFluentQueryBuilder(t *testing.T) {
+func TestFluentQueryBuilderViaCompiler(t *testing.T) {
 	ctx := context.Background()
 	wrapper := setupInMemoryDb(t)
 	defer wrapper.Close()
@@ -146,7 +146,7 @@ func TestFluentQueryBuilder(t *testing.T) {
 	}
 }
 
-func TestQueryBuilder_CompileAndCache(t *testing.T) {
+func TestQueryBuilder_CompileAndCacheViaCompiler(t *testing.T) {
 	wrapper := setupInMemoryDb(t)
 	defer wrapper.Close()
 
@@ -186,7 +186,7 @@ func TestQueryBuilder_CompileAndCache(t *testing.T) {
 	}
 }
 
-func TestQueryBuilder_ErrorGuards(t *testing.T) {
+func TestQueryBuilder_ErrorGuardsViaCompiler(t *testing.T) {
 	ctx := context.Background()
 	wrapper := setupInMemoryDb(t)
 	defer wrapper.Close()

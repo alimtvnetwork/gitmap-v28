@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -12,14 +12,42 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+// Pipeline repo data states for the trailing report table.
+const (
+	allRepoStatusClean         = "clean"
+	allRepoStatusFailed        = "failed"
+	allRepoStatusNoData        = "no-pipeline-data"
+	allRepoStatusDbUnreachable = "db-unavailable"
+)
+
+// repoCatalogEntry is one catalog repository: sanitized pipeline slug plus
+// its absolute path. Kept as an ordered slice (not a slug-keyed map) so
+// two catalog entries sharing a slug are never silently dropped from reports.
+type repoCatalogEntry struct {
+	slug    string
+	absPath string
+}
+
 // AllPipelineSummary aggregates pipeline error statuses across all repositories.
 type AllPipelineSummary struct {
-	TotalPipelines int                     `json:"totalPipelines"`
-	CleanCount     int                     `json:"cleanCount"`
-	FailedCount    int                     `json:"failedCount"`
-	FailedItems    []AllPipelineFailedItem `json:"failedItems,omitempty"`
-	CleanRepos     []string                `json:"cleanRepos,omitempty"`
-	PullErrors     []store.PullErrorRecord `json:"pullErrors,omitempty"`
+	TotalPipelines    int                     `json:"totalPipelines"`
+	ReposScanned      int                     `json:"reposScanned"`
+	CleanCount        int                     `json:"cleanCount"`
+	FailedCount       int                     `json:"failedCount"`
+	NoDataCount       int                     `json:"noDataCount"`
+	TotalErrorEntries int                     `json:"totalErrorEntries"`
+	FailedItems       []AllPipelineFailedItem `json:"failedItems,omitempty"`
+	CleanRepos        []string                `json:"cleanRepos,omitempty"`
+	NoDataRepos       []string                `json:"noDataRepos,omitempty"`
+	PullErrors        []store.PullErrorRecord `json:"pullErrors,omitempty"`
+
+	repoAbsPaths   map[string]string
+	repoDataStatus map[string]string
+	errorDetails   map[string][]pipelinedb.PipelineErrorRecord
+	stepJobs       map[string]map[string]string
+	// repoList preserves every catalog entry in order (duplicates kept);
+	// the slug-keyed maps above collapse duplicate slugs.
+	repoList []repoCatalogEntry
 }
 
 // AllPipelineFailedItem represents a failed pipeline run discovered across repositories.
@@ -33,8 +61,28 @@ type AllPipelineFailedItem struct {
 	UpdatedAt    string `json:"updatedAt"`
 }
 
+// singleRepoInspection carries the tri-state inspection result for one catalog repo.
+type singleRepoInspection struct {
+	failedItem      *AllPipelineFailedItem
+	errorRecords    []pipelinedb.PipelineErrorRecord
+	stepJobs        map[string]string
+	isClean         bool
+	hasPipelineData bool
+	dataStatus      string
+}
+
 func executeAllPipelineErrorLogs(flags PipelineErrorFlags, args []string) error {
 	summary := collectAllPipelineSummary()
+
+	if flags.IsJSON && flags.FilePath == "" {
+		return emitAllPipelineSummaryJSON(summary)
+	}
+
+	if flags.FilePath != "" {
+		if err := writeAllPipelineErrorsReportFile(flags, summary); err != nil {
+			return err
+		}
+	}
 
 	if flags.IsJSON {
 		return emitAllPipelineSummaryJSON(summary)
@@ -53,82 +101,133 @@ func emitAllPipelineSummaryJSON(summary AllPipelineSummary) error {
 }
 
 func collectAllPipelineSummary() AllPipelineSummary {
-	slugs := discoverPipelineRepoSlugs()
-	summary := AllPipelineSummary{TotalPipelines: len(slugs)}
+	entries := discoverCatalogRepoSlugs()
+	slugs := make([]string, 0, len(entries))
+	absPaths := make(map[string]string, len(entries))
+	for _, e := range entries {
+		slugs = append(slugs, e.slug)
+		absPaths[e.slug] = e.absPath
+	}
+	summary := AllPipelineSummary{
+		TotalPipelines: len(slugs),
+		ReposScanned:   len(slugs),
+		repoAbsPaths:   absPaths,
+		repoList:       entries,
+		repoDataStatus: make(map[string]string, len(slugs)),
+		errorDetails:   make(map[string][]pipelinedb.PipelineErrorRecord),
+		stepJobs:       make(map[string]map[string]string),
+	}
 
 	for _, slug := range slugs {
-		failedItem, isClean := inspectSinglePipelineRepo(slug)
+		inspection := inspectSinglePipelineRepo(slug)
+		summary.repoDataStatus[slug] = inspection.dataStatus
 
-		if isClean {
+		if !inspection.hasPipelineData {
+			summary.NoDataCount++
+			summary.NoDataRepos = append(summary.NoDataRepos, slug)
+			continue
+		}
+
+		if inspection.isClean {
 			summary.CleanCount++
 			summary.CleanRepos = append(summary.CleanRepos, slug)
 			continue
 		}
 
-		if failedItem != nil {
-			summary.FailedCount++
-			summary.FailedItems = append(summary.FailedItems, *failedItem)
+		if inspection.failedItem == nil {
+			continue
 		}
+
+		summary.FailedCount++
+		summary.FailedItems = append(summary.FailedItems, *inspection.failedItem)
+		summary.TotalErrorEntries += len(inspection.errorRecords)
+		summary.errorDetails[slug] = inspection.errorRecords
+		summary.stepJobs[slug] = inspection.stepJobs
 	}
+
+	sort.Slice(summary.FailedItems, func(i, j int) bool {
+		return summary.FailedItems[i].RepoSlug < summary.FailedItems[j].RepoSlug
+	})
 
 	summary.PullErrors = queryPullErrorsForAll()
 
 	return summary
 }
 
-func discoverPipelineRepoSlugs() []string {
-	var slugs []string
-	pipelineDir := filepath.Join(store.BinaryDataDir(), "pipeline")
-	entries, err := os.ReadDir(pipelineDir)
+// discoverCatalogRepoSlugs enumerates every repository in the catalog as
+// discoverCatalogRepoSlugs enumerates every repository in the catalog as an
+// ordered list of (sanitized slug, absolute path) entries. Duplicate slugs
+// are preserved as separate entries and never collapsed.
+func discoverCatalogRepoSlugs() []repoCatalogEntry {
+	entries := []repoCatalogEntry{}
+
+	db, err := store.OpenDefault()
 
 	if err != nil {
-		return slugs
+		return entries
+	}
+	defer db.Close()
+
+	records, err := db.ListRepos()
+
+	if err != nil {
+		return entries
 	}
 
-	for _, e := range entries {
-		if !e.IsDir() {
-			continue
-		}
-
-		dbFile := filepath.Join(pipelineDir, e.Name(), "sql.db")
-
-		if isFileExisting(dbFile) {
-			slugs = append(slugs, e.Name())
-		}
+	for _, rec := range records {
+		entries = append(entries, repoCatalogEntry{
+			slug:    pipelinedb.SanitizeRepoSlug(rec.Slug),
+			absPath: rec.AbsolutePath,
+		})
 	}
 
-	return slugs
+	return entries
 }
 
-func inspectSinglePipelineRepo(slug string) (*AllPipelineFailedItem, bool) {
+// inspectSinglePipelineRepo inspects one repo's pipeline DB without creating it:
+// the DB path is stat'ed BEFORE OpenPipelineSplitDb, which initializes missing
+// DBs as a side effect. Repos without a DB file report no pipeline data.
+func inspectSinglePipelineRepo(slug string) singleRepoInspection {
+	dbPath := pipelinedb.ResolvePipelineDbPath(slug)
+
+	if _, statErr := os.Stat(dbPath); statErr != nil {
+		return singleRepoInspection{hasPipelineData: false, dataStatus: allRepoStatusNoData}
+	}
+
 	db, err := pipelinedb.OpenPipelineSplitDb(slug)
 
 	if err != nil {
-		return nil, false
+		return singleRepoInspection{hasPipelineData: false, dataStatus: allRepoStatusDbUnreachable}
 	}
 	defer db.Close()
 
 	run, runErr := db.QueryRunByNegativeOffset(-1)
 
 	if runErr != nil || run == nil {
-		return nil, false
+		return singleRepoInspection{hasPipelineData: false, dataStatus: allRepoStatusNoData}
 	}
 
 	if run.IsSuccess || strings.EqualFold(run.Conclusion, "success") {
-		return nil, true
+		return singleRepoInspection{hasPipelineData: true, isClean: true, dataStatus: allRepoStatusClean}
 	}
 
 	errSummary := extractRunErrorSummary(db, run.RunId)
 
-	return &AllPipelineFailedItem{
-		RepoSlug:     slug,
-		WorkflowName: run.WorkflowName,
-		RunId:        run.RunId,
-		Branch:       run.Branch,
-		Sha:          run.Sha,
-		ErrorSummary: errSummary,
-		UpdatedAt:    run.UpdatedAt,
-	}, false
+	return singleRepoInspection{
+		hasPipelineData: true,
+		dataStatus:      allRepoStatusFailed,
+		errorRecords:    detailedErrorRecordsForRun(db, run.RunId),
+		stepJobs:        stepJobNamesForRun(db, run.RunId),
+		failedItem: &AllPipelineFailedItem{
+			RepoSlug:     slug,
+			WorkflowName: run.WorkflowName,
+			RunId:        run.RunId,
+			Branch:       run.Branch,
+			Sha:          run.Sha,
+			ErrorSummary: errSummary,
+			UpdatedAt:    run.UpdatedAt,
+		},
+	}
 }
 
 func extractRunErrorSummary(db *pipelinedb.PipelineSplitDb, runId uint64) string {
@@ -156,9 +255,10 @@ func queryPullErrorsForAll() []store.PullErrorRecord {
 
 func renderAllPipelineSummaryTerminal(s AllPipelineSummary) {
 	fmt.Printf("\n  %s● Pipeline Error Inspector: ALL REPOSITORIES%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("    Total Pipelines Tracked: %d\n", s.TotalPipelines)
-	fmt.Printf("    Passing / Clean:         %d\n", s.CleanCount)
-	fmt.Printf("    Failing:                 %d\n\n", s.FailedCount)
+	fmt.Printf("    Repos Scanned:              %d\n", s.ReposScanned)
+	fmt.Printf("    Passing / Clean:            %d\n", s.CleanCount)
+	fmt.Printf("    Failing:                    %d\n", s.FailedCount)
+	fmt.Printf("    No pipeline data:           %d\n\n", s.NoDataCount)
 
 	if s.FailedCount == 0 {
 		fmt.Printf("  %s✔ All tracked CI/CD pipelines across all repositories are PASSING (100%% green).%s\n\n",
@@ -166,23 +266,44 @@ func renderAllPipelineSummaryTerminal(s AllPipelineSummary) {
 	}
 
 	if s.FailedCount > 0 {
-		renderFailingPipelinesList(s.FailedItems)
+		renderFailingPipelinesList(s)
 	}
+
+	renderNoPipelineDataList(s.NoDataRepos)
 
 	if len(s.PullErrors) > 0 {
 		renderPullErrorsNotice(len(s.PullErrors))
 	}
 }
 
-func renderFailingPipelinesList(items []AllPipelineFailedItem) {
-	fmt.Printf("  %sFailing Repositories (%d):%s\n", constants.ColorRed, len(items), constants.ColorReset)
+func renderFailingPipelinesList(s AllPipelineSummary) {
+	fmt.Printf("  %sFailing Repositories (%d):%s\n", constants.ColorRed, len(s.FailedItems), constants.ColorReset)
 
-	for _, item := range items {
-		fmt.Printf("    • %s%s%s (Run #%d):\n", constants.ColorYellow, item.RepoSlug, constants.ColorReset, item.RunId)
-		fmt.Printf("      └── ✖ %s\n", item.WorkflowName)
+	for _, item := range s.FailedItems {
+		errorCount := len(s.errorDetails[item.RepoSlug])
+		fmt.Printf("    Repo: %s%s%s · Errors: %d\n", constants.ColorYellow, item.RepoSlug, constants.ColorReset, errorCount)
+		fmt.Printf("      └── ✖ %s (Run #%d, %s, %s, %s)\n", item.WorkflowName, item.RunId, item.Branch, item.Sha, item.UpdatedAt)
 		fmt.Printf("          Error: %s\n", item.ErrorSummary)
 		fmt.Printf("          ↳ Inspect: gitmap pe %s\n\n", item.RepoSlug)
 	}
+}
+
+func renderNoPipelineDataList(repos []string) {
+	if len(repos) == 0 {
+		return
+	}
+
+	fmt.Printf("  No pipeline data (%d): %s\n\n", len(repos), truncateSlugDisplay(repos))
+}
+
+func truncateSlugDisplay(repos []string) string {
+	const maxShown = 12
+
+	if len(repos) <= maxShown {
+		return strings.Join(repos, ", ")
+	}
+
+	return strings.Join(repos[:maxShown], ", ") + fmt.Sprintf(", … and %d more", len(repos)-maxShown)
 }
 
 func renderPullErrorsNotice(count int) {

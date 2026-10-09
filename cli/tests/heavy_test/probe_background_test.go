@@ -19,10 +19,10 @@ type recordingSink struct {
 
 type sinkRow struct {
 	record model.ScanRecord
-	result scanpipe.Result
+	result scanpipe.ProbeResult
 }
 
-func (s *recordingSink) sink(rec model.ScanRecord, res scanpipe.Result) {
+func (s *recordingSink) sink(rec model.ScanRecord, res scanpipe.ProbeResult) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.rows = append(s.rows, sinkRow{record: rec, result: res})
@@ -135,7 +135,7 @@ func TestBackgroundRunner_HonorsWorkerCap(t *testing.T) {
 func TestBackgroundRunner_WaitIdempotent(t *testing.T) {
 	r := scanpipe.NewBackgroundRunner(1, 1,
 		func(model.ScanRecord) string { return "" },
-		func(model.ScanRecord, scanpipe.Result) {})
+		func(model.ScanRecord, scanpipe.ProbeResult) {})
 	r.Start(model.ScanRecord{ID: 1})
 	first := r.Wait()
 	second := r.Wait()
@@ -150,7 +150,7 @@ func TestBackgroundRunner_WaitIdempotent(t *testing.T) {
 func TestBackgroundRunner_StartAfterWaitSilent(t *testing.T) {
 	r := scanpipe.NewBackgroundRunner(1, 1,
 		func(model.ScanRecord) string { return "" },
-		func(model.ScanRecord, scanpipe.Result) {})
+		func(model.ScanRecord, scanpipe.ProbeResult) {})
 	r.Wait()
 
 	defer func() {

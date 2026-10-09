@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit"
 )
 
 func TestGitResetExecution(t *testing.T) {
@@ -37,7 +37,7 @@ func TestGitResetExecution(t *testing.T) {
 	exec.Command("git", "commit", "-m", "commit 2").Run()
 
 	// Reset back to sha1 with --no-push
-	errReset := cmd.RunGitReset([]string{sha1, "--no-push"})
+	errReset := cmdcommit.RunGitReset([]string{sha1, "--no-push"})
 	if errReset != nil {
 		t.Fatalf("git-reset failed: %v", errReset)
 	}
@@ -82,7 +82,7 @@ func TestRmGitExecution(t *testing.T) {
 	exec.Command("git", "commit", "-m", "commit 3").Run()
 
 	// Remove commit 2 using rm-git with --no-push
-	errRm := cmd.RunRmGit([]string{sha2, "--no-push"})
+	errRm := cmdcommit.RunRmGit([]string{sha2, "--no-push"})
 	if errRm != nil {
 		t.Fatalf("rm-git failed: %v", errRm)
 	}

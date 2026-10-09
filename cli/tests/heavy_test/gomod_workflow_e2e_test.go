@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdgomod"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -47,7 +47,7 @@ func TestCreateGoModBranches_Integration(t *testing.T) {
 	defer cleanup()
 
 	slug := "github-com-org-repo"
-	backup, feature := cmd.CreateGoModBranches(slug)
+	backup, feature := cmdgomod.CreateGoModBranches(slug)
 
 	expectedBackup := constants.GoModBackupPrefix + slug
 	expectedFeature := constants.GoModFeaturePrefix + slug
@@ -85,7 +85,7 @@ func TestGoModCurrentBranch_Integration(t *testing.T) {
 	_, cleanup := initTestRepo(t)
 	defer cleanup()
 
-	branch := cmd.GoModCurrentBranch()
+	branch := cmdgomod.GoModCurrentBranch()
 	if branch != "main" && branch != "master" {
 		t.Errorf("expected main or master, got %q", branch)
 	}
@@ -95,7 +95,7 @@ func TestIsWorkTreeDirty_Clean(t *testing.T) {
 	_, cleanup := initTestRepo(t)
 	defer cleanup()
 
-	if cmd.IsWorkTreeDirty() {
+	if cmdgomod.IsWorkTreeDirty() {
 		t.Error("expected clean work tree after initial commit")
 	}
 }
@@ -106,7 +106,7 @@ func TestIsWorkTreeDirty_Dirty(t *testing.T) {
 
 	_ = os.WriteFile("dirty.txt", []byte("uncommitted"), 0o644)
 
-	if !cmd.IsWorkTreeDirty() {
+	if !cmdgomod.IsWorkTreeDirty() {
 		t.Error("expected dirty work tree after creating untracked file")
 	}
 }
@@ -117,7 +117,7 @@ func TestCommitGoModChanges_Integration(t *testing.T) {
 
 	_ = os.WriteFile("go.mod", []byte("module github.com/new/path\n"), 0o644)
 
-	cmd.CommitGoModChanges("github.com/old/path", "github.com/new/path", 3)
+	cmdgomod.CommitGoModChanges("github.com/old/path", "github.com/new/path", 3)
 
 	out, err := exec.Command("git", "log", "-1", "--pretty=%s").Output()
 	if err != nil {
@@ -138,8 +138,8 @@ func TestReplaceModulePath_Integration(t *testing.T) {
 	_ = os.MkdirAll(filepath.Join(dir, "pkg"), 0o755)
 	_ = os.WriteFile(filepath.Join(dir, "pkg", "main.go"), []byte("package main\n\nimport \"github.com/old/mod/pkg\"\n"), 0o644)
 
-	_ = cmd.ReplaceInGoMod("github.com/old/mod", "github.com/new/mod")
-	count := cmd.ReplaceModulePath("github.com/old/mod", "github.com/new/mod", false, nil)
+	_ = cmdgomod.ReplaceInGoMod("github.com/old/mod", "github.com/new/mod")
+	count := cmdgomod.ReplaceModulePath("github.com/old/mod", "github.com/new/mod", false, nil)
 
 	gomod, _ := os.ReadFile(filepath.Join(dir, "go.mod"))
 	if !strings.Contains(string(gomod), "github.com/new/mod") {

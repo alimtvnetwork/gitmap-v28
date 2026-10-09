@@ -23,7 +23,10 @@ Owner 2026-10-09: spec numbers are hand-picked by agents scanning the filesystem
 - [ ] Wave 2: `gitmap spec next` implemented (DB table, atomic issuance, race-safe).
 - [x] Wave 3: verified — `go build ./...` exit 0 (lead-run); 10-parallel concurrency test → 10 distinct numbers (252–261), second batch → 10 more distinct; --json shape exact; DB has 21 rows 252–272, no gaps/dups; `spec --help` renders.
 - [x] Committed + pushed: `bd2ec57` "Feature - spec - DB-backed concurrency-safe spec number issuance" (targeted adds only; 250 stream's ledger untouched).
-- [ ] Wave 4: version bump (minor) → tag → GitHub release → rebuild ~/.local/bin/gitmap.
+- [x] Wave 4: version bumped to 6.520.0 (minor, via 37-bump-version.py) → committed d4d3bfc → tag v6.520.0 pushed → GitHub release published (https://github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.520.0) → ~/.local/bin/gitmap rebuilt from source → `gitmap version` = v6.520.0, `spec next --json` works live.
+
+## Result
+Program 252 COMPLETE. `gitmap spec next` is live in v6.520.0: DB-backed (Tier-1 ai_agents.db, spec_numbers table), race-safe (INSERT OR IGNORE + retry; 10-parallel test → 10 distinct numbers), per-repo by construction, plain-number stdout + --json. The 250 collision class is eliminated going forward; no retroactive renumbering (owner explicit).
 
 ## Decisions
 - D1: No retroactive renumbering (owner explicit).

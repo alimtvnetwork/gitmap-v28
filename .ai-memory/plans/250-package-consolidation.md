@@ -23,9 +23,9 @@ Owner (2026-10-09): reduce package count by grouping logically-together packages
 - [x] Spec 250 (4 files) + subtasks (4 files) DONE.
 - [x] Wave 1: orphan triage + stack-trace setting. Build exit 0 (lead-run). Committed 390cc2f, pushed. NOTE: `gitmap cpf` auto-add swept the parallel 246 stream's ledger file into the commit despite targeted `git add` — content is 246's own (program complete), harmless; lesson re-logged.
 - [x] Wave 2: foundation merges DONE (6 packages: diag, jsonx, termout, secrets, fspath, helpdoc). 302 importer files rewritten (scripted). Build exit 0, 0 cycles. Committed + pushed. 313→292 package dirs.
-- [ ] Wave 3: middle + dispatcher merges (groups 6,7,8,9) — DISPATCHED. Worker 1: scanpipe/committransfer/cmdcommitin (with internal-edge fixes). Worker 2: 24 micros → cli/cmd (collision check first, stop on clash).
+- [x] Wave 3: middle + dispatcher merges (groups 6,7,8,9) — DONE (commit 171b244, pushed). scanpipe (5 pkgs), committransfer (3 subpkgs), cmd/commitin (6 leaves), 24 micros → cli/cmd. Lead resolved filename clashes, symbol collisions (Result→ProbeResult), import cycles.
 - [ ] Wave 2: foundation merges (groups 1,2,3,4,5,10).
-- [ ] Wave 3: middle + dispatcher merges (groups 6,7,8,9).
+- [x] Wave 3: middle + dispatcher merges (groups 6,7,8,9) — DONE (commit 171b244).
 - [ ] Wave 4: stdout writer refactor + final sweep.
 - [ ] Final: registers updated, atomic push per wave, completion report.
 

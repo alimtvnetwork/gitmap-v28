@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 )
 
 func TestFixGit_CorruptZeroByteIndex(t *testing.T) {
@@ -33,12 +33,12 @@ func TestFixGit_CorruptZeroByteIndex(t *testing.T) {
 	// Corrupt index by truncating to 0 bytes
 	_ = os.WriteFile(indexPath, []byte(""), 0644)
 
-	opts := cmd.FixGitOptions{
+	opts := cmdfixgit.FixGitOptions{
 		TargetDir:   tempDir,
 		IsIndexOnly: true,
 	}
 
-	issues, err := cmd.RemediateGitIndex(tempDir, gitDir, opts)
+	issues, err := cmdfixgit.RemediateGitIndex(tempDir, gitDir, opts)
 	if err != nil {
 		t.Fatalf("remediateGitIndex failed: %v", err)
 	}

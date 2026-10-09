@@ -17,6 +17,7 @@ func buildPipelineHelpMenu() termout.HelpMenu {
 			"gitmap pd [commit|-N] [flags]  (runner details table shortcut)",
 			"gitmap pe [commit|-N] [flags]  (error logs & clean status shortcut)",
 			"gitmap pe history-ai [N]      (extract historical CI errors to train AI)",
+			"gitmap te all [flags]  (shortcut: same as 'gitmap pe all [flags]')",
 			"gitmap pipeline-ai [cmd]       (AI telemetry & timeout waiting)",
 		},
 		Sections: []termout.HelpSection{
@@ -28,6 +29,7 @@ func buildPipelineHelpMenu() termout.HelpMenu {
 		Tips: []string{
 			"Use shortcut 'gitmap pd' for runner target breakdown and step timings.",
 			"Use shortcut 'gitmap pe' to inspect failing jobs and actionable snippets.",
+			"Use shortcut 'gitmap te' anywhere 'gitmap pe' works — identical behavior.",
 			"Run 'gitmap pe history-ai 5' to export past failure dossiers for AI training.",
 			"Pass commit SHA or offset ('gitmap pe 7b1a2c', 'gitmap pe -1', 'gitmap pe HEAD~1') to target past runs.",
 			"Run 'gitmap pe clear -y' to reset pipeline failure history for repo.",

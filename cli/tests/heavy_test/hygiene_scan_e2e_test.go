@@ -6,7 +6,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbackup"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdorphans"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstale"
 )
 
 func makeRepo(t *testing.T, dir string, uniqueBody bool) {
@@ -58,24 +62,24 @@ func TestHygieneIntegrationScansAndProbes(t *testing.T) {
 		t.Fatalf("mkdir: %v", err)
 	}
 
-	repos := cmd.ScanForReposParallel(root)
+	repos := cmdhygiene.ScanForReposParallel(root)
 	if len(repos) != 2 {
 		t.Fatalf("scanForReposParallel got %d repos, want 2: %v", len(repos), repos)
 	}
 
 	for _, r := range repos {
-		if _, ok := cmd.LastCommitTime(r); !ok {
+		if _, ok := cmdstale.LastCommitTime(r); !ok {
 			t.Fatalf("lastCommitTime(%s) failed", r)
 		}
 
-		if sz := cmd.DirSize(filepath.Join(r, ".git")); sz <= 0 {
+		if sz := cmdbackup.DirSize(filepath.Join(r, ".git")); sz <= 0 {
 			t.Fatalf("dirSize(%s) = %d, want > 0", r, sz)
 		}
 	}
 
 	groups := map[string][]string{}
 	for _, r := range repos {
-		sha, ok := cmd.HeadTreeSHA(r)
+		sha, ok := cmdscan.HeadTreeSHA(r)
 		if !ok {
 			t.Fatalf("headTreeSHA(%s) failed", r)
 		}
@@ -83,7 +87,7 @@ func TestHygieneIntegrationScansAndProbes(t *testing.T) {
 		groups[sha] = append(groups[sha], r)
 	}
 
-	dupes := cmd.FilterDuplicateGroups(groups)
+	dupes := cmdscan.FilterDuplicateGroups(groups)
 	if len(dupes) != 1 {
 		t.Fatalf("expected 1 duplicate group, got %d", len(dupes))
 	}
@@ -99,12 +103,12 @@ func TestHygieneIntegrationOrphanProbe(t *testing.T) {
 		t.Fatalf("remote add: %v\n%s", err, out)
 	}
 
-	u, ok := cmd.OriginURL(a)
+	u, ok := cmdorphans.OriginURL(a)
 	if !ok || u != "git@github.com:owner/repo.git" {
 		t.Fatalf("originURL = %q ok=%v", u, ok)
 	}
 
-	if got := cmd.GitURLToHTTPS(u); got != "https://github.com/owner/repo" {
+	if got := cmdorphans.GitURLToHTTPS(u); got != "https://github.com/owner/repo" {
 		t.Fatalf("gitURLToHTTPS = %q", got)
 	}
 }

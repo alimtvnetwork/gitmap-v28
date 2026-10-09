@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcodingguidelines"
 )
 
 func fakeTrueRunner(name string, args ...string) *exec.Cmd {
@@ -40,8 +40,8 @@ func TestRunCodingGuidelinesInstall_SuccessViaFakeRunner(t *testing.T) {
 	}
 
 	var stdout, stderr bytes.Buffer
-	opts := cmd.CodingGuidelinesOpts{Runner: fakeTrueRunner, Stdout: &stdout, Stderr: &stderr}
-	if err := cmd.RunCodingGuidelinesInstall(opts); err != nil {
+	opts := cmdcodingguidelines.CodingGuidelinesOpts{Runner: fakeTrueRunner, Stdout: &stdout, Stderr: &stderr}
+	if err := cmdcodingguidelines.RunCodingGuidelinesInstall(opts); err != nil {
 		t.Fatalf("expected success, got err=%v; stderr=%q", err, stderr.String())
 	}
 
@@ -50,7 +50,7 @@ func TestRunCodingGuidelinesInstall_SuccessViaFakeRunner(t *testing.T) {
 
 func assertCGMissingShell(t *testing.T, err error, stderr string) {
 	t.Helper()
-	isExpectedErr := errors.Is(err, cmd.ErrCGShellNotFound)
+	isExpectedErr := errors.Is(err, cmdcodingguidelines.ErrCGShellNotFound)
 	if !isExpectedErr {
 		t.Fatalf("expected ErrCGShellNotFound, got %v", err)
 	}
@@ -65,14 +65,14 @@ func assertCGMissingShell(t *testing.T, err error, stderr string) {
 func TestRunCodingGuidelinesInstall_ShellMissing(t *testing.T) {
 	t.Parallel()
 	var stderr bytes.Buffer
-	opts := cmd.CodingGuidelinesOpts{
+	opts := cmdcodingguidelines.CodingGuidelinesOpts{
 		LookPath: func(file string) (string, error) {
 			return "", exec.ErrNotFound
 		},
 		Stderr: &stderr,
 	}
 
-	err := cmd.RunCodingGuidelinesInstall(opts)
+	err := cmdcodingguidelines.RunCodingGuidelinesInstall(opts)
 	assertCGMissingShell(t, err, stderr.String())
 }
 
@@ -101,6 +101,6 @@ func TestRunCodingGuidelinesInstall_ExitCodePropagates(t *testing.T) {
 	}
 
 	var stderr bytes.Buffer
-	err := cmd.RunCodingGuidelinesInstall(cmd.CodingGuidelinesOpts{Runner: fakeFalseRunner, Stderr: &stderr})
+	err := cmdcodingguidelines.RunCodingGuidelinesInstall(cmdcodingguidelines.CodingGuidelinesOpts{Runner: fakeFalseRunner, Stderr: &stderr})
 	assertCGErrorAndBanner(t, err, stderr.String())
 }

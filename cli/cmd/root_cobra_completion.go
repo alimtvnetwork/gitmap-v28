@@ -374,7 +374,7 @@ func buildHelpCompletions() []string {
 func makeTopLevelPECmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "pe [path|alias|url] [flags]",
-		Aliases: []string{"pipeline-errors", "pipeline_errors", "ee"},
+		Aliases: []string{"pipeline-errors", "pipeline_errors", "ee", "te"},
 		Short:   "Inspect CI/CD pipeline error logs and status for target repository",
 		Run:     func(c *cobra.Command, args []string) {},
 		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

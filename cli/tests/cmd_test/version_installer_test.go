@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -35,9 +35,9 @@ func TestVersionManifestInheritance(t *testing.T) {
 
 func TestVersionInstallerDryRun(t *testing.T) {
 	tempDir := t.TempDir()
-	cfg := cmd.DefaultVersionInstallConfig("1.0.0")
+	cfg := cmdcg.DefaultVersionInstallConfig("1.0.0")
 
-	if err := cmd.InstallVersionJSON(tempDir, cfg, true); err != nil {
+	if err := cmdcg.InstallVersionJSON(tempDir, cfg, true); err != nil {
 		t.Fatalf("dry-run failed: %v", err)
 	}
 

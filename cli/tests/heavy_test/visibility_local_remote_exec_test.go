@@ -6,13 +6,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvisibility"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func TestResolveProviderAndSlug_LocalRemote_ExitsZero(t *testing.T) {
 	if url := os.Getenv("GITMAP_TEST_RESOLVE_LOCAL"); url != "" {
-		cmd.ResolveProviderAndSlugOrExit(url)
+		cmdvisibility.ResolveProviderAndSlugOrExit(url)
 		os.Exit(99)
 	}
 

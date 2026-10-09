@@ -6,7 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
@@ -19,21 +20,21 @@ func TestReconcileWorkflowE2E(t *testing.T) {
 
 	diag := gitutil.InspectDirtyState(repoDir)
 	recipes := gitutil.GenerateRemediationRecipes(repoDir, diag)
-	item := cmd.RemediationItem{
+	item := cmdremediation.RemediationItem{
 		RepoName:      "sample-repo",
 		RepoPath:      repoDir,
 		SummaryReason: diag.SummaryReason,
 		Recipes:       recipes,
 	}
 
-	_ = cmd.SaveRemediationState([]cmd.RemediationItem{item})
+	_ = cmdremediation.SaveRemediationState([]cmdremediation.RemediationItem{item})
 
-	err := cmd.RunReconcileCmd([]string{"sample-repo", "discard"})
+	err := cmdreconcile.RunReconcileCmd([]string{"sample-repo", "discard"})
 	if err != nil {
 		t.Fatalf("runReconcileCmd failed: %v", err)
 	}
 
-	remaining := cmd.LoadRemediationState()
+	remaining := cmdremediation.LoadRemediationState()
 	if len(remaining) != 0 {
 		t.Fatalf("expected 0 remaining items, got %d", len(remaining))
 	}
