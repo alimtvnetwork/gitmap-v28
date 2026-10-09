@@ -28,8 +28,11 @@ import (
 const maxPortScanAttempts = 50
 
 // RunUI launches the embedded web server and opens the browser.
+// The bind host and auto-open behavior come from the parsed `gitmap ui` flags
+// (uiListenHost/uiNoBrowser in ui_cmd.go); programmatic callers such as
+// `gitmap <module> ui` keep the secure loopback default.
 func RunUI(page string, preferredPort int) error {
-	listener, port, err := bindAvailablePort(preferredPort)
+	listener, port, err := bindAvailablePort(uiListenHost, preferredPort)
 
 	if err != nil {
 		return apperror.WrapSimple(err, "ui_bind_port")
@@ -46,14 +49,16 @@ func RunUI(page string, preferredPort int) error {
 
 	targetURL := fmt.Sprintf("http://localhost:%d/%s", port, strings.TrimPrefix(page, "/"))
 	fmt.Printf("⚡ GitMap Fleet Web UI running at: %s\n", targetURL)
-	openBrowserURL(targetURL)
+	if !uiNoBrowser {
+		openBrowserURL(targetURL)
+	}
 
 	return server.Serve(listener)
 }
 
-func bindAvailablePort(startPort int) (net.Listener, int, error) {
+func bindAvailablePort(host string, startPort int) (net.Listener, int, error) {
 	for port := startPort; port < startPort+maxPortScanAttempts; port++ {
-		ln, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		ln, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, port))
 
 		if err == nil {
 			return ln, port, nil

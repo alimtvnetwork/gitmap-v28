@@ -5,10 +5,31 @@ const uiAssetsJSCore = `    function showTab(tabId) {
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       const target = document.getElementById('tab-' + tabId);
       if (target) target.classList.add('active');
-      document.getElementById('header-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
+      const prettyTitle = tabId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      document.getElementById('header-title').innerText = prettyTitle;
+      document.title = 'GitMap — ' + prettyTitle;
       event?.target?.classList.add('active');
       if (tabId === 'ssh') refreshNodes();
       if (tabId === 'editor') populateEditorNodes();
+    }
+
+    // Fills every [data-icon] placeholder with the inline SVG from the icon()
+    // helper (provided by the theme assets). Guarded so the page still boots
+    // if the helper is unavailable; injected SVGs are normalized to 16px.
+    function hydrateIcons() {
+      if (typeof icon !== 'function') return;
+      document.querySelectorAll('[data-icon]').forEach(function (el) {
+        if (el.dataset.iconDone) return;
+        el.dataset.iconDone = '1';
+        el.innerHTML = icon(el.getAttribute('data-icon'));
+        const svg = el.querySelector('svg');
+        if (svg) {
+          svg.setAttribute('width', '16');
+          svg.setAttribute('height', '16');
+          svg.style.verticalAlign = '-3px';
+          svg.style.marginRight = '6px';
+        }
+      });
     }
 
 `
@@ -40,10 +61,10 @@ const uiAssetsJSFleet = `    async function deployKeysFleetUI() {
         const res = await fetch('/api/ssh/deploy-keys', { method: 'POST' });
         const data = await res.json();
         if (out) out.value = data.output || data.error || (data.success ? 'Keys deployed successfully!' : 'Deploy failed');
-        alert(data.success ? 'Public keys successfully deployed to fleet!' : 'Deployment finished with warnings');
+        showToast(data.success ? 'Public keys successfully deployed to fleet!' : 'Deployment finished with warnings', data.success ? 'success' : 'error');
       } catch (e) {
         if (out) out.value = 'Deploy error: ' + e.message;
-        alert('Error deploying keys: ' + e.message);
+        showToast('Error deploying keys: ' + e.message, 'error');
       }
     }
 
@@ -62,14 +83,14 @@ const uiAssetsJSFleet = `    async function deployKeysFleetUI() {
         a.click();
         URL.revokeObjectURL(url);
       } catch (e) {
-        alert('Failed to export SSH nodes: ' + e.message);
+        showToast('Failed to export SSH nodes: ' + e.message, 'error');
       }
     }
 
     async function importSSHNodesUI() {
       const area = document.getElementById('ssh-nodes-export-area');
       if (!area || !area.value.trim()) {
-        alert('Please paste the fleet JSON export into the text area or use terminal: gitmap import-ssh <file.json>');
+        showToast('Please paste the fleet JSON export into the text area or use terminal: gitmap import-ssh <file.json>', 'info');
         return;
       }
       try {
@@ -81,13 +102,13 @@ const uiAssetsJSFleet = `    async function deployKeysFleetUI() {
         });
         const data = await res.json();
         if (data.success) {
-          alert('Successfully imported ' + (data.imported || 0) + ' fleet node(s)!');
+          showToast('Successfully imported ' + (data.imported || 0) + ' fleet node(s)!', 'success');
           if (typeof loadSSHConnections === 'function') loadSSHConnections();
         } else {
-          alert('Import failed: ' + (data.error || 'Unknown error'));
+          showToast('Import failed: ' + (data.error || 'Unknown error'), 'error');
         }
       } catch (e) {
-        alert('Invalid JSON or import error: ' + e.message);
+        showToast('Invalid JSON or import error: ' + e.message, 'error');
       }
     }
 
@@ -177,6 +198,7 @@ const uiAssetsJSFleet = `    async function deployKeysFleetUI() {
 
     // Auto-detect route on load
     window.addEventListener('load', () => {
+      hydrateIcons();
       loadSettings();
       loadAgyInstances();
       initTerminalListeners();

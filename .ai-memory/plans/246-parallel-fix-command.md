@@ -29,7 +29,10 @@ Owner 2026-10-09: "there was a AI script for fixing the file and coding right yo
 - [x] Spec wave: 4 spec files + 6 subtasks written; lead reconciled heal-phase to drive both `cmdfix` (git-state) and `cmdautofix` (content).
 - [x] Wave 0 commit: spec + plan + indexes (commit pushed via `gitmap cpf`).
 - [x] Wave 1a: llm train phase + skills (03, 04) — DONE (Worker 2): `llm_phases.go`, `llm_heal.go` (two sub-steps), text renames, skills §10 in all 3 homes byte-identical; `go build` + `go vet` exit 0.
-- [ ] Wave 1b: `cli/cmdautofix/` engine + CLI (01, 02) — worker running (redirected to fix-parent shape).
+- [x] Wave 1b: `cli/cmdautofix/` engine + CLI (01, 02) — DONE (Worker 1): 17 files, `fix` parent + 9 subcommands, check→summary→prompt flow, scan cache, old `fix` displaced from rootcore (stash/wip/discard kept). Lead fixes: rich-help `fix` routing, non-TTY prompt hang (300ms piped-input window), declined-prompt exit code 1→correct. Lead-verified: `go build ./...` exit 0, all exit codes correct, `fix --help` renders new parent help.
+- [ ] Wave 1 commit: NOTE — parallel spec-248 stream's `git add -A` swept 246's new files into commit d5d3e55; lead's follow-up fixes committed as 26df08b. All content pushed. Lesson logged in AGENTS.md (targeted `git add` when streams share a branch).
+- [x] Wave 2a: UI polish (06) — DONE (Worker B): flag parsing (`-p/--port/--host/--no-browser`), help-menu honesty (10 real tabs, SSE claim removed), demo-data removal, sticky save bar, icon+label pills, alert→toast; `go build` exit 0 (lead-verified). Note: touched `ui_server.go` minimally (2 spots) to wire host/no-browser through — required, flagged.
+- [ ] Wave 2b: UI themes (05) — worker running.
 - [ ] Wave 2: UI themes (05); UI polish (06).
 - [ ] Wave 3: lead verification (build, vet, smoke tests, settings UI load); final report to owner.
 

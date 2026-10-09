@@ -27,14 +27,12 @@ const (
 	agmUpdateSpinnerRunes = 90
 )
 
-// agmAnsiEscape strips ANSI escape sequences (SGR colors, cursor moves) from
-// captured installer output before re-rendering. The installer scripts emit
-// raw escapes; re-printing them uncoordinated is what corrupted the screen.
+// agmAnsiEscape strips ANSI escapes from captured installer output before
+// re-rendering; re-printing raw escapes uncoordinated is what corrupted the screen.
 var agmAnsiEscape = regexp.MustCompile("\x1b\\[[0-9;?]*[a-zA-Z]|\x1b[()][0-9A-Z]")
 
-// agmUpdateRenderer is the single coordinated writer for AGM install/update
-// runs. Child stdio is captured through pipes and re-rendered here — nothing
-// writes to os.Stdout directly mid-run.
+// agmUpdateRenderer is the single coordinated writer for AGM install/update runs.
+// Child stdio is captured through pipes and re-rendered here.
 type agmUpdateRenderer struct {
 	mu       sync.Mutex
 	action   string // "Updating" | "Installing"
@@ -288,9 +286,8 @@ func agmFeedPipe(rd io.Reader, r *agmUpdateRenderer) {
 	}
 }
 
-// resolveAgmUnixInstallCmd builds the unix installer one-liner. Default
-// behavior is unchanged; GITMAP_AGM_INSTALL_SCRIPT overrides the source with
-// a local script (test seam).
+// resolveAgmUnixInstallCmd builds the unix installer one-liner.
+// GITMAP_AGM_INSTALL_SCRIPT overrides the source (test seam); default unchanged.
 func resolveAgmUnixInstallCmd(version string) string {
 	if mock := strings.TrimSpace(os.Getenv(agmUpdateEnvMockScript)); mock != "" {
 		return fmt.Sprintf("bash %q --version %q", mock, strings.TrimPrefix(version, "v"))

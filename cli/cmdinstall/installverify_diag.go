@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -53,6 +52,5 @@ func reportVerificationFailure(tool, binary string) {
 	fallbackPaths := buildFallbackCandidates(binary)
 	logPath := buildVerifyErrorLog(tool, binary, fallbackPaths)
 	recordVerificationFailure(tool, binary, logPath)
-	appErr := buildVerifyAppError(tool, binary, logPath, fallbackPaths)
-	cliexit.WriteAppErrorReport(os.Stderr, appErr)
+	fmt.Fprintf(os.Stderr, "  Diagnostic log: %s\n", logPath)
 }

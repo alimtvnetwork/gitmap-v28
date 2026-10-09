@@ -3,8 +3,8 @@ package cmdui
 const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL -->
       <div class="card settings-subtab-pane" id="settings-pane-instances">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:8px;">
-          <h3>🤖 Antigravity Multi-Instance Engine</h3>
-          <button class="btn btn-secondary" type="button" onclick="loadAgyInstances()">🔄 Scan Instances</button>
+          <h3><span data-icon="server"></span> Antigravity Multi-Instance Engine</h3>
+          <button class="btn btn-secondary" type="button" onclick="loadAgyInstances()"><span data-icon="check"></span>Scan Instances</button>
         </div>
         <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1rem;">
           Configure active Antigravity IDE instance, monitor language server host bridges, and view prompt queue partitions.
@@ -25,26 +25,14 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
         <div style="margin-top:1.25rem;">
           <h4 style="font-size:0.9rem; color:var(--text); margin-bottom:0.6rem;">Detected Instances &amp; Status</h4>
           <div id="instances-list-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
-            <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; padding:0.85rem;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <strong style="color:var(--primary); font-size:0.9rem;">primary</strong>
-                <span class="badge badge-online">RUNNING</span>
-              </div>
-              <div style="font-size:0.8rem; color:var(--muted); line-height:1.5; font-family:monospace;">
-                PID: 4757 | Port: 127.0.0.1:33419<br>
-                Path: ~/.gemini/antigravity
-              </div>
-            </div>
+            <p style="color:var(--muted); font-size:0.85rem; margin:0;">No instances detected — click Scan Instances.</p>
           </div>
-        </div>
-        <div style="margin-top:1.25rem;">
-          <button class="btn" onclick="saveSettings()">Save Instance Settings</button>
         </div>
       </div>
 
       <!-- 6. AUTHORITATIVE UI/UX & CSS3 REPO INDEX -->
       <div class="card settings-subtab-pane" id="settings-pane-catalog">
-        <h3>✨ Curated UI/UX &amp; CSS3 Repository Index</h3>
+        <h3><span data-icon="book-open"></span> Curated UI/UX &amp; CSS3 Repository Index</h3>
         <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.25rem;">
           High-craft architectural benchmarks for layout, accessibility primitives, HSL tokens, and micro-interactions.
         </p>
@@ -170,7 +158,6 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
           <div style="display:flex; align-items:center; gap:8px; flex:1; max-width:480px; justify-content:flex-end;">
             <select id="term-node" style="width:auto; min-width:110px; padding:0.4rem 0.6rem;">
               <option value="local">local</option>
-              <option value="u1">u1</option>
             </select>
             <input type="text" id="term-cwd" placeholder="cwd (optional)" style="flex:1; min-width:140px; padding:0.4rem 0.6rem;">
             <span id="term-badge" class="badge" style="display:none; white-space:nowrap;"></span>
@@ -184,18 +171,24 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
           <button type="button" class="chip" onclick="runTerminalCommand('gitmap nodes ls')">gitmap nodes ls</button>
           <button type="button" class="chip" onclick="runTerminalCommand('gitmap cursor settings view')">gitmap cursor settings view</button>
           <button type="button" class="chip" onclick="runTerminalCommand('gitmap lap 24')">gitmap lap 24</button>
-          <button type="button" class="chip" onclick="clearTerminalOutput()" style="margin-left:auto; background:#1e293b; color:var(--muted);">🧹 Clear</button>
+          <button type="button" class="chip" onclick="clearTerminalOutput()" style="margin-left:auto; background:var(--raised); color:var(--muted);"><span data-icon="x"></span>Clear</button>
         </div>
 
         <!-- Terminal Console Output -->
-        <div id="term-output" style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; min-height:260px; max-height:420px; overflow-y:auto; padding:0.85rem; font-family:'Cascadia Code', Consolas, monospace; font-size:0.85rem; line-height:1.5; white-space:pre-wrap; color:#e2e8f0; margin-bottom:0.75rem;">GitMap Fleet Terminal ready. Type a command or click a quick action above.</div>
+        <div id="term-output" style="background:var(--code-bg); border:1px solid var(--border); border-radius:6px; min-height:260px; max-height:420px; overflow-y:auto; padding:0.85rem; font-family:'Cascadia Code', Consolas, monospace; font-size:0.85rem; line-height:1.5; white-space:pre-wrap; color:var(--code-text); margin-bottom:0.75rem;">GitMap Fleet Terminal ready. Type a command or click a quick action above.</div>
 
         <!-- Command Prompt Input -->
         <div style="display:flex; gap:8px; align-items:center;">
           <span style="font-family:monospace; color:var(--primary); font-weight:700; font-size:1.1rem;">$</span>
           <input type="text" id="term-input" placeholder="Enter command... (Press Enter or Run)" style="flex:1;">
-          <button type="button" class="btn" id="term-run-btn" onclick="runTerminalCommand()">⚡ Run</button>
+          <button type="button" class="btn" id="term-run-btn" onclick="runTerminalCommand()"><span data-icon="rocket"></span>Run</button>
         </div>
+      </div>
+
+      <!-- ONE sticky save bar for all settings panes (replaces the per-pane Save buttons) -->
+      <div class="settings-savebar" style="position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 12px 16px; margin-top: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 8px;">
+        <span style="font-size: 0.8rem; color: var(--muted);">Saves every settings pane above.</span>
+        <button class="btn" type="button" onclick="saveSettings()"><span data-icon="check"></span>Save All Settings</button>
       </div>
     </div>
 
