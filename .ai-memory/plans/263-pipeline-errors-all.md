@@ -33,8 +33,9 @@ Owner (2026-10-09): "Forget map, can you please include or add a new command tha
 - [x] Research 01 (LEAD_FALLBACK: `te` free, dispatch pattern at rootutility.go:453) + Research 02 (catalog/DB/specs) DONE.
 - [x] Spec 263: 01-overview.md + subtask 01-aggregator-implementation.md DONE (Spec Agent 1). Key decisions: D4 (--file+--json → JSON to file), D6 (os.Stat before OpenPipelineSplitDb — opener creates empty DBs as side effect), D7 (SanitizeRepoSlug on catalog slugs). Awaiting Spec Agent 2 (02-ai-report-format.md + subtask 02).
 - [x] Wave 2: Worker 02 DONE — `te` dispatch entry (rootutility.go:454) + help usage line/tip (pipeline_help_menu.go); gofmt clean. DEFERRED to lead: one-word cobra alias addition in `cli/cmd/root_cobra_completion.go` (`makeTopLevelPECmd()` Aliases += `"te"`). Worker 01 (aggregator) still running.
-- [ ] Wave 3: lead verification DONE (`go build` exit 0, live runs with evidence).
-- [ ] Wave 4: committed + pushed, minor bump, tag, GitHub release, binary rebuilt.
+- [x] Wave 2: Worker 01 DONE (aggregator: catalog discovery, --file wiring, 292-line formatter) + Worker 02 DONE (`te` dispatch + help). Lead fix: duplicate-slug repos dropped from markdown table (repoDataStatus map keyed by slug) — fixed via ordered repoList, verified 10/10 rows.
+- [x] Wave 3: lead verification DONE (`go build ./...` exit 0 personally; live `pipeline errors all` + `te all --file` against real catalog; `te` ≡ `pe` byte-identical modulo timestamp; cobra `te` alias added by lead).
+- [x] Wave 4: committed 19d1bf2 (pushed; NOTE: `gitmap cpf` swept 23 pre-existing other-stream files despite targeted add — content safe, lesson re-logged), minor bump to 6.522.0 via 37-bump-version.py, `go generate` re-run, tag v6.522.0 pushed, GitHub release published, ~/.local/bin/gitmap rebuilt → v6.522.0 verified.
 
 ## Assumptions
 - Pipeline DBs exist for repos with pipeline runs; repos without get "no pipeline data" rows.

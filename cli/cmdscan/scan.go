@@ -24,6 +24,11 @@ var CheckSpecialReposOnScanFn func(workBaseDir string, isQuiet bool)
 
 // runScan handles the "scan" subcommand.
 func runScan(args []string) error {
+	// Scan verbs (export|merge) are intercepted before help/flag parsing,
+	// mirroring clone's isCloneSubcommand pattern.
+	if sub, subArgs := resolveScanSubcommand(args); sub != "" {
+		return dispatchScanSubcommand(sub, subArgs)
+	}
 	checkHelp("scan", args)
 	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, forceInclude, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
 	cfg, err := config.LoadFromFile(cfgPath)

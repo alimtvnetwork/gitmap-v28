@@ -136,6 +136,12 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 - `gitmap agent subtask claim/start/complete/fail/ls` accept ID-or-slug for `--task-id`/`--parent` (canonical resolution; both stored forms match).
 - All read commands support `--json`.
 
+### 12. Portable Repo Sets (scan export / merge)
+- `gitmap scan export [--machine <name>] [--out <dir>]` — Dump the cached repo list (no rescan) to `<out>/<machine-slug>/repos.json`. Machine defaults to hostname; `--machine` overrides the slug. The JSON is the scan-record shape plus a `url` key, directly consumable by `clone-from`.
+- `gitmap scan merge <dir>... [--out <file>]` — Merge several export folders into one deduped JSON (dedupe by URL, first wins). Each `<dir>` holds a `repos.json` (a direct `.json` path also works).
+- `gitmap clone-from <file> --execute` — Batch-clone a merged/exported JSON (dry-run by default). No new clone code needed.
+- Portable flow: machine A `scan export` → copy the `<slug>/` folder to machine B → `gitmap clone-from <slug>/repos.json --execute` clones exactly those repos.
+
 ## Command Replacement Matrix (Mandatory Substitutions)
 
 | Forbidden / Anti-Pattern Command | Mandatory GitMap Replacement | Rationale |

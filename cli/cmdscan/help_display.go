@@ -28,6 +28,8 @@ func scanHeader() string {
 		"    gitmap scan ~ --force-include .oh-my-zsh",
 		"    gitmap scan ~ -fi .oh-my-zsh,node_modules",
 		"    gitmap scan /home/user --force-include all",
+		"    gitmap scan export [--machine <name>] [--out <dir>]",
+		"    gitmap scan merge <dir>... [--out <file>]",
 	}
 	return strings.Join(lines, "\n")
 }
@@ -37,6 +39,7 @@ func scanHeader() string {
 func scanHelpGroups() []helpdisplay.CommandHelpGroup {
 	return []helpdisplay.CommandHelpGroup{
 		helpdisplay.NewCommandHelpGroup("Output & Formatting:", scanOutputCommands(), nil),
+		helpdisplay.NewCommandHelpGroup("Portable Repo Sets:", scanPortableCommands(), nil),
 		helpdisplay.NewCommandHelpGroup("Scanner Walk & Performance:", scanWalkerCommands(), nil),
 		helpdisplay.NewCommandHelpGroup("Integrations & Probing:", scanIntegrationCommands(), nil),
 		helpdisplay.NewCommandHelpGroup("Flags:", scanFooterCommands(), scanHelpTips()),
@@ -50,6 +53,14 @@ func scanOutputCommands() []helpdisplay.CommandHelper {
 		helpdisplay.NewCommandHelper("--output-path <dir>", "Directory to write scan artifacts (.gitmap/output)", "", ""),
 		helpdisplay.NewCommandHelper("--manifest <dir>", "Alias for --output-path (aligned with reclone)", "", ""),
 		helpdisplay.NewCommandHelper("--relative-root <dir>", "Pin base directory for byte-stable relative paths", "", ""),
+	}
+}
+
+// scanPortableCommands lists the portable repo-set verbs (spec 264).
+func scanPortableCommands() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper("export [--machine <name>] [--out <dir>]", "Export cached repos to <out>/<machine-slug>/repos.json (clone with: gitmap clone-from <file> --execute)", "", ""),
+		helpdisplay.NewCommandHelper("merge <dir>... [--out <file>]", "Merge export folders into one deduped JSON (dedupe by URL)", "", ""),
 	}
 }
 
