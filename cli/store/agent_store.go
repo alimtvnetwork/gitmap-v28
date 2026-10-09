@@ -287,6 +287,14 @@ func InitTaskDB(dbPath string) (*sql.DB, *appfault.AppError) {
 	if hasOpenErr {
 		return nil, openErr
 	}
+	// Migrate legacy DBs before DDL: IdxSubtask_Slug in taskDDL requires the
+	// TaskSlug column, so the column must exist before the DDL executes.
+	migErr := ensureSubtaskSlugColumnConn(conn)
+	hasMigErr := migErr != nil
+	if hasMigErr {
+		_ = conn.Close()
+		return nil, migErr
+	}
 	execErr := executeAgentDDL(conn, taskDDL, "InitTaskDB")
 	hasExecErr := execErr != nil
 	if hasExecErr {
@@ -657,20 +665,18 @@ func FindParentTaskBySlug(masterDbPath string, slug string) (*types.ParentTask, 
 	return &tasks[0], nil
 }
 
-// EnsureSubtaskSlugColumn adds TaskSlug to Subtask on databases created before
-// the column existed. Idempotent: no-op when the column is already present.
-func EnsureSubtaskSlugColumn(taskDbPath string) *appfault.AppError {
-	conn, openErr := InitTaskDB(taskDbPath)
-	hasOpenErr := openErr != nil
-	if hasOpenErr {
-		return openErr
-	}
-	defer conn.Close()
-
-	return ensureSubtaskSlugColumnConn(conn)
-}
-
+// ensureSubtaskSlugColumnConn adds TaskSlug to Subtask on databases created
+// before the column existed. Idempotent: no-op when the table or the column
+// is already present.
 func ensureSubtaskSlugColumnConn(conn *sql.DB) *appfault.AppError {
+	hasTable, tblErr := agentTableExists(conn, "Subtask")
+	hasTblErr := tblErr != nil
+	if hasTblErr {
+		return tblErr
+	}
+	if !hasTable {
+		return nil
+	}
 	res := QueryWrapper(conn, "PRAGMA table_info(Subtask)")
 	if res.IsFailure {
 		return appfault.WrapSimple(res.Error, "ensureSubtaskSlugColumn")
@@ -703,6 +709,16 @@ func ensureSubtaskSlugColumnConn(conn *sql.DB) *appfault.AppError {
 	return nil
 }
 
+func agentTableExists(conn *sql.DB, table string) (bool, *appfault.AppError) {
+	res := QueryWrapper(conn, "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1", table)
+	if res.IsFailure {
+		return false, appfault.WrapSimple(res.Error, "agentTableExists")
+	}
+	defer res.Data.Close()
+
+	return res.Data.Next(), nil
+}
+
 // ListPendingSubtasks retrieves PENDING subtasks from a Tier 2 task DB,
 // optionally scoped to parent IDs (covers both stored ID and slug forms).
 func ListPendingSubtasks(taskDbPath string, parentIds ...string) ([]types.Subtask, *appfault.AppError) {
@@ -712,12 +728,6 @@ func ListPendingSubtasks(taskDbPath string, parentIds ...string) ([]types.Subtas
 		return nil, openErr
 	}
 	defer conn.Close()
-
-	migErr := ensureSubtaskSlugColumnConn(conn)
-	hasMigErr := migErr != nil
-	if hasMigErr {
-		return nil, migErr
-	}
 
 	query, args := buildPendingSubtasksQuery(parentIds)
 	res := QueryWrapper(conn, query, args...)

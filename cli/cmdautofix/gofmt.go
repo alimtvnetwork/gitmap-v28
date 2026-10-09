@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"sync"
 )
 
@@ -51,15 +50,10 @@ func gofmtDiff(absPath string) (string, error) {
 	return stdout.String(), nil
 }
 
-// optsAbsPath maps a scan-root-relative slash path back to disk.
-func optsAbsPath(opts Options, relPath string) string {
-	return filepath.Join(opts.Root, filepath.FromSlash(relPath))
-}
-
 // gofmtCheck is the Exec-category Check: it runs against the file on disk
 // (the engine flushes byte-level fixes first, so disk == buffer here).
 func gofmtCheck(relPath string, src []byte, opts Options) []Violation {
-	absPath := optsAbsPath(opts, relPath)
+	absPath := absFromRel(opts.Root, relPath)
 	diff, err := gofmtDiff(absPath)
 	if err != nil {
 		return []Violation{{Path: relPath, Category: "gofmt", Detail: err.Error()}}
@@ -73,7 +67,7 @@ func gofmtCheck(relPath string, src []byte, opts Options) []Violation {
 // gofmtFix runs `gofmt -w` only when a diff exists (no-op rewrites must not
 // touch mtime), then re-reads the file so the engine sees the final bytes.
 func gofmtFix(relPath string, src []byte, opts Options) ([]byte, []Violation) {
-	absPath := optsAbsPath(opts, relPath)
+	absPath := absFromRel(opts.Root, relPath)
 	diff, err := gofmtDiff(absPath)
 	if err != nil {
 		return src, []Violation{{Path: relPath, Category: "gofmt", Detail: err.Error()}}

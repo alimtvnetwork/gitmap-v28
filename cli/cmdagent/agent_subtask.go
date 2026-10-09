@@ -3,6 +3,7 @@ package cmdagent
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/types"
 )
+
+var slugSeparatorRuns = regexp.MustCompile(`[ \-]+`)
 
 var (
 	subtaskAddOpts      SubtaskAddOptions
@@ -192,11 +195,6 @@ func RunSubtaskAdd(opts SubtaskAddOptions) *appfault.AppError {
 	if hasFindErr {
 		return findErr
 	}
-	migErr := store.EnsureSubtaskSlugColumn(dbPath)
-	hasMigErr := migErr != nil
-	if hasMigErr {
-		return migErr
-	}
 	subtasks = normalizeSubtaskParents(subtasks, opts.ParentId, canonicalParentId)
 	subtasks = applySubtaskSlugs(subtasks, opts)
 	addErr := store.AddSubtasks(dbPath, canonicalParentId, subtasks)
@@ -261,13 +259,13 @@ func applySubtaskSlugs(subtasks []types.Subtask, opts SubtaskAddOptions) []types
 func resolveSubtaskSlug(explicit, flagSlug, parentSlug, code string) string {
 	hasFlag := len(strings.TrimSpace(flagSlug)) > 0
 	if hasFlag {
-		return store.SanitizeSlug(flagSlug)
+		return sanitizeSlugTight(flagSlug)
 	}
 	hasExplicit := len(strings.TrimSpace(explicit)) > 0
 	if hasExplicit {
-		return store.SanitizeSlug(explicit)
+		return sanitizeSlugTight(explicit)
 	}
-	base := store.SanitizeSlug(parentSlug)
+	base := sanitizeSlugTight(parentSlug)
 	cleanCode := store.SanitizeSlug(code)
 	hasBase := len(base) > 0
 	if !hasBase {
@@ -275,6 +273,17 @@ func resolveSubtaskSlug(explicit, flagSlug, parentSlug, code string) string {
 	}
 
 	return base + "-" + cleanCode
+}
+
+// sanitizeSlugTight collapses runs of spaces/hyphens before the shared
+// sanitizer, so prompt-form slugs like "SEO Writing Task - Task 01" become
+// "seo-writing-task-task-01" instead of "seo-writing-task---task-01".
+// The shared store.SanitizeSlug is intentionally left untouched: existing
+// stored slugs were produced by it and lookups must keep matching them.
+func sanitizeSlugTight(input string) string {
+	collapsed := slugSeparatorRuns.ReplaceAllString(strings.TrimSpace(input), "-")
+
+	return store.SanitizeSlug(collapsed)
 }
 
 func resolveParentSlugForSubtasks(parentId string) string {
@@ -389,12 +398,12 @@ func RunSubtaskClaim(opts SubtaskClaimOptions) *appfault.AppError {
 	if !hasRole {
 		return appfault.NewValidationError("agent role is required (--agent)")
 	}
-	dbPath, findErr := store.FindTaskDbPath("", opts.TaskId)
+	dbPath, canonicalId, findErr := resolveSubtaskParent(opts.TaskId)
 	hasFindErr := findErr != nil
 	if hasFindErr {
 		return findErr
 	}
-	sub, claimErr := store.ClaimSubtask(dbPath, opts.TaskId, opts.AgentRole)
+	sub, claimErr := claimSubtaskBothForms(dbPath, canonicalId, opts.TaskId, opts.AgentRole)
 	hasClaimErr := claimErr != nil
 	if hasClaimErr {
 		return claimErr
@@ -402,6 +411,27 @@ func RunSubtaskClaim(opts SubtaskClaimOptions) *appfault.AppError {
 	renderClaimResult(sub, opts.AgentRole)
 
 	return nil
+}
+
+// claimSubtaskBothForms tries the canonical task ID first, then the slug form,
+// so subtasks stored under either parent reference remain claimable.
+func claimSubtaskBothForms(dbPath, canonicalId, rawTaskId, agentRole string) (*types.Subtask, *appfault.AppError) {
+	sub, claimErr := store.ClaimSubtask(dbPath, canonicalId, agentRole)
+	hasClaimErr := claimErr != nil
+	if hasClaimErr {
+		return nil, claimErr
+	}
+	hasSub := sub != nil
+	if hasSub {
+		return sub, nil
+	}
+	slugForm := store.SanitizeSlug(rawTaskId)
+	isSame := slugForm == canonicalId || len(strings.TrimSpace(rawTaskId)) == 0
+	if isSame {
+		return nil, nil
+	}
+
+	return store.ClaimSubtask(dbPath, slugForm, agentRole)
 }
 
 func renderClaimResult(sub *types.Subtask, role string) {
@@ -498,12 +528,12 @@ func RunSubtaskFail(opts SubtaskFailOptions) *appfault.AppError {
 
 // RunSubtaskLs lists all subtasks belonging to a parent task.
 func RunSubtaskLs(opts SubtaskLsOptions) *appfault.AppError {
-	dbPath, findErr := store.FindTaskDbPath("", opts.TaskId)
+	dbPath, canonicalId, findErr := resolveSubtaskParent(opts.TaskId)
 	hasFindErr := findErr != nil
 	if hasFindErr {
 		return findErr
 	}
-	subtasks, listErr := store.ListSubtasks(dbPath, opts.TaskId)
+	subtasks, listErr := listSubtasksBothForms(dbPath, canonicalId, opts.TaskId)
 	hasListErr := listErr != nil
 	if hasListErr {
 		return listErr
@@ -514,6 +544,28 @@ func RunSubtaskLs(opts SubtaskLsOptions) *appfault.AppError {
 	renderSubtasksTable(subtasks)
 
 	return nil
+}
+
+// listSubtasksBothForms lists subtasks stored under either the canonical task
+// ID or the slug form of the parent reference.
+func listSubtasksBothForms(dbPath, canonicalId, rawTaskId string) ([]types.Subtask, *appfault.AppError) {
+	byId, idErr := store.ListSubtasks(dbPath, canonicalId)
+	hasIdErr := idErr != nil
+	if hasIdErr {
+		return nil, idErr
+	}
+	slugForm := store.SanitizeSlug(rawTaskId)
+	isSame := slugForm == canonicalId || len(strings.TrimSpace(rawTaskId)) == 0
+	if isSame {
+		return byId, nil
+	}
+	bySlug, slugErr := store.ListSubtasks(dbPath, slugForm)
+	hasSlugErr := slugErr != nil
+	if hasSlugErr {
+		return nil, slugErr
+	}
+
+	return mergeSubtasksDedupe(byId, bySlug), nil
 }
 
 func renderSubtasksJson(subtasks []types.Subtask) *appfault.AppError {

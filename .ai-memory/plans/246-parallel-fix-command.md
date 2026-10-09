@@ -28,7 +28,8 @@ Owner 2026-10-09: "there was a AI script for fixing the file and coding right yo
 - [x] Research wave: 8-script deep-dive + llm-train/UI deep-dive (both reports in).
 - [x] Spec wave: 4 spec files + 6 subtasks written; lead reconciled heal-phase to drive both `cmdfix` (git-state) and `cmdautofix` (content).
 - [x] Wave 0 commit: spec + plan + indexes (commit pushed via `gitmap cpf`).
-- [ ] Wave 1: `cli/cmdautofix/` engine + CLI (01, 02); llm train phase + skills (03, 04). — WORKERS DISPATCHED, then REDIRECTED to owner refinement (fix parent shape); spec + subtasks updated.
+- [x] Wave 1a: llm train phase + skills (03, 04) — DONE (Worker 2): `llm_phases.go`, `llm_heal.go` (two sub-steps), text renames, skills §10 in all 3 homes byte-identical; `go build` + `go vet` exit 0.
+- [ ] Wave 1b: `cli/cmdautofix/` engine + CLI (01, 02) — worker running (redirected to fix-parent shape).
 - [ ] Wave 2: UI themes (05); UI polish (06).
 - [ ] Wave 3: lead verification (build, vet, smoke tests, settings UI load); final report to owner.
 

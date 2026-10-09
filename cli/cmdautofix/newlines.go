@@ -2,7 +2,6 @@ package cmdautofix
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 	"unicode"
 )
@@ -62,11 +61,13 @@ func endsWithSingleNewline(src []byte) bool {
 	return len(src) < 2 || src[len(src)-2] != '\n'
 }
 
-// newlinesFix rewrites only when the bytes actually change.
+// newlinesFix rewrites only when the bytes actually change. It reports no
+// violations: the scan-time Check already recorded every finding, and Fix
+// never encounters a new unfixable condition.
 func newlinesFix(relPath string, src []byte, opts Options) ([]byte, []Violation) {
 	fixed := fixNewlines(src)
 	if bytes.Equal(fixed, src) {
 		return src, nil
 	}
-	return fixed, []Violation{{Path: relPath, Category: "newlines", Detail: fmt.Sprintf("normalized (%d → %d bytes)", len(src), len(fixed))}}
+	return fixed, nil
 }

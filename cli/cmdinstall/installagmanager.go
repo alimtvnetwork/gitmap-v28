@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 	"time"
@@ -47,14 +46,14 @@ func runAgManagerScriptWithFeedback(isUpdate bool, version string) error {
 	if version == "" {
 		version = resolveLatestAgManagerReleaseVersion()
 	}
-	verLabel := formatAgManagerVerLabel(version)
-	fmt.Printf("%s Antigravity Manager%s via %s...\n", resolveAgManagerActionName(isUpdate), verLabel, resolveAgManagerPlatformName())
-	if err := dispatchAgManagerScriptWithVersion(version); err != nil {
+	renderer := newAgmUpdateRenderer(resolveAgManagerActionName(isUpdate), resolveAgManagerPlatformName(), version)
+	if err := dispatchAgManagerScriptWithVersion(renderer, version); err != nil {
+		renderer.renderFailure(err)
 		verifyAgManagerOnFailure()
 		return apperror.WrapSimple(err, "Antigravity Manager execution failed")
 	}
+	renderer.renderSuccess()
 	recordAgManagerInstalled(resolveInstalledVerName(version))
-	fmt.Printf("%s✓%s Antigravity Manager%s completed successfully.\n", constants.ColorGreen, constants.ColorReset, verLabel)
 	return nil
 }
 
@@ -137,11 +136,11 @@ func resolveCleanReleaseTag(tag string) string {
 	return strings.TrimPrefix(tag, "v")
 }
 
-func dispatchAgManagerScriptWithVersion(version string) error {
+func dispatchAgManagerScriptWithVersion(renderer *agmUpdateRenderer, version string) error {
 	if runtime.GOOS == "windows" {
-		return dispatchAgManagerWindowsWithVersion(version)
+		return dispatchAgManagerWindowsWithVersion(renderer, version)
 	}
-	return dispatchAgManagerUnixWithVersion(version)
+	return dispatchAgManagerUnixWithVersion(renderer, version)
 }
 
 func buildWindowsAgManagerInstallCmd(version string) string {
@@ -152,7 +151,7 @@ func buildWindowsAgManagerInstallCmd(version string) string {
 	return fmt.Sprintf("& ([scriptblock]::Create((irm '%s'))) -Update -NoLaunch", scriptURL)
 }
 
-func dispatchAgManagerWindowsWithVersion(version string) error {
+func dispatchAgManagerWindowsWithVersion(renderer *agmUpdateRenderer, version string) error {
 	pwsh := resolvePowerShellBinary()
 	if pwsh == "" {
 		return apperror.NewSimple("PowerShell not found on PATH. Run manually:\n  "+constants.AgManagerWindowsInstallCmd, "E9000")
@@ -161,21 +160,13 @@ func dispatchAgManagerWindowsWithVersion(version string) error {
 		version = resolveLatestAgManagerReleaseVersion()
 	}
 	installCmd := buildWindowsAgManagerInstallCmd(version)
-	cmd := exec.Command(pwsh, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", installCmd)
-	cmd.Env = append(os.Environ(), "AGM_VERSION="+strings.TrimPrefix(version, "v"))
-	cmd.Stdout, cmd.Stderr, cmd.Stdin = os.Stdout, os.Stderr, os.Stdin
-	return cmd.Run()
+	env := append(os.Environ(), "AGM_VERSION="+strings.TrimPrefix(version, "v"))
+	return runAgmInstallerStreamed(pwsh, []string{"-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", installCmd}, env, renderer)
 }
 
-func dispatchAgManagerUnixWithVersion(version string) error {
-	installCmd := constants.AgManagerUnixInstallCmd
-	if version != "" {
-		clean := strings.TrimPrefix(version, "v")
-		installCmd = fmt.Sprintf(`curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.sh | bash -s -- --version '%s'`, clean)
-	}
-	cmd := exec.Command("bash", "-c", installCmd)
-	cmd.Stdout, cmd.Stderr, cmd.Stdin = os.Stdout, os.Stderr, os.Stdin
-	return cmd.Run()
+func dispatchAgManagerUnixWithVersion(renderer *agmUpdateRenderer, version string) error {
+	installCmd := resolveAgmUnixInstallCmd(version)
+	return runAgmInstallerStreamed("bash", []string{"-c", installCmd}, nil, renderer)
 }
 
 func recordAgManagerInstalled(ver string) {

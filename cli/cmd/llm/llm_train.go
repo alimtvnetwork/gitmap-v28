@@ -48,7 +48,7 @@ func outputTrainJSON() *apperror.AppError {
 			{"phase": "3. Verification", "commands": "python go-format-check.py, go test", "purpose": "Local AST syntax and regression checks"},
 			{"phase": "4. Semantic Commit", "commands": "gitmap cpf, gitmap cpb, gitmap cpr", "purpose": "Structured Conventional commits and branch push"},
 			{"phase": "5. Telemetry & Heal", "commands": "gitmap pipeline-ai status --json, pe, pe history-ai", "purpose": "Dynamic ETA waiting, error diagnosis, and anti-mistake AI dossiers"},
-			{"phase": "6. Heal & Fix", "commands": "gitmap fix ls, gitmap autofix", "purpose": "In-process remediation scan + parallel content-fix audit (report-only); optional --heal-apply for git-state recipes"},
+			{"phase": "6. Heal & Fix", "commands": "gitmap stash ls, gitmap fix all", "purpose": "In-process remediation scan + parallel content-fix audit (report-only); optional --heal-apply for git-state recipes"},
 		},
 		"efficiency_factors": map[string]string{
 			"search_speedup":    "830,000x faster than Python regex grep with DH2D SQLite hot cache",
@@ -81,7 +81,7 @@ func executeSelfLoopSimulation(count int) {
 		fmt.Println("  Phase 3 [Verification]: Running local verification (python go-format-check, go test)")
 		fmt.Println("  Phase 4 [Semantic]:     Preparing structured commit (cpf/cpb) with Conventional format")
 		fmt.Println("  Phase 5 [CI Telemetry]: Dynamic ETA sleep & telemetry loop via gitmap pipeline-ai")
-		fmt.Println("  Phase 6 [Heal & Fix]:   In-process remediation scan (cmdfix) + autofix content audit (report-only)")
+		fmt.Println("  Phase 6 [Heal & Fix]:   In-process remediation scan (cmdfix) + fix content audit (report-only)")
 		fmt.Printf("  Iteration %d completed successfully with 0 errors.\n\n", iter)
 	}
 	fmt.Printf("[AI-SELF-LOOP] Complete: %d iteration(s) finished with 100%% green status.\n", count)
@@ -198,8 +198,8 @@ func printChainedSequence() {
 	fmt.Println("9. gitmap cluster --help                        - Multi-node SSH and cluster execution")
 	fmt.Println("10. gitmap cargo status                          - Inspect Rust and Cargo toolchain status")
 	fmt.Println("11. gitmap db status                            - Check repository SQLite database health")
-	fmt.Println("12. gitmap fix ls  — List repos needing remediation with per-category heal summary")
-	fmt.Println("13. gitmap autofix — Parallel content-fix audit (encoding, newlines, naming, paths, gofmt, misspell, markdown)")
+	fmt.Println("12. gitmap stash ls  — List repos needing remediation with per-category heal summary")
+	fmt.Println("13. gitmap fix all — Parallel content-fix audit (encoding, newlines, naming, paths, gofmt, misspell, markdown)")
 	fmt.Println()
 }
 

@@ -50,7 +50,7 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
   │  Phase 6: Heal & Fix (report-only)                          │
-  │  ➔ gitmap fix ls + autofix — cmdfix + cmdautofix in-process│
+  │  ➔ gitmap stash ls + fix all — cmdfix,cmdautofix in-process│
   └─────────────────────────────────────────────────────────────┘
 ` + "```" + `
 

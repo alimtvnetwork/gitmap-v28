@@ -12,7 +12,7 @@ var gapRunRe = regexp.MustCompile(`\n{3,}`)
 // 3+ newlines into exactly 2.
 func collapseGaps(src []byte) []byte {
 	normalized := bytes.ReplaceAll(src, crlfByte, lfByte)
-	return gapRunRe.ReplaceAll(normalized, lfByte[:2])
+	return gapRunRe.ReplaceAll(normalized, []byte{'\n', '\n'})
 }
 
 // markdownCheck flags any run of 3+ consecutive newlines in .md files.

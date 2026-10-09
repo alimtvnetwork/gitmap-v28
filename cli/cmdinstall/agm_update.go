@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 
@@ -105,34 +104,16 @@ func runAgmUpdateLinuxQuiet(opts installOptions) error {
 	if version == "" {
 		version = resolveLatestAgManagerReleaseVersion()
 	}
-	installCmd := constants.AgManagerUnixInstallCmd
-	if version != "" {
-		clean := strings.TrimPrefix(version, "v")
-		installCmd = fmt.Sprintf(`curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.sh | bash -s -- --version '%s'`, clean)
-	}
-	cmd := exec.Command("bash", "-c", installCmd)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		printUpdateFailureDetails(err, out)
+	renderer := newAgmUpdateRenderer(resolveAgManagerActionName(true), resolveAgManagerPlatformName(), version)
+	installCmd := resolveAgmUnixInstallCmd(version)
+	if err := runAgmInstallerStreamed("bash", []string{"-c", installCmd}, nil, renderer); err != nil {
+		renderer.renderFailure(err)
+		verifyAgManagerOnFailure()
 		return apperror.WrapSimple(err, "Antigravity Manager update failed")
 	}
-
+	renderer.renderSuccess()
 	recordAgManagerInstalled(resolveInstalledVerName(version))
-	verLabel := formatAgManagerVerLabel(version)
-	fmt.Printf("%s✓%s Antigravity Manager%s updated successfully.\n", constants.ColorGreen, constants.ColorReset, verLabel)
 	return nil
-}
-
-func printUpdateFailureDetails(err error, out []byte) {
-	fmt.Fprintf(os.Stderr, "  %s✗%s Antigravity Manager update failed: %v\n", constants.ColorRed, constants.ColorReset, err)
-	if len(out) > 0 {
-		fmt.Fprintf(os.Stderr, "    Output:\n%s\n", strings.TrimSpace(string(out)))
-	}
-	trace := apperror.CaptureStackTrace(2)
-	if trace != "" {
-		fmt.Fprintf(os.Stderr, "    Stack trace:\n%s\n", trace)
-	}
-	verifyAgManagerOnFailure()
 }
 
 // PromptAgmBatchFailureResolution prompts the user when multiple failures occur during updates.

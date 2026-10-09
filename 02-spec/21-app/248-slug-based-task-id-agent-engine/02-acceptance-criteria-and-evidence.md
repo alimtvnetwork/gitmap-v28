@@ -1,4 +1,4 @@
-# 02 — Acceptance Criteria and Evidence (task 247: slug-based task ID agent engine)
+# 02 — Acceptance Criteria and Evidence (task 248: slug-based task ID agent engine)
 
 ## Commands under test
 

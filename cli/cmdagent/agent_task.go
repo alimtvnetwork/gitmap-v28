@@ -237,17 +237,64 @@ func renderTasksTable(tasks []types.ParentTask) {
 
 // RunTaskStatus inspects rollup metrics and subtasks for a parent task.
 func RunTaskStatus(opts TaskStatusOptions) *appfault.AppError {
-	dbPath, findErr := store.FindTaskDbPath("", opts.TaskId)
+	trimmed := strings.TrimSpace(opts.TaskId)
+	hasRef := len(trimmed) > 0
+	if hasRef {
+		return runTaskStatusResolved(trimmed, opts.IsJson)
+	}
+	dbPath, findErr := store.FindTaskDbPath("", "")
 	hasFindErr := findErr != nil
 	if hasFindErr {
 		return findErr
 	}
-	summary, statusErr := store.GetTaskStatus(dbPath, opts.TaskId)
+	summary, statusErr := store.GetTaskStatus(dbPath, "")
 	hasStatusErr := statusErr != nil
 	if hasStatusErr {
 		return statusErr
 	}
 	if opts.IsJson {
+		return renderStatusJson(summary)
+	}
+	renderStatusText(summary)
+
+	return nil
+}
+
+// runTaskStatusResolved resolves an ID-or-slug reference: slug input goes
+// through the Tier 1 lookup and merges subtasks stored under either the
+// canonical ID or the slug form; raw IDs keep the legacy direct path.
+func runTaskStatusResolved(taskIdOrSlug string, isJson bool) *appfault.AppError {
+	masterDb := store.ResolveMasterAgentDbPath("")
+	task, findErr := store.FindParentTaskBySlug(masterDb, taskIdOrSlug)
+	hasFindErr := findErr != nil
+	if hasFindErr {
+		return findErr
+	}
+	hasTask := task != nil
+	if hasTask {
+		summary, sumErr := loadTaskSummary(task)
+		hasSumErr := sumErr != nil
+		if hasSumErr {
+			return sumErr
+		}
+		if isJson {
+			return renderStatusJson(summary)
+		}
+		renderStatusText(summary)
+
+		return nil
+	}
+	dbPath, dbErr := store.FindTaskDbPath("", taskIdOrSlug)
+	hasDbErr := dbErr != nil
+	if hasDbErr {
+		return dbErr
+	}
+	summary, statusErr := store.GetTaskStatus(dbPath, taskIdOrSlug)
+	hasStatusErr := statusErr != nil
+	if hasStatusErr {
+		return statusErr
+	}
+	if isJson {
 		return renderStatusJson(summary)
 	}
 	renderStatusText(summary)

@@ -52,5 +52,17 @@ Edit:
       never apply from the train); prints the per-category roll-up from the
       `ScanResult` and the canonical next action `gitmap fix all -y`.
       Verify no import cycle: `cli/cmdautofix` must not import `cli/cmd/llm`.
-- [ ] Report-only by default. `--heal-apply stash|wip|discard` → 
-...[truncated 1703 chars]
+- [ ] Report-only by default. `--heal-apply stash|wip|discard` →
+      `cmdfix.RunFix([]string{"all", action}, "")` applies git-state recipes;
+      ignored entirely under `--text-only`. Content fixes are NEVER applied
+      from the train (sub-step B is audit-only by design).
+- [ ] Text updates per spec §5 table: `outputTrainJSON()` phases array,
+      `executeSelfLoopSimulation()` header + Phase 6 line,
+      `printChainedSequence()` items 12–13, `printTrainUsage()` (6-phase +
+      `--heal-apply` flag line), `llm.go` ASCII diagram Phase 6 box +
+      "6-phase lifecycle" wording, `llm_types.go` directive 8,
+      `llm_skill.go` §2 line, `llm_urls.go` first-link description.
+- [ ] `llm_train_test.go`: extend (do not rewrite) — registry order test,
+      Phase 6 presence in JSON/text outputs.
+- [ ] No import cycle: `cli/cmdautofix` must not import `cli/cmd/llm`
+      (verify with `go build ./...`).

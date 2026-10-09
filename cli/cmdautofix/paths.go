@@ -112,5 +112,7 @@ func pathsFix(relPath string, src []byte, opts Options) ([]byte, []Violation) {
 	if count == 0 || bytes.Equal(modified, src) {
 		return src, nil
 	}
-	return modified, []Violation{{Path: relPath, Category: "paths", Detail: "sanitized absolute repo paths"}}
+	// No violations reported: the scan-time Check already recorded every
+	// finding; Fix never encounters a new unfixable condition.
+	return modified, nil
 }

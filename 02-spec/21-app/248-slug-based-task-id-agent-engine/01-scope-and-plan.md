@@ -1,4 +1,4 @@
-# 247 — Slug-based task ID for the agent engine (scope and plan)
+# 248 — Slug-based task ID for the agent engine (scope and plan)
 
 ## 1. Problem statement
 

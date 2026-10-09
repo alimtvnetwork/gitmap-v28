@@ -103,16 +103,38 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap user add <username> [--password <pwd>]` / `gitmap user create-root <user>` — Cross-platform OS user management.
 
 ### 10. Workspace Heal & Fix (gitmap fix)
-- `gitmap fix` — Show pending remediation summary for dirty/diverged tracked repos (report-only).
-- `gitmap fix ls` — Tabular list of repos needing remediation with per-repo recipes.
-- `gitmap fix <repo> <action>` — Apply a recipe to one repo. Actions: `stash` (s/1), `wip` (w/2), `discard` (d/3).
-- `gitmap fix all <action>` — Apply one action across all pending repos.
-- `gitmap fix --prompt` — Interactive per-repo remediation picker.
-- `gitmap stash|wip|discard` — Root aliases routing into the same engine with the action pre-selected.
-- `gitmap fix agy` — Route Antigravity pipeline errors through the agy fixer.
-- `gitmap fix ignore|fia` — Batch .gitignore remediation (local or `--ssh` fleet).
-- `gitmap llm train` phase 6 ("Heal & Fix") runs this engine in-process, report-only
-  by default; `gitmap llm train --heal-apply stash|wip|discard` applies non-interactively.
+`gitmap fix` — parallel file-hygiene fixer (check-driven).
+Check: `gitmap fix <category> [path]` — scans, prints summary, prompts
+`Apply these fixes? [y/N]`. Categories: encoding, newlines, naming, paths,
+gofmt, misspell, markdown, guidelines, all.
+Apply without prompting: `gitmap fix all -y` (`--yes`).
+Worker threads: `gitmap fix all -w 8` (`--workers`; default: CPU count).
+Summary (always printed): files scanned, files modified, per-category fix
+counts, time taken. Exit codes: 0 clean · 1 findings remain · 2 tool error.
+Byte-safe: binaries skipped (null-byte probe); files rewritten only when
+bytes differ; invalid-UTF-8 files are reported, never lossy-written.
+`naming` (boolean-comparison style) is report-only by design.
+Note: `gitmap fix` (git-state: stash/wip/discard) moved to
+`gitmap stash` / `gitmap wip` / `gitmap discard`.
+AI rule: run `gitmap fix all` (check) before committing hygiene-sensitive
+work; never hand-roll sed/regex loops for encoding, newlines, or spelling.
+`gitmap llm train` phase 6 ("Heal & Fix") runs the git-state scan (`gitmap stash`
+engine) and the content audit (`gitmap fix`, check-only) in-process — report-only
+by default; `gitmap llm train --heal-apply stash|wip|discard` applies git-state
+recipes non-interactively.
+
+### 11. Agent Task Engine (slug-based task IDs)
+`gitmap agent task` / `gitmap agent subtask` — 3-tier SQLite agent task engine.
+The slug is the task ID: Title Case slugs from prompts are sanitized on store
+(`SEO Writing Task` → `seo-writing-task`); display names keep original case.
+- `gitmap agent task enqueue --slug "<slug>" [--name "<title>"]` — Get-or-create by slug (idempotent): existing slug reports progress instead of duplicating.
+- `gitmap agent task progress --slug "<slug>"` — Status + subtask rollup (pending/in-progress/done/failed) + related previous tasks.
+- `gitmap agent task pending [--count] [--task-id <id-or-slug>]` — Pending subtasks across agent tasks (`--count` prints just the number).
+- `gitmap agent task recent [--limit N]` — Recently created parent tasks, newest first.
+- `gitmap agent task completed [--limit N]` — Completed root-level parent tasks.
+- `gitmap agent subtask add --parent <id-or-slug> --slug "<Title Case slug>" --code <code> --title "<title>"` — Subtask slugs derive from the parent slug when `--slug` is omitted; legacy DBs gain the `TaskSlug` column automatically.
+- `gitmap agent subtask claim/start/complete/fail/ls` accept ID-or-slug for `--task-id`/`--parent` (canonical resolution; both stored forms match).
+- All read commands support `--json`.
 
 ## Command Replacement Matrix (Mandatory Substitutions)
 

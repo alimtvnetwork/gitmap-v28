@@ -478,7 +478,7 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"cat", "view", "type"}, func() error { return cmdmacro.RunCatCmd(argsTail()) }},
 		{[]string{"touch"}, func() error { return cmdmacro.RunTouchCmd(argsTail()) }},
 		{[]string{"mkfile", "create-file"}, func() error { return cmdmacro.RunMkfileCmd(argsTail()) }},
-		{[]string{"autofix", "afx"}, func() error { return cmdautofix.RunAutofixCmd(argsTail()) }},
+		{[]string{"fix"}, func() error { return cmdautofix.RunFixCmd(argsTail()) }},
 	}
 }
 
