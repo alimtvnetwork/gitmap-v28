@@ -402,7 +402,10 @@ func persistLastError(command string, err error) {
 }
 
 func writeLastErrorFile(command string, err error, appErr *apperror.AppError) {
-	_ = os.MkdirAll(".gitmap", 0755)
+	if mkdirErr := os.MkdirAll(".gitmap", 0755); mkdirErr != nil {
+		warnLastErrorPersist(mkdirErr)
+		return
+	}
 
 	report := map[string]any{
 		"command":   command,
@@ -416,10 +419,20 @@ func writeLastErrorFile(command string, err error, appErr *apperror.AppError) {
 
 	b, marshalErr := json.MarshalIndent(report, "", "  ")
 	if marshalErr == nil {
-		_ = os.WriteFile(".gitmap/last_error.log", b, 0644)
+		if writeErr := os.WriteFile(".gitmap/last_error.log", b, 0644); writeErr != nil {
+			warnLastErrorPersist(writeErr)
+		}
 	} else {
-		_ = os.WriteFile(".gitmap/last_error.log", []byte(err.Error()), 0644)
+		if writeErr := os.WriteFile(".gitmap/last_error.log", []byte(err.Error()), 0644); writeErr != nil {
+			warnLastErrorPersist(writeErr)
+		}
 	}
+}
+
+// warnLastErrorPersist surfaces last-error-log persistence failures instead of
+// swallowing them. It never obscures the original error being handled.
+func warnLastErrorPersist(err error) {
+	fmt.Fprintf(os.Stderr, "warning: could not persist last-error log: %v\n", err)
 }
 
 func persistToErrorsDB(command string, err error, appErr *apperror.AppError) {

@@ -120,9 +120,7 @@ func updateVersionJson(fullPath, newVer string) bool {
 		return false
 	}
 	reV := regexp.MustCompile(`("Version"\s*:\s*)"[^"]+"`)
-	reLower := regexp.MustCompile(`("version"\s*:\s*)"[^"]+"`)
 	updated := reV.ReplaceAllString(content, fmt.Sprintf(`${1}"%s"`, newVer))
-	updated = reLower.ReplaceAllString(updated, fmt.Sprintf(`${1}"%s"`, newVer))
 	writeErr := os.WriteFile(fullPath, []byte(updated), 0644)
 	return writeErr == nil
 }

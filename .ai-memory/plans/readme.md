@@ -55,6 +55,7 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [22-e2e-verify-program-243-changes.md](completed/244-e2e-verify-program-243-changes.md) — End-to-end verification of program 243 (backup-branch, help displayer, suggestions, enforcement): 26/27 assertions pass, 1 real defect found with RCA (Spec: [244](../../02-spec/21-app/244-e2e-verify-program-243-changes/01-test-scope-and-plan.md))
 - [23-fix-backup-branch-lasterror-guard.md](completed/245-fix-backup-branch-lasterror-guard.md) — Fix backup-branch's clean-tree guard to ignore untracked gitmap state (.gitmap/): the last_error.log side effect no longer defeats --force; F01–F06 all pass (Spec: [245](../../02-spec/21-app/245-fix-backup-branch-lasterror-guard/01-fix-scope-and-plan.md))
 - [24-agm-update-tui-fix-and-release.md](completed/247-agm-update-tui-fix-and-release.md) — `gitmap agm update` TUI fix (coordinated pterm UI, captured output) + `agm` alias misrouting fix + failure-path trace removal; U01–U06 all pass; released as 6.517.0 (Spec: [247](../../02-spec/21-app/247-agm-update-tui-fix-and-release/01-rca-scope-and-plan.md))
+- [25-agent-collision-and-dispatch-registry-plan.md](250-gitmap-agent-collision-and-dispatch-registry-plan.md) — Dispatch registry + agent collision feature (task-DB file claims, look-ahead, scoped staging) + A08 swallowed-error fix + version truth unification; release 6.518.0 (Spec: [250](../../02-spec/21-app/250-gitmap-agent-collision-and-dispatch-registry-plan/01-design.md)) (Status: `awaiting-review`)
 
 ---
 

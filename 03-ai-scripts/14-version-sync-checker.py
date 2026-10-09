@@ -47,7 +47,7 @@ def check_version_sync(root_dir: str = CURRENT_DIR) -> int:
         try:
             with open(version_json_p, "r", encoding=DEFAULT_ENCODING) as f:
                 v_data = json.load(f)
-                canonical_version = v_data.get("version")
+                canonical_version = v_data.get("Version")
         except Exception as e:
             errors.append(f"version.json parse error: {e}")
     elif has_package_json:

@@ -3,6 +3,8 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -149,6 +151,7 @@ func LogInternalError(errType, code, message, details, sourceFile string) {
 }
 
 // LogInternalErrorRecord writes an InternalErrorRecord to gitmap-errors.db safely.
+// Failures are never swallowed: they surface as a concise stderr warning.
 func LogInternalErrorRecord(rec InternalErrorRecord) {
 	if strings.TrimSpace(rec.Message) == "" {
 		return
@@ -156,6 +159,8 @@ func LogInternalErrorRecord(rec InternalErrorRecord) {
 
 	db, err := OpenErrorsSplitDB()
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not open errors DB: %v\n", err)
+
 		return
 	}
 
@@ -165,5 +170,7 @@ func LogInternalErrorRecord(rec InternalErrorRecord) {
 		rec.GitMapVersion = constants.Version
 	}
 
-	_, _ = db.RecordError(rec)
+	if _, recordErr := db.RecordError(rec); recordErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not record internal error: %v\n", recordErr)
+	}
 }

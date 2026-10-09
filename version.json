@@ -5,7 +5,8 @@
     "howToChangeVersion": "To change the version of the repository, edit the 'Version' field in version.json, then run 'npm run sync' (or the project's sync command) to propagate it across all files, docs, badges, and manifests.",
     "subPackageSections": "Supports sub-component sections (e.g. backend, frontend, cli, linters). Set to 'inherit' to use the global root Version, or specify an explicit version string for independent version tracks.",
     "inheritanceRule": "When a section is set to 'inherit', all tooling and codebases resolving that sub-package must inherit the root global Version.",
-    "prohibition": "Never hardcode version numbers in code, scripts, or documentation. Always read from or sync with version.json."
+    "prohibition": "Never hardcode version numbers in code, scripts, or documentation. Always read from or sync with version.json.",
+    "singleVersionField": "The root 'Version' field is the ONLY version field in this file (a legacy lowercase duplicate was removed in 6.518.0). Human edits touch ONLY 'Version'; 37-bump-version.py is the sole writer for every other copy (constants.go, package.json, changelog)."
   },
   "Version": "6.517.0",
   "Title": "GitMap",
@@ -402,6 +403,5 @@
     "19-plan-spec-steps-v2.md",
     "20-audit-app-spec.md"
   ],
-  "version": "6.517.0",
   "releaseDate": "2026-10-09"
 }

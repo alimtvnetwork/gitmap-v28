@@ -65,7 +65,7 @@ def read_canonical_version():
             with open(VERSION_JSON, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            raw_ver = data.get("Version") or data.get("version")
+            raw_ver = data.get("Version")
             if raw_ver:
                 return str(raw_ver).strip()
         except Exception:
@@ -122,9 +122,8 @@ def update_version_json(next_version, today_str, dry_run=False):
     with open(VERSION_JSON, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    data["version"] = next_version
-    if "Version" in data:
-        data["Version"] = next_version
+    data["Version"] = next_version
+    data.pop("version", None)  # legacy duplicate removed; Version is the single truth
     data["releaseDate"] = today_str
 
     if dry_run:

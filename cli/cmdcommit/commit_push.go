@@ -12,10 +12,41 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagent"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
+
+// extractCommitTaskFlag removes --task <slug> / --task=<slug> from args and
+// returns the clean args plus the task slug. Falls back to GITMAP_TASK env.
+// Agents must never stage directly; the commit flow scopes staging to the
+// task's claimed files when a task context is present.
+func extractCommitTaskFlag(args []string) ([]string, string) {
+	taskSlug := strings.TrimSpace(os.Getenv("GITMAP_TASK"))
+	clean := make([]string, 0, len(args))
+	skipNext := false
+	for i, a := range args {
+		if skipNext {
+			skipNext = false
+			continue
+		}
+		if a == "--task" {
+			if i+1 < len(args) {
+				taskSlug = strings.TrimSpace(args[i+1])
+				skipNext = true
+			}
+			continue
+		}
+		if strings.HasPrefix(a, "--task=") {
+			taskSlug = strings.TrimSpace(strings.TrimPrefix(a, "--task="))
+			continue
+		}
+		clean = append(clean, a)
+	}
+
+	return clean, taskSlug
+}
 
 // isCommitPushHelpArg returns true if the first argument is a help trigger word.
 func IsCommitPushHelpArg(args []string) bool {
@@ -63,9 +94,10 @@ func RunCommitPush(args []string) error {
 		return apperror.NewSimple("Usage: gitmap commit-push \"<commit message>\"", "E9000")
 	}
 
-	commitMessage := strings.Join(args, " ")
+	cleanArgs, taskSlug := extractCommitTaskFlag(args)
+	commitMessage := strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage)
+	return executeCommitPush(commitMessage, taskSlug)
 }
 
 // runPullCommitPush pulls first, then stages, commits, and pushes.
@@ -80,10 +112,12 @@ func RunPullCommitPush(args []string) error {
 		return apperror.NewSimple("Usage: gitmap pull-commit-push \"<commit message>\"", "E9000")
 	}
 
-	return executePullCommitPush(strings.Join(args, " "))
+	cleanArgs, taskSlug := extractCommitTaskFlag(args)
+
+	return executePullCommitPush(strings.Join(cleanArgs, " "), taskSlug)
 }
 
-func executePullCommitPush(commitMessage string) error {
+func executePullCommitPush(commitMessage, taskSlug string) error {
 	printPaddedInfo("Pulling latest changes first...")
 
 	if err := ExecGitInheritCP("pull", "--rebase"); err != nil {
@@ -95,7 +129,7 @@ func executePullCommitPush(commitMessage string) error {
 
 	printPaddedSuccess("Pull complete.")
 
-	return executeCommitPush(commitMessage)
+	return executeCommitPush(commitMessage, taskSlug)
 }
 
 // runCommitPushBug commits with a "Bug: " prefix.
@@ -110,9 +144,10 @@ func RunCommitPushBug(args []string) error {
 		return apperror.NewSimple("Usage: gitmap commit-push-bug \"<what was fixed>\"", "E9000")
 	}
 
-	commitMessage := "Bug: " + strings.Join(args, " ")
+	cleanArgs, taskSlug := extractCommitTaskFlag(args)
+	commitMessage := "Bug: " + strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage)
+	return executeCommitPush(commitMessage, taskSlug)
 }
 
 // runCommitPushFeature commits with a "Feature: " prefix.
@@ -127,9 +162,10 @@ func RunCommitPushFeature(args []string) error {
 		return apperror.NewSimple("Usage: gitmap commit-push-feature \"<what feature was added>\"", "E9000")
 	}
 
-	commitMessage := "Feature: " + strings.Join(args, " ")
+	cleanArgs, taskSlug := extractCommitTaskFlag(args)
+	commitMessage := "Feature: " + strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage)
+	return executeCommitPush(commitMessage, taskSlug)
 }
 
 // runCommitPushChore commits with a "Chore: " prefix.
@@ -144,9 +180,10 @@ func RunCommitPushChore(args []string) error {
 		return apperror.NewSimple("Usage: gitmap commit-push-chore \"<what chore was done>\"", "E9000")
 	}
 
-	commitMessage := "Chore: " + strings.Join(args, " ")
+	cleanArgs, taskSlug := extractCommitTaskFlag(args)
+	commitMessage := "Chore: " + strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage)
+	return executeCommitPush(commitMessage, taskSlug)
 }
 
 // runCommitPushRelease commits with a "Release: " prefix.
@@ -161,9 +198,10 @@ func RunCommitPushRelease(args []string) error {
 		return apperror.NewSimple("Usage: gitmap commit-push-release \"<what release changes>\"", "E9000")
 	}
 
-	commitMessage := "Release: " + strings.Join(args, " ")
+	cleanArgs, taskSlug := extractCommitTaskFlag(args)
+	commitMessage := "Release: " + strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage)
+	return executeCommitPush(commitMessage, taskSlug)
 }
 
 // parseRewriteFlags extracts target SHA and push flag from args.
@@ -409,12 +447,14 @@ func parseUnpushedCount() int {
 }
 
 // executeCommitPush is the shared logic for all commit-push variants.
-func executeCommitPush(commitMessage string) *apperror.AppError {
+// When taskSlug is set (--task flag or GITMAP_TASK env), staging is scoped to
+// that task's claimed files instead of staging everything.
+func executeCommitPush(commitMessage, taskSlug string) *apperror.AppError {
 	if !cmdpull.IsGitRepoCWD() {
 		return handleNonGitRepoCommitPush()
 	}
 
-	hasChanges, errPrep := stageAndCheckChanges()
+	hasChanges, errPrep := stageAndCheckChanges(taskSlug)
 	if errPrep != nil {
 		return errPrep
 	}
@@ -426,10 +466,10 @@ func executeCommitPush(commitMessage string) *apperror.AppError {
 	return performCommitPush(commitMessage)
 }
 
-func stageAndCheckChanges() (bool, *apperror.AppError) {
+func stageAndCheckChanges(taskSlug string) (bool, *apperror.AppError) {
 	printPaddedInfo("Staging all changes...")
 
-	if errAdd := executeStageAllStep(); errAdd != nil {
+	if errAdd := executeStageAllStep(taskSlug); errAdd != nil {
 		return false, errAdd
 	}
 
@@ -441,16 +481,43 @@ func stageAndCheckChanges() (bool, *apperror.AppError) {
 	return hasChanges, nil
 }
 
-func executeStageAllStep() *apperror.AppError {
+func executeStageAllStep(taskSlug string) *apperror.AppError {
 	startTime := time.Now()
-	err := execGitPaddedFiltered("add", "-A")
+	var err error
+	label := "git add -A"
+	files := scopedStageFiles(taskSlug)
+	if len(files) > 0 {
+		printPaddedInfo("Staging %d task-claimed file(s) for task %s...", len(files), taskSlug)
+		gitArgs := append([]string{"add", "--"}, files...)
+		err = execGitPaddedFiltered(gitArgs...)
+		label = fmt.Sprintf("git add -- (%d claimed files)", len(files))
+	} else {
+		if strings.TrimSpace(taskSlug) != "" {
+			printPaddedInfo("No file claims for task %s; staging all changes...", taskSlug)
+		}
+		err = execGitPaddedFiltered("add", "-A")
+	}
 	durMs := time.Since(startTime).Milliseconds()
-	recordGitCommandDirect("git add", "git add -A", ExtractGitExitCode(err), durMs)
+	recordGitCommandDirect("git add", label, ExtractGitExitCode(err), durMs)
 	if err != nil {
 		return apperror.WrapSimple(err, "git add failed:")
 	}
 
 	return nil
+}
+
+// scopedStageFiles returns the union of a task's claimed files for scoped
+// staging. Empty when no task context or no claims (caller falls back to -A).
+func scopedStageFiles(taskSlug string) []string {
+	if strings.TrimSpace(taskSlug) == "" {
+		return nil
+	}
+	files, err := cmdagent.TaskClaimedFiles(taskSlug)
+	if err != nil || len(files) == 0 {
+		return nil
+	}
+
+	return files
 }
 
 func performCommitPush(commitMessage string) *apperror.AppError {

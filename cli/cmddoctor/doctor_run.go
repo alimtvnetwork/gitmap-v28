@@ -12,11 +12,24 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddispatch"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // runDoctor is invoked by the root dispatcher.
 func runDoctor(args []string) error {
+	// Dispatch registry check (spec 250): `gitmap doctor --check-dispatch`
+	// fails fast on duplicate command/alias claims across dispatch tables.
+	for _, a := range args {
+		if a == "--check-dispatch" {
+			if code := cmddispatch.RunCheck(os.Stdout); code != 0 {
+				return apperror.NewSimple("dispatch registry check failed", "E9000")
+			}
+
+			return nil
+		}
+	}
+
 	// Sub-command dispatch (v6.80.1+): `gitmap doctor fix-repo [...]`
 	// routes to the fix-repo → gofmt probe suite instead of the
 	// generic dependency checks. Alias `fr` matches CmdFixRepoAlias.

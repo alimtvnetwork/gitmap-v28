@@ -100,12 +100,7 @@ func readCanonicalFromFiles(root string) string {
 }
 
 func readJsonVersion(vPath string) string {
-	ver := extractVersionFromJson(vPath, "Version")
-	hasVer := ver != ""
-	if hasVer {
-		return ver
-	}
-	return extractVersionFromJson(vPath, "version")
+	return extractVersionFromJson(vPath, "Version")
 }
 
 func extractVersionFromJson(path, key string) string {
