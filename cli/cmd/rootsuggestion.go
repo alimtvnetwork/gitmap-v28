@@ -8,8 +8,9 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // InterceptUnknownCommand resolves suggestions via diag.DefaultEngine,
@@ -17,7 +18,7 @@ import (
 func InterceptUnknownCommand(command string) {
 	group := diag.DefaultEngine().ResolveCommand(command)
 	if group.HasSuggestions() {
-		_ = diag.RenderBox(os.Stderr, group)
+		_ = diag.RenderBox(output.UIErr(), group)
 	}
 	logUnknownCommandTelemetry(command, group)
 	appErr := buildUnknownCommandAppError(command, group)

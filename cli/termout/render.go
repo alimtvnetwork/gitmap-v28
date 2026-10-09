@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 // RenderMenu prints a formatted, auto-aligned HelpMenu to standard output.
@@ -24,9 +25,9 @@ func printFooter(menu HelpMenu, colWidth int, theme Theme) {
 		PrintFlags(menu.FooterFlags, colWidth, theme)
 	}
 	for _, tip := range menu.Tips {
-		fmt.Printf("  %s💡 Tip: %s%s\n", theme.TipColor, tip, constants.ColorReset)
+		fmt.Fprintf(output.UI(), "  %s💡 Tip: %s%s\n", theme.TipColor, tip, constants.ColorReset)
 	}
-	fmt.Println()
+	fmt.Fprintln(output.UI())
 }
 
 // PrintBanner renders a decorative box banner around the title.
@@ -40,9 +41,9 @@ func PrintBanner(title, color string) {
 	leftSpace := strings.Repeat(" ", pad)
 	rightSpace := strings.Repeat(" ", width-len(title)-pad)
 
-	fmt.Printf("\n  %s╔%s╗%s\n", color, border, constants.ColorReset)
-	fmt.Printf("  %s║%s%s%s║%s\n", color, leftSpace, title, rightSpace, constants.ColorReset)
-	fmt.Printf("  %s╚%s╝%s\n\n", color, border, constants.ColorReset)
+	fmt.Fprintf(output.UI(), "\n  %s╔%s╗%s\n", color, border, constants.ColorReset)
+	fmt.Fprintf(output.UI(), "  %s║%s%s%s║%s\n", color, leftSpace, title, rightSpace, constants.ColorReset)
+	fmt.Fprintf(output.UI(), "  %s╚%s╝%s\n\n", color, border, constants.ColorReset)
 }
 
 // PrintUsage prints the usage block for the command.
@@ -50,11 +51,11 @@ func PrintUsage(usageLines []string) {
 	if len(usageLines) == 0 {
 		return
 	}
-	fmt.Printf("  %sUsage:%s\n", constants.ColorWhite, constants.ColorReset)
+	fmt.Fprintf(output.UI(), "  %sUsage:%s\n", constants.ColorWhite, constants.ColorReset)
 	for _, line := range usageLines {
-		fmt.Printf("    %s%s%s\n", constants.ColorCyan, line, constants.ColorReset)
+		fmt.Fprintf(output.UI(), "    %s%s%s\n", constants.ColorCyan, line, constants.ColorReset)
 	}
-	fmt.Println()
+	fmt.Fprintln(output.UI())
 }
 
 // PrintSection renders a section with its header and entries.
@@ -63,11 +64,11 @@ func PrintSection(sec HelpSection, colWidth int, theme Theme) {
 	if len(headerColor) == 0 {
 		headerColor = theme.HeaderColor
 	}
-	fmt.Printf("  %s%s:%s\n", headerColor, sec.Title, constants.ColorReset)
+	fmt.Fprintf(output.UI(), "  %s%s:%s\n", headerColor, sec.Title, constants.ColorReset)
 	for _, entry := range sec.Entries {
 		printEntryLine(entry, colWidth, theme)
 	}
-	fmt.Println()
+	fmt.Fprintln(output.UI())
 }
 
 func printEntryLine(entry CommandEntry, colWidth int, theme Theme) {
@@ -80,7 +81,7 @@ func printEntryLine(entry CommandEntry, colWidth int, theme Theme) {
 		padLen = 2
 	}
 	padding := strings.Repeat(" ", padLen)
-	fmt.Printf("    %s%s%s%s%s\n",
+	fmt.Fprintf(output.UI(), "    %s%s%s%s%s\n",
 		cmdStr, padding,
 		theme.DescColor, entry.Description, constants.ColorReset)
 }
@@ -105,9 +106,9 @@ func formatCommandToken(entry CommandEntry, theme Theme) string {
 
 // PrintFlags renders standard flags section.
 func PrintFlags(flags []CommandEntry, colWidth int, theme Theme) {
-	fmt.Printf("  %sFlags:%s\n", constants.ColorWhite, constants.ColorReset)
+	fmt.Fprintf(output.UI(), "  %sFlags:%s\n", constants.ColorWhite, constants.ColorReset)
 	for _, entry := range flags {
 		printEntryLine(entry, colWidth, theme)
 	}
-	fmt.Println()
+	fmt.Fprintln(output.UI())
 }

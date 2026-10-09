@@ -2,7 +2,7 @@
 //
 // Strips `--theme <mode>` / `--theme=<mode>` (and the short `-theme`
 // form) from os.Args before subcommand dispatch and exports
-// GITMAP_THEME so gitmap/termout.Install — and any subprocess gitmap
+// GITMAP_THEME so the output.Build writer — and any subprocess gitmap
 // spawns — picks up the choice. Mirrors stripVSCodeSyncDisabledFlag's
 // pattern so the global-flag inventory stays homogeneous.
 package cmd

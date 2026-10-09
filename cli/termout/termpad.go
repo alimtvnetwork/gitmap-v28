@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 var (
@@ -50,10 +51,10 @@ func EnsureBottomPadding(lastOutput string) {
 		return
 	}
 	if strings.HasSuffix(lastOutput, "\n") {
-		fmt.Println()
+		fmt.Fprintln(output.UI())
 		return
 	}
-	fmt.Print("\n\n")
+	fmt.Fprint(output.UI(), "\n\n")
 }
 
 // PrintBlueRule prints a blue separator rule unless one was just printed.
@@ -66,7 +67,7 @@ func PrintBlueRule(width int) {
 	if width <= 0 {
 		width = 80
 	}
-	fmt.Printf("%s%s%s\n", constants.ColorBlue, strings.Repeat("─", width), constants.ColorReset)
+	fmt.Fprintf(output.UI(), "%s%s%s\n", constants.ColorBlue, strings.Repeat("─", width), constants.ColorReset)
 	lastWasRule = true
 }
 
@@ -77,7 +78,7 @@ func PrintSeparator(line string) {
 	if lastWasRule && IsBoundaryRule(line) {
 		return
 	}
-	fmt.Println(line)
+	fmt.Fprintln(output.UI(), line)
 	lastWasRule = IsBoundaryRule(line)
 }
 
@@ -111,7 +112,7 @@ func appendPaddedLine(sb *strings.Builder, line string, idx, total int, prevWasR
 
 // PrintPadded outputs left-padded text directly to standard output.
 func PrintPadded(text string) {
-	fmt.Print(FormatPadded(text))
+	fmt.Fprint(output.UI(), FormatPadded(text))
 }
 
 // IsBoundaryRule reports whether line consists entirely of repeating separator characters.

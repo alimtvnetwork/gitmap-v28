@@ -40,17 +40,18 @@ package cliexit
 import (
 	"fmt"
 	"io"
-	"os"
 	"sync"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 // flushers holds best-effort drainers run before os.Exit in Fail.
-// Registered at startup by cmd.Run (one per pipe-installing package
-// such as glyphs and theme). Without these, bytes written to a
-// pipe-wrapped os.Stderr just before os.Exit can be lost on Windows
-// because the forwarding goroutine never gets scheduled to drain
-// the pipe — the documented root cause of the cliexit subprocess-
-// test flakiness on Windows CI.
+//
+// Deprecated: the pipe-wrapped os.Stderr they used to drain is gone —
+// program 267 replaced it with the synchronous FilterWriter carried
+// in the dispatch context (output.UIErr), which cannot lose bytes
+// before os.Exit. The registry is kept as a no-op hook so
+// migration-window callers keep compiling; nothing registers anymore.
 var (
 	flushMu  sync.Mutex
 	flushers []func()
@@ -59,6 +60,9 @@ var (
 // RegisterFlusher records a drain function to invoke before os.Exit
 // in Fail. Order of registration is preserved; each flusher runs in
 // the calling goroutine (Fail's). Idempotent flushers are encouraged.
+//
+// Deprecated: kept for the migration window; prefer writing through
+// output.UIErr(), which needs no flush.
 func RegisterFlusher(f func()) {
 	if f == nil {
 		return
@@ -88,7 +92,9 @@ func safeFlush(f func()) {
 	f()
 }
 
-// Reportf writes a uniformly-formatted failure line to os.Stderr.
+// Reportf writes a uniformly-formatted failure line to the
+// dispatch-context stderr writer (output.UIErr) — the synchronous
+// FilterWriter, never the old pipe-wrapped os.Stderr.
 // Returns nothing — callers that need the exit-code transition use
 // Fail (which calls Reportf then os.Exit). Splitting the two lets
 // non-fatal collectors (e.g. per-row clone loops) reuse the same
@@ -115,24 +121,24 @@ func Reportf(command, op, subject string, err error) {
 		Err:     err,
 	}
 
-	writeReport(os.Stderr, params)
+	writeReport(output.UIErr(), params)
 }
 
-// Fail prints the standardized failure line, flushes any registered
-// output pipes, and exits with the given code. Use this at every cmd
-// entry-point error path so the (message, exit-code) pair stays
-// atomic and impossible to forget to pair correctly.
+// Fail prints the standardized failure line and exits with the given
+// code. The line goes through the synchronous dispatch-context writer
+// (output.UIErr), so it is fully written before os.Exit — no flush
+// step needed. runFlushers is retained as a no-op migration hook.
+// Use this at every cmd entry-point error path so the (message,
+// exit-code) pair stays atomic and impossible to forget to pair
+// correctly.
 func Fail(command, op, subject string, err error, code int) {
 	Reportf(command, op, subject, err)
 	runFlushers()
 	exitFunc(code)
 }
 
-// Exit flushes any registered output pipes and exits with the given
-// code. Use at non-error os.Exit sites that still need pipe-wrapped
-// stdout/stderr drained before process teardown — without this, the
-// final lines printed via fmt.Print can be lost on Windows when the
-// glyphs/theme forwarding goroutines never get scheduled.
+// Exit runs any registered flushers (migration-window no-op) and
+// exits with the given code. Use at non-error os.Exit sites.
 func Exit(code int) {
 	runFlushers()
 	exitFunc(code)

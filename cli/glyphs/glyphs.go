@@ -1,10 +1,11 @@
 // Package glyphs resolves the active glyph-rendering mode (rich vs safe)
-// and installs an os.Stdout / os.Stderr byte-stream filter that rewrites
-// emoji into ASCII fallbacks when "safe" is active.
+// and provides the byte-level emoji → ASCII filter applied when "safe"
+// is active.
 //
-// Composition: chains AFTER gitmap/termout.Install — both packages wrap
-// the standard handles with a pipe; stacking is fine and order-
-// independent since each filter only touches its own byte patterns.
+// Filtering runs synchronously inside the cli/output FilterWriter that
+// cmd.Run builds (theme first, glyphs second) — os.Stdout/os.Stderr are
+// never reassigned. Each filter only touches its own byte patterns, so
+// the composition order is interchangeable in effect.
 package glyphs
 
 import (

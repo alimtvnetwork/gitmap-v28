@@ -5,11 +5,12 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 // PrintTable formats and outputs a table directly to standard output.
 func PrintTable(cfg TableConfig) {
-	fmt.Print(RenderTable(cfg))
+	fmt.Fprint(output.UI(), RenderTable(cfg))
 }
 
 // RenderTable builds a complete formatted table string.

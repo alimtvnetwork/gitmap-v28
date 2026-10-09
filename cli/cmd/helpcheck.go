@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
@@ -10,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdisplay"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 // CheckHelpOrEmpty prints help and exits if args is empty or help flag is present.
@@ -29,8 +32,7 @@ func IsHelpRequestedOrEmpty(args []string) bool {
 // pagers (`gitmap foo --help --pretty | less -R`) or strip ANSI for
 // scripting (`gitmap foo --help --no-pretty > help.txt`).
 //
-// Uses cliexit.Exit so theme/glyphs pipe drainers run before the
-// process teardown.
+// Uses cliexit.Exit for the exit-code transition.
 func checkHelp(command string, args []string) {
 	if !hasHelpFlag(args) {
 		return
@@ -100,7 +102,10 @@ func tryPrintDisplayerHelp(command string, args []string) bool {
 		return false
 	}
 	builder := displayerBuilderForSub(entry, args)
-	builder().Print(helpdisplay.NewRenderContext(nil))
+	// Render through the filtered dispatch writer (theme colors +
+	// safe-mode glyph filtering for UI chrome) instead of the
+	// displayer's direct fmt.Print.
+	_, _ = fmt.Fprint(output.UI(), builder().Render(helpdisplay.NewRenderContext(nil)))
 	cliexit.Exit(0)
 
 	return true

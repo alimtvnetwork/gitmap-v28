@@ -39,9 +39,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"sort"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 // OutputMode selects the rendering for Report / FailWith. Zero value
@@ -91,10 +92,11 @@ type Context struct {
 	Err     error
 }
 
-// Report writes the structured failure to os.Stderr in the requested
-// mode. Use FailWith when you also need the os.Exit transition.
+// Report writes the structured failure to the dispatch-context stderr
+// writer (output.UIErr) in the requested mode. Use FailWith when you
+// also need the os.Exit transition.
 func Report(ctx Context, mode OutputMode) {
-	writeStructured(os.Stderr, ctx, mode)
+	writeStructured(output.UIErr(), ctx, mode)
 }
 
 // FailWith reports then exits with `code`. Atomic (message, exit-code)

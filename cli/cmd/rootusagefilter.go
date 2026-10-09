@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 // resolveFilterQuery extracts the value of --filter / -f from os.Args.
@@ -35,7 +36,7 @@ func resolveFilterQuery() string {
 // printUsageFiltered renders only rows whose group or command line
 // contains the (case-insensitive) query.
 func printUsageFiltered(query string) {
-	fmt.Printf(constants.UsageHeaderFmt, constants.Version)
+	fmt.Fprintf(output.UI(), constants.UsageHeaderFmt, constants.Version)
 
 	if len(query) == 0 {
 		fmt.Println("  " + constants.ColorYellow +

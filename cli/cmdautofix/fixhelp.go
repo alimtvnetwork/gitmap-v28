@@ -1,6 +1,10 @@
 package cmdautofix
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
+)
 
 // ---------------------------------------------------------------------------
 // Help — program 243 DRY rule: Go structs are the source of truth.
@@ -45,34 +49,37 @@ var FixHelp = struct {
 		{"--json", "Machine-readable report (no prompt unless -y)"},
 		{"--no-cache", "Bypass the scan-result cache"},
 	},
-	Flow: "scan → summary (files scanned, files modified, per-category fix counts,\ntime taken) → prompt \"Apply these fixes? [y/N]\" → apply.",
+	Flow:      "scan → summary (files scanned, files modified, per-category fix counts,\ntime taken) → prompt \"Apply these fixes? [y/N]\" → apply.",
 	ExitCodes: "0 clean · 1 findings remain · 2 tool error",
 	Note:      "git-state remediation (stash/wip/discard) moved to\n'gitmap stash' / 'gitmap wip' / 'gitmap discard'.",
 }
 
 // RenderFixHelp prints the parent help screen from the FixHelp struct.
 // Exposed so `gitmap help fix` (lead-wired) renders the same content.
+// Writes through output.UI() so safe-mode glyph filtering applies.
 func RenderFixHelp() {
-	fmt.Printf("Usage: %s\n\n", FixHelp.Usage)
-	fmt.Println(FixHelp.Description)
-	fmt.Println()
-	fmt.Println("Subcommands:")
+	w := output.UI()
+	fmt.Fprintf(w, "Usage: %s\n\n", FixHelp.Usage)
+	fmt.Fprintln(w, FixHelp.Description)
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "Subcommands:")
 	for _, s := range FixHelp.Subcommands {
-		fmt.Printf("  %-11s %s\n", s[0], s[1])
+		fmt.Fprintf(w, "  %-11s %s\n", s[0], s[1])
 	}
-	fmt.Println()
-	fmt.Println("Flags:")
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "Flags:")
 	for _, f := range FixHelp.Flags {
-		fmt.Printf("  %-18s %s\n", f.Flags, f.Desc)
+		fmt.Fprintf(w, "  %-18s %s\n", f.Flags, f.Desc)
 	}
-	fmt.Println()
-	fmt.Println("Flow: " + FixHelp.Flow)
-	fmt.Println("Exit codes: " + FixHelp.ExitCodes)
-	fmt.Println("Note: " + FixHelp.Note)
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "Flow: "+FixHelp.Flow)
+	fmt.Fprintln(w, "Exit codes: "+FixHelp.ExitCodes)
+	fmt.Fprintln(w, "Note: "+FixHelp.Note)
 }
 
 // RenderFixCategoryHelp prints help for one subcommand.
 func RenderFixCategoryHelp(sub string) {
+	w := output.UI()
 	desc := ""
 	for _, s := range FixHelp.Subcommands {
 		if s[0] == sub {
@@ -80,17 +87,17 @@ func RenderFixCategoryHelp(sub string) {
 			break
 		}
 	}
-	fmt.Printf("Usage: gitmap fix %s [path] [flags]\n\n", sub)
+	fmt.Fprintf(w, "Usage: gitmap fix %s [path] [flags]\n\n", sub)
 	if desc != "" {
-		fmt.Println(desc + ".")
-		fmt.Println()
+		fmt.Fprintln(w, desc+".")
+		fmt.Fprintln(w)
 	}
-	fmt.Println("Flags:")
+	fmt.Fprintln(w, "Flags:")
 	for _, f := range FixHelp.Flags {
-		fmt.Printf("  %-18s %s\n", f.Flags, f.Desc)
+		fmt.Fprintf(w, "  %-18s %s\n", f.Flags, f.Desc)
 	}
-	fmt.Println()
-	fmt.Println("Exit codes: " + FixHelp.ExitCodes)
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "Exit codes: "+FixHelp.ExitCodes)
 }
 
 // ---------------------------------------------------------------------------

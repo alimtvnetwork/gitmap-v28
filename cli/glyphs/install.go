@@ -1,106 +1,48 @@
-// Package glyphs — install.go: optional pipe-wrap that runs every
-// stdout / stderr byte through Filter. Skipped entirely in ModeRich
-// for true zero-overhead passthrough.
+// Package glyphs — install.go: glyph mode resolution for the
+// synchronous output path.
+//
+// The old pipe-based os.Stdout/os.Stderr interception (wrap/forward
+// goroutines + Drain-before-Exit) is gone: program 267 replaced it
+// with the synchronous FilterWriter in cli/output, built once by
+// cmd.Run after --glyphs stripping. os.Stdout/os.Stderr are never
+// reassigned anymore.
+//
+// Install and Drain are kept as deprecated thin delegates so
+// migration-window callers keep compiling; they only record the
+// resolved mode (Install) or no-op (Drain).
 package glyphs
 
 import (
-	"io"
+	"fmt"
 	"os"
 	"sync"
 )
 
 var (
-	installOnce sync.Once
-	activeMode  ModeType
+	activeMode ModeType
 
-	// pipeMu guards installedPipes against concurrent Install / Drain.
-	// In practice Install runs once and Drain runs at process exit,
-	// but the lock keeps the contract explicit for future callers.
-	pipeMu         sync.Mutex
-	installedPipes []installedPipe
+	deprecateOnce sync.Once
 )
 
-// installedPipe records one pipe-wrap so Drain can flush it before the
-// process exits. Without Drain, bytes written to os.Stdout/os.Stderr
-// just before os.Exit can be discarded on Windows: the forwarding
-// goroutine never gets scheduled to copy them from the pipe buffer to
-// the real fd inherited from the parent (root cause of the cliexit
-// subprocess-test flakiness on Windows CI).
-type installedPipe struct {
-	w    *os.File
-	done chan struct{}
-}
-
-// Install resolves the active mode and (when ModeSafe) replaces
-// os.Stdout / os.Stderr with pipe-backed writers that filter glyphs.
-// Idempotent across calls.
+// Install resolves the active glyph mode for Active() consumers.
+//
+// Deprecated: use output.Build — Install no longer intercepts
+// os.Stdout/os.Stderr. Emits a one-time stderr warning as the
+// grep-able migration signal for the CI gate.
 func Install() {
-	installOnce.Do(func() {
-		activeMode = Resolve()
-		if activeMode == ModeRich {
-			return
-		}
-
-		os.Stdout = wrap(os.Stdout, activeMode)
-		os.Stderr = wrap(os.Stderr, activeMode)
+	deprecateOnce.Do(func() {
+		fmt.Fprintln(os.Stderr, "output: glyphs.Install is deprecated; use output.Build")
 	})
+
+	activeMode = Resolve()
 }
 
-// Active returns the resolved mode (defaults to ModeRich pre-Install).
+// Active returns the mode recorded by Install. Defaults to ModeRich
+// when Install has not run.
 func Active() ModeType { return activeMode }
 
-// Drain closes every installed pipe writer and waits for the matching
-// forwarder goroutine to flush its buffered bytes to the underlying
-// destination fd. MUST be called before os.Exit when output integrity
-// matters (e.g. cliexit.Fail) — otherwise the last failure message
-// can vanish on Windows.
-//
-// After Drain returns the wrapped os.Stdout / os.Stderr are closed
-// and any further writes will fail with ErrClosed. That is the
-// correct shape for an exit-path-only flusher.
-func Drain() {
-	pipeMu.Lock()
-	pipes := installedPipes
-	installedPipes = nil
-	pipeMu.Unlock()
-	for _, p := range pipes {
-		_ = p.w.Close()
-		<-p.done
-	}
-}
-
-// wrap returns a *os.File whose writes are filtered before reaching dst.
-func wrap(dst *os.File, mode ModeType) *os.File {
-	r, w, err := os.Pipe()
-	if err != nil {
-		return dst
-	}
-
-	done := make(chan struct{})
-	go func() {
-		forward(r, dst, mode)
-		close(done)
-	}()
-	pipeMu.Lock()
-	installedPipes = append(installedPipes, installedPipe{w: w, done: done})
-	pipeMu.Unlock()
-
-	return w
-}
-
-// forward streams r → Filter → dst until EOF.
-func forward(r io.ReadCloser, dst io.Writer, mode ModeType) {
-	defer func() { _ = r.Close() }()
-
-	buf := make([]byte, 4096)
-	for {
-		n, err := r.Read(buf)
-		if n > 0 {
-			_, _ = dst.Write(Filter(buf[:n], mode))
-		}
-
-		if err != nil {
-			return
-		}
-	}
-}
+// Drain is a deprecated no-op. The installed-pipe registry it used
+// to flush no longer exists — FilterWriter writes synchronously, so
+// no flush is needed before os.Exit. Kept so migration-window
+// callers (and the cliexit.RegisterFlusher hook) keep compiling.
+func Drain() {}

@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 func runCatCmd(args []string) error {
@@ -39,14 +40,22 @@ func printCatUsage() {
 }
 
 func printCatContent(target string, data []byte) {
-	fmt.Printf("\n  %s--- %s (%d bytes) ---%s\n",
+	// Byte-faithful bypass: the decorative banner is UI chrome and
+	// goes through the filtered dispatch writer, but the file
+	// payload goes through output.Raw() — the unfiltered original
+	// stdout — so emoji/ANSI bytes in file content are never
+	// rewritten, even in --glyphs safe mode or TERM=dumb.
+	ui := output.UI()
+	fmt.Fprintf(ui, "\n  %s--- %s (%d bytes) ---%s\n",
 		constants.ColorCyan, target, len(data), constants.ColorReset)
-	fmt.Print(string(data))
+
+	_, _ = output.Raw().Write(data)
+
 	if len(data) > 0 && data[len(data)-1] != '\n' {
-		fmt.Println()
+		fmt.Fprintln(ui)
 	}
 
-	fmt.Printf("  %s--------------------------------%s\n\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Fprintf(ui, "  %s--------------------------------%s\n\n", constants.ColorCyan, constants.ColorReset)
 }
 
 func runTouchCmd(args []string) error {

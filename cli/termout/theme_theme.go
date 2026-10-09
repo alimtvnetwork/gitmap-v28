@@ -1,7 +1,8 @@
-// Package theme resolves the active terminal color palette and installs
-// an ANSI rewrite filter on stdout / stderr so every existing Print /
-// Printf call adapts to the user's --theme choice without per-site
-// changes.
+// Package termout resolves the active terminal color palette and
+// provides the ANSI SGR rewrite filter. Filtering runs synchronously
+// inside the cli/output FilterWriter that cmd.Run builds from the
+// resolved mode — os.Stdout/os.Stderr are never reassigned; UI code
+// takes the explicit dispatch-context writer instead.
 //
 // Three modes:
 //

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 var exitFunc = os.Exit
@@ -78,7 +79,7 @@ func ensureAppError(err error) *apperror.AppError {
 }
 
 func dispatchError(appErr *apperror.AppError, code int) {
-	WriteAppErrorReport(os.Stderr, appErr)
+	WriteAppErrorReport(output.UIErr(), appErr)
 	runFlushers()
 	if os.Getenv("GITMAP_ERROR_PANIC") == "1" {
 		panic(appErr)

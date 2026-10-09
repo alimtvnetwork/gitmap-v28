@@ -42,24 +42,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func isVersionCommand(cmd string) bool {
 	return cmd == constants.CmdVersion || cmd == constants.CmdVersionAlias || cmd == "--version" || cmd == "-version" || cmd == "-v"
-}
-
-// byteFaithfulCommands lists subcommands whose stdout must pass through
-// byte-identical. glyphs.Install wraps stdout with an emoji → ASCII
-// rewriter in safe mode (TERM=dumb), which silently corrupts file bytes
-// for content-display commands. These commands skip the filter entirely.
-var byteFaithfulCommands = map[string]bool{
-	"cat": true, "view": true, "type": true,
-}
-
-func isByteFaithfulCommand(cmd string) bool {
-	return byteFaithfulCommands[cmd]
 }
 
 // Run is the main entry point for the CLI.
@@ -79,28 +68,26 @@ func Run() {
 
 	// Strip the global `--theme` palette selector first so it is
 	// honored even when no subcommand-specific args are present.
-	// termout.Install must run AFTER the env var is set but BEFORE
-	// any subcommand writes colored output.
+	// The writer build below must run AFTER the env var is set but
+	// BEFORE any subcommand writes colored output.
 	os.Args = append(os.Args[:1], stripThemeFlag(os.Args[1:])...)
-	termout.Install()
 
-	// Strip the global `--glyphs` switch (rich | safe | auto) and
-	// install the glyph filter. Runs AFTER theme so the safe-mode
-	// ASCII rewrites apply to bytes already past theme's SGR rewrite.
-	// Byte-faithful content commands (cat/view/type) skip the filter:
-	// it would rewrite emoji inside file bytes on dumb terminals.
+	// Strip the global `--glyphs` switch (rich | safe | auto).
 	os.Args = append(os.Args[:1], stripGlyphsFlag(os.Args[1:])...)
-	if len(os.Args) < 2 || !isByteFaithfulCommand(os.Args[1]) {
-		glyphs.Install()
-	}
 
-	// Register pipe drainers so cliexit.Fail flushes them before
-	// os.Exit. Without this, a failure message written to a
-	// theme- or glyphs-wrapped os.Stderr just before os.Exit can be
-	// lost on Windows (the forwarder goroutine never gets scheduled
-	// to copy bytes from the pipe buffer to the inherited fd).
-	cliexit.RegisterFlusher(termout.Drain)
-	cliexit.RegisterFlusher(glyphs.Drain)
+	// Build the synchronous UI filter writers (see outputwriters.go
+	// for the canonical theme-then-glyphs composition order) and
+	// carry them in the dispatch context. Byte-faithful commands
+	// (cat/view/type) bypass the filter explicitly at the call site:
+	// printCatContent writes the decorative banner through the
+	// filtered writer and the file bytes through output.Raw().
+	//
+	// os.Stdout/os.Stderr are never reassigned. Writes are
+	// synchronous, so there is no pipe to drain and no flusher to
+	// register before os.Exit — the "lost bytes on Windows" class
+	// is gone by construction.
+	uiOut, uiErr := filteredWriters(termout.Resolve(), glyphs.Resolve())
+	output.SetDispatchWriters(uiOut, uiErr)
 
 	// Strip the global `--vscode-sync-disabled` kill switch from argv
 	// (and flip the env var) before any subcommand sees its flagset.
@@ -159,19 +146,13 @@ func applyAliasContextIfPresent(command string, args []string) []string {
 }
 
 // runDispatch is the single entry point every CLI invocation flows
-// through so the theme/glyphs pipe drainers are guaranteed to run
-// before the process returns. Centralizing the deferred Drain calls
-// here prevents future entry points from re-introducing the Windows
-// "last stdout line is lost" bug (the version-mismatch smoke failure
-// fixed in v6.74.0). Any new dispatch surface MUST call runDispatch
+// through. The dispatch writers (built in Run) are already installed
+// in the output package; writes are synchronous, so no pipe drainers
+// remain — the Windows "last stdout line is lost" class (the
+// version-mismatch smoke failure fixed in v6.74.0) is gone by
+// construction. Any new dispatch surface MUST call runDispatch
 // rather than dispatch directly.
 func runDispatch(command string) {
-	// Order matters: glyphs wraps stdout AFTER theme, so drain
-	// glyphs first (outermost writer) then theme (inner writer).
-	// Defer order runs LIFO, so declaring theme first + glyphs
-	// second yields the correct outer→inner drain sequence.
-	defer termout.Drain()
-	defer glyphs.Drain()
 	if tryInterceptCommandHelp(command, os.Args[2:]) {
 		return
 	}
@@ -248,7 +229,7 @@ func handleGlobalError(command string, err error) {
 	persistLastError(command, err)
 
 	if isAppErr && appErr != nil && appErr.HasSuggestions() {
-		RenderErrorSuggestions(os.Stderr, appErr)
+		RenderErrorSuggestions(output.UIErr(), appErr)
 	}
 
 	if isAbortOrReportedError(err) {
@@ -284,7 +265,7 @@ func handleGlobalError(command string, err error) {
 
 	stack := resolveErrorStackTrace(err)
 	if stack != "" && showStack {
-		fmt.Fprintf(os.Stderr, "Stack Trace:%s\n", stack)
+		fmt.Fprintf(output.UIErr(), "Stack Trace:%s\n", stack)
 	}
 
 	cliexit.HandleError(nil, 1)

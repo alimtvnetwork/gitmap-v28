@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 var helpCategoryGroups = map[string]func(){
@@ -64,7 +65,7 @@ func printUsageCategoryGroup(topic string) {
 	fn()
 
 	measuringHelp = false
-	fmt.Printf(constants.UsageHeaderFmt, constants.Version)
+	fmt.Fprintf(output.UI(), constants.UsageHeaderFmt, constants.Version)
 	fmt.Println()
 	fn()
 
