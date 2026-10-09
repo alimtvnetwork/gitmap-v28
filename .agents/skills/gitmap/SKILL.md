@@ -142,6 +142,13 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 - `gitmap clone-from <file> --execute` — Batch-clone a merged/exported JSON (dry-run by default). No new clone code needed.
 - Portable flow: machine A `scan export` → copy the `<slug>/` folder to machine B → `gitmap clone-from <slug>/repos.json --execute` clones exactly those repos.
 
+### 13. Prompt Templates (view / use / copy)
+- `gitmap prompt ls` — List installed prompt templates (slug, version, description).
+- `gitmap prompt show <slug>` — Print the full template text to copy. `--copy` also copies the body to the system clipboard (warns gracefully on headless machines).
+- `gitmap prompt add <slug> <file.md>` — Install/update a template from a markdown file. `gitmap prompt rm <slug>` — Delete one.
+- `gitmap prompt export [file.zip]` / `gitmap prompt import <file.zip|file.md>` — Portable template bundles across machines.
+- Installed now: `mastery-bootstrap` (the foolproof Muse bootstrap prompt), `muse-master`, `execute-in-a-step`, `letterly-desktop`, plus the built-ins (`ci-cd-fix`, `code-review`).
+
 ## Command Replacement Matrix (Mandatory Substitutions)
 
 | Forbidden / Anti-Pattern Command | Mandatory GitMap Replacement | Rationale |

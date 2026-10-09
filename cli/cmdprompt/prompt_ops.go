@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/atotto/clipboard"
 )
 
 func runPromptList() error {
@@ -66,7 +67,7 @@ func printPromptTable(templates []PromptTemplate) {
 	}
 }
 
-func runPromptShow(slug string) error {
+func runPromptShow(slug string, copyToClipboard bool) error {
 	dir, dirErr := getPromptsStorageDir()
 	if dirErr != nil {
 		return dirErr.Unwrap()
@@ -85,6 +86,14 @@ func runPromptShow(slug string) error {
 	}
 
 	fmt.Printf("\n%s\n", pt.Body)
+
+	if copyToClipboard {
+		if err := clipboard.WriteAll(pt.Body); err != nil {
+			fmt.Fprintf(os.Stderr, "  warning: clipboard unavailable (%v) — template shown above\n", err)
+		} else {
+			fmt.Println("  copied to clipboard")
+		}
+	}
 
 	return nil
 }

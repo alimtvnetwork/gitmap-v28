@@ -29,10 +29,11 @@ var promptShowCmd = &cobra.Command{
 	Short: "Show details and body of a prompt template",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("usage: gitmap prompt show <slug>")
+			return fmt.Errorf("usage: gitmap prompt show <slug> [--copy]")
 		}
+		copyFlag, _ := cmd.Flags().GetBool("copy")
 
-		return runPromptShow(args[0])
+		return runPromptShow(args[0], copyFlag)
 	},
 }
 
@@ -63,6 +64,7 @@ var promptRmCmd = &cobra.Command{
 
 func initPromptCmd() {
 	PromptCmd.AddCommand(promptLsCmd)
+	promptShowCmd.Flags().Bool("copy", false, "Copy the template body to the clipboard")
 	PromptCmd.AddCommand(promptShowCmd)
 	PromptCmd.AddCommand(PromptAddCmd)
 	PromptCmd.AddCommand(promptRmCmd)
