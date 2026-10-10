@@ -1,5 +1,16 @@
 # Changelog
 
+## [v6.531.0] - 2026-10-10
+
+### Added
+- GitMap Repo-Cache Scan, Clone, and LS Ecosystem:
+  - `gitmap scan . --rc` / `gitmap scan --rc`: Export and auto-merge scanned repositories into `repo-cache/01-gitmap/gitmap.json` with URL normalization and deduplication.
+  - `gitmap scan . --rc --separate` (aliases `--seprate`, `--sep`, `--s`): Auto-allocate next sequential manifest (`02-gitmap.json`, `03-gitmap.json`).
+  - `gitmap clone/cfr/cfrp --rc` / `rc`: Split-DB cached (<5ms) manifest discovery and interactive/auto (`-y`) cloning with concise `owner/repo` TreeView.
+  - `gitmap ls rc` / `gitmap list rc`: Manifest inspector with `[SSH]` and `[Public HTTPS]` protocol badges and copy-pasteable import hints.
+
+---
+
 ## [v6.530.0] - 2026-10-10
 
 ### Added

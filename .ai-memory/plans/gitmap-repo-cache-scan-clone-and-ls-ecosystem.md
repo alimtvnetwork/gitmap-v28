@@ -1,7 +1,7 @@
 # Execution Plan: GitMap Repo-Cache Scan, Clone, and LS Ecosystem
 
 - **Task Slug:** `gitmap-repo-cache-scan-clone-and-ls-ecosystem`
-- **Specification:** [02-spec/21-app/gitmap-repo-cache-scan-clone-and-ls-ecosystem/01-architecture-spec.md](file:///d:/work/gitmap/02-spec/21-app/gitmap-repo-cache-scan-clone-and-ls-ecosystem/01-architecture-spec.md)
+- **Specification:** [02-spec/21-app/gitmap-repo-cache-scan-clone-and-ls-ecosystem/01-architecture-spec.md](02-spec/21-app/gitmap-repo-cache-scan-clone-and-ls-ecosystem/01-architecture-spec.md)
 - **Status:** APPROVED & IN PROGRESS
 - **Budget:** 300 steps
 - **Concurrency (A=2, H=2):** 2 Subagents, 2 Hands (4 concurrent operations capacity)
