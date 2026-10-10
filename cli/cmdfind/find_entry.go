@@ -246,31 +246,3 @@ func RunFindRegexReadJson(args []string) error {
 
 	return nil
 }
-
-func runFindHelp(args []string) error {
-	pterm.DefaultSection.Println("Find Help Options")
-	pterm.Println("  gitmap find <query> [--limit <n>]")
-	pterm.Println("  gitmap find-regex <regex> [--limit <n>]")
-	pterm.Println("  gitmap find-read <query> [--limit <n>]")
-	pterm.Println("  gitmap find-read-json <query> [--limit <n>]")
-
-	return nil
-}
-
-func runSearchHelp(args []string) error {
-	pterm.DefaultSection.Println("Search Help Options")
-	pterm.Println("  gitmap search <query>")
-	pterm.Println("  gitmap search-replace-all <query>")
-	pterm.Println("  gitmap repo-search <query>")
-
-	return nil
-}
-
-func runRegexHelp(args []string) error {
-	pterm.DefaultSection.Println("Regex Help Options")
-	pterm.Println("  gitmap replace-regex <regex>")
-	pterm.Println("  gitmap repo-regex <regex>")
-	pterm.Println("  gitmap find-regex <regex>")
-
-	return nil
-}

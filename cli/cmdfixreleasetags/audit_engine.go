@@ -3,171 +3,11 @@
 package cmdfixreleasetags
 
 import (
-	"encoding/json"
-	"os"
-	"sort"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
-
-type ghReleaseItem struct {
-	TagName   string        `json:"tagName"`
-	IsDraft   bool          `json:"isDraft"`
-	CreatedAt string        `json:"createdAt"`
-	Assets    []ghAssetItem `json:"assets"`
-}
-
-type ghAssetItem struct {
-	Name  string `json:"name"`
-	Size  int64  `json:"size"`
-	State string `json:"state"`
-}
-
-type ghRunItem struct {
-	DatabaseId uint64 `json:"databaseId"`
-	Name       string `json:"name"`
-	Status     string `json:"status"`
-	Conclusion string `json:"conclusion"`
-	CreatedAt  string `json:"createdAt"`
-}
-
-// CollectLocalTags reads local git tags via git tag -l.
-func CollectLocalTags(repoPath string, executor CommandExecutor) ([]string, error) {
-	out, err := executor.Run(repoPath, "git", "tag", "-l")
-	if err != nil {
-		return nil, err
-	}
-
-	lines := strings.Split(string(out), "\n")
-	var tags []string
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed != "" {
-			tags = append(tags, trimmed)
-		}
-	}
-
-	return tags, nil
-}
-
-// CollectRemoteTags reads remote git tags via git ls-remote --tags origin.
-func CollectRemoteTags(repoPath string, executor CommandExecutor) (map[string]bool, error) {
-	out, err := executor.Run(repoPath, "git", "ls-remote", "--tags", "origin")
-	if err != nil {
-		return nil, err
-	}
-
-	tags := make(map[string]bool)
-	lines := strings.Split(string(out), "\n")
-	for _, line := range lines {
-		processRemoteTagLine(line, tags)
-	}
-
-	return tags, nil
-}
-
-func processRemoteTagLine(line string, tags map[string]bool) {
-	trimmed := strings.TrimSpace(line)
-	if trimmed == "" {
-		return
-	}
-
-	parts := strings.Fields(trimmed)
-	if len(parts) < 2 || strings.HasSuffix(parts[1], "^{}") {
-		return
-	}
-
-	const prefix = "refs/tags/"
-	if strings.HasPrefix(parts[1], prefix) {
-		tags[strings.TrimPrefix(parts[1], prefix)] = true
-	}
-}
-
-// FetchGitHubReleases retrieves repository releases via gh release list.
-func FetchGitHubReleases(repoPath string, executor CommandExecutor) ([]ghReleaseItem, error) {
-	if os.Getenv("GITMAP_MOCK_GH") == "1" {
-		return nil, nil
-	}
-
-	out, err := executor.Run(repoPath, "gh", "release", "list", "--limit", "100", "--json", "tagName,isDraft,createdAt,assets")
-	if err != nil {
-		return nil, err
-	}
-
-	trimmed := strings.TrimSpace(string(out))
-	if trimmed == "" || trimmed == "[]" {
-		return nil, nil
-	}
-
-	var items []ghReleaseItem
-	err = json.Unmarshal([]byte(trimmed), &items)
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
-}
-
-// FetchTagWorkflows retrieves CI/CD workflow runs for a specific tag or commit.
-func FetchTagWorkflows(repoPath, tag, commitSha string, executor CommandExecutor) ([]CIWorkflowRunInfo, error) {
-	if os.Getenv("GITMAP_MOCK_GH") == "1" {
-		return nil, nil
-	}
-
-	args := buildWorkflowQueryArgs(tag, commitSha)
-	out, err := executor.Run(repoPath, "gh", args...)
-	if err != nil {
-		return nil, err
-	}
-
-	return parseWorkflowRunItems(out)
-}
-
-func buildWorkflowQueryArgs(tag, commitSha string) []string {
-	args := []string{"run", "list", "--limit", "10", "--json", "databaseId,name,status,conclusion,createdAt"}
-	if commitSha != "" {
-		return append(args, "--commit", commitSha)
-	}
-
-	if tag != "" {
-		return append(args, "--branch", tag)
-	}
-
-	return args
-}
-
-func parseWorkflowRunItems(data []byte) ([]CIWorkflowRunInfo, error) {
-	trimmed := strings.TrimSpace(string(data))
-	if trimmed == "" || trimmed == "[]" {
-		return nil, nil
-	}
-
-	var rawItems []ghRunItem
-	err := json.Unmarshal([]byte(trimmed), &rawItems)
-	if err != nil {
-		return nil, err
-	}
-
-	var runs []CIWorkflowRunInfo
-	for _, r := range rawItems {
-		parsedTime, _ := time.Parse(time.RFC3339, r.CreatedAt)
-		isSucc := strings.EqualFold(r.Conclusion, "success")
-		isInProg := isRunInProgress(CIWorkflowRunInfo{Status: r.Status})
-		runs = append(runs, CIWorkflowRunInfo{
-			RunId:        r.DatabaseId,
-			WorkflowName: r.Name,
-			Status:       r.Status,
-			Conclusion:   r.Conclusion,
-			CreatedAt:    parsedTime,
-			IsSuccessful: isSucc,
-			IsInProgress: isInProg,
-		})
-	}
-
-	return runs, nil
-}
 
 func isChecksumFileName(name string) bool {
 	lower := strings.ToLower(name)
@@ -227,7 +67,7 @@ func InspectAssets(rawAssets []ghAssetItem) ([]ReleaseAssetInfo, bool, bool, boo
 func hasFailingRun(runs []CIWorkflowRunInfo) bool {
 	for _, r := range runs {
 		conc := strings.ToLower(strings.TrimSpace(r.Conclusion))
-		if conc == "failure" || conc == "cancelled" || conc == "timed_out" || conc == "startup_failure" {
+		if conc == "failure" || strings.HasPrefix(conc, "cancel") || conc == "timed_out" || conc == "startup_failure" {
 			return true
 		}
 	}
@@ -258,75 +98,6 @@ func DetermineAuditReason(hasRelease bool, isDraft bool, assetCount int, hasChec
 	}
 
 	return ReasonHealthy
-}
-
-func splitSemverInts(v string) [3]int {
-	norm := NormalizeVersionTag(v)
-	var nums [3]int
-	parts := strings.SplitN(norm, ".", 3)
-	for i, p := range parts {
-		if i >= 3 {
-			break
-		}
-
-		n := 0
-		for _, r := range p {
-			if r < '0' || r > '9' {
-				break
-			}
-			n = n*10 + int(r-'0')
-		}
-		nums[i] = n
-	}
-
-	return nums
-}
-
-// CompareSemver compares two semantic versions. Returns 1 if a > b, -1 if a < b, 0 if equal.
-func CompareSemver(a, b string) int {
-	pa := splitSemverInts(a)
-	pb := splitSemverInts(b)
-
-	for i := 0; i < 3; i++ {
-		if pa[i] > pb[i] {
-			return 1
-		}
-		if pa[i] < pb[i] {
-			return -1
-		}
-	}
-
-	return 0
-}
-
-// SortTagsDescending sorts tag strings in descending semantic version order.
-func SortTagsDescending(tags []string) {
-	sort.Slice(tags, func(i, j int) bool {
-		cmp := CompareSemver(tags[i], tags[j])
-		if cmp != 0 {
-			return cmp > 0
-		}
-
-		return tags[i] > tags[j]
-	})
-}
-
-// FindLatestHealthyTag locates the highest semver release that is healthy.
-func FindLatestHealthyTag(records []ReleaseTagAuditRecord) string {
-	var healthyTags []string
-	for _, rec := range records {
-		if rec.AuditReason == ReasonHealthy {
-			healthyTags = append(healthyTags, rec.Tag)
-		}
-	}
-
-	if len(healthyTags) == 0 {
-		return ""
-	}
-
-	SortTagsDescending(healthyTags)
-
-	return healthyTags[0]
 }
 
 func resolveAuditInputs(opts AuditFilterOptions) (string, time.Duration, CommandExecutor) {

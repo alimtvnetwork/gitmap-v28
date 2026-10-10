@@ -32,25 +32,8 @@ func ResolveRepoCacheRoot() string {
 		return "repo-cache"
 	}
 
-	db, err := store.OpenSpecialReposSplitDB()
-	if err == nil {
-		defer db.Close()
-		rec, err := db.GetSpecialRepo("repo-cache")
-		if err == nil && rec != nil {
-			if len(rec.LocalPath) > 0 {
-				if info, err := os.Stat(rec.LocalPath); err == nil && info.IsDir() {
-					return rec.LocalPath
-				}
-			}
-			workBase := resolveWorkBaseDir()
-			confName := rec.ConfiguredName
-			if len(confName) == 0 {
-				confName = "repo-cache"
-			}
-			target := filepath.Join(workBase, confName)
-			_ = os.MkdirAll(target, 0755)
-			return target
-		}
+	if custom := probeSpecialRepoCacheDir(); custom != "" {
+		return custom
 	}
 
 	workBase := resolveWorkBaseDir()
@@ -59,24 +42,67 @@ func ResolveRepoCacheRoot() string {
 	return target
 }
 
-func resolveWorkBaseDir() string {
-	mainDB, err := store.OpenDefault()
-	if err == nil {
-		defer mainDB.Close()
-		if wd, err := mainDB.GetDefaultWorkDir(); err == nil && wd != nil && len(wd.AbsolutePath) > 0 {
-			if info, err := os.Stat(wd.AbsolutePath); err == nil && info.IsDir() {
-				return wd.AbsolutePath
-			}
-		}
+func probeSpecialRepoCacheDir() string {
+	db, err := store.OpenSpecialReposSplitDB()
+	if err != nil {
+		return ""
 	}
-	if info, err := os.Stat(`D:\work`); err == nil && info.IsDir() {
-		return `D:\work`
+	defer db.Close()
+
+	rec, err := db.GetSpecialRepo("repo-cache")
+	if err != nil || rec == nil {
+		return ""
+	}
+
+	if isExistingDirectory(rec.LocalPath) {
+		return rec.LocalPath
+	}
+
+	confName := rec.ConfiguredName
+	if len(confName) == 0 {
+		confName = "repo-cache"
+	}
+	workBase := resolveWorkBaseDir()
+	target := filepath.Join(workBase, confName)
+	_ = os.MkdirAll(target, 0755)
+	return target
+}
+
+func isExistingDirectory(path string) bool {
+	if len(path) == 0 {
+		return false
+	}
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
+}
+
+func resolveWorkBaseDir() string {
+	if dbPath := probeDBWorkDir(); dbPath != "" {
+		return dbPath
 	}
 	cwd, err := os.Getwd()
 	if err == nil {
 		return filepath.Dir(cwd)
 	}
 	return "."
+}
+
+func probeDBWorkDir() string {
+	mainDB, err := store.OpenDefault()
+	if err != nil {
+		return ""
+	}
+	defer mainDB.Close()
+
+	wd, err := mainDB.GetDefaultWorkDir()
+	if err != nil || wd == nil || len(wd.AbsolutePath) == 0 {
+		return ""
+	}
+
+	if isExistingDirectory(wd.AbsolutePath) {
+		return wd.AbsolutePath
+	}
+	return ""
 }
 
 func hasRCFlagOrToken(args []string) bool {
@@ -133,18 +159,18 @@ func RunCloneRC(args []string, mode CloneDispatchMode) error {
 	flags := parseRCArgs(args)
 
 	isInteractive := stdinIsTerminal() && !flags.isAssumeYes && flags.manifestIndex == 0
-	if !isInteractive {
-		targetIndex := flags.manifestIndex
-		if targetIndex <= 0 || targetIndex > len(manifests) {
-			targetIndex = 1
-		}
-		targetManifest := manifests[targetIndex-1]
-		fmt.Printf("▸ Ingesting repo-cache manifest [%d]: %s (%d repositories)\n",
-			targetManifest.Index, targetManifest.RelativePath, targetManifest.TotalRepos)
-		return executeManifestClone(targetManifest, mode, flags.passthroughFlags)
+	if isInteractive {
+		return runInteractiveRCMenu(manifests, mode, flags.passthroughFlags)
 	}
 
-	return runInteractiveRCMenu(manifests, mode, flags.passthroughFlags)
+	targetIndex := flags.manifestIndex
+	if targetIndex <= 0 || targetIndex > len(manifests) {
+		targetIndex = 1
+	}
+	targetManifest := manifests[targetIndex-1]
+	fmt.Printf("▸ Ingesting repo-cache manifest [%d]: %s (%d repositories)\n",
+		targetManifest.Index, targetManifest.RelativePath, targetManifest.TotalRepos)
+	return executeManifestClone(targetManifest, mode, flags.passthroughFlags)
 }
 
 func runInteractiveRCMenu(manifests []DiscoveredManifest, mode CloneDispatchMode, passthrough []string) error {
@@ -177,7 +203,7 @@ func runInteractiveRCMenu(manifests []DiscoveredManifest, mode CloneDispatchMode
 		fmt.Print(RenderShortTreeView(manifests))
 		return runInteractiveRCMenu(manifests, mode, passthrough)
 	case "Q", "":
-		fmt.Println("Operation cancelled.")
+		fmt.Println("Operation canceled.")
 		return nil
 	default:
 		if num, err := strconv.Atoi(choice); err == nil && num >= 1 && num <= len(manifests) {
@@ -185,19 +211,9 @@ func runInteractiveRCMenu(manifests []DiscoveredManifest, mode CloneDispatchMode
 			fmt.Printf("\n▸ Cloning manifest [%d]: %s (%d repositories)...\n", target.Index, target.RelativePath, target.TotalRepos)
 			return executeManifestClone(target, mode, passthrough)
 		}
-		fmt.Println("Invalid choice. Operation cancelled.")
+		fmt.Println("Invalid choice. Operation canceled.")
 		return nil
 	}
-}
-
-func cloneAllManifests(manifests []DiscoveredManifest, mode CloneDispatchMode, passthrough []string) error {
-	for _, m := range manifests {
-		fmt.Printf("\n▸ Cloning manifest [%d]: %s (%d repositories)...\n", m.Index, m.RelativePath, m.TotalRepos)
-		if err := executeManifestClone(m, mode, passthrough); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func runInteractiveSelectRepos(manifests []DiscoveredManifest, mode CloneDispatchMode, passthrough []string, reader *bufio.Reader) error {
@@ -238,47 +254,4 @@ func runInteractiveSelectRepos(manifests []DiscoveredManifest, mode CloneDispatc
 	}
 
 	return executeEntriesClone(selectedEntries, mode, passthrough)
-}
-
-func executeManifestClone(manifest DiscoveredManifest, mode CloneDispatchMode, passthrough []string) error {
-	switch mode {
-	case CloneModeCFR:
-		f := cloneFixRepoFlags{
-			url:     manifest.FullPath,
-			autoYes: true,
-		}
-		return runCFRManifestPipeline(f, false, CfrModifierFlags{})
-	case CloneModeCFRP:
-		f := cloneFixRepoFlags{
-			url:     manifest.FullPath,
-			autoYes: true,
-		}
-		return runCFRManifestPipeline(f, true, CfrModifierFlags{PromotePublic: true})
-	default:
-		combined := append([]string{manifest.FullPath}, passthrough...)
-		cf := parseCloneFlags(combined)
-		return executeParsedClone(cf)
-	}
-}
-
-func executeEntriesClone(entries []RepoCacheEntry, mode CloneDispatchMode, passthrough []string) error {
-	for i, e := range entries {
-		fmt.Printf("\n[%d/%d] Ingesting %s/%s (%s)...\n", i+1, len(entries), e.Owner, e.RepoName, e.CloneUrl)
-		switch mode {
-		case CloneModeCFR:
-			if err := runCloneFixRepoPipeline([]string{e.CloneUrl, "-y"}, false); err != nil {
-				return err
-			}
-		case CloneModeCFRP:
-			if err := runCloneFixRepoPipeline([]string{e.CloneUrl, "-y"}, true); err != nil {
-				return err
-			}
-		default:
-			executeDirectClone(DirectCloneParams{
-				URL:       e.CloneUrl,
-				GHDesktop: true,
-			})
-		}
-	}
-	return nil
 }

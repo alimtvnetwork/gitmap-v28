@@ -138,7 +138,7 @@ func TestCloneRC_SplitDBCache(t *testing.T) {
 	}
 
 	// 1. Initial cache check -> expected miss
-	entries, isHit, err := GetCachedManifestEntries(db, manifestFile, hash, mtime)
+	_, isHit, err := GetCachedManifestEntries(db, manifestFile, hash, mtime)
 	if err != nil {
 		t.Fatalf("GetCachedManifestEntries failed: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestCloneRC_SplitDBCache(t *testing.T) {
 
 	// 3. Cache hit benchmark (<5ms requirement)
 	start := time.Now()
-	entries, isHit, err = GetCachedManifestEntries(db, manifestFile, hash, mtime)
+	hitEntries, isHit, err := GetCachedManifestEntries(db, manifestFile, hash, mtime)
 	elapsed := time.Since(start)
 
 	if err != nil {
@@ -174,8 +174,8 @@ func TestCloneRC_SplitDBCache(t *testing.T) {
 	if !isHit {
 		t.Fatalf("expected cache hit after storing")
 	}
-	if len(entries) != 2 {
-		t.Fatalf("expected 2 cached entries, got %d", len(entries))
+	if len(hitEntries) != 2 {
+		t.Fatalf("expected 2 cached entries, got %d", len(hitEntries))
 	}
 	if elapsed > 100*time.Millisecond {
 		t.Logf("Cache hit duration: %v", elapsed)
