@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.529.0] - 2026-10-10
+
+### Added
+- Pull failure subtree yellow solutions, non-repo smart clone and unified batch fix
+
+---
+
 ## [v6.528.0] - 2026-10-10
 
 ### Added
