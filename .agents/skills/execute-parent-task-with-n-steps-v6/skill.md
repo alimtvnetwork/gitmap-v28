@@ -174,17 +174,18 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 1. **Platform Handshake:** Confirm tools (`invoke_subagent`, `send_message`, `manage_subagents`, `ask_question`, `write_to_file`, `replace_file_content`, `run_command`). If `task_boundary` exists: set `PLANNING` (Phase 1), `EXECUTION` (Phase 2), `VERIFICATION` (Phase 3).
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
 3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
-4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
-   - Initialize or inspect task state via GitMap SQLite task manager (compiled Go, sub-millisecond; fallback: Python):
-     `gitmap task init --name "<task name>" --budget 300`
-     *(Legacy fallback: `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`)*
+4. **SQLite Task DB & Deterministic Slug Initialization (Two-Tier Split-DB Architecture):**
+   - Initialize parent task in Tier 1 registry (`.ai-memory/temp-agents/ai_agents.db` / `agents.db`) and auto-scaffold Tier 2 database (`.ai-memory/temp-agents/<slug>/agent-task.db`):
+     `gitmap agent-ai create-task "<task name>" --budget 300`
+     *(Compiled Go fallback: `gitmap task init --name "<task name>" --budget 300`)*
+     *(Python fallback: `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`)*
    - Inspect Task DB Schema & Data Integrity Rules (Mandatory Preflight):
      `gitmap task schema`
      Verify tables (`ParentTask`, `Subtask`, `AgentActionLog`), positive boolean flags (`IsActive`, `HasCompleted`, `IsBlocked`), and payload constraints before populating subtasks. (DDL: `gitmap task schema --ddl`; JSON: `gitmap task schema --json`).
    - Output Analysis & Crash Forensics:
      - If `action: "RESUME_FOUND"`: A matching or similar slug exists in `.ai-memory/temp-agents/`! If `diagnostics.hasCrashesDetected: true`, inspect the forensic report (`diagnostics.crashedAgents`) to identify which agent crashed, what file it was touching, and the last logged action. Resume execution from the uncompleted subtask.
-     - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-<slug>/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
-5. **Ledger Creation:** Also create `.ai-memory/temp-agents/<nn>-<slug>/ledger.md` mirroring the DB initialization for human readability:
+     - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<slug>/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
+5. **Ledger Creation:** Also create `.ai-memory/temp-agents/<slug>/ledger.md` mirroring the DB initialization for human readability:
 
 ```markdown
 # Ledger: nn-<slug>
@@ -228,9 +229,12 @@ You must use `invoke_subagent` to delegate both planning discovery and spec auth
    - Subagent 2 writes `02-spec/21-app/nn-<slug>/02-component-spec.md` and subtasks `.ai-memory/plans/subtasks/nn-<slug>/02-<name>.md`.
    - NEVER have both subagents write to the same file path!
    - *Tool Call:* Lead must execute the `invoke_subagent` tool as the final action in the turn, print `Dispatched Spec Agents`, and then STOP CALLING TOOLS to wait for `<SYSTEM_MESSAGE>` reactive wakeup.
-3. **Populate Subtasks in SQLite Task DB:** Once subtasks are decomposed, inspect schema constraints (`gitmap task schema`) and populate them into the SQLite database for atomic worker claiming:
-   `gitmap task add --db <databasePath> --code "Task-01" --title "<title>" --files "<paths>" --role "Worker 01"`
-   *(Legacy fallback: `python 03-ai-scripts/46-agent-sqlite-task-manager.py add-subtasks --db <databasePath> --tasks-json '[{"code": "Task-01", "title": "<title>", "owned_files": ["<paths>"], "agent_role": "Worker 01"}]'`)*
+3. **Populate Subtasks in SQLite Task DB & Claim File Boxes:** Once subtasks are decomposed, inspect schema constraints (`gitmap task schema`) and populate them into the SQLite database for atomic worker claiming:
+   `gitmap agent-ai subtask create <slug> "<title>" --code "Task-01" --files "<paths>" --role "Worker 01"`
+   *(Compiled Go fallback: `gitmap task add --db <databasePath> --code "Task-01" --title "<title>" --files "<paths>" --role "Worker 01"`)*
+   *(Legacy Python fallback: `python 03-ai-scripts/46-agent-sqlite-task-manager.py add-subtasks --db <databasePath> --tasks-json '[{"code": "Task-01", "title": "<title>", "owned_files": ["<paths>"], "agent_role": "Worker 01"}]'`)*
+   - Declare look-ahead file boxes and detect any active cross-subtask collisions early:
+     `gitmap agent subtask claim-files --task-id "<slug>" --subtask "Task-01" --files "<paths>" --agent "Worker 01"`
 4. **Readiness Gate:** Complete Phase 1 planning and spec authoring within `PHASE_1_BUDGET` steps, then proceed **UNCONDITIONALLY** into Phase 2. ZERO intermediate git commits during Phase 1!
 
 ---
@@ -353,21 +357,33 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 7. Targeted Verification: Run only fast file-scoped linters (e.g. `python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only`). A check scanning 0 files is a FAIL.
 8. GitMap Search Primacy (TOTAL BAN on rg / ripgrep / Select-String / git grep): NEVER execute `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, or `findstr`. Always use `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r]` for live symbol/regex discovery.
 
-### Concurrency-Safe SQLite Action Logging (CRASH FORENSICS MANDATE):
-- Worker subtasks are tracked in the run database: `<databasePath>`.
+### Concurrency-Safe SQLite Action Logging (CRASH FORENSICS & PRE-TOUCH MANDATE):
+- Worker subtasks are tracked in the run database: `<databasePath>` and registered in Tier 1 master DB (`.ai-memory/temp-agents/ai_agents.db`).
 - Inspect Database Schema & Constraints:
   `gitmap task schema`
   Inspect tables, positive boolean fields, and JSON payload specifications before claiming or logging actions.
+- Declare and claim assigned file box to prevent collisions:
+  ```bash
+  gitmap agent subtask claim-files --task-id "<task-slug>" --subtask "<Task-01>" --files "<comma-separated-paths>" --agent "Worker <NN>"
+  ```
 - Claim assigned subtask atomically:
   `gitmap task claim --db <databasePath> --agent "Worker <NN>"`
-- BEFORE touching or modifying any owned file, you MUST log your in-flight action:
-  `gitmap task log-action --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "<action description>"`
-  *(Note: This guarantees that if a tool execution crashes or the session is interrupted, the database permanently records the exact file you were touching and what caused the crash!)*
+- **MANDATORY PRE-TOUCH IN-FLIGHT ACTION LOGGING (RULE R-PRETOUCH):**
+  BEFORE modifying or reading any owned file, you MUST log your in-flight editing intention:
+  ```bash
+  gitmap agent-ai editing <subtask-id-or-code> "<relative-file-path>" --action "replace_file_content" --lines <start,end> --reasoning "<technical reasoning>" --agent "Worker <NN>"
+  ```
+  *(Compiled Go fallback: `gitmap task log-action --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "<action description>"`)*
+  *(Legacy Python fallback: `python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --action "replace_file_content" --file "<path>" --details "<description>"`)*
+  *(Note: This guarantees that if a tool execution crashes or the session is interrupted, the database permanently records the exact file you were touching, the line numbers, and the rationale!)*
 - When your subtask passes targeted checks, mark completion in the database:
   `gitmap task complete --db <databasePath> --subtask-id <id> --evidence "PASS exit 0, <files>"`
 - If blocked or failing, record the failure:
   `gitmap task fail --db <databasePath> --subtask-id <id> --reason "<reason>"`
-*(Note: Python script `python 03-ai-scripts/46-agent-sqlite-task-manager.py` remains available with identical flags as legacy fallback).*
+- Inspect Real-Time Churn Heatmap:
+  `gitmap agent-ai heatmap <task-slug>`
+- Retain Discovered Architectural Heuristics:
+  `gitmap agent-ai learn "<domain insight or convention discovered>" --tag <tag>`
 
 ### Output Contract:
 Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json and reply with this JSON block, once per subtask, then stop:
@@ -385,12 +401,18 @@ Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json 
 ### 7.3 Turn-Yielding, Verification & Crash Forensics Protocol
 
 1. **Invoke & Yield:** You must ACTUALLY CALL the `invoke_subagent` tool as the final action in your turn. Print the progress line (`Dispatched Worker 01 .. Worker <A> (wave k / WAVES); waiting for their results.`) and **STOP CALLING TOOLS** to end your turn.
-2. **Automated Crash Forensics & Status Inspection:**
+2. **Automated Crash Forensics, Status Inspection & Heatmaps:**
    - Lead inspects overall completion status at any time:
      `gitmap task status --db <databasePath>`
      *(Legacy fallback: `python 03-ai-scripts/46-agent-sqlite-task-manager.py status --db <databasePath>`)*
+   - Inspect active task file churn and write-claim density:
+     `gitmap agent-ai heatmap <task-slug>`
+   - Inspect recent task heatmaps, search, or regex-query historical actions:
+     `gitmap agent-ai heatmap ls 30`
+     `gitmap agent-ai heatmap search "<task title or query>"`
+     `gitmap agent-ai heatmap grep "<regex>"`
    - If any worker fails to report, crashes, or times out, inspect status or diagnose:
-     `gitmap task status --db <databasePath>` or `python 03-ai-scripts/46-agent-sqlite-task-manager.py diagnose --db <databasePath>`
+     `gitmap agent diagnose` or `python 03-ai-scripts/46-agent-sqlite-task-manager.py diagnose --db <databasePath>`
      This pinpoints the autopsy: which agent crashed, on which subtask, targeting which file, and the exact action that was executing when it failed.
 3. **Verify Worker Reports Independently:** Confirm `git diff --stat -- <owned files>` matches `filesChanged`, no files outside owned files modified, re-run targeted checks for `exit 0` on non-zero files.
 4. **Reject Violations:** Send failures via `send_message`. On `BLOCKED`, lead does work and logs `LEAD_FALLBACK: <reason>`. After two failed rounds, mark `FAILED`, write RCA, continue (R13).
