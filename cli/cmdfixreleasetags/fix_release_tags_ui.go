@@ -122,6 +122,8 @@ func formatActionCell(rec ReleaseTagAuditRecord) string {
 			return "Skip (Latest Healthy)"
 		case StatusProtectedGrace:
 			return "Skip (Grace Period)"
+		case StatusEligible:
+			return "Delete Release & Tag"
 		default:
 			return "Skip (Protected)"
 		}

@@ -28,6 +28,8 @@ func executeManifestClone(manifest DiscoveredManifest, mode CloneDispatchMode, p
 			autoYes: true,
 		}
 		return runCFRManifestPipeline(f, true, CfrModifierFlags{PromotePublic: true})
+	case CloneModeStandard:
+		fallthrough
 	default:
 		combined := append([]string{manifest.FullPath}, passthrough...)
 		cf := parseCloneFlags(combined)
@@ -47,6 +49,8 @@ func executeEntriesClone(entries []RepoCacheEntry, mode CloneDispatchMode, passt
 			if err := runCloneFixRepoPipeline([]string{e.CloneUrl, "-y"}, true); err != nil {
 				return err
 			}
+		case CloneModeStandard:
+			fallthrough
 		default:
 			executeDirectClone(DirectCloneParams{
 				URL:       e.CloneUrl,
