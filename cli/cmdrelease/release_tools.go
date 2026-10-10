@@ -12,12 +12,10 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
-func runReleaseNotes(args []string) error {
-	// Delegates to the flag-aware implementation in release_notes_opts.go,
-	// which still accepts the legacy bare-range positional form.
-	runReleaseNotesV2(args)
-
-	return nil
+// RunReleaseNotes delegates to the flag-aware implementation in release_notes_opts.go,
+// which still accepts the legacy bare-range positional form.
+func RunReleaseNotes(args []string) error {
+	return runReleaseNotesV2(args)
 }
 
 func RunReleaseDry(args []string) error {

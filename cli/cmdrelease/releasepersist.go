@@ -45,17 +45,6 @@ func persistReleaseToDB() {
 	}
 }
 
-// resolveCurrentRepoID returns the RepoId for the cwd. Caller must handle
-// the "repo not scanned" error path explicitly.
-func resolveCurrentRepoID(db *store.DB) (int64, error) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return 0, err
-	}
-
-	return db.ResolveCurrentRepoID(cwd)
-}
-
 // resolveOrRegisterCurrentRepoID first tries to resolve the cwd's RepoId;
 // when the repo is not yet registered, it auto-registers (parent dir =
 // ScanFolder, cwd = Repo) and re-resolves. This makes `gitmap r` self-

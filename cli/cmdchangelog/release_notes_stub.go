@@ -1,11 +1,10 @@
 package cmdchangelog
 
 import (
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrelease"
 )
 
-// RunReleaseNotes is a stub for the release-notes command.
-// TODO: Implement actual release notes logic (function never existed in codebase).
+// RunReleaseNotes is a shim delegating to cmdrelease.RunReleaseNotes.
 func RunReleaseNotes(args []string) error {
-	return fmt.Errorf("release-notes not implemented")
+	return cmdrelease.RunReleaseNotes(args)
 }
