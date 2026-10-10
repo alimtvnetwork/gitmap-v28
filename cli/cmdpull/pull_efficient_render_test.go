@@ -168,3 +168,15 @@ func TestFormatWrappedInactiveList(t *testing.T) {
 		}
 	}
 }
+
+func TestResolveDualPullRemediationHints_Conflict(t *testing.T) {
+	err := "Merge conflict detected during pull: automatic merge failed"
+	l1, c1, l2, c2 := ResolveDualPullRemediationHints(err, "", "cat-my-v12")
+
+	if l1 != "Stash & Re-pull" || c1 != "gitmap fix cat-my-v12 stash" {
+		t.Fatalf("unexpected option 1: label=%q, cmd=%q", l1, c1)
+	}
+	if l2 != "Discard & Abort" || c2 != "gitmap fix cat-my-v12 discard" {
+		t.Fatalf("unexpected option 2: label=%q, cmd=%q", l2, c2)
+	}
+}

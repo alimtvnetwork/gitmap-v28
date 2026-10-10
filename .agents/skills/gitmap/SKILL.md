@@ -82,6 +82,28 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - `gitmap bash "<cmd>"` / `gitmap sh "<cmd>"` — Cross-platform Bash execution.
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling).
 
+#### Automated Pull Failure & Dirty Repository Remediation Matrix
+
+When `gitmap pull` or `gitmap pull-all` (`pa`) reports dirty or failed repositories, GitMap emits structured dual remediation options. Autonomous agents must apply the following deterministic rules:
+
+##### Remediation Decision Table
+
+| Failure / Status Category | Root Cause | Primary Action: Option 1 (Preserve / Track / Clone) | Secondary Fallback: Option 2 (Stash / Clean / Discard) | Agent Decision Rule |
+| :--- | :--- | :--- | :--- | :--- |
+| **Dirty Repo (Modified Files)** | Uncommitted working tree edits | `gitmap cpar "wip: save changes"` (commit & push) | `gitmap fix <repo> stash` or `git -C "<path>" stash` | Use **Option 1** when preserving work across workspace; use **Option 2** if preparing a clean baseline for pull. |
+| **Dirty Repo (Untracked Files Only)** | Unstaged new files/directories | `git -C "<path>" add .` | `git -C "<path>" clean -fd` | Use **Option 1** if files are assets/code; use **Option 2** if files are disposable build artifacts or logs. |
+| **Failed Repo (Missing on Disk)** | Repo registered in DB but missing from disk | `gitmap clone <repo>` | `gitmap rm --db-only <repo>` | Always run **Option 1** (`gitmap clone <repo>`) to restore missing workspace repos. |
+| **Failed Repo (Merge Conflict)** | Remote changes conflict with local work | `gitmap fix <repo> stash` | `gitmap fix <repo> discard` or `git -C "<path>" merge --abort` | Use **Option 1** to stash and re-pull; use **Option 2** only if local changes are superseded. |
+| **Failed Repo (Diverged Branch)** | Non-fast-forward remote updates | `git -C "<path>" pull --rebase` (or `gitmap pull --rebase <repo>`) | `git -C "<path>" reset --hard @{u}` | Use **Option 1** to preserve commit history; use **Option 2** if remote is source of truth. |
+| **Failed Repo (Credential Store / Wincredman)** | Windows Credential Manager service failure | `gitmap fix-credential` (alias: `fc`) | `gitmap ssh deploy-keys` | Run **Option 1** (`gitmap fc`) immediately to repair git credential store. |
+
+##### Batch Remediation Commands for AI Agents
+- `gitmap cpar "wip: save changes"` — Batch commits and pushes all dirty repositories across workspace in one shot.
+- `gitmap fix --all stash` — Stashes uncommitted changes across all dirty repositories.
+- `gitmap fix --all wip` — Creates WIP commits across all dirty repositories without pushing.
+- `gitmap fix --all discard` — Discards dirty working tree changes across all repositories.
+- `gitmap fix <repo> <stash|wip|discard>` — Surgical single-repository remediation.
+
 ### 7. Multi-Node Cluster & Remote Delegation
 - `gitmap cluster --help` — Orchestrate multi-node clusters and health checks.
 - `gitmap sc --help` — Servers-clients topology and background task manager.
@@ -148,6 +170,14 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 - `gitmap prompt add <slug> <file.md>` — Install/update a template from a markdown file. `gitmap prompt rm <slug>` — Delete one.
 - `gitmap prompt export [file.zip]` / `gitmap prompt import <file.zip|file.md>` — Portable template bundles across machines.
 - Installed now: `mastery-bootstrap` (the foolproof Muse bootstrap prompt), `muse-master`, `execute-in-a-step`, `letterly-desktop`, plus the built-ins (`ci-cd-fix`, `code-review`).
+
+### 14. Multi-Project Supabase Vault & Encrypted Secrets
+- `gitmap supabase add <alias> <url> <anon_key> <service_key> [db_url]` — Register Supabase database with AES-256-GCM / RSA encrypted vault. Zero cleartext secrets stored in SQLite!
+- `gitmap supabase list` (alias `gitmap sb list`) — List registered Supabase database connections and active target.
+- `gitmap supabase use <alias>` — Switch active default Supabase project.
+- `gitmap supabase remove <alias>` — Remove registered Supabase project.
+- `gitmap supabase env <alias>` — Output shell environment variable exports (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`).
+- `gitmap supabase ping <alias>` — Test live REST API reachability of registered Supabase instance.
 
 ## Command Replacement Matrix (Mandatory Substitutions)
 

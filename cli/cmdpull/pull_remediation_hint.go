@@ -237,6 +237,9 @@ func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string,
 	if isMissingRepoFailure(msg) || isMissingRepoDir(repoDir) {
 		return resolveMissingRepoDualHints(repoDir, repoName)
 	}
+	if isConflictFailure(msg) {
+		return resolveConflictDualHints(repoDir, repoName)
+	}
 	if isDivergedFailure(msg) {
 		return resolveDivergedDualHints(repoDir, repoName)
 	}
@@ -249,6 +252,9 @@ func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string,
 func resolveStateOrAuthDualHints(msg, repoDir, repoName string) (string, string, string, string) {
 	if isMissingRepoFailure(msg) || isMissingRepoDir(repoDir) {
 		return resolveMissingRepoDualHints(repoDir, repoName)
+	}
+	if isConflictFailure(msg) {
+		return resolveConflictDualHints(repoDir, repoName)
 	}
 	if isDirtyTreeError(msg) {
 		return resolveDirtyTreeDualHints(repoDir)
@@ -279,6 +285,18 @@ func isDirtyTreeError(msg string) bool {
 	return strings.Contains(low, "dirty") || strings.Contains(low, "uncommitted") || strings.Contains(low, "local changes")
 }
 
+func resolveConflictDualHints(repoDir, repoName string) (string, string, string, string) {
+	name := resolveEffectiveRepoName(repoName, repoDir)
+	stashCmd := fmt.Sprintf("gitmap fix %s stash", name)
+	discardCmd := fmt.Sprintf("gitmap fix %s discard", name)
+	if repoDir != "" && name == "repo" {
+		stashCmd = formatRepoGitCmd(repoDir, "stash")
+		discardCmd = formatRepoGitCmd(repoDir, "merge --abort")
+	}
+
+	return "Stash & Re-pull", stashCmd, "Discard & Abort", discardCmd
+}
+
 func resolveDivergedDualHints(repoDir, repoName string) (string, string, string, string) {
 	rebaseCmd := formatRepoGitCmd(repoDir, "pull --rebase")
 	if repoDir == "" && repoName != "" {
@@ -296,9 +314,11 @@ func resolveUntrackedDualHints(repoDir string) (string, string, string, string) 
 
 func resolveDirtyTreeDualHints(repoDir string) (string, string, string, string) {
 	commitCmd := `gitmap cpar "wip: save changes"`
-	stashCmd := formatRepoGitCmd(repoDir, "stash")
-	if repoDir == "" {
-		stashCmd = "gitmap stash"
+	stashCmd := "gitmap stash"
+	if repoDir != "" {
+		cleanDir := filepath.ToSlash(filepath.Clean(repoDir))
+		commitCmd = fmt.Sprintf("git -C \"%s\" add -A && git -C \"%s\" commit -m \"wip: local changes\" && git -C \"%s\" pull --rebase", cleanDir, cleanDir, cleanDir)
+		stashCmd = fmt.Sprintf("git -C \"%s\" stash -u && git -C \"%s\" pull && git -C \"%s\" stash pop", cleanDir, cleanDir, cleanDir)
 	}
 	return "Commit WIP", commitCmd, "Stash Changes", stashCmd
 }
@@ -323,7 +343,8 @@ func formatRepoGitCmd(repoDir, gitArgs string) string {
 	if repoDir == "" {
 		return "git " + gitArgs
 	}
-	return fmt.Sprintf("git -C %q %s", repoDir, gitArgs)
+	cleanDir := filepath.ToSlash(filepath.Clean(repoDir))
+	return fmt.Sprintf("git -C \"%s\" %s", cleanDir, gitArgs)
 }
 
 func extractErrorString(err any) string {
