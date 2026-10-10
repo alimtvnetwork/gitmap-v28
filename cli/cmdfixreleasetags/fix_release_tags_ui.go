@@ -189,10 +189,6 @@ func ConfirmDeletion(candidateCount int, isConfirmed bool) (bool, error) {
 	return false, nil
 }
 
-func confirmDeletion(candidateCount int, isConfirmed bool) (bool, error) {
-	return ConfirmDeletion(candidateCount, isConfirmed)
-}
-
 // RenderHeaderBanner prints the initial audit scanning banner.
 func RenderHeaderBanner(targetDir string) {
 	fmt.Printf("%s[RELEASE-TAG-AUDIT]%s Inspecting release tags in '%s'...\n",

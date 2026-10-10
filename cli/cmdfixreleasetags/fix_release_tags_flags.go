@@ -69,17 +69,11 @@ func ParseFixReleaseTagsFlags(args []string) (FixReleaseTagsFlags, error) {
 			continue
 		}
 
-		if isRepoFlag(arg) {
-			if strings.Contains(arg, "=") {
-				parts := strings.SplitN(arg, "=", 2)
-				flags.TargetDirectory = strings.TrimSpace(parts[1])
-				continue
-			}
-			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-				flags.TargetDirectory = strings.TrimSpace(args[i+1])
-				i++
-				continue
-			}
+		val, nextIdx, hasVal := parseRepoFlagValue(arg, args, i)
+		if hasVal {
+			flags.TargetDirectory = val
+			i = nextIdx
+			continue
 		}
 
 		// Positional argument treated as target directory if not set
@@ -97,10 +91,6 @@ func ParseFixReleaseTagsFlags(args []string) (FixReleaseTagsFlags, error) {
 
 // ParseFlags is an alias for ParseFixReleaseTagsFlags.
 func ParseFlags(args []string) (FixReleaseTagsFlags, error) {
-	return ParseFixReleaseTagsFlags(args)
-}
-
-func parseFlags(args []string) (FixReleaseTagsFlags, error) {
 	return ParseFixReleaseTagsFlags(args)
 }
 
@@ -144,16 +134,35 @@ func isRepoFlag(arg string) bool {
 	return low == "-r" || low == "--repo" || strings.HasPrefix(low, "--repo=") || strings.HasPrefix(low, "-r=")
 }
 
+func parseRepoFlagValue(arg string, args []string, i int) (string, int, bool) {
+	if !isRepoFlag(arg) {
+		return "", i, false
+	}
+	if strings.Contains(arg, "=") {
+		parts := strings.SplitN(arg, "=", 2)
+		return strings.TrimSpace(parts[1]), i, true
+	}
+	if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+		return strings.TrimSpace(args[i+1]), i + 1, true
+	}
+	return "", i, false
+}
+
+func isMissingTargetDirectory(dir string) bool {
+	if dir == "." || dir == "" {
+		return false
+	}
+	info, err := os.Stat(dir)
+	return err != nil || !info.IsDir()
+}
+
 func validateFlags(flags FixReleaseTagsFlags) error {
 	if flags.IsLocalOnly && flags.IsRemoteOnly {
 		return apperror.NewSimple("cannot specify both --local-only and --remote-only flags simultaneously", "E1024")
 	}
 
-	if flags.TargetDirectory != "." && flags.TargetDirectory != "" {
-		info, err := os.Stat(flags.TargetDirectory)
-		if err != nil || !info.IsDir() {
-			return apperror.NewSimple(fmt.Sprintf("specified repository directory does not exist or is inaccessible: %s", flags.TargetDirectory), "E1026")
-		}
+	if isMissingTargetDirectory(flags.TargetDirectory) {
+		return apperror.NewSimple(fmt.Sprintf("specified repository directory does not exist or is inaccessible: %s", flags.TargetDirectory), "E1026")
 	}
 
 	return nil

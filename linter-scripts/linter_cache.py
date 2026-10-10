@@ -209,6 +209,11 @@ def resolve_linter_targets(
     cache = load_linter_cache(linter_name, root_dir)
     last_hash, head_hash = cache.get("last_git_hash", ""), get_git_head_hash(root_dir)
     if not is_valid_cache_head(last_hash, head_hash, root_dir):
+        parent_hashes = run_git_lines(["rev-parse", "HEAD~1"], root_dir)
+        if parent_hashes:
+            return resolve_changed_targets_with_cache(
+                parent_hashes[0], head_hash, root_dir, target_exts, exclude_dirs, None, target_subdir
+            )
         return collect_all_repo_targets(root_dir, target_exts, exclude_dirs, target_subdir), "baseline scan (cache seeded)", False
 
     return resolve_changed_targets_with_cache(

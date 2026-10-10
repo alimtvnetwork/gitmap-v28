@@ -28,7 +28,9 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "03-ai-scripts"))
+from linter_cache import resolve_linter_targets, record_linter_success
 engine = import_module("02-shared-engine")
 chunk_items = engine.chunk_items
 WorkerHeartbeatMonitor = engine.WorkerHeartbeatMonitor
@@ -248,6 +250,7 @@ def print_scan_progress(completed: int, total: int, workers: int, start_time: fl
 def parse_cli_args() -> argparse.Namespace:
     """Parses command line arguments for boolean and enum linter."""
     parser = argparse.ArgumentParser(description="Check boolean and enum conventions.")
+    parser.add_argument("--all", "--force", dest="force_all", action="store_true", help="Scan all repository files")
     parser.add_argument("--changed-only", "-c", action="store_true", help="Check only changed files")
     parser.add_argument("--commits", "-n", type=int, default=20, help="Commit window (default: 20)")
     parser.add_argument("--chunk-size", type=int, default=8, help="Files per chunk (default: 8)")
@@ -345,9 +348,20 @@ def report_violations_and_exit(all_violations: list[str], total_files: int, elap
 def main() -> int:
     """Main execution entrypoint."""
     args = parse_cli_args()
-    mode_label = f" (changed only, last {args.commits} commits)" if args.changed_only else ""
-    print(f"=== Running Boolean & Enum Linter (check-enum-and-boolean.py){mode_label} ===")
-    target_files = resolve_candidate_files(args)
+    if args.changed_only:
+        target_files = load_changed_targets(args.commits)
+        desc = f"changed only, last {args.commits} commits"
+        is_incremental = True
+    else:
+        target_files, desc, is_incremental = resolve_linter_targets(
+            "check-enum-and-boolean", ROOT_DIR, TARGET_EXTS, EXCLUDE_DIRS, force_all=args.force_all
+        )
+
+    print(f"=== Running Boolean & Enum Linter (check-enum-and-boolean.py) [{desc}] in {ROOT_DIR} ===")
+    if not target_files:
+        print(f"✅ PASS: All files cached as clean ({desc}). Zero violations.")
+        return 0
+
     total_files = len(target_files)
     chunks = chunk_items(target_files, args.chunk_size)
     cpu_cores = min(args.workers, max(1, len(chunks)))
@@ -359,6 +373,8 @@ def main() -> int:
     monitor.stop()
     elapsed = time.time() - start_time
     exit_code = report_violations_and_exit(all_violations, total_files, elapsed)
+    if exit_code == 0:
+        record_linter_success("check-enum-and-boolean", ROOT_DIR, target_files, is_incremental)
 
     return exit_code
 
