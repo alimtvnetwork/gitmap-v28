@@ -207,6 +207,39 @@ func computeReleaseSummary(dir, tag, prevTag, tagCommitHash string) ReleaseSumma
 	}
 }
 
+func cleanGistSubject(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+	words := strings.Fields(raw)
+	var filtered []string
+	filePathCount := 0
+	for _, w := range words {
+		cleanWord := strings.Trim(w, ",;:()[]{}'\"`")
+		if (strings.Contains(cleanWord, "/") || strings.Contains(cleanWord, "\\")) && filepath.Ext(cleanWord) != "" {
+			filePathCount++
+			continue
+		}
+		if filepath.Ext(cleanWord) != "" && len(cleanWord) > 3 {
+			ext := strings.ToLower(filepath.Ext(cleanWord))
+			switch ext {
+			case ".go", ".ts", ".js", ".py", ".rs", ".md", ".json", ".yaml", ".yml", ".sql", ".sh", ".ps1", ".html", ".css", ".txt":
+				filePathCount++
+				continue
+			}
+		}
+		filtered = append(filtered, w)
+	}
+
+	if len(filtered) == 0 {
+		return ""
+	}
+	res := strings.TrimSpace(strings.Join(filtered, " "))
+	res = strings.TrimRight(res, ",;:-")
+	return res
+}
+
 func synthesizeReleaseGist(commitLog string) string {
 	if commitLog == "" {
 		return "Maintenance updates and codebase stability improvements."
@@ -221,7 +254,10 @@ func synthesizeReleaseGist(commitLog string) string {
 		}
 		parts := strings.SplitN(trimmed, " ", 2)
 		if len(parts) == 2 {
-			subjects = append(subjects, parts[1])
+			cleaned := cleanGistSubject(parts[1])
+			if cleaned != "" {
+				subjects = append(subjects, cleaned)
+			}
 		}
 	}
 
@@ -280,7 +316,7 @@ func extractHeatedFilesFromDiff(numstat string) []HeatedFileMetric {
 func summarizeFileChurn(path string, ins, del int) string {
 	ext := filepath.Ext(path)
 	switch ext {
-	case ".go", ".ts", ".rs", ".py":
+	case ".go", ".ts", ".rs", ".py", ".js":
 		if ins > del*2 {
 			return "Feature expansion and new logic implementation"
 		} else if del > ins*2 {
@@ -289,8 +325,16 @@ func summarizeFileChurn(path string, ins, del int) string {
 		return "Iterative feature enhancements and logic adjustments"
 	case ".md":
 		return "Documentation and architecture updates"
-	case ".json", ".yaml", ".yml":
+	case ".json", ".yaml", ".yml", ".toml":
 		return "Configuration, schema, and dependency updates"
+	case ".sql":
+		return "Database schema and migration updates"
+	case ".proto":
+		return "API protocol and RPC schema updates"
+	case ".css", ".scss", ".html":
+		return "User interface styling and markup updates"
+	case ".sh", ".ps1", ".bat":
+		return "Automation scripting and build workflow updates"
 	default:
 		return "Codebase maintenance"
 	}

@@ -169,7 +169,16 @@ func inspectPipelineForItem(slug, dir string, isActive bool, lastCommit time.Tim
 
 		var traceLines []string
 		for _, logRec := range compactRes.Data {
-			traceLines = append(traceLines, logRec.ErrorText)
+			if logRec.CompactLogs != "" {
+				for _, l := range strings.Split(logRec.CompactLogs, "\n") {
+					trimmed := strings.TrimRight(l, "\r")
+					if trimmed != "" {
+						traceLines = append(traceLines, trimmed)
+					}
+				}
+			} else if logRec.ErrorText != "" {
+				traceLines = append(traceLines, strings.TrimRight(logRec.ErrorText, "\r"))
+			}
 		}
 		if len(traceLines) > 25 {
 			traceLines = traceLines[len(traceLines)-25:]

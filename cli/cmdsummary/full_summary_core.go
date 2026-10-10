@@ -72,7 +72,7 @@ func parseFullSummaryOptions(args []string) FullSummaryOptions {
 			opts.WithPE = true
 			continue
 		}
-		if lower == "--force-all" || lower == "--all" {
+		if lower == "--force-all" || lower == "--all" || lower == "-a" {
 			opts.ForceAll = true
 			continue
 		}
@@ -204,46 +204,77 @@ func renderFullSummaryTreeView(payload FullSummaryPayload, opts FullSummaryOptio
 			childIndent = "    "
 		}
 
-		if repo.IsDirty && len(repo.PendingFiles) > 0 {
-			fmt.Printf("%s├── Pending Changes:\n", childIndent)
-			for _, file := range repo.PendingFiles {
-				fmt.Printf("%s│   ├── %s\n", childIndent, file)
+		hasFix := repo.IsDirty && repo.SuggestedCommit != ""
+		hasPE := repo.PipelineError != nil || (opts.WithPE && repo.IsPipelineClean)
+		hasReleases := len(repo.Releases) > 0
+		hasPending := repo.IsDirty && len(repo.PendingFiles) > 0
+
+		if hasPending {
+			pendingPrefix := "├──"
+			pendingChildPrefix := "│   "
+			if !hasReleases && !hasPE && !hasFix {
+				pendingPrefix = "└──"
+				pendingChildPrefix = "    "
+			}
+			fmt.Printf("%s%s Pending Changes:\n", childIndent, pendingPrefix)
+			for idx, file := range repo.PendingFiles {
+				filePrefix := "├──"
+				if idx == len(repo.PendingFiles)-1 {
+					filePrefix = "└──"
+				}
+				fmt.Printf("%s%s%s %s\n", childIndent, pendingChildPrefix, filePrefix, file)
 			}
 		}
 
-		if len(repo.Releases) > 0 {
-			fmt.Printf("%s├── Releases:\n", childIndent)
+		if hasReleases {
+			relSectionPrefix := "├──"
+			relSectionChildPrefix := "│   "
+			if !hasPE && !hasFix {
+				relSectionPrefix = "└──"
+				relSectionChildPrefix = "    "
+			}
+			fmt.Printf("%s%s Releases:\n", childIndent, relSectionPrefix)
 			for j, rel := range repo.Releases {
 				relPrefix := "├──"
 				if j == len(repo.Releases)-1 {
 					relPrefix = "└──"
 				}
 				checkMark := pterm.Green("✓")
-				fmt.Printf("%s│   %s %s %s (%s): %s\n", childIndent, relPrefix, checkMark, rel.TagName, rel.ReleaseDate, rel.SummaryGist)
+				fmt.Printf("%s%s%s %s %s (%s): %s\n", childIndent, relSectionChildPrefix, relPrefix, checkMark, rel.TagName, rel.ReleaseDate, rel.SummaryGist)
 			}
 		}
 
 		if repo.PipelineError != nil {
 			pe := repo.PipelineError
-			fmt.Printf("%s├── ❌ CI/CD Pipeline FAILED (%s)\n", childIndent, pe.WorkflowName)
-			fmt.Printf("%s│   Job: %s | Step: %s | Exit Code: %d\n", childIndent, pe.JobName, pe.StepName, pe.ExitCode)
+			pePrefix := "├──"
+			peChildPrefix := "│   "
+			if !hasFix {
+				pePrefix = "└──"
+				peChildPrefix = "    "
+			}
+			fmt.Printf("%s%s ❌ CI/CD Pipeline FAILED (%s)\n", childIndent, pePrefix, pe.WorkflowName)
+			fmt.Printf("%s%sJob: %s | Step: %s | Exit Code: %d\n", childIndent, peChildPrefix, pe.JobName, pe.StepName, pe.ExitCode)
 			if pe.ErrorSummary != "" {
-				fmt.Printf("%s│   Summary: %s\n", childIndent, pe.ErrorSummary)
+				fmt.Printf("%s%sSummary: %s\n", childIndent, peChildPrefix, pe.ErrorSummary)
 			}
 			if pe.StackTrace != "" {
-				fmt.Printf("%s│   Stack Trace (last 25 lines):\n", childIndent)
+				fmt.Printf("%s%sStack Trace (last 25 lines):\n", childIndent, peChildPrefix)
 				lines := strings.Split(pe.StackTrace, "\n")
 				for _, line := range lines {
 					if strings.TrimSpace(line) != "" {
-						fmt.Printf("%s│     %s\n", childIndent, line)
+						fmt.Printf("%s%s  %s\n", childIndent, peChildPrefix, line)
 					}
 				}
 			}
 		} else if opts.WithPE && repo.IsPipelineClean {
-			fmt.Printf("%s├── ✓ CI/CD Pipeline PASSING\n", childIndent)
+			pePrefix := "├──"
+			if !hasFix {
+				pePrefix = "└──"
+			}
+			fmt.Printf("%s%s %s\n", childIndent, pePrefix, pterm.Green("✓ CI/CD Passing"))
 		}
 
-		if repo.IsDirty && repo.SuggestedCommit != "" {
+		if hasFix {
 			fmt.Printf("%s└── Suggested Fix: %s\n", childIndent, repo.SuggestedCommit)
 		}
 

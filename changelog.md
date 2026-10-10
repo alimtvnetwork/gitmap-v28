@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.527.0] - 2026-10-10
+
+### Added
+- cd  default workdir autonomous resolution and persistence
+
+---
+
 ## [v6.526.0] - 2026-10-10
 
 ### Added

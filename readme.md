@@ -4,7 +4,7 @@
 
 **High-Performance Git Repository Scanner, Fleet Manager & AI Orchestration CLI**
 
-**Pinned version: v6.526.0**
+**Pinned version: v6.527.0**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -57,8 +57,8 @@ GitMap installs cleanly across Windows, Linux, and macOS without external depend
 # Direct latest install (auto-updating):
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 
-# Pinned release install (v6.526.0):
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.526.0/install.ps1 | iex
+# Pinned release install (v6.527.0):
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.527.0/install.ps1 | iex
 ```
 
 ### 🐧 Linux & macOS · Bash / zsh
@@ -67,8 +67,8 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.526.0/install.
 # Direct latest install (auto-updating):
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 
-# Pinned release install (v6.526.0):
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.526.0/install.sh | sh
+# Pinned release install (v6.527.0):
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.527.0/install.sh | sh
 ```
 
 ---
@@ -152,4 +152,4 @@ For AI assistants and autonomous agents navigating this repository:
 - **[.ai-memory/what-to-read.md](.ai-memory/what-to-read.md)**: Authoritative agent instructions, changelog, and pre-flight constraints.
 - **[.ai-memory/overview.md](.ai-memory/overview.md)**: Architectural summary and active subsystem indexes.
 - **[.ai-memory/plans/](.ai-memory/plans/)**: Subtask registers, active execution plans, and progress milestones.
-- **[version.json](version.json)**: Canonical single source of truth for versioning (`v6.526.0`).
+- **[version.json](version.json)**: Canonical single source of truth for versioning (`v6.527.0`).

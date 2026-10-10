@@ -120,3 +120,14 @@ func TestResolveCDWorkDirPath_DefaultWorkDirVariants(t *testing.T) {
 		}
 	}
 }
+
+func TestResolveDefaultWorkDirPath_FallbackEnv(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("GITMAP_WORK_DIR", tempDir)
+
+	resolved, ok := resolveEnvWorkDir()
+	if !ok || resolved != tempDir {
+		t.Fatalf("resolveEnvWorkDir() = %q, %v; want %q, true", resolved, ok, tempDir)
+	}
+}
+

@@ -3,9 +3,9 @@ package cmdcd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
@@ -17,17 +17,22 @@ func RunCD(args []string) error {
 		return handleBareCD()
 	}
 
-	return result.AsError(routeCDSub(args[0], args[1:]))
+	first := strings.TrimSpace(args[0])
+	if first == "" {
+		return handleBareCDWithRest(args[1:])
+	}
+
+	return result.AsError(routeCDSub(first, args[1:]))
 }
 
 func handleBareCD() error {
+	return handleBareCDWithRest(nil)
+}
+
+func handleBareCDWithRest(rest []string) error {
 	workPath, hasDefault := resolveDefaultWorkDirPath()
 	if hasDefault {
-		fmt.Print(workPath)
-		WriteShellHandoff(workPath)
-		cmdsetup.WarnIfNoWrapper()
-
-		return nil
+		return dispatchCDWorkPath(workPath, rest)
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrCDUsage)
@@ -42,6 +47,9 @@ func routeCDSub(sub string, args []string) result.ErrorWrapper {
 	}
 	if isSpecialRepoCDAlias(sub) {
 		return result.MatchWrapper(runCDSpecialRepo(sub, args))
+	}
+	if isWorkDirKeyword(sub) {
+		return result.MatchWrapper(handleWorkDirOrNotFound(sub, args))
 	}
 	return result.MatchWrapper(runCDLookup(sub, args))
 }

@@ -364,17 +364,11 @@ func RunUnifiedNodesCLI(args []string) error {
 	} else if strings.EqualFold(args[0], "commit-fix") || strings.EqualFold(args[0], "commitfix") {
 		return RunNodesCommitFix(args[1:])
 	} else if isNodesFullSummary(args) {
-		if strings.EqualFold(args[0], "full") && len(args) > 1 {
-			return RunNodesFullSummary(args[2:])
-		}
-		return RunNodesFullSummary(args[1:])
+		return RunNodesFullSummary(args)
 	} else if strings.EqualFold(args[0], "summary") {
 		return RunNodesSummary(args[1:])
 	} else if isNodesPipelineAll(args) {
-		if strings.EqualFold(args[0], "pe") && len(args) > 1 {
-			return RunNodesPipelineErrorsAll(args[2:])
-		}
-		return RunNodesPipelineErrorsAll(args[1:])
+		return RunNodesPipelineErrorsAll(args)
 	} else if isNodesCloneRequest(args) {
 		return RunNodesClone(args)
 	} else if isNodesHelpRequest(args) {
@@ -859,8 +853,15 @@ func isNodesPipelineAll(args []string) bool {
 		return false
 	}
 	first := strings.ToLower(args[0])
-	if first == "pe" && len(args) > 1 && strings.EqualFold(args[1], "all") {
+	if (first == "pe" || first == "pipe" || first == "pipeline") && len(args) > 1 && strings.EqualFold(args[1], "all") {
 		return true
 	}
-	return first == "pipe-error-all" || first == "pipeline-error-all"
+	if (first == "pipe" || first == "pipeline") && len(args) > 2 &&
+		(strings.EqualFold(args[1], "error") || strings.EqualFold(args[1], "errors")) &&
+		strings.EqualFold(args[2], "all") {
+		return true
+	}
+	return first == "pe-all" || first == "pe_all" ||
+		first == "pipe-error-all" || first == "pipe-errors-all" ||
+		first == "pipeline-error-all" || first == "pipeline-errors-all"
 }

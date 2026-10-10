@@ -52,7 +52,16 @@ func attachPipelineErrorTelemetry(record *RepoSummaryRecord) {
 
 		var traceLines []string
 		for _, item := range compactRes.Data {
-			traceLines = append(traceLines, item.ErrorText)
+			if item.CompactLogs != "" {
+				for _, l := range strings.Split(item.CompactLogs, "\n") {
+					trimmed := strings.TrimRight(l, "\r")
+					if trimmed != "" {
+						traceLines = append(traceLines, trimmed)
+					}
+				}
+			} else if item.ErrorText != "" {
+				traceLines = append(traceLines, strings.TrimRight(item.ErrorText, "\r"))
+			}
 		}
 		if len(traceLines) > 25 {
 			traceLines = traceLines[len(traceLines)-25:]
