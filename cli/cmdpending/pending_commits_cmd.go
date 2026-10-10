@@ -210,6 +210,12 @@ func runLocalPendingCommits(opts PendingCommitsOptions) error {
 	}
 
 	if opts.IsBackup {
+		if errBackup != nil {
+			return errBackup
+		}
+		if backupConn == nil {
+			return apperror.NewSimple("backup database is not available", "E9004")
+		}
 		return serveBackupPendingCommits(backupConn, opts)
 	}
 
@@ -245,7 +251,17 @@ func convertBackupToPendingRecords(backupRecords []PendingCommitBackupRecord, ta
 		if !isTargetRepoMatch(b, targetRepo) {
 			continue
 		}
-		item := RepoPendingCommitRecord{
+		var item RepoPendingCommitRecord
+		if b.PayloadJSON != "" && b.PayloadJSON != "{}" {
+			if err := json.Unmarshal([]byte(b.PayloadJSON), &item); err == nil && item.RepoName != "" {
+				if item.IsDirty && len(item.RemediationOptions) == 0 {
+					item.RemediationOptions = buildRepoRemediationOptions(item)
+				}
+				inspected = append(inspected, item)
+				continue
+			}
+		}
+		item = RepoPendingCommitRecord{
 			RepoName:             b.RepoName,
 			RelativePath:         b.RepoPath,
 			CurrentBranch:        b.CurrentBranch,
@@ -474,14 +490,14 @@ func inspectRepositoriesPendingCommits(records []model.ScanRecord) []RepoPending
 
 func inspectSingleRepoPendingCommits(rec model.ScanRecord) RepoPendingCommitRecord {
 	dir := resolveRecordDir(rec)
-	untracked, modified, staged, pendingFiles := queryRepoStatus(dir)
-	totalUncommitted := untracked + modified + staged
+	untracked, modified, staged, allFiles := queryRepoStatus(dir)
+	totalUncommitted := len(allFiles)
 	branch := queryRepoBranch(dir, rec.Branch)
 	hasUpstream := checkRepoUpstream(dir)
 	unpushedCount, unpushedSHAs := resolveUnpushedCommits(dir, hasUpstream)
 	version := resolveRepoVersion(dir)
 	shortVerBranch := formatShortVersionBranch(version, branch)
-	out := assembleRepoPendingCommitRecord(rec, branch, version, shortVerBranch, untracked, modified, staged, totalUncommitted, unpushedCount, hasUpstream, pendingFiles, unpushedSHAs)
+	out := assembleRepoPendingCommitRecord(rec, branch, version, shortVerBranch, untracked, modified, staged, totalUncommitted, unpushedCount, hasUpstream, allFiles, unpushedSHAs)
 	if out.IsDirty {
 		out.RemediationOptions = buildRepoRemediationOptions(out)
 	}
@@ -759,8 +775,8 @@ func sortPendingCommits(records []RepoPendingCommitRecord, sortMode string) {
 	switch sortMode {
 	case "count":
 		sort.SliceStable(records, func(i, j int) bool {
-			countI := records[i].UntrackedFilesCount + records[i].ModifiedFilesCount + records[i].StagedFilesCount + records[i].UnpushedCommitsCount
-			countJ := records[j].UntrackedFilesCount + records[j].ModifiedFilesCount + records[j].StagedFilesCount + records[j].UnpushedCommitsCount
+			countI := resolvePendingSortCount(records[i])
+			countJ := resolvePendingSortCount(records[j])
 			if countI != countJ {
 				return countI > countJ
 			}
@@ -793,6 +809,14 @@ func calculatePriorityRank(r RepoPendingCommitRecord) int {
 		return 3
 	}
 	return 4
+}
+
+func resolvePendingSortCount(r RepoPendingCommitRecord) int {
+	total := r.TotalUncommitted
+	if total == 0 {
+		total = r.UntrackedFilesCount + r.ModifiedFilesCount + r.StagedFilesCount
+	}
+	return total + r.UnpushedCommitsCount
 }
 
 func emitPendingCommitsJSON(payload PendingCommitsPayload) error {
@@ -886,8 +910,8 @@ func renderTreeRemediationHints(rec RepoPendingCommitRecord, border, reset strin
 
 func formatTreeLine(raw string) string {
 	runes := []rune(raw)
-	if len(runes) > 78 {
-		return string(runes[:77]) + "…"
+	if len(runes) >= 78 {
+		return raw
 	}
 	return raw + strings.Repeat(" ", 78-len(runes))
 }
@@ -1235,6 +1259,8 @@ func printPendingCommitsHelp() {
       --all               Include completely clean repositories in output
       --no-cache          Bypass status cache and perform live inspection
       --refresh           Force refresh cached pending commit status
+      --backup            Serve status from secondary persistent backup DB
+      --serve-backup      Serve status from secondary persistent backup DB (alias)
   -h, --help              Display this help menu
 
 %sEXAMPLES:%s

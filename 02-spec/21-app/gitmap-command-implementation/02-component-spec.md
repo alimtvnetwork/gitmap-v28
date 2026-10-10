@@ -179,7 +179,7 @@ The JSON parser handles two native GitMap document formats seamlessly:
 #### Schema 1: `FolderReport` (`cli/cmd/folder/render_json.go`)
 ```json
 {
-  "root": "d:/work/gitmap",
+  "root": ".",
   "totalFiles": 142,
   "totalLines": 18230,
   "totalSizeBytes": 492011,
@@ -211,14 +211,14 @@ Mapped directly:
 #### Schema 2: `FolderTreeExportDoc` (`cli/cmdfoldertree/types.go`)
 ```json
 {
-  "rootPath": "d:/work/gitmap",
+  "rootPath": ".",
   "rootName": "gitmap",
   "totalNodes": 210,
   "totalDirs": 45,
   "totalFiles": 165,
   "tree": {
     "name": "cli",
-    "path": "d:/work/gitmap/cli",
+    "path": "./cli",
     "relPath": "cli",
     "isDir": true,
     "children": [

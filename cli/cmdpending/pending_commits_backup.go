@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 
 	_ "modernc.org/sqlite"
 
@@ -302,3 +303,73 @@ func PurgeBackupOlderThan(conn *sql.DB, cutoffUnix int64) (int64, error) {
 
 	return res.RowsAffected()
 }
+
+func assignUnpackedFields(unpacked RepoPendingCommitRecord, item *RepoPendingCommitRecord) {
+	if len(unpacked.PendingFiles) > 0 {
+		item.PendingFiles = unpacked.PendingFiles
+	}
+	if len(unpacked.UnpushedCommitSHAs) > 0 {
+		item.UnpushedCommitSHAs = unpacked.UnpushedCommitSHAs
+	}
+	item.UntrackedFilesCount = unpacked.UntrackedFilesCount
+	item.ModifiedFilesCount = unpacked.ModifiedFilesCount
+	item.StagedFilesCount = unpacked.StagedFilesCount
+	item.HasUpstream = unpacked.HasUpstream
+	if len(unpacked.RemediationOptions) > 0 {
+		item.RemediationOptions = unpacked.RemediationOptions
+	}
+}
+
+func unpackBackupPayload(payloadJSON string, item *RepoPendingCommitRecord) {
+	cleanJSON := strings.TrimSpace(payloadJSON)
+	if cleanJSON == "" || cleanJSON == "{}" {
+		return
+	}
+	var unpacked RepoPendingCommitRecord
+	if err := json.Unmarshal([]byte(cleanJSON), &unpacked); err != nil {
+		return
+	}
+	assignUnpackedFields(unpacked, item)
+}
+
+func convertBackupToPendingRecord(b PendingCommitBackupRecord) RepoPendingCommitRecord {
+	item := RepoPendingCommitRecord{
+		RepoName:             b.RepoName,
+		RelativePath:         b.RepoPath,
+		CurrentBranch:        b.CurrentBranch,
+		Version:              b.Version,
+		ShortVersionBranch:   b.ShortVersionBranch,
+		IsDirty:              b.IsDirty,
+		IsClean:              !b.IsDirty && b.UnpushedCount == 0,
+		HasUncommitted:       b.UncommittedCount > 0,
+		HasUnpushed:          b.UnpushedCount > 0,
+		TotalUncommitted:     b.UncommittedCount,
+		UnpushedCommitsCount: b.UnpushedCount,
+	}
+	unpackBackupPayload(b.PayloadJSON, &item)
+	if item.IsDirty && len(item.RemediationOptions) == 0 {
+		item.RemediationOptions = buildRepoRemediationOptions(item)
+	}
+
+	return item
+}
+
+// ConvertBackupToPendingRecord transforms a single backup record into RepoPendingCommitRecord,
+// unpacking payload_json to populate PendingFiles, UnpushedCommitSHAs, and other detailed metrics.
+func ConvertBackupToPendingRecord(b PendingCommitBackupRecord) RepoPendingCommitRecord {
+	return convertBackupToPendingRecord(b)
+}
+
+// ConvertBackupToPendingRecords transforms a slice of backup records into RepoPendingCommitRecord slice.
+func ConvertBackupToPendingRecords(backupRecords []PendingCommitBackupRecord, targetRepo string) []RepoPendingCommitRecord {
+	var inspected []RepoPendingCommitRecord
+	for _, b := range backupRecords {
+		if !isTargetRepoMatch(b, targetRepo) {
+			continue
+		}
+		inspected = append(inspected, convertBackupToPendingRecord(b))
+	}
+
+	return inspected
+}
+

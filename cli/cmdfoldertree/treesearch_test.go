@@ -8,7 +8,7 @@ import (
 
 func TestParseTreeFile_JSONFolderReport(t *testing.T) {
 	jsonContent := `{
-		"root": "d:/work/gitmap",
+		"root": ".",
 		"totalFiles": 2,
 		"files": [
 			{
@@ -55,7 +55,7 @@ func TestParseTreeFile_JSONFolderReport(t *testing.T) {
 
 func TestParseTreeFile_JSONExportDoc(t *testing.T) {
 	jsonContent := `{
-		"rootPath": "d:/work/gitmap",
+		"rootPath": ".",
 		"rootName": "gitmap",
 		"totalNodes": 3,
 		"tree": {
@@ -111,7 +111,7 @@ func TestParseTreeFile_JSONExportDoc(t *testing.T) {
 
 func TestParseTreeFile_YAML(t *testing.T) {
 	yamlContent := `
-root: d:/work/gitmap
+root: .
 files:
   - path: cli/cmd/root.go
     filename: root.go
@@ -271,7 +271,7 @@ func TestSQLiteSplitDB_IngestAndQuery(t *testing.T) {
 
 	items := []TreeItem{
 		{
-			RootPath:  "d:/work/gitmap",
+			RootPath:  ".",
 			RelPath:   "cli/cmd/root.go",
 			FileName:  "root.go",
 			DirPath:   "cli/cmd",
@@ -281,7 +281,7 @@ func TestSQLiteSplitDB_IngestAndQuery(t *testing.T) {
 			Depth:     2,
 		},
 		{
-			RootPath:  "d:/work/gitmap",
+			RootPath:  ".",
 			RelPath:   "cli/cmdfoldertree/treesearch.go",
 			FileName:  "treesearch.go",
 			DirPath:   "cli/cmdfoldertree",
@@ -291,7 +291,7 @@ func TestSQLiteSplitDB_IngestAndQuery(t *testing.T) {
 			Depth:     2,
 		},
 		{
-			RootPath:  "d:/work/gitmap",
+			RootPath:  ".",
 			RelPath:   "cli/cmdfoldertree",
 			FileName:  "cmdfoldertree",
 			DirPath:   "cli",

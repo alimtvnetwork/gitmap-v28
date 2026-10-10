@@ -45,7 +45,7 @@ Where workspace modification steps like `mkdir -p test` were treated as non-reco
 ## 3. Detailed Root Cause Analysis
 
 1. **Multi-User Windows Binary Drift:**
-   On Windows developer environments with multiple user accounts (`Administrator` and `Alim`), local build outputs (`D:\work\gitmap\bin\gitmap.exe`) or single-user deployments (`C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`) do not update user `Alim`'s active execution paths.
+   On Windows developer environments with multiple user accounts (`Administrator` and `Alim`), local build outputs (`<repo-root>/bin/gitmap.exe`) or single-user deployments (`%LOCALAPPDATA%\gitmap-cli\gitmap.exe`) do not update user `Alim`'s active execution paths.
    User `Alim`'s shell environment executes binaries from:
    - `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`
    - `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`
@@ -63,7 +63,7 @@ Where workspace modification steps like `mkdir -p test` were treated as non-reco
 
 1. **Four-Target Binary Synchronization:**
    Recompiled `gitmap.exe` at v6.527.0 and deployed synchronously across all active Windows targets:
-   - `D:\work\gitmap\gitmap.exe` & `D:\work\gitmap\bin\gitmap.exe`
+   - `<repo-root>/gitmap.exe` & `<repo-root>/bin/gitmap.exe`
    - `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`
    - `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`
    - `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`

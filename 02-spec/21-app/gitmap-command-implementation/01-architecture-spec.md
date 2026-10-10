@@ -155,7 +155,7 @@ gitmap tree "*.go"
 ```
 The command terminates with an unexpected filesystem error:
 ```text
-Error: scan directory *.go: CreateFile d:\work\gitmap\*.go: The filename, directory name, or volume label syntax is incorrect.
+Error: scan directory *.go: CreateFile <workspace>\*.go: The filename, directory name, or volume label syntax is incorrect.
 ```
 
 #### 4-Part Grounded RCA

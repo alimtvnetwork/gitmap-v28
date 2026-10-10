@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"time"
 
 	_ "modernc.org/sqlite"
 
@@ -98,6 +99,11 @@ func openCacheConn(dbPath string) (*sql.DB, error) {
 	return conn, nil
 }
 
+func purgeExpiredOnInit(conn *sql.DB) {
+	nowUnix := time.Now().Unix()
+	_, _ = PurgeExpiredPendingCache(conn, nowUnix, DefaultCacheTTLSeconds)
+}
+
 // OpenPendingCommitsCache opens or initializes the cache SQLite database.
 func OpenPendingCommitsCache(dbPath string) (*sql.DB, error) {
 	resolved := resolvePendingCacheDBPath(dbPath)
@@ -113,6 +119,7 @@ func OpenPendingCommitsCache(dbPath string) (*sql.DB, error) {
 
 		return nil, err
 	}
+	purgeExpiredOnInit(conn)
 
 	return conn, nil
 }
@@ -205,6 +212,7 @@ func GetCachedPendingStatus(conn *sql.DB, repoPath, currentHeadSHA string, nowUn
 	if conn == nil {
 		return nil, false, nil
 	}
+	_, _ = PurgeExpiredPendingCache(conn, nowUnix, DefaultCacheTTLSeconds)
 	record, hasRecord, err := queryPendingCacheRecord(conn, repoPath)
 	if err != nil {
 		return nil, false, err

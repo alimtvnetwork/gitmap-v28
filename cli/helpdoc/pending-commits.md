@@ -48,11 +48,11 @@ GitMap implements a high-performance dual-database architecture for pending comm
 The output renders a clean terminal table consolidating repository health metrics:
 - **REPOSITORY** (22 chars): Repository slug or folder name.
 - **VER/BRANCH** (16 chars): Tagged SemVer release and active local branch (e.g. `v6.523.1/main`).
-- **UNCOMMITTED** (12 chars): Consolidated count of all uncommitted working files (untracked + modified + staged).
+- **UNCOMMITTED** (12 chars): Consolidated count of unique uncommitted files (untracked + modified + staged, without double-counting `MM` or `AM` files).
 - **UNPUSHED** (10 chars): Number of local commits ahead of remote tracking branch.
 - **STATUS** (9 chars): Status indicator (`● PEND` or `○ CLEAN`).
 
-For dirty repositories, a structured tree view provides instant surgical fix commands:
+For dirty repositories, a structured tree view provides instant surgical fix commands (rendered in full without `…` clipping so users can copy and execute them directly):
 ```text
 ├── Option 1: git -C "<repo>" add -A && git commit -m "wip: save changes" && git push
 └── Option 2: git -C "<repo>" stash -u

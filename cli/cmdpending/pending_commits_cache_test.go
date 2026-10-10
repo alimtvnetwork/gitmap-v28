@@ -321,3 +321,44 @@ func TestPendingCommitsCache_SaveStatusWithBackup_NilConns(t *testing.T) {
 	}
 }
 
+func seedExpiredAndFreshRecords(t *testing.T, conn *sql.DB, now int64) {
+	t.Helper()
+	expiredRec := makeSampleRecord("repo/expired-on-open", "sha-expired", now-100)
+	freshRec := makeSampleRecord("repo/fresh-on-open", "sha-fresh", now-10)
+	if err := SaveCachedPendingStatus(conn, expiredRec); err != nil {
+		t.Fatalf("save expiredRec failed: %v", err)
+	}
+	if err := SaveCachedPendingStatus(conn, freshRec); err != nil {
+		t.Fatalf("save freshRec failed: %v", err)
+	}
+}
+
+func verifyOpenPurgeResults(t *testing.T, conn *sql.DB) {
+	t.Helper()
+	if count := queryTableRowCount(t, conn, "repo/expired-on-open"); count != 0 {
+		t.Fatalf("expected expired row to be purged on open, got count %d", count)
+	}
+	if count := queryTableRowCount(t, conn, "repo/fresh-on-open"); count != 1 {
+		t.Fatalf("expected fresh row to remain on open, got count %d", count)
+	}
+}
+
+func TestPendingCommitsCache_OpenPurgesExpiredOnInit(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "test_open_purge.db")
+	conn1, err := OpenPendingCommitsCache(dbPath)
+	if err != nil {
+		t.Fatalf("OpenPendingCommitsCache failed: %v", err)
+	}
+	now := time.Now().Unix()
+	seedExpiredAndFreshRecords(t, conn1, now)
+	_ = conn1.Close()
+
+	conn2, err := OpenPendingCommitsCache(dbPath)
+	if err != nil {
+		t.Fatalf("reopen OpenPendingCommitsCache failed: %v", err)
+	}
+	defer conn2.Close()
+	verifyOpenPurgeResults(t, conn2)
+}
+
+

@@ -74,6 +74,15 @@ func parseValuedOption(args []string, idx int, opts *NewCommandsOptions) (int, *
 }
 
 func parseCategoryOption(args []string, idx int, opts *NewCommandsOptions) (int, *appfault.AppError) {
+	arg := args[idx]
+	if strings.HasPrefix(arg, "--category=") {
+		opts.Category = strings.TrimSpace(strings.TrimPrefix(arg, "--category="))
+		return idx, nil
+	}
+	if strings.HasPrefix(arg, "-c=") {
+		opts.Category = strings.TrimSpace(strings.TrimPrefix(arg, "-c="))
+		return idx, nil
+	}
 	if idx+1 >= len(args) {
 		return idx, appfault.NewValidation("new-commands", "E9003", "missing value for --category")
 	}
@@ -82,6 +91,19 @@ func parseCategoryOption(args []string, idx int, opts *NewCommandsOptions) (int,
 }
 
 func parseFilterOption(args []string, idx int, opts *NewCommandsOptions) (int, *appfault.AppError) {
+	arg := args[idx]
+	if strings.HasPrefix(arg, "--filter=") {
+		opts.Filter = strings.TrimSpace(strings.TrimPrefix(arg, "--filter="))
+		return idx, nil
+	}
+	if strings.HasPrefix(arg, "-f=") {
+		opts.Filter = strings.TrimSpace(strings.TrimPrefix(arg, "-f="))
+		return idx, nil
+	}
+	if strings.HasPrefix(arg, "-q=") {
+		opts.Filter = strings.TrimSpace(strings.TrimPrefix(arg, "-q="))
+		return idx, nil
+	}
 	if idx+1 >= len(args) {
 		return idx, appfault.NewValidation("new-commands", "E9003", "missing value for --filter")
 	}
@@ -90,15 +112,30 @@ func parseFilterOption(args []string, idx int, opts *NewCommandsOptions) (int, *
 }
 
 func parseLimitOption(args []string, idx int, opts *NewCommandsOptions) (int, *appfault.AppError) {
-	if idx+1 >= len(args) {
-		return idx, appfault.NewValidation("new-commands", "E9003", "missing value for --limit")
+	arg := args[idx]
+	val, nextIdx, appErr := resolveLimitValue(args, idx, arg)
+	if appErr != nil {
+		return idx, appErr
 	}
-	lim, err := strconv.Atoi(args[idx+1])
+	lim, err := strconv.Atoi(val)
 	if err != nil {
-		return idx, appfault.NewValidation("new-commands", "E9003", "invalid numeric value for --limit: "+args[idx+1])
+		return idx, appfault.NewValidation("new-commands", "E9003", "invalid numeric value for --limit: "+val)
 	}
 	opts.Limit = lim
-	return idx + 1, nil
+	return nextIdx, nil
+}
+
+func resolveLimitValue(args []string, idx int, arg string) (string, int, *appfault.AppError) {
+	if strings.HasPrefix(arg, "--limit=") {
+		return strings.TrimPrefix(arg, "--limit="), idx, nil
+	}
+	if strings.HasPrefix(arg, "-n=") {
+		return strings.TrimPrefix(arg, "-n="), idx, nil
+	}
+	if idx+1 >= len(args) {
+		return "", idx, appfault.NewValidation("new-commands", "E9003", "missing value for --limit")
+	}
+	return args[idx+1], idx + 1, nil
 }
 
 func clampNewCommandsLimit(opts *NewCommandsOptions) {
@@ -116,15 +153,16 @@ func isJSONFlag(arg string) bool {
 }
 
 func isCategoryFlag(arg string) bool {
-	return arg == "--category" || arg == "-c"
+	return arg == "--category" || arg == "-c" || strings.HasPrefix(arg, "--category=") || strings.HasPrefix(arg, "-c=")
 }
 
 func isFilterFlag(arg string) bool {
-	return arg == "--filter" || arg == "-f" || arg == "-q"
+	return arg == "--filter" || arg == "-f" || arg == "-q" ||
+		strings.HasPrefix(arg, "--filter=") || strings.HasPrefix(arg, "-f=") || strings.HasPrefix(arg, "-q=")
 }
 
 func isLimitFlag(arg string) bool {
-	return arg == "--limit" || arg == "-n"
+	return arg == "--limit" || arg == "-n" || strings.HasPrefix(arg, "--limit=") || strings.HasPrefix(arg, "-n=")
 }
 
 func buildNewCommandsPayload(catalog []NewCommandEntry, opts NewCommandsOptions) NewCommandsPayload {

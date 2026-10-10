@@ -129,11 +129,11 @@ const (
 	CmdFsPE          = fsPECmdVal
 	CmdFspe          = fspeCmdVal
 	// CmdMergeAI orchestrates multi-repo staging into a single commit with 01_/02_ collision handling.
-	CmdMergeAI      = mergeAICmdVal
-	CmdMergeAIAlias = "ma"
+	CmdMergeAI          = mergeAICmdVal
+	CmdMergeAIAlias     = "ma"           // gitmap:cmd skip
 	// CmdNewCommands discovers and catalogs commands added in recent git history.
-	CmdNewCommands         = "new-commands"
-	CmdNewCommandsAlias    = "nc"
+	CmdNewCommands      = "new-commands" // gitmap:cmd skip
+	CmdNewCommandsAlias = "nc"           // gitmap:cmd skip
 	// CmdSends dispatches semantic commits across repositories.
 	CmdSends = "sends"
 	// CmdRmGit removes a commit by its last 4-digit SHA prefix.
@@ -339,10 +339,10 @@ const (
 	// CmdSpec is the top-level namespace for spec-number issuance
 	// (spec 252). Subcommand: `spec next` issues the next free spec
 	// number for the current repository.
-	CmdSpec = "spec"
+	CmdSpec     = "spec" // gitmap:cmd skip
 	// CmdSpecNext is the `spec next` subcommand — issues the next
 	// free spec number and prints it on stdout.
-	CmdSpecNext = "next"
+	CmdSpecNext = "next" // gitmap:cmd skip
 	CmdRecreateRepo      = "recreate-repo"
 	CmdRecreateRepoAlias = "recreate"
 	CmdRestEnable        = "rest-enable"
@@ -887,10 +887,17 @@ const (
 	FlagSkipZsh           = "skip-zsh"
 	FlagDescSkipZsh       = "Skip ZSH and Oh-My-Zsh setup on Ubuntu"
 	EnvGitmapSkipZsh      = "GITMAP_SKIP_ZSH"
-	FlagNoCache           = "no-cache"
-	FlagDescNoCache       = "Bypass status cache and query git status directly from filesystem"
-	FlagBackup            = "backup"
-	FlagDescBackup        = "Serve status from secondary persistent backup DB"
+	FlagNoCache               = "no-cache"
+	FlagDescNoCache           = "Bypass status cache and query git status directly from filesystem"
+	FlagBackup                = "backup"
+	FlagDescBackup            = "Serve status from secondary persistent backup DB"
+	FlagServeBackup           = "serve-backup"
+	FlagDescServeBackup       = "Serve status from secondary persistent backup DB (alias for --backup)"
+	FlagDetail                = "detail"
+	FlagCategory              = "category"
+	FlagDescCategory          = "Filter new commands by functional category"
+	FlagNewCommandsFilter     = "filter"
+	FlagDescNewCommandsFilter = "Search commands by name, alias, description, or example"
 )
 
 // FlagDebugPaths exposes the canonicalize-path tracer used by the

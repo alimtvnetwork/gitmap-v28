@@ -189,6 +189,20 @@ func isPipelineErrorsAlias(command string) bool {
 	return false
 }
 
+func isTreeSearchOrLearnCommand(command string) bool {
+	switch strings.ToLower(command) {
+	case "tree-search", "treesearch", "ts",
+		"tree-search-startswith", "tree-search-starts-with", "tree-search-prefix", "tss",
+		"tree-search-contains", "tree-search-contain", "tree-search-substr", "tsc",
+		"tree-search-endswith", "tree-search-ends-with", "tree-search-suffix", "tse",
+		"tree-search-grep", "tree-search-regex", "tsg",
+		"tree-learn", "treelearn", "tl":
+		return true
+	}
+
+	return false
+}
+
 func tryInterceptCommandHelp(command string, args []string) bool {
 	if len(args) == 0 {
 		return false
@@ -201,6 +215,12 @@ func tryInterceptCommandHelp(command string, args []string) bool {
 	// which knows nothing about -t, all, -f, or the format system.
 	if isPipelineErrorsAlias(command) {
 		cmdpipeline.PrintPipelineErrorsHelp()
+		cliexit.Exit(0)
+
+		return true
+	}
+	if isTreeSearchOrLearnCommand(command) {
+		cmdfoldertree.ShowTreeSearchHelp(command)
 		cliexit.Exit(0)
 
 		return true

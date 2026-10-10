@@ -63,10 +63,10 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap has-any-updates` (alias `gitmap hau`, `gitmap hac`) — Checks remote tracking branch for incoming commits.
 - `gitmap latest-branch` (alias `gitmap lb`) — Discovers the most recently updated remote branch.
 - `gitmap watch` (alias `gitmap w`) — Live-refresh terminal dashboard monitoring repository status changes.
-- `gitmap pc` (alias `gitmap pending-commits`) — Fast multi-repo pending commits table with 90s SQLite cache (`pending_commits_cache.db`), persistent backup DB (`pending_commits_backup.db`), consolidated `UNCOMMITTED` column (untracked + modified + staged), `VER/BRANCH` display, tree remediation hints (`├── Option 1: ...`, `└── Option 2: ...`), and batch remediation command in footer (`gitmap cpar "wip: save changes"`).
+- `gitmap pc` (alias `gitmap pending-commits`) — Fast multi-repo pending commits table with 90s SQLite cache (`pending_commits_cache.db`), persistent backup DB (`pending_commits_backup.db`), consolidated `UNCOMMITTED` column (unique untracked + modified + staged files), `VER/BRANCH` display, tree remediation hints (`├── Option 1: ...`, `└── Option 2: ...`), and batch remediation command in footer (`gitmap cpar "wip: save changes"`).
 - `gitmap pc --refresh` — Force-refreshes SQLite cache by re-evaluating live git status.
 - `gitmap pc --no-cache` — Disables SQLite cache completely for strict pre-flight verification.
-- `gitmap pc --backup` — Serves status from persistent backup DB without querying live filesystem.
+- `gitmap pc --backup` (or `--serve-backup`) — Serves status from persistent backup DB without querying live filesystem.
 - `gitmap pc --json` — Emits structured JSON telemetry of uncommitted and unpushed repositories.
 - `gitmap summary [$repo] [N]` — Executive release summary of the last $N$ releases (default $N=8$; target defaults to current repository `.`, or relative path / remote URL). Constrains summaries to $\le 200$ words gist per release with raw file lists suppressed. Computes heated file churn metrics (modification frequency + line deltas across commit boundaries, surfacing top 5 heated files with functional rationale). Backed by Split-DB SQLite hot cache (`.gitmap/summary.db`) with $<15\text{ms}$ hash-matched lookups (`repo_url`, `tag_commit_hash`, `head_commit_hash`) and incremental delta calculations for newly added commits.
   - *Example (current repo, default 8 releases):* `gitmap summary`
@@ -102,7 +102,14 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap rc text "<content>" --slug <slug> --ext <.ps1|.py>` — Writes test harnesses into `repo-cache` for permanent cross-repo reuse.
 - `gitmap cd rs` / `gitmap cd rc` — Navigates directly to `repo-secrets` or `repo-cache`.
 
-### 5. High-Performance Automation (AUM) & File Discovery
+### 5. High-Performance Automation (AUM), Tree & File Discovery
+- `gitmap tree [path] [--file/-f <out>]` — Generates directory tree and exports directly to `.txt` (ASCII tree), `.json` (structured report), or `.yaml` with automatic format deduction. Handles wildcard patterns (e.g. `gitmap tree "*.go"`) without filesystem errors.
+- `gitmap tree-search -f <file> "<pattern*ends*>"` (alias `gitmap ts`) — High-speed wildcard pattern matching with `*` and `?` across exported tree files.
+- `gitmap tree-search-startsWith -f <file> "<prefix>"` (alias `gitmap tss`) — Prefix matching with folder hierarchy preservation.
+- `gitmap tree-search-contains -f <file> "<substring>"` (alias `gitmap tsc`) — Case-insensitive substring searching across paths and filenames.
+- `gitmap tree-search-endsWith -f <file> "<suffix>"` (alias `gitmap tse`) — Suffix and extension searching (e.g. `_test.go`, `.yaml`).
+- `gitmap tree-search-grep -f <file> "<regex>"` (alias `gitmap tsg`) — Regular expression search across exported tree files.
+- `gitmap tree-learn -f <file>` (alias `gitmap tl`) — Ingests exported tree manifests into Split SQLite DB (`.gitmap/data/treedb/sql.db`) with NOCASE indexes for sub-millisecond retrieval.
 - `gitmap aum search "<pattern>" [dir] [--ext <ext>] [-r] [-i]` (alias: `gitmap aum grep`) — Multi-core streaming live search with lazy regex and binary filtering. ALWAYS scope with target `[dir]` and `--ext`. Replaces slow PowerShell `Select-String`, `Get-ChildItem -Recurse`, and `git grep`. TOTAL BAN on PowerShell `Select-String`, `rg`, `ripgrep`, and `git grep`.
 - `gitmap search "<query>" [--limit <n>]` — Instant SQLite cached symbol & keyword search across scanned repositories using DH2D split-db hot cache.
 - `gitmap aum guard` — Enforces 500 KB limit, large JSON exclusion, and binary null-byte probe.
