@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.528.0] - 2026-10-10
+
+### Added
+- Tree export flags, tree-search engine family, pending-commits backup DB and relative paths
+
+---
+
 ## [v6.527.0] - 2026-10-10
 
 ### Added
