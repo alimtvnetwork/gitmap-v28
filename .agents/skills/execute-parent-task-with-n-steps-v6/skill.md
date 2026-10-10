@@ -156,8 +156,6 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 | **Offload Secrets** | `gitmap rs file <filepath>` / `folder` / `text` | `gitmap rs` | Auto-commits into `repo-secrets` in work directory |
 | **Offload Scripts** | `gitmap rc file <file.ps1>` / `text` | `gitmap rc` | Auto-commits reusable scripts into `repo-cache` |
 | **Atomic Commits** | `gitmap cpf "<module> - <msg>"` (Feature) / `cpb` (Bug) | `gitmap cpf` | Stages, formats with prefix, and pushes atomically. Mention as a hyphen `-` (no need to provide a colon in GitMap `cpf`/`cpb`/CVF commit arguments because the colon is already automatically provided by GitMap in `Feature: ` or `Bug: `). |
-| **Batch Commit / Push All** | `gitmap cpar "wip: save changes"` | `gitmap cpar` | Batch commits and pushes all dirty repositories across workspace in one shot |
-| **Repo Remediation** | `gitmap fix <repo> <stash\|wip\|discard>` / `gitmap fix --all stash` | `gitmap fix` | Deterministic dual-option remediation for dirty repos or failed pulls |
 | **Pipeline Waiting** | `gitmap pipeline-ai status --json` | `gitmap pl-ai` | Non-polling dynamic ETA CI/CD monitor |
 | **Agent Task Engine** | `gitmap task <init\|add\|claim\|complete\|fail\|status\|schema>` | `gitmap task` | Sub-millisecond compiled Go SQLite task manager for multi-agent workflows |
 | **Fleet Synchronization** | `gitmap sync [--workers 8] [--projects <json>]` | `gitmap sync` | Parallel Go sync engine across 43 repositories in <5s with 6-stage ceremony |
@@ -175,12 +173,7 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 
 1. **Platform Handshake:** Confirm tools (`invoke_subagent`, `send_message`, `manage_subagents`, `ask_question`, `write_to_file`, `replace_file_content`, `run_command`). If `task_boundary` exists: set `PLANNING` (Phase 1), `EXECUTION` (Phase 2), `VERIFICATION` (Phase 3).
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
-3. **Working Tree Cleanliness & Remediation Gate:** Run `git status --porcelain` (or `gitmap st -d`). If the workspace has uncommitted changes or pull failures:
-   - For **uncommitted local modifications**: preserve work via `gitmap cpar "wip: save changes"` or stash via `gitmap fix <repo> stash` (or `gitmap fix --all stash`).
-   - For **untracked files only**: track via `git -C "<path>" add .` or clean disposable files via `git -C "<path>" clean -fd`.
-   - For **missing repositories**: run `gitmap clone <repo>`.
-   - For **merge conflicts / diverged branches**: run `gitmap fix <repo> stash` or `git -C "<path>" pull --rebase`.
-   Record modified/remediated files in ledger. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
+3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
 4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
    - Initialize or inspect task state via GitMap SQLite task manager (compiled Go, sub-millisecond; fallback: Python):
      `gitmap task init --name "<task name>" --budget 300`
