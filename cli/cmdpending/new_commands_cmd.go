@@ -399,7 +399,7 @@ func catalogEntries2() []NewCommandEntry {
 	return []NewCommandEntry{
 		newCmd("pe", "pipeline-errors", "v6.510.0", "diagnostics", "Pipeline error analyzer with dynamic runner extraction", `gitmap pe -t`),
 		newCmd("pe all", "pipeline-errors-all", "v6.515.0", "diagnostics", "Extract failing step logs across all recent workflow runs", `gitmap pe all`),
-		newCmd("te all", "test-errors-all", "v6.516.0", "diagnostics", "Aggregate failing unit test output across all packages", `gitmap te all`),
+		newCmd("te all", "pipeline-errors-all", "v6.522.0", "diagnostics", "Shortcut for pipeline errors all: aggregate pipeline errors across all repos", `gitmap te all --file=errors.md`),
 		newCmd("sug", "shutdown-until-green", "v6.512.0", "diagnostics", "Pause execution until CI/CD quality gates are green", `gitmap sug`),
 		newCmd("rerun", "rr", "v6.511.0", "diagnostics", "Rerun failed pipeline jobs or Antigravity prompts", `gitmap rerun --step=lint`),
 		newCmd("regoldens", "rg-gold", "v6.517.0", "diagnostics", "Regenerate golden test fixture outputs across test suites", `gitmap regoldens`),
@@ -452,6 +452,7 @@ func catalogEntries5() []NewCommandEntry {
 		newCmd("llm train", "llm-train", "v6.516.0", "ai", "Run 4-stage LLM curriculum and generate developer skill", `gitmap llm train`),
 		newCmd("prompt show --copy", "psc", "v6.520.0", "ai", "Render canonical prompt and copy directly to system clipboard", `gitmap prompt show --copy 01-prompts/v6.md`),
 		newCmd("ai-fix", "af", "v6.513.0", "ai", "Run standardized repository autofix targets for coding guidelines", `gitmap ai-fix --target=naming`),
+		newCmd("merge-ai", "merge-ai", "v6.525.0", "ai", "AI-assisted merge with conflict resolution and summary", `gitmap merge-ai`),
 	}
 }
 
@@ -467,12 +468,14 @@ func catalogEntries6() []NewCommandEntry {
 		newCmd("os-theme", "theme", "v6.511.0", "os", "Switch desktop appearance between Dark Mode and Light Mode", `gitmap os-theme dark`),
 		newCmd("power", "pwr", "v6.515.0", "os", "Screen timeout and power plan management with state tracking", `gitmap power sleep 30`),
 		newCmd("autologin", "os-autologin", "v6.510.0", "os", "Configure OS auto-login credentials for Windows and Ubuntu", `gitmap autologin --user=admin`),
+		newCmd("cd", "cd", "v6.527.0", "os", "Autonomous default workdir resolution and persistence", `gitmap cd`),
 	}
 }
 
 func catalogEntries7() []NewCommandEntry {
 	return []NewCommandEntry{
 		newCmd("spec issue", "si", "v6.522.0", "spec", "Audit specification gap issues and generate remediation steps", `gitmap spec issue --spec=02-spec/21-app`),
+		newCmd("spec next", "spec-next", "v6.520.0", "spec", "Issue next free spec number atomically via DB-backed counter", `gitmap spec next`),
 		newCmd("spec-author", "sa", "v6.520.0", "spec", "Scaffold structured architecture and component specifications", `gitmap spec-author --slug=my-feature`),
 		newCmd("spec-audit", "spa", "v6.519.0", "spec", "Conduct blind-AI readiness audits on specification documents", `gitmap spec-audit --target=02-spec`),
 		newCmd("user", "usr", "v6.521.0", "spec", "Audit and configure git user name and email per repository", `gitmap user set --name="Dev" --email="dev@co.com"`),
@@ -482,6 +485,7 @@ func catalogEntries7() []NewCommandEntry {
 		newCmd("help-json", "hj", "v6.515.0", "spec", "Emit machine-readable JSON schema for CLI help topics", `gitmap help --json --filter=task`),
 		newCmd("prompt-template", "pt", "v6.512.0", "spec", "Manage reusable AI prompt prefix and verification templates", `gitmap prompt-template list`),
 		newCmd("prompt list", "plst", "v6.518.0", "spec", "List registered canonical AI prompts in 01-prompts directory", `gitmap prompt list`),
+		newCmd("summary", "summary", "v6.525.0", "spec", "Summary engine with full treeview and nodes delegation", `gitmap summary`),
 	}
 }
 
@@ -527,5 +531,6 @@ func catalogEntries10() []NewCommandEntry {
 		newCmd("replace", "rep", "v6.513.0", "tooling", "Literal multi-file string replacement with audit trail", `gitmap replace "oldString" "newString"`),
 		newCmd("replace-regex", "repr", "v6.513.0", "tooling", "Regex pattern replacement across repository code", `gitmap replace-regex "v[0-9]+" "v6.524.0"`),
 		newCmd("cat", "ct", "v6.514.0", "tooling", "Zero-disk stdout stream of file content in CLI sessions", `gitmap cat cli/constants/constants_cli.go`),
+		newCmd("tree", "tree", "v6.528.0", "tooling", "Tree export with search engine family and relative paths", `gitmap tree --export`),
 	}
 }
