@@ -341,23 +341,7 @@ try {
 
 ---
 
-## Category 9: GitMap Tooling & Telemetry Primacy
-
-### AH-GM1: Mandate gitmap pe --ai for AI Error Telemetry
-
-❌ **Never generate/execute:** `gitmap pe`, `gitmap pipeline error-logs`, or `gh run view` from automated AI agents without the `--ai` flag.
-✅ **Always generate/execute:** `gitmap pe --ai` or `gitmap pe -t --ai`.
-📖 Running `gitmap pe` without `--ai` writes the full log dump to the system clipboard, clobbering the user's active clipboard data and generating unnecessary terminal notices. The `--ai` flag cleanly pipes output directly to stdout/stderr.
-
-### AH-GM2: Ban Raw Shell File Traversal & Ambient Interpreters
-
-❌ **Never generate/execute:** `python script.py`, `powershell -File script.ps1`, `bash script.sh`, `Select-String`, `rg`, or `findstr`.
-✅ **Always generate/execute:** `gitmap run <script>`, `gitmap aum search "<pattern>"`, or `gitmap find "<pattern>"`.
-📖 `gitmap run` automatically validates file extensions, discovers verified interpreters, maintains an execution audit trail in SQLite, and captures errors in a queryable errors database.
-
----
-
-## Quick Count: 42 Rules
+## Quick Count: 40 Rules
 
 | Category | Count |
 |----------|-------|
@@ -369,8 +353,7 @@ try {
 | Enum (AH-EN) | 4 |
 | C# (AH-CS) | 6 |
 | Caching (AH-CA) | 6 |
-| GitMap Primacy (AH-GM) | 2 |
-| **Total** | **42** |
+| **Total** | **40** |
 
 ---
 

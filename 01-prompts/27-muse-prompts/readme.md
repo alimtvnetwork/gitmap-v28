@@ -31,7 +31,8 @@ Its installable skill is `muse-master-prompt`
 
 | Prompt File | Version | Scope | Key Capabilities |
 | :--- | :--- | :--- | :--- |
-| [`01-muse-master-prompt.md`](01-muse-master-prompt.md) | 1.0.0 | Master Onboarding | Self-loop Phases 0–5, auth bootstrap, GitMap intake, memory contract checklist, task-confirm + multi-agent protocol, verification gates. |
+| [`01-muse-master-prompt.md`](01-muse-master-prompt.md) | 6.0.0 | Master Onboarding | Self-loop Phases 0–5, auth bootstrap, GitMap intake, memory contract checklist, task-confirm + multi-agent protocol (A=2/H=2), verification gates, Top-Instruction Priority Mandate. |
+| [`02-muse-execute-in-a-step.md`](02-muse-execute-in-a-step.md) | 1.0.0 | Execute-in-a-Step | Breakdown-first listing, RUNNING + ETA declaration ("Are you running or not?"), 5-minute status pings, commit+push completion, both prompts as MD code blocks for Literally. |
 
 ---
 
@@ -40,5 +41,6 @@ Its installable skill is `muse-master-prompt`
 ```text
 01-prompts/27-muse-prompts/
 ├── 01-muse-master-prompt.md   # the master prompt (paste into a fresh Muse session)
+├── 02-muse-execute-in-a-step.md   # one-shot execution prompt (breakdown → RUNNING+ETA → 5-min pings → commit+push)
 └── readme.md                   # this index
 ```
