@@ -187,4 +187,3 @@ func TestCloneRC_SplitDBCache(t *testing.T) {
 		t.Fatalf("expected cache miss on mismatched hash")
 	}
 }
-

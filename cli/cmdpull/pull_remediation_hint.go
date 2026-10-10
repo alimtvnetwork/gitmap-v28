@@ -251,4 +251,3 @@ func resolveDirtyStateDualHints(s *PullRepoState) (string, string, string, strin
 
 	return resolveDirtyTreeDualHints(s.RepoPath)
 }
-

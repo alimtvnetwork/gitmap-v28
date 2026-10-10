@@ -286,4 +286,3 @@ func renderStructuredSolutionsSubtree(w io.Writer, s *PullRepoState) {
 			constants.ColorYellow, opt.Command, constants.ColorReset)
 	}
 }
-

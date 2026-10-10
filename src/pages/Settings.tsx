@@ -155,18 +155,23 @@ export default function SettingsPage() {
     if (res.data.temp) {
       setTempDir(res.data.temp);
     }
+
     if (res.data.poll) {
       setPollInterval(res.data.poll);
     }
+
     if (res.data.theme) {
       setTerminalTheme(res.data.theme as TerminalThemeType);
     }
+
     if (res.data.instanceId) {
       setSelectedInstanceId(res.data.instanceId);
     }
+
     if (res.data.autoDiscover !== null) {
       setIsAutoDiscoverActive(res.data.autoDiscover === "true");
     }
+
     if (res.data.telemetry !== null) {
       setIsTelemetrySyncActive(res.data.telemetry === "true");
     }
@@ -181,6 +186,7 @@ export default function SettingsPage() {
       if (!response.ok) {
         return;
       }
+
       const json = await response.json();
       if (json.isSuccess && Array.isArray(json.instances)) {
         setInstances(json.instances);
@@ -235,6 +241,7 @@ export default function SettingsPage() {
       localStorage.setItem("gitmap_agy_instance_id", selectedInstanceId);
       localStorage.setItem("gitmap_agy_auto_discover", String(isAutoDiscoverActive));
       localStorage.setItem("gitmap_agy_telemetry_sync", String(isTelemetrySyncActive));
+
       return true;
     });
 

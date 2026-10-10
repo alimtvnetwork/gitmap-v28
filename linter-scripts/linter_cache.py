@@ -210,10 +210,29 @@ def resolve_linter_targets(
     last_hash, head_hash = cache.get("last_git_hash", ""), get_git_head_hash(root_dir)
     if not is_valid_cache_head(last_hash, head_hash, root_dir):
         parent_hashes = run_git_lines(["rev-parse", "HEAD~1"], root_dir)
-        if parent_hashes:
+        has_parent = bool(parent_hashes)
+        if not has_parent and bool(head_hash):
+            run_git_lines(["fetch", "--depth=2", "origin", head_hash], root_dir)
+            parent_hashes = run_git_lines(["rev-parse", "HEAD~1"], root_dir)
+            has_parent = bool(parent_hashes)
+
+        if has_parent:
             return resolve_changed_targets_with_cache(
                 parent_hashes[0], head_hash, root_dir, target_exts, exclude_dirs, None, target_subdir
             )
+
+        cached_hashes = cache.get("file_hashes")
+        has_cached_hashes = bool(cached_hashes)
+        if has_cached_hashes:
+            all_targets = collect_all_repo_targets(root_dir, target_exts, exclude_dirs, target_subdir)
+            changed_from_hashes = [
+                p for p in all_targets
+                if compute_file_hash(p) != cached_hashes.get(p.relative_to(root_dir).as_posix())
+            ]
+            count = len(changed_from_hashes)
+            desc = f"hash-diff ({count} modified file(s) relative to content cache)"
+            return changed_from_hashes, desc, True
+
         return collect_all_repo_targets(root_dir, target_exts, exclude_dirs, target_subdir), "baseline scan (cache seeded)", False
 
     return resolve_changed_targets_with_cache(

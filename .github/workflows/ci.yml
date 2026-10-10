@@ -881,6 +881,8 @@ jobs:
     needs: sha-check
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -897,6 +899,8 @@ jobs:
     needs: sha-check
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -913,6 +917,8 @@ jobs:
     needs: sha-check
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
