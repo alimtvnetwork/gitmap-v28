@@ -23,6 +23,10 @@ var typeKeywords = map[string]string{
 func RunList(args []string) error {
 	checkHelp(constants.CmdList, args)
 
+	if hasRCListingToken(args) {
+		return RunListRC(args)
+	}
+
 	if len(args) > 0 && isListTypeOrGroups(args[0]) {
 		handleListSpecial(args[0], args[1:])
 
@@ -32,6 +36,21 @@ func RunList(args []string) error {
 	executeList(args)
 
 	return nil
+}
+
+func isRCListingToken(arg string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(arg))
+	return normalized == "rc" || normalized == "repo-cache" ||
+		normalized == "--rc" || normalized == "-rc" || normalized == "--repo-cache"
+}
+
+func hasRCListingToken(args []string) bool {
+	for _, a := range args {
+		if isRCListingToken(a) {
+			return true
+		}
+	}
+	return false
 }
 
 type listOptions struct {

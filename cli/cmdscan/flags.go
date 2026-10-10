@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 )
 
 // ScanProbeOptions bundles the flags that govern the optional
@@ -39,6 +40,8 @@ type scanFlagPointers struct {
 	reportErrFlag     *bool
 	compactFlag       *bool
 	fixFlag           *bool
+	rcFlag            *bool
+	separateFlag      *bool
 	workersFlag       *int
 	concurrencyFlag   *int
 	maxDepthFlag      *int
@@ -75,6 +78,12 @@ func registerScanToggles(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
 	flagPtrs.reportErrFlag = fs.Bool(constants.FlagScanReportErrors, false, constants.FlagDescScanReportErrors)
 	flagPtrs.compactFlag = fs.Bool(constants.FlagScanCompact, false, constants.FlagDescScanCompact)
 	flagPtrs.fixFlag = fs.Bool("fix", false, "Reconcile missing/stale repositories from the gitmap tracking database")
+	flagPtrs.rcFlag = fs.Bool("rc", false, "Export and auto-merge scan results into repo-cache/01-gitmap/gitmap.json")
+	fs.BoolVar(flagPtrs.rcFlag, "repo-cache", false, "Export and auto-merge scan results into repo-cache/01-gitmap/gitmap.json")
+	flagPtrs.separateFlag = fs.Bool("separate", false, "Allocate next sequential manifest (XX-gitmap.json) in repo-cache/ instead of merging into 01-gitmap/gitmap.json")
+	fs.BoolVar(flagPtrs.separateFlag, "seprate", false, "Allocate next sequential manifest (XX-gitmap.json) in repo-cache/ instead of merging into 01-gitmap/gitmap.json")
+	fs.BoolVar(flagPtrs.separateFlag, "sep", false, "Allocate next sequential manifest (XX-gitmap.json) in repo-cache/ instead of merging into 01-gitmap/gitmap.json")
+	fs.BoolVar(flagPtrs.separateFlag, "s", false, "Allocate next sequential manifest (XX-gitmap.json) in repo-cache/ instead of merging into 01-gitmap/gitmap.json")
 }
 
 func registerScanIntFlags(fs *flag.FlagSet, flagPtrs *scanFlagPointers) {
@@ -114,7 +123,7 @@ func resolveScanOutputPath(outputPath, manifest string) string {
 }
 
 // ParseScanFlags parses flags for the scan command.
-func ParseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, forceInclude string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
+func ParseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, forceInclude string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, rc, separate bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
 	fs := flag.NewFlagSet(constants.CmdScan, flag.ExitOnError)
 	fs.Usage = func() {
 		fmt.Fprintf(fs.Output(), "Usage: gitmap scan [dir] [flags]\n\nFlags:\n")
@@ -127,7 +136,7 @@ func ParseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
 		fmt.Fprintf(fs.Output(), "  gitmap scan /work --max-depth 3\n")
 	}
 	scanFlags := newScanFlagSet(fs)
-	_ = fs.Parse(args)
+	_ = fs.Parse(flagutil.ReorderFlagsBeforeArgs(args))
 
 	dir = resolveScanDir(fs)
 	probeOpts = resolveScanProbeOptions(fs, scanFlags.noProbeFlag, scanFlags.noProbeWaitFlag,
@@ -135,10 +144,10 @@ func ParseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
 	resolvedWorkers := resolveScanWorkers(fs, scanFlags.workersFlag, scanFlags.concurrencyFlag)
 	resolvedOutputPath := resolveScanOutputPath(*scanFlags.outputPathFlag, *scanFlags.manifestFlag)
 
-	return dir, *scanFlags.cfgFlag, *scanFlags.modeFlag, *scanFlags.outputFlag, *scanFlags.outFileFlag, resolvedOutputPath, *scanFlags.relRootFlag, *scanFlags.defaultBranchFlag, *scanFlags.forceIncludeFlag, *scanFlags.ghDesktopFlag, *scanFlags.openFlag, *scanFlags.quietFlag, *scanFlags.noVSCodeSyncFlag, *scanFlags.noAutoTagsFlag, *scanFlags.reportErrFlag, *scanFlags.compactFlag, *scanFlags.fixFlag, resolvedWorkers, *scanFlags.maxDepthFlag, probeOpts
+	return dir, *scanFlags.cfgFlag, *scanFlags.modeFlag, *scanFlags.outputFlag, *scanFlags.outFileFlag, resolvedOutputPath, *scanFlags.relRootFlag, *scanFlags.defaultBranchFlag, *scanFlags.forceIncludeFlag, *scanFlags.ghDesktopFlag, *scanFlags.openFlag, *scanFlags.quietFlag, *scanFlags.noVSCodeSyncFlag, *scanFlags.noAutoTagsFlag, *scanFlags.reportErrFlag, *scanFlags.compactFlag, *scanFlags.fixFlag, *scanFlags.rcFlag, *scanFlags.separateFlag, resolvedWorkers, *scanFlags.maxDepthFlag, probeOpts
 }
 
-func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, forceInclude string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
+func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, forceInclude string, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, rc, separate bool, workers, maxDepth int, probeOpts ScanProbeOptions) {
 	return ParseScanFlags(args)
 }
 

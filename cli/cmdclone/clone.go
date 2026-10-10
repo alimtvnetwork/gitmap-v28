@@ -103,6 +103,8 @@ func isCloneSubcommand(arg string) string {
 		return "pick"
 	case "fix-repo", "fixrepo", "fr", "cfr":
 		return "fix-repo"
+	case "rc", "repo-cache":
+		return "rc"
 	default:
 		return ""
 	}
@@ -122,6 +124,8 @@ func dispatchCloneSubcommand(subcmd string, subArgs []string) error {
 		return RunClonePick(subArgs)
 	case "fix-repo":
 		return RunCloneFixRepo(subArgs)
+	case "rc":
+		return RunCloneRC(subArgs, CloneModeStandard)
 	default:
 		return nil
 	}
@@ -144,6 +148,9 @@ func runClone(args []string) error {
 	subcmd, subArgs := resolveCloneSubcommand(args)
 	if len(subcmd) > 0 {
 		return dispatchCloneSubcommand(subcmd, subArgs)
+	}
+	if hasRCFlagOrToken(args) {
+		return RunCloneRC(args, CloneModeStandard)
 	}
 	cf := parseCloneFlags(args)
 

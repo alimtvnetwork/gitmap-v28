@@ -30,7 +30,7 @@ func runScan(args []string) error {
 		return dispatchScanSubcommand(sub, subArgs)
 	}
 	checkHelp("scan", args)
-	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, forceInclude, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
+	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, forceInclude, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, rc, separate, workers, maxDepth, probeOpts := parseScanFlags(args)
 	cfg, err := config.LoadFromFile(cfgPath)
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrConfigLoad)
@@ -45,7 +45,7 @@ func runScan(args []string) error {
 
 	forceIncludeDirs := parseForceIncludeDirs(forceInclude)
 
-	return executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch, forceIncludeDirs)
+	return executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, rc, separate, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch, forceIncludeDirs)
 }
 
 // executeScan performs the directory scan and outputs results.
@@ -66,7 +66,9 @@ func executeScan(
 	noAutoTags,
 	reportErrors,
 	compact,
-	fix bool,
+	fix,
+	rc,
+	separate bool,
 	workers,
 	maxDepth int,
 	cache model.ScanCache,
@@ -130,6 +132,14 @@ func executeScan(
 	bench.Phase("scan.writeOutputs", func() {
 		writeAllOutputs(records, outputDir, outFile, quiet, compact)
 	})
+	if rc {
+		bench.Phase("scan.exportRepoCache", func() {
+			err := ExportScanToRepoCache(records, separate, quiet)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "  ⚠ Repo-cache export: %v\n", err)
+			}
+		})
+	}
 	bench.Phase("scan.saveCache", func() {
 		saveScanCache(outputDir, cache)
 	})

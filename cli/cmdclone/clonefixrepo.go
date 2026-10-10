@@ -35,6 +35,9 @@ import (
 // runCloneFixRepo implements `gitmap clone-fix-repo` (alias cfr).
 func runCloneFixRepo(args []string) error {
 	checkHelp(constants.CmdCloneFixRepo, args)
+	if hasRCFlagOrToken(args) {
+		return RunCloneRC(args, CloneModeCFR)
+	}
 	runCloneFixRepoPipeline(args, false)
 
 	return nil
@@ -43,6 +46,9 @@ func runCloneFixRepo(args []string) error {
 // runCloneFixRepoPub implements `gitmap clone-fix-repo-pub` (alias cfrp).
 func runCloneFixRepoPub(args []string) error {
 	checkHelp(constants.CmdCloneFixRepoPub, args)
+	if hasRCFlagOrToken(args) {
+		return RunCloneRC(args, CloneModeCFRP)
+	}
 	runCloneFixRepoPipeline(args, true)
 
 	return nil
