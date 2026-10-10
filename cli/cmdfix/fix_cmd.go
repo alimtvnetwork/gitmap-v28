@@ -1,17 +1,21 @@
 package cmdfix
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func isFixAgyRequest(args []string) bool {
@@ -53,7 +57,7 @@ func isFixPromptRequested(args []string) bool {
 
 func isFixActionWord(s string) bool {
 	switch s {
-	case "1", "stash", "s", "2", "wip", "w", "3", "discard", "clean", "d":
+	case "1", "stash", "s", "clone", "c", "2", "wip", "w", "init", "i", "link", "3", "discard", "clean", "d", "rm", "remove":
 		return true
 	}
 
@@ -126,17 +130,18 @@ func RunFix(args []string, aliasOverride string) error {
 	}
 
 	items := cmdremediation.LoadRemediationState()
+	if isFixAllRequested(args) {
+		action := resolveFixAllAction(args, aliasOverride)
+		allItems := collectAllRemediationItems(items)
+		return runFixAll(action, allItems)
+	}
+
 	if len(items) == 0 {
 		return handleEmptyRemediationState(args, aliasOverride)
 	}
 
 	if isFixPromptRequested(args) {
 		return cmdremediation.RunInteractiveRemediation(items)
-	}
-
-	if isFixAllRequested(args) {
-		action := resolveFixAllAction(args, aliasOverride)
-		return runFixAll(action, items)
 	}
 
 	if len(args) == 0 && aliasOverride == "" {
@@ -204,6 +209,10 @@ func runFixDirect(args []string, aliasOverride string) error {
 		return nil
 	}
 	if item == nil {
+		nonRepoItem, err := resolveNonRepoRemediationItem(repoQuery, action)
+		if err == nil && nonRepoItem != nil {
+			return applyFixRecipe(nonRepoItem, action)
+		}
 		return apperror.NewNotFoundError(fmt.Sprintf("repository %q not found or not a git repository", repoQuery))
 	}
 
@@ -211,8 +220,14 @@ func runFixDirect(args []string, aliasOverride string) error {
 }
 
 func applyFixRecipe(item *cmdremediation.RemediationItem, action string) error {
+	if action == "" && len(item.Recipes) > 0 {
+		return executeFixRecipe(item, item.Recipes[0])
+	}
 	idx := parseRecipeIndex(action, item.Recipes)
 	if idx < 0 || idx >= len(item.Recipes) {
+		if len(item.Recipes) > 0 {
+			return executeFixRecipe(item, item.Recipes[0])
+		}
 		return apperror.New("fix", "E_INVALID_OPTION", map[string]any{
 			"msg": fmt.Sprintf("Invalid fix option: %s", action),
 		})
@@ -243,16 +258,39 @@ func resolveFixTarget(args []string, aliasOverride string, items []cmdremediatio
 }
 
 func parseRecipeIndex(option string, recipes []gitutil.RemediationRecipe) int {
-	switch option {
-	case "1", "stash", "s":
+	low := strings.ToLower(strings.TrimSpace(option))
+	for i, r := range recipes {
+		t := strings.ToLower(r.Title)
+		if (low == "init" || low == "i") && strings.Contains(t, "init") {
+			return i
+		}
+		if (low == "clone" || low == "c") && strings.Contains(t, "clone") {
+			return i
+		}
+		if (low == "stash" || low == "s") && strings.Contains(t, "stash") {
+			return i
+		}
+		if (low == "wip" || low == "w") && strings.Contains(t, "wip") {
+			return i
+		}
+		if (low == "discard" || low == "d") && strings.Contains(t, "discard") {
+			return i
+		}
+		if (low == "rm" || low == "remove") && strings.Contains(t, "remove") {
+			return i
+		}
+	}
+
+	switch low {
+	case "1", "stash", "s", "clone", "c":
 		return 0
-	case "2", "wip", "w":
+	case "2", "wip", "w", "init", "i", "link":
 		return 1
-	case "3", "discard", "clean", "d":
+	case "3", "discard", "clean", "d", "rm", "remove":
 		return 2
 	}
 
-	if i, err := strconv.Atoi(option); err == nil && i > 0 && i <= len(recipes) {
+	if i, err := strconv.Atoi(low); err == nil && i > 0 && i <= len(recipes) {
 		return i - 1
 	}
 
@@ -273,6 +311,11 @@ func findItemOrError(items []cmdremediation.RemediationItem, repoQuery, action s
 	}
 	if localItem != nil {
 		return localItem, action, nil
+	}
+
+	nonRepoItem, err := resolveNonRepoRemediationItem(repoQuery, action)
+	if err == nil && nonRepoItem != nil {
+		return nonRepoItem, action, nil
 	}
 
 	return nil, "", buildFixNotFoundError(items, repoQuery)
@@ -367,3 +410,159 @@ func runFixIgnoreLocal(args []string) error {
 	}
 	return nil
 }
+
+func resolveRepoPathForFix(repoQuery string) string {
+	cleanQuery := strings.TrimSpace(repoQuery)
+	if cleanQuery == "" {
+		return ""
+	}
+	if info, err := os.Stat(cleanQuery); err == nil && info.IsDir() {
+		return cleanQuery
+	}
+	// Check special repos split db
+	if db, err := store.OpenSpecialReposSplitDB(); err == nil {
+		defer db.Close()
+		if rec, err := db.GetSpecialRepo(cleanQuery); err == nil && rec.LocalPath != "" {
+			if info, err := os.Stat(rec.LocalPath); err == nil && info.IsDir() {
+				return rec.LocalPath
+			}
+		}
+	}
+	// Check standard repos DB
+	if db, err := store.OpenDefault(); err == nil {
+		defer db.Close()
+		if recs, err := db.FindBySlug(cleanQuery); err == nil && len(recs) > 0 {
+			for _, r := range recs {
+				if r.AbsolutePath != "" {
+					if info, err := os.Stat(r.AbsolutePath); err == nil && info.IsDir() {
+						return r.AbsolutePath
+					}
+				}
+			}
+		}
+	}
+	return cleanQuery
+}
+
+func resolveNonRepoRemediationItem(repoQuery, action string) (*cmdremediation.RemediationItem, error) {
+	targetPath := resolveRepoPathForFix(repoQuery)
+	if targetPath == "" {
+		return nil, nil
+	}
+
+	diag := cloner.ClassifyNonRepoFolder(targetPath, repoQuery)
+	if !diag.IsNonRepoFolder {
+		return nil, nil
+	}
+
+	return buildNonRepoRemediationItem(diag, action)
+}
+
+func buildNonRepoRemediationItem(diag cloner.NonRepoDiagnosis, action string) (*cmdremediation.RemediationItem, error) {
+	cleanPath := filepath.ToSlash(filepath.Clean(diag.Path))
+	var recipes []gitutil.RemediationRecipe
+
+	if diag.HasRemote {
+		entries, readErr := os.ReadDir(diag.Path)
+		isEmpty := readErr == nil && len(entries) == 0
+
+		var cloneSteps []gitutil.RemediationStep
+		if isEmpty {
+			cloneSteps = []gitutil.RemediationStep{
+				{Name: "git", Args: []string{"clone", diag.RemoteURL, cleanPath}},
+			}
+		} else {
+			cloneSteps = []gitutil.RemediationStep{
+				{Name: "git", Args: []string{"-C", cleanPath, "init"}},
+				{Name: "git", Args: []string{"-C", cleanPath, "remote", "add", "origin", diag.RemoteURL}},
+				{Name: "git", Args: []string{"-C", cleanPath, "fetch", "origin"}},
+			}
+		}
+
+		recipes = append(recipes, gitutil.RemediationRecipe{
+			Title:       "Clone from Remote",
+			Command:     diag.Option1,
+			Description: fmt.Sprintf("Clone %s into %s", diag.RemoteURL, cleanPath),
+			Steps:       cloneSteps,
+		})
+
+		linkSteps := []gitutil.RemediationStep{
+			{Name: "git", Args: []string{"-C", cleanPath, "init"}},
+			{Name: "git", Args: []string{"-C", cleanPath, "remote", "add", "origin", diag.RemoteURL}},
+			{Name: "git", Args: []string{"-C", cleanPath, "fetch", "origin"}},
+		}
+		recipes = append(recipes, gitutil.RemediationRecipe{
+			Title:       "Init & Link Remote",
+			Command:     diag.Option2,
+			Description: fmt.Sprintf("Initialize local git repo in %s and link origin to %s", cleanPath, diag.RemoteURL),
+			Steps:       linkSteps,
+		})
+	} else {
+		initSteps := []gitutil.RemediationStep{
+			{Name: "git", Args: []string{"-C", cleanPath, "init"}},
+		}
+		recipes = append(recipes, gitutil.RemediationRecipe{
+			Title:       "Initialize Local Repo",
+			Command:     diag.Option1,
+			Description: fmt.Sprintf("Initialize local git repository in %s", cleanPath),
+			Steps:       initSteps,
+		})
+
+		removeSteps := []gitutil.RemediationStep{
+			{Name: "gitmap", Args: []string{"rm", diag.RepoName, "--db-only"}},
+		}
+		recipes = append(recipes, gitutil.RemediationRecipe{
+			Title:       "Remove from Registry",
+			Command:     diag.Option2,
+			Description: fmt.Sprintf("Remove %s from database registry", diag.RepoName),
+			Steps:       removeSteps,
+		})
+	}
+
+	return &cmdremediation.RemediationItem{
+		RepoName:      diag.RepoName,
+		RepoPath:      diag.Path,
+		SummaryReason: diag.Reason,
+		Recipes:       recipes,
+	}, nil
+}
+
+func collectAllRemediationItems(existing []cmdremediation.RemediationItem) []cmdremediation.RemediationItem {
+	seen := make(map[string]bool)
+	var all []cmdremediation.RemediationItem
+	for _, item := range existing {
+		cleanPath := filepath.Clean(item.RepoPath)
+		if !seen[cleanPath] {
+			seen[cleanPath] = true
+			all = append(all, item)
+		}
+	}
+
+	liveItems := scanTrackedReposForIssues()
+	for _, item := range liveItems {
+		cleanPath := filepath.Clean(item.RepoPath)
+		if !seen[cleanPath] {
+			seen[cleanPath] = true
+			all = append(all, item)
+		}
+	}
+
+	specialKeys := []string{"repo-cache", "repo-secrets"}
+	for _, key := range specialKeys {
+		if path := resolveRepoPathForFix(key); path != "" {
+			cleanPath := filepath.Clean(path)
+			if !seen[cleanPath] {
+				diag := cloner.ClassifyNonRepoFolder(path, key)
+				if diag.IsNonRepoFolder {
+					if item, err := buildNonRepoRemediationItem(diag, ""); err == nil && item != nil {
+						seen[cleanPath] = true
+						all = append(all, *item)
+					}
+				}
+			}
+		}
+	}
+
+	return all
+}
+

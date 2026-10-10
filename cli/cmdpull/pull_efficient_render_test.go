@@ -2,9 +2,11 @@ package cmdpull
 
 import (
 	"bytes"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -87,6 +89,7 @@ func TestRenderConciseActiveResultsTo(t *testing.T) {
 		{RepoName: "ai-empathy-prompt-tuner-v1", Changes: ""},
 		{RepoName: "Antigravity-Manager", Changes: "+4941/-484 (68)"},
 		{RepoName: "kita-social-media-content-calender-v2", Changes: "synced"},
+		{RepoName: "repo-cache", Changes: "failed", ErrorMsg: "exit status 1: fatal: not a git repository"},
 	}
 
 	var buf bytes.Buffer
@@ -101,9 +104,9 @@ func TestRenderConciseActiveResultsTo(t *testing.T) {
 		}
 	}
 
-	// Only 2 active repos (alim-cv-v8 and Antigravity-Manager) should be rendered; 2 up-to-date omitted!
-	if len(bulletLines) != 2 {
-		t.Fatalf("expected 2 active repo bullet lines rendered, got %d:\n%s", len(bulletLines), buf.String())
+	// 3 active repos (alim-cv-v8, Antigravity-Manager, repo-cache); 2 up-to-date omitted!
+	if len(bulletLines) != 3 {
+		t.Fatalf("expected 3 active repo bullet lines rendered, got %d:\n%s", len(bulletLines), buf.String())
 	}
 
 	for i, line := range bulletLines {
@@ -112,11 +115,24 @@ func TestRenderConciseActiveResultsTo(t *testing.T) {
 		}
 	}
 
-	if !strings.Contains(buf.String(), "Reason:") {
-		t.Errorf("expected Reason in output, got: %s", buf.String())
+	out := buf.String()
+	if !strings.Contains(out, "Reason:") {
+		t.Errorf("expected Reason in output, got: %s", out)
 	}
-	if !strings.Contains(buf.String(), "Next Step:") {
-		t.Errorf("expected Next Step in output, got: %s", buf.String())
+	if strings.Contains(out, "Next Step:") {
+		t.Errorf("expected Next Step to be eradicated, got: %s", out)
+	}
+	if !strings.Contains(out, "Solutions:") {
+		t.Errorf("expected Solutions: in output, got: %s", out)
+	}
+	if !strings.Contains(out, constants.ColorYellow) {
+		t.Errorf("expected ColorYellow in output, got: %s", out)
+	}
+	if !strings.Contains(out, "💡 Unified Resolution:") {
+		t.Errorf("expected Unified Resolution in output, got: %s", out)
+	}
+	if !strings.Contains(out, "gitmap fix --all") {
+		t.Errorf("expected gitmap fix --all in output, got: %s", out)
 	}
 }
 
@@ -178,5 +194,97 @@ func TestResolveDualPullRemediationHints_Conflict(t *testing.T) {
 	}
 	if l2 != "Discard & Abort" || c2 != "gitmap fix cat-my-v12 discard" {
 		t.Fatalf("unexpected option 2: label=%q, cmd=%q", l2, c2)
+	}
+}
+
+func TestRenderFailedGroup_SubtreeAndYellow(t *testing.T) {
+	states := []*PullRepoState{
+		{
+			RepoName: "web-platform",
+			RepoPath: "web-platform",
+			Changes:  "failed",
+			ErrorMsg: "error: Your local changes to the following files would be overwritten by merge",
+		},
+	}
+
+	var buf bytes.Buffer
+	RenderConciseActiveResultsTo(&buf, states)
+	out := buf.String()
+
+	// 1. Verify tree structure
+	if !strings.Contains(out, "├── Solutions:") {
+		t.Fatalf("expected '├── Solutions:' in output, got:\n%s", out)
+	}
+	if !strings.Contains(out, "│   ├── Option 1") {
+		t.Fatalf("expected '│   ├── Option 1' in output, got:\n%s", out)
+	}
+	if !strings.Contains(out, "│   └── Option 2") {
+		t.Fatalf("expected '│   └── Option 2' in output, got:\n%s", out)
+	}
+	if !strings.Contains(out, "└── Diagnostic:") {
+		t.Fatalf("expected '└── Diagnostic:' in output, got:\n%s", out)
+	}
+
+	// 2. Verify yellow ANSI coloring
+	if !strings.Contains(out, constants.ColorYellow) {
+		t.Fatalf("expected yellow ANSI code in output, got:\n%s", out)
+	}
+
+	// 3. Verify unified batch resolution footer
+	if !strings.Contains(out, "💡 Unified Resolution:") {
+		t.Fatalf("expected unified resolution banner, got:\n%s", out)
+	}
+	if !strings.Contains(out, "gitmap fix --all") {
+		t.Fatalf("expected 'gitmap fix --all' command in banner, got:\n%s", out)
+	}
+
+	// 4. Verify no flat Next Step line
+	if strings.Contains(out, "Next Step:") {
+		t.Fatalf("flat 'Next Step:' line must not appear in output, got:\n%s", out)
+	}
+}
+
+func TestRenderFailedGroup_NonGitFolder(t *testing.T) {
+	tempDir := t.TempDir()
+	states := []*PullRepoState{
+		{
+			RepoName: "repo-cache",
+			RepoPath: filepath.ToSlash(tempDir),
+			Changes:  "failed",
+			ErrorMsg: "fatal: not a git repository (or any of the parent directories): .git",
+		},
+	}
+
+	var buf bytes.Buffer
+	RenderConciseActiveResultsTo(&buf, states)
+	out := buf.String()
+
+	if !strings.Contains(out, "directory exists but is not a Git repository (missing .git)") {
+		t.Fatalf("expected non-git folder reason, got:\n%s", out)
+	}
+	if !strings.Contains(out, "Option 1 (Clone from Upstream):") {
+		t.Fatalf("expected Option 1 Clone from Upstream, got:\n%s", out)
+	}
+	if !strings.Contains(out, "Option 2 (Initialize Repository):") {
+		t.Fatalf("expected Option 2 Initialize Repository, got:\n%s", out)
+	}
+	if !strings.Contains(out, "git init") {
+		t.Fatalf("expected git init in Option 2, got:\n%s", out)
+	}
+}
+
+func TestRenderStructuredSolutionsSubtree_SingleOption(t *testing.T) {
+	var buf bytes.Buffer
+	state := &PullRepoState{
+		RepoName: "single-opt-repo",
+	}
+	renderStructuredSolutionsSubtree(&buf, state)
+	out := buf.String()
+
+	if !strings.Contains(out, "├── Solutions:\n") {
+		t.Fatalf("expected Solutions header, got:\n%s", out)
+	}
+	if !strings.Contains(out, "Option 1") {
+		t.Fatalf("expected Option 1, got:\n%s", out)
 	}
 }

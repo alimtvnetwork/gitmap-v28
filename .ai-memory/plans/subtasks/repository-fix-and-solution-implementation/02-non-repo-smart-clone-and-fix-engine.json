@@ -1,0 +1,24 @@
+{
+  "subtaskId": "02-non-repo-smart-clone-and-fix-engine",
+  "taskCode": "Task-02",
+  "planSlug": "repository-fix-and-solution-implementation",
+  "status": "COMPLETED",
+  "worker": "Worker 02",
+  "summary": "Implemented non-repo directory diagnosis and classification (ClassifyNonRepoFolder) in cloner/pulldiag.go with companion repository detection and upstream remote lookup, overhauled cmdautofix/fix.go to route repository fix requests to cmdfix.RunFix, equipped cmdfix/fix_cmd.go with non-repo smart clone and init remediation and full gitmap fix --all batch resolution, and added unit tests in cmdfix/fix_test.go.",
+  "modifiedFiles": [
+    "cli/cloner/pulldiag.go",
+    "cli/cmdautofix/fix.go",
+    "cli/cmdfix/fix_cmd.go",
+    "cli/cmdfix/fix_test.go"
+  ],
+  "verification": "Targeted test 'go test -v ./cmdfix' in cli passed all 15 tests with 0 failures; 'go test ./cloner' and 'go test ./cmdautofix' passed with 0 failures.",
+  "acceptance": {
+    "VG-SUB-01": "PASS ClassifyNonRepoFolder accurately detects non-repo directories and validates missing .git roots.",
+    "VG-SUB-02": "PASS Companion repositories (repo-cache, repo-secrets, rc, rs, cache, storage) identified and upstream remote URLs resolved from Split-DB and gh CLI.",
+    "VG-SUB-03": "PASS Dual remediation options generated: Option 1 (gitmap clone) and Option 2 (git -C <path> init).",
+    "VG-SUB-04": "PASS cmdautofix/fix.go routes repository targets and --all / all requests seamlessly to cmdfix.RunFix.",
+    "VG-SUB-05": "PASS cmdfix.runFixDirect executes smart clone/init resolution on non-repo folders without errors.",
+    "VG-SUB-06": "PASS gitmap fix --all / fix all collects all pending pull items, live dirty repos, and companion repos and remediates in batch.",
+    "VG-SUB-07": "PASS Strict relative Git paths across all modified files, zero absolute paths, zero file:/// URIs."
+  }
+}

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
@@ -16,6 +17,9 @@ func ResolvePullErrorDetails(s *PullRepoState) string {
 	}
 	if isMissingRepoDir(s.RepoPath) {
 		return "Repository directory does not exist on disk"
+	}
+	if isExistingDir(s.RepoPath) && !isGitRepoDir(s.RepoPath) {
+		return "directory exists but is not a Git repository (missing .git)"
 	}
 	if s.IsDirty || s.Changes == "dirty" {
 		return "working tree has uncommitted changes"
@@ -48,6 +52,9 @@ func classifyStandardError(msg string) string {
 	}
 	if isMissingRepoFailure(msg) {
 		return "Repository directory does not exist on disk"
+	}
+	if isNonGitRepoFailure(msg) {
+		return "directory exists but is not a Git repository (missing .git)"
 	}
 	return ""
 }
@@ -89,7 +96,7 @@ func ResolvePullRemediationHint(s *PullRepoState) string {
 	if s == nil {
 		return ""
 	}
-	if isMissingRepoDir(s.RepoPath) {
+	if isMissingRepoDir(s.RepoPath) || (isExistingDir(s.RepoPath) && !isGitRepoDir(s.RepoPath)) {
 		name := resolveEffectiveRepoName(s.RepoName, s.RepoPath)
 		return fmt.Sprintf("gitmap clone %s", name)
 	}
@@ -104,7 +111,7 @@ func ResolvePullRemediationHint(s *PullRepoState) string {
 
 func buildActionableRemediation(repoName, repoPath, msg string) string {
 	effectiveName := resolveEffectiveRepoName(repoName, repoPath)
-	if isMissingRepoFailure(msg) || isMissingRepoDir(repoPath) {
+	if isMissingRepoFailure(msg) || isMissingRepoDir(repoPath) || isNonGitRepoFailure(msg) {
 		return fmt.Sprintf("gitmap clone %s", effectiveName)
 	}
 	if isWincredmanFailure(msg) {
@@ -175,6 +182,12 @@ func isMissingRepoFailure(msg string) bool {
 		strings.Contains(lower, "does not exist")
 }
 
+func isNonGitRepoFailure(msg string) bool {
+	lower := strings.ToLower(msg)
+	return strings.Contains(lower, "not a git repository") ||
+		strings.Contains(lower, "missing .git")
+}
+
 // RemediationOption represents an actionable alternative fix command.
 type RemediationOption struct {
 	OptionNumber int    `json:"option_number"`
@@ -198,9 +211,17 @@ func ResolveStructuredRemediation(s *PullRepoState) StructuredRemediation {
 		reason = "pull execution failed"
 	}
 	l1, c1, l2, c2 := resolveStateDualHints(s)
+	opts := buildRemediationOptions(l1, c1, l2, c2)
+	if len(opts) == 0 {
+		name := resolveEffectiveRepoName(s.RepoName, s.RepoPath)
+		opts = []RemediationOption{
+			{OptionNumber: 1, Title: "Auto-Fix", Command: "gitmap fix " + name},
+			{OptionNumber: 2, Title: "Inspect Status", Command: "gitmap status " + name},
+		}
+	}
 	return StructuredRemediation{
 		Reason:  reason,
-		Options: buildRemediationOptions(l1, c1, l2, c2),
+		Options: opts,
 	}
 }
 
@@ -210,6 +231,9 @@ func resolveStateDualHints(s *PullRepoState) (string, string, string, string) {
 	}
 	if isMissingRepoDir(s.RepoPath) {
 		return resolveMissingRepoDualHints(s.RepoPath, s.RepoName)
+	}
+	if isExistingDir(s.RepoPath) && !isGitRepoDir(s.RepoPath) {
+		return resolveNonGitFolderDualHints(s.RepoPath, s.RepoName)
 	}
 	if s.IsDirty || s.Changes == "dirty" {
 		return resolveDirtyStateDualHints(s)
@@ -237,6 +261,9 @@ func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string,
 	if isMissingRepoFailure(msg) || isMissingRepoDir(repoDir) {
 		return resolveMissingRepoDualHints(repoDir, repoName)
 	}
+	if isNonGitRepoFailure(msg) || (isExistingDir(repoDir) && !isGitRepoDir(repoDir)) {
+		return resolveNonGitFolderDualHints(repoDir, repoName)
+	}
 	if isConflictFailure(msg) {
 		return resolveConflictDualHints(repoDir, repoName)
 	}
@@ -252,6 +279,9 @@ func ResolveDualPullRemediationHints(err any, repoDir, repoName string) (string,
 func resolveStateOrAuthDualHints(msg, repoDir, repoName string) (string, string, string, string) {
 	if isMissingRepoFailure(msg) || isMissingRepoDir(repoDir) {
 		return resolveMissingRepoDualHints(repoDir, repoName)
+	}
+	if isNonGitRepoFailure(msg) || (isExistingDir(repoDir) && !isGitRepoDir(repoDir)) {
+		return resolveNonGitFolderDualHints(repoDir, repoName)
 	}
 	if isConflictFailure(msg) {
 		return resolveConflictDualHints(repoDir, repoName)
@@ -277,7 +307,21 @@ func resolveMissingRepoDualHints(repoDir, repoName string) (string, string, stri
 	}
 	cloneCmd := "gitmap clone " + name
 	removeCmd := "gitmap rm --db-only " + name
-	return "Clone from Remote", cloneCmd, "Remove from Registry", removeCmd
+	return "Clone from Upstream", cloneCmd, "Remove from Registry", removeCmd
+}
+
+func resolveNonGitFolderDualHints(repoDir, repoName string) (string, string, string, string) {
+	name := resolveEffectiveRepoName(repoName, repoDir)
+	cloneCmd := "gitmap clone " + name
+	target := name
+	if repoDir != "" && !filepath.IsAbs(repoDir) {
+		target = filepath.ToSlash(filepath.Clean(repoDir))
+	}
+	initCmd := fmt.Sprintf("cd %s && git init", target)
+	if strings.Contains(target, " ") {
+		initCmd = fmt.Sprintf("cd \"%s\" && git init", target)
+	}
+	return "Clone from Upstream", cloneCmd, "Initialize Repository", initCmd
 }
 
 func isDirtyTreeError(msg string) bool {
@@ -328,15 +372,13 @@ func resolveAuthDualHints() (string, string, string, string) {
 }
 
 func resolveFallbackDualHints(repoDir, repoName string) (string, string, string, string) {
-	statusCmd := fmt.Sprintf("gitmap status %s", repoName)
-	if repoName == "" {
+	name := resolveEffectiveRepoName(repoName, repoDir)
+	statusCmd := fmt.Sprintf("gitmap status %s", name)
+	if name == "repo" && repoDir != "" {
 		statusCmd = formatRepoGitCmd(repoDir, "status")
 	}
-	pullCmd := fmt.Sprintf("gitmap pull %s", repoName)
-	if repoName == "" {
-		pullCmd = formatRepoGitCmd(repoDir, "pull")
-	}
-	return "Inspect Status", statusCmd, "Re-pull Repo", pullCmd
+	fixCmd := fmt.Sprintf("gitmap fix %s", name)
+	return "Auto-Fix", fixCmd, "Inspect Status", statusCmd
 }
 
 func formatRepoGitCmd(repoDir, gitArgs string) string {
@@ -388,4 +430,20 @@ func resolveEffectiveRepoName(repoName, repoPath string) string {
 		return filepath.Base(repoPath)
 	}
 	return "repo"
+}
+
+func isGitRepoDir(dir string) bool {
+	if dir == "" {
+		return false
+	}
+	fi, err := os.Stat(filepath.Join(dir, constants.ExtGit))
+	return err == nil && fi != nil
+}
+
+func isExistingDir(dir string) bool {
+	if dir == "" {
+		return false
+	}
+	fi, err := os.Stat(dir)
+	return err == nil && fi.IsDir()
 }

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -29,6 +30,13 @@ var fixSubcommands = []string{
 // RunFixCmd is the `gitmap fix` entry point: parent with per-category
 // subcommands. Check-driven flow: Scan → MANDATORY summary → prompt → Apply.
 func RunFixCmd(args []string) error {
+	if len(args) == 0 {
+		RenderFixHelp()
+		cliexit.Exit(0)
+	}
+	if isRepositoryFixTarget(args) {
+		return cmdfix.RunFix(args, "")
+	}
 	sub, rest := splitSubcommand(args)
 	if sub == "" {
 		RenderFixHelp()
@@ -279,4 +287,33 @@ func runJSONFlow(opts Options, result *ScanResult, fixable int) error {
 	cliexit.Exit(1)
 	return nil
 }
+
+func isCodeHygieneCategory(token string) bool {
+	cleaned := strings.ToLower(strings.TrimSpace(token))
+	switch cleaned {
+	case "encoding", "newlines", "naming", "paths", "gofmt",
+		"misspell", "markdown", "guidelines":
+		return true
+	default:
+		return false
+	}
+}
+
+func isRepositoryFixTarget(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(strings.TrimSpace(args[0]))
+	if first == "--help" || first == "-h" || first == "help" {
+		return false
+	}
+	if first == "--all" || first == "-a" || first == "all" {
+		return true
+	}
+	if isCodeHygieneCategory(first) {
+		return false
+	}
+	return true
+}
+
 
