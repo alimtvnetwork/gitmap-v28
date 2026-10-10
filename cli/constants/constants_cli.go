@@ -398,9 +398,9 @@ const (
 	CmdFixGit      = "fix-git"
 	CmdFixGitAlias = "fg"
 	// CmdFixReleaseTags audits and cleans orphan or broken GitHub releases and tags lacking assets.
-	CmdFixReleaseTags      = "fix-release-tags"
-	CmdFixReleaseTagsAlias = "frt"
-	CmdFixReleaseTagsSolid = "fixreleasetags"
+	CmdFixReleaseTags           = "fix-release-tags"
+	CmdFixReleaseTagsAlias      = "frt"
+	CmdFixReleaseTagsAliasSolid = "fixreleasetags"
 	// CmdUndo restores the latest `gitmap fix-repo` backup snapshot
 	// for the current repo + current version (v5.40.0+). Backups live
 	// at `<repoRoot>/.gitmap/backup/<repo>/v<N>/fix-repo/<UTC-ts>/`.

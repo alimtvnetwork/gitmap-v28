@@ -434,7 +434,7 @@ func utilitySystemEntries() []dispatchEntry {
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return cmdssh.RunSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return cmdfixauth.RunFixAuth(argsTail()) }},
 		{[]string{constants.CmdFixCredential, constants.CmdFixCredentialAlias}, func() error { checkHelp("fix-credential", argsTail()); return cmdfixauth.RunFixCredential(argsTail()) }},
-		{[]string{constants.CmdFixReleaseTags, constants.CmdFixReleaseTagsAlias, "fix-release-tag", "fix-tags", constants.CmdFixReleaseTagsSolid}, func() error { return cmdfixreleasetags.RunFixReleaseTags(argsTail()) }},
+		{[]string{constants.CmdFixReleaseTags, constants.CmdFixReleaseTagsAlias, "fix-release-tag", "fix-tags", constants.CmdFixReleaseTagsAliasSolid}, func() error { return cmdfixreleasetags.RunFixReleaseTags(argsTail()) }},
 		{[]string{"ai-clean", "aiclean", "clean-ai"}, func() error { return cmdos.RunOSAICleanCLI(argsTail()) }},
 		{[]string{constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen}, func() error { return cmdagy.RunSUGCLI(argsTail()) }},
 		{[]string{constants.CmdWatchPromptsRunning, constants.CmdWatchPromptsRunningAlias, "watch-running-prompts"}, func() error { return cmdagy.RunWPRCLI(argsTail()) }},
@@ -558,7 +558,7 @@ func normalizeHelpTopic(topic string) string {
 		return "rerun"
 	case constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen:
 		return constants.CmdShutdownUntil
-	case constants.CmdFixReleaseTagsAlias, "fix-release-tag", "fix-tags", constants.CmdFixReleaseTagsSolid:
+	case constants.CmdFixReleaseTagsAlias, "fix-release-tag", "fix-tags", constants.CmdFixReleaseTagsAliasSolid:
 		return constants.CmdFixReleaseTags
 	}
 
