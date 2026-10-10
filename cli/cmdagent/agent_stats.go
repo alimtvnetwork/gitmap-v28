@@ -52,6 +52,13 @@ func openObservabilityDB() (*sql.DB, *appfault.AppError) {
 		return nil, openErr
 	}
 
+	initErr := InitTier1Schema(db)
+	hasInitErr := initErr != nil
+	if hasInitErr {
+		_ = db.Close()
+		return nil, initErr
+	}
+
 	_, execErr := db.Exec(observabilitySchemaDDL)
 	hasExecErr := execErr != nil
 	if hasExecErr {
