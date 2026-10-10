@@ -82,6 +82,8 @@ func PrintRaw(command string) {
 }
 
 var helpAliases = map[string]string{
+	"pc":                          "pending-commits",
+	"nc":                          "new-commands",
 	"push-fix":                    "push_fix",
 	"push fix":                    "push_fix",
 	"pf":                          "push_fix",

@@ -187,4 +187,6 @@ var helptextExemptConstants = []string{
 	"CmdCommitLeftPR", "CmdCommitRightPR", "CmdCommitInPR",
 	// Lowercase file renamer aliases — covered by lowercase.md.
 	"CmdLowerCaseFix", "CmdLowerCaseFixShort", "CmdLowercaseReadme", "CmdReadmeLower",
+	// Subcommands for space and spec — covered by space.md / spec.md.
+	"CmdSpaceBackupBranch", "CmdSpecNext",
 }

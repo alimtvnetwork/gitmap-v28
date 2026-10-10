@@ -6,6 +6,10 @@ import (
 )
 
 var topicSummaries = map[string]string{
+	"pending-commits":             "Discover uncommitted modifications and unpushed commits with tree view remediation and batch fix options.",
+	"pc":                          "Discover uncommitted modifications and unpushed commits with tree view remediation and batch fix options.",
+	"new-commands":                "Catalog and search recent CLI commands added in the last 100 commits with syntax and usage examples.",
+	"nc":                          "Catalog and search recent CLI commands added in the last 100 commits with syntax and usage examples.",
 	"push-fix":                    "Autonomous diagnosis, SSH key synchronization, dual-profile config healing, and direct GitHub push recovery.",
 	"pf":                          "Autonomous diagnosis, SSH key synchronization, dual-profile config healing, and direct GitHub push recovery.",
 	"pfx":                         "Autonomous diagnosis, SSH key synchronization, dual-profile config healing, and direct GitHub push recovery.",

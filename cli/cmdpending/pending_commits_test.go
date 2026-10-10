@@ -31,13 +31,19 @@ func TestParsePendingCommitsOptions_Defaults(t *testing.T) {
 	if opts.IsJSON {
 		t.Errorf("expected default IsJSON false, got true")
 	}
+	if opts.IsNoCache {
+		t.Errorf("expected default IsNoCache false, got true")
+	}
+	if opts.IsRefresh {
+		t.Errorf("expected default IsRefresh false, got true")
+	}
 	if opts.TargetRepo != "" {
 		t.Errorf("expected default TargetRepo '', got %s", opts.TargetRepo)
 	}
 }
 
 func TestParsePendingCommitsOptions_Flags(t *testing.T) {
-	args := []string{"--sort", "count", "-d", "all", "--ssh", "-j", "--all", "my-repo"}
+	args := []string{"--sort", "count", "-d", "all", "--ssh", "-j", "--all", "--no-cache", "--refresh", "my-repo"}
 	opts := parsePendingCommitsOptions(args)
 
 	if opts.SortMode != "count" {
@@ -54,6 +60,12 @@ func TestParsePendingCommitsOptions_Flags(t *testing.T) {
 	}
 	if !opts.IsAll {
 		t.Errorf("expected IsAll true, got false")
+	}
+	if !opts.IsNoCache {
+		t.Errorf("expected IsNoCache true, got false")
+	}
+	if !opts.IsRefresh {
+		t.Errorf("expected IsRefresh true, got false")
 	}
 	if opts.IsDirtyOnly {
 		t.Errorf("expected IsDirtyOnly false with --all, got true")
@@ -384,4 +396,128 @@ func parsePorcelainStatusLines(raw string) (untracked, modified, staged int, fil
 	}
 
 	return untracked, modified, staged, files
+}
+
+func TestFormatShortVersionBranch(t *testing.T) {
+	verifyFormatShortVersionBranchStandard(t)
+	verifyFormatShortVersionBranchFallback(t)
+	verifyFormatShortVersionBranchTruncation(t)
+}
+
+func verifyFormatShortVersionBranchStandard(t *testing.T) {
+	result := formatShortVersionBranch("v1.2.3", "main")
+	if result != "v1.2.3/main" {
+		t.Errorf("expected 'v1.2.3/main', got '%s'", result)
+	}
+}
+
+func verifyFormatShortVersionBranchFallback(t *testing.T) {
+	result := formatShortVersionBranch("", "feature-login")
+	if result != "feature-login" {
+		t.Errorf("expected 'feature-login', got '%s'", result)
+	}
+}
+
+func verifyFormatShortVersionBranchTruncation(t *testing.T) {
+	result := formatShortVersionBranch("v6.523.1", "feature-long-name-here")
+	if len([]rune(result)) > 16 {
+		t.Errorf("expected rune length <= 16, got %d ('%s')", len([]rune(result)), result)
+	}
+	if !strings.HasSuffix(result, "…") {
+		t.Errorf("expected trailing ellipsis, got '%s'", result)
+	}
+}
+
+func TestBuildRepoRemediationOptions_Dirty(t *testing.T) {
+	rec := RepoPendingCommitRecord{
+		RepoName:     "gitmap",
+		RelativePath: "gitmap",
+		IsDirty:      true,
+	}
+	options := buildRepoRemediationOptions(rec)
+	if len(options) != 2 {
+		t.Fatalf("expected 2 remediation options for dirty repo, got %d", len(options))
+	}
+	verifyRemediationOptionsContent(t, options)
+}
+
+func verifyRemediationOptionsContent(t *testing.T, options []RemediationOption) {
+	if options[0].OptionNumber != 1 {
+		t.Errorf("expected OptionNumber 1, got %d", options[0].OptionNumber)
+	}
+	if !strings.Contains(options[0].Command, "git -C \"gitmap\" add -A") {
+		t.Errorf("expected git add command in Option 1, got %s", options[0].Command)
+	}
+	if options[1].OptionNumber != 2 {
+		t.Errorf("expected OptionNumber 2, got %d", options[1].OptionNumber)
+	}
+	if !strings.Contains(options[1].Command, "git -C \"gitmap\" stash -u") {
+		t.Errorf("expected git stash command in Option 2, got %s", options[1].Command)
+	}
+}
+
+func TestBuildRepoRemediationOptions_Clean(t *testing.T) {
+	rec := RepoPendingCommitRecord{
+		RepoName:     "gitmap",
+		RelativePath: "gitmap",
+		IsDirty:      false,
+		IsClean:      true,
+	}
+	options := buildRepoRemediationOptions(rec)
+	if len(options) != 0 {
+		t.Errorf("expected 0 options for clean repo, got %d", len(options))
+	}
+}
+
+func TestTotalUncommittedCalculation(t *testing.T) {
+	rec := assembleRepoPendingCommitRecord(
+		model.ScanRecord{RepoName: "test-repo"},
+		"main", "v1.0.0", "v1.0.0/main",
+		3, 5, 2, 10, 0,
+		true, nil, nil,
+	)
+	if rec.TotalUncommitted != 10 {
+		t.Errorf("expected TotalUncommitted 10, got %d", rec.TotalUncommitted)
+	}
+	expectedSum := rec.UntrackedFilesCount + rec.ModifiedFilesCount + rec.StagedFilesCount
+	if rec.TotalUncommitted != expectedSum {
+		t.Errorf("expected TotalUncommitted %d to match sum %d", rec.TotalUncommitted, expectedSum)
+	}
+}
+
+func TestPendingCommitsJSON_NewFields(t *testing.T) {
+	rec := RepoPendingCommitRecord{
+		RepoName:           "gitmap",
+		RelativePath:       ".",
+		CurrentBranch:      "main",
+		Version:            "v6.523.1",
+		ShortVersionBranch: "v6.523.1/main",
+		IsDirty:            true,
+		TotalUncommitted:   4,
+		RemediationOptions: []RemediationOption{
+			{OptionNumber: 1, Label: "Commit & Push WIP", Command: "git add -A"},
+		},
+	}
+	verifyNewFieldsJSONSerialization(t, rec)
+}
+
+func verifyNewFieldsJSONSerialization(t *testing.T, rec RepoPendingCommitRecord) {
+	data, errMarshal := json.Marshal(rec)
+	if errMarshal != nil {
+		t.Fatalf("failed to marshal JSON: %v", errMarshal)
+	}
+	var parsed map[string]any
+	if errUnmarshal := json.Unmarshal(data, &parsed); errUnmarshal != nil {
+		t.Fatalf("failed to unmarshal JSON: %v", errUnmarshal)
+	}
+	checkJSONKeysPresent(t, parsed)
+}
+
+func checkJSONKeysPresent(t *testing.T, parsed map[string]any) {
+	requiredKeys := []string{"totalUncommitted", "version", "shortVersionBranch", "remediationOptions"}
+	for _, key := range requiredKeys {
+		if _, hasKey := parsed[key]; !hasKey {
+			t.Errorf("expected JSON key '%s' to be present", key)
+		}
+	}
 }

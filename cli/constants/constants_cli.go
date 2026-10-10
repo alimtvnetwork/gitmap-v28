@@ -108,6 +108,9 @@ const (
 	// CmdPendingCommits discovers uncommitted changes and unpushed commits across repos.
 	CmdPendingCommits      = "pending-commits"
 	CmdPendingCommitsAlias = "pc"
+	// CmdNewCommands discovers and catalogs commands added in recent git history.
+	CmdNewCommands         = "new-commands"
+	CmdNewCommandsAlias    = "nc"
 	// CmdSends dispatches semantic commits across repositories.
 	CmdSends = "sends"
 	// CmdRmGit removes a commit by its last 4-digit SHA prefix.
@@ -729,6 +732,8 @@ const (
 	HelpVmware           = "  vmware (vm)         Manage VMware shared folders, tools, and services (" + ColorCyan + "install" + ColorReset + ", " + ColorCyan + "shared" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
 	HelpNginx            = "  nginx (ngx)         Manage Nginx HTTP server, virtual hosts, syntax test & reload"
 	HelpAi               = "  ai (scripts)        Native AI scripts catalog, execution, and autofix engine"
+	HelpPendingCommits   = "  pending-commits (pc) Discover uncommitted changes & unpushed commits with tree remediation"
+	HelpNewCommands      = "  new-commands (nc)    Inspect last 100 commands added in recent commits with examples"
 )
 
 // Help section headers and flag-line strings (HelpScanFlags, HelpCloneFlags,
@@ -859,6 +864,8 @@ const (
 	FlagSkipZsh           = "skip-zsh"
 	FlagDescSkipZsh       = "Skip ZSH and Oh-My-Zsh setup on Ubuntu"
 	EnvGitmapSkipZsh      = "GITMAP_SKIP_ZSH"
+	FlagNoCache           = "no-cache"
+	FlagDescNoCache       = "Bypass status cache and query git status directly from filesystem"
 )
 
 // FlagDebugPaths exposes the canonicalize-path tracer used by the

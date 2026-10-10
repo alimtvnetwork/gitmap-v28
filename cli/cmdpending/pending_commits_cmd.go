@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
@@ -84,94 +85,144 @@ func isPendingCommitsHelpRequested(args []string) bool {
 }
 
 func parsePendingCommitsOptions(args []string) PendingCommitsOptions {
-	opts := PendingCommitsOptions{
+	opts := defaultPendingCommitsOptions()
+	for i := 0; i < len(args); i++ {
+		i = processPendingCommitArg(args, i, &opts)
+	}
+	normalizePendingCommitsOptions(&opts)
+	return opts
+}
+
+func defaultPendingCommitsOptions() PendingCommitsOptions {
+	return PendingCommitsOptions{
 		SortMode:    "priority",
 		DetailMode:  "summary",
 		IsDirtyOnly: true,
 	}
+}
 
-	for i := 0; i < len(args); i++ {
-		arg := args[i]
-		switch {
-		case arg == "-s" || arg == "--sort":
-			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-				opts.SortMode = strings.ToLower(args[i+1])
-				i++
-			}
-		case strings.HasPrefix(arg, "--sort="):
-			opts.SortMode = strings.ToLower(strings.TrimPrefix(arg, "--sort="))
-		case arg == "-d" || arg == "--detail":
-			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-				opts.DetailMode = strings.ToLower(args[i+1])
-				i++
-			} else {
-				opts.DetailMode = "all"
-			}
-		case strings.HasPrefix(arg, "--detail="):
-			opts.DetailMode = strings.ToLower(strings.TrimPrefix(arg, "--detail="))
-		case arg == "-j" || arg == "--json":
-			opts.IsJSON = true
-		case arg == "--ssh" || arg == "-ssh":
-			opts.IsSSH = true
-		case arg == "--dirty-only":
-			opts.IsDirtyOnly = true
-			opts.IsAll = false
-		case arg == "--all":
-			opts.IsAll = true
-			opts.IsDirtyOnly = false
-		case !strings.HasPrefix(arg, "-"):
-			opts.TargetRepo = arg
-		}
-	}
-
+func normalizePendingCommitsOptions(opts *PendingCommitsOptions) {
 	if opts.SortMode != "name" && opts.SortMode != "count" && opts.SortMode != "priority" {
 		opts.SortMode = "priority"
 	}
 	if opts.DetailMode == "1" {
 		opts.DetailMode = "1-by-1"
 	}
+}
 
-	return opts
+func processPendingCommitArg(args []string, i int, opts *PendingCommitsOptions) int {
+	arg := args[i]
+	switch {
+	case arg == "-s" || arg == "--sort" || strings.HasPrefix(arg, "--sort="):
+		return parseSortFlag(args, i, opts)
+	case arg == "-d" || arg == "--detail" || strings.HasPrefix(arg, "--detail="):
+		return parseDetailFlag(args, i, opts)
+	default:
+		applyPendingBooleanOrTarget(arg, opts)
+		return i
+	}
+}
+
+func parseSortFlag(args []string, i int, opts *PendingCommitsOptions) int {
+	arg := args[i]
+	if strings.HasPrefix(arg, "--sort=") {
+		opts.SortMode = strings.ToLower(strings.TrimPrefix(arg, "--sort="))
+		return i
+	}
+	if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+		opts.SortMode = strings.ToLower(args[i+1])
+		return i + 1
+	}
+	return i
+}
+
+func parseDetailFlag(args []string, i int, opts *PendingCommitsOptions) int {
+	arg := args[i]
+	if strings.HasPrefix(arg, "--detail=") {
+		opts.DetailMode = strings.ToLower(strings.TrimPrefix(arg, "--detail="))
+		return i
+	}
+	if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+		opts.DetailMode = strings.ToLower(args[i+1])
+		return i + 1
+	}
+	opts.DetailMode = "all"
+	return i
+}
+
+func applyPendingBooleanOrTarget(arg string, opts *PendingCommitsOptions) {
+	if applyPendingScopeFlags(arg, opts) {
+		return
+	}
+	applyPendingCacheAndTarget(arg, opts)
+}
+
+func applyPendingScopeFlags(arg string, opts *PendingCommitsOptions) bool {
+	switch {
+	case arg == "-j" || arg == "--json":
+		opts.IsJSON = true
+		return true
+	case arg == "--ssh" || arg == "-ssh":
+		opts.IsSSH = true
+		return true
+	case arg == "--dirty-only":
+		opts.IsDirtyOnly, opts.IsAll = true, false
+		return true
+	case arg == "--all":
+		opts.IsAll, opts.IsDirtyOnly = true, false
+		return true
+	}
+	return false
+}
+
+func applyPendingCacheAndTarget(arg string, opts *PendingCommitsOptions) bool {
+	switch {
+	case arg == "--no-cache":
+		opts.IsNoCache = true
+		return true
+	case arg == "--refresh":
+		opts.IsRefresh = true
+		return true
+	case !strings.HasPrefix(arg, "-"):
+		opts.TargetRepo = arg
+		return true
+	}
+	return false
 }
 
 func runLocalPendingCommits(opts PendingCommitsOptions) error {
+	inspected, errInspect := resolveAndInspectLocalRepos(opts.TargetRepo)
+	if errInspect != nil {
+		return errInspect
+	}
+	payload := buildPendingCommitsPayload(inspected, opts)
+	if opts.IsJSON {
+		return emitPendingCommitsJSON(payload)
+	}
+	renderLocalPendingCommitsTerminal(payload, len(inspected), inspected, opts)
+	return nil
+}
+
+func resolveAndInspectLocalRepos(targetRepo string) ([]RepoPendingCommitRecord, error) {
 	cwd, errCwd := os.Getwd()
 	if errCwd != nil {
 		cwd = "."
 	}
-
 	records := ResolveWorkspaceRepositories(cwd)
-	recordsToInspect, errTarget := filterWorkspaceRepositories(records, opts.TargetRepo)
+	recordsToInspect, errTarget := filterWorkspaceRepositories(records, targetRepo)
 	if errTarget != nil {
-		return errTarget
+		return nil, errTarget
 	}
+	return inspectRepositoriesPendingCommits(recordsToInspect), nil
+}
 
-	inspected := inspectRepositoriesPendingCommits(recordsToInspect)
-	totalScanned := len(inspected)
-	dirtyCount := 0
-	totalUncommitted := 0
-	totalUnpushed := 0
-
-	for _, item := range inspected {
-		if item.IsDirty {
-			dirtyCount++
-		}
-		totalUncommitted += item.UntrackedFilesCount + item.ModifiedFilesCount + item.StagedFilesCount
-		totalUnpushed += item.UnpushedCommitsCount
-	}
-
-	var displayed []RepoPendingCommitRecord
-	for _, item := range inspected {
-		if isPendingCommitDisplayed(item, opts.IsDirtyOnly) {
-			displayed = append(displayed, item)
-		}
-	}
-
+func buildPendingCommitsPayload(inspected []RepoPendingCommitRecord, opts PendingCommitsOptions) PendingCommitsPayload {
+	dirtyCount, totalUncommitted, totalUnpushed := aggregatePendingCounts(inspected)
+	displayed := filterDisplayedPendingCommits(inspected, opts.IsDirtyOnly)
 	sortPendingCommits(displayed, opts.SortMode)
-
-	payload := PendingCommitsPayload{
+	return PendingCommitsPayload{
 		Timestamp:             time.Now().UTC(),
-		TotalReposScanned:     totalScanned,
+		TotalReposScanned:     len(inspected),
 		TotalDirtyRepos:       dirtyCount,
 		TotalUncommittedFiles: totalUncommitted,
 		TotalUnpushedCommits:  totalUnpushed,
@@ -179,19 +230,38 @@ func runLocalPendingCommits(opts PendingCommitsOptions) error {
 		DetailMode:            opts.DetailMode,
 		Repositories:          displayed,
 	}
+}
 
-	if opts.IsJSON {
-		return emitPendingCommitsJSON(payload)
+func aggregatePendingCounts(inspected []RepoPendingCommitRecord) (int, int, int) {
+	dirtyCount, totalUncommitted, totalUnpushed := 0, 0, 0
+	for _, item := range inspected {
+		if item.IsDirty {
+			dirtyCount++
+		}
+		totalUncommitted += item.TotalUncommitted
+		totalUnpushed += item.UnpushedCommitsCount
 	}
+	return dirtyCount, totalUncommitted, totalUnpushed
+}
 
+func filterDisplayedPendingCommits(inspected []RepoPendingCommitRecord, isDirtyOnly bool) []RepoPendingCommitRecord {
+	var displayed []RepoPendingCommitRecord
+	for _, item := range inspected {
+		if isPendingCommitDisplayed(item, isDirtyOnly) {
+			displayed = append(displayed, item)
+		}
+	}
+	return displayed
+}
+
+func renderLocalPendingCommitsTerminal(payload PendingCommitsPayload, totalScanned int, inspected []RepoPendingCommitRecord, opts PendingCommitsOptions) {
 	renderPendingCommitsTerminal(payload, totalScanned, inspected)
 	if opts.DetailMode == "all" {
-		renderPendingCommitsDetailsAll(displayed)
-	} else if opts.DetailMode == "1-by-1" {
-		renderPendingCommitsInteractive(displayed)
+		renderPendingCommitsDetailsAll(payload.Repositories)
 	}
-
-	return nil
+	if opts.DetailMode == "1-by-1" {
+		renderPendingCommitsInteractive(payload.Repositories)
+	}
 }
 
 func filterWorkspaceRepositories(records []model.ScanRecord, targetRepo string) ([]model.ScanRecord, error) {
@@ -251,54 +321,203 @@ func inspectRepositoriesPendingCommits(records []model.ScanRecord) []RepoPending
 }
 
 func inspectSingleRepoPendingCommits(rec model.ScanRecord) RepoPendingCommitRecord {
-	dir := rec.AbsolutePath
-	if dir == "" {
-		dir = rec.RelativePath
+	dir := resolveRecordDir(rec)
+	untracked, modified, staged, pendingFiles := queryRepoStatus(dir)
+	totalUncommitted := untracked + modified + staged
+	branch := queryRepoBranch(dir, rec.Branch)
+	hasUpstream := checkRepoUpstream(dir)
+	unpushedCount, unpushedSHAs := resolveUnpushedCommits(dir, hasUpstream)
+	version := resolveRepoVersion(dir)
+	shortVerBranch := formatShortVersionBranch(version, branch)
+	out := assembleRepoPendingCommitRecord(rec, branch, version, shortVerBranch, untracked, modified, staged, totalUncommitted, unpushedCount, hasUpstream, pendingFiles, unpushedSHAs)
+	if out.IsDirty {
+		out.RemediationOptions = buildRepoRemediationOptions(out)
 	}
+	return out
+}
 
+func resolveRecordDir(rec model.ScanRecord) string {
+	if rec.AbsolutePath != "" {
+		return rec.AbsolutePath
+	}
+	return rec.RelativePath
+}
+
+func queryRepoStatus(dir string) (int, int, int, []string) {
 	porcelain, _ := currentPendingCommitsGitExecutor(dir, "status", "--porcelain")
-	untracked, modified, staged, pendingFiles := ParsePorcelainStatusLines(porcelain)
+	return ParsePorcelainStatusLines(porcelain)
+}
 
+func queryRepoBranch(dir, fallback string) string {
 	branch, _ := currentPendingCommitsGitExecutor(dir, "rev-parse", "--abbrev-ref", "HEAD")
 	branch = strings.TrimSpace(branch)
-	if branch == "" {
-		branch = rec.Branch
+	if branch != "" {
+		return branch
 	}
-	if branch == "" {
-		branch = "main"
+	if fallback != "" {
+		return fallback
 	}
+	return "main"
+}
 
+func checkRepoUpstream(dir string) bool {
 	upstream, errUpstream := currentPendingCommitsGitExecutor(dir, "rev-parse", "--abbrev-ref", "@{u}")
-	hasUpstream := errUpstream == nil && strings.TrimSpace(upstream) != "" && !strings.Contains(strings.ToLower(upstream), "fatal")
-
-	unpushedCount, unpushedSHAs := resolveUnpushedCommits(dir, hasUpstream)
-
-	isDirty := (untracked + modified + staged) > 0
-	hasUncommitted := isDirty
-	hasUnpushed := unpushedCount > 0
-	isClean := !isDirty && !hasUnpushed
-
-	relPath := rec.RelativePath
-	if relPath == "" {
-		relPath = rec.RepoName
+	if errUpstream != nil {
+		return false
 	}
-
-	return RepoPendingCommitRecord{
-		RepoName:             rec.RepoName,
-		RelativePath:         relPath,
-		CurrentBranch:        branch,
-		IsDirty:              isDirty,
-		IsClean:              isClean,
-		HasUncommitted:       hasUncommitted,
-		HasUnpushed:          hasUnpushed,
-		HasUpstream:          hasUpstream,
-		UntrackedFilesCount:  untracked,
-		ModifiedFilesCount:   modified,
-		StagedFilesCount:     staged,
-		UnpushedCommitsCount: unpushedCount,
-		PendingFiles:         pendingFiles,
-		UnpushedCommitSHAs:   unpushedSHAs,
+	clean := strings.TrimSpace(upstream)
+	if clean == "" {
+		return false
 	}
+	return !strings.Contains(strings.ToLower(clean), "fatal")
+}
+
+func assembleRepoPendingCommitRecord(
+	rec model.ScanRecord, branch, version, shortVerBranch string,
+	untracked, modified, staged, totalUncommitted, unpushedCount int,
+	hasUpstream bool, pendingFiles, unpushedSHAs []string,
+) RepoPendingCommitRecord {
+	isDirty := totalUncommitted > 0
+	out := RepoPendingCommitRecord{
+		RepoName: rec.RepoName, RelativePath: resolveRelativePath(rec),
+		CurrentBranch: branch, Version: version, ShortVersionBranch: shortVerBranch,
+		IsDirty: isDirty, IsClean: evaluateIsClean(isDirty, unpushedCount > 0),
+		HasUncommitted: isDirty, HasUnpushed: unpushedCount > 0, HasUpstream: hasUpstream,
+		TotalUncommitted: totalUncommitted, UntrackedFilesCount: untracked,
+		ModifiedFilesCount: modified, StagedFilesCount: staged,
+		UnpushedCommitsCount: unpushedCount, PendingFiles: pendingFiles,
+		UnpushedCommitSHAs: unpushedSHAs,
+	}
+	return out
+}
+
+func resolveRelativePath(rec model.ScanRecord) string {
+	if rec.RelativePath != "" {
+		return rec.RelativePath
+	}
+	return rec.RepoName
+}
+
+func evaluateIsClean(isDirty, hasUnpushed bool) bool {
+	if isDirty {
+		return false
+	}
+	if hasUnpushed {
+		return false
+	}
+	return true
+}
+
+func resolveRepoVersion(dir string) string {
+	tag, errTag := currentPendingCommitsGitExecutor(dir, "describe", "--tags", "--abbrev=0")
+	if errTag == nil {
+		cleanTag := strings.TrimSpace(tag)
+		if cleanTag != "" && !strings.Contains(strings.ToLower(cleanTag), "fatal") {
+			return cleanTag
+		}
+	}
+	return readFallbackVersion(dir)
+}
+
+func readFallbackVersion(dir string) string {
+	v := readJsonVersion(filepath.Join(dir, ".gitmap", "version.json"))
+	if v != "" {
+		return ensureVersionVPrefix(v)
+	}
+	vRoot := readJsonVersion(filepath.Join(dir, "version.json"))
+	if vRoot != "" {
+		return ensureVersionVPrefix(vRoot)
+	}
+	return ""
+}
+
+func ensureVersionVPrefix(v string) string {
+	if !strings.HasPrefix(v, "v") {
+		return "v" + v
+	}
+	return v
+}
+
+func readJsonVersion(filePath string) string {
+	data, err := os.ReadFile(filePath)
+	if err != nil || len(data) == 0 {
+		return ""
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		return ""
+	}
+	return extractVersionString(m)
+}
+
+func extractVersionString(m map[string]interface{}) string {
+	if v, ok := m["Version"].(string); ok && len(v) > 0 {
+		return v
+	}
+	if v, ok := m["version"].(string); ok && len(v) > 0 {
+		return v
+	}
+	return ""
+}
+
+func formatShortVersionBranch(version, branch string) string {
+	if version == "" {
+		return truncateStringWithEllipsis(branch, 16)
+	}
+	combined := version + "/" + branch
+	if utf8.RuneCountInString(combined) <= 16 {
+		return combined
+	}
+	return abbreviateVersionBranch(version, branch)
+}
+
+func abbreviateVersionBranch(version, branch string) string {
+	prefix := version + "/"
+	prefixRunes := []rune(prefix)
+	if len(prefixRunes) < 15 {
+		avail := 16 - len(prefixRunes) - 1
+		branchRunes := []rune(branch)
+		if avail < len(branchRunes) {
+			return string(prefixRunes) + string(branchRunes[:avail]) + "…"
+		}
+	}
+	return truncateStringWithEllipsis(version+"/"+branch, 16)
+}
+
+func truncateStringWithEllipsis(s string, maxRunes int) string {
+	runes := []rune(s)
+	if len(runes) <= maxRunes {
+		return s
+	}
+	if maxRunes <= 1 {
+		return "…"
+	}
+	return string(runes[:maxRunes-1]) + "…"
+}
+
+func buildRepoRemediationOptions(rec RepoPendingCommitRecord) []RemediationOption {
+	if !rec.IsDirty {
+		return []RemediationOption{}
+	}
+	targetPath := rec.RelativePath
+	if targetPath == "" {
+		targetPath = rec.RepoName
+	}
+	return createRemediationOptionsPair(targetPath)
+}
+
+func createRemediationOptionsPair(targetPath string) []RemediationOption {
+	opt1 := RemediationOption{
+		OptionNumber: 1,
+		Label:        "Commit & Push WIP",
+		Command:      fmt.Sprintf(`git -C "%s" add -A && git commit -m "wip: save changes" && git push`, targetPath),
+	}
+	opt2 := RemediationOption{
+		OptionNumber: 2,
+		Label:        "Stash WIP",
+		Command:      fmt.Sprintf(`git -C "%s" stash -u`, targetPath),
+	}
+	return []RemediationOption{opt1, opt2}
 }
 
 func resolveUnpushedCommits(dir string, hasUpstream bool) (int, []string) {
@@ -436,77 +655,138 @@ func emitPendingCommitsJSON(payload PendingCommitsPayload) error {
 func renderPendingCommitsTerminal(payload PendingCommitsPayload, totalScanned int, allInspected []RepoPendingCommitRecord) {
 	border := constants.ColorCyan
 	reset := constants.ColorReset
-	bold := constants.ColorBold
+	renderTableBanner(border, reset)
+	renderTableSummary(payload, border, reset)
+	renderTableHeader(border, reset)
+	renderTableRows(payload.Repositories, border, reset)
+	renderCleanSummaryIfNeeded(payload, totalScanned, allInspected, border, reset)
+	renderTableFooter(border, reset)
+}
 
+func renderTableBanner(border, reset string) {
+	bold := constants.ColorBold
 	fmt.Println()
 	fmt.Printf("  %s┌──────────────────────────────────────────────────────────────────────────────┐%s\n", border, reset)
-	fmt.Printf("  %s│%s%s                    GITMAP PENDING COMMITS SUMMARY                           %s%s│%s\n", border, reset, bold, reset, border, reset)
+	fmt.Printf("  %s│%s%s                    GITMAP PENDING COMMITS SUMMARY                            %s%s│%s\n", border, reset, bold, reset, border, reset)
 	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-	fmt.Printf("  %s│%s Scanned: %-8s │ Dirty: %-8s │ Uncommitted: %-6s │ Unpushed: %-8s %s│%s\n",
-		border, reset,
-		fmt.Sprintf("%d repos", payload.TotalReposScanned),
-		fmt.Sprintf("%d repos", payload.TotalDirtyRepos),
-		fmt.Sprintf("%d files", payload.TotalUncommittedFiles),
-		fmt.Sprintf("%d", payload.TotalUnpushedCommits),
-		border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-	fmt.Printf("  %s│%s %-20s %-8s %-5s %7s %6s %6s %9s %7s  %s│%s\n",
-		border, reset,
-		"REPOSITORY", "BRANCH", "DIRTY", "UNTRACK", "MODIF", "STAGE", "UNPUSHED", "STATUS",
-		border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
+}
 
-	cleanCount := 0
-	for _, rec := range allInspected {
-		if rec.IsClean {
-			cleanCount++
-		}
-	}
+func renderTableSummary(payload PendingCommitsPayload, border, reset string) {
+	summaryText := fmt.Sprintf(" Scanned: %d repos │ Dirty: %d repos │ Uncommitted: %d files │ Unpushed: %d",
+		payload.TotalReposScanned, payload.TotalDirtyRepos, payload.TotalUncommittedFiles, payload.TotalUnpushedCommits)
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRight(summaryText, 78), border, reset)
+	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
+}
 
-	for _, rec := range payload.Repositories {
-		dirtyLabel := "NO "
-		statusLabel := constants.ColorGreen + "○ CLEAN" + reset
+func renderTableHeader(border, reset string) {
+	headerText := fmt.Sprintf(" %-22s  %-16s  %12s  %10s  %-9s",
+		"REPOSITORY", "VER/BRANCH", "UNCOMMITTED", "UNPUSHED", "STATUS")
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRight(headerText, 78), border, reset)
+	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
+}
+
+func renderTableRows(repos []RepoPendingCommitRecord, border, reset string) {
+	for _, rec := range repos {
+		renderPendingRepoRow(rec, border, reset)
 		if rec.IsDirty {
-			dirtyLabel = constants.ColorYellow + "YES" + reset
-			statusLabel = constants.ColorYellow + "● PEND " + reset
-		} else if rec.HasUnpushed {
-			statusLabel = constants.ColorYellow + "● PEND " + reset
+			renderTreeRemediationHints(rec, border, reset)
 		}
-
-		repoDisplay := rec.RepoName
-		if len(repoDisplay) > 20 {
-			repoDisplay = repoDisplay[:19] + "…"
-		}
-		branchDisplay := rec.CurrentBranch
-		if len(branchDisplay) > 8 {
-			branchDisplay = branchDisplay[:7] + "…"
-		}
-
-		fmt.Printf("  %s│%s %-20s %-8s %-5s %7d %6d %6d %9d   %-7s %s│%s\n",
-			border, reset,
-			repoDisplay,
-			branchDisplay,
-			dirtyLabel,
-			rec.UntrackedFilesCount,
-			rec.ModifiedFilesCount,
-			rec.StagedFilesCount,
-			rec.UnpushedCommitsCount,
-			statusLabel,
-			border, reset)
 	}
+}
 
-	if payload.DetailMode == "summary" && cleanCount > 0 && len(payload.Repositories) < totalScanned {
-		fmt.Printf("  %s│%s %-20s %-8s %-5s %7d %6d %6d %9d   %-7s %s│%s\n",
-			border, reset,
-			fmt.Sprintf("%d clean repos", cleanCount),
-			"-",
-			"NO ",
-			0, 0, 0, 0,
-			constants.ColorGreen+"○ CLEAN"+reset,
-			border, reset)
+func renderPendingRepoRow(rec RepoPendingCommitRecord, border, reset string) {
+	repoDisplay := truncateStringWithEllipsis(rec.RepoName, 22)
+	branchDisplay := rec.ShortVersionBranch
+	if branchDisplay == "" {
+		branchDisplay = rec.CurrentBranch
 	}
+	branchDisplay = truncateStringWithEllipsis(branchDisplay, 16)
+	statusText := resolveStatusLabel(rec, reset)
+	fmt.Printf("  %s│%s %-22s  %-16s  %12d  %10d  %s%s│%s\n",
+		border, reset,
+		padRight(repoDisplay, 22), padRight(branchDisplay, 16),
+		rec.TotalUncommitted, rec.UnpushedCommitsCount,
+		statusText, border, reset)
+}
 
+func resolveStatusLabel(rec RepoPendingCommitRecord, reset string) string {
+	if rec.IsDirty {
+		return constants.ColorYellow + "● PEND   " + reset
+	}
+	if rec.HasUnpushed {
+		return constants.ColorYellow + "● PEND   " + reset
+	}
+	return constants.ColorGreen + "○ CLEAN  " + reset
+}
+
+func renderTreeRemediationHints(rec RepoPendingCommitRecord, border, reset string) {
+	totalOpts := len(rec.RemediationOptions)
+	for idx, opt := range rec.RemediationOptions {
+		prefix := "├──"
+		if idx == totalOpts-1 {
+			prefix = "└──"
+		}
+		rawLine := fmt.Sprintf("   %s Option %d: %s", prefix, opt.OptionNumber, opt.Command)
+		formattedLine := formatTreeLine(rawLine)
+		fmt.Printf("  %s│%s%s%s│%s\n", border, reset, formattedLine, border, reset)
+	}
+}
+
+func formatTreeLine(raw string) string {
+	runes := []rune(raw)
+	if len(runes) > 78 {
+		return string(runes[:77]) + "…"
+	}
+	return raw + strings.Repeat(" ", 78-len(runes))
+}
+
+func renderCleanSummaryIfNeeded(payload PendingCommitsPayload, totalScanned int, allInspected []RepoPendingCommitRecord, border, reset string) {
+	cleanCount := countCleanRepositories(allInspected)
+	if payload.DetailMode != "summary" {
+		return
+	}
+	if cleanCount <= 0 {
+		return
+	}
+	if len(payload.Repositories) >= totalScanned {
+		return
+	}
+	renderCleanSummaryRow(cleanCount, border, reset)
+}
+
+func countCleanRepositories(records []RepoPendingCommitRecord) int {
+	count := 0
+	for _, rec := range records {
+		if rec.IsClean {
+			count++
+		}
+	}
+	return count
+}
+
+func renderCleanSummaryRow(cleanCount int, border, reset string) {
+	cleanLabel := fmt.Sprintf("%d clean repos", cleanCount)
+	cleanStatus := constants.ColorGreen + "○ CLEAN  " + reset
+	fmt.Printf("  %s│%s %-22s  %-16s  %12d  %10d  %s%s│%s\n",
+		border, reset,
+		padRight(cleanLabel, 22), padRight("-", 16),
+		0, 0,
+		cleanStatus, border, reset)
+}
+
+func renderTableFooter(border, reset string) {
+	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
+	footerMsg := ` Fleet Remediation: gitmap cpar "wip: save changes"`
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRight(footerMsg, 78), border, reset)
 	fmt.Printf("  %s└──────────────────────────────────────────────────────────────────────────────┘%s\n", border, reset)
+}
+
+func padRight(s string, width int) string {
+	rc := utf8.RuneCountInString(s)
+	if rc >= width {
+		return s
+	}
+	return s + strings.Repeat(" ", width-rc)
 }
 
 func renderPendingCommitsDetailsAll(records []RepoPendingCommitRecord) {
@@ -801,6 +1081,8 @@ func printPendingCommitsHelp() {
   -j, --json              Output machine-readable JSON telemetry
       --dirty-only        Display only repositories with changes (default: true)
       --all               Include completely clean repositories in output
+      --no-cache          Bypass status cache and perform live inspection
+      --refresh           Force refresh cached pending commit status
   -h, --help              Display this help menu
 
 %sEXAMPLES:%s

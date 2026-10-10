@@ -18,22 +18,33 @@ type UnpushedCommitSummary struct {
 	HasUpstream          bool `json:"hasUpstream"`
 }
 
+// RemediationOption represents an actionable fix for a dirty repository.
+type RemediationOption struct {
+	OptionNumber int    `json:"optionNumber"`
+	Label        string `json:"label"`
+	Command      string `json:"command"`
+}
+
 // RepoPendingCommitRecord represents the pending changes status of an individual repository.
 type RepoPendingCommitRecord struct {
-	RepoName             string   `json:"repoName"`
-	RelativePath         string   `json:"relativePath"`
-	CurrentBranch        string   `json:"currentBranch"`
-	IsDirty              bool     `json:"isDirty"`
-	IsClean              bool     `json:"isClean"`
-	HasUncommitted       bool     `json:"hasUncommitted"`
-	HasUnpushed          bool     `json:"hasUnpushed"`
-	HasUpstream          bool     `json:"hasUpstream"`
-	UntrackedFilesCount  int      `json:"untrackedFilesCount"`
-	ModifiedFilesCount   int      `json:"modifiedFilesCount"`
-	StagedFilesCount     int      `json:"stagedFilesCount"`
-	UnpushedCommitsCount int      `json:"unpushedCommitsCount"`
-	PendingFiles         []string `json:"pendingFiles,omitempty"`
-	UnpushedCommitSHAs   []string `json:"unpushedCommitShas,omitempty"`
+	RepoName             string              `json:"repoName"`
+	RelativePath         string              `json:"relativePath"`
+	CurrentBranch        string              `json:"currentBranch"`
+	Version              string              `json:"version,omitempty"`
+	ShortVersionBranch   string              `json:"shortVersionBranch"`
+	IsDirty              bool                `json:"isDirty"`
+	IsClean              bool                `json:"isClean"`
+	HasUncommitted       bool                `json:"hasUncommitted"`
+	HasUnpushed          bool                `json:"hasUnpushed"`
+	HasUpstream          bool                `json:"hasUpstream"`
+	TotalUncommitted     int                 `json:"totalUncommitted"`
+	UntrackedFilesCount  int                 `json:"untrackedFilesCount"`
+	ModifiedFilesCount   int                 `json:"modifiedFilesCount"`
+	StagedFilesCount     int                 `json:"stagedFilesCount"`
+	UnpushedCommitsCount int                 `json:"unpushedCommitsCount"`
+	PendingFiles         []string            `json:"pendingFiles,omitempty"`
+	UnpushedCommitSHAs   []string            `json:"unpushedCommitShas,omitempty"`
+	RemediationOptions   []RemediationOption `json:"remediationOptions,omitempty"`
 }
 
 // PendingCommitsPayload represents the top-level JSON telemetry for pending-commits.
@@ -57,6 +68,8 @@ type PendingCommitsOptions struct {
 	IsDirtyOnly bool
 	IsAll       bool
 	TargetRepo  string
+	IsNoCache   bool
+	IsRefresh   bool
 }
 
 // NodePendingCommitsRecord represents pending commits for a specific cluster SSH node.

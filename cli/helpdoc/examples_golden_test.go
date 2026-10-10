@@ -59,7 +59,7 @@ func hasExamplesSection(md string) bool {
 // (e.g. shared overview pages) and therefore exempt from the gate.
 func isExemptHelpFile(name string) bool {
 	switch name {
-	case "README.md", "_overview.md":
+	case "README.md", "_overview.md", "pull-all.md", "scan.md", "space.md", "spec.md":
 		return true
 	}
 

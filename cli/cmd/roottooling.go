@@ -116,7 +116,14 @@ func toolingWorkspaceEntries() []dispatchEntry {
 }
 
 func toolingDevEntries() []dispatchEntry {
-	entries := []dispatchEntry{
+	entries := make([]dispatchEntry, 0, 20)
+	entries = append(entries, toolingDevGeneralEntries()...)
+	entries = append(entries, toolingDevSSHEntries()...)
+	return append(entries, toolingDevDeployEntries()...)
+}
+
+func toolingDevGeneralEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{constants.CmdListVersions, constants.CmdListVersionsAlias}, func() error { return cmdlist.RunListVersions(argsTail()) }},
 		{[]string{constants.CmdListReleases, constants.CmdListReleasesAlias, constants.CmdReleases}, func() error { return cmdlist.RunListReleases(argsTail()) }},
 		{[]string{constants.CmdSEOWrite, constants.CmdSEOWriteAlias}, func() error { return cmdseowrite.RunSEOWrite(argsTail()) }},
@@ -124,6 +131,13 @@ func toolingDevEntries() []dispatchEntry {
 		{[]string{constants.CmdCompletion, constants.CmdCompletionAlias}, func() error { return cmdcompletion.RunCompletion(argsTail()) }},
 		{[]string{constants.CmdZipGroup, constants.CmdZipGroupShort}, func() error { return cmdzip.RunZipGroup(argsTail()) }},
 		{[]string{constants.CmdAlias, constants.CmdAliasShort}, func() error { return runAlias(argsTail()) }},
+		{[]string{constants.CmdNewCommands, constants.CmdNewCommandsAlias}, func() error { return cmdpending.RunNewCommands(argsTail()) }},
+		{[]string{constants.CmdBackup}, func() error { return cmdbackup.RunBackup(argsTail()) }},
+	}
+}
+
+func toolingDevSSHEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{"ssh-clone", "ssh-c"}, func() error { return cmdssh.RunSSHCloneCLI(argsTail()) }},
 		{[]string{"token", "git-token", "access-token"}, func() error { return cmdtoken.Run(argsTail()) }},
 		{[]string{"login", "signin"}, func() error { return cmdlogin.Run(argsTail()) }},
@@ -132,9 +146,7 @@ func toolingDevEntries() []dispatchEntry {
 		{[]string{"deploy-bin", "deploy-binary", "push-bin", "sync-bin"}, func() error { return cmdssh.RunSSHDeployBinCLI(argsTail()) }},
 		{[]string{"pull-inventory", "fetch-inventory", "sync-inventory"}, func() error { return cmdssh.RunSSHPullInventoryCLI(argsTail()) }},
 		{[]string{"scp", "ssh-cp", "ssh-copy"}, func() error { return cmdssh.RunSSHCPCLI(argsTail()) }},
-		{[]string{constants.CmdBackup}, func() error { return cmdbackup.RunBackup(argsTail()) }},
 	}
-	return append(entries, toolingDevDeployEntries()...)
 }
 
 func toolingDevDeployEntries() []dispatchEntry {

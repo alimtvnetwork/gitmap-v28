@@ -26,7 +26,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Raw ambient `python script.py` or `python -c "..."` | ✅ `gitmap py "<code-or-script>"` or `gitmap py -c "<expression>"` | Auto-resolves verified Python interpreter from `installation.db` cache (<15ms), avoiding environment discrepancies. |
 | ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding, and automatic fallback. |
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
-| ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap status --dirty` / `gitmap status --json` / `gitmap st` | Single-shot multi-repository audit matrix displaying dirty counts, ahead/behind branches, and uncommitted stashes. |
+| ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap pc` (`gitmap pending-commits`) | High-speed multi-repo status with 90s SQLite cache, consolidated `UNCOMMITTED` metrics, short branch display, tree-view surgical fixes, and batch footer remediation. |
+| ❌ Guessing newly added CLI commands from raw git commit logs | ✅ `gitmap nc` (`gitmap new-commands [--limit 100]`) | Native cataloging of recently introduced commands, syntax, flags, and usage examples directly from git history. |
 | ❌ `gh auth login` interactive prompts or plaintext `.env` files | ✅ `gitmap login --web`, `gitmap login --status`, `gitmap login --token <PAT>` | Token validated via GitHub API before writing; auto-resolved for all clone, pull, and push commands. |
 | ❌ Colons in commit messages (`git commit -m "feat: ..."` or `gitmap cpf "feat: ..."`) | ✅ `gitmap cpf "<module> - <summary>"` (hyphen-separated only) | GitMap automatically provides `Feature: ` or `Bug: ` prefix. Colons inside the message argument cause duplicate prefixes. |
 | ❌ Saving temporary scratch or test scripts into repo git tree | ✅ `gitmap rc text "<content>" --slug <slug> --ext .ps1` | Centralized script storage in `repo-cache` (`repo-storage`) for permanent cross-repo reuse without polluting git worktrees. |
@@ -59,6 +60,10 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap has-any-updates` (alias `gitmap hau`, `gitmap hac`) — Checks remote tracking branch for incoming commits.
 - `gitmap latest-branch` (alias `gitmap lb`) — Discovers the most recently updated remote branch.
 - `gitmap watch` (alias `gitmap w`) — Live-refresh terminal dashboard monitoring repository status changes.
+- `gitmap pc` (alias `gitmap pending-commits`) — Fast multi-repo pending commits table with 90s SQLite cache, consolidated `UNCOMMITTED` column, and tree remediation.
+- `gitmap pc --refresh` — Force-refreshes SQLite cache by re-evaluating live git status.
+- `gitmap pc --no-cache` — Disables SQLite cache completely for strict pre-flight verification.
+- `gitmap pc --json` — Emits structured JSON telemetry of uncommitted and unpushed repositories.
 
 ### 3. Script Execution & Runner Engines
 - `gitmap py "<code-or-script>"` — High-performance cross-platform Python script execution.
@@ -123,6 +128,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap llm train --text-only` — Output curriculum to stdout without modifying files on disk.
 - `gitmap llm-docs` (alias: `gitmap ld`) — Consolidated markdown command matrix reference for LLMs.
 - `gitmap llm` — Display full LLM specification and operational guidelines.
+- `gitmap new-commands` (alias `gitmap nc`) — Discovers and filters the last 100 commands added across recent git history with runnable examples.
+- `gitmap nc --filter "<pattern>"` — Filters new commands by keyword or category.
 
 ### 9. Multi-Repo, Cluster & Toolchain Operations
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling).
@@ -163,3 +170,4 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 6. **Script Offloading:** Save all temporary diagnostics to `repo-cache` via `gitmap rc` to prevent dirty working trees.
 7. **Strict Relative Git Paths:** All paths and references must be relative to repository root (`02-spec/...`, `.ai-memory/...`); zero absolute paths and zero `file:///` URIs.
 8. **Zero Storage Ban:** Zero uploads to `actions/upload-artifact`. Maintain 0.0 GB Actions storage quota across all repositories.
+9. **Pending Status Caching & Remediation Invariant:** When checking multi-repo status, agents should invoke `gitmap pc`. Respect the 90-second SQLite status cache. When validating state immediately after applying code modifications or git operations, pass `gitmap pc --refresh` or `gitmap pc --no-cache` to ensure live filesystem validation. If dirty repositories are reported, use the suggested tree remediation command or batch footer command.
