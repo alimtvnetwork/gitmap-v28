@@ -2,22 +2,6 @@ package cmdcluster
 
 import "github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 
-// CheckHelpFn is wired by cmd/di_hooks.go.
-var CheckHelpFn func(command string, args []string)
-
-func checkHelp(command string, args []string) {
-	if CheckHelpFn != nil {
-		CheckHelpFn(command, args)
-		return
-	}
-	for _, arg := range args {
-		if arg == "-h" || arg == "--help" || arg == "help" {
-			cliexit.Exit(0)
-			return
-		}
-	}
-}
-
 // HasHelpFlagFn is wired by cmd/di_hooks.go.
 var HasHelpFlagFn func(args []string) bool
 
