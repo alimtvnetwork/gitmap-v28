@@ -50,6 +50,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlatestbranch"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddesktopsync"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsummary"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmergeai"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
@@ -217,6 +219,10 @@ func toolingSpecialRepoEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdRepoSecretsAlias, constants.CmdRepoSecrets}, func() error { return rsCmd(argsTail()) }},
 		{[]string{constants.CmdRepoCacheAlias, constants.CmdRepoCache, constants.CmdRepoStorageAlias}, func() error { return rcCmd(argsTail()) }},
+		{[]string{constants.CmdSummary}, func() error { return cmdsummary.RunSummary(argsTail()) }},
+		{[]string{constants.CmdFullSummary, constants.CmdFullStatus, constants.CmdFs}, func() error { return cmdsummary.RunFullSummary(argsTail()) }},
+		{[]string{constants.CmdFullSummaryPE, constants.CmdFullStatusPE, constants.CmdFsPE, constants.CmdFspe}, func() error { return cmdsummary.RunFullSummary(append([]string{"+pe"}, argsTail()...)) }},
+		{[]string{constants.CmdMergeAI, constants.CmdMergeAIAlias}, func() error { return cmdmergeai.RunMergeAI(argsTail()) }},
 	}
 }
 

@@ -262,3 +262,27 @@ func InvalidatePendingCache(conn *sql.DB, repoPath string) error {
 
 	return nil
 }
+
+func prepareFullRecForBackup(record PendingCommitCacheRecord, fullRec RepoPendingCommitRecord) RepoPendingCommitRecord {
+	if fullRec.RelativePath == "" && record.RepoPath != "" {
+		fullRec.RelativePath = record.RepoPath
+	}
+	if fullRec.RepoName == "" && record.RepoPath != "" {
+		fullRec.RepoName = record.RepoPath
+	}
+
+	return fullRec
+}
+
+// SaveStatusWithBackup writes the record to both the ephemeral cache DB and the durable backup DB.
+func SaveStatusWithBackup(cacheConn, backupConn *sql.DB, record PendingCommitCacheRecord, fullRec RepoPendingCommitRecord, nowUnix int64) error {
+	if err := SaveCachedPendingStatus(cacheConn, record); err != nil {
+		return err
+	}
+	if backupConn == nil {
+		return nil
+	}
+	adjustedRec := prepareFullRecForBackup(record, fullRec)
+
+	return SaveBackupPendingStatus(backupConn, adjustedRec, record.HeadSHA, nowUnix)
+}

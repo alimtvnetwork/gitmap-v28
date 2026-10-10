@@ -108,6 +108,29 @@ const (
 	// CmdPendingCommits discovers uncommitted changes and unpushed commits across repos.
 	CmdPendingCommits      = "pending-commits"
 	CmdPendingCommitsAlias = "pc"
+	summaryCmdVal       = "summary"
+	fullSummaryCmdVal   = "full-summary"
+	fullStatusCmdVal    = "full-status"
+	fsCmdVal            = "fs"
+	fullSummaryPECmdVal = "full-summary+pe"
+	fullStatusPECmdVal  = "full-status+pe"
+	fsPECmdVal          = "fs+pe"
+	fspeCmdVal          = "fspe"
+	mergeAICmdVal       = "merge-ai"
+
+	// CmdSummary summarizes the last N releases, heated files, and changelog gist with Split-DB caching.
+	CmdSummary = summaryCmdVal
+	// CmdFullSummary displays the activity heatmap TreeView for repositories active in 48h or dirty.
+	CmdFullSummary   = fullSummaryCmdVal
+	CmdFullStatus    = fullStatusCmdVal
+	CmdFs            = fsCmdVal
+	CmdFullSummaryPE = fullSummaryPECmdVal
+	CmdFullStatusPE  = fullStatusPECmdVal
+	CmdFsPE          = fsPECmdVal
+	CmdFspe          = fspeCmdVal
+	// CmdMergeAI orchestrates multi-repo staging into a single commit with 01_/02_ collision handling.
+	CmdMergeAI      = mergeAICmdVal
+	CmdMergeAIAlias = "ma"
 	// CmdNewCommands discovers and catalogs commands added in recent git history.
 	CmdNewCommands         = "new-commands"
 	CmdNewCommandsAlias    = "nc"
@@ -866,6 +889,8 @@ const (
 	EnvGitmapSkipZsh      = "GITMAP_SKIP_ZSH"
 	FlagNoCache           = "no-cache"
 	FlagDescNoCache       = "Bypass status cache and query git status directly from filesystem"
+	FlagBackup            = "backup"
+	FlagDescBackup        = "Serve status from secondary persistent backup DB"
 )
 
 // FlagDebugPaths exposes the canonicalize-path tracer used by the

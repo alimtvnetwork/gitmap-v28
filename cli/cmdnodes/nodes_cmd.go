@@ -363,6 +363,18 @@ func RunUnifiedNodesCLI(args []string) error {
 		return RunNodesCommitPushRelease(args[1:])
 	} else if strings.EqualFold(args[0], "commit-fix") || strings.EqualFold(args[0], "commitfix") {
 		return RunNodesCommitFix(args[1:])
+	} else if isNodesFullSummary(args) {
+		if strings.EqualFold(args[0], "full") && len(args) > 1 {
+			return RunNodesFullSummary(args[2:])
+		}
+		return RunNodesFullSummary(args[1:])
+	} else if strings.EqualFold(args[0], "summary") {
+		return RunNodesSummary(args[1:])
+	} else if isNodesPipelineAll(args) {
+		if strings.EqualFold(args[0], "pe") && len(args) > 1 {
+			return RunNodesPipelineErrorsAll(args[2:])
+		}
+		return RunNodesPipelineErrorsAll(args[1:])
 	} else if isNodesCloneRequest(args) {
 		return RunNodesClone(args)
 	} else if isNodesHelpRequest(args) {
@@ -823,4 +835,32 @@ func renderUnifiedNodesFooter(out io.Writer) {
 	fmt.Fprintln(out, "    • Sync Keys & Ping Nodes:  gitmap ssh deploy-keys            | gitmap nodes ping")
 	fmt.Fprintln(out, "    • Fleet Clones & CFR:      gitmap nodes clone <repo|file>    | gitmap nodes cfr <repo|file>")
 	fmt.Fprintln(out)
+}
+
+func isNodesFullSummary(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+	if first == "fs" || first == "fs+pe" || first == "fspe" ||
+		first == "full-status" || first == "full-summary" ||
+		first == "full-status+pe" || first == "full-summary+pe" {
+		return true
+	}
+	if first == "full" && len(args) > 1 {
+		second := strings.ToLower(args[1])
+		return second == "status" || second == "summary" || second == "status+pe" || second == "summary+pe"
+	}
+	return false
+}
+
+func isNodesPipelineAll(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+	if first == "pe" && len(args) > 1 && strings.EqualFold(args[1], "all") {
+		return true
+	}
+	return first == "pipe-error-all" || first == "pipeline-error-all"
 }

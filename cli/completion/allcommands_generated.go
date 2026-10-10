@@ -263,6 +263,7 @@ var generatedCommands = []string{
 	"lr",
 	"ls",
 	"lv",
+	"ma",
 	"make-all-private",
 	"make-all-private-except-latest",
 	"make-all-public",

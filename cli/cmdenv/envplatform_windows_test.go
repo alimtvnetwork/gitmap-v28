@@ -1,8 +1,9 @@
 //go:build windows
 
-package cmd
+package cmdenv
 
 import "testing"
+
 func TestFilterPathPartsRemovesMatch(t *testing.T) {
 	parts := []string{`C:\bin`, `C:\tools`, ` C:\bin `, `D:\go\bin`}
 	got := filterPathParts(parts, `C:\bin`)
@@ -16,6 +17,7 @@ func TestFilterPathPartsRemovesMatch(t *testing.T) {
 		}
 	}
 }
+
 func TestFilterPathPartsCaseInsensitive(t *testing.T) {
 	parts := []string{`C:\Bin`, `C:\tools`}
 	got := filterPathParts(parts, `c:\bin`)

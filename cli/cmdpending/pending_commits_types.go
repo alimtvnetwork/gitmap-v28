@@ -70,7 +70,10 @@ type PendingCommitsOptions struct {
 	TargetRepo  string
 	IsNoCache   bool
 	IsRefresh   bool
+	IsBackup    bool
 }
+
+
 
 // NodePendingCommitsRecord represents pending commits for a specific cluster SSH node.
 type NodePendingCommitsRecord struct {

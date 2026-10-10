@@ -120,7 +120,7 @@ func isCategoryFlag(arg string) bool {
 }
 
 func isFilterFlag(arg string) bool {
-	return arg == "--filter" || arg == "-q"
+	return arg == "--filter" || arg == "-f" || arg == "-q"
 }
 
 func isLimitFlag(arg string) bool {
@@ -304,11 +304,11 @@ func printNewCommandsHelp() {
 	fmt.Println("  gitmap nc [flags]")
 	fmt.Println()
 	fmt.Println("Flags:")
-	fmt.Println("  --limit, -n <N>       Limit number of commands returned (default: 100)")
-	fmt.Println("  --category, -c <cat>  Filter by functional category")
-	fmt.Println("  --filter, -q <query>  Search commands by name, alias, description, or example")
-	fmt.Println("  --json, -j            Emit output as formatted JSON")
-	fmt.Println("  -h, --help            Show this help text")
+	fmt.Println("  --limit, -n <N>          Limit number of commands returned (default: 100)")
+	fmt.Println("  --category, -c <cat>     Filter by functional category")
+	fmt.Println("  --filter, -f, -q <query> Search commands by name, alias, description, or example")
+	fmt.Println("  --json, -j               Emit output as formatted JSON")
+	fmt.Println("  -h, --help               Show this help text")
 }
 
 func newCmd(name, alias, ver, cat, desc, ex string) NewCommandEntry {

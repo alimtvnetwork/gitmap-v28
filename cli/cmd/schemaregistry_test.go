@@ -143,6 +143,13 @@ func findLatestVersion(name string) (string, error) {
 	}
 
 	if len(matches) == 0 {
+		subPattern := filepath.Join(cmdPackageDir(), "..", "cmd*", "testdata", "schemas", fmt.Sprintf(schemaFilePattern, name))
+		if subMatches, subErr := filepath.Glob(subPattern); subErr == nil && len(subMatches) > 0 {
+			matches = subMatches
+		}
+	}
+
+	if len(matches) == 0 {
 		return "", fmt.Errorf("no schema files matched %s", pattern)
 	}
 

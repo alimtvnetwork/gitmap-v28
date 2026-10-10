@@ -3,6 +3,7 @@ package cmdpending
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -183,6 +184,9 @@ func applyPendingCacheAndTarget(arg string, opts *PendingCommitsOptions) bool {
 	case arg == "--refresh":
 		opts.IsRefresh = true
 		return true
+	case arg == "--backup" || arg == "--serve-backup":
+		opts.IsBackup = true
+		return true
 	case !strings.HasPrefix(arg, "-"):
 		opts.TargetRepo = arg
 		return true
@@ -191,7 +195,25 @@ func applyPendingCacheAndTarget(arg string, opts *PendingCommitsOptions) bool {
 }
 
 func runLocalPendingCommits(opts PendingCommitsOptions) error {
-	inspected, errInspect := resolveAndInspectLocalRepos(opts.TargetRepo)
+	var cacheConn *sql.DB
+	if !opts.IsNoCache {
+		var errCache error
+		cacheConn, errCache = OpenPendingCommitsCache("")
+		if errCache == nil && cacheConn != nil {
+			defer cacheConn.Close()
+		}
+	}
+
+	backupConn, errBackup := OpenPendingCommitsBackup("")
+	if errBackup == nil && backupConn != nil {
+		defer backupConn.Close()
+	}
+
+	if opts.IsBackup {
+		return serveBackupPendingCommits(backupConn, opts)
+	}
+
+	inspected, errInspect := resolveAndInspectLocalReposWithDB(opts.TargetRepo, cacheConn, backupConn, opts)
 	if errInspect != nil {
 		return errInspect
 	}
@@ -201,6 +223,136 @@ func runLocalPendingCommits(opts PendingCommitsOptions) error {
 	}
 	renderLocalPendingCommitsTerminal(payload, len(inspected), inspected, opts)
 	return nil
+}
+
+func serveBackupPendingCommits(backupConn *sql.DB, opts PendingCommitsOptions) error {
+	backupRecords, errList := ListAllBackupPendingStatuses(backupConn)
+	if errList != nil {
+		return errList
+	}
+	inspected := convertBackupToPendingRecords(backupRecords, opts.TargetRepo)
+	payload := buildPendingCommitsPayload(inspected, opts)
+	if opts.IsJSON {
+		return emitPendingCommitsJSON(payload)
+	}
+	renderLocalPendingCommitsTerminal(payload, len(inspected), inspected, opts)
+	return nil
+}
+
+func convertBackupToPendingRecords(backupRecords []PendingCommitBackupRecord, targetRepo string) []RepoPendingCommitRecord {
+	var inspected []RepoPendingCommitRecord
+	for _, b := range backupRecords {
+		if !isTargetRepoMatch(b, targetRepo) {
+			continue
+		}
+		item := RepoPendingCommitRecord{
+			RepoName:             b.RepoName,
+			RelativePath:         b.RepoPath,
+			CurrentBranch:        b.CurrentBranch,
+			Version:              b.Version,
+			ShortVersionBranch:   b.ShortVersionBranch,
+			IsDirty:              b.IsDirty,
+			IsClean:              !b.IsDirty && b.UnpushedCount == 0,
+			HasUncommitted:       b.UncommittedCount > 0,
+			HasUnpushed:          b.UnpushedCount > 0,
+			TotalUncommitted:     b.UncommittedCount,
+			UnpushedCommitsCount: b.UnpushedCount,
+		}
+		if item.IsDirty {
+			item.RemediationOptions = buildRepoRemediationOptions(item)
+		}
+		inspected = append(inspected, item)
+	}
+	return inspected
+}
+
+func isTargetRepoMatch(b PendingCommitBackupRecord, targetRepo string) bool {
+	if targetRepo == "" || strings.EqualFold(targetRepo, "all") {
+		return true
+	}
+	return strings.EqualFold(b.RepoName, targetRepo) || strings.EqualFold(b.RepoPath, targetRepo)
+}
+
+func resolveAndInspectLocalReposWithDB(targetRepo string, cacheConn, backupConn *sql.DB, opts PendingCommitsOptions) ([]RepoPendingCommitRecord, error) {
+	cwd, errCwd := os.Getwd()
+	if errCwd != nil {
+		cwd = "."
+	}
+	records := ResolveWorkspaceRepositories(cwd)
+	recordsToInspect, errTarget := filterWorkspaceRepositories(records, targetRepo)
+	if errTarget != nil {
+		return nil, errTarget
+	}
+	return inspectRepositoriesWithDB(recordsToInspect, cacheConn, backupConn, opts), nil
+}
+
+func inspectRepositoriesWithDB(records []model.ScanRecord, cacheConn, backupConn *sql.DB, opts PendingCommitsOptions) []RepoPendingCommitRecord {
+	results := make([]RepoPendingCommitRecord, 0, len(records))
+	for _, rec := range records {
+		results = append(results, inspectSingleRepoWithDB(rec, cacheConn, backupConn, opts))
+	}
+	return results
+}
+
+func inspectSingleRepoWithDB(rec model.ScanRecord, cacheConn, backupConn *sql.DB, opts PendingCommitsOptions) RepoPendingCommitRecord {
+	repoPath := resolveRelativePath(rec)
+	dir := resolveRecordDir(rec)
+	nowUnix := time.Now().Unix()
+
+	if !opts.IsNoCache && !opts.IsRefresh && cacheConn != nil {
+		headSHA := queryRepoHeadSHA(dir)
+		cached, hasHit, _ := GetCachedPendingStatus(cacheConn, repoPath, headSHA, nowUnix)
+		if hasHit && cached != nil {
+			return buildCachedRepoPendingRecord(rec, dir, cached)
+		}
+	}
+
+	liveRecord := inspectSingleRepoPendingCommits(rec)
+	headSHA := queryRepoHeadSHA(dir)
+	saveRepoToCache(cacheConn, repoPath, headSHA, liveRecord, nowUnix, opts.IsNoCache)
+	_ = SaveBackupPendingStatus(backupConn, liveRecord, headSHA, nowUnix)
+
+	return liveRecord
+}
+
+func queryRepoHeadSHA(dir string) string {
+	head, _ := currentPendingCommitsGitExecutor(dir, "rev-parse", "HEAD")
+	return strings.TrimSpace(head)
+}
+
+func buildCachedRepoPendingRecord(rec model.ScanRecord, dir string, cached *PendingCommitCacheRecord) RepoPendingCommitRecord {
+	branch := queryRepoBranch(dir, rec.Branch)
+	hasUpstream := checkRepoUpstream(dir)
+	version := resolveRepoVersion(dir)
+	shortVerBranch := formatShortVersionBranch(version, branch)
+	out := assembleRepoPendingCommitRecord(
+		rec, branch, version, shortVerBranch,
+		0, cached.UncommittedCount, 0, cached.UncommittedCount,
+		cached.UnpushedCount, hasUpstream, nil, nil,
+	)
+	out.IsDirty = cached.IsDirty
+	out.HasUncommitted = cached.UncommittedCount > 0
+	out.HasUnpushed = cached.UnpushedCount > 0
+	out.IsClean = !out.IsDirty && !out.HasUnpushed
+	if out.IsDirty {
+		out.RemediationOptions = buildRepoRemediationOptions(out)
+	}
+	return out
+}
+
+func saveRepoToCache(conn *sql.DB, repoPath, headSHA string, rec RepoPendingCommitRecord, nowUnix int64, isNoCache bool) {
+	if isNoCache || conn == nil {
+		return
+	}
+	cacheRec := PendingCommitCacheRecord{
+		RepoPath:         repoPath,
+		HeadSHA:          headSHA,
+		UncommittedCount: rec.TotalUncommitted,
+		UnpushedCount:    rec.UnpushedCommitsCount,
+		IsDirty:          rec.IsDirty,
+		CachedAtUnix:     nowUnix,
+	}
+	_ = SaveCachedPendingStatus(conn, cacheRec)
 }
 
 func resolveAndInspectLocalRepos(targetRepo string) ([]RepoPendingCommitRecord, error) {

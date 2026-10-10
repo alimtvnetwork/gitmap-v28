@@ -127,6 +127,25 @@ func Run() {
 		os.Args = append([]string{os.Args[0], constants.CmdClone}, os.Args[1:]...)
 	}
 
+	// Multi-word command rewrites:
+	//   gitmap full summary [N]    → gitmap full-summary [N]
+	//   gitmap full status [N]     → gitmap full-status [N]
+	//   gitmap full summary+pe     → gitmap full-summary+pe
+	//   gitmap full status+pe      → gitmap full-status+pe
+	if len(os.Args) >= 3 && strings.EqualFold(os.Args[1], "full") {
+		sub := strings.ToLower(os.Args[2])
+		switch sub {
+		case "summary":
+			os.Args = append([]string{os.Args[0], constants.CmdFullSummary}, os.Args[3:]...)
+		case "status":
+			os.Args = append([]string{os.Args[0], constants.CmdFullStatus}, os.Args[3:]...)
+		case "summary+pe":
+			os.Args = append([]string{os.Args[0], constants.CmdFullSummaryPE}, os.Args[3:]...)
+		case "status+pe":
+			os.Args = append([]string{os.Args[0], constants.CmdFullStatusPE}, os.Args[3:]...)
+		}
+	}
+
 	os.Args = applyAliasContextIfPresent(os.Args[1], os.Args)
 
 	runDispatch(os.Args[1])

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.525.0] - 2026-10-10
+
+### Added
+- summary, full summary treeview, nodes delegation, pe all, merge-ai and universal repo feature
+
+---
+
 ## [v6.524.0] - 2026-10-10
 
 ### Added

@@ -270,3 +270,54 @@ func TestPendingCommitsCache_DefaultPath(t *testing.T) {
 		t.Errorf("expected non-empty default path")
 	}
 }
+
+func assertDualWriteResults(t *testing.T, cacheConn, backupConn *sql.DB, path, sha string, now int64) {
+	t.Helper()
+	cRec, hasCache, _ := GetCachedPendingStatus(cacheConn, path, sha, now)
+	if !hasCache || cRec == nil {
+		t.Fatalf("expected cache record to exist after dual write")
+	}
+	bRec, hasBackup, _ := GetBackupPendingStatus(backupConn, path)
+	if !hasBackup || bRec == nil {
+		t.Fatalf("expected backup record to exist after dual write")
+	}
+}
+
+func TestPendingCommitsCache_SaveStatusWithBackup_DualWrite(t *testing.T) {
+	cacheConn, _ := setupTestCacheDB(t)
+	defer cacheConn.Close()
+	backupConn, _ := setupTestBackupDB(t)
+	defer backupConn.Close()
+	now := time.Now().Unix()
+	cacheRec := makeSampleRecord("repo/dual", "sha-dual", now)
+	fullRec := makeSampleRepoRecord("dual", "repo/dual", "main", "sha-dual")
+	if err := SaveStatusWithBackup(cacheConn, backupConn, cacheRec, fullRec, now); err != nil {
+		t.Fatalf("dual write failed: %v", err)
+	}
+	assertDualWriteResults(t, cacheConn, backupConn, "repo/dual", "sha-dual", now)
+}
+
+func TestPendingCommitsCache_SaveStatusWithBackup_NilBackup(t *testing.T) {
+	cacheConn, _ := setupTestCacheDB(t)
+	defer cacheConn.Close()
+	now := time.Now().Unix()
+	cacheRec := makeSampleRecord("repo/cacheonly", "sha-c1", now)
+	fullRec := makeSampleRepoRecord("cacheonly", "repo/cacheonly", "main", "sha-c1")
+	if err := SaveStatusWithBackup(cacheConn, nil, cacheRec, fullRec, now); err != nil {
+		t.Fatalf("cache only write failed: %v", err)
+	}
+	rec, hasCache, _ := GetCachedPendingStatus(cacheConn, "repo/cacheonly", "sha-c1", now)
+	if !hasCache || rec == nil {
+		t.Fatalf("expected cache record to exist")
+	}
+}
+
+func TestPendingCommitsCache_SaveStatusWithBackup_NilConns(t *testing.T) {
+	now := time.Now().Unix()
+	cacheRec := makeSampleRecord("repo/nilwrite", "sha-nil", now)
+	fullRec := makeSampleRepoRecord("nilwrite", "repo/nilwrite", "main", "sha-nil")
+	if err := SaveStatusWithBackup(nil, nil, cacheRec, fullRec, now); err != nil {
+		t.Fatalf("nil write failed: %v", err)
+	}
+}
+
