@@ -119,11 +119,18 @@ func initSummaryDBSchema(db *sql.DB) error {
 		s.tag_commit_hash,
 		s.release_date,
 		s.summary_gist,
-		s.heated_files_json
+		s.heated_files_json,
+		s.word_count
 	FROM Repositories r
 	JOIN RepoHeadStates h ON r.repo_id = h.repo_id
 	LEFT JOIN ReleaseSummaries s ON r.repo_id = s.repo_id
 	ORDER BY r.canonical_slug ASC, s.release_date DESC;
+
+	CREATE INDEX IF NOT EXISTS idx_release_summaries_lookup 
+	ON ReleaseSummaries (repo_id, tag_name, tag_commit_hash);
+
+	CREATE INDEX IF NOT EXISTS idx_repo_head_states_activity 
+	ON RepoHeadStates (last_activity_at);
 	`
 	_, err := db.Exec(schema)
 	return err
@@ -156,18 +163,30 @@ func GetCachedRelease(repoURL, tag, tagCommitHash string) (*ReleaseSummaryRecord
 		return nil, false
 	}
 
-	query := `
-	SELECT s.tag_name, s.tag_commit_hash, s.release_date, s.summary_gist, s.heated_files_json, s.word_count
-	FROM ReleaseSummaries s
-	JOIN Repositories r ON s.repo_id = r.repo_id
-	WHERE r.repo_url = ? AND s.tag_name = ? AND s.tag_commit_hash = ?
-	LIMIT 1;`
+	var row *sql.Row
+	if tagCommitHash != "" {
+		query := `
+		SELECT s.tag_name, s.tag_commit_hash, s.release_date, s.summary_gist, s.heated_files_json, s.word_count
+		FROM ReleaseSummaries s
+		JOIN Repositories r ON s.repo_id = r.repo_id
+		WHERE r.repo_url = ? AND s.tag_name = ? AND s.tag_commit_hash = ?
+		LIMIT 1;`
+		row = db.QueryRow(query, repoURL, tag, tagCommitHash)
+	} else {
+		query := `
+		SELECT s.tag_name, s.tag_commit_hash, s.release_date, s.summary_gist, s.heated_files_json, s.word_count
+		FROM ReleaseSummaries s
+		JOIN Repositories r ON s.repo_id = r.repo_id
+		WHERE r.repo_url = ? AND s.tag_name = ?
+		ORDER BY s.release_date DESC
+		LIMIT 1;`
+		row = db.QueryRow(query, repoURL, tag)
+	}
 
 	var rec ReleaseSummaryRecord
 	var heatedJSON string
 	var relDate time.Time
 
-	row := db.QueryRow(query, repoURL, tag, tagCommitHash)
 	if err := row.Scan(&rec.TagName, &rec.TagCommitHash, &relDate, &rec.SummaryGist, &heatedJSON, &rec.WordCount); err != nil {
 		return nil, false
 	}
@@ -176,6 +195,37 @@ func GetCachedRelease(repoURL, tag, tagCommitHash string) (*ReleaseSummaryRecord
 	rec.IsCacheHit = true
 	if heatedJSON != "" {
 		_ = json.Unmarshal([]byte(heatedJSON), &rec.HeatedFiles)
+	}
+
+	return &rec, true
+}
+
+// RepoHeadStateRecord holds cached repository head state from SQLite summary.db.
+type RepoHeadStateRecord struct {
+	HeadCommitHash  string
+	IsDirty         bool
+	DirtyFilesCount int
+	LastActivityAt  time.Time
+}
+
+// GetCachedHeadState retrieves the cached head state for a repository URL.
+func GetCachedHeadState(repoURL string) (*RepoHeadStateRecord, bool) {
+	db, errDB := OpenSummaryDB()
+	if errDB != nil {
+		return nil, false
+	}
+
+	query := `
+	SELECT h.head_commit_hash, h.is_dirty, h.dirty_files_count, h.last_activity_at
+	FROM RepoHeadStates h
+	JOIN Repositories r ON h.repo_id = r.repo_id
+	WHERE r.repo_url = ?
+	LIMIT 1;`
+
+	var rec RepoHeadStateRecord
+	row := db.QueryRow(query, repoURL)
+	if err := row.Scan(&rec.HeadCommitHash, &rec.IsDirty, &rec.DirtyFilesCount, &rec.LastActivityAt); err != nil {
+		return nil, false
 	}
 
 	return &rec, true

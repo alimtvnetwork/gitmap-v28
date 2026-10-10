@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.526.0] - 2026-10-10
+
+### Added
+- pending commits table improvement, status cache backup db and new commands
+
+---
+
 ## [v6.525.0] - 2026-10-10
 
 ### Added

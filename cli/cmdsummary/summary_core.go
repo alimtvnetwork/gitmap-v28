@@ -48,6 +48,11 @@ func RunSummary(args []string) error {
 
 	releases, cacheHits := extractRepoReleaseSummaries(absPath, remoteURL, releasesLimit)
 
+	untracked, mod, staged, _ := queryRepoStatus(absPath)
+	dirtyFilesCount := untracked + mod + staged
+	isDirty := dirtyFilesCount > 0
+	_ = UpdateRepoHeadState(remoteURL, repoName, absPath, headHash, isDirty, dirtyFilesCount, time.Now())
+
 	renderSingleRepoSummaryTerminal(repoName, remoteURL, branch, headHash, releases, cacheHits, time.Since(startTime))
 	return nil
 }
@@ -86,12 +91,44 @@ func extractRepoReleaseSummaries(dir, remoteURL string, limit int) ([]ReleaseSum
 		return extractFallbackCommitSummaries(dir, limit), 0
 	}
 
-	if len(validTags) > limit {
-		validTags = validTags[:limit]
-	}
-
 	var results []ReleaseSummaryRecord
 	cacheHits := 0
+
+	headHash, _ := gitExec(dir, "rev-parse", "HEAD")
+	latestTagCommitHash, _ := gitExec(dir, "rev-list", "-n", "1", validTags[0])
+
+	// Incremental delta calculation: if HEAD has commits beyond latest tag
+	if headHash != "" && latestTagCommitHash != "" && headHash != latestTagCommitHash {
+		unreleasedCommits, _ := gitExec(dir, "log", fmt.Sprintf("%s..HEAD", validTags[0]), "--oneline", "-n", "30")
+		if strings.TrimSpace(unreleasedCommits) != "" {
+			gist := synthesizeReleaseGist(unreleasedCommits)
+			diffStatOut, _ := gitExec(dir, "diff", "--numstat", fmt.Sprintf("%s..HEAD", validTags[0]))
+			heatedFiles := extractHeatedFilesFromDiff(diffStatOut)
+			shortHead := headHash
+			if len(shortHead) > 8 {
+				shortHead = shortHead[:8]
+			}
+			unreleasedRec := ReleaseSummaryRecord{
+				TagName:       fmt.Sprintf("Unreleased (%s)", shortHead),
+				TagCommitHash: headHash,
+				ReleaseDate:   time.Now().Format("2006-01-02"),
+				SummaryGist:   gist,
+				WordCount:     len(strings.Fields(gist)),
+				HeatedFiles:   heatedFiles,
+				IsCacheHit:    false,
+			}
+			results = append(results, unreleasedRec)
+		}
+	}
+
+	remainingLimit := limit - len(results)
+	if remainingLimit <= 0 {
+		return results, cacheHits
+	}
+
+	if len(validTags) > remainingLimit {
+		validTags = validTags[:remainingLimit]
+	}
 
 	for i, tag := range validTags {
 		tagCommitHash, _ := gitExec(dir, "rev-list", "-n", "1", tag)
