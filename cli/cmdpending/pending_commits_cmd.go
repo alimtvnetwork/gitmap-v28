@@ -194,14 +194,18 @@ func applyPendingCacheAndTarget(arg string, opts *PendingCommitsOptions) bool {
 	return false
 }
 
+func openOptionalCacheConn(isNoCache bool) *sql.DB {
+	if isNoCache {
+		return nil
+	}
+	conn, _ := OpenPendingCommitsCache("")
+	return conn
+}
+
 func runLocalPendingCommits(opts PendingCommitsOptions) error {
-	var cacheConn *sql.DB
-	if !opts.IsNoCache {
-		var errCache error
-		cacheConn, errCache = OpenPendingCommitsCache("")
-		if errCache == nil && cacheConn != nil {
-			defer cacheConn.Close()
-		}
+	cacheConn := openOptionalCacheConn(opts.IsNoCache)
+	if cacheConn != nil {
+		defer cacheConn.Close()
 	}
 
 	backupConn, errBackup := OpenPendingCommitsBackup("")
@@ -210,13 +214,7 @@ func runLocalPendingCommits(opts PendingCommitsOptions) error {
 	}
 
 	if opts.IsBackup {
-		if errBackup != nil {
-			return errBackup
-		}
-		if backupConn == nil {
-			return apperror.NewSimple("backup database is not available", "E9004")
-		}
-		return serveBackupPendingCommits(backupConn, opts)
+		return handleBackupMode(backupConn, errBackup, opts)
 	}
 
 	inspected, errInspect := resolveAndInspectLocalReposWithDB(opts.TargetRepo, cacheConn, backupConn, opts)
@@ -229,6 +227,16 @@ func runLocalPendingCommits(opts PendingCommitsOptions) error {
 	}
 	renderLocalPendingCommitsTerminal(payload, len(inspected), inspected, opts)
 	return nil
+}
+
+func handleBackupMode(backupConn *sql.DB, errBackup error, opts PendingCommitsOptions) error {
+	if errBackup != nil {
+		return errBackup
+	}
+	if backupConn == nil {
+		return apperror.NewSimple("backup database is not available", "E9004")
+	}
+	return serveBackupPendingCommits(backupConn, opts)
 }
 
 func serveBackupPendingCommits(backupConn *sql.DB, opts PendingCommitsOptions) error {
@@ -251,15 +259,10 @@ func convertBackupToPendingRecords(backupRecords []PendingCommitBackupRecord, ta
 		if !isTargetRepoMatch(b, targetRepo) {
 			continue
 		}
-		var item RepoPendingCommitRecord
-		if b.PayloadJSON != "" && b.PayloadJSON != "{}" {
-			if err := json.Unmarshal([]byte(b.PayloadJSON), &item); err == nil && item.RepoName != "" {
-				if item.IsDirty && len(item.RemediationOptions) == 0 {
-					item.RemediationOptions = buildRepoRemediationOptions(item)
-				}
-				inspected = append(inspected, item)
-				continue
-			}
+		item, ok := parseBackupPayloadJSON(b.PayloadJSON)
+		if ok {
+			inspected = append(inspected, item)
+			continue
 		}
 		item = RepoPendingCommitRecord{
 			RepoName:             b.RepoName,
@@ -310,17 +313,27 @@ func inspectRepositoriesWithDB(records []model.ScanRecord, cacheConn, backupConn
 	return results
 }
 
+func parseBackupPayloadJSON(rawJSON string) (RepoPendingCommitRecord, bool) {
+	if rawJSON == "" || rawJSON == "{}" {
+		return RepoPendingCommitRecord{}, false
+	}
+	var item RepoPendingCommitRecord
+	if err := json.Unmarshal([]byte(rawJSON), &item); err != nil || item.RepoName == "" {
+		return RepoPendingCommitRecord{}, false
+	}
+	if item.IsDirty && len(item.RemediationOptions) == 0 {
+		item.RemediationOptions = buildRepoRemediationOptions(item)
+	}
+	return item, true
+}
+
 func inspectSingleRepoWithDB(rec model.ScanRecord, cacheConn, backupConn *sql.DB, opts PendingCommitsOptions) RepoPendingCommitRecord {
 	repoPath := resolveRelativePath(rec)
 	dir := resolveRecordDir(rec)
 	nowUnix := time.Now().Unix()
 
-	if !opts.IsNoCache && !opts.IsRefresh && cacheConn != nil {
-		headSHA := queryRepoHeadSHA(dir)
-		cached, hasHit, _ := GetCachedPendingStatus(cacheConn, repoPath, headSHA, nowUnix)
-		if hasHit && cached != nil {
-			return buildCachedRepoPendingRecord(rec, dir, cached)
-		}
+	if cachedRecord, isHit := tryGetCachedRecord(cacheConn, repoPath, dir, nowUnix, opts); isHit {
+		return cachedRecord
 	}
 
 	liveRecord := inspectSingleRepoPendingCommits(rec)
@@ -331,13 +344,25 @@ func inspectSingleRepoWithDB(rec model.ScanRecord, cacheConn, backupConn *sql.DB
 	return liveRecord
 }
 
+func tryGetCachedRecord(cacheConn *sql.DB, repoPath, dir string, nowUnix int64, opts PendingCommitsOptions) (RepoPendingCommitRecord, bool) {
+	if opts.IsNoCache || opts.IsRefresh || cacheConn == nil {
+		return RepoPendingCommitRecord{}, false
+	}
+	headSHA := queryRepoHeadSHA(dir)
+	cached, hasHit, _ := GetCachedPendingStatus(cacheConn, repoPath, headSHA, nowUnix)
+	if !hasHit || cached == nil {
+		return RepoPendingCommitRecord{}, false
+	}
+	return buildCachedRepoPendingRecord(model.ScanRecord{AbsolutePath: dir}, dir, cached), true
+}
+
 func queryRepoHeadSHA(dir string) string {
 	head, _ := currentPendingCommitsGitExecutor(dir, "rev-parse", "HEAD")
 	return strings.TrimSpace(head)
 }
 
 func buildCachedRepoPendingRecord(rec model.ScanRecord, dir string, cached *PendingCommitCacheRecord) RepoPendingCommitRecord {
-	branch := queryRepoBranch(dir, rec.Branch)
+	branch := safeQueryRepoBranch(dir, rec.Branch)
 	hasUpstream := checkRepoUpstream(dir)
 	version := resolveRepoVersion(dir)
 	shortVerBranch := formatShortVersionBranch(version, branch)
@@ -490,9 +515,10 @@ func inspectRepositoriesPendingCommits(records []model.ScanRecord) []RepoPending
 
 func inspectSingleRepoPendingCommits(rec model.ScanRecord) RepoPendingCommitRecord {
 	dir := resolveRecordDir(rec)
+	rec.RepoName = resolveProperRepoName(dir, rec.RepoName)
 	untracked, modified, staged, allFiles := queryRepoStatus(dir)
 	totalUncommitted := len(allFiles)
-	branch := queryRepoBranch(dir, rec.Branch)
+	branch := safeQueryRepoBranch(dir, rec.Branch)
 	hasUpstream := checkRepoUpstream(dir)
 	unpushedCount, unpushedSHAs := resolveUnpushedCommits(dir, hasUpstream)
 	version := resolveRepoVersion(dir)
@@ -514,18 +540,6 @@ func resolveRecordDir(rec model.ScanRecord) string {
 func queryRepoStatus(dir string) (int, int, int, []string) {
 	porcelain, _ := currentPendingCommitsGitExecutor(dir, "status", "--porcelain")
 	return ParsePorcelainStatusLines(porcelain)
-}
-
-func queryRepoBranch(dir, fallback string) string {
-	branch, _ := currentPendingCommitsGitExecutor(dir, "rev-parse", "--abbrev-ref", "HEAD")
-	branch = strings.TrimSpace(branch)
-	if branch != "" {
-		return branch
-	}
-	if fallback != "" {
-		return fallback
-	}
-	return "main"
 }
 
 func checkRepoUpstream(dir string) bool {
@@ -560,7 +574,7 @@ func assembleRepoPendingCommitRecord(
 }
 
 func resolveRelativePath(rec model.ScanRecord) string {
-	if rec.RelativePath != "" {
+	if rec.RelativePath != "" && !looksLikeHashOrOpaqueID(rec.RelativePath) && rec.RelativePath != "." {
 		return rec.RelativePath
 	}
 	return rec.RepoName
@@ -578,11 +592,9 @@ func evaluateIsClean(isDirty, hasUnpushed bool) bool {
 
 func resolveRepoVersion(dir string) string {
 	tag, errTag := currentPendingCommitsGitExecutor(dir, "describe", "--tags", "--abbrev=0")
-	if errTag == nil {
-		cleanTag := strings.TrimSpace(tag)
-		if cleanTag != "" && !strings.Contains(strings.ToLower(cleanTag), "fatal") {
-			return cleanTag
-		}
+	cleanTag := strings.TrimSpace(tag)
+	if errTag == nil && cleanTag != "" && !strings.Contains(strings.ToLower(cleanTag), "fatal") {
+		return cleanTag
 	}
 	return readFallbackVersion(dir)
 }
@@ -642,13 +654,16 @@ func formatShortVersionBranch(version, branch string) string {
 func abbreviateVersionBranch(version, branch string) string {
 	prefix := version + "/"
 	prefixRunes := []rune(prefix)
-	if len(prefixRunes) < 15 {
-		avail := 16 - len(prefixRunes) - 1
-		branchRunes := []rune(branch)
-		if avail < len(branchRunes) {
-			return string(prefixRunes) + string(branchRunes[:avail]) + "…"
-		}
+	if len(prefixRunes) >= 15 {
+		return truncateStringWithEllipsis(version+"/"+branch, 16)
 	}
+
+	avail := 16 - len(prefixRunes) - 1
+	branchRunes := []rune(branch)
+	if avail < len(branchRunes) {
+		return string(prefixRunes) + string(branchRunes[:avail]) + "…"
+	}
+
 	return truncateStringWithEllipsis(version+"/"+branch, 16)
 }
 
@@ -668,24 +683,32 @@ func buildRepoRemediationOptions(rec RepoPendingCommitRecord) []RemediationOptio
 		return []RemediationOption{}
 	}
 	targetPath := rec.RelativePath
-	if targetPath == "" {
+	if targetPath == "" || targetPath == "." || looksLikeHashOrOpaqueID(targetPath) {
 		targetPath = rec.RepoName
 	}
 	return createRemediationOptionsPair(targetPath)
 }
 
 func createRemediationOptionsPair(targetPath string) []RemediationOption {
+	target := quoteRemediationTarget(targetPath)
 	opt1 := RemediationOption{
 		OptionNumber: 1,
 		Label:        "Commit & Push WIP",
-		Command:      fmt.Sprintf(`git -C "%s" add -A && git commit -m "wip: save changes" && git push`, targetPath),
+		Command:      fmt.Sprintf(`gitmap sends cp %s "wip: save changes"`, target),
 	}
 	opt2 := RemediationOption{
 		OptionNumber: 2,
 		Label:        "Stash WIP",
-		Command:      fmt.Sprintf(`git -C "%s" stash -u`, targetPath),
+		Command:      fmt.Sprintf(`gitmap stash %s`, target),
 	}
 	return []RemediationOption{opt1, opt2}
+}
+
+func quoteRemediationTarget(s string) string {
+	if strings.Contains(s, " ") && !strings.HasPrefix(s, "\"") {
+		return fmt.Sprintf(`"%s"`, s)
+	}
+	return s
 }
 
 func resolveUnpushedCommits(dir string, hasUpstream bool) (int, []string) {
@@ -837,132 +860,6 @@ func renderPendingCommitsTerminal(payload PendingCommitsPayload, totalScanned in
 	renderTableRows(payload.Repositories, border, reset)
 	renderCleanSummaryIfNeeded(payload, totalScanned, allInspected, border, reset)
 	renderTableFooter(border, reset)
-}
-
-func renderTableBanner(border, reset string) {
-	bold := constants.ColorBold
-	fmt.Println()
-	fmt.Printf("  %s┌──────────────────────────────────────────────────────────────────────────────┐%s\n", border, reset)
-	fmt.Printf("  %s│%s%s                    GITMAP PENDING COMMITS SUMMARY                            %s%s│%s\n", border, reset, bold, reset, border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-}
-
-func renderTableSummary(payload PendingCommitsPayload, border, reset string) {
-	summaryText := fmt.Sprintf(" Scanned: %d repos │ Dirty: %d repos │ Uncommitted: %d files │ Unpushed: %d",
-		payload.TotalReposScanned, payload.TotalDirtyRepos, payload.TotalUncommittedFiles, payload.TotalUnpushedCommits)
-	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRight(summaryText, 78), border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-}
-
-func renderTableHeader(border, reset string) {
-	headerText := fmt.Sprintf(" %-22s  %-16s  %12s  %10s  %-9s",
-		"REPOSITORY", "VER/BRANCH", "UNCOMMITTED", "UNPUSHED", "STATUS")
-	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRight(headerText, 78), border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-}
-
-func renderTableRows(repos []RepoPendingCommitRecord, border, reset string) {
-	for _, rec := range repos {
-		renderPendingRepoRow(rec, border, reset)
-		if rec.IsDirty {
-			renderTreeRemediationHints(rec, border, reset)
-		}
-	}
-}
-
-func renderPendingRepoRow(rec RepoPendingCommitRecord, border, reset string) {
-	repoDisplay := truncateStringWithEllipsis(rec.RepoName, 22)
-	branchDisplay := rec.ShortVersionBranch
-	if branchDisplay == "" {
-		branchDisplay = rec.CurrentBranch
-	}
-	branchDisplay = truncateStringWithEllipsis(branchDisplay, 16)
-	statusText := resolveStatusLabel(rec, reset)
-	fmt.Printf("  %s│%s %-22s  %-16s  %12d  %10d  %s%s│%s\n",
-		border, reset,
-		padRight(repoDisplay, 22), padRight(branchDisplay, 16),
-		rec.TotalUncommitted, rec.UnpushedCommitsCount,
-		statusText, border, reset)
-}
-
-func resolveStatusLabel(rec RepoPendingCommitRecord, reset string) string {
-	if rec.IsDirty {
-		return constants.ColorYellow + "● PEND   " + reset
-	}
-	if rec.HasUnpushed {
-		return constants.ColorYellow + "● PEND   " + reset
-	}
-	return constants.ColorGreen + "○ CLEAN  " + reset
-}
-
-func renderTreeRemediationHints(rec RepoPendingCommitRecord, border, reset string) {
-	totalOpts := len(rec.RemediationOptions)
-	for idx, opt := range rec.RemediationOptions {
-		prefix := "├──"
-		if idx == totalOpts-1 {
-			prefix = "└──"
-		}
-		rawLine := fmt.Sprintf("   %s Option %d: %s", prefix, opt.OptionNumber, opt.Command)
-		formattedLine := formatTreeLine(rawLine)
-		fmt.Printf("  %s│%s%s%s│%s\n", border, reset, formattedLine, border, reset)
-	}
-}
-
-func formatTreeLine(raw string) string {
-	runes := []rune(raw)
-	if len(runes) >= 78 {
-		return raw
-	}
-	return raw + strings.Repeat(" ", 78-len(runes))
-}
-
-func renderCleanSummaryIfNeeded(payload PendingCommitsPayload, totalScanned int, allInspected []RepoPendingCommitRecord, border, reset string) {
-	cleanCount := countCleanRepositories(allInspected)
-	if payload.DetailMode != "summary" {
-		return
-	}
-	if cleanCount <= 0 {
-		return
-	}
-	if len(payload.Repositories) >= totalScanned {
-		return
-	}
-	renderCleanSummaryRow(cleanCount, border, reset)
-}
-
-func countCleanRepositories(records []RepoPendingCommitRecord) int {
-	count := 0
-	for _, rec := range records {
-		if rec.IsClean {
-			count++
-		}
-	}
-	return count
-}
-
-func renderCleanSummaryRow(cleanCount int, border, reset string) {
-	cleanLabel := fmt.Sprintf("%d clean repos", cleanCount)
-	cleanStatus := constants.ColorGreen + "○ CLEAN  " + reset
-	fmt.Printf("  %s│%s %-22s  %-16s  %12d  %10d  %s%s│%s\n",
-		border, reset,
-		padRight(cleanLabel, 22), padRight("-", 16),
-		0, 0,
-		cleanStatus, border, reset)
-}
-
-func renderTableFooter(border, reset string) {
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-	footerMsg := ` Fleet Remediation: gitmap cpar "wip: save changes"`
-	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRight(footerMsg, 78), border, reset)
-	fmt.Printf("  %s└──────────────────────────────────────────────────────────────────────────────┘%s\n", border, reset)
-}
-
-func padRight(s string, width int) string {
-	rc := utf8.RuneCountInString(s)
-	if rc >= width {
-		return s
-	}
-	return s + strings.Repeat(" ", width-rc)
 }
 
 func renderPendingCommitsDetailsAll(records []RepoPendingCommitRecord) {

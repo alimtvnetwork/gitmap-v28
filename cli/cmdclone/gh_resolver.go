@@ -34,6 +34,10 @@ func ResolveRepoSlug(target string) string {
 		return ghURL
 	}
 
+	if isGitHubOwnerRepo(target) {
+		return "https://github.com/" + strings.TrimSpace(target)
+	}
+
 	printRepoSlugSuggestions(target)
 
 	return target
@@ -44,9 +48,53 @@ func isFullURLOrPath(target string) bool {
 	hasHTTP := strings.HasPrefix(trimmed, "http://") || strings.HasPrefix(trimmed, "https://")
 	hasSSH := strings.HasPrefix(trimmed, "git@") || strings.HasPrefix(trimmed, "ssh://")
 	hasFile := strings.HasPrefix(trimmed, "file://")
-	hasSlash := strings.Contains(trimmed, "/") || strings.Contains(trimmed, "\\")
+	if hasHTTP || hasSSH || hasFile {
+		return true
+	}
 
-	return hasHTTP || hasSSH || hasFile || hasSlash
+	return isLocalPath(trimmed)
+}
+
+func isLocalPath(target string) bool {
+	if strings.HasPrefix(target, "./") || strings.HasPrefix(target, ".\\") ||
+		strings.HasPrefix(target, "../") || strings.HasPrefix(target, "..\\") ||
+		strings.HasPrefix(target, "/") || strings.HasPrefix(target, "\\") ||
+		strings.HasPrefix(target, "~") {
+		return true
+	}
+
+	if len(target) >= 3 && target[1] == ':' && (target[2] == '/' || target[2] == '\\') {
+		return true
+	}
+
+	if info, err := os.Stat(target); err == nil && info.IsDir() {
+		return true
+	}
+
+	return false
+}
+
+func isGitHubOwnerRepo(target string) bool {
+	trimmed := strings.TrimSuffix(strings.TrimSpace(target), ".git")
+	parts := strings.Split(trimmed, "/")
+	if len(parts) != 2 {
+		return false
+	}
+	owner, repo := parts[0], parts[1]
+	if len(owner) == 0 || len(repo) == 0 {
+		return false
+	}
+
+	return isValidSlugPart(owner) && isValidSlugPart(repo)
+}
+
+func isValidSlugPart(s string) bool {
+	for _, r := range s {
+		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' || r == '.') {
+			return false
+		}
+	}
+	return true
 }
 
 func resolveFromStore(slug string) string {
@@ -64,6 +112,16 @@ func resolveFromStore(slug string) string {
 
 	for _, r := range repos {
 		if strings.EqualFold(r.RepoName, cleanSlug) || strings.EqualFold(r.Slug, cleanSlug) {
+			return pickRepoURL(r)
+		}
+	}
+
+	for _, r := range repos {
+		httpLower := strings.ToLower(r.HTTPSUrl)
+		sshLower := strings.ToLower(r.SSHUrl)
+		if strings.HasSuffix(httpLower, "/"+cleanSlug) || strings.HasSuffix(httpLower, "/"+cleanSlug+".git") ||
+			strings.HasSuffix(sshLower, ":"+cleanSlug) || strings.HasSuffix(sshLower, ":"+cleanSlug+".git") ||
+			strings.HasSuffix(sshLower, "/"+cleanSlug) || strings.HasSuffix(sshLower, "/"+cleanSlug+".git") {
 			return pickRepoURL(r)
 		}
 	}
@@ -116,12 +174,24 @@ func printRepoSlugSuggestions(target string) {
 	if len(suggs) == 0 {
 		suggs = findClosestRepoSuggestions(mainDB, cleanTarget)
 	}
-	if len(suggs) > 0 {
+	filtered := filterRedundantSuggestions(suggs, cleanTarget, target)
+	if len(filtered) > 0 {
 		fmt.Fprintf(os.Stderr, "Repository %q not found. Did you mean:\n", cleanTarget)
-		for _, s := range suggs {
+		for _, s := range filtered {
 			fmt.Fprintf(os.Stderr, "  %s\n", s)
 		}
 	}
+}
+
+func filterRedundantSuggestions(suggs []string, cleanTarget, target string) []string {
+	var filtered []string
+	for _, s := range suggs {
+		if strings.EqualFold(s, cleanTarget) || strings.EqualFold(s, target) || strings.EqualFold(extractRepoNameFromTarget(s), cleanTarget) {
+			continue
+		}
+		filtered = append(filtered, s)
+	}
+	return filtered
 }
 
 func extractRepoNameFromTarget(target string) string {

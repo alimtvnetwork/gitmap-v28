@@ -445,14 +445,14 @@ func verifyRemediationOptionsContent(t *testing.T, options []RemediationOption) 
 	if options[0].OptionNumber != 1 {
 		t.Errorf("expected OptionNumber 1, got %d", options[0].OptionNumber)
 	}
-	if !strings.Contains(options[0].Command, "git -C \"gitmap\" add -A") {
-		t.Errorf("expected git add command in Option 1, got %s", options[0].Command)
+	if !strings.Contains(options[0].Command, "gitmap sends cp") {
+		t.Errorf("expected gitmap sends cp command in Option 1, got %s", options[0].Command)
 	}
 	if options[1].OptionNumber != 2 {
 		t.Errorf("expected OptionNumber 2, got %d", options[1].OptionNumber)
 	}
-	if !strings.Contains(options[1].Command, "git -C \"gitmap\" stash -u") {
-		t.Errorf("expected git stash command in Option 2, got %s", options[1].Command)
+	if !strings.Contains(options[1].Command, "gitmap stash") {
+		t.Errorf("expected gitmap stash command in Option 2, got %s", options[1].Command)
 	}
 }
 
