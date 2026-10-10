@@ -35,7 +35,7 @@ func TestDeleteExecutor_FullFourTierSuccess(t *testing.T) {
 		t.Fatalf("ExecuteTagDeletion returned error: %v", err)
 	}
 
-	if !res.IsCompleted || !res.IsSuccess {
+	if res.IsFailed() {
 		t.Fatalf("expected successful deletion, got isCompleted=%v isSuccess=%v err=%s", res.IsCompleted, res.IsSuccess, res.ErrorMessage)
 	}
 
@@ -151,7 +151,7 @@ func TestDeleteExecutor_DryRun(t *testing.T) {
 		t.Errorf("sidecar file should not be removed in dry-run mode")
 	}
 
-	if !res.IsSuccess {
+	if res.IsFailed() {
 		t.Errorf("expected isSuccess=true for dry-run preview")
 	}
 }

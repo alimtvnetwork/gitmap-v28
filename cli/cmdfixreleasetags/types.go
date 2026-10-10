@@ -97,6 +97,11 @@ type ReleaseTagDeletionResult struct {
 	ErrorMessage string                `json:"errorMessage,omitempty"`
 }
 
+// IsFailed reports whether the deletion was incomplete or unsuccessful.
+func (r ReleaseTagDeletionResult) IsFailed() bool {
+	return !r.IsCompleted || !r.IsSuccess
+}
+
 // AuditSummary aggregates counts across the repository audit.
 type AuditSummary struct {
 	TotalTagsChecked       int `json:"totalTagsChecked"`

@@ -7,11 +7,11 @@ import (
 
 func TestImportAllJSON_DryRun(t *testing.T) {
 	fixtureFiles := []string{
-		filepath.Join("..", "jsonenvelope", "fixtures", "commit-pull-config.json"),
-		filepath.Join("..", "jsonenvelope", "fixtures", "macro.json"),
-		filepath.Join("..", "jsonenvelope", "fixtures", "ssh-nodes.json"),
-		filepath.Join("..", "jsonenvelope", "fixtures", "ui-settings.json"),
-		filepath.Join("..", "jsonenvelope", "fixtures", "unmatched.json"),
+		filepath.Join("..", "jsonx", "fixtures", "commit-pull-config.json"),
+		filepath.Join("..", "jsonx", "fixtures", "macro.json"),
+		filepath.Join("..", "jsonx", "fixtures", "ssh-nodes.json"),
+		filepath.Join("..", "jsonx", "fixtures", "ui-settings.json"),
+		filepath.Join("..", "jsonx", "fixtures", "unmatched.json"),
 	}
 
 	results := executeImportAllJSONBatch(fixtureFiles, true)

@@ -324,4 +324,3 @@ func TestCloneRC_DispatchModes(t *testing.T) {
 		t.Errorf("unexpected CloneModeCFRP: %s", CloneModeCFRP)
 	}
 }
-

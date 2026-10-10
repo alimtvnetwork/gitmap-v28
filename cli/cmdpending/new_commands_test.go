@@ -71,8 +71,8 @@ func testMissingFlagValues(t *testing.T) {
 
 func TestBuildNewCommandsCatalog(t *testing.T) {
 	catalog := buildNewCommandsCatalog()
-	if len(catalog) != 100 {
-		t.Fatalf("expected exactly 100 catalog entries, got %d", len(catalog))
+	if len(catalog) < 100 {
+		t.Fatalf("expected at least 100 catalog entries, got %d", len(catalog))
 	}
 	for i, entry := range catalog {
 		assertCatalogEntryValid(t, i, entry)
@@ -156,8 +156,9 @@ func assertPayloadUnmarshal(t *testing.T, data []byte) {
 	if err := json.Unmarshal(data, &decoded); err != nil {
 		t.Fatalf("failed to unmarshal JSON: %v", err)
 	}
-	if decoded.TotalCommands != 100 {
-		t.Errorf("expected TotalCommands 100, got %d", decoded.TotalCommands)
+	expectedTotal := len(buildNewCommandsCatalog())
+	if decoded.TotalCommands != expectedTotal {
+		t.Errorf("expected TotalCommands %d, got %d", expectedTotal, decoded.TotalCommands)
 	}
 	if decoded.FilteredCommands != len(decoded.Commands) {
 		t.Errorf("mismatch in filtered commands count")

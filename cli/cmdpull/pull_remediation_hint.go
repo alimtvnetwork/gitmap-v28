@@ -356,11 +356,18 @@ func resolveUntrackedDualHints(repoDir string) (string, string, string, string) 
 	return "Track / Stage", stageCmd, "Clean untracked", cleanCmd
 }
 
+func cleanRepoPathSlash(p string) string {
+	if p == "" {
+		return ""
+	}
+	return strings.ReplaceAll(filepath.ToSlash(p), "\\", "/")
+}
+
 func resolveDirtyTreeDualHints(repoDir string) (string, string, string, string) {
 	commitCmd := `gitmap cpar "wip: save changes"`
 	stashCmd := "gitmap stash"
 	if repoDir != "" {
-		cleanDir := filepath.ToSlash(filepath.Clean(repoDir))
+		cleanDir := cleanRepoPathSlash(repoDir)
 		commitCmd = fmt.Sprintf("git -C \"%s\" add -A && git -C \"%s\" commit -m \"wip: local changes\" && git -C \"%s\" pull --rebase", cleanDir, cleanDir, cleanDir)
 		stashCmd = fmt.Sprintf("git -C \"%s\" stash -u && git -C \"%s\" pull && git -C \"%s\" stash pop", cleanDir, cleanDir, cleanDir)
 	}
@@ -385,7 +392,7 @@ func formatRepoGitCmd(repoDir, gitArgs string) string {
 	if repoDir == "" {
 		return "git " + gitArgs
 	}
-	cleanDir := filepath.ToSlash(filepath.Clean(repoDir))
+	cleanDir := cleanRepoPathSlash(repoDir)
 	return fmt.Sprintf("git -C \"%s\" %s", cleanDir, gitArgs)
 }
 

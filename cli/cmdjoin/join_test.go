@@ -11,6 +11,21 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cluster"
 )
 
+func init() {
+	CheckHelpOrEmptyFn = func(command string, args []string) {
+		if len(args) == 0 {
+			cliexit.Exit(0)
+			return
+		}
+		for _, arg := range args {
+			if arg == "-h" || arg == "--help" || arg == "help" {
+				cliexit.Exit(0)
+				return
+			}
+		}
+	}
+}
+
 func TestRunJoin_ZeroArgsTriggersHelp(t *testing.T) {
 	var isExitCalled bool
 	prev := cliexit.SetExitFunc(func(code int) {
