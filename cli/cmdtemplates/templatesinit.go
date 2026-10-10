@@ -29,9 +29,9 @@
 package cmdtemplates
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"os"
 	"path/filepath"
 	"strings"

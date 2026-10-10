@@ -360,5 +360,3 @@ func TestPendingCommitsCache_OpenPurgesExpiredOnInit(t *testing.T) {
 	defer conn2.Close()
 	verifyOpenPurgeResults(t, conn2)
 }
-
-

@@ -2,13 +2,13 @@ package cmdscan
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 func createPendingTask(typeName, targetPath, workDir, sourceCmd, cmdArgs string) (int64, *store.DB) {

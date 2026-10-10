@@ -4,9 +4,9 @@
 package cmdscan
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
 	"os"
 	"os/exec"
 	"sort"

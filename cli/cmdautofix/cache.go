@@ -73,4 +73,3 @@ func filterViolations(in []Violation, requested []string) []Violation {
 	}
 	return out
 }
-

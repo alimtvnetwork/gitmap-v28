@@ -2,10 +2,10 @@ package pipelinedb
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func computeRelativeDbPath(absPath string) string {

@@ -62,6 +62,7 @@ func printGroupReleaseInfo() {
 	renderLine(constants.HelpListVersions)
 	renderLine(constants.HelpListReleases)
 	renderLine(constants.HelpReleasePend)
+	renderLine(constants.HelpFixReleaseTags)
 	renderLine(constants.HelpRevert)
 	renderLine(constants.HelpClearReleaseJSON)
 	renderLine(constants.HelpPrune)

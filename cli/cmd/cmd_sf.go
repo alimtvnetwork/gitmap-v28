@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 // runSf dispatches `gitmap sf <add|list|rm>`.

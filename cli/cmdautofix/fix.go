@@ -315,5 +315,3 @@ func isRepositoryFixTarget(args []string) bool {
 	}
 	return true
 }
-
-

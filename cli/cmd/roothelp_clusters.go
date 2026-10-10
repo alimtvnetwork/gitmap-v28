@@ -90,6 +90,7 @@ func clusterReleaseCommits() termout.HelpSection {
 func resolveClusterEntriesRelease() []termout.CommandEntry {
 	return []termout.CommandEntry{
 		{Command: "release, r", Description: "Automated semantic release ceremony, tagging, and publishing"},
+		{Command: "fix-release-tags, frt", Description: "Audit and clean orphan or broken GitHub releases and tags lacking assets"},
 		{Command: "changelog", Description: "Generate or view repository changelog from commits"},
 		{Command: "list-versions", Description: "Display repository version history and release metadata"},
 		{Command: "commit, co", Description: "Structured conventional commit runner with validation"},

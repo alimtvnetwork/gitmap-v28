@@ -1,10 +1,10 @@
 package cmdcommittransfer
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcreate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"path/filepath"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcreate"
 	"os"
+	"path/filepath"
 )
 
 // EnsureOrProvisionDestinationRepo ensures a destination exists; if not, provisions it.
@@ -38,4 +38,3 @@ func argsTail() []string {
 
 // runCommitPull executes `gitmap commit-pull` / `cpull` / `pull-commits`.
 // Replays commits chronologically while creating Pull Requests for all merges and releases.
-

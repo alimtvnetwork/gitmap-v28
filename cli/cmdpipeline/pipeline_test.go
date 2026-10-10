@@ -110,20 +110,28 @@ func TestWriteOrRenderErrorLogs_File(t *testing.T) {
 	}
 }
 
-func TestPipelineHelp(t *testing.T) {
+func captureStdout(f func()) string {
 	oldStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	printPipelineHelp()
+	outChan := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		_, _ = io.Copy(&buf, r)
+		_ = r.Close()
+		outChan <- buf.String()
+	}()
+
+	f()
 
 	_ = w.Close()
 	os.Stdout = oldStdout
+	return <-outChan
+}
 
-	var buf bytes.Buffer
-	_, _ = io.Copy(&buf, r)
-	out := buf.String()
-
+func TestPipelineHelp(t *testing.T) {
+	out := captureStdout(printPipelineHelp)
 	if !strings.Contains(out, "gitmap pipeline [command]") {
 		t.Fatalf("pipeline help missing usage string: %s", out)
 	}
@@ -190,30 +198,16 @@ func TestTargetShaFiltering(t *testing.T) {
 }
 
 func TestPipelineHelpMentionsPe(t *testing.T) {
-	oldStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-	printPipelineHelp()
-	_ = w.Close()
-	os.Stdout = oldStdout
-	var buf bytes.Buffer
-	_, _ = io.Copy(&buf, r)
-	if !strings.Contains(buf.String(), "gitmap pe") {
-		t.Fatalf("pipeline help missing 'gitmap pe': %s", buf.String())
+	out := captureStdout(printPipelineHelp)
+	if !strings.Contains(out, "gitmap pe") {
+		t.Fatalf("pipeline help missing 'gitmap pe': %s", out)
 	}
 }
 
 func TestPipelineHelpMentionsPd(t *testing.T) {
-	oldStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-	printPipelineHelp()
-	_ = w.Close()
-	os.Stdout = oldStdout
-	var buf bytes.Buffer
-	_, _ = io.Copy(&buf, r)
-	if !strings.Contains(buf.String(), "gitmap pd") {
-		t.Fatalf("pipeline help missing 'gitmap pd': %s", buf.String())
+	out := captureStdout(printPipelineHelp)
+	if !strings.Contains(out, "gitmap pd") {
+		t.Fatalf("pipeline help missing 'gitmap pd': %s", out)
 	}
 }
 

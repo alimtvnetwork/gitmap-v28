@@ -1,12 +1,12 @@
 package heavy_test
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 )
 
 // recordingSink captures every (record, result) pair under its own

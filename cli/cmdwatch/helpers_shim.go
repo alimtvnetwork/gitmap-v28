@@ -6,8 +6,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"path/filepath"
 	"os"
+	"path/filepath"
 	"strings"
 )
 

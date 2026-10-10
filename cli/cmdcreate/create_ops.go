@@ -1,8 +1,8 @@
 package cmdcreate
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,7 +11,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/workspacesync"
 )
-
 
 func IsRemoteGitURL(raw string) bool {
 	prefixes := []string{"http://", "https://", "git@", "ssh://"}

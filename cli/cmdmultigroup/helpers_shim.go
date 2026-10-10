@@ -1,6 +1,7 @@
 package cmdmultigroup
 
 import (
+	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
@@ -8,7 +9,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/mattn/go-runewidth"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"

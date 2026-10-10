@@ -1,28 +1,28 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservercmd"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcluster"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdnodes"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitpull"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmigrate"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitin"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvisibility"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdas"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdopen"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinject"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexec"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhaschange"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcode"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcreate"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfix"
 	"context"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdas"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcluster"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcode"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitin"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcreate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexec"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfix"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhaschange"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinject"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmigrate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdnodes"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdopen"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservercmd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvisibility"
 	"strconv"
 	"strings"
 
@@ -211,7 +211,9 @@ func coreClusterEntries() []dispatchEntry {
 		{[]string{"nodes-push-settings", "push-settings"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"push-settings"}, argsTail()...)) }},
 		{[]string{"nodes-sync-settings", "sync-settings"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"sync-settings"}, argsTail()...)) }},
 		{[]string{"nodes-send-projects", "send-projects", "sync-projects"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"send-projects"}, argsTail()...)) }},
-		{[]string{"nodes-deploy-agm-accounts", "sync-agm-accounts", "deploy-agm-accounts"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"deploy", "agm-accounts"}, argsTail()...)) }},
+		{[]string{"nodes-deploy-agm-accounts", "sync-agm-accounts", "deploy-agm-accounts"}, func() error {
+			return cmdnodes.RunUnifiedNodesCLI(append([]string{"deploy", "agm-accounts"}, argsTail()...))
+		}},
 		{[]string{"nodes-deploy-repo", "deploy-repo", "node-deploy-repo"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"deploy", "repo"}, argsTail()...)) }},
 		{[]string{"nodes-deploy-repos", "deploy-repos", "node-deploy-repos"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"deploy", "repos"}, argsTail()...)) }},
 		{[]string{"nodes-scan", "fleet-scan", "node-scan"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"scan"}, argsTail()...)) }},

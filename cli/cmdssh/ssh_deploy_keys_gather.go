@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func gatherLocalPublicKeys() []string {

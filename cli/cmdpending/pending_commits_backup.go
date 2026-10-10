@@ -30,17 +30,17 @@ type PendingCommitBackupRecord struct {
 }
 
 type backupScanDest struct {
-	repoPath     string
-	repoName     string
-	branch       string
-	version      string
-	shortBranch  string
-	headSHA      string
-	uncommitted  int
-	unpushed     int
-	isDirtyInt   int
-	backedUpAt   int64
-	payloadJSON  string
+	repoPath    string
+	repoName    string
+	branch      string
+	version     string
+	shortBranch string
+	headSHA     string
+	uncommitted int
+	unpushed    int
+	isDirtyInt  int
+	backedUpAt  int64
+	payloadJSON string
 }
 
 const (
@@ -372,4 +372,3 @@ func ConvertBackupToPendingRecords(backupRecords []PendingCommitBackupRecord, ta
 
 	return inspected
 }
-

@@ -15,10 +15,10 @@ import (
 type RepoFeatureTargetType string
 
 const (
-	TargetTypeRemoteURL   RepoFeatureTargetType = "remote-url"
-	TargetTypeLocalGit    RepoFeatureTargetType = "local-git"
-	TargetTypeLocalNoGit  RepoFeatureTargetType = "local-no-git"
-	TargetTypeBareSlug    RepoFeatureTargetType = "bare-slug"
+	TargetTypeRemoteURL  RepoFeatureTargetType = "remote-url"
+	TargetTypeLocalGit   RepoFeatureTargetType = "local-git"
+	TargetTypeLocalNoGit RepoFeatureTargetType = "local-no-git"
+	TargetTypeBareSlug   RepoFeatureTargetType = "bare-slug"
 )
 
 // ResolvedRepoFeature represents the resolved workspace destination for a 'repo feature' target.

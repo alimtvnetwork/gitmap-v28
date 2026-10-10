@@ -3,8 +3,8 @@ package cmdagy
 import (
 	"context"
 
-	"github.com/spf13/cobra"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/spf13/cobra"
 )
 
 func init() {

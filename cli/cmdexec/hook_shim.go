@@ -1,8 +1,8 @@
 package cmdexec
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // GetAliasSlugFn is wired by cmd/di_hooks.go to the canonical implementation.

@@ -2,9 +2,9 @@ package cmdspace
 
 import (
 	"fmt"
-	"os"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"os"
 )
 
 // spaceUsage is printed for `gitmap space --help` or bare `gitmap space`.

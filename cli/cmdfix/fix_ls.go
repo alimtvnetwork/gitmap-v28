@@ -2,8 +2,8 @@
 package cmdfix
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"os"
 	"path/filepath"
 	"strings"

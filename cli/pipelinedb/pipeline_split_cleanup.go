@@ -2,9 +2,9 @@ package pipelinedb
 
 import (
 	"database/sql"
-	"strings"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
+	"strings"
 )
 
 func clearTableQueries() []string {

@@ -2,14 +2,14 @@ package cmdpull
 
 import (
 	"fmt"
-	"strings"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"os"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"os"
+	"strings"
 )
 
 // runPull handles the "pull" subcommand.

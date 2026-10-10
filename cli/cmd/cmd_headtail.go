@@ -3,9 +3,9 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"strconv"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func RunHead(args []string) error {

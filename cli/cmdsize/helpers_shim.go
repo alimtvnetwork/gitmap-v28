@@ -1,15 +1,15 @@
 package cmdsize
 
 import (
+	"encoding/csv"
+	"encoding/json"
+	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
+	"os"
+	"path/filepath"
+	"runtime"
 	"sort"
 	"sync"
-	"runtime"
-	"encoding/csv"
-	"path/filepath"
-	"fmt"
-	"encoding/json"
-	"os"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
 )
 
 // dirSize returns the total byte count under path (best-effort).
@@ -152,8 +152,6 @@ func spawnRepoWorkers(jobs <-chan string, results chan<- string, count int) *syn
 	}
 	return &wg
 }
-
-
 
 func isGitRepo(path string) bool {
 	return cmdhygiene.IsGitRepo(path)

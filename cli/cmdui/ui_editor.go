@@ -8,8 +8,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 var syntaxLangMap = map[string]string{

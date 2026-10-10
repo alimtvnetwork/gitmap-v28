@@ -1,9 +1,9 @@
 package cmddb
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"

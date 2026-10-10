@@ -9,9 +9,9 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 // RunSSHMacroExportCLI executes the ssh macro-export command.

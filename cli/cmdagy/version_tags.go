@@ -4,11 +4,12 @@ package cmdagy
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"net/http"
 	"strings"
 	"time"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+
 type GitHubReleaseTagInfo struct {
 	TagName      string `json:"tag_name"`
 	Name         string `json:"name"`

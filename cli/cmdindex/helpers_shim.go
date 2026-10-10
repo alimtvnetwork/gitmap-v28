@@ -1,13 +1,13 @@
 package cmdindex
 
 import (
+	"context"
+	"database/sql"
+	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/repodb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"context"
-	"fmt"
 	"os"
-	"database/sql"
 )
 
 func getRepoDB(ctx context.Context) (*store.DB, *sql.DB, error) {

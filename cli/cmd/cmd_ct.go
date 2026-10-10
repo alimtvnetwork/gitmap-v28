@@ -3,9 +3,9 @@ package cmd
 
 import (
 	"fmt"
-	"path/filepath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"path/filepath"
 )
 
 // runCT handles `gitmap ct [install-prompts|update-prompts|status|version]`.

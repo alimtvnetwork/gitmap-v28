@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"os"
+	"path/filepath"
 )
 
 func RunMkdir(args []string) error {

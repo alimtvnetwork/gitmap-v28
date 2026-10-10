@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func RunAppend(args []string) error {

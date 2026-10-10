@@ -1,11 +1,11 @@
 package cmdcopy
 
 import (
+	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"os"
 	"os/exec"
 	"path/filepath"
-	"fmt"
-	"os"
 	"strings"
 )
 

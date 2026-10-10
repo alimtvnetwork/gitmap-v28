@@ -2,8 +2,8 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
 	"strings"
 
 	"github.com/spf13/cobra"

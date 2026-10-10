@@ -1,10 +1,10 @@
 package cmdcommittransfer
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"os"
 	"os/exec"
 	"path/filepath"

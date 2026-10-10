@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 // ResolveRepoAuth performs SSH-first probe and falls back to terminal token/browser prompt.

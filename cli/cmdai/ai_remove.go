@@ -14,8 +14,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 var (

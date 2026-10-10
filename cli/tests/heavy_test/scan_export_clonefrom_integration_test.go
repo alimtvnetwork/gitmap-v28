@@ -27,14 +27,14 @@ package heavy_test
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
-	"testing"
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonefrom"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
+	"os"
+	"path/filepath"
+	"testing"
 )
 
 // TestScanExportCloneFrom_HTTPSAndSSH_RoundTrips runs the full

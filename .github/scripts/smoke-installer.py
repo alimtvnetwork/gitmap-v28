@@ -246,7 +246,12 @@ def run_release_installer_with_retry(repo_root: str, expected: str, dest_dir: st
     for attempt in range(1, max_retries + 1):
         print(f"▶ [Attempt {attempt}/{max_retries}] Running release installer for v{expected}...")
         if is_windows:
-            script_path = os.path.join(repo_root, "cli", "scripts", "install.ps1")
+            script_candidates = [
+                os.path.join(repo_root, "cli", "scripts", "install.ps1"),
+                os.path.join(repo_root, "cli", "fspath", "install.ps1"),
+                os.path.join(repo_root, "install.ps1"),
+            ]
+            script_path = next((p for p in script_candidates if os.path.isfile(p)), script_candidates[0])
             pwsh_bin = shutil.which("pwsh") or shutil.which("powershell") or "powershell"
             cmd = [
                 pwsh_bin,
@@ -257,7 +262,12 @@ def run_release_installer_with_retry(repo_root: str, expected: str, dest_dir: st
                 "-NoDiscovery",
             ]
         else:
-            script_path = os.path.join(repo_root, "cli", "scripts", "install.sh")
+            script_candidates = [
+                os.path.join(repo_root, "cli", "scripts", "install.sh"),
+                os.path.join(repo_root, "cli", "fspath", "install.sh"),
+                os.path.join(repo_root, "install.sh"),
+            ]
+            script_path = next((p for p in script_candidates if os.path.isfile(p)), script_candidates[0])
             cmd = [
                 "bash",
                 script_path,

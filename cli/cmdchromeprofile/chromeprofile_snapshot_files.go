@@ -2,14 +2,14 @@ package cmdchromeprofile
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
-	"strings"
+	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"gopkg.in/yaml.v3"
-	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 func isValidChromeSnapshotFile(path string) bool {

@@ -1,6 +1,7 @@
 package cmd
 
 import "testing"
+
 func TestIsRootReadme(t *testing.T) {
 	if !isRootReadme("README.md", "README.md") {
 		t.Errorf("expected README.md in root to be root readme")

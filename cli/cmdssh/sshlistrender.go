@@ -9,8 +9,8 @@ package cmdssh
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // ssh-list wire keys. Names + order are the contract.

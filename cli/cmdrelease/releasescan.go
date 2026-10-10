@@ -2,11 +2,11 @@ package cmdrelease
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
+	"os"
+	"path/filepath"
 )
 
 // scanReleaseTarget represents one repo discovered by the scan-dir release

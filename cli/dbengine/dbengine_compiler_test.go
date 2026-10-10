@@ -1,11 +1,11 @@
 package dbengine
 
 import (
-	"database/sql"
-	"testing"
-	_ "modernc.org/sqlite"
 	"context"
+	"database/sql"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	_ "modernc.org/sqlite"
+	"testing"
 )
 
 func TestResolveCompiler(t *testing.T) {

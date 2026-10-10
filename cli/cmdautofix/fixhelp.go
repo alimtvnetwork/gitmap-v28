@@ -39,6 +39,7 @@ var FixHelp = struct {
 		{"misspell", "British→American spelling, case-preserving"},
 		{"markdown", "collapse 3+ blank lines in .md"},
 		{"guidelines", "composite: newlines + naming"},
+		{"release tags", "purge broken releases and orphan release tags"},
 		{"all", "run every category (one summary, one prompt)"},
 	},
 	Flags: []FixHelpFlag{

@@ -1,8 +1,8 @@
 package cmdcommitin
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"os"
 	"path/filepath"
 	"strings"
@@ -70,9 +70,9 @@ func formatStateCompiledBlock(item store.CompiledTemplate) string {
 func RunCommitIn(args []string) error {
 	if len(args) > 0 && (args[0] == "bootstrap" || args[0] == "init") {
 		if RunCommitPullBootstrapFn != nil {
-		return RunCommitPullBootstrapFn(args[1:])
-	}
-	return nil
+			return RunCommitPullBootstrapFn(args[1:])
+		}
+		return nil
 	}
 	if len(args) > 0 && (args[0] == "ui" || args[0] == "web") {
 		return runCommitPullUI(args[1:])
@@ -90,8 +90,8 @@ func RunCommitIn(args []string) error {
 
 	if raw.IsTree {
 		if PrintCommitPullTreeFn != nil {
-		PrintCommitPullTreeFn()
-	}
+			PrintCommitPullTreeFn()
+		}
 	}
 
 	ensureCommitInTargetRepo(raw)

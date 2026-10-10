@@ -3,9 +3,9 @@ package cmdindex
 import (
 	"context"
 	"fmt"
-	"os"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
+	"os"
 )
 
 func RunIndex(args []string) error {

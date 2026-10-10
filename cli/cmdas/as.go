@@ -1,18 +1,18 @@
 package cmdas
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // runAs implements `gitmap as [alias-name] [--force]`.

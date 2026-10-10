@@ -260,4 +260,3 @@ func TestPendingCommitsBackup_Deserialization_MalformedPayload(t *testing.T) {
 		t.Fatalf("expected IsDirty preserved")
 	}
 }
-

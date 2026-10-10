@@ -16,8 +16,8 @@ package cmdfindnext
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // find-next top-level wire keys. Names + order are the contract;

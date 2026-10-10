@@ -3,11 +3,11 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"strings"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
+	"os"
+	"strings"
 )
 
 // runSafeRmCLI implements the `gitmap safe-rm` / `gitmap rm-safe` CLI command.

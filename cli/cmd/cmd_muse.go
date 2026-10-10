@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
-	"time"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"strings"
+	"time"
 )
 
 // RunMuseCLI routes the top-level `gitmap muse` commands.

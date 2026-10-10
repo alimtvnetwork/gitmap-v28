@@ -357,7 +357,7 @@ func topLevelCmds() map[string]string {
 		"CmdCommons":                    CmdCommons,
 		"CmdCommonsAlias":               CmdCommonsAlias,
 		"CmdSpace":                      CmdSpace,
-		"CmdSpaceBackupBranch":           CmdSpaceBackupBranch,
+		"CmdSpaceBackupBranch":          CmdSpaceBackupBranch,
 		"CmdRecreateRepo":               CmdRecreateRepo,
 		"CmdRecreateRepoAlias":          CmdRecreateRepoAlias,
 		"CmdRestEnable":                 CmdRestEnable,

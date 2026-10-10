@@ -11,8 +11,8 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 

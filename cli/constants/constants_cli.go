@@ -108,15 +108,15 @@ const (
 	// CmdPendingCommits discovers uncommitted changes and unpushed commits across repos.
 	CmdPendingCommits      = "pending-commits"
 	CmdPendingCommitsAlias = "pc"
-	summaryCmdVal       = "summary"
-	fullSummaryCmdVal   = "full-summary"
-	fullStatusCmdVal    = "full-status"
-	fsCmdVal            = "fs"
-	fullSummaryPECmdVal = "full-summary+pe"
-	fullStatusPECmdVal  = "full-status+pe"
-	fsPECmdVal          = "fs+pe"
-	fspeCmdVal          = "fspe"
-	mergeAICmdVal       = "merge-ai"
+	summaryCmdVal          = "summary"
+	fullSummaryCmdVal      = "full-summary"
+	fullStatusCmdVal       = "full-status"
+	fsCmdVal               = "fs"
+	fullSummaryPECmdVal    = "full-summary+pe"
+	fullStatusPECmdVal     = "full-status+pe"
+	fsPECmdVal             = "fs+pe"
+	fspeCmdVal             = "fspe"
+	mergeAICmdVal          = "merge-ai"
 
 	// CmdSummary summarizes the last N releases, heated files, and changelog gist with Split-DB caching.
 	CmdSummary = summaryCmdVal
@@ -129,8 +129,8 @@ const (
 	CmdFsPE          = fsPECmdVal
 	CmdFspe          = fspeCmdVal
 	// CmdMergeAI orchestrates multi-repo staging into a single commit with 01_/02_ collision handling.
-	CmdMergeAI          = mergeAICmdVal
-	CmdMergeAIAlias     = "ma"           // gitmap:cmd skip
+	CmdMergeAI      = mergeAICmdVal
+	CmdMergeAIAlias = "ma" // gitmap:cmd skip
 	// CmdNewCommands discovers and catalogs commands added in recent git history.
 	CmdNewCommands      = "new-commands" // gitmap:cmd skip
 	CmdNewCommandsAlias = "nc"           // gitmap:cmd skip
@@ -332,17 +332,17 @@ const (
 	// .gitattributes, .prettierignore, .prettierrc baselines plus
 	// `git lfs install --local` (same logic as `gitmap commons`);
 	// `space backup-branch` snapshots HEAD into backup/<slug>.
-	CmdSpace             = "space"
+	CmdSpace = "space"
 	// CmdSpaceBackupBranch is the `space backup-branch` subcommand —
 	// creates backup/<slug> from HEAD for the given task string.
 	CmdSpaceBackupBranch = "backup-branch"
 	// CmdSpec is the top-level namespace for spec-number issuance
 	// (spec 252). Subcommand: `spec next` issues the next free spec
 	// number for the current repository.
-	CmdSpec     = "spec" // gitmap:cmd skip
+	CmdSpec = "spec" // gitmap:cmd skip
 	// CmdSpecNext is the `spec next` subcommand — issues the next
 	// free spec number and prints it on stdout.
-	CmdSpecNext = "next" // gitmap:cmd skip
+	CmdSpecNext          = "next" // gitmap:cmd skip
 	CmdRecreateRepo      = "recreate-repo"
 	CmdRecreateRepoAlias = "recreate"
 	CmdRestEnable        = "rest-enable"
@@ -397,6 +397,10 @@ const (
 	// CmdFixGit diagnoses and repairs Git commit, permission, lock, and index corruption issues.
 	CmdFixGit      = "fix-git"
 	CmdFixGitAlias = "fg"
+	// CmdFixReleaseTags audits and cleans orphan or broken GitHub releases and tags lacking assets.
+	CmdFixReleaseTags      = "fix-release-tags"
+	CmdFixReleaseTagsAlias = "frt"
+	CmdFixReleaseTagsSolid = "fixreleasetags"
 	// CmdUndo restores the latest `gitmap fix-repo` backup snapshot
 	// for the current repo + current version (v5.40.0+). Backups live
 	// at `<repoRoot>/.gitmap/backup/<repo>/v<N>/fix-repo/<UTC-ts>/`.
@@ -725,6 +729,7 @@ const (
 	HelpReleasePull      = "  pull-release (relp) [ver]  git pull (" + ColorCyan + "--ff-only" + ColorReset + "|" + ColorCyan + "--rebase" + ColorReset + "|" + ColorCyan + "--merge" + ColorReset + "), then release the current repo"
 	HelpReleaseBr        = "  release-branch (rb)      Complete release from existing release branch"
 	HelpReleasePend      = "  release-pending (rp)      Release all pending branches without tags"
+	HelpFixReleaseTags   = "  fix-release-tags (frt) Delete orphan or broken GitHub releases and tags lacking assets or with failed CI/CD"
 	HelpFixRepo          = "  fix-repo (fr)       Rewrite prior {base}-vN tokens (-2/-3/-5/" + ColorCyan + "--all" + ColorReset + "/" + ColorCyan + "--dry-run" + ColorReset + ")"
 	HelpChangelog        = "  changelog (cl) [ver]      Show concise release notes (use " + ColorCyan + "--open" + ColorReset + ", " + ColorCyan + "--source" + ColorReset + ")"
 	HelpDoctor           = "  doctor [" + ColorCyan + "--fix-path" + ColorReset + "]      Diagnose PATH, deploy, and version issues"
@@ -872,21 +877,21 @@ const (
 	// printing the latest-branch report, run `git checkout` against the
 	// resolved branch name. Useful as a single-keystroke "jump to whatever
 	// is freshest" workflow when reviewing PR work across many branches.
-	FlagDescLBSwitch      = "Checkout the resolved latest branch after printing the report"
-	FlagDescLBSwitchShort = "Short alias for --switch"
-	FlagDescGroup         = "Filter by group name"
-	FlagDescAll           = "Run against all tracked repos from database"
-	FlagDescListVerbose   = "Show full paths and URLs"
-	FlagDescGroupDesc     = "Optional group description"
-	FlagDescGroupColor    = "Terminal color for group display"
-	FlagConfirm           = "confirm"
-	FlagDescConfirm       = "Confirm destructive operation"
-	FlagRescan            = "rescan"
-	FlagDescRescan        = "Trigger a rescan immediately after reset"
-	FlagDescSource        = "Filter by source: release or import"
-	FlagSkipZsh           = "skip-zsh"
-	FlagDescSkipZsh       = "Skip ZSH and Oh-My-Zsh setup on Ubuntu"
-	EnvGitmapSkipZsh      = "GITMAP_SKIP_ZSH"
+	FlagDescLBSwitch          = "Checkout the resolved latest branch after printing the report"
+	FlagDescLBSwitchShort     = "Short alias for --switch"
+	FlagDescGroup             = "Filter by group name"
+	FlagDescAll               = "Run against all tracked repos from database"
+	FlagDescListVerbose       = "Show full paths and URLs"
+	FlagDescGroupDesc         = "Optional group description"
+	FlagDescGroupColor        = "Terminal color for group display"
+	FlagConfirm               = "confirm"
+	FlagDescConfirm           = "Confirm destructive operation"
+	FlagRescan                = "rescan"
+	FlagDescRescan            = "Trigger a rescan immediately after reset"
+	FlagDescSource            = "Filter by source: release or import"
+	FlagSkipZsh               = "skip-zsh"
+	FlagDescSkipZsh           = "Skip ZSH and Oh-My-Zsh setup on Ubuntu"
+	EnvGitmapSkipZsh          = "GITMAP_SKIP_ZSH"
 	FlagNoCache               = "no-cache"
 	FlagDescNoCache           = "Bypass status cache and query git status directly from filesystem"
 	FlagBackup                = "backup"

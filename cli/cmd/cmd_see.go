@@ -2,15 +2,15 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"strings"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcpar"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"os"
+	"os/exec"
+	"strings"
 )
 
 // HistoryRunnerFn is a hook to delegate history execution from cmd package.

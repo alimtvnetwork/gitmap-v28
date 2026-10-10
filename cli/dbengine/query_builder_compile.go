@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"strings"
 )
 
 // Signature computes a deterministic cache key for the query structure.

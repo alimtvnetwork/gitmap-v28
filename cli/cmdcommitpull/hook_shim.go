@@ -1,4 +1,5 @@
 package cmdcommitpull
+
 // RunCommitInFn is wired by cmd/di_hooks.go to cmdcommitin's runCommitIn.
 var RunCommitInFn func(args []string) error
 

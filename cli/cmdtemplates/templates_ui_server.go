@@ -1,10 +1,10 @@
 package cmdtemplates
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"net"
 	"net/http"
 	"os/exec"

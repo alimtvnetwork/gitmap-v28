@@ -10,14 +10,14 @@ package cmdprobe
 
 import (
 	"fmt"
-	"os"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/render"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"os"
 )
 
 // probeJSONEntry is a single repo-level result emitted under `--json`.

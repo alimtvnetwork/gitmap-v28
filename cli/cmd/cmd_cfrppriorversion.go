@@ -8,14 +8,14 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvisibility"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"os"
 	"os/exec"
 	"strings"
-	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
 // runCFRPPriorVersionPrivatize is invoked after the make-public step

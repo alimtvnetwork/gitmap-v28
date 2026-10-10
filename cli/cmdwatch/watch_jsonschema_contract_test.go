@@ -90,7 +90,6 @@ func TestWatchJSONSchema_SummaryShape(t *testing.T) {
 
 // --- local schema helpers (minimal equivalents of cmd's infra) ---
 
-
 func wFindPublishedSchema(t *testing.T, filename string) string {
 	t.Helper()
 	dir := filepath.Dir(wPackageDir())

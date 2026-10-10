@@ -1,15 +1,15 @@
 package cmdorphans
 
 import (
+	"encoding/csv"
+	"encoding/json"
+	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
+	"os"
+	"path/filepath"
 	"runtime"
 	"sort"
-	"path/filepath"
 	"sync"
-	"encoding/csv"
-	"fmt"
-	"encoding/json"
-	"os"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
 )
 
 // emitCSV writes a header + rows to stdout via encoding/csv.

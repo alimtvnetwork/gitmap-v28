@@ -1,4 +1,5 @@
 package cmdui
+
 const uiAssetsJSNodes = `    async function refreshNodes() {
       try {
         const res = await fetch('/api/ssh/nodes');

@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"sort"
 	"testing"
-
 )
 
 const versionHistorySchemaFilename = "version-history.schema.json"

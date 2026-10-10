@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
 func runGHCommandWithCustomTimeout(timeout time.Duration, args ...string) ([]byte, error) {

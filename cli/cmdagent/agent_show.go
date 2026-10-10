@@ -44,19 +44,19 @@ type agentShowSubtask struct {
 }
 
 type agentShowReport struct {
-	ElapsedMs      int64             `json:"elapsed_ms"`
-	ID             string            `json:"id"`
-	Slug           string            `json:"slug"`
-	Name           string            `json:"name"`
-	Status         string            `json:"status"`
-	RunDir         string            `json:"run_dir"`
-	BudgetSteps    int               `json:"budget_steps"`
-	CompletedSteps int               `json:"completed_steps"`
-	SpawnedAgents  int               `json:"spawned_agents"`
-	CreatedAt      string            `json:"created_at"`
-	UpdatedAt      string            `json:"updated_at"`
+	ElapsedMs      int64              `json:"elapsed_ms"`
+	ID             string             `json:"id"`
+	Slug           string             `json:"slug"`
+	Name           string             `json:"name"`
+	Status         string             `json:"status"`
+	RunDir         string             `json:"run_dir"`
+	BudgetSteps    int                `json:"budget_steps"`
+	CompletedSteps int                `json:"completed_steps"`
+	SpawnedAgents  int                `json:"spawned_agents"`
+	CreatedAt      string             `json:"created_at"`
+	UpdatedAt      string             `json:"updated_at"`
 	Subtasks       []agentShowSubtask `json:"subtasks,omitempty"`
-	Tier2Broken    bool              `json:"tier2_broken,omitempty"`
+	Tier2Broken    bool               `json:"tier2_broken,omitempty"`
 }
 
 // RunAgentShow shows full detail for one parent task (by ID or slug) with its

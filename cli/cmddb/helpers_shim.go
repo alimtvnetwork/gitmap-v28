@@ -25,4 +25,3 @@ func openDb() (*store.DB, error) {
 
 	return db, nil
 }
-

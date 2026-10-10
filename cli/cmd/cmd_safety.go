@@ -6,15 +6,15 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
 func RunSnapshot(args []string) error {

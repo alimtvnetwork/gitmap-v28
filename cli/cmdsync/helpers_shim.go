@@ -1,12 +1,12 @@
 package cmdsync
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/templates"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/templates"
 	"os"
 	"os/exec"
 	"path/filepath"

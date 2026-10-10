@@ -8,13 +8,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 )
 
 // runWhoAmI prints the effective git identity + transport + probable

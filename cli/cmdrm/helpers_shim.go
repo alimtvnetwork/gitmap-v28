@@ -1,9 +1,9 @@
 package cmdrm
 
 import (
+	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"fmt"
 	"os"
 )
 

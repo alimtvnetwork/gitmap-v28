@@ -130,4 +130,3 @@ func TestResolveDefaultWorkDirPath_FallbackEnv(t *testing.T) {
 		t.Fatalf("resolveEnvWorkDir() = %q, %v; want %q, true", resolved, ok, tempDir)
 	}
 }
-

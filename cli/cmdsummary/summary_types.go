@@ -17,13 +17,13 @@ type HeatedFileMetric struct {
 
 // ReleaseSummaryRecord represents a summarized git release tag and its changelog gist.
 type ReleaseSummaryRecord struct {
-	TagName        string             `json:"tagName"`
-	TagCommitHash  string             `json:"tagCommitHash"`
-	ReleaseDate    string             `json:"releaseDate"`
-	SummaryGist    string             `json:"summaryGist"`
-	WordCount      int                `json:"wordCount"`
-	HeatedFiles    []HeatedFileMetric `json:"heatedFiles,omitempty"`
-	IsCacheHit     bool               `json:"isCacheHit,omitempty"`
+	TagName       string             `json:"tagName"`
+	TagCommitHash string             `json:"tagCommitHash"`
+	ReleaseDate   string             `json:"releaseDate"`
+	SummaryGist   string             `json:"summaryGist"`
+	WordCount     int                `json:"wordCount"`
+	HeatedFiles   []HeatedFileMetric `json:"heatedFiles,omitempty"`
+	IsCacheHit    bool               `json:"isCacheHit,omitempty"`
 }
 
 // RepoPipelineError models an extracted CI/CD failure trace for a repository.
@@ -40,31 +40,31 @@ type RepoPipelineError struct {
 
 // RepoSummaryRecord models the summary state of an individual repository.
 type RepoSummaryRecord struct {
-	RepoName         string                 `json:"repoName"`
-	CanonicalSlug    string                 `json:"canonicalSlug"`
-	LocalPath        string                 `json:"localPath"`
-	RemoteURL        string                 `json:"remoteUrl"`
-	CurrentBranch    string                 `json:"currentBranch"`
-	HeadCommitHash   string                 `json:"headCommitHash"`
-	IsDirty          bool                   `json:"isDirty"`
-	DirtyFilesCount  int                    `json:"dirtyFilesCount"`
-	PendingFiles     []string               `json:"pendingFiles,omitempty"`
-	LastActivityAt   time.Time              `json:"lastActivityAt"`
-	Releases         []ReleaseSummaryRecord `json:"releases,omitempty"`
-	PipelineError    *RepoPipelineError     `json:"pipelineError,omitempty"`
-	IsPipelineClean  bool                   `json:"isPipelineClean,omitempty"`
-	SuggestedCommit  string                 `json:"suggestedCommit,omitempty"`
+	RepoName        string                 `json:"repoName"`
+	CanonicalSlug   string                 `json:"canonicalSlug"`
+	LocalPath       string                 `json:"localPath"`
+	RemoteURL       string                 `json:"remoteUrl"`
+	CurrentBranch   string                 `json:"currentBranch"`
+	HeadCommitHash  string                 `json:"headCommitHash"`
+	IsDirty         bool                   `json:"isDirty"`
+	DirtyFilesCount int                    `json:"dirtyFilesCount"`
+	PendingFiles    []string               `json:"pendingFiles,omitempty"`
+	LastActivityAt  time.Time              `json:"lastActivityAt"`
+	Releases        []ReleaseSummaryRecord `json:"releases,omitempty"`
+	PipelineError   *RepoPipelineError     `json:"pipelineError,omitempty"`
+	IsPipelineClean bool                   `json:"isPipelineClean,omitempty"`
+	SuggestedCommit string                 `json:"suggestedCommit,omitempty"`
 }
 
 // FullSummaryOptions encapsulates runtime parameters for full summary commands.
 type FullSummaryOptions struct {
-	TargetRepo      string
-	ReleasesCount   int
-	ActivityHours   int
-	IsJSON          bool
-	WithPE          bool
-	ForceAll        bool
-	IsVerbose       bool
+	TargetRepo    string
+	ReleasesCount int
+	ActivityHours int
+	IsJSON        bool
+	WithPE        bool
+	ForceAll      bool
+	IsVerbose     bool
 }
 
 // FullSummaryPayload represents the root aggregated response envelope for full summary.

@@ -87,18 +87,18 @@ func printViolationList(result *ScanResult) {
 
 // jsonFixReport is the --json machine-readable report shape.
 type jsonFixReport struct {
-	Command        string         `json:"command"`
-	Subcommand     string         `json:"subcommand"`
-	Path           string         `json:"path"`
-	FilesScanned   int            `json:"files_scanned"`
-	FilesFromCache int            `json:"files_from_cache"`
-	FilesModified  int            `json:"files_modified"`
-	ScanSeconds    float64        `json:"scan_seconds"`
-	ApplySeconds   float64        `json:"apply_seconds"`
-	Categories     []jsonCatStat  `json:"categories"`
-	Violations     []Violation    `json:"violations"`
-	FixedFiles     []string       `json:"fixed_files"`
-	ExitCode       int            `json:"exit_code"`
+	Command        string        `json:"command"`
+	Subcommand     string        `json:"subcommand"`
+	Path           string        `json:"path"`
+	FilesScanned   int           `json:"files_scanned"`
+	FilesFromCache int           `json:"files_from_cache"`
+	FilesModified  int           `json:"files_modified"`
+	ScanSeconds    float64       `json:"scan_seconds"`
+	ApplySeconds   float64       `json:"apply_seconds"`
+	Categories     []jsonCatStat `json:"categories"`
+	Violations     []Violation   `json:"violations"`
+	FixedFiles     []string      `json:"fixed_files"`
+	ExitCode       int           `json:"exit_code"`
 }
 
 type jsonCatStat struct {

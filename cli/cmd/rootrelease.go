@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchangelog"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrelease"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrelease"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 

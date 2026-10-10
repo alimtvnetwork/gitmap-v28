@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservice"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"os"
 )
 
 // RunRestEnable enables and starts the background REST daemon OS service.

@@ -1,14 +1,14 @@
 package cmdpull
 
 import (
-	"strconv"
-	"strings"
 	"flag"
 	"fmt"
-	"os"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
+	"os"
+	"strconv"
+	"strings"
 )
 
 // NormalizePullArgs converts positional pull-all and table arguments into flags.

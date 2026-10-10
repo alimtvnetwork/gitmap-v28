@@ -2,11 +2,11 @@ package cmdchromeprofile
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"os"
 	"path/filepath"
-	"strings"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"runtime"
+	"strings"
 )
 
 func collectSnapshotFileCandidates(target string) []DiscoveredProfileCandidate {

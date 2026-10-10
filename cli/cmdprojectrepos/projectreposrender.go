@@ -9,8 +9,8 @@ package cmdprojectrepos
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // project-repos wire keys. Names + order are the contract.

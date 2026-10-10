@@ -2,9 +2,9 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdas"
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdas"
 	"io"
 	"os"
 	"path/filepath"

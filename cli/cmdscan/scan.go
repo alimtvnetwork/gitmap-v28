@@ -2,11 +2,6 @@ package cmdscan
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"runtime"
-	"strings"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
@@ -14,9 +9,14 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/detector"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
-	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 // CheckSpecialReposOnScanFn is an optional callback to verify and initialize special repos (rs/rc) on scan.
@@ -208,6 +208,7 @@ func executeScan(
 	completePendingTask(taskDB, taskID)
 	return nil
 }
+
 // autoRegisterFirstWorkDir checks if any work directories are registered.
 // If none exist, it registers absDir as the first work directory and marks it as default.
 func autoRegisterFirstWorkDir(absDir string, quiet bool) bool {
@@ -227,6 +228,7 @@ func autoRegisterFirstWorkDir(absDir string, quiet bool) bool {
 	_ = db.SetDefaultWorkDir(absDir)
 	return true
 }
+
 // tagReposWithScanFolder registers absDir as a ScanFolder and tags every
 // just-scanned repo with the resulting ScanFolderId. Failures are reported
 // to stderr but do NOT fail the scan — the underlying Repo rows still exist.
@@ -258,6 +260,7 @@ func tagReposWithScanFolder(absDir string, records []model.ScanRecord, quiet boo
 		fmt.Printf(constants.MsgScanFolderTagged, len(paths), folder.ID)
 	}
 }
+
 // upsertToDB persists scan results into the SQLite database.
 func upsertToDB(records []model.ScanRecord, outputDir string) {
 	db, err := store.OpenDefault()
@@ -276,6 +279,7 @@ func upsertToDB(records []model.ScanRecord, outputDir string) {
 	}
 	fmt.Printf(constants.MsgDBUpsertDone, len(records))
 }
+
 // alignRecordsWithDB rewrites record IDs to match persisted repo IDs by path.
 func alignRecordsWithDB(records []model.ScanRecord, outputDir string) []model.ScanRecord {
 	db, err := store.OpenDefault()
@@ -309,6 +313,7 @@ func alignRecordsWithDB(records []model.ScanRecord, outputDir string) []model.Sc
 	}
 	return aligned
 }
+
 // addToDesktop registers repos with GitHub Desktop if requested.
 func addToDesktop(records []model.ScanRecord, enabled bool) {
 	if enabled {
@@ -316,6 +321,7 @@ func addToDesktop(records []model.ScanRecord, enabled bool) {
 		fmt.Printf(constants.MsgDesktopSummary, summary.Added, summary.Failed)
 	}
 }
+
 // openOutputFolder opens the output directory in the OS file explorer.
 func openOutputFolder(outputDir string, enabled bool) {
 	if enabled {
@@ -324,6 +330,7 @@ func openOutputFolder(outputDir string, enabled bool) {
 		fmt.Printf(constants.MsgOpenedFolder, outputDir)
 	}
 }
+
 // resolveOpenCommand returns the OS-specific command to open a folder.
 func resolveOpenCommand(dir string) *exec.Cmd {
 	if runtime.GOOS == constants.OSWindows {
@@ -334,6 +341,7 @@ func resolveOpenCommand(dir string) *exec.Cmd {
 	}
 	return exec.Command(constants.CmdXdgOpen, dir)
 }
+
 // resolveOutputDir determines the output directory relative to scan root.
 func resolveOutputDir(cfgDir, scanDir string) string {
 	if filepath.IsAbs(cfgDir) {
@@ -341,6 +349,7 @@ func resolveOutputDir(cfgDir, scanDir string) string {
 	}
 	return filepath.Join(scanDir, constants.GitMapDir, constants.OutputDirName)
 }
+
 // autoPopulateScanAliases generates aliases for unaliased repositories found during scan.
 func autoPopulateScanAliases(quiet bool) {
 	db, err := store.OpenDefault()

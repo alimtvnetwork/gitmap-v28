@@ -47,7 +47,7 @@ func UI() io.Writer {
 	defer dispatchMu.RUnlock()
 
 	if !dispatchWereUp {
-		return rawStdout
+		return os.Stdout
 	}
 
 	return dispatchOut
@@ -60,7 +60,7 @@ func UIErr() io.Writer {
 	defer dispatchMu.RUnlock()
 
 	if !dispatchWereUp {
-		return rawStderr
+		return os.Stderr
 	}
 
 	return dispatchErr

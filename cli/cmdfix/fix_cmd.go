@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixreleasetags"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
@@ -110,7 +111,57 @@ func runFixAll(action string, items []cmdremediation.RemediationItem) error {
 	return nil
 }
 
+// isFixReleaseTagsRequest inspects arguments for multi-word or hyphenated release tags fix requests.
+func isFixReleaseTagsRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	first := strings.ToLower(strings.TrimSpace(args[0]))
+	if first == "release" && len(args) >= 2 {
+		second := strings.ToLower(strings.TrimSpace(args[1]))
+		if second == "tags" || second == "tag" {
+			return true
+		}
+	}
+
+	if first == "release-tags" || first == "releasetags" || first == "release_tags" || first == "release-tag" {
+		return true
+	}
+
+	return false
+}
+
+// extractFixReleaseTagsArgs strips the subcommand tokens from arguments.
+func extractFixReleaseTagsArgs(args []string) []string {
+	if len(args) == 0 {
+		return nil
+	}
+
+	first := strings.ToLower(strings.TrimSpace(args[0]))
+	if first == "release" && len(args) >= 2 {
+		second := strings.ToLower(strings.TrimSpace(args[1]))
+		if second == "tags" || second == "tag" {
+			remaining := make([]string, 0, len(args)-2)
+			remaining = append(remaining, args[2:]...)
+			return remaining
+		}
+	}
+
+	if first == "release-tags" || first == "releasetags" || first == "release_tags" || first == "release-tag" {
+		remaining := make([]string, 0, len(args)-1)
+		remaining = append(remaining, args[1:]...)
+		return remaining
+	}
+
+	return args
+}
+
 func RunFix(args []string, aliasOverride string) error {
+	if isFixReleaseTagsRequest(args) {
+		return cmdfixreleasetags.RunFixReleaseTags(extractFixReleaseTagsArgs(args))
+	}
+
 	cmdName := "fix"
 	if aliasOverride != "" {
 		cmdName = aliasOverride
@@ -565,4 +616,3 @@ func collectAllRemediationItems(existing []cmdremediation.RemediationItem) []cmd
 
 	return all
 }
-

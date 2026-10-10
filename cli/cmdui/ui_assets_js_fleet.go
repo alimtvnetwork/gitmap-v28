@@ -1,4 +1,5 @@
 package cmdui
+
 const uiAssetsJSCore = `    function showTab(tabId) {
       document.querySelectorAll('.content-area').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));

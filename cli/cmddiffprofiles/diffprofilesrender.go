@@ -15,8 +15,8 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // diff-profiles top-level wire keys.

@@ -35,10 +35,10 @@ func init() {
 }
 
 type heatmapRow struct {
-	FilePath string `json:"file"`
-	Claims   int    `json:"claims"`
-	WriteClaims int `json:"write_claims"`
-	ActionTouches int `json:"action_touches"`
+	FilePath      string `json:"file"`
+	Claims        int    `json:"claims"`
+	WriteClaims   int    `json:"write_claims"`
+	ActionTouches int    `json:"action_touches"`
 }
 
 type agentHeatmapReport struct {

@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"os"
 	"os/exec"
 	"path/filepath"

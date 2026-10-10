@@ -18,4 +18,3 @@ func isWorkingTreeDirty(target string) bool {
 
 	return len(strings.TrimSpace(string(out))) > 0
 }
-

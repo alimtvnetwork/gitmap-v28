@@ -15,12 +15,12 @@ package cmdscan
 
 import (
 	"fmt"
-	"os"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"os"
 )
 
 // startBackgroundProbe decides whether the background probe should

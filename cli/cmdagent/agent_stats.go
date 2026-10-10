@@ -104,11 +104,11 @@ func init() {
 }
 
 type statsCompletedTask struct {
-	Slug            string `json:"slug"`
-	Name            string `json:"name"`
-	SubtasksDone    int    `json:"subtasks_done"`
-	SubtasksTotal   int    `json:"subtasks_total"`
-	CompletedAt     string `json:"completed_at"`
+	Slug          string `json:"slug"`
+	Name          string `json:"name"`
+	SubtasksDone  int    `json:"subtasks_done"`
+	SubtasksTotal int    `json:"subtasks_total"`
+	CompletedAt   string `json:"completed_at"`
 }
 
 type statsAgentCount struct {
@@ -117,12 +117,12 @@ type statsAgentCount struct {
 }
 
 type agentStatsReport struct {
-	ElapsedMs              int64               `json:"elapsed_ms"`
-	Days                   int                 `json:"days"`
+	ElapsedMs              int64                `json:"elapsed_ms"`
+	Days                   int                  `json:"days"`
 	CompletedTasks         []statsCompletedTask `json:"completed_tasks"`
-	TotalSubtasksCompleted int                 `json:"total_subtasks_completed"`
-	PerAgentCompleted      []statsAgentCount   `json:"per_agent_completed"`
-	TotalCollisions        int                 `json:"total_collisions"`
+	TotalSubtasksCompleted int                  `json:"total_subtasks_completed"`
+	PerAgentCompleted      []statsAgentCount    `json:"per_agent_completed"`
+	TotalCollisions        int                  `json:"total_collisions"`
 }
 
 // RunAgentStats reports recently completed parent tasks, subtask completions,

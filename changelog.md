@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.530.0] - 2026-10-10
+
+### Added
+- Implement gitmap fix release tags command to audit and purge orphan and broken release tags
+
+---
+
 ## [v6.529.0] - 2026-10-10
 
 ### Added

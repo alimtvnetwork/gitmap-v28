@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"

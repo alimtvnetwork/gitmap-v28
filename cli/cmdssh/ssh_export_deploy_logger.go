@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"golang.org/x/crypto/ssh"
 )
 

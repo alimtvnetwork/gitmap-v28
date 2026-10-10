@@ -1,6 +1,10 @@
 package cmdmerge
 
 import (
+	"bufio"
+	"context"
+	"database/sql"
+	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
@@ -9,15 +13,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
-	"bufio"
-	"context"
-	"database/sql"
-	"path/filepath"
-	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 )
+
 type moveOpts struct {
 	yes           bool
 	dryRun        bool

@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"os"
 )
 
 // runSetSourceRepo handles the hidden "set-source-repo" command.

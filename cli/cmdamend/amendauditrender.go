@@ -15,8 +15,8 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // amend-audit wire keys. Names + order are the contract; reordering

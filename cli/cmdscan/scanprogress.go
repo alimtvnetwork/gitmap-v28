@@ -2,10 +2,10 @@ package cmdscan
 
 import (
 	"fmt"
-	"os"
-	"sync"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
+	"os"
+	"sync"
 )
 
 // scanProgressRenderer renders a single-line, CR-overwritten live status

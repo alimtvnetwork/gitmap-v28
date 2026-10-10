@@ -9,8 +9,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdapps"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdwinutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"

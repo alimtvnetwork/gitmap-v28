@@ -9,8 +9,8 @@ package cmdhistory
 import (
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // history wire keys. Names + order are the contract; reordering or

@@ -1,11 +1,8 @@
 package cmdimport
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
@@ -13,6 +10,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 // ImportItemResult records the execution outcome of importing a single JSON file.

@@ -2,10 +2,10 @@ package cmdscan
 
 import (
 	"encoding/csv"
-	"os"
 	"encoding/json"
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
+	"os"
 )
 
 func parseHygieneFormat(s string) (cmdhygiene.HygieneFormatType, error) {

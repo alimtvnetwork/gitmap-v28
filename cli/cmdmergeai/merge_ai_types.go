@@ -33,10 +33,10 @@ type FileCollisionRecord struct {
 // MergeAIManifest models the root merge-ai-manifest.json artifact.
 type MergeAIManifest struct {
 	Attributes struct {
-		GeneratedAt        string `json:"generatedAt"`
-		GitMapVersion      string `json:"gitMapVersion"`
-		Tool               string `json:"tool"`
-		CollisionStrategy  string `json:"collisionStrategy"`
+		GeneratedAt       string `json:"generatedAt"`
+		GitMapVersion     string `json:"gitMapVersion"`
+		Tool              string `json:"tool"`
+		CollisionStrategy string `json:"collisionStrategy"`
 	} `json:"attributes"`
 	Data struct {
 		Destination struct {
@@ -45,20 +45,20 @@ type MergeAIManifest struct {
 			ResolvedPath string `json:"resolvedPath"`
 			OriginURL    string `json:"originUrl,omitempty"`
 		} `json:"destination"`
-		RepoSequence               []SourceRepoSequenceEntry `json:"repoSequence"`
-		FileCollisions             []FileCollisionRecord     `json:"fileCollisions"`
-		UniqueFilesDirectlyPlaced  int                       `json:"uniqueFilesDirectlyPlaced"`
+		RepoSequence              []SourceRepoSequenceEntry `json:"repoSequence"`
+		FileCollisions            []FileCollisionRecord     `json:"fileCollisions"`
+		UniqueFilesDirectlyPlaced int                       `json:"uniqueFilesDirectlyPlaced"`
 	} `json:"data"`
 }
 
 // SourceRepoSequenceEntry models one entry in data.repoSequence of the manifest.
 type SourceRepoSequenceEntry struct {
-	SequenceOrder  int      `json:"sequenceOrder"`
-	RepoURL        string   `json:"repoUrl"`
-	Branch         string   `json:"branch"`
-	CommitRange    string   `json:"commitRange"`
-	LastCommitDate string   `json:"lastCommitDate"`
-	Description    string   `json:"description"`
+	SequenceOrder  int    `json:"sequenceOrder"`
+	RepoURL        string `json:"repoUrl"`
+	Branch         string `json:"branch"`
+	CommitRange    string `json:"commitRange"`
+	LastCommitDate string `json:"lastCommitDate"`
+	Description    string `json:"description"`
 	ReleaseInfo    struct {
 		LastTag string `json:"lastTag,omitempty"`
 		TagHash string `json:"tagHash,omitempty"`

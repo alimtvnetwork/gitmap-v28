@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"os/exec"
 	"strings"
 

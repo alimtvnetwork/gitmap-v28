@@ -2,13 +2,13 @@ package cmdpull
 
 import (
 	"fmt"
-	"time"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"os"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"time"
 )
 
 func runPullBatch(opts pullOptions) error {

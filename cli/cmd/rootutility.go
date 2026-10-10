@@ -1,23 +1,24 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixauth"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfscommon"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfindnext"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprobe"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddocs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfindnext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixauth"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixreleasetags"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfscommon"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprobe"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrm"
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"os"
 	"strings"
 
@@ -433,6 +434,7 @@ func utilitySystemEntries() []dispatchEntry {
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return cmdssh.RunSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return cmdfixauth.RunFixAuth(argsTail()) }},
 		{[]string{constants.CmdFixCredential, constants.CmdFixCredentialAlias}, func() error { checkHelp("fix-credential", argsTail()); return cmdfixauth.RunFixCredential(argsTail()) }},
+		{[]string{constants.CmdFixReleaseTags, constants.CmdFixReleaseTagsAlias, "fix-release-tag", "fix-tags", constants.CmdFixReleaseTagsSolid}, func() error { return cmdfixreleasetags.RunFixReleaseTags(argsTail()) }},
 		{[]string{"ai-clean", "aiclean", "clean-ai"}, func() error { return cmdos.RunOSAICleanCLI(argsTail()) }},
 		{[]string{constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen}, func() error { return cmdagy.RunSUGCLI(argsTail()) }},
 		{[]string{constants.CmdWatchPromptsRunning, constants.CmdWatchPromptsRunningAlias, "watch-running-prompts"}, func() error { return cmdagy.RunWPRCLI(argsTail()) }},
@@ -556,6 +558,8 @@ func normalizeHelpTopic(topic string) string {
 		return "rerun"
 	case constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen:
 		return constants.CmdShutdownUntil
+	case constants.CmdFixReleaseTagsAlias, "fix-release-tag", "fix-tags", constants.CmdFixReleaseTagsSolid:
+		return constants.CmdFixReleaseTags
 	}
 
 	return topic

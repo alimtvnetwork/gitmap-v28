@@ -2,10 +2,10 @@ package cmdrelease
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"os"
+	"path/filepath"
 )
 
 // autoRegisterCurrentRepo registers the cwd as a Repo + ScanFolder so

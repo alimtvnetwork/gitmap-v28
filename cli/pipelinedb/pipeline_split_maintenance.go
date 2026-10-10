@@ -2,9 +2,9 @@ package pipelinedb
 
 import (
 	"database/sql"
-	"os"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"os"
 	"path/filepath"
 	"strings"
 )

@@ -18,8 +18,8 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // export top-level wire keys. Names + order are the contract.

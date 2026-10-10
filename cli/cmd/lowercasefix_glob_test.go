@@ -1,6 +1,7 @@
 package cmd
 
 import "testing"
+
 func TestIsPatternMatch_Wildcard(t *testing.T) {
 	if !isPatternMatch("foo/bar.md", "BAR.md", "*") {
 		t.Errorf("expected * to match BAR.md")

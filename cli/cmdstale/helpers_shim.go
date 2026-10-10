@@ -1,15 +1,15 @@
 package cmdstale
 
 import (
-	"runtime"
-	"path/filepath"
-	"sort"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
-	"sync"
 	"encoding/csv"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
 	"os"
+	"path/filepath"
+	"runtime"
+	"sort"
+	"sync"
 )
 
 // emitCSV writes a header + rows to stdout via encoding/csv.

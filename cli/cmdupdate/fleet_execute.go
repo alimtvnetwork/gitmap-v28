@@ -3,11 +3,11 @@ package cmdupdate
 import (
 	"context"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 	"strings"
 	"sync"
 	"time"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func executeParallelFleetUpdate(targets []FleetTarget, opts FleetUpdateOptions) []FleetUpdateNodeResult {
