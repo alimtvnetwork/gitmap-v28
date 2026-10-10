@@ -31,7 +31,7 @@ func TestCtxParityWindowsLinuxMacEmitSameLeafSet(t *testing.T) {
 	canonical := map[string]tup{}
 	for _, l := range leaves {
 		canonical[l.Slug] = tup{
-			Slug: l.Slug, Mode: string(l.Mode), Target: l.resolvedTarget(exe),
+			Slug: l.Slug, Mode: l.Mode.String(), Target: l.resolvedTarget(exe),
 			Path: l.Path,
 			Args: append([]string(nil), l.Args...), Extended: l.Extended,
 		}

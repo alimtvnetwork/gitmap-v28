@@ -7,11 +7,12 @@ import (
 
 // FilterConfig holds patterns and predicates for scanning and filtering files.
 type FilterConfig struct {
-	ExceptGlobs []string
-	Extensions  []string
-	MaxDepth    int
-	OnlyText    bool
-	OnlyBinary  bool
+	ExceptGlobs  []string
+	IncludeGlobs []string
+	Extensions   []string
+	MaxDepth     int
+	OnlyText     bool
+	OnlyBinary   bool
 }
 
 // ParseExceptGlobs parses comma-separated exclusion strings into a slice of glob patterns.
@@ -90,11 +91,25 @@ func (fc *FilterConfig) IsMetaAllowed(meta *FileMeta) bool {
 		return false
 	}
 
-	if len(fc.Extensions) > 0 {
-		return hasMatchingExtension(meta.Extension, fc.Extensions)
+	if len(fc.Extensions) > 0 && !hasMatchingExtension(meta.Extension, fc.Extensions) {
+		return false
+	}
+
+	if len(fc.IncludeGlobs) > 0 && !hasMatchingGlob(meta, fc.IncludeGlobs) {
+		return false
 	}
 
 	return true
+}
+
+func hasMatchingGlob(meta *FileMeta, globs []string) bool {
+	for _, g := range globs {
+		if matchGlob(g, meta.Path, meta.Filename, false) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func hasMatchingExtension(ext string, allowed []string) bool {

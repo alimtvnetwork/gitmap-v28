@@ -43,7 +43,7 @@ func TestScheduleSplitDBAndLogs(t *testing.T) {
 		t.Fatalf("get runs failed: %v", err)
 	}
 
-	if len(runs) != 1 || !runs[0].IsSuccess {
+	if len(runs) != 1 || runs[0].IsFail() {
 		t.Fatalf("unexpected run logs: %+v", runs)
 	}
 

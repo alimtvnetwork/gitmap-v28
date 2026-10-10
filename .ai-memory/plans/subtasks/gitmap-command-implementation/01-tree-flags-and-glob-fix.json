@@ -1,0 +1,24 @@
+{
+  "subtaskId": "01-tree-flags-and-glob-fix",
+  "taskCode": "Task-01",
+  "planSlug": "gitmap-command-implementation",
+  "status": "COMPLETED",
+  "worker": "Worker 01",
+  "summary": "Implemented --file and -f export flags, automatic format deduction (.txt/.tree -> FormatTree, .json -> FormatJson, .yaml/.yml -> FormatYaml, .md -> FormatMd), non-flag wildcard glob interception preventing Windows path syntax crashes, and parent directory auto-creation on export.",
+  "modifiedFiles": [
+    "cli/cmd/folder/filter.go",
+    "cli/cmd/folder/parse_args.go",
+    "cli/cmd/folder/folder.go",
+    "cli/cmd/folder/folder_test.go"
+  ],
+  "verification": "Targeted test 'go test -v ./cmd/folder' in cli passed all 11 tests with 0 failures.",
+  "acceptance": {
+    "VG-01": "PASS TestParseArgs_WildcardPositional and TestParseArgs_CombinedTargetAndGlob verify positional wildcard *.go sets TargetDir='.', populates IncludeGlobs and Extensions without path syntax crash",
+    "VG-02": "PASS TestParseArgs_FileExportFlags and TestDeduceFormatFromExt verify -f 'a.txt' and -f 'a.tree' deduce FormatTree preserving branch layout",
+    "VG-03": "PASS TestParseArgs_FileExportFlags and TestDeduceFormatFromExt verify -f 'a.json' sets OutFile and FormatJson",
+    "VG-04": "PASS TestParseArgs_FileExportFlags and TestDeduceFormatFromExt verify -f 'a.yaml' and -f 'a.yml' set OutFile and FormatYaml",
+    "VG-05": "PASS TestParseArgs_ExplicitFormatPrecedence verifies explicit format flags override extension deduction",
+    "VG-06": "PASS TestScanDirectory_IncludeGlobs verifies IncludeGlobs filters files while descending into nested directories",
+    "VG-07": "PASS TestWriteOrPrintOutput_NestedDirectories verifies automatic parent directory creation on file persistence"
+  }
+}

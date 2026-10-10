@@ -717,3 +717,24 @@ Allowed work:
 
 **Why:** User explicitly mandated: "You can find the redundancy from your SQLite database, not from file system. Okay, so in future, when you add new files, you make sure that it is unique. Do you understand?"
 
+---
+
+## Inverted Success Booleans (`!isSuccess`) & Missing Direct `isFail` Failure Checks — TOTAL BAN
+
+🔴 **NEVER evaluate inverted success booleans (e.g., `!isSuccess`, `!response.isSuccess`, `!res.IsSuccess()`, `!record.IsSuccess`) to detect failure states. ALWAYS provide and call explicit failure properties or methods (`isFail`, `isFailed`, `IsFail()`, `IsFailed()`).**
+
+Forbidden:
+- ❌ Inverting positive success flags to branch on failure (`if (!response.isSuccess) { ... }`, `if !r.IsSuccess { ... }`).
+- ❌ Writing assertions like `if len(runs) != 1 || !runs[0].IsSuccess { ... }`.
+- ❌ Designing result wrappers or error envelopes that omit explicit failure accessors (`isFail` / `IsFail()`).
+
+Allowed work:
+- ✅ Use direct affirmative failure checks: `if response.isFail { ... }` or `if r.IsFail() { ... }`.
+- ✅ Ensure all Result types, query wrappers (PHP, Python, TypeScript), and audit/log records implement explicit failure indicators:
+  - PHP: `QueryResult::$isFail`, `QueryResult::$isSuccess`
+  - Python: `dict["is_fail"]`, `dict["is_success"]`
+  - TypeScript: `QueryResult.isFail`, `QueryResult.isFailed`, `QueryResult.isSuccess`
+  - Go: `.IsFail() bool`, `.IsFailed() bool`, `.IsSuccess() bool`
+
+**Why:** Inverted booleans (`!isSuccess`) introduce negative polarity reasoning and double-negative complexity in guard clauses. Providing explicit `isFail` / `is_fail` states reduces cognitive overhead, ensures robust error logging, and standardizes error inspection across polyglot components.
+

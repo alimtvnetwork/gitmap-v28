@@ -4,7 +4,7 @@
 > **Subtask Title:** Architecture Spec and Backup DB Spec  
 > **Assigned Agent Role:** Worker 01 (Authoring Subagent)  
 > **Parent Plan:** `.ai-memory/plans/table-improvement-and-command-enhancement.md`  
-> **Target Task DB:** `.ai-memory/temp-agents/81-table-improvement-and-command-enhancement/agent-task.db`  
+> **Target Task DB:** `.ai-memory/temp-agents/84-table-improvement-and-command-enhancement/agent-task.db`  
 > **Status:** IN_PROGRESS  
 
 ---
@@ -13,9 +13,9 @@
 
 Author and ground the foundational architectural specification and subtask execution plan for the `table-improvement-and-command-enhancement` initiative:
 1. **Pending Commits Table Overhaul:**
-   - Eliminate fragmented columns (`DIRTY`, `UNTRACK`, `MODIF`, `STAGE`) in favor of a single unified `UNCOMMITTED` column.
+   - Eliminate fragmented columns (`DIRTY`, `UNTRACK`, `MODIF`, `STAGE`) in favor of a single unified `UNCOMMITTED` column that strictly avoids double-counting `MM` or `AM` files.
    - Introduce combined short version and branch (`VER/BRANCH`) column with dynamic tag inspection.
-   - Introduce two-line hierarchical tree-view remediation hints (`├── Option 1: ...`, `└── Option 2: ...`) beneath dirty repositories.
+   - Introduce two-line hierarchical tree-view remediation hints (`├── Option 1: ...`, `└── Option 2: ...`) beneath dirty repositories with untruncated executable commands.
    - Feature workspace fleet batch fix command in table footer (`gitmap cpar "wip: save changes"`).
 2. **Dual-Database Status Caching & Persistent Backup Engine:**
    - **Cache DB (`pending_commits_cache.db`):** Transient high-performance cache enforcing strict 90-second TTL (1.5 min), purged immediately on expiration and never trusted if stale.
@@ -149,9 +149,9 @@ Invocation: gitmap pc [flags]
 
 ## 4. Execution Steps for Task-01
 
-- [x] **Step 1:** Claim subtask `Task-01` in `.ai-memory/temp-agents/81-table-improvement-and-command-enhancement/agent-task.db`.
+- [x] **Step 1:** Claim subtask `Task-01` in `.ai-memory/temp-agents/84-table-improvement-and-command-enhancement/agent-task.db`.
 - [x] **Step 2:** Log action in Task DB for architecture spec authoring.
-- [x] **Step 3:** Author and enhance `02-spec/21-app/table-improvement-and-command-enhancement/01-architecture-spec.md` with full table improvement, tree remediation, fleet footer, dual-database caching and persistent backup specifications.
+- [x] **Step 3:** Author and enhance `02-spec/21-app/table-improvement-and-command-enhancement/01-architecture-spec.md` with full table improvement, MM file deduplication, untruncated tree remediation, fleet footer, dual-database caching and persistent backup specifications.
 - [x] **Step 4:** Author `.ai-memory/plans/subtasks/table-improvement-and-command-enhancement/01-table-and-backup-db-spec.md` detailing contracts, schemas, workflows, and acceptance criteria.
 - [ ] **Step 5:** Complete subtask `Task-01` in Task DB with verification evidence.
 - [ ] **Step 6:** Dispatch completed JSON report to parent agent.
@@ -173,9 +173,9 @@ When assigned to `Task-03` ("Backup DB Engine and Dual-DB Cache Implementation")
 
 | Criterion | Description | Verification Method |
 |---|---|---|
-| **AC1** | Consolidated `UNCOMMITTED` column replacing untracked, modified, staged | Architecture spec section 2.1 |
+| **AC1** | Consolidated `UNCOMMITTED` column replacing untracked, modified, staged with zero MM double-counting | Architecture spec section 2.1 |
 | **AC2** | Combined `VER/BRANCH` column showing tag and branch | Architecture spec section 2.2 |
-| **AC3** | Hierarchical tree-view remediation hints beneath dirty repositories | Architecture spec section 2.3 |
+| **AC3** | Hierarchical tree-view remediation hints beneath dirty repositories with untruncated commands | Architecture spec section 2.3 |
 | **AC4** | Fleet batch fix footer command `gitmap cpar "wip: save changes"` | Architecture spec section 2.4 |
 | **AC5** | SQLite Cache DB with 90s TTL, auto-purging expired entries, zero trust | Architecture spec section 3.1 |
 | **AC6** | SQLite Backup DB storing durable snapshots, serving via `--backup` | Architecture spec section 3.2 |

@@ -33,3 +33,13 @@ type OSTUIActionResult struct {
 	IsSuccess bool
 	Message   string
 }
+
+// IsFail reports whether the applied action failed.
+func (r OSTUIActionResult) IsFail() bool {
+	return !r.IsSuccess
+}
+
+// IsFailed reports whether the applied action failed.
+func (r OSTUIActionResult) IsFailed() bool {
+	return !r.IsSuccess
+}

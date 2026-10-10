@@ -149,6 +149,13 @@ func RenderOutput(opts Options, files []*FileMeta) (string, error) {
 
 func writeOrPrintOutput(content, outFile string) error {
 	if outFile != "" {
+		dir := filepath.Dir(outFile)
+		if dir != "." && dir != "" {
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return err
+			}
+		}
+
 		return os.WriteFile(outFile, []byte(content), 0644)
 	}
 

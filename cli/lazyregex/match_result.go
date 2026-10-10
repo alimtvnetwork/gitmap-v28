@@ -53,6 +53,11 @@ func (it *MatchResult) IsFailed() bool {
 	return it == nil || !it.isMatched
 }
 
+// IsFail is an alias for IsFailed.
+func (it *MatchResult) IsFail() bool {
+	return it.IsFailed()
+}
+
 // IsFailure is an alias for IsFailed.
 func (it *MatchResult) IsFailure() bool {
 	return it.IsFailed()

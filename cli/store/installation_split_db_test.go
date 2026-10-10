@@ -57,7 +57,7 @@ func testRecordLogAndGet(t *testing.T, splitDB *InstallationSplitDB) {
 		t.Fatalf("GetLogs failed: %v", err)
 	}
 
-	if logs[0].Tool != "git" || !logs[0].IsSuccess {
+	if logs[0].Tool != "git" || logs[0].IsFail() {
 		t.Errorf("Unexpected log record: %+v", logs[0])
 	}
 }

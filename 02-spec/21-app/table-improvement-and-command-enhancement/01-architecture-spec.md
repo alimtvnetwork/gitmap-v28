@@ -44,13 +44,21 @@ GitMap has grown through dozens of minor and major releases, accumulating over 1
 
 ## 2. Pending Commits Table Improvement Architecture
 
-### 2.1 Unified `UNCOMMITTED` Column
-Instead of splitting file states into `DIRTY`, `UNTRACK`, `MODIF`, and `STAGE`, the table replaces these four columns with a single unified `UNCOMMITTED` column.
-- **Metric Calculation:** `TotalUncommitted = UntrackedFilesCount + ModifiedFilesCount + StagedFilesCount`.
+### 2.1 Unified `UNCOMMITTED` Column & Elimination of 'MM' Double-Counting
+Instead of splitting file states into separate `DIRTY`, `UNTRACK`, `MODIF`, and `STAGE` columns, the table consolidates all working tree and staging area changes into a single unified `UNCOMMITTED` column.
+
+- **The Double-Counting Pitfall in Naïve Parsers:**
+  - In standard `git status --porcelain`, each line outputs a two-character status code `XY` followed by the file path.
+  - Naïve git parsers often calculate totals by summing separate queries or sets: `UntrackedCount + ModifiedCount + StagedCount`.
+  - When a file has staged changes and subsequent unstaged modifications, git outputs code `MM` (X='M', Y='M') or `AM` (X='A', Y='M'). If counted naively, the same file is counted in both "Staged" and "Modified", resulting in duplicate counts and inaccurate dirty statistics.
+- **Deduplication Metric Calculation:**
+  - GitMap iterates through each non-empty line of `git status --porcelain` and indexes entries by unique relative file path (or counts each valid porcelain entry exactly once).
+  - Formula: `TotalUncommitted = CountUniqueNonCleanFiles(porcelainLines)`.
+  - Any file with changes in the index, working tree, or untracked state is counted exactly once, guaranteeing zero double-counting for `MM`, `AM`, `MD`, or `RM` files.
 - **Display Formatting:**
   - When `TotalUncommitted == 0`: Formatted as `-` or `0` in dimmed or green text.
-  - When `TotalUncommitted > 0`: Formatted as clean numeric count `N` (colored yellow).
-- **Space Savings:** Reclaims 15+ columns of horizontal space to expand repository names and version strings.
+  - When `TotalUncommitted > 0`: Formatted as clean numeric count `N` (highlighted yellow/amber).
+- **Space Savings & Terminal Reallocation:** Reclaims 15+ columns of horizontal space to expand repository names and version strings.
 
 ### 2.2 Repository Short Version and Branch (`VER/BRANCH`)
 The improved table introduces a combined `VER/BRANCH` column:
@@ -63,9 +71,9 @@ The improved table introduces a combined `VER/BRANCH` column:
   - If version is absent: `<branch>` (e.g. `main`, `master`, `feat-login`).
   - If combined string exceeds column width (16–18 characters), apply smart abbreviation keeping the version intact and truncating the branch with `…` (e.g. `v6.523/feat-auth…`).
 
-### 2.3 Hierarchical Tree-View Remediation Hints
-Beneath each dirty repository row in the terminal table, GitMap renders a two-line hierarchical tree view showing concrete, actionable remediation options:
-- **Branch Symbols:**
+### 2.3 Hierarchical Tree-View Remediation Hints & Untruncated Command Guarantee
+Beneath each dirty repository row in the terminal table, GitMap renders a two-line hierarchical tree view providing concrete, actionable remediation options:
+- **Branch Symbols & Layout:**
   - Line 1: `├── Option 1: <command>`
   - Line 2: `└── Option 2: <command>`
 - **Option 1 (Commit & Push Local WIP):**
@@ -74,6 +82,9 @@ Beneath each dirty repository row in the terminal table, GitMap renders a two-li
 - **Option 2 (Stash / Isolate Local Changes):**
   - Targets stashing uncommitted changes cleanly.
   - Command: `git -C "<repoPath>" stash -u`.
+- **Untruncated Executable Command Invariant:**
+  - Tree-view remediation lines must **NEVER** truncate commands with ellipses (`...`) or cut off quotes/flags, regardless of path length or column bounds.
+  - The rendered command must be 100% complete, fully formed, and immediately copy-pasteable by developers into any POSIX shell or PowerShell prompt without syntax errors.
 - **Indentation & Alignment:** Tree lines are indented beneath the table border using the table border style (`│   ├── Option 1: ...`), ensuring the table bounding box remains rectangular, visually aligned, and clean. Clean repositories do not render tree-view hints.
 
 ### 2.4 Overall Fleet Batch Command in Table Footer
@@ -83,7 +94,7 @@ In the summary footer box of the pending commits table, when dirty repositories 
   │ Fleet Remediation: gitmap cpar "wip: save changes"                           │
   └──────────────────────────────────────────────────────────────────────────────┘
 ```
-This informs the developer immediately that they can batch-commit and push all pending changes across all dirty repositories in a single atomic operation without manual per-repo intervention. When all repositories are clean, the fleet remediation line is omitted.
+This informs the developer immediately that they can batch-commit and push all pending changes across all dirty repositories in a single atomic operation (`gitmap cpar "wip: save changes"`) without manual per-repo intervention. When all repositories are clean, the fleet remediation line is omitted.
 
 ### 2.5 Table Layout & Column Alignment Specifications
 The bounding box width is standardized at 78 inner characters (80 characters total including border edges `│`), preserving full cross-platform terminal compatibility:
@@ -435,10 +446,10 @@ The catalog maintains a structured, chronologically sorted registry of the last 
 
 ## 5. Acceptance Criteria
 
-### AC1: Pending Commits Unified Column
+### AC1: Pending Commits Unified Column & Zero MM Double-Counting
 - The table output replaces the four disparate columns (`DIRTY`, `UNTRACK`, `MODIF`, `STAGE`) with a single consolidated `UNCOMMITTED` column.
-- The value represents `UntrackedFilesCount + ModifiedFilesCount + StagedFilesCount`.
-- The summary row accurately aggregates total uncommitted files across all inspected repositories.
+- The value represents unique uncommitted files across index, working tree, and untracked entries. Files with combined states (such as `MM` or `AM` in porcelain) are counted exactly once without double-counting.
+- The summary row accurately aggregates total unique uncommitted files across all inspected repositories.
 
 ### AC2: Version/Branch Identification
 - The table displays the combined `VER/BRANCH` column for every repository row.
@@ -450,6 +461,7 @@ The catalog maintains a structured, chronologically sorted registry of the last 
 - Every dirty repository row displays two hierarchical tree branches immediately below:
   - `├── Option 1: <commit-and-push-command>`
   - `└── Option 2: <stash-or-discard-command>`
+- Tree-view remediation lines MUST NOT truncate executable commands with ellipses (`...`) or cut off command arguments; commands remain 100% complete and copy-paste executable.
 - Clean repositories do not render tree-view hints.
 - The table footer displays the fleet-wide batch command:
   `Fleet Remediation: gitmap cpar "wip: save changes"`

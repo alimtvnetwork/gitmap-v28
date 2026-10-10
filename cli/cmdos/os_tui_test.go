@@ -85,7 +85,7 @@ func TestOSTUIModel_DryRunExecution(t *testing.T) {
 	if len(m.Results) != 1 {
 		t.Fatalf("expected 1 execution result, got %d", len(m.Results))
 	}
-	if !m.Results[0].IsSuccess {
+	if m.Results[0].IsFail() {
 		t.Fatalf("expected dry-run result to be success")
 	}
 

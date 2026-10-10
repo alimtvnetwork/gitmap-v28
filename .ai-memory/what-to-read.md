@@ -19,6 +19,7 @@ How this repository is engineered. Internalize before writing any code:
 
 ## Changelog
 
+- 2026-10-10T03:20:00Z, Memory write: RCA-30 / Avoidance update, Multi-User Windows Binary Synchronization across all 4 target paths (`C:\Users\Alim\AppData\Local\gitmap\`, `AppData\Local\gitmap-cli\`, `bin\`), interactive macro step recording polish, and elimination of inverted boolean checks (`!isSuccess`) in favor of direct `.IsFail()` / `.is_fail` checks.
 - 2026-10-08T16:00:00Z, Memory write: Added "The Mindset — READ FIRST": staging-repo velocity model, backup-first workflow, small-files enforcement, aliases-as-feature, DRY, enforcement-over-documentation, interface+struct+binding.
 
 - 2026-10-06T22:55:00Z, Memory write: Plan 236 / Spec 236, Deep Spec Consolidation & Canonical Reduction, pruned 72 legacy folders and 179 loose files across `02-spec/21-app/` down to exactly 8 Canonical Clusters + active spec folder + readme (-96.2%), compacted completed plans into 18 authoritative milestones (-58.1% files, -81.1% lines), unified memory into 10 canonical domain references (-86.7%), and preserved all pending/active files.

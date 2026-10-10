@@ -291,6 +291,12 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdDownloaderConfig, constants.CmdDownloaderConfigAlias}, func() error { return cmddownload.RunDownloaderConfig(argsTail()) }},
 		{[]string{constants.CmdUnzipCompact, constants.CmdUnzipCompactAlias}, func() error { return cmdzip.RunUnzipCompact(argsTail()) }},
 		{[]string{constants.CmdFolder, "tree"}, func() error { return cmdfoldertree.RunFolder(argsTail()) }},
+		{[]string{"tree-search", "treesearch", "ts"}, func() error { return cmdfoldertree.RunTreeSearchDispatch("tree-search", argsTail()) }},
+		{[]string{"tree-search-startsWith", "tree-search-startswith", "tree-search-starts-with", "tree-search-prefix", "tss"}, func() error { return cmdfoldertree.RunTreeSearchDispatch("tree-search-startsWith", argsTail()) }},
+		{[]string{"tree-search-contains", "tree-search-contain", "tree-search-substr", "tsc"}, func() error { return cmdfoldertree.RunTreeSearchDispatch("tree-search-contains", argsTail()) }},
+		{[]string{"tree-search-endsWith", "tree-search-endswith", "tree-search-ends-with", "tree-search-suffix", "tse"}, func() error { return cmdfoldertree.RunTreeSearchDispatch("tree-search-endsWith", argsTail()) }},
+		{[]string{"tree-search-grep", "tree-search-regex", "tsg"}, func() error { return cmdfoldertree.RunTreeSearchDispatch("tree-search-grep", argsTail()) }},
+		{[]string{"tree-learn", "treelearn", "tl"}, func() error { return cmdfoldertree.RunTreeLearn(argsTail()) }},
 		{[]string{
 			constants.CmdLowercase,
 			constants.CmdLowerCaseFix,

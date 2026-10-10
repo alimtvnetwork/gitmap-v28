@@ -128,6 +128,11 @@ func (it *MatchAllResult) IsFailed() bool {
 	return it == nil || !it.isMatched
 }
 
+// IsFail is an alias for IsFailed.
+func (it *MatchAllResult) IsFail() bool {
+	return it.IsFailed()
+}
+
 // IsFailure is an alias for IsFailed.
 func (it *MatchAllResult) IsFailure() bool {
 	return it.IsFailed()

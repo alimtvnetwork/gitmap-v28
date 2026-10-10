@@ -165,7 +165,11 @@ func handleEditSpecialAction(line string, state *interactiveSessionState, steps 
 
 func isExplicitHelperCmd(line string) bool {
 	low := strings.ToLower(line)
-	if strings.HasPrefix(low, ":") || strings.HasPrefix(low, "+add") || low == "help" || low == "?" || low == "pwd" || strings.HasPrefix(low, "cd ") || low == "cd" {
+	if strings.HasPrefix(low, ":") || strings.HasPrefix(low, "+add") || strings.HasPrefix(low, "add ") ||
+		low == "help" || low == "?" || low == "pwd" ||
+		strings.HasPrefix(low, "cd ") || low == "cd" ||
+		low == "ls" || low == "dir" ||
+		strings.HasPrefix(low, "ls ") || strings.HasPrefix(low, "dir ") {
 		return true
 	}
 
