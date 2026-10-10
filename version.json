@@ -8,7 +8,7 @@
     "prohibition": "Never hardcode version numbers in code, scripts, or documentation. Always read from or sync with version.json.",
     "singleVersionField": "The root 'Version' field is the ONLY version field in this file (a legacy lowercase duplicate was removed in 6.518.0). Human edits touch ONLY 'Version'; 37-bump-version.py is the sole writer for every other copy (constants.go, package.json, changelog)."
   },
-  "Version": "6.523.1",
+  "Version": "6.524.0",
   "Title": "GitMap",
   "RepoSlug": "gitmap-v28",
   "RepoUrl": "https://github.com/alimtvnetwork/gitmap-v28",
@@ -403,5 +403,5 @@
     "19-plan-spec-steps-v2.md",
     "20-audit-app-spec.md"
   ],
-  "releaseDate": "2026-10-09"
+  "releaseDate": "2026-10-10"
 }

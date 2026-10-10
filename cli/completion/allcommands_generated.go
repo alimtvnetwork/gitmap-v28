@@ -285,6 +285,8 @@ var generatedCommands = []string{
 	"multiclone",
 	"mutliclone",
 	"mv",
+	"nc",
+	"new-commands",
 	"next",
 	"nginx",
 	"ngx",
