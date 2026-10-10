@@ -178,10 +178,18 @@ func pushReleaseWithTags(repoPath, branch string, res RepoSyncResult, noPush boo
 		res.Action = "Released Locally"
 		return res
 	}
-	outBytes, pushErr := gitutil.ExecGitWithTimeout(60*time.Second, repoPath, "push", "origin", branch, "--tags")
+	_, pushErr := gitutil.ExecGitWithTimeout(60*time.Second, repoPath, "push", "origin", branch, res.PostTag)
 	if pushErr != nil {
-		errStr := string(outBytes) + " " + pushErr.Error()
-		return handlePushError(res, fmt.Errorf("%s", errStr))
+		branchBytes, bErr := gitutil.ExecGitWithTimeout(45*time.Second, repoPath, "push", "origin", branch)
+		if bErr != nil {
+			errStr := string(branchBytes) + " " + bErr.Error()
+			return handlePushError(res, fmt.Errorf("%s", errStr))
+		}
+		tagBytes, tErr := gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "push", "origin", res.PostTag)
+		if tErr != nil {
+			errStr := string(tagBytes) + " " + tErr.Error()
+			return handlePushError(res, fmt.Errorf("%s", errStr))
+		}
 	}
 	res.Action = "Released & Pushed"
 	return res

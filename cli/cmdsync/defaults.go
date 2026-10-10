@@ -55,6 +55,8 @@ var DefaultTargetRepos = []string{
 	"wp-html-automate",
 	"wp-link-manager",
 	"wp-onboarding",
+	"seo-writing/alim-seo-writing",
+	"seo-packages",
 }
 
 // ResolveSourceRoot detects the canonical coding-guidelines repository root.
@@ -186,9 +188,12 @@ func parseProjectsInput(input, workRoot string) ([]ProjectConfig, error) {
 }
 
 func readProjectsInputRaw(input string) (string, error) {
-	_, err := os.Stat(input)
+	fi, err := os.Stat(input)
 	if err != nil {
 		return input, nil
+	}
+	if fi.IsDir() {
+		return "", nil
 	}
 	bytes, readErr := os.ReadFile(input)
 	if readErr != nil {
@@ -258,6 +263,14 @@ func tryScanDirectoryForGitRepos(dirPath string) ([]ProjectConfig, bool) {
 	if err != nil || !info.IsDir() {
 		return nil, false
 	}
+	if _, statErr := os.Stat(filepath.Join(dirPath, ".git")); statErr == nil {
+		return []ProjectConfig{{
+			Name:   filepath.Base(dirPath),
+			Path:   dirPath,
+			Folder: filepath.Base(dirPath),
+			Mode:   "all",
+		}}, true
+	}
 	entries, _ := os.ReadDir(dirPath)
 	var res []ProjectConfig
 	for _, e := range entries {
@@ -266,7 +279,7 @@ func tryScanDirectoryForGitRepos(dirPath string) ([]ProjectConfig, bool) {
 			res = append(res, cfg)
 		}
 	}
-	return res, true
+	return res, len(res) > 0
 }
 
 func inspectChildGitRepo(parentDir string, e os.DirEntry) (ProjectConfig, bool) {
