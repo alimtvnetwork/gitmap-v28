@@ -54,6 +54,7 @@ Before authoring components or generating code, AI agents MUST read and master t
   - Read [`05-bright-gold-tech/readme.md`](./05-bright-gold-tech/readme.md), [`39-logo-construction.md`](./39-logo-construction.md), and [`40-theme-switch.md`](./40-theme-switch.md).
 - [ ] `/learn` **Phase 6f: Standalone Image & Banner Specifications**
   - Read [`37-image-specifications.md`](./37-image-specifications.md) — Canvas geometries, safe zones, text rules, and image palette.
+  - Read [`45-ai-visual-whitespace-discipline.md`](./45-ai-visual-whitespace-discipline.md) — Whitespace-first mandate for AI-generated images: 5-zone text budget, spacing minimums, separated segments, pre-delivery self-check.
 - [ ] `/learn` **Phase 7: AI-Adaptable Modern SaaS Design System**
   - Read [`02-ai-system-design/readme.md`](./02-ai-system-design/readme.md) — Variable-driven theme swapping (Pink to Green), sticky nav, search module, "Join Us" CSS3 text-slide animation, "Climate AI" highlight, and "Team Greenhouse" section.
 - [ ] `/learn` **Phase 8: Sweet Digs Design System & Interactive Theme Tester**

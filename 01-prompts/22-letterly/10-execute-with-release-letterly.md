@@ -13,7 +13,7 @@ Format whatever input text is provided according to the exact execution with min
    - Penultimate Item is ALWAYS: `Verify live CI/CD pipeline health via gitmap pe -t until green`
    - Final Item is ALWAYS: `Execute minor version bump release ceremony via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>", update changelog.md, commit atomically via gitmap cpf, tag release, and push to remote tracking branch`
 5. Append the mandatory release skill invocation suffix pointing to `[minor-bump](file;.agents/skills/minor-bump)`.
-6. Output ONLY the resulting formatted markdown block.
+6. Output ONLY the resulting formatted prompt as plain markdown text. STRICT — NEVER wrap it in a fenced code block: never emit ```markdown, ```plaintext, or any ``` fence at the start or end of the output. `#` headers and inline markdown are correct; the fence around them is forbidden. No conversational filler, no commentary before or after it.
 7. Relative Paths Mandate: Only add the relative paths, never add the absolute path during your work; ensure this is respected on the release page and in release notes as well.
 8. Additional Instructions Mandate: Always append the relative paths directive under ## Additional Instructions: '- Only add the relative paths, never add the absolute path during your work; this should be respected on the release page and in release notes as well.'
 

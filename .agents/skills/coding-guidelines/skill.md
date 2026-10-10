@@ -54,8 +54,6 @@ When auditing, applying fixes, or creating skills, navigate and respect these ca
 | **Shared Core Engine** | `03-ai-scripts/02-shared-engine.py` | Universal streaming engine with lazy regex registry and two-phase mtime caching |
 | **Local CI Runner** | `03-ai-scripts/06-cicd-local-runner.py` | Parallel local quality gate runner (18 checks) |
 | **Fast File Scanner** | `03-ai-scripts/11-fast-file-scanner.py` | Multi-language fast file scanner (<15ms) and cache builder |
-| **Pre-Commit FastGate** | `03-ai-scripts/50-fastgate.py` | Staged-only AST linter runner (<1.5s) scoping checks to git diff |
-| **Suggestion Engine** | `cli/suggestion/` | Central 4-tier suggestion object and Catppuccin box renderer |
 | **Path Fixer** | `03-ai-scripts/07-relative-path-fixer.py` | Relative path detector and sanitizer |
 | **Naming Guard** | `03-ai-scripts/08-naming-autofixer.py` | Boolean naming and implicit condition validator |
 | **Encoding Normalizer**| `03-ai-scripts/10-encoding-normalizer.py` | UTF-8 and strict UNIX LF line ending normalizer |
@@ -827,7 +825,6 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
 - **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
 - **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
-- **Git Identity & Project Switching:** `gitmap user info` (inspect GitHub CLI auth & active Git user), `gitmap user switch <alias> [--project]` (per-project profile switching)
 
 ### Tier 2: Fast Cached Python Toolchain (FALLBACK)
 - **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`

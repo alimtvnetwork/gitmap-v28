@@ -12,7 +12,7 @@ PHASE_2_BUDGET = N / 2   (Steps 151 .. 300: Mandatory Parallel Subagent Executio
 WAVES = ceil(subtasks / (A x H))
 
 GITMAP_REPO_URL = https://github.com/alimtvnetwork/gitmap-v28.git   # public GitMap repo to clone, build, learn, reuse
-MODE            = turbo        # turbo = act within task scope without asking; never permission-spam
+MODE            = turbo        # the contract below is written for turbo; other modes are not defined
 COMMIT_STYLE    = atomic-push  # one atomic commit per task, pushed immediately
 ```
 
@@ -129,38 +129,22 @@ means commits, pushes, and clones later never wait on the user.
    documented build command). If the build fails, read the repo's build docs and
    retry once with the documented fix before reporting.
 3. **Learn** the GitMap AI-agent SOP — the 5-phase lifecycle, in exact order:
-   - **Phase 1 Discovery:** `gitmap aum search` (TOTAL BAN on `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr`), `gitmap find`, `gitmap find-files`, `gitmap cat`, `gitmap list-files`
+   - **Phase 1 Discovery:** `gitmap find-files`, `find-files-any`, `search`, `list-files`
    - **Phase 2 Modification:** `gitmap replace`, `replace-regex`, targeted edits
-   - **Phase 3 Verification:** `gitmap run <file>` (auto-interpreter resolution for `.py`, `.ps1`, `.sh`, `.js`, `.ts`, `.go`), `gitmap run errors` / `gitmap run history` (audit & retry), `gitmap ai list` / `ai run` / `ai fix`, linting, autofix
-   - **Phase 4 Commit & Push:** semantic, atomic, hyphen format, pushed immediately:
-     - Feature: `gitmap cpf "<module> - <summary>"` (`commit-push-feature`)
-     - Bug Fix: `gitmap cpb "<module> - <summary>"` (`commit-push-bug`)
-     - Chore: `gitmap cpc "<module> - <summary>"` (`commit-push-chore`)
-     - Release: `gitmap cpr "<module> - <summary>"` (`commit-push-release`)
-   - **Phase 5 CI Telemetry:** `gitmap pe --ai` (mandatory `--ai` flag to suppress system clipboard pollution), `gitmap pe -t --ai` (2-minute poll with early error abort), `gitmap pe -ud --ai` (until-done continuous polling), `gitmap pipeline-ai status --json`
-4. **Learn** the everyday commands:
-   - Scan / Rescan: `scan`/`s`, `rescan`
-   - Clone / Pull: `clone`/`c`, `pull`/`p`, `pull-all`/`pa`
-   - Semantic Commits (Full Forms):
-     - `cpf`: `commit-push-feature`
-     - `cpb`: `commit-push-bug`
-     - `cpc`: `commit-push-chore`
-     - `cpr`: `commit-push-release`
-     - `pcp`: `pull-commit-push`
-     - `pas`: `pull-all-ssh`
-   - Universal File Runner: `gitmap run <file>`, `gitmap run errors`, `gitmap run history`
-   - Multi-Supabase Vault: `gitmap supabase add <alias> <url> <anon> <service> [db_url]`, `list`, `use`, `ping`, `env`
-   - Fleet Sync: `gitmap sync` (multi-repo synchronization across 43 repositories in <5s)
-   - Multi-Node Operations: `gitmap nodes deploy agm-accounts`, `gitmap nodes deploy repo <slug>`
-   - Auth & Macros: `gitmap login`/`logout`, macro record/replay
+   - **Phase 3 Verification:** `gitmap ai list` / `ai run` / `ai fix`, linting, autofix
+   - **Phase 4 Commit & Push:** `gitmap commit-push-feature` (`cpf`),
+     `gitmap commit-push-bug` (`cpb`) — semantic, atomic, pushed immediately
+   - **Phase 5 CI Telemetry:** `gitmap pipeline-ai status --json`, `gitmap error-logs`
+     — non-blocking self-healing loop
+4. **Learn** the everyday commands: `scan`/`s`, `clone`/`c`, `pull`/`p`,
+   `pull-all`/`pa`, `cpf`/`cpb`/`cpr`/`pcp` (commit+push flows), `gitmap login`/`logout`,
+   macro record/replay.
 5. **Reuse-first rule:** before writing ANY repo tooling or script, check whether a
    GitMap command already does it. Reuse beats reinvention.
 6. **Hard tool rules (never violate):**
-   - Code search: `gitmap aum search` ONLY. `git grep`, `grep`, `rg`, `ripgrep`, `findstr`, and `Select-String`
+   - Code search: `gitmap aum search` ONLY. `git grep`, `grep`, and `Select-String`
      are totally banned.
-   - Script execution: `gitmap run <file>` ONLY. Validates extension (`.py`, `.ps1`, `.sh`, `.js`, `.ts`, `.go`), discovers verified runtime, logs task lifecycle in SQLite task DB, records failures in SQLite errors DB.
-   - CI error telemetry: `gitmap pe --ai` ONLY. Never bare `gitmap pe` or `gh run view` in automated workflows to protect host clipboard.
-   - Secrets & Databases: `gitmap supabase` / `gitmap rs` with encrypted vault (AES-256-GCM / RSA). Plaintext credentials strictly banned.
+   - Python: `gitmap py` ONLY. Never bare `python`/`python3` for repo work.
    - Commits: consolidated atomic commits, **immediate push after every commit**.
      Never commit test artifacts, binaries, build outputs, or caches.
 
@@ -299,11 +283,25 @@ If anything is genuinely ambiguous AND the ambiguity changes the deliverable, lo
 
 ### Step 2.5 — SQLite Task DB Initialization & Ledger Preflight
 
-1. **SQLite Task DB:** Initialize or inspect task state via GitMap compiled task manager or Python runner:
-   `gitmap task init --name "<task name>" --budget 300` (or `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`)
+1. **SQLite Task DB:** Initialize or inspect task state via the Antigravity SQLite task manager:
+   `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`
    - If `RESUME_FOUND`: Forensically recover crashed agent state and resume uncompleted subtasks.
    - If `INITIALIZED`: Database initialized with WAL mode and tables (`ParentTask`, `Subtask`, `AgentActionLog`).
 2. **Human-Readable Ledger:** Create `.ai-memory/temp-agents/<slug>/ledger.md` tracking active tasks, owned files, and verification evidence.
+
+### Step 2.6 — Execution-state declaration ("Are you running or not?") and 5-minute status pings
+
+2.6.1 — The breakdown lists tasks WITHOUT starting work first: the listing completes before any work-doing tool call; the same-turn tool call only initializes tracking (SQLite task DB / ledger / preflight checks).
+
+2.6.2 — Execution-state declaration: immediately after the breakdown, in the same turn, print an explicit line answering "Are you running or not?" in the form:
+
+`RUNNING — Task-01, Task-02, Task-03 — ETA ~45 min`
+
+Include a time approximation for the whole task. Show the estimate math, e.g. research ~10 min + execution ~25 min + verification and push ~10 min = ~45 min.
+
+2.6.3 — Every 5 minutes during execution, ping a status update: current Task-NN, completed/total, elapsed vs ETA, and any blockers.
+
+2.6.4 — Listing without starting is NOT stopping: the turn that shows the breakdown MUST also start execution (mandatory same-turn chaining). Listing-but-never-starting is a named protocol violation: `LISTING-WITHOUT-STARTING`.
 
 ### Step 3 — Multi-agent execution (mandatory for multi-part work)
 
@@ -324,12 +322,9 @@ After the breakdown is shown, complete the work with **multiple concurrent agent
 1. **Targeted verification before claiming:** Targeted file checks on modified files; zero test suites or heavy builds during routine execution (R1); cite concrete exit codes or diffstats.
 2. **Pre-Commit Secrets Gate:** Run `python linter-scripts/check-forbidden-strings.py` and `gitmap aum search` regex for secrets. If found, offload immediately via `gitmap rs text "<value>" --slug <slug>`.
 3. **Atomic commit + immediate push (Hyphen Format Mandate):** One task, one commit, pushed now:
-   - Feature: `gitmap cpf "<module> - <summary>"` (`commit-push-feature`)
-   - Bug Fix: `gitmap cpb "<module> - <summary>"` (`commit-push-bug`)
-   - Chore: `gitmap cpc "<module> - <summary>"` (`commit-push-chore`)
-   - Release: `gitmap cpr "<module> - <summary>"` (`commit-push-release`)
-   - Total ban on colons inside the message argument (GitMap already provides `Feature: ` / `Bug: ` / `Chore: `). TOTAL BAN on raw git commits (`git commit -m`).
-   - CI/CD Telemetry: inspect results via `gitmap pe --ai` (mandatory `--ai` flag suppresses host clipboard mutation) or `gitmap pe -t --ai`.
+   - Feature: `gitmap cpf "<module> - <summary>"`
+   - Bug Fix: `gitmap cpb "<module> - <summary>"`
+   - Total ban on colons inside the message argument (GitMap already provides `Feature: ` / `Bug: `). TOTAL BAN on raw git commits (`git commit -m`).
 4. **Report briefly, then ask for the next task** (TURBO-05). Save durable learnings to memory first (GUARD-08).
 5. **On blockers:** say what is blocked, what would unblock it, and continue all independent work.
 
@@ -341,6 +336,7 @@ The canonical parameterization of this protocol lives in [`01-prompts/14-execute
 
 - [ ] Verbatim capture of the user message
 - [ ] Confirmed task breakdown shown FIRST (Section 4, Step 2)
+- [ ] RUNNING declaration with ETA printed after breakdown + 5-minute status pings during execution (Section 4, Step 2.6)
 - [ ] Multi-agent dispatch for multi-part work (Section 4, Step 3)
 - [ ] GitMap 5-phase SOP followed (discover → modify → verify → commit+push → telemetry)
 - [ ] Claims proven with concrete evidence
@@ -362,10 +358,8 @@ The canonical parameterization of this protocol lives in [`01-prompts/14-execute
   magic values; positive boolean prefixes.
 - **Paths:** relative paths only in committed content.
 - **Size & DRY:** small functions/files; extract shared logic; no duplication.
-- **Search:** `gitmap aum search` — never `grep`/`git grep`/`Select-String`/`rg`/`findstr`.
-- **Script execution:** `gitmap run <file>` (auto-interpreter resolution for `.py`, `.ps1`, `.sh`, `.js`, `.ts`, `.go`). Never raw ambient interpreters.
-- **CI Error Telemetry:** `gitmap pe --ai` mandatory for all AI operations.
-- **Commits:** `gitmap cpf`, `gitmap cpb`, `gitmap cpc`, `gitmap cpr` using hyphen format pushed immediately.
+- **Search:** `gitmap aum search` — never `grep`/`git grep`/`Select-String`.
+- **Python:** `gitmap py` only.
 - **Multi-language enums:** keep every language implementation in sync.
 - **Tests:** never run without the owner's explicit command (GUARD-03).
 - **Artifacts:** never commit test outputs, binaries, caches, or build products.
@@ -435,7 +429,7 @@ summarize this prompt back at length. One short ready message, then the question
 
 ---
 
-*Version 1.0.0 — lives in the coding-guideline repo under
+*Version 6.0.0 — lives in the coding-guideline repo under
 `01-prompts/27-muse-prompts/`. Its skill is `muse-master-prompt`
 (`.agents/skills/muse-master-prompt/skill.md`). Paste the raw file into a fresh
 Muse AI session to boot a fully-onboarded agent.*
