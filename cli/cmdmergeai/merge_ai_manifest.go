@@ -73,7 +73,7 @@ This repository has been prepared by ` + "`gitmap merge-ai`" + `. Multiple sourc
 	return os.WriteFile(filePath, []byte(content), 0644)
 }
 
-func formatSkippedSourceItem(s SkippedSource) string {
+func formatSkippedSourceItem(s SkippedSourceItem) string {
 	if s.IsFile {
 		return fmt.Sprintf("- **File URL**: `%s` (Repository `%s` is already included; file path: `%s`)\n", s.RawInput, s.Repo, s.FilePath)
 	}
