@@ -34,16 +34,7 @@ func RunMergeAI(args []string) error {
 		return nil
 	}
 
-	if len(skippedSources) > 0 {
-		pterm.Warning.Printf("[Intelligence] Detected %d redundant/file source(s) to automatically skip:\n", len(skippedSources))
-		for _, s := range skippedSources {
-			if s.IsFile {
-				pterm.Warning.Printf("  • Skipping file URL: %s\n    (Repo '%s' is already included; subpath: %s)\n", s.RawInput, s.Repo, s.FilePath)
-			} else {
-				pterm.Warning.Printf("  • Skipping duplicate repo: %s\n", s.Repo)
-			}
-		}
-	}
+	renderSkippedSources(skippedSources)
 
 	pterm.Info.Printf("[GitMap Merge-AI] Resolving destination target: %s\n", destTarget)
 	resolvedDest, errDest := cmdresolver.ResolveRepoFeature(destTarget)
@@ -160,4 +151,22 @@ func renderMergeAISummary(dest *cmdresolver.ResolvedRepoFeature, sources []Sourc
 	fmt.Println("\nNext Step:")
 	fmt.Printf("  An AI coding agent can now open '%s', read 'instruction.md',\n", dest.LocalPath)
 	fmt.Println("  and consolidate the sequenced collision files into a unified codebase.")
+}
+
+func renderSkippedSources(skippedSources []SkippedSourceItem) {
+	if len(skippedSources) == 0 {
+		return
+	}
+	pterm.Warning.Printf("[Intelligence] Detected %d redundant/file source(s) to automatically skip:\n", len(skippedSources))
+	for _, s := range skippedSources {
+		renderSingleSkippedSource(s)
+	}
+}
+
+func renderSingleSkippedSource(s SkippedSourceItem) {
+	if s.IsFile {
+		pterm.Warning.Printf("  • Skipping file URL: %s\n    (Repo '%s' is already included; subpath: %s)\n", s.RawInput, s.Repo, s.FilePath)
+		return
+	}
+	pterm.Warning.Printf("  • Skipping duplicate repo: %s\n", s.Repo)
 }
