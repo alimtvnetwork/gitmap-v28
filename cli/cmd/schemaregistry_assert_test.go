@@ -36,7 +36,6 @@ import (
 	"testing"
 )
 
-
 // assertSchemaKeysFirstObject loads schema `name` and asserts the
 // FIRST top-level object's keys match. Handles both shapes the
 // existing readFirstObjectKeys helper supports:

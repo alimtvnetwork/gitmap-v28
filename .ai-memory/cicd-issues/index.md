@@ -110,4 +110,5 @@
 - [119-file-size-gate-pipeline-db-ops-rca.md](./119-file-size-gate-pipeline-db-ops-rca.md): Fix file size gate 300-line cap on pipeline_db_ops.go by decomposing into pipeline_db_ops.go and pipeline_db_purge.go.
 - [120-unused-statusformat-and-statusprint-rca.md](./120-unused-statusformat-and-statusprint-rca.md): Remove unused legacy statusformat.go, statusmissing.go, and statusprint.go for lint-baseline-diff.
 - [121-unused-schemaregistry-assert-helpers-rca.md](./121-unused-schemaregistry-assert-helpers-rca.md): Remove unused assertSchemaKeysArray and assertSchemaKeysSlice from schemaregistry_assert_test.go for lint-baseline-diff.
+- [122-unformatted-gofmt-in-schemaregistry-assert-test-rca.md](./122-unformatted-gofmt-in-schemaregistry-assert-test-rca.md): Format schemaregistry_assert_test.go with gofmt to satisfy lint-script unit tests.
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.545.0] - 2026-10-11
+
+### Added
+- ci - format schemaregistry_assert_test.go with gofmt to pass lint-script tests
+
+---
+
 ## [v6.544.0] - 2026-10-11
 
 ### Added
