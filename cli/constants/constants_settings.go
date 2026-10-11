@@ -31,10 +31,11 @@ const (
 
 // Settings keys.
 const (
-	SettingActiveGroup      = "active_group"
-	SettingActiveMultiGroup = "active_multi_group"
-	SettingSourceRepoPath   = "source_repo_path"
-	SettingSchemaVersion    = "schema_version"
+	SettingActiveGroup          = "active_group"
+	SettingActiveMultiGroup     = "active_multi_group"
+	SettingSourceRepoPath       = "source_repo_path"
+	SettingSchemaVersion        = "schema_version"
+	SettingCustomRepoExclusions = "custom_repo_exclusions"
 )
 
 // SchemaVersionCurrent is the target schema version produced by the current

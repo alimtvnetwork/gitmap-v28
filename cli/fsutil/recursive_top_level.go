@@ -26,15 +26,22 @@ func DiscoverTopLevelGitRepos(rootDir string) ([]string, error) {
 			return nil
 		}
 
-		// Skip hidden tool directories (e.g. .git itself, .ai-memory, node_modules, .oh-my-zsh)
+		// Skip hidden tool directories, caches, IDE extensions, package manager caches
 		name := d.Name()
-		if path != rootDir && (name == ".ai-memory" || isDefaultScanExcluded(name)) {
+		if path != rootDir && (name == ".ai-memory" || isDefaultScanExcluded(name) || IsExcludedScanPath(path)) {
 			return filepath.SkipDir
 		}
 
 		// Check if this directory is a Git repository
 		gitPath := filepath.Join(path, ".git")
 		if _, errGit := os.Stat(gitPath); errGit != nil {
+			return nil
+		}
+
+		if !IsValidGitRepo(path) {
+			if path != rootDir {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 

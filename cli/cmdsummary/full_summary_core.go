@@ -113,12 +113,15 @@ func evaluateRepoActivity(rec model.ScanRecord, cutoff time.Time, opts FullSumma
 		return nil
 	}
 
-	remoteURL, _ := gitExec(dir, "remote", "get-url", "origin")
-	if remoteURL == "" {
+	remoteURL, errRemote := gitExec(dir, "remote", "get-url", "origin")
+	if errRemote != nil || remoteURL == "" || strings.HasPrefix(remoteURL, "error:") || strings.HasPrefix(remoteURL, "fatal:") {
 		remoteURL = rec.RepoName
 	}
 	branch, _ := gitExec(dir, "rev-parse", "--abbrev-ref", "HEAD")
 	headHash, _ := gitExec(dir, "rev-parse", "HEAD")
+	if strings.HasPrefix(headHash, "fatal:") || strings.HasPrefix(headHash, "error:") || headHash == "" {
+		return nil
+	}
 
 	releases, _ := extractRepoReleaseSummaries(dir, remoteURL, opts.ReleasesCount)
 

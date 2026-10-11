@@ -54,6 +54,8 @@ func GetRootCompletionCmd() *cobra.Command {
 	root.AddCommand(makeTopLevelCDCmd())
 	root.AddCommand(makeTopLevelAppsCmd())
 	root.AddCommand(makeTopLevelInstallCmd())
+	root.AddCommand(makeTopLevelExcludeCmd())
+	root.AddCommand(makeTopLevelCleanReposCmd())
 
 	populateRemainingCommands(root)
 
@@ -157,3 +159,34 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 		return "", fmt.Errorf("unsupported shell: %s", shell)
 	}
 }
+
+func makeTopLevelExcludeCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "exclude [add|rm|list|clean] [path-or-pattern]",
+		Aliases: []string{"repo-exclude", "repo-exclusions", "exclusions"},
+		Short:   "Manage custom repository and directory scan exclusions",
+		Run:     func(cmd *cobra.Command, args []string) {},
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return []string{
+					"list\tList all configured repository and directory exclusions",
+					"add\tAdd a path or pattern to scan exclusions",
+					"rm\tRemove a path or pattern from scan exclusions",
+					"clean\tPurge all excluded or corrupt repositories from gitmap.db",
+				}, cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveDefault
+		},
+	}
+	return cmd
+}
+
+func makeTopLevelCleanReposCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:     "clean-repos",
+		Aliases: []string{"cleanrepos", "repo-clean", "repoclean"},
+		Short:   "Purge all excluded, cache, and corrupt repositories from gitmap.db",
+		Run:     func(cmd *cobra.Command, args []string) {},
+	}
+}
+

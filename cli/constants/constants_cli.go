@@ -305,6 +305,10 @@ const (
 	CmdRepoCache             = "repo-cache"
 	CmdRepoCacheAlias        = "rc"
 	CmdRepoStorageAlias      = "repo-storage"
+	CmdExclude               = "exclude"
+	CmdExcludeAlias          = "repo-exclude"
+	CmdCleanRepos            = "clean-repos"
+	CmdCleanReposAlias       = "repoclean"
 	CmdHelpDashboard         = "help-dashboard"
 	CmdHelpDashboardAlias    = "hd"
 	CmdPending               = "pending"    // gitmap:cmd skip

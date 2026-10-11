@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddesktopsync"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddoctor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdenv"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexclude"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdgomod"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdimport"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
@@ -192,6 +193,8 @@ func toolingSpecialRepoEntries() []dispatchEntry {
 		{[]string{constants.CmdFullSummary, constants.CmdFullStatus, constants.CmdFs}, func() error { return cmdsummary.RunFullSummary(argsTail()) }},
 		{[]string{constants.CmdFullSummaryPE, constants.CmdFullStatusPE, constants.CmdFsPE, constants.CmdFspe}, func() error { return cmdsummary.RunFullSummary(append([]string{"+pe"}, argsTail()...)) }},
 		{[]string{constants.CmdMergeAI, constants.CmdMergeAIAlias, "mergeai", "merge_ai"}, func() error { return cmdmergeai.RunMergeAI(argsTail()) }},
+		{[]string{constants.CmdExclude, constants.CmdExcludeAlias, "repo-exclusions", "exclusions"}, func() error { return cmdexclude.RunExclude(argsTail()) }},
+		{[]string{constants.CmdCleanRepos, constants.CmdCleanReposAlias, "cleanrepos", "repo-clean"}, func() error { return cmdexclude.RunCleanRepos(argsTail()) }},
 	}
 }
 
