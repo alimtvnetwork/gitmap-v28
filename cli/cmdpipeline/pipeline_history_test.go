@@ -283,6 +283,19 @@ func TestFormatGroupWorkflowsSummary_FitsWithinLimit(t *testing.T) {
 	}
 }
 
+func TestFormatGroupWorkflowsSummary_PendingAndWaiting(t *testing.T) {
+	wfs := []CommitWorkflowItem{
+		{Name: "CI", Status: "pending"},
+		{Name: "Build", Status: "waiting"},
+		{Name: "Release", Status: "in_progress"},
+	}
+	got := formatGroupWorkflowsSummary(wfs, 50)
+	want := "CI [RUN], Build [RUN], Release [RUN]"
+	if got != want {
+		t.Fatalf("expected %q, got %q", want, got)
+	}
+}
+
 func TestFormatGroupWorkflowsSummary_TruncatesSafely(t *testing.T) {
 	wfs := []CommitWorkflowItem{
 		{Name: "VeryLongWorkflowNameAlpha", Conclusion: "success"},
@@ -440,6 +453,9 @@ func TestFormatStatusBadge_CanceledAndFailing(t *testing.T) {
 	testBadgeOutput(t, "stale", "completed", "FAIL")
 	testBadgeOutput(t, "success", "completed", "PASS")
 	testBadgeOutput(t, "", "in_progress", "RUNNING")
+	testBadgeOutput(t, "", "pending", "RUNNING")
+	testBadgeOutput(t, "", "waiting", "RUNNING")
+	testBadgeOutput(t, "", "requested", "RUNNING")
 }
 
 func testBadgeOutput(t *testing.T, conclusion, status, wantSubstring string) {

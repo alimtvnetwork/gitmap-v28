@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -31,28 +32,32 @@ func runGHCommandWithCustomTimeout(timeout time.Duration, args ...string) ([]byt
 }
 
 func attachGHTokenEnv(cmd *exec.Cmd) {
-	tok, _, err := secrets.Resolve()
-	if err != nil || len(tok) == 0 {
-		return
-	}
-
+	tok, _, _ := secrets.Resolve()
 	cmd.Env = buildSubprocessEnvWithToken(tok)
 }
 
 func buildSubprocessEnvWithToken(tok string) []string {
 	var env []string
 	for _, entry := range os.Environ() {
-		if isGHTokenEnvKey(entry) {
+		if (len(tok) > 0 && isGHTokenEnvKey(entry)) || isGHPagerEnvKey(entry) {
 			continue
 		}
 
 		env = append(env, entry)
 	}
 
-	env = append(env, "GH_TOKEN="+tok)
-	env = append(env, "GITHUB_TOKEN="+tok)
+	if len(tok) > 0 {
+		env = append(env, "GH_TOKEN="+tok)
+		env = append(env, "GITHUB_TOKEN="+tok)
+	}
+	env = append(env, "GH_PAGER=cat")
+	env = append(env, "PAGER=cat")
 
 	return env
+}
+
+func isGHPagerEnvKey(entry string) bool {
+	return strings.HasPrefix(entry, "GH_PAGER=") || strings.HasPrefix(entry, "PAGER=")
 }
 
 func isGHTokenEnvKey(entry string) bool {
@@ -291,7 +296,7 @@ func isFallbackLine(line string) bool {
 
 func fetchAndCacheRunLogs(repo string, runId uint64) string {
 	idStr := strconv.FormatUint(runId, 10)
-	out, err := runGHCommandWithCustomTimeout(60*time.Second, "run", "view", idStr, "--repo", repo, "--log-failed")
+	out, err := runGHCommandWithCustomTimeout(15*time.Second, "run", "view", idStr, "--repo", repo, "--log-failed")
 	if err == nil && len(out) > 0 {
 		logStr := string(out)
 		_ = writeCachedPipelineLog(runId, logStr, repo)
@@ -338,7 +343,7 @@ func fetchFailedJobLogs(repo string, jobId uint64) (string, error) {
 		args = append(args, "--repo", repo)
 	}
 
-	out, err := runGHCommandWithCustomTimeout(30*time.Second, args...)
+	out, err := runGHCommandWithCustomTimeout(15*time.Second, args...)
 	if err != nil {
 		return "", err
 	}
@@ -348,7 +353,6 @@ func fetchFailedJobLogs(repo string, jobId uint64) (string, error) {
 
 func fetchJobLevelFailedLogs(repo string, runId uint64, jobs []ghJobItem) (string, bool) {
 	var sb strings.Builder
-	hasRealLogs := false
 	diag := ""
 
 	for _, j := range jobs {
@@ -357,7 +361,6 @@ func fetchJobLevelFailedLogs(repo string, runId uint64, jobs []ghJobItem) (strin
 		}
 
 		if appendJobLogIfFetched(&sb, repo, j) {
-			hasRealLogs = true
 			continue
 		}
 
@@ -365,7 +368,7 @@ func fetchJobLevelFailedLogs(repo string, runId uint64, jobs []ghJobItem) (strin
 		appendJobFallbackLogs(&sb, j, diag)
 	}
 
-	if hasRealLogs {
+	if sb.Len() > 0 {
 		return sb.String(), true
 	}
 
@@ -373,7 +376,7 @@ func fetchJobLevelFailedLogs(repo string, runId uint64, jobs []ghJobItem) (strin
 }
 
 func appendJobLogIfFetched(sb *strings.Builder, repo string, j ghJobItem) bool {
-	if j.DatabaseId == 0 {
+	if !shouldFetchJobFailedLogs(j) {
 		return false
 	}
 
@@ -385,6 +388,27 @@ func appendJobLogIfFetched(sb *strings.Builder, repo string, j ghJobItem) bool {
 	sb.WriteString(normalizeJobLogOutput(j.Name, jobLog))
 
 	return true
+}
+
+func shouldFetchJobFailedLogs(j ghJobItem) bool {
+	if j.DatabaseId == 0 {
+		return false
+	}
+	if strings.HasPrefix(j.Conclusion, "cancel") && !hasJobAnyFailedStep(j.Steps) {
+		return false
+	}
+
+	return true
+}
+
+func hasJobAnyFailedStep(steps []ghStepItem) bool {
+	for _, s := range steps {
+		if s.Conclusion == "failure" || s.Conclusion == "timed_out" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func ensureRunDiagCached(repo string, runId uint64, diag string) string {
@@ -533,18 +557,35 @@ func resolveJobFailureReason(j ghJobItem, diag string) string {
 	return fmt.Sprintf("Job '%s' ended with conclusion '%s'", j.Name, j.Conclusion)
 }
 
+var (
+	runDiagCacheLock sync.RWMutex
+	runDiagCache     = make(map[uint64]string)
+)
+
 func queryRunDiagnostic(repo string, runId uint64) string {
 	if runId == 0 || len(repo) == 0 {
 		return ""
 	}
 
-	idStr := strconv.FormatUint(runId, 10)
-	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo)
-	if err != nil || len(out) == 0 {
-		return ""
+	runDiagCacheLock.RLock()
+	cached, isFound := runDiagCache[runId]
+	runDiagCacheLock.RUnlock()
+	if isFound {
+		return cached
 	}
 
-	return extractDiagnosticFromRunView(string(out))
+	idStr := strconv.FormatUint(runId, 10)
+	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo)
+	result := ""
+	if err == nil && len(out) > 0 {
+		result = extractDiagnosticFromRunView(string(out))
+	}
+
+	runDiagCacheLock.Lock()
+	runDiagCache[runId] = result
+	runDiagCacheLock.Unlock()
+
+	return result
 }
 
 func extractDiagnosticFromRunView(text string) string {

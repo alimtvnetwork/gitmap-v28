@@ -98,7 +98,7 @@ func evaluateOpenDbCache(db *pipelinedb.PipelineSplitDb, repo string, flags Pipe
 }
 
 func isPipelineCacheBypassed(flags PipelineErrorFlags) bool {
-	if flags.HasForce || flags.HasTimeline {
+	if flags.HasForce || flags.HasTimeline || flags.HasUntilDone {
 		return true
 	}
 

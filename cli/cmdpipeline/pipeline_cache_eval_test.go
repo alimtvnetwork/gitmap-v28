@@ -21,6 +21,11 @@ func TestIsPipelineCacheBypassed(t *testing.T) {
 		t.Errorf("expected bypass for HasTimeline")
 	}
 
+	flagsUntilDone := PipelineErrorFlags{HasUntilDone: true}
+	if !isPipelineCacheBypassed(flagsUntilDone) {
+		t.Errorf("expected bypass for HasUntilDone")
+	}
+
 	flagsNormal := PipelineErrorFlags{}
 	if isPipelineCacheBypassed(flagsNormal) {
 		t.Errorf("expected no bypass for normal flags")

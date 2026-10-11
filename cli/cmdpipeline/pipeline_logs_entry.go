@@ -60,12 +60,12 @@ func executePipelineErrorLogs(args []string) error {
 	}
 	repo := resolveFlagsRepoSlug(flags)
 
-	if isInstant, decision := tryInstantCommitHashRetrieval(repo, flags); isInstant {
-		return renderCachedErrorLogs(repo, decision, flags)
-	}
-
 	if flags.HasTimeline || flags.HasUntilDone {
 		return executeTimelineOrUntilDoneErrorLogs(repo, flags, args)
+	}
+
+	if isInstant, decision := tryInstantCommitHashRetrieval(repo, flags); isInstant {
+		return renderCachedErrorLogs(repo, decision, flags)
 	}
 
 	return processAndRenderErrorLogs(repo, flags)
@@ -187,7 +187,7 @@ func isFailingErrorLogs(logs string) bool {
 }
 
 func tryInstantCommitHashRetrieval(repo string, flags PipelineErrorFlags) (bool, PipelineCacheDecision) {
-	if flags.HasForce {
+	if isPipelineCacheBypassed(flags) {
 		return false, PipelineCacheDecision{}
 	}
 
@@ -215,8 +215,13 @@ func tryInstantCommitHashRetrieval(repo string, flags PipelineErrorFlags) (bool,
 }
 
 func resolveTargetOrHeadSha(repo string, flags PipelineErrorFlags) string {
-	if len(flags.CommitTarget) > 0 && !flags.HasIndex {
-		return flags.CommitTarget
+	if len(flags.CommitTarget) > 0 {
+		if !flags.HasIndex {
+			return flags.CommitTarget
+		}
+		if resolved := resolveTargetCommitCandidate(flags.CommitTarget); len(resolved) > 0 {
+			return resolved
+		}
 	}
 
 	return ResolveRepoHeadCommitSha(repo)

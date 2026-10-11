@@ -180,7 +180,7 @@ func isWorkflowFailure(wf CommitWorkflowItem) bool {
 }
 
 func isWorkflowActive(wf CommitWorkflowItem) bool {
-	return wf.Status == "in_progress" || wf.Status == "queued" || wf.Status == "waiting" || wf.Status == "pending"
+	return isWorkflowStatusActive(wf.Status)
 }
 
 func computeAggregateStatus(workflows []CommitWorkflowItem) string {

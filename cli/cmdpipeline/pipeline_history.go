@@ -53,11 +53,21 @@ func formatStatusBadge(conclusion, status string) string {
 	case "skipped":
 		return constants.ColorYellow + "SKIPPED" + constants.ColorReset
 	}
-	if status == "in_progress" || status == "queued" {
+	if isWorkflowStatusActive(status) {
 		return constants.ColorYellow + "RUNNING" + constants.ColorReset
 	}
+	if len(conclusion) > 0 {
+		return conclusion
+	}
+	if len(status) > 0 {
+		return strings.ToUpper(status)
+	}
 
-	return conclusion
+	return "-"
+}
+
+func isWorkflowStatusActive(status string) bool {
+	return status == "in_progress" || status == "queued" || status == "waiting" || status == "pending" || status == "requested"
 }
 
 func truncateHistoryStr(str string, maxLen int) string {
@@ -694,11 +704,17 @@ func formatWorkflowShortStatus(wf CommitWorkflowItem) string {
 	if wf.Conclusion == "success" {
 		return "PASS"
 	}
-	if wf.Status == "in_progress" || wf.Status == "queued" {
+	if isWorkflowStatusActive(wf.Status) {
 		return "RUN"
 	}
+	if len(wf.Conclusion) > 0 {
+		return strings.ToUpper(wf.Conclusion)
+	}
+	if len(wf.Status) > 0 {
+		return strings.ToUpper(wf.Status)
+	}
 
-	return wf.Conclusion
+	return "UNKNOWN"
 }
 
 func renderCachedErrorsList(errors []pipelinedb.PipelineErrorRecord) {
