@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.535.0] - 2026-10-11
+
+### Added
+- repo-management - repo cache json injection subtree solutions and native path acceleration
+
+---
+
 ## [v6.534.0] - 2026-10-11
 
 ### Added

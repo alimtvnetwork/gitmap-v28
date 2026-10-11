@@ -208,6 +208,11 @@ func ResolveStructuredRemediation(s *PullRepoState) StructuredRemediation {
 		reason = "pull execution failed"
 	}
 	l1, c1, l2, c2 := resolveStateDualHints(s)
+	opts := resolveStructuredOptionsList(s, l1, c1, l2, c2)
+	return StructuredRemediation{Reason: reason, Options: opts}
+}
+
+func resolveStructuredOptionsList(s *PullRepoState, l1, c1, l2, c2 string) []RemediationOption {
 	opts := buildRemediationOptions(l1, c1, l2, c2)
 	if len(opts) == 0 {
 		name := resolveEffectiveRepoName(s.RepoName, s.RepoPath)
@@ -216,10 +221,14 @@ func ResolveStructuredRemediation(s *PullRepoState) StructuredRemediation {
 			{OptionNumber: 2, Title: "Inspect Status", Command: "gitmap status " + name},
 		}
 	}
-	return StructuredRemediation{
-		Reason:  reason,
-		Options: opts,
+	hasDirty := s.IsDirty || s.Changes == "dirty"
+	if hasDirty {
+		opts = append(opts, RemediationOption{
+			OptionNumber: len(opts) + 1, Title: "Fleet Multi-Repo Control",
+			Command: `gitmap sends cp all "wip: save changes"`,
+		})
 	}
+	return opts
 }
 
 func resolveStateDualHints(s *PullRepoState) (string, string, string, string) {

@@ -38,6 +38,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
 | ❌ Python SQLite task manager / uncoordinated multi-agent file edits | ✅ `gitmap agent-ai create-task`, `gitmap agent-ai subtask create`, `gitmap agent subtask claim-files`, `gitmap agent-ai editing`, `gitmap agent-ai heatmap discuss` (fallback: `gitmap task`) | Two-Tier Split-DB architecture (`ai_agents.db` + `agent-task.db`), deterministic `machineId` propagation, sub-millisecond atomic file claiming, crash forensics, pre-touch in-flight logging with `ActionType` enum (`modify`, `analyze`, `read`, `remove`, `refactor`, `create`), and sub-5ms ANSI heatmaps. |
+| ❌ Python subprocess wrappers to query GitMap paths (`gitmap py -c "import subprocess; print(subprocess.check_output(['gitmap', 'cd', 'rc']))"`) | ✅ `gitmap rc --path`, `gitmap path rc`, or `gitmap rs --path` | Zero-subprocess native Go path resolution in <5ms. Eliminates multi-runtime memory overhead, shell wrapper warning noise, and stdout parsing bugs. |
 
 ---
 
@@ -102,7 +103,15 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap rc text "<content>" --slug <slug> --ext <.ps1|.py>` — Writes test harnesses into `repo-cache` for permanent cross-repo reuse.
 - `gitmap cd rs` / `gitmap cd rc` — Navigates directly to `repo-secrets` or `repo-cache`.
 
-### 5. High-Performance Automation (AUM), Tree & File Discovery
+### 5. Special Repositories & High-Speed Path Resolution
+- `gitmap rc` — Interactive navigation to repo-cache storage.
+- `gitmap rc --path` (or `gitmap rc path`) — Native high-speed path query; emits clean repo-cache directory path to stdout in <5ms.
+- `gitmap rs` — Interactive navigation to repo-secrets vault.
+- `gitmap rs --path` (or `gitmap rs path`) — Native high-speed path query; emits clean repo-secrets directory path to stdout in <5ms.
+- `gitmap path <target>` — Universal path resolver for `rc`, `rs`, or any repository by name/alias.
+- `gitmap path <target> --json` — Emits structured JSON record containing `name`, `path`, and positive boolean `isValid`.
+
+### 6. High-Performance Automation (AUM), Tree & File Discovery
 - `gitmap tree [path] [--file/-f <out>]` — Generates directory tree and exports directly to `.txt` (ASCII tree), `.json` (structured report), or `.yaml` with automatic format deduction. Handles wildcard patterns (e.g. `gitmap tree "*.go"`) without filesystem errors.
 - `gitmap tree-search -f <file> "<pattern*ends*>"` (alias `gitmap ts`) — High-speed wildcard pattern matching with `*` and `?` across exported tree files.
 - `gitmap tree-search-startsWith -f <file> "<prefix>"` (alias `gitmap tss`) — Prefix matching with folder hierarchy preservation.
@@ -129,7 +138,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap replace <old> <new>` — Exact literal string replacement with audit trail.
 - `gitmap replace-regex <pat> <subst>` — Regex replacement across repository.
 
-### 6. Autonomous CI/CD Self-Healing (Pipeline AI)
+### 7. Autonomous CI/CD Self-Healing (Pipeline AI)
 - `gitmap pipeline-ai status --json` — Check workflow execution state, active branch, and ETA.
 - `gitmap pipeline-ai status -t <eta>` — Wait dynamically for pipeline completion without tight polling.
 - `gitmap pipeline error-logs` (alias: `gitmap pe`) — Extract failing step logs to file for 4-part RCA.
@@ -144,7 +153,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
   - *Specification Reference:* `02-spec/21-app/269-summary-nodes-merge-ai-and-repo-feature/01-architecture-and-command-planning.md`
 - `gitmap pipeline purge` — Actions zero-storage purge maintaining 0.0 GB footprint.
 
-### 7. Semantic Hyphen-Separated Commit & Push
+### 8. Semantic Hyphen-Separated Commit & Push
 - `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: `).
 - `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: `).
 - `gitmap cpr "<module> - <summary>"` — Stage, commit, and push release chore.
@@ -156,7 +165,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
 - **TOTAL BAN ON COLONS IN COMMIT MESSAGES:** Never use colons inside commit arguments (e.g. `gitmap cpf "Feature: title"` is FORBIDDEN; use `gitmap cpf "module - title"`).
 
-### 8. Autonomous Agent Onboarding & Curriculum (LLM)
+### 9. Autonomous Agent Onboarding & Curriculum (LLM)
 - `gitmap llm train` (alias: `gitmap llm chain`) — Full 4-stage chained curriculum, auto-generates Antigravity skill, author/sponsor attribution.
 - `gitmap llm train --text-only` — Output curriculum to stdout without modifying files on disk.
 - `gitmap llm-docs` (alias: `gitmap ld`) — Consolidated markdown command matrix reference for LLMs.
@@ -167,7 +176,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap nc --category "<cat>"` (alias `-c`) — Filters commands by functional category (`commits`, `diagnostics`, `scanner`, `fleet`, `ai`, `os`, `spec`, `storage`, `sync`, `tooling`).
 - `gitmap nc --json` (alias `-j`) — Emits machine-readable JSON array of discovered commands.
 
-### 9. Multi-Repo, Cluster & Toolchain Operations
+### 10. Multi-Repo, Cluster & Toolchain Operations
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling).
 - `gitmap cluster --help` — Orchestrate multi-node clusters and health checks.
 - `gitmap sc --help` — Servers-clients topology and background task manager.
@@ -196,7 +205,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap install cargo` — Install Rust toolchain if missing.
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages.
 
-### 10. Native Fleet Synchronization
+### 11. Native Fleet Synchronization
 - `gitmap sync` — Synchronizes canonical prompts, skills, shared specs (`02-spec/01-20`), and additive scripts across all 43 registered fleet repositories.
 - `gitmap sync --projects <path|json>` — Accepts a path to JSON file or inline JSON array of repositories (e.g. `'[{"folder": "cat-my"}]'`).
 - `gitmap sync --repo <name>` — Synchronizes a single target repository by name.
@@ -206,7 +215,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap sync --no-release` — Disables post-sync SemVer release tagging.
 - `gitmap sync --list` — Lists all 43 registered fleet repositories and paths.
 
-### 11. AI Agent Coordination, Two-Tier Split-DB Telemetry & Heatmaps (`agent-ai` & `agent`)
+### 12. AI Agent Coordination, Two-Tier Split-DB Telemetry & Heatmaps (`agent-ai` & `agent`)
 - **Two-Tier Architecture:**
   - *Tier 1 Master DB (`.ai-memory/temp-agents/ai_agents.db` / `agents.db`):* Global parent task registry, workspace file claims, collision detection, and cross-task learning.
   - *Tier 2 Ephemeral DB (`.ai-memory/temp-agents/<slug>/agent-task.db`):* Subtasks, microsecond in-flight editing logs, and verification evidence.
@@ -224,7 +233,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap agent diagnose` — Performs deep autopsy of in-flight crashed agents and displays abandoned actions.
 - `gitmap task <init|add|claim|complete|fail|status|schema>` — Fast compiled Go SQLite task manager engine (<1ms) backing multi-agent workflows.
 
-### 12. Multi-Repo AI Merge Orchestration & "Repo Feature" Resolver
+### 13. Multi-Repo AI Merge Orchestration & "Repo Feature" Resolver
 
 #### A. Universal "Repo Feature" Destination Resolver
 Whenever `<dest-target>` is passed to GitMap commands (`gitmap merge-ai`, `gitmap ma`, `gitmap clone-as`, `gitmap init-remote`), the **Universal "Repo Feature" Resolver** autonomously classifies and prepares the target repository without requiring manual, multi-step interventions:

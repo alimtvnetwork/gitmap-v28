@@ -155,8 +155,8 @@ func TestBuildRepoRemediationOptions_Dirty(t *testing.T) {
 		IsDirty:      true,
 	}
 	options := buildRepoRemediationOptions(rec)
-	if len(options) != 2 {
-		t.Fatalf("expected 2 remediation options for dirty repo, got %d", len(options))
+	if len(options) != 3 {
+		t.Fatalf("expected 3 remediation options for dirty repo, got %d", len(options))
 	}
 	verifyRemediationOptionsContent(t, options)
 }
@@ -173,6 +173,12 @@ func verifyRemediationOptionsContent(t *testing.T, options []RemediationOption) 
 	}
 	if !strings.Contains(options[1].Command, "gitmap stash") {
 		t.Errorf("expected gitmap stash command in Option 2, got %s", options[1].Command)
+	}
+	if options[2].OptionNumber != 3 {
+		t.Errorf("expected OptionNumber 3, got %d", options[2].OptionNumber)
+	}
+	if !strings.Contains(options[2].Command, "gitmap sends cp all") {
+		t.Errorf("expected gitmap sends cp all command in Option 3, got %s", options[2].Command)
 	}
 }
 

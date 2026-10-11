@@ -29,7 +29,7 @@ type SpecialPutResult struct {
 }
 
 func resolveSpecialWorkBaseDir() string {
-	if workDir, hasDefault := resolveDefaultWorkDirPathStub(); hasDefault {
+	if workDir, hasDefault := resolveDefaultWorkDirPath(); hasDefault {
 		return workDir
 	}
 	if info, err := os.Stat(`D:\work`); err == nil && info.IsDir() {
@@ -505,8 +505,17 @@ func evaluateSingleSpecialRepoOnPull(db *store.SpecialReposSplitDB, rec store.Sp
 	return handleMissingSpecialRepoOnScan(db, rec, targetDir, isAutoAccept)
 }
 
-// Stub functions for missing implementations (pre-existing issues).
-func resolveDefaultWorkDirPathStub() (string, bool) {
+func resolveDefaultWorkDirPath() (string, bool) {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return "", false
+	}
+	defer db.Close()
+	wd, err := db.GetDefaultWorkDir()
+	hasWorkDir := err == nil && wd != nil && len(wd.AbsolutePath) > 0
+	if hasWorkDir {
+		return wd.AbsolutePath, true
+	}
 	return "", false
 }
 

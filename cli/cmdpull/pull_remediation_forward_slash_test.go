@@ -28,16 +28,20 @@ func TestResolveDirtyTreeDualHints_PullBeforeChanges(t *testing.T) {
 	if l1 != "Commit WIP" || l2 != "Stash Changes" {
 		t.Fatalf("unexpected labels: %s, %s", l1, l2)
 	}
-	if !strings.Contains(c1, "pull --rebase") {
-		t.Fatalf("commitCmd should pull before finishing: %s", c1)
+	if !strings.Contains(c1, "gitmap sends cp") {
+		t.Fatalf("commitCmd should use gitmap sends cp: %s", c1)
 	}
-	if !strings.Contains(c2, "pull") {
-		t.Fatalf("stashCmd should pull before stash pop: %s", c2)
+	if !strings.Contains(c2, "gitmap stash") {
+		t.Fatalf("stashCmd should use gitmap stash: %s", c2)
 	}
 	if strings.Contains(c1, `\`) || strings.Contains(c2, `\`) {
 		t.Fatalf("commands contain backslashes: c1=%s, c2=%s", c1, c2)
 	}
-	expectedStash := `git -C "D:/repos/myproject" stash -u && git -C "D:/repos/myproject" pull && git -C "D:/repos/myproject" stash pop`
+	expectedCommit := `gitmap sends cp myproject "wip: save changes"`
+	if c1 != expectedCommit {
+		t.Fatalf("expected commitCmd %q, got %q", expectedCommit, c1)
+	}
+	expectedStash := `gitmap stash myproject`
 	if c2 != expectedStash {
 		t.Fatalf("expected stashCmd %q, got %q", expectedStash, c2)
 	}

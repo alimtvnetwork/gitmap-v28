@@ -126,15 +126,11 @@ func isActionableRepoState(s *PullRepoState) bool {
 	return s.IsDirty || s.ErrorMsg != "" || s.Changes == "failed" || s.Step == PullStepTypeError || s.Step == PullStepTypeConflict
 }
 
-func isPassiveRepoState(s *PullRepoState) bool {
-	return !isActionableRepoState(s)
-}
-
 func mergeRepoStateIfPrioritized(unique []*PullRepoState, existingIdx int, incoming *PullRepoState) {
 	existing := unique[existingIdx]
-	isIncomingActionable := isActionableRepoState(incoming)
-	isExistingPassive := isPassiveRepoState(existing)
-	if isIncomingActionable && isExistingPassive {
+	hasIncomingAction := isActionableRepoState(incoming)
+	hasExistingAction := isActionableRepoState(existing)
+	if hasIncomingAction && !hasExistingAction {
 		unique[existingIdx] = incoming
 	}
 }
@@ -270,19 +266,26 @@ func renderStructuredSolutionsSubtree(w io.Writer, s *PullRepoState) {
 			{OptionNumber: 2, Title: "Inspect Status", Command: "gitmap status " + repoTarget},
 		}
 	}
-
 	fmt.Fprintf(w, "    %sSolutions:\n", treeBranch)
 	for i, opt := range opts {
-		connector := treeBranch
-		if i == len(opts)-1 {
-			connector = treeTerminal
-		}
-		optNum := opt.OptionNumber
-		if optNum <= 0 {
-			optNum = i + 1
-		}
-		fmt.Fprintf(w, "    %s%sOption %d (%s): %s%s%s\n",
-			treeContinuation, connector, optNum, opt.Title,
-			constants.ColorYellow, opt.Command, constants.ColorReset)
+		renderSolutionOptionBranch(w, opt, i, len(opts))
 	}
+}
+
+func renderSolutionOptionBranch(w io.Writer, opt RemediationOption, idx, total int) {
+	isLast := idx == total-1
+	tier1Conn := treeBranch
+	tier2Prefix := treeContinuation
+	if isLast {
+		tier1Conn = treeTerminal
+		tier2Prefix = treeIndent
+	}
+	optNum := opt.OptionNumber
+	if optNum <= 0 {
+		optNum = idx + 1
+	}
+	fmt.Fprintf(w, "    %s%sOption %d (%s):\n", treeContinuation, tier1Conn, optNum, opt.Title)
+	fmt.Fprintf(w, "    %s%s%s%s%s%s\n",
+		treeContinuation, tier2Prefix, treeTerminal,
+		constants.ColorYellow, opt.Command, constants.ColorReset)
 }

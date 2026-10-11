@@ -123,19 +123,17 @@ func buildRepoRemediationOptions(rec RepoPendingCommitRecord) []RemediationOptio
 	return createRemediationOptionsPair(targetPath)
 }
 
-func createRemediationOptionsPair(targetPath string) []RemediationOption {
+func createRemediationOptionsList(targetPath string) []RemediationOption {
 	target := quoteRemediationTarget(targetPath)
-	opt1 := RemediationOption{
-		OptionNumber: 1,
-		Label:        "Commit & Push WIP",
-		Command:      fmt.Sprintf(`gitmap sends cp %s "wip: save changes"`, target),
+	return []RemediationOption{
+		{OptionNumber: 1, Label: "Commit & Push WIP", Command: fmt.Sprintf(`gitmap sends cp %s "wip: save changes"`, target)},
+		{OptionNumber: 2, Label: "Stash WIP", Command: fmt.Sprintf(`gitmap stash %s`, target)},
+		{OptionNumber: 3, Label: "All Repos (Commit & Push)", Command: `gitmap sends cp all "wip: save changes"`},
 	}
-	opt2 := RemediationOption{
-		OptionNumber: 2,
-		Label:        "Stash WIP",
-		Command:      fmt.Sprintf(`gitmap stash %s`, target),
-	}
-	return []RemediationOption{opt1, opt2}
+}
+
+func createRemediationOptionsPair(targetPath string) []RemediationOption {
+	return createRemediationOptionsList(targetPath)
 }
 
 func quoteRemediationTarget(s string) string {

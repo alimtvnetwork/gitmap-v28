@@ -21,8 +21,8 @@ const swRestore = 9
 func checkWindowMatch(hwnd uintptr, targetPID uint32, matched *uintptr) uintptr {
 	var pid uint32
 	procGetWindowThreadProcessId.Call(hwnd, uintptr(unsafe.Pointer(&pid)))
-	isSamePID := pid == targetPID
-	if isSamePID == false {
+	isTargetPID := pid == targetPID
+	if !isTargetPID {
 		return 1
 	}
 	vis, _, _ := procIsWindowVisible.Call(hwnd)
@@ -38,6 +38,10 @@ func checkWindowMatch(hwnd uintptr, targetPID uint32, matched *uintptr) uintptr 
 func findHWNDForPID(targetPID uint32) uintptr {
 	var matchedHWND uintptr
 	cb := syscall.NewCallback(func(hwnd uintptr, lparam uintptr) uintptr {
+		hasMatch := matchedHWND != 0
+		if hasMatch {
+			return 0
+		}
 		return checkWindowMatch(hwnd, targetPID, &matchedHWND)
 	})
 	procEnumWindows.Call(cb, 0)

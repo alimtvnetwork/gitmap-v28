@@ -17,24 +17,68 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// runCDLookup finds a repo by name and prints its path to stdout.
-func runCDLookup(name string, args []string) error {
-	if HasAlias() {
-		fmt.Print(GetAliasPath())
+func hasCDPathFlag(args []string) bool {
+	for _, a := range args {
+		clean := strings.ToLower(strings.TrimSpace(a))
+		if clean == "--path" || clean == "path" {
+			return true
+		}
+	}
+	return false
+}
 
+func filterCDPathArgs(args []string) []string {
+	var filtered []string
+	for _, a := range args {
+		clean := strings.ToLower(strings.TrimSpace(a))
+		if clean != "--path" && clean != "path" {
+			filtered = append(filtered, a)
+		}
+	}
+	return filtered
+}
+
+func handleCDPathOnly(name string, records []model.ScanRecord, pick bool) error {
+	path, err := resolveCDPath(name, records, pick, true)
+	if err != nil {
+		return err
+	}
+	fmt.Println(path)
+	return nil
+}
+
+func printAliasPathResult(isPathOnly bool) error {
+	aliasPath := GetAliasPath()
+	if isPathOnly {
+		fmt.Println(strings.TrimSpace(aliasPath))
 		return nil
 	}
+	fmt.Print(aliasPath)
+	return nil
+}
 
-	pick, yes, rest := parseCDPickFlag(args)
+// runCDLookup finds a repo by name and prints its path to stdout.
+func runCDLookup(name string, args []string) error {
+	isPathOnly := hasCDPathFlag(args)
+	if HasAlias() {
+		return printAliasPathResult(isPathOnly)
+	}
+	cleanArgs := filterCDPathArgs(args)
+	pick, yes, rest := parseCDPickFlag(cleanArgs)
 	records, err := lookupCDRecords(name)
 	if err != nil {
 		return err
 	}
+	return routeCDLookupTarget(name, records, rest, pick, yes, isPathOnly)
+}
 
+func routeCDLookupTarget(name string, records []model.ScanRecord, rest []string, pick, yes, isPathOnly bool) error {
 	if len(records) == 0 {
 		return handleWorkDirOrNotFound(name, rest)
 	}
-
+	if isPathOnly {
+		return handleCDPathOnly(name, records, pick)
+	}
 	return dispatchCDPath(name, records, rest, pick, yes)
 }
 

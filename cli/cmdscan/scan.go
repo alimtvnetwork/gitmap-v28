@@ -127,6 +127,7 @@ func executeScan(
 			DefaultBranch: defaultBranch,
 		})
 		records = enrichRecordsWithAliases(records)
+		records = injectCompanionRecords(records)
 	})
 	outputDir := resolveOutputDir(cfg.OutputDir, absDir)
 	bench.Phase("scan.writeOutputs", func() {

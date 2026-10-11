@@ -16,26 +16,23 @@ func newPlatformAutoLoginEngine() AutoLoginOperator {
 	return &windowsAutoLoginEngine{}
 }
 
-func (w *windowsAutoLoginEngine) Configure(cfg AutoLoginConfig) error {
-	k, err := registry.OpenKey(registry.LOCAL_MACHINE, winlogonRegPath, registry.SET_VALUE)
-	if err != nil {
-		return apperror.WrapSimple(err, "failed to open Winlogon registry key (run as Administrator)")
-	}
-	defer k.Close()
-
+func writeWinlogonValues(k registry.Key, cfg AutoLoginConfig) error {
 	if err := k.SetStringValue("AutoAdminLogon", "1"); err != nil {
 		return apperror.WrapSimple(err, "failed to set AutoAdminLogon")
 	}
 	if err := k.SetStringValue("DefaultUserName", cfg.Username); err != nil {
 		return apperror.WrapSimple(err, "failed to set DefaultUserName")
 	}
-	if err := k.SetStringValue("DefaultDomainName", cfg.Domain); err != nil {
-		return apperror.WrapSimple(err, "failed to set DefaultDomainName")
+	return k.SetStringValue("DefaultDomainName", cfg.Domain)
+}
+
+func (w *windowsAutoLoginEngine) Configure(cfg AutoLoginConfig) error {
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, winlogonRegPath, registry.SET_VALUE)
+	if err != nil {
+		return apperror.WrapSimple(err, "failed to open Winlogon registry key (run as Administrator)")
 	}
-	if err := k.SetStringValue("DefaultPassword", cfg.Password); err != nil {
-		return apperror.WrapSimple(err, "failed to set DefaultPassword")
-	}
-	return nil
+	defer k.Close()
+	return writeWinlogonValues(k, cfg)
 }
 
 func (w *windowsAutoLoginEngine) Disable() error {
@@ -52,6 +49,14 @@ func (w *windowsAutoLoginEngine) Disable() error {
 	return nil
 }
 
+func readWinlogonIdentity(k registry.Key) (string, string, bool) {
+	autoVal, _, _ := k.GetStringValue("AutoAdminLogon")
+	userVal, _, _ := k.GetStringValue("DefaultUserName")
+	domainVal, _, _ := k.GetStringValue("DefaultDomainName")
+	hasAutoAdminLogon := autoVal == "1"
+	return userVal, domainVal, hasAutoAdminLogon
+}
+
 func (w *windowsAutoLoginEngine) Status() (AutoLoginStatus, error) {
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, winlogonRegPath, registry.QUERY_VALUE)
 	if err != nil {
@@ -59,16 +64,12 @@ func (w *windowsAutoLoginEngine) Status() (AutoLoginStatus, error) {
 	}
 	defer k.Close()
 
-	autoVal, _, _ := k.GetStringValue("AutoAdminLogon")
-	userVal, _, _ := k.GetStringValue("DefaultUserName")
-	domainVal, _, _ := k.GetStringValue("DefaultDomainName")
-	passVal, _, _ := k.GetStringValue("DefaultPassword")
-
+	userVal, domainVal, hasAutoAdminLogon := readWinlogonIdentity(k)
 	return AutoLoginStatus{
-		IsEnabled:      autoVal == "1",
+		IsEnabled:      hasAutoAdminLogon,
 		Username:       userVal,
 		Domain:         domainVal,
-		HasPassword:    len(passVal) > 0,
+		HasPassword:    false,
 		DisplayManager: "Winlogon",
 	}, nil
 }

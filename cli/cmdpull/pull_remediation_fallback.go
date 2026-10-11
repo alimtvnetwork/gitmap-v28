@@ -65,17 +65,10 @@ func resolveMissingRepoDualHints(repoDir, repoName string) (string, string, stri
 }
 
 func resolveNonGitFolderDualHints(repoDir, repoName string) (string, string, string, string) {
-	name := resolveEffectiveRepoName(repoName, repoDir)
-	cloneCmd := "gitmap clone " + name
-	target := name
-	if repoDir != "" && !filepath.IsAbs(repoDir) {
-		target = filepath.ToSlash(filepath.Clean(repoDir))
-	}
-	initCmd := fmt.Sprintf("cd %s && git init", target)
-	if strings.Contains(target, " ") {
-		initCmd = fmt.Sprintf("cd \"%s\" && git init", target)
-	}
-	return "Clone from Upstream", cloneCmd, "Initialize Repository", initCmd
+	target := quoteRemediationTarget(resolveEffectiveRepoName(repoName, repoDir))
+	cloneCmd := fmt.Sprintf("gitmap clone %s", target)
+	fixCmd := fmt.Sprintf("gitmap fix %s", target)
+	return "Clone from Upstream", cloneCmd, "Initialize Repository", fixCmd
 }
 
 func isDirtyTreeError(msg string) bool {
@@ -84,30 +77,24 @@ func isDirtyTreeError(msg string) bool {
 }
 
 func resolveConflictDualHints(repoDir, repoName string) (string, string, string, string) {
-	name := resolveEffectiveRepoName(repoName, repoDir)
-	stashCmd := fmt.Sprintf("gitmap fix %s stash", name)
-	discardCmd := fmt.Sprintf("gitmap fix %s discard", name)
-	if repoDir != "" && name == "repo" {
-		stashCmd = formatRepoGitCmd(repoDir, "stash")
-		discardCmd = formatRepoGitCmd(repoDir, "merge --abort")
-	}
-
+	target := quoteRemediationTarget(resolveEffectiveRepoName(repoName, repoDir))
+	stashCmd := fmt.Sprintf("gitmap fix %s stash", target)
+	discardCmd := fmt.Sprintf("gitmap fix %s discard", target)
 	return "Stash & Re-pull", stashCmd, "Discard & Abort", discardCmd
 }
 
 func resolveDivergedDualHints(repoDir, repoName string) (string, string, string, string) {
-	rebaseCmd := formatRepoGitCmd(repoDir, "pull --rebase")
-	if repoDir == "" && repoName != "" {
-		rebaseCmd = fmt.Sprintf("gitmap pull --rebase %s", repoName)
-	}
-	resetCmd := formatRepoGitCmd(repoDir, "reset --hard @{u}")
-	return "Preserve Local / Rebase", rebaseCmd, "Discard Local / Hard Reset", resetCmd
+	target := quoteRemediationTarget(resolveEffectiveRepoName(repoName, repoDir))
+	pullCmd := fmt.Sprintf("gitmap pull %s", target)
+	fixCmd := fmt.Sprintf("gitmap fix %s", target)
+	return "Preserve Local / Rebase", pullCmd, "Discard Local / Auto-Fix", fixCmd
 }
 
 func resolveUntrackedDualHints(repoDir string) (string, string, string, string) {
-	stageCmd := formatRepoGitCmd(repoDir, "add .")
-	cleanCmd := formatRepoGitCmd(repoDir, "clean -fd")
-	return "Track / Stage", stageCmd, "Clean untracked", cleanCmd
+	target := quoteRemediationTarget(resolveRemediationTarget(repoDir))
+	wipCmd := fmt.Sprintf("gitmap fix %s wip", target)
+	cleanCmd := fmt.Sprintf("gitmap fix %s clean", target)
+	return "Track / Stage", wipCmd, "Clean untracked", cleanCmd
 }
 
 func cleanRepoPathSlash(p string) string {
@@ -118,14 +105,28 @@ func cleanRepoPathSlash(p string) string {
 }
 
 func resolveDirtyTreeDualHints(repoDir string) (string, string, string, string) {
-	commitCmd := `gitmap cpar "wip: save changes"`
-	stashCmd := "gitmap stash"
-	if repoDir != "" {
-		cleanDir := cleanRepoPathSlash(repoDir)
-		commitCmd = fmt.Sprintf("git -C \"%s\" add -A && git -C \"%s\" commit -m \"wip: local changes\" && git -C \"%s\" pull --rebase", cleanDir, cleanDir, cleanDir)
-		stashCmd = fmt.Sprintf("git -C \"%s\" stash -u && git -C \"%s\" pull && git -C \"%s\" stash pop", cleanDir, cleanDir, cleanDir)
-	}
+	target := quoteRemediationTarget(resolveRemediationTarget(repoDir))
+	commitCmd := fmt.Sprintf(`gitmap sends cp %s "wip: save changes"`, target)
+	stashCmd := fmt.Sprintf("gitmap stash %s", target)
 	return "Commit WIP", commitCmd, "Stash Changes", stashCmd
+}
+
+func resolveRemediationTarget(repoDir string) string {
+	if repoDir == "" {
+		return "repo"
+	}
+	base := filepath.Base(cleanRepoPathSlash(repoDir))
+	if base == "" || base == "." || base == "/" || base == "\\" {
+		return "repo"
+	}
+	return base
+}
+
+func quoteRemediationTarget(s string) string {
+	if strings.Contains(s, " ") && !strings.HasPrefix(s, "\"") {
+		return fmt.Sprintf(`"%s"`, s)
+	}
+	return s
 }
 
 func resolveAuthDualHints() (string, string, string, string) {
@@ -133,15 +134,13 @@ func resolveAuthDualHints() (string, string, string, string) {
 }
 
 func resolveFallbackDualHints(repoDir, repoName string) (string, string, string, string) {
-	name := resolveEffectiveRepoName(repoName, repoDir)
-	statusCmd := fmt.Sprintf("gitmap status %s", name)
-	if name == "repo" && repoDir != "" {
-		statusCmd = formatRepoGitCmd(repoDir, "status")
-	}
-	fixCmd := fmt.Sprintf("gitmap fix %s", name)
+	target := quoteRemediationTarget(resolveEffectiveRepoName(repoName, repoDir))
+	statusCmd := fmt.Sprintf("gitmap status %s", target)
+	fixCmd := fmt.Sprintf("gitmap fix %s", target)
 	return "Auto-Fix", fixCmd, "Inspect Status", statusCmd
 }
 
+// Deprecated: formatRepoGitCmd is deprecated in favor of native GitMap commands.
 func formatRepoGitCmd(repoDir, gitArgs string) string {
 	if repoDir == "" {
 		return "git " + gitArgs

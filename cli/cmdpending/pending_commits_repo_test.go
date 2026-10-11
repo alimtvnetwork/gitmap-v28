@@ -70,19 +70,35 @@ func TestIsGitErrorOutput(t *testing.T) {
 }
 
 func TestFormatTreeLine_ExactWidth(t *testing.T) {
-	shortLine := "   ├── Option 1: gitmap sends cp repo \"wip: save changes\""
-	formattedShort := formatTreeLine(shortLine)
-	if len([]rune(formattedShort)) != 78 {
-		t.Errorf("expected rune length 78 for short line, got %d", len([]rune(formattedShort)))
+	lines := []string{
+		"   ├── Option 1: Commit & Push WIP",
+		"   │   └── gitmap sends cp repo \"wip: save changes\"",
+		"   ├── Option 2: Stash WIP",
+		"   │   └── gitmap stash repo",
+		"   └── Option 3: All Repos (Commit & Push)",
+		"       └── gitmap sends cp all \"wip: save changes\"",
 	}
+	for _, l := range lines {
+		verifyTreeLineLength(t, l)
+	}
+	verifyTreeLineTruncation(t)
+}
 
-	longLine := "   ├── Option 1: gitmap sends cp extremely-long-repository-name-that-definitely-exceeds-the-maximum-table-width-of-seventy-eight-characters \"wip: save changes\""
-	formattedLong := formatTreeLine(longLine)
-	if len([]rune(formattedLong)) != 78 {
-		t.Errorf("expected rune length 78 for long line, got %d", len([]rune(formattedLong)))
+func verifyTreeLineLength(t *testing.T, line string) {
+	formatted := formatTreeLine(line)
+	if len([]rune(formatted)) != 78 {
+		t.Errorf("expected rune length 78 for %q, got %d", line, len([]rune(formatted)))
 	}
-	if !strings.HasSuffix(formattedLong, "…") {
-		t.Errorf("expected long line to end with ellipsis, got %q", formattedLong)
+}
+
+func verifyTreeLineTruncation(t *testing.T) {
+	longLine := "   │   └── gitmap sends cp extremely-long-repository-name-that-definitely-exceeds-seventy-eight \"wip: save changes\""
+	formatted := formatTreeLine(longLine)
+	if len([]rune(formatted)) != 78 {
+		t.Errorf("expected rune length 78 for long line, got %d", len([]rune(formatted)))
+	}
+	if !strings.HasSuffix(formatted, "…") {
+		t.Errorf("expected long line to end with ellipsis, got %q", formatted)
 	}
 }
 

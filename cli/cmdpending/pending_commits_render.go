@@ -64,14 +64,34 @@ func resolveStatusLabel(rec RepoPendingCommitRecord, reset string) string {
 func renderTreeRemediationHints(rec RepoPendingCommitRecord, border, reset string) {
 	totalOpts := len(rec.RemediationOptions)
 	for idx, opt := range rec.RemediationOptions {
-		prefix := "├──"
-		if idx == totalOpts-1 {
-			prefix = "└──"
-		}
-		rawLine := fmt.Sprintf("   %s Option %d: %s", prefix, opt.OptionNumber, opt.Command)
-		formattedLine := formatTreeLine(rawLine)
-		fmt.Printf("  %s│%s%s%s│%s\n", border, reset, formattedLine, border, reset)
+		isLastOption := idx == totalOpts-1
+		renderSingleRemediationSubtree(opt, isLastOption, border, reset)
 	}
+}
+
+func renderSingleRemediationSubtree(opt RemediationOption, isLastOption bool, border, reset string) {
+	renderRemediationTitleBranch(opt, isLastOption, border, reset)
+	renderRemediationChildBranch(opt, isLastOption, border, reset)
+}
+
+func renderRemediationTitleBranch(opt RemediationOption, isLastOption bool, border, reset string) {
+	prefix := "├──"
+	if isLastOption {
+		prefix = "└──"
+	}
+	rawTitle := fmt.Sprintf("   %s Option %d: %s", prefix, opt.OptionNumber, opt.Label)
+	formattedTitle := formatTreeLine(rawTitle)
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, formattedTitle, border, reset)
+}
+
+func renderRemediationChildBranch(opt RemediationOption, isLastOption bool, border, reset string) {
+	childPrefix := "   │   └── "
+	if isLastOption {
+		childPrefix = "       └── "
+	}
+	rawChild := childPrefix + opt.Command
+	formattedChild := formatTreeLine(rawChild)
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, formattedChild, border, reset)
 }
 
 func formatTreeLine(raw string) string {
@@ -113,7 +133,7 @@ func renderCleanSummaryRow(cleanCount int, border, reset string) {
 
 func renderTableFooter(border, reset string) {
 	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-	footerMsg := ` Fleet Remediation: gitmap cpar "wip: save changes"`
+	footerMsg := ` Fleet Remediation: gitmap sends cp all "wip: save changes" (or gitmap cpar)`
 	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRight(footerMsg, 78), border, reset)
 	fmt.Printf("  %s└──────────────────────────────────────────────────────────────────────────────┘%s\n", border, reset)
 }

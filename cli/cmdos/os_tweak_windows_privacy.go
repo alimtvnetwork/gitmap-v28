@@ -3,8 +3,6 @@
 package cmdos
 
 import (
-	"os/exec"
-
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -14,65 +12,46 @@ const (
 	searchPoliciesKey = `Software\Microsoft\Windows\CurrentVersion\Search`
 )
 
-func disabledToZero(isDisabled bool) uint32 {
-	if isDisabled {
+func positivePolicyValue(isPrivacyEnhanced bool) uint32 {
+	if isPrivacyEnhanced {
 		return 0
 	}
 	return 1
 }
 
-func applyTelemetry(isDisabled bool) error {
-	defer toggleDiagTrackService(isDisabled)
-
+func applyTelemetry(isPrivacyEnhanced bool) error {
 	k, _, err := registry.CreateKey(registry.LOCAL_MACHINE, dataCollectionKey, registry.SET_VALUE)
 	if err != nil {
 		return nil
 	}
 	defer k.Close()
 
-	_ = k.SetDWordValue("AllowTelemetry", disabledToZero(isDisabled))
-
+	_ = k.SetDWordValue("AllowTelemetry", positivePolicyValue(isPrivacyEnhanced))
 	return nil
 }
 
-func toggleDiagTrackService(isDisabled bool) {
-	if isDisabled {
-		_ = exec.Command("sc.exe", "config", "DiagTrack", "start=", "disabled").Run()
-		_ = exec.Command("sc.exe", "stop", "DiagTrack").Run()
-		_ = exec.Command("setx.exe", "POWERSHELL_TELEMETRY_OPTOUT", "1", "/M").Run()
-
-		return
-	}
-
-	_ = exec.Command("sc.exe", "config", "DiagTrack", "start=", "auto").Run()
-	_ = exec.Command("sc.exe", "start", "DiagTrack").Run()
-	_ = exec.Command("setx.exe", "POWERSHELL_TELEMETRY_OPTOUT", "0", "/M").Run()
-}
-
-func applyActivityFeed(isDisabled bool) error {
+func applyActivityFeed(isPrivacyEnhanced bool) error {
 	k, _, err := registry.CreateKey(registry.LOCAL_MACHINE, systemPoliciesKey, registry.SET_VALUE)
 	if err != nil {
 		return err
 	}
 	defer k.Close()
 
-	val := disabledToZero(isDisabled)
+	val := positivePolicyValue(isPrivacyEnhanced)
 	_ = k.SetDWordValue("PublishUserActivities", val)
 	_ = k.SetDWordValue("UploadUserActivities", val)
-
 	return nil
 }
 
-func applyBingSearch(isDisabled bool) error {
+func applyBingSearch(isPrivacyEnhanced bool) error {
 	k, _, err := registry.CreateKey(registry.CURRENT_USER, searchPoliciesKey, registry.SET_VALUE)
 	if err != nil {
 		return err
 	}
 	defer k.Close()
 
-	val := disabledToZero(isDisabled)
+	val := positivePolicyValue(isPrivacyEnhanced)
 	_ = k.SetDWordValue("BingSearchEnabled", val)
 	_ = k.SetDWordValue("CortanaConsent", val)
-
 	return nil
 }

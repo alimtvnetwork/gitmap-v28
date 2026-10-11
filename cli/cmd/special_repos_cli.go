@@ -28,7 +28,42 @@ type specialCLIOptions struct {
 	isAutoAccept bool
 }
 
+func isSpecialPathMode(args []string) bool {
+	for _, a := range args {
+		clean := strings.ToLower(strings.TrimSpace(a))
+		if clean == "--path" || clean == "-p" || clean == "path" {
+			return true
+		}
+	}
+	return false
+}
+
+func filterSpecialPathArgs(args []string) []string {
+	var filtered []string
+	for _, a := range args {
+		clean := strings.ToLower(strings.TrimSpace(a))
+		if clean != "--path" && clean != "-p" && clean != "path" {
+			filtered = append(filtered, a)
+		}
+	}
+	return filtered
+}
+
+func printSpecialRepoPathOnly(sub string, args []string) error {
+	targetPath, err := resolveSpecialRepoCDPath(sub)
+	if err != nil {
+		return err
+	}
+	cleanArgs := filterSpecialPathArgs(args)
+	targetPath = maybeAppendCDSubdir(targetPath, cleanArgs)
+	fmt.Println(targetPath)
+	return nil
+}
+
 func runCDSpecialRepo(sub string, args []string) error {
+	if isSpecialPathMode(args) {
+		return printSpecialRepoPathOnly(sub, args)
+	}
 	targetPath, err := resolveSpecialRepoCDPath(sub)
 	if err != nil {
 		return err
@@ -78,6 +113,9 @@ func rcCmd(args []string) error {
 
 func runSpecialRepoCLI(shortKey string, args []string) error {
 	_, normShort := store.NormalizeSpecialRepoKey(shortKey)
+	if isSpecialPathMode(args) {
+		return printSpecialRepoPathOnly(normShort, args)
+	}
 	if len(args) == 0 || isSpecialHelpArg(args[0]) {
 		fmt.Print(RenderSpecialRepoHelp(normShort))
 		return nil

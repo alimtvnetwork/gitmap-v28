@@ -268,8 +268,8 @@ func TestRenderFailedGroup_NonGitFolder(t *testing.T) {
 	if !strings.Contains(out, "Option 2 (Initialize Repository):") {
 		t.Fatalf("expected Option 2 Initialize Repository, got:\n%s", out)
 	}
-	if !strings.Contains(out, "git init") {
-		t.Fatalf("expected git init in Option 2, got:\n%s", out)
+	if !strings.Contains(out, "gitmap fix") {
+		t.Fatalf("expected gitmap fix in Option 2, got:\n%s", out)
 	}
 }
 
