@@ -275,33 +275,33 @@ def execute_version_bump(next_version, scope, dry_run=False):
 def build_release_notes_file(next_version, scope):
     """Builds release notes file with mandatory Quick Install one-liners."""
     v_string = f"v{next_version}"
-    try:
-        url = get_git_output("config", "--get", "remote.origin.url")
-        m = re.search(r'github\.com[:/]([^/]+/[^/.]+)', url)
-        raw_slug = m.group(1) if m else "alimtvnetwork/coding-guidelines-v24"
-        repo_slug = raw_slug[:-4] if raw_slug.endswith(".git") else raw_slug
-    except Exception:
-        repo_slug = "alimtvnetwork/coding-guidelines-v24"
-
     notes_dir = REPO_ROOT / ".ai-memory" / "release"
     notes_dir.mkdir(parents=True, exist_ok=True)
     notes_path = notes_dir / f"release-notes-{v_string}.md"
+    if notes_path.is_file():
+        print(f"[*] Reusing release notes at {notes_path.relative_to(REPO_ROOT)}")
+        return notes_path
 
-    lines = [
-        f"## Quick Install {v_string}\n",
-        "### Windows (PowerShell)\n",
-        "```powershell",
-        f'Invoke-WebRequest -Uri https://raw.githubusercontent.com/{repo_slug}/{v_string}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".ai-memory/prompts" -Version "{v_string}"',
-        "```\n",
-        "### Unix / Linux / macOS (Bash)\n",
-        "```bash",
-        f'curl -sL https://raw.githubusercontent.com/{repo_slug}/{v_string}/install.sh | bash -s -- ".ai-memory/prompts" "{v_string}"',
-        "```\n",
-        "---\n",
-        f"## What's Changed in {v_string}\n",
-        f"### Added\n- {scope}\n",
-    ]
-    notes_path.write_text("\n".join(lines), encoding="utf-8")
+    repo_slug = "alimtvnetwork/gitmap-v28"
+    content = f"""# GitMap {v_string}
+
+## What's Changed in {v_string}
+
+- **{scope}**
+
+### Quick Install One-Liners
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/{repo_slug}/{v_string}/install.ps1 | iex
+```
+
+**Linux / macOS (Bash):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/{repo_slug}/{v_string}/install.sh | sh
+```
+"""
+    notes_path.write_text(content, encoding="utf-8")
     print(f"[*] Generated release notes at {notes_path.relative_to(REPO_ROOT)}")
     return notes_path
 
