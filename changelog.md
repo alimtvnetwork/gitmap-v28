@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.538.0] - 2026-10-11
+
+### Added
+- ci - fix redundant newline in fmt.Print within rootutility_update_args.go
+
+---
+
 ## [v6.537.0] - 2026-10-11
 
 ### Added

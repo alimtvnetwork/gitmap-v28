@@ -20,7 +20,7 @@ const updateUsageHelpText = `Available update commands:
 `
 
 func printUpdateUsageHelp() {
-	fmt.Println(updateUsageHelpText)
+	fmt.Print(updateUsageHelpText)
 }
 
 func handleUnknownUpdateTarget(token string) {
