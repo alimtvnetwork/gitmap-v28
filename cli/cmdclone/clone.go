@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -710,6 +711,7 @@ func finalizeCloneExecution(summary model.CloneSummary, cf CloneFlags, taskDB *s
 	fmt.Printf(constants.MsgCloneComplete, summary.Succeeded, summary.Failed)
 	printCloneFailures(summary)
 	registerCloned(summary, cf.TargetDir, cf.GHDesktop)
+	syncClonedReposToRepoCache(summary, cf.TargetDir)
 	syncManifestClonedReposToVSCodePM(summary, cf.TargetDir, cf.NoVSCodeSync)
 	completePendingTask(taskDB, taskID)
 	closeTaskDB(taskDB)
@@ -718,6 +720,21 @@ func finalizeCloneExecution(summary model.CloneSummary, cf CloneFlags, taskDB *s
 	if err := os.Chdir(cf.TargetDir); err == nil {
 		RunStatus([]string{})
 	}
+}
+
+func syncClonedReposToRepoCache(summary model.CloneSummary, targetDir string) {
+	if summary.Succeeded == 0 {
+		return
+	}
+	records := make([]model.ScanRecord, 0, summary.Succeeded)
+	for _, r := range summary.Cloned {
+		rec := r.Record
+		if len(rec.AbsolutePath) == 0 {
+			rec.AbsolutePath = filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
+		}
+		records = append(records, rec)
+	}
+	cmdscan.TryIncludeRepoInRepoCacheJSON(records)
 }
 
 func runCloneExecution(cf CloneFlags) (model.CloneSummary, error) {

@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdresolver"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/pterm/pterm"
 )
 
@@ -88,8 +90,28 @@ func RunMergeAI(args []string) error {
 
 	_, _ = gitExec(resolvedDest.LocalPath, "add", "-A")
 
+	syncMergeAIRepoCache(resolvedDest)
+
 	renderMergeAISummary(resolvedDest, sources, collisions, uniqueCount, skippedSources)
 	return nil
+}
+
+func syncMergeAIRepoCache(dest *cmdresolver.ResolvedRepoFeature) {
+	name := filepath.Base(dest.LocalPath)
+	rec := model.ScanRecord{
+		RepoName:     name,
+		Slug:         strings.ToLower(name),
+		AbsolutePath: dest.LocalPath,
+		RelativePath: name,
+		Branch:       "main",
+		Notes:        "companion:merge-ai",
+	}
+	rem, _ := gitExec(dest.LocalPath, "config", "remote.origin.url")
+	if len(rem) > 0 {
+		rec.DiscoveredURL = rem
+		rec.HTTPSUrl = rem
+	}
+	cmdscan.TryIncludeRepoInRepoCacheJSON([]model.ScanRecord{rec})
 }
 
 func renderDryRunPreview(dest *cmdresolver.ResolvedRepoFeature, sources []ResolvedSourceItem, skipped []SkippedSourceItem) {

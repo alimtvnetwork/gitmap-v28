@@ -160,5 +160,17 @@ func resolveRecordCanonicalKey(rec exportRecord) string {
 			return norm
 		}
 	}
+
+	return resolveFallbackRecordKey(rec)
+}
+
+func resolveFallbackRecordKey(rec exportRecord) string {
+	if rec.RepoName != "" {
+		return "repo:" + strings.ToLower(rec.RepoName)
+	}
+	if rec.Slug != "" {
+		return "slug:" + strings.ToLower(rec.Slug)
+	}
+
 	return ""
 }

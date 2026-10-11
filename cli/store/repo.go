@@ -26,6 +26,9 @@ func NormalizeStoragePath(pathStr string) string {
 	return clean
 }
 
+// OnRepoAddedHook is an optional callback triggered when repositories are upserted into the catalog.
+var OnRepoAddedHook func(records []model.ScanRecord)
+
 // UpsertRepos inserts or updates all records by absolute_path.
 func (db *DB) UpsertRepos(records []model.ScanRecord) error {
 	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
@@ -38,6 +41,10 @@ func (db *DB) UpsertRepos(records []model.ScanRecord) error {
 	})
 	if appErr != nil {
 		return fmt.Errorf(constants.ErrDBUpsert, appErr)
+	}
+
+	if OnRepoAddedHook != nil && len(records) > 0 {
+		OnRepoAddedHook(records)
 	}
 
 	return nil
