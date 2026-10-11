@@ -5,6 +5,7 @@ import "time"
 
 // SourceRepoConfig models an incoming repository to be merged.
 type SourceRepoConfig struct {
+	Title          string    `json:"title,omitempty"`
 	RepoURL        string    `json:"repoUrl"`
 	Branch         string    `json:"branch,omitempty"`
 	CommitRange    string    `json:"commitRange,omitempty"`
@@ -46,6 +47,7 @@ type MergeAIManifest struct {
 			OriginURL    string `json:"originUrl,omitempty"`
 		} `json:"destination"`
 		RepoSequence              []SourceRepoSequenceEntry `json:"repoSequence"`
+		SkippedSources            []SkippedSourceItem       `json:"skippedSources,omitempty"`
 		FileCollisions            []FileCollisionRecord     `json:"fileCollisions"`
 		UniqueFilesDirectlyPlaced int                       `json:"uniqueFilesDirectlyPlaced"`
 	} `json:"data"`
@@ -54,6 +56,7 @@ type MergeAIManifest struct {
 // SourceRepoSequenceEntry models one entry in data.repoSequence of the manifest.
 type SourceRepoSequenceEntry struct {
 	SequenceOrder  int    `json:"sequenceOrder"`
+	Title          string `json:"title,omitempty"`
 	RepoURL        string `json:"repoUrl"`
 	Branch         string `json:"branch"`
 	CommitRange    string `json:"commitRange"`

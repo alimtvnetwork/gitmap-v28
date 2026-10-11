@@ -8,6 +8,8 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
+  Bot,
+  Monitor,
 } from "lucide-react";
 
 export enum StatusType {
@@ -74,6 +76,13 @@ const sections: HelpSection[] = [
     icon: GitMerge,
     entries: [
       {
+        to: "/merge-ai",
+        cmd: "merge-ai",
+        alias: "ma",
+        desc: "AI-assisted multi-source repository amalgamation with collision sequencing (01_/02_) and consolidation checklist.",
+        status: StatusType.Shipped,
+      },
+      {
         to: "/merge-both",
         cmd: "merge-both",
         alias: "mb",
@@ -92,6 +101,59 @@ const sections: HelpSection[] = [
         cmd: "merge-right",
         alias: "mr",
         desc: "Push LEFT's changes onto RIGHT only.",
+        status: StatusType.Shipped,
+      },
+    ],
+  },
+  {
+    id: "ai-orchestration",
+    title: "AI Orchestration & Telemetry",
+    blurb:
+      "Autonomous multi-agent task coordination, Two-Tier Split-DB synchronization, worker claiming, and live file contention heatmaps.",
+    icon: Bot,
+    entries: [
+      {
+        to: "/merge-ai",
+        cmd: "merge-ai",
+        alias: "ma",
+        desc: "Amalgamate multiple Git repositories with 01_/02_ collision isolation and AI handoff instructions.",
+        status: StatusType.Shipped,
+      },
+      {
+        to: "/commands#agent-ai",
+        cmd: "agent",
+        alias: "agent-ai, aai, at",
+        desc: "Two-Tier Split-DB coordination, worker claiming, lease fencing, and pre-touch action logging.",
+        status: StatusType.Shipped,
+      },
+      {
+        to: "/commands#heatmap",
+        cmd: "heatmap",
+        alias: "hm",
+        desc: "Real-time contention ranking, agent concurrency tracking, and file touch visualizer.",
+        status: StatusType.Shipped,
+      },
+    ],
+  },
+  {
+    id: "machine-identity",
+    title: "Machine & Network Identity",
+    blurb:
+      "Local host and cluster fleet machine identity, hardware specs, network adapters, and deep OS version detection.",
+    icon: Monitor,
+    entries: [
+      {
+        to: "/commands#machine",
+        cmd: "machine",
+        alias: "mac, machines, hostname",
+        desc: "Inspect machine identity, CPU cores, architecture, and deep OS version breakdown with affirmative booleans.",
+        status: StatusType.Shipped,
+      },
+      {
+        to: "/alias",
+        cmd: "alias",
+        alias: "al",
+        desc: "Manage custom persistent machine aliases, endpoint mappings, and network identifiers.",
         status: StatusType.Shipped,
       },
     ],

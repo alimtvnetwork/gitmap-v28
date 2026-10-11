@@ -20,7 +20,7 @@ func WriteMergeAIManifest(destDir string, manifest MergeAIManifest) error {
 }
 
 // WriteMergeAIInstruction writes instruction.md into destination repository root.
-func WriteMergeAIInstruction(destDir string, collisions []FileCollisionRecord) error {
+func WriteMergeAIInstruction(destDir string, collisions []FileCollisionRecord, skipped ...SkippedSourceItem) error {
 	filePath := filepath.Join(destDir, "instruction.md")
 
 	content := `# AI Merge Consolidation Instruction & Verification Guide
@@ -28,14 +28,27 @@ func WriteMergeAIInstruction(destDir string, collisions []FileCollisionRecord) e
 This repository has been prepared by ` + "`gitmap merge-ai`" + `. Multiple source repositories have been assembled into this staging tree.
 
 ## Non-Negotiable Instructions for the Consolidating AI Agent:
-1. **Preserve All Business Logic:** Do NOT delete features, endpoints, or data models. Consolidate overlapping files (` + "`01_*`" + `, ` + "`02_*`" + `) into the single canonical file name (e.g. synthesize ` + "`01_main.go`" + ` and ` + "`02_main.go`" + ` into ` + "`main.go`" + `).
-2. **Flatten Sequence Prefixes:** Once consolidated, remove temporary ` + "`01_`" + ` and ` + "`02_`" + ` files so the repository strictly reflects canonical filenames.
+1. **Preserve All Business Logic:** Do NOT delete features, endpoints, or data models. Consolidate overlapping files (` + "`01_*`" + `, ` + "`02_*`" + `, ` + "`03_*`" + `) into the single canonical file name (e.g. synthesize ` + "`01_main.go`" + ` and ` + "`02_main.go`" + ` into ` + "`main.go`" + `).
+2. **Flatten Sequence Prefixes:** Once consolidated, remove temporary sequence prefixed files so the repository strictly reflects canonical filenames.
 3. **Reference the Manifest:** Open and read ` + "`merge-ai-manifest.json`" + ` to inspect the source repositories, commit histories, and collision map.
 4. **Zero Code Deletion:** When resolving duplicate utilities, favor additive composition, interface unions, and modern patterns.
 
-## Detected File Collisions:
 `
 
+	if len(skipped) > 0 {
+		content += "## Skipped Sources (Pre-Filter Intelligence):\n"
+		content += "The following source URLs were automatically skipped during pre-filtering:\n"
+		for _, s := range skipped {
+			if s.IsFile {
+				content += fmt.Sprintf("- **File URL**: `%s` (Repository `%s` is already included; file path: `%s`)\n", s.RawInput, s.Repo, s.FilePath)
+			} else {
+				content += fmt.Sprintf("- **Duplicate Repository**: `%s` (%s)\n", s.RawInput, s.Reason)
+			}
+		}
+		content += "\n"
+	}
+
+	content += "## Detected File Collisions:\n"
 	if len(collisions) == 0 {
 		content += "No conflicting file collisions detected. All files were placed directly.\n\n"
 	} else {
@@ -51,14 +64,14 @@ This repository has been prepared by ` + "`gitmap merge-ai`" + `. Multiple sourc
 	content += `## Step-by-Step AI Action Checklist:
 - [ ] Read ` + "`merge-ai-manifest.json`" + ` and inventory all entries in ` + "`fileCollisions`" + `.
 - [ ] For each collision:
-  - [ ] Analyze differences between ` + "`01_<file>`" + ` and ` + "`02_<file>`" + `.
+  - [ ] Analyze differences between sequenced variants (` + "`01_<file>`" + `, ` + "`02_<file>`" + `, etc.).
   - [ ] Synthesize unified implementation into ` + "`<file>`" + `.
-  - [ ] Delete ` + "`01_<file>`" + ` and ` + "`02_<file>`" + ` after verified synthesis.
+  - [ ] Delete temporary sequenced files after verified synthesis.
 - [ ] Ensure non-colliding files maintain correct imports and package names.
-- [ ] Verify that no ` + "`01_`" + ` or ` + "`02_`" + ` prefixed files remain in the repository tree.
+- [ ] Verify that no sequenced files remain in the repository tree.
 - [ ] Update ` + "`merge-ai-manifest.json`" + ` setting ` + "`fileCollisions[].status = \"consolidated\"`" + `.
 - [ ] Stage and commit the consolidated repository:
-      ` + "`gitmap cpf \"feat: consolidate multi-repo merge into unified codebase\"`" + `
+      ` + "`gitmap cpf \"merge-ai - consolidate multi-repo merge into unified codebase\"`" + `
 `
 
 	return os.WriteFile(filePath, []byte(content), 0644)

@@ -191,7 +191,7 @@ func toolingSpecialRepoEntries() []dispatchEntry {
 		{[]string{constants.CmdSummary}, func() error { return cmdsummary.RunSummary(argsTail()) }},
 		{[]string{constants.CmdFullSummary, constants.CmdFullStatus, constants.CmdFs}, func() error { return cmdsummary.RunFullSummary(argsTail()) }},
 		{[]string{constants.CmdFullSummaryPE, constants.CmdFullStatusPE, constants.CmdFsPE, constants.CmdFspe}, func() error { return cmdsummary.RunFullSummary(append([]string{"+pe"}, argsTail()...)) }},
-		{[]string{constants.CmdMergeAI, constants.CmdMergeAIAlias}, func() error { return cmdmergeai.RunMergeAI(argsTail()) }},
+		{[]string{constants.CmdMergeAI, constants.CmdMergeAIAlias, "mergeai", "merge_ai"}, func() error { return cmdmergeai.RunMergeAI(argsTail()) }},
 	}
 }
 

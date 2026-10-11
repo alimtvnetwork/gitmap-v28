@@ -21,21 +21,22 @@ import (
 
 // MachineIdentity represents the resolved identity of a local or remote SSH fleet machine.
 type MachineIdentity struct {
-	Sequence      int    `json:"sequence"`
-	NodeID        string `json:"nodeId"`
-	IPAddress     string `json:"ipAddress"`
-	Alias         string `json:"alias"`
-	MachineName   string `json:"machineName"`
-	OSHostname    string `json:"osHostname"`
-	PreviousName  string `json:"previousName,omitempty"`
-	PreviousAlias string `json:"previousAlias,omitempty"`
-	OSPlatform    string `json:"osPlatform"`
-	OSVersion     string `json:"osVersion,omitempty"`
-	Architecture  string `json:"architecture,omitempty"`
-	CPUCores      int    `json:"cpuCores,omitempty"`
-	CurrentUser   string `json:"currentUser,omitempty"`
-	GitMapVersion string `json:"gitmapVersion,omitempty"`
-	Scope         string `json:"scope"`
+	Sequence         int            `json:"sequence"`
+	NodeID           string         `json:"nodeId"`
+	IPAddress        string         `json:"ipAddress"`
+	Alias            string         `json:"alias"`
+	MachineName      string         `json:"machineName"`
+	OSHostname       string         `json:"osHostname"`
+	PreviousName     string         `json:"previousName,omitempty"`
+	PreviousAlias    string         `json:"previousAlias,omitempty"`
+	OSPlatform       string         `json:"osPlatform"`
+	OSVersion        string         `json:"osVersion,omitempty"`
+	Architecture     string         `json:"architecture,omitempty"`
+	CPUCores         int            `json:"cpuCores,omitempty"`
+	CurrentUser      string         `json:"currentUser,omitempty"`
+	GitMapVersion    string         `json:"gitmapVersion,omitempty"`
+	Scope            string         `json:"scope"`
+	OSVersionDetails *OSVersionInfo `json:"osVersionDetails,omitempty"`
 }
 
 // RunMachineCLI executes the top-level or OS-nested machine command.
@@ -113,13 +114,14 @@ func resolveLocalMachineIdentity() MachineIdentity {
 	if user == "" {
 		user = os.Getenv("USER")
 	}
+	detailedOS := probeDetailedOS()
 	return MachineIdentity{
 		Sequence: 1, NodeID: "local-01", IPAddress: ip, Alias: alias,
 		MachineName: machName, OSHostname: osHost, PreviousName: prevName,
 		PreviousAlias: prevAlias, OSPlatform: formatOSPlatform(runtime.GOOS),
 		OSVersion: osInfo.OSVersion, Architecture: osInfo.Architecture,
 		CPUCores: osInfo.NumCPU, CurrentUser: user, GitMapVersion: constants.Version,
-		Scope: "local",
+		Scope: "local", OSVersionDetails: &detailedOS,
 	}
 }
 
@@ -174,8 +176,7 @@ func executeMachineAliasList(mode string, isSSH, isJSON bool) error {
 	if isSSH {
 		return renderFleetMachineAliasList(mode, isJSON)
 	}
-	local := resolveLocalMachineIdentity()
-	return renderSingleMachineIdentity(local, isJSON)
+	return renderSingleMachineIdentity(resolveLocalMachineIdentity(), isJSON)
 }
 
 func renderSingleMachineIdentity(id MachineIdentity, isJSON bool) error {
@@ -186,16 +187,52 @@ func renderSingleMachineIdentity(id MachineIdentity, isJSON bool) error {
 	fmt.Printf("  • %-17s%s\n", "Alias:", id.Alias)
 	fmt.Printf("  • %-17s%s\n", "Hostname:", id.MachineName)
 	fmt.Printf("  • %-17s%s\n", "IP Address:", id.IPAddress)
-	osDesc := id.OSPlatform
-	if id.OSVersion != "" {
-		osDesc = fmt.Sprintf("%s (%s)", id.OSPlatform, id.OSVersion)
-	}
-	fmt.Printf("  • %-17s%s\n", "OS Platform:", osDesc)
+	fmt.Printf("  • %-17s%s\n", "OS Platform:", id.OSPlatform)
+	renderDetailedOSVersionTree(id.OSVersionDetails, id.OSVersion)
 	archDesc := formatArchWithCores(id.Architecture, id.CPUCores)
 	fmt.Printf("  • %-17s%s\n", "Architecture:", archDesc)
 	fmt.Printf("  • %-17s%s\n", "User:", id.CurrentUser)
 	fmt.Printf("  • %-17s%s\n", "GitMap Version:", id.GitMapVersion)
 	return nil
+}
+
+func renderDetailedOSVersionTree(det *OSVersionInfo, fallback string) {
+	if det == nil {
+		fmt.Printf("  • %-17s%s\n", "OS Version:", fallback)
+		return
+	}
+	fmt.Printf("  • %-17s\n", "OS Version:")
+	fmt.Printf("    ├─ %-16s%s\n", "Type:", formatOSType(det.Type))
+	fmt.Printf("    ├─ %-16s%s\n", "Edition:", det.Edition)
+	fmt.Printf("    ├─ %-16s%s\n", "Release:", det.Release)
+	buildInfo := fmt.Sprintf("%d", det.Build)
+	if det.KernelVersion != "" {
+		buildInfo = fmt.Sprintf("%d (Kernel: %s)", det.Build, det.KernelVersion)
+	}
+	fmt.Printf("    ├─ %-16s%s\n", "Build:", buildInfo)
+	fmt.Printf("    ├─ %-16s%s\n", "Windows Server:", formatYesNo(det.IsWindowsServer))
+	fmt.Printf("    ├─ %-16s%s\n", "Windows Pro:", formatYesNo(det.IsWindowsPro))
+	fmt.Printf("    └─ %-16s%s\n", "Windows Home:", formatYesNo(det.IsWindowsHome))
+}
+
+func formatOSType(t string) string {
+	if strings.EqualFold(t, "windows") {
+		return "Windows"
+	}
+	if strings.EqualFold(t, "darwin") || strings.EqualFold(t, "macos") {
+		return "macOS"
+	}
+	if strings.EqualFold(t, "linux") {
+		return "Linux"
+	}
+	return t
+}
+
+func formatYesNo(b bool) string {
+	if b {
+		return "Yes"
+	}
+	return "No"
 }
 
 func renderFleetMachineAliasList(mode string, isJSON bool) error {
@@ -223,11 +260,8 @@ func renderFleetVersionTable(items []MachineIdentity) error {
 	fmt.Printf("  %-4s %-12s %-16s %-18s %-18s %-20s %-14s %s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "USER", "OS PLATFORM", "OS VERSION", "GITMAP VERSION")
 	fmt.Printf("  %s\n", strings.Repeat("─", 125))
 	for _, it := range items {
-		user := fallbackDash(it.CurrentUser)
-		osVer := fallbackDash(it.OSVersion)
-		gmVer := fallbackDash(it.GitMapVersion)
 		fmt.Printf("  #%-3d %-12s %-16s %-18s %-18s %-20s %-14s %s\n",
-			it.Sequence, it.NodeID, it.IPAddress, it.Alias, user, it.OSPlatform, osVer, gmVer)
+			it.Sequence, it.NodeID, it.IPAddress, it.Alias, fallbackDash(it.CurrentUser), it.OSPlatform, fallbackDash(it.OSVersion), fallbackDash(it.GitMapVersion))
 	}
 	return nil
 }
@@ -236,10 +270,8 @@ func renderFleetStandardTable(items []MachineIdentity) error {
 	fmt.Printf("  %-4s %-12s %-16s %-18s %-18s %-20s %s\n", "SEQ", "NODE ID", "IP ADDRESS", "ALIAS", "USER", "OS PLATFORM", "OS VERSION")
 	fmt.Printf("  %s\n", strings.Repeat("─", 110))
 	for _, it := range items {
-		user := fallbackDash(it.CurrentUser)
-		osVer := fallbackDash(it.OSVersion)
 		fmt.Printf("  #%-3d %-12s %-16s %-18s %-18s %-20s %s\n",
-			it.Sequence, it.NodeID, it.IPAddress, it.Alias, user, it.OSPlatform, osVer)
+			it.Sequence, it.NodeID, it.IPAddress, it.Alias, fallbackDash(it.CurrentUser), it.OSPlatform, fallbackDash(it.OSVersion))
 	}
 	return nil
 }
@@ -276,8 +308,7 @@ func convertSSHConnToIdentity(seq int, conn db.SSHConnection) MachineIdentity {
 		Sequence: seq, NodeID: nodeID, IPAddress: conn.IPAddress, Alias: alias,
 		MachineName: alias, OSHostname: alias, PreviousAlias: prev,
 		OSPlatform: osPlatform, OSVersion: conn.OSVersion, CurrentUser: conn.Username,
-		GitMapVersion: conn.BuildVersion,
-		Scope:         "ssh",
+		GitMapVersion: conn.BuildVersion, Scope: "ssh",
 	}
 }
 
@@ -306,8 +337,7 @@ func applyLocalMachineOrAliasSet(mode, newVal string, isJSON bool) error {
 		applyOSHostnameChange(newVal)
 	}
 	updated := resolveLocalMachineIdentity()
-	fmt.Printf("%s✔ Updated %s to %q (previous saved for 'gitmap %s revert')%s\n",
-		constants.ColorGreen, mode, newVal, mode, constants.ColorReset)
+	fmt.Printf("%s✔ Updated %s to %q (previous saved for 'gitmap %s revert')%s\n", constants.ColorGreen, mode, newVal, mode, constants.ColorReset)
 	return renderIfJSON(updated, isJSON)
 }
 
@@ -375,9 +405,7 @@ func updateSSHConnRecord(rootDB *store.DB, target, newVal string) {
 }
 
 func sanitizeMachineToken(raw string) string {
-	cleaned := strings.TrimSpace(raw)
-	cleaned = strings.ReplaceAll(cleaned, " ", "-")
-	return cleaned
+	return strings.ReplaceAll(strings.TrimSpace(raw), " ", "-")
 }
 
 func applyOSHostnameChange(newName string) {

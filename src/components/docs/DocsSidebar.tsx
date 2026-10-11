@@ -58,6 +58,7 @@ import { useTheme } from "@/hooks/useTheme";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Pipeline Monitor", url: "/pipeline", icon: Activity },
+  { title: "Agent AI & Heatmap", url: "/commands#agent-ai", icon: Boxes },
   { title: "UI Settings", url: "/settings", icon: Settings },
   { title: "Commands", url: "/commands", icon: BookOpen },
   { title: "scan (cmd)", url: "/scan-command", icon: Search },
@@ -92,6 +93,7 @@ const navItems = [
   { title: "Profile", url: "/profile", icon: FileText },
   { title: "Diff Profiles", url: "/diff-profiles", icon: FileText },
   { title: "Zip Groups", url: "/zip-group", icon: Archive },
+  { title: "Machine Identity", url: "/commands#machine", icon: Monitor },
   { title: "Aliases", url: "/alias", icon: Link2 },
   { title: "CD / Navigate", url: "/cd", icon: FolderOpen },
   { title: "SSH Keys", url: "/ssh", icon: KeyRound },
@@ -109,6 +111,7 @@ const navItems = [
   { title: "Help Index", url: "/help-index", icon: BookOpen },
   { title: "Diff", url: "/diff", icon: GitCompare },
   { title: "Move (mv)", url: "/mv", icon: Move },
+  { title: "Merge-AI (ma)", url: "/merge-ai", icon: GitMerge },
   { title: "Merge Both", url: "/merge-both", icon: GitMerge },
   { title: "Merge Left", url: "/merge-left", icon: GitMerge },
   { title: "Merge Right", url: "/merge-right", icon: GitMerge },

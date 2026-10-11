@@ -135,7 +135,7 @@ func selectPrimaryActiveRun(runs []ghRunItem, targetSha string) *ghRunItem {
 func collectActiveRunsForSha(runs []ghRunItem, targetSha string) []*ghRunItem {
 	var candidates []*ghRunItem
 	for i := range runs {
-		if (targetSha == "" || runs[i].HeadSha == targetSha) && isRunActive(runs[i]) {
+		if (targetSha == "" || matchCommitSha(runs[i].HeadSha, targetSha)) && isRunActive(runs[i]) {
 			candidates = append(candidates, &runs[i])
 		}
 	}
@@ -158,7 +158,11 @@ func pickBottleneckActiveRun(runs []ghRunItem, candidates []*ghRunItem) *ghRunIt
 }
 
 func isRunActive(r ghRunItem) bool {
-	return r.Status == "in_progress" || r.Status == "queued"
+	if len(r.Conclusion) > 0 && r.Status == "completed" {
+		return false
+	}
+
+	return isWorkflowStatusActive(r.Status)
 }
 
 func initLatestRunMeta(payload *PipelineErrorLogsPayload, latest ghRunItem) {

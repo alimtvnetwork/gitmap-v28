@@ -69,3 +69,23 @@ func TestResolveRepoFeature_LocalGit(t *testing.T) {
 		t.Fatalf("expected target type %s, got %s", TargetTypeLocalGit, res.TargetType)
 	}
 }
+
+func TestSanitizeSlug(t *testing.T) {
+	cases := []struct {
+		input    string
+		expected string
+	}{
+		{"Icon Studio v1", "icon-studio-v1"},
+		{"Icon Studio 2026", "icon-studio-2026"},
+		{"icon-studio-v1", "icon-studio-v1"},
+		{"Icon__Studio--2026--v1", "icon-studio-2026-v1"},
+		{"  Hello World  ", "hello-world"},
+	}
+
+	for _, c := range cases {
+		got := SanitizeSlug(c.input)
+		if got != c.expected {
+			t.Errorf("SanitizeSlug(%q): expected %q, got %q", c.input, c.expected, got)
+		}
+	}
+}

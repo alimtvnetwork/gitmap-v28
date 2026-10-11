@@ -158,7 +158,12 @@ func evaluateTargetOrHeadCacheHit(repo string, dbRuns []pipelinedb.PipelineRunRe
 	}
 
 	if checkTargetIndexCacheHit(dbRuns, flags) {
-		return true, buildCacheHitDecision(dbRuns, latestSha, "target_index_matched")
+		targetSha := latestSha
+		if target := resolveTargetCommitCandidate(flags.CommitTarget); len(target) > 0 {
+			targetSha = target
+		}
+
+		return true, buildCacheHitDecision(dbRuns, targetSha, "target_index_matched")
 	}
 
 	if checkHeadShaCacheHit(repo, dbRuns) {
@@ -269,7 +274,16 @@ func checkTargetIndexCacheHit(dbRuns []pipelinedb.PipelineRunRecord, flags Pipel
 	}
 
 	offset := NormalizeNegativeIndex(flags.Index)
-	return offset < len(dbRuns)
+	if offset >= len(dbRuns) {
+		return false
+	}
+
+	targetSha := resolveTargetCommitCandidate(flags.CommitTarget)
+	if len(targetSha) > 0 {
+		return checkCommitTargetCacheHit(dbRuns, targetSha)
+	}
+
+	return true
 }
 
 func buildCacheHitDecision(dbRuns []pipelinedb.PipelineRunRecord, sha, reason string) PipelineCacheDecision {

@@ -163,9 +163,32 @@ func resolveLocalNoGitFeature(dir string) (*ResolvedRepoFeature, error) {
 	}, nil
 }
 
+// SanitizeSlug normalizes any target slug into a clean kebab-case identifier.
+func SanitizeSlug(slug string) string {
+	clean := strings.ToLower(strings.TrimSpace(slug))
+	clean = strings.ReplaceAll(clean, " ", "-")
+	clean = strings.ReplaceAll(clean, "_", "-")
+
+	var b strings.Builder
+	for _, r := range clean {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' {
+			b.WriteRune(r)
+		}
+	}
+	clean = b.String()
+
+	for strings.Contains(clean, "--") {
+		clean = strings.ReplaceAll(clean, "--", "-")
+	}
+
+	return strings.Trim(clean, "-")
+}
+
 func resolveBareSlugFeature(slug string) (*ResolvedRepoFeature, error) {
-	cleanSlug := strings.ToLower(strings.TrimSpace(slug))
-	cleanSlug = strings.ReplaceAll(cleanSlug, " ", "-")
+	cleanSlug := SanitizeSlug(slug)
+	if cleanSlug == "" {
+		cleanSlug = "repo"
+	}
 
 	workspaceRoot := resolveDefaultWorkspaceRoot()
 	destPath := filepath.Join(workspaceRoot, cleanSlug)
@@ -199,9 +222,27 @@ func resolveBareSlugFeature(slug string) (*ResolvedRepoFeature, error) {
 }
 
 func resolveDefaultWorkspaceRoot() string {
+	if defDB, err := store.OpenDefault(); err == nil {
+		defer defDB.Close()
+		if wd, err := defDB.GetDefaultWorkDir(); err == nil && wd != nil && len(wd.AbsolutePath) > 0 {
+			if info, errStat := os.Stat(wd.AbsolutePath); errStat == nil && info.IsDir() {
+				return wd.AbsolutePath
+			}
+		}
+	}
+
+	if info, err := os.Stat(`D:\work`); err == nil && info.IsDir() {
+		return `D:\work`
+	}
+
 	cwd, err := os.Getwd()
 	if err == nil && cwd != "" {
+		parent := filepath.Dir(cwd)
+		if parent != "" && parent != cwd {
+			return parent
+		}
 		return cwd
 	}
+
 	return "."
 }

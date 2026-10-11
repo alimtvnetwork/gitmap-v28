@@ -8,7 +8,7 @@ import (
 
 func TestParseMergeAIArgs(t *testing.T) {
 	// Comma separated
-	dest, sources, err := parseMergeAIArgs([]string{"my-target", "url1,url2,url3"})
+	dest, sources, _, err := parseMergeAIArgs([]string{"my-target", "https://github.com/a/u1,https://github.com/b/u2,https://github.com/c/u3"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -20,7 +20,7 @@ func TestParseMergeAIArgs(t *testing.T) {
 	}
 
 	// Space separated
-	dest2, sources2, err2 := parseMergeAIArgs([]string{"dest-dir", "u1", "u2"})
+	dest2, sources2, _, err2 := parseMergeAIArgs([]string{"dest-dir", "https://github.com/a/u1", "https://github.com/b/u2"})
 	if err2 != nil {
 		t.Fatalf("unexpected error: %v", err2)
 	}
@@ -95,6 +95,64 @@ func TestStageAndSequenceFilesCollision(t *testing.T) {
 	}
 }
 
+func TestStageAndSequenceFilesCollision_ThreeRepos(t *testing.T) {
+	tempDest, _ := os.MkdirTemp("", "merge-ai-dest3-*")
+	defer os.RemoveAll(tempDest)
+
+	tempSrc1, _ := os.MkdirTemp("", "merge-ai-src1-*")
+	defer os.RemoveAll(tempSrc1)
+
+	tempSrc2, _ := os.MkdirTemp("", "merge-ai-src2-*")
+	defer os.RemoveAll(tempSrc2)
+
+	tempSrc3, _ := os.MkdirTemp("", "merge-ai-src3-*")
+	defer os.RemoveAll(tempSrc3)
+
+	_ = os.WriteFile(filepath.Join(tempSrc1, "readme.md"), []byte("# Repo 1"), 0644)
+	_ = os.WriteFile(filepath.Join(tempSrc2, "readme.md"), []byte("# Repo 2"), 0644)
+	_ = os.WriteFile(filepath.Join(tempSrc3, "readme.md"), []byte("# Repo 3"), 0644)
+
+	sources := []SourceRepoConfig{
+		{
+			RepoURL:      "https://github.com/mock/src1.git",
+			LocalStaging: tempSrc1,
+			FolderTree:   []string{"readme.md"},
+		},
+		{
+			RepoURL:      "https://github.com/mock/src2.git",
+			LocalStaging: tempSrc2,
+			FolderTree:   []string{"readme.md"},
+		},
+		{
+			RepoURL:      "https://github.com/mock/src3.git",
+			LocalStaging: tempSrc3,
+			FolderTree:   []string{"readme.md"},
+		},
+	}
+
+	collisions, _, err := stageAndSequenceFiles(tempDest, sources)
+	if err != nil {
+		t.Fatalf("stageAndSequenceFiles failed: %v", err)
+	}
+
+	if len(collisions) != 1 {
+		t.Fatalf("expected 1 collision, got %d", len(collisions))
+	}
+	if len(collisions[0].Variants) != 3 {
+		t.Fatalf("expected 3 variants for readme.md, got %d", len(collisions[0].Variants))
+	}
+
+	if !fileExists(filepath.Join(tempDest, "01_readme.md")) {
+		t.Errorf("expected 01_readme.md on disk")
+	}
+	if !fileExists(filepath.Join(tempDest, "02_readme.md")) {
+		t.Errorf("expected 02_readme.md on disk")
+	}
+	if !fileExists(filepath.Join(tempDest, "03_readme.md")) {
+		t.Errorf("expected 03_readme.md on disk")
+	}
+}
+
 func TestWriteManifestAndInstruction(t *testing.T) {
 	tempDest, _ := os.MkdirTemp("", "merge-ai-manifest-*")
 	defer os.RemoveAll(tempDest)
@@ -120,7 +178,18 @@ func TestWriteManifestAndInstruction(t *testing.T) {
 		},
 	}
 
-	if err := WriteMergeAIInstruction(tempDest, collisions); err != nil {
+	skipped := []SkippedSourceItem{
+		{
+			RawInput: "https://github.com/mock/file.gif",
+			Title:    "Logo GIF",
+			Repo:     "mock/src1",
+			Reason:   "file URL from repository 'mock/src1' which is already included",
+			IsFile:   true,
+			FilePath: "file.gif",
+		},
+	}
+
+	if err := WriteMergeAIInstruction(tempDest, collisions, skipped...); err != nil {
 		t.Fatalf("WriteMergeAIInstruction failed: %v", err)
 	}
 	if !fileExists(filepath.Join(tempDest, "instruction.md")) {

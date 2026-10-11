@@ -54,6 +54,10 @@ export const Categories: CommandCategory[] = [
   { key: "pipeline", label: "Pipeline & CI/CD", description: "Live CI/CD telemetry, ETA wait times, and failure logs", icon: "⚡" },
   { key: "tasks", label: "Automation & Macros", description: "Interactive macro step builder, live execution preview, and terminal automation", icon: "🤖" },
   { key: "antigravity", label: "Antigravity (AGY)", description: "Workspaces, prompts templates, prompt replay, and AI agents orchestration", icon: "🧠" },
+  { key: "ai", label: "AI Orchestration & Telemetry", description: "Multi-agent coordination, lease management, and file contention heatmaps", icon: "🤖" },
+  { key: "remote", label: "Machine & Network Identity", description: "Local host and cluster fleet machine identity, hardware specs, and OS version detection", icon: "🖥️" },
+  { key: "repo", label: "Repository Health & Structure", description: "Directory trees, file format validation, and workspace summary dashboards", icon: "📁" },
+  { key: "commit", label: "Commit & Synchronization", description: "Workspace-wide staging, atomic commits, and push automation", icon: "📦" },
 ];
 
 export const commands: CommandDef[] = [
@@ -3683,6 +3687,293 @@ export const commands: CommandDef[] = [
     ],
     seeAlso: [
       { name: "lowercase", description: "Rename any uppercase files by pattern across the repo" },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // Move & Merge (merge-ai)
+  // ═══════════════════════════════════════════
+  {
+    name: "merge-ai",
+    alias: "ma",
+    description: "Merge multiple Git repositories into a unified destination with automatic collision sequencing (01_/02_) and AI consolidation checklist",
+    usage: "gitmap merge-ai <destination> <sources...> [flags] or gitmap ma -d <dest> -s <src1> -s <src2>",
+    category: "movemerge",
+    flags: [
+      { flag: "--destination, -d <dir>", description: "Target directory or repository slug for unified output" },
+      { flag: "--source, -s <url|path>", description: "Source repository URL or local directory (repeatable or comma-separated)" },
+      { flag: "--url, -u <url>", description: "Alias for --source (repeatable)" },
+      { flag: "--config, -c <file.json>", description: "Path to JSON config defining destination and sources" },
+      { flag: "--no-ai", description: "Stage files into numbered collision buckets without invoking downstream AI consolidation" },
+      { flag: "--help, -h", description: "Show comprehensive help with parameterized examples" },
+    ],
+    examples: [
+      { command: "gitmap merge-ai ./unified-app https://github.com/org/repo-auth.git https://github.com/org/repo-billing.git", description: "Positional syntax with remote Git URLs" },
+      { command: "gitmap ma -d ./unified-app -s ../repo-auth -s ../repo-billing -s ../repo-gateway", description: "Named parameter flags with multiple local source directories" },
+      { command: "gitmap ma --destination ./unified-app --source \"https://github.com/org/repo-auth.git,https://github.com/org/repo-billing.git\"", description: "Comma-separated source list syntax" },
+      { command: "gitmap merge-ai --destination ./unified-app sources.txt", description: "Batch merge using newline-delimited text manifest file" },
+      { command: "gitmap merge-ai --config merge-config.json", description: "Configuration-driven merge using structured JSON configuration file" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Specify Destination & Sources", action: "Run `gitmap merge-ai <destination> <sources...>` using any of the 5 input modalities" },
+      { step: 2, title: "Review Staged Collisions", action: "Inspect `merge-ai-manifest.json` for all 01_ base and 02_ incoming variant files" },
+      { step: 3, title: "Execute AI Consolidation", action: "Prompt your AI coding agent using `instruction.md` to synthesize unified files and remove numbered prefixes" },
+      { step: 4, title: "Commit Consolidated Tree", action: "Run `gitmap cpf \"feat: consolidate multi-repo merge into unified codebase\"`" },
+    ],
+    notes: [
+      "Files with identical relative paths are non-destructively preserved as 01_<filename> and 02_<filename>.",
+      "Repositories are sorted chronologically by LastCommitDate, designating the earliest as sequence 01 base variant.",
+      "A merge-ai-manifest.json file is generated in the root of the destination describing all sequenced collisions and source commit metadata.",
+      "An actionable instruction.md checklist is authored to guide downstream AI agents in synthesizing unified implementations without code deletion.",
+    ],
+    seeAlso: [
+      { name: "merge-both", description: "Bidirectional file merge between two endpoints" },
+      { name: "diff", description: "Inspect differences between repository endpoints" },
+      { name: "mv", description: "Move or overwrite files between endpoints" },
+      { name: "machine", description: "Inspect host machine identity and deep OS version" },
+      { name: "full-summary", description: "Inspect active repository statuses" },
+      { name: "cpar", description: "Parallel repository operations" },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // AI Orchestration & Telemetry (agent-ai, heatmap)
+  // ═══════════════════════════════════════════
+  {
+    name: "agent-ai",
+    alias: "agent, aai, ai-agents, task, at",
+    description: "Autonomous multi-agent coordination engine managing Two-Tier Split-DB synchronization (ai_agents.db + agent-task.db), lease fencing, worker claiming, and pre-touch action logging",
+    usage: "gitmap agent-ai <subcommand> [flags]",
+    category: "ai",
+    flags: [
+      { flag: "--task <slug>", description: "Target task slug identifier" },
+      { flag: "--status <state>", description: "Filter or set subtask status (PENDING, IN_PROGRESS, DONE, FAILED)" },
+      { flag: "--lease <machine_id>", description: "Claim or query task lease reservation" },
+      { flag: "--action <enum>", description: "Pre-touch action logging for active workers (editing, reading, planning, verifying)" },
+      { flag: "--json", description: "Output machine-readable JSON representation" },
+    ],
+    examples: [
+      { command: "gitmap agent-ai status", description: "View global agent ledger and running workers" },
+      { command: "gitmap aai lease --task refactor-auth", description: "Inspect or acquire task lease reservation" },
+      { command: "gitmap agent editing --action planning --task auth-service", description: "Log pre-touch action for worker coordination" },
+      { command: "gitmap agent-ai heatmap discuss", description: "Analyze file contention and collision blast radius" },
+    ],
+    notes: [
+      "Synchronizes across Two-Tier Split-DB (ai_agents.db + agent-task.db) with lease fencing to prevent duplicate worker execution.",
+      "Requires pre-touch action logging ('editing --action <enum>') before modifying files to protect against concurrent collisions.",
+      "Integrates with heatmap discuss for contention ranking and high-contention repository hotspots.",
+    ],
+    seeAlso: [
+      { name: "heatmap", description: "Real-time file contention and agent activity visualizer" },
+      { name: "merge-ai", description: "Amalgamate multi-source trees with AI consolidation handoff" },
+      { name: "tasks", description: "Macro automation engine" },
+    ],
+  },
+  {
+    name: "heatmap",
+    alias: "hm",
+    description: "Real-time agent concurrency and file contention visualizer highlighting active file touches, contention ranking, collision blast radius, and activity heatmap TreeView",
+    usage: "gitmap heatmap [discuss|live] [--window <duration>] [--threshold <n>] [--json]",
+    category: "ai",
+    flags: [
+      { flag: "--window <duration>", description: "Historical sliding window for file contention (default: 15m)" },
+      { flag: "--threshold <n>", description: "Minimum simultaneous touches to trigger a hotspot warning (default: 2)" },
+      { flag: "--json", description: "Output raw contention metrics and ranking as JSON" },
+      { flag: "--live", description: "Stream real-time file touches directly to the terminal" },
+    ],
+    examples: [
+      { command: "gitmap heatmap discuss", description: "Render terminal summary and contention ranking of agent file touches" },
+      { command: "gitmap agent-ai heatmap discuss", description: "Analyze multi-agent file contention across active subtasks" },
+      { command: "gitmap hm --live --threshold 3", description: "Open real-time terminal stream warning on 3+ concurrent touches" },
+      { command: "gitmap full-summary", description: "View 48h active repository activity heatmap TreeView" },
+    ],
+    notes: [
+      "Provides contention ranking across active worker workspaces to identify hot files before merge collisions occur.",
+      "Pair with gitmap agent-ai heatmap discuss for deep agent activity inspection or gitmap full-summary for repository-level activity trees.",
+    ],
+    seeAlso: [
+      { name: "agent-ai", description: "Multi-agent coordination and task manager" },
+      { name: "full-summary", description: "Repository metrics and 48h active heatmap TreeView" },
+      { name: "watch", description: "Real-time repository file watcher" },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // Machine & Network Identity (machine)
+  // ═══════════════════════════════════════════
+  {
+    name: "machine",
+    alias: "mac, machines, hostname",
+    description: "Inspect local host and cluster fleet machine identity, hardware specifications, network adapters, and deep OS version breakdown object (isWindowsServer, isWindowsPro, major, minor, build)",
+    usage: "gitmap machine [subcommand] [--ssh] [--json] [--set-alias <name>]",
+    category: "remote",
+    flags: [
+      { flag: "--json, -j", description: "Output structured JSON payload with nested osVersionDetails object and affirmative booleans" },
+      { flag: "--ssh, -s", description: "Query and display registered fleet nodes across the SSH cluster" },
+      { flag: "--set-alias <name>", description: "Assign a custom persistent alias to the local machine" },
+      { flag: "--set-name <name>", description: "Override the advertised machine hostname" },
+      { flag: "--help, -h", description: "Show terminal usage, flag descriptions, and structured schema documentation" },
+    ],
+    examples: [
+      { command: "gitmap machine", description: "Display local hierarchical machine identity and OS tree with edition badges" },
+      { command: "gitmap machine --json", description: "Export machine identity with osVersionDetails integer breakdown and affirmative booleans" },
+      { command: "gitmap mac --ssh", description: "List all cluster fleet nodes with OS and GitMap versions" },
+      { command: "gitmap machine --set-alias devbox-primary", description: "Assign persistent alias to local machine" },
+    ],
+    notes: [
+      "osVersionDetails provides structured typed fields: major, minor, build, revision, kernel, and installationType.",
+      "Affirmative booleans only: isWindowsServer, isWindowsPro, isWindowsHome, isLinux, isMacOS.",
+      "Windows 11 build normalization automatically detects Windows 11 on build >= 22000 even when ProductName reports Windows 10.",
+    ],
+    seeAlso: [
+      { name: "alias", description: "Manage custom machine aliases and network identifiers" },
+      { name: "ssh", description: "Manage remote SSH keys and credentials" },
+      { name: "doctor", description: "Run environment and toolchain diagnostics" },
+      { name: "cluster", description: "Multi-machine cluster fleet management" },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // Repository Health & Structure (full-summary, new-commands, tree, which-format)
+  // ═══════════════════════════════════════════
+  {
+    name: "full-summary",
+    alias: "fs, fsum",
+    description: "Comprehensive high-density terminal dashboard displaying branch topologies, dirty working trees, ahead/behind counters, and 48h active repositories heatmap TreeView",
+    usage: "gitmap full-summary [dir] [--depth <n>] [--filter <expr>] [--export <path>]",
+    category: "repo",
+    flags: [
+      { flag: "--depth <n>", description: "Directory recursion limit (default: 3)" },
+      { flag: "--filter <expr>", description: "Filter repositories by name, language, or branch" },
+      { flag: "--export <path>", description: "Export summary dashboard to Markdown or HTML report" },
+      { flag: "--json", description: "Output full summary data as structured JSON" },
+    ],
+    examples: [
+      { command: "gitmap full-summary", description: "Render full summary and 48h active heatmap for current workspace" },
+      { command: "gitmap fs ~/projects --depth 2", description: "Summary of projects directory with tree visualization" },
+      { command: "gitmap fsum --export ./summary.md", description: "Export high-density summary report" },
+    ],
+    notes: [
+      "Renders a 48-hour active repositories heatmap TreeView showing commit velocity and dirty working states.",
+      "Supports pipeline error diagnostics integration (fspe) for rapid CI/CD triage.",
+    ],
+    seeAlso: [
+      { name: "status", description: "View repository statuses" },
+      { name: "stats", description: "Repository statistics and analytics" },
+      { name: "heatmap", description: "File contention and concurrency visualizer" },
+      { name: "tree", description: "ASCII directory tree visualizer" },
+    ],
+  },
+  {
+    name: "new-commands",
+    alias: "nc",
+    description: "Interactive command discovery tool cataloging recently introduced GitMap CLI commands, version milestones, category groupings, and usage cheat sheets",
+    usage: "gitmap new-commands [--since <version>] [--category <key>] [--search <term>]",
+    category: "repo",
+    flags: [
+      { flag: "--since <version>", description: "Filter commands introduced since specified release (e.g. v6.500.0)" },
+      { flag: "--category <key>", description: "Filter by command category (tools, movemerge, ai, etc.)" },
+      { flag: "--search <term>", description: "Search command descriptions and usage strings" },
+    ],
+    examples: [
+      { command: "gitmap new-commands", description: "List commands introduced in recent releases" },
+      { command: "gitmap nc --since v6.520.0", description: "Show latest command additions with release notes" },
+      { command: "gitmap nc --category ai", description: "List all newly introduced AI orchestration commands" },
+    ],
+    notes: [
+      "Provides interactive discovery and changelog tours directly within the terminal.",
+      "Stay up-to-date with newly shipped features without browsing external web changelogs.",
+    ],
+    seeAlso: [
+      { name: "changelog", description: "View version release notes and tags" },
+      { name: "help-dashboard", description: "Serve interactive web documentation" },
+      { name: "commands", description: "Full CLI command reference" },
+    ],
+  },
+  {
+    name: "tree",
+    alias: "tr",
+    description: "Unicode directory tree visualizer and exporter rendering project hierarchy with integrated Git status badges, ignored file masking, and relative paths",
+    usage: "gitmap tree [dir] [--depth <n>] [--all] [--no-ignore] [--export <path>]",
+    category: "repo",
+    flags: [
+      { flag: "--depth <n>, -d <n>", description: "Maximum directory traversal depth (default: 2)" },
+      { flag: "--all, -a", description: "Show hidden dotfiles and system directories" },
+      { flag: "--no-ignore", description: "Display files normally ignored by .gitignore" },
+      { flag: "--export <path>", description: "Export tree structure using strict project-relative paths" },
+      { flag: "--json", description: "Output tree hierarchy as JSON" },
+    ],
+    examples: [
+      { command: "gitmap tree", description: "Show 2-level directory tree of current repository" },
+      { command: "gitmap tr ./src --depth 3", description: "Inspect src directory hierarchy with Git status badges" },
+      { command: "gitmap tree --export ./tree.txt", description: "Export clean directory tree with relative paths" },
+    ],
+    notes: [
+      "Enforces strict project-relative paths in exports, avoiding absolute path leaks.",
+      "Displays Git modified (M), untracked (?), and staged (A) badges directly on tree nodes.",
+    ],
+    seeAlso: [
+      { name: "scan", description: "Scan directories for Git repositories" },
+      { name: "fspath", description: "Resolve file system paths" },
+      { name: "full-summary", description: "Repository metrics and hierarchy dashboard" },
+    ],
+  },
+  {
+    name: "which-format",
+    alias: "wf",
+    description: "File format, encoding, and schema inspector detecting CRLF/LF line endings, UTF-8 BOM encodings, and validating GitMap export payload schemas",
+    usage: "gitmap which-format [file...] [--dir <directory>] [--strict] [--json]",
+    category: "repo",
+    flags: [
+      { flag: "--dir <directory>", description: "Batch inspect all files in specified directory" },
+      { flag: "--strict", description: "Enable strict validation against known JSON schemas and line ending rules" },
+      { flag: "--json", description: "Output format detection findings as JSON" },
+    ],
+    examples: [
+      { command: "gitmap which-format ./export.json", description: "Identify schema family and format of exported data file" },
+      { command: "gitmap wf --dir ./src", description: "Batch check line endings (CRLF vs LF) and UTF BOM across source files" },
+      { command: "gitmap which-format ./config.json --strict", description: "Validate schema conformance strictly" },
+    ],
+    notes: [
+      "Detects CRLF vs LF line endings and UTF-8 Byte Order Marks (BOM) to prevent cross-platform syntax errors.",
+      "Validates against known GitMap schemas (scan export, bookmark, profile, task ledger).",
+    ],
+    seeAlso: [
+      { name: "export", description: "Export repository scan data" },
+      { name: "import", description: "Import repository scan data" },
+      { name: "profile", description: "Manage environment profiles" },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
+  // Commit & Synchronization (cpar)
+  // ═══════════════════════════════════════════
+  {
+    name: "cpar",
+    alias: "cp, commit-push-all-repos",
+    description: "Workspace-wide parallel execution and synchronization engine to concurrently stage, commit, and push across dozens of repositories with throttled worker pools",
+    usage: "gitmap cpar [command] [--message <msg>] [--concurrency <n>] [--timeout <sec>] [--continue-on-error]",
+    category: "commit",
+    flags: [
+      { flag: "--message, -m <msg>", description: "Commit message for workspace-wide commit and push" },
+      { flag: "--concurrency <n>", description: "Maximum concurrent worker routines (default: CPU cores * 2)" },
+      { flag: "--timeout <sec>", description: "Command execution timeout per repository" },
+      { flag: "--continue-on-error", description: "Prevent single repository failure from halting batch run" },
+      { flag: "--dry-run", description: "Preview affected repositories without executing changes" },
+    ],
+    examples: [
+      { command: "gitmap cpar \"git status -s\"", description: "Concurrently inspect working tree status across all repositories" },
+      { command: "gitmap cpar -m \"chore: synchronize upstream dependencies\"", description: "Workspace-wide stage, commit, and push" },
+      { command: "gitmap cp \"git fetch --all\" --concurrency 8", description: "Parallel fetch across 8 concurrent workers" },
+    ],
+    notes: [
+      "Enforces clean working trees and pre-commit checks across all target repositories.",
+      "Applies 'No Push = Not Done' invariant across all tracked repositories in the active workspace.",
+    ],
+    seeAlso: [
+      { name: "batch-actions", description: "Execute batch commands sequentially" },
+      { name: "cluster", description: "Multi-machine command delegation" },
+      { name: "pipeline", description: "Pipeline and CI/CD monitoring" },
     ],
   },
 ];

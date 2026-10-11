@@ -25,6 +25,11 @@ func resolveTargetCommitSha(runs []ghRunItem, targetCommit ...string) string {
 	if sha := resolveExplicitTargetSha(runs, targetCommit...); len(sha) > 0 {
 		return sha
 	}
+	if len(targetCommit) > 0 && len(targetCommit[0]) > 0 {
+		if candidate := resolveTargetCommitCandidate(targetCommit[0]); len(candidate) > 0 && isCommitHexSha(candidate) {
+			return candidate
+		}
+	}
 	if sha := findShaForActiveBranch(runs); len(sha) > 0 {
 		return sha
 	}
@@ -120,13 +125,19 @@ func queryWorkflowRunsForTarget(repo string, target string) []ghRunItem {
 
 func resolveTargetCommitCandidate(target string) string {
 	offset, isNegative := ParseNegativeIndex(target)
-	if !isNegative {
+	if isNegative {
+		resolved := resolveCommitShaByOffset(offset)
+		if len(resolved) > 0 {
+			return resolved
+		}
+
 		return target
 	}
 
-	resolved := resolveCommitShaByOffset(offset)
-	if len(resolved) > 0 {
-		return resolved
+	if isCommitHexSha(target) && len(target) < 40 {
+		if expanded := expandCommitShaToFull(target); len(expanded) == 40 {
+			return expanded
+		}
 	}
 
 	return target
@@ -139,7 +150,17 @@ func resolveCommitShaByOffset(offset int) string {
 	}
 
 	rev := fmt.Sprintf("HEAD~%d", absOffset)
-	cmd := exec.Command("git", "rev-parse", "--short=7", rev)
+	cmd := exec.Command("git", "rev-parse", rev)
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(string(out))
+}
+
+func expandCommitShaToFull(target string) string {
+	cmd := exec.Command("git", "rev-parse", target)
 	out, err := cmd.Output()
 	if err != nil {
 		return ""
@@ -149,7 +170,14 @@ func resolveCommitShaByOffset(offset int) string {
 }
 
 func queryWorkflowRunsByCommit(repo, sha string) []ghRunItem {
-	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--commit", sha, "--limit", "10", "--json",
+	fullSha := sha
+	if len(fullSha) < 40 && isCommitHexSha(fullSha) {
+		if expanded := expandCommitShaToFull(fullSha); len(expanded) == 40 {
+			fullSha = expanded
+		}
+	}
+
+	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--commit", fullSha, "--limit", "10", "--json",
 		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url,displayTitle,event")
 	if err != nil || len(out) == 0 {
 		return nil

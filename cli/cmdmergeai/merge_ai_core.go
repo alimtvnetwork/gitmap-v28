@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdresolver"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/pterm/pterm"
 )
 
@@ -26,9 +28,20 @@ func gitExec(dir string, args ...string) (string, error) {
 
 // RunMergeAI executes multi-repository amalgamation and AI merge staging.
 func RunMergeAI(args []string) error {
-	destTarget, sourceInputs, errParse := parseMergeAIArgs(args)
+	destTarget, resolvedSources, skippedSources, errParse := parseMergeAIArgs(args)
 	if errParse != nil {
 		return errParse
+	}
+
+	if len(skippedSources) > 0 {
+		pterm.Warning.Printf("[Intelligence] Detected %d redundant/file source(s) to automatically skip:\n", len(skippedSources))
+		for _, s := range skippedSources {
+			if s.IsFile {
+				pterm.Warning.Printf("  • Skipping file URL: %s\n    (Repo '%s' is already included; subpath: %s)\n", s.RawInput, s.Repo, s.FilePath)
+			} else {
+				pterm.Warning.Printf("  • Skipping duplicate repo: %s\n", s.Repo)
+			}
+		}
 	}
 
 	pterm.Info.Printf("[GitMap Merge-AI] Resolving destination target: %s\n", destTarget)
@@ -44,7 +57,7 @@ func RunMergeAI(args []string) error {
 	_ = os.MkdirAll(stagingBase, 0755)
 
 	pterm.Info.Println("[Inspection] Preparing and inspecting source repositories...")
-	sources, errPrep := prepareAndInspectSources(sourceInputs, stagingBase)
+	sources, errPrep := prepareAndInspectSources(resolvedSources, stagingBase)
 	if errPrep != nil {
 		return errPrep
 	}
@@ -53,7 +66,7 @@ func RunMergeAI(args []string) error {
 		return fmt.Errorf("no valid source repositories found to merge")
 	}
 
-	// Sort chronologically (earliest to latest)
+	// Sort chronologically (earliest to latest) to establish baseline precedence
 	sort.Slice(sources, func(i, j int) bool {
 		return sources[i].LastCommitDate.Before(sources[j].LastCommitDate)
 	})
@@ -64,108 +77,195 @@ func RunMergeAI(args []string) error {
 		return errStage
 	}
 
-	manifest := assembleManifest(resolvedDest, sources, collisions, uniqueCount)
+	manifest := assembleManifest(resolvedDest, sources, collisions, uniqueCount, skippedSources)
 
 	if errManifest := WriteMergeAIManifest(resolvedDest.LocalPath, manifest); errManifest != nil {
 		return fmt.Errorf("failed to write merge-ai-manifest.json: %w", errManifest)
 	}
 
-	if errInstruction := WriteMergeAIInstruction(resolvedDest.LocalPath, collisions); errInstruction != nil {
+	if errInstruction := WriteMergeAIInstruction(resolvedDest.LocalPath, collisions, skippedSources...); errInstruction != nil {
 		return fmt.Errorf("failed to write instruction.md: %w", errInstruction)
 	}
 
-	renderMergeAISummary(resolvedDest, sources, collisions, uniqueCount)
+	renderMergeAISummary(resolvedDest, sources, collisions, uniqueCount, skippedSources)
 	return nil
 }
 
-func parseMergeAIArgs(args []string) (string, []string, error) {
+func parseMergeAIArgs(args []string) (string, []ResolvedSourceItem, []SkippedSourceItem, error) {
 	if len(args) == 0 {
-		return "", nil, fmt.Errorf("usage: gitmap merge-ai <dest-target> <source1> [source2...] or gitmap merge-ai config.json")
+		return "", nil, nil, fmt.Errorf("usage: gitmap merge-ai <dest-target> <source-file.txt|source1> [source2...] or gitmap merge-ai <source-file.txt>")
 	}
 
-	if len(args) == 1 && strings.HasSuffix(strings.ToLower(args[0]), ".json") {
-		data, err := os.ReadFile(args[0])
-		if err != nil {
-			return "", nil, fmt.Errorf("failed to read config file %s: %w", args[0], err)
-		}
-		var cfg MergeAIConfigFile
-		if errJSON := json.Unmarshal(data, &cfg); errJSON != nil {
-			return "", nil, fmt.Errorf("failed to parse JSON config %s: %w", args[0], errJSON)
-		}
-		return cfg.Destination, cfg.Sources, nil
+	// Case 1: single argument
+	if len(args) == 1 {
+		return parseSingleMergeAIArg(args[0])
+	}
+
+	// Case 2: two or more arguments
+	return parseMultiMergeAIArgs(args)
+}
+
+func parseSingleMergeAIArg(arg string) (string, []ResolvedSourceItem, []SkippedSourceItem, error) {
+	lower := strings.ToLower(arg)
+	if strings.HasSuffix(lower, ".json") {
+		return parseJSONConfigFile(arg)
+	}
+
+	destHint, resolved, skipped, err := ParseSourceFile(arg)
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	dest := destHint
+	if dest == "" {
+		dest = "icon-studio-v1"
+		pterm.Info.Printf("[GitMap Merge-AI] No destination target specified; defaulting to: %s\n", dest)
+	}
+
+	return dest, resolved, skipped, nil
+}
+
+func parseJSONConfigFile(configPath string) (string, []ResolvedSourceItem, []SkippedSourceItem, error) {
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return "", nil, nil, fmt.Errorf("failed to read config file %s: %w", configPath, err)
+	}
+
+	var cfg MergeAIConfigFile
+	if errJSON := json.Unmarshal(data, &cfg); errJSON != nil {
+		return "", nil, nil, fmt.Errorf("failed to parse JSON config %s: %w", configPath, errJSON)
+	}
+
+	destHint, resolved, skipped, errParse := ParseSourceManifestContent(strings.Join(cfg.Sources, "\n"))
+	if errParse != nil {
+		return "", nil, nil, errParse
+	}
+
+	dest := cfg.Destination
+	if dest == "" {
+		dest = destHint
+	}
+	if dest == "" {
+		dest = "icon-studio-v1"
+	}
+
+	return dest, resolved, skipped, nil
+}
+
+func parseMultiMergeAIArgs(args []string) (string, []ResolvedSourceItem, []SkippedSourceItem, error) {
+	// If first arg is a text file and second is not, swap to (dest, textFile)
+	if isTextFilePath(args[0]) && !isTextFilePath(args[1]) {
+		dest := args[1]
+		_, resolved, skipped, err := ParseSourceFile(args[0])
+		return dest, resolved, skipped, err
 	}
 
 	dest := args[0]
 	rawSources := args[1:]
-	var sources []string
 
+	// If second arg is a text file: parse it
+	if len(rawSources) == 1 && isTextFilePath(rawSources[0]) {
+		_, resolved, skipped, err := ParseSourceFile(rawSources[0])
+		return dest, resolved, skipped, err
+	}
+
+	// Combine lines and parse
+	var combinedLines []string
 	for _, s := range rawSources {
-		if strings.HasSuffix(strings.ToLower(s), ".txt") {
-			lines, errTxt := readLinesFromFile(s)
-			if errTxt == nil && len(lines) > 0 {
-				sources = append(sources, lines...)
+		if isTextFilePath(s) {
+			_, resFile, _, errFile := ParseSourceFile(s)
+			if errFile == nil {
+				for _, r := range resFile {
+					combinedLines = append(combinedLines, r.RepoURL)
+				}
 				continue
 			}
 		}
 
 		if strings.Contains(s, ",") {
-			parts := strings.Split(s, ",")
-			for _, p := range parts {
-				clean := strings.TrimSpace(p)
-				if clean != "" {
-					sources = append(sources, clean)
+			for _, part := range strings.Split(s, ",") {
+				if clean := strings.TrimSpace(part); clean != "" {
+					combinedLines = append(combinedLines, clean)
 				}
 			}
 			continue
 		}
 
-		clean := strings.TrimSpace(s)
-		if clean != "" {
-			sources = append(sources, clean)
+		if clean := strings.TrimSpace(s); clean != "" {
+			combinedLines = append(combinedLines, clean)
 		}
 	}
 
-	return dest, sources, nil
+	_, resolved, skipped, err := ParseSourceManifestContent(strings.Join(combinedLines, "\n"))
+	return dest, resolved, skipped, err
 }
 
-func readLinesFromFile(filePath string) ([]string, error) {
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
+func isTextFilePath(path string) bool {
+	lower := strings.ToLower(strings.TrimSpace(path))
+	if strings.HasSuffix(lower, ".txt") || strings.HasSuffix(lower, ".manifest") {
+		return true
 	}
-	var lines []string
-	for _, l := range strings.Split(string(data), "\n") {
-		clean := strings.TrimSpace(l)
-		if clean != "" && !strings.HasPrefix(clean, "#") {
-			lines = append(lines, clean)
-		}
+	if resolved, err := ResolveSourceFilePath(path); err == nil && resolved != "" {
+		return true
 	}
-	return lines, nil
+	return false
 }
 
-func prepareAndInspectSources(inputs []string, stagingBase string) ([]SourceRepoConfig, error) {
+func prepareAndInspectSources(items []ResolvedSourceItem, stagingBase string) ([]SourceRepoConfig, error) {
 	var sources []SourceRepoConfig
 
-	for idx, input := range inputs {
-		slug := deriveSourceSlug(input, idx)
+	for idx, item := range items {
+		slug := deriveSourceSlug(item.RepoURL, idx)
 		stagingDir := filepath.Join(stagingBase, slug)
 
-		if info, errStat := os.Stat(input); errStat == nil && info.IsDir() {
-			stagingDir = input
+		// Check if source repo already exists in local workspace (e.g. D:\work\<slug>)
+		localWorkDir := filepath.Join(resolveWorkBaseDir(), slug)
+		if info, errStat := os.Stat(filepath.Join(localWorkDir, ".git")); errStat == nil && info.IsDir() {
+			stagingDir = localWorkDir
+			pterm.Info.Printf("  ▸ [%d/%d] Adopting existing local repository: %s\n", idx+1, len(items), localWorkDir)
+		} else if info, statStaging := os.Stat(filepath.Join(stagingDir, ".git")); statStaging == nil && info.IsDir() {
+			pterm.Info.Printf("  ▸ [%d/%d] Reusing cached staging clone: %s\n", idx+1, len(items), stagingDir)
 		} else {
-			if _, statStaging := os.Stat(stagingDir); os.IsNotExist(statStaging) {
-				cmd := exec.Command("git", "clone", "--depth", "50", input, stagingDir)
-				if out, errClone := cmd.CombinedOutput(); errClone != nil {
-					return nil, fmt.Errorf("failed to clone source %s: %s (%w)", input, string(out), errClone)
-				}
+			_ = os.RemoveAll(stagingDir)
+			pterm.Info.Printf("  ▸ [%d/%d] Cloning source repository: %s -> %s\n", idx+1, len(items), item.RepoURL, stagingDir)
+			cmd := exec.Command("git", "clone", "--depth", "50", item.RepoURL, stagingDir)
+			if out, errClone := cmd.CombinedOutput(); errClone != nil {
+				return nil, fmt.Errorf("failed to clone source %s (%s): %s (%w)", item.Title, item.RepoURL, string(out), errClone)
 			}
 		}
 
-		cfg := inspectSingleSource(input, stagingDir)
+		cfg := inspectSingleSource(item.RepoURL, stagingDir)
+		cfg.Title = item.Title
 		sources = append(sources, cfg)
 	}
 
 	return sources, nil
+}
+
+func resolveWorkBaseDir() string {
+	if defDB, err := store.OpenDefault(); err == nil {
+		defer defDB.Close()
+		if wd, err := defDB.GetDefaultWorkDir(); err == nil && wd != nil && len(wd.AbsolutePath) > 0 {
+			if info, errStat := os.Stat(wd.AbsolutePath); errStat == nil && info.IsDir() {
+				return wd.AbsolutePath
+			}
+		}
+	}
+
+	if info, err := os.Stat(`D:\work`); err == nil && info.IsDir() {
+		return `D:\work`
+	}
+
+	cwd, err := os.Getwd()
+	if err == nil && cwd != "" {
+		parent := filepath.Dir(cwd)
+		if parent != "" && parent != cwd {
+			return parent
+		}
+		return cwd
+	}
+
+	return "."
 }
 
 func deriveSourceSlug(input string, idx int) string {
@@ -249,7 +349,8 @@ func stageAndSequenceFiles(destDir string, sources []SourceRepoConfig) ([]FileCo
 
 		for _, relPath := range src.FolderTree {
 			destPath := filepath.Join(destDir, relPath)
-			destExists := fileExists(destPath)
+			dirName := filepath.Dir(relPath)
+			baseName := filepath.Base(relPath)
 
 			if seqIdx == 0 {
 				// Base repository files are placed directly
@@ -260,8 +361,25 @@ func stageAndSequenceFiles(destDir string, sources []SourceRepoConfig) ([]FileCo
 				continue
 			}
 
-			if !destExists {
-				// Non-colliding file placed directly
+			// Check if this file is already recorded as a known collision
+			if col, isKnownCollision := collisionMap[relPath]; isKnownCollision {
+				newSeqRel := filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName)))
+				newSeqDest := filepath.Join(destDir, dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName))
+				if errCopy := copyFile(filepath.Join(src.LocalStaging, relPath), newSeqDest); errCopy != nil {
+					return nil, 0, errCopy
+				}
+
+				col.Variants = append(col.Variants, FileCollisionVariant{
+					Sequence:   seqPrefix,
+					File:       newSeqRel,
+					SourceRepo: sourceSlug,
+					Commit:     headSha,
+				})
+				continue
+			}
+
+			// If it does not exist on disk, place directly
+			if !fileExists(destPath) {
 				if errCopy := copyFile(filepath.Join(src.LocalStaging, relPath), destPath); errCopy != nil {
 					return nil, 0, errCopy
 				}
@@ -269,39 +387,34 @@ func stageAndSequenceFiles(destDir string, sources []SourceRepoConfig) ([]FileCo
 				continue
 			}
 
-			// Collision detected
-			dirName := filepath.Dir(relPath)
-			baseName := filepath.Base(relPath)
-
-			col, ok := collisionMap[relPath]
-			if !ok {
-				// First collision on this file: sequence the existing base version
-				origSeqPath := filepath.Join(destDir, dirName, fmt.Sprintf("01_%s", baseName))
-				_ = os.Rename(destPath, origSeqPath)
-				if uniquePlaced > 0 {
-					uniquePlaced--
-				}
-
-				baseHeadSha, _ := gitExec(sources[0].LocalStaging, "rev-parse", "HEAD")
-				if len(baseHeadSha) > 8 {
-					baseHeadSha = baseHeadSha[:8]
-				}
-
-				col = &FileCollisionRecord{
-					CanonicalPath: relPath,
-					Status:        "pending_ai_consolidation",
-					Variants: []FileCollisionVariant{
-						{
-							Sequence:   "01",
-							File:       filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("01_%s", baseName))),
-							SourceRepo: filepath.Base(sources[0].LocalStaging),
-							Commit:     baseHeadSha,
-						},
-					},
-				}
-				collisionMap[relPath] = col
+			// First collision detected on relPath:
+			// Sequence the pre-existing file as 01_<filename>
+			origSeqPath := filepath.Join(destDir, dirName, fmt.Sprintf("01_%s", baseName))
+			_ = os.Rename(destPath, origSeqPath)
+			if uniquePlaced > 0 {
+				uniquePlaced--
 			}
 
+			baseHeadSha, _ := gitExec(sources[0].LocalStaging, "rev-parse", "HEAD")
+			if len(baseHeadSha) > 8 {
+				baseHeadSha = baseHeadSha[:8]
+			}
+
+			col := &FileCollisionRecord{
+				CanonicalPath: relPath,
+				Status:        "pending_ai_consolidation",
+				Variants: []FileCollisionVariant{
+					{
+						Sequence:   "01",
+						File:       filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("01_%s", baseName))),
+						SourceRepo: filepath.Base(sources[0].LocalStaging),
+						Commit:     baseHeadSha,
+					},
+				},
+			}
+			collisionMap[relPath] = col
+
+			// Now place the incoming colliding version as seqPrefix_<filename>
 			newSeqRel := filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName)))
 			newSeqDest := filepath.Join(destDir, dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName))
 			if errCopy := copyFile(filepath.Join(src.LocalStaging, relPath), newSeqDest); errCopy != nil {
@@ -353,10 +466,10 @@ func copyFile(src, dst string) error {
 	return err
 }
 
-func assembleManifest(dest *cmdresolver.ResolvedRepoFeature, sources []SourceRepoConfig, collisions []FileCollisionRecord, uniqueCount int) MergeAIManifest {
+func assembleManifest(dest *cmdresolver.ResolvedRepoFeature, sources []SourceRepoConfig, collisions []FileCollisionRecord, uniqueCount int, skipped []SkippedSourceItem) MergeAIManifest {
 	var m MergeAIManifest
 	m.Attributes.GeneratedAt = time.Now().UTC().Format(time.RFC3339)
-	m.Attributes.GitMapVersion = "6.520.0"
+	m.Attributes.GitMapVersion = constants.Version
 	m.Attributes.Tool = "gitmap-merge-ai"
 	m.Attributes.CollisionStrategy = "prefixed-sequence"
 
@@ -368,6 +481,7 @@ func assembleManifest(dest *cmdresolver.ResolvedRepoFeature, sources []SourceRep
 	for i, s := range sources {
 		var entry SourceRepoSequenceEntry
 		entry.SequenceOrder = i + 1
+		entry.Title = s.Title
 		entry.RepoURL = s.RepoURL
 		entry.Branch = s.Branch
 		entry.CommitRange = s.CommitRange
@@ -378,17 +492,31 @@ func assembleManifest(dest *cmdresolver.ResolvedRepoFeature, sources []SourceRep
 		m.Data.RepoSequence = append(m.Data.RepoSequence, entry)
 	}
 
+	m.Data.SkippedSources = skipped
 	m.Data.FileCollisions = collisions
 	m.Data.UniqueFilesDirectlyPlaced = uniqueCount
 	return m
 }
 
-func renderMergeAISummary(dest *cmdresolver.ResolvedRepoFeature, sources []SourceRepoConfig, collisions []FileCollisionRecord, uniqueCount int) {
+func renderMergeAISummary(dest *cmdresolver.ResolvedRepoFeature, sources []SourceRepoConfig, collisions []FileCollisionRecord, uniqueCount int, skipped []SkippedSourceItem) {
 	fmt.Println()
 	pterm.Success.Printf("[GitMap Merge-AI] Multi-repo amalgamation staged successfully!\n")
 	fmt.Printf("Destination Workspace: %s\n", pterm.Bold.Sprint(dest.LocalPath))
 	fmt.Printf("Source Repositories Merged: %d\n", len(sources))
-	fmt.Printf("Unique Files Directly Placed: %d\n", uniqueCount)
+	for i, s := range sources {
+		name := s.Title
+		if name == "" {
+			name = deriveSourceSlug(s.RepoURL, i)
+		}
+		fmt.Printf("  [%d] %s (%s, %d files)\n", i+1, pterm.Cyan(name), s.Branch, len(s.FolderTree))
+	}
+	if len(skipped) > 0 {
+		fmt.Printf("\nSources Automatically Skipped: %d\n", len(skipped))
+		for _, sk := range skipped {
+			fmt.Printf("  - %s (%s)\n", sk.RawInput, pterm.Yellow(sk.Reason))
+		}
+	}
+	fmt.Printf("\nUnique Files Directly Placed: %d\n", uniqueCount)
 	fmt.Printf("File Collisions Sequenced: %d\n", len(collisions))
 
 	if len(collisions) > 0 {

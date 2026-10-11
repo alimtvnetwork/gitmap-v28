@@ -43,12 +43,16 @@ func mergeCorrelatedFailedJobs(parsed, ghFailed []FailedJobItem, rawLogs string)
 	}
 
 	for i, p := range parsed {
-		if !matchedIndices[i] {
+		if !matchedIndices[i] && !isFallbackJobItem(p) {
 			merged = append(merged, p)
 		}
 	}
 
 	return merged
+}
+
+func isFallbackJobItem(p FailedJobItem) bool {
+	return p.JobName == "Pipeline Execution" && p.StepName == "Failed Steps"
 }
 
 func matchOrBuildTargetFailure(target FailedJobItem, parsed []FailedJobItem, matchedIndices map[int]bool, rawLogs string) FailedJobItem {
@@ -203,7 +207,8 @@ func resolveRunCorrelatedJobs(run FailedRunItem) []FailedJobItem {
 	}
 
 	rawLogs := resolveRunRawLogs(run)
-	ghJobs := queryRunJobs("", run.RunId)
+	repo := resolveCurrentRepoSlug()
+	ghJobs := queryRunJobs(repo, run.RunId)
 	if len(ghJobs) == 0 {
 		return resolveJobFallback(run.FailedJobs, rawLogs)
 	}
