@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.540.0] - 2026-10-11
+
+### Added
+- sync companion repo-cache gitmap json on merge-ai and clone
+
+---
+
 ## [v6.539.0] - 2026-10-11
 
 ### Added
