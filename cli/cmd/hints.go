@@ -21,50 +21,6 @@ type hintEntry struct {
 	description string
 }
 
-// projectReposHints returns hints shown after go-repos, node-repos, etc.
-func projectReposHints() []hintEntry {
-	return []hintEntry{
-		{constants.HintGroupAdd, constants.HintGroupAddDesc},
-		{constants.HintCDRepo, constants.HintCDRepoDesc},
-		{constants.HintPullGroup, constants.HintPullGroupDesc},
-	}
-}
-
-// listHints returns hints shown after gitmap list.
-func listHints() []hintEntry {
-	return []hintEntry{
-		{constants.HintGroupCreate, constants.HintGroupCreateDesc},
-		{constants.HintLsType, constants.HintLsTypeDesc},
-		{constants.HintCDRepo, constants.HintCDRepoDesc},
-	}
-}
-
-// listGroupsHints returns hints shown after gitmap ls groups.
-func listGroupsHints() []hintEntry {
-	return []hintEntry{
-		{constants.HintGroupCreate, constants.HintGroupCreateDesc},
-		{constants.HintGroupShow, constants.HintGroupShowDesc},
-	}
-}
-
-// activeGroupHints returns hints shown after gitmap g (active group).
-func activeGroupHints() []hintEntry {
-	return []hintEntry{
-		{constants.HintGPull, constants.HintGPullDesc},
-		{constants.HintGStatus, constants.HintGStatusDesc},
-		{constants.HintGClear, constants.HintGClearDesc},
-	}
-}
-
-// groupListHints returns hints shown after gitmap group list.
-func groupListHints() []hintEntry {
-	return []hintEntry{
-		{constants.HintGroupCreate, constants.HintGroupCreateDesc},
-		{constants.HintGroupShow, constants.HintGroupShowDesc},
-		{constants.HintGroupDelete, constants.HintGroupDeleteDesc},
-	}
-}
-
 // aliasListHints returns hints shown after gitmap a list.
 func aliasListHints() []hintEntry {
 	return []hintEntry{
