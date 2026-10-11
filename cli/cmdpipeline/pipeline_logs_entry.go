@@ -130,32 +130,31 @@ func pollTimelineLoopStep(repo string, flags PipelineErrorFlags) (bool, error) {
 	applyPayloadOptions(&payload, runs, flags)
 
 	if hasEarlyDetectedErrors(payload) {
-		renderTimelineErrorAndExit(payload, flags)
-		return true, fmt.Errorf("pipeline errors detected in active run")
+		return handleEarlyDetectedErrors(payload, flags)
 	}
 
 	if !payload.IsRunning {
-		return true, writeTimelineOutputPayload(payload, flags)
+		return true, writePayloadWithFlags(payload, flags)
 	}
 
 	printTimelineProgress(payload.ActiveRunName, payload.EtaSeconds, 120)
 	return false, nil
 }
 
-func renderTimelineErrorAndExit(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) {
-	_ = writeTimelineOutputPayload(payload, flags)
-	cliexit.Exit(1)
+func handleEarlyDetectedErrors(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) (bool, error) {
+	renderTimelineErrorAndExit(payload, flags)
+	if isTimelineTestMode() {
+		return true, nil
+	}
+
+	return true, fmt.Errorf("pipeline errors detected in active run")
 }
 
-func writeTimelineOutputPayload(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) error {
-	return writeOrRenderErrorLogs(ErrorLogOutputParams{
-		Payload:              payload,
-		IsJSON:               flags.IsJSON,
-		HasSuppressOutputLog: flags.HasSuppressOutputLog,
-		FilePath:             flags.FilePath,
-		TempFile:             flags.TempFileName,
-		WantFix:              flags.HasFix,
-	})
+func renderTimelineErrorAndExit(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) {
+	_ = writePayloadWithFlags(payload, flags)
+	if !isTimelineTestMode() {
+		cliexit.Exit(1)
+	}
 }
 
 func hasEarlyDetectedErrors(payload PipelineErrorLogsPayload) bool {
@@ -244,14 +243,7 @@ func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 	return fetchAndRenderFreshErrorLogs(repo, flags)
 }
 
-func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags PipelineErrorFlags) error {
-	activeLogLineLimit = flags.Limit
-	payload := buildErrorLogsPayloadWithFlags(repo, decision.CachedRuns, flags)
-	payload.IsFromCache = true
-	payload.CacheSource = decision.CacheSource
-	applyPayloadOptions(&payload, decision.CachedRuns, flags)
-	_ = RecordPipelineCheckInTask(repo, payload)
-
+func writePayloadWithFlags(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) error {
 	return writeOrRenderErrorLogs(ErrorLogOutputParams{
 		Payload:              payload,
 		IsJSON:               flags.IsJSON,
@@ -260,6 +252,17 @@ func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags Pi
 		TempFile:             flags.TempFileName,
 		WantFix:              flags.HasFix,
 	})
+}
+
+func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags PipelineErrorFlags) error {
+	activeLogLineLimit = flags.Limit
+	payload := buildErrorLogsPayloadWithFlags(repo, decision.CachedRuns, flags)
+	payload.IsFromCache = true
+	payload.CacheSource = decision.CacheSource
+	applyPayloadOptions(&payload, decision.CachedRuns, flags)
+	_ = RecordPipelineCheckInTask(repo, payload)
+
+	return writePayloadWithFlags(payload, flags)
 }
 
 func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
@@ -271,14 +274,7 @@ func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
 	applyPayloadOptions(&payload, runs, flags)
 	_ = RecordPipelineCheckInTask(repo, payload)
 
-	return writeOrRenderErrorLogs(ErrorLogOutputParams{
-		Payload:              payload,
-		IsJSON:               flags.IsJSON,
-		HasSuppressOutputLog: flags.HasSuppressOutputLog,
-		FilePath:             flags.FilePath,
-		TempFile:             flags.TempFileName,
-		WantFix:              flags.HasFix,
-	})
+	return writePayloadWithFlags(payload, flags)
 }
 
 func printReadingProgress(flags PipelineErrorFlags) {

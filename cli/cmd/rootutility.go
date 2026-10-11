@@ -99,7 +99,6 @@ func runInstalledDirHelp() error {
 	return cmdinstall.RunInstalledDir()
 }
 
-
 func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return cmddocs.RunDocs(argsTail()) }},

@@ -1,7 +1,6 @@
 package cmdpipeline
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -82,16 +81,14 @@ func executeAllPipelineErrorLogs(flags PipelineErrorFlags, args []string) error 
 	if flags.HasWorkers {
 		workers = flags.Workers
 	}
-	summary := collectAllPipelineSummaryWithWorkers(workers)
+	summary := collectAllPipelineSummaryWithOptions(workers, flags.HasForce)
 
 	if flags.IsJSON && flags.FilePath == "" {
 		return emitAllPipelineSummaryJSON(summary)
 	}
 
-	if flags.FilePath != "" {
-		if err := writeAllPipelineErrorsReportFile(flags, summary); err != nil {
-			return err
-		}
+	if err := maybeWriteReportFile(flags, summary); err != nil {
+		return err
 	}
 
 	if flags.IsJSON {
@@ -103,6 +100,14 @@ func executeAllPipelineErrorLogs(flags PipelineErrorFlags, args []string) error 
 	return nil
 }
 
+func maybeWriteReportFile(flags PipelineErrorFlags, summary AllPipelineSummary) error {
+	if flags.FilePath == "" {
+		return nil
+	}
+
+	return writeAllPipelineErrorsReportFile(flags, summary)
+}
+
 func emitAllPipelineSummaryJSON(summary AllPipelineSummary) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
@@ -111,15 +116,16 @@ func emitAllPipelineSummaryJSON(summary AllPipelineSummary) error {
 }
 
 func collectAllPipelineSummary() AllPipelineSummary {
-	return collectAllPipelineSummaryWithWorkers(0)
+	return collectAllPipelineSummaryWithOptions(0, false)
 }
 
 // collectAllPipelineSummaryWithWorkers inspects every catalog repo using a
 // worker pool. workers <= 0 means auto: max(runtime.NumCPU(), 3).
-// Each worker runs the per-repo inspection SEQUENTIALLY — no nested
-// parallelism inside a worker. Results are aggregated in catalog order,
-// so output is deterministic regardless of worker scheduling.
 func collectAllPipelineSummaryWithWorkers(workers int) AllPipelineSummary {
+	return collectAllPipelineSummaryWithOptions(workers, false)
+}
+
+func collectAllPipelineSummaryWithOptions(workers int, bypassCache bool) AllPipelineSummary {
 	entries := discoverCatalogRepoSlugs()
 	slugs := make([]string, 0, len(entries))
 	absPaths := make(map[string]string, len(entries))
@@ -138,7 +144,7 @@ func collectAllPipelineSummaryWithWorkers(workers int) AllPipelineSummary {
 	}
 
 	poolSize := resolvePeAllWorkers(workers, len(slugs))
-	inspections := runPeAllWorkerPool(slugs, absPaths, poolSize)
+	inspections := runPeAllWorkerPool(slugs, absPaths, poolSize, bypassCache)
 
 	for i, slug := range slugs {
 		inspection := inspections[i]
@@ -147,7 +153,6 @@ func collectAllPipelineSummaryWithWorkers(workers int) AllPipelineSummary {
 		if inspection.isCached {
 			summary.CachedCount++
 			summary.CachedRepos = append(summary.CachedRepos, slug)
-			continue
 		}
 
 		if !inspection.hasPipelineData {
@@ -185,18 +190,17 @@ func collectAllPipelineSummaryWithWorkers(workers int) AllPipelineSummary {
 // resolvePeAllWorkers returns the worker count: explicit override wins,
 // otherwise max(CPU threads, 3), capped at the repo count.
 func resolvePeAllWorkers(requested, repoCount int) int {
+	if requested > 0 && repoCount > 0 && requested > repoCount {
+		return repoCount
+	}
 	if requested > 0 {
-		if requested > repoCount && repoCount > 0 {
-			return repoCount
-		}
-
 		return requested
 	}
 	n := runtime.NumCPU()
 	if n < 3 {
 		n = 3
 	}
-	if n > repoCount && repoCount > 0 {
+	if repoCount > 0 && n > repoCount {
 		return repoCount
 	}
 
@@ -205,7 +209,7 @@ func resolvePeAllWorkers(requested, repoCount int) int {
 
 // runPeAllWorkerPool fans the per-repo inspections out to a semaphore-
 // bounded worker pool. Each worker processes its repos sequentially.
-func runPeAllWorkerPool(slugs []string, absPaths map[string]string, poolSize int) []singleRepoInspection {
+func runPeAllWorkerPool(slugs []string, absPaths map[string]string, poolSize int, bypassCache bool) []singleRepoInspection {
 	inspections := make([]singleRepoInspection, len(slugs))
 	if len(slugs) == 0 {
 		return inspections
@@ -228,138 +232,12 @@ func runPeAllWorkerPool(slugs []string, absPaths map[string]string, poolSize int
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			inspections[idx] = inspectSingleRepoCached(s, absPaths[s], cacheConn, &cacheMu)
+			inspections[idx] = inspectSingleRepoCached(s, absPaths[s], cacheConn, &cacheMu, bypassCache)
 		}(i, slug)
 	}
 	wg.Wait()
 
 	return inspections
-}
-
-// inspectSingleRepoCached checks the commit-hash cache before inspecting.
-// Cache hit (HEAD SHA already recorded): skip the inspection, mark done.
-// Cache miss: run the full inspection, then record the SHA.
-func inspectSingleRepoCached(slug, absPath string, cacheConn *sql.DB, cacheMu *sync.Mutex) singleRepoInspection {
-	headSha := getRepoHeadSha(absPath)
-	if headSha != "" && cacheConn != nil {
-		cacheMu.Lock()
-		cachedSha := getCachedCommitSha(cacheConn, slug)
-		cacheMu.Unlock()
-		if cachedSha == headSha {
-			return singleRepoInspection{isCached: true, dataStatus: "cached-unchanged"}
-		}
-	}
-
-	inspection := inspectSinglePipelineRepo(slug)
-
-	if headSha != "" && cacheConn != nil {
-		cacheMu.Lock()
-		if cacheErr := recordCommitSha(cacheConn, slug, headSha); cacheErr != nil {
-			fmt.Fprintf(os.Stderr, "warning: pe-all cache write failed for %s: %v\n", slug, cacheErr)
-		}
-		cacheMu.Unlock()
-	}
-
-	return inspection
-}
-
-// discoverCatalogRepoSlugs enumerates every repository in the catalog as
-// discoverCatalogRepoSlugs enumerates every repository in the catalog as an
-// ordered list of (sanitized slug, absolute path) entries. Duplicate slugs
-// are preserved as separate entries and never collapsed.
-func discoverCatalogRepoSlugs() []repoCatalogEntry {
-	entries := []repoCatalogEntry{}
-
-	db, err := store.OpenDefault()
-
-	if err != nil {
-		return entries
-	}
-	defer db.Close()
-
-	records, err := db.ListRepos()
-
-	if err != nil {
-		return entries
-	}
-
-	for _, rec := range records {
-		entries = append(entries, repoCatalogEntry{
-			slug:    pipelinedb.SanitizeRepoSlug(rec.Slug),
-			absPath: rec.AbsolutePath,
-		})
-	}
-
-	return entries
-}
-
-// inspectSinglePipelineRepo inspects one repo's pipeline DB without creating it:
-// the DB path is stat'ed BEFORE OpenPipelineSplitDb, which initializes missing
-// DBs as a side effect. Repos without a DB file report no pipeline data.
-func inspectSinglePipelineRepo(slug string) singleRepoInspection {
-	dbPath := pipelinedb.ResolvePipelineDbPath(slug)
-
-	if _, statErr := os.Stat(dbPath); statErr != nil {
-		return singleRepoInspection{hasPipelineData: false, dataStatus: allRepoStatusNoData}
-	}
-
-	db, err := pipelinedb.OpenPipelineSplitDb(slug)
-
-	if err != nil {
-		return singleRepoInspection{hasPipelineData: false, dataStatus: allRepoStatusDbUnreachable}
-	}
-	defer db.Close()
-
-	run, runErr := db.QueryRunByNegativeOffset(-1)
-
-	if runErr != nil || run == nil {
-		return singleRepoInspection{hasPipelineData: false, dataStatus: allRepoStatusNoData}
-	}
-
-	if run.IsSuccess || strings.EqualFold(run.Conclusion, "success") {
-		return singleRepoInspection{hasPipelineData: true, isClean: true, dataStatus: allRepoStatusClean}
-	}
-
-	errSummary := extractRunErrorSummary(db, run.RunId)
-
-	return singleRepoInspection{
-		hasPipelineData: true,
-		dataStatus:      allRepoStatusFailed,
-		errorRecords:    detailedErrorRecordsForRun(db, run.RunId),
-		stepJobs:        stepJobNamesForRun(db, run.RunId),
-		failedItem: &AllPipelineFailedItem{
-			RepoSlug:     slug,
-			WorkflowName: run.WorkflowName,
-			RunId:        run.RunId,
-			Branch:       run.Branch,
-			Sha:          run.Sha,
-			ErrorSummary: errSummary,
-			UpdatedAt:    run.UpdatedAt,
-		},
-	}
-}
-
-func extractRunErrorSummary(db *pipelinedb.PipelineSplitDb, runId uint64) string {
-	compactRes := db.QueryCompactErrorLogsByRunId(runId)
-
-	if compactRes.IsSuccess() && len(compactRes.Data) > 0 {
-		return compactRes.Data[0].ErrorText
-	}
-
-	return "Pipeline workflow run failed"
-}
-
-func queryPullErrorsForAll() []store.PullErrorRecord {
-	pullDb, err := store.OpenPullSplitDB()
-
-	if err != nil {
-		return nil
-	}
-	defer pullDb.Close()
-
-	records, _ := pullDb.QueryLatestPullErrors("all", 10)
-
-	return records
 }
 
 func renderAllPipelineSummaryTerminal(s AllPipelineSummary) {
@@ -372,9 +250,7 @@ func renderAllPipelineSummaryTerminal(s AllPipelineSummary) {
 	if s.FailedCount == 0 {
 		fmt.Printf("  %s✔ All tracked CI/CD pipelines across all repositories are PASSING (100%% green).%s\n\n",
 			constants.ColorGreen, constants.ColorReset)
-	}
-
-	if s.FailedCount > 0 {
+	} else {
 		renderFailingPipelinesList(s)
 	}
 
@@ -407,7 +283,6 @@ func renderNoPipelineDataList(repos []string) {
 
 func truncateSlugDisplay(repos []string) string {
 	const maxShown = 12
-
 	if len(repos) <= maxShown {
 		return strings.Join(repos, ", ")
 	}

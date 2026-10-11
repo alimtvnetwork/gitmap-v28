@@ -143,11 +143,12 @@ func queryExactRepo(conn *sql.DB, identifier string) (string, string, bool) {
 	if err := conn.QueryRow(q, identifier, identifier, identifier, slashPattern, backslashPattern).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
 		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
 	}
-	if strings.Contains(identifier, "/") {
-		shortName := identifier[strings.LastIndex(identifier, "/")+1:]
-		if err := conn.QueryRow(q, shortName, shortName, shortName, slashPattern, backslashPattern).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
-			return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
-		}
+	if !strings.Contains(identifier, "/") {
+		return "", "", false
+	}
+	shortName := identifier[strings.LastIndex(identifier, "/")+1:]
+	if err := conn.QueryRow(q, shortName, shortName, shortName, slashPattern, backslashPattern).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
+		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
 	}
 	return "", "", false
 }
@@ -180,15 +181,13 @@ func canonicalizeRepoSlug(slug, httpsUrl, sshUrl string) string {
 	if strings.Contains(slug, "/") {
 		return slug
 	}
-	if len(httpsUrl) > 0 {
-		if parsed := parseSlugFromGitURL(httpsUrl); strings.Contains(parsed, "/") {
-			return parsed
-		}
+	parsedHttps := parseSlugFromGitURL(httpsUrl)
+	if len(httpsUrl) > 0 && strings.Contains(parsedHttps, "/") {
+		return parsedHttps
 	}
-	if len(sshUrl) > 0 {
-		if parsed := parseSlugFromGitURL(sshUrl); strings.Contains(parsed, "/") {
-			return parsed
-		}
+	parsedSsh := parseSlugFromGitURL(sshUrl)
+	if len(sshUrl) > 0 && strings.Contains(parsedSsh, "/") {
+		return parsedSsh
 	}
 	if len(slug) > 0 {
 		return "alimtvnetwork/" + slug

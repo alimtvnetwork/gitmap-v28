@@ -3,6 +3,8 @@ package cmd
 import (
 	"os"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
 func init() {
@@ -10,12 +12,15 @@ func init() {
 }
 
 func hookPathDispatch() {
-	if len(os.Args) >= 2 && isPathCommand(os.Args[1]) {
-		if err := RunPathCLI(os.Args[2:]); err != nil {
-			os.Exit(1)
-		}
-		os.Exit(0)
+	if len(os.Args) < 2 || !isPathCommand(os.Args[1]) {
+		return
 	}
+
+	if err := RunPathCLI(os.Args[2:]); err != nil {
+		cliexit.HandleError(err, 1)
+	}
+
+	cliexit.Exit(0)
 }
 
 func isPathCommand(cmd string) bool {

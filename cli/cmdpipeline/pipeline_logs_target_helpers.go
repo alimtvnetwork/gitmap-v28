@@ -63,13 +63,14 @@ func readLocalLastErrorLog() string {
 		Command string `json:"command"`
 		Error   string `json:"error"`
 	}
-	if jsonErr := json.Unmarshal([]byte(trimmed), &report); jsonErr == nil {
-		if report.Command != "" && !isPipelineCommandName(report.Command) {
-			return ""
-		}
-		if len(report.Error) > 0 {
-			return report.Error
-		}
+	if jsonErr := json.Unmarshal([]byte(trimmed), &report); jsonErr != nil {
+		return trimmed
+	}
+	if report.Command != "" && !isPipelineCommandName(report.Command) {
+		return ""
+	}
+	if len(report.Error) > 0 {
+		return report.Error
 	}
 
 	return trimmed

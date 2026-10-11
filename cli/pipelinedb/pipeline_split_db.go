@@ -77,18 +77,23 @@ func findPipelineDbCandidate(slug string) string {
 	var bestPath string
 	var bestSize int64
 	targetSuffix := "-" + strings.ToLower(slug)
+	shortSlug := strings.TrimPrefix(strings.ToLower(slug), "alimtvnetwork-")
 
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			continue
 		}
 		nameLower := strings.ToLower(entry.Name())
-		if strings.HasSuffix(nameLower, targetSuffix) {
-			dbFile := filepath.Join(baseDir, entry.Name(), store.DbFileName)
-			if sz := getFileSize(dbFile); sz > bestSize {
-				bestPath = filepath.ToSlash(dbFile)
-				bestSize = sz
-			}
+		isMatch := strings.HasSuffix(nameLower, targetSuffix) ||
+			(shortSlug != strings.ToLower(slug) && nameLower == shortSlug)
+		if !isMatch {
+			continue
+		}
+		dbFile := filepath.Join(baseDir, entry.Name(), store.DbFileName)
+		sz := getFileSize(dbFile)
+		if sz > bestSize {
+			bestPath = filepath.ToSlash(dbFile)
+			bestSize = sz
 		}
 	}
 

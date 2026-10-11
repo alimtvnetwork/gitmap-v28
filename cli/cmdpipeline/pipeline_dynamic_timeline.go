@@ -36,7 +36,13 @@ func isTimelineTestMode() bool {
 		return true
 	}
 
-	return flag.Lookup("test.v") != nil
+	if flag.Lookup("test.v") != nil {
+		return true
+	}
+
+	arg0 := strings.ToLower(os.Args[0])
+	return strings.HasSuffix(arg0, ".test") || strings.HasSuffix(arg0, ".test.exe") ||
+		strings.Contains(arg0, "go-build")
 }
 
 func watchDynamicTimeline(repo, workflowName string, isJSON bool) error {
