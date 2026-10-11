@@ -8,6 +8,7 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
+- [agent-ai-synchronization-and-task-management.md](agent-ai-synchronization-and-task-management.md) — Agent AI Synchronization & Task Management: MachineId Tracking, ActionType Enum Lifecycle, Real-Time Fast Heatmap Consensus & Multi-Agent Telemetry (Spec: [agent-ai-synchronization-and-task-management](../../02-spec/21-app/agent-ai-synchronization-and-task-management/01-architecture-spec.md))
 - [249-ui-accessibility.md](249-ui-accessibility.md) — Dashboard keyboard accessibility + compact professional polish: full keyboard operability, shortcuts + `?` overlay, ARIA tablist/tab/tabpanel, compact density on all 10 tabs (Spec: [249](../../02-spec/21-app/249-ui-accessibility/01-overview.md))
 - [gitmap-repo-cache-scan-clone-and-ls-ecosystem.md](gitmap-repo-cache-scan-clone-and-ls-ecosystem.md) — GitMap Repo-Cache Scan (`--rc`, `--sep`), Clone/CFR/CFRP (`--rc`, Split-DB Cache, TreeView Selector), and `ls rc` Format Inspector (Spec: [gitmap-repo-cache-scan-clone-and-ls-ecosystem](../../02-spec/21-app/gitmap-repo-cache-scan-clone-and-ls-ecosystem/01-architecture-spec.md))
 - [246-parallel-fix-command.md](246-parallel-fix-command.md) — Native parallel `gitmap autofix` command (8 AI fixer scripts ported to Go), LLM train Heal & Fix phase, skills docs, settings UI/UX overhaul (Spec: [246](../../02-spec/21-app/246-parallel-fix-command/01-overview.md))

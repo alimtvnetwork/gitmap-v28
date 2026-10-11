@@ -37,7 +37,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` | Strict zero-secrets policy; stores credentials exclusively in `repo-secrets` vault. |
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
-| ❌ Python SQLite task manager / uncoordinated multi-agent file edits | ✅ `gitmap agent-ai create-task`, `gitmap agent-ai subtask create`, `gitmap agent subtask claim-files`, `gitmap agent-ai editing`, `gitmap agent-ai heatmap`, `gitmap agent-ai learn` (fallback: `gitmap task`) | Two-Tier Split-DB architecture (master `ai_agents.db` + task `agent-task.db`), sub-millisecond atomic file claiming, crash forensics, pre-touch in-flight logging, and real-time ANSI heatmaps. |
+| ❌ Python SQLite task manager / uncoordinated multi-agent file edits | ✅ `gitmap agent-ai create-task`, `gitmap agent-ai subtask create`, `gitmap agent subtask claim-files`, `gitmap agent-ai editing`, `gitmap agent-ai heatmap discuss` (fallback: `gitmap task`) | Two-Tier Split-DB architecture (`ai_agents.db` + `agent-task.db`), deterministic `machineId` propagation, sub-millisecond atomic file claiming, crash forensics, pre-touch in-flight logging with `ActionType` enum (`modify`, `analyze`, `read`, `remove`, `refactor`, `create`), and sub-5ms ANSI heatmaps. |
 
 ---
 
@@ -196,7 +196,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap install cargo` — Install Rust toolchain if missing.
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages.
 
-### 10. Native Fleet Synchronization & SQLite Agent Task Engine
+### 10. Native Fleet Synchronization
 - `gitmap sync` — Synchronizes canonical prompts, skills, shared specs (`02-spec/01-20`), and additive scripts across all 43 registered fleet repositories.
 - `gitmap sync --projects <path|json>` — Accepts a path to JSON file or inline JSON array of repositories (e.g. `'[{"folder": "cat-my"}]'`).
 - `gitmap sync --repo <name>` — Synchronizes a single target repository by name.
@@ -205,24 +205,26 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap sync --no-push` — Applies changes and commits locally without pushing to remote.
 - `gitmap sync --no-release` — Disables post-sync SemVer release tagging.
 - `gitmap sync --list` — Lists all 43 registered fleet repositories and paths.
-### 10. AI Agent Coordination, Two-Tier Split-DB Telemetry & Heatmaps (`agent-ai` & `agent`)
+
+### 11. AI Agent Coordination, Two-Tier Split-DB Telemetry & Heatmaps (`agent-ai` & `agent`)
 - **Two-Tier Architecture:**
   - *Tier 1 Master DB (`.ai-memory/temp-agents/ai_agents.db` / `agents.db`):* Global parent task registry, workspace file claims, collision detection, and cross-task learning.
   - *Tier 2 Ephemeral DB (`.ai-memory/temp-agents/<slug>/agent-task.db`):* Subtasks, microsecond in-flight editing logs, and verification evidence.
-- `gitmap agent-ai create-task "<name-or-slug>" [--budget <N>]` — Scaffolds parent task in Tier 1 registry and Tier 2 task DB with deterministic slug.
-- `gitmap agent-ai subtask create <slug/id> "<title>" [--code <Code>] [--files <paths>] [--role <role>]` — Enqueues subtask across database tiers.
-- `gitmap agent subtask claim-files --task-id <id> --subtask <code/id> --files "<paths>" --agent "<role>"` — Declares an agent's look-ahead file box and reports active file collisions.
-- `gitmap agent-ai editing <subtask-or-task-id> "<file>" --action <action> --lines <x,y> --reasoning "<why>"` — **Mandatory Pre-Touch Declaration:** Commits in-flight action, targeted line range, and rationale before touching any file.
+- `gitmap agent-ai create-task "<name-or-slug>" [--budget <N>] [--dir <dir>] [--json]` — Scaffolds parent task in Tier 1 registry and Tier 2 task DB with deterministic slug, monotonic budget, and host machine ID (`MachineId`). Emits JSON containing `isSuccess`, `parentTaskId`, `taskSlug`, `taskName`, `machineId`, `runDirectory`, `dbPath`, `totalStepsBudget`, `status`.
+- `gitmap agent-ai subtask create <slug/id> "<title>" [--code <Code>] [--files <paths>] [--role <role>] [--json]` — Enqueues subtask across database tiers, propagating `parentTaskId` and active `machineId`. Validates strictly relative Git file paths and returns JSON containing `isSuccess`, `parentTaskId`, `machineId`, `subtaskId`, `taskCode`, `taskSlug`, `subtaskTitle`, `assignedAgentRole`, `ownedFiles`, `status`.
+- `gitmap agent subtask claim-files --task-id <id> --subtask <code/id> --files "<paths>" --agent "<role>" [--json]` — Declares an agent's look-ahead file box and reports active file collisions with high-contrast collision warnings.
+- `gitmap agent-ai editing <subtask-code-or-id> "<relative-file>" --action <action> --lines <start,end> --reasoning "<why>" [--agent "<role>"] [--json]` — **Mandatory Pre-Touch Declaration (Rule R-PRETOUCH):** Commits in-flight action, targeted line range, and technical rationale before touching or reading any file (<2ms latency). Strictly enforces canonical `ActionType` enum flags: `modify`, `analyze`, `read`, `remove`, `refactor`, `create`. Rejects unapproved action types; guarantees 100% crash forensics.
+- `gitmap agent-ai heatmap discuss [<slug>] [--fast] [--json]` — Real-time high-speed (<5ms) heatmap discussion before worker waves. Evaluates heated files, active claims, pre-touch rationales, and contention risk scores ($S_{\text{contention}}$) for multi-agent consensus and collision avoidance.
 - `gitmap agent-ai heatmap [<slug>]` — Renders real-time file churn rankings and ANSI heat badges for a specific task or workspace.
 - `gitmap agent-ai heatmap ls [N]` — Lists the last $N$ task heatmaps (default $N=30$) with activity metrics.
-- `gitmap agent-ai heatmap search "<query>"` — Fuzzy-searches task titles, slugs, and subtasks.
+- `gitmap agent-ai heatmap search "<query>"` — Fuzzy-searches task titles, slugs, and subtasks across global action index.
 - `gitmap agent-ai heatmap grep "<regex>"` — High-speed regex query over global action index across all historical sessions.
 - `gitmap agent-ai subtask [<slug>]` — Renders interactive subtask status tree with claimed file boxes.
 - `gitmap agent-ai learn "<text>" [--tag <tag>]` — Persists discovered architectural patterns or domain pitfalls into Tier 1 `AgentLearning`.
 - `gitmap agent diagnose` — Performs deep autopsy of in-flight crashed agents and displays abandoned actions.
 - `gitmap task <init|add|claim|complete|fail|status|schema>` — Fast compiled Go SQLite task manager engine (<1ms) backing multi-agent workflows.
 
-### 11. Multi-Repo AI Merge Orchestration & "Repo Feature" Resolver
+### 12. Multi-Repo AI Merge Orchestration & "Repo Feature" Resolver
 
 #### A. Universal "Repo Feature" Destination Resolver
 Whenever `<dest-target>` is passed to GitMap commands (`gitmap merge-ai`, `gitmap ma`, `gitmap clone-as`, `gitmap init-remote`), the **Universal "Repo Feature" Resolver** autonomously classifies and prepares the target repository without requiring manual, multi-step interventions:
@@ -277,5 +279,5 @@ Whenever `<dest-target>` is passed to GitMap commands (`gitmap merge-ai`, `gitma
 10. **Universal "Repo Feature" Invariant:** When resolving `<dest-target>`, agents must never delete or wipe pre-existing target directories. Follow `02-spec/21-app/269-summary-nodes-merge-ai-and-repo-feature/repo-feature.md` for zero-prompt authenticated repository creation and local adoption.
 11. **Single-Commit AI Merge Invariant:** When executing `gitmap merge-ai` / `gitmap ma`, conflicting files must be sequenced as `01_<filename>`, `02_<filename>` and paired with `merge-ai-manifest.json` and `instruction.md`. Downstream agents must consolidate logic and restore canonical filenames before final commit.
 12. **Fleet Handshake Deduplication Invariant:** For distributed operations (`gitmap nodes fs`, `gitmap nodes fspe`, `gitmap nodes pe all`), local-machine repositories take precedence and must be evaluated locally with zero SSH overhead. Remote nodes are queried strictly for repositories unique to those nodes.
-13. **Mandatory Pre-Touch Action Logging & File Claiming Invariant (Rule R-PRETOUCH):** Before modifying or performing deep audits on files, all AI agents must declare their in-flight action with `gitmap agent-ai editing <subtask> "<file>" --action <action> --lines <start,end> --reasoning "<why>"`. Multi-agent workers must declare look-ahead file boxes using `gitmap agent subtask claim-files` to prevent write collisions and OS file locks.
+13. **Mandatory Pre-Touch Action Logging & File Claiming Invariant (Rule R-PRETOUCH):** Before modifying, creating, deleting, or reading any repository file, all AI agents MUST declare their in-flight action with `gitmap agent-ai editing <subtask> "<file>" --action <action> --lines <start,end> --reasoning "<why>"`. The `--action` flag strictly enforces the canonical `ActionType` enum: `modify`, `analyze`, `read`, `remove`, `refactor`, `create`. Ad-hoc strings or undeclared mutations are strictly rejected. Multi-agent workers must declare look-ahead file boxes using `gitmap agent subtask claim-files` and review `gitmap agent-ai heatmap discuss` to prevent write collisions and OS file locks.
 

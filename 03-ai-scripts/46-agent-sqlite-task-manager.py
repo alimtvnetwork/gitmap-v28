@@ -48,8 +48,10 @@ import difflib
 import json
 import os
 import re
+import socket
 import sqlite3
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -66,6 +68,105 @@ def get_repo_root() -> Path:
 
 REPO_ROOT = get_repo_root()
 TEMP_AGENTS_DIR = REPO_ROOT / ".ai-memory" / "temp-agents"
+
+
+def get_machine_id() -> str:
+    """Resolve deterministic machine identity in sanitized lowercase kebab-case."""
+    env_id = os.environ.get("GITMAP_MACHINE_ID", "").strip()
+    if env_id:
+        cleaned = re.sub(r"[^a-z0-9_-]", "-", env_id.lower()).strip("-")
+        return cleaned[:32] or "local-machine"
+
+    raw = ""
+    try:
+        raw = socket.gethostname().strip().lower()
+    except Exception:
+        pass
+
+    if not raw:
+        raw = os.environ.get("COMPUTERNAME", os.environ.get("HOSTNAME", "local-machine")).strip().lower()
+
+    cleaned = re.sub(r"[^a-z0-9_-]", "-", raw).strip("-")
+    return cleaned[:32] or "local-machine"
+
+
+CANONICAL_ACTION_TYPES = {"modify", "analyze", "read", "remove", "refactor", "create"}
+LIFECYCLE_ACTION_TYPES = {"START", "COMPLETE", "FAIL"}
+
+ACTION_TYPE_ALIASES: Dict[str, str] = {
+    # modify aliases
+    "write": "modify",
+    "replace_file_content": "modify",
+    "edit": "modify",
+    "edit_file": "modify",
+    "patch": "modify",
+    "update": "modify",
+    # read aliases
+    "view_file": "read",
+    "read_file": "read",
+    "cat": "read",
+    "read_memory": "read",
+    "gitmap cat": "read",
+    "read_resource": "read",
+    # analyze aliases
+    "search": "analyze",
+    "find": "analyze",
+    "grep": "analyze",
+    "diagnose": "analyze",
+    "check": "analyze",
+    "inspect": "analyze",
+    "lint": "analyze",
+    "run_linter": "analyze",
+    "run_test": "analyze",
+    "analyze_file": "analyze",
+    # remove aliases
+    "delete": "remove",
+    "delete_file": "remove",
+    "drop": "remove",
+    "clean": "remove",
+    "rm": "remove",
+    "unlink": "remove",
+    "purge": "remove",
+    # refactor aliases
+    "restructure": "refactor",
+    "optimize": "refactor",
+    "reorganize": "refactor",
+    "refactor_module": "refactor",
+    "extract_type": "refactor",
+    # create aliases
+    "touch": "create",
+    "create_file": "create",
+    "mkdir": "create",
+    "add": "create",
+    "new": "create",
+    "write_to_file": "create",
+}
+
+
+def normalize_action_type(raw_action: str, target_file: Optional[str] = None) -> Optional[str]:
+    """Normalize raw tool/IDE action to canonical ActionType enum or lifecycle action."""
+    action_raw = raw_action.strip()
+    action_upper = action_raw.upper()
+    if action_upper in LIFECYCLE_ACTION_TYPES:
+        return action_upper
+
+    action_lower = action_raw.lower()
+    if action_lower in CANONICAL_ACTION_TYPES:
+        return action_lower
+
+    if action_lower == "write_to_file" and target_file:
+        try:
+            target_path = REPO_ROOT / target_file
+            if target_path.exists():
+                return "modify"
+        except Exception:
+            pass
+        return "create"
+
+    if action_lower in ACTION_TYPE_ALIASES:
+        return ACTION_TYPE_ALIASES[action_lower]
+
+    return None
 
 
 def slugify(text: str) -> str:
@@ -95,6 +196,7 @@ CREATE TABLE IF NOT EXISTS ParentTask (
     ParentTaskId INTEGER PRIMARY KEY AUTOINCREMENT,
     TaskName TEXT NOT NULL,
     TaskSlug TEXT NOT NULL,
+    MachineId TEXT NOT NULL DEFAULT 'local-machine',
     RunDirectory TEXT NOT NULL,
     Status TEXT NOT NULL DEFAULT 'ACTIVE',
     IsActive INTEGER NOT NULL DEFAULT 1,
@@ -111,6 +213,7 @@ CREATE TABLE IF NOT EXISTS Subtask (
     ParentTaskId INTEGER NOT NULL,
     TaskCode TEXT NOT NULL,
     Title TEXT NOT NULL,
+    MachineId TEXT NOT NULL DEFAULT 'local-machine',
     AssignedAgentRole TEXT NULL,
     OwnedFilesJson TEXT NOT NULL DEFAULT '[]',
     Status TEXT NOT NULL DEFAULT 'PENDING',
@@ -125,6 +228,7 @@ CREATE TABLE IF NOT EXISTS Subtask (
 CREATE TABLE IF NOT EXISTS AgentActionLog (
     ActionLogId INTEGER PRIMARY KEY AUTOINCREMENT,
     SubtaskId INTEGER NOT NULL,
+    MachineId TEXT NOT NULL DEFAULT 'local-machine',
     AgentRole TEXT NOT NULL,
     ActionType TEXT NOT NULL,
     TargetFile TEXT NULL,
@@ -135,7 +239,10 @@ CREATE TABLE IF NOT EXISTS AgentActionLog (
 );
 
 CREATE INDEX IF NOT EXISTS idx_subtask_status ON Subtask(Status);
+CREATE INDEX IF NOT EXISTS idx_subtask_machine ON Subtask(MachineId);
 CREATE INDEX IF NOT EXISTS idx_action_subtask ON AgentActionLog(SubtaskId);
+CREATE INDEX IF NOT EXISTS idx_action_file ON AgentActionLog(TargetFile);
+CREATE INDEX IF NOT EXISTS idx_action_created ON AgentActionLog(CreatedAt);
 """.strip()
 
 SCHEMA_METADATA: Dict[str, Any] = {
@@ -145,6 +252,13 @@ SCHEMA_METADATA: Dict[str, Any] = {
         "booleans": "Positive booleans only (Is*, Has*) storing integer 0 or 1",
         "concurrency": "WAL mode enabled with busy_timeout=5000ms",
         "paths": "Strict relative git paths only (forward slashes)",
+        "machineId": "Deterministic lowercase kebab-case host identifier",
+        "actions": "Strict canonical ActionType enum (modify, analyze, read, remove, refactor, create)",
+    },
+    "actionTypes": {
+        "canonical": sorted(list(CANONICAL_ACTION_TYPES)),
+        "lifecycle": sorted(list(LIFECYCLE_ACTION_TYPES)),
+        "aliases": ACTION_TYPE_ALIASES,
     },
     "tables": {
         "ParentTask": {
@@ -154,6 +268,7 @@ SCHEMA_METADATA: Dict[str, Any] = {
                 {"name": "ParentTaskId", "type": "INTEGER", "primaryKey": True, "nullable": False, "default": None, "description": "Auto-incrementing primary key"},
                 {"name": "TaskName", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Original task title or prompt"},
                 {"name": "TaskSlug", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Deterministic kebab-case identifier"},
+                {"name": "MachineId", "type": "TEXT", "primaryKey": False, "nullable": False, "default": "'local-machine'", "description": "Deterministic host machine identity"},
                 {"name": "RunDirectory", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Relative directory in .ai-memory/temp-agents/"},
                 {"name": "Status", "type": "TEXT", "primaryKey": False, "nullable": False, "default": "'ACTIVE'", "description": "ACTIVE, COMPLETED, FAILED"},
                 {"name": "IsActive", "type": "INTEGER", "primaryKey": False, "nullable": False, "default": "1", "isPositiveBoolean": True, "description": "1 if active, 0 if paused or finished"},
@@ -174,6 +289,7 @@ SCHEMA_METADATA: Dict[str, Any] = {
                 {"name": "ParentTaskId", "type": "INTEGER", "primaryKey": False, "nullable": False, "default": None, "foreignKey": "ParentTask(ParentTaskId)", "description": "Parent task foreign key"},
                 {"name": "TaskCode", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Task code, e.g. Task-01"},
                 {"name": "Title", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Subtask title description"},
+                {"name": "MachineId", "type": "TEXT", "primaryKey": False, "nullable": False, "default": "'local-machine'", "description": "Deterministic host machine identity"},
                 {"name": "AssignedAgentRole", "type": "TEXT", "primaryKey": False, "nullable": True, "default": None, "description": "Assigned agent role (e.g. Worker 01)"},
                 {"name": "OwnedFilesJson", "type": "TEXT", "primaryKey": False, "nullable": False, "default": "'[]'", "isJson": True, "description": "JSON array of disjoint relative file paths"},
                 {"name": "Status", "type": "TEXT", "primaryKey": False, "nullable": False, "default": "'PENDING'", "description": "PENDING, IN_PROGRESS, DONE, FAILED"},
@@ -183,7 +299,10 @@ SCHEMA_METADATA: Dict[str, Any] = {
                 {"name": "CreatedAt", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "ISO 8601 UTC timestamp"},
                 {"name": "UpdatedAt", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "ISO 8601 UTC timestamp"},
             ],
-            "indexes": ["idx_subtask_status ON Subtask(Status)"]
+            "indexes": [
+                "idx_subtask_status ON Subtask(Status)",
+                "idx_subtask_machine ON Subtask(MachineId)",
+            ]
         },
         "AgentActionLog": {
             "description": "Fine-grained audit trail capturing in-flight actions for crash forensics.",
@@ -191,14 +310,19 @@ SCHEMA_METADATA: Dict[str, Any] = {
             "columns": [
                 {"name": "ActionLogId", "type": "INTEGER", "primaryKey": True, "nullable": False, "default": None, "description": "Auto-incrementing primary key"},
                 {"name": "SubtaskId", "type": "INTEGER", "primaryKey": False, "nullable": False, "default": None, "foreignKey": "Subtask(SubtaskId)", "description": "Subtask foreign key"},
+                {"name": "MachineId", "type": "TEXT", "primaryKey": False, "nullable": False, "default": "'local-machine'", "description": "Deterministic host machine identity"},
                 {"name": "AgentRole", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Worker role name executing the action"},
-                {"name": "ActionType", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Action type (START, write_to_file, run_command, COMPLETE, FAIL)"},
+                {"name": "ActionType", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Canonical ActionType (modify, analyze, read, remove, refactor, create, START, COMPLETE, FAIL)"},
                 {"name": "TargetFile", "type": "TEXT", "primaryKey": False, "nullable": True, "default": None, "description": "Target relative file path"},
                 {"name": "ActionDetails", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "Human-readable description of action"},
                 {"name": "Status", "type": "TEXT", "primaryKey": False, "nullable": False, "default": "'IN_PROGRESS'", "description": "IN_PROGRESS, DONE, FAILED"},
                 {"name": "CreatedAt", "type": "TEXT", "primaryKey": False, "nullable": False, "default": None, "description": "ISO 8601 UTC timestamp"},
             ],
-            "indexes": ["idx_action_subtask ON AgentActionLog(SubtaskId)"]
+            "indexes": [
+                "idx_action_subtask ON AgentActionLog(SubtaskId)",
+                "idx_action_file ON AgentActionLog(TargetFile)",
+                "idx_action_created ON AgentActionLog(CreatedAt)",
+            ]
         }
     },
     "payloadSpecifications": {
@@ -230,6 +354,42 @@ SCHEMA_METADATA: Dict[str, Any] = {
         }
     }
 }
+
+
+def ensure_schema_migrations(conn: sqlite3.Connection) -> None:
+    """Apply non-destructive schema migrations for backward compatibility on existing databases."""
+    cur = conn.cursor()
+
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ParentTask';")
+    has_parent = bool(cur.fetchone())
+    if has_parent:
+        cur.execute("PRAGMA table_info(ParentTask);")
+        columns = [row["name"] for row in cur.fetchall()]
+        if "MachineId" not in columns:
+            cur.execute("ALTER TABLE ParentTask ADD COLUMN MachineId TEXT NOT NULL DEFAULT 'local-machine';")
+
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Subtask';")
+    has_subtask = bool(cur.fetchone())
+    if has_subtask:
+        cur.execute("PRAGMA table_info(Subtask);")
+        columns = [row["name"] for row in cur.fetchall()]
+        if "MachineId" not in columns:
+            cur.execute("ALTER TABLE Subtask ADD COLUMN MachineId TEXT NOT NULL DEFAULT 'local-machine';")
+
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='AgentActionLog';")
+    has_action = bool(cur.fetchone())
+    if has_action:
+        cur.execute("PRAGMA table_info(AgentActionLog);")
+        columns = [row["name"] for row in cur.fetchall()]
+        if "MachineId" not in columns:
+            cur.execute("ALTER TABLE AgentActionLog ADD COLUMN MachineId TEXT NOT NULL DEFAULT 'local-machine';")
+
+
+def init_schema(conn: sqlite3.Connection) -> None:
+    """Initialize PascalCase SQLite tables with positive boolean columns."""
+    with conn:
+        ensure_schema_migrations(conn)
+        conn.executescript(SCHEMA_DDL)
 
 
 def validate_relative_path(path_str: str) -> Optional[str]:
@@ -388,12 +548,6 @@ def cmd_schema(args: argparse.Namespace) -> int:
     return 0
 
 
-def init_schema(conn: sqlite3.Connection) -> None:
-    """Initialize PascalCase SQLite tables with positive boolean columns."""
-    with conn:
-        conn.executescript(SCHEMA_DDL)
-
-
 def find_similar_existing_run(target_slug: str) -> Optional[Tuple[Path, float]]:
     """Scan .ai-memory/temp-agents/ for existing runs with matching or similar slug."""
     if not TEMP_AGENTS_DIR.exists():
@@ -451,6 +605,7 @@ def now_iso() -> str:
 
 def cmd_init(args: argparse.Namespace) -> int:
     """Initialize task run, checking for existing runs to resume."""
+    machine_id = get_machine_id()
     slug = slugify(args.name)
     existing = find_similar_existing_run(slug)
 
@@ -466,14 +621,25 @@ def cmd_init(args: argparse.Namespace) -> int:
             if parent is not None:
                 # Run crash diagnostics on this existing run
                 diagnostics = diagnose_db(conn)
+                rel_run_dir = str(existing_dir.relative_to(REPO_ROOT)).replace("\\", "/")
+                rel_db_path = str(db_file.relative_to(REPO_ROOT)).replace("\\", "/")
+                parent_keys = parent.keys() if hasattr(parent, "keys") else []
+                task_name = parent["TaskName"] if "TaskName" in parent_keys else args.name
+                parent_machine = parent["MachineId"] if "MachineId" in parent_keys and parent["MachineId"] else machine_id
+                budget = parent["TotalStepsBudget"] if "TotalStepsBudget" in parent_keys else args.budget
                 out = {
+                    "isSuccess": True,
                     "action": "RESUME_FOUND",
-                    "similarity": round(similarity, 3),
-                    "runDirectory": str(existing_dir.relative_to(REPO_ROOT)).replace("\\", "/"),
-                    "databasePath": str(db_file.relative_to(REPO_ROOT)).replace("\\", "/"),
                     "parentTaskId": parent["ParentTaskId"],
-                    "slug": parent["TaskSlug"],
+                    "taskSlug": parent["TaskSlug"],
+                    "taskName": task_name,
+                    "machineId": parent_machine,
+                    "runDirectory": rel_run_dir,
+                    "databasePath": rel_db_path,
+                    "totalStepsBudget": budget,
                     "status": parent["Status"],
+                    "similarity": round(similarity, 3),
+                    "slug": parent["TaskSlug"],
                     "isActive": bool(parent["IsActive"]),
                     "hasCompleted": bool(parent["HasCompleted"]),
                     "diagnostics": diagnostics,
@@ -499,22 +665,26 @@ def cmd_init(args: argparse.Namespace) -> int:
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO ParentTask (
-                TaskName, TaskSlug, RunDirectory, Status, IsActive, HasCompleted,
+                TaskName, TaskSlug, MachineId, RunDirectory, Status, IsActive, HasCompleted,
                 TotalStepsBudget, CurrentStep, CreatedAt, UpdatedAt
-            ) VALUES (?, ?, ?, 'ACTIVE', 1, 0, ?, 1, ?, ?);
-        """, (args.name, slug, rel_run_dir, args.budget, created_at, created_at))
+            ) VALUES (?, ?, ?, ?, 'ACTIVE', 1, 0, ?, 1, ?, ?);
+        """, (args.name, slug, machine_id, rel_run_dir, args.budget, created_at, created_at))
         parent_id = cur.lastrowid
 
     conn.close()
 
     out = {
+        "isSuccess": True,
         "action": "INITIALIZED",
         "parentTaskId": parent_id,
-        "slug": slug,
+        "taskSlug": slug,
+        "taskName": args.name,
+        "machineId": machine_id,
         "runDirectory": rel_run_dir,
         "databasePath": rel_db_path,
         "totalStepsBudget": args.budget,
         "status": "ACTIVE",
+        "slug": slug,
     }
     print(json.dumps(out, indent=2))
     return 0
@@ -588,7 +758,7 @@ def cmd_add_subtasks(args: argparse.Namespace) -> int:
     init_schema(conn)
 
     cur = conn.cursor()
-    cur.execute("SELECT ParentTaskId FROM ParentTask ORDER BY ParentTaskId DESC LIMIT 1;")
+    cur.execute("SELECT ParentTaskId, TaskSlug FROM ParentTask ORDER BY ParentTaskId DESC LIMIT 1;")
     row = cur.fetchone()
 
     if not row:
@@ -598,6 +768,8 @@ def cmd_add_subtasks(args: argparse.Namespace) -> int:
         return 1
 
     parent_id = args.parent_id if args.parent_id else row["ParentTaskId"]
+    task_slug = row["TaskSlug"] if "TaskSlug" in row.keys() else "task"
+    machine_id = get_machine_id()
     created_at = now_iso()
     inserted_ids = []
 
@@ -690,18 +862,37 @@ def cmd_add_subtasks(args: argparse.Namespace) -> int:
         for vtask in validated_tasks:
             cur.execute("""
                 INSERT INTO Subtask (
-                    ParentTaskId, TaskCode, Title, AssignedAgentRole,
+                    ParentTaskId, TaskCode, Title, MachineId, AssignedAgentRole,
                     OwnedFilesJson, Status, IsBlocked, HasCompleted,
                     CreatedAt, UpdatedAt
-                ) VALUES (?, ?, ?, ?, ?, 'PENDING', 0, 0, ?, ?);
-            """, (parent_id, vtask["code"], vtask["title"], vtask["agent"], vtask["owned_json"], created_at, created_at))
+                ) VALUES (?, ?, ?, ?, ?, ?, 'PENDING', 0, 0, ?, ?);
+            """, (parent_id, vtask["code"], vtask["title"], machine_id, vtask["agent"], vtask["owned_json"], created_at, created_at))
             inserted_ids.append(cur.lastrowid)
 
     conn.close()
+
+    subtasks_list: List[Dict[str, Any]] = []
+    for sid, vtask in zip(inserted_ids, validated_tasks):
+        subtasks_list.append({
+            "subtaskId": sid,
+            "parentTaskId": parent_id,
+            "taskCode": vtask["code"],
+            "title": vtask["title"],
+            "machineId": machine_id,
+            "assignedAgentRole": vtask["agent"],
+            "ownedFiles": json.loads(vtask["owned_json"]),
+            "status": "PENDING",
+        })
+
     print(json.dumps({
         "status": "SUCCESS",
+        "isSuccess": True,
+        "parentTaskId": parent_id,
+        "taskSlug": task_slug,
+        "machineId": machine_id,
         "subtasksCreated": len(inserted_ids),
         "subtaskIds": inserted_ids,
+        "subtasks": subtasks_list,
     }, indent=2))
 
     return 0
@@ -715,6 +906,8 @@ def cmd_claim(args: argparse.Namespace) -> int:
 
     conn = get_db_connection(db_path)
     init_schema(conn)
+
+    machine_id = get_machine_id()
 
     with conn:
         cur = conn.cursor()
@@ -736,7 +929,7 @@ def cmd_claim(args: argparse.Namespace) -> int:
         task = cur.fetchone()
         if not task:
             conn.close()
-            print(json.dumps({"status": "NO_TASKS_AVAILABLE"}))
+            print(json.dumps({"status": "NO_TASKS_AVAILABLE", "isSuccess": False}))
             return 0
 
         subtask_id = task["SubtaskId"]
@@ -747,23 +940,26 @@ def cmd_claim(args: argparse.Namespace) -> int:
             UPDATE Subtask
             SET Status = 'IN_PROGRESS',
                 AssignedAgentRole = ?,
+                MachineId = ?,
                 UpdatedAt = ?
             WHERE SubtaskId = ?;
-        """, (assigned_role, updated_at, subtask_id))
+        """, (assigned_role, machine_id, updated_at, subtask_id))
 
         # Log start action
         cur.execute("""
             INSERT INTO AgentActionLog (
-                SubtaskId, AgentRole, ActionType, ActionDetails, Status, CreatedAt
-            ) VALUES (?, ?, 'START', 'Subtask claimed and started', 'IN_PROGRESS', ?);
-        """, (subtask_id, assigned_role, updated_at))
+                SubtaskId, MachineId, AgentRole, ActionType, ActionDetails, Status, CreatedAt
+            ) VALUES (?, ?, ?, 'START', 'Subtask claimed and started', 'IN_PROGRESS', ?);
+        """, (subtask_id, machine_id, assigned_role, updated_at))
 
     owned_files = json.loads(task["OwnedFilesJson"]) if task["OwnedFilesJson"] else []
     out = {
+        "isSuccess": True,
         "status": "CLAIMED",
         "subtaskId": subtask_id,
         "taskCode": task["TaskCode"],
         "title": task["Title"],
+        "machineId": machine_id,
         "assignedAgentRole": assigned_role,
         "ownedFiles": owned_files,
     }
@@ -778,25 +974,64 @@ def cmd_log_action(args: argparse.Namespace) -> int:
     if not db_path.is_absolute():
         db_path = REPO_ROOT / db_path
 
+    if not db_path.exists():
+        print(json.dumps({"error": f"Database not found at {args.db}"}), file=sys.stderr)
+        return 1
+
+    # Validate relative file path if provided
+    if args.file:
+        path_err = validate_relative_path(args.file)
+        if path_err is not None:
+            print(json.dumps({"error": f"Invalid target file: {path_err}"}), file=sys.stderr)
+            return 1
+
+    # Validate and normalize action type
+    normalized_action = normalize_action_type(args.action, args.file)
+    if not normalized_action:
+        allowed_list = sorted(list(CANONICAL_ACTION_TYPES))
+        err_msg = {
+            "error": f"Invalid --action '{args.action}'. Must be one of: {', '.join(allowed_list)}.",
+            "allowedActionTypes": allowed_list,
+        }
+        print(json.dumps(err_msg), file=sys.stderr)
+        return 1
+
     conn = get_db_connection(db_path)
     init_schema(conn)
 
+    machine_id = get_machine_id()
     created_at = now_iso()
-    details = args.details or f"Executing {args.action} on {args.file or 'workspace'}"
+
+    reasoning_text = getattr(args, "reasoning", None) or ""
+    lines_text = f"[Lines: {args.lines}] " if getattr(args, "lines", None) else ""
+    if reasoning_text:
+        details = f"{lines_text}{reasoning_text}"
+    else:
+        details = args.details or f"Executing {normalized_action} on {args.file or 'workspace'}"
 
     with conn:
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO AgentActionLog (
-                SubtaskId, AgentRole, ActionType, TargetFile, ActionDetails, Status, CreatedAt
-            ) VALUES (?, ?, ?, ?, ?, 'IN_PROGRESS', ?);
-        """, (args.subtask_id, args.agent, args.action, args.file, details, created_at))
+                SubtaskId, MachineId, AgentRole, ActionType, TargetFile, ActionDetails, Status, CreatedAt
+            ) VALUES (?, ?, ?, ?, ?, ?, 'IN_PROGRESS', ?);
+        """, (args.subtask_id, machine_id, args.agent, normalized_action, args.file, details, created_at))
         action_id = cur.lastrowid
 
         cur.execute("UPDATE Subtask SET UpdatedAt = ? WHERE SubtaskId = ?;", (created_at, args.subtask_id))
 
     conn.close()
-    print(json.dumps({"status": "LOGGED", "actionLogId": action_id}))
+    out = {
+        "isSuccess": True,
+        "status": "LOGGED",
+        "actionLogId": action_id,
+        "subtaskId": args.subtask_id,
+        "agentRole": args.agent,
+        "actionType": normalized_action,
+        "targetFile": args.file,
+        "machineId": machine_id,
+    }
+    print(json.dumps(out, indent=2))
     return 0
 
 
@@ -809,6 +1044,7 @@ def cmd_complete(args: argparse.Namespace) -> int:
     conn = get_db_connection(db_path)
     init_schema(conn)
 
+    machine_id = get_machine_id()
     updated_at = now_iso()
     with conn:
         cur = conn.cursor()
@@ -824,12 +1060,12 @@ def cmd_complete(args: argparse.Namespace) -> int:
 
         cur.execute("""
             INSERT INTO AgentActionLog (
-                SubtaskId, AgentRole, ActionType, ActionDetails, Status, CreatedAt
-            ) VALUES (?, ?, 'COMPLETE', 'Subtask verified and completed', 'DONE', ?);
-        """, (args.subtask_id, args.agent or "Worker", updated_at))
+                SubtaskId, MachineId, AgentRole, ActionType, ActionDetails, Status, CreatedAt
+            ) VALUES (?, ?, ?, 'COMPLETE', 'Subtask verified and completed', 'DONE', ?);
+        """, (args.subtask_id, machine_id, args.agent or "Worker", updated_at))
 
     conn.close()
-    print(json.dumps({"status": "COMPLETED", "subtaskId": args.subtask_id}))
+    print(json.dumps({"isSuccess": True, "status": "COMPLETED", "subtaskId": args.subtask_id, "machineId": machine_id}))
     return 0
 
 
@@ -842,6 +1078,7 @@ def cmd_fail(args: argparse.Namespace) -> int:
     conn = get_db_connection(db_path)
     init_schema(conn)
 
+    machine_id = get_machine_id()
     updated_at = now_iso()
     with conn:
         cur = conn.cursor()
@@ -856,12 +1093,12 @@ def cmd_fail(args: argparse.Namespace) -> int:
 
         cur.execute("""
             INSERT INTO AgentActionLog (
-                SubtaskId, AgentRole, ActionType, ActionDetails, Status, CreatedAt
-            ) VALUES (?, ?, 'FAIL', ?, 'FAILED', ?);
-        """, (args.subtask_id, args.agent or "Worker", args.reason or "Task failed", updated_at))
+                SubtaskId, MachineId, AgentRole, ActionType, ActionDetails, Status, CreatedAt
+            ) VALUES (?, ?, ?, 'FAIL', ?, 'FAILED', ?);
+        """, (args.subtask_id, machine_id, args.agent or "Worker", args.reason or "Task failed", updated_at))
 
     conn.close()
-    print(json.dumps({"status": "FAILED", "subtaskId": args.subtask_id}))
+    print(json.dumps({"isSuccess": False, "status": "FAILED", "subtaskId": args.subtask_id, "machineId": machine_id}))
     return 0
 
 
@@ -874,7 +1111,8 @@ def diagnose_db(conn: sqlite3.Connection) -> Dict[str, Any]:
                a.ActionType AS LastActionType,
                a.TargetFile AS LastTargetFile,
                a.ActionDetails AS LastActionDetails,
-               a.CreatedAt AS LastActionTimestamp
+               a.CreatedAt AS LastActionTimestamp,
+               a.MachineId AS LastActionMachineId
         FROM Subtask s
         LEFT JOIN AgentActionLog a ON a.ActionLogId = (
             SELECT MAX(ActionLogId) FROM AgentActionLog WHERE SubtaskId = s.SubtaskId
@@ -886,15 +1124,18 @@ def diagnose_db(conn: sqlite3.Connection) -> Dict[str, Any]:
 
     crashes = []
     for row in in_progress:
+        row_keys = row.keys() if hasattr(row, "keys") else []
         crashes.append({
             "subtaskId": row["SubtaskId"],
             "taskCode": row["TaskCode"],
             "title": row["Title"],
+            "machineId": row["MachineId"] if "MachineId" in row_keys else "local-machine",
             "assignedAgentRole": row["AssignedAgentRole"],
             "lastActionType": row["LastActionType"],
             "lastTargetFile": row["LastTargetFile"],
             "lastActionDetails": row["LastActionDetails"],
             "lastTimestamp": row["LastActionTimestamp"],
+            "lastActionMachineId": row["LastActionMachineId"] if "LastActionMachineId" in row_keys else "local-machine",
             "diagnosis": (
                 f"Agent '{row['AssignedAgentRole']}' was in progress on {row['TaskCode']} ('{row['Title']}'). "
                 f"Last logged action: '{row['LastActionType']}' targeting '{row['LastTargetFile'] or 'workspace'}'. "
@@ -960,7 +1201,7 @@ def cmd_status(args: argparse.Namespace) -> int:
     cur.execute("SELECT * FROM ParentTask ORDER BY ParentTaskId DESC LIMIT 1;")
     parent = cur.fetchone()
 
-    cur.execute("SELECT SubtaskId, TaskCode, Title, AssignedAgentRole, Status, Evidence FROM Subtask ORDER BY SubtaskId ASC;")
+    cur.execute("SELECT SubtaskId, TaskCode, Title, MachineId, AssignedAgentRole, Status, Evidence FROM Subtask ORDER BY SubtaskId ASC;")
     subtasks = [dict(row) for row in cur.fetchall()]
 
     counts: Dict[str, int] = {}
@@ -974,9 +1215,14 @@ def cmd_status(args: argparse.Namespace) -> int:
 
     conn.close()
 
+    machine_id = get_machine_id()
+    parent_keys = parent.keys() if parent and hasattr(parent, "keys") else []
+    parent_machine = parent["MachineId"] if parent and "MachineId" in parent_keys and parent["MachineId"] else machine_id
+
     out = {
         "taskSlug": parent["TaskSlug"] if parent else "unknown",
         "taskName": parent["TaskName"] if parent else "unknown",
+        "machineId": parent_machine,
         "status": parent["Status"] if parent else "unknown",
         "totalSubtasks": total,
         "completed": done,
@@ -987,6 +1233,234 @@ def cmd_status(args: argparse.Namespace) -> int:
         "subtasks": subtasks,
     }
     print(json.dumps(out, indent=2))
+    return 0
+
+
+def cmd_heatmap_discuss(args: argparse.Namespace) -> int:
+    """Real-time fast heatmap discussion engine (<5ms) for multi-agent file contention."""
+    start_time = time.perf_counter()
+
+    db_path = resolve_db_path(getattr(args, "db", None))
+    if db_path is None or not db_path.exists():
+        err_msg = f"Database not found at {getattr(args, 'db', None) or '.ai-memory/temp-agents/'}"
+        if getattr(args, "is_json", False):
+            print(json.dumps({"isSuccess": False, "error": err_msg}))
+        else:
+            print(f"Error: {err_msg}", file=sys.stderr)
+        return 1
+
+    conn = get_db_connection(db_path)
+    init_schema(conn)
+
+    machine_id = get_machine_id()
+    cur = conn.cursor()
+
+    # 1. Parent Task context
+    cur.execute("SELECT TaskSlug, TaskName, MachineId FROM ParentTask ORDER BY ParentTaskId DESC LIMIT 1;")
+    parent_row = cur.fetchone()
+    task_slug = parent_row["TaskSlug"] if parent_row else "unknown"
+    task_name = parent_row["TaskName"] if parent_row else "unknown"
+    parent_machine = parent_row["MachineId"] if parent_row else machine_id
+
+    # 2. File claims from Subtask
+    cur.execute("SELECT SubtaskId, TaskCode, AssignedAgentRole, OwnedFilesJson, Status FROM Subtask;")
+    subtask_rows = cur.fetchall()
+
+    claims_by_file: Dict[str, List[Dict[str, str]]] = {}
+    total_active_claims = 0
+
+    for st in subtask_rows:
+        code = st["TaskCode"]
+        role = st["AssignedAgentRole"] or "Worker"
+        raw_owned = st["OwnedFilesJson"]
+        if raw_owned:
+            try:
+                owned_files = json.loads(raw_owned)
+                if isinstance(owned_files, list):
+                    for f in owned_files:
+                        if isinstance(f, str) and f.strip():
+                            clean_path = f.strip().replace("\\", "/")
+                            if clean_path not in claims_by_file:
+                                claims_by_file[clean_path] = []
+                            claims_by_file[clean_path].append({
+                                "agentRole": role,
+                                "subtaskCode": code,
+                            })
+                            total_active_claims += 1
+            except Exception:
+                pass
+
+    # 3. Actions from AgentActionLog
+    window_sec = getattr(args, "window", 1800) or 1800
+    cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=window_sec)).isoformat()
+
+    cur.execute("""
+        SELECT ActionLogId, SubtaskId, MachineId, AgentRole, ActionType, TargetFile, ActionDetails, Status, CreatedAt
+        FROM AgentActionLog
+        WHERE TargetFile IS NOT NULL AND TargetFile != ''
+        ORDER BY ActionLogId DESC
+        LIMIT 2000;
+    """)
+    all_action_rows = cur.fetchall()
+    conn.close()
+
+    # Filter actions in time window, fallback to all recent if window has none
+    window_actions = [row for row in all_action_rows if row["CreatedAt"] >= cutoff]
+    actions_to_analyze = window_actions if window_actions else all_action_rows
+
+    actions_by_file: Dict[str, List[sqlite3.Row]] = {}
+    for act in actions_to_analyze:
+        t_file = act["TargetFile"].strip().replace("\\", "/")
+        if t_file:
+            if t_file not in actions_by_file:
+                actions_by_file[t_file] = []
+            actions_by_file[t_file].append(act)
+
+    all_candidate_files = sorted(list(set(claims_by_file.keys()) | set(actions_by_file.keys())))
+
+    file_entries: List[Dict[str, Any]] = []
+    active_agents: set[str] = set()
+
+    for f_path in all_candidate_files:
+        f_actions = actions_by_file.get(f_path, [])
+        f_claims = claims_by_file.get(f_path, [])
+
+        agents_set = set()
+        for act in f_actions:
+            if act["AgentRole"]:
+                agents_set.add(act["AgentRole"])
+        for clm in f_claims:
+            if clm["agentRole"]:
+                agents_set.add(clm["agentRole"])
+
+        active_agents.update(agents_set)
+
+        mutations_count = 0
+        inspections_count = 0
+        in_flight_count = 0
+
+        for act in f_actions:
+            a_type = act["ActionType"].lower()
+            if a_type in ("modify", "create", "remove", "refactor"):
+                mutations_count += 1
+            elif a_type in ("read", "analyze"):
+                inspections_count += 1
+            if act["Status"] == "IN_PROGRESS":
+                in_flight_count += 1
+
+        claims_count = len(f_claims)
+        touch_count = len(f_actions)
+        unique_agents_count = len(agents_set)
+
+        # Contention scoring formula
+        agent_penalty = 5.0 if unique_agents_count > 1 else 0.0
+        score = (mutations_count * 2.0) + (inspections_count * 0.5) + agent_penalty + (claims_count * 3.0) + (in_flight_count * 2.0)
+        contention_score = round(score, 1)
+
+        # Severity / Contention Level
+        if contention_score >= 10.0 or (unique_agents_count >= 2 and (mutations_count > 0 or claims_count >= 2)):
+            severity = "COLLISION_RISK"
+            contention_level = "CRITICAL"
+        elif contention_score >= 4.0:
+            severity = "WARM"
+            contention_level = "MEDIUM"
+        elif contention_score >= 0.5:
+            severity = "COOL"
+            contention_level = "LOW"
+        else:
+            severity = "IDLE"
+            contention_level = "IDLE"
+
+        recent_actions = []
+        for act in f_actions[:5]:
+            recent_actions.append({
+                "agentRole": act["AgentRole"],
+                "actionType": act["ActionType"],
+                "details": act["ActionDetails"],
+                "status": act["Status"],
+                "timestamp": act["CreatedAt"],
+            })
+
+        last_action_type = recent_actions[0]["actionType"] if recent_actions else None
+        last_touched_at = recent_actions[0]["timestamp"] if recent_actions else None
+
+        file_entries.append({
+            "filePath": f_path,
+            "contentionScore": contention_score,
+            "contentionLevel": contention_level,
+            "severity": severity,
+            "claimsCount": claims_count,
+            "inFlightTouches": in_flight_count,
+            "touchCount": touch_count,
+            "agents": sorted(list(agents_set)),
+            "activeClaimants": f_claims,
+            "recentActions": recent_actions,
+            "lastActionType": last_action_type,
+            "lastTouchedAt": last_touched_at,
+        })
+
+    # Sort files by contentionScore descending, then touchCount descending
+    file_entries.sort(key=lambda x: (x["contentionScore"], x["touchCount"]), reverse=True)
+
+    high_contention_files = [f for f in file_entries if f["severity"] == "COLLISION_RISK"]
+    high_contention_count = len(high_contention_files)
+    collision_warning = high_contention_count > 0
+
+    if collision_warning:
+        c_names = [f["filePath"] for f in high_contention_files[:3]]
+        discussion_summary = f"Collision risk detected on {', '.join(c_names)}: overlapping claims or concurrent worker touches."
+    else:
+        discussion_summary = "No collision risks detected. All active claims are disjoint and safe."
+
+    elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+    now_ts = now_iso()
+
+    if getattr(args, "is_json", False):
+        payload = {
+            "isSuccess": True,
+            "timestamp": now_ts,
+            "evaluatedAt": now_ts,
+            "taskSlug": task_slug,
+            "taskName": task_name,
+            "machineId": parent_machine,
+            "executionTimeMs": elapsed_ms,
+            "activeAgentsCount": len(active_agents),
+            "totalHeatedFiles": len(file_entries),
+            "totalActiveClaims": total_active_claims,
+            "highContentionFilesCount": high_contention_count,
+            "collisionWarning": collision_warning,
+            "hotspotFiles": file_entries,
+            "files": file_entries,
+            "discussionSummary": discussion_summary,
+        }
+        print(json.dumps(payload, indent=2))
+        return 0
+
+    # Terminal human formatted output
+    print(f"[{elapsed_ms:.1f}ms] Heatmap Discussion Summary: {task_slug}")
+    print(f"Evaluated: {len(file_entries)} heated files | Active Claims: {total_active_claims} | Critical Contention: {high_contention_count}\n")
+
+    if not file_entries:
+        print("No heated files or active file claims found in current window.")
+        return 0
+
+    print(f"{'FILE PATH':<48} {'CLAIMS':>6} {'TOUCHES':>8} {'SCORE':>6} {'LEVEL':<10} {'ACTIVE WORKERS'}")
+    print("-" * 95)
+    for fe in file_entries[:15]:
+        workers_str = ", ".join(fe["agents"]) if fe["agents"] else "-"
+        print(f"{fe['filePath'][:46]:<48} {fe['claimsCount']:>6} {fe['touchCount']:>8} {fe['contentionScore']:>6} {fe['contentionLevel']:<10} {workers_str}")
+
+    print("-" * 95)
+    print("DISCUSSION ADVISORY & CONTENTION MITIGATION:")
+    if collision_warning:
+        for cf in high_contention_files[:3]:
+            claimant_roles = [c["agentRole"] for c in cf["activeClaimants"]]
+            print(f"  * Critical contention on '{cf['filePath']}' (Score: {cf['contentionScore']}).")
+            if claimant_roles:
+                print(f"    Active claimants: {', '.join(claimant_roles)}. Subtasks must hold strictly disjoint files.")
+    else:
+        print("  * No active file collisions detected. Safe for concurrent worker operations.")
+
     return 0
 
 
@@ -1016,9 +1490,11 @@ def main() -> int:
     p_log.add_argument("--db", required=True, help="Path to SQLite database")
     p_log.add_argument("--subtask-id", type=int, required=True, help="SubtaskId")
     p_log.add_argument("--agent", required=True, help="Agent role name")
-    p_log.add_argument("--action", required=True, help="Action type (e.g. write_to_file, run_linter)")
+    p_log.add_argument("--action", required=True, help="Action type (e.g. modify, replace_file_content)")
     p_log.add_argument("--file", help="Target relative file path being touched")
     p_log.add_argument("--details", help="Human-readable details of action")
+    p_log.add_argument("--lines", help="Line range e.g. 10,20")
+    p_log.add_argument("--reasoning", help="Technical rationale for the action")
 
     # complete
     p_comp = subparsers.add_parser("complete", help="Mark subtask completed with evidence")
@@ -1048,6 +1524,24 @@ def main() -> int:
     p_schema.add_argument("--ddl", action="store_true", dest="is_ddl", help="Output raw SQL CREATE TABLE and INDEX statements")
     p_schema.add_argument("--db", help="Optional path to SQLite database")
 
+    # heatmap
+    p_heat = subparsers.add_parser("heatmap", help="Real-time file churn and contention heatmap")
+    p_heat.add_argument("subaction", nargs="?", default=None, help="Optional subaction: 'discuss'")
+    p_heat.add_argument("--discuss", action="store_true", help="Enable discussion summary mode")
+    p_heat.add_argument("--db", help="Path to SQLite database")
+    p_heat.add_argument("--slug", help="Filter by task slug")
+    p_heat.add_argument("--window", type=int, default=1800, help="Time window in seconds (default: 1800)")
+    p_heat.add_argument("--fast", action="store_true", default=True, help="Fast query mode without disk stat")
+    p_heat.add_argument("--json", action="store_true", dest="is_json", help="Emit structured JSON output")
+
+    # heatmap-discuss alias
+    p_hd = subparsers.add_parser("heatmap-discuss", help="Alias for heatmap discuss")
+    p_hd.add_argument("--db", help="Path to SQLite database")
+    p_hd.add_argument("--slug", help="Filter by task slug")
+    p_hd.add_argument("--window", type=int, default=1800, help="Time window in seconds (default: 1800)")
+    p_hd.add_argument("--fast", action="store_true", default=True, help="Fast query mode without disk stat")
+    p_hd.add_argument("--json", action="store_true", dest="is_json", help="Emit structured JSON output")
+
     args = parser.parse_args()
 
     dispatch = {
@@ -1060,6 +1554,8 @@ def main() -> int:
         "diagnose": cmd_diagnose,
         "status": cmd_status,
         "schema": cmd_schema,
+        "heatmap": cmd_heatmap_discuss,
+        "heatmap-discuss": cmd_heatmap_discuss,
     }
 
     return dispatch[args.command](args)
