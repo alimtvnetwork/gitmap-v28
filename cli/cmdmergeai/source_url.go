@@ -18,30 +18,14 @@ func ParseURLDetails(rawURL string) (string, string, bool, string, error) {
 		return strings.ToLower(cleanRepo), "https://github.com/" + cleanRepo + ".git", false, "", nil
 	}
 
-	if strings.HasPrefix(trimmed, "git@") {
-		parts := strings.Split(trimmed, ":")
-		if len(parts) == 2 {
-			repoPath := strings.TrimSuffix(parts[1], ".git")
-			repoPath = strings.Trim(repoPath, "/")
-			return strings.ToLower(repoPath), trimmed, false, "", nil
-		}
+	if canonical, clone, ok := parseGitSSHURL(trimmed); ok {
+		return canonical, clone, false, "", nil
 	}
 
-	u := trimmed
-	for _, prefix := range []string{"https://", "http://", "ssh://"} {
-		if strings.HasPrefix(strings.ToLower(u), prefix) {
-			u = u[len(prefix):]
-			break
-		}
-	}
-
+	u := stripURLProtocol(trimmed)
 	slashIdx := strings.Index(u, "/")
 	if slashIdx == -1 {
-		if isShorthandRepo(trimmed) {
-			cleanRepo := strings.TrimSuffix(trimmed, ".git")
-			return strings.ToLower(cleanRepo), "https://github.com/" + cleanRepo + ".git", false, "", nil
-		}
-		return "", "", false, "", fmt.Errorf("invalid repository URL: %s", rawURL)
+		return parseNoSlashURL(trimmed, rawURL)
 	}
 
 	pathOnly := strings.Trim(u[slashIdx+1:], "/")
@@ -55,21 +39,63 @@ func ParseURLDetails(rawURL string) (string, string, bool, string, error) {
 	canonicalRepo := strings.ToLower(owner + "/" + repo)
 	cloneURL := fmt.Sprintf("https://github.com/%s/%s.git", owner, repo)
 
-	var isFileURL bool
-	var filePath string
-	if len(segments) > 2 {
-		kind := strings.ToLower(segments[2])
-		if kind == "blob" || kind == "tree" || kind == "raw" {
-			isFileURL = true
-			if len(segments) > 4 {
-				filePath = strings.Join(segments[4:], "/")
-			} else if len(segments) == 4 {
-				filePath = segments[3]
-			}
-		}
+	isFileURL, filePath := parseFileSegments(segments)
+	return canonicalRepo, cloneURL, isFileURL, filePath, nil
+}
+
+func parseGitSSHURL(trimmed string) (string, string, bool) {
+	if !strings.HasPrefix(trimmed, "git@") {
+		return "", "", false
 	}
 
-	return canonicalRepo, cloneURL, isFileURL, filePath, nil
+	parts := strings.Split(trimmed, ":")
+	if len(parts) != 2 {
+		return "", "", false
+	}
+
+	repoPath := strings.TrimSuffix(parts[1], ".git")
+	repoPath = strings.Trim(repoPath, "/")
+	return strings.ToLower(repoPath), trimmed, true
+}
+
+func stripURLProtocol(u string) string {
+	for _, prefix := range []string{"https://", "http://", "ssh://"} {
+		if strings.HasPrefix(strings.ToLower(u), prefix) {
+			return u[len(prefix):]
+		}
+	}
+	return u
+}
+
+func parseNoSlashURL(trimmed, rawURL string) (string, string, bool, string, error) {
+	if isShorthandRepo(trimmed) {
+		cleanRepo := strings.TrimSuffix(trimmed, ".git")
+		return strings.ToLower(cleanRepo), "https://github.com/" + cleanRepo + ".git", false, "", nil
+	}
+	return "", "", false, "", fmt.Errorf("invalid repository URL: %s", rawURL)
+}
+
+func parseFileSegments(segments []string) (bool, string) {
+	if len(segments) <= 2 {
+		return false, ""
+	}
+
+	kind := strings.ToLower(segments[2])
+	if kind != "blob" && kind != "tree" && kind != "raw" {
+		return false, ""
+	}
+
+	return true, extractFilePathFromSegments(segments)
+}
+
+func extractFilePathFromSegments(segments []string) string {
+	if len(segments) > 4 {
+		return strings.Join(segments[4:], "/")
+	}
+	if len(segments) == 4 {
+		return segments[3]
+	}
+	return ""
 }
 
 func isFullURL(s string) bool {
