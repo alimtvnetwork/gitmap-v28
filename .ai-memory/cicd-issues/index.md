@@ -103,4 +103,5 @@
 - [112-reseed-lint-baseline-cache-v3-and-remove-unused-hints-rca.md](./112-reseed-lint-baseline-cache-v3-and-remove-unused-hints-rca.md): Reseed lint baseline cache to v3 and remove unused hint functions in cmd/hints.go.
 - [113-lint-baseline-cache-v4-and-merge-ai-tempdir-test-rca.md](./113-lint-baseline-cache-v4-and-merge-ai-tempdir-test-rca.md): Reseed lint baseline cache to v4 across all guards and hermetic merge-ai tempdir test fix.
 - [114-unused-import-cmdsummary-in-rootutility-rca.md](./114-unused-import-cmdsummary-in-rootutility-rca.md): Fix unused import cmdsummary in cli/cmd/rootutility.go breaking cross-platform builds and release binaries.
+- [115-file-size-gate-rootutility-rca.md](./115-file-size-gate-rootutility-rca.md): Fix file size gate 300-line cap on rootutility.go by decomposing into rootutility.go, rootutility_update.go, and rootutility_update_args.go.
 

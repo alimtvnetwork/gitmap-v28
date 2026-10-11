@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.537.0] - 2026-10-11
+
+### Added
+- ci - decompose rootutility into rootutility_update and rootutility_update_args for 300-line size gate
+
+---
+
 ## [v6.536.0] - 2026-10-11
 
 ### Added
