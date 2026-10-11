@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.536.0] - 2026-10-11
+
+### Added
+- ci - fix unused import cmdsummary in rootutility breaking release binaries
+
+---
+
 ## [v6.535.0] - 2026-10-11
 
 ### Added
