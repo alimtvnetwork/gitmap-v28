@@ -3,17 +3,30 @@ package cmdmergeai
 
 import "time"
 
+// CommitMetadata models rich commit tracking metadata for a source repository.
+type CommitMetadata struct {
+	SHA         string `json:"sha"`
+	Author      string `json:"author"`
+	AuthorEmail string `json:"authorEmail,omitempty"`
+	Date        string `json:"date"`
+	Message     string `json:"message"`
+	Branch      string `json:"branch"`
+	ShortSHA    string `json:"shortSha,omitempty"`
+}
+
 // SourceRepoConfig models an incoming repository to be merged.
 type SourceRepoConfig struct {
-	Title          string    `json:"title,omitempty"`
-	RepoURL        string    `json:"repoUrl"`
-	Branch         string    `json:"branch,omitempty"`
-	CommitRange    string    `json:"commitRange,omitempty"`
-	LastCommitDate time.Time `json:"lastCommitDate"`
-	Description    string    `json:"description,omitempty"`
-	ReleaseTag     string    `json:"releaseTag,omitempty"`
-	LocalStaging   string    `json:"localStaging,omitempty"`
-	FolderTree     []string  `json:"folderTree,omitempty"`
+	Title          string         `json:"title,omitempty"`
+	RepoURL        string         `json:"repoUrl"`
+	Branch         string         `json:"branch,omitempty"`
+	CommitRange    string         `json:"commitRange,omitempty"`
+	LastCommitDate time.Time      `json:"lastCommitDate"`
+	Description    string         `json:"description,omitempty"`
+	ReleaseTag     string         `json:"releaseTag,omitempty"`
+	ReleaseTagHash string         `json:"releaseTagHash,omitempty"`
+	LocalStaging   string         `json:"localStaging,omitempty"`
+	FolderTree     []string       `json:"folderTree,omitempty"`
+	CommitMetadata CommitMetadata `json:"commitMetadata,omitempty"`
 }
 
 // FileCollisionVariant models one sequenced instance of a conflicting file.
@@ -55,13 +68,14 @@ type MergeAIManifest struct {
 
 // SourceRepoSequenceEntry models one entry in data.repoSequence of the manifest.
 type SourceRepoSequenceEntry struct {
-	SequenceOrder  int    `json:"sequenceOrder"`
-	Title          string `json:"title,omitempty"`
-	RepoURL        string `json:"repoUrl"`
-	Branch         string `json:"branch"`
-	CommitRange    string `json:"commitRange"`
-	LastCommitDate string `json:"lastCommitDate"`
-	Description    string `json:"description"`
+	SequenceOrder  int            `json:"sequenceOrder"`
+	Title          string         `json:"title,omitempty"`
+	RepoURL        string         `json:"repoUrl"`
+	Branch         string         `json:"branch"`
+	CommitRange    string         `json:"commitRange"`
+	LastCommitDate string         `json:"lastCommitDate"`
+	Description    string         `json:"description"`
+	CommitMetadata CommitMetadata `json:"commitMetadata"`
 	ReleaseInfo    struct {
 		LastTag string `json:"lastTag,omitempty"`
 		TagHash string `json:"tagHash,omitempty"`

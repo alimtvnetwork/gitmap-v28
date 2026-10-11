@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.534.0] - 2026-10-11
+
+### Added
+- reseed lint baseline cache to v4 and make merge-ai test hermetic
+
+---
+
 ## [v6.533.0] - 2026-10-11
 
 ### Added

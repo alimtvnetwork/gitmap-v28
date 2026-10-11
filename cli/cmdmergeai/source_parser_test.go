@@ -1,6 +1,8 @@
 package cmdmergeai
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -223,7 +225,12 @@ https://github.com/alimtvnetwork/brand-weaver
 }
 
 func TestParseMergeAIArgs_MultiWordDestination(t *testing.T) {
-	dest, _, _, _, err := parseMergeAIArgs([]string{"Icon", "Studio", "v1", "merge-ai-icon-studio.txt"})
+	tmpFile := filepath.Join(t.TempDir(), "merge-ai-icon-studio.txt")
+	if err := os.WriteFile(tmpFile, []byte("https://github.com/alimtvnetwork/iconcraft-studio\n"), 0644); err != nil {
+		t.Fatalf("failed to create temp file: %v", err)
+	}
+
+	dest, _, _, _, err := parseMergeAIArgs([]string{"Icon", "Studio", "v1", tmpFile})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -231,7 +238,7 @@ func TestParseMergeAIArgs_MultiWordDestination(t *testing.T) {
 		t.Errorf("expected dest 'Icon Studio v1', got '%s'", dest)
 	}
 
-	dest2, _, _, _, err2 := parseMergeAIArgs([]string{"Icon", "Studio", "2026", "merge-ai-icon-studio.txt"})
+	dest2, _, _, _, err2 := parseMergeAIArgs([]string{"Icon", "Studio", "2026", tmpFile})
 	if err2 != nil {
 		t.Fatalf("unexpected error: %v", err2)
 	}

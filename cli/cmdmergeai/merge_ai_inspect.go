@@ -121,6 +121,34 @@ func formatCommitRange(headSha, rootSha string) string {
 	return fmt.Sprintf("%s..%s", shortRoot, shortHead)
 }
 
+func inspectCommitMetadata(dir, branch, headSha, commitMsg string, lastDate time.Time) CommitMetadata {
+	authorName, _ := gitExec(dir, "log", "-1", "--format=%an")
+	authorEmail, _ := gitExec(dir, "log", "-1", "--format=%ae")
+	dateISO, _ := gitExec(dir, "log", "-1", "--format=%cI")
+
+	author := authorName
+	if authorEmail != "" {
+		author = fmt.Sprintf("%s <%s>", authorName, authorEmail)
+	}
+	if author == "" {
+		author = "unknown"
+	}
+
+	if dateISO == "" {
+		dateISO = lastDate.UTC().Format(time.RFC3339)
+	}
+
+	return CommitMetadata{
+		SHA:         headSha,
+		Author:      author,
+		AuthorEmail: authorEmail,
+		Date:        dateISO,
+		Message:     commitMsg,
+		Branch:      branch,
+		ShortSHA:    truncateCommitSha(headSha),
+	}
+}
+
 func inspectSingleSource(url, dir string) SourceRepoConfig {
 	branchOut, _ := gitExec(dir, "rev-parse", "--abbrev-ref", "HEAD")
 	epochOut, _ := gitExec(dir, "log", "-1", "--format=%ct")
@@ -128,6 +156,11 @@ func inspectSingleSource(url, dir string) SourceRepoConfig {
 	tagOut, _ := gitExec(dir, "describe", "--tags", "--abbrev=0")
 	headSha, _ := gitExec(dir, "rev-parse", "HEAD")
 	rootSha, _ := gitExec(dir, "rev-list", "--max-parents=0", "HEAD")
+
+	tagHash := ""
+	if tagOut != "" {
+		tagHash, _ = gitExec(dir, "rev-parse", tagOut)
+	}
 
 	var lastDate time.Time
 	if epochSec, err := strconv.ParseInt(epochOut, 10, 64); err == nil && epochSec > 0 {
@@ -138,6 +171,7 @@ func inspectSingleSource(url, dir string) SourceRepoConfig {
 
 	commitRange := formatCommitRange(headSha, rootSha)
 	tree := enumerateTrackedFiles(dir)
+	commitMeta := inspectCommitMetadata(dir, branchOut, headSha, commitMsg, lastDate)
 
 	return SourceRepoConfig{
 		RepoURL:        url,
@@ -146,8 +180,10 @@ func inspectSingleSource(url, dir string) SourceRepoConfig {
 		LastCommitDate: lastDate,
 		Description:    commitMsg,
 		ReleaseTag:     tagOut,
+		ReleaseTagHash: tagHash,
 		LocalStaging:   dir,
 		FolderTree:     tree,
+		CommitMetadata: commitMeta,
 	}
 }
 

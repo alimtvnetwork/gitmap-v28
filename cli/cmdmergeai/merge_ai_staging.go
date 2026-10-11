@@ -42,8 +42,11 @@ func stageAndSequenceFiles(destDir string, sources []SourceRepoConfig) ([]FileCo
 	for seqIdx, src := range sources {
 		seqPrefix := fmt.Sprintf("%02d", seqIdx+1)
 		sourceSlug := filepath.Base(src.LocalStaging)
-		headSha, _ := gitExec(src.LocalStaging, "rev-parse", "HEAD")
-		headSha = truncateCommitSha(headSha)
+		headSha := src.CommitMetadata.ShortSHA
+		if headSha == "" {
+			fullSha, _ := gitExec(src.LocalStaging, "rev-parse", "HEAD")
+			headSha = truncateCommitSha(fullSha)
+		}
 
 		for _, relPath := range src.FolderTree {
 			errStage := stageSingleFile(destDir, sources, src, relPath, seqPrefix, sourceSlug, headSha, collisionMap, placedOrigin, &uniquePlaced)
@@ -236,7 +239,9 @@ func assembleManifest(dest *cmdresolver.ResolvedRepoFeature, sources []SourceRep
 		entry.CommitRange = s.CommitRange
 		entry.LastCommitDate = s.LastCommitDate.Format(time.RFC3339)
 		entry.Description = s.Description
+		entry.CommitMetadata = s.CommitMetadata
 		entry.ReleaseInfo.LastTag = s.ReleaseTag
+		entry.ReleaseInfo.TagHash = s.ReleaseTagHash
 		entry.FolderTree = s.FolderTree
 		m.Data.RepoSequence = append(m.Data.RepoSequence, entry)
 	}

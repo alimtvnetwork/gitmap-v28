@@ -3,6 +3,7 @@ package cmdmergeai
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -182,11 +183,36 @@ func TestWriteManifestAndInstruction(t *testing.T) {
 	manifest.Attributes.Tool = "gitmap-merge-ai"
 	manifest.Data.Destination.Slug = "test-monorepo"
 
+	entry := SourceRepoSequenceEntry{
+		SequenceOrder: 1,
+		Title:         "Sample Repo",
+		RepoURL:       "https://github.com/mock/repo.git",
+		Branch:        "main",
+		CommitMetadata: CommitMetadata{
+			SHA:     "1234567890abcdef",
+			Author:  "Test Author <test@example.com>",
+			Date:    "2026-10-11T12:00:00Z",
+			Message: "Initial commit",
+			Branch:  "main",
+		},
+	}
+	manifest.Data.RepoSequence = append(manifest.Data.RepoSequence, entry)
+
 	if err := WriteMergeAIManifest(tempDest, manifest); err != nil {
 		t.Fatalf("WriteMergeAIManifest failed: %v", err)
 	}
-	if !fileExists(filepath.Join(tempDest, "merge-ai-manifest.json")) {
+	manifestPath := filepath.Join(tempDest, "merge-ai-manifest.json")
+	if !fileExists(manifestPath) {
 		t.Fatalf("merge-ai-manifest.json does not exist")
+	}
+
+	manifestBytes, errRead := os.ReadFile(manifestPath)
+	if errRead != nil {
+		t.Fatalf("failed to read manifest: %v", errRead)
+	}
+	manifestContent := string(manifestBytes)
+	if !strings.Contains(manifestContent, "1234567890abcdef") || !strings.Contains(manifestContent, "Test Author") {
+		t.Errorf("manifest does not contain expected commit metadata: %s", manifestContent)
 	}
 
 	collisions := []FileCollisionRecord{
@@ -195,6 +221,13 @@ func TestWriteManifestAndInstruction(t *testing.T) {
 			Variants: []FileCollisionVariant{
 				{Sequence: "01", File: "01_main.go", SourceRepo: "src1", Commit: "abc"},
 				{Sequence: "02", File: "02_main.go", SourceRepo: "src2", Commit: "xyz"},
+			},
+		},
+		{
+			CanonicalPath: "assets/logo.png",
+			Variants: []FileCollisionVariant{
+				{Sequence: "01", File: "assets/01_logo.png", SourceRepo: "src1", Commit: "abc"},
+				{Sequence: "02", File: "assets/02_logo.png", SourceRepo: "src2", Commit: "xyz"},
 			},
 		},
 	}
@@ -213,7 +246,20 @@ func TestWriteManifestAndInstruction(t *testing.T) {
 	if err := WriteMergeAIInstruction(tempDest, collisions, skipped...); err != nil {
 		t.Fatalf("WriteMergeAIInstruction failed: %v", err)
 	}
-	if !fileExists(filepath.Join(tempDest, "instruction.md")) {
+	instPath := filepath.Join(tempDest, "instruction.md")
+	if !fileExists(instPath) {
 		t.Fatalf("instruction.md does not exist")
+	}
+
+	instBytes, _ := os.ReadFile(instPath)
+	instContent := string(instBytes)
+	if !strings.Contains(instContent, "Folder Structure") {
+		t.Errorf("instruction.md missing Folder Structure advice")
+	}
+	if !strings.Contains(instContent, "Media Asset") {
+		t.Errorf("instruction.md missing Media Asset classification")
+	}
+	if !strings.Contains(instContent, "side-by-side") {
+		t.Errorf("instruction.md missing side-by-side preservation advice")
 	}
 }
