@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.542.0] - 2026-10-11
+
+### Added
+- decompose pipeline_db_ops into pipeline_db_ops and pipeline_db_purge for file size gate
+
+---
+
 ## [v6.541.0] - 2026-10-11
 
 ### Added

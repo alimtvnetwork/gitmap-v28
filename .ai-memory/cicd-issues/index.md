@@ -107,4 +107,5 @@
 - [116-redundant-newline-in-rootutility-update-args-rca.md](./116-redundant-newline-in-rootutility-update-args-rca.md): Fix redundant newline in fmt.Println within cli/cmd/rootutility_update_args.go.
 - [117-unused-pe-all-cache-and-error-symbols-rca.md](./117-unused-pe-all-cache-and-error-symbols-rca.md): Fix unused symbols in cli/cmdpipeline/pipeline_all_errors.go and pipeline_all_cache.go.
 - [118-remove-unused-mv-relocate-for-lint-baseline-diff-rca.md](./118-remove-unused-mv-relocate-for-lint-baseline-diff-rca.md): Remove unused cli/cmd/mv_relocate.go for lint-baseline-diff.
+- [119-file-size-gate-pipeline-db-ops-rca.md](./119-file-size-gate-pipeline-db-ops-rca.md): Fix file size gate 300-line cap on pipeline_db_ops.go by decomposing into pipeline_db_ops.go and pipeline_db_purge.go.
 
