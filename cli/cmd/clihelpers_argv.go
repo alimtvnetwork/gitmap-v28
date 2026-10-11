@@ -8,27 +8,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 )
-
-func isTerminalInput() bool {
-	stat, err := os.Stdin.Stat()
-	if err != nil {
-		return false
-	}
-
-	return (stat.Mode() & os.ModeCharDevice) != 0
-}
-
-func isExistingFile(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
-
-func isFileFlagWithArg(arg string) bool {
-	return arg == "--file" || arg == "--out" || arg == "-o" || arg == "-f"
-}
 
 func hasArgFlag(args []string, flagName string) bool {
 	for _, a := range args {

@@ -87,11 +87,6 @@ func executeSelfLoopSimulation(count int) {
 	fmt.Printf("[AI-SELF-LOOP] Complete: %d iteration(s) finished with 100%% green status.\n", count)
 }
 
-func printCurriculumSummary() {
-	printChainedSequence()
-	printOperationalGuidelines()
-}
-
 func handleSkillGeneration(opts TrainOptions) *apperror.AppError {
 	fmt.Print(SkillTemplate)
 	fmt.Println()

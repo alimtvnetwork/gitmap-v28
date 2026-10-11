@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -180,10 +179,4 @@ func executeAliasShow(alias string) error {
 	fmt.Printf(constants.MsgAliasResolved, resolved.Alias.Alias, resolved.AbsolutePath, resolved.Slug)
 
 	return nil
-}
-
-// isLegacyDataError checks if an error indicates legacy UUID-format data.
-func isLegacyDataError(err error) bool {
-	return strings.Contains(err.Error(), "Scan error") ||
-		strings.Contains(err.Error(), "converting driver.Value type string")
 }
