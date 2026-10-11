@@ -105,19 +105,11 @@ func mergeExistingManifest(target string, records []model.ScanRecord, isQuiet bo
 		incomingExp := toExportRecord(rec)
 		key := resolveRecordCanonicalKey(incomingExp)
 
-		if key != "" {
-			if matchIdx, hasExisting := existingByURL[key]; hasExisting {
-				existing[matchIdx].Branch = incomingExp.Branch
-				existing[matchIdx].BranchSource = incomingExp.BranchSource
-				existing[matchIdx].RelativePath = incomingExp.RelativePath
-				existing[matchIdx].AbsolutePath = incomingExp.AbsolutePath
-				existing[matchIdx].CloneInstruction = incomingExp.CloneInstruction
-				if incomingExp.URL != "" {
-					existing[matchIdx].URL = incomingExp.URL
-				}
-				updatedCount++
-				continue
-			}
+		matchIdx, hasExisting := existingByURL[key]
+		if key != "" && hasExisting {
+			updateExistingRecord(existing, matchIdx, incomingExp)
+			updatedCount++
+			continue
 		}
 
 		existing = append(existing, incomingExp)
@@ -139,24 +131,25 @@ func mergeExistingManifest(target string, records []model.ScanRecord, isQuiet bo
 	return nil
 }
 
+func updateExistingRecord(existing []exportRecord, matchIdx int, incomingExp exportRecord) {
+	existing[matchIdx].Branch = incomingExp.Branch
+	existing[matchIdx].BranchSource = incomingExp.BranchSource
+	existing[matchIdx].RelativePath = incomingExp.RelativePath
+	existing[matchIdx].AbsolutePath = incomingExp.AbsolutePath
+	existing[matchIdx].CloneInstruction = incomingExp.CloneInstruction
+	if incomingExp.URL != "" {
+		existing[matchIdx].URL = incomingExp.URL
+	}
+}
+
 func resolveRecordCanonicalKey(rec exportRecord) string {
-	if rec.URL != "" {
-		if norm := NormalizeRepoURL(rec.URL); norm != "" {
-			return norm
+	candidates := []string{rec.URL, rec.HTTPSUrl, rec.SSHUrl, rec.DiscoveredURL}
+	for _, cand := range candidates {
+		if cand == "" {
+			continue
 		}
-	}
-	if rec.HTTPSUrl != "" {
-		if norm := NormalizeRepoURL(rec.HTTPSUrl); norm != "" {
-			return norm
-		}
-	}
-	if rec.SSHUrl != "" {
-		if norm := NormalizeRepoURL(rec.SSHUrl); norm != "" {
-			return norm
-		}
-	}
-	if rec.DiscoveredURL != "" {
-		if norm := NormalizeRepoURL(rec.DiscoveredURL); norm != "" {
+		norm := NormalizeRepoURL(cand)
+		if norm != "" {
 			return norm
 		}
 	}

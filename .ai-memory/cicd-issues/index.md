@@ -106,4 +106,5 @@
 - [115-file-size-gate-rootutility-rca.md](./115-file-size-gate-rootutility-rca.md): Fix file size gate 300-line cap on rootutility.go by decomposing into rootutility.go, rootutility_update.go, and rootutility_update_args.go.
 - [116-redundant-newline-in-rootutility-update-args-rca.md](./116-redundant-newline-in-rootutility-update-args-rca.md): Fix redundant newline in fmt.Println within cli/cmd/rootutility_update_args.go.
 - [117-unused-pe-all-cache-and-error-symbols-rca.md](./117-unused-pe-all-cache-and-error-symbols-rca.md): Fix unused symbols in cli/cmdpipeline/pipeline_all_errors.go and pipeline_all_cache.go.
+- [118-remove-unused-mv-relocate-for-lint-baseline-diff-rca.md](./118-remove-unused-mv-relocate-for-lint-baseline-diff-rca.md): Remove unused cli/cmd/mv_relocate.go for lint-baseline-diff.
 

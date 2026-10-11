@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.541.0] - 2026-10-11
+
+### Added
+- ci - remove unused mv_relocate.go for lint baseline diff
+
+---
+
 ## [v6.540.0] - 2026-10-11
 
 ### Added
