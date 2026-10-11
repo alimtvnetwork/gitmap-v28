@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.533.0] - 2026-10-11
+
+### Added
+- ci lint baseline cache v3, unused symbols cleanup, and helper functions refactor
+
+---
+
 ## [v6.532.0] - 2026-10-11
 
 ### Added
