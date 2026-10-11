@@ -3,7 +3,6 @@ package cmdpipeline
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -25,16 +24,27 @@ func resolveTargetCommitSha(runs []ghRunItem, targetCommit ...string) string {
 	if sha := resolveExplicitTargetSha(runs, targetCommit...); len(sha) > 0 {
 		return sha
 	}
-	if len(targetCommit) > 0 && len(targetCommit[0]) > 0 {
-		if candidate := resolveTargetCommitCandidate(targetCommit[0]); len(candidate) > 0 && isCommitHexSha(candidate) {
-			return candidate
-		}
+	if candidate := resolveTargetCommitCandidateFromVariadic(targetCommit...); len(candidate) > 0 {
+		return candidate
 	}
 	if sha := findShaForActiveBranch(runs); len(sha) > 0 {
 		return sha
 	}
 
 	return runs[0].HeadSha
+}
+
+func resolveTargetCommitCandidateFromVariadic(targetCommit ...string) string {
+	if len(targetCommit) == 0 || len(targetCommit[0]) == 0 {
+		return ""
+	}
+
+	candidate := resolveTargetCommitCandidate(targetCommit[0])
+	if len(candidate) > 0 && isCommitHexSha(candidate) {
+		return candidate
+	}
+
+	return ""
 }
 
 func resolveTargetShaFromGroups(runs []ghRunItem, target string) string {
@@ -126,18 +136,29 @@ func queryWorkflowRunsForTarget(repo string, target string) []ghRunItem {
 func resolveTargetCommitCandidate(target string) string {
 	offset, isNegative := ParseNegativeIndex(target)
 	if isNegative {
-		resolved := resolveCommitShaByOffset(offset)
-		if len(resolved) > 0 {
-			return resolved
-		}
+		return resolveCandidateByNegativeOffset(offset, target)
+	}
 
+	return resolveCandidateByHexSha(target)
+}
+
+func resolveCandidateByNegativeOffset(offset int, target string) string {
+	resolved := resolveCommitShaByOffset(offset)
+	if len(resolved) > 0 {
+		return resolved
+	}
+
+	return target
+}
+
+func resolveCandidateByHexSha(target string) string {
+	if !isCommitHexSha(target) || len(target) >= 40 {
 		return target
 	}
 
-	if isCommitHexSha(target) && len(target) < 40 {
-		if expanded := expandCommitShaToFull(target); len(expanded) == 40 {
-			return expanded
-		}
+	expanded := expandCommitShaToFull(target)
+	if len(expanded) == 40 {
+		return expanded
 	}
 
 	return target
@@ -170,12 +191,7 @@ func expandCommitShaToFull(target string) string {
 }
 
 func queryWorkflowRunsByCommit(repo, sha string) []ghRunItem {
-	fullSha := sha
-	if len(fullSha) < 40 && isCommitHexSha(fullSha) {
-		if expanded := expandCommitShaToFull(fullSha); len(expanded) == 40 {
-			fullSha = expanded
-		}
-	}
+	fullSha := resolveFullHexCommitSha(sha)
 
 	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--commit", fullSha, "--limit", "10", "--json",
 		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url,displayTitle,event")
@@ -189,6 +205,19 @@ func queryWorkflowRunsByCommit(repo, sha string) []ghRunItem {
 	}
 
 	return runs
+}
+
+func resolveFullHexCommitSha(sha string) string {
+	if len(sha) >= 40 || !isCommitHexSha(sha) {
+		return sha
+	}
+
+	expanded := expandCommitShaToFull(sha)
+	if len(expanded) == 40 {
+		return expanded
+	}
+
+	return sha
 }
 
 func normalizeWorkflowKey(name string) string {
@@ -257,56 +286,3 @@ func isWorkflowScopeSucceeded(scopeKey string, succeeded map[string]bool) bool {
 	return len(scopeKey) > 0 && succeeded[scopeKey]
 }
 
-func collectRunsMatchingSha(runs []ghRunItem, targetSha string) []ghRunItem {
-	var filtered []ghRunItem
-	for _, r := range runs {
-		if len(targetSha) == 0 || r.HeadSha == targetSha {
-			filtered = append(filtered, r)
-		}
-	}
-
-	return filtered
-}
-
-func capFailedRuns(runs []ghRunItem, limit int) []ghRunItem {
-	effectiveLimit := resolveFailedRunsLimit(limit)
-	if len(runs) > effectiveLimit {
-		return runs[:effectiveLimit]
-	}
-
-	return runs
-}
-
-func resolveFailedRunsLimit(limit int) int {
-	if activeLogLineLimit > 0 {
-		return activeLogLineLimit
-	}
-
-	return limit
-}
-
-func buildLocalOrEmptyErrorPayload(payload PipelineErrorLogsPayload) PipelineErrorLogsPayload {
-	localErr := readLocalLastErrorLog()
-
-	if len(localErr) > 0 {
-		payload.WorkflowName = "Local Command Execution"
-		payload.Conclusion = "failure"
-		payload.ErrorLogs = localErr
-
-		return payload
-	}
-
-	payload.ErrorLogs = "No failed pipeline steps or local error logs found."
-
-	return payload
-}
-
-func readLocalLastErrorLog() string {
-	content, err := os.ReadFile(".gitmap/last_error.log")
-
-	if err == nil && len(content) > 0 {
-		return strings.TrimSpace(string(content))
-	}
-
-	return ""
-}
