@@ -4,10 +4,7 @@ package cmdmergeai
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 )
 
 // RawSourceItem represents an extracted title/URL pairing from manifest text.
@@ -37,74 +34,6 @@ type SkippedSourceItem struct {
 	FilePath string
 }
 
-// ResolveSourceFilePath locates an input text file directly or inside repo-cache.
-func ResolveSourceFilePath(inputPath string) (string, error) {
-	trimmed := strings.TrimSpace(inputPath)
-	if trimmed == "" {
-		return "", fmt.Errorf("empty source file path")
-	}
-
-	candidates := []string{trimmed}
-	lower := strings.ToLower(trimmed)
-	if !strings.HasSuffix(lower, ".txt") && !strings.HasSuffix(lower, ".manifest") {
-		candidates = append(candidates, trimmed+".txt")
-	}
-
-	for _, cand := range candidates {
-		if resolved, ok := probeSingleCandidate(cand); ok {
-			return resolved, nil
-		}
-	}
-
-	return trimmed, fmt.Errorf("source file not found: %s", trimmed)
-}
-
-func probeSingleCandidate(cand string) (string, bool) {
-	if info, err := os.Stat(cand); err == nil && !info.IsDir() {
-		return cand, true
-	}
-
-	if cwd, err := os.Getwd(); err == nil && cwd != "" {
-		cwdCandidate := filepath.Join(cwd, cand)
-		if info, err := os.Stat(cwdCandidate); err == nil && !info.IsDir() {
-			return cwdCandidate, true
-		}
-
-		cwdRcCandidate := filepath.Join(cwd, "repo-cache", filepath.Base(cand))
-		if info, err := os.Stat(cwdRcCandidate); err == nil && !info.IsDir() {
-			return cwdRcCandidate, true
-		}
-	}
-
-	repoCacheRoot := cmdclone.ResolveRepoCacheRoot()
-	if repoCacheRoot != "" {
-		rcCandidate := filepath.Join(repoCacheRoot, cand)
-		if info, err := os.Stat(rcCandidate); err == nil && !info.IsDir() {
-			return rcCandidate, true
-		}
-
-		rcBaseCandidate := filepath.Join(repoCacheRoot, filepath.Base(cand))
-		if info, err := os.Stat(rcBaseCandidate); err == nil && !info.IsDir() {
-			return rcBaseCandidate, true
-		}
-	}
-
-	workBase := resolveWorkBaseDir()
-	if workBase != "" {
-		wbCandidate := filepath.Join(workBase, cand)
-		if info, err := os.Stat(wbCandidate); err == nil && !info.IsDir() {
-			return wbCandidate, true
-		}
-
-		wbBaseCandidate := filepath.Join(workBase, "repo-cache", filepath.Base(cand))
-		if info, err := os.Stat(wbBaseCandidate); err == nil && !info.IsDir() {
-			return wbBaseCandidate, true
-		}
-	}
-
-	return "", false
-}
-
 // ParseSourceFile reads and intelligently parses a manifest text file.
 func ParseSourceFile(filePath string) (string, []ResolvedSourceItem, []SkippedSourceItem, error) {
 	resolvedPath, errResolve := ResolveSourceFilePath(filePath)
@@ -129,6 +58,31 @@ func ParseSourceManifestContent(content string) (string, []ResolvedSourceItem, [
 	return destHint, resolved, skipped, nil
 }
 
+func isDestHintPrefix(lower string) bool {
+	return strings.HasPrefix(lower, "# dest") || strings.HasPrefix(lower, "# target") ||
+		strings.HasPrefix(lower, "dest:") || strings.HasPrefix(lower, "target:") ||
+		strings.HasPrefix(lower, "destination:") || strings.HasPrefix(lower, "# destination:")
+}
+
+func extractDestValue(trimmed, currentDest string) string {
+	if currentDest != "" {
+		return currentDest
+	}
+	parts := strings.SplitN(trimmed, ":", 2)
+	if len(parts) == 2 {
+		return strings.TrimSpace(parts[1])
+	}
+	return currentDest
+}
+
+func appendHeadingLine(lines []string, raw string) []string {
+	heading := strings.TrimSpace(strings.TrimLeft(raw, "#"))
+	if heading != "" {
+		return append(lines, heading)
+	}
+	return lines
+}
+
 func extractDestHintAndCleanLines(content string) (string, []string) {
 	var destHint string
 	var cleanLines []string
@@ -141,21 +95,13 @@ func extractDestHintAndCleanLines(content string) (string, []string) {
 		}
 
 		lower := strings.ToLower(trimmed)
-		if strings.HasPrefix(lower, "# dest") || strings.HasPrefix(lower, "# target") ||
-			strings.HasPrefix(lower, "dest:") || strings.HasPrefix(lower, "target:") ||
-			strings.HasPrefix(lower, "destination:") || strings.HasPrefix(lower, "# destination:") {
-			parts := strings.SplitN(trimmed, ":", 2)
-			if len(parts) == 2 && destHint == "" {
-				destHint = strings.TrimSpace(parts[1])
-			}
+		if isDestHintPrefix(lower) {
+			destHint = extractDestValue(trimmed, destHint)
 			continue
 		}
 
 		if strings.HasPrefix(trimmed, "#") {
-			heading := strings.TrimSpace(strings.TrimLeft(trimmed, "#"))
-			if heading != "" {
-				cleanLines = append(cleanLines, heading)
-			}
+			cleanLines = appendHeadingLine(cleanLines, trimmed)
 			continue
 		}
 
@@ -173,6 +119,13 @@ func isGenericLabel(s string) bool {
 	default:
 		return false
 	}
+}
+
+func resolveHeaderTitle(curr, nextURL string) string {
+	if isGenericLabel(curr) {
+		return inferTitleFromURL(nextURL)
+	}
+	return curr
 }
 
 func pairHeadersAndURLs(lines []string) []RawSourceItem {
@@ -193,10 +146,7 @@ func pairHeadersAndURLs(lines []string) []RawSourceItem {
 		}
 
 		if i+1 < len(lines) && isFullURL(lines[i+1]) {
-			title := curr
-			if isGenericLabel(title) {
-				title = inferTitleFromURL(lines[i+1])
-			}
+			title := resolveHeaderTitle(curr, lines[i+1])
 			items = append(items, RawSourceItem{
 				Title:   title,
 				URL:     lines[i+1],
@@ -224,6 +174,74 @@ func pairHeadersAndURLs(lines []string) []RawSourceItem {
 	return items
 }
 
+func resolveItemTitle(title, url string) string {
+	if title == "" {
+		return inferTitleFromURL(url)
+	}
+	return title
+}
+
+func processFileURLItem(
+	item RawSourceItem,
+	canonicalRepo, cloneURL, filePath string,
+	fullRepos, seenRepos map[string]bool,
+	resolved []ResolvedSourceItem,
+	skipped []SkippedSourceItem,
+) ([]ResolvedSourceItem, []SkippedSourceItem) {
+	if fullRepos[canonicalRepo] || seenRepos[canonicalRepo] {
+		skipped = append(skipped, SkippedSourceItem{
+			RawInput: item.URL,
+			Title:    item.Title,
+			Repo:     canonicalRepo,
+			Reason:   fmt.Sprintf("file URL from repository '%s' which is already included", canonicalRepo),
+			IsFile:   true,
+			FilePath: filePath,
+		})
+		return resolved, skipped
+	}
+
+	seenRepos[canonicalRepo] = true
+	title := resolveItemTitle(item.Title, item.URL)
+	resolved = append(resolved, ResolvedSourceItem{
+		Title:         title,
+		RepoURL:       cloneURL,
+		CanonicalRepo: canonicalRepo,
+		OriginalInput: item.URL,
+		IsFromFile:    true,
+	})
+	return resolved, skipped
+}
+
+func processRepoURLItem(
+	item RawSourceItem,
+	canonicalRepo, cloneURL string,
+	seenRepos map[string]bool,
+	resolved []ResolvedSourceItem,
+	skipped []SkippedSourceItem,
+) ([]ResolvedSourceItem, []SkippedSourceItem) {
+	if seenRepos[canonicalRepo] {
+		skipped = append(skipped, SkippedSourceItem{
+			RawInput: item.URL,
+			Title:    item.Title,
+			Repo:     canonicalRepo,
+			Reason:   fmt.Sprintf("duplicate repository '%s'", canonicalRepo),
+			IsFile:   false,
+		})
+		return resolved, skipped
+	}
+
+	seenRepos[canonicalRepo] = true
+	title := resolveItemTitle(item.Title, item.URL)
+	resolved = append(resolved, ResolvedSourceItem{
+		Title:         title,
+		RepoURL:       cloneURL,
+		CanonicalRepo: canonicalRepo,
+		OriginalInput: item.URL,
+		IsFromFile:    false,
+	})
+	return resolved, skipped
+}
+
 func filterAndDeduplicateSources(rawItems []RawSourceItem) ([]ResolvedSourceItem, []SkippedSourceItem) {
 	fullRepos := make(map[string]bool)
 	for _, item := range rawItems {
@@ -244,56 +262,11 @@ func filterAndDeduplicateSources(rawItems []RawSourceItem) ([]ResolvedSourceItem
 		}
 
 		if isFileURL {
-			if fullRepos[canonicalRepo] || seenRepos[canonicalRepo] {
-				skipped = append(skipped, SkippedSourceItem{
-					RawInput: item.URL,
-					Title:    item.Title,
-					Repo:     canonicalRepo,
-					Reason:   fmt.Sprintf("file URL from repository '%s' which is already included", canonicalRepo),
-					IsFile:   true,
-					FilePath: filePath,
-				})
-				continue
-			}
-
-			seenRepos[canonicalRepo] = true
-			title := item.Title
-			if title == "" {
-				title = inferTitleFromURL(item.URL)
-			}
-			resolved = append(resolved, ResolvedSourceItem{
-				Title:         title,
-				RepoURL:       cloneURL,
-				CanonicalRepo: canonicalRepo,
-				OriginalInput: item.URL,
-				IsFromFile:    true,
-			})
+			resolved, skipped = processFileURLItem(item, canonicalRepo, cloneURL, filePath, fullRepos, seenRepos, resolved, skipped)
 			continue
 		}
 
-		if seenRepos[canonicalRepo] {
-			skipped = append(skipped, SkippedSourceItem{
-				RawInput: item.URL,
-				Title:    item.Title,
-				Repo:     canonicalRepo,
-				Reason:   fmt.Sprintf("duplicate repository '%s'", canonicalRepo),
-				IsFile:   false,
-			})
-			continue
-		}
-
-		seenRepos[canonicalRepo] = true
-		title := item.Title
-		if title == "" {
-			title = inferTitleFromURL(item.URL)
-		}
-		resolved = append(resolved, ResolvedSourceItem{
-			Title:         title,
-			RepoURL:       cloneURL,
-			CanonicalRepo: canonicalRepo,
-			OriginalInput: item.URL,
-			IsFromFile:    false,
-		})
+		resolved, skipped = processRepoURLItem(item, canonicalRepo, cloneURL, seenRepos, resolved, skipped)
 	}
 
 	return resolved, skipped

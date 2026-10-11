@@ -27,6 +27,13 @@ func cleanDestStagingDirectory(destDir string) error {
 	return nil
 }
 
+func truncateCommitSha(sha string) string {
+	if len(sha) > 8 {
+		return sha[:8]
+	}
+	return sha
+}
+
 func stageAndSequenceFiles(destDir string, sources []SourceRepoConfig) ([]FileCollisionRecord, int, error) {
 	collisionMap := make(map[string]*FileCollisionRecord)
 	placedOrigin := make(map[string]FileCollisionVariant)
@@ -36,97 +43,13 @@ func stageAndSequenceFiles(destDir string, sources []SourceRepoConfig) ([]FileCo
 		seqPrefix := fmt.Sprintf("%02d", seqIdx+1)
 		sourceSlug := filepath.Base(src.LocalStaging)
 		headSha, _ := gitExec(src.LocalStaging, "rev-parse", "HEAD")
-		if len(headSha) > 8 {
-			headSha = headSha[:8]
-		}
+		headSha = truncateCommitSha(headSha)
 
 		for _, relPath := range src.FolderTree {
-			destPath := filepath.Join(destDir, relPath)
-			dirName := filepath.Dir(relPath)
-			baseName := filepath.Base(relPath)
-
-			// Case 1: Already known collision on this relPath
-			if col, isKnownCollision := collisionMap[relPath]; isKnownCollision {
-				newSeqRel := filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName)))
-				newSeqDest := filepath.Join(destDir, dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName))
-				if errCopy := copyFile(filepath.Join(src.LocalStaging, relPath), newSeqDest); errCopy != nil {
-					return nil, 0, errCopy
-				}
-
-				col.Variants = append(col.Variants, FileCollisionVariant{
-					Sequence:   seqPrefix,
-					File:       newSeqRel,
-					SourceRepo: sourceSlug,
-					Commit:     headSha,
-				})
-				continue
+			errStage := stageSingleFile(destDir, sources, src, relPath, seqPrefix, sourceSlug, headSha, collisionMap, placedOrigin, &uniquePlaced)
+			if errStage != nil {
+				return nil, 0, errStage
 			}
-
-			// Case 2: File does not exist yet in destination
-			if !fileExists(destPath) {
-				if errCopy := copyFile(filepath.Join(src.LocalStaging, relPath), destPath); errCopy != nil {
-					return nil, 0, errCopy
-				}
-				placedOrigin[relPath] = FileCollisionVariant{
-					Sequence:   seqPrefix,
-					File:       relPath,
-					SourceRepo: sourceSlug,
-					Commit:     headSha,
-				}
-				uniquePlaced++
-				continue
-			}
-
-			// Case 3: First collision detected on relPath:
-			orig, hasOrig := placedOrigin[relPath]
-			if !hasOrig {
-				baseHeadSha, _ := gitExec(sources[0].LocalStaging, "rev-parse", "HEAD")
-				if len(baseHeadSha) > 8 {
-					baseHeadSha = baseHeadSha[:8]
-				}
-				orig = FileCollisionVariant{
-					Sequence:   "01",
-					File:       relPath,
-					SourceRepo: filepath.Base(sources[0].LocalStaging),
-					Commit:     baseHeadSha,
-				}
-			}
-
-			origSeqRel := filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("%s_%s", orig.Sequence, baseName)))
-			origSeqPath := filepath.Join(destDir, dirName, fmt.Sprintf("%s_%s", orig.Sequence, baseName))
-			_ = os.Rename(destPath, origSeqPath)
-			if uniquePlaced > 0 {
-				uniquePlaced--
-			}
-			delete(placedOrigin, relPath)
-
-			col := &FileCollisionRecord{
-				CanonicalPath: relPath,
-				Status:        "pending_ai_consolidation",
-				Variants: []FileCollisionVariant{
-					{
-						Sequence:   orig.Sequence,
-						File:       origSeqRel,
-						SourceRepo: orig.SourceRepo,
-						Commit:     orig.Commit,
-					},
-				},
-			}
-			collisionMap[relPath] = col
-
-			// Now place incoming colliding version as seqPrefix_<filename>
-			newSeqRel := filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName)))
-			newSeqDest := filepath.Join(destDir, dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName))
-			if errCopy := copyFile(filepath.Join(src.LocalStaging, relPath), newSeqDest); errCopy != nil {
-				return nil, 0, errCopy
-			}
-
-			col.Variants = append(col.Variants, FileCollisionVariant{
-				Sequence:   seqPrefix,
-				File:       newSeqRel,
-				SourceRepo: sourceSlug,
-				Commit:     headSha,
-			})
 		}
 	}
 
@@ -140,6 +63,132 @@ func stageAndSequenceFiles(destDir string, sources []SourceRepoConfig) ([]FileCo
 	})
 
 	return collisionList, uniquePlaced, nil
+}
+
+func stageSingleFile(
+	destDir string,
+	sources []SourceRepoConfig,
+	src SourceRepoConfig,
+	relPath, seqPrefix, sourceSlug, headSha string,
+	collisionMap map[string]*FileCollisionRecord,
+	placedOrigin map[string]FileCollisionVariant,
+	uniquePlaced *int,
+) error {
+	destPath := filepath.Join(destDir, relPath)
+
+	if col, isKnownCollision := collisionMap[relPath]; isKnownCollision {
+		return handleKnownCollision(col, destDir, src.LocalStaging, relPath, seqPrefix, sourceSlug, headSha)
+	}
+
+	if !fileExists(destPath) {
+		return handleUniqueFile(destPath, src.LocalStaging, relPath, seqPrefix, sourceSlug, headSha, placedOrigin, uniquePlaced)
+	}
+
+	return handleFirstCollision(destDir, sources, src, relPath, destPath, seqPrefix, sourceSlug, headSha, collisionMap, placedOrigin, uniquePlaced)
+}
+
+func handleKnownCollision(
+	col *FileCollisionRecord,
+	destDir, stagingDir, relPath, seqPrefix, sourceSlug, headSha string,
+) error {
+	dirName := filepath.Dir(relPath)
+	baseName := filepath.Base(relPath)
+	newSeqRel := filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName)))
+	newSeqDest := filepath.Join(destDir, dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName))
+	errCopy := copyFile(filepath.Join(stagingDir, relPath), newSeqDest)
+	if errCopy != nil {
+		return errCopy
+	}
+
+	col.Variants = append(col.Variants, FileCollisionVariant{
+		Sequence:   seqPrefix,
+		File:       newSeqRel,
+		SourceRepo: sourceSlug,
+		Commit:     headSha,
+	})
+	return nil
+}
+
+func handleUniqueFile(
+	destPath, stagingDir, relPath, seqPrefix, sourceSlug, headSha string,
+	placedOrigin map[string]FileCollisionVariant,
+	uniquePlaced *int,
+) error {
+	errCopy := copyFile(filepath.Join(stagingDir, relPath), destPath)
+	if errCopy != nil {
+		return errCopy
+	}
+	placedOrigin[relPath] = FileCollisionVariant{
+		Sequence:   seqPrefix,
+		File:       relPath,
+		SourceRepo: sourceSlug,
+		Commit:     headSha,
+	}
+	*uniquePlaced++
+	return nil
+}
+
+func resolveOriginalVariant(sources []SourceRepoConfig, relPath string, placedOrigin map[string]FileCollisionVariant) FileCollisionVariant {
+	orig, hasOrig := placedOrigin[relPath]
+	if hasOrig {
+		return orig
+	}
+	baseHeadSha, _ := gitExec(sources[0].LocalStaging, "rev-parse", "HEAD")
+	return FileCollisionVariant{
+		Sequence:   "01",
+		File:       relPath,
+		SourceRepo: filepath.Base(sources[0].LocalStaging),
+		Commit:     truncateCommitSha(baseHeadSha),
+	}
+}
+
+func handleFirstCollision(
+	destDir string,
+	sources []SourceRepoConfig,
+	src SourceRepoConfig,
+	relPath, destPath, seqPrefix, sourceSlug, headSha string,
+	collisionMap map[string]*FileCollisionRecord,
+	placedOrigin map[string]FileCollisionVariant,
+	uniquePlaced *int,
+) error {
+	orig := resolveOriginalVariant(sources, relPath, placedOrigin)
+	dirName := filepath.Dir(relPath)
+	baseName := filepath.Base(relPath)
+
+	origSeqRel := filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("%s_%s", orig.Sequence, baseName)))
+	origSeqPath := filepath.Join(destDir, dirName, fmt.Sprintf("%s_%s", orig.Sequence, baseName))
+	_ = os.Rename(destPath, origSeqPath)
+	if *uniquePlaced > 0 {
+		*uniquePlaced--
+	}
+	delete(placedOrigin, relPath)
+
+	newSeqRel := filepath.ToSlash(filepath.Join(dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName)))
+	newSeqDest := filepath.Join(destDir, dirName, fmt.Sprintf("%s_%s", seqPrefix, baseName))
+	errCopy := copyFile(filepath.Join(src.LocalStaging, relPath), newSeqDest)
+	if errCopy != nil {
+		return errCopy
+	}
+
+	collisionMap[relPath] = &FileCollisionRecord{
+		CanonicalPath: relPath,
+		Status:        "pending_ai_consolidation",
+		Variants: []FileCollisionVariant{
+			{
+				Sequence:   orig.Sequence,
+				File:       origSeqRel,
+				SourceRepo: orig.SourceRepo,
+				Commit:     orig.Commit,
+			},
+			{
+				Sequence:   seqPrefix,
+				File:       newSeqRel,
+				SourceRepo: sourceSlug,
+				Commit:     headSha,
+			},
+		},
+	}
+	return nil
 }
 
 func fileExists(path string) bool {

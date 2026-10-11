@@ -14,27 +14,18 @@ import (
 	"github.com/pterm/pterm"
 )
 
+func isDir(p string) bool {
+	info, err := os.Stat(p)
+	return err == nil && info.IsDir()
+}
+
 func prepareAndInspectSources(items []ResolvedSourceItem, stagingBase string) ([]SourceRepoConfig, error) {
 	var sources []SourceRepoConfig
 
 	for idx, item := range items {
-		slug := deriveSourceSlug(item.RepoURL, idx)
-		stagingDir := filepath.Join(stagingBase, slug)
-
-		// Check if source repo already exists in local workspace (e.g. D:\work\<slug>)
-		localWorkDir := filepath.Join(resolveWorkBaseDir(), slug)
-		if info, errStat := os.Stat(filepath.Join(localWorkDir, ".git")); errStat == nil && info.IsDir() {
-			stagingDir = localWorkDir
-			pterm.Info.Printf("  ▸ [%d/%d] Adopting existing local repository: %s\n", idx+1, len(items), localWorkDir)
-		} else if info, statStaging := os.Stat(filepath.Join(stagingDir, ".git")); statStaging == nil && info.IsDir() {
-			pterm.Info.Printf("  ▸ [%d/%d] Reusing cached staging clone: %s\n", idx+1, len(items), stagingDir)
-		} else {
-			_ = os.RemoveAll(stagingDir)
-			pterm.Info.Printf("  ▸ [%d/%d] Cloning source repository: %s -> %s\n", idx+1, len(items), item.RepoURL, stagingDir)
-			cmd := exec.Command("git", "clone", "--depth", "50", item.RepoURL, stagingDir)
-			if out, errClone := cmd.CombinedOutput(); errClone != nil {
-				return nil, fmt.Errorf("failed to clone source %s (%s): %s (%w)", item.Title, item.RepoURL, string(out), errClone)
-			}
+		stagingDir, errStaging := resolveSourceStagingDir(item, idx, len(items), stagingBase)
+		if errStaging != nil {
+			return nil, errStaging
 		}
 
 		cfg := inspectSingleSource(item.RepoURL, stagingDir)
@@ -45,30 +36,70 @@ func prepareAndInspectSources(items []ResolvedSourceItem, stagingBase string) ([
 	return sources, nil
 }
 
-func resolveWorkBaseDir() string {
-	if defDB, err := store.OpenDefault(); err == nil {
-		defer defDB.Close()
-		if wd, err := defDB.GetDefaultWorkDir(); err == nil && wd != nil && len(wd.AbsolutePath) > 0 {
-			if info, errStat := os.Stat(wd.AbsolutePath); errStat == nil && info.IsDir() {
-				return wd.AbsolutePath
-			}
-		}
+func resolveSourceStagingDir(item ResolvedSourceItem, idx, total int, stagingBase string) (string, error) {
+	slug := deriveSourceSlug(item.RepoURL, idx)
+	localWorkDir := filepath.Join(resolveWorkBaseDir(), slug)
+	if isDir(filepath.Join(localWorkDir, ".git")) {
+		pterm.Info.Printf("  ▸ [%d/%d] Adopting existing local repository: %s\n", idx+1, total, localWorkDir)
+		return localWorkDir, nil
 	}
 
-	if info, err := os.Stat(`D:\work`); err == nil && info.IsDir() {
+	stagingDir := filepath.Join(stagingBase, slug)
+	if isDir(filepath.Join(stagingDir, ".git")) {
+		pterm.Info.Printf("  ▸ [%d/%d] Reusing cached staging clone: %s\n", idx+1, total, stagingDir)
+		return stagingDir, nil
+	}
+
+	_ = os.RemoveAll(stagingDir)
+	pterm.Info.Printf("  ▸ [%d/%d] Cloning source repository: %s -> %s\n", idx+1, total, item.RepoURL, stagingDir)
+	cmd := exec.Command("git", "clone", "--depth", "50", item.RepoURL, stagingDir)
+	out, errClone := cmd.CombinedOutput()
+	if errClone != nil {
+		return "", fmt.Errorf("failed to clone source %s (%s): %s (%w)", item.Title, item.RepoURL, string(out), errClone)
+	}
+	return stagingDir, nil
+}
+
+func resolveStoreWorkDir() string {
+	defDB, err := store.OpenDefault()
+	if err != nil {
+		return ""
+	}
+	defer defDB.Close()
+
+	wd, errWd := defDB.GetDefaultWorkDir()
+	if errWd != nil || wd == nil || len(wd.AbsolutePath) == 0 {
+		return ""
+	}
+	if isDir(wd.AbsolutePath) {
+		return wd.AbsolutePath
+	}
+	return ""
+}
+
+func resolveCwdFallback() string {
+	cwd, err := os.Getwd()
+	if err != nil || cwd == "" {
+		return "."
+	}
+	parent := filepath.Dir(cwd)
+	if parent != "" && parent != cwd {
+		return parent
+	}
+	return cwd
+}
+
+func resolveWorkBaseDir() string {
+	storeDir := resolveStoreWorkDir()
+	if storeDir != "" {
+		return storeDir
+	}
+
+	if isDir(`D:\work`) {
 		return `D:\work`
 	}
 
-	cwd, err := os.Getwd()
-	if err == nil && cwd != "" {
-		parent := filepath.Dir(cwd)
-		if parent != "" && parent != cwd {
-			return parent
-		}
-		return cwd
-	}
-
-	return "."
+	return resolveCwdFallback()
 }
 
 func deriveSourceSlug(input string, idx int) string {
@@ -79,6 +110,15 @@ func deriveSourceSlug(input string, idx int) string {
 		return parts[len(parts)-1]
 	}
 	return fmt.Sprintf("source-%d", idx+1)
+}
+
+func formatCommitRange(headSha, rootSha string) string {
+	if rootSha == "" || rootSha == headSha {
+		return headSha
+	}
+	shortRoot := truncateCommitSha(rootSha)
+	shortHead := truncateCommitSha(headSha)
+	return fmt.Sprintf("%s..%s", shortRoot, shortHead)
 }
 
 func inspectSingleSource(url, dir string) SourceRepoConfig {
@@ -96,19 +136,7 @@ func inspectSingleSource(url, dir string) SourceRepoConfig {
 		lastDate = time.Now()
 	}
 
-	commitRange := headSha
-	if rootSha != "" && rootSha != headSha {
-		shortRoot := rootSha
-		if len(shortRoot) > 7 {
-			shortRoot = shortRoot[:7]
-		}
-		shortHead := headSha
-		if len(shortHead) > 7 {
-			shortHead = shortHead[:7]
-		}
-		commitRange = fmt.Sprintf("%s..%s", shortRoot, shortHead)
-	}
-
+	commitRange := formatCommitRange(headSha, rootSha)
 	tree := enumerateTrackedFiles(dir)
 
 	return SourceRepoConfig{
