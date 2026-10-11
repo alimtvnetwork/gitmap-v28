@@ -23,8 +23,18 @@ func extractTargetRepo(args []string) string {
 	return resolveCurrentRepoSlug()
 }
 
+func hasPositionalAll(args []string) bool {
+	for _, arg := range args {
+		if strings.EqualFold(strings.TrimSpace(arg), "all") {
+			return true
+		}
+	}
+
+	return false
+}
+
 func runPipelineDBClear(args []string) error {
-	hasAll := hasArgFlag(args, "--all")
+	hasAll := hasArgFlag(args, "--all") || hasPositionalAll(args)
 	if hasAll {
 		return runPipelineDBClearAll(args)
 	}
@@ -70,6 +80,7 @@ func executePipelineDBClear(repo string) *apperror.AppError {
 	totalBytes += parentBytes
 
 	clearLocalErrorLogsForRepo(repo)
+	_ = ClearPeAllCacheForRepo(repo)
 	reinitFreshPipelineDb(repo)
 	printPipelineClearSummary(repo, activeDir, totalFiles, totalBytes)
 
@@ -90,6 +101,7 @@ func executePipelineDBClearAll() *apperror.AppError {
 		totalBytes += b
 	}
 	clearLocalErrorLogs()
+	_ = ClearPeAllCache()
 	reinitFreshPipelineDb(resolveCurrentRepoSlug())
 	printClearAllSummary(totalFiles, totalBytes)
 

@@ -47,7 +47,7 @@ func inspectSingleRepoCached(slug, absPath string, cacheConn *sql.DB, cacheMu *s
 
 	inspection := inspectSinglePipelineRepo(slug)
 
-	if headSha != "" && cacheConn != nil {
+	if !inspection.isInProgress && headSha != "" && cacheConn != nil {
 		saveInspectionToCache(cacheConn, cacheMu, slug, headSha, inspection)
 	}
 
@@ -136,16 +136,39 @@ func inspectSinglePipelineRepo(slug string) singleRepoInspection {
 		return singleRepoInspection{hasPipelineData: false, dataStatus: allRepoStatusNoData}
 	}
 
-	if run.IsSuccess || strings.EqualFold(run.Conclusion, "success") {
+	if run.IsSuccess || strings.EqualFold(run.Conclusion, "success") || strings.EqualFold(run.Conclusion, "skipped") || strings.EqualFold(run.Conclusion, "neutral") {
 		return singleRepoInspection{hasPipelineData: true, isClean: true, dataStatus: allRepoStatusClean}
 	}
 
+	if isWorkflowStatusActive(run.Status) && !isFailingConclusion(run.Conclusion) && !db.HasErrorLogForSha(run.Sha) {
+		return singleRepoInspection{
+			hasPipelineData: true,
+			isClean:         true,
+			isInProgress:    true,
+			dataStatus:      allRepoStatusClean,
+		}
+	}
+
+	errRecords := detailedErrorRecordsForRun(db, run.RunId)
+	if !isFailingConclusion(run.Conclusion) && !db.HasErrorLogForSha(run.Sha) && len(errRecords) == 0 {
+		return singleRepoInspection{
+			hasPipelineData: true,
+			isClean:         true,
+			isInProgress:    isWorkflowStatusActive(run.Status),
+			dataStatus:      allRepoStatusClean,
+		}
+	}
+
 	errSummary := extractRunErrorSummary(db, run.RunId)
+	if errSummary == "" && isFailingConclusion(run.Conclusion) {
+		errSummary = fmt.Sprintf("Workflow %s concluded with %s", run.WorkflowName, run.Conclusion)
+	}
 
 	return singleRepoInspection{
 		hasPipelineData: true,
+		isInProgress:    isWorkflowStatusActive(run.Status),
 		dataStatus:      allRepoStatusFailed,
-		errorRecords:    detailedErrorRecordsForRun(db, run.RunId),
+		errorRecords:    errRecords,
 		stepJobs:        stepJobNamesForRun(db, run.RunId),
 		failedItem: &AllPipelineFailedItem{
 			RepoSlug:     slug,

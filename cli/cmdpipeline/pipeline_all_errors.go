@@ -73,6 +73,7 @@ type singleRepoInspection struct {
 	isClean         bool
 	hasPipelineData bool
 	isCached        bool
+	isInProgress    bool
 	dataStatus      string
 }
 

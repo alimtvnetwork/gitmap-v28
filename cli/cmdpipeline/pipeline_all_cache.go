@@ -104,6 +104,10 @@ func getCachedInspection(conn *sql.DB, slug, currentHeadSha string) (singleRepoI
 	ins.errorRecords = parseCachedErrorRecords(errorRecordsJSON)
 	ins.stepJobs = parseCachedStepJobs(stepJobsJSON)
 
+	if ins.dataStatus == allRepoStatusFailed && len(ins.errorRecords) == 0 {
+		return singleRepoInspection{}, false
+	}
+
 	return ins, true
 }
 
@@ -212,4 +216,28 @@ func getRepoHeadSha(absPath string) string {
 	}
 
 	return strings.TrimSpace(string(out))
+}
+
+// ClearPeAllCache removes all rows from the pe_all_commit_cache SQLite table.
+func ClearPeAllCache() error {
+	conn, err := openPeAllCache()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	_, err = conn.Exec("DELETE FROM pe_all_commit_cache")
+	return err
+}
+
+// ClearPeAllCacheForRepo removes the cached inspection for a specific repo slug.
+func ClearPeAllCacheForRepo(slug string) error {
+	conn, err := openPeAllCache()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	_, err = conn.Exec("DELETE FROM pe_all_commit_cache WHERE repo_slug = ?", slug)
+	return err
 }

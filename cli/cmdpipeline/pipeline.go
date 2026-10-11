@@ -184,6 +184,9 @@ func checkErrorLogsOrClear(subcmd string, args []string) (bool, error) {
 	if len(args) > 1 && isPipelineClearAction(args[1]) {
 		return true, handlePipelineDB(append([]string{"clear"}, args[2:]...))
 	}
+	if len(args) > 2 && isPipelineClearAction(args[2]) {
+		return true, handlePipelineDB(append([]string{"clear", args[1]}, args[3:]...))
+	}
 
 	return true, handlePipelineErrorLogs(args[1:])
 }
