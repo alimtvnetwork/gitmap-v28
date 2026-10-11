@@ -98,4 +98,5 @@
 - [107-pipeline-pe-1-nested-ifs-boolean-guidelines-relative-paths-and-misspell-rca.md](./107-pipeline-pe-1-nested-ifs-boolean-guidelines-relative-paths-and-misspell-rca.md): Fix CI/CD failures from gitmap pe -1 across nested ifs (40 violations across 10 files), boolean guidelines (15 violations), relative paths (6 violations), unused analysisCmd, and misspell canceled.
 - [108-unused-release-notes-and-scanpipe-unit-test-packages-rca.md](./108-unused-release-notes-and-scanpipe-unit-test-packages-rca.md): Fix unused symbols in release notes and missing scanpipe package in CI unit test matrix.
 - [109-file-size-gate-and-unused-symbols-in-pending-commits-rca.md](./109-file-size-gate-and-unused-symbols-in-pending-commits-rca.md): Fix file size gate 300-line cap and unused symbols across pending commits, code, create, and ignore.
+- [110-unused-symbols-in-aliasops-clihelpers-llm-train-and-cmdnodes-rca.md](./110-unused-symbols-in-aliasops-clihelpers-llm-train-and-cmdnodes-rca.md): Fix unused symbols in aliasops, clihelpers_argv, llm_train, and cmdnodes hook shim.
 
