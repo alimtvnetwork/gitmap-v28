@@ -191,6 +191,11 @@ func expandCommitShaToFull(target string) string {
 }
 
 func queryWorkflowRunsByCommit(repo, sha string) []ghRunItem {
+	if !strings.Contains(repo, "/") {
+		if resolved := ResolvePipelineTarget(repo); strings.Contains(resolved, "/") {
+			repo = resolved
+		}
+	}
 	fullSha := resolveFullHexCommitSha(sha)
 
 	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--commit", fullSha, "--limit", "10", "--json",

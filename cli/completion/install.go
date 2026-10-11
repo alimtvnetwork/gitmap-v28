@@ -276,7 +276,7 @@ if (-not $global:__gitmap_suggestions_configured) {
             } catch {}
         }
         try {
-            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+            Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue
         } catch {}
     }
 }

@@ -453,14 +453,8 @@ func utilityPipelineEntries() []dispatchEntry {
 		{[]string{"pipeline-fix", "fix-pipeline", "aef", "agy-errors-fix", "fix-agy"}, func() error { return cmdagy.RunPipelineFixAgyCLI(argsTail()) }},
 		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return cmdpipeline.RunPipelineAI(argsTail()) }},
 		{[]string{"pipeline", "pipelines", "pl"}, func() error { return cmdpipeline.RunPipeline(argsTail()) }},
-		{[]string{"pe", "pipeline-errors", "pipeline_errors", "ee"}, func() error {
-			args := argsTail()
-			if len(args) > 0 && strings.EqualFold(args[0], "all") {
-				return cmdsummary.RunPipelineErrorsAll(args[1:])
-			}
-			return cmdpipeline.RunPipelineErrors(args)
-		}},
-		{[]string{"pipe-error-all", "pipe-errors-all"}, func() error { return cmdsummary.RunPipelineErrorsAll(argsTail()) }},
+		{[]string{"pe", "pipeline-errors", "pipeline_errors", "ee"}, func() error { return cmdpipeline.RunPipelineErrors(argsTail()) }},
+		{[]string{"pipe-error-all", "pipe-errors-all"}, func() error { return cmdpipeline.RunPipelineErrors(append([]string{"all"}, argsTail()...)) }},
 		{[]string{"te"}, func() error { return cmdpipeline.RunPipelineErrors(argsTail()) }},
 		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return cmdpipeline.RunPipelineDetails(argsTail()) }},
 		{[]string{"e", "errors", "internal-errors", "errs"}, func() error { return cmderrors.RunErrorsCLI(argsTail()) }},

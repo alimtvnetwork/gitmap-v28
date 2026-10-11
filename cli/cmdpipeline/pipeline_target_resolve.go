@@ -43,7 +43,7 @@ func resolveDBOrExplicitSlug(target string) (string, string) {
 	if strings.Contains(target, "/") {
 		return target, ""
 	}
-	return "", ""
+	return "alimtvnetwork/" + target, ""
 }
 
 func resolveSpecialAlias(target string) (string, string) {
@@ -127,45 +127,71 @@ func queryRepoSlugAndPathFromDB(identifier string) (string, string, bool) {
 }
 
 func queryExactAlias(conn *sql.DB, identifier string) (string, string, bool) {
-	var slug, absPath string
-	q := "SELECT r.Slug, r.AbsolutePath FROM Alias a JOIN Repo r ON a.RepoId = r.RepoId WHERE a.Alias = ? LIMIT 1"
-	if err := conn.QueryRow(q, identifier).Scan(&slug, &absPath); err == nil && len(slug) > 0 {
-		return slug, absPath, true
+	var slug, absPath, httpsUrl, sshUrl string
+	q := "SELECT r.Slug, r.AbsolutePath, COALESCE(r.HttpsUrl, ''), COALESCE(r.SshUrl, '') FROM Alias a JOIN Repo r ON a.RepoId = r.RepoId WHERE a.Alias = ? LIMIT 1"
+	if err := conn.QueryRow(q, identifier).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
+		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
 	}
 	return "", "", false
 }
 
 func queryExactRepo(conn *sql.DB, identifier string) (string, string, bool) {
-	var slug, absPath string
-	q := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath = ? OR AbsolutePath LIKE ? OR AbsolutePath LIKE ? LIMIT 1"
+	var slug, absPath, httpsUrl, sshUrl string
+	q := "SELECT Slug, AbsolutePath, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, '') FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath = ? OR AbsolutePath LIKE ? OR AbsolutePath LIKE ? LIMIT 1"
 	slashPattern := "%/" + filepath.ToSlash(identifier)
 	backslashPattern := "%\\" + filepath.FromSlash(identifier)
-	if err := conn.QueryRow(q, identifier, identifier, identifier, slashPattern, backslashPattern).Scan(&slug, &absPath); err == nil && len(slug) > 0 {
-		return slug, absPath, true
+	if err := conn.QueryRow(q, identifier, identifier, identifier, slashPattern, backslashPattern).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
+		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
+	}
+	if strings.Contains(identifier, "/") {
+		shortName := identifier[strings.LastIndex(identifier, "/")+1:]
+		if err := conn.QueryRow(q, shortName, shortName, shortName, slashPattern, backslashPattern).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
+			return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
+		}
 	}
 	return "", "", false
 }
 
 func queryPrefixRepo(conn *sql.DB, identifier string) (string, string, bool) {
-	q := "SELECT Slug, AbsolutePath FROM Repo WHERE Slug LIKE ? OR RepoName LIKE ? ORDER BY Slug DESC LIMIT 5"
+	q := "SELECT Slug, AbsolutePath, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, '') FROM Repo WHERE Slug LIKE ? OR RepoName LIKE ? ORDER BY Slug DESC LIMIT 5"
 	rows, err := conn.Query(q, identifier+"%", identifier+"%")
 	if err != nil {
 		return "", "", false
 	}
 	defer rows.Close()
-	var slug, absPath, s, a string
+	var slug, absPath, httpsUrl, sshUrl, s, a, h, sc string
 	count := 0
 	for rows.Next() {
-		if errScan := rows.Scan(&s, &a); errScan != nil {
+		if errScan := rows.Scan(&s, &a, &h, &sc); errScan != nil {
 			return "", "", false
 		}
 		if count == 0 {
-			slug, absPath = s, a
+			slug, absPath, httpsUrl, sshUrl = s, a, h, sc
 		}
 		count++
 	}
 	if count > 0 && slug != "" {
-		return slug, absPath, true
+		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
 	}
 	return "", "", false
+}
+
+func canonicalizeRepoSlug(slug, httpsUrl, sshUrl string) string {
+	if strings.Contains(slug, "/") {
+		return slug
+	}
+	if len(httpsUrl) > 0 {
+		if parsed := parseSlugFromGitURL(httpsUrl); strings.Contains(parsed, "/") {
+			return parsed
+		}
+	}
+	if len(sshUrl) > 0 {
+		if parsed := parseSlugFromGitURL(sshUrl); strings.Contains(parsed, "/") {
+			return parsed
+		}
+	}
+	if len(slug) > 0 {
+		return "alimtvnetwork/" + slug
+	}
+	return ""
 }

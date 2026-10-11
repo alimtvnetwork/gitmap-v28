@@ -2,7 +2,9 @@ package pipelinedb
 
 import (
 	"database/sql"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -49,7 +51,48 @@ func RepoScopedPipelineDbDir(repoSlug string) string {
 // ResolvePipelineDbPath resolves the CLI-anchored SQLite database path for a repository.
 func ResolvePipelineDbPath(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)
-	return store.ResolveSplitDbPath(store.SectionPipeline, slug, "")
+	primary := store.ResolveSplitDbPath(store.SectionPipeline, slug, "")
+	candidate := findPipelineDbCandidate(slug)
+	if candidate == "" {
+		return primary
+	}
+
+	primarySize := getFileSize(primary)
+	candidateSize := getFileSize(candidate)
+
+	if candidateSize > primarySize {
+		return candidate
+	}
+
+	return primary
+}
+
+func findPipelineDbCandidate(slug string) string {
+	baseDir := PipelineDbDir()
+	entries, err := os.ReadDir(baseDir)
+	if err != nil {
+		return ""
+	}
+
+	var bestPath string
+	var bestSize int64
+	targetSuffix := "-" + strings.ToLower(slug)
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		nameLower := strings.ToLower(entry.Name())
+		if strings.HasSuffix(nameLower, targetSuffix) {
+			dbFile := filepath.Join(baseDir, entry.Name(), store.DbFileName)
+			if sz := getFileSize(dbFile); sz > bestSize {
+				bestPath = filepath.ToSlash(dbFile)
+				bestSize = sz
+			}
+		}
+	}
+
+	return bestPath
 }
 
 // PipelineDbPath returns the full SQLite database file path for a repository.

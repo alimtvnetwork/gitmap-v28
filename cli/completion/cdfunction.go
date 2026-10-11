@@ -43,9 +43,9 @@ func installPowerShellCommandShim() error {
 	}
 
 	dir := filepath.Dir(exe)
-	body := renderPowerShellCommandShim(dir)
+	_ = os.Remove(filepath.Join(dir, constants.PowerShellShimFile))
 
-	return os.WriteFile(filepath.Join(dir, constants.PowerShellShimFile), []byte(body), 0o755)
+	return nil
 }
 
 func renderPowerShellCommandShim(dir string) string {

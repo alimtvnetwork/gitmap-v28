@@ -1,6 +1,7 @@
 package cmdpipeline
 
 import (
+	"encoding/json"
 	"os"
 	"strings"
 )
@@ -44,6 +45,8 @@ func buildLocalOrEmptyErrorPayload(payload PipelineErrorLogsPayload) PipelineErr
 		return payload
 	}
 
+	payload.WorkflowName = "CI/CD Pipeline"
+	payload.Conclusion = "success"
 	payload.ErrorLogs = "No failed pipeline steps or local error logs found."
 
 	return payload
@@ -51,10 +54,29 @@ func buildLocalOrEmptyErrorPayload(payload PipelineErrorLogsPayload) PipelineErr
 
 func readLocalLastErrorLog() string {
 	content, err := os.ReadFile(".gitmap/last_error.log")
-
-	if err == nil && len(content) > 0 {
-		return strings.TrimSpace(string(content))
+	if err != nil || len(content) == 0 {
+		return ""
 	}
 
-	return ""
+	trimmed := strings.TrimSpace(string(content))
+	var report struct {
+		Command string `json:"command"`
+		Error   string `json:"error"`
+	}
+	if jsonErr := json.Unmarshal([]byte(trimmed), &report); jsonErr == nil {
+		if report.Command != "" && !isPipelineCommandName(report.Command) {
+			return ""
+		}
+		if len(report.Error) > 0 {
+			return report.Error
+		}
+	}
+
+	return trimmed
+}
+
+func isPipelineCommandName(cmd string) bool {
+	c := strings.ToLower(strings.TrimSpace(cmd))
+	return c == "pipeline" || c == "pipeline-ai" || c == "pl" || c == "ci" || c == "pe" || c == "te" ||
+		strings.HasPrefix(c, "pipeline") || strings.HasPrefix(c, "ci")
 }

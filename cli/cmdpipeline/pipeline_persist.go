@@ -345,4 +345,12 @@ func clearLocalErrorLogsForRepo(repo string) {
 	_ = os.Remove(filepath.Join(dir, "last_error.log"))
 	_ = os.Remove(filepath.Join(resolvePipelineDir(), "pipeline_errors.log"))
 	_ = os.Remove(filepath.Join(resolvePipelineDir(), "last_error.log"))
+	_ = os.Remove(".gitmap/last_error.log")
+	_ = os.Remove(".gitmap/pipeline_errors.log")
+	if len(repo) > 0 {
+		if absPath := findLocalRepoDirForSlug(repo); len(absPath) > 0 {
+			_ = os.Remove(filepath.Join(absPath, ".gitmap", "last_error.log"))
+			_ = os.Remove(filepath.Join(absPath, ".gitmap", "pipeline_errors.log"))
+		}
+	}
 }

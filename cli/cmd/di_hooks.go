@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexec"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfind"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory"
@@ -82,7 +83,7 @@ func init() {
 	}
 	cmdagy.RunAgySSHFn = cmdssh.RunSSHAgyCLI
 
-	cmdupdate.RunPostUpdateMigrateFn = cmdupdate.RunPostUpdateMigrate
+	cmdupdate.RunPostUpdateMigrateFn = cmddb.RunPostUpdateMigrate
 	cmdupdate.RequireOnlineFn = requireOnline
 	cmdupdate.ResolveDeployedAndConfigPathsFn = cmdinstall.ResolveDeployedAndConfigPaths
 	cmdupdate.PrintGitmapIdentityBlockLongFn = printGitmapIdentityBlockLong

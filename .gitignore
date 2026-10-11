@@ -101,3 +101,10 @@ cli/gitmap.ps1
 .gitmap/chrome/
 gitmap-ssh*.json
 test_stash/
+
+
+# GitMap & Task Persistence
+antigravity-resume_task.json
+.antigravity_resume_task.json
+antigravity_resume_task.json
+.antigravity-resume_task.json

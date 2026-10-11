@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/pterm/pterm"
 )
@@ -41,6 +42,10 @@ type PipelineAllPayload struct {
 
 // RunPipelineErrorsAll executes workspace-wide CI/CD pipeline error discovery with 48h filtering.
 func RunPipelineErrorsAll(args []string) error {
+	return cmdpipeline.RunPipelineErrors(append([]string{"all"}, args...))
+}
+
+func runPipelineErrorsAllLegacy(args []string) error {
 	isJSON := false
 	forceAll := false
 

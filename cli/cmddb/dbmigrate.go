@@ -73,10 +73,10 @@ func printDbMigrateSummary(isVerbose bool) {
 
 // Backwards-compatible alias for printDbMigrateSummary
 
-// runPostUpdateMigrate is invoked from the update flow after the binary is
+// RunPostUpdateMigrate is invoked from the update flow after the binary is
 // replaced. It is best-effort: any failure is warned, never fatal, since the
 // user may have an in-flight DB lock or read-only environment.
-func runPostUpdateMigrate() error {
+func RunPostUpdateMigrate() error {
 	fmt.Print(constants.MsgDBMigratePostUpdate)
 
 	db, err := openDb()

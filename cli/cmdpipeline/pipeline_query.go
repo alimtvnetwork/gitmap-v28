@@ -73,6 +73,12 @@ func queryWorkflowRuns(repo string) []ghRunItem {
 		return nil
 	}
 
+	if !strings.Contains(repo, "/") {
+		if resolved := ResolvePipelineTarget(repo); strings.Contains(resolved, "/") {
+			repo = resolved
+		}
+	}
+
 	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--limit", "30", "--json",
 		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url,displayTitle,event")
 	if err != nil {

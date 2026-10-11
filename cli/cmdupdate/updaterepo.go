@@ -100,6 +100,14 @@ func isGitmapSourceRepo(path string) bool {
 		return false
 	}
 
+	if fsutil.FileExists(filepath.Join(path, "cli", "constants", "constants.go")) {
+		return true
+	}
+
+	if fsutil.FileExists(filepath.Join(path, "cli", "go.mod")) {
+		return true
+	}
+
 	if fsutil.FileExists(filepath.Join(path, "gitmap", "constants", "constants.go")) {
 		return true
 	}

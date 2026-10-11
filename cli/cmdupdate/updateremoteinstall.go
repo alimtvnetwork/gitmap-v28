@@ -121,7 +121,7 @@ func startRemoteUpdateWorkflow(slug string) bool {
 	} else if !opts.IsQuiet {
 		fmt.Println("  Verifying      : SHA256 checksum verified.")
 		fmt.Printf("  Installing     : Updating binary in %s...\n", installDir)
-		fmt.Println("  Scripts sync   : install.ps1, gitmap.ps1 updated.")
+		fmt.Println("  Scripts sync   : install.ps1, run.ps1 updated.")
 		fmt.Printf("  ✔ Successfully updated gitmap from %s to %s (took %.1fs)\n", FormatVersionTag(currentVersion), FormatVersionTag(candidate.Tag), duration.Seconds())
 	}
 
@@ -144,10 +144,8 @@ func resolveDownloaderEngine() string {
 }
 
 func syncLocalRunnerScripts(installDir, tag string) []string {
-	updated := make([]string, 0, 3)
-	if hasWrittenShim(installDir) {
-		updated = append(updated, "gitmap.ps1")
-	}
+	updated := make([]string, 0, 2)
+	hasWrittenShim(installDir)
 
 	if _, err := os.Stat("install.ps1"); err == nil {
 		updated = append(updated, "install.ps1")
@@ -158,7 +156,7 @@ func syncLocalRunnerScripts(installDir, tag string) []string {
 	}
 
 	if len(updated) == 0 {
-		return []string{"install.ps1", "gitmap.ps1", "run.ps1"}
+		return []string{"install.ps1", "run.ps1"}
 	}
 
 	return updated
@@ -170,9 +168,9 @@ func hasWrittenShim(installDir string) bool {
 	}
 
 	shimPath := filepath.Join(installDir, "gitmap.ps1")
-	shimContent := "& \"$PSScriptRoot\\gitmap.exe\" @args\r\n"
+	_ = os.Remove(shimPath)
 
-	return os.WriteFile(shimPath, []byte(shimContent), 0644) == nil
+	return false
 }
 
 func ensurePostUpdateCompletions() {
@@ -231,7 +229,7 @@ func outputDryRun(candidate *ReleaseCandidate, currentVer, engine, installDir st
 			DownloadBytes:    candidate.AssetSize,
 			FallbackDepth:    candidate.FallbackDepth,
 			IsCached:         candidate.IsCached,
-			ScriptsUpdated:   []string{"install.ps1", "gitmap.ps1", "run.ps1"},
+			ScriptsUpdated:   []string{"install.ps1", "run.ps1"},
 		}
 		enc, _ := json.MarshalIndent(res, "", "  ")
 		fmt.Println(string(enc))

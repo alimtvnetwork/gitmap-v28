@@ -306,7 +306,7 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 		buf.WriteString("        } catch {}\n")
 		buf.WriteString("    }\n")
 		buf.WriteString("    try {\n")
-		buf.WriteString("        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue\n")
+		buf.WriteString("        Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue\n")
 		buf.WriteString("    } catch {}\n")
 		buf.WriteString("}\n")
 		return buf.String(), nil

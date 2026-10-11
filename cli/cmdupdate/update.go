@@ -19,52 +19,53 @@ import (
 
 // runUpdate handles the "update" subcommand.
 //
-// As of v5.51.0 the default path downloads + runs the canonical remote
-// installer (install.ps1 on Windows, install.sh elsewhere) so updates
-// no longer require a source checkout. The installer itself performs
-// the parallel `-v<N+i>` sibling-repo probe, so the latest published
-// gitmap-vN release always wins.
-//
-// The legacy source-rebuild handoff is preserved behind --source-rebuild
-// for users who maintain a local clone and want to ship in-tree changes.
+// In accordance with 02-spec/14-update/02-self-update-overview.md and
+// 02-spec/14-update/08-console-safe-handoff.md:
+// 1. If a local source repository is resolved, build from repo using the
+//    console-safe handoff mechanism (blocking cmd.Run(), zero popup windows,
+//    same terminal session).
+// 2. Otherwise fall back to the binary remote installer.
 func runUpdate() error {
 	requireOnline()
-	if !hasFlag(constants.FlagSourceRebuild) && runUpdateRemoteInstall() {
-		return nil
-	}
 
-	if !hasFlag(constants.FlagSourceRebuild) {
-		fmt.Fprint(os.Stderr, constants.MsgUpdateRemoteFallback)
-	}
+	// Priority 1: Source-based update via console-safe handoff
+	repoPath, errRepo := resolveRepoPath()
+	if errRepo == nil && len(repoPath) > 0 {
+		report := resolveReportErrors()
+		report.announce()
 
-	repoPath, err := resolveRepoPath()
-	if err != nil {
-		return err
-	}
+		selfPath, err := os.Executable()
+		if err != nil {
+			appErr := apperror.WrapWithDetails(
+				err,
+				"cmd.update.executable",
+				"E1131",
+				"failed to determine current executable path",
+				"cmd.update",
+				apperror.ErrorTypeExecution,
+				apperror.SeverityError,
+				nil,
+			)
+			cliexit.HandleError(appErr, 1)
 
-	report := resolveReportErrors()
-	report.announce()
+			return nil
+		}
 
-	selfPath, err := os.Executable()
-	if err != nil {
-		appErr := apperror.WrapWithDetails(
-			err,
-			"cmd.update.executable",
-			"E1131",
-			"failed to determine current executable path",
-			"cmd.update",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(appErr, 1)
+		copyPath := createHandoffCopy(selfPath)
+		fmt.Printf(constants.MsgUpdateActive, selfPath, copyPath)
+		launchHandoff(copyPath, repoPath, report)
 
 		return nil
 	}
 
-	copyPath := createHandoffCopy(selfPath)
-	fmt.Printf(constants.MsgUpdateActive, selfPath, copyPath)
-	launchHandoff(copyPath, repoPath, report)
+	// Priority 2: Binary-based remote installer update
+	if runUpdateRemoteInstall() {
+		return nil
+	}
+
+	if errRepo != nil {
+		return errRepo
+	}
 
 	return nil
 }

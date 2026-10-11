@@ -79,7 +79,10 @@ func classifyArgs(command string, args []string) (string, string, string) {
 	var flags, positional []string
 
 	for _, arg := range args {
-		if fmt.Sprintf("%c", arg[0]) == "-" {
+		if len(arg) == 0 {
+			continue
+		}
+		if arg[0] == '-' {
 			flags = append(flags, arg)
 		} else {
 			positional = append(positional, arg)

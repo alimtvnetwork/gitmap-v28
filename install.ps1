@@ -649,12 +649,12 @@ function Invoke-Aria2cDownload([string]$url, [string]$outPath) {
             "--dir=$destDir", "-o", "$destFile", "$url"
         )
         try {
-            $p = Start-Process -FilePath $aria2.Source -ArgumentList $ariaArgs -NoNewWindow -Wait -PassThru -ErrorAction Stop
-            if ($p.ExitCode -eq 0 -and (Test-Path $outPath) -and (Get-Item $outPath).Length -gt 0) {
+            & $aria2.Source @ariaArgs
+            if ($LASTEXITCODE -eq 0 -and (Test-Path $outPath) -and (Get-Item $outPath).Length -gt 0) {
                 Write-OK "Download completed successfully via aria2c."
                 return $true
             }
-            Write-Warning "aria2c finished with code $($p.ExitCode); delegating download request to secondary downloader..."
+            Write-Warning "aria2c finished with code $LASTEXITCODE; delegating download request to secondary downloader..."
         } catch {
             Write-Warning "aria2c encountered an error: $_. Delegating download request to secondary downloader..."
         }
@@ -1127,8 +1127,9 @@ finally {
 
 function Install-PowerShellShim([string]$dir) {
     $shimPath = Join-Path $dir "gitmap.ps1"
-    Set-Content -Path $shimPath -Value (Get-GitmapPowerShellShimContent $dir) -Encoding UTF8
-    Write-OK "Installed PowerShell command shim: $shimPath"
+    if (Test-Path -LiteralPath $shimPath) {
+        Remove-Item -LiteralPath $shimPath -Force -ErrorAction SilentlyContinue
+    }
 }
 
 function Add-CommandWrapperToProfile([string]$profilePath, [string]$dir) {
@@ -1205,7 +1206,7 @@ if (-not `$global:__gitmap_suggestions_configured) {
             } catch {}
         }
         try {
-            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+            Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue
         } catch {}
     }
 }
@@ -1242,7 +1243,7 @@ if (Test-Path -LiteralPath `$compPath) {
             } catch {}
         }
         try {
-            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+            Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue
         } catch {}
     }
     if (Test-Path -LiteralPath $compPath) {
@@ -1254,8 +1255,8 @@ if (Test-Path -LiteralPath `$compPath) {
     try {
         $psrl = Get-Module -ListAvailable PSReadLine | Sort-Object Version -Descending | Select-Object -First 1
         if ($psrl -and $psrl.Version -lt [Version]"2.2.0") {
-            Write-Host "  ◦ Note: Windows PowerShell built-in PSReadLine is $($psrl.Version) (requires >= 2.2.0 for predictive dropdown)." -ForegroundColor Yellow
-            Write-Host "    To enable ListView predictive IntelliSense in Windows PowerShell 5.1, run:" -ForegroundColor Cyan
+            Write-Host "  ◦ Note: Windows PowerShell built-in PSReadLine is $($psrl.Version) (requires >= 2.2.0 for predictive suggestions)." -ForegroundColor Yellow
+            Write-Host "    To enable predictive IntelliSense in Windows PowerShell 5.1, run:" -ForegroundColor Cyan
             Write-Host "      Install-Module PSReadLine -Scope CurrentUser -Force -SkipPublisherCheck" -ForegroundColor Cyan
         }
     } catch {}

@@ -576,11 +576,11 @@ function Test-SourceFiles {
         "cmdupdate/update.go",
         "cmdpull/pull.go",
         "cmdscan/rescan.go",
-        "cmd/desktopsync.go",
+        "cmddesktopsync/desktopsync.go",
         "constants/constants.go",
         "config/config.go",
-        "scanner/scanner.go",
-        "mapper/mapper.go",
+        "scanpipe/scanner.go",
+        "scanpipe/mapper.go",
         "model/record.go",
         "formatter/csv.go",
         "formatter/json.go",
@@ -597,12 +597,12 @@ function Test-SourceFiles {
         "verbose/verbose.go",
         "setup/setup.go",
         "cmdsetup/setup.go",
-        "cmd/status.go",
-        "cmd/exec.go",
-        "cmd/release.go",
-        "cmd/releasebranch.go",
-        "cmd/releasepending.go",
-        "cmd/changelog.go",
+        "cmdstatus/status.go",
+        "cmdexec/exec.go",
+        "cmdrelease/release.go",
+        "cmdrelease/releasebranch.go",
+        "cmdrelease/releasepending.go",
+        "cmdchangelog/changelog.go",
         "cmddoctor/doctor.go",
         "release/semver.go",
         "release/metadata.go",
@@ -1025,17 +1025,27 @@ function Backup-ExistingBinary {
         Remove-Item $BackupFile -Force -ErrorAction SilentlyContinue
     }
 
+    $targetBackup = $BackupFile
+    if (Test-Path $BackupFile) {
+        $targetBackup = "$DestFile.$([System.Diagnostics.Process]::GetCurrentProcess().Id).old"
+        if (Test-Path $targetBackup) {
+            $targetBackup = "$DestFile.$([System.Diagnostics.Process]::GetCurrentProcess().Id)-$([Guid]::NewGuid().ToString('N').Substring(0,6)).old"
+        }
+    }
+
     try {
-        Rename-Item $DestFile $BackupFile -Force -ErrorAction Stop
-        Write-Info "Renamed existing binary to ${BinaryName}.old (rename-first)"
+        Rename-Item $DestFile $targetBackup -Force -ErrorAction Stop
+        Write-Info "Renamed existing binary to $(Split-Path $targetBackup -Leaf) (rename-first)"
+        $script:ActiveBackupFile = $targetBackup
         return $true
     } catch {
         Write-Warn "Rename-first failed: $_"
     }
 
     try {
-        Copy-Item $DestFile $BackupFile -Force -ErrorAction Stop
-        Write-Info "Backed up existing binary to ${BinaryName}.old"
+        Copy-Item $DestFile $targetBackup -Force -ErrorAction Stop
+        Write-Info "Backed up existing binary to $(Split-Path $targetBackup -Leaf)"
+        $script:ActiveBackupFile = $targetBackup
         return $true
     } catch {
         Write-Warn "Could not create backup: $_"
@@ -1114,15 +1124,16 @@ function Deploy-Binary {
 
     $destFile = Join-Path $appDir $Config.binaryName
     $backupFile = "$destFile.old"
+    $script:ActiveBackupFile = $backupFile
 
     $hasBackup = Backup-ExistingBinary -DestFile $destFile -BackupFile $backupFile -BinaryName $Config.binaryName
-    $deploySuccess = Copy-WithRetry -Source $BinaryPath -Dest $destFile -BackupFile $backupFile -HasBackup $hasBackup
+    $deploySuccess = Copy-WithRetry -Source $BinaryPath -Dest $destFile -BackupFile $script:ActiveBackupFile -HasBackup $hasBackup
 
     # Post-deploy: remove the .old immediately now that the new binary is in place.
-    if ($hasBackup -and $deploySuccess -and (Test-Path $backupFile)) {
+    if ($hasBackup -and $deploySuccess -and (Test-Path $script:ActiveBackupFile)) {
         try {
-            Remove-Item $backupFile -Force -ErrorAction Stop
-            Write-Info "Removed .old backup ($($Config.binaryName).old)"
+            Remove-Item $script:ActiveBackupFile -Force -ErrorAction Stop
+            Write-Info "Removed .old backup ($(Split-Path $script:ActiveBackupFile -Leaf))"
         } catch {
             Write-Warn "Could not remove .old backup: $_ (will be cleaned on next deploy)"
         }
