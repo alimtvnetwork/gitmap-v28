@@ -77,7 +77,7 @@ func AllCommands() []CommandMetadata {
 ### 3.2 PowerShell Profile Integration & Predictive Suggestions
 The PowerShell configuration script (`scripts/install.ps1`) configures predictive autocompletion:
 - Injects `Register-ArgumentCompleter -Native -CommandName gitmap -ScriptBlock { ... }`.
-- Sets PSReadLine prediction source to `HistoryAndPlugin` with `InlineView` rendering mode.
+- Sets PSReadLine prediction source to `HistoryAndPlugin` with `ListView` rendering mode.
 - Avoids pipeline stdout interception by writing directory change targets to `$env:GITMAP_HANDOFF_FILE`.
 
 ---

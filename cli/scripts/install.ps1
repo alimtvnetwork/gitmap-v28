@@ -1191,6 +1191,7 @@ function Configure-PowerShellProfileSuggestions([string]$binPath = "") {
 # >>> gitmap shell completion & predictive suggestions >>>
 if (-not `$global:__gitmap_suggestions_configured) {
     `$global:__gitmap_suggestions_configured = `$true
+    Import-Module PSReadLine -MinimumVersion 2.2.0 -ErrorAction SilentlyContinue
     if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
         try {
             Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
@@ -1200,7 +1201,7 @@ if (-not `$global:__gitmap_suggestions_configured) {
             } catch {}
         }
         try {
-            Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue
+            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
         } catch {}
     }
 }
@@ -1228,6 +1229,7 @@ if (Test-Path -LiteralPath `$compPath) {
     }
 
     # Activate predictive suggestions and completions in current session immediately
+    Import-Module PSReadLine -MinimumVersion 2.2.0 -ErrorAction SilentlyContinue
     if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
         try {
             Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
@@ -1237,7 +1239,7 @@ if (Test-Path -LiteralPath `$compPath) {
             } catch {}
         }
         try {
-            Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue
+            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
         } catch {}
     }
     if (Test-Path -LiteralPath $compPath) {
@@ -1249,9 +1251,16 @@ if (Test-Path -LiteralPath `$compPath) {
     try {
         $psrl = Get-Module -ListAvailable PSReadLine | Sort-Object Version -Descending | Select-Object -First 1
         if ($psrl -and $psrl.Version -lt [Version]"2.2.0") {
-            Write-Host "  ◦ Note: Windows PowerShell built-in PSReadLine is $($psrl.Version) (requires >= 2.2.0 for predictive suggestions)." -ForegroundColor Yellow
-            Write-Host "    To enable predictive IntelliSense in Windows PowerShell 5.1, run:" -ForegroundColor Cyan
-            Write-Host "      Install-Module PSReadLine -Scope CurrentUser -Force -SkipPublisherCheck" -ForegroundColor Cyan
+            $pwsh7PSRL = "C:\Program Files\PowerShell\7\Modules\PSReadLine"
+            $destPSRL = "C:\Program Files\WindowsPowerShell\Modules\PSReadLine\2.2.6"
+            if ((Test-Path $pwsh7PSRL) -and -not (Test-Path $destPSRL)) {
+                Copy-Item -Path "$pwsh7PSRL\*" -Destination $destPSRL -Recurse -Force -ErrorAction SilentlyContinue
+                Import-Module PSReadLine -MinimumVersion 2.2.0 -ErrorAction SilentlyContinue
+            } else {
+                Write-Host "  ◦ Note: Windows PowerShell built-in PSReadLine is $($psrl.Version) (requires >= 2.2.0 for predictive suggestions)." -ForegroundColor Yellow
+                Write-Host "    To enable predictive IntelliSense in Windows PowerShell 5.1, run:" -ForegroundColor Cyan
+                Write-Host "      Install-Module PSReadLine -Scope CurrentUser -Force -SkipPublisherCheck" -ForegroundColor Cyan
+            }
         }
     } catch {}
 

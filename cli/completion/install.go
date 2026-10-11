@@ -267,6 +267,7 @@ func buildPowerShellSnippet(scriptPath string) string {
 	return fmt.Sprintf(`%s
 if (-not $global:__gitmap_suggestions_configured) {
     $global:__gitmap_suggestions_configured = $true
+    Import-Module PSReadLine -MinimumVersion 2.2.0 -ErrorAction SilentlyContinue
     if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
         try {
             Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
@@ -276,7 +277,7 @@ if (-not $global:__gitmap_suggestions_configured) {
             } catch {}
         }
         try {
-            Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue
+            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
         } catch {}
     }
 }
