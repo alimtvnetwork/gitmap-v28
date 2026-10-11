@@ -158,11 +158,7 @@ func evaluateTargetOrHeadCacheHit(repo string, dbRuns []pipelinedb.PipelineRunRe
 	}
 
 	if checkTargetIndexCacheHit(dbRuns, flags) {
-		targetSha := latestSha
-		if target := resolveTargetCommitCandidate(flags.CommitTarget); len(target) > 0 {
-			targetSha = target
-		}
-
+		targetSha := resolveTargetIndexSha(flags.CommitTarget, latestSha)
 		return true, buildCacheHitDecision(dbRuns, targetSha, "target_index_matched")
 	}
 
@@ -284,6 +280,15 @@ func checkTargetIndexCacheHit(dbRuns []pipelinedb.PipelineRunRecord, flags Pipel
 	}
 
 	return true
+}
+
+func resolveTargetIndexSha(commitTarget, fallbackSha string) string {
+	target := resolveTargetCommitCandidate(commitTarget)
+	if len(target) > 0 {
+		return target
+	}
+
+	return fallbackSha
 }
 
 func buildCacheHitDecision(dbRuns []pipelinedb.PipelineRunRecord, sha, reason string) PipelineCacheDecision {

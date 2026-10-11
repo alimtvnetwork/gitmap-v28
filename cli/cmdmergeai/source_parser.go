@@ -48,6 +48,13 @@ func ResolveSourceFilePath(inputPath string) (string, error) {
 		return trimmed, nil
 	}
 
+	if cwd, err := os.Getwd(); err == nil && cwd != "" {
+		cwdCandidate := filepath.Join(cwd, trimmed)
+		if info, err := os.Stat(cwdCandidate); err == nil && !info.IsDir() {
+			return cwdCandidate, nil
+		}
+	}
+
 	repoCacheRoot := cmdclone.ResolveRepoCacheRoot()
 	if repoCacheRoot != "" {
 		rcCandidate := filepath.Join(repoCacheRoot, trimmed)
@@ -59,6 +66,19 @@ func ResolveSourceFilePath(inputPath string) (string, error) {
 		rcBaseCandidate := filepath.Join(repoCacheRoot, baseName)
 		if info, err := os.Stat(rcBaseCandidate); err == nil && !info.IsDir() {
 			return rcBaseCandidate, nil
+		}
+	}
+
+	workBase := resolveWorkBaseDir()
+	if workBase != "" {
+		wbCandidate := filepath.Join(workBase, trimmed)
+		if info, err := os.Stat(wbCandidate); err == nil && !info.IsDir() {
+			return wbCandidate, nil
+		}
+
+		wbBaseCandidate := filepath.Join(workBase, "repo-cache", filepath.Base(trimmed))
+		if info, err := os.Stat(wbBaseCandidate); err == nil && !info.IsDir() {
+			return wbBaseCandidate, nil
 		}
 	}
 
@@ -101,7 +121,9 @@ func extractDestHintAndCleanLines(content string) (string, []string) {
 		}
 
 		lower := strings.ToLower(trimmed)
-		if strings.HasPrefix(lower, "# dest") || strings.HasPrefix(lower, "# target") || strings.HasPrefix(lower, "dest:") {
+		if strings.HasPrefix(lower, "# dest") || strings.HasPrefix(lower, "# target") ||
+			strings.HasPrefix(lower, "dest:") || strings.HasPrefix(lower, "target:") ||
+			strings.HasPrefix(lower, "destination:") || strings.HasPrefix(lower, "# destination:") {
 			parts := strings.SplitN(trimmed, ":", 2)
 			if len(parts) == 2 && destHint == "" {
 				destHint = strings.TrimSpace(parts[1])
@@ -109,12 +131,28 @@ func extractDestHintAndCleanLines(content string) (string, []string) {
 			continue
 		}
 
-		if !strings.HasPrefix(trimmed, "#") {
-			cleanLines = append(cleanLines, trimmed)
+		if strings.HasPrefix(trimmed, "#") {
+			heading := strings.TrimSpace(strings.TrimLeft(trimmed, "#"))
+			if heading != "" {
+				cleanLines = append(cleanLines, heading)
+			}
+			continue
 		}
+
+		cleanLines = append(cleanLines, trimmed)
 	}
 
 	return destHint, cleanLines
+}
+
+func isGenericLabel(s string) bool {
+	clean := strings.ToLower(strings.TrimRight(strings.TrimSpace(s), ":"))
+	switch clean {
+	case "title", "repo", "repository", "url", "source", "name", "link":
+		return true
+	default:
+		return false
+	}
 }
 
 func pairHeadersAndURLs(lines []string) []RawSourceItem {
@@ -135,8 +173,12 @@ func pairHeadersAndURLs(lines []string) []RawSourceItem {
 		}
 
 		if i+1 < len(lines) && isFullURL(lines[i+1]) {
+			title := curr
+			if isGenericLabel(title) {
+				title = inferTitleFromURL(lines[i+1])
+			}
 			items = append(items, RawSourceItem{
-				Title:   curr,
+				Title:   title,
 				URL:     lines[i+1],
 				RawLine: curr + "\n" + lines[i+1],
 				LineNum: i + 1,
@@ -163,6 +205,14 @@ func pairHeadersAndURLs(lines []string) []RawSourceItem {
 }
 
 func filterAndDeduplicateSources(rawItems []RawSourceItem) ([]ResolvedSourceItem, []SkippedSourceItem) {
+	fullRepos := make(map[string]bool)
+	for _, item := range rawItems {
+		canonicalRepo, _, isFileURL, _, err := ParseURLDetails(item.URL)
+		if err == nil && !isFileURL {
+			fullRepos[canonicalRepo] = true
+		}
+	}
+
 	seenRepos := make(map[string]bool)
 	var resolved []ResolvedSourceItem
 	var skipped []SkippedSourceItem
@@ -174,7 +224,7 @@ func filterAndDeduplicateSources(rawItems []RawSourceItem) ([]ResolvedSourceItem
 		}
 
 		if isFileURL {
-			if seenRepos[canonicalRepo] {
+			if fullRepos[canonicalRepo] || seenRepos[canonicalRepo] {
 				skipped = append(skipped, SkippedSourceItem{
 					RawInput: item.URL,
 					Title:    item.Title,

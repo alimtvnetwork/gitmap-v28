@@ -153,11 +153,36 @@ func parseJSONConfigFile(configPath string) (string, []ResolvedSourceItem, []Ski
 }
 
 func parseMultiMergeAIArgs(args []string) (string, []ResolvedSourceItem, []SkippedSourceItem, error) {
-	// If first arg is a text file and second is not, swap to (dest, textFile)
-	if isTextFilePath(args[0]) && !isTextFilePath(args[1]) {
-		dest := args[1]
-		_, resolved, skipped, err := ParseSourceFile(args[0])
-		return dest, resolved, skipped, err
+	// If first arg is a text file and subsequent args form destination name:
+	if isTextFilePath(args[0]) {
+		otherAreDest := true
+		for _, a := range args[1:] {
+			if isTextFilePath(a) || isFullURL(a) {
+				otherAreDest = false
+				break
+			}
+		}
+		if otherAreDest {
+			dest := strings.Join(args[1:], " ")
+			_, resolved, skipped, err := ParseSourceFile(args[0])
+			return dest, resolved, skipped, err
+		}
+	}
+
+	// If last arg is a text file and preceding args form destination name:
+	if isTextFilePath(args[len(args)-1]) {
+		precedingAreDest := true
+		for _, a := range args[:len(args)-1] {
+			if isTextFilePath(a) || isFullURL(a) {
+				precedingAreDest = false
+				break
+			}
+		}
+		if precedingAreDest {
+			dest := strings.Join(args[:len(args)-1], " ")
+			_, resolved, skipped, err := ParseSourceFile(args[len(args)-1])
+			return dest, resolved, skipped, err
+		}
 	}
 
 	dest := args[0]

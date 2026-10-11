@@ -215,13 +215,16 @@ func tryInstantCommitHashRetrieval(repo string, flags PipelineErrorFlags) (bool,
 }
 
 func resolveTargetOrHeadSha(repo string, flags PipelineErrorFlags) string {
-	if len(flags.CommitTarget) > 0 {
-		if !flags.HasIndex {
-			return flags.CommitTarget
-		}
-		if resolved := resolveTargetCommitCandidate(flags.CommitTarget); len(resolved) > 0 {
-			return resolved
-		}
+	if len(flags.CommitTarget) == 0 {
+		return ResolveRepoHeadCommitSha(repo)
+	}
+	if !flags.HasIndex {
+		return flags.CommitTarget
+	}
+
+	resolved := resolveTargetCommitCandidate(flags.CommitTarget)
+	if len(resolved) > 0 {
+		return resolved
 	}
 
 	return ResolveRepoHeadCommitSha(repo)

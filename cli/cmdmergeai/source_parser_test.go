@@ -149,3 +149,94 @@ func TestParseURLDetails(t *testing.T) {
 		}
 	}
 }
+
+func TestParseSourceManifestContent_FileURLBeforeRepo(t *testing.T) {
+	// Tests that if the file URL is listed BEFORE the repository URL,
+	// the file URL is still skipped because the repo is included!
+	raw := `
+logo-1 animated gif
+https://github.com/alimtvnetwork/logo-1/blob/main/Projects/01-MacroMate/icons-image/Logo-Animated.gif
+
+alimtvnetwork/logo-1
+https://github.com/alimtvnetwork/logo-1
+`
+	_, resolved, skipped, err := ParseSourceManifestContent(raw)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(resolved) != 1 {
+		t.Fatalf("expected 1 resolved repo, got %d", len(resolved))
+	}
+	if resolved[0].CanonicalRepo != "alimtvnetwork/logo-1" {
+		t.Errorf("expected resolved repo alimtvnetwork/logo-1, got %s", resolved[0].CanonicalRepo)
+	}
+	if resolved[0].IsFromFile {
+		t.Errorf("expected IsFromFile to be false for the full repository")
+	}
+
+	if len(skipped) != 1 {
+		t.Fatalf("expected 1 skipped file URL, got %d", len(skipped))
+	}
+	if !skipped[0].IsFile {
+		t.Errorf("expected skipped item to be IsFile")
+	}
+}
+
+func TestParseSourceManifestContent_GenericLabelsAndMarkdownHeadings(t *testing.T) {
+	raw := `
+# Destination: icon-studio-2026
+
+## My MacroMate Repo
+https://github.com/alimtvnetwork/macro-mate-scripts-fixer-logo-icon
+
+Title:
+https://github.com/alimtvnetwork/iconcraft-studio
+
+Repo:
+https://github.com/alimtvnetwork/brand-weaver
+`
+	destHint, resolved, _, err := ParseSourceManifestContent(raw)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if destHint != "icon-studio-2026" {
+		t.Errorf("expected destHint icon-studio-2026, got %s", destHint)
+	}
+
+	if len(resolved) != 3 {
+		t.Fatalf("expected 3 resolved repos, got %d", len(resolved))
+	}
+
+	if resolved[0].Title != "My MacroMate Repo" {
+		t.Errorf("expected markdown heading title 'My MacroMate Repo', got '%s'", resolved[0].Title)
+	}
+
+	// For Title: and Repo: generic labels, title is inferred from URL
+	if resolved[1].Title != "alimtvnetwork/iconcraft-studio" {
+		t.Errorf("expected inferred title for generic label, got '%s'", resolved[1].Title)
+	}
+	if resolved[2].Title != "alimtvnetwork/brand-weaver" {
+		t.Errorf("expected inferred title for generic label, got '%s'", resolved[2].Title)
+	}
+}
+
+func TestParseMergeAIArgs_MultiWordDestination(t *testing.T) {
+	dest, _, _, err := parseMergeAIArgs([]string{"Icon", "Studio", "v1", "merge-ai-icon-studio.txt"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if dest != "Icon Studio v1" {
+		t.Errorf("expected dest 'Icon Studio v1', got '%s'", dest)
+	}
+
+	dest2, _, _, err2 := parseMergeAIArgs([]string{"Icon", "Studio", "2026", "merge-ai-icon-studio.txt"})
+	if err2 != nil {
+		t.Fatalf("unexpected error: %v", err2)
+	}
+	if dest2 != "Icon Studio 2026" {
+		t.Errorf("expected dest 'Icon Studio 2026', got '%s'", dest2)
+	}
+}
+
