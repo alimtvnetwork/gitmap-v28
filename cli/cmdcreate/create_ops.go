@@ -68,7 +68,7 @@ func ProvisionMissingDestination(rawTarget, abs string, isLocal bool) (string, e
 
 	tryPushRemoteProvisioned(params)
 	if !workspacesync.IsTempOrTestPath(absTarget) {
-		workspacesync.SyncAll(absTarget, name)
+		applyWorkspaceSync(params, absTarget)
 	}
 
 	return absTarget, nil

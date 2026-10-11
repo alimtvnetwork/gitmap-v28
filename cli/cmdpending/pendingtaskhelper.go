@@ -140,13 +140,3 @@ func ensureDB(db *store.DB, action string, taskID int64) (*store.DB, func()) {
 
 	return opened, func() { opened.Close() }
 }
-
-// closeTaskDB closes a *store.DB handle returned by createPendingTask
-// when it is non-nil.
-func closeTaskDB(db *store.DB) {
-	if db == nil {
-		return
-	}
-
-	_ = db.Close()
-}

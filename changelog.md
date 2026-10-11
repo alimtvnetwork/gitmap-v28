@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.532.0] - 2026-10-11
+
+### Added
+- fix file size gate 300-line cap and unused symbols
+
+---
+
 ## [v6.531.0] - 2026-10-10
 
 ### Added
