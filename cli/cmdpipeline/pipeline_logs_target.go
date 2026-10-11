@@ -285,4 +285,3 @@ func recordWorkflowSuccess(scopeKey string, succeeded map[string]bool) {
 func isWorkflowScopeSucceeded(scopeKey string, succeeded map[string]bool) bool {
 	return len(scopeKey) > 0 && succeeded[scopeKey]
 }
-

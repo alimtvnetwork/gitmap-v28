@@ -239,4 +239,3 @@ func TestParseMergeAIArgs_MultiWordDestination(t *testing.T) {
 		t.Errorf("expected dest 'Icon Studio 2026', got '%s'", dest2)
 	}
 }
-

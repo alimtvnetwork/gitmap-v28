@@ -174,9 +174,6 @@ func executeMachineAliasList(mode string, isSSH, isJSON bool) error {
 	return renderSingleMachineIdentity(resolveLocalMachineIdentity(), isJSON)
 }
 
-
-
-
 func executeMachineAliasSet(mode string, args []string, isSSH, isJSON bool) error {
 	fmt.Printf("  %sSample format: dev-win-01, ubuntu-node-02, mac-studio-01%s\n", constants.ColorYellow, constants.ColorReset)
 	if len(args) == 0 {
@@ -248,5 +245,3 @@ func applyOSHostnameChange(newName string) {
 		_ = os.Setenv("GITMAP_MACHINE_NAME", newName)
 	}
 }
-
-

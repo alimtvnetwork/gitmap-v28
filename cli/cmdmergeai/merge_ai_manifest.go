@@ -80,4 +80,3 @@ func formatSkippedSourceItem(s SkippedSourceItem) string {
 
 	return fmt.Sprintf("- **Duplicate Repository**: `%s` (%s)\n", s.RawInput, s.Reason)
 }
-

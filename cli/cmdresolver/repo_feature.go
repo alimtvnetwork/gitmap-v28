@@ -265,4 +265,3 @@ func resolveBareSlugFeature(slug string) (*ResolvedRepoFeature, error) {
 		IsCloned:      false,
 	}, nil
 }
-
