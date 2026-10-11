@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.544.0] - 2026-10-11
+
+### Added
+- ci - remove unused schemaregistry assert helpers for lint-baseline-diff
+
+---
+
 ## [v6.543.0] - 2026-10-11
 
 ### Added

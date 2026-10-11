@@ -36,27 +36,6 @@ import (
 	"testing"
 )
 
-// assertSchemaKeysArray loads schema `name` and delegates to the
-// existing assertEveryObjectKeysExact helper. On drift, hands off
-// to handleSchemaDrift which decides whether to accept, update, or
-// fail. Returns nothing — failures are reported via t.Errorf so a
-// snapshot test can keep running and report multiple drifts at once.
-func assertSchemaKeysArray(t *testing.T, raw []byte, name string) {
-	t.Helper()
-	expected := loadSchema(t, name)
-	observed := readEveryObjectKeys(t, raw)
-	if len(observed) == 0 {
-		t.Fatalf("schema %q: expected at least one object", name)
-	}
-
-	for i, got := range observed {
-		if !equalStringSlices(got, expected.Keys) {
-			handleSchemaDrift(t, expected, got, fmt.Sprintf("array[%d]", i))
-
-			return
-		}
-	}
-}
 
 // assertSchemaKeysFirstObject loads schema `name` and asserts the
 // FIRST top-level object's keys match. Handles both shapes the
@@ -74,17 +53,6 @@ func assertSchemaKeysFirstObject(t *testing.T, raw []byte, name string) {
 	if !equalStringSlices(got, expected.Keys) {
 		handleSchemaDrift(t, expected, got, "first object")
 	}
-}
-
-// assertSchemaKeysSlice returns the schema's key slice for callers
-// that drive their own comparison (CSV header check, JSONL per-line
-// key-order assertion). Routing through this function instead of
-// inlining the file load means a CSV-only consumer still triggers
-// the schema cache hit and still benefits from --update-schema.
-func assertSchemaKeysSlice(t *testing.T, name string) []string {
-	t.Helper()
-
-	return loadSchema(t, name).Keys
 }
 
 // handleSchemaDrift is the single decision point for "the test
@@ -198,25 +166,4 @@ func writeSchemaFile(s schema, observedKeys []string) error {
 	schemaCacheMu.Unlock()
 
 	return nil
-}
-
-// readEveryObjectKeys returns the keys of every object in a JSON
-// array. Local copy of cmdscan's test helper.
-func readEveryObjectKeys(t *testing.T, raw []byte) [][]string {
-	t.Helper()
-	var records []map[string]any
-	if err := json.Unmarshal(raw, &records); err != nil {
-		t.Fatalf("unmarshal records: %v", err)
-	}
-
-	var out [][]string
-	for _, rec := range records {
-		var keys []string
-		for k := range rec {
-			keys = append(keys, k)
-		}
-		out = append(out, keys)
-	}
-
-	return out
 }
