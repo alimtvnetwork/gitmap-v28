@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.543.0] - 2026-10-11
+
+### Added
+- ci - remove unused legacy statusformat, statusmissing, and statusprint for lint-baseline-diff
+
+---
+
 ## [v6.542.0] - 2026-10-11
 
 ### Added

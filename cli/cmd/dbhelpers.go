@@ -7,13 +7,3 @@ import (
 func openDB() (*store.DB, error) {
 	return store.OpenDefault()
 }
-
-type statusSummary struct {
-	Total   int
-	Clean   int
-	Dirty   int
-	Ahead   int
-	Behind  int
-	Stashed int
-	Missing int
-}
