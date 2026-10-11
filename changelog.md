@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.546.0] - 2026-10-11
+
+### Added
+- ci - decompose root_cobra_completion and completion/install for 300-line size gate
+
+---
+
 ## [v6.545.0] - 2026-10-11
 
 ### Added
