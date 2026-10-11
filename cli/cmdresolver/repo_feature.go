@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -43,15 +44,25 @@ func ResolveRepoFeature(target string) (*ResolvedRepoFeature, error) {
 		return resolveRemoteURLFeature(trimmed)
 	}
 
-	if info, errStat := os.Stat(trimmed); errStat == nil && info.IsDir() {
-		gitPath := filepath.Join(trimmed, ".git")
-		if _, errGit := os.Stat(gitPath); errGit == nil {
-			return resolveExistingLocalGit(trimmed)
-		}
-		return resolveLocalNoGitFeature(trimmed)
+	if isExistingLocalDir(trimmed) {
+		return resolveExistingDirectoryFeature(trimmed)
 	}
 
 	return resolveBareSlugFeature(trimmed)
+}
+
+func isExistingLocalDir(target string) bool {
+	info, errStat := os.Stat(target)
+	return errStat == nil && info.IsDir()
+}
+
+func resolveExistingDirectoryFeature(dir string) (*ResolvedRepoFeature, error) {
+	gitPath := filepath.Join(dir, ".git")
+	if _, errGit := os.Stat(gitPath); errGit == nil {
+		return resolveExistingLocalGit(dir)
+	}
+
+	return resolveLocalNoGitFeature(dir)
 }
 
 func isRemoteGitURL(target string) bool {
@@ -75,29 +86,16 @@ func extractSlugFromURL(url string) string {
 func resolveRemoteURLFeature(url string) (*ResolvedRepoFeature, error) {
 	slug := extractSlugFromURL(url)
 
-	if db, errDB := store.OpenDefault(); errDB == nil {
-		defer db.Close()
-		if records, errList := db.ListRepos(); errList == nil {
-			for _, rec := range records {
-				if strings.EqualFold(rec.HTTPSUrl, url) || strings.EqualFold(rec.SSHUrl, url) || strings.EqualFold(rec.DiscoveredURL, url) || strings.EqualFold(rec.Slug, slug) {
-					absPath := rec.AbsolutePath
-					if absPath == "" {
-						absPath = rec.RelativePath
-					}
-					if _, statErr := os.Stat(filepath.Join(absPath, ".git")); statErr == nil {
-						return &ResolvedRepoFeature{
-							OriginalInput: url,
-							TargetType:    TargetTypeRemoteURL,
-							CanonicalSlug: slug,
-							LocalPath:     absPath,
-							RemoteURL:     url,
-							IsNewRepo:     false,
-							IsCloned:      false,
-						}, nil
-					}
-				}
-			}
-		}
+	if absPath := findMatchingRepoPath(url, slug); len(absPath) > 0 {
+		return &ResolvedRepoFeature{
+			OriginalInput: url,
+			TargetType:    TargetTypeRemoteURL,
+			CanonicalSlug: slug,
+			LocalPath:     absPath,
+			RemoteURL:     url,
+			IsNewRepo:     false,
+			IsCloned:      false,
+		}, nil
 	}
 
 	workspaceRoot := resolveDefaultWorkspaceRoot()
@@ -127,15 +125,17 @@ func resolveExistingLocalGit(dir string) (*ResolvedRepoFeature, error) {
 	}
 	slug := filepath.Base(abs)
 
-	cmd := exec.Command("git", "-C", abs, "remote", "get-url", "origin")
-	remoteURL, _ := cmd.CombinedOutput()
+	remoteURL := ""
+	if out, errRemote := exec.Command("git", "-C", abs, "remote", "get-url", "origin").Output(); errRemote == nil {
+		remoteURL = strings.TrimSpace(string(out))
+	}
 
 	return &ResolvedRepoFeature{
 		OriginalInput: dir,
 		TargetType:    TargetTypeLocalGit,
 		CanonicalSlug: slug,
 		LocalPath:     abs,
-		RemoteURL:     strings.TrimSpace(string(remoteURL)),
+		RemoteURL:     remoteURL,
 		IsNewRepo:     false,
 		IsCloned:      false,
 	}, nil
@@ -184,6 +184,51 @@ func SanitizeSlug(slug string) string {
 	return strings.Trim(clean, "-")
 }
 
+func findMatchingRepoPath(url, slug string) string {
+	db, errDB := store.OpenDefault()
+	if errDB != nil {
+		return ""
+	}
+	defer db.Close()
+
+	records, errList := db.ListRepos()
+	if errList != nil {
+		return ""
+	}
+
+	for _, rec := range records {
+		if path := matchRecordPath(rec, url, slug); len(path) > 0 {
+			return path
+		}
+	}
+
+	return ""
+}
+
+func matchRecordPath(rec model.ScanRecord, url, slug string) string {
+	if !isRecordMatchingURLOrSlug(rec, url, slug) {
+		return ""
+	}
+
+	absPath := rec.AbsolutePath
+	if len(absPath) == 0 {
+		absPath = rec.RelativePath
+	}
+
+	if _, statErr := os.Stat(filepath.Join(absPath, ".git")); statErr == nil {
+		return absPath
+	}
+
+	return ""
+}
+
+func isRecordMatchingURLOrSlug(rec model.ScanRecord, url, slug string) bool {
+	return strings.EqualFold(rec.HTTPSUrl, url) ||
+		strings.EqualFold(rec.SSHUrl, url) ||
+		strings.EqualFold(rec.DiscoveredURL, url) ||
+		strings.EqualFold(rec.Slug, slug)
+}
+
 func resolveBareSlugFeature(slug string) (*ResolvedRepoFeature, error) {
 	cleanSlug := SanitizeSlug(slug)
 	if cleanSlug == "" {
@@ -193,10 +238,8 @@ func resolveBareSlugFeature(slug string) (*ResolvedRepoFeature, error) {
 	workspaceRoot := resolveDefaultWorkspaceRoot()
 	destPath := filepath.Join(workspaceRoot, cleanSlug)
 
-	if _, statErr := os.Stat(destPath); os.IsNotExist(statErr) {
-		if errMk := os.MkdirAll(destPath, 0755); errMk != nil {
-			return nil, fmt.Errorf("failed to create directory %s: %w", destPath, errMk)
-		}
+	if errMk := ensureDirExists(destPath); errMk != nil {
+		return nil, fmt.Errorf("failed to create directory %s: %w", destPath, errMk)
 	}
 
 	gitDir := filepath.Join(destPath, ".git")
@@ -207,42 +250,19 @@ func resolveBareSlugFeature(slug string) (*ResolvedRepoFeature, error) {
 		isNew = true
 	}
 
-	cmd := exec.Command("git", "-C", destPath, "remote", "get-url", "origin")
-	remoteURL, _ := cmd.CombinedOutput()
+	remoteURL := ""
+	if out, errRemote := exec.Command("git", "-C", destPath, "remote", "get-url", "origin").Output(); errRemote == nil {
+		remoteURL = strings.TrimSpace(string(out))
+	}
 
 	return &ResolvedRepoFeature{
 		OriginalInput: slug,
 		TargetType:    TargetTypeBareSlug,
 		CanonicalSlug: cleanSlug,
 		LocalPath:     destPath,
-		RemoteURL:     strings.TrimSpace(string(remoteURL)),
+		RemoteURL:     remoteURL,
 		IsNewRepo:     isNew,
 		IsCloned:      false,
 	}, nil
 }
 
-func resolveDefaultWorkspaceRoot() string {
-	if defDB, err := store.OpenDefault(); err == nil {
-		defer defDB.Close()
-		if wd, err := defDB.GetDefaultWorkDir(); err == nil && wd != nil && len(wd.AbsolutePath) > 0 {
-			if info, errStat := os.Stat(wd.AbsolutePath); errStat == nil && info.IsDir() {
-				return wd.AbsolutePath
-			}
-		}
-	}
-
-	if info, err := os.Stat(`D:\work`); err == nil && info.IsDir() {
-		return `D:\work`
-	}
-
-	cwd, err := os.Getwd()
-	if err == nil && cwd != "" {
-		parent := filepath.Dir(cwd)
-		if parent != "" && parent != cwd {
-			return parent
-		}
-		return cwd
-	}
-
-	return "."
-}

@@ -39,11 +39,7 @@ This repository has been prepared by ` + "`gitmap merge-ai`" + `. Multiple sourc
 		content += "## Skipped Sources (Pre-Filter Intelligence):\n"
 		content += "The following source URLs were automatically skipped during pre-filtering:\n"
 		for _, s := range skipped {
-			if s.IsFile {
-				content += fmt.Sprintf("- **File URL**: `%s` (Repository `%s` is already included; file path: `%s`)\n", s.RawInput, s.Repo, s.FilePath)
-			} else {
-				content += fmt.Sprintf("- **Duplicate Repository**: `%s` (%s)\n", s.RawInput, s.Reason)
-			}
+			content += formatSkippedSourceItem(s)
 		}
 		content += "\n"
 	}
@@ -76,3 +72,12 @@ This repository has been prepared by ` + "`gitmap merge-ai`" + `. Multiple sourc
 
 	return os.WriteFile(filePath, []byte(content), 0644)
 }
+
+func formatSkippedSourceItem(s SkippedSource) string {
+	if s.IsFile {
+		return fmt.Sprintf("- **File URL**: `%s` (Repository `%s` is already included; file path: `%s`)\n", s.RawInput, s.Repo, s.FilePath)
+	}
+
+	return fmt.Sprintf("- **Duplicate Repository**: `%s` (%s)\n", s.RawInput, s.Reason)
+}
+

@@ -8,7 +8,7 @@ import (
 
 func TestParseMergeAIArgs(t *testing.T) {
 	// Comma separated
-	dest, sources, _, err := parseMergeAIArgs([]string{"my-target", "https://github.com/a/u1,https://github.com/b/u2,https://github.com/c/u3"})
+	dest, sources, _, dryRun, err := parseMergeAIArgs([]string{"my-target", "https://github.com/a/u1,https://github.com/b/u2,https://github.com/c/u3"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -18,14 +18,35 @@ func TestParseMergeAIArgs(t *testing.T) {
 	if len(sources) != 3 {
 		t.Fatalf("expected 3 sources, got %d", len(sources))
 	}
+	if dryRun {
+		t.Errorf("expected dryRun false")
+	}
 
 	// Space separated
-	dest2, sources2, _, err2 := parseMergeAIArgs([]string{"dest-dir", "https://github.com/a/u1", "https://github.com/b/u2"})
+	dest2, sources2, _, _, err2 := parseMergeAIArgs([]string{"dest-dir", "https://github.com/a/u1", "https://github.com/b/u2"})
 	if err2 != nil {
 		t.Fatalf("unexpected error: %v", err2)
 	}
 	if dest2 != "dest-dir" || len(sources2) != 2 {
 		t.Fatalf("expected dest-dir and 2 sources, got %s and %d", dest2, len(sources2))
+	}
+
+	// Named flags with --dry-run
+	dest3, sources3, _, dryRun3, err3 := parseMergeAIArgs([]string{"-d", "icon-studio-v1", "-s", "https://github.com/a/u1", "--dry-run"})
+	if err3 != nil {
+		t.Fatalf("unexpected error with named flags: %v", err3)
+	}
+	if dest3 != "icon-studio-v1" || len(sources3) != 1 || !dryRun3 {
+		t.Fatalf("expected icon-studio-v1, 1 source, dryRun=true, got %s, %d, %v", dest3, len(sources3), dryRun3)
+	}
+
+	// Help flag
+	destHelp, _, _, _, errHelp := parseMergeAIArgs([]string{"--help"})
+	if errHelp != nil {
+		t.Fatalf("unexpected error on help: %v", errHelp)
+	}
+	if destHelp != "" {
+		t.Fatalf("expected empty dest on help")
 	}
 }
 

@@ -44,45 +44,65 @@ func ResolveSourceFilePath(inputPath string) (string, error) {
 		return "", fmt.Errorf("empty source file path")
 	}
 
-	if info, err := os.Stat(trimmed); err == nil && !info.IsDir() {
-		return trimmed, nil
+	candidates := []string{trimmed}
+	lower := strings.ToLower(trimmed)
+	if !strings.HasSuffix(lower, ".txt") && !strings.HasSuffix(lower, ".manifest") {
+		candidates = append(candidates, trimmed+".txt")
+	}
+
+	for _, cand := range candidates {
+		if resolved, ok := probeSingleCandidate(cand); ok {
+			return resolved, nil
+		}
+	}
+
+	return trimmed, fmt.Errorf("source file not found: %s", trimmed)
+}
+
+func probeSingleCandidate(cand string) (string, bool) {
+	if info, err := os.Stat(cand); err == nil && !info.IsDir() {
+		return cand, true
 	}
 
 	if cwd, err := os.Getwd(); err == nil && cwd != "" {
-		cwdCandidate := filepath.Join(cwd, trimmed)
+		cwdCandidate := filepath.Join(cwd, cand)
 		if info, err := os.Stat(cwdCandidate); err == nil && !info.IsDir() {
-			return cwdCandidate, nil
+			return cwdCandidate, true
+		}
+
+		cwdRcCandidate := filepath.Join(cwd, "repo-cache", filepath.Base(cand))
+		if info, err := os.Stat(cwdRcCandidate); err == nil && !info.IsDir() {
+			return cwdRcCandidate, true
 		}
 	}
 
 	repoCacheRoot := cmdclone.ResolveRepoCacheRoot()
 	if repoCacheRoot != "" {
-		rcCandidate := filepath.Join(repoCacheRoot, trimmed)
+		rcCandidate := filepath.Join(repoCacheRoot, cand)
 		if info, err := os.Stat(rcCandidate); err == nil && !info.IsDir() {
-			return rcCandidate, nil
+			return rcCandidate, true
 		}
 
-		baseName := filepath.Base(trimmed)
-		rcBaseCandidate := filepath.Join(repoCacheRoot, baseName)
+		rcBaseCandidate := filepath.Join(repoCacheRoot, filepath.Base(cand))
 		if info, err := os.Stat(rcBaseCandidate); err == nil && !info.IsDir() {
-			return rcBaseCandidate, nil
+			return rcBaseCandidate, true
 		}
 	}
 
 	workBase := resolveWorkBaseDir()
 	if workBase != "" {
-		wbCandidate := filepath.Join(workBase, trimmed)
+		wbCandidate := filepath.Join(workBase, cand)
 		if info, err := os.Stat(wbCandidate); err == nil && !info.IsDir() {
-			return wbCandidate, nil
+			return wbCandidate, true
 		}
 
-		wbBaseCandidate := filepath.Join(workBase, "repo-cache", filepath.Base(trimmed))
+		wbBaseCandidate := filepath.Join(workBase, "repo-cache", filepath.Base(cand))
 		if info, err := os.Stat(wbBaseCandidate); err == nil && !info.IsDir() {
-			return wbBaseCandidate, nil
+			return wbBaseCandidate, true
 		}
 	}
 
-	return trimmed, fmt.Errorf("source file not found: %s", trimmed)
+	return "", false
 }
 
 // ParseSourceFile reads and intelligently parses a manifest text file.
@@ -277,100 +297,4 @@ func filterAndDeduplicateSources(rawItems []RawSourceItem) ([]ResolvedSourceItem
 	}
 
 	return resolved, skipped
-}
-
-// ParseURLDetails breaks down any Git or GitHub URL into components.
-func ParseURLDetails(rawURL string) (string, string, bool, string, error) {
-	trimmed := strings.TrimSpace(rawURL)
-	if trimmed == "" {
-		return "", "", false, "", fmt.Errorf("empty URL")
-	}
-
-	if isShorthandRepo(trimmed) {
-		cleanRepo := strings.TrimSuffix(trimmed, ".git")
-		return strings.ToLower(cleanRepo), "https://github.com/" + cleanRepo + ".git", false, "", nil
-	}
-
-	if strings.HasPrefix(trimmed, "git@") {
-		parts := strings.Split(trimmed, ":")
-		if len(parts) == 2 {
-			repoPath := strings.TrimSuffix(parts[1], ".git")
-			repoPath = strings.Trim(repoPath, "/")
-			return strings.ToLower(repoPath), trimmed, false, "", nil
-		}
-	}
-
-	u := trimmed
-	for _, prefix := range []string{"https://", "http://", "ssh://"} {
-		if strings.HasPrefix(strings.ToLower(u), prefix) {
-			u = u[len(prefix):]
-			break
-		}
-	}
-
-	slashIdx := strings.Index(u, "/")
-	if slashIdx == -1 {
-		if isShorthandRepo(trimmed) {
-			cleanRepo := strings.TrimSuffix(trimmed, ".git")
-			return strings.ToLower(cleanRepo), "https://github.com/" + cleanRepo + ".git", false, "", nil
-		}
-		return "", "", false, "", fmt.Errorf("invalid repository URL: %s", rawURL)
-	}
-
-	pathOnly := strings.Trim(u[slashIdx+1:], "/")
-	segments := strings.Split(pathOnly, "/")
-	if len(segments) < 2 {
-		return "", "", false, "", fmt.Errorf("invalid repository path in URL: %s", rawURL)
-	}
-
-	owner := segments[0]
-	repo := strings.TrimSuffix(segments[1], ".git")
-	canonicalRepo := strings.ToLower(owner + "/" + repo)
-	cloneURL := fmt.Sprintf("https://github.com/%s/%s.git", owner, repo)
-
-	var isFileURL bool
-	var filePath string
-	if len(segments) > 2 {
-		kind := strings.ToLower(segments[2])
-		if kind == "blob" || kind == "tree" || kind == "raw" {
-			isFileURL = true
-			if len(segments) > 4 {
-				filePath = strings.Join(segments[4:], "/")
-			} else if len(segments) == 4 {
-				filePath = segments[3]
-			}
-		}
-	}
-
-	return canonicalRepo, cloneURL, isFileURL, filePath, nil
-}
-
-func isFullURL(s string) bool {
-	lower := strings.ToLower(strings.TrimSpace(s))
-	return strings.HasPrefix(lower, "https://") ||
-		strings.HasPrefix(lower, "http://") ||
-		strings.HasPrefix(lower, "git@") ||
-		strings.HasPrefix(lower, "ssh://")
-}
-
-func isShorthandRepo(s string) bool {
-	trimmed := strings.TrimSpace(s)
-	if strings.Contains(trimmed, " ") || isFullURL(trimmed) {
-		return false
-	}
-	parts := strings.Split(trimmed, "/")
-	return len(parts) == 2 && parts[0] != "" && parts[1] != ""
-}
-
-func inferTitleFromURL(rawURL string) string {
-	canonicalRepo, _, _, _, err := ParseURLDetails(rawURL)
-	if err == nil && canonicalRepo != "" {
-		return canonicalRepo
-	}
-	trimmed := strings.TrimRight(strings.TrimSuffix(rawURL, ".git"), "/")
-	parts := strings.Split(trimmed, "/")
-	if len(parts) > 0 {
-		return parts[len(parts)-1]
-	}
-	return "repository"
 }

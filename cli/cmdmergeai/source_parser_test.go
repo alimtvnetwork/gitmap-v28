@@ -223,7 +223,7 @@ https://github.com/alimtvnetwork/brand-weaver
 }
 
 func TestParseMergeAIArgs_MultiWordDestination(t *testing.T) {
-	dest, _, _, err := parseMergeAIArgs([]string{"Icon", "Studio", "v1", "merge-ai-icon-studio.txt"})
+	dest, _, _, _, err := parseMergeAIArgs([]string{"Icon", "Studio", "v1", "merge-ai-icon-studio.txt"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -231,7 +231,7 @@ func TestParseMergeAIArgs_MultiWordDestination(t *testing.T) {
 		t.Errorf("expected dest 'Icon Studio v1', got '%s'", dest)
 	}
 
-	dest2, _, _, err2 := parseMergeAIArgs([]string{"Icon", "Studio", "2026", "merge-ai-icon-studio.txt"})
+	dest2, _, _, _, err2 := parseMergeAIArgs([]string{"Icon", "Studio", "2026", "merge-ai-icon-studio.txt"})
 	if err2 != nil {
 		t.Fatalf("unexpected error: %v", err2)
 	}
