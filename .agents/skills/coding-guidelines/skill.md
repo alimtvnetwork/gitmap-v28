@@ -815,6 +815,33 @@ When tasked with auditing, reviewing, or fixing coding guidelines across a codeb
 
 ---
 
+## Agent AI Task Management, Synchronization & Concurrency Guidelines
+
+When AI agents execute multi-step plans, refactors, or audits across the codebase, they MUST coordinate task lifecycle, machine identity, file claims, and pre-touch actions via the Agent AI Split-DB engine (`gitmap agent-ai` or `python 03-ai-scripts/46-agent-sqlite-task-manager.py`):
+
+### 1. Task Creation & Machine Identity (Structured JSON Output)
+- All parent tasks created via `gitmap agent-ai create-task "<title>" [--budget N] [--json]` or `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --slug <slug> --name "<name>" [--json]` MUST return structured JSON detailing `parentTaskId`, `taskSlug`, `taskName`, and deterministic `machineId` (resolved via `$GITMAP_MACHINE_ID` -> `socket.gethostname()` -> `$COMPUTERNAME`/`$HOSTNAME`).
+- Subtasks created via `gitmap agent-ai subtask create <slug/id> "<title>" [--code Code] [--files paths] [--role role] [--json]` or `add-subtasks` MUST record `parentTaskId` and `machineId`, returning JSON with subtask IDs and parent context.
+
+### 2. Mandatory Pre-Touch Action Logging & Canonical ActionType Enum
+- **Rule R-PRETOUCH:** BEFORE modifying, analyzing, reading, or removing any file, the AI agent MUST log the in-flight action:
+  `gitmap agent-ai editing <subtask> "<file>" --action <action> --lines <start,end> --reasoning "<why>"`
+- The `--action` flag strictly enforces the canonical `ActionType` enum:
+  - `modify`: In-place modifications, edits, and file rewrites
+  - `analyze`: Inspections, diagnostics, AST reviews, code searches
+  - `read`: Viewing file content or loading context into memory
+  - `remove`: Deleting, dropping, or cleaning files and functions
+  - `refactor`: Structural reorganization and DRY extractions
+  - `create`: New file additions and scaffolding
+- Ad-hoc strings or undeclared mutations are strictly rejected with exit code 1.
+
+### 3. Real-Time Heatmap Consensus Discussion (<5ms SLA)
+- Before dispatching worker waves or resolving contentious file areas, agents run:
+  `gitmap agent-ai heatmap discuss [<taskSlug>] [--fast] [--json]`
+- Evaluates active claims, pre-touch rationales, heated files, and contention risk scores in `<5ms` to guarantee zero cross-agent write collisions.
+
+---
+
 ## Fast File Discovery & Reading Toolchain (GitMap AUM Primary, Python Fallback)
 
 To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the fast 2-tier discovery toolchain:
