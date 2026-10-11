@@ -99,4 +99,5 @@
 - [108-unused-release-notes-and-scanpipe-unit-test-packages-rca.md](./108-unused-release-notes-and-scanpipe-unit-test-packages-rca.md): Fix unused symbols in release notes and missing scanpipe package in CI unit test matrix.
 - [109-file-size-gate-and-unused-symbols-in-pending-commits-rca.md](./109-file-size-gate-and-unused-symbols-in-pending-commits-rca.md): Fix file size gate 300-line cap and unused symbols across pending commits, code, create, and ignore.
 - [110-unused-symbols-in-aliasops-clihelpers-llm-train-and-cmdnodes-rca.md](./110-unused-symbols-in-aliasops-clihelpers-llm-train-and-cmdnodes-rca.md): Fix unused symbols in aliasops, clihelpers_argv, llm_train, and cmdnodes hook shim.
+- [111-unused-symbols-in-cmd-jsonextract-and-cmd-safety-rca.md](./111-unused-symbols-in-cmd-jsonextract-and-cmd-safety-rca.md): Fix unused symbols in cmd_jsonextract and cmd_safety.
 
