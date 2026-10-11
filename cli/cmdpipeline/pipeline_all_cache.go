@@ -201,26 +201,6 @@ func recordCachedInspection(conn *sql.DB, slug, sha string, ins singleRepoInspec
 	return err
 }
 
-func getCachedCommitSha(conn *sql.DB, slug string) string {
-	var sha string
-	row := conn.QueryRow(`SELECT commit_sha FROM pe_all_commit_cache WHERE repo_slug = ?`, slug)
-	if scanErr := row.Scan(&sha); scanErr != nil {
-		return ""
-	}
-
-	return sha
-}
-
-func recordCommitSha(conn *sql.DB, slug, sha string) error {
-	_, err := conn.Exec(
-		`INSERT INTO pe_all_commit_cache (repo_slug, commit_sha, checked_at)
-		 VALUES (?, ?, ?)
-		 ON CONFLICT(repo_slug) DO UPDATE SET commit_sha = excluded.commit_sha, checked_at = excluded.checked_at`,
-		slug, sha, time.Now().UTC().Format(time.RFC3339),
-	)
-	return err
-}
-
 // getRepoHeadSha returns the HEAD commit SHA of the repo at absPath,
 // or "" when the path is not a git checkout.
 func getRepoHeadSha(absPath string) string {

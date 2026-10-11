@@ -119,12 +119,6 @@ func collectAllPipelineSummary() AllPipelineSummary {
 	return collectAllPipelineSummaryWithOptions(0, false)
 }
 
-// collectAllPipelineSummaryWithWorkers inspects every catalog repo using a
-// worker pool. workers <= 0 means auto: max(runtime.NumCPU(), 3).
-func collectAllPipelineSummaryWithWorkers(workers int) AllPipelineSummary {
-	return collectAllPipelineSummaryWithOptions(workers, false)
-}
-
 func collectAllPipelineSummaryWithOptions(workers int, bypassCache bool) AllPipelineSummary {
 	entries := discoverCatalogRepoSlugs()
 	slugs := make([]string, 0, len(entries))

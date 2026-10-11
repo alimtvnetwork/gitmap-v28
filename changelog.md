@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.539.0] - 2026-10-11
+
+### Added
+- ci - remove unused pe all cache and error symbols for lint baseline guard
+
+---
+
 ## [v6.538.0] - 2026-10-11
 
 ### Added
