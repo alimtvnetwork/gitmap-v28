@@ -24,7 +24,10 @@ func BuildSafeGitEnvWithBase(base []string, extra ...string) []string {
 	}
 	if runtime.GOOS != constants.PlatformWindows {
 		safe = append(safe, "GCM_CREDENTIAL_STORE=cache")
+	} else {
+		safe = append(safe, "GCM_CREDENTIAL_STORE=wincred")
 	}
+
 	res := append(base, safe...)
 	if len(extra) > 0 {
 		res = append(res, extra...)

@@ -58,11 +58,11 @@ func ResolveSplitDbDir(section, slug, repoRoot string) string {
 
 func resolveBaseDataDir(repoRoot string) string {
 	if repoRoot == "" {
-		return BinaryDataDir()
+		return EffectiveDataDir()
 	}
 	root := resolveTargetRoot(repoRoot)
 	if !isDirExisting(filepath.Join(root, ".gitmap")) {
-		return BinaryDataDir()
+		return EffectiveDataDir()
 	}
 	if root == "." {
 		return filepath.Join(".gitmap", "data")
@@ -237,7 +237,7 @@ func collectRootLegacyCandidates(root, section, slug string) []string {
 }
 
 func collectBinaryLegacyCandidates(section, slug string) []string {
-	binDir := BinaryDataDir()
+	binDir := EffectiveDataDir()
 
 	return []string{
 		filepath.Join(binDir, section, slug, "pipeline.db"),

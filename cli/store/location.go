@@ -1,9 +1,11 @@
 package store
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -27,13 +29,62 @@ func GlobalUserDataDir() string {
 	return ""
 }
 
+func isDirWritable(dir string) bool {
+	clean := filepath.Clean(dir)
+	info, err := os.Stat(clean)
+	if os.IsNotExist(err) {
+		return isParentDirWritable(clean)
+	}
+	if err != nil || !info.IsDir() {
+		return false
+	}
+
+	return isTestFileWritable(clean)
+}
+
+func isParentDirWritable(clean string) bool {
+	parent := filepath.Dir(clean)
+	if parent == clean {
+		return false
+	}
+	return isDirWritable(parent)
+}
+
+func isTestFileWritable(dir string) bool {
+	testFile := filepath.Join(dir, fmt.Sprintf(".gitmap_write_test_%d_%d", os.Getpid(), time.Now().UnixNano()))
+	f, err := os.OpenFile(testFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
+	if err != nil {
+		return false
+	}
+	_ = f.Close()
+	_ = os.Remove(testFile)
+
+	return true
+}
+
 func findGlobalFallbackDB(dbFile, currentDBPath string) string {
 	if binaryDataDirOverride != "" {
 		return ""
 	}
+	currentDir := filepath.Dir(currentDBPath)
+	if !isDirWritable(currentDir) {
+		return resolveGlobalDirFallback(dbFile)
+	}
 	if _, err := os.Stat(currentDBPath); !os.IsNotExist(err) {
 		return ""
 	}
+	return checkGlobalDBExists(dbFile)
+}
+
+func resolveGlobalDirFallback(dbFile string) string {
+	globalDir := GlobalUserDataDir()
+	if globalDir == "" {
+		return ""
+	}
+	return filepath.Join(globalDir, dbFile)
+}
+
+func checkGlobalDBExists(dbFile string) string {
 	globalDir := GlobalUserDataDir()
 	if globalDir == "" {
 		return ""
@@ -67,9 +118,24 @@ func BinaryDataDir() string {
 	return filepath.Join(filepath.Dir(resolved), constants.DBDir)
 }
 
+// EffectiveDataDir returns BinaryDataDir if it is writable. If BinaryDataDir
+// is read-only or unwritable (e.g. system install in /usr/local/bin/gitmap-cli/data),
+// it automatically falls back to GlobalUserDataDir() (~/.gitmap/data).
+func EffectiveDataDir() string {
+	dir := BinaryDataDir()
+	if isDirWritable(dir) {
+		return dir
+	}
+	if globalDir := GlobalUserDataDir(); globalDir != "" {
+		_ = os.MkdirAll(globalDir, 0755)
+		return globalDir
+	}
+	return dir
+}
+
 // OpenDefault opens the database from the binary's data directory.
 func OpenDefault() (*DB, error) {
-	dir := BinaryDataDir()
+	dir := EffectiveDataDir()
 	baseDir := filepath.Dir(dir) // binary dir without /data
 	dbFile := ActiveProfileDBFile(baseDir)
 	dbPath := filepath.Join(dir, dbFile)
@@ -84,7 +150,7 @@ func OpenDefault() (*DB, error) {
 // OpenDefaultProfile opens a named profile's database from the
 // binary's data directory.
 func OpenDefaultProfile(profileName string) (*DB, error) {
-	dir := BinaryDataDir()
+	dir := EffectiveDataDir()
 	dbFile := ProfileDBFile(profileName)
 	dbPath := filepath.Join(dir, dbFile)
 
@@ -104,9 +170,10 @@ func OpenGlobalDefault() (*DB, error) {
 
 // DefaultDBPath returns the resolved database path for diagnostics.
 func DefaultDBPath() string {
-	dir := BinaryDataDir()
+	dir := EffectiveDataDir()
 	baseDir := filepath.Dir(dir)
 	dbFile := ActiveProfileDBFile(baseDir)
 
 	return filepath.Join(dir, dbFile)
 }
+

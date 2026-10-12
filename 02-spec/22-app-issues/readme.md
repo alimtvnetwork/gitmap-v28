@@ -78,6 +78,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 70 | [70-stale-pull-error-persistence-and-clear-subsystem-rca.md](70-stale-pull-error-persistence-and-clear-subsystem-rca.md) | Stale Pull Error Persistence, Missing Eviction, and Clear Subsystem: RCA & Fix | Resolved |
 | 71 | [71-ubuntu-ide-github-desktop-scan-omission.md](71-ubuntu-ide-github-desktop-scan-omission.md) | Ubuntu Multi-IDE & GitHub Desktop Scan Omission: Root Cause Analysis & Fix | Resolved |
 | 72 | [72-remediation-unborn-branch-stash-failure-and-batch-resiliency-rca.md](72-remediation-unborn-branch-stash-failure-and-batch-resiliency-rca.md) | Remediation Unborn Branch Stash Failure and Batch Resiliency: RCA & Fix | Resolved |
+| 73 | [73-ssh-fleet-pull-gitmap-lock-permission-and-wincredman-rca.md](73-ssh-fleet-pull-gitmap-lock-permission-and-wincredman-rca.md) | SSH Fleet Pull GitMap Lock Permission & Wincredman Credential Store: RCA & Fix | Resolved |
 
 ---
 

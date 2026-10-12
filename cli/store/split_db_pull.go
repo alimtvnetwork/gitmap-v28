@@ -60,7 +60,7 @@ CREATE INDEX IF NOT EXISTS IdxPullRepoRun_LastCommitSha ON PullRepoRun(LastCommi
 
 // PullDBPath returns the canonical file path to gitmap-pull.db in the data folder.
 func PullDBPath() string {
-	dir := BinaryDataDir()
+	dir := EffectiveDataDir()
 	_ = os.MkdirAll(dir, 0755)
 
 	return filepath.Join(dir, PullDBFileName)

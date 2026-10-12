@@ -30,11 +30,18 @@ func RunFixCredential(args []string) *apperror.AppError {
 		return apperror.WrapSimple(err, "git config set manager")
 	}
 
-	// 3. (Optional) set credential store explicitly to avoid conflicts.
-	exec.Command("git", "config", "--global", "--unset-all", "credential.credentialStore").Run()
+	// 3. Set credential store to 'wincred' to avoid headless/SSH wincredman persistence failures.
+	storeType := "wincred"
+	for _, arg := range args {
+		if arg == "--dpapi" {
+			storeType = "dpapi"
+		}
+	}
+	exec.Command("git", "config", "--global", "credential.credentialStore", storeType).Run()
 
-	fmt.Println(constants.ColorGreen + "✔ Git credential helper successfully updated to 'manager'." + constants.ColorReset)
-	fmt.Println("  The 'cache' credential store issue on Windows is now resolved.")
+	fmt.Printf(constants.ColorGreen+"✔ Git credential helper successfully updated to 'manager' (credentialStore: %s).\n"+constants.ColorReset, storeType)
+	fmt.Println("  The 'cache' and 'wincredman' credential store issues on Windows are now resolved.")
+
 
 	return nil
 }
