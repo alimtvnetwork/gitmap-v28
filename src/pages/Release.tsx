@@ -628,9 +628,9 @@ const ReleasePage = () => {
                 <span>release remove-between</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Deletes all tags strictly between two version bounds. Endpoints (e.g. 4.162 and 4.190) and pinned tags are <strong>always kept</strong>.
+                Deletes all tags strictly between two version bounds. Evaluates auto dry-run preview and prompts before removal (bypassed via <code className="font-mono text-primary">--confirm</code> or <code className="font-mono text-primary">-y</code>). Endpoints and pinned tags are <strong>always kept</strong>.
               </p>
-              <CodeBlock code={`# Keep only 4.162 and 4.190 (purges 4.162.1..4.189.0)\ngitmap release remove-between 4.162, 4.190\n\n# High-speed alias with auto-confirm\ngitmap rrb 4.162 4.190 -y\n\n# Preview deletion candidates\ngitmap rrb 4.162, 4.190 --dry-run`} />
+              <CodeBlock code={`# Evaluates auto dry-run and prompts before deletion\ngitmap release remove-between 4.162, 4.190\n\n# Bypass confirmation prompt directly\ngitmap rrb 4.162 4.190 --confirm\ngitmap rrb 4.162 4.190 -y\n\n# Pure preview mode (no prompt or deletion)\ngitmap rrb 4.162, 4.190 --dry-run`} />
             </div>
 
             <div className="p-4 rounded-lg border border-border bg-card">

@@ -99,3 +99,50 @@ func TestResolveReleaseBoundsInverted(t *testing.T) {
 		t.Errorf("Expected bounds [4.162 .. 4.190], got [%s .. %s]", lo.String(), hi.String())
 	}
 }
+
+func TestParseRemoveBetweenFlagsConfirm(t *testing.T) {
+	// Test --confirm flag
+	optsConfirm, err := parseRemoveBetweenFlags([]string{"4.162", "4.190", "--confirm"})
+	if err != nil {
+		t.Fatalf("parseRemoveBetweenFlags --confirm failed: %v", err)
+	}
+	if !optsConfirm.Confirm || optsConfirm.ConfirmSource != "--confirm" {
+		t.Errorf("Expected Confirm=true with source '--confirm', got %v (%s)", optsConfirm.Confirm, optsConfirm.ConfirmSource)
+	}
+
+	// Test -y flag
+	optsY, err := parseRemoveBetweenFlags([]string{"4.162", "4.190", "-y"})
+	if err != nil {
+		t.Fatalf("parseRemoveBetweenFlags -y failed: %v", err)
+	}
+	if !optsY.Confirm || optsY.ConfirmSource != "-y" {
+		t.Errorf("Expected Confirm=true with source '-y', got %v (%s)", optsY.Confirm, optsY.ConfirmSource)
+	}
+
+	// Test --yes flag
+	optsYes, err := parseRemoveBetweenFlags([]string{"4.162", "4.190", "--yes"})
+	if err != nil {
+		t.Fatalf("parseRemoveBetweenFlags --yes failed: %v", err)
+	}
+	if !optsYes.Confirm || optsYes.ConfirmSource != "--yes" {
+		t.Errorf("Expected Confirm=true with source '--yes', got %v (%s)", optsYes.Confirm, optsYes.ConfirmSource)
+	}
+
+	// Test default without flags
+	optsDefault, err := parseRemoveBetweenFlags([]string{"4.162", "4.190"})
+	if err != nil {
+		t.Fatalf("parseRemoveBetweenFlags default failed: %v", err)
+	}
+	if optsDefault.Confirm {
+		t.Errorf("Expected Confirm=false by default, got true")
+	}
+
+	// Test --dry-run
+	optsDryRun, err := parseRemoveBetweenFlags([]string{"4.162", "4.190", "--dry-run"})
+	if err != nil {
+		t.Fatalf("parseRemoveBetweenFlags --dry-run failed: %v", err)
+	}
+	if !optsDryRun.DryRun {
+		t.Errorf("Expected DryRun=true, got false")
+	}
+}

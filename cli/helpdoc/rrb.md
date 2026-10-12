@@ -18,7 +18,8 @@ See full documentation at `gitmap release-remove-between --help`.
 
 ```bash
 gitmap rrb 4.162, 4.190
+gitmap rrb 4.162, 4.190 --confirm
 gitmap rrb 4.162 4.190 -y
 gitmap rrb 4.162, 4.190 --dry-run
-gitmap rrb 4.162, 4.190 --pin 4.175.0 -y
+gitmap rrb 4.162, 4.190 --pin 4.175.0 --confirm
 ```

@@ -18,12 +18,13 @@ import (
 
 // RemoveBetweenOptions configures a range-based release tag removal.
 type RemoveBetweenOptions struct {
-	Start      string
-	End        string
-	KeepRemote bool
-	DryRun     bool
-	Yes        bool
-	Pins       []string
+	Start         string
+	End           string
+	KeepRemote    bool
+	DryRun        bool
+	Confirm       bool
+	ConfirmSource string
+	Pins          []string
 }
 
 // RunReleaseRemoveBetween executes `gitmap release remove-between` (alias `rrb`).
@@ -51,20 +52,27 @@ func RunReleaseRemoveBetween(args []string) error {
 
 	toDelete, toKeep := filterTagsBetweenBounds(allTags, lo, hi, allPins)
 
-	printEvaluationHeader(lo, hi, toDelete, toKeep)
+	// 1. Always evaluate and print the automatic dry-run preview first
+	printAutoDryRunEvaluation(lo, hi, toDelete, toKeep, allPins)
 
 	if len(toDelete) == 0 {
-		fmt.Printf("\x1b[32m✔ No intermediate tags found to remove between %s and %s.\x1b[0m\n", lo.String(), hi.String())
+		fmt.Printf("\n\x1b[32m✔ No intermediate tags found to remove between %s and %s.\x1b[0m\n", lo.String(), hi.String())
 		return nil
 	}
 
+	// 2. Explicit --dry-run exits after the preview without prompt or modifications
 	if opts.DryRun {
-		printDryRunDetails(toDelete, toKeep)
+		fmt.Println("\n\x1b[33mℹ Dry-run preview complete (--dry-run). No tags or releases were removed.\x1b[0m")
 		return nil
 	}
 
-	if !opts.Yes && !confirmBatchDeletion(len(toDelete), lo.String(), hi.String()) {
-		return apperror.NewSimple("release remove-between: aborted by user", "E9001")
+	// 3. Prompt before removal; ONLY bypassed by --confirm or -y / --yes
+	if opts.Confirm {
+		fmt.Printf("\n\x1b[1;33m⚡ Confirmation prompt bypassed via %s. Proceeding with removal...\x1b[0m\n", opts.ConfirmSource)
+	} else {
+		if !confirmBatchDeletion(len(toDelete), lo.String(), hi.String()) {
+			return apperror.NewSimple("release remove-between: operation cancelled (to bypass confirmation prompt, pass --confirm or -y)", "E9001")
+		}
 	}
 
 	steps := applyBatchTagRemoval(toDelete, opts.KeepRemote)
@@ -81,8 +89,9 @@ func parseRemoveBetweenFlags(args []string) (RemoveBetweenOptions, error) {
 	fs := flag.NewFlagSet(constants.CmdReleaseRemoveBetween, flag.ExitOnError)
 	keepRemote := fs.Bool("keep-remote", false, "Do not delete the remote tags from origin")
 	dryRun := fs.Bool("dry-run", false, "Preview which tags would be removed without executing")
-	yes := fs.Bool("y", false, "Skip confirmation prompt")
-	yesLong := fs.Bool("yes", false, "Skip confirmation prompt")
+	confirm := fs.Bool("confirm", false, "Bypass interactive confirmation prompt and proceed with removal")
+	yes := fs.Bool("y", false, "Bypass interactive confirmation prompt and proceed with removal")
+	yesLong := fs.Bool("yes", false, "Bypass interactive confirmation prompt and proceed with removal")
 	pinStr := fs.String("pin", "", "Comma-separated list of additional tags to preserve")
 	keepStr := fs.String("keep", "", "Alias for --pin")
 
@@ -120,13 +129,27 @@ func parseRemoveBetweenFlags(args []string) (RemoveBetweenOptions, error) {
 		}
 	}
 
+	isConfirmed := false
+	confirmSource := ""
+	if *confirm {
+		isConfirmed = true
+		confirmSource = "--confirm"
+	} else if *yes {
+		isConfirmed = true
+		confirmSource = "-y"
+	} else if *yesLong {
+		isConfirmed = true
+		confirmSource = "--yes"
+	}
+
 	return RemoveBetweenOptions{
-		Start:      rawTokens[0],
-		End:        rawTokens[1],
-		KeepRemote: *keepRemote,
-		DryRun:     *dryRun,
-		Yes:        *yes || *yesLong,
-		Pins:       pins,
+		Start:         rawTokens[0],
+		End:           rawTokens[1],
+		KeepRemote:    *keepRemote,
+		DryRun:        *dryRun,
+		Confirm:       isConfirmed,
+		ConfirmSource: confirmSource,
+		Pins:          pins,
 	}, nil
 }
 
@@ -228,27 +251,30 @@ func isTagStrictlyBetween(v, lo, hi release.Version) bool {
 	return false
 }
 
-func printEvaluationHeader(lo, hi release.Version, toDelete, toKeep []string) {
+func printAutoDryRunEvaluation(lo, hi release.Version, toDelete, toKeep, pinned []string) {
 	fmt.Printf("\x1b[1;36m▶ release remove-between\x1b[0m: [%s .. %s]\n", lo.String(), hi.String())
-	fmt.Printf("  • Milestone anchors preserved: \x1b[1;32m%s\x1b[0m and \x1b[1;32m%s\x1b[0m\n", lo.String(), hi.String())
+	fmt.Printf("  • Milestone anchors preserved : \x1b[1;32m%s\x1b[0m and \x1b[1;32m%s\x1b[0m\n", lo.String(), hi.String())
+	if len(pinned) > 0 {
+		fmt.Printf("  • Pinned tags preserved       : \x1b[1;33m%s\x1b[0m\n", strings.Join(pinned, ", "))
+	}
 	fmt.Printf("  • Candidate tags to remove    : \x1b[1;31m%d\x1b[0m\n", len(toDelete))
 	fmt.Printf("  • Total tags retained         : \x1b[1;32m%d\x1b[0m\n", len(toKeep))
-}
 
-func printDryRunDetails(toDelete, toKeep []string) {
-	fmt.Println("\n\x1b[33m(dry-run preview; no modifications applied)\x1b[0m")
 	if len(toDelete) > 0 {
-		fmt.Println("  Tags that WOULD BE DELETED:")
+		fmt.Println("\n\x1b[1;33m📋 Candidate intermediate tag(s) queued for removal:\x1b[0m")
 		for _, t := range toDelete {
-			fmt.Printf("    - \x1b[31m%s\x1b[0m\n", t)
+			fmt.Printf("    \x1b[31m✖ %s\x1b[0m\n", t)
 		}
 	}
 }
 
 func confirmBatchDeletion(count int, lo, hi string) bool {
-	fmt.Printf("\nDelete %d intermediate tag(s) between %s and %s locally and on origin? [y/N]: ", count, lo, hi)
-	var reply string
-	_, _ = fmt.Scanln(&reply)
+	fmt.Printf("\n\x1b[1;31m⚠ Permanently delete %d intermediate tag(s) between %s and %s locally and on origin? [y/N]: \x1b[0m", count, lo, hi)
+	reader := bufio.NewReader(os.Stdin)
+	reply, err := reader.ReadString('\n')
+	if err != nil && len(reply) == 0 {
+		return false
+	}
 	t := strings.TrimSpace(reply)
 	return strings.EqualFold(t, "y") || strings.EqualFold(t, "yes")
 }

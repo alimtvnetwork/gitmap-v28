@@ -90,9 +90,11 @@ When executing `gitmap rrb <start> <end>`:
    ├── For each tag: parse to SemVer
    ├── Check: start < tag < end
    └── Exclude if tag in PinnedList or tag in {start, end}
-4. Preview or Prompt
-   ├── If --dry-run: print breakdown & exit 0
-   └── If interactive: prompt "Delete N tags between start and end? [y/N]: "
+4. Automatic Dry-Run Preview & Confirmation Guard
+   ├── Always output full candidate breakdown and anchor/pin status
+   ├── If --dry-run: display preview notice & exit 0
+   ├── If --confirm or -y / --yes: bypass confirmation prompt and proceed immediately
+   └── Else: prompt "Permanently delete N tags between start and end? [y/N]: " (abort on non-yes)
 5. Purge Pipeline (Sequential or Batch)
    ├── 5a. GitHub Releases: gh release delete <tag> -y --cleanup-tag=false
    ├── 5b. Remote Git Refs: git push origin --delete <tags...> (in batches)

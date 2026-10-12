@@ -43,37 +43,43 @@ gitmap rrb <start> <end> [flags]
 
 | Flag | Description |
 |---|---|
+| `--confirm` | Bypass interactive confirmation prompt and proceed immediately |
+| `-y, --yes` | Shorthand alias for `--confirm` |
+| `--dry-run` | Explicit preview mode: outputs evaluation and exits without prompting or deleting |
 | `--pin <list>` / `--keep <list>` | Comma-separated list of additional tags to protect |
 | `--keep-remote` | Only delete local tags; preserve remote origin tags |
-| `--dry-run` | Preview candidate deletions without modifying the repo |
-| `-y, --yes` | Skip user confirmation prompt |
 
 ---
 
 ## Operational Pipeline
 
 1. **AST/SemVer Validation:** Validates `<start>` and `<end>`. Inverted inputs are automatically normalized (`min .. max`).
-2. **Anchor & Pin Protection:** Excludes `<start>`, `<end>`, and all pinned tags from deletion.
-3. **GitHub Release Deletion:** Deletes corresponding GitHub Release objects via `gh release delete` if configured.
-4. **Remote Git Deletion:** Pushes batch deletion requests to `origin`.
-5. **Local Git Deletion:** Deletes local tags via `git tag -d`.
-6. **Sidecar Cleanup:** Removes `.gitmap/release/<tag>.json` metadata files.
-7. **Repository Optimization:** Executes `git fetch --prune --prune-tags origin` and `git gc --prune=now`.
+2. **Automatic Dry-Run Evaluation:** Every execution calculates and displays candidate tags queued for removal, milestone anchors preserved, and pinned tags kept.
+3. **Interactive Confirmation Guard:** Prompts the user (`[y/N]`). The **only** way to bypass this prompt is via `--confirm` or `-y`.
+4. **Anchor & Pin Protection:** Excludes `<start>`, `<end>`, and all pinned tags from deletion.
+5. **GitHub Release Deletion:** Deletes corresponding GitHub Release objects via `gh release delete` if configured.
+6. **Remote Git Deletion:** Pushes batch deletion requests to `origin`.
+7. **Local Git Deletion:** Deletes local tags via `git tag -d`.
+8. **Sidecar Cleanup:** Removes `.gitmap/release/<tag>.json` metadata files.
+9. **Repository Optimization:** Executes `git fetch --prune --prune-tags origin` and `git gc --prune=now`.
 
 ---
 
 ## Examples
 
 ```bash
-# Keep only 4.162 and 4.190, removing 4.162.1..4.189.0
+# Evaluates and prints auto dry-run preview, then asks for confirmation:
 gitmap rrb 4.162, 4.190
 
-# Non-interactive batch removal
+# Bypass confirmation prompt directly:
+gitmap rrb 4.162, 4.190 --confirm
+
+# Bypass confirmation prompt with shorthand -y:
 gitmap rrb 4.162 4.190 -y
 
-# Preview candidates without modifying repo
+# Pure preview mode (no prompt, zero side-effects):
 gitmap rrb 4.162, 4.190 --dry-run
 
-# Preserve an additional build version
-gitmap rrb 4.162, 4.190 --pin 4.175.0 -y
+# Preserve an additional build version:
+gitmap rrb 4.162, 4.190 --pin 4.175.0 --confirm
 ```
