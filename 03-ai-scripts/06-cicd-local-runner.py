@@ -898,6 +898,12 @@ Examples:
         help="Run quality gates scoped strictly to files modified in .ai-memory/temp/recent-file-changes.json."
     )
     parser.add_argument(
+        "--smart",
+        action="store_true",
+        dest="changed_only",
+        help="Smart incremental mode: same as --changed-only (used by `gitmap test`)."
+    )
+    parser.add_argument(
         "--pkg", "--package", "-p", "--target-file",
         nargs="*",
         dest="package_filter",

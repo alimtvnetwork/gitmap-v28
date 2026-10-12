@@ -189,4 +189,3 @@ func makeTopLevelCleanReposCmd() *cobra.Command {
 		Run:     func(cmd *cobra.Command, args []string) {},
 	}
 }
-

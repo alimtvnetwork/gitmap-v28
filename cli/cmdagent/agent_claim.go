@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 	"time"
 
@@ -172,29 +171,6 @@ func (o collisionOwner) label() string {
 type fileCollision struct {
 	File   string
 	Owners []collisionOwner
-}
-
-// computeOverlaps returns every file claimed by two or more active subtasks,
-// excluding excludeId (used at claim time so a subtask never collides with itself).
-func computeOverlaps(subtasks []types.Subtask, excludeId string) []fileCollision {
-	owners := map[string][]collisionOwner{}
-	for _, s := range subtasks {
-		if s.SubtaskId == excludeId || !isSubtaskActiveForClaims(s.Status) {
-			continue
-		}
-		for _, f := range parseOwnedFilesJson(s.OwnedFilesJson) {
-			owners[f] = append(owners[f], toCollisionOwner(s))
-		}
-	}
-	var out []fileCollision
-	for f, list := range owners {
-		if len(list) >= 2 {
-			out = append(out, fileCollision{File: f, Owners: list})
-		}
-	}
-	sort.Slice(out, func(i, j int) bool { return out[i].File < out[j].File })
-
-	return out
 }
 
 // detectClaimOverlaps finds files in newFiles that are also claimed by other

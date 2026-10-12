@@ -13,8 +13,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-const updateRunScript = "run.ps1"
-
 // resolveRepoPathFromFlag validates the --repo-path flag if present.
 func resolveRepoPathFromFlag() string {
 	return normalizeRepoPath(getFlagValue(constants.FlagRepoPath))

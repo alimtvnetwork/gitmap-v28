@@ -42,6 +42,5 @@ func RunFixCredential(args []string) *apperror.AppError {
 	fmt.Printf(constants.ColorGreen+"✔ Git credential helper successfully updated to 'manager' (credentialStore: %s).\n"+constants.ColorReset, storeType)
 	fmt.Println("  The 'cache' and 'wincredman' credential store issues on Windows are now resolved.")
 
-
 	return nil
 }

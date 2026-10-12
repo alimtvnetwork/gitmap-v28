@@ -106,12 +106,29 @@ func recoverNoInitialCommit(step gitutil.RemediationStep, output string) (bool, 
 		return false, ""
 	}
 
-	cmdCommit := exec.Command("git", "-C", repoPath, "commit", "-m", "feat: initial commit")
+	commitArgs := []string{"-C", repoPath, "commit", "-m", "feat: initial commit"}
+	if !hasConfiguredGitIdentity(repoPath) {
+		// Fall back to a tool identity so the recovery commit succeeds on
+		// machines without a configured git user.name/user.email.
+		commitArgs = []string{"-C", repoPath, "-c", "user.name=gitmap", "-c", "user.email=gitmap@localhost", "commit", "-m", "feat: initial commit"}
+	}
+	cmdCommit := exec.Command("git", commitArgs...)
 	if err := cmdCommit.Run(); err != nil {
 		return false, ""
 	}
 
 	return true, "recovered (created initial commit)"
+}
+
+// hasConfiguredGitIdentity reports whether git resolves an author identity
+// for repoPath (repo-local or global config).
+func hasConfiguredGitIdentity(repoPath string) bool {
+	out, err := exec.Command("git", "-C", repoPath, "config", "user.email").Output()
+	if err != nil {
+		return false
+	}
+
+	return strings.TrimSpace(string(out)) != ""
 }
 
 func isBenignPullNoTracking(step gitutil.RemediationStep, output string) bool {

@@ -231,7 +231,6 @@ func hasVerboseArg(args []string) bool {
 	return false
 }
 
-
 func hasYesArg(args []string) bool {
 	for _, a := range args {
 		if a == "--yes" || a == "-y" {
@@ -249,7 +248,6 @@ func hasDownloadMustArg(args []string) bool {
 	}
 	return false
 }
-
 
 func extractPrefixFromArgs(args []string) string {
 	for i := 0; i < len(args); i++ {

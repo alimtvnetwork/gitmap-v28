@@ -17,7 +17,7 @@ import (
 // It opens the active-profile database, runs Migrate() (which is idempotent
 // and safe to invoke repeatedly), and prints a single-line summary. The
 // --verbose flag prints every migration step that ran.
-func runDbMigrate(args []string) error {
+func RunDBMigrate(args []string) error {
 	checkHelp(constants.CmdDBMigrate, args)
 	isVerbose := parseDbMigrateFlags(args)
 
@@ -38,9 +38,6 @@ func runDbMigrate(args []string) error {
 
 	return nil
 }
-
-// Backwards-compatible alias for runDbMigrate
-var runDBMigrate = runDbMigrate
 
 // parseDbMigrateFlags extracts the --verbose flag.
 func parseDbMigrateFlags(args []string) bool {

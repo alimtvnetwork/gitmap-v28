@@ -136,4 +136,3 @@ func TestFilenameFromArchiveURL_IncludesVersionTag(t *testing.T) {
 		t.Errorf("expected %q, got %q", expected2, name2)
 	}
 }
-

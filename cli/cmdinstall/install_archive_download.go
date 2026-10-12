@@ -75,7 +75,6 @@ func filenameFromArchiveURL(rawURL string) string {
 	return fallbackArchiveFilename(base)
 }
 
-
 func getGitmapHomeDownloadDir() (string, bool) {
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {

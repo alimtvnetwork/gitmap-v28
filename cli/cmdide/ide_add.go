@@ -154,7 +154,3 @@ func formatIDEStatus(isAffected bool, key string, errDetails map[string]string) 
 	}
 	return constants.ColorDim + "— skipped" + constants.ColorReset
 }
-
-func formatStatusBool(val bool) string {
-	return formatIDEStatus(val, "", nil)
-}
