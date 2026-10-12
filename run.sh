@@ -229,8 +229,10 @@ get_config_value() {
 
 # -- Platform detection ----------------------------------------
 BINARY_NAME="gitmap"
+BINARY_ALIAS="gm"
 if [[ "$(uname -s)" == *MINGW* ]] || [[ "$(uname -s)" == *MSYS* ]]; then
     BINARY_NAME="gitmap.exe"
+    BINARY_ALIAS="gm.exe"
 fi
 
 BUILD_OUTPUT=$(get_config_value "buildOutput" "./bin")
@@ -673,7 +675,7 @@ copy_docs_site() {
 resolve_deploy_target() {
     # 1) Explicit CLI override always wins
     if [[ -n "$DEPLOY_PATH" ]]; then
-        write_info "Deploy target: CLI override -> $DEPLOY_PATH"
+        write_info "Deploy target: CLI override -> $DEPLOY_PATH" >&2
         echo "$DEPLOY_PATH"
 
         return
@@ -697,23 +699,35 @@ resolve_deploy_target() {
         if is_known_app_subdir "$active_dir_name"; then
             local deploy_target
             deploy_target=$(dirname "$active_dir")
-            write_info "Deploy target: detected from PATH -> $deploy_target"
-            echo "$deploy_target"
+            if [[ -w "$deploy_target" ]]; then
+                write_info "Deploy target: detected from PATH -> $deploy_target" >&2
+                echo "$deploy_target"
 
-            return
+                return
+            fi
         fi
 
         # Binary is directly in a folder (not nested under gitmap-cli/)
         local deploy_target
         deploy_target=$(dirname "$active_dir")
-        write_info "Deploy target: detected from PATH -> $deploy_target"
-        echo "$deploy_target"
+        if [[ -w "$deploy_target" ]]; then
+            write_info "Deploy target: detected from PATH -> $deploy_target" >&2
+            echo "$deploy_target"
+
+            return
+        fi
+    fi
+
+    # 2b) Prefer user-level ~/.local/bin if available and writable
+    if [[ -d "$HOME/.local/bin" ]] && [[ -w "$HOME/.local/bin" ]]; then
+        write_info "Deploy target: user local bin -> $HOME/.local/bin" >&2
+        echo "$HOME/.local/bin"
 
         return
     fi
 
     # 3) Fall back to powershell.json default
-    write_info "Deploy target: powershell.json default -> $DEPLOY_TARGET"
+    write_info "Deploy target: powershell.json default -> $DEPLOY_TARGET" >&2
     echo "$DEPLOY_TARGET"
 }
 
@@ -750,6 +764,10 @@ repair_deploy_layout() {
     done
 
     # --- Migration 1: legacy unwrapped binary -> $APP_SUBDIR/ --
+    if [[ -L "$legacy_binary" ]]; then
+        return
+    fi
+
     if [[ ! -f "$legacy_binary" ]]; then
         write_info "Layout: OK (no legacy binary at $target)"
         return
@@ -1019,6 +1037,11 @@ deploy_binary() {
     fi
 
     copy_docs_site "$app_dir"
+
+    # Ensure canonical symlinks exist in parent target directory and app directory
+    ln -sf "${APP_SUBDIR}/${BINARY_NAME}" "${target}/${BINARY_NAME}" 2>/dev/null || true
+    ln -sf "${APP_SUBDIR}/${BINARY_ALIAS}" "${target}/${BINARY_ALIAS}" 2>/dev/null || true
+    ln -sf "${BINARY_NAME}" "${app_dir}/${BINARY_ALIAS}" 2>/dev/null || true
 
     write_success "Deployed to $app_dir"
 
