@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.547.0] - 2026-10-12
+
+### Added
+- feat(release): implement release-remove-between (rrb) with auto dry-run and pin-not-to-remove (pnr)
+
+---
+
 ## [v6.546.0] - 2026-10-11
 
 ### Added
