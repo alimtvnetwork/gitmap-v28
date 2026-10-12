@@ -130,6 +130,7 @@ func runReconcileAll(args []string, items []cmdremediation.RemediationItem) erro
 	fmt.Printf("%s Reconciling %d repository(ies) with action: %s\n\n",
 		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items), action)
 
+	var failedRepos []string
 	for i := range items {
 		idx := cmdremediation.ParseRecipeIndex(action, items[i].Recipes)
 		if idx < 0 || idx >= len(items[i].Recipes) {
@@ -138,9 +139,20 @@ func runReconcileAll(args []string, items []cmdremediation.RemediationItem) erro
 
 		err := cmdremediation.ExecuteFixRecipe(&items[i], items[i].Recipes[idx])
 		if err != nil {
-			return err
+			failedRepos = append(failedRepos, items[i].RepoName)
+		}
+
+		if i < len(items)-1 {
+			fmt.Println()
 		}
 	}
+
+	if len(failedRepos) > 0 {
+		return fmt.Errorf("reconciliation failed on %d repository(ies): %s", len(failedRepos), strings.Join(failedRepos, ", "))
+	}
+
+	fmt.Printf("\n%s All %d repository(ies) reconciled successfully.\n",
+		constants.ColorGreen+"✓"+constants.ColorReset, len(items))
 
 	return nil
 }

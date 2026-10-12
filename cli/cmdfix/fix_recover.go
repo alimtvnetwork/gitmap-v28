@@ -1,0 +1,135 @@
+package cmdfix
+
+import (
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+)
+
+func isRepoAlreadyClean(item *cmdremediation.RemediationItem) bool {
+	if item == nil || item.RepoPath == "" {
+		return false
+	}
+
+	gitDir := filepath.Join(item.RepoPath, ".git")
+	stat, err := os.Stat(gitDir)
+	if err != nil || !stat.IsDir() {
+		return false
+	}
+
+	diag := gitutil.InspectDirtyState(item.RepoPath)
+	if diag.IsDirty {
+		return false
+	}
+
+	if !gitutil.HasInitialCommit(item.RepoPath) && !gitutil.HasRemote(item.RepoPath) {
+		return true
+	}
+
+	return false
+}
+
+func sanitizeRecipeForRepo(repoPath string, recipe gitutil.RemediationRecipe) gitutil.RemediationRecipe {
+	if repoPath == "" {
+		return recipe
+	}
+
+	if !gitutil.HasInitialCommit(repoPath) && isStashOrResetRecipe(recipe) {
+		recipes := gitutil.GenerateNoInitialCommitRecipes(repoPath)
+		if len(recipes) > 0 {
+			return recipes[0]
+		}
+	}
+
+	if !gitutil.HasRemote(repoPath) && isPullRecipe(recipe) {
+		recipes := gitutil.GenerateLocalOnlyRecipes(repoPath)
+		if len(recipes) > 0 {
+			return recipes[0]
+		}
+	}
+
+	return recipe
+}
+
+func isStashOrResetRecipe(recipe gitutil.RemediationRecipe) bool {
+	cmdLower := strings.ToLower(recipe.Command)
+	titleLower := strings.ToLower(recipe.Title)
+
+	return strings.Contains(cmdLower, "stash") || strings.Contains(titleLower, "stash") ||
+		strings.Contains(cmdLower, "reset --hard") || strings.Contains(titleLower, "discard")
+}
+
+func isPullRecipe(recipe gitutil.RemediationRecipe) bool {
+	cmdLower := strings.ToLower(recipe.Command)
+
+	return strings.Contains(cmdLower, "pull")
+}
+
+func extractRepoPath(args []string) string {
+	for i := 0; i < len(args)-1; i++ {
+		if args[i] == "-C" {
+			return args[i+1]
+		}
+	}
+
+	return ""
+}
+
+func isNoInitialCommitError(output string) bool {
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "you do not have the initial commit yet") ||
+		strings.Contains(lower, "does not have any commits yet")
+}
+
+func recoverNoInitialCommit(step gitutil.RemediationStep, output string) (bool, string) {
+	if !isNoInitialCommitError(output) {
+		return false, ""
+	}
+
+	repoPath := extractRepoPath(step.Args)
+	if repoPath == "" {
+		return false, ""
+	}
+
+	diag := gitutil.InspectDirtyState(repoPath)
+	if !diag.IsDirty {
+		return true, "clean (no commits yet, working tree clean)"
+	}
+
+	cmdAdd := exec.Command("git", "-C", repoPath, "add", "-A")
+	if err := cmdAdd.Run(); err != nil {
+		return false, ""
+	}
+
+	cmdCommit := exec.Command("git", "-C", repoPath, "commit", "-m", "feat: initial commit")
+	if err := cmdCommit.Run(); err != nil {
+		return false, ""
+	}
+
+	return true, "recovered (created initial commit)"
+}
+
+func isBenignPullNoTracking(step gitutil.RemediationStep, output string) bool {
+	hasPull := false
+	for _, arg := range step.Args {
+		if arg == "pull" {
+			hasPull = true
+
+			break
+		}
+	}
+	if !hasPull {
+		return false
+	}
+
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "no tracking information") ||
+		strings.Contains(lower, "no remote repository specified") ||
+		strings.Contains(lower, "no configured push destination")
+}

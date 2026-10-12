@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -275,6 +276,14 @@ func ParseRecipeIndex(option string, recipes []gitutil.RemediationRecipe) int {
 }
 
 func ExecuteFixRecipe(item *RemediationItem, recipe gitutil.RemediationRecipe) error {
+	if isRepoAlreadyClean(item) {
+		fmt.Printf("%s Repository %s is already clean (no pending changes)\n", constants.ColorGreen+"✓"+constants.ColorReset, item.RepoName)
+		RemoveRemediationItem(item.RepoName)
+
+		return nil
+	}
+
+	recipe = sanitizeRecipeForRepo(item.RepoPath, recipe)
 	fmt.Printf("%s Applying Fix: %s on %s\n", constants.ColorCyan+"ℹ"+constants.ColorReset, recipe.Title, item.RepoName)
 	if recipe.Description != "" {
 		fmt.Printf("  Plan:    %s\n\n", recipe.Description)
@@ -292,6 +301,20 @@ func ExecuteFixRecipe(item *RemediationItem, recipe gitutil.RemediationRecipe) e
 }
 
 func synthesizeRecipeSteps(recipe gitutil.RemediationRecipe, repoPath string) []gitutil.RemediationStep {
+	if !gitutil.HasInitialCommit(repoPath) {
+		recipes := gitutil.GenerateNoInitialCommitRecipes(repoPath)
+		if len(recipes) > 0 {
+			return recipes[0].Steps
+		}
+	}
+
+	if !gitutil.HasRemote(repoPath) {
+		recipes := gitutil.GenerateLocalOnlyRecipes(repoPath)
+		if len(recipes) > 0 {
+			return recipes[0].Steps
+		}
+	}
+
 	titleLower := strings.ToLower(recipe.Title)
 	cmdLower := strings.ToLower(recipe.Command)
 	if strings.Contains(titleLower, "wip") || strings.Contains(titleLower, "commit") || strings.Contains(cmdLower, "commit") {
@@ -361,6 +384,19 @@ func handleStepFailure(repoName string, step gitutil.RemediationStep, outStr str
 	isRecovered := recoverStashCollision(step, outStr)
 	if isRecovered {
 		fmt.Printf("%s recovered (dropped stashed untracked collision)\n", constants.ColorYellow+"•"+constants.ColorReset)
+
+		return nil
+	}
+
+	isNoInit, msg := recoverNoInitialCommit(step, outStr)
+	if isNoInit {
+		fmt.Printf("%s %s\n", constants.ColorYellow+"•"+constants.ColorReset, msg)
+
+		return nil
+	}
+
+	if isBenignPullNoTracking(step, outStr) {
+		fmt.Printf("%s clean (no remote to pull)\n", constants.ColorYellow+"•"+constants.ColorReset)
 
 		return nil
 	}
@@ -450,6 +486,130 @@ func dropStashCollision(args []string) bool {
 	return isSuccess
 }
 
+func isRepoAlreadyClean(item *RemediationItem) bool {
+	if item == nil || item.RepoPath == "" {
+		return false
+	}
+
+	gitDir := filepath.Join(item.RepoPath, ".git")
+	stat, err := os.Stat(gitDir)
+	if err != nil || !stat.IsDir() {
+		return false
+	}
+
+	diag := gitutil.InspectDirtyState(item.RepoPath)
+	if diag.IsDirty {
+		return false
+	}
+
+	if !gitutil.HasInitialCommit(item.RepoPath) && !gitutil.HasRemote(item.RepoPath) {
+		return true
+	}
+
+	return false
+}
+
+func sanitizeRecipeForRepo(repoPath string, recipe gitutil.RemediationRecipe) gitutil.RemediationRecipe {
+	if repoPath == "" {
+		return recipe
+	}
+
+	if !gitutil.HasInitialCommit(repoPath) && isStashOrResetRecipe(recipe) {
+		recipes := gitutil.GenerateNoInitialCommitRecipes(repoPath)
+		if len(recipes) > 0 {
+			return recipes[0]
+		}
+	}
+
+	if !gitutil.HasRemote(repoPath) && isPullRecipe(recipe) {
+		recipes := gitutil.GenerateLocalOnlyRecipes(repoPath)
+		if len(recipes) > 0 {
+			return recipes[0]
+		}
+	}
+
+	return recipe
+}
+
+func isStashOrResetRecipe(recipe gitutil.RemediationRecipe) bool {
+	cmdLower := strings.ToLower(recipe.Command)
+	titleLower := strings.ToLower(recipe.Title)
+
+	return strings.Contains(cmdLower, "stash") || strings.Contains(titleLower, "stash") ||
+		strings.Contains(cmdLower, "reset --hard") || strings.Contains(titleLower, "discard")
+}
+
+func isPullRecipe(recipe gitutil.RemediationRecipe) bool {
+	cmdLower := strings.ToLower(recipe.Command)
+
+	return strings.Contains(cmdLower, "pull")
+}
+
+func extractRepoPath(args []string) string {
+	for i := 0; i < len(args)-1; i++ {
+		if args[i] == "-C" {
+			return args[i+1]
+		}
+	}
+
+	return ""
+}
+
+func isNoInitialCommitError(output string) bool {
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "you do not have the initial commit yet") ||
+		strings.Contains(lower, "does not have any commits yet")
+}
+
+func recoverNoInitialCommit(step gitutil.RemediationStep, output string) (bool, string) {
+	if !isNoInitialCommitError(output) {
+		return false, ""
+	}
+
+	repoPath := extractRepoPath(step.Args)
+	if repoPath == "" {
+		return false, ""
+	}
+
+	diag := gitutil.InspectDirtyState(repoPath)
+	if !diag.IsDirty {
+		return true, "clean (no commits yet, working tree clean)"
+	}
+
+	cmdAdd := exec.Command("git", "-C", repoPath, "add", "-A")
+	if err := cmdAdd.Run(); err != nil {
+		return false, ""
+	}
+
+	cmdCommit := exec.Command("git", "-C", repoPath, "commit", "-m", "feat: initial commit")
+	if err := cmdCommit.Run(); err != nil {
+		return false, ""
+	}
+
+	return true, "recovered (created initial commit)"
+}
+
+func isBenignPullNoTracking(step gitutil.RemediationStep, output string) bool {
+	hasPull := false
+	for _, arg := range step.Args {
+		if arg == "pull" {
+			hasPull = true
+
+			break
+		}
+	}
+	if !hasPull {
+		return false
+	}
+
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "no tracking information") ||
+		strings.Contains(lower, "no remote repository specified") ||
+		strings.Contains(lower, "no configured push destination")
+}
+
 func executeShellFallback(item *RemediationItem, recipe gitutil.RemediationRecipe) error {
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
@@ -502,6 +662,10 @@ func printBluntRemediationFailure(repoName string, step gitutil.RemediationStep,
 
 func analyzeGitErrorOutput(output string, err error) gitDiagnosticInfo {
 	lower := strings.ToLower(output)
+	if strings.Contains(lower, "you do not have the initial commit yet") || strings.Contains(lower, "does not have any commits yet") {
+		return noInitialCommitDiagnostic()
+	}
+
 	if strings.Contains(lower, "pathspec") {
 		return pathspecDiagnostic()
 	}
@@ -523,6 +687,16 @@ func analyzeGitErrorOutput(output string, err error) gitDiagnosticInfo {
 	}
 
 	return defaultDiagnostic(err)
+}
+
+func noInitialCommitDiagnostic() gitDiagnosticInfo {
+	return gitDiagnosticInfo{
+		RCA: "Repository has no initial commit yet (unborn HEAD). Git cannot stash or reset without at least one initial commit.",
+		Solutions: []string{
+			"Create initial commit: git -C <repo> add -A && git -C <repo> commit -m \"feat: initial commit\"",
+			"Or discard untracked files: git -C <repo> clean -fd",
+		},
+	}
 }
 
 func pathspecDiagnostic() gitDiagnosticInfo {

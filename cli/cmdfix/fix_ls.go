@@ -208,11 +208,7 @@ func resolveIssueRecipes(repoPath string, diag gitutil.DirtyDiagnosis) []gitutil
 		return gitutil.GenerateRemediationRecipes(repoPath, diag)
 	}
 
-	return []gitutil.RemediationRecipe{
-		gitutil.GenerateStashRecipe(repoPath),
-		gitutil.GenerateCommitRecipe(repoPath),
-		gitutil.GenerateDiscardRecipe(repoPath),
-	}
+	return gitutil.GenerateDefaultRecipes(repoPath)
 }
 
 func buildIssueSummary(diag gitutil.DirtyDiagnosis, rs gitutil.RepoStatus, isConflict, isLocked bool) string {

@@ -14,6 +14,14 @@ import (
 )
 
 func executeFixRecipe(item *cmdremediation.RemediationItem, recipe gitutil.RemediationRecipe) error {
+	if isRepoAlreadyClean(item) {
+		fmt.Printf("%s Repository %s is already clean (no pending changes)\n", constants.ColorGreen+"✓"+constants.ColorReset, item.RepoName)
+		cmdremediation.RemoveRemediationItem(item.RepoName)
+
+		return nil
+	}
+
+	recipe = sanitizeRecipeForRepo(item.RepoPath, recipe)
 	fmt.Printf("%s Applying Fix: %s on %s\n", constants.ColorCyan+"ℹ"+constants.ColorReset, recipe.Title, item.RepoName)
 	if recipe.Description != "" {
 		fmt.Printf("  Plan:    %s\n\n", recipe.Description)
@@ -31,6 +39,20 @@ func executeFixRecipe(item *cmdremediation.RemediationItem, recipe gitutil.Remed
 }
 
 func synthesizeRecipeSteps(recipe gitutil.RemediationRecipe, repoPath string) []gitutil.RemediationStep {
+	if !gitutil.HasInitialCommit(repoPath) {
+		recipes := gitutil.GenerateNoInitialCommitRecipes(repoPath)
+		if len(recipes) > 0 {
+			return recipes[0].Steps
+		}
+	}
+
+	if !gitutil.HasRemote(repoPath) {
+		recipes := gitutil.GenerateLocalOnlyRecipes(repoPath)
+		if len(recipes) > 0 {
+			return recipes[0].Steps
+		}
+	}
+
 	titleLower := strings.ToLower(recipe.Title)
 	cmdLower := strings.ToLower(recipe.Command)
 	if strings.Contains(titleLower, "wip") || strings.Contains(titleLower, "commit") || strings.Contains(cmdLower, "commit") {
@@ -100,6 +122,19 @@ func handleStepFailure(repoName string, step gitutil.RemediationStep, outStr str
 	isRecovered := recoverStashCollision(step, outStr)
 	if isRecovered {
 		fmt.Printf("%s recovered (dropped stashed untracked collision)\n", constants.ColorYellow+"•"+constants.ColorReset)
+
+		return nil
+	}
+
+	isNoInit, msg := recoverNoInitialCommit(step, outStr)
+	if isNoInit {
+		fmt.Printf("%s %s\n", constants.ColorYellow+"•"+constants.ColorReset, msg)
+
+		return nil
+	}
+
+	if isBenignPullNoTracking(step, outStr) {
+		fmt.Printf("%s clean (no remote to pull)\n", constants.ColorYellow+"•"+constants.ColorReset)
 
 		return nil
 	}

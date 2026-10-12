@@ -16,6 +16,7 @@ const updateUsageHelpText = `Available update commands:
   gitmap update-all-zip --include-others - Fast zip distribution across all nodes (alias: uaz)
   gitmap update ls                       - List installed software inventory across fleet nodes
   gitmap update agm                      - Update Antigravity Manager
+  gitmap update antigravity              - Update Google Antigravity Desktop IDE (alias: gitmap update ide)
   gitmap update ssh <target>             - Update package on specified SSH target
 `
 
@@ -59,6 +60,10 @@ func suggestUpdateTarget(token string) string {
 		return "update-all-zip"
 	case "zp", "zi":
 		return "zip"
+	case "antigravity", "antigravity-ide":
+		return "antigravity"
+	case "ide", "agy-ide":
+		return "ide"
 	default:
 		return ""
 	}
@@ -68,7 +73,28 @@ func resolveUpdatePackage(args []string) string {
 	if isAgmUpdateTarget(args) {
 		return "agm"
 	}
+	if isAntigravityIdeUpdateTarget(args) {
+		return "antigravity"
+	}
 	return "gitmap"
+}
+
+func isAntigravityIdeUpdateTarget(args []string) bool {
+	for _, arg := range args {
+		if !strings.HasPrefix(arg, "-") && isAntigravityIdeToken(arg) {
+			return true
+		}
+	}
+	return false
+}
+
+func isAntigravityIdeToken(arg string) bool {
+	switch strings.ToLower(arg) {
+	case "antigravity", "antigravity-ide", "ide", "agy-ide":
+		return true
+	default:
+		return false
+	}
 }
 
 func isAgmUpdateTarget(args []string) bool {
@@ -131,6 +157,8 @@ func isKnownUpdateTargetOrFlag(token string) bool {
 		return true
 	case "zip", "uaz", "update-all-zip", "updateallzip", "--include-others", "--include-other":
 		return true
+	case "antigravity", "antigravity-ide", "ide", "agy-ide":
+		return true
 	default:
 		return false
 	}
@@ -192,4 +220,38 @@ func hasDryRunArg(args []string) bool {
 		}
 	}
 	return false
+}
+
+func hasVerboseArg(args []string) bool {
+	for _, a := range args {
+		if a == "--verbose" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasYesArg(args []string) bool {
+	for _, a := range args {
+		if a == "--yes" || a == "-y" {
+			return true
+		}
+	}
+	return false
+}
+
+func extractPrefixFromArgs(args []string) string {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		if (a == "--prefix" || a == "--dir") && i+1 < len(args) {
+			return args[i+1]
+		}
+		if strings.HasPrefix(a, "--prefix=") {
+			return strings.TrimPrefix(a, "--prefix=")
+		}
+		if strings.HasPrefix(a, "--dir=") {
+			return strings.TrimPrefix(a, "--dir=")
+		}
+	}
+	return ""
 }

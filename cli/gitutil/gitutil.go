@@ -34,6 +34,23 @@ func RemoteURL(repoPath string) (string, error) {
 	return strings.TrimSpace(out), nil
 }
 
+// HasInitialCommit reports whether the repository at repoPath has at least one commit.
+func HasInitialCommit(repoPath string) bool {
+	_, err := runGit(repoPath, "rev-parse", "--verify", "HEAD")
+
+	return err == nil
+}
+
+// HasRemote reports whether the repository at repoPath has any configured remotes.
+func HasRemote(repoPath string) bool {
+	out, err := runGit(repoPath, "remote")
+	if err != nil {
+		return false
+	}
+
+	return len(strings.TrimSpace(out)) > 0
+}
+
 // RepoRoot returns the absolute path of the working-tree root for the
 // repo containing `startPath`. Returns the underlying git error when
 // startPath is not inside a git working tree.

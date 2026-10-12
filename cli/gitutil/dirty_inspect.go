@@ -3,6 +3,7 @@ package gitutil
 
 import (
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -45,7 +46,17 @@ func recordStaged(diagnosis *DirtyDiagnosis, filePath string) {
 	diagnosis.AllFiles = append(diagnosis.AllFiles, "staged: "+filePath)
 }
 
+func isGitMapInternalPath(filePath string) bool {
+	norm := filepath.ToSlash(strings.TrimSpace(filePath))
+
+	return norm == ".gitmap" || norm == ".gitmap/" || strings.HasPrefix(norm, ".gitmap/")
+}
+
 func classifyDirtyFile(prefix, filePath string, diagnosis *DirtyDiagnosis) {
+	if isGitMapInternalPath(filePath) {
+		return
+	}
+
 	if strings.HasPrefix(prefix, "??") {
 		recordUntracked(diagnosis, filePath)
 
@@ -125,13 +136,16 @@ func buildSummaryReason(diagnosis *DirtyDiagnosis) string {
 }
 
 func populateDirtyDiagnosis(output string) DirtyDiagnosis {
-	diagnosis := DirtyDiagnosis{IsDirty: true}
+	diagnosis := DirtyDiagnosis{}
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		parseDirtyLine(line, &diagnosis)
 	}
 
-	diagnosis.SummaryReason = buildSummaryReason(&diagnosis)
+	diagnosis.IsDirty = len(diagnosis.AllFiles) > 0
+	if diagnosis.IsDirty {
+		diagnosis.SummaryReason = buildSummaryReason(&diagnosis)
+	}
 
 	return diagnosis
 }

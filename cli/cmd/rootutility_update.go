@@ -56,6 +56,9 @@ func executeUpdateHelpFlow(args []string) error {
 	if isAgmUpdateTarget(args) {
 		return runUpdateAgManagerTarget(args)
 	}
+	if isAntigravityIdeUpdateTarget(args) {
+		return runUpdateAntigravityIdeTarget(args)
+	}
 	configureTargetVersion(targetVer)
 	if len(args) > 0 && !isKnownUpdateTargetOrFlag(args[0]) {
 		handleUnknownUpdateTarget(args[0])
@@ -100,6 +103,8 @@ func applyPinIfRequested(args []string, targetVer string) {
 	appName := "gitmap"
 	if isAgmUpdateTarget(args) {
 		appName = "agm"
+	} else if isAntigravityIdeUpdateTarget(args) {
+		appName = "antigravity"
 	}
 	_ = cmdinstaller.PinVersion(appName, targetVer)
 }
@@ -129,4 +134,24 @@ func runUpdateAgManagerTarget(args []string) error {
 		Version: ver,
 	}
 	return cmdinstall.RunUpdateAgManagerWithOpts(opts)
+}
+
+func runUpdateAntigravityIdeTarget(args []string) error {
+	remoteTarget, cleanArgs := extractRemoteUpdateTarget(args)
+	if remoteTarget != "" {
+		return cmdssh.RunSSHUpdateCLI([]string{"antigravity", remoteTarget})
+	}
+	ver := resolveEffectiveVersion("antigravity", extractVersionFromArgs(cleanArgs))
+	if ver == "" {
+		ver = resolveEffectiveVersion("ide", extractVersionFromArgs(cleanArgs))
+	}
+	opts := cmdinstall.InstallOptions{
+		DryRun:  hasDryRunArg(cleanArgs),
+		Verbose: hasVerboseArg(cleanArgs),
+		Yes:     hasYesArg(cleanArgs),
+		Version: ver,
+		Prefix:  extractPrefixFromArgs(cleanArgs),
+		Force:   true,
+	}
+	return cmdinstall.RunInstallAntigravityWithOpts(opts)
 }

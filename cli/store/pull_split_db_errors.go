@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
 const (
@@ -91,6 +92,7 @@ func (s *PullSplitDB) execInsertPullError(rec PullErrorRecord) *apperror.AppErro
 
 	repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "pull_errors.db")
 	_ = os.MkdirAll(filepath.Dir(repoDBPath), 0755)
+	gitutil.EnsureGitMapExcluded(rec.RepoPath)
 	if errDetails := saveRepoPullErrorDetails(repoDBPath, rec); errDetails != nil {
 		return errDetails
 	}

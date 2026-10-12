@@ -77,6 +77,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 69 | [69-antigravity-fleet-parity-theme-preset-plugins-rca.md](69-antigravity-fleet-parity-theme-preset-plugins-rca.md) | Antigravity Fleet Parity, Theme & Preset Synchronization, and Delegation: RCA & Fix | Resolved |
 | 70 | [70-stale-pull-error-persistence-and-clear-subsystem-rca.md](70-stale-pull-error-persistence-and-clear-subsystem-rca.md) | Stale Pull Error Persistence, Missing Eviction, and Clear Subsystem: RCA & Fix | Resolved |
 | 71 | [71-ubuntu-ide-github-desktop-scan-omission.md](71-ubuntu-ide-github-desktop-scan-omission.md) | Ubuntu Multi-IDE & GitHub Desktop Scan Omission: Root Cause Analysis & Fix | Resolved |
+| 72 | [72-remediation-unborn-branch-stash-failure-and-batch-resiliency-rca.md](72-remediation-unborn-branch-stash-failure-and-batch-resiliency-rca.md) | Remediation Unborn Branch Stash Failure and Batch Resiliency: RCA & Fix | Resolved |
 
 ---
 

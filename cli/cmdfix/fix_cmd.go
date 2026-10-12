@@ -90,6 +90,7 @@ func runFixAll(action string, items []cmdremediation.RemediationItem) error {
 	fmt.Printf("%s Remediating %d repository(ies) with action: %s\n\n",
 		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items), action)
 
+	var failedRepos []string
 	for i := range items {
 		idx := parseRecipeIndex(action, items[i].Recipes)
 		if idx < 0 || idx >= len(items[i].Recipes) {
@@ -98,11 +99,16 @@ func runFixAll(action string, items []cmdremediation.RemediationItem) error {
 
 		err := executeFixRecipe(&items[i], items[i].Recipes[idx])
 		if err != nil {
-			return err
+			failedRepos = append(failedRepos, items[i].RepoName)
 		}
+
 		if i < len(items)-1 {
 			fmt.Println()
 		}
+	}
+
+	if len(failedRepos) > 0 {
+		return fmt.Errorf("remediation failed on %d repository(ies): %s", len(failedRepos), strings.Join(failedRepos, ", "))
 	}
 
 	fmt.Printf("\n%s All %d repository(ies) remediated successfully.\n",

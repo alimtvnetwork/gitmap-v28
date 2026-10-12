@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
 // Paths is the resolved on-disk layout for a single commit-in run.
@@ -42,15 +42,7 @@ func EnsureWorkspace(sourceRoot string) (*Paths, error) {
 }
 
 func ensureGitExcluded(sourceRoot string) {
-	excludeFile := filepath.Join(sourceRoot, ".git", "info", "exclude")
-	data, err := os.ReadFile(excludeFile)
-	if err != nil {
-		return
-	}
-	if strings.Contains(string(data), ".gitmap") {
-		return
-	}
-	_ = os.WriteFile(excludeFile, append(data, []byte("\n.gitmap/\n")...), 0o644)
+	gitutil.EnsureGitMapExcluded(sourceRoot)
 }
 
 // buildPaths assembles the Paths struct. Pure function — no syscalls.

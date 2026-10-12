@@ -13,6 +13,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -103,10 +104,20 @@ func ensureSpecialGitRepo(repoDir string) error {
 	if err := os.MkdirAll(repoDir, 0755); err != nil {
 		return apperror.WrapSimple(err, "mkdir special repo")
 	}
+
 	if hasGitSubdir(repoDir) {
+		gitutil.EnsureGitMapExcluded(repoDir)
+
 		return nil
 	}
-	return runGitInitInDir(repoDir)
+
+	if err := runGitInitInDir(repoDir); err != nil {
+		return err
+	}
+
+	gitutil.EnsureGitMapExcluded(repoDir)
+
+	return nil
 }
 
 func hasGitSubdir(repoDir string) bool {

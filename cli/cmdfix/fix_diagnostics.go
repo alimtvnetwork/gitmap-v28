@@ -35,6 +35,10 @@ func printBluntRemediationFailure(repoName string, step gitutil.RemediationStep,
 
 func analyzeGitErrorOutput(output string, err error) gitDiagnosticInfo {
 	lower := strings.ToLower(output)
+	if strings.Contains(lower, "you do not have the initial commit yet") || strings.Contains(lower, "does not have any commits yet") {
+		return noInitialCommitDiagnostic()
+	}
+
 	if strings.Contains(lower, "pathspec") {
 		return pathspecDiagnostic()
 	}
@@ -104,6 +108,16 @@ func networkDiagnostic() gitDiagnosticInfo {
 		Solutions: []string{
 			"Verify internet connection and DNS resolution",
 			"Retry pull operation once network connectivity is restored",
+		},
+	}
+}
+
+func noInitialCommitDiagnostic() gitDiagnosticInfo {
+	return gitDiagnosticInfo{
+		RCA: "Repository has no initial commit yet (unborn HEAD). Git cannot stash or reset without at least one initial commit.",
+		Solutions: []string{
+			"Create initial commit: git -C <repo> add -A && git -C <repo> commit -m \"feat: initial commit\"",
+			"Or discard untracked files: git -C <repo> clean -fd",
 		},
 	}
 }

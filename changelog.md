@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.548.0] - 2026-10-12
+
+### Added
+- update-antigravity-ide - Antigravity IDE Update Integration
+
+---
+
 ## [v6.547.0] - 2026-10-12
 
 ### Added
