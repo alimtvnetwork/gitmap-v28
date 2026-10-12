@@ -57,8 +57,24 @@ func filenameFromArchiveURL(rawURL string) string {
 		return "archive-download.tar.gz"
 	}
 	base := path.Base(parsed.Path)
+	if strings.Contains(parsed.Path, "antigravity-hub/") {
+		parts := strings.Split(parsed.Path, "antigravity-hub/")
+		if len(parts) > 1 {
+			subParts := strings.Split(parts[1], "/")
+			if len(subParts) > 1 {
+				tag := subParts[0]
+				ext := path.Ext(base)
+				if strings.HasSuffix(base, ".tar.gz") {
+					ext = ".tar.gz"
+				}
+				prefix := strings.TrimSuffix(base, ext)
+				return fallbackArchiveFilename(fmt.Sprintf("%s-%s%s", prefix, tag, ext))
+			}
+		}
+	}
 	return fallbackArchiveFilename(base)
 }
+
 
 func getGitmapHomeDownloadDir() (string, bool) {
 	home, err := os.UserHomeDir()

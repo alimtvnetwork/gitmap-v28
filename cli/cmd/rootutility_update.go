@@ -146,12 +146,14 @@ func runUpdateAntigravityIdeTarget(args []string) error {
 		ver = resolveEffectiveVersion("ide", extractVersionFromArgs(cleanArgs))
 	}
 	opts := cmdinstall.InstallOptions{
-		DryRun:  hasDryRunArg(cleanArgs),
-		Verbose: hasVerboseArg(cleanArgs),
-		Yes:     hasYesArg(cleanArgs),
-		Version: ver,
-		Prefix:  extractPrefixFromArgs(cleanArgs),
-		Force:   true,
+		DryRun:         hasDryRunArg(cleanArgs),
+		Verbose:        hasVerboseArg(cleanArgs),
+		Yes:            hasYesArg(cleanArgs),
+		Version:        ver,
+		Prefix:         extractPrefixFromArgs(cleanArgs),
+		Force:          true,
+		IsDownloadMust: hasDownloadMustArg(cleanArgs),
 	}
 	return cmdinstall.RunInstallAntigravityWithOpts(opts)
 }
+

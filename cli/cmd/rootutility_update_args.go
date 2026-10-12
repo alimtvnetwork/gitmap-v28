@@ -200,7 +200,7 @@ func isNumericString(s string) bool {
 func extractVersionFromArgs(args []string) string {
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if (a == "--version" || a == "-v") && i+1 < len(args) {
+		if a == "--version" && i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
 			return args[i+1]
 		}
 		if strings.HasPrefix(a, "--version=") {
@@ -224,12 +224,13 @@ func hasDryRunArg(args []string) bool {
 
 func hasVerboseArg(args []string) bool {
 	for _, a := range args {
-		if a == "--verbose" {
+		if a == "--verbose" || a == "-v" {
 			return true
 		}
 	}
 	return false
 }
+
 
 func hasYesArg(args []string) bool {
 	for _, a := range args {
@@ -239,6 +240,16 @@ func hasYesArg(args []string) bool {
 	}
 	return false
 }
+
+func hasDownloadMustArg(args []string) bool {
+	for _, a := range args {
+		if a == "--download-must" || a == "--redownload" || a == "--force-download" || a == "-fd" {
+			return true
+		}
+	}
+	return false
+}
+
 
 func extractPrefixFromArgs(args []string) string {
 	for i := 0; i < len(args); i++ {

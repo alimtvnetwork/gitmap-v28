@@ -261,3 +261,30 @@ func TestAgyDesktopFinderIsolation(t *testing.T) {
 		}
 	}
 }
+
+func TestParseManifestVersionAndBuild(t *testing.T) {
+	sampleManifest := `version: 2.22.0
+files:
+  - url: https://storage.googleapis.com/antigravity-public/antigravity-hub/2.22.0-5446056071266304/linux-x64/Antigravity.tar.gz
+    sha512: abcdef
+releaseDate: '2026-10-12T00:00:00.000Z'
+`
+	ver, bld := parseManifestVersionAndBuild(sampleManifest)
+	if ver != "2.22.0" {
+		t.Errorf("expected version '2.22.0', got %q", ver)
+	}
+	if bld != "5446056071266304" {
+		t.Errorf("expected buildID '5446056071266304', got %q", bld)
+	}
+}
+
+func TestFetchLiveReleaseMetadataFallback(t *testing.T) {
+	// With an invalid URL, should cleanly fall back to default version and build ID
+	ver, bld := fetchLiveReleaseMetadata("http://127.0.0.1:99999/nonexistent")
+	if ver != AntigravityDefaultVersion {
+		t.Errorf("expected default version %q, got %q", AntigravityDefaultVersion, ver)
+	}
+	if bld != AntigravityDefaultBuildID {
+		t.Errorf("expected default build ID %q, got %q", AntigravityDefaultBuildID, bld)
+	}
+}

@@ -13,9 +13,10 @@ type AntigravityPlatformInfo struct {
 }
 
 const (
-	AntigravityDefaultVersion = "2.19.1"
-	AntigravityDefaultBuildID = "6046815158665216"
+	AntigravityDefaultVersion = "2.22.0"
+	AntigravityDefaultBuildID = "5446056071266304"
 	AntigravityBaseURL        = "https://storage.googleapis.com/antigravity-public/antigravity-hub"
+	AntigravityManifestURL    = "https://antigravity-hub-auto-updater-974169037036.us-central1.run.app/manifest/latest-x64-linux.yml"
 	ErrUnsupportedPlatform    = "E_UNSUPPORTED_PLATFORM"
 	ErrPrerequisiteFailed     = "E_PREREQUISITE_FAILED"
 	ErrDownloadFailed         = "E_DOWNLOAD_FAILED"

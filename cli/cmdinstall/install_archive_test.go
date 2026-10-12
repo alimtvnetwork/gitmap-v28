@@ -120,3 +120,20 @@ func TestResolvePackageStrategy_ResolvesScriptAndSource(t *testing.T) {
 		t.Errorf("expected StrategyUnknown")
 	}
 }
+
+func TestFilenameFromArchiveURL_IncludesVersionTag(t *testing.T) {
+	url1 := "https://storage.googleapis.com/antigravity-public/antigravity-hub/2.22.0-5446056071266304/linux-x64/Antigravity.tar.gz"
+	name1 := filenameFromArchiveURL(url1)
+	expected1 := "Antigravity-2.22.0-5446056071266304.tar.gz"
+	if name1 != expected1 {
+		t.Errorf("expected %q, got %q", expected1, name1)
+	}
+
+	url2 := "https://example.com/downloads/package.tar.gz"
+	name2 := filenameFromArchiveURL(url2)
+	expected2 := "package.tar.gz"
+	if name2 != expected2 {
+		t.Errorf("expected %q, got %q", expected2, name2)
+	}
+}
+
