@@ -35,6 +35,14 @@ func runUpdate() error {
 		return nil
 	}
 
+	if hasFlag(constants.FlagSourceRebuild) || isRepoPathPromptAllowed() {
+		if prompted := promptRepoPath(); len(prompted) > 0 {
+			saveRepoPathToDB(prompted)
+
+			return runSourceHandoffUpdate(prompted)
+		}
+	}
+
 	if errRepo != nil {
 		return errRepo
 	}
@@ -70,13 +78,16 @@ func runSourceHandoffUpdate(repoPath string) error {
 	return nil
 }
 
-// resolveRepoPath returns the repo path from --repo-path flag or embedded constant.
+// resolveRepoPath returns the repo path from flags, embedded constant, DB, cwd, or registered repos.
 // If neither is available, it attempts to delegate to cli-updater.
 func resolveRepoPath() (string, error) {
 	for _, path := range []string{
 		resolveRepoPathFromFlag(),
 		resolveRepoPathFromEmbedded(),
 		resolveRepoPathFromDB(),
+		resolveRepoPathFromCwd(),
+		resolveRepoPathFromRepoTable(),
+		resolveRepoPathFromWorkDirs(),
 	} {
 		if len(path) > 0 {
 			saveRepoPathToDB(path)
@@ -85,10 +96,12 @@ func resolveRepoPath() (string, error) {
 		}
 	}
 
-	if prompted := promptRepoPath(); len(prompted) > 0 {
-		saveRepoPathToDB(prompted)
+	if hasFlag(constants.FlagSourceRebuild) {
+		if prompted := promptRepoPath(); len(prompted) > 0 {
+			saveRepoPathToDB(prompted)
 
-		return prompted, nil
+			return prompted, nil
+		}
 	}
 
 	// Try to fall back to cli-updater for release-based update

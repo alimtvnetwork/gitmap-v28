@@ -30,6 +30,75 @@ func resolveRepoPathFromDB() string {
 	return normalizeRepoPath(loadRepoPathFromDB())
 }
 
+// resolveRepoPathFromCwd checks if the current working directory is inside a gitmap repo.
+func resolveRepoPathFromCwd() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	return normalizeRepoPath(cwd)
+}
+
+// resolveRepoPathFromRepoTable checks the SQLite Repo table for an indexed gitmap repo.
+func resolveRepoPathFromRepoTable() string {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return ""
+	}
+
+	defer db.Close()
+
+	rows, err := db.SQL().Query(
+		"SELECT AbsolutePath FROM Repo WHERE Slug LIKE 'gitmap%' OR RepoName LIKE 'gitmap%' ORDER BY RepoId DESC",
+	)
+	if err != nil {
+		return ""
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var path string
+		if err := rows.Scan(&path); err == nil {
+			if root := normalizeRepoPath(path); len(root) > 0 {
+				return root
+			}
+		}
+	}
+
+	return ""
+}
+
+// resolveRepoPathFromWorkDirs checks work_directories in the SQLite database for a gitmap repo.
+func resolveRepoPathFromWorkDirs() string {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return ""
+	}
+
+	defer db.Close()
+
+	rows, err := db.SQL().Query("SELECT path FROM work_directories")
+	if err != nil {
+		return ""
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var baseDir string
+		if err := rows.Scan(&baseDir); err == nil {
+			candidate := filepath.Join(baseDir, "gitmap")
+			if root := normalizeRepoPath(candidate); len(root) > 0 {
+				return root
+			}
+		}
+	}
+
+	return ""
+}
+
 // normalizeRepoPath resolves a candidate path to a valid gitmap source root.
 func normalizeRepoPath(path string) string {
 	if len(path) == 0 {
@@ -96,7 +165,8 @@ func findRepoRoot(path string) string {
 // Uses fsutil predicates so the strict-file vs strict-dir distinction is
 // enforced by a single shared contract (see gitmap/fsutil/exists.go).
 func isGitmapSourceRepo(path string) bool {
-	if !fsutil.DirExists(path) || !fsutil.FileExists(filepath.Join(path, updateRunScript)) {
+	hasScript := fsutil.FileExists(filepath.Join(path, "run.ps1")) || fsutil.FileExists(filepath.Join(path, "run.sh"))
+	if !fsutil.DirExists(path) || !hasScript {
 		return false
 	}
 
@@ -133,7 +203,12 @@ func promptRepoPath() string {
 		return ""
 	}
 
-	fmt.Fprint(os.Stderr, constants.MsgUpdatePathMissing)
+	saved := loadRepoPathFromDB()
+	if len(saved) > 0 {
+		fmt.Fprintf(os.Stderr, "\n  ⚠ The saved source repository path (%s) no longer exists on disk.\n", saved)
+	} else {
+		fmt.Fprint(os.Stderr, "\n  ⚠ No gitmap source repository found on disk.\n")
+	}
 
 	reader := bufio.NewReader(os.Stdin)
 	for {

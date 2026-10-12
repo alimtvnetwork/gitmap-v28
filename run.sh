@@ -414,11 +414,11 @@ test_source_files() {
         "cmdupdate/update.go"
         "cmdpull/pull.go"
         "cmdscan/rescan.go"
-        "cmd/desktopsync.go"
+        "cmddesktopsync/desktopsync.go"
         "constants/constants.go"
         "config/config.go"
-        "scanner/scanner.go"
-        "mapper/mapper.go"
+        "scanpipe/scanner.go"
+        "scanpipe/mapper.go"
         "model/record.go"
         "formatter/csv.go"
         "formatter/json.go"
@@ -435,12 +435,12 @@ test_source_files() {
         "verbose/verbose.go"
         "setup/setup.go"
         "cmdsetup/setup.go"
-        "cmd/status.go"
-        "cmd/exec.go"
-        "cmd/release.go"
-        "cmd/releasebranch.go"
-        "cmd/releasepending.go"
-        "cmd/changelog.go"
+        "cmdstatus/status.go"
+        "cmdexec/exec.go"
+        "cmdrelease/release.go"
+        "cmdrelease/releasebranch.go"
+        "cmdrelease/releasepending.go"
+        "cmdchangelog/changelog.go"
         "cmddoctor/doctor.go"
         "release/semver.go"
         "release/metadata.go"
@@ -917,9 +917,9 @@ ${marker_close}"
             # Rewrite existing block (sed-based, portable enough for bash/zsh/fish profiles)
             local tmp
             tmp=$(mktemp)
-            awk -v open="$marker_open" -v close="$marker_close" -v body="$snippet" '
+            awk -v open="$marker_open" -v close_marker="$marker_close" -v body="$snippet" '
                 $0 == open { skip = 1; print body; next }
-                skip && $0 == close { skip = 0; next }
+                skip && $0 == close_marker { skip = 0; next }
                 !skip { print }
             ' "$profile" > "$tmp" && mv "$tmp" "$profile"
             write_info "PATH: refreshed marker block in $profile"
@@ -1156,6 +1156,14 @@ write_info "Version: $version_output"
 
 if [[ "$NO_DEPLOY" == "false" ]]; then
     deploy_binary
+
+    # Sync source repo path in DB so "gitmap update" uses this repo location
+    sync_binary="$DEPLOYED_BINARY_PATH"
+    if [[ ! -f "$sync_binary" ]]; then sync_binary="$BINARY_PATH"; fi
+    if [[ -f "$sync_binary" ]]; then
+        "$sync_binary" set-source-repo "$REPO_ROOT" >/dev/null 2>&1 || true
+        write_info "Source repo path synced to DB: $REPO_ROOT"
+    fi
 
     # Check if PATH points to a different gitmap
     active_cmd=$(command -v gitmap 2>/dev/null || true)
