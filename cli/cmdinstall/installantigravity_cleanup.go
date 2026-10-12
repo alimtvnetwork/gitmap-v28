@@ -35,8 +35,8 @@ func sweepAntigravityIcons() {
 func cleanupBrokenLinuxArtifacts(installDir, binDir, desktopDir string) {
 	_ = os.Remove(filepath.Join(binDir, "antigravity"))
 	_ = os.Remove(filepath.Join(binDir, "agy"))
+	_ = os.Remove(filepath.Join(binDir, "antigravity-ide"))
 	_ = os.Remove(filepath.Join(desktopDir, "antigravity.desktop"))
-	_ = os.RemoveAll(installDir)
 	sweepAntigravityIcons()
 	PurgeDuplicateAntigravityLaunchers()
 	updateDesktopDatabase(desktopDir)

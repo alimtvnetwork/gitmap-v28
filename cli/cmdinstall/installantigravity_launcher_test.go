@@ -141,3 +141,57 @@ func TestIsDirWritable(t *testing.T) {
 		t.Fatalf("expected temp dir %s to be writable", tmpDir)
 	}
 }
+
+func TestBuildLauncherWrapperScript(t *testing.T) {
+	targetDir := "/test/antigravity-ide"
+	script := buildLauncherWrapperScript(targetDir)
+	assertContentContains(t, script, "--no-sandbox")
+	assertContentContains(t, script, targetDir)
+	assertContentContains(t, script, "antigravity")
+}
+
+func TestEnsureLinuxLauncherWrapper(t *testing.T) {
+	tmpDir := t.TempDir()
+	wrapperPath, err := ensureLinuxLauncherWrapper(tmpDir)
+	if err != nil {
+		t.Fatalf("ensureLinuxLauncherWrapper failed: %v", err)
+	}
+
+	info, errStat := os.Stat(wrapperPath)
+	if errStat != nil {
+		t.Fatalf("wrapper script not found at %s: %v", wrapperPath, errStat)
+	}
+	if info.Mode().Perm()&0111 == 0 {
+		t.Fatalf("expected wrapper script to be executable")
+	}
+
+	runnerSymlink := filepath.Join(tmpDir, "antigravity-runner.sh")
+	if _, errRunner := os.Stat(runnerSymlink); errRunner != nil {
+		t.Fatalf("expected antigravity-runner.sh symlink to exist: %v", errRunner)
+	}
+}
+
+func TestGetAntigravityLinuxCandidatePaths(t *testing.T) {
+	candidates := getAntigravityLinuxCandidatePaths()
+	hasIdePath := false
+	for _, p := range candidates {
+		if strings.Contains(p, "antigravity-ide") {
+			hasIdePath = true
+			break
+		}
+	}
+	if !hasIdePath {
+		t.Fatalf("expected getAntigravityLinuxCandidatePaths to contain an antigravity-ide path")
+	}
+}
+
+func TestCleanupBrokenLinuxArtifactsPreservesInstallDir(t *testing.T) {
+	tmpInstall := t.TempDir()
+	tmpBin := t.TempDir()
+	tmpDesktop := t.TempDir()
+
+	cleanupBrokenLinuxArtifacts(tmpInstall, tmpBin, tmpDesktop)
+	if _, err := os.Stat(tmpInstall); err != nil {
+		t.Fatalf("cleanupBrokenLinuxArtifacts should preserve installDir, but it was deleted: %v", err)
+	}
+}

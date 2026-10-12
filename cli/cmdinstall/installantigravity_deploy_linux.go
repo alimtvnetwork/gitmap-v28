@@ -3,6 +3,7 @@
 package cmdinstall
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -19,7 +20,7 @@ func isPrivilegedLinuxUser() bool {
 func resolveFallbackLinuxDirs() (string, string, string) {
 	home, _ := os.UserHomeDir()
 
-	return filepath.Join(home, ".local", "share", "antigravity"),
+	return filepath.Join(home, ".local", "share", "antigravity-ide"),
 		filepath.Join(home, ".local", "bin"),
 		filepath.Join(home, ".local", "share", "applications")
 }
@@ -46,14 +47,23 @@ func prepareLinuxTargetDirs(reqInstall, reqBin, reqDesktop string) (string, stri
 }
 
 func runTarExtractCommand(archivePath, destDir string) error {
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return apperror.WrapSimple(err, "mkdir.destDir")
+	}
+
 	cmd := exec.Command("tar", "-xzf", archivePath, "-C", destDir, "--strip-components=1")
-	if err := cmd.Run(); err == nil {
+	out, err := cmd.CombinedOutput()
+	if err == nil {
 		return nil
 	}
 
 	fallbackCmd := exec.Command("tar", "-xzf", archivePath, "-C", destDir)
+	fallbackOut, fallbackErr := fallbackCmd.CombinedOutput()
+	if fallbackErr == nil {
+		return nil
+	}
 
-	return fallbackCmd.Run()
+	return fmt.Errorf("tar extraction failed: %w (strip: %s, direct: %s)", fallbackErr, string(out), string(fallbackOut))
 }
 
 func extractAntigravityTarballWithRetry(archivePath, destDir string) error {
@@ -158,7 +168,11 @@ func createDualLinuxSymlinks(binFile, binDir string) error {
 		return err
 	}
 
-	return symlinkAntigravityBinary(binFile, filepath.Join(binDir, "agy"))
+	if err := symlinkAntigravityBinary(binFile, filepath.Join(binDir, "agy")); err != nil {
+		return err
+	}
+
+	return symlinkAntigravityBinary(binFile, filepath.Join(binDir, "antigravity-ide"))
 }
 
 func createDualLinuxSymlinksWithFallback(binFile, preferredBinDir string) (string, error) {
@@ -221,6 +235,67 @@ func linkAndLaunchLinuxDesktop(binFile, installDir, binDir, desktopDir string) e
 	return installLinuxDesktopLauncher(binFile, installDir, desktopDir)
 }
 
+func buildLauncherWrapperScript(installDir string) string {
+	return fmt.Sprintf(`#!/bin/bash
+REAL_SOURCE="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || realpath "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
+DIR="$(cd "$(dirname "$REAL_SOURCE")" && pwd)"
+
+if [ "$DIR" = "$HOME/.local/bin" ] || [ "$DIR" = "/usr/local/bin" ] || [ "$DIR" = "/usr/bin" ]; then
+    [ -d "%s" ] && DIR="%s"
+fi
+
+export LD_LIBRARY_PATH="$DIR:$DIR/lib:${LD_LIBRARY_PATH:-}"
+EXEC="$DIR/antigravity"
+[ -f "$EXEC" ] || EXEC="$DIR/Antigravity"
+
+export ELECTRON_OZONE_PLATFORM_HINT="auto"
+export DONT_PROMPT_WSL_INSTALL=1
+
+# Unconfined tarball Electron builds require --no-sandbox on modern Linux (AppArmor userns restriction)
+exec "$EXEC" --no-sandbox "$@"
+`, installDir, installDir)
+}
+
+func ensureLinuxLauncherWrapper(installDir string) (string, error) {
+	wrapperPath := filepath.Join(installDir, "antigravity-ide.run")
+	runnerSymlink := filepath.Join(installDir, "antigravity-runner.sh")
+	runSymlink := filepath.Join(installDir, "antigravity.run")
+
+	content := buildLauncherWrapperScript(installDir)
+	if err := os.WriteFile(wrapperPath, []byte(content), 0755); err != nil {
+		return "", apperror.WrapSimple(err, "write.launcherWrapper")
+	}
+
+	_ = os.Chmod(wrapperPath, 0755)
+	_ = os.Remove(runnerSymlink)
+	_ = os.Symlink(wrapperPath, runnerSymlink)
+	_ = os.Remove(runSymlink)
+	_ = os.Symlink(wrapperPath, runSymlink)
+
+	return wrapperPath, nil
+}
+
+func ensureLinuxDirectorySymlink(installDir string) {
+	home, _ := os.UserHomeDir()
+	aliasDir := filepath.Join(home, ".local", "share", "antigravity")
+	if aliasDir == installDir {
+		return
+	}
+
+	if fi, err := os.Lstat(aliasDir); err == nil {
+		if fi.Mode()&os.ModeSymlink != 0 {
+			_ = os.Remove(aliasDir)
+		} else if fi.IsDir() {
+			entries, _ := os.ReadDir(aliasDir)
+			if len(entries) == 0 {
+				_ = os.Remove(aliasDir)
+			}
+		}
+	}
+
+	_ = os.Symlink(installDir, aliasDir)
+}
+
 func completeLinuxDeployment(installDir, binDir, desktopDir string) error {
 	binFile, err := locateExtractedLinuxBinary(installDir)
 	if err != nil {
@@ -231,7 +306,14 @@ func completeLinuxDeployment(installDir, binDir, desktopDir string) error {
 	_ = configureLinuxBinaryPermissions(binFile)
 	configureChromeSandbox(installDir)
 
-	return linkAndLaunchLinuxDesktop(binFile, installDir, binDir, desktopDir)
+	targetToLaunch := binFile
+	if wrapperPath, errWrapper := ensureLinuxLauncherWrapper(installDir); errWrapper == nil && wrapperPath != "" {
+		targetToLaunch = wrapperPath
+	}
+
+	ensureLinuxDirectorySymlink(installDir)
+
+	return linkAndLaunchLinuxDesktop(targetToLaunch, installDir, binDir, desktopDir)
 }
 
 func deployAntigravityDesktopLinux(reqInstall, reqBin, reqDesktop, archivePath string) error {
@@ -240,9 +322,7 @@ func deployAntigravityDesktopLinux(reqInstall, reqBin, reqDesktop, archivePath s
 		return errDir
 	}
 
-	cleanupBrokenLinuxArtifacts(installDir, binDir, desktopDir)
 	if err := extractAntigravityTarballWithRetry(archivePath, installDir); err != nil {
-		cleanupBrokenLinuxArtifacts(installDir, binDir, desktopDir)
 		return err
 	}
 
@@ -266,6 +346,9 @@ func installAntigravityDesktopPlatform(opts installOptions) error {
 	}
 
 	reqInstall, reqBin, reqDesktop := resolveLinuxInstallDirs()
+	if opts.Prefix != "" {
+		reqInstall = opts.Prefix
+	}
 
 	return deployAntigravityDesktopLinux(reqInstall, reqBin, reqDesktop, archivePath)
 }
@@ -275,10 +358,16 @@ func getAntigravityLinuxCandidatePaths() []string {
 
 	return []string{
 		"/opt/antigravity/antigravity",
+		filepath.Join(home, ".local", "share", "antigravity-ide", "antigravity-ide.run"),
+		filepath.Join(home, ".local", "share", "antigravity-ide", "antigravity"),
+		filepath.Join(home, ".local", "share", "antigravity", "antigravity-ide.run"),
 		filepath.Join(home, ".local", "share", "antigravity", "antigravity"),
 		filepath.Join(home, ".local", "share", "antigravity", "Antigravity"),
+		filepath.Join(home, ".local", "bin", "antigravity-ide"),
 		filepath.Join(home, ".local", "bin", "antigravity"),
+		filepath.Join(home, ".local", "bin", "agy"),
 		"/usr/local/bin/antigravity",
+		"/usr/local/bin/agy",
 	}
 }
 
