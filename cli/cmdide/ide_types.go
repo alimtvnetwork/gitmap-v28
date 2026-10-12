@@ -22,17 +22,27 @@ type IDEOptions struct {
 	TargetDirectory       string `json:"targetDirectory,omitempty"`
 }
 
+// IDESyncFailure records failure details for a repository synchronization attempt.
+type IDESyncFailure struct {
+	Target   string `json:"target"`
+	RepoName string `json:"repoName"`
+	RepoPath string `json:"repoPath"`
+	Reason   string `json:"reason"`
+	Output   string `json:"output,omitempty"`
+}
+
 // IDESyncSummary captures registration results across all editors.
 type IDESyncSummary struct {
-	VSCodeAdded         int `json:"vscodeAdded"`
-	VSCodeRetained      int `json:"vscodeRetained"`
-	CursorAdded         int `json:"cursorAdded"`
-	CursorRetained      int `json:"cursorRetained"`
-	AntigravityAdded    int `json:"antigravityAdded"`
-	AntigravityRetained int `json:"antigravityRetained"`
-	DesktopAdded        int `json:"desktopAdded"`
-	DesktopFailed       int `json:"desktopFailed"`
-	TotalRepos          int `json:"totalRepos"`
+	VSCodeAdded         int              `json:"vscodeAdded"`
+	VSCodeRetained      int              `json:"vscodeRetained"`
+	CursorAdded         int              `json:"cursorAdded"`
+	CursorRetained      int              `json:"cursorRetained"`
+	AntigravityAdded    int              `json:"antigravityAdded"`
+	AntigravityRetained int              `json:"antigravityRetained"`
+	DesktopAdded        int              `json:"desktopAdded"`
+	DesktopFailed       int              `json:"desktopFailed"`
+	TotalRepos          int              `json:"totalRepos"`
+	DesktopFailures     []IDESyncFailure `json:"desktopFailures,omitempty"`
 }
 
 // IDEStatusItem details detection and health for a single editor.
@@ -56,10 +66,12 @@ type IDERepoRegistration struct {
 
 // IDEActionResult reports single-action outcome for add or remove.
 type IDEActionResult struct {
-	Path                  string `json:"path"`
-	Action                string `json:"action"`
-	IsVSCodeAffected      bool   `json:"isVSCodeAffected"`
-	IsCursorAffected      bool   `json:"isCursorAffected"`
-	IsAntigravityAffected bool   `json:"isAntigravityAffected"`
-	IsDesktopAffected     bool   `json:"isDesktopAffected"`
+	Path                  string            `json:"path"`
+	Action                string            `json:"action"`
+	IsVSCodeAffected      bool              `json:"isVSCodeAffected"`
+	IsCursorAffected      bool              `json:"isCursorAffected"`
+	IsAntigravityAffected bool              `json:"isAntigravityAffected"`
+	IsDesktopAffected     bool              `json:"isDesktopAffected"`
+	HasErrors             bool              `json:"hasErrors"`
+	ErrorDetails          map[string]string `json:"errorDetails,omitempty"`
 }

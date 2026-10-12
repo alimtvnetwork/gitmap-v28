@@ -24,6 +24,11 @@ func ResolveCLI() string {
 		return hit
 	}
 
+	altHit, altErr := exec.LookPath(constants.GitHubDesktopAltBin)
+	if altErr == nil {
+		return altHit
+	}
+
 	return resolveFromKnownInstalls()
 }
 
@@ -67,6 +72,7 @@ func linuxCandidates() []string {
 		filepath.Join(home, ".local/bin/github-desktop"),
 		filepath.Join(home, ".local/share/flatpak/exports/bin/io.github.shifteight9.desktop"),
 		filepath.Join(home, ".local/share/applications/github-desktop"),
+		filepath.Join(home, ".local/share/github-desktop/github"),
 	}
 }
 

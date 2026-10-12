@@ -76,10 +76,46 @@ func addAntigravityAndDesktop(absPath string, opts IDEOptions, res *IDEActionRes
 	res.IsAntigravityAffected = performIDEAddAction(opts.IsAntigravityTargeted, opts.IsDryRun, func() bool {
 		return workspacesync.SyncAntigravity(absPath, filepath.Base(absPath))
 	})
+	if !opts.IsDesktopTargeted {
+		return
+	}
+	if opts.IsDryRun {
+		res.IsDesktopAffected = true
+		return
+	}
+	executeDesktopAdd(absPath, res)
+}
+
+func executeDesktopAdd(absPath string, res *IDEActionResult) {
+	initErrorDetails(res)
 	cli := desktop.ResolveCLI()
-	res.IsDesktopAffected = performIDEAddAction(opts.IsDesktopTargeted && cli != "", opts.IsDryRun, func() bool {
-		return exec.Command(cli, absPath).Run() == nil
-	})
+	if cli == "" {
+		res.ErrorDetails["desktop"] = "GitHub Desktop CLI not found"
+		res.HasErrors = true
+		return
+	}
+	output, err := exec.Command(cli, "open", absPath).CombinedOutput()
+	if err == nil {
+		res.IsDesktopAffected = true
+		return
+	}
+	res.IsDesktopAffected = false
+	res.HasErrors = true
+	res.ErrorDetails["desktop"] = formatDesktopError(err, output)
+}
+
+func initErrorDetails(res *IDEActionResult) {
+	if res.ErrorDetails == nil {
+		res.ErrorDetails = make(map[string]string)
+	}
+}
+
+func formatDesktopError(err error, output []byte) string {
+	trimmed := strings.TrimSpace(string(output))
+	if trimmed != "" {
+		return err.Error() + ": " + trimmed
+	}
+	return err.Error()
 }
 
 func titleWord(s string) string {
@@ -95,18 +131,30 @@ func printActionResult(res IDEActionResult, isJSON, isQuiet bool) {
 		fmt.Println(string(b))
 		return
 	}
-	if !isQuiet {
-		fmt.Printf("%s✔ IDE %s completed for:%s %s\n", constants.ColorGreen, titleWord(res.Action), constants.ColorReset, res.Path)
-		fmt.Printf("  • VS Code:     %s\n", formatStatusBool(res.IsVSCodeAffected))
-		fmt.Printf("  • Cursor:      %s\n", formatStatusBool(res.IsCursorAffected))
-		fmt.Printf("  • Antigravity: %s\n", formatStatusBool(res.IsAntigravityAffected))
-		fmt.Printf("  • Desktop:     %s\n", formatStatusBool(res.IsDesktopAffected))
+	if isQuiet {
+		return
 	}
+	printActionSummaryLines(res)
+}
+
+func printActionSummaryLines(res IDEActionResult) {
+	fmt.Printf("%s✔ IDE %s completed for:%s %s\n", constants.ColorGreen, titleWord(res.Action), constants.ColorReset, res.Path)
+	fmt.Printf("  • VS Code:     %s\n", formatIDEStatus(res.IsVSCodeAffected, "vscode", res.ErrorDetails))
+	fmt.Printf("  • Cursor:      %s\n", formatIDEStatus(res.IsCursorAffected, "cursor", res.ErrorDetails))
+	fmt.Printf("  • Antigravity: %s\n", formatIDEStatus(res.IsAntigravityAffected, "antigravity", res.ErrorDetails))
+	fmt.Printf("  • Desktop:     %s\n", formatIDEStatus(res.IsDesktopAffected, "desktop", res.ErrorDetails))
+}
+
+func formatIDEStatus(isAffected bool, key string, errDetails map[string]string) string {
+	if isAffected {
+		return constants.ColorGreen + "✔ updated" + constants.ColorReset
+	}
+	if errMsg, hasErr := errDetails[key]; hasErr && errMsg != "" {
+		return constants.ColorRed + "✗ failed (" + errMsg + ")" + constants.ColorReset
+	}
+	return constants.ColorDim + "— skipped" + constants.ColorReset
 }
 
 func formatStatusBool(val bool) string {
-	if val {
-		return constants.ColorGreen + "✔ updated" + constants.ColorReset
-	}
-	return constants.ColorDim + "— skipped" + constants.ColorReset
+	return formatIDEStatus(val, "", nil)
 }

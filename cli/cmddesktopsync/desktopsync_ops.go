@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -43,15 +45,16 @@ func syncExistingPath(r model.ScanRecord, cli string) SyncResultType {
 
 // registerOne calls the GitHub Desktop CLI for a single repo.
 func registerOne(name, repoPath, cli string) SyncResultType {
-	cmd := exec.Command(cli, repoPath)
+	cmd := exec.Command(cli, "open", repoPath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf(constants.MsgDesktopSyncFailed, name, fmt.Sprintf("%v: %s", err, output))
+		fmt.Printf(constants.MsgDesktopSyncFailed, name, fmt.Sprintf("%v: %s", err, strings.TrimSpace(string(output))))
 
 		return SyncResultTypeFailed
 	}
 
 	fmt.Printf(constants.MsgDesktopSyncAdded, name)
+	time.Sleep(250 * time.Millisecond)
 
 	return SyncResultTypeAdded
 }

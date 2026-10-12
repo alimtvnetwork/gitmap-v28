@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdantigravity"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcursor"
@@ -96,13 +98,29 @@ func syncAntigravityPaths(repoPaths []string, isDryRun bool, s *IDESyncSummary) 
 }
 
 func syncDesktopPaths(repoPaths []string, cli string, s *IDESyncSummary) {
-	for _, p := range repoPaths {
-		if exec.Command(cli, p).Run() == nil {
-			s.DesktopAdded++
-		} else {
-			s.DesktopFailed++
+	for i, p := range repoPaths {
+		syncSingleDesktopPath(p, cli, s)
+		if i < len(repoPaths)-1 {
+			time.Sleep(250 * time.Millisecond)
 		}
 	}
+}
+
+func syncSingleDesktopPath(p, cli string, s *IDESyncSummary) {
+	cmd := exec.Command(cli, "open", p)
+	output, err := cmd.CombinedOutput()
+	if err == nil {
+		s.DesktopAdded++
+		return
+	}
+	s.DesktopFailed++
+	s.DesktopFailures = append(s.DesktopFailures, IDESyncFailure{
+		Target:   TargetDesktop,
+		RepoName: filepath.Base(p),
+		RepoPath: p,
+		Reason:   err.Error(),
+		Output:   strings.TrimSpace(string(output)),
+	})
 }
 
 func printSyncSummary(s IDESyncSummary, isJSON, isQuiet bool) {
@@ -111,11 +129,30 @@ func printSyncSummary(s IDESyncSummary, isJSON, isQuiet bool) {
 		fmt.Println(string(b))
 		return
 	}
-	if !isQuiet {
-		fmt.Printf("%s✔ IDE Sync Completed:%s %d total repositories\n", constants.ColorGreen, constants.ColorReset, s.TotalRepos)
-		fmt.Printf("  • VS Code:     %d added, %d retained\n", s.VSCodeAdded, s.VSCodeRetained)
-		fmt.Printf("  • Cursor:      %d added, %d retained\n", s.CursorAdded, s.CursorRetained)
-		fmt.Printf("  • Antigravity: %d added, %d retained\n", s.AntigravityAdded, s.AntigravityRetained)
-		fmt.Printf("  • Desktop:     %d added, %d failed\n", s.DesktopAdded, s.DesktopFailed)
+	if isQuiet {
+		return
+	}
+	printSummaryLines(s)
+	if s.DesktopFailed > 0 {
+		printDesktopFailureDetails(s.DesktopFailures)
+	}
+}
+
+func printSummaryLines(s IDESyncSummary) {
+	fmt.Printf("%s✔ IDE Sync Completed:%s %d total repositories\n", constants.ColorGreen, constants.ColorReset, s.TotalRepos)
+	fmt.Printf("  • VS Code:     %d added, %d retained\n", s.VSCodeAdded, s.VSCodeRetained)
+	fmt.Printf("  • Cursor:      %d added, %d retained\n", s.CursorAdded, s.CursorRetained)
+	fmt.Printf("  • Antigravity: %d added, %d retained\n", s.AntigravityAdded, s.AntigravityRetained)
+	fmt.Printf("  • Desktop:     %d added, %d failed\n", s.DesktopAdded, s.DesktopFailed)
+}
+
+func printDesktopFailureDetails(failures []IDESyncFailure) {
+	fmt.Printf("%s  ✗ Desktop Failures (%d):%s\n", constants.ColorRed, len(failures), constants.ColorReset)
+	for _, f := range failures {
+		if f.Output != "" {
+			fmt.Printf("    • %s: %s (%s)\n", f.RepoName, f.Reason, f.Output)
+		} else {
+			fmt.Printf("    • %s: %s\n", f.RepoName, f.Reason)
+		}
 	}
 }

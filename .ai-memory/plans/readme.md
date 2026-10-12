@@ -65,6 +65,8 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [28-repository-fix-and-solution-implementation.md](completed/84-repository-fix-and-solution-implementation.md) — Pull Failure Subtree Yellow Solutions, Non-Repo Folder Smart Clone Resolution & Unified Batch Fix (Spec: [01-architecture-spec.md](../../02-spec/21-app/repository-fix-and-solution-implementation/01-architecture-spec.md))
 - [29-repository-creation-and-folder-structure-instructions.md](completed/repository-creation-and-folder-structure-instructions.md) — Multi-Repo Non-Destructive Amalgamation (Icon Studio 2026 V1), Zero Replacement Invariant, Commit Metadata Tracking, AI Folder Structure Consolidation Guide & Multi-IDE Ecosystem Registration (Spec: [01-architecture-spec.md](../../02-spec/21-app/repository-creation-and-folder-structure-instructions/01-architecture-spec.md))
 - [30-gitmap-repository-management-and-release-process.md](completed/gitmap-repository-management-and-release-process.md) — Repo-Cache Split-DB JSON Injection, Two-Tier Subtree Solutions Formatting, Native GitMap Remediation Commands, Antivirus False-Positive Mitigation & Go Direct Path Query CLI Acceleration (Spec: [01-architecture-spec.md](../../02-spec/21-app/gitmap-repository-management-and-release-process/01-architecture-spec.md))
+- [31-github-desktop-sync-fix.md](completed/02-github-desktop-sync-fix.md) — GitHub Desktop Linux Registration Crash Remediation, 250ms IPC Pacing, Canonical 'open' Subcommand Dispatch, Candidate Resolution & Non-Swallowed Error Surfacing (Spec: [01-architecture-spec.md](../../02-spec/21-app/02-github-desktop-sync-fix/01-architecture-spec.md))
+
 
 ---
 

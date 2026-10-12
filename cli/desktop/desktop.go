@@ -4,6 +4,8 @@ package desktop
 import (
 	"fmt"
 	"os/exec"
+	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -25,9 +27,13 @@ func AddRepos(records []model.ScanRecord) DesktopSummary {
 
 // addAll iterates records and adds each to GitHub Desktop.
 func addAll(records []model.ScanRecord, summary DesktopSummary, cli string) DesktopSummary {
-	for _, rec := range records {
+	for i, rec := range records {
 		err := addOne(rec.AbsolutePath, cli)
 		summary = updateSummary(summary, rec.RepoName, err)
+
+		if i < len(records)-1 {
+			time.Sleep(250 * time.Millisecond)
+		}
 	}
 
 	return summary
@@ -35,10 +41,13 @@ func addAll(records []model.ScanRecord, summary DesktopSummary, cli string) Desk
 
 // addOne opens a single repo in GitHub Desktop.
 func addOne(repoPath, cli string) error {
-	cmd := exec.Command(cli, repoPath)
-	_, err := cmd.Output()
+	cmd := exec.Command(cli, constants.GitHubDesktopVerbOpen, repoPath)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))
+	}
 
-	return err
+	return nil
 }
 
 // updateSummary tracks success/failure for each repo.
