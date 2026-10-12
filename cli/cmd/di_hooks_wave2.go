@@ -65,6 +65,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprobe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprofiles"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprojectrepos"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprune"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrecreate"
@@ -172,6 +173,9 @@ func wireWave2Hooks() {
 	cmdmerge.CheckHelpFn = checkHelp
 	cmdmultigroup.CheckHelpFn = checkHelp
 	cmdnodes.CheckHelpFn = checkHelp
+	cmdnodes.RunNodesPullAllFn = func(args []string) error {
+		return cmdpull.RunPullAll(append([]string{"--ssh"}, args...))
+	}
 	cmdopen.CheckHelpFn = checkHelp
 	cmdopen.ResolveEndpointStringFn = cmdclone.ResolveEndpointString
 	cmdopen.ConfigureDetachedProcessFn = cmdchrome.ConfigureDetachedProcess
