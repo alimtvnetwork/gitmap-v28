@@ -79,3 +79,16 @@ gitmap release --dry-run
 
 * **Alias:** `prn`
 * Deletes stale local release branches that have already been tagged.
+
+### `gitmap release remove-between <start> <end>`
+
+* **Alias:** `rrb`
+* Prunes intermediate release tags between two bounds, preserving milestone anchors and pinned tags.
+* Docs: [remove-between.md](remove-between.md)
+
+### `gitmap release pin-not-to-remove [tags...]`
+
+* **Alias:** `pnr`
+* Registers milestone tags in `.gitmap/release/pinned-tags.json` to make them immune to range deletion.
+* Docs: [pin-not-to-remove.md](pin-not-to-remove.md)
+

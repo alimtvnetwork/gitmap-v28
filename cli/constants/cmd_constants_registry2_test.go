@@ -264,5 +264,9 @@ func topLevelCmdsPart2() map[string]string {
 		"CmdPendingCommits":             CmdPendingCommits,
 		"CmdPendingCommitsAlias":        CmdPendingCommitsAlias,
 		"CmdSends":                      CmdSends,
+		"CmdCleanRepos":                 CmdCleanRepos,
+		"CmdCleanReposAlias":            CmdCleanReposAlias,
+		"CmdExclude":                    CmdExclude,
+		"CmdExcludeAlias":               CmdExcludeAlias,
 	}
 }

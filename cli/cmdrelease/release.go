@@ -18,6 +18,16 @@ import (
 
 // runRelease handles the 'release' command.
 func RunRelease(args []string) error {
+	if len(args) > 0 {
+		sub := strings.ToLower(args[0])
+		if sub == "remove-between" || sub == "rrb" {
+			return RunReleaseRemoveBetween(args[1:])
+		}
+		if sub == "pin-not-to-remove" || sub == "pnr" {
+			return RunReleasePinNotToRemove(args[1:])
+		}
+	}
+
 	if tryCrossDirRelease(args) {
 		return nil
 	}

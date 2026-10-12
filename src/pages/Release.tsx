@@ -613,6 +613,39 @@ const ReleasePage = () => {
           </div>
         </div>
 
+        {/* Tag Removal & Milestone Pinning Optimization */}
+        <div>
+          <h2 className="text-xl font-heading font-bold text-foreground mb-4 docs-h2">Release Tag Removal & Milestone Pinning Optimization</h2>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+            During rapid iterative testing and automated CI builds, repositories often accumulate many intermediate pre-release or beta tags.
+            GitMap provides deterministic range-based pruning tools to eliminate intermediate clutter while anchoring critical milestone releases.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="p-4 rounded-lg border border-border bg-card">
+              <h3 className="text-base font-heading font-semibold text-foreground mb-2 flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-xs bg-primary/20 text-primary font-mono font-bold">rrb</span>
+                <span>release remove-between</span>
+              </h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Deletes all tags strictly between two version bounds. Endpoints (e.g. 4.162 and 4.190) and pinned tags are <strong>always kept</strong>.
+              </p>
+              <CodeBlock code={`# Keep only 4.162 and 4.190 (purges 4.162.1..4.189.0)\ngitmap release remove-between 4.162, 4.190\n\n# High-speed alias with auto-confirm\ngitmap rrb 4.162 4.190 -y\n\n# Preview deletion candidates\ngitmap rrb 4.162, 4.190 --dry-run`} />
+            </div>
+
+            <div className="p-4 rounded-lg border border-border bg-card">
+              <h3 className="text-base font-heading font-semibold text-foreground mb-2 flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-xs bg-primary/20 text-primary font-mono font-bold">pnr</span>
+                <span>release pin-not-to-remove</span>
+              </h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Registers protected release tags in <code className="font-mono text-primary">.gitmap/release/pinned-tags.json</code>, making them immune to range deletion and pruning.
+              </p>
+              <CodeBlock code={`# Pin milestone tags permanently\ngitmap release pin-not-to-remove 4.162, 4.190\n\n# List all active pins\ngitmap pnr --list\n\n# Unpin a tag\ngitmap pnr --remove 4.162`} />
+            </div>
+          </div>
+        </div>
+
         {/* See Also */}
         <section className="mt-10">
           <h2 className="text-xl font-heading font-bold text-foreground mb-4 docs-h2">See Also</h2>

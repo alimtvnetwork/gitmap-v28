@@ -476,6 +476,52 @@ export const commands: CommandDef[] = [
   },
   {
     category: "release",
+    name: "release-remove-between", alias: "rrb", description: "Prune intermediate release tags between two bounds, strictly preserving both endpoint milestone anchors and any pinned tags. Deletes remote tags, local tags, GitHub releases, and compacts Git packfiles.",
+    usage: "gitmap release remove-between <start> <end> [--pin <tags...>] [--keep-remote] [--dry-run] [-y]",
+    flags: [
+      { flag: "<start>", description: "Lower milestone version boundary (strictly preserved)" },
+      { flag: "<end>", description: "Upper milestone version boundary (strictly preserved)" },
+      { flag: "--pin <tags...>", description: "Comma-separated list of additional tags to protect from removal" },
+      { flag: "--keep-remote", description: "Delete local tags only; leave origin tags intact" },
+      { flag: "--dry-run", description: "Preview tags marked for deletion and retention without modifying repository" },
+      { flag: "-y, --yes", description: "Auto-confirm deletion prompt" },
+    ],
+    examples: [
+      { command: "gitmap rrb 4.162, 4.190", description: "Prune all intermediate tags between 4.162 and 4.190, keeping 4.162 and 4.190" },
+      { command: "gitmap rrb 4.162 4.190 -y", description: "Execute range pruning non-interactively" },
+      { command: "gitmap rrb 4.162, 4.190 --dry-run", description: "Preview tags to be deleted without making changes" },
+      { command: "gitmap rrb 4.162, 4.190 --pin 4.175.0 -y", description: "Prune range while protecting specific build 4.175.0" },
+    ],
+    seeAlso: [
+      { name: "release-pin-not-to-remove", description: "Pin milestone tags permanently", url: "/release" },
+      { name: "release-undo", description: "Undo a specific release", url: "/release" },
+      { name: "release", description: "Create a release", url: "/release" },
+    ],
+  },
+  {
+    category: "release",
+    name: "release-pin-not-to-remove", alias: "pnr", description: "Pin milestone release tags in .gitmap/release/pinned-tags.json so they are permanently protected from release-remove-between, cleanup routines, and rollback automation.",
+    usage: "gitmap release pin-not-to-remove [tags...] [--list] [--remove <tag>] [--clear]",
+    flags: [
+      { flag: "[tags...]", description: "One or more tag names or versions to permanently pin (e.g. 4.162, 4.190)" },
+      { flag: "--list, -l", description: "List all currently pinned release tags" },
+      { flag: "--remove <tag>", description: "Remove a tag from the pin registry" },
+      { flag: "--clear", description: "Clear all pins from the registry" },
+    ],
+    examples: [
+      { command: "gitmap pnr 4.162, 4.190", description: "Pin 4.162 and 4.190 milestones permanently" },
+      { command: "gitmap pnr v4.162.0 v4.190.0", description: "Pin using SemVer tags" },
+      { command: "gitmap pnr --list", description: "Display all active pins" },
+      { command: "gitmap pnr --remove 4.162", description: "Unpin milestone 4.162" },
+      { command: "gitmap pnr --clear", description: "Clear all active pins" },
+    ],
+    seeAlso: [
+      { name: "release-remove-between", description: "Remove intermediate tags between bounds", url: "/release" },
+      { name: "release", description: "Create a release", url: "/release" },
+    ],
+  },
+  {
+    category: "release",
     name: "commit-in", alias: "cin", description: "Replay commits from one or more source repos/URLs into a destination repo with full author, date, and tag fidelity. Resumable via .gitmap/commit-in/state.json — re-running picks up where a crash left off.",
     usage: "gitmap commit-in <destination> <source1,source2,...> [--profile <name>] [--save-profile <name>] [--set-default] [--resume]",
     flags: [

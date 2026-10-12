@@ -192,6 +192,10 @@ const (
 	CmdReleasePendingAlias      = "rp"
 	CmdReleaseUndo              = "release-undo"
 	CmdReleaseUndoAlias         = "ru"
+	CmdReleaseRemoveBetween      = "release-remove-between"
+	CmdReleaseRemoveBetweenAlias = "rrb"
+	CmdReleasePinNotToRemove      = "release-pin-not-to-remove"
+	CmdReleasePinNotToRemoveAlias = "pnr"
 	CmdChangelog                = "changelog"
 	CmdChangelogAlias           = "cl"
 	CmdChangelogMD              = "changelog.md" // gitmap:cmd skip

@@ -26,6 +26,8 @@ func releaseDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdReleasePending, constants.CmdReleasePendingAlias}, func() error { return cmdrelease.RunReleasePending(argsTail()) }},
 		{[]string{"release-scan-commits", "rsc-commits"}, func() error { return cmdrelease.RunReleaseScanCommits(argsTail()) }},
 		{[]string{constants.CmdReleaseUndo, constants.CmdReleaseUndoAlias}, func() error { return cmdrelease.RunReleaseUndo(argsTail()) }},
+		{[]string{constants.CmdReleaseRemoveBetween, constants.CmdReleaseRemoveBetweenAlias}, func() error { return cmdrelease.RunReleaseRemoveBetween(argsTail()) }},
+		{[]string{constants.CmdReleasePinNotToRemove, constants.CmdReleasePinNotToRemoveAlias}, func() error { return cmdrelease.RunReleasePinNotToRemove(argsTail()) }},
 		{[]string{constants.CmdChangelog, constants.CmdChangelogAlias}, func() error { return cmdchangelog.RunChangelog(argsTail()) }},
 		{[]string{constants.CmdChangelogMD}, func() error { return cmdchangelog.RunChangelog([]string{constants.FlagOpenValue}) }},
 		{[]string{constants.CmdClearReleaseJSON, constants.CmdClearReleaseJSONAlias}, func() error { return cmdrelease.RunClearReleaseJSON(argsTail()) }},
