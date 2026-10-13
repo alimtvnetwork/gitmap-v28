@@ -11,7 +11,9 @@ import (
 	"testing"
 )
 
-// TestEveryCmdIDHasHelpFile parses constants/constants_cli.go and
+// TestEveryCmdIDHasHelpFile parses constants/constants_commands.go and
+// constants/constants_commands_extra.go (the split successors of the old
+// constants_cli.go) and
 // asserts that every primary command ID (i.e. not an alias and not
 // in the documented exemption list) has a matching <id>.md inside
 // this package's embedded helptext file system.
@@ -23,7 +25,7 @@ import (
 func TestEveryCmdIDHasHelpFile(t *testing.T) {
 	ids, err := parsePrimaryCmdIDs()
 	if err != nil {
-		t.Fatalf("parse constants_cli.go: %v", err)
+		t.Fatalf("parse constants command files: %v", err)
 	}
 
 	if len(ids) == 0 {
@@ -51,18 +53,20 @@ type cmdID struct {
 }
 
 // parsePrimaryCmdIDs returns every primary command constant from
-// constants/constants_cli.go (aliases and exempt entries skipped).
+// constants/constants_commands.go and constants/constants_commands_extra.go
+// (aliases and exempt entries skipped).
 func parsePrimaryCmdIDs() ([]cmdID, error) {
-	path := locateCLIConstantsFile()
-	fset := token.NewFileSet()
-	file, err := parser.ParseFile(fset, path, nil, parser.AllErrors)
-	if err != nil {
-		return nil, err
-	}
-
 	var out []cmdID
-	for _, decl := range file.Decls {
-		out = append(out, collectFromDecl(decl)...)
+	for _, path := range locateCLIConstantsFiles() {
+		fset := token.NewFileSet()
+		file, err := parser.ParseFile(fset, path, nil, parser.AllErrors)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, decl := range file.Decls {
+			out = append(out, collectFromDecl(decl)...)
+		}
 	}
 
 	return filterPrimaries(out), nil
@@ -138,13 +142,19 @@ func isExempt(name string, exempt map[string]struct{}) bool {
 	return ok
 }
 
-// locateCLIConstantsFile resolves constants/constants_cli.go relative
-// to this test file (works regardless of `go test` cwd).
-func locateCLIConstantsFile() string {
+// locateCLIConstantsFiles resolves the command-registry source files
+// (constants/constants_commands.go and constants/constants_commands_extra.go,
+// the split successors of the old constants_cli.go) relative to this test
+// file (works regardless of `go test` cwd).
+func locateCLIConstantsFiles() []string {
 	_, thisFile, _, _ := runtime.Caller(0)
 	pkgDir := filepath.Dir(thisFile)
+	constantsDir := filepath.Join(pkgDir, "..", "constants")
 
-	return filepath.Join(pkgDir, "..", "constants", "constants_cli.go")
+	return []string{
+		filepath.Join(constantsDir, "constants_commands.go"),
+		filepath.Join(constantsDir, "constants_commands_extra.go"),
+	}
 }
 
 // helptextExemptConstants lists every Cmd* constant whose value is
