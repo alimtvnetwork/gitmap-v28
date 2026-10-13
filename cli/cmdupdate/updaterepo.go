@@ -2,6 +2,7 @@ package cmdupdate
 
 import (
 	"bufio"
+	"database/sql"
 	"fmt"
 	"os"
 	"os/exec"
@@ -57,14 +58,22 @@ func resolveRepoPathFromRepoTable() string {
 	defer rows.Close()
 
 	for rows.Next() {
-		var path string
-		if err := rows.Scan(&path); err == nil {
-			if root := normalizeRepoPath(path); len(root) > 0 {
-				return root
-			}
+		if root := scanRepoTableRow(rows); root != "" {
+			return root
 		}
 	}
 
+	return ""
+}
+
+func scanRepoTableRow(rows *sql.Rows) string {
+	var path string
+	if err := rows.Scan(&path); err != nil {
+		return ""
+	}
+	if root := normalizeRepoPath(path); len(root) > 0 {
+		return root
+	}
 	return ""
 }
 
@@ -85,15 +94,23 @@ func resolveRepoPathFromWorkDirs() string {
 	defer rows.Close()
 
 	for rows.Next() {
-		var baseDir string
-		if err := rows.Scan(&baseDir); err == nil {
-			candidate := filepath.Join(baseDir, "gitmap")
-			if root := normalizeRepoPath(candidate); len(root) > 0 {
-				return root
-			}
+		if root := scanWorkDirRow(rows); root != "" {
+			return root
 		}
 	}
 
+	return ""
+}
+
+func scanWorkDirRow(rows *sql.Rows) string {
+	var baseDir string
+	if err := rows.Scan(&baseDir); err != nil {
+		return ""
+	}
+	candidate := filepath.Join(baseDir, "gitmap")
+	if root := normalizeRepoPath(candidate); len(root) > 0 {
+		return root
+	}
 	return ""
 }
 

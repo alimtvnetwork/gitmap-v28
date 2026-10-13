@@ -37,22 +37,34 @@ func sanitizeRecipeForRepo(repoPath string, recipe gitutil.RemediationRecipe) gi
 	if repoPath == "" {
 		return recipe
 	}
-
-	if !gitutil.HasInitialCommit(repoPath) && isStashOrResetRecipe(recipe) {
-		recipes := gitutil.GenerateNoInitialCommitRecipes(repoPath)
-		if len(recipes) > 0 {
-			return recipes[0]
-		}
+	if r, ok := noInitialCommitReplacement(repoPath, recipe); ok {
+		return r
 	}
-
-	if !gitutil.HasRemote(repoPath) && isPullRecipe(recipe) {
-		recipes := gitutil.GenerateLocalOnlyRecipes(repoPath)
-		if len(recipes) > 0 {
-			return recipes[0]
-		}
+	if r, ok := localOnlyReplacement(repoPath, recipe); ok {
+		return r
 	}
-
 	return recipe
+}
+
+func noInitialCommitReplacement(repoPath string, recipe gitutil.RemediationRecipe) (gitutil.RemediationRecipe, bool) {
+	if gitutil.HasInitialCommit(repoPath) || !isStashOrResetRecipe(recipe) {
+		return recipe, false
+	}
+	return firstRecipe(gitutil.GenerateNoInitialCommitRecipes(repoPath), recipe)
+}
+
+func localOnlyReplacement(repoPath string, recipe gitutil.RemediationRecipe) (gitutil.RemediationRecipe, bool) {
+	if gitutil.HasRemote(repoPath) || !isPullRecipe(recipe) {
+		return recipe, false
+	}
+	return firstRecipe(gitutil.GenerateLocalOnlyRecipes(repoPath), recipe)
+}
+
+func firstRecipe(recipes []gitutil.RemediationRecipe, fallback gitutil.RemediationRecipe) (gitutil.RemediationRecipe, bool) {
+	if len(recipes) == 0 {
+		return fallback, false
+	}
+	return recipes[0], true
 }
 
 func isStashOrResetRecipe(recipe gitutil.RemediationRecipe) bool {
