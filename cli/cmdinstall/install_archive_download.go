@@ -1,7 +1,6 @@
 package cmdinstall
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"

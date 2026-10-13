@@ -2,7 +2,10 @@ package cmdinstall
 
 import (
 	"bytes"
+	"io"
 	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func isCompressedArchiveMagic(h []byte) bool {
@@ -88,4 +91,3 @@ func VerifyArchiveHeaderMagic(filePath string) bool {
 	}
 	return isDmgKolyTrailer(filePath)
 }
-
