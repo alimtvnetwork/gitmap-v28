@@ -1,5 +1,6 @@
 package constants
 
+// gitmap:cmd top-level
 // Additional CLI commands (extended set).
 const (
 	CmdCompletion            = "completion"
