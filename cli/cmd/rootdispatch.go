@@ -21,6 +21,9 @@ type dispatchEntry struct {
 func runDispatchTable(command string, entries []dispatchEntry) (bool, error) {
 	for _, entry := range entries {
 		if matchAny(command, entry.names) {
+			// Deprecation enforcement (docs/deprecation-policy.md):
+			// warn on stderr, then still execute normally.
+			warnIfDeprecated(command)
 			err := entry.handler()
 
 			return true, err
