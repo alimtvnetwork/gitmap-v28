@@ -70,32 +70,3 @@ func TestResolveDirtyFiles(t *testing.T) {
 		t.Fatalf("expected 0 files for empty item, got %v", emptyFiles)
 	}
 }
-
-// parseReconcileArgs parses reconcile command args into (repo, action).
-// Test-local helper — the production function was never implemented.
-// Logic derived from TestParseReconcileArgs expectations:
-//   - 0 args → ("", "stash")
-//   - 1 arg: if it's a known action → ("", action), else → (arg, "stash")
-//   - 2 args: if first is an action → (second, first), else → (first, second)
-func parseReconcileArgs(args []string) (string, string) {
-	isAction := func(s string) bool {
-		return s == "stash" || s == "discard"
-	}
-
-	switch len(args) {
-	case 0:
-		return "", "stash"
-	case 1:
-		if isAction(args[0]) {
-			return "", args[0]
-		}
-
-		return args[0], "stash"
-	default:
-		if isAction(args[0]) {
-			return args[1], args[0]
-		}
-
-		return args[0], args[1]
-	}
-}

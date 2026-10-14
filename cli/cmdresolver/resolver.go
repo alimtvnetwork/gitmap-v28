@@ -217,36 +217,3 @@ func PrintRepoSuggestions(db *store.DB, target string) {
 		fmt.Fprintf(os.Stderr, "  %s\n", s)
 	}
 }
-
-// resolveEndpointString tries to resolve a user-provided string to an absolute path.
-func resolveEndpointString(raw string) string {
-	if isNetworkEndpoint(raw) {
-		return raw
-	}
-
-	db, err := openDB()
-	if err != nil || db == nil {
-		return raw
-	}
-
-	defer db.Close()
-
-	rec, err := ResolveRepo(db, raw)
-	if err == nil && rec != nil {
-		return rec.AbsolutePath
-	}
-
-	return raw
-}
-
-func isNetworkEndpoint(raw string) bool {
-	lower := strings.ToLower(raw)
-	prefixes := []string{"https://", "http://", "ssh://", "git@"}
-	for _, p := range prefixes {
-		if strings.HasPrefix(lower, p) {
-			return true
-		}
-	}
-
-	return false
-}

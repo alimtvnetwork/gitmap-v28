@@ -232,18 +232,6 @@ func mergeCandidateRepos(primary, secondary []model.ScanRecord) []model.ScanReco
 	return out
 }
 
-func appendUniqueRecords(out, hits []model.ScanRecord, seen map[string]bool) []model.ScanRecord {
-	for _, r := range hits {
-		key := fsutil.NormalizeSlashes(r.AbsolutePath)
-		if key != "" && !seen[key] {
-			seen[key] = true
-			out = append(out, r)
-		}
-	}
-
-	return out
-}
-
 func resolveByPWD(all []model.ScanRecord) (*model.ScanRecord, error) {
 	pwd, err := os.Getwd()
 	if err != nil {

@@ -108,13 +108,6 @@ func RunExportAll(args []string) error {
 	return cmdchromeprofile.RunExportAll(args)
 }
 
-// runImportAll handles the "import-all" command.
-func runImportAll(args []string) error {
-	checkHelp("import-all", args)
-
-	return cmdchromeprofile.RunImportAll(args)
-}
-
 // runExportOnly handles the "export-only" command.
 func RunExportOnly(args []string) error {
 	checkHelp("export", args)

@@ -44,12 +44,6 @@ func writeCWDJSONOutput(records []model.ScanRecord, compact bool) {
 	}, "CWD JSON")
 }
 
-func printJSONError(err error, kind, path string) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not write %s to %s: %v\n", kind, path, err)
-	}
-}
-
 // writeTerminalOutput renders records to stdout.
 func writeTerminalOutput(records []model.ScanRecord, outputDir string, quiet bool) {
 	err := formatter.Terminal(os.Stdout, records, outputDir, quiet)

@@ -130,13 +130,6 @@ func dirExists(path string) bool {
 	return err == nil && info.IsDir()
 }
 
-// migrateFileExists checks if a file exists at the given path.
-func migrateFileExists(path string) bool {
-	info, err := os.Stat(path)
-
-	return err == nil && !info.IsDir()
-}
-
 // ensureGitMapDir creates the .gitmap/ directory if it does not exist.
 func ensureGitMapDir() {
 	if err := os.MkdirAll(constants.GitMapDir, constants.DirPermission); err != nil {

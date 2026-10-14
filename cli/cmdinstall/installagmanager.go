@@ -63,13 +63,6 @@ func verifyAgManagerOnFailure() {
 	}
 }
 
-func formatAgManagerVerLabel(version string) string {
-	if version != "" {
-		return " (" + version + ")"
-	}
-	return ""
-}
-
 func resolveInstalledVerName(version string) string {
 	if version != "" {
 		return version

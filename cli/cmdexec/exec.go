@@ -100,37 +100,6 @@ func execOneRepoTracked(
 	return 0, 1, 0
 }
 
-// execAllRepos runs a git command across all repos and returns totals.
-func execAllRepos(records []model.ScanRecord, gitArgs []string) (int, int, int) {
-	var succeeded, failed, missing int
-	for _, rec := range records {
-		s, f, m := execOneRepo(rec, gitArgs)
-		succeeded += s
-		failed += f
-		missing += m
-	}
-
-	return succeeded, failed, missing
-}
-
-// execOneRepo runs a git command in one repo, returning increment counts.
-func execOneRepo(rec model.ScanRecord, gitArgs []string) (int, int, int) {
-	_, err := os.Stat(rec.AbsolutePath)
-	if err == nil && execInRepo(rec, gitArgs) {
-		return 1, 0, 0
-	}
-
-	if err == nil {
-		return 0, 1, 0
-	}
-
-	fmt.Printf(constants.ExecMissingFmt,
-		constants.ColorDim, truncate(rec.RepoName, 22),
-		constants.ColorYellow, constants.ColorReset)
-
-	return 0, 0, 1
-}
-
 // parseExecFlags parses --group, --all, and --stop-on-fail flags, returning remaining args as git args.
 func parseExecFlags(args []string) (groupName string, all, stopOnFail bool, gitArgs []string) {
 	fs := flag.NewFlagSet(constants.CmdExec, flag.ExitOnError)
