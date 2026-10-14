@@ -5,7 +5,14 @@ description: |
   ci.yml (currently `test-summary`) so subsequent pushes of the same
   SHA short-circuit the entire pipeline.
 
-  Caller MUST gate this with an outer `if: success() && needs.sha-check.outputs.already-built != 'true'`.
+  Caller MUST gate this on full pipeline success, e.g.
+    `if: success() && needs.sha-check.outputs.already-built != 'true'
+       && !contains(needs.*.result, 'failure')
+       && !contains(needs.*.result, 'cancelled')`.
+  Step-level success() alone is NOT enough: it does not see upstream
+  `needs` results, and the test-summary aggregator passes vacuously
+  when a needed job fails (empty results dir), so a bare success() gate
+  would stamp failed SHAs as "already built" and make reruns skip them.
   The composite itself does not re-check those conditions — keeping the
   gate at the call site preserves the existing semantics and lets a
   future caller (e.g. release.yml) reuse the same write logic with a

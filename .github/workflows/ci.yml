@@ -1439,9 +1439,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-    defaults:
-      run:
-        working-directory: cli
+    # NOTE: no job-level defaults.run.working-directory here on purpose.
+    # The "Already validated" short-circuit step runs when the SHA is
+    # deduped, i.e. WITHOUT checkout — a job-wide `working-directory: cli`
+    # would make that step fail because cli/ does not exist on a fresh
+    # runner. Steps that need the module root set working-directory: cli
+    # individually (see "Run e2e suites" below).
     steps:
       - name: Already validated
         if: needs.sha-check.outputs.already-built == 'true'
@@ -1488,6 +1491,7 @@ jobs:
       # runner already only contains the suites that belong there.
       - name: Run e2e suites
         if: needs.sha-check.outputs.already-built != 'true'
+        working-directory: cli
         shell: bash
         run: |
           set -uo pipefail
@@ -1825,8 +1829,21 @@ jobs:
       # SHA-dedup passthrough: stamp + save the per-commit cache entry
       # so subsequent pushes of the same SHA short-circuit the whole
       # pipeline. Two-step composite — see .github/actions/mark-sha-built.
+      #
+      # The stamp is gated on FULL pipeline success, not just this job's
+      # steps. Step-level success() does not see upstream results: when a
+      # needed job (test/lint/...) fails, test-summary still runs
+      # (if: always()) and every step here passes vacuously —
+      # test-summary.sh scans an empty results/ dir and exits 0 — which
+      # used to stamp the failed SHA as "already built" so reruns
+      # skipped it. needs.*.result keeps the gate correct as the needs
+      # list grows.
       - name: Mark SHA as built
-        if: success() && needs.sha-check.outputs.already-built != 'true'
+        if: >-
+          success()
+          && needs.sha-check.outputs.already-built != 'true'
+          && !contains(needs.*.result, 'failure')
+          && !contains(needs.*.result, 'cancelled')
         uses: ./.github/actions/mark-sha-built
 
   ci-errors-digest:
