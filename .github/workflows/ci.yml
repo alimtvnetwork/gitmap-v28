@@ -1315,6 +1315,95 @@ jobs:
 
           exit "$exit_code"
 
+      - name: Upload coverage profiles
+        # Feeds the coverage-floor-gate job: one artifact per matrix leg
+        # (unit/store/integration/tui). Warns instead of failing when a
+        # leg produced no profile.
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-profiles-${{ matrix.name }}
+          path: cli/coverage-${{ matrix.name }}.out
+          if-no-files-found: warn
+          retention-days: 1
+
+  coverage-floor-gate:
+    # Fails when total test coverage drops more than 2 percentage points
+    # vs the main-branch baseline. Consumes the coverage-*.out profiles
+    # the matrixed `test` job uploads above — no test re-run in this job.
+    # The baseline is a merged coverprofile in the Actions cache, using
+    # the same rolling-slot pattern as the lint baselines: restored with
+    # a versioned key, refreshed only on successful pushes to `main`.
+    # A missing baseline seeds the cache and passes so the first run
+    # never fails.
+    name: Coverage Floor Gate (drop >2% vs baseline fails)
+    runs-on: ubuntu-latest
+    needs: [sha-check, test]
+    steps:
+      - name: Already validated
+        if: needs.sha-check.outputs.already-built == 'true'
+        run: echo "✅ SHA ${{ github.sha }} already passed coverage floor gate"
+
+      - uses: actions/checkout@v6
+        if: needs.sha-check.outputs.already-built != 'true'
+
+      - name: Download coverage profiles
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-profiles-*
+          merge-multiple: true
+          path: coverage
+
+      - name: Restore coverage baseline (rolling, single slot)
+        id: coverage-baseline-cache
+        if: needs.sha-check.outputs.already-built != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/coverage-baseline
+          key: coverage-baseline-main-v1-${{ github.sha }}
+          restore-keys: |
+            coverage-baseline-main-v1-
+
+      - name: Check coverage vs baseline (fail on >2% drop)
+        # Pure-Python parse of the coverprofiles — no Go toolchain needed
+        # in this job. Exits 1 (failing the job) only when total coverage
+        # dropped more than 2 percentage points vs the baseline; seeding
+        # mode (no baseline yet) and empty input both pass.
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: bash
+        run: |
+          python3 .github/scripts/coverage-floor-check.py \
+            --current "coverage/coverage-*.out" \
+            --baseline /tmp/coverage-baseline/coverage.out
+
+      - name: Save baseline (main only)
+        # Refresh the rolling cache after a green gate on the main branch
+        # so subsequent runs compare against the latest known-good state.
+        if: |
+          success() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        shell: bash
+        run: |
+          mkdir -p /tmp/coverage-baseline
+          # Merge the per-shard profiles; the 'mode:' header must appear
+          # exactly once at the top of the stored baseline.
+          { echo "mode: atomic"; grep -h -v '^mode:' coverage/coverage-*.out 2>/dev/null || true; } \
+            > /tmp/coverage-baseline/coverage.out
+
+      - name: Persist baseline cache (main only)
+        if: |
+          success() &&
+          needs.sha-check.outputs.already-built != 'true' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/coverage-baseline
+          key: coverage-baseline-main-v1-${{ github.sha }}
+
   installer-smoke:
     # Source-build smoke test: builds gitmap from this commit into a tempdir
     # and asserts `gitmap version` reports the version pinned in
@@ -1791,7 +1880,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
-    needs: [sha-check, lint, lint-script-tests, lint-baseline-guard, lint-baseline-diff, vulncheck, generate-check, cmd-naming-check, constants-naming-check, constants-collision-check, golden-allow-leak-check, deploy-layout-check, test, installer-smoke, installer-smoke-windows, full-suite-guard]
+    needs: [sha-check, lint, lint-script-tests, lint-baseline-guard, lint-baseline-diff, vulncheck, generate-check, cmd-naming-check, constants-naming-check, constants-collision-check, golden-allow-leak-check, deploy-layout-check, test, coverage-floor-gate, installer-smoke, installer-smoke-windows, full-suite-guard]
     if: always()
     steps:
       - name: Already validated
