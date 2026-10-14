@@ -3,6 +3,7 @@ package store
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -62,6 +63,9 @@ func TestOpenDefault_ReadOnlyBinaryDirFallback(t *testing.T) {
 }
 
 func TestEffectiveDataDir_ReadOnlyFallback(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX mode 0555 is not enforceable on Windows; the read-only dir remains writable so the fallback never triggers")
+	}
 	tempDir := t.TempDir()
 	readOnlyDir := filepath.Join(tempDir, "readonly_data")
 	if err := os.MkdirAll(readOnlyDir, 0555); err != nil {
