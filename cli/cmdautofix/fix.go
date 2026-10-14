@@ -51,8 +51,8 @@ func RunFixCmd(args []string) error {
 			renderCategoryOrParentHelp(rest)
 			cliexit.Exit(0)
 		}
-		// Deprecation warning per docs/deprecation-policy.md: the old
-		// git-state `fix` surface moved; warn on stderr, then error as before.
+		// The old git-state `fix` surface moved; warn on stderr,
+		// then error as before.
 		fmt.Fprint(os.Stderr, constants.MsgFixGitStateDeprecated)
 		cliexit.HandleUsageError(fmt.Errorf(
 			"unknown subcommand %q — valid subcommands: %s\nNote: git-state remediation moved to 'gitmap stash' / 'gitmap wip' / 'gitmap discard'",

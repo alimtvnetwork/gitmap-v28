@@ -1,4 +1,5 @@
 package cmdpending
+
 func catalogEntries1() []NewCommandEntry {
 	return []NewCommandEntry{
 		newCmd("cpar", "commit-push-all-repos", "v6.520.0", "commits", "Commit and push all workspace repositories", `gitmap cpar "wip: save changes"`),

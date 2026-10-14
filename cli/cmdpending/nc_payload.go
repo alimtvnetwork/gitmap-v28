@@ -1,8 +1,10 @@
 package cmdpending
+
 import (
 	"strings"
 	"time"
 )
+
 func buildNewCommandsPayload(catalog []NewCommandEntry, opts NewCommandsOptions) NewCommandsPayload {
 	filtered := filterNewCommands(catalog, opts)
 	return NewCommandsPayload{

@@ -1,10 +1,12 @@
 package cmdpending
+
 import (
 	"encoding/json"
-	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"fmt"
+	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 )
+
 func renderNewCommandsJSON(payload NewCommandsPayload) error {
 	data, err := json.MarshalIndent(payload, "", "  ")
 	if err != nil {

@@ -1,4 +1,5 @@
 package cmdpending
+
 func catalogEntries6() []NewCommandEntry {
 	return []NewCommandEntry{
 		newCmd("os dock", "dock", "v6.517.0", "os", "Configure taskbar and dock alignment across Windows and Linux", `gitmap os dock bottom`),
