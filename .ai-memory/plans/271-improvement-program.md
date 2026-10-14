@@ -31,8 +31,9 @@ Backup: `backup/271-improvement-program` (pushed to origin)
 - [x] Wired into runDispatchTable + demo tests (no renamed top-level command exists; used sanctioned fallback)
 - [x] Committed + pushed
 
-## Wave 5 — WS5: Release ☐
-- [ ] All work committed + pushed
-- [ ] Minor bump via 37-bump-version.py; tag + push tag
-- [ ] GitHub release published; ~/.local/bin/gitmap rebuilt + version verified
-- [ ] `gitmap pe -t 900` CI wait; green or honest report
+## Wave 5 — WS5: Release ✅
+- [x] All work committed + pushed
+- [x] Minor bump to 6.551.0; tag v6.551.0 + pushed
+- [x] GitHub release published: https://github.com/alimtvnetwork/gitmap-v28/releases/tag/v6.551.0
+- [x] ~/.local/bin/gitmap rebuilt → v6.551.0 verified
+- [ ] `gitmap pe -t 900` CI wait — in progress
