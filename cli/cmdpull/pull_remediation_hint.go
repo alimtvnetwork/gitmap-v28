@@ -227,6 +227,12 @@ func resolveStructuredOptionsList(s *PullRepoState, l1, c1, l2, c2 string) []Rem
 			OptionNumber: len(opts) + 1, Title: "Fleet Multi-Repo Control",
 			Command: `gitmap sends cp all "wip: save changes"`,
 		})
+	} else if isWincredmanFailure(s.ErrorMsg) || isCacheFailure(s.ErrorMsg) || isAuthFailure(s.ErrorMsg) {
+		target := quoteRemediationTarget(resolveEffectiveRepoName(s.RepoName, s.RepoPath))
+		opts = append(opts, RemediationOption{
+			OptionNumber: len(opts) + 1, Title: "Switch Remote to SSH",
+			Command: fmt.Sprintf("gitmap pull %s --ssh", target),
+		})
 	}
 	return opts
 }

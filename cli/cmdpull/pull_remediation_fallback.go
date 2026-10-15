@@ -43,8 +43,8 @@ func resolveStateOrAuthDualHints(msg, repoDir, repoName string) (string, string,
 	if isDirtyTreeError(msg) {
 		return resolveDirtyTreeDualHints(repoDir)
 	}
-	if isAuthFailure(msg) {
-		return resolveAuthDualHints()
+	if isWincredmanFailure(msg) || isCacheFailure(msg) || isAuthFailure(msg) {
+		return resolveCredentialAndSSHDualHints(repoDir, repoName)
 	}
 	return resolveFallbackDualHints(repoDir, repoName)
 }
@@ -131,6 +131,12 @@ func quoteRemediationTarget(s string) string {
 
 func resolveAuthDualHints() (string, string, string, string) {
 	return "Fix Windows Credentials", "gitmap fix-credential", "Deploy SSH Keys", "gitmap ssh deploy-keys"
+}
+
+func resolveCredentialAndSSHDualHints(repoDir, repoName string) (string, string, string, string) {
+	target := quoteRemediationTarget(resolveEffectiveRepoName(repoName, repoDir))
+	fixCmd := fmt.Sprintf("gitmap fix %s", target)
+	return "Auto-Fix Auth & Convert to SSH", fixCmd, "Fix Credential Store", "gitmap fix-credential"
 }
 
 func resolveFallbackDualHints(repoDir, repoName string) (string, string, string, string) {

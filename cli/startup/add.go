@@ -186,6 +186,16 @@ func writeManaged(full, clean string, opts AddOptions) (AddResult, error) {
 	return AddResult{Status: AddCreated, Path: full}, nil
 }
 
+// RegisterMacroAutostart registers a command for OS login startup using the native startup backend.
+func RegisterMacroAutostart(execCmd string) error {
+	_, err := Add(AddOptions{
+		Name:  "macro",
+		Exec:  execCmd,
+		Force: true,
+	})
+	return err
+}
+
 // renderForOS picks the per-OS body renderer. Same dispatch shape
 // as platformFilename so the format and the on-disk extension can
 // never drift apart (e.g., a future refactor that writes a .plist

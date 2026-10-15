@@ -164,15 +164,127 @@ func remediateSingleRepo(f PullFailureSummary) bool {
 	}
 
 	fmt.Printf("  • %s%s%s\n", constants.ColorBold, f.RepoName, constants.ColorReset)
+	if isCredentialOrHTTPSFailure(f.ErrorText) || isSameOwnerHTTPSRepo(f.RepoPath) {
+		remediateCredentialAndConvertToSSH(f.RepoPath, f.RepoName)
+	}
 	fmt.Printf("    %s Attempting auto-merge...\n", constants.TreeBranch)
 	out, err := execPullAutoMerge(f.RepoPath)
 	if err == nil {
+		clearResolvedPullError(f.RepoName, f.RepoPath)
 		fmt.Printf("    %s %s✓%s Successfully updated.\n",
 			constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
 		return true
 	}
 
+	if isCredentialOrHTTPSFailure(string(out)) {
+		remediateCredentialAndConvertToSSH(f.RepoPath, f.RepoName)
+		outRetry, errRetry := execPullAutoMerge(f.RepoPath)
+		if errRetry == nil {
+			clearResolvedPullError(f.RepoName, f.RepoPath)
+			fmt.Printf("    %s %s✓%s Successfully updated via SSH.\n",
+				constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
+			return true
+		}
+		out = outRetry
+	}
+
 	return handleRemediationFailure(f.RepoPath, f.RepoName, string(out))
+}
+
+func isCredentialOrHTTPSFailure(msg string) bool {
+	return isWincredmanFailure(msg) || isCacheFailure(msg) || isAuthFailure(msg) ||
+		strings.Contains(strings.ToLower(msg), "credential")
+}
+
+func isSameOwnerHTTPSRepo(repoPath string) bool {
+	originOut, err := exec.Command("git", "-C", repoPath, "config", "--get", "remote.origin.url").Output()
+	if err != nil {
+		return false
+	}
+	origin := strings.TrimSpace(string(originOut))
+	if !strings.HasPrefix(strings.ToLower(origin), "https://github.com/") {
+		return false
+	}
+	owner := extractGitHubOwnerFromURL(origin)
+	if owner == "" {
+		return false
+	}
+	return hasSSHRepoForSameOwner(owner)
+}
+
+func extractGitHubOwnerFromURL(url string) string {
+	trimmed := strings.TrimSpace(url)
+	lower := strings.ToLower(trimmed)
+	if strings.HasPrefix(lower, "https://github.com/") {
+		rest := trimmed[len("https://github.com/"):]
+		parts := strings.SplitN(rest, "/", 2)
+		if len(parts) >= 1 {
+			return strings.TrimSpace(parts[0])
+		}
+	}
+	if strings.HasPrefix(lower, "git@github.com:") {
+		rest := trimmed[len("git@github.com:"):]
+		parts := strings.SplitN(rest, "/", 2)
+		if len(parts) >= 1 {
+			return strings.TrimSpace(parts[0])
+		}
+	}
+	return ""
+}
+
+func hasSSHRepoForSameOwner(owner string) bool {
+	if strings.EqualFold(owner, "alimtvnetwork") {
+		return true
+	}
+	db, err := store.OpenDefault()
+	if err != nil {
+		return false
+	}
+	defer db.Close()
+	repos, err := db.ListRepos()
+	if err != nil {
+		return false
+	}
+	prefix := "git@github.com:" + strings.ToLower(owner) + "/"
+	for _, r := range repos {
+		if strings.HasPrefix(strings.ToLower(r.SSHUrl), prefix) ||
+			strings.HasPrefix(strings.ToLower(r.DiscoveredURL), prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+func remediateCredentialAndConvertToSSH(repoPath, repoName string) {
+	_ = exec.Command("git", "config", "--global", "credential.helper", "manager").Run()
+	_ = exec.Command("git", "config", "--global", "credential.credentialStore", "wincred").Run()
+
+	changed, oldURL, newURL, err := ApplyTransportFlag(repoPath, true, false)
+	if err == nil && changed {
+		fmt.Printf("    %s Converted remote to SSH: %s -> %s\n", constants.TreeBranch, oldURL, newURL)
+		updateRepoTransportInDB(repoPath, newURL)
+	}
+}
+
+func updateRepoTransportInDB(repoPath, sshURL string) {
+	db, err := store.OpenDefault()
+	if err != nil || db.Conn() == nil {
+		return
+	}
+	defer db.Close()
+	_, _ = db.Conn().Exec(
+		`UPDATE Repo SET SshUrl = ?, DiscoveredUrl = ?, IdentifiedTransport = 'ssh' WHERE AbsolutePath = ?`,
+		sshURL, sshURL, repoPath,
+	)
+}
+
+func clearResolvedPullError(repoName, repoPath string) {
+	db, err := store.OpenPullSplitDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_ = db.ClearPullErrorsForRepo(repoName, repoPath)
 }
 
 func execPullAutoMerge(repoPath string) ([]byte, error) {
@@ -366,6 +478,45 @@ func hasBatchFlag(args []string, targets ...string) bool {
 	}
 
 	return false
+}
+
+// RemediateRepoByQuery resolves and remediates a single repository by name or path (including credential/SSH auto-fix).
+func RemediateRepoByQuery(repoQuery string) (bool, error) {
+	clean := strings.TrimSpace(repoQuery)
+	if clean == "" {
+		return false, nil
+	}
+	failures, _ := loadRecentPullFailuresFromDB()
+	for _, f := range failures {
+		if strings.EqualFold(f.RepoName, clean) || strings.EqualFold(f.RepoPath, clean) {
+			if remediateSingleRepo(f) {
+				return true, nil
+			}
+			return true, fmt.Errorf("remediation failed for %s", f.RepoName)
+		}
+	}
+	records := resolveAllTrackedRecords()
+	matched := FindBySlug(records, clean)
+	if len(matched) == 1 {
+		rec := matched[0]
+		if isSameOwnerHTTPSRepo(rec.AbsolutePath) {
+			f := PullFailureSummary{
+				RepoName: rec.RepoName,
+				RepoPath: rec.AbsolutePath,
+			}
+			if remediateSingleRepo(f) {
+				return true, nil
+			}
+			return true, fmt.Errorf("remediation failed for %s", rec.RepoName)
+		}
+	}
+	return false, nil
+}
+
+// HasPendingPullFailures reports whether gitmap-pull.db has recorded pull failures.
+func HasPendingPullFailures() bool {
+	failures, err := loadRecentPullFailuresFromDB()
+	return err == nil && len(failures) > 0
 }
 
 // ExtractPullFailures collects failures from slice of repo states.

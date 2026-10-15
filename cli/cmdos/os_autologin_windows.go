@@ -45,7 +45,6 @@ func (w *windowsAutoLoginEngine) Disable() error {
 	if err := k.SetStringValue("AutoAdminLogon", "0"); err != nil {
 		return apperror.WrapSimple(err, "failed to clear AutoAdminLogon")
 	}
-	_ = k.DeleteValue("DefaultPassword")
 	return nil
 }
 

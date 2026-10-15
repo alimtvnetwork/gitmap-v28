@@ -4,25 +4,20 @@ package fspath
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
-	"syscall"
 )
 
-// FindLockingProcesses detects processes with open handles on the given directory.
-// Uses PowerShell to query via handle.exe or falls back to tasklist-based heuristics.
+// FindLockingProcesses detects processes with open handles on the given directory
+// if Sysinternals handle.exe is installed on PATH.
 func FindLockingProcesses(dirPath string) ([]LockingProcess, error) {
-	// Try using PowerShell's Get-Process with file handle check.
-	// This approach uses handle.exe from Sysinternals if available,
-	// otherwise falls back to checking common culprits via WMI.
 	procs, err := findViaHandle(dirPath)
 	if err == nil && len(procs) > 0 {
 		return procs, nil
 	}
-
-	// Fallback: use PowerShell WMI query for processes with the directory in their path.
-	return findViaWMI(dirPath)
+	return nil, nil
 }
 
 // findViaHandle uses Sysinternals handle.exe if available on PATH.
@@ -31,14 +26,11 @@ func findViaHandle(dirPath string) ([]LockingProcess, error) {
 	if err != nil {
 		handlePath, err = exec.LookPath("handle64.exe")
 	}
-
 	if err != nil {
 		return nil, fmt.Errorf("handle.exe not found: %w", err)
 	}
 
-	cmd := exec.Command(handlePath, "-accepteula", "-nobanner", dirPath)
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	out, err := cmd.Output()
+	out, err := exec.Command(handlePath, "-accepteula", "-nobanner", dirPath).Output()
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +50,6 @@ func parseHandleOutput(output string) []LockingProcess {
 			continue
 		}
 
-		// handle.exe format: "processname pid: NNNN ..."
 		pidIdx := strings.Index(line, "pid: ")
 		if pidIdx < 0 {
 			continue
@@ -83,62 +74,15 @@ func parseHandleOutput(output string) []LockingProcess {
 	return procs
 }
 
-// findViaWMI uses PowerShell to find processes whose executable path or
-// current directory overlaps with the target directory.
-func findViaWMI(dirPath string) ([]LockingProcess, error) {
-	// Escape backslashes for WMI LIKE query.
-	escaped := strings.ReplaceAll(dirPath, `\`, `\\`)
-
-	script := fmt.Sprintf(
-		`Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -like '%s*' -or $_.CommandLine -like '*%s*' } | Select-Object ProcessId, Name | ForEach-Object { "$($_.ProcessId)|$($_.Name)" }`,
-		escaped, escaped,
-	)
-
-	cmd := exec.Command("powershell", "-NoProfile", "-Command", script)
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	out, err := cmd.Output()
-	if err != nil {
-		return nil, err
-	}
-
-	return parseWMIOutput(string(out)), nil
-}
-
-func parseWMIOutput(output string) []LockingProcess {
-	seen := make(map[int]bool)
-	var procs []LockingProcess
-
-	for _, line := range strings.Split(output, "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-
-		parts := strings.SplitN(line, "|", 2)
-		if len(parts) != 2 {
-			continue
-		}
-
-		pid, err := strconv.Atoi(parts[0])
-		if err != nil || seen[pid] || IsProtectedProcess(parts[1], pid) {
-			continue
-		}
-
-		seen[pid] = true
-		procs = append(procs, LockingProcess{PID: pid, Name: parts[1]})
-	}
-
-	return procs
-}
-
-// KillProcess terminates a process by PID on Windows.
+// KillProcess terminates a process by PID on Windows using standard os.Process.
 func KillProcess(pid int) error {
 	if IsProtectedProcess("", pid) {
 		return fmt.Errorf("refusing to terminate protected process PID %d", pid)
 	}
 
-	cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pid))
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-
-	return cmd.Run()
+	proc, err := os.FindProcess(pid)
+	if err != nil {
+		return err
+	}
+	return proc.Kill()
 }

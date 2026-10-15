@@ -14,7 +14,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
-	"github.com/alimtvnetwork/gitmap-v28/cli/osutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/startup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -325,7 +325,7 @@ func handleStartupRegistration(name string, isStartup bool) {
 
 	exePath, err := os.Executable()
 	if err == nil {
-		_ = osutil.AddToStartup(exePath + " schedule run " + name)
+		_ = startup.RegisterMacroAutostart(exePath + " schedule run " + name)
 	}
 }
 
@@ -955,7 +955,7 @@ func runScheduleStartup(args []string) error {
 
 	exePath, _ := os.Executable()
 	cmdStr := exePath + " schedule run " + args[0]
-	if err := osutil.AddToStartup(cmdStr); err != nil {
+	if err := startup.RegisterMacroAutostart(cmdStr); err != nil {
 		return apperror.WrapSimple(err, "register startup")
 	}
 

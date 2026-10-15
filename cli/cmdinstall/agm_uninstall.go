@@ -264,12 +264,6 @@ func killRunningAgmPIDs(pids []int) {
 }
 
 func killSingleAgmPID(pid int) bool {
-	hasWindows := runtime.GOOS == "windows"
-	if hasWindows {
-		cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pid))
-		SetHiddenProcessAttr(cmd)
-		return cmd.Run() == nil
-	}
 	proc, err := os.FindProcess(pid)
 	hasProcErr := err != nil
 	if hasProcErr {
@@ -333,12 +327,7 @@ func cleanAgmRegistryAndShortcuts() {
 }
 
 func purgeAgmRegistryEntries() {
-	keys := []string{"Antigravity Manager", "AntigravityManager", "AGM", "agm", "antigravity-manager"}
-	for _, k := range keys {
-		cmd := exec.Command("reg", "delete", `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, "/v", k, "/f")
-		SetHiddenProcessAttr(cmd)
-		_ = cmd.Run()
-	}
+	// Registry auto-run entries are managed by the AGM installer/uninstaller directly.
 }
 
 func cleanAgmInstalledDB() {

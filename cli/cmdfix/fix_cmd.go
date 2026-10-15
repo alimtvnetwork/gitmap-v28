@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixreleasetags"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreconcile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -81,7 +82,11 @@ func resolveFixAllAction(args []string, aliasOverride string) string {
 }
 
 func runFixAll(action string, items []cmdremediation.RemediationItem) error {
+	hasPullFailures := cmdpull.HasPendingPullFailures()
 	if len(items) == 0 {
+		if hasPullFailures {
+			return cmdpull.RunBatchPullFix([]string{"--all"})
+		}
 		fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
 
 		return nil
@@ -105,6 +110,11 @@ func runFixAll(action string, items []cmdremediation.RemediationItem) error {
 		if i < len(items)-1 {
 			fmt.Println()
 		}
+	}
+
+	if hasPullFailures {
+		fmt.Println()
+		_ = cmdpull.RunBatchPullFix([]string{"--all"})
 	}
 
 	if len(failedRepos) > 0 {
@@ -259,6 +269,10 @@ func runFixDirect(args []string, aliasOverride string) error {
 		action = aliasOverride
 	}
 
+	if handled, err := cmdpull.RemediateRepoByQuery(repoQuery); handled {
+		return err
+	}
+
 	item, cleanMsg := cmdremediation.InspectLocalRepoItem(repoQuery)
 	if cleanMsg != "" {
 		fmt.Println(cleanMsg)
@@ -358,6 +372,10 @@ func findItemOrError(items []cmdremediation.RemediationItem, repoQuery, action s
 	matched := cmdremediation.FindRemediationItem(items, repoQuery)
 	if matched != nil {
 		return matched, action, nil
+	}
+
+	if handled, err := cmdpull.RemediateRepoByQuery(repoQuery); handled {
+		return nil, action, err
 	}
 
 	localItem, cleanMsg := cmdremediation.InspectLocalRepoItem(repoQuery)

@@ -122,8 +122,7 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 }
 
 // scheduleSelfDelete arranges for the temp handoff binary to remove
-// itself after exit. On Windows we spawn cmd.exe to delete after a
-// short delay; on Unix we just unlink immediately.
+// itself on Unix; on Windows the OS temp directory cleans up stale handoff files.
 func scheduleSelfDelete() {
 	self, err := os.Executable()
 	if err != nil {
@@ -133,14 +132,5 @@ func scheduleSelfDelete() {
 	isNonWindows := !isWindows()
 	if isNonWindows {
 		_ = os.Remove(self)
-
-		return
 	}
-
-	cmd := exec.Command("cmd.exe", "/C",
-		"ping", "127.0.0.1", "-n", "2", ">nul", "&", "del", "/F", "/Q", self)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	setHiddenProcessAttr(cmd)
-	_ = cmd.Start()
 }
