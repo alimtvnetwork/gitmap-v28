@@ -36,6 +36,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
+	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 )
 
 // isFlagToken returns true when arg looks like a CLI flag (-x or --xx).
@@ -190,10 +191,17 @@ func utilityDesktopEntries() []dispatchEntry {
 }
 
 // runHelpDispatch handles the `help` subcommand including topic
-// help, --groups, --compact, and the default usage screen.
+// help, `help example <cmd>`, --groups, --compact, and the default
+// usage screen.
 func runHelpDispatch() error {
 	hasTopic := len(os.Args) >= 3 && !isFlagToken(os.Args[2])
 	if hasTopic {
+		if strings.EqualFold(os.Args[2], "example") {
+			dispatchHelpExample(os.Args[3:])
+
+			return nil
+		}
+
 		dispatchHelpTopic(os.Args[2])
 
 		return nil
@@ -219,14 +227,18 @@ func runHelpDispatch() error {
 }
 
 // dispatchHelpTopic renders help for a named topic, falling back to filtered
-// usage when the topic has no dedicated help text.
+// usage when the topic has no dedicated help text. The registry's Examples
+// section is appended after the topic body (single source of truth).
 func dispatchHelpTopic(rawTopic string) {
 	topic := normalizeHelpTopic(rawTopic)
 	if isHelpCategoryGroup(topic) {
 		printUsageCategoryGroup(topic)
 		return
 	}
+	_, mode := ParsePrettyFlag(os.Args[3:])
+	prettyOff := mode == render.PrettyOff
 	if tryRenderRichTopic(topic) {
+		helpdoc.PrintExampleSection(topic, prettyOff)
 		return
 	}
 	_, err := helpdoc.ReadRaw(topic)
@@ -236,9 +248,25 @@ func dispatchHelpTopic(rawTopic string) {
 		return
 	}
 
-	_, mode := ParsePrettyFlag(os.Args[3:])
 	helpdoc.PrintWithMode(topic, mode)
+	helpdoc.PrintExampleSection(topic, prettyOff)
 	printUsageFooterShort()
+}
+
+// dispatchHelpExample handles `gitmap help example [cmd]`: the canonical
+// what-it-does + invocation + expected output for one command, or the
+// command index when no command is given.
+func dispatchHelpExample(args []string) {
+	cleaned, mode := ParsePrettyFlag(args)
+	prettyOff := mode == render.PrettyOff
+
+	if len(cleaned) == 0 {
+		helpdoc.PrintHelpExampleIndex(prettyOff)
+
+		return
+	}
+
+	helpdoc.PrintHelpExample(cleaned[0], prettyOff)
 }
 
 func normalizeHelpTopic(topic string) string {

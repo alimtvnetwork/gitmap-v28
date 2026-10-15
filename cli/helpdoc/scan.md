@@ -49,3 +49,27 @@ Flags:
   Tip: Pass '--max-depth 2' to quickly scan shallow project directories.
   Tip: Pass '--force-include .oh-my-zsh' (alias: -fi) to force scanning excluded directories or 'all' for everything.
 ```
+
+## Examples
+
+```text
+gitmap scan — help example
+
+WHAT IT DOES
+  Scans a directory tree for git repositories and caches them in the Split-DB. Run it before any repo-wide command so gitmap knows what exists on disk.
+
+INVOCATION (1)
+  $ gitmap scan ~/workspace/repos
+
+EXPECTED OUTPUT (1)
+  scanned: 14 repos in 0.83s (cache: gitmap.db)
+  path                                branch  status
+  repos/gitmap-v28                    main     clean
+  repos/story-telling-v1              main     dirty
+
+INVOCATION (2)
+  $ gitmap scan --json
+
+EXPECTED OUTPUT (2)
+  {"repos":[{"path":"<path>","branch":"main","status":"clean","count":<count>}],"scanned":<count>}
+```

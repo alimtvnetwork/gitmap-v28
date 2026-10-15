@@ -3,16 +3,27 @@ package constants
 // gitmap:cmd top-level
 // Move/merge command IDs and aliases.
 //
+// NOTE (program 273, spec 05): `mr` is the `merge write` (pull request)
+// alias. It used to be merge-right's short alias; merge-right keeps `mrg`
+// so no alias is pruned.
+//
 // Spec: 02-spec/01-app/97-move-and-merge.md
 const (
-	CmdMv         = "mv"
-	CmdMove       = "move"
-	CmdMergeBoth  = "merge-both"
-	CmdMergeBothA = "mb"
-	CmdMergeLeft  = "merge-left"
-	CmdMergeLeftA = "ml"
-	CmdMergeRight = "merge-right"
-	CmdMergeRgtA  = "mr"
+	CmdMv          = "mv"
+	CmdMove        = "move"
+	CmdMerge       = "merge"
+	CmdMergeWriteA = "mr"
+	CmdMergeBoth   = "merge-both"
+	CmdMergeBothA  = "mb"
+	CmdMergeLeft   = "merge-left"
+	CmdMergeLeftA  = "ml"
+	CmdMergeRight  = "merge-right"
+	CmdMergeRgtA   = "mrg"
+)
+
+// Help listing line for `gitmap help` (rendered in the "pr" group).
+const (
+	HelpMergeWrite = "  merge write (mr)    Open a GitHub pull request: source branch -> target branch [LIVE]"
 )
 
 // Move/merge flag names.

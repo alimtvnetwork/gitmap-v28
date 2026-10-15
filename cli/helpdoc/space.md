@@ -29,3 +29,18 @@ Examples
 
 * Subcommand help: gitmap space --help <subcommand> (try: common, backup-branch)
 ```
+
+## Examples
+
+```text
+gitmap space — help example
+
+WHAT IT DOES
+  Workspace space management: disk usage, backup branches, and workspace hygiene operations.
+
+INVOCATION
+  $ gitmap space
+
+EXPECTED OUTPUT
+  space help: usage, backup-branch, and cleanup options
+```

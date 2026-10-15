@@ -3,10 +3,10 @@
 ## Status
 - [x] Step 0: Sync, spec 273, backup branch `backup/273-gitmap-help-text-and-ui-enhancement` pushed
 - [ ] WS1: Spec + plan + subtasks (FIRST — before any implementation)
-- [ ] WS2: Help text + theme overhaul (coding-guidelines-v24 design system)
-- [ ] WS3: Missing commands — implement `merge write` / `mr`
-- [ ] WS4: 20 new command proposals (planned task, proposals ONLY)
-- [ ] WS5: Windows virus RCA (commit 385aba38e ground truth)
+- [ ] WS2: Help text + theme overhaul (coding-guidelines-v24 design system) — RUNNING
+- [x] WS3: Missing commands — `merge write` / `mr` implemented (cli/cmdmerge/ 3 files; mr alias reassigned from merge-right→mrg per spec 05), awaiting final commit pass
+- [x] WS4: 20 new command proposals (planned task, proposals ONLY) — .ai-memory/plans/273-twenty-command-proposals.md written (263 lines), awaiting final commit pass
+- [x] WS5: Windows virus RCA (commit 385aba38e ground truth) — .ai-memory/plans/273-windows-virus-rca.md written (156 lines), awaiting final commit pass
 - [ ] WS6: Lead final verify + commit + push (NO version bump, NO release)
 
 ## Scope authority

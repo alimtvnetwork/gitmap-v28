@@ -3,6 +3,13 @@
 // Kept dependency-free (no regexp) so the per-write overhead stays
 // tiny — the filter sits on the hot path of every Printf in the
 // codebase.
+//
+// Named themes (themes.go registry) resolve to these same three modes
+// via Parse, so the filter never needs theme-specific branches:
+// navy-purple / tokyo-night / monokai-pro are passthrough (their role
+// SGRs are emitted per-theme by Role()/RoleBold()), vscode-dark-plus
+// rides the standard downgrade (its 256-color role SGRs are not in
+// the downgrade table and pass through untouched), and mono strips.
 package termout
 
 import "bytes"

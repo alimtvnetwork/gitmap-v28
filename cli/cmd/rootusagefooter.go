@@ -11,8 +11,10 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // Build-time identity, injected via:
@@ -139,25 +141,37 @@ func printGitmapIdentityBlockLong() {
 	fmt.Println()
 }
 
+// printGitmapIdentityBlockShort prints the compact identity footer used
+// by help screens. Colors come from semantic theme roles (never literal
+// color codes) and output flows through the dispatch writer so the theme
+// filter applies; on a non-TTY the roles emit nothing (dumb-terminal
+// safety — piped help stays byte-clean).
 func printGitmapIdentityBlockShort() {
-	fmt.Println()
-	fmt.Println("  " + constants.ColorMagenta + footerRule + constants.ColorReset)
-	fmt.Println("  " + constants.ColorMagenta + "gitmap binary" + constants.ColorReset)
+	w := output.UI()
+	rule := termout.RoleSGRBold(termout.RolePrimary)
+	label := termout.RoleSGR(termout.RoleAccent)
+	value := termout.RoleSGR(termout.RoleFG)
+	shaColor := termout.RoleSGR(termout.RoleWarn)
+	reset := termout.Reset()
+
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "  "+rule+footerRule+reset)
+	fmt.Fprintln(w, "  "+rule+"gitmap binary"+reset)
 
 	version := resolveGitmapVersion()
-	sha := resolveGitmapCommitSHA()
+	commitSHA := resolveGitmapCommitSHA()
 
-	fmt.Printf("  %s● Version:%s        %s%s%s\n",
-		constants.ColorCyan, constants.ColorReset,
-		constants.ColorWhite, version, constants.ColorReset)
+	fmt.Fprintf(w, "  %s● Version:%s        %s%s%s\n",
+		label, reset,
+		value, version, reset)
 
-	if len(sha) > 0 {
-		fmt.Printf("  %s● Commit SHA:%s     %s%s%s\n",
-			constants.ColorCyan, constants.ColorReset,
-			constants.ColorYellow, sha, constants.ColorReset)
+	if len(commitSHA) > 0 {
+		fmt.Fprintf(w, "  %s● Commit SHA:%s     %s%s%s\n",
+			label, reset,
+			shaColor, commitSHA, reset)
 	}
 
-	fmt.Println()
+	fmt.Fprintln(w)
 }
 
 func resolveGitmapRepoURL() string {

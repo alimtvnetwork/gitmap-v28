@@ -88,8 +88,23 @@ func markdownDocument(t topic, plain string) string {
 	out.WriteString("```text\n")
 	out.WriteString(strings.TrimRight(plain, "\n") + "\n")
 	out.WriteString("```\n")
+	out.WriteString(exampleMarkdownSection(t.name))
 
 	return out.String()
+}
+
+// exampleMarkdownSection renders the registry's canonical help example
+// for a generated topic (plain, never ANSI). The terminal `help <cmd>`
+// and `help example <cmd>` render from the same registry — the markdown
+// is never hand-maintained twice.
+func exampleMarkdownSection(topic string) string {
+	ex, found := LookupHelpExample(topic)
+	if !found || len(ex.Examples) == 0 {
+		return ""
+	}
+
+	return "\n## Examples\n\n```text\n" +
+		strings.TrimRight(RenderHelpExampleMarkdown(topic), "\n") + "\n```\n"
 }
 
 // Generate renders topics (comma-separated; "" means all) into outDir as

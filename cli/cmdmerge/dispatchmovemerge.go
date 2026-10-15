@@ -8,12 +8,24 @@ import (
 )
 
 // dispatchMoveMerge routes mv / move / merge-both / merge-left /
-// merge-right (and their short aliases mb / ml / mr).
+// merge-right (and their short aliases mb / ml / mrg), plus
+// `merge write` / `mr` (open a GitHub pull request).
+//
+// NOTE (program 273, spec 05): `mr` is the merge-write alias. It used to be
+// merge-right's short alias; merge-right keeps `mrg` so no alias is lost.
 //
 // Spec: 02-spec/01-app/97-move-and-merge.md
 func DispatchMoveMerge(command string) (bool, error) {
 	if command == constants.CmdMv || command == constants.CmdMove {
 		RunMove(os.Args[2:])
+
+		return true, nil
+	}
+
+	if isMergeWriteInvocation(command, os.Args) {
+		if appErr := runMergeWrite(stripMergeWriteSubcommand(os.Args[2:])); appErr != nil {
+			return true, appErr
+		}
 
 		return true, nil
 	}

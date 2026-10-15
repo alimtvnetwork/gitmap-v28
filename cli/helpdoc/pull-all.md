@@ -49,3 +49,27 @@ Examples:
 
 * Run gitmap scan first to populate the database (see scan help)
 ```
+
+## Examples
+
+```text
+gitmap pull-all — help example
+
+WHAT IT DOES
+  Batch-pulls every tracked repository in the catalog with a fast concise progress view. Add --status for the full post-pull table or --ssh to delegate the pull to fleet nodes.
+
+INVOCATION (1)
+  $ gitmap pa
+
+EXPECTED OUTPUT (1)
+  pull-all: 14 repos
+  ✓ 12 up to date   ⟳ 2 updated   ✗ 0 failed   (3.1s)
+
+INVOCATION (2)
+  $ gitmap pa --status
+
+EXPECTED OUTPUT (2)
+  repo                   branch  before    after     result
+  repos/gitmap-v28         main    <sha>     <sha>     updated
+  repos/story-telling-v1   main    <sha>     <sha>     up-to-date
+```

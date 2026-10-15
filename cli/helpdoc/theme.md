@@ -6,39 +6,53 @@ without ANSI noise.
 
 ## Usage
 
-    gitmap --theme <bright|standard|monochrome> <command> [...]
-    gitmap --theme=standard scan
+    gitmap --theme <slug> <command> [...]
+    gitmap --theme=tokyo-night scan
     GITMAP_THEME=mono gitmap release v1.4.6
 
 Resolved in this order (first wins):
 
-1. `--theme <mode>` on the command line.
+1. `--theme <slug>` on the command line.
 2. `GITMAP_THEME` environment variable.
-3. Default: `bright`.
+3. Default: `navy-purple`.
 
 The `--theme` flag is **global** — it works in front of any
 subcommand and is stripped before the subcommand sees its own
 flagset.
 
-## Modes
+## Themes
 
-| Mode | When to use |
-|------|-------------|
-| `bright` *(default)* | Modern dark-themed terminals (Windows Terminal, iTerm, VS Code). Bright-bold ANSI with accent colors. |
-| `standard` | Light themes, older terminals, screen-share recordings where bright-bold is too loud. Downgrades to the pre-v5.13 plain palette. |
-| `monochrome` / `mono` | Piping into `diff`, `less` without `-R`, log scrapers, CI logs. Strips every SGR escape so output is plain text. |
+Named palettes from the coding-guidelines design-system theme
+catalogue (semantic roles: fg, fg-muted, fg-subtle, primary, accent,
+warn, error, ok — never literal colors in code). Piped output never
+carries ANSI: colors render on a real TTY only.
+
+| Theme | When to use |
+|-------|-------------|
+| `navy-purple` *(default)* | Developer tools. Deep midnight navy + electric violet primary + ice cyan accent. |
+| `tokyo-night` | Modern CLI tools. Storm blue-grey canvas with neon pastel accents. |
+| `vscode-dark-plus` | Instant familiarity for engineers. Classic VS Code Dark+ palette. |
+| `monokai-pro` | High-impact telemetry and status. Warm slate + fluorescent rose/gold. |
+
+Legacy aliases still work: `bright` → `navy-purple`, `standard` →
+`vscode-dark-plus`, `monochrome` / `mono` → strip every SGR escape
+(for piping into `diff`, `less` without `-R`, log scrapers, CI logs).
 
 ## Examples
 
 ```
 
-# Brighten everything — the default; explicit form for scripts
+# Default palette — the dev-tools look; explicit form for scripts
 
-gitmap --theme bright status
+gitmap --theme navy-purple status
 
-# Calmer palette for a light terminal
+# Neon pastel palette for a modern CLI feel
 
-gitmap --theme standard scan
+gitmap --theme tokyo-night scan
+
+# Classic IDE palette
+
+gitmap --theme vscode-dark-plus scan
 
 # Strip all color for log scraping
 

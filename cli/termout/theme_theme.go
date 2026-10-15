@@ -4,20 +4,32 @@
 // resolved mode — os.Stdout/os.Stderr are never reassigned; UI code
 // takes the explicit dispatch-context writer instead.
 //
-// Three modes:
+// Named themes now live in the design-system registry (themes.go):
+// navy-purple (default), tokyo-night, vscode-dark-plus, monokai-pro.
+// The filter modes below stay byte-identical — new themes resolve to
+// the passthrough mode and render role colors via Role()/RoleBold(),
+// which emit no SGR at all when stdout is not a TTY (dumb-terminal
+// safety) and are stripped by the mono mode on a TTY.
+//
+// Three filter modes:
 //
 //   - bright     (default): passthrough — the bright + bold ANSI
 //     palette baked into constants.Color* is what the user sees.
+//     The navy-purple, tokyo-night, and monokai-pro themes also
+//     resolve here; their role colors are emitted per-theme by
+//     Role()/RoleBold().
 //   - standard:             downgrade bright codes to plain 3X codes
 //     (the pre-v5.13 look) for users on light themes or older
-//     terminals where bright-bold is too loud.
+//     terminals where bright-bold is too loud. The vscode-dark-plus
+//     theme alias resolves here; its role SGRs are not in the
+//     downgrade table so they pass through untouched.
 //   - monochrome / mono:    strip every SGR escape so output stays
 //     readable when piped into tools that don't grok ANSI (diff,
 //     less without -R, log scrapers).
 //
 // Resolution order (first wins):
 //
-//  1. `--theme=<mode>` / `--theme <mode>` on the command line
+//  1. `--theme=<slug>` / `--theme <slug>` on the command line
 //     (stripped from os.Args by cmd.stripThemeFlag before subcommand
 //     dispatch).
 //  2. GITMAP_THEME env var (also exported by the flag stripper so
@@ -60,10 +72,12 @@ func (m ModeType) String() string {
 
 // Parse maps a user-supplied label to a ModeType. Unknown labels (and the
 // empty string) fall back to ModeBright so a typo never crashes a CLI
-// run — they just render in the default palette.
+// run — they just render in the default palette. The named design-system
+// themes resolve to passthrough/downgrade modes here; their actual
+// palettes come from the registry in themes.go.
 func Parse(label string) ModeType {
 	switch strings.ToLower(strings.TrimSpace(label)) {
-	case constants.ThemeStandard:
+	case constants.ThemeStandard, ThemeVSCodeDarkPlus:
 		return ModeStandard
 	case constants.ThemeMonochrome, constants.ThemeMono:
 		return ModeMono
@@ -78,15 +92,19 @@ func Resolve() ModeType {
 	return Parse(os.Getenv(constants.EnvTheme))
 }
 
-// IsValidLabel reports whether label names a known theme. Used by the
-// flag stripper to reject typos with a clear error instead of silently
-// falling back.
+// IsValidLabel reports whether label names a known theme — a registry
+// slug or a legacy alias. Used by the flag stripper to reject typos
+// with a clear error instead of silently falling back.
 func IsValidLabel(label string) bool {
 	switch strings.ToLower(strings.TrimSpace(label)) {
 	case constants.ThemeBright,
 		constants.ThemeStandard,
 		constants.ThemeMonochrome,
-		constants.ThemeMono:
+		constants.ThemeMono,
+		ThemeNavyPurple,
+		ThemeTokyoNight,
+		ThemeVSCodeDarkPlus,
+		ThemeMonokaiPro:
 		return true
 	default:
 		return false

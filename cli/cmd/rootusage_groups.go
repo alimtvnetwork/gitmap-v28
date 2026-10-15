@@ -164,6 +164,7 @@ func printGroupPR() {
 	renderLine(constants.HelpPRIn)
 	renderLine(constants.HelpPRClean)
 	renderLine(constants.HelpPRList)
+	renderLine(constants.HelpMergeWrite)
 }
 
 func printGroupChromeProfile() {

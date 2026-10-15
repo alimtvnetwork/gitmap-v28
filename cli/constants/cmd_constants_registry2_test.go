@@ -55,6 +55,8 @@ func topLevelCmdsPart2() map[string]string {
 		"CmdInteractiveAlias":           CmdInteractiveAlias,
 		"CmdMergeBoth":                  CmdMergeBoth,
 		"CmdMergeBothA":                 CmdMergeBothA,
+		"CmdMerge":                      CmdMerge,
+		"CmdMergeWriteA":                CmdMergeWriteA,
 		"CmdMergeLeft":                  CmdMergeLeft,
 		"CmdMergeLeftA":                 CmdMergeLeftA,
 		"CmdMergeRgtA":                  CmdMergeRgtA,

@@ -10,6 +10,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -54,11 +55,13 @@ func failInvalidThemeChoice(choice string) {
 	err := apperror.NewWithDetails(
 		"cmd.themeflag.apply",
 		"E1152",
-		fmt.Sprintf("invalid --theme value %q (want: %s | %s | %s)",
+		fmt.Sprintf("invalid --theme value %q (want: %s; legacy aliases: %s | %s | %s | %s)",
 			choice,
+			strings.Join(termout.ThemeSlugs(), " | "),
 			constants.ThemeBright,
 			constants.ThemeStandard,
-			constants.ThemeMonochrome),
+			constants.ThemeMonochrome,
+			constants.ThemeMono),
 		"cmd.themeflag",
 		apperror.ErrorTypeValidation,
 		apperror.SeverityError,
