@@ -3,11 +3,11 @@
 ## Status
 - [x] Step 0: Sync, spec 273, backup branch `backup/273-gitmap-help-text-and-ui-enhancement` pushed
 - [ ] WS1: Spec + plan + subtasks (FIRST — before any implementation)
-- [ ] WS2: Help text + theme overhaul (coding-guidelines-v24 design system) — RUNNING
-- [x] WS3: Missing commands — `merge write` / `mr` implemented (cli/cmdmerge/ 3 files; mr alias reassigned from merge-right→mrg per spec 05), awaiting final commit pass
-- [x] WS4: 20 new command proposals (planned task, proposals ONLY) — .ai-memory/plans/273-twenty-command-proposals.md written (263 lines), awaiting final commit pass
-- [x] WS5: Windows virus RCA (commit 385aba38e ground truth) — .ai-memory/plans/273-windows-virus-rca.md written (156 lines), awaiting final commit pass
-- [ ] WS6: Lead final verify + commit + push (NO version bump, NO release)
+- [x] WS2: Help text + theme overhaul — 4 themes, 527-example registry, `help example <cmd>`, dumb-terminal safe
+- [x] WS3: Missing commands — `merge write` / `mr` implemented, wired into help-example registry
+- [x] WS4: 20 new command proposals — .ai-memory/plans/273-twenty-command-proposals.md
+- [x] WS5: Windows virus RCA — .ai-memory/plans/273-windows-virus-rca.md
+- [x] WS6: Lead final verify + commit + push — 19b59869c pushed (build green, gofmt clean, smoke-tested; NO version bump, NO release per task)
 
 ## Scope authority
 User order 2026-10-16: improve terminal help text + UI help, new themes/colors from
