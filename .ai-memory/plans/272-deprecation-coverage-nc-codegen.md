@@ -23,7 +23,8 @@ Items 4-6 (pipeline DB retention, staging repo philosophy, error messages) NOT a
 - [x] YAML validated; committed + pushed
 
 ### WS3 — nc codegen
-- [ ] go:generate in cli/cmdpending/ parsing dispatcher registration
-- [ ] Emits nc_catalog_gen.go (// Code generated DO NOT EDIT)
-- [ ] Must include spec next, te all, all 105 entries; nc --json works
-- [ ] All files ≤300 lines; NO runtime AST parsing
+- [x] go:generate in cli/cmdpending/ parsing dispatcher registration
+- [x] Emits nc_catalog_gen.go (// Code generated DO NOT EDIT)
+- [x] Must include spec next, te all, all 105 entries; nc --json works
+- [x] All files ≤300 lines; NO runtime AST parsing
+- [x] Build verified exit 0; committed + pushed
