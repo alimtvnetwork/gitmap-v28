@@ -13,14 +13,14 @@ Items 4-6 (pipeline DB retention, staging repo philosophy, error messages) NOT a
 
 ## Waves
 ### WS1 — Deprecation candidate
-- [ ] Search last 20 versions for renamed/repurposed/superseded commands
-- [ ] If found: wire markDeprecated with warning + replacement + removal version
-- [ ] If none: DELETE docs/deprecation-policy.md + hook (authorized)
+- [x] Search last 20 versions for renamed/repurposed/superseded commands
+- [x] No genuine candidate → DELETED docs/deprecation-policy.md + hook (authorized)
+- [x] Build verified exit 0
 
 ### WS2 — Coverage floor
-- [ ] New CI job: fail if coverage drops >2% vs main baseline
-- [ ] Reuse coverprofile artifacts; baseline via CI cache; seed-and-pass if missing
-- [ ] Validate YAML
+- [x] New CI job: fail if coverage drops >2% vs main baseline
+- [x] Reuse coverprofile artifacts; baseline via CI cache; seed-and-pass if missing
+- [x] YAML validated; committed + pushed
 
 ### WS3 — nc codegen
 - [ ] go:generate in cli/cmdpending/ parsing dispatcher registration

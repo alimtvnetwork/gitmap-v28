@@ -1,4 +1,6 @@
 // Package cmdpending provides command implementations for pending commits and discovery.
+//
+//go:generate go run ./ncgen/main.go ./ncgen/registry.go ./ncgen/constants.go ./ncgen/annotations.go ./ncgen/emit.go
 package cmdpending
 
 import (
@@ -162,33 +164,9 @@ func isLimitFlag(arg string) bool {
 	return arg == "--limit" || arg == "-n" || strings.HasPrefix(arg, "--limit=") || strings.HasPrefix(arg, "-n=")
 }
 
-func newCmd(name, alias, ver, cat, desc, ex string) NewCommandEntry {
-	return NewCommandEntry{
-		Name:        name,
-		Alias:       alias,
-		Version:     ver,
-		Category:    cat,
-		Description: desc,
-		Example:     ex,
-	}
-}
-
+// buildNewCommandsCatalog returns the new-commands catalog generated at
+// build time by ncgen (see nc_catalog_gen.go). Regenerate with:
+// go generate ./cli/cmdpending/
 func buildNewCommandsCatalog() []NewCommandEntry {
-	res := make([]NewCommandEntry, 0, 100)
-	res = append(res, catalogBatch1to5()...)
-	return append(res, catalogBatch6to10()...)
-}
-
-func catalogBatch1to5() []NewCommandEntry {
-	items := append(catalogEntries1(), catalogEntries2()...)
-	items = append(items, catalogEntries3()...)
-	items = append(items, catalogEntries4()...)
-	return append(items, catalogEntries5()...)
-}
-
-func catalogBatch6to10() []NewCommandEntry {
-	items := append(catalogEntries6(), catalogEntries7()...)
-	items = append(items, catalogEntries8()...)
-	items = append(items, catalogEntries9()...)
-	return append(items, catalogEntries10()...)
+	return generatedCatalogEntries()
 }

@@ -1,0 +1,105 @@
+{"name": "cpar", "alias": "commit-push-all-repos", "version": "v6.520.0", "category": "commits", "description": "Commit and push all workspace repositories", "example": "gitmap cpar \"wip: save changes\""}
+{"name": "cpf", "alias": "commit-push-feature", "version": "v6.500.0", "category": "commits", "description": "Atomic commit and push feature branch", "example": "gitmap cpf \"auth - add jwt validation\""}
+{"name": "cpb", "alias": "commit-push-bug", "version": "v6.500.0", "category": "commits", "description": "Atomic commit and push bugfix branch", "example": "gitmap cpb \"cache - fix ttl expiration\""}
+{"name": "cpr", "alias": "commit-push-release", "version": "v6.500.0", "category": "commits", "description": "Commit, push, and trigger release chore", "example": "gitmap cpr \"v6.524.0\""}
+{"name": "cin", "alias": "commit-in", "version": "v6.510.0", "category": "commits", "description": "Commit in replay with JSON author rotation and AST heuristics", "example": "gitmap cin --source repo-a --dest repo-b"}
+{"name": "pending-commits", "alias": "pc", "version": "v6.523.0", "category": "commits", "description": "Discover uncommitted changes and unpushed commits with tree remediation", "example": "gitmap pc"}
+{"name": "backup-branch", "alias": "bb", "version": "v6.518.0", "category": "commits", "description": "Create automated backup branch for workspace repositories", "example": "gitmap backup-branch \"feat-login\""}
+{"name": "fix all", "alias": "fix-all", "version": "v6.522.0", "category": "commits", "description": "Batch stash, commit, or discard pending changes across fleet", "example": "gitmap fix all --action=wip"}
+{"name": "pcp", "alias": "pull-commit-push", "version": "v6.505.0", "category": "commits", "description": "Pull rebase, stage all, commit with message, and push", "example": "gitmap pcp \"sync upstream\""}
+{"name": "commons", "alias": "co", "version": "v6.515.0", "category": "commits", "description": "Apply standardized repo configurations and git hooks", "example": "gitmap commons"}
+{"name": "pe", "alias": "pipeline-errors", "version": "v6.510.0", "category": "diagnostics", "description": "Pipeline error analyzer with dynamic runner extraction", "example": "gitmap pe -t"}
+{"name": "pe all", "alias": "pipeline-errors-all", "version": "v6.515.0", "category": "diagnostics", "description": "Extract failing step logs across all recent workflow runs", "example": "gitmap pe all"}
+{"name": "te all", "alias": "pipeline-errors-all", "version": "v6.522.0", "category": "diagnostics", "description": "Shortcut for pipeline errors all: aggregate pipeline errors across all repos", "example": "gitmap te all --file=errors.md"}
+{"name": "sug", "alias": "shutdown-until-green", "version": "v6.512.0", "category": "diagnostics", "description": "Pause execution until CI/CD quality gates are green", "example": "gitmap sug"}
+{"name": "rerun", "alias": "rr", "version": "v6.511.0", "category": "diagnostics", "description": "Rerun failed pipeline jobs or Antigravity prompts", "example": "gitmap rerun --step=lint"}
+{"name": "regoldens", "alias": "rg-gold", "version": "v6.517.0", "category": "diagnostics", "description": "Regenerate golden test fixture outputs across test suites", "example": "gitmap regoldens"}
+{"name": "doctor", "alias": "doc", "version": "v6.508.0", "category": "diagnostics", "description": "Comprehensive workstation and toolchain diagnostic health check", "example": "gitmap doctor"}
+{"name": "audit-legacy", "alias": "al", "version": "v6.514.0", "category": "diagnostics", "description": "Scan codebase for deprecated APIs and legacy function signatures", "example": "gitmap audit-legacy"}
+{"name": "fastgate", "alias": "fg", "version": "v6.519.0", "category": "diagnostics", "description": "Run fast preflight lint and formatting verification gates", "example": "gitmap fastgate"}
+{"name": "pipeline-ai", "alias": "pl-ai", "version": "v6.513.0", "category": "diagnostics", "description": "Check CI/CD workflow state and wait dynamically on ETA", "example": "gitmap pipeline-ai status -t 120"}
+{"name": "scan export", "alias": "s-exp", "version": "v6.521.0", "category": "scanner", "description": "Export scanned repository metadata to JSON or CSV manifest", "example": "gitmap scan export --format=json"}
+{"name": "scan merge", "alias": "s-mrg", "version": "v6.521.0", "category": "scanner", "description": "Merge external scan databases into central repository index", "example": "gitmap scan merge --src=other.db"}
+{"name": "rescan", "alias": "rsc", "version": "v6.502.0", "category": "scanner", "description": "Perform delta rescan of workspace filesystem changes", "example": "gitmap rescan"}
+{"name": "rescan-subtree", "alias": "rss", "version": "v6.504.0", "category": "scanner", "description": "Narrowly re-run scan against an at-cap repository subtree", "example": "gitmap rescan-subtree --max-depth=5"}
+{"name": "clone-only-missing", "alias": "com", "version": "v6.506.0", "category": "scanner", "description": "Clone only un-cloned repositories from workspace manifest", "example": "gitmap com --manifest=repos.json"}
+{"name": "clone-sync", "alias": "cs", "version": "v6.507.0", "category": "scanner", "description": "Synchronize and clone all remote fleet repositories", "example": "gitmap clone-sync"}
+{"name": "repo-create", "alias": "repoc", "version": "v6.503.0", "category": "scanner", "description": "Create a new local repository with standard folder scaffold", "example": "gitmap repo-create my-service"}
+{"name": "dedupe", "alias": "dd", "version": "v6.509.0", "category": "scanner", "description": "Detect duplicate repository clones and directories across disks", "example": "gitmap dedupe"}
+{"name": "size", "alias": "sz", "version": "v6.501.0", "category": "scanner", "description": "Inspect repository disk size and identify large bloated objects", "example": "gitmap size --top=10"}
+{"name": "orphans", "alias": "orph", "version": "v6.510.0", "category": "scanner", "description": "Discover orphaned git directories not indexed in split-db", "example": "gitmap orphans"}
+{"name": "ssh-bind", "alias": "sb", "version": "v6.518.0", "category": "fleet", "description": "Bind local port forwarding tunnels over SSH to fleet nodes", "example": "gitmap ssh-bind --remote=node-01 --port=8080"}
+{"name": "ssh-deploy", "alias": "sd", "version": "v6.516.0", "category": "fleet", "description": "Deploy compiled binaries and configuration to remote SSH host", "example": "gitmap ssh-deploy --node=prod-1"}
+{"name": "nodes", "alias": "cluster-nodes", "version": "v6.512.0", "category": "fleet", "description": "List registered fleet nodes with reachability and latency", "example": "gitmap nodes"}
+{"name": "cluster", "alias": "cl", "version": "v6.511.0", "category": "fleet", "description": "Manage multi-node cluster topology and remote execution", "example": "gitmap cluster status"}
+{"name": "sc", "alias": "servers-clients", "version": "v6.514.0", "category": "fleet", "description": "Distributed fan-out execution across server-client topologies", "example": "gitmap sc exec \"uptime\""}
+{"name": "deploy-keys", "alias": "dk", "version": "v6.515.0", "category": "fleet", "description": "Deploy authorized SSH public keys across all fleet machines", "example": "gitmap deploy-keys --all"}
+{"name": "ssh-join", "alias": "sj", "version": "v6.510.0", "category": "fleet", "description": "Enroll target machine into SSH host registry with key auth", "example": "gitmap ssh-join user@192.168.1.50"}
+{"name": "cluster-run-script", "alias": "crs", "version": "v6.513.0", "category": "fleet", "description": "Deploy and execute local script remotely across cluster nodes", "example": "gitmap cluster-run-script deploy.sh"}
+{"name": "cluster-bootstrap", "alias": "cb", "version": "v6.515.0", "category": "fleet", "description": "Bootstrap node with RSA keys, passwordless sudo, and tools", "example": "gitmap cluster-bootstrap 192.168.1.51"}
+{"name": "ssh-scan", "alias": "ss", "version": "v6.512.0", "category": "fleet", "description": "Scan local subnet for machines with open SSH port 22", "example": "gitmap ssh-scan 192.168.1.0/24"}
+{"name": "agent task", "alias": "at", "version": "v6.522.0", "category": "ai", "description": "Manage autonomous agent task lifecycle and action logs in SQLite", "example": "gitmap task claim --db task.db --agent \"Worker 01\""}
+{"name": "agy", "alias": "antigravity", "version": "v6.510.0", "category": "ai", "description": "Google Antigravity workspace manager and prompt orchestrator", "example": "gitmap agy deploy"}
+{"name": "agm", "alias": "antigravity-mgr", "version": "v6.512.0", "category": "ai", "description": "Manage Antigravity Manager GUI application and fleet tools", "example": "gitmap agm status"}
+{"name": "aum", "alias": "auto", "version": "v6.511.0", "category": "ai", "description": "High-performance native Go automation and multi-core search", "example": "gitmap aum search \"pattern\" cli"}
+{"name": "ai-analysis", "alias": "aa", "version": "v6.514.0", "category": "ai", "description": "Perform automated codebase architecture and guideline analysis", "example": "gitmap ai-analysis --rules=02-spec"}
+{"name": "macro", "alias": "mc", "version": "v6.509.0", "category": "ai", "description": "Record, inspect, and replay interactive shell terminal macros", "example": "gitmap macro replay build-all"}
+{"name": "llm-docs", "alias": "ld", "version": "v6.515.0", "category": "ai", "description": "Generate consolidated markdown command matrix for LLMs", "example": "gitmap llm-docs"}
+{"name": "llm train", "alias": "llm-train", "version": "v6.516.0", "category": "ai", "description": "Run 4-stage LLM curriculum and generate developer skill", "example": "gitmap llm train"}
+{"name": "prompt show --copy", "alias": "psc", "version": "v6.520.0", "category": "ai", "description": "Render canonical prompt and copy directly to system clipboard", "example": "gitmap prompt show --copy 01-prompts/v6.md"}
+{"name": "ai-fix", "alias": "af", "version": "v6.513.0", "category": "ai", "description": "Run standardized repository autofix targets for coding guidelines", "example": "gitmap ai-fix --target=naming"}
+{"name": "merge-ai", "alias": "merge-ai", "version": "v6.525.0", "category": "ai", "description": "AI-assisted merge with conflict resolution and summary", "example": "gitmap merge-ai"}
+{"name": "os dock", "alias": "dock", "version": "v6.517.0", "category": "os", "description": "Configure taskbar and dock alignment across Windows and Linux", "example": "gitmap os dock bottom"}
+{"name": "os panel", "alias": "panel", "version": "v6.518.0", "category": "os", "description": "Configure system display panels and multi-monitor geometry", "example": "gitmap os panel --primary=1"}
+{"name": "apps", "alias": "app", "version": "v6.516.0", "category": "os", "description": "Installed application auditor and uninstaller framework", "example": "gitmap apps list"}
+{"name": "fix-link", "alias": "fl", "version": "v6.512.0", "category": "os", "description": "Inspect and repair broken symlinks and VMware shared mounts", "example": "gitmap fix-link --repair"}
+{"name": "vpm", "alias": "vmware-power", "version": "v6.514.0", "category": "os", "description": "VMware guest shared folder mounting and open-vm-tools manager", "example": "gitmap vpm mount"}
+{"name": "which-format", "alias": "wf", "version": "v6.519.0", "category": "os", "description": "Inspect file line ending (CRLF/LF) and encoding formats", "example": "gitmap which-format file.go"}
+{"name": "os-dns", "alias": "dns", "version": "v6.513.0", "category": "os", "description": "Inspect, benchmark, and switch system DNS servers", "example": "gitmap os-dns switch 1.1.1.1"}
+{"name": "os-theme", "alias": "theme", "version": "v6.511.0", "category": "os", "description": "Switch desktop appearance between Dark Mode and Light Mode", "example": "gitmap os-theme dark"}
+{"name": "power", "alias": "pwr", "version": "v6.515.0", "category": "os", "description": "Screen timeout and power plan management with state tracking", "example": "gitmap power sleep 30"}
+{"name": "autologin", "alias": "os-autologin", "version": "v6.510.0", "category": "os", "description": "Configure OS auto-login credentials for Windows and Ubuntu", "example": "gitmap autologin --user=admin"}
+{"name": "cd", "alias": "cd", "version": "v6.527.0", "category": "os", "description": "Autonomous default workdir resolution and persistence", "example": "gitmap cd"}
+{"name": "spec issue", "alias": "si", "version": "v6.522.0", "category": "spec", "description": "Audit specification gap issues and generate remediation steps", "example": "gitmap spec issue --spec=02-spec/21-app"}
+{"name": "spec next", "alias": "spec-next", "version": "v6.520.0", "category": "spec", "description": "Issue next free spec number atomically via DB-backed counter", "example": "gitmap spec next"}
+{"name": "spec-author", "alias": "sa", "version": "v6.520.0", "category": "spec", "description": "Scaffold structured architecture and component specifications", "example": "gitmap spec-author --slug=my-feature"}
+{"name": "spec-audit", "alias": "spa", "version": "v6.519.0", "category": "spec", "description": "Conduct blind-AI readiness audits on specification documents", "example": "gitmap spec-audit --target=02-spec"}
+{"name": "user", "alias": "usr", "version": "v6.521.0", "category": "spec", "description": "Audit and configure git user name and email per repository", "example": "gitmap user set --name=\"Dev\" --email=\"dev@co.com\""}
+{"name": "changelog", "alias": "clog", "version": "v6.508.0", "category": "spec", "description": "Generate SemVer changelog entries from recent atomic commits", "example": "gitmap changelog generate"}
+{"name": "release-notes", "alias": "rn", "version": "v6.509.0", "category": "spec", "description": "Extract markdown release notes for tagged versions", "example": "gitmap release-notes v6.523.0"}
+{"name": "seowrite", "alias": "seo", "version": "v6.510.0", "category": "spec", "description": "Format repository descriptions and keywords for SEO", "example": "gitmap seowrite --keyword=git"}
+{"name": "help-json", "alias": "hj", "version": "v6.515.0", "category": "spec", "description": "Emit machine-readable JSON schema for CLI help topics", "example": "gitmap help --json --filter=task"}
+{"name": "prompt-template", "alias": "pt", "version": "v6.512.0", "category": "spec", "description": "Manage reusable AI prompt prefix and verification templates", "example": "gitmap prompt-template list"}
+{"name": "prompt list", "alias": "plst", "version": "v6.518.0", "category": "spec", "description": "List registered canonical AI prompts in 01-prompts directory", "example": "gitmap prompt list"}
+{"name": "summary", "alias": "summary", "version": "v6.525.0", "category": "spec", "description": "Summary engine with full treeview and nodes delegation", "example": "gitmap summary"}
+{"name": "rs file", "alias": "rs-f", "version": "v6.515.0", "category": "storage", "description": "Copy secret file into encrypted repo-secrets and auto-push", "example": "gitmap rs file .env --repo=backend"}
+{"name": "rs folder", "alias": "rs-d", "version": "v6.515.0", "category": "storage", "description": "Copy secret folder into repo-secrets and auto-push", "example": "gitmap rs folder certs/"}
+{"name": "rs text", "alias": "rs-t", "version": "v6.515.0", "category": "storage", "description": "Store sensitive string directly into repo-secrets store", "example": "gitmap rs text \"key_123\" --slug=api-key"}
+{"name": "rc file", "alias": "rc-f", "version": "v6.516.0", "category": "storage", "description": "Offload reusable test script into repo-cache and auto-push", "example": "gitmap rc file test_harness.py"}
+{"name": "rc folder", "alias": "rc-d", "version": "v6.516.0", "category": "storage", "description": "Store shared fixture directory into repo-cache", "example": "gitmap rc folder fixtures/"}
+{"name": "rc text", "alias": "rc-t", "version": "v6.516.0", "category": "storage", "description": "Write reusable automation test script into repo-cache", "example": "gitmap rc text \"script\" --slug=test --ext=.ps1"}
+{"name": "storage", "alias": "stg", "version": "v6.511.0", "category": "storage", "description": "Inspect disk volumes, split-DB sqlite sizes, and snapshots", "example": "gitmap storage"}
+{"name": "clean-dev", "alias": "cld", "version": "v6.517.0", "category": "storage", "description": "Purge IDE temporary files, dev caches, and lock buffers", "example": "gitmap clean-dev"}
+{"name": "clear-terminal", "alias": "cls-term", "version": "v6.518.0", "category": "storage", "description": "Clear stuck terminal processes, handles, and buffer pipes", "example": "gitmap clear-terminal"}
+{"name": "purge-cache", "alias": "pgc", "version": "v6.520.0", "category": "storage", "description": "Invalidate and purge stale SQLite status cache entries", "example": "gitmap purge-cache --ttl=90s"}
+{"name": "sync", "alias": "sy", "version": "v6.522.0", "category": "sync", "description": "Synchronize prompts, skills, and specs across 43 repositories", "example": "gitmap sync --workers=8"}
+{"name": "sync --repo", "alias": "sy-r", "version": "v6.522.0", "category": "sync", "description": "Synchronize canonical assets to single target repository", "example": "gitmap sync --repo=movie-cli-v8"}
+{"name": "sync --dry-run", "alias": "sy-d", "version": "v6.522.0", "category": "sync", "description": "Preview synchronization file diffs without disk mutations", "example": "gitmap sync --dry-run"}
+{"name": "sync --list", "alias": "sy-l", "version": "v6.522.0", "category": "sync", "description": "List registered fleet repositories connected to sync engine", "example": "gitmap sync --list"}
+{"name": "pull-all-efficient", "alias": "pae", "version": "v6.508.0", "category": "sync", "description": "Pull all repositories concurrently with JSON telemetry", "example": "gitmap pae --json"}
+{"name": "reconcile", "alias": "recon", "version": "v6.505.0", "category": "sync", "description": "Reconcile divergent branch heads and resolve conflicts", "example": "gitmap reconcile"}
+{"name": "has-any-updates", "alias": "hau", "version": "v6.509.0", "category": "sync", "description": "Check remote tracking branches for incoming commits", "example": "gitmap hau"}
+{"name": "latest-branch", "alias": "lb", "version": "v6.510.0", "category": "sync", "description": "Discover the most recently updated remote branch across fleet", "example": "gitmap lb"}
+{"name": "desktop-sync", "alias": "ds", "version": "v6.503.0", "category": "sync", "description": "Synchronize local repositories with GitHub Desktop state", "example": "gitmap desktop-sync"}
+{"name": "watch", "alias": "w", "version": "v6.504.0", "category": "sync", "description": "Live-refresh terminal dashboard monitoring repo changes", "example": "gitmap watch"}
+{"name": "new-commands", "alias": "nc", "version": "v6.524.0", "category": "tooling", "description": "Inspect recent commands added across releases with examples", "example": "gitmap nc --limit=20"}
+{"name": "which-format", "alias": "whichfmt", "version": "v6.519.0", "category": "tooling", "description": "Detect line endings, encoding BOM, and file permissions", "example": "gitmap which-format ./cli"}
+{"name": "find-files", "alias": "ff", "version": "v6.512.0", "category": "tooling", "description": "Find exact filename across workspace within milliseconds", "example": "gitmap ff \"types.go\""}
+{"name": "find-files-any", "alias": "ffa", "version": "v6.512.0", "category": "tooling", "description": "Find files matching substring across 10,000+ files", "example": "gitmap ffa \"cache\""}
+{"name": "find-files-startswith", "alias": "ffs", "version": "v6.512.0", "category": "tooling", "description": "Find files matching filename prefix", "example": "gitmap ffs \"test_\""}
+{"name": "find-files-endswith", "alias": "ffe", "version": "v6.512.0", "category": "tooling", "description": "Find files matching filename extension or suffix", "example": "gitmap ffe \"_test.go\""}
+{"name": "list-files", "alias": "lf", "version": "v6.511.0", "category": "tooling", "description": "Stream relative file paths matching pattern or folder", "example": "gitmap lf cli/cmdpending"}
+{"name": "replace", "alias": "rep", "version": "v6.513.0", "category": "tooling", "description": "Literal multi-file string replacement with audit trail", "example": "gitmap replace \"oldString\" \"newString\""}
+{"name": "replace-regex", "alias": "repr", "version": "v6.513.0", "category": "tooling", "description": "Regex pattern replacement across repository code", "example": "gitmap replace-regex \"v[0-9]+\" \"v6.524.0\""}
+{"name": "cat", "alias": "ct", "version": "v6.514.0", "category": "tooling", "description": "Zero-disk stdout stream of file content in CLI sessions", "example": "gitmap cat cli/constants/constants_cli.go"}
+{"name": "tree", "alias": "tree", "version": "v6.528.0", "category": "tooling", "description": "Tree export with search engine family and relative paths", "example": "gitmap tree --export"}
