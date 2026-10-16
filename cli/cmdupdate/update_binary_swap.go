@@ -31,13 +31,13 @@ func runBinaryReleaseUpdate(opts UpdateOptions) error {
 	if errCand != nil {
 		return errCand
 	}
-	if shouldSkipUpdate(ui, opts, cand) {
+	if isUpdateSkipped(ui, opts, cand) {
 		return nil
 	}
 	return runBinaryDownloadAndSwap(ui, opts, cand, time.Now())
 }
 
-func shouldSkipUpdate(ui UpdateUIRenderer, opts UpdateOptions, cand *ReleaseCandidate) bool {
+func isUpdateSkipped(ui UpdateUIRenderer, opts UpdateOptions, cand *ReleaseCandidate) bool {
 	cur := constants.Version
 	if IsAlreadyUpdated(cur, cand.Version, opts.IsForce) {
 		ui.RenderAlreadyUpdated(cur, cand.Version)
