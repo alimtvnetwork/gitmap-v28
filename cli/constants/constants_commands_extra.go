@@ -54,6 +54,10 @@ const (
 	// CmdSpaceBackupBranch is the `space backup-branch` subcommand —
 	// creates backup/<slug> from HEAD for the given task string.
 	CmdSpaceBackupBranch = "backup-branch"
+	// CmdSpacePRMerge is the `space PR-merge` subcommand (spec 271) —
+	// merges the current branch into the target (default branch when
+	// omitted); --squash embeds PR details plus a changed-files heatmap.
+	CmdSpacePRMerge = "PR-merge"
 	// CmdSpec is the top-level namespace for spec-number issuance
 	// (spec 252). Subcommand: `spec next` issues the next free spec
 	// number for the current repository.

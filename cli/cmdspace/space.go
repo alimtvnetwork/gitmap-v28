@@ -18,6 +18,9 @@ Space operations namespace. Subcommands:
   backup-branch
               Create a backup branch (backup/<slug>) from the current
               HEAD for the given task string, then push it to origin.
+  PR-merge      Merge the current branch into the target branch
+              (default branch when omitted). Regular merge commit;
+              --squash embeds PR details plus a changed-files heatmap.
 
 Flags (with common):
   --dry-run, -n    Print planned additions without touching disk
@@ -27,11 +30,20 @@ Flags (with backup-branch):
   --no-push       Skip pushing the new branch to origin
   --force         Recreate the branch at current HEAD if it already exists
 
+Flags (with PR-merge):
+  --squash        Squash-merge with PR title/body + file heatmap
+  --single-commit, --flat
+                  Flat single-commit merge with a one-line message
+  --no-push       Merge locally only; do not push the target
+
 Examples:
   gitmap space common
   gitmap space common --dry-run
   gitmap space backup-branch "CLI help displayer overhaul"
   gitmap space backup-branch "hotfix" --no-push
+  gitmap space PR-merge main
+  gitmap space PR-merge
+  gitmap space PR-merge main --squash
   gitmap space --help
 `
 
@@ -107,6 +119,10 @@ func DispatchSpace(command string) (bool, error) {
 		return true, runSpaceBackupBranch(rest[1:])
 	}
 
+	if sub == constants.CmdSpacePRMerge {
+		return true, runSpacePRMerge(rest[1:])
+	}
+
 	if sub != "common" {
 		fmt.Print(spaceUsage)
 
@@ -145,4 +161,18 @@ func runSpaceBackupBranch(args []string) error {
 	}
 
 	return RunBackupBranch(args)
+}
+
+// runSpacePRMerge prints PR-merge help on --help/-h, else delegates to
+// the cmdspace implementation.
+func runSpacePRMerge(args []string) error {
+	for _, a := range args {
+		if a == "--help" || a == "-h" {
+			printPRMergeHelp()
+
+			return nil
+		}
+	}
+
+	return RunPRMerge(args)
 }
