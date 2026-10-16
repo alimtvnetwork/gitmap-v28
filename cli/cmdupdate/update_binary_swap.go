@@ -208,14 +208,15 @@ func extractZipBinary(archivePath, extractDir string) (string, error) {
 	defer zr.Close()
 	for _, f := range zr.File {
 		name := filepath.Base(filepath.Clean(f.Name))
-		if strings.EqualFold(name, "gitmap.exe") || strings.EqualFold(name, "gitmap") {
-			rc, errOpen := f.Open()
-			if errOpen != nil {
-				return "", errOpen
-			}
-			defer rc.Close()
-			return writeExtractedBinary(rc, filepath.Join(extractDir, name+".new"))
+		if !strings.EqualFold(name, "gitmap.exe") && !strings.EqualFold(name, "gitmap") {
+			continue
 		}
+		rc, errOpen := f.Open()
+		if errOpen != nil {
+			return "", errOpen
+		}
+		defer rc.Close()
+		return writeExtractedBinary(rc, filepath.Join(extractDir, name+".new"))
 	}
 	return "", apperror.NewSimple("gitmap binary not found in zip", "E1148")
 }
@@ -263,14 +264,14 @@ func applyBinaryHandoff(newBinaryPath string) error {
 	if resolved, evalErr := filepath.EvalSymlinks(activeExe); evalErr == nil {
 		activeExe = resolved
 	}
-	if runtime.GOOS != "windows" {
-		if errMove := os.Rename(newBinaryPath, activeExe); errMove != nil && copyFile(newBinaryPath, activeExe) != nil {
-			return apperror.NewSimple("failed to place new executable", "E1151")
-		}
-		_ = os.Chmod(activeExe, 0o755)
-		return nil
+	if runtime.GOOS == "windows" {
+		return applyWindowsHandoff(activeExe, newBinaryPath)
 	}
-	return applyWindowsHandoff(activeExe, newBinaryPath)
+	if errMove := os.Rename(newBinaryPath, activeExe); errMove != nil && copyFile(newBinaryPath, activeExe) != nil {
+		return apperror.NewSimple("failed to place new executable", "E1151")
+	}
+	_ = os.Chmod(activeExe, 0o755)
+	return nil
 }
 
 func applyWindowsHandoff(activeExe, newBinaryPath string) error {

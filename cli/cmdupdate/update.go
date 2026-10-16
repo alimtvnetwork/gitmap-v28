@@ -38,28 +38,40 @@ func runUpdate() error {
 
 	// Priority 1 (Explicit Opt-In Only): Source rebuild via console-safe handoff
 	if isSourceRebuildRequested() {
-		repoPath, errRepo := resolveRepoPath()
-		if errRepo == nil && len(repoPath) > 0 {
-			return runSourceHandoffUpdate(repoPath)
-		}
-
-		if isRepoPathPromptAllowed() {
-			if prompted := promptRepoPath(); len(prompted) > 0 {
-				saveRepoPathToDB(prompted)
-
-				return runSourceHandoffUpdate(prompted)
-			}
-		}
-
-		if errRepo != nil {
-			return errRepo
-		}
-
-		return apperror.NewSimple("no repo path resolved for source rebuild", "E9024")
+		return runSourceRebuildUpdate()
 	}
 
 	// Priority 2 (Default): Pre-compiled binary update from GitHub Releases
 	return runPureBinaryUpdate(opts)
+}
+
+// runSourceRebuildUpdate performs the explicit opt-in source rebuild flow.
+func runSourceRebuildUpdate() error {
+	repoPath, errRepo := resolveRepoPath()
+	if errRepo == nil && len(repoPath) > 0 {
+		return runSourceHandoffUpdate(repoPath)
+	}
+
+	if prompted := promptSourceRepoPath(); len(prompted) > 0 {
+		saveRepoPathToDB(prompted)
+
+		return runSourceHandoffUpdate(prompted)
+	}
+
+	if errRepo != nil {
+		return errRepo
+	}
+
+	return apperror.NewSimple("no repo path resolved for source rebuild", "E9024")
+}
+
+// promptSourceRepoPath prompts for a repo path only when prompting is allowed.
+func promptSourceRepoPath() string {
+	if !isRepoPathPromptAllowed() {
+		return ""
+	}
+
+	return promptRepoPath()
 }
 
 func runSourceHandoffUpdate(repoPath string) error {
