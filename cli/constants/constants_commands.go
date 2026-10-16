@@ -293,4 +293,6 @@ const (
 	CmdListReleases          = "list-releases"
 	CmdListReleasesAlias     = "lr"
 	CmdReleases              = "releases" // v3.20.0: alias of list-releases, intended for --all-repos batch view
+	CmdNodesRunningOnly      = "nodes-running-only"
+	CmdNodesRunningOnlyAlias = "nro"
 )

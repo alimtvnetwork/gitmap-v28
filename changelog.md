@@ -1,5 +1,18 @@
 # Changelog
 
+## [v6.555.0] - 2026-10-16
+
+### Added
+- `gitmap nodes-running-only` (alias `gitmap nro`, `nodes-running`, `nodes-online`, `nodes-open`, `nodes-active`): Discovers and displays strictly active, online fleet machines (`is_online: true`), filtering out offline/timed-out machines.
+- `gitmap nro --json` / `gitmap nodes-running-only --json`: Machine-readable JSON array containing strictly verified reachable nodes.
+- 10-Second Node Liveness Caching: In-memory and cross-process JSON cache (`gitmap_nodes_liveness_cache.json`) in OS temp directory with 10s TTL, eliminating repeated 1200ms TCP probe timeouts during sequential CLI loops.
+- Cache Invalidation Flags: Added `--refresh` (`-r`) and `--no-cache` to force immediate live reachability probing.
+- Running-Only Delegation: Seamless forwarding for `nro exec "<cmd>"`, `nro tasks`, `nro resources`, `nro ping`, `nro pull`, `nro cp all`, and `nro scan`, executing solely on active nodes without offline delay or warnings.
+- Pre-Dispatch Offline Filtering: Updated `gitmap nodes tasks` and `gitmap nodes resources` to accept `--running-only` / `-ro` / `--open-only` flags, skipping unreachable nodes before spawning goroutines.
+- Help & UI Documentation: Authored `cli/helpdoc/nodes-running-only.md`, registered completion in `cli/completion/completion.go`, and added Web UI catalog entry in `src/data/commands.ts`.
+
+---
+
 ## [v6.554.0] - 2026-10-16
 
 ### Added

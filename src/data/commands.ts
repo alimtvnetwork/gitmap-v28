@@ -4173,6 +4173,35 @@ export const commands: CommandDef[] = [
     ],
     seeAlso: [{ name: "gitmap nodes resources", description: "Probe CPU and RAM telemetry across fleet" }],
   },
+  {
+    name: "gitmap nodes-running-only",
+    alias: "gitmap nro, nodes-running, nodes-online, nodes-open",
+    description: "Discover and execute commands strictly on online fleet nodes, skipping offline machines with 10s liveness caching and zero timeout latency",
+    usage: "gitmap nodes-running-only [--json] [--refresh] [exec|tasks|resources|ping|pull|cp|scan]",
+    category: "cluster",
+    flags: [
+      { flag: "--json, -j", description: "Output active nodes as a clean JSON array with is_online: true guaranteed" },
+      { flag: "--refresh, -r", description: "Bypass 10s liveness cache and trigger immediate network reachability probe" },
+      { flag: "--target, -t <alias>", description: "Target a specific node alias or IP address if online" },
+      { flag: "--timeout <duration>", description: "Custom timeout limit for probe or remote execution" },
+    ],
+    examples: [
+      { command: "gitmap nro", description: "Display ANSI table of currently active and reachable cluster nodes" },
+      { command: "gitmap nro --json", description: "Emit machine-readable JSON array of online nodes for automated scripts" },
+      { command: "gitmap nro exec \"uptime\"", description: "Execute remote command across active nodes only without offline delays" },
+      { command: "gitmap nro tasks", description: "Query active AI agent task queues exclusively on online machines" },
+      { command: "gitmap nro resources", description: "Probe CPU and RAM utilization exclusively on reachable nodes" },
+    ],
+    notes: [
+      "Results are cached in OS temporary directory for 10 seconds to prevent repetitive TCP probe delays during sequential CLI calls.",
+      "Delegation subcommands bypass offline node connection attempts completely, preventing warning notices and connection hang.",
+    ],
+    seeAlso: [
+      { name: "nodes", description: "Unified fleet node discovery and management" },
+      { name: "nodes resources", description: "Probe CPU and RAM telemetry across fleet" },
+      { name: "gitmap nodes tasks", description: "Inspect active and pending AI agent tasks across fleet" },
+    ],
+  },
 ];
 
 // Global flags applied by every command via the shared root parser.

@@ -46,6 +46,7 @@ type FleetTasksPayload struct {
 
 type nodesTasksOptions struct {
 	isJSON       bool
+	isOpenOnly   bool
 	limit        int
 	targetFilter string
 }
@@ -59,6 +60,8 @@ func parseNodesTasksOptions(args []string) nodesTasksOptions {
 		switch {
 		case a == "--json" || a == "-j":
 			opts.isJSON = true
+		case a == "--open-only" || a == "--online-only" || a == "--running-only" || a == "-ro":
+			opts.isOpenOnly = true
 		case (a == "--limit" || a == "-l") && i+1 < len(args):
 			i++
 			opts.limit = parsePositiveIntLimit(args[i], opts.limit)

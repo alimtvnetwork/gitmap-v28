@@ -122,13 +122,10 @@ func handleNodeScanConnectError(res NodeScanResult, err error, start time.Time) 
 	res.Latency = time.Since(start)
 	res.LatencyMs = res.Latency.Milliseconds()
 	res.Error = err.Error()
-
+	res.Status = "FAILED"
 	if isOfflineError(err.Error()) {
 		res.Status = "OFFLINE"
-		return res
 	}
-
-	res.Status = "FAILED"
 	return res
 }
 
@@ -166,15 +163,12 @@ func extractScanPassArgs(args []string, target string) []string {
 			i += (step - 1)
 			continue
 		}
-
 		a := args[i]
 		if isScanIgnoredArg(a, target) {
 			continue
 		}
-
 		pass = append(pass, a)
 	}
-
 	return pass
 }
 
@@ -182,17 +176,12 @@ func isScanIgnoredArg(arg, target string) bool {
 	if arg == "--json" || arg == "-j" || arg == "--help" || arg == "-h" || arg == "help" {
 		return true
 	}
-
-	if target != "" && arg == target {
-		return true
-	}
-
-	return false
+	return target != "" && arg == target
 }
 
 func isFilterFlagStep(args []string, i int) int {
 	a := args[i]
-	if a == "--include-main" || a == "--open-only" {
+	if a == "--include-main" || a == "--open-only" || a == "--running-only" || a == "-ro" {
 		return 1
 	}
 
@@ -208,15 +197,10 @@ func isFilterFlagStep(args []string, i int) int {
 }
 
 func isPrefixFilterFlag(a string) bool {
-	if strings.HasPrefix(a, "--target=") || strings.HasPrefix(a, "-t=") {
-		return true
-	}
-
-	if strings.HasPrefix(a, "--except=") || strings.HasPrefix(a, "-e=") || strings.HasPrefix(a, "--exclude=") {
-		return true
-	}
-
-	return strings.HasPrefix(a, "--include=") || strings.HasPrefix(a, "--accept=")
+	return strings.HasPrefix(a, "--target=") || strings.HasPrefix(a, "-t=") ||
+		strings.HasPrefix(a, "--except=") || strings.HasPrefix(a, "-e=") ||
+		strings.HasPrefix(a, "--exclude=") || strings.HasPrefix(a, "--include=") ||
+		strings.HasPrefix(a, "--accept=")
 }
 
 func isTwoTokenFilterFlag(a string) bool {
@@ -248,6 +232,7 @@ func printNodesScanHelp(subCmd string) error {
 	fmt.Println("        --include <list>     Whitelist specific nodes (comma-separated)")
 	fmt.Println("        --include-main       Include the 'main' node (excluded by default)")
 	fmt.Println("        --open-only          Only run on currently reachable/online nodes")
+	fmt.Println("    -ro, --running-only      Execute scan only across reachable/online nodes")
 	fmt.Println("    -j, --json               Output structured JSON telemetry")
 	fmt.Println()
 	return nil
@@ -279,45 +264,35 @@ func renderNodeScanTable(results []NodeScanResult, action string) {
 	fmt.Printf("  %s%-18s %-16s %-10s %-14s %-10s%s\n",
 		constants.ColorCyan, "NODE ALIAS", "HOST", "OS", "STATUS", "LATENCY", constants.ColorReset)
 	fmt.Println("  " + strings.Repeat("-", 76))
-
 	for _, r := range results {
 		statusStr := formatScanStatusBadge(r.Status)
 		osStr := r.OS
 		if osStr == "" {
 			osStr = "linux"
 		}
-
 		fmt.Printf("  %-18s %-16s %-10s %-14s %-10v\n",
 			r.NodeAlias, r.Host, osStr, statusStr, r.Latency.Round(time.Millisecond))
 	}
-
 	fmt.Println()
 }
 
 func printNodeScanSummary(results []NodeScanResult, action string) {
-	successCount := 0
-	offlineCount := 0
-	failedCount := 0
-
+	var successCount, offlineCount, failedCount int
 	for _, r := range results {
 		if r.Status == "SUCCESS" {
 			successCount++
 			continue
 		}
-
 		if r.Status == "OFFLINE" {
 			offlineCount++
 			continue
 		}
-
 		failedCount++
 	}
-
 	prefix := constants.ColorGreen + "✓" + constants.ColorReset
 	if failedCount > 0 {
 		prefix = constants.ColorYellow + "▲" + constants.ColorReset
 	}
-
 	fmt.Printf("  %s Completed %s across %d/%d node(s) (%d offline, %d failed)\n\n",
 		prefix, action, successCount, len(results), offlineCount, failedCount)
 }

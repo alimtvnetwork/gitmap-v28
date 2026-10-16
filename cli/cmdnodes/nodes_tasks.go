@@ -77,6 +77,9 @@ func executeFleetTasksInterrogation(ctx context.Context, opts nodesTasksOptions)
 		if isLocalNode {
 			continue
 		}
+		if opts.isOpenOnly && !n.IsOnline {
+			continue
+		}
 		if isTargetMatching(n.Alias, n.Host, opts.targetFilter) {
 			wg.Add(1)
 			sem <- struct{}{}

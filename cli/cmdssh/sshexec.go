@@ -13,21 +13,23 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 type seOptions struct {
-	Exclude    string
-	Except     string
-	ExceptOS   string
-	TargetOS   string
-	Target     string
-	IP         string
-	IsJSON     bool
-	Args       []string
-	IsShowHelp bool
+	Exclude       string
+	Except        string
+	ExceptOS      string
+	TargetOS      string
+	Target        string
+	IP            string
+	IsJSON        bool
+	IsRunningOnly bool
+	Args          []string
+	IsShowHelp    bool
 }
 
 func printSSHExecHelp() {
@@ -42,6 +44,7 @@ func printSSHExecHelp() {
 	fmt.Println("      --except-os string  Exclude machines by OS (e.g. unix, win, linux, ubuntu, darwin)")
 	fmt.Println("      --os string         Target machines by OS (e.g. win, unix, linux, darwin)")
 	fmt.Println("      --ip string         Target machine IP address")
+	fmt.Println("  -ro, --running-only     Execute exclusively across online nodes, omitting offline warnings")
 	fmt.Println("  -h, --help              Show help for ssh exec")
 	printSSHExecExamples()
 }
@@ -87,6 +90,10 @@ func extractSECustomFlags(args []string) (seOptions, []string) {
 		a := args[i]
 		if a == "--json" {
 			opts.IsJSON = true
+			continue
+		}
+		if a == "--running-only" || a == "-ro" || a == "--open-only" || a == "--online-only" {
+			opts.IsRunningOnly = true
 			continue
 		}
 		if a == "-h" || a == "--help" {
@@ -216,7 +223,7 @@ func executeSSHFromOptions(opts seOptions) error {
 	if len(conns) == 0 {
 		return handleEmptySSHConns(opts.IsJSON)
 	}
-	return dispatchSSHExecIfAllowed(conns, execArgs, opts.IsJSON)
+	return dispatchSSHExecIfAllowed(conns, execArgs, opts.IsJSON, opts.IsRunningOnly)
 }
 
 func handleEmptySSHConns(isJSON bool) error {
@@ -228,12 +235,12 @@ func handleEmptySSHConns(isJSON bool) error {
 	return nil
 }
 
-func dispatchSSHExecIfAllowed(conns []db.SSHConnection, args []string, isJSON bool) error {
+func dispatchSSHExecIfAllowed(conns []db.SSHConnection, args []string, isJSON, isRunningOnly bool) error {
 	if isInteractiveMacroAdd(args) {
 		printInteractiveMacroAdvice()
 		return apperror.NewValidationError("interactive macro creation cannot run over non-interactive SSH exec")
 	}
-	executeOnAllSSH(conns, args, isJSON)
+	executeOnAllSSH(conns, args, isJSON, isRunningOnly)
 	return nil
 }
 
@@ -324,14 +331,14 @@ type NodeExecResult struct {
 	Error      string `json:"error,omitempty"`
 }
 
-func executeOnAllSSH(conns []db.SSHConnection, args []string, isJSON bool) {
+func executeOnAllSSH(conns []db.SSHConnection, args []string, isJSON, isRunningOnly bool) {
 	online, offline := partitionOnlineOffline(conns)
 	if isJSON {
-		executeOnAllSSHJSON(online, offline, args)
+		executeOnAllSSHJSON(online, offline, args, isRunningOnly)
 		return
 	}
 	cmdStr := strings.Join(args, " ")
-	printExecStartBanner(online, offline, cmdStr)
+	printStartBannerByLiveness(online, offline, cmdStr, isRunningOnly)
 	if len(online) == 0 {
 		return
 	}
@@ -343,18 +350,38 @@ func executeOnAllSSH(conns []db.SSHConnection, args []string, isJSON bool) {
 	}
 
 	wg.Wait()
-	printExecFinishSummary(len(online), offline)
+	printFinishSummaryByLiveness(len(online), offline, isRunningOnly)
 }
 
-func executeOnAllSSHJSON(online, offline []db.SSHConnection, args []string) {
-	var results []NodeExecResult
-	for _, c := range offline {
-		results = append(results, NodeExecResult{
-			Alias:  c.Alias,
-			IP:     c.IPAddress,
-			Status: "offline",
-		})
+func printStartBannerByLiveness(online, offline []db.SSHConnection, cmdStr string, isRunningOnly bool) {
+	if isRunningOnly {
+		printRunningOnlyStartBanner(online, cmdStr)
+		return
 	}
+	printExecStartBanner(online, offline, cmdStr)
+}
+
+func printRunningOnlyStartBanner(online []db.SSHConnection, cmdStr string) {
+	fmt.Println()
+	if len(online) == 0 {
+		fmt.Printf("  %sAll target machines are currently off. No nodes available to execute.%s\n\n",
+			constants.ColorYellow, constants.ColorReset)
+		return
+	}
+	printInjectedBanner(online, cmdStr)
+}
+
+func printFinishSummaryByLiveness(onlineCount int, offline []db.SSHConnection, isRunningOnly bool) {
+	if isRunningOnly {
+		printExecFinishSummary(onlineCount, nil)
+		return
+	}
+	printExecFinishSummary(onlineCount, offline)
+}
+
+func executeOnAllSSHJSON(online, offline []db.SSHConnection, args []string, isRunningOnly bool) {
+	var results []NodeExecResult
+	results = appendOfflineJSONResults(results, offline, isRunningOnly)
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	for _, c := range online {
@@ -363,6 +390,20 @@ func executeOnAllSSHJSON(online, offline []db.SSHConnection, args []string) {
 	}
 	wg.Wait()
 	_ = json.NewEncoder(os.Stdout).Encode(results)
+}
+
+func appendOfflineJSONResults(results []NodeExecResult, offline []db.SSHConnection, isRunningOnly bool) []NodeExecResult {
+	if isRunningOnly {
+		return results
+	}
+	for _, c := range offline {
+		results = append(results, NodeExecResult{
+			Alias:  c.Alias,
+			IP:     c.IPAddress,
+			Status: "offline",
+		})
+	}
+	return results
 }
 
 func runSSHWorkerJSON(c db.SSHConnection, args []string, results *[]NodeExecResult, mu *sync.Mutex, wg *sync.WaitGroup) {

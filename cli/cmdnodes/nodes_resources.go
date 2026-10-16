@@ -92,7 +92,7 @@ func parseNodesResourcesOptions(args []string) (opts nodesResourcesOptions) {
 			opts.isJSON = true
 			continue
 		}
-		if a == "--open-only" || a == "--online-only" {
+		if a == "--open-only" || a == "--online-only" || a == "--running-only" || a == "-ro" {
 			opts.isOpenOnly = true
 			continue
 		}
@@ -187,6 +187,9 @@ func executeFleetResourcesProbeUnified(ctx context.Context, nodes []UnifiedFleet
 	}
 
 	for _, n := range nodes {
+		if opts.isOpenOnly && !n.IsOnline {
+			continue
+		}
 		hasTargetMatch := isNodeTargetIncluded(n, opts.targetFilter)
 		if hasTargetMatch {
 			wg.Add(1)

@@ -27,6 +27,7 @@ var manualExtras = []string{
 	"db", "start-fresh", "find-duplicates", "pe", "pd", "ping",
 	"nodes", "node", "gitignore", "agm", "ta",
 	"cpu", "processor", "ram", "disk",
+	"nodes-running-only", "nro", "nodesrunningonly", "nodes-running",
 }
 
 // CustomGenerator allows package cmd to provide dynamic Cobra completion fspath.

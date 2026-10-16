@@ -205,6 +205,8 @@ var topicSummaries = map[string]string{
 	"clone-except-self":           "Execute repository cloning strictly across remote SSH fleet nodes, skipping the local master workstation.",
 	"ping":                        "Run machine ping command and network reachability probes concurrently against all fleet nodes with tabular terminal display.",
 	"nodes-ping":                  "Run machine ping command and network reachability probes concurrently against all fleet nodes with tabular terminal display.",
+	"nodes-running-only":          "Discover and execute commands strictly on online cluster nodes with 10s liveness caching and zero offline delay.",
+	"nro":                         "Discover and execute commands strictly on online cluster nodes with 10s liveness caching and zero offline delay.",
 	"pull-error":                  "Inspect, query, filter, and remediate persistent Git pull error diagnostics and stack traces recorded across local or SSH fleet repositories.",
 	"pull-errors":                 "Inspect, query, filter, and remediate persistent Git pull error diagnostics and stack traces recorded across local or SSH fleet repositories.",
 	"pulle":                       "Inspect, query, filter, and remediate persistent Git pull error diagnostics and stack traces recorded across local or SSH fleet repositories.",

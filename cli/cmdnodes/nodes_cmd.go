@@ -166,6 +166,10 @@ func RunUnifiedNodesCLI(args []string) error {
 	}
 	if len(args) == 0 {
 		// Proceed to default nodes listing
+	} else if isNodesRunningOnlyRequest(args) {
+		return RunNodesRunningOnlyCLI(args[1:])
+	} else if hasNodesRunningOnlyFlag(args) {
+		return RunNodesRunningOnlyCLI(args)
 	} else if isNodesAgyRequest(args) {
 		return runNodesAgyDispatch(args[1:])
 	} else if strings.EqualFold(args[0], "push-settings") || strings.EqualFold(args[0], "pushsettings") {

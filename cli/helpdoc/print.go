@@ -31,17 +31,7 @@ func Print(command string) {
 func PrintWithMode(command string, mode render.PrettyModeType) {
 	data, err := ReadRaw(command)
 	if err != nil {
-		appErr := apperror.WrapWithDetails(
-			err,
-			"helptext.PrintWithMode",
-			"E1071",
-			fmt.Sprintf("No help available for '%s'", command),
-			"helptext",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			map[string]any{"command": command},
-		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(wrapHelpUnavailableError(err, "helptext.PrintWithMode", "E1071", command), 1)
 
 		return
 	}
@@ -63,22 +53,16 @@ func PrintWithMode(command string, mode render.PrettyModeType) {
 func PrintRaw(command string) {
 	data, err := ReadRaw(command)
 	if err != nil {
-		appErr := apperror.WrapWithDetails(
-			err,
-			"helptext.PrintRaw",
-			"E1072",
-			fmt.Sprintf("No help available for '%s'", command),
-			"helptext",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			map[string]any{"command": command},
-		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(wrapHelpUnavailableError(err, "helptext.PrintRaw", "E1072", command), 1)
 
 		return
 	}
 
 	fmt.Print(string(data))
+}
+
+func wrapHelpUnavailableError(err error, caller, code, command string) *apperror.AppError {
+	return apperror.WrapWithDetails(err, caller, code, fmt.Sprintf("No help available for '%s'", command), "helptext", apperror.ErrorTypeValidation, apperror.SeverityError, map[string]any{"command": command})
 }
 
 var helpAliases = map[string]string{
@@ -125,6 +109,13 @@ var helpAliases = map[string]string{
 	"cluster-kubernetes":          "cluster-k8s",
 	"cluster-in":                  "cluster-install",
 	"sj-install":                  "cluster-install",
+	"nodes-running-only":          "nodes-running-only",
+	"nro":                         "nodes-running-only",
+	"nodesrunningonly":            "nodes-running-only",
+	"nodes-running":               "nodes-running-only",
+	"nodes-online":                "nodes-running-only",
+	"nodes-open":                  "nodes-running-only",
+	"nodes-active":                "nodes-running-only",
 	"schedule-shutdown-status":    "schedule-shutdown",
 	"schedule-shutdown-cancel":    "schedule-shutdown",
 	"schedule-restart-status":     "schedule-restart",

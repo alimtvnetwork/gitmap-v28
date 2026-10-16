@@ -201,6 +201,7 @@ func coreVisibilityHistoryEntries() []dispatchEntry {
 func coreClusterEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"nodes", "node", "allnodes", "all-nodes", "fleet-nodes"}, func() error { return cmdnodes.RunUnifiedNodesCLI(argsTail()) }},
+		{[]string{"nodes-running-only", "nodesrunningonly", "nodes-running", "nro", "nodes-online", "nodesonline", "nodes-open", "nodes-active"}, func() error { return cmdnodes.RunNodesRunningOnlyCLI(argsTail()) }},
 		{[]string{"nodes-clone", "node-clone", "fleet-clone"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"clone"}, argsTail()...)) }},
 		{[]string{"nodes-cfr", "node-cfr", "fleet-cfr"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"cfr"}, argsTail()...)) }},
 		{[]string{"nodes-cfrp", "node-cfrp", "fleet-cfrp"}, func() error { return cmdnodes.RunUnifiedNodesCLI(append([]string{"cfrp"}, argsTail()...)) }},

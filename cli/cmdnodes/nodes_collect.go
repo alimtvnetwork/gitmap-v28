@@ -27,6 +27,9 @@ type UnifiedFleetNode struct {
 type nodesFilterOptions struct {
 	isJSON       bool
 	isFast       bool
+	openOnly     bool
+	isNoCache    bool
+	isRefresh    bool
 	filterSSH    bool
 	filterClust  bool
 	filterSC     bool
@@ -44,6 +47,19 @@ func parseNodesFilterOptions(args []string) nodesFilterOptions {
 			opts.isFast = true
 			continue
 		}
+		if arg == "--open-only" || arg == "--running-only" || arg == "-ro" || arg == "--online-only" {
+			opts.openOnly = true
+			continue
+		}
+		if arg == "--no-cache" {
+			opts.isNoCache = true
+			continue
+		}
+		if arg == "--refresh" || arg == "-r" {
+			opts.isRefresh = true
+			InvalidateNodesLivenessCache()
+			continue
+		}
 		if arg == "--ssh" {
 			opts.filterSSH = true
 			continue
@@ -56,7 +72,9 @@ func parseNodesFilterOptions(args []string) nodesFilterOptions {
 			opts.filterSC = true
 			continue
 		}
-		if !strings.HasPrefix(arg, "-") && opts.targetFilter == "" {
+		hasDashPrefix := strings.HasPrefix(arg, "-")
+		isTargetCandidate := !hasDashPrefix && opts.targetFilter == ""
+		if isTargetCandidate {
 			opts.targetFilter = arg
 		}
 	}
@@ -67,7 +85,8 @@ func runUnifiedNodesList(args []string) error {
 	opts := parseNodesFilterOptions(args)
 	ctx := context.Background()
 
-	nodes, err := collectUnifiedNodes(ctx, opts.isFast)
+	canUseCache := !opts.isNoCache && !opts.isRefresh
+	nodes, err := collectUnifiedNodes(ctx, opts.isFast, canUseCache)
 	if err != nil {
 		return err
 	}
@@ -93,7 +112,15 @@ func openUnifiedStore() (*store.DB, error) {
 	return dbConn, nil
 }
 
-func collectUnifiedNodes(ctx context.Context, isFast bool) ([]UnifiedFleetNode, error) {
+func resolveProbeCachePreference(canUseCache []bool) bool {
+	hasCacheParam := len(canUseCache) > 0
+	if hasCacheParam {
+		return canUseCache[0]
+	}
+	return true
+}
+
+func collectUnifiedNodes(ctx context.Context, isFast bool, canUseCache ...bool) ([]UnifiedFleetNode, error) {
 	dbConn, err := openUnifiedStore()
 	if err != nil {
 		return nil, err
@@ -121,8 +148,10 @@ func collectUnifiedNodes(ctx context.Context, isFast bool) ([]UnifiedFleetNode, 
 
 	nodes := flattenNodeMap(nodeMap)
 
-	if !isFast {
-		nodes = probeUnifiedNodesLive(ctx, nodes, hosts)
+	isProbeNeeded := !isFast
+	if isProbeNeeded {
+		useCache := resolveProbeCachePreference(canUseCache)
+		nodes = probeUnifiedNodesLive(ctx, nodes, hosts, useCache)
 	}
 
 	return nodes, nil

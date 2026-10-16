@@ -18,6 +18,7 @@ type NodeFilterOptions struct {
 	Include     []string `json:"include,omitempty"`
 	IncludeMain bool     `json:"include_main,omitempty"`
 	OpenOnly    bool     `json:"open_only,omitempty"`
+	RunningOnly bool     `json:"running_only,omitempty"`
 }
 
 // ParseNodeFilterOptions extracts node filtering options from command-line arguments.
@@ -47,7 +48,8 @@ func parseSingleNodeFilterFlag(opts *NodeFilterOptions, args []string, i int) in
 		return 1
 	}
 
-	if arg == "--open-only" {
+	if arg == "--running-only" || arg == "-ro" || arg == "--open-only" {
+		opts.RunningOnly = true
 		opts.OpenOnly = true
 		return 1
 	}
@@ -143,18 +145,23 @@ func FilterFleetNodes(conns []db.SSHConnection, opts NodeFilterOptions) []db.SSH
 	var candidates []db.SSHConnection
 
 	for _, c := range conns {
-		if !isConnectionCandidate(c, opts) {
-			continue
+		if isConnectionCandidate(c, opts) {
+			candidates = append(candidates, c)
 		}
-
-		candidates = append(candidates, c)
 	}
 
-	if !opts.OpenOnly || len(candidates) == 0 {
-		return candidates
+	if isLivenessFilterActive(opts, len(candidates)) {
+		return filterOnlineNodesConcurrently(candidates, 1200*time.Millisecond)
 	}
 
-	return filterOnlineNodesConcurrently(candidates, 1500*time.Millisecond)
+	return candidates
+}
+
+func isLivenessFilterActive(opts NodeFilterOptions, candidateCount int) bool {
+	if candidateCount == 0 {
+		return false
+	}
+	return opts.RunningOnly || opts.OpenOnly
 }
 
 func isConnectionCandidate(c db.SSHConnection, opts NodeFilterOptions) bool {

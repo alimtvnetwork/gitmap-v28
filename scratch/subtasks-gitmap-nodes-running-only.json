@@ -1,0 +1,50 @@
+[
+  {
+    "taskCode": "SUBTASK-01",
+    "title": "Fast Fleet Node Liveness Cache & Probe Optimization",
+    "assignedAgentRole": "Worker 01",
+    "assignedAgentGroup": "WAVE_1",
+    "budgetSteps": 45,
+    "targetFiles": "cli/cmdnodes/nodes_liveness_cache.go,cli/cmdnodes/nodes_probe.go,cli/cmdnodes/nodes_collect.go"
+  },
+  {
+    "taskCode": "SUBTASK-02",
+    "title": "gitmap nodes-running-only and nro Command Dispatcher",
+    "assignedAgentRole": "Worker 02",
+    "assignedAgentGroup": "WAVE_1",
+    "budgetSteps": 45,
+    "targetFiles": "cli/cmdnodes/nodes_running_only.go,cli/cmdnodes/nodes_cmd.go,cli/cmd/rootcore.go"
+  },
+  {
+    "taskCode": "SUBTASK-03",
+    "title": "Running-Only Delegation and Fast SSH Execution",
+    "assignedAgentRole": "Worker 01",
+    "assignedAgentGroup": "WAVE_2",
+    "budgetSteps": 45,
+    "targetFiles": "cli/cmdssh/sshexec.go,cli/cmdnodes/nodes_filter.go,cli/cmdnodes/nodes_scan.go"
+  },
+  {
+    "taskCode": "SUBTASK-04",
+    "title": "Node Tasks and Resources Open-Only Filtering",
+    "assignedAgentRole": "Worker 02",
+    "assignedAgentGroup": "WAVE_2",
+    "budgetSteps": 45,
+    "targetFiles": "cli/cmdnodes/nodes_resources.go,cli/cmdnodes/nodes_tasks.go,cli/cmdnodes/nodes_tasks_types.go"
+  },
+  {
+    "taskCode": "SUBTASK-05",
+    "title": "Documentation, Help, Completion and UI Registry",
+    "assignedAgentRole": "Worker 01",
+    "assignedAgentGroup": "WAVE_3",
+    "budgetSteps": 40,
+    "targetFiles": "cli/helpdoc/nodes-running-only.md,cli/helpdoc/print.go,cli/helpdoc/catalog.go,src/data/commands.ts,cli/completion/completion.go,cli/constants/constants_commands.go"
+  },
+  {
+    "taskCode": "SUBTASK-06",
+    "title": "Verification, Release Bump (v6.555.0) and CI/CD Telemetry",
+    "assignedAgentRole": "Worker 02",
+    "assignedAgentGroup": "WAVE_3",
+    "budgetSteps": 40,
+    "targetFiles": "version.json,package.json,cli/constants/constants.go,changelog.md"
+  }
+]
