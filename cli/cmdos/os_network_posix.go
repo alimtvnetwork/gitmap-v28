@@ -1,4 +1,4 @@
-// Package cmdos — os_network_linux.go gathers network metrics from /proc/net/dev, /sys/class/net, and net.Interfaces().
+// Package cmdos — os_network_posix.go gathers network metrics from /proc/net/dev, /sys/class/net, and net.Interfaces().
 //go:build !windows
 
 package cmdos
@@ -8,10 +8,8 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
@@ -32,8 +30,6 @@ func collectNetworkReport() (NetworkReport, error) {
 	}
 
 	var adapters []NetworkAdapterInfo
-	var totalSent, totalRecv uint64
-
 	for _, iface := range ifaces {
 		isUp := (iface.Flags & net.FlagUp) != 0
 		status := "Down"
@@ -50,35 +46,25 @@ func collectNetworkReport() (NetworkReport, error) {
 		linkSpeed := readLinuxInterfaceSpeed(iface.Name)
 		stat := devStats[iface.Name]
 
-		totalSent += stat.bytesSent
-		totalRecv += stat.bytesRecv
-
 		adapters = append(adapters, NetworkAdapterInfo{
-			Name:            iface.Name,
-			Status:          status,
-			IsUp:            isUp,
-			IPv4:            ipv4List,
-			IPv4Addresses:   ipv4List,
-			IPv6:            ipv6List,
-			IPv6Addresses:   ipv6List,
-			MACAddress:      iface.HardwareAddr.String(),
-			LinkSpeed:       linkSpeed,
-			BytesSent:       stat.bytesSent,
-			BytesReceived:   stat.bytesRecv,
-			PacketsSent:     stat.packetsSent,
-			PacketsReceived: stat.packetsRecv,
+			Name:             iface.Name,
+			Status:           status,
+			IsUp:             isUp,
+			IPv4:             ipv4List,
+			IPv4Addresses:    ipv4List,
+			IPv6:             ipv6List,
+			IPv6Addresses:    ipv6List,
+			MACAddress:       iface.HardwareAddr.String(),
+			LinkSpeed:        linkSpeed,
+			LinkSpeedDisplay: linkSpeed,
+			BytesSent:        stat.bytesSent,
+			BytesReceived:    stat.bytesRecv,
+			PacketsSent:      stat.packetsSent,
+			PacketsReceived:  stat.packetsRecv,
 		})
 	}
 
-	hostname, _ := os.Hostname()
-	return NetworkReport{
-		Platform:       runtime.GOOS,
-		Hostname:       hostname,
-		Adapters:       adapters,
-		TotalBytesSent: totalSent,
-		TotalBytesRecv: totalRecv,
-		CollectedAt:    time.Now().UTC().Format(time.RFC3339),
-	}, nil
+	return assembleNetworkReport(adapters), nil
 }
 
 func parseProcNetDev() map[string]procNetDevStats {
@@ -93,17 +79,20 @@ func parseProcNetDev() map[string]procNetDevStats {
 	lineCount := 0
 	for scanner.Scan() {
 		lineCount++
-		if lineCount <= 2 {
+		isHeaderLine := lineCount <= 2
+		if isHeaderLine {
 			continue
 		}
 		line := strings.TrimSpace(scanner.Text())
 		colonIdx := strings.Index(line, ":")
-		if colonIdx == -1 {
+		hasNoColon := colonIdx == -1
+		if hasNoColon {
 			continue
 		}
 		ifaceName := strings.TrimSpace(line[:colonIdx])
 		fields := strings.Fields(line[colonIdx+1:])
-		if len(fields) < 16 {
+		hasEnoughFields := len(fields) >= 16
+		if !hasEnoughFields {
 			continue
 		}
 
@@ -129,22 +118,9 @@ func readLinuxInterfaceSpeed(ifaceName string) string {
 		return ""
 	}
 	raw := strings.TrimSpace(string(content))
-	if len(raw) == 0 || raw == "-1" {
+	isEmptyOrInvalid := len(raw) == 0 || raw == "-1"
+	if isEmptyOrInvalid {
 		return ""
 	}
 	return raw + " Mbps"
-}
-
-func appendParsedIP(addr net.Addr, ipv4List *[]string, ipv6List *[]string) {
-	ip, _, cidrErr := net.ParseCIDR(addr.String())
-	hasErr := cidrErr != nil || ip == nil
-	if hasErr {
-		return
-	}
-	isV4 := ip.To4() != nil
-	if isV4 {
-		*ipv4List = append(*ipv4List, ip.String())
-		return
-	}
-	*ipv6List = append(*ipv6List, ip.String())
 }

@@ -175,14 +175,16 @@ func executeFleetResourcesProbeUnified(ctx context.Context, nodes []UnifiedFleet
 		records = append(records, probeNodeExec(host, "127.0.0.1", runtime.GOOS == "windows", true, opts.benchmarkLimit, nil))
 	}
 
-	conns, _ := cmdssh.FetchAllSSHConnections()
+	conns, errConns := cmdssh.FetchAllSSHConnections()
 	connMap := make(map[string]db.SSHConnection, len(conns)*2)
-	for _, c := range conns {
-		if c.IPAddress != "" {
-			connMap[strings.ToLower(c.IPAddress)] = c
-		}
-		if c.Alias != "" {
-			connMap[strings.ToLower(c.Alias)] = c
+	if errConns == nil {
+		for _, c := range conns {
+			if c.IPAddress != "" {
+				connMap[strings.ToLower(c.IPAddress)] = c
+			}
+			if c.Alias != "" {
+				connMap[strings.ToLower(c.Alias)] = c
+			}
 		}
 	}
 

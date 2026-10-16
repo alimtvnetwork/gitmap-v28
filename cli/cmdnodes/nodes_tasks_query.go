@@ -1,7 +1,9 @@
 package cmdnodes
 
 import (
+	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -77,8 +79,11 @@ func queryTasksFromDB(dbPath string, report *NodeTaskReport) {
 
 		isHeavy := detectHeavyDutyTask(totalStepsBudget, title, taskCode)
 		role := assignedRole.String
-		if len(role) == 0 {
-			role = "unassigned"
+		hasRole := len(role) > 0
+		if hasRole {
+			role = fmt.Sprintf("[%s] ?", role)
+		} else {
+			role = "?"
 		}
 
 		item := TaskItemSummary{
@@ -131,4 +136,143 @@ func resolveFleetNodeEndpoint(node UnifiedFleetNode, connMap map[string]db.SSHCo
 	conn := resolveNodeSSHConnection(node, connMap)
 	conn.Alias = alias
 	return alias, port, conn
+}
+
+func queryRemoteNodeTasksAndHardware(ctx context.Context, node UnifiedFleetNode, conn db.SSHConnection, limit int) NodeTaskReport {
+	alias := node.Alias
+	isDashAlias := alias == "" || alias == "-"
+	if isDashAlias {
+		alias = node.Host
+	}
+	port := node.Port
+	isZeroPort := port <= 0
+	if isZeroPort {
+		port = 22
+	}
+
+	report := NodeTaskReport{
+		NodeAlias:       alias,
+		NodeHost:        node.Host,
+		NodePort:        port,
+		IsLocal:         false,
+		Status:          "ONLINE",
+		RolePlaceholder: "?",
+		ActiveTasks:     make([]TaskItemSummary, 0),
+		PendingTasks:    make([]TaskItemSummary, 0),
+	}
+
+	isWin := isWindowsNode(conn) || strings.Contains(strings.ToLower(node.Role), "win")
+	remoteCmd := fmt.Sprintf("gitmap tasks --json --limit %d", limit)
+	shell := "sh"
+	if isWin {
+		shell = "powershell"
+	}
+
+	out, errExec := currentSSHExecutor.Execute(conn, remoteCmd, shell)
+	hasExecErr := errExec != nil
+	if hasExecErr {
+		return handleRemoteFallbackProbe(alias, node.Host, port, isWin, conn, errExec.Error())
+	}
+
+	trimmedOut := strings.TrimSpace(out)
+	parsedReport, hasReport := parseRemoteNodeTaskReport(trimmedOut, alias, node.Host, port)
+	if hasReport {
+		ensureRemoteHardwareMetrics(&parsedReport, isWin, conn)
+		return parsedReport
+	}
+
+	parsedPayload, hasPayload := parseRemoteFleetPayload(trimmedOut, alias, node.Host, port)
+	if hasPayload {
+		ensureRemoteHardwareMetrics(&parsedPayload, isWin, conn)
+		return parsedPayload
+	}
+
+	hwRec := probeNodeExec(alias, fmt.Sprintf("%s:%d", node.Host, port), isWin, false, 80, &conn)
+	if hwRec.IsOnline {
+		report.Status = "ONLINE"
+		report.CPUPercent = hwRec.CPUPercent
+		report.RAMPercent = hwRec.RAMPercent
+		report.TotalRAMMB = uint64(hwRec.TotalRAMMB)
+		report.UsedRAMMB = uint64(hwRec.UsedRAMMB)
+	} else {
+		report.Status = "ACTIVE"
+	}
+
+	return report
+}
+
+func handleRemoteFallbackProbe(alias, host string, port int, isWin bool, conn db.SSHConnection, errMsg string) NodeTaskReport {
+	rep := NodeTaskReport{
+		NodeAlias:       alias,
+		NodeHost:        host,
+		NodePort:        port,
+		IsLocal:         false,
+		RolePlaceholder: "?",
+		ActiveTasks:     make([]TaskItemSummary, 0),
+		PendingTasks:    make([]TaskItemSummary, 0),
+	}
+	hwRec := probeNodeExec(alias, fmt.Sprintf("%s:%d", host, port), isWin, false, 80, &conn)
+	if hwRec.IsOnline {
+		rep.Status = "ONLINE"
+		rep.CPUPercent = hwRec.CPUPercent
+		rep.RAMPercent = hwRec.RAMPercent
+		rep.TotalRAMMB = uint64(hwRec.TotalRAMMB)
+		rep.UsedRAMMB = uint64(hwRec.UsedRAMMB)
+		rep.ErrorMessage = "gitmap tasks unavailable"
+		return rep
+	}
+	rep.Status = "UNREACHABLE"
+	rep.ErrorMessage = errMsg
+	return rep
+}
+
+func parseRemoteNodeTaskReport(raw, alias, host string, port int) (NodeTaskReport, bool) {
+	var rep NodeTaskReport
+	errJSON := json.Unmarshal([]byte(raw), &rep)
+	hasValidJSON := errJSON == nil && rep.NodeHost != ""
+	if !hasValidJSON {
+		return NodeTaskReport{}, false
+	}
+	rep.NodeAlias = alias
+	rep.NodeHost = host
+	rep.NodePort = port
+	rep.IsLocal = false
+	hasPlaceholder := rep.RolePlaceholder != ""
+	if !hasPlaceholder {
+		rep.RolePlaceholder = "?"
+	}
+	return rep, true
+}
+
+func parseRemoteFleetPayload(raw, alias, host string, port int) (NodeTaskReport, bool) {
+	var payload FleetTasksPayload
+	errPayload := json.Unmarshal([]byte(raw), &payload)
+	hasPayload := errPayload == nil && len(payload.NodeReports) > 0
+	if !hasPayload {
+		return NodeTaskReport{}, false
+	}
+	first := payload.NodeReports[0]
+	first.NodeAlias = alias
+	first.NodeHost = host
+	first.NodePort = port
+	first.IsLocal = false
+	hasPlaceholder := first.RolePlaceholder != ""
+	if !hasPlaceholder {
+		first.RolePlaceholder = "?"
+	}
+	return first, true
+}
+
+func ensureRemoteHardwareMetrics(report *NodeTaskReport, isWin bool, conn db.SSHConnection) {
+	needsHardware := report.CPUPercent == 0 && report.RAMPercent == 0
+	if !needsHardware {
+		return
+	}
+	hwRec := probeNodeExec(report.NodeAlias, fmt.Sprintf("%s:%d", report.NodeHost, report.NodePort), isWin, false, 80, &conn)
+	if hwRec.IsOnline {
+		report.CPUPercent = hwRec.CPUPercent
+		report.RAMPercent = hwRec.RAMPercent
+		report.TotalRAMMB = uint64(hwRec.TotalRAMMB)
+		report.UsedRAMMB = uint64(hwRec.UsedRAMMB)
+	}
 }

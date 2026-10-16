@@ -24,6 +24,22 @@ func executePlatformHWProbe() (HardwareMetrics, error) {
 	}, nil
 }
 
+func parseProcStatCPULine(line string) (uint64, uint64, bool) {
+	isCPU := strings.HasPrefix(line, "cpu ")
+	fields := strings.Fields(line)
+	hasEnoughFields := isCPU && len(fields) >= 5
+	if hasEnoughFields {
+		var sum uint64
+		for i := 1; i < len(fields); i++ {
+			val, _ := strconv.ParseUint(fields[i], 10, 64)
+			sum += val
+		}
+		idleVal, _ := strconv.ParseUint(fields[4], 10, 64)
+		return idleVal, sum, true
+	}
+	return 0, 0, false
+}
+
 func readProcStatTicks() (idle uint64, total uint64, hasRead bool) {
 	file, err := os.Open("/proc/stat")
 	hasErr := err != nil
@@ -34,41 +50,44 @@ func readProcStatTicks() (idle uint64, total uint64, hasRead bool) {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
-		isCPU := strings.HasPrefix(line, "cpu ")
-		if isCPU {
-			fields := strings.Fields(line)
-			hasEnoughFields := len(fields) >= 5
-			if hasEnoughFields {
-				var sum uint64
-				for i := 1; i < len(fields); i++ {
-					val, _ := strconv.ParseUint(fields[i], 10, 64)
-					sum += val
-				}
-				idleVal, _ := strconv.ParseUint(fields[4], 10, 64)
-				return idleVal, sum, true
-			}
+		idleVal, sumVal, hasParsed := parseProcStatCPULine(scanner.Text())
+		if hasParsed {
+			return idleVal, sumVal, true
 		}
 	}
 	return 0, 0, false
 }
 
-func probeLinuxCPU() CPUMetrics {
-	idle1, total1, hasFirst := readProcStatTicks()
-	var loadPercent int
+func computeCPULoadPercent(idle1, total1, idle2, total2 uint64) int {
+	deltaTotal := total2 - total1
+	deltaIdle := idle2 - idle1
+	hasDelta := deltaTotal > 0 && deltaTotal >= deltaIdle
+	if hasDelta {
+		deltaBusy := deltaTotal - deltaIdle
+		return int((deltaBusy * 100) / deltaTotal)
+	}
+	return 0
+}
+
+func computeSampledCPULoad(idle1, total1, idle2, total2 uint64, hasSecond bool) int {
+	if hasSecond {
+		return computeCPULoadPercent(idle1, total1, idle2, total2)
+	}
+	return 0
+}
+
+func sampleSecondTicks(idle1, total1 uint64, hasFirst bool) int {
 	if hasFirst {
 		time.Sleep(100 * time.Millisecond)
 		idle2, total2, hasSecond := readProcStatTicks()
-		if hasSecond {
-			deltaTotal := total2 - total1
-			deltaIdle := idle2 - idle1
-			hasDelta := deltaTotal > 0 && deltaTotal >= deltaIdle
-			if hasDelta {
-				deltaBusy := deltaTotal - deltaIdle
-				loadPercent = int((deltaBusy * 100) / deltaTotal)
-			}
-		}
+		return computeSampledCPULoad(idle1, total1, idle2, total2, hasSecond)
 	}
+	return 0
+}
+
+func probeLinuxCPU() CPUMetrics {
+	idle1, total1, hasFirst := readProcStatTicks()
+	loadPercent := sampleSecondTicks(idle1, total1, hasFirst)
 
 	modelName := probeLinuxCPUModel()
 	isEmptyModel := len(modelName) == 0
@@ -84,6 +103,15 @@ func probeLinuxCPU() CPUMetrics {
 	}
 }
 
+func extractCPUModelFromLine(line string) (string, bool) {
+	isModelLine := strings.HasPrefix(line, "model name") && strings.Contains(line, ":")
+	if isModelLine {
+		parts := strings.SplitN(line, ":", 2)
+		return strings.TrimSpace(parts[1]), true
+	}
+	return "", false
+}
+
 func probeLinuxCPUModel() string {
 	file, err := os.Open("/proc/cpuinfo")
 	hasErr := err != nil
@@ -94,17 +122,28 @@ func probeLinuxCPUModel() string {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
-		isModel := strings.HasPrefix(line, "model name")
-		if isModel {
-			parts := strings.Split(line, ":")
-			hasParts := len(parts) >= 2
-			if hasParts {
-				return strings.TrimSpace(parts[1])
-			}
+		model, hasFound := extractCPUModelFromLine(scanner.Text())
+		if hasFound {
+			return model
 		}
 	}
 	return ""
+}
+
+func parseMeminfoLine(line string, totalKB, availableKB, freeKB *int) {
+	fields := strings.Fields(line)
+	hasFields := len(fields) >= 2
+	if hasFields {
+		val, _ := strconv.Atoi(fields[1])
+		switch fields[0] {
+		case "MemTotal:":
+			*totalKB = val
+		case "MemAvailable:":
+			*availableKB = val
+		case "MemFree:":
+			*freeKB = val
+		}
+	}
 }
 
 func probeLinuxRAM() RAMMetrics {
@@ -118,20 +157,7 @@ func probeLinuxRAM() RAMMetrics {
 	var totalKB, availableKB, freeKB int
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
-		fields := strings.Fields(line)
-		hasFields := len(fields) >= 2
-		if hasFields {
-			val, _ := strconv.Atoi(fields[1])
-			switch fields[0] {
-			case "MemTotal:":
-				totalKB = val
-			case "MemAvailable:":
-				availableKB = val
-			case "MemFree:":
-				freeKB = val
-			}
-		}
+		parseMeminfoLine(scanner.Text(), &totalKB, &availableKB, &freeKB)
 	}
 
 	totalMB := totalKB / 1024

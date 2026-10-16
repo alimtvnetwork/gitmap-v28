@@ -2,19 +2,27 @@ package cmdnodes
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
+func isNodesTasksToken(tok string) bool {
+	low := strings.ToLower(tok)
+	return low == "tasks" || low == "task" || low == "task-queue" || low == "tasks-queue" || low == "queue" || low == "jobs" || low == "delegation"
+}
+
 // RunNodesTasksCLI executes fleet tasks queue inspection across local and remote nodes.
 func RunNodesTasksCLI(args []string) error {
+	for len(args) > 0 && (strings.EqualFold(args[0], "nodes") || isNodesTasksToken(args[0])) {
+		args = args[1:]
+	}
 	for _, a := range args {
 		if a == "--help" || a == "-h" || a == "help" {
 			return printNodesTasksHelp()
@@ -30,11 +38,45 @@ func RunNodesTasksCLI(args []string) error {
 		return err
 	}
 
+	if opts.isHeavyOnly {
+		payload = filterPayloadHeavyOnly(payload)
+	}
+
 	if opts.isJSON {
 		return printFleetTasksJSON(payload)
 	}
 
 	return renderFleetTasksTable(os.Stdout, payload)
+}
+
+func filterPayloadHeavyOnly(payload FleetTasksPayload) FleetTasksPayload {
+	var filteredReports []NodeTaskReport
+	var totalActive, totalPending, totalHeavy int
+	for _, r := range payload.NodeReports {
+		r.ActiveTasks = filterHeavyTasks(r.ActiveTasks)
+		r.PendingTasks = filterHeavyTasks(r.PendingTasks)
+		r.ActiveTaskCount = len(r.ActiveTasks)
+		r.PendingTaskCount = len(r.PendingTasks)
+		totalActive += r.ActiveTaskCount
+		totalPending += r.PendingTaskCount
+		totalHeavy += r.HeavyTaskCount
+		filteredReports = append(filteredReports, r)
+	}
+	payload.NodeReports = filteredReports
+	payload.TotalActive = totalActive
+	payload.TotalPending = totalPending
+	payload.TotalHeavyDuty = totalHeavy
+	return payload
+}
+
+func filterHeavyTasks(tasks []TaskItemSummary) []TaskItemSummary {
+	var res []TaskItemSummary
+	for _, t := range tasks {
+		if t.IsHeavyDuty {
+			res = append(res, t)
+		}
+	}
+	return res
 }
 
 func executeFleetTasksInterrogation(ctx context.Context, opts nodesTasksOptions) (FleetTasksPayload, error) {
@@ -57,14 +99,16 @@ func executeFleetTasksInterrogation(ctx context.Context, opts nodesTasksOptions)
 		return buildFleetTasksPayload(reports), nil
 	}
 
-	conns, _ := cmdssh.FetchAllSSHConnections()
+	conns, errConns := cmdssh.FetchAllSSHConnections()
 	connMap := make(map[string]db.SSHConnection, len(conns)*2)
-	for _, c := range conns {
-		if c.IPAddress != "" {
-			connMap[strings.ToLower(c.IPAddress)] = c
-		}
-		if c.Alias != "" {
-			connMap[strings.ToLower(c.Alias)] = c
+	if errConns == nil {
+		for _, c := range conns {
+			if c.IPAddress != "" {
+				connMap[strings.ToLower(c.IPAddress)] = c
+			}
+			if c.Alias != "" {
+				connMap[strings.ToLower(c.Alias)] = c
+			}
 		}
 	}
 
@@ -90,7 +134,10 @@ func executeFleetTasksInterrogation(ctx context.Context, opts nodesTasksOptions)
 				}()
 
 				conn := resolveNodeSSHConnection(node, connMap)
-				rep := queryRemoteNodeTasks(ctx, node, conn, opts.limit)
+				rep := queryRemoteNodeTasksAndHardware(ctx, node, conn, opts.limit)
+				if opts.isOpenOnly && rep.Status == "UNREACHABLE" {
+					return
+				}
 				mu.Lock()
 				reports = append(reports, rep)
 				mu.Unlock()
@@ -127,13 +174,22 @@ func collectLocalNodeTasks(limit int) NodeTaskReport {
 	}
 
 	report := NodeTaskReport{
-		NodeAlias:    alias,
-		NodeHost:     host,
-		NodePort:     0,
-		IsLocal:      true,
-		Status:       "ONLINE",
-		ActiveTasks:  make([]TaskItemSummary, 0),
-		PendingTasks: make([]TaskItemSummary, 0),
+		NodeAlias:       alias,
+		NodeHost:        host,
+		NodePort:        0,
+		IsLocal:         true,
+		Status:          "ONLINE",
+		RolePlaceholder: "?",
+		ActiveTasks:     make([]TaskItemSummary, 0),
+		PendingTasks:    make([]TaskItemSummary, 0),
+	}
+
+	hw, errHW := cmdos.GetHardwareMetrics()
+	if errHW == nil {
+		report.CPUPercent = hw.CPU.LoadPercent
+		report.RAMPercent = hw.RAM.UsedPercent
+		report.TotalRAMMB = uint64(hw.RAM.TotalMB)
+		report.UsedRAMMB = uint64(hw.RAM.UsedMB)
 	}
 
 	dbPaths := discoverAgentTaskDBs()
@@ -170,68 +226,4 @@ func limitTaskSummaries(tasks []TaskItemSummary, limit int) []TaskItemSummary {
 		return tasks[:limit]
 	}
 	return tasks
-}
-
-func queryRemoteNodeTasks(ctx context.Context, node UnifiedFleetNode, conn db.SSHConnection, limit int) NodeTaskReport {
-	alias := node.Alias
-	isDashAlias := alias == "" || alias == "-"
-	if isDashAlias {
-		alias = node.Host
-	}
-	port := node.Port
-	isZeroPort := port <= 0
-	if isZeroPort {
-		port = 22
-	}
-
-	report := NodeTaskReport{
-		NodeAlias:    alias,
-		NodeHost:     node.Host,
-		NodePort:     port,
-		IsLocal:      false,
-		Status:       "ONLINE",
-		ActiveTasks:  make([]TaskItemSummary, 0),
-		PendingTasks: make([]TaskItemSummary, 0),
-	}
-
-	remoteCmd := fmt.Sprintf("gitmap tasks --json --limit %d", limit)
-	shell := "sh"
-	isWin := isWindowsNode(conn) || strings.Contains(strings.ToLower(node.Role), "win")
-	if isWin {
-		shell = "powershell"
-	}
-
-	out, errExec := currentSSHExecutor.Execute(conn, remoteCmd, shell)
-	hasExecErr := errExec != nil
-	if hasExecErr {
-		report.Status = "UNREACHABLE"
-		report.ErrorMessage = errExec.Error()
-		return report
-	}
-
-	var parsedReport NodeTaskReport
-	errJSON := json.Unmarshal([]byte(strings.TrimSpace(out)), &parsedReport)
-	hasValidJSON := errJSON == nil
-	if hasValidJSON {
-		parsedReport.NodeAlias = alias
-		parsedReport.NodeHost = node.Host
-		parsedReport.NodePort = port
-		parsedReport.IsLocal = false
-		return parsedReport
-	}
-
-	var parsedPayload FleetTasksPayload
-	errPayload := json.Unmarshal([]byte(strings.TrimSpace(out)), &parsedPayload)
-	hasPayload := errPayload == nil && len(parsedPayload.NodeReports) > 0
-	if hasPayload {
-		first := parsedPayload.NodeReports[0]
-		first.NodeAlias = alias
-		first.NodeHost = node.Host
-		first.NodePort = port
-		first.IsLocal = false
-		return first
-	}
-
-	report.Status = "ACTIVE"
-	return report
 }

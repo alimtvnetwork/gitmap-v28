@@ -24,14 +24,16 @@ func executePlatformHWProbe() (HardwareMetrics, error) {
 
 	cmd := exec.CommandContext(ctx, "powershell", "-NoProfile", "-NonInteractive", "-Command", cmdScript)
 	outBytes, err := cmd.Output()
-	if err != nil {
+	hasCmdErr := err != nil
+	if hasCmdErr {
 		return HardwareMetrics{}, apperror.WrapSimple(err, "executePlatformHWProbe.powershell")
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(outBytes)), "\n")
 	line := strings.TrimSpace(lines[len(lines)-1])
 	parts := strings.Split(line, ",")
-	if len(parts) < 4 {
+	hasInvalidParts := len(parts) < 4
+	if hasInvalidParts {
 		return HardwareMetrics{}, apperror.NewValidation("executePlatformHWProbe", "E_HW_CIM_PARSE_FAILED", "invalid CIM probe output: "+line)
 	}
 
@@ -68,36 +70,15 @@ func executePlatformHWProbe() (HardwareMetrics, error) {
 func probeWindowsDisks() []DriveInfo {
 	var drives []DriveInfo
 	bitmask, err := windows.GetLogicalDrives()
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return probeFallbackDrive()
 	}
 
 	for i := 0; i < 26; i++ {
-		hasDrive := (bitmask & (1 << uint(i))) != 0
-		if hasDrive {
-			driveRoot := fmt.Sprintf("%c:\\", 'A'+i)
-			volPtr, err := windows.UTF16PtrFromString(driveRoot)
-			if err != nil {
-				continue
-			}
-			var freeBytes, totalBytes, totalFreeBytes uint64
-			errFree := windows.GetDiskFreeSpaceEx(volPtr, &freeBytes, &totalBytes, &totalFreeBytes)
-			hasValidSpace := errFree == nil && totalBytes > 0
-			if hasValidSpace {
-				usedBytes := totalBytes - freeBytes
-				totalGB := float64(totalBytes) / (1024 * 1024 * 1024)
-				usedGB := float64(usedBytes) / (1024 * 1024 * 1024)
-				freeGB := float64(freeBytes) / (1024 * 1024 * 1024)
-				usedPct := int((float64(usedBytes) / float64(totalBytes)) * 100.0)
-
-				drives = append(drives, DriveInfo{
-					MountPoint:  driveRoot,
-					TotalGB:     totalGB,
-					UsedGB:      usedGB,
-					FreeGB:      freeGB,
-					UsedPercent: usedPct,
-				})
-			}
+		driveInfo, hasInfo := probeDriveIndex(bitmask, i)
+		if hasInfo {
+			drives = append(drives, driveInfo)
 		}
 	}
 
@@ -108,11 +89,20 @@ func probeWindowsDisks() []DriveInfo {
 	return probeFallbackDrive()
 }
 
-func probeFallbackDrive() []DriveInfo {
-	driveRoot := "C:\\"
+func probeDriveIndex(bitmask uint32, index int) (DriveInfo, bool) {
+	hasDrive := (bitmask & (1 << uint(index))) != 0
+	if hasDrive {
+		return probeWindowsDriveLetter(byte('A' + index))
+	}
+	return DriveInfo{}, false
+}
+
+func probeWindowsDriveLetter(letter byte) (DriveInfo, bool) {
+	driveRoot := fmt.Sprintf("%c:\\", letter)
 	volPtr, err := windows.UTF16PtrFromString(driveRoot)
-	if err != nil {
-		return []DriveInfo{}
+	hasVolErr := err != nil
+	if hasVolErr {
+		return DriveInfo{}, false
 	}
 	var freeBytes, totalBytes, totalFreeBytes uint64
 	errFree := windows.GetDiskFreeSpaceEx(volPtr, &freeBytes, &totalBytes, &totalFreeBytes)
@@ -124,15 +114,21 @@ func probeFallbackDrive() []DriveInfo {
 		freeGB := float64(freeBytes) / (1024 * 1024 * 1024)
 		usedPct := int((float64(usedBytes) / float64(totalBytes)) * 100.0)
 
-		return []DriveInfo{
-			{
-				MountPoint:  driveRoot,
-				TotalGB:     totalGB,
-				UsedGB:      usedGB,
-				FreeGB:      freeGB,
-				UsedPercent: usedPct,
-			},
-		}
+		return DriveInfo{
+			MountPoint:  driveRoot,
+			TotalGB:     totalGB,
+			UsedGB:      usedGB,
+			FreeGB:      freeGB,
+			UsedPercent: usedPct,
+		}, true
+	}
+	return DriveInfo{}, false
+}
+
+func probeFallbackDrive() []DriveInfo {
+	driveInfo, hasInfo := probeWindowsDriveLetter('C')
+	if hasInfo {
+		return []DriveInfo{driveInfo}
 	}
 	return []DriveInfo{}
 }

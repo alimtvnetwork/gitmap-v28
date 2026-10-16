@@ -2,6 +2,7 @@
 package helpdoc
 
 import (
+	"sort"
 	"strings"
 )
 
@@ -217,6 +218,18 @@ var topicSummaries = map[string]string{
 	"ignore":                      "Audit, configure, and enforce .gitignore patterns across repositories with SQLite Split-DB check caching, frequency intervals, and automated remediation.",
 	"fia":                         "Audit and remediate .gitignore patterns across repositories with SQLite Split-DB check caching and automated remediation.",
 	"fias":                        "Audit and remediate .gitignore patterns across repositories with SQLite Split-DB check caching and automated remediation.",
+	"cpu":                         "Query real-time CPU utilization percentage and core count with 5-second cache protection.",
+	"processor":                   "Query real-time CPU utilization percentage and core count with 5-second cache protection.",
+	"ram":                         "Query visible physical memory capacity, allocated memory, and utilization percentage.",
+	"memory":                      "Query visible physical memory capacity, allocated memory, and utilization percentage.",
+	"disk":                        "Inspect drive partitions, filesystem capacity, and storage utilization percentages.",
+	"network":                     "Interrogate network adapters, MAC addresses, IP assignments, link speeds, and traffic counters.",
+	"net":                         "Interrogate network adapters, MAC addresses, IP assignments, link speeds, and traffic counters.",
+	"adapters":                    "Interrogate network adapters, MAC addresses, IP assignments, link speeds, and traffic counters.",
+	"nodes-tasks":                 "Inspect active, pending, and heavy-duty AI agent tasks across fleet nodes with CPU/RAM metrics.",
+	"nodes tasks":                 "Inspect active, pending, and heavy-duty AI agent tasks across fleet nodes with CPU/RAM metrics.",
+	"nodes-queue":                 "Inspect active, pending, and heavy-duty AI agent tasks across fleet nodes with CPU/RAM metrics.",
+	"nodes queue":                 "Inspect active, pending, and heavy-duty AI agent tasks across fleet nodes with CPU/RAM metrics.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.
@@ -227,4 +240,16 @@ func GetTopicDetailedSummary(topic string) string {
 	}
 
 	return "Gitmap command line utilities."
+}
+
+// AllHelpTopics returns all registered help topic keys in sorted order.
+func AllHelpTopics() []string {
+	keys := make([]string, 0, len(topicSummaries))
+	for k := range topicSummaries {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	return keys
 }

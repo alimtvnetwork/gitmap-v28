@@ -7,9 +7,9 @@ var (
 	CheckHelpFn          func(subcmd string, args []string)
 )
 
-// RunOS dispatches gitmap os subcommands.
+// RunOS dispatches gitmap os subcommands through canonical CLI router.
 func RunOS(args []string) error {
-	return runOS(args)
+	return RunOSCLI(args)
 }
 
 // RunOSFixLink inspects and repairs broken symlinks and shared directories.

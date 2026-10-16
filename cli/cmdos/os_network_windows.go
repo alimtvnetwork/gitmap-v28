@@ -7,16 +7,14 @@ import (
 	"context"
 	"encoding/json"
 	"net"
-	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-const windowsNetAdapterPowerShellScript = `Get-NetAdapter | ForEach-Object { $a = $_; $stats = $a | Get-NetAdapterStatistics -ErrorAction SilentlyContinue; $ips = Get-NetIPAddress -InterfaceIndex $a.ifIndex -ErrorAction SilentlyContinue; [PSCustomObject]@{ name = $a.Name; description = $a.InterfaceDescription; status = $a.Status; isUp = ($a.Status -eq 'Up'); macAddress = $a.MacAddress; linkSpeed = $a.LinkSpeed; bytesSent = if ($stats) { [uint64]$stats.SentBytes } else { [uint64]0 }; bytesReceived = if ($stats) { [uint64]$stats.ReceivedBytes } else { [uint64]0 }; ipv4 = @($ips | Where-Object AddressFamily -eq 'IPv4' | Select-Object -ExpandProperty IPAddress); ipv6 = @($ips | Where-Object AddressFamily -eq 'IPv6' | Select-Object -ExpandProperty IPAddress) } } | ConvertTo-Json -Compress`
+const windowsNetAdapterPowerShellScript = `Get-NetAdapter | ForEach-Object { $a = $_; $stats = $a | Get-NetAdapterStatistics -ErrorAction SilentlyContinue; $ips = Get-NetIPAddress -InterfaceIndex $a.ifIndex -ErrorAction SilentlyContinue; $rxPkt = if ($stats) { [uint64]($stats.ReceivedUnicastPackets + $stats.ReceivedMulticastPackets + $stats.ReceivedBroadcastPackets) } else { [uint64]0 }; $txPkt = if ($stats) { [uint64]($stats.SentUnicastPackets + $stats.SentMulticastPackets + $stats.SentBroadcastPackets) } else { [uint64]0 }; [PSCustomObject]@{ name = $a.Name; description = $a.InterfaceDescription; status = $a.Status; isUp = ($a.Status -eq 'Up'); macAddress = $a.MacAddress; linkSpeed = $a.LinkSpeed; bytesSent = if ($stats) { [uint64]$stats.SentBytes } else { [uint64]0 }; bytesReceived = if ($stats) { [uint64]$stats.ReceivedBytes } else { [uint64]0 }; packetsSent = $txPkt; packetsReceived = $rxPkt; ipv4 = @($ips | Where-Object AddressFamily -eq 'IPv4' | Select-Object -ExpandProperty IPAddress); ipv6 = @($ips | Where-Object AddressFamily -eq 'IPv6' | Select-Object -ExpandProperty IPAddress) } } | ConvertTo-Json -Compress`
 
 // collectNetworkReport gathers network adapter telemetry on Windows platforms.
 func collectNetworkReport() (NetworkReport, error) {
@@ -29,47 +27,42 @@ func collectNetworkReport() (NetworkReport, error) {
 		return collectFallbackNetworkReport()
 	}
 
-	trimmed := strings.TrimSpace(string(out))
-	if len(trimmed) == 0 {
-		return collectFallbackNetworkReport()
-	}
-
-	var adapters []NetworkAdapterInfo
-	if strings.HasPrefix(trimmed, "[") {
-		if unmarshalErr := json.Unmarshal([]byte(trimmed), &adapters); unmarshalErr != nil {
-			return collectFallbackNetworkReport()
-		}
-	} else if strings.HasPrefix(trimmed, "{") {
-		var single NetworkAdapterInfo
-		if unmarshalErr := json.Unmarshal([]byte(trimmed), &single); unmarshalErr != nil {
-			return collectFallbackNetworkReport()
-		}
-		adapters = []NetworkAdapterInfo{single}
-	} else {
+	adapters, parseErr := parseWindowsAdaptersJSON(string(out))
+	if parseErr != nil {
 		return collectFallbackNetworkReport()
 	}
 
 	return assembleNetworkReport(adapters), nil
 }
 
-func assembleNetworkReport(adapters []NetworkAdapterInfo) NetworkReport {
-	var totalSent, totalRecv uint64
-	for i := range adapters {
-		adapters[i].IPv4Addresses = adapters[i].IPv4
-		adapters[i].IPv6Addresses = adapters[i].IPv6
-		totalSent += adapters[i].BytesSent
-		totalRecv += adapters[i].BytesReceived
+func parseWindowsAdaptersJSON(raw string) ([]NetworkAdapterInfo, error) {
+	trimmed := strings.TrimSpace(raw)
+	isEmpty := len(trimmed) == 0
+	if isEmpty {
+		return nil, apperror.NewSimple("empty powershell json output")
 	}
 
-	hostname, _ := os.Hostname()
-	return NetworkReport{
-		Platform:       runtime.GOOS,
-		Hostname:       hostname,
-		Adapters:       adapters,
-		TotalBytesSent: totalSent,
-		TotalBytesRecv: totalRecv,
-		CollectedAt:    time.Now().UTC().Format(time.RFC3339),
+	isArray := strings.HasPrefix(trimmed, "[")
+	if isArray {
+		var list []NetworkAdapterInfo
+		err := json.Unmarshal([]byte(trimmed), &list)
+		if err != nil {
+			return nil, apperror.WrapSimple(err, "unmarshal adapter array")
+		}
+		return list, nil
 	}
+
+	isObject := strings.HasPrefix(trimmed, "{")
+	if isObject {
+		var single NetworkAdapterInfo
+		err := json.Unmarshal([]byte(trimmed), &single)
+		if err != nil {
+			return nil, apperror.WrapSimple(err, "unmarshal adapter object")
+		}
+		return []NetworkAdapterInfo{single}, nil
+	}
+
+	return nil, apperror.NewSimple("unexpected json format from powershell")
 }
 
 // collectFallbackNetworkReport provides resilience by querying standard Go net.Interfaces if PowerShell fails.
@@ -90,14 +83,7 @@ func collectFallbackNetworkReport() (NetworkReport, error) {
 		var ipv4List, ipv6List []string
 		addrs, _ := iface.Addrs()
 		for _, addr := range addrs {
-			ip, _, cidrErr := net.ParseCIDR(addr.String())
-			if cidrErr == nil && ip != nil {
-				if ip.To4() != nil {
-					ipv4List = append(ipv4List, ip.String())
-				} else {
-					ipv6List = append(ipv6List, ip.String())
-				}
-			}
+			appendParsedIP(addr, &ipv4List, &ipv6List)
 		}
 
 		adapters = append(adapters, NetworkAdapterInfo{

@@ -217,7 +217,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"prompts-status"}, func() error { return cmdcg.RunCG(append([]string{"prompts-status"}, argsTail()...)) }},
 		{[]string{"prompts-version"}, func() error { return cmdcg.RunCG(append([]string{"prompts-version"}, argsTail()...)) }},
 		{[]string{"workdir", "work-dir", "wd"}, func() error { return cmdworkdir.RunWorkDir(argsTail()) }},
-		{[]string{"os", "os-update"}, func() error { return cmdos.RunOSCLI(argsTail()) }},
+		{[]string{"os-update"}, func() error { return cmdos.RunOSCLI([]string{"update"}) }},
 		{[]string{"change-password", "passwd", "chpasswd"}, func() error { return cmdos.RunChangePasswordCLI(argsTail()) }},
 		{[]string{"machine", "machines", "machine-name", "hostname"}, func() error { return cmdos.RunMachineCLI(argsTail()) }},
 		{[]string{"os-info", "osinfo", "sysinfo", "system-info", "which-os", "whichos", "os-which"}, func() error { return cmdos.RunOSInfoCLI(argsTail()) }},

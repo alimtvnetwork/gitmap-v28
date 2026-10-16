@@ -1,10 +1,11 @@
-# Plan: GitMap Command Enhancements
+# Completed Plan: GitMap Command Enhancements (v6.556.0)
 
 - **Slug:** `gitmap-command-enhancements`
-- **Spec Reference:** `02-spec/21-app/gitmap-command-enhancements/01-architecture-spec.md`
-- **Component Spec:** `02-spec/21-app/gitmap-command-enhancements/02-component-spec.md`
-- **Status:** `active`
-- **Created:** 2026-10-16
+- **Spec Reference:** [`02-spec/21-app/gitmap-command-enhancements/01-architecture-spec.md`](../../02-spec/21-app/gitmap-command-enhancements/01-architecture-spec.md)
+- **Component Spec:** [`02-spec/21-app/gitmap-command-enhancements/02-component-spec.md`](../../02-spec/21-app/gitmap-command-enhancements/02-component-spec.md)
+- **Status:** `COMPLETED`
+- **Completed Date:** 2026-10-16
+- **Release Version:** `v6.556.0`
 
 ---
 
@@ -58,21 +59,60 @@ Can you please create, or you should have delegation command and also itself has
 
 ---
 
-## User Uploaded Context
+## Completed Subtasks Summary
 
-![User Console Output 1](assets/screenshots/gitmap-command-enhancements-01.png)
-![User Console Output 2](assets/screenshots/gitmap-command-enhancements-02.png)
+### Subtask 01: Fix OS JSON and Help Layout (Task-01)
+- **Status:** `DONE`
+- **Files Modified:** `cli/cmdos/os.go`, `cli/cmdos/exports.go`, `cli/cmdos/os_cmd.go`, `cli/cmdos/os_help_modern.go`, `cli/cmd/rootutility.go`, `cli/cmd/roottooling.go`
+- **Deliverables:**
+  - Fixed root cause of `unknown os subcommand '--json'` (`E_INVALID_OS_SUBCMD`).
+  - Added root-level `--json`, `-j`, and `json` inspection to output structured `MachineIdentity` JSON.
+  - Aligned routing in `cli/cmd/rootutility.go` delegating `constants.CmdOS` directly to `cmdos.RunOSCLI`, eliminating shadowed duplicate in `roottooling.go`.
+  - Implemented 3-part layout for default `gitmap os`:
+    1. Modern OS Menu (`RenderModernOSHelpMenuOnly`)
+    2. Active Host Machine Identity in the middle (`renderOSMachineIdentityFooter`)
+    3. Real-World Sample Commands at the bottom (`PrintCrossPlatformOSExamples`)
 
----
+### Subtask 02: Hardware Telemetry and 5s Cache (Task-02)
+- **Status:** `DONE`
+- **Files Modified:** `cli/cmdos/hw_cache.go`, `cli/cmdos/hw_probe_windows.go`, `cli/cmdos/hw_probe_linux.go`
+- **Deliverables:**
+  - Implemented top-level commands `gitmap cpu`, `processor`, `ram`, `disk` with 5-second cross-process caching (`HardwareMetricsTTL = 5 * time.Second`).
+  - Implemented atomic tempfile write semantics (`.tmp` + rename) for disk cache to prevent multi-process read collisions.
+  - Windows probe: PowerShell CIM query averaging `LoadPercentage` and `Win32_OperatingSystem` memory; native Win32 volume space API via `windows.GetDiskFreeSpaceEx`.
+  - Linux probe: in-process zero-subprocess parsing of `/proc/stat` delta ticks for CPU, `/proc/meminfo` for RAM, `/proc/cpuinfo` for processor model, and `syscall.Statfs` for disk volume capacity.
+  - Supported `--json` / `-j` flag across all commands.
 
-## Architecture & Subtask Decomposition
+### Subtask 03: Network Adapter Telemetry (Task-03)
+- **Status:** `DONE`
+- **Files Modified:** `cli/cmdos/os_network_types.go`, `cli/cmdos/os_network_render.go`, `cli/cmdos/os_network_windows.go`, `cli/cmdos/os_network_posix.go`
+- **Deliverables:**
+  - Implemented `gitmap os network` and `gitmap network` with `--json` / `-j` and `--all` flags.
+  - Queries adapter names, status (`isUp`), MAC address, IPv4/IPv6 addresses, link speed, and cumulative traffic counters (TX/RX bytes and packets).
+  - Windows: PowerShell CIM queries with standard library `net.Interfaces()` fallback.
+  - Linux/POSIX: in-process `net.Interfaces()`, `/proc/net/dev`, and `/sys/class/net/<name>/speed`.
+  - Lipgloss terminal table rendering with theme ramp.
 
-### Wave 1: Core OS & Fast Hardware Telemetry
-- **Subtask 01 (`01-os-json-and-machine-footer.md`):** Fix `cli/cmdos/os.go` and `cli/cmdos/os_cmd.go` to handle `--json`, `-j`, and `json` cleanly without throwing `E_INVALID_OS_SUBCMD`. Enhance default `gitmap os` call to append live machine/OS identity summary at the end.
-- **Subtask 02 (`02-fast-hardware-telemetry-and-cache.md`):** Implement `gitmap cpu`, `processor`, `ram`, `disk` (and `gitmap os cpu`, `ram`, `disk`) with Windows PowerShell CIM execution, Linux `/proc` readers, and a 5-second cross-process cache in `cli/cmdos/` and `cli/cmd/rootutility.go`.
+### Subtask 04: Nodes Tasks Queue Delegation (Task-04)
+- **Status:** `DONE`
+- **Files Modified:** `cli/cmdnodes/nodes_tasks.go`, `cli/cmdnodes/nodes_tasks_query.go`, `cli/cmdnodes/nodes_tasks_types.go`, `cli/cmdnodes/nodes_resources.go`, `cli/cmdnodes/nodes_cmd.go`
+- **Deliverables:**
+  - Implemented `gitmap nodes tasks` (aliases: `nodes queue`, `nodes jobs`) to query remote nodes for CPU, RAM, enqueued tasks, active tasks, and heavy-duty task classification (`isHeavyDuty: true`).
+  - Fixed node enumeration in `nodes_resources.go:67` by replacing unhandled `cmdssh.FetchAllSSHConnections()` with `collectUnifiedNodes(ctx, true)`.
+  - Embedded `?` placeholder for future role-based scheduling as requested.
+  - Supported `--json`, `--open-only`, and `--heavy-only` flags.
 
-### Wave 2: Network Adapters, Nodes Tasks Delegation & UI/Release
-- **Subtask 03 (`03-os-network-adapter-metrics.md`):** Implement `gitmap os network` (and `gitmap network`) in `cli/cmdos/` to query adapter names, status, IPv4, IPv6, MAC address, link speed, and byte counters across Windows and Linux with `--json` support.
-- **Subtask 04 (`04-nodes-tasks-queue-and-delegation.md`):** Implement `gitmap nodes tasks` in `cli/cmdnodes/` to query remote nodes for CPU, RAM, enqueued task counts, active tasks, and heavy-duty task flags via SSH; record future role-based scheduling ambiguity in `.ai-memory/ambiguous-questions/01-new-ambiguity/`.
-- **Subtask 05 (`05-docs-help-and-ui-registry.md`):** Author help topics in `cli/helpdoc/` and `docs/commands/`, and register `cpu`, `ram`, `disk`, `network`, and `nodes tasks` in `src/data/commands.ts`.
-- **Subtask 06 (`06-verification-and-release-ceremony.md`):** Execute targeted verification checks, test against available nodes, perform minor version bump release ceremony (`v6.554.0`), and verify clean CI/CD pipeline state.
+### Subtask 05: Help Docs & UI Registry (Task-05)
+- **Status:** `DONE`
+- **Files Created/Modified:** `cli/helpdoc/cpu.md`, `cli/helpdoc/ram.md`, `cli/helpdoc/disk.md`, `cli/helpdoc/network.md`, `cli/helpdoc/nodes-tasks.md`, `cli/helpdoc/print.go`, `cli/helpdoc/catalog.go`, `src/data/commands.ts`
+- **Deliverables:**
+  - Authored terminal help documentation for `cpu`, `ram`, `disk`, `network`, `nodes-tasks`.
+  - Routed topics and added summaries in `cli/helpdoc/print.go` and `cli/helpdoc/catalog.go`.
+  - Registered commands in web catalog `src/data/commands.ts`.
+
+### Subtask 06: Node Verification & Minor Version Bump (Task-06)
+- **Status:** `DONE`
+- **Files Modified:** `version.json`
+- **Deliverables:**
+  - Multi-node verification: verified non-destructive probe against Node 2 / VM Two (alias `w2`, `192.168.1.7:22`), confirmed safe offline handling.
+  - Minor version bump to `v6.556.0` in `version.json`.

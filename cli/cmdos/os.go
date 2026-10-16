@@ -9,22 +9,29 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// runOS dispatches gitmap os subcommands.
+// runOS dispatches gitmap os subcommands with strict UX ordering.
 func runOS(args []string) error {
-	if len(args) == 0 {
-		RenderModernOSHelp()
-		renderOSMachineIdentityFooter()
+	if len(args) == 0 || isOSHelpArg(args[0]) {
+		renderOSHelpWithIdentityFooter()
+
 		return nil
 	}
-	if isOSHelpArg(args[0]) {
-		RenderModernOSHelp()
-		renderOSMachineIdentityFooter()
-		return nil
-	}
+
 	if len(args) == 1 && hasOSJSONArg(args) {
 		return renderSingleMachineIdentity(resolveLocalMachineIdentity(), true)
 	}
+
 	return dispatchOSSubcommand(strings.ToLower(args[0]), args[1:])
+}
+
+// renderOSHelpWithIdentityFooter enforces the canonical 3-part layout:
+// 1. OS Commands Menu
+// 2. Active Host Machine Identity
+// 3. Real-World Sample Commands at the bottom
+func renderOSHelpWithIdentityFooter() {
+	RenderModernOSHelpMenuOnly()
+	renderOSMachineIdentityFooter()
+	PrintCrossPlatformOSExamples()
 }
 
 func hasOSJSONArg(args []string) bool {

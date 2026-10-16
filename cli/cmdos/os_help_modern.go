@@ -8,10 +8,21 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
-// RenderModernOSHelp prints the boxed enterprise help menu for gitmap os.
-func RenderModernOSHelp() {
+// RenderModernOSHelpMenuOnly renders only the boxed command table.
+func RenderModernOSHelpMenuOnly() {
 	termout.RenderMenu(buildModernOSHelpMenu())
+}
+
+// PrintCrossPlatformOSExamples prints real-world copy-pasteable CLI commands.
+func PrintCrossPlatformOSExamples() {
 	printCrossPlatformOSExamples()
+}
+
+// RenderModernOSHelp renders the complete help flow with Active Identity in the middle.
+func RenderModernOSHelp() {
+	RenderModernOSHelpMenuOnly()
+	renderOSMachineIdentityFooter()
+	PrintCrossPlatformOSExamples()
 }
 
 func buildModernOSHelpMenu() termout.HelpMenu {

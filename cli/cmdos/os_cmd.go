@@ -12,8 +12,8 @@ var osCmd = &cobra.Command{
 	Use:   "os",
 	Short: "Manage operating system updates, machine identity, network alias, and system hygiene",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		RenderModernOSHelp()
-		renderOSMachineIdentityFooter()
+		renderOSHelpWithIdentityFooter()
+
 		return nil
 	},
 }
@@ -67,16 +67,14 @@ var osDockCmd = &cobra.Command{
 func init() {
 	osCmd.AddCommand(osUpdateCmd, osFullUpgradeCmd, osFixMirrorsCmd, osMachineCmd, osAliasCmd, osTUICmd, osDockCmd)
 	osCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-		RenderModernOSHelp()
-		renderOSMachineIdentityFooter()
+		renderOSHelpWithIdentityFooter()
 	})
 }
 
 // RunOSCLI routes OS CLI commands including machine, alias, modernized help, and system tools.
 func RunOSCLI(args []string) error {
 	if len(args) == 0 || isOSHelpArg(args[0]) {
-		RenderModernOSHelp()
-		renderOSMachineIdentityFooter()
+		renderOSHelpWithIdentityFooter()
 
 		return nil
 	}

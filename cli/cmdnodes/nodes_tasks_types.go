@@ -19,13 +19,18 @@ type TaskItemSummary struct {
 	CreatedAt    string `json:"createdAt"`
 }
 
-// NodeTaskReport summarizes active tasks and queue depth for a single fleet node.
+// NodeTaskReport summarizes active tasks, hardware pressure, and queue depth for a single fleet node.
 type NodeTaskReport struct {
 	NodeAlias        string            `json:"nodeAlias"`
 	NodeHost         string            `json:"nodeHost"`
 	NodePort         int               `json:"nodePort"`
 	IsLocal          bool              `json:"isLocal"`
 	Status           string            `json:"status"`
+	CPUPercent       int               `json:"cpuPercent"`
+	RAMPercent       int               `json:"ramPercent"`
+	TotalRAMMB       uint64            `json:"totalRamMb"`
+	UsedRAMMB        uint64            `json:"usedRamMb"`
+	RolePlaceholder  string            `json:"rolePlaceholder"`
 	ActiveTaskCount  int               `json:"activeTaskCount"`
 	PendingTaskCount int               `json:"pendingTaskCount"`
 	HeavyTaskCount   int               `json:"heavyTaskCount"`
@@ -47,6 +52,7 @@ type FleetTasksPayload struct {
 type nodesTasksOptions struct {
 	isJSON       bool
 	isOpenOnly   bool
+	isHeavyOnly  bool
 	limit        int
 	targetFilter string
 }
@@ -62,6 +68,8 @@ func parseNodesTasksOptions(args []string) nodesTasksOptions {
 			opts.isJSON = true
 		case a == "--open-only" || a == "--online-only" || a == "--running-only" || a == "-ro":
 			opts.isOpenOnly = true
+		case a == "--heavy-only" || a == "--heavy" || a == "-ho":
+			opts.isHeavyOnly = true
 		case (a == "--limit" || a == "-l") && i+1 < len(args):
 			i++
 			opts.limit = parsePositiveIntLimit(args[i], opts.limit)
@@ -85,7 +93,7 @@ func isTaskFilterCandidate(arg string) bool {
 		return false
 	}
 	tok := strings.ToLower(arg)
-	isSubcmd := tok == "tasks" || tok == "task" || tok == "task-queue" || tok == "tasks-queue" || tok == "queue" || tok == "jobs" || tok == "delegation"
+	isSubcmd := tok == "tasks" || tok == "task" || tok == "task-queue" || tok == "tasks-queue" || tok == "queue" || tok == "jobs" || tok == "delegation" || tok == "nodes"
 	if isSubcmd {
 		return false
 	}
@@ -98,7 +106,7 @@ func detectHeavyDutyTask(totalStepsBudget int, title, taskCode string) bool {
 		return true
 	}
 	text := strings.ToLower(title + " " + taskCode)
-	keywords := []string{"heavy", "deep-scan", "migration", "full-audit", "rebuild-all"}
+	keywords := []string{"heavy", "deep-scan", "migration", "full-audit", "rebuild-all", "build-all", "e2e", "coverage"}
 	for _, kw := range keywords {
 		hasKw := strings.Contains(text, kw)
 		if hasKw {

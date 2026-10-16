@@ -31,16 +31,19 @@ var (
 )
 
 func isMemoryCacheValid() bool {
-	if hwMemoryCache == nil {
-		return false
+	hasCache := hwMemoryCache != nil
+	if hasCache {
+		isFresh := time.Since(hwMemoryCache.Timestamp) < HardwareMetricsTTL
+		return isFresh
 	}
-	return time.Since(hwMemoryCache.Timestamp) < HardwareMetricsTTL
+	return false
 }
 
 // GetHardwareMetrics returns cached hardware metrics or triggers a fresh platform probe.
 func GetHardwareMetrics() (HardwareMetrics, error) {
 	hwCacheLock.RLock()
-	if isMemoryCacheValid() {
+	isMemValid := isMemoryCacheValid()
+	if isMemValid {
 		cached := *hwMemoryCache
 		cached.IsCached = true
 		hwCacheLock.RUnlock()
@@ -51,7 +54,8 @@ func GetHardwareMetrics() (HardwareMetrics, error) {
 	hwCacheLock.Lock()
 	defer hwCacheLock.Unlock()
 
-	if isMemoryCacheValid() {
+	isMemValidSecond := isMemoryCacheValid()
+	if isMemValidSecond {
 		cached := *hwMemoryCache
 		cached.IsCached = true
 		return cached, nil
@@ -67,7 +71,8 @@ func GetHardwareMetrics() (HardwareMetrics, error) {
 
 	start := time.Now()
 	fresh, err := executePlatformHWProbe()
-	if err != nil {
+	hasProbeErr := err != nil
+	if hasProbeErr {
 		return HardwareMetrics{}, apperror.WrapSimple(err, "GetHardwareMetrics.executePlatformHWProbe")
 	}
 	fresh.Timestamp = time.Now()
@@ -87,12 +92,15 @@ func resolveHWCacheFilePath() string {
 func readDiskHWCache() (HardwareMetrics, bool) {
 	cachePath := resolveHWCacheFilePath()
 	data, err := os.ReadFile(cachePath)
-	if err != nil {
+	hasReadErr := err != nil
+	if hasReadErr {
 		return HardwareMetrics{}, false
 	}
 
 	var env HardwareCacheEnvelope
-	if err := json.Unmarshal(data, &env); err != nil {
+	unmarshalErr := json.Unmarshal(data, &env)
+	hasUnmarshalErr := unmarshalErr != nil
+	if hasUnmarshalErr {
 		return HardwareMetrics{}, false
 	}
 
@@ -114,15 +122,31 @@ func writeDiskHWCache(m HardwareMetrics) error {
 		Metrics:    m,
 	}
 	data, err := json.Marshal(env)
-	if err != nil {
-		return err
+	hasMarshalErr := err != nil
+	if hasMarshalErr {
+		return apperror.WrapSimple(err, "writeDiskHWCache.marshal")
 	}
-	return os.WriteFile(cachePath, data, 0600)
+
+	tmpPath := fmt.Sprintf("%s.%d.tmp", cachePath, time.Now().UnixNano())
+	writeErr := os.WriteFile(tmpPath, data, 0600)
+	hasWriteErr := writeErr != nil
+	if hasWriteErr {
+		return apperror.WrapSimple(writeErr, "writeDiskHWCache.writeFile")
+	}
+
+	renameErr := os.Rename(tmpPath, cachePath)
+	hasRenameErr := renameErr != nil
+	if hasRenameErr {
+		_ = os.Remove(tmpPath)
+		return apperror.WrapSimple(renameErr, "writeDiskHWCache.rename")
+	}
+	return nil
 }
 
 func printJSON(v any) error {
 	data, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return apperror.WrapSimple(err, "printJSON")
 	}
 	fmt.Println(string(data))
@@ -130,9 +154,11 @@ func printJSON(v any) error {
 }
 
 func runCPUCLI(args []string) error {
+	checkHelp("cpu", args)
 	isJSON := hasOSJSONArg(args)
 	metrics, err := GetHardwareMetrics()
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return err
 	}
 	if isJSON {
@@ -143,9 +169,11 @@ func runCPUCLI(args []string) error {
 }
 
 func runRAMCLI(args []string) error {
+	checkHelp("ram", args)
 	isJSON := hasOSJSONArg(args)
 	metrics, err := GetHardwareMetrics()
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return err
 	}
 	if isJSON {
@@ -156,9 +184,11 @@ func runRAMCLI(args []string) error {
 }
 
 func runDiskCLI(args []string) error {
+	checkHelp("disk", args)
 	isJSON := hasOSJSONArg(args)
 	metrics, err := GetHardwareMetrics()
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return err
 	}
 	if isJSON {
@@ -169,10 +199,12 @@ func runDiskCLI(args []string) error {
 }
 
 func renderProgressBar(pct int, width int) string {
-	if pct < 0 {
+	isUnder := pct < 0
+	if isUnder {
 		pct = 0
 	}
-	if pct > 100 {
+	isOver := pct > 100
+	if isOver {
 		pct = 100
 	}
 	filled := (pct * width) / 100
@@ -242,6 +274,28 @@ func renderRAMView(ram RAMMetrics, isCached bool, durationMs int64) {
 	fmt.Print(sb.String())
 }
 
+func renderDiskRows(disks []DriveInfo, sb *strings.Builder) {
+	sb.WriteString(fmt.Sprintf("  %-12s %-12s %-12s %-12s %-16s\n",
+		hwStyleHeader.Render("MOUNT"),
+		hwStyleHeader.Render("TOTAL"),
+		hwStyleHeader.Render("USED"),
+		hwStyleHeader.Render("FREE"),
+		hwStyleHeader.Render("USAGE")))
+	sb.WriteString(fmt.Sprintf("  %s\n", hwStyleDim.Render(strings.Repeat("─", 68))))
+
+	for _, d := range disks {
+		pctStyle := resolvePercentStyle(d.UsedPercent)
+		bar := renderProgressBar(d.UsedPercent, 12)
+		sb.WriteString(fmt.Sprintf("  %-12s %-12s %-12s %-12s %s %s\n",
+			d.MountPoint,
+			fmt.Sprintf("%.1f GB", d.TotalGB),
+			fmt.Sprintf("%.1f GB", d.UsedGB),
+			fmt.Sprintf("%.1f GB", d.FreeGB),
+			pctStyle.Render(fmt.Sprintf("%3d%%", d.UsedPercent)),
+			pctStyle.Render(bar)))
+	}
+}
+
 func renderDiskView(disks []DriveInfo, isCached bool, durationMs int64) {
 	badge := hwStyleLiveBadge.Render(fmt.Sprintf("[live %dms]", durationMs))
 	if isCached {
@@ -255,26 +309,10 @@ func renderDiskView(disks []DriveInfo, isCached bool, durationMs int64) {
 
 	hasDrives := len(disks) > 0
 	if hasDrives {
-		sb.WriteString(fmt.Sprintf("  %-12s %-12s %-12s %-12s %-16s\n",
-			hwStyleHeader.Render("MOUNT"),
-			hwStyleHeader.Render("TOTAL"),
-			hwStyleHeader.Render("USED"),
-			hwStyleHeader.Render("FREE"),
-			hwStyleHeader.Render("USAGE")))
-		sb.WriteString(fmt.Sprintf("  %s\n", hwStyleDim.Render(strings.Repeat("─", 68))))
-
-		for _, d := range disks {
-			pctStyle := resolvePercentStyle(d.UsedPercent)
-			bar := renderProgressBar(d.UsedPercent, 12)
-			sb.WriteString(fmt.Sprintf("  %-12s %-12s %-12s %-12s %s %s\n",
-				d.MountPoint,
-				fmt.Sprintf("%.1f GB", d.TotalGB),
-				fmt.Sprintf("%.1f GB", d.UsedGB),
-				fmt.Sprintf("%.1f GB", d.FreeGB),
-				pctStyle.Render(fmt.Sprintf("%3d%%", d.UsedPercent)),
-				pctStyle.Render(bar)))
-		}
-	} else {
+		renderDiskRows(disks, &sb)
+	}
+	isEmptyDrives := len(disks) == 0
+	if isEmptyDrives {
 		sb.WriteString(fmt.Sprintf("  %s\n", hwStyleDim.Render("No active drive volumes discovered.")))
 	}
 
