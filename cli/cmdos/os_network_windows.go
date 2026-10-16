@@ -39,7 +39,7 @@ func parseWindowsAdaptersJSON(raw string) ([]NetworkAdapterInfo, error) {
 	trimmed := strings.TrimSpace(raw)
 	isEmpty := len(trimmed) == 0
 	if isEmpty {
-		return nil, apperror.NewSimple("empty powershell json output")
+		return nil, apperror.NewSimple("parseWindowsAdaptersJSON", "empty powershell json output")
 	}
 
 	isArray := strings.HasPrefix(trimmed, "[")
@@ -52,7 +52,7 @@ func parseWindowsAdaptersJSON(raw string) ([]NetworkAdapterInfo, error) {
 		return unmarshalAdapterSingle([]byte(trimmed))
 	}
 
-	return nil, apperror.NewSimple("unexpected json format from powershell")
+	return nil, apperror.NewSimple("parseWindowsAdaptersJSON", "unexpected json format from powershell")
 }
 
 func unmarshalAdapterList(data []byte) ([]NetworkAdapterInfo, error) {

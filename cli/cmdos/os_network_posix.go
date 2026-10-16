@@ -84,6 +84,7 @@ func parseProcNetDev() map[string]procNetDevStats {
 			continue
 		}
 		line := strings.TrimSpace(scanner.Text())
+		colonIdx := strings.Index(line, ":")
 		hasColon := colonIdx != -1
 		if !hasColon {
 			continue
