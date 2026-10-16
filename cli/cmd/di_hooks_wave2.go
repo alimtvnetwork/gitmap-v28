@@ -48,7 +48,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdimport"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinject"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinteractive"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdjoin"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlatestbranch"
@@ -203,7 +202,6 @@ func wireWave2Hooks() {
 	cmdrepo.RunRecreateFn = cmdrecreate.RunRecreate
 	cmdselfinstall.CheckHelpFn = checkHelp
 	cmdselfinstall.CleanCorruptedInstallDirsSilentFn = cmdmigrate.CleanCorruptedInstallDirsSilent
-	cmdselfinstall.SetHiddenProcessAttrFn = cmdinstall.SetHiddenProcessAttr
 	cmdrepo.RunCreateLocalFn = cmdcreate.RunCreateLocal
 	cmdrm.CheckHelpFn = checkHelp
 	cmdsearch.CheckHelpFn = checkHelp

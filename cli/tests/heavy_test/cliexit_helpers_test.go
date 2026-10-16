@@ -153,13 +153,14 @@ func (e *buildError) Error() string {
 func runGitmap(t *testing.T, args []string, stdin string) (int, string, string) {
 	t.Helper()
 	bin := ensureGitmapBinary(t)
+	workDir := t.TempDir()
 	cmd := exec.Command(bin, args...)
-	cmd.Dir = t.TempDir()
+	cmd.Dir = workDir
 	cmd.Env = hermeticEnv()
 	cmd.Stdin = strings.NewReader(stdin)
 
-	stdoutPath := filepath.Join(t.TempDir(), "stdout")
-	stderrPath := filepath.Join(t.TempDir(), "stderr")
+	stdoutPath := filepath.Join(workDir, "stdout")
+	stderrPath := filepath.Join(workDir, "stderr")
 
 	stdoutF, err := os.Create(stdoutPath)
 	if err != nil {

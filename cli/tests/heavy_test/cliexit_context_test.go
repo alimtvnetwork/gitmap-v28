@@ -1,6 +1,7 @@
 package heavy_test
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -46,7 +47,11 @@ func skipOnWindowsSubprocess(_ *testing.T) {}
 func TestCLI_FailureContext_Scan(t *testing.T) {
 	skipOnWindowsSubprocess(t)
 	t.Parallel()
-	missing := filepath.Join(t.TempDir(), "definitely-not-here")
+	tempDir := t.TempDir()
+	t.Cleanup(func() {
+		_ = os.RemoveAll(filepath.Join(tempDir, "repo-cache"))
+	})
+	missing := filepath.Join(tempDir, "definitely-not-here")
 	code, stdout, stderr := runGitmap(t, []string{"scan", "--quiet", missing}, "")
 	if code == 0 {
 		t.Fatalf("scan of missing dir unexpectedly succeeded\nstdout=%s\nstderr=%s",

@@ -176,10 +176,6 @@ func executePullStreamWithAutostash(rec model.ScanRecord, branch, oldSHA string,
 	return handleSuccessfulPull(rec, branch, oldSHA, result.Notes, bar, elapsed)
 }
 
-func executePullStream(rec model.ScanRecord, branch, oldSHA string, bar *PullProgressBar, workerID int, start time.Time) *PullRepoState {
-	return executePullStreamWithAutostash(rec, branch, oldSHA, false, bar, workerID, start)
-}
-
 func resolvePullProgressHandler(bar *PullProgressBar, workerID int, repoName string) func(string) {
 	if bar == nil {
 		return nil
@@ -213,10 +209,6 @@ func handleMissingRepoPull(rec model.ScanRecord, bar *PullProgressBar, start tim
 	}
 
 	return state
-}
-
-func handleFailedPull(rec model.ScanRecord, branch, sha, errMsg string, bar *PullProgressBar, elapsed time.Duration) *PullRepoState {
-	return handleFailedAutostashPull(rec, branch, sha, false, errMsg, bar, elapsed)
 }
 
 func handleFailedAutostashPull(rec model.ScanRecord, branch, sha string, isPrePullDirty bool, errMsg string, bar *PullProgressBar, elapsed time.Duration) *PullRepoState {

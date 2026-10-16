@@ -129,10 +129,6 @@ func quoteRemediationTarget(s string) string {
 	return s
 }
 
-func resolveAuthDualHints() (string, string, string, string) {
-	return "Fix Windows Credentials", "gitmap fix-credential", "Deploy SSH Keys", "gitmap ssh deploy-keys"
-}
-
 func resolveCredentialAndSSHDualHints(repoDir, repoName string) (string, string, string, string) {
 	target := quoteRemediationTarget(resolveEffectiveRepoName(repoName, repoDir))
 	fixCmd := fmt.Sprintf("gitmap fix %s", target)
