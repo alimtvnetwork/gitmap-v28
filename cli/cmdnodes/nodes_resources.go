@@ -176,16 +176,9 @@ func executeFleetResourcesProbeUnified(ctx context.Context, nodes []UnifiedFleet
 	}
 
 	conns, errConns := cmdssh.FetchAllSSHConnections()
-	connMap := make(map[string]db.SSHConnection, len(conns)*2)
+	connMap := make(map[string]db.SSHConnection)
 	if errConns == nil {
-		for _, c := range conns {
-			if c.IPAddress != "" {
-				connMap[strings.ToLower(c.IPAddress)] = c
-			}
-			if c.Alias != "" {
-				connMap[strings.ToLower(c.Alias)] = c
-			}
-		}
+		connMap = indexSSHConnections(conns)
 	}
 
 	for _, n := range nodes {
@@ -274,4 +267,17 @@ func parseCSV(raw string) (cpu, ram, tot, used int, err error) {
 		return c, r, t, u, nil
 	}
 	return 0, 0, 0, 0, fmt.Errorf("invalid metrics")
+}
+
+func indexSSHConnections(conns []db.SSHConnection) map[string]db.SSHConnection {
+	connMap := make(map[string]db.SSHConnection, len(conns)*2)
+	for _, c := range conns {
+		if c.IPAddress != "" {
+			connMap[strings.ToLower(c.IPAddress)] = c
+		}
+		if c.Alias != "" {
+			connMap[strings.ToLower(c.Alias)] = c
+		}
+	}
+	return connMap
 }

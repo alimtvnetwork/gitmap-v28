@@ -84,9 +84,8 @@ func parseProcNetDev() map[string]procNetDevStats {
 			continue
 		}
 		line := strings.TrimSpace(scanner.Text())
-		colonIdx := strings.Index(line, ":")
-		hasNoColon := colonIdx == -1
-		if hasNoColon {
+		hasColon := colonIdx != -1
+		if !hasColon {
 			continue
 		}
 		ifaceName := strings.TrimSpace(line[:colonIdx])

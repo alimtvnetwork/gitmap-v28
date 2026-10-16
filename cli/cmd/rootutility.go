@@ -197,14 +197,15 @@ func utilityDesktopEntries() []dispatchEntry {
 // help, `help example <cmd>`, --groups, --compact, and the default
 // usage screen.
 func runHelpDispatch() error {
+	isHelpExample := len(os.Args) >= 3 && strings.EqualFold(os.Args[2], "example")
+	if isHelpExample {
+		dispatchHelpExample(os.Args[3:])
+
+		return nil
+	}
+
 	hasTopic := len(os.Args) >= 3 && !isFlagToken(os.Args[2])
 	if hasTopic {
-		if strings.EqualFold(os.Args[2], "example") {
-			dispatchHelpExample(os.Args[3:])
-
-			return nil
-		}
-
 		dispatchHelpTopic(os.Args[2])
 
 		return nil

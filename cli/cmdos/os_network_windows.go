@@ -44,25 +44,33 @@ func parseWindowsAdaptersJSON(raw string) ([]NetworkAdapterInfo, error) {
 
 	isArray := strings.HasPrefix(trimmed, "[")
 	if isArray {
-		var list []NetworkAdapterInfo
-		err := json.Unmarshal([]byte(trimmed), &list)
-		if err != nil {
-			return nil, apperror.WrapSimple(err, "unmarshal adapter array")
-		}
-		return list, nil
+		return unmarshalAdapterList([]byte(trimmed))
 	}
 
 	isObject := strings.HasPrefix(trimmed, "{")
 	if isObject {
-		var single NetworkAdapterInfo
-		err := json.Unmarshal([]byte(trimmed), &single)
-		if err != nil {
-			return nil, apperror.WrapSimple(err, "unmarshal adapter object")
-		}
-		return []NetworkAdapterInfo{single}, nil
+		return unmarshalAdapterSingle([]byte(trimmed))
 	}
 
 	return nil, apperror.NewSimple("unexpected json format from powershell")
+}
+
+func unmarshalAdapterList(data []byte) ([]NetworkAdapterInfo, error) {
+	var list []NetworkAdapterInfo
+	err := json.Unmarshal(data, &list)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "unmarshal adapter array")
+	}
+	return list, nil
+}
+
+func unmarshalAdapterSingle(data []byte) ([]NetworkAdapterInfo, error) {
+	var single NetworkAdapterInfo
+	err := json.Unmarshal(data, &single)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "unmarshal adapter object")
+	}
+	return []NetworkAdapterInfo{single}, nil
 }
 
 // collectFallbackNetworkReport provides resilience by querying standard Go net.Interfaces if PowerShell fails.

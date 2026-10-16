@@ -100,16 +100,9 @@ func executeFleetTasksInterrogation(ctx context.Context, opts nodesTasksOptions)
 	}
 
 	conns, errConns := cmdssh.FetchAllSSHConnections()
-	connMap := make(map[string]db.SSHConnection, len(conns)*2)
+	connMap := make(map[string]db.SSHConnection)
 	if errConns == nil {
-		for _, c := range conns {
-			if c.IPAddress != "" {
-				connMap[strings.ToLower(c.IPAddress)] = c
-			}
-			if c.Alias != "" {
-				connMap[strings.ToLower(c.Alias)] = c
-			}
-		}
+		connMap = indexSSHConnections(conns)
 	}
 
 	var mu sync.Mutex
@@ -124,25 +117,26 @@ func executeFleetTasksInterrogation(ctx context.Context, opts nodesTasksOptions)
 		if opts.isOpenOnly && !n.IsOnline {
 			continue
 		}
-		if isTargetMatching(n.Alias, n.Host, opts.targetFilter) {
-			wg.Add(1)
-			sem <- struct{}{}
-			go func(node UnifiedFleetNode) {
-				defer func() {
-					<-sem
-					wg.Done()
-				}()
-
-				conn := resolveNodeSSHConnection(node, connMap)
-				rep := queryRemoteNodeTasksAndHardware(ctx, node, conn, opts.limit)
-				if opts.isOpenOnly && rep.Status == "UNREACHABLE" {
-					return
-				}
-				mu.Lock()
-				reports = append(reports, rep)
-				mu.Unlock()
-			}(n)
+		if !isTargetMatching(n.Alias, n.Host, opts.targetFilter) {
+			continue
 		}
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(node UnifiedFleetNode) {
+			defer func() {
+				<-sem
+				wg.Done()
+			}()
+
+			conn := resolveNodeSSHConnection(node, connMap)
+			rep := queryRemoteNodeTasksAndHardware(ctx, node, conn, opts.limit)
+			if opts.isOpenOnly && rep.Status == "UNREACHABLE" {
+				return
+			}
+			mu.Lock()
+			reports = append(reports, rep)
+			mu.Unlock()
+		}(n)
 	}
 
 	wg.Wait()

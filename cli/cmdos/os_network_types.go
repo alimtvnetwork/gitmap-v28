@@ -97,17 +97,21 @@ func RunOSNetworkCLI(args []string) error {
 	}
 
 	if opts.IsJSON {
-		filtered := filterNetworkAdapters(report.Adapters, opts.IsAll)
-		report.Adapters = filtered
-		data, marshalErr := json.MarshalIndent(report, "", "  ")
-		if marshalErr != nil {
-			return apperror.WrapSimple(marshalErr, "marshal network telemetry json")
-		}
-		fmt.Println(string(data))
-		return nil
+		return renderNetworkReportJSON(report, opts.IsAll)
 	}
 
 	renderNetworkReportTable(report, opts)
+	return nil
+}
+
+func renderNetworkReportJSON(report NetworkReport, isAll bool) error {
+	filtered := filterNetworkAdapters(report.Adapters, isAll)
+	report.Adapters = filtered
+	data, marshalErr := json.MarshalIndent(report, "", "  ")
+	if marshalErr != nil {
+		return apperror.WrapSimple(marshalErr, "marshal network telemetry json")
+	}
+	fmt.Println(string(data))
 	return nil
 }
 
