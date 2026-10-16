@@ -168,7 +168,7 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use generic PowerShell sea
 3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
 4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
    - Initialize or inspect task state via the Antigravity SQLite task manager:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`
+     `gitmap agent task init --name "<task name>" --budget 300`
    - Output Analysis & Crash Forensics:
      - If `action: "RESUME_FOUND"`: A matching or similar slug exists in `.ai-memory/temp-agents/`! If `diagnostics.hasCrashesDetected: true`, inspect the forensic report (`diagnostics.crashedAgents`) to identify which agent crashed, what file it was touching, and the last logged action. Resume execution from the uncompleted subtask.
      - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-<slug>/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
@@ -310,10 +310,10 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 - Claim assigned subtask atomically:
   `python 03-ai-scripts/46-agent-sqlite-task-manager.py claim --db <databasePath> --agent "Worker <NN>"`
 - BEFORE touching or modifying any owned file, you MUST log your in-flight action:
-  `python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "<action description>"`
+  `gitmap agent log --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "<action description>"`
   *(Note: This guarantees that if a tool execution crashes or the session is interrupted, the database permanently records the exact file you were touching and what caused the crash!)*
 - When your subtask passes targeted checks, mark completion in the database:
-  `python 03-ai-scripts/46-agent-sqlite-task-manager.py complete --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --evidence "PASS exit 0, <files>"`
+  `gitmap agent subtask complete --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --evidence "PASS exit 0, <files>"`
 - If blocked or failing, record the failure:
   `python 03-ai-scripts/46-agent-sqlite-task-manager.py fail --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --reason "<reason>"`
 

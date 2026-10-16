@@ -37,9 +37,9 @@ SQLITE_STEP_SNIPPET = """
 4. **Concurrency-Safe SQLite Action Logging:**
    - Database location: `.ai-memory/temp-agents/<slug>/agent-task.db`
    - Workers log file changes and intermediate milestones:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <db-path> --subtask-id <id> --agent "Worker NN" --action "<action>" --file "<file>" --details "<details>"`
+     `gitmap agent log --subtask <id> --agent "Worker NN" --action "<action>" --file "<file>" --details "<details>"`
    - Workers mark completed subtasks upon meeting acceptance criteria:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py complete --db <db-path> --subtask-id <id> --agent "Worker NN" --evidence "<proof>"`
+     `gitmap agent subtask complete <id> --agent "Worker NN" --evidence "<proof>"`
 """
 
 
@@ -74,7 +74,7 @@ def upgrade_prompt_file(file_path: Path) -> bool:
             )
 
     # 4. Add SQLite Task DB instructions in Phase 2 if missing
-    if "46-agent-sqlite-task-manager.py" not in content:
+    if "gitmap agent log" not in content and "46-agent-sqlite-task-manager.py" not in content:
         target_anchor = "### 7.3 Turn-Yielding & Verification Protocol"
         if target_anchor in content:
             replacement = SQLITE_STEP_SNIPPET.strip() + "\n\n" + target_anchor

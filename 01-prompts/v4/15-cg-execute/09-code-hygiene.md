@@ -278,9 +278,9 @@ Write your subtask output to .ai-memory/plans/subtasks/NN-<slug>/01-<name>.json 
 4. **Concurrency-Safe SQLite Action Logging:**
    - Database location: `.ai-memory/temp-agents/<slug>/agent-task.db`
    - Workers log file changes and intermediate milestones:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <db-path> --subtask-id <id> --agent "Worker NN" --action "<action>" --file "<file>" --details "<details>"`
+     `gitmap agent log --subtask <id> --agent "Worker NN" --action "<action>" --file "<file>" --details "<details>"`
    - Workers mark completed subtasks upon meeting acceptance criteria:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py complete --db <db-path> --subtask-id <id> --agent "Worker NN" --evidence "<proof>"`
+     `gitmap agent subtask complete <id> --agent "Worker NN" --evidence "<proof>"`
 
 ### 7.3 Turn-Yielding & Verification Protocol
 

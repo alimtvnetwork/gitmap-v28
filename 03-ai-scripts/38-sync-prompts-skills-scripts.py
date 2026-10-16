@@ -665,6 +665,18 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
             if legacy_dir.exists():
                 shutil.rmtree(legacy_dir, ignore_errors=True)
 
+        # Purge deprecated scripts superseded by native gitmap agent commands
+        for dep_script in (
+            "03-ai-scripts/46-agent-sqlite-task-manager.py",
+            ".agents/scripts/46-agent-sqlite-task-manager.py",
+        ):
+            dep_path = target / dep_script
+            if dep_path.exists():
+                try:
+                    dep_path.unlink()
+                except Exception:
+                    pass
+
     # 4. Mirror directories and conditional coding guidelines cleanly
     total_copied = 0
     total_removed = 0
@@ -711,7 +723,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
     # 6. Commit changes on base branch and push
     run_cmd("git add -A", target)
     commit_msg = (
-        "feat(sync): sync v6 prompts, sqlite task manager, skills, and coding guidelines"
+        "feat(sync): sync canonical prompts, skills, gitmap agent standards, and purge deprecated 46 task manager"
     )
     code, out, err = run_cmd(f'git commit -m "{commit_msg}"', target)
 

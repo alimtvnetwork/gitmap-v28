@@ -72,7 +72,7 @@ Every synchronization operation across connected codebases must strictly enforce
 - **GitMap High-Speed Command Primacy:**
   - `gitmap` CLI: Used for live symbol searching (`gitmap aum search`), file discovery (`gitmap find`), atomic commits (`gitmap cpf`, `gitmap cpb`), and non-polling CI status checks (`gitmap pipeline-ai status`).
 - **SQLite Concurrency & Crash Forensics:**
-  - `03-ai-scripts/46-agent-sqlite-task-manager.py`: Atomic worker action logging and crash diagnostic engine.
+  - `gitmap agent`: Native compiled Go atomic worker action logging and crash diagnostic engine.
 
 ---
 

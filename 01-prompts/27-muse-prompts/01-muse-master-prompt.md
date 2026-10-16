@@ -284,7 +284,7 @@ If anything is genuinely ambiguous AND the ambiguity changes the deliverable, lo
 ### Step 2.5 — SQLite Task DB Initialization & Ledger Preflight
 
 1. **SQLite Task DB:** Initialize or inspect task state via the Antigravity SQLite task manager:
-   `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<task name>" --budget 300`
+   `gitmap agent task init --name "<task name>" --budget 300`
    - If `RESUME_FOUND`: Forensically recover crashed agent state and resume uncompleted subtasks.
    - If `INITIALIZED`: Database initialized with WAL mode and tables (`ParentTask`, `Subtask`, `AgentActionLog`).
 2. **Human-Readable Ledger:** Create `.ai-memory/temp-agents/<slug>/ledger.md` tracking active tasks, owned files, and verification evidence.

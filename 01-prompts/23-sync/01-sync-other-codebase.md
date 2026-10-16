@@ -227,7 +227,7 @@ Proceeding directly to Preflight & Phase 1B Discovery (Active Tool Call Running 
 
 1. **Platform Handshake & SQLite Task DB:**
    - Confirm active tools.
-   - Initialize task DB: `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "<sync task name>" --budget 300`
+   - Initialize task DB: `gitmap agent task init --name "<sync task name>" --budget 300`
    - Initialize `.ai-memory/temp-agents/<nn>-<slug>/ledger.md`.
 2. **Spawn Discovery Subagents (A = 2 `research` subagents):**
    - Subagent 1: Inspect target repositories, check git working trees (`git status`), detect base branches (`main`/`master`), verify existing tags.
@@ -240,7 +240,7 @@ Proceeding directly to Preflight & Phase 1B Discovery (Active Tool Call Running 
 1. Author canonical sync spec in `02-spec/21-app/nn-<slug>/01-sync-architecture-spec.md` (in source repo only; NEVER in target repos).
 2. Author modular subtasks in `.ai-memory/plans/subtasks/nn-<slug>/`.
 3. Populate subtasks into SQLite database:
-   `python 03-ai-scripts/46-agent-sqlite-task-manager.py add-subtasks --db <databasePath> --tasks-json '[...]'`
+   `gitmap agent subtask add --json '[...]'`
 4. Unconditionally proceed to Phase 2. ZERO intermediate commits during Phase 1!
 
 ### Phase 2: Execution Step (Worker Waves) (Steps 151 .. 300)
@@ -299,8 +299,8 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 ### Concurrency-Safe SQLite Action Logging:
 - Database: <databasePath>
 - Claim: python 03-ai-scripts/46-agent-sqlite-task-manager.py claim --db <databasePath> --agent "Worker <NN>"
-- Before action: python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "<action>"
-- On complete: python 03-ai-scripts/46-agent-sqlite-task-manager.py complete --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --evidence "PASS <evidence>"
+- Before action: gitmap agent log --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "<action>"
+- On complete: gitmap agent subtask complete --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --evidence "PASS <evidence>"
 - On failure: python 03-ai-scripts/46-agent-sqlite-task-manager.py fail --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --reason "<reason>"
 
 ### Output Contract:

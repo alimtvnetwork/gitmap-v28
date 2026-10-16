@@ -67,7 +67,7 @@ Follow this sequence before and during any repository modification task:
 | **39** | `39-migrate-indexes-to-readme.py` | Autonomous repository-wide index migrator (renames index files to readme.md) | ~150ms | `migrator`, `index`, `readme`, `references` |
 | **44** | `44-work-and-system-cache-cleaner.py` | Multi-layer work build artifact, Go/npm/pnpm/Node/DevTools cache, OS temp, SoftwareDistribution, Recycle Bin & Git cache cleaner with Plan & -y modes | ~50ms | `clean`, `cache`, `artifacts`, `go-cache`, `npm-cache`, `pnpm`, `devtools`, `temp`, `recycle-bin` |
 | **45** | `45-antigravity-run-audit.py` | Audits Antigravity runs, transcript events, and subagent lifecycles | ~20ms | `audit`, `antigravity`, `transcripts`, `subagents` |
-| **46** | `46-agent-sqlite-task-manager.py` | Concurrency-safe SQLite task coordination and crash forensics engine | ~10ms | `task-manager`, `sqlite`, `acid`, `multi-agent`, `crash-forensics` |
+| **46** | `gitmap agent` (native) | Native compiled Go multi-agent SQLite task manager & crash forensics (<1ms; superseded script 46) | <1ms | `task-manager`, `sqlite`, `acid`, `multi-agent`, `crash-forensics`, `gitmap` |
 | **47** | `47-git-reconcile-and-resolve-conflict.py` | Autonomous Git divergence reconciliation, mechanical conflict resolver & push | ~30ms | `git`, `reconcile`, `merge`, `conflict-resolver`, `push`, `divergence` |
 | **49** | `49-commit-and-push-all-repos.py` | Multi-repository workspace discoverer, atomic conventional committer & remote push | ~25ms | `git`, `multi-repo`, `commit-all`, `push-all`, `workspace`, `sync` |
 | **51** | `51-helptext-generator.py` | DRY help topic generator: renders `cli/helptext/*.md` from HelpDisplay structs via the `cli/tool/helptextemitter` Go emitter (`--topics`, `--check` drift mode) | ~2s | `help`, `helptext`, `generator`, `dry`, `cli-help-displayer` |
@@ -1189,11 +1189,11 @@ python 03-ai-scripts/37-bump-version.py --version 6.42.0
 </details>
 
 <details>
-<summary><strong>46 — <code>46-agent-sqlite-task-manager.py</code>: Antigravity Multi-Agent SQLite Task Manager & Crash Forensics Engine</strong></summary>
+<summary><strong>46 — <code>gitmap agent</code>: Native Compiled Go Multi-Agent SQLite Task Engine & Crash Forensics (Superseded Python 46)</strong></summary>
 
 #### Why It Exists
 
-Provides ACID-compliant, concurrency-safe task coordination and crash forensics for multi-agent runs (V6 workflow). Replaces fragile markdown file editing with WAL-mode SQLite micro-transactions, completely preventing Windows OS file lock collisions and state drift.
+Provides ACID-compliant, concurrency-safe task coordination and crash forensics for multi-agent runs (V6 workflow). Native compiled Go command in `gitmap` executes in `<1ms` without Python VM bootstrap latency, completely preventing Windows OS file lock collisions and state drift.
 
 #### What It Does
 
@@ -1203,30 +1203,34 @@ Provides ACID-compliant, concurrency-safe task coordination and crash forensics 
 - Manages atomic subtask claiming, status transitions (`PENDING -> IN_PROGRESS -> DONE / FAILED`), and evidence storage.
 - Logs in-flight agent actions (`write_to_file`, `replace_file_content`, `run_linter`, `gitmap_search`) before files are touched.
 - Executes crash diagnostics to identify abandoned in-progress tasks, reporting the exact agent, target file, and action when a crash occurs.
+- Safe temporary cleanup via `gitmap agent temp-clear`.
 
 #### CLI Usage & Examples
 
 ```bash
 # Initialize task run or detect prior run to resume
-python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "validate regex syntax and prevent nil fallback"
+gitmap agent task init --name "validate regex syntax and prevent nil fallback" --budget 300
 
 # Populate decomposed subtasks
-python 03-ai-scripts/46-agent-sqlite-task-manager.py add-subtasks --db <db-path> --tasks-json '[{"code": "Task-01", "title": "...", "owned_files": ["..."]}]'
+gitmap agent subtask add --json '[{"code": "Task-01", "title": "...", "owned_files": ["..."]}]'
 
 # Worker atomically claims next available subtask
-python 03-ai-scripts/46-agent-sqlite-task-manager.py claim --db <db-path> --agent "Worker 01"
+gitmap agent subtask claim --agent "Worker 01"
 
 # Worker logs in-flight action before touching a file
-python 03-ai-scripts/46-agent-sqlite-task-manager.py log-action --db <db-path> --subtask-id 1 --agent "Worker 01" --action "write_to_file" --file "pkg/aum/regex.go" --details "updating parser"
+gitmap agent log --subtask 1 --agent "Worker 01" --action "WRITE" --file "pkg/aum/regex.go" --details "updating parser"
 
 # Worker marks subtask completed with evidence
-python 03-ai-scripts/46-agent-sqlite-task-manager.py complete --db <db-path> --subtask-id 1 --agent "Worker 01" --evidence "PASS exit 0"
+gitmap agent subtask complete 1 --agent "Worker 01" --evidence "PASS exit 0"
 
 # Diagnose crashed or abandoned tasks
-python 03-ai-scripts/46-agent-sqlite-task-manager.py diagnose --db <db-path>
+gitmap agent diagnose
 
 # High-level task execution status
-python 03-ai-scripts/46-agent-sqlite-task-manager.py status --db <db-path>
+gitmap agent task status
+
+# Clean temporary agent directory
+gitmap agent temp-clear
 ```
 
 </details>

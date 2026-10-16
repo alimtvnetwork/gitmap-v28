@@ -59,9 +59,28 @@ func DispatchAgent(args []string) error {
 	if isHelp {
 		return AgentCmd.Help()
 	}
+
+	clean = routeAgentConvenienceShortcuts(clean, first)
 	AgentCmd.SetArgs(clean)
 
 	return AgentCmd.Execute()
+}
+
+func routeAgentConvenienceShortcuts(clean []string, first string) []string {
+	switch first {
+	case "claim":
+		return append([]string{"subtask", "claim"}, clean[1:]...)
+	case "complete":
+		return append([]string{"subtask", "complete"}, clean[1:]...)
+	case "init":
+		return append([]string{"task", "init"}, clean[1:]...)
+	case "status":
+		return append([]string{"task", "status"}, clean[1:]...)
+	case "add", "add-subtasks":
+		return append([]string{"subtask", "add"}, clean[1:]...)
+	default:
+		return clean
+	}
 }
 
 func stripAgentPrefix(args []string) []string {
@@ -94,6 +113,7 @@ func toError(appErr *appfault.AppError) error {
 var (
 	logCmd = &cobra.Command{
 		Use:                "log",
+		Aliases:            []string{"log-action", "action"},
 		Short:              "Record granular in-flight telemetry into agent split database",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
