@@ -23,7 +23,7 @@ flagset.
 ## Themes
 
 Named palettes from the coding-guidelines design-system theme
-catalogue (semantic roles: fg, fg-muted, fg-subtle, primary, accent,
+catalog (semantic roles: fg, fg-muted, fg-subtle, primary, accent,
 warn, error, ok — never literal colors in code). Piped output never
 carries ANSI: colors render on a real TTY only.
 

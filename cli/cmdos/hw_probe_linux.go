@@ -181,6 +181,13 @@ func probeLinuxRAM() RAMMetrics {
 	}
 }
 
+func safeBlockSize(bsize int64) uint64 {
+	if bsize <= 0 {
+		return 0
+	}
+	return uint64(bsize) //nolint:gosec // G115: guarded by non-negative check
+}
+
 func probeLinuxDisks() []DriveInfo {
 	var stat syscall.Statfs_t
 	err := syscall.Statfs("/", &stat)
@@ -189,8 +196,9 @@ func probeLinuxDisks() []DriveInfo {
 		return []DriveInfo{}
 	}
 
-	totalBytes := stat.Blocks * uint64(stat.Bsize)
-	freeBytes := stat.Bavail * uint64(stat.Bsize)
+	bsize := safeBlockSize(int64(stat.Bsize))
+	totalBytes := stat.Blocks * bsize
+	freeBytes := stat.Bavail * bsize
 	usedBytes := totalBytes - freeBytes
 
 	totalGB := float64(totalBytes) / (1024 * 1024 * 1024)
