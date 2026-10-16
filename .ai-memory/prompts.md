@@ -182,11 +182,8 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `20-ai-fix-script-prompts` | [`20-ai-fix-script-prompts/01-python-file-manipulator.md`](../01-prompts/20-ai-fix-script-prompts/01-python-file-manipulator.md) | Python File Manipulator CLI Specification — Tooling Spec (must follow) |
 | `21-temp-end-to-end-tests` | [`21-temp-end-to-end-tests/01-temp-end-to-end-test.md`](../01-prompts/21-temp-end-to-end-tests/01-temp-end-to-end-test.md) | Temporary End-to-End Tests & Isolated On-Demand Validation — Workflow (must follow) |
 | `22-letterly` | [`22-letterly/01-mobile-letterly.md`](../01-prompts/22-letterly/01-mobile-letterly.md) | Mobile Mode — Letterly Prompt Formatter |
-| `22-letterly` | [`22-letterly/01-mobile.md`](../01-prompts/22-letterly/01-mobile.md) | Mobile Mode |
 | `22-letterly` | [`22-letterly/02-desktop-letterly.md`](../01-prompts/22-letterly/02-desktop-letterly.md) | Desktop Mode — Letterly Prompt Formatter |
-| `22-letterly` | [`22-letterly/02-desktop.md`](../01-prompts/22-letterly/02-desktop.md) | Desktop |
 | `22-letterly` | [`22-letterly/03-execute-n-steps-letterly.md`](../01-prompts/22-letterly/03-execute-n-steps-letterly.md) | Execute N-Steps — Letterly Prompt Formatter |
-| `22-letterly` | [`22-letterly/03-execute-n-steps.md`](../01-prompts/22-letterly/03-execute-n-steps.md) | Execute N Steps |
 | `22-letterly` | [`22-letterly/04-plan-letterly.md`](../01-prompts/22-letterly/04-plan-letterly.md) | Plan Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/05-release-letterly.md`](../01-prompts/22-letterly/05-release-letterly.md) | Release Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/06-cicd-fix-release-letterly.md`](../01-prompts/22-letterly/06-cicd-fix-release-letterly.md) | CI/CD Fix & Release Mode — Letterly Prompt Formatter |
@@ -206,10 +203,6 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `23-cursor-prompts` | [`23-cursor-prompts/09-execute-with-verification-letterly-cursor.md`](../01-prompts/23-cursor-prompts/09-execute-with-verification-letterly-cursor.md) | Execute with Verification Mode (Cursor) — Letterly Prompt Formatter |
 | `23-cursor-prompts` | [`23-cursor-prompts/10-execute-with-release-letterly-cursor.md`](../01-prompts/23-cursor-prompts/10-execute-with-release-letterly-cursor.md) | Execute with Release Mode (Cursor) — Letterly Prompt Formatter |
 | `23-cursor-prompts` | [`23-cursor-prompts/readme.md`](../01-prompts/23-cursor-prompts/readme.md) | Cursor Letterly Prompt Formatters (`23-cursor-prompts`) |
-| `23-sync` | [`23-sync/01-sync-other-codebase.md`](../01-prompts/23-sync/01-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
-| `23-sync` | [`23-sync/readme.md`](../01-prompts/23-sync/readme.md) | Multi-Repository Synchronization Prompts (`23-sync`) — Index & Catalog |
-| `24-muse-prompts` | [`24-muse-prompts/01-muse-master-prompt.md`](../01-prompts/24-muse-prompts/01-muse-master-prompt.md) | MUSE MASTER ONBOARDING PROMPT — AUTONOMOUS AI AGENT DIRECTIVE |
-| `24-muse-prompts` | [`24-muse-prompts/readme.md`](../01-prompts/24-muse-prompts/readme.md) | Muse Prompts (`24-muse-prompts`) — Index & Catalog |
 | `24-sync` | [`24-sync/01-sync.md`](../01-prompts/24-sync/01-sync.md) | [V6] Full-Fleet Multi-Repository Synchronization & Canonical Mirroring Engine — Workflow (must follow) |
 | `24-sync` | [`24-sync/02-sync-other-codebase.md`](../01-prompts/24-sync/02-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
 | `24-sync` | [`24-sync/readme.md`](../01-prompts/24-sync/readme.md) | Multi-Repository Synchronization Prompts (`24-sync`) — Index & Catalog |
@@ -218,10 +211,8 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `26-gitmap` | [`26-gitmap/01-gitmap-core-engine.md`](../01-prompts/26-gitmap/01-gitmap-core-engine.md) | GitMap Core Engine & Autonomous Developer Automation — Canonical Specification (must follow) |
 | `26-gitmap` | [`26-gitmap/readme.md`](../01-prompts/26-gitmap/readme.md) | GitMap AI Training & Autonomous Automation Prompts (`26-gitmap`) |
 | `27-muse-prompts` | [`27-muse-prompts/01-muse-master-prompt.md`](../01-prompts/27-muse-prompts/01-muse-master-prompt.md) | [V6] MUSE MASTER ONBOARDING & AUTONOMOUS EXECUTION PROMPT — AGENT DIRECTIVE |
-| `27-muse-prompts` | [`27-muse-prompts/02-muse-execute-in-a-step.md`](../01-prompts/27-muse-prompts/02-muse-execute-in-a-step.md) | Muse Execute-in-a-Step — one-shot execution prompt |
+| `27-muse-prompts` | [`27-muse-prompts/02-muse-execute-in-a-step.md`](../01-prompts/27-muse-prompts/02-muse-execute-in-a-step.md) | Muse Execute-in-a-Step — one-shot execution prompt (breakdown-first, RUNNING+ETA, 5-minute pings, commit+push) |
 | `27-muse-prompts` | [`27-muse-prompts/readme.md`](../01-prompts/27-muse-prompts/readme.md) | Muse Prompts (`27-muse-prompts`) — Index & Catalog |
-| `28-mastery-prompts` | [`28-mastery-prompts/01-mastery-bootstrap-prompt.md`](../01-prompts/28-mastery-prompts/01-mastery-bootstrap-prompt.md) | Mastery Bootstrap Prompt — foolproof standalone session starter |
-| `28-mastery-prompts` | [`28-mastery-prompts/readme.md`](../01-prompts/28-mastery-prompts/readme.md) | Mastery Prompts (`28-mastery-prompts`) — Index & Catalog |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
 | `v4/13-plan-audit` | [`v4/13-plan-audit/01-inventory-pending-tasks.md`](../01-prompts/v4/13-plan-audit/01-inventory-pending-tasks.md) | Inventory Audit of Pending Tasks — Read-Only Proposal (must follow) |
 | `v4/13-plan-audit` | [`v4/13-plan-audit/02-plan-spec-steps-v2.md`](../01-prompts/v4/13-plan-audit/02-plan-spec-steps-v2.md) | any uppercase character, space, or underscore in an authored path = FAIL |

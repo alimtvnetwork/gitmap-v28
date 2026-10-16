@@ -18,7 +18,7 @@
 
 ---
 
-## Top 16 AI Mistakes (Ranked by Frequency)
+## Top 15 AI Mistakes (Ranked by Frequency)
 
 ---
 
@@ -332,25 +332,6 @@ interface CreateUserParams {
 
 function createUser(params: CreateUserParams): User { ... }
 ```
- 
----
-
-### Mistake #16: Python Subprocess Wrappers for GitMap CLI Queries
-
-**Frequency:** High
-**Rule:** AH-P4
-
-```python
-# ❌ AI GENERATES THIS (Subprocess wrapper burning 1000ms+ and triggering shell warnings)
-import subprocess
-path = subprocess.check_output(["gitmap", "cd", "rc"], text=True).strip()
-
-# ✅ CORRECT (AI executes native GitMap query directly via run_command)
-# Execute: gitmap rc --path
-# Output: work-dir/repo-cache
-```
-
-**Rationale:** GitMap provides native Go CLI query flags (`gitmap rc --path`, `gitmap path rc`, `gitmap rs --path`) that execute in $<5\text{ms}$ with clean stdout. Spawning Python subprocesses introduces runtime latency, consumes process memory, and triggers interactive shell wrapper warnings.
 
 ---
 
@@ -358,7 +339,7 @@ path = subprocess.check_output(["gitmap", "cd", "rc"], text=True).strip()
 
 ---
 
-### Mistake #17: Caching Errors as Success
+### Mistake #16: Caching Errors as Success
 
 **Frequency:** High
 **Rule:** AH-CA1
@@ -385,7 +366,7 @@ try {
 
 ---
 
-### Mistake #18: Cache Without TTL
+### Mistake #17: Cache Without TTL
 
 **Frequency:** High
 **Rule:** AH-CA2
@@ -400,7 +381,7 @@ cache.set("config", configData, { ttl: 300_000 });
 
 ---
 
-### Mistake #19: Missing Cache Invalidation After Mutation
+### Mistake #18: Missing Cache Invalidation After Mutation
 
 **Frequency:** High
 **Rule:** AH-CA3
@@ -426,7 +407,7 @@ const mutation = useMutation({
 
 ---
 
-### Mistake #20: Non-Deterministic Cache Keys
+### Mistake #19: Non-Deterministic Cache Keys
 
 **Frequency:** Medium
 **Rule:** AH-CA4
@@ -441,25 +422,25 @@ cache.set(`users-${userId}-${role}`, data);
 
 ---
 
-### Mistake #21: React Query Without Explicit staleTime
- 
- **Frequency:** High
- **Rule:** AH-CA6
- 
- ```typescript
- // ❌ AI GENERATES THIS — default staleTime: 0 causes refetch on every mount
- const { data } = useQuery({
-     queryKey: ["users"],
-     queryFn: fetchUsers,
- });
- 
- // ✅ CORRECT
- const { data } = useQuery({
-     queryKey: ["users"],
-     queryFn: fetchUsers,
-     staleTime: 5 * 60 * 1000,
- });
- ```
+### Mistake #20: React Query Without Explicit staleTime
+
+**Frequency:** High
+**Rule:** AH-CA6
+
+```typescript
+// ❌ AI GENERATES THIS — default staleTime: 0 causes refetch on every mount
+const { data } = useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+});
+
+// ✅ CORRECT
+const { data } = useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+    staleTime: 5 * 60 * 1000,
+});
+```
 
 ---
 

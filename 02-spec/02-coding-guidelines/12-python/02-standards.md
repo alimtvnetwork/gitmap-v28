@@ -60,15 +60,6 @@ except (ValueError, KeyError) as parseErr:
     raise RecordProcessingError("Invalid record payload") from parseErr
 ```
 
-## 5. GitMap CLI Integration & Subprocess Wrapper Prohibition
-
-- Python scripts MUST NEVER wrap `gitmap` CLI commands using `subprocess.check_output` or `subprocess.run` to query directory paths, configuration values, or repository statuses.
-- Use direct GitMap native CLI commands via shell execution:
-  - For repo-cache path: run `gitmap rc --path` or `gitmap path rc`.
-  - For repo-secrets path: run `gitmap rs --path` or `gitmap path rs`.
-  - For repository path: run `gitmap path <repo-name>`.
-- Python scripts that require repository metadata should consume JSON outputs emitted by native commands (e.g., `gitmap status --json`, `gitmap path <target> --json`).
-
 ---
 
 ## Verification & Acceptance Criteria

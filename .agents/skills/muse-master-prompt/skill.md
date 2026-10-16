@@ -57,8 +57,8 @@ WAVES = ceil(subtasks / (A x H))
 2. **Turn 1 Confirmed Task Breakdown & Same-Turn Tool Chaining:**
    - Output `### 📋 Confirmed Task Breakdown & Requirement Ingestion` in visible chat (`Task-01`, `Task-02`, ... each with `State: [IN PROGRESS]` and `Understood: [YES]`).
    - In the **EXACT SAME TURN**, invoke your first tool call (SQLite task DB initialization, ledger creation, preflight checks). NEVER emit text alone.
-3. **SQLite Task DB & Ledger Preflight (Two-Tier Split-DB Architecture):**
-   - Run `gitmap agent-ai create-task "<task name>" --budget 300` (compiled Go fallback: `gitmap task init --name "<task name>" --budget 300`; legacy fallback: `gitmap agent task init --name "<task name>" --budget 300`).
+3. **SQLite Task DB & Ledger Preflight:**
+   - Run `gitmap agent task init --name "<task name>" --budget 300`.
    - If `RESUME_FOUND`, inspect crash forensics and resume uncompleted subtasks.
    - Maintain human-readable `.ai-memory/temp-agents/<slug>/ledger.md`.
 4. **Mandatory Multi-Agent Execution:**

@@ -47,7 +47,6 @@ a complete release pipeline from scratch without ambiguity.
 | [07-release-metadata.md](07-release-metadata.md) | Version resolution, tagging, and changelog extraction |
 | [08-known-issues-and-fixes.md](08-known-issues-and-fixes.md) | Post-mortem catalog: every release-pipeline failure with root cause, fix, and prevention rule |
 | [09-version-pinned-release-installers.md](09-version-pinned-release-installers.md) | **Authoritative contract** for the per-release `install.sh` / `install.ps1` assets — spec-first ordering, embedded version, no "latest" probe |
-| [10-release-remove-between-and-pinned-tags.md](10-release-remove-between-and-pinned-tags.md) | Release tag removal between bounds (`rrb`) and persistent milestone pin registry (`pnr`) |
 
 ---
 
