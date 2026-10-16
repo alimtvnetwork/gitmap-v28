@@ -75,7 +75,7 @@ func probeWindowsDisks() []DriveInfo {
 		return probeFallbackDrive()
 	}
 
-	for i := 0; i < 26; i++ {
+	for i := byte(0); i < 26; i++ {
 		driveInfo, hasInfo := probeDriveIndex(bitmask, i)
 		if hasInfo {
 			drives = append(drives, driveInfo)
@@ -89,10 +89,13 @@ func probeWindowsDisks() []DriveInfo {
 	return probeFallbackDrive()
 }
 
-func probeDriveIndex(bitmask uint32, index int) (DriveInfo, bool) {
-	hasDrive := (bitmask & (1 << uint(index))) != 0
+func probeDriveIndex(bitmask uint32, index byte) (DriveInfo, bool) {
+	if index >= 26 {
+		return DriveInfo{}, false
+	}
+	hasDrive := (bitmask & (1 << index)) != 0
 	if hasDrive {
-		return probeWindowsDriveLetter(byte('A' + index))
+		return probeWindowsDriveLetter('A' + index)
 	}
 	return DriveInfo{}, false
 }

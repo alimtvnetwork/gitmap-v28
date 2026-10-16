@@ -192,8 +192,8 @@ func queryRemoteNodeTasksAndHardware(ctx context.Context, node UnifiedFleetNode,
 		report.Status = "ONLINE"
 		report.CPUPercent = hwRec.CPUPercent
 		report.RAMPercent = hwRec.RAMPercent
-		report.TotalRAMMB = uint64(hwRec.TotalRAMMB)
-		report.UsedRAMMB = uint64(hwRec.UsedRAMMB)
+		report.TotalRAMMB = hwRec.TotalRAMMB
+		report.UsedRAMMB = hwRec.UsedRAMMB
 	} else {
 		report.Status = "ACTIVE"
 	}
@@ -216,8 +216,8 @@ func handleRemoteFallbackProbe(alias, host string, port int, isWin bool, conn db
 		rep.Status = "ONLINE"
 		rep.CPUPercent = hwRec.CPUPercent
 		rep.RAMPercent = hwRec.RAMPercent
-		rep.TotalRAMMB = uint64(hwRec.TotalRAMMB)
-		rep.UsedRAMMB = uint64(hwRec.UsedRAMMB)
+		rep.TotalRAMMB = hwRec.TotalRAMMB
+		rep.UsedRAMMB = hwRec.UsedRAMMB
 		rep.ErrorMessage = "gitmap tasks unavailable"
 		return rep
 	}
@@ -272,7 +272,7 @@ func ensureRemoteHardwareMetrics(report *NodeTaskReport, isWin bool, conn db.SSH
 	if hwRec.IsOnline {
 		report.CPUPercent = hwRec.CPUPercent
 		report.RAMPercent = hwRec.RAMPercent
-		report.TotalRAMMB = uint64(hwRec.TotalRAMMB)
-		report.UsedRAMMB = uint64(hwRec.UsedRAMMB)
+		report.TotalRAMMB = hwRec.TotalRAMMB
+		report.UsedRAMMB = hwRec.UsedRAMMB
 	}
 }

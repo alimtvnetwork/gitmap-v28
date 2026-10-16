@@ -182,8 +182,8 @@ func collectLocalNodeTasks(limit int) NodeTaskReport {
 	if errHW == nil {
 		report.CPUPercent = hw.CPU.LoadPercent
 		report.RAMPercent = hw.RAM.UsedPercent
-		report.TotalRAMMB = uint64(hw.RAM.TotalMB)
-		report.UsedRAMMB = uint64(hw.RAM.UsedMB)
+		report.TotalRAMMB = hw.RAM.TotalMB
+		report.UsedRAMMB = hw.RAM.UsedMB
 	}
 
 	dbPaths := discoverAgentTaskDBs()

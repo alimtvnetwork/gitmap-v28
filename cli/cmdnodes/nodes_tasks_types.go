@@ -28,8 +28,8 @@ type NodeTaskReport struct {
 	Status           string            `json:"status"`
 	CPUPercent       int               `json:"cpuPercent"`
 	RAMPercent       int               `json:"ramPercent"`
-	TotalRAMMB       uint64            `json:"totalRamMb"`
-	UsedRAMMB        uint64            `json:"usedRamMb"`
+	TotalRAMMB       int               `json:"totalRamMb"`
+	UsedRAMMB        int               `json:"usedRamMb"`
 	RolePlaceholder  string            `json:"rolePlaceholder"`
 	ActiveTaskCount  int               `json:"activeTaskCount"`
 	PendingTaskCount int               `json:"pendingTaskCount"`
