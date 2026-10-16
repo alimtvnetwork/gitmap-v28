@@ -62,11 +62,15 @@ func computeCPULoadPercent(idle1, total1, idle2, total2 uint64) int {
 	deltaTotal := total2 - total1
 	deltaIdle := idle2 - idle1
 	hasDelta := deltaTotal > 0 && deltaTotal >= deltaIdle
-	if hasDelta {
-		deltaBusy := deltaTotal - deltaIdle
-		return int((deltaBusy * 100) / deltaTotal)
+	if !hasDelta {
+		return 0
 	}
-	return 0
+	deltaBusy := deltaTotal - deltaIdle
+	pct := int(float64(deltaBusy) / float64(deltaTotal) * 100.0)
+	if pct > 100 {
+		return 100
+	}
+	return pct
 }
 
 func computeSampledCPULoad(idle1, total1, idle2, total2 uint64, hasSecond bool) int {

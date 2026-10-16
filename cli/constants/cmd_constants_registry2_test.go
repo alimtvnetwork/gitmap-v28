@@ -270,5 +270,7 @@ func topLevelCmdsPart2() map[string]string {
 		"CmdCleanReposAlias":            CmdCleanReposAlias,
 		"CmdExclude":                    CmdExclude,
 		"CmdExcludeAlias":               CmdExcludeAlias,
+		"CmdNodesRunningOnly":           CmdNodesRunningOnly,
+		"CmdNodesRunningOnlyAlias":      CmdNodesRunningOnlyAlias,
 	}
 }
