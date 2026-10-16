@@ -12,7 +12,7 @@ import (
 
 const (
 	DefaultFreshnessCooldownMinutes = 5
-	DefaultActivityWindowHours      = 24
+	DefaultActivityWindowHours      = 48
 )
 
 // GetRecentActualRepoPullHistory returns the last N genuine pull execution records (excluding skipped-inactive).
@@ -35,17 +35,22 @@ func (s *PullSplitDB) GetRecentActualRepoPullHistory(repoPath string, limit int)
 }
 
 // EvaluateRepoActivityStatus evaluates whether a repository should be pulled or skipped in efficient mode.
-// It inspects the local git trace to see if there are commits within the 24h window.
+// It inspects the local git trace to verify if commits occurred within the configured windowHours.
 func (s *PullSplitDB) EvaluateRepoActivityStatus(repoPath string, windowHours int, cooldownMinutes int) (RepoInactivityStatus, error) {
+	effectiveWindow := windowHours
+	if effectiveWindow <= 0 {
+		effectiveWindow = DefaultActivityWindowHours
+	}
+
 	status := RepoInactivityStatus{RepoPath: repoPath, IsInactive: false}
 	history, err := s.GetRecentActualRepoPullHistory(repoPath, 1)
 	if err != nil || len(history) == 0 {
-		return evaluateGitTraceActivity(repoPath, windowHours, status)
+		return evaluateGitTraceActivity(repoPath, effectiveWindow, status)
 	}
 
 	latestTime, isParsed := parseCreatedAtTime(history[0].CreatedAt)
 	if !isParsed {
-		return evaluateGitTraceActivity(repoPath, windowHours, status)
+		return evaluateGitTraceActivity(repoPath, effectiveWindow, status)
 	}
 
 	elapsed := time.Since(latestTime)
@@ -56,7 +61,7 @@ func (s *PullSplitDB) EvaluateRepoActivityStatus(repoPath string, windowHours in
 		return status, nil
 	}
 
-	return evaluateGitTraceActivity(repoPath, windowHours, status)
+	return evaluateGitTraceActivity(repoPath, effectiveWindow, status)
 }
 
 func evaluateGitTraceActivity(repoPath string, windowHours int, status RepoInactivityStatus) (RepoInactivityStatus, error) {

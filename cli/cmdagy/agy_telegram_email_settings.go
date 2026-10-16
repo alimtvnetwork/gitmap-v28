@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -47,6 +48,8 @@ var AgySettingsCmd = agySettingsCmd
 type SpeedSettingsStatus struct {
 	LapDefaultHours         string `json:"lapDefaultHours"`
 	AccountSwitchThreshold  string `json:"accountSwitchThreshold"`
+	NodeResourceThreshold   string `json:"nodeResourceThreshold"`
+	PaeRecencyWindowHours   string `json:"paeRecencyWindowHours"`
 	TelegramBotTokenMasked  string `json:"telegramBotTokenMasked"`
 	TelegramChatID          string `json:"telegramChatId"`
 	TelegramReady           bool   `json:"telegramReady"`
@@ -316,12 +319,49 @@ func runSettingsImportBridge(args []string) error {
 	return executeAgySettingsImport(args[0])
 }
 
+func saveDBSetting(key, val string) {
+	dbConn, errOpen := store.OpenDefault()
+	if errOpen == nil {
+		defer dbConn.Close()
+		_ = dbConn.SetSetting(key, val)
+	}
+}
+
+func readDBSetting(key string) string {
+	dbConn, errOpen := store.OpenDefault()
+	if errOpen == nil {
+		defer dbConn.Close()
+		val, _ := dbConn.GetSetting(key)
+		return val
+	}
+	return ""
+}
+
 func applySpeedSettingsFlags(args []string) {
 	setGlobalIfNonEmpty("lap.default_hours", "GITMAP_LAP_DEFAULT_HOURS", extractSpeedFlag(args, "--lap-hours", "--lap"))
-	setGlobalIfNonEmpty("account_switch.threshold", "GITMAP_ASW_THRESHOLD", extractSpeedFlag(args, "--threshold", "--switch-threshold"))
+	setGlobalIfNonEmpty("account_switch.threshold", "GITMAP_ASW_THRESHOLD", extractSpeedFlag(args, "--switch-threshold", ""))
 	setGlobalIfNonEmpty("machine.alias", "GITMAP_MACHINE_ALIAS", extractSpeedFlag(args, "--alias", "--machine-alias"))
 	setGlobalIfNonEmpty("special_repos.secrets_name", "GITMAP_SPECIAL_SECRETS_REPO", extractSpeedFlag(args, "--secrets-repo", "--repo-secrets"))
 	setGlobalIfNonEmpty("special_repos.cache_name", "GITMAP_SPECIAL_CACHE_REPO", extractSpeedFlag(args, "--cache-repo", "--repo-cache"))
+
+	nodeThresh := extractSpeedFlag(args, "--node-threshold", "-t")
+	if len(nodeThresh) == 0 {
+		nodeThresh = extractSpeedFlag(args, "--threshold", "")
+	}
+	if len(nodeThresh) > 0 {
+		setGlobalIfNonEmpty(constants.SettingNodeResourceThreshold, "GITMAP_NODE_RESOURCE_THRESHOLD", nodeThresh)
+		saveDBSetting(constants.SettingNodeResourceThreshold, nodeThresh)
+	}
+
+	paeWindow := extractSpeedFlag(args, "--pae-window", "-r")
+	if len(paeWindow) == 0 {
+		paeWindow = extractSpeedFlag(args, "--recency-hours", "--pae-hours")
+	}
+	if len(paeWindow) > 0 {
+		setGlobalIfNonEmpty(constants.SettingPullActivityWindowHours, "GITMAP_PAE_RECENCY_HOURS", paeWindow)
+		saveDBSetting(constants.SettingPullActivityWindowHours, paeWindow)
+	}
+
 	applyPositionalSettingsSet(args)
 }
 
@@ -336,12 +376,19 @@ func applySettingKeyValue(key, val string) {
 	norm := strings.ToLower(strings.TrimSpace(key))
 	trimmedVal := strings.TrimSpace(val)
 	switch norm {
+	case "node_resource_threshold", "node-threshold", "node_threshold":
+		_ = config.SetVariable("global", constants.SettingNodeResourceThreshold, trimmedVal)
+		saveDBSetting(constants.SettingNodeResourceThreshold, trimmedVal)
+	case "pae_recency_window_hours", "pae-window", "pae_window", "recency_hours", "recency-hours", "pull_activity_window_hours":
+		_ = config.SetVariable("global", constants.SettingPullActivityWindowHours, trimmedVal)
+		saveDBSetting(constants.SettingPullActivityWindowHours, trimmedVal)
 	case "special_repos.secrets_name", "secrets_repo", "repo_secrets":
 		_ = config.SetVariable("global", "special_repos.secrets_name", trimmedVal)
 	case "special_repos.cache_name", "cache_repo", "repo_cache", "repo_storage":
 		_ = config.SetVariable("global", "special_repos.cache_name", trimmedVal)
 	default:
 		_ = config.SetVariable("global", strings.TrimSpace(key), trimmedVal)
+		saveDBSetting(strings.TrimSpace(key), trimmedVal)
 	}
 }
 
@@ -358,6 +405,8 @@ func runSettingsShow(view speedSettingsView) {
 	fmt.Printf("%s● GitMap & Antigravity Unified Speed Settings%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("  LAP Default Window:        %sh (key: lap.default_hours)\n", view.LapDefaultHours)
 	fmt.Printf("  Account Switch Threshold:  %s%% (key: account_switch.threshold)\n", view.AccountSwitchThreshold)
+	fmt.Printf("  Node Resource Threshold:   %s%% (key: %s)\n", view.NodeResourceThreshold, constants.SettingNodeResourceThreshold)
+	fmt.Printf("  PAE Recency Window:        %sh (key: %s)\n", view.PaeRecencyWindowHours, constants.SettingPullActivityWindowHours)
 	fmt.Printf("  Machine Alias:             %s (key: machine.alias)\n", view.MachineAlias)
 	fmt.Printf("  Telegram Chatbot:          chat=%s | token=%s | ready=%v\n", view.TelegramChatID, view.TelegramBotTokenMasked, view.TelegramReady)
 	fmt.Printf("  Email Speed Setup:         smtp=%s | to=%s | ready=%v\n", view.EmailSMTPHost, view.EmailTo, view.EmailReady)
@@ -384,6 +433,8 @@ func buildBaseSpeedSettingsStatus() SpeedSettingsStatus {
 	return SpeedSettingsStatus{
 		LapDefaultHours:        readSpeedVar("lap.default_hours", "24"),
 		AccountSwitchThreshold: readSpeedVar("account_switch.threshold", "15"),
+		NodeResourceThreshold:  readSpeedVar(constants.SettingNodeResourceThreshold, fmt.Sprintf("%d", constants.DefaultNodeResourceThreshold)),
+		PaeRecencyWindowHours:  readSpeedVar(constants.SettingPullActivityWindowHours, fmt.Sprintf("%d", constants.DefaultPullActivityWindowHours)),
 		TelegramBotTokenMasked: maskSecretToken(token), TelegramChatID: chatID,
 		TelegramReady: len(token) > 0 && len(chatID) > 0,
 		EmailSMTPHost: smtpHost, EmailFrom: resolveEmailFrom(), EmailTo: toAddr,
@@ -412,6 +463,9 @@ func resolveEmailTo() string {
 }
 
 func readSpeedVar(key, fallback string) string {
+	if dbVal := readDBSetting(key); len(strings.TrimSpace(dbVal)) > 0 {
+		return strings.TrimSpace(dbVal)
+	}
 	val, isFound := config.GetVariable("global", key)
 	if isFound && len(strings.TrimSpace(val)) > 0 {
 		return strings.TrimSpace(val)
@@ -547,7 +601,9 @@ func renderSettingsHelp() {
 	termout.RenderMenu(termout.HelpMenu{
 		Title: "GitMap & Antigravity Speed Settings (gitmap settings)",
 		UsageLines: []string{
-			"gitmap settings [--lap-hours 24] [--threshold 15] [--alias <name>] [--json]",
+			"gitmap settings [--node-threshold 30] [--pae-window 48] [--lap-hours 24] [--threshold 15] [--alias <name>] [--json]",
+			"gitmap settings set node_resource_threshold 30",
+			"gitmap settings set pae_recency_window_hours 48",
 			"gitmap settings set special_repos.secrets_name repo-secrets",
 			"gitmap settings set special_repos.cache_name repo-cache",
 			"gitmap agy settings [set <key> <value> | export <file> | import <file>]",
@@ -561,9 +617,13 @@ func buildSettingsHelpSections() []termout.HelpSection {
 		{
 			Title: "Speed Settings & Configuration Keys",
 			Entries: []termout.CommandEntry{
+				{Command: "--node-threshold <N>", Description: "Set CPU/RAM benchmark threshold percentage for nodes & pull (default: 30)"},
+				{Command: "--pae-window <N>", Description: "Set commit recency lookback hours for gitmap pae (default: 48)"},
 				{Command: "--lap-hours <N>", Description: "Set default lookback hours for last-active-projects (default: 24)"},
 				{Command: "--threshold <N>", Description: "Set account-switch remaining credit threshold percentage (default: 15)"},
 				{Command: "--alias <name>", Description: "Set machine network alias for SSH fleet recognition"},
+				{Command: "set node_resource_threshold <N>", Description: "Set node resource benchmark threshold (default: 30%)"},
+				{Command: "set pae_recency_window_hours <N>", Description: "Set PAE commit recency lookback window in hours (default: 48)"},
 				{Command: "set special_repos.secrets_name repo-secrets", Description: "Configure special secrets repository name (shortcut: gitmap rs / gitmap cd rs)"},
 				{Command: "set special_repos.cache_name repo-cache", Description: "Configure special cache repository name (shortcut: gitmap rc / gitmap cd rc)"},
 				{Command: "export / import <file>", Description: "Export or import full Antigravity settings JSON"},

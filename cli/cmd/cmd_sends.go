@@ -4,15 +4,19 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpending"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpending"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsends"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // gitCmdExecutor defines a function that executes a git command in a specific directory.
@@ -26,6 +30,8 @@ var defaultSendsGitExecutor gitCmdExecutor = func(dir string, args ...string) (s
 }
 
 var currentSendsGitExecutor gitCmdExecutor = defaultSendsGitExecutor
+
+var resolveAllIndexedRepositoriesFn func(cwd string) []model.ScanRecord
 
 // runSends is the CLI dispatch entry point.
 // RunSends executes the semantic commit dispatch across single or multiple repositories.
@@ -134,7 +140,14 @@ func executeSendsDispatch(opts cmdpending.SendsOptions) error {
 		cwd = "."
 	}
 
-	allRepos := cmdpending.ResolveWorkspaceRepositories(cwd)
+	var allRepos []model.ScanRecord
+	isTargetAll := strings.EqualFold(opts.Target, "all")
+	if isTargetAll {
+		allRepos = resolveAllIndexedRepositories(cwd)
+	} else {
+		allRepos = cmdpending.ResolveWorkspaceRepositories(cwd)
+	}
+
 	targets, errTargets := filterTargetRepositories(allRepos, opts.Target)
 	if errTargets != nil {
 		return errTargets
@@ -202,6 +215,45 @@ func filterTargetRepositories(allRepos []model.ScanRecord, target string) ([]mod
 	return matched, nil
 }
 
+func resolveAllIndexedRepositories(cwd string) []model.ScanRecord {
+	if resolveAllIndexedRepositoriesFn != nil {
+		return resolveAllIndexedRepositoriesFn(cwd)
+	}
+
+	db, errDB := store.OpenDefault()
+	if errDB == nil {
+		defer db.Close()
+		records, errList := db.ListRepos()
+		hasRecords := errList == nil && len(records) > 0
+		if hasRecords {
+			seen := make(map[string]bool)
+			var deduplicated []model.ScanRecord
+			for _, r := range records {
+				cleanPath := filepath.Clean(r.AbsolutePath)
+				if cleanPath == "" || cleanPath == "." {
+					cleanPath = filepath.Clean(r.RelativePath)
+				}
+				if cleanPath == "" || cleanPath == "." {
+					continue
+				}
+				key := strings.ToLower(cleanPath)
+				if seen[key] {
+					continue
+				}
+				seen[key] = true
+				r.AbsolutePath = cleanPath
+				deduplicated = append(deduplicated, r)
+			}
+			hasDeduplicated := len(deduplicated) > 0
+			if hasDeduplicated {
+				return deduplicated
+			}
+		}
+	}
+
+	return cmdpending.ResolveWorkspaceRepositories(cwd)
+}
+
 func processSingleRepoSend(repo model.ScanRecord, opts cmdpending.SendsOptions, finalMsg string) cmdpending.RepoSendResultRecord {
 	dir := repo.AbsolutePath
 	if dir == "" {
@@ -210,7 +262,7 @@ func processSingleRepoSend(repo model.ScanRecord, opts cmdpending.SendsOptions, 
 
 	porcelain, _ := currentSendsGitExecutor(dir, "status", "--porcelain")
 	untracked, modified, staged, _ := cmdpending.ParsePorcelainStatusLines(porcelain)
-	isDirty := (untracked + modified + staged) > 0
+	filesStaged := untracked + modified + staged
 
 	branch, _ := currentSendsGitExecutor(dir, "rev-parse", "--abbrev-ref", "HEAD")
 	branch = strings.TrimSpace(branch)
@@ -227,12 +279,12 @@ func processSingleRepoSend(repo model.ScanRecord, opts cmdpending.SendsOptions, 
 	}
 
 	isTargetAll := strings.EqualFold(opts.Target, "all")
+	isClean := filesStaged == 0
 
-	if !isDirty {
+	if isClean {
 		return handleCleanRepoSend(dir, repo.RepoName, relPath, branch, isTargetAll, opts)
 	}
 
-	filesStaged := untracked + modified + staged
 	if opts.IsDryRun {
 		return cmdpending.RepoSendResultRecord{
 			RepoName:     repo.RepoName,
@@ -244,7 +296,44 @@ func processSingleRepoSend(repo model.ScanRecord, opts cmdpending.SendsOptions, 
 		}
 	}
 
-	return executeRealRepoCommitAndPush(dir, repo.RepoName, relPath, branch, filesStaged, finalMsg, opts.IsPushed)
+	repoCommitMsg := resolveRepoCommitMessage(opts, finalMsg, porcelain)
+	return executeRealRepoCommitAndPush(dir, repo.RepoName, relPath, branch, filesStaged, repoCommitMsg, opts.IsPushed)
+}
+
+func resolveRepoCommitMessage(opts cmdpending.SendsOptions, finalMsg, porcelain string) string {
+	isEligible := shouldApplySemanticGrouping(opts)
+	if isEligible {
+		categories := cmdsends.CategorizeChangedFiles(porcelain)
+		hasCategories := len(categories) > 0
+		if hasCategories {
+			return cmdsends.FormatMarkdownCommitBody(finalMsg, categories)
+		}
+	}
+
+	return finalMsg
+}
+
+func shouldApplySemanticGrouping(opts cmdpending.SendsOptions) bool {
+	isTargetAll := strings.EqualFold(opts.Target, "all")
+	if isTargetAll {
+		return true
+	}
+
+	return isWIPTrigger(opts.RawMessage)
+}
+
+func isWIPTrigger(msg string) bool {
+	clean := strings.TrimSpace(strings.ToLower(msg))
+	isWIPExact := clean == "wip" || clean == "save changes"
+	if isWIPExact {
+		return true
+	}
+	hasWIPPrefix := strings.HasPrefix(clean, "wip:") || strings.HasPrefix(clean, "wip ") || strings.HasPrefix(clean, "wip-")
+	if hasWIPPrefix {
+		return true
+	}
+
+	return strings.Contains(clean, "wip") || strings.Contains(clean, "save changes")
 }
 
 func handleCleanRepoSend(dir, repoName, relPath, branch string, isTargetAll bool, opts cmdpending.SendsOptions) cmdpending.RepoSendResultRecord {

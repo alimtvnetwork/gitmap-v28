@@ -49,6 +49,57 @@ func ResolveAdaptiveConcurrency(preset ConcurrencyPreset, userLimit int) int {
 	return ResolveAdaptivePullConcurrency(preset, userLimit)
 }
 
+// ResolveBoostedPullConcurrency dynamically scales concurrency when running locally under idle conditions.
+// If isLocalOnly is true and both CPU and RAM are under threshold, scales max workers up to max(runtime.NumCPU(), 6).
+// Otherwise, falls back to standard adaptive auto profile.
+func ResolveBoostedPullConcurrency(isLocalOnly bool, cpuPercent, ramPercent, threshold int) int {
+	if isLocalOnly {
+		if threshold <= 0 {
+			threshold = 30
+		}
+		isCPUIdle := cpuPercent < threshold
+		isRAMIdle := ramPercent < threshold
+		if isCPUIdle && isRAMIdle {
+			cores := runtime.NumCPU()
+			if cores < 6 {
+				return 6
+			}
+			return cores
+		}
+	}
+	return ResolveAdaptivePullConcurrency(CPUProfileAuto, 0)
+}
+
+// ResolveBoostedWorkerHands returns the boosted worker count and hands per worker.
+// When resource usage qualifies for boost, returns (max(runtime.NumCPU(), 6), 2).
+func ResolveBoostedWorkerHands(isLocalOnly bool, cpuPercent, ramPercent, threshold int) (int, int) {
+	if isLocalOnly {
+		if threshold <= 0 {
+			threshold = 30
+		}
+		isCPUIdle := cpuPercent < threshold
+		isRAMIdle := ramPercent < threshold
+		if isCPUIdle && isRAMIdle {
+			workers := ResolveBoostedPullConcurrency(isLocalOnly, cpuPercent, ramPercent, threshold)
+			return workers, 2
+		}
+	}
+	return ResolveAdaptivePullConcurrency(CPUProfileAuto, 0), 1
+}
+
+// IsBoostEligible checks whether the resource conditions qualify for adaptive concurrency boost.
+func IsBoostEligible(isLocalOnly bool, cpuPercent, ramPercent, threshold int) bool {
+	if isLocalOnly {
+		if threshold <= 0 {
+			threshold = 30
+		}
+		isCPUIdle := cpuPercent < threshold
+		isRAMIdle := ramPercent < threshold
+		return isCPUIdle && isRAMIdle
+	}
+	return false
+}
+
 func resolveHighPerfConcurrency(cores int) int {
 	if cores < 1 {
 		return 1

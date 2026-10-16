@@ -128,6 +128,8 @@ export default function SettingsPage() {
   const [tempDir, setTempDir] = useState(".ai-memory/temp");
   const [pollInterval, setPollInterval] = useState("10");
   const [terminalTheme, setTerminalTheme] = useState(TerminalThemeType.Dark);
+  const [nodeResourceThreshold, setNodeResourceThreshold] = useState<number>(30);
+  const [paeRecencyHours, setPaeRecencyHours] = useState<number>(48);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -143,6 +145,8 @@ export default function SettingsPage() {
       temp: localStorage.getItem("gitmap_temp_dir"),
       poll: localStorage.getItem("gitmap_poll_interval"),
       theme: localStorage.getItem("gitmap_terminal_theme"),
+      nodeThreshold: localStorage.getItem("gitmap_node_resource_threshold"),
+      paeRecency: localStorage.getItem("gitmap_pae_recency_window_hours"),
       instanceId: localStorage.getItem("gitmap_agy_instance_id"),
       autoDiscover: localStorage.getItem("gitmap_agy_auto_discover"),
       telemetry: localStorage.getItem("gitmap_agy_telemetry_sync"),
@@ -162,6 +166,14 @@ export default function SettingsPage() {
 
     if (res.data.theme) {
       setTerminalTheme(res.data.theme as TerminalThemeType);
+    }
+
+    if (res.data.nodeThreshold) {
+      setNodeResourceThreshold(Number(res.data.nodeThreshold) || 30);
+    }
+
+    if (res.data.paeRecency) {
+      setPaeRecencyHours(Number(res.data.paeRecency) || 48);
     }
 
     if (res.data.instanceId) {
@@ -238,6 +250,8 @@ export default function SettingsPage() {
       localStorage.setItem("gitmap_temp_dir", tempDir);
       localStorage.setItem("gitmap_poll_interval", pollInterval);
       localStorage.setItem("gitmap_terminal_theme", terminalTheme);
+      localStorage.setItem("gitmap_node_resource_threshold", String(nodeResourceThreshold));
+      localStorage.setItem("gitmap_pae_recency_window_hours", String(paeRecencyHours));
       localStorage.setItem("gitmap_agy_instance_id", selectedInstanceId);
       localStorage.setItem("gitmap_agy_auto_discover", String(isAutoDiscoverActive));
       localStorage.setItem("gitmap_agy_telemetry_sync", String(isTelemetrySyncActive));
@@ -261,6 +275,8 @@ export default function SettingsPage() {
           attributes: {
             "storage.temp_dir": tempDir,
             "pipeline.poll_interval": pollInterval,
+            "node_resource_threshold": String(nodeResourceThreshold),
+            "pae_recency_window_hours": String(paeRecencyHours),
             "antigravity.instance_id": selectedInstanceId,
             "antigravity.auto_discover": String(isAutoDiscoverActive),
             "antigravity.telemetry_sync": String(isTelemetrySyncActive),
@@ -470,6 +486,75 @@ export default function SettingsPage() {
           <div className="grid gap-6">
             <StorageTempCard tempDir={tempDir} onTempDirChange={setTempDir} />
             <PipelineMonitorCard pollInterval={pollInterval} onPollIntervalChange={setPollInterval} />
+
+            {/* Node Resource Benchmark Threshold & PAE Commit Recency Card */}
+            <div className="rounded-xl bg-card border border-border/50 p-6 shadow-sm space-y-6">
+              <div className="flex items-center justify-between border-b border-border/40 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <Cpu className="h-5 w-5 text-primary" />
+                  <div>
+                    <h2 className="text-lg font-heading font-semibold text-foreground">
+                      Node Resource Benchmark &amp; PAE Commit Recency
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Configure CPU/RAM idle benchmarks for parallel execution and lookback window for efficient pull operations.
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
+                  Fleet Engine Tuning
+                </span>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                {/* Node Resource Benchmark Threshold */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                      Node Resource Benchmark Threshold
+                    </label>
+                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">
+                      {nodeResourceThreshold}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="90"
+                    step="5"
+                    value={nodeResourceThreshold}
+                    onChange={(e) => setNodeResourceThreshold(Number(e.target.value))}
+                    className="w-full accent-primary cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Idle utilization threshold (default: 30%). When fleet nodes report CPU and RAM below this level, adaptive parallel pull concurrency is boosted to maximum capacity.
+                  </p>
+                </div>
+
+                {/* PAE Commit Recency Window */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                      PAE Commit Recency Window
+                    </label>
+                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">
+                      {paeRecencyHours} hours
+                    </span>
+                  </div>
+                  <input
+                    type="number"
+                    min="1"
+                    max="720"
+                    value={paeRecencyHours}
+                    onChange={(e) => setPaeRecencyHours(Math.max(1, Number(e.target.value)))}
+                    className="w-full bg-muted/20 border border-border/60 text-foreground px-3.5 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Lookback hours for <code className="text-primary font-mono font-semibold">gitmap pae</code> (default: 48h). Repositories with commits inside this window are prioritized for fast synchronization.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

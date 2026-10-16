@@ -31,12 +31,20 @@ const (
 
 // Settings keys.
 const (
-	SettingActiveGroup          = "active_group"
-	SettingActiveMultiGroup     = "active_multi_group"
-	SettingSourceRepoPath       = "source_repo_path"
-	SettingSchemaVersion        = "schema_version"
-	SettingCustomRepoExclusions = "custom_repo_exclusions"
+	SettingActiveGroup             = "active_group"
+	SettingActiveMultiGroup        = "active_multi_group"
+	SettingSourceRepoPath          = "source_repo_path"
+	SettingSchemaVersion           = "schema_version"
+	SettingCustomRepoExclusions    = "custom_repo_exclusions"
+	SettingPullActivityWindowHours = "pae_recency_window_hours"
+	SettingNodeResourceThreshold   = "node_resource_threshold"
 )
+
+// Default activity window for efficient pull operations.
+const DefaultPullActivityWindowHours = 48
+
+// DefaultNodeResourceThreshold defines the baseline benchmark utilization limit (30%).
+const DefaultNodeResourceThreshold = 30
 
 // SchemaVersionCurrent is the target schema version produced by the current
 // build of Migrate(). Bump this integer whenever a NEW migration step is

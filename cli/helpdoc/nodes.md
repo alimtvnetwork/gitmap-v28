@@ -6,6 +6,9 @@ Aggregates and orchestrates fleet operations across SSH Cluster Nodes (`SSHConne
 
 ```bash
 gitmap nodes [flags] [target]
+gitmap nodes cp [target|all] "<message>" [flags]
+gitmap nodes cm [target|all] "<message>" [flags]
+gitmap nodes resources [flags]
 gitmap nodes deploy agm-accounts [flags]
 gitmap nodes sync-agm-accounts [flags]
 gitmap nodes deploy repo <slug|path> [flags]
@@ -28,6 +31,9 @@ gitmap nodes cfrp [flags] [targets] [dest]
 
 | Subcommand | Description |
 |------------|-------------|
+| `cp [target\|all]` | Broadcast flat commit and push across fleet nodes in parallel |
+| `cm [target\|all]` | Broadcast flat commit without push across fleet nodes in parallel |
+| `resources` | Probe and report CPU/RAM resource telemetry across fleet nodes |
 | `deploy agm-accounts` | Broadcast Antigravity Manager accounts & credentials across fleet nodes |
 | `sync-agm-accounts` | Shorthand alias for `deploy agm-accounts` |
 | `deploy repo <slug>` | Deploy repository, run remote scan, and register across VS Code, Cursor, Antigravity, GitHub Desktop |
@@ -186,6 +192,70 @@ gitmap nodes rescan --target worker-1
 gitmap fleet-scan
 gitmap nodes-rescan
 ```
+
+---
+
+## Fleet Multi-Repo Commits (`cp`, `cm`, `cpf`, `cpb`, `cpr`, `commit-fix`)
+
+Delegate flat WIP or semantic conventional commits and pushes across remote fleet nodes in parallel over SSH.
+
+```bash
+gitmap nodes cp all "<message>" [flags]
+gitmap nodes cm all "<message>" [flags]
+gitmap nodes cpf <repoName|all> "<message>" [flags]
+```
+
+### How It Works
+
+1. **Fleet Discovery & Filtering**:
+   - Queries all registered SSH connections from `gitmap.db`.
+   - Filters candidate nodes via `--target <alias>`, `--except <nodes>`, `--include <nodes>`, `--open-only`.
+   - Probes SSH reachability; offline nodes are marked `○ OFFLINE` without failing the batch execution.
+2. **Parallel SSH Dispatch**:
+   - Dispatches `gitmap sends cp all "<message>" --json` (or `gitmap sends cm all` for local commit) concurrently across all targeted fleet nodes.
+   - Transparently forwards `--dry-run` and `--no-push` flags to remote nodes.
+3. **Outcome Parsing & Aggregation**:
+   - Parses structured remote JSON outcome envelopes.
+   - Renders a unified status table detailing node alias, repository name, commit hash, duration, and status badge (`● PUSHED`, `● COMMITTED`, `○ NO CHANGES`, `○ OFFLINE`, `▲ FAILED`).
+
+### Examples
+
+```bash
+# Broadcast WIP commit and push across all dirty repositories on all fleet nodes
+gitmap nodes cp all "wip: save changes"
+
+# Commit locally on remote nodes without pushing
+gitmap nodes cm all "wip: checkpoint"
+
+# Simulate fleet WIP commits without changing remote Git refs
+gitmap nodes cp all "wip: preview" --dry-run
+
+# Target a specific node for conventional feature commit
+gitmap nodes cpf my-repo "Feature: add cluster health monitor" -t worker-1
+```
+
+---
+
+## Fleet Node Resources Telemetry (`resources`)
+
+Probes and visualizes CPU and RAM utilization across cluster fleet nodes and local machine to determine idle capacity.
+
+```bash
+gitmap nodes resources [flags]
+```
+
+### Flags
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--target <alias>` | `-t` | `""` | Target single node alias or IP address |
+| `--threshold <N>` | | `30` | Resource benchmark utilization percentage limit |
+| `--open-only` | | `false` | Only query online reachable nodes |
+| `--json` | `-j` | `false` | Output machine-readable JSON telemetry |
+
+### Benchmark Utilization Limit
+
+Fleet nodes with CPU and RAM below the configured benchmark threshold (default: 30%) are considered idle. When local machine resources are idle and no other heavy node processes are active, GitMap's adaptive concurrency booster dynamically scales parallel worker routines up to maximize pull and clone throughput.
 
 ## See Also
 

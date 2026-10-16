@@ -7,6 +7,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
+// ColorizeVisualBar wraps visual bar in bright green when 100% complete, or cyan while in progress.
+func ColorizeVisualBar(bar string, percent int) string {
+	if percent >= 100 {
+		return constants.ColorGreen + bar + constants.ColorReset
+	}
+
+	return constants.ColorCyan + bar + constants.ColorReset
+}
+
 func (p *PullProgressBar) renderNonTTY() {
 	percent := calcProgressPercent(p.completed, p.total)
 	bar := FormatVisualBar(p.completed, p.total, 20, p.isSafe)

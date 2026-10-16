@@ -4024,6 +4024,91 @@ export const commands: CommandDef[] = [
       { name: "pipeline", description: "Pipeline and CI/CD monitoring" },
     ],
   },
+
+  // ═══════════════════════════════════════════
+  // Multi-Repo & Fleet WIP Commits (sends cp all & nodes cp all)
+  // ═══════════════════════════════════════════
+  {
+    name: "sends cp all",
+    alias: "sends cp, sends-cp-all",
+    description: "Scan workspace via gitmap.db to discover all dirty repositories, generate pattern-categorized commit messages with relative markdown links, stage, commit, and push in parallel",
+    usage: "gitmap sends cp all \"<message>\" [--dry-run] [--no-push] [--json] [--verbose]",
+    category: "commit",
+    flags: [
+      { flag: "--dry-run, -n", description: "Simulate commit message generation and staging without mutating Git refs" },
+      { flag: "--no-push", description: "Commit changes locally without pushing to upstream remote" },
+      { flag: "--json, -j", description: "Output machine-readable JSON summary of affected repositories" },
+      { flag: "--verbose, -v", description: "Print detailed git subprocess execution diagnostics" },
+    ],
+    examples: [
+      { command: "gitmap sends cp all \"wip: save changes\"", description: "Auto-summarize file changes and commit/push across all dirty workspace repositories" },
+      { command: "gitmap sends cp all \"wip: checkpoint\" --dry-run", description: "Preview affected repositories and generated commit bodies without modifying Git refs" },
+      { command: "gitmap sends cp my-repo \"Feature: add auth middleware\"", description: "Target a specific repository slug for conventional commit and push" },
+    ],
+    notes: [
+      "Automatically indexes all dirty repositories from gitmap.db regardless of current working directory.",
+      "Categorizes staged files into semantic groupings (CSS/Style, Core Architecture, Boolean Improvements, Image Assets) with relative markdown links.",
+    ],
+    seeAlso: [
+      { name: "cpar", description: "Workspace-wide parallel execution and synchronization engine" },
+      { name: "nodes cp all", description: "Delegate flat WIP commits across remote fleet SSH nodes" },
+      { name: "sends", description: "Semantic commit dispatch engine with conventional prefixes" },
+    ],
+  },
+  {
+    name: "nodes cp all",
+    alias: "nodes cp, nodes-cp-all",
+    description: "Broadcast flat WIP commits and push automation across all registered SSH fleet nodes in parallel, updating remote dirty repositories",
+    usage: "gitmap nodes cp all \"<message>\" [--target <alias>] [--except <list>] [--dry-run] [--no-push] [--json]",
+    category: "cluster",
+    flags: [
+      { flag: "--target, -t <alias|ip>", description: "Target specific remote node alias or IP address" },
+      { flag: "--except, -e <nodes>", description: "Exclude comma-separated list of remote node aliases" },
+      { flag: "--include <nodes>", description: "Whitelist specific remote node aliases for execution" },
+      { flag: "--include-main", description: "Include main controller node in fleet commit dispatch" },
+      { flag: "--open-only", description: "Only dispatch to reachable and online nodes via rapid TCP preflight probe" },
+      { flag: "--dry-run, -n", description: "Simulate fleet commit operations without modifying remote Git refs" },
+      { flag: "--no-push", description: "Stage and commit on remote nodes without pushing to remotes" },
+      { flag: "--json, -j", description: "Output structured aggregated JSON results across all fleet nodes" },
+    ],
+    examples: [
+      { command: "gitmap nodes cp all \"wip: save changes\"", description: "Dispatch WIP commit and push across all online cluster fleet nodes" },
+      { command: "gitmap nodes cp all \"wip: save changes\" --dry-run", description: "Preview fleet commit actions without modifying remote working trees" },
+      { command: "gitmap nodes cp all \"wip: checkpoint\" -t worker-1", description: "Target specific node worker-1 for fleet commit and push" },
+    ],
+    notes: [
+      "Executes 'gitmap sends cp all' on each remote node over SSH in parallel goroutines.",
+      "Renders aggregated table showing commit hashes, affected repository counts, durations, and push statuses.",
+    ],
+    seeAlso: [
+      { name: "sends cp all", description: "Local workspace-wide dirty repository commit and push" },
+      { name: "nodes", description: "Unified fleet node discovery and health monitoring" },
+      { name: "nodes resources", description: "Probe CPU and RAM utilization across cluster fleet nodes" },
+    ],
+  },
+  {
+    name: "nodes resources",
+    alias: "nodes res, nodes-resources",
+    description: "Probe and display CPU and RAM resource utilization across local machine and remote SSH fleet nodes with benchmark comparison",
+    usage: "gitmap nodes resources [--target <alias>] [--threshold <n>] [--json]",
+    category: "cluster",
+    flags: [
+      { flag: "--target, -t <alias|ip>", description: "Probe specific fleet node alias or IP address" },
+      { flag: "--threshold <n>", description: "Resource utilization benchmark threshold percentage (default: 30%)" },
+      { flag: "--json, -j", description: "Output machine-readable JSON metrics for automation pipelines" },
+    ],
+    examples: [
+      { command: "gitmap nodes resources", description: "Display resource utilization table across all cluster nodes" },
+      { command: "gitmap nodes resources --json", description: "Emit JSON telemetry for telemetry scrapers and monitoring" },
+    ],
+    notes: [
+      "Nodes reporting CPU and RAM under benchmark threshold enable adaptive boost for parallel pull pools.",
+    ],
+    seeAlso: [
+      { name: "nodes", description: "Unified fleet node discovery and management" },
+      { name: "nodes cp all", description: "Fleet-wide parallel WIP commits and pushes" },
+    ],
+  },
 ];
 
 // Global flags applied by every command via the shared root parser.

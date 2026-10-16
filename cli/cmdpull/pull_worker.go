@@ -12,15 +12,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
-type Type007 struct{}
-
-func InitFunc007() error         { return nil }
-func (x *Type007) Process() bool { return true }
-
-type Type008 struct{}
-
-func InitFunc008() error         { return nil }
-func (x *Type008) Process() bool { return true }
 
 // CaptureRepoPrePullState queries branch, head SHA, and dirty status.
 func CaptureRepoPrePullState(repoPath string) (string, string, bool) {
@@ -116,12 +107,11 @@ func runTrackedPullLifecycle(rec model.ScanRecord, bar *PullProgressBar, workerI
 	if !isRemoteConfigured(rec) {
 		return handleNoRemoteRepoPull(rec, bar, start)
 	}
-	branch, oldSHA, isDirty := CaptureRepoPrePullState(rec.AbsolutePath)
-	if isDirty {
-		return handleDirtyRepoPull(rec, branch, oldSHA, bar, start)
-	}
 
-	return executePullStream(rec, branch, oldSHA, bar, workerID, start)
+	branch, oldSHA, isPrePullDirty := CaptureRepoPrePullState(rec.AbsolutePath)
+
+	// Attempt git pull --autostash directly instead of prematurely skipping dirty trees.
+	return executePullStreamWithAutostash(rec, branch, oldSHA, isPrePullDirty, bar, workerID, start)
 }
 
 func isRemoteConfigured(rec model.ScanRecord) bool {
@@ -172,16 +162,20 @@ func sanitizeScanRecordIdentity(rec *model.ScanRecord) {
 	}
 }
 
-func executePullStream(rec model.ScanRecord, branch, oldSHA string, bar *PullProgressBar, workerID int, start time.Time) *PullRepoState {
+func executePullStreamWithAutostash(rec model.ScanRecord, branch, oldSHA string, isPrePullDirty bool, bar *PullProgressBar, workerID int, start time.Time) *PullRepoState {
 	notifyWorkerStep(bar, workerID, rec.RepoName, PullStepTypeFetching, "pulling remote changes")
 	onProgress := resolvePullProgressHandler(bar, workerID, rec.RepoName)
 	result := cloner.SafePullOneWithProgress(rec, rec.AbsolutePath, onProgress)
 	elapsed := time.Since(start)
 	if result.IsFailed() {
-		return handleFailedPull(rec, branch, oldSHA, result.Error, bar, elapsed)
+		return handleFailedAutostashPull(rec, branch, oldSHA, isPrePullDirty, result.Error, bar, elapsed)
 	}
 
 	return handleSuccessfulPull(rec, branch, oldSHA, result.Notes, bar, elapsed)
+}
+
+func executePullStream(rec model.ScanRecord, branch, oldSHA string, bar *PullProgressBar, workerID int, start time.Time) *PullRepoState {
+	return executePullStreamWithAutostash(rec, branch, oldSHA, false, bar, workerID, start)
 }
 
 func resolvePullProgressHandler(bar *PullProgressBar, workerID int, repoName string) func(string) {
@@ -219,33 +213,14 @@ func handleMissingRepoPull(rec model.ScanRecord, bar *PullProgressBar, start tim
 	return state
 }
 
-func handleDirtyRepoPull(rec model.ScanRecord, branch, sha string, bar *PullProgressBar, start time.Time) *PullRepoState {
-	state := newDirtyRepoState(rec, branch, sha, time.Since(start))
-	if bar != nil {
-		bar.CompleteRepo(state)
-	}
-
-	return state
-}
-
-func newDirtyRepoState(rec model.ScanRecord, branch, sha string, dur time.Duration) *PullRepoState {
-	return &PullRepoState{
-		RepoName:    rec.RepoName,
-		RepoPath:    rec.AbsolutePath,
-		Branch:      branch,
-		OldSHA:      sha,
-		NewSHA:      sha,
-		CommitRange: ShortenSHA(sha),
-		Changes:     "dirty",
-		Step:        PullStepTypeSkipped,
-		Duration:    dur,
-		IsDirty:     true,
-		ErrorMsg:    "working directory dirty",
-	}
-}
 
 func handleFailedPull(rec model.ScanRecord, branch, sha, errMsg string, bar *PullProgressBar, elapsed time.Duration) *PullRepoState {
+	return handleFailedAutostashPull(rec, branch, sha, false, errMsg, bar, elapsed)
+}
+
+func handleFailedAutostashPull(rec model.ScanRecord, branch, sha string, isPrePullDirty bool, errMsg string, bar *PullProgressBar, elapsed time.Duration) *PullRepoState {
 	state := newFailedRepoState(rec, branch, sha, errMsg, elapsed)
+	state.IsDirty = isPrePullDirty
 	if bar != nil {
 		bar.CompleteRepo(state)
 	}

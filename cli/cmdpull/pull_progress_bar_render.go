@@ -2,7 +2,9 @@ package cmdpull
 
 import (
 	"fmt"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -26,6 +28,15 @@ func (p *PullProgressBar) renderLocked() {
 }
 
 func (p *PullProgressBar) currentSpinner() string {
+	isComplete := (p.total > 0 && p.completed >= p.total) || (p.total <= 1 && p.resolveSingleRepoPercent() >= 100)
+	if isComplete {
+		glyph := "✓"
+		if p.isSafe {
+			glyph = "+"
+		}
+		return fmt.Sprintf("%s%s%s", constants.ColorGreen, glyph, constants.ColorReset)
+	}
+
 	frame := brailleFrames[p.spinnerIdx%len(brailleFrames)]
 	if p.isSafe {
 		frame = asciiFrames[p.spinnerIdx%len(asciiFrames)]
@@ -72,11 +83,7 @@ func (p *PullProgressBar) renderMultiRepoTTY() {
 }
 
 func (p *PullProgressBar) colorizeBar(bar string, percent int) string {
-	if percent >= 100 {
-		return constants.ColorGreen + bar + constants.ColorReset
-	}
-
-	return constants.ColorCyan + bar + constants.ColorReset
+	return ColorizeVisualBar(bar, percent)
 }
 
 func (p *PullProgressBar) colorizeBadge(badge string, step PullStepType) string {
@@ -107,14 +114,66 @@ func clampLineToTermWidth(line string) string {
 		maxLen = 79
 	}
 	plain := stripANSI(line)
-	if len(plain) <= maxLen {
+	plainLen := utf8.RuneCountInString(plain)
+	if plainLen <= maxLen {
 		return line
 	}
 	if maxLen <= 3 {
 		return plain[:maxLen]
 	}
 
+	hasANSI := strings.Contains(line, "\x1b")
+	if hasANSI {
+		return truncateANSI(line, maxLen)
+	}
+
 	return plain[:maxLen-3] + "..."
+}
+
+// truncateANSI slices line so that its visible printable width does not exceed maxLen,
+// while preserving ANSI escape sequences and closing with ColorReset.
+func truncateANSI(line string, maxLen int) string {
+	if maxLen <= 3 {
+		return "..."
+	}
+	targetVisible := maxLen - 3
+
+	var buf strings.Builder
+	buf.Grow(len(line))
+
+	visibleCount := 0
+	isANSISequence := false
+
+	for i := 0; i < len(line); {
+		if isANSISequence {
+			b := line[i]
+			buf.WriteByte(b)
+			i++
+			if (b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z') {
+				isANSISequence = false
+			}
+			continue
+		}
+
+		if line[i] == 0x1b && i+1 < len(line) && line[i+1] == '[' {
+			isANSISequence = true
+			buf.WriteByte(line[i])
+			i++
+			continue
+		}
+
+		r, size := utf8.DecodeRuneInString(line[i:])
+		visibleCount++
+		if visibleCount > targetVisible {
+			buf.WriteString("...")
+			buf.WriteString(constants.ColorReset)
+			return buf.String()
+		}
+		buf.WriteRune(r)
+		i += size
+	}
+
+	return buf.String()
 }
 
 func (p *PullProgressBar) formatActiveDescription() string {

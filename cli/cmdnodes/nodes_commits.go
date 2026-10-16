@@ -18,7 +18,29 @@ import (
 
 // RunNodesCommits handles standard fleet commits without semantic prefixes.
 func RunNodesCommits(args []string) error {
-	return RunNodesCommitsWithAction("commits", args)
+	if len(args) == 0 {
+		return RunNodesCommitsWithAction("commits", args)
+	}
+
+	sub := strings.ToLower(args[0])
+	switch sub {
+	case "cp":
+		return RunNodesCommitPush(args[1:])
+	case "cm":
+		return RunNodesCommitMessage(args[1:])
+	default:
+		return RunNodesCommitsWithAction("commits", args)
+	}
+}
+
+// RunNodesCommitPush handles fleet flat commits and push (Action: "cp").
+func RunNodesCommitPush(args []string) error {
+	return RunNodesCommitsWithAction("cp", args)
+}
+
+// RunNodesCommitMessage handles fleet commits without push (Action: "cm").
+func RunNodesCommitMessage(args []string) error {
+	return RunNodesCommitsWithAction("cm", args)
 }
 
 // RunNodesCommitPushFeature handles fleet feature commits (Feature: <msg>).
@@ -82,10 +104,15 @@ func RunNodesCommitsWithAction(action string, args []string) error {
 }
 
 func parseNodesCommitsOptions(action string, args []string) (NodesCommitsOptions, error) {
+	isPush := true
+	if strings.EqualFold(action, "cm") {
+		isPush = false
+	}
+
 	opts := NodesCommitsOptions{
 		FilterOpts:    ParseNodeFilterOptions(args),
 		Action:        action,
-		IsPushEnabled: true,
+		IsPushEnabled: isPush,
 	}
 
 	var positionals []string
@@ -144,11 +171,22 @@ func finalizeCommitsOptions(opts NodesCommitsOptions, positionals []string) (Nod
 		return opts, apperror.NewSimple("target repository name or 'all' is required", "E9081")
 	}
 
-	if opts.CommitMessage == "" && !opts.IsDryRun {
-		return opts, apperror.NewSimple("commit message is required", "E9080")
+	isWIPCommit := strings.EqualFold(opts.Action, "cp") || strings.EqualFold(opts.Action, "cm")
+	isCommitMsgMissing := opts.CommitMessage == ""
+	isLiveRun := !opts.IsDryRun
+	if isCommitMsgMissing && isLiveRun {
+		return applyCommitMessageOrError(opts, isWIPCommit)
 	}
 
 	return opts, nil
+}
+
+func applyCommitMessageOrError(opts NodesCommitsOptions, isWIPCommit bool) (NodesCommitsOptions, error) {
+	if isWIPCommit {
+		opts.CommitMessage = "wip: save changes"
+		return opts, nil
+	}
+	return opts, apperror.NewSimple("commit message is required", "E9080")
 }
 
 func runFleetCommitsParallel(targets []db.SSHConnection, opts NodesCommitsOptions) []NodeCommitResult {
@@ -597,6 +635,8 @@ func printNodesCommitsHelp(action string) error {
 	fmt.Println("  └─────────────────────────────────────────────────────────────────────────────────┘")
 	fmt.Println()
 	fmt.Println("  ACTIONS:")
+	fmt.Println("    cp            Fleet flat commit and push (no semantic prefix)")
+	fmt.Println("    cm            Fleet flat commit without push")
 	fmt.Println("    commits       Standard commit (no semantic prefix)")
 	fmt.Println("    cpf           Feature commit (prepends 'Feature: ')")
 	fmt.Println("    cpb           Bug fix commit (prepends 'Bug: ')")
@@ -619,6 +659,8 @@ func printNodesCommitsHelp(action string) error {
 	fmt.Println("    -h, --help                 Display this help menu")
 	fmt.Println()
 	fmt.Println("  EXAMPLES:")
+	fmt.Println("    gitmap nodes cp all \"wip: save changes\"")
+	fmt.Println("    gitmap nodes cm all \"wip: save changes locally\"")
 	fmt.Println("    gitmap nodes cpf gitmap \"add nodes commit suite\"")
 	fmt.Println("    gitmap nodes cpb all \"fix nil pointer exception in split-db indexer\"")
 	fmt.Println("    gitmap nodes commit-fix my-service \"resolve merge conflict in main branch\"")

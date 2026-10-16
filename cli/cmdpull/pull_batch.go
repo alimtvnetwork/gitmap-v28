@@ -117,6 +117,12 @@ func finalizePullBatchStandard(taskDB *store.DB, taskID int64, tDB *store.TasksS
 	collectAndRemediateIgnoreIssues(ignoreHandle, opts)
 	finalizePullTaskQueueOutput(isAll, tDB, queueId, failedCount)
 
+	unresolved := ExtractUnresolvedRepos(states)
+	hasUnresolved := len(unresolved) > 0
+	if hasUnresolved && !opts.isJSON {
+		_ = PromptPostPullRemediation(unresolved)
+	}
+
 	return finalizePullBatchTask(taskDB, taskID, failedCount, ExtractPullFailures(states))
 }
 

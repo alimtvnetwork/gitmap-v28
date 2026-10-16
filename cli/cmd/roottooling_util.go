@@ -39,6 +39,12 @@ import (
 )
 
 func toolingUtilEntries() []dispatchEntry {
+	entries := make([]dispatchEntry, 0, 56)
+	entries = append(entries, toolingUtilSearchEntries()...)
+	return append(entries, toolingUtilFileEntries()...)
+}
+
+func toolingUtilSearchEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"schedule", "sc", "crontab", "cron"}, func() error { return cmdschedule.RunSchedule(argsTail()) }},
 		{[]string{constants.CmdDownloaderConfig, constants.CmdDownloaderConfigAlias}, func() error { return cmddownload.RunDownloaderConfig(argsTail()) }},
@@ -78,6 +84,11 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdCommitPushRelease, constants.CmdCommitPushReleaseAlias}, func() error { return cmdcommit.RunCommitPushRelease(argsTail()) }},
 		{[]string{constants.CmdRmGit, constants.CmdRmGitAlias}, func() error { return cmdcommit.RunRmGit(argsTail()) }},
 		{[]string{constants.CmdGitReset, constants.CmdGitResetAlias}, func() error { return cmdcommit.RunGitReset(argsTail()) }},
+	}
+}
+
+func toolingUtilFileEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{constants.CmdIgnore}, func() error { return cmdignore.RunIgnoreCLI(argsTail()) }},
 		{[]string{constants.CmdIgnoreRm}, func() error { return cmdignore.RunIgnoreRm(argsTail()) }},
 		{[]string{constants.CmdAdd}, func() error { return cmdadd.RunAdd(argsTail()) }},

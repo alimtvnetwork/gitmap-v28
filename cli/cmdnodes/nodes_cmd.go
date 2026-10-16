@@ -211,6 +211,8 @@ func RunUnifiedNodesCLI(args []string) error {
 		return RunNodesPipelineErrorsAll(args)
 	} else if isNodesCloneRequest(args) {
 		return RunNodesClone(args)
+	} else if isNodesResourcesRequest(args) {
+		return RunNodesResourcesCLI(args[1:])
 	} else if isNodesHelpRequest(args) {
 		return printUnifiedNodesHelp()
 	}
@@ -251,4 +253,13 @@ func isNodesPipelineAll(args []string) bool {
 	return first == "pe-all" || first == "pe_all" ||
 		first == "pipe-error-all" || first == "pipe-errors-all" ||
 		first == "pipeline-error-all" || first == "pipeline-errors-all"
+}
+
+func isNodesResourcesRequest(args []string) bool {
+	hasArgs := len(args) > 0
+	if hasArgs {
+		tok := strings.ToLower(args[0])
+		return tok == "resources" || tok == "res" || tok == "top" || tok == "metrics" || tok == "usage"
+	}
+	return false
 }
