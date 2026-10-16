@@ -71,10 +71,7 @@ func scanRepoTableRow(rows *sql.Rows) string {
 	if err := rows.Scan(&path); err != nil {
 		return ""
 	}
-	if root := normalizeRepoPath(path); len(root) > 0 {
-		return root
-	}
-	return ""
+	return normalizeRepoPath(path)
 }
 
 // resolveRepoPathFromWorkDirs checks work_directories in the SQLite database for a gitmap repo.
@@ -107,11 +104,7 @@ func scanWorkDirRow(rows *sql.Rows) string {
 	if err := rows.Scan(&baseDir); err != nil {
 		return ""
 	}
-	candidate := filepath.Join(baseDir, "gitmap")
-	if root := normalizeRepoPath(candidate); len(root) > 0 {
-		return root
-	}
-	return ""
+	return normalizeRepoPath(filepath.Join(baseDir, "gitmap"))
 }
 
 // normalizeRepoPath resolves a candidate path to a valid gitmap source root.
@@ -185,19 +178,19 @@ func isGitmapSourceRepo(path string) bool {
 		return false
 	}
 
-	if fsutil.FileExists(filepath.Join(path, "cli", "constants", "constants.go")) {
-		return true
+	markers := []string{
+		filepath.Join(path, "cli", "constants", "constants.go"),
+		filepath.Join(path, "cli", "go.mod"),
+		filepath.Join(path, "gitmap", "constants", "constants.go"),
+		filepath.Join(path, "constants", "constants.go"),
+	}
+	for _, marker := range markers {
+		if fsutil.FileExists(marker) {
+			return true
+		}
 	}
 
-	if fsutil.FileExists(filepath.Join(path, "cli", "go.mod")) {
-		return true
-	}
-
-	if fsutil.FileExists(filepath.Join(path, "gitmap", "constants", "constants.go")) {
-		return true
-	}
-
-	return fsutil.FileExists(filepath.Join(path, "constants", "constants.go"))
+	return false
 }
 
 // isRepoPathPromptAllowed checks whether stdin is interactive.
@@ -213,8 +206,7 @@ func isRepoPathPromptAllowed() bool {
 // promptRepoPath asks the user to enter the source repo path interactively.
 // If the path does not exist, it clones the gitmap repo into that location.
 func promptRepoPath() string {
-	isNonPromptForRepoPath := !isRepoPathPromptAllowed()
-	if isNonPromptForRepoPath {
+	if !isRepoPathPromptAllowed() {
 		return ""
 	}
 
@@ -240,8 +232,7 @@ func promptRepoPath() string {
 		}
 
 		// Try existing path first.
-		root := normalizeRepoPath(path)
-		if len(root) > 0 {
+		if root := normalizeRepoPath(path); len(root) > 0 {
 			return root
 		}
 
@@ -252,14 +243,10 @@ func promptRepoPath() string {
 			continue
 		}
 
-		cloned := cloneRepoInto(absPath)
-		root = ""
-		if cloned {
-			root = normalizeRepoPath(absPath)
-		}
-
-		if cloned && len(root) > 0 {
-			return root
+		if cloneRepoInto(absPath) {
+			if root := normalizeRepoPath(absPath); len(root) > 0 {
+				return root
+			}
 		}
 
 		fmt.Fprintf(os.Stderr, constants.ErrUpdatePathInvalid, path)
@@ -290,10 +277,8 @@ func saveRepoPathToDB(path string) {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  Warning: could not save repo path to database: %v\n", err)
-
 		return
 	}
-
 	defer db.Close()
 
 	if err := db.SetSetting(constants.SettingSourceRepoPath, path); err != nil {
@@ -307,7 +292,6 @@ func loadRepoPathFromDB() string {
 	if err != nil {
 		return ""
 	}
-
 	defer db.Close()
 
 	return db.GetSetting(constants.SettingSourceRepoPath)

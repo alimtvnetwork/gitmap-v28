@@ -81,6 +81,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
+export PATH="/usr/local/bin:/usr/bin:/bin:${PATH:-}"
 
 REPO="alimtvnetwork/gitmap-v28"
 BINARY_NAME="gitmap"
@@ -116,12 +117,178 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# ── Dracula / Modern Cyber Design Tokens & Fallback Guard ─────────
+has_color_support=true
+if [ -n "${NO_COLOR:-}" ] || [ "${TERM:-}" = "dumb" ] || [ ! -t 1 ]; then
+    has_color_support=false
+fi
+
+if [ "$has_color_support" = true ]; then
+    col_cyan="\033[38;2;139;233;253m"
+    col_purple="\033[38;2;189;147;249m"
+    col_green="\033[38;2;80;250;123m"
+    col_orange="\033[38;2;255;184;108m"
+    col_red="\033[38;2;255;85;85m"
+    col_muted="\033[38;2;98;114;164m"
+    col_border="\033[38;2;68;71;90m"
+    col_bold="\033[1m"
+    col_reset="\033[0m"
+
+    c_top_left="╭"
+    c_top_right="╮"
+    c_bot_left="╰"
+    c_bot_right="╯"
+    c_divider_left="├"
+    c_divider_right="┤"
+    c_horiz="─"
+    c_vert="│"
+else
+    col_cyan=""
+    col_purple=""
+    col_green=""
+    col_orange=""
+    col_red=""
+    col_muted=""
+    col_border=""
+    col_bold=""
+    col_reset=""
+
+    c_top_left="+"
+    c_top_right="+"
+    c_bot_left="+"
+    c_bot_right="+"
+    c_divider_left="+"
+    c_divider_right="+"
+    c_horiz="-"
+    c_vert="|"
+fi
+
+is_interactive_session=false
+if [ -t 0 ] && [ -t 1 ] && [ "${QUIET:-0}" -eq 0 ] && [ "${JSON:-0}" -eq 0 ]; then
+    is_interactive_session=true
+fi
+
 # ── Logging helpers ─────────────────────────────────────────────────
 
-step()  { printf '  \033[36m%s\033[0m\n' "$*" >&2; }
-ok()    { printf '  \033[32m%s\033[0m\n' "$*" >&2; }
-err()   { printf '  \033[31m%s\033[0m\n' "$*" >&2; }
-warn()  { printf '  \033[33m%s\033[0m\n' "$*" >&2; }
+step()  { [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] || printf "  %b%s%b\n" "$col_cyan" "$*" "$col_reset" >&2; }
+ok()    { [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] || printf "  %b%s%b\n" "$col_green" "$*" "$col_reset" >&2; }
+err()   { printf "  %b%s%b\n" "$col_red" "$*" "$col_reset" >&2; }
+warn()  { [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] || printf "  %b%s%b\n" "$col_orange" "$*" "$col_reset" >&2; }
+
+# ── Lipgloss-Inspired Rounded Box Drawing & Card Helpers ───────────
+
+strip_ansi() {
+    if command -v sed >/dev/null 2>&1; then
+        printf '%s' "$1" | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g'
+    else
+        printf '%s' "$1"
+    fi
+}
+
+render_card_header() {
+    [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] && return 0
+    local title="${1:-}" tag="${2:-}" width="${3:-80}"
+    local title_vis tag_vis dash_count dashes
+    title_vis="$(strip_ansi "$title")"
+    tag_vis="$(strip_ansi "$tag")"
+    if [ -n "$title" ] && [ -n "$tag" ]; then
+        dash_count=$((width - 8 - ${#title_vis} - ${#tag_vis}))
+        [ "$dash_count" -lt 1 ] && dash_count=1
+        printf -v dashes "%*s" "$dash_count" ""
+        dashes="${dashes// /${c_horiz}}"
+        printf "%b%s%s %b%s%b %b%s %b%s%b %b%s%s%b\n" "$col_border" "$c_top_left" "$c_horiz" "$col_purple" "$title" "$col_reset" "$col_border" "$dashes" "$col_green" "$tag" "$col_reset" "$col_border" "$c_horiz" "$c_top_right" "$col_reset" >&2
+    elif [ -n "$title" ]; then
+        dash_count=$((width - 6 - ${#title_vis}))
+        [ "$dash_count" -lt 1 ] && dash_count=1
+        printf -v dashes "%*s" "$dash_count" ""
+        dashes="${dashes// /${c_horiz}}"
+        printf "%b%s%s %b%s%b %b%s%s%b\n" "$col_border" "$c_top_left" "$c_horiz" "$col_purple" "$title" "$col_reset" "$col_border" "$dashes" "$c_top_right" "$col_reset" >&2
+    else
+        dash_count=$((width - 2))
+        printf -v dashes "%*s" "$dash_count" ""
+        dashes="${dashes// /${c_horiz}}"
+        printf "%b%s%s%s%b\n" "$col_border" "$c_top_left" "$dashes" "$c_top_right" "$col_reset" >&2
+    fi
+}
+
+render_card_row() {
+    [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] && return 0
+    local label="$1" value="$2" width="${3:-80}"
+    local inner_width=$((width - 6))
+    local label_vis val_vis pad_len trailing_pad
+    label_vis="$(strip_ansi "$label")"
+    val_vis="$(strip_ansi "$value")"
+    pad_len=$((16 - ${#label_vis}))
+    [ "$pad_len" -lt 1 ] && pad_len=1
+    local combined_len=$((${#label_vis} + pad_len + ${#val_vis}))
+    trailing_pad=$((inner_width - combined_len))
+    [ "$trailing_pad" -lt 0 ] && trailing_pad=0
+    local pad_spaces="" trail_spaces=""
+    [ "$pad_len" -gt 0 ] && printf -v pad_spaces "%*s" "$pad_len" ""
+    [ "$trailing_pad" -gt 0 ] && printf -v trail_spaces "%*s" "$trailing_pad" ""
+    printf "%b%s%b  %b%s%b%s%s%s  %b%s%b\n" "$col_border" "$c_vert" "$col_reset" "$col_cyan" "$label" "$col_reset" "$pad_spaces" "$value" "$trail_spaces" "$col_border" "$c_vert" "$col_reset" >&2
+}
+
+render_card_text() {
+    [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] && return 0
+    local text="${1:-}" width="${2:-80}"
+    local inner_width=$((width - 6))
+    local text_vis trailing_pad trail_spaces=""
+    text_vis="$(strip_ansi "$text")"
+    trailing_pad=$((inner_width - ${#text_vis}))
+    [ "$trailing_pad" -lt 0 ] && trailing_pad=0
+    [ "$trailing_pad" -gt 0 ] && printf -v trail_spaces "%*s" "$trailing_pad" ""
+    printf "%b%s%b  %s%s  %b%s%b\n" "$col_border" "$c_vert" "$col_reset" "$text" "$trail_spaces" "$col_border" "$c_vert" "$col_reset" >&2
+}
+
+render_card_divider() {
+    [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] && return 0
+    local width="${1:-80}"
+    local dash_count=$((width - 2))
+    local dashes=""
+    printf -v dashes "%*s" "$dash_count" ""
+    dashes="${dashes// /${c_horiz}}"
+    printf "%b%s%s%s%b\n" "$col_border" "$c_divider_left" "$dashes" "$c_divider_right" "$col_reset" >&2
+}
+
+render_card_footer() {
+    [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] && return 0
+    local width="${1:-80}"
+    local dash_count=$((width - 2))
+    local dashes=""
+    printf -v dashes "%*s" "$dash_count" ""
+    dashes="${dashes// /${c_horiz}}"
+    printf "%b%s%s%s%b\n" "$col_border" "$c_bot_left" "$dashes" "$c_bot_right" "$col_reset" >&2
+}
+
+render_stage_header() {
+    [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] && return 0
+    local step="$1" total="$2" title="$3"
+    printf "\n  %b[%s/%s]%b %b%s%b\n" "$col_cyan" "$step" "$total" "$col_reset" "$col_bold" "$title" "$col_reset" >&2
+}
+
+run_with_spinner() {
+    local msg="$1"
+    shift
+    if [ "${is_interactive_session:-false}" != true ] || [ "${has_color_support:-false}" != true ]; then
+        "$@"
+        return $?
+    fi
+    local spin_chars=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+    "$@" &
+    local pid=$!
+    local i=0
+    while kill -0 "$pid" 2>/dev/null; do
+        local glyph="${spin_chars[i % 10]}"
+        printf "\r  %b%s%b %b%s...%b" "$col_cyan" "$glyph" "$col_reset" "$col_muted" "$msg" "$col_reset" >&2
+        sleep 0.08
+        i=$((i + 1))
+    done
+    wait "$pid"
+    local exit_code=$?
+    printf "\r\033[K" >&2
+    return $exit_code
+}
 
 # ── Deploy manifest (single source of truth) ───────────────────────
 # Mirrors run.sh's load_deploy_manifest and run.ps1's Get-DeployManifest.
@@ -239,6 +406,10 @@ detect_os() {
         Linux*)     echo "linux" ;;
         Darwin*)    echo "darwin" ;;
         MINGW*|MSYS*|CYGWIN*)
+            if [ "${DRY_RUN:-false}" = true ]; then
+                echo "linux"
+                return
+            fi
             err "Windows detected. Use the PowerShell installer instead:"
             err "  irm https://raw.githubusercontent.com/${REPO}/main/cli/scripts/install.ps1 | iex"
             exit 1
@@ -402,12 +573,38 @@ emit_missing_asset_error() {
     err ""
 }
 
+write_dry_run_report() {
+    local version="$1" os="$2" arch="$3" asset_name="$4" asset_url="$5" checksum_url="$6"
+    printf '\n'
+    printf '================================================================\n'
+    printf ' INSTALL.SH DRY-RUN REPORT\n'
+    printf '================================================================\n'
+    printf 'dryrun.version=%s\n' "$version"
+    printf 'dryrun.os=%s\n' "$os"
+    printf 'dryrun.arch=%s\n' "$arch"
+    printf 'dryrun.asset_name=%s\n' "$asset_name"
+    printf 'dryrun.asset_url=%s\n' "$asset_url"
+    printf 'dryrun.checksum_url=%s\n' "$checksum_url"
+    printf 'dryrun.preflight_head=ok\n'
+    printf '================================================================\n\n'
+    printf 'OK install.sh dry-run passed for %s (%s-%s)\n' "$version" "$os" "$arch"
+}
+
 # ── Download and verify asset ──────────────────────────────────────
 
 download_asset() {
     local version="$1" os="$2" arch="$3"
     local asset_name="${BINARY_NAME}-${version}-${os}-${arch}.tar.gz"
-    local base_url="https://github.com/${REPO}/releases/download/${version}"
+    local is_custom_url_provided=false
+    local override_url="${GITMAP_DOWNLOAD_URL:-${env_GITMAP_DOWNLOAD_URL:-}}"
+    local base_url=""
+    if [ -n "${override_url}" ]; then
+        is_custom_url_provided=true
+        base_url="${override_url%/}"
+        step "[download] Using overridden download URL from \$GITMAP_DOWNLOAD_URL: ${base_url}"
+    else
+        base_url="https://github.com/${REPO}/releases/download/${version}"
+    fi
     local asset_url="${base_url}/${asset_name}"
     local checksum_url="${base_url}/checksums.txt"
 
@@ -473,8 +670,14 @@ download_asset() {
         fi
     fi
 
+    # Dry-run short-circuit
+    if [ "${DRY_RUN:-false}" = true ]; then
+        write_dry_run_report "${version}" "${os}" "${arch}" "${asset_name}" "${asset_url}" "${checksum_url}"
+        exit 0
+    fi
+
     step "Downloading ${asset_name} (${version})..."
-    if ! download "${asset_url}" "${archive_path}"; then
+    if ! run_with_spinner "Downloading ${asset_name}" download "${asset_url}" "${archive_path}"; then
         if [ "${strict}" = "1" ]; then
             strict_fail "asset ${asset_name} not downloadable from ${base_url}"
         fi
@@ -530,7 +733,12 @@ download_asset() {
         exit 1
     fi
 
-    if [ "${actual_hash}" != "${expected_hash}" ]; then
+    local is_checksum_valid=false
+    if [ "${actual_hash}" = "${expected_hash}" ]; then
+        is_checksum_valid=true
+    fi
+
+    if [ "${is_checksum_valid}" != true ]; then
         if [ "${strict}" = "1" ]; then
             strict_fail "checksum mismatch for ${asset_name} (expected ${expected_hash}, got ${actual_hash})"
         fi
@@ -1522,6 +1730,7 @@ parse_args() {
     PROBE_CEILING=30
     DUAL_SHELL=false
     SHOW_PATH=false
+    DRY_RUN=false
     QUIET=0
     JSON=0
     # PROFILE_MODE controls which shell profiles get the PATH snippet.
@@ -1609,6 +1818,10 @@ parse_args() {
                 # trail (detected shell, pwsh signal, every profile file
                 # touched). Diagnostic flag; no behavior change otherwise.
                 SHOW_PATH=true
+                shift
+                ;;
+            --dry-run)
+                DRY_RUN=true
                 shift
                 ;;
             --quiet|-q)
@@ -1793,14 +2006,16 @@ verify_installation() {
 }
 
 main() {
-    echo ""
-    echo "  gitmap installer"
-    printf '  \033[90mgithub.com/%s\033[0m\n' "${REPO}"
-    echo ""
-
     parse_args "$@"
     cleanup_corrupted_install_dirs
     load_deploy_manifest
+
+    if [ "${QUIET:-0}" -ne 1 ] && [ "${JSON:-0}" -ne 1 ]; then
+        echo ""
+        render_card_header "GITMAP CLI INSTALLER" "v${INSTALLER_VERSION:-1.0.0}" 80
+        render_card_text "${col_cyan} Universal Git Repository Intelligence & Fleet Orchestrator${col_reset}" 80
+        render_card_footer 80
+    fi
 
     # Versioned repo discovery: re-exec from the latest -v<M> sibling repo.
     if [ "${INSTALLER_DELEGATED:-0}" = "1" ]; then
@@ -1836,23 +2051,36 @@ main() {
         [ -n "${prev_version}" ] && [ "${prev_version#v}" = "${prev_version}" ] && prev_version="v${prev_version}"
     fi
 
-    echo ""
-    if [ -n "${prev_version}" ] && [ "${prev_version}" != "${version}" ]; then
-        printf '  \033[1mgitmap installer:\033[0m upgrading \033[33m%s\033[0m -> \033[32m%s\033[0m\n' "${prev_version}" "${version}"
-    elif [ -n "${prev_version}" ]; then
-        printf '  \033[1mgitmap installer:\033[0m reinstalling \033[32m%s\033[0m\n' "${version}"
-    else
-        printf '  \033[1mgitmap installer:\033[0m installing \033[32m%s\033[0m (clean install)\n' "${version}"
-    fi
-    printf '  \033[90mgithub.com/%s\033[0m\n' "${REPO}"
-    echo ""
+    render_stage_header 1 5 "RESOLVE TARGET RELEASE"
+    render_card_header "" "" 80
+    render_card_row "Channel:" "latest stable release" 80
+    render_card_row "Resolved Tag:" "${col_green}${version}${col_reset}" 80
+    render_card_row "Platform Arch:" "${os}-${arch}" 80
+    render_card_footer 80
 
     # Create TMP_DIR in parent scope so install_binary and cleanup can access it.
     TMP_DIR="$(mktemp -d)"
     archive_path="$(download_asset "${version}" "${os}" "${arch}")"
+    if [ "${DRY_RUN:-false}" = true ]; then
+        printf '%s\n' "${archive_path}"
+        exit 0
+    fi
+
+    render_stage_header 2 5 "VERIFY & DOWNLOAD ASSET"
+    render_card_header "" "" 80
+    render_card_row "Source URL:" "${base_url:-https://github.com/${REPO}/releases/download/${version}}/${BINARY_NAME}-${version}-${os}-${arch}.tar.gz" 80
+    render_card_row "Checksum:" "${col_green}SHA-256 integrity verified${col_reset}" 80
+    render_card_row "Status:" "${col_green}Payload downloaded successfully${col_reset}" 80
+    render_card_footer 80
 
     APP_DIR=""
     install_binary "${archive_path}" "${install_dir}" "${os}" "${arch}" "${version}"
+
+    render_stage_header 3 5 "EXTRACT & INSTALL BINARY"
+    render_card_header "" "" 80
+    render_card_row "Binary Target:" "${APP_DIR}/${BINARY_NAME}" 80
+    render_card_row "Alias Link:" "${APP_DIR}/${BINARY_ALIAS}" 80
+    render_card_footer 80
 
     # Bundle the docs site so `gitmap help-dashboard` works after install.
     install_docs_site "${version}" "${APP_DIR}"
@@ -1860,15 +2088,31 @@ main() {
     # Bundle the seed files (git-setup.json, etc.)
     install_seed_data "${version}" "${APP_DIR}"
 
+    render_stage_header 4 5 "SEED CONFIGURATION"
+    render_card_header "" "" 80
+    render_card_row "Config Root:" "${APP_DIR}/data" 80
+    render_card_row "Deploy Seed:" "${col_green}deploy-manifest.json verified${col_reset}" 80
+    render_card_footer 80
+
     if [ "${NO_PATH}" = false ]; then
         add_to_path "${APP_DIR}"
     fi
+
+    render_stage_header 5 5 "SHELL ENVIRONMENT ACTIVATION"
+    render_card_header "" "" 80
+    if [ "${NO_PATH}" = false ]; then
+        render_card_row "User PATH:" "${col_green}Verified in ${PATH_SHELL:-user} environment${col_reset}" 80
+        render_card_row "Profile State:" "Reload alias or restart terminal to use 'gitmap' and 'gm'" 80
+    else
+        render_card_row "User PATH:" "${col_orange}Skipped (--no-path)${col_reset}" 80
+        render_card_row "Profile State:" "Invoke with full binary path: ${APP_DIR}/${BINARY_NAME}" 80
+    fi
+    render_card_footer 80
 
     # Verify the binary works.
     local bin_path="${APP_DIR}/${BINARY_NAME}"
     local installed_version="${version}"
     if [ -f "${bin_path}" ]; then
-        echo ""
         local version_output
         if version_output="$("${bin_path}" version 2>/dev/null)"; then
             local version_line
@@ -1930,7 +2174,15 @@ main() {
         printf '{"success":true,"status":"installed","installed_version":"%s","binary_path":"%s","install_dir":"%s"}\n' "${version}" "${bin_path}" "${install_dir}"
     elif [ "${QUIET:-0}" != "1" ]; then
         echo ""
-        ok "Done! Run 'gitmap --help' to get started."
+        render_card_header "INSTALLATION COMPLETE" "SUCCESS" 80
+        render_card_text "${col_green} GitMap ${installed_version} is ready for production use.${col_reset}" 80
+        render_card_text "" 80
+        render_card_text "${col_bold} Quick Start Commands:${col_reset}" 80
+        render_card_text "    ${col_cyan}gitmap status${col_reset}                 Inspect repository and fleet health" 80
+        render_card_text "    ${col_cyan}gitmap scan .${col_reset}                    High-speed multithreaded repository audit" 80
+        render_card_text "    ${col_cyan}gitmap update${col_reset}                 Seamless pure binary self-updater" 80
+        render_card_text "    ${col_cyan}gm --help${col_reset}                     Abbreviated shortcut invocation" 80
+        render_card_footer 80
         echo ""
     fi
 }

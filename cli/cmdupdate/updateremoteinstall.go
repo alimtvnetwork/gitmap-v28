@@ -90,45 +90,50 @@ func startRemoteUpdateWorkflow(slug string) bool {
 		return false
 	}
 
-	duration := time.Since(startUpdate)
 	installDir := resolveCurrentInstallDir()
-	binName := constants.GitMapBin
-	if runtime.GOOS == "windows" {
-		binName += ".exe"
-	}
-
-	// AC-10: Keep installed runner scripts updated
 	scriptsUpdated := syncLocalRunnerScripts(installDir, candidate.Tag)
-
-	if opts.IsJSON {
-		res := UpdateResult{
-			Success:          true,
-			Status:           "updated",
-			PreviousVersion:  FormatVersionTag(currentVersion),
-			CurrentVersion:   FormatVersionTag(candidate.Tag),
-			TargetTag:        FormatVersionTag(candidate.Tag),
-			InstallDir:       installDir,
-			BinaryPath:       filepath.Join(installDir, binName),
-			DownloaderEngine: downloaderEngine,
-			DownloadBytes:    candidate.AssetSize,
-			DurationMs:       duration.Milliseconds(),
-			FallbackDepth:    candidate.FallbackDepth,
-			IsCached:         candidate.IsCached,
-			ScriptsUpdated:   scriptsUpdated,
-		}
-		enc, _ := json.MarshalIndent(res, "", "  ")
-		fmt.Println(string(enc))
-	} else if !opts.IsQuiet {
-		fmt.Println("  Verifying      : SHA256 checksum verified.")
-		fmt.Printf("  Installing     : Updating binary in %s...\n", installDir)
-		fmt.Println("  Scripts sync   : install.ps1, run.ps1 updated.")
-		fmt.Printf("  ✔ Successfully updated gitmap from %s to %s (took %.1fs)\n", FormatVersionTag(currentVersion), FormatVersionTag(candidate.Tag), duration.Seconds())
-	}
+	outputUpdateSuccess(opts, candidate, currentVersion, installDir, downloaderEngine, scriptsUpdated, duration)
 
 	ensurePostUpdateCompletions()
 	printPostUpdateIdentity()
 
 	return true
+}
+
+func outputUpdateSuccess(opts UpdateOptions, cand *ReleaseCandidate, currentVer, installDir, engine string, scripts []string, dur time.Duration) {
+	binName := constants.GitMapBin
+	if runtime.GOOS == "windows" {
+		binName += ".exe"
+	}
+
+	if opts.IsJSON {
+		res := UpdateResult{
+			Success:          true,
+			Status:           "updated",
+			PreviousVersion:  FormatVersionTag(currentVer),
+			CurrentVersion:   FormatVersionTag(cand.Tag),
+			TargetTag:        FormatVersionTag(cand.Tag),
+			InstallDir:       installDir,
+			BinaryPath:       filepath.Join(installDir, binName),
+			DownloaderEngine: engine,
+			DownloadBytes:    cand.AssetSize,
+			DurationMs:       dur.Milliseconds(),
+			FallbackDepth:    cand.FallbackDepth,
+			IsCached:         cand.IsCached,
+			ScriptsUpdated:   scripts,
+		}
+		enc, _ := json.MarshalIndent(res, "", "  ")
+		fmt.Println(string(enc))
+
+		return
+	}
+
+	if !opts.IsQuiet {
+		fmt.Println("  Verifying      : SHA256 checksum verified.")
+		fmt.Printf("  Installing     : Updating binary in %s...\n", installDir)
+		fmt.Println("  Scripts sync   : install.ps1, run.ps1 updated.")
+		fmt.Printf("  ✔ Successfully updated gitmap from %s to %s (took %.1fs)\n", FormatVersionTag(currentVer), FormatVersionTag(cand.Tag), dur.Seconds())
+	}
 }
 
 func resolveDownloaderEngine() string {
@@ -146,19 +151,15 @@ func resolveDownloaderEngine() string {
 func syncLocalRunnerScripts(installDir, tag string) []string {
 	updated := make([]string, 0, 2)
 	hasWrittenShim(installDir)
-
 	if _, err := os.Stat("install.ps1"); err == nil {
 		updated = append(updated, "install.ps1")
 	}
-
 	if _, err := os.Stat("run.ps1"); err == nil {
 		updated = append(updated, "run.ps1")
 	}
-
 	if len(updated) == 0 {
 		return []string{"install.ps1", "run.ps1"}
 	}
-
 	return updated
 }
 

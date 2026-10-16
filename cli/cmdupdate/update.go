@@ -13,41 +13,53 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// runUpdate handles the "update" subcommand.
-//
-// In accordance with 02-spec/14-update/02-self-update-overview.md and
-// 02-spec/14-update/08-console-safe-handoff.md:
-//  1. If a local source repository is resolved, build from repo using the
-//     console-safe handoff mechanism (blocking cmd.Run(), zero popup windows,
-//     same terminal session).
-//  2. Otherwise fall back to the binary remote installer.
-func runUpdate() error {
-	requireOnline()
+const FlagFromSource = "--from-source"
 
-	// Priority 1: Source-based update via console-safe handoff
-	repoPath, errRepo := resolveRepoPath()
-	if errRepo == nil && len(repoPath) > 0 {
-		return runSourceHandoffUpdate(repoPath)
-	}
-
-	// Priority 2: Binary-based remote installer update
-	if runUpdateRemoteInstall() {
-		return nil
-	}
-
-	if hasFlag(constants.FlagSourceRebuild) || isRepoPathPromptAllowed() {
-		if prompted := promptRepoPath(); len(prompted) > 0 {
-			saveRepoPathToDB(prompted)
-
-			return runSourceHandoffUpdate(prompted)
+func isSourceRebuildRequested() bool {
+	for _, arg := range os.Args[1:] {
+		if arg == constants.FlagSourceRebuild || arg == FlagFromSource {
+			return true
 		}
 	}
 
-	if errRepo != nil {
-		return errRepo
+	return false
+}
+
+// runUpdate handles the "update" subcommand.
+//
+// By default, gitmap update performs a direct pre-compiled binary update
+// from GitHub Releases without requiring Go, Git, or source checkouts.
+// Source-based rebuild via local repo is ONLY executed if --source-rebuild
+// or --from-source is explicitly supplied.
+func runUpdate() error {
+	requireOnline()
+
+	opts := ParseUpdateOptions(os.Args[1:])
+
+	// Priority 1 (Explicit Opt-In Only): Source rebuild via console-safe handoff
+	if isSourceRebuildRequested() {
+		repoPath, errRepo := resolveRepoPath()
+		if errRepo == nil && len(repoPath) > 0 {
+			return runSourceHandoffUpdate(repoPath)
+		}
+
+		if isRepoPathPromptAllowed() {
+			if prompted := promptRepoPath(); len(prompted) > 0 {
+				saveRepoPathToDB(prompted)
+
+				return runSourceHandoffUpdate(prompted)
+			}
+		}
+
+		if errRepo != nil {
+			return errRepo
+		}
+
+		return apperror.NewSimple("no repo path resolved for source rebuild", "E9024")
 	}
 
-	return nil
+	// Priority 2 (Default): Pre-compiled binary update from GitHub Releases
+	return runBinaryReleaseUpdate(opts)
 }
 
 func runSourceHandoffUpdate(repoPath string) error {
@@ -79,10 +91,17 @@ func runSourceHandoffUpdate(repoPath string) error {
 }
 
 // resolveRepoPath returns the repo path from flags, embedded constant, DB, cwd, or registered repos.
-// If neither is available, it attempts to delegate to cli-updater.
+// It is strictly guarded so it only searches if explicit source rebuild or --repo-path is requested.
 func resolveRepoPath() (string, error) {
+	if flagPath := resolveRepoPathFromFlag(); len(flagPath) > 0 {
+		return flagPath, nil
+	}
+
+	if !isSourceRebuildRequested() {
+		return "", apperror.NewSimple("source repo resolution only allowed with --source-rebuild or --from-source", "E9025")
+	}
+
 	for _, path := range []string{
-		resolveRepoPathFromFlag(),
 		resolveRepoPathFromEmbedded(),
 		resolveRepoPathFromDB(),
 		resolveRepoPathFromCwd(),
@@ -96,57 +115,13 @@ func resolveRepoPath() (string, error) {
 		}
 	}
 
-	if hasFlag(constants.FlagSourceRebuild) {
-		if prompted := promptRepoPath(); len(prompted) > 0 {
-			saveRepoPathToDB(prompted)
+	if prompted := promptRepoPath(); len(prompted) > 0 {
+		saveRepoPathToDB(prompted)
 
-			return prompted, nil
-		}
-	}
-
-	// Try to fall back to cli-updater for release-based update
-	if tryUpdaterFallback() {
-		cliexit.HandleError(nil, 0)
-
-		return "", nil
+		return prompted, nil
 	}
 
 	return "", apperror.NewSimple("no repo path resolved", "E9024")
-}
-
-// tryUpdaterFallback looks for cli-updater on PATH and launches it.
-func tryUpdaterFallback() bool {
-	updaterPath, err := exec.LookPath(constants.UpdaterBin)
-	if err != nil {
-		return false
-	}
-
-	fmt.Printf(constants.MsgUpdaterFallback, updaterPath)
-	cmd := exec.Command(updaterPath, "run")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	errRun := cmd.Run()
-	var exitErr *exec.ExitError
-	if errRun != nil && errors.As(errRun, &exitErr) {
-		appErr := apperror.NewWithDetails(
-			"cmd.update.updaterFallback",
-			"E1132",
-			fmt.Sprintf("cli-updater failed with exit code %d", exitErr.ExitCode()),
-			"cmd.update",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(appErr, exitErr.ExitCode())
-	}
-
-	if errRun != nil {
-		return false
-	}
-
-	return true
 }
 
 // createHandoffCopy creates a temporary copy of the binary for handoff.

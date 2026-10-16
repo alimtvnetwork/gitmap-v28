@@ -1,5 +1,21 @@
 # Changelog
 
+## [6.557.0] - 2026-10-16
+
+### Added
+- **Pure Binary Self-Updater (`gitmap update`):** Inverted `gitmap update` strategy so pre-compiled binary download and in-place handoff is the primary default path, permanently eliminating the automatic fallback to `run.ps1 -Update`, `git pull`, and `go build`. Pre-compiled release binaries are downloaded directly from GitHub Releases with SHA-256 integrity verification and console-safe Windows process handoff (`gitmap-update-<pid>.exe`).
+- **Terminal UI Modernization:** Modernized `install.ps1` and `install.sh` with 24-bit Truecolor Dracula ANSI palettes (`#8be9fd`, `#bd93f9`, `#50fa7b`, `#ffb86c`, `#ff5555`, `#6272a4`), rounded box-drawing cards (`╭`, `╮`, `╰`, `╯`, `│`, `─`), 5 staged execution steps, interactive Braille spinners (`⠋` to `⠏`), and completion status cards.
+- **Offline Local Installers:** Created standalone `local-install.ps1` and `local-install.sh` for offline installations capable of deploying directly from pre-built `./bin/` artifacts or compiling from local `./cli` source with identical Truecolor terminal UI.
+- **CLI Update UI:** Upgraded `gitmap update` with rich Lipgloss-style terminal UI, multi-stage progress indicators, and fast-path notifications.
+- **Installer Download URL Override:** Added `$GITMAP_DOWNLOAD_URL` and `$env:GITMAP_DOWNLOAD_URL` override support across `install.ps1` and `install.sh` for isolated testing and enterprise staging environments.
+
+### Fixed
+- **Bug Fix**: Inverted `gitmap update` strategy so pre-compiled binary download and in-place handoff is the primary default path, permanently eliminating the automatic fallback to `run.ps1 -Update`, `git pull`, and `go build`.
+- **PowerShell ANSI PlainText Suppression:** Removed `$PSStyle.OutputRendering = 'PlainText'` in `install.ps1` and enabled Windows Virtual Terminal Processing (`ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004`) via Win32 `SetConsoleMode`.
+- **Source Build Priority Inversion:** Resolved updater bug where `gitmap update` erroneously prioritized local repository rebuilds over pre-compiled release binaries.
+
+---
+
 ## [v6.556.1] - 2026-10-16
 
 ### Added
