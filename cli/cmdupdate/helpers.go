@@ -28,12 +28,6 @@ func requireOnline() {
 	}
 }
 
-func printGitmapIdentityBlockLong() {
-	if PrintGitmapIdentityBlockLongFn != nil {
-		PrintGitmapIdentityBlockLongFn()
-	}
-}
-
 func extractJSONString(data []byte, key string) string {
 	s := string(data)
 	needle := `"` + key + `"`

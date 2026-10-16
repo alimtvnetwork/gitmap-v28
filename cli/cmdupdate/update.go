@@ -59,7 +59,7 @@ func runUpdate() error {
 	}
 
 	// Priority 2 (Default): Pre-compiled binary update from GitHub Releases
-	return runBinaryReleaseUpdate(opts)
+	return runPureBinaryUpdate(opts)
 }
 
 func runSourceHandoffUpdate(repoPath string) error {
