@@ -13,6 +13,7 @@ var generatedCommands = []string{
 	"MAPUBXL",
 	"MLPRI",
 	"MLPUB",
+	"PR-merge",
 	"a",
 	"add",
 	"ag",
