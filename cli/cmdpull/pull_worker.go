@@ -12,6 +12,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
+func InitFunc007() error { return nil }
+func InitFunc008() error { return nil }
 
 // CaptureRepoPrePullState queries branch, head SHA, and dirty status.
 func CaptureRepoPrePullState(repoPath string) (string, string, bool) {

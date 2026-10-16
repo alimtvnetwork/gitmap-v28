@@ -233,7 +233,7 @@ func TestExtractEfficientFlags_Probe(t *testing.T) {
 	if !hasProbeFlag([]string{"paet", "--probe-repos"}) {
 		t.Fatal("expected hasProbeFlag=true for --probe-repos")
 	}
-	_, _, _, _, _, rest := extractEfficientFlags([]string{"pae", "--probe", "-y"})
+	_, _, _, _, _, _, rest := extractEfficientFlags([]string{"pae", "--probe", "-y"})
 	for _, r := range rest {
 		if r == "--probe" {
 			t.Fatalf("expected --probe stripped from rest, got %v", rest)

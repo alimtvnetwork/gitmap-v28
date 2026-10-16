@@ -13,7 +13,8 @@ import (
 
 func TestExtractEfficientFlags(t *testing.T) {
 	args := []string{"--status", "--ssh", "-t", "ssh", "--json", "extra-arg"}
-	useSSH, useHTTPS, isTable, isJSON, targetSSH, rest := extractEfficientFlags(args)
+	useSSH, useHTTPS, isTable, isJSON, targetSSH, windowHours, rest := extractEfficientFlags(args)
+	_ = windowHours
 
 	if !isTable {
 		t.Fatalf("expected isTable to be true")

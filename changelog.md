@@ -1,5 +1,25 @@
 # Changelog
 
+## [v6.554.0] - 2026-10-16
+
+### Added
+- `gitmap os network` / `gitmap network`: Cross-platform network adapter telemetry, status, MAC, IPv4/IPv6, link speed, and byte traffic with `--json` output.
+- `gitmap cpu` / `gitmap processor`: Real-time processor utilization and specs with 5-second cross-process cache protection.
+- `gitmap ram`: Real-time physical memory and swap utilization metrics with 5-second cache protection.
+- `gitmap nodes tasks` / `gitmap nodes queue`: Fleet-wide AI agent task queue inspection from `agent-task.db` across cluster nodes.
+- `gitmap os`: Added active host identity summary footer to default bare OS command.
+
+### Fixed
+- `cli/cmdos/os.go`: Resolved `E_INVALID_OS_SUBCMD` regression on `gitmap os --json` and `gitmap os -j`.
+- `cli/cmdnodes/nodes_resources.go`: Replaced defective `cmdssh.FetchAllSSHConnections()` with `collectUnifiedNodes(ctx, true)` to properly include local node and cluster database nodes.
+
+### Documented
+- Added `cli/helpdoc/cpu.md` and `cli/helpdoc/ram.md`.
+- Updated `cli/helpdoc/os.md` and `cli/helpdoc/nodes.md`.
+- Registered `network`, `cpu`, `ram`, and `nodes tasks` in `src/data/commands.ts`.
+
+---
+
 ## [v6.553.0] - 2026-10-15
 
 ### Added

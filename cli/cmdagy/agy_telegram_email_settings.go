@@ -331,7 +331,7 @@ func readDBSetting(key string) string {
 	dbConn, errOpen := store.OpenDefault()
 	if errOpen == nil {
 		defer dbConn.Close()
-		val, _ := dbConn.GetSetting(key)
+		val := dbConn.GetSetting(key)
 		return val
 	}
 	return ""

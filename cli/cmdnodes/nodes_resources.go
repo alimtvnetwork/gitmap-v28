@@ -1,6 +1,7 @@
 package cmdnodes
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -64,8 +65,16 @@ func RunNodesResources(args []string) *apperror.AppError {
 		}
 	}
 	opts := parseNodesResourcesOptions(args)
-	conns, _ := cmdssh.FetchAllSSHConnections()
-	records := executeFleetResourcesProbe(conns, opts)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	unifiedNodes, err := collectUnifiedNodes(ctx, true)
+	if err != nil {
+		return apperror.WrapSimple(err, "RunNodesResources.collectUnifiedNodes")
+	}
+
+	records := executeFleetResourcesProbeUnified(ctx, unifiedNodes, opts)
 	if opts.isJSON {
 		return printResourcesJSON(records)
 	}
@@ -111,13 +120,90 @@ func isFilterCandidate(arg, current string) bool {
 func resolveDefaultBenchmarkLimit() int {
 	if dbConn, err := store.OpenDefault(); err == nil {
 		defer dbConn.Close()
-		if val, err := dbConn.GetSetting(constants.SettingNodeResourceThreshold); err == nil && val != "" {
+		val := dbConn.GetSetting(constants.SettingNodeResourceThreshold)
+		if val != "" {
 			if n, err := strconv.Atoi(val); err == nil && n > 0 {
 				return n
 			}
 		}
 	}
 	return constants.DefaultNodeResourceThreshold
+}
+
+func executeFleetResourcesProbeUnified(ctx context.Context, nodes []UnifiedFleetNode, opts nodesResourcesOptions) []NodeResourceRecord {
+	var records []NodeResourceRecord
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
+	if isTargetMatching("local", "127.0.0.1", opts.targetFilter) {
+		host := "local"
+		if h, err := os.Hostname(); err == nil && h != "" {
+			host = h
+		}
+		records = append(records, probeNodeExec(host, "127.0.0.1", runtime.GOOS == "windows", true, opts.benchmarkLimit, nil))
+	}
+
+	conns, _ := cmdssh.FetchAllSSHConnections()
+	connMap := make(map[string]db.SSHConnection, len(conns)*2)
+	for _, c := range conns {
+		if c.IPAddress != "" {
+			connMap[strings.ToLower(c.IPAddress)] = c
+		}
+		if c.Alias != "" {
+			connMap[strings.ToLower(c.Alias)] = c
+		}
+	}
+
+	for _, n := range nodes {
+		isLocal := strings.EqualFold(n.Host, "127.0.0.1") || strings.EqualFold(n.Host, "localhost") || strings.EqualFold(n.Alias, "local")
+		if isLocal {
+			continue
+		}
+		if isTargetMatching(n.Alias, n.Host, opts.targetFilter) {
+			wg.Add(1)
+			go func(node UnifiedFleetNode) {
+				defer wg.Done()
+				alias := node.Alias
+				if alias == "" || alias == "-" {
+					alias = node.Host
+				}
+				port := node.Port
+				if port <= 0 {
+					port = 22
+				}
+				conn, _ := connMap[strings.ToLower(node.Host)]
+				isMissingConn := len(conn.IPAddress) == 0
+				if isMissingConn {
+					conn, _ = connMap[strings.ToLower(node.Alias)]
+					isMissingConn = len(conn.IPAddress) == 0
+					if isMissingConn {
+						conn = db.SSHConnection{
+							Alias:     alias,
+							IPAddress: node.Host,
+							Username:  node.User,
+						}
+					}
+				}
+				isWin := isWindowsNode(conn) || strings.Contains(strings.ToLower(node.Role), "win")
+				rec := probeNodeExec(alias, fmt.Sprintf("%s:%d", node.Host, port), isWin, false, opts.benchmarkLimit, &conn)
+				mu.Lock()
+				records = append(records, rec)
+				mu.Unlock()
+			}(n)
+		}
+	}
+	wg.Wait()
+	if opts.isOpenOnly {
+		n := 0
+		for _, r := range records {
+			if r.IsOnline {
+				records[n] = r
+				n++
+			}
+		}
+		return records[:n]
+	}
+	return records
 }
 
 func executeFleetResourcesProbe(conns []db.SSHConnection, opts nodesResourcesOptions) []NodeResourceRecord {
@@ -136,13 +222,11 @@ func executeFleetResourcesProbe(conns []db.SSHConnection, opts nodesResourcesOpt
 			wg.Add(1)
 			go func(conn db.SSHConnection) {
 				defer wg.Done()
-				alias, port := conn.Alias, conn.Port
+				alias := conn.Alias
 				if alias == "" {
 					alias = conn.IPAddress
 				}
-				if port <= 0 {
-					port = 22
-				}
+				port := 22
 				rec := probeNodeExec(alias, fmt.Sprintf("%s:%d", conn.IPAddress, port), isWindowsNode(conn), false, opts.benchmarkLimit, &conn)
 				mu.Lock()
 				records = append(records, rec)
@@ -238,8 +322,10 @@ func printResourcesJSON(records []NodeResourceRecord) *apperror.AppError {
 func renderResourcesTable(out io.Writer, records []NodeResourceRecord, opts nodesResourcesOptions) *apperror.AppError {
 	border, div := strings.Repeat("═", 116), resStyleDim.Render(strings.Repeat("─", 118))
 	hdr := resStyleHeader.Render(fmt.Sprintf("%s %s %s %s %s %s %s", padCell("NODE (ALIAS)", 16), padCell("HOST (IP:PORT)", 20), padCell("CPU%", 8), padCell("RAM% (USED/TOTAL)", 26), padCell("STATUS", 14), padCell("BENCHMARK", 20), padCell("LATENCY", 10)))
-	fmt.Fprintf(out, "\n  %s╔%s╗%s\n  %s║%s%s%s%s║%s\n  %s╚%s╝%s\n  Probing %d node(s) (Benchmark: %d%%)...\n\n  %s\n  %s\n",
-		constants.ColorDim, border, constants.ColorReset, constants.ColorDim, constants.ColorReset, resStyleTitle.Render(padCell(" GITMAP FLEET NODES RESOURCE METRICS & BENCHMARK", 116)), constants.ColorDim, constants.ColorReset, constants.ColorDim, border, constants.ColorReset, len(records), opts.benchmarkLimit, hdr, div)
+	fmt.Fprintf(out, "\n  %s╔%s╗%s\n", constants.ColorDim, border, constants.ColorReset)
+	fmt.Fprintf(out, "  %s║%s%s%s║%s\n", constants.ColorDim, constants.ColorReset, resStyleTitle.Render(padCell(" GITMAP FLEET NODES RESOURCE METRICS & BENCHMARK", 116)), constants.ColorDim, constants.ColorReset)
+	fmt.Fprintf(out, "  %s╚%s╝%s\n", constants.ColorDim, border, constants.ColorReset)
+	fmt.Fprintf(out, "  Probing %d node(s) (Benchmark: %d%%)...\n\n  %s\n  %s\n", len(records), opts.benchmarkLimit, hdr, div)
 
 	var onlineCount, idleCount int
 	var maxLat time.Duration

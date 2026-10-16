@@ -3880,6 +3880,52 @@ export const commands: CommandDef[] = [
       { name: "cluster", description: "Multi-machine cluster fleet management" },
     ],
   },
+  {
+    name: "gitmap network",
+    alias: "gitmap os network",
+    description: "Interrogate physical and virtual network adapters, MAC addresses, IPv4/IPv6 configurations, link speeds, and byte transfer metrics",
+    usage: "gitmap network [--json] [--all]",
+    category: "remote",
+    flags: [
+      { flag: "--json, -j", description: "Output network adapter metrics as JSON" },
+      { flag: "--all, -a", description: "Include inactive or loopback interfaces" },
+    ],
+    examples: [
+      { command: "gitmap network", description: "Display formatted table of active network adapters" },
+      { command: "gitmap network --json", description: "Emit JSON telemetry for scripts and agents" },
+    ],
+    seeAlso: [{ name: "gitmap os ip", description: "Inspect and manage network IP configurations" }],
+  },
+  {
+    name: "gitmap cpu",
+    alias: "gitmap processor",
+    description: "Query real-time CPU utilization percentage, core count, model identity, and load averages with 5-second cache protection",
+    usage: "gitmap cpu [--json] [--no-cache]",
+    category: "remote",
+    flags: [
+      { flag: "--json, -j", description: "Output processor metrics as JSON" },
+      { flag: "--no-cache", description: "Bypass the 5-second telemetry cache and execute live hardware probe" },
+    ],
+    examples: [
+      { command: "gitmap cpu", description: "Display CPU load percentage and hardware model" },
+      { command: "gitmap cpu --json", description: "Emit structured JSON telemetry" },
+    ],
+    seeAlso: [{ name: "gitmap ram", description: "Inspect system RAM and memory usage" }],
+  },
+  {
+    name: "gitmap ram",
+    description: "Query visible physical memory capacity, allocated RAM, free RAM, and utilization percentage",
+    usage: "gitmap ram [--json] [--no-cache]",
+    category: "remote",
+    flags: [
+      { flag: "--json, -j", description: "Output memory metrics as JSON" },
+      { flag: "--no-cache", description: "Bypass telemetry cache" },
+    ],
+    examples: [
+      { command: "gitmap ram", description: "Display RAM utilization and totals" },
+    ],
+    seeAlso: [{ name: "gitmap cpu", description: "Inspect processor metrics" }],
+  },
 
   // ═══════════════════════════════════════════
   // Repository Health & Structure (full-summary, new-commands, tree, which-format)
@@ -4107,7 +4153,25 @@ export const commands: CommandDef[] = [
     seeAlso: [
       { name: "nodes", description: "Unified fleet node discovery and management" },
       { name: "nodes cp all", description: "Fleet-wide parallel WIP commits and pushes" },
+      { name: "gitmap nodes tasks", description: "Inspect active and pending AI agent tasks across fleet" },
     ],
+  },
+  {
+    name: "gitmap nodes tasks",
+    alias: "gitmap nodes queue",
+    description: "Inspect active, pending, and heavy-duty AI agent tasks enqueued in agent-task.db across all cluster nodes",
+    usage: "gitmap nodes tasks [node-alias] [--json] [--heavy-only]",
+    category: "cluster",
+    flags: [
+      { flag: "--json, -j", description: "Output fleet task queues as JSON" },
+      { flag: "--heavy-only", description: "Filter only heavy-duty tasks exceeding 100 steps budget" },
+      { flag: "--open-only", description: "Only query online and reachable cluster nodes" },
+    ],
+    examples: [
+      { command: "gitmap nodes tasks", description: "Display aggregated task queues across all fleet nodes" },
+      { command: "gitmap nodes tasks vm-02", description: "Query task queue on specific remote node" },
+    ],
+    seeAlso: [{ name: "gitmap nodes resources", description: "Probe CPU and RAM telemetry across fleet" }],
   },
 ];
 

@@ -23,10 +23,11 @@ import (
 //   - Add `// gitmap:cmd skip` as the trailing line comment of an individual
 //     ValueSpec to exclude it (e.g. for subcommand IDs like "create" used by
 //     `gitmap group`).
-//
-// Run `go generate ./completion/...` after editing constants to refresh
-// allcommands_generated.go. Domain owners never need to edit the generator.
-var manualExtras = []string{"db", "start-fresh", "find-duplicates", "pe", "pd", "ping", "nodes", "node", "gitignore", "agm", "ta"}
+var manualExtras = []string{
+	"db", "start-fresh", "find-duplicates", "pe", "pd", "ping",
+	"nodes", "node", "gitignore", "agm", "ta",
+	"cpu", "processor", "ram", "disk",
+}
 
 // CustomGenerator allows package cmd to provide dynamic Cobra completion fspath.
 var CustomGenerator func(shell string) (string, error)

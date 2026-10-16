@@ -221,6 +221,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"change-password", "passwd", "chpasswd"}, func() error { return cmdos.RunChangePasswordCLI(argsTail()) }},
 		{[]string{"machine", "machines", "machine-name", "hostname"}, func() error { return cmdos.RunMachineCLI(argsTail()) }},
 		{[]string{"os-info", "osinfo", "sysinfo", "system-info", "which-os", "whichos", "os-which"}, func() error { return cmdos.RunOSInfoCLI(argsTail()) }},
+		{[]string{"network", "net", "adapters", "net-adapters", "netadapters"}, func() error { return cmdos.RunOSNetworkCLI(argsTail()) }},
 		{[]string{"bash", "git-bash"}, func() error { return RunBash(argsTail()) }},
 		{[]string{"shell", "sh"}, func() error { return RunShell(argsTail()) }},
 		{[]string{"powershell", "pwsh", "ps"}, func() error { return RunPowerShell(argsTail()) }},

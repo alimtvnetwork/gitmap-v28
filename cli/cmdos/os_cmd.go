@@ -11,7 +11,11 @@ import (
 var osCmd = &cobra.Command{
 	Use:   "os",
 	Short: "Manage operating system updates, machine identity, network alias, and system hygiene",
-	RunE:  func(cmd *cobra.Command, args []string) error { RenderModernOSHelp(); return nil },
+	RunE: func(cmd *cobra.Command, args []string) error {
+		RenderModernOSHelp()
+		renderOSMachineIdentityFooter()
+		return nil
+	},
 }
 
 var osUpdateCmd = &cobra.Command{
@@ -62,15 +66,23 @@ var osDockCmd = &cobra.Command{
 
 func init() {
 	osCmd.AddCommand(osUpdateCmd, osFullUpgradeCmd, osFixMirrorsCmd, osMachineCmd, osAliasCmd, osTUICmd, osDockCmd)
-	osCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) { RenderModernOSHelp() })
+	osCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		RenderModernOSHelp()
+		renderOSMachineIdentityFooter()
+	})
 }
 
 // RunOSCLI routes OS CLI commands including machine, alias, modernized help, and system tools.
 func RunOSCLI(args []string) error {
 	if len(args) == 0 || isOSHelpArg(args[0]) {
 		RenderModernOSHelp()
+		renderOSMachineIdentityFooter()
 
 		return nil
+	}
+
+	if len(args) == 1 && hasOSJSONArg(args) {
+		return renderSingleMachineIdentity(resolveLocalMachineIdentity(), true)
 	}
 
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
@@ -85,6 +97,10 @@ func RunOSCLI(args []string) error {
 
 func tryDispatchOSIdentityOrCobra(sub string, args []string) (bool, error) {
 	switch sub {
+	case "--json", "-j", "json":
+		return true, renderSingleMachineIdentity(resolveLocalMachineIdentity(), true)
+	case "network", "net", "adapter", "adapters", "interface", "interfaces":
+		return true, RunOSNetworkCLI(args[1:])
 	case "machine", "machines", "machine-name", "hostname":
 		return true, RunMachineCLI(args[1:])
 	case "alias", "aliases":

@@ -74,8 +74,8 @@ func resolveEfficientWindowHours(cliWindow int) int {
 }
 
 func queryDBWindowSetting(db *store.DB, key string) int {
-	val, err := db.GetSetting(key)
-	if err != nil || val == "" {
+	val := db.GetSetting(key)
+	if val == "" {
 		return 0
 	}
 	parsed, parseErr := strconv.Atoi(val)

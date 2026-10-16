@@ -36,8 +36,8 @@ allRepos := cmdpending.ResolveWorkspaceRepositories(cwd)
 targets, errTargets := filterTargetRepositories(allRepos, opts.Target)
 ```
 
-`cmdpending.ResolveWorkspaceRepositories(cwd)` calls `cmdpull.ResolvePullDirectoryTargets(cwd)`. If `cwd` points to a single repository root (e.g. `d:/work/gitmap`) or a workspace subdirectory, `ResolvePullDirectoryTargets` returns only that single repository or immediately nested submodules. Consequently:
-- Running `gitmap sends cp all "wip: save changes"` from within a single project directory only processes that single project (e.g. `scripts-fixer -> Clean working tree -> Skipped`), leaving dirty repositories across `d:/work/` uncommitted.
+`cmdpending.ResolveWorkspaceRepositories(cwd)` calls `cmdpull.ResolvePullDirectoryTargets(cwd)`. If `cwd` points to a single repository root (e.g. `<workspace>/gitmap`) or a workspace subdirectory, `ResolvePullDirectoryTargets` returns only that single repository or immediately nested submodules. Consequently:
+- Running `gitmap sends cp all "wip: save changes"` from within a single project directory only processes that single project (e.g. `scripts-fixer -> Clean working tree -> Skipped`), leaving dirty repositories across `<workspace>/` uncommitted.
 - The command violates user expectation: target `"all"` must scope across the entire registered workspace fleet indexed in `gitmap.db`.
 
 ### 2.2 Architectural Remediation: Split-DB Catalog Query

@@ -213,6 +213,8 @@ func RunUnifiedNodesCLI(args []string) error {
 		return RunNodesClone(args)
 	} else if isNodesResourcesRequest(args) {
 		return RunNodesResourcesCLI(args[1:])
+	} else if isNodesTasksRequest(args) {
+		return RunNodesTasksCLI(args[1:])
 	} else if isNodesHelpRequest(args) {
 		return printUnifiedNodesHelp()
 	}
@@ -260,6 +262,15 @@ func isNodesResourcesRequest(args []string) bool {
 	if hasArgs {
 		tok := strings.ToLower(args[0])
 		return tok == "resources" || tok == "res" || tok == "top" || tok == "metrics" || tok == "usage"
+	}
+	return false
+}
+
+func isNodesTasksRequest(args []string) bool {
+	hasArgs := len(args) > 0
+	if hasArgs {
+		tok := strings.ToLower(args[0])
+		return tok == "tasks" || tok == "task" || tok == "task-queue" || tok == "tasks-queue" || tok == "queue" || tok == "jobs" || tok == "delegation"
 	}
 	return false
 }

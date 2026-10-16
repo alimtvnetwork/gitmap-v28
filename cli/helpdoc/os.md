@@ -15,6 +15,7 @@ gitmap os [subcommand] [flags]
 | machine [ls\|set\|change\|revert\|help] [--ssh] | Inspect, set, change, or revert local and SSH fleet machine identity and OS hostname |
 | alias [ls\|set\|change\|revert\|help] [--ssh] | Inspect, set, change, or revert local and SSH fleet network alias (auto-defaults to Local IPv4) |
 | ip [subcommand] | Inspect, set, change, switch, or revert network IP configuration |
+| network (net, adapter) | Interrogate network adapter status, MAC, IPv4/IPv6, and bandwidth traffic |
 | fix [subcommand] | Register, edit, run, export, and import system repair scripts |
 | clean (clear) | Clean temporary and ephemeral system cache directories |
 | dev-clean (clean-dev) | Clean compiler, package manager, and build tool caches (Go, pnpm, npm, etc.) |
@@ -147,4 +148,14 @@ gitmap os ai-clean --dry-run
 
 # Non-interactive cleanup for automated scripts
 gitmap os ai-clean -y
+```
+
+### Interrogate Network Adapters
+
+```bash
+# Display formatted table of all active network adapters
+gitmap os network
+
+# Output network adapter metrics as structured JSON
+gitmap os network --json
 ```

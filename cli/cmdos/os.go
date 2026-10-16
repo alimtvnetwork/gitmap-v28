@@ -1,6 +1,7 @@
 package cmdos
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -10,11 +11,42 @@ import (
 
 // runOS dispatches gitmap os subcommands.
 func runOS(args []string) error {
-	if len(args) == 0 || isOSHelpArg(args[0]) {
+	if len(args) == 0 {
 		RenderModernOSHelp()
+		renderOSMachineIdentityFooter()
 		return nil
 	}
+	if isOSHelpArg(args[0]) {
+		RenderModernOSHelp()
+		renderOSMachineIdentityFooter()
+		return nil
+	}
+	if len(args) == 1 && hasOSJSONArg(args) {
+		return renderSingleMachineIdentity(resolveLocalMachineIdentity(), true)
+	}
 	return dispatchOSSubcommand(strings.ToLower(args[0]), args[1:])
+}
+
+func hasOSJSONArg(args []string) bool {
+	for _, arg := range args {
+		normalized := strings.ToLower(strings.TrimSpace(arg))
+		if normalized == "--json" || normalized == "-j" || normalized == "json" {
+			return true
+		}
+	}
+	return false
+}
+
+func renderOSMachineIdentityFooter() {
+	id := resolveLocalMachineIdentity()
+	fmt.Printf("\n%s  ● Active Host Identity:%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    ├─ %-16s%s\n", "Machine Name:", id.MachineName)
+	fmt.Printf("    ├─ %-16s%s\n", "Fleet Alias:", id.Alias)
+	fmt.Printf("    ├─ %-16s%s\n", "Local IPv4:", id.IPAddress)
+	fmt.Printf("    ├─ %-16s%s\n", "OS Platform:", id.OSPlatform)
+	archDesc := formatArchWithCores(id.Architecture, id.CPUCores)
+	fmt.Printf("    ├─ %-16s%s\n", "Architecture:", archDesc)
+	fmt.Printf("    └─ %-16s%s\n\n", "Active User:", id.CurrentUser)
 }
 
 func isOSHelpArg(arg string) bool {
@@ -23,6 +55,10 @@ func isOSHelpArg(arg string) bool {
 
 func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 	switch subCmd {
+	case "--json", "-j", "json":
+		return renderSingleMachineIdentity(resolveLocalMachineIdentity(), true)
+	case "network", "net", "adapter", "adapters", "interface", "interfaces":
+		return RunOSNetworkCLI(subArgs)
 	case "machine", "machines", "machine-name", "hostname":
 		return RunMachineCLI(subArgs)
 	case "alias", "aliases":

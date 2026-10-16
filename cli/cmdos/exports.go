@@ -21,3 +21,33 @@ func RunOSFixLink(args []string) error {
 func RunChangePassword(args []string) error {
 	return RunChangePasswordCLI(args)
 }
+
+// RunCPUCLI displays CPU model, cores, and current load percentage.
+func RunCPUCLI(args []string) error {
+	return runCPUCLI(args)
+}
+
+// RunCPU is an alias for RunCPUCLI.
+func RunCPU(args []string) error {
+	return runCPUCLI(args)
+}
+
+// RunRAMCLI displays physical memory capacity, usage, and percentage.
+func RunRAMCLI(args []string) error {
+	return runRAMCLI(args)
+}
+
+// RunRAM is an alias for RunRAMCLI.
+func RunRAM(args []string) error {
+	return runRAMCLI(args)
+}
+
+// RunDiskCLI displays disk volume capacities and utilization.
+func RunDiskCLI(args []string) error {
+	return runDiskCLI(args)
+}
+
+// RunDisk is an alias for RunDiskCLI.
+func RunDisk(args []string) error {
+	return runDiskCLI(args)
+}

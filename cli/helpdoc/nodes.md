@@ -9,6 +9,7 @@ gitmap nodes [flags] [target]
 gitmap nodes cp [target|all] "<message>" [flags]
 gitmap nodes cm [target|all] "<message>" [flags]
 gitmap nodes resources [flags]
+gitmap nodes tasks [flags] [target]
 gitmap nodes deploy agm-accounts [flags]
 gitmap nodes sync-agm-accounts [flags]
 gitmap nodes deploy repo <slug|path> [flags]
@@ -33,7 +34,8 @@ gitmap nodes cfrp [flags] [targets] [dest]
 |------------|-------------|
 | `cp [target\|all]` | Broadcast flat commit and push across fleet nodes in parallel |
 | `cm [target\|all]` | Broadcast flat commit without push across fleet nodes in parallel |
-| `resources` | Probe and report CPU/RAM resource telemetry across fleet nodes |
+| `tasks [target]` | Interrogate active and pending AI agent tasks across fleet nodes |
+| `resources` | Interrogate CPU, RAM, and disk utilization across unified fleet nodes |
 | `deploy agm-accounts` | Broadcast Antigravity Manager accounts & credentials across fleet nodes |
 | `sync-agm-accounts` | Shorthand alias for `deploy agm-accounts` |
 | `deploy repo <slug>` | Deploy repository, run remote scan, and register across VS Code, Cursor, Antigravity, GitHub Desktop |
@@ -256,6 +258,57 @@ gitmap nodes resources [flags]
 ### Benchmark Utilization Limit
 
 Fleet nodes with CPU and RAM below the configured benchmark threshold (default: 30%) are considered idle. When local machine resources are idle and no other heavy node processes are active, GitMap's adaptive concurrency booster dynamically scales parallel worker routines up to maximize pull and clone throughput.
+
+---
+
+## Fleet AI Agent Task Queues (`tasks`)
+
+Interrogates active, pending, and heavy-duty AI agent tasks enqueued in `agent-task.db` across all cluster nodes and local workspaces.
+
+```bash
+gitmap nodes tasks [target] [flags]
+```
+
+### How It Works
+
+1. **Unified Node Discovery**:
+   - Queries both local and remote nodes using unified fleet enumeration (`collectUnifiedNodes`).
+   - Discovers nodes across registered SSH connections, SSH hosts, and cluster database entries.
+2. **Task Database Interrogation**:
+   - Interrogates `.ai-memory/temp-agents/*/agent-task.db` for task and subtask status.
+   - Summarizes active subtasks, pending queues, and step progression.
+3. **Heavy-Duty Task Detection**:
+   - Automatically tags tasks as heavy-duty (`isHeavyDuty: true`) if step budget >= 100, task slug contains heavy keywords (`heavy`, `full-audit`, `deep-scan`, `migration`, `build-all`), or owned files exceed 8.
+   - Highlights candidates for node-to-node work stealing and cluster load rebalancing.
+4. **Parallel SSH Dispatch**:
+   - Queries remote nodes concurrently via SSH using a bounded worker pool (`maxConcurrency = 8`) and a 5-second per-node timeout to prevent hanging connections.
+   - Executes remote `gitmap tasks --json --limit 10` with fallback SQLite queries.
+
+### Flags
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--target <alias>` | `-t` | `""` | Target single node alias or IP address |
+| `--heavy-only` | | `false` | Filter only heavy-duty tasks exceeding 100 steps budget |
+| `--open-only` | | `false` | Only query online and reachable nodes |
+| `--json` | `-j` | `false` | Output machine-readable JSON array of `FleetTasksPayload` |
+| `-h`, `--help` | | `false` | Display command help |
+
+### Examples
+
+```bash
+# Display aggregated task queues across all fleet nodes
+gitmap nodes tasks
+
+# Interrogate task queue on a specific remote node
+gitmap nodes tasks vm-02
+
+# Filter only heavy-duty tasks across the fleet
+gitmap nodes tasks --heavy-only
+
+# Output machine-readable JSON
+gitmap nodes tasks --json
+```
 
 ## See Also
 

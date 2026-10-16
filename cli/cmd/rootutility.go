@@ -133,6 +133,9 @@ func runPeatCmd(args []string) error {
 
 func utilitySystemEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"cpu", "processor", "proc"}, func() error { return cmdos.RunCPUCLI(argsTail()) }},
+		{[]string{"ram", "mem", "memory"}, func() error { return cmdos.RunRAMCLI(argsTail()) }},
+		{[]string{"disk"}, func() error { return cmdos.RunDiskCLI(argsTail()) }},
 		{[]string{constants.CmdPower, constants.CmdPowerAlias, constants.CmdPowerAlias2}, func() error { return cmdos.RunPower(argsTail()) }},
 		{[]string{constants.CmdOS, "linutil"}, func() error { return cmdos.RunOS(argsTail()) }},
 		{[]string{"autologin", "auto-login", "al"}, func() error { return cmdos.RunOS(append([]string{"autologin"}, argsTail()...)) }},
