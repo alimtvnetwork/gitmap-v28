@@ -92,7 +92,7 @@ func startRemoteUpdateWorkflow(slug string) bool {
 
 	installDir := resolveCurrentInstallDir()
 	scriptsUpdated := syncLocalRunnerScripts(installDir, candidate.Tag)
-	outputUpdateSuccess(opts, candidate, currentVersion, installDir, downloaderEngine, scriptsUpdated, duration)
+	outputUpdateSuccess(opts, candidate, currentVersion, installDir, downloaderEngine, scriptsUpdated, time.Since(startUpdate))
 
 	ensurePostUpdateCompletions()
 	printPostUpdateIdentity()

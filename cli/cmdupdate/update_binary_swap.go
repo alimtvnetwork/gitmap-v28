@@ -54,7 +54,7 @@ func runBinaryDownloadAndSwap(ui UpdateUIRenderer, opts UpdateOptions, cand *Rel
 	stageDir, errDir := os.MkdirTemp("", fmt.Sprintf("gitmap-update-%d-*", time.Now().UnixNano()))
 	if errDir != nil {
 		ui.OnStageFail(StageDownloading, errDir)
-		return apperror.WrapWithDetails(errDir, "cmd.update.stageDir", "E1136", "failed staging dir", "cmdupdate", apperror.ErrorTypeSystem, apperror.SeverityError, nil)
+		return apperror.WrapWithDetails(errDir, "cmd.update.stageDir", "E1136", "failed staging dir", "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
 	}
 	defer os.RemoveAll(stageDir)
 
@@ -157,11 +157,11 @@ func downloadReleaseStaging(cand *ReleaseCandidate, stageDir string, ui UpdateUI
 	ui.OnStageStart(StageDownloading, fmt.Sprintf("Downloading %s via go_http...", name))
 	archPath := filepath.Join(stageDir, name)
 	if err := downloadHTTP(cand.AssetURL, archPath, MakeProgressCallback(ui)); err != nil {
-		return "", "", apperror.WrapWithDetails(err, "cmd.update.downloadArchive", "E1138", "failed download", "cmdupdate", apperror.ErrorTypeNetwork, apperror.SeverityError, map[string]any{"url": cand.AssetURL})
+		return "", "", apperror.WrapWithDetails(err, "cmd.update.downloadArchive", "E1138", "failed download", "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, map[string]any{"url": cand.AssetURL})
 	}
 	chkPath := filepath.Join(stageDir, "checksums.txt")
 	if err := downloadHTTP(cand.ChecksumURL, chkPath, nil); err != nil {
-		return "", "", apperror.WrapWithDetails(err, "cmd.update.downloadChecksum", "E1139", "failed checksums.txt", "cmdupdate", apperror.ErrorTypeNetwork, apperror.SeverityError, map[string]any{"url": cand.ChecksumURL})
+		return "", "", apperror.WrapWithDetails(err, "cmd.update.downloadChecksum", "E1139", "failed checksums.txt", "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, map[string]any{"url": cand.ChecksumURL})
 	}
 	ui.OnStageSuccess(StageDownloading, fmt.Sprintf("Downloaded %s (%.1f MB)", name, float64(cand.AssetSize)/(1024*1024)))
 	return archPath, chkPath, nil

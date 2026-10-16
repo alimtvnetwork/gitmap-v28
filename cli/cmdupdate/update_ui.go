@@ -61,10 +61,10 @@ func (r *updateUIRendererImpl) renderHeader() {
 
 func (r *updateUIRendererImpl) initMultiPrinter() {
 	r.multi = pterm.DefaultMultiPrinter
-	_ = r.multi.Start()
+	r.multi.Start()
 	spinner, err := pterm.DefaultSpinner.WithWriter(r.multi.NewWriter()).Start("Preparing...")
 	if err != nil {
-		_ = r.multi.Stop()
+		r.multi.Stop()
 		r.plain = true
 		return
 	}
@@ -115,9 +115,7 @@ func (r *updateUIRendererImpl) OnStageSuccess(stage UpdateStage, summary string)
 		fmt.Printf("  ✓ %s\n", cleanSum)
 		return
 	}
-	if r.multi != nil {
-		pterm.Success.WithWriter(r.multi.NewWriter()).Println(cleanSum)
-	}
+	pterm.Success.WithWriter(r.multi.NewWriter()).Println(cleanSum)
 }
 
 func (r *updateUIRendererImpl) OnStageFail(stage UpdateStage, err error) {
@@ -242,9 +240,8 @@ func (r *updateUIRendererImpl) stopPrinters() {
 		_ = r.spinner.Stop()
 		r.spinner = nil
 	}
-	if r.multi != nil {
-		_ = r.multi.Stop()
-		r.multi = nil
+	if !r.plain {
+		r.multi.Stop()
 	}
 }
 
