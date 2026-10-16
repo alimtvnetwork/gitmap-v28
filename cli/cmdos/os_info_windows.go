@@ -138,18 +138,6 @@ func probeLocalPlatformOS() LocalOSProbe {
 	}
 }
 
-func defaultWindowsProbe() LocalOSProbe {
-	det := defaultWindowsOSVersion()
-	return LocalOSProbe{
-		OSType:           constants.OSTargetWin,
-		OSGroup:          constants.OSGroupWindows,
-		OSVersion:        "Windows",
-		BuildVersion:     "",
-		Kernel:           "",
-		OSVersionDetails: det,
-	}
-}
-
 func assembleWindowsVersion(name, dispVer, build string) string {
 	var parts []string
 	if name != "" {

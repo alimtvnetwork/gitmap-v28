@@ -122,11 +122,6 @@ func FilterOnlineNodes(nodes []UnifiedFleetNode) []UnifiedFleetNode {
 	return online
 }
 
-// filterOnlineUnifiedNodes returns a new slice containing only nodes where IsOnline is true.
-func filterOnlineUnifiedNodes(nodes []UnifiedFleetNode) []UnifiedFleetNode {
-	return FilterOnlineNodes(nodes)
-}
-
 // HasOnlineNodes returns true if at least one online node is present.
 func HasOnlineNodes(nodes []UnifiedFleetNode) bool {
 	for _, n := range nodes {
