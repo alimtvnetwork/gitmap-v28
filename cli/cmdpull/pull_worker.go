@@ -215,7 +215,6 @@ func handleMissingRepoPull(rec model.ScanRecord, bar *PullProgressBar, start tim
 	return state
 }
 
-
 func handleFailedPull(rec model.ScanRecord, branch, sha, errMsg string, bar *PullProgressBar, elapsed time.Duration) *PullRepoState {
 	return handleFailedAutostashPull(rec, branch, sha, false, errMsg, bar, elapsed)
 }

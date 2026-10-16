@@ -45,11 +45,13 @@ func renderResourcesTable(out io.Writer, records []NodeResourceRecord, opts node
 		if r.Latency > maxLat {
 			maxLat = r.Latency
 		}
-		if r.IsOnline {
-			onlineCount++
-			if r.IsUnderLoaded {
-				idleCount++
-			}
+		if !r.IsOnline {
+			renderResourceRow(out, r)
+			continue
+		}
+		onlineCount++
+		if r.IsUnderLoaded {
+			idleCount++
 		}
 		renderResourceRow(out, r)
 	}
@@ -59,18 +61,28 @@ func renderResourcesTable(out io.Writer, records []NodeResourceRecord, opts node
 }
 
 func renderResourceRow(out io.Writer, r NodeResourceRecord) {
-	cpu, ram, status, bench := resStyleDim.Render(padCell("-", 8)), resStyleDim.Render(padCell("-", 26)), resStyleDim.Render(padCell("○ Offline", 14)), resStyleDim.Render(padCell("N/A", 20))
-	if r.IsOnline {
-		cpu = resPercentStyle(r.CPUPercent, r.BenchmarkLimit).Render(padCell(fmt.Sprintf("%d%%", r.CPUPercent), 8))
-		ram = resPercentStyle(r.RAMPercent, r.BenchmarkLimit).Render(padCell(fmt.Sprintf("%d%% (%d/%d MB)", r.RAMPercent, r.UsedRAMMB, r.TotalRAMMB), 26))
-		status, bench = resStyleNormal.Render(padCell("● Normal", 14)), resStyleExceed.Render(padCell("Exceeded", 20))
-		if r.IsUnderLoaded {
-			status, bench = resStyleIdle.Render(padCell("● Idle", 14)), resStyleIdle.Render(padCell(fmt.Sprintf("Passed (<%d%%)", r.BenchmarkLimit), 20))
-		} else if r.LoadStatus == "High" {
-			status = resStyleHigh.Render(padCell("▲ High", 14))
-		}
+	if !r.IsOnline {
+		cpu := resStyleDim.Render(padCell("-", 8))
+		ram := resStyleDim.Render(padCell("-", 26))
+		status := resStyleDim.Render(padCell("○ Offline", 14))
+		bench := resStyleDim.Render(padCell("N/A", 20))
+		fmt.Fprintf(out, "  %s %s %s %s %s %s %s\n", padCell(r.NodeAlias, 16), resStyleHeader.Render(padCell(r.Host, 20)), cpu, ram, status, bench, resStyleDim.Render(padCell(formatDurationShort(r.Latency), 10)))
+		return
 	}
+	cpu := resPercentStyle(r.CPUPercent, r.BenchmarkLimit).Render(padCell(fmt.Sprintf("%d%%", r.CPUPercent), 8))
+	ram := resPercentStyle(r.RAMPercent, r.BenchmarkLimit).Render(padCell(fmt.Sprintf("%d%% (%d/%d MB)", r.RAMPercent, r.UsedRAMMB, r.TotalRAMMB), 26))
+	status, bench := resolveOnlineStatusAndBench(r)
 	fmt.Fprintf(out, "  %s %s %s %s %s %s %s\n", padCell(r.NodeAlias, 16), resStyleHeader.Render(padCell(r.Host, 20)), cpu, ram, status, bench, resStyleDim.Render(padCell(formatDurationShort(r.Latency), 10)))
+}
+
+func resolveOnlineStatusAndBench(r NodeResourceRecord) (string, string) {
+	if r.IsUnderLoaded {
+		return resStyleIdle.Render(padCell("● Idle", 14)), resStyleIdle.Render(padCell(fmt.Sprintf("Passed (<%d%%)", r.BenchmarkLimit), 20))
+	}
+	if r.LoadStatus == "High" {
+		return resStyleHigh.Render(padCell("▲ High", 14)), resStyleExceed.Render(padCell("Exceeded", 20))
+	}
+	return resStyleNormal.Render(padCell("● Normal", 14)), resStyleExceed.Render(padCell("Exceeded", 20))
 }
 
 func resPercentStyle(val, bench int) lipgloss.Style {

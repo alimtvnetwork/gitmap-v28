@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	_ "modernc.org/sqlite"
 )
 
@@ -19,12 +20,12 @@ func discoverAgentTaskDBs() []string {
 		return paths
 	}
 	for _, e := range entries {
-		isDir := e.IsDir()
-		if isDir {
-			dbFile := filepath.Join(root, e.Name(), "agent-task.db")
-			if _, errStat := os.Stat(dbFile); errStat == nil {
-				paths = append(paths, dbFile)
-			}
+		if !e.IsDir() {
+			continue
+		}
+		dbFile := filepath.Join(root, e.Name(), "agent-task.db")
+		if _, errStat := os.Stat(dbFile); errStat == nil {
+			paths = append(paths, dbFile)
 		}
 	}
 	directDB := filepath.Join(root, "agent-task.db")
@@ -76,8 +77,7 @@ func queryTasksFromDB(dbPath string, report *NodeTaskReport) {
 
 		isHeavy := detectHeavyDutyTask(totalStepsBudget, title, taskCode)
 		role := assignedRole.String
-		hasNoRole := len(role) == 0
-		if hasNoRole {
+		if len(role) == 0 {
 			role = "unassigned"
 		}
 
@@ -101,4 +101,34 @@ func queryTasksFromDB(dbPath string, report *NodeTaskReport) {
 			report.ActiveTasks = append(report.ActiveTasks, item)
 		}
 	}
+}
+
+func resolveNodeSSHConnection(node UnifiedFleetNode, connMap map[string]db.SSHConnection) db.SSHConnection {
+	if conn, ok := connMap[strings.ToLower(node.Host)]; ok && len(conn.IPAddress) > 0 {
+		return conn
+	}
+	if conn, ok := connMap[strings.ToLower(node.Alias)]; ok && len(conn.IPAddress) > 0 {
+		return conn
+	}
+	return db.SSHConnection{
+		Alias:     node.Alias,
+		IPAddress: node.Host,
+		Username:  node.User,
+	}
+}
+
+func resolveFleetNodeEndpoint(node UnifiedFleetNode, connMap map[string]db.SSHConnection) (string, int, db.SSHConnection) {
+	alias := node.Alias
+	isDashAlias := alias == "" || alias == "-"
+	if isDashAlias {
+		alias = node.Host
+	}
+	port := node.Port
+	isZeroPort := port <= 0
+	if isZeroPort {
+		port = 22
+	}
+	conn := resolveNodeSSHConnection(node, connMap)
+	conn.Alias = alias
+	return alias, port, conn
 }

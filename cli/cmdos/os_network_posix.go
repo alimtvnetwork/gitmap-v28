@@ -44,14 +44,7 @@ func collectNetworkReport() (NetworkReport, error) {
 		var ipv4List, ipv6List []string
 		addrs, _ := iface.Addrs()
 		for _, addr := range addrs {
-			ip, _, cidrErr := net.ParseCIDR(addr.String())
-			if cidrErr == nil && ip != nil {
-				if ip.To4() != nil {
-					ipv4List = append(ipv4List, ip.String())
-				} else {
-					ipv6List = append(ipv6List, ip.String())
-				}
-			}
+			appendParsedIP(addr, &ipv4List, &ipv6List)
 		}
 
 		linkSpeed := readLinuxInterfaceSpeed(iface.Name)
@@ -140,4 +133,18 @@ func readLinuxInterfaceSpeed(ifaceName string) string {
 		return ""
 	}
 	return raw + " Mbps"
+}
+
+func appendParsedIP(addr net.Addr, ipv4List *[]string, ipv6List *[]string) {
+	ip, _, cidrErr := net.ParseCIDR(addr.String())
+	hasErr := cidrErr != nil || ip == nil
+	if hasErr {
+		return
+	}
+	isV4 := ip.To4() != nil
+	if isV4 {
+		*ipv4List = append(*ipv4List, ip.String())
+		return
+	}
+	*ipv6List = append(*ipv6List, ip.String())
 }

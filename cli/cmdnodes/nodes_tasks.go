@@ -86,20 +86,7 @@ func executeFleetTasksInterrogation(ctx context.Context, opts nodesTasksOptions)
 					wg.Done()
 				}()
 
-				conn, _ := connMap[strings.ToLower(node.Host)]
-				isMissingConn := len(conn.IPAddress) == 0
-				if isMissingConn {
-					conn, _ = connMap[strings.ToLower(node.Alias)]
-					isMissingConn = len(conn.IPAddress) == 0
-					if isMissingConn {
-						conn = db.SSHConnection{
-							Alias:     node.Alias,
-							IPAddress: node.Host,
-							Username:  node.User,
-						}
-					}
-				}
-
+				conn := resolveNodeSSHConnection(node, connMap)
 				rep := queryRemoteNodeTasks(ctx, node, conn, opts.limit)
 				mu.Lock()
 				reports = append(reports, rep)
@@ -167,16 +154,19 @@ func collectLocalNodeTasks(limit int) NodeTaskReport {
 	}
 	report.HeavyTaskCount = heavyCount
 
-	if limit > 0 {
-		if len(report.ActiveTasks) > limit {
-			report.ActiveTasks = report.ActiveTasks[:limit]
-		}
-		if len(report.PendingTasks) > limit {
-			report.PendingTasks = report.PendingTasks[:limit]
-		}
-	}
+	report.ActiveTasks = limitTaskSummaries(report.ActiveTasks, limit)
+	report.PendingTasks = limitTaskSummaries(report.PendingTasks, limit)
 
 	return report
+}
+
+func limitTaskSummaries(tasks []TaskItemSummary, limit int) []TaskItemSummary {
+	hasLimit := limit > 0
+	hasExcess := len(tasks) > limit
+	if hasLimit && hasExcess {
+		return tasks[:limit]
+	}
+	return tasks
 }
 
 func queryRemoteNodeTasks(ctx context.Context, node UnifiedFleetNode, conn db.SSHConnection, limit int) NodeTaskReport {
@@ -242,5 +232,3 @@ func queryRemoteNodeTasks(ctx context.Context, node UnifiedFleetNode, conn db.SS
 	report.Status = "ACTIVE"
 	return report
 }
-
-

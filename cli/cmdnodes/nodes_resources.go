@@ -44,7 +44,6 @@ type nodesResourcesOptions struct {
 	targetFilter   string
 }
 
-
 // RunNodesResources executes fleet resource monitoring across local and remote nodes.
 func RunNodesResources(args []string) *apperror.AppError {
 	for _, a := range args {
@@ -77,20 +76,33 @@ func RunNodesResourcesCLI(args []string) error {
 	return nil
 }
 
+func parseBenchmarkArg(val string, fallback int) int {
+	v, err := strconv.Atoi(val)
+	if err == nil && v > 0 {
+		return v
+	}
+	return fallback
+}
+
 func parseNodesResourcesOptions(args []string) (opts nodesResourcesOptions) {
 	opts.benchmarkLimit = resolveDefaultBenchmarkLimit()
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		if a == "--json" || a == "-j" {
 			opts.isJSON = true
-		} else if a == "--open-only" || a == "--online-only" {
+			continue
+		}
+		if a == "--open-only" || a == "--online-only" {
 			opts.isOpenOnly = true
-		} else if (a == "--benchmark" || a == "-b" || a == "--threshold") && i+1 < len(args) {
+			continue
+		}
+		hasBenchmarkFlag := (a == "--benchmark" || a == "-b" || a == "--threshold") && i+1 < len(args)
+		if hasBenchmarkFlag {
 			i++
-			if v, err := strconv.Atoi(args[i]); err == nil && v > 0 {
-				opts.benchmarkLimit = v
-			}
-		} else if isFilterCandidate(a, opts.targetFilter) {
+			opts.benchmarkLimit = parseBenchmarkArg(args[i], opts.benchmarkLimit)
+			continue
+		}
+		if isFilterCandidate(a, opts.targetFilter) {
 			opts.targetFilter = a
 		}
 	}
@@ -106,16 +118,51 @@ func isFilterCandidate(arg, current string) bool {
 }
 
 func resolveDefaultBenchmarkLimit() int {
-	if dbConn, err := store.OpenDefault(); err == nil {
-		defer dbConn.Close()
-		val := dbConn.GetSetting(constants.SettingNodeResourceThreshold)
-		if val != "" {
-			if n, err := strconv.Atoi(val); err == nil && n > 0 {
-				return n
-			}
-		}
+	dbConn, err := store.OpenDefault()
+	if err != nil {
+		return constants.DefaultNodeResourceThreshold
+	}
+	defer dbConn.Close()
+
+	val := dbConn.GetSetting(constants.SettingNodeResourceThreshold)
+	n, errParse := strconv.Atoi(val)
+	if errParse == nil && n > 0 {
+		return n
 	}
 	return constants.DefaultNodeResourceThreshold
+}
+
+func resolveLocalHostname() string {
+	h, err := os.Hostname()
+	if err == nil && h != "" {
+		return h
+	}
+	return "local"
+}
+
+func isNodeTargetIncluded(node UnifiedFleetNode, filter string) bool {
+	isLocal := strings.EqualFold(node.Host, "127.0.0.1") || strings.EqualFold(node.Host, "localhost") || strings.EqualFold(node.Alias, "local")
+	if isLocal {
+		return false
+	}
+	return isTargetMatching(node.Alias, node.Host, filter)
+}
+
+func filterOnlineRecords(records []NodeResourceRecord, isOpenOnly bool) []NodeResourceRecord {
+	if isOpenOnly {
+		return extractOnlineRecords(records)
+	}
+	return records
+}
+
+func extractOnlineRecords(records []NodeResourceRecord) []NodeResourceRecord {
+	var online []NodeResourceRecord
+	for _, r := range records {
+		if r.IsOnline {
+			online = append(online, r)
+		}
+	}
+	return online
 }
 
 func executeFleetResourcesProbeUnified(ctx context.Context, nodes []UnifiedFleetNode, opts nodesResourcesOptions) []NodeResourceRecord {
@@ -123,11 +170,8 @@ func executeFleetResourcesProbeUnified(ctx context.Context, nodes []UnifiedFleet
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 
+	host := resolveLocalHostname()
 	if isTargetMatching("local", "127.0.0.1", opts.targetFilter) {
-		host := "local"
-		if h, err := os.Hostname(); err == nil && h != "" {
-			host = h
-		}
 		records = append(records, probeNodeExec(host, "127.0.0.1", runtime.GOOS == "windows", true, opts.benchmarkLimit, nil))
 	}
 
@@ -143,35 +187,12 @@ func executeFleetResourcesProbeUnified(ctx context.Context, nodes []UnifiedFleet
 	}
 
 	for _, n := range nodes {
-		isLocal := strings.EqualFold(n.Host, "127.0.0.1") || strings.EqualFold(n.Host, "localhost") || strings.EqualFold(n.Alias, "local")
-		if isLocal {
-			continue
-		}
-		if isTargetMatching(n.Alias, n.Host, opts.targetFilter) {
+		hasTargetMatch := isNodeTargetIncluded(n, opts.targetFilter)
+		if hasTargetMatch {
 			wg.Add(1)
 			go func(node UnifiedFleetNode) {
 				defer wg.Done()
-				alias := node.Alias
-				if alias == "" || alias == "-" {
-					alias = node.Host
-				}
-				port := node.Port
-				if port <= 0 {
-					port = 22
-				}
-				conn, _ := connMap[strings.ToLower(node.Host)]
-				isMissingConn := len(conn.IPAddress) == 0
-				if isMissingConn {
-					conn, _ = connMap[strings.ToLower(node.Alias)]
-					isMissingConn = len(conn.IPAddress) == 0
-					if isMissingConn {
-						conn = db.SSHConnection{
-							Alias:     alias,
-							IPAddress: node.Host,
-							Username:  node.User,
-						}
-					}
-				}
+				alias, port, conn := resolveFleetNodeEndpoint(node, connMap)
 				isWin := isWindowsNode(conn) || strings.Contains(strings.ToLower(node.Role), "win")
 				rec := probeNodeExec(alias, fmt.Sprintf("%s:%d", node.Host, port), isWin, false, opts.benchmarkLimit, &conn)
 				mu.Lock()
@@ -181,19 +202,8 @@ func executeFleetResourcesProbeUnified(ctx context.Context, nodes []UnifiedFleet
 		}
 	}
 	wg.Wait()
-	if opts.isOpenOnly {
-		n := 0
-		for _, r := range records {
-			if r.IsOnline {
-				records[n] = r
-				n++
-			}
-		}
-		return records[:n]
-	}
-	return records
+	return filterOnlineRecords(records, opts.isOpenOnly)
 }
-
 
 func isTargetMatching(alias, host, filter string) bool {
 	if filter != "" {
@@ -201,6 +211,13 @@ func isTargetMatching(alias, host, filter string) bool {
 		return strings.Contains(strings.ToLower(alias), f) || strings.Contains(strings.ToLower(host), f)
 	}
 	return true
+}
+
+func resolveLocalShellCmd(isWin bool) (string, string) {
+	if isWin {
+		return "powershell", "-Command"
+	}
+	return "sh", "-c"
 }
 
 func probeNodeExec(alias, host string, isWin, isLocal bool, benchmark int, conn *db.SSHConnection) NodeResourceRecord {
@@ -213,10 +230,7 @@ func probeNodeExec(alias, host string, isWin, isLocal bool, benchmark int, conn 
 	var out string
 	var err error
 	if conn == nil {
-		bin, flag := "sh", "-c"
-		if isWin {
-			bin, flag = "powershell", "-Command"
-		}
+		bin, flag := resolveLocalShellCmd(isWin)
 		var b []byte
 		b, err = exec.Command(bin, flag, cmd).Output()
 		out = string(b)

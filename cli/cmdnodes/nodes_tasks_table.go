@@ -70,37 +70,46 @@ func renderFleetTasksTable(out io.Writer, payload FleetTasksPayload) error {
 
 		hasSubtasks := len(r.ActiveTasks) > 0 || len(r.PendingTasks) > 0
 		if hasSubtasks {
-			for _, t := range r.ActiveTasks {
-				heavyBadge := ""
-				if t.IsHeavyDuty {
-					heavyBadge = " " + resStyleExceed.Render("[HEAVY]")
-				}
-				fmt.Fprintf(out, "    %s %s - %s (%s, step %d/%d)%s\n",
-					resStyleIdle.Render("▶ [ACTIVE]"),
-					resStyleHeader.Render(t.TaskCode),
-					t.Title,
-					resStyleDim.Render(t.AssignedRole),
-					t.CurrentStep,
-					t.TotalSteps,
-					heavyBadge)
-			}
-			for _, t := range r.PendingTasks {
-				heavyBadge := ""
-				if t.IsHeavyDuty {
-					heavyBadge = " " + resStyleExceed.Render("[HEAVY]")
-				}
-				fmt.Fprintf(out, "    %s %s - %s (%s)%s\n",
-					resStyleDim.Render("• [QUEUED]"),
-					resStyleDim.Render(t.TaskCode),
-					t.Title,
-					resStyleDim.Render(t.AssignedRole),
-					heavyBadge)
-			}
+			renderNodeActiveTasks(out, r.ActiveTasks)
+			renderNodePendingTasks(out, r.PendingTasks)
 		}
 	}
 
 	fmt.Fprintf(out, "\n  %s\n\n", div)
 	return nil
+}
+
+func renderNodeActiveTasks(out io.Writer, tasks []TaskItemSummary) {
+	for _, t := range tasks {
+		heavyBadge := renderHeavyBadge(t.IsHeavyDuty)
+		fmt.Fprintf(out, "    %s %s - %s (%s, step %d/%d)%s\n",
+			resStyleIdle.Render("▶ [ACTIVE]"),
+			resStyleHeader.Render(t.TaskCode),
+			t.Title,
+			resStyleDim.Render(t.AssignedRole),
+			t.CurrentStep,
+			t.TotalSteps,
+			heavyBadge)
+	}
+}
+
+func renderNodePendingTasks(out io.Writer, tasks []TaskItemSummary) {
+	for _, t := range tasks {
+		heavyBadge := renderHeavyBadge(t.IsHeavyDuty)
+		fmt.Fprintf(out, "    %s %s - %s (%s)%s\n",
+			resStyleDim.Render("• [QUEUED]"),
+			resStyleDim.Render(t.TaskCode),
+			t.Title,
+			resStyleDim.Render(t.AssignedRole),
+			heavyBadge)
+	}
+}
+
+func renderHeavyBadge(isHeavy bool) string {
+	if isHeavy {
+		return " " + resStyleExceed.Render("[HEAVY]")
+	}
+	return ""
 }
 
 func printNodesTasksHelp() error {

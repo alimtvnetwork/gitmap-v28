@@ -30,32 +30,31 @@ var (
 	hwStyleLiveBadge   = lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b")).Italic(true)
 )
 
+func isMemoryCacheValid() bool {
+	if hwMemoryCache == nil {
+		return false
+	}
+	return time.Since(hwMemoryCache.Timestamp) < HardwareMetricsTTL
+}
+
 // GetHardwareMetrics returns cached hardware metrics or triggers a fresh platform probe.
 func GetHardwareMetrics() (HardwareMetrics, error) {
 	hwCacheLock.RLock()
-	hasMem := hwMemoryCache != nil
-	if hasMem {
-		isFresh := time.Since(hwMemoryCache.Timestamp) < HardwareMetricsTTL
-		if isFresh {
-			cached := *hwMemoryCache
-			cached.IsCached = true
-			hwCacheLock.RUnlock()
-			return cached, nil
-		}
+	if isMemoryCacheValid() {
+		cached := *hwMemoryCache
+		cached.IsCached = true
+		hwCacheLock.RUnlock()
+		return cached, nil
 	}
 	hwCacheLock.RUnlock()
 
 	hwCacheLock.Lock()
 	defer hwCacheLock.Unlock()
 
-	hasMem2 := hwMemoryCache != nil
-	if hasMem2 {
-		isFresh2 := time.Since(hwMemoryCache.Timestamp) < HardwareMetricsTTL
-		if isFresh2 {
-			cached := *hwMemoryCache
-			cached.IsCached = true
-			return cached, nil
-		}
+	if isMemoryCacheValid() {
+		cached := *hwMemoryCache
+		cached.IsCached = true
+		return cached, nil
 	}
 
 	diskMetrics, hasDiskCache := readDiskHWCache()
@@ -120,7 +119,6 @@ func writeDiskHWCache(m HardwareMetrics) error {
 	}
 	return os.WriteFile(cachePath, data, 0600)
 }
-
 
 func printJSON(v any) error {
 	data, err := json.MarshalIndent(v, "", "  ")

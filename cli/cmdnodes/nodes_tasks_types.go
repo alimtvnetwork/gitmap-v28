@@ -56,18 +56,25 @@ func parseNodesTasksOptions(args []string) nodesTasksOptions {
 	}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if a == "--json" || a == "-j" {
+		switch {
+		case a == "--json" || a == "-j":
 			opts.isJSON = true
-		} else if (a == "--limit" || a == "-l") && i+1 < len(args) {
+		case (a == "--limit" || a == "-l") && i+1 < len(args):
 			i++
-			if n, err := strconv.Atoi(args[i]); err == nil && n > 0 {
-				opts.limit = n
-			}
-		} else if isTaskFilterCandidate(a) && opts.targetFilter == "" {
+			opts.limit = parsePositiveIntLimit(args[i], opts.limit)
+		case isTaskFilterCandidate(a) && opts.targetFilter == "":
 			opts.targetFilter = a
 		}
 	}
 	return opts
+}
+
+func parsePositiveIntLimit(val string, fallback int) int {
+	n, err := strconv.Atoi(val)
+	if err == nil && n > 0 {
+		return n
+	}
+	return fallback
 }
 
 func isTaskFilterCandidate(arg string) bool {
