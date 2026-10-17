@@ -21,6 +21,10 @@ type CleanupOptions struct {
 
 // RunAgentClear cleans a specified parent task or all completed tasks in temp dir.
 func RunAgentClear(args []string) *appfault.AppError {
+	if isHelpRequested(args) {
+		printAgentClearHelp()
+		return nil
+	}
 	opts, parseErr := parseCleanupFlags(args)
 	hasParseErr := parseErr != nil
 	if hasParseErr {
@@ -38,6 +42,10 @@ func RunAgentClear(args []string) *appfault.AppError {
 
 // RunAgentReset clears agent split databases and resets tables while preserving run dirs.
 func RunAgentReset(args []string) *appfault.AppError {
+	if isHelpRequested(args) {
+		printAgentResetHelp()
+		return nil
+	}
 	opts, parseErr := parseCleanupFlags(args)
 	hasParseErr := parseErr != nil
 	if hasParseErr {
@@ -51,6 +59,10 @@ func RunAgentReset(args []string) *appfault.AppError {
 
 // RunAgentTempClear completely purges the agent temp directory.
 func RunAgentTempClear(args []string) *appfault.AppError {
+	if isHelpRequested(args) {
+		printAgentTempClearHelp()
+		return nil
+	}
 	opts, parseErr := parseCleanupFlags(args)
 	hasParseErr := parseErr != nil
 	if hasParseErr {

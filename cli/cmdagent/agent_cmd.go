@@ -117,6 +117,10 @@ var (
 		Short:              "Record granular in-flight telemetry into agent split database",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if isHelpRequested(args) {
+				printAgentLogHelp()
+				return nil
+			}
 			return toError(RunAgentLog(args))
 		},
 	}
@@ -127,6 +131,10 @@ var (
 		Short:              "Detect crashed or abandoned agents and display autopsy report",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if isHelpRequested(args) {
+				printAgentCrashedHelp()
+				return nil
+			}
 			return toError(RunAgentCrashed(args))
 		},
 	}
@@ -137,6 +145,10 @@ var (
 		Short:              "Perform deep forensic inspection of agent tasks and logs",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if isHelpRequested(args) {
+				printAgentDiagnoseHelp()
+				return nil
+			}
 			return toError(RunAgentDiagnose(args))
 		},
 	}
@@ -146,6 +158,10 @@ var (
 		Short:              "Clear or archive completed agent task runs",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if isHelpRequested(args) {
+				printAgentClearHelp()
+				return nil
+			}
 			return toError(RunAgentClear(args))
 		},
 	}
@@ -155,6 +171,10 @@ var (
 		Short:              "Reset agent databases and telemetry",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if isHelpRequested(args) {
+				printAgentResetHelp()
+				return nil
+			}
 			return toError(RunAgentReset(args))
 		},
 	}
@@ -165,6 +185,10 @@ var (
 		Short:              "Delete entire ephemeral .ai-memory/temp-agents/ directory",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if isHelpRequested(args) {
+				printAgentTempClearHelp()
+				return nil
+			}
 			return toError(RunAgentTempClear(args))
 		},
 	}
