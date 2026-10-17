@@ -74,13 +74,6 @@ no-silent-error "surface the real error message with a fallback"`,
 				Invocation:     "gitmap llm-train",
 				ExpectedOutput: "training index over <count> files… ✓ ready",
 			},
-			{
-				Invocation: "gitmap llm train muse --days 7",
-				ExpectedOutput: `GITMAP LLM TRAIN — MUSE MEMORY SYNC (last 7 days):
-Digest root: repo-secrets/Muse
-Commits: <count> | Files changed: <count> | Sequenced digests: <count>
-AI TRAVERSAL CHECKLIST: gitmap cat repo-secrets/Muse/README.md …`,
-			},
 		},
 	}
 	reg["train"] = reg["llm-train"]

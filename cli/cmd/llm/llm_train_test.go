@@ -1,15 +1,10 @@
 package llm
 
 import (
-	"bytes"
-	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func TestIsTrainCommand(t *testing.T) {
