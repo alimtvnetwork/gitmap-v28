@@ -1,7 +1,6 @@
 package cmdspace
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
