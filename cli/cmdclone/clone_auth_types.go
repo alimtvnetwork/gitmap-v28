@@ -21,3 +21,9 @@ type AuthPromptResult struct {
 	IsReused bool
 	Method   AuthMethod
 }
+
+// IsSSHCloneURL checks if rawURL is an SSH clone URL (shorthand git@ or ssh://).
+func IsSSHCloneURL(url string) bool {
+	return isSSHCloneURL(url)
+}
+

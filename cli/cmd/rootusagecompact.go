@@ -43,6 +43,13 @@ func printGhAuthCompact() {
 
 func printActiveGitUserCompact() {
 	name, email := detectActiveGitUser()
+	if name == "" && email == "" {
+		fmt.Printf("  %s● Active Git:%s       %s✖ Not configured (global)%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorYellow, constants.ColorReset)
+		return
+	}
+
 	if len(name) > 0 && len(email) > 0 {
 		fmt.Printf("  %s● Active Git:%s     %s%s <%s>%s\n",
 			constants.ColorCyan, constants.ColorReset,
@@ -50,22 +57,20 @@ func printActiveGitUserCompact() {
 		return
 	}
 
-	if len(name) > 0 {
-		fmt.Printf("  %s● Active Git:%s     %s%s%s\n",
-			constants.ColorCyan, constants.ColorReset,
-			constants.ColorWhite, name, constants.ColorReset)
-		return
-	}
-
-	fmt.Printf("  %s● Active Git:%s     %s✖ Not configured%s\n",
+	fmt.Printf("  %s● Active Git:%s       %s✖ Not configured (global)%s\n",
 		constants.ColorCyan, constants.ColorReset,
 		constants.ColorYellow, constants.ColorReset)
 }
 
 func detectActiveGitUser() (string, string) {
-	nameOut, _ := exec.Command("git", "config", "user.name").Output()
-	emailOut, _ := exec.Command("git", "config", "user.email").Output()
-	return strings.TrimSpace(string(nameOut)), strings.TrimSpace(string(emailOut))
+	nameOut, _ := exec.Command("git", "config", "--global", "user.name").Output()
+	emailOut, _ := exec.Command("git", "config", "--global", "user.email").Output()
+	name := strings.TrimSpace(string(nameOut))
+	email := strings.TrimSpace(string(emailOut))
+	if len(name) == 0 || len(email) == 0 {
+		return "", ""
+	}
+	return name, email
 }
 
 func printCompactGuidanceFooter() {
@@ -77,4 +82,17 @@ func printCompactGuidanceFooter() {
 	fmt.Println("     learn command replacements, download docs, and install native Antigravity skill.")
 	fmt.Printf("     %s➜ Mandatory:%s Follow this instruction before proceeding with workspace tasks.\n",
 		constants.ColorGreen, constants.ColorReset)
+
+	printCompactLoginGuidance()
+}
+
+func printCompactLoginGuidance() {
+	auth := usercontext.DetectGhAuth()
+	name, email := detectActiveGitUser()
+	if auth.Status == usercontext.StatusAuthorized && len(name) > 0 && len(email) > 0 {
+		return
+	}
+
+	fmt.Printf("  %s3. Authenticate:%s Run 'gitmap login' to authenticate (SSH, PAT, or browser flow).\n",
+		constants.ColorCyan, constants.ColorReset)
 }

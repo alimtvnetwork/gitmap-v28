@@ -104,8 +104,8 @@ func tokenFromGhCLI() (string, bool) {
 }
 
 func tokenFromGitCredential() (string, bool) {
-	cmd := exec.Command("git", "credential", "fill")
-	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
+	cmd := exec.Command("git", "-c", "credential.interactive=never", "credential", "fill")
+	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0", "GCM_INTERACTIVE=never")
 	cmd.Stdin = strings.NewReader("protocol=https\nhost=github.com\n\n")
 
 	out, err := cmd.Output()

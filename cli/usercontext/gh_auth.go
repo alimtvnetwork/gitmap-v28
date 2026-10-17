@@ -22,7 +22,6 @@ var (
 const (
 	defaultAuthTimeout = 2 * time.Second
 	sourceGhCLI        = "gh-cli"
-	fallbackUser       = "github-user"
 )
 
 // DetectGhAuth inspects GitHub CLI status and falls back to system tokens.
@@ -159,9 +158,9 @@ func resolveTokenFallbackCore(ctx context.Context) (GhAuthInfo, bool) {
 }
 
 func resolveFallbackUsername(ctx context.Context) string {
-	out, err := runCommandOutput(ctx, "git", "config", "user.name")
+	out, err := runCommandOutput(ctx, "git", "config", "--global", "user.name")
 	if err == nil && len(strings.TrimSpace(string(out))) > 0 {
 		return strings.TrimSpace(string(out))
 	}
-	return fallbackUser
+	return ""
 }

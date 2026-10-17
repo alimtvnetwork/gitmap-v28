@@ -30,7 +30,7 @@ func ProbeSSHAccess(repoURL string) (string, bool) {
 }
 
 func executeSSHProbe(sshURL string) bool {
-	cmd := exec.Command("git", "ls-remote", "--exit-code", "-h", sshURL, "HEAD")
+	cmd := exec.Command("git", "ls-remote", "--exit-code", sshURL, "HEAD")
 	cmd.Env = append(os.Environ(),
 		"GIT_SSH_COMMAND=ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new",
 		"GIT_TERMINAL_PROMPT=0",

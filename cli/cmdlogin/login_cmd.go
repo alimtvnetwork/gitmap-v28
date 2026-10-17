@@ -18,13 +18,67 @@ type loginOptions struct {
 }
 
 func runLogin(args []string) error {
-	opts, rest, err := parseLoginArgs(args)
-	if err != nil {
+	if len(args) == 0 {
+		return runInteractiveLogin()
+	}
+
+	handled, err := dispatchSubcommand(args)
+	if handled {
 		return err
+	}
+
+	opts, rest, parseErr := parseLoginArgs(args)
+	if parseErr != nil {
+		return parseErr
 	}
 	if len(rest) > 0 {
 		return fmt.Errorf("unexpected argument %q (see `gitmap login --help`)", rest[0])
 	}
+
+	return dispatchLoginOptions(opts)
+}
+
+func dispatchSubcommand(args []string) (bool, error) {
+	sub := strings.ToLower(args[0])
+	switch sub {
+	case "ssh":
+		return true, RunLoginSSH(args[1:])
+	case "browser-flow", "browser":
+		return true, runBrowserLogin()
+	case "token", "pat":
+		return true, runTokenSubcommand(args[1:])
+	case "status":
+		return true, runLoginStatus()
+	default:
+		return false, nil
+	}
+}
+
+func runTokenSubcommand(args []string) error {
+	skipVerify := false
+	token := ""
+	for _, a := range args {
+		if a == "--no-verify" {
+			skipVerify = true
+			continue
+		}
+		if !strings.HasPrefix(a, "-") && len(token) == 0 {
+			token = a
+		}
+	}
+
+	if len(token) > 0 {
+		return loginWithToken(token, skipVerify)
+	}
+
+	rawToken, err := readSecureToken()
+	if err != nil {
+		return err
+	}
+	return loginWithToken(rawToken, skipVerify)
+}
+
+func dispatchLoginOptions(opts loginOptions) error {
 	if opts.showHelp {
 		printLoginUsage()
 		return nil
@@ -90,9 +144,10 @@ func parseLoginArgs(args []string) (loginOptions, []string, error) {
 
 func printLoginUsage() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
-	fmt.Println("  gitmap login                  # Interactive: pick token paste or browser login")
-	fmt.Println("  gitmap login --token <PAT>    # Log in with a personal access token (non-interactive)")
-	fmt.Println("  gitmap login --web            # Log in via the browser (GitHub CLI device flow when available)")
+	fmt.Println("  gitmap login                  # Interactive: choose SSH, PAT, Browser, or Status")
+	fmt.Println("  gitmap login ssh [alias] [-y] # Generate or reuse SSH key and copy public key to clipboard")
+	fmt.Println("  gitmap login token [PAT]      # Log in with a personal access token")
+	fmt.Println("  gitmap login browser-flow     # Log in via the browser (GitHub CLI device flow)")
 	fmt.Println("  gitmap login --status         # Show current login state")
 	fmt.Println("  gitmap logout                 # Remove the stored GitHub credential")
 	fmt.Println("")

@@ -99,28 +99,38 @@ func runInteractiveLogin() error {
 	}
 	printLoginMethodMenu()
 	choice := readMenuChoice()
+	return handleInteractiveChoice(choice)
+}
+
+func handleInteractiveChoice(choice string) error {
 	switch choice {
 	case "1":
+		return RunLoginSSH(nil)
+	case "2":
 		token, err := readSecureToken()
 		if err != nil {
 			return err
 		}
 		return loginWithToken(token, false)
-	case "2":
+	case "3":
 		return runBrowserLogin()
+	case "4":
+		return runLoginStatus()
 	default:
-		return fmt.Errorf("unknown choice %q: pick 1 or 2", choice)
+		return fmt.Errorf("unknown choice %q: pick 1, 2, 3, or 4", choice)
 	}
 }
 
 func printLoginMethodMenu() {
-	fmt.Println(constants.ColorCyan + "Log in to GitHub:" + constants.ColorReset)
-	fmt.Println("  1) Paste a personal access token")
-	fmt.Println("  2) Log in via the browser")
+	fmt.Println(constants.ColorCyan + "GitMap Authentication:" + constants.ColorReset)
+	fmt.Println("  [1] SSH Key Setup & Copy (Recommended)")
+	fmt.Println("  [2] Personal Access Token (PAT)")
+	fmt.Println("  [3] Browser Device Flow")
+	fmt.Println("  [4] Check Authentication Status")
 }
 
 func readMenuChoice() string {
-	fmt.Print("Choose [1/2]: ")
+	fmt.Print("Choose [1-4]: ")
 	reader := bufio.NewReader(os.Stdin)
 	choice, _ := reader.ReadString('\n')
 	return strings.TrimSpace(choice)

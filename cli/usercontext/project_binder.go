@@ -2,6 +2,7 @@ package usercontext
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -140,18 +141,45 @@ func removeProjectBinding(cfg *model.GitProfileConfig, repoDir string) error {
 }
 
 // SyncProjectUser applies the bound profile's user identity to local git config.
-func SyncProjectUser(repoDir string) error {
-	profile, hasProfile := ResolveProjectUser(repoDir)
-	if !hasProfile || profile == nil {
+// If profile has SSHKeyPath, sets repo-level core.sshCommand.
+func SyncProjectUser(repoDir string, profile ...model.GitProfile) error {
+	prof, ok := resolveProfileForSync(repoDir, profile)
+	if !ok {
 		return nil
 	}
 
 	dir := resolveTargetDir(repoDir)
-	if err := applyGitName(dir, profile.Name); err != nil {
+	if err := applyGitName(dir, prof.Name); err != nil {
 		return err
 	}
 
-	return applyGitEmail(dir, profile.Email)
+	if err := applyGitEmail(dir, prof.Email); err != nil {
+		return err
+	}
+
+	if len(prof.SSHKeyPath) > 0 {
+		return applyGitSSHCommand(dir, prof.SSHKeyPath)
+	}
+
+	return nil
+}
+
+func resolveProfileForSync(repoDir string, profile []model.GitProfile) (model.GitProfile, bool) {
+	if len(profile) > 0 {
+		return profile[0], true
+	}
+
+	resolved, hasProfile := ResolveProjectUser(repoDir)
+	if !hasProfile || resolved == nil {
+		return model.GitProfile{}, false
+	}
+
+	return *resolved, true
+}
+
+func applyGitSSHCommand(dir, keyPath string) error {
+	cmdStr := fmt.Sprintf("ssh -i %s -F /dev/null -o IdentitiesOnly=yes", filepath.ToSlash(keyPath))
+	return gitConfigSetter(dir, "core.sshCommand", cmdStr)
 }
 
 func resolveTargetDir(repoDir string) string {

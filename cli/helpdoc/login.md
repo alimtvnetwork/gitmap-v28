@@ -1,42 +1,117 @@
 # gitmap login
 
-Log in to GitHub so private-repository clone, pull, and push work without extra flags.
+Log in and configure authentication for Git providers (GitHub, GitLab) so private-repository clone, pull, and push work seamlessly without credentials prompts.
 
 ## Usage
 
 ```bash
-gitmap login                  # Interactive: pick token paste or browser login
-gitmap login --token <PAT>    # Log in with a personal access token (non-interactive)
-gitmap login --web            # Log in via the browser
-gitmap login --status         # Show current login state
-gitmap logout                 # Remove the stored GitHub credential
+gitmap login                  # Interactive menu (SSH, PAT, Browser, Status)
+gitmap login ssh [alias] [-y] # Generate or reuse SSH key and copy public key to clipboard
+gitmap login token [PAT]      # Log in with a Personal Access Token
+gitmap login browser-flow     # Log in via browser OAuth / GitHub CLI device flow
+gitmap login --status         # Show current login state and active identity
+gitmap logout                 # Remove stored GitHub credentials
 ```
+
+## Interactive Menu
+
+When invoked with no arguments (`gitmap login`), an interactive menu is displayed:
+
+```
+GitMap Authentication:
+  [1] SSH Key Setup & Copy (Recommended)
+  [2] Personal Access Token (PAT)
+  [3] Browser Device Flow
+  [4] Check Authentication Status
+```
+
+## Subcommands
+
+### 1. SSH Key Authentication (`gitmap login ssh`)
+
+```bash
+gitmap login ssh [alias] [-y] [-d <dir>]
+```
+
+- **Alias:** Optional name suffix for the SSH key (`id_ed25519_<alias>`). If omitted, defaults to `id_ed25519`.
+- **Key Reuse vs Generation:** If the key already exists, GitMap automatically reuses it. Pass `-y`, `--yes`, `-f`, or `--force` to regenerate and overwrite.
+- **Clipboard Integration:** Automatically copies the public key (`.pub`) to the OS clipboard using `clip.exe` (Windows), `pbcopy` (macOS), or `wl-copy`/`xclip` (Linux).
+- **Settings URLs:** Displays direct browser links to paste your new public key:
+  - GitHub: https://github.com/settings/ssh/new
+  - GitLab: https://gitlab.com/-/user_settings/ssh_keys
+- **Repository Binding:** If executed inside a Git repository, automatically configures repo-local `core.sshCommand`:
+  `git config core.sshCommand "ssh -i <SSHKeyPath> -F /dev/null -o IdentitiesOnly=yes"`
+
+### 2. Personal Access Token (`gitmap login token`)
+
+```bash
+gitmap login token [PAT] [--no-verify]
+gitmap login --token <PAT> [--no-verify]
+```
+
+- Accepts a Personal Access Token directly as an argument, or securely prompts for hidden input if omitted.
+- Pre-validates the token against `https://api.github.com/user` to verify permissions and extract the account name.
+- Stores the token in global git configuration (`github.token`) so CLI and Git operations reuse it.
+- Pass `--no-verify` to skip the remote network probe (useful in offline or air-gapped environments).
+
+### 3. Browser Device Flow (`gitmap login browser-flow`)
+
+```bash
+gitmap login browser-flow
+gitmap login browser
+gitmap login --web
+```
+
+- Launches GitHub authentication using the GitHub CLI (`gh auth login -w`) when available.
+- If `gh` is not installed, opens the token generation page in your browser and prompts for secure paste.
+
+### 4. Authentication Status (`gitmap login --status`)
+
+```bash
+gitmap login --status
+```
+
+- Inspects system environment, Windows Credential Manager, global git configuration, and GitHub CLI to display current authentication state with masked credentials.
 
 ## Flags
 
 | Flag | Description |
 |------|-------------|
-| `--token <PAT>` | Personal access token (classic or fine-grained). Validated against api.github.com before storing. |
-| `--web`, `--browser` | Browser login. Uses `gh auth login --web` when the GitHub CLI is installed, otherwise opens the token creation page and prompts for a secure paste. |
-| `--status` | Show login state with the token masked. |
-| `--no-verify` | With `--token`: store without validating (offline use). |
-| `-h`, `--help` | Show this help. |
-
-## How it works
-
-1. The token is validated with `GET https://api.github.com/user` (unless `--no-verify`).
-2. On success it is stored in git global config (`github.token`).
-3. `gitmap clone`, `pull`, and `push` pick it up automatically via token resolution — no `--token` flag needed afterwards.
+| `-y`, `--yes`, `-f`, `--force` | Overwrite existing SSH key when running `gitmap login ssh`. |
+| `-d`, `--dir <dir>` | Specify custom directory for SSH keys (defaults to `~/.ssh`). |
+| `--token <PAT>` | Provide Personal Access Token via flag. |
+| `--web`, `--browser` | Trigger browser login flow. |
+| `--status` | Show login state and masked token. |
+| `--no-verify` | Store token without remote validation. |
+| `-h`, `--help` | Show usage help. |
 
 ## Examples
 
 ```bash
-gitmap login --token ghp_xxxxxxxxxxxxxxxxxxxx
-gitmap login --web
+# Interactive setup
+gitmap login
+
+# Set up personal SSH key and copy to clipboard
+gitmap login ssh
+
+# Set up work SSH key
+gitmap login ssh work
+
+# Force regeneration of work SSH key
+gitmap login ssh work -y
+
+# Log in using a Personal Access Token
+gitmap login token ghp_xxxxxxxxxxxxxxxxxxxx
+
+# Log in using browser device flow
+gitmap login browser-flow
+
+# Verify current authentication state
 gitmap login --status
 ```
 
-## See also
+## See Also
 
-- `gitmap token list` — show the resolved token and its source
-- `gitmap logout` — remove the stored credential
+- `gitmap user project bind <alias>` — Bind repository to a Git profile
+- `gitmap token list` — Show resolved token and discovery source
+- `gitmap logout` — Remove stored GitHub credentials

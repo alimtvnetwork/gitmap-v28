@@ -10,6 +10,8 @@ type GitProfile struct {
 	Type       string    `json:"type"`     // "user", "organization"
 	Email      string    `json:"email,omitempty"`
 	AuthMethod string    `json:"authMethod"` // "gh-cli", "ssh", "token", "glab-cli"
+	SSHKeyPath string    `json:"sshKeyPath,omitempty"`
+	SSHKeyName string    `json:"sshKeyName,omitempty"`
 	IsDefault  bool      `json:"isDefault"`
 	UsageCount int       `json:"usageCount"`
 	LastUsedAt time.Time `json:"lastUsedAt"`

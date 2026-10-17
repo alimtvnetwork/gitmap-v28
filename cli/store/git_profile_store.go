@@ -130,13 +130,13 @@ func detectGitHubUser() string {
 		return strings.TrimSpace(string(out))
 	}
 
-	gitUserCmd := exec.Command("git", "config", "user.name")
+	gitUserCmd := exec.Command("git", "config", "--global", "user.name")
 	gitUserOut, gitErr := gitUserCmd.Output()
-	if gitErr == nil {
+	if gitErr == nil && len(strings.TrimSpace(string(gitUserOut))) > 0 {
 		return strings.TrimSpace(string(gitUserOut))
 	}
 
-	return "default"
+	return ""
 }
 
 func discoverGitHubOrgs(cfg *model.GitProfileConfig) {
