@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.563.0] - 2026-10-17
+
+### Added
+- large-file-split, git-lfs-convert, repo-flatten, reclone-url-fix, and automerge-ide-guidance
+
+---
+
 ## [v6.562.0] - 2026-10-17
 
 ### Added
