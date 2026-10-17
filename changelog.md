@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.566.0] - 2026-10-17
+
+### Added
+- hd-ui - improve help dashboard themes prompt finder and terminal view
+
+---
+
 ## [v6.565.0] - 2026-10-17
 
 ### Added
