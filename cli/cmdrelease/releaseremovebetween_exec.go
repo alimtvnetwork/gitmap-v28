@@ -104,17 +104,7 @@ func applyBatchTagRemoval(tags []string, keepRemote bool) []string {
 	done = append(done, "gh releases")
 
 	if !keepRemote {
-		batchSize := 40
-		for i := 0; i < len(tags); i += batchSize {
-			end := i + batchSize
-			if end > len(tags) {
-				end = len(tags)
-			}
-			chunk := tags[i:end]
-			args := append([]string{"push", "origin", "--delete"}, chunk...)
-			_ = exec.Command("git", args...).Run()
-		}
-		done = append(done, "remote origin tags")
+		done = append(done, deleteRemoteOriginTags(tags)...)
 	}
 
 	args := append([]string{"tag", "-d"}, tags...)
@@ -131,6 +121,18 @@ func applyBatchTagRemoval(tags []string, keepRemote bool) []string {
 	done = append(done, "metadata sidecars")
 
 	return done
+}
+
+func deleteRemoteOriginTags(tags []string) []string {
+	batchSize := 40
+	for i := 0; i < len(tags); i += batchSize {
+		end := min(i+batchSize, len(tags))
+		chunk := tags[i:end]
+		args := append([]string{"push", "origin", "--delete"}, chunk...)
+		_ = exec.Command("git", args...).Run()
+	}
+
+	return []string{"remote origin tags"}
 }
 
 func optimizeRepositoryPostPrune(keepRemote bool) {
