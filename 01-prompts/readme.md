@@ -115,6 +115,6 @@ All 27 canonical prompt categories reside directly at the root of `01-prompts/`:
 | **24** | `24-sync/` | `01-sync.md`, `02-sync-other-codebase.md` | Multi-repository synchronization engine: pull base branch, safety backup, asset mirroring with 5 boundary protections, atomic commit, and release tagging |
 | **25** | `25-ai-verification/` | `01-retrospective-ai-verification.md` | Retrospective quality audit, guideline verification, and CI validation |
 | **26** | `26-gitmap/` | `01-gitmap-core-engine.md` | GitMap AI training curriculum, streaming regex search, toolchain locator, and autonomous companion |
-| **27** | `27-muse-prompts/` | `01-muse-master-prompt.md`, `02-muse-execute-in-a-step.md` | Muse master onboarding prompt and execute-in-a-step one-shot execution prompt |
+| **27** | `27-muse-prompts/` | `01-muse-master-prompt.md` (Unified), `05-muse-master-prompt-v2.md` | Unified Muse master onboarding & fleet execution prompt (SSH auth, GitMap scan, 14+ repo clone/pull-all, side chats, V6 multi-agent engine) |
 | **28** | `28-mastery-prompts/` | `01-mastery-bootstrap-prompt.md` | Foolproof standalone bootstrap prompt: reproduces the full working environment (GitHub, GitMap, repos, memory, chats) from any fresh chat on any machine |
 | **29** | `29-chat-management/` | `01-chat-histories-reread-remove-and-recreate.md` | Chat-history recovery: re-read per-repo side chats, prune stale ones (archive by default, delete only on explicit word), and recreate one `<repo> repo` chat per repo after a VM replacement |

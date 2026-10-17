@@ -125,8 +125,8 @@ flowchart TD
 ### Stage 4: Controlled Asset Mirroring with 5 Boundary Protections
 - Mirror canonical assets:
   - `01-prompts/` -> `01-prompts/` (excluding `06-archive/`).
-  - `.agents/skills/` -> `.agents/skills/` (strict lowercase `skill.md`).
-  - `.cursor/skills/` -> `.cursor/skills/` (strict lowercase `skill.md`).
+  - `.agents/skills/` -> `.agents/skills/` (update canonical skills, keep skill folders that exist only in the target, strict lowercase `skill.md`).
+  - `.cursor/skills/` -> `.cursor/skills/` (update canonical skills, keep skill folders that exist only in the target, strict lowercase `skill.md`).
   - `03-ai-scripts/` and `.agents/scripts/` -> Additive-only mode.
   - `02-spec/01-*` through `02-spec/20-*` -> Mirror shared specifications cleanly.
   - `.ai-memory/coding-guidelines.md` and `.ai-memory/prompts.md` -> Synchronized conditionally if target `.ai-memory/` exists.

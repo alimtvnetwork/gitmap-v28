@@ -119,11 +119,30 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
 - **TOTAL BAN ON COLONS IN COMMIT MESSAGES:** Never use colons inside commit arguments (e.g. `gitmap cpf "Feature: title"` is FORBIDDEN; use `gitmap cpf "module - title"`).
 
-### 8. Autonomous Agent Onboarding & Curriculum (LLM)
-- `gitmap llm train` (alias: `gitmap llm chain`) — Full 4-stage chained curriculum, auto-generates Antigravity skill, author/sponsor attribution.
-- `gitmap llm train --text-only` — Output curriculum to stdout without modifying files on disk.
+### 8. Autonomous Agent Onboarding, Curriculum & Memory Training (LLM)
+- `gitmap llm train [ai-name] [flags]` (aliases: `gitmap train`, `gitmap llm-train`, `gitmap llm chain`) — Full 6-phase self-looping onboarding curriculum (Discovery, Refactoring, Verification, Semantic Commit, Telemetry, Heal & Fix), auto-generates Antigravity skill, author/sponsor attribution.
+- `gitmap llm train muse [--days <N>]` (aliases: `gitmap train muse`, `gitmap train-muse`, `gitmap llm-train-muse`) — Synchronize Muse N-day memory digest from `repo-cache` (fallback `repo-secrets`), diff against watermark commit, output AI traversal checklist for sequential memory reading, and reconstitute `chat-seeds`.
+- `gitmap llm train --loop` / `gitmap llm train --self-loop <N>` — Autonomous self-looping flags executing continuous 6-phase AI self-looping execution cycles.
+- `gitmap llm train --heal-apply <stash|wip|discard>` — Non-interactively applies git-state remediation recipes during Phase 6a.
+- `gitmap llm train --skill-path <path>` — Target filesystem path for writing the generated skill markdown file (default: `.agents/skills/gitmap/SKILL.md`).
+- `gitmap llm train --text-only` — Outputs curriculum text to stdout without writing skill file to disk.
+- `gitmap llm train --urls` — Outputs the 7 authoritative public documentation registry links for LLM ingestion.
+- `gitmap llm train --url` — Outputs raw public URL to `llm.md` specification.
+- `gitmap llm train -j` / `gitmap llm train --json` — Emits structured machine-readable JSON curriculum and document metadata.
 - `gitmap llm-docs` (alias: `gitmap ld`) — Consolidated markdown command matrix reference for LLMs.
-- `gitmap llm` — Display full LLM specification and operational guidelines.
+- `gitmap llm` — Displays full LLM specification and operational guidelines.
+
+#### Autonomous Training Flag Matrix
+| Flag | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `--days <N>` | `int` | `7` | Sets memory digest inspection window in days for agent targets (e.g. `gitmap llm train muse --days 7`). |
+| `--loop` | `bool` | `false` | Triggers continuous autonomous 6-phase AI self-looping execution cycles. |
+| `--self-loop <N>` | `int` | `0` | Specifies exact number of consecutive iterations for AI self-loop. |
+| `--heal-apply <recipe>` | `string` | `""` | Non-interactively applies git-state remediation recipes during Phase 6a (`stash`, `wip`, `discard`). |
+| `--skill-path <path>` | `string` | `.agents/skills/gitmap/SKILL.md` | Target filesystem path for writing generated skill markdown file. |
+| `--text-only` | `bool` | `false` | Emits complete curriculum text to stdout without writing files to disk. |
+| `--urls` | `bool` | `false` | Outputs complete 7-document Authoritative Public Documentation Registry for LLM memory ingestion. |
+| `-j`, `--json` | `bool` | `false` | Emits structured machine-readable JSON curriculum and document metadata. |
 
 ### 9. Multi-Repo, Cluster & Toolchain Operations
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling).
@@ -180,7 +199,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 
 ## Operational Guardrails & Non-Negotiable Invariants
 
-1. **Learning & Skill Acquisition:** Run `gitmap llm train` to initialize or update GitMap skills. Never run broad keyword searches like `gitmap aum search "train"` to discover how commands work.
+1. **Learning & Skill Acquisition:** Run `gitmap llm train` (or `gitmap train --loop`) to initialize or verify GitMap skills. Run `gitmap llm train muse --days 7` when performing Muse memory IO synchronization. Never run broad keyword searches like `gitmap aum search "train"` to discover how commands work.
 2. **Mandatory Pre-Flight Pull:** Always run `git pull` before modifying code.
 3. **Scoped Search:** Always provide target directories and extensions to `gitmap aum search` (e.g. `gitmap aum search "target" cli --ext .go`).
 4. **File Size & Binary Guard:** Respect 500 KB limit (Rule R19); never commit test binaries or temp artifacts.
