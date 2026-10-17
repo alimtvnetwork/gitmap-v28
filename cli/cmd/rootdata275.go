@@ -11,7 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfleet"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdflatten"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhealth"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhelp"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhooks"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfs"
@@ -33,41 +33,44 @@ import (
 func dispatch275(command string) (bool, error) {
 	args := os.Args[2:]
 
-	handled, err := tryDispatchHyphen275(command, args)
-	if handled {
+	if handled, err := tryDispatchHyphenated(command, args); handled {
 		return true, err
 	}
 
-	handled, err = tryDispatchTwoWord275(command, args)
-	if handled {
+	if handled, err := tryDispatchTwoWordArg(command, args); handled {
 		return true, err
 	}
 
-	// Single-word aliases.
-	return dispatch275Alias(command, args)
+	if handled, err := dispatch275Alias(command, args); handled {
+		return true, err
+	}
+
+	return false, nil
 }
 
-func tryDispatchHyphen275(command string, args []string) (bool, error) {
+func tryDispatchHyphenated(command string, args []string) (bool, error) {
 	if !strings.Contains(command, "-") {
 		return false, nil
 	}
 	hyphenCmd := strings.ReplaceAll(command, "-", " ")
+
 	return dispatch275TwoWord(hyphenCmd, args)
 }
 
-func tryDispatchTwoWord275(command string, args []string) (bool, error) {
+func tryDispatchTwoWordArg(command string, args []string) (bool, error) {
 	if len(args) == 0 {
 		return false, nil
 	}
 	sub := strings.ToLower(args[0])
 	twoWord := command + " " + sub
+
 	return dispatch275TwoWord(twoWord, args[1:])
 }
 
-// dispatch275TwoWord routes the canonical two-word space-separated commands.
+// dispatch275TwoWord handles `gitmap <word> <sub>` forms.
 func dispatch275TwoWord(twoWord string, args []string) (bool, error) {
 	switch twoWord {
-	// Group A: GitHub / GitLab Operations.
+	// Group A: mr family (also routed via DispatchMoveMerge; belt-and-braces).
 	case "mr list":
 		if appErr := cmdmerge.RunMrList(args); appErr != nil {
 			return true, appErr
@@ -88,8 +91,14 @@ func dispatch275TwoWord(twoWord string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "ci watch":
-		if appErr := cmdmerge.RunCiWatch(args); appErr != nil {
+	// Group B: repo + scan.
+	case "repo export":
+		if appErr := cmdrepo.RunRepoExport(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "repo import":
+		if appErr := cmdrepo.RunRepoImport(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
@@ -122,73 +131,28 @@ func dispatch275TwoWord(twoWord string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "repo export":
-		if appErr := cmdrepo.RunRepoExport(args); appErr != nil {
+	case "scan verify":
+		if appErr := cmdscan.RunScanVerify(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
-	case "repo import":
-		if appErr := cmdrepo.RunRepoImport(args); appErr != nil {
+	// Group C: help + theme.
+	case "help topic":
+		if appErr := cmdhelp.RunHelpTopic(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
-	case "spec progress":
-		if appErr := cmdspec.RunSpecProgress(args); appErr != nil {
+	case "theme list":
+		if appErr := cmdtheme.RunTheme(append([]string{"list"}, args...)); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
-	// Group B: CI Diagnostics & Fix Automation.
-	case "ci quick":
-		if appErr := cmdci.RunCiQuick(args); appErr != nil {
+	case "theme preview":
+		if appErr := cmdtheme.RunThemePreview(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
-	case "ci check":
-		if appErr := cmdci.RunCiCheck(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "ci explain":
-		if appErr := cmdci.RunCiExplain(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "agent task":
-		if appErr := cmdagent.RunAgentTask(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "agent report":
-		if appErr := cmdagent.RunAgentReport(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "agent logs":
-		if appErr := cmdagent.RunAgentLogs(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "agent clear":
-		if appErr := cmdagent.RunAgentClear(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "agent stats":
-		if appErr := cmdagent.RunAgentStats(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	// Group C: Prompts & Deployment Health.
-	case "prompts check":
-		if appErr := cmdprompts.RunPromptsCheck(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "prompts drift":
-		if appErr := cmdprompts.RunPromptsDrift(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
+	// Group D: install + release.
 	case "install verify":
 		if appErr := cmdinstall.RunInstallVerify(args); appErr != nil {
 			return true, appErr
@@ -204,7 +168,7 @@ func dispatch275TwoWord(twoWord string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "release win-scan":
+	case "release winscan":
 		if appErr := cmdrelease.RunReleaseWinScan(args); appErr != nil {
 			return true, appErr
 		}
@@ -214,18 +178,7 @@ func dispatch275TwoWord(twoWord string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	// Group D: Themes & Navigation.
-	case "theme list":
-		if appErr := cmdtheme.RunTheme(append([]string{"list"}, args...)); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "theme preview":
-		if appErr := cmdtheme.RunThemePreview(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	// Group E: Engine Internals & Diagnostics.
+	// Group E: pipeline + fleet + hygiene.
 	case "pe triage":
 		if appErr := cmdpe.RunPeTriage(args); appErr != nil {
 			return true, appErr
@@ -261,24 +214,55 @@ func dispatch275TwoWord(twoWord string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "health check":
-		if appErr := cmdhealth.RunHealth(args); appErr != nil {
+	case "prompts drift":
+		if appErr := cmdprompts.RunPromptsDrift(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "agent report":
+		if appErr := cmdagent.RunAgentReport(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "ci open":
+		if appErr := cmdci.RunCiOpen(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "spec progress":
+		if appErr := cmdspec.RunSpecProgress(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "agm queue audit":
+		if appErr := cmdagm.RunAgmQueueAudit(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
 	}
 
-	// Program 275 commands with flags.
-	isAgmQueueAudit := strings.HasPrefix(twoWord, "agm queue-audit")
-	if isAgmQueueAudit {
-		return true, cmdagm.RunAgmQueueAudit(args[1:])
+	if isAgmQueueAudit(twoWord, args) {
+		return dispatchAgmQueueAudit(args[1:])
 	}
 
-	// Three-word form: `gitmap split large files`.
-	isSplitLargeFiles := twoWord == "split large" && len(args) > 0 && strings.EqualFold(args[0], "files")
-	if isSplitLargeFiles {
+	if isSplitLargeFiles(twoWord, args) {
 		return true, cmdsplit.RunSplitLargeFilesCmd(args[1:])
 	}
 
 	return false, nil
+}
+
+func isAgmQueueAudit(twoWord string, args []string) bool {
+	return twoWord == "agm queue" && len(args) > 0 && strings.ToLower(args[0]) == "audit"
+}
+
+func dispatchAgmQueueAudit(args []string) (bool, error) {
+	if appErr := cmdagm.RunAgmQueueAudit(args); appErr != nil {
+		return true, appErr
+	}
+	return true, nil
+}
+
+func isSplitLargeFiles(twoWord string, args []string) bool {
+	return twoWord == "split large" && len(args) > 0 && strings.ToLower(args[0]) == "files"
 }

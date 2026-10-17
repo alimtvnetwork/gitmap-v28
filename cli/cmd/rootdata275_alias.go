@@ -6,16 +6,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfleet"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdflatten"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhealth"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhelp"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhooks"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpe"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompts"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrelease"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspec"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsplit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtheme"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
@@ -45,65 +42,35 @@ func dispatch275Alias(command string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "ciwa":
-		if appErr := cmdmerge.RunCiWatch(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "rscan":
-		if appErr := cmdscan.RunScanDiff(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "sdiff":
-		if appErr := cmdscan.RunScanDiff(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "rexp":
+	// Group B aliases.
+	case "repox":
 		if appErr := cmdrepo.RunRepoExport(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
-	case "rimp":
+	case "repoi":
 		if appErr := cmdrepo.RunRepoImport(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
-	case "sprog":
-		if appErr := cmdspec.RunSpecProgress(args); appErr != nil {
+	case "scand":
+		if appErr := cmdscan.RunScanDiff(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "scanverify":
+		if appErr := cmdscan.RunScanVerify(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
 	// Group C aliases.
-	case "pdrift":
-		if appErr := cmdprompts.RunPromptsDrift(args); appErr != nil {
+	case "ht":
+		if appErr := cmdhelp.RunHelpTopic(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
-	case "insv":
-		if appErr := cmdinstall.RunInstallVerify(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "relv":
-		if appErr := cmdrelease.RunReleaseVerify(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "relw":
-		if appErr := cmdrelease.RunReleaseWinScan(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "relt":
-		if appErr := cmdrelease.RunReleaseTrain(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	// Group D aliases.
-	case "themel":
-		if appErr := cmdtheme.RunTheme(append([]string{"list"}, args...)); appErr != nil {
+	case "howto":
+		if appErr := cmdhelp.RunHowto(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
