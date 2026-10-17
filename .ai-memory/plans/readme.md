@@ -71,6 +71,8 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [31-github-desktop-sync-fix.md](completed/02-github-desktop-sync-fix.md) — GitHub Desktop Linux Registration Crash Remediation, 250ms IPC Pacing, Canonical 'open' Subcommand Dispatch, Candidate Resolution & Non-Swallowed Error Surfacing (Spec: [01-architecture-spec.md](../../02-spec/21-app/02-github-desktop-sync-fix/01-architecture-spec.md))
 - [32-gitmap-enhancement-and-optimization.md](completed/gitmap-enhancement-and-optimization.md) — Resilient Autostash Pull, Interactive Post-Pull Remediation Prompting, ANSI Progress Bar Color Fix, 48h Commit Recency for PAE, Multi-Node Resource Monitoring & Adaptive Concurrency Boost, Semantic Sends CP All Grouping & Fleet SSH Parity (Spec: [01-architecture-spec.md](../../02-spec/21-app/gitmap-enhancement-and-optimization/01-architecture-spec.md))
 - [33-bug-fix-and-terminal-ui-improvement.md](completed/bug-fix-and-terminal-ui-improvement.md) — Pure Binary Updater, Source-Build Inversion, Truecolor ANSI Lipgloss Terminal UI Installers & Standalone Local Installers (Spec: [readme.md](../../02-spec/21-app/bug-fix-and-terminal-ui-improvement/readme.md))
+- [34-gitmap-pull-fix-remediation-optimization.md](completed/278-gitmap-pull-fix-remediation-optimization.md) — Windows GCM Credential Store Repair (`wincredman`), Single-Repo Reclone URL Handler, Generic Typed Parallel Fix-All, Dynamic 20-Core Pull Concurrency, Redesigned Post-Pull Menu, 24h Update Probe Throttle & Repo-Cache Multi-AI Memory Store (Spec: [278](../../02-spec/21-app/278-gitmap-pull-fix-remediation-optimization/readme.md))
+
 
 
 ---

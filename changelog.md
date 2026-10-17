@@ -1,5 +1,22 @@
 # Changelog
 
+## [v6.560.0] - 2026-10-17
+
+### Added
+- **Parallel Fix All (`gitmap fix --all`):** Generic typed parallel worker pool (`cli/parallel/generic_pool.go`) dynamically scaling across CPU cores (up to 20 cores) with real-time per-repository progress feedback.
+- **Git Repository Reclone by URL:** `gitmap reclone <url>` now directly detects repository URLs (HTTPS, SSH, git) and safely removes existing dirty targets before re-cloning without falling into manifest file parsers.
+- **Redesigned Post-Pull Menu:** Reordered interactive post-pull resolution choices to prioritize `[1] Fix All (Run gitmap fix --all)`, followed by `[2] Commit All (WIP locally)`, `[3] Stash All`, `[4] Step through each repository individually`, `[5] Fleet Control`, and `[6] Skip`.
+- **Repo-Cache Multi-AI Repository:** Initialized private `repo-cache` repository on GitHub and locally; migrated Muse 7-day memory digests (`12-muse-ai/`) and updated `gitmap llm train muse` to resolve `repo-cache` first.
+- **Subcommand Hyphenation:** Automatic hyphen-to-space command routing across two-word verbs (`train-muse`, `llm-train-muse`, `repo-export`, `repo-import`, etc.).
+- **Heatmap Skill Documentation:** Authoritative documentation of `gitmap heatmap`, `gitmap agent heatmap`, and `full-summary` in `.agents/skills/gitmap/SKILL.md` and `coding-guidelines`.
+
+### Fixed
+- **Windows GCM Credential Store (`wincredman`):** Fixed fatal GCM error `Unknown credential store 'wincred'` by setting `wincredman` across `fixcredential.go`, `pull_remediation.go`, and `git_env.go`.
+- **Pull All Concurrency:** Scaled `resolveAutoProfileConcurrency` up to `runtime.NumCPU()` (20 cores) while preserving progress bar rendering and terminal ANSI color escape codes.
+- **Update Probe Throttle & UI Polish:** Throttled sibling version probing in `gitmap update` to once every 24 hours via watermark cache (`probe-watermark.json`), with Title Case styling, left padding, and bold yellow transitions.
+
+---
+
 ## [v6.559.0] - 2026-10-17
 
 ### Added

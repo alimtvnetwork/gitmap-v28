@@ -13,6 +13,14 @@ func BuildSafeGitEnv(extra ...string) []string {
 	return BuildSafeGitEnvWithBase(os.Environ(), extra...)
 }
 
+// AppendGitCredentialEnv appends safe credential store environment variables for Git subprocesses.
+func AppendGitCredentialEnv(env []string) []string {
+	if runtime.GOOS != constants.PlatformWindows {
+		return append(env, "GCM_CREDENTIAL_STORE=cache")
+	}
+	return append(env, "GCM_CREDENTIAL_STORE=wincredman")
+}
+
 // BuildSafeGitEnvWithBase appends safe Git execution variables to an existing environment slice.
 func BuildSafeGitEnvWithBase(base []string, extra ...string) []string {
 	safe := []string{
@@ -22,11 +30,7 @@ func BuildSafeGitEnvWithBase(base []string, extra ...string) []string {
 		constants.EnvGCMInteractiveNever,
 		"GCM_NO_PERSIST=1",
 	}
-	if runtime.GOOS != constants.PlatformWindows {
-		safe = append(safe, "GCM_CREDENTIAL_STORE=cache")
-	} else {
-		safe = append(safe, "GCM_CREDENTIAL_STORE=wincred")
-	}
+	safe = AppendGitCredentialEnv(safe)
 
 	res := append(base, safe...)
 	if len(extra) > 0 {

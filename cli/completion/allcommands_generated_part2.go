@@ -176,6 +176,7 @@ var generatedCommandsPart2 = []string{
 	"sb",
 	"sc",
 	"scan",
+	"schedule-send-email",
 	"scmd",
 	"scripts",
 	"search",
@@ -183,6 +184,7 @@ var generatedCommandsPart2 = []string{
 	"search-replace-all",
 	"self-install",
 	"self-uninstall",
+	"send-email",
 	"sends",
 	"seo-write",
 	"seq",
@@ -253,6 +255,4 @@ var generatedCommandsPart2 = []string{
 	"uzc",
 	"v",
 	"var",
-	"variable",
-	"vcode",
 }

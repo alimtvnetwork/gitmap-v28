@@ -51,11 +51,11 @@ func (r *updateUIRendererImpl) renderHeader() {
 		return
 	}
 	if r.plain {
-		fmt.Printf("==> Starting gitmap update (current: %s)...\n", FormatVersionTag(r.currentVer))
+		fmt.Printf("  ==> Starting Gitmap CLI Update (current: %s)...\n", FormatVersionTag(r.currentVer))
 		return
 	}
-	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaCyan)).Render("GitMap CLI Update")
-	ver := lipgloss.NewStyle().Foreground(lipgloss.Color(DraculaGray)).Render(fmt.Sprintf("(current: %s)", FormatVersionTag(r.currentVer)))
+	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaCyan)).Render("Gitmap CLI Update")
+	ver := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f1fa8c")).Render(fmt.Sprintf("(current: %s)", FormatVersionTag(r.currentVer)))
 	fmt.Printf("\n  %s %s\n\n", title, ver)
 }
 
@@ -145,7 +145,7 @@ func (r *updateUIRendererImpl) renderFailureCard(stage UpdateStage, err error) {
 	titleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaRed))
 	boxStyle := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color(DraculaRed)).Padding(0, 1)
 	body := fmt.Sprintf("%s\n\nStage: %s\nError: %v\nHint : Run with --verbose or run gitmap error export",
-		titleStyle.Render("✖ GitMap Update Failed"), stage.String(), err)
+		titleStyle.Render("✖ Gitmap Update Failed"), stage.String(), err)
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, boxStyle.Render(body))
 }
@@ -171,17 +171,18 @@ func (r *updateUIRendererImpl) RenderSummaryCard(result UpdateResult) {
 
 func (r *updateUIRendererImpl) renderPlainSummary(result UpdateResult) {
 	sec := float64(result.DurationMs) / 1000.0
-	fmt.Println("============================================================")
-	fmt.Printf("  ✔ Update Complete: %s -> %s (took %.1fs)\n", result.PreviousVersion, result.CurrentVersion, sec)
+	fmt.Println("  ============================================================")
+	fmt.Printf("  ✔ Update Complete: %s  →  %s (took %.1fs)\n", result.PreviousVersion, result.CurrentVersion, sec)
 	fmt.Printf("  Binary: %s\n", result.BinaryPath)
-	fmt.Println("============================================================")
+	fmt.Println("  ============================================================")
 }
 
 func (r *updateUIRendererImpl) renderLipglossSummary(result UpdateResult) {
 	cardStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color(DraculaPurple)).
-		Padding(0, 1)
+		Padding(0, 1).
+		MarginLeft(2)
 
 	lines := formatSummaryLines(result)
 	fmt.Println()
@@ -189,10 +190,12 @@ func (r *updateUIRendererImpl) renderLipglossSummary(result UpdateResult) {
 }
 
 func formatSummaryLines(result UpdateResult) []string {
-	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render("✔ GitMap CLI Updated Successfully")
+	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render("✔ Gitmap CLI Updated Successfully")
 	lbl := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaCyan))
+	prevVer := lipgloss.NewStyle().Foreground(lipgloss.Color(DraculaGray)).Render(result.PreviousVersion)
+	arrow := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaPurple)).Render("→")
 	currVer := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render(result.CurrentVersion)
-	delta := fmt.Sprintf("%s  →  %s", result.PreviousVersion, currVer)
+	delta := fmt.Sprintf("%s  %s  %s", prevVer, arrow, currVer)
 	sec := float64(result.DurationMs) / 1000.0
 	return []string{
 		title,
@@ -217,7 +220,7 @@ func (r *updateUIRendererImpl) RenderAlreadyUpdated(currentVer, targetVer string
 		return
 	}
 	if r.plain {
-		fmt.Printf("GitMap CLI is already up to date (%s). Use --force to reinstall.\n", FormatVersionTag(currentVer))
+		fmt.Printf("  Gitmap CLI is already up to date (%s). Use --force to reinstall.\n", FormatVersionTag(currentVer))
 		return
 	}
 	r.renderLipglossAlreadyUpdated(currentVer)
@@ -227,9 +230,11 @@ func (r *updateUIRendererImpl) renderLipglossAlreadyUpdated(currentVer string) {
 	cardStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color(DraculaCyan)).
-		Padding(0, 1)
+		Padding(0, 1).
+		MarginLeft(2)
 
-	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render(fmt.Sprintf("GitMap CLI is already up to date (%s)", FormatVersionTag(currentVer)))
+	verTag := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f1fa8c")).Render(FormatVersionTag(currentVer))
+	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render(fmt.Sprintf("Gitmap CLI is already up to date (%s)", verTag))
 	hint := lipgloss.NewStyle().Foreground(lipgloss.Color(DraculaGray)).Render("No update required. Pass --force to reinstall.")
 	fmt.Println()
 	fmt.Println(cardStyle.Render(fmt.Sprintf("%s\n%s", title, hint)))

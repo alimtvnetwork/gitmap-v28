@@ -1,10 +1,10 @@
 // Package llm — llm_train_muse.go implements the positional "muse" sub-target of
-// `gitmap llm train`: it clone-or-pulls the repo-secrets vault, diffs the last
-// N days of the Muse memory digest, and prints a terminal summary plus a raw
-// AI traversal checklist. The last-read watermark is tracked by gitmap itself
-// (JSON under BinaryDataDir) — never in an MD file. It never imports cli/cmd
-// (circular); git work is done with os/exec following the runGitInSpecialRepo
-// pattern.
+// `gitmap llm train`: it checks repo-cache first for the 12-muse-ai (or XX-muse-ai)
+// directory with fallback to repo-secrets, diffs the last N days of the Muse memory
+// digest, and prints a terminal summary plus a raw AI traversal checklist. The
+// last-read watermark is tracked by gitmap itself (JSON under BinaryDataDir) — never
+// in an MD file. It never imports cli/cmd (circular); git work is done with os/exec
+// following the runGitInSpecialRepo pattern.
 package llm
 
 import (
@@ -23,18 +23,24 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// repoSecretsRemote is the HTTPS clone URL for the memory-digest vault.
+// repoCacheRemote is the HTTPS clone URL for repo-cache.
+const repoCacheRemote = "https://github.com/alimtvnetwork/repo-cache.git"
+
+// repoSecretsRemote is the HTTPS clone URL for the fallback memory-digest vault.
 const repoSecretsRemote = "https://github.com/alimtvnetwork/repo-secrets.git"
 
-// digestRootName is the repo-secrets folder carrying the Muse memory digest.
-const digestRootName = "12-muse-ai"
+// defaultDigestRootName is the default folder carrying the Muse memory digest.
+const defaultDigestRootName = "12-muse-ai"
 
-// repoSecretsPathResolver resolves the local repo-secrets checkout and reports
+// digestRootName matches legacy reference.
+const digestRootName = defaultDigestRootName
+
+// repoSecretsPathResolver resolves the local training checkout and reports
 // whether it still needs cloning. Tests override it with fixtures.
-var repoSecretsPathResolver = defaultResolveRepoSecretsPath
+var repoSecretsPathResolver = defaultResolveTrainingPath
 
-// runTrainMuse syncs the repo-secrets vault and renders the digest summary,
-// logging every decision so an AI reading the terminal learns the why.
+// runTrainMuse syncs the training vault (repo-cache, fallback repo-secrets) and renders
+// the digest summary, logging every decision so an AI reading the terminal learns the why.
 func runTrainMuse(opts TrainOptions) *apperror.AppError {
 	log := &decisionLog{}
 	path, needsClone, err := repoSecretsPathResolver()
@@ -42,18 +48,18 @@ func runTrainMuse(opts TrainOptions) *apperror.AppError {
 		return err
 	}
 	if needsClone && isDirPath(path) {
-		log.add("checkout: no 'rs' record but %s already exists at the work-folder root -> DECISION reuse it, skip clone (why: the directory is the source of truth; the record is only a pointer)", relForDisplay(path))
+		log.add("checkout: %s already exists -> DECISION reuse it, skip clone (why: directory is source of truth)", relForDisplay(path))
 		needsClone = false
 	}
 	if needsClone {
-		log.add("checkout: no usable 'rs' special-repo record and no dir -> DECISION clone fresh into %s (why: the vault must sit at the work-folder root, beside the repos it describes)", relForDisplay(path))
-		if cloneErr := cloneRepoSecrets(log, path); cloneErr != nil {
+		log.add("checkout: training source absent -> DECISION clone fresh into %s", relForDisplay(path))
+		if cloneErr := cloneTrainingRepo(log, path); cloneErr != nil {
 			return cloneErr
 		}
 	} else {
-		log.add("checkout: vault present at %s -> DECISION reuse it, skip clone (why: never clone over existing local state)", relForDisplay(path))
+		log.add("checkout: training source present at %s -> DECISION reuse it, skip clone (why: never clone over existing local state)", relForDisplay(path))
 	}
-	if pullErr := pullRepoSecrets(log, path); pullErr != nil {
+	if pullErr := pullTrainingRepo(log, path); pullErr != nil {
 		return pullErr
 	}
 	headSHA, headErr := gitHeadSHA(path)
@@ -62,14 +68,33 @@ func runTrainMuse(opts TrainOptions) *apperror.AppError {
 	}
 	prev := loadLastRead(path)
 	since := diffSinceLastRead(log, path, prev, headSHA)
-	digestDir := filepath.Join(path, digestRootName)
-	if !isDirPath(digestDir) {
-		log.add("digest: no %s/ dir at %s -> DECISION print guidance, exit 0 (why: nothing to train on yet; the digest is authored by the memory-IO program)", digestRootName, relForDisplay(path))
+
+	digestDir, digestName, hasDigest := resolveMuseDigestDir(path)
+	if !hasDigest {
+		// If path was repo-cache without digest, check fallback repo-secrets
+		if !strings.Contains(filepath.Base(path), "repo-secrets") {
+			for _, secPath := range probeRepoCandidates("repo-secrets", "rs") {
+				if dDir, dName, ok := resolveMuseDigestDir(secPath); ok {
+					path = secPath
+					digestDir = dDir
+					digestName = dName
+					hasDigest = true
+					log.add("digest: found in fallback repo-secrets at %s -> DECISION switch to repo-secrets", relForDisplay(path))
+					break
+				}
+			}
+		}
+	}
+
+	if !hasDigest {
+		digestName = defaultDigestRootName
+		log.add("digest: no %s/ (or XX-muse-ai/) dir at %s -> DECISION print guidance, exit 0 (why: nothing to train on yet; the digest is authored by the memory-IO program)", digestName, relForDisplay(path))
 		saveLastRead(log, path, headSHA)
 		log.print()
-		printDigestMissingGuidance(path)
+		printDigestMissingGuidance(path, digestName)
 		return nil
 	}
+
 	files, commitCount, err := gitLogChangedFiles(path, opts.DaysN)
 	if err != nil {
 		return err
@@ -80,58 +105,155 @@ func runTrainMuse(opts TrainOptions) *apperror.AppError {
 	log.add("search: DECISION scope gitmap aum search to the digest tree with --ext .md (why: keep the model inside the digest, no repo-wide noise)")
 	saveLastRead(log, path, headSHA)
 	log.print()
-	printDigestSummary(path, opts.DaysN, files, commitCount, since)
+	printDigestSummary(path, digestDir, digestName, opts.DaysN, files, commitCount, since)
 	return nil
 }
 
-// decisionLog collects the why behind each step so an AI reading the
-// terminal learns the reasoning, not just the commands.
-type decisionLog struct {
-	entries []string
-}
-
-func (l *decisionLog) add(format string, args ...interface{}) {
-	l.entries = append(l.entries, fmt.Sprintf(format, args...))
-}
-
-func (l *decisionLog) print() {
-	if len(l.entries) == 0 {
-		return
+// resolveMuseDigestDir inspects a candidate repo directory for 12-muse-ai or XX-muse-ai.
+// Returns (digestDir, digestName, true) if found, or ("", "", false).
+func resolveMuseDigestDir(repoRoot string) (string, string, bool) {
+	if !isDirPath(repoRoot) {
+		return "", "", false
 	}
-	fmt.Println("----------------------------------------------------------------------")
-	fmt.Println("DECISION TRACE - why each step ran (AI: learn the reasoning)")
-	fmt.Println("----------------------------------------------------------------------")
-	for i, entry := range l.entries {
-		fmt.Printf("  %d. %s\n", i+1, entry)
+
+	// 1. Check exact 12-muse-ai first
+	exact := filepath.Join(repoRoot, defaultDigestRootName)
+	if isDirPath(exact) {
+		return exact, defaultDigestRootName, true
 	}
-	fmt.Println()
+
+	// 2. Scan for XX-muse-ai or *-muse-ai
+	entries, err := os.ReadDir(repoRoot)
+	if err == nil {
+		for _, e := range entries {
+			if e.IsDir() {
+				name := e.Name()
+				if strings.HasSuffix(name, "-muse-ai") || name == "muse-ai" || name == "muse" {
+					return filepath.Join(repoRoot, name), name, true
+				}
+			}
+		}
+	}
+
+	return "", "", false
 }
 
-// defaultResolveRepoSecretsPath resolves the checkout through the store
-// special-repo entry (short key "rs"); absent entries resolve to a clone
-// target in the current (work-folder) directory.
+// probeRepoCandidates returns all existing local directories for a special repo name
+// ("repo-cache" or "repo-secrets") by querying SQLite split-db and local relative paths.
+func probeRepoCandidates(key, shortKey string) []string {
+	var candidates []string
+	seen := make(map[string]bool)
+	addCandidate := func(p string) {
+		if p == "" {
+			return
+		}
+		clean := filepath.Clean(p)
+		if !seen[clean] {
+			seen[clean] = true
+			candidates = append(candidates, clean)
+		}
+	}
+
+	if db, err := store.OpenSpecialReposSplitDB(); err == nil {
+		defer db.Close()
+		if rec, recErr := db.GetSpecialRepo(shortKey); recErr == nil && rec != nil && rec.LocalPath != "" {
+			addCandidate(rec.LocalPath)
+		}
+		if rec, recErr := db.GetSpecialRepo(key); recErr == nil && rec != nil && rec.LocalPath != "" {
+			addCandidate(rec.LocalPath)
+		}
+	}
+
+	cwd, _ := os.Getwd()
+	if cwd != "" {
+		addCandidate(filepath.Join(cwd, key))
+		addCandidate(filepath.Join(filepath.Dir(cwd), key))
+		addCandidate(filepath.Join(filepath.Dir(filepath.Dir(cwd)), key))
+	}
+	addCandidate(key)
+
+	var valid []string
+	for _, c := range candidates {
+		if isDirPath(c) {
+			valid = append(valid, c)
+		}
+	}
+	return valid
+}
+
+// defaultResolveTrainingPath resolves the training source directory.
+// It checks repo-cache first for 12-muse-ai (or XX-muse-ai).
+// If not found in repo-cache, it falls back to repo-secrets.
+// If neither has the digest, it defaults to repo-cache (or clone target).
+func defaultResolveTrainingPath() (string, bool, *apperror.AppError) {
+	// 1. Check existing repo-cache checkouts for 12-muse-ai or XX-muse-ai
+	cacheCandidates := probeRepoCandidates("repo-cache", "rc")
+	for _, path := range cacheCandidates {
+		if _, _, hasDigest := resolveMuseDigestDir(path); hasDigest {
+			return path, false, nil
+		}
+	}
+
+	// 2. Check existing repo-secrets checkouts for 12-muse-ai or XX-muse-ai (fallback)
+	secretCandidates := probeRepoCandidates("repo-secrets", "rs")
+	for _, path := range secretCandidates {
+		if _, _, hasDigest := resolveMuseDigestDir(path); hasDigest {
+			return path, false, nil
+		}
+	}
+
+	// 3. If no existing digest was found, prefer existing repo-cache dir
+	if len(cacheCandidates) > 0 {
+		return cacheCandidates[0], false, nil
+	}
+
+	// 4. Fallback to existing repo-secrets dir if present
+	if len(secretCandidates) > 0 {
+		return secretCandidates[0], false, nil
+	}
+
+	// 5. Default clone target: repo-cache at work-folder root
+	return defaultCloneTargetFor("repo-cache", "rc"), true, nil
+}
+
 func defaultResolveRepoSecretsPath() (string, bool, *apperror.AppError) {
-	db, err := store.OpenSpecialReposSplitDB()
+	return defaultResolveTrainingPath()
+}
+
+func defaultCloneTargetFor(key, shortKey string) string {
+	name := key
+	if db, err := store.OpenSpecialReposSplitDB(); err == nil {
+		defer db.Close()
+		if rec, recErr := db.GetSpecialRepo(shortKey); recErr == nil && rec != nil && rec.ConfiguredName != "" {
+			name = rec.ConfiguredName
+		}
+	}
+	cwd, err := os.Getwd()
 	if err != nil {
-		return "", false, apperror.WrapSimple(err, "open special-repos db")
+		cwd = "."
 	}
-	defer db.Close()
-	rec, recErr := db.GetSpecialRepo("rs")
-	if recErr == nil && rec != nil && isDirPath(rec.LocalPath) {
-		return rec.LocalPath, false, nil
+	parent := filepath.Dir(cwd)
+	if filepath.Base(cwd) == "gitmap" || !isDirPath(filepath.Join(parent, ".git")) {
+		if isDirPath(parent) {
+			return filepath.Join(parent, name)
+		}
 	}
-	return defaultCloneTarget(rec), true, nil
+	return filepath.Join(cwd, name)
 }
 
 // defaultCloneTarget builds the clone destination: <cwd>/<configured name>.
 func defaultCloneTarget(rec *store.SpecialRepoRecord) string {
-	name := "repo-secrets"
+	name := "repo-cache"
 	if rec != nil && rec.ConfiguredName != "" {
 		name = rec.ConfiguredName
 	}
 	cwd, err := os.Getwd()
 	if err != nil {
 		cwd = "."
+	}
+	parent := filepath.Dir(cwd)
+	if isDirPath(parent) {
+		return filepath.Join(parent, name)
 	}
 	return filepath.Join(cwd, name)
 }
@@ -142,23 +264,33 @@ func isDirPath(path string) bool {
 	return err == nil && info.IsDir()
 }
 
-// cloneRepoSecrets clones the vault; fails fast with guidance when gh is
-// missing or unauthenticated — stdin is non-interactive so gh never prompts.
-func cloneRepoSecrets(log *decisionLog, dest string) *apperror.AppError {
+// cloneTrainingRepo clones the training repository (repo-cache or repo-secrets);
+// fails fast with guidance when gh is missing or unauthenticated.
+func cloneTrainingRepo(log *decisionLog, dest string) *apperror.AppError {
 	if err := checkGhReady(); err != nil {
 		return err
 	}
-	log.add("clone: gh present and authenticated -> ran: gh repo clone %s %s (why: stdin is closed so gh can never prompt; fail fast with guidance instead)", repoSecretsRemote, relForDisplay(dest))
-	fmt.Printf("[LLM-TRAIN-MUSE] Cloning repo-secrets into %s ...\n", relForDisplay(dest))
-	cmd := exec.Command("gh", "repo", "clone", repoSecretsRemote, dest)
+	remote := repoCacheRemote
+	repoName := filepath.Base(dest)
+	if strings.Contains(repoName, "repo-secrets") {
+		remote = repoSecretsRemote
+	}
+	log.add("clone: gh present and authenticated -> ran: gh repo clone %s %s (why: stdin is closed so gh can never prompt; fail fast with guidance instead)", remote, relForDisplay(dest))
+	fmt.Printf("[LLM-TRAIN-MUSE] Cloning %s into %s ...\n", repoName, relForDisplay(dest))
+	cmd := exec.Command("gh", "repo", "clone", remote, dest)
 	cmd.Stdin = bytes.NewReader(nil)
 	var combined bytes.Buffer
 	cmd.Stdout = &combined
 	cmd.Stderr = &combined
 	if err := cmd.Run(); err != nil {
-		return apperror.WrapSimple(fmt.Errorf("%w: %s", err, strings.TrimSpace(combined.String())), "clone repo-secrets")
+		return apperror.WrapSimple(fmt.Errorf("%w: %s", err, strings.TrimSpace(combined.String())), "clone "+repoName)
 	}
 	return nil
+}
+
+// cloneRepoSecrets retains legacy name as an alias to cloneTrainingRepo.
+func cloneRepoSecrets(log *decisionLog, dest string) *apperror.AppError {
+	return cloneTrainingRepo(log, dest)
 }
 
 // checkGhReady verifies gh exists and is authenticated, printing actionable
@@ -178,8 +310,8 @@ func checkGhReady() *apperror.AppError {
 	return nil
 }
 
-// pullRepoSecrets fast-forward pulls; skips with a note when no origin remote.
-func pullRepoSecrets(log *decisionLog, path string) *apperror.AppError {
+// pullTrainingRepo fast-forward pulls; skips with a note when no origin remote.
+func pullTrainingRepo(log *decisionLog, path string) *apperror.AppError {
 	if !hasGitRemote(path) {
 		log.add("sync: no origin remote on %s -> DECISION skip pull (why: read-only local state, nothing to fetch)", relForDisplay(path))
 		fmt.Println("[LLM-TRAIN-MUSE] No origin remote; skipping pull.")
@@ -188,6 +320,11 @@ func pullRepoSecrets(log *decisionLog, path string) *apperror.AppError {
 	log.add("sync: origin remote present -> DECISION git pull --ff-only (why: take new digest commits fast-forward only; never merge, never rewrite history)")
 	_, err := runGitCmd(path, "pull", "--ff-only")
 	return err
+}
+
+// pullRepoSecrets retains legacy name as an alias to pullTrainingRepo.
+func pullRepoSecrets(log *decisionLog, path string) *apperror.AppError {
+	return pullTrainingRepo(log, path)
 }
 
 // hasGitRemote reports whether dir has an origin remote configured.
@@ -349,9 +486,8 @@ func parseCount(raw []byte) int {
 }
 
 // printDigestSummary prints the terminal summary and traversal checklist.
-func printDigestSummary(path string, days int, files []string, commitCount int, since sinceRead) {
-	digestDir := filepath.Join(path, digestRootName)
-	sequenced := listSequencedDigestFiles(digestDir)
+func printDigestSummary(path, digestDir, digestName string, days int, files []string, commitCount int, since sinceRead) {
+	sequenced := listSequencedDigestFiles(digestDir, digestName)
 	fmt.Println("======================================================================")
 	fmt.Printf("GITMAP LLM TRAIN — MUSE MEMORY SYNC (last %d days)\n", days)
 	fmt.Println("======================================================================")
@@ -387,7 +523,7 @@ func printSinceLastRead(since sinceRead) {
 }
 
 // listSequencedDigestFiles returns the digest-root .md files, digest-relative.
-func listSequencedDigestFiles(digestDir string) []string {
+func listSequencedDigestFiles(digestDir, digestName string) []string {
 	entries, err := os.ReadDir(digestDir)
 	if err != nil {
 		return nil
@@ -397,7 +533,7 @@ func listSequencedDigestFiles(digestDir string) []string {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
 			continue
 		}
-		files = append(files, digestRootName+"/"+entry.Name())
+		files = append(files, digestName+"/"+entry.Name())
 	}
 	sort.Strings(files)
 	return files
@@ -434,11 +570,11 @@ func printTraversalChecklist(path, digestDir string, sequenced []string) {
 }
 
 // printDigestMissingGuidance handles the absent-digest case: guidance, exit 0.
-func printDigestMissingGuidance(path string) {
+func printDigestMissingGuidance(path, digestName string) {
 	fmt.Println("======================================================================")
 	fmt.Println("GITMAP LLM TRAIN — MUSE MEMORY SYNC")
 	fmt.Println("======================================================================")
-	fmt.Printf("[LLM-TRAIN-MUSE] No %s/ digest directory at %s.\n", digestRootName, relForDisplay(path))
+	fmt.Printf("[LLM-TRAIN-MUSE] No %s/ digest directory at %s (No Muse/ digest directory).\n", digestName, relForDisplay(path))
 	fmt.Println("The 7-day Muse digest is authored by the Muse memory-IO program (another worker).")
 	fmt.Println("Nothing to traverse yet — once the digest lands, re-run:")
 	fmt.Println("  gitmap llm train muse --days 7")

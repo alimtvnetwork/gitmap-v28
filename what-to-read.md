@@ -2,7 +2,7 @@
 
 > **Primary Documentation:** [readme.md](readme.md)  
 > **Autonomous Agent Memory:** [.ai-memory/what-to-read.md](.ai-memory/what-to-read.md)  
-> **Canonical Version:** [version.json](version.json) (`v6.559.0`)  
+> **Canonical Version:** [version.json](version.json) (`v6.560.0`)  
 
 This document serves as the top-level navigational reading sequence for developers and autonomous AI agents working in the GitMap repository. To eliminate documentation drift and redundancy, root [readme.md](readme.md) is the authoritative front door for human and agent interaction, while [.ai-memory/what-to-read.md](.ai-memory/what-to-read.md) contains deep agent-specific execution rules and historical changelogs.
 
@@ -20,6 +20,7 @@ To establish complete context before executing code modifications, follow this p
 1. **[.ai-memory/what-to-read.md](.ai-memory/what-to-read.md)**: Agent instructions, recent memory writes, and mandatory pre-flight checks.
 2. **[.ai-memory/overview.md](.ai-memory/overview.md)**: High-level architectural blueprint, split-DB subsystems, and active conventions.
 3. **[.ai-memory/plans/](.ai-memory/plans/)**: Active task ledgers, pending milestones, and subtask breakdown directories.
+4. **[gitmap heatmap discuss](.agents/skills/gitmap/SKILL.md)**: File contention rankings and active agent write claims (run before editing shared files).
 
 ### Phase 3: Engineering Specifications & Standards
 1. **[02-spec/01-spec-authoring-guide/](02-spec/01-spec-authoring-guide/)**: Spec authoring standards, required headings, and verification checklists.

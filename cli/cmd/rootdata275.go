@@ -34,6 +34,14 @@ import (
 func dispatch275(command string) (bool, error) {
 	args := os.Args[2:]
 
+	// Hyphenated forms: `gitmap repo-export` -> `dispatch275TwoWord("repo export", ...)`
+	if strings.Contains(command, "-") {
+		hyphenCmd := strings.ReplaceAll(command, "-", " ")
+		if handled, err := dispatch275TwoWord(hyphenCmd, args); handled {
+			return true, err
+		}
+	}
+
 	// Two-word forms: command + first arg.
 	if len(args) > 0 {
 		sub := strings.ToLower(args[0])

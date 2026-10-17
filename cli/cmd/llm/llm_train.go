@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
@@ -157,8 +158,14 @@ func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
 // a bare "muse" in that position is a value, never the positional target.
 var trainValueFlags = map[string]bool{"--skill-path": true, "--heal-apply": true}
 
-// stripTrainTarget extracts the FIRST bare positional target ("muse") from the
-// args before flag parsing. Tokens that are flags or flag values are preserved.
+// isMuseTarget reports whether arg represents the muse sub-target or its hyphenated aliases.
+func isMuseTarget(arg string) bool {
+	low := strings.ToLower(arg)
+	return low == "muse" || low == "train-muse" || low == "llm-train-muse" || low == "train_muse" || low == "llm_train_muse"
+}
+
+// stripTrainTarget extracts the FIRST bare positional target ("muse", "train-muse", or "llm-train-muse")
+// from the args before flag parsing. Tokens that are flags or flag values are preserved.
 func stripTrainTarget(args []string) (string, []string) {
 	rest := make([]string, 0, len(args))
 	target := ""
@@ -166,8 +173,10 @@ func stripTrainTarget(args []string) (string, []string) {
 	for _, arg := range args {
 		if expectValue {
 			expectValue = false
-		} else if target == "" && arg == museTrainTarget {
-			target = arg
+		} else if target == "" && isMuseTarget(arg) {
+			target = museTrainTarget
+			continue
+		} else if target == "" && (arg == "train" || arg == "llm-train") {
 			continue
 		} else {
 			expectValue = trainValueFlags[arg]
@@ -178,7 +187,7 @@ func stripTrainTarget(args []string) (string, []string) {
 }
 
 func printTrainUsage() {
-	fmt.Println("Usage: gitmap llm train [muse] [flags] (alias: gitmap llm chain, gitmap train, gitmap llm-train)")
+	fmt.Println("Usage: gitmap llm train [muse] [flags] (aliases: gitmap llm chain, gitmap train, gitmap llm-train, gitmap train-muse, gitmap llm-train-muse)")
 	fmt.Println()
 	fmt.Println("Executes the autonomous LLM chained onboarding curriculum: a 6-phase self-looping")
 	fmt.Println("training run (Discovery, Refactoring, Verification, Semantic Commit, Telemetry,")
@@ -187,9 +196,9 @@ func printTrainUsage() {
 	fmt.Println("the parallel content-fix audit (cmdautofix) in-process — report-only; git-state")
 	fmt.Println("recipes apply only with --heal-apply.")
 	fmt.Println()
-	fmt.Println("Positional sub-target:")
-	fmt.Println("  muse                 Sync the Muse 7-day memory digest from the repo-secrets vault")
-	fmt.Println("                       (gitmap llm train muse [--days N]; see --help on the sub-target)")
+	fmt.Println("Positional sub-target & aliases:")
+	fmt.Println("  muse, train-muse, llm-train-muse   Sync the Muse 7-day memory digest from repo-cache (fallback: repo-secrets)")
+	fmt.Println("                                     (gitmap llm train muse [--days N]; see --help on the sub-target)")
 	fmt.Println()
 	fmt.Println("Flags:")
 	fmt.Println("  --days int           Digest window in days for 'train muse' (default 7)")
@@ -203,14 +212,15 @@ func printTrainUsage() {
 	fmt.Println("  --text-only          Print curriculum text without writing skill file")
 }
 
-// printTrainMuseUsage prints the usage for the positional "muse" sub-target.
+// printTrainMuseUsage prints the usage for the positional "muse" sub-target and aliases.
 func printTrainMuseUsage() {
-	fmt.Println("Usage: gitmap llm train muse [--days N]")
+	fmt.Println("Usage: gitmap llm train muse [--days N] (aliases: gitmap train-muse, gitmap llm-train-muse)")
 	fmt.Println()
-	fmt.Println("Syncs the Muse 7-day memory digest: clone-or-pull the repo-secrets vault,")
-	fmt.Println("diff the last N days, print a terminal summary and a raw AI traversal")
-	fmt.Println("checklist (file-by-file paths + gitmap cat / aum search hints) so any LLM")
-	fmt.Println("can walk the digest. Tolerates a missing Muse/ digest with guidance.")
+	fmt.Println("Syncs the Muse 7-day memory digest: checks repo-cache first for the 12-muse-ai")
+	fmt.Println("(or XX-muse-ai) directory with fallback to repo-secrets, diffs the last N days,")
+	fmt.Println("prints a terminal summary and a raw AI traversal checklist (file-by-file paths +")
+	fmt.Println("gitmap cat / aum search hints) so any LLM can walk the digest. Tolerates a missing")
+	fmt.Println("digest with guidance.")
 	fmt.Println()
 	fmt.Println("Flags:")
 	fmt.Println("  --days int  Digest window in days (default 7)")

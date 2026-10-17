@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
@@ -17,6 +18,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/parallel"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -92,25 +94,44 @@ func runFixAll(action string, items []cmdremediation.RemediationItem) error {
 		return nil
 	}
 
-	fmt.Printf("%s Remediating %d repository(ies) with action: %s\n\n",
-		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items), action)
+	concurrency := parallel.ResolveConcurrency(0)
+	fmt.Printf("%s Remediating %d repository(ies) in parallel (%d workers) with action: %s\n\n",
+		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items), concurrency, action)
 
-	var failedRepos []string
-	for i := range items {
-		idx := parseRecipeIndex(action, items[i].Recipes)
-		if idx < 0 || idx >= len(items[i].Recipes) {
+	var (
+		mu          sync.Mutex
+		failedRepos []string
+		completed   int
+		total       = len(items)
+	)
+
+	_ = parallel.ExecuteParallel(items, concurrency, func(workerID int, item cmdremediation.RemediationItem) error {
+		mu.Lock()
+		fmt.Printf("%s [Worker %d] Starting remediation on: %s\n",
+			constants.ColorCyan+"ℹ"+constants.ColorReset, workerID+1, item.RepoName)
+		mu.Unlock()
+
+		idx := parseRecipeIndex(action, item.Recipes)
+		if idx < 0 || idx >= len(item.Recipes) {
 			idx = 0
 		}
 
-		err := executeFixRecipe(&items[i], items[i].Recipes[idx])
-		if err != nil {
-			failedRepos = append(failedRepos, items[i].RepoName)
-		}
+		err := executeFixRecipe(&item, item.Recipes[idx])
 
-		if i < len(items)-1 {
-			fmt.Println()
+		mu.Lock()
+		completed++
+		if err != nil {
+			failedRepos = append(failedRepos, item.RepoName)
+			fmt.Printf("%s [Worker %d] Failed (%d/%d): %s - %v\n",
+				constants.ColorRed+"✗"+constants.ColorReset, workerID+1, completed, total, item.RepoName, err)
+		} else {
+			fmt.Printf("%s [Worker %d] Completed (%d/%d): %s\n",
+				constants.ColorGreen+"✓"+constants.ColorReset, workerID+1, completed, total, item.RepoName)
 		}
-	}
+		mu.Unlock()
+
+		return err
+	})
 
 	if hasPullFailures {
 		fmt.Println()
