@@ -96,12 +96,6 @@ func resolveRawPullTargets(slug, groupName string, all bool) []model.ScanRecord 
 }
 
 func optimizeAndLoadAllRecordsDB() []model.ScanRecord {
-	db, err := openDB()
-	if err == nil {
-		_, _ = OptimizeRedundantRepos(db, false)
-		db.Close()
-	}
-
 	return loadAllRecordsDB()
 }
 

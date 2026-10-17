@@ -24,9 +24,8 @@ func CaptureRepoPrePullState(repoPath string) (string, string, bool) {
 
 	branch := gitutil.GetActiveBranch(cleanPath)
 	sha := gitutil.GetLastCommitSHA(cleanPath)
-	diag := gitutil.InspectDirtyState(cleanPath)
 
-	return branch, sha, diag.IsDirty
+	return branch, sha, false
 }
 
 // CaptureRepoPostPullState captures updated SHA, commit range, and diff changes.
@@ -212,6 +211,10 @@ func handleMissingRepoPull(rec model.ScanRecord, bar *PullProgressBar, start tim
 }
 
 func handleFailedAutostashPull(rec model.ScanRecord, branch, sha string, isPrePullDirty bool, errMsg string, bar *PullProgressBar, elapsed time.Duration) *PullRepoState {
+	if !isPrePullDirty {
+		diag := gitutil.InspectDirtyState(rec.AbsolutePath)
+		isPrePullDirty = diag.IsDirty
+	}
 	state := newFailedRepoState(rec, branch, sha, errMsg, elapsed)
 	state.IsDirty = isPrePullDirty
 	if bar != nil {
@@ -257,6 +260,13 @@ func initSuccessRepoState(rec model.ScanRecord, branch, oldSHA string, dur time.
 }
 
 func finalizeSuccessRepoState(state *PullRepoState, notes string) {
+	if notes == "up-to-date" {
+		state.NewSHA = state.OldSHA
+		state.CommitRange = ShortenSHA(state.OldSHA)
+		state.Changes = "up-to-date"
+		state.Step = PullStepTypeUpToDate
+		return
+	}
 	newSHA, commitRange, changes := CaptureRepoPostPullState(state.RepoPath, state.OldSHA)
 	state.NewSHA = newSHA
 	state.CommitRange = commitRange
