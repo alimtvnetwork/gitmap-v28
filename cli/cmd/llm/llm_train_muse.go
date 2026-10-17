@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -29,21 +30,53 @@ const digestRootName = "Muse"
 // whether it still needs cloning. Tests override it with fixtures.
 var repoSecretsPathResolver = defaultResolveRepoSecretsPath
 
-// runTrainMuse syncs the repo-secrets vault and renders the digest summary.
+// runTrainMuse syncs the repo-secrets vault and renders the digest summary,
+// logging every decision so an AI reading the terminal learns the why.
 func runTrainMuse(opts TrainOptions) *apperror.AppError {
+	log := &decisionLog{}
 	path, needsClone, err := repoSecretsPathResolver()
 	if err != nil {
 		return err
 	}
+	if needsClone && isDirPath(path) {
+		log.add("checkout: no 'rs' record but %s already exists at the work-folder root -> DECISION reuse it, skip clone (why: the directory is the source of truth; the record is only a pointer)", relForDisplay(path))
+		needsClone = false
+	}
 	if needsClone {
-		if cloneErr := cloneRepoSecrets(path); cloneErr != nil {
+		log.add("checkout: no usable 'rs' special-repo record and no dir -> DECISION clone fresh into %s (why: the vault must sit at the work-folder root, beside the repos it describes)", relForDisplay(path))
+		if cloneErr := cloneRepoSecrets(log, path); cloneErr != nil {
 			return cloneErr
 		}
+	} else {
+		log.add("checkout: vault present at %s -> DECISION reuse it, skip clone (why: never clone over existing local state)", relForDisplay(path))
 	}
-	if pullErr := pullRepoSecrets(path); pullErr != nil {
+	if pullErr := pullRepoSecrets(log, path); pullErr != nil {
 		return pullErr
 	}
-	return renderMuseDigest(opts, path)
+	return renderMuseDigest(log, opts, path)
+}
+
+// decisionLog collects the why behind each step so an AI reading the
+// terminal learns the reasoning, not just the commands.
+type decisionLog struct {
+	entries []string
+}
+
+func (l *decisionLog) add(format string, args ...interface{}) {
+	l.entries = append(l.entries, fmt.Sprintf(format, args...))
+}
+
+func (l *decisionLog) print() {
+	if len(l.entries) == 0 {
+		return
+	}
+	fmt.Println("----------------------------------------------------------------------")
+	fmt.Println("DECISION TRACE - why each step ran (AI: learn the reasoning)")
+	fmt.Println("----------------------------------------------------------------------")
+	for i, entry := range l.entries {
+		fmt.Printf("  %d. %s\n", i+1, entry)
+	}
+	fmt.Println()
 }
 
 // defaultResolveRepoSecretsPath resolves the checkout through the store
@@ -83,10 +116,11 @@ func isDirPath(path string) bool {
 
 // cloneRepoSecrets clones the vault; fails fast with guidance when gh is
 // missing or unauthenticated — stdin is non-interactive so gh never prompts.
-func cloneRepoSecrets(dest string) *apperror.AppError {
+func cloneRepoSecrets(log *decisionLog, dest string) *apperror.AppError {
 	if err := checkGhReady(); err != nil {
 		return err
 	}
+	log.add("clone: gh present and authenticated -> ran: gh repo clone %s %s (why: stdin is closed so gh can never prompt; fail fast with guidance instead)", repoSecretsRemote, relForDisplay(dest))
 	fmt.Printf("[LLM-TRAIN-MUSE] Cloning repo-secrets into %s ...\n", relForDisplay(dest))
 	cmd := exec.Command("gh", "repo", "clone", repoSecretsRemote, dest)
 	cmd.Stdin = bytes.NewReader(nil)
@@ -117,11 +151,13 @@ func checkGhReady() *apperror.AppError {
 }
 
 // pullRepoSecrets fast-forward pulls; skips with a note when no origin remote.
-func pullRepoSecrets(path string) *apperror.AppError {
+func pullRepoSecrets(log *decisionLog, path string) *apperror.AppError {
 	if !hasGitRemote(path) {
+		log.add("sync: no origin remote on %s -> DECISION skip pull (why: read-only local state, nothing to fetch)", relForDisplay(path))
 		fmt.Println("[LLM-TRAIN-MUSE] No origin remote; skipping pull.")
 		return nil
 	}
+	log.add("sync: origin remote present -> DECISION git pull --ff-only (why: take new digest commits fast-forward only; never merge, never rewrite history)")
 	_, err := runGitCmd(path, "pull", "--ff-only")
 	return err
 }
@@ -147,9 +183,11 @@ func runGitCmd(dir string, args ...string) ([]byte, *apperror.AppError) {
 }
 
 // renderMuseDigest renders the summary + checklist, or missing-digest guidance.
-func renderMuseDigest(opts TrainOptions, path string) *apperror.AppError {
+func renderMuseDigest(log *decisionLog, opts TrainOptions, path string) *apperror.AppError {
 	digestDir := filepath.Join(path, digestRootName)
 	if !isDirPath(digestDir) {
+		log.add("digest: no %s/ dir at %s -> DECISION print guidance, exit 0 (why: nothing to train on yet; the digest is authored by the memory-IO program)", digestRootName, relForDisplay(path))
+		log.print()
 		printDigestMissingGuidance(path)
 		return nil
 	}
@@ -157,6 +195,11 @@ func renderMuseDigest(opts TrainOptions, path string) *apperror.AppError {
 	if err != nil {
 		return err
 	}
+	since := time.Now().AddDate(0, 0, -opts.DaysN).Format("2006-01-02")
+	log.add("window: --days %d -> since %s -> DECISION git log --since + rev-list --count (why: bound the diff to the digest window; the commit count frames the summary)", opts.DaysN, since)
+	log.add("order: DECISION README.md first, then sequenced files in lexical order, chat-seeds on demand (why: contract before detail; a deterministic order any LLM can replay)")
+	log.add("search: DECISION scope gitmap aum search to the digest tree with --ext .md (why: keep the model inside the digest, no repo-wide noise)")
+	log.print()
 	printDigestSummary(path, opts.DaysN, files, commitCount)
 	return nil
 }
@@ -252,13 +295,13 @@ func printTraversalChecklist(path, digestDir string, sequenced []string) {
 	fmt.Println("======================================================================")
 	fmt.Println("AI TRAVERSAL CHECKLIST (execute in order)")
 	fmt.Println("======================================================================")
-	fmt.Printf("1. Read the digest root contract first:\n   gitmap cat %s\n", relForDisplay(filepath.Join(digestDir, "README.md")))
-	fmt.Println("2. Walk the sequenced digests in order:")
+	fmt.Printf("1. Read the digest root contract first (why: it defines the say-READ protocol and the file order):\n   gitmap cat %s\n", relForDisplay(filepath.Join(digestDir, "README.md")))
+	fmt.Println("2. Walk the sequenced digests in order (why: lexical order is the authored narrative):")
 	for _, f := range sequenced {
 		fmt.Printf("   gitmap cat %s\n", relForDisplay(filepath.Join(path, filepath.FromSlash(f))))
 	}
-	fmt.Printf("3. Scope searches to the digest tree ([dir] + --ext required):\n   gitmap aum search \"<keyword>\" %s --ext .md\n", relForDisplay(digestDir))
-	fmt.Printf("4. Inspect chat seeds when a conversation needs full context:\n   gitmap lf %s\n", relForDisplay(filepath.Join(digestDir, "chat-seeds")))
+	fmt.Printf("3. Scope searches to the digest tree (why: stay inside the digest, avoid repo-wide noise):\n   gitmap aum search \"<keyword>\" %s --ext .md\n", relForDisplay(digestDir))
+	fmt.Printf("4. Inspect chat seeds when a conversation needs full context (why: a seed rebuilds one chat without re-reading everything):\n   gitmap lf %s\n", relForDisplay(filepath.Join(digestDir, "chat-seeds")))
 	fmt.Println()
 }
 

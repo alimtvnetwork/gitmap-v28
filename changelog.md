@@ -9,8 +9,11 @@
 
 ## [Unreleased]
 
+### Changed
+- `gitmap llm train muse`: every run now prints a numbered DECISION TRACE before the summary (why the vault was reused vs cloned, why pull is `--ff-only`, why the N-day window and file order), and each AI traversal checklist step carries its rationale — so an AI learns the decision-making behind the gitmap steps, not just the commands.
+
 ### Added
-- `gitmap llm train muse [--days N]`: positional sub-target of `llm train` that syncs the Muse 7-day memory digest — clone-or-pull the repo-secrets vault via `gh repo clone` (fail-fast `gh auth` guidance, never prompts), `git pull --ff-only`, N-day `git log` diff, terminal summary (commits, files changed, sequenced digests) and a raw AI traversal checklist (`gitmap cat` / `gitmap aum search` hints); tolerates a missing `Muse/` digest with guidance, exit 0.
+- `gitmap llm train muse [--days N]`: positional sub-target of `llm train` that syncs the Muse 7-day memory digest — clone-or-pull the repo-secrets vault via `gh repo clone` (fail-fast `gh auth` guidance, never prompts; an existing vault dir at the work-folder root is reused even without an `rs` record), `git pull --ff-only`, N-day `git log` diff, terminal summary (commits, files changed, sequenced digests) and a raw AI traversal checklist (`gitmap cat` / `gitmap aum search` hints); tolerates a missing `Muse/` digest with guidance, exit 0.
 - `--days N` flag on `gitmap llm train` (default 7): digest window in days for `train muse`.
 
 ---

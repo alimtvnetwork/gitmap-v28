@@ -268,33 +268,45 @@ file-by-file `gitmap cat` / `gitmap aum search` hints. Tolerates a missing
 gitmap llm train muse --days 7
 ```
 
-*Sample output:*
+*Sample output (abridged — every run starts with the decision trace so an
+AI learns the reasoning behind each step):*
 
 ```
+----------------------------------------------------------------------
+DECISION TRACE - why each step ran (AI: learn the reasoning)
+----------------------------------------------------------------------
+  1. checkout: no 'rs' record but repo-secrets already exists at the work-folder root -> DECISION reuse it, skip clone (why: the directory is the source of truth; the record is only a pointer)
+  2. checkout: vault present at repo-secrets -> DECISION reuse it, skip clone (why: never clone over existing local state)
+  3. sync: origin remote present -> DECISION git pull --ff-only (why: take new digest commits fast-forward only; never merge, never rewrite history)
+  4. window: --days 7 -> since 2026-10-10 -> DECISION git log --since + rev-list --count (why: bound the diff to the digest window; the commit count frames the summary)
+  5. order: DECISION README.md first, then sequenced files in lexical order, chat-seeds on demand (why: contract before detail; a deterministic order any LLM can replay)
+  6. search: DECISION scope gitmap aum search to the digest tree with --ext .md (why: keep the model inside the digest, no repo-wide noise)
+
 ======================================================================
 GITMAP LLM TRAIN — MUSE MEMORY SYNC (last 7 days)
 ======================================================================
 Digest root: repo-secrets/Muse
-Commits: 12 | Files changed: 34 | Sequenced digests: 5
+Commits: 13 | Files changed: 36 | Sequenced digests: 7
 
 SEQUENCED DIGEST FILES:
-  Muse/01-2026-10-10.md
-  Muse/02-2026-10-11.md
+  Muse/01-overview.md
+  Muse/02-repos.md
+  ...
 
 CHANGED FILES:
-  Muse/02-2026-10-11.md
+  Muse/01-overview.md
   ...
 
 ======================================================================
 AI TRAVERSAL CHECKLIST (execute in order)
 ======================================================================
-1. Read the digest root contract first:
+1. Read the digest root contract first (why: it defines the say-READ protocol and the file order):
    gitmap cat repo-secrets/Muse/README.md
-2. Walk the sequenced digests in order:
-   gitmap cat repo-secrets/Muse/01-2026-10-10.md
-3. Scope searches to the digest tree ([dir] + --ext required):
+2. Walk the sequenced digests in order (why: lexical order is the authored narrative):
+   gitmap cat repo-secrets/Muse/01-overview.md
+3. Scope searches to the digest tree (why: stay inside the digest, avoid repo-wide noise):
    gitmap aum search "<keyword>" repo-secrets/Muse --ext .md
-4. Inspect chat seeds when a conversation needs full context:
+4. Inspect chat seeds when a conversation needs full context (why: a seed rebuilds one chat without re-reading everything):
    gitmap lf repo-secrets/Muse/chat-seeds
 ```
 
