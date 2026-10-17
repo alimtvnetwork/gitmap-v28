@@ -7,7 +7,11 @@ import (
 )
 
 func parseLogLine(raw string) (string, string, string, bool) {
-	clean := ansiRegex.ReplaceAllString(raw, "")
+	if isBlankLogLine(raw) {
+		return "", "", "", false
+	}
+
+	clean := stripAnsiIfPresent(raw)
 	parts := strings.Split(clean, "\t")
 	isError := strings.Contains(raw, "##[error]") || hasFailureMarker(raw)
 	if len(parts) >= 3 {
@@ -19,6 +23,18 @@ func parseLogLine(raw string) (string, string, string, bool) {
 	}
 
 	return "", "", cleanLogText(clean), isError
+}
+
+func stripAnsiIfPresent(raw string) string {
+	if strings.IndexByte(raw, 0x1b) == -1 {
+		return raw
+	}
+
+	return ansiRegex.ReplaceAllString(raw, "")
+}
+
+func isBlankLogLine(line string) bool {
+	return len(strings.TrimSpace(line)) == 0
 }
 
 func extractThreePartLogLine(parts []string, isError bool) (string, string, string, bool) {
@@ -223,6 +239,10 @@ func isRanTestsNoise(trimmed string) bool {
 }
 
 func hasFailureMarker(line string) bool {
+	if len(line) == 0 {
+		return false
+	}
+
 	for _, m := range failureMarkers {
 		if strings.Contains(line, m) {
 			return true

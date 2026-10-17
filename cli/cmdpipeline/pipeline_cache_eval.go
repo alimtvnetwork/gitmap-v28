@@ -64,6 +64,11 @@ func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, repo string, dbRun
 		return buildCacheHitDecision(dbRuns, latest.Sha, "latest_commit_completed")
 	}
 
+	headSha := ResolveRepoHeadCommitSha(repo)
+	if len(headSha) > 0 && !matchCommitSha(headSha, latest.Sha) {
+		return PipelineCacheDecision{IsFromCache: false, Reason: "cache_expired"}
+	}
+
 	if checkTtlCacheHit(db.Path) && !hasAnyActiveRun(dbRuns, latest.Sha) {
 		return buildCacheHitDecision(dbRuns, latest.Sha, "within_ttl")
 	}

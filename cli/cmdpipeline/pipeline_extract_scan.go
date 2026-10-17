@@ -56,7 +56,14 @@ func scanLogLinesIntoMap(rawLogs string, jobMap map[string]*FailedJobItem, order
 	warnBuf := make(map[string][]string)
 	warnContRemaining := 0
 	for scanner.Scan() {
-		processLogLine(scanner.Text(), jobMap, order, &contextRemaining, &lastKey, warnBuf, &warnContRemaining)
+		line := scanner.Text()
+		if isBlankLogLine(line) {
+			warnContRemaining = 0
+
+			continue
+		}
+
+		processLogLine(line, jobMap, order, &contextRemaining, &lastKey, warnBuf, &warnContRemaining)
 	}
 }
 
@@ -69,6 +76,12 @@ func processLogLine(
 	warnBuf map[string][]string,
 	warnContRem *int,
 ) {
+	if isBlankLogLine(raw) {
+		*warnContRem = 0
+
+		return
+	}
+
 	job, step, text, isError := parseLogLine(raw)
 	if text == "" || isIgnoredLogLine(text) {
 		*warnContRem = 0

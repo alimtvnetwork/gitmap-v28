@@ -5,12 +5,28 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
+type repoReleaseAndPRCacheItem struct {
+	tag       string
+	prs       int
+	expiresAt time.Time
+}
+
+var (
+	repoReleaseAndPRCacheMu sync.RWMutex
+	repoReleaseAndPRCache   = make(map[string]repoReleaseAndPRCacheItem)
+)
+
 func queryReleaseAndPRsConcurrently(repo string) (string, int) {
+	if cached, ok := getCachedReleaseAndPRs(repo); ok {
+		return cached.tag, cached.prs
+	}
+
 	var tag string
 	var prs int
 	var wg sync.WaitGroup
@@ -25,7 +41,32 @@ func queryReleaseAndPRsConcurrently(repo string) (string, int) {
 	}()
 	wg.Wait()
 
+	setCachedReleaseAndPRs(repo, tag, prs)
+
 	return tag, prs
+}
+
+func getCachedReleaseAndPRs(repo string) (repoReleaseAndPRCacheItem, bool) {
+	repoReleaseAndPRCacheMu.RLock()
+	defer repoReleaseAndPRCacheMu.RUnlock()
+
+	item, exists := repoReleaseAndPRCache[repo]
+	if !exists || time.Now().After(item.expiresAt) {
+		return repoReleaseAndPRCacheItem{}, false
+	}
+
+	return item, true
+}
+
+func setCachedReleaseAndPRs(repo, tag string, prs int) {
+	repoReleaseAndPRCacheMu.Lock()
+	defer repoReleaseAndPRCacheMu.Unlock()
+
+	repoReleaseAndPRCache[repo] = repoReleaseAndPRCacheItem{
+		tag:       tag,
+		prs:       prs,
+		expiresAt: time.Now().Add(10 * time.Minute),
+	}
 }
 
 func resolveRepoWebURL(repo string) string {

@@ -3,6 +3,7 @@ package cmdpipeline
 import (
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -122,15 +123,58 @@ func fetchFailedJobLogs(repo string, jobId uint64) (string, error) {
 }
 
 func fetchJobLevelFailedLogs(repo string, runId uint64, jobs []ghJobItem) (string, bool) {
+	results := executeParallelJobLogFetches(repo, jobs)
+
+	return assembleJobLogsOrFallback(repo, runId, jobs, results)
+}
+
+func executeParallelJobLogFetches(repo string, jobs []ghJobItem) []string {
+	results := make([]string, len(jobs))
+	sem := make(chan struct{}, 4)
+	var wg sync.WaitGroup
+
+	for i, j := range jobs {
+		if !isJobFailingOrCanceled(j) || !isEligibleForFailedLogFetch(j) {
+			continue
+		}
+
+		wg.Add(1)
+		go dispatchFetchJobLogWorker(&wg, sem, results, repo, j, i)
+	}
+	wg.Wait()
+
+	return results
+}
+
+func dispatchFetchJobLogWorker(wg *sync.WaitGroup, sem chan struct{}, results []string, repo string, j ghJobItem, idx int) {
+	defer wg.Done()
+	sem <- struct{}{}
+	defer func() { <-sem }()
+
+	results[idx] = fetchAndNormalizeJobLog(repo, j)
+}
+
+func fetchAndNormalizeJobLog(repo string, j ghJobItem) string {
+	jobLog, err := fetchFailedJobLogs(repo, j.DatabaseId)
+	if err != nil || len(strings.TrimSpace(jobLog)) == 0 {
+		return ""
+	}
+
+	return normalizeJobLogOutput(j.Name, jobLog)
+}
+
+func assembleJobLogsOrFallback(repo string, runId uint64, jobs []ghJobItem, results []string) (string, bool) {
 	var sb strings.Builder
 	diag := ""
 
-	for _, j := range jobs {
+	for i, j := range jobs {
 		if !isJobFailingOrCanceled(j) {
 			continue
 		}
 
-		if appendJobLogIfFetched(&sb, repo, j) {
+		if len(results[i]) > 0 {
+			sb.WriteString(results[i])
+
 			continue
 		}
 
@@ -143,21 +187,6 @@ func fetchJobLevelFailedLogs(repo string, runId uint64, jobs []ghJobItem) (strin
 	}
 
 	return "", false
-}
-
-func appendJobLogIfFetched(sb *strings.Builder, repo string, j ghJobItem) bool {
-	if !isEligibleForFailedLogFetch(j) {
-		return false
-	}
-
-	jobLog, err := fetchFailedJobLogs(repo, j.DatabaseId)
-	if err != nil || len(strings.TrimSpace(jobLog)) == 0 {
-		return false
-	}
-
-	sb.WriteString(normalizeJobLogOutput(j.Name, jobLog))
-
-	return true
 }
 
 func isEligibleForFailedLogFetch(j ghJobItem) bool {

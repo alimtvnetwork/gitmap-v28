@@ -60,6 +60,10 @@ func executePipelineErrorLogs(args []string) error {
 	}
 	repo := resolveFlagsRepoSlug(flags)
 
+	if isHit, err := TryRenderFromShaCache(repo, flags); isHit {
+		return err
+	}
+
 	if flags.HasTimeline || flags.HasUntilDone {
 		return executeTimelineOrUntilDoneErrorLogs(repo, flags, args)
 	}
@@ -272,6 +276,7 @@ func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
 	RecordFetchedRunsToSplitDb(repo, runs)
 	payload := buildErrorLogsPayloadWithFlags(repo, runs, flags)
 	applyPayloadOptions(&payload, runs, flags)
+	SavePayloadToShaCache(repo, payload)
 	_ = RecordPipelineCheckInTask(repo, payload)
 
 	return writePayloadWithFlags(payload, flags)

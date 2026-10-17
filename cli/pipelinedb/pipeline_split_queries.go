@@ -183,3 +183,41 @@ func scanDurations(rows *sql.Rows) []int {
 
 	return durs
 }
+
+// RecordShaCache inserts or replaces a cached payload for a commit sha and repo slug.
+func (p *PipelineSplitDb) RecordShaCache(commitSha string, runId uint64, repoSlug string, payloadJson string) error {
+	if p.conn == nil {
+		return apperror.NewSimple("pipeline db connection is nil")
+	}
+
+	query := `INSERT OR REPLACE INTO PipelineShaCache (CommitSha, RunId, RepoSlug, PayloadJSON, UpdatedAt)
+VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);`
+	_, err := p.conn.Exec(query, commitSha, runId, repoSlug, payloadJson)
+	if err != nil {
+		return apperror.WrapSimple(err, "record sha cache")
+	}
+
+	return nil
+}
+
+// QueryShaCache retrieves the cached payload JSON for a commit sha and repo slug.
+func (p *PipelineSplitDb) QueryShaCache(commitSha, repoSlug string) (string, error) {
+	if p.conn == nil {
+		return "", apperror.NewSimple("pipeline db connection is nil")
+	}
+
+	query := `SELECT PayloadJSON FROM PipelineShaCache WHERE CommitSha = ? AND (RepoSlug = ? OR ? = '') LIMIT 1;`
+	var payloadJson string
+	err := p.conn.QueryRow(query, commitSha, repoSlug, repoSlug).Scan(&payloadJson)
+	if err == nil {
+		return payloadJson, nil
+	}
+
+	fallbackQuery := `SELECT PayloadJSON FROM PipelineShaCache WHERE (CommitSha LIKE ? OR ? LIKE CommitSha || '%') AND (RepoSlug = ? OR ? = '') LIMIT 1;`
+	err = p.conn.QueryRow(fallbackQuery, commitSha+"%", commitSha, repoSlug, repoSlug).Scan(&payloadJson)
+	if err != nil {
+		return "", apperror.WrapSimple(err, "query sha cache")
+	}
+
+	return payloadJson, nil
+}

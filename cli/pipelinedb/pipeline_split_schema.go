@@ -100,4 +100,17 @@ CREATE TABLE IF NOT EXISTS PipelineSegment (
     Comments TEXT NULL,
     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP
 );`
+
+	sqlCreatePipelineShaCache = `
+CREATE TABLE IF NOT EXISTS PipelineShaCache (
+    PipelineShaCacheId INTEGER PRIMARY KEY AUTOINCREMENT,
+    CommitSha TEXT NOT NULL,
+    RunId INTEGER NOT NULL,
+    RepoSlug TEXT NOT NULL,
+    PayloadJSON TEXT NOT NULL,
+    CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS IdxPipelineShaCache_Sha_RepoSlug ON PipelineShaCache (CommitSha, RepoSlug);
+CREATE INDEX IF NOT EXISTS IdxPipelineShaCache_RunId ON PipelineShaCache (RunId);`
 )
