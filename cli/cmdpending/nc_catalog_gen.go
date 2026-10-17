@@ -120,6 +120,6 @@ func generatedCatalogEntries() []NewCommandEntry {
 		{Name: "split large files", Alias: "split-large-files", Version: "v6.562.0", Category: "storage", Description: "Decompose tracked files > 10MB into multipart ZIP chunks and update Git", Example: "gitmap split large files --dry-run"},
 		{Name: "lfs convert", Alias: "lfs-convert", Version: "v6.562.0", Category: "storage", Description: "Scan files > 5MB, generate .gitattributes rules, and migrate to Git LFS", Example: "gitmap lfs convert --dry-run"},
 		{Name: "repo flatten", Alias: "flatten", Version: "v6.562.0", Category: "storage", Description: "Squash bloated repository history into a single clean snapshot commit with undo", Example: "gitmap repo flatten --dry-run"},
-		{Name: "reclone", Alias: "rc", Version: "v6.560.0", Category: "scanner", Description: "Clean and re-clone a repository from URL or manifest", Example: "gitmap reclone https://github.com/org/repo"},
+		{Name: "reclone", Alias: "rec", Version: "v6.560.0", Category: "scanner", Description: "Clean and re-clone a repository from URL or manifest", Example: "gitmap reclone https://github.com/org/repo"},
 	}
 }
