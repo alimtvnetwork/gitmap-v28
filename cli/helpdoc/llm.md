@@ -258,13 +258,13 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 ## 7. Muse Memory Sync (`gitmap llm train muse`)
 
 Re-syncs any LLM with the 7-day Muse memory digest authored into the
-repo-secrets vault (`Muse/README.md` + sequenced `Muse/01-*.md` files +
-`Muse/chat-seeds/`): the command clone-or-pulls the vault, diffs the last N
+repo-secrets vault (`12-muse-ai/README.md` + sequenced `12-muse-ai/01-*.md` files +
+`12-muse-ai/chat-seeds/`): the command clone-or-pulls the vault, diffs the last N
 days, prints a terminal summary, and prints a raw AI traversal checklist with
 file-by-file `gitmap cat` / `gitmap aum search` hints. The last-read watermark
 (vault HEAD SHA + timestamp) is tracked by gitmap itself in its local state —
 never in an MD file — and each run reports what is new since the last read.
-Tolerates a missing `Muse/` digest with guidance (exit 0).
+Tolerates a missing `12-muse-ai/` digest with guidance (exit 0).
 
 ```bash
 gitmap llm train muse --days 7
@@ -295,25 +295,25 @@ SINCE LAST READ (tracked by gitmap — no MD file):
   Vault unchanged since last read at 2026-10-17T03:57:49Z — 0 new commits.
 
 SEQUENCED DIGEST FILES:
-  Muse/01-overview.md
-  Muse/02-repos.md
+  12-muse-ai/01-overview.md
+  12-muse-ai/02-repos.md
   ...
 
 CHANGED FILES:
-  Muse/01-overview.md
+  12-muse-ai/01-overview.md
   ...
 
 ======================================================================
 AI TRAVERSAL CHECKLIST (execute in order)
 ======================================================================
 1. Read the digest root contract first (why: it defines the say-READ protocol and the file order):
-   gitmap cat repo-secrets/Muse/README.md
+   gitmap cat repo-secrets/12-muse-ai/README.md
 2. Walk the sequenced digests in order (why: lexical order is the authored narrative):
-   gitmap cat repo-secrets/Muse/01-overview.md
+   gitmap cat repo-secrets/12-muse-ai/01-overview.md
 3. Scope searches to the digest tree (why: stay inside the digest, avoid repo-wide noise):
    gitmap aum search "<keyword>" repo-secrets/Muse --ext .md
 4. Inspect chat seeds when a conversation needs full context (why: a seed rebuilds one chat without re-reading everything):
-   gitmap lf repo-secrets/Muse/chat-seeds
+   gitmap lf repo-secrets/12-muse-ai/chat-seeds
 ```
 
 ---

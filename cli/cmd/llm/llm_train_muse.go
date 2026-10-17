@@ -27,7 +27,7 @@ import (
 const repoSecretsRemote = "https://github.com/alimtvnetwork/repo-secrets.git"
 
 // digestRootName is the repo-secrets folder carrying the Muse memory digest.
-const digestRootName = "Muse"
+const digestRootName = "12-muse-ai"
 
 // repoSecretsPathResolver resolves the local repo-secrets checkout and reports
 // whether it still needs cloning. Tests override it with fixtures.
