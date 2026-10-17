@@ -97,10 +97,7 @@ func safePullRepoWithProgress(rec model.ScanRecord, repoDir string, onProgress f
 
 	if HasUnmergedConflicts(repoDir) {
 		conflicts := ExtractConflictedFilesFromRepo(repoDir)
-		conflictDesc := "active unmerged conflict detected"
-		if len(conflicts) > 0 {
-			conflictDesc = fmt.Sprintf("active unmerged conflict detected in %s", strings.Join(conflicts, ", "))
-		}
+		conflictDesc := formatActiveConflictDesc(conflicts)
 		err := fmt.Errorf("%s: %w", conflictDesc, ErrMergeConflict)
 
 		return buildAttemptFailureResult(rec, repoDir, 1, conflictDesc, err)
@@ -283,4 +280,12 @@ func cleanDirIfRequested(isDirExists, isClean bool, dest string) *apperror.AppEr
 	}
 
 	return nil
+}
+
+func formatActiveConflictDesc(conflicts []string) string {
+	if len(conflicts) == 0 {
+		return "active unmerged conflict detected"
+	}
+
+	return fmt.Sprintf("active unmerged conflict detected in %s", strings.Join(conflicts, ", "))
 }

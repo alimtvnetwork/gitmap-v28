@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -235,19 +236,29 @@ func remediateSingleRepo(f PullFailureSummary) bool {
 		return true
 	}
 
-	if isCredentialOrHTTPSFailure(string(out)) {
-		remediateCredentialAndConvertToSSH(f.RepoPath, f.RepoName)
-		outRetry, errRetry := execPullAutoMerge(f.RepoPath)
-		if errRetry == nil {
-			clearResolvedPullError(f.RepoName, f.RepoPath)
-			fmt.Printf("    %s %s✓%s Successfully updated via SSH.\n",
-				constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
-			return true
-		}
-		out = outRetry
+	if !isCredentialOrHTTPSFailure(string(out)) {
+		return handleRemediationFailure(f.RepoPath, f.RepoName, string(out))
 	}
 
-	return handleRemediationFailure(f.RepoPath, f.RepoName, string(out))
+	isSuccess, outRetry := tryRetryAfterCredentialRemediation(f)
+	if isSuccess {
+		return true
+	}
+
+	return handleRemediationFailure(f.RepoPath, f.RepoName, string(outRetry))
+}
+
+func tryRetryAfterCredentialRemediation(f PullFailureSummary) (bool, []byte) {
+	remediateCredentialAndConvertToSSH(f.RepoPath, f.RepoName)
+	outRetry, errRetry := execPullAutoMerge(f.RepoPath)
+	if errRetry == nil {
+		clearResolvedPullError(f.RepoName, f.RepoPath)
+		fmt.Printf("    %s %s✓%s Successfully updated via SSH.\n",
+			constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
+		return true, nil
+	}
+
+	return false, outRetry
 }
 
 func isCredentialOrHTTPSFailure(msg string) bool {
@@ -275,20 +286,20 @@ func extractGitHubOwnerFromURL(url string) string {
 	trimmed := strings.TrimSpace(url)
 	lower := strings.ToLower(trimmed)
 	if strings.HasPrefix(lower, "https://github.com/") {
-		rest := trimmed[len("https://github.com/"):]
-		parts := strings.SplitN(rest, "/", 2)
-		if len(parts) >= 1 {
-			return strings.TrimSpace(parts[0])
-		}
+		return extractFirstSlashSegment(trimmed[len("https://github.com/"):])
 	}
 	if strings.HasPrefix(lower, "git@github.com:") {
-		rest := trimmed[len("git@github.com:"):]
-		parts := strings.SplitN(rest, "/", 2)
-		if len(parts) >= 1 {
-			return strings.TrimSpace(parts[0])
-		}
+		return extractFirstSlashSegment(trimmed[len("git@github.com:"):])
 	}
 	return ""
+}
+
+func extractFirstSlashSegment(rest string) string {
+	parts := strings.SplitN(rest, "/", 2)
+	if len(parts) == 0 {
+		return ""
+	}
+	return strings.TrimSpace(parts[0])
 }
 
 func hasSSHRepoForSameOwner(owner string) bool {
@@ -547,29 +558,41 @@ func RemediateRepoByQuery(repoQuery string) (bool, error) {
 	}
 	failures, _ := loadRecentPullFailuresFromDB()
 	for _, f := range failures {
-		if strings.EqualFold(f.RepoName, clean) || strings.EqualFold(f.RepoPath, clean) {
-			if remediateSingleRepo(f) {
-				return true, nil
-			}
-			return true, fmt.Errorf("remediation failed for %s", f.RepoName)
+		handled, err := tryRemediateFailureMatch(f, clean)
+		if handled {
+			return true, err
 		}
 	}
 	records := resolveAllTrackedRecords()
 	matched := FindBySlug(records, clean)
-	if len(matched) == 1 {
-		rec := matched[0]
-		if isSameOwnerHTTPSRepo(rec.AbsolutePath) {
-			f := PullFailureSummary{
-				RepoName: rec.RepoName,
-				RepoPath: rec.AbsolutePath,
-			}
-			if remediateSingleRepo(f) {
-				return true, nil
-			}
-			return true, fmt.Errorf("remediation failed for %s", rec.RepoName)
-		}
+	if len(matched) != 1 {
+		return false, nil
 	}
-	return false, nil
+	return tryRemediateMatchedRecord(matched[0])
+}
+
+func tryRemediateFailureMatch(f PullFailureSummary, clean string) (bool, error) {
+	if !strings.EqualFold(f.RepoName, clean) && !strings.EqualFold(f.RepoPath, clean) {
+		return false, nil
+	}
+	if remediateSingleRepo(f) {
+		return true, nil
+	}
+	return true, fmt.Errorf("remediation failed for %s", f.RepoName)
+}
+
+func tryRemediateMatchedRecord(rec model.ScanRecord) (bool, error) {
+	if !isSameOwnerHTTPSRepo(rec.AbsolutePath) {
+		return false, nil
+	}
+	f := PullFailureSummary{
+		RepoName: rec.RepoName,
+		RepoPath: rec.AbsolutePath,
+	}
+	if remediateSingleRepo(f) {
+		return true, nil
+	}
+	return true, fmt.Errorf("remediation failed for %s", rec.RepoName)
 }
 
 // HasPendingPullFailures reports whether gitmap-pull.db has recorded pull failures.

@@ -244,27 +244,44 @@ func renderFailedGroup(w io.Writer, colWidth int, failed []*PullRepoState, colli
 	for _, s := range deduped {
 		renderSingleFailedItem(w, colWidth, s, collisions)
 	}
-	if len(deduped) > 0 {
-		hasCredOrAuth := false
-		for _, s := range deduped {
-			if s != nil && (isWincredmanFailure(s.ErrorMsg) || isCacheFailure(s.ErrorMsg) || isAuthFailure(s.ErrorMsg)) {
-				hasCredOrAuth = true
-				break
-			}
-		}
-		if hasCredOrAuth {
-			fmt.Fprintf(w, "\n  %s🔐 Unified Credential & SSH Resolution:%s To fix credential store and convert all failed repos to SSH at once:\n",
-				constants.ColorYellow, constants.ColorReset)
-			fmt.Fprintf(w, "     %s%sgitmap fix-credential && gitmap fix --all%s  (or: %sgitmap pa --ssh%s)\n",
-				constants.ColorYellow, constants.ColorBold, constants.ColorReset,
-				constants.ColorDim, constants.ColorReset)
-		}
-		fmt.Fprintf(w, "\n  %s💡 Unified Resolution:%s To resolve all %d failed/missing repositories together:\n",
-			constants.ColorYellow, constants.ColorReset, len(deduped))
-		fmt.Fprintf(w, "     %s%sgitmap fix --all%s  (or: %sgitmap pf --all%s)\n\n",
+	if len(deduped) == 0 {
+		return
+	}
+
+	renderUnifiedResolutionFooters(w, deduped)
+}
+
+func renderUnifiedResolutionFooters(w io.Writer, deduped []*PullRepoState) {
+	if hasAnyCredOrAuthFailure(deduped) {
+		fmt.Fprintf(w, "\n  %s🔐 Unified Credential & SSH Resolution:%s To fix credential store and convert all failed repos to SSH at once:\n",
+			constants.ColorYellow, constants.ColorReset)
+		fmt.Fprintf(w, "     %s%sgitmap fix-credential && gitmap fix --all%s  (or: %sgitmap pa --ssh%s)\n",
 			constants.ColorYellow, constants.ColorBold, constants.ColorReset,
 			constants.ColorDim, constants.ColorReset)
 	}
+	fmt.Fprintf(w, "\n  %s💡 Unified Resolution:%s To resolve all %d failed/missing repositories together:\n",
+		constants.ColorYellow, constants.ColorReset, len(deduped))
+	fmt.Fprintf(w, "     %s%sgitmap fix --all%s  (or: %sgitmap pf --all%s)\n\n",
+		constants.ColorYellow, constants.ColorBold, constants.ColorReset,
+		constants.ColorDim, constants.ColorReset)
+}
+
+func hasAnyCredOrAuthFailure(deduped []*PullRepoState) bool {
+	for _, s := range deduped {
+		if isStateCredOrAuthFailure(s) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isStateCredOrAuthFailure(s *PullRepoState) bool {
+	if s == nil {
+		return false
+	}
+
+	return isWincredmanFailure(s.ErrorMsg) || isCacheFailure(s.ErrorMsg) || isAuthFailure(s.ErrorMsg)
 }
 
 func renderSingleFailedItem(w io.Writer, colWidth int, s *PullRepoState, collisions map[string]bool) {
