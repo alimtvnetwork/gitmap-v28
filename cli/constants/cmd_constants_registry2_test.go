@@ -99,6 +99,8 @@ func topLevelCmdsPart2() map[string]string {
 		"CmdSpace":                      CmdSpace,
 		"CmdSpaceBackupBranch":          CmdSpaceBackupBranch,
 		"CmdSpacePRMerge":               CmdSpacePRMerge,
+		"CmdSpaceSendEmail":             CmdSpaceSendEmail,
+		"CmdSpaceScheduleSendEmail":     CmdSpaceScheduleSendEmail,
 		"CmdRecreateRepo":               CmdRecreateRepo,
 		"CmdRecreateRepoAlias":          CmdRecreateRepoAlias,
 		"CmdRestEnable":                 CmdRestEnable,

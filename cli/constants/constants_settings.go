@@ -38,6 +38,7 @@ const (
 	SettingCustomRepoExclusions    = "custom_repo_exclusions"
 	SettingPullActivityWindowHours = "pae_recency_window_hours"
 	SettingNodeResourceThreshold   = "node_resource_threshold"
+	SettingGoEmailReaderBin        = "go_email_reader_bin"
 )
 
 // Default activity window for efficient pull operations.

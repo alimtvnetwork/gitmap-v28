@@ -3,6 +3,7 @@ package cmdclone
 import (
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 )
 
@@ -10,6 +11,7 @@ import (
 func RunClone(args []string) error {
 	err := runClone(args)
 	recordCloneAudit("clone", args, err)
+	cmdspace.FireEmailTaskTriggers(cmdspace.EmailTaskClone, cmdspace.InferTaskOutcome(cmdspace.EmailTaskClone, err))
 	return err
 }
 

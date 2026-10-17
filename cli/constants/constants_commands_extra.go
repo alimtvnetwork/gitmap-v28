@@ -58,6 +58,14 @@ const (
 	// merges the current branch into the target (default branch when
 	// omitted); --squash embeds PR details plus a changed-files heatmap.
 	CmdSpacePRMerge = "PR-merge"
+	// CmdSpaceSendEmail is the `space send-email` subcommand — sends an
+	// email via go-email-reader (when installed) or the built-in SMTP
+	// sender with prompted authentication.
+	CmdSpaceSendEmail = "send-email"
+	// CmdSpaceScheduleSendEmail is the `space schedule-send-email`
+	// subcommand — registers/lists/removes email triggers that fire
+	// when a gitmap task (release/pull/clone/scan/push/backup) completes.
+	CmdSpaceScheduleSendEmail = "schedule-send-email"
 	// CmdSpec is the top-level namespace for spec-number issuance
 	// (spec 252). Subcommand: `spec next` issues the next free spec
 	// number for the current repository.
