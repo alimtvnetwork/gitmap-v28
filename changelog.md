@@ -1,5 +1,17 @@
 # Changelog
 
+## [v6.570.0] - 2026-10-18
+
+### Fixed
+- **Direct SSH Cloning:** Bypassed PAT probe and auth prompts entirely for explicit SSH clone URLs (`git@...`, `ssh://...`) and `--ssh` flag across `clone`, `cfr`, and `clonemulti`.
+- **GCM Interactive Modal Suppression:** Silenced Windows Credential Manager / GitHub Desktop sign-in popups during GitMap CLI execution via `GCM_INTERACTIVE=never`.
+- **Global Git Identity Reporting:** Enforced strict fallback to `git config --global user.name` and `user.email`, eliminating `"default"` and `"github-user"` placeholders.
+
+### Added
+- **Unified Login Subsystem (`gitmap login`):** Added interactive authentication menu and commands for SSH key generation/reuse (`gitmap login ssh [alias] [-y]`), automated clipboard copying, GitLab/GitHub settings links, per-repo `core.sshCommand` binding, `login browser-flow`, and `login token`.
+
+---
+
 ## [v6.569.0] - 2026-10-17
 
 ### Added
