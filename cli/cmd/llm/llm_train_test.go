@@ -1,10 +1,15 @@
 package llm
 
 import (
+	"bytes"
+	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func TestIsTrainCommand(t *testing.T) {
@@ -187,5 +192,124 @@ func TestBucketHealReason(t *testing.T) {
 		if got := bucketHealReason(reason); got != want {
 			t.Errorf("bucketHealReason(%q): expected %q, got %q", reason, want, got)
 		}
+	}
+}
+
+func TestStripTrainTargetMuse(t *testing.T) {
+	target, rest := stripTrainTarget([]string{"muse", "--days", "3"})
+	if target != "muse" {
+		t.Errorf("expected target muse, got %q", target)
+	}
+	if len(rest) != 2 || rest[0] != "--days" || rest[1] != "3" {
+		t.Errorf("expected rest [--days 3], got %v", rest)
+	}
+}
+
+func TestStripTrainTargetOnlyFirst(t *testing.T) {
+	target, rest := stripTrainTarget([]string{"--text-only", "muse"})
+	if target != "muse" {
+		t.Errorf("expected target muse, got %q", target)
+	}
+	if len(rest) != 1 || rest[0] != "--text-only" {
+		t.Errorf("expected rest [--text-only], got %v", rest)
+	}
+}
+
+func TestStripTrainTargetPreservesFlagValue(t *testing.T) {
+	target, rest := stripTrainTarget([]string{"--skill-path", "muse"})
+	if target != "" {
+		t.Errorf("expected empty target for flag value, got %q", target)
+	}
+	if len(rest) != 2 {
+		t.Errorf("expected both args preserved, got %v", rest)
+	}
+}
+
+func TestParseTrainFlagsDaysDefault(t *testing.T) {
+	opts, err := parseTrainFlags([]string{})
+	if err != nil {
+		t.Fatalf("expected nil error for empty args, got: %v", err)
+	}
+	if opts.DaysN != DefaultTrainMuseDays {
+		t.Errorf("expected DaysN %d, got %d", DefaultTrainMuseDays, opts.DaysN)
+	}
+	if opts.DaysN != 7 {
+		t.Errorf("expected DaysN 7, got %d", opts.DaysN)
+	}
+}
+
+func TestParseTrainFlagsDaysValue(t *testing.T) {
+	opts, err := parseTrainFlags([]string{"--days", "14"})
+	if err != nil {
+		t.Fatalf("expected nil error for --days 14, got: %v", err)
+	}
+	if opts.DaysN != 14 {
+		t.Errorf("expected DaysN 14, got %d", opts.DaysN)
+	}
+}
+
+func TestParseTrainFlagsDaysClamp(t *testing.T) {
+	opts, err := parseTrainFlags([]string{"--days", "0"})
+	if err != nil {
+		t.Fatalf("expected nil error for --days 0, got: %v", err)
+	}
+	if opts.DaysN != DefaultTrainMuseDays {
+		t.Errorf("expected DaysN clamped to %d, got %d", DefaultTrainMuseDays, opts.DaysN)
+	}
+}
+
+func initMuseFixtureRepo(t *testing.T) string {
+	t.Helper()
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git binary required for muse train fixture")
+	}
+	dir := t.TempDir()
+	runFixtureGit(t, dir, "init")
+	runFixtureGit(t, dir, "-c", "user.email=muse@t", "-c", "user.name=muse", "commit", "--allow-empty", "-m", "seed")
+	return dir
+}
+
+func runFixtureGit(t *testing.T, dir string, args ...string) {
+	t.Helper()
+	cmd := exec.Command("git", args...)
+	cmd.Dir = dir
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("git %v failed: %v\n%s", args, err, out)
+	}
+}
+
+func captureTrainOutput(t *testing.T, args []string) string {
+	t.Helper()
+	old := os.Stdout
+	r, w, pipeErr := os.Pipe()
+	if pipeErr != nil {
+		t.Fatalf("os.Pipe failed: %v", pipeErr)
+	}
+	os.Stdout = w
+	runErr := RunTrain(args)
+	_ = w.Close()
+	os.Stdout = old
+	var buf bytes.Buffer
+	_, _ = io.Copy(&buf, r)
+	if runErr != nil {
+		t.Fatalf("expected nil error, got: %v", runErr)
+	}
+	return buf.String()
+}
+
+func TestRunTrainMuseMissingDigest(t *testing.T) {
+	fixture := initMuseFixtureRepo(t)
+	old := repoSecretsPathResolver
+	repoSecretsPathResolver = func() (string, bool, *apperror.AppError) {
+		return fixture, false, nil
+	}
+	defer func() { repoSecretsPathResolver = old }()
+
+	out := captureTrainOutput(t, []string{"muse", "--days", "3"})
+	if !strings.Contains(out, "No Muse/ digest directory") {
+		t.Errorf("expected missing-digest guidance, got:\n%s", out)
+	}
+	if !strings.Contains(out, "gitmap llm train muse --days 7") {
+		t.Errorf("expected re-run hint, got:\n%s", out)
 	}
 }

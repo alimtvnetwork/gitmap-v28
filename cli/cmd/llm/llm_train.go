@@ -8,14 +8,25 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
+// museTrainTarget is the positional sub-target selecting the Muse memory sync runner.
+const museTrainTarget = "muse"
+
 // RunTrain executes the chained curriculum training workflow for LLMs.
 func RunTrain(args []string) *apperror.AppError {
-	opts, err := parseTrainFlags(args)
+	target, rest := stripTrainTarget(args)
+	opts, err := parseTrainFlags(rest)
 	if err != nil {
 		return err
 	}
+	opts.TrainTarget = target
 	if opts.IsHelp {
+		if opts.TrainTarget == museTrainTarget {
+			printTrainMuseUsage()
+		}
 		return nil
+	}
+	if opts.TrainTarget == museTrainTarget {
+		return runTrainMuse(opts)
 	}
 	if opts.IsURLs {
 		fmt.Print(RenderPublicDocLinksText())
@@ -108,6 +119,7 @@ func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
 	isURLs := fs.Bool("urls", false, "Output authoritative public documentation links for LLM ingestion")
 	isJSON := fs.Bool("json", false, "Output structured machine-readable command specifications")
 	healApply := fs.String("heal-apply", "", "Apply fix recipes non-interactively: stash|wip|discard (default \"\" = report-only)")
+	days := fs.Int("days", DefaultTrainMuseDays, "Digest window in days for 'train muse' (default 7)")
 
 	err := fs.Parse(args)
 	if err == flag.ErrHelp {
@@ -123,6 +135,11 @@ func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
 	}
 	hasLoop := *isLoop || *selfLoop > 0
 
+	daysN := *days
+	if daysN <= 0 {
+		daysN = DefaultTrainMuseDays
+	}
+
 	return TrainOptions{
 		IsTextOnly: *isTextOnly,
 		SkillPath:  *skillPath,
@@ -132,11 +149,36 @@ func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
 		IsURLs:     *isURLs,
 		IsJSON:     *isJSON,
 		HealApply:  *healApply,
+		DaysN:      daysN,
 	}, nil
 }
 
+// trainValueFlags are train flags that consume the following arg as their value;
+// a bare "muse" in that position is a value, never the positional target.
+var trainValueFlags = map[string]bool{"--skill-path": true, "--heal-apply": true}
+
+// stripTrainTarget extracts the FIRST bare positional target ("muse") from the
+// args before flag parsing. Tokens that are flags or flag values are preserved.
+func stripTrainTarget(args []string) (string, []string) {
+	rest := make([]string, 0, len(args))
+	target := ""
+	expectValue := false
+	for _, arg := range args {
+		if expectValue {
+			expectValue = false
+		} else if target == "" && arg == museTrainTarget {
+			target = arg
+			continue
+		} else {
+			expectValue = trainValueFlags[arg]
+		}
+		rest = append(rest, arg)
+	}
+	return target, rest
+}
+
 func printTrainUsage() {
-	fmt.Println("Usage: gitmap llm train [flags] (alias: gitmap llm chain, gitmap train, gitmap llm-train)")
+	fmt.Println("Usage: gitmap llm train [muse] [flags] (alias: gitmap llm chain, gitmap train, gitmap llm-train)")
 	fmt.Println()
 	fmt.Println("Executes the autonomous LLM chained onboarding curriculum: a 6-phase self-looping")
 	fmt.Println("training run (Discovery, Refactoring, Verification, Semantic Commit, Telemetry,")
@@ -145,7 +187,12 @@ func printTrainUsage() {
 	fmt.Println("the parallel content-fix audit (cmdautofix) in-process — report-only; git-state")
 	fmt.Println("recipes apply only with --heal-apply.")
 	fmt.Println()
+	fmt.Println("Positional sub-target:")
+	fmt.Println("  muse                 Sync the Muse 7-day memory digest from the repo-secrets vault")
+	fmt.Println("                       (gitmap llm train muse [--days N]; see --help on the sub-target)")
+	fmt.Println()
 	fmt.Println("Flags:")
+	fmt.Println("  --days int           Digest window in days for 'train muse' (default 7)")
 	fmt.Println("  --heal-apply string  Apply fix recipes non-interactively: stash|wip|discard (default \"\" = report-only)")
 	fmt.Println("  --loop               Execute autonomous 6-phase AI self-looping execution cycle")
 	fmt.Println("  --self-loop int      Number of consecutive iterations of the AI self-loop")
@@ -154,6 +201,19 @@ func printTrainUsage() {
 	fmt.Println("  --json               Output structured machine-readable command specifications")
 	fmt.Println("  --skill-path string  Path for generated Antigravity skill (default \".agents/skills/gitmap/SKILL.md\")")
 	fmt.Println("  --text-only          Print curriculum text without writing skill file")
+}
+
+// printTrainMuseUsage prints the usage for the positional "muse" sub-target.
+func printTrainMuseUsage() {
+	fmt.Println("Usage: gitmap llm train muse [--days N]")
+	fmt.Println()
+	fmt.Println("Syncs the Muse 7-day memory digest: clone-or-pull the repo-secrets vault,")
+	fmt.Println("diff the last N days, print a terminal summary and a raw AI traversal")
+	fmt.Println("checklist (file-by-file paths + gitmap cat / aum search hints) so any LLM")
+	fmt.Println("can walk the digest. Tolerates a missing Muse/ digest with guidance.")
+	fmt.Println()
+	fmt.Println("Flags:")
+	fmt.Println("  --days int  Digest window in days (default 7)")
 }
 
 func printAttribution() {

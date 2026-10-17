@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- `gitmap llm train muse [--days N]`: positional sub-target of `llm train` that syncs the Muse 7-day memory digest — clone-or-pull the repo-secrets vault via `gh repo clone` (fail-fast `gh auth` guidance, never prompts), `git pull --ff-only`, N-day `git log` diff, terminal summary (commits, files changed, sequenced digests) and a raw AI traversal checklist (`gitmap cat` / `gitmap aum search` hints); tolerates a missing `Muse/` digest with guidance, exit 0.
+- `--days N` flag on `gitmap llm train` (default 7): digest window in days for `train muse`.
+
+---
+
 ## [v6.558.0] - 2026-10-16
 
 ### Added

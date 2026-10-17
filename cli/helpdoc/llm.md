@@ -241,6 +241,7 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 | **AI Scaffolder** | `gitmap ai create <name>` | `gitmap scripts new <name>` | Scaffold new AI linter/fixer/auditor script skeleton |
 | **Automation Engine** | `gitmap automation <cmd>` | `gitmap auto`, `gitmap py-auto` | Native Go search (lazy regex), polyglot newlines, in-memory cache, and Go vs Py benchmarks |
 | **LLM Self-Training** | `gitmap llm train --loop` | `gitmap train --loop` | Autonomous 5-phase AI self-looping simulation |
+| **Muse Memory Sync** | `gitmap llm train muse --days 7` | — | Clone-or-pull repo-secrets, N-day digest diff, AI traversal checklist |
 | **LLM Machine URL** | `gitmap llm --url` | `gitmap train --url` | Public raw spec URL for AI models to download |
 | **Watch Running Prompts**| `gitmap watch-prompts-running` | `gitmap wpr` | Live terminal dashboard tracking running prompts |
 | **Folder Tree** | `gitmap folder-tree` | `gitmap ft` | Visual directory hierarchy with depth controls |
@@ -251,6 +252,51 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 | **Scheduler** | `gitmap schedule` | `gitmap sc` | Background cron and interval scheduler |
 | **Locate Tool** | `gitmap locate <tool>` | `gitmap vcvars` | Fast developer tool locator (<15ms, e.g. vcvarsall.bat, msbuild; replaces slow PowerShell Get-ChildItem) |
 | **Repo Status** | `gitmap status` | `gitmap st` | Dirty, ahead, behind across all repos |
+
+---
+
+## 7. Muse Memory Sync (`gitmap llm train muse`)
+
+Re-syncs any LLM with the 7-day Muse memory digest authored into the
+repo-secrets vault (`Muse/README.md` + sequenced `Muse/01-*.md` files +
+`Muse/chat-seeds/`): the command clone-or-pulls the vault, diffs the last N
+days, prints a terminal summary, and prints a raw AI traversal checklist with
+file-by-file `gitmap cat` / `gitmap aum search` hints. Tolerates a missing
+`Muse/` digest with guidance (exit 0).
+
+```bash
+gitmap llm train muse --days 7
+```
+
+*Sample output:*
+
+```
+======================================================================
+GITMAP LLM TRAIN — MUSE MEMORY SYNC (last 7 days)
+======================================================================
+Digest root: repo-secrets/Muse
+Commits: 12 | Files changed: 34 | Sequenced digests: 5
+
+SEQUENCED DIGEST FILES:
+  Muse/01-2026-10-10.md
+  Muse/02-2026-10-11.md
+
+CHANGED FILES:
+  Muse/02-2026-10-11.md
+  ...
+
+======================================================================
+AI TRAVERSAL CHECKLIST (execute in order)
+======================================================================
+1. Read the digest root contract first:
+   gitmap cat repo-secrets/Muse/README.md
+2. Walk the sequenced digests in order:
+   gitmap cat repo-secrets/Muse/01-2026-10-10.md
+3. Scope searches to the digest tree ([dir] + --ext required):
+   gitmap aum search "<keyword>" repo-secrets/Muse --ext .md
+4. Inspect chat seeds when a conversation needs full context:
+   gitmap lf repo-secrets/Muse/chat-seeds
+```
 
 ---
 

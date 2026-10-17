@@ -205,6 +205,7 @@ func buildUtilityGroup() llmCmdGroup {
 			{"gomod", "gm", "Rename Go module path across repo", "gitmap gomod old/path new/path"},
 			{"seo-write", "sw", "Auto-commit SEO messages from CSV", "gitmap seo-write --csv data.csv"},
 			{"llm-docs", "ld", "Generate this LLM.md reference file", "gitmap llm-docs"},
+			{"llm train muse", "—", "Clone-or-pull repo-secrets and print the Muse 7-day memory digest sync checklist", "gitmap llm train muse --days 7"},
 			{"startup", "su", "Manage and run OS startup items, scripts, and macros", "gitmap startup ls"},
 			{"storage", "stor", "Inspect storage drive capacity and SQLite DB inventory", "gitmap storage ls"},
 			{"schedule", "sc", "Schedule recurring jobs, crontab, and background tasks", "gitmap schedule ls"},

@@ -2,16 +2,21 @@ package llm
 
 // TrainOptions holds execution configuration for llm train.
 type TrainOptions struct {
-	IsTextOnly bool
-	IsHelp     bool
-	IsLoop     bool
-	LoopCount  int
-	IsURL      bool
-	IsURLs     bool
-	IsJSON     bool
-	SkillPath  string
-	HealApply  string
+	IsTextOnly  bool
+	IsHelp      bool
+	IsLoop      bool
+	LoopCount   int
+	IsURL       bool
+	IsURLs      bool
+	IsJSON      bool
+	SkillPath   string
+	HealApply   string
+	TrainTarget string
+	DaysN       int
 }
+
+// DefaultTrainMuseDays is the default digest window for `gitmap llm train muse`.
+const DefaultTrainMuseDays = 7
 
 const (
 	DefaultSkillPath = ".agents/skills/gitmap/SKILL.md"
