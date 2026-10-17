@@ -211,7 +211,6 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `26-gitmap` | [`26-gitmap/01-gitmap-core-engine.md`](../01-prompts/26-gitmap/01-gitmap-core-engine.md) | GitMap Core Engine & Autonomous Developer Automation — Canonical Specification (must follow) |
 | `26-gitmap` | [`26-gitmap/readme.md`](../01-prompts/26-gitmap/readme.md) | GitMap AI Training & Autonomous Automation Prompts (`26-gitmap`) |
 | `27-muse-prompts` | [`27-muse-prompts/01-muse-master-prompt.md`](../01-prompts/27-muse-prompts/01-muse-master-prompt.md) | [V6] MUSE MASTER ONBOARDING, FLEET ORCHESTRATION & AUTONOMOUS EXECUTION PROMPT — AGENT DIRECTIVE |
-| `27-muse-prompts` | [`27-muse-prompts/05-muse-master-prompt-v2.md`](../01-prompts/27-muse-prompts/05-muse-master-prompt-v2.md) | [V6] MUSE MASTER ONBOARDING, FLEET ORCHESTRATION & AUTONOMOUS EXECUTION PROMPT (MIRROR) |
 | `27-muse-prompts` | [`27-muse-prompts/readme.md`](../01-prompts/27-muse-prompts/readme.md) | Muse Prompts (`27-muse-prompts`) — Index & Catalog |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
 | `v4/13-plan-audit` | [`v4/13-plan-audit/01-inventory-pending-tasks.md`](../01-prompts/v4/13-plan-audit/01-inventory-pending-tasks.md) | Inventory Audit of Pending Tasks — Read-Only Proposal (must follow) |

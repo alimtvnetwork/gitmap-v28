@@ -81,7 +81,7 @@ WAVES = ceil(subtasks / (A x H))
    - Run `cd ~/workspace/repos && gitmap pa`.
    - **REPORT:** Pull summary (which repos updated, which were already current).
 5. **Step 5: Read Master Prompt & Ingest Operating Contract:**
-   - Read `coding-guidelines-v24/01-prompts/27-muse-prompts/05-muse-master-prompt-v2.md` and custom skills.
+   - Read `coding-guidelines-v24/01-prompts/27-muse-prompts/01-muse-master-prompt.md` and custom skills.
    - Ingest TURBO-01..05 and GUARD-01..09 contracts. Total ban on fenced code blocks around prompt formatters.
    - **REPORT:** Execution contract restated in own words (2–3 lines).
 6. **Step 6: Memory Synchronization:**
