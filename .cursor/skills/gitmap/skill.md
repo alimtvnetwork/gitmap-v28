@@ -149,6 +149,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap cluster --help` — Orchestrate multi-node clusters and health checks.
 - `gitmap sc --help` — Servers-clients topology and background task manager.
 - `gitmap ssh --help` — SSH discovery, connection pooling, and remote command execution.
+- `gitmap ssh identity --email <email> --seq <N> --operator <name>` — Formats canonical SSH comment token `<email>-muse<muse-sequence>-<operator-name>` and sets `git config` user identity.
 - `gitmap cargo status` — Inspect Rust and Cargo toolchain status.
 - `gitmap install cargo` — Install Rust toolchain if missing.
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages.
@@ -167,7 +168,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap agent task ls` — Lists active and completed parent tasks across the workspace.
 - `gitmap agent task pending` — Lists or counts pending subtasks across agent tasks.
 - `gitmap agent task completed` — Lists completed root-level parent tasks with proof.
-- `gitmap agent subtask add --json '[...]'` — Adds decomposed subtasks to the task queue.
+- `gitmap agent subtask add --code "<code>" --slug "<slug>" --title "<title>" [--owned "<json>"]` — Adds a decomposed subtask bounding box to the active parent task queue.
 - `gitmap agent subtask ls` — Lists all subtasks, their assignees, statuses, and file boxes.
 - `gitmap agent subtask claim --agent <agent-name>` — Claims the next pending subtask atomically.
 - `gitmap agent subtask claim-files` — Pre-declares file leases for collision and contention tracking.

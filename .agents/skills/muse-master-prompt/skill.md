@@ -61,7 +61,7 @@ WAVES = ceil(subtasks / (A x H))
    - Run `gh auth status` and `gitmap login --status`.
    - If unauthenticated, STOP and ask user to pick ONE:
      - `a. Browser login`: `gh auth login`, follow device/browser flow.
-     - `b. SSH`: `ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""`, display public key in chat for user to add, then retry.
+     - `b. SSH`: Formatted as `<email>-muse<muse-sequence>-<operator-name>` (e.g. `alex.tone@company.com-muse-10-opRoden`). Prompt operator if variables are unknown. Configure `git config --global user.email "<email>"` and `git config --global user.name "<operator-name> (Muse <muse-sequence>)"`, generate `ssh-keygen -t ed25519 -C "<email>-muse<muse-sequence>-<operator-name>" -f ~/.ssh/id_ed25519 -N ""`, display public key, register via `gh ssh-key add`, and verify with `ssh -T git@github.com`.
    - Hard gate: Do NOT proceed to step 3 until login succeeds.
    - **REPORT:** `gh auth status` output showing authenticated account.
 3. **Step 3: Clone 8 Default Repos + Create 5 Side Chats:**
