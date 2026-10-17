@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.564.0] - 2026-10-17
+
+### Added
+- merge conflict resolution and pipeline verification
+
+---
+
 ## [v6.563.0] - 2026-10-17
 
 ### Added
