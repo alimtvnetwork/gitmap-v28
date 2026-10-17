@@ -171,9 +171,8 @@ func executeDirectCloneOne(url, folderName string, ghDesktopFlag, noReplace bool
 	}
 
 	url = coerceURLToStoredTransport(url)
-	rec := model.ScanRecord{HTTPSUrl: url, RepoName: repoName}
-	if resolved, err := ResolveRepoAuth(rec); err == nil {
-		url = pickResolvedURL(resolved, url)
+	if !isSSHCloneURL(url) {
+		url = resolveDirectHTTPSURL(url, repoName)
 	}
 
 	errClone := executeCloneStrategy(url, absPath, noReplace)

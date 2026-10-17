@@ -221,6 +221,7 @@ func dispatchCloneExecution(cf CloneFlags) error {
 			NoVSCodeSync: cf.NoVSCodeSync,
 			IsClean:      cf.Clean,
 			IsJSON:       cf.IsJSON,
+			UseSSH:       cf.UseSSH,
 		})
 		maybeExitOnCmdFaithfulMismatch()
 
@@ -396,6 +397,7 @@ type DirectCloneParams struct {
 	NoVSCodeSync bool
 	IsClean      bool
 	IsJSON       bool
+	UseSSH       bool
 }
 
 func cleanDirectCloneTarget(absPath string, isClean bool) {
@@ -527,16 +529,9 @@ func executeDirectClone(params DirectCloneParams) {
 	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absPath, workDir, "clone", cmdArgs)
 
 	url := coerceURLToStoredTransport(params.URL)
-	rec := model.ScanRecord{HTTPSUrl: url, RepoName: repoName}
-	if resolved, err := ResolveRepoAuth(rec); err == nil {
-		url = pickResolvedURL(resolved, url)
-	} else if errors.Is(err, ErrAuthNonInteractive) {
-		// Non-interactive run with no usable token: fail fast with guidance
-		// instead of letting git block on a credential prompt.
-		fmt.Fprintf(os.Stderr, "\n%s\n", err.Error())
-		cliexit.HandleError(err, 1)
-
-		return
+	url = resolveDirectSSHURL(url, params.UseSSH)
+	if !isSSHCloneURL(url) {
+		url = resolveDirectHTTPSURL(url, repoName)
 	}
 
 	printCloneStartup(params, url, absPath, repoName, folderName)

@@ -153,6 +153,7 @@ func executeCFRClone(url, folderName, absPath string, f cloneFixRepoFlags) {
 		Output:       "",
 		NoVSCodeSync: f.isSkipVSCodeSync,
 		IsClean:      false,
+		UseSSH:       f.useSSH,
 	})
 	if !f.dryRun {
 		persistRecloneTransport(url)
