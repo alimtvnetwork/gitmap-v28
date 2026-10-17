@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.568.0] - 2026-10-17
+
+### Added
+- pull-efficient - fix pae post-pull hang and heartbeat self-termination
+
+---
+
 ## [v6.567.0] - 2026-10-17
 
 ### Added
