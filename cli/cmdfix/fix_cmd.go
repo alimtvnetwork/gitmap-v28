@@ -91,10 +91,11 @@ func resolveFixAllAction(args []string, aliasOverride string) string {
 
 func runFixAll(action string, items []cmdremediation.RemediationItem) error {
 	hasPullFailures := cmdpull.HasPendingPullFailures()
+	if len(items) == 0 && hasPullFailures {
+		return cmdpull.RunBatchPullFix([]string{"--all"})
+	}
+
 	if len(items) == 0 {
-		if hasPullFailures {
-			return cmdpull.RunBatchPullFix([]string{"--all"})
-		}
 		fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
 
 		return nil
@@ -161,11 +162,9 @@ func isFixReleaseTagsRequest(args []string) bool {
 	}
 
 	first := strings.ToLower(strings.TrimSpace(args[0]))
-	if first == "release" && len(args) >= 2 {
-		second := strings.ToLower(strings.TrimSpace(args[1]))
-		if second == "tags" || second == "tag" {
-			return true
-		}
+	isReleaseTagsTwoWords := first == "release" && len(args) >= 2 && (strings.EqualFold(args[1], "tags") || strings.EqualFold(args[1], "tag"))
+	if isReleaseTagsTwoWords {
+		return true
 	}
 
 	if first == "release-tags" || first == "releasetags" || first == "release_tags" || first == "release-tag" {
@@ -182,13 +181,11 @@ func extractFixReleaseTagsArgs(args []string) []string {
 	}
 
 	first := strings.ToLower(strings.TrimSpace(args[0]))
-	if first == "release" && len(args) >= 2 {
-		second := strings.ToLower(strings.TrimSpace(args[1]))
-		if second == "tags" || second == "tag" {
-			remaining := make([]string, 0, len(args)-2)
-			remaining = append(remaining, args[2:]...)
-			return remaining
-		}
+	isReleaseTagsTwoWords := first == "release" && len(args) >= 2 && (strings.EqualFold(args[1], "tags") || strings.EqualFold(args[1], "tag"))
+	if isReleaseTagsTwoWords {
+		remaining := make([]string, 0, len(args)-2)
+		remaining = append(remaining, args[2:]...)
+		return remaining
 	}
 
 	if first == "release-tags" || first == "releasetags" || first == "release_tags" || first == "release-tag" {
@@ -306,7 +303,8 @@ func runFixDirect(args []string, aliasOverride string) error {
 		targetPath = "."
 	}
 	if targetPath != "" {
-		if handled, err := executeTargetedFixAction(targetPath, action); handled {
+		handled, err := executeTargetedFixAction(targetPath, action)
+		if handled {
 			return err
 		}
 	}

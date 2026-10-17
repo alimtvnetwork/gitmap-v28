@@ -12,7 +12,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfindnext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixauth"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixreleasetags"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdflatten"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfscommon"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
@@ -20,7 +22,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrm"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsplit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
 	"os"
 	"strings"
 
@@ -103,14 +107,21 @@ func runInstalledDirHelp() error {
 }
 
 const (
-	CmdResolve   = "resolve"
-	CmdConflicts = "conflicts"
+	CmdResolve         = "resolve"
+	CmdConflicts       = "conflicts"
+	CmdSplitLargeFiles = "split-large-files"
+	CmdLFSConvert      = "lfs-convert"
+	CmdFlatten         = "flatten"
 )
 
 func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{CmdResolve, "res"}, func() error { return cmdconflict.RunResolveCmd(argsTail()) }},
 		{[]string{CmdConflicts, "conflict", "cf"}, func() error { return cmdconflict.RunConflictsCmd(argsTail()) }},
+		{[]string{CmdSplitLargeFiles, "split-large", "splitlargefiles"}, func() error { return cmdsplit.RunSplitLargeFilesCmd(argsTail()) }},
+		{[]string{CmdLFSConvert, "lfsconvert"}, func() error { return cmdlfs.RunLFSConvertCmd(argsTail()) }},
+		{[]string{CmdFlatten, "repo-flatten", "repoflatten"}, func() error { return cmdflatten.RunFlattenCmd(argsTail()) }},
+		{[]string{"undo-flatten", "repo-undo-flatten"}, func() error { return cmdundo.RunUndoFlattenCLI(argsTail()) }},
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return cmddocs.RunDocs(argsTail()) }},
 		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
 		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias, "ld"}, func() error { return cmdllm.RunLLMDocs(argsTail()) }},

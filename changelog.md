@@ -1,5 +1,17 @@
 # Changelog
 
+## [v6.562.0] - 2026-10-17
+
+### Added
+- **Large Files Splitting Engine (`gitmap split large files`):** Discovers tracked and untracked files exceeding 10MB (configurable via `--size`), creates multi-part zip chunks (`<file>.zip`, `<file>.z01`, `<file>.z02`), applies STORE heuristic for pre-compressed media (`.mp3`, `.mp4`, `.png`, `.jpg`, `.wav`) and DEFLATE for data/code, removes raw files from Git history, and prompts with bold yellow irreversible warnings.
+- **Git LFS Conversion Suite (`gitmap lfs convert`):** Automated scanner finding files exceeding 5MB, updates `.gitattributes` tracking patterns, migrates Git history to LFS pointers via `git lfs migrate import` with fallback staging, and previews changes via `--dry-run`.
+- **Repository Flattening Engine (`gitmap repo flatten`):** Compresses bloated multi-gigabyte repositories into a clean successor (`<repo>-flat-v1`) with a single consolidated squashed snapshot commit, archives the previous repository to `<repo>-marked-for-deletion`, swaps to the canonical name, and provides GitMap `undo` restoration.
+- **Flatten Undo Manager (`gitmap repo undo-flatten`):** Safely restores the previous repository archive from `<repo>-marked-for-deletion`.
+- **Muse Training Priority Sync:** Updated `cli/cmd/llm/llm_train_muse.go` to prioritize `repo-secrets` checkouts for active LLM training, restored missing `decisionLog` struct/methods, and flattened nested if statements.
+- **CLI Help & Troubleshooting Docs:** Authored `cli/helpdoc/split-large-files.md`, `cli/helpdoc/lfs-convert.md`, `cli/helpdoc/flatten.md`, added how-to recipes in `cli/cmdhelp/howto.go`, and added a troubleshooting issue card for 'Large Files / Git Clone Failure (No space left on device)' in `src/data/troubleshootingIssues.ts`.
+
+---
+
 ## [v6.561.0] - 2026-10-17
 
 ### Added

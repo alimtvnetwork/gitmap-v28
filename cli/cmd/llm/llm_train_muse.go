@@ -37,7 +37,26 @@ const digestRootName = defaultDigestRootName
 
 // repoSecretsPathResolver resolves the local training checkout and reports
 // whether it still needs cloning. Tests override it with fixtures.
-var repoSecretsPathResolver = defaultResolveTrainingPath
+// decisionLog collects the why behind each step so an AI reading the
+// terminal learns the rationales.
+type decisionLog struct {
+	entries []string
+}
+
+func (d *decisionLog) add(format string, args ...any) {
+	d.entries = append(d.entries, fmt.Sprintf(format, args...))
+}
+
+func (d *decisionLog) print() {
+	if len(d.entries) == 0 {
+		return
+	}
+	fmt.Println("DECISION TRACE (why gitmap took each step):")
+	for i, entry := range d.entries {
+		fmt.Printf("  [%d] %s\n", i+1, entry)
+	}
+	fmt.Println()
+}
 
 // runTrainMuse syncs the training vault (repo-cache, fallback repo-secrets) and renders
 // the digest summary, logging every decision so an AI reading the terminal learns the why.
@@ -182,19 +201,10 @@ func probeRepoCandidates(key, shortKey string) []string {
 }
 
 // defaultResolveTrainingPath resolves the training source directory.
-// It checks repo-cache first for 12-muse-ai (or XX-muse-ai).
-// If not found in repo-cache, it falls back to repo-secrets.
-// If neither has the digest, it defaults to repo-cache (or clone target).
+// It checks repo-secrets first for 12-muse-ai (or XX-muse-ai) for now,
+// with repo-cache as forward-compatible source.
 func defaultResolveTrainingPath() (string, bool, *apperror.AppError) {
-	// 1. Check existing repo-cache checkouts for 12-muse-ai or XX-muse-ai
-	cacheCandidates := probeRepoCandidates("repo-cache", "rc")
-	for _, path := range cacheCandidates {
-		if _, _, hasDigest := resolveMuseDigestDir(path); hasDigest {
-			return path, false, nil
-		}
-	}
-
-	// 2. Check existing repo-secrets checkouts for 12-muse-ai or XX-muse-ai (fallback)
+	// 1. Check existing repo-secrets checkouts for 12-muse-ai or XX-muse-ai (primary for now)
 	secretCandidates := probeRepoCandidates("repo-secrets", "rs")
 	for _, path := range secretCandidates {
 		if _, _, hasDigest := resolveMuseDigestDir(path); hasDigest {
@@ -202,18 +212,26 @@ func defaultResolveTrainingPath() (string, bool, *apperror.AppError) {
 		}
 	}
 
-	// 3. If no existing digest was found, prefer existing repo-cache dir
-	if len(cacheCandidates) > 0 {
-		return cacheCandidates[0], false, nil
+	// 2. Check existing repo-cache checkouts for 12-muse-ai or XX-muse-ai (future transition)
+	cacheCandidates := probeRepoCandidates("repo-cache", "rc")
+	for _, path := range cacheCandidates {
+		if _, _, hasDigest := resolveMuseDigestDir(path); hasDigest {
+			return path, false, nil
+		}
 	}
 
-	// 4. Fallback to existing repo-secrets dir if present
+	// 3. Fallback to existing repo-secrets dir if present
 	if len(secretCandidates) > 0 {
 		return secretCandidates[0], false, nil
 	}
 
-	// 5. Default clone target: repo-cache at work-folder root
-	return defaultCloneTargetFor("repo-cache", "rc"), true, nil
+	// 4. Fallback to existing repo-cache dir if present
+	if len(cacheCandidates) > 0 {
+		return cacheCandidates[0], false, nil
+	}
+
+	// 5. Default clone target: repo-secrets at work-folder root
+	return defaultCloneTargetFor("repo-secrets", "rs"), true, nil
 }
 
 func defaultResolveRepoSecretsPath() (string, bool, *apperror.AppError) {

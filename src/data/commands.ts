@@ -4305,6 +4305,103 @@ export const commands: CommandDef[] = [
       { name: "status", description: "Inspect repository git status" },
     ],
   },
+  {
+    category: "repo",
+    name: "split large files",
+    alias: "split-large-files",
+    description: "Scan for oversized files (>10MB), compress them into multipart zip archives (.zip, .z01), and purge raw files from Git history",
+    usage: "gitmap split large files [repo] [--size 10MB] [--dry-run] [-y]",
+    flags: [
+      { flag: "--size", description: "Minimum file size threshold to split (default: 10MB)" },
+      { flag: "--chunk-size", description: "Maximum split chunk size (default: 9.5MB)" },
+      { flag: "--dry-run", description: "Preview oversized files without compressing or modifying git history" },
+      { flag: "-y, --yes", description: "Skip interactive prompt and proceed immediately" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Preview Oversized Files", action: "gitmap split large files --dry-run" },
+      { step: 2, title: "Execute Multipart Splitting", action: "gitmap split large files --size 10MB -y" },
+      { step: 3, title: "Verify Working Tree", action: "gitmap status" },
+    ],
+    notes: [
+      "Splits large audio, video, binary blobs into multipart zip segments conforming to GitHub 100MB limits.",
+      "Automatically applies ZIP STORE (no recompression) for media (.mp3, .mp4, .wav, .zip, .png) and DEFLATE for data.",
+      "Purges raw file commits from Git history to resolve clone and checkout failure on low-space devices.",
+    ],
+    examples: [
+      { command: "gitmap split large files --dry-run", description: "Preview large files in the current repository" },
+      { command: "gitmap split large files ./story-telling-v1 --size 10MB -y", description: "Split files over 10MB in story-telling-v1" },
+    ],
+    seeAlso: [
+      { name: "lfs convert", description: "Migrate oversized repository files to Git LFS" },
+      { name: "repo flatten", description: "Squash bloated repository history into a single flat commit" },
+      { name: "status", description: "Inspect repository git status" },
+    ],
+  },
+  {
+    category: "repo",
+    name: "lfs convert",
+    alias: "lfs-convert",
+    description: "Discover files exceeding threshold (>5MB), configure .gitattributes tracking patterns, and migrate history to Git LFS pointers",
+    usage: "gitmap lfs convert [repo] [--size 5MB] [--dry-run] [-y]",
+    flags: [
+      { flag: "--size", description: "Minimum file size threshold for LFS migration (default: 5MB)" },
+      { flag: "--dry-run", description: "Preview files to be migrated to Git LFS without writing changes" },
+      { flag: "-y, --yes", description: "Skip confirmation prompt and migrate repository to LFS" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Preview LFS Migration", action: "gitmap lfs convert --dry-run" },
+      { step: 2, title: "Execute LFS Conversion", action: "gitmap lfs convert --size 5MB -y" },
+      { step: 3, title: "Verify LFS Files", action: "git lfs ls-files" },
+    ],
+    notes: [
+      "Generates and updates .gitattributes with tracking filters for binary assets.",
+      "Replaces heavy blobs in Git tree with lightweight text pointers referencing LFS storage.",
+      "Dramatically reduces clone times and eliminates checkout buffer overflows.",
+    ],
+    examples: [
+      { command: "gitmap lfs convert --dry-run", description: "Dry-run LFS conversion for current repository" },
+      { command: "gitmap lfs convert --size 5MB -y", description: "Migrate all files over 5MB to Git LFS" },
+    ],
+    seeAlso: [
+      { name: "split large files", description: "Compress large files into multipart zip archives" },
+      { name: "repo flatten", description: "Squash bloated repository history into a single flat commit" },
+      { name: "lfs-common", description: "Common Git LFS installation and verification utilities" },
+    ],
+  },
+  {
+    category: "repo",
+    name: "repo flatten",
+    alias: "flatten",
+    description: "Squash bloated Git repository history into a single clean snapshot commit with instant undo support",
+    usage: "gitmap repo flatten [--target <dir>] [--dry-run] [-y]",
+    flags: [
+      { flag: "--target", description: "Target repository directory to flatten (default: current directory)" },
+      { flag: "--dry-run", description: "Inspect commit count, working tree size, and staging plan without changes" },
+      { flag: "-y, --yes", description: "Skip interactive confirmation prompt" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Inspect Commit Count & Staging Plan", action: "gitmap repo flatten --dry-run" },
+      { step: 2, title: "Squash History into Single Flat Commit", action: "gitmap repo flatten -y" },
+      { step: 3, title: "Restore if Needed", action: "gitmap repo undo-flatten <repo>" },
+    ],
+    notes: [
+      "Creates a clean numbered successor repository (<repo>-flat-v1) and copies pure working tree files.",
+      "Strictly excludes .git, node_modules, dist, temp, and .pnpm-store from the snapshot.",
+      "Archives bloated previous repository to <repo>-marked-for-deletion and promotes successor to canonical name.",
+      "Reversible at any time using 'gitmap repo undo-flatten <repo>'.",
+    ],
+    examples: [
+      { command: "gitmap repo flatten --dry-run", description: "Preview flattening plan for current repository" },
+      { command: "gitmap repo flatten -y", description: "Flatten repository history immediately" },
+      { command: "gitmap repo flatten --target ./story-telling-v1 -y", description: "Flatten specific target repository" },
+      { command: "gitmap repo undo-flatten story-telling-v1", description: "Undo flattening and restore previous bloated history" },
+    ],
+    seeAlso: [
+      { name: "split large files", description: "Split large media and data files into multipart zip archives" },
+      { name: "lfs convert", description: "Migrate oversized repository files to Git LFS" },
+      { name: "fix", description: "Remediate repository issues" },
+    ],
+  },
 ];
 
 // Global flags applied by every command via the shared root parser.

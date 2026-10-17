@@ -317,18 +317,7 @@ func RunConflictsCmd(args []string) error {
 	}
 
 	if isInsideGitRepo(".") {
-		files, err := GetConflictedFiles(".")
-		if err != nil {
-			return err
-		}
-		if len(files) == 0 {
-			fmt.Printf("%s No merge conflicts detected in current repository.\n", constants.ColorGreen+"✓"+constants.ColorReset)
-			return nil
-		}
-		name := filepath.Base(getAbsPath("."))
-		printConflictTree(name, ".", files)
-		printQuickActions(name)
-		return nil
+		return inspectCurrentRepoConflicts()
 	}
 
 	db, err := store.OpenDefault()
@@ -360,6 +349,21 @@ func RunConflictsCmd(args []string) error {
 			constants.ColorGreen+"✓"+constants.ColorReset, len(repos))
 	}
 
+	return nil
+}
+
+func inspectCurrentRepoConflicts() error {
+	files, err := GetConflictedFiles(".")
+	if err != nil {
+		return err
+	}
+	if len(files) == 0 {
+		fmt.Printf("%s No merge conflicts detected in current repository.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+		return nil
+	}
+	name := filepath.Base(getAbsPath("."))
+	printConflictTree(name, ".", files)
+	printQuickActions(name)
 	return nil
 }
 

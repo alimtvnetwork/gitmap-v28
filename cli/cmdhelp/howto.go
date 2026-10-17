@@ -105,6 +105,36 @@ var howtoRecipes = []howtoRecipe{
 			"gitmap cpf \"resolve merge conflicts\"",
 		},
 	},
+	{
+		keywords: []string{"split large files", "split-large-files", "multipart zip", "large files", "oversized files"},
+		title:    "split large files in git repositories",
+		topic:    "split-large-files",
+		steps: []string{
+			"gitmap split large files --dry-run",
+			"gitmap split large files --size 10MB -y",
+			"gitmap status",
+		},
+	},
+	{
+		keywords: []string{"convert large files to git lfs", "lfs convert", "lfs-convert", "git lfs", "git-lfs", "lfs"},
+		title:    "convert large files to Git LFS",
+		topic:    "lfs-convert",
+		steps: []string{
+			"gitmap lfs convert --dry-run",
+			"gitmap lfs convert --size 5MB -y",
+			"git lfs ls-files",
+		},
+	},
+	{
+		keywords: []string{"flatten git repository history", "flatten repository", "repo flatten", "flatten history", "squash history", "flatten"},
+		title:    "flatten git repository history",
+		topic:    "flatten",
+		steps: []string{
+			"gitmap repo flatten --dry-run",
+			"gitmap repo flatten -y",
+			"gitmap repo undo-flatten <repo>",
+		},
+	},
 }
 
 // RunHowto executes `gitmap howto <task...>` — pure keyword matching.
