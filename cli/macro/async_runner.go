@@ -141,7 +141,11 @@ func createAsyncStepExecution(step MacroStep, cmdText, dir string, elapsed time.
 }
 
 func runAsyncPeriodicWorker(opts AsyncStepOpts, dir string) {
-	ticker := time.NewTicker(time.Duration(opts.IntervalSec) * time.Second)
+	interval := opts.IntervalSec
+	if interval < 30 {
+		interval = 30
+	}
+	ticker := time.NewTicker(time.Duration(interval) * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {

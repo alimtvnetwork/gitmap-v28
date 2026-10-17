@@ -43,6 +43,9 @@ func parseAsyncArgs(args []string) (*asyncTaskOpts, error) {
 	for i := 0; i < len(args); i++ {
 		consumed, interval := tryParseInterval(args, i)
 		if consumed > 0 {
+			if interval > 0 && interval < 30 {
+				interval = 30
+			}
 			opts.intervalS = interval
 			i += consumed - 1
 
@@ -100,11 +103,11 @@ func runAsyncStop(args []string) error {
 func printAsyncHelp() {
 	fmt.Println("Usage: gitmap async <command> [flags]")
 	fmt.Println("\nFlags:")
-	fmt.Println("  -t <seconds>     Run command periodically on an interval (e.g. -t 5)")
+	fmt.Println("  -t <seconds>     Run command periodically on an interval (minimum: 30s, e.g. -t 30)")
 	fmt.Println("\nSubcommands:")
 	fmt.Println("  ls, list         List active async monitoring tasks")
 	fmt.Println("  stop <id>        Stop a running async monitor")
 	fmt.Println("\nExamples:")
-	fmt.Println("  gitmap async gitmap status -t 5")
+	fmt.Println("  gitmap async gitmap status -t 30")
 	fmt.Println("  gitmap async gitmap storage -t 60")
 }

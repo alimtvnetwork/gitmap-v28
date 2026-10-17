@@ -27,8 +27,8 @@ const HelpTask = "  task (tk) <sub>     Manage file-sync watch tasks"
 
 // Task defaults.
 const (
-	TaskDefaultInterval = 5
-	TaskMinInterval     = 2
+	TaskDefaultInterval = 30
+	TaskMinInterval     = 30
 	TaskMaxGoroutines   = 64
 	TaskCopyBufferSize  = 32768
 	TasksFileName       = "tasks.json"

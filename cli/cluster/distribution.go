@@ -54,6 +54,9 @@ func DistributionLoop(
 	interval time.Duration,
 	onUpdate func([]Workload,
 	)) {
+	if interval < 30*time.Second {
+		interval = 30 * time.Second
+	}
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
