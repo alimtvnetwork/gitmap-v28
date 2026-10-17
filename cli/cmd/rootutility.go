@@ -114,7 +114,7 @@ const (
 func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{CmdResolve, "res"}, func() error { return cmdconflict.RunResolveCmd(argsTail()) }},
-		{[]string{CmdConflicts, "conflict", "cf"}, func() error { return cmdconflict.RunConflictsCmd(argsTail()) }},
+		{[]string{CmdConflicts, "conflict"}, func() error { return cmdconflict.RunConflictsCmd(argsTail()) }},
 		{[]string{CmdSplitLargeFiles, "split-large", "splitlargefiles"}, func() error { return cmdsplit.RunSplitLargeFilesCmd(argsTail()) }},
 		{[]string{CmdLFSConvert, "lfsconvert"}, func() error { return cmdlfs.RunLFSConvertCmd(argsTail()) }},
 		{[]string{CmdFlatten, "repo-flatten", "repoflatten"}, func() error { return cmdflatten.RunFlattenCmd(argsTail()) }},

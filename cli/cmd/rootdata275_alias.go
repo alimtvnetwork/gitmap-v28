@@ -4,18 +4,14 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfleet"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdflatten"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhealth"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhelp"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhooks"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsplit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtheme"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
 )
 
 // dispatch275Alias handles single-word aliases for the 275 commands.
@@ -123,30 +119,6 @@ func dispatch275Alias(command string, args []string) (bool, error) {
 	case "hlth", "health":
 		if appErr := cmdhealth.RunHealth(args); appErr != nil {
 			return true, appErr
-		}
-		return true, nil
-	case "repo-flatten", "flatten":
-		if err := cmdflatten.RunFlattenCmd(args); err != nil {
-			return true, err
-		}
-		return true, nil
-	case "split-large-files":
-		if err := cmdsplit.RunSplitLargeFilesCmd(args); err != nil {
-			return true, err
-		}
-		return true, nil
-	case "lfs-convert":
-		if err := cmdlfs.RunLFSConvertCmd(args); err != nil {
-			return true, err
-		}
-		return true, nil
-	case "undo-flatten", "repo-undo-flatten":
-		target := ""
-		if len(args) > 0 {
-			target = args[0]
-		}
-		if err := cmdundo.RunUndoFlatten(target); err != nil {
-			return true, err
 		}
 		return true, nil
 	}
