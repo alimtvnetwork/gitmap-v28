@@ -1,6 +1,6 @@
 // Package llm — llm_train_muse.go implements the positional "muse" sub-target of
-// `gitmap llm train`: it checks repo-secrets first for the 12-muse-ai (or XX-muse-ai)
-// directory with forward-compatible fallback to repo-cache, diffs the last N days
+// `gitmap llm train`: it checks repo-cache first for the 12-muse-ai (or XX-muse-ai)
+// directory with backward-compatible fallback to repo-secrets, diffs the last N days
 // of the Muse memory digest, and prints a terminal summary plus a raw AI traversal
 // checklist. The last-read watermark is tracked by gitmap itself (JSON under BinaryDataDir).
 package llm
@@ -125,16 +125,9 @@ func fallbackToRepoSecretsDigest(log *decisionLog, path string) (string, string,
 }
 
 // defaultResolveTrainingPath resolves the training source directory.
-// It checks repo-secrets first for 12-muse-ai (or XX-muse-ai) for now,
-// with repo-cache as forward-compatible source.
+// It checks repo-cache first for 12-muse-ai (or XX-muse-ai); repo-secrets
+// stays as a backward-compatible fallback (the digest moved out in 2026-10).
 func defaultResolveTrainingPath() (string, bool, *apperror.AppError) {
-	secretCandidates := probeRepoCandidates("repo-secrets", "rs")
-	for _, path := range secretCandidates {
-		if _, _, hasDigest := resolveMuseDigestDir(path); hasDigest {
-			return path, false, nil
-		}
-	}
-
 	cacheCandidates := probeRepoCandidates("repo-cache", "rc")
 	for _, path := range cacheCandidates {
 		if _, _, hasDigest := resolveMuseDigestDir(path); hasDigest {
@@ -142,15 +135,22 @@ func defaultResolveTrainingPath() (string, bool, *apperror.AppError) {
 		}
 	}
 
-	if len(secretCandidates) > 0 {
-		return secretCandidates[0], false, nil
+	secretCandidates := probeRepoCandidates("repo-secrets", "rs")
+	for _, path := range secretCandidates {
+		if _, _, hasDigest := resolveMuseDigestDir(path); hasDigest {
+			return path, false, nil
+		}
 	}
 
 	if len(cacheCandidates) > 0 {
 		return cacheCandidates[0], false, nil
 	}
 
-	return defaultCloneTargetFor("repo-secrets", "rs"), true, nil
+	if len(secretCandidates) > 0 {
+		return secretCandidates[0], false, nil
+	}
+
+	return defaultCloneTargetFor("repo-cache", "rc"), true, nil
 }
 
 func defaultCloneTargetFor(key, shortKey string) string {
