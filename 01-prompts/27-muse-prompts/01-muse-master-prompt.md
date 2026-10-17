@@ -355,7 +355,7 @@ The canonical parameterization of this protocol lives in [`01-prompts/14-execute
 - **Errors:** never swallowed (CODE RED); typed results where the codebase uses
   them; context on every log.
 - **Naming:** lowercase file names; descriptive identifiers; constants/enums over
-  magic values; positive boolean prefixes.
+  magic values; positive boolean prefixes. All README files MUST be lowercase `readme.md` (never uppercase `README.md`). All markdown files MUST use two-digit sequence numbers and hyphens in lowercase (`nn-name.md`, e.g. `01-architecture-spec.md`).
 - **Paths:** relative paths only in committed content.
 - **Size & DRY:** small functions/files; extract shared logic; no duplication.
 - **Search:** `gitmap aum search` — never `grep`/`git grep`/`Select-String`.

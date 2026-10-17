@@ -27,6 +27,8 @@ Each domain cluster represents the authoritative, consolidated specification for
 
 The following application specification records the active feature development and consolidation milestone:
 
+- [heatmap-command-and-database-structure-instructions](heatmap-command-and-database-structure-instructions/01-architecture-spec.md) — Heatmap Command and Database Structure Instructions: Repo-cache (`rc`) tree folder structure (`.heatmap/01-<ai-name>/`), Split-DB architecture (`root-heatmap.db` and per-repo `heatmap.db`), local CLI tracking database, autonomous conflict resolution via temporary SQLite delta replay, and Muse lowercase guideline enforcement (Specs: [Architecture](heatmap-command-and-database-structure-instructions/01-architecture-spec.md), [Database](heatmap-command-and-database-structure-instructions/02-database-spec.md), [Conflict Resolution](heatmap-command-and-database-structure-instructions/03-conflict-resolution-spec.md)) (Status: `completed`)
+
 - [285-gitmap-pae-infinite-hang-and-heartbeat-rca-fix](285-gitmap-pae-infinite-hang-and-heartbeat-rca-fix/spec.md) — GitMap PAE Post-Pull Infinite Hang & Heartbeat Teardown RCA Fix: Immediate teardown of bar/heartbeat, 3s bounded ignore collect timeout, heartbeat self-termination guard (Specs: [Spec](285-gitmap-pae-infinite-hang-and-heartbeat-rca-fix/spec.md)) (Status: `completed`)
 
 - [284-agent-heatmap-db-introspection-and-subtask-code-completion](284-agent-heatmap-db-introspection-and-subtask-code-completion/spec.md) — Agent Heatmap Split-DB Architecture, Native DB Introspection CLI (`gitmap db ...`), Subtask `--code` Resolution & Clean Error Handling (Specs: [Spec](284-agent-heatmap-db-introspection-and-subtask-code-completion/spec.md)) (Status: `completed`)

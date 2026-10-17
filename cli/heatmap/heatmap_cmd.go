@@ -36,6 +36,8 @@ func DispatchHeatmapSubsystem(ctx context.Context, args []string, out io.Writer)
 		return runHeatmapTree(flags, out)
 	case "status":
 		return runHeatmapStatus(flags, out)
+	case "rc", "rc-heatmap":
+		return DispatchRcHeatmap(ctx, args[1:], out)
 	default:
 		return apperror.NewValidation("heatmap", "E1000", fmt.Sprintf("unknown heatmap command: %s", subcmd))
 	}
@@ -270,6 +272,7 @@ func printHeatmapHelp(out io.Writer) {
 	fmt.Fprintln(out, "  search  Search logged actions by query, task, or file")
 	fmt.Fprintln(out, "  tree    Display hierarchical causal execution tree")
 	fmt.Fprintln(out, "  status  Summarize action volume, states, and file touches")
+	fmt.Fprintln(out, "  rc      Manage repo-cache isolated multi-AI heatmap telemetry")
 	fmt.Fprintln(out, "  help    Show this help message\n\nExamples:")
 	fmt.Fprintln(out, "  gitmap heatmap log --task t1 --action READ --file cli/store/path.go --state EXPLORATION --reason \"Checking base paths\"")
 	fmt.Fprintln(out, "  gitmap heatmap log --task t1 --action MODIFY --file cli/store/heatmap.go --lines 10-50 --parent 1 --state CODE_EDITING")
