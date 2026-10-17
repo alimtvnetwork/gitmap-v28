@@ -28,13 +28,7 @@ func (p *PullProgressBar) formatActiveWorkersList() string {
 		return ""
 	}
 	if len(workerIDs) == 1 {
-		w := p.activeWorkers[workerIDs[0]]
-		if w == nil {
-			return ""
-		}
-		badge := p.colorizeBadge(FormatStepBadge(w.Step, p.isSafe), w.Step)
-		repoName := cleanActiveRepoName(w.RepoName)
-		return fmt.Sprintf("%s %s%s", badge, repoName, formatWorkerSlotDesc(w))
+		return p.formatSingleActiveWorker(p.activeWorkers[workerIDs[0]])
 	}
 	maxWorkers := p.resolveMaxWorkersToDisplay()
 	var parts []string
@@ -90,3 +84,13 @@ func (p *PullProgressBar) sortedWorkerIDs() []int {
 	return ids
 }
 
+func (p *PullProgressBar) formatSingleActiveWorker(w *WorkerSlotState) string {
+	if w == nil {
+		return ""
+	}
+
+	badge := p.colorizeBadge(FormatStepBadge(w.Step, p.isSafe), w.Step)
+	repoName := cleanActiveRepoName(w.RepoName)
+
+	return fmt.Sprintf("%s %s%s", badge, repoName, formatWorkerSlotDesc(w))
+}
