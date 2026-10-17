@@ -41,7 +41,9 @@ func RunReleaseRemoveBetween(args []string) error {
 
 	workDir := "."
 	persistentPins, _ := LoadPinnedTags(workDir)
-	allPins := append(persistentPins, opts.Pins...)
+	allPins := make([]string, 0, len(persistentPins)+len(opts.Pins))
+	allPins = append(allPins, persistentPins...)
+	allPins = append(allPins, opts.Pins...)
 
 	allTags, err := fetchRepositoryTags()
 	if err != nil {
@@ -125,13 +127,14 @@ func parseRemoveBetweenFlags(args []string) (RemoveBetweenOptions, error) {
 
 	isConfirmed := false
 	confirmSource := ""
-	if *confirm {
+	switch {
+	case *confirm:
 		isConfirmed = true
 		confirmSource = "--confirm"
-	} else if *yes {
+	case *yes:
 		isConfirmed = true
 		confirmSource = "-y"
-	} else if *yesLong {
+	case *yesLong:
 		isConfirmed = true
 		confirmSource = "--yes"
 	}

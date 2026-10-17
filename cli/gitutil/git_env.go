@@ -32,7 +32,9 @@ func BuildSafeGitEnvWithBase(base []string, extra ...string) []string {
 	}
 	safe = AppendGitCredentialEnv(safe)
 
-	res := append(base, safe...)
+	res := make([]string, 0, len(base)+len(safe)+len(extra))
+	res = append(res, base...)
+	res = append(res, safe...)
 	if len(extra) > 0 {
 		res = append(res, extra...)
 	}

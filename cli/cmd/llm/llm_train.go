@@ -172,14 +172,15 @@ func stripTrainTarget(args []string) (string, []string) {
 	target := ""
 	expectValue := false
 	for _, arg := range args {
-		if expectValue {
+		switch {
+		case expectValue:
 			expectValue = false
-		} else if target == "" && isMuseTarget(arg) {
+		case target == "" && isMuseTarget(arg):
 			target = museTrainTarget
 			continue
-		} else if target == "" && (arg == "train" || arg == "llm-train") {
+		case target == "" && (arg == "train" || arg == "llm-train"):
 			continue
-		} else {
+		default:
 			expectValue = trainValueFlags[arg]
 		}
 		rest = append(rest, arg)
