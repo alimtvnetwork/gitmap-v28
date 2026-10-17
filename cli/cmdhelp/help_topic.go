@@ -88,6 +88,28 @@ var helpTopics = []helpTopic{
 			{command: "gitmap --theme <name> <command>", note: "run one command in a palette"},
 		},
 	},
+	{
+		name:        "conflicts",
+		description: "Inspect and resolve merge conflicts using IDE 3-way editor or CLI.",
+		steps: []helpTopicStep{
+			{command: "gitmap conflicts", note: "inspect conflicted files in repo"},
+			{command: "gitmap resolve --ide", note: "launch VS Code / Cursor 3-Way Merge Editor"},
+			{command: "gitmap resolve --theirs", note: "accept remote incoming changes"},
+			{command: "gitmap resolve --ours", note: "accept local current changes"},
+			{command: "gitmap resolve --abort", note: "safely abort in-progress merge or rebase"},
+			{command: "gitmap cpf \"resolve conflicts\"", note: "stage, commit, and push once resolved"},
+		},
+	},
+	{
+		name:        "storage",
+		description: "Manage large files, Git LFS migration, and repo history flattening.",
+		steps: []helpTopicStep{
+			{command: "gitmap split large files --dry-run", note: "preview large files to chunk into ZIP parts"},
+			{command: "gitmap lfs convert --dry-run", note: "preview binary files to migrate to Git LFS"},
+			{command: "gitmap repo flatten --dry-run", note: "preview squashing bloated repo history"},
+			{command: "gitmap repo undo-flatten <repo>", note: "restore flattened repo from backup archive"},
+		},
+	},
 }
 
 // RunHelpTopic executes `gitmap help topic <name>` / `gitmap ht <name>`.

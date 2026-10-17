@@ -103,3 +103,9 @@
 {"name": "replace-regex", "alias": "repr", "version": "v6.513.0", "category": "tooling", "description": "Regex pattern replacement across repository code", "example": "gitmap replace-regex \"v[0-9]+\" \"v6.524.0\""}
 {"name": "cat", "alias": "ct", "version": "v6.514.0", "category": "tooling", "description": "Zero-disk stdout stream of file content in CLI sessions", "example": "gitmap cat cli/constants/constants_cli.go"}
 {"name": "tree", "alias": "tree", "version": "v6.528.0", "category": "tooling", "description": "Tree export with search engine family and relative paths", "example": "gitmap tree --export"}
+{"name": "resolve", "alias": "res", "version": "v6.561.0", "category": "sync", "description": "Resolve merge and rebase conflicts via IDE 3-way editor, --theirs, --ours, or --abort", "example": "gitmap resolve --ide"}
+{"name": "conflicts", "alias": "cf", "version": "v6.561.0", "category": "sync", "description": "Inspect active merge conflicts with tree view and quick actions", "example": "gitmap conflicts"}
+{"name": "split large files", "alias": "split-large-files", "version": "v6.562.0", "category": "storage", "description": "Decompose tracked files > 10MB into multipart ZIP chunks and update Git", "example": "gitmap split large files --dry-run"}
+{"name": "lfs convert", "alias": "lfs-convert", "version": "v6.562.0", "category": "storage", "description": "Scan files > 5MB, generate .gitattributes rules, and migrate to Git LFS", "example": "gitmap lfs convert --dry-run"}
+{"name": "repo flatten", "alias": "flatten", "version": "v6.562.0", "category": "storage", "description": "Squash bloated repository history into a single clean snapshot commit with undo", "example": "gitmap repo flatten --dry-run"}
+{"name": "reclone", "alias": "rc", "version": "v6.560.0", "category": "scanner", "description": "Clean and re-clone a repository from URL or manifest", "example": "gitmap reclone https://github.com/org/repo"}

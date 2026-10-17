@@ -115,5 +115,11 @@ func generatedCatalogEntries() []NewCommandEntry {
 		{Name: "replace-regex", Alias: "", Version: "v6.513.0", Category: "tooling", Description: "Regex pattern replacement across repository code", Example: "gitmap replace-regex \"v[0-9]+\" \"v6.524.0\""},
 		{Name: "cat", Alias: "view", Version: "v6.514.0", Category: "tooling", Description: "Zero-disk stdout stream of file content in CLI sessions", Example: "gitmap cat cli/constants/constants_cli.go"},
 		{Name: "tree", Alias: "folder", Version: "v6.528.0", Category: "tooling", Description: "Tree export with search engine family and relative paths", Example: "gitmap tree --export"},
+		{Name: "resolve", Alias: "res", Version: "v6.561.0", Category: "sync", Description: "Resolve merge and rebase conflicts via IDE 3-way editor, --theirs, --ours, or --abort", Example: "gitmap resolve --ide"},
+		{Name: "conflicts", Alias: "cf", Version: "v6.561.0", Category: "sync", Description: "Inspect active merge conflicts with tree view and quick actions", Example: "gitmap conflicts"},
+		{Name: "split large files", Alias: "split-large-files", Version: "v6.562.0", Category: "storage", Description: "Decompose tracked files > 10MB into multipart ZIP chunks and update Git", Example: "gitmap split large files --dry-run"},
+		{Name: "lfs convert", Alias: "lfs-convert", Version: "v6.562.0", Category: "storage", Description: "Scan files > 5MB, generate .gitattributes rules, and migrate to Git LFS", Example: "gitmap lfs convert --dry-run"},
+		{Name: "repo flatten", Alias: "flatten", Version: "v6.562.0", Category: "storage", Description: "Squash bloated repository history into a single clean snapshot commit with undo", Example: "gitmap repo flatten --dry-run"},
+		{Name: "reclone", Alias: "rc", Version: "v6.560.0", Category: "scanner", Description: "Clean and re-clone a repository from URL or manifest", Example: "gitmap reclone https://github.com/org/repo"},
 	}
 }

@@ -106,6 +106,18 @@ func normalizeHelpTopic(topic string) string {
 		return constants.CmdShutdownUntil
 	case constants.CmdFixReleaseTagsAlias, "fix-release-tag", "fix-tags", constants.CmdFixReleaseTagsAliasSolid:
 		return constants.CmdFixReleaseTags
+	case "res":
+		return "resolve"
+	case "cf", "conflict":
+		return "conflicts"
+	case "rc", "rec", "clone-now", "cnow", "relclone":
+		return "reclone"
+	case "split", "split-large", "split-files":
+		return "split-large-files"
+	case "lfs", "lfsconvert", "git-lfs":
+		return "lfs-convert"
+	case "repo-flatten":
+		return "flatten"
 	}
 
 	return topic

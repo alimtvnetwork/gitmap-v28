@@ -19,9 +19,14 @@ func allHelpRows() []helpRow {
 		constants.HelpScan, constants.HelpRescan, constants.HelpList)
 	addGroup(&rows, constants.HelpGroupCloning,
 		constants.HelpClone, constants.HelpCloneSync, constants.HelpCloneNext,
+		constants.HelpReclone,
 		constants.HelpDesktopSync, constants.HelpGitHubDesktop)
 	addGroup(&rows, constants.HelpGroupGitOps,
-		constants.HelpPull, constants.HelpFix, constants.HelpLowerCaseFix, constants.HelpLowerCaseReadme, constants.HelpExec, constants.HelpStatus,
+		constants.HelpPull, constants.HelpPullAll, constants.HelpReconcile,
+		constants.HelpResolve, constants.HelpConflicts,
+		constants.HelpFix, constants.HelpLowerCaseFix, constants.HelpLowerCaseReadme,
+		constants.HelpSplitLargeFiles, constants.HelpLFSConvert, constants.HelpRepoFlatten,
+		constants.HelpExec, constants.HelpStatus,
 		constants.HelpWatch, constants.HelpHasAnyUpdates, constants.HelpLatestBr)
 	addGroup(&rows, constants.HelpGroupNavigation,
 		constants.HelpCD, constants.HelpGroup, constants.HelpMultiGroup,
