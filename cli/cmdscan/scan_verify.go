@@ -60,17 +60,26 @@ func runScanVerify(args []string) *appfault.AppError {
 	index := indexScanVerifyPaths(records)
 	stale := findScanVerifyStale(index)
 	unindexed := findScanVerifyUnindexed(index)
-	pruned := 0
-	if isRepair {
-		var repairErr *appfault.AppError
-		pruned, repairErr = pruneScanVerifyStale(db, stale)
-		if repairErr != nil {
-			return repairErr
-		}
-		stale = stale[pruned:]
+	pruned, stale, appErr := maybePruneScanVerifyStale(db, stale, isRepair)
+	if appErr != nil {
+		return appErr
 	}
 	printScanVerifyReport(len(records), stale, unindexed, isRepair, pruned)
 	return nil
+}
+
+// maybePruneScanVerifyStale prunes stale entries when repair is requested.
+// Returns the pruned count and the remaining stale list.
+func maybePruneScanVerifyStale(db *store.DB, stale []model.ScanRecord, isRepair bool) (int, []model.ScanRecord, *appfault.AppError) {
+	if !isRepair {
+		return 0, stale, nil
+	}
+	pruned, repairErr := pruneScanVerifyStale(db, stale)
+	if repairErr != nil {
+		return 0, stale, repairErr
+	}
+
+	return pruned, stale[pruned:], nil
 }
 
 // hasScanVerifyRepairFlag reports whether --repair was passed.
@@ -226,9 +235,5 @@ NOTES
 `)
 }
 
-// ScanVerify help-example data (3-part, spec 03 §2) for the lead's helpdoc wiring.
-const (
-	scanVerifyExampleWhat       = "Two-way index↔filesystem consistency check: stale DB entries for deleted dirs and on-disk repos missing from the index, with --repair to prune the stale ones."
-	scanVerifyExampleInvocation = `gitmap scan verify`
-	scanVerifyExampleOutput     = `index 43 repos · 41 on disk ok · 2 stale entries (~/tmp/scratch, ~/work/old) · 0 unindexed () · run with --repair to prune`
-)
+// Help-example data lives in cli/helpdoc/examples_275.go
+// (single source of truth, program 275).

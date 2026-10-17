@@ -142,7 +142,7 @@ func mrChecksSummary(rollup []mrCheckRun) string {
 		switch c.Conclusion {
 		case "SUCCESS", "SKIPPED", "NEUTRAL":
 			passed++
-		case "FAILURE", "TIMED_OUT", "ACTION_REQUIRED", "CANCELLED", "STALE":
+		case "FAILURE", "TIMED_OUT", "ACTION_REQUIRED", "CANCELED", "STALE":
 			failed++
 		}
 	}

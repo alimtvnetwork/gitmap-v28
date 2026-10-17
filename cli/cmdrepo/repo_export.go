@@ -239,10 +239,8 @@ func buildRepoManifest(rec model.ScanRecord, remotes map[string]string, branches
 
 // writeRepoManifest writes the indented manifest JSON and returns its size.
 func writeRepoManifest(path string, manifest repoManifest) (int64, *appfault.AppError) {
-	if dir := filepath.Dir(path); dir != "" {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			return 0, apperror.NewExecutionError(fmt.Sprintf("repo export: could not create output dir %s: %v", dir, err))
-		}
+	if appErr := ensureManifestDir(path); appErr != nil {
+		return 0, appErr
 	}
 	data, err := json.MarshalIndent(manifest, "", "  ")
 	if err != nil {
@@ -253,6 +251,19 @@ func writeRepoManifest(path string, manifest repoManifest) (int64, *appfault.App
 		return 0, apperror.NewExecutionError(fmt.Sprintf("repo export: could not write %s: %v", path, err))
 	}
 	return int64(len(data)), nil
+}
+
+// ensureManifestDir creates the manifest's parent directory if needed.
+func ensureManifestDir(path string) *appfault.AppError {
+	dir := filepath.Dir(path)
+	if dir == "" {
+		return nil
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return apperror.NewExecutionError(fmt.Sprintf("repo export: could not create output dir %s: %v", dir, err))
+	}
+
+	return nil
 }
 
 // formatByteSize renders a byte count as "4.2 KB".
@@ -292,9 +303,5 @@ NOTES
   - <name> matches slug, repo name, or directory base name. Read-only.
 `
 
-// RepoExport help-example data (3-part, spec 03 §2) for the lead's helpdoc wiring.
-const (
-	repoExportExampleWhat       = "Exports one repo's portable manifest JSON (clone URL, remotes, branches) — a versionable, diffable file that repo import consumes."
-	repoExportExampleInvocation = `gitmap repo export story-telling-v1 --out ./story-telling-v1.gitmap.json`
-	repoExportExampleOutput     = `exported 1 repo · 2 remotes · 3 branches · written ./story-telling-v1.gitmap.json (4.2 KB)`
-)
+// Help-example data lives in cli/helpdoc/examples_275.go
+// (single source of truth, program 275).

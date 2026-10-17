@@ -162,13 +162,18 @@ func cloneRepoImport(cloneURL, dest string) *appfault.AppError {
 	cmd := exec.Command("git", "clone", cloneURL, dest)
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		detail := strings.TrimSpace(stderr.String())
-		if detail == "" {
-			detail = err.Error()
-		}
-		return apperror.NewExecutionError(fmt.Sprintf("repo import: git clone failed: %s", detail))
+		return apperror.NewExecutionError(fmt.Sprintf("repo import: git clone failed: %s", cloneErrDetail(stderr, err)))
 	}
 	return nil
+}
+
+// cloneErrDetail prefers stderr output, falling back to the error text.
+func cloneErrDetail(stderr strings.Builder, err error) string {
+	if detail := strings.TrimSpace(stderr.String()); detail != "" {
+		return detail
+	}
+
+	return err.Error()
 }
 
 // restoreRepoImportRemotes ensures every manifest remote exists in the clone.
@@ -177,21 +182,25 @@ func restoreRepoImportRemotes(dest string, remotes map[string]string) (int, *app
 	restored := 0
 	for _, name := range sortedKeys(remotes) {
 		url := remotes[name]
-		if name == "origin" {
-			if appErr := gitRemoteSetURL(dest, name, url); appErr != nil {
-				return restored, appErr
-			}
-			restored++
-			continue
-		}
-		if err := exec.Command("git", "-C", dest, "remote", "add", name, url).Run(); err != nil {
-			if appErr := gitRemoteSetURL(dest, name, url); appErr != nil {
-				return restored, appErr
-			}
+		if appErr := restoreOneRemote(dest, name, url); appErr != nil {
+			return restored, appErr
 		}
 		restored++
 	}
 	return restored, nil
+}
+
+// restoreOneRemote sets the URL for origin or adds a new remote,
+// falling back to set-url if the remote already exists.
+func restoreOneRemote(dest, name, url string) *appfault.AppError {
+	if name == "origin" {
+		return gitRemoteSetURL(dest, name, url)
+	}
+	if err := exec.Command("git", "-C", dest, "remote", "add", name, url).Run(); err != nil {
+		return gitRemoteSetURL(dest, name, url)
+	}
+
+	return nil
 }
 
 // gitRemoteSetURL points an existing remote at a URL.
@@ -258,9 +267,5 @@ NOTES
   - Preview first: gitmap repo import <file> --into <dir> --dry-run
 `
 
-// RepoImport help-example data (3-part, spec 03 §2) for the lead's helpdoc wiring.
-const (
-	repoImportExampleWhat       = "Replays a repo export manifest: clones the repo, restores every remote, and registers it in the gitmap database — the full export→import round-trip in one command."
-	repoImportExampleInvocation = `gitmap repo import ./story-telling-v1.gitmap.json --into ~/workspace/repos`
-	repoImportExampleOutput     = `cloned → /home/user/workspace/repos/story-telling-v1 · registered in gitmap.db · remotes restored (2) · scan updated`
-)
+// Help-example data lives in cli/helpdoc/examples_275.go
+// (single source of truth, program 275).

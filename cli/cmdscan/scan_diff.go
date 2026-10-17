@@ -69,14 +69,20 @@ func runScanDiff(args []string) *appfault.AppError {
 		return appErr
 	}
 	if isFirst {
-		if appErr := saveScanDiffSnapshot(snapPath, current); appErr != nil {
-			return appErr
-		}
-		fmt.Printf(scanDiffBaselineFmt, len(current))
-		return nil
+		return saveScanDiffBaseline(snapPath, current)
 	}
 	printScanDiffReport(previous, current)
 	return saveScanDiffSnapshot(snapPath, current)
+}
+
+// saveScanDiffBaseline saves the first snapshot and reports the baseline.
+func saveScanDiffBaseline(snapPath string, current map[string]scanDiffEntry) *appfault.AppError {
+	if appErr := saveScanDiffSnapshot(snapPath, current); appErr != nil {
+		return appErr
+	}
+	fmt.Printf(scanDiffBaselineFmt, len(current))
+
+	return nil
 }
 
 // openScanDiffDB opens the default gitmap database.
@@ -136,10 +142,7 @@ func loadScanDiffSnapshot(path string) (scanDiffSnapshot, bool, *appfault.AppErr
 	var snap scanDiffSnapshot
 	data, err := os.ReadFile(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return snap, true, nil
-		}
-		return snap, false, apperror.NewExecutionError(fmt.Sprintf("scan diff: could not read snapshot %s: %v", path, err))
+		return scanDiffReadErr(path, err, snap)
 	}
 	if err := json.Unmarshal(data, &snap); err != nil {
 		return snap, false, appfault.NewValidationError(fmt.Sprintf("scan diff: snapshot %s is corrupt: %v (delete it to re-baseline)", path, err))
@@ -148,6 +151,15 @@ func loadScanDiffSnapshot(path string) (scanDiffSnapshot, bool, *appfault.AppErr
 		snap.Repos = map[string]scanDiffEntry{}
 	}
 	return snap, false, nil
+}
+
+// scanDiffReadErr maps a snapshot read error to (snapshot, isFirst, appErr).
+func scanDiffReadErr(path string, err error, snap scanDiffSnapshot) (scanDiffSnapshot, bool, *appfault.AppError) {
+	if os.IsNotExist(err) {
+		return snap, true, nil
+	}
+
+	return snap, false, apperror.NewExecutionError(fmt.Sprintf("scan diff: could not read snapshot %s: %v", path, err))
 }
 
 // saveScanDiffSnapshot persists the current index state.
@@ -278,9 +290,5 @@ NOTES
 `)
 }
 
-// ScanDiff help-example data (3-part, spec 03 §2) for the lead's helpdoc wiring.
-const (
-	scanDiffExampleWhat       = "Compares the current scan index against the last snapshot and reports added, removed, and moved repos — instant workspace-change awareness."
-	scanDiffExampleInvocation = `gitmap scan diff`
-	scanDiffExampleOutput     = `+ 2 repo(s) (~/work/new-svc, ~/work/exp) · - 1 repo(s) (~/tmp/scratch) · ~ 1 moved (~/work/old -> ~/work/new)`
-)
+// Help-example data lives in cli/helpdoc/examples_275.go
+// (single source of truth, program 275).
