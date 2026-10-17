@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbookmark"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbranch"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcd"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchangelog"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
@@ -236,4 +237,5 @@ func wireWave2Hooks() {
 	cmdexec.GetAliasPathFn = GetAliasPath
 	cmdjoin.CheckHelpOrEmptyFn = CheckHelpOrEmpty
 	cmdservercmd.CheckHelpOrEmptyFn = CheckHelpOrEmpty
+	cmdcd.RunCDGeneralInstallFn = cmdcg.RunCGGeneral
 }

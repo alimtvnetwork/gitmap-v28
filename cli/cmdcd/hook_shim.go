@@ -56,3 +56,14 @@ func dispatch(command string) {
 		DispatchFn(command)
 	}
 }
+
+// RunCDGeneralInstallFn is wired by cmd/di_hooks_wave2.go.
+var RunCDGeneralInstallFn func(args []string) error
+
+func runCDGeneralInstall(args []string) error {
+	if RunCDGeneralInstallFn != nil {
+		return RunCDGeneralInstallFn(args)
+	}
+
+	return nil
+}

@@ -45,12 +45,19 @@ func routeCDSub(sub string, args []string) result.ErrorWrapper {
 	if isConfigCDSub(sub) {
 		return result.MatchWrapper(routeConfigCDSub(sub, args))
 	}
+
 	if isSpecialRepoCDAlias(sub) {
 		return result.MatchWrapper(runCDSpecialRepo(sub, args))
 	}
+
+	if isGeneralInstallCDAlias(sub) {
+		return result.MatchWrapper(runCDGeneralInstall(args))
+	}
+
 	if isWorkDirKeyword(sub) {
 		return result.MatchWrapper(handleWorkDirOrNotFound(sub, args))
 	}
+
 	return result.MatchWrapper(runCDLookup(sub, args))
 }
 
@@ -62,15 +69,26 @@ func routeConfigCDSub(sub string, args []string) error {
 	if sub == constants.CmdCDRepos {
 		return runCDRepos(args)
 	}
+
 	if sub == constants.CmdCDSetDefault {
 		return runCDSetDefault(args)
 	}
+
 	return runCDClearDefault(args)
 }
 
 func isSpecialRepoCDAlias(sub string) bool {
 	switch sub {
 	case "rs", "repo-secrets", "rc", "repo-cache", "repo-storage":
+		return true
+	default:
+		return false
+	}
+}
+
+func isGeneralInstallCDAlias(sub string) bool {
+	switch sub {
+	case "general", "general-install", "install-general":
 		return true
 	default:
 		return false

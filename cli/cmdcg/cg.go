@@ -47,6 +47,15 @@ func parseCGFlags(args []string) cgOptions {
 		return parseCGRepoAction(opts, argsAfterParse)
 	}
 
+	if opts.Action == "install" && len(argsAfterParse) > 1 && (argsAfterParse[1] == "general" || argsAfterParse[1] == "general-install") {
+		opts.Action = "general"
+		if len(argsAfterParse) > 2 {
+			opts.Repos = argsAfterParse[2:]
+		}
+
+		return opts
+	}
+
 	return parseCGGeneralAction(opts, argsAfterParse)
 }
 
@@ -109,6 +118,8 @@ func runCG(args []string) error {
 		runCGUpdateAction(repos)
 	case "install":
 		executeCGWorkers(repos)
+	case "general", "general-install", "install-general":
+		return RunCGGeneral(args)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown action: %s\n", opts.Action)
 		cliexit.HandleError(nil, 1)

@@ -253,9 +253,12 @@ func (r *updateUIRendererImpl) stopPrinters() {
 		_ = r.spinner.Stop()
 		r.spinner = nil
 	}
-	if !r.plain && r.multi != nil {
-		r.multi.Stop()
+
+	if r.plain {
+		return
 	}
+
+	r.multi.Stop()
 }
 
 func (r *updateUIRendererImpl) Close() {

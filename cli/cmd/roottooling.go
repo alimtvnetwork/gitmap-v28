@@ -212,6 +212,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"pin", "version-pin"}, func() error { return RunPinCLI(argsTail()) }},
 		{[]string{"unpin", "version-unpin"}, func() error { return RunUnpinCLI(argsTail()) }},
 		{[]string{"cg", "coding-guide", "coding-guidelines", "ct"}, func() error { return cmdcg.RunCG(argsTail()) }},
+		{[]string{"cg-general", "general-install", "cg-install-general"}, func() error { return cmdcg.RunCGGeneral(argsTail()) }},
 		{[]string{"install-version-json", "init-version"}, func() error { return cmdcg.RunCG(append([]string{"install-version-json"}, argsTail()...)) }},
 		{[]string{"install-prompts", "install-prompt"}, func() error { return cmdcg.RunCG(append([]string{"install-prompts"}, argsTail()...)) }},
 		{[]string{"prompts-status"}, func() error { return cmdcg.RunCG(append([]string{"prompts-status"}, argsTail()...)) }},
