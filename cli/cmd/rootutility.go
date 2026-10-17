@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddocs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfindnext"
@@ -109,10 +111,12 @@ const (
 	CmdSplitLargeFiles = "split-large-files"
 	CmdLFSConvert      = "lfs-convert"
 	CmdFlatten         = "flatten"
+	CmdDb              = "db"
 )
 
 func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{CmdDb, "database"}, func() error { return cmddb.DispatchDbSubsystem(context.Background(), argsTail(), os.Stdout) }},
 		{[]string{CmdResolve, "res"}, func() error { return cmdconflict.RunResolveCmd(argsTail()) }},
 		{[]string{CmdConflicts, "conflict"}, func() error { return cmdconflict.RunConflictsCmd(argsTail()) }},
 		{[]string{CmdSplitLargeFiles, "split-large", "splitlargefiles"}, func() error { return cmdsplit.RunSplitLargeFilesCmd(argsTail()) }},

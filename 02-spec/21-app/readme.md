@@ -27,6 +27,8 @@ Each domain cluster represents the authoritative, consolidated specification for
 
 The following application specification records the active feature development and consolidation milestone:
 
+- [284-agent-heatmap-db-introspection-and-subtask-code-completion](284-agent-heatmap-db-introspection-and-subtask-code-completion/spec.md) — Agent Heatmap Split-DB Architecture, Native DB Introspection CLI (`gitmap db ...`), Subtask `--code` Resolution & Clean Error Handling (Specs: [Spec](284-agent-heatmap-db-introspection-and-subtask-code-completion/spec.md)) (Status: `completed`)
+
 - [283-cli-update-ui-color-alignment-and-release-notes](283-cli-update-ui-color-alignment-and-release-notes/spec.md) — CLI Update UI Color Alignment, Spacing, Padding & Release Notes: Clean white-to-yellow version transition, 4-space indented SUCCESS badges matching step indicators, top/bottom padding, duplicate output prevention, and 1–2 line release notes snippet (Specs: [Spec](283-cli-update-ui-color-alignment-and-release-notes/spec.md)) (Status: `completed`)
 
 - [282-help-doc-ui-hd-theme-and-terminal-runner](../../src/components/terminal/TerminalDrawer.tsx) — Help Doc UI HD Theme & Live Terminal Runner: Help text dataset registration, prompt library finder and categorization, enhanced terminal themes, and integrated terminal runner (Status: `completed`)

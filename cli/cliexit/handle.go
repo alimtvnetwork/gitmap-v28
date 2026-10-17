@@ -31,6 +31,9 @@ func HandleError(err error, defaultCode ...int) {
 	}
 
 	code := resolveExitCode(defaultCode...)
+	if code == 1 && isUsageOrSyntaxError(err) {
+		code = int(ExitCodeUsageError)
+	}
 	if isAbortOrReported(err) {
 		runFlushers()
 		exitFunc(code)
@@ -68,14 +71,33 @@ func resolveExitCode(defaultCode ...int) int {
 	return int(ExitCodeGeneralError)
 }
 
-func ensureAppError(err error) *apperror.AppError {
-	var appErr *apperror.AppError
-	hasAppError := errors.As(err, &appErr) && appErr != nil
-	if !hasAppError {
-		return apperror.WrapSimple(err, "cli")
+func isUsageOrSyntaxError(err error) bool {
+	if err == nil {
+		return false
 	}
 
-	return appErr
+	msg := err.Error()
+
+	return strings.Contains(msg, "unknown flag:") ||
+		strings.Contains(msg, "unknown shorthand flag:") ||
+		strings.Contains(msg, "flag needs an argument:") ||
+		strings.Contains(msg, "unknown command ") ||
+		strings.Contains(msg, "required flag(s) ") ||
+		strings.Contains(msg, "accepts at most ") ||
+		strings.Contains(msg, "requires at least ")
+}
+
+func ensureAppError(err error) *apperror.AppError {
+	var appErr *apperror.AppError
+	if errors.As(err, &appErr) && appErr != nil {
+		return appErr
+	}
+
+	if isUsageOrSyntaxError(err) {
+		return apperror.NewValidation("cli", "E1000", err.Error())
+	}
+
+	return apperror.WrapSimple(err, "cli")
 }
 
 func dispatchError(appErr *apperror.AppError, code int) {

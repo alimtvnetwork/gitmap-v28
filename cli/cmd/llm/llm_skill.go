@@ -159,10 +159,25 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 - ` + "`gitmap prompt add <slug> <file.md>`" + ` — Install/update a template from a markdown file. ` + "`gitmap prompt rm <slug>`" + ` — Delete one.
 - ` + "`gitmap prompt export [file.zip]`" + ` / ` + "`gitmap prompt import <file.zip|file.md>`" + ` — Portable template bundles across machines.
 
+### 14. SQLite DB & Schema Introspection (Native CLI)
+- ` + "`gitmap db tables [db-path] [--json]`" + ` — Discover tables, views, column and record counts (<1ms).
+- ` + "`gitmap db schema [table] [--db <path>] [--json]`" + ` — Formatted CREATE TABLE and index DDLs.
+- ` + "`gitmap db columns <table> [--db <path>] [--json]`" + ` — Column types, nullability, defaults, primary keys.
+- ` + "`gitmap db query \"<SQL>\" [--db <path>] [--json]`" + ` — Read-only SQL queries with formatted table or JSON.
+- ` + "`gitmap db list <table> [--limit N] [--db <path>] [--json]`" + ` — Formatted table records. DB shortcuts: ` + "`master`" + `, ` + "`heatmap`" + `, ` + "`pipeline`" + `, ` + "`tasks`" + `.
+
+### 15. AI Decision Heatmap & Cognitive Step Tracking
+- ` + "`gitmap heatmap log --task <slug> --action <READ|ANALYZE|MODIFY|EXEC_CMD> --file <path> [--lines <start-end>] [--reason <notes>] [--expected <outcome>] [--parent <id>]`" + ` — Log AI cognitive step.
+- ` + "`gitmap heatmap search \"<query>\" [--task <slug>] [--file <path>] [--json]`" + ` — Search action history.
+- ` + "`gitmap heatmap tree [--task <slug>] [--json]`" + ` — Hierarchical causal execution tree.
+- ` + "`gitmap heatmap status [--task <slug>] [--json]`" + ` — Action counts, expectations met %, top touched files.
+
 ## Command Replacement Matrix (Mandatory Substitutions)
 
 | Forbidden / Anti-Pattern Command | Mandatory GitMap Replacement | Rationale |
 | :--- | :--- | :--- |
+| ` + "`python -c \"import sqlite3...\"`" + ` (DB introspection) | ` + "`gitmap db tables`" + ` / ` + "`gitmap db columns`" + ` / ` + "`gitmap db query`" + ` | Compiled Go inspection (<1ms); eliminates Python startup lag |
+| Unrecorded AI file modifications | ` + "`gitmap heatmap log --task <slug> --action MODIFY`" + ` | Full cognitive decision tree in SQLite split-db |
 | ` + "`Select-String`" + ` (PowerShell) | ` + "`gitmap aum search <pat> [dir] --ext <ext>`" + ` | Up to 830,000x faster, respects boundaries |
 | ` + "`Get-ChildItem -Filter`" + ` / ` + "`-Recurse`" + ` | ` + "`gitmap find <pattern>`" + ` / ` + "`gitmap ls <dir>`" + ` | Zero pipeline overhead, instantaneous |
 | ` + "`git grep`" + ` / ` + "`grep`" + ` / ` + "`ripgrep`" + ` | ` + "`gitmap aum search <pat> [dir] --ext <ext>`" + ` | Unified cross-platform search with caching |

@@ -1,11 +1,13 @@
 package cmddb
 
 import (
+	"context"
 	"fmt"
+	"io"
+	"os"
+	"strconv"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -16,52 +18,180 @@ func runDb(args []string) error {
 	}
 
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
-	return result.AsError(routeDbSubcommand(sub, args[1:]))
+	switch sub {
+	case "tables", "table", "t", "schema", "ddl", "s", "columns", "cols", "column", "c", "query", "q", "sql", "records", "rows":
+		return DispatchDbSubsystem(context.Background(), args, os.Stdout)
+	case "status", "st", "info":
+		return result.AsError(result.MatchWrapper(runDBStatus(args[1:])))
+	case "optimize", "opt":
+		return result.AsError(result.MatchWrapper(runDBOptimize(args[1:])))
+	case "ls", "list":
+		if len(args) > 1 {
+			return DispatchDbSubsystem(context.Background(), args, os.Stdout)
+		}
+		return result.AsError(result.MatchWrapper(runDBLs(args[1:])))
+	case "help", "-h", "--help":
+		return printDbHelp(os.Stdout)
+	case "repo-db", "repodb":
+		return result.AsError(result.MatchWrapper(runDBRepoDB(args[1:])))
+	case "sizes", "size":
+		return result.AsError(result.MatchWrapper(runDBSizes(args[1:])))
+	case "doctor", "doc":
+		appErr := RunDbDoctor(args[1:])
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "reset":
+		return result.AsError(result.MatchWrapper(runDbResetAction(args[1:])))
+	case "clear":
+		return result.AsError(result.MatchWrapper(runDBClearAction(args[1:])))
+	default:
+		return DispatchDbSubsystem(context.Background(), args, os.Stdout)
+	}
 }
 
 // Backwards-compatible alias for runDb
 var runDB = runDb
 
-func routeDbSubcommand(sub string, tail []string) result.ErrorWrapper {
-	switch sub {
-	case "status", "st", "info":
-		return result.MatchWrapper(runDBStatus(tail))
-	case "optimize", "opt":
-		return result.MatchWrapper(runDBOptimize(tail))
-	case "ls", "list":
-		return result.MatchWrapper(runDBLs(tail))
-	case "help", "-h", "--help":
-		return result.MatchWrapper(runDbHelp())
-	case "repo-db", "repodb":
-		return result.MatchWrapper(runDBRepoDB(tail))
-	case "sizes", "size":
-		return result.MatchWrapper(runDBSizes(tail))
-	case "doctor", "doc":
-		return result.MatchWrapperAppErr(RunDbDoctor(tail))
-	case "reset":
-		return result.MatchWrapper(runDbResetAction(tail))
-	case "clear":
-		return result.MatchWrapper(runDBClearAction(tail))
+// DispatchDbSubsystem routes SQLite database introspection commands.
+func DispatchDbSubsystem(ctx context.Context, args []string, out io.Writer) error {
+	subcmd, pos, opts := parseDbSubsystemArgs(args)
+	switch strings.ToLower(subcmd) {
+	case "tables", "table", "t":
+		dbArg := opts.DbPath
+		if dbArg == "" && len(pos) > 0 {
+			dbArg = pos[0]
+		}
+		return RunDbTables(dbArg, opts.IsJson, out)
+	case "schema", "ddl", "s":
+		tableArg := ""
+		if len(pos) > 0 {
+			tableArg = pos[0]
+		}
+		return RunDbSchema(tableArg, opts.DbPath, opts.IsJson, out)
+	case "columns", "cols", "column", "c":
+		tableArg := ""
+		if len(pos) > 0 {
+			tableArg = pos[0]
+		}
+		return RunDbColumns(tableArg, opts.DbPath, opts.IsJson, out)
+	case "query", "q", "sql":
+		queryArg := ""
+		if len(pos) > 0 {
+			queryArg = strings.Join(pos, " ")
+		}
+		return RunDbQuery(queryArg, opts.DbPath, opts.IsJson, out)
+	case "list", "records", "rows", "ls", "l":
+		tableArg := ""
+		if len(pos) > 0 {
+			tableArg = pos[0]
+		}
+		return RunDbList(tableArg, opts.DbPath, opts.Limit, opts.IsJson, out)
+	case "help", "--help", "-h", "":
+		return printDbHelp(out)
 	default:
-		return result.FailureWrapperErr(handleUnknownDbSub(sub))
+		return fmt.Errorf("unknown db subcommand '%s'. Run 'gitmap db help' for usage", subcmd)
 	}
 }
 
-// Backwards-compatible alias for routeDbSubcommand
+func parseDbSubsystemArgs(args []string) (string, []string, CommonDbOptions) {
+	if len(args) == 0 {
+		return "help", nil, CommonDbOptions{}
+	}
 
-func handleUnknownDbSub(sub string) error {
-	fmt.Printf(constants.ColorRed+"Unknown db subcommand '%s'"+constants.ColorReset+"\n\n", sub)
-	_ = runDbHelp()
-
-	return apperror.NewWithDetails(
-		"cmd.db.dispatch",
-		"E1050",
-		fmt.Sprintf("unknown db subcommand '%s'", sub),
-		"cmd.db",
-		apperror.ErrorTypeValidation,
-		apperror.SeverityError,
-		map[string]any{"subcommand": sub},
+	var (
+		subcmd  string
+		posArgs []string
+		opts    CommonDbOptions
 	)
+
+	i := 0
+	for i < len(args) {
+		arg := args[i]
+		if subcmd == "" && !strings.HasPrefix(arg, "-") {
+			subcmd = arg
+			i++
+			continue
+		}
+
+		consumed, handled := parseFlagToken(args, i, &opts)
+		if handled {
+			i += consumed
+			continue
+		}
+
+		posArgs = append(posArgs, arg)
+		i++
+	}
+
+	if subcmd == "" {
+		subcmd = "help"
+	}
+
+	return subcmd, posArgs, opts
 }
 
-// Backwards-compatible alias for handleUnknownDbSub
+func parseFlagToken(args []string, idx int, opts *CommonDbOptions) (int, bool) {
+	arg := args[idx]
+	if arg == "--json" || arg == "-j" {
+		opts.IsJson = true
+		return 1, true
+	}
+
+	if (arg == "--db" || arg == "-d") && idx+1 < len(args) {
+		opts.DbPath = args[idx+1]
+		return 2, true
+	}
+
+	if strings.HasPrefix(arg, "--db=") {
+		opts.DbPath = strings.TrimPrefix(arg, "--db=")
+		return 1, true
+	}
+
+	if (arg == "--limit" || arg == "-n" || arg == "-l") && idx+1 < len(args) {
+		opts.Limit, _ = strconv.Atoi(args[idx+1])
+		return 2, true
+	}
+
+	if strings.HasPrefix(arg, "--limit=") {
+		opts.Limit, _ = strconv.Atoi(strings.TrimPrefix(arg, "--limit="))
+		return 1, true
+	}
+
+	return 0, false
+}
+
+func printDbHelp(out io.Writer) error {
+	help := `GitMap SQLite Database Introspection Subsystem
+
+Usage:
+  gitmap db <command> [arguments...] [flags]
+
+Aliases:
+  database
+
+Available Commands:
+  tables  [db]            List tables, views, column counts, and record counts
+  schema  [table]         Dump CREATE TABLE and index DDL
+  columns <table>         Inspect column definitions (PRAGMA table_info)
+  query   "<SQL>"         Execute read-only SQL queries (SELECT, PRAGMA, EXPLAIN, WITH)
+  list    <table>         Display table rows with limit paging
+  help                    Show this help text
+
+Flags:
+  -d, --db <path|alias>   Target database: 'master'/'gitmap', 'heatmap', 'pipeline', 'tasks', or path
+  -j, --json              Output results in JSON format
+  -n, --limit <N>         Maximum rows to return for 'list' (default 20)
+
+Examples:
+  gitmap db tables
+  gitmap db tables heatmap
+  gitmap db schema Subtask --db tasks
+  gitmap db columns Subtask --json
+  gitmap db query "SELECT SubtaskId, Status FROM Subtask" --db tasks
+  gitmap db list Subtask --limit 10
+`
+	_, err := fmt.Fprint(out, help)
+	return err
+}

@@ -1,13 +1,17 @@
 package cmd
 
 import (
+	"context"
+	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/heatmap"
 )
 
 func runUpdateHelp() error {
@@ -156,3 +160,35 @@ func runUpdateAntigravityIdeTarget(args []string) error {
 	}
 	return cmdinstall.RunInstallAntigravityWithOpts(opts)
 }
+
+const (
+	CmdHeatmap      = "heatmap"
+	CmdHeatmapAlias = "hm"
+)
+
+func init() {
+	hookHeatmapDispatch()
+}
+
+func hookHeatmapDispatch() {
+	if len(os.Args) < 2 || !isHeatmapCommand(os.Args[1]) {
+		return
+	}
+
+	if err := heatmap.DispatchHeatmapSubsystem(context.Background(), os.Args[2:], os.Stdout); err != nil {
+		cliexit.HandleError(err, 1)
+	}
+
+	cliexit.Exit(0)
+}
+
+func isHeatmapCommand(cmd string) bool {
+	clean := strings.ToLower(strings.TrimSpace(cmd))
+	return clean == CmdHeatmap || clean == CmdHeatmapAlias
+}
+
+// RunHeatmapCommand executes the heatmap subsystem programmatically.
+func RunHeatmapCommand(args []string) error {
+	return heatmap.DispatchHeatmapSubsystem(context.Background(), args, os.Stdout)
+}
+

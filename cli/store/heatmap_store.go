@@ -1,0 +1,288 @@
+package store
+
+import (
+	"database/sql"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	_ "modernc.org/sqlite"
+)
+
+// HeatmapDB wraps an isolated SQLite database connection for decision heatmap tracking.
+type HeatmapDB struct {
+	conn *sql.DB
+	Path string
+}
+
+// Conn returns the underlying database connection.
+func (h *HeatmapDB) Conn() *sql.DB {
+	return h.conn
+}
+
+// Close closes the underlying database connection.
+func (h *HeatmapDB) Close() error {
+	if h.conn == nil {
+		return nil
+	}
+	return h.conn.Close()
+}
+
+// OpenHeatmapRootDB opens or creates the root global heatmap database.
+func OpenHeatmapRootDB(repoRoot string) (*HeatmapDB, error) {
+	dbPath := ResolveHeatmapRootDbPath(repoRoot)
+	return openHeatmapDBAtPath(dbPath)
+}
+
+// OpenHeatmapRepoDB opens or creates a repository-specific split heatmap database.
+func OpenHeatmapRepoDB(repoSlug, repoRoot string) (*HeatmapDB, error) {
+	dbPath := ResolveHeatmapRepoSplitDbPath(repoSlug, repoRoot)
+	return openHeatmapDBAtPath(dbPath)
+}
+
+func openHeatmapDBAtPath(dbPath string) (*HeatmapDB, error) {
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
+		return nil, apperror.WrapSimple(err, "heatmap.mkdir")
+	}
+
+	conn, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "heatmap.open")
+	}
+
+	if err := ConfigureSQLiteConn(conn); err != nil {
+		_ = conn.Close()
+		return nil, apperror.WrapSimple(err, "heatmap.config")
+	}
+
+	if err := EnsureHeatmapTables(conn); err != nil {
+		_ = conn.Close()
+		return nil, err
+	}
+
+	return &HeatmapDB{conn: conn, Path: dbPath}, nil
+}
+
+// LogAction inserts an action record, computing execution depth and order from ParentLogId.
+func (h *HeatmapDB) LogAction(log HeatmapActionLogRecord) (int64, error) {
+	depth, order, err := h.calculateDepthAndOrder(log.ParentLogId, log.TaskSlug)
+	if err != nil {
+		return 0, err
+	}
+
+	isMetInt := 0
+	if log.IsExpectationMet {
+		isMetInt = 1
+	}
+
+	const sqlInsert = `INSERT INTO HeatmapActionLog (
+		ParentLogId, TaskSlug, RepoName, ActionType, FilePath, StartLine, EndLine,
+		CodeSnippet, CommandText, ReasoningState, ReasoningNotes, ExpectedOutcome,
+		ActualOutcome, IsExpectationMet, ExecutionDepth, ExecutionOrder, Notes, Comments
+	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+
+	res, err := h.conn.Exec(sqlInsert,
+		log.ParentLogId, log.TaskSlug, log.RepoName, log.ActionType, log.FilePath,
+		log.StartLine, log.EndLine, log.CodeSnippet, log.CommandText, log.ReasoningState,
+		log.ReasoningNotes, log.ExpectedOutcome, log.ActualOutcome, isMetInt,
+		depth, order, log.Notes, log.Comments,
+	)
+	if err != nil {
+		return 0, apperror.WrapSimple(err, "heatmap.logAction")
+	}
+
+	return res.LastInsertId()
+}
+
+func (h *HeatmapDB) calculateDepthAndOrder(parentLogID *int64, taskSlug string) (int, int, error) {
+	if parentLogID == nil || *parentLogID <= 0 {
+		var maxOrder sql.NullInt64
+		err := h.conn.QueryRow(
+			`SELECT MAX(ExecutionOrder) FROM HeatmapActionLog WHERE TaskSlug = ? AND ParentLogId IS NULL`,
+			taskSlug,
+		).Scan(&maxOrder)
+		if err != nil && err != sql.ErrNoRows {
+			return 0, 0, apperror.WrapSimple(err, "heatmap.calcRootOrder")
+		}
+		return 0, int(maxOrder.Int64) + 1, nil
+	}
+
+	var parentDepth int
+	err := h.conn.QueryRow(
+		`SELECT ExecutionDepth FROM HeatmapActionLog WHERE HeatmapActionLogId = ?`,
+		*parentLogID,
+	).Scan(&parentDepth)
+	if err != nil {
+		return 0, 0, apperror.WrapSimple(err, "heatmap.parentLookup")
+	}
+
+	var maxChildOrder sql.NullInt64
+	err = h.conn.QueryRow(
+		`SELECT MAX(ExecutionOrder) FROM HeatmapActionLog WHERE ParentLogId = ?`,
+		*parentLogID,
+	).Scan(&maxChildOrder)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, 0, apperror.WrapSimple(err, "heatmap.calcChildOrder")
+	}
+
+	return parentDepth + 1, int(maxChildOrder.Int64) + 1, nil
+}
+
+// SearchActionLogs searches action logs by task, query string, and file path.
+func (h *HeatmapDB) SearchActionLogs(taskSlug, query, filePath string, limit int) ([]HeatmapActionLogRecord, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+
+	var whereClauses []string
+	var args []any
+
+	if strings.TrimSpace(taskSlug) != "" {
+		whereClauses = append(whereClauses, "TaskSlug = ?")
+		args = append(args, taskSlug)
+	}
+	if strings.TrimSpace(filePath) != "" {
+		whereClauses = append(whereClauses, "FilePath LIKE ?")
+		args = append(args, "%"+filePath+"%")
+	}
+	if strings.TrimSpace(query) != "" {
+		q := "%" + query + "%"
+		whereClauses = append(whereClauses, "(CodeSnippet LIKE ? OR CommandText LIKE ? OR ReasoningNotes LIKE ? OR ActionType LIKE ?)")
+		args = append(args, q, q, q, q)
+	}
+
+	sqlText := `SELECT HeatmapActionLogId, ParentLogId, TaskSlug, RepoName, ActionType,
+		FilePath, StartLine, EndLine, COALESCE(CodeSnippet, ''), COALESCE(CommandText, ''),
+		ReasoningState, COALESCE(ReasoningNotes, ''), COALESCE(ExpectedOutcome, ''),
+		COALESCE(ActualOutcome, ''), IsExpectationMet, ExecutionDepth, ExecutionOrder,
+		COALESCE(Notes, ''), COALESCE(Comments, ''), CreatedAt
+		FROM HeatmapActionLog`
+
+	if len(whereClauses) > 0 {
+		sqlText += " WHERE " + strings.Join(whereClauses, " AND ")
+	}
+	sqlText += " ORDER BY CreatedAt DESC LIMIT ?"
+	args = append(args, limit)
+
+	rows, err := h.conn.Query(sqlText, args...)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "heatmap.search")
+	}
+	defer rows.Close()
+
+	return scanActionLogs(rows)
+}
+
+// GetExecutionTree returns hierarchical execution steps organized as a tree using recursive CTE.
+func (h *HeatmapDB) GetExecutionTree(taskSlug string) ([]HeatmapExecutionTreeNode, error) {
+	const sqlCTE = `WITH RECURSIVE ActionTree AS (
+		SELECT HeatmapActionLogId, ParentLogId, TaskSlug, RepoName, ActionType, FilePath,
+			StartLine, EndLine, CodeSnippet, CommandText, ReasoningState, ReasoningNotes,
+			ExpectedOutcome, ActualOutcome, IsExpectationMet, ExecutionDepth, ExecutionOrder,
+			Notes, Comments, CreatedAt,
+			PRINTF('%06d', ExecutionOrder) AS TreePath
+		FROM HeatmapActionLog
+		WHERE (? = '' OR TaskSlug = ?) AND ParentLogId IS NULL
+		UNION ALL
+		SELECT c.HeatmapActionLogId, c.ParentLogId, c.TaskSlug, c.RepoName, c.ActionType, c.FilePath,
+			c.StartLine, c.EndLine, c.CodeSnippet, c.CommandText, c.ReasoningState, c.ReasoningNotes,
+			c.ExpectedOutcome, c.ActualOutcome, c.IsExpectationMet, c.ExecutionDepth, c.ExecutionOrder,
+			c.Notes, c.Comments, c.CreatedAt,
+			p.TreePath || '/' || PRINTF('%06d', c.ExecutionOrder) AS TreePath
+		FROM HeatmapActionLog c
+		JOIN ActionTree p ON c.ParentLogId = p.HeatmapActionLogId
+	)
+	SELECT HeatmapActionLogId, ParentLogId, TaskSlug, RepoName, ActionType, FilePath,
+		StartLine, EndLine, COALESCE(CodeSnippet, ''), COALESCE(CommandText, ''),
+		ReasoningState, COALESCE(ReasoningNotes, ''), COALESCE(ExpectedOutcome, ''),
+		COALESCE(ActualOutcome, ''), IsExpectationMet, ExecutionDepth, ExecutionOrder,
+		COALESCE(Notes, ''), COALESCE(Comments, ''), CreatedAt
+	FROM ActionTree
+	ORDER BY TreePath ASC`
+
+	rows, err := h.conn.Query(sqlCTE, taskSlug, taskSlug)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "heatmap.executionTree")
+	}
+	defer rows.Close()
+
+	records, err := scanActionLogs(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return assembleTreeNodes(records), nil
+}
+
+// GetHeatmapStatus computes statistical and touch summaries for a task.
+func (h *HeatmapDB) GetHeatmapStatus(taskSlug string) (HeatmapStatusSummary, error) {
+	summary := HeatmapStatusSummary{
+		TaskSlug:             taskSlug,
+		ReasoningStateCounts: make(map[string]int),
+		TopTouchedFiles:      make([]FileTouchCount, 0),
+	}
+
+	if err := h.populateStatusCounts(&summary, taskSlug); err != nil {
+		return summary, err
+	}
+	if err := h.populateReasoningStates(&summary, taskSlug); err != nil {
+		return summary, err
+	}
+	if err := h.populateTopTouchedFiles(&summary, taskSlug); err != nil {
+		return summary, err
+	}
+
+	return summary, nil
+}
+
+func (h *HeatmapDB) populateStatusCounts(s *HeatmapStatusSummary, taskSlug string) error {
+	const sqlCounts = `SELECT COUNT(*), COALESCE(SUM(CASE WHEN IsExpectationMet = 1 THEN 1 ELSE 0 END), 0)
+		FROM HeatmapActionLog WHERE (? = '' OR TaskSlug = ?)`
+	err := h.conn.QueryRow(sqlCounts, taskSlug, taskSlug).Scan(&s.TotalActions, &s.ExpectationsMetCount)
+	if err != nil {
+		return apperror.WrapSimple(err, "heatmap.statusCounts")
+	}
+	if s.TotalActions > 0 {
+		s.ExpectationsMetPct = (float64(s.ExpectationsMetCount) / float64(s.TotalActions)) * 100.0
+	}
+	return nil
+}
+
+func (h *HeatmapDB) populateReasoningStates(s *HeatmapStatusSummary, taskSlug string) error {
+	const sqlStates = `SELECT ReasoningState, COUNT(*) FROM HeatmapActionLog
+		WHERE (? = '' OR TaskSlug = ?) GROUP BY ReasoningState`
+	rows, err := h.conn.Query(sqlStates, taskSlug, taskSlug)
+	if err != nil {
+		return apperror.WrapSimple(err, "heatmap.statusStates")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var state string
+		var count int
+		if err := rows.Scan(&state, &count); err == nil {
+			s.ReasoningStateCounts[state] = count
+		}
+	}
+	return nil
+}
+
+func (h *HeatmapDB) populateTopTouchedFiles(s *HeatmapStatusSummary, taskSlug string) error {
+	const sqlTop = `SELECT FilePath, COUNT(*) AS c FROM HeatmapActionLog
+		WHERE (? = '' OR TaskSlug = ?) AND FilePath != ''
+		GROUP BY FilePath ORDER BY c DESC LIMIT 10`
+	rows, err := h.conn.Query(sqlTop, taskSlug, taskSlug)
+	if err != nil {
+		return apperror.WrapSimple(err, "heatmap.statusTopFiles")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item FileTouchCount
+		if err := rows.Scan(&item.FilePath, &item.Count); err == nil {
+			s.TopTouchedFiles = append(s.TopTouchedFiles, item)
+		}
+	}
+	return nil
+}

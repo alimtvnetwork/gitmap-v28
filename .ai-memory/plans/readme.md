@@ -90,6 +90,7 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [275-implement-30-new-commands.md](275-implement-30-new-commands.md) — All 30 proposals implemented, E2E 30/30, v6.559.0 (Status: `completed` 2026-10-17)
 - [282-help-doc-ui-hd-theme-and-terminal-runner.md](282-help-doc-ui-hd-theme-and-terminal-runner.md) — Help Doc UI HD Theme & Live Terminal Runner: Registered help text across terminal and UI, added prompt finder and categories, updated Help Dashboard themes, built interactive TerminalDrawer.tsx, and promoted terminal in cli/cmdui/ (Status: `completed` 2026-10-17)
 - [283-cli-update-ui-color-alignment-and-release-notes.md](283-cli-update-ui-color-alignment-and-release-notes.md) — CLI Update UI Color Alignment, Spacing, Padding & Release Notes: Clean white-to-yellow version transition, 4-space indented SUCCESS badges matching step indicators, top/bottom padding, duplicate output prevention, and 1–2 line release notes snippet (Status: `completed` 2026-10-17)
+- [284-agent-heatmap-db-introspection-and-subtask-code-completion.md](284-agent-heatmap-db-introspection-and-subtask-code-completion.md) — Agent Heatmap Split-DB Architecture, Native DB Introspection CLI (`gitmap db ...`), Subtask `--code` Resolution & Clean Error Handling (Status: `completed` 2026-10-18)
 
 ---
 
