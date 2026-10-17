@@ -15,6 +15,7 @@ import (
 var shortFlagMap = map[string]string{
 	"t": "task", "a": "action", "f": "file", "l": "lines",
 	"c": "code", "s": "state", "r": "reason", "p": "parent", "j": "json",
+	"n": "limit", "F": "format",
 }
 
 // DispatchHeatmapSubsystem routes heatmap subcommands (log, search, tree, status, help).
@@ -36,6 +37,12 @@ func DispatchHeatmapSubsystem(ctx context.Context, args []string, out io.Writer)
 		return runHeatmapTree(flags, out)
 	case "status":
 		return runHeatmapStatus(flags, out)
+	case "tables", "table":
+		return RunHeatmapTables(false, flags, out)
+	case "view", "list":
+		return RunHeatmapView(false, flags, pos, out)
+	case "query", "sql":
+		return ExecuteHeatmapQuery(false, flags, pos, out)
 	case "rc", "rc-heatmap":
 		return DispatchRcHeatmap(ctx, args[1:], out)
 	default:
@@ -62,11 +69,10 @@ func runHeatmapLog(flags map[string]string, out io.Writer) error {
 }
 
 func buildActionLogRecord(flags map[string]string) store.HeatmapActionLogRecord {
-	action := flags["action"]
+	action, state := flags["action"], flags["state"]
 	if action == "" {
 		action = "ANALYZE"
 	}
-	state := flags["state"]
 	if state == "" {
 		state = "EXPLORATION"
 	}
@@ -77,7 +83,6 @@ func buildActionLogRecord(flags map[string]string) store.HeatmapActionLogRecord 
 			parentID = &pVal
 		}
 	}
-
 	return store.HeatmapActionLogRecord{
 		ParentLogId:      parentID,
 		TaskSlug:         flags["task"],
@@ -102,17 +107,14 @@ func runHeatmapSearch(flags map[string]string, pos []string, out io.Writer) erro
 		return err
 	}
 	defer db.Close()
-
 	limit := 50
 	if l, err := strconv.Atoi(flags["limit"]); err == nil && l > 0 {
 		limit = l
 	}
-
 	records, err := db.SearchActionLogs(flags["task"], strings.Join(pos, " "), flags["file"], limit)
 	if err != nil {
 		return err
 	}
-
 	if flags["json"] == "true" {
 		return json.NewEncoder(out).Encode(records)
 	}
@@ -126,12 +128,10 @@ func runHeatmapTree(flags map[string]string, out io.Writer) error {
 		return err
 	}
 	defer db.Close()
-
 	tree, err := db.GetExecutionTree(flags["task"])
 	if err != nil {
 		return err
 	}
-
 	if flags["json"] == "true" {
 		return json.NewEncoder(out).Encode(tree)
 	}
@@ -145,12 +145,10 @@ func runHeatmapStatus(flags map[string]string, out io.Writer) error {
 		return err
 	}
 	defer db.Close()
-
 	status, err := db.GetHeatmapStatus(flags["task"])
 	if err != nil {
 		return err
 	}
-
 	if flags["json"] == "true" {
 		return json.NewEncoder(out).Encode(status)
 	}
@@ -158,30 +156,37 @@ func runHeatmapStatus(flags map[string]string, out io.Writer) error {
 	return nil
 }
 
-func parseHeatmapArgs(args []string) (map[string]string, []string) {
-	flags := make(map[string]string)
-	var pos []string
+func isHeatmapBoolFlag(k string) bool {
+	return k == "json" || k == "j" || k == "help" || k == "h" || k == "dry-run" || k == "verbose" || k == "v"
+}
 
+func parseHeatmapArgs(args []string) (map[string]string, []string) {
+	flags, pos := make(map[string]string), []string{}
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if !strings.HasPrefix(arg, "-") {
 			pos = append(pos, arg)
 			continue
 		}
-		trimmed := strings.TrimLeft(arg, "-")
-		k, v, found := strings.Cut(trimmed, "=")
+		k, v, found := strings.Cut(strings.TrimLeft(arg, "-"), "=")
 		if found {
 			flags[k] = v
 			continue
 		}
+		if isHeatmapBoolFlag(k) {
+			if i+1 < len(args) && (args[i+1] == "true" || args[i+1] == "false") {
+				flags[k], i = args[i+1], i+1
+				continue
+			}
+			flags[k] = "true"
+			continue
+		}
 		if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-			flags[k] = args[i+1]
-			i++
+			flags[k], i = args[i+1], i+1
 			continue
 		}
 		flags[k] = "true"
 	}
-
 	return normalizeFlagKeys(flags), pos
 }
 
@@ -189,8 +194,7 @@ func normalizeFlagKeys(flags map[string]string) map[string]string {
 	norm := make(map[string]string, len(flags))
 	for k, v := range flags {
 		if long, ok := shortFlagMap[k]; ok {
-			norm[long] = v
-			continue
+			k = long
 		}
 		norm[k] = v
 	}
@@ -267,16 +271,24 @@ func renderStatusText(out io.Writer, s store.HeatmapStatusSummary) {
 }
 
 func printHeatmapHelp(out io.Writer) {
-	fmt.Fprintln(out, "Usage: gitmap heatmap <command> [flags]\n\nCommands:")
-	fmt.Fprintln(out, "  log     Log an AI cognitive decision or file action")
-	fmt.Fprintln(out, "  search  Search logged actions by query, task, or file")
-	fmt.Fprintln(out, "  tree    Display hierarchical causal execution tree")
-	fmt.Fprintln(out, "  status  Summarize action volume, states, and file touches")
-	fmt.Fprintln(out, "  rc      Manage repo-cache isolated multi-AI heatmap telemetry")
-	fmt.Fprintln(out, "  help    Show this help message\n\nExamples:")
-	fmt.Fprintln(out, "  gitmap heatmap log --task t1 --action READ --file cli/store/path.go --state EXPLORATION --reason \"Checking base paths\"")
-	fmt.Fprintln(out, "  gitmap heatmap log --task t1 --action MODIFY --file cli/store/heatmap.go --lines 10-50 --parent 1 --state CODE_EDITING")
-	fmt.Fprintln(out, "  gitmap heatmap tree --task t1")
-	fmt.Fprintln(out, "  gitmap heatmap status --task t1")
-	fmt.Fprintln(out, "  gitmap heatmap search \"base paths\" --json")
+	fmt.Fprint(out, `Usage: gitmap heatmap <command> [flags]
+
+Commands:
+  log     Log an AI cognitive decision or file action
+  search  Search logged actions by query, task, or file
+  tree    Display hierarchical causal execution tree
+  status  Summarize action volume, states, and file touches
+  tables  List tables and row counts in heatmap SQLite DB
+  view    Inspect table rows with --limit, --format, and filters
+  query   Run safe read-only SQL SELECT queries against heatmap DB
+  rc      Manage repo-cache isolated multi-AI heatmap telemetry
+  help    Show this help message
+
+Examples:
+  gitmap heatmap log --task t1 --action READ --file cli/store/path.go --state EXPLORATION --reason "Checking base paths"
+  gitmap heatmap log --task t1 --action MODIFY --file cli/store/heatmap.go --lines 10-50 --parent 1 --state CODE_EDITING
+  gitmap heatmap tree --task t1
+  gitmap heatmap status --task t1
+  gitmap heatmap search "base paths" --json
+`)
 }

@@ -227,6 +227,46 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap full-summary` (alias `gitmap fs`) — 48-hour active repository activity heatmap TreeView showing commit velocity and dirty working states.
 - **MANDATORY HEATMAP & CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via `gitmap heatmap log` or `gitmap agent log`, and inspect active file leases and contention hotspots via `gitmap heatmap discuss` before editing shared files.
 
+### 13. Multi-AI Companion & repo-cache Synchronization
+- `gitmap heatmap rc list-ai` — Lists all supported AI namespaces (`antigravity`, `muse`, `cloud-code`, `codex`, `grok`, `cursor`) and displays ambient detected engine.
+- `gitmap heatmap rc log [flags]` — Logs cognitive actions and decisions into dedicated `repo-cache` isolated split-databases (`.heatmap/<ai-name>/<repo>/heatmap.db`).
+- `gitmap heatmap rc commit [-m "<msg>"]` — Creates a telemetry checkpoint commit in `repo-cache` and marks local changes clean.
+- `gitmap heatmap rc sync` — Bidirectionally reconciles in-flight decisions with `repo-cache` without workspace git conflicts.
+
+### 14. AI Decision Heatmap & RC Admin Telemetry
+- `gitmap heatmap tables [--db <root|repo|local>] [--format <table|json|yaml>]` — Inspects the SQLite master catalog and inventories all tables, views, column counts, and row counts in the active heatmap database.
+- `gitmap heatmap rc tables [--ai <name>] [--repo <slug>] [--db <root|repo|local>] [--format <table|json|yaml>]` — Inventories tables across companion `repo-cache` databases (`root-heatmap.db` or `<repo-slug>/heatmap.db`).
+- `gitmap heatmap view <table> [--limit <n>] [--format json|yaml|table] [--task <slug>] [--repo <slug>] [--id <id>]` — Queries records from a specific heatmap table with column-aware filtering and bounded limits.
+- `gitmap heatmap rc view <table> [--limit <n>] [--format json|yaml|table] [--task <slug>] [--repo <slug>] [--id <id>] [--ai <name>]` — Views table records from the target `repo-cache` companion database.
+- `gitmap heatmap query "<sql>" [--db <path|root|repo|local>] [--format table|json|yaml] [--limit <n>]` — Executes arbitrary read-only SQL queries against the local or split heatmap database with automatic `mode=ro` protection, `PRAGMA query_only = ON;`, and 5000ms busy timeout.
+- `gitmap heatmap rc query "<sql>" [--ai <name>] [--repo <slug>] [--tier <repo|root>] [--format table|json|yaml] [--limit <n>]` — Direct read-only SQL execution against companion `repo-cache` split or root databases.
+
+#### Tri-Alias Routing Parity
+All companion RC commands support full tri-alias routing parity:
+- `gitmap heatmap rc <tables|view|query>`
+- `gitmap rc heatmap <tables|view|query>`
+- `gitmap heatmap rc-heatmap <tables|view|query>`
+
+#### AI Agent Non-Blocking SQL Recipes
+AI agents analyzing prior session decisions, execution trees, and file hotspots should use direct read-only queries with `--json` or `--yaml` to prevent lock contention:
+
+```bash
+# 1. Inspect recent chronological trace for active task slug:
+gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, ReasoningState, IsExpectationMet FROM HeatmapActionLog WHERE TaskSlug = 'heatmap-commands-testing-and-rc-admin-instructions' ORDER BY HeatmapActionLogId ASC" --json
+
+# 2. Deep forensic inspection of specific action ID:
+gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, CodeSnippet, CommandText, ReasoningNotes, ExpectedOutcome, ActualOutcome FROM HeatmapActionLog WHERE HeatmapActionLogId = 1" --yaml
+
+# 3. Analyze touched file churn and editing hotspots:
+gitmap heatmap query "SELECT FilePath, COUNT(*) AS TotalTouches, SUM(CASE WHEN ActionType = 'MODIFY' THEN 1 ELSE 0 END) AS Modifies FROM HeatmapActionLog GROUP BY FilePath ORDER BY TotalTouches DESC"
+
+# 4. Extract unmet expectations and failed execution steps:
+gitmap heatmap query "SELECT HeatmapActionLogId, TaskSlug, FilePath, ExpectedOutcome, ActualOutcome FROM HeatmapActionLog WHERE IsExpectationMet = 0" --json
+
+# 5. Cross-repo activity rollup in companion root database:
+gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoRegistry ORDER BY TotalActionsRecorded DESC" --tier root
+```
+
 ---
 
 ## Operational Guardrails & Non-Negotiable Invariants

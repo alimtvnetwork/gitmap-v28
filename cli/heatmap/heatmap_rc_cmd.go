@@ -37,15 +37,19 @@ func DispatchRcHeatmap(ctx context.Context, args []string, out io.Writer) error 
 		return runRcCommit(flags, out)
 	case "sync":
 		return runRcSync(flags, out)
+	case "tables", "table":
+		return RunHeatmapTables(true, flags, out)
+	case "view":
+		return RunHeatmapView(true, flags, pos, out)
+	case "query", "sql":
+		return ExecuteHeatmapQuery(true, flags, pos, out)
 	default:
 		return apperror.NewValidation("heatmap_rc", "E1000", fmt.Sprintf("unknown rc subcommand: %s", subcmd))
 	}
 }
 
 func runRcLog(flags map[string]string, out io.Writer) error {
-	aiName := resolveTargetAi(flags["ai"])
-	repoSlug := resolveTargetRepo(flags["repo"])
-
+	aiName, repoSlug := resolveTargetAi(flags["ai"]), resolveTargetRepo(flags["repo"])
 	st, err := store.OpenRcHeatmapStore(aiName, repoSlug)
 	if err != nil {
 		return err
@@ -65,9 +69,7 @@ func runRcLog(flags map[string]string, out io.Writer) error {
 }
 
 func runRcSearch(flags map[string]string, pos []string, out io.Writer) error {
-	aiName := resolveTargetAi(flags["ai"])
-	repoSlug := resolveTargetRepo(flags["repo"])
-
+	aiName, repoSlug := resolveTargetAi(flags["ai"]), resolveTargetRepo(flags["repo"])
 	st, err := store.OpenRcHeatmapStore(aiName, repoSlug)
 	if err != nil {
 		return err
@@ -79,8 +81,7 @@ func runRcSearch(flags map[string]string, pos []string, out io.Writer) error {
 		limit = l
 	}
 
-	query := strings.Join(pos, " ")
-	records, err := st.SearchActions(query, flags["task"], flags["file"], limit)
+	records, err := st.SearchActions(strings.Join(pos, " "), flags["task"], flags["file"], limit)
 	if err != nil {
 		return err
 	}
@@ -93,9 +94,7 @@ func runRcSearch(flags map[string]string, pos []string, out io.Writer) error {
 }
 
 func runRcTree(flags map[string]string, out io.Writer) error {
-	aiName := resolveTargetAi(flags["ai"])
-	repoSlug := resolveTargetRepo(flags["repo"])
-
+	aiName, repoSlug := resolveTargetAi(flags["ai"]), resolveTargetRepo(flags["repo"])
 	st, err := store.OpenRcHeatmapStore(aiName, repoSlug)
 	if err != nil {
 		return err
@@ -115,9 +114,7 @@ func runRcTree(flags map[string]string, out io.Writer) error {
 }
 
 func runRcStatus(flags map[string]string, out io.Writer) error {
-	aiName := resolveTargetAi(flags["ai"])
-	repoSlug := resolveTargetRepo(flags["repo"])
-
+	aiName, repoSlug := resolveTargetAi(flags["ai"]), resolveTargetRepo(flags["repo"])
 	st, err := store.OpenRcHeatmapStore(aiName, repoSlug)
 	if err != nil {
 		return err
@@ -130,19 +127,13 @@ func runRcStatus(flags map[string]string, out io.Writer) error {
 	}
 
 	uncommitted, _ := st.GetUncommittedActionCount(repoSlug, aiName)
-
 	if flags["json"] == "true" {
-		resp := map[string]any{
-			"aiName":      aiName,
-			"repoSlug":    repoSlug,
-			"uncommitted": uncommitted,
-			"summary":     summary,
-		}
-		return json.NewEncoder(out).Encode(resp)
+		return json.NewEncoder(out).Encode(map[string]any{
+			"aiName": aiName, "repoSlug": repoSlug, "uncommitted": uncommitted, "summary": summary,
+		})
 	}
 
-	fmt.Fprintf(out, "RC Heatmap Status [AI: %s, Repo: %s]\n", aiName, repoSlug)
-	fmt.Fprintf(out, "Uncommitted Actions: %d\n", uncommitted)
+	fmt.Fprintf(out, "RC Heatmap Status [AI: %s, Repo: %s]\nUncommitted Actions: %d\n", aiName, repoSlug, uncommitted)
 	renderStatusText(out, *summary)
 	return nil
 }
@@ -152,11 +143,9 @@ func runRcListAi(flags map[string]string, out io.Writer) error {
 	current := store.DetectCurrentAIName()
 
 	if flags["json"] == "true" {
-		resp := map[string]any{
-			"currentAI":    current,
-			"supportedAIs": names,
-		}
-		return json.NewEncoder(out).Encode(resp)
+		return json.NewEncoder(out).Encode(map[string]any{
+			"currentAI": current, "supportedAIs": names,
+		})
 	}
 
 	fmt.Fprintln(out, "Supported AI Engine Namespaces in repo-cache (.heatmap/):")
@@ -173,8 +162,7 @@ func runRcListAi(flags map[string]string, out io.Writer) error {
 }
 
 func runRcCommit(flags map[string]string, out io.Writer) error {
-	aiName := resolveTargetAi(flags["ai"])
-	repoSlug := resolveTargetRepo(flags["repo"])
+	aiName, repoSlug := resolveTargetAi(flags["ai"]), resolveTargetRepo(flags["repo"])
 	taskSlug := flags["task"]
 	if taskSlug == "" {
 		taskSlug = "default-task"
@@ -195,17 +183,12 @@ func runRcCommit(flags map[string]string, out io.Writer) error {
 		return err
 	}
 
-	rec.SyncStatus = "COMMITTED"
-	rec.IsDirty = false
-	rec.UncommittedChangeCount = 0
+	rec.SyncStatus, rec.IsDirty, rec.UncommittedChangeCount = "COMMITTED", false, 0
 	_ = st.UpdateLocalTracking(*rec)
 
 	if flags["json"] == "true" {
 		return json.NewEncoder(out).Encode(map[string]any{
-			"status":   "COMMITTED",
-			"aiName":   aiName,
-			"repoSlug": repoSlug,
-			"message":  msg,
+			"status": "COMMITTED", "aiName": aiName, "repoSlug": repoSlug, "message": msg,
 		})
 	}
 
@@ -214,9 +197,7 @@ func runRcCommit(flags map[string]string, out io.Writer) error {
 }
 
 func runRcSync(flags map[string]string, out io.Writer) error {
-	aiName := resolveTargetAi(flags["ai"])
-	repoSlug := resolveTargetRepo(flags["repo"])
-
+	aiName, repoSlug := resolveTargetAi(flags["ai"]), resolveTargetRepo(flags["repo"])
 	st, err := store.OpenRcHeatmapStore(aiName, repoSlug)
 	if err != nil {
 		return err
@@ -228,15 +209,12 @@ func runRcSync(flags map[string]string, out io.Writer) error {
 		return err
 	}
 
-	rec.SyncStatus = "SYNCED"
-	rec.IsDirty = false
+	rec.SyncStatus, rec.IsDirty = "SYNCED", false
 	_ = st.UpdateLocalTracking(*rec)
 
 	if flags["json"] == "true" {
 		return json.NewEncoder(out).Encode(map[string]any{
-			"status":   "SYNCED",
-			"aiName":   aiName,
-			"repoSlug": repoSlug,
+			"status": "SYNCED", "aiName": aiName, "repoSlug": repoSlug,
 		})
 	}
 
@@ -245,15 +223,15 @@ func runRcSync(flags map[string]string, out io.Writer) error {
 }
 
 func resolveTargetAi(flag string) string {
-	if strings.TrimSpace(flag) != "" {
-		return store.NormalizeAIName(flag)
+	if s := strings.TrimSpace(flag); s != "" {
+		return store.NormalizeAIName(s)
 	}
 	return store.DetectCurrentAIName()
 }
 
 func resolveTargetRepo(flag string) string {
-	if strings.TrimSpace(flag) != "" {
-		return store.SanitizeSlug(flag)
+	if s := strings.TrimSpace(flag); s != "" {
+		return store.SanitizeSlug(s)
 	}
 	return store.ResolveAmbientRepoSlug("")
 }
@@ -288,6 +266,9 @@ func printRcHeatmapHelp(out io.Writer) {
 	fmt.Fprintln(out, "  list-ai  List supported AI namespaces and ambient detected AI")
 	fmt.Fprintln(out, "  commit   Record commit checkpoint and mark local changes clean")
 	fmt.Fprintln(out, "  sync     Synchronize local telemetry with repo-cache")
+	fmt.Fprintln(out, "  tables   List tables and row counts in RC heatmap SQLite DB")
+	fmt.Fprintln(out, "  view     Inspect table rows with --limit, --format, and filters")
+	fmt.Fprintln(out, "  query    Run safe read-only SQL SELECT queries against RC DB")
 	fmt.Fprintln(out, "  help     Show this help message\n\nFlags:")
 	fmt.Fprintln(out, "  --ai      Target AI namespace (antigravity, muse, cloud-code, codex, grok, cursor)")
 	fmt.Fprintln(out, "  --repo    Target repository slug (defaults to ambient working repo)")

@@ -475,7 +475,7 @@ Displays summary statistics, health indicators, expectations met percentage, and
   ```text
   === GitMap RC Heatmap Status ===
   AI Engine:          01-antigravity
-  Target Repo:        gitmap (d:\work\gitmap)
+  Target Repo:        gitmap (work/gitmap)
   Active Task:        heatmap-command-and-database-structure-instructions
   Total Actions:      42 (READ: 18, ANALYZE: 12, MODIFY: 8, EXEC_CMD: 4)
   Expectations Met:   95.2% (40/42)

@@ -187,7 +187,7 @@ func scanDurations(rows *sql.Rows) []int {
 // RecordShaCache inserts or replaces a cached payload for a commit sha and repo slug.
 func (p *PipelineSplitDb) RecordShaCache(commitSha string, runId uint64, repoSlug string, payloadJson string) error {
 	if p.conn == nil {
-		return apperror.NewSimple("pipeline db connection is nil")
+		return apperror.NewSimple("pipeline", "pipeline db connection is nil")
 	}
 
 	query := `INSERT OR REPLACE INTO PipelineShaCache (CommitSha, RunId, RepoSlug, PayloadJSON, UpdatedAt)
@@ -203,7 +203,7 @@ VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);`
 // QueryShaCache retrieves the cached payload JSON for a commit sha and repo slug.
 func (p *PipelineSplitDb) QueryShaCache(commitSha, repoSlug string) (string, error) {
 	if p.conn == nil {
-		return "", apperror.NewSimple("pipeline db connection is nil")
+		return "", apperror.NewSimple("pipeline", "pipeline db connection is nil")
 	}
 
 	query := `SELECT PayloadJSON FROM PipelineShaCache WHERE CommitSha = ? AND (RepoSlug = ? OR ? = '') LIMIT 1;`

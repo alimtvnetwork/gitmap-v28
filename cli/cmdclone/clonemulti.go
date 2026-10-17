@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // urlListSeparators are the characters that split a single positional

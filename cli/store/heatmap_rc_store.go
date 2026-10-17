@@ -279,12 +279,6 @@ func (s *RcHeatmapStore) QueryRepoRegistry(aiName string) ([]HeatmapRepoRegistry
 	return ScanRepoRegistryRows(rows)
 }
 
-func boolToInt(b bool) int {
-	if b {
-		return 1
-	}
-	return 0
-}
 
 func wrapErr(err error, scope string) error {
 	if err == nil {

@@ -84,15 +84,15 @@ func exportParentTasks(rootDbPath string, tempConn *sql.DB, timestamp string) in
 		return 0
 	}
 	defer rootConn.Close()
-	rows, err := rootConn.Query(`SELECT TaskSlug, TaskName, RunDirectory, RootDbPath, Status, COALESCE(Notes,''), COALESCE(Comments,''), CreatedAt, UpdatedAt FROM HeatmapParentTask WHERE CreatedAt > ? OR UpdatedAt > ?`, timestamp, timestamp)
-	if err != nil {
+	qRows, qErr := rootConn.Query(`SELECT TaskSlug, TaskName, RunDirectory, RootDbPath, Status, COALESCE(Notes,''), COALESCE(Comments,''), CreatedAt, UpdatedAt FROM HeatmapParentTask WHERE CreatedAt > ? OR UpdatedAt > ?`, timestamp, timestamp)
+	if qErr != nil {
 		return 0
 	}
-	defer rows.Close()
+	defer qRows.Close()
 	count := 0
-	for rows.Next() {
+	for qRows.Next() {
 		var s, n, rd, rp, st, not, c, ca, ua string
-		if rows.Scan(&s, &n, &rd, &rp, &st, &not, &c, &ca, &ua) == nil {
+		if qRows.Scan(&s, &n, &rd, &rp, &st, &not, &c, &ca, &ua) == nil {
 			if _, execErr := tempConn.Exec(`INSERT OR REPLACE INTO HeatmapParentTask VALUES (?,?,?,?,?,?,?,?,?)`, s, n, rd, rp, st, not, c, ca, ua); execErr == nil {
 				count++
 			}
@@ -106,12 +106,12 @@ func exportActionLogs(repoDbPath string, tempConn *sql.DB, timestamp string) int
 		return 0
 	}
 	defer repoConn.Close()
-	rows, err := repoConn.Query(`SELECT ParentLogId, TaskSlug, RepoName, ActionType, FilePath, StartLine, EndLine, COALESCE(CodeSnippet,''), COALESCE(CommandText,''), ReasoningState, COALESCE(ReasoningNotes,''), COALESCE(ExpectedOutcome,''), COALESCE(ActualOutcome,''), IsExpectationMet, ExecutionDepth, ExecutionOrder, COALESCE(Notes,''), COALESCE(Comments,''), CreatedAt FROM HeatmapActionLog WHERE CreatedAt > ?`, timestamp)
-	if err != nil {
+	qRows, qErr := repoConn.Query(`SELECT ParentLogId, TaskSlug, RepoName, ActionType, FilePath, StartLine, EndLine, COALESCE(CodeSnippet,''), COALESCE(CommandText,''), ReasoningState, COALESCE(ReasoningNotes,''), COALESCE(ExpectedOutcome,''), COALESCE(ActualOutcome,''), IsExpectationMet, ExecutionDepth, ExecutionOrder, COALESCE(Notes,''), COALESCE(Comments,''), CreatedAt FROM HeatmapActionLog WHERE CreatedAt > ?`, timestamp)
+	if qErr != nil {
 		return 0
 	}
-	defer rows.Close()
-	return copyActionLogRows(rows, tempConn)
+	defer qRows.Close()
+	return copyActionLogRows(qRows, tempConn)
 }
 func verifyDbIntegrity(conn *sql.DB) error {
 	var checkResult string
