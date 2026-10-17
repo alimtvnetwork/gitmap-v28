@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.567.0] - 2026-10-17
+
+### Added
+- agent-heatmap - db introspection subtask resolution and heatmap tracking
+
+---
+
 ## [v6.566.4] - 2026-10-17
 
 ### Added
