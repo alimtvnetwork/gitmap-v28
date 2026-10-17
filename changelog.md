@@ -1,5 +1,13 @@
 # Changelog
 
+## [v6.571.0] - 2026-10-18
+
+### Minor version bump
+- Routine minor bump after CI-green verification: all recent pipeline runs passing at release time.
+- Re-syncs the canonical version: the prior release tag v6.570.2 shipped with `version.json` still pinned at 6.570.1 (version/tag sync slip); this release aligns `version.json`, manifests, constants, and docs on 6.571.0.
+
+---
+
 ## [v6.570.1] - 2026-10-17
 
 ### Added
