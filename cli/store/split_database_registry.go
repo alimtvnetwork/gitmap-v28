@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -32,11 +33,27 @@ type SplitDatabaseEntry struct {
 	UpdatedAt               int64  `json:"updatedAt"`
 }
 
+func isNoSuchTableErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(strings.ToLower(err.Error()), "no such table")
+}
+
+func (db *DB) autoCreateAndRetryUpsert(args []any) error {
+	_, _ = ExecWrapper(db.conn, constants.SQLCreateSplitDatabaseRegistry).Destruct()
+	_, err := ExecWrapper(db.conn, constants.SQLUpsertSplitDatabaseRegistry, args...).Destruct()
+	return err
+}
+
 // RegisterSplitDB inserts or updates a split database registration in the root DB.
 func (db *DB) RegisterSplitDB(entry SplitDatabaseEntry) error {
 	entry = normalizeSplitDBEntry(entry)
 	args := entryToUpsertArgs(entry)
 	_, err := ExecWrapper(db.conn, constants.SQLUpsertSplitDatabaseRegistry, args...).Destruct()
+	if isNoSuchTableErr(err) {
+		err = db.autoCreateAndRetryUpsert(args)
+	}
 	if err != nil {
 		return apperror.WrapSimple(err, "store.RegisterSplitDB")
 	}
@@ -48,10 +65,9 @@ func (db *DB) RegisterSplitDB(entry SplitDatabaseEntry) error {
 func (db *DB) GetSplitDB(dbType, dbKey string) (*SplitDatabaseEntry, error) {
 	row := db.conn.QueryRow(constants.SQLSelectSplitDB, dbType, dbKey)
 	entry, err := scanSplitEntry(row)
-	if errors.Is(err, sql.ErrNoRows) {
+	if errors.Is(err, sql.ErrNoRows) || isNoSuchTableErr(err) {
 		return nil, sql.ErrNoRows
 	}
-
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "store.GetSplitDB")
 	}
@@ -62,6 +78,9 @@ func (db *DB) GetSplitDB(dbType, dbKey string) (*SplitDatabaseEntry, error) {
 // ListSplitDBs lists split database entries, optionally filtered by database type.
 func (db *DB) ListSplitDBs(dbType string) ([]SplitDatabaseEntry, error) {
 	rows, err := db.querySplitDBs(dbType)
+	if isNoSuchTableErr(err) {
+		return []SplitDatabaseEntry{}, nil
+	}
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "store.ListSplitDBs")
 	}
