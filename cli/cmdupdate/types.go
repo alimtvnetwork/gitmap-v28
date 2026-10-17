@@ -34,6 +34,7 @@ type UpdateResult struct {
 	IsCached         bool     `json:"cached"`
 	IsAlreadyUpdated bool     `json:"already_updated"`
 	ScriptsUpdated   []string `json:"scripts_updated"`
+	ReleaseNotes     []string `json:"release_notes,omitempty"`
 	ErrorMessage     *string  `json:"error"`
 }
 

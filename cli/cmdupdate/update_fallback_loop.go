@@ -25,6 +25,7 @@ type GitHubReleaseAsset struct {
 type GitHubRelease struct {
 	TagName    string               `json:"tag_name"`
 	Name       string               `json:"name"`
+	Body       string               `json:"body"`
 	Draft      bool                 `json:"draft"`
 	Prerelease bool                 `json:"prerelease"`
 	Assets     []GitHubReleaseAsset `json:"assets"`
@@ -39,14 +40,12 @@ type ReleaseCandidate struct {
 	ChecksumURL   string
 	FallbackDepth int
 	IsCached      bool
+	ReleaseNotes  string
 }
 
 // MatchPlatformAsset checks if the release asset corresponds to the target OS and architecture.
 func MatchPlatformAsset(assetName, tag, platform, arch string) bool {
-	lowName := strings.ToLower(assetName)
-	lowPlatform := strings.ToLower(platform)
-	lowArch := strings.ToLower(arch)
-
+	lowName, lowPlatform, lowArch := strings.ToLower(assetName), strings.ToLower(platform), strings.ToLower(arch)
 	switch lowPlatform {
 	case "windows":
 		return matchWindowsAsset(lowName, lowArch)
@@ -59,40 +58,16 @@ func MatchPlatformAsset(assetName, tag, platform, arch string) bool {
 	}
 }
 
-func matchWindowsAsset(lowName, lowArch string) bool {
-	if !strings.HasSuffix(lowName, ".zip") {
-		return false
-	}
-
-	if !strings.Contains(lowName, "windows") && !strings.Contains(lowName, "win") {
-		return false
-	}
-
-	return strings.Contains(lowName, lowArch)
+func matchWindowsAsset(name, arch string) bool {
+	return strings.HasSuffix(name, ".zip") && (strings.Contains(name, "windows") || strings.Contains(name, "win")) && strings.Contains(name, arch)
 }
 
-func matchLinuxAsset(lowName, lowArch string) bool {
-	if !strings.HasSuffix(lowName, ".tar.gz") {
-		return false
-	}
-
-	if !strings.Contains(lowName, "linux") {
-		return false
-	}
-
-	return strings.Contains(lowName, lowArch)
+func matchLinuxAsset(name, arch string) bool {
+	return strings.HasSuffix(name, ".tar.gz") && strings.Contains(name, "linux") && strings.Contains(name, arch)
 }
 
-func matchDarwinAsset(lowName, lowArch string) bool {
-	if !strings.HasSuffix(lowName, ".tar.gz") {
-		return false
-	}
-
-	if !strings.Contains(lowName, "darwin") && !strings.Contains(lowName, "macos") {
-		return false
-	}
-
-	return strings.Contains(lowName, lowArch)
+func matchDarwinAsset(name, arch string) bool {
+	return strings.HasSuffix(name, ".tar.gz") && (strings.Contains(name, "darwin") || strings.Contains(name, "macos")) && strings.Contains(name, arch)
 }
 
 // FindExecutableAsset finds an asset matching the platform and arch with non-zero size.
@@ -102,26 +77,21 @@ func FindExecutableAsset(assets []GitHubReleaseAsset, tag, platform, arch string
 			return a, true
 		}
 	}
-
-	// Secondary check: if size is not reported by API, match name anyway
 	for _, a := range assets {
 		if MatchPlatformAsset(a.Name, tag, platform, arch) {
 			return a, true
 		}
 	}
-
 	return GitHubReleaseAsset{}, false
 }
 
 // FindChecksumAsset finds the checksums.txt asset if present.
 func FindChecksumAsset(assets []GitHubReleaseAsset) string {
 	for _, a := range assets {
-		low := strings.ToLower(a.Name)
-		if strings.Contains(low, "checksum") || strings.Contains(low, "sha256") {
+		if strings.Contains(strings.ToLower(a.Name), "checksum") || strings.Contains(strings.ToLower(a.Name), "sha256") {
 			return a.BrowserDownloadURL
 		}
 	}
-
 	return ""
 }
 
@@ -130,60 +100,44 @@ func FetchRecentReleases(slug string, limit int) ([]GitHubRelease, error) {
 	if limit <= 0 {
 		limit = 10
 	}
-
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases?per_page=%d", constants.UpdateRepoOwner, slug, limit)
-	client := &http.Client{Timeout: 8 * time.Second}
-
 	req, errReq := http.NewRequest(http.MethodGet, url, nil)
 	if errReq != nil {
 		return nil, errReq
 	}
-
 	req.Header.Set("User-Agent", constants.UpdaterBin)
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
-
-	resp, errResp := client.Do(req)
+	resp, errResp := (&http.Client{Timeout: 8 * time.Second}).Do(req)
 	if errResp != nil {
 		return nil, errResp
 	}
-
 	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
 	}
-
 	var releases []GitHubRelease
-	errDec := json.NewDecoder(resp.Body).Decode(&releases)
-	if errDec != nil {
+	if errDec := json.NewDecoder(resp.Body).Decode(&releases); errDec != nil {
 		return nil, errDec
 	}
-
 	return releases, nil
 }
 
 // ResolveUpdateTargetWithFallback resolves the target version, probing up to maxFallback tags.
 func ResolveUpdateTargetWithFallback(slug string, requestedVersion string, maxFallback int, isForce bool) (*ReleaseCandidate, error) {
-	platform := runtime.GOOS
-	arch := runtime.GOARCH
+	platform, arch := runtime.GOOS, runtime.GOARCH
 	if maxFallback <= 0 {
 		maxFallback = 5
 	}
-
 	dbConn, _ := store.OpenReleaseCacheDB()
 	if dbConn != nil {
 		defer dbConn.Close()
 	}
-
 	if requestedVersion != "" {
 		return resolveExplicitVersion(dbConn, slug, requestedVersion, platform, arch, isForce)
 	}
-
-	cand, err := resolveFallbackFromReleases(dbConn, slug, platform, arch, maxFallback)
-	if err == nil {
+	if cand, err := resolveFallbackFromReleases(dbConn, slug, platform, arch, maxFallback); err == nil {
 		return cand, nil
 	}
-
 	return resolveFallbackFromCache(dbConn, platform, arch, maxFallback)
 }
 
@@ -192,10 +146,7 @@ func checkExplicitCached(dbConn *sql.DB, tag, platform, arch string, isForce boo
 		return nil, nil, false
 	}
 	cand, err := resolveExplicitCached(dbConn, tag, platform, arch)
-	if cand == nil && err == nil {
-		return nil, nil, false
-	}
-	return cand, err, true
+	return cand, err, cand != nil || err != nil
 }
 
 func resolveExplicitVersion(dbConn *sql.DB, slug, requestedVersion, platform, arch string, isForce bool) (*ReleaseCandidate, error) {
@@ -203,21 +154,12 @@ func resolveExplicitVersion(dbConn *sql.DB, slug, requestedVersion, platform, ar
 	if cand, err, hasCached := checkExplicitCached(dbConn, tag, platform, arch, isForce); hasCached {
 		return cand, err
 	}
-
 	cand, err := fetchExplicitReleaseCandidate(slug, tag, platform, arch, dbConn)
 	if err == nil && cand != nil {
 		return cand, nil
 	}
-
-	return nil, apperror.NewWithDetails(
-		"update.explicit.not_found",
-		"E1204",
-		fmt.Sprintf("requested release %s was not found or lacks executable assets for %s/%s", tag, platform, arch),
-		"cmdupdate",
-		apperror.ErrorTypeValidation,
-		apperror.SeverityError,
-		nil,
-	)
+	msg := fmt.Sprintf("requested release %s was not found or lacks executable assets for %s/%s", tag, platform, arch)
+	return nil, apperror.NewWithDetails("update.explicit.not_found", "E1204", msg, "cmdupdate", apperror.ErrorTypeValidation, apperror.SeverityError, nil)
 }
 
 func resolveExplicitCached(dbConn *sql.DB, tag, platform, arch string) (*ReleaseCandidate, error) {
@@ -225,27 +167,13 @@ func resolveExplicitCached(dbConn *sql.DB, tag, platform, arch string) (*Release
 	if errCache != nil || cached == nil {
 		return nil, nil
 	}
-
 	if !cached.HasExecutables {
-		return nil, apperror.NewWithDetails(
-			"update.explicit.no_exec",
-			"E1205",
-			fmt.Sprintf("requested release %s has no executable assets for %s/%s", tag, platform, arch),
-			"cmdupdate",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			nil,
-		)
+		msg := fmt.Sprintf("requested release %s has no executable assets for %s/%s", tag, platform, arch)
+		return nil, apperror.NewWithDetails("update.explicit.no_exec", "E1205", msg, "cmdupdate", apperror.ErrorTypeValidation, apperror.SeverityError, nil)
 	}
-
 	return &ReleaseCandidate{
-		Tag:           cached.Tag,
-		Version:       cached.Version,
-		AssetURL:      cached.AssetURL,
-		AssetSize:     cached.AssetSize,
-		ChecksumURL:   cached.ChecksumURL,
-		FallbackDepth: 0,
-		IsCached:      true,
+		Tag: cached.Tag, Version: cached.Version, AssetURL: cached.AssetURL,
+		AssetSize: cached.AssetSize, ChecksumURL: cached.ChecksumURL, FallbackDepth: 0, IsCached: true,
 	}, nil
 }
 
@@ -254,49 +182,37 @@ func fetchExplicitReleaseCandidate(slug, tag, platform, arch string, dbConn *sql
 	if err != nil {
 		return nil, err
 	}
-
 	asset, hasAsset := FindExecutableAsset(ghRel.Assets, tag, platform, arch)
 	checksumURL := FindChecksumAsset(ghRel.Assets)
 	cacheReleaseRecord(dbConn, tag, platform, arch, asset, checksumURL, hasAsset)
 	if !hasAsset {
 		return nil, fmt.Errorf("no executable asset")
 	}
-
 	return &ReleaseCandidate{
-		Tag:           tag,
-		Version:       NormalizeVersion(tag),
-		AssetURL:      asset.BrowserDownloadURL,
-		AssetSize:     asset.Size,
-		ChecksumURL:   checksumURL,
-		FallbackDepth: 0,
-		IsCached:      false,
+		Tag: tag, Version: NormalizeVersion(tag), AssetURL: asset.BrowserDownloadURL,
+		AssetSize: asset.Size, ChecksumURL: checksumURL, FallbackDepth: 0, IsCached: false, ReleaseNotes: ghRel.Body,
 	}, nil
 }
 
 func fetchTagRelease(slug, tag string) (*GitHubRelease, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/tags/%s", constants.UpdateRepoOwner, slug, tag)
-	client := &http.Client{Timeout: 8 * time.Second}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
-
 	req.Header.Set("User-Agent", constants.UpdaterBin)
-	resp, errResp := client.Do(req)
+	resp, errResp := (&http.Client{Timeout: 8 * time.Second}).Do(req)
 	if errResp != nil {
 		return nil, errResp
 	}
-
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("bad status: %d", resp.StatusCode)
 	}
-
 	var ghRel GitHubRelease
 	if errDec := json.NewDecoder(resp.Body).Decode(&ghRel); errDec != nil {
 		return nil, errDec
 	}
-
 	return &ghRel, nil
 }
 
@@ -305,40 +221,27 @@ func resolveFallbackFromReleases(dbConn *sql.DB, slug, platform, arch string, ma
 	if errReleases != nil || len(releases) == 0 {
 		return nil, fmt.Errorf("no releases found")
 	}
-
 	probeDepth := 0
 	for i, rel := range releases {
-		cand, isFound := probeReleaseCandidate(dbConn, rel, platform, arch, i)
-		if isFound {
+		if cand, isFound := probeReleaseCandidate(dbConn, rel, platform, arch, i); isFound {
 			return cand, nil
 		}
-
 		if rel.Draft {
 			continue
 		}
-
 		probeDepth++
 		if probeDepth >= maxFallback {
 			break
 		}
 	}
-
-	return nil, apperror.NewWithDetails(
-		"update.fallback.exhausted",
-		"E1205",
-		fmt.Sprintf("no valid releases with executable assets found in the last %d releases", maxFallback),
-		"cmdupdate",
-		apperror.ErrorTypeExecution,
-		apperror.SeverityError,
-		nil,
-	)
+	msg := fmt.Sprintf("no valid releases with executable assets found in the last %d releases", maxFallback)
+	return nil, apperror.NewWithDetails("update.fallback.exhausted", "E1205", msg, "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
 }
 
 func probeReleaseCandidate(dbConn *sql.DB, rel GitHubRelease, platform, arch string, depth int) (*ReleaseCandidate, bool) {
 	if rel.Draft {
 		return nil, false
 	}
-
 	tag := resolveReleaseTag(rel)
 	asset, hasAsset := FindExecutableAsset(rel.Assets, tag, platform, arch)
 	checksumURL := FindChecksumAsset(rel.Assets)
@@ -346,15 +249,9 @@ func probeReleaseCandidate(dbConn *sql.DB, rel GitHubRelease, platform, arch str
 	if !hasAsset {
 		return nil, false
 	}
-
 	return &ReleaseCandidate{
-		Tag:           tag,
-		Version:       NormalizeVersion(tag),
-		AssetURL:      asset.BrowserDownloadURL,
-		AssetSize:     asset.Size,
-		ChecksumURL:   checksumURL,
-		FallbackDepth: depth,
-		IsCached:      false,
+		Tag: tag, Version: NormalizeVersion(tag), AssetURL: asset.BrowserDownloadURL,
+		AssetSize: asset.Size, ChecksumURL: checksumURL, FallbackDepth: depth, IsCached: false, ReleaseNotes: rel.Body,
 	}, true
 }
 
@@ -362,7 +259,6 @@ func resolveReleaseTag(rel GitHubRelease) string {
 	if len(rel.TagName) > 0 {
 		return rel.TagName
 	}
-
 	return rel.Name
 }
 
@@ -370,16 +266,9 @@ func cacheReleaseRecord(dbConn *sql.DB, tag, platform, arch string, asset GitHub
 	if dbConn == nil {
 		return
 	}
-
 	_ = store.UpsertReleaseCache(dbConn, store.ReleaseCacheRecord{
-		Tag:            tag,
-		Version:        NormalizeVersion(tag),
-		HasExecutables: hasAsset,
-		AssetURL:       asset.BrowserDownloadURL,
-		AssetSize:      asset.Size,
-		Platform:       platform,
-		Arch:           arch,
-		ChecksumURL:    checksumURL,
+		Tag: tag, Version: NormalizeVersion(tag), HasExecutables: hasAsset,
+		AssetURL: asset.BrowserDownloadURL, AssetSize: asset.Size, Platform: platform, Arch: arch, ChecksumURL: checksumURL,
 	})
 }
 
@@ -387,37 +276,20 @@ func resolveFallbackFromCache(dbConn *sql.DB, platform, arch string, maxFallback
 	if dbConn == nil {
 		return nil, errResolutionFailed()
 	}
-
 	cachedList, errList := store.ListCachedReleases(dbConn, maxFallback)
 	if errList != nil || len(cachedList) == 0 {
 		return nil, errResolutionFailed()
 	}
-
 	for i, rec := range cachedList {
 		if rec.HasExecutables && rec.Platform == platform && rec.Arch == arch {
 			return &ReleaseCandidate{
-				Tag:           rec.Tag,
-				Version:       rec.Version,
-				AssetURL:      rec.AssetURL,
-				AssetSize:     rec.AssetSize,
-				ChecksumURL:   rec.ChecksumURL,
-				FallbackDepth: i,
-				IsCached:      true,
+				Tag: rec.Tag, Version: rec.Version, AssetURL: rec.AssetURL, AssetSize: rec.AssetSize, ChecksumURL: rec.ChecksumURL, FallbackDepth: i, IsCached: true,
 			}, nil
 		}
 	}
-
 	return nil, errResolutionFailed()
 }
 
 func errResolutionFailed() error {
-	return apperror.NewWithDetails(
-		"update.resolution.failed",
-		"E1205",
-		"failed to fetch releases and no valid cached release found",
-		"cmdupdate",
-		apperror.ErrorTypeExecution,
-		apperror.SeverityError,
-		nil,
-	)
+	return apperror.NewWithDetails("update.resolution.failed", "E1205", "failed to fetch releases and no valid cached release found", "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
 }

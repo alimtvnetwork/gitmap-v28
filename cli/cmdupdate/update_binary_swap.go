@@ -129,6 +129,9 @@ func finalizeUpdate(ui UpdateUIRenderer, opts UpdateOptions, cand *ReleaseCandid
 		DownloadBytes: cand.AssetSize, DurationMs: dur.Milliseconds(), FallbackDepth: cand.FallbackDepth,
 		IsCached: cand.IsCached, ScriptsUpdated: syncLocalRunnerScripts(dir, cand.Tag),
 	}
+	if cand != nil && cand.ReleaseNotes != "" {
+		res.ReleaseNotes = ExtractReleaseNotesSummary(cand.ReleaseNotes, 2)
+	}
 	ui.RenderSummaryCard(res)
 	ensurePostUpdateCompletions()
 	return nil

@@ -19,16 +19,17 @@ func stripAnsiEscapes(raw string) string {
 }
 
 type updateUIRendererImpl struct {
-	mu         sync.Mutex
-	opts       UpdateOptions
-	currentVer string
-	plain      bool
-	multi      pterm.MultiPrinter
-	spinner    *pterm.SpinnerPrinter
-	current    UpdateStage
-	stageMsg   string
-	stages     []string
-	isClosed   bool
+	mu                     sync.Mutex
+	opts                   UpdateOptions
+	currentVer             string
+	plain                  bool
+	multi                  pterm.MultiPrinter
+	spinner                *pterm.SpinnerPrinter
+	current                UpdateStage
+	stageMsg               string
+	stages                 []string
+	hasPrintedFirstSuccess bool
+	isClosed               bool
 }
 
 // NewUpdateUIRenderer constructs the coordinated terminal UI renderer.
@@ -62,7 +63,7 @@ func (r *updateUIRendererImpl) renderHeader() {
 func (r *updateUIRendererImpl) initMultiPrinter() {
 	r.multi = pterm.DefaultMultiPrinter
 	r.multi.Start()
-	spinner, err := pterm.DefaultSpinner.WithWriter(r.multi.NewWriter()).Start("Preparing...")
+	spinner, err := pterm.DefaultSpinner.WithWriter(r.multi.NewWriter()).WithRemoveWhenDone(true).Start("Preparing...")
 	if err != nil {
 		r.multi.Stop()
 		r.plain = true
@@ -111,11 +112,25 @@ func (r *updateUIRendererImpl) OnStageSuccess(stage UpdateStage, summary string)
 	}
 	cleanSum := stripAnsiEscapes(summary)
 	r.stages = append(r.stages, cleanSum)
+	r.padFirstSuccess()
 	if r.plain {
-		fmt.Printf("  ✓ %s\n", cleanSum)
+		fmt.Printf("    ✓ %s\n", cleanSum)
 		return
 	}
-	pterm.Success.WithWriter(r.multi.NewWriter()).Println(cleanSum)
+	badge := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render("SUCCESS")
+	fmt.Fprintf(r.multi.NewWriter(), "    %s %s\n", badge, cleanSum)
+}
+
+func (r *updateUIRendererImpl) padFirstSuccess() {
+	if r.hasPrintedFirstSuccess {
+		return
+	}
+	r.hasPrintedFirstSuccess = true
+	if r.plain {
+		fmt.Println()
+		return
+	}
+	fmt.Fprintln(r.multi.NewWriter())
 }
 
 func (r *updateUIRendererImpl) OnStageFail(stage UpdateStage, err error) {
@@ -153,6 +168,10 @@ func (r *updateUIRendererImpl) renderFailureCard(stage UpdateStage, err error) {
 func (r *updateUIRendererImpl) RenderSummaryCard(result UpdateResult) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if r.isClosed {
+		return
+	}
+	r.isClosed = true
 	r.stopPrinters()
 	if r.opts.IsJSON {
 		enc, _ := json.MarshalIndent(result, "", "  ")
@@ -171,9 +190,11 @@ func (r *updateUIRendererImpl) RenderSummaryCard(result UpdateResult) {
 
 func (r *updateUIRendererImpl) renderPlainSummary(result UpdateResult) {
 	sec := float64(result.DurationMs) / 1000.0
+	fmt.Println()
 	fmt.Println("  ============================================================")
-	fmt.Printf("  ✔ Update Complete: %s  →  %s (took %.1fs)\n", result.PreviousVersion, result.CurrentVersion, sec)
+	fmt.Printf("  ✔ Update Complete: %s → %s (took %.1fs)\n", result.PreviousVersion, result.CurrentVersion, sec)
 	fmt.Printf("  Binary: %s\n", result.BinaryPath)
+	printPlainReleaseNotes(result.ReleaseNotes)
 	fmt.Println("  ============================================================")
 }
 
@@ -189,28 +210,14 @@ func (r *updateUIRendererImpl) renderLipglossSummary(result UpdateResult) {
 	fmt.Println(cardStyle.Render(strings.Join(lines, "\n")))
 }
 
-func formatSummaryLines(result UpdateResult) []string {
-	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render("✔ Gitmap CLI Updated Successfully")
-	lbl := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaCyan))
-	prevVer := lipgloss.NewStyle().Foreground(lipgloss.Color(DraculaGray)).Render(result.PreviousVersion)
-	arrow := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaPurple)).Render("→")
-	currVer := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render(result.CurrentVersion)
-	delta := fmt.Sprintf("%s  %s  %s", prevVer, arrow, currVer)
-	sec := float64(result.DurationMs) / 1000.0
-	return []string{
-		title,
-		"",
-		fmt.Sprintf("%s : %s", lbl.Render("Version   "), delta),
-		fmt.Sprintf("%s : %s", lbl.Render("Binary    "), result.BinaryPath),
-		fmt.Sprintf("%s : SHA256 verified against checksums.txt", lbl.Render("Integrity ")),
-		fmt.Sprintf("%s : %s", lbl.Render("Engine    "), result.DownloaderEngine),
-		fmt.Sprintf("%s : %.1fs", lbl.Render("Elapsed   "), sec),
-	}
-}
 
 func (r *updateUIRendererImpl) RenderAlreadyUpdated(currentVer, targetVer string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if r.isClosed {
+		return
+	}
+	r.isClosed = true
 	r.stopPrinters()
 	if r.opts.IsJSON {
 		outputAlreadyUpdated(currentVer, targetVer, true)
@@ -242,10 +249,11 @@ func (r *updateUIRendererImpl) renderLipglossAlreadyUpdated(currentVer string) {
 
 func (r *updateUIRendererImpl) stopPrinters() {
 	if r.spinner != nil {
+		r.spinner.RemoveWhenDone = true
 		_ = r.spinner.Stop()
 		r.spinner = nil
 	}
-	if !r.plain {
+	if !r.plain && r.multi != nil {
 		r.multi.Stop()
 	}
 }
@@ -258,19 +266,4 @@ func (r *updateUIRendererImpl) Close() {
 	}
 	r.isClosed = true
 	r.stopPrinters()
-}
-
-// MakeProgressCallback creates a throttled detail updater for UpdateUIRenderer.
-func MakeProgressCallback(ui UpdateUIRenderer) func(written, total int64) {
-	if ui == nil {
-		return nil
-	}
-	return func(written, total int64) {
-		if total > 0 {
-			pct := float64(written) / float64(total) * 100
-			ui.OnStageProgress(fmt.Sprintf("%.1f / %.1f MB (%.0f%%)", float64(written)/(1024*1024), float64(total)/(1024*1024), pct))
-			return
-		}
-		ui.OnStageProgress(fmt.Sprintf("%.1f MB", float64(written)/(1024*1024)))
-	}
 }

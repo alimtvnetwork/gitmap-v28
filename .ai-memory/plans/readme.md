@@ -88,6 +88,8 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [273-gitmap-help-text-and-ui-enhancement.md](273-gitmap-help-text-and-ui-enhancement.md) — 4 design-system themes, `help example`, `mr` command, 20 proposals, virus RCA (Status: `completed` 2026-10-16)
 - [274-cicd-verification-and-enhancement.md](274-cicd-verification-and-enhancement.md) — CI 44/44 green, v6.558.0, 10 proposals + 20 improvements, 2 E2E bugs documented (Status: `completed` 2026-10-17)
 - [275-implement-30-new-commands.md](275-implement-30-new-commands.md) — All 30 proposals implemented, E2E 30/30, v6.559.0 (Status: `completed` 2026-10-17)
+- [282-help-doc-ui-hd-theme-and-terminal-runner.md](282-help-doc-ui-hd-theme-and-terminal-runner.md) — Help Doc UI HD Theme & Live Terminal Runner: Registered help text across terminal and UI, added prompt finder and categories, updated Help Dashboard themes, built interactive TerminalDrawer.tsx, and promoted terminal in cli/cmdui/ (Status: `completed` 2026-10-17)
+- [283-cli-update-ui-color-alignment-and-release-notes.md](283-cli-update-ui-color-alignment-and-release-notes.md) — CLI Update UI Color Alignment, Spacing, Padding & Release Notes: Clean white-to-yellow version transition, 4-space indented SUCCESS badges matching step indicators, top/bottom padding, duplicate output prevention, and 1–2 line release notes snippet (Status: `completed` 2026-10-17)
 
 ---
 
