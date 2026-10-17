@@ -103,9 +103,11 @@ func renderPostPullMenu() {
 		constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %s[5/fleet]%s    %sFleet Multi-Repo Control%s        - Run %sgitmap sends cp all \"wip: save changes\"%s\n",
 		constants.ColorCyan, constants.ColorReset, constants.ColorMagenta, constants.ColorReset, constants.ColorBold, constants.ColorReset)
+	fmt.Printf("    %s[h/?/help]%s   %sHelp & Explanations%s             - Detailed guide on resolution strategies & risks\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("    %s[6/q/skip]%s   %sSkip and leave as-is%s            - No further action taken\n",
 		constants.ColorCyan, constants.ColorReset, constants.ColorDim, constants.ColorReset)
-	fmt.Printf("  %sChoice [1/2/3/4/5/6/q]:%s ", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  %sChoice [1/2/3/4/5/6/h/q]:%s ", constants.ColorCyan, constants.ColorReset)
 }
 
 func readPromptUserChoice() string {
@@ -119,22 +121,65 @@ func readPromptUserChoice() string {
 }
 
 func dispatchPostPullChoice(choice string, unresolved []UnresolvedPullRepo) error {
-	switch choice {
-	case "1", "f", "fix", "fix-all":
-		return executeFixAll()
-	case "2", "c", "commit", "commit-all":
-		return executeLocalCommitAllWIP(unresolved)
-	case "3", "t", "stash", "stash-all":
-		return executeStashAll(unresolved)
-	case "4", "s", "step", "single":
-		return executeStepByStepRemediation(unresolved)
-	case "5", "fleet", "sends":
-		return executeFleetCommitWIP(unresolved)
-	case "6", "q", "quit", "skip", "n", "no":
-		return nil
-	default:
-		return nil
+	currentChoice := choice
+	for {
+		switch currentChoice {
+		case "1", "f", "fix", "fix-all":
+			return executeFixAll()
+		case "2", "c", "commit", "commit-all":
+			return executeLocalCommitAllWIP(unresolved)
+		case "3", "t", "stash", "stash-all":
+			return executeStashAll(unresolved)
+		case "4", "s", "step", "single":
+			return executeStepByStepRemediation(unresolved)
+		case "5", "fleet", "sends":
+			return executeFleetCommitWIP(unresolved)
+		case "h", "help", "?":
+			renderPostPullHelpGuide()
+			renderPostPullMenu()
+			currentChoice = readPromptUserChoice()
+		case "6", "q", "quit", "skip", "n", "no":
+			return nil
+		default:
+			return nil
+		}
 	}
+}
+
+func renderPostPullHelpGuide() {
+	renderPostPullHelpHeader()
+	renderPostPullOptionDetails()
+}
+
+func renderPostPullHelpHeader() {
+	fmt.Printf("\n  %s╔══════════════════════════════════════════════════════════════════════╗%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  %s║%s  %s📖 Post-Pull Resolution & Safety Guide%s                            %s║%s\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorBold, constants.ColorReset,
+		constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  %s╚══════════════════════════════════════════════════════════════════════╝%s\n\n", constants.ColorCyan, constants.ColorReset)
+}
+
+func renderPostPullOptionDetails() {
+	fmt.Printf("  %s[1/f/fix] Fix All:%s\n", constants.ColorBold, constants.ColorReset)
+	fmt.Println("    • Runs gitmap fix --all across failed repositories to heal HTTPS remotes,")
+	fmt.Println("      resolve common errors, and perform automated non-destructive pulls.")
+	fmt.Println("    • Safety: Non-destructive; aborts on conflict without losing changes.")
+	fmt.Printf("\n  %s[2/c/commit] Commit All:%s\n", constants.ColorBold, constants.ColorReset)
+	fmt.Println("    • Stages and commits local changes as 'wip: save changes' on this machine.")
+	fmt.Println("    • Safety: Local only; never pushes to remotes automatically.")
+	fmt.Printf("\n  %s[3/t/stash] Stash All:%s\n", constants.ColorBold, constants.ColorReset)
+	fmt.Println("    • Runs git stash across dirty repositories to clear working trees.")
+	fmt.Println("    • Safety: Stashed changes remain restorable via git stash pop.")
+	fmt.Printf("\n  %s[4/s/step] Step through individually:%s\n", constants.ColorBold, constants.ColorReset)
+	fmt.Println("    • Inspects each unresolved repository with diff previews and options:")
+	fmt.Println("      VS Code merge editor, ours/theirs resolution, or safe abort.")
+	fmt.Println("    • Safety: Granular manual review and verification per repository.")
+	fmt.Printf("\n  %s[5/fleet] Fleet Multi-Repo Control:%s\n", constants.ColorBold, constants.ColorReset)
+	fmt.Println("    • Dispatches cluster-wide commit across fleet machines via gitmap sends.")
+	fmt.Println("    • Safety: Validates SSH keys and node connectivity before executing.")
+	fmt.Printf("\n  %s[6/q/skip] Skip and leave as-is:%s\n", constants.ColorBold, constants.ColorReset)
+	fmt.Println("    • Exits menu without modifying any repositories or files.")
 }
 
 func executeFixAll() error {

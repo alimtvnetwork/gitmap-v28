@@ -3,7 +3,9 @@ package cloner
 
 import (
 	"errors"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -24,19 +26,34 @@ var (
 )
 
 // IsMergeConflict checks whether the error represents a merge conflict.
-func IsMergeConflict(err error) bool {
-	return isMergeConflict(err)
+func IsMergeConflict(err error, output ...string) bool {
+	return isMergeConflict(err, output...)
 }
 
-func isMergeConflict(err error) bool {
-	if err == nil {
-		return false
-	}
-	if errors.Is(err, ErrMergeConflict) {
+func isMergeConflict(err error, output ...string) bool {
+	if err != nil && errors.Is(err, ErrMergeConflict) {
 		return true
 	}
+	var outStr string
+	if len(output) > 0 {
+		outStr = output[0]
+	}
+	errStr := ""
+	if err != nil {
+		errStr = err.Error()
+	}
+	if errStr == "" && outStr == "" {
+		return false
+	}
+	combined := strings.ToLower(errStr + "\n" + outStr)
 
-	return strings.Contains(err.Error(), "merge conflict") || strings.Contains(err.Error(), "E_MERGE_CONFLICT")
+	return strings.Contains(combined, "merge conflict") ||
+		strings.Contains(combined, "e_merge_conflict") ||
+		strings.Contains(combined, "unmerged files") ||
+		strings.Contains(combined, "unresolved conflict") ||
+		strings.Contains(combined, "automatic merge failed") ||
+		strings.Contains(combined, "conflict (") ||
+		strings.Contains(combined, "fix conflicts and then commit")
 }
 
 // IsMergeConflictOutput returns true if git output indicates merge conflicts.
@@ -50,7 +67,22 @@ func isMergeConflictOutput(output string) bool {
 	return strings.Contains(lower, "conflict") ||
 		strings.Contains(lower, "automatic merge failed") ||
 		strings.Contains(lower, "fix conflicts and then commit") ||
-		strings.Contains(lower, "you have unmerged files")
+		strings.Contains(lower, "unmerged files") ||
+		strings.Contains(lower, "unresolved conflict") ||
+		strings.Contains(lower, "conflict (")
+}
+
+// HasUnmergedConflicts checks whether repoDir currently has unmerged files or active merge conflicts.
+func HasUnmergedConflicts(repoDir string) bool {
+	if repoDir == "" {
+		return false
+	}
+	mergeHead := filepath.Join(repoDir, ".git", "MERGE_HEAD")
+	if _, err := os.Stat(mergeHead); err == nil {
+		return true
+	}
+	conflicted := ExtractConflictedFilesFromRepo(repoDir)
+	return len(conflicted) > 0
 }
 
 // ExtractConflictedFilesFromOutput parses git conflict output lines to identify conflicted files.

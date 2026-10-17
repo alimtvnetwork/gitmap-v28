@@ -94,6 +94,18 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 
 func safePullRepoWithProgress(rec model.ScanRecord, repoDir string, onProgress func(string)) model.CloneResult {
 	logSafePullStart(rec, repoDir)
+
+	if HasUnmergedConflicts(repoDir) {
+		conflicts := ExtractConflictedFilesFromRepo(repoDir)
+		conflictDesc := "active unmerged conflict detected"
+		if len(conflicts) > 0 {
+			conflictDesc = fmt.Sprintf("active unmerged conflict detected in %s", strings.Join(conflicts, ", "))
+		}
+		err := fmt.Errorf("%s: %w", conflictDesc, ErrMergeConflict)
+
+		return buildAttemptFailureResult(rec, repoDir, 1, conflictDesc, err)
+	}
+
 	var lastFail model.CloneResult
 	for attempt := 1; attempt <= constants.SafePullRetryAttempts; attempt++ {
 		res, isDone := executePullAttempt(rec, repoDir, attempt, onProgress)
@@ -124,7 +136,8 @@ func executePullAttempt(rec model.ScanRecord, repoDir string, attempt int, onPro
 		return handleAttemptSuccess(rec, attempt, output), true
 	}
 	handleAttemptFailure(repoDir, output)
-	if isMergeConflict(err) {
+
+	if isMergeConflict(err, output) || HasUnmergedConflicts(repoDir) {
 		return buildAttemptFailureResult(rec, repoDir, attempt, output, err), true
 	}
 

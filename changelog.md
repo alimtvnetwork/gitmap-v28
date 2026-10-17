@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.565.0] - 2026-10-17
+
+### Added
+- pull-summary transparency, remediation menu guidance, safe-pull conflict hardening, and alim-seo LFS fix
+
+---
+
 ## [v6.564.0] - 2026-10-17
 
 ### Added

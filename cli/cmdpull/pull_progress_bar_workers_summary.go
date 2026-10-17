@@ -2,6 +2,7 @@ package cmdpull
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -18,7 +19,7 @@ func (p *PullProgressBar) formatFallbackSummary() string {
 	badge := p.colorizeBadge(FormatStepBadge(p.activeStep, p.isSafe), p.activeStep)
 	desc := p.formatActiveDescription()
 
-	return fmt.Sprintf("%s %s%s", badge, p.activeRepo, desc)
+	return fmt.Sprintf("%s %s%s", badge, cleanActiveRepoName(p.activeRepo), desc)
 }
 
 func (p *PullProgressBar) formatActiveWorkersList() string {
@@ -28,21 +29,47 @@ func (p *PullProgressBar) formatActiveWorkersList() string {
 	}
 	if len(workerIDs) == 1 {
 		w := p.activeWorkers[workerIDs[0]]
+		if w == nil {
+			return ""
+		}
 		badge := p.colorizeBadge(FormatStepBadge(w.Step, p.isSafe), w.Step)
-		return fmt.Sprintf("%s %s%s", badge, w.RepoName, formatWorkerSlotDesc(w))
+		repoName := cleanActiveRepoName(w.RepoName)
+		return fmt.Sprintf("%s %s%s", badge, repoName, formatWorkerSlotDesc(w))
 	}
+	maxWorkers := p.resolveMaxWorkersToDisplay()
 	var parts []string
-	for i := 0; i < len(workerIDs) && i < 2; i++ {
+	for i := 0; i < len(workerIDs) && i < maxWorkers; i++ {
 		w := p.activeWorkers[workerIDs[i]]
+		if w == nil {
+			continue
+		}
 		badge := p.colorizeBadge(FormatStepBadge(w.Step, p.isSafe), w.Step)
-		parts = append(parts, fmt.Sprintf("%s %s", badge, w.RepoName))
+		repoName := cleanActiveRepoName(w.RepoName)
+		parts = append(parts, fmt.Sprintf("%s %s", badge, repoName))
 	}
 	summary := strings.Join(parts, ", ")
-	if len(workerIDs) > 2 {
-		summary += fmt.Sprintf(" (+%d more)", len(workerIDs)-2)
+	if len(workerIDs) > maxWorkers {
+		summary += fmt.Sprintf(" (+%d more)", len(workerIDs)-maxWorkers)
 	}
 
 	return summary
+}
+
+func (p *PullProgressBar) resolveMaxWorkersToDisplay() int {
+	if p.isTTY && detectTerminalWidth() >= widePullTableThreshold {
+		return 4
+	}
+
+	return 2
+}
+
+func cleanActiveRepoName(repo string) string {
+	clean := strings.TrimSpace(repo)
+	if strings.Contains(clean, "/") || strings.Contains(clean, "\\") {
+		clean = filepath.Base(filepath.ToSlash(clean))
+	}
+
+	return clean
 }
 
 func formatWorkerSlotDesc(w *WorkerSlotState) string {
@@ -62,3 +89,4 @@ func (p *PullProgressBar) sortedWorkerIDs() []int {
 
 	return ids
 }
+

@@ -42,9 +42,10 @@ func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecor
 }
 
 type categorizedStates struct {
-	updated []*PullRepoState
-	dirty   []*PullRepoState
-	failed  []*PullRepoState
+	updated  []*PullRepoState
+	upToDate []*PullRepoState
+	dirty    []*PullRepoState
+	failed   []*PullRepoState
 }
 
 func categorizeRepoStates(states []*PullRepoState) categorizedStates {
@@ -60,6 +61,8 @@ func categorizeRepoStates(states []*PullRepoState) categorizedStates {
 			cat.failed = append(cat.failed, s)
 		case isUpdatedRepoState(s):
 			cat.updated = append(cat.updated, s)
+		case !s.IsDirty && s.ErrorMsg == "" && (s.Step == PullStepTypeUpToDate || s.Changes == "up-to-date" || ResolveRepoStatusLabel(s.Changes) == "up-to-date"):
+			cat.upToDate = append(cat.upToDate, s)
 		}
 	}
 	return cat
@@ -69,12 +72,30 @@ func renderCategorizedGroups(w io.Writer, colWidth int, cat categorizedStates, c
 	if len(cat.updated) > 0 {
 		renderUpdatedGroup(w, colWidth, cat.updated, collisions)
 	}
+	if len(cat.upToDate) > 0 {
+		renderUpToDateGroup(w, cat.upToDate, collisions)
+	}
 	if len(cat.dirty) > 0 {
 		renderDirtyGroup(w, colWidth, cat.dirty, collisions)
 	}
 	if len(cat.failed) > 0 {
 		renderFailedGroup(w, colWidth, cat.failed, collisions)
 	}
+}
+
+func renderUpToDateGroup(w io.Writer, upToDate []*PullRepoState, collisions map[string]bool) {
+	fmt.Fprintf(w, "\n  %s%s✓ Up-to-Date Repositories (%d):%s\n", constants.ColorGreen, constants.ColorBold, len(upToDate), constants.ColorReset)
+	names := make([]string, 0, len(upToDate))
+	for _, s := range upToDate {
+		if s == nil {
+			continue
+		}
+		displayName := resolveRepoDisplayName(s, collisions)
+		names = append(names, displayName)
+	}
+	termWidth := detectTerminalWidth()
+	wrapped := FormatWrappedInactiveList(names, "    ", termWidth-2)
+	fmt.Fprintf(w, "%s%s%s\n", constants.ColorDim, wrapped, constants.ColorReset)
 }
 
 func isFailedRepoState(s *PullRepoState) bool {
