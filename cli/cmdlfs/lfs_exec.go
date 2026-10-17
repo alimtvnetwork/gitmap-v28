@@ -170,7 +170,7 @@ func executeLFSActive(candidates []lfsCandidate, flags lfsFlags) error {
 	}
 
 	if !confirmed {
-		fmt.Printf("  %sOperation cancelled by user.%s\n\n", constants.ColorYellow, constants.ColorReset)
+		fmt.Printf("  %sOperation canceled by user.%s\n\n", constants.ColorYellow, constants.ColorReset)
 		return nil
 	}
 
