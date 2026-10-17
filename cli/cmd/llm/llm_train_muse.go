@@ -1,12 +1,15 @@
 // Package llm — llm_train_muse.go implements the positional "muse" sub-target of
 // `gitmap llm train`: it clone-or-pulls the repo-secrets vault, diffs the last
 // N days of the Muse memory digest, and prints a terminal summary plus a raw
-// AI traversal checklist. It never imports cli/cmd (circular); git work is
-// done with os/exec following the runGitInSpecialRepo pattern.
+// AI traversal checklist. The last-read watermark is tracked by gitmap itself
+// (JSON under BinaryDataDir) — never in an MD file. It never imports cli/cmd
+// (circular); git work is done with os/exec following the runGitInSpecialRepo
+// pattern.
 package llm
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -53,7 +56,32 @@ func runTrainMuse(opts TrainOptions) *apperror.AppError {
 	if pullErr := pullRepoSecrets(log, path); pullErr != nil {
 		return pullErr
 	}
-	return renderMuseDigest(log, opts, path)
+	headSHA, headErr := gitHeadSHA(path)
+	if headErr != nil {
+		return headErr
+	}
+	prev := loadLastRead(path)
+	since := diffSinceLastRead(log, path, prev, headSHA)
+	digestDir := filepath.Join(path, digestRootName)
+	if !isDirPath(digestDir) {
+		log.add("digest: no %s/ dir at %s -> DECISION print guidance, exit 0 (why: nothing to train on yet; the digest is authored by the memory-IO program)", digestRootName, relForDisplay(path))
+		saveLastRead(log, path, headSHA)
+		log.print()
+		printDigestMissingGuidance(path)
+		return nil
+	}
+	files, commitCount, err := gitLogChangedFiles(path, opts.DaysN)
+	if err != nil {
+		return err
+	}
+	sinceDate := time.Now().AddDate(0, 0, -opts.DaysN).Format("2006-01-02")
+	log.add("window: --days %d -> since %s -> DECISION git log --since + rev-list --count (why: bound the diff to the digest window; the commit count frames the summary)", opts.DaysN, sinceDate)
+	log.add("order: DECISION README.md first, then sequenced files in lexical order, chat-seeds on demand (why: contract before detail; a deterministic order any LLM can replay)")
+	log.add("search: DECISION scope gitmap aum search to the digest tree with --ext .md (why: keep the model inside the digest, no repo-wide noise)")
+	saveLastRead(log, path, headSHA)
+	log.print()
+	printDigestSummary(path, opts.DaysN, files, commitCount, since)
+	return nil
 }
 
 // decisionLog collects the why behind each step so an AI reading the
@@ -182,26 +210,102 @@ func runGitCmd(dir string, args ...string) ([]byte, *apperror.AppError) {
 	return out, nil
 }
 
-// renderMuseDigest renders the summary + checklist, or missing-digest guidance.
-func renderMuseDigest(log *decisionLog, opts TrainOptions, path string) *apperror.AppError {
-	digestDir := filepath.Join(path, digestRootName)
-	if !isDirPath(digestDir) {
-		log.add("digest: no %s/ dir at %s -> DECISION print guidance, exit 0 (why: nothing to train on yet; the digest is authored by the memory-IO program)", digestRootName, relForDisplay(path))
-		log.print()
-		printDigestMissingGuidance(path)
+// lastReadCheckpoint is the watermark of the last successful train run,
+// tracked by gitmap (JSON under BinaryDataDir) — never in an MD file.
+type lastReadCheckpoint struct {
+	VaultPath string `json:"vault_path"`
+	HeadSHA   string `json:"head_sha"`
+	ReadAt    string `json:"read_at"`
+}
+
+// lastReadFile is the checkpoint path, beside gitmap's other JSON state.
+func lastReadFile() string {
+	return filepath.Join(store.BinaryDataDir(), "llm-train-muse-last-read.json")
+}
+
+// loadLastRead returns the checkpoint for vaultPath, or nil when absent,
+// unreadable, or recorded for a different vault path.
+func loadLastRead(vaultPath string) *lastReadCheckpoint {
+	raw, err := os.ReadFile(lastReadFile())
+	if err != nil {
 		return nil
 	}
-	files, commitCount, err := gitLogChangedFiles(path, opts.DaysN)
-	if err != nil {
-		return err
+	var cp lastReadCheckpoint
+	if json.Unmarshal(raw, &cp) != nil {
+		return nil
 	}
-	since := time.Now().AddDate(0, 0, -opts.DaysN).Format("2006-01-02")
-	log.add("window: --days %d -> since %s -> DECISION git log --since + rev-list --count (why: bound the diff to the digest window; the commit count frames the summary)", opts.DaysN, since)
-	log.add("order: DECISION README.md first, then sequenced files in lexical order, chat-seeds on demand (why: contract before detail; a deterministic order any LLM can replay)")
-	log.add("search: DECISION scope gitmap aum search to the digest tree with --ext .md (why: keep the model inside the digest, no repo-wide noise)")
-	log.print()
-	printDigestSummary(path, opts.DaysN, files, commitCount)
-	return nil
+	if cp.VaultPath != vaultPath || cp.HeadSHA == "" {
+		return nil
+	}
+	return &cp
+}
+
+// saveLastRead records vaultPath@sha as the new watermark. A bookkeeping
+// failure never fails the command — it only warns.
+func saveLastRead(log *decisionLog, vaultPath, sha string) {
+	cp := lastReadCheckpoint{VaultPath: vaultPath, HeadSHA: sha, ReadAt: time.Now().UTC().Format(time.RFC3339)}
+	raw, err := json.MarshalIndent(cp, "", "  ")
+	if err != nil {
+		return
+	}
+	if err := os.MkdirAll(filepath.Dir(lastReadFile()), 0o755); err != nil {
+		return
+	}
+	if err := os.WriteFile(lastReadFile(), raw, 0o600); err != nil {
+		log.add("last-read: checkpoint save failed (%v) -> DECISION warn and continue (why: never fail a read over bookkeeping)", err)
+		fmt.Printf("[LLM-TRAIN-MUSE] warning: could not save last-read checkpoint: %v\n", err)
+		return
+	}
+	log.add("last-read: watermark saved -> %s @ %s (why: the next run diffs against this SHA; no MD file involved)", shortSHA(sha), cp.ReadAt)
+}
+
+// gitHeadSHA returns the vault's current HEAD SHA.
+func gitHeadSHA(path string) (string, *apperror.AppError) {
+	raw, err := runGitCmd(path, "rev-parse", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(raw)), nil
+}
+
+// shortSHA renders the 12-char display prefix of a SHA.
+func shortSHA(sha string) string {
+	if len(sha) > 12 {
+		return sha[:12]
+	}
+	return sha
+}
+
+// sinceRead describes what changed between the checkpoint and now.
+type sinceRead struct {
+	state  string // "baseline" | "unchanged" | "fallback" | "diff"
+	readAt string
+	count  int
+	files  []string
+}
+
+// diffSinceLastRead logs the watermark decision and diffs checkpoint..HEAD.
+func diffSinceLastRead(log *decisionLog, path string, prev *lastReadCheckpoint, headSHA string) sinceRead {
+	if prev == nil {
+		log.add("last-read: no checkpoint yet -> DECISION record this run as the baseline watermark (why: the first sync establishes the diff base)")
+		return sinceRead{state: "baseline"}
+	}
+	if prev.HeadSHA == headSHA {
+		log.add("last-read: vault HEAD %s matches checkpoint from %s -> DECISION report 'nothing new since last read' (why: never re-train on unchanged state)", shortSHA(headSHA), prev.ReadAt)
+		return sinceRead{state: "unchanged", readAt: prev.ReadAt}
+	}
+	raw, err := runGitCmd(path, "log", prev.HeadSHA+"..HEAD", "--name-only", "--pretty=format:")
+	if err != nil {
+		log.add("last-read: checkpoint %s not in history -> DECISION fall back to the --days window (why: rewritten history invalidates the watermark)", shortSHA(prev.HeadSHA))
+		return sinceRead{state: "fallback", readAt: prev.ReadAt}
+	}
+	countRaw, countErr := runGitCmd(path, "rev-list", "--count", prev.HeadSHA+"..HEAD")
+	if countErr != nil {
+		log.add("last-read: checkpoint %s not in history -> DECISION fall back to the --days window (why: rewritten history invalidates the watermark)", shortSHA(prev.HeadSHA))
+		return sinceRead{state: "fallback", readAt: prev.ReadAt}
+	}
+	log.add("last-read: checkpoint %s (%s) -> now %s -> DECISION diff the range for the since-last-read list (why: the model re-reads only what changed)", shortSHA(prev.HeadSHA), prev.ReadAt, shortSHA(headSHA))
+	return sinceRead{state: "diff", readAt: prev.ReadAt, count: parseCount(countRaw), files: uniqueNonEmptyLines(string(raw))}
 }
 
 // gitLogChangedFiles returns the deduplicated changed-file list and commit
@@ -245,17 +349,41 @@ func parseCount(raw []byte) int {
 }
 
 // printDigestSummary prints the terminal summary and traversal checklist.
-func printDigestSummary(path string, days int, files []string, commitCount int) {
+func printDigestSummary(path string, days int, files []string, commitCount int, since sinceRead) {
 	digestDir := filepath.Join(path, digestRootName)
 	sequenced := listSequencedDigestFiles(digestDir)
 	fmt.Println("======================================================================")
 	fmt.Printf("GITMAP LLM TRAIN — MUSE MEMORY SYNC (last %d days)\n", days)
 	fmt.Println("======================================================================")
 	fmt.Printf("Digest root: %s\n", relForDisplay(digestDir))
-	fmt.Printf("Commits: %d | Files changed: %d | Sequenced digests: %d\n\n", commitCount, len(files), len(sequenced))
+	fmt.Printf("Commits: %d | Files changed: %d | Sequenced digests: %d\n", commitCount, len(files), len(sequenced))
+	printSinceLastRead(since)
+	fmt.Println()
 	printDigestFileList("SEQUENCED DIGEST FILES", sequenced)
 	printDigestFileList("CHANGED FILES", files)
 	printTraversalChecklist(path, digestDir, sequenced)
+}
+
+// printSinceLastRead prints the watermark diff section — the checkpoint is
+// tracked by gitmap, never in an MD file.
+func printSinceLastRead(since sinceRead) {
+	fmt.Println("SINCE LAST READ (tracked by gitmap — no MD file):")
+	switch since.state {
+	case "baseline":
+		fmt.Println("  First run: this sync is the baseline watermark.")
+	case "unchanged":
+		fmt.Printf("  Vault unchanged since last read at %s — 0 new commits.\n", since.readAt)
+	case "fallback":
+		fmt.Println("  Checkpoint SHA not in history — showing the --days window instead.")
+	case "diff":
+		fmt.Printf("  %d new commit(s) since last read at %s:\n", since.count, since.readAt)
+		if len(since.files) == 0 {
+			fmt.Println("    (file list empty)")
+		}
+		for _, f := range since.files {
+			fmt.Printf("    %s\n", f)
+		}
+	}
 }
 
 // listSequencedDigestFiles returns the digest-root .md files, digest-relative.

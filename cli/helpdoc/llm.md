@@ -261,8 +261,10 @@ Re-syncs any LLM with the 7-day Muse memory digest authored into the
 repo-secrets vault (`Muse/README.md` + sequenced `Muse/01-*.md` files +
 `Muse/chat-seeds/`): the command clone-or-pulls the vault, diffs the last N
 days, prints a terminal summary, and prints a raw AI traversal checklist with
-file-by-file `gitmap cat` / `gitmap aum search` hints. Tolerates a missing
-`Muse/` digest with guidance (exit 0).
+file-by-file `gitmap cat` / `gitmap aum search` hints. The last-read watermark
+(vault HEAD SHA + timestamp) is tracked by gitmap itself in its local state —
+never in an MD file — and each run reports what is new since the last read.
+Tolerates a missing `Muse/` digest with guidance (exit 0).
 
 ```bash
 gitmap llm train muse --days 7
@@ -278,15 +280,19 @@ DECISION TRACE - why each step ran (AI: learn the reasoning)
   1. checkout: no 'rs' record but repo-secrets already exists at the work-folder root -> DECISION reuse it, skip clone (why: the directory is the source of truth; the record is only a pointer)
   2. checkout: vault present at repo-secrets -> DECISION reuse it, skip clone (why: never clone over existing local state)
   3. sync: origin remote present -> DECISION git pull --ff-only (why: take new digest commits fast-forward only; never merge, never rewrite history)
-  4. window: --days 7 -> since 2026-10-10 -> DECISION git log --since + rev-list --count (why: bound the diff to the digest window; the commit count frames the summary)
-  5. order: DECISION README.md first, then sequenced files in lexical order, chat-seeds on demand (why: contract before detail; a deterministic order any LLM can replay)
-  6. search: DECISION scope gitmap aum search to the digest tree with --ext .md (why: keep the model inside the digest, no repo-wide noise)
+  4. last-read: checkpoint e9f29520bed4 (2026-10-17T03:57:49Z) -> now e9f29520bed4 -> DECISION report 'nothing new since last read' (why: never re-train on unchanged state)
+  5. window: --days 7 -> since 2026-10-10 -> DECISION git log --since + rev-list --count (why: bound the diff to the digest window; the commit count frames the summary)
+  6. order: DECISION README.md first, then sequenced files in lexical order, chat-seeds on demand (why: contract before detail; a deterministic order any LLM can replay)
+  7. search: DECISION scope gitmap aum search to the digest tree with --ext .md (why: keep the model inside the digest, no repo-wide noise)
+  8. last-read: watermark saved -> e9f29520bed4 @ 2026-10-17T03:58:10Z (why: the next run diffs against this SHA; no MD file involved)
 
 ======================================================================
 GITMAP LLM TRAIN — MUSE MEMORY SYNC (last 7 days)
 ======================================================================
 Digest root: repo-secrets/Muse
-Commits: 13 | Files changed: 36 | Sequenced digests: 7
+Commits: 13 | Files changed: 36 | Sequenced digests: 6
+SINCE LAST READ (tracked by gitmap — no MD file):
+  Vault unchanged since last read at 2026-10-17T03:57:49Z — 0 new commits.
 
 SEQUENCED DIGEST FILES:
   Muse/01-overview.md
