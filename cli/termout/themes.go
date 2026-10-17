@@ -2,13 +2,13 @@
 //
 // Single source of truth for terminal palettes. Every hex value below is
 // taken verbatim from the coding-guidelines-v24 design system —
-// 02-spec/07-design-system/16-theme-catalogue-and-palettes.md and the
+// 02-spec/07-design-system/16-theme-catalog-and-palettes.md and the
 // machine-readable 17-theme-tokens.json. No color value is invented.
 //
 // A terminal cannot render hex directly, so each role also carries the
 // nearest SGR code (16-color or 256-color `38;5;N`), documented per theme
 // above its table. Role mapping (spec 02-theme-design.md §2): fg,
-// fg-muted, fg-subtle, primary, accent from the catalogue's semantic
+// fg-muted, fg-subtle, primary, accent from the catalog's semantic
 // tokens; warn/error/ok from the heatmap scale (#F59E0B/#DC2626/#10B981).
 // Semantic roles are bound first; literal color codes in help/UI code
 // are forbidden (design-system §7). Legacy aliases: `bright` →
@@ -59,7 +59,7 @@ type Palette struct {
 	SGR    map[Role]string
 }
 
-// navyPurpleTheme: Family 1 "Midnight Cyber" (catalogue §2, tokens
+// navyPurpleTheme: Family 1 "Midnight Cyber" (catalog §2, tokens
 // navy-purple). Recommended for dev tools; the default gitmap theme
 // (legacy `bright` alias). Hex → nearest SGR:
 // fg #F8FAFC→97, fg-muted #94A3B8→38;5;109, fg-subtle #64748B→38;5;66,
@@ -68,7 +68,7 @@ type Palette struct {
 var navyPurpleTheme = &Palette{
 	Slug:   ThemeNavyPurple,
 	Name:   "Navy Blue & Purple",
-	Source: "coding-guidelines-v24 16-theme-catalogue-and-palettes.md §2",
+	Source: "coding-guidelines-v24 16-theme-catalog-and-palettes.md §2",
 	Hex: map[Role]string{
 		RoleFG: "#F8FAFC", RoleFGMuted: "#94A3B8", RoleFGSubtle: "#64748B",
 		RolePrimary: "#A855F7", RoleAccent: "#38BDF8",
@@ -81,7 +81,7 @@ var navyPurpleTheme = &Palette{
 	},
 }
 
-// tokyoNightTheme: Family 2 Tokyo Night Storm (catalogue §3.2, tokens
+// tokyoNightTheme: Family 2 Tokyo Night Storm (catalog §3.2, tokens
 // tokyo-night). Recommended for modern CLI tools. Hex → nearest SGR:
 // fg #C0CAF5→38;5;153, fg-muted #787C99→38;5;103,
 // fg-subtle #565A6E→38;5;59, primary #7AA2F7→38;5;111,
@@ -91,7 +91,7 @@ var navyPurpleTheme = &Palette{
 var tokyoNightTheme = &Palette{
 	Slug:   ThemeTokyoNight,
 	Name:   "Tokyo Night Storm",
-	Source: "coding-guidelines-v24 16-theme-catalogue-and-palettes.md §3.2",
+	Source: "coding-guidelines-v24 16-theme-catalog-and-palettes.md §3.2",
 	Hex: map[Role]string{
 		RoleFG: "#C0CAF5", RoleFGMuted: "#787C99", RoleFGSubtle: "#565A6E",
 		RolePrimary: "#7AA2F7", RoleAccent: "#BB9AF7",
@@ -104,7 +104,7 @@ var tokyoNightTheme = &Palette{
 	},
 }
 
-// vscodeDarkPlusTheme: Family 2 VS Code Dark+ (catalogue §3.1, tokens
+// vscodeDarkPlusTheme: Family 2 VS Code Dark+ (catalog §3.1, tokens
 // vscode-dark-plus). Instant familiarity for engineers (legacy
 // `standard` alias). Hex → nearest SGR:
 // fg #D4D4D4→38;5;252, fg-muted #858585→38;5;245,
@@ -114,7 +114,7 @@ var tokyoNightTheme = &Palette{
 var vscodeDarkPlusTheme = &Palette{
 	Slug:   ThemeVSCodeDarkPlus,
 	Name:   "VS Code Dark+",
-	Source: "coding-guidelines-v24 16-theme-catalogue-and-palettes.md §3.1",
+	Source: "coding-guidelines-v24 16-theme-catalog-and-palettes.md §3.1",
 	Hex: map[Role]string{
 		RoleFG: "#D4D4D4", RoleFGMuted: "#858585", RoleFGSubtle: "#6E6E6E",
 		RolePrimary: "#007ACC", RoleAccent: "#4EC9B0",
@@ -127,7 +127,7 @@ var vscodeDarkPlusTheme = &Palette{
 	},
 }
 
-// monokaiProTheme: Family 2 Monokai Pro (catalogue §3.5, tokens
+// monokaiProTheme: Family 2 Monokai Pro (catalog §3.5, tokens
 // monokai-pro). High-impact telemetry/status. Hex → nearest SGR:
 // fg #FCFCFA→97, fg-muted #939293→38;5;246, fg-subtle #727072→38;5;243,
 // primary #FF6188→38;5;204, accent #FFD866→38;5;221,
@@ -135,7 +135,7 @@ var vscodeDarkPlusTheme = &Palette{
 var monokaiProTheme = &Palette{
 	Slug:   ThemeMonokaiPro,
 	Name:   "Monokai Pro",
-	Source: "coding-guidelines-v24 16-theme-catalogue-and-palettes.md §3.5",
+	Source: "coding-guidelines-v24 16-theme-catalog-and-palettes.md §3.5",
 	Hex: map[Role]string{
 		RoleFG: "#FCFCFA", RoleFGMuted: "#939293", RoleFGSubtle: "#727072",
 		RolePrimary: "#FF6188", RoleAccent: "#FFD866",
@@ -274,7 +274,7 @@ func Reset() string {
 	return constants.ColorReset
 }
 
-// PlasmaScale is the catalogue §4.1 sequential scale (hex ground) for
+// PlasmaScale is the catalog §4.1 sequential scale (hex ground) for
 // intensity heatmaps: latency, CPU, request volume, error density.
 // SGR mapping is recorded when a heatmap renderer lands; until then
 // this table is the single source of truth for the scale values.
@@ -282,14 +282,14 @@ var PlasmaScale = []string{
 	"#0D0887", "#5A01A5", "#8F0DA4", "#BC3754", "#DE5F39", "#F58C46", "#F0F921",
 }
 
-// RAGScale is the catalogue §4.2 diverging Red-Amber-Green scale (hex
+// RAGScale is the catalog §4.2 diverging Red-Amber-Green scale (hex
 // ground) for quality/risk/SLA heatmaps.
 var RAGScale = map[string]string{
 	"critical": "#DC2626", "high": "#EF4444", "warn": "#F59E0B",
 	"neutral": "#64748B", "acceptable": "#84CC16", "optimal": "#10B981",
 }
 
-// DensityScale is the catalogue §4.3 GitHub-style activity density grid
+// DensityScale is the catalog §4.3 GitHub-style activity density grid
 // (dark-mode hex ground) for commit frequency / uptime streaks.
 var DensityScale = []string{
 	"#161B22", "#0E4429", "#006D32", "#26A641", "#39D353",

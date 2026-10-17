@@ -12,6 +12,7 @@ package cmdrelease
 import (
 	"archive/zip"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -133,12 +134,13 @@ func extractLargestExe(zipPath, dir string) (string, *appfault.AppError) {
 	defer reader.Close()
 
 	best := ""
-	var bestSize int64 = -1
+	var bestSize uint64
+	hasBest := false
 	for _, file := range reader.File {
 		if file.FileInfo().IsDir() || !strings.HasSuffix(strings.ToLower(file.Name), ".exe") {
 			continue
 		}
-		if file.UncompressedSize64 <= uint64(bestSize) {
+		if hasBest && file.UncompressedSize64 <= bestSize {
 			continue
 		}
 		outPath := filepath.Join(dir, "exe", filepath.Base(file.Name))
@@ -146,7 +148,8 @@ func extractLargestExe(zipPath, dir string) (string, *appfault.AppError) {
 			return "", appErr
 		}
 		best = outPath
-		bestSize = int64(file.UncompressedSize64)
+		bestSize = file.UncompressedSize64
+		hasBest = true
 	}
 
 	if best == "" {
@@ -173,17 +176,8 @@ func extractZipFile(file *zip.File, outPath string) *appfault.AppError {
 	}
 	defer dst.Close()
 
-	buf := make([]byte, 32*1024)
-	for {
-		n, readErr := src.Read(buf)
-		if n > 0 {
-			if _, writeErr := dst.Write(buf[:n]); writeErr != nil {
-				return appfault.NewValidationError("could not write temp file: " + writeErr.Error())
-			}
-		}
-		if readErr != nil {
-			break
-		}
+	if _, copyErr := io.Copy(dst, src); copyErr != nil {
+		return appfault.NewValidationError("could not write temp file: " + copyErr.Error())
 	}
 
 	return nil
