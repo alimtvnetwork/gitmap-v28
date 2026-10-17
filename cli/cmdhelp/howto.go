@@ -93,6 +93,18 @@ var howtoRecipes = []howtoRecipe{
 			"gitmap scan",
 		},
 	},
+	{
+		keywords: []string{"conflict", "conflicts", "merge conflict", "resolve", "vscode", "3-way", "rebase conflict"},
+		title:    "resolve merge conflicts with VS Code and GitMap",
+		topic:    "resolve",
+		steps: []string{
+			"gitmap conflicts",
+			"gitmap resolve --ide",
+			"gitmap resolve --theirs",
+			"gitmap resolve --ours",
+			"gitmap cpf \"resolve merge conflicts\"",
+		},
+	},
 }
 
 // RunHowto executes `gitmap howto <task...>` — pure keyword matching.

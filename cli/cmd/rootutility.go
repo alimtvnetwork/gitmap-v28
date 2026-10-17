@@ -5,6 +5,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddocs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
@@ -101,8 +102,15 @@ func runInstalledDirHelp() error {
 	return cmdinstall.RunInstalledDir()
 }
 
+const (
+	CmdResolve   = "resolve"
+	CmdConflicts = "conflicts"
+)
+
 func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{CmdResolve, "res"}, func() error { return cmdconflict.RunResolveCmd(argsTail()) }},
+		{[]string{CmdConflicts, "conflict", "cf"}, func() error { return cmdconflict.RunConflictsCmd(argsTail()) }},
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return cmddocs.RunDocs(argsTail()) }},
 		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
 		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias, "ld"}, func() error { return cmdllm.RunLLMDocs(argsTail()) }},

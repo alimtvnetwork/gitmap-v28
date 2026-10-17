@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixreleasetags"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
@@ -61,11 +62,16 @@ func isFixPromptRequested(args []string) bool {
 
 func isFixActionWord(s string) bool {
 	switch s {
-	case "1", "stash", "s", "clone", "c", "2", "wip", "w", "init", "i", "link", "3", "discard", "clean", "d", "rm", "remove":
+	case "1", "stash", "s", "clone", "c", "2", "wip", "w", "init", "i", "link", "3", "discard", "clean", "d", "rm", "remove",
+		"theirs", "t", "ours", "o", "resolve", "ide", "code", "v", "abort", "a", "rerere":
 		return true
 	}
 
 	return false
+}
+
+func executeTargetedFixAction(repoPath string, action string) (bool, error) {
+	return cmdconflict.ResolveConflictAction(repoPath, action)
 }
 
 func resolveFixAllAction(args []string, aliasOverride string) string {
@@ -290,6 +296,21 @@ func runFixDirect(args []string, aliasOverride string) error {
 		action = aliasOverride
 	}
 
+	if isFixActionWord(repoQuery) && (action == "stash" || action == "") {
+		action = repoQuery
+		repoQuery = ""
+	}
+
+	targetPath := resolveRepoPathForFix(repoQuery)
+	if targetPath == "" && repoQuery == "" {
+		targetPath = "."
+	}
+	if targetPath != "" {
+		if handled, err := executeTargetedFixAction(targetPath, action); handled {
+			return err
+		}
+	}
+
 	if handled, err := cmdpull.RemediateRepoByQuery(repoQuery); handled {
 		return err
 	}
@@ -312,6 +333,10 @@ func runFixDirect(args []string, aliasOverride string) error {
 }
 
 func applyFixRecipe(item *cmdremediation.RemediationItem, action string) error {
+	if handled, err := executeTargetedFixAction(item.RepoPath, action); handled {
+		return err
+	}
+
 	if action == "" && len(item.Recipes) > 0 {
 		return executeFixRecipe(item, item.Recipes[0])
 	}
@@ -332,6 +357,11 @@ func resolveFixTarget(args []string, aliasOverride string, items []cmdremediatio
 	repoQuery, action := cmdreconcile.ParseReconcileArgs(args)
 	if aliasOverride != "" {
 		action = aliasOverride
+	}
+
+	if isFixActionWord(repoQuery) && (action == "stash" || action == "") {
+		action = repoQuery
+		repoQuery = ""
 	}
 
 	if repoQuery != "" {

@@ -4239,6 +4239,72 @@ export const commands: CommandDef[] = [
       { name: "gitmap nodes tasks", description: "Inspect active and pending AI agent tasks across fleet" },
     ],
   },
+  {
+    category: "commit",
+    name: "resolve",
+    alias: "res",
+    description: "Resolve merge and rebase conflicts across repositories using IDE 3-way merge editors, remote/local checkout strategies, or safe abort",
+    usage: "gitmap resolve [repo] [--theirs | --ours | --ide | --abort | --rerere]",
+    flags: [
+      { flag: "--theirs, -t", description: "Accept incoming remote changes on conflicted files and stage them" },
+      { flag: "--ours, -o", description: "Accept local current changes on conflicted files and stage them" },
+      { flag: "--ide, -i, --code", description: "Launch installed IDE (VS Code, Cursor, Windsurf, VSCodium) with 3-Way Merge Editor walkthrough" },
+      { flag: "--abort, -a", description: "Safely abort in-progress merge or rebase operation" },
+      { flag: "--rerere", description: "Enable Git rerere (Reuse Recorded Resolution) to automatically record and replay conflict resolutions" },
+    ],
+    howToProceed: [
+      { step: 1, title: "List Conflicted Files", action: "gitmap conflicts" },
+      { step: 2, title: "Launch IDE 3-Way Merge Editor", action: "gitmap resolve --ide" },
+      { step: 3, title: "Accept Desired Changes or Auto-Resolve", action: "gitmap resolve --theirs\n# or\ngitmap resolve --ours" },
+      { step: 4, title: "Stage, Commit & Push", action: 'gitmap cpf "resolve merge conflicts"' },
+    ],
+    notes: [
+      "Automatically detects installed IDEs by checking PATH for 'code', 'cursor', 'windsurf', and 'codium'.",
+      "Passes -r (reuse window) to open conflicted files directly in the existing IDE session.",
+      "Integrates with git rerere to cache conflict resolutions across repeated rebases.",
+      "Safe abort returns the working tree to the pre-merge or pre-rebase state.",
+    ],
+    examples: [
+      { command: "gitmap resolve --ide", description: "Launch IDE 3-Way Merge Editor for current repository" },
+      { command: "gitmap resolve my-service --theirs", description: "Accept incoming remote changes for my-service" },
+      { command: "gitmap resolve my-service --ours", description: "Accept current local changes for my-service" },
+      { command: "gitmap resolve my-service --abort", description: "Safely abort merge or rebase on my-service" },
+      { command: "gitmap resolve --rerere", description: "Enable git rerere recorded resolutions" },
+    ],
+    seeAlso: [
+      { name: "conflicts", description: "Inspect active merge and rebase conflicts with tree view" },
+      { name: "fix", description: "Remediate dirty repositories and merge conflicts" },
+      { name: "reconcile", description: "Reconcile tracked repository states" },
+      { name: "pull-commit-push", description: "Commit and push once conflicts are resolved" },
+    ],
+  },
+  {
+    category: "commit",
+    name: "conflicts",
+    alias: "cf",
+    description: "Inspect and list all currently conflicted / unmerged files with tree view and quick-action commands",
+    usage: "gitmap conflicts [repo]",
+    flags: [],
+    howToProceed: [
+      { step: 1, title: "Inspect Workspace Conflicts", action: "gitmap conflicts" },
+      { step: 2, title: "Select Quick Action", action: "gitmap resolve [repo] --ide\n# or gitmap resolve [repo] --theirs" },
+      { step: 3, title: "Verify and Commit", action: 'gitmap cpf "resolve merge conflicts"' },
+    ],
+    notes: [
+      "When run at workspace root, scans all registered repositories in default database for unmerged files.",
+      "When run inside a repository, inspects unmerged and conflicted files locally.",
+      "Outputs a clean ASCII tree view of all conflicted files with instant one-liner quick actions.",
+    ],
+    examples: [
+      { command: "gitmap conflicts", description: "Check current repository or workspace for active conflicts" },
+      { command: "gitmap conflicts my-service", description: "Inspect conflicted files in my-service" },
+    ],
+    seeAlso: [
+      { name: "resolve", description: "Resolve merge conflicts via IDE, --theirs, --ours, or --abort" },
+      { name: "fix", description: "Remediation walkthrough for sync failures" },
+      { name: "status", description: "Inspect repository git status" },
+    ],
+  },
 ];
 
 // Global flags applied by every command via the shared root parser.

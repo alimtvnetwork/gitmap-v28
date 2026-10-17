@@ -247,6 +247,21 @@ export const issues: Issue[] = [
     fix: "Run scan first, or pass an explicit path.",
     fixCommand: `gitmap scan ~/projects --output json\ngitmap clone json`,
   },
+  {
+    id: "git-merge-conflict",
+    category: CategoryType.Git,
+    title: "Merge or rebase conflicts on pull / sync",
+    symptom: "CONFLICT (content): Merge conflict in <file> / Automatic merge failed; fix conflicts and then commit the result.",
+    cause: "Concurrent commits on local and remote branches modified the same lines or files in diverging ways.",
+    fix: "Use 'gitmap conflicts' to list unmerged files, launch the VS Code 3-Way Merge Editor (Ctrl+Shift+G -> Resolve in Merge Editor) to pick incoming or current changes, or resolve via GitMap CLI one-liners.",
+    fixCommand: `gitmap conflicts\ngitmap resolve --ide\n# or accept incoming / local changes directly\ngitmap resolve --theirs\ngitmap resolve --ours\ngitmap cpf "resolve merge conflicts"`,
+    altLabel: "Abort merge/rebase",
+    altCommand: `gitmap resolve --abort`,
+    related: [
+      { label: "resolve reference", href: "/commands" },
+      { label: "reconcile reference", href: "/commands" },
+    ],
+  },
 
   // ── build ─────────────────────────────────────
   {

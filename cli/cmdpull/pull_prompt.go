@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
@@ -236,21 +237,33 @@ func executeStepByStepRemediation(unresolved []UnresolvedPullRepo) error {
 			constants.ColorCyan, item.Branch, constants.ColorReset)
 		fmt.Printf("      Path:  %s%s%s\n", constants.ColorDim, item.RepoPath, constants.ColorReset)
 
-		if item.ErrorMsg != "" {
+		isConflict, _ := detectItemConflicts(item)
+		if item.ErrorMsg != "" && !isConflict {
 			fmt.Printf("      Error: %s%s%s\n", constants.ColorRed, item.ErrorMsg, constants.ColorReset)
 		}
-		if item.IsDirty {
+		if !isConflict && item.IsDirty {
 			fmt.Printf("      State: %sWorking tree dirty%s\n", constants.ColorYellow, constants.ColorReset)
 			renderRepoShortDiff(item.RepoPath)
 		}
 
-		renderStepByStepActions(item.RepoName)
-		line, _ := reader.ReadString('\n')
-		ans := strings.ToLower(strings.TrimSpace(line))
-		if ans == "q" || ans == "quit" {
+		for {
+			renderStepByStepActions(item)
+			line, _ := reader.ReadString('\n')
+			ans := strings.ToLower(strings.TrimSpace(line))
+			if ans == "q" || ans == "quit" {
+				return nil
+			}
+			if ans == "h" || ans == "help" {
+				renderVSCodeMergeGuide(item.RepoPath)
+				continue
+			}
+			if ans == "v" || ans == "code" {
+				dispatchStepAction(ans, item, bin)
+				continue
+			}
+			dispatchStepAction(ans, item, bin)
 			break
 		}
-		dispatchStepAction(ans, item, bin)
 	}
 
 	return nil
@@ -288,7 +301,66 @@ func renderRepoShortDiff(repoPath string) {
 	}
 }
 
-func renderStepByStepActions(repoName string) {
+func detectItemConflicts(item UnresolvedPullRepo) (bool, []string) {
+	hasConflictText := strings.Contains(strings.ToLower(item.ErrorMsg), "conflict") ||
+		strings.Contains(item.ErrorMsg, "E_MERGE_CONFLICT")
+
+	conflictedFiles := cloner.ExtractConflictedFilesFromRepo(item.RepoPath)
+	if len(conflictedFiles) == 0 && item.ErrorMsg != "" {
+		conflictedFiles = cloner.ExtractConflictedFilesFromOutput(item.ErrorMsg)
+	}
+
+	if hasConflictText || len(conflictedFiles) > 0 {
+		return true, conflictedFiles
+	}
+
+	return false, nil
+}
+
+func renderConflictBox(repoName string, conflictedFiles []string) {
+	fmt.Printf("\n      %s╔══════════════════════════════════════════════════════════════════════╗%s\n", constants.ColorRed, constants.ColorReset)
+	fmt.Printf("      %s║%s  %s%s⚠ MERGE CONFLICT DETECTED IN %s%s\n",
+		constants.ColorRed, constants.ColorReset,
+		constants.ColorBold, constants.ColorYellow, repoName, constants.ColorReset)
+	fmt.Printf("      %s╠══════════════════════════════════════════════════════════════════════╣%s\n", constants.ColorRed, constants.ColorReset)
+	if len(conflictedFiles) > 0 {
+		fmt.Printf("      %s║%s  %sConflicted file(s) (%d):%s\n",
+			constants.ColorRed, constants.ColorReset,
+			constants.ColorBold, len(conflictedFiles), constants.ColorReset)
+		for _, f := range conflictedFiles {
+			fmt.Printf("      %s║%s    %s•%s %s%s%s\n",
+				constants.ColorRed, constants.ColorReset,
+				constants.ColorYellow, constants.ColorReset,
+				constants.ColorCyan, f, constants.ColorReset)
+		}
+	} else {
+		fmt.Printf("      %s║%s    %sUnresolved merge conflicts detected during pull.%s\n",
+			constants.ColorRed, constants.ColorReset,
+			constants.ColorYellow, constants.ColorReset)
+	}
+	fmt.Printf("      %s╚══════════════════════════════════════════════════════════════════════╝%s\n\n", constants.ColorRed, constants.ColorReset)
+}
+
+func renderConflictStepActions(repoName string, repoPath string) {
+	fmt.Printf("      %s %sConflict Resolution Actions for %s:%s\n", constants.TreeCorner, constants.ColorBold, repoName, constants.ColorReset)
+	fmt.Printf("        %s[v/code]%s   %sOpen in VS Code%s          - code %s\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorBold, constants.ColorReset, repoPath)
+	fmt.Printf("        %s[t/theirs]%s %sAccept Incoming%s          - Remote changes win (git checkout --theirs)\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorGreen, constants.ColorReset)
+	fmt.Printf("        %s[o/ours]%s   %sAccept Current%s           - Local changes win (git checkout --ours)\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorGreen, constants.ColorReset)
+	fmt.Printf("        %s[a/abort]%s  %sSafe Abort Merge%s         - Reset repository to pre-merge state\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("        %s[h/help]%s   %sVS Code Merge Guide%s      - How to use 3-way merge editor\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("        %s[n/k]%s      %sSkip%s                     - Leave repository in conflict state\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorDim, constants.ColorReset)
+	fmt.Printf("        %s[q]%s        %sQuit%s                     - Exit step-by-step resolution\n",
+		constants.ColorCyan, constants.ColorReset, constants.ColorRed, constants.ColorReset)
+	fmt.Printf("      %sChoice [v/t/o/a/h/n/q]:%s ", constants.ColorCyan, constants.ColorReset)
+}
+
+func renderStandardStepActions(repoName string) {
 	fmt.Printf("      %s %sAction for %s:%s\n", constants.TreeCorner, constants.ColorBold, repoName, constants.ColorReset)
 	fmt.Printf("        %s[1/c]%s %sCommit WIP locally%s    - Commit \"wip: save changes\" locally\n",
 		constants.ColorCyan, constants.ColorReset, constants.ColorGreen, constants.ColorReset)
@@ -305,8 +377,116 @@ func renderStepByStepActions(repoName string) {
 	fmt.Printf("      %sChoice [1/2/3/4/n/q]:%s ", constants.ColorCyan, constants.ColorReset)
 }
 
+func renderStepByStepActions(item UnresolvedPullRepo) {
+	isConflict, conflictedFiles := detectItemConflicts(item)
+	if isConflict {
+		renderConflictBox(item.RepoName, conflictedFiles)
+		renderConflictStepActions(item.RepoName, item.RepoPath)
+		return
+	}
+
+	renderStandardStepActions(item.RepoName)
+}
+
+func handleVSCodeOpen(item UnresolvedPullRepo) {
+	fmt.Printf("      %sLaunching VS Code for %s...%s\n", constants.ColorCyan, item.RepoPath, constants.ColorReset)
+	cmd := exec.Command("code", item.RepoPath)
+	if err := cmd.Start(); err != nil {
+		fmt.Printf("      %sℹ VS Code CLI ('code') could not be launched (%v). Run manually:%s\n        code %s\n",
+			constants.ColorYellow, err, constants.ColorReset, item.RepoPath)
+		return
+	}
+
+	fmt.Printf("      %s✓ Opened %s in VS Code.%s\n", constants.ColorGreen, item.RepoPath, constants.ColorReset)
+}
+
+func resolveConflictFiles(item UnresolvedPullRepo) []string {
+	files := cloner.ExtractConflictedFilesFromRepo(item.RepoPath)
+	if len(files) == 0 && item.ErrorMsg != "" {
+		files = cloner.ExtractConflictedFilesFromOutput(item.ErrorMsg)
+	}
+
+	return files
+}
+
+func handleCheckoutTheirs(item UnresolvedPullRepo) {
+	files := resolveConflictFiles(item)
+	if len(files) == 0 {
+		fmt.Printf("      %s⚠ No conflicted files identified to accept with incoming changes.%s\n", constants.ColorYellow, constants.ColorReset)
+		return
+	}
+
+	if err := gitutil.CheckoutConflictSide(item.RepoPath, "theirs", files); err != nil {
+		fmt.Printf("      %s✖ Accept Incoming failed: %v%s\n", constants.ColorRed, err, constants.ColorReset)
+		return
+	}
+
+	fmt.Printf("      %s✓ Accepted incoming (remote) changes for %d file(s) and staged.%s\n",
+		constants.ColorGreen, len(files), constants.ColorReset)
+}
+
+func handleCheckoutOurs(item UnresolvedPullRepo) {
+	files := resolveConflictFiles(item)
+	if len(files) == 0 {
+		fmt.Printf("      %s⚠ No conflicted files identified to accept with current changes.%s\n", constants.ColorYellow, constants.ColorReset)
+		return
+	}
+
+	if err := gitutil.CheckoutConflictSide(item.RepoPath, "ours", files); err != nil {
+		fmt.Printf("      %s✖ Accept Current failed: %v%s\n", constants.ColorRed, err, constants.ColorReset)
+		return
+	}
+
+	fmt.Printf("      %s✓ Accepted current (local) changes for %d file(s) and staged.%s\n",
+		constants.ColorGreen, len(files), constants.ColorReset)
+}
+
+func handleSafeAbort(item UnresolvedPullRepo) {
+	if err := gitutil.SafeAbortMergeOrRebase(item.RepoPath); err != nil {
+		fmt.Printf("      %s✖ Safe abort failed: %v%s\n", constants.ColorRed, err, constants.ColorReset)
+		return
+	}
+
+	fmt.Printf("      %s✓ Safe abort completed: repository restored to pre-merge state.%s\n",
+		constants.ColorGreen, constants.ColorReset)
+}
+
+func renderVSCodeMergeGuide(repoPath string) {
+	fmt.Printf("\n      %s┌──────────────────────────────────────────────────────────────┐%s\n", constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s│%s  %s📖 VS Code 3-Way Merge Editor Guide%s                          %s│%s\n",
+		constants.ColorMagenta, constants.ColorReset,
+		constants.ColorBold, constants.ColorReset,
+		constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s├──────────────────────────────────────────────────────────────┤%s\n", constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s│%s  1. Open repository: %scode %s%s\n",
+		constants.ColorMagenta, constants.ColorReset, constants.ColorCyan, repoPath, constants.ColorReset)
+	fmt.Printf("      %s│%s  2. Switch to Source Control tab (Ctrl+Shift+G / Cmd+Shift+G)  %s│%s\n",
+		constants.ColorMagenta, constants.ColorReset, constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s│%s  3. Click a file under 'Merge Changes'                         %s│%s\n",
+		constants.ColorMagenta, constants.ColorReset, constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s│%s  4. Click 'Resolve in Merge Editor' (bottom right)             %s│%s\n",
+		constants.ColorMagenta, constants.ColorReset, constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s│%s  5. Compare Incoming (Remote) vs Current (Local) changes        %s│%s\n",
+		constants.ColorMagenta, constants.ColorReset, constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s│%s  6. Check checkboxes to accept changes or edit Result below    %s│%s\n",
+		constants.ColorMagenta, constants.ColorReset, constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s│%s  7. Click 'Complete Merge' and stage changes                    %s│%s\n",
+		constants.ColorMagenta, constants.ColorReset, constants.ColorMagenta, constants.ColorReset)
+	fmt.Printf("      %s└──────────────────────────────────────────────────────────────┘%s\n\n", constants.ColorMagenta, constants.ColorReset)
+}
+
 func dispatchStepAction(ans string, item UnresolvedPullRepo, bin string) {
 	switch ans {
+	case "v", "code":
+		handleVSCodeOpen(item)
+	case "t", "theirs":
+		handleCheckoutTheirs(item)
+	case "o", "ours":
+		handleCheckoutOurs(item)
+	case "a", "abort":
+		handleSafeAbort(item)
+	case "h", "help":
+		renderVSCodeMergeGuide(item.RepoPath)
 	case "1", "c", "commit":
 		addCmd := exec.Command("git", "-C", item.RepoPath, "add", "-A")
 		_ = addCmd.Run()

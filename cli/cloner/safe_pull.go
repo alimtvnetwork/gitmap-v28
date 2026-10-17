@@ -343,7 +343,7 @@ func isMergeConflictOutput(output string) bool {
 }
 
 func executeAutoMergeCmd(dir string, progress SafePullProgressFunc) (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, dir, constants.GitPull, "--progress", "--no-rebase", "--no-edit", "--autostash")
+	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, dir, constants.GitPull, "--progress", "--no-rebase", "--no-edit", "-X", "diff-algorithm=histogram", "--autostash")
 	cmd.Env = buildSafePullEnv()
 	stream := newProgressStreamWriter(progress)
 	cmd.Stdout = stream
@@ -353,6 +353,86 @@ func executeAutoMergeCmd(dir string, progress SafePullProgressFunc) (string, err
 
 	return stream.output(), err
 }
+
+// ExtractConflictedFilesFromOutput parses git conflict output lines to identify conflicted files.
+func ExtractConflictedFilesFromOutput(output string) []string {
+	var files []string
+	seen := make(map[string]bool)
+
+	lines := strings.Split(output, "\n")
+	for _, rawLine := range lines {
+		line := strings.TrimRight(rawLine, "\r ")
+		var file string
+		if strings.HasPrefix(line, "CONFLICT (content): Merge conflict in ") {
+			file = strings.TrimPrefix(line, "CONFLICT (content): Merge conflict in ")
+		} else if strings.HasPrefix(line, "CONFLICT (add/add): Merge conflict in ") {
+			file = strings.TrimPrefix(line, "CONFLICT (add/add): Merge conflict in ")
+		} else if strings.Contains(line, ": Merge conflict in ") {
+			parts := strings.SplitN(line, ": Merge conflict in ", 2)
+			if len(parts) == 2 && strings.HasPrefix(strings.TrimSpace(parts[0]), "CONFLICT") {
+				file = parts[1]
+			}
+		}
+
+		file = strings.Trim(strings.TrimSpace(file), "\"'")
+		if file != "" && !seen[file] {
+			seen[file] = true
+			files = append(files, file)
+		}
+	}
+
+	return files
+}
+
+// ExtractConflictedFilesFromRepo finds unmerged files in the repository using git status --porcelain.
+func ExtractConflictedFilesFromRepo(repoDir string) []string {
+	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "status", "--porcelain")
+	cmd.Env = buildSafePullEnv()
+	out, err := cmd.Output()
+	if err != nil {
+		return nil
+	}
+
+	return parseUnmergedFilesFromPorcelain(string(out))
+}
+
+func parseUnmergedFilesFromPorcelain(output string) []string {
+	var files []string
+	seen := make(map[string]bool)
+
+	lines := strings.Split(output, "\n")
+	for _, rawLine := range lines {
+		line := strings.TrimRight(rawLine, "\r")
+		if len(line) < 4 {
+			continue
+		}
+
+		status := line[:2]
+		if isUnmergedStatusCode(status) && line[2] == ' ' {
+			filePath := strings.TrimSpace(line[3:])
+			if idx := strings.Index(filePath, " -> "); idx != -1 {
+				filePath = strings.TrimSpace(filePath[idx+4:])
+			}
+			filePath = strings.Trim(filePath, "\"")
+			if filePath != "" && !seen[filePath] {
+				seen[filePath] = true
+				files = append(files, filePath)
+			}
+		}
+	}
+
+	return files
+}
+
+func isUnmergedStatusCode(code string) bool {
+	switch code {
+	case "UU", "AA", "UD", "DU", "UA", "AU", "DD":
+		return true
+	default:
+		return len(code) == 2 && (code[0] == 'U' || code[1] == 'U')
+	}
+}
+
 
 func attemptAutoMergePull(dir, branch string, progress SafePullProgressFunc) (string, error) {
 	out, err := executeAutoMergeCmd(dir, progress)

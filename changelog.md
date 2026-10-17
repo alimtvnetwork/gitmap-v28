@@ -1,5 +1,19 @@
 # Changelog
 
+## [v6.561.0] - 2026-10-17
+
+### Added
+- **Histogram Diff Automerge Optimization:** Upgraded `cli/cloner/safe_pull.go` to invoke automerge with `-X diff-algorithm=histogram` and `--no-edit`, preventing false merge conflicts caused by matching indentation and single-bracket lines across diverged branches.
+- **Git Rerere Auto-Memory Engine:** Implemented `cli/gitutil/git_merge.go` with `EnableGitRerere` and `CheckGitRerereEnabled`, allowing Git to automatically record and re-apply conflict resolutions across past and future pulls.
+- **Structured Conflicted File Extractors:** Added `ExtractConflictedFilesFromOutput` and `ExtractConflictedFilesFromRepo` in `cli/cloner/safe_pull.go`, parsing both git conflict stdout text and porcelain status codes (`UU`, `AA`, `UD`, `DU`, `UA`, `AU`, `DD`) into clean file lists.
+- **Multi-IDE Launcher & Guidance:** Implemented `cli/cmdconflict/ide_launcher.go` detecting `code` (VS Code), `cursor`, `windsurf`, and `codium`. Formatted a step-by-step 3-Way Merge Editor walkthrough (`Ctrl+Shift+G` -> 'Resolve in Merge Editor' -> Accept Incoming/Current -> Complete Merge).
+- **GitMap Conflict Resolution CLI:** Created `gitmap resolve <repo> [--theirs | --ours | --ide | --abort | --rerere]` and `gitmap conflicts [repo]` in `cli/cmdconflict/resolve_cmd.go`, with root command dispatch integration in `cli/cmd/rootutility.go`.
+- **Expanded `gitmap fix <repo>` Actions:** Added support for `theirs` (`t`), `ours` (`o`), `resolve` (`v`, `ide`, `code`), `abort` (`a`), and `rerere` in `cli/cmdfix/fix_cmd.go`.
+- **Post-Pull Merge Conflict UI Card:** Upgraded `cli/cmdpull/pull_prompt.go` to render a styled Lipgloss conflict box whenever a repository encounters conflicts during pull, providing one-key actions for IDE launch (`[v]`), remote incoming (`[t]`), local current (`[o]`), and safe abort (`[a]`).
+- **Comprehensive Help & Troubleshooting Docs:** Authored `cli/helpdoc/resolve.md`, `cli/helpdoc/conflicts.md`, updated `cli/cmdhelp/howto.go`, and registered merge conflict troubleshooting in `src/data/commands.ts` and `src/data/troubleshootingIssues.ts`.
+
+---
+
 ## [v6.560.0] - 2026-10-17
 
 ### Added
