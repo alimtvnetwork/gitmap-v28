@@ -2,15 +2,12 @@
 package cloner
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -23,78 +20,7 @@ import (
 var (
 	unlinkOldRegex    = regexp.MustCompile(`(?i)unable to unlink old '([^']+)'`)
 	unlinkPromptRegex = regexp.MustCompile(`(?i)unlink of file '([^']+)' failed`)
-
-	// ErrMergeConflict indicates a git merge conflict encountered during auto-merge fallback.
-	ErrMergeConflict = apperror.NewWithDetails(
-		"pull_merge",
-		"E_MERGE_CONFLICT",
-		"git merge conflict detected: auto-merge pull aborted",
-		"safe_pull",
-		apperror.ErrorTypeExecution,
-		apperror.SeverityError,
-		nil,
-	)
 )
-
-// SafePullProgressFunc defines a callback for streaming safe pull output.
-type SafePullProgressFunc func(string)
-
-type progressStreamWriter struct {
-	mu         sync.Mutex
-	buf        bytes.Buffer
-	lineBuf    []byte
-	onProgress func(string)
-}
-
-func newProgressStreamWriter(onProgress func(string)) *progressStreamWriter {
-	return &progressStreamWriter{
-		onProgress: onProgress,
-	}
-}
-
-func (w *progressStreamWriter) Write(p []byte) (int, error) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	w.buf.Write(p)
-	if w.onProgress != nil {
-		w.processChunkLocked(p)
-	}
-
-	return len(p), nil
-}
-
-func (w *progressStreamWriter) processChunkLocked(p []byte) {
-	for _, b := range p {
-		isDelim := b == '\r' || b == '\n'
-		if isDelim {
-			w.flushLineLocked()
-			continue
-		}
-		w.lineBuf = append(w.lineBuf, b)
-	}
-}
-
-func (w *progressStreamWriter) flushLineLocked() {
-	if len(w.lineBuf) == 0 {
-		return
-	}
-	line := string(w.lineBuf)
-	w.lineBuf = w.lineBuf[:0]
-	w.onProgress(line)
-}
-
-func (w *progressStreamWriter) flush() {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	w.flushLineLocked()
-}
-
-func (w *progressStreamWriter) output() string {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-
-	return w.buf.String()
-}
 
 func cloneOrPullOne(rec model.ScanRecord, targetDir string, opts CloneOptions) model.CloneResult {
 	dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
@@ -205,22 +131,6 @@ func executePullAttempt(rec model.ScanRecord, repoDir string, attempt int, onPro
 	return buildAttemptFailureResult(rec, repoDir, attempt, output, err), false
 }
 
-// IsMergeConflict checks whether the error represents a merge conflict.
-func IsMergeConflict(err error) bool {
-	return isMergeConflict(err)
-}
-
-func isMergeConflict(err error) bool {
-	if err == nil {
-		return false
-	}
-	if errors.Is(err, ErrMergeConflict) {
-		return true
-	}
-
-	return strings.Contains(err.Error(), "merge conflict") || strings.Contains(err.Error(), "E_MERGE_CONFLICT")
-}
-
 func logPullAttempt(rec model.ScanRecord, attempt int, output string, err error) {
 	log := verbose.Get()
 	if log != nil {
@@ -328,22 +238,8 @@ func isDivergedOutput(output string) bool {
 		strings.Contains(lower, "refusing to merge unrelated histories")
 }
 
-// IsMergeConflictOutput returns true if git output indicates merge conflicts.
-func IsMergeConflictOutput(output string) bool {
-	return isMergeConflictOutput(output)
-}
-
-func isMergeConflictOutput(output string) bool {
-	lower := strings.ToLower(output)
-
-	return strings.Contains(lower, "conflict") ||
-		strings.Contains(lower, "automatic merge failed") ||
-		strings.Contains(lower, "fix conflicts and then commit") ||
-		strings.Contains(lower, "you have unmerged files")
-}
-
 func executeAutoMergeCmd(dir string, progress SafePullProgressFunc) (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, dir, constants.GitPull, "--progress", "--no-rebase", "--no-edit", "--autostash")
+	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, dir, constants.GitPull, "--progress", "--no-rebase", "--no-edit", "-X", "diff-algorithm=histogram", "--autostash")
 	cmd.Env = buildSafePullEnv()
 	stream := newProgressStreamWriter(progress)
 	cmd.Stdout = stream
@@ -362,27 +258,6 @@ func attemptAutoMergePull(dir, branch string, progress SafePullProgressFunc) (st
 	SafeAbortMerge(dir)
 
 	return out, ErrMergeConflict
-}
-
-// SafeAbortMerge safely aborts any in-progress merge or resets merge state to protect the working tree.
-func SafeAbortMerge(repoDir string) bool {
-	abort := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "merge", "--abort")
-	abort.Env = buildSafePullEnv()
-	if err := abort.Run(); err == nil {
-		return true
-	}
-	reset := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "reset", "--merge")
-	reset.Env = buildSafePullEnv()
-
-	return reset.Run() == nil
-}
-
-// SafeAbortRebase safely aborts any in-progress rebase to protect the working tree.
-func SafeAbortRebase(repoDir string) bool {
-	abort := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "rebase", "--abort")
-	abort.Env = buildSafePullEnv()
-
-	return abort.Run() == nil
 }
 
 func cleanDirIfRequested(isDirExists, isClean bool, dest string) *apperror.AppError {

@@ -34,6 +34,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
 | ❌ Python SQLite task manager (`python 03-ai-scripts/46-agent-sqlite-task-manager.py`) | ✅ `gitmap agent <task|subtask|log|diagnose|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
+| ❌ Modifying shared files blindly without checking multi-agent contention | ✅ `gitmap heatmap discuss` or `gitmap agent heatmap` | Ranks write claims, active leases, and collision blast radius across agents (<5ms). Prevents file lock crashes and concurrent overwrites. |
 
 ---
 
@@ -167,6 +168,13 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap disk` — Disk volume capacity, free space, and mount telemetry.
 - `gitmap network [--json]` — Network adapter configuration, IPs, MAC addresses, link speeds, and throughput metrics.
 - `gitmap nodes tasks [--json] [--open-only]` — Queries local and remote node task queues with `?` role placeholder.
+
+### 12. File Contention Heatmap & Agent Activity Observation
+- `gitmap heatmap [discuss|live] [--window <duration>] [--threshold <n>] [--json]` — Real-time agent concurrency and file contention visualizer highlighting active file touches, contention ranking, collision blast radius, and activity heatmap TreeView.
+- `gitmap agent heatmap [--parent <slug>] [--json]` — Ranks files by write-claim count across agent tasks and active subtasks.
+- `gitmap agent-ai heatmap discuss` — Multi-agent file contention analysis and collision blast radius report before touching shared files.
+- `gitmap full-summary` (alias `gitmap fs`) — 48-hour active repository activity heatmap TreeView showing commit velocity and dirty working states.
+- **MANDATORY CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST run `gitmap heatmap discuss` or `gitmap agent heatmap` to inspect active file leases and contention hotspots before editing shared files.
 
 ---
 

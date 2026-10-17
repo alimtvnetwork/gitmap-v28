@@ -257,7 +257,7 @@ func hasSSHRepoForSameOwner(owner string) bool {
 
 func remediateCredentialAndConvertToSSH(repoPath, repoName string) {
 	_ = exec.Command("git", "config", "--global", "credential.helper", "manager").Run()
-	_ = exec.Command("git", "config", "--global", "credential.credentialStore", "wincred").Run()
+	_ = exec.Command("git", "config", "--global", "credential.credentialStore", "wincredman").Run()
 
 	changed, oldURL, newURL, err := ApplyTransportFlag(repoPath, true, false)
 	if err == nil && changed {

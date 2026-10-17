@@ -93,6 +93,35 @@ class TestSingleLinterDiff(unittest.TestCase):
         self.assertIn("::error file=cmd/new.go,line=20,col=4::[gocritic]", res.stdout)
         self.assertIn("FAIL: 1 new gocritic finding(s)", res.stderr)
 
+    def test_line_shift_does_not_trigger_false_positive(self):
+        baseline_file = os.path.join(self.temp_dir, "base.json")
+        with open(baseline_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "Issues": [{
+                    "FromLinter": "gocritic",
+                    "Text": "preExisting: issue",
+                    "Pos": {"Filename": "cmd/old.go", "Line": 5, "Column": 1}
+                }]
+            }, f)
+
+        current_out = os.path.join(self.temp_dir, "cur.json")
+        with open(current_out, "w", encoding="utf-8") as f:
+            json.dump({
+                "Issues": [{
+                    "FromLinter": "gocritic",
+                    "Text": "preExisting: issue",
+                    "Pos": {"Filename": "cmd/old.go", "Line": 42, "Column": 1}
+                }]
+            }, f)
+
+        res = subprocess.run(
+            [sys.executable, self.script, self.temp_dir, "--linter", "gocritic",
+             "--baseline", baseline_file, "--current-out", current_out, "--skip-run"],
+            capture_output=True, text=True, encoding="utf-8"
+        )
+        self.assertEqual(res.returncode, 0)
+        self.assertIn("OK: no new gocritic findings.", res.stdout)
+
 
 class TestBareStderrCheck(unittest.TestCase):
     def test_bare_stderr_script_runs_clean_on_repo(self):

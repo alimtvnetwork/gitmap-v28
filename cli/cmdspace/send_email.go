@@ -14,11 +14,13 @@ import (
 
 // send-email flag names.
 const (
-	flagSendEmailTo      = "--to"
-	flagSendEmailSubject = "--subject"
-	flagSendEmailBody    = "--body"
-	flagSendEmailFile    = "--file"
-	flagSendEmailHTML    = "--html"
+	flagSendEmailTo        = "--to"
+	flagSendEmailSubject   = "--subject"
+	flagSendEmailBody      = "--body"
+	flagSendEmailFile      = "--file"
+	flagSendEmailHTML      = "--html"
+	flagSendEmailHelp      = "--help"
+	flagSendEmailHelpShort = "-h"
 )
 
 // sendEmailOptions holds the parsed `space send-email` flags.
@@ -64,18 +66,40 @@ func parseSendEmailArgs(args []string) (sendEmailOptions, error) {
 	var opts sendEmailOptions
 
 	for i := 0; i < len(args); i++ {
-		if !strings.HasPrefix(args[i], "-") {
-			return opts, fmt.Errorf("unexpected positional argument %q: usage: gitmap space send-email --to <addr> [--subject <s>] [--body <b>] [--file <f>] [--html]", args[i])
-		}
-
-		consumed, flagErr := applySendEmailFlag(args, i, &opts)
-		if flagErr != nil {
-			return opts, flagErr
+		consumed, stepErr := applyNextSendEmailArg(args, i, &opts)
+		if stepErr != nil {
+			return opts, stepErr
 		}
 		i += consumed
 	}
 
 	return opts, nil
+}
+
+// applyNextSendEmailArg applies one argument: unknown dash flags are
+// rejected before any value resolution, positional args are errors.
+func applyNextSendEmailArg(args []string, i int, opts *sendEmailOptions) (int, error) {
+	arg := args[i]
+	if !strings.HasPrefix(arg, "-") {
+		return 0, fmt.Errorf("unexpected positional argument %q: usage: gitmap space send-email --to <addr> [--subject <s>] [--body <b>] [--file <f>] [--html]", arg)
+	}
+
+	name, _, _ := splitFlagEquals(arg)
+	if !isKnownSendEmailFlag(name) {
+		return 0, fmt.Errorf("unknown flag: %s", name)
+	}
+
+	return applySendEmailFlag(args, i, opts)
+}
+
+// isKnownSendEmailFlag reports whether name is a recognized send-email flag.
+func isKnownSendEmailFlag(name string) bool {
+	switch name {
+	case flagSendEmailTo, flagSendEmailSubject, flagSendEmailBody, flagSendEmailFile, flagSendEmailHTML, flagSendEmailHelp, flagSendEmailHelpShort:
+		return true
+	}
+
+	return false
 }
 
 // applySendEmailFlag applies one dash-flag; it returns how many extra args
@@ -142,7 +166,7 @@ func assignSendEmailFlag(name, val string, opts *sendEmailOptions) error {
 	case flagSendEmailFile:
 		opts.File = val
 	default:
-		return fmt.Errorf("unknown flag %s (see gitmap space send-email --help)", name)
+		return fmt.Errorf("unknown flag: %s", name)
 	}
 
 	return nil

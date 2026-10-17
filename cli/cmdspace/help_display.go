@@ -34,6 +34,7 @@ func spaceHelpGroups() []helpdisplay.CommandHelpGroup {
 		helpdisplay.NewCommandHelpGroup("Flags (with common)", spaceCommonFlagHelpers(), nil),
 		helpdisplay.NewCommandHelpGroup("Flags (with backup-branch)", spaceBackupBranchFlagHelpers(), nil),
 		helpdisplay.NewCommandHelpGroup("Flags (with send-email)", spaceSendEmailFlagHelpers(), nil),
+		helpdisplay.NewCommandHelpGroup("Flags (with schedule-send-email)", spaceScheduleSendEmailFlagHelpers(), nil),
 		helpdisplay.NewCommandHelpGroup("Examples", spaceExampleHelpers(), nil),
 	}
 }
@@ -44,6 +45,7 @@ func spaceSubcommandHelpers() []helpdisplay.CommandHelper {
 		spaceCommonHelper(),
 		spaceBackupBranchHelper(),
 		spaceSendEmailHelper(),
+		spaceScheduleSendEmailHelper(),
 	}
 }
 
@@ -255,5 +257,68 @@ func spaceSendEmailExampleHelpers() []helpdisplay.CommandHelper {
 		helpdisplay.NewCommandHelper(`gitmap space send-email --to a@x.com --subject "Hi" --body "Hello"`, "Send a plain-text email", "", ""),
 		helpdisplay.NewCommandHelper("gitmap space send-email --file invite.yaml", "Send an email fully described by a file", "", ""),
 		helpdisplay.NewCommandHelper("gitmap space send-email --to a@x.com,b@x.com --file note.md --html", "Send a Markdown-file email as HTML to two recipients", "", ""),
+	}
+}
+
+// spaceScheduleSendEmailHelper describes `gitmap space schedule-send-email`.
+func spaceScheduleSendEmailHelper() helpdisplay.CommandHelper {
+	return helpdisplay.NewCommandHelper(
+		"schedule-send-email",
+		"Register an email trigger fired when a gitmap task (release, pull, clone, scan, push, backup) completes.",
+		`gitmap space schedule-send-email --to me@example.com --task release`,
+		"",
+		concatHelpers(spaceScheduleSendEmailFlagHelpers(), spaceScheduleSendEmailExampleHelpers())...,
+	)
+}
+
+// SpaceScheduleSendEmailHelpDisplay builds the HelpDisplay for `gitmap space schedule-send-email --help`.
+func SpaceScheduleSendEmailHelpDisplay() helpdisplay.Displayer {
+	return helpdisplay.NewHelpDisplay(
+		`Usage: gitmap space schedule-send-email --to <email> --task <task> [--name <label>]`,
+		[]helpdisplay.CommandHelpGroup{
+			helpdisplay.NewCommandHelpGroup("About", spaceScheduleSendEmailAboutHelpers(), nil),
+			helpdisplay.NewCommandHelpGroup("Behavior", spaceScheduleSendEmailBehaviorHelpers(), nil),
+			helpdisplay.NewCommandHelpGroup("Flags", spaceScheduleSendEmailFlagHelpers(), nil),
+			helpdisplay.NewCommandHelpGroup("Examples", spaceScheduleSendEmailExampleHelpers(), nil),
+		},
+		nil,
+		spaceHelpTheme(),
+	)
+}
+
+// spaceScheduleSendEmailAboutHelpers describes what `space schedule-send-email` does.
+func spaceScheduleSendEmailAboutHelpers() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper("", "Registers an email trigger: when the watched task completes, gitmap sends an HTML status email (hostname, user, outbound IP, repo, branch, outcome, timestamps) to the registered address.", "", ""),
+	}
+}
+
+// spaceScheduleSendEmailBehaviorHelpers lists the `space schedule-send-email` behavior guarantees.
+func spaceScheduleSendEmailBehaviorHelpers() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper("", "Delivery prefers the go-email-reader binary (PATH, then ~/go/bin); without it, gitmap falls back to built-in SMTP using the email.smtp_host / email.from settings.", "", ""),
+		helpdisplay.NewCommandHelper("", "The SMTP password is never stored: the fallback collects it via a masked prompt. With no binary and no TTY the send is skipped (recorded on stderr) instead of blocking.", "", ""),
+		helpdisplay.NewCommandHelper("", "Trigger emails never fail the operation that fired them; send failures are reported on stderr only.", "", ""),
+	}
+}
+
+// spaceScheduleSendEmailFlagHelpers lists the `space schedule-send-email` flags.
+func spaceScheduleSendEmailFlagHelpers() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper("--to <email>", "Recipient address (required for register)", "", ""),
+		helpdisplay.NewCommandHelper("--task <task>", "Task to watch: release|pull|clone|scan|push|backup (required for register)", "", ""),
+		helpdisplay.NewCommandHelper("--name <label>", "Trigger label; defaults to the task name", "", ""),
+		helpdisplay.NewCommandHelper("--list", "List all registered triggers", "", ""),
+		helpdisplay.NewCommandHelper("--remove", "Remove the trigger named by --name", "", ""),
+	}
+}
+
+// spaceScheduleSendEmailExampleHelpers lists the `space schedule-send-email` examples.
+func spaceScheduleSendEmailExampleHelpers() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper(`gitmap space schedule-send-email --to me@example.com --task release`, "Email me when release completes", "", ""),
+		helpdisplay.NewCommandHelper(`gitmap space schedule-send-email --to me@example.com --task pull --name nightly-pull`, "Register a named pull trigger", "", ""),
+		helpdisplay.NewCommandHelper(`gitmap space schedule-send-email --list`, "List all registered triggers", "", ""),
+		helpdisplay.NewCommandHelper(`gitmap space schedule-send-email --remove --name nightly-pull`, "Remove a trigger", "", ""),
 	}
 }

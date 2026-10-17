@@ -174,7 +174,7 @@ func ComputeFileHashAndMtime(filePath string) (string, int64, error) {
 
 // GetCachedManifestEntries queries cached repository entries if file hash and mtime match.
 func GetCachedManifestEntries(db *sql.DB, manifestPath, currentHash string, currentMtime int64) ([]RepoCacheEntry, bool, error) {
-	query := `SELECT RepoCacheManifestId, FileHash, FileMtime, TotalRepos, HasValidData 
+	query := `SELECT RepoCacheManifestId, FileHash, FileMtime, TotalRepos, HasValidData
 	          FROM RepoCacheManifest WHERE ManifestPath = ?`
 	var manifestId int64
 	var hash string

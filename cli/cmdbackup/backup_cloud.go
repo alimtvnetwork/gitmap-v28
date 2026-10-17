@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -35,6 +36,7 @@ func runBackupCloudPush(args []string) error {
 	}
 
 	printBackupSuccess(snapID, repoSlug)
+	cmdspace.FireEmailTaskTriggers(cmdspace.EmailTaskBackup, cmdspace.InferTaskOutcome(cmdspace.EmailTaskBackup, nil))
 
 	return nil
 }

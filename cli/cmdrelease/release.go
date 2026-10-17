@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -202,6 +203,7 @@ func executeRelease(
 	}
 
 	persistReleaseToDB()
+	cmdspace.FireEmailTaskTriggers(cmdspace.EmailTaskRelease, cmdspace.InferTaskOutcome(cmdspace.EmailTaskRelease, nil))
 }
 
 // validateReleaseFlags checks for mutually exclusive flags.

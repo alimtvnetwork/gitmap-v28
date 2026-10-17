@@ -30,8 +30,8 @@ func RunFixCredential(args []string) *apperror.AppError {
 		return apperror.WrapSimple(err, "git config set manager")
 	}
 
-	// 3. Set credential store to 'wincred' to avoid headless/SSH wincredman persistence failures.
-	storeType := "wincred"
+	// 3. Set credential store to 'wincredman' to avoid headless/SSH credential persistence failures.
+	storeType := "wincredman"
 	for _, arg := range args {
 		if arg == "--dpapi" {
 			storeType = "dpapi"

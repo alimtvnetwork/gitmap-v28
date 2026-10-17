@@ -241,6 +241,7 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 | **AI Scaffolder** | `gitmap ai create <name>` | `gitmap scripts new <name>` | Scaffold new AI linter/fixer/auditor script skeleton |
 | **Automation Engine** | `gitmap automation <cmd>` | `gitmap auto`, `gitmap py-auto` | Native Go search (lazy regex), polyglot newlines, in-memory cache, and Go vs Py benchmarks |
 | **LLM Self-Training** | `gitmap llm train --loop` | `gitmap train --loop` | Autonomous 5-phase AI self-looping simulation |
+| **Muse Memory Sync** | `gitmap llm train muse --days 7` | — | Clone-or-pull repo-secrets, N-day digest diff, AI traversal checklist |
 | **LLM Machine URL** | `gitmap llm --url` | `gitmap train --url` | Public raw spec URL for AI models to download |
 | **Watch Running Prompts**| `gitmap watch-prompts-running` | `gitmap wpr` | Live terminal dashboard tracking running prompts |
 | **Folder Tree** | `gitmap folder-tree` | `gitmap ft` | Visual directory hierarchy with depth controls |
@@ -251,6 +252,69 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 | **Scheduler** | `gitmap schedule` | `gitmap sc` | Background cron and interval scheduler |
 | **Locate Tool** | `gitmap locate <tool>` | `gitmap vcvars` | Fast developer tool locator (<15ms, e.g. vcvarsall.bat, msbuild; replaces slow PowerShell Get-ChildItem) |
 | **Repo Status** | `gitmap status` | `gitmap st` | Dirty, ahead, behind across all repos |
+
+---
+
+## 7. Muse Memory Sync (`gitmap llm train muse`)
+
+Re-syncs any LLM with the 7-day Muse memory digest authored into the
+repo-secrets vault (`12-muse-ai/README.md` + sequenced `12-muse-ai/01-*.md` files +
+`12-muse-ai/chat-seeds/`): the command clone-or-pulls the vault, diffs the last N
+days, prints a terminal summary, and prints a raw AI traversal checklist with
+file-by-file `gitmap cat` / `gitmap aum search` hints. The last-read watermark
+(vault HEAD SHA + timestamp) is tracked by gitmap itself in its local state —
+never in an MD file — and each run reports what is new since the last read.
+Tolerates a missing `12-muse-ai/` digest with guidance (exit 0).
+
+```bash
+gitmap llm train muse --days 7
+```
+
+*Sample output (abridged — every run starts with the decision trace so an
+AI learns the reasoning behind each step):*
+
+```
+----------------------------------------------------------------------
+DECISION TRACE - why each step ran (AI: learn the reasoning)
+----------------------------------------------------------------------
+  1. checkout: no 'rs' record but repo-secrets already exists at the work-folder root -> DECISION reuse it, skip clone (why: the directory is the source of truth; the record is only a pointer)
+  2. checkout: vault present at repo-secrets -> DECISION reuse it, skip clone (why: never clone over existing local state)
+  3. sync: origin remote present -> DECISION git pull --ff-only (why: take new digest commits fast-forward only; never merge, never rewrite history)
+  4. last-read: checkpoint e9f29520bed4 (2026-10-17T03:57:49Z) -> now e9f29520bed4 -> DECISION report 'nothing new since last read' (why: never re-train on unchanged state)
+  5. window: --days 7 -> since 2026-10-10 -> DECISION git log --since + rev-list --count (why: bound the diff to the digest window; the commit count frames the summary)
+  6. order: DECISION README.md first, then sequenced files in lexical order, chat-seeds on demand (why: contract before detail; a deterministic order any LLM can replay)
+  7. search: DECISION scope gitmap aum search to the digest tree with --ext .md (why: keep the model inside the digest, no repo-wide noise)
+  8. last-read: watermark saved -> e9f29520bed4 @ 2026-10-17T03:58:10Z (why: the next run diffs against this SHA; no MD file involved)
+
+======================================================================
+GITMAP LLM TRAIN — MUSE MEMORY SYNC (last 7 days)
+======================================================================
+Digest root: repo-secrets/Muse
+Commits: 13 | Files changed: 36 | Sequenced digests: 6
+SINCE LAST READ (tracked by gitmap — no MD file):
+  Vault unchanged since last read at 2026-10-17T03:57:49Z — 0 new commits.
+
+SEQUENCED DIGEST FILES:
+  12-muse-ai/01-overview.md
+  12-muse-ai/02-repos.md
+  ...
+
+CHANGED FILES:
+  12-muse-ai/01-overview.md
+  ...
+
+======================================================================
+AI TRAVERSAL CHECKLIST (execute in order)
+======================================================================
+1. Read the digest root contract first (why: it defines the say-READ protocol and the file order):
+   gitmap cat repo-secrets/12-muse-ai/README.md
+2. Walk the sequenced digests in order (why: lexical order is the authored narrative):
+   gitmap cat repo-secrets/12-muse-ai/01-overview.md
+3. Scope searches to the digest tree (why: stay inside the digest, avoid repo-wide noise):
+   gitmap aum search "<keyword>" repo-secrets/Muse --ext .md
+4. Inspect chat seeds when a conversation needs full context (why: a seed rebuilds one chat without re-reading everything):
+   gitmap lf repo-secrets/12-muse-ai/chat-seeds
+```
 
 ---
 

@@ -15,6 +15,7 @@ func buildLlmHelpMenu() termout.HelpMenu {
 		UsageLines: []string{
 			"gitmap llm [flags]",
 			"gitmap llm train [--loop] [--self-loop N] [--url] [flags]",
+			"gitmap llm train muse [--days N]",
 			"gitmap train [--loop] [--self-loop N]",
 			"gitmap llm-train [--loop]",
 		},
@@ -35,6 +36,7 @@ func buildLlmFooterFlags() []termout.CommandEntry {
 	return []termout.CommandEntry{
 		{Command: "--loop", Description: "Execute autonomous 5-phase AI self-looping execution cycle"},
 		{Command: "--self-loop <N>", Description: "Run N consecutive iterations of the AI self-loop"},
+		{Command: "--days <N>", Description: "Digest window in days for 'train muse' (default 7)"},
 		{Command: "--url", Description: "Output raw public URL to llm.md instruction specification"},
 		{Command: "-j, --json", Description: "Output structured machine-readable command specifications"},
 		{Command: "--skill-path <p>", Description: "Target path for generated Antigravity skill (SKILL.md)"},
@@ -48,6 +50,7 @@ func buildLlmCommandsSection() termout.HelpSection {
 		Title: "Curriculum & Directives",
 		Entries: []termout.CommandEntry{
 			{Command: "train / chain", Description: "Execute chained curriculum and generate Antigravity skill"},
+			{Command: "train muse", Description: "Sync the Muse 7-day memory digest from the repo-secrets vault"},
 			{Command: "llm-train", Description: "Direct alias for 'gitmap llm train'"},
 			{Command: "llm-docs (ld)", Description: "Generate complete LLM Markdown reference document"},
 			{Command: "pe history-ai [N]", Description: "Dumps historical failure dossiers to prevent AI repeating mistakes"},

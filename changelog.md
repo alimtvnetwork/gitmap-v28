@@ -1,5 +1,73 @@
 # Changelog
 
+## [v6.563.0] - 2026-10-17
+
+### Added
+- large-file-split, git-lfs-convert, repo-flatten, reclone-url-fix, and automerge-ide-guidance
+
+---
+
+## [v6.562.0] - 2026-10-17
+
+### Added
+- **Large Files Splitting Engine (`gitmap split large files`):** Discovers tracked and untracked files exceeding 10MB (configurable via `--size`), creates multi-part zip chunks (`<file>.zip`, `<file>.z01`, `<file>.z02`), applies STORE heuristic for pre-compressed media (`.mp3`, `.mp4`, `.png`, `.jpg`, `.wav`) and DEFLATE for data/code, removes raw files from Git history, and prompts with bold yellow irreversible warnings.
+- **Git LFS Conversion Suite (`gitmap lfs convert`):** Automated scanner finding files exceeding 5MB, updates `.gitattributes` tracking patterns, migrates Git history to LFS pointers via `git lfs migrate import` with fallback staging, and previews changes via `--dry-run`.
+- **Repository Flattening Engine (`gitmap repo flatten`):** Compresses bloated multi-gigabyte repositories into a clean successor (`<repo>-flat-v1`) with a single consolidated squashed snapshot commit, archives the previous repository to `<repo>-marked-for-deletion`, swaps to the canonical name, and provides GitMap `undo` restoration.
+- **Flatten Undo Manager (`gitmap repo undo-flatten`):** Safely restores the previous repository archive from `<repo>-marked-for-deletion`.
+- **Muse Training Priority Sync:** Updated `cli/cmd/llm/llm_train_muse.go` to prioritize `repo-secrets` checkouts for active LLM training, restored missing `decisionLog` struct/methods, and flattened nested if statements.
+- **CLI Help & Troubleshooting Docs:** Authored `cli/helpdoc/split-large-files.md`, `cli/helpdoc/lfs-convert.md`, `cli/helpdoc/flatten.md`, added how-to recipes in `cli/cmdhelp/howto.go`, and added a troubleshooting issue card for 'Large Files / Git Clone Failure (No space left on device)' in `src/data/troubleshootingIssues.ts`.
+
+---
+
+## [v6.561.0] - 2026-10-17
+
+### Added
+- **Histogram Diff Automerge Optimization:** Upgraded `cli/cloner/safe_pull.go` to invoke automerge with `-X diff-algorithm=histogram` and `--no-edit`, preventing false merge conflicts caused by matching indentation and single-bracket lines across diverged branches.
+- **Git Rerere Auto-Memory Engine:** Implemented `cli/gitutil/git_merge.go` with `EnableGitRerere` and `CheckGitRerereEnabled`, allowing Git to automatically record and re-apply conflict resolutions across past and future pulls.
+- **Structured Conflicted File Extractors:** Added `ExtractConflictedFilesFromOutput` and `ExtractConflictedFilesFromRepo` in `cli/cloner/safe_pull.go`, parsing both git conflict stdout text and porcelain status codes (`UU`, `AA`, `UD`, `DU`, `UA`, `AU`, `DD`) into clean file lists.
+- **Multi-IDE Launcher & Guidance:** Implemented `cli/cmdconflict/ide_launcher.go` detecting `code` (VS Code), `cursor`, `windsurf`, and `codium`. Formatted a step-by-step 3-Way Merge Editor walkthrough (`Ctrl+Shift+G` -> 'Resolve in Merge Editor' -> Accept Incoming/Current -> Complete Merge).
+- **GitMap Conflict Resolution CLI:** Created `gitmap resolve <repo> [--theirs | --ours | --ide | --abort | --rerere]` and `gitmap conflicts [repo]` in `cli/cmdconflict/resolve_cmd.go`, with root command dispatch integration in `cli/cmd/rootutility.go`.
+- **Expanded `gitmap fix <repo>` Actions:** Added support for `theirs` (`t`), `ours` (`o`), `resolve` (`v`, `ide`, `code`), `abort` (`a`), and `rerere` in `cli/cmdfix/fix_cmd.go`.
+- **Post-Pull Merge Conflict UI Card:** Upgraded `cli/cmdpull/pull_prompt.go` to render a styled Lipgloss conflict box whenever a repository encounters conflicts during pull, providing one-key actions for IDE launch (`[v]`), remote incoming (`[t]`), local current (`[o]`), and safe abort (`[a]`).
+- **Comprehensive Help & Troubleshooting Docs:** Authored `cli/helpdoc/resolve.md`, `cli/helpdoc/conflicts.md`, updated `cli/cmdhelp/howto.go`, and registered merge conflict troubleshooting in `src/data/commands.ts` and `src/data/troubleshootingIssues.ts`.
+
+---
+
+## [v6.560.0] - 2026-10-17
+
+### Added
+- **Parallel Fix All (`gitmap fix --all`):** Generic typed parallel worker pool (`cli/parallel/generic_pool.go`) dynamically scaling across CPU cores (up to 20 cores) with real-time per-repository progress feedback.
+- **Git Repository Reclone by URL:** `gitmap reclone <url>` now directly detects repository URLs (HTTPS, SSH, git) and safely removes existing dirty targets before re-cloning without falling into manifest file parsers.
+- **Redesigned Post-Pull Menu:** Reordered interactive post-pull resolution choices to prioritize `[1] Fix All (Run gitmap fix --all)`, followed by `[2] Commit All (WIP locally)`, `[3] Stash All`, `[4] Step through each repository individually`, `[5] Fleet Control`, and `[6] Skip`.
+- **Repo-Cache Multi-AI Repository:** Initialized private `repo-cache` repository on GitHub and locally; migrated Muse 7-day memory digests (`12-muse-ai/`) and updated `gitmap llm train muse` to resolve `repo-cache` first.
+- **Subcommand Hyphenation:** Automatic hyphen-to-space command routing across two-word verbs (`train-muse`, `llm-train-muse`, `repo-export`, `repo-import`, etc.).
+- **Heatmap Skill Documentation:** Authoritative documentation of `gitmap heatmap`, `gitmap agent heatmap`, and `full-summary` in `.agents/skills/gitmap/SKILL.md` and `coding-guidelines`.
+
+### Fixed
+- **Windows GCM Credential Store (`wincredman`):** Fixed fatal GCM error `Unknown credential store 'wincred'` by setting `wincredman` across `fixcredential.go`, `pull_remediation.go`, and `git_env.go`.
+- **Pull All Concurrency:** Scaled `resolveAutoProfileConcurrency` up to `runtime.NumCPU()` (20 cores) while preserving progress bar rendering and terminal ANSI color escape codes.
+- **Update Probe Throttle & UI Polish:** Throttled sibling version probing in `gitmap update` to once every 24 hours via watermark cache (`probe-watermark.json`), with Title Case styling, left padding, and bold yellow transitions.
+
+---
+
+## [v6.559.0] - 2026-10-17
+
+### Added
+- Routine release v6.559.0
+
+---
+
+## [Unreleased]
+
+### Changed
+- `gitmap llm train muse`: the last-read watermark (vault HEAD SHA + timestamp) is now tracked by gitmap itself in its local state — the `12-muse-ai/last-read.md` checkpoint file is gone. Every run prints a numbered DECISION TRACE before the summary (why the vault was reused vs cloned, why pull is `--ff-only`, what is new since the last read, why the N-day window and file order), a SINCE LAST READ section (new commits since the watermark, or "unchanged"), and each AI traversal checklist step carries its rationale — so an AI learns the decision-making behind the gitmap steps, not just the commands.
+
+### Added
+- `gitmap llm train muse [--days N]`: positional sub-target of `llm train` that syncs the Muse 7-day memory digest — clone-or-pull the repo-secrets vault via `gh repo clone` (fail-fast `gh auth` guidance, never prompts; an existing vault dir at the work-folder root is reused even without an `rs` record), `git pull --ff-only`, N-day `git log` diff, terminal summary (commits, files changed, sequenced digests) and a raw AI traversal checklist (`gitmap cat` / `gitmap aum search` hints); tolerates a missing `12-muse-ai/` digest with guidance, exit 0.
+- `--days N` flag on `gitmap llm train` (default 7): digest window in days for `train muse`.
+
+---
+
 ## [v6.558.0] - 2026-10-16
 
 ### Added

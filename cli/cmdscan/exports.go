@@ -1,6 +1,7 @@
 package cmdscan
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -19,7 +20,9 @@ var (
 
 // RunScan executes the scan command.
 func RunScan(args []string) error {
-	return runScan(args)
+	err := runScan(args)
+	cmdspace.FireEmailTaskTriggers(cmdspace.EmailTaskScan, cmdspace.InferTaskOutcome(cmdspace.EmailTaskScan, err))
+	return err
 }
 
 // RunRescan executes the rescan command.

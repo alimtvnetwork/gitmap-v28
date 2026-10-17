@@ -1,6 +1,9 @@
 package cmdpull
 
-import "github.com/alimtvnetwork/gitmap-v28/cli/model"
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+)
 
 // RunRemoteSSHPullFn delegates remote SSH pull all-efficient to cmdssh package.
 var RunRemoteSSHPullFn func(target string, isTable bool) error
@@ -10,7 +13,9 @@ var RunRemoteSSHPullAllFleetFn func(cleanArgs []string) error
 
 // RunPull handles the "pull" subcommand.
 func RunPull(args []string) error {
-	return runPull(args)
+	err := runPull(args)
+	cmdspace.FireEmailTaskTriggers(cmdspace.EmailTaskPull, cmdspace.InferTaskOutcome(cmdspace.EmailTaskPull, err))
+	return err
 }
 
 // RunPullAll is the explicit batch-pull entry point.
@@ -25,7 +30,9 @@ func RunPullReleaseCD(args []string) error {
 
 // RunPush handles the "push" subcommand.
 func RunPush(args []string) error {
-	return runPush(args)
+	err := runPush(args)
+	cmdspace.FireEmailTaskTriggers(cmdspace.EmailTaskPush, cmdspace.InferTaskOutcome(cmdspace.EmailTaskPush, err))
+	return err
 }
 
 // FindBySlug finds records matching the slug (case-insensitive, partial match).

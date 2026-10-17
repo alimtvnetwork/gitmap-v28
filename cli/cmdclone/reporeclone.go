@@ -33,6 +33,11 @@ func tryRunRepoReclone(args []string) bool {
 		return false
 	}
 
+	if len(positionals) == 1 && isGitURL(positionals[0]) {
+		_ = RunRepoRecloneURL(target, positionals[0], yes)
+		return true
+	}
+
 	RunRepoReclone(target, yes)
 
 	return true
@@ -61,8 +66,8 @@ func splitRepoRecloneArgs(args []string) (bool, []string) {
 }
 
 // resolveRepoRecloneTarget returns an absolute path that is a git
-// repo, or ok=false if this invocation doesn't match the
-// single-repo shape.
+// repo or target path for a repository URL, or ok=false if this invocation
+// doesn't match the single-repo shape.
 
 func resolveRepoRecloneTarget(positionals []string) (string, bool) {
 	if len(positionals) > 1 {
@@ -86,7 +91,38 @@ func resolveRepoRecloneTarget(positionals []string) (string, bool) {
 	return cwd, true
 }
 
+func isGitURL(arg string) bool {
+	clean := strings.ToLower(strings.TrimSpace(arg))
+	return strings.HasPrefix(clean, "http://") ||
+		strings.HasPrefix(clean, "https://") ||
+		strings.HasPrefix(clean, "git@") ||
+		strings.HasPrefix(clean, "ssh://") ||
+		strings.HasSuffix(clean, ".git")
+}
+
+func cleanRepoURLName(rawURL string) string {
+	clean := strings.TrimSpace(rawURL)
+	clean = strings.TrimRight(clean, "/\\")
+	return extractRepoName(clean)
+}
+
 func resolveRepoFromArg(arg string) (string, bool) {
+	if isGitURL(arg) {
+		repoName := cleanRepoURLName(arg)
+		if repoName == "" {
+			return "", false
+		}
+		cwd, err := os.Getwd()
+		if err != nil {
+			return "", false
+		}
+		if filepath.Base(cwd) == repoName && isGitRepoDir(cwd) {
+			return cwd, true
+		}
+		dest := filepath.Join(cwd, repoName)
+		return dest, true
+	}
+
 	abs, err := filepath.Abs(arg)
 	if err != nil {
 		return "", false
@@ -111,6 +147,50 @@ func isGitRepoDir(dir string) bool {
 	return err == nil
 }
 
+// RunRepoRecloneURL executes re-cloning from an explicit Git repository URL.
+// If the destination directory exists, it confirms and wipes it before cloning;
+// if it does not exist, it runs clone directly.
+func RunRepoRecloneURL(target, origin string, yes bool) error {
+	info, statErr := os.Stat(target)
+	folderExists := statErr == nil && info.IsDir()
+
+	if folderExists {
+		parent := filepath.Dir(target)
+		fmt.Printf(constants.MsgRepoReclonePlan, target, origin, parent)
+
+		if !yes && !confirmRepoReclone(target, origin) {
+			fmt.Fprint(os.Stderr, constants.MsgRepoRecloneAborted)
+
+			return apperror.NewSimple("reclone aborted", "E9000")
+		}
+
+		if _, escapeErr := escapeCwdIfInside(target); escapeErr != nil {
+			fmt.Fprintln(os.Stderr, escapeErr.Error())
+
+			return apperror.WrapSimple(escapeErr, "escape cwd")
+		}
+
+		fmt.Printf(constants.MsgRepoRecloneRemoving, target)
+		if rmErr := os.RemoveAll(target); rmErr != nil {
+			return apperror.WrapSimple(rmErr, constants.ErrRepoRecloneRemove)
+		}
+	}
+
+	dest := target
+	origin = coerceURLToStoredTransport(origin)
+	fmt.Printf(constants.MsgRepoRecloneCloning, origin, dest)
+	if cloneErr := runCloneCommand(origin, dest); cloneErr != nil {
+		return apperror.WrapSimple(cloneErr, constants.ErrRepoRecloneClone)
+	}
+
+	persistRecloneTransport(origin)
+
+	fmt.Printf(constants.MsgRepoRecloneDone, dest)
+	WriteShellHandoff(dest)
+
+	return nil
+}
+
 // RunRepoReclone executes the destructive wipe + re-clone after
 // confirmation. Each failure path emits a standardized stderr line
 // per the zero-swallow error policy and exits non-zero.
@@ -124,40 +204,7 @@ func RunRepoReclone(target string, yes bool) error {
 		return apperror.NewSimple(constants.ErrRepoRecloneNoOrigin, "E9000")
 	}
 
-	parent := filepath.Dir(target)
-	folderName := filepath.Base(target)
-	fmt.Printf(constants.MsgRepoReclonePlan, target, origin, parent)
-
-	if !yes && !confirmRepoReclone(target, origin) {
-		fmt.Fprint(os.Stderr, constants.MsgRepoRecloneAborted)
-
-		return apperror.NewSimple("reclone aborted", "E9000")
-	}
-
-	if _, escapeErr := escapeCwdIfInside(target); escapeErr != nil {
-		fmt.Fprintln(os.Stderr, escapeErr.Error())
-
-		return apperror.WrapSimple(escapeErr, "escape cwd")
-	}
-
-	fmt.Printf(constants.MsgRepoRecloneRemoving, target)
-	if rmErr := os.RemoveAll(target); rmErr != nil {
-		return apperror.WrapSimple(rmErr, constants.ErrRepoRecloneRemove)
-	}
-
-	dest := filepath.Join(parent, folderName)
-	origin = coerceURLToStoredTransport(origin)
-	fmt.Printf(constants.MsgRepoRecloneCloning, origin, dest)
-	if cloneErr := runCloneCommand(origin, dest); cloneErr != nil {
-		return apperror.WrapSimple(cloneErr, constants.ErrRepoRecloneClone)
-	}
-
-	persistRecloneTransport(origin)
-
-	fmt.Printf(constants.MsgRepoRecloneDone, dest)
-	WriteShellHandoff(dest)
-
-	return nil
+	return RunRepoRecloneURL(target, origin, yes)
 }
 
 // confirmRepoReclone reads y/N from stdin. Non-TTY callers get a

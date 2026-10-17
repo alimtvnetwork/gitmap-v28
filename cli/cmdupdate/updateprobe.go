@@ -2,16 +2,97 @@ package cmdupdate
 
 import (
 	"context"
+	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
+
+// probeThrottleDuration specifies that sibling probing is run at most once per 24 hours.
+const probeThrottleDuration = 24 * time.Hour
+
+// probeWatermarkState stores the timestamp and slug from previous sibling probing.
+type probeWatermarkState struct {
+	LastProbeTime time.Time `json:"last_probe_time"`
+	CachedSlug    string    `json:"cached_slug"`
+	HasHit        bool      `json:"has_hit"`
+}
+
+var (
+	probeWatermarkFileOverride string
+	probeThrottleForceEnabled  bool
+)
+
+func probeWatermarkFile() string {
+	if probeWatermarkFileOverride != "" {
+		return probeWatermarkFileOverride
+	}
+	return filepath.Join(store.BinaryDataDir(), "probe-watermark.json")
+}
+
+func loadProbeWatermark() *probeWatermarkState {
+	path := probeWatermarkFile()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var state probeWatermarkState
+	if err := json.Unmarshal(data, &state); err != nil {
+		return nil
+	}
+	return &state
+}
+
+func saveProbeWatermark(cachedSlug string, hasHit bool) {
+	state := probeWatermarkState{
+		LastProbeTime: time.Now().UTC(),
+		CachedSlug:    cachedSlug,
+		HasHit:        hasHit,
+	}
+	data, err := json.MarshalIndent(state, "", "  ")
+	if err != nil {
+		return
+	}
+	path := probeWatermarkFile()
+	_ = os.MkdirAll(filepath.Dir(path), 0755)
+	_ = os.WriteFile(path, data, 0644)
+}
+
+func isTestEnv() bool {
+	if flag.Lookup("test.v") != nil {
+		return true
+	}
+	arg0 := strings.ToLower(os.Args[0])
+	return strings.HasSuffix(arg0, ".test") || strings.HasSuffix(arg0, ".test.exe")
+}
+
+func checkProbeThrottle(base string, current int) (string, bool) {
+	if !probeThrottleForceEnabled && isTestEnv() {
+		return "", false
+	}
+	wm := loadProbeWatermark()
+	if wm == nil {
+		return "", false
+	}
+	if time.Since(wm.LastProbeTime) < probeThrottleDuration {
+		if wm.HasHit && wm.CachedSlug != "" {
+			return wm.CachedSlug, true
+		}
+		currentSlug := fmt.Sprintf("%s-v%d", base, current)
+		return currentSlug, true
+	}
+	return "", false
+}
 
 // repoSlugRe matches "<base>-v<N>" e.g. "gitmap-v28".
 var repoSlugRe = regexp.MustCompile(`^([a-z][a-z0-9_-]*?)-v(\d+)$`)
@@ -74,7 +155,13 @@ func parseCurrentRepoSlug(slug string) (string, int, error) {
 
 // probeSiblings fires up to maxN parallel HEAD requests against
 // "<base>-v<current+1..current+maxN>" and returns the highest-N hit.
+// Probing is throttled to at most once per 24 hours. If probed in the
+// last 24h, probing is skipped and the cached or current slug is returned.
 func probeSiblings(httpClient *http.Client, base string, current, maxN int) (string, bool) {
+	if cachedSlug, throttled := checkProbeThrottle(base, current); throttled {
+		return cachedSlug, true
+	}
+
 	fmt.Printf(constants.MsgUpdateProbeStart, base, current+1, base, current+maxN)
 
 	results := make([]probeResult, maxN)
@@ -89,7 +176,16 @@ func probeSiblings(httpClient *http.Client, base string, current, maxN int) (str
 
 	wg.Wait()
 
-	return pickMaxHit(results, base)
+	slug, ok := pickMaxHit(results, base)
+	if !isTestEnv() || probeThrottleForceEnabled {
+		if ok {
+			saveProbeWatermark(slug, true)
+		} else {
+			saveProbeWatermark(fmt.Sprintf("%s-v%d", base, current), false)
+		}
+	}
+
+	return slug, ok
 }
 
 // probeOne runs a single HEAD request and returns the result.

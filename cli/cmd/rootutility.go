@@ -5,13 +5,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddocs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfindnext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixauth"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixreleasetags"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhelp"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdflatten"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfscommon"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
@@ -19,7 +21,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrm"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsplit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
 	"os"
 	"strings"
 
@@ -36,8 +40,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
-	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 )
 
 // isFlagToken returns true when arg looks like a CLI flag (-x or --xx).
@@ -101,12 +103,27 @@ func runInstalledDirHelp() error {
 	return cmdinstall.RunInstalledDir()
 }
 
+const (
+	CmdResolve         = "resolve"
+	CmdConflicts       = "conflicts"
+	CmdSplitLargeFiles = "split-large-files"
+	CmdLFSConvert      = "lfs-convert"
+	CmdFlatten         = "flatten"
+)
+
 func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{CmdResolve, "res"}, func() error { return cmdconflict.RunResolveCmd(argsTail()) }},
+		{[]string{CmdConflicts, "conflict"}, func() error { return cmdconflict.RunConflictsCmd(argsTail()) }},
+		{[]string{CmdSplitLargeFiles, "split-large", "splitlargefiles"}, func() error { return cmdsplit.RunSplitLargeFilesCmd(argsTail()) }},
+		{[]string{CmdLFSConvert, "lfsconvert"}, func() error { return cmdlfs.RunLFSConvertCmd(argsTail()) }},
+		{[]string{CmdFlatten, "repo-flatten", "repoflatten"}, func() error { return cmdflatten.RunFlattenCmd(argsTail()) }},
+		{[]string{"undo-flatten", "repo-undo-flatten"}, func() error { return cmdundo.RunUndoFlattenCLI(argsTail()) }},
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return cmddocs.RunDocs(argsTail()) }},
 		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
 		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias, "ld"}, func() error { return cmdllm.RunLLMDocs(argsTail()) }},
 		{[]string{"llm-train", "train", "llmtrain"}, func() error { return cmdllm.RunLlm(append([]string{"train"}, argsTail()...)) }},
+		{[]string{"train-muse", "llm-train-muse"}, func() error { return cmdllm.RunLlm(append([]string{"train", "muse"}, argsTail()...)) }},
 		{[]string{"ai-server", "ai-ping", "aum-server"}, func() error { return cmdai.RunAIMemoryServerCmd(argsTail()) }},
 		{[]string{constants.CmdSetSourceRepo}, RunSetSourceRepo},
 		{[]string{constants.CmdSf}, func() error { return RunSf(argsTail()) }},
@@ -192,119 +209,4 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"mkfile", "create-file"}, func() error { return cmdmacro.RunMkfileCmd(argsTail()) }},
 		{[]string{"fix"}, func() error { return cmdautofix.RunFixCmd(argsTail()) }},
 	}
-}
-
-// runHelpDispatch handles the `help` subcommand including topic
-// help, `help example <cmd>`, --groups, --compact, and the default
-// usage screen.
-func runHelpDispatch() error {
-	isHelpExample := len(os.Args) >= 3 && strings.EqualFold(os.Args[2], "example")
-	if isHelpExample {
-		dispatchHelpExample(os.Args[3:])
-
-		return nil
-	}
-
-	// Program 275: `gitmap help topic <name>` routes to the topic index
-	// before the generic topic lookup below.
-	if len(os.Args) >= 3 && strings.EqualFold(os.Args[2], "topic") {
-		if appErr := cmdhelp.RunHelpTopic(os.Args[3:]); appErr != nil {
-			return appErr
-		}
-
-		return nil
-	}
-
-	hasTopic := len(os.Args) >= 3 && !isFlagToken(os.Args[2])
-	if hasTopic {
-		dispatchHelpTopic(os.Args[2])
-
-		return nil
-	}
-
-	if cmdupdate.HasFlag(constants.FlagJSON) {
-		printUsageJSON(resolveFilterQuery())
-
-		return nil
-	}
-
-	q := resolveFilterQuery()
-	needsFilter := len(q) > 0 || cmdupdate.HasFlag(constants.FlagFilter) || cmdupdate.HasFlag(constants.FlagFilterShort)
-	if needsFilter {
-		printUsageFiltered(q)
-
-		return nil
-	}
-
-	printUsage()
-
-	return nil
-}
-
-// dispatchHelpTopic renders help for a named topic, falling back to filtered
-// usage when the topic has no dedicated help text. The registry's Examples
-// section is appended after the topic body (single source of truth).
-func dispatchHelpTopic(rawTopic string) {
-	topic := normalizeHelpTopic(rawTopic)
-	if isHelpCategoryGroup(topic) {
-		printUsageCategoryGroup(topic)
-		return
-	}
-	_, mode := ParsePrettyFlag(os.Args[3:])
-	prettyOff := mode == render.PrettyOff
-	if tryRenderRichTopic(topic) {
-		helpdoc.PrintExampleSection(topic, prettyOff)
-		return
-	}
-	_, err := helpdoc.ReadRaw(topic)
-	if err != nil {
-		printUsageFiltered(topic)
-
-		return
-	}
-
-	helpdoc.PrintWithMode(topic, mode)
-	helpdoc.PrintExampleSection(topic, prettyOff)
-	printUsageFooterShort()
-}
-
-// dispatchHelpExample handles `gitmap help example [cmd]`: the canonical
-// what-it-does + invocation + expected output for one command, or the
-// command index when no command is given.
-func dispatchHelpExample(args []string) {
-	cleaned, mode := ParsePrettyFlag(args)
-	prettyOff := mode == render.PrettyOff
-
-	if len(cleaned) == 0 {
-		helpdoc.PrintHelpExampleIndex(prettyOff)
-
-		return
-	}
-
-	helpdoc.PrintHelpExample(cleaned[0], prettyOff)
-}
-
-func normalizeHelpTopic(topic string) string {
-	switch topic {
-	case constants.CmdRmAlias, constants.CmdRmAlias2:
-		return constants.CmdRm
-	case constants.CmdStaleAlias:
-		return constants.CmdStale
-	case constants.CmdRecentAlias:
-		return constants.CmdRecent
-	case constants.CmdPRAlias:
-		return constants.CmdPR
-	case constants.CmdClusterAlias:
-		return constants.CmdCluster
-	case constants.CmdPowerAlias, constants.CmdPowerAlias2:
-		return constants.CmdPower
-	case "rr", "rra", "rrq", "rerun-restart", "rerun-all", "rerun-queue":
-		return "rerun"
-	case constants.CmdShutdownUntil, constants.CmdShutdownUntilAlias, constants.CmdShutdownUntilGreen:
-		return constants.CmdShutdownUntil
-	case constants.CmdFixReleaseTagsAlias, "fix-release-tag", "fix-tags", constants.CmdFixReleaseTagsAliasSolid:
-		return constants.CmdFixReleaseTags
-	}
-
-	return topic
 }

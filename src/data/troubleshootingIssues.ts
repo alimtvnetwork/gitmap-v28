@@ -247,6 +247,37 @@ export const issues: Issue[] = [
     fix: "Run scan first, or pass an explicit path.",
     fixCommand: `gitmap scan ~/projects --output json\ngitmap clone json`,
   },
+  {
+    id: "git-merge-conflict",
+    category: CategoryType.Git,
+    title: "Merge or rebase conflicts on pull / sync",
+    symptom: "CONFLICT (content): Merge conflict in <file> / Automatic merge failed; fix conflicts and then commit the result.",
+    cause: "Concurrent commits on local and remote branches modified the same lines or files in diverging ways.",
+    fix: "Use 'gitmap conflicts' to list unmerged files, launch the VS Code 3-Way Merge Editor (Ctrl+Shift+G -> Resolve in Merge Editor) to pick incoming or current changes, or resolve via GitMap CLI one-liners.",
+    fixCommand: `gitmap conflicts\ngitmap resolve --ide\n# or accept incoming / local changes directly\ngitmap resolve --theirs\ngitmap resolve --ours\ngitmap cpf "resolve merge conflicts"`,
+    altLabel: "Abort merge/rebase",
+    altCommand: `gitmap resolve --abort`,
+    related: [
+      { label: "resolve reference", href: "/commands" },
+      { label: "reconcile reference", href: "/commands" },
+    ],
+  },
+  {
+    id: "large-files-clone-failure",
+    category: CategoryType.Git,
+    title: "Large Files / Git Clone Failure (No space left on device)",
+    symptom: "fatal: cannot create directory at '<path>': No space left on device / warning: Clone succeeded, but checkout failed.",
+    cause: "Oversized media assets, model checkpoints, or bloated history exceeded filesystem limits or ran out of buffer space during checkout.",
+    fix: "Split oversized files (>10MB) into multipart zip archives, migrate blobs (>5MB) to Git LFS pointers, or flatten repository history into a clean snapshot commit.",
+    fixCommand: `gitmap split large files --size 10MB -y\n# or migrate to Git LFS\ngitmap lfs convert --size 5MB -y\n# or squash bloated history into single commit\ngitmap repo flatten -y`,
+    altLabel: "Undo repo flatten",
+    altCommand: `gitmap repo undo-flatten <repo>`,
+    related: [
+      { label: "flatten reference", href: "/commands" },
+      { label: "split large files reference", href: "/commands" },
+      { label: "lfs convert reference", href: "/commands" },
+    ],
+  },
 
   // ── build ─────────────────────────────────────
   {

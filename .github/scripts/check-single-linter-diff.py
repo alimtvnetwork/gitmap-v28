@@ -87,6 +87,7 @@ def normalize_report(path, linter, text_filter_re):
 
     issues = data.get("Issues") or []
     normalized = {}
+    file_issue_counts = {}
     for issue in issues:
         if issue.get("FromLinter") != linter:
             continue
@@ -102,9 +103,11 @@ def normalize_report(path, linter, text_filter_re):
         if text_filter_re and not text_filter_re.search(clean_text):
             continue
 
-        key = f"{filename}|{line}|{clean_text}"
-        if key not in normalized:
-            normalized[key] = (filename, line, col, clean_text)
+        base_key = f"{filename}|{clean_text}"
+        occ = file_issue_counts.get(base_key, 0) + 1
+        file_issue_counts[base_key] = occ
+        key = f"{base_key}|#{occ}"
+        normalized[key] = (filename, line, col, clean_text)
 
     return normalized
 

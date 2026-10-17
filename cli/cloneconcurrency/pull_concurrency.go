@@ -53,59 +53,44 @@ func ResolveAdaptiveConcurrency(preset ConcurrencyPreset, userLimit int) int {
 // If isLocalOnly is true and both CPU and RAM are under threshold, scales max workers up to max(runtime.NumCPU(), 6).
 // Otherwise, falls back to standard adaptive auto profile.
 func ResolveBoostedPullConcurrency(isLocalOnly bool, cpuPercent, ramPercent, threshold int) int {
-	if isLocalOnly {
-		if threshold <= 0 {
-			threshold = 30
-		}
-		isCPUIdle := cpuPercent < threshold
-		isRAMIdle := ramPercent < threshold
-		if isCPUIdle && isRAMIdle {
-			cores := runtime.NumCPU()
-			if cores < 6 {
-				return 6
-			}
-			return cores
-		}
+	if !IsBoostEligible(isLocalOnly, cpuPercent, ramPercent, threshold) {
+		return ResolveAdaptivePullConcurrency(CPUProfileAuto, 0)
 	}
-	return ResolveAdaptivePullConcurrency(CPUProfileAuto, 0)
+	cores := runtime.NumCPU()
+	if cores < 6 {
+		return 6
+	}
+	return cores
 }
 
 // ResolveBoostedWorkerHands returns the boosted worker count and hands per worker.
 // When resource usage qualifies for boost, returns (max(runtime.NumCPU(), 6), 2).
 func ResolveBoostedWorkerHands(isLocalOnly bool, cpuPercent, ramPercent, threshold int) (int, int) {
-	if isLocalOnly {
-		if threshold <= 0 {
-			threshold = 30
-		}
-		isCPUIdle := cpuPercent < threshold
-		isRAMIdle := ramPercent < threshold
-		if isCPUIdle && isRAMIdle {
-			workers := ResolveBoostedPullConcurrency(isLocalOnly, cpuPercent, ramPercent, threshold)
-			return workers, 2
-		}
+	if !IsBoostEligible(isLocalOnly, cpuPercent, ramPercent, threshold) {
+		return ResolveAdaptivePullConcurrency(CPUProfileAuto, 0), 1
 	}
-	return ResolveAdaptivePullConcurrency(CPUProfileAuto, 0), 1
+	workers := ResolveBoostedPullConcurrency(isLocalOnly, cpuPercent, ramPercent, threshold)
+	return workers, 2
 }
 
 // IsBoostEligible checks whether the resource conditions qualify for adaptive concurrency boost.
 func IsBoostEligible(isLocalOnly bool, cpuPercent, ramPercent, threshold int) bool {
-	if isLocalOnly {
-		if threshold <= 0 {
-			threshold = 30
-		}
-		isCPUIdle := cpuPercent < threshold
-		isRAMIdle := ramPercent < threshold
-		return isCPUIdle && isRAMIdle
+	if !isLocalOnly {
+		return false
 	}
-	return false
+	limit := threshold
+	if limit <= 0 {
+		limit = 30
+	}
+	return cpuPercent < limit && ramPercent < limit
 }
 
 func resolveHighPerfConcurrency(cores int) int {
 	if cores < 1 {
 		return 1
 	}
-	if cores > 12 {
-		return 12
+	if cores > 20 {
+		return 20
 	}
 	return cores
 }
@@ -122,17 +107,11 @@ func resolveLowCPUConcurrency(cores int) int {
 }
 
 func resolveAutoProfileConcurrency(cores int) int {
-	if cores <= 2 {
+	if cores < 1 {
 		return 1
 	}
-	if cores <= 4 {
-		return 2
+	if cores > 20 {
+		return 20
 	}
-	if cores <= 8 {
-		return 3
-	}
-	if cores <= 16 {
-		return 4
-	}
-	return 6
+	return cores
 }

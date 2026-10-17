@@ -20,11 +20,12 @@ func parseCursorInstallArgs(args []string) cursorInstallOptions {
 	opts := cursorInstallOptions{}
 	for i := 0; i < len(args); i++ {
 		arg := strings.ToLower(args[i])
-		if (arg == "--node" || arg == "-n") && i+1 < len(args) {
+		switch {
+		case (arg == "--node" || arg == "-n") && i+1 < len(args):
 			opts.targetNode, i = args[i+1], i+1
-		} else if arg == "--force" || arg == "-f" {
+		case arg == "--force" || arg == "-f":
 			opts.isForce = true
-		} else if arg == "--dry-run" || arg == "-d" {
+		case arg == "--dry-run" || arg == "-d":
 			opts.isDryRun = true
 		}
 	}

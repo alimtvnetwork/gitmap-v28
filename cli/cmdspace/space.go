@@ -23,6 +23,9 @@ Space operations namespace. Subcommands:
               --squash embeds PR details plus a changed-files heatmap.
   send-email    Send an email. Delegates to the go-email-reader binary
               when installed; otherwise uses the built-in SMTP sender.
+  schedule-send-email
+              Register an email trigger fired when a task (release,
+              pull, clone, scan, push, backup) completes.
 
 Flags (with common):
   --dry-run, -n    Print planned additions without touching disk
@@ -45,6 +48,14 @@ Flags (with send-email):
   --file <path>   Email file (.yaml/.yml, .json, .md, or .txt)
   --html          Send the body as HTML
 
+Flags (with schedule-send-email):
+  --to <addr>     Recipient address (required for register)
+  --task <task>   Task to watch: release|pull|clone|scan|push|backup
+                  (required for register)
+  --name <label>  Trigger label; defaults to the task name
+  --list          List all registered triggers
+  --remove        Remove the trigger named by --name
+
 Examples:
   gitmap space common
   gitmap space common --dry-run
@@ -54,6 +65,7 @@ Examples:
   gitmap space PR-merge
   gitmap space PR-merge main --squash
   gitmap space send-email --to a@x.com --subject "Hi" --body "Hello"
+  gitmap space schedule-send-email --to a@x.com --task release
   gitmap space --help
 `
 
@@ -167,6 +179,10 @@ func DispatchSpace(command string) (bool, error) {
 		return true, runSpaceSendEmail(rest[1:])
 	}
 
+	if sub == constants.CmdSpaceScheduleSendEmail {
+		return true, runSpaceScheduleSendEmail(rest[1:])
+	}
+
 	if sub != "common" {
 		fmt.Print(spaceUsage)
 
@@ -233,4 +249,18 @@ func runSpaceSendEmail(args []string) error {
 	}
 
 	return RunSendEmail(args)
+}
+
+// runSpaceScheduleSendEmail prints schedule-send-email help on --help/-h,
+// else delegates to the cmdspace implementation.
+func runSpaceScheduleSendEmail(args []string) error {
+	for _, a := range args {
+		if a == "--help" || a == "-h" {
+			printScheduleSendEmailHelp()
+
+			return nil
+		}
+	}
+
+	return RunScheduleSendEmail(args)
 }
