@@ -7,11 +7,11 @@ E2E test, release.
 
 ## Status
 - [x] Step 0: pull, spec 275, backup pushed, mindset + proposals read
-- [ ] WS1: spec + plan + subtasks (this file)
-- [ ] WS2: implement 30 commands (3 workers)
-- [ ] WS3: E2E matrix (30 commands)
-- [ ] WS4: fix E2E findings
-- [ ] WS5: minor bump + release + green CI
+- [x] WS1: spec + plan + subtasks
+- [x] WS2: implement 30 commands (3 workers, all DONE)
+- [x] WS3: E2E matrix (30/30 PASS)
+- [x] WS4: fix E2E findings (lint: misspells, unused consts, nested-ifs fixed)
+- [x] WS5: minor bump + release (v6.559.0 published; CI running on release commit)
 
 ## Worker assignment (disjoint file boxes)
 - **Worker 1 — Groups A+B:** `cli/cmdmerge/` (mr list/view/merge/checkout);
