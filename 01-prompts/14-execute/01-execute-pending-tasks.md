@@ -161,14 +161,15 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 1. **Platform Handshake:** Confirm tools (`invoke_subagent`, `send_message`, `manage_subagents`, `ask_question`, `write_to_file`, `replace_file_content`, `run_command`).
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
 3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
-4. **SQLite Task DB & Deterministic Slug Initialization:**
-   - Initialize or inspect task state via the Antigravity SQLite task manager:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "execute-pending-tasks" --budget 300`
-   - Inspect Task DB Schema & Data Integrity Rules:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py schema`
+4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
+   - Initialize or inspect task state via GitMap SQLite task manager (compiled Go, sub-millisecond):
+     `gitmap agent task init --name "execute-pending-tasks" --budget 300`
+   - Inspect Task DB Schema & Data Integrity Rules (Mandatory Preflight):
+     `gitmap agent task status`
+   - TOTAL BAN ON RAW PYTHON SQLITE: NEVER execute `python -c "import sqlite3..."` or ad-hoc Python DB scripts. Inspect status via `gitmap agent task status` or list subtasks via `gitmap agent subtask ls`.
    - Output Analysis & Crash Forensics:
      - If `action: "RESUME_FOUND"`: Forensic report identifies crashed agent state. Resume execution from the uncompleted subtask.
-     - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-execute-pending-tasks/` and SQLite database `agent-task.db` with WAL mode.
+     - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-execute-pending-tasks/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
 5. **Ledger Creation:** Also create `.ai-memory/temp-agents/<nn>-execute-pending-tasks/ledger.md` mirroring the DB initialization for human readability:
 
 ```markdown
@@ -206,7 +207,7 @@ You must use `invoke_subagent` to delegate inventory discovery and wave partitio
    - Wave 2: Business logic and services
    - Wave 3: UI and documentation
 3. **Populate Subtasks in SQLite Task DB:**
-   `python 03-ai-scripts/46-agent-sqlite-task-manager.py add-subtasks --db <databasePath> --tasks-json '[{"code": "Task-01", "title": "<title>", "owned_files": ["<paths>"], "agent_role": "Worker 01"}]'`
+   `gitmap agent subtask add --json '[{"code": "Task-01", "title": "<title>", "owned_files": ["<paths>"], "agent_role": "Worker 01"}]'`
 4. **Readiness Gate:** Complete Phase 1 inventory and wave grouping within `PHASE_1_BUDGET` steps, then proceed **UNCONDITIONALLY** into Phase 2 execution. ZERO intermediate git commits during Phase 1!
 
 ---

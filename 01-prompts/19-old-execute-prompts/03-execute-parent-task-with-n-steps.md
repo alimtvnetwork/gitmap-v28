@@ -217,7 +217,7 @@ You must use `invoke_subagent` to delegate both planning discovery and spec auth
    - NEVER have both subagents write to the same file path!
    - *Tool Call:* Lead must execute the `invoke_subagent` tool as the final action in the turn, print `Dispatched Spec Agents`, and then STOP CALLING TOOLS to wait for `<SYSTEM_MESSAGE>` reactive wakeup.
 3. **Populate Subtasks in SQLite Task DB:** Once subtasks are decomposed, populate them into the SQLite database for atomic worker claiming:
-   `python 03-ai-scripts/46-agent-sqlite-task-manager.py add-subtasks --db <databasePath> --tasks-json '[{"code": "Task-01", "title": "<title>", "owned_files": ["<paths>"], "agent_role": "Worker 01"}]'`
+   `gitmap agent subtask add --json '[{"code": "Task-01", "title": "<title>", "owned_files": ["<paths>"], "agent_role": "Worker 01"}]'`
 4. **Readiness Gate:** Complete Phase 1 planning and spec authoring within `PHASE_1_BUDGET` steps, then proceed **UNCONDITIONALLY** into Phase 2. ZERO intermediate git commits during Phase 1!
 
 ---
@@ -308,14 +308,14 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 ### Concurrency-Safe SQLite Action Logging (CRASH FORENSICS MANDATE):
 - Worker subtasks are tracked in the run database: `<databasePath>`.
 - Claim assigned subtask atomically:
-  `python 03-ai-scripts/46-agent-sqlite-task-manager.py claim --db <databasePath> --agent "Worker <NN>"`
+  `gitmap agent subtask claim --agent "Worker <NN>"`
 - BEFORE touching or modifying any owned file, you MUST log your in-flight action:
-  `gitmap agent log --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "<action description>"`
+  `gitmap agent log --subtask <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "<action description>"`
   *(Note: This guarantees that if a tool execution crashes or the session is interrupted, the database permanently records the exact file you were touching and what caused the crash!)*
 - When your subtask passes targeted checks, mark completion in the database:
-  `gitmap agent subtask complete --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --evidence "PASS exit 0, <files>"`
+  `gitmap agent subtask complete <id> --agent "Worker <NN>" --evidence "PASS exit 0, <files>"`
 - If blocked or failing, record the failure:
-  `python 03-ai-scripts/46-agent-sqlite-task-manager.py fail --db <databasePath> --subtask-id <id> --agent "Worker <NN>" --reason "<reason>"`
+  `gitmap agent subtask fail <id> --agent "Worker <NN>" --reason "<reason>"`
 
 ### Output Contract:
 Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json and reply with this JSON block, once per subtask, then stop:
@@ -335,10 +335,11 @@ Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json 
 1. **Invoke & Yield:** You must ACTUALLY CALL the `invoke_subagent` tool as the final action in your turn. Print the progress line (`Dispatched Worker 01 .. Worker <A> (wave k / WAVES); waiting for their results.`) and **STOP CALLING TOOLS** to end your turn.
 2. **Automated Crash Forensics & Status Inspection:**
    - If any worker fails to report, crashes, or times out, lead immediately runs:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py diagnose --db <databasePath>`
+     `gitmap agent diagnose`
      This pinpoints the autopsy: which agent crashed, on which subtask, targeting which file, and the exact action that was executing when it failed.
    - Lead inspects overall completion status at any time:
-     `python 03-ai-scripts/46-agent-sqlite-task-manager.py status --db <databasePath>`
+     `gitmap agent task status`
+   - TOTAL BAN ON RAW PYTHON SQLITE: NEVER execute `python -c "import sqlite3..."` or ad-hoc DB scripts; inspect via `gitmap agent task status` or `gitmap agent subtask ls`.
 3. **Verify Worker Reports Independently:** Confirm `git diff --stat -- <owned files>` matches `filesChanged`, no files outside owned files modified, re-run targeted checks for `exit 0` on non-zero files.
 4. **Reject Violations:** Send failures via `send_message`. On `BLOCKED`, lead does work and logs `LEAD_FALLBACK: <reason>`. After two failed rounds, mark `FAILED`, write RCA, continue (R13).
 5. **Update Ledger:** Record status, evidence, changed paths in `ledger.md` via `replace_file_content`.

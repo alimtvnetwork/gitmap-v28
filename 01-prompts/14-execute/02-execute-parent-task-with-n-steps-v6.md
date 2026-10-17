@@ -169,12 +169,12 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
 3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
 4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
-   - Initialize or inspect task state via GitMap SQLite task manager (compiled Go, sub-millisecond; fallback: Python):
-     `gitmap task init --name "<task name>" --budget 300`
-     *(Legacy fallback: `gitmap agent task init --name "<task name>" --budget 300`)*
+   - Initialize or inspect task state via GitMap SQLite task manager (compiled Go, sub-millisecond):
+     `gitmap agent task init --name "<task name>" --budget 300`
    - Inspect Task DB Schema & Data Integrity Rules (Mandatory Preflight):
      `gitmap agent task status`
      Verify tables (`ParentTask`, `Subtask`, `AgentActionLog`), positive boolean flags (`IsActive`, `HasCompleted`, `IsBlocked`), and payload constraints before populating subtasks. (DDL: `gitmap agent task status --ddl`; JSON: `gitmap agent task status --json`).
+   - TOTAL BAN ON RAW PYTHON SQLITE: NEVER execute `python -c "import sqlite3..."` or ad-hoc Python DB scripts. Inspect status via `gitmap agent task status` or list subtasks via `gitmap agent subtask ls`.
    - Output Analysis & Crash Forensics:
      - If `action: "RESUME_FOUND"`: A matching or similar slug exists in `.ai-memory/temp-agents/`! If `diagnostics.hasCrashesDetected: true`, inspect the forensic report (`diagnostics.crashedAgents`) to identify which agent crashed, what file it was touching, and the last logged action. Resume execution from the uncompleted subtask.
      - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-<slug>/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
@@ -380,8 +380,8 @@ Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json 
 1. **Invoke & Yield:** You must ACTUALLY CALL the `invoke_subagent` tool as the final action in your turn. Print the progress line (`Dispatched Worker 01 .. Worker <A> (wave k / WAVES); waiting for their results.`) and **STOP CALLING TOOLS** to end your turn.
 2. **Automated Crash Forensics & Status Inspection:**
    - Lead inspects overall completion status at any time:
-     `gitmap task status --db <databasePath>`
-     *(Legacy fallback: `gitmap agent task status`)*
+     `gitmap agent task status` (or list subtasks via `gitmap agent subtask ls`)
+   - TOTAL BAN ON RAW PYTHON SQLITE: NEVER execute `python -c "import sqlite3..."` or ad-hoc DB scripts. Inspect status via `gitmap agent task status` or list subtasks via `gitmap agent subtask ls`.
    - If any worker fails to report, crashes, or times out, inspect status or diagnose:
      `gitmap agent task status` or `gitmap agent diagnose`
      This pinpoints the autopsy: which agent crashed, on which subtask, targeting which file, and the exact action that was executing when it failed.

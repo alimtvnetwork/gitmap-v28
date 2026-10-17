@@ -33,7 +33,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` | Strict zero-secrets policy; stores credentials exclusively in `repo-secrets` vault. |
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
-| ❌ Python SQLite task manager (`python 03-ai-scripts/46-agent-sqlite-task-manager.py`) | ✅ `gitmap agent <task|subtask|log|diagnose|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
+| ❌ Python SQLite task scripts or ad-hoc queries (`python -c "import sqlite3..."`) | ✅ `gitmap agent <task|subtask|log|diagnose|crashed|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
 | ❌ Modifying shared files blindly without checking multi-agent contention | ✅ `gitmap heatmap discuss` or `gitmap agent heatmap` | Ranks write claims, active leases, and collision blast radius across agents (<5ms). Prevents file lock crashes and concurrent overwrites. |
 
 ---
@@ -163,15 +163,25 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap sync --no-release` — Disables post-sync SemVer release tagging.
 - `gitmap sync --list` — Lists all 43 registered fleet repositories and paths.
 - `gitmap agent task init --name "<task>" --budget <N>` — Initializes SQLite task manager in `.ai-memory/temp-agents/<slug>/agent-task.db`.
+- `gitmap agent task status [--json] [--ddl]` — Emits structured task status, subtask progress, and schema validation.
+- `gitmap agent task ls` — Lists active and completed parent tasks across the workspace.
+- `gitmap agent task pending` — Lists or counts pending subtasks across agent tasks.
+- `gitmap agent task completed` — Lists completed root-level parent tasks with proof.
 - `gitmap agent subtask add --json '[...]'` — Adds decomposed subtasks to the task queue.
+- `gitmap agent subtask ls` — Lists all subtasks, their assignees, statuses, and file boxes.
 - `gitmap agent subtask claim --agent <agent-name>` — Claims the next pending subtask atomically.
+- `gitmap agent subtask claim-files` — Pre-declares file leases for collision and contention tracking.
 - `gitmap agent log --subtask <id> --agent <name> --action <action> --file <path> --details <desc>` — Logs in-flight agent action for crash forensics.
 - `gitmap agent subtask complete <id> --agent <name> --evidence <evidence>` — Marks subtask completed.
 - `gitmap agent subtask fail <id> --agent <name> --reason <reason>` — Marks subtask failed with reason.
-- `gitmap agent task status` — Emits machine-readable JSON summary of task progress.
 - `gitmap agent diagnose` — Performs deep autopsy and diagnostic reporting on agent task runs.
 - `gitmap agent crashed` — Detects crashed or abandoned agent tasks.
 - `gitmap agent temp-clear` — Safely deletes ephemeral `.ai-memory/temp-agents/` directory.
+
+> [!CAUTION]
+> **TOTAL BAN ON RAW PYTHON SQLITE (`python -c "import sqlite3..."`):**
+> NEVER run inline Python sqlite3 snippets or execute raw database queries against `.ai-memory/temp-agents/<slug>/agent-task.db`.
+> All agent task lifecycle operations, status inspections, claiming, logging, and diagnostics MUST use compiled `gitmap agent` CLI commands (`task init`, `task status`, `task ls`, `subtask add`, `subtask ls`, `subtask claim`, `subtask complete`, `subtask fail`, `log`, `diagnose`, `crashed`, `temp-clear`).
 
 ### 11. Fleet Telemetry & Running-Only Delegation
 - `gitmap nodes-running-only` (alias `gitmap nro`) — Lists strictly online/open nodes (`is_online: true`), filtering out offline noise.
@@ -207,3 +217,4 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 6. **Script Offloading:** Save all temporary diagnostics to `repo-cache` via `gitmap rc` to prevent dirty working trees.
 7. **Strict Relative Git Paths:** All paths and references must be relative to repository root (`02-spec/...`, `.ai-memory/...`); zero absolute paths and zero `file:///` URIs.
 8. **Zero Storage Ban:** Zero uploads to `actions/upload-artifact`. Maintain 0.0 GB Actions storage quota across all repositories.
+9. **Total Ban on Python SQLite Task Scripts:** NEVER run `python 03-ai-scripts/46-agent-sqlite-task-manager.py` or `python -c "import sqlite3..."`. Use native compiled `gitmap agent` subcommands exclusively.
