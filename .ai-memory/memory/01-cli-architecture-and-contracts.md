@@ -78,3 +78,15 @@ GitMap includes an embedded macro recording, serialization, and streaming replay
 - **Run-Until Assertions:** Supports regex-based assertion checks (`run_until: "exit code 0"` or pattern matches) to stop early or retry on transient errors.
 - **Execution Idempotency:** Macro steps specify preconditions (`exists`, `absent`, `matches`, `process_running`) to ensure safe repeat runs without state pollution.
 - **Interactive Macro Builder (`gitmap mb`):** CLI wizard allowing users to interactively record commands, inspect recorded arguments, and persist macros.
+
+---
+
+## 6. LLM Train Muse — Memory Vault Sync Contract
+
+`gitmap llm train muse [--days N]` (spec 277, `cli/cmd/llm/llm_train_muse.go`) syncs the Muse 7-day memory digest:
+
+- **Vault:** `alimtvnetwork/repo-cache` ("GitMap distributed shared cache and AI memory vault", private, created 2026-10-17). Digest root `12-muse-ai/` (NN-sequence convention). `repo-secrets` keeps secrets only (e.g. `11-go-email-reader/` email config) and is a backward-compatible fallback, never the primary.
+- **Resolution order** (`defaultResolveTrainingPath`): probe `repo-cache` candidates (special-repo key `rc`) for `12-muse-ai/` (or `XX-muse-ai/`) first; then `repo-secrets` candidates (key `rs`); then default clone target `repo-cache` via `gh repo clone` (fail-fast `gh auth` guidance, never prompts).
+- **Last-read watermark:** tracked by gitmap itself — vault HEAD SHA + UTC timestamp as JSON in `store.BinaryDataDir()` (0600). Never in an MD file. Keyed by vault path; a new vault path starts a fresh baseline. Output carries a SINCE LAST READ section (new commits / "unchanged" / first-run baseline).
+- **DECISION TRACE:** every run prints a numbered trace (checkout/clone/sync/window/order/search decisions, each with a why) plus why-annotations on the AI traversal checklist steps, so an AI learns the decision-making, not just the commands.
+- **Onboarding:** `repo-cache/12-muse-ai/00-new-muse-onboarding.md` is the paste-able 9-step new-Muse checklist (install → update → login → clone via `gitmap clone` → `gitmap pa` → read master prompt → `llm train muse` → email → `gitmap scan` → final report), every step ending with a REPORT.

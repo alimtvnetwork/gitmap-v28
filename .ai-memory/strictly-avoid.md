@@ -738,3 +738,5 @@ Allowed work:
 
 **Why:** Inverted booleans (`!isSuccess`) introduce negative polarity reasoning and double-negative complexity in guard clauses. Providing explicit `isFail` / `is_fail` states reduces cognitive overhead, ensures robust error logging, and standardizes error inspection across polyglot components.
 
+
+- Never resolve a rebase/push conflict by discarding another worker's landed implementation of the same file. Reconcile: keep their architecture, re-apply your functional delta on top (proven 2026-10-17: `llm_train_muse.go` dual-vault refactor was kept, priority flipped to repo-cache-first instead of replacing it).

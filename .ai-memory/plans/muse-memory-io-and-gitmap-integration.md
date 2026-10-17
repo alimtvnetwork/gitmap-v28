@@ -50,3 +50,11 @@ gitmap-v28: `.ai-memory/plans/muse-memory-io-and-gitmap-integration.md` (lead), 
 repo-secrets: `Muse/README.md`, `Muse/0N-*.md`, `Muse/chat-seeds/*.md`, `Muse/last-read.md`.
 coding-guidelines-v24: `01-prompts/27-muse-prompts/*`, skills, sync targets.
 go-email-reader: `04-conversation/2026-10-17-1045-muse-memory-io.md`, `README.md`.
+
+## Follow-ups (2026-10-17, same day — all DONE, committed+pushed, ls-remote-verified)
+
+- F1: numbered DECISION TRACE in terminal output (each step carries its why) + why-annotations on checklist steps; bugfix: existing repo-secrets dir at work-folder root reused without `rs` record.
+- F2: last-read watermark moved OUT of MD into gitmap itself (vault HEAD SHA + UTC timestamp JSON in `store.BinaryDataDir()`, 0600); SINCE LAST READ section; `Muse/last-read.md` deleted.
+- F3: digest folder renamed `Muse/` → `12-muse-ai/` (repo NN-sequence convention; user couldn't find it).
+- F4: email config documented from `repo-secrets/11-go-email-reader/` (password-only rule); new-muse onboarding instruction written (now 9-step report-back checklist in `repo-cache/12-muse-ai/00-new-muse-onboarding.md`).
+- F5: digest MOVED to `alimtvnetwork/repo-cache` ("GitMap distributed shared cache and AI memory vault", created 2026-10-17); deleted from repo-secrets (secrets stay). `llm train muse` reconciled with another worker's landed dual-vault refactor: kept their architecture, flipped priority to repo-cache-first (special-repo key `rc`), repo-secrets as fallback. Rebase conflict resolved without discarding landed work.
