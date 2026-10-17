@@ -191,6 +191,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `22-letterly` | [`22-letterly/08-run-letterly.md`](../01-prompts/22-letterly/08-run-letterly.md) | Run Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/09-execute-with-verification-letterly.md`](../01-prompts/22-letterly/09-execute-with-verification-letterly.md) | Execute with Verification Mode — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/10-execute-with-release-letterly.md`](../01-prompts/22-letterly/10-execute-with-release-letterly.md) | Execute with Release Mode — Letterly Prompt Formatter |
+| `22-letterly` | [`22-letterly/11-git-pull-first-letterly.md`](../01-prompts/22-letterly/11-git-pull-first-letterly.md) | Git Pull First — Letterly Prompt Formatter |
 | `22-letterly` | [`22-letterly/readme.md`](../01-prompts/22-letterly/readme.md) | Letterly Prompt Formatters (`22-letterly`) |
 | `23-cursor-prompts` | [`23-cursor-prompts/01-mobile-letterly-cursor.md`](../01-prompts/23-cursor-prompts/01-mobile-letterly-cursor.md) | Mobile Mode (Cursor) — Letterly Prompt Formatter |
 | `23-cursor-prompts` | [`23-cursor-prompts/02-desktop-letterly-cursor.md`](../01-prompts/23-cursor-prompts/02-desktop-letterly-cursor.md) | Desktop Mode (Cursor) — Letterly Prompt Formatter |
@@ -202,6 +203,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `23-cursor-prompts` | [`23-cursor-prompts/08-run-letterly-cursor.md`](../01-prompts/23-cursor-prompts/08-run-letterly-cursor.md) | Run Mode (Cursor) — Letterly Prompt Formatter |
 | `23-cursor-prompts` | [`23-cursor-prompts/09-execute-with-verification-letterly-cursor.md`](../01-prompts/23-cursor-prompts/09-execute-with-verification-letterly-cursor.md) | Execute with Verification Mode (Cursor) — Letterly Prompt Formatter |
 | `23-cursor-prompts` | [`23-cursor-prompts/10-execute-with-release-letterly-cursor.md`](../01-prompts/23-cursor-prompts/10-execute-with-release-letterly-cursor.md) | Execute with Release Mode (Cursor) — Letterly Prompt Formatter |
+| `23-cursor-prompts` | [`23-cursor-prompts/11-git-pull-first-letterly-cursor.md`](../01-prompts/23-cursor-prompts/11-git-pull-first-letterly-cursor.md) | Git Pull First (Cursor) — Letterly Prompt Formatter |
 | `23-cursor-prompts` | [`23-cursor-prompts/readme.md`](../01-prompts/23-cursor-prompts/readme.md) | Cursor Letterly Prompt Formatters (`23-cursor-prompts`) |
 | `24-sync` | [`24-sync/01-sync.md`](../01-prompts/24-sync/01-sync.md) | [V6] Full-Fleet Multi-Repository Synchronization & Canonical Mirroring Engine — Workflow (must follow) |
 | `24-sync` | [`24-sync/02-sync-other-codebase.md`](../01-prompts/24-sync/02-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
@@ -212,6 +214,10 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `26-gitmap` | [`26-gitmap/readme.md`](../01-prompts/26-gitmap/readme.md) | GitMap AI Training & Autonomous Automation Prompts (`26-gitmap`) |
 | `27-muse-prompts` | [`27-muse-prompts/01-muse-master-prompt.md`](../01-prompts/27-muse-prompts/01-muse-master-prompt.md) | [V6] MUSE MASTER ONBOARDING, FLEET ORCHESTRATION & AUTONOMOUS EXECUTION PROMPT — AGENT DIRECTIVE |
 | `27-muse-prompts` | [`27-muse-prompts/readme.md`](../01-prompts/27-muse-prompts/readme.md) | Muse Prompts (`27-muse-prompts`) — Index & Catalog |
+| `28-mastery-prompts` | [`28-mastery-prompts/01-mastery-bootstrap-prompt.md`](../01-prompts/28-mastery-prompts/01-mastery-bootstrap-prompt.md) | Mastery Bootstrap Prompt — foolproof standalone session starter |
+| `28-mastery-prompts` | [`28-mastery-prompts/readme.md`](../01-prompts/28-mastery-prompts/readme.md) | Mastery Prompts (`28-mastery-prompts`) — Index & Catalog |
+| `29-chat-management` | [`29-chat-management/01-chat-histories-reread-remove-and-recreate.md`](../01-prompts/29-chat-management/01-chat-histories-reread-remove-and-recreate.md) | Chat Histories: Re-read, Remove & Recreate (per-repo chats) |
+| `29-chat-management` | [`29-chat-management/readme.md`](../01-prompts/29-chat-management/readme.md) | 29 — Chat Management |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
 | `v4/13-plan-audit` | [`v4/13-plan-audit/01-inventory-pending-tasks.md`](../01-prompts/v4/13-plan-audit/01-inventory-pending-tasks.md) | Inventory Audit of Pending Tasks — Read-Only Proposal (must follow) |
 | `v4/13-plan-audit` | [`v4/13-plan-audit/02-plan-spec-steps-v2.md`](../01-prompts/v4/13-plan-audit/02-plan-spec-steps-v2.md) | any uppercase character, space, or underscore in an authored path = FAIL |

@@ -84,17 +84,14 @@ All config files use lowercase with dots or hyphens:
 ❌ Docker-Compose.yml
 ```
 
-### 7. README is Lowercase and LICENSE is UPPERCASE
+### 7. README and LICENSE Are UPPERCASE
 
-All documentation, README, and markdown files MUST be lowercase (`readme.md`). Only `LICENSE` is UPPERCASE. All markdown files must follow lowercase kebab-case, using two-digit sequence prefixes when sequenced (`nn-name.md`):
+These are the only exceptions to the lowercase rule:
 
 ```
 ✅ readme.md
 ✅ LICENSE
 ✅ changelog.md
-✅ 01-overview.md
-❌ README.md
-❌ 01-Overview.md
 ```
 
 ---

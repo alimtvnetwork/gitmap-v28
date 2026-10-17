@@ -17,3 +17,17 @@ Source prompt: `01-prompts/10-ui-and-design/01-logo-create.md`
 ## Goal
 
 This prompt instructs Lovable (and similar web design AI environments) to generate logo, icon, and branding assets for a given product or brand.
+
+## Core Architectural Invariants
+
+- **100% Transparent Canvas (`alpha = 0`):** All SVGs and PNG exports MUST have a 100% transparent canvas. NEVER add a solid background, dark card backdrop, or background `<rect>`.
+- **Dual-Mode Inverted Artwork Clarity:**
+  - Dark Mode means inverted high-luminance strokes ($L > 0.70$, e.g. `#ffffff`, `#fcd34d`, `#38bdf8`) on a 100% transparent canvas—NEVER a dark box container (`<rect>`).
+  - Light Mode uses rich, deep saturated hues ($L < 0.40$, e.g. `#0f172a`, `#1e1b4b`, `#1d4ed8`) on a 100% transparent canvas.
+- **SVG Precision & Quiet Zone:**
+  - Enforce an 8–10% inner quiet zone margin across all boundaries to prevent clipping at small favicon sizes (16px/32px) and app icons.
+  - Round all coordinates, paths, and dimensions to a maximum of 2 decimal places.
+  - Structure complex fills inside `<defs><linearGradient>` with unique lowercase IDs.
+  - Enforce accessibility attributes (`<title>`, `<desc>`, `role="img"`, `aria-labelledby`).
+  - Use `fill="currentColor"` or `stroke="currentColor"` for monochrome glyphs.
+- **Design Token Alignment:** Map SVG variables and color styles directly to design system tokens (`--pres-accent`, `--pres-text`, `--primary`, `--foreground`).

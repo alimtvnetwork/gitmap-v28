@@ -107,7 +107,21 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap pe history-ai` — Analyze CI/CD pipeline history across branches and recent runs.
 - `gitmap pipeline purge` — Actions zero-storage purge maintaining 0.0 GB footprint.
 
-### 7. Semantic Hyphen-Separated Commit & Push
+### 7. Semantic & Flat Commit Suite
+
+#### GitMap Commit & Release Commands
+| Command | Alias | Scope | Prefix Added | Auto Push | Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `gitmap commit "<message>"` | `gitmap cm "<msg>"` | Local only | None (verbatim) | No | Fast 1-step auto-stage (`git add -A`) and local commit for scratch/micro-steps. |
+| `gitmap cpf "<module> - <summary>"` | - | Remote | `Feature: ` | Yes | Stage all, commit feature, and push directly to GitHub tracking branch. |
+| `gitmap cpb "<module> - <summary>"` | - | Remote | `Bug: ` | Yes | Stage all, commit bugfix, and push directly to GitHub tracking branch. |
+| `gitmap cpc "<module> - <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore/maintenance, and push directly to GitHub tracking branch. |
+| `gitmap cpr "<module> - <summary>"` | - | Remote | Release Chore | Yes | Stage all, commit release chore, and push directly to GitHub tracking branch. |
+| `gitmap pcp "<module> - <summary>"` | - | Remote | Hyphen format | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
+
+#### Command Details & Behavioral Guidelines
+- `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing ('Feature: ', 'Bug: ') and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
+- `gitmap cpc "<module> - <summary>"` — Stage, commit, and push chore/maintenance branch (GitMap auto-prefixes `Chore: `).
 - `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: `).
 - `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: `).
 - `gitmap cpr "<module> - <summary>"` — Stage, commit, and push release chore.
@@ -118,6 +132,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap lowercase` (alias `gitmap lcf`) — Safe 2-step `git mv` file case normalization.
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
 - **TOTAL BAN ON COLONS IN COMMIT MESSAGES:** Never use colons inside commit arguments (e.g. `gitmap cpf "Feature: title"` is FORBIDDEN; use `gitmap cpf "module - title"`).
+- **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf "<module> - <summary>"` or an explicit remote push.
 
 ### 8. Autonomous Agent Onboarding, Curriculum & Memory Training (LLM)
 - `gitmap llm train [ai-name] [flags]` (aliases: `gitmap train`, `gitmap llm-train`, `gitmap llm chain`) — Full 6-phase self-looping onboarding curriculum (Discovery, Refactoring, Verification, Semantic Commit, Telemetry, Heal & Fix), auto-generates Antigravity skill, author/sponsor attribution.
@@ -174,7 +189,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap agent subtask claim-files` — Pre-declares file leases for collision and contention tracking.
 - `gitmap agent log --subtask <id> --agent <name> --action <action> --file <path> --details <desc>` — Logs in-flight agent action for crash forensics.
 - `gitmap agent subtask complete <id> --agent <name> --evidence <evidence>` — Marks subtask completed.
-- `gitmap agent subtask fail <id> --agent <name> --reason <reason>` — Marks subtask failed with reason.
+- `gitmap agent subtask join --subtask <id> --agent <name> --role "Assistant: <focus>"` — Dynamically joins an in-flight subtask as a collaborative assistant for parallel reading, caller analysis, or verification without file collisions.
+- `gitmap agent task tree` — Renders hierarchical task swarm tree (Lead Orchestrator -> Branch Coordinators -> Leaf Workers & Dynamic Assistants).
 - `gitmap agent diagnose` — Performs deep autopsy and diagnostic reporting on agent task runs.
 - `gitmap agent crashed` — Detects crashed or abandoned agent tasks.
 - `gitmap agent temp-clear` — Safely deletes ephemeral `.ai-memory/temp-agents/` directory.
@@ -200,11 +216,16 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap nodes tasks [--json] [--open-only]` — Queries local and remote node task queues with `?` role placeholder.
 
 ### 12. File Contention Heatmap & Agent Activity Observation
-- `gitmap heatmap [discuss|live] [--window <duration>] [--threshold <n>] [--json]` — Real-time agent concurrency and file contention visualizer highlighting active file touches, contention ranking, collision blast radius, and activity heatmap TreeView.
+- `gitmap heatmap log -t <task-slug> -a <action> -f <file> -r "<reasoning>" [-s <state>]` — Logs granular file touches, reads, modifications, and reasoning directly into the centralized heatmap database (`.ai-memory/heatmap.db`).
+- `gitmap heatmap search [query] [-f <file>] [-t <task>]` — Searches logged actions, code snippets, and reasoning notes across tasks and repositories.
+- `gitmap heatmap tree [-t <task-slug>]` — Renders hierarchical tree view of touched files, line ranges, and action counts.
+- `gitmap heatmap status [-t <task-slug>]` — Summary of actions logged, unique files touched, expectation metrics, and verification states.
+- `gitmap heatmap discuss [--window <duration>] [--threshold <n>] [--json]` — Multi-agent file contention analysis and collision blast radius report before touching shared files.
+- `gitmap heatmap live` — Real-time continuous stream of agent actions, file touches, and reasoning across concurrent agents.
+- `gitmap agent log --subtask <id> --agent "<name>" --action "<read|modify|plan>" --file "<path>" --details "<reasoning>"` — In-flight subtask action logging with explicit rationale.
 - `gitmap agent heatmap [--parent <slug>] [--json]` — Ranks files by write-claim count across agent tasks and active subtasks.
-- `gitmap agent-ai heatmap discuss` — Multi-agent file contention analysis and collision blast radius report before touching shared files.
 - `gitmap full-summary` (alias `gitmap fs`) — 48-hour active repository activity heatmap TreeView showing commit velocity and dirty working states.
-- **MANDATORY CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST run `gitmap heatmap discuss` or `gitmap agent heatmap` to inspect active file leases and contention hotspots before editing shared files.
+- **MANDATORY HEATMAP & CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via `gitmap heatmap log` or `gitmap agent log`, and inspect active file leases and contention hotspots via `gitmap heatmap discuss` before editing shared files.
 
 ---
 

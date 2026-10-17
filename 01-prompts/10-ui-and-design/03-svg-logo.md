@@ -19,7 +19,7 @@ This prompt instructs Lovable (and similar web design AI environments) on the ex
 3. **NO React / Vue Components:** NEVER generate `.tsx`, `.jsx`, or component files unless explicitly requested.
 4. **NO Base64 Raster Images:** NEVER embed base64-encoded bitmap images (`<image href="data:image/png;base64,...">`). All graphics MUST be pure mathematical vector paths, polygons, and curves.
 5. **NO Hardcoded Fixed Dimensions on Root:** NEVER include hardcoded `width="..."` and `height="..."` attributes on the root `<svg>` tag that prevent responsive scaling; use `viewBox` instead.
-6. **NO Solid Background Elements:** NEVER insert a background `<rect>` or container shape (e.g. `<rect width="100%" height="100%" fill="#000"/>` or `<rect fill="#fff"/>`). The canvas MUST remain 100% transparent. "Dark mode" SVGs invert the strokes/fills to lighter colors, but the background is ALWAYS transparent.
+6. **NO Solid Background Elements (TOTAL BAN ON CARD/CONTAINER RECTANGLES):** NEVER insert a background `<rect>` or container shape (e.g. `<rect width="100%" height="100%" fill="#000"/>` or `<rect fill="#fff"/>`). The canvas MUST remain 100% transparent (`alpha = 0`). Dark Mode strictly means inverted high-luminance strokes (luminance > 0.70, e.g. #FFFFFF, #FCD34D, #38BDF8) on a 100% transparent canvas—NEVER a dark box container (`<rect>`)! Light Mode uses rich saturated hues (luminance < 0.40). Artwork must float freely within the viewBox with an 8–10% quiet zone (inner safe margin) to eliminate edge clipping at small favicon sizes (16px/32px).
 7. **NO Messy Overlapping Lines:** NEVER create tangled, chaotic, or densely overlapping strokes. Overlapping lines make icons look muddy, unreadable at small sizes, and amateurish. Maintain clean geometric separation, purposeful negative space, or continuous connected paths.
 8. **NO Editor Bloat:** NEVER include third-party editor metadata (e.g., `xmlns:inkscape`, `sodipodi:docname`, `adobe:ns`).
 9. **NO Unstyled Elements in Monochrome:** NEVER use hardcoded black/white hex fills on monochrome icons; use `currentColor` so the icon inherits text color dynamically.
@@ -30,8 +30,18 @@ This prompt instructs Lovable (and similar web design AI environments) on the ex
 ## 1. Clean SVG Architecture & Design Principles
 
 - **Valid XML & SVG Syntax:** Ensure the output is fully valid XML and well-formed SVG markup.
-- **Responsive `viewBox`:** Always define an appropriate `viewBox` (e.g., `viewBox="0 0 24 24"` for UI icons, `viewBox="0 0 100 100"` for logos/illustrations).
+- **Responsive `viewBox`:** Always define an appropriate `viewBox` (e.g., `viewBox="0 0 24 24"` for UI icons, `viewBox="0 0 48 48"` for dock badges, `viewBox="0 0 100 100"` for logos/illustrations).
 - **Omit Hardcoded Dimensions:** Remove hardcoded `width` and `height` attributes on the root `<svg>` element so the icon scales responsively within its CSS container.
+- **100% Transparent Canvas (`alpha = 0`):** The root canvas must remain completely transparent. Never add a background `<rect>` or backdrop shape.
+- **Quiet Zone (8–10% Inner Padding):**
+  - All visual vector paths, strokes, and shapes must remain strictly within the inner 80–84% safe area of the `viewBox`.
+  - For `0 0 24 24`, maintain a minimum 2.00px quiet zone margin on all 4 boundaries (content bounds: `x: 2.00..22.00`, `y: 2.00..22.00`).
+  - For `0 0 48 48`, maintain a minimum 4.00px quiet zone margin (content bounds: `x: 4.00..44.00`, `y: 4.00..44.00`).
+  - For `0 0 100 100`, maintain an 8.00–10.00px quiet zone margin (content bounds: `x: 8.00..92.00`, `y: 8.00..92.00`).
+  - Eliminates edge clipping when rendered as desktop favicons (16px/32px) or mobile app icons.
+- **Coordinate Precision (2 Decimal Places):**
+  - All path data coordinates (`d="..."`), transforms, and dimensions must be rounded to a maximum of 2 decimal places (e.g., `d="M 12.00 2.50 L 20.00 4.50 ..."`).
+  - Eliminates floating-point bloat and guarantees deterministic parsing.
 - **Anti-Overlapping & Connected Geometry:** Rather than chaotic overlapping lines, connect visual elements purposefully ("connect the dots"). Use continuous smooth strokes, modular aligned shapes, or balanced negative space.
 - **Inspirational Archetypes:**
   - *Silhouette & Cutout (Apple model):* Bold solid mark with distinctive negative space.
@@ -50,18 +60,32 @@ This prompt instructs Lovable (and similar web design AI environments) on the ex
 - Always include a `<title>` and `<desc>` element for screen readers.
 - Assign matching `id` attributes to `<title>` and `<desc>` and link them via `aria-labelledby` on the root `<svg>`.
 - Add `role="img"` to the root `<svg>`.
+- Use `fill="currentColor"` or `stroke="currentColor"` for monochrome glyphs to dynamically adapt to parent typography and color tokens.
 
 ---
 
 ## 3. Theming & Color Strategy
 
+- **Dual-Mode Inverted Artwork Clarity:**
+  - **Dark Mode Requirement ($L > 0.70$):** Dark mode assets represent the artwork itself inverted for readability against dark host environments. Strokes and fills must utilize high-luminance tones (luminance > 0.70, e.g. `#ffffff`, `#fcd34d`, `#38bdf8`) on a **100% transparent canvas (`alpha = 0`)**—NEVER a dark box container (`<rect>`)!
+  - **Light Mode Requirement ($L < 0.40$):** Light mode assets utilize rich, dark, high-contrast saturated hues (luminance < 0.40, e.g. `#0f172a`, `#1e1b4b`, `#1d4ed8`) on a **100% transparent canvas**.
+
+| Mode | Canvas State | Stroke / Fill Luminance Range | Primary Palette Samples | Banned Elements |
+|:---|:---|:---|:---|:---|
+| **Dark Mode** | 100% Transparent (`alpha = 0`) | High Luminance ($L > 0.70$) | `#ffffff`, `#fcd34d`, `#38bdf8`, `#cbd5e1` | `<rect>` dark backdrops, dark cards |
+| **Light Mode** | 100% Transparent (`alpha = 0`) | Low Luminance ($L < 0.40$) | `#0f172a`, `#1e1b4b`, `#1e3a8a`, `#14532d` | Artificial border boxes, matte backgrounds |
+
+- **Design System Token Alignment:**
+  - Map SVG variables and styles directly to design system tokens:
+    - Presentation Engine Tokens: `var(--pres-accent, #38bdf8)`, `var(--pres-text, #f8fafc)`, `var(--pres-muted, #94a3b8)`.
+    - Tailwind / Shadcn Tokens: `var(--primary, #0f172a)`, `var(--foreground, #020817)`, `var(--muted-foreground, #64748b)`.
 - **Monochrome Icons:** Use `fill="currentColor"` or `stroke="currentColor"` so the icon seamlessly inherits text color from parent CSS.
-- **Multi-Color Logos:** Use semantic CSS variables (`var(--primary)`, `var(--accent)`) or clean standard hex codes.
-- **Gradients:** Place `<linearGradient>` and `<radialGradient>` definitions inside `<defs>` with semantic, unique IDs.
+- **Multi-Color Logos:** Use semantic CSS variables (`var(--pres-accent)`, `var(--primary)`) or clean standard hex codes.
+- **Gradients:** Place `<linearGradient>` and `<radialGradient>` definitions inside `<defs>` with semantic, unique lowercase IDs and explicit coordinate units.
 - **Variants (All 100% Transparent Canvas):** When generating brand sets, provide:
-  - `01-logo.svg`: Default full-color vector on a transparent canvas.
-  - `02-logo-dark.svg`: Dark mode variant with inverted, lighter, or vibrant strokes/fills designed for dark themes—on a **100% transparent canvas** (NO dark background `<rect>`).
-  - `03-logo-white.svg`: Pure white monochrome variant (`#ffffff`) strokes/fills on a **100% transparent canvas**.
+  - `01-logo.svg`: Default full-color vector on a 100% transparent canvas.
+  - `02-logo-dark.svg`: Dark mode variant with inverted high-luminance strokes/fills ($L > 0.70$) on a **100% transparent canvas** (NO dark background `<rect>`).
+  - `03-logo-white.svg`: Pure white monochrome variant (`#ffffff`, $L = 1.0$) strokes/fills on a **100% transparent canvas**.
 
 ---
 
@@ -69,14 +93,25 @@ This prompt instructs Lovable (and similar web design AI environments) on the ex
 
 ### Version 1: Static Vector SVG Icon (Default)
 
-Generates a clean, production-grade vector icon with full responsive scaling, accessibility tags, and `currentColor` support.
+Generates a clean, production-grade vector icon with full responsive scaling, 8–10% quiet zone, 2-decimal rounded precision, accessibility tags, and `currentColor` support.
 
 ```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-labelledby="shield-check-title shield-check-desc">
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2.00"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role="img"
+  aria-labelledby="shield-check-title shield-check-desc"
+>
   <title id="shield-check-title">Security Verified</title>
-  <desc id="shield-check-desc">A shield icon containing a checkmark indicating verified security status.</desc>
-  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-  <path d="m9 12 2 2 4-4" />
+  <desc id="shield-check-desc">A shield icon containing a checkmark inside a 2.00px quiet zone.</desc>
+  <!-- Content strictly bounded inside 2.00px quiet zone (2.00 to 22.00) -->
+  <path d="M 12.00 21.50 C 12.00 21.50 20.00 17.50 20.00 11.50 L 20.00 4.50 L 12.00 2.50 L 4.00 4.50 L 4.00 11.50 C 4.00 17.50 12.00 21.50 12.00 21.50 Z" />
+  <path d="M 9.00 11.50 L 11.00 13.50 L 15.00 9.50" />
 </svg>
 ```
 

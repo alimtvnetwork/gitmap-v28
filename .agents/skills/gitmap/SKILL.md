@@ -34,8 +34,6 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
 | ❌ Python SQLite task scripts or ad-hoc queries (`python -c "import sqlite3..."`) | ✅ `gitmap agent <task|subtask|log|diagnose|crashed|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
-| ❌ Ad-hoc Python SQLite schema/table inspection (`python -c "import sqlite3..."`) | ✅ `gitmap db <tables|schema|columns|query|list>` | Instant (<1ms) compiled Go introspection with formatted ANSI tables, JSON streaming, and zero Python startup delay. |
-| ❌ Untracked file edits and unverified reasoning steps | ✅ `gitmap heatmap log --task <slug> --action <type> --file <path>` | Microsecond cognitive decision tracking with execution trees and touch frequency analytics in SQLite split-db. |
 | ❌ Modifying shared files blindly without checking multi-agent contention | ✅ `gitmap heatmap discuss` or `gitmap agent heatmap` | Ranks write claims, active leases, and collision blast radius across agents (<5ms). Prevents file lock crashes and concurrent overwrites. |
 
 ---
@@ -109,7 +107,21 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap pe history-ai` — Analyze CI/CD pipeline history across branches and recent runs.
 - `gitmap pipeline purge` — Actions zero-storage purge maintaining 0.0 GB footprint.
 
-### 7. Semantic Hyphen-Separated Commit & Push
+### 7. Semantic & Flat Commit Suite
+
+#### GitMap Commit & Release Commands
+| Command | Alias | Scope | Prefix Added | Auto Push | Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `gitmap commit "<message>"` | `gitmap cm "<msg>"` | Local only | None (verbatim) | No | Fast 1-step auto-stage (`git add -A`) and local commit for scratch/micro-steps. |
+| `gitmap cpf "<module> - <summary>"` | - | Remote | `Feature: ` | Yes | Stage all, commit feature, and push directly to GitHub tracking branch. |
+| `gitmap cpb "<module> - <summary>"` | - | Remote | `Bug: ` | Yes | Stage all, commit bugfix, and push directly to GitHub tracking branch. |
+| `gitmap cpc "<module> - <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore/maintenance, and push directly to GitHub tracking branch. |
+| `gitmap cpr "<module> - <summary>"` | - | Remote | Release Chore | Yes | Stage all, commit release chore, and push directly to GitHub tracking branch. |
+| `gitmap pcp "<module> - <summary>"` | - | Remote | Hyphen format | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
+
+#### Command Details & Behavioral Guidelines
+- `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing ('Feature: ', 'Bug: ') and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
+- `gitmap cpc "<module> - <summary>"` — Stage, commit, and push chore/maintenance branch (GitMap auto-prefixes `Chore: `).
 - `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: `).
 - `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: `).
 - `gitmap cpr "<module> - <summary>"` — Stage, commit, and push release chore.
@@ -120,6 +132,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap lowercase` (alias `gitmap lcf`) — Safe 2-step `git mv` file case normalization.
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
 - **TOTAL BAN ON COLONS IN COMMIT MESSAGES:** Never use colons inside commit arguments (e.g. `gitmap cpf "Feature: title"` is FORBIDDEN; use `gitmap cpf "module - title"`).
+- **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf "<module> - <summary>"` or an explicit remote push.
 
 ### 8. Autonomous Agent Onboarding, Curriculum & Memory Training (LLM)
 - `gitmap llm train [ai-name] [flags]` (aliases: `gitmap train`, `gitmap llm-train`, `gitmap llm chain`) — Full 6-phase self-looping onboarding curriculum (Discovery, Refactoring, Verification, Semantic Commit, Telemetry, Heal & Fix), auto-generates Antigravity skill, author/sponsor attribution.
@@ -176,7 +189,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap agent subtask claim-files` — Pre-declares file leases for collision and contention tracking.
 - `gitmap agent log --subtask <id> --agent <name> --action <action> --file <path> --details <desc>` — Logs in-flight agent action for crash forensics.
 - `gitmap agent subtask complete <id> --agent <name> --evidence <evidence>` — Marks subtask completed.
-- `gitmap agent subtask fail <id> --agent <name> --reason <reason>` — Marks subtask failed with reason.
+- `gitmap agent subtask join --subtask <id> --agent <name> --role "Assistant: <focus>"` — Dynamically joins an in-flight subtask as a collaborative assistant for parallel reading, caller analysis, or verification without file collisions.
+- `gitmap agent task tree` — Renders hierarchical task swarm tree (Lead Orchestrator -> Branch Coordinators -> Leaf Workers & Dynamic Assistants).
 - `gitmap agent diagnose` — Performs deep autopsy and diagnostic reporting on agent task runs.
 - `gitmap agent crashed` — Detects crashed or abandoned agent tasks.
 - `gitmap agent temp-clear` — Safely deletes ephemeral `.ai-memory/temp-agents/` directory.
@@ -202,37 +216,16 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap nodes tasks [--json] [--open-only]` — Queries local and remote node task queues with `?` role placeholder.
 
 ### 12. File Contention Heatmap & Agent Activity Observation
-- `gitmap heatmap [discuss|live] [--window <duration>] [--threshold <n>] [--json]` — Real-time agent concurrency and file contention visualizer highlighting active file touches, contention ranking, collision blast radius, and activity heatmap TreeView.
+- `gitmap heatmap log -t <task-slug> -a <action> -f <file> -r "<reasoning>" [-s <state>]` — Logs granular file touches, reads, modifications, and reasoning directly into the centralized heatmap database (`.ai-memory/heatmap.db`).
+- `gitmap heatmap search [query] [-f <file>] [-t <task>]` — Searches logged actions, code snippets, and reasoning notes across tasks and repositories.
+- `gitmap heatmap tree [-t <task-slug>]` — Renders hierarchical tree view of touched files, line ranges, and action counts.
+- `gitmap heatmap status [-t <task-slug>]` — Summary of actions logged, unique files touched, expectation metrics, and verification states.
+- `gitmap heatmap discuss [--window <duration>] [--threshold <n>] [--json]` — Multi-agent file contention analysis and collision blast radius report before touching shared files.
+- `gitmap heatmap live` — Real-time continuous stream of agent actions, file touches, and reasoning across concurrent agents.
+- `gitmap agent log --subtask <id> --agent "<name>" --action "<read|modify|plan>" --file "<path>" --details "<reasoning>"` — In-flight subtask action logging with explicit rationale.
 - `gitmap agent heatmap [--parent <slug>] [--json]` — Ranks files by write-claim count across agent tasks and active subtasks.
-- `gitmap agent-ai heatmap discuss` — Multi-agent file contention analysis and collision blast radius report before touching shared files.
 - `gitmap full-summary` (alias `gitmap fs`) — 48-hour active repository activity heatmap TreeView showing commit velocity and dirty working states.
-- **MANDATORY CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST run `gitmap heatmap discuss` or `gitmap agent heatmap` to inspect active file leases and contention hotspots before editing shared files.
-
-### 13. Native SQLite DB & Schema Introspection
-- `gitmap db tables [db-path] [--json]` — Discover tables, views, column counts, and record counts (<1ms).
-- `gitmap db schema [table] [--db <path>] [--json]` — Dump formatted CREATE TABLE and index DDLs.
-- `gitmap db columns <table> [--db <path>] [--json]` — Inspect column names, types, nullability, defaults, and primary key badges.
-- `gitmap db query "<SQL>" [--db <path>] [--json]` — Execute read-only SQL queries with formatted table or JSON output.
-- `gitmap db list <table> [--limit N] [--db <path>] [--json]` — Display formatted table records.
-- Semantic `--db` shortcuts: `master`, `gitmap`, `heatmap`, `pipeline`, `tasks`, `agent-task`, or direct file path.
-
-### 14. AI Decision Heatmap & Cognitive Step Tracking
-- `gitmap heatmap log --task <slug> --action <READ|ANALYZE|MODIFY|EXEC_CMD> --file <path> [--lines <start-end>] [--reason <notes>] [--expected <outcome>] [--parent <id>]` — Logs an AI cognitive decision step, file touch, and reasoning state.
-- `gitmap heatmap search "<query>" [--task <slug>] [--file <path>] [--json]` — Searches action logs by query, task, or file.
-- `gitmap heatmap tree [--task <slug>] [--json]` — Renders hierarchical causal execution tree.
-- `gitmap heatmap status [--task <slug>] [--json]` — Summarizes action volume, expectations met %, reasoning states, and top touched files.
-
-### 15. Python DB Introspection to Native GitMap Migration Guide
-
-AI agents must cease using ad-hoc Python snippets (`python -c "import sqlite3..."`) and switch to native `gitmap db` commands:
-
-| Legacy Python Snippet | Mandatory Native GitMap Command |
-| :--- | :--- |
-| `python -c "import sqlite3; conn = sqlite3.connect('gitmap.db'); print([r[0] for r in conn.execute('SELECT name FROM sqlite_master WHERE type=\'table\'').fetchall()])"` | `gitmap db tables` or `gitmap db tables --db master` |
-| `python -c "import sqlite3; conn = sqlite3.connect('tasks.db'); print(conn.execute('SELECT sql FROM sqlite_master WHERE name=\'TaskRecord\'').fetchone()[0])"` | `gitmap db schema TaskRecord --db tasks` |
-| `python -c "import sqlite3; conn = sqlite3.connect('agent-task.db'); print([r[1] for r in conn.execute('PRAGMA table_info(AgentSubtask)').fetchall()])"` | `gitmap db columns AgentSubtask --db agent-task` |
-| `python -c "import sqlite3; conn = sqlite3.connect('pipeline.db'); print(conn.execute('SELECT * FROM PipelineRun ORDER BY CreatedAt DESC LIMIT 5').fetchall())"` | `gitmap db query "SELECT * FROM PipelineRun ORDER BY CreatedAt DESC LIMIT 5" --db pipeline` |
-| `python -c "import sqlite3; conn = sqlite3.connect('...'); ..."` | `gitmap db list <table> --limit 20 --json` |
+- **MANDATORY HEATMAP & CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via `gitmap heatmap log` or `gitmap agent log`, and inspect active file leases and contention hotspots via `gitmap heatmap discuss` before editing shared files.
 
 ---
 
@@ -247,5 +240,3 @@ AI agents must cease using ad-hoc Python snippets (`python -c "import sqlite3...
 7. **Strict Relative Git Paths:** All paths and references must be relative to repository root (`02-spec/...`, `.ai-memory/...`); zero absolute paths and zero `file:///` URIs.
 8. **Zero Storage Ban:** Zero uploads to `actions/upload-artifact`. Maintain 0.0 GB Actions storage quota across all repositories.
 9. **Total Ban on Python SQLite Task Scripts:** NEVER run `python 03-ai-scripts/46-agent-sqlite-task-manager.py` or `python -c "import sqlite3..."`. Use native compiled `gitmap agent` subcommands exclusively.
-10. **Total Ban on Python SQLite Introspection:** NEVER run inline Python to introspect SQLite databases. Use native compiled `gitmap db` (`tables`, `schema`, `columns`, `query`, `list`) and `gitmap heatmap` (`log`, `search`, `tree`, `status`).
-
