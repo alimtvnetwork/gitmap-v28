@@ -565,7 +565,14 @@ func handleDispatchResult(
 func dispatch(command string) {
 	auditID, auditStart, shouldAudit := cmdaudit.BeginCommandAudit(command, os.Args[2:])
 
-	found, err := cmduser.DispatchUser(command)
+	// Program 275: new commands route first (two-word forms like
+	// `pe triage` must win over the `pe` pipeline-errors alias).
+	found, err := dispatch275(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
+	found, err = cmduser.DispatchUser(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}

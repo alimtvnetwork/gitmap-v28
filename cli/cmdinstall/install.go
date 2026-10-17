@@ -74,6 +74,23 @@ func runInstall(args []string) error {
 		return nil
 	}
 
+	// Program 275: `install verify` / `install urls` subcommands.
+	if isInstallVerifyCommand(args) {
+		if appErr := RunInstallVerify(args[1:]); appErr != nil {
+			return appErr
+		}
+
+		return nil
+	}
+
+	if isInstallURLsCommand(args) {
+		if appErr := RunInstallURLs(args[1:]); appErr != nil {
+			return appErr
+		}
+
+		return nil
+	}
+
 	if isInstallLogsCommand(args) {
 		return runInstallLogs(extractInstallLogsArgs(args))
 	}

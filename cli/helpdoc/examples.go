@@ -50,6 +50,7 @@ func buildHelpExampleRegistry() map[string]HelpExample {
 	registerDevExamples(reg)
 	registerOpsExamples(reg)
 	registerMergeWriteExamples(reg)
+	register275Examples(reg)
 	deriveSummaryExamples(reg)
 	deriveFileExamples(reg)
 

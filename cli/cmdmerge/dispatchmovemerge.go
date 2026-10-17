@@ -22,6 +22,12 @@ func DispatchMoveMerge(command string) (bool, error) {
 		return true, nil
 	}
 
+	// Program 275: `mr list|view|merge|checkout` route to the mr family
+	// before the merge-write branch below (bare `mr` still opens a PR).
+	if handled, err := dispatchMrFamily(command, os.Args[2:]); handled {
+		return true, err
+	}
+
 	if isMergeWriteInvocation(command, os.Args) {
 		if appErr := runMergeWrite(stripMergeWriteSubcommand(os.Args[2:])); appErr != nil {
 			return true, appErr

@@ -26,6 +26,28 @@ func RunRelease(args []string) error {
 		if sub == "pin-not-to-remove" || sub == "pnr" {
 			return RunReleasePinNotToRemove(args[1:])
 		}
+		// Program 275: release verify / winscan / train subcommands.
+		if sub == "verify" {
+			if appErr := RunReleaseVerify(args[1:]); appErr != nil {
+				return appErr
+			}
+
+			return nil
+		}
+		if sub == "winscan" {
+			if appErr := RunReleaseWinScan(args[1:]); appErr != nil {
+				return appErr
+			}
+
+			return nil
+		}
+		if sub == "train" || sub == "rtrain" {
+			if appErr := RunReleaseTrain(args[1:]); appErr != nil {
+				return appErr
+			}
+
+			return nil
+		}
 	}
 
 	if tryCrossDirRelease(args) {

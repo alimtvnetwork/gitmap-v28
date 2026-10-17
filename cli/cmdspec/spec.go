@@ -99,6 +99,10 @@ func DispatchSpec(command string) (bool, error) {
 		return true, runSpecNext(rest[1:])
 	}
 
+	if sub == "progress" {
+		return true, RunSpecProgress(rest[1:])
+	}
+
 	fmt.Print(specUsage)
 
 	return true, fmt.Errorf("unknown spec subcommand: %s", sub)

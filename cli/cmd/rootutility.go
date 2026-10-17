@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfindnext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixauth"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixreleasetags"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhelp"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlfscommon"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
@@ -200,6 +201,16 @@ func runHelpDispatch() error {
 	isHelpExample := len(os.Args) >= 3 && strings.EqualFold(os.Args[2], "example")
 	if isHelpExample {
 		dispatchHelpExample(os.Args[3:])
+
+		return nil
+	}
+
+	// Program 275: `gitmap help topic <name>` routes to the topic index
+	// before the generic topic lookup below.
+	if len(os.Args) >= 3 && strings.EqualFold(os.Args[2], "topic") {
+		if appErr := cmdhelp.RunHelpTopic(os.Args[3:]); appErr != nil {
+			return appErr
+		}
 
 		return nil
 	}

@@ -36,6 +36,8 @@ func routeDbSubcommand(sub string, tail []string) result.ErrorWrapper {
 		return result.MatchWrapper(runDBRepoDB(tail))
 	case "sizes", "size":
 		return result.MatchWrapper(runDBSizes(tail))
+	case "doctor", "doc":
+		return result.MatchWrapperAppErr(RunDbDoctor(tail))
 	case "reset":
 		return result.MatchWrapper(runDbResetAction(tail))
 	case "clear":

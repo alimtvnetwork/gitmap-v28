@@ -24,7 +24,7 @@ import (
 // exportFileName is the JSON file written inside the machine-slug folder.
 const exportFileName = "repos.json"
 
-// isScanSubcommand reports whether arg is a scan verb (export|merge).
+// isScanSubcommand reports whether arg is a scan verb (export|merge|diff|verify).
 func isScanSubcommand(arg string) string {
 	low := strings.TrimPrefix(strings.ToLower(arg), "--")
 	switch low {
@@ -32,6 +32,10 @@ func isScanSubcommand(arg string) string {
 		return "export"
 	case "merge":
 		return "merge"
+	case "diff":
+		return "diff"
+	case "verify":
+		return "verify"
 	default:
 		return ""
 	}
@@ -56,6 +60,10 @@ func dispatchScanSubcommand(subcmd string, subArgs []string) error {
 		return RunScanExport(subArgs)
 	case "merge":
 		return RunScanMerge(subArgs)
+	case "diff":
+		return RunScanDiff(subArgs)
+	case "verify":
+		return RunScanVerify(subArgs)
 	default:
 		return nil
 	}
