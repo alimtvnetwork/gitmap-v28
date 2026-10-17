@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.569.0] - 2026-10-17
+
+### Added
+- pipeline-pe - parallelize log downloads, fast ANSI bypass, and SQLite PipelineShaCache speedup
+
+---
+
 ## [v6.568.0] - 2026-10-17
 
 ### Added
