@@ -11,14 +11,9 @@ import (
 
 // RunUndoFlatten restores a flattened repository from its -marked-for-deletion archive.
 func RunUndoFlatten(repoName string) error {
-	trimmed := strings.TrimSpace(repoName)
-	if trimmed == "" || trimmed == "." {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return fmt.Errorf("resolve current working directory: %w", err)
-		}
-
-		trimmed = filepath.Base(cwd)
+	trimmed, err := resolveDefaultRepoName(repoName)
+	if err != nil {
+		return err
 	}
 
 	absPath, err := filepath.Abs(trimmed)
@@ -31,31 +26,18 @@ func RunUndoFlatten(repoName string) error {
 	canonicalName := strings.TrimSuffix(baseName, "-marked-for-deletion")
 	archiveName := canonicalName + "-marked-for-deletion"
 
-	canonicalPath := filepath.Join(parentDir, canonicalName)
-	archivePath := filepath.Join(parentDir, archiveName)
-
-	if _, err := os.Stat(archivePath); os.IsNotExist(err) {
-		cwd, _ := os.Getwd()
-		cwdArchive := filepath.Join(cwd, archiveName)
-		if _, cwdErr := os.Stat(cwdArchive); cwdErr == nil {
-			archivePath = cwdArchive
-			canonicalPath = filepath.Join(cwd, canonicalName)
-			parentDir = cwd
-		} else {
-			return fmt.Errorf("archive %q not found for repository %q (expected %s)", archiveName, canonicalName, archivePath)
-		}
+	resolvedParent, canonicalPath, archivePath, err := locateArchivePaths(parentDir, canonicalName, archiveName)
+	if err != nil {
+		return err
 	}
 
 	cwd, _ := os.Getwd()
 	if isInsideOrSameDir(cwd, canonicalPath) {
-		_ = os.Chdir(parentDir)
+		_ = os.Chdir(resolvedParent)
 	}
 
-	if _, err := os.Stat(canonicalPath); err == nil {
-		fmt.Printf("Removing flattened working tree %s...\n", canonicalPath)
-		if err := os.RemoveAll(canonicalPath); err != nil {
-			return fmt.Errorf("remove existing flattened repository %s: %w", canonicalPath, err)
-		}
+	if err := removeExistingCanonicalPath(canonicalPath); err != nil {
+		return err
 	}
 
 	fmt.Printf("Restoring %s from %s...\n", canonicalName, archiveName)
@@ -66,6 +48,43 @@ func RunUndoFlatten(repoName string) error {
 	fmt.Printf("\n%s✓ Repository %s successfully restored from %s!%s\n", constants.ColorGreen, canonicalName, archiveName, constants.ColorReset)
 	fmt.Printf("  Restored Path: %s\n\n", canonicalPath)
 
+	return nil
+}
+
+func resolveDefaultRepoName(name string) (string, error) {
+	trimmed := strings.TrimSpace(name)
+	if trimmed != "" && trimmed != "." {
+		return trimmed, nil
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("resolve current working directory: %w", err)
+	}
+	return filepath.Base(cwd), nil
+}
+
+func locateArchivePaths(parentDir, canonicalName, archiveName string) (string, string, string, error) {
+	canonicalPath := filepath.Join(parentDir, canonicalName)
+	archivePath := filepath.Join(parentDir, archiveName)
+	if _, err := os.Stat(archivePath); err == nil {
+		return parentDir, canonicalPath, archivePath, nil
+	}
+	cwd, _ := os.Getwd()
+	cwdArchive := filepath.Join(cwd, archiveName)
+	if _, cwdErr := os.Stat(cwdArchive); cwdErr == nil {
+		return cwd, filepath.Join(cwd, canonicalName), cwdArchive, nil
+	}
+	return "", "", "", fmt.Errorf("archive %q not found for repository %q (expected %s)", archiveName, canonicalName, archivePath)
+}
+
+func removeExistingCanonicalPath(canonicalPath string) error {
+	if _, err := os.Stat(canonicalPath); os.IsNotExist(err) {
+		return nil
+	}
+	fmt.Printf("Removing flattened working tree %s...\n", canonicalPath)
+	if err := os.RemoveAll(canonicalPath); err != nil {
+		return fmt.Errorf("remove existing flattened repository %s: %w", canonicalPath, err)
+	}
 	return nil
 }
 

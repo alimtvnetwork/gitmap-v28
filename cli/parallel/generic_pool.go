@@ -16,10 +16,10 @@ const DefaultMaxConcurrency = 20
 // If requested <= 0, it uses runtime.NumCPU(), defaulting to at least DefaultMinConcurrency
 // (4) and capped at DefaultMaxConcurrency (20).
 func ResolveConcurrency(requested int) int {
+	if requested > DefaultMaxConcurrency {
+		return DefaultMaxConcurrency
+	}
 	if requested > 0 {
-		if requested > DefaultMaxConcurrency {
-			return DefaultMaxConcurrency
-		}
 		return requested
 	}
 

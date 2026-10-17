@@ -20,10 +20,11 @@ func RunTrain(args []string) *apperror.AppError {
 		return err
 	}
 	opts.TrainTarget = target
+	if opts.IsHelp && opts.TrainTarget == museTrainTarget {
+		printTrainMuseUsage()
+		return nil
+	}
 	if opts.IsHelp {
-		if opts.TrainTarget == museTrainTarget {
-			printTrainMuseUsage()
-		}
 		return nil
 	}
 	if opts.TrainTarget == museTrainTarget {
