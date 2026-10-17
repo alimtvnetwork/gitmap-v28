@@ -89,4 +89,3 @@ func (p *PullProgressBar) sortedWorkerIDs() []int {
 
 	return ids
 }
-

@@ -216,4 +216,3 @@ func hasHelpFlag(args []string) bool {
 	}
 	return false
 }
-
