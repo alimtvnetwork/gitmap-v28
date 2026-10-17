@@ -20,6 +20,12 @@ All previous fragmented memory notes, legacy audit reports, and temporary logs h
 | **07** | [07-pipeline-diagnostics-and-telemetry.md](07-pipeline-diagnostics-and-telemetry.md) | CI/CD pipeline telemetry (`gitmap pe`, `gitmap pea`), bounded stack trace extraction (5 leading + 20 trailing lines), heatmap telemetry, dynamic ETA sleep sync (`runner-eta.json`), and 4-part RCA framework. |
 | **08** | [08-distribution-installers-and-release.md](08-distribution-installers-and-release.md) | Cross-platform execution runners (`run.ps1`, `run.sh`), `run.config.json` driver, NSIS Windows installer, Linux archives (`.tar.gz`), centralized `version.json`, and untouchable CI release pipeline invariant. |
 
+## Session Records (not domain references)
+
+| File | Session Coverage |
+| :--- | :--- |
+| [09-session-programs-271-275-2026-10-17.md](09-session-programs-271-275-2026-10-17.md) | 2026-10-17 side-chat session: programs 271 (nc revert), 272 (deprecation/coverage/codegen), 273 (help+themes+mr), 274 (CI green loop), 275 (30 commands). Decisions, bugs found, lessons, open items. |
+
 ---
 
 ## Governance & Hygiene Rules

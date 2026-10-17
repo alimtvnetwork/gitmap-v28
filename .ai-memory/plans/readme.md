@@ -80,6 +80,17 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 
 ---
 
+## 2b. Recently Completed (awaiting milestone consolidation)
+
+- [271-improvement-program.md](271-improvement-program.md) — Program 271: workflow bug fixes, dead code 36→0, deprecation hook, v6.551.0; WS2 nc auto-discovery reverted as broken (Status: `completed` 2026-10-15)
+- [272-decision-record-improvement-scope.md](272-decision-record-improvement-scope.md) — Owner decision: items 1–3 approved, 4–6 explicitly NOT approved (Status: `completed` 2026-10-15)
+- [272-deprecation-coverage-nc-codegen.md](272-deprecation-coverage-nc-codegen.md) — Deprecation policy removed, coverage floor gate, nc codegen, v6.553.0 (Status: `completed` 2026-10-15)
+- [273-gitmap-help-text-and-ui-enhancement.md](273-gitmap-help-text-and-ui-enhancement.md) — 4 design-system themes, `help example`, `mr` command, 20 proposals, virus RCA (Status: `completed` 2026-10-16)
+- [274-cicd-verification-and-enhancement.md](274-cicd-verification-and-enhancement.md) — CI 44/44 green, v6.558.0, 10 proposals + 20 improvements, 2 E2E bugs documented (Status: `completed` 2026-10-17)
+- [275-implement-30-new-commands.md](275-implement-30-new-commands.md) — All 30 proposals implemented, E2E 30/30, v6.559.0 (Status: `completed` 2026-10-17)
+
+---
+
 ## 3. Pending Plans
 
 The following plans are protected by the Strict Pending Isolation Boundary and remain untouched:

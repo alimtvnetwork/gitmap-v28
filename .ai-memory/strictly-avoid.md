@@ -740,3 +740,5 @@ Allowed work:
 
 
 - Never resolve a rebase/push conflict by discarding another worker's landed implementation of the same file. Reconcile: keep their architecture, re-apply your functional delta on top (proven 2026-10-17: `llm_train_muse.go` dual-vault refactor was kept, priority flipped to repo-cache-first instead of replacing it).
+
+- Never run `git add -A` blindly when subagent workers are active: a worker's out-of-scope files get swept into your commit. Always `git status --porcelain` first and stage only intended paths (proven 2026-10-17: rogue worker's spec-276/277 files were caught via `git show --stat` after the fact; history had to be reset and legitimate changes re-applied).
