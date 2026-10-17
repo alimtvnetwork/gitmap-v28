@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
 // FlattenOptions captures CLI arguments and flags for repo flattening.
@@ -19,6 +20,11 @@ type FlattenOptions struct {
 
 // RunFlattenCmd executes `gitmap repo flatten` and `gitmap flatten`.
 func RunFlattenCmd(args []string) error {
+	if hasHelpFlag(args) {
+		helpdoc.Print("flatten")
+		return nil
+	}
+
 	opts, err := parseFlattenArgs(args)
 	if err != nil {
 		return err
@@ -201,3 +207,13 @@ func printSuccessSummary(repoName, absTarget, archivePath string) {
 	fmt.Printf("  Archived Bloated Repo:  %s\n", archivePath)
 	fmt.Printf("\n  %sTo undo: gitmap repo undo-flatten %s%s\n\n", constants.ColorCyan, repoName, constants.ColorReset)
 }
+
+func hasHelpFlag(args []string) bool {
+	for _, arg := range args {
+		if arg == "-h" || arg == "--help" || arg == "help" {
+			return true
+		}
+	}
+	return false
+}
+

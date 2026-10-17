@@ -89,10 +89,14 @@ func resolveHighPerfConcurrency(cores int) int {
 	if cores < 1 {
 		return 1
 	}
-	if cores > 20 {
-		return 20
+	scaled := cores * 3
+	if scaled < 12 {
+		scaled = 12
 	}
-	return cores
+	if scaled > 24 {
+		return 24
+	}
+	return scaled
 }
 
 func resolveLowCPUConcurrency(cores int) int {
@@ -110,8 +114,12 @@ func resolveAutoProfileConcurrency(cores int) int {
 	if cores < 1 {
 		return 1
 	}
-	if cores > 20 {
+	scaled := cores * 2
+	if scaled < 8 {
+		scaled = 8
+	}
+	if scaled > 20 {
 		return 20
 	}
-	return cores
+	return scaled
 }

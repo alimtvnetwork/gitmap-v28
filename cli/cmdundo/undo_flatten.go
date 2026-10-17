@@ -11,6 +11,11 @@ import (
 
 // RunUndoFlatten restores a flattened repository from its -marked-for-deletion archive.
 func RunUndoFlatten(repoName string) error {
+	if repoName == "-h" || repoName == "--help" || repoName == "help" {
+		fmt.Printf("Usage: gitmap repo undo-flatten [repo]\n\nRestore a flattened repository from its <repo>-marked-for-deletion backup archive.\n")
+		return nil
+	}
+
 	trimmed, err := resolveDefaultRepoName(repoName)
 	if err != nil {
 		return err

@@ -93,6 +93,47 @@ var howtoRecipes = []howtoRecipe{
 			"gitmap scan",
 		},
 	},
+	{
+		keywords: []string{"conflict", "conflicts", "merge conflict", "rebase conflict", "unmerged"},
+		title:    "resolve merge and rebase conflicts",
+		topic:    "conflicts",
+		steps: []string{
+			"gitmap conflicts",
+			"gitmap resolve --ide",
+			"gitmap resolve --theirs",
+			"gitmap cpf \"resolve conflicts\"",
+		},
+	},
+	{
+		keywords: []string{"split", "split large", "large file", "multipart", "zip chunks"},
+		title:    "split large files into multipart ZIP chunks",
+		topic:    "storage",
+		steps: []string{
+			"gitmap split large files --dry-run",
+			"gitmap split large files --size=10MB -y",
+			"gitmap cpf \"split large files into chunks\"",
+		},
+	},
+	{
+		keywords: []string{"lfs", "git-lfs", "git lfs", "convert lfs", "large asset"},
+		title:    "convert large binary files to Git LFS",
+		topic:    "storage",
+		steps: []string{
+			"gitmap lfs convert --dry-run",
+			"gitmap lfs convert --size=5MB -y",
+			"gitmap cpf \"migrate binary assets to Git LFS\"",
+		},
+	},
+	{
+		keywords: []string{"flatten", "squash history", "squash repo", "repo flatten", "undo-flatten"},
+		title:    "flatten bloated repository history into a single snapshot",
+		topic:    "storage",
+		steps: []string{
+			"gitmap repo flatten --dry-run",
+			"gitmap repo flatten -y",
+			"gitmap repo undo-flatten <repo>",
+		},
+	},
 }
 
 // RunHowto executes `gitmap howto <task...>` — pure keyword matching.

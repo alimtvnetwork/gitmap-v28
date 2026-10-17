@@ -108,4 +108,4 @@
 {"name": "split large files", "alias": "split-large-files", "version": "v6.562.0", "category": "storage", "description": "Decompose tracked files > 10MB into multipart ZIP chunks and update Git", "example": "gitmap split large files --dry-run"}
 {"name": "lfs convert", "alias": "lfs-convert", "version": "v6.562.0", "category": "storage", "description": "Scan files > 5MB, generate .gitattributes rules, and migrate to Git LFS", "example": "gitmap lfs convert --dry-run"}
 {"name": "repo flatten", "alias": "flatten", "version": "v6.562.0", "category": "storage", "description": "Squash bloated repository history into a single clean snapshot commit with undo", "example": "gitmap repo flatten --dry-run"}
-{"name": "reclone", "alias": "rc", "version": "v6.560.0", "category": "scanner", "description": "Clean and re-clone a repository from URL or manifest", "example": "gitmap reclone https://github.com/org/repo"}
+{"name": "reclone", "alias": "rec", "version": "v6.560.0", "category": "scanner", "description": "Clean and re-clone a repository from URL or manifest", "example": "gitmap reclone https://github.com/org/repo"}
