@@ -33,6 +33,7 @@ func spaceHelpGroups() []helpdisplay.CommandHelpGroup {
 		helpdisplay.NewCommandHelpGroup("Subcommands", spaceSubcommandHelpers(), nil),
 		helpdisplay.NewCommandHelpGroup("Flags (with common)", spaceCommonFlagHelpers(), nil),
 		helpdisplay.NewCommandHelpGroup("Flags (with backup-branch)", spaceBackupBranchFlagHelpers(), nil),
+		helpdisplay.NewCommandHelpGroup("Flags (with send-email)", spaceSendEmailFlagHelpers(), nil),
 		helpdisplay.NewCommandHelpGroup("Examples", spaceExampleHelpers(), nil),
 	}
 }
@@ -42,6 +43,7 @@ func spaceSubcommandHelpers() []helpdisplay.CommandHelper {
 	return []helpdisplay.CommandHelper{
 		spaceCommonHelper(),
 		spaceBackupBranchHelper(),
+		spaceSendEmailHelper(),
 	}
 }
 
@@ -66,6 +68,18 @@ func spaceBackupBranchHelper() helpdisplay.CommandHelper {
 		`gitmap space backup-branch "CLI help displayer overhaul"`,
 		"",
 		concatHelpers(spaceBackupBranchFlagHelpers(), spaceBackupBranchExampleHelpers())...,
+	)
+}
+
+// spaceSendEmailHelper describes `gitmap space send-email`; its
+// subHelpers mirror the `space send-email --help` sub-display entries.
+func spaceSendEmailHelper() helpdisplay.CommandHelper {
+	return helpdisplay.NewCommandHelper(
+		"send-email",
+		"Send an email. Delegates to the go-email-reader binary when installed; otherwise uses the built-in SMTP sender.",
+		`gitmap space send-email --to a@x.com --subject "Hi" --body "Hello"`,
+		"",
+		concatHelpers(spaceSendEmailFlagHelpers(), spaceSendEmailExampleHelpers())...,
 	)
 }
 
@@ -94,6 +108,17 @@ func spaceBackupBranchFlagHelpers() []helpdisplay.CommandHelper {
 	}
 }
 
+// spaceSendEmailFlagHelpers lists the `space send-email` flags.
+func spaceSendEmailFlagHelpers() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper("--to <addr>", "Recipient(s), comma-separated (required)", "", ""),
+		helpdisplay.NewCommandHelper("--subject <text>", "Subject (required unless --file provides it)", "", ""),
+		helpdisplay.NewCommandHelper("--body <text>", "Plain-text body", "", ""),
+		helpdisplay.NewCommandHelper("--file <path>", "Email file: .yaml/.yml, .json, .md, or .txt", "", ""),
+		helpdisplay.NewCommandHelper("--html", "Send the body as HTML", "", ""),
+	}
+}
+
 // spaceExampleHelpers lists the top-level space examples.
 func spaceExampleHelpers() []helpdisplay.CommandHelper {
 	return []helpdisplay.CommandHelper{
@@ -101,13 +126,14 @@ func spaceExampleHelpers() []helpdisplay.CommandHelper {
 		helpdisplay.NewCommandHelper("gitmap space common --dry-run", "Preview planned additions without touching disk", "", ""),
 		helpdisplay.NewCommandHelper(`gitmap space backup-branch "CLI help displayer overhaul"`, "Snapshot HEAD into backup/<slug> and push to origin", "", ""),
 		helpdisplay.NewCommandHelper(`gitmap space backup-branch "hotfix" --no-push`, "Snapshot HEAD without pushing", "", ""),
+		helpdisplay.NewCommandHelper(`gitmap space send-email --to a@x.com --subject "Hi" --body "Hello"`, "Send an email via go-email-reader or the built-in SMTP sender", "", ""),
 	}
 }
 
 // spaceHelpSuggestions returns follow-ups shown under the space help.
 func spaceHelpSuggestions() []helpdisplay.Suggestion {
 	return []helpdisplay.Suggestion{
-		helpdisplay.NewSuggestion("Subcommand help: gitmap space --help <subcommand> (try: common, backup-branch)", nil),
+		helpdisplay.NewSuggestion("Subcommand help: gitmap space --help <subcommand> (try: common, backup-branch, send-email)", nil),
 	}
 }
 
@@ -189,5 +215,45 @@ func spaceBackupBranchExampleHelpers() []helpdisplay.CommandHelper {
 		helpdisplay.NewCommandHelper(`gitmap space backup-branch "CLI help displayer overhaul"`, "Snapshot HEAD and push backup/<slug> to origin", "", ""),
 		helpdisplay.NewCommandHelper(`gitmap space backup-branch "pre-release sweep" --no-push`, "Snapshot HEAD without pushing", "", ""),
 		helpdisplay.NewCommandHelper(`gitmap space backup-branch "CLI help displayer overhaul" --force`, "Recreate backup/<slug> at current HEAD", "", ""),
+	}
+}
+
+// SpaceSendEmailHelpDisplay builds the HelpDisplay for `gitmap space send-email --help`.
+func SpaceSendEmailHelpDisplay() helpdisplay.Displayer {
+	return helpdisplay.NewHelpDisplay(
+		`Usage: gitmap space send-email --to <addr[,addr]> [flags]`,
+		[]helpdisplay.CommandHelpGroup{
+			helpdisplay.NewCommandHelpGroup("About", spaceSendEmailAboutHelpers(), nil),
+			helpdisplay.NewCommandHelpGroup("Behavior", spaceSendEmailBehaviorHelpers(), nil),
+			helpdisplay.NewCommandHelpGroup("Flags", spaceSendEmailFlagHelpers(), nil),
+			helpdisplay.NewCommandHelpGroup("Examples", spaceSendEmailExampleHelpers(), nil),
+		},
+		nil,
+		spaceHelpTheme(),
+	)
+}
+
+// spaceSendEmailAboutHelpers describes what `space send-email` does.
+func spaceSendEmailAboutHelpers() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper("", "Sends an email. Delegates to the go-email-reader binary when it is installed (PATH, ~/go/bin, or the go_email_reader_bin setting); otherwise sends through the built-in SMTP sender using the configured email settings (see 'gitmap email setup').", "", ""),
+	}
+}
+
+// spaceSendEmailBehaviorHelpers lists the `space send-email` behavior guarantees.
+func spaceSendEmailBehaviorHelpers() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper("", "--to is required (comma-separated addresses allowed); --subject is required unless --file provides it.", "", ""),
+		helpdisplay.NewCommandHelper("", "--file parses YAML (.yaml/.yml), JSON (.json), Markdown (.md), or plain text with the to, cc, bcc, subject, body, html keys; explicit flags override the file values.", "", ""),
+		helpdisplay.NewCommandHelper("", "The SMTP password is always prompted interactively; it is never stored, logged, or passed on a command line.", "", ""),
+	}
+}
+
+// spaceSendEmailExampleHelpers lists the `space send-email` examples.
+func spaceSendEmailExampleHelpers() []helpdisplay.CommandHelper {
+	return []helpdisplay.CommandHelper{
+		helpdisplay.NewCommandHelper(`gitmap space send-email --to a@x.com --subject "Hi" --body "Hello"`, "Send a plain-text email", "", ""),
+		helpdisplay.NewCommandHelper("gitmap space send-email --file invite.yaml", "Send an email fully described by a file", "", ""),
+		helpdisplay.NewCommandHelper("gitmap space send-email --to a@x.com,b@x.com --file note.md --html", "Send a Markdown-file email as HTML to two recipients", "", ""),
 	}
 }

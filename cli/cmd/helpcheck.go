@@ -77,6 +77,7 @@ var helpDisplayRegistry = map[string]helpDisplayEntry{
 		subs: map[string]func() helpdisplay.Displayer{
 			"common":                       cmdspace.SpaceCommonHelpDisplay,
 			constants.CmdSpaceBackupBranch: cmdspace.SpaceBackupBranchHelpDisplay,
+			constants.CmdSpaceSendEmail:    cmdspace.SpaceSendEmailHelpDisplay,
 		},
 	},
 	constants.CmdScan:    {build: cmdscan.ScanHelpDisplay},

@@ -258,9 +258,5 @@ NOTES
   - Preview first: gitmap repo import <file> --into <dir> --dry-run
 `
 
-// RepoImport help-example data (3-part, spec 03 §2) for the lead's helpdoc wiring.
-const (
-	repoImportExampleWhat       = "Replays a repo export manifest: clones the repo, restores every remote, and registers it in the gitmap database — the full export→import round-trip in one command."
-	repoImportExampleInvocation = `gitmap repo import ./story-telling-v1.gitmap.json --into ~/workspace/repos`
-	repoImportExampleOutput     = `cloned → /home/user/workspace/repos/story-telling-v1 · registered in gitmap.db · remotes restored (2) · scan updated`
-)
+// RepoImport help-example data lives in cli/helpdoc/examples_275.go
+// (single source of truth, program 275).

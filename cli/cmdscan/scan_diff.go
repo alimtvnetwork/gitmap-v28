@@ -278,9 +278,5 @@ NOTES
 `)
 }
 
-// ScanDiff help-example data (3-part, spec 03 §2) for the lead's helpdoc wiring.
-const (
-	scanDiffExampleWhat       = "Compares the current scan index against the last snapshot and reports added, removed, and moved repos — instant workspace-change awareness."
-	scanDiffExampleInvocation = `gitmap scan diff`
-	scanDiffExampleOutput     = `+ 2 repo(s) (~/work/new-svc, ~/work/exp) · - 1 repo(s) (~/tmp/scratch) · ~ 1 moved (~/work/old -> ~/work/new)`
-)
+// ScanDiff help-example data lives in cli/helpdoc/examples_275.go
+// (single source of truth, program 275).

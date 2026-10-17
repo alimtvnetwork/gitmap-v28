@@ -21,6 +21,8 @@ Space operations namespace. Subcommands:
   PR-merge      Merge the current branch into the target branch
               (default branch when omitted). Regular merge commit;
               --squash embeds PR details plus a changed-files heatmap.
+  send-email    Send an email. Delegates to the go-email-reader binary
+              when installed; otherwise uses the built-in SMTP sender.
 
 Flags (with common):
   --dry-run, -n    Print planned additions without touching disk
@@ -36,6 +38,13 @@ Flags (with PR-merge):
                   Flat single-commit merge with a one-line message
   --no-push       Merge locally only; do not push the target
 
+Flags (with send-email):
+  --to <addr>     Recipient(s), comma-separated (required)
+  --subject <s>   Subject (required unless --file provides it)
+  --body <b>      Plain-text body
+  --file <path>   Email file (.yaml/.yml, .json, .md, or .txt)
+  --html          Send the body as HTML
+
 Examples:
   gitmap space common
   gitmap space common --dry-run
@@ -44,6 +53,7 @@ Examples:
   gitmap space PR-merge main
   gitmap space PR-merge
   gitmap space PR-merge main --squash
+  gitmap space send-email --to a@x.com --subject "Hi" --body "Hello"
   gitmap space --help
 `
 
@@ -93,6 +103,36 @@ Examples:
   gitmap space backup-branch "hotfix rollout" --no-push
 `
 
+// spaceSendEmailUsage is printed for `gitmap space send-email --help`.
+const spaceSendEmailUsage = `Usage: gitmap space send-email --to <addr[,addr]> [flags]
+
+Sends an email. Delegates to the go-email-reader binary when it is
+installed (PATH, ~/go/bin, or the go_email_reader_bin setting);
+otherwise sends through the built-in SMTP sender using the configured
+email settings (see 'gitmap email setup').
+
+Behavior:
+  - --to is required (comma-separated addresses allowed).
+  - --subject is required unless --file provides it.
+  - --file parses YAML (.yaml/.yml), JSON (.json), Markdown (.md),
+    or plain text: keys to, cc, bcc, subject, body, html.
+  - Explicit flags override the corresponding --file values.
+  - The SMTP password is always prompted interactively; it is never
+    stored, logged, or passed on a command line.
+
+Flags:
+  --to <addr>        Recipient(s), comma-separated (required)
+  --subject <text>   Subject (required unless --file provides it)
+  --body <text>      Plain-text body
+  --file <path>      Email file: .yaml/.yml, .json, .md, or .txt
+  --html             Send the body as HTML
+
+Examples:
+  gitmap space send-email --to a@x.com --subject "Hi" --body "Hello"
+  gitmap space send-email --file invite.yaml
+  gitmap space send-email --to a@x.com,b@x.com --file note.md --html
+`
+
 // dispatchSpace routes `gitmap space <subcommand>`; the `common`
 // subcommand reuses the same baseline logic as `gitmap commons`, and
 // `backup-branch` delegates to the cmdspace implementation.
@@ -121,6 +161,10 @@ func DispatchSpace(command string) (bool, error) {
 
 	if sub == constants.CmdSpacePRMerge {
 		return true, runSpacePRMerge(rest[1:])
+	}
+
+	if sub == constants.CmdSpaceSendEmail {
+		return true, runSpaceSendEmail(rest[1:])
 	}
 
 	if sub != "common" {
@@ -175,4 +219,18 @@ func runSpacePRMerge(args []string) error {
 	}
 
 	return RunPRMerge(args)
+}
+
+// runSpaceSendEmail prints send-email help on --help/-h, else delegates
+// to the cmdspace implementation.
+func runSpaceSendEmail(args []string) error {
+	for _, a := range args {
+		if a == "--help" || a == "-h" {
+			fmt.Print(spaceSendEmailUsage)
+
+			return nil
+		}
+	}
+
+	return RunSendEmail(args)
 }

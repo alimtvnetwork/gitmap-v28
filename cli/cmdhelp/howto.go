@@ -45,7 +45,7 @@ var howtoRecipes = []howtoRecipe{
 		},
 	},
 	{
-		keywords: []string{"theme", "color", "colour", "palette"},
+		keywords: []string{"theme", "color", "palette"},
 		title:    "change the terminal theme",
 		topic:    "themes",
 		steps: []string{

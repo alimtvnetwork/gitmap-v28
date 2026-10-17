@@ -226,9 +226,5 @@ NOTES
 `)
 }
 
-// ScanVerify help-example data (3-part, spec 03 §2) for the lead's helpdoc wiring.
-const (
-	scanVerifyExampleWhat       = "Two-way index↔filesystem consistency check: stale DB entries for deleted dirs and on-disk repos missing from the index, with --repair to prune the stale ones."
-	scanVerifyExampleInvocation = `gitmap scan verify`
-	scanVerifyExampleOutput     = `index 43 repos · 41 on disk ok · 2 stale entries (~/tmp/scratch, ~/work/old) · 0 unindexed () · run with --repair to prune`
-)
+// ScanVerify help-example data lives in cli/helpdoc/examples_275.go
+// (single source of truth, program 275).

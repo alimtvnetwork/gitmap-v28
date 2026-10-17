@@ -292,9 +292,5 @@ NOTES
   - <name> matches slug, repo name, or directory base name. Read-only.
 `
 
-// RepoExport help-example data (3-part, spec 03 §2) for the lead's helpdoc wiring.
-const (
-	repoExportExampleWhat       = "Exports one repo's portable manifest JSON (clone URL, remotes, branches) — a versionable, diffable file that repo import consumes."
-	repoExportExampleInvocation = `gitmap repo export story-telling-v1 --out ./story-telling-v1.gitmap.json`
-	repoExportExampleOutput     = `exported 1 repo · 2 remotes · 3 branches · written ./story-telling-v1.gitmap.json (4.2 KB)`
-)
+// RepoExport help-example data lives in cli/helpdoc/examples_275.go
+// (single source of truth, program 275).
