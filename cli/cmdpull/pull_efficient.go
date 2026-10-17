@@ -253,6 +253,10 @@ func executeActiveEfficientBatch(partition EfficientPullPartition, opts Efficien
 
 	ignoreHandle := launchThrottledActiveIgnoreScan(allRecords)
 	executePull(partition.ActiveRecords, bar, pullOptions{all: true, useSSH: opts.UseSSH, useHTTPS: opts.UseHTTPS})
+	stopHeartbeat()
+	if !opts.IsJSON {
+		bar.Stop()
+	}
 	collectAndRemediateEfficientIgnore(ignoreHandle, opts.Args, opts.IsJSON)
 
 	return handleEfficientBatchFinish(total, bar, partition, allRecords, opts, time.Since(startTime))
@@ -283,12 +287,9 @@ func classifyRepoActivity(db *store.PullSplitDB, rec model.ScanRecord, part *Eff
 		effectiveWindow = windowHours[0]
 	}
 	status, err := db.EvaluateRepoActivityStatus(rec.AbsolutePath, effectiveWindow, store.DefaultFreshnessCooldownMinutes)
-	isInactive := err == nil && status.IsInactive
-	if isInactive {
+	if err == nil && status.IsInactive {
 		part.InactiveRepos = append(part.InactiveRepos, InactiveRepoDetail{
-			RepoName: rec.RepoName,
-			RepoPath: rec.AbsolutePath,
-			Reason:   status.Reason,
+			RepoName: rec.RepoName, RepoPath: rec.AbsolutePath, Reason: status.Reason,
 		})
 		return
 	}

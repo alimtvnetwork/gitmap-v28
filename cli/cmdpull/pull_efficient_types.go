@@ -107,7 +107,19 @@ func collectAndRemediateEfficientIgnore(handle *IgnoreScanHandle, args []string,
 		return
 	}
 	issues := handle.Collect()
-	handleIgnoreRemediation(issues, hasEfficientAutoYes(args), isJSON)
+	if len(issues) == 0 || isJSON {
+		return
+	}
+	deduped := DeduplicateIgnoreIssues(issues)
+	if len(deduped) == 0 {
+		return
+	}
+	if hasEfficientAutoYes(args) {
+		handleIgnoreRemediation(deduped, true, isJSON)
+		return
+	}
+	markIssuesSkipped(deduped)
+	printNonInteractiveIgnoreNotice(len(deduped))
 }
 
 func hasEfficientAutoYes(args []string) bool {

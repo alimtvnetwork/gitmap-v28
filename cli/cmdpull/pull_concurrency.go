@@ -27,6 +27,11 @@ func StartThrottledAsyncIgnoreScan(records []model.ScanRecord, ttl time.Duration
 }
 
 func runThrottledIgnoreScanWorkflow(records []model.ScanRecord, ttl time.Duration, handle *IgnoreScanHandle) {
+	defer func() {
+		if r := recover(); r != nil {
+			handle.done <- nil
+		}
+	}()
 	coldRecords, err := filterColdIgnoreRecords(records, ttl)
 	if err != nil || len(coldRecords) == 0 {
 		handle.done <- nil
@@ -37,11 +42,25 @@ func runThrottledIgnoreScanWorkflow(records []model.ScanRecord, ttl time.Duratio
 }
 
 func filterColdIgnoreRecords(records []model.ScanRecord, ttl time.Duration) ([]model.ScanRecord, error) {
-	cold, err := store.FilterReposNeedingIgnoreCheck(records, ttl)
+	uniqueRecords := deduplicateRecordsByPath(records)
+	cold, err := store.FilterReposNeedingIgnoreCheck(uniqueRecords, ttl)
 	if err != nil {
-		return records, nil
+		return uniqueRecords, nil
 	}
-	return cold, nil
+	return deduplicateRecordsByPath(cold), nil
+}
+
+func deduplicateRecordsByPath(records []model.ScanRecord) []model.ScanRecord {
+	unique := make([]model.ScanRecord, 0, len(records))
+	seen := make(map[string]bool, len(records))
+	for _, rec := range records {
+		key := CanonicalRepoPathKey(rec.AbsolutePath)
+		if isPathAlreadySeen(key, seen) {
+			continue
+		}
+		unique = append(unique, rec)
+	}
+	return unique
 }
 
 func scanColdRecordsSequentially(records []model.ScanRecord) []IgnoreRepoIssue {
@@ -55,12 +74,35 @@ func scanColdRecordsSequentially(records []model.ScanRecord) []IgnoreRepoIssue {
 		}
 		yieldBetweenIgnoreAudits(i)
 		issue := inspectAndCacheRepoIgnore(rec)
-		if issue.HasIssues() {
-			issues = append(issues, issue)
+		cleaned := sanitizeIgnoreIssue(issue)
+		if cleaned.HasIssues() {
+			issues = append(issues, cleaned)
 		}
 	}
 
 	return sortIgnoreIssues(issues)
+}
+
+func sanitizeIgnoreIssue(issue IgnoreRepoIssue) IgnoreRepoIssue {
+	issue.TrackedPaths = deduplicateStringList(issue.TrackedPaths)
+	issue.DuplicatePatterns = deduplicateStringList(issue.DuplicatePatterns)
+	return issue
+}
+
+func deduplicateStringList(items []string) []string {
+	if len(items) <= 1 {
+		return items
+	}
+	seen := make(map[string]bool, len(items))
+	result := make([]string, 0, len(items))
+	for _, item := range items {
+		if item == "" || seen[item] {
+			continue
+		}
+		seen[item] = true
+		result = append(result, item)
+	}
+	return result
 }
 
 func isPathAlreadySeen(pathKey string, seenPath map[string]bool) bool {

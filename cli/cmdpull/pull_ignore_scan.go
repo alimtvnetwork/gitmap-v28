@@ -49,7 +49,12 @@ func (h *IgnoreScanHandle) Collect() []IgnoreRepoIssue {
 	if h == nil {
 		return nil
 	}
-	return <-h.done
+	select {
+	case issues := <-h.done:
+		return issues
+	case <-time.After(3 * time.Second):
+		return nil
+	}
 }
 
 // DeduplicateIgnoreIssues eliminates duplicate issues by canonical repo path.

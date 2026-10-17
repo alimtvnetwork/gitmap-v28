@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -46,9 +47,31 @@ func runHeartbeatLoop(ticker *time.Ticker, stopChan <-chan struct{}, startTime t
 		case <-stopChan:
 			return
 		case tickTime := <-ticker.C:
+			if isHeartbeatDone(progressFn) {
+				return
+			}
 			emitHeartbeat(tickTime.Sub(startTime), threshold, progressFn, w)
 		}
 	}
+}
+
+func isHeartbeatDone(progressFn func() string) bool {
+	if progressFn == nil {
+		return false
+	}
+	msg := progressFn()
+	return isProgressCompleted(msg)
+}
+
+func isProgressCompleted(msg string) bool {
+	if !strings.Contains(msg, "0 active workers") {
+		return false
+	}
+	var completed, total int
+	if n, _ := fmt.Sscanf(msg, "%d/%d completed", &completed, &total); n == 2 {
+		return completed >= total
+	}
+	return strings.Contains(msg, "completed")
 }
 
 func emitHeartbeat(elapsed, threshold time.Duration, progressFn func() string, w io.Writer) {
@@ -56,6 +79,9 @@ func emitHeartbeat(elapsed, threshold time.Duration, progressFn func() string, w
 		return
 	}
 	msg := resolveHeartbeatMessage(progressFn)
+	if isProgressCompleted(msg) {
+		return
+	}
 	elapsedSec := int(elapsed.Seconds())
 	fmt.Fprintf(w, "  [⏳ %ds elapsed] %s\n", elapsedSec, msg)
 }
