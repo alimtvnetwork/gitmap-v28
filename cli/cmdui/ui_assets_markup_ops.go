@@ -97,10 +97,31 @@ const uiAssetsMarkupOps = `    <div id="tab-commitin" class="content-area">
     <!-- PROMPTS TAB -->
     <div id="tab-prompts" class="content-area">
       <div class="card card-hero">
-        <h3>Prompts & AI Instructions Manager</h3>
-        <div class="form-group"><label for="prompt-content">Prompt Template</label><textarea id="prompt-content" rows="10" placeholder="Paste or edit prompt markdown/JSON..."></textarea></div>
-        <button class="btn" onclick="formatPromptJSON()">Format JSON</button>
-        <button class="btn btn-secondary" onclick="importPrompt()">Import Prompt</button>
+        <h3><span data-icon="message-square"></span> Prompts &amp; AI Instructions Manager</h3>
+        <p style="font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--sp-3);">
+          Search, filter, and inspect canonical prompts, agent workflows, and queued instructions across Antigravity instances.
+        </p>
+        <div class="form-group" style="margin-bottom: var(--sp-3);">
+          <input type="text" id="prompt-search" placeholder="Search prompts, templates, and agent instructions..." oninput="filterPromptsUI(this.value)">
+        </div>
+        <div class="chip-container" id="prompt-category-pills" style="display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-3);">
+          <button type="button" class="chip active" onclick="setPromptCategory('all', this)">All</button>
+          <button type="button" class="chip" onclick="setPromptCategory('active', this)">Active / Queued</button>
+          <button type="button" class="chip" onclick="setPromptCategory('completed', this)">Completed</button>
+          <button type="button" class="chip" onclick="loadPromptsList()" style="margin-left: auto; background: var(--raised);"><span data-icon="clock"></span>Refresh</button>
+        </div>
+        <div id="prompts-list" style="margin-top: var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-2);">
+          <div style="color: var(--muted); font-size: var(--fs-sm);">Loading prompts from Antigravity instances...</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Prompt Template Scratchpad</h3>
+        <div class="form-group"><label for="prompt-content">Prompt Template</label><textarea id="prompt-content" rows="8" placeholder="Paste or edit prompt markdown/JSON..."></textarea></div>
+        <div style="display: flex; gap: var(--sp-2); flex-wrap: wrap;">
+          <button class="btn" onclick="formatPromptJSON()">Format JSON</button>
+          <button class="btn btn-secondary" onclick="importPrompt()">Import Prompt</button>
+          <button class="btn btn-secondary" onclick="copyPromptToClipboard()"><span data-icon="check"></span>Copy to Clipboard</button>
+        </div>
       </div>
     </div>
 
@@ -136,138 +157,49 @@ const uiAssetsMarkupOps = `    <div id="tab-commitin" class="content-area">
       </div>
     </div>
 
+    <!-- TERMINAL TAB (Top-Level) -->
+    <div id="tab-terminal" class="content-area">
+      <div class="card card-hero">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--sp-3); flex-wrap:wrap; gap:var(--sp-2);">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="display:inline-flex; gap:5px; font-size:0.85rem;">
+              <span style="color:#ef4444;">●</span>
+              <span style="color:#f59e0b;">●</span>
+              <span style="color:#10b981;">●</span>
+            </span>
+            <h3 style="margin-bottom:0; color:var(--text);"><span data-icon="scroll-text"></span> GitMap Live Terminal Runner</h3>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; flex:1; max-width:480px; justify-content:flex-end;">
+            <select id="term-node" aria-label="Terminal target node" style="width:auto; min-width:110px; padding:0.4rem 0.6rem;">
+              <option value="local">local</option>
+            </select>
+            <input type="text" id="term-cwd" aria-label="Terminal working directory" placeholder="cwd (optional)" style="flex:1; min-width:140px; padding:0.4rem 0.6rem;">
+            <span id="term-badge" class="badge" style="display:none; white-space:nowrap;"></span>
+          </div>
+        </div>
+
+        <!-- Quick command chips -->
+        <div class="chip-container" style="display:flex; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:var(--sp-3); align-items:center;">
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap status')">gitmap status</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap pe')">gitmap pe</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap nodes ls')">gitmap nodes ls</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap cursor settings view')">gitmap cursor settings view</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap lap 24')">gitmap lap 24</button>
+          <button type="button" class="chip" onclick="clearTerminalOutput()" style="margin-left:auto; background:var(--raised); color:var(--muted);"><span data-icon="x"></span>Clear</button>
+        </div>
+
+        <!-- Terminal Console Output -->
+        <div id="term-output" tabindex="0" aria-label="Terminal output" style="background:var(--terminal-bg, var(--code-bg)); border:1px solid var(--terminal-border, var(--border)); border-radius:var(--radius-sm); min-height:280px; max-height:480px; overflow-y:auto; padding:var(--sp-3); font-family:var(--font-mono); font-size:0.85rem; line-height:1.5; white-space:pre-wrap; color:var(--terminal-text, var(--code-text)); margin-bottom:0.75rem;">GitMap Fleet Terminal ready. Type a command or click a quick action above.</div>
+
+        <!-- Command Prompt Input -->
+        <div style="display:flex; gap:var(--sp-2); align-items:center;">
+          <span style="font-family:monospace; color:var(--primary); font-weight:700; font-size:1.1rem;">$</span>
+          <input type="text" id="term-input" placeholder="Enter command... (Press Enter or Run)" style="flex:1;">
+          <button type="button" class="btn" id="term-run-btn" onclick="runTerminalCommand()"><span data-icon="rocket"></span>Run</button>
+        </div>
+      </div>
+    </div>
+
     <!-- REMOTE EDITOR TAB -->
-`
-
-const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area active">
-      <div class="sub-tab-bar" style="display: flex; gap: var(--sp-2); margin-bottom: var(--sp-4); border-bottom: 1px solid var(--border); flex-wrap: wrap;">
-        <button type="button" class="sub-tab-btn active" onclick="showSettingsSubTab('all')" id="subnav-all"><span data-icon="settings"></span>All Settings</button>
-        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('general')" id="subnav-general"><span data-icon="pen-line"></span>General &amp; UI</button>
-        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('cursor')" id="subnav-cursor"><span data-icon="rocket"></span>Cursor Fleet &amp; Sync</button>
-        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('speed')" id="subnav-speed"><span data-icon="clock"></span>Speed &amp; Automation</button>
-        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('alerts')" id="subnav-alerts"><span data-icon="alert-triangle"></span>Alerts &amp; Notifications</button>
-        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('instances')" id="subnav-instances"><span data-icon="server"></span>Antigravity Instances</button>
-        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('catalog')" id="subnav-catalog"><span data-icon="book-open"></span>UI/UX Repo Index</button>
-        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('terminal')" id="subnav-terminal"><span data-icon="scroll-text"></span>Embedded Terminal</button>
-      </div>
-
-      <!-- 1. GENERAL & UI APPEARANCE -->
-      <div class="card card-hero settings-subtab-pane" id="settings-pane-general">
-        <h3><span data-icon="pen-line"></span> General &amp; UI Appearance</h3>
-        <div class="form-group">
-          <label for="setting-theme">Theme</label>
-          <select id="setting-theme">
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="setting-graphics">Graphics Rendering &amp; Hardware Acceleration</label>
-          <select id="setting-graphics">
-            <option value="high">High Performance / Hardware Acceleration</option>
-            <option value="fast">Fast Standard</option>
-            <option value="plain">Plain / Low Graphics</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="setting-auto-open">Auto-Open Browser on UI Launch</label>
-          <select id="setting-auto-open">
-            <option value="true">Enabled (Launch default browser automatically)</option>
-            <option value="false">Disabled (Emit URL to console only)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="setting-port">Cluster REST Port</label>
-          <input type="number" id="setting-port" value="49152">
-        </div>
-        <div class="form-group">
-          <label for="setting-remote">Default Remote Target</label>
-          <input type="text" id="setting-remote" placeholder="origin or alias">
-        </div>
-        <div class="form-group">
-          <label for="setting-pull-direction">Pull Direction Orientation</label>
-          <select id="setting-pull-direction">
-            <option value="pull-left">Pull-Left (Replay from target down to left)</option>
-            <option value="pull-right">Pull-Right (Replay from left source into right target)</option>
-            <option value="bidirectional">Bidirectional Sync</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="setting-pr-mode">Commit-Pull PR Replay Mode</label>
-          <select id="setting-pr-mode">
-            <option value="merges">merges (Feature branches &amp; release PRs)</option>
-            <option value="feature-per-commit">feature-per-commit</option>
-            <option value="direct">direct mainline</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="setting-commitin-layout">Commit-In Migration Studio Layout</label>
-          <select id="setting-commitin-layout">
-            <option value="split">Split Dual-Pane (Config &amp; Output)</option>
-            <option value="left">Left Focus (Config dominant)</option>
-            <option value="right">Right Focus (Output dominant)</option>
-            <option value="stacked">Stacked Vertical</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- 2. CURSOR FLEET & SYNC -->
-      <div class="card settings-subtab-pane" id="settings-pane-cursor">
-        <h3><span data-icon="rocket"></span> Cursor Fleet &amp; Sync</h3>
-        <div class="form-group">
-          <label for="setting-machine-name">Machine Name (<code>machine.name</code>)</label>
-          <input type="text" id="setting-machine-name" name="machine.name" data-key="machine.name" placeholder="dev-win-01 / ubuntu-node-02">
-        </div>
-        <div class="form-group">
-          <label for="setting-machine-alias">Network Alias (<code>machine.alias</code> &mdash; auto-defaults to Local IPv4)</label>
-          <input type="text" id="setting-machine-alias" name="machine.alias" data-key="machine.alias" placeholder="Auto-defaults to Local IPv4 if unset">
-        </div>
-        <div class="form-group">
-          <label for="setting-special-secrets-name">Special Secrets Repository Name (<code>special_repos.secrets_name</code> &mdash; shortcut: <code>gitmap rs</code> / <code>gitmap cd rs</code>)</label>
-          <input type="text" id="setting-special-secrets-name" name="special_repos.secrets_name" data-key="special_repos.secrets_name" value="repo-secrets" placeholder="repo-secrets">
-        </div>
-        <div class="form-group">
-          <label for="setting-special-cache-name">Special Cache / Storage Repository Name (<code>special_repos.cache_name</code> &mdash; shortcut: <code>gitmap rc</code> / <code>gitmap cd rc</code>)</label>
-          <input type="text" id="setting-special-cache-name" name="special_repos.cache_name" data-key="special_repos.cache_name" value="repo-cache" placeholder="repo-cache">
-        </div>
-      </div>
-
-      <!-- 3. SPEED & AUTOMATION -->
-      <div class="card settings-subtab-pane" id="settings-pane-speed">
-        <h3><span data-icon="clock"></span> Speed &amp; Automation</h3>
-        <div class="form-group">
-          <label for="setting-lap-hours">LAP Default Lookback Hours (N = 24) (<code>lap.default_hours</code>)</label>
-          <input type="number" id="setting-lap-hours" name="lap.default_hours" data-key="lap.default_hours" value="24" placeholder="24">
-        </div>
-        <div class="form-group">
-          <label for="setting-account-switch-threshold">Account Switch Fast-Forward Threshold (%) (<code>account_switch.threshold</code> &mdash; default 15% prod / 98% E2E test)</label>
-          <input type="number" id="setting-account-switch-threshold" name="account_switch.threshold" data-key="account_switch.threshold" value="15" placeholder="15 (prod) or 98 (E2E test)">
-        </div>
-      </div>
-
-      <!-- 4. ALERTS & NOTIFICATIONS -->
-      <div class="card settings-subtab-pane" id="settings-pane-alerts">
-        <h3><span data-icon="alert-triangle"></span> Alerts &amp; Notifications</h3>
-        <div class="form-group">
-          <label for="setting-telegram-token">Telegram Two-Way Bot Setup &mdash; Bot Token (<code>telegram.bot_token</code>)</label>
-          <input type="text" id="setting-telegram-token" name="telegram.bot_token" data-key="telegram.bot_token" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
-        </div>
-        <div class="form-group">
-          <label for="setting-telegram-chat">Telegram Two-Way Bot Setup &mdash; Chat ID (<code>telegram.chat_id</code>)</label>
-          <input type="text" id="setting-telegram-chat" name="telegram.chat_id" data-key="telegram.chat_id" placeholder="-1001234567890">
-        </div>
-        <div class="form-group">
-          <label for="setting-email-smtp">Email Speed SMTP Setup &mdash; SMTP Host (<code>email.smtp_host</code>)</label>
-          <input type="text" id="setting-email-smtp" name="email.smtp_host" data-key="email.smtp_host" placeholder="smtp.gmail.com:587">
-        </div>
-        <div class="form-group">
-          <label for="setting-email-from">Email Speed SMTP Setup &mdash; From Address (<code>email.from</code>)</label>
-          <input type="email" id="setting-email-from" name="email.from" data-key="email.from" placeholder="bot@example.com">
-        </div>
-        <div class="form-group">
-          <label for="setting-email-to">Email Speed SMTP Setup &mdash; To Address (<code>email.to</code>)</label>
-          <input type="email" id="setting-email-to" name="email.to" data-key="email.to" placeholder="dev@example.com">
-        </div>
-      </div>
 
 `

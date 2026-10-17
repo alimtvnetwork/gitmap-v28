@@ -1,6 +1,195 @@
+import { useState, useMemo } from "react";
 import DocsLayout from "@/components/docs/DocsLayout";
 import CodeBlock from "@/components/docs/CodeBlock";
-import { Terminal, Bot, RefreshCw, FileText, ExternalLink, CheckCircle2, Shield, Network, Copy, Layers } from "lucide-react";
+import {
+  Terminal,
+  Bot,
+  RefreshCw,
+  FileText,
+  ExternalLink,
+  CheckCircle2,
+  Shield,
+  Network,
+  Copy,
+  Layers,
+  Search,
+  Sparkles,
+  X,
+  Play,
+  Wrench,
+  Check,
+} from "lucide-react";
+
+export type PromptCategory = "All" | "Rerun" | "Listing" | "Templates" | "Pipeline Fix" | "AI Instructions";
+
+interface AGYPromptExample {
+  id: string;
+  category: "Rerun" | "Listing" | "Templates" | "Pipeline Fix" | "AI Instructions";
+  title: string;
+  command: string;
+  description: string;
+  tag?: string;
+}
+
+const CATEGORY_CHIPS: PromptCategory[] = [
+  "All",
+  "Rerun",
+  "Listing",
+  "Templates",
+  "Pipeline Fix",
+  "AI Instructions",
+];
+
+const PROMPT_EXAMPLES: AGYPromptExample[] = [
+  // Rerun
+  {
+    id: "rerun-1",
+    category: "Rerun",
+    title: "Replay last prompt with is-done template",
+    command: "gitmap agy rerun last 1 -p is-done",
+    description: "Replay the most recent prompt with built-in quality gate prefix and copy to OS clipboard.",
+    tag: "Default Prefix",
+  },
+  {
+    id: "rerun-5-custom",
+    category: "Rerun",
+    title: "Replay last 5 prompts with custom review prefix",
+    command: "gitmap agy rerun last 5 -p code-review",
+    description: "Prepend code-review template across recent five Antigravity prompt submissions.",
+    tag: "Multi-Prompt",
+  },
+  {
+    id: "rerun-dry-run",
+    category: "Rerun",
+    title: "Dry-run prompt payload preview",
+    command: "gitmap agy rerun last 3 --dry-run",
+    description: "Preview prompt payload directly in terminal without copying to OS clipboard or altering state.",
+  },
+  {
+    id: "rerun-ssh-remote",
+    category: "Rerun",
+    title: "Remote SSH node prompt replay",
+    command: "gitmap ssh exec agy rerun last 1 -p is-done",
+    description: "Forward prompt replay execution to designated remote SSH node with full terminal parity.",
+    tag: "SSH Triad",
+  },
+
+  // Listing
+  {
+    id: "list-prompts-10",
+    category: "Listing",
+    title: "Scan last 10 commit projects & launch VS Code",
+    command: "gitmap agy list-prompts 10 --projects 10",
+    description: "Collect prompt histories across 10 commit projects and open an isolated non-admin VS Code workspace.",
+    tag: "VS Code (code -n)",
+  },
+  {
+    id: "list-prompts-diff",
+    category: "Listing",
+    title: "Inspect prompt diff report as JSON",
+    command: "gitmap agy list-prompts --summary --json",
+    description: "Export structured JSON history of Antigravity agent interactions and token usage statistics.",
+    tag: "JSON Export",
+  },
+  {
+    id: "list-prompts-cwd",
+    category: "Listing",
+    title: "List recent prompts for current repository",
+    command: "gitmap agy list-prompts 5",
+    description: "List the last 5 prompts executed within the current working directory repository.",
+  },
+
+  // Templates
+  {
+    id: "template-ls",
+    category: "Templates",
+    title: "List registered prompt templates",
+    command: "gitmap prompts-template ls",
+    description: "Display all installed reusable prefix templates in the local registry with description and keys.",
+    tag: "Registry",
+  },
+  {
+    id: "template-add",
+    category: "Templates",
+    title: "Register custom verification template",
+    command: 'gitmap prompts-template add test-verification "Ensure all unit tests and edge cases are verified:"',
+    description: "Add a new reusable prefix template for automated test verification and quality audits.",
+  },
+  {
+    id: "template-export-single",
+    category: "Templates",
+    title: "Export template to JSON file",
+    command: "gitmap prompts-template export is-done ./is-done.json",
+    description: "Export the built-in is-done template to an external JSON specification file.",
+  },
+  {
+    id: "template-export-bulk",
+    category: "Templates",
+    title: "Bulk export all prompt templates",
+    command: "gitmap prompts-template export-all ./templates.json",
+    description: "Export the entire library of registered prompt templates to a single JSON archive.",
+    tag: "Backup",
+  },
+
+  // Pipeline Fix
+  {
+    id: "pipeline-errors-fix",
+    category: "Pipeline Fix",
+    title: "Inject pipeline errors & 4-part RCA directly into Antigravity",
+    command: "gitmap pipeline errors agy fix",
+    description: "Extract failing CI/CD pipeline error logs and 4-part RCA prompts directly into active Antigravity IDE sessions.",
+    tag: "RCA Injection",
+  },
+  {
+    id: "pipeline-batch-fix-all",
+    category: "Pipeline Fix",
+    title: "Batch fix failing pipelines across all repositories",
+    command: "gitmap pipeline errors agy fix --all",
+    description: "Scan all tracked repositories and autonomously batch-fix failing pipelines across projects.",
+    tag: "Batch Fix",
+  },
+  {
+    id: "pipeline-reset-batch-cursor",
+    category: "Pipeline Fix",
+    title: "Reset multi-project batch cursor",
+    command: "gitmap pipeline errors agy fix --all --reset-batch",
+    description: "Reset the multi-repository batch cursor back to the initial failing repository.",
+  },
+
+  // AI Instructions
+  {
+    id: "ai-prompts-show-pretty",
+    category: "AI Instructions",
+    title: "Show AI instruction template with rich ANSI formatting",
+    command: "gitmap agy prompts show is-done --pretty",
+    description: "Render markdown-formatted AI instruction guidelines with rich ANSI terminal styling.",
+    tag: "ANSI Pretty",
+  },
+  {
+    id: "ai-agent-coordinator",
+    category: "AI Instructions",
+    title: "Inspect AI multi-agent coordinator leases",
+    command: "gitmap agent ai status --verbose",
+    description: "View Two-Tier Split-DB coordination, active worker claiming, lease fencing, and pre-touch action logging.",
+    tag: "Coordinator",
+  },
+  {
+    id: "ai-heatmap-contention",
+    category: "AI Instructions",
+    title: "Live agent file contention heatmap",
+    command: "gitmap heatmap --watch",
+    description: "Display real-time contention ranking, agent concurrency tracking, and file touch visualizer.",
+    tag: "Telemetry",
+  },
+  {
+    id: "ai-cluster-delegation",
+    category: "AI Instructions",
+    title: "Broadcast Antigravity scan across cluster fleet",
+    command: "gitmap cluster exec agy scan",
+    description: "Delegate AI scan tasks across all connected cluster fleet nodes simultaneously.",
+    tag: "Cluster",
+  },
+];
 
 const RerunPreview = () => (
   <div className="rounded-lg border border-border overflow-hidden my-6">
@@ -50,6 +239,40 @@ const ListPromptsPreview = () => (
 );
 
 export default function AGYPromptsPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<PromptCategory>("All");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const filteredPrompts = useMemo(() => {
+    return PROMPT_EXAMPLES.filter((item) => {
+      const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+      if (!matchesCategory) return false;
+
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase().trim();
+      return (
+        item.title.toLowerCase().includes(q) ||
+        item.command.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q) ||
+        Boolean(item.tag?.toLowerCase().includes(q))
+      );
+    });
+  }, [searchQuery, selectedCategory]);
+
+  const handleCopy = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => {
+      setCopiedId((current) => (current === id ? null : current));
+    }, 2000);
+  };
+
+  const handleRunInTerminal = (cmd: string) => {
+    window.dispatchEvent(new CustomEvent("gitmap:terminal-run", { detail: { command: cmd } }));
+    window.dispatchEvent(new CustomEvent("gitmap:open-terminal", { detail: { command: cmd } }));
+  };
+
   return (
     <DocsLayout>
       <div className="space-y-8 max-w-4xl">
@@ -64,6 +287,148 @@ export default function AGYPromptsPage() {
           </p>
         </div>
 
+        {/* ── Interactive Prompt Explorer & Search Filter ── */}
+        <section className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-heading font-semibold text-foreground">Interactive Prompt & Command Explorer</h2>
+            </div>
+            <span className="text-xs font-mono text-muted-foreground">
+              Showing {filteredPrompts.length} of {PROMPT_EXAMPLES.length} commands
+            </span>
+          </div>
+
+          {/* Search Input Filter */}
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search prompts, flags, commands, or workflows (e.g. is-done, rerun, rca)..."
+              className="w-full pl-10 pr-9 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm font-mono placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Category Filter Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-mono">
+            {CATEGORY_CHIPS.map((cat) => {
+              const count = cat === "All"
+                ? PROMPT_EXAMPLES.length
+                : PROMPT_EXAMPLES.filter((p) => p.category === cat).length;
+              const isActive = selectedCategory === cat;
+
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-md border transition-all shrink-0 flex items-center gap-1.5 ${
+                    isActive
+                      ? "border-primary bg-primary text-primary-foreground font-semibold shadow-sm"
+                      : "border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span>{cat}</span>
+                  <span className={`text-[10px] px-1 py-0.2 rounded-full ${
+                    isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-background text-muted-foreground"
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Prompts Cards Grid */}
+          <div className="space-y-3 pt-2">
+            {filteredPrompts.length === 0 ? (
+              <div className="p-8 text-center rounded-lg border border-dashed border-border bg-muted/20">
+                <Search className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+                <p className="text-sm font-medium text-foreground">No prompt commands found</p>
+                <p className="text-xs text-muted-foreground mt-1">Try clearing your search query or choosing another category.</p>
+                <button
+                  type="button"
+                  onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
+                  className="mt-3 px-3 py-1.5 rounded text-xs font-mono bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            ) : (
+              filteredPrompts.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-md space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                          {item.category}
+                        </span>
+                        {item.tag && (
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                            {item.tag}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-sm font-semibold text-foreground">{item.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 p-2.5 rounded bg-muted/60 border border-border/60 font-mono text-xs overflow-x-auto">
+                    <code className="text-primary font-medium select-all">{item.command}</code>
+                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(item.id, item.command)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-mono border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        title="Copy command to clipboard"
+                      >
+                        {copiedId === item.id ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400 font-semibold">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRunInTerminal(item.command)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-mono font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+                        title="Execute command in live web terminal drawer"
+                      >
+                        <Terminal className="w-3.5 h-3.5" />
+                        <span>Run in Terminal</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        {/* ── Documentation Sections ── */}
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
             <RefreshCw className="w-5 h-5 text-primary" />

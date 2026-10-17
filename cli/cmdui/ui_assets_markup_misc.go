@@ -54,6 +54,36 @@ const uiAssetsMarkupMisc = `    <div id="tab-editor" class="content-area">
 
     <!-- CLI & AGY HELP TAB -->
     <div id="tab-help" class="content-area">
+      <div class="card card-hero">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-2); flex-wrap:wrap; gap:var(--sp-2);">
+          <h3 style="margin-bottom:0;"><span data-icon="book-open"></span> Embedded GitMap Manuals &amp; CLI Reference</h3>
+          <span class="badge badge-online" id="help-topics-count">100+ Topics</span>
+        </div>
+        <p style="font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--sp-3);">
+          Search and view official markdown manuals and command documentation embedded directly in the binary.
+        </p>
+        <div class="form-group" style="margin-bottom: var(--sp-3);">
+          <input type="text" id="help-search" placeholder="Search 100+ embedded GitMap manuals and help topics..." oninput="filterHelpTopicsUI(this.value)">
+        </div>
+        <div style="display: grid; grid-template-columns: 280px 1fr; gap: var(--sp-3); min-height: 460px;" id="help-viewer-layout">
+          <div style="display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--raised); overflow: hidden;">
+            <div style="padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); font-size: var(--fs-xs); font-weight: 600; color: var(--muted); text-transform: uppercase;">
+              Topics (<span id="help-visible-count">...</span>)
+            </div>
+            <div id="help-topics-list" style="flex: 1; max-height: 500px; overflow-y: auto; padding: var(--sp-1);">
+              <div style="padding: var(--sp-2); font-size: var(--fs-sm); color: var(--muted);">Loading topics...</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card); overflow: hidden;">
+            <div style="padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--raised);">
+              <span id="help-active-topic-title" style="font-size: var(--fs-sm); font-weight: 600; color: var(--primary);">Select a topic</span>
+              <button class="btn btn-secondary" onclick="copyCurrentHelpDoc()" style="padding: 2px 8px; font-size: var(--fs-xs);"><span data-icon="check"></span>Copy Markdown</button>
+            </div>
+            <div id="help-doc-viewer" tabindex="0" aria-label="Help document content" style="flex: 1; padding: var(--sp-4); overflow-y: auto; max-height: 500px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; color: var(--text); background: var(--code-bg);">Select a command topic from the list to view its official manual.</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <h3><span data-icon="book-open"></span> CLI &amp; AGY Help — Speed Commands, LAP, Rerun-With-ID, Machine Identity &amp; Bot Reference</h3>
         <table>

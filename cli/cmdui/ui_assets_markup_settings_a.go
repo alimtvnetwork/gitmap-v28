@@ -1,0 +1,133 @@
+package cmdui
+
+const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area active">
+      <div class="sub-tab-bar" style="display: flex; gap: var(--sp-2); margin-bottom: var(--sp-4); border-bottom: 1px solid var(--border); flex-wrap: wrap;">
+        <button type="button" class="sub-tab-btn active" onclick="showSettingsSubTab('all')" id="subnav-all"><span data-icon="settings"></span>All Settings</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('general')" id="subnav-general"><span data-icon="pen-line"></span>General &amp; UI</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('cursor')" id="subnav-cursor"><span data-icon="rocket"></span>Cursor Fleet &amp; Sync</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('speed')" id="subnav-speed"><span data-icon="clock"></span>Speed &amp; Automation</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('alerts')" id="subnav-alerts"><span data-icon="alert-triangle"></span>Alerts &amp; Notifications</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('instances')" id="subnav-instances"><span data-icon="server"></span>Antigravity Instances</button>
+        <button type="button" class="sub-tab-btn" onclick="showSettingsSubTab('catalog')" id="subnav-catalog"><span data-icon="book-open"></span>UI/UX Repo Index</button>
+        <button type="button" class="sub-tab-btn" onclick="showTab('terminal')" id="subnav-terminal"><span data-icon="scroll-text"></span>Embedded Terminal</button>
+      </div>
+
+      <!-- 1. GENERAL & UI APPEARANCE -->
+      <div class="card card-hero settings-subtab-pane" id="settings-pane-general">
+        <h3><span data-icon="pen-line"></span> General &amp; UI Appearance</h3>
+        <div class="form-group">
+          <label for="setting-theme">Theme</label>
+          <select id="setting-theme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="setting-graphics">Graphics Rendering &amp; Hardware Acceleration</label>
+          <select id="setting-graphics">
+            <option value="high">High Performance / Hardware Acceleration</option>
+            <option value="fast">Fast Standard</option>
+            <option value="plain">Plain / Low Graphics</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="setting-auto-open">Auto-Open Browser on UI Launch</label>
+          <select id="setting-auto-open">
+            <option value="true">Enabled (Launch default browser automatically)</option>
+            <option value="false">Disabled (Emit URL to console only)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="setting-port">Cluster REST Port</label>
+          <input type="number" id="setting-port" value="49152">
+        </div>
+        <div class="form-group">
+          <label for="setting-remote">Default Remote Target</label>
+          <input type="text" id="setting-remote" placeholder="origin or alias">
+        </div>
+        <div class="form-group">
+          <label for="setting-pull-direction">Pull Direction Orientation</label>
+          <select id="setting-pull-direction">
+            <option value="pull-left">Pull-Left (Replay from target down to left)</option>
+            <option value="pull-right">Pull-Right (Replay from left source into right target)</option>
+            <option value="bidirectional">Bidirectional Sync</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="setting-pr-mode">Commit-Pull PR Replay Mode</label>
+          <select id="setting-pr-mode">
+            <option value="merges">merges (Feature branches &amp; release PRs)</option>
+            <option value="feature-per-commit">feature-per-commit</option>
+            <option value="direct">direct mainline</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="setting-commitin-layout">Commit-In Migration Studio Layout</label>
+          <select id="setting-commitin-layout">
+            <option value="split">Split Dual-Pane (Config &amp; Output)</option>
+            <option value="left">Left Focus (Config dominant)</option>
+            <option value="right">Right Focus (Output dominant)</option>
+            <option value="stacked">Stacked Vertical</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 2. CURSOR FLEET & SYNC -->
+      <div class="card settings-subtab-pane" id="settings-pane-cursor">
+        <h3><span data-icon="rocket"></span> Cursor Fleet &amp; Sync</h3>
+        <div class="form-group">
+          <label for="setting-machine-name">Machine Name (<code>machine.name</code>)</label>
+          <input type="text" id="setting-machine-name" name="machine.name" data-key="machine.name" placeholder="dev-win-01 / ubuntu-node-02">
+        </div>
+        <div class="form-group">
+          <label for="setting-machine-alias">Network Alias (<code>machine.alias</code> &mdash; auto-defaults to Local IPv4)</label>
+          <input type="text" id="setting-machine-alias" name="machine.alias" data-key="machine.alias" placeholder="Auto-defaults to Local IPv4 if unset">
+        </div>
+        <div class="form-group">
+          <label for="setting-special-secrets-name">Special Secrets Repository Name (<code>special_repos.secrets_name</code> &mdash; shortcut: <code>gitmap rs</code> / <code>gitmap cd rs</code>)</label>
+          <input type="text" id="setting-special-secrets-name" name="special_repos.secrets_name" data-key="special_repos.secrets_name" value="repo-secrets" placeholder="repo-secrets">
+        </div>
+        <div class="form-group">
+          <label for="setting-special-cache-name">Special Cache / Storage Repository Name (<code>special_repos.cache_name</code> &mdash; shortcut: <code>gitmap rc</code> / <code>gitmap cd rc</code>)</label>
+          <input type="text" id="setting-special-cache-name" name="special_repos.cache_name" data-key="special_repos.cache_name" value="repo-cache" placeholder="repo-cache">
+        </div>
+      </div>
+
+      <!-- 3. SPEED & AUTOMATION -->
+      <div class="card settings-subtab-pane" id="settings-pane-speed">
+        <h3><span data-icon="clock"></span> Speed &amp; Automation</h3>
+        <div class="form-group">
+          <label for="setting-lap-hours">LAP Default Lookback Hours (N = 24) (<code>lap.default_hours</code>)</label>
+          <input type="number" id="setting-lap-hours" name="lap.default_hours" data-key="lap.default_hours" value="24" placeholder="24">
+        </div>
+        <div class="form-group">
+          <label for="setting-account-switch-threshold">Account Switch Fast-Forward Threshold (%) (<code>account_switch.threshold</code> &mdash; default 15% prod / 98% E2E test)</label>
+          <input type="number" id="setting-account-switch-threshold" name="account_switch.threshold" data-key="account_switch.threshold" value="15" placeholder="15 (prod) or 98 (E2E test)">
+        </div>
+      </div>
+
+      <!-- 4. ALERTS & NOTIFICATIONS -->
+      <div class="card settings-subtab-pane" id="settings-pane-alerts">
+        <h3><span data-icon="alert-triangle"></span> Alerts &amp; Notifications</h3>
+        <div class="form-group">
+          <label for="setting-telegram-token">Telegram Two-Way Bot Setup &mdash; Bot Token (<code>telegram.bot_token</code>)</label>
+          <input type="text" id="setting-telegram-token" name="telegram.bot_token" data-key="telegram.bot_token" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
+        </div>
+        <div class="form-group">
+          <label for="setting-telegram-chat">Telegram Two-Way Bot Setup &mdash; Chat ID (<code>telegram.chat_id</code>)</label>
+          <input type="text" id="setting-telegram-chat" name="telegram.chat_id" data-key="telegram.chat_id" placeholder="-1001234567890">
+        </div>
+        <div class="form-group">
+          <label for="setting-email-smtp">Email Speed SMTP Setup &mdash; SMTP Host (<code>email.smtp_host</code>)</label>
+          <input type="text" id="setting-email-smtp" name="email.smtp_host" data-key="email.smtp_host" placeholder="smtp.gmail.com:587">
+        </div>
+        <div class="form-group">
+          <label for="setting-email-from">Email Speed SMTP Setup &mdash; From Address (<code>email.from</code>)</label>
+          <input type="email" id="setting-email-from" name="email.from" data-key="email.from" placeholder="bot@example.com">
+        </div>
+        <div class="form-group">
+          <label for="setting-email-to">Email Speed SMTP Setup &mdash; To Address (<code>email.to</code>)</label>
+          <input type="email" id="setting-email-to" name="email.to" data-key="email.to" placeholder="dev@example.com">
+        </div>
+      </div>
+`

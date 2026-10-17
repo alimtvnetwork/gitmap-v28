@@ -33,6 +33,8 @@ export interface Issue {
   altCommand?: string;
   altLabel?: string;
   related?: TroubleshootingRelatedLink[];
+  description?: string;
+  resolution?: string;
 }
 
 export interface TroubleshootingCategoryMetaItem {
@@ -276,6 +278,24 @@ export const issues: Issue[] = [
       { label: "flatten reference", href: "/commands" },
       { label: "split large files reference", href: "/commands" },
       { label: "lfs convert reference", href: "/commands" },
+    ],
+  },
+  {
+    id: "git-reclone-repair",
+    category: CategoryType.Git,
+    title: "Corrupted working tree or broken checkout recovery",
+    symptom: "fatal: bad object HEAD / error: inflate: data stream error / fatal: corrupt patch at ...",
+    cause: "Resolve corrupted .git state, missing blobs, or checkout failure by wiping and re-cloning from remote URL.",
+    fix: "Run 'gitmap reclone <url-or-path> -y' or 'gitmap rec <repo> -y' to perform an atomic clean re-clone.",
+    fixCommand: `gitmap reclone <url-or-path> -y\n# or shorthand alias\ngitmap rec <repo> -y`,
+    altLabel: "Batch manifest re-clone",
+    altCommand: `gitmap reclone repos.json --execute`,
+    description: "Resolve corrupted .git state, missing blobs, or checkout failure by wiping and re-cloning from remote URL",
+    resolution: "Run 'gitmap reclone <url-or-path> -y' or 'gitmap rec <repo> -y' to perform an atomic clean re-clone.",
+    related: [
+      { label: "reclone reference", href: "/commands" },
+      { label: "clone reference", href: "/commands" },
+      { label: "flatten reference", href: "/commands" },
     ],
   },
 

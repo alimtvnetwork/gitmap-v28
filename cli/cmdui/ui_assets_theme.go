@@ -14,7 +14,7 @@ const uiAssetsStyle = `  <style>
       --raised: hsl(230, 18%, 18%);
       --card: hsl(230, 20%, 12%);
       --popover: hsl(230, 20%, 16%);
-      --border: hsl(230, 18%, 20%);
+      --border: hsl(230, 18%, 24%);
       --text: #f8fafc;
       --muted: #94a3b8;
       --primary: #f59e0b;
@@ -27,6 +27,10 @@ const uiAssetsStyle = `  <style>
       --error: #ef4444;
       --code-bg: hsl(230, 25%, 6%);
       --code-text: #e2e8f0;
+      --terminal-bg: hsl(230, 28%, 5%);
+      --terminal-border: hsl(230, 20%, 22%);
+      --terminal-header: hsl(230, 20%, 14%);
+      --terminal-text: #f1f5f9;
       --term-prompt: #f59e0b;
       --json-key: #f59e0b;
       --json-str: #34d399;
@@ -34,9 +38,9 @@ const uiAssetsStyle = `  <style>
       --json-bool: #f472b6;
       --sidebar-bg: hsl(230, 28%, 6%);
       --badge-ok-bg: #064e3b;
-      --badge-ok-fg: #34d399;
+      --badge-ok-fg: #6ee7b7;
       --badge-err-bg: #451a1a;
-      --badge-err-fg: #f87171;
+      --badge-err-fg: #fca5a5;
       /* Spacing scale (4pt) */
       --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
       --sp-5: 20px; --sp-6: 24px; --sp-8: 32px;
@@ -54,9 +58,9 @@ const uiAssetsStyle = `  <style>
       --raised: #ffffff;
       --card: #ffffff;
       --popover: #ffffff;
-      --border: #e2e8f0;
+      --border: #cbd5e1;
       --text: #0f172a;
-      --muted: #64748b;
+      --muted: #475569;
       --primary: #b45309;
       --primary-hover: #92400e;
       --primary-ink: #ffffff;
@@ -66,8 +70,16 @@ const uiAssetsStyle = `  <style>
       --info: #0284c7;
       --error: #dc2626;
       --code-bg: hsl(230, 25%, 8%);
+      --terminal-bg: #0f172a;
+      --terminal-border: #334155;
+      --terminal-header: #1e293b;
+      --terminal-text: #f8fafc;
       --sidebar-bg: #ffffff;
       --shadow-card: 0 8px 24px rgba(15, 23, 42, 0.12);
+      --badge-ok-bg: #d1fae5;
+      --badge-ok-fg: #065f46;
+      --badge-err-bg: #fee2e2;
+      --badge-err-fg: #991b1b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sans); }
     :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
@@ -132,6 +144,8 @@ const uiAssetsStyle = `  <style>
     .term-stderr { color: var(--error); }
     .term-info { color: var(--info); }
     .term-prompt { color: var(--term-prompt); font-weight: 600; }
+    .terminal-card { background: var(--terminal-bg); border: 1px solid var(--terminal-border); border-radius: var(--radius-md); }
+    .terminal-header { background: var(--terminal-header); border-bottom: 1px solid var(--terminal-border); }
     #toast-stack { position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 200; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 360px; }
     .toast { display: flex; align-items: flex-start; gap: var(--sp-2); background: var(--popover); color: var(--text); border: 1px solid var(--border); border-left: 3px solid var(--info); border-radius: var(--radius-md); box-shadow: var(--shadow-card); padding: var(--sp-3) var(--sp-4); font-size: var(--fs-sm); cursor: pointer; animation: toast-in 0.25s ease; }
     .toast-success { border-left-color: var(--success); }

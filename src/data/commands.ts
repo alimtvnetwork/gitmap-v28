@@ -4402,6 +4402,32 @@ export const commands: CommandDef[] = [
       { name: "fix", description: "Remediate repository issues" },
     ],
   },
+  {
+    category: "repo",
+    name: "reclone",
+    alias: "rec",
+    description: "Clean and re-clone repository from URL or manifest (.json/.csv)",
+    usage: "gitmap reclone [<url>|<manifest>] [--manifest <file>] [--scan-root <dir>] [--mode ssh|https] [--execute] [-y] [--no-summary] [--quiet]",
+    flags: [
+      { flag: "--manifest <path>", description: "Repository manifest (.json or .csv) containing clone URLs" },
+      { flag: "--scan-root <dir>", description: "Scan root folder to resolve relative target directories" },
+      { flag: "--mode ssh|https", description: "Remote clone protocol preference" },
+      { flag: "--execute", description: "Execute clean re-cloning operations" },
+      { flag: "-y, --yes", description: "Skip confirmation prompts and perform atomic clean re-clone" },
+      { flag: "--no-summary", description: "Suppress final re-clone execution summary" },
+      { flag: "--quiet", description: "Suppress non-error output during re-cloning" },
+    ],
+    examples: [
+      { command: "gitmap reclone https://github.com/org/repo -y", description: "Clean and re-clone repository immediately from URL" },
+      { command: "gitmap reclone repos.json --execute", description: "Re-clone repositories from manifest with execute flag" },
+      { command: "gitmap rec https://github.com/org/repo -y", description: "Shorthand alias atomic clean re-clone" },
+    ],
+    seeAlso: [
+      { name: "clone", description: "Clone repos from scan output" },
+      { name: "clone-sync", description: "Synchronize cloned repositories with upstream" },
+      { name: "repo flatten", description: "Squash bloated repository history into a single flat commit" },
+    ],
+  },
 ];
 
 // Global flags applied by every command via the shared root parser.

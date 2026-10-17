@@ -10,6 +10,7 @@ import {
   Clock,
   Bot,
   Monitor,
+  HardDrive,
 } from "lucide-react";
 
 export enum StatusType {
@@ -70,9 +71,9 @@ const sections: HelpSection[] = [
   },
   {
     id: "merge",
-    title: "Merge family — file-state transfer",
+    title: "Merge & Conflict Resolution",
     blurb:
-      "Three-way merge of file content with conflict prompts. Transfers files, not commit history.",
+      "Three-way merge of file content, AI amalgamation, and interactive Git conflict inspection and resolution.",
     icon: GitMerge,
     entries: [
       {
@@ -101,6 +102,57 @@ const sections: HelpSection[] = [
         cmd: "merge-right",
         alias: "mr",
         desc: "Push LEFT's changes onto RIGHT only.",
+        status: StatusType.Shipped,
+      },
+      {
+        to: "/commands#resolve",
+        cmd: "gitmap resolve",
+        alias: "res",
+        desc: "Resolve Git merge/rebase conflicts interactively, in VS Code 3-way editor, or by choosing ours/theirs.",
+        status: StatusType.Shipped,
+      },
+      {
+        to: "/commands#conflicts",
+        cmd: "gitmap conflicts",
+        alias: "conf",
+        desc: "Detect, inspect, and summarize unmerged files and conflict markers across the working tree.",
+        status: StatusType.Shipped,
+      },
+    ],
+  },
+  {
+    id: "storage",
+    title: "Large Files & Repository Storage",
+    blurb:
+      "Manage oversized files, compress large media, convert to Git LFS, squash bloated history, and clean re-clone repositories.",
+    icon: HardDrive,
+    entries: [
+      {
+        to: "/commands#split-large-files",
+        cmd: "gitmap split large files",
+        alias: "split-large",
+        desc: "Discover oversized media or data files (>10MB) and split into compressed multipart zip archives.",
+        status: StatusType.Shipped,
+      },
+      {
+        to: "/commands#lfs-convert",
+        cmd: "gitmap lfs convert",
+        alias: "lfs-convert",
+        desc: "Discover files exceeding threshold, configure .gitattributes, and migrate Git history to LFS pointers.",
+        status: StatusType.Shipped,
+      },
+      {
+        to: "/commands#repo-flatten",
+        cmd: "gitmap repo flatten",
+        alias: "flatten",
+        desc: "Squash bloated repository history into a single clean snapshot commit with instant undo support.",
+        status: StatusType.Shipped,
+      },
+      {
+        to: "/commands#reclone",
+        cmd: "gitmap reclone",
+        alias: "rec",
+        desc: "Clean and re-clone repository from remote URL or manifest (.json/.csv) to recover from corrupted state.",
         status: StatusType.Shipped,
       },
     ],
