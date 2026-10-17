@@ -26,9 +26,6 @@ const repoSecretsRemote = "https://github.com/alimtvnetwork/repo-secrets.git"
 // defaultDigestRootName is the default folder carrying the Muse memory digest.
 const defaultDigestRootName = "12-muse-ai"
 
-// digestRootName matches legacy reference.
-const digestRootName = defaultDigestRootName
-
 // repoSecretsPathResolver resolves the local training checkout and reports
 // whether it still needs cloning. Tests override it with fixtures.
 var repoSecretsPathResolver = defaultResolveTrainingPath
@@ -156,10 +153,6 @@ func defaultResolveTrainingPath() (string, bool, *apperror.AppError) {
 	return defaultCloneTargetFor("repo-secrets", "rs"), true, nil
 }
 
-func defaultResolveRepoSecretsPath() (string, bool, *apperror.AppError) {
-	return defaultResolveTrainingPath()
-}
-
 func defaultCloneTargetFor(key, shortKey string) string {
 	name := key
 	if configured := querySpecialRepoConfiguredName(shortKey); configured != "" {
@@ -190,22 +183,6 @@ func querySpecialRepoConfiguredName(shortKey string) string {
 	return rec.ConfiguredName
 }
 
-func defaultCloneTarget(rec *store.SpecialRepoRecord) string {
-	name := "repo-cache"
-	if rec != nil && rec.ConfiguredName != "" {
-		name = rec.ConfiguredName
-	}
-	cwd, err := os.Getwd()
-	if err != nil {
-		cwd = "."
-	}
-	parent := filepath.Dir(cwd)
-	if isDirPath(parent) {
-		return filepath.Join(parent, name)
-	}
-	return filepath.Join(cwd, name)
-}
-
 func isDirPath(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
@@ -233,10 +210,6 @@ func cloneTrainingRepo(log *decisionLog, dest string) *apperror.AppError {
 	return nil
 }
 
-func cloneRepoSecrets(log *decisionLog, dest string) *apperror.AppError {
-	return cloneTrainingRepo(log, dest)
-}
-
 func checkGhReady() *apperror.AppError {
 	if _, lookErr := exec.LookPath("gh"); lookErr != nil {
 		fmt.Println("[LLM-TRAIN-MUSE] 'gh' CLI not found on PATH. Install it from https://cli.github.com/ and re-run.")
@@ -262,10 +235,6 @@ func pullTrainingRepo(log *decisionLog, path string) *apperror.AppError {
 	log.add("sync: origin remote present -> DECISION git pull --ff-only (why: take new digest commits fast-forward only; never merge, never rewrite history)")
 	_, err := runGitCmd(path, "pull", "--ff-only")
 	return err
-}
-
-func pullRepoSecrets(log *decisionLog, path string) *apperror.AppError {
-	return pullTrainingRepo(log, path)
 }
 
 func hasGitRemote(dir string) bool {
