@@ -23,9 +23,9 @@ func (c *Compiler) Placeholder(paramIndex int) string {
 	return "?"
 }
 
-// QuoteIdentifier wraps column or table names in double quotes.
+// QuoteIdentifier wraps column or table names in double quotes, escaping embedded quotes.
 func (c *Compiler) QuoteIdentifier(name string) string {
-	return "\"" + name + "\""
+	return "\"" + strings.ReplaceAll(name, "\"", "\"\"") + "\""
 }
 
 // CompilePagination produces LIMIT/OFFSET syntax for SQLite.

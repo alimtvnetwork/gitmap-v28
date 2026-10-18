@@ -42,12 +42,16 @@ func (db *DB) GetInjectTimestamps(absPath string) (InjectTimestamps, error) {
 // No-op (returns nil) when no row matches absPath — the upstream upsert
 // is the only thing that creates Repo rows; injection alone never does.
 func (db *DB) MarkInjected(absPath string, kind constants.InjectKindType) error {
-	col := injectColumnFor(kind)
-	if col == "" {
+	var stmt string
+	switch kind {
+	case constants.InjectKindDesktop:
+		stmt = constants.SQLUpdateInjectDesktopTimestamp
+	case constants.InjectKindVSCode:
+		stmt = constants.SQLUpdateInjectVSCodeTimestamp
+	default:
 		return fmt.Errorf("inject_idempotency: unknown InjectKind %d", kind)
 	}
 
-	stmt := fmt.Sprintf(constants.SQLUpdateInjectTimestampFmt, col)
 	if _, err := ExecWrapper(db.conn, stmt, absPath).Destruct(); err != nil {
 		return fmt.Errorf(constants.ErrDBUpsert, err)
 	}

@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.576.0] - 2026-10-18
+
+### Added
+- ENT goal feasibility report, type-safe SQL hardening, and Lemon email command daemon service
+
+---
+
 ## [v6.575.2] - 2026-10-18
 
 ### Added

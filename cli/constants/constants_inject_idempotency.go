@@ -24,12 +24,17 @@ const SQLSelectInjectTimestamps = `
 SELECT LastInjectedDesktopAt, LastInjectedVSCodeAt
 FROM Repo WHERE AbsolutePath = ?`
 
-// SQL: stamp the per-tool timestamp to CURRENT_TIMESTAMP. Caller picks
-// the column via fmt.Sprintf — only two known constants are ever
-// substituted (ColInjectDesktop / ColInjectVSCode), so there is no
-// SQL-injection surface.
+// SQL: stamp the per-tool timestamp to CURRENT_TIMESTAMP.
 const SQLUpdateInjectTimestampFmt = `
 UPDATE Repo SET %s = CURRENT_TIMESTAMP, UpdatedAt = CURRENT_TIMESTAMP
+WHERE AbsolutePath = ?`
+
+const SQLUpdateInjectDesktopTimestamp = `
+UPDATE Repo SET LastInjectedDesktopAt = CURRENT_TIMESTAMP, UpdatedAt = CURRENT_TIMESTAMP
+WHERE AbsolutePath = ?`
+
+const SQLUpdateInjectVSCodeTimestamp = `
+UPDATE Repo SET LastInjectedVSCodeAt = CURRENT_TIMESTAMP, UpdatedAt = CURRENT_TIMESTAMP
 WHERE AbsolutePath = ?`
 
 // Column names referenced by SQLUpdateInjectTimestampFmt. Centralized

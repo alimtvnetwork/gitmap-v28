@@ -19,6 +19,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlatestbranch"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlemon"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlist"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlogin"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
@@ -164,6 +165,7 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{constants.CmdTask, constants.CmdTasks, constants.CmdTaskAlias}, func() error { return cmdtask.RunTasks(argsTail()) }},
 		{[]string{constants.CmdEnv, constants.CmdEnvAlias}, func() error { return cmdenv.RunEnv(argsTail()) }},
 		{[]string{constants.CmdService, constants.CmdServiceAlias, "services"}, func() error { return cmdservice.Run(argsTail()) }},
+		{[]string{constants.CmdLemon, constants.CmdLemonAlias}, func() error { return cmdlemon.RunLemonCLI(argsTail()) }},
 		{[]string{"run", "run-macro", "exec-macro"}, func() error { return cmdmacro.RunMacroRootRun(argsTail()) }},
 		{[]string{"run-until"}, func() error { return cmdmacro.RunMacroRootRunUntil(argsTail()) }},
 		{[]string{

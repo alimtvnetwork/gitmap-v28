@@ -5,11 +5,13 @@ package completion
 // generatedCommandsPart2 holds chunk 2 of 3 of the generated command
 // list (see allcommands_generated.go).
 var generatedCommandsPart2 = []string{
+	"list",
 	"list-files",
 	"list-releases",
 	"list-versions",
 	"llm",
 	"llm-docs",
+	"lm",
 	"lower-case-fix",
 	"lowercase",
 	"lowercase-fix",
@@ -253,6 +255,4 @@ var generatedCommandsPart2 = []string{
 	"unzip-compact",
 	"update",
 	"uzc",
-	"v",
-	"var",
 }

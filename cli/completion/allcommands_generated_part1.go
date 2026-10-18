@@ -252,7 +252,7 @@ var generatedCommandsPart1 = []string{
 	"lb",
 	"lcf",
 	"ld",
+	"lemon",
 	"lfs-common",
 	"lfsc",
-	"list",
 }
