@@ -25,6 +25,10 @@ func TestResolve_NegativeIsRejected(t *testing.T) {
 }
 
 func TestResolve_ZeroMeansAuto(t *testing.T) {
+	t.Setenv("SSH_CLIENT", "")
+	t.Setenv("SSH_CONNECTION", "")
+	t.Setenv("GITMAP_SSH_DELEGATED", "")
+
 	got, isResolved := Resolve(0)
 	if !isResolved {
 		t.Fatalf("Resolve(0) ok=false, want true")
@@ -37,6 +41,27 @@ func TestResolve_ZeroMeansAuto(t *testing.T) {
 
 	if got != want {
 		t.Errorf("Resolve(0) = %d, want NumCPU=%d", got, want)
+	}
+}
+
+func TestResolve_ZeroInSSHSession(t *testing.T) {
+	t.Setenv("SSH_CLIENT", "192.168.1.50 51234 22")
+
+	got, isResolved := Resolve(0)
+	if !isResolved {
+		t.Fatalf("Resolve(0) ok=false, want true")
+	}
+
+	want := runtime.NumCPU() / 2
+	if want < 1 {
+		want = 1
+	}
+	if want > 2 {
+		want = 2
+	}
+
+	if got != want {
+		t.Errorf("Resolve(0) in SSH session = %d, want half-priority=%d", got, want)
 	}
 }
 

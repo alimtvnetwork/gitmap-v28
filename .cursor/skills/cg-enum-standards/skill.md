@@ -35,6 +35,8 @@ WAVES = ceil(subtasks / (A x H))
 4. **String-Backed Enums**: Prefer string-backed enums over numeric enums for cross-language compatibility, serialization clarity, and debugging ergonomics.
 5. **Elimination of Magic Literals**: Zero inline magic strings or raw integers in business logic. All known values must reference the typed enum constant.
 6. **Rust Derives**: Rust enums must include `Debug, Clone, PartialEq, Serialize, Deserialize`.
+7. **MIME & Media Type Enum Standard (Spec 36)**: Zero raw magic string literals for MIME or media types (e.g. `'text/html'`, `'text/plain'`, `'application/json'`, `'image/png'`). All MIME types used in Blob constructors (`new Blob([data], { type: MimeType.TextHtml })`), ClipboardItem APIs (`new ClipboardItem({ [MimeType.TextHtml]: htmlBlob })`), HTTP headers (`Content-Type`, `Accept`), or API responses MUST use centralized `MimeType` enum members or typed constant dictionaries.
+8. **Map Dispatch for Extension Resolution (Spec 35)**: Extension-to-MIME lookups MUST use declarative map dispatch tables (`Record<string, MimeType>`) rather than `if-else` or `switch` statements.
 
 ---
 
@@ -68,7 +70,8 @@ Whenever executing or logging subtask telemetry, fulfill the Database Location T
 
 ```bash
 # Pre-edit contention and lease check
-gitmap heatmap discuss [--window 15m] [--threshold 2] [--json]
+gitmap agent heatmap --json
+gitmap heatmap status
 
 # Cognitive file exploration and editing telemetry
 gitmap heatmap log -t <task-slug> -a "READ" -f "<path>" -r "Reasoning: <explanation>" -s "EXPLORATION"
@@ -94,6 +97,7 @@ All symbol and literal searches MUST use GitMap. Shell search tools (`rg`, `ripg
 - **Discover Un-typed Constants:** `gitmap aum search "const (" [dir] -e .go`
 - **Find Raw String Literals:** `gitmap aum search -r "== \"[A-Za-z0-9_-]+\"" [dir] -e .go`
 - **Find Enum Declarations:** `gitmap aum search "type .*Type string" [dir] -e .go`
+- **Find Raw MIME & Media Type Literals:** `gitmap aum search -r "(?:'|\")(text|application|image|audio|video)\/(html|plain|json|xml|markdown|csv|png|jpeg|octet-stream)(?:'|\")" [dir]`
 - **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]`
 - **Stream File Content:** `gitmap cat <filepath>`
 
@@ -118,6 +122,8 @@ All symbol and literal searches MUST use GitMap. Shell search tools (`rg`, `ripg
 - [ ] All enums carry `Type` suffix across TypeScript, Go, and PHP.
 - [ ] Enums use PascalCase naming for types and member constants.
 - [ ] Magic literals replaced with typed enum constants.
+- [ ] MIME & Media Types extracted into centralized `MimeType` enums for Blob constructors, ClipboardItem APIs, HTTP headers, and API responses (Spec 36).
+- [ ] File extension to MIME resolution uses declarative map dispatch tables (Spec 35).
 - [ ] Preflight schema verified via `gitmap agent task status --ddl` and `gitmap agent task status --json`.
 - [ ] 3-Tier Database Location Transparency contract fulfilled.
-- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
+- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap agent heatmap (or gitmap heatmap status) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.

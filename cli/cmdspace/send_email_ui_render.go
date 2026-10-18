@@ -110,7 +110,7 @@ func findRepoSecretFile(relPath string) string {
 		relPath,
 		filepath.Join("..", relPath),
 		filepath.Join("..", "..", relPath),
-		filepath.Join(`D:\work`, relPath),
+		filepath.Join("..", "..", "..", relPath),
 	}
 	for _, cand := range candidates {
 		if isSecretFile(cand) {

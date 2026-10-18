@@ -97,6 +97,7 @@ if (-not $Version) {
 
 $script:ExplicitVersion = $Version
 $script:IsExplicitVersion = (-not [string]::IsNullOrWhiteSpace($Version))
+$script:ReleaseNotes = @()
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
@@ -155,9 +156,12 @@ $colGreen  = if ($hasColorSupport) { "$esc[38;2;80;250;123m"  } else { "" }
 $colOrange = if ($hasColorSupport) { "$esc[38;2;255;184;108m" } else { "" }
 $colRed    = if ($hasColorSupport) { "$esc[38;2;255;85;85m"   } else { "" }
 $colMuted  = if ($hasColorSupport) { "$esc[38;2;98;114;164m"  } else { "" }
-$colBorder = if ($hasColorSupport) { "$esc[38;2;68;71;90m"   } else { "" }
-$colBold   = if ($hasColorSupport) { "$esc[1m" } else { "" }
-$colReset  = if ($hasColorSupport) { "$esc[0m" } else { "" }
+$colBorder     = if ($hasColorSupport) { "$esc[38;2;189;147;249m" } else { "" }
+$colYellow     = if ($hasColorSupport) { "$esc[38;2;241;250;140m" } else { "" }
+$colYellowHigh = if ($hasColorSupport) { "$esc[1;93m" } else { "" }
+$colWhite      = if ($hasColorSupport) { "$esc[1;97m" } else { "" }
+$colBold       = if ($hasColorSupport) { "$esc[1m" } else { "" }
+$colReset      = if ($hasColorSupport) { "$esc[0m" } else { "" }
 
 $c_topLeft      = if ($hasColorSupport) { [string][char]0x256D } else { "+" }
 $c_topRight     = if ($hasColorSupport) { [string][char]0x256E } else { "+" }
@@ -629,6 +633,82 @@ function Resolve-Arch([string]$arch) {
     }
 }
 
+# --- Release notes extraction helper ---
+
+function Extract-ReleaseNotes([string]$body, [int]$maxLines = 2) {
+    if ([string]::IsNullOrWhiteSpace($body)) {
+        return @()
+    }
+    $cleanBody = $body -replace "\r\n", "`n"
+    $lines = $cleanBody -split "`n"
+    $results = @()
+    $inCodeBlock = $false
+
+    foreach ($raw in $lines) {
+        if ($results.Count -ge $maxLines) {
+            break
+        }
+        $trimmed = $raw.Trim()
+        if ($trimmed -match '^```') {
+            $inCodeBlock = -not $inCodeBlock
+            continue
+        }
+        if ($inCodeBlock -or [string]::IsNullOrWhiteSpace($trimmed)) {
+            continue
+        }
+        if ($trimmed -match '^(?:#+|>)\s*') {
+            continue
+        }
+        if ($trimmed -match '^[-*_]{3,}\s*$') {
+            continue
+        }
+
+        $text = ""
+        $isBullet = $false
+        if ($trimmed -match '^[-*•]\s+(.*)$') {
+            $text = $Matches[1].Trim()
+            $isBullet = $true
+        } elseif ($trimmed -match '^\d+\.\s+(.*)$') {
+            $text = $Matches[1].Trim()
+            $isBullet = $true
+        }
+
+        if ($isBullet -and $text.Length -gt 0) {
+            if ($text.Length -gt 72) {
+                $text = $text.Substring(0, 69) + "..."
+            }
+            $results += $text
+        }
+    }
+
+    if ($results.Count -eq 0) {
+        $inCodeBlock = $false
+        foreach ($raw in $lines) {
+            if ($results.Count -ge $maxLines) {
+                break
+            }
+            $trimmed = $raw.Trim()
+            if ($trimmed -match '^```') {
+                $inCodeBlock = -not $inCodeBlock
+                continue
+            }
+            if ($inCodeBlock -or [string]::IsNullOrWhiteSpace($trimmed)) {
+                continue
+            }
+            if ($trimmed -match '^(?:#+|>)\s*' -or $trimmed -match '^[-*_]{3,}\s*$') {
+                continue
+            }
+            $text = $trimmed
+            if ($text.Length -gt 72) {
+                $text = $text.Substring(0, 69) + "..."
+            }
+            $results += $text
+        }
+    }
+
+    return $results
+}
+
 # --- Resolve version (latest or pinned) ---
 
 function Resolve-Version([string]$userVersion) {
@@ -641,6 +721,9 @@ function Resolve-Version([string]$userVersion) {
     try {
         $response = Invoke-WebRequest -Uri $url -UseBasicParsing -ErrorAction Stop
         $release = $response.Content | ConvertFrom-Json
+        if ($release.body) {
+            $script:ReleaseNotes = Extract-ReleaseNotes $release.body
+        }
         if ($release.assets -and @($release.assets).Count -gt 0) {
             return $release.tag_name
         }
@@ -652,6 +735,9 @@ function Resolve-Version([string]$userVersion) {
         foreach ($rel in $releases) {
             if ($rel.assets -and @($rel.assets).Count -gt 0) {
                 Write-Step "  Resolved release $($rel.tag_name) with $(@($rel.assets).Count) assets"
+                if ($rel.body) {
+                    $script:ReleaseNotes = Extract-ReleaseNotes $rel.body
+                }
                 return $rel.tag_name
             }
         }
@@ -1660,12 +1746,22 @@ function Write-InstallSummary([string]$version, [string]$binPath, [string]$insta
     Write-Host "  gitmap install summary" -ForegroundColor White
     Write-Host "  -----------------------------------------------" -ForegroundColor Cyan
     if ($prevVersion -and $prevVersion -ne $version) {
-        Write-Host "    Version    : $version (upgraded from $prevVersion)"
+        $prevFormatted = "$colBold$colWhite$prevVersion$colReset"
+        $arrowFormatted = "$colYellow→$colReset"
+        $currFormatted = "$colBold$colYellowHigh$version$colReset"
+        Write-Host "    Version    : $prevFormatted $arrowFormatted $currFormatted"
     } else {
         Write-Host "    Version    : $version"
     }
     Write-Host "    Binary     : $binPath"
     Write-Host "    Install Dir: $installDir"
+
+    if ($script:ReleaseNotes -and @($script:ReleaseNotes).Count -gt 0) {
+        Write-Host "  Release Notes:"
+        foreach ($rn in $script:ReleaseNotes) {
+            Write-Host "    • $rn"
+        }
+    }
 
     if ($isNoPath) {
         Write-Host "    PATH       : skipped (-NoPath)"
@@ -1707,48 +1803,50 @@ function Invoke-InstallVerification([string]$binPath, [string]$installDir, [bool
 
     Write-Host ""
     Write-Step "Verifying installation"
+    Write-Host ""
 
     # 1. Version
     if (Test-Path $binPath) {
         try {
             $verLine = (& $binPath version 2>&1 | Out-String).Trim().Split("`n")[0]
-            Write-Host ("    PASS  Version: {0}" -f $verLine) -ForegroundColor Green
+            Write-Host "    $colBold$colGreen SUCCESS $colReset Version: $verLine"
         }
         catch {
             Write-Warning "[Invoke-InstallVerification.Version] $_"
-            Write-Host ("    WARN  Could not run {0} version: {1}" -f $binPath, $_) -ForegroundColor Yellow
+            Write-Host ("    $colBold$colOrange WARN    $colReset Could not run {0} version: {1}" -f $binPath, $_)
         }
     }
     else {
-        Write-Host ("    WARN  Binary missing: {0}" -f $binPath) -ForegroundColor Yellow
+        Write-Host ("    $colBold$colRed FAIL    $colReset Binary missing: {0}" -f $binPath)
     }
 
     # 2. PATH active in this session
     $resolved = Get-Command $BinaryName -ErrorAction SilentlyContinue
     if ($resolved) {
-        Write-Host ("    PASS  PATH active: {0} -> {1}" -f $BinaryName, $resolved.Source) -ForegroundColor Green
+        Write-Host "    $colBold$colGreen SUCCESS $colReset PATH active: $BinaryName -> $($resolved.Source)"
     }
     elseif ($isNoPath) {
-        Write-Host ("    WARN  PATH skipped (-NoPath); invoke with full path: {0}" -f $binPath) -ForegroundColor Yellow
+        Write-Host "    $colBold$colOrange WARN    $colReset PATH skipped (-NoPath); invoke with full path: $binPath"
     }
     else {
-        Write-Host ("    WARN  {0} not on PATH yet - open a new terminal or reload `$PROFILE." -f $BinaryName) -ForegroundColor Yellow
+        Write-Host "    $colBold$colOrange WARN    $colReset $BinaryName not on PATH yet - open a new terminal or reload `$PROFILE."
     }
 
     # 3. Data folder
     if (Test-Path $dataDir) {
-        Write-Host ("    PASS  Data folder exists: {0}" -f $dataDir) -ForegroundColor Green
+        Write-Host "    $colBold$colGreen SUCCESS $colReset Data folder exists: $dataDir"
     }
     else {
         try {
             New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
-            Write-Host ("    PASS  Data folder created: {0}" -f $dataDir) -ForegroundColor Green
+            Write-Host "    $colBold$colGreen SUCCESS $colReset Data folder created: $dataDir"
         }
         catch {
             Write-Warning "[Invoke-InstallVerification.CreateDataDir] $_"
-            Write-Host ("    WARN  Could not create data folder: {0}" -f $dataDir) -ForegroundColor Yellow
+            Write-Host "    $colBold$colOrange WARN    $colReset Could not create data folder: $dataDir"
         }
     }
+    Write-Host ""
 }
 
 # --- Main ---
@@ -2021,7 +2119,10 @@ try {
                 $installedVersion = "gitmap $resolvedVersion"
             }
             if ($previousVersion -and $previousVersion -ne $resolvedVersion) {
-                Write-OK "Installed: $installedVersion (upgraded from $previousVersion)"
+                $prevFormatted = "$colBold$colWhite$previousVersion$colReset"
+                $arrowFormatted = "$colYellow→$colReset"
+                $currFormatted = "$colBold$colYellowHigh$installedVersion$colReset"
+                Write-OK "Installed: $prevFormatted $arrowFormatted $currFormatted"
             } else {
                 Write-OK "Installed: $installedVersion"
             }
@@ -2088,7 +2189,18 @@ try {
     } elseif (-not $Quiet) {
         Write-Host ""
         Write-CardHeader "INSTALLATION COMPLETE" "SUCCESS" 80
-        Write-CardText "$colGreen  $installedVersion is ready for production use.$colReset" 80
+        if ($previousVersion -and $previousVersion -ne $resolvedVersion) {
+            Write-CardText "$colWhite$previousVersion$colReset $colYellow→$colReset $colBold$colYellowHigh$installedVersion$colReset is ready for production use." 80
+        } else {
+            Write-CardText "$colGreen  $installedVersion is ready for production use.$colReset" 80
+        }
+        if ($script:ReleaseNotes -and @($script:ReleaseNotes).Count -gt 0) {
+            Write-CardText "" 80
+            Write-CardText "  Release Notes:" 80
+            foreach ($rn in $script:ReleaseNotes) {
+                Write-CardText "    • $rn" 80
+            }
+        }
         Write-CardText "" 80
         Write-CardText "$colBold  Quick Start Commands:$colReset" 80
         Write-CardText "    $colCyan gitmap status$colReset                 Inspect repository and fleet health" 80

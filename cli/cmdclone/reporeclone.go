@@ -107,22 +107,26 @@ func cleanRepoURLName(rawURL string) string {
 }
 
 func resolveRepoFromArg(arg string) (string, bool) {
-	if isGitURL(arg) {
-		repoName := cleanRepoURLName(arg)
-		if repoName == "" {
-			return "", false
-		}
-		cwd, err := os.Getwd()
-		if err != nil {
-			return "", false
-		}
-		if filepath.Base(cwd) == repoName && isGitRepoDir(cwd) {
-			return cwd, true
-		}
-		dest := filepath.Join(cwd, repoName)
-		return dest, true
+	if !isGitURL(arg) {
+		return resolveRepoFromLocalPath(arg)
 	}
 
+	repoName := cleanRepoURLName(arg)
+	if repoName == "" {
+		return "", false
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", false
+	}
+	if filepath.Base(cwd) == repoName && isGitRepoDir(cwd) {
+		return cwd, true
+	}
+	dest := filepath.Join(cwd, repoName)
+	return dest, true
+}
+
+func resolveRepoFromLocalPath(arg string) (string, bool) {
 	abs, err := filepath.Abs(arg)
 	if err != nil {
 		return "", false
@@ -133,8 +137,7 @@ func resolveRepoFromArg(arg string) (string, bool) {
 		return "", false
 	}
 
-	isNonGitRepoDir := !isGitRepoDir(abs)
-	if isNonGitRepoDir {
+	if !isGitRepoDir(abs) {
 		return "", false
 	}
 
@@ -155,24 +158,8 @@ func RunRepoRecloneURL(target, origin string, yes bool) error {
 	folderExists := statErr == nil && info.IsDir()
 
 	if folderExists {
-		parent := filepath.Dir(target)
-		fmt.Printf(constants.MsgRepoReclonePlan, target, origin, parent)
-
-		if !yes && !confirmRepoReclone(target, origin) {
-			fmt.Fprint(os.Stderr, constants.MsgRepoRecloneAborted)
-
-			return apperror.NewSimple("reclone aborted", "E9000")
-		}
-
-		if _, escapeErr := escapeCwdIfInside(target); escapeErr != nil {
-			fmt.Fprintln(os.Stderr, escapeErr.Error())
-
-			return apperror.WrapSimple(escapeErr, "escape cwd")
-		}
-
-		fmt.Printf(constants.MsgRepoRecloneRemoving, target)
-		if rmErr := os.RemoveAll(target); rmErr != nil {
-			return apperror.WrapSimple(rmErr, constants.ErrRepoRecloneRemove)
+		if prepErr := prepareRecloneTarget(target, origin, yes); prepErr != nil {
+			return prepErr
 		}
 	}
 
@@ -210,7 +197,29 @@ func RunRepoReclone(target string, yes bool) error {
 
 // confirmRepoReclone reads y/N from stdin. Non-TTY callers get a
 // hard refusal pointing at -y; this prevents `yes | gitmap rc` from
-// silently nuking the wrong tree in a CI job.
+func prepareRecloneTarget(target, origin string, yes bool) error {
+	parent := filepath.Dir(target)
+	fmt.Printf(constants.MsgRepoReclonePlan, target, origin, parent)
+
+	if !yes && !confirmRepoReclone(target, origin) {
+		fmt.Fprint(os.Stderr, constants.MsgRepoRecloneAborted)
+
+		return apperror.NewSimple("reclone aborted", "E9000")
+	}
+
+	if _, escapeErr := escapeCwdIfInside(target); escapeErr != nil {
+		fmt.Fprintln(os.Stderr, escapeErr.Error())
+
+		return apperror.WrapSimple(escapeErr, "escape cwd")
+	}
+
+	fmt.Printf(constants.MsgRepoRecloneRemoving, target)
+	if rmErr := os.RemoveAll(target); rmErr != nil {
+		return apperror.WrapSimple(rmErr, constants.ErrRepoRecloneRemove)
+	}
+
+	return nil
+}
 
 func confirmRepoReclone(target, origin string) bool {
 	isNonStdinTTY := !isStdinTTY()
