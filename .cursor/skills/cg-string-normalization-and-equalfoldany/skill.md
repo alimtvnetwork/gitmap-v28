@@ -7,21 +7,29 @@ description: Autonomously audits, refactors, and standardizes string normalizati
 
 This skill governs autonomous execution for auditing, refactoring, and standardizing repetitive string normalization (`ToLower`, `TrimSpace`) and chained equality checks (`EqualFold` OR-chains) across Go, TypeScript, and Rust codebases.
 
-## Trigger Keywords & Aliases
+## 1. Concurrency Invariants & Header Parameters
 
-- `cg-string-normalization`
-- `cg-equalfoldany`
-- `strutil-normalization`
-- `audit-string-comparisons`
-- `cg-execute equalfoldany`
+```text
+N = 400 (Total self-loop steps budget — editable top-header parameter, default: 400)
+A = 3   (MANDATORY number of spawned autonomous subagents running concurrently via invoke_subagent, default: 3)
+H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
+C = 30  (Tool calls per worker before it must report, default: 30)
+
+System Concurrency Capacity = A × H = 3 agents × 2 hands = 6 concurrent subtask operations
+Tree Hierarchy = Lead Orchestrator (Root Node) -> Branch Coordinators (Subtask Owners) -> Leaf Workers & Dynamic Joining Assistants
+PHASE_1_BUDGET = 100     (Steps 1 .. 100: Planning, Discovery Subagents, Up-Front Brain & Roadmap Creation, Lean Subtasks)
+PHASE_2_BUDGET = 150     (Steps 101 .. 250: Intermediate Archival, Sanitization, Prerequisite Refactoring, Intermediate Checkpoints)
+PHASE_3_BUDGET = 150     (Steps 251 .. 400: Tree Swarm Parallel Execution, Dynamic Join Capacity Saturation, Targeted Quality Linting, Fleet Sync, Atomic Push)
+WAVES = ceil(subtasks / (A x H))
+```
 
 ---
 
-## 1. Search First Protocol for `<repo>/pkg/strutil/strutil.go`
+## 2. Search First Protocol for `<repo>/pkg/strutil/strutil.go`
 
 Before modifying call sites, creating local helpers, or introducing duplicate logic, agents must strictly follow the **Search First Protocol**:
 
-### 1.1 Canonical Package Locations
+### 2.1 Canonical Package Locations
 
 | Language | Primary Canonical Path | Permitted Internal Path | Prohibited Ad-Hoc Paths |
 | :--- | :--- | :--- | :--- |
@@ -30,7 +38,7 @@ Before modifying call sites, creating local helpers, or introducing duplicate lo
 | **Rust** | `<repo>/src/util/strutil.rs` | `<repo>/src/strutil/mod.rs` | `<repo>/src/main.rs`, inline sub-modules in `<repo>/src/cmd/` |
 | **Python** | `<repo>/pkg/strutil/strutil.py` | `<repo>/src/strutil.py` | `scripts/*.py`, inline functions in individual script files |
 
-### 1.2 Protocol Execution Flow
+### 2.2 Protocol Execution Flow
 
 1. **Locate Canonical String Utility:**
    - Scan for string utilities using `gitmap find-files-any "strutil"`.
@@ -45,48 +53,58 @@ Before modifying call sites, creating local helpers, or introducing duplicate lo
 
 ---
 
-## 2. Step-by-Step Execution Workflow
+## 3. Step 0 Preflight with Data Schema Verification
 
-Execute audits and refactoring runs in four bounded stages:
+Before enqueuing subtasks or claiming work, initialize and verify the SQLite task database schema:
 
-### Stage 1: Discovery & Inventory (Steps 1 .. N/4)
-- Scan the repository for chained `EqualFold`, `ToLower`, and manual trimming patterns using GitMap streaming searches.
-- Identify all call sites violating DRY principles or allocating intermediate strings unnecessarily.
-- Populate the Violation Ledger in `.ai-memory/plans/pending/` with exact files, line numbers, and planned transformations.
+```bash
+gitmap agent task init --name "<task name>" --budget 400
+gitmap agent task status --ddl
+gitmap agent task status --json
+```
 
-### Stage 2: Planning & Subtask Generation (Steps N/4+1 .. N/2)
-- Group target files into micro-batches of 5–8 files each.
-- Generate modular subtask files in `.ai-memory/plans/subtasks/NN-<slug>/01-<title>.md`, `02-<title>.md`, etc.
-- Verify each subtask assigns disjoint file boundaries to prevent merge collisions.
-
-### Stage 3: Micro-Batched Surgical Refactoring (Steps N/2+1 .. 3N/4)
-- Replace verbose OR-chains with canonical `strutil` helper calls.
-- Hoist repeated string normalizations outside tight loops.
-- Enforce positive boolean variables (`isMatch`, `hasTargetRole`) and implicit boolean checks (`if isMatch { ... }`).
-- Maintain function lengths <= 8–15 lines by decomposing complex blocks.
-
-### Stage 4: Verification & Consolidation (Steps 3N/4+1 .. N)
-- Run targeted file-level linters and verify `exit 0` across modified files.
-- Consolidate completed subtasks into `.ai-memory/plans/completed/`.
-- Stage all modified files and create a single grouped atomic commit via GitMap (`gitmap cpf "<module> - <summary>"`).
+- **DDL & Schema Verification Protocol:** Inspect tables (`ParentTask`, `Subtask`, `AgentActionLog`), affirmative boolean flags (`IsActive`, `HasCompleted`, `IsBlocked`), and foreign key linkages.
+- **Forensic Autopsy Check:** Check `diagnostics.hasCrashesDetected`. If true, inspect `diagnostics.crashedAgents` to identify failed subtasks, targeting files, and last logged actions to facilitate clean resume.
 
 ---
 
-## 3. Polyglot Code Transformation Catalog
+## 4. 3-Tier Database Location Transparency & Diagnostic Suite
 
-### 3.1 Go (`<repo>/pkg/strutil/strutil.go`)
+Whenever executing or logging subtask telemetry, fulfill the Database Location Transparency Contract:
 
-#### ❌ Anti-Pattern: Chained `strings.EqualFold` & Manual Trimming
+| Database Tier | Physical File Location | Access Mode & Concurrency Protocol | Data Retained & Ownership |
+| :--- | :--- | :--- | :--- |
+| **Tier 1: Machine-Local Root Database** | `~/.gitmap/agent-root.db` | Machine sessions, cross-repo leases | Machine Sessions & Cross-Repo Leases |
+| **Tier 2: Repo-Cache Companion Storage** | `repo-cache/.heatmap/<ai-slug>/<repo-slug>/heatmap.db` | Isolated Split-DB with periodic sync (`gitmap heatmap rc sync`) | Cross-repository multi-agent actions, tool usage traces, commit checkpoints |
+| **Tier 3: In-Flight Local Run Database** | `.ai-memory/temp-agents/<slug>/agent-task.db` | WAL Mode (`PRAGMA journal_mode=WAL; busy_timeout=5000`) | Task status, worker claims, subtasks, in-flight action logs (<1ms Go engine) |
+| **Tier 3: Local Heatmap Cache** | `.ai-memory/heatmap.db` | WAL Mode + Read-Only Queries (`mode=ro`) | Cognitive action telemetry, file exploration reads/edits, contention leases |
 
-```go
-// ❌ WRONG — manual trim, intermediate variable, chained EqualFold calls
-trimmedRole := strings.TrimSpace(userRole)
-if strings.EqualFold(trimmedRole, "admin") || strings.EqualFold(trimmedRole, "owner") || strings.EqualFold(trimmedRole, "moderator") {
-    grantPermission()
-}
+### Executable Diagnostic Commands:
+
+```bash
+# Pre-edit contention and lease check
+gitmap heatmap discuss [--window 15m] [--threshold 2] [--json]
+
+# Cognitive file exploration and editing telemetry
+gitmap heatmap log -t <task-slug> -a "READ" -f "<path>" -r "Reasoning: <explanation>" -s "EXPLORATION"
+gitmap heatmap log -t <task-slug> -a "EDIT" -f "<path>" -r "Decision: <refactor-rationale>" -s "EXECUTION"
+
+# Real-time continuous activity stream & tree
+gitmap heatmap tree [-t <task-slug>]
+gitmap heatmap live
+
+# Read-only companion query and schema inspection
+gitmap heatmap rc query "SELECT ActionType, FilePath, ReasoningText FROM AgentActionLog ORDER BY AgentActionLogId DESC LIMIT 5" --format table
+gitmap heatmap rc tables
+gitmap heatmap rc view AgentActionLog --limit 10
+gitmap heatmap rc sync
 ```
 
-#### ✅ Canonical Pattern: `strutil.EqualFoldAnyTrim`
+---
+
+## 5. Polyglot Code Transformation Catalog
+
+### 5.1 Go (`<repo>/pkg/strutil/strutil.go`)
 
 ```go
 // ✅ REQUIRED — single-line atomic check via canonical strutil helper
@@ -96,67 +114,7 @@ if isElevated {
 }
 ```
 
-#### ❌ Anti-Pattern: Allocating `ToLower` in Loops
-
-```go
-// ❌ WRONG — allocates heap copy for every iteration
-for _, item := range rawItems {
-    if strings.ToLower(item) == "active" || strings.ToLower(item) == "pending" {
-        results = append(results, item)
-    }
-}
-```
-
-#### ✅ Canonical Pattern: Zero-Allocation `EqualFoldAny`
-
-```go
-// ✅ REQUIRED — zero-allocation Unicode case-folding match
-for _, item := range rawItems {
-    isTargetStatus := strutil.EqualFoldAny(item, "active", "pending")
-    if isTargetStatus {
-        results = append(results, item)
-    }
-}
-```
-
-#### Real-World CLI Confirmation Example (`cli/cmd/releaseundo.go`)
-
-```go
-// ❌ BAD:
-func confirmUndoRelease(tag string) bool {
-    fmt.Printf("Delete %s locally and on origin? [y/N]: ", tag)
-    var reply string
-    _, _ = fmt.Scanln(&reply)
-    trimmed := strings.TrimSpace(reply)
-
-    return strings.EqualFold(trimmed, "y") || strings.EqualFold(trimmed, "yes")
-}
-
-// ✅ GOOD:
-func confirmUndoRelease(tag string) bool {
-    fmt.Printf("Delete %s locally and on origin? [y/N]: ", tag)
-    var reply string
-    _, _ = fmt.Scanln(&reply)
-
-    return strutil.EqualFoldAnyTrim(reply, "y", "yes")
-}
-```
-
----
-
-### 3.2 TypeScript (`<repo>/src/lib/strutil.ts`)
-
-#### ❌ Anti-Pattern: Verbose Chained `.toLowerCase()` and `.trim()`
-
-```typescript
-// ❌ WRONG — repetitive method chaining and fragile equality checks
-const clean = input ? input.trim().toLowerCase() : '';
-if (clean === 'yes' || clean === 'y' || clean === 'true' || clean === '1') {
-  enableFeature();
-}
-```
-
-#### ✅ Canonical Pattern: `strutil.equalFoldAnyTrim`
+### 5.2 TypeScript (`<repo>/src/lib/strutil.ts`)
 
 ```typescript
 // ✅ REQUIRED — concise variadic helper invocation
@@ -166,21 +124,7 @@ if (isAffirmative) {
 }
 ```
 
----
-
-### 3.3 Rust (`<repo>/src/util/strutil.rs`)
-
-#### ❌ Anti-Pattern: Chained `eq_ignore_ascii_case`
-
-```rust
-// ❌ WRONG — repetitive trimming and chained ASCII case comparison
-let val = input.trim();
-if val.eq_ignore_ascii_case("draft") || val.eq_ignore_ascii_case("review") {
-    process_document();
-}
-```
-
-#### ✅ Canonical Pattern: `strutil::equal_fold_any_trim`
+### 5.3 Rust (`<repo>/src/util/strutil.rs`)
 
 ```rust
 // ✅ REQUIRED — slice-based case-folding helper
@@ -192,9 +136,9 @@ if is_pending {
 
 ---
 
-## 4. High-Speed AST Search & Discovery via GitMap
+## 6. High-Speed AST Search & Discovery via GitMap
 
-Use GitMap multi-core live streaming search commands to identify candidates across languages. Generic shell search tools (`Select-String`, `git grep`, `grep`, `findstr`) are strictly banned:
+All searches MUST use GitMap. Shell search tools (`rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr`) are strictly banned:
 
 ```bash
 # Go: Find chained EqualFold checks
@@ -206,14 +150,8 @@ gitmap aum search -r "TrimSpace\(.*EqualFold" [dir] -e .go
 # Go: Find ToLower equality OR-chains
 gitmap aum search -r "strings\.ToLower\(.*==.*\|\|" [dir] -e .go
 
-# Go: Find all EqualFold call sites
-gitmap aum search "strings.EqualFold" [dir] -e .go
-
 # TypeScript: Find chained .toLowerCase() checks
 gitmap aum search -r "\.toLowerCase\(\)\s*===\s*.*\|\|" [dir] -e .ts
-
-# TypeScript: Find .trim().toLowerCase() calls
-gitmap aum search -r "\.trim\(\)\.toLowerCase\(\)" [dir] -e .ts
 
 # Rust: Find chained eq_ignore_ascii_case checks
 gitmap aum search -r "eq_ignore_ascii_case\(.*\|\|" [dir] -e .rs
@@ -221,27 +159,24 @@ gitmap aum search -r "eq_ignore_ascii_case\(.*\|\|" [dir] -e .rs
 
 ---
 
-## 5. Verification Checklist & Quality Gates
+## 7. Routine Execution & GitMap Hyphen Commit Policy
 
-- [ ] Canonical `<repo>/pkg/strutil/strutil.go` verified before refactoring call sites.
-- [ ] Chained `EqualFold` and `ToLower` OR-chains converted to `strutil.EqualFoldAny` or `strutil.EqualFoldAnyTrim`.
-- [ ] Unshared ad-hoc helper functions (`isYes`, `checkConfirm`, `matchesAny`) eliminated.
-- [ ] Affirmative boolean variable naming enforced (`is`, `has` only).
-- [ ] Implicit boolean checks enforced (`if isMatch { ... }`, never `if isMatch == true`).
-- [ ] No mixed polarity conditions (`if isA && !isB` is banned).
-- [ ] Vertical line gaps enforced (blank line before `if`, after `}`, before `return`).
-- [ ] Functions adhere to canonical size limits (<= 8–15 lines).
-- [ ] Targeted linters exit 0:
-  - `python linter-scripts/check-relative-paths.py`
-  - `python 03-ai-scripts/21-sequence-integrity-linter.py 01-prompts/15-cg-execute`
-  - `python linter-scripts/check-forbidden-strings.py`
-- [ ] ZERO test runs or build commands executed during routine execution (R1).
+- **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine turns. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.
+- **NO TEST RUNNING (TOTAL BAN):** NEVER run test suites (`go test ./...`, `pytest`) during routine execution.
+- **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`) after individual file edits.
+- **GitMap Hyphen Commit Syntax:** All commits MUST use GitMap semantic commands with hyphen separator:
+  - Feature: `gitmap cpf "<module> - <summary>"`
+  - Bug Fix: `gitmap cpb "<module> - <summary>"`
+  - Chore: `gitmap cpc "<module> - <summary>"`
+  - TOTAL BAN on colons `:` inside the commit message argument.
+  - TOTAL BAN on raw `git commit`, `git add -A`, or per-file commits.
 
 ---
 
-## 6. Cross-References
+## 8. Verification Checklist
 
-- [34-string-normalization-and-equalfoldany.md](02-spec/02-coding-guidelines/01-cross-language/34-string-normalization-and-equalfoldany.md)
-- [01-architecture-spec.md](02-spec/21-app/02-string-normalization-and-equalfoldany/01-architecture-spec.md)
-- [02-prompt-and-skill-spec.md](02-spec/21-app/02-string-normalization-and-equalfoldany/02-prompt-and-skill-spec.md)
-- [37-string-normalization-and-equalfoldany.md](01-prompts/15-cg-execute/37-string-normalization-and-equalfoldany.md)
+- [ ] Canonical `<repo>/pkg/strutil/strutil.go` verified before refactoring call sites.
+- [ ] Chained `EqualFold` and `ToLower` OR-chains converted to `strutil.EqualFoldAny` or `strutil.EqualFoldAnyTrim`.
+- [ ] Preflight schema verified via `gitmap agent task status --ddl` and `gitmap agent task status --json`.
+- [ ] 3-Tier Database Location Transparency contract fulfilled.
+- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.

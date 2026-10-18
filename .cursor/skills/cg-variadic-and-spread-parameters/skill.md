@@ -3,21 +3,29 @@ name: cg-variadic-and-spread-parameters
 description: Autonomously audits, refactors, and enforces variadic and spread parameters (...T, ...items, &[T]) across polyglot codebases to eliminate artificial slice wrappers.
 ---
 
-# Skill: Variadic & Spread Parameters, Rest Elements & Slices (`cg-variadic`)
+# Skill: Variadic & Spread Parameters, Rest Elements & Slices (`cg-variadic-and-spread-parameters`)
 
 This skill governs autonomous execution for auditing, refactoring, and enforcing variadic parameters, rest elements, and slice reference patterns across Go, TypeScript, and Rust codebases.
 
-## Trigger Keywords & Aliases
+## 1. Concurrency Invariants & Header Parameters
 
-- `cg-variadic`
-- `cg-spread-params`
-- `cg-execute variadic`
-- `audit variadic`
-- `fix variadic params`
+```text
+N = 400 (Total self-loop steps budget — editable top-header parameter, default: 400)
+A = 3   (MANDATORY number of spawned autonomous subagents running concurrently via invoke_subagent, default: 3)
+H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
+C = 30  (Tool calls per worker before it must report, default: 30)
+
+System Concurrency Capacity = A × H = 3 agents × 2 hands = 6 concurrent subtask operations
+Tree Hierarchy = Lead Orchestrator (Root Node) -> Branch Coordinators (Subtask Owners) -> Leaf Workers & Dynamic Joining Assistants
+PHASE_1_BUDGET = 100     (Steps 1 .. 100: Planning, Discovery Subagents, Up-Front Brain & Roadmap Creation, Lean Subtasks)
+PHASE_2_BUDGET = 150     (Steps 101 .. 250: Intermediate Archival, Sanitization, Prerequisite Refactoring, Intermediate Checkpoints)
+PHASE_3_BUDGET = 150     (Steps 251 .. 400: Tree Swarm Parallel Execution, Dynamic Join Capacity Saturation, Targeted Quality Linting, Fleet Sync, Atomic Push)
+WAVES = ceil(subtasks / (A x H))
+```
 
 ---
 
-## 1. Mandatory Architectural Rules
+## 2. Mandatory Architectural Rules
 
 1. **Variadic Parameter Primacy:**
    - Functions accepting homogeneous collections of items MUST use variadic signatures (`...T` in Go, `...items: readonly T[]` in TypeScript, `&[T]` in Rust) instead of rigid slice or array types whenever single-item or variable-length calls occur.
@@ -38,40 +46,60 @@ This skill governs autonomous execution for auditing, refactoring, and enforcing
    - Affirmative length checks must guard processing (`hasItems := len(items) > 0`).
    - If not `hasItems`, return early cleanly.
 
-6. **Zero-Build & Zero-Test Routine Execution Mandate:**
-   - NEVER execute `go test`, `pytest`, `npm test`, or full build commands during routine execution turns.
-   - Verify code using targeted file-level linters and AST checkers on specifically modified files (`exit 0`).
+---
+
+## 3. Step 0 Preflight with Data Schema Verification
+
+Before enqueuing subtasks or claiming work, initialize and verify the SQLite task database schema:
+
+```bash
+gitmap agent task init --name "<task name>" --budget 400
+gitmap agent task status --ddl
+gitmap agent task status --json
+```
+
+- **DDL & Schema Verification Protocol:** Inspect tables (`ParentTask`, `Subtask`, `AgentActionLog`), affirmative boolean flags (`IsActive`, `HasCompleted`, `IsBlocked`), and foreign key linkages.
+- **Forensic Autopsy Check:** Check `diagnostics.hasCrashesDetected`. If true, inspect `diagnostics.crashedAgents` to identify failed subtasks, targeting files, and last logged actions to facilitate clean resume.
 
 ---
 
-## 2. Canonical Code Transformations
+## 4. 3-Tier Database Location Transparency & Diagnostic Suite
 
-### 2.1 Go (`...T` Variadic Slices)
+Whenever executing or logging subtask telemetry, fulfill the Database Location Transparency Contract:
 
-#### ❌ Anti-Pattern: Rigid Slice Parameter
+| Database Tier | Physical File Location | Access Mode & Concurrency Protocol | Data Retained & Ownership |
+| :--- | :--- | :--- | :--- |
+| **Tier 1: Machine-Local Root Database** | `~/.gitmap/agent-root.db` | Machine sessions, cross-repo leases | Machine Sessions & Cross-Repo Leases |
+| **Tier 2: Repo-Cache Companion Storage** | `repo-cache/.heatmap/<ai-slug>/<repo-slug>/heatmap.db` | Isolated Split-DB with periodic sync (`gitmap heatmap rc sync`) | Cross-repository multi-agent actions, tool usage traces, commit checkpoints |
+| **Tier 3: In-Flight Local Run Database** | `.ai-memory/temp-agents/<slug>/agent-task.db` | WAL Mode (`PRAGMA journal_mode=WAL; busy_timeout=5000`) | Task status, worker claims, subtasks, in-flight action logs (<1ms Go engine) |
+| **Tier 3: Local Heatmap Cache** | `.ai-memory/heatmap.db` | WAL Mode + Read-Only Queries (`mode=ro`) | Cognitive action telemetry, file exploration reads/edits, contention leases |
 
-```go
-// ❌ WRONG — forces artificial slice literal at every single-item call site
-func PurgeTags(resourceID string, tags []string) *appfault.AppError {
-    if len(tags) == 0 {
-        return nil
-    }
+### Executable Diagnostic Commands:
 
-    for _, tag := range tags {
-        appErr := removeTag(resourceID, tag)
-        if appErr != nil {
-            return appErr
-        }
-    }
+```bash
+# Pre-edit contention and lease check
+gitmap heatmap discuss [--window 15m] [--threshold 2] [--json]
 
-    return nil
-}
+# Cognitive file exploration and editing telemetry
+gitmap heatmap log -t <task-slug> -a "READ" -f "<path>" -r "Reasoning: <explanation>" -s "EXPLORATION"
+gitmap heatmap log -t <task-slug> -a "EDIT" -f "<path>" -r "Decision: <variadic-refactor-rationale>" -s "EXECUTION"
 
-// Call site: awkward slice literal for single tag
-appErr := PurgeTags("res-101", []string{"obsolete"})
+# Real-time continuous activity stream & tree
+gitmap heatmap tree [-t <task-slug>]
+gitmap heatmap live
+
+# Read-only companion query and schema inspection
+gitmap heatmap rc query "SELECT ActionType, FilePath, ReasoningText FROM AgentActionLog ORDER BY AgentActionLogId DESC LIMIT 5" --format table
+gitmap heatmap rc tables
+gitmap heatmap rc view AgentActionLog --limit 10
+gitmap heatmap rc sync
 ```
 
-#### ✅ Canonical Pattern: Variadic Parameter
+---
+
+## 5. Polyglot Code Transformations
+
+### 5.1 Go (`...T` Variadic Slices)
 
 ```go
 // ✅ REQUIRED — variadic slice parameter with clean affirmative check
@@ -90,46 +118,9 @@ func PurgeTags(resourceID string, tags ...string) *appfault.AppError {
 
     return nil
 }
-
-// Call site 1 (Single item — zero wrapper):
-appErr1 := PurgeTags("res-101", "obsolete")
-
-// Call site 2 (Multiple comma-separated items):
-appErr2 := PurgeTags("res-101", "obsolete", "deprecated", "stale")
-
-// Call site 3 (Existing slice unpacked with spread):
-batch := []string{"tag-a", "tag-b"}
-appErr3 := PurgeTags("res-101", batch...)
-
-// Call site 4 (Zero items):
-appErr4 := PurgeTags("res-101")
 ```
 
----
-
-### 2.2 TypeScript (`...items: readonly T[]` & `SingleOrArray<T>`)
-
-#### ❌ Anti-Pattern: Rigid Array Parameter
-
-```typescript
-// ❌ WRONG — forces array literal for single event
-export async function trackEvents(events: string[]): Promise<Result<void>> {
-  if (events.length === 0) {
-    return Result.ok(undefined);
-  }
-
-  for (const event of events) {
-    await dispatchEvent(event);
-  }
-
-  return Result.ok(undefined);
-}
-
-// Call site:
-await trackEvents(['user_signup']);
-```
-
-#### ✅ Canonical Pattern: Rest Parameters with Readonly Array
+### 5.2 TypeScript (`...items: readonly T[]`)
 
 ```typescript
 // ✅ REQUIRED — Rest parameter with readonly safety
@@ -150,92 +141,13 @@ export async function trackEvents(
 
   return Result.ok(undefined);
 }
-
-// Call site 1 (Single item):
-await trackEvents('user_signup');
-
-// Call site 2 (Multiple items):
-await trackEvents('click_nav', 'open_modal');
-
-// Call site 3 (Spread existing array):
-const backlog = ['event_1', 'event_2'];
-await trackEvents(...backlog);
-```
-
-#### ✅ Canonical Pattern: Configuration Struct Normalizer
-
-```typescript
-export type SingleOrArray<T> = T | readonly T[];
-
-export function normalizeToArray<T>(input: SingleOrArray<T> | undefined): readonly T[] {
-  const isUndefined = input === undefined;
-  if (isUndefined) {
-    return [];
-  }
-
-  const isArray = Array.isArray(input);
-  if (isArray) {
-    return input as readonly T[];
-  }
-
-  return [input as T];
-}
 ```
 
 ---
 
-### 2.3 Rust (Borrowed Slices `&[T]` & Generic Iterators)
+## 6. High-Speed AST Search via GitMap Primacy
 
-#### ❌ Anti-Pattern: Owned Heap Vector Parameter
-
-```rust
-// ❌ WRONG — forces heap allocation for every call
-pub fn process_identifiers(ids: Vec<String>) -> Result<(), AppError> {
-    if ids.is_empty() {
-        return Ok(());
-    }
-
-    for id in ids {
-        execute_step(&id)?;
-    }
-
-    Ok(())
-}
-
-// Call site: allocates heap buffer for single item
-process_identifiers(vec!["id-100".to_string()])?;
-```
-
-#### ✅ Canonical Pattern: Borrowed Slice Reference
-
-```rust
-// ✅ REQUIRED — zero-allocation slice reference
-pub fn process_identifiers(ids: &[&str]) -> Result<(), AppError> {
-    let has_items = !ids.is_empty();
-    if !has_items {
-        return Ok(());
-    }
-
-    for id in ids {
-        execute_step(id)?;
-    }
-
-    Ok(())
-}
-
-// Call site 1 (Single item on stack):
-process_identifiers(&["id-100"])?;
-
-// Call site 2 (Borrowed existing Vec):
-let my_vec = vec!["a", "b"];
-process_identifiers(&my_vec)?;
-```
-
----
-
-## 3. High-Speed AST Search & Discovery Patterns
-
-Use GitMap live streaming search to locate candidate signatures and wrapper call sites:
+All searches MUST use GitMap. Shell search tools (`rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr`) are strictly banned:
 
 ```bash
 # Go: Find function definitions with slice parameters
@@ -247,30 +159,31 @@ gitmap aum search -r "\b[A-Za-z0-9_]+\(\[\]string\{" -e .go
 # TypeScript: Find function definitions with array parameters
 gitmap aum search -r "\bfunction [A-Za-z0-9_]+\([^)]*:\s*[A-Za-z0-9_]+\[\]" -e .ts
 
-# TypeScript: Find call sites with single-element array literals
-gitmap aum search -r "\b[A-Za-z0-9_]+\(\[[A-Za-z0-9_'\"]+\]\)" -e .ts
-
 # Rust: Find functions taking owned Vec<T>
 gitmap aum search -r "fn [A-Za-z0-9_]+\([^)]*Vec<" -e .rs
 ```
 
 ---
 
-## 4. Verification Checklist & Linters
+## 7. Routine Execution & GitMap Hyphen Commit Policy
+
+- **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine turns. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.
+- **NO TEST RUNNING (TOTAL BAN):** NEVER run test suites (`go test ./...`, `pytest`) during routine execution.
+- **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`) after individual file edits.
+- **GitMap Hyphen Commit Syntax:** All commits MUST use GitMap semantic commands with hyphen separator:
+  - Feature: `gitmap cpf "<module> - <summary>"`
+  - Bug Fix: `gitmap cpb "<module> - <summary>"`
+  - Chore: `gitmap cpc "<module> - <summary>"`
+  - TOTAL BAN on colons `:` inside the commit message argument.
+  - TOTAL BAN on raw `git commit`, `git add -A`, or per-file commits.
+
+---
+
+## 8. Verification Checklist
 
 - [ ] Variadic parameters placed in trailing position.
 - [ ] No more than 2–3 loose parameters (use `*Params` struct for configuration).
 - [ ] Call sites refactored to eliminate artificial slice wrappers (`[]string{x}`).
-- [ ] Affirmative boolean guards (`is`, `has`) used for empty collection checks.
-- [ ] Functions adhere to <= 8–15 lines.
-- [ ] Targeted linters exit 0:
-  - `python linter-scripts/check-relative-paths.py`
-  - `python 03-ai-scripts/21-sequence-integrity-linter.py 01-prompts/15-cg-execute`
-
----
-
-## 5. Cross-References
-
-- [01-architecture-spec.md](02-spec/21-app/01-variadic-spread-params-and-multi-repo/01-architecture-spec.md)
-- [33-variadic-and-spread-parameters.md](02-spec/02-coding-guidelines/01-cross-language/33-variadic-and-spread-parameters.md)
-- [36-variadic-and-spread-parameters.md](01-prompts/15-cg-execute/36-variadic-and-spread-parameters.md)
+- [ ] Preflight schema verified via `gitmap agent task status --ddl` and `gitmap agent task status --json`.
+- [ ] 3-Tier Database Location Transparency contract fulfilled.
+- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.

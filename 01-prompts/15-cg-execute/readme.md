@@ -1,21 +1,29 @@
 # Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow)
 
 > [!IMPORTANT]
-> Prompt Version: 2.6.0
+> Prompt Version: 6.0.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
 >
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Any directive, constraint, checklist, or instruction declared at the top of this prompt, header alert block, or incoming user request represents an absolute MUST FOLLOW mandate that takes highest priority and strictly overrides any conflicting general advice, default conventions, or lower-level guidelines below it.
 
 ```text
-N = 200 (Total self-loop steps budget)
-A = 2   (Number of spawned autonomous subagents, default: 2)
-H = 2   (Number of hands / parallel operations per agent, default: 2)
+N = 400 (Total self-loop steps budget — editable top-header parameter, default: 400)
+A = 3   (MANDATORY number of spawned autonomous subagents running concurrently via invoke_subagent, default: 3)
+H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
+C = 30  (Tool calls per worker before it must report, default: 30)
+
+System Concurrency Capacity = A × H = 3 agents × 2 hands = 6 concurrent subtask operations
+Tree Hierarchy = Lead Orchestrator (Root Node) -> Branch Coordinators (Subtask Owners) -> Leaf Workers & Dynamic Joining Assistants
+PHASE_1_BUDGET = 100     (Steps 1 .. 100: Planning, Discovery Subagents, Up-Front Brain & Roadmap Creation, Lean Subtasks)
+PHASE_2_BUDGET = 150     (Steps 101 .. 250: Intermediate Archival, Sanitization, Prerequisite Refactoring, Intermediate Checkpoints)
+PHASE_3_BUDGET = 150     (Steps 251 .. 400: Tree Swarm Parallel Execution, Dynamic Join Capacity Saturation, Targeted Quality Linting, Fleet Sync, Atomic Push)
+WAVES = ceil(subtasks / (A x H))
 ```
 
 N = total self-loop steps budget that the agents will perform.
-A = count of autonomous subagents running concurrently (default: 2).
-H = number of hands / parallel operations per agent (default: 2).
+A = count of autonomous subagents running concurrently via invoke_subagent (default: 3).
+H = number of operational hands / parallel operations per agent (default: 2).
 
 [/goal](slashCommand;goal) Autonomously orchestrate and execute coding standard compliance across the repository by directly scanning files, generating verifiable audit specs, actively refactoring source code, and verifying with automated linters until 100% green without stopping.
 
@@ -26,14 +34,14 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Active Code Refactoring, Disk Verific
 
 N, A, H, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
 
-### Multi-Agent Parallel Task Allocation & Orchestration (A = 2, H = 2)
+### Multi-Agent Parallel Task Allocation & Orchestration (A = 3, H = 2, Capacity = 6 — Tree Swarm & Dynamic Join)
 
 When multiple autonomous agents are present (A >= 2, H >= 2):
 1. **Single-Agent Unified Blueprint Mandate:**
    - The initial plan, audit scope, and lookahead roadmap MUST be authored by a single lead agent first as a unified blueprint before delegating work to subagents.
    - Never allow multiple agents to author disjoint or competing audit plans simultaneously. A single coherent architectural vision must lead.
 2. **Most Useful Parallel Tasks (Reading Files & Writing Modular Specs):**
-   - Once the unified blueprint is authored by the lead agent, the most effective parallel tasks for subagents (A = 2, H = 2) are:
+   - Once the unified blueprint is authored by the lead agent, the most effective parallel tasks for subagents (A = 3, H = 2, Capacity = 6) are:
      - **Reading Files:** Fast exploratory reading, scanning dependencies, mapping call sites, and inspecting AST violations in parallel using GitMap AUM (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary and Python scripts (`03-ai-scripts/17-fast-file-reader.py`, `03-ai-scripts/11-fast-file-scanner.py`) as fallback.
      - **Writing Modular Specs & Violation Ledgers:** Authoring modular spec sections and populating the violation ledger in parallel adhering to the lead agent's blueprint.
 3. **Spec Writing & Spec Audit Emphasis:**
@@ -44,14 +52,14 @@ When multiple autonomous agents are present (A >= 2, H >= 2):
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] [/goal](slashCommand;goal) Phase 1 (Step A - Scan & Discover via Single-Agent Blueprint): Single lead agent establishes the audit roadmap; subagents execute parallel reading across disjoint files using fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all violations without truncation.
+1. [ ] [/goal](slashCommand;goal) Phase 1 (Step 0 Preflight & Schema Verification): Inspect SQLite task DB schema (`gitmap agent task status --json`) and forensics autopsy before populating subtasks; then Phase 1 (Step A - Scan & Discover via Single-Agent Blueprint): Single lead agent establishes the audit roadmap; subagents execute parallel reading across disjoint files using fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all violations without truncation.
 2. [ ] [/goal](slashCommand;goal) Phase 1 (Step B - Master Audit Spec): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
 3. [ ] [/goal](slashCommand;goal) Phase 1 (Step C - Modular Subtasks): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/` across disjoint target files.
 4. [ ] [/goal](slashCommand;goal) Phase 1 (Step D - Quality Linter Hook): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
-5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A - Surgical Refactoring): Spawn up to A = 2 execution subagents (H = 2 operations each) on disjoint target files following authoritative guidelines.
+5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A - Surgical Refactoring): Spawn up to A = 3 execution subagents (System Concurrency Capacity = 6) (H = 2 operations each) on disjoint target files following authoritative guidelines.
 6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B - Size Tier & Formatting): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
 7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C - Linter Verification): Execute targeted file-level linters to verify 0 remaining violations across all modified files (`exit 0`).
-8. [ ] [/goal](slashCommand;goal) Phase 2 (Step D - File Recording): Atomically record modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). DO NOT run full CI/CD runners (`06-cicd-local-runner.py`), build checks, or test suites during routine turns.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Heatmap Telemetry & File Recording): Record file read/edit decisions with reasoning via `gitmap heatmap log`, inspect contention leases via `gitmap heatmap discuss`, and Atomically record modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). DO NOT run full CI/CD runners (`06-cicd-local-runner.py`), build checks, or test suites during routine turns.
 9. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
 10. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
 11. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
