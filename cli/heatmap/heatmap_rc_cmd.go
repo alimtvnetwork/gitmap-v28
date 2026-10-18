@@ -25,6 +25,8 @@ func DispatchRcHeatmap(ctx context.Context, args []string, out io.Writer) error 
 	switch subcmd {
 	case "log":
 		return runRcLog(flags, out)
+	case "update", "outcome":
+		return runRcUpdate(flags, pos, out)
 	case "search":
 		return runRcSearch(flags, pos, out)
 	case "tree":
@@ -61,6 +63,12 @@ func runRcLog(flags map[string]string, out io.Writer) error {
 	id, err := st.LogAction(rec)
 	if err != nil {
 		return err
+	}
+	rec.HeatmapActionLogId = id
+
+	if isJsonRequested(flags) {
+		env := BuildRcLogEnvelope(rec, st.RepoDbPath(), aiName, repoSlug)
+		return json.NewEncoder(out).Encode(env)
 	}
 
 	fmt.Fprintf(out, "Logged RC heatmap action #%d [ai=%s, repo=%s, task=%s, action=%s, file=%s]\n",
@@ -236,30 +244,10 @@ func resolveTargetRepo(flag string) string {
 	return store.ResolveAmbientRepoSlug("")
 }
 
-func renderRcTreeText(out io.Writer, nodes []store.RcHeatmapExecutionTreeNode, indent string) {
-	for i, node := range nodes {
-		branch, nextIndent := "├── ", indent+"│   "
-		if i == len(nodes)-1 {
-			branch, nextIndent = "└── ", indent+"    "
-		}
-		if indent == "" {
-			branch, nextIndent = "• ", "  "
-		}
-		lineInfo := ""
-		if node.FilePath != "" {
-			lineInfo = fmt.Sprintf(" [%s:%d-%d]", node.FilePath, node.StartLine, node.EndLine)
-		}
-		fmt.Fprintf(out, "%s%s#%d (%s) %s%s: %s\n", indent, branch, node.HeatmapActionLogId,
-			node.ReasoningState, node.ActionType, lineInfo, node.ReasoningNotes)
-		if len(node.Children) > 0 {
-			renderRcTreeText(out, node.Children, nextIndent)
-		}
-	}
-}
-
 func printRcHeatmapHelp(out io.Writer) {
 	fmt.Fprintln(out, "Usage: gitmap heatmap rc <command> [flags]\n\nSubcommands:")
 	fmt.Fprintln(out, "  log      Log an AI cognitive decision to repo-cache split-db")
+	fmt.Fprintln(out, "  update   Update outcome and expectation status of an existing action")
 	fmt.Fprintln(out, "  search   Search logged actions by query, task, or file")
 	fmt.Fprintln(out, "  tree     Display hierarchical causal execution tree")
 	fmt.Fprintln(out, "  status   Summarize action volume, states, and uncommitted delta")
