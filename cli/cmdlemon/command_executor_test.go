@@ -58,12 +58,12 @@ func TestTimeoutAndTruncation(t *testing.T) {
 func TestMockCommandExecutor(t *testing.T) {
 	mock := &MockCommandExecutor{
 		Handler: func(ctx context.Context, args []string) (ExecutionResult, error) {
-			return ExecutionResult{ExitCode: 0, Stdout: "audit ok", DurationMs: 5, Success: true}, nil
+			return ExecutionResult{ExitCode: 0, Stdout: "audit ok", DurationMs: 5, IsSuccess: true}, nil
 		},
 	}
 	ctx := context.Background()
 	res, err := mock.Execute(ctx, "gitmap agm queue audit")
-	if err != nil || !res.Success || res.Stdout != "audit ok" {
+	if !isMockExecutionValid(res, err) {
 		t.Fatalf("unexpected mock result: %+v, err: %v", res, err)
 	}
 	if _, unauthErr := mock.Execute(ctx, "curl evil.com"); unauthErr == nil {
@@ -71,13 +71,27 @@ func TestMockCommandExecutor(t *testing.T) {
 	}
 }
 
+func isMockExecutionValid(res ExecutionResult, err error) bool {
+	if err == nil && res.IsSuccess && res.Stdout == "audit ok" {
+		return true
+	}
+	return false
+}
+
 func TestSystemCommandExecutor(t *testing.T) {
 	sys := &SystemCommandExecutor{ExePath: "go", Timeout: 5 * time.Second}
 	res, err := sys.Execute(context.Background(), "version")
-	if err != nil || !res.Success {
+	if !isSystemExecutionValid(res, err) {
 		t.Fatalf("SystemCommandExecutor failed: %+v, err: %v", res, err)
 	}
 	if !strings.Contains(res.Stdout, "go version") {
 		t.Errorf("expected stdout to contain 'go version', got %q", res.Stdout)
 	}
+}
+
+func isSystemExecutionValid(res ExecutionResult, err error) bool {
+	if err == nil && res.IsSuccess {
+		return true
+	}
+	return false
 }

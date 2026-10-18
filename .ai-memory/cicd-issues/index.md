@@ -112,4 +112,5 @@
 - [121-unused-schemaregistry-assert-helpers-rca.md](./121-unused-schemaregistry-assert-helpers-rca.md): Remove unused assertSchemaKeysArray and assertSchemaKeysSlice from schemaregistry_assert_test.go for lint-baseline-diff.
 - [122-unformatted-gofmt-in-schemaregistry-assert-test-rca.md](./122-unformatted-gofmt-in-schemaregistry-assert-test-rca.md): Format schemaregistry_assert_test.go with gofmt to satisfy lint-script unit tests.
 - [123-file-size-gate-root-cobra-and-completion-install-rca.md](./123-file-size-gate-root-cobra-and-completion-install-rca.md): Fix file size gate 300-line cap on root_cobra_completion.go and completion/install.go by decomposing into smaller modules.
+- [124-lemon-vet-tags-gofmt-filesize-and-nested-ifs-rca.md](./124-lemon-vet-tags-gofmt-filesize-and-nested-ifs-rca.md): Fix go vet duplicate json tags, gofmt formatting, file size gate 300-line cap, and nested if linter violations across lemon subsystem.
 

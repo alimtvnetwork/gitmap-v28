@@ -79,12 +79,15 @@ func PopulateDefaults(env *CommandEnvelope, msg EmailMessage, fmtType EmailForma
 // ExtractFencedBlock extracts fenced code content with the specified markdown tag.
 func ExtractFencedBlock(body, tag string) string {
 	start := strings.Index(body, tag)
-	if start >= 0 {
-		rest := body[start+len(tag):]
-		if end := strings.Index(rest, "```"); end >= 0 {
-			return strings.TrimSpace(rest[:end])
-		}
-		return strings.TrimSpace(rest)
+	if start < 0 {
+		return body
 	}
-	return body
+
+	rest := body[start+len(tag):]
+	end := strings.Index(rest, "```")
+	if end >= 0 {
+		return strings.TrimSpace(rest[:end])
+	}
+
+	return strings.TrimSpace(rest)
 }

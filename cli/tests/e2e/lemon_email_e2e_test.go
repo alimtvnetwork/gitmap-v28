@@ -69,7 +69,7 @@ func TestLemonEmail_EndToEndWorkflow(t *testing.T) {
 				ExitCode:   0,
 				Stdout:     `{"status":"ONLINE","workspace":"gitmap"}`,
 				DurationMs: 12,
-				Success:    true,
+				IsSuccess:  true,
 			}, nil
 		},
 	}
@@ -81,7 +81,7 @@ func TestLemonEmail_EndToEndWorkflow(t *testing.T) {
 	if execErr != nil {
 		t.Fatalf("unexpected execution error: %v", execErr)
 	}
-	if !execResult.Success || execResult.ExitCode != 0 {
+	if !isE2EExecutionValid(execResult) {
 		t.Errorf("expected successful execution, got exit code %d", execResult.ExitCode)
 	}
 
@@ -95,7 +95,7 @@ func TestLemonEmail_EndToEndWorkflow(t *testing.T) {
 		Stdout:      execResult.Stdout,
 		Stderr:      execResult.Stderr,
 		CompletedAt: time.Now().UTC(),
-		IsSuccess:   execResult.Success,
+		IsSuccess:   execResult.IsSuccess,
 	}
 	if reportErr := reporter.SendCompletionReport(env.Sender, outcome); reportErr != nil {
 		t.Fatalf("failed to send completion report: %v", reportErr)
@@ -225,4 +225,11 @@ func TestDatabase_TypeSafetyAndIdentifierQuoting(t *testing.T) {
 	if quotedInjected != `"table""name"` {
 		t.Errorf("expected embedded quotes to be doubled for SQL safety, got: %s", quotedInjected)
 	}
+}
+
+func isE2EExecutionValid(res cmdlemon.ExecutionResult) bool {
+	if res.IsSuccess && res.ExitCode == 0 {
+		return true
+	}
+	return false
 }

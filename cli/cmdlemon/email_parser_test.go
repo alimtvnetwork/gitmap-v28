@@ -33,10 +33,10 @@ func TestParseEmailCommand_Formats(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			msg := EmailMessage{From: "admin@example.com", Body: tc.body, ReceivedAt: time.Now()}
 			env, err := ParseEmailCommand(msg)
+			if tc.wantErr && err == nil {
+				t.Fatalf("expected error for %s", tc.name)
+			}
 			if tc.wantErr {
-				if err == nil {
-					t.Fatalf("expected error for %s", tc.name)
-				}
 				return
 			}
 			if err != nil {

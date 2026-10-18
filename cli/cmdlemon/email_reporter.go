@@ -30,12 +30,17 @@ func (r *EmailReporter) SendCompletionReport(to string, outcome ExecutionOutcome
 
 // FormatReportSubject produces status indicator subject line.
 func FormatReportSubject(outcome ExecutionOutcome) string {
-	statusTag := "SUCCESS"
-	if !outcome.IsSuccess {
-		statusTag = fmt.Sprintf("FAILED (Exit %d)", outcome.ExitCode)
-	}
+	statusTag := resolveStatusTag(outcome)
 
 	return fmt.Sprintf("[%s] Command '%s' (Req: %s)", statusTag, outcome.Command, outcome.RequestID)
+}
+
+func resolveStatusTag(outcome ExecutionOutcome) string {
+	if outcome.IsSuccess {
+		return "SUCCESS"
+	}
+
+	return fmt.Sprintf("FAILED (Exit %d)", outcome.ExitCode)
 }
 
 // FormatReportBody generates a structured markdown-compatible execution summary.

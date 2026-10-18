@@ -28,6 +28,7 @@ var allowedSubcommands = map[string]bool{
 func IsSubcommandAllowed(subcmd string) bool {
 	return allowedSubcommands[strings.ToLower(strings.TrimSpace(subcmd))]
 }
+
 // IsSafeToken verifies a token has no shell injection characters.
 func IsSafeToken(token string) bool {
 	return !strings.ContainsAny(token, dangerousChars)

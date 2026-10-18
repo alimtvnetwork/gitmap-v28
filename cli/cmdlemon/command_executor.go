@@ -11,11 +11,12 @@ import (
 
 // ExecutionResult encapsulates the outcome of a command execution.
 type ExecutionResult struct {
-	ExitCode             int    `json:"exitCode"`
-	Stdout               string `json:"stdout"`
-	Stderr               string `json:"stderr"`
-	DurationMs           int64  `json:"durationMs"`
-	Success, IsTruncated bool   `json:"success"`
+	ExitCode    int    `json:"exitCode"`
+	Stdout      string `json:"stdout"`
+	Stderr      string `json:"stderr"`
+	DurationMs  int64  `json:"durationMs"`
+	IsSuccess   bool   `json:"isSuccess"`
+	IsTruncated bool   `json:"isTruncated"`
 }
 
 // CommandExecutor abstracts command execution for production and testing.
@@ -33,7 +34,8 @@ type SystemCommandExecutor struct {
 func (e *SystemCommandExecutor) resolveBinary() string {
 	if e.ExePath != "" {
 		return e.ExePath
-	} else if exe, err := os.Executable(); err == nil && exe != "" {
+	}
+	if exe, err := os.Executable(); err == nil && exe != "" {
 		return exe
 	}
 	return "gitmap"
@@ -67,32 +69,7 @@ func (e *SystemCommandExecutor) ExecuteArgs(ctx context.Context, args []string) 
 	return ExecutionResult{
 		ExitCode: exitCode, Stdout: out, Stderr: errStr,
 		DurationMs:  time.Since(start).Milliseconds(),
-		Success:     runErr == nil && exitCode == 0,
+		IsSuccess:   runErr == nil && exitCode == 0,
 		IsTruncated: outTrunc || errTrunc,
 	}, runErr
-}
-
-// MockCommandExecutor provides an in-memory executor for testing.
-type MockCommandExecutor struct {
-	Handler func(ctx context.Context, args []string) (ExecutionResult, error)
-	Calls   [][]string
-}
-func (m *MockCommandExecutor) Execute(ctx context.Context, raw string) (ExecutionResult, error) {
-	args, err := ParseAndAuthorizeCommand(raw)
-	if err != nil {
-		return ExecutionResult{ExitCode: 1, Stderr: err.Error()}, err
-	}
-	return m.ExecuteArgs(ctx, args)
-}
-
-func (m *MockCommandExecutor) ExecuteArgs(ctx context.Context, args []string) (ExecutionResult, error) {
-	validArgs, ok := ValidateTokens(args)
-	if !ok {
-		return ExecutionResult{ExitCode: 1, Stderr: "unauthorized"}, errors.New("unauthorized command")
-	}
-	m.Calls = append(m.Calls, validArgs)
-	if m.Handler != nil {
-		return m.Handler(ctx, validArgs)
-	}
-	return ExecutionResult{ExitCode: 0, Stdout: "mock success", Success: true}, nil
 }
