@@ -25,7 +25,11 @@ func (r *EmailReporter) SendCompletionReport(to string, outcome ExecutionOutcome
 	subject := FormatReportSubject(outcome)
 	body := FormatReportBody(outcome)
 
-	return r.transmitter.Transmit(to, subject, body)
+	if err := r.transmitter.Transmit(to, subject, body); err != nil {
+		return fmt.Errorf("failed to transmit completion report: %w", err)
+	}
+
+	return nil
 }
 
 // FormatReportSubject produces status indicator subject line.
@@ -36,7 +40,8 @@ func FormatReportSubject(outcome ExecutionOutcome) string {
 }
 
 func resolveStatusTag(outcome ExecutionOutcome) string {
-	if outcome.IsSuccess {
+	isSuccess := outcome.IsSuccess
+	if isSuccess {
 		return "SUCCESS"
 	}
 
@@ -60,12 +65,14 @@ func FormatReportBody(outcome ExecutionOutcome) string {
 // TruncatePreview restricts output text to maxLines for email delivery readability.
 func TruncatePreview(text string, maxLines int) string {
 	clean := strings.TrimSpace(text)
-	if len(clean) == 0 {
+	isEmpty := len(clean) == 0
+	if isEmpty {
 		return "(empty)"
 	}
 
 	lines := strings.Split(clean, "\n")
-	if len(lines) <= maxLines {
+	isWithinLimit := len(lines) <= maxLines
+	if isWithinLimit {
 		return clean
 	}
 

@@ -36,6 +36,15 @@ type CommandEnvelope struct {
 	RawBody   string          `json:"rawBody,omitempty"`
 }
 
+// HasArgs returns true if the command envelope contains one or more arguments.
+func (env *CommandEnvelope) HasArgs() bool {
+	if env == nil {
+		return false
+	}
+
+	return len(env.Args) > 0
+}
+
 // EmailTransmitter dispatches emails in-memory or over SMTP.
 type EmailTransmitter interface {
 	Transmit(to, subject, body string) error
@@ -61,16 +70,27 @@ type ExecutionOutcome struct {
 	IsSuccess   bool          `json:"isSuccess"`
 }
 
+// HasSuccess returns whether the execution outcome succeeded.
+func (o ExecutionOutcome) HasSuccess() bool {
+	return o.IsSuccess
+}
+
 // PopulateDefaults fills missing envelope fields with defaults.
 func PopulateDefaults(env *CommandEnvelope, msg EmailMessage, fmtType EmailFormatType) {
+	if env == nil {
+		return
+	}
+
 	env.Format = fmtType
 	env.RawBody = msg.Body
 	if len(env.Sender) == 0 {
 		env.Sender = msg.From
 	}
+
 	if len(env.RequestID) == 0 {
 		env.RequestID = fmt.Sprintf("req-%d", time.Now().UnixNano())
 	}
+
 	if env.Timestamp.IsZero() {
 		env.Timestamp = time.Now().UTC()
 	}
@@ -79,13 +99,15 @@ func PopulateDefaults(env *CommandEnvelope, msg EmailMessage, fmtType EmailForma
 // ExtractFencedBlock extracts fenced code content with the specified markdown tag.
 func ExtractFencedBlock(body, tag string) string {
 	start := strings.Index(body, tag)
-	if start < 0 {
+	hasTag := start >= 0
+	if !hasTag {
 		return body
 	}
 
 	rest := body[start+len(tag):]
 	end := strings.Index(rest, "```")
-	if end >= 0 {
+	hasClosingFence := end >= 0
+	if hasClosingFence {
 		return strings.TrimSpace(rest[:end])
 	}
 

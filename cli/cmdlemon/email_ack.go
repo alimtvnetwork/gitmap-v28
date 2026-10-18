@@ -29,7 +29,11 @@ func (r *AckReplier) DispatchAck(env *CommandEnvelope) error {
 	subject := FormatAckSubject(env)
 	body := FormatAckBody(env)
 
-	return r.transmitter.Transmit(env.Sender, subject, body)
+	if err := r.transmitter.Transmit(env.Sender, subject, body); err != nil {
+		return fmt.Errorf("failed to transmit acknowledgment: %w", err)
+	}
+
+	return nil
 }
 
 // FormatAckSubject builds the email subject line for receipt acknowledgment.
@@ -45,7 +49,8 @@ func FormatAckBody(env *CommandEnvelope) string {
 	}
 
 	cmdDisplay := env.Command
-	if len(env.Args) > 0 {
+	hasArgs := env.HasArgs()
+	if hasArgs {
 		cmdDisplay = fmt.Sprintf("%s %s", env.Command, strings.Join(env.Args, " "))
 	}
 

@@ -8,10 +8,13 @@ import (
 
 func tryParseYAML(body string) (*CommandEnvelope, bool) {
 	low := strings.ToLower(body)
-	if strings.HasPrefix(low, "# command:") {
+	hasCommandHeader := strings.HasPrefix(low, "# command:")
+	if hasCommandHeader {
 		return parseYamlHeader(body[10:])
 	}
-	if strings.Contains(body, "```yaml") {
+
+	hasFencedYaml := strings.Contains(body, "```yaml")
+	if hasFencedYaml {
 		return parseYamlFenced(body)
 	}
 
@@ -20,7 +23,8 @@ func tryParseYAML(body string) (*CommandEnvelope, bool) {
 
 func parseYamlHeader(raw string) (*CommandEnvelope, bool) {
 	parts := strings.Fields(strings.TrimSpace(raw))
-	if len(parts) == 0 {
+	hasParts := len(parts) > 0
+	if !hasParts {
 		return nil, false
 	}
 
@@ -31,10 +35,14 @@ func parseYamlFenced(body string) (*CommandEnvelope, bool) {
 	var env CommandEnvelope
 	raw := ExtractFencedBlock(body, "```yaml")
 	err := yaml.Unmarshal([]byte(raw), &env)
-	if err != nil || len(env.Command) == 0 {
+	isUnmarshalSuccess := err == nil
+	hasCommand := len(env.Command) > 0
+	isValidYamlCommand := isUnmarshalSuccess && hasCommand
+	if !isValidYamlCommand {
 		return nil, false
 	}
 
 	env.Command = strings.ToLower(env.Command)
+
 	return &env, true
 }
