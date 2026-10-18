@@ -2,20 +2,13 @@ package heatmap
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
-	"gopkg.in/yaml.v3"
 	_ "modernc.org/sqlite"
 )
 
@@ -109,16 +102,25 @@ func RunHeatmapView(isRc bool, flags map[string]string, pos []string, out io.Wri
 }
 
 func resolveHeatmapDB(isRc bool, flags map[string]string, table string) (string, error) {
-	dbFlag := strings.ToLower(flags["db"])
-	if !isRc {
-		if dbFlag == "repo" || (flags["repo"] != "" && dbFlag == "") {
-			return store.ResolveHeatmapRepoSplitDbPath(resolveTargetRepo(flags["repo"]), ""), nil
-		}
-		if dbFlag == "root" || dbFlag == "local" || dbFlag == "" {
-			return store.ResolveHeatmapRootDbPath(""), nil
-		}
-		return "", apperror.NewValidation("heatmap_view", "E1004", fmt.Sprintf("invalid db target '%s': expected repo, root, or local", dbFlag))
+	if isRc {
+		return resolveRcHeatmapDB(flags, table)
 	}
+	return resolveLocalHeatmapDB(flags)
+}
+
+func resolveLocalHeatmapDB(flags map[string]string) (string, error) {
+	dbFlag := strings.ToLower(flags["db"])
+	if dbFlag == "repo" || (flags["repo"] != "" && dbFlag == "") {
+		return store.ResolveHeatmapRepoSplitDbPath(resolveTargetRepo(flags["repo"]), ""), nil
+	}
+	if dbFlag == "root" || dbFlag == "local" || dbFlag == "" {
+		return store.ResolveHeatmapRootDbPath(""), nil
+	}
+	return "", apperror.NewValidation("heatmap_view", "E1004", fmt.Sprintf("invalid db target '%s': expected repo, root, or local", dbFlag))
+}
+
+func resolveRcHeatmapDB(flags map[string]string, table string) (string, error) {
+	dbFlag := strings.ToLower(flags["db"])
 	ai, repo := resolveTargetAi(flags["ai"]), resolveTargetRepo(flags["repo"])
 	isRoot := strings.EqualFold(table, "HeatmapAiSession") || strings.EqualFold(table, "HeatmapRepoRegistry") ||
 		strings.EqualFold(table, "HeatmapCommitLog") || strings.EqualFold(table, "HeatmapParentTask")
@@ -172,11 +174,13 @@ func inspectColumns(db *sql.DB, table string) ([]string, string) {
 		dflt             *string
 	)
 	for rows.Next() {
-		if rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk) == nil {
-			cols = append(cols, name)
-			if pk > 0 && pkCol == "" {
-				pkCol = name
-			}
+		scanErr := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk)
+		if scanErr != nil {
+			continue
+		}
+		cols = append(cols, name)
+		if pk > 0 && pkCol == "" {
+			pkCol = name
 		}
 	}
 	for _, c := range cols {
@@ -195,16 +199,20 @@ func buildWhereClauses(flags map[string]string, cols []string, pkCol string) ([]
 		clauses, args = append(clauses, "TaskSlug = ?"), append(args, task)
 	}
 	if repo := flags["repo"]; repo != "" && strings.Contains(colStr, "repo") {
-		col := "RepoSlug"
-		if strings.Contains(colStr, "reponame") {
-			col = "RepoName"
-		}
+		col := resolveRepoColumn(colStr)
 		clauses, args = append(clauses, col+" = ?"), append(args, repo)
 	}
 	if id := flags["id"]; id != "" && pkCol != "" {
 		clauses, args = append(clauses, fmt.Sprintf("\"%s\" = ?", pkCol)), append(args, id)
 	}
 	return clauses, args
+}
+
+func resolveRepoColumn(colStr string) string {
+	if strings.Contains(colStr, "reponame") {
+		return "RepoName"
+	}
+	return "RepoSlug"
 }
 
 func executeViewQuery(db *sql.DB, table, pk string, clauses []string, args []any, limit int) ([]map[string]any, error) {
@@ -228,198 +236,24 @@ func executeViewQuery(db *sql.DB, table, pk string, clauses []string, args []any
 		for i := range vals {
 			ptrs[i] = &vals[i]
 		}
-		if rows.Scan(ptrs...) == nil {
-			rec := make(map[string]any, len(cols))
-			for i, name := range cols {
-				if b, ok := vals[i].([]byte); ok {
-					rec[name] = string(b)
-				} else {
-					rec[name] = vals[i]
-				}
-			}
-			records = append(records, rec)
+		scanErr := rows.Scan(ptrs...)
+		if scanErr != nil {
+			continue
 		}
+		records = append(records, scanRowValues(cols, vals))
 	}
 	return records, nil
 }
 
-func formatOutput(out io.Writer, format string, payload any, printTable func()) error {
-	if format == "json" {
-		enc := json.NewEncoder(out)
-		enc.SetIndent("", "  ")
-		return enc.Encode(payload)
-	}
-	if format == "yaml" || format == "yml" {
-		b, err := yaml.Marshal(payload)
-		if err == nil {
-			_, err = out.Write(b)
+func scanRowValues(cols []string, vals []any) map[string]any {
+	rec := make(map[string]any, len(cols))
+	for i, name := range cols {
+		b, ok := vals[i].([]byte)
+		if ok {
+			rec[name] = string(b)
+			continue
 		}
-		return err
+		rec[name] = vals[i]
 	}
-	printTable()
-	return nil
-}
-
-func formatTablesOutput(out io.Writer, dbPath string, tables []TableInfo, format string) error {
-	absDb, relDb := resolveDbPathDetails(dbPath)
-	payload := map[string]any{
-		"database":       relDb,
-		"relativeDbPath": relDb,
-		"absoluteDbPath": absDb,
-		"repoSecretsUrl": ResolveRepoSecretsURL(),
-		"totalTables":    len(tables),
-		"tables":         tables,
-	}
-	return formatOutput(out, format, payload, func() {
-		renderTablesOutput(out, relDb, tables)
-	})
-}
-
-func renderTablesOutput(out io.Writer, relDb string, tables []TableInfo) {
-	fmt.Fprintf(out, "Heatmap Database Tables: %s\n\n", relDb)
-	rows := make([]termout.Row, len(tables))
-	for i, t := range tables {
-		rows[i] = termout.Row{Cells: []string{t.Name, t.Type, strconv.Itoa(t.ColumnCount), strconv.Itoa(t.RowCount)}}
-	}
-	cols := []termout.Column{{Title: "NAME", MinWidth: 26}, {Title: "TYPE", MinWidth: 8}, {Title: "COLUMNS", MinWidth: 8, Align: termout.AlignRight}, {Title: "ROWS", MinWidth: 8, Align: termout.AlignRight}}
-	fmt.Fprint(out, termout.RenderTable(termout.TableConfig{Columns: cols, Rows: rows}))
-}
-
-func formatViewOutput(out io.Writer, dbPath, table string, total, limit int, cols []string, records []map[string]any, format string) error {
-	absDb, relDb := resolveDbPathDetails(dbPath)
-	payload := map[string]any{
-		"database":       relDb,
-		"relativeDbPath": relDb,
-		"absoluteDbPath": absDb,
-		"repoSecretsUrl": ResolveRepoSecretsURL(),
-		"table":          table,
-		"totalCount":     total,
-		"returnedCount":  len(records),
-		"limit":          limit,
-		"columns":        cols,
-		"records":        records,
-	}
-	return formatOutput(out, format, payload, func() {
-		renderViewOutput(out, relDb, table, total, cols, records)
-	})
-}
-
-func renderViewOutput(out io.Writer, relDb, table string, total int, cols []string, records []map[string]any) {
-	if len(records) == 0 {
-		fmt.Fprintf(out, "No records found in table '%s' matching criteria.\n", table)
-		return
-	}
-	fmt.Fprintf(out, "Table: %s (Showing %d of %d records, DB: %s)\n\n", table, len(records), total, relDb)
-	renderViewTableRows(out, cols, records)
-}
-
-func renderViewTableRows(out io.Writer, cols []string, records []map[string]any) {
-	disp := cols
-	if len(cols) > 6 {
-		disp = cols[:6]
-	}
-	var tCols []termout.Column
-	for _, c := range disp {
-		tCols = append(tCols, termout.Column{Title: strings.ToUpper(c), MaxWidth: 30, MinWidth: 10})
-	}
-	var rows []termout.Row
-	for _, rec := range records {
-		cells := make([]string, len(disp))
-		for i, c := range disp {
-			cells[i] = formatCell(rec[c])
-		}
-		rows = append(rows, termout.Row{Cells: cells})
-	}
-	fmt.Fprint(out, termout.RenderTable(termout.TableConfig{Columns: tCols, Rows: rows}))
-}
-
-// resolveDbPathDetails returns (absoluteDbPath, relativeDbPath) formatted with forward slashes.
-func resolveDbPathDetails(dbPath string) (string, string) {
-	repoRoot := findRepoRoot()
-	absPath, err := filepath.Abs(dbPath)
-	if err != nil {
-		absPath = dbPath
-	}
-	absRoot, err := filepath.Abs(repoRoot)
-	if err != nil {
-		absRoot = repoRoot
-	}
-	relPath, relErr := filepath.Rel(absRoot, absPath)
-	if relErr == nil {
-		return filepath.ToSlash(absPath), filepath.ToSlash(relPath)
-	}
-	return filepath.ToSlash(absPath), filepath.ToSlash(dbPath)
-}
-
-func findRepoRoot() string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "."
-	}
-	dir := cwd
-	for {
-		if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			break
-		}
-		dir = parent
-	}
-	return cwd
-}
-
-// ResolveRepoSecretsURL finds the remote URL for repo-secrets via Split DB or git config.
-func ResolveRepoSecretsURL() string {
-	if url := querySpecialRepoSecretsURL(); len(url) > 0 {
-		return url
-	}
-	return queryGitSecretsRemoteURL()
-}
-
-func querySpecialRepoSecretsURL() string {
-	sdb, err := store.OpenSpecialReposSplitDB()
-	if err != nil {
-		return ""
-	}
-	defer sdb.Close()
-
-	rec, recErr := sdb.GetSpecialRepo("rs")
-	if recErr == nil && rec != nil && len(strings.TrimSpace(rec.RemoteURL)) > 0 {
-		return strings.TrimSpace(rec.RemoteURL)
-	}
-	return ""
-}
-
-func queryGitSecretsRemoteURL() string {
-	secretsRoot := secrets.ResolveRepoSecretsRoot()
-	if len(secretsRoot) == 0 {
-		return ""
-	}
-	cmd := exec.Command("git", "-C", secretsRoot, "config", "--get", "remote.origin.url")
-	out, err := cmd.Output()
-	if err == nil && len(strings.TrimSpace(string(out))) > 0 {
-		return strings.TrimSpace(string(out))
-	}
-	return ""
-}
-
-func formatCell(v any) string {
-	s := fmt.Sprintf("%v", v)
-	if len(s) > 28 {
-		return s[:25] + "..."
-	}
-	return s
-}
-
-func resolveFormat(flags map[string]string) string {
-	f := strings.ToLower(strings.TrimSpace(flags["format"]))
-	if flags["json"] == "true" || flags["j"] == "true" || f == "json" {
-		return "json"
-	}
-	if flags["yaml"] == "true" || flags["y"] == "true" || f == "yaml" || f == "yml" {
-		return "yaml"
-	}
-	return "table"
+	return rec
 }

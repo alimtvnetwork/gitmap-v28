@@ -25,13 +25,14 @@ func requireE2EEnv(t *testing.T) {
 func TestE2E_GoEmailReaderBinaryLookupAndHelp(t *testing.T) {
 	requireE2EEnv(t)
 	binPath, isFound := locateGoEmailReaderBinary()
-	if isFound {
-		out, err := exec.Command(binPath, "--help").CombinedOutput()
-		if err != nil {
-			t.Fatalf("go-email-reader --help execution failed: %v, out: %s", err, string(out))
-		}
-		assertHelpOutputContent(t, string(out))
+	if !isFound {
+		t.Skip("go-email-reader binary not found")
 	}
+	out, err := exec.Command(binPath, "--help").CombinedOutput()
+	if err != nil {
+		t.Fatalf("go-email-reader --help execution failed: %v, out: %s", err, string(out))
+	}
+	assertHelpOutputContent(t, string(out))
 	uiHelpErr := cmdspace.RunSpaceSendEmailUI([]string{"--help"})
 	if uiHelpErr != nil {
 		t.Fatalf("gitmap space email ui --help failed: %v", uiHelpErr)
@@ -45,11 +46,18 @@ func locateGoEmailReaderBinary() (string, bool) {
 	if p, err := exec.LookPath("go-email-reader.exe"); err == nil {
 		return p, true
 	}
-	if home, err := os.UserHomeDir(); err == nil {
-		cand := filepath.Join(home, "go", "bin", "go-email-reader.exe")
-		if _, statErr := os.Stat(cand); statErr == nil {
-			return cand, true
-		}
+	return checkHomeGoEmailBinary()
+}
+
+func checkHomeGoEmailBinary() (string, bool) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", false
+	}
+	cand := filepath.Join(home, "go", "bin", "go-email-reader.exe")
+	_, statErr := os.Stat(cand)
+	if statErr == nil {
+		return cand, true
 	}
 	return "", false
 }
@@ -73,7 +81,7 @@ func TestE2E_GitMapEmailSchedulingRegistrationAndTriggerMock(t *testing.T) {
 	}
 
 	outcome := cmdspace.InferTaskOutcome(cmdspace.EmailTaskRelease, nil)
-	if !outcome.IsSuccess || outcome.Operation != "release" {
+	if outcome.IsSuccess == false || outcome.Operation != "release" {
 		t.Fatalf("unexpected task outcome: %+v", outcome)
 	}
 	cmdspace.FireEmailTaskTriggers(cmdspace.EmailTaskRelease, outcome)

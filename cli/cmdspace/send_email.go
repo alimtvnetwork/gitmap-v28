@@ -4,13 +4,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/config"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // send-email flag names.
@@ -176,14 +172,9 @@ func assignSendEmailFlag(name, val string, opts *sendEmailOptions) error {
 // buildEmailMessage parses --file when given, then lets explicit CLI flags
 // override the file values, and validates the merged message.
 func buildEmailMessage(opts sendEmailOptions) (EmailMessage, error) {
-	msg := EmailMessage{}
-
-	if len(opts.File) > 0 {
-		parsed, parseErr := parseEmailFile(opts.File)
-		if parseErr != nil {
-			return msg, parseErr
-		}
-		msg = parsed
+	msg, parseErr := parseOptionalEmailFile(opts.File)
+	if parseErr != nil {
+		return msg, parseErr
 	}
 	applySendEmailOverrides(opts, &msg)
 
@@ -192,6 +183,13 @@ func buildEmailMessage(opts sendEmailOptions) (EmailMessage, error) {
 	}
 
 	return msg, nil
+}
+
+func parseOptionalEmailFile(filePath string) (EmailMessage, error) {
+	if len(filePath) == 0 {
+		return EmailMessage{}, nil
+	}
+	return parseEmailFile(filePath)
 }
 
 // applySendEmailOverrides lets explicit CLI flags win over --file values.
@@ -221,131 +219,6 @@ func validateEmailMessage(msg EmailMessage) error {
 	}
 
 	return nil
-}
-
-// emailCandidateNames are the binary names probed in priority order.
-var emailCandidateNames = []string{"go-email-reader", "GoEmailSender", "goemailsender"}
-
-// resolveGoEmailReaderBin locates candidate binaries across PATH, GOPATH,
-// UserHome/go/bin, and gitmap configuration. Empty when not found.
-func resolveGoEmailReaderBin() string {
-	userHome := resolveUserHome()
-	gopath := resolveGopath(userHome)
-
-	for _, name := range emailCandidateNames {
-		if bin := probeCandidatePath(name, userHome, gopath); len(bin) > 0 {
-			return bin
-		}
-	}
-
-	return resolveConfigEmailBin()
-}
-
-func resolveUserHome() string {
-	if home := os.Getenv("HOME"); len(home) > 0 {
-		return home
-	}
-	home, _ := os.UserHomeDir()
-	return home
-}
-
-func resolveGopath(userHome string) string {
-	gopath := os.Getenv("GOPATH")
-	if testHome := os.Getenv("HOME"); len(testHome) > 0 && runtime.GOOS == "windows" {
-		if os.Getenv("PATH") == testHome {
-			return ""
-		}
-	}
-	return gopath
-}
-
-func probeCandidatePath(name, userHome, gopath string) string {
-	if bin := probeLookPath(name); len(bin) > 0 {
-		return bin
-	}
-	if bin := probeGopathBin(gopath, name); len(bin) > 0 {
-		return bin
-	}
-	if bin := probeHomeGoBin(userHome, name); len(bin) > 0 {
-		return bin
-	}
-	return ""
-}
-
-func probeLookPath(name string) string {
-	if path, err := exec.LookPath(name); err == nil && isExecutableFile(path) {
-		return path
-	}
-	if runtime.GOOS == "windows" {
-		if path, err := exec.LookPath(name + ".exe"); err == nil && isExecutableFile(path) {
-			return path
-		}
-	}
-	return ""
-}
-
-func probeGopathBin(gopath, name string) string {
-	if len(gopath) == 0 {
-		return ""
-	}
-	target := filepath.Join(gopath, "bin", name)
-	if isExecutableFile(target) {
-		return target
-	}
-	if runtime.GOOS == "windows" && isExecutableFile(target+".exe") {
-		return target + ".exe"
-	}
-	return ""
-}
-
-func probeHomeGoBin(userHome, name string) string {
-	if len(userHome) == 0 {
-		return ""
-	}
-	target := filepath.Join(userHome, "go", "bin", name)
-	if isExecutableFile(target) {
-		return target
-	}
-	if runtime.GOOS == "windows" && isExecutableFile(target+".exe") {
-		return target + ".exe"
-	}
-	return ""
-}
-
-func resolveConfigEmailBin() string {
-	setting, _ := config.GetVariable("global", constants.SettingGoEmailReaderBin)
-	if isExecutableFile(setting) {
-		return setting
-	}
-	altSetting, _ := config.GetVariable("global", "email.go_email_reader_bin")
-	if isExecutableFile(altSetting) {
-		return altSetting
-	}
-	return ""
-}
-
-// isExecutableFile reports whether path is an executable regular file.
-func isExecutableFile(path string) bool {
-	if len(path) == 0 {
-		return false
-	}
-
-	info, statErr := os.Stat(path)
-	if statErr != nil || info.IsDir() {
-		return false
-	}
-
-	if runtime.GOOS == "windows" {
-		return checkWindowsExecutable(path)
-	}
-
-	return info.Mode().Perm()&0111 != 0
-}
-
-func checkWindowsExecutable(path string) bool {
-	ext := strings.ToLower(filepath.Ext(path))
-	hasValidExt := ext == ".exe" || ext == ".cmd" || ext == ".bat" || ext == ""
-	return hasValidExt
 }
 
 // delegateToGoEmailReader execs `go-email-reader send` with inherited stdio.

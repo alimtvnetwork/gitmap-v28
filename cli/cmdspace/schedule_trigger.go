@@ -252,9 +252,9 @@ func fireSingleTrigger(trigger EmailTrigger, task EmailTaskType, outcome TaskOut
 
 // buildTriggerSubject labels the notification with task + status.
 func buildTriggerSubject(task EmailTaskType, outcome TaskOutcome) string {
-	status := statusOKText
-	if !outcome.IsSuccess {
-		status = statusFailText
+	status := statusFailText
+	if outcome.IsSuccess {
+		status = statusOKText
 	}
 
 	return fmt.Sprintf("[gitmap] %s %s: %s", task, status, outcome.Repo)

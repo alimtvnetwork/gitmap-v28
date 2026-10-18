@@ -194,11 +194,11 @@ func renderRemoteResultsTable(results []NodeRemoteExecResult) {
 	fmt.Printf("\n%-16s %-16s %-8s %-8s %s\n", "NODE", "HOST", "STATUS", "LATENCY", "OUTPUT")
 	fmt.Println(strings.Repeat("-", 70))
 	for _, r := range results {
-		status := "OK"
-		output := strings.TrimSpace(r.Stdout)
-		if !r.IsSuccess {
-			status = "FAIL"
-			output = strings.TrimSpace(r.ErrorMessage)
+		status := "FAIL"
+		output := strings.TrimSpace(r.ErrorMessage)
+		if r.IsSuccess {
+			status = "OK"
+			output = strings.TrimSpace(r.Stdout)
 		}
 		if len(output) > 30 {
 			output = output[:27] + "..."
