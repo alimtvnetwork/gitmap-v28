@@ -179,7 +179,8 @@ func RunRepoRecloneURL(target, origin string, yes bool) error {
 	dest := target
 	origin = coerceURLToStoredTransport(origin)
 	fmt.Printf(constants.MsgRepoRecloneCloning, origin, dest)
-	if cloneErr := runCloneCommand(origin, dest); cloneErr != nil {
+	params := DirectCloneParams{URL: origin, NoReplace: true}
+	if _, cloneErr := runDirectCloneWithProfileFallback(params, origin, dest); cloneErr != nil {
 		return apperror.WrapSimple(cloneErr, constants.ErrRepoRecloneClone)
 	}
 

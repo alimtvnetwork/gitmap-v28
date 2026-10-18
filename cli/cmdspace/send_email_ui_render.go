@@ -106,7 +106,13 @@ func queryGoEmailReaderNotifier() string {
 }
 
 func findRepoSecretFile(relPath string) string {
-	for _, cand := range []string{relPath, filepath.Join("..", relPath), filepath.Join(".", relPath)} {
+	candidates := []string{
+		relPath,
+		filepath.Join("..", relPath),
+		filepath.Join("..", "..", relPath),
+		filepath.Join(`D:\work`, relPath),
+	}
+	for _, cand := range candidates {
 		if isSecretFile(cand) {
 			return cand
 		}
