@@ -79,25 +79,28 @@ func saveTestTrigger(t *testing.T, path string, trigger EmailTrigger) {
 }
 
 func TestParseEmailTaskTypeValid(t *testing.T) {
-	cases := map[string]EmailTaskType{
-		"release": EmailTaskRelease,
-		"pull":    EmailTaskPull,
-		"clone":   EmailTaskClone,
-		"scan":    EmailTaskScan,
-		"push":    EmailTaskPush,
-		"backup":  EmailTaskBackup,
-		"RELEASE": EmailTaskRelease,
-		" Pull ":  EmailTaskPull,
+	cases := []struct {
+		input string
+		want  EmailTaskType
+	}{
+		{"release", EmailTaskRelease},
+		{"pull", EmailTaskPull},
+		{"clone", EmailTaskClone},
+		{"scan", EmailTaskScan},
+		{"push", EmailTaskPush},
+		{"backup", EmailTaskBackup},
+		{"RELEASE", EmailTaskRelease},
+		{" Pull ", EmailTaskPull},
 	}
 
-	for input, want := range cases {
-		got, err := ParseEmailTaskType(input)
+	for _, tc := range cases {
+		got, err := ParseEmailTaskType(tc.input)
 		if err != nil {
-			t.Fatalf("ParseEmailTaskType(%q): %v", input, err)
+			t.Fatalf("ParseEmailTaskType(%q): %v", tc.input, err)
 		}
 
-		if got != want {
-			t.Fatalf("ParseEmailTaskType(%q) = %q, want %q", input, got, want)
+		if got != tc.want {
+			t.Fatalf("ParseEmailTaskType(%q) = %q, want %q", tc.input, got, tc.want)
 		}
 	}
 }

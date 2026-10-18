@@ -34,9 +34,8 @@ func TestResolveDbPathDetailsExternal(t *testing.T) {
 
 func TestResolveRepoSecretsURLNoPanic(t *testing.T) {
 	url := ResolveRepoSecretsURL()
-	hasValidReturn := url == url
-	if !hasValidReturn {
-		t.Fatal("unexpected condition")
+	if strings.Contains(url, "\\") {
+		t.Fatal("expected repoSecretsUrl without backslashes")
 	}
 }
 
