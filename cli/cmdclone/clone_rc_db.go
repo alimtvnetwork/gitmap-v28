@@ -87,13 +87,21 @@ func OpenRepoCacheDB() (*sql.DB, error) {
 	return OpenRepoCacheDBAt(ResolveRepoCacheDBPath())
 }
 
+func ensureRepoCacheDir(dbPath string) error {
+	dir := filepath.Dir(dbPath)
+	if dir == "" || dir == "." {
+		return nil
+	}
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create repocache db directory %s: %w", dir, err)
+	}
+	return nil
+}
+
 // OpenRepoCacheDBAt opens or creates the SQLite database at the target path.
 func OpenRepoCacheDBAt(dbPath string) (*sql.DB, error) {
-	dir := filepath.Dir(dbPath)
-	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return nil, fmt.Errorf("failed to create repocache db directory %s: %w", dir, err)
-		}
+	if err := ensureRepoCacheDir(dbPath); err != nil {
+		return nil, err
 	}
 
 	dsn := fmt.Sprintf("%s?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)", dbPath)
@@ -229,36 +237,9 @@ func StoreManifestEntries(db *sql.DB, manifestPath, fileHash string, fileMtime i
 	defer tx.Rollback()
 
 	now := time.Now().UTC().Format(time.RFC3339)
-	upsertManifestQuery := `
-	INSERT INTO RepoCacheManifest (ManifestPath, FileHash, FileMtime, TotalRepos, HasValidData, CreatedAt, UpdatedAt)
-	VALUES (?, ?, ?, ?, 1, ?, ?)
-	ON CONFLICT(ManifestPath) DO UPDATE SET
-		FileHash = excluded.FileHash,
-		FileMtime = excluded.FileMtime,
-		TotalRepos = excluded.TotalRepos,
-		HasValidData = 1,
-		UpdatedAt = excluded.UpdatedAt
-	RETURNING RepoCacheManifestId;
-	`
-	var manifestId int64
-	err = tx.QueryRow(upsertManifestQuery, manifestPath, fileHash, fileMtime, len(entries), now, now).Scan(&manifestId)
-	if err != nil {
-		fallbackUpsert := `
-		INSERT INTO RepoCacheManifest (ManifestPath, FileHash, FileMtime, TotalRepos, HasValidData, CreatedAt, UpdatedAt)
-		VALUES (?, ?, ?, ?, 1, ?, ?)
-		ON CONFLICT(ManifestPath) DO UPDATE SET
-			FileHash = excluded.FileHash,
-			FileMtime = excluded.FileMtime,
-			TotalRepos = excluded.TotalRepos,
-			HasValidData = 1,
-			UpdatedAt = excluded.UpdatedAt;
-		`
-		if _, execErr := tx.Exec(fallbackUpsert, manifestPath, fileHash, fileMtime, len(entries), now, now); execErr != nil {
-			return execErr
-		}
-		if scanErr := tx.QueryRow(`SELECT RepoCacheManifestId FROM RepoCacheManifest WHERE ManifestPath = ?`, manifestPath).Scan(&manifestId); scanErr != nil {
-			return scanErr
-		}
+	manifestId, upsertErr := upsertManifestRecord(tx, manifestPath, fileHash, fileMtime, len(entries), now)
+	if upsertErr != nil {
+		return upsertErr
 	}
 
 	if _, err := tx.Exec(`DELETE FROM RepoCacheEntry WHERE RepoCacheManifestId = ?`, manifestId); err != nil {

@@ -15,22 +15,9 @@ func ParseManifestFile(manifestPath string) ([]RepoCacheEntry, error) {
 		return nil, err
 	}
 
-	var rawItems []genericManifestItem
-	if err := json.Unmarshal(data, &rawItems); err != nil {
-		var wrapper genericManifestWrapper
-		if wrapErr := json.Unmarshal(data, &wrapper); wrapErr != nil {
-			return nil, fmt.Errorf("unable to parse manifest JSON %s: %w", manifestPath, err)
-		}
-		switch {
-		case len(wrapper.Records) > 0:
-			rawItems = wrapper.Records
-		case len(wrapper.Repositories) > 0:
-			rawItems = wrapper.Repositories
-		case len(wrapper.Items) > 0:
-			rawItems = wrapper.Items
-		case len(wrapper.Repos) > 0:
-			rawItems = wrapper.Repos
-		}
+	rawItems, parseErr := parseRawManifestItems(data, manifestPath)
+	if parseErr != nil {
+		return nil, parseErr
 	}
 
 	entries := make([]RepoCacheEntry, 0, len(rawItems))
@@ -113,4 +100,73 @@ func GetOrSyncManifestEntries(db *sql.DB, manifestPath string) ([]RepoCacheEntry
 
 	_ = StoreManifestEntries(db, manifestPath, fileHash, fileMtime, parsedEntries)
 	return parsedEntries, nil
+}
+
+func parseRawManifestItems(data []byte, manifestPath string) ([]genericManifestItem, error) {
+	var rawItems []genericManifestItem
+	if err := json.Unmarshal(data, &rawItems); err == nil {
+		return rawItems, nil
+	}
+
+	var wrapper genericManifestWrapper
+	if wrapErr := json.Unmarshal(data, &wrapper); wrapErr != nil {
+		return nil, fmt.Errorf("unable to parse manifest JSON %s: %w", manifestPath, wrapErr)
+	}
+
+	switch {
+	case len(wrapper.Records) > 0:
+		return wrapper.Records, nil
+	case len(wrapper.Repositories) > 0:
+		return wrapper.Repositories, nil
+	case len(wrapper.Items) > 0:
+		return wrapper.Items, nil
+	case len(wrapper.Repos) > 0:
+		return wrapper.Repos, nil
+	default:
+		return nil, nil
+	}
+}
+
+func upsertManifestRecord(tx *sql.Tx, manifestPath, fileHash string, fileMtime int64, totalRepos int, now string) (int64, error) {
+	upsertManifestQuery := `
+	INSERT INTO RepoCacheManifest (ManifestPath, FileHash, FileMtime, TotalRepos, HasValidData, CreatedAt, UpdatedAt)
+	VALUES (?, ?, ?, ?, 1, ?, ?)
+	ON CONFLICT(ManifestPath) DO UPDATE SET
+		FileHash = excluded.FileHash,
+		FileMtime = excluded.FileMtime,
+		TotalRepos = excluded.TotalRepos,
+		HasValidData = 1,
+		UpdatedAt = excluded.UpdatedAt
+	RETURNING RepoCacheManifestId;
+	`
+	var manifestId int64
+	err := tx.QueryRow(upsertManifestQuery, manifestPath, fileHash, fileMtime, totalRepos, now, now).Scan(&manifestId)
+	if err == nil {
+		return manifestId, nil
+	}
+
+	return executeFallbackManifestUpsert(tx, manifestPath, fileHash, fileMtime, totalRepos, now)
+}
+
+func executeFallbackManifestUpsert(tx *sql.Tx, manifestPath, fileHash string, fileMtime int64, totalRepos int, now string) (int64, error) {
+	fallbackUpsert := `
+	INSERT INTO RepoCacheManifest (ManifestPath, FileHash, FileMtime, TotalRepos, HasValidData, CreatedAt, UpdatedAt)
+	VALUES (?, ?, ?, ?, 1, ?, ?)
+	ON CONFLICT(ManifestPath) DO UPDATE SET
+		FileHash = excluded.FileHash,
+		FileMtime = excluded.FileMtime,
+		TotalRepos = excluded.TotalRepos,
+		HasValidData = 1,
+		UpdatedAt = excluded.UpdatedAt;
+	`
+	if _, execErr := tx.Exec(fallbackUpsert, manifestPath, fileHash, fileMtime, totalRepos, now, now); execErr != nil {
+		return 0, execErr
+	}
+
+	var manifestId int64
+	if scanErr := tx.QueryRow(`SELECT RepoCacheManifestId FROM RepoCacheManifest WHERE ManifestPath = ?`, manifestPath).Scan(&manifestId); scanErr != nil {
+		return 0, scanErr
+	}
+
+	return manifestId, nil
 }
