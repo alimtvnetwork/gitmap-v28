@@ -81,7 +81,8 @@ func TestE2E_GitMapEmailSchedulingRegistrationAndTriggerMock(t *testing.T) {
 	}
 
 	outcome := cmdspace.InferTaskOutcome(cmdspace.EmailTaskRelease, nil)
-	if outcome.IsSuccess == false || outcome.Operation != "release" {
+	hasSucceeded := outcome.IsSuccess
+	if outcome.Operation != "release" || !hasSucceeded {
 		t.Fatalf("unexpected task outcome: %+v", outcome)
 	}
 	cmdspace.FireEmailTaskTriggers(cmdspace.EmailTaskRelease, outcome)
