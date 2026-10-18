@@ -165,63 +165,66 @@ func RunUnifiedNodesCLI(args []string) error {
 		args = args[1:]
 	}
 	if len(args) == 0 {
-		// Proceed to default nodes listing
-	} else if isNodesRunningOnlyRequest(args) {
+		return runUnifiedNodesList(args)
+	}
+
+	switch {
+	case isNodesRunningOnlyRequest(args):
 		return RunNodesRunningOnlyCLI(args[1:])
-	} else if hasNodesRunningOnlyFlag(args) {
+	case hasNodesRunningOnlyFlag(args):
 		return RunNodesRunningOnlyCLI(args)
-	} else if isNodesAgyRequest(args) {
+	case isNodesAgyRequest(args):
 		return runNodesAgyDispatch(args[1:])
-	} else if strings.EqualFold(args[0], "push-settings") || strings.EqualFold(args[0], "pushsettings") {
+	case strings.EqualFold(args[0], "push-settings") || strings.EqualFold(args[0], "pushsettings"):
 		return RunNodesPushSettings(args[1:])
-	} else if strings.EqualFold(args[0], "sync-settings") || strings.EqualFold(args[0], "syncsettings") {
+	case strings.EqualFold(args[0], "sync-settings") || strings.EqualFold(args[0], "syncsettings"):
 		return RunNodesSyncSettings(args[1:])
-	} else if isNodesDeployAGMRequest(args) {
+	case isNodesDeployAGMRequest(args):
 		return runNodesDeployAGMDispatch(args)
-	} else if isNodesDeployRepoRequest(args) {
+	case isNodesDeployRepoRequest(args):
 		return runNodesDeployRepoDispatch(args)
-	} else if isNodesScanRequest(args) {
+	case isNodesScanRequest(args):
 		return runNodesScanDispatch(args)
-	} else if strings.EqualFold(args[0], "send-projects") || strings.EqualFold(args[0], "sendprojects") ||
-		strings.EqualFold(args[0], "sync-projects") || strings.EqualFold(args[0], "syncprojects") {
+	case strings.EqualFold(args[0], "send-projects") || strings.EqualFold(args[0], "sendprojects") ||
+		strings.EqualFold(args[0], "sync-projects") || strings.EqualFold(args[0], "syncprojects"):
 		return RunNodesSendProjects(args[1:])
-	} else if strings.EqualFold(args[0], "history") || strings.EqualFold(args[0], "histories") {
+	case strings.EqualFold(args[0], "history") || strings.EqualFold(args[0], "histories"):
 		return runNodesHistoryCLI(args[1:])
-	} else if strings.EqualFold(args[0], "errors") {
+	case strings.EqualFold(args[0], "errors"):
 		return runNodesErrorsCLI(args[1:])
-	} else if strings.EqualFold(args[0], "pull") && len(args) > 1 && strings.EqualFold(args[1], "errors") {
+	case strings.EqualFold(args[0], "pull") && len(args) > 1 && strings.EqualFold(args[1], "errors"):
 		return runNodesPullErrorsCLI(args[2:])
-	} else if IsNodesPullAllRequest(args) {
+	case IsNodesPullAllRequest(args):
 		return RunNodesPullAll(args[1:])
-	} else if isNodesPingCommand(args[0]) {
+	case isNodesPingCommand(args[0]):
 		return RunUnifiedNodesPingCLI(args[1:])
-	} else if strings.EqualFold(args[0], "pending-commits") || strings.EqualFold(args[0], "pc") || strings.EqualFold(args[0], "pendingcommits") {
+	case strings.EqualFold(args[0], "pending-commits") || strings.EqualFold(args[0], "pc") || strings.EqualFold(args[0], "pendingcommits"):
 		return RunNodesPendingCommits(args[1:])
-	} else if strings.EqualFold(args[0], "commits") {
+	case strings.EqualFold(args[0], "commits"):
 		return RunNodesCommits(args[1:])
-	} else if strings.EqualFold(args[0], "cpf") {
+	case strings.EqualFold(args[0], "cpf"):
 		return RunNodesCommitPushFeature(args[1:])
-	} else if strings.EqualFold(args[0], "cpb") {
+	case strings.EqualFold(args[0], "cpb"):
 		return RunNodesCommitPushBug(args[1:])
-	} else if strings.EqualFold(args[0], "cpr") {
+	case strings.EqualFold(args[0], "cpr"):
 		return RunNodesCommitPushRelease(args[1:])
-	} else if strings.EqualFold(args[0], "commit-fix") || strings.EqualFold(args[0], "commitfix") {
+	case strings.EqualFold(args[0], "commit-fix") || strings.EqualFold(args[0], "commitfix"):
 		return RunNodesCommitFix(args[1:])
-	} else if isNodesFullSummary(args) {
+	case isNodesFullSummary(args):
 		return RunNodesFullSummary(args)
-	} else if strings.EqualFold(args[0], "summary") {
+	case strings.EqualFold(args[0], "summary"):
 		return RunNodesSummary(args[1:])
-	} else if isNodesPipelineAll(args) {
+	case isNodesPipelineAll(args):
 		return RunNodesPipelineErrorsAll(args)
-	} else if isNodesCloneRequest(args) {
+	case isNodesCloneRequest(args):
 		return RunNodesClone(args)
-	} else if isNodesResourcesRequest(args) {
+	case isNodesResourcesRequest(args):
 		return RunNodesResourcesCLI(args[1:])
-	} else if isNodesTasksRequest(args) {
+	case isNodesTasksRequest(args):
 		return RunNodesTasksCLI(args[1:])
-	} else if isNodesRemoteRunRequest(args) {
+	case isNodesRemoteRunRequest(args):
 		return RunNodesRemoteCLI(args[1:])
-	} else if isNodesHelpRequest(args) {
+	case isNodesHelpRequest(args):
 		return printUnifiedNodesHelp()
 	}
 
