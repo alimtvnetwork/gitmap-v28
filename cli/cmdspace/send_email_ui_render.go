@@ -3,9 +3,11 @@ package cmdspace
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -52,8 +54,48 @@ func parseGoEmailReaderListOutput(output string) []EmailAccountInfo {
 		if strings.HasPrefix(trimmed, "- ") {
 			accounts = append(accounts, parseAccountLine(trimmed))
 		}
+		if strings.HasPrefix(trimmed, "imap ") && len(accounts) > 0 {
+			populateServerInfo(&accounts[len(accounts)-1], trimmed)
+		}
 	}
 	return accounts
+}
+
+func populateServerInfo(acct *EmailAccountInfo, line string) {
+	for _, p := range strings.Split(line, "|") {
+		parseServerPart(acct, strings.TrimSpace(p))
+	}
+}
+
+func parseServerPart(acct *EmailAccountInfo, part string) {
+	if strings.HasPrefix(part, "imap ") {
+		parseIMAPPart(acct, part)
+	}
+	if strings.HasPrefix(part, "smtp ") {
+		parseSMTPPart(acct, part)
+	}
+}
+
+func parseIMAPPart(acct *EmailAccountInfo, part string) {
+	f := strings.Fields(part)
+	if len(f) >= 2 {
+		host, port, _ := net.SplitHostPort(f[1])
+		acct.ImapHost = host
+		acct.ImapPort, _ = strconv.Atoi(port)
+	}
+	acct.ImapTLS = strings.Contains(part, "tls=true")
+}
+
+func parseSMTPPart(acct *EmailAccountInfo, part string) {
+	f := strings.Fields(part)
+	if len(f) >= 2 {
+		host, port, _ := net.SplitHostPort(f[1])
+		acct.SmtpHost = host
+		acct.SmtpPort, _ = strconv.Atoi(port)
+	}
+	if len(f) >= 3 {
+		acct.SmtpTLSMode = f[2]
+	}
 }
 
 func parseAccountLine(line string) EmailAccountInfo {
