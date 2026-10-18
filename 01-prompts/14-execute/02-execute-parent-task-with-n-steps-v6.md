@@ -210,7 +210,7 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 | **Pipeline Waiting** | `gitmap pipeline-ai status --json` | `gitmap pl-ai` | Non-polling dynamic ETA CI/CD monitor |
 | **Agent Task Engine** | `gitmap task <init|add|claim|complete|fail|status|schema>` | `gitmap task` | Sub-millisecond compiled Go SQLite task manager for multi-agent workflows |
 | **Heatmap Action Log** | `gitmap heatmap log -t <slug> -a "READ"|"EDIT" -f <path> -r <reason>` | `gitmap heatmap log` | Concurrency-safe cognitive action & reasoning telemetry into `.ai-memory/heatmap.db` |
-| **Contention & Leases** | `gitmap heatmap discuss [--window 15m] [--threshold 2]` | `gitmap agent heatmap` | Pre-edit file lease conflict & contention hotspot analysis across active agents |
+| **Contention & Leases** | `gitmap agent heatmap [--json]` / `gitmap heatmap status` | `gitmap agent heatmap` | Pre-edit file lease conflict & contention hotspot analysis across active agents |
 | **Heatmap Diagnostics** | `gitmap heatmap query|tables|view` / `gitmap heatmap rc ...` | `gitmap heatmap` | Non-blocking read-only SQL queries, tree view, and live activity stream |
 | **Fleet Synchronization** | `gitmap sync [--workers 8] [--projects <json>]` | `gitmap sync` | Parallel Go sync engine across 43 repositories in <5s with 6-stage ceremony |
 
@@ -228,7 +228,11 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 1. **Platform Handshake:** Confirm tools (`invoke_subagent`, `send_message`, `manage_subagents`, `ask_question`, `write_to_file`, `replace_file_content`, `run_command`). If `task_boundary` exists: set `PLANNING` (Phase 1), `EXECUTION` (Phase 2), `VERIFICATION` (Phase 3).
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
 3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
-4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
+4. **Step 0 Heatmap & RC Preflight Checks (Mandatory Inspection):**
+   - Inspect active split-db tables: `gitmap rc heatmap tables` (or `gitmap heatmap tables`)
+   - Check cognitive action metrics: `gitmap heatmap status`
+   - Check file contention hotspots: `gitmap agent heatmap`
+5. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
    - Initialize or inspect task state via GitMap SQLite task manager (compiled Go, sub-millisecond):
      `gitmap agent task init --name "<task name>" --budget 400`
    - Inspect Task DB Schema & Data Integrity Rules (Mandatory Preflight):
@@ -238,7 +242,7 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
    - Output Analysis & Crash Forensics:
      - If `action: "RESUME_FOUND"`: A matching or similar slug exists in `.ai-memory/temp-agents/`! If `diagnostics.hasCrashesDetected: true`, inspect the forensic report (`diagnostics.crashedAgents`) to identify which agent crashed, what file it was touching, and the last logged action. Resume execution from the uncompleted subtask.
      - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-<slug>/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
-5. **Ledger Creation:** Also create `.ai-memory/temp-agents/<nn>-<slug>/ledger.md` mirroring the DB initialization for human readability:
+6. **Ledger Creation:** Also create `.ai-memory/temp-agents/<nn>-<slug>/ledger.md` mirroring the DB initialization for human readability:
 
 ```markdown
 # Ledger: nn-<slug>
@@ -426,7 +430,7 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 6. Zero Builds or Tests: NEVER run `go build`, `npm run build`, `go test`, or `pytest`.
 7. Targeted Verification: Run only fast file-scoped linters (e.g. `python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only`). A check scanning 0 files is a FAIL.
 8. GitMap Search Primacy (TOTAL BAN on rg / ripgrep / Select-String / git grep): NEVER execute `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, or `findstr`. Always use `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r]` for live symbol/regex discovery.
-9. Mandatory Heatmap Telemetry: In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via gitmap heatmap log or gitmap agent log, and inspect active file leases and contention hotspots via gitmap heatmap discuss before editing shared files.
+9. Mandatory Heatmap Telemetry: In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via gitmap heatmap log or gitmap agent log, and inspect active file leases and contention hotspots via gitmap agent heatmap (or gitmap heatmap status) before editing shared files.
 
 ### Concurrency-Safe SQLite Action Logging & Heatmap Telemetry (CRASH FORENSICS MANDATE):
 - Worker subtasks are tracked in the run database: `<databasePath>`.
@@ -438,7 +442,7 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 
 #### 1. Heatmap File Contention & Pre-Edit Blast Radius Check:
 - BEFORE modifying any shared files, you MUST inspect active file leases and collision contention hotspots:
-  `gitmap heatmap discuss [--window 15m] [--threshold 2] [--json]` (or `gitmap agent heatmap [--json]`)
+  `gitmap agent heatmap [--json]` (or `gitmap heatmap status [--json]`)
   If high write contention is reported on a file, coordinate disjoint boundaries or sequence edits to prevent file lock crashes.
 
 #### 2. In-Flight Cognitive Decision Logging (Heatmap & Action Log):
@@ -499,8 +503,8 @@ Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json 
 1. **Invoke & Yield:** You must ACTUALLY CALL the `invoke_subagent` tool as the final action in your turn. Print the progress line (`Dispatched Worker 01 .. Worker <A> (wave k / WAVES); waiting for their results.`) and **STOP CALLING TOOLS** to end your turn.
 2. **Automated Crash Forensics & Status Inspection:**
    - Lead inspects overall completion status at any time:
-     `gitmap agent task status` (or list subtasks via `gitmap agent subtask ls`)
-   - TOTAL BAN ON RAW PYTHON SQLITE: NEVER execute `python -c "import sqlite3..."` or ad-hoc DB scripts. Inspect status via `gitmap agent task status` or list subtasks via `gitmap agent subtask ls`.
+     `gitmap task status --db <databasePath>`
+     *(Legacy fallback: `gitmap agent task status`)*
    - If any worker fails to report, crashes, or times out, inspect status or diagnose:
      `gitmap agent task status` or `gitmap agent diagnose`
      This pinpoints the autopsy: which agent crashed, on which subtask, targeting which file, and the exact action that was executing when it failed.
@@ -612,7 +616,7 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 - [ ] INDEPENDENT AI VERIFICATION PROMPT MANDATE: Emitted the self-contained independent AI verification and audit prompt linking to the canonical spec, consolidated plan, and modified files with verbatim score audit criteria.
 - [ ] GITMAP HEAVY USAGE & ROUTINE PULL BAN: Heavily leveraged GitMap commands (`cpf`, `cpb`, `cpr`, `search`, `find`, `pwsh`) for discovery, execution, and commits. Never ran `pull-all` (`gitmap pa` or `gitmap pae`) unconditionally during routine turns; only ran `gitmap pae --json` when explicitly commanded by the user.
 - [ ] NO RG, RIPGREP, OR RAW SHELL SEARCHES (TOTAL BAN): Never run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, `findstr`, or slow shell search pipelines to search code. All code searching, symbol discovery, and regex scans MUST use GitMap high-speed search tools: `gitmap aum search "<query>" [dir] [-e <.ext>] [-r]` (streaming multi-core text/regex search) or `gitmap search "<query>"` (indexed symbol search). Running `rg`, `ripgrep`, `Select-String`, or `git grep` is an immediate auto-reject failure.
-- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
+- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that Step 0 heatmap & RC preflight checks (`gitmap rc heatmap tables`, `gitmap heatmap status`, `gitmap agent heatmap`) were executed, that multi-agent contention was inspected via `gitmap agent heatmap` before editing shared files, and that all file exploration and modifications were logged with reasoning via `gitmap heatmap log` (or `gitmap agent log`) into `.ai-memory/heatmap.db` for crash forensics and `repo-cache` synchronization.
 
 ---
 

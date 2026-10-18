@@ -40,6 +40,9 @@ WAVES = ceil(subtasks / (A x H))
 Before enqueuing subtasks or claiming work, initialize and verify the SQLite task database schema:
 
 ```bash
+gitmap rc heatmap tables
+gitmap heatmap status
+gitmap agent heatmap
 gitmap agent task init --name "<task name>" --budget 400
 gitmap agent task status --ddl
 gitmap agent task status --json
@@ -65,7 +68,7 @@ Whenever executing or logging subtask telemetry, fulfill the Database Location T
 
 ```bash
 # Pre-edit contention and lease check
-gitmap heatmap discuss [--window 15m] [--threshold 2] [--json]
+gitmap agent heatmap [--json]
 
 # Cognitive file exploration and editing telemetry
 gitmap heatmap log -t <task-slug> -a "READ" -f "<path>" -r "Reasoning: <explanation>" -s "EXPLORATION"
@@ -104,4 +107,4 @@ gitmap heatmap rc sync
 - [ ] Preflight schema verified via `gitmap agent task status --ddl` and `gitmap agent task status --json`.
 - [ ] 3-Tier Database Location Transparency contract fulfilled.
 - [ ] Strict Relative Git paths and lowercase naming enforced.
-- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
+- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that Step 0 heatmap & RC preflight checks (`gitmap rc heatmap tables`, `gitmap heatmap status`, `gitmap agent heatmap`) were executed, that multi-agent contention was inspected via `gitmap agent heatmap` before editing shared files, and that all file exploration and modifications were logged with reasoning via `gitmap heatmap log` (or `gitmap agent log`) into `.ai-memory/heatmap.db` for crash forensics and `repo-cache` synchronization.

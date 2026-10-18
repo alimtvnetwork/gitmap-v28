@@ -100,6 +100,7 @@ Nesting resolution, lazy evaluation, regex usage.
 | 16 | `16-lazy-evaluation-patterns.md` | Defer computation until needed |
 | 17 | `17-regex-usage-guidelines.md` | Compile once, named groups, readability |
 | 20 | `20-nesting-resolution-patterns.md` | Flatten nested code, avoid else after return |
+| 35 | `35-map-dispatch-and-handler-lookup.md` | Declarative map dispatch tables, handler lookup, and code smell elimination |
 
 ### 🧪 Testing
 
@@ -195,6 +196,7 @@ Consolidated reference, audit logs, contradiction checks.
 | 32-branch-immutability-and-clean-construction.md |
 | 33-variadic-and-spread-parameters.md |
 | 34-string-normalization-and-equalfoldany.md |
+| 35-map-dispatch-and-handler-lookup.md |
 | 97-acceptance-criteria.md |
 | 98-changelog.md |
 | 99-consistency-report.md |

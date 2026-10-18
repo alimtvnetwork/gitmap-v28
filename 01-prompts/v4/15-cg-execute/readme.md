@@ -59,7 +59,7 @@ When multiple autonomous agents are present (A >= 2, H >= 2):
 5. [ ] [/goal](slashCommand;goal) Phase 2 (Step A - Surgical Refactoring): Spawn up to A = 3 execution subagents (System Concurrency Capacity = 6) (H = 2 operations each) on disjoint target files following authoritative guidelines.
 6. [ ] [/goal](slashCommand;goal) Phase 2 (Step B - Size Tier & Formatting): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
 7. [ ] [/goal](slashCommand;goal) Phase 2 (Step C - Linter Verification): Execute targeted file-level linters to verify 0 remaining violations across all modified files (`exit 0`).
-8. [ ] [/goal](slashCommand;goal) Phase 2 (Heatmap Telemetry & File Recording): Record file read/edit decisions with reasoning via `gitmap heatmap log`, inspect contention leases via `gitmap heatmap discuss`, and Atomically record modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). DO NOT run full CI/CD runners (`06-cicd-local-runner.py`), build checks, or test suites during routine turns.
+8. [ ] [/goal](slashCommand;goal) Phase 2 (Heatmap Telemetry & File Recording): Record file read/edit decisions with reasoning via `gitmap heatmap log`, inspect contention leases via `gitmap agent heatmap`, and Atomically record modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). DO NOT run full CI/CD runners (`06-cicd-local-runner.py`), build checks, or test suites during routine turns.
 9. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
 10. [ ] [/learn](slashCommand;learn) Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
 11. [ ] [/learn](slashCommand;learn) Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
@@ -117,6 +117,7 @@ Prompts are sequenced according to priority. Error management, control-flow flat
 | **35** | [`35-clean-work-artifacts-and-os-caches.md`](./35-clean-work-artifacts-and-os-caches.md) | Work Directory & OS Cache Cleaner (Dry-Run Plan First) | `clean-work-artifacts-and-os-caches` | Plan preview first, then purge work-repo build artifacts, Go/npm/pnpm/Bun caches (keeping `node_modules`), browser/editor caches, OS temp, and Git caches, reporting space reclaimed per layer | `44-work-and-system-cache-cleaner.py`, `scripts-fixer` |
 | **36** | [`36-variadic-and-spread-parameters.md`](./36-variadic-and-spread-parameters.md) | Variadic & Spread Parameters, Rest Elements & Slices | `cg-variadic`, `cg-spread-params`, `cg-execute variadic`, `audit variadic` | Replace rigid slice/array parameters with variadic/spread (`...T`, `...items`, `&[T]`), eliminate single-item wrapper allocations (`[]string{id}`), enforce parameter count caps and safe empty handling | `validate-guidelines.py`, `check-function-lengths.py` |
 | **37** | [`37-string-normalization-and-equalfoldany.md`](./37-string-normalization-and-equalfoldany.md) | String Normalization, `EqualFoldAny` & Centralized Utility Discovery | `cg-string-normalization`, `cg-equalfoldany`, `strutil-normalization`, `audit-string-comparisons` | Replace repetitive trimming and chained `EqualFold` / `ToLower` OR-chains with centralized `strutil.EqualFoldAny` and `strutil.EqualFoldAnyTrim` helpers, enforce Search First Directive for `pkg/strutil` (or repo string utility), zero-allocation case folding | `validate-guidelines.py`, `check-function-lengths.py` |
+| **38** | [`38-map-dispatch-and-handler-lookup.md`](./38-map-dispatch-and-handler-lookup.md) | Declarative Map Dispatch & Handler Lookup Table | `cg-map-dispatch`, `cg-dispatch-table`, `cg-execute map-dispatch`, `audit map dispatch` | Replace chained `if-else if` / `switch` statement code smells matching keys/tokens to invoke functions with declarative lookup maps (`Record<string, () => void>`, `map[string]func()`, `dict[str, Callable]`), positive boolean containment checks, and single-line dispatch execution | `validate-guidelines.py`, `check-function-lengths.py` |
 
 ### Directory Tree
 
@@ -159,6 +160,7 @@ Prompts are sequenced according to priority. Error management, control-flow flat
 ├── 35-clean-work-artifacts-and-os-caches.md
 ├── 36-variadic-and-spread-parameters.md
 ├── 37-string-normalization-and-equalfoldany.md
+├── 38-map-dispatch-and-handler-lookup.md
 └── readme.md
 ```
 

@@ -5,10 +5,10 @@ H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool d
 C = 30  (Tool calls per worker before it must report, default: 30)
 
 System Concurrency Capacity = A × H = 3 agents × 2 hands = 6 concurrent subtask operations
-Tree Hierarchy = Lead Orchestrator (Root Node) -> Branch Coordinators (Subtask Owners) -> Leaf Workers & Dynamic Joining Assistants
+Tree Hierarchy = Lead Orchestrator (Root Node) -> Branch Coordinators (Subtask Owners) -> Leaf Workers & Dynamic Assistants
 PHASE_1_BUDGET = 100     (Steps 1 .. 100: Planning, Discovery Subagents, Up-Front Brain & Roadmap Creation, Lean Subtasks)
 PHASE_2_BUDGET = 150     (Steps 101 .. 250: Intermediate Archival, Sanitization, Prerequisite Refactoring, Intermediate Checkpoints)
-PHASE_3_BUDGET = 150     (Steps 251 .. 400: Tree Swarm Parallel Execution, Dynamic Join Capacity Saturation, Targeted Quality Linting, Fleet Sync, Atomic Push)
+PHASE_3_BUDGET = 150     (Steps 251 .. 400: Tree Swarm Parallel Execution, Dynamic Join Capacity Saturation, Targeted Quality Linting, Atomic Push)
 WAVES = ceil(subtasks / (A x H))
 ```
 
@@ -169,9 +169,9 @@ If sources conflict, follow stricter one and record under `Conflicts:` in ledger
 - **R6 One Owner Per File (Disjoint Bounding Boxes).** Within every worker wave, each file has exactly one owner. Shared indexes (`.ai-memory/plans/readme.md`, `.ai-memory/prompts.md`, `.ai-memory/what-to-read.md`, `02-spec/21-app/readme.md`, directory `readme.md`) belong exclusively to lead.
 - **R7 Git Safety & Isolation (Worker Git Ban).** Subagents NEVER run git commands (`git add`, `git commit`, `git push`, `git status`, `git diff`, `git checkout`). In shared workspaces (`Workspace: "inherit"`), worker git calls create `.git/index.lock` collisions that immediately crash parallel agents. Nobody runs `git reset --hard`, `git checkout --`, `git clean`, `git stash`, or force pushes.
 - **R8/R9 Atomic Commit & Push via GitMap (TOTAL BAN ON RAW GIT COMMITS).** The run ends with ONE GitMap call:
-  - For features: `gitmap cpf "<module> - <feature summary>"` (e.g. `gitmap cpf "CBF - implement user profile dashboard"` or `gitmap cpf "aum-agent-db - implement sqlite task tracking engine"`). GitMap automatically prepends `Feature: ` (which already provides the colon), so mention and format as a hyphen `-`; there is NO need to provide a colon in the GitMap `cpf` (or `cpb`/`cpr`) message argument. DO NOT provide a colon; use a hyphen `-` to separate module/scope from summary. NEVER include `feat(...)` or `feature:` in your message.
-  - For bug fixes: `gitmap cpb "<module> - <fix summary>"` (e.g. `gitmap cpb "AUM - validate regex without nil fallback"` or `gitmap cpb "aum-validate-regex - prevent nil fallback on malformed patterns"`). GitMap automatically prepends `Bug: ` (which already provides the colon), so mention and format as a hyphen `-`; there is NO need to provide a colon in the GitMap message argument. DO NOT provide a colon; use a hyphen `-` to separate module/scope from summary. NEVER include `fix(...)` or `bug:` in your message.
-  GitMap stages, formats, commits, and pushes atomically. TOTAL BAN on raw git commits (`git commit`, `git commit -m "..."`, `git add -A`, raw `git push`), colons inside the GitMap message argument, and conventional prefixes (`docs(...)`, `feat(...)`, `fix(...)`, `chore(...)`). ZERO intermediate commits: never commit during Phase 1 (plans/specs) or Phase 2; all files across the turn MUST be committed together at the final step of Phase 3. Before GitMap, all push gates must pass (targeted checks, secrets gate, and `.gitignore` hygiene; untrack any ignored files: `git rm --cached`). Push rejected: `git pull --rebase`, re-run command. Miss after push: allow one follow-up `gitmap cpb "<module> - <fix summary>"`, logged as `FOLLOW_UP_PUSH: <sha>`. Never amend pushed commits. Workers never run git commands or GitMap commit tools; only lead does.
+  - For features: `gitmap cpf "<module> - <feature summary>"` (using hyphen `-`; no colon needed in GitMap cpf as colon is already provided).
+  - For bug fixes: `gitmap cpb "<module> - <fix summary>"` (using hyphen `-`; no colon needed in GitMap cpb as colon is already provided).
+  GitMap stages, formats, commits, and pushes atomically. TOTAL BAN on raw git commits (`git commit`, `git add -A`, raw `git push`), colons inside the GitMap message argument, and conventional prefixes (`docs(...)`, `feat(...)`, `fix(...)`). ZERO intermediate commits during Phase 1 or Phase 2; all files across the turn MUST be committed together at the final step of Phase 3. Before GitMap, all push gates must pass (targeted checks, secrets gate, and `.gitignore` hygiene). Mandatory Completion Invariant ('No Push = Not Done'): If the code is not committed to Git and pushed upstream to GitHub, the task is strictly considered INCOMPLETE and NOT DONE. Workers never run git commands or GitMap commit tools; only lead does.
 - **R10 Zero Unauthorized Releases.** Never bump versions, edit `version.json`, update changelogs, or trigger release scripts unless user explicitly requested release.
 - **R11 Strict Relative Git Paths & Lowercase Hygiene.** Strict ban on absolute paths (`C:\...`, `/home/...`) and `file:///` URIs. Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well. Paths relative from git root. All filenames, documentation, and specs strictly lowercase (e.g. `readme.md`, `agents.md`, `skill.md`).
 - **R12 No Polling / Immediate Turn Yielding.** When calling `invoke_subagent`, make it the sole tool action at turn end, print progress line (`Dispatched Worker 01 .. Worker <A> (wave k / WAVES); waiting for their results.`) and **STOP CALLING TOOLS**. Never poll in loop. Check `manage_subagents` once if wave runs long.
@@ -206,20 +206,18 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 | **Offload Scripts** | `gitmap rc file <file.ps1>` / `text` | `gitmap rc` | Auto-commits reusable scripts into `repo-cache` |
 | **Atomic Commits** | `gitmap cpf "<module> - <msg>"` (Feature) / `cpb` (Bug) | `gitmap cpf` | Stages, formats with prefix, and pushes atomically. Mention as a hyphen `-` (no need to provide a colon in GitMap `cpf`/`cpb`/CVF commit arguments because the colon is already automatically provided by GitMap in `Feature: ` or `Bug: `). |
 | **Pipeline Waiting** | `gitmap pipeline-ai status --json` | `gitmap pl-ai` | Non-polling dynamic ETA CI/CD monitor |
-| **Agent Task Engine** | `gitmap task <init|add|claim|complete|fail|status|schema>` | `gitmap task` | Sub-millisecond compiled Go SQLite task manager for multi-agent workflows |
+| **Agent Task Engine** | `gitmap agent task <init|status|ls|pending>` | `gitmap agent task` | Sub-millisecond compiled Go SQLite task manager for multi-agent workflows |
 | **Heatmap Action Log** | `gitmap heatmap log -t <slug> -a "READ"|"EDIT" -f <path> -r <reason>` | `gitmap heatmap log` | Concurrency-safe cognitive action & reasoning telemetry into `.ai-memory/heatmap.db` |
-| **Contention & Leases** | `gitmap heatmap discuss [--window 15m] [--threshold 2]` | `gitmap agent heatmap` | Pre-edit file lease conflict & contention hotspot analysis across active agents |
-| **Heatmap Diagnostics** | `gitmap heatmap query|tables|view` / `gitmap heatmap rc ...` | `gitmap heatmap` | Non-blocking read-only SQL queries, tree view, and live activity stream |
+| **Contention & Leases** | `gitmap agent heatmap [--json]` / `gitmap heatmap status` | `gitmap agent heatmap` | Pre-edit file lease conflict & contention hotspot analysis across active agents |
+| **Heatmap Diagnostics** | `gitmap heatmap query|tables|view` / `gitmap rc heatmap ...` | `gitmap heatmap` | Non-blocking read-only SQL queries, tree view, and live activity stream |
 | **Fleet Synchronization** | `gitmap sync [--workers 8] [--projects <json>]` | `gitmap sync` | Parallel Go sync engine across 43 repositories in <5s with 6-stage ceremony |
 
 ### 🔍 Code & Symbol Search Protocol (TOTAL BAN ON `rg`, `ripgrep`, `Select-String` & `git grep`)
 - **Live Disk Search (Default for discovery, symbol tracking & blast radius):**
   - Search string/symbol: `gitmap aum search "<symbol>" [dir] [-e <.ext>]` (e.g. `gitmap aum search "RunFleetPASCommand" cli -e .go`)
-  - Search regex: `gitmap aum search -r "<regex>" [dir] [-e <.ext>]` (e.g. `gitmap aum search -r "(\"pas\"|\"pa\")" cli/cmd -e .go`)
+  - Search regex: `gitmap aum search -r "<regex>" [dir] [-e <.ext>]` (e.g. `gitmap aum search -r "("pas"|"pa")" cli/cmd -e .go`)
   - Case-insensitive: `gitmap aum search -i "<query>" [dir]`
 - **TOTAL BAN:** NEVER run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, or `findstr`. Running raw grep, ripgrep, or slow shell search pipelines wastes execution steps, causes Windows process hangs, and violates GitMap primacy. Search exclusively through `gitmap aum search` or `gitmap find`.
-
----
 
 ---
 
@@ -476,21 +474,81 @@ You must use `invoke_subagent` to delegate both planning discovery and spec auth
       "Role": "Research 01: Architecture & Blast Radius Discovery",
       "Model": "inherit",
       "Workspace": "inherit",
-      "Prompt": "You are Research 01 for task <nn>-<slug>. You have no prior chat context; this brief is your complete specification.\n\n### Core Objective:\nExplore the codebase, map symbol callers, trace dependencies, and discover relevant source files for: <task title and objectives>.\n\n### Tool Capabilities & Strict Read-Only Boundary:\n- You are a READ-ONLY subagent (`TypeName: 'research'`).\n- You have read tools: `run_command`, `view_file`, `search_web`, `read_url_content`.\n- You DO NOT have `write_to_file` or `replace_file_content`. NEVER attempt to create or edit files.\n\n### Mandatory Search Primacy & Total Ban on Raw Grep:\n- Execute ALL searches and symbol discoveries exclusively via GitMap:\n  * Live symbol search: `gitmap aum search \"<symbol>\" [dir] [-e <.ext>]`\n  * Path-scoped search: `gitmap aum search \"<symbol>\" --path <relative-dir>`\n  * Indexed keyword search: `gitmap search \"<query>\"`\n  * File discovery: `gitmap find \"<pattern>\"`\n  * Directory inventory: `gitmap lf [dir]`\n  * View files: `gitmap cat <path>` or native `view_file`\n- TOTAL BAN (AUTO-REJECT FAILURE): NEVER run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, or `findstr`.\n- TOTAL BAN ON GIT COMMANDS: NEVER run `git` commands (`git add`, `git commit`, `git status`, `git diff`, etc.).\n\n### Required Findings Report (Send via send_message to Parent):\nWhen your research is complete, send a message to the caller containing:\n1. Key symbol definitions, structures, and entry points.\n2. Call sites and blast radius (files that will be affected by modifications).\n3. Recommended modular file ownership boundaries for worker subtasks.\n4. Verification commands to validate changes."
+      "Prompt": "You are Research 01 for task <nn>-<slug>. You have no prior chat context; this brief is your complete specification.
+
+### Core Objective:
+Explore the codebase, map symbol callers, trace dependencies, and discover relevant source files for: <task title and objectives>.
+
+### Tool Capabilities & Strict Read-Only Boundary:
+- You are a READ-ONLY subagent (`TypeName: 'research'`).
+- You have read tools: `run_command`, `view_file`, `search_web`, `read_url_content`.
+- You DO NOT have `write_to_file` or `replace_file_content`. NEVER attempt to create or edit files.
+
+### Mandatory Search Primacy & Total Ban on Raw Grep:
+- Execute ALL searches and symbol discoveries exclusively via GitMap:
+  * Live symbol search: `gitmap aum search \"<symbol>\" [dir] [-e <.ext>]`
+  * Path-scoped search: `gitmap aum search \"<symbol>\" --path <relative-dir>`
+  * Indexed keyword search: `gitmap search \"<query>\"`
+  * File discovery: `gitmap find \"<pattern>\"`
+  * Directory inventory: `gitmap lf [dir]`
+  * View files: `gitmap cat <path>` or native `view_file`
+- TOTAL BAN (AUTO-REJECT FAILURE): NEVER run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, or `findstr`.
+- TOTAL BAN ON GIT COMMANDS: NEVER run `git` commands (`git add`, `git commit`, `git status`, `git diff`, etc.).
+
+### Required Findings Report (Send via send_message to Parent):
+When your research is complete, send a message to the caller containing:
+1. Key symbol definitions, structures, and entry points.
+2. Call sites and blast radius (files that will be affected by modifications).
+3. Recommended modular file ownership boundaries for worker subtasks.
+4. Verification commands to validate changes."
     },
     {
       "TypeName": "research",
       "Role": "Research 02: Specs & Dependency Mapping",
       "Model": "inherit",
       "Workspace": "inherit",
-      "Prompt": "You are Research 02 for task <nn>-<slug>. You have no prior chat context; this brief is your complete specification.\n\n### Core Objective:\nInspect existing specifications under `02-spec/`, coding guidelines under `02-spec/02-coding-guidelines/`, and prior plan tasks for: <task title and objectives>.\n\n### Tool Capabilities & Strict Read-Only Boundary:\n- You are a READ-ONLY subagent (`TypeName: 'research'`).\n- You DO NOT have file authoring tools. NEVER attempt to create or edit files.\n\n### Mandatory Search Primacy & Total Ban on Raw Grep:\n- Execute ALL searches exclusively via GitMap:\n  * Live search in specs: `gitmap aum search \"<term>\" 02-spec`\n  * Indexed search: `gitmap search \"<term>\"`\n  * File discovery: `gitmap find \"*.md\"`\n  * View files: `gitmap cat <file>` or native `view_file`\n- TOTAL BAN: NEVER run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem`, or `findstr`.\n- TOTAL BAN ON GIT COMMANDS: NEVER run `git` commands.\n\n### Required Findings Report (Send via send_message to Parent):\nSend a message to the caller detailing existing specs, architectural invariants, acceptance criteria, and positive boolean rules."
+      "Prompt": "You are Research 02 for task <nn>-<slug>. You have no prior chat context; this brief is your complete specification.
+
+### Core Objective:
+Inspect existing specifications under `02-spec/`, coding guidelines under `02-spec/02-coding-guidelines/`, and prior plan tasks for: <task title and objectives>.
+
+### Tool Capabilities & Strict Read-Only Boundary:
+- You are a READ-ONLY subagent (`TypeName: 'research'`).
+- You DO NOT have file authoring tools. NEVER attempt to create or edit files.
+
+### Mandatory Search Primacy & Total Ban on Raw Grep:
+- Execute ALL searches exclusively via GitMap:
+  * Live search in specs: `gitmap aum search \"<term>\" 02-spec`
+  * Indexed search: `gitmap search \"<term>\"`
+  * File discovery: `gitmap find \"*.md\"`
+  * View files: `gitmap cat <file>` or native `view_file`
+- TOTAL BAN: NEVER run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem`, or `findstr`.
+- TOTAL BAN ON GIT COMMANDS: NEVER run `git` commands.
+
+### Required Findings Report (Send via send_message to Parent):
+Send a message to the caller detailing existing specs, architectural invariants, acceptance criteria, and positive boolean rules."
     },
     {
       "TypeName": "research",
       "Role": "Research 03: Repository Dependencies & Fleet Sync Targets",
       "Model": "inherit",
       "Workspace": "inherit",
-      "Prompt": "You are Research 03 for task <nn>-<slug>. You have no prior chat context; this brief is your complete specification.\n\n### Core Objective:\nExplore external dependencies, script pipelines (`03-ai-scripts/`), skills (`.agents/skills/` and `.cursor/skills/`), and fleet synchronization manifests for: <task title and objectives>.\n\n### Tool Capabilities & Strict Read-Only Boundary:\n- You are a READ-ONLY subagent (`TypeName: 'research'`).\n- You DO NOT have file authoring tools. NEVER attempt to create or edit files.\n\n### Mandatory Search Primacy & Total Ban on Raw Grep:\n- Execute ALL searches exclusively via GitMap (`gitmap aum search`, `gitmap find`, `gitmap lf`, `gitmap cat`).\n- TOTAL BAN: NEVER run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem`, or `findstr`.\n- TOTAL BAN ON GIT COMMANDS: NEVER run `git` commands.\n\n### Required Findings Report (Send via send_message to Parent):\nSend a message to the caller detailing script dependencies, skill catalogs, and cross-repo synchronization targets."
+      "Prompt": "You are Research 03 for task <nn>-<slug>. You have no prior chat context; this brief is your complete specification.
+
+### Core Objective:
+Explore external dependencies, script pipelines (`03-ai-scripts/`), skills (`.agents/skills/` and `.cursor/skills/`), and fleet synchronization manifests for: <task title and objectives>.
+
+### Tool Capabilities & Strict Read-Only Boundary:
+- You are a READ-ONLY subagent (`TypeName: 'research'`).
+- You DO NOT have file authoring tools. NEVER attempt to create or edit files.
+
+### Mandatory Search Primacy & Total Ban on Raw Grep:
+- Execute ALL searches exclusively via GitMap (`gitmap aum search`, `gitmap find`, `gitmap lf`, `gitmap cat`).
+- TOTAL BAN: NEVER run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem`, or `findstr`.
+- TOTAL BAN ON GIT COMMANDS: NEVER run `git` commands.
+
+### Required Findings Report (Send via send_message to Parent):
+Send a message to the caller detailing script dependencies, skill catalogs, and cross-repo synchronization targets."
     }
   ]
 }
@@ -590,7 +648,7 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 6. Zero Builds or Tests: NEVER run `go build`, `npm run build`, `go test`, or `pytest`.
 7. Targeted Verification: Run only fast file-scoped linters (e.g. `python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only`). A check scanning 0 files is a FAIL.
 8. GitMap Search Primacy (TOTAL BAN on rg / ripgrep / Select-String / git grep): NEVER execute `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, or `findstr`. Always use `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r]` for live symbol/regex discovery.
-9. Mandatory Heatmap Telemetry: In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via gitmap heatmap log or gitmap agent log, and inspect active file leases and contention hotspots via gitmap heatmap discuss before editing shared files.
+9. Mandatory Heatmap Telemetry: In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via gitmap heatmap log or gitmap agent log, and inspect active file leases and contention hotspots via gitmap agent heatmap (or gitmap heatmap status) before editing shared files.
 
 ### Concurrency-Safe SQLite Action Logging & Heatmap Telemetry (CRASH FORENSICS MANDATE):
 - Worker subtasks are tracked in the run database: `<databasePath>`.
@@ -602,7 +660,7 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 
 #### 1. Heatmap File Contention & Pre-Edit Blast Radius Check:
 - BEFORE modifying any shared files, you MUST inspect active file leases and collision contention hotspots:
-  `gitmap heatmap discuss [--window 15m] [--threshold 2] [--json]` (or `gitmap agent heatmap [--json]`)
+  `gitmap agent heatmap [--json]` (or `gitmap heatmap status`)
   If high write contention is reported on a file, coordinate disjoint boundaries or sequence edits to prevent file lock crashes.
 
 #### 2. In-Flight Cognitive Decision Logging (Heatmap & Action Log):
@@ -645,26 +703,13 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
   `gitmap agent subtask fail <id> --agent "Worker <NN>" --reason "<reason>"`
 *(Note: Native compiled Go engine `gitmap agent` executes in <1ms without Python VM overhead).*
 
-### Output Contract:
-Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json and reply with this JSON block, once per subtask, then stop:
-{
-  "task": "Task-01",
-  "status": "DONE",
-  "filesChanged": ["<path1>", "<path2>"],
-  "checks": "<command> -> exit <code>, <files scanned>",
-  "acceptance": { "ac1": "PASS <evidence>" },
-  "assumptions": [],
-  "blockers": []
-}
-```
-
-### 3-Tier Database Location & Executable Commands Architecture
+### 3-Tier Database Location Architecture & Verification Queries:
 
 | Database Tier | Physical File Location | Access Mode & Concurrency Protocol | Data Retained & Ownership |
 | :--- | :--- | :--- | :--- |
-| **Run-Scoped Agent Task DB** | `.ai-memory/temp-agents/<slug>/agent-task.db` | WAL Mode (`PRAGMA journal_mode=WAL; busy_timeout=5000`) | Task status, worker claims, subtasks, in-flight action logs |
-| **Local Repository Heatmap DB** | `.ai-memory/heatmap.db` | WAL Mode + Read-Only Queries (`mode=ro`) | Cognitive action telemetry, file exploration reads/edits, contention leases |
-| **Repo-Cache Multi-AI Telemetry** | `repo-cache/heatmap/<ai-name>/<repo-slug>.db` | Isolated Split-DB with periodic sync (`gitmap heatmap rc sync`) | Cross-repository multi-agent actions, tool usage traces, commit checkpoints |
+| **Tier 1: Host Root DB** | `~/.gitmap/agent-root.db` | WAL Mode + Cross-Repo Catalog | Machine sessions, active leases, workspace catalog |
+| **Tier 2: Repo-Cache Telemetry** | `repo-cache/.heatmap/<ai-slug>/<repo-slug>/heatmap.db` | Isolated Split-DB with periodic sync (`gitmap heatmap rc sync`) | Cross-repository multi-agent actions, tool usage traces, commit checkpoints |
+| **Tier 3: Local Task & Heatmap DB** | `.ai-memory/temp-agents/<slug>/agent-task.db`<br/>`.ai-memory/heatmap.db` | WAL Mode (`PRAGMA journal_mode=WAL; busy_timeout=5000`) | Task status, worker claims, subtasks, in-flight action logs, local contention |
 
 #### Executable Commands Block:
 ```bash
@@ -686,6 +731,19 @@ gitmap agent subtask complete <id> --agent "Worker 01" --evidence "PASS exit 0"
 # Forensic autopsy and status inspection
 gitmap agent task status
 gitmap agent diagnose
+```
+
+### Output Contract:
+Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json and reply with this JSON block, once per subtask, then stop:
+{
+  "task": "Task-01",
+  "status": "DONE",
+  "filesChanged": ["<path1>", "<path2>"],
+  "checks": "<command> -> exit <code>, <files scanned>",
+  "acceptance": { "ac1": "PASS <evidence>" },
+  "assumptions": [],
+  "blockers": []
+}
 ```
 
 ### 7.3 Turn-Yielding, Verification & Crash Forensics Protocol
@@ -806,7 +864,7 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 - [ ] INDEPENDENT AI VERIFICATION PROMPT MANDATE: Emitted the self-contained independent AI verification and audit prompt linking to the canonical spec, consolidated plan, and modified files with verbatim score audit criteria.
 - [ ] GITMAP HEAVY USAGE & ROUTINE PULL BAN: Heavily leveraged GitMap commands (`cpf`, `cpb`, `cpr`, `search`, `find`, `pwsh`) for discovery, execution, and commits. Never ran `pull-all` (`gitmap pa` or `gitmap pae`) unconditionally during routine turns; only ran `gitmap pae --json` when explicitly commanded by the user.
 - [ ] NO RG, RIPGREP, OR RAW SHELL SEARCHES (TOTAL BAN): Never run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, `findstr`, or slow shell search pipelines to search code. All code searching, symbol discovery, and regex scans MUST use GitMap high-speed search tools: `gitmap aum search "<query>" [dir] [-e <.ext>] [-r]` (streaming multi-core text/regex search) or `gitmap search "<query>"` (indexed symbol search). Running `rg`, `ripgrep`, `Select-String`, or `git grep` is an immediate auto-reject failure.
-- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
+- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap agent heatmap (or gitmap heatmap status) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
 
 ---
 

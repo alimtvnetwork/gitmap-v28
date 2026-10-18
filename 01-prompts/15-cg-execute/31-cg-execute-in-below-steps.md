@@ -5,10 +5,10 @@ H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool d
 C = 30  (Tool calls per worker before it must report, default: 30)
 
 System Concurrency Capacity = A × H = 3 agents × 2 hands = 6 concurrent subtask operations
-Tree Hierarchy = Lead Orchestrator (Root Node) -> Branch Coordinators (Subtask Owners) -> Leaf Workers & Dynamic Joining Assistants
+Tree Hierarchy = Lead Orchestrator (Root Node) -> Branch Coordinators (Subtask Owners) -> Leaf Workers & Dynamic Assistants
 PHASE_1_BUDGET = 100     (Steps 1 .. 100: Planning, Discovery Subagents, Up-Front Brain & Roadmap Creation, Lean Subtasks)
 PHASE_2_BUDGET = 150     (Steps 101 .. 250: Intermediate Archival, Sanitization, Prerequisite Refactoring, Intermediate Checkpoints)
-PHASE_3_BUDGET = 150     (Steps 251 .. 400: Tree Swarm Parallel Execution, Dynamic Join Capacity Saturation, Targeted Quality Linting, Fleet Sync, Atomic Push)
+PHASE_3_BUDGET = 150     (Steps 251 .. 400: Tree Swarm Parallel Execution, Dynamic Join Capacity Saturation, Targeted Quality Linting, Atomic Push)
 WAVES = ceil(subtasks / (A x H))
 ```
 
@@ -56,27 +56,23 @@ Before executing the tasks below, check if this prompt is already installed as a
 
 Execute this task via a strict 3-Phase pipeline. Do not skip steps.
 
-### Phase 1A: Verbatim Capture, Task Extraction & Chat Output Gate (Step 0)
+### ### ### Phase 1A: Verbatim Capture, Task Extraction & Chat Output Gate (Step 0)
 
-Before executing any file searches, scans, spec writing, or code changes, you must execute Phase 1A:
-
-1. **Bottom-Instruction Priority Verification:** Verify whatever directives or task instructions are given BELOW this prompt (following the `--` divider border at the bottom) as highest priority and non-negotiable.
-2. **Extreme "Understood" Turn-1 Showcase (Turn 1 Action):** In your VERY FIRST response turn upon receiving the prompt, you MUST output a comprehensive, in-depth understanding block directly in visible chat before any background tool execution. Any generic boilerplate or superficial 1-sentence summaries (e.g. `Understood: [YES] — I will do this task`) are protocol auto-reject failures. Turn 1 MUST display the top-level mandate containing all 5 Mandatory Pillars followed by the confirmed task breakdown using the 4-part verification schema:
-   * **Pillar 1: Strategic Intent & Systems Reasoning:** Articulate overarching architectural goal, user intent, operational rationale, and systems integration mechanics. Explain *why* this change is necessary and how downstream components interact.
+1. **Bottom-Instruction Priority Verification:** Verify whatever directives, constraints, or task instructions are given BELOW this prompt (following the `--` divider border at the bottom) as highest priority and non-negotiable.
+2. **Extreme "Understood" Turn-1 Showcase (Turn 1 Action):** In your VERY FIRST response turn upon receiving the prompt, you MUST output a comprehensive, in-depth understanding block directly in visible chat before any background tool execution. Any generic boilerplate or superficial 1-sentence summaries are protocol auto-reject failures. Turn 1 MUST display the top-level mandate containing all 5 Mandatory Pillars followed by the confirmed task breakdown using the 4-part verification schema:
+   * **Pillar 1: Strategic Intent & Systems Reasoning:** Articulate overarching architectural goal, user intent, operational rationale, and systems integration mechanics.
    * **Pillar 2: Explicit Scope Boundaries:** Strict two-column partition defining In-Scope vs. strictly Excluded or Deferred items.
-   * **Pillar 3: Non-Negotiable Constraints & Negative Guardrails Ingestion:** Explicit recitation of active constraints: raw search ban (`rg`, `ripgrep`, `Select-String`, `git grep`), worker git ban (no git commands in subagents), zero builds/full test suites (CI verification only), strict relative Git paths, lowercase naming, zero secrets in repo (`repo-secrets` offloading), GitMap hyphen-separated commit format without colons.
+   * **Pillar 3: Non-Negotiable Constraints & Negative Guardrails Ingestion:** Explicit recitation of active constraints: raw search ban (`rg`, `ripgrep`, `Select-String`, `git grep`), worker git ban (no git commands in subagents), zero builds/full test suites, strict relative Git paths, lowercase naming, zero secrets in repo (`repo-secrets` offloading), GitMap hyphen-separated commit format without colons.
    * **Pillar 4: Blast Radius & Dependency Topology:** Map impacted subsystems, files, downstream callers, and prompt/skill indexes with explicit risk containment strategies.
    * **Pillar 5: Multi-Agent Concurrency Topology:** Detail swarm structure (`A = 3`, `H = 2`, Capacity = 6), disjoint file assignments, and immediate dynamic respawn.
 3. **Lossless Verbatim Capture:** Store incoming prompt losslessly under `## User Request (Verbatim)` in canonical spec and parent plan.
-4. **Screenshots & Media:** Decode base64/screenshots immediately into `assets/screenshots/<slug>-<NN>.png`. Reference via relative markdown links (`![Screenshot](assets/screenshots/<slug>-<NN>.png)`).
-5. **Discrete Deliverables Extraction:** Break down whatever user requirements were given into discrete, actionable items with ordered traceable IDs (`Task-01`, `Task-02`, ...).
-6. **Mandatory Same-Turn Tool Chaining (TOTAL BAN ON TURNING OFF):** Emit the comprehension mandate and breakdown in chat with clean vertical formatting, and in the **EXACT SAME TURN**, invoke your first tool call (e.g. `write_to_file` to initialize ledger/spec, or run preflight). NEVER emit text alone (which ends the turn prematurely), and never ask "Should I proceed?".
+4. **Mandatory Same-Turn Tool Chaining (TOTAL BAN ON TURNING OFF):** Emit the comprehension mandate and breakdown in chat with clean vertical formatting, and in the **EXACT SAME TURN**, invoke your first tool call. Never pause or ask "Should I proceed?".
 
 ```markdown
 ### 🧠 Deep Comprehension & Understood Mandate
 
 #### Pillar 1: Strategic Intent & Systems Reasoning
-- [Articulate overarching architectural goal, user intent, operational rationale, and systems integration mechanics. Explain why this change is necessary and how downstream components interact.]
+- [Articulate overarching architectural goal, user intent, operational rationale, and systems integration mechanics. Explain why this change is necessary.]
 
 #### Pillar 2: Explicit Scope Boundaries (In-Scope vs. Excluded / Deferred)
 - **In-Scope:** [Strict enumeration of files, modules, and changes executed in this turn.]
@@ -105,34 +101,13 @@ Before executing any file searches, scans, spec writing, or code changes, you mu
    - **Negative Boundaries & Invariants:**
      - [Explicit list of things this task MUST NOT do or alter]
      - [Untouchable files, reserved packages, or excluded dependencies]
-     - [Invariants that must remain preserved after modification]
    - **Disjoint File Boundaries:**
-     - `Owned Files (Exclusive):` `[strictly/relative/path/to/file-01.md]`, `[strictly/relative/path/to/file-02.md]`
+     - `Owned Files (Exclusive):` `[strictly/relative/path/to/file-01.md]`
      - `Read-Only Context Files:` `[strictly/relative/path/to/reference.md]`
    - **Verification Evidence Contract:**
-     - [Exact command or check to be executed to prove completion]
-     - [Expected exit code: e.g. exit 0]
-     - [Required diffstat evidence or structural regex check]
+     - [Exact command or check to be executed to prove completion: e.g. exit 0]
 
-2. **Task-02: [Descriptive Task Title]**
-   - **State:** `[QUEUED — EXECUTING NOW WITHOUT USER PROMPT]`
-   - **Intent & Technical Deliverables:**
-     - [Clear statement of technical goal and deliverable artifacts]
-     - [Precise implementation scope: functions, types, schemas, or prompt sections being added/edited]
-     - [Quantifiable success metrics: line count, field completeness, schema compliance]
-   - **Negative Boundaries & Invariants:**
-     - [Explicit list of things this task MUST NOT do or alter]
-     - [Untouchable files, reserved packages, or excluded dependencies]
-     - [Invariants that must remain preserved after modification]
-   - **Disjoint File Boundaries:**
-     - `Owned Files (Exclusive):` `[strictly/relative/path/to/file-03.md]`
-     - `Read-Only Context Files:` `[strictly/relative/path/to/reference.md]`
-   - **Verification Evidence Contract:**
-     - [Exact command or check to be executed to prove completion]
-     - [Expected exit code: e.g. exit 0]
-     - [Required diffstat evidence or structural regex check]
-
-Proceeding directly to Preflight & Phase 1B Spec Generation (Active Tool Call Running Below).
+Proceeding directly to Phase 1B: Spec & Subtask Generation (Active Tool Call Running Below).
 ```
 
 ---
@@ -208,7 +183,7 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 | **Pipeline Waiting** | `gitmap pipeline-ai status --json` | `gitmap pl-ai` | Non-polling dynamic ETA CI/CD monitor |
 | **Agent Task Engine** | `gitmap task <init|add|claim|complete|fail|status|schema>` | `gitmap task` | Sub-millisecond compiled Go SQLite task manager for multi-agent workflows |
 | **Heatmap Action Log** | `gitmap heatmap log -t <slug> -a "READ"|"EDIT" -f <path> -r <reason>` | `gitmap heatmap log` | Concurrency-safe cognitive action & reasoning telemetry into `.ai-memory/heatmap.db` |
-| **Contention & Leases** | `gitmap heatmap discuss [--window 15m] [--threshold 2]` | `gitmap agent heatmap` | Pre-edit file lease conflict & contention hotspot analysis across active agents |
+| **Contention & Leases** | `gitmap agent heatmap [--json]` / `gitmap heatmap status` | `gitmap agent heatmap` | Pre-edit file lease conflict & contention hotspot analysis across active agents |
 | **Heatmap Diagnostics** | `gitmap heatmap query|tables|view` / `gitmap heatmap rc ...` | `gitmap heatmap` | Non-blocking read-only SQL queries, tree view, and live activity stream |
 | **Fleet Synchronization** | `gitmap sync [--workers 8] [--projects <json>]` | `gitmap sync` | Parallel Go sync engine across 43 repositories in <5s with 6-stage ceremony |
 
@@ -226,7 +201,11 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 1. **Platform Handshake:** Confirm tools (`invoke_subagent`, `send_message`, `manage_subagents`, `ask_question`, `write_to_file`, `replace_file_content`, `run_command`). If `task_boundary` exists: set `PLANNING` (Phase 1), `EXECUTION` (Phase 2), `VERIFICATION` (Phase 3).
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
 3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
-4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
+4. **Step 0 Heatmap & RC Preflight Checks (Mandatory Inspection):**
+   - Inspect active split-db tables: `gitmap rc heatmap tables` (or `gitmap heatmap tables`)
+   - Check cognitive action metrics: `gitmap heatmap status`
+   - Check file contention hotspots: `gitmap agent heatmap`
+5. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
    - Initialize or inspect task state via GitMap SQLite task manager (compiled Go, sub-millisecond):
      `gitmap agent task init --name "<task name>" --budget 400`
    - Inspect Task DB Schema & Data Integrity Rules (Mandatory Preflight):
@@ -236,7 +215,7 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
    - Output Analysis & Crash Forensics:
      - If `action: "RESUME_FOUND"`: A matching or similar slug exists in `.ai-memory/temp-agents/`! If `diagnostics.hasCrashesDetected: true`, inspect the forensic report (`diagnostics.crashedAgents`) to identify which agent crashed, what file it was touching, and the last logged action. Resume execution from the uncompleted subtask.
      - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-<slug>/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
-5. **Ledger Creation:** Also create `.ai-memory/temp-agents/<nn>-<slug>/ledger.md` mirroring the DB initialization for human readability:
+6. **Ledger Creation:** Also create `.ai-memory/temp-agents/<nn>-<slug>/ledger.md` mirroring the DB initialization for human readability:
 
 ```markdown
 # Ledger: nn-<slug>
@@ -424,7 +403,7 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 6. Zero Builds or Tests: NEVER run `go build`, `npm run build`, `go test`, or `pytest`.
 7. Targeted Verification: Run only fast file-scoped linters (e.g. `python 03-ai-scripts/05-guideline-autofixer.py <folder> --check-only`). A check scanning 0 files is a FAIL.
 8. GitMap Search Primacy (TOTAL BAN on rg / ripgrep / Select-String / git grep): NEVER execute `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, or `findstr`. Always use `gitmap aum search "<pattern>" [dir] [-e <.ext>] [-r]` for live symbol/regex discovery.
-9. Mandatory Heatmap Telemetry: In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via gitmap heatmap log or gitmap agent log, and inspect active file leases and contention hotspots via gitmap heatmap discuss before editing shared files.
+9. Mandatory Heatmap Telemetry: In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via gitmap heatmap log or gitmap agent log, and inspect active file leases and contention hotspots via gitmap agent heatmap (or gitmap heatmap status) before editing shared files.
 
 ### Concurrency-Safe SQLite Action Logging & Heatmap Telemetry (CRASH FORENSICS MANDATE):
 - Worker subtasks are tracked in the run database: `<databasePath>`.
@@ -436,7 +415,7 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 
 #### 1. Heatmap File Contention & Pre-Edit Blast Radius Check:
 - BEFORE modifying any shared files, you MUST inspect active file leases and collision contention hotspots:
-  `gitmap heatmap discuss [--window 15m] [--threshold 2] [--json]` (or `gitmap agent heatmap [--json]`)
+  `gitmap agent heatmap [--json]` (or `gitmap heatmap status [--json]`)
   If high write contention is reported on a file, coordinate disjoint boundaries or sequence edits to prevent file lock crashes.
 
 #### 2. In-Flight Cognitive Decision Logging (Heatmap & Action Log):
@@ -640,7 +619,7 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 - [ ] INDEPENDENT AI VERIFICATION PROMPT MANDATE: Emitted the self-contained independent AI verification and audit prompt linking to the canonical spec, consolidated plan, and modified files with verbatim score audit criteria.
 - [ ] GITMAP HEAVY USAGE & ROUTINE PULL BAN: Heavily leveraged GitMap commands (`cpf`, `cpb`, `cpr`, `search`, `find`, `pwsh`) for discovery, execution, and commits. Never ran `pull-all` (`gitmap pa` or `gitmap pae`) unconditionally during routine turns; only ran `gitmap pae --json` when explicitly commanded by the user.
 - [ ] NO RG, RIPGREP, OR RAW SHELL SEARCHES (TOTAL BAN): Never run `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `Get-ChildItem -Recurse`, `findstr`, or slow shell search pipelines to search code. All code searching, symbol discovery, and regex scans MUST use GitMap high-speed search tools: `gitmap aum search "<query>" [dir] [-e <.ext>] [-r]` (streaming multi-core text/regex search) or `gitmap search "<query>"` (indexed symbol search). Running `rg`, `ripgrep`, `Select-String`, or `git grep` is an immediate auto-reject failure.
-- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
+- [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap agent heatmap (or gitmap heatmap status) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
 
 ---
 

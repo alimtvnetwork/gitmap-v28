@@ -116,6 +116,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `15-cg-execute` | [`15-cg-execute/35-clean-work-artifacts-and-os-caches.md`](../01-prompts/15-cg-execute/35-clean-work-artifacts-and-os-caches.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/36-variadic-and-spread-parameters.md`](../01-prompts/15-cg-execute/36-variadic-and-spread-parameters.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/37-string-normalization-and-equalfoldany.md`](../01-prompts/15-cg-execute/37-string-normalization-and-equalfoldany.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/38-map-dispatch-and-handler-lookup.md`](../01-prompts/15-cg-execute/38-map-dispatch-and-handler-lookup.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/readme.md`](../01-prompts/15-cg-execute/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
 | `16-ci-cd` | [`16-ci-cd/01-ci-cd-fix-tweak.md`](../01-prompts/16-ci-cd/01-ci-cd-fix-tweak.md) | CI/CD Fix Tweak with Targeted Smart Testing & RCA — Workflow (must follow) |
 | `16-ci-cd` | [`16-ci-cd/02-ci-cd-fix-with-release-tweak.md`](../01-prompts/16-ci-cd/02-ci-cd-fix-with-release-tweak.md) | Release-Triggered CI/CD Fix Tweak with Targeted Smart Testing — Workflow (must follow) |
@@ -268,6 +269,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `v4/15-cg-execute` | [`v4/15-cg-execute/35-clean-work-artifacts-and-os-caches.md`](../01-prompts/v4/15-cg-execute/35-clean-work-artifacts-and-os-caches.md) | Ledger: NN-<slug> |
 | `v4/15-cg-execute` | [`v4/15-cg-execute/36-variadic-and-spread-parameters.md`](../01-prompts/v4/15-cg-execute/36-variadic-and-spread-parameters.md) | Ledger: NN-<slug> |
 | `v4/15-cg-execute` | [`v4/15-cg-execute/37-string-normalization-and-equalfoldany.md`](../01-prompts/v4/15-cg-execute/37-string-normalization-and-equalfoldany.md) | Ledger: NN-<slug> |
+| `v4/15-cg-execute` | [`v4/15-cg-execute/38-map-dispatch-and-handler-lookup.md`](../01-prompts/v4/15-cg-execute/38-map-dispatch-and-handler-lookup.md) | Ledger: NN-<slug> |
 | `v4/15-cg-execute` | [`v4/15-cg-execute/readme.md`](../01-prompts/v4/15-cg-execute/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
 | `v4/24-sync` | [`v4/24-sync/01-sync.md`](../01-prompts/v4/24-sync/01-sync.md) | [V6] Full-Fleet Multi-Repository Synchronization & Canonical Mirroring Engine — Workflow (must follow) |
 | `v4/24-sync` | [`v4/24-sync/02-sync-other-codebase.md`](../01-prompts/v4/24-sync/02-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
