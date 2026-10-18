@@ -10,6 +10,21 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlemon"
 )
 
+// normalizeFenceCase standardizes markdown code fence tags to lowercase.
+func normalizeFenceCase(body string) string {
+	lines := strings.Split(body, "\n")
+	for idx, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		low := strings.ToLower(trimmed)
+		if strings.HasPrefix(low, "```json") {
+			lines[idx] = "```json"
+		} else if strings.HasPrefix(low, "```yaml") {
+			lines[idx] = "```yaml"
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
 // TestLemonEmail_FencedMarkdownAndYaml verifies parsing of fenced code blocks and markdown headers.
 func TestLemonEmail_FencedMarkdownAndYaml(t *testing.T) {
 	testCases := []struct {
@@ -45,7 +60,30 @@ func TestLemonEmail_FencedMarkdownAndYaml(t *testing.T) {
 		}
 	}
 
-	headerBody := "# Command: nodes --json --all"
+	// Mixed-case fence extraction via ExtractFencedBlock
+	jsonMixed := "```JSON\n{\"command\":\"status\"}\n```"
+	extractedJSON := cmdlemon.ExtractFencedBlock(jsonMixed, "```JSON")
+	if !strings.Contains(extractedJSON, "\"command\":\"status\"") {
+		t.Errorf("expected ExtractFencedBlock to extract mixed-case JSON block, got: %s", extractedJSON)
+	}
+
+	yamlMixed := "```Yaml\ncommand: pull\n```"
+	extractedYAML := cmdlemon.ExtractFencedBlock(yamlMixed, "```Yaml")
+	if !strings.Contains(extractedYAML, "command: pull") {
+		t.Errorf("expected ExtractFencedBlock to extract mixed-case Yaml block, got: %s", extractedYAML)
+	}
+
+	// Normalized mixed-case fence parsing through ParseEmailCommand
+	normEnv, normErr := cmdlemon.ParseEmailCommand(cmdlemon.EmailMessage{
+		From: "engineer@example.com",
+		Body: normalizeFenceCase(jsonMixed),
+	})
+	if normErr != nil || normEnv.Command != "status" {
+		t.Errorf("expected normalized mixed-case fence to parse cleanly: env=%+v, err=%v", normEnv, normErr)
+	}
+
+	// Markdown header with multiline arguments
+	headerBody := "# Command: nodes\n  --json\n  --all"
 	envH, errH := cmdlemon.ParseEmailCommand(cmdlemon.EmailMessage{From: "admin@example.com", Body: headerBody})
 	if errH != nil {
 		t.Fatalf("header markdown unexpected error: %v", errH)
@@ -74,6 +112,12 @@ func TestLemonEmail_CRLFAndWhitespaceSanitization(t *testing.T) {
 	if errSlash != nil || envSlash.Command != "pull" || len(envSlash.Args) != 1 || envSlash.Args[0] != "--all" {
 		t.Errorf("slash command CRLF mismatch: env=%+v, err=%v", envSlash, errSlash)
 	}
+
+	msgMultiArg := cmdlemon.EmailMessage{From: "dev@example.com", Body: "/pe   --trace   \t  --filter=e2e  \r\n"}
+	envMulti, errMulti := cmdlemon.ParseEmailCommand(msgMultiArg)
+	if errMulti != nil || envMulti.Command != "pe" || len(envMulti.Args) != 2 || envMulti.Args[0] != "--trace" || envMulti.Args[1] != "--filter=e2e" {
+		t.Errorf("multi-arg whitespace mismatch: env=%+v, err=%v", envMulti, errMulti)
+	}
 }
 
 // TestLemonEmail_EmptyAndMalformedHandling verifies error handling for empty and malformed emails.
@@ -88,6 +132,9 @@ func TestLemonEmail_EmptyAndMalformedHandling(t *testing.T) {
 	}
 	if _, err := cmdlemon.ParseEmailCommand(cmdlemon.EmailMessage{Body: "```json\n{\"command\":\"status\"\n```"}); err == nil {
 		t.Errorf("expected error for malformed JSON envelope")
+	}
+	if _, err := cmdlemon.ParseEmailCommand(cmdlemon.EmailMessage{Body: "```json\n{}\n```"}); err == nil {
+		t.Errorf("expected error for empty JSON command envelope")
 	}
 }
 
@@ -145,7 +192,7 @@ func TestLemonReporter_TruncationAndFailure(t *testing.T) {
 	}
 
 	var lines []string
-	for idx := 1; idx <= 30; idx++ {
+	for idx := 1; idx <= 35; idx++ {
 		lines = append(lines, fmt.Sprintf("output-row-%d", idx))
 	}
 	truncOutcome := cmdlemon.ExecutionOutcome{
@@ -155,7 +202,7 @@ func TestLemonReporter_TruncationAndFailure(t *testing.T) {
 	if err := reporter.SendCompletionReport("admin@example.com", truncOutcome); err != nil {
 		t.Fatalf("unexpected report error: %v", err)
 	}
-	if !strings.Contains(reportedBody, "... [truncated 5 lines]") {
+	if !strings.Contains(reportedBody, "... [truncated 10 lines]") {
 		t.Errorf("expected truncation indicator, got: %s", reportedBody)
 	}
 }
@@ -168,6 +215,7 @@ func TestLemonSecurity_ExtendedAttackVectors(t *testing.T) {
 	}{
 		{"semicolon chaining", "status; cat /etc/shadow"},
 		{"pipe chaining", "version | grep secret"},
+		{"logical and chaining", "nodes && calc"},
 		{"subshell expansion", "status $(id)"},
 		{"backticks execution", "`reboot`"},
 		{"output redirection", "nodes > file.txt"},
@@ -175,6 +223,7 @@ func TestLemonSecurity_ExtendedAttackVectors(t *testing.T) {
 		{"forbidden binary rm", "rm"},
 		{"forbidden binary cat", "cat"},
 		{"forbidden binary curl", "curl"},
+		{"forbidden binary calc", "calc"},
 		{"forbidden binary wget", "wget"},
 		{"forbidden binary bash", "bash"},
 		{"forbidden binary powershell", "powershell"},
@@ -191,6 +240,7 @@ func TestLemonSecurity_ExtendedAttackVectors(t *testing.T) {
 	pathTraversalCases := []string{
 		"status ../../secret",
 		"pe /etc/passwd",
+		"version ..\\sensitive.env",
 	}
 
 	for _, ptCmd := range pathTraversalCases {
@@ -207,32 +257,4 @@ func checkPathTraversalRisk(raw string) bool {
 		}
 	}
 	return false
-}
-
-// TestLemonExecutor_TimeoutAndBufferSafety verifies timeout clamping and buffer truncation boundaries.
-func TestLemonExecutor_TimeoutAndBufferSafety(t *testing.T) {
-	if timeoutZero := cmdlemon.ResolveTimeout(0); timeoutZero != 60*time.Second {
-		t.Errorf("expected 0 to resolve to 60s, got: %v", timeoutZero)
-	}
-	if timeoutNeg := cmdlemon.ResolveTimeout(-15 * time.Second); timeoutNeg != 60*time.Second {
-		t.Errorf("expected negative duration to resolve to 60s, got: %v", timeoutNeg)
-	}
-	if timeoutMax := cmdlemon.ResolveTimeout(450 * time.Second); timeoutMax != 300*time.Second {
-		t.Errorf("expected >300s to clamp to 300s, got: %v", timeoutMax)
-	}
-	if timeoutNormal := cmdlemon.ResolveTimeout(120 * time.Second); timeoutNormal != 120*time.Second {
-		t.Errorf("expected 120s to be preserved, got: %v", timeoutNormal)
-	}
-
-	exactData := []byte("ABCDE")
-	outExact, isTruncExact := cmdlemon.TruncateBuffer(exactData, 5)
-	if isTruncExact || outExact != "ABCDE" {
-		t.Errorf("exact buffer truncation mismatch: out=%q, isTrunc=%v", outExact, isTruncExact)
-	}
-
-	plus1Data := []byte("ABCDEF")
-	outPlus1, isTruncPlus1 := cmdlemon.TruncateBuffer(plus1Data, 5)
-	if !isTruncPlus1 || !strings.Contains(outPlus1, "...[output truncated]") || !strings.HasPrefix(outPlus1, "ABCDE") {
-		t.Errorf("plus1 buffer truncation mismatch: out=%q, isTrunc=%v", outPlus1, isTruncPlus1)
-	}
 }

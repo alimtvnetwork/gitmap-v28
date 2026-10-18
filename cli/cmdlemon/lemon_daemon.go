@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sync"
 	"syscall"
 	"time"
@@ -12,38 +13,36 @@ import (
 
 const StateFilePath = ".gitmap/lemon_state.json"
 
-type DaemonState struct {
-	LastPollTime        time.Time `json:"lastPollTime"`
-	LastExecutedCommand string    `json:"lastExecutedCommand"`
-	PollCount           int64     `json:"pollCount"`
-	Pid                 int       `json:"pid"`
-	IsRunning           bool      `json:"isRunning"`
-}
-
-type DaemonConfig struct {
-	PollFunc          func(ctx context.Context) error
-	Interval          time.Duration
-	IsOnce, IsVerbose bool
-}
-
-type LemonDaemon struct {
-	cfg   DaemonConfig
-	guard *IntervalGuard
-	mu    sync.RWMutex
-	state DaemonState
-}
+type (
+	DaemonState struct {
+		LastPollTime        time.Time `json:"lastPollTime"`
+		LastExecutedCommand string    `json:"lastExecutedCommand"`
+		PollCount           int64     `json:"pollCount"`
+		Pid                 int       `json:"pid"`
+		IsRunning           bool      `json:"isRunning"`
+	}
+	DaemonConfig struct {
+		PollFunc          func(ctx context.Context) error
+		Interval          time.Duration
+		IsOnce, IsVerbose bool
+	}
+	LemonDaemon struct {
+		cfg   DaemonConfig
+		guard *IntervalGuard
+		mu    sync.RWMutex
+		state DaemonState
+	}
+)
 
 func NewLemonDaemon(cfg DaemonConfig) *LemonDaemon {
 	guard := NewIntervalGuard(os.Stderr)
 	cfg.Interval = guard.ResolveInterval(cfg.Interval)
-
 	return &LemonDaemon{cfg: cfg, guard: guard, state: DaemonState{Pid: os.Getpid()}}
 }
 
 func (d *LemonDaemon) GetState() DaemonState {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
-
 	return d.state
 }
 
@@ -53,7 +52,6 @@ func (d *LemonDaemon) Run(ctx context.Context) error {
 	if d.cfg.IsOnce {
 		return d.executeSinglePass(ctx)
 	}
-
 	return d.runLoop(ctx)
 }
 
@@ -62,6 +60,7 @@ func (d *LemonDaemon) setRunning(running bool) {
 	d.state.IsRunning = running
 	data, _ := json.Marshal(d.state)
 	d.mu.Unlock()
+	_ = os.MkdirAll(filepath.Dir(StateFilePath), 0o755)
 	_ = os.WriteFile(StateFilePath, data, 0o644)
 }
 
@@ -90,10 +89,10 @@ func (d *LemonDaemon) executeSinglePass(ctx context.Context) error {
 	d.state.LastPollTime, d.state.PollCount = time.Now(), d.state.PollCount+1
 	data, _ := json.Marshal(d.state)
 	d.mu.Unlock()
+	_ = os.MkdirAll(filepath.Dir(StateFilePath), 0o755)
 	_ = os.WriteFile(StateFilePath, data, 0o644)
 	if d.cfg.PollFunc != nil {
 		return d.cfg.PollFunc(ctx)
 	}
-
 	return nil
 }

@@ -50,6 +50,10 @@ func NewServiceManager() *ServiceManager {
 	return &ServiceManager{service: resolvePlatformService()}
 }
 
+func NewServiceManagerWithService(service PlatformService) *ServiceManager {
+	return &ServiceManager{service: service}
+}
+
 func (m *ServiceManager) Execute(action ServiceActionType) (*ServiceDetails, error) {
 	var err error
 	switch strings.ToLower(string(action)) {

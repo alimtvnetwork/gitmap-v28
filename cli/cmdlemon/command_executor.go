@@ -35,9 +35,11 @@ func (e *SystemCommandExecutor) resolveBinary() string {
 	if e.ExePath != "" {
 		return e.ExePath
 	}
+
 	if exe, err := os.Executable(); err == nil && exe != "" {
 		return exe
 	}
+
 	return "gitmap"
 }
 
@@ -47,6 +49,7 @@ func (e *SystemCommandExecutor) Execute(ctx context.Context, raw string) (Execut
 	if err != nil {
 		return ExecutionResult{ExitCode: 1, Stderr: err.Error()}, err
 	}
+
 	return e.ExecuteArgs(ctx, args)
 }
 
@@ -56,18 +59,25 @@ func (e *SystemCommandExecutor) ExecuteArgs(ctx context.Context, args []string) 
 	if !ok {
 		return ExecutionResult{ExitCode: 1, Stderr: "unauthorized"}, errors.New("unauthorized command")
 	}
+
 	execCtx, cancel := context.WithTimeout(ctx, ResolveTimeout(e.Timeout))
 	defer cancel()
+
 	cmd := exec.CommandContext(execCtx, e.resolveBinary(), validArgs...)
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdoutBuf, &stderrBuf
+
 	start := time.Now()
 	runErr := cmd.Run()
+
 	out, outTrunc := TruncateBuffer(stdoutBuf.Bytes(), MaxBufferBytes)
 	errStr, errTrunc := TruncateBuffer(stderrBuf.Bytes(), MaxBufferBytes)
 	exitCode := ResolveExitCode(runErr)
+
 	return ExecutionResult{
-		ExitCode: exitCode, Stdout: out, Stderr: errStr,
+		ExitCode:    exitCode,
+		Stdout:      out,
+		Stderr:      errStr,
 		DurationMs:  time.Since(start).Milliseconds(),
 		IsSuccess:   runErr == nil && exitCode == 0,
 		IsTruncated: outTrunc || errTrunc,
