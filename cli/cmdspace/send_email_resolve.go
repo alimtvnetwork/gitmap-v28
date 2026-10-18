@@ -63,9 +63,6 @@ func probeLookPath(name string) string {
 	if path, err := exec.LookPath(name); err == nil && isExecutableFile(path) {
 		return path
 	}
-	if runtime.GOOS != "windows" {
-		return ""
-	}
 	path, err := exec.LookPath(name + ".exe")
 	if err == nil && isExecutableFile(path) {
 		return path
@@ -99,9 +96,6 @@ func probeCandidateDir(binDir, name string) string {
 	candidate := filepath.Join(binDir, name)
 	if isExecutableFile(candidate) {
 		return candidate
-	}
-	if runtime.GOOS != "windows" {
-		return ""
 	}
 	winCand := filepath.Join(binDir, name+".exe")
 	if isExecutableFile(winCand) {

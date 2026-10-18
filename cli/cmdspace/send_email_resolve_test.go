@@ -3,12 +3,17 @@ package cmdspace
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
 func TestIsExecutableFile(t *testing.T) {
 	dir := t.TempDir()
-	exePath := filepath.Join(dir, "sender.exe")
+	binName := "sender"
+	if runtime.GOOS == "windows" {
+		binName += ".exe"
+	}
+	exePath := filepath.Join(dir, binName)
 	if writeErr := os.WriteFile(exePath, []byte("echo"), 0755); writeErr != nil {
 		t.Fatal(writeErr)
 	}
@@ -49,7 +54,11 @@ func TestResolveGoEmailReaderBinCandidates(t *testing.T) {
 	if err := os.MkdirAll(binDir, 0755); err != nil {
 		t.Fatal(err)
 	}
-	binPath := filepath.Join(binDir, "GoEmailSender.exe")
+	binName := "GoEmailSender"
+	if runtime.GOOS == "windows" {
+		binName += ".exe"
+	}
+	binPath := filepath.Join(binDir, binName)
 	if err := os.WriteFile(binPath, []byte("echo"), 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +76,11 @@ func TestResolveCandidatePath(t *testing.T) {
 	if err := os.MkdirAll(binDir, 0755); err != nil {
 		t.Fatal(err)
 	}
-	binFile := filepath.Join(binDir, "goemailsender.exe")
+	binName := "goemailsender"
+	if runtime.GOOS == "windows" {
+		binName += ".exe"
+	}
+	binFile := filepath.Join(binDir, binName)
 	if err := os.WriteFile(binFile, []byte("echo"), 0755); err != nil {
 		t.Fatal(err)
 	}
