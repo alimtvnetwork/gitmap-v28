@@ -1,5 +1,14 @@
 # Changelog
 
+## [v6.573.0] - 2026-10-18
+
+### Fixed
+- **Dead Code Elimination (`cli/cmddb`)**: Removed uncalled legacy `cmddb_help.go` functions, eliminating golangci-lint `[unused]` linter failures.
+- **Static Analysis Nil Pointer Dereference Guard (`cli/cmdupdate`)**: Added immediate nil candidate guard in `finalizeUpdate` (`update_binary_swap.go`), resolving staticcheck `SA5011` possible nil pointer dereference.
+- **Async Poller Interval Clamping Test Alignment (`cli/cmd`)**: Aligned `TestParseAsyncArgs` in `async_cmd_test.go` with the system-wide `>= 30s` poller floor invariant, resolving race-detector test failures.
+
+---
+
 ## [v6.572.1] - 2026-10-18
 
 ### Added

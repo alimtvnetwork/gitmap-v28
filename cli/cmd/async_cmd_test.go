@@ -36,21 +36,21 @@ func TestParseAsyncArgs(t *testing.T) {
 		t.Fatalf("parseAsyncArgs returned error: %v", err)
 	}
 
-	if opts.intervalS != 5 {
-		t.Errorf("expected interval 5, got %d", opts.intervalS)
+	if opts.intervalS != 30 {
+		t.Errorf("expected interval 30 (clamped to floor), got %d", opts.intervalS)
 	}
 
 	if opts.command != "echo hello" {
 		t.Errorf("expected command 'echo hello', got %q", opts.command)
 	}
 
-	opts2, err2 := parseAsyncArgs([]string{"-t=10", "gitmap", "status"})
+	opts2, err2 := parseAsyncArgs([]string{"-t=45", "gitmap", "status"})
 	if err2 != nil {
 		t.Fatalf("parseAsyncArgs returned error: %v", err2)
 	}
 
-	if opts2.intervalS != 10 {
-		t.Errorf("expected interval 10, got %d", opts2.intervalS)
+	if opts2.intervalS != 45 {
+		t.Errorf("expected interval 45, got %d", opts2.intervalS)
 	}
 
 	if opts2.command != "gitmap status" {

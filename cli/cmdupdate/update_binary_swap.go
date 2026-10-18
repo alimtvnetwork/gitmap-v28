@@ -116,6 +116,10 @@ func swapReleaseBinary(ui UpdateUIRenderer, archive, stageDir string) error {
 }
 
 func finalizeUpdate(ui UpdateUIRenderer, opts UpdateOptions, cand *ReleaseCandidate, start time.Time) error {
+	if cand == nil {
+		return apperror.NewValidationError("release candidate cannot be nil")
+	}
+
 	dur := time.Since(start)
 	dir := resolveCurrentInstallDir()
 	bin := constants.GitMapBin
@@ -129,7 +133,7 @@ func finalizeUpdate(ui UpdateUIRenderer, opts UpdateOptions, cand *ReleaseCandid
 		DownloadBytes: cand.AssetSize, DurationMs: dur.Milliseconds(), FallbackDepth: cand.FallbackDepth,
 		IsCached: cand.IsCached, ScriptsUpdated: syncLocalRunnerScripts(dir, cand.Tag),
 	}
-	if cand != nil && cand.ReleaseNotes != "" {
+	if cand.ReleaseNotes != "" {
 		res.ReleaseNotes = ExtractReleaseNotesSummary(cand.ReleaseNotes, 2)
 	}
 	ui.RenderSummaryCard(res)
