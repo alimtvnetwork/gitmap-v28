@@ -122,7 +122,7 @@ For an interactive CLI tool like GitMap (invoked repeatedly in automated shell l
 
 ---
 
-## 3. In-Depth Head-to-Head Comparative Analyses
+## 3. In-Depth Head-to-Head Comparative Evaluations
 
 ### 3.1 Ent Go vs. sqlc (Schema-First Graph vs. SQL-First AST Compiler)
 
