@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -19,14 +20,45 @@ func SetBinaryDataDirForTesting(dir string) {
 
 // GlobalUserDataDir returns the canonical user-level data directory.
 func GlobalUserDataDir() string {
-	if localAppData := os.Getenv("LOCALAPPDATA"); runtime.GOOS == "windows" && localAppData != "" {
-		return filepath.Join(localAppData, "gitmap-cli", constants.DBDir)
+	if runtime.GOOS == "windows" {
+		return resolveWindowsUserDataDir()
 	}
 	home, err := os.UserHomeDir()
 	if err == nil && home != "" {
 		return filepath.Join(home, ".gitmap", constants.DBDir)
 	}
 	return ""
+}
+
+func resolveWindowsUserDataDir() string {
+	localAppData := os.Getenv("LOCALAPPDATA")
+	if localAppData == "" {
+		return ""
+	}
+	if hostDir := resolveAntigravityHostUserDataDir(localAppData); hostDir != "" {
+		return hostDir
+	}
+	return filepath.Join(localAppData, "gitmap-cli", constants.DBDir)
+}
+
+func resolveAntigravityHostUserDataDir(localAppData string) string {
+	if !strings.Contains(localAppData, ".antigravity_tools") {
+		return ""
+	}
+	drive := os.Getenv("SystemDrive")
+	if drive == "" {
+		drive = "C:"
+	}
+	user := os.Getenv("USERNAME")
+	if user == "" {
+		return ""
+	}
+	realUserDir := filepath.Join(drive, "\\Users", user, "AppData", "Local", "gitmap-cli", constants.DBDir)
+	targetDB := filepath.Join(realUserDir, constants.DBFile)
+	if _, err := os.Stat(targetDB); err != nil {
+		return ""
+	}
+	return realUserDir
 }
 
 func isDirWritable(dir string) bool {

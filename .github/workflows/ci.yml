@@ -33,7 +33,7 @@ on:
       lint_baseline_cache_version:
         description: "Bump to invalidate the golangci-lint baseline cache (e.g. v2)"
         required: false
-        default: "v5"
+        default: "v6"
         type: string
       lint_baseline_disable:
         description: "Skip restoring/saving the lint baseline cache for this run"
@@ -341,9 +341,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: /tmp/lint-unused-baseline
-          key: golangci-unused-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-unused-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
           restore-keys: |
-            golangci-unused-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-
+            golangci-unused-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-
 
       - name: Unused diff (baseline-diff, full-path only)
         # Catches NEW dead-code findings (functions, vars, consts, types)
@@ -376,7 +376,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /tmp/lint-unused-baseline
-          key: golangci-unused-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-unused-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
 
       # ---- gosec G115 diff (baseline-diff, full-path only) ----------
       - name: Restore gosec-G115 baseline (rolling, single slot)
@@ -385,9 +385,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: /tmp/lint-gosec-g115-baseline
-          key: golangci-gosec-g115-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-gosec-g115-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
           restore-keys: |
-            golangci-gosec-g115-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-
+            golangci-gosec-g115-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-
 
       - name: Gosec G115 diff (baseline-diff, full-path only)
         # Runs the full `gosec` analyzer but TEXT_FILTER scopes the diff
@@ -422,7 +422,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /tmp/lint-gosec-g115-baseline
-          key: golangci-gosec-g115-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-gosec-g115-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
 
       - name: Install ripgrep (for bare-stderr check)
         if: needs.sha-check.outputs.already-built != 'true'
@@ -439,9 +439,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: /tmp/lint-misspell-baseline
-          key: golangci-misspell-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-misspell-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
           restore-keys: |
-            golangci-misspell-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-
+            golangci-misspell-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-
 
       - name: Misspell diff (baseline-diff, full-path only)
         # Dedicated misspell-only diff. Runs after the hard-floor step
@@ -476,7 +476,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /tmp/lint-misspell-baseline
-          key: golangci-misspell-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-misspell-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
 
       # ---- gocritic diff (baseline-diff, same contract as misspell) -----
       - name: Restore gocritic baseline (rolling, single slot)
@@ -485,9 +485,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: /tmp/lint-gocritic-baseline
-          key: golangci-gocritic-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-gocritic-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
           restore-keys: |
-            golangci-gocritic-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-
+            golangci-gocritic-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-
 
       - name: Gocritic diff (baseline-diff, full-path only)
         # Same contract as the misspell step: only `gocritic` runs,
@@ -522,7 +522,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /tmp/lint-gocritic-baseline
-          key: golangci-gocritic-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-gocritic-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
 
       # ---- exhaustive diff (baseline-diff, same contract as misspell) ---
       - name: Restore exhaustive baseline (rolling, single slot)
@@ -531,9 +531,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: /tmp/lint-exhaustive-baseline
-          key: golangci-exhaustive-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-exhaustive-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
           restore-keys: |
-            golangci-exhaustive-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-
+            golangci-exhaustive-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-
 
       - name: Exhaustive switch diff (baseline-diff, full-path only)
         # Catches NEW "missing cases in switch" findings (e.g.
@@ -567,7 +567,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /tmp/lint-exhaustive-baseline
-          key: golangci-exhaustive-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-exhaustive-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
 
   lint-baseline-diff:
     # Soft-gate companion to `lint`. Runs golangci-lint with --issues-exit-code=0
@@ -626,9 +626,9 @@ jobs:
           # operator can bump via workflow_dispatch to abandon a stale
           # baseline. The restore-keys fallback also carries the version
           # so we never accidentally restore a pre-bump baseline.
-          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
           restore-keys: |
-            golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-
+            golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-
 
       - name: Install golangci-lint (pinned)
         if: needs.sha-check.outputs.already-built != 'true'
@@ -692,7 +692,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /tmp/lint-baseline
-          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v5' }}-${{ github.sha }}
+          key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v6' }}-${{ github.sha }}
 
       - name: Generate actionable lint suggestions
         # Runs whether the diff passed or failed: a passing diff still

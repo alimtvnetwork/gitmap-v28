@@ -38,3 +38,7 @@ Can you please verify and check the connection with the GoEmailSender? You can c
 - **Task-06: Isolated E2E Test Suite & Minor Version Bump Release**
   - Files: `cli/tests/e2e/goemailsender_tempe2e_test.go`, `version.json`
   - Owner: Lead Orchestrator
+
+- **Task-07: SSH Fleet Pull UX & Local Node Detection**
+  - Files: `cli/cmdssh/ssh_pull_fleet.go`, `cli/cmdssh/ssh_pull_fleet_heartbeat.go`, `cli/cmdssh/ssh_pull_fleet_liveness.go`, `cli/cmdssh/ssh_pull_fleet_dispatch.go`, `cli/cmdssh/ssh_pull_fleet_outcome.go`, `.github/workflows/ci.yml`
+  - Owner: Lead Orchestrator

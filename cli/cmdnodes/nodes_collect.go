@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	dbpkg "github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -22,63 +21,6 @@ type UnifiedFleetNode struct {
 	Subsystems []string `json:"subsystems"`
 	EnrolledAt string   `json:"enrolled_at"`
 	IsOnline   bool     `json:"is_online"`
-}
-
-type nodesFilterOptions struct {
-	isJSON       bool
-	isFast       bool
-	openOnly     bool
-	isNoCache    bool
-	isRefresh    bool
-	filterSSH    bool
-	filterClust  bool
-	filterSC     bool
-	targetFilter string
-}
-
-func parseNodesFilterOptions(args []string) nodesFilterOptions {
-	var opts nodesFilterOptions
-	for _, arg := range args {
-		if arg == "--json" || arg == "-j" {
-			opts.isJSON = true
-			continue
-		}
-		if arg == "--fast" || arg == "--no-probe" || arg == "-f" {
-			opts.isFast = true
-			continue
-		}
-		if arg == "--open-only" || arg == "--running-only" || arg == "-ro" || arg == "--online-only" {
-			opts.openOnly = true
-			continue
-		}
-		if arg == "--no-cache" {
-			opts.isNoCache = true
-			continue
-		}
-		if arg == "--refresh" || arg == "-r" {
-			opts.isRefresh = true
-			InvalidateNodesLivenessCache()
-			continue
-		}
-		if arg == "--ssh" {
-			opts.filterSSH = true
-			continue
-		}
-		if arg == "--cluster" || arg == "--clst" {
-			opts.filterClust = true
-			continue
-		}
-		if arg == "--sc" || arg == "--server-clients" || arg == "--servers-clients" {
-			opts.filterSC = true
-			continue
-		}
-		hasDashPrefix := strings.HasPrefix(arg, "-")
-		isTargetCandidate := !hasDashPrefix && opts.targetFilter == ""
-		if isTargetCandidate {
-			opts.targetFilter = arg
-		}
-	}
-	return opts
 }
 
 func runUnifiedNodesList(args []string) error {
@@ -103,13 +45,32 @@ func runUnifiedNodesList(args []string) error {
 func openUnifiedStore() (*store.DB, error) {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "openUnifiedStore")
+		return store.OpenGlobalDefault()
 	}
-	if err := dbConn.Migrate(); err != nil {
-		dbConn.Close()
-		return nil, apperror.WrapSimple(err, "openUnifiedStore.Migrate")
+	_ = dbConn.Migrate()
+	if countUnifiedHosts(dbConn) == 0 {
+		return resolveGlobalUnifiedFallback(dbConn), nil
 	}
 	return dbConn, nil
+}
+
+func countUnifiedHosts(dbConn *store.DB) int {
+	var count int
+	_ = dbConn.SQL().QueryRow("SELECT COUNT(*) FROM ssh_hosts").Scan(&count)
+	return count
+}
+
+func resolveGlobalUnifiedFallback(localDB *store.DB) *store.DB {
+	globalDB, err := store.OpenGlobalDefault()
+	if err != nil {
+		return localDB
+	}
+	if countUnifiedHosts(globalDB) > 0 {
+		localDB.Close()
+		return globalDB
+	}
+	globalDB.Close()
+	return localDB
 }
 
 func resolveProbeCachePreference(canUseCache []bool) bool {

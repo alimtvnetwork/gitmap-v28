@@ -51,3 +51,31 @@ func TestResolveTargetNodeOS(t *testing.T) {
 		t.Fatalf("expected linux, got %s", osType)
 	}
 }
+
+func TestIsLocalHostAddress(t *testing.T) {
+	if !IsLocalHostAddress("127.0.0.1") {
+		t.Fatal("expected 127.0.0.1 to be local host")
+	}
+	if !IsLocalHostAddress("::1") {
+		t.Fatal("expected ::1 to be local host")
+	}
+	if !IsLocalHostAddress("localhost") {
+		t.Fatal("expected localhost to be local host")
+	}
+	if IsLocalHostAddress("198.51.100.254") {
+		t.Fatal("expected test IP to not be local host")
+	}
+}
+
+func TestBuildLocalSkippedFleetOutcome(t *testing.T) {
+	outcome := buildLocalSkippedFleetOutcome("main", "192.168.1.20")
+	if !outcome.IsLocal {
+		t.Fatal("expected outcome.IsLocal=true")
+	}
+	if !outcome.IsSkipped {
+		t.Fatal("expected outcome.IsSkipped=true")
+	}
+	if !outcome.Success {
+		t.Fatal("expected outcome.Success=true")
+	}
+}
