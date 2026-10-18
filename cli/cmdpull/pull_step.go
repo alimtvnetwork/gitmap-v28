@@ -35,17 +35,18 @@ const (
 
 // PullRepoState holds runtime execution and completion state for a single repository pull.
 type PullRepoState struct {
-	RepoName    string
-	RepoPath    string
-	Branch      string
-	OldSHA      string
-	NewSHA      string
-	CommitRange string
-	Changes     string
-	Step        PullStepType
-	Duration    time.Duration
-	IsDirty     bool
-	ErrorMsg    string
+	RepoName     string
+	RepoPath     string
+	Branch       string
+	OldSHA       string
+	NewSHA       string
+	CommitRange  string
+	Changes      string
+	Step         PullStepType
+	Duration     time.Duration
+	IsDirty      bool
+	IsAutoMerged bool
+	ErrorMsg     string
 }
 
 var safeBadges = map[PullStepType]string{

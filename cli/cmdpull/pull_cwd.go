@@ -90,8 +90,6 @@ func runPullCWDTracked() error {
 	}
 
 	state := executeCWDTrackedPull(cwd)
-	row := buildPullTableRowFromState(state)
-	RenderPullBatchTable([]model.PullTableRow{row})
 	_ = RecordSinglePullSession(cwd, state, "pull")
 
 	return nil
@@ -99,10 +97,17 @@ func runPullCWDTracked() error {
 
 func executeCWDTrackedPull(cwd string) *PullRepoState {
 	rec := model.ScanRecord{RepoName: filepath.Base(cwd), AbsolutePath: cwd}
-	bar := NewPullProgressBar(1, false, false)
-	bar.Start()
-	state := ExecuteTrackedPull(rec, bar)
-	bar.Stop()
+	isTTY := resolveTerminalMode()
+	if isTTY {
+		fmt.Print("  ↓ pulling remote changes...")
+	} else {
+		fmt.Println("  ↓ pulling remote changes...")
+	}
+	state := ExecuteTrackedPull(rec, nil)
+	if isTTY {
+		fmt.Print("\r\033[K")
+	}
+	RenderSingleRepoPullSummary(state, cwd)
 
 	return state
 }

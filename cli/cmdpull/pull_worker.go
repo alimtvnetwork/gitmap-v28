@@ -260,6 +260,9 @@ func initSuccessRepoState(rec model.ScanRecord, branch, oldSHA string, dur time.
 }
 
 func finalizeSuccessRepoState(state *PullRepoState, notes string) {
+	if notes == "auto-merged" {
+		state.IsAutoMerged = true
+	}
 	if notes == "up-to-date" {
 		state.NewSHA = state.OldSHA
 		state.CommitRange = ShortenSHA(state.OldSHA)
@@ -275,6 +278,9 @@ func finalizeSuccessRepoState(state *PullRepoState, notes string) {
 }
 
 func resolveSuccessStep(oldSHA, newSHA, notes string) PullStepType {
+	if notes == "auto-merged" {
+		return PullStepTypeMerging
+	}
 	if notes == "up-to-date" || (oldSHA != "" && oldSHA == newSHA) {
 		return PullStepTypeUpToDate
 	}

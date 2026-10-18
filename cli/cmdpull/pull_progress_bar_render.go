@@ -7,6 +7,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/mattn/go-runewidth"
 )
 
 // Render redraws the bar immediately.
@@ -109,12 +110,12 @@ func (p *PullProgressBar) colorizeBadge(badge string, step PullStepType) string 
 
 func clampLineToTermWidth(line string) string {
 	termWidth := detectTerminalWidth()
-	maxLen := termWidth - 1
-	if maxLen < 30 {
-		maxLen = 79
+	maxLen := termWidth - 4
+	if maxLen < 20 {
+		maxLen = 20
 	}
 	plain := stripANSI(line)
-	plainLen := utf8.RuneCountInString(plain)
+	plainLen := runewidth.StringWidth(plain)
 	if plainLen <= maxLen {
 		return line
 	}
@@ -163,7 +164,7 @@ func truncateANSI(line string, maxLen int) string {
 		}
 
 		r, size := utf8.DecodeRuneInString(line[i:])
-		visibleCount++
+		visibleCount += runewidth.RuneWidth(r)
 		if visibleCount > targetVisible {
 			buf.WriteString("...")
 			buf.WriteString(constants.ColorReset)

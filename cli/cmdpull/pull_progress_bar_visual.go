@@ -17,6 +17,9 @@ func ColorizeVisualBar(bar string, percent int) string {
 }
 
 func (p *PullProgressBar) renderNonTTY() {
+	if isIntermediateGitMilestone(p.activeDesc) {
+		return
+	}
 	percent := calcProgressPercent(p.completed, p.total)
 	bar := FormatVisualBar(p.completed, p.total, 20, p.isSafe)
 	counter := fmt.Sprintf("%3d%% (%d/%d repos)", percent, p.completed, p.total)
@@ -24,6 +27,14 @@ func (p *PullProgressBar) renderNonTTY() {
 	desc := p.formatActiveDescription()
 
 	fmt.Fprintf(p.out, "  %s %s | %s %s%s\n", p.colorizeBar(bar, percent), counter, badge, p.activeRepo, desc)
+}
+
+func isIntermediateGitMilestone(desc string) bool {
+	lower := strings.ToLower(desc)
+	return strings.Contains(lower, "counting") ||
+		strings.Contains(lower, "compressing") ||
+		strings.Contains(lower, "receiving") ||
+		strings.Contains(lower, "resolving")
 }
 
 func (p *PullProgressBar) resolveSingleRepoPercent() int {

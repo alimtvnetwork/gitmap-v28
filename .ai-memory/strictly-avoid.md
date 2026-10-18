@@ -28,6 +28,39 @@ Forbidden:
 
 ---
 
+## Unnecessary Shell Wrapping via gitmap ps / gitmap pwsh — TOTAL BAN
+
+🔴 **NEVER wrap direct tool commands, standard binaries (`git`, `curl`, `npm`, `python`), or file inspections inside `gitmap ps "<cmd>"` or `gitmap pwsh "<cmd>"`. Use native GitMap commands (`gitmap cat`, `gitmap show`, `gitmap log`, `gitmap aum search`, `gitmap find`) or direct tool primitives.**
+
+### 5-Part Forensic Root Cause Analysis (RCA)
+*(Ground Truth: `assets/screenshots/gitmap-and-antigravity-manager-agm-package-enhancements-01.png`)*
+
+In Figure 1 (`assets/screenshots/gitmap-and-antigravity-manager-agm-package-enhancements-01.png`), an AI agent executed:
+`gitmap ps "git -C <repo-root> show cf78a8f88 -- 01-prompts/27-muse-prompts/01-master-prompt.md"`
+to inspect a file diff, incurring heavy child PowerShell process spawn overhead, double-quote escaping friction, and ConHost terminal wrapping bugs. The forensic investigation established five compounding root causes:
+
+1. **Over-Broad Interpretation of Worker Git Ban:** Agents over-generalized the rule "mutating git commands (`add`, `commit`, `push`, `checkout`, `reset`, `rebase`) are banned for subagents in shared workspaces to avoid index.lock collisions" to believe ALL git commands—including harmless read-only inspections (`git show`, `git log`)—were forbidden, prompting them to wrap `git show` inside PowerShell strings to circumvent perceived restrictions.
+2. **Search Directive Misclassification in Legacy Prompts:** Legacy prompt templates listed `gitmap ps` in the search command sequence (`gitmap aum search, gitmap find, gitmap cat, gitmap ps, gitmap py`), misleading agents into treating `gitmap ps` as a general-purpose inspection and search utility.
+3. **Historical Tooling Gap in GitMap:** GitMap historically offered repository workflow commands (`pull`, `clone`, `status`, `commit`, `push`, `cat`, `find`) but lacked first-class native git inspection primitives (`gitmap show`, `gitmap log`), creating a tooling vacuum where agents had no direct GitMap primitive for viewing commit diffs or log history.
+4. **Subshell Reflex in Multi-Agent Environments:** Autonomous agents developed an unnecessary reflex to wrap simple CLI invocations into shell wrappers (`gitmap ps "..."`, `gitmap pwsh "..."`), erroneously presuming PowerShell provides superior escaping, output buffering, or execution isolation.
+5. **Lack of Transparent Subcommand Routing:** The root dispatcher previously lacked direct `show` and `log` command dispatch, forcing any agent attempting `gitmap show` to fail or route through clunky subcommands.
+
+### Strict Operational Rules
+- ❌ **FORBIDDEN:** Running `gitmap ps "git ..."` or `gitmap pwsh "git ..."` (e.g. `gitmap ps "git -C ... show ..."` or `gitmap ps "git log"`).
+- ❌ **FORBIDDEN:** Wrapping standard command-line tools (`git`, `curl`, `npm`, `python`, `node`) or file read tools (`cat`, `dir`, `ls`, `type`) inside `gitmap ps` or `gitmap pwsh`.
+- ❌ **FORBIDDEN:** Using `gitmap ps` / `gitmap pwsh` for anything other than multi-line PowerShell scripts that genuinely require `-NoProfile` and Windows PowerShell/pwsh pipeline object semantics.
+- ✅ **MANDATORY:** Use native GitMap commands:
+  - `gitmap show <rev> [-- <path>]` — Inspects revisions, commit diffs, and file contents natively.
+  - `gitmap log [-n <N>] [--stat]` — Inspects commit history with clean, modern output.
+  - `gitmap cat <filepath>` — Direct zero-disk stream of file content.
+  - `gitmap aum search "<pattern>" [dir] [-e <.ext>]` — Live streaming multi-core symbol search.
+  - `gitmap find "<pattern>"` / `gitmap lf [dir]` — Fast file discovery.
+  - Direct tool primitives (`run_command` with direct executable, `view_file`).
+
+**Why:** User explicitly mandated: "And also in some cases, the AI tried to run PowerShell command using gitmap, which it could have executed already using the gitmap directly. So why it does that? Can you find the root cause and try to fix it? Can you please start working on this as we have discussed?" Wrapping standard commands inside `gitmap ps` spawns heavy nested shell interpreters, introduces quoting and escaping corruption on Windows, risks terminal freeze, and completely bypasses native GitMap performance optimizations.
+
+---
+
 ## Bare `gitmap ssh` Public Key Display & Clipboard Copying — TOTAL BAN ON REMOVAL / SUPPRESSION
 
 🔴 **NEVER remove, suppress, hide, or alter the public key display and OS clipboard copy behavior on bare `gitmap ssh`.**

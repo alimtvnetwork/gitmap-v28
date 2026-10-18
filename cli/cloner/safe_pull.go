@@ -155,7 +155,9 @@ func handleAttemptSuccess(rec model.ScanRecord, attempt int, output string) mode
 		log.Log("safe-pull succeeded: %s (attempt %d)", rec.RepoName, attempt)
 	}
 	res := model.CloneResult{Record: rec, IsSuccess: true}
-	if strings.Contains(output, "Already up to date.") {
+	if strings.Contains(output, "[auto-merged]") || strings.Contains(output, "Merge made by") {
+		res.Notes = "auto-merged"
+	} else if strings.Contains(output, "Already up to date.") {
 		res.Notes = "up-to-date"
 	}
 
@@ -263,7 +265,7 @@ func executeAutoMergeCmd(dir string, progress SafePullProgressFunc) (string, err
 func attemptAutoMergePull(dir, branch string, progress SafePullProgressFunc) (string, error) {
 	out, err := executeAutoMergeCmd(dir, progress)
 	if err == nil && !isMergeConflictOutput(out) {
-		return out, nil
+		return "[auto-merged]\n" + out, nil
 	}
 	SafeAbortMerge(dir)
 

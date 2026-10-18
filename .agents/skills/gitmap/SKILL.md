@@ -24,7 +24,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `Get-ChildItem -Recurse`, `find . -name "..."`, `dir /s /b` | ✅ `gitmap find "<pattern>" [-ext <ext>]` or `gitmap list-files [dir]` | Sub-millisecond indexed glob discovery across 10,000+ files without disk traversal overhead. |
 | ❌ Raw unbuffered `cat`, `type`, `Get-Content` on source files | ✅ `gitmap cat <filepath>` | Direct zero-disk stream of file contents directly into process stdout for resource-constrained CLI sessions. |
 | ❌ Raw ambient `python script.py` or `python -c "..."` | ✅ `gitmap py "<code-or-script>"` or `gitmap py -c "<expression>"` | Auto-resolves verified Python interpreter from `installation.db` cache (<15ms), avoiding environment discrepancies. |
-| ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding, and automatic fallback. |
+| ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding. Strictly reserved for multi-line logic; TOTAL BAN on wrapping standard commands. |
+| ❌ Wrapping standard tools (`git`, `curl`, `npm`, `python`) in `gitmap ps` or `gitmap pwsh` (e.g. `gitmap ps "git show ..."`) | ✅ `gitmap show <rev> [-- <path>]`, `gitmap log [-n <N>] [--stat]`, or direct tool execution | Eliminates heavy shell interpreter spawn, argument escaping corruption, and terminal freeze. Direct native execution without pager blocking. |
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
 | ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap status --dirty` / `gitmap status --json` / `gitmap st` | Single-shot multi-repository audit matrix displaying dirty counts, ahead/behind branches, and uncommitted stashes. |
 | ❌ `gh auth login` interactive prompts or plaintext `.env` files | ✅ `gitmap login --web`, `gitmap login --status`, `gitmap login --token <PAT>` | Token validated via GitHub API before writing; auto-resolved for all clone, pull, and push commands. |
@@ -64,8 +65,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 ### 3. Script Execution & Runner Engines
 - `gitmap py "<code-or-script>"` — High-performance cross-platform Python script execution.
 - `gitmap py -c "<code-or-expression>"` — Direct inline Python command evaluation.
-- `gitmap pwsh "<cmd>"` / `gitmap ps "<cmd>"` — Cross-platform PowerShell execution with `-NoProfile`.
-- `gitmap ps -c "<cmd>"` — Direct inline PowerShell command evaluation.
+- `gitmap pwsh "<cmd>"` / `gitmap ps "<cmd>"` — Cross-platform PowerShell execution with `-NoProfile`. **STRICTLY RESERVED** for multi-line PowerShell logic or scripts requiring `-NoProfile` and UTF-8 encoding. **TOTAL BAN** on wrapping standard tools (`git`, `curl`, `npm`, `python`), file inspections, or commands where native GitMap commands or direct tool primitives exist.
+- `gitmap ps -c "<cmd>"` — Direct inline PowerShell command evaluation (strictly reserved for multi-line logic).
 - `gitmap bash "<cmd>"` / `gitmap sh "<cmd>"` — Cross-platform Bash execution.
 - `gitmap bash -c "<cmd>"` — Direct inline POSIX Bash evaluation.
 - All runner commands support `--dry-run` and `--json` flags for pipeline automation.
@@ -118,9 +119,13 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | `gitmap cpc "<module> - <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore/maintenance, and push directly to GitHub tracking branch. |
 | `gitmap cpr "<module> - <summary>"` | - | Remote | Release Chore | Yes | Stage all, commit release chore, and push directly to GitHub tracking branch. |
 | `gitmap pcp "<module> - <summary>"` | - | Remote | Hyphen format | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
+| `gitmap show <rev> [-- <path>]` | - | Local | Direct git | No | Inspect revisions, commit diffs, or specific file diffs natively without shell wrapping. |
+| `gitmap log [-n <N>] [--stat]` | - | Local | Direct git | No | Clean, modern commit history with bounded output (default: 10 commits) and optional diffstat. |
 
 #### Command Details & Behavioral Guidelines
 - `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing ('Feature: ', 'Bug: ') and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
+- `gitmap show <rev> [-- <path>]` (supports `-C <dir>`) — Inspects commits, revisions, or specific file diffs natively without shell escaping, terminal hanging, or pager blocking. Replaces `gitmap ps "git show ..."`.
+- `gitmap log [-n <N>] [--stat]` (supports `-C <dir>`) — Displays clean, modern commit history with formatted date and author columns. Bounded to `-n 10` by default to prevent buffer bloat. Replaces `gitmap ps "git log ..."`.
 - `gitmap cpc "<module> - <summary>"` — Stage, commit, and push chore/maintenance branch (GitMap auto-prefixes `Chore: `).
 - `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: `).
 - `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: `).

@@ -1,5 +1,17 @@
 # Changelog
 
+## [v6.572.0] - 2026-10-18
+
+### Added
+- **Single-Repo Pull UX Simplification (`cli/cmdpull`)**: Replaced 0%-100% counting/compressing lines with a clean `↓ pulling remote changes...` status and compact 1-line summary showing commit delta, diffstat, clean/dirty state, and auto-merge notices.
+- **Progress Bar Column Width & Wrap Fix (`cli/cmdpull`)**: Integrated `go-runewidth` to compute exact terminal cell widths for wide Unicode characters and emojis (`⚡`, `🔍`), added `termWidth - 4` safety right-margin to prevent ConHost/Terminal auto-wrap to row Y+1, and throttled non-TTY progress output.
+- **Shell Wrapping Forensic RCA & Native Commands (`cli/cmdgit`)**: Documented the 5-part RCA and established strict bans on wrapping tools inside `gitmap ps`/`pwsh`. Added native `gitmap show <rev>` and `gitmap log [-n <N>]` commands to close the git inspection tooling gap.
+- **Antigravity Manager (AGM) Subsystem Alignment**: Verified and documented recent AGM improvements (E9001 elimination, missing workspace fail-fast, 30s floor, JWT bridge) and aligned GitMap AGY prompt rerun/review commands.
+- **Standalone Image URL Architecture (`cli/cmdagy`)**: Authored `03-image-url-architecture.md` and implemented `ExtractAndStoreBase64Images` in `agy_image_assets.go` converting inline base64 data URIs into content-addressable SHA-256 disk files and lightweight markdown URLs.
+- **RC Agent & Heatmap RC Continuous Sync**: Verified the 6-stage non-blocking reconciliation protocol ensuring collision-free SQLite telemetry syncing across AI namespaces.
+
+---
+
 ## [v6.571.2] - 2026-10-18
 
 ### Added
