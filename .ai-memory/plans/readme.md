@@ -8,6 +8,8 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
+- [database-migration-feasibility-analysis.md](database-migration-feasibility-analysis.md) — Database Migration Feasibility Analysis & Type-Safe SQLite ORM Evaluation: Non-executable 6-phase migration blueprint, empirical microbenchmarks (Ent Go vs sqlc vs Bun vs Bob vs GORM), pure-Go driver constraints, and shadow verification harness (Spec: [database-migration-feasibility-analysis](../../02-spec/21-app/database-migration-feasibility-analysis/readme.md)) (Status: `ratified`)
+
 - [goemailsender-connection-and-testing.md](goemailsender-connection-and-testing.md) — GoEmailSender Connection, Multi-Profile Fallback & Fleet Nodes Delegation (Spec: [goemailsender-connection-and-testing](../../02-spec/21-app/goemailsender-connection-and-testing/01-architecture-spec.md)) (Status: `in_progress`)
 
 - [283-cli-update-ui-color-alignment-and-release-notes.md](283-cli-update-ui-color-alignment-and-release-notes.md) — CLI Update UI Color Alignment, Spacing, Padding & Release Notes: Clean white-to-yellow version transition, 4-space indented SUCCESS badges matching step indicators, top/bottom padding, duplicate output prevention, and 1–2 line release notes snippet (Spec: [283](../../02-spec/21-app/283-cli-update-ui-color-alignment-and-release-notes/spec.md)) (Status: `completed`)
