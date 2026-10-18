@@ -2,8 +2,11 @@
 package cmdagy
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -87,18 +90,20 @@ func setupRestoreRunningPromptsCmd() {
 func setupRunningPromptsSubcommands() {
 	backupCmd := makeRunningPromptsBackupCmd()
 	restoreCmd := makeRunningPromptsRestoreCmd()
+	copyCmd := makeRunningPromptsCopyCmd()
 	cleanCmd := makeRunningPromptsCleanCmd()
 	lsCmd := makeRunningPromptsLsCmd()
 	exportCmd := makeRunningPromptsExportCmd()
 	importCmd := makeRunningPromptsImportCmd()
 	helpCmd := makeHelpCmd(RenderRunningPromptsHelp)
-	RunningPromptsCmd.AddCommand(backupCmd, restoreCmd, cleanCmd, lsCmd, exportCmd, importCmd, helpCmd)
+	RunningPromptsCmd.AddCommand(backupCmd, restoreCmd, copyCmd, cleanCmd, lsCmd, exportCmd, importCmd, helpCmd)
 	RunningPromptsCmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
 			return []string{
 				"ls\tInspect and list running and queued prompts",
 				"backup\tSnapshot running and queued prompts to Split-DB",
 				"restore\tRestore backed-up prompts into project queue",
+				"copy\tClone a prompt batch or item into a destination",
 				"clean\tPrune expired restored entries or force cleanup",
 				"export\tExport prompts snapshot to file",
 				"import\tImport prompts from file into queue",
@@ -107,6 +112,37 @@ func setupRunningPromptsSubcommands() {
 		}
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
+}
+
+func makeRunningPromptsCopyCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "copy <source-id> [destination-id]",
+		Aliases: []string{"cp"},
+		Short:   "Clone a prompt batch or item into a destination",
+		Args:    cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			dstID := ""
+			if len(args) > 1 {
+				dstID = args[1]
+			}
+			f, _ := cmd.Flags().GetString("file")
+			n, _ := cmd.Flags().GetString("name")
+			ns, _ := cmd.Flags().GetString("namespace")
+			dry, _ := cmd.Flags().GetBool("dry-run")
+			opts := PromptCopyOptions{SourceID: args[0], DestinationID: dstID, DestinationName: n, Namespace: ns, TargetFile: f, IsDryRun: dry}
+			res, appErr := ExecutePromptCopy(opts)
+			if appErr != nil {
+				return appErr
+			}
+			fmt.Printf("%s✔ Copied %d prompt(s) from %s to %s%s\n", constants.ColorGreen, res.CopiedCount, res.SourceID, res.DestinationID, constants.ColorReset)
+			return nil
+		},
+	}
+	cmd.Flags().StringP("file", "f", "", "Target backup database path")
+	cmd.Flags().StringP("name", "n", "", "Custom name for destination batch or item")
+	cmd.Flags().String("namespace", "", "Namespace prefix for cloned destination")
+	cmd.Flags().Bool("dry-run", false, "Simulate copy without writing to database")
+	return cmd
 }
 
 func makeHelpCmd(renderFn func()) *cobra.Command {

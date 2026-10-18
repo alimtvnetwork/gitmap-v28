@@ -62,11 +62,25 @@ var promptRmCmd = &cobra.Command{
 	},
 }
 
+var promptCopyCmd = &cobra.Command{
+	Use:     "copy [src-slug] [dst-slug]",
+	Aliases: []string{"cp"},
+	Short:   "Copy an existing prompt template to a new slug",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 2 {
+			return fmt.Errorf("usage: gitmap prompt copy <src-slug> <dst-slug>")
+		}
+
+		return runPromptCopy(args[0], args[1])
+	},
+}
+
 func initPromptCmd() {
 	PromptCmd.AddCommand(promptLsCmd)
 	promptShowCmd.Flags().Bool("copy", false, "Copy the template body to the clipboard")
 	PromptCmd.AddCommand(promptShowCmd)
 	PromptCmd.AddCommand(PromptAddCmd)
+	PromptCmd.AddCommand(promptCopyCmd)
 	PromptCmd.AddCommand(promptRmCmd)
 	PromptCmd.AddCommand(promptExportCmd)
 	PromptCmd.AddCommand(promptImportCmd)

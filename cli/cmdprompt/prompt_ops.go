@@ -134,3 +134,24 @@ func runPromptRm(slug string) error {
 
 	return nil
 }
+
+func runPromptCopy(srcSlug string, dstSlug string) error {
+	dir, dirErr := getPromptsStorageDir()
+	if dirErr != nil {
+		return dirErr.Unwrap()
+	}
+
+	srcPath := filepath.Join(dir, srcSlug+".md")
+	data, readErr := os.ReadFile(srcPath)
+	if readErr != nil {
+		return fmt.Errorf("source template %q not found: %w", srcSlug, readErr)
+	}
+
+	dstPath := filepath.Join(dir, dstSlug+".md")
+	if writeErr := os.WriteFile(dstPath, data, constants.FilePermission); writeErr != nil {
+		return writeErr
+	}
+
+	fmt.Printf("%s Successfully copied prompt template %q to %q\n", constants.ColorGreen+"✓"+constants.ColorReset, srcSlug, dstSlug)
+	return nil
+}

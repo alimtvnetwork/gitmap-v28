@@ -18,6 +18,10 @@ func isJSONPath(path string) bool {
 	return strings.HasSuffix(strings.ToLower(path), ".json")
 }
 
+func isSQLPath(path string) bool {
+	return strings.HasSuffix(strings.ToLower(path), ".sql")
+}
+
 func resolveIOFilePath(path, defaultName string) string {
 	if len(strings.TrimSpace(path)) > 0 {
 		return path
@@ -78,7 +82,7 @@ func saveQueueFile(qPath string, q AgyPromptQueueFile) bool {
 	return os.WriteFile(qPath, data, 0644) == nil
 }
 
-// RunRunningPromptsExport exports running prompts into a SQLite database or JSON file.
+// RunRunningPromptsExport exports running prompts into a SQLite database, SQL script, or JSON file.
 func RunRunningPromptsExport(targetFile string, maxWords int) error {
 	filePath := resolveIOFilePath(targetFile, "gitmap-running-prompts.db")
 	isFull := maxWords <= 0
@@ -88,6 +92,9 @@ func RunRunningPromptsExport(targetFile string, maxWords int) error {
 	}
 	if isJSONPath(filePath) {
 		return exportToJSONFile(filePath, items)
+	}
+	if isSQLPath(filePath) {
+		return exportToSQLFile(filePath, items)
 	}
 	return exportToSQLiteFile(filePath, items)
 }
@@ -101,6 +108,26 @@ func exportToJSONFile(filePath string, items []store.RunningPromptRecord) error 
 		return apperror.WrapSimple(writeErr, "write export json")
 	}
 	fmt.Printf("%s✔ Exported %d running prompts to %s%s\n", constants.ColorGreen, len(items), filePath, constants.ColorReset)
+	return nil
+}
+
+func exportToSQLFile(filePath string, items []store.RunningPromptRecord) error {
+	now := time.Now().UTC().Format(time.RFC3339)
+	batchID := fmt.Sprintf("batch-%d", time.Now().Unix())
+	summary := store.PromptBackupSummary{
+		BatchId:       batchID,
+		TotalPrompts:  len(items),
+		RunningCount:  len(items),
+		EnqueuedCount: 0,
+		DatabasePath:  filePath,
+		CreatedAt:     now,
+		Items:         items,
+	}
+	sqlText := GeneratePromptBackupSQL(summary)
+	if err := os.WriteFile(filePath, []byte(sqlText), 0644); err != nil {
+		return apperror.WrapSimple(err, "write export sql")
+	}
+	fmt.Printf("%s✔ Exported %d running prompts as SQL to %s%s\n", constants.ColorGreen, len(items), filePath, constants.ColorReset)
 	return nil
 }
 
