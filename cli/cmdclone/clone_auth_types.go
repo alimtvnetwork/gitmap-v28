@@ -26,4 +26,3 @@ type AuthPromptResult struct {
 func IsSSHCloneURL(url string) bool {
 	return isSSHCloneURL(url)
 }
-

@@ -191,4 +191,3 @@ func isHeatmapCommand(cmd string) bool {
 func RunHeatmapCommand(args []string) error {
 	return heatmap.DispatchHeatmapSubsystem(context.Background(), args, os.Stdout)
 }
-

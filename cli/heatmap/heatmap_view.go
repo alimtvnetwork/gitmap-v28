@@ -50,8 +50,12 @@ func RunHeatmapTables(isRc bool, flags map[string]string, out io.Writer) error {
 	var tables []TableInfo
 	for _, t := range rawTables {
 		var colCount, rowCount int
-		_ = db.QueryRow(fmt.Sprintf("SELECT count(*) FROM pragma_table_info('%s')", t.name)).Scan(&colCount)
-		_ = db.QueryRow(fmt.Sprintf("SELECT count(*) FROM \"%s\"", t.name)).Scan(&rowCount)
+		if err := db.QueryRow(fmt.Sprintf("SELECT count(*) FROM pragma_table_info('%s')", t.name)).Scan(&colCount); err != nil {
+			colCount = 0
+		}
+		if err := db.QueryRow(fmt.Sprintf("SELECT count(*) FROM \"%s\"", t.name)).Scan(&rowCount); err != nil {
+			rowCount = 0
+		}
 		tables = append(tables, TableInfo{Name: t.name, Type: t.typ, ColumnCount: colCount, RowCount: rowCount})
 	}
 	return formatTablesOutput(out, dbPath, tables, resolveFormat(flags))
@@ -86,7 +90,9 @@ func RunHeatmapView(isRc bool, flags map[string]string, pos []string, out io.Wri
 	if len(clauses) > 0 {
 		countQ += " WHERE " + strings.Join(clauses, " AND ")
 	}
-	_ = db.QueryRow(countQ, args...).Scan(&total)
+	if err := db.QueryRow(countQ, args...).Scan(&total); err != nil {
+		total = 0
+	}
 	limit := 20
 	if val, err := strconv.Atoi(flags["limit"]); err == nil && val > 0 {
 		limit = min(val, 1000)
@@ -154,7 +160,13 @@ func inspectColumns(db *sql.DB, table string) ([]string, string) {
 		return nil, ""
 	}
 	defer rows.Close()
-	var (cols []string; pkCol string; cid, notnull, pk int; name, typ string; dflt *string)
+	var (
+		cols             []string
+		pkCol            string
+		cid, notnull, pk int
+		name, typ        string
+		dflt             *string
+	)
 	for rows.Next() {
 		if rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk) == nil {
 			cols = append(cols, name)

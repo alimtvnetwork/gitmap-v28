@@ -56,8 +56,10 @@ func TestDetectGhAuth_FallbackToken(t *testing.T) {
 	restore := setupTestMocks(
 		func() (string, error) { return "/mock/gh", nil },
 		func(_ context.Context, name string, args ...string) ([]byte, error) {
-			if len(args) >= 2 && args[0] == "config" && args[1] == "user.name" {
-				return []byte("gituser\n"), nil
+			if len(args) >= 2 && args[0] == "config" {
+				if args[1] == "user.name" || (len(args) >= 3 && args[1] == "--global" && args[2] == "user.name") {
+					return []byte("gituser\n"), nil
+				}
 			}
 			return nil, errors.New("command failed")
 		},

@@ -217,8 +217,10 @@ func replayParentTasks(tempConn *sql.DB, rootDbPath string) error {
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(TaskSlug) DO UPDATE SET Status = excluded.Status, Notes = excluded.Notes, Comments = excluded.Comments, UpdatedAt = excluded.UpdatedAt`
 	for rows.Next() {
 		var s, n, rd, rp, st, not, c, ca, ua string
-		if rows.Scan(&s, &n, &rd, &rp, &st, &not, &c, &ca, &ua) == nil {
-			_, _ = rootConn.Exec(upsertSQL, s, n, rd, rp, st, not, c, ca, ua)
+		if scanErr := rows.Scan(&s, &n, &rd, &rp, &st, &not, &c, &ca, &ua); scanErr == nil {
+			if _, execErr := rootConn.Exec(upsertSQL, s, n, rd, rp, st, not, c, ca, ua); execErr != nil {
+				return execErr
+			}
 		}
 	}
 	return nil

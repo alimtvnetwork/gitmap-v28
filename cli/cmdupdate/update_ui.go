@@ -210,7 +210,6 @@ func (r *updateUIRendererImpl) renderLipglossSummary(result UpdateResult) {
 	fmt.Println(cardStyle.Render(strings.Join(lines, "\n")))
 }
 
-
 func (r *updateUIRendererImpl) RenderAlreadyUpdated(currentVer, targetVer string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()

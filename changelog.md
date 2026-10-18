@@ -1,5 +1,15 @@
 # Changelog
 
+## [v6.574.0] - 2026-10-18
+
+### Fixed
+- **GitHub Auth Test Mock Parity (`cli/usercontext`)**: Updated `TestDetectGhAuth_FallbackToken` in `gh_auth_test.go` to handle `git config --global user.name` arguments, fixing cross-platform test failures across Windows, macOS, and Ubuntu.
+- **Error Management Compliance (`cli/cmddb`, `cli/heatmap`)**: Resolved 6 swallowed database call errors in `cmddb_tables.go`, `heatmap_conflict.go`, and `heatmap_view.go`. Handled all query and execution errors.
+- **Legacy Version References Purged (`02-spec/01-spec-authoring-guide`)**: Replaced `gitmap-v6` references in `13-root-readme-conventions.md`, restoring 100% passing status for `check-legacy-refs.py` and `test_ci_scripts.py`.
+- **Codebase Go Formatting Cleanliness (`cli/`)**: Formatted all Go files with `gofmt -w` (`rootutility_update.go`, `clone_auth_resolve.go`, `clone_auth_types.go`, `update_ui.go`, `heatmap_query.go`, `heatmap_view.go`, `heatmap_rc_store.go`).
+
+---
+
 ## [v6.573.0] - 2026-10-18
 
 ### Fixed

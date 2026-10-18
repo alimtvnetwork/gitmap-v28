@@ -279,7 +279,6 @@ func (s *RcHeatmapStore) QueryRepoRegistry(aiName string) ([]HeatmapRepoRegistry
 	return ScanRepoRegistryRows(rows)
 }
 
-
 func wrapErr(err error, scope string) error {
 	if err == nil {
 		return nil

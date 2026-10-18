@@ -67,7 +67,9 @@ func fetchTableStats(conn *sql.DB, name, tableType string) (int, int64) {
 
 func countTableColumns(conn *sql.DB, name string) int {
 	var count int
-	_ = conn.QueryRow("SELECT count(*) FROM pragma_table_info(?)", name).Scan(&count)
+	if err := conn.QueryRow("SELECT count(*) FROM pragma_table_info(?)", name).Scan(&count); err != nil {
+		return 0
+	}
 
 	return count
 }
@@ -76,7 +78,9 @@ func countTableRows(conn *sql.DB, name string) int64 {
 	escaped := strings.ReplaceAll(name, `"`, `""`)
 	safeQuery := fmt.Sprintf(`SELECT count(*) FROM "%s"`, escaped)
 	var count int64
-	_ = conn.QueryRow(safeQuery).Scan(&count)
+	if err := conn.QueryRow(safeQuery).Scan(&count); err != nil {
+		return 0
+	}
 
 	return count
 }

@@ -103,12 +103,16 @@ func stripComments(raw string) (string, bool) {
 			continue
 		}
 		if ch == '-' && i+1 < n && runes[i+1] == '-' {
-			for i < n && runes[i] != '\n' { i++ }
+			for i < n && runes[i] != '\n' {
+				i++
+			}
 			sb.WriteRune(' ')
 			continue
 		}
 		if ch == '/' && i+1 < n && runes[i+1] == '*' {
-			for i+1 < n && !(runes[i] == '*' && runes[i+1] == '/') { i++ }
+			for i+1 < n && !(runes[i] == '*' && runes[i+1] == '/') {
+				i++
+			}
 			i += 2
 			sb.WriteRune(' ')
 			continue
@@ -201,7 +205,9 @@ func resolveQueryDbPath(isRc bool, flags map[string]string, query string) string
 
 func resolveLimitFlag(flags map[string]string) string {
 	for _, k := range []string{"limit", "l", "n"} {
-		if v := flags[k]; v != "" { return v }
+		if v := flags[k]; v != "" {
+			return v
+		}
 	}
 	return ""
 }

@@ -98,4 +98,3 @@ func resolveDirectHTTPSURL(url, repoName string) string {
 
 	return url
 }
-
