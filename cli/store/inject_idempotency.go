@@ -58,15 +58,3 @@ func (db *DB) MarkInjected(absPath string, kind constants.InjectKindType) error 
 
 	return nil
 }
-
-// injectColumnFor maps the typed kind to its physical column name.
-func injectColumnFor(kind constants.InjectKindType) string {
-	switch kind {
-	case constants.InjectKindDesktop:
-		return constants.ColInjectDesktop
-	case constants.InjectKindVSCode:
-		return constants.ColInjectVSCode
-	default:
-		return ""
-	}
-}

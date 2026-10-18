@@ -275,5 +275,7 @@ func topLevelCmdsPart2() map[string]string {
 		"CmdExcludeAlias":               CmdExcludeAlias,
 		"CmdNodesRunningOnly":           CmdNodesRunningOnly,
 		"CmdNodesRunningOnlyAlias":      CmdNodesRunningOnlyAlias,
+		"CmdLemon":                      CmdLemon,
+		"CmdLemonAlias":                 CmdLemonAlias,
 	}
 }
