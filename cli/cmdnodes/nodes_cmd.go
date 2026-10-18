@@ -288,4 +288,3 @@ func isNodesRemoteRunRequest(args []string) bool {
 	first := strings.ToLower(args[0])
 	return first == "run" || first == "exec" || first == "r"
 }
-

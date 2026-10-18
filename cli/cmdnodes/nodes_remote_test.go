@@ -153,4 +153,3 @@ func TestDispatchPeerDelegation(t *testing.T) {
 		t.Fatalf("expected worker-a, got %s", resp.NodeAlias)
 	}
 }
-

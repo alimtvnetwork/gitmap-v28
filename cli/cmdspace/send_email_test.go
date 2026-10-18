@@ -264,4 +264,3 @@ func TestBuildEmailMessageFileMissingSubject(t *testing.T) {
 		t.Fatal("expected error when neither file nor flag provides a subject")
 	}
 }
-

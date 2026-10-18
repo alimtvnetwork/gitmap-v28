@@ -217,4 +217,3 @@ func TestRemoveMissingTrigger(t *testing.T) {
 		t.Fatal("expected error for --remove without --name, got nil")
 	}
 }
-

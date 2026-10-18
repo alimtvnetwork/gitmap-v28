@@ -19,20 +19,22 @@ type EmailAccountInfo struct {
 }
 
 type sendEmailUIOptions struct {
-	to, subject, body, task          string
+	to, subject, body, task         string
 	isHTML, isDryRun, isInteractive bool
 }
 
 type secretAccountEntry struct {
-	Alias, Email string `json:"alias"`
-	Imap         struct {
+	Alias string `json:"alias"`
+	Email string `json:"email"`
+	Imap  struct {
 		Host string `json:"host"`
 		Port int    `json:"port"`
 		TLS  bool   `json:"tls"`
 	} `json:"imap"`
 	Smtp struct {
-		Host, TLSMode string `json:"host,tls_mode"`
-		Port          int    `json:"port"`
+		Host    string `json:"host"`
+		TLSMode string `json:"tls_mode"`
+		Port    int    `json:"port"`
 	} `json:"smtp"`
 }
 
