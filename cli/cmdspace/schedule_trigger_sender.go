@@ -134,10 +134,8 @@ func builtinSMTPSettings() (hostPort, from string) {
 // triggerSMTPVar resolves one SMTP setting: DB setting, then the global
 // config variable, then the environment, then the fallback.
 func triggerSMTPVar(db *store.DB, key, envName, fallback string) string {
-	if db != nil {
-		if v := strings.TrimSpace(db.GetSetting(key)); v != "" {
-			return v
-		}
+	if dbVal := readDbSetting(db, key); dbVal != "" {
+		return dbVal
 	}
 
 	if v, isFound := config.GetVariable("global", key); isFound && len(strings.TrimSpace(v)) > 0 {
@@ -149,6 +147,14 @@ func triggerSMTPVar(db *store.DB, key, envName, fallback string) string {
 	}
 
 	return fallback
+}
+
+func readDbSetting(db *store.DB, key string) string {
+	if db == nil {
+		return ""
+	}
+
+	return strings.TrimSpace(db.GetSetting(key))
 }
 
 // dispatchBuiltinSMTP sends one HTML message via net/smtp (STARTTLS is

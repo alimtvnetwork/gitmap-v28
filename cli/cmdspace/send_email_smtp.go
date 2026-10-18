@@ -32,13 +32,12 @@ var promptEmailPassword = readEmailPassword
 // sendEmailViaSMTP delivers the message through the built-in SMTP sender.
 func sendEmailViaSMTP(msg EmailMessage) error {
 	host, port := resolveSMTPHostPort()
-	from := resolveSMTPFrom()
-
 	password, passErr := promptEmailPassword()
 	if passErr != nil {
 		return passErr
 	}
 
+	from := resolveSMTPFrom()
 	if deliverErr := deliverViaSMTP(host, port, from, password, msg); deliverErr != nil {
 		return deliverErr
 	}
@@ -65,16 +64,21 @@ func deliverViaSMTP(host string, port int, from, password string, msg EmailMessa
 // resolveSMTPHostPort splits the configured `host:port` SMTP endpoint.
 func resolveSMTPHostPort() (string, int) {
 	raw := readEmailSetting("email.smtp_host", "SMTP_HOST", "smtp.gmail.com:587")
-	host, port := raw, smtpDefaultPort
-
-	if splitHost, splitPort, splitErr := net.SplitHostPort(raw); splitErr == nil {
-		host = splitHost
-		if parsed, convErr := strconv.Atoi(splitPort); convErr == nil && parsed > 0 {
-			port = parsed
-		}
+	splitHost, splitPort, splitErr := net.SplitHostPort(raw)
+	if splitErr != nil {
+		return raw, smtpDefaultPort
 	}
 
-	return host, port
+	return splitHost, parseSMTPPort(splitPort, smtpDefaultPort)
+}
+
+func parseSMTPPort(rawPort string, fallback int) int {
+	parsed, err := strconv.Atoi(rawPort)
+	if err != nil || parsed <= 0 {
+		return fallback
+	}
+
+	return parsed
 }
 
 // resolveSMTPFrom reads the configured sender address.

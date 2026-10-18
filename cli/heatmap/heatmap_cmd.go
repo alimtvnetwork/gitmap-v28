@@ -85,12 +85,7 @@ func buildActionLogRecord(flags map[string]string) store.HeatmapActionLogRecord 
 		state = "EXPLORATION"
 	}
 	start, end := parseLineRange(flags["lines"])
-	var parentID *int64
-	if pStr := flags["parent"]; pStr != "" {
-		if pVal, err := strconv.ParseInt(pStr, 10, 64); err == nil && pVal > 0 {
-			parentID = &pVal
-		}
-	}
+	parentID := parseOptionalID(flags["parent"])
 	return store.HeatmapActionLogRecord{
 		ParentLogId:      parentID,
 		TaskSlug:         flags["task"],
@@ -182,11 +177,7 @@ func parseHeatmapArgs(args []string) (map[string]string, []string) {
 			continue
 		}
 		if isHeatmapBoolFlag(k) {
-			if i+1 < len(args) && (args[i+1] == "true" || args[i+1] == "false") {
-				flags[k], i = args[i+1], i+1
-				continue
-			}
-			flags[k] = "true"
+			flags[k], i = resolveHeatmapBoolVal(args, i)
 			continue
 		}
 		if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
@@ -196,6 +187,24 @@ func parseHeatmapArgs(args []string) (map[string]string, []string) {
 		flags[k] = "true"
 	}
 	return normalizeFlagKeys(flags), pos
+}
+
+func resolveHeatmapBoolVal(args []string, i int) (string, int) {
+	if i+1 < len(args) && (args[i+1] == "true" || args[i+1] == "false") {
+		return args[i+1], i + 1
+	}
+	return "true", i
+}
+
+func parseOptionalID(raw string) *int64 {
+	if raw == "" {
+		return nil
+	}
+	val, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil || val <= 0 {
+		return nil
+	}
+	return &val
 }
 
 func normalizeFlagKeys(flags map[string]string) map[string]string {

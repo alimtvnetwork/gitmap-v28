@@ -149,23 +149,26 @@ func resolveIsExpectationMet(flags map[string]string) bool {
 }
 
 func parseActionId(flags map[string]string, pos []string) int64 {
-	if idStr := flags["id"]; idStr != "" {
-		if val, err := strconv.ParseInt(idStr, 10, 64); err == nil && val > 0 {
-			return val
-		}
+	if val := parsePositiveID(flags["id"]); val > 0 {
+		return val
 	}
 
-	if idStr := flags["action-id"]; idStr != "" {
-		if val, err := strconv.ParseInt(idStr, 10, 64); err == nil && val > 0 {
-			return val
-		}
+	if val := parsePositiveID(flags["action-id"]); val > 0 {
+		return val
 	}
 
 	if len(pos) > 0 {
-		if val, err := strconv.ParseInt(pos[0], 10, 64); err == nil && val > 0 {
-			return val
-		}
+		return parsePositiveID(pos[0])
 	}
 
 	return 0
+}
+
+func parsePositiveID(raw string) int64 {
+	val, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil || val <= 0 {
+		return 0
+	}
+
+	return val
 }

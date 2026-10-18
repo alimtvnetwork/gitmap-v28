@@ -187,11 +187,12 @@ func TestRunSpaceSendEmailUI_Help(t *testing.T) {
 
 func TestLoadEmailAccountsAndNotifierFallback(t *testing.T) {
 	accounts := LoadEmailAccounts()
-	if len(accounts) > 0 {
-		first := accounts[0]
-		if len(first.Email) == 0 {
-			t.Fatalf("expected non-empty email for first account: %+v", first)
-		}
+	if len(accounts) == 0 {
+		return
+	}
+	first := accounts[0]
+	if len(first.Email) == 0 {
+		t.Fatalf("expected non-empty email for first account: %+v", first)
 	}
 	notifier := LoadDefaultNotifier()
 	if len(notifier) == 0 {

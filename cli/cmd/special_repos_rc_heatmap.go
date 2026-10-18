@@ -22,15 +22,20 @@ func hookRCHeatmapDispatch() {
 		return
 	}
 	arg1 := strings.ToLower(strings.TrimSpace(os.Args[1]))
-	if (arg1 == "rc" || arg1 == "repo-cache") && len(os.Args) >= 3 {
-		arg2 := strings.ToLower(strings.TrimSpace(os.Args[2]))
-		if arg2 == "heatmap" || arg2 == "rc-heatmap" || arg2 == "hm" {
-			executeAndExitRCHeatmap(os.Args[3:])
-		}
+	if isRCHeatmapSubcommand(arg1, os.Args) {
+		executeAndExitRCHeatmap(os.Args[3:])
 	}
 	if arg1 == "rc-heatmap" || arg1 == "rc_heatmap" {
 		executeAndExitRCHeatmap(os.Args[2:])
 	}
+}
+
+func isRCHeatmapSubcommand(arg1 string, args []string) bool {
+	if (arg1 != "rc" && arg1 != "repo-cache") || len(args) < 3 {
+		return false
+	}
+	arg2 := strings.ToLower(strings.TrimSpace(args[2]))
+	return arg2 == "heatmap" || arg2 == "rc-heatmap" || arg2 == "hm"
 }
 
 func executeAndExitRCHeatmap(args []string) {
@@ -146,17 +151,10 @@ func extractFlagValue(args []string, key, fallback string) string {
 
 // ResolveRepoCachePath returns the physical filesystem path to the repo-cache directory.
 func ResolveRepoCachePath() (string, error) {
-	db, err := store.OpenSpecialReposSplitDB()
-	if err == nil {
-		defer db.Close()
-		rec, getErr := db.GetSpecialRepo("rc")
-		if getErr == nil && rec.LocalPath != "" {
-			if info, statErr := os.Stat(rec.LocalPath); statErr == nil && info.IsDir() {
-				return rec.LocalPath, nil
-			}
-		}
+	if p := resolveRepoCacheFromSpecialDB(); p != "" {
+		return p, nil
 	}
-	candidates := []string{`D:\work\repo-cache`, `d:\work\repo-cache`, `../repo-cache`, `./repo-cache`}
+	candidates := []string{`../repo-cache`, `../../repo-cache`, `./repo-cache`}
 	for _, c := range candidates {
 		if info, statErr := os.Stat(c); statErr == nil && info.IsDir() {
 			abs, _ := filepath.Abs(c)
@@ -164,6 +162,24 @@ func ResolveRepoCachePath() (string, error) {
 		}
 	}
 	return filepath.Abs("../repo-cache")
+}
+
+func resolveRepoCacheFromSpecialDB() string {
+	db, err := store.OpenSpecialReposSplitDB()
+	if err != nil {
+		return ""
+	}
+	defer db.Close()
+
+	rec, getErr := db.GetSpecialRepo("rc")
+	if getErr != nil || rec.LocalPath == "" {
+		return ""
+	}
+	info, statErr := os.Stat(rec.LocalPath)
+	if statErr != nil || !info.IsDir() {
+		return ""
+	}
+	return rec.LocalPath
 }
 
 // AutoDetectRepoSlug infers the active repository slug from Git remote or current directory.

@@ -120,24 +120,42 @@ func BuildHeatmapLogEnvelope(rec store.HeatmapActionLogRecord, dbPath string) Rc
 
 // ResolveCompanionRepoSecretsUrl returns the remote origin URL for repo-secrets.
 func ResolveCompanionRepoSecretsUrl() string {
-	db, err := store.OpenSpecialReposSplitDB()
-	if err == nil {
-		defer db.Close()
-		if rec, getErr := db.GetSpecialRepo("rs"); getErr == nil && rec.RemoteURL != "" {
-			return rec.RemoteURL
-		}
+	if u := resolveURLFromSpecialDB(); u != "" {
+		return u
 	}
 
-	for _, cand := range []string{`D:\work\repo-secrets`, `repo-secrets`, `../repo-secrets`} {
-		gitDir := filepath.Join(cand, ".git")
-		if info, statErr := os.Stat(gitDir); statErr == nil && info.IsDir() {
-			if u := readGitRemoteUrl(cand); u != "" {
-				return u
-			}
+	for _, cand := range []string{"repo-secrets", "../repo-secrets", "../../repo-secrets"} {
+		if u := readRepoDirRemoteURL(cand); u != "" {
+			return u
 		}
 	}
 
 	return "https://github.com/alimtvnetwork/repo-secrets.git"
+}
+
+func resolveURLFromSpecialDB() string {
+	db, err := store.OpenSpecialReposSplitDB()
+	if err != nil {
+		return ""
+	}
+	defer db.Close()
+
+	rec, getErr := db.GetSpecialRepo("rs")
+	if getErr != nil {
+		return ""
+	}
+
+	return rec.RemoteURL
+}
+
+func readRepoDirRemoteURL(dir string) string {
+	gitDir := filepath.Join(dir, ".git")
+	info, statErr := os.Stat(gitDir)
+	if statErr != nil || !info.IsDir() {
+		return ""
+	}
+
+	return readGitRemoteUrl(dir)
 }
 
 func readGitRemoteUrl(dir string) string {

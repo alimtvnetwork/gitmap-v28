@@ -48,6 +48,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
+$script:ReleaseNotes = @()
 
 # --- Win32 Virtual Terminal Processing Initialization ---
 $isVTSupported = $false
@@ -102,9 +103,12 @@ $colGreen  = if ($hasColorSupport) { "$esc[38;2;80;250;123m"  } else { "" }
 $colOrange = if ($hasColorSupport) { "$esc[38;2;255;184;108m" } else { "" }
 $colRed    = if ($hasColorSupport) { "$esc[38;2;255;85;85m"   } else { "" }
 $colMuted  = if ($hasColorSupport) { "$esc[38;2;98;114;164m"  } else { "" }
-$colBorder = if ($hasColorSupport) { "$esc[38;2;68;71;90m"   } else { "" }
-$colBold   = if ($hasColorSupport) { "$esc[1m" } else { "" }
-$colReset  = if ($hasColorSupport) { "$esc[0m" } else { "" }
+$colBorder     = if ($hasColorSupport) { "$esc[38;2;189;147;249m" } else { "" }
+$colYellow     = if ($hasColorSupport) { "$esc[38;2;241;250;140m" } else { "" }
+$colYellowHigh = if ($hasColorSupport) { "$esc[1;93m" } else { "" }
+$colWhite      = if ($hasColorSupport) { "$esc[1;97m" } else { "" }
+$colBold       = if ($hasColorSupport) { "$esc[1m" } else { "" }
+$colReset      = if ($hasColorSupport) { "$esc[0m" } else { "" }
 
 $c_topLeft      = if ($hasColorSupport) { [string][char]0x256D } else { "+" }
 $c_topRight     = if ($hasColorSupport) { [string][char]0x256E } else { "+" }
@@ -421,6 +425,18 @@ function Main {
     $targetBin = Join-Path $targetDir "gitmap.exe"
     $targetAlias = Join-Path $targetDir "gm.exe"
 
+    $previousVersion = $null
+    if (Test-Path $targetBin) {
+        try {
+            $rawPrev = (& $targetBin version 2>&1 | Out-String).Trim()
+            if ($rawPrev -match 'v?(\d+\.\d+\.\d+)') {
+                $previousVersion = "v$($Matches[1])"
+            } elseif ($rawPrev) {
+                $previousVersion = $rawPrev
+            }
+        } catch {}
+    }
+
     Copy-Item -Path $localBinPath -Destination $targetBin -Force
     Copy-Item -Path $localBinPath -Destination $targetAlias -Force
 
@@ -479,7 +495,18 @@ function Main {
     } elseif (-not $Quiet) {
         Write-Host ""
         Write-CardHeader "INSTALLATION COMPLETE" "SUCCESS" 80
-        Write-CardText "$colGreen  GitMap $resolvedVersion is ready for production use.$colReset" 80
+        if ($previousVersion -and $previousVersion -ne $resolvedVersion) {
+            Write-CardText "$colWhite$previousVersion$colReset $colYellow→$colReset $colBold$colYellowHigh$resolvedVersion$colReset is ready for production use." 80
+        } else {
+            Write-CardText "$colGreen  GitMap $resolvedVersion is ready for production use.$colReset" 80
+        }
+        if ($script:ReleaseNotes -and @($script:ReleaseNotes).Count -gt 0) {
+            Write-CardText "" 80
+            Write-CardText "  Release Notes:" 80
+            foreach ($rn in $script:ReleaseNotes) {
+                Write-CardText "    • $rn" 80
+            }
+        }
         Write-CardText "" 80
         Write-CardText "$colBold  Quick Start Commands:$colReset" 80
         Write-CardText "    $colCyan gitmap status$colReset                 Inspect repository and fleet health" 80
