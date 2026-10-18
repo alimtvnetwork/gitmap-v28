@@ -148,11 +148,12 @@ func renderBeforeGraph(sb *strings.Builder, r *PreflightReport) {
 func renderAfterGraph(sb *strings.Builder, r *PreflightReport) {
 	sb.WriteString("  AFTER (Proposed Rewrite):\n")
 	for _, n := range limitDisplayNodes(r.AffectedCommits, 6) {
-		if n.IsAffected && r.TargetType == TargetTypeCommit {
+		switch {
+		case n.IsAffected && r.TargetType == TargetTypeCommit:
 			sb.WriteString("    * [EXCISED] commit dropped\n")
-		} else if n.IsAffected {
+		case n.IsAffected:
 			sb.WriteString(fmt.Sprintf("    * %s (cln) %s <-- [re-parented]\n", shortShaOrFallback(n), n.CommitMessage))
-		} else {
+		default:
 			sb.WriteString(fmt.Sprintf("    * %s %s\n", shortShaOrFallback(n), n.CommitMessage))
 		}
 	}

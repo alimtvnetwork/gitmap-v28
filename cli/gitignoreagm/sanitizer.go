@@ -75,11 +75,9 @@ func appendMissingDefaults(lines []string, seen map[string]bool, extras []string
 		return lines, false
 	}
 
-	result := append(lines, "", "# GitMap & Task Persistence")
-	for _, entry := range missing {
-		result = append(result, entry)
-	}
-	return result, true
+	lines = append(lines, "", "# GitMap & Task Persistence")
+	lines = append(lines, missing...)
+	return lines, true
 }
 
 func collectMissingDefaults(seen map[string]bool, entries []string) []string {

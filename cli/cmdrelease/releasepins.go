@@ -205,8 +205,8 @@ func handleRemovePin(workDir string, existing []string, toRemove string) error {
 }
 
 func handleAddPins(workDir string, existing []string, tokens []string) error {
-	merged := append(existing, tokens...)
-	if err := SavePinnedTags(workDir, merged); err != nil {
+	existing = append(existing, tokens...)
+	if err := SavePinnedTags(workDir, existing); err != nil {
 		return err
 	}
 

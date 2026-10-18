@@ -24,13 +24,14 @@ func writeAllPipelineErrorsReportFile(flags PipelineErrorFlags, summary AllPipel
 	var content []byte
 
 	if flags.IsJSON {
-		jsonBytes, marshalErr := json.MarshalIndent(summary, "", "  ")
+		var marshalErr error
+		content, marshalErr = json.MarshalIndent(summary, "", "  ")
 
 		if marshalErr != nil {
 			return apperror.WrapSimple(marshalErr, "marshal all pipeline errors json report")
 		}
 
-		content = append(jsonBytes, '\n')
+		content = append(content, '\n')
 	} else {
 		content = []byte(buildAllPipelineErrorsMarkdown(summary))
 	}
