@@ -7,12 +7,15 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	_ "modernc.org/sqlite"
 )
 
@@ -130,19 +133,26 @@ func runTaskSQLiteInit(args []string) error {
 	}
 
 	parentId, _ := res.LastInsertId()
-	relDbPath := toRelativePath(repoRoot, dbPath)
+	out := buildTaskInitOutput(repoRoot, dbPath, relRunDir, slug, parentId, *budget)
+	return printJson(out)
+}
 
-	out := map[string]any{
+func buildTaskInitOutput(repoRoot, dbPath, relRunDir, slug string, parentId int64, budget int) map[string]any {
+	absDbPath, _ := filepath.Abs(dbPath)
+	relDbPath := toRelativePath(repoRoot, dbPath)
+	return map[string]any{
 		"action":           "INITIALIZED",
 		"parentTaskId":     parentId,
 		"slug":             slug,
 		"runDirectory":     relRunDir,
+		"database":         relDbPath,
 		"databasePath":     relDbPath,
-		"totalStepsBudget": *budget,
+		"relativeDbPath":   relDbPath,
+		"absoluteDbPath":   filepath.ToSlash(absDbPath),
+		"repoSecretsUrl":   resolveAgentRepoSecretsURL(),
+		"totalStepsBudget": budget,
 		"status":           "ACTIVE",
 	}
-
-	return printJson(out)
 }
 
 func resolveNextRunPrefix(tempDir string) int {
@@ -585,19 +595,7 @@ func runTaskSQLiteStatus(args []string) error {
 		percent = math.Round((float64(done)/float64(total)*100)*10) / 10
 	}
 
-	out := map[string]any{
-		"taskSlug":        parentSlug,
-		"taskName":        parentName,
-		"status":          parentStatus,
-		"totalSubtasks":   total,
-		"completed":       done,
-		"pending":         counts["PENDING"],
-		"inProgress":      counts["IN_PROGRESS"],
-		"failed":          counts["FAILED"],
-		"percentComplete": percent,
-		"subtasks":        subtasks,
-	}
-
+	out := buildTaskStatusOutput(parentSlug, parentName, parentStatus, dbPath, total, done, counts, percent, subtasks)
 	return printJson(out)
 }
 
@@ -672,12 +670,74 @@ func resolveDbPath(flagVal string) string {
 	return filepath.Join(tempDir, "01-agent", Tier2TaskDBName)
 }
 
+func buildTaskStatusOutput(parentSlug, parentName, parentStatus, dbPath string, total, done int, counts map[string]int, percent float64, subtasks any) map[string]any {
+	repoRoot := FindRepoRoot()
+	absDbPath, _ := filepath.Abs(dbPath)
+	relDbPath := toRelativePath(repoRoot, dbPath)
+	return map[string]any{
+		"taskSlug":        parentSlug,
+		"taskName":        parentName,
+		"status":          parentStatus,
+		"database":         relDbPath,
+		"relativeDbPath":   relDbPath,
+		"absoluteDbPath":   filepath.ToSlash(absDbPath),
+		"repoSecretsUrl":   resolveAgentRepoSecretsURL(),
+		"totalSubtasks":   total,
+		"completed":       done,
+		"pending":         counts["PENDING"],
+		"inProgress":      counts["IN_PROGRESS"],
+		"failed":          counts["FAILED"],
+		"percentComplete": percent,
+		"subtasks":        subtasks,
+	}
+}
+
 func toRelativePath(root, target string) string {
-	rel, err := filepath.Rel(root, target)
+	absTarget := target
+	if !filepath.IsAbs(target) {
+		absTarget = filepath.Join(root, target)
+	}
+	absRoot, _ := filepath.Abs(root)
+	absTarget, _ = filepath.Abs(absTarget)
+	rel, err := filepath.Rel(absRoot, absTarget)
 	if err != nil {
 		return filepath.ToSlash(target)
 	}
 	return filepath.ToSlash(rel)
+}
+
+func resolveAgentRepoSecretsURL() string {
+	if url := queryAgentSpecialRepoSecretsURL(); len(url) > 0 {
+		return url
+	}
+	return queryAgentGitSecretsRemoteURL()
+}
+
+func queryAgentSpecialRepoSecretsURL() string {
+	sdb, err := store.OpenSpecialReposSplitDB()
+	if err != nil {
+		return ""
+	}
+	defer sdb.Close()
+
+	rec, recErr := sdb.GetSpecialRepo("rs")
+	if recErr == nil && rec != nil && len(strings.TrimSpace(rec.RemoteURL)) > 0 {
+		return strings.TrimSpace(rec.RemoteURL)
+	}
+	return ""
+}
+
+func queryAgentGitSecretsRemoteURL() string {
+	secretsRoot := secrets.ResolveRepoSecretsRoot()
+	if len(secretsRoot) == 0 {
+		return ""
+	}
+	cmd := exec.Command("git", "-C", secretsRoot, "config", "--get", "remote.origin.url")
+	out, err := cmd.Output()
+	if err == nil && len(strings.TrimSpace(string(out))) > 0 {
+		return strings.TrimSpace(string(out))
+	}
+	return ""
 }
 
 func printJson(data any) error {

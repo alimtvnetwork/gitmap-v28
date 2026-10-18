@@ -8,7 +8,9 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
-- [gitmap-and-antigravity-manager-agm-package-enhancements.md](gitmap-and-antigravity-manager-agm-package-enhancements.md) — GitMap Single-Repo Pull UX Simplification, Progress Bar Column Width Wrap Fix, Shell Wrapping RCA & AGM Subsystem Alignment (Spec: [gitmap-and-antigravity-manager-agm-package-enhancements](../../02-spec/21-app/gitmap-and-antigravity-manager-agm-package-enhancements/01-architecture-spec.md)) (Status: `in_progress`)
+- [goemailsender-connection-and-testing.md](goemailsender-connection-and-testing.md) — GoEmailSender Connection, Multi-Profile Fallback & Fleet Nodes Delegation (Spec: [goemailsender-connection-and-testing](../../02-spec/21-app/goemailsender-connection-and-testing/01-architecture-spec.md)) (Status: `in_progress`)
+
+- [gitmap-and-antigravity-manager-agm-package-enhancements.md](gitmap-and-antigravity-manager-agm-package-enhancements.md) — GitMap Single-Repo Pull UX Simplification, Progress Bar Column Width Wrap Fix, Shell Wrapping RCA & AGM Subsystem Alignment (Spec: [gitmap-and-antigravity-manager-agm-package-enhancements](../../02-spec/21-app/gitmap-and-antigravity-manager-agm-package-enhancements/01-architecture-spec.md)) (Status: `completed`)
 
 - [heatmap-commands-testing-and-rc-admin-instructions.md](completed/heatmap-commands-testing-and-rc-admin-instructions.md) — Heatmap Commands Testing & RC Admin Instructions: Table inspection (`tables`), record viewing with limits & JSON/YAML formatting (`view`), direct read-only SQL query engine (`query`), and on-machine E2E test suite (Spec: [heatmap-commands-testing-and-rc-admin-instructions](../../02-spec/21-app/heatmap-commands-testing-and-rc-admin-instructions/01-architecture-spec.md)) (Status: `completed`)
 

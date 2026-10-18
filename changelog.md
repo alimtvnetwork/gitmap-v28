@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.575.0] - 2026-10-18
+
+### Added
+- goemailsender - connection fallback delegation and email ui
+
+---
+
 ## [v6.574.0] - 2026-10-18
 
 ### Fixed

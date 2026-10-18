@@ -43,7 +43,7 @@ func ExecuteHeatmapQuery(isRc bool, flags map[string]string, pos []string, out i
 		return qErr
 	}
 	durationMs := float64(time.Since(start).Microseconds()) / 1000.0
-	return renderQueryResult(execSql, cols, rows, durationMs, resolveFormat(flags), out)
+	return renderQueryResult(dbPath, execSql, cols, rows, durationMs, resolveFormat(flags), out)
 }
 
 // RunHeatmapQuery provides compatibility with alternative dispatcher argument signatures.
@@ -212,14 +212,14 @@ func resolveLimitFlag(flags map[string]string) string {
 	return ""
 }
 
-func renderQueryResult(query string, cols []string, rows [][]any, durationMs float64, format string, out io.Writer) error {
+func renderQueryResult(dbPath, query string, cols []string, rows [][]any, durationMs float64, format string, out io.Writer) error {
 	switch format {
 	case "table":
 		return renderQueryTable(cols, rows, durationMs, out)
 	case "json":
-		return renderQueryJSON(query, cols, rows, durationMs, out)
+		return renderQueryJSON(dbPath, query, cols, rows, durationMs, out)
 	case "yaml", "yml":
-		return renderQueryYAML(query, cols, rows, durationMs, out)
+		return renderQueryYAML(dbPath, query, cols, rows, durationMs, out)
 	default:
 		return apperror.NewValidation("heatmap_query", "E1003", fmt.Sprintf("unsupported format %q, must be table, json, or yaml", format))
 	}
@@ -247,15 +247,36 @@ func renderQueryTable(cols []string, rows [][]any, durationMs float64, out io.Wr
 	return nil
 }
 
-func renderQueryJSON(query string, cols []string, rows [][]any, durationMs float64, out io.Writer) error {
-	payload := map[string]any{"query": query, "count": len(rows), "durationMs": durationMs, "columns": cols, "rows": buildRowMaps(cols, rows)}
+func renderQueryJSON(dbPath, query string, cols []string, rows [][]any, durationMs float64, out io.Writer) error {
+	absDb, relDb := resolveDbPathDetails(dbPath)
+	payload := map[string]any{
+		"database":       relDb,
+		"relativeDbPath": relDb,
+		"absoluteDbPath": absDb,
+		"repoSecretsUrl": ResolveRepoSecretsURL(),
+		"query":          query,
+		"count":          len(rows),
+		"durationMs":     durationMs,
+		"columns":        cols,
+		"rows":           buildRowMaps(cols, rows),
+	}
 	enc := json.NewEncoder(out)
 	enc.SetIndent("", "  ")
 	return enc.Encode(payload)
 }
 
-func renderQueryYAML(query string, cols []string, rows [][]any, durationMs float64, out io.Writer) error {
-	payload := map[string]any{"query": query, "count": len(rows), "durationMs": durationMs, "rows": buildRowMaps(cols, rows)}
+func renderQueryYAML(dbPath, query string, cols []string, rows [][]any, durationMs float64, out io.Writer) error {
+	absDb, relDb := resolveDbPathDetails(dbPath)
+	payload := map[string]any{
+		"database":       relDb,
+		"relativeDbPath": relDb,
+		"absoluteDbPath": absDb,
+		"repoSecretsUrl": ResolveRepoSecretsURL(),
+		"query":          query,
+		"count":          len(rows),
+		"durationMs":     durationMs,
+		"rows":           buildRowMaps(cols, rows),
+	}
 	data, err := yaml.Marshal(payload)
 	if err != nil {
 		return apperror.WrapSimple(err, "heatmap_query.renderYAML")

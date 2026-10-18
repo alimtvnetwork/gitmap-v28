@@ -26,6 +26,8 @@ Space operations namespace. Subcommands:
   schedule-send-email
               Register an email trigger fired when a task (release,
               pull, clone, scan, push, backup) completes.
+  email ui    Interactive terminal UI for email drafting, account
+              overview, and schedule trigger registration.
 
 Flags (with common):
   --dry-run, -n    Print planned additions without touching disk
@@ -176,11 +178,19 @@ func DispatchSpace(command string) (bool, error) {
 	}
 
 	if sub == constants.CmdSpaceSendEmail {
+		if hasUIFlag(rest[1:]) {
+			return true, runSpaceSendEmailUI(filterUIFlag(rest[1:]))
+		}
+
 		return true, runSpaceSendEmail(rest[1:])
 	}
 
 	if sub == constants.CmdSpaceScheduleSendEmail {
 		return true, runSpaceScheduleSendEmail(rest[1:])
+	}
+
+	if sub == "email" {
+		return true, runSpaceEmail(rest[1:])
 	}
 
 	if sub != "common" {
@@ -263,4 +273,57 @@ func runSpaceScheduleSendEmail(args []string) error {
 	}
 
 	return RunScheduleSendEmail(args)
+}
+
+func runSpaceEmail(args []string) error {
+	if len(args) == 0 {
+		printSendEmailUIHelp()
+
+		return nil
+	}
+
+	if args[0] == "ui" {
+		return runSpaceSendEmailUI(args[1:])
+	}
+
+	if hasHelpFlag(args) {
+		printSendEmailUIHelp()
+
+		return nil
+	}
+
+	printSendEmailUIHelp()
+
+	return fmt.Errorf("unknown space email subcommand: %s", args[0])
+}
+
+func runSpaceSendEmailUI(args []string) error {
+	if hasHelpFlag(args) {
+		printSendEmailUIHelp()
+
+		return nil
+	}
+
+	return RunSpaceSendEmailUI(args)
+}
+
+func hasUIFlag(args []string) bool {
+	for _, a := range args {
+		if a == "--ui" || a == "-ui" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func filterUIFlag(args []string) []string {
+	filtered := make([]string, 0, len(args))
+	for _, a := range args {
+		if a != "--ui" && a != "-ui" {
+			filtered = append(filtered, a)
+		}
+	}
+
+	return filtered
 }

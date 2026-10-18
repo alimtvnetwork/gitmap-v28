@@ -17,6 +17,19 @@ type ghRepoListing struct {
 	URL           string `json:"url"`
 }
 
+// ResolveRepoSlugForProfile resolves a repo slug specifically considering a target Git profile.
+func ResolveRepoSlugForProfile(target, profileName string) string {
+	if isFullURLOrPath(target) {
+		return target
+	}
+	cleanTarget := strings.TrimSpace(target)
+	hasSlash := strings.Contains(cleanTarget, "/")
+	if len(profileName) > 0 && !hasSlash {
+		return fmt.Sprintf("https://github.com/%s/%s", profileName, cleanTarget)
+	}
+	return ResolveRepoSlug(cleanTarget)
+}
+
 // ResolveRepoSlug resolves a bare repo name (e.g. "pwp-mobile") to a cloneable URL.
 // If target is already a valid URL or path, it returns target unchanged.
 func ResolveRepoSlug(target string) string {

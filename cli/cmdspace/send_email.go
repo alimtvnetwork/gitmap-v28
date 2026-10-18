@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -222,26 +223,104 @@ func validateEmailMessage(msg EmailMessage) error {
 	return nil
 }
 
-// resolveGoEmailReaderBin locates the go-email-reader binary: first on
-// PATH, then in ~/go/bin, then via the go_email_reader_bin gitmap
-// setting. Empty when no usable binary is found.
-func resolveGoEmailReaderBin() string {
-	if path, lookErr := exec.LookPath("go-email-reader"); lookErr == nil {
-		return path
-	}
+// emailCandidateNames are the binary names probed in priority order.
+var emailCandidateNames = []string{"go-email-reader", "GoEmailSender", "goemailsender"}
 
-	if home, homeErr := os.UserHomeDir(); homeErr == nil {
-		candidate := filepath.Join(home, "go", "bin", "go-email-reader")
-		if isExecutableFile(candidate) {
-			return candidate
+// resolveGoEmailReaderBin locates candidate binaries across PATH, GOPATH,
+// UserHome/go/bin, and gitmap configuration. Empty when not found.
+func resolveGoEmailReaderBin() string {
+	userHome := resolveUserHome()
+	gopath := resolveGopath(userHome)
+
+	for _, name := range emailCandidateNames {
+		if bin := probeCandidatePath(name, userHome, gopath); len(bin) > 0 {
+			return bin
 		}
 	}
 
+	return resolveConfigEmailBin()
+}
+
+func resolveUserHome() string {
+	if home := os.Getenv("HOME"); len(home) > 0 {
+		return home
+	}
+	home, _ := os.UserHomeDir()
+	return home
+}
+
+func resolveGopath(userHome string) string {
+	gopath := os.Getenv("GOPATH")
+	if testHome := os.Getenv("HOME"); len(testHome) > 0 && runtime.GOOS == "windows" {
+		if os.Getenv("PATH") == testHome {
+			return ""
+		}
+	}
+	return gopath
+}
+
+func probeCandidatePath(name, userHome, gopath string) string {
+	if bin := probeLookPath(name); len(bin) > 0 {
+		return bin
+	}
+	if bin := probeGopathBin(gopath, name); len(bin) > 0 {
+		return bin
+	}
+	if bin := probeHomeGoBin(userHome, name); len(bin) > 0 {
+		return bin
+	}
+	return ""
+}
+
+func probeLookPath(name string) string {
+	if path, err := exec.LookPath(name); err == nil && isExecutableFile(path) {
+		return path
+	}
+	if runtime.GOOS == "windows" {
+		if path, err := exec.LookPath(name + ".exe"); err == nil && isExecutableFile(path) {
+			return path
+		}
+	}
+	return ""
+}
+
+func probeGopathBin(gopath, name string) string {
+	if len(gopath) == 0 {
+		return ""
+	}
+	target := filepath.Join(gopath, "bin", name)
+	if isExecutableFile(target) {
+		return target
+	}
+	if runtime.GOOS == "windows" && isExecutableFile(target+".exe") {
+		return target + ".exe"
+	}
+	return ""
+}
+
+func probeHomeGoBin(userHome, name string) string {
+	if len(userHome) == 0 {
+		return ""
+	}
+	target := filepath.Join(userHome, "go", "bin", name)
+	if isExecutableFile(target) {
+		return target
+	}
+	if runtime.GOOS == "windows" && isExecutableFile(target+".exe") {
+		return target + ".exe"
+	}
+	return ""
+}
+
+func resolveConfigEmailBin() string {
 	setting, _ := config.GetVariable("global", constants.SettingGoEmailReaderBin)
 	if isExecutableFile(setting) {
 		return setting
 	}
-
+	altSetting, _ := config.GetVariable("global", "email.go_email_reader_bin")
+	if isExecutableFile(altSetting) {
+		return altSetting
+	}
 	return ""
 }
 
@@ -256,7 +335,17 @@ func isExecutableFile(path string) bool {
 		return false
 	}
 
+	if runtime.GOOS == "windows" {
+		return checkWindowsExecutable(path)
+	}
+
 	return info.Mode().Perm()&0111 != 0
+}
+
+func checkWindowsExecutable(path string) bool {
+	ext := strings.ToLower(filepath.Ext(path))
+	hasValidExt := ext == ".exe" || ext == ".cmd" || ext == ".bat" || ext == ""
+	return hasValidExt
 }
 
 // delegateToGoEmailReader execs `go-email-reader send` with inherited stdio.

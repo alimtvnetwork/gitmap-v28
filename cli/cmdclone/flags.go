@@ -39,9 +39,11 @@ type CloneFlags struct {
 	OnlyFilter                      string
 	ExcludeFilter                   string
 	AccessToken                     string
+	Profile                         string
 }
 
 type cloneFlagPointers struct {
+	profileFlag       *string
 	targetFlag        *string
 	safePullFlag      *bool
 	ghDesktopFlag     *bool
@@ -129,9 +131,15 @@ func registerCloneExecutionFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) 
 	fs.BoolVar(flagPtrs.yesFlag, constants.FlagCloneYesShort, false, constants.FlagDescCloneYes)
 }
 
+func registerProfileFlag(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
+	flagPtrs.profileFlag = fs.String("profile", "", "Git profile alias to authenticate clone")
+	fs.StringVar(flagPtrs.profileFlag, "p", "", "Short alias for --profile")
+}
+
 func newCloneFlagSet(fs *flag.FlagSet) *cloneFlagPointers {
 	flagPtrs := &cloneFlagPointers{}
 	registerCloneStringFlags(fs, flagPtrs)
+	registerProfileFlag(fs, flagPtrs)
 	registerCloneToggles(fs, flagPtrs)
 	registerCloneExecutionFlags(fs, flagPtrs)
 
@@ -175,6 +183,7 @@ func buildCloneFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) CloneFlags {
 		OnlyFilter:    *flagPtrs.onlyFlag,
 		ExcludeFilter: *flagPtrs.excludeFlag,
 		AccessToken:   *flagPtrs.tokenFlag,
+		Profile:       *flagPtrs.profileFlag,
 	}
 
 	populateCloneToggles(&cloneOpts, flagPtrs)

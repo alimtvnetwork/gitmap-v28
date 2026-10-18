@@ -111,6 +111,8 @@ func isGitmapCoreCommand(cmd string) bool {
 		return true
 	case "reconcile", "latest-branch", "discard", "stash", "wip", "scan", "rescan":
 		return true
+	case "space", "heatmap", "hm", "agent", "agents", "ai-agents":
+		return true
 	default:
 		return false
 	}

@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // scheduleSendEmailFlags holds the parsed flags for schedule-send-email.
@@ -33,6 +35,10 @@ func RunScheduleSendEmail(args []string) error {
 		return err
 	}
 
+	return dispatchScheduleSendEmail(flags)
+}
+
+func dispatchScheduleSendEmail(flags scheduleSendEmailFlags) error {
 	if flags.isList {
 		return listScheduleSendEmailTriggers()
 	}
@@ -48,26 +54,38 @@ func RunScheduleSendEmail(args []string) error {
 // matching the space common flag style. Unknown flags are errors.
 func parseScheduleSendEmailArgs(args []string) (scheduleSendEmailFlags, error) {
 	flags := scheduleSendEmailFlags{}
-
 	for i := 0; i < len(args); i++ {
-		arg := args[i]
-		switch {
-		case arg == "--list":
-			flags.isList = true
-		case arg == "--remove":
-			flags.isRemove = true
-		case arg == "--to" || strings.HasPrefix(arg, "--to="):
-			flags.to, i = nextScheduleFlagValue(args, i, arg, "--to")
-		case arg == "--task" || strings.HasPrefix(arg, "--task="):
-			flags.task, i = nextScheduleFlagValue(args, i, arg, "--task")
-		case arg == "--name" || strings.HasPrefix(arg, "--name="):
-			flags.name, i = nextScheduleFlagValue(args, i, arg, "--name")
-		default:
-			return scheduleSendEmailFlags{}, fmt.Errorf("unknown flag %q: usage: %s", arg, scheduleSendEmailUsageLine)
+		nextIdx, err := applyScheduleSendEmailArg(args, i, &flags)
+		if err != nil {
+			return scheduleSendEmailFlags{}, err
 		}
+		i = nextIdx
 	}
 
 	return flags, nil
+}
+
+func applyScheduleSendEmailArg(args []string, i int, flags *scheduleSendEmailFlags) (int, error) {
+	arg := args[i]
+	switch {
+	case arg == "--list":
+		flags.isList = true
+		return i, nil
+	case arg == "--remove":
+		flags.isRemove = true
+		return i, nil
+	case arg == "--to" || strings.HasPrefix(arg, "--to="):
+		flags.to, i = nextScheduleFlagValue(args, i, arg, "--to")
+		return i, nil
+	case arg == "--task" || strings.HasPrefix(arg, "--task="):
+		flags.task, i = nextScheduleFlagValue(args, i, arg, "--task")
+		return i, nil
+	case arg == "--name" || strings.HasPrefix(arg, "--name="):
+		flags.name, i = nextScheduleFlagValue(args, i, arg, "--name")
+		return i, nil
+	default:
+		return i, fmt.Errorf("unknown flag %q: usage: %s", arg, scheduleSendEmailUsageLine)
+	}
 }
 
 // nextScheduleFlagValue reads a `--flag value` or `--flag=value` pair,
@@ -86,17 +104,9 @@ func nextScheduleFlagValue(args []string, i int, arg, flag string) (string, int)
 
 // registerScheduleSendEmailTrigger validates and stores one trigger.
 func registerScheduleSendEmailTrigger(flags scheduleSendEmailFlags) error {
-	if strings.TrimSpace(flags.to) == "" {
-		return fmt.Errorf("missing --to <email>: usage: %s", scheduleSendEmailUsageLine)
-	}
-
-	if strings.TrimSpace(flags.task) == "" {
-		return fmt.Errorf("missing --task <task>: usage: %s", scheduleSendEmailUsageLine)
-	}
-
-	task, err := ParseEmailTaskType(flags.task)
-	if err != nil {
-		return err
+	task, valErr := validateScheduleTriggerFlags(flags)
+	if valErr != nil {
+		return valErr
 	}
 
 	trigger := EmailTrigger{
@@ -105,6 +115,22 @@ func registerScheduleSendEmailTrigger(flags scheduleSendEmailFlags) error {
 		Task: task,
 	}
 
+	return persistScheduleTrigger(trigger)
+}
+
+func validateScheduleTriggerFlags(flags scheduleSendEmailFlags) (EmailTaskType, error) {
+	if strings.TrimSpace(flags.to) == "" {
+		return "", fmt.Errorf("missing --to <email>: usage: %s", scheduleSendEmailUsageLine)
+	}
+
+	if strings.TrimSpace(flags.task) == "" {
+		return "", fmt.Errorf("missing --task <task>: usage: %s", scheduleSendEmailUsageLine)
+	}
+
+	return ParseEmailTaskType(flags.task)
+}
+
+func persistScheduleTrigger(trigger EmailTrigger) error {
 	db, dbErr := openTriggerStore()
 	if dbErr != nil {
 		return apperror.WrapSimple(dbErr, "open settings db:")
@@ -130,7 +156,7 @@ func scheduleTriggerName(name string, task EmailTaskType) string {
 	return string(task)
 }
 
-// listScheduleSendEmailTriggers prints all registered triggers.
+// listScheduleSendEmailTriggers prints all registered triggers in a formatted table.
 func listScheduleSendEmailTriggers() error {
 	db, err := openTriggerStore()
 	if err != nil {
@@ -149,11 +175,35 @@ func listScheduleSendEmailTriggers() error {
 		return nil
 	}
 
-	for _, trigger := range triggers {
-		fmt.Printf("  • %s: %s → %s\n", trigger.Name, trigger.Task, trigger.To)
-	}
+	printRegisteredTriggersTable(triggers)
 
 	return nil
+}
+
+func printRegisteredTriggersTable(triggers []EmailTrigger) {
+	cfg := termout.TableConfig{
+		HeaderColor: constants.ColorYellow,
+		BorderColor: constants.ColorDim,
+		Columns: []termout.Column{
+			{Title: "Trigger Name", MinWidth: 16},
+			{Title: "Watched Task", MinWidth: 14},
+			{Title: "Recipient", MinWidth: 26},
+		},
+		Rows: buildTriggerTableRows(triggers),
+	}
+	termout.PrintTable(cfg)
+}
+
+func buildTriggerTableRows(triggers []EmailTrigger) []termout.Row {
+	rows := make([]termout.Row, 0, len(triggers))
+	for _, trigger := range triggers {
+		rows = append(rows, termout.Row{
+			Cells: []string{trigger.Name, string(trigger.Task), trigger.To},
+			Color: constants.ColorWhite,
+		})
+	}
+
+	return rows
 }
 
 // removeScheduleSendEmailTrigger deletes the named trigger.

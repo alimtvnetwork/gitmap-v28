@@ -219,6 +219,8 @@ func RunUnifiedNodesCLI(args []string) error {
 		return RunNodesResourcesCLI(args[1:])
 	} else if isNodesTasksRequest(args) {
 		return RunNodesTasksCLI(args[1:])
+	} else if isNodesRemoteRunRequest(args) {
+		return RunNodesRemoteCLI(args[1:])
 	} else if isNodesHelpRequest(args) {
 		return printUnifiedNodesHelp()
 	}
@@ -278,3 +280,12 @@ func isNodesTasksRequest(args []string) bool {
 	}
 	return false
 }
+
+func isNodesRemoteRunRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+	return first == "run" || first == "exec" || first == "r"
+}
+
