@@ -74,12 +74,11 @@ func UninstallApp(target string, opts UninstallOptions) (AppUninstallResponse, e
 	}
 
 	var hasExecutionErr error
-	switch runtime.GOOS {
-	case "linux":
+	if runtime.GOOS == "linux" {
 		resp, hasExecutionErr = executeLinuxUninstall(target, opts, resp)
-	case "windows":
+	} else if runtime.GOOS == "windows" {
 		resp, hasExecutionErr = executeWindowsUninstall(target, opts, resp)
-	default:
+	} else {
 		resp.Error = fmt.Sprintf("unsupported platform for uninstaller: %s", runtime.GOOS)
 		return resp, fmt.Errorf("%s", resp.Error)
 	}

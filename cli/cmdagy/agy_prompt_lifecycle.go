@@ -491,17 +491,16 @@ func processNextQueuedPrompts(sem chan struct{}) {
 
 	var remaining []PromptRecord
 	for i, rec := range records {
-		switch {
-		case rec.Status == "queued" && len(sem) < cap(sem):
+		if rec.Status == "queued" && len(sem) < cap(sem) {
 			sem <- struct{}{}
 			go func(r PromptRecord) {
 				defer func() { <-sem }()
 				executeQueuedPrompt(r)
 			}(rec)
-		case rec.Status == "queued":
+		} else if rec.Status == "queued" {
 			rec.QueuePosition = len(remaining) + 1
 			remaining = append(remaining, rec)
-		case i > 0:
+		} else if i > 0 {
 			remaining = append(remaining, rec)
 		}
 	}

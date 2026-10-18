@@ -165,12 +165,11 @@ func sanitizeStackLine(raw string) string {
 	clean := ansiRegex.ReplaceAllString(raw, "")
 	parts := strings.Split(clean, "\t")
 	var text string
-	switch {
-	case len(parts) >= 3:
+	if len(parts) >= 3 {
 		text = stripTimestamp(strings.Join(parts[2:], "\t"))
-	case len(parts) == 2:
+	} else if len(parts) == 2 {
 		text = parts[1]
-	default:
+	} else {
 		text = clean
 	}
 	text = strings.TrimPrefix(text, "##[error]")
