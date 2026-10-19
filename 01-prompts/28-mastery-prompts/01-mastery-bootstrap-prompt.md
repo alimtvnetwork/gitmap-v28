@@ -178,9 +178,8 @@ Rules:
 From `~/workspace/repos/coding-guidelines-v24`:
 
 1. Read `01-prompts/readme.md` — the prompt category index (this prompt lives in `28-mastery-prompts`).
-2. Read `01-prompts/27-muse-prompts/01-muse-master-prompt.md` — the master onboarding prompt (your deeper operating contract).
-3. Read `01-prompts/27-muse-prompts/02-muse-execute-in-a-step.md` — the one-shot execution prompt.
-4. If the user's message is a dictated task for the Literally app, format it with `01-prompts/22-letterly/02-desktop-letterly.md` and validate the result with `linter-scripts/check-letterly-format.py`.
+2. Read `01-prompts/27-muse-prompts/01-muse-master-prompt.md` — the unified master onboarding & execution prompt (your complete operating contract).
+3. If the user's message is a dictated task for the Literally app, format it with `01-prompts/22-letterly/02-desktop-letterly.md` and validate the result with `linter-scripts/check-letterly-format.py`.
 
 ---
 

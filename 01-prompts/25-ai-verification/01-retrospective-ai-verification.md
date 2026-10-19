@@ -45,7 +45,7 @@ Before reading wide files or modifying anything, you **MUST** spawn **A = 2** co
    - Locate newly created or modified specifications under `02-spec/21-app/`.
    - Locate completed plan files under `.ai-memory/plans/subtasks/`.
    - Catalog all touched source code and system files.
-3. **Audit Ledger Initialization:** Initialize SQLite database in `.ai-memory/temp-agents/<slug>/agent-task.db` using `python 03-ai-scripts/46-agent-sqlite-task-manager.py init --name "retrospective ai verification"`.
+3. **Audit Ledger Initialization:** Initialize SQLite database in `.ai-memory/temp-agents/<slug>/agent-task.db` using `gitmap agent task init --name "retrospective ai verification"`.
 
 ### Phase 2: Parallel Subagent Verification & Remediation (Steps 151 .. 300)
 1. **Specification Fidelity:**
@@ -76,7 +76,7 @@ Before reading wide files or modifying anything, you **MUST** spawn **A = 2** co
 - **R3 (Strict Relative Git Paths):** TOTAL BAN on absolute filesystem paths or `file:///` URIs.
 - **R4 (No CI/CD Disabling):** NEVER disable, bypass, or comment out CI checks to force a green pipeline.
 - **R5 (Concurrent Lock Collision Prevention):** Workers NEVER run git commands (`git add`, `git commit`, `git push`, `git status`). Only the lead orchestrator runs git commands.
-- **R6 (SQLite Action Logging):** Log all in-flight file actions in `.ai-memory/temp-agents/<slug>/agent-task.db` via `46-agent-sqlite-task-manager.py`.
+- **R6 (SQLite Action Logging):** Log all in-flight file actions in `.ai-memory/temp-agents/<slug>/agent-task.db` via `gitmap agent log`. TOTAL BAN on raw `python -c "import sqlite3..."` or ad-hoc DB scripts; inspect via `gitmap agent task status` or `gitmap agent subtask ls`.
 
 ---
 

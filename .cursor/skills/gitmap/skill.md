@@ -177,8 +177,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap sync --dry-run` — Previews changes across all repositories without making git or file mutations.
 - `gitmap sync --no-push` — Applies changes and commits locally without pushing to remote.
 - `gitmap sync --no-release` — Disables post-sync SemVer release tagging.
-- `gitmap sync --list` — Lists all 43 registered fleet repositories and paths.
-- `gitmap agent task init --name "<task>" --budget <N>` — Initializes SQLite task manager in `.ai-memory/temp-agents/<slug>/agent-task.db`.
+- `gitmap agent task init --name "<task>" --budget <N>` — Initializes SQLite task manager in `.ai-memory/temp-agents/<slug>/agent-task.db`. If task already exists, reports parent task ID, active subagents, subtasks status, and touched files. Supports prompt MD5 hash verification to resume seamlessly without redundant reads.
 - `gitmap agent task status [--json] [--ddl]` — Emits structured task status, subtask progress, and schema validation.
 - `gitmap agent task ls` — Lists active and completed parent tasks across the workspace.
 - `gitmap agent task pending` — Lists or counts pending subtasks across agent tasks.
@@ -225,13 +224,17 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap agent log --subtask <id> --agent "<name>" --action "<read|modify|plan>" --file "<path>" --details "<reasoning>"` — In-flight subtask action logging with explicit rationale.
 - `gitmap agent heatmap [--parent <slug>] [--json]` — Ranks files by write-claim count across agent tasks and active subtasks.
 - `gitmap full-summary` (alias `gitmap fs`) — 48-hour active repository activity heatmap TreeView showing commit velocity and dirty working states.
-- **MANDATORY HEATMAP & CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via `gitmap heatmap log` or `gitmap agent log`, and inspect active file leases and contention hotspots via `gitmap heatmap discuss` before editing shared files.
+- **MANDATORY HEATMAP & CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via `gitmap heatmap log` or `gitmap agent log`, and inspect active file leases and contention hotspots via `gitmap agent heatmap` (or `gitmap heatmap status`) before editing shared files.
+- **Roadmap-Connected Heatmap for Dynamic Join:** Newly spawned or dynamically joining subagents (`gitmap agent subtask join`) inspect `gitmap rc heatmap status` and `gitmap rc heatmap tree` to discover where prior agents read/edited and what subtasks remain in `.ai-memory/plans/<slug>.md`, eliminating redundant reads.
 
-### 13. Multi-AI Companion & repo-cache Synchronization
+### 13. Multi-AI Companion & repo-cache Synchronization (RC Heatmap Suite)
+- **Automatic RC Vault Creation:** If `repo-cache` (`rc`) or `.ai-memory/heatmap.db` does not exist, GitMap auto-provisions the required split-db structure linked to the active mission and folder.
 - `gitmap heatmap rc list-ai` — Lists all supported AI namespaces (`antigravity`, `muse`, `cloud-code`, `codex`, `grok`, `cursor`) and displays ambient detected engine.
 - `gitmap heatmap rc log [flags]` — Logs cognitive actions and decisions into dedicated `repo-cache` isolated split-databases (`.heatmap/<ai-name>/<repo>/heatmap.db`).
 - `gitmap heatmap rc commit [-m "<msg>"]` — Creates a telemetry checkpoint commit in `repo-cache` and marks local changes clean.
 - `gitmap heatmap rc sync` — Bidirectionally reconciles in-flight decisions with `repo-cache` without workspace git conflicts.
+- `gitmap heatmap rc tree` / `gitmap rc heatmap tree` — Renders hierarchical roadmap and touched file tree in RC vault.
+- `gitmap heatmap rc live` / `gitmap rc heatmap live` — Real-time activity stream in RC vault.
 
 ### 14. AI Decision Heatmap & RC Admin Telemetry
 - `gitmap heatmap tables [--db <root|repo|local>] [--format <table|json|yaml>]` — Inspects the SQLite master catalog and inventories all tables, views, column counts, and row counts in the active heatmap database.
@@ -243,9 +246,9 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 
 #### Tri-Alias Routing Parity
 All companion RC commands support full tri-alias routing parity:
-- `gitmap heatmap rc <tables|view|query>`
-- `gitmap rc heatmap <tables|view|query>`
-- `gitmap heatmap rc-heatmap <tables|view|query>`
+- `gitmap heatmap rc <status|tables|view|query|tree|live|sync>`
+- `gitmap rc heatmap <status|tables|view|query|tree|live|sync>`
+- `gitmap heatmap rc-heatmap <status|tables|view|query|tree|live|sync>`
 
 #### AI Agent Non-Blocking SQL Recipes
 AI agents analyzing prior session decisions, execution trees, and file hotspots should use direct read-only queries with `--json` or `--yaml` to prevent lock contention:

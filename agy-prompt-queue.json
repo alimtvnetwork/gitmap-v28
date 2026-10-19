@@ -1,0 +1,13 @@
+{
+  "queued": [
+    {
+      "id": 1,
+      "type": "restored_prompt",
+      "title": "Restored: gitmap",
+      "prompt": "Prompt file content",
+      "status": "queued",
+      "createdAt": "2026-10-19T08:49:04Z"
+    }
+  ],
+  "updatedAt": "2026-10-19T08:49:04Z"
+}

@@ -189,8 +189,8 @@ SYNCHRONIZATION PIPELINE PER TARGET REPOSITORY:
    git checkout <base_branch>
 4. Controlled asset mirroring:
    - 01-prompts/                 -> 01-prompts/                 (mirror, strictly excluding 06-archive/)
-   - .agents/skills/             -> .agents/skills/             (mirror)
-   - .cursor/skills/             -> .cursor/skills/             (mirror)
+- .agents/skills/             -> .agents/skills/             (update canonical, keep local skill folders)
+- .cursor/skills/             -> .cursor/skills/             (update canonical, keep local skill folders)
    - 02-spec/01-* .. 02-spec/20-* -> 02-spec/01-* .. 02-spec/20-* (mirror shared specs, NEVER 02-spec/21-*)
 5. Additive AI scripts distribution:
    - Copy brand-new scripts in 03-ai-scripts/ and .agents/scripts/

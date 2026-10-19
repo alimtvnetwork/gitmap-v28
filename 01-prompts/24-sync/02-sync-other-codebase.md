@@ -115,8 +115,8 @@ SYNCHRONIZATION WORKFLOW PER TARGET REPOSITORY:
 4. Pre-change release verification: ensure pre-change release tag and release branch exist
 5. Safe directory mirroring:
    - 01-prompts/                -> 01-prompts/                (mirror, excluding 06-old-prompts/)
-   - .agents/skills/            -> .agents/skills/            (mirror)
-   - .cursor/skills/            -> .cursor/skills/            (mirror)
+- .agents/skills/            -> .agents/skills/            (update canonical, keep local skill folders)
+- .cursor/skills/            -> .cursor/skills/            (update canonical, keep local skill folders)
    - 03-ai-scripts/             -> 03-ai-scripts/             (additive-only, bump scripts protected)
    - .agents/scripts/           -> .agents/scripts/           (additive-only)
    - 02-spec/02-coding-guidelines/ -> 02-spec/02-coding-guidelines/ (mirror)
