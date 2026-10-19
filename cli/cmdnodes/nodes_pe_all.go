@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsummary"
-	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/pterm/pterm"
 )
@@ -147,64 +145,7 @@ func RunNodesPipelineErrorsAll(args []string) error {
 		pterm.Info.Printf("[Phase 2] Discovering remote repositories across %d fleet nodes...\n", len(conns))
 	}
 
-	type remoteDiscovery struct {
-		conn       db.SSHConnection
-		uniqueURLs []string
-		isOnline   bool
-		err        error
-	}
-
-	var discoveredRemotes []remoteDiscovery
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-
-	for _, c := range conns {
-		wg.Add(1)
-		go func(conn db.SSHConnection) {
-			defer wg.Done()
-
-			cmd := "gitmap list --json"
-			shell := "bash"
-			if isWindowsNode(conn) {
-				cmd = "gitmap.exe list --json"
-				shell = "powershell"
-			}
-
-			out, errExec := currentSSHExecutor.Execute(conn, cmd, shell)
-			if errExec != nil {
-				mu.Lock()
-				discoveredRemotes = append(discoveredRemotes, remoteDiscovery{
-					conn:     conn,
-					isOnline: false,
-					err:      errExec,
-				})
-				mu.Unlock()
-				return
-			}
-
-			manifest := parseRemoteManifest(out)
-			var uniqueURLs []string
-			for _, item := range manifest {
-				isAlreadyLocal := (item.RemoteURL != "" && localURLMap[normalizeRepoKey(item.RemoteURL)]) ||
-					(item.Slug != "" && localSlugMap[normalizeRepoKey(item.Slug)]) ||
-					(item.RepoName != "" && localSlugMap[normalizeRepoKey(item.RepoName)])
-				if isAlreadyLocal {
-					continue
-				}
-				uniqueURLs = append(uniqueURLs, resolveManifestItemIdentifier(item))
-			}
-
-			mu.Lock()
-			discoveredRemotes = append(discoveredRemotes, remoteDiscovery{
-				conn:       conn,
-				uniqueURLs: uniqueURLs,
-				isOnline:   true,
-			})
-			mu.Unlock()
-		}(c)
-	}
-
-	wg.Wait()
+	discoveredRemotes := discoverRemoteRepositories(conns, localURLMap, localSlugMap)
 
 	totalDelegated := 0
 	reachableCount := 0
@@ -220,17 +161,7 @@ func RunNodesPipelineErrorsAll(args []string) error {
 			len(localRecords), totalDelegated)
 	}
 
-	var localArgs []string
-	if opts.isJSON {
-		localArgs = append(localArgs, "--json")
-	}
-	if opts.forceAll {
-		localArgs = append(localArgs, "--force-all")
-	}
-	if opts.verbose {
-		localArgs = append(localArgs, "--verbose")
-	}
-
+	localArgs := buildLocalPEAllArgs(opts)
 	var localPayload interface{}
 	if opts.isJSON {
 		captured, _ := captureStdout(func() error {
@@ -243,108 +174,10 @@ func RunNodesPipelineErrorsAll(args []string) error {
 		_ = cmdsummary.RunPipelineErrorsAll(localArgs)
 	}
 
-	var remoteResults []NodeSummaryResult
-	for _, d := range discoveredRemotes {
-		if !d.isOnline {
-			remoteResults = append(remoteResults, NodeSummaryResult{
-				NodeAlias:       d.conn.Alias,
-				Host:            d.conn.IPAddress,
-				IsOnline:        false,
-				IsLocalMaster:   false,
-				UniqueRepoCount: 0,
-				Account:         d.conn.Username,
-				Instances:       0,
-				ErrorMessage:    d.err.Error(),
-			})
-			continue
-		}
-
-		if len(d.uniqueURLs) == 0 {
-			remoteResults = appendEmptyOnlineNodeResult(remoteResults, d.conn, opts.isJSON)
-			continue
-		}
-
-		if !opts.isJSON {
-			fmt.Println()
-			pterm.Bold.Printf("[Node: %s (%s) - Delegated %d Unique Repositories]\n",
-				d.conn.Alias, d.conn.IPAddress, len(d.uniqueURLs))
-		}
-
-		remoteCmd := "gitmap pe all"
-		if opts.forceAll {
-			remoteCmd += " --force-all"
-		}
-		if opts.isJSON {
-			remoteCmd += " --json"
-		}
-
-		shell := "bash"
-		if isWindowsNode(d.conn) {
-			remoteCmd = "gitmap.exe " + remoteCmd
-			shell = "powershell"
-		}
-
-		out, errExec := currentSSHExecutor.Execute(d.conn, remoteCmd, shell)
-		if errExec != nil {
-			printNodeExecError(d.conn.Alias, errExec, opts.isJSON)
-			remoteResults = append(remoteResults, NodeSummaryResult{
-				NodeAlias:       d.conn.Alias,
-				Host:            d.conn.IPAddress,
-				IsOnline:        true,
-				IsLocalMaster:   false,
-				UniqueRepoCount: len(d.uniqueURLs),
-				Account:         d.conn.Username,
-				Instances:       1,
-				ErrorMessage:    errExec.Error(),
-			})
-			continue
-		}
-
-		if opts.isJSON {
-			remoteResults = append(remoteResults, NodeSummaryResult{
-				NodeAlias:       d.conn.Alias,
-				Host:            d.conn.IPAddress,
-				IsOnline:        true,
-				IsLocalMaster:   false,
-				UniqueRepoCount: len(d.uniqueURLs),
-				Account:         d.conn.Username,
-				Instances:       1,
-				Payload:         parsePayloadOrRaw(out),
-				RawOutput:       out,
-			})
-		} else {
-			fmt.Println(out)
-			pterm.Success.Printf("✓ %s completed\n", d.conn.Alias)
-		}
-	}
+	remoteResults := executePEAllRemoteSummaries(discoveredRemotes, opts)
 
 	if opts.isJSON {
-		envelope := FleetNodesEnvelope{
-			Attributes: FleetNodesAttributes{
-				GeneratedAt:     time.Now().UTC().Format(time.RFC3339),
-				TotalNodes:      len(conns) + 1,
-				ReachableNodes:  reachableCount + 1,
-				LocalReposCount: len(localRecords),
-				DelegatedCount:  totalDelegated,
-			},
-			Data: FleetNodesData{
-				LocalNode: NodeSummaryResult{
-					NodeAlias:       "local-master",
-					Host:            "localhost",
-					IsOnline:        true,
-					IsLocalMaster:   true,
-					UniqueRepoCount: len(localRecords),
-					Account:         resolveLocalMasterAccount(),
-					Instances:       1,
-					Payload:         localPayload,
-				},
-				RemoteNodes: remoteResults,
-			},
-		}
-
-		enc := json.NewEncoder(os.Stdout)
-		enc.SetIndent("", "  ")
-		return enc.Encode(envelope)
+		return renderPEAllFleetEnvelopeJSON(conns, reachableCount, len(localRecords), totalDelegated, localPayload, remoteResults)
 	}
 
 	return nil

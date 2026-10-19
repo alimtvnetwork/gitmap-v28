@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsummary"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/pterm/pterm"
 )
 
@@ -24,42 +25,9 @@ func RunNodesSummary(args []string) error {
 
 	cwd, _ := os.Getwd()
 	localRecords := resolveWorkspaceReposHook(cwd)
-	isLocal := false
-	var localPath string
-
-	if _, err := os.Stat(filepath.Join(targetRepo, ".git")); err == nil {
-		isLocal = true
-		localPath = targetRepo
-	} else if _, err := os.Stat(filepath.Join(cwd, targetRepo, ".git")); err == nil {
-		isLocal = true
-		localPath = filepath.Join(cwd, targetRepo)
-	} else {
-		targetNorm := normalizeRepoKey(targetRepo)
-		for _, r := range localRecords {
-			if normalizeRepoKey(r.RepoName) == targetNorm ||
-				normalizeRepoKey(r.Slug) == targetNorm ||
-				normalizeRepoKey(filepath.Base(r.AbsolutePath)) == targetNorm ||
-				normalizeRepoKey(r.HTTPSUrl) == targetNorm ||
-				normalizeRepoKey(r.SSHUrl) == targetNorm ||
-				normalizeRepoKey(r.DiscoveredURL) == targetNorm {
-				isLocal = true
-				if r.AbsolutePath != "" {
-					localPath = r.AbsolutePath
-				} else {
-					localPath = r.RelativePath
-				}
-				break
-			}
-		}
-	}
-
+	isLocal, localPath := detectLocalRepo(targetRepo, cwd, localRecords)
 	if isLocal {
-		localArgs := make([]string, len(args))
-		copy(localArgs, args)
-		if localPath != "" && targetRepo != localPath {
-			localArgs[0] = localPath
-		}
-		return cmdsummary.RunSummary(localArgs)
+		return runLocalSummary(localPath, targetRepo, args)
 	}
 
 	conns, errConns := fetchAllSSHConnectionsHook()
@@ -84,4 +52,49 @@ func RunNodesSummary(args []string) error {
 	}
 
 	return apperror.NewSimple(fmt.Sprintf("repository '%s' not found across local or fleet nodes", targetRepo), "E9080")
+}
+
+func detectLocalRepo(targetRepo string, cwd string, localRecords []model.ScanRecord) (bool, string) {
+	if _, err := os.Stat(filepath.Join(targetRepo, ".git")); err == nil {
+		return true, targetRepo
+	}
+	if _, err := os.Stat(filepath.Join(cwd, targetRepo, ".git")); err == nil {
+		return true, filepath.Join(cwd, targetRepo)
+	}
+	targetNorm := normalizeRepoKey(targetRepo)
+	return matchLocalRecord(targetNorm, localRecords)
+}
+
+func matchLocalRecord(targetNorm string, localRecords []model.ScanRecord) (bool, string) {
+	for _, r := range localRecords {
+		if isRecordMatch(r, targetNorm) {
+			return true, resolveRecordPath(r)
+		}
+	}
+	return false, ""
+}
+
+func isRecordMatch(r model.ScanRecord, targetNorm string) bool {
+	return normalizeRepoKey(r.RepoName) == targetNorm ||
+		normalizeRepoKey(r.Slug) == targetNorm ||
+		normalizeRepoKey(filepath.Base(r.AbsolutePath)) == targetNorm ||
+		normalizeRepoKey(r.HTTPSUrl) == targetNorm ||
+		normalizeRepoKey(r.SSHUrl) == targetNorm ||
+		normalizeRepoKey(r.DiscoveredURL) == targetNorm
+}
+
+func resolveRecordPath(r model.ScanRecord) string {
+	if r.AbsolutePath != "" {
+		return r.AbsolutePath
+	}
+	return r.RelativePath
+}
+
+func runLocalSummary(localPath string, targetRepo string, args []string) error {
+	localArgs := make([]string, len(args))
+	copy(localArgs, args)
+	if localPath != "" && targetRepo != localPath {
+		localArgs[0] = localPath
+	}
+	return cmdsummary.RunSummary(localArgs)
 }

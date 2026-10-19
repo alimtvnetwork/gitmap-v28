@@ -2,13 +2,10 @@
 package cmdagy
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -37,99 +34,6 @@ type AccountCandidate struct {
 	IsRefreshed        bool   `json:"isRefreshed"`
 	IsLockedByOtherVM  bool   `json:"isLockedByOtherVM"`
 	LockSource         string `json:"lockSource,omitempty"`
-}
-
-// AccountSwitchState persists active account, threshold, and latest switch telemetry.
-type AccountSwitchState struct {
-	ThresholdPct       int      `json:"thresholdPct"`
-	ActiveAccount      string   `json:"activeAccount"`
-	ActiveCreditPct    int      `json:"activeCreditPct"`
-	PreviousAccount    string   `json:"previousAccount,omitempty"`
-	LastBatchId        string   `json:"lastBatchId,omitempty"`
-	BackedProjectCount int      `json:"backedProjectCount"`
-	BackedProjectNames []string `json:"backedProjectNames,omitempty"`
-	RestoredPrompts    int      `json:"restoredPrompts"`
-	IsRefreshed        bool     `json:"isRefreshed"`
-	IsLockVerified     bool     `json:"isLockVerified"`
-	IsFastForwarded    bool     `json:"isFastForwarded"`
-	IsLivenessVerified bool     `json:"isLivenessVerified"`
-	IsTelegramNotified bool     `json:"isTelegramNotified"`
-	IsEmailNotified    bool     `json:"isEmailNotified"`
-	UpdatedAt          string   `json:"updatedAt"`
-}
-
-func resolveAccountSwitchStatePath() string {
-	return filepath.Join(store.BinaryDataDir(), "account-switch", "state.json")
-}
-
-func loadAccountSwitchState() AccountSwitchState {
-	data, err := os.ReadFile(resolveAccountSwitchStatePath())
-	if err != nil {
-		return defaultAccountSwitchState()
-	}
-	var st AccountSwitchState
-	if json.Unmarshal(data, &st) != nil {
-		return defaultAccountSwitchState()
-	}
-	if st.ThresholdPct <= 0 {
-		st.ThresholdPct = DefaultAccountSwitchThreshold
-	}
-	return st
-}
-
-func defaultAccountSwitchState() AccountSwitchState {
-	return AccountSwitchState{
-		ThresholdPct:    DefaultAccountSwitchThreshold,
-		ActiveAccount:   "primary-dev@antigravity.dev",
-		ActiveCreditPct: 12,
-		UpdatedAt:       time.Now().UTC().Format(time.RFC3339),
-	}
-}
-
-func saveAccountSwitchState(st AccountSwitchState) error {
-	path := resolveAccountSwitchStatePath()
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		return apperror.WrapSimple(err, "mkdir account-switch state")
-	}
-	st.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
-	raw, _ := json.MarshalIndent(st, "", "  ")
-	return os.WriteFile(path, raw, 0644)
-}
-
-// RunSetAccountSwitchThreshold updates and persists the account switch threshold percentage.
-func RunSetAccountSwitchThreshold(pct int, isJSON bool) error {
-	if pct < 1 || pct > 100 {
-		return apperror.NewSimple("threshold percentage must be between 1 and 100", "E400")
-	}
-	st := loadAccountSwitchState()
-	st.ThresholdPct = pct
-	if err := saveAccountSwitchState(st); err != nil {
-		return err
-	}
-	if isJSON {
-		return printJSON(st)
-	}
-	fmt.Printf("%s✔ Account switch threshold set to %d%%%s\n", constants.ColorGreen, pct, constants.ColorReset)
-	return nil
-}
-
-// RunAccountSwitchStatus prints the current account switch configuration and telemetry.
-func RunAccountSwitchStatus(isJSON bool) error {
-	st := loadAccountSwitchState()
-	if isJSON {
-		return printJSON(st)
-	}
-	renderAccountSwitchStatusBox(st)
-	return nil
-}
-
-func renderAccountSwitchStatusBox(st AccountSwitchState) {
-	fmt.Printf("\n  %s● Antigravity Account Switch Status%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  Active Account:     %s (%d%% credit)\n", st.ActiveAccount, st.ActiveCreditPct)
-	fmt.Printf("  Switch Threshold:   %d%% (default: %d%%)\n", st.ThresholdPct, DefaultAccountSwitchThreshold)
-	fmt.Printf("  Last Backup Batch:  %s (%d project(s): %s)\n",
-		st.LastBatchId, st.BackedProjectCount, formatNoticeProjectsList(st.BackedProjectNames))
-	fmt.Printf("  Liveness Verified:  %v | Fast-Forward: %v\n\n", st.IsLivenessVerified, st.IsFastForwarded)
 }
 
 // RunAccountSwitchWorkflow executes the account switch cycle or delegates to the E2E test harness.
@@ -293,110 +197,6 @@ func refreshAndSelectCandidate(cand AccountCandidate) AccountCandidate {
 	refreshed, _ := refreshAndVerifyCandidate(cand)
 	claimDistributedAccountLock(refreshed.Email)
 	return refreshed
-}
-
-var (
-	creditSyncMu     sync.RWMutex
-	lastCreditSyncAt time.Time
-	cachedCandidates []AccountCandidate
-)
-
-// SyncAccountCredits synchronizes and returns candidate account credits with a 30s throttle guard.
-// Enforces hard rate limit: if time.Since(lastCreditSyncAt) < 30*time.Second, cached credits are returned.
-func SyncAccountCredits() ([]AccountCandidate, error) {
-	creditSyncMu.Lock()
-	defer creditSyncMu.Unlock()
-	if !lastCreditSyncAt.IsZero() && time.Since(lastCreditSyncAt) < 30*time.Second && len(cachedCandidates) > 0 {
-		return copyCandidates(cachedCandidates), nil
-	}
-	pool := fetchFreshCandidatePool()
-	cachedCandidates = copyCandidates(pool)
-	lastCreditSyncAt = time.Now()
-	return pool, nil
-}
-
-// IsCreditSyncThrottled returns true if the last credit sync occurred less than 30 seconds ago.
-func IsCreditSyncThrottled() bool {
-	creditSyncMu.RLock()
-	defer creditSyncMu.RUnlock()
-	return !lastCreditSyncAt.IsZero() && time.Since(lastCreditSyncAt) < 30*time.Second
-}
-
-// ResetCreditSyncThrottle resets the credit sync timestamp (useful for testing).
-func ResetCreditSyncThrottle() {
-	creditSyncMu.Lock()
-	defer creditSyncMu.Unlock()
-	lastCreditSyncAt = time.Time{}
-	cachedCandidates = nil
-}
-
-func copyCandidates(src []AccountCandidate) []AccountCandidate {
-	dst := make([]AccountCandidate, len(src))
-	copy(dst, src)
-	return dst
-}
-
-func fetchFreshCandidatePool() []AccountCandidate {
-	return []AccountCandidate{
-		{Email: "dm-locked-node@antigravity.dev", ProfileName: "dm-locked-node", InitialCreditPct: 99, RefreshedCreditPct: 99, IsLockedByOtherVM: true, LockSource: "supabase-vm-02"},
-		{Email: "fleet-alpha@antigravity.dev", ProfileName: "fleet-alpha", InitialCreditPct: 96, RefreshedCreditPct: 96},
-		{Email: "fleet-beta@antigravity.dev", ProfileName: "fleet-beta", InitialCreditPct: 88, RefreshedCreditPct: 88},
-	}
-}
-
-func loadCandidatePool() []AccountCandidate {
-	pool, _ := SyncAccountCredits()
-	return pool
-}
-
-func rankAccountCandidates(pool []AccountCandidate) []AccountCandidate {
-	sorted := make([]AccountCandidate, len(pool))
-	copy(sorted, pool)
-	sort.Slice(sorted, func(i, j int) bool {
-		return sorted[i].InitialCreditPct > sorted[j].InitialCreditPct
-	})
-	return sorted
-}
-
-func refreshAndVerifyCandidate(cand AccountCandidate) (AccountCandidate, bool) {
-	cand.IsRefreshed = cand.RefreshedCreditPct == cand.InitialCreditPct && cand.RefreshedCreditPct > 0
-	return cand, cand.IsRefreshed
-}
-
-func isAccountLockedByOtherVM(email string) (bool, string) {
-	if candLocked := isPreMarkedLocked(email); candLocked {
-		return true, "email-and-supabase-lock"
-	}
-	if checkEmailLockForAccount(email) {
-		return true, "email-inbox-lock"
-	}
-	if checkSupabaseLockForAccount(email) {
-		return true, "supabase-vm-lock"
-	}
-	return false, ""
-}
-
-func isPreMarkedLocked(email string) bool {
-	low := strings.ToLower(strings.TrimSpace(email))
-	return strings.HasPrefix(low, "dm-locked") || strings.Contains(low, "locked")
-}
-
-func checkEmailLockForAccount(email string) bool {
-	lockedEmails := strings.ToLower(os.Getenv("AGM_EMAIL_LOCKED_ACCOUNTS"))
-	return len(lockedEmails) > 0 && strings.Contains(lockedEmails, strings.ToLower(email))
-}
-
-func checkSupabaseLockForAccount(email string) bool {
-	lockedAccounts := strings.ToLower(os.Getenv("AGM_SUPABASE_LOCKED_ACCOUNTS"))
-	return len(lockedAccounts) > 0 && strings.Contains(lockedAccounts, strings.ToLower(email))
-}
-
-func claimDistributedAccountLock(email string) {
-	lockDir := filepath.Join(store.BinaryDataDir(), "account-switch", "locks")
-	_ = os.MkdirAll(lockDir, 0755)
-	host, _ := os.Hostname()
-	payload := fmt.Sprintf(`{"email":%q,"host":%q,"claimedAt":%q}`, email, host, time.Now().UTC().Format(time.RFC3339))
-	_ = os.WriteFile(filepath.Join(lockDir, "active-lock.json"), []byte(payload), 0644)
 }
 
 func performFullSwitchSequence(st AccountSwitchState, selected AccountCandidate, thresholdPct int, instName, customDB string, isJSON bool) error {

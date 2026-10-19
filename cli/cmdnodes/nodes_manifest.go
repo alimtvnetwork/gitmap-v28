@@ -48,93 +48,112 @@ func resolveManifestItemIdentifier(item RemoteRepoManifestItem) string {
 }
 
 func parseRemoteManifest(raw string) []RemoteRepoManifestItem {
-	var rawItems []rawRemoteManifestItem
 	clean := extractJSONPayload(raw)
-	if err := json.Unmarshal([]byte(clean), &rawItems); err == nil && len(rawItems) > 0 {
-		var items []RemoteRepoManifestItem
-		for _, ri := range rawItems {
-			name := firstNonEmpty(ri.RepoName, ri.RepoNameAlt, ri.Name)
-			slug := ri.Slug
-			if slug == "" {
-				slug = name
-			}
-			if name == "" {
-				name = slug
-			}
-			url := firstNonEmpty(ri.RemoteURL, ri.RemoteURLAlt, ri.URL)
-			path := firstNonEmpty(ri.Path, ri.PathAlt)
-
-			if name != "" || slug != "" || url != "" {
-				items = append(items, RemoteRepoManifestItem{
-					RepoName:  name,
-					Slug:      slug,
-					RemoteURL: url,
-					Path:      path,
-				})
-			}
-		}
-		if len(items) > 0 {
-			return items
-		}
+	items := parseTypedManifest(clean)
+	if len(items) > 0 {
+		return items
 	}
 
-	var genericList []map[string]interface{}
-	if err := json.Unmarshal([]byte(clean), &genericList); err != nil {
-		var env map[string]interface{}
-		if errEnv := json.Unmarshal([]byte(clean), &env); errEnv == nil {
-			if dataSlice, ok := env["data"].([]interface{}); ok {
-				for _, el := range dataSlice {
-					if m, ok := el.(map[string]interface{}); ok {
-						genericList = append(genericList, m)
-					}
-				}
-			} else if itemSlice, ok := env["items"].([]interface{}); ok {
-				for _, el := range itemSlice {
-					if m, ok := el.(map[string]interface{}); ok {
-						genericList = append(genericList, m)
-					}
-				}
-			}
-		}
+	return parseGenericManifest(clean)
+}
+
+func parseTypedManifest(clean string) []RemoteRepoManifestItem {
+	var rawItems []rawRemoteManifestItem
+	if err := json.Unmarshal([]byte(clean), &rawItems); err != nil || len(rawItems) == 0 {
+		return nil
 	}
 
 	var items []RemoteRepoManifestItem
-	for _, m := range genericList {
-		item := RemoteRepoManifestItem{}
-		if v, ok := m["repoName"].(string); ok {
-			item.RepoName = v
-		} else if v, ok := m["repo_name"].(string); ok {
-			item.RepoName = v
-		} else if v, ok := m["name"].(string); ok {
-			item.RepoName = v
-		}
-		if v, ok := m["slug"].(string); ok {
-			item.Slug = v
-		}
-		if v, ok := m["remoteUrl"].(string); ok {
-			item.RemoteURL = v
-		} else if v, ok := m["remote_url"].(string); ok {
-			item.RemoteURL = v
-		} else if v, ok := m["url"].(string); ok {
-			item.RemoteURL = v
-		}
-		if v, ok := m["path"].(string); ok {
-			item.Path = v
-		} else if v, ok := m["absolute_path"].(string); ok {
-			item.Path = v
-		}
-		if item.Slug == "" {
-			item.Slug = item.RepoName
-		}
-		if item.RepoName == "" {
-			item.RepoName = item.Slug
-		}
+	for _, ri := range rawItems {
+		item := convertRawManifestItem(ri)
 		if item.RepoName != "" || item.Slug != "" || item.RemoteURL != "" {
 			items = append(items, item)
 		}
 	}
-
 	return items
+}
+
+func convertRawManifestItem(ri rawRemoteManifestItem) RemoteRepoManifestItem {
+	name := firstNonEmpty(ri.RepoName, ri.RepoNameAlt, ri.Name)
+	slug := ri.Slug
+	if slug == "" {
+		slug = name
+	}
+	if name == "" {
+		name = slug
+	}
+	return RemoteRepoManifestItem{
+		RepoName:  name,
+		Slug:      slug,
+		RemoteURL: firstNonEmpty(ri.RemoteURL, ri.RemoteURLAlt, ri.URL),
+		Path:      firstNonEmpty(ri.Path, ri.PathAlt),
+	}
+}
+
+func parseGenericManifest(clean string) []RemoteRepoManifestItem {
+	var genericList []map[string]interface{}
+	if err := json.Unmarshal([]byte(clean), &genericList); err != nil {
+		genericList = extractEnvelopeMapSlice(clean)
+	}
+
+	var items []RemoteRepoManifestItem
+	for _, m := range genericList {
+		item := convertGenericMapItem(m)
+		if item.RepoName != "" || item.Slug != "" || item.RemoteURL != "" {
+			items = append(items, item)
+		}
+	}
+	return items
+}
+
+func extractEnvelopeMapSlice(clean string) []map[string]interface{} {
+	var env map[string]interface{}
+	if errEnv := json.Unmarshal([]byte(clean), &env); errEnv != nil {
+		return nil
+	}
+	rawSlice := extractRawSliceFromEnv(env)
+	var list []map[string]interface{}
+	for _, el := range rawSlice {
+		m, ok := el.(map[string]interface{})
+		if ok {
+			list = append(list, m)
+		}
+	}
+	return list
+}
+
+func extractRawSliceFromEnv(env map[string]interface{}) []interface{} {
+	if dataSlice, ok := env["data"].([]interface{}); ok {
+		return dataSlice
+	}
+	if itemSlice, ok := env["items"].([]interface{}); ok {
+		return itemSlice
+	}
+	return nil
+}
+
+func convertGenericMapItem(m map[string]interface{}) RemoteRepoManifestItem {
+	item := RemoteRepoManifestItem{}
+	item.RepoName = extractFirstString(m, "repoName", "repo_name", "name")
+	item.Slug = extractFirstString(m, "slug")
+	item.RemoteURL = extractFirstString(m, "remoteUrl", "remote_url", "url")
+	item.Path = extractFirstString(m, "path", "absolute_path")
+	if item.Slug == "" {
+		item.Slug = item.RepoName
+	}
+	if item.RepoName == "" {
+		item.RepoName = item.Slug
+	}
+	return item
+}
+
+func extractFirstString(m map[string]interface{}, keys ...string) string {
+	for _, k := range keys {
+		if v, ok := m[k].(string); ok && v != "" {
+			return v
+		}
+	}
+	return ""
 }
 
 func appendEmptyOnlineNodeResult(results []NodeSummaryResult, conn db.SSHConnection, isJSON bool) []NodeSummaryResult {

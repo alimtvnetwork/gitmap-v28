@@ -265,4 +265,3 @@ func renderTasksTable(tasks []types.ParentTask) {
 		fmt.Printf("%-32s  %-10s  %-24s  %-12s  %s\n", t.ParentTaskId, t.Status, t.TaskSlug, steps, t.RunDirectory)
 	}
 }
-

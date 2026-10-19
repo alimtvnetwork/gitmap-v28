@@ -24,8 +24,8 @@ Git pull done by gitmap needs to be a lot more efficient than a regular one. Bec
 - **Screenshot Evidence**: `assets/screenshots/gitmap-efficiency-and-coding-guidelines-enhancement-01.png`
 - **Existing Output**:
   ```text
-  d:\work\gitmap > gitmap pull
-  -> gitmap pull (cwd: D:\work\gitmap)
+  <repo-root> > gitmap pull
+  -> gitmap pull (cwd: <repo-root>)
   -> cwd is a git repo — running plain `git pull` here
   ↓ pulling remote changes...
   ⚠ gitmap: up-to-date (8cc6949) [main] (dirty: +1 staged, +3 modified, +1 untracked)
