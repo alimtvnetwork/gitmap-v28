@@ -10,14 +10,15 @@ Source prompt: [`01-prompts/27-muse-prompts/01-muse-master-prompt.md`](01-prompt
 Canonical Execution Engine: [`01-prompts/14-execute/02-execute-parent-task-with-n-steps-v6.md`](01-prompts/14-execute/02-execute-parent-task-with-n-steps-v6.md)
 
 ```text
-N = 300 (Total self-loop steps budget — editable top-header parameter, default: 300)
+N = 400 (Total self-loop steps budget — editable top-header parameter, default: 400)
 A = 3   (MANDATORY number of spawned autonomous subagents running concurrently via invoke_subagent, default: 3)
 H = 2   (Operational hands per agent: dual-task batch capacity & parallel tool dispatch, default: 2)
 C = 30  (Tool calls per worker before it must report, default: 30)
 
 System Concurrency Capacity = A × H = 3 agents × 2 hands = 6 concurrent subtask operations
-PHASE_1_BUDGET = N / 2   (Steps 1 .. 150: Discovery, Architecture Spec, and Lean Subtask Generation)
-PHASE_2_BUDGET = N / 2   (Steps 151 .. 300: Mandatory Parallel Subagent Execution, Self-Looping, Targeted Quality Linting)
+PHASE_1_BUDGET = 100     (Steps 1 .. 100: Discovery, Architecture Spec, and Lean Subtask Generation)
+PHASE_2_BUDGET = 150     (Steps 101 .. 250: Intermediate Archival, Repo-Cache Setup, Prerequisite Refactoring, File Staging)
+PHASE_3_BUDGET = 150     (Steps 251 .. 400: Worker Swarm Parallel Execution, Powerful Write-and-Execute Implementation, Targeted Quality Linting, Atomic Push)
 WAVES = ceil(subtasks / (A x H))
 ```
 
@@ -119,11 +120,12 @@ WAVES = ceil(subtasks / (A x H))
 2. **Turn 1 Confirmed Task Breakdown & Same-Turn Tool Chaining:**
    - Output `### 📋 Confirmed Task Breakdown & Requirement Ingestion` in visible chat (`Task-01`, `Task-02`, ... each with `State: [IN PROGRESS]` and `Understood: [YES]`, `Slug: <root-slug> - Task NN`).
    - In the **EXACT SAME TURN**, invoke your first tool call (SQLite task DB initialization, ledger creation, preflight checks). NEVER emit text alone.
+   - **Powerful Step Execution (Write-and-Execute Invariant):** Every single step and turn must be high-impact, powerful, and concrete. Write the necessary content, code, or specifications directly to disk (`write_to_file` / `replace_file_content`) and execute commands/tools immediately in the exact same turn without hesitation, filler commentary, or permission-seeking. Never plan endlessly or describe actions without executing them on disk.
 3. **RUNNING Declaration & 5-Minute Status Pings:**
    - Print `RUNNING — Task-01, Task-02 — ETA ~45 min`. Ping status every 5 minutes during execution. Total ban on `LISTING-WITHOUT-STARTING`.
 4. **Pull First in Target Repo:** Run `gitmap pull` (fallback `git pull`) before touching any files.
 5. **RC Heatmap Preflight, Automatic Creation & Roadmap Linkage:** If `repo-cache` (`rc`) or `.ai-memory/heatmap.db` does not exist, GitMap auto-provisions the split-db structure; check active write leases via `gitmap agent heatmap` (or `gitmap rc heatmap status`) to enforce One Owner Per File; link roadmap to `gitmap rc heatmap tree` for dynamic join without redundant reads; log all exploration and edit decisions with rationale via `gitmap heatmap log` into `.ai-memory/heatmap.db`.
-6. **SQLite Task DB, Existence Check & Prompt MD5 Hash Verification:** Run `gitmap agent task init --name "<task name>" --budget 300`. If task already exists, report parent task ID, active subagents, subtasks status, and touched files. Verify prompt MD5 hash to resume seamlessly or ingest updated directives. Maintain human-readable `.ai-memory/temp-agents/<slug>/ledger.md`.
+6. **SQLite Task DB, Existence Check & Prompt MD5 Hash Verification:** Run `gitmap agent task init --name "<task name>" --budget 400`. If task already exists, report parent task ID, active subagents, subtasks status, and touched files. Verify prompt MD5 hash to resume seamlessly or ingest updated directives. Maintain human-readable `.ai-memory/temp-agents/<slug>/ledger.md`.
 7. **Mandatory Multi-Agent Execution:**
    - Dispatch `A = 3` subagents in disjoint file boxes (`TypeName: "research"` for discovery, `TypeName: "self"` for execution) with immediate dynamic respawn.
    - Worker Git Ban: Subagents NEVER run git commands (`git add`, `git commit`, `git status`) to avoid `.git/index.lock` collisions.
