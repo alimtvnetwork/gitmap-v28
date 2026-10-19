@@ -132,10 +132,15 @@ func TestIncrementAliasSearchCount(t *testing.T) {
 }
 
 func findAliasSearchCount(aliases []DatabaseAlias, targetName string) int64 {
+	var count int64 = -1
 	for _, a := range aliases {
-		if strings.EqualFold(a.AliasName, targetName) {
-			return a.SearchHistoryCount
-		}
+		checkAliasMatch(a, targetName, &count)
 	}
-	return -1
+	return count
+}
+
+func checkAliasMatch(a DatabaseAlias, targetName string, out *int64) {
+	if strings.EqualFold(a.AliasName, targetName) {
+		*out = a.SearchHistoryCount
+	}
 }

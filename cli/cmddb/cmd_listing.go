@@ -195,36 +195,24 @@ func buildSeenPathMap(items []DatabaseAliasSummary) map[string]bool {
 }
 
 func appendSplitDbIfUnseen(list *[]DatabaseAliasSummary, seen map[string]bool, item DBFileInfo) {
-	cleanPath := filepath.Clean(item.Path)
-	if seen[cleanPath] {
-		return
-	}
-	seen[cleanPath] = true
-	alias := "split:" + strings.TrimSuffix(item.Name, ".db")
-	*list = append(*list, DatabaseAliasSummary{
-		Alias:         alias,
-		Path:          item.Path,
-		Type:          "split-db",
-		Size:          formatBytes(item.Size),
-		FileSizeBytes: item.Size,
-		TableCount:    countTablesInDb(item.Path),
-		SearchCount:   0,
-		IsActive:      true,
-		Description:   item.Purpose,
-	})
+	appendDiscoveredDb(list, seen, item, "split", "split-db")
 }
 
 func appendProfileDbIfUnseen(list *[]DatabaseAliasSummary, seen map[string]bool, item DBFileInfo) {
+	appendDiscoveredDb(list, seen, item, "profile", "profile")
+}
+
+func appendDiscoveredDb(list *[]DatabaseAliasSummary, seen map[string]bool, item DBFileInfo, prefix, dbType string) {
 	cleanPath := filepath.Clean(item.Path)
 	if seen[cleanPath] {
 		return
 	}
 	seen[cleanPath] = true
-	alias := "profile:" + strings.TrimSuffix(item.Name, ".db")
+	alias := prefix + ":" + strings.TrimSuffix(item.Name, ".db")
 	*list = append(*list, DatabaseAliasSummary{
 		Alias:         alias,
 		Path:          item.Path,
-		Type:          "profile",
+		Type:          dbType,
 		Size:          formatBytes(item.Size),
 		FileSizeBytes: item.Size,
 		TableCount:    countTablesInDb(item.Path),

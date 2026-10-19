@@ -8,7 +8,7 @@
   - `02-spec/21-app/command-and-database-integration-instructions/03-alias-registry-and-storage.md`
   - `02-spec/21-app/command-and-database-integration-instructions/04-view-and-join-engine.md`
   - `02-spec/21-app/command-and-database-integration-instructions/05-antigravity-verification-and-testing.md`
-- **Status**: PENDING
+- **Status**: COMPLETED
 - **Budget**: 400 Steps (Phase 1: 1..100, Phase 2: 101..250, Phase 3: 251..400)
 - **Capacity**: A = 3 agents, H = 2 hands, Concurrency = 6
 
@@ -78,11 +78,11 @@ Hi there. Instead of having this type of command running by AI, make sure that w
 
 | Subtask ID | Title | Owned Spec & Files | Assigned Owner | Status | Target Deliverables |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Subtask-01** | Specification Suite & Database Registry Engine | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/01-spec-and-registry-engine.md` | Worker 01 | PENDING | Complete 5-part specs in `02-spec/21-app/command-and-database-integration-instructions/`; `DatabaseAlias` schema; `gitmap db-listing` |
-| **Subtask-02** | `db-read` Engine, Schema Introspection & Deadlock Regression Fix | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/02-db-read-listing-and-schema.md` | Worker 02 | PENDING | `gitmap db-read` (SQL, ls, table, --columns, --json); deadlock fix for `listTablesAndViews` under `MaxOpenConns=1` |
-| **Subtask-03** | `db-add` & `db-edit` Mutation Engine with Single-Writer Locks | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/03-db-add-edit-and-mutation.md` | Worker 03 | PENDING | `gitmap db-add` (interactive + CSV); `gitmap db-edit` (-table, -id, csv); transactional integrity and input validation |
-| **Subtask-04** | `db-find` & `db-view` Virtual Auto-Join Query Engine | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/04-db-find-and-view-joins.md` | Worker 01 | PENDING | `gitmap db-find` (wildcards, regex --grep); `gitmap db-view` (declarative auto-join, view creation, filter pushdown) |
-| **Subtask-05** | Antigravity E2E Verification, Skills/Prompts & Minor Release | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/05-skills-prompts-and-minor-bump.md` | Worker 02 | PENDING | Live Antigravity E2E tests; `.agents/skills/gitmap` docs; coding guideline v6 prompt update; minor version bump (`v6.580.0`) |
+| **Subtask-01** | Specification Suite & Database Registry Engine | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/01-spec-and-registry-engine.md` | Worker 01 | COMPLETED | Complete 5-part specs in `02-spec/21-app/command-and-database-integration-instructions/`; `DatabaseAlias` schema; `gitmap db-listing` |
+| **Subtask-02** | `db-read` Engine, Schema Introspection & Deadlock Regression Fix | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/02-db-read-listing-and-schema.md` | Worker 02 | COMPLETED | `gitmap db-read` (SQL, ls, table, --columns, --json); deadlock fix for `listTablesAndViews` under `MaxOpenConns=1` |
+| **Subtask-03** | `db-add` & `db-edit` Mutation Engine with Single-Writer Locks | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/03-db-add-edit-and-mutation.md` | Worker 03 | COMPLETED | `gitmap db-add` (interactive + CSV); `gitmap db-edit` (-table, -id, csv); transactional integrity and input validation |
+| **Subtask-04** | `db-find` & `db-view` Virtual Auto-Join Query Engine | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/04-db-find-and-view-joins.md` | Worker 01 | COMPLETED | `gitmap db-find` (wildcards, regex --grep); `gitmap db-view` (declarative auto-join, view creation, filter pushdown) |
+| **Subtask-05** | Antigravity E2E Verification, Skills/Prompts & Minor Release | `.ai-memory/plans/subtasks/command-and-database-integration-instructions/05-skills-prompts-and-minor-bump.md` | Worker 02 | COMPLETED | Live Antigravity E2E tests; `.agents/skills/gitmap` docs; coding guideline v6 prompt update; minor version bump (`v6.580.0`) |
 
 ---
 

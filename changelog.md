@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.580.0] - 2026-10-19
+
+### Added
+- native sqlite database exploration and management commands
+
+---
+
 ## [v6.579.3] - 2026-10-19
 
 ### Added

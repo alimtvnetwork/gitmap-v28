@@ -154,8 +154,7 @@ func resolveTablePkName(cols []ColumnInfo) string {
 }
 
 func prepareEditPayload(cols []ColumnInfo, table string, words []string) ([]string, []any, *appfault.AppError) {
-	raw := strings.Join(words, " ")
-	tokens := parseCsvTokens(raw)
+	tokens := parseTokensFromWords(words)
 	if len(tokens) == 0 {
 		return nil, nil, appfault.NewValidationError("no update values provided")
 	}
@@ -170,12 +169,15 @@ func prepareEditPayload(cols []ColumnInfo, table string, words []string) ([]stri
 func parseEditPositional(cols []ColumnInfo, table string, tokens []string) ([]string, []any, *appfault.AppError) {
 	pkCol := findPrimaryKeyCol(cols)
 	targetCols := cols
-	if pkCol != nil && len(tokens) == len(cols)-1 {
+	if pkCol != nil {
 		targetCols = filterNonPkCols(cols, pkCol.Name)
 	}
 
-	if len(tokens) != len(targetCols) {
+	if len(tokens) != len(targetCols) && len(tokens) != len(cols) {
 		return nil, nil, appfault.NewValidationError(fmt.Sprintf("expected %d values to update in '%s', got %d", len(targetCols), table, len(tokens)))
+	}
+	if len(tokens) == len(cols) {
+		targetCols = cols
 	}
 
 	var colNames []string

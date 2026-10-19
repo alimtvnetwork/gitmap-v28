@@ -3,7 +3,6 @@ package cmddb
 import (
 	"bufio"
 	"database/sql"
-	"encoding/csv"
 	"fmt"
 	"os"
 	"strings"
@@ -90,29 +89,11 @@ func parseAddArgs(args []string) (string, string, []string, bool, *appfault.AppE
 }
 
 func extractCsvTokens(remaining []string) []string {
+	words := remaining
 	if len(remaining) > 0 && strings.EqualFold(remaining[0], "csv") {
-		return parseCsvTokens(strings.Join(remaining[1:], " "))
+		words = remaining[1:]
 	}
-	return parseCsvTokens(strings.Join(remaining, " "))
-}
-
-func parseCsvTokens(raw string) []string {
-	reader := csv.NewReader(strings.NewReader(raw))
-	reader.TrimLeadingSpace = true
-	records, err := reader.ReadAll()
-	if err == nil && len(records) > 0 {
-		return records[0]
-	}
-	return splitRawCsvFallback(raw)
-}
-
-func splitRawCsvFallback(raw string) []string {
-	parts := strings.Split(raw, ",")
-	out := make([]string, 0, len(parts))
-	for _, p := range parts {
-		out = append(out, strings.Trim(strings.TrimSpace(p), `"'`))
-	}
-	return out
+	return parseTokensFromWords(words)
 }
 
 func prepareInsertPayload(cols []ColumnInfo, table string, rawVals []string, isInteractive bool) ([]string, []any, *appfault.AppError) {
@@ -173,15 +154,6 @@ func determineInsertCols(cols []ColumnInfo, table string, tokens []string) ([]st
 	return parsePositionalInsert(cols, table, tokens)
 }
 
-func checkHasKeyVal(tokens []string) bool {
-	for _, t := range tokens {
-		if strings.Contains(t, "=") {
-			return true
-		}
-	}
-	return false
-}
-
 func parseKeyValInsert(cols []ColumnInfo, table string, tokens []string) ([]string, []any, *appfault.AppError) {
 	colMap := indexColumns(cols)
 	var colNames []string
@@ -197,24 +169,6 @@ func parseKeyValInsert(cols []ColumnInfo, table string, tokens []string) ([]stri
 	}
 
 	return colNames, valArgs, nil
-}
-
-func splitKeyValueToken(t string) (string, string, bool) {
-	parts := strings.SplitN(t, "=", 2)
-	if len(parts) != 2 {
-		return "", "", false
-	}
-	colName := strings.TrimSpace(parts[0])
-	val := strings.Trim(strings.TrimSpace(parts[1]), `"'`)
-	return colName, val, colName != ""
-}
-
-func indexColumns(cols []ColumnInfo) map[string]bool {
-	m := make(map[string]bool, len(cols))
-	for _, c := range cols {
-		m[strings.ToLower(c.Name)] = true
-	}
-	return m
 }
 
 func parsePositionalInsert(cols []ColumnInfo, table string, tokens []string) ([]string, []any, *appfault.AppError) {
@@ -235,25 +189,6 @@ func parsePositionalInsert(cols []ColumnInfo, table string, tokens []string) ([]
 		valArgs = append(valArgs, tokens[i])
 	}
 	return colNames, valArgs, nil
-}
-
-func findPrimaryKeyCol(cols []ColumnInfo) *ColumnInfo {
-	for _, c := range cols {
-		if c.IsPrimaryKey {
-			return &c
-		}
-	}
-	return nil
-}
-
-func filterNonPkCols(cols []ColumnInfo, pkName string) []ColumnInfo {
-	var out []ColumnInfo
-	for _, c := range cols {
-		if !strings.EqualFold(c.Name, pkName) {
-			out = append(out, c)
-		}
-	}
-	return out
 }
 
 func executeInsert(conn *sql.DB, table string, colNames []string, valArgs []any) (int64, error) {

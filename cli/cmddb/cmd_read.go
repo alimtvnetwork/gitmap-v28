@@ -1,7 +1,6 @@
 package cmddb
 
 import (
-	"database/sql"
 	"fmt"
 	"io"
 	"os"
@@ -197,55 +196,6 @@ func handleReadTable(flags readFlags, dbArg string, tables []string) *appfault.A
 	}
 
 	return handleTableOverviewOutput(flags, conn, dbPath, dbArg, tables, start)
-}
-
-func handleTableColumnsOutput(flags readFlags, conn *sql.DB, dbPath, dbArg string, tables []string, start time.Time) *appfault.AppError {
-	var columnOverviews []TableColumnOverview
-	for _, t := range tables {
-		cols, err := fetchColumnInfos(conn, t)
-		if err != nil || len(cols) == 0 {
-			msg := fmt.Sprintf("table '%s' not found or has no columns in %s", t, dbPath)
-			return failRead(os.Stdout, flags.isJson, "db-read:table", dbPath, dbArg, "ERR_TABLE_NOT_FOUND", 22, msg, "Verify table name via 'gitmap db-read ls'.")
-		}
-		columnOverviews = append(columnOverviews, TableColumnOverview{Table: t, Columns: cols})
-	}
-
-	elapsed := time.Since(start)
-	if flags.isJson {
-		outputReadSuccess(os.Stdout, "db-read:table", dbPath, dbArg, map[string]any{"tables": columnOverviews}, elapsed)
-		return nil
-	}
-
-	for _, co := range columnOverviews {
-		renderColumnsTerminal(os.Stdout, dbPath, co.Table, co.Columns)
-		fmt.Println()
-	}
-	fmt.Println(formatCompletionTime(elapsed))
-	return nil
-}
-
-func handleTableOverviewOutput(flags readFlags, conn *sql.DB, dbPath, dbArg string, tables []string, start time.Time) *appfault.AppError {
-	var overviews []TableOverview
-	for _, t := range tables {
-		overview, err := fetchTableOverview(conn, t, dbPath, flags.limit)
-		if err != nil {
-			return failRead(os.Stdout, flags.isJson, "db-read:table", dbPath, dbArg, "ERR_TABLE_NOT_FOUND", 22, err.Error(), "Verify table name via 'gitmap db-read ls'.")
-		}
-		overviews = append(overviews, overview)
-	}
-
-	elapsed := time.Since(start)
-	if flags.isJson {
-		outputReadSuccess(os.Stdout, "db-read:table", dbPath, dbArg, map[string]any{"tables": overviews}, elapsed)
-		return nil
-	}
-
-	for _, ov := range overviews {
-		renderTableOverviewTerminal(os.Stdout, ov)
-		fmt.Println()
-	}
-	fmt.Println(formatCompletionTime(elapsed))
-	return nil
 }
 
 func handleReadSql(flags readFlags, dbArg, sqlStr string) *appfault.AppError {

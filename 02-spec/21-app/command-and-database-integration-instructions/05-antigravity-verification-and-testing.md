@@ -12,7 +12,7 @@
 
 ```text
 Author the verification specification and parent execution plan:
-1. 02-spec/21-app/command-and-database-integration-instructions/05-antigravity-verification-and-testing.md: End-to-end verification protocol testing against live Antigravity databases (C:\Users\Administrator\.gemini\antigravity\conversation_summaries.db and conversation trajectories), mock database tests, deadlock regression test for listTablesAndViews (MaxOpenConns=1), and CI integration.
+1. 02-spec/21-app/command-and-database-integration-instructions/05-antigravity-verification-and-testing.md: End-to-end verification protocol testing against live Antigravity databases (%USERPROFILE%\.gemini\antigravity\conversation_summaries.db and conversation trajectories), mock database tests, deadlock regression test for listTablesAndViews (MaxOpenConns=1), and CI integration.
 2. .ai-memory/plans/command-and-database-integration-instructions.md and subtask files in .ai-memory/plans/subtasks/command-and-database-integration-instructions/ (01-spec-and-registry-engine.md, 02-db-read-listing-and-schema.md, 03-db-add-edit-and-mutation.md, 04-db-find-and-view-joins.md, 05-skills-prompts-and-minor-bump.md).
 Include verbatim user prompt, 5 pillars, and subtask milestones.
 Use strictly relative Git paths and lowercase filenames. All files <= 300 lines.

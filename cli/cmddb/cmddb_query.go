@@ -49,8 +49,8 @@ func isQuerySafe(sql string) bool {
 		strings.HasPrefix(upper, "WITH")
 }
 
-func executeDynamicQuery(conn *sql.DB, query string) (QueryResult, error) {
-	rows, err := conn.Query(query)
+func executeDynamicQuery(conn *sql.DB, query string, args ...any) (QueryResult, error) {
+	rows, err := conn.Query(query, args...)
 	if err != nil {
 		return QueryResult{}, fmt.Errorf("execute query: %w", err)
 	}

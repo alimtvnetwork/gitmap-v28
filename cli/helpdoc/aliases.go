@@ -205,6 +205,14 @@ var helpAliases = map[string]string{
 	"fmt-go":                      "automation",
 	"shutdown-until-green":        "shutdown-until",
 	"sug":                         "shutdown-until",
+	"dbr":                         "db-read",
+	"dba":                         "db-add",
+	"dbe":                         "db-edit",
+	"dbf":                         "db-find",
+	"dbl":                         "db-listing",
+	"dbls":                        "db-listing",
+	"dbv":                         "db-view",
+	"db-list":                     "db-listing",
 }
 
 func resolveHelpAlias(cmd string) string {

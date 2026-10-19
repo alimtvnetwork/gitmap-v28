@@ -265,7 +265,7 @@ GitMap is your **PRIMARY** acceleration engine. Banned ALL variants of `Get-Chil
    - Inspect Task DB Schema & Data Integrity Rules (Mandatory Preflight):
      `gitmap agent task status`
      Verify tables (`ParentTask`, `Subtask`, `AgentActionLog`), positive boolean flags (`IsActive`, `HasCompleted`, `IsBlocked`), and payload constraints before populating subtasks. (DDL: `gitmap agent task status --ddl`; JSON: `gitmap agent task status --json`).
-   - TOTAL BAN ON RAW PYTHON SQLITE: NEVER execute `python -c "import sqlite3..."` or ad-hoc Python DB scripts. Inspect status via `gitmap agent task status` or list subtasks via `gitmap agent subtask ls`.
+   - TOTAL BAN ON RAW PYTHON SQLITE: NEVER execute 'python -c "import sqlite3..."' or ad-hoc Python DB scripts. For agent task lifecycle, use 'gitmap agent'. For exploring, reading, adding, editing, finding, or querying ANY SQLite database (such as Antigravity session DBs or application split-dbs), use compiled native 'gitmap db-read', 'gitmap db-add', 'gitmap db-edit', 'gitmap db-find', 'gitmap db-listing', 'gitmap db-view' (or 'gitmap dbr', 'dba', 'dbe', 'dbf', 'dbl', 'dbv').
    - Output Analysis & Crash Forensics:
      - If `action: "RESUME_FOUND"`: A matching or similar slug exists in `.ai-memory/temp-agents/`! If `diagnostics.hasCrashesDetected: true`, inspect the forensic report (`diagnostics.crashedAgents`) to identify which agent crashed, what file it was touching, and the last logged action. Resume execution from the uncompleted subtask.
      - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-<slug>/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
