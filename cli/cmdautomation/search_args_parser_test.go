@@ -55,3 +55,40 @@ func TestParseSearchPositionalArgs(t *testing.T) {
 		})
 	}
 }
+
+func TestResolveSearchArgs(t *testing.T) {
+	defer resetSearchFlags()
+
+	t.Run("resolves explicit path flag with quotes", func(t *testing.T) {
+		resetSearchFlags()
+		searchPathFlag = `"02-spec"`
+		pat, dir := resolveSearchArgs([]string{`"letterly"`})
+		if pat != "letterly" {
+			t.Errorf("expected pattern 'letterly', got %q", pat)
+		}
+		if dir != "02-spec" {
+			t.Errorf("expected dir '02-spec', got %q", dir)
+		}
+	})
+
+	t.Run("resolves explicit dir flag", func(t *testing.T) {
+		resetSearchFlags()
+		searchDirFlag = "cli"
+		pat, dir := resolveSearchArgs([]string{"hello", "world"})
+		if pat != "hello world" {
+			t.Errorf("expected pattern 'hello world', got %q", pat)
+		}
+		if dir != "cli" {
+			t.Errorf("expected dir 'cli', got %q", dir)
+		}
+	})
+
+	t.Run("resets flags properly", func(t *testing.T) {
+		searchPathFlag = "some-path"
+		searchDirFlag = "some-dir"
+		resetSearchFlags()
+		if searchPathFlag != "" || searchDirFlag != "" {
+			t.Errorf("expected empty flags after reset, got path=%q dir=%q", searchPathFlag, searchDirFlag)
+		}
+	})
+}

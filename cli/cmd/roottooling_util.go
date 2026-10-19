@@ -94,6 +94,7 @@ func toolingUtilFileEntries() []dispatchEntry {
 		{[]string{constants.CmdAdd}, func() error { return cmdadd.RunAdd(argsTail()) }},
 		{[]string{constants.CmdLlm}, func() error { return cmdllm.RunLlm(argsTail()) }},
 		{[]string{"locate", "find-tool", "vcvars"}, func() error { return RunLocateTopLevel(argsTail()) }},
+		{[]string{"grep", "find-text", "aum-search"}, func() error { return RunAumSearchTopLevel(argsTail()) }},
 		{[]string{constants.CmdFind, "f"}, func() error { return cmdfind.RunFind(argsTail()) }},
 		{[]string{constants.CmdFindFiles, "ff"}, func() error { return cmdfind.RunFindFiles(argsTail()) }},
 		{[]string{constants.CmdFindFilesAny, "ffa"}, func() error { return cmdfind.RunFindFilesAny(argsTail()) }},

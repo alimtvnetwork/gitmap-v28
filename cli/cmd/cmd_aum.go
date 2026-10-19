@@ -15,7 +15,8 @@ func buildAumHelpMenu() termout.HelpMenu {
 		UsageLines: []string{
 			"gitmap aum <subcommand> [flags]",
 			"gitmap automation <subcommand> [flags]",
-			"gitmap aum search <query> [dir] [flags]",
+			"gitmap aum search <query> [--path <dir>] [flags]",
+			"gitmap grep <query> [--path <dir>] [flags]",
 			"gitmap aum benchmark [target]",
 		},
 		Sections: []termout.HelpSection{
@@ -32,6 +33,8 @@ func buildAumHelpMenu() termout.HelpMenu {
 
 func buildAumFooterFlags() []termout.CommandEntry {
 	return []termout.CommandEntry{
+		{Command: "-p, --path <dir>", Description: "Target directory or file path to search"},
+		{Command: "-d, --dir <dir>", Description: "Target directory or file path to search"},
 		{Command: "-w, --workers <n>", Description: "Number of concurrent worker threads (default: CPU cores)"},
 		{Command: "--max-json-kb <n>", Description: "Maximum JSON size in KB before auto-exclusion (default: 500)"},
 		{Command: "-e, --ext <exts>", Description: "Filter search by file extensions (e.g. .go, .ts)"},

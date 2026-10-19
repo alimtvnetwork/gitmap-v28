@@ -115,6 +115,7 @@ func validateRegexOption(opts *SearchOptions) *apperror.AppError {
 }
 
 func normalizeSearchDefaults(opts *SearchOptions) {
+	opts.Dir = cleanSearchPattern(opts.Dir)
 	if opts.Dir == "" {
 		opts.Dir = "."
 	}

@@ -19,9 +19,10 @@ var (
 
 	searchCmd = &cobra.Command{
 		Use:     "search <pattern> [dir]",
-		Aliases: []string{"grep", "find-text"},
+		Aliases: []string{"grep", "find-text", "find", "text", "scan"},
 		Short:   "Multi-core streaming search with lazy regex and literal fast path",
-		Example: `  gitmap aum search "func BinaryDataDir" cli/store
+		Example: `  gitmap aum search "letterly" --path "02-spec"
+  gitmap aum search "func BinaryDataDir" -p cli/store
   gitmap aum search "Candidate Response|CANDIDATE RESPONSE" cli -i
   gitmap aum search "timer|Clock|8:47|border.*timer" src/runner.tsx -i
   gitmap aum search "slide.*layout|slideMode" src/components/runner/FormRunner
@@ -36,6 +37,9 @@ var (
 		RunE:    runBenchmarkCmd,
 	}
 
+	searchPathFlag string
+	searchDirFlag  string
+
 	searchOpts SearchOptions
 )
 
@@ -47,13 +51,30 @@ func runSearchCmd(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return apperror.NewValidationError("search pattern is required")
 	}
-	searchOpts.Pattern, searchOpts.Dir = parseSearchPositionalArgs(args)
+	defer resetSearchFlags()
+	searchOpts.Pattern, searchOpts.Dir = resolveSearchArgs(args)
 	res, err := RunSearch(searchOpts)
 	if err != nil {
 		return err
 	}
 	renderSearchResults(res)
 	return nil
+}
+
+func resolveSearchArgs(args []string) (string, string) {
+	explicitDir := strings.TrimSpace(searchPathFlag)
+	if explicitDir == "" {
+		explicitDir = strings.TrimSpace(searchDirFlag)
+	}
+	if explicitDir != "" {
+		return cleanSearchPattern(strings.Join(args, " ")), cleanSearchPattern(explicitDir)
+	}
+	return parseSearchPositionalArgs(args)
+}
+
+func resetSearchFlags() {
+	searchPathFlag = ""
+	searchDirFlag = ""
 }
 
 func runBenchmarkCmd(cmd *cobra.Command, args []string) error {
@@ -106,6 +127,8 @@ func init() {
 }
 
 func initSearchFlags() {
+	searchCmd.Flags().StringVarP(&searchPathFlag, "path", "p", "", "Target directory or file path to search")
+	searchCmd.Flags().StringVarP(&searchDirFlag, "dir", "d", "", "Target directory or file path to search")
 	searchCmd.Flags().BoolVarP(&searchOpts.IsRegex, "regex", "r", false, "Use regular expression matching")
 	searchCmd.Flags().BoolVarP(&searchOpts.IsCaseInsensitive, "ignore-case", "i", false, "Perform case-insensitive matching")
 	searchCmd.Flags().StringSliceVarP(&searchOpts.Extensions, "ext", "e", nil, "Filter by file extensions (e.g. .go, .ts)")
