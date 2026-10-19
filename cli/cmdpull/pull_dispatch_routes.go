@@ -106,11 +106,6 @@ func dispatchPullExecution(opts pullOptions) error {
 }
 
 func executePullCWDWithNotice(isRaw bool) error {
-	arrow := resolveSubArrow()
-	fmt.Printf("    %s%s%s %scwd is a git repo — running plain `git pull` here%s\n\n",
-		constants.ColorCyan, arrow, constants.ColorReset,
-		constants.ColorDim, constants.ColorReset)
-
 	return runPullCWD(isRaw)
 }
 

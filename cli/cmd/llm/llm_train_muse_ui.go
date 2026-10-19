@@ -66,6 +66,7 @@ func printTraversalChecklist(path, digestDir string, sequenced []string) {
 	}
 	fmt.Printf("3. Scope searches to the digest tree (why: stay inside the digest, avoid repo-wide noise):\n   gitmap aum search \"<keyword>\" %s --ext .md\n", relForDisplay(digestDir))
 	fmt.Printf("4. Inspect chat seeds when a conversation needs full context (why: a seed rebuilds one chat without re-reading everything):\n   gitmap lf %s\n", relForDisplay(filepath.Join(digestDir, "chat-seeds")))
+	fmt.Printf("5. Learn GitMap autonomous skills (why: Muse can execute GitMap CLI primitives, clustering, and split-DB ops):\n   Skill Spec: .agents/skills/gitmap/SKILL.md\n   gitmap cat .agents/skills/gitmap/SKILL.md\n")
 	fmt.Println()
 }
 
@@ -77,6 +78,10 @@ func printDigestMissingGuidance(path, digestName string) {
 	fmt.Println("The 7-day Muse digest is authored by the Muse memory-IO program (another worker).")
 	fmt.Println("Nothing to traverse yet — once the digest lands, re-run:")
 	fmt.Println("  gitmap llm train muse --days 7")
+	fmt.Println()
+	fmt.Println("In the meantime, learn GitMap autonomous skills:")
+	fmt.Println("  Skill Spec: .agents/skills/gitmap/SKILL.md")
+	fmt.Println("  gitmap cat .agents/skills/gitmap/SKILL.md")
 	fmt.Println()
 }
 

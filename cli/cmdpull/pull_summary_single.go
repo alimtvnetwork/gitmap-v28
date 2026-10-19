@@ -11,11 +11,21 @@ import (
 
 // RenderSingleRepoPullSummary prints a concise summary of single-repo pull outcome.
 func RenderSingleRepoPullSummary(state *PullRepoState, cwd string) {
-	fmt.Println(FormatSingleRepoSummaryLine(state, cwd))
+	diag := gitutil.InspectDirtyState(cwd)
+	fmt.Println(FormatSingleRepoSummaryLineWithDiag(state, cwd, diag))
+	if diag.IsDirty {
+		renderInlineDirtyFiles(diag)
+	}
 }
 
 // FormatSingleRepoSummaryLine builds the single-repo summary line.
 func FormatSingleRepoSummaryLine(state *PullRepoState, cwd string) string {
+	diag := gitutil.InspectDirtyState(cwd)
+	return FormatSingleRepoSummaryLineWithDiag(state, cwd, diag)
+}
+
+// FormatSingleRepoSummaryLineWithDiag builds the single-repo summary line using precomputed dirty diagnosis.
+func FormatSingleRepoSummaryLineWithDiag(state *PullRepoState, cwd string, diag gitutil.DirtyDiagnosis) string {
 	repo := resolveSummaryRepoName(state, cwd)
 	branch := resolveSummaryBranch(state, cwd)
 	shortSHA := resolveSummaryShortSHA(state, cwd)
@@ -26,7 +36,7 @@ func FormatSingleRepoSummaryLine(state *PullRepoState, cwd string) string {
 	}
 
 	isError, statusDesc := resolveSummaryStatusDesc(state, cwd, shortSHA, commitRange, diffStr)
-	isDirty, cleanDirtyText := resolveCleanDirtySummary(state, cwd)
+	isDirty, cleanDirtyText := resolveCleanDirtySummaryWithDiag(state, diag)
 	glyph := resolveSummaryGlyph(isError, isDirty)
 
 	return fmt.Sprintf("  %s %s: %s [%s] (%s)", glyph, repo, statusDesc, branch, cleanDirtyText)
@@ -71,27 +81,80 @@ func resolveSummaryGlyph(isError, isDirty bool) string {
 
 func resolveCleanDirtySummary(state *PullRepoState, cwd string) (bool, string) {
 	diag := gitutil.InspectDirtyState(cwd)
+	return resolveCleanDirtySummaryWithDiag(state, diag)
+}
+
+func resolveCleanDirtySummaryWithDiag(state *PullRepoState, diag gitutil.DirtyDiagnosis) (bool, string) {
 	isDirty := diag.IsDirty || (state != nil && state.IsDirty)
-	if isDirty {
-		reason := diag.SummaryReason
-		if reason == "" {
-			reason = "uncommitted changes"
-		}
-		return true, fmt.Sprintf("dirty: %s", reason)
+	if !isDirty {
+		return false, "clean"
 	}
 
-	return false, "clean"
+	reason := diag.SummaryReason
+	if reason == "" {
+		reason = "uncommitted changes"
+	}
+
+	return true, fmt.Sprintf("dirty: %s", reason)
+}
+
+func renderInlineDirtyFiles(diag gitutil.DirtyDiagnosis) {
+	for _, line := range formatInlineDirtyFiles(diag) {
+		fmt.Println(line)
+	}
+}
+
+func formatInlineDirtyFiles(diag gitutil.DirtyDiagnosis) []string {
+	var lines []string
+	seen := make(map[string]bool)
+
+	for _, f := range diag.StagedFiles {
+		clean := filepath.ToSlash(f)
+		key := "+:" + clean
+		if !seen[key] {
+			seen[key] = true
+			lines = append(lines, fmt.Sprintf("  %-2s %s", "+", clean))
+		}
+	}
+	for _, f := range diag.ModifiedFiles {
+		clean := filepath.ToSlash(f)
+		key := "M:" + clean
+		if !seen[key] {
+			seen[key] = true
+			lines = append(lines, fmt.Sprintf("  %-2s %s", "M", clean))
+		}
+	}
+	for _, f := range diag.DeletedFiles {
+		clean := filepath.ToSlash(f)
+		key := "D:" + clean
+		if !seen[key] {
+			seen[key] = true
+			lines = append(lines, fmt.Sprintf("  %-2s %s", "D", clean))
+		}
+	}
+	for _, f := range diag.UntrackedFiles {
+		clean := filepath.ToSlash(f)
+		key := "??:" + clean
+		if !seen[key] {
+			seen[key] = true
+			lines = append(lines, fmt.Sprintf("  %-2s %s", "??", clean))
+		}
+	}
+
+	return lines
 }
 
 func resolveSummaryRepoName(state *PullRepoState, cwd string) string {
 	if state != nil && state.RepoName != "" {
 		return state.RepoName
 	}
-	if cwd != "" {
-		base := filepath.Base(cwd)
-		if base != "" && base != "." && base != "/" && base != "\\" {
-			return base
-		}
+	if cwd == "" {
+		return "repo"
+	}
+
+	base := filepath.Base(cwd)
+	if base != "" && base != "." && base != "/" && base != "\\" {
+		return base
 	}
 
 	return "repo"
@@ -101,30 +164,32 @@ func resolveSummaryBranch(state *PullRepoState, cwd string) string {
 	if state != nil && state.Branch != "" {
 		return state.Branch
 	}
-	if cwd != "" {
-		b := gitutil.GetActiveBranch(cwd)
-		if b != "" {
-			return b
-		}
+	if cwd == "" {
+		return "main"
+	}
+
+	b := gitutil.GetActiveBranch(cwd)
+	if b != "" {
+		return b
 	}
 
 	return "main"
 }
 
 func resolveSummaryShortSHA(state *PullRepoState, cwd string) string {
-	if state != nil {
-		if state.NewSHA != "" && state.NewSHA != "-" {
-			return ShortenSHA(state.NewSHA)
-		}
-		if state.OldSHA != "" && state.OldSHA != "-" {
-			return ShortenSHA(state.OldSHA)
-		}
+	if state != nil && state.NewSHA != "" && state.NewSHA != "-" {
+		return ShortenSHA(state.NewSHA)
 	}
-	if cwd != "" {
-		sha := gitutil.GetLastCommitSHA(cwd)
-		if sha != "" && sha != "-" {
-			return ShortenSHA(sha)
-		}
+	if state != nil && state.OldSHA != "" && state.OldSHA != "-" {
+		return ShortenSHA(state.OldSHA)
+	}
+	if cwd == "" {
+		return "head"
+	}
+
+	sha := gitutil.GetLastCommitSHA(cwd)
+	if sha != "" && sha != "-" {
+		return ShortenSHA(sha)
 	}
 
 	return "head"
@@ -147,23 +212,38 @@ func formatDiffStat(changes string) string {
 	if isUnchanged {
 		return ""
 	}
-	openParen := strings.Index(changes, "(")
-	closeParen := strings.Index(changes, ")")
-	if openParen != -1 && closeParen > openParen {
-		diffParts := strings.TrimSpace(changes[:openParen])
-		fileCount := strings.TrimSpace(changes[openParen+1 : closeParen])
-		if diffParts != "" && fileCount != "" {
-			if fileCount == "1" {
-				return fmt.Sprintf(" (%s, 1 file)", diffParts)
-			}
-			return fmt.Sprintf(" (%s, %s files)", diffParts, fileCount)
-		}
+	parenRes := extractParenDiffStat(changes)
+	if parenRes != "" {
+		return parenRes
 	}
 	if strings.Contains(changes, "file") {
 		return fmt.Sprintf(" (%s)", changes)
 	}
 
 	return fmt.Sprintf(" (%s)", changes)
+}
+
+func extractParenDiffStat(changes string) string {
+	openParen := strings.Index(changes, "(")
+	closeParen := strings.Index(changes, ")")
+	if openParen == -1 || closeParen <= openParen {
+		return ""
+	}
+	diffParts := strings.TrimSpace(changes[:openParen])
+	fileCount := strings.TrimSpace(changes[openParen+1 : closeParen])
+
+	return formatParenDiffParts(diffParts, fileCount)
+}
+
+func formatParenDiffParts(diffParts, fileCount string) string {
+	if diffParts == "" || fileCount == "" {
+		return ""
+	}
+	if fileCount == "1" {
+		return fmt.Sprintf(" (%s, 1 file)", diffParts)
+	}
+
+	return fmt.Sprintf(" (%s, %s files)", diffParts, fileCount)
 }
 
 func formatErrorSummary(errMsg string) string {
@@ -176,11 +256,14 @@ func formatErrorSummary(errMsg string) string {
 	}
 	lines := strings.Split(errMsg, "\n")
 	first := strings.TrimSpace(lines[0])
-	if idx := strings.LastIndex(first, ": "); idx != -1 {
-		rest := strings.TrimSpace(first[idx+2:])
-		if rest != "" && !strings.HasPrefix(rest, "repo=") {
-			return rest
-		}
+	idx := strings.LastIndex(first, ": ")
+	if idx == -1 {
+		return first
+	}
+
+	rest := strings.TrimSpace(first[idx+2:])
+	if rest != "" && !strings.HasPrefix(rest, "repo=") {
+		return rest
 	}
 
 	return first

@@ -39,10 +39,14 @@ const (
 	SettingPullActivityWindowHours = "pae_recency_window_hours"
 	SettingNodeResourceThreshold   = "node_resource_threshold"
 	SettingGoEmailReaderBin        = "go_email_reader_bin"
+	SettingPullCacheWindowSeconds  = "pull_cache_window_seconds"
 )
 
 // Default activity window for efficient pull operations.
 const DefaultPullActivityWindowHours = 48
+
+// Default cache window in seconds for CWD git pull operations.
+const DefaultPullCacheWindowSeconds = 3
 
 // DefaultNodeResourceThreshold defines the baseline benchmark utilization limit (30%).
 const DefaultNodeResourceThreshold = 30

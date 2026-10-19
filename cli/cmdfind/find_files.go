@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -65,6 +66,7 @@ func RunListFiles(args []string) error {
 }
 
 func executeFindFiles(args []string, defaultKind MatchKind) error {
+	start := time.Now()
 	opts := parseFindFilesOptions(args, defaultKind)
 	if opts.Query == "" && defaultKind != MatchWildcard {
 		showFindFilesHelp(defaultKind)
@@ -83,7 +85,9 @@ func executeFindFiles(args []string, defaultKind MatchKind) error {
 		return apperror.WrapSimple(err, "find-files failed")
 	}
 
-	return outputFindResults(matches, opts.IsJson)
+	elapsed := time.Since(start)
+
+	return outputFindResults(matches, opts.IsJson, elapsed)
 }
 
 func parseFindFilesOptions(args []string, defaultKind MatchKind) FindFilesOptions {
@@ -174,8 +178,9 @@ func handleFindWalkErr(err error) error {
 	return err
 }
 
-func outputFindResults(matches []string, isJson bool) error {
+func outputFindResults(matches []string, isJson bool, elapsed time.Duration) error {
 	if !isJson {
+		fmt.Printf("Search completed: %d hit(s) in %v\n", len(matches), elapsed)
 		for _, m := range matches {
 			fmt.Println(m)
 		}

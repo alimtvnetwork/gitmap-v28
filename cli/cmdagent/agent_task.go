@@ -3,6 +3,7 @@ package cmdagent
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -75,10 +76,13 @@ func initTaskCommands() {
 	initTaskLsFlags()
 	initTaskStatusFlags()
 	initTaskSlugCommands()
+	initTaskExportFlags()
 
 	TaskCmd.AddCommand(taskInitCmd)
 	TaskCmd.AddCommand(taskLsCmd)
 	TaskCmd.AddCommand(taskStatusCmd)
+	TaskCmd.AddCommand(taskExportCmd)
+	TaskCmd.AddCommand(taskImportCmd)
 }
 
 func initTaskInitFlags() {
@@ -170,15 +174,42 @@ func persistTaskInit(task types.ParentTask) *appfault.AppError {
 	return nil
 }
 
+// RenderTaskInitResult outputs JSON metadata for initialized parent tasks.
+func RenderTaskInitResult(task types.ParentTask) {
+	renderTaskInitResult(task)
+}
+
 func renderTaskInitResult(task types.ParentTask) {
+	cwd, _ := os.Getwd()
+	relDbPath := toRelativePath(cwd, task.RootDbPath)
+	masterDb := store.ResolveMasterAgentDbPath("")
+	relMasterDb := toRelativePath(cwd, masterDb)
+
+	rootDbInfo := map[string]any{
+		"masterDbPath": relMasterDb,
+		"taskDbPath":   relDbPath,
+		"schema":       "ParentTaskRegistry, AgentRegistry, GlobalLifecycleMetrics",
+	}
+
+	queryCommands := []string{
+		"gitmap agent task ls",
+		"gitmap agent subtask list --task-id " + task.ParentTaskId,
+		fmt.Sprintf("sqlite3 %s \"SELECT * FROM tasks;\"", relDbPath),
+		fmt.Sprintf("sqlite3 %s \"SELECT * FROM parent_tasks WHERE parent_task_id = '%s';\"", relMasterDb, task.ParentTaskId),
+	}
+
 	out := map[string]any{
-		"status":       "success",
-		"parentTaskId": task.ParentTaskId,
-		"taskSlug":     task.TaskSlug,
-		"taskName":     task.TaskName,
-		"rootDbPath":   task.RootDbPath,
-		"runDirectory": task.RunDirectory,
-		"budget":       task.TotalStepsBudget,
+		"status":        "success",
+		"parentTaskId":  task.ParentTaskId,
+		"taskSlug":      task.TaskSlug,
+		"taskName":      task.TaskName,
+		"rootDbPath":    task.RootDbPath,
+		"databasePath":  relDbPath,
+		"masterDbPath":  relMasterDb,
+		"rootDbInfo":    rootDbInfo,
+		"queryCommands": queryCommands,
+		"runDirectory":  task.RunDirectory,
+		"budget":        task.TotalStepsBudget,
 	}
 	b, _ := json.MarshalIndent(out, "", "  ")
 	fmt.Println(string(b))
@@ -235,116 +266,3 @@ func renderTasksTable(tasks []types.ParentTask) {
 	}
 }
 
-// RunTaskStatus inspects rollup metrics and subtasks for a parent task.
-func RunTaskStatus(opts TaskStatusOptions) *appfault.AppError {
-	trimmed := strings.TrimSpace(opts.TaskId)
-	hasRef := len(trimmed) > 0
-	if hasRef {
-		return runTaskStatusResolved(trimmed, opts.IsJson)
-	}
-	dbPath, findErr := store.FindTaskDbPath("", "")
-	hasFindErr := findErr != nil
-	if hasFindErr {
-		return findErr
-	}
-	summary, statusErr := store.GetTaskStatus(dbPath, "")
-	hasStatusErr := statusErr != nil
-	if hasStatusErr {
-		return statusErr
-	}
-	if opts.IsJson {
-		return renderStatusJson(summary)
-	}
-	renderStatusText(summary)
-
-	return nil
-}
-
-// runTaskStatusResolved resolves an ID-or-slug reference: slug input goes
-// through the Tier 1 lookup and merges subtasks stored under either the
-// canonical ID or the slug form; raw IDs keep the legacy direct path.
-func runTaskStatusResolved(taskIdOrSlug string, isJson bool) *appfault.AppError {
-	masterDb := store.ResolveMasterAgentDbPath("")
-	task, findErr := store.FindParentTaskBySlug(masterDb, taskIdOrSlug)
-	hasFindErr := findErr != nil
-	if hasFindErr {
-		return findErr
-	}
-	hasTask := task != nil
-	if hasTask {
-		summary, sumErr := loadTaskSummary(task)
-		hasSumErr := sumErr != nil
-		if hasSumErr {
-			return sumErr
-		}
-		if isJson {
-			return renderStatusJson(summary)
-		}
-		renderStatusText(summary)
-
-		return nil
-	}
-	dbPath, dbErr := store.FindTaskDbPath("", taskIdOrSlug)
-	hasDbErr := dbErr != nil
-	if hasDbErr {
-		return dbErr
-	}
-	summary, statusErr := store.GetTaskStatus(dbPath, taskIdOrSlug)
-	hasStatusErr := statusErr != nil
-	if hasStatusErr {
-		return statusErr
-	}
-	if isJson {
-		return renderStatusJson(summary)
-	}
-	renderStatusText(summary)
-
-	return nil
-}
-
-func renderStatusJson(summary *types.TaskStatusSummary) *appfault.AppError {
-	b, err := json.MarshalIndent(summary, "", "  ")
-	if err != nil {
-		return appfault.WrapSimple(err, "renderStatusJson")
-	}
-	fmt.Println(string(b))
-
-	return nil
-}
-
-func renderStatusText(s *types.TaskStatusSummary) {
-	hasParent := len(s.ParentTask.ParentTaskId) > 0
-	if !hasParent {
-		fmt.Println("Parent task not found or not initialized.")
-		return
-	}
-	printStatusHeader(s)
-	printSubtaskRows(s.Subtasks)
-}
-
-func printStatusHeader(s *types.TaskStatusSummary) {
-	p := s.ParentTask
-	fmt.Printf("Task ID:    %s\n", p.ParentTaskId)
-	fmt.Printf("Slug:       %s\n", p.TaskSlug)
-	fmt.Printf("Status:     %s\n", p.Status)
-	fmt.Printf("Progress:   %d/%d steps (Completed: %t)\n", p.CompletedSteps, p.TotalStepsBudget, s.IsCompleted)
-	fmt.Printf("Subtasks:   %d total (%d pending, %d in progress, %d done, %d failed)\n\n",
-		len(s.Subtasks), s.PendingCount, s.InProgressCount, s.CompletedCount, s.FailedCount)
-}
-
-func printSubtaskRows(subtasks []types.Subtask) {
-	hasSub := len(subtasks) > 0
-	if !hasSub {
-		fmt.Println("No subtasks registered.")
-		return
-	}
-	fmt.Printf("%-14s  %-12s  %-15s  %s\n", "CODE", "STATUS", "AGENT", "TITLE")
-	for _, sub := range subtasks {
-		agent := sub.AssignedAgentRole
-		hasAgent := len(agent) > 0
-		if !hasAgent {
-			agent = "-"
-		}
-		fmt.Printf("%-14s  %-12s  %-15s  %s\n", sub.TaskCode, sub.Status, agent, sub.Title)
-	}
-}

@@ -19,6 +19,7 @@ import { queryWrapperSync } from "@/lib/queryWrapper";
 import { TerminalThemeType } from "@/components/settings/types";
 import { StorageTempCard } from "@/components/settings/StorageTempCard";
 import { PipelineMonitorCard } from "@/components/settings/PipelineMonitorCard";
+import { PullCacheCard } from "@/components/settings/PullCacheCard";
 import { TerminalThemeCard } from "@/components/settings/TerminalThemeCard";
 import { GitHubAuthCard } from "@/components/settings/GitHubAuthCard";
 
@@ -127,6 +128,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("all");
   const [tempDir, setTempDir] = useState(".ai-memory/temp");
   const [pollInterval, setPollInterval] = useState("10");
+  const [pullCacheWindow, setPullCacheWindow] = useState("3");
   const [terminalTheme, setTerminalTheme] = useState(TerminalThemeType.Dark);
   const [nodeResourceThreshold, setNodeResourceThreshold] = useState<number>(30);
   const [paeRecencyHours, setPaeRecencyHours] = useState<number>(48);
@@ -144,6 +146,7 @@ export default function SettingsPage() {
     const res = queryWrapperSync(() => ({
       temp: localStorage.getItem("gitmap_temp_dir"),
       poll: localStorage.getItem("gitmap_poll_interval"),
+      pullCache: localStorage.getItem("gitmap_pull_cache_window_seconds"),
       theme: localStorage.getItem("gitmap_terminal_theme"),
       nodeThreshold: localStorage.getItem("gitmap_node_resource_threshold"),
       paeRecency: localStorage.getItem("gitmap_pae_recency_window_hours"),
@@ -162,6 +165,10 @@ export default function SettingsPage() {
 
     if (res.data.poll) {
       setPollInterval(res.data.poll);
+    }
+
+    if (res.data.pullCache) {
+      setPullCacheWindow(res.data.pullCache);
     }
 
     if (res.data.theme) {
@@ -249,6 +256,7 @@ export default function SettingsPage() {
     const res = queryWrapperSync(() => {
       localStorage.setItem("gitmap_temp_dir", tempDir);
       localStorage.setItem("gitmap_poll_interval", pollInterval);
+      localStorage.setItem("gitmap_pull_cache_window_seconds", pullCacheWindow);
       localStorage.setItem("gitmap_terminal_theme", terminalTheme);
       localStorage.setItem("gitmap_node_resource_threshold", String(nodeResourceThreshold));
       localStorage.setItem("gitmap_pae_recency_window_hours", String(paeRecencyHours));
@@ -275,6 +283,7 @@ export default function SettingsPage() {
           attributes: {
             "storage.temp_dir": tempDir,
             "pipeline.poll_interval": pollInterval,
+            "pull_cache_window_seconds": pullCacheWindow,
             "node_resource_threshold": String(nodeResourceThreshold),
             "pae_recency_window_hours": String(paeRecencyHours),
             "antigravity.instance_id": selectedInstanceId,
@@ -486,6 +495,7 @@ export default function SettingsPage() {
           <div className="grid gap-6">
             <StorageTempCard tempDir={tempDir} onTempDirChange={setTempDir} />
             <PipelineMonitorCard pollInterval={pollInterval} onPollIntervalChange={setPollInterval} />
+            <PullCacheCard pullCacheWindow={pullCacheWindow} onPullCacheWindowChange={setPullCacheWindow} />
 
             {/* Node Resource Benchmark Threshold & PAE Commit Recency Card */}
             <div className="rounded-xl bg-card border border-border/50 p-6 shadow-sm space-y-6">

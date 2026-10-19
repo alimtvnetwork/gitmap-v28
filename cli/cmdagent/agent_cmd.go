@@ -78,6 +78,10 @@ func routeAgentConvenienceShortcuts(clean []string, first string) []string {
 		return append([]string{"task", "status"}, clean[1:]...)
 	case "add", "add-subtasks":
 		return append([]string{"subtask", "add"}, clean[1:]...)
+	case "export":
+		return append([]string{"task", "export"}, clean[1:]...)
+	case "import":
+		return append([]string{"task", "import"}, clean[1:]...)
 	default:
 		return clean
 	}

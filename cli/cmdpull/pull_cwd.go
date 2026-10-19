@@ -3,6 +3,12 @@ package cmdpull
 import (
 	"errors"
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -11,11 +17,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"strings"
-	"time"
 )
 
 func isPullCWDEnabled(opts pullOptions) bool {
@@ -37,8 +38,14 @@ func isGitRepoCWD() bool {
 
 // runPullCWD streams pull in CWD, using progress bar unless isRaw is true.
 func runPullCWD(isRaw ...bool) error {
+	raw := len(isRaw) > 0 && isRaw[0]
+	served, err := checkCWDCacheOrProceed(raw)
+	if served {
+		return err
+	}
+
 	var pullErr error
-	if len(isRaw) > 0 && isRaw[0] {
+	if raw {
 		pullErr = runPullCWDWithTransport(false, false, nil)
 	} else {
 		pullErr = runPullCWDTracked()
@@ -279,8 +286,7 @@ func updateTaskQueue(db *store.TasksSplitDB, queueId, status string) {
 }
 
 func closeTaskDB(db *store.TasksSplitDB) {
-	hasDB := db != nil
-	if hasDB {
+	if db != nil {
 		_ = db.Close()
 	}
 }

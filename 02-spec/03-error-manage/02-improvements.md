@@ -71,3 +71,26 @@ ecover()\s panics and converts them into \AppError(apperrtype.InternalPanic)\.
 48. **Client-Side SDK Generation:** Generate a TypeScript union type of all registered \AppError\ codes so the frontend has strongly typed error handling.
 49. **Swagger/OpenAPI Injection:** Automatically document the possible \AppError\ response structures into the Swagger UI generation.
 50. **Websocket Graceful Close:** Add a \ToCloseFrame()\ method that formats the \AppError\ to a WebSocket protocol standard close code and reason.
+
+## Structured AppError Wrappers, Context Propagation & CLI Exit Code Conventions
+
+### Structured AppError Wrappers
+51. **Universal AppError Envelope:** Require all domain boundaries and service layers to wrap operational errors in structured `appfault.AppError` containers containing `Code`, `Message`, `Cause`, `DiagnosticPayload`, and `IsRetryable`.
+52. **Monadic Result[T] Pattern:** Functions returning data alongside potential domain errors should return `Result[T]` providing affirmative `.IsSuccess()`, `.Value()`, and `.Error()` methods to eliminate ambiguous multi-value tuple returns.
+53. **Cause Chain Preservation (Go 1.13+ Unwrap):** Implement `Unwrap() error` on all custom error types to maintain transparent compatibility with standard library `errors.Is` and `errors.As` traversing.
+54. **Error Masking & Scrubbing:** Automatically redact sensitive parameters (passwords, tokens, SSH keys) from diagnostic error envelopes before terminal rendering or external telemetry submission.
+
+### Context Propagation & Ambient Tracing
+55. **Context-Bound Origin Capture:** Capture active `context.Context` metadata (correlation ID, agent role, task slug, deadline) at the exact failure site to provide complete distributed tracing context.
+56. **Worker Pool Cancellation Propagation:** Concurrency worker pools (such as `termgeneric.WorkerPool[T, R]`) must propagate context cancellation errors cleanly, distinguishing user aborts (`context.Canceled`) from execution timeouts (`context.DeadlineExceeded`).
+57. **Diagnostic Trace Retention:** Preserve caller frames and caller file paths in structured diagnostic maps rather than stringifying raw stack traces prematurely.
+
+### CLI Exit Code Conventions
+58. **Deterministic Exit Status Registry:** Standardize CLI exit status codes across all binary commands:
+    - `0` (`ExitCodeOK`): Clean, flawless execution.
+    - `1` (`ExitCodeGeneral`): General or unexpected operational failure.
+    - `2` (`ExitCodeValidation`): Invalid CLI arguments, missing required flags, or schema failure.
+    - `3` (`ExitCodeNotFound`): Target repository, file, or database entity not found.
+    - `130` (`ExitCodeInterrupted`): Process interrupted via SIGINT / SIGTERM or user cancellation.
+59. **Stream Separation Principle:** Operational diagnostics, error banners, and progress spinners (rendered via `termgeneric`) must strictly write to `os.Stderr`, preserving `os.Stdout` for clean, machine-parseable outputs (JSON/YAML/CSV).
+60. **Graceful Panic Recovery Envelope:** CLI entry points must catch unexpected runtime panics using a top-level `defer recover()` handler, converting raw panics into structured `AppError(InternalPanic)` and logging exit code `1` cleanly.
