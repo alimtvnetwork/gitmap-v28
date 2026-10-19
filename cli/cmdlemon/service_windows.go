@@ -10,7 +10,10 @@ import (
 	"strings"
 )
 
-const WindowsServiceName = "GitMapLemon"
+const (
+	WindowsServiceName       = "GitMapDaemon"
+	WindowsLegacyServiceName = "GitMapLemon"
+)
 
 type WindowsService struct{}
 
@@ -23,7 +26,7 @@ func (s *WindowsService) GenerateConfig() (string, error) {
 	if err != nil {
 		execPath = "gitmap.exe"
 	}
-	script := fmt.Sprintf(`Start-Process -FilePath "%s" -ArgumentList "lemon run --interval 8s" -WindowStyle Hidden`, execPath)
+	script := fmt.Sprintf(`Start-Process -FilePath "%s" -ArgumentList "daemon run --interval 8s" -WindowStyle Hidden`, execPath)
 	return script, nil
 }
 
@@ -32,7 +35,7 @@ func (s *WindowsService) Install() error {
 	if err != nil {
 		execPath = "gitmap.exe"
 	}
-	binPath := fmt.Sprintf(`\"%s\" lemon run`, execPath)
+	binPath := fmt.Sprintf(`\"%s\" daemon run`, execPath)
 	cmd := exec.Command("sc.exe", "create", WindowsServiceName, "binPath=", binPath, "start=", "auto")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("failed to register Windows service: %w (output: %s)", err, string(out))
@@ -67,6 +70,12 @@ func (s *WindowsService) Status() (*ServiceDetails, error) {
 	statusType := ServiceStatusTypeStopped
 	if err == nil && strings.Contains(string(out), "RUNNING") {
 		statusType = ServiceStatusTypeRunning
+	} else {
+		// check legacy service name
+		outLegacy, errLegacy := exec.Command("sc.exe", "query", WindowsLegacyServiceName).CombinedOutput()
+		if errLegacy == nil && strings.Contains(string(outLegacy), "RUNNING") {
+			statusType = ServiceStatusTypeRunning
+		}
 	}
 	return &ServiceDetails{
 		Name:       WindowsServiceName,

@@ -38,7 +38,7 @@ func (s *OtherService) Restart() error {
 
 func (s *OtherService) Status() (*ServiceDetails, error) {
 	return &ServiceDetails{
-		Name:       "gitmap-lemon",
+		Name:       "gitmap-daemon",
 		Platform:   "unsupported",
 		StatusType: ServiceStatusTypeUnknown,
 		IsEnabled:  false,

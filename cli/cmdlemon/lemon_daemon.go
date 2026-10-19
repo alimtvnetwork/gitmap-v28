@@ -32,12 +32,17 @@ type (
 		mu    sync.RWMutex
 		state DaemonState
 	}
+	GitmapDaemon = LemonDaemon
 )
 
 func NewLemonDaemon(cfg DaemonConfig) *LemonDaemon {
 	guard := NewIntervalGuard(os.Stderr)
 	cfg.Interval = guard.ResolveInterval(cfg.Interval)
 	return &LemonDaemon{cfg: cfg, guard: guard, state: DaemonState{Pid: os.Getpid()}}
+}
+
+func NewGitmapDaemon(cfg DaemonConfig) *GitmapDaemon {
+	return NewLemonDaemon(cfg)
 }
 
 func (d *LemonDaemon) GetState() DaemonState {
@@ -47,6 +52,9 @@ func (d *LemonDaemon) GetState() DaemonState {
 }
 
 func (d *LemonDaemon) Run(ctx context.Context) error {
+	if !IsDaemonEnabled() && !d.cfg.IsOnce {
+		return nil
+	}
 	d.setRunning(true)
 	defer d.setRunning(false)
 	if d.cfg.IsOnce {
@@ -85,6 +93,9 @@ func (d *LemonDaemon) runLoop(ctx context.Context) error {
 }
 
 func (d *LemonDaemon) executeSinglePass(ctx context.Context) error {
+	if !IsDaemonEnabled() {
+		return nil
+	}
 	d.mu.Lock()
 	d.state.LastPollTime, d.state.PollCount = time.Now(), d.state.PollCount+1
 	data, _ := json.Marshal(d.state)

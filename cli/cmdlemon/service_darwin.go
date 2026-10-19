@@ -10,7 +10,10 @@ import (
 	"strings"
 )
 
-const DarwinPlistName = "com.gitmap.lemon.plist"
+const (
+	DarwinPlistName       = "com.gitmap.daemon.plist"
+	DarwinLegacyPlistName = "com.gitmap.lemon.plist"
+)
 
 type DarwinService struct{}
 
@@ -26,8 +29,8 @@ func (s *DarwinService) GenerateConfig() (string, error) {
 	plistTmpl := `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>Label</key><string>com.gitmap.lemon</string>
-<key>ProgramArguments</key><array><string>%s</string><string>lemon</string><string>run</string></array>
+<key>Label</key><string>com.gitmap.daemon</string>
+<key>ProgramArguments</key><array><string>%s</string><string>daemon</string><string>run</string></array>
 <key>RunAtLoad</key><true/><key>KeepAlive</key><true/>
 </dict></plist>`
 
@@ -58,26 +61,28 @@ func (s *DarwinService) Uninstall() error {
 }
 
 func (s *DarwinService) Start() error {
-	return exec.Command("launchctl", "start", "com.gitmap.lemon").Run()
+	target := filepath.Join(os.Getenv("HOME"), "Library/LaunchAgents", DarwinPlistName)
+	return exec.Command("launchctl", "start", target).Run()
 }
 
 func (s *DarwinService) Stop() error {
-	return exec.Command("launchctl", "stop", "com.gitmap.lemon").Run()
+	target := filepath.Join(os.Getenv("HOME"), "Library/LaunchAgents", DarwinPlistName)
+	return exec.Command("launchctl", "stop", target).Run()
 }
 
 func (s *DarwinService) Restart() error {
 	_ = s.Stop()
-
 	return s.Start()
 }
 
 func (s *DarwinService) Status() (*ServiceDetails, error) {
-	out, err := exec.Command("launchctl", "list", "com.gitmap.lemon").Output()
+	out, err := exec.Command("launchctl", "list").CombinedOutput()
 	statusType := ServiceStatusTypeStopped
-	if err == nil && len(strings.TrimSpace(string(out))) > 0 {
-		statusType = ServiceStatusTypeRunning
+	if err == nil {
+		if strings.Contains(string(out), "com.gitmap.daemon") || strings.Contains(string(out), "com.gitmap.lemon") {
+			statusType = ServiceStatusTypeRunning
+		}
 	}
-
 	return &ServiceDetails{
 		Name:       DarwinPlistName,
 		Platform:   "darwin",

@@ -20,7 +20,8 @@ func runLemonStatusCmd(args []string) error {
 		fmt.Println(string(out))
 		return nil
 	}
-	fmt.Println("🍋 GitMap Lemon Daemon Status")
+	fmt.Println("🤖 GitMap Daemon Status [GitMap Lemon Daemon Status]")
+	fmt.Printf("  Enabled:      %v (settings: daemon.enabled)\n", IsDaemonEnabled())
 	fmt.Printf("  Running:      %v\n", state.IsRunning)
 	fmt.Printf("  PID:          %d\n", state.Pid)
 	fmt.Printf("  Poll Count:   %d\n", state.PollCount)

@@ -10,7 +10,10 @@ import (
 	"strings"
 )
 
-const LinuxUnitName = "gitmap-lemon.service"
+const (
+	LinuxUnitName       = "gitmap-daemon.service"
+	LinuxLegacyUnitName = "gitmap-lemon.service"
+)
 
 type LinuxService struct{}
 
@@ -23,7 +26,7 @@ func (s *LinuxService) GenerateConfig() (string, error) {
 	if err != nil {
 		execPath = "gitmap"
 	}
-	unitTmpl := "[Unit]\nDescription=GitMap Lemon Service\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=%s lemon run\nRestart=always\nRestartSec=8\nStandardOutput=journal\nStandardError=journal\n\n[Install]\nWantedBy=default.target\n"
+	unitTmpl := "[Unit]\nDescription=GitMap Daemon Service\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=%s daemon run\nRestart=always\nRestartSec=8\nStandardOutput=journal\nStandardError=journal\n\n[Install]\nWantedBy=default.target\n"
 
 	return fmt.Sprintf(unitTmpl, execPath), nil
 }
@@ -69,12 +72,16 @@ func (s *LinuxService) Restart() error {
 
 func (s *LinuxService) Status() (*ServiceDetails, error) {
 	out, err := exec.Command("systemctl", "--user", "is-active", LinuxUnitName).Output()
-	state := strings.TrimSpace(string(out))
 	statusType := ServiceStatusTypeStopped
-	if err == nil && state == "active" {
+	if err == nil && strings.TrimSpace(string(out)) == "active" {
 		statusType = ServiceStatusTypeRunning
+	} else {
+		// check legacy service name
+		outLegacy, errLegacy := exec.Command("systemctl", "--user", "is-active", LinuxLegacyUnitName).Output()
+		if errLegacy == nil && strings.TrimSpace(string(outLegacy)) == "active" {
+			statusType = ServiceStatusTypeRunning
+		}
 	}
-
 	return &ServiceDetails{
 		Name:       LinuxUnitName,
 		Platform:   "linux",

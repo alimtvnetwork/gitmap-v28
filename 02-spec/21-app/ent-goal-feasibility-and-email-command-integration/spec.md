@@ -78,9 +78,12 @@ This specification addresses two major strategic domains in GitMap:
      * Executes the authorized command in a isolated subprocess with timeout and log capture.
      * Compatible with Antigravity Manager / Antigravity Tools commands (`gitmap agm ...`, `gitmap agy ...`, `gitmap status`, `gitmap pull`, `gitmap nodes ...`).
      * Transmits a completion report email with exit code, execution duration, and formatted output summary.
-   - **Lemon Service Daemon (`gitmap lemon`):**
-     * Cross-platform support: Windows (Service / Scheduled Task wrapper), Ubuntu/Linux (`systemd` unit generator), macOS (`launchd` plist generator).
-     * Configurable polling interval: Default **8 seconds**, configurable via `--interval <dur>` or config setting `lemon.interval`.
+   - **GitMap Daemon Service (`gitmap-daemon` / `daemon`, formerly `lemon`):**
+     * Primary command: `gitmap daemon run` or `gitmap-daemon run` with backward-compatible aliases `gitmap lemon` and `gitmap lm`.
+     * Settings Disablement Guard: Can be switched off anytime via settings (`gitmap settings set daemon.enabled false` or `gitmap daemon disable`). When disabled, `run` exits cleanly with notice and background polling skips execution cycles.
+     * CLI Controls: `gitmap daemon enable` (`daemon.enabled = true`) and `gitmap daemon disable` (`daemon.enabled = false`).
+     * Cross-platform support: Windows (`GitMapDaemon` service via `sc.exe`), Ubuntu/Linux (`gitmap-daemon.service` systemd unit generator), macOS (`com.gitmap.daemon.plist` launchd generator).
+     * Configurable polling interval: Default **8 seconds**, configurable via `--interval <dur>` or config setting `daemon.interval`.
      * **Enforced Safety Guard:** Strictly **not less than 5 seconds** ($\ge 5$s). If configured below 5s, the daemon automatically clamps to 5s with an explicit notice: `Notice: interval clamped to minimum 5s safety threshold`.
      * Graceful termination on OS signals (`SIGINT`, `SIGTERM`, `os.Interrupt`).
 
@@ -92,13 +95,16 @@ This specification addresses two major strategic domains in GitMap:
 |---|---|---|
 | **Feasibility Analysis & Benchmarks** | `02-spec/21-app/ent-goal-feasibility-and-email-command-integration/ent-feasibility.md` | Quantitative benchmark report and migration analysis. |
 | **Email Protocol & Parser** | `cli/cmdlemon/email_parser.go` | Multi-format email command parser (Plain text, JSON, YAML/MD). |
-| **ACK & Response Sender** | `cli/cmdlemon/email_replier.go` | Immediate `ACK Received` auto-reply and completion report dispatcher. |
+| **ACK & Response Sender** | `cli/cmdlemon/email_ack.go` | Immediate `ACK Received` auto-reply and completion report dispatcher. |
 | **Command Execution Engine** | `cli/cmdlemon/command_executor.go` | Sandboxed command execution with timeout and output capture. |
-| **Lemon Daemon Runner** | `cli/cmdlemon/lemon_daemon.go` | Background polling loop with 5-8s interval control and OS signal handling. |
-| **Lemon CLI Routing** | `cli/cmdlemon/lemon_cmd.go` | Cobra CLI registration for `gitmap lemon run`, `status`, `send`, `service`. |
-| **Cross-Platform Service Hooks** | `cli/cmdlemon/service_manager.go` | Ubuntu systemd, macOS launchd, and Windows service generators. |
+| **Daemon Settings Guard** | `cli/cmdlemon/daemon_settings.go` | Settings switch (`daemon.enabled`), query, and toggle persistence. |
+| **Daemon Runner** | `cli/cmdlemon/lemon_daemon.go` | Background polling loop with 5-8s interval control and settings checks. |
+| **Daemon CLI Routing** | `cli/cmdlemon/lemon_cmd.go` | Cobra CLI registration for `gitmap daemon`, `gitmap-daemon`, and `lemon`. |
+| **Cross-Platform Service Hooks** | `cli/cmdlemon/service_manager.go` | Windows `GitMapDaemon`, Linux `gitmap-daemon.service`, Darwin plist. |
 | **Type-Safe SQL Audit & Hardening** | `cli/dbengine/`, `cli/repodb/`, `cli/store/` | Eliminates raw dynamic SQL string formatting. |
-| **End-to-End Test Suite** | `cli/tests/e2e/lemon_email_e2e_test.go` | Comprehensive E2E tests for parsing, ACK, execution, interval safety. |
+| **End-to-End Test Suite** | `cli/tests/e2e/gitmap_daemon_settings_e2e_test.go` | E2E tests for `gitmap-daemon` settings toggling and execution suppression. |
+| **Comprehensive E2E Suite** | `cli/tests/e2e/lemon_*.go` | 31 comprehensive E2E tests covering parsing, security, buffer, services. |
+
 
 ---
 

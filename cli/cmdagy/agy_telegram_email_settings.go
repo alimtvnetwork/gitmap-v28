@@ -60,6 +60,7 @@ type SpeedSettingsStatus struct {
 	MachineAlias            string `json:"machineAlias"`
 	SpecialReposSecretsName string `json:"specialReposSecretsName"`
 	SpecialReposCacheName   string `json:"specialReposCacheName"`
+	DaemonEnabled           string `json:"daemonEnabled"`
 }
 
 type speedSettingsView = SpeedSettingsStatus
@@ -412,6 +413,7 @@ func runSettingsShow(view speedSettingsView) {
 	fmt.Printf("  Email Speed Setup:         smtp=%s | to=%s | ready=%v\n", view.EmailSMTPHost, view.EmailTo, view.EmailReady)
 	fmt.Printf("  Special Secrets Repo  : %s (shortcut: gitmap rs / gitmap cd rs)\n", view.SpecialReposSecretsName)
 	fmt.Printf("  Special Cache Repo    : %s (shortcut: gitmap rc / gitmap cd rc)\n", view.SpecialReposCacheName)
+	fmt.Printf("  Daemon Enabled (gitmap-daemon): %s (key: daemon.enabled)\n", view.DaemonEnabled)
 }
 
 func collectSpeedSettingsView() speedSettingsView {
@@ -439,6 +441,7 @@ func buildBaseSpeedSettingsStatus() SpeedSettingsStatus {
 		TelegramReady: len(token) > 0 && len(chatID) > 0,
 		EmailSMTPHost: smtpHost, EmailFrom: resolveEmailFrom(), EmailTo: toAddr,
 		EmailReady: len(smtpHost) > 0 && len(toAddr) > 0, MachineAlias: readSpeedVar("machine.alias", "auto-ip"),
+		DaemonEnabled: readSpeedVar("daemon.enabled", "true"),
 	}
 }
 

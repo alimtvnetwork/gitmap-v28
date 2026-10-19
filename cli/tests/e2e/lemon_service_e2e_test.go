@@ -9,15 +9,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlemon"
 )
 
-const windowsScriptTmpl = `Start-Process -FilePath "%s" -ArgumentList "lemon run --interval 8s" -WindowStyle Hidden`
+const windowsScriptTmpl = `Start-Process -FilePath "%s" -ArgumentList "daemon run --interval 8s" -WindowStyle Hidden`
 
-const linuxUnitTmpl = "[Unit]\nDescription=GitMap Lemon Service\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=%s lemon run\nRestart=always\nRestartSec=8\nStandardOutput=journal\nStandardError=journal\n\n[Install]\nWantedBy=default.target\n"
+const linuxUnitTmpl = "[Unit]\nDescription=GitMap Daemon Service\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=%s daemon run\nRestart=always\nRestartSec=8\nStandardOutput=journal\nStandardError=journal\n\n[Install]\nWantedBy=default.target\n"
 
 const darwinPlistTmpl = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>Label</key><string>com.gitmap.lemon</string>
-<key>ProgramArguments</key><array><string>%s</string><string>lemon</string><string>run</string></array>
+<key>Label</key><string>com.gitmap.daemon</string>
+<key>ProgramArguments</key><array><string>%s</string><string>daemon</string><string>run</string></array>
 <key>RunAtLoad</key><true/><key>KeepAlive</key><true/>
 </dict></plist>`
 
@@ -66,15 +66,15 @@ func newMockPlatformService(platform, name, defaultBin, tmpl string) cmdlemon.Pl
 }
 
 func newMockWindowsService() cmdlemon.PlatformService {
-	return newMockPlatformService("windows", "GitMapLemon", "gitmap.exe", windowsScriptTmpl)
+	return newMockPlatformService("windows", "GitMapDaemon", "gitmap.exe", windowsScriptTmpl)
 }
 
 func newMockLinuxService() cmdlemon.PlatformService {
-	return newMockPlatformService("linux", "gitmap-lemon.service", "gitmap", linuxUnitTmpl)
+	return newMockPlatformService("linux", "gitmap-daemon.service", "gitmap", linuxUnitTmpl)
 }
 
 func newMockDarwinService() cmdlemon.PlatformService {
-	return newMockPlatformService("darwin", "com.gitmap.lemon.plist", "gitmap", darwinPlistTmpl)
+	return newMockPlatformService("darwin", "com.gitmap.daemon.plist", "gitmap", darwinPlistTmpl)
 }
 
 func isServiceStatusValid(st cmdlemon.ServiceStatusType) bool {
@@ -171,7 +171,7 @@ func TestLemonService_WindowsConfigGeneration(t *testing.T) {
 	assertContainsAll(t, cfg, []string{
 		"Start-Process",
 		"-WindowStyle Hidden",
-		"lemon run --interval 8s",
+		"daemon run --interval 8s",
 	})
 }
 
@@ -186,8 +186,8 @@ func TestLemonService_LinuxConfigGeneration(t *testing.T) {
 
 	assertContainsAll(t, cfg, []string{
 		"[Unit]",
-		"Description=GitMap Lemon Service",
-		"lemon run",
+		"Description=GitMap Daemon Service",
+		"daemon run",
 		"Restart=always",
 		"RestartSec=8",
 	})
@@ -203,9 +203,9 @@ func TestLemonService_DarwinConfigGeneration(t *testing.T) {
 	}
 
 	assertContainsAll(t, cfg, []string{
-		"com.gitmap.lemon",
+		"com.gitmap.daemon",
 		"ProgramArguments",
-		"lemon",
+		"daemon",
 		"run",
 		"<key>KeepAlive</key><true/>",
 	})
