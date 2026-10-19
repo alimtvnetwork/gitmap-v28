@@ -21,7 +21,8 @@ func IsCustomStandaloneTool(tool string) bool {
 		constants.ToolCtx, constants.ToolVSCodeCtx,
 		constants.ToolPwshCtx, constants.ToolAgCtx,
 		constants.ToolScripts,
-		constants.ToolBeyondCompare, constants.ToolBeyondCompare4, constants.ToolBeyondCompare5:
+		constants.ToolBeyondCompare, constants.ToolBeyondCompare4, constants.ToolBeyondCompare5,
+		constants.ToolTortoiseGit:
 		return true
 	default:
 		return hasInstalledArchiveFiles(canonical)
@@ -57,6 +58,8 @@ func dispatchCustomRemoval(canonical string, purge bool) {
 		uninstallScriptsDirectory()
 	case constants.ToolBeyondCompare, constants.ToolBeyondCompare4, constants.ToolBeyondCompare5:
 		uninstallBeyondCompare(canonical, purge)
+	case constants.ToolTortoiseGit:
+		uninstallTortoiseGit()
 	default:
 		uninstallScriptToolFiles(canonical)
 		uninstallArchiveAppFiles(canonical)
@@ -210,4 +213,13 @@ func purgeBCLinuxConfig() {
 	}
 
 	removeDirIfExists(filepath.Join(home, ".config", "bcompare"))
+}
+
+func uninstallTortoiseGit() {
+	if isBinaryOnPath("choco") {
+		cmd := exec.Command("choco", "uninstall", "tortoisegit", "-y")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		_ = cmd.Run()
+	}
 }

@@ -162,6 +162,7 @@ const (
 	ToolStarship        = "starship"
 	ToolOhMyPosh        = "oh-my-posh"
 	ToolScoop           = "scoop"
+	ToolTortoiseGit     = "tortoisegit"
 )
 
 // Package manager names.
@@ -285,6 +286,7 @@ const (
 	ChocoPkgStarship        = "starship"
 	ChocoPkgOhMyPosh        = "oh-my-posh"
 	ChocoPkgScoop           = "scoop"
+	ChocoPkgTortoiseGit     = "tortoisegit"
 )
 
 // Winget package IDs.
@@ -333,6 +335,7 @@ const (
 	WingetPkgStarship        = "Starship.Starship"
 	WingetPkgOhMyPosh        = "JanDeDobbeleer.OhMyPosh"
 	WingetPkgScoop           = "ScoopInstaller.Scoop"
+	WingetPkgTortoiseGit     = "TortoiseGit.TortoiseGit"
 )
 
 // Apt package IDs.
@@ -697,6 +700,7 @@ var InstallToolDescriptions = map[string]string{
 	ToolXMind:            "XMind mind mapping and brainstorming tool",
 	ToolWordWeb:          "WordWeb international dictionary and thesaurus",
 	ToolBeyondCompare:    "Beyond Compare data and directory comparison tool",
+	ToolTortoiseGit:      "TortoiseGit Windows Explorer interface to Git",
 	ToolVcRedist:         "Visual C++ Redistributable runtime libraries",
 	ToolDirectX:          "DirectX end-user runtimes",
 	ToolDirectXSdk:       "DirectX Software Development Kit",
@@ -744,7 +748,7 @@ var InstallToolCategories = map[string][]string{
 		ToolZsh, ToolFlameshot, ToolConemu, ToolVLC, ToolQBittorrent, ToolUTorrent,
 		ToolUbuntuFont, ToolWhatsApp, ToolOneNote, ToolLightshot, ToolWindowsTerminal,
 		ToolAria2, Tool7Zip, ToolWinRAR, ToolXMind, ToolWordWeb, ToolBeyondCompare,
-		ToolVcRedist, ToolDirectX, ToolDirectXSdk, ToolStarship, ToolOhMyPosh,
+		ToolTortoiseGit, ToolVcRedist, ToolDirectX, ToolDirectXSdk, ToolStarship, ToolOhMyPosh,
 		ToolJq, ToolYq, ToolZellij,
 	},
 }

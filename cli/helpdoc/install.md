@@ -142,6 +142,7 @@ gitmap in <tool|profile> [flags]
 | `vlc` | — | VLC media player multimedia framework |
 | `qbittorrent` | `qtorrent`, `qbit` | qBittorrent open-source BitTorrent client |
 | `utorrent` | `u-torrent` | uTorrent lightweight BitTorrent client |
+| `tortoisegit` | `tgit`, `tortoise-git`, `tortoise` | TortoiseGit Windows shell interface to Git (v2.4.0.2) |
 
 ## Custom Script Tools
 

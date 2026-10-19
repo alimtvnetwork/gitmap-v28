@@ -42,6 +42,13 @@ func resolveSpecialToolsMap() map[string]func(installOptions) {
 		constants.ToolBeyondCompare5:   func(opts installOptions) { handleBeyondCompareInstall(opts, 5) },
 		constants.ToolMuse:             func(opts installOptions) { handleMuseInstall(opts) },
 		constants.ToolMetaMuse:         func(opts installOptions) { handleMuseInstall(opts) },
+		constants.ToolTortoiseGit:      func(opts installOptions) { handleTortoiseGitInstall(opts) },
+	}
+}
+
+func handleTortoiseGitInstall(opts installOptions) {
+	if err := runInstallTortoiseGit(opts); err != nil {
+		cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installTortoiseGit"), 1)
 	}
 }
 

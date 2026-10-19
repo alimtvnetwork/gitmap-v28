@@ -1,5 +1,17 @@
 # Changelog
 
+## [v6.579.0] - 2026-10-19
+
+### Added
+- **TortoiseGit 2.4.0.2 Installer**:
+  - Added support for installing TortoiseGit 2.4.0.2 via Chocolatey (`choco install tortoisegit --version 2.4.0.2 -y`) with automatic fallback to standalone offline MSI extraction from Chocolatey `.nupkg`.
+  - Added CLI tool aliases: `tortoisegit`, `tortoise-git`, `tgit`, and `tortoise`.
+  - Added custom uninstall handler and registry detection probes.
+  - Added unit test coverage for package manager resolution in `cmdinstall`.
+  - Updated tool installer documentation in `cli/helpdoc/install.md`.
+
+---
+
 ## [v6.578.0] - 2026-10-19
 
 ### Added

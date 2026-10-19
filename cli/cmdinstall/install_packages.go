@@ -133,6 +133,10 @@ var toolAliasMap = map[string]string{
 	"muse":                constants.ToolMuse,
 	"meta-muse":           constants.ToolMetaMuse,
 	"metamuse":            constants.ToolMetaMuse,
+	"tortoisegit":         constants.ToolTortoiseGit,
+	"tortoise-git":        constants.ToolTortoiseGit,
+	"tgit":                constants.ToolTortoiseGit,
+	"tortoise":            constants.ToolTortoiseGit,
 }
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.
@@ -210,6 +214,7 @@ var chocoPackageMap = map[string]string{
 	constants.ToolXMind:           constants.ChocoPkgXMind,
 	constants.ToolWordWeb:         constants.ChocoPkgWordWeb,
 	constants.ToolBeyondCompare:   constants.ChocoPkgBeyondCompare,
+	constants.ToolTortoiseGit:     constants.ChocoPkgTortoiseGit,
 	constants.ToolVcRedist:        constants.ChocoPkgVcRedist,
 	constants.ToolDirectX:         constants.ChocoPkgDirectX,
 	constants.ToolDirectXSdk:      constants.ChocoPkgDirectXSdk,
@@ -268,6 +273,7 @@ var wingetPackageMap = map[string]string{
 	constants.ToolXMind:           constants.WingetPkgXMind,
 	constants.ToolWordWeb:         constants.WingetPkgWordWeb,
 	constants.ToolBeyondCompare:   constants.WingetPkgBeyondCompare,
+	constants.ToolTortoiseGit:     constants.WingetPkgTortoiseGit,
 	constants.ToolVcRedist:        constants.WingetPkgVcRedist,
 	constants.ToolDirectX:         constants.WingetPkgDirectX,
 	constants.ToolDirectXSdk:      constants.WingetPkgDirectXSdk,
