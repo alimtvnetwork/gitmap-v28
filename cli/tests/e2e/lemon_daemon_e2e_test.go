@@ -39,7 +39,6 @@ func captureStdout(t *testing.T, action func()) string {
 	return captured
 }
 
-
 // TestLemonCLI_RoutingAndHelp tests help flags and unknown subcommand rejection.
 func TestLemonCLI_RoutingAndHelp(t *testing.T) {
 	for _, args := range [][]string{{}, {"help"}, {"-h"}, {"--help"}} {

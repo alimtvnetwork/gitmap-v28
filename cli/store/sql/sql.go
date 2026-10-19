@@ -65,15 +65,15 @@ const (
 	SQLDeleteRepoBySlug  = "DELETE FROM Repo WHERE Slug = ?"
 	SQLDeleteRepoByID    = "DELETE FROM Repo WHERE RepoId = ?"
 
-	SQLInsertGroup      = "INSERT INTO \"Group\" (Name, Description, Color) VALUES (?, ?, ?)"
-	SQLSelectAllGroups  = "SELECT GroupId, Name, Description, Color, CreatedAt FROM \"Group\" ORDER BY Name"
+	SQLInsertGroup       = "INSERT INTO \"Group\" (Name, Description, Color) VALUES (?, ?, ?)"
+	SQLSelectAllGroups   = "SELECT GroupId, Name, Description, Color, CreatedAt FROM \"Group\" ORDER BY Name"
 	SQLSelectGroupByName = "SELECT GroupId, Name, Description, Color, CreatedAt FROM \"Group\" WHERE Name = ?"
-	SQLSelectGroupByID  = "SELECT GroupId, Name, Description, Color, CreatedAt FROM \"Group\" WHERE GroupId = ?"
-	SQLDeleteGroup      = "DELETE FROM \"Group\" WHERE Name = ?"
-	SQLInsertGroupRepo  = "INSERT OR IGNORE INTO GroupRepo (GroupId, RepoId) VALUES (?, ?)"
-	SQLDeleteGroupRepo  = "DELETE FROM GroupRepo WHERE GroupId = ? AND RepoId = ?"
-	SQLSelectGroupRepos = "SELECT r.RepoId, r.Slug, r.RepoName, r.HttpsUrl, r.SshUrl, r.Branch, r.RelativePath, r.AbsolutePath, r.CloneInstruction, r.Notes, r.IdentifiedTransport FROM Repo r JOIN GroupRepo gr ON r.RepoId = gr.RepoId WHERE gr.GroupId = ? ORDER BY r.Slug"
-	SQLCountGroupRepos  = "SELECT COUNT(*) FROM GroupRepo WHERE GroupId = ?"
+	SQLSelectGroupByID   = "SELECT GroupId, Name, Description, Color, CreatedAt FROM \"Group\" WHERE GroupId = ?"
+	SQLDeleteGroup       = "DELETE FROM \"Group\" WHERE Name = ?"
+	SQLInsertGroupRepo   = "INSERT OR IGNORE INTO GroupRepo (GroupId, RepoId) VALUES (?, ?)"
+	SQLDeleteGroupRepo   = "DELETE FROM GroupRepo WHERE GroupId = ? AND RepoId = ?"
+	SQLSelectGroupRepos  = "SELECT r.RepoId, r.Slug, r.RepoName, r.HttpsUrl, r.SshUrl, r.Branch, r.RelativePath, r.AbsolutePath, r.CloneInstruction, r.Notes, r.IdentifiedTransport FROM Repo r JOIN GroupRepo gr ON r.RepoId = gr.RepoId WHERE gr.GroupId = ? ORDER BY r.Slug"
+	SQLCountGroupRepos   = "SELECT COUNT(*) FROM GroupRepo WHERE GroupId = ?"
 
 	SQLInsertAlias              = "INSERT INTO Alias (Alias, RepoId) VALUES (?, ?)"
 	SQLInsertAliasFull          = "INSERT INTO Alias (Alias, RepoId, IsPrimary, Source) VALUES (?, ?, ?, ?)"
@@ -86,11 +86,11 @@ const (
 	SQLSelectAllAliasesWithRepo = "SELECT a.AliasId, a.Alias, a.RepoId, a.CreatedAt, r.AbsolutePath, r.Slug FROM Alias a JOIN Repo r ON a.RepoId = r.RepoId ORDER BY a.Alias"
 	SQLSelectUnaliasedRepos     = "SELECT r.RepoId, r.Slug, r.RepoName FROM Repo r LEFT JOIN Alias a ON r.RepoId = a.RepoId WHERE a.AliasId IS NULL ORDER BY r.Slug"
 
-	SQLUpsertRelease               = "INSERT INTO Release (RepoId, Version, Tag, Branch, SourceBranch, CommitSha, Changelog, Notes, IsDraft, IsPreRelease, IsLatest, Source, CreatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(RepoId, Tag) DO UPDATE SET Version=excluded.Version, Branch=excluded.Branch, SourceBranch=excluded.SourceBranch, CommitSha=excluded.CommitSha, Changelog=excluded.Changelog, Notes=excluded.Notes, IsDraft=excluded.IsDraft, IsPreRelease=excluded.IsPreRelease, IsLatest=excluded.IsLatest, Source=excluded.Source"
-	SQLSelectAllReleases           = "SELECT ReleaseId, RepoId, Version, Tag, Branch, SourceBranch, CommitSha, Changelog, Notes, IsDraft, IsPreRelease, IsLatest, Source, CreatedAt FROM Release ORDER BY CreatedAt DESC"
+	SQLUpsertRelease                = "INSERT INTO Release (RepoId, Version, Tag, Branch, SourceBranch, CommitSha, Changelog, Notes, IsDraft, IsPreRelease, IsLatest, Source, CreatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(RepoId, Tag) DO UPDATE SET Version=excluded.Version, Branch=excluded.Branch, SourceBranch=excluded.SourceBranch, CommitSha=excluded.CommitSha, Changelog=excluded.Changelog, Notes=excluded.Notes, IsDraft=excluded.IsDraft, IsPreRelease=excluded.IsPreRelease, IsLatest=excluded.IsLatest, Source=excluded.Source"
+	SQLSelectAllReleases            = "SELECT ReleaseId, RepoId, Version, Tag, Branch, SourceBranch, CommitSha, Changelog, Notes, IsDraft, IsPreRelease, IsLatest, Source, CreatedAt FROM Release ORDER BY CreatedAt DESC"
 	SQLSelectAllReleasesAcrossRepos = "SELECT R.ReleaseId, R.RepoId, P.Slug, P.AbsolutePath, R.Version, R.Tag, R.Branch, R.CommitSha, R.Source, R.IsDraft, R.IsLatest, R.IsPreRelease, R.CreatedAt FROM Release R JOIN Repo P ON P.RepoId = R.RepoId ORDER BY R.CreatedAt DESC, P.Slug ASC"
-	SQLSelectReleaseByTag          = "SELECT ReleaseId, RepoId, Version, Tag, Branch, SourceBranch, CommitSha, Changelog, Notes, IsDraft, IsPreRelease, IsLatest, Source, CreatedAt FROM Release WHERE Tag = ?"
-	SQLClearLatestRelease          = "UPDATE Release SET IsLatest = 0 WHERE IsLatest = 1 AND RepoId = ?"
+	SQLSelectReleaseByTag           = "SELECT ReleaseId, RepoId, Version, Tag, Branch, SourceBranch, CommitSha, Changelog, Notes, IsDraft, IsPreRelease, IsLatest, Source, CreatedAt FROM Release WHERE Tag = ?"
+	SQLClearLatestRelease           = "UPDATE Release SET IsLatest = 0 WHERE IsLatest = 1 AND RepoId = ?"
 
 	SQLUpsertWorkDir     = "INSERT INTO WorkDirectory (AbsolutePath, Label, IsDefault, UpdatedAt) VALUES (?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(AbsolutePath) DO UPDATE SET Label = CASE WHEN ? != '' THEN ? ELSE Label END, IsDefault = CASE WHEN ? != 0 THEN ? ELSE IsDefault END, UpdatedAt = CURRENT_TIMESTAMP"
 	SQLSelectAllWorkDirs = "SELECT WorkDirectoryId, AbsolutePath, Label, IsDefault, CreatedAt, UpdatedAt FROM WorkDirectory ORDER BY IsDefault DESC, UpdatedAt DESC"
@@ -112,10 +112,10 @@ const (
 	SQLDeletePromptBackupItemsByBatchID = "DELETE FROM PromptBackupItem WHERE BatchId = ?"
 	SQLDeleteAllPromptBackupItems       = "DELETE FROM PromptBackupItem"
 
-	SQLInsertPromptRestoreLedger          = "INSERT INTO PromptRestoreLedger (RestoreId, BatchId, RestoredAt, RestoredCount, IsKept, PrunedAt) VALUES (?, ?, ?, ?, ?, ?)"
-	SQLSelectExpiredRestoreBatches        = "SELECT BatchId, RestoredAt FROM PromptRestoreLedger WHERE IsKept = 0"
+	SQLInsertPromptRestoreLedger           = "INSERT INTO PromptRestoreLedger (RestoreId, BatchId, RestoredAt, RestoredCount, IsKept, PrunedAt) VALUES (?, ?, ?, ?, ?, ?)"
+	SQLSelectExpiredRestoreBatches         = "SELECT BatchId, RestoredAt FROM PromptRestoreLedger WHERE IsKept = 0"
 	SQLDeletePromptRestoreLedgersByBatchID = "DELETE FROM PromptRestoreLedger WHERE BatchId = ?"
-	SQLDeleteAllPromptRestoreLedgers      = "DELETE FROM PromptRestoreLedger"
+	SQLDeleteAllPromptRestoreLedgers       = "DELETE FROM PromptRestoreLedger"
 )
 
 // ClusterNode, ClusterRun, and ClusterExecResult query constants.

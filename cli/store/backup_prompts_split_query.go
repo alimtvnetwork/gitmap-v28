@@ -77,8 +77,8 @@ func (db *BackupPromptsSplitDB) scanBatchSummaryRow(batchId string) (*PromptBack
 	q := `SELECT BatchId, SourcePath, TotalPrompts, RunningCount, EnqueuedCount, CreatedAt FROM PromptBackupBatch WHERE BatchId = ?`
 	var s PromptBackupSummary
 	err := db.conn.QueryRow(q, batchId).Scan(&s.BatchId, &s.DatabasePath, &s.TotalPrompts, &s.RunningCount, &s.EnqueuedCount, &s.CreatedAt)
-	isNotFound := err == sql.ErrNoRows
-	if isNotFound {
+	isFound := err != sql.ErrNoRows
+	if !isFound {
 		return nil, apperror.NewSimple(fmt.Sprintf("batch %q not found", batchId), "E404")
 	}
 	isErr := err != nil
