@@ -116,7 +116,6 @@ const (
 func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{CmdDb, "database"}, func() error { return cmddb.RunDb(argsTail()) }},
-		{[]string{"db-listing", "dbl"}, func() error { return runDbListingCmd(argsTail()) }},
 		{[]string{CmdResolve, "res"}, func() error { return cmdconflict.RunResolveCmd(argsTail()) }},
 		{[]string{CmdConflicts, "conflict"}, func() error { return cmdconflict.RunConflictsCmd(argsTail()) }},
 		{[]string{CmdSplitLargeFiles, "split-large", "splitlargefiles"}, func() error { return cmdsplit.RunSplitLargeFilesCmd(argsTail()) }},
@@ -215,9 +214,3 @@ func utilityDesktopEntries() []dispatchEntry {
 	}
 }
 
-func runDbListingCmd(args []string) error {
-	if appErr := cmddb.RunDbListing(args); appErr != nil {
-		return appErr
-	}
-	return nil
-}

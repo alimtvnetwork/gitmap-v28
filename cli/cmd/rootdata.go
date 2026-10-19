@@ -81,32 +81,50 @@ func dataDatabaseEntries() []dispatchEntry {
 			}
 			return nil
 		}},
-		{[]string{"db-add", "dba"}, func() error {
+		{[]string{"db-add", "dba", "dbadd"}, func() error {
 			if appErr := cmddb.RunDbAdd(argsTail()); appErr != nil {
 				return appErr
 			}
 			return nil
 		}},
-		{[]string{"db-edit", "dbe"}, func() error {
+		{[]string{"db-edit", "dbe", "dbedit"}, func() error {
 			if appErr := cmddb.RunDbEdit(argsTail()); appErr != nil {
 				return appErr
 			}
 			return nil
 		}},
-		{[]string{"db-find", "dbf"}, func() error {
+		{[]string{"db-find", "dbf", "dbfind"}, func() error {
 			if appErr := cmddb.RunDbFind(argsTail()); appErr != nil {
 				return appErr
 			}
 			return nil
 		}},
-		{[]string{"db-listing", "dbl"}, func() error {
+		{[]string{"db-listing", "dbl", "dbls", "db-list"}, func() error {
 			if appErr := cmddb.RunDbListing(argsTail()); appErr != nil {
 				return appErr
 			}
 			return nil
 		}},
-		{[]string{"db-view", "dbv"}, func() error {
+		{[]string{"db-view", "dbv", "dbview"}, func() error {
 			if appErr := cmddb.RunDbView(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
+		{[]string{"db-rest", "dbrest"}, func() error {
+			if appErr := cmddb.RunDbRest(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
+		{[]string{"db-record-del", "dbrd", "dbrecorddel"}, func() error {
+			if appErr := cmddb.RunDbRecordDel(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
+		{[]string{"db-rm", "dbrm", "db-delete", "dbdelete"}, func() error {
+			if appErr := cmddb.RunDbRm(argsTail()); appErr != nil {
 				return appErr
 			}
 			return nil

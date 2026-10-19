@@ -111,11 +111,6 @@ func dispatch275Alias(command string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "dbl":
-		if appErr := cmddb.RunDbListing(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
 	case "hkin":
 		if appErr := cmdhooks.RunHooksInstall(args); appErr != nil {
 			return true, appErr
@@ -126,23 +121,13 @@ func dispatch275Alias(command string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "dba", "dbadd":
-		if appErr := cmddb.RunDbAdd(args); appErr != nil {
+	case "dbrd":
+		if appErr := cmddb.RunDbRecordDel(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
-	case "dbe", "dbedit":
-		if appErr := cmddb.RunDbEdit(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "dbf", "dbfind":
-		if appErr := cmddb.RunDbFind(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "dbv", "dbview":
-		if appErr := cmddb.RunDbView(args); appErr != nil {
+	case "dbrm":
+		if appErr := cmddb.RunDbRm(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil
@@ -183,7 +168,23 @@ func dispatch275Db(twoWord string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
+	case "db rest":
+		if appErr := cmddb.RunDbRest(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "db record-del", "db record del", "db dbrd":
+		if appErr := cmddb.RunDbRecordDel(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "db rm", "db delete":
+		if appErr := cmddb.RunDbRm(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
 	}
 	return false, nil
 }
+
 
