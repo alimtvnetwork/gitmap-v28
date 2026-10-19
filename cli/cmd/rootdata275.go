@@ -204,11 +204,8 @@ func dispatch275TwoWord(twoWord string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "db doctor":
-		if appErr := cmddb.RunDbDoctor(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
+	case "db doctor", "db listing", "db add", "db edit", "db find", "db view":
+		return dispatch275Db(twoWord, args)
 	case "hooks install":
 		if appErr := cmdhooks.RunHooksInstall(args); appErr != nil {
 			return true, appErr

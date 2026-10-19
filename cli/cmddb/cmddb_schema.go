@@ -56,30 +56,62 @@ func fetchSingleTableSchema(conn *sql.DB, tableName, dbPath string) ([]SchemaInf
 	return []SchemaInfo{info}, nil
 }
 
+type rawSchemaEntry struct {
+	schemaType string
+	name       string
+	ddl        string
+}
+
 func fetchAllTableSchemas(conn *sql.DB) ([]SchemaInfo, error) {
 	query := `SELECT type, name, sql FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%' AND sql IS NOT NULL ORDER BY type, name`
 	rows, err := conn.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("query all schemas: %w", err)
 	}
-	defer rows.Close()
 
-	var schemas []SchemaInfo
-	for rows.Next() {
-		var schemaType, name, ddl string
-		if scanErr := rows.Scan(&schemaType, &name, &ddl); scanErr != nil {
-			return nil, scanErr
-		}
-		indexes := fetchTableIndexes(conn, name)
+	rawEntries, err := collectRawSchemaEntries(rows)
+	rows.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	schemas := make([]SchemaInfo, 0, len(rawEntries))
+	for _, entry := range rawEntries {
+		indexes := fetchTableIndexes(conn, entry.name)
 		schemas = append(schemas, SchemaInfo{
-			TableName: name,
-			Type:      schemaType,
-			SQL:       ensureSemicolon(ddl),
+			TableName: entry.name,
+			Type:      entry.schemaType,
+			SQL:       ensureSemicolon(entry.ddl),
 			Indexes:   indexes,
 		})
 	}
 
-	return schemas, rows.Err()
+	return schemas, nil
+}
+
+func collectRawSchemaEntries(rows *sql.Rows) ([]rawSchemaEntry, error) {
+	var entries []rawSchemaEntry
+	for rows.Next() {
+		entry, scanErr := scanRawSchemaEntry(rows)
+		if scanErr != nil {
+			return nil, scanErr
+		}
+		entries = append(entries, entry)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return entries, nil
+}
+
+func scanRawSchemaEntry(rows *sql.Rows) (rawSchemaEntry, error) {
+	var schemaType, name, ddl string
+	if err := rows.Scan(&schemaType, &name, &ddl); err != nil {
+		return rawSchemaEntry{}, err
+	}
+
+	return rawSchemaEntry{schemaType: schemaType, name: name, ddl: ddl}, nil
 }
 
 func fetchTableIndexes(conn *sql.DB, tableName string) []string {

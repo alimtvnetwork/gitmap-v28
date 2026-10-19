@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
@@ -116,7 +115,8 @@ const (
 
 func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{CmdDb, "database"}, func() error { return cmddb.DispatchDbSubsystem(context.Background(), argsTail(), os.Stdout) }},
+		{[]string{CmdDb, "database"}, func() error { return cmddb.RunDb(argsTail()) }},
+		{[]string{"db-listing", "dbl"}, func() error { return runDbListingCmd(argsTail()) }},
 		{[]string{CmdResolve, "res"}, func() error { return cmdconflict.RunResolveCmd(argsTail()) }},
 		{[]string{CmdConflicts, "conflict"}, func() error { return cmdconflict.RunConflictsCmd(argsTail()) }},
 		{[]string{CmdSplitLargeFiles, "split-large", "splitlargefiles"}, func() error { return cmdsplit.RunSplitLargeFilesCmd(argsTail()) }},
@@ -213,4 +213,11 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"mkfile", "create-file"}, func() error { return cmdmacro.RunMkfileCmd(argsTail()) }},
 		{[]string{"fix"}, func() error { return cmdautofix.RunFixCmd(argsTail()) }},
 	}
+}
+
+func runDbListingCmd(args []string) error {
+	if appErr := cmddb.RunDbListing(args); appErr != nil {
+		return appErr
+	}
+	return nil
 }

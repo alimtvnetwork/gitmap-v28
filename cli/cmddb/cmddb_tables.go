@@ -32,30 +32,61 @@ func RunDbTables(dbArg string, isJson bool, out io.Writer) error {
 	return nil
 }
 
+type rawTableEntry struct {
+	name      string
+	tableType string
+}
+
 func listTablesAndViews(conn *sql.DB) ([]TableInfo, error) {
 	query := `SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%' ORDER BY type, name`
 	rows, err := conn.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("query sqlite_master: %w", err)
 	}
-	defer rows.Close()
 
-	var tables []TableInfo
-	for rows.Next() {
-		var name, tableType string
-		if scanErr := rows.Scan(&name, &tableType); scanErr != nil {
-			return nil, scanErr
-		}
-		cols, count := fetchTableStats(conn, name, tableType)
+	rawEntries, err := collectRawTableEntries(rows)
+	rows.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	tables := make([]TableInfo, 0, len(rawEntries))
+	for _, entry := range rawEntries {
+		cols, count := fetchTableStats(conn, entry.name, entry.tableType)
 		tables = append(tables, TableInfo{
-			Name:        name,
-			Type:        tableType,
+			Name:        entry.name,
+			Type:        entry.tableType,
 			ColumnCount: cols,
 			RowCount:    count,
 		})
 	}
 
-	return tables, rows.Err()
+	return tables, nil
+}
+
+func collectRawTableEntries(rows *sql.Rows) ([]rawTableEntry, error) {
+	var entries []rawTableEntry
+	for rows.Next() {
+		entry, scanErr := scanRawTableEntry(rows)
+		if scanErr != nil {
+			return nil, scanErr
+		}
+		entries = append(entries, entry)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return entries, nil
+}
+
+func scanRawTableEntry(rows *sql.Rows) (rawTableEntry, error) {
+	var name, tableType string
+	if err := rows.Scan(&name, &tableType); err != nil {
+		return rawTableEntry{}, err
+	}
+
+	return rawTableEntry{name: name, tableType: tableType}, nil
 }
 
 func fetchTableStats(conn *sql.DB, name, tableType string) (int, int64) {

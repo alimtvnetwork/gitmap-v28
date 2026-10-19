@@ -1,8 +1,13 @@
 package cmddb
 
-// RunDB executes the main database management CLI command.
+// RunDb executes the main database management CLI command.
+func RunDb(args []string) error {
+	return runDb(args)
+}
+
+// RunDB executes the main database management CLI command (backwards compatibility).
 func RunDB(args []string) error {
-	return runDB(args)
+	return RunDb(args)
 }
 
 // RunStartFresh executes the fresh database reconstruction CLI command.

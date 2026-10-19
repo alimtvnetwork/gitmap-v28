@@ -6,33 +6,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
-	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // ResolveDbPath resolves a database alias or path to a clean file path.
 func ResolveDbPath(dbArg string) (string, error) {
-	trimmed := strings.TrimSpace(dbArg)
-	if trimmed == "" || strings.EqualFold(trimmed, "master") || strings.EqualFold(trimmed, "gitmap") {
-		return store.DefaultDBPath(), nil
-	}
-
-	if strings.EqualFold(trimmed, "heatmap") {
-		return filepath.Join(store.EffectiveDataDir(), "heatmap.db"), nil
-	}
-
-	if strings.EqualFold(trimmed, "pipeline") || strings.EqualFold(trimmed, "pipelines") {
-		return pipelinedb.ResolvePipelineDbPath(""), nil
-	}
-
-	if strings.EqualFold(trimmed, "tasks") || strings.EqualFold(trimmed, "agents") {
-		return store.ResolveMasterAgentDbPath(""), nil
-	}
-
-	return filepath.Clean(trimmed), nil
+	return ResolveDbPathWithRegistry(dbArg)
 }
 
 // OpenResolvedDb opens a SQLite connection to the resolved database path.
@@ -50,6 +30,8 @@ func OpenResolvedDb(dbArg string) (*sql.DB, string, error) {
 	if openErr != nil {
 		return nil, dbPath, fmt.Errorf("open database '%s': %w", dbPath, openErr)
 	}
+
+	IncrementAliasSearchCount(dbArg)
 
 	return conn, dbPath, nil
 }

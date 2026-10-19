@@ -42,6 +42,42 @@ func runDb(args []string) error {
 			return appErr
 		}
 		return nil
+	case "listing", "dbl":
+		appErr := RunDbListing(args[1:])
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "read", "dbr", "db-read":
+		appErr := RunDbRead(args[1:])
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "add", "db-add":
+		appErr := RunDbAdd(args[1:])
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "edit", "db-edit":
+		appErr := RunDbEdit(args[1:])
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "find", "db-find":
+		appErr := RunDbFind(args[1:])
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "view", "db-view":
+		appErr := RunDbView(args[1:])
+		if appErr != nil {
+			return appErr
+		}
+		return nil
 	case "reset":
 		return result.AsError(result.MatchWrapper(runDbResetAction(args[1:])))
 	case "clear":
@@ -88,6 +124,30 @@ func DispatchDbSubsystem(ctx context.Context, args []string, out io.Writer) erro
 			tableArg = pos[0]
 		}
 		return RunDbList(tableArg, opts.DbPath, opts.Limit, opts.IsJson, out)
+	case "add":
+		appErr := RunDbAdd(pos)
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "edit":
+		appErr := RunDbEdit(pos)
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "find":
+		appErr := RunDbFind(pos)
+		if appErr != nil {
+			return appErr
+		}
+		return nil
+	case "view":
+		appErr := RunDbView(pos)
+		if appErr != nil {
+			return appErr
+		}
+		return nil
 	case "help", "--help", "-h", "":
 		return printDbHelp(out)
 	default:
@@ -177,6 +237,7 @@ Available Commands:
   columns <table>         Inspect column definitions (PRAGMA table_info)
   query   "<SQL>"         Execute read-only SQL queries (SELECT, PRAGMA, EXPLAIN, WITH)
   list    <table>         Display table rows with limit paging
+  listing [flags]         List registered and discovered SQLite databases (dbl)
   help                    Show this help text
 
 Flags:

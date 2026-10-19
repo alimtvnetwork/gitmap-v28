@@ -111,6 +111,11 @@ func dispatch275Alias(command string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
+	case "dbl":
+		if appErr := cmddb.RunDbListing(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
 	case "hkin":
 		if appErr := cmdhooks.RunHooksInstall(args); appErr != nil {
 			return true, appErr

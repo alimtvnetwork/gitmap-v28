@@ -21,7 +21,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | Prohibited Legacy Tool / Pattern | GitMap Mandatory Command | Why GitMap is Required |
 | :--- | :--- | :--- |
 | ❌ `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr` | ✅ `gitmap aum search "<pattern>" [dir] [--ext <ext>]` or `gitmap search "<pattern>"` | Multi-core streaming live search (<15ms) with binary null-byte probe, 500 KB file cap, and DH2D SQLite hot cache. Prevents buffer bloat and terminal freezing. |
-| ❌ `Get-ChildItem -Recurse`, `find . -name "..."`, `dir /s /b` | ✅ `gitmap find "<pattern>" [-ext <ext>]` or `gitmap list-files [dir]` | Sub-millisecond indexed glob discovery across 10,000+ files without disk traversal overhead. |
+| ❌ `Get-ChildItem` (all variants: bare `Get-ChildItem`, `-Path`, `-Filter`, `-Recurse`, etc.), `dir`, `ls` (in shell), `find . -name "..."`, `dir /s /b` | ✅ `gitmap lf <dir>` or `gitmap list-files [dir]` or `gitmap find "<pattern>" [dir]` | Sub-millisecond directory listing and file glob discovery without shell traversal overhead. TOTAL BAN on PowerShell Get-ChildItem. |
+| ❌ Directory File Inventory: `Get-ChildItem -Path <dir>`, `dir <dir>`, `ls <dir>` | ✅ `gitmap lf <dir>` (e.g. `gitmap lf src-tauri/src/modules/repo_db`) or `gitmap find "*.*" <dir>` | Instant directory file listing and inventory without PowerShell object pipeline or shell traversal latency. TOTAL BAN on PowerShell Get-ChildItem. |
 | ❌ Raw unbuffered `cat`, `type`, `Get-Content` on source files | ✅ `gitmap cat <filepath>` | Direct zero-disk stream of file contents directly into process stdout for resource-constrained CLI sessions. |
 | ❌ Raw ambient `python script.py` or `python -c "..."` | ✅ `gitmap py "<code-or-script>"` or `gitmap py -c "<expression>"` | Auto-resolves verified Python interpreter from `installation.db` cache (<15ms), avoiding environment discrepancies. |
 | ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding, and automatic fallback. |
@@ -99,6 +100,16 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap replace <old> <new>` — Exact literal string replacement with audit trail.
 - `gitmap replace-regex <pat> <subst>` — Regex replacement across repository.
 
+#### Directory Inventory & Path-Scoped Listing
+- `gitmap lf <dir>` — Instant directory file listing (e.g. `gitmap lf src-tauri/src/modules/repo_db`).
+- `gitmap find "*.*" <dir>` — Glob-filtered directory listing without disk traversal overhead.
+- `gitmap aum search "<pattern>" <dir> -e <.ext>` — Scoped live code/regex search directly within target directory and extension.
+- **Concrete Developer Workflows & Real-World Examples:**
+  * **Module Directory Inventory:** `gitmap lf src-tauri/src/modules/repo_db` — Lists files within specific module path in <1ms without invoking PowerShell `Get-ChildItem`.
+  * **Spec Folder Inspection:** `gitmap find "*.*" 02-spec/21-app/gitmap-commands-agent-spawning-heatmap-sync` — Discovers all spec files within a feature directory.
+  * **Path-Scoped Code Search:** `gitmap aum search "HeatmapActionLog" src-tauri/src -e .rs` — Scoped search restricted to Rust source tree.
+  * **Subtask Plan Inventory:** `gitmap lf .ai-memory/plans/subtasks` — Rapidly enumerates in-flight and pending subtask manifests.
+
 ### 6. Autonomous CI/CD Self-Healing (Pipeline AI)
 - `gitmap pipeline-ai status --json` — Check workflow execution state, active branch, and ETA.
 - `gitmap pipeline-ai status -t <eta>` — Wait dynamically for pipeline completion without tight polling.
@@ -139,7 +150,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap llm train muse [--days <N>]` (aliases: `gitmap train muse`, `gitmap train-muse`, `gitmap llm-train-muse`) — Synchronize Muse N-day memory digest from `repo-cache` (fallback `repo-secrets`), diff against watermark commit, output AI traversal checklist for sequential memory reading, and reconstitute `chat-seeds`.
 - `gitmap llm train --loop` / `gitmap llm train --self-loop <N>` — Autonomous self-looping flags executing continuous 6-phase AI self-looping execution cycles.
 - `gitmap llm train --heal-apply <stash|wip|discard>` — Non-interactively applies git-state remediation recipes during Phase 6a.
-- `gitmap llm train --skill-path <path>` — Target filesystem path for writing the generated skill markdown file (default: `.agents/skills/gitmap/SKILL.md`).
+- `gitmap llm train --skill-path <path>` — Target filesystem path for writing the generated skill markdown file (default: `.agents/skills/gitmap/skill.md`).
 - `gitmap llm train --text-only` — Outputs curriculum text to stdout without writing skill file to disk.
 - `gitmap llm train --urls` — Outputs the 7 authoritative public documentation registry links for LLM ingestion.
 - `gitmap llm train --url` — Outputs raw public URL to `llm.md` specification.
@@ -154,7 +165,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | `--loop` | `bool` | `false` | Triggers continuous autonomous 6-phase AI self-looping execution cycles. |
 | `--self-loop <N>` | `int` | `0` | Specifies exact number of consecutive iterations for AI self-loop. |
 | `--heal-apply <recipe>` | `string` | `""` | Non-interactively applies git-state remediation recipes during Phase 6a (`stash`, `wip`, `discard`). |
-| `--skill-path <path>` | `string` | `.agents/skills/gitmap/SKILL.md` | Target filesystem path for writing generated skill markdown file. |
+| `--skill-path <path>` | `string` | `.agents/skills/gitmap/skill.md` | Target filesystem path for writing generated skill markdown file. |
 | `--text-only` | `bool` | `false` | Emits complete curriculum text to stdout without writing files to disk. |
 | `--urls` | `bool` | `false` | Outputs complete 7-document Authoritative Public Documentation Registry for LLM memory ingestion. |
 | `-j`, `--json` | `bool` | `false` | Emits structured machine-readable JSON curriculum and document metadata. |
@@ -214,8 +225,9 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap network [--json]` — Network adapter configuration, IPs, MAC addresses, link speeds, and throughput metrics.
 - `gitmap nodes tasks [--json] [--open-only]` — Queries local and remote node task queues with `?` role placeholder.
 
-### 12. File Contention Heatmap & Agent Activity Observation
-- `gitmap heatmap log -t <task-slug> -a <action> -f <file> -r "<reasoning>" [-s <state>]` — Logs granular file touches, reads, modifications, and reasoning directly into the centralized heatmap database (`.ai-memory/heatmap.db`).
+### 12. File Contention Heatmap, Cognitive Telemetry & Agent Activity Observation
+- `gitmap heatmap log --task <task> --action <action> --file <file> --state <state> --expected "<goal>"` — Logs granular file touches, reads, modifications, cognitive states, and reasoning directly into `.ai-memory/heatmap.db`.
+- `gitmap heatmap update --id <id> --outcome "<outcome>" --met <true|false>` — Updates logged action with final outcome and verified expectation status.
 - `gitmap heatmap search [query] [-f <file>] [-t <task>]` — Searches logged actions, code snippets, and reasoning notes across tasks and repositories.
 - `gitmap heatmap tree [-t <task-slug>]` — Renders hierarchical tree view of touched files, line ranges, and action counts.
 - `gitmap heatmap status [-t <task-slug>]` — Summary of actions logged, unique files touched, expectation metrics, and verification states.
@@ -227,8 +239,24 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - **MANDATORY HEATMAP & CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via `gitmap heatmap log` or `gitmap agent log`, and inspect active file leases and contention hotspots via `gitmap agent heatmap` (or `gitmap heatmap status`) before editing shared files.
 - **Roadmap-Connected Heatmap for Dynamic Join:** Newly spawned or dynamically joining subagents (`gitmap agent subtask join`) inspect `gitmap rc heatmap status` and `gitmap rc heatmap tree` to discover where prior agents read/edited and what subtasks remain in `.ai-memory/plans/<slug>.md`, eliminating redundant reads.
 
+#### Mandatory 4-Gate Cognitive Heatmap Workflow
+In multi-agent and autonomous workflows, every file modification or major task phase MUST strictly follow the 4-Gate Cognitive Heatmap Workflow:
+- **Gate 0: Pre-Flight Discovery & Schema Verification:**
+  `gitmap heatmap status` and `gitmap heatmap tables`
+  Inspect active task telemetry, verify SQLite schema tables, and detect any active file leases or contention hotspots before touching files.
+- **Gate 1: Intent, State & Lease Declaration:**
+  `gitmap heatmap log --task <task> --action <action> --file <path> --state <state> --expected "<goal>"`
+  Declare intent, file path, cognitive reasoning state (`EXPLORATION`, `PLANNING`, `EXECUTION`, `VERIFICATION`), and expected goal before making modifications. Records action ID for lifecycle tracking.
+- **Gate 2: Outcome Recording & Telemetry Close:**
+  `gitmap heatmap update --id <id> --outcome "<outcome>" --met true`
+  Record actual outcome, verify if expectation was met (`--met true` or `--met false`), and close the telemetry record immediately upon completing execution.
+- **Gate 3: Verification & Hierarchy Audit:**
+  `gitmap heatmap tree --task <task>` and `gitmap heatmap status --task <task>`
+  Inspect hierarchical touch tree, file churn counts, and expectation compliance rate across the task.
+
 ### 13. Multi-AI Companion & repo-cache Synchronization (RC Heatmap Suite)
 - **Automatic RC Vault Creation:** If `repo-cache` (`rc`) or `.ai-memory/heatmap.db` does not exist, GitMap auto-provisions the required split-db structure linked to the active mission and folder.
+- `gitmap rc heatmap <status|tables|query|view|tree|live|sync>` — Complete companion RC telemetry suite routed directly through the unified `rc heatmap` CLI.
 - `gitmap heatmap rc list-ai` — Lists all supported AI namespaces (`antigravity`, `muse`, `cloud-code`, `codex`, `grok`, `cursor`) and displays ambient detected engine.
 - `gitmap heatmap rc log [flags]` — Logs cognitive actions and decisions into dedicated `repo-cache` isolated split-databases (`.heatmap/<ai-name>/<repo>/heatmap.db`).
 - `gitmap heatmap rc commit [-m "<msg>"]` — Creates a telemetry checkpoint commit in `repo-cache` and marks local changes clean.
@@ -246,9 +274,9 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 
 #### Tri-Alias Routing Parity
 All companion RC commands support full tri-alias routing parity:
-- `gitmap heatmap rc <status|tables|view|query|tree|live|sync>`
-- `gitmap rc heatmap <status|tables|view|query|tree|live|sync>`
-- `gitmap heatmap rc-heatmap <status|tables|view|query|tree|live|sync>`
+- `gitmap rc heatmap <status|tables|query|view|tree|live|sync>`
+- `gitmap heatmap rc <status|tables|query|view|tree|live|sync>`
+- `gitmap heatmap rc-heatmap <status|tables|query|view|tree|live|sync>`
 
 #### AI Agent Non-Blocking SQL Recipes
 AI agents analyzing prior session decisions, execution trees, and file hotspots should use direct read-only queries with `--json` or `--yaml` to prevent lock contention:

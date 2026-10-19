@@ -75,6 +75,12 @@ func dataProfileEntries() []dispatchEntry {
 
 func dataDatabaseEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"db-read", "dbr"}, func() error {
+			if appErr := cmddb.RunDbRead(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
 		{[]string{constants.CmdDBReset}, func() error { return cmddb.RunDBReset(argsTail()) }},
 		{[]string{constants.CmdDB}, func() error { return cmddb.RunDB(argsTail()) }},
 		{[]string{constants.CmdStartFresh}, func() error { return cmddb.RunStartFresh(argsTail()) }},
