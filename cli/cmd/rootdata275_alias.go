@@ -126,7 +126,64 @@ func dispatch275Alias(command string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
+	case "dba", "dbadd":
+		if appErr := cmddb.RunDbAdd(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "dbe", "dbedit":
+		if appErr := cmddb.RunDbEdit(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "dbf", "dbfind":
+		if appErr := cmddb.RunDbFind(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "dbv", "dbview":
+		if appErr := cmddb.RunDbView(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
 	}
 
 	return false, nil
 }
+
+func dispatch275Db(twoWord string, args []string) (bool, error) {
+	switch twoWord {
+	case "db doctor":
+		if appErr := cmddb.RunDbDoctor(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "db listing":
+		if appErr := cmddb.RunDbListing(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "db add":
+		if appErr := cmddb.RunDbAdd(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "db edit":
+		if appErr := cmddb.RunDbEdit(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "db find":
+		if appErr := cmddb.RunDbFind(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "db view":
+		if appErr := cmddb.RunDbView(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	}
+	return false, nil
+}
+
