@@ -118,7 +118,27 @@ WAVES = ceil(subtasks / (A x H))
 
 1. **Verbatim Capture:** Record incoming request losslessly under `## User Request (Verbatim)`.
 2. **Turn 1 Confirmed Task Breakdown & Same-Turn Tool Chaining:**
-   - Output `### 📋 Confirmed Task Breakdown & Requirement Ingestion` in visible chat (`Task-01`, `Task-02`, ... each with `State: [IN PROGRESS]` and `Understood: [YES]`, `Slug: <root-slug> - Task NN`).
+   - Output `### 📋 Confirmed Task Breakdown & Requirement Ingestion` in visible chat (`Task-01`, `Task-02`, ... each with `State: [IN PROGRESS]`, `Understood: [YES]`, `Azure AI / Model Runtime Context: [Explicitly document Azure AI, Azure OpenAI, or local model endpoint context if applicable, or state 'N/A — Local CLI/GitMap']`, and `Slug: <root-slug> - Task NN`).
+   - Line-by-Line Task Breakdown Template:
+     ```markdown
+     ### 📋 Confirmed Task Breakdown & Requirement Ingestion
+
+     1. **Task-01: [Descriptive Title]**
+        - **State:** `[IN PROGRESS — EXECUTING IMMEDIATELY]`
+        - **Understood:** `[YES]` — [1–2 sentences proving intent, scope, and constraints]
+        - **Azure AI / Model Runtime Context:** [Explicitly document Azure AI, Azure OpenAI, or local model endpoint context if applicable, or state 'N/A — Local CLI/GitMap']
+        - **Actionable Scope:** [precise technical deliverable]
+        - **Target Files / Area:** `[relative/path/or/module]`
+        - **Slug:** `<root-slug> - Task 01`
+
+     2. **Task-02: [Descriptive Title]**
+        - **State:** `[QUEUED — EXECUTING NOW WITHOUT USER PROMPT]`
+        - **Understood:** `[YES]` — [1–2 sentences proving understanding]
+        - **Azure AI / Model Runtime Context:** [Explicitly document Azure AI, Azure OpenAI, or local model endpoint context if applicable, or state 'N/A — Local CLI/GitMap']
+        - **Actionable Scope:** [precise technical deliverable]
+        - **Target Files / Area:** `[relative/path/or/module]`
+        - **Slug:** `<root-slug> - Task 02`
+     ```
    - In the **EXACT SAME TURN**, invoke your first tool call (SQLite task DB initialization, ledger creation, preflight checks). NEVER emit text alone.
    - **Powerful Step Execution (Write-and-Execute Invariant):** Every single step and turn must be high-impact, powerful, and concrete. Write the necessary content, code, or specifications directly to disk (`write_to_file` / `replace_file_content`) and execute commands/tools immediately in the exact same turn without hesitation, filler commentary, or permission-seeking. Never plan endlessly or describe actions without executing them on disk.
 3. **RUNNING Declaration & 5-Minute Status Pings:**

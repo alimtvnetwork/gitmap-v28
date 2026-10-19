@@ -121,16 +121,6 @@ func dispatch275Alias(command string, args []string) (bool, error) {
 			return true, appErr
 		}
 		return true, nil
-	case "dbrd":
-		if appErr := cmddb.RunDbRecordDel(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
-	case "dbrm":
-		if appErr := cmddb.RunDbRm(args); appErr != nil {
-			return true, appErr
-		}
-		return true, nil
 	}
 
 	return false, nil

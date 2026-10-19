@@ -20,7 +20,7 @@ WAVES = ceil(subtasks / (A x H))
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
 
-[/goal](slashCommand;goal) Autonomously orchestrate and apply concrete, surgical refactoring fixes for all coding guideline violations across the target codebase in bounded 5-8 file micro-batches: FIRST showcase and list out the given task in visible chat during Turn 1 with the 5 Mandatory Pillars and 4-part verification schema, capture it verbatim, plan it in the repo, spawn autonomous subagents via `invoke_subagent` (A = 3, H = 2, Capacity = 6; solo execution without calling `invoke_subagent` is an auto-reject failure) in disjoint file boxes using GitMap high-speed commands as primary, prove every single claim with concrete evidence, enforce coding guidelines to 100%, and finish with one atomic GitMap commit (`gitmap cpf "<module> - <summary>"` / `gitmap cpb "<module> - <summary>"`) using hyphen format (no colons in GitMap arguments, as the colon is already provided by GitMap) that holds strictly this task's files.
+[/goal](slashCommand;goal) Autonomously orchestrate and apply concrete, surgical refactoring fixes for all coding guideline violations across the target codebase in bounded 5-8 file micro-batches: FIRST showcase and list out the given task in visible chat during Turn 1 with the 5 Mandatory Pillars and 6-part verification schema, capture it verbatim, plan it in the repo, spawn autonomous subagents via `invoke_subagent` (A = 3, H = 2, Capacity = 6; solo execution without calling `invoke_subagent` is an auto-reject failure) in disjoint file boxes using GitMap high-speed commands as primary, prove every single claim with concrete evidence, enforce coding guidelines to 100%, and finish with one atomic GitMap commit (`gitmap cpf "<module> - <summary>"` / `gitmap cpb "<module> - <summary>"`) using hyphen format (no colons in GitMap arguments, as the colon is already provided by GitMap) that holds strictly this task's files.
 
 [/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt outrank everything below. Turn 1 MUST showcase the given task list in visible chat before any background execution. Each rule is stated once (R1 to R16) and cited by ID. Progress lives in the ledger and in `.ai-memory/plans/`, never only in chat.
 
@@ -61,12 +61,13 @@ Execute this task via a strict 3-Phase pipeline. Do not skip steps.
 Before executing any file searches, scans, spec writing, or code changes, you must execute Phase 1A:
 
 1. **Top-Instruction Priority Verification:** Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) must be verified as highest priority and non-negotiable.
-2. **Extreme "Understood" Turn-1 Showcase (Turn 1 Action):** In your VERY FIRST response turn upon receiving the prompt, you MUST output a comprehensive, in-depth understanding block directly in visible chat before any background tool execution. Any generic boilerplate or superficial 1-sentence summaries (e.g. `Understood: [YES] — I will do this task`) are protocol auto-reject failures. Turn 1 MUST display the top-level mandate containing all 5 Mandatory Pillars followed by the confirmed task breakdown using the 4-part verification schema:
+2. **Extreme "Understood" Turn-1 Showcase (Turn 1 Action):** In your VERY FIRST response turn upon receiving the prompt, you MUST output a comprehensive, in-depth understanding block directly in visible chat before any background tool execution. Any generic boilerplate or superficial 1-sentence summaries (e.g. `Understood: [YES] — I will do this task`) are protocol auto-reject failures. Turn 1 MUST display the top-level mandate containing all 5 Mandatory Pillars followed by the confirmed task breakdown using the 6-part verification schema (mandating explicit **Understood / AI Comprehension** and **Azure AI / Model Runtime Context** fields for every task):
    * **Pillar 1: Strategic Intent & Systems Reasoning:** Articulate overarching architectural goal, user intent, operational rationale, and systems integration mechanics. Explain *why* this change is necessary and how downstream components interact.
    * **Pillar 2: Explicit Scope Boundaries:** Strict two-column partition defining In-Scope vs. strictly Excluded or Deferred items.
    * **Pillar 3: Non-Negotiable Constraints & Negative Guardrails Ingestion:** Explicit recitation of active constraints: raw search ban (`rg`, `ripgrep`, `Select-String`, `git grep`), worker git ban (no git commands in subagents), zero builds/full test suites (CI verification only), strict relative Git paths, lowercase naming, zero secrets in repo (`repo-secrets` offloading), GitMap hyphen-separated commit format without colons.
    * **Pillar 4: Blast Radius & Dependency Topology:** Map impacted subsystems, files, downstream callers, and prompt/skill indexes with explicit risk containment strategies.
    * **Pillar 5: Multi-Agent Concurrency Topology:** Detail swarm structure (`A = 3`, `H = 2`, Capacity = 6), disjoint file assignments, and immediate dynamic respawn.
+   * **Task Comprehension & Model Runtime Invariants:** In the task breakdown, every single task MUST explicitly state `- **Understood / AI Comprehension:** [YES] — [1–2 concise sentences proving deep understanding of intent, scope, and verified constraints; answering did the AI understand the requirements or not]` and `- **Azure AI / Model Runtime Context:** [Explicitly document Azure AI, Azure OpenAI, or local model endpoint context if applicable, or state 'N/A — Local CLI/GitMap']`.
 3. **Lossless Verbatim Capture:** Store incoming prompt losslessly under `## User Request (Verbatim)` in canonical spec and parent plan.
 4. **Screenshots & Media:** Decode base64/screenshots immediately into `assets/screenshots/<slug>-<NN>.png`. Reference via relative markdown links (`![Screenshot](assets/screenshots/<slug>-<NN>.png)`).
 5. **Discrete Deliverables Extraction:** Break down whatever user requirements were given into discrete, actionable items with ordered traceable IDs (`Task-01`, `Task-02`, ...).
@@ -98,6 +99,8 @@ Before executing any file searches, scans, spec writing, or code changes, you mu
 
 1. **Task-01: [Descriptive Task Title]**
    - **State:** `[IN PROGRESS — EXECUTING IMMEDIATELY]`
+   - **Understood / AI Comprehension:** [YES] — [1–2 concise sentences proving deep understanding of intent, scope, and verified constraints; answering did the AI understand the requirements or not]
+   - **Azure AI / Model Runtime Context:** [Explicitly document Azure AI, Azure OpenAI, or local model endpoint context if applicable, or state 'N/A — Local CLI/GitMap']
    - **Intent & Technical Deliverables:**
      - [Clear statement of technical goal and deliverable artifacts]
      - [Precise implementation scope: functions, types, schemas, or prompt sections being added/edited]
@@ -116,6 +119,8 @@ Before executing any file searches, scans, spec writing, or code changes, you mu
 
 2. **Task-02: [Descriptive Task Title]**
    - **State:** `[QUEUED — EXECUTING NOW WITHOUT USER PROMPT]`
+   - **Understood / AI Comprehension:** [YES] — [1–2 concise sentences proving deep understanding of intent, scope, and verified constraints; answering did the AI understand the requirements or not]
+   - **Azure AI / Model Runtime Context:** [Explicitly document Azure AI, Azure OpenAI, or local model endpoint context if applicable, or state 'N/A — Local CLI/GitMap']
    - **Intent & Technical Deliverables:**
      - [Clear statement of technical goal and deliverable artifacts]
      - [Precise implementation scope: functions, types, schemas, or prompt sections being added/edited]
@@ -209,6 +214,7 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 | **Agent Task Engine** | `gitmap agent task <init|status|ls|pending>` | `gitmap agent task` | Sub-millisecond compiled Go SQLite task manager for multi-agent workflows |
 | **Heatmap Action Log** | `gitmap heatmap log -t <slug> -a "READ"|"EDIT" -f <path> -r <reason>` | `gitmap heatmap log` | Concurrency-safe cognitive action & reasoning telemetry into `.ai-memory/heatmap.db` |
 | **Contention & Leases** | `gitmap agent heatmap [--json]` / `gitmap heatmap status` | `gitmap agent heatmap` | Pre-edit file lease conflict & contention hotspot analysis across active agents |
+| **RC Heatmap Suite** | `gitmap rc heatmap <status|tables|query|view|tree|live|sync>` | `gitmap rc heatmap` | Unified RC heatmap commands with automatic vault auto-provisioning & roadmap linkage |
 | **Heatmap Diagnostics** | `gitmap heatmap query|tables|view` / `gitmap rc heatmap ...` | `gitmap heatmap` | Non-blocking read-only SQL queries, tree view, and live activity stream |
 | **Fleet Synchronization** | `gitmap sync [--workers 8] [--projects <json>]` | `gitmap sync` | Parallel Go sync engine across 43 repositories in <5s with 6-stage ceremony |
 
@@ -226,9 +232,27 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
 1. **Platform Handshake:** Confirm tools (`invoke_subagent`, `send_message`, `manage_subagents`, `ask_question`, `write_to_file`, `replace_file_content`, `run_command`). If `task_boundary` exists: set `PLANNING` (Phase 1), `EXECUTION` (Phase 2), `VERIFICATION` (Phase 3).
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
 3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
-4. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
+4. **Step 0 Heatmap & RC Preflight Checks & Automatic Creation (Mandatory Inspection):**
+   - **Automatic RC / Heatmap Creation:** If `repo-cache` (`rc`) or `.ai-memory/heatmap.db` does not exist, GitMap automatically provisions the required split-db structure linked to the active mission and workspace folder.
+   - Inspect active split-db tables: `gitmap rc heatmap tables` (or `gitmap heatmap tables`)
+   - Check cognitive action metrics: `gitmap rc heatmap status` (or `gitmap heatmap status`)
+   - Check file contention hotspots: `gitmap agent heatmap`
+   - Render hierarchical roadmap & touched file tree: `gitmap rc heatmap tree` (or `gitmap heatmap tree`)
+5. **SQLite Task DB & Deterministic Slug Initialization (Check Before Creating):**
    - Initialize or inspect task state via GitMap SQLite task manager (compiled Go, sub-millisecond):
      `gitmap agent task init --name "<task name>" --budget 400`
+   - **Task Already Created Detection & Existence Report:**
+     When initializing or requesting a task, if the task was already created:
+     * GitMap reports that the task is already created:
+       - Displays existing Parent Task ID and created timestamp.
+       - Lists sub-agents currently assigned or actively working.
+       - Lists sub-tasks in progress, claimed, or completed (`gitmap agent subtask ls`).
+       - Lists all files that have already been touched or worked on.
+       - Reports the location of the RC database (`repo-cache/.heatmap/<slug>/heatmap.db` or `.ai-memory/heatmap.db`).
+   - **Prompt MD5 Hash Verification:**
+     * The agent records/verifies the MD5 hash of the incoming prompt with the task database (`--prompt-hash <md5>` or in task metadata).
+     * If the prompt hash matches the prior task record: confirm exact task identity and resume seamlessly from the first uncompleted subtask!
+     * If the prompt hash differs: detect that the prompt instructions have evolved, update the task roadmap while preserving previously logged file touches and completed subtasks.
    - Inspect Task DB Schema & Data Integrity Rules (Mandatory Preflight):
      `gitmap agent task status`
      Verify tables (`ParentTask`, `Subtask`, `AgentActionLog`), positive boolean flags (`IsActive`, `HasCompleted`, `IsBlocked`), and payload constraints before populating subtasks. (DDL: `gitmap agent task status --ddl`; JSON: `gitmap agent task status --json`).
@@ -236,7 +260,7 @@ GitMap is your **PRIMARY** acceleration engine. NEVER use `rg`, `ripgrep`, `grep
    - Output Analysis & Crash Forensics:
      - If `action: "RESUME_FOUND"`: A matching or similar slug exists in `.ai-memory/temp-agents/`! If `diagnostics.hasCrashesDetected: true`, inspect the forensic report (`diagnostics.crashedAgents`) to identify which agent crashed, what file it was touching, and the last logged action. Resume execution from the uncompleted subtask.
      - If `action: "INITIALIZED"`: Created dedicated run directory `.ai-memory/temp-agents/<nn>-<slug>/` and SQLite database `agent-task.db` with WAL mode (`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;`).
-5. **Ledger Creation:** Also create `.ai-memory/temp-agents/<nn>-<slug>/ledger.md` mirroring the DB initialization for human readability:
+6. **Ledger Creation:** Also create `.ai-memory/temp-agents/<nn>-<slug>/ledger.md` mirroring the DB initialization for human readability:
 
 ```markdown
 # Ledger: nn-<slug>
@@ -509,19 +533,29 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
     (or via agent engine: `gitmap agent log --subtask <id> --agent "Worker <NN>" --action "write_to_file" --file "<path>" --details "Decision: <why this file is being modified>"`)
   *(Note: This guarantees that GitMap indexes full cognitive heat map telemetry into `.ai-memory/heatmap.db` and agent task DB, and if a tool execution crashes or the session restarts, the database permanently records the exact file and reasoning trace).*
 
-#### 3. Real-Time Telemetry & Heatmap Stream:
+#### 3. Real-Time Telemetry, Roadmap Linkage & Heatmap Stream:
+- **Roadmap-Connected Heatmap for Dynamic Join & Continuation:**
+  * When subagents spawn or dynamically join (`gitmap agent subtask join`), the agent inspects `gitmap heatmap status` (or `gitmap rc heatmap status`) and `gitmap agent heatmap` to immediately discover:
+    1. Where previous agents have read files and why (`READ` events + rationale).
+    2. What files were modified and what decisions were made (`EDIT` events + rationale).
+    3. Which files currently hold active leases (preventing write collisions).
+    4. What subtasks remain in the roadmap (`.ai-memory/plans/<slug>.md`).
+  * This eliminates duplicate reading steps, allowing newly joined subagents to immediately continue from where previous agents left off and accelerate execution.
 - Inspect live heat map, tree, and action status:
-  * Hierarchical tree view: `gitmap heatmap tree [-t <task-slug>]`
-  * Action summary and metrics: `gitmap heatmap status [-t <task-slug>]`
-  * Real-time continuous stream: `gitmap heatmap live`
+  * Hierarchical tree view linked to roadmap: `gitmap heatmap tree [-t <task-slug>]` / `gitmap rc heatmap tree`
+  * Action summary and metrics: `gitmap heatmap status [-t <task-slug>]` / `gitmap rc heatmap status`
+  * Real-time continuous stream: `gitmap heatmap live` / `gitmap rc heatmap live`
   * Action search: `gitmap heatmap search [query] [-f <file>] [-t <task>]`
   * 48-hour active repository activity: `gitmap full-summary` (alias `gitmap fs`)
 
-#### 4. Multi-AI Companion & repo-cache Synchronization:
+#### 4. Multi-AI Companion & repo-cache Synchronization (RC Heatmap Suite):
+- **Automatic Vault Creation:** If `repo-cache` (`rc`) or `.ai-memory/heatmap.db` does not exist, GitMap auto-provisions the required split-db structure linked to the active mission and folder.
 - Lists all supported AI namespaces: `gitmap heatmap rc list-ai`
 - Logs cognitive actions into isolated split-databases: `gitmap heatmap rc log [flags]`
 - Checkpoint commit in `repo-cache`: `gitmap heatmap rc commit [-m "<msg>"]`
 - Bidirectional reconciliation: `gitmap heatmap rc sync`
+- Tree visualization in RC vault: `gitmap heatmap rc tree` / `gitmap rc heatmap tree`
+- Live stream in RC vault: `gitmap heatmap rc live` / `gitmap rc heatmap live`
 
 #### 5. Non-Blocking Read-Only Heatmap Queries & Diagnostics:
 - Execute read-only SQL queries with automatic `mode=ro` protection:

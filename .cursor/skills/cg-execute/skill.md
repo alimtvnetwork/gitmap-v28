@@ -29,7 +29,13 @@ WAVES = ceil(subtasks / (A x H))
 2. Execute that prompt verbatim. It is the source of truth for this workflow.
 3. A direct instruction in the current user message overrides the prompt when they conflict.
 4. Do not shorten, paraphrase, or skip checklist items in the source prompt.
-5. In Turn 1, emit the Extreme "Understood" Turn-1 Showcase featuring the 5 Mandatory Pillars and 4-part verification schema.
+5. In Turn 1, emit the Extreme "Understood" Turn-1 Showcase featuring the 5 Mandatory Pillars and the 6-part task verification schema:
+   - Part 1: **State** (`[IN PROGRESS — EXECUTING IMMEDIATELY]`, `[QUEUED]`, `[DONE]`).
+   - Part 2: **Understood / AI Comprehension** (`[YES]` — 1–2 concise sentences proving deep understanding of intent, scope, and verified constraints; answering did the AI understand the requirements or not).
+   - Part 3: **Azure AI / Model Runtime Context** (Explicitly document Azure AI, Azure OpenAI, or local model endpoint context if applicable, or state `'N/A — Local CLI/GitMap'`).
+   - Part 4: **Intent & Technical Deliverables** (Clear technical goal, deliverable artifacts, and quantifiable success metrics).
+   - Part 5: **Negative Boundaries & Invariants** (Explicit list of things this task must NOT do or alter, untouchable files, and preserved invariants).
+   - Part 6: **Disjoint File Boundaries & Verification Evidence Contract** (Exclusive owned files, read-only context files, and exact command or check to prove completion: e.g. `exit 0`).
 6. Phase 1 Step 3 Brain & Comprehensive Roadmap Creation mandate: exhaustive inventory of target files, functions, and disjoint subtasks.
 7. Immediate Dynamic Respawn & Dynamic Collaborative Join: 100% duty cycle, zero idle capacity.
 
@@ -104,6 +110,7 @@ gitmap heatmap rc sync
 ## 6. Verification Checklist
 
 - [ ] V6 Concurrency Invariants active (`budget 400`, `A = 3`, `H = 2`, `Capacity = 6`).
+- [ ] Turn 1 showcase verified with 5 Mandatory Pillars, 6-part task verification schema, and Azure AI / Model Runtime Context.
 - [ ] Preflight schema verified via `gitmap agent task status --ddl` and `gitmap agent task status --json`.
 - [ ] 3-Tier Database Location Transparency contract fulfilled.
 - [ ] Strict Relative Git paths and lowercase naming enforced.
