@@ -104,6 +104,31 @@ const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area 
           <label for="setting-account-switch-threshold">Account Switch Fast-Forward Threshold (%) (<code>account_switch.threshold</code> &mdash; default 15% prod / 98% E2E test)</label>
           <input type="number" id="setting-account-switch-threshold" name="account_switch.threshold" data-key="account_switch.threshold" value="15" placeholder="15 (prod) or 98 (E2E test)">
         </div>
+        <div class="form-group">
+          <label for="setting-ui-refresh-interval">UI Background Auto-Refresh Interval (ms) (<code>ui.refresh_interval_ms</code> &mdash; default 300000ms / 5m)</label>
+          <input type="number" id="setting-ui-refresh-interval" name="ui.refresh_interval_ms" data-key="ui.refresh_interval_ms" value="300000" placeholder="300000">
+        </div>
+        <div class="form-group" style="margin-top:var(--sp-3);">
+          <label>Prompt Preview Header Metadata (Default Instance Template)</label>
+          <div class="prompt-preview-header-wrapper" style="border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--code-bg);padding:var(--sp-2);">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:var(--sp-2);">
+                <strong style="font-size:var(--fs-sm);color:var(--text);">Prompt Execution Preview</strong>
+                <span class="badge badge-online">ACTIVE</span>
+              </div>
+              <details class="prompt-meta-details" style="font-size:var(--fs-xs);color:var(--muted);">
+                <summary class="btn-xs" style="cursor:pointer;display:inline-flex;align-items:center;padding:2px 8px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-sm);user-select:none;">Details</summary>
+                <div style="margin-top:6px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;flex-direction:column;gap:4px;">
+                  <div><b>Instance ID:</b> <code>default-copy-814</code></div>
+                  <div><b>Process PID:</b> <code>Live Subprocess</code></div>
+                  <div><b>Error Backoff:</b> <code>5m Suppression Window Active</code></div>
+                  <div><b>Credit Sync:</b> <code>&ge; 30s Throttle Active</code></div>
+                  <div style="margin-top:4px;"><b>Prompt Context:</b><pre style="max-height:80px;overflow:auto;margin:4px 0 0 0;font-size:11px;padding:4px;background:var(--code-bg);">Execution environment: default-copy-814</pre></div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 4. ALERTS & NOTIFICATIONS -->
@@ -116,6 +141,9 @@ const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area 
         <div class="form-group">
           <label for="setting-telegram-chat">Telegram Two-Way Bot Setup &mdash; Chat ID (<code>telegram.chat_id</code>)</label>
           <input type="text" id="setting-telegram-chat" name="telegram.chat_id" data-key="telegram.chat_id" placeholder="-1001234567890">
+        </div>
+        <div class="form-group" style="margin-top:var(--sp-2); margin-bottom:var(--sp-3);">
+          <button type="button" class="btn btn-secondary" id="btn-test-telegram" onclick="testTelegramDispatch()"><span data-icon="rocket"></span>Test Telegram Dispatch</button>
         </div>
         <div class="form-group">
           <label for="setting-email-smtp">Email Speed SMTP Setup &mdash; SMTP Host (<code>email.smtp_host</code>)</label>

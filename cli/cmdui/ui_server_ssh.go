@@ -3,15 +3,47 @@ package cmdui
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
+// SSHPingResult encapsulates the JSON response for node ping tests.
+type SSHPingResult struct {
+	Success   bool   `json:"success"`
+	IsOnline  bool   `json:"isOnline"`
+	LatencyMs int64  `json:"latencyMs"`
+	Alias     string `json:"alias"`
+	Error     string `json:"error,omitempty"`
+}
+
+func init() {
+	http.HandleFunc("/api/ssh/test", handleAPISSHTest)
+	http.HandleFunc("/api/ssh/ping", handleAPISSHPing)
+}
+
+// RegisterAPISSHRoutes mounts the SSH endpoints to an explicit ServeMux.
+func RegisterAPISSHRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/ssh/nodes", handleAPISSHNodes)
+	mux.HandleFunc("/api/ssh/test", handleAPISSHTest)
+	mux.HandleFunc("/api/ssh/ping", handleAPISSHPing)
+	mux.HandleFunc("/api/ssh/export", handleAPISSHExport)
+	mux.HandleFunc("/api/ssh/import", handleAPISSHImport)
+	mux.HandleFunc("/api/ssh/deploy-keys", handleAPISSHDeployKeys)
+}
+
 func handleAPISSHNodes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	if r.URL.Query().Get("action") == "test" || r.URL.Query().Get("action") == "ping" {
+		handleAPISSHTest(w, r)
+		return
+	}
+
 	conns, err := cmdssh.FetchAllSSHConnections()
 	if err != nil {
 		_ = json.NewEncoder(w).Encode([]NodeSummary{})
@@ -25,16 +57,128 @@ func handleAPISSHNodes(w http.ResponseWriter, r *http.Request) {
 func buildNodeSummaries(conns []db.SSHConnection) []NodeSummary {
 	summaries := make([]NodeSummary, len(conns))
 	for i, c := range conns {
+		account := c.Username
+		if account == "" {
+			account = c.Alias
+		}
 		summaries[i] = NodeSummary{
-			NodeId:   c.Alias,
-			Alias:    c.Alias,
-			Host:     c.IPAddress,
-			Port:     22,
-			IsOnline: true,
-			OS:       c.OS,
+			NodeId:       c.Alias,
+			Alias:        c.Alias,
+			Host:         c.IPAddress,
+			Port:         22,
+			IsOnline:     true,
+			OS:           c.OS,
+			Account:      account,
+			Instances:    1,
+			InstanceList: []string{fmt.Sprintf("%s-instance-1", c.Alias)},
 		}
 	}
 	return summaries
+}
+
+func extractAliasFromRequestBody(r *http.Request) string {
+	if r.Method != http.MethodPost {
+		return ""
+	}
+	var req struct {
+		Alias     string `json:"alias"`
+		NodeAlias string `json:"nodeAlias"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return ""
+	}
+	if req.Alias != "" {
+		return strings.TrimSpace(req.Alias)
+	}
+	return strings.TrimSpace(req.NodeAlias)
+}
+
+func handleAPISSHTest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	alias := strings.TrimSpace(r.URL.Query().Get("alias"))
+	if alias == "" {
+		alias = strings.TrimSpace(r.URL.Query().Get("nodeAlias"))
+	}
+
+	if alias == "" {
+		alias = extractAliasFromRequestBody(r)
+	}
+
+	if alias == "" {
+		alias = "local"
+	}
+
+	res := executeNodePingCheck(alias)
+	_ = json.NewEncoder(w).Encode(res)
+}
+
+func handleAPISSHPing(w http.ResponseWriter, r *http.Request) {
+	handleAPISSHTest(w, r)
+}
+
+func executeNodePingCheck(alias string) SSHPingResult {
+	start := time.Now()
+
+	if strings.EqualFold(alias, "local") || strings.EqualFold(alias, "localhost") || alias == "." {
+		return SSHPingResult{
+			Success:   true,
+			IsOnline:  true,
+			LatencyMs: 0,
+			Alias:     alias,
+		}
+	}
+
+	conns, err := cmdssh.FetchAllSSHConnections()
+	if err != nil {
+		return SSHPingResult{
+			Success:   false,
+			IsOnline:  false,
+			LatencyMs: time.Since(start).Milliseconds(),
+			Alias:     alias,
+			Error:     err.Error(),
+		}
+	}
+
+	var targetConn *db.SSHConnection
+	for _, c := range conns {
+		if strings.EqualFold(c.Alias, alias) || strings.EqualFold(c.IPAddress, alias) {
+			targetConn = &c
+			break
+		}
+	}
+
+	if targetConn == nil {
+		return SSHPingResult{
+			Success:   false,
+			IsOnline:  false,
+			LatencyMs: time.Since(start).Milliseconds(),
+			Alias:     alias,
+			Error:     fmt.Sprintf("node %q not found in SSH fleet", alias),
+		}
+	}
+
+	dialAddr := net.JoinHostPort(targetConn.IPAddress, "22")
+	conn, dialErr := net.DialTimeout("tcp", dialAddr, 2*time.Second)
+	latency := time.Since(start).Milliseconds()
+
+	if dialErr != nil {
+		return SSHPingResult{
+			Success:   false,
+			IsOnline:  false,
+			LatencyMs: latency,
+			Alias:     alias,
+			Error:     dialErr.Error(),
+		}
+	}
+	_ = conn.Close()
+
+	return SSHPingResult{
+		Success:   true,
+		IsOnline:  true,
+		LatencyMs: latency,
+		Alias:     alias,
+	}
 }
 
 func handleAPISSHExport(w http.ResponseWriter, r *http.Request) {

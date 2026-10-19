@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -109,8 +110,20 @@ func executeTelegramSend(args []string) error {
 	if len(msg) == 0 {
 		return apperror.NewSimple("missing message text for 'gitmap telegram send \"<message>\"'", "E_TG_EMPTY_MSG")
 	}
-	token := resolveTelegramToken()
-	chatID := resolveTelegramChatID()
+
+	token := strings.TrimSpace(extractSpeedFlag(args, "--token", "-t"))
+	if len(token) == 0 {
+		token = strings.TrimSpace(resolveTelegramToken())
+	}
+	chatID := strings.TrimSpace(extractSpeedFlag(args, "--chat", "-c"))
+	if len(chatID) == 0 {
+		chatID = strings.TrimSpace(resolveTelegramChatID())
+	}
+
+	if len(token) == 0 || len(chatID) == 0 {
+		return apperror.NewSimple("telegram credentials not verified: bot token and chat id are required", "E_TG_UNVERIFIED")
+	}
+
 	isSent := dispatchTelegramMessageOrSimulate(token, chatID, msg)
 	fmt.Printf("%s✔ Telegram message dispatched (delivered=%v, chat=%s): %s%s\n",
 		constants.ColorGreen, isSent, chatID, msg, constants.ColorReset)
@@ -155,21 +168,69 @@ func fetchTelegramUpdatesOnce(token string) []string {
 	return []string{"polled"}
 }
 
-func handleIncomingTelegramCommand(raw string) string {
-	trimmed := strings.TrimSpace(raw)
-	switch {
-	case strings.HasPrefix(trimmed, "/status"):
-		return "[GitMap Bot] System Status: ONLINE | AGY Workspace Active"
-	case strings.HasPrefix(trimmed, "/rp"):
-		return "[GitMap Bot] Running Projects (rp ls): Sequence cache active (24h TTL)"
-	case strings.HasPrefix(trimmed, "/lap"):
-		return "[GitMap Bot] Last Active Projects (lap 24): Listing top 10 active workspaces"
-	case strings.HasPrefix(trimmed, "/rwi"):
-		return "[GitMap Bot] Rerun-With-ID (rwi) queued for target conversation"
-	case strings.HasPrefix(trimmed, "/asw"):
-		return "[GitMap Bot] Account-Switch (asw) fast-forward check complete"
+func parseTelegramCommandTokens(raw string) (cmd string, machine string, args []string) {
+	fields := strings.Fields(strings.TrimSpace(raw))
+	if len(fields) == 0 {
+		return "", "", nil
+	}
+	cmd = strings.ToLower(fields[0])
+	rest := fields[1:]
+
+	switch cmd {
+	case "/status", "/rp", "/lap", "/asw":
+		if len(rest) > 0 {
+			machine = strings.TrimPrefix(rest[0], "@")
+			args = rest[1:]
+		}
+	case "/rwi":
+		machine, args = parseRwiMachineAndArgs(rest)
+	case "/help":
+		if len(rest) > 0 {
+			machine = strings.TrimPrefix(rest[0], "@")
+		}
 	default:
-		return "[GitMap Bot] Commands: /status | /rp | /lap | /rwi <seq> <prompt> | /asw | /help"
+		if len(rest) > 0 && strings.HasPrefix(rest[0], "@") {
+			machine = strings.TrimPrefix(rest[0], "@")
+		}
+	}
+
+	return cmd, machine, args
+}
+
+func parseRwiMachineAndArgs(rest []string) (string, []string) {
+	if len(rest) >= 3 || len(rest) == 1 {
+		return strings.TrimPrefix(rest[0], "@"), rest[1:]
+	}
+	if len(rest) != 2 {
+		return "", nil
+	}
+	_, err := strconv.Atoi(rest[0])
+	if err != nil {
+		return strings.TrimPrefix(rest[0], "@"), rest[1:]
+	}
+	return "", rest
+}
+
+func handleIncomingTelegramCommand(raw string) string {
+	cmd, machine, _ := parseTelegramCommandTokens(raw)
+	botPrefix := "[GitMap Bot]"
+	if len(machine) > 0 {
+		botPrefix = fmt.Sprintf("[GitMap Bot @ %s]", machine)
+	}
+
+	switch cmd {
+	case "/status":
+		return fmt.Sprintf("%s System Status: ONLINE | AGY Workspace Active", botPrefix)
+	case "/rp":
+		return fmt.Sprintf("%s Running Projects (rp ls): Sequence cache active (24h TTL)", botPrefix)
+	case "/lap":
+		return fmt.Sprintf("%s Last Active Projects (lap 24): Listing top 10 active workspaces", botPrefix)
+	case "/rwi":
+		return fmt.Sprintf("%s Rerun-With-ID (rwi) queued for target conversation", botPrefix)
+	case "/asw":
+		return fmt.Sprintf("%s Account-Switch (asw) fast-forward check complete", botPrefix)
+	default:
+		return fmt.Sprintf("%s Commands: /status | /rp | /lap | /rwi <seq> <prompt> | /asw | /help", botPrefix)
 	}
 }
 

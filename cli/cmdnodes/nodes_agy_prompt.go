@@ -106,7 +106,9 @@ func dispatchLocalPrompt(opts agyPromptOptions) error {
 		return err
 	}
 
-	printPromptDispatchConfirmation("local", opts.project, opts.title, "dispatched", "-", time.Since(start))
+	account := resolveTargetAccount("local")
+	instance := resolveTargetInstance("local")
+	printPromptDispatchConfirmation("local", opts.project, account, instance, opts.title, "dispatched", "-", time.Since(start))
 	return nil
 }
 
@@ -121,7 +123,9 @@ func enqueueLocalPrompt(opts agyPromptOptions, start time.Time) error {
 	if err != nil {
 		return err
 	}
-	printPromptDispatchConfirmation("local", opts.project, opts.title, "queued", rec.ID, time.Since(start))
+	account := resolveTargetAccount("local")
+	instance := resolveTargetInstance("local")
+	printPromptDispatchConfirmation("local", opts.project, account, instance, opts.title, "queued", rec.ID, time.Since(start))
 	return nil
 }
 
@@ -160,7 +164,9 @@ func dispatchRemotePrompt(opts agyPromptOptions) error {
 		status = "queued"
 	}
 
-	printPromptDispatchConfirmation(conn.Alias, opts.project, opts.title, status, "-", time.Since(start))
+	account := resolveTargetAccount(conn.Alias, conn)
+	instance := "remote-instance"
+	printPromptDispatchConfirmation(conn.Alias, opts.project, account, instance, opts.title, status, "-", time.Since(start))
 	return nil
 }
 
@@ -188,15 +194,38 @@ func buildRemoteSendPromptCmd(conn db.SSHConnection, project, stagedFile, title 
 	return fmt.Sprintf("gitmap agy send-prompt --project '%s' --prompt '%s'%s%s", project, stagedFile, titleFlag, enqueueFlag)
 }
 
-func printPromptDispatchConfirmation(node, project, title, status, queueID string, dur time.Duration) {
+func resolveTargetAccount(node string, conn ...db.SSHConnection) string {
+	if len(conn) > 0 && conn[0].Username != "" {
+		return conn[0].Username
+	}
+	if u := os.Getenv("USERNAME"); u != "" {
+		return u
+	}
+	if u := os.Getenv("USER"); u != "" {
+		return u
+	}
+	return "default"
+}
+
+func resolveTargetInstance(node string) string {
+	instances, err := cmdagy.DiscoverAllAgyInstances()
+	if err == nil && len(instances) > 0 {
+		return instances[0].InstanceID
+	}
+	return "default-copy-814"
+}
+
+func printPromptDispatchConfirmation(node, project, account, instance, title, status, queueID string, dur time.Duration) {
 	fmt.Printf("\n  %s Successfully %s prompt to [%s] %s\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, status, node, project)
-	fmt.Printf("    • Target Node:  %s\n", node)
-	fmt.Printf("    • Target Proj:  %s\n", project)
-	fmt.Printf("    • Prompt Title: %s\n", title)
+	fmt.Printf("    • Target Node:     %s\n", node)
+	fmt.Printf("    • Target Proj:     %s\n", project)
+	fmt.Printf("    • Target Account:  %s\n", account)
+	fmt.Printf("    • Target Instance: %s\n", instance)
+	fmt.Printf("    • Prompt Title:    %s\n", title)
 	if queueID != "-" && queueID != "" {
-		fmt.Printf("    • Queue ID:     %s\n", queueID)
+		fmt.Printf("    • Queue ID:        %s\n", queueID)
 	}
-	fmt.Printf("    • Status:       %s\n", strings.ToUpper(status))
-	fmt.Printf("    • Duration:     %v\n\n", dur.Round(time.Millisecond))
+	fmt.Printf("    • Status:          %s\n", strings.ToUpper(status))
+	fmt.Printf("    • Duration:        %v\n\n", dur.Round(time.Millisecond))
 }

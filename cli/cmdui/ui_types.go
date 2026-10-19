@@ -25,12 +25,15 @@ type CommitinOptions struct {
 
 // NodeSummary represents an SSH cluster node.
 type NodeSummary struct {
-	NodeId   string `json:"nodeId"`
-	Alias    string `json:"alias"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	IsOnline bool   `json:"isOnline"`
-	OS       string `json:"os"`
+	NodeId       string   `json:"nodeId"`
+	Alias        string   `json:"alias"`
+	Host         string   `json:"host"`
+	Port         int      `json:"port"`
+	IsOnline     bool     `json:"isOnline"`
+	OS           string   `json:"os"`
+	Account      string   `json:"account"`
+	Instances    int      `json:"instances"`
+	InstanceList []string `json:"instanceList"`
 }
 
 // RemoteFileReadReq requests a remote file content.

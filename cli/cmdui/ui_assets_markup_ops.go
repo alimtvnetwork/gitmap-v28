@@ -53,8 +53,8 @@ const uiAssetsMarkupOps = `    <div id="tab-commitin" class="content-area">
         </div>
         <div id="ssh-action-status" style="font-size: var(--fs-sm); margin-bottom: var(--sp-2); display: none;"></div>
         <table id="nodes-table" style="margin-top: var(--sp-2);">
-          <thead><tr><th>Node ID</th><th>Alias</th><th>Host / IP</th><th>OS</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="nodes-body"><tr><td colspan="6" style="text-align:center;">Loading nodes...</td></tr></tbody>
+          <thead><tr><th>Node ID</th><th>Alias</th><th>Host / IP</th><th>OS</th><th>Account</th><th>Instances</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="nodes-body"><tr><td colspan="8" style="text-align:center;">Loading nodes...</td></tr></tbody>
         </table>
         <div style="margin-top: var(--sp-4); padding: var(--sp-4); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);">
           <h4 style="margin-bottom: var(--sp-2); color: var(--primary); font-size: var(--fs-sm);"><span data-icon="info"></span> Fleet CLI Commands &amp; Cross-Machine Sharing</h4>

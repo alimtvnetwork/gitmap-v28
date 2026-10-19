@@ -63,13 +63,39 @@ const uiAssetsJSPromptsHelp = `    let allPrompts = [], activePromptCategory = '
         container.innerHTML = '<div style="color:var(--muted);font-size:var(--fs-sm);padding:var(--sp-2)">No prompts found matching filter.</div>';
         return;
       }
+      filtered.sort(function (a, b) {
+        function rank(s) {
+          const st = (s || '').toLowerCase();
+          if (st === 'running') return 0;
+          if (st === 'queued' || st === 'enqueued') return 1;
+          if (st === 'active') return 2;
+          return 3;
+        }
+        return rank(a.status) - rank(b.status);
+      });
       container.innerHTML = '';
       filtered.slice(0, 30).forEach(function (p) {
         const item = document.createElement('div');
         item.style.cssText = 'padding:var(--sp-3);background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;';
+        const stLower = (p.status || '').toLowerCase();
+        let badgeClass = 'badge-offline';
+        let badgeText = (p.status || 'IDLE').toUpperCase();
+        let badgeStyle = '';
+        if (stLower === 'running') {
+          badgeClass = 'badge-online';
+          badgeText = 'RUNNING';
+          badgeStyle = 'background:rgba(210,153,34,0.18);color:#d29922;border:1px solid #d29922;font-weight:700;';
+        } else if (stLower === 'queued' || stLower === 'enqueued') {
+          badgeClass = 'badge-queued';
+          badgeText = stLower === 'enqueued' ? 'ENQUEUED' : 'QUEUED';
+          badgeStyle = 'background:rgba(88,166,255,0.18);color:#58a6ff;border:1px solid #58a6ff;font-weight:700;';
+        } else if (stLower === 'active') {
+          badgeClass = 'badge-online';
+          badgeText = 'ACTIVE';
+        }
         item.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
           '<b>' + escapeHTML(p.title) + '</b>' +
-          '<span class="badge ' + (p.status === 'running' || p.status === 'active' ? 'badge-online' : 'badge-offline') + '">' + escapeHTML(p.status) + '</span>' +
+          '<span class="badge ' + badgeClass + '"' + (badgeStyle ? ' style="' + badgeStyle + '"' : '') + '>' + escapeHTML(badgeText) + '</span>' +
           '</div>' +
           '<div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;">Instance: ' + escapeHTML(p.instance) + '</div>' +
           '<div style="font-size:var(--fs-sm);color:var(--text);font-family:var(--font-mono);max-height:48px;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML((p.text || '').slice(0, 160)) + '</div>';

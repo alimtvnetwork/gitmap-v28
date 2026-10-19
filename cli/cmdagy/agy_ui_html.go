@@ -1,6 +1,6 @@
 package cmdagy
 
-const agyUIDashboardHTML = `<!DOCTYPE html>
+const agyUIDashboardBaseHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -67,6 +67,8 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
   .status-tag.completed { background: var(--green-bg); color: var(--green); }
   .snippet { font-family: monospace; color: var(--dim); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .toast { position: fixed; bottom: 20px; right: 20px; background: #238636; color: #fff; padding: 10px 16px; border-radius: 6px; display: none; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 100; }
+  .badge-online { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow); }
+  .badge-queued { background: rgba(88, 166, 255, 0.15); color: var(--cyan); border: 1px solid var(--cyan); }
 </style>
 </head>
 <body>
@@ -216,14 +218,27 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       tbody.innerHTML = '<tr><td colspan="4" style="color:var(--dim)">No active Antigravity projects</td></tr>';
       return;
     }
-    tbody.innerHTML = projects.map(p => 
-      '<tr>' +
+    const sorted = projects.slice().sort(function(a, b) {
+      function rank(p) {
+        const st = ((p && p.status) || (p && p.hasActivePrompt ? 'running' : 'idle')).toLowerCase();
+        if (st === 'running') return 0;
+        if (st === 'queued' || st === 'enqueued') return 1;
+        if (st === 'active') return 2;
+        return 3;
+      }
+      return rank(a) - rank(b);
+    });
+    tbody.innerHTML = sorted.map(p => {
+      const isRunning = p.hasActivePrompt || (p.status || '').toLowerCase() === 'running';
+      const badgeClass = isRunning ? 'running' : 'saved';
+      const badgeText = isRunning ? 'RUNNING' : (p.status || 'IDLE').toUpperCase();
+      return '<tr>' +
         '<td><strong>' + escapeHtml(p.projectName) + '</strong></td>' +
-        '<td><span class="status-tag ' + (p.hasActivePrompt ? 'running' : 'saved') + '">' + (p.status || 'IDLE') + '</span></td>' +
+        '<td><span class="status-tag ' + badgeClass + '">' + escapeHtml(badgeText) + '</span></td>' +
         '<td class="snippet" title="' + escapeHtml(p.promptPreview || '') + '">' + escapeHtml(p.promptPreview || 'None') + '</td>' +
         '<td><button onclick="selectProject(\'' + escapeHtml(p.projectName || p.projectPath) + '\')">Target</button></td>' +
-      '</tr>'
-    ).join('');
+      '</tr>';
+    }).join('');
   }
 
   function renderQueue(queued) {
@@ -233,14 +248,40 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
       tbody.innerHTML = '<tr><td colspan="4" style="color:var(--dim)">No prompts in queue</td></tr>';
       return;
     }
-    tbody.innerHTML = queued.map(q => 
-      '<tr>' +
+    const sorted = queued.slice().sort(function(a, b) {
+      function rank(q) {
+        const st = ((q && q.status) || 'queued').toLowerCase();
+        if (st === 'running') return 0;
+        if (st === 'queued' || st === 'enqueued') return 1;
+        if (st === 'active') return 2;
+        return 3;
+      }
+      return rank(a) - rank(b);
+    });
+    tbody.innerHTML = sorted.map(q => {
+      const st = (q.status || 'QUEUED').toUpperCase();
+      return '<tr>' +
         '<td>#' + q.id + '</td>' +
         '<td>' + escapeHtml(q.title || 'Untitled') + '</td>' +
         '<td>' + escapeHtml(q.projectName || '-') + '</td>' +
-        '<td><span class="status-tag queued">' + (q.status || 'QUEUED') + '</span></td>' +
-      '</tr>'
-    ).join('');
+        '<td><span class="status-tag queued">' + escapeHtml(st) + '</span></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderPromptsList(items) {
+    const list = (items || []).slice();
+    list.sort(function(a, b) {
+      function rank(s) {
+        const st = ((s && s.status) || '').toLowerCase();
+        if (st === 'running') return 0;
+        if (st === 'queued' || st === 'enqueued') return 1;
+        if (st === 'active') return 2;
+        return 3;
+      }
+      return rank(a) - rank(b);
+    });
+    return list;
   }
 
   function renderSavedPrompts(saved) {
@@ -345,22 +386,13 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
     });
   }
 
-  function loadPromptTree() {
-    fetch('/api/prompts/tree')
-      .then(res => res.json())
-      .then(data => {
-        let msg = 'Project Prompts Tree:\n\n';
-        data.forEach(item => {
-          msg += '• [' + item.nodeAlias + '] ' + item.projectName + ' (' + item.workspacePath + ')\n';
-          (item.activePrompts || []).forEach(ap => {
-            msg += '    - ACTIVE: ' + ap.promptSnippet + ' (' + ap.status + ')\n';
-          });
-          (item.queuedPrompts || []).forEach(qp => {
-            msg += '    - QUEUED: ' + qp.title + ' (#' + qp.id + ')\n';
-          });
-        });
-        alert(msg);
-      });
+  let selectedTreeProject = '';
+
+  function selectTreeProject(name) {
+    selectedTreeProject = name;
+    document.querySelectorAll('.tree-node-block').forEach(function(el) {
+      el.classList.toggle('selected', el.id === 'treeNode_' + name);
+    });
   }
 
   function escapeHtml(str) {
@@ -374,6 +406,6 @@ const agyUIDashboardHTML = `<!DOCTYPE html>
     }
   }, 5000);
 </script>
-</body>
-</html>
 `
+
+var agyUIDashboardHTML = agyUIDashboardBaseHTML + agyUITreeExtensionHTML + "\n</body>\n</html>\n"

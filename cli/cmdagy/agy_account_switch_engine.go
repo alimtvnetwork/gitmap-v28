@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -294,12 +295,58 @@ func refreshAndSelectCandidate(cand AccountCandidate) AccountCandidate {
 	return refreshed
 }
 
-func loadCandidatePool() []AccountCandidate {
+var (
+	creditSyncMu     sync.RWMutex
+	lastCreditSyncAt time.Time
+	cachedCandidates []AccountCandidate
+)
+
+// SyncAccountCredits synchronizes and returns candidate account credits with a 30s throttle guard.
+// Enforces hard rate limit: if time.Since(lastCreditSyncAt) < 30*time.Second, cached credits are returned.
+func SyncAccountCredits() ([]AccountCandidate, error) {
+	creditSyncMu.Lock()
+	defer creditSyncMu.Unlock()
+	if !lastCreditSyncAt.IsZero() && time.Since(lastCreditSyncAt) < 30*time.Second && len(cachedCandidates) > 0 {
+		return copyCandidates(cachedCandidates), nil
+	}
+	pool := fetchFreshCandidatePool()
+	cachedCandidates = copyCandidates(pool)
+	lastCreditSyncAt = time.Now()
+	return pool, nil
+}
+
+// IsCreditSyncThrottled returns true if the last credit sync occurred less than 30 seconds ago.
+func IsCreditSyncThrottled() bool {
+	creditSyncMu.RLock()
+	defer creditSyncMu.RUnlock()
+	return !lastCreditSyncAt.IsZero() && time.Since(lastCreditSyncAt) < 30*time.Second
+}
+
+// ResetCreditSyncThrottle resets the credit sync timestamp (useful for testing).
+func ResetCreditSyncThrottle() {
+	creditSyncMu.Lock()
+	defer creditSyncMu.Unlock()
+	lastCreditSyncAt = time.Time{}
+	cachedCandidates = nil
+}
+
+func copyCandidates(src []AccountCandidate) []AccountCandidate {
+	dst := make([]AccountCandidate, len(src))
+	copy(dst, src)
+	return dst
+}
+
+func fetchFreshCandidatePool() []AccountCandidate {
 	return []AccountCandidate{
 		{Email: "dm-locked-node@antigravity.dev", ProfileName: "dm-locked-node", InitialCreditPct: 99, RefreshedCreditPct: 99, IsLockedByOtherVM: true, LockSource: "supabase-vm-02"},
 		{Email: "fleet-alpha@antigravity.dev", ProfileName: "fleet-alpha", InitialCreditPct: 96, RefreshedCreditPct: 96},
 		{Email: "fleet-beta@antigravity.dev", ProfileName: "fleet-beta", InitialCreditPct: 88, RefreshedCreditPct: 88},
 	}
+}
+
+func loadCandidatePool() []AccountCandidate {
+	pool, _ := SyncAccountCredits()
+	return pool
 }
 
 func rankAccountCandidates(pool []AccountCandidate) []AccountCandidate {

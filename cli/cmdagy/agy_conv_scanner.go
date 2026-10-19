@@ -7,10 +7,48 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
+
+var (
+	convScanMu        sync.RWMutex
+	lastConvScanAt    time.Time
+	cachedConvList    []AgyConvInfo
+	transcriptCacheMu sync.RWMutex
+	transcriptCache   = make(map[string]transcriptCacheEntry)
+)
+
+type transcriptCacheEntry struct {
+	workspace string
+	cachedAt  time.Time
+}
+
+const convCacheTTL = 10 * time.Second
+
+// InvalidateConvCache clears the in-memory conversation and transcript TTL caches.
+func InvalidateConvCache() {
+	convScanMu.Lock()
+	lastConvScanAt = time.Time{}
+	cachedConvList = nil
+	convScanMu.Unlock()
+
+	transcriptCacheMu.Lock()
+	transcriptCache = make(map[string]transcriptCacheEntry)
+	transcriptCacheMu.Unlock()
+}
+
+func copyConvList(src []AgyConvInfo) []AgyConvInfo {
+	if src == nil {
+		return nil
+	}
+	dst := make([]AgyConvInfo, len(src))
+	copy(dst, src)
+	return dst
+}
 
 type AgyConvInfo struct {
 	ID        string
@@ -37,13 +75,31 @@ func getConversationsDirPath() (string, error) {
 }
 
 func scanAllConversations() ([]AgyConvInfo, error) {
+	convScanMu.RLock()
+	if !lastConvScanAt.IsZero() && time.Since(lastConvScanAt) < convCacheTTL && cachedConvList != nil {
+		cached := copyConvList(cachedConvList)
+		convScanMu.RUnlock()
+		return cached, nil
+	}
+	convScanMu.RUnlock()
+
 	dir, err := getConversationsDirPath()
 	hasDirErr := err != nil
 	if hasDirErr {
 		return nil, err
 	}
 
-	return readConversationsFromDir(dir)
+	convs, err := readConversationsFromDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	convScanMu.Lock()
+	lastConvScanAt = time.Now()
+	cachedConvList = copyConvList(convs)
+	convScanMu.Unlock()
+
+	return convs, nil
 }
 
 func readConversationsFromDir(dir string) ([]AgyConvInfo, error) {
@@ -259,6 +315,13 @@ func querySingleCount(conn *sql.DB, query string) int {
 }
 
 func extractWorkspaceFromTranscript(convID string) string {
+	transcriptCacheMu.RLock()
+	entry, ok := transcriptCache[convID]
+	transcriptCacheMu.RUnlock()
+	if ok && time.Since(entry.cachedAt) < convCacheTTL {
+		return entry.workspace
+	}
+
 	f, err := openConvTranscriptFile(convID)
 	hasErr := err != nil
 	if hasErr {
@@ -266,7 +329,16 @@ func extractWorkspaceFromTranscript(convID string) string {
 	}
 	defer f.Close()
 
-	return scanTranscriptForWorkspace(f)
+	ws := scanTranscriptForWorkspace(f)
+
+	transcriptCacheMu.Lock()
+	transcriptCache[convID] = transcriptCacheEntry{
+		workspace: ws,
+		cachedAt:  time.Now(),
+	}
+	transcriptCacheMu.Unlock()
+
+	return ws
 }
 
 func scanTranscriptForWorkspace(f *os.File) string {

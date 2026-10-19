@@ -14,6 +14,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // NodeStatusRecord provides lightweight health telemetry for a fleet node.
@@ -103,6 +104,10 @@ func newAgyUIMux() *http.ServeMux {
 	mux.HandleFunc("/api/prompts/save", handleAgyUIPromptSave)
 	mux.HandleFunc("/api/prompts/resend", handleAgyUIPromptResend)
 	mux.HandleFunc("/api/prompts/tree", handleAgyUIPromptTree)
+	mux.HandleFunc("/api/prompts/backup", handleAgyUIPromptBackup)
+	mux.HandleFunc("/api/prompts/restore", handleAgyUIPromptRestore)
+	mux.HandleFunc("/api/prompts/reset", handleAgyUIPromptReset)
+	mux.HandleFunc("/api/prompts/refresh", handleAgyUIPromptRefresh)
 	return mux
 }
 
@@ -338,6 +343,104 @@ func handleAgyUIPromptTree(w http.ResponseWriter, _ *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(treeList)
+}
+
+// BackupRunningPrompts triggers a snapshot batch of all running and queued prompts.
+func BackupRunningPrompts() (store.PromptBackupSummary, error) {
+	return RunRunningPromptsBackupSummary("")
+}
+
+func handleAgyUIPromptBackup(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, `{"error":"POST required"}`, http.StatusMethodNotAllowed)
+		return
+	}
+	summary, err := BackupRunningPrompts()
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"batchId": summary.BatchId,
+		"count":   summary.TotalPrompts,
+	})
+}
+
+// PromptRestorePayload models an inbound request to restore a backup batch.
+type PromptRestorePayload struct {
+	BatchID string `json:"batchId"`
+}
+
+func handleAgyUIPromptRestore(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, `{"error":"POST required"}`, http.StatusMethodNotAllowed)
+		return
+	}
+	var payload PromptRestorePayload
+	_ = json.NewDecoder(r.Body).Decode(&payload)
+
+	db, err := store.OpenBackupPromptsSplitDB("")
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	summary, err := fetchLatestOrTargetBackup(db, payload.BatchID)
+
+	if err != nil || summary == nil {
+		http.Error(w, `{"error":"no backup batch found to restore"}`, http.StatusNotFound)
+		return
+	}
+
+	restoredCount := restoreItemsToWorkspaces(summary.Items)
+	_ = db.MarkBatchRestored(summary.BatchId, true, restoredCount)
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success":  true,
+		"restored": restoredCount,
+	})
+}
+
+func handleAgyUIPromptReset(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, `{"error":"POST required"}`, http.StatusMethodNotAllowed)
+		return
+	}
+	emptyQueue := AgyPromptQueueFile{
+		Queued:    make([]AgyPromptQueueEntry, 0),
+		UpdatedAt: time.Now().UTC().Format(time.RFC3339),
+	}
+	_ = SavePromptQueue(emptyQueue)
+	if activeText := resolveActiveTextPath("."); activeText != "" {
+		_ = os.Remove(activeText)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+	})
+}
+
+func handleAgyUIPromptRefresh(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodPost {
+		http.Error(w, `{"error":"GET or POST required"}`, http.StatusMethodNotAllowed)
+		return
+	}
+	handleAgyUIPromptTree(w, r)
+}
+
+func fetchLatestOrTargetBackup(db *store.BackupPromptsSplitDB, batchID string) (*store.PromptBackupSummary, error) {
+	if len(batchID) > 0 {
+		return db.GetBackupBatch(batchID)
+	}
+	batches, err := db.ListBackupBatches()
+	if err != nil || len(batches) == 0 {
+		return nil, err
+	}
+	return db.GetBackupBatch(batches[0].BatchID)
 }
 
 func bindAgyUIListener(port int) (net.Listener, int, error) {

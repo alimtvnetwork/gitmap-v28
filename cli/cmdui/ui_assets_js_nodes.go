@@ -7,15 +7,30 @@ const uiAssetsJSNodes = `    async function refreshNodes() {
         const tbody = document.getElementById('nodes-body');
         tbody.innerHTML = '';
         if (!data || data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No nodes registered. Use "gitmap ssh join" to add nodes.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">No nodes registered. Use "gitmap ssh join" to add nodes.</td></tr>';
           return;
         }
         data.forEach(n => {
           const row = document.createElement('tr');
-          row.innerHTML = ` + "`" + `<td>${n.nodeId || '-'}</td><td><b>${n.alias}</b></td><td>${n.host}</td><td>${n.os || 'Linux'}</td><td><span class="badge ${n.isOnline ? 'badge-online' : 'badge-offline'}">${n.isOnline ? 'Online' : 'Offline'}</span></td><td><button class="btn" style="padding:0.25rem 0.5rem;font-size:0.75rem" onclick="testNode('${n.alias}')">Ping</button></td>` + "`" + `;
+          row.innerHTML = ` + "`" + `<td>${n.nodeId || '-'}</td><td><b>${n.alias}</b></td><td>${n.host}</td><td>${n.os || 'Linux'}</td><td>${n.account || '-'}</td><td>${n.instances || 0}</td><td><span class="badge ${n.isOnline ? 'badge-online' : 'badge-offline'}">${n.isOnline ? 'Online' : 'Offline'}</span></td><td><button class="btn" style="padding:0.25rem 0.5rem;font-size:0.75rem" onclick="testNode('${n.alias}')">Ping</button></td>` + "`" + `;
           tbody.appendChild(row);
         });
       } catch (e) { console.error(e); }
+    }
+    async function testNode(alias) {
+      showToast('Pinging node ' + alias + '...', 'info');
+      try {
+        const res = await fetch('/api/ssh/test?alias=' + encodeURIComponent(alias));
+        const data = await res.json();
+        if (data.success || data.isOnline) {
+          showToast('Node ' + alias + ' is online (' + (data.latencyMs || 0) + 'ms)', 'success');
+        } else {
+          showToast('Node ' + alias + ' ping failed: ' + (data.error || 'unreachable'), 'error');
+        }
+        refreshNodes();
+      } catch (e) {
+        showToast('Ping error: ' + e.message, 'error');
+      }
     }
     async function populateEditorNodes() {
       try {

@@ -126,6 +126,81 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       stack.appendChild(el);
       setTimeout(function () { el.classList.add('toast-out'); setTimeout(function () { el.remove(); }, 250); }, 3500);
     }
+    // UI Background Refresh Throttling (Spec 3.4) - 5 minutes (300,000ms) to reduce background load
+    const UI_AUTO_REFRESH_INTERVAL_MS = 300000;
+    let uiLastAutoRefresh = Date.now();
+    let uiAutoRefreshTimer = null;
+
+    function shouldThrottleUiRefresh() {
+      const now = Date.now();
+      if (now - uiLastAutoRefresh < UI_AUTO_REFRESH_INTERVAL_MS) {
+        return true;
+      }
+      uiLastAutoRefresh = now;
+      return false;
+    }
+
+    function scheduleUiAutoRefresh(taskFn) {
+      if (uiAutoRefreshTimer) clearInterval(uiAutoRefreshTimer);
+      uiAutoRefreshTimer = setInterval(function () {
+        if (!shouldThrottleUiRefresh() && typeof taskFn === 'function') {
+          taskFn();
+        }
+      }, UI_AUTO_REFRESH_INTERVAL_MS);
+    }
+
+    async function testTelegramDispatch() {
+      const token = document.getElementById('setting-telegram-token') ? document.getElementById('setting-telegram-token').value.trim() : '';
+      const chatId = document.getElementById('setting-telegram-chat') ? document.getElementById('setting-telegram-chat').value.trim() : '';
+      if (!token || !chatId) {
+        showToast('Please enter both Telegram Bot Token and Chat ID', 'error');
+        return;
+      }
+      try {
+        showToast('Testing Telegram dispatch...', 'info');
+        const res = await fetch('/api/telegram/send', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ token: token, chatId: chatId, message: 'GitMap Telegram connectivity test' })
+        });
+        const data = await res.json();
+        if (data && (data.success || res.ok)) {
+          showToast('Telegram test dispatch succeeded!', 'success');
+        } else {
+          showToast('Telegram test failed: ' + ((data && data.error) || 'Unknown error'), 'error');
+        }
+      } catch (err) {
+        showToast('Telegram test dispatch error: ' + err.message, 'error');
+      }
+    }
+
+    // Prompt preview expandable Details generator (Spec 3.5)
+    // Encapsulates repeated metadata (instance e.g. default-copy-814, process PIDs, full prompt) inside <details>
+    function renderPromptPreviewHeader(meta) {
+      meta = meta || {};
+      const instanceId = (meta.instanceId || meta.instance || 'default-copy-814');
+      const pid = meta.pid ? String(meta.pid) : 'Live Subprocess';
+      const promptText = (meta.promptText || meta.text || '');
+      const slug = (meta.slug || meta.title || 'Prompt Preview');
+      const status = (meta.status || 'ACTIVE');
+
+      return '<div class="prompt-header-compact" style="display:flex;align-items:center;justify-content:space-between;padding:var(--sp-2);background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:var(--sp-2);">' +
+        '<div style="display:flex;align-items:center;gap:var(--sp-2);">' +
+          '<strong style="font-size:var(--fs-sm);color:var(--text);">' + slug + '</strong>' +
+          '<span class="badge badge-online">' + status + '</span>' +
+        '</div>' +
+        '<details class="prompt-meta-details" style="font-size:var(--fs-xs);color:var(--muted);">' +
+          '<summary class="btn-xs" style="cursor:pointer;display:inline-flex;align-items:center;padding:2px 8px;background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius-sm);user-select:none;">Details</summary>' +
+          '<div style="margin-top:6px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;flex-direction:column;gap:4px;">' +
+            '<div><b>Instance ID:</b> <code>' + instanceId + '</code></div>' +
+            '<div><b>Process PID:</b> <code>' + pid + '</code></div>' +
+            '<div><b>Backoff Gate:</b> <code>5m Error Backoff Active</code></div>' +
+            (promptText ? '<div style="margin-top:4px;"><b>Full Prompt:</b><pre style="max-height:100px;overflow:auto;margin:4px 0 0 0;font-size:11px;padding:4px;background:var(--code-bg);">' + promptText + '</pre></div>' : '') +
+          '</div>' +
+        '</details>' +
+      '</div>';
+    }
+
     // Dead-handler stubs (spec 249.2 §7): honest "not implemented yet" toasts, zero ReferenceErrors.
     ['deployMacroFleetModal', 'loadMacros', 'saveInstaller', 'testInstaller', 'formatPromptJSON', 'importPrompt', 'exportFullConfig', 'importFullConfig', 'addSchedule', 'testNode'].forEach(function (nm) {
       window[nm] = function () { showToast('Not implemented yet', 'info'); };

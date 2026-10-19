@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.577.0] - 2026-10-19
+
+### Added
+- node-prompt-fixes - fleet telemetry, prompt tree modal, telegram priority, and supabase error backoff
+
+---
+
 ## [v6.576.0] - 2026-10-18
 
 ### Added

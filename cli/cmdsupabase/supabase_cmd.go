@@ -231,6 +231,10 @@ func handleUse(args []string) error {
 }
 
 func handleTest(args []string) error {
+	if IsSupabaseErrorSuppressed() {
+		return apperror.NewSimple("supabase connection suppressed (5m backoff active)", "E_SB_SUPPRESSED")
+	}
+
 	if len(args) == 0 {
 		return apperror.NewValidationError("usage: gitmap supabase ping <alias>")
 	}
@@ -245,6 +249,11 @@ func handleTest(args []string) error {
 }
 
 func executePingProbe(p *SupabaseProjectRecord) error {
+	if IsSupabaseErrorSuppressed() {
+		// Skip connection attempt for 5 minutes
+		return apperror.NewSimple("supabase connection suppressed (5m backoff active)", "E_SB_SUPPRESSED")
+	}
+
 	apiKey, err := DecryptSecret(p.AnonKeyEnc)
 	if err != nil || apiKey == "" {
 		apiKey, _ = DecryptSecret(p.ServiceKeyEnc)
@@ -254,6 +263,7 @@ func executePingProbe(p *SupabaseProjectRecord) error {
 	reqUrl := strings.TrimRight(p.ApiUrl, "/") + "/rest/v1/"
 	req, err := http.NewRequest(http.MethodGet, reqUrl, nil)
 	if err != nil {
+		RecordSupabaseError(err)
 		return apperror.WrapSimple(err, "executePingProbe_NewRequest")
 	}
 
@@ -263,6 +273,12 @@ func executePingProbe(p *SupabaseProjectRecord) error {
 	start := time.Now()
 	resp, reqErr := client.Do(req)
 	latency := time.Since(start)
+
+	if reqErr != nil {
+		RecordSupabaseError(reqErr)
+	} else if resp != nil && (resp.StatusCode < 200 || resp.StatusCode >= 400) {
+		RecordSupabaseError(fmt.Errorf("supabase ping received HTTP %d", resp.StatusCode))
+	}
 
 	return reportPingResult(p.Alias, p.ApiUrl, resp, latency, reqErr)
 }

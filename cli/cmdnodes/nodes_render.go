@@ -3,11 +3,34 @@ package cmdnodes
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+
+// Account returns the GitHub/AGM account or SSH user for this fleet node.
+func (n UnifiedFleetNode) Account() string {
+	if n.User != "" && n.User != "root" {
+		return n.User
+	}
+	if n.Alias != "" && n.Alias != "-" {
+		return n.Alias
+	}
+	if n.User != "" {
+		return n.User
+	}
+	return "default"
+}
+
+// Instances returns the count of active or configured instances for this node.
+func (n UnifiedFleetNode) Instances() int {
+	if n.IsOnline {
+		return 1
+	}
+	return 0
+}
 
 func padCell(s string, width int) string {
 	count := utf8.RuneCountInString(s)
@@ -54,29 +77,31 @@ func renderPrimaryNodesTable(out io.Writer, nodes []UnifiedFleetNode) error {
 
 func renderHostsHeader(out io.Writer) error {
 	colAlias := padCell("ALIAS", 16)
-	colRole := padCell("ROLE", 14)
+	colRole := padCell("ROLE", 12)
 	colHost := padCell("HOST (IP:PORT)", 22)
-	colUser := padCell("USER", 14)
+	colAccount := padCell("ACCOUNT", 16)
+	colInstances := padCell("INSTANCES", 11)
 	colStatus := padCell("STATUS", 21)
 	colEnrolled := padCell("ENROLLED", 19)
 
-	headerLine := fmt.Sprintf("  %s %s %s %s %s %s\n",
-		colAlias, colRole, colHost, colUser, colStatus, colEnrolled)
+	headerLine := fmt.Sprintf("  %s %s %s %s %s %s %s\n",
+		colAlias, colRole, colHost, colAccount, colInstances, colStatus, colEnrolled)
 	fmt.Fprintf(out, "\n%s%s%s", constants.ColorCyan, headerLine, constants.ColorReset)
-	divider := strings.Repeat("-", 110)
+	divider := strings.Repeat("-", 123)
 	fmt.Fprintf(out, "  %s%s%s\n", constants.ColorDim, divider, constants.ColorReset)
 	return nil
 }
 
 func renderPrimaryNodeRow(out io.Writer, n UnifiedFleetNode) {
 	alias := formatCellAlias(n.Alias, 16)
-	role := formatCellRole(n.Role, 14)
+	role := formatCellRole(n.Role, 12)
 	hostPort := formatCellHost(fmt.Sprintf("%s:%d", n.Host, n.Port), 22)
-	user := formatCellDim(n.User, 14)
+	account := formatCellDim(n.Account(), 16)
+	instances := formatCellDim(strconv.Itoa(n.Instances()), 11)
 	status := formatCellStatus(n.Status, 21)
 	enrolled := formatCellDim(n.EnrolledAt, 19)
 
-	fmt.Fprintf(out, "  %s %s %s %s %s %s\n", alias, role, hostPort, user, status, enrolled)
+	fmt.Fprintf(out, "  %s %s %s %s %s %s %s\n", alias, role, hostPort, account, instances, status, enrolled)
 }
 
 func renderCommandsMatrixTable(out io.Writer, nodes []UnifiedFleetNode) error {

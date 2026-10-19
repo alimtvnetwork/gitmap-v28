@@ -3,14 +3,17 @@ package cmdprompt
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -51,6 +54,68 @@ var promptInjectCmd = &cobra.Command{
 	},
 }
 
+// PromptCatalogIndex stores index metadata for fast prompt catalog searching.
+type PromptCatalogIndex struct {
+	TotalTemplates int                  `json:"totalTemplates"`
+	UpdatedAt      string               `json:"updatedAt"`
+	Templates      []PromptCatalogEntry `json:"templates"`
+}
+
+// PromptCatalogEntry stores an individual template entry in the catalog index.
+type PromptCatalogEntry struct {
+	Slug        string   `json:"slug"`
+	Title       string   `json:"title"`
+	Version     string   `json:"version"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+	UpdatedAt   string   `json:"updatedAt"`
+}
+
+func rebuildPromptsIndex(dir string) error {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+
+	items := make([]PromptCatalogEntry, 0)
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+			continue
+		}
+		data, readErr := os.ReadFile(filepath.Join(dir, e.Name()))
+		if readErr != nil {
+			continue
+		}
+		pt := parsePromptMarkdown(string(data))
+		slug := pt.Slug
+		if slug == "" {
+			slug = strings.TrimSuffix(e.Name(), ".md")
+		}
+		items = append(items, PromptCatalogEntry{
+			Slug:        slug,
+			Title:       pt.Title,
+			Version:     pt.Version,
+			Description: pt.Description,
+			Tags:        pt.Tags,
+			UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+		})
+	}
+
+	indexObj := PromptCatalogIndex{
+		TotalTemplates: len(items),
+		UpdatedAt:      time.Now().UTC().Format(time.RFC3339),
+		Templates:      items,
+	}
+
+	raw, err := json.MarshalIndent(indexObj, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	indexPath := filepath.Join(dir, "prompts_index.json")
+	return os.WriteFile(indexPath, raw, constants.FilePermission)
+}
+
 func executePromptExport(outPath string) error {
 	dir, dirErr := getPromptsStorageDir()
 	if dirErr != nil {
@@ -81,18 +146,30 @@ func executePromptExport(outPath string) error {
 	}
 
 	fmt.Printf("%s Exported %d prompt template(s) into zip archive: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, count, outPath)
+	_ = rebuildPromptsIndex(dir)
+	_ = cmdprompttemplate.RebuildTemplateIndex()
 
 	return nil
 }
 
 func executePromptImport(inPath string) error {
+	var err error
 	if strings.HasSuffix(inPath, ".zip") {
-		return importPromptZip(inPath)
+		err = importPromptZip(inPath)
+	} else {
+		slug := strings.TrimSuffix(filepath.Base(inPath), filepath.Ext(inPath))
+		err = runPromptAdd(slug, inPath)
+	}
+	if err != nil {
+		return err
 	}
 
-	slug := strings.TrimSuffix(filepath.Base(inPath), filepath.Ext(inPath))
+	if dir, dirErr := getPromptsStorageDir(); dirErr == nil {
+		_ = rebuildPromptsIndex(dir)
+	}
+	_ = cmdprompttemplate.RebuildTemplateIndex()
 
-	return runPromptAdd(slug, inPath)
+	return nil
 }
 
 func importPromptZip(zipPath string) error {
@@ -124,6 +201,8 @@ func importPromptZip(zipPath string) error {
 	}
 
 	fmt.Printf("%s Successfully imported %d prompt template(s) from %s\n", constants.ColorGreen+"✓"+constants.ColorReset, count, zipPath)
+	_ = rebuildPromptsIndex(dir)
+	_ = cmdprompttemplate.RebuildTemplateIndex()
 
 	return nil
 }

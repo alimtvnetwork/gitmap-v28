@@ -258,7 +258,7 @@ def check_go_file_sizes(files: list[str], root_dir: Path) -> list[str]:
     go_targets = [f for f in files if f.endswith(".go") and f.startswith("cli/")]
     if not go_targets:
         return []
-    violations = checker.check_go_file_sizes(go_targets, root_dir)
+    violations = checker.check_go_file_sizes(go_targets, root_dir, limit=500)
     return [f"{rel}: {count} lines (limit 500)" for rel, count in violations]
 
 
