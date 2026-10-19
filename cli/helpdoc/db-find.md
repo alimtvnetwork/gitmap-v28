@@ -75,6 +75,18 @@ gitmap db-find pipeline -table Runs -f "*failed" --limit 25 --json
 gitmap dbf tasks -t "*" -f "refactor"
 ```
 
+### Unspaced table flag with wildcard search
+
+```bash
+gitmap db-find aliasName -table"table1, table2" --find "text*"
+```
+
+### Positional tables with scoped columns and JSON envelope
+
+```bash
+gitmap db-find aliasName "table1, table2" --columns "col1, col2" --find "text" --json --limit 100
+```
+
 ## See Also
 
 - `gitmap db-read` — Read and inspect SQLite databases

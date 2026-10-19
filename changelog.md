@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.581.0] - 2026-10-19
+
+### Added
+- native sqlite database integration and exploration suite
+
+---
+
 ## [v6.580.0] - 2026-10-19
 
 ### Added

@@ -4,11 +4,134 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
 )
+
+func parseFindArgs(args []string) (findParams, *appfault.AppError) {
+	p := findParams{limit: 100}
+	i := 0
+	for i < len(args) {
+		consumed, isFlag := parseFindFlagToken(args, i, &p)
+		if isFlag {
+			i += consumed
+			continue
+		}
+		if p.dbArg == "" && !strings.HasPrefix(args[i], "-") {
+			p.dbArg = args[i]
+		} else if len(p.tables) == 0 && !strings.HasPrefix(args[i], "-") {
+			p.tables = splitCommaItems(args[i])
+		}
+		i++
+	}
+
+	if p.findText == "" && p.grepPat == "" {
+		return p, appfault.NewValidationError("specify --find/-f <text> or --grep/-r <regex> to search. Run 'gitmap db-find --help' for details.")
+	}
+
+	return p, nil
+}
+
+func parseFindFlagToken(args []string, idx int, p *findParams) (int, bool) {
+	arg := args[idx]
+	if isTableFlag(arg) && idx+1 < len(args) {
+		p.tables = append(p.tables, splitCommaItems(args[idx+1])...)
+		consumed := 2
+		for idx+consumed < len(args) && !strings.HasPrefix(args[idx+consumed], "-") {
+			p.tables = append(p.tables, splitCommaItems(args[idx+consumed])...)
+			consumed++
+		}
+		return consumed, true
+	}
+	if isFindFlag(arg) && idx+1 < len(args) {
+		p.findText = strings.Trim(args[idx+1], `"'`)
+		return 2, true
+	}
+	if isGrepFlag(arg) && idx+1 < len(args) {
+		p.grepPat = strings.Trim(args[idx+1], `"'`)
+		return 2, true
+	}
+	if isColumnsFlag(arg) && idx+1 < len(args) {
+		p.columns = append(p.columns, splitCommaItems(args[idx+1])...)
+		consumed := 2
+		for idx+consumed < len(args) && !strings.HasPrefix(args[idx+consumed], "-") {
+			p.columns = append(p.columns, splitCommaItems(args[idx+consumed])...)
+			consumed++
+		}
+		return consumed, true
+	}
+	if isLimitFlag(arg) && idx+1 < len(args) {
+		lim, _ := strconv.Atoi(args[idx+1])
+		if lim > 0 {
+			p.limit = lim
+		}
+		return 2, true
+	}
+	if arg == "--json" || arg == "-j" {
+		p.isJson = true
+		return 1, true
+	}
+	return parseFindFlagInline(arg, p)
+}
+
+func isTableFlag(arg string) bool {
+	return arg == "-table" || arg == "--table" || arg == "-t"
+}
+
+func isFindFlag(arg string) bool {
+	return arg == "--find" || arg == "-f" || arg == "-find" || arg == "--find/f" || arg == "-f/--find"
+}
+
+func isGrepFlag(arg string) bool {
+	return arg == "--grep" || arg == "-r" || arg == "-grep" || arg == "--grep/r" || arg == "-r/--grep"
+}
+
+func isColumnsFlag(arg string) bool {
+	return arg == "--columns" || arg == "-c" || arg == "-columns" || arg == "--columns/c" || arg == "-c/--columns"
+}
+
+func isLimitFlag(arg string) bool {
+	return arg == "--limit" || arg == "-l" || arg == "-n" || arg == "--limit/l" || arg == "-l/--limit"
+}
+
+func parseFindFlagInline(arg string, p *findParams) (int, bool) {
+	if strings.HasPrefix(arg, "-table") && len(arg) > len("-table") {
+		val := strings.TrimPrefix(arg, "-table")
+		val = strings.TrimPrefix(val, "=")
+		p.tables = append(p.tables, splitCommaItems(strings.Trim(val, `"'`))...)
+		return 1, true
+	}
+	if strings.HasPrefix(arg, "--table") && len(arg) > len("--table") {
+		val := strings.TrimPrefix(arg, "--table")
+		val = strings.TrimPrefix(val, "=")
+		p.tables = append(p.tables, splitCommaItems(strings.Trim(val, `"'`))...)
+		return 1, true
+	}
+	if strings.HasPrefix(arg, "--find=") || strings.HasPrefix(arg, "-f=") {
+		p.findText = strings.Trim(strings.TrimPrefix(strings.TrimPrefix(arg, "--find="), "-f="), `"'`)
+		return 1, true
+	}
+	if strings.HasPrefix(arg, "--grep=") || strings.HasPrefix(arg, "-r=") {
+		p.grepPat = strings.Trim(strings.TrimPrefix(strings.TrimPrefix(arg, "--grep="), "-r="), `"'`)
+		return 1, true
+	}
+	if strings.HasPrefix(arg, "--columns=") || strings.HasPrefix(arg, "-c=") {
+		val := strings.TrimPrefix(strings.TrimPrefix(arg, "--columns="), "-c=")
+		p.columns = append(p.columns, splitCommaItems(strings.Trim(val, `"'`))...)
+		return 1, true
+	}
+	if strings.HasPrefix(arg, "--limit=") || strings.HasPrefix(arg, "-l=") {
+		lim, _ := strconv.Atoi(strings.TrimPrefix(strings.TrimPrefix(arg, "--limit="), "-l="))
+		if lim > 0 {
+			p.limit = lim
+		}
+		return 1, true
+	}
+	return 0, false
+}
 
 func splitCommaItems(s string) []string {
 	parts := strings.Split(s, ",")

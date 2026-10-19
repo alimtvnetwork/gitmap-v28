@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -80,82 +79,6 @@ func RunDbFind(args []string) *appfault.AppError {
 	}
 
 	return outputFindResults(os.Stdout, dbPath, results, p.isJson)
-}
-
-func parseFindArgs(args []string) (findParams, *appfault.AppError) {
-	p := findParams{limit: 100}
-	i := 0
-	for i < len(args) {
-		consumed, isFlag := parseFindFlagToken(args, i, &p)
-		if isFlag {
-			i += consumed
-			continue
-		}
-		if p.dbArg == "" && !strings.HasPrefix(args[i], "-") {
-			p.dbArg = args[i]
-		}
-		i++
-	}
-
-	if p.findText == "" && p.grepPat == "" {
-		return p, appfault.NewValidationError("specify --find/-f <text> or --grep/-r <regex> to search. Run 'gitmap db-find --help' for details.")
-	}
-
-	return p, nil
-}
-
-func parseFindFlagToken(args []string, idx int, p *findParams) (int, bool) {
-	arg := args[idx]
-	if (arg == "-table" || arg == "--table" || arg == "-t") && idx+1 < len(args) {
-		p.tables = splitCommaItems(args[idx+1])
-		return 2, true
-	}
-	if (arg == "--find" || arg == "-f" || arg == "-find") && idx+1 < len(args) {
-		p.findText = args[idx+1]
-		return 2, true
-	}
-	if (arg == "--grep" || arg == "-r" || arg == "-grep") && idx+1 < len(args) {
-		p.grepPat = args[idx+1]
-		return 2, true
-	}
-	if (arg == "--columns" || arg == "-c" || arg == "-columns") && idx+1 < len(args) {
-		p.columns = splitCommaItems(args[idx+1])
-		return 2, true
-	}
-	if (arg == "--limit" || arg == "-l" || arg == "-n") && idx+1 < len(args) {
-		lim, _ := strconv.Atoi(args[idx+1])
-		if lim > 0 {
-			p.limit = lim
-		}
-		return 2, true
-	}
-	if arg == "--json" || arg == "-j" {
-		p.isJson = true
-		return 1, true
-	}
-	return parseFindFlagInline(arg, p)
-}
-
-func parseFindFlagInline(arg string, p *findParams) (int, bool) {
-	if strings.HasPrefix(arg, "-table=") || strings.HasPrefix(arg, "--table=") {
-		val := strings.TrimPrefix(strings.TrimPrefix(arg, "--table="), "-table=")
-		p.tables = splitCommaItems(val)
-		return 1, true
-	}
-	if strings.HasPrefix(arg, "--find=") || strings.HasPrefix(arg, "-f=") {
-		p.findText = strings.TrimPrefix(strings.TrimPrefix(arg, "--find="), "-f=")
-		return 1, true
-	}
-	if strings.HasPrefix(arg, "--grep=") || strings.HasPrefix(arg, "-r=") {
-		p.grepPat = strings.TrimPrefix(strings.TrimPrefix(arg, "--grep="), "-r=")
-		return 1, true
-	}
-	if strings.HasPrefix(arg, "--columns=") || strings.HasPrefix(arg, "-c=") {
-		val := strings.TrimPrefix(strings.TrimPrefix(arg, "--columns="), "-c=")
-		p.columns = splitCommaItems(val)
-		return 1, true
-	}
-	return 0, false
 }
 
 func resolveSearchTables(conn *sql.DB, requested []string) ([]string, error) {

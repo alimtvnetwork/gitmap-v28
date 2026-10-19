@@ -101,19 +101,35 @@ func parseEditArgs(args []string) (editParams, *appfault.AppError) {
 func parseEditFlagToken(args []string, idx int, p *editParams) (int, bool) {
 	arg := args[idx]
 	if (arg == "-table" || arg == "--table" || arg == "-t") && idx+1 < len(args) {
-		p.table = args[idx+1]
+		p.table = strings.Trim(args[idx+1], `"'`)
 		return 2, true
 	}
-	if strings.HasPrefix(arg, "-table=") || strings.HasPrefix(arg, "--table=") {
-		p.table = strings.TrimPrefix(strings.TrimPrefix(arg, "--table="), "-table=")
+	if strings.HasPrefix(arg, "-table") && len(arg) > len("-table") {
+		val := strings.TrimPrefix(arg, "-table")
+		val = strings.TrimPrefix(val, "=")
+		p.table = strings.Trim(val, `"'`)
+		return 1, true
+	}
+	if strings.HasPrefix(arg, "--table") && len(arg) > len("--table") {
+		val := strings.TrimPrefix(arg, "--table")
+		val = strings.TrimPrefix(val, "=")
+		p.table = strings.Trim(val, `"'`)
 		return 1, true
 	}
 	if (arg == "-id" || arg == "--id") && idx+1 < len(args) {
-		p.id = args[idx+1]
+		p.id = strings.Trim(args[idx+1], `"'`)
 		return 2, true
 	}
-	if strings.HasPrefix(arg, "-id=") || strings.HasPrefix(arg, "--id=") {
-		p.id = strings.TrimPrefix(strings.TrimPrefix(arg, "--id="), "-id=")
+	if strings.HasPrefix(arg, "-id") && len(arg) > len("-id") {
+		val := strings.TrimPrefix(arg, "-id")
+		val = strings.TrimPrefix(val, "=")
+		p.id = strings.Trim(val, `"'`)
+		return 1, true
+	}
+	if strings.HasPrefix(arg, "--id") && len(arg) > len("--id") {
+		val := strings.TrimPrefix(arg, "--id")
+		val = strings.TrimPrefix(val, "=")
+		p.id = strings.Trim(val, `"'`)
 		return 1, true
 	}
 	if strings.EqualFold(arg, "csv") {

@@ -1,10 +1,8 @@
 package cmddb
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -63,6 +61,13 @@ func RunDbView(args []string) *appfault.AppError {
 		return nil
 	}
 
+	if len(args) >= 2 && (strings.EqualFold(args[1], "tables") || strings.EqualFold(args[1], "ls") || strings.EqualFold(args[1], "table")) {
+		if strings.EqualFold(args[1], "table") && len(args) > 2 {
+			return handleReadTable(readFlags{}, args[0], args[2:])
+		}
+		return handleReadLs(readFlags{}, args[0])
+	}
+
 	p, parseErr := parseViewArgs(args)
 	if parseErr != nil {
 		return parseErr
@@ -74,15 +79,26 @@ func RunDbView(args []string) *appfault.AppError {
 	}
 	defer conn.Close()
 
-	tables := parseTableAliases(p.tableSpec)
-	if len(tables) == 0 {
-		return appfault.NewValidationError("no tables specified in -t flag")
-	}
+	var query string
+	if p.tableSpec == "" && p.viewName != "" {
+		normCond := normalizeFindCondition(p.findCond)
+		whereClause := ""
+		if normCond != "" {
+			whereClause = " WHERE " + normCond
+		}
+		query = fmt.Sprintf(`SELECT * FROM "%s"%s LIMIT %d`, escapeSqlIdent(p.viewName), whereClause, p.limit)
+	} else {
+		tables := parseTableAliases(p.tableSpec)
+		if len(tables) == 0 {
+			return appfault.NewValidationError("no tables specified in -t flag")
+		}
 
-	fromClause := buildFromClause(conn, tables)
-	query, viewErr := prepareViewQuery(conn, p, fromClause)
-	if viewErr != nil {
-		return viewErr
+		fromClause := buildFromClause(conn, tables)
+		var viewErr *appfault.AppError
+		query, viewErr = prepareViewQuery(conn, p, fromClause, tables)
+		if viewErr != nil {
+			return viewErr
+		}
 	}
 
 	start := time.Now()
@@ -108,8 +124,8 @@ func parseViewArgs(args []string) (viewParams, *appfault.AppError) {
 		i++
 	}
 
-	if p.dbArg == "" || p.tableSpec == "" {
-		return p, appfault.NewValidationError("usage: gitmap db-view <alias-or-path> -t \"<tables>\" [--viewname <name>] [--find <condition>] [--json]")
+	if p.dbArg == "" || (p.tableSpec == "" && p.viewName == "") {
+		return p, appfault.NewValidationError("usage: gitmap db-view <alias-or-path> [-t \"<tables>\"] [--viewname <name>] [--find <condition>] [--json]")
 	}
 
 	return p, nil
@@ -119,17 +135,22 @@ func parseViewFlagToken(args []string, idx int, p *viewParams) (int, bool) {
 	arg := args[idx]
 	if (arg == "-t" || arg == "--table" || arg == "-table") && idx+1 < len(args) {
 		p.tableSpec = args[idx+1]
-		return 2, true
+		consumed := 2
+		for idx+consumed < len(args) && !strings.HasPrefix(args[idx+consumed], "-") {
+			p.tableSpec += " " + args[idx+consumed]
+			consumed++
+		}
+		return consumed, true
 	}
 	if (arg == "--viewname" || arg == "-v" || arg == "-viewname" || arg == "--name") && idx+1 < len(args) {
-		p.viewName = args[idx+1]
+		p.viewName = strings.Trim(args[idx+1], `"'`)
 		return 2, true
 	}
 	if (arg == "--find" || arg == "-f" || arg == "-find") && idx+1 < len(args) {
-		p.findCond = args[idx+1]
+		p.findCond = trimEnclosingQuotes(args[idx+1])
 		return 2, true
 	}
-	if (arg == "--limit" || arg == "-l" || arg == "-n") && idx+1 < len(args) {
+	if (arg == "--limit" || arg == "-l" || arg == "-n" || arg == "--limit/l" || arg == "-l/--limit") && idx+1 < len(args) {
 		lim, _ := strconv.Atoi(args[idx+1])
 		if lim > 0 {
 			p.limit = lim
@@ -144,19 +165,35 @@ func parseViewFlagToken(args []string, idx int, p *viewParams) (int, bool) {
 }
 
 func parseViewFlagInline(arg string, p *viewParams) (int, bool) {
-	if strings.HasPrefix(arg, "-t=") || strings.HasPrefix(arg, "--table=") {
-		p.tableSpec = strings.TrimPrefix(strings.TrimPrefix(arg, "--table="), "-t=")
+	if strings.HasPrefix(arg, "-t") && len(arg) > len("-t") {
+		val := strings.TrimPrefix(arg, "-t")
+		val = strings.TrimPrefix(val, "=")
+		p.tableSpec = trimEnclosingQuotes(val)
+		return 1, true
+	}
+	if strings.HasPrefix(arg, "--table=") || strings.HasPrefix(arg, "-table=") {
+		p.tableSpec = trimEnclosingQuotes(strings.TrimPrefix(strings.TrimPrefix(arg, "--table="), "-table="))
 		return 1, true
 	}
 	if strings.HasPrefix(arg, "--viewname=") || strings.HasPrefix(arg, "-v=") {
-		p.viewName = strings.TrimPrefix(strings.TrimPrefix(arg, "--viewname="), "-v=")
+		p.viewName = trimEnclosingQuotes(strings.TrimPrefix(strings.TrimPrefix(arg, "--viewname="), "-v="))
 		return 1, true
 	}
 	if strings.HasPrefix(arg, "--find=") || strings.HasPrefix(arg, "-f=") {
-		p.findCond = strings.TrimPrefix(strings.TrimPrefix(arg, "--find="), "-f=")
+		p.findCond = trimEnclosingQuotes(strings.TrimPrefix(strings.TrimPrefix(arg, "--find="), "-f="))
 		return 1, true
 	}
 	return 0, false
+}
+
+func trimEnclosingQuotes(s string) string {
+	s = strings.TrimSpace(s)
+	if len(s) >= 2 {
+		if (s[0] == '"' && s[len(s)-1] == '"') || (s[0] == '\'' && s[len(s)-1] == '\'') {
+			return s[1 : len(s)-1]
+		}
+	}
+	return s
 }
 
 func assignViewPositional(arg string, p *viewParams) {
@@ -196,64 +233,4 @@ func parseSingleTableAlias(token string) tableAlias {
 		return tableAlias{Table: fields[0], Alias: fields[0]}
 	}
 	return tableAlias{}
-}
-
-func buildFromClause(conn *sql.DB, tables []tableAlias) string {
-	if len(tables) == 1 {
-		return fmt.Sprintf(`FROM "%s" AS %s`, escapeSqlIdent(tables[0].Table), tables[0].Alias)
-	}
-
-	joinCond := inferAutoJoin(conn, tables[0], tables[1])
-	if joinCond != "" {
-		return fmt.Sprintf(`FROM "%s" AS %s JOIN "%s" AS %s ON %s`,
-			escapeSqlIdent(tables[0].Table), tables[0].Alias,
-			escapeSqlIdent(tables[1].Table), tables[1].Alias,
-			joinCond)
-	}
-
-	return fmt.Sprintf(`FROM "%s" AS %s, "%s" AS %s`,
-		escapeSqlIdent(tables[0].Table), tables[0].Alias,
-		escapeSqlIdent(tables[1].Table), tables[1].Alias)
-}
-
-func normalizeFindCondition(cond string) string {
-	if cond == "" {
-		return ""
-	}
-	reLike := regexp.MustCompile(`(?i)\blike\s+'([^']*)'`)
-	s := reLike.ReplaceAllStringFunc(cond, func(m string) string {
-		return strings.ReplaceAll(m, "*", "%")
-	})
-
-	reEqBare := regexp.MustCompile(`=\s*([a-zA-Z_][a-zA-Z0-9_]*)\b`)
-	return reEqBare.ReplaceAllStringFunc(s, func(m string) string {
-		val := strings.TrimSpace(strings.TrimPrefix(m, "="))
-		lower := strings.ToLower(val)
-		if lower == "true" || lower == "false" || lower == "null" {
-			return m
-		}
-		return fmt.Sprintf("= '%s'", val)
-	})
-}
-
-func prepareViewQuery(conn *sql.DB, p viewParams, fromClause string) (string, *appfault.AppError) {
-	normCond := normalizeFindCondition(p.findCond)
-	whereClause := ""
-	if normCond != "" {
-		whereClause = " WHERE " + normCond
-	}
-
-	if p.viewName != "" {
-		createViewSql := fmt.Sprintf(`CREATE TEMP VIEW IF NOT EXISTS "%s" AS SELECT * %s`, escapeSqlIdent(p.viewName), fromClause)
-		if _, err := conn.Exec(createViewSql); err != nil {
-			return "", apperror.WrapSimple(err, "db.view.create")
-		}
-		return fmt.Sprintf(`SELECT * FROM "%s"%s LIMIT %d`, escapeSqlIdent(p.viewName), whereClause, p.limit), nil
-	}
-
-	return fmt.Sprintf(`SELECT * %s%s LIMIT %d`, fromClause, whereClause, p.limit), nil
-}
-
-func escapeSqlIdent(s string) string {
-	return strings.ReplaceAll(s, `"`, `""`)
 }

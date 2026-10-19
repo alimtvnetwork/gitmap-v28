@@ -74,6 +74,12 @@ gitmap dbe tasks -t Subtask -id 10 csv "Refactored module"
 gitmap db-edit ./custom.db -t Users -id 5 "Email=alice@newdomain.com"
 ```
 
+### Unspaced table and id flags
+
+```bash
+gitmap db-edit aliasName -table"table" -id "id-first" csv "col1", "col2", "col3"
+```
+
 ## See Also
 
 - `gitmap db-read` — Read and inspect SQLite databases

@@ -79,6 +79,24 @@ gitmap db-view tasks -t "Subtask as s, Plan as p" --find "s.Status = DONE and p.
 gitmap dbv master -t "Repository as r" --find "r.Name like 'gitmap*'" --limit 20
 ```
 
+### Multi-argument tables flag with view creation and unquoted search text
+
+```bash
+gitmap db-view aliasName -t "table1 as t1", "table2 as t2" --viewname "view-name" --find "t1.field = search text and t2.field3 like 'x*'"
+```
+
+### Query an existing view directly without -t
+
+```bash
+gitmap db-view aliasName --viewname "view-name" --find "status = ACTIVE"
+```
+
+### View all tables and column counts in a database
+
+```bash
+gitmap db-view aliasName tables
+```
+
 ## See Also
 
 - `gitmap db-read` — Read and inspect SQLite databases

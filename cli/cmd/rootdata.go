@@ -81,6 +81,36 @@ func dataDatabaseEntries() []dispatchEntry {
 			}
 			return nil
 		}},
+		{[]string{"db-add", "dba"}, func() error {
+			if appErr := cmddb.RunDbAdd(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
+		{[]string{"db-edit", "dbe"}, func() error {
+			if appErr := cmddb.RunDbEdit(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
+		{[]string{"db-find", "dbf"}, func() error {
+			if appErr := cmddb.RunDbFind(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
+		{[]string{"db-listing", "dbl"}, func() error {
+			if appErr := cmddb.RunDbListing(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
+		{[]string{"db-view", "dbv"}, func() error {
+			if appErr := cmddb.RunDbView(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
 		{[]string{constants.CmdDBReset}, func() error { return cmddb.RunDBReset(argsTail()) }},
 		{[]string{constants.CmdDB}, func() error { return cmddb.RunDB(argsTail()) }},
 		{[]string{constants.CmdStartFresh}, func() error { return cmddb.RunStartFresh(argsTail()) }},

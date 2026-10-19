@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -104,3 +106,109 @@ func outputViewResults(out io.Writer, dbPath string, p viewParams, query string,
 	fmt.Fprintf(out, "\n%d row(s) returned in %v.\n", qRes.Count, elapsed)
 	return nil
 }
+
+func buildFromClause(conn *sql.DB, tables []tableAlias) string {
+	if len(tables) == 1 {
+		return fmt.Sprintf(`FROM "%s" AS %s`, escapeSqlIdent(tables[0].Table), tables[0].Alias)
+	}
+
+	joinCond := inferAutoJoin(conn, tables[0], tables[1])
+	if joinCond != "" {
+		return fmt.Sprintf(`FROM "%s" AS %s JOIN "%s" AS %s ON %s`,
+			escapeSqlIdent(tables[0].Table), tables[0].Alias,
+			escapeSqlIdent(tables[1].Table), tables[1].Alias,
+			joinCond)
+	}
+
+	return fmt.Sprintf(`FROM "%s" AS %s, "%s" AS %s`,
+		escapeSqlIdent(tables[0].Table), tables[0].Alias,
+		escapeSqlIdent(tables[1].Table), tables[1].Alias)
+}
+
+func normalizeFindCondition(cond string) string {
+	if cond == "" {
+		return ""
+	}
+	reLike := regexp.MustCompile(`(?i)\blike\s+'([^']*)'`)
+	s := reLike.ReplaceAllStringFunc(cond, func(m string) string {
+		return strings.ReplaceAll(m, "*", "%")
+	})
+
+	reEqAnd := regexp.MustCompile(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s+((?i:and|or))\b`)
+	s = reEqAnd.ReplaceAllStringFunc(s, func(m string) string {
+		parts := reEqAnd.FindStringSubmatch(m)
+		if len(parts) >= 3 {
+			val := strings.TrimSpace(parts[1])
+			op := parts[2]
+			return formatNormalizedEqVal(val) + " " + op
+		}
+		return m
+	})
+
+	reEqEnd := regexp.MustCompile(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s*$`)
+	s = reEqEnd.ReplaceAllStringFunc(s, func(m string) string {
+		parts := reEqEnd.FindStringSubmatch(m)
+		if len(parts) >= 2 {
+			val := strings.TrimSpace(parts[1])
+			return formatNormalizedEqVal(val)
+		}
+		return m
+	})
+
+	return s
+}
+
+func formatNormalizedEqVal(val string) string {
+	lower := strings.ToLower(val)
+	if lower == "true" || lower == "false" || lower == "null" || strings.Contains(val, ".") {
+		return "= " + val
+	}
+	if _, err := strconv.Atoi(val); err == nil {
+		return "= " + val
+	}
+	return fmt.Sprintf("= '%s'", val)
+}
+
+func prepareViewQuery(conn *sql.DB, p viewParams, fromClause string, tables []tableAlias) (string, *appfault.AppError) {
+	normCond := normalizeFindCondition(p.findCond)
+	whereClause := ""
+	if normCond != "" {
+		whereClause = " WHERE " + normCond
+	}
+
+	if p.viewName != "" {
+		createViewSql := fmt.Sprintf(`CREATE VIEW IF NOT EXISTS "%s" AS SELECT * %s`, escapeSqlIdent(p.viewName), fromClause)
+		if _, err := conn.Exec(createViewSql); err != nil {
+			// Fallback to TEMP VIEW if database is in read-only mode
+			tempSql := fmt.Sprintf(`CREATE TEMP VIEW IF NOT EXISTS "%s" AS SELECT * %s`, escapeSqlIdent(p.viewName), fromClause)
+			if _, tempErr := conn.Exec(tempSql); tempErr != nil {
+				return "", apperror.WrapSimple(err, "db.view.create")
+			}
+		}
+
+		viewCond := stripTableAliases(normCond, tables)
+		viewWhere := ""
+		if viewCond != "" {
+			viewWhere = " WHERE " + viewCond
+		}
+		return fmt.Sprintf(`SELECT * FROM "%s"%s LIMIT %d`, escapeSqlIdent(p.viewName), viewWhere, p.limit), nil
+	}
+
+	return fmt.Sprintf(`SELECT * %s%s LIMIT %d`, fromClause, whereClause, p.limit), nil
+}
+
+func stripTableAliases(cond string, tables []tableAlias) string {
+	s := cond
+	for _, ta := range tables {
+		if ta.Alias != "" {
+			re := regexp.MustCompile(`\b` + regexp.QuoteMeta(ta.Alias) + `\.`)
+			s = re.ReplaceAllString(s, "")
+		}
+	}
+	return s
+}
+
+func escapeSqlIdent(s string) string {
+	return strings.ReplaceAll(s, `"`, `""`)
+}
+
