@@ -68,10 +68,30 @@ func writeAndSource(script, scriptPath, profilePath, shell string) error {
 
 // addSourceLines appends the source command to every resolved profile.
 func addSourceLines(scriptPath string, profilePaths []string, shell string) error {
+	var updatedPaths []string
+	var alreadyConfiguredCount int
+
 	for _, profilePath := range profilePaths {
-		if err := addSourceLine(scriptPath, profilePath, shell); err != nil {
+		hasChanged, err := updateProfileSource(scriptPath, profilePath, shell)
+		if err != nil {
 			return err
 		}
+
+		if hasChanged {
+			updatedPaths = append(updatedPaths, profilePath)
+		} else {
+			alreadyConfiguredCount++
+		}
+	}
+
+	if len(updatedPaths) > 0 {
+		printUpdatedProfilesTree(updatedPaths)
+
+		return nil
+	}
+
+	if alreadyConfiguredCount > 0 {
+		fmt.Fprintf(os.Stderr, constants.MsgCompAlreadyDone, shell)
 	}
 
 	return nil
@@ -97,9 +117,14 @@ const (
 
 // addSourceLine updates or appends the shell completion and predictive suggestions snippet.
 func addSourceLine(scriptPath, profilePath, shell string) error {
+	return addSourceLines(scriptPath, []string{profilePath}, shell)
+}
+
+// updateProfileSource updates or appends the shell completion snippet for a single profile.
+func updateProfileSource(scriptPath, profilePath, shell string) (bool, error) {
 	snippet := buildSourceLine(scriptPath, shell)
 	if err := os.MkdirAll(filepath.Dir(profilePath), 0o755); err != nil {
-		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
+		return false, fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
 	}
 
 	existingBytes, err := os.ReadFile(profilePath)
@@ -110,18 +135,32 @@ func addSourceLine(scriptPath, profilePath, shell string) error {
 
 	updated, hasChanged := reconcileProfileSnippet(existing, snippet, shell)
 	if !hasChanged {
-		fmt.Fprintf(os.Stderr, constants.MsgCompAlreadyDone, shell)
-
-		return nil
+		return false, nil
 	}
 
 	if err := os.WriteFile(profilePath, []byte(updated), 0o644); err != nil {
-		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
+		return false, fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
 	}
 
-	fmt.Fprintf(os.Stderr, constants.MsgCompProfileWrite, profilePath)
+	return true, nil
+}
 
-	return nil
+func printUpdatedProfilesTree(paths []string) {
+	if len(paths) == 0 {
+		return
+	}
+
+	fmt.Fprint(os.Stderr, constants.MsgCompProfileHeader)
+	for i, path := range paths {
+		branch := constants.CompTreeBranchMid
+		if i == len(paths)-1 {
+			branch = constants.CompTreeBranchLast
+		}
+
+		fmt.Fprintf(os.Stderr, "%s%s\n", branch, path)
+	}
+
+	fmt.Fprintln(os.Stderr)
 }
 
 // buildSourceLine returns the shell-appropriate source command.

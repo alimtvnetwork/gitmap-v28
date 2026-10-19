@@ -2,7 +2,7 @@
 
 - **Task Slug**: `screenshot-alignment-and-installer-script-adjustment`
 - **Specification**: `02-spec/21-app/screenshot-alignment-and-installer-script-adjustment/spec.md`
-- **Status**: IN_PROGRESS
+- **Status**: COMPLETED
 - **Budget**: 400 Steps
 - **Capacity**: A = 3 agents, H = 2 hands, Concurrency = 6
 
@@ -20,11 +20,11 @@ I have given you three screenshots. First of all, the blue color that you see or
 
 ## 2. Discrete Subtask Allocations
 
-| Task ID | Title | Owned Files | Owner | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **Task-01** | Spinner Indentation, Padding & `txt` Ghost Removal | `cli/cmdupdate/update_ui.go`, `cli/cmdupdate/update_ui_types.go` | Worker 01 | PENDING |
-| **Task-02** | Card Circle Alignment & "Added source line" Subtree | `cli/cmdupdate/update_ui_notes.go`, `cli/completion/install.go`, `cli/constants/constants_completion.go` | Worker 02 | PENDING |
-| **Task-03** | Installer Script Parity (`install.ps1`, `install.sh`) | `install.ps1`, `install.sh`, `cli/scripts/install.ps1`, `cli/scripts/install.sh`, `cli/fspath/install.ps1`, `cli/fspath/install.sh` | Worker 03 | PENDING |
+| Task ID | Title | Owned Files | Owner | Status | Evidence |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Task-01** | Spinner Indentation, Padding & `txt` Ghost Removal | `cli/cmdupdate/update_ui.go`, `cli/cmdupdate/update_ui_types.go` | Worker 01 | DONE | `go test ./cmdupdate -run TestParseUpdateOptions` (exit 0) |
+| **Task-02** | Card Circle Alignment & "Added source line" Subtree | `cli/cmdupdate/update_ui_notes.go`, `cli/completion/install.go`, `cli/constants/constants_completion.go` | Worker 02 | DONE | `go test ./completion` (exit 0) |
+| **Task-03** | Installer Script Parity (`install.ps1`, `install.sh`) | `install.ps1`, `install.sh`, `cli/scripts/install.ps1`, `cli/scripts/install.sh`, `cli/fspath/install.ps1`, `cli/fspath/install.sh` | Worker 03 | DONE | PowerShell & Bash syntax check (exit 0) |
 
 ---
 

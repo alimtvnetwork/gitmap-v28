@@ -157,7 +157,7 @@ func printPlainReleaseNotes(notes []string) {
 }
 
 func formatSummaryLines(result UpdateResult) []string {
-	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render("✔ Gitmap CLI Updated Successfully")
+	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render("✓ Gitmap CLI Updated Successfully")
 	lbl := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaCyan))
 	prevVer := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f8f8f2")).Render(result.PreviousVersion)
 	arrow := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f1fa8c")).Render("→")

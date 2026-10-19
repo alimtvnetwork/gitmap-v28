@@ -23,7 +23,6 @@ type updateUIRendererImpl struct {
 	opts                   UpdateOptions
 	currentVer             string
 	plain                  bool
-	multi                  pterm.MultiPrinter
 	spinner                *pterm.SpinnerPrinter
 	current                UpdateStage
 	stageMsg               string
@@ -40,10 +39,6 @@ func NewUpdateUIRenderer(opts UpdateOptions, currentVer string) UpdateUIRenderer
 		plain:      !isUpdateTTY() || !isVTSupported(),
 	}
 	r.renderHeader()
-	if r.opts.IsJSON || r.opts.IsQuiet || r.plain {
-		return r
-	}
-	r.initMultiPrinter()
 	return r
 }
 
@@ -60,16 +55,33 @@ func (r *updateUIRendererImpl) renderHeader() {
 	fmt.Printf("\n  %s %s\n\n", title, ver)
 }
 
-func (r *updateUIRendererImpl) initMultiPrinter() {
-	r.multi = pterm.DefaultMultiPrinter
-	r.multi.Start()
-	spinner, err := pterm.DefaultSpinner.WithWriter(r.multi.NewWriter()).WithRemoveWhenDone(true).Start("Preparing...")
+func (r *updateUIRendererImpl) startSpinner(text string) {
+	if r.plain || r.isClosed {
+		return
+	}
+	r.stopSpinner()
+	spinner, err := pterm.DefaultSpinner.
+		WithWriter(os.Stdout).
+		WithSequence("  ▀", "  ▄").
+		WithRemoveWhenDone(true).
+		WithShowTimer(false).
+		Start(text)
 	if err != nil {
-		r.multi.Stop()
 		r.plain = true
 		return
 	}
 	r.spinner = spinner
+}
+
+func (r *updateUIRendererImpl) stopSpinner() {
+	if r.spinner != nil {
+		r.spinner.RemoveWhenDone = true
+		_ = r.spinner.Stop()
+		r.spinner = nil
+	}
+	if !r.plain {
+		fmt.Print("\r\033[2K")
+	}
 }
 
 func (r *updateUIRendererImpl) OnStageStart(stage UpdateStage, message string) {
@@ -86,9 +98,11 @@ func (r *updateUIRendererImpl) OnStageStart(stage UpdateStage, message string) {
 		fmt.Printf("==> %s\n", stepTag)
 		return
 	}
-	if r.spinner != nil {
+	if r.spinner != nil && r.spinner.IsActive {
 		r.spinner.UpdateText(stepTag)
+		return
 	}
+	r.startSpinner(stepTag)
 }
 
 func (r *updateUIRendererImpl) OnStageProgress(detail string) {
@@ -98,7 +112,7 @@ func (r *updateUIRendererImpl) OnStageProgress(detail string) {
 		return
 	}
 	cleanDetail := stripAnsiEscapes(detail)
-	if r.spinner != nil && len(cleanDetail) > 0 {
+	if r.spinner != nil && r.spinner.IsActive && len(cleanDetail) > 0 {
 		text := fmt.Sprintf("[%d/%d] %s: %s", r.current.StepNumber(), r.current.TotalSteps(), r.stageMsg, cleanDetail)
 		r.spinner.UpdateText(text)
 	}
@@ -112,13 +126,16 @@ func (r *updateUIRendererImpl) OnStageSuccess(stage UpdateStage, summary string)
 	}
 	cleanSum := stripAnsiEscapes(summary)
 	r.stages = append(r.stages, cleanSum)
+
+	r.stopSpinner()
 	r.padFirstSuccess()
+
 	if r.plain {
 		fmt.Printf("    ✓ %s\n", cleanSum)
 		return
 	}
 	badge := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(DraculaGreen)).Render("SUCCESS")
-	fmt.Fprintf(r.multi.NewWriter(), "    %s %s\n", badge, cleanSum)
+	fmt.Printf("    %s %s\n", badge, cleanSum)
 }
 
 func (r *updateUIRendererImpl) padFirstSuccess() {
@@ -126,11 +143,7 @@ func (r *updateUIRendererImpl) padFirstSuccess() {
 		return
 	}
 	r.hasPrintedFirstSuccess = true
-	if r.plain {
-		fmt.Println()
-		return
-	}
-	fmt.Fprintln(r.multi.NewWriter())
+	fmt.Println()
 }
 
 func (r *updateUIRendererImpl) OnStageFail(stage UpdateStage, err error) {
@@ -140,7 +153,7 @@ func (r *updateUIRendererImpl) OnStageFail(stage UpdateStage, err error) {
 		return
 	}
 	r.isClosed = true
-	r.stopPrinters()
+	r.stopSpinner()
 	if r.opts.IsJSON {
 		outputResolveError(err, r.currentVer, r.opts.TargetVersion, true)
 		return
@@ -172,7 +185,7 @@ func (r *updateUIRendererImpl) RenderSummaryCard(result UpdateResult) {
 		return
 	}
 	r.isClosed = true
-	r.stopPrinters()
+	r.stopSpinner()
 	if r.opts.IsJSON {
 		enc, _ := json.MarshalIndent(result, "", "  ")
 		fmt.Println(string(enc))
@@ -217,7 +230,7 @@ func (r *updateUIRendererImpl) RenderAlreadyUpdated(currentVer, targetVer string
 		return
 	}
 	r.isClosed = true
-	r.stopPrinters()
+	r.stopSpinner()
 	if r.opts.IsJSON {
 		outputAlreadyUpdated(currentVer, targetVer, true)
 		return
@@ -246,20 +259,6 @@ func (r *updateUIRendererImpl) renderLipglossAlreadyUpdated(currentVer string) {
 	fmt.Println(cardStyle.Render(fmt.Sprintf("%s\n%s", title, hint)))
 }
 
-func (r *updateUIRendererImpl) stopPrinters() {
-	if r.spinner != nil {
-		r.spinner.RemoveWhenDone = true
-		_ = r.spinner.Stop()
-		r.spinner = nil
-	}
-
-	if r.plain {
-		return
-	}
-
-	r.multi.Stop()
-}
-
 func (r *updateUIRendererImpl) Close() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -267,5 +266,5 @@ func (r *updateUIRendererImpl) Close() {
 		return
 	}
 	r.isClosed = true
-	r.stopPrinters()
+	r.stopSpinner()
 }

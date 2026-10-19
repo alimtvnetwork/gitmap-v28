@@ -1442,6 +1442,40 @@ record_profile_outcome() {
 # print_profile_change_table renders a per-file status line for every
 # profile we touched. Symbols mirror common diff conventions so the
 # output reads at a glance:
+# print_profile_subtree renders an array of profile paths under a single header
+# formatted as a clean subtree (├── / └──) with a trailing newline gap.
+print_profile_subtree() {
+    local header="$1"
+    shift
+    local paths=("$@")
+    local count="${#paths[@]}"
+    if [ "${count}" -eq 0 ] || [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ]; then
+        return
+    fi
+    local check="✓"
+    if [ "$has_color_support" = true ]; then
+        printf '  %b%s%b %s\n' "$col_green" "$check" "$col_reset" "$header" >&2
+    else
+        printf '  %s %s\n' "$check" "$header" >&2
+    fi
+    local i=0
+    for ((i=0; i<count; i++)); do
+        local connector="├── "
+        if [ "$i" -eq "$((count - 1))" ]; then
+            connector="└── "
+        fi
+        if [ "$has_color_support" = true ]; then
+            printf '    %b%s%b%s\n' "$col_muted" "$connector" "$col_reset" "${paths[i]}" >&2
+        else
+            printf '    %s%s\n' "$connector" "${paths[i]}" >&2
+        fi
+    done
+    echo "" >&2
+}
+
+# print_profile_change_table renders a per-file status line for every
+# profile we touched. Symbols mirror common diff conventions so the
+# output reads at a glance:
 #   [+] added     — new gitmap block appended to a previously-untouched file
 #   [~] updated   — block was present but body changed (e.g. install dir moved)
 #   [=] unchanged — block already present and identical (true no-op)
@@ -1455,18 +1489,30 @@ print_profile_change_table() {
         return
     fi
     step "PATH snippet status (${total} profile$( [ ${total} -ne 1 ] && echo s)):"
+    local item_idx=0
     print_status_lines "+" 32 "${profiles_added}"
     print_status_lines "~" 33 "${profiles_updated}"
     print_status_lines "=" 90 "${profiles_unchanged}"
+    [ "${QUIET:-0}" -eq 1 ] || [ "${JSON:-0}" -eq 1 ] || echo "" >&2
 }
 
 # print_status_lines emits one indented colored line per path in $3,
 # tagged with the symbol $1 (e.g. +/~/=) and ANSI color code $2.
 # Empty lists are silently skipped so a no-op category produces no row.
 print_status_lines() {
-    local symbol="$1" color="$2" list="$3" path
+    local symbol="$1" color="$2" list="$3" path connector
     for path in ${list}; do
-        printf '    \033[%sm[%s]\033[0m %s\n' "${color}" "${symbol}" "${path}" >&2
+        item_idx=$((item_idx + 1))
+        if [ "${item_idx}" -eq "${total}" ]; then
+            connector="└── "
+        else
+            connector="├── "
+        fi
+        if [ "$has_color_support" = true ]; then
+            printf '    %b%s%b\033[%sm[%s]\033[0m %s\n' "$col_muted" "$connector" "$col_reset" "${color}" "${symbol}" "${path}" >&2
+        else
+            printf '    %s[%s] %s\n' "${connector}" "${symbol}" "${path}" >&2
+        fi
     done
 }
 

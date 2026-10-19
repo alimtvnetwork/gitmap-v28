@@ -61,7 +61,9 @@ param(
     # the install.ps1 + release-pipeline asset-naming contract is
     # honored before users hit it. Spec: 02-spec/07-generic-release/
     # 09-generic-install-script-behavior.md §6.
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$Quiet,
+    [switch]$JSON
 )
 
 if (-not $Version) {
@@ -95,37 +97,185 @@ if (-not $Version) {
 
 $script:ExplicitVersion = $Version
 $script:IsExplicitVersion = (-not [string]::IsNullOrWhiteSpace($Version))
+$script:ReleaseNotes = @()
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
-# Force UTF-8 console I/O so non-ASCII glyphs (warning signs, arrows, box-
-# drawing chars) and any future localized strings render correctly instead
-# of cp437/Windows-1252 mojibake. Also defensive for `irm | iex`, where the
-# active console code page may still be 437/1252 even though the script
-# body is decoded as UTF-8 by Invoke-RestMethod.
-#
-# Order:
-#   1. Flip the OS console code page to UTF-8 (65001) via Win32 so conhost
-#      stops transcoding our bytes.
-#   2. Set .NET stdout/stderr/stdin encodings to UTF-8.
-#   3. Set PowerShell pipeline encoding so external processes (curl, tar,
-#      gitmap.exe) also receive UTF-8.
-#   4. Disable PSStyle ANSI rendering on PS 7+ so legacy hosts do not echo
-#      raw escape sequences as literal text.
+# Enable Win32 Virtual Terminal Processing (ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004)
+$isVTSupported = $false
 try {
     Add-Type -Namespace GitmapInstaller -Name NativeConsole -MemberDefinition @'
+[System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+public static extern System.IntPtr GetStdHandle(int nStdHandle);
+
+[System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+public static extern bool GetConsoleMode(System.IntPtr hConsoleHandle, out uint lpMode);
+
+[System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+public static extern bool SetConsoleMode(System.IntPtr hConsoleHandle, uint dwMode);
+
 [System.Runtime.InteropServices.DllImport("kernel32.dll")]
 public static extern bool SetConsoleOutputCP(uint codePageID);
 '@ -ErrorAction SilentlyContinue
+
     [GitmapInstaller.NativeConsole]::SetConsoleOutputCP(65001) | Out-Null
-} catch { Write-Warning "[SetConsoleOutputCP] $_" }
+    $stdOutHandle = [GitmapInstaller.NativeConsole]::GetStdHandle(-11) # STD_OUTPUT_HANDLE = -11
+    $consoleMode = [uint32]0
+    if ([GitmapInstaller.NativeConsole]::GetConsoleMode($stdOutHandle, [ref]$consoleMode)) {
+        $vtMode = $consoleMode -bor 0x0004 # ENABLE_VIRTUAL_TERMINAL_PROCESSING
+        if ([GitmapInstaller.NativeConsole]::SetConsoleMode($stdOutHandle, $vtMode)) {
+            $isVTSupported = $true
+        }
+    }
+} catch {
+    # Non-fatal: continue with best-effort ANSI
+}
+
+# UTF-8 pipeline and stdout encoding
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
     $OutputEncoding           = [System.Text.Encoding]::UTF8
-    if ($PSStyle) { $PSStyle.OutputRendering = 'PlainText' }
+    # NOTE: ANSI rendering enabled; do not suppress PSStyle
+    if ($PSStyle) {
+        $PSStyle.OutputRendering = 'Ansi'
+    }
 } catch { Write-Warning "[SetEncoding] $_" }
+
+# --- Dracula / Modern Cyber Design Tokens & Fallback Guard ---
+$hasColorSupport = $true
+if ($env:NO_COLOR -or ($env:TERM -eq 'dumb')) {
+    $hasColorSupport = $false
+}
+
+$esc = [char]27
+$colCyan   = if ($hasColorSupport) { "$esc[38;2;139;233;253m" } else { "" }
+$colPurple = if ($hasColorSupport) { "$esc[38;2;189;147;249m" } else { "" }
+$colGreen  = if ($hasColorSupport) { "$esc[38;2;80;250;123m"  } else { "" }
+$colOrange = if ($hasColorSupport) { "$esc[38;2;255;184;108m" } else { "" }
+$colRed    = if ($hasColorSupport) { "$esc[38;2;255;85;85m"   } else { "" }
+$colMuted  = if ($hasColorSupport) { "$esc[38;2;98;114;164m"  } else { "" }
+$colBorder     = if ($hasColorSupport) { "$esc[38;2;189;147;249m" } else { "" }
+$colYellow     = if ($hasColorSupport) { "$esc[38;2;241;250;140m" } else { "" }
+$colYellowHigh = if ($hasColorSupport) { "$esc[1;93m" } else { "" }
+$colWhite      = if ($hasColorSupport) { "$esc[1;97m" } else { "" }
+$colBold       = if ($hasColorSupport) { "$esc[1m" } else { "" }
+$colReset      = if ($hasColorSupport) { "$esc[0m" } else { "" }
+
+$c_topLeft      = if ($hasColorSupport) { [string][char]0x256D } else { "+" }
+$c_topRight     = if ($hasColorSupport) { [string][char]0x256E } else { "+" }
+$c_botLeft      = if ($hasColorSupport) { [string][char]0x2570 } else { "+" }
+$c_botRight     = if ($hasColorSupport) { [string][char]0x256F } else { "+" }
+$c_dividerLeft  = if ($hasColorSupport) { [string][char]0x251C } else { "+" }
+$c_dividerRight = if ($hasColorSupport) { [string][char]0x2524 } else { "+" }
+$c_horiz        = if ($hasColorSupport) { [string][char]0x2500 } else { "-" }
+$c_vert         = if ($hasColorSupport) { [string][char]0x2502 } else { "|" }
+
+$isInteractiveSession = [Environment]::UserInteractive -and (-not $Quiet) -and (-not $JSON) -and (-not [Console]::IsOutputRedirected)
+
+# --- Lipgloss-Inspired Rounded Card Helpers ---
+function Strip-Ansi([string]$s) {
+    if (-not $s) { return "" }
+    return ($s -replace "\x1B\[[0-9;]*[a-zA-Z]", "")
+}
+
+function Write-CardHeader([string]$title = "", [string]$tag = "", [int]$width = 80) {
+    if ($Quiet -or $JSON) { return }
+    $titleVis = Strip-Ansi $title
+    $tagVis = Strip-Ansi $tag
+    if ($title -and $tag) {
+        $dashCount = $width - 8 - $titleVis.Length - $tagVis.Length
+        if ($dashCount -lt 1) { $dashCount = 1 }
+        $dashes = $c_horiz * $dashCount
+        Write-Host "$colBorder$c_topLeft$c_horiz $colBold$colPurple$title $colBorder$dashes $colBold$colGreen$tag $colBorder$c_horiz$c_topRight$colReset"
+    } elseif ($title) {
+        $dashCount = $width - 6 - $titleVis.Length
+        if ($dashCount -lt 1) { $dashCount = 1 }
+        $dashes = $c_horiz * $dashCount
+        Write-Host "$colBorder$c_topLeft$c_horiz $colBold$colPurple$title $colBorder$dashes$c_topRight$colReset"
+    } else {
+        $dashes = $c_horiz * ($width - 2)
+        Write-Host "$colBorder$c_topLeft$dashes$c_topRight$colReset"
+    }
+}
+
+function Write-CardRow([string]$label, [string]$value, [int]$width = 80) {
+    if ($Quiet -or $JSON) { return }
+    $innerWidth = $width - 6
+    $labelVis = Strip-Ansi $label
+    $padLen = 16 - $labelVis.Length
+    if ($padLen -lt 1) { $padLen = 1 }
+    $valVis = Strip-Ansi $value
+    $combinedLen = $labelVis.Length + $padLen + $valVis.Length
+    $trailingPad = $innerWidth - $combinedLen
+    if ($trailingPad -lt 0) { $trailingPad = 0 }
+    Write-Host "$colBorder$c_vert$colReset  $colCyan$label$colReset$(' ' * $padLen)$value$(' ' * $trailingPad)  $colBorder$c_vert$colReset"
+}
+
+function Write-CardText([string]$text = "", [int]$width = 80) {
+    if ($Quiet -or $JSON) { return }
+    $innerWidth = $width - 6
+    $textVis = Strip-Ansi $text
+    $trailingPad = $innerWidth - $textVis.Length
+    if ($trailingPad -lt 0) { $trailingPad = 0 }
+    Write-Host "$colBorder$c_vert$colReset  $text$(' ' * $trailingPad)  $colBorder$c_vert$colReset"
+}
+
+function Write-CardDivider([int]$width = 80) {
+    if ($Quiet -or $JSON) { return }
+    $dashes = $c_horiz * ($width - 2)
+    Write-Host "$colBorder$c_dividerLeft$dashes$c_dividerRight$colReset"
+}
+
+function Write-CardFooter([int]$width = 80) {
+    if ($Quiet -or $JSON) { return }
+    $dashes = $c_horiz * ($width - 2)
+    Write-Host "$colBorder$c_botLeft$dashes$c_botRight$colReset"
+}
+
+function Write-StageHeader([int]$step, [int]$total, [string]$title) {
+    if ($Quiet -or $JSON) { return }
+    Write-Host ""
+    Write-Host "  $colBold$colCyan[$step/$total]$colReset $colBold$title$colReset"
+}
+
+function Invoke-BrailleDownload([string]$url, [string]$outPath, [string]$label) {
+    if (-not $isInteractiveSession -or -not $hasColorSupport) {
+        Invoke-WebRequest -Uri $url -OutFile $outPath -UseBasicParsing
+        return
+    }
+
+    $glyphs = @(
+        [string][char]0x280B,
+        [string][char]0x2819,
+        [string][char]0x2839,
+        [string][char]0x2838,
+        [string][char]0x283C,
+        [string][char]0x2834,
+        [string][char]0x2826,
+        [string][char]0x2827,
+        [string][char]0x2807,
+        [string][char]0x280F
+    )
+    $webClient = [System.Net.WebClient]::new()
+    try {
+        $downloadTask = $webClient.DownloadFileTaskAsync([System.Uri]::new($url), $outPath)
+        $glyphIdx = 0
+        while (-not $downloadTask.IsCompleted) {
+            $glyph = $glyphs[$glyphIdx % $glyphs.Count]
+            Write-Host -NoNewline "`r  $colCyan$glyph$colReset $colMuted$label...$colReset"
+            Start-Sleep -Milliseconds 80
+            $glyphIdx++
+        }
+        Write-Host -NoNewline "`r$(' ' * ($label.Length + 16))`r"
+        if ($downloadTask.IsFaulted) {
+            throw $downloadTask.Exception.InnerException
+        }
+    } finally {
+        $webClient.Dispose()
+    }
+}
 
 $Repo = "alimtvnetwork/gitmap-v28"
 $BinaryName = "gitmap.exe"
@@ -271,15 +421,48 @@ if ($env:INSTALLER_DELEGATED -eq "1") {
 # --- Logging helpers ---
 
 function Write-Step([string]$msg) {
-    Write-Host "  $msg" -ForegroundColor Cyan
+    if (-not $Quiet -and -not $JSON) {
+        if ($hasColorSupport) {
+            Write-Host "  $colCyan$msg$colReset"
+        } else {
+            Write-Host "  $msg" -ForegroundColor Cyan
+        }
+    }
 }
 
 function Write-OK([string]$msg) {
-    Write-Host "  $msg" -ForegroundColor Green
+    if (-not $Quiet -and -not $JSON) {
+        if ($hasColorSupport) {
+            Write-Host "  $colGreen$msg$colReset"
+        } else {
+            Write-Host "  $msg" -ForegroundColor Green
+        }
+    }
+}
+
+function Write-ProfileSubtree([string]$header, [string[]]$paths) {
+    if (-not $paths -or $paths.Count -eq 0 -or $Quiet -or $JSON) { return }
+    $check = if ($hasColorSupport) { "$colGreen$([char]0x2713)$colReset " } else { "$([char]0x2713) " }
+    Write-Host "  $check$header"
+    $treeMid = "$([char]0x251C)$([char]0x2500)$([char]0x2500) "
+    $treeLast = "$([char]0x2514)$([char]0x2500)$([char]0x2500) "
+    for ($i = 0; $i -lt $paths.Count; $i++) {
+        $connector = if ($i -eq $paths.Count - 1) { $treeLast } else { $treeMid }
+        if ($hasColorSupport) {
+            Write-Host "    $colMuted$connector$colReset$($paths[$i])"
+        } else {
+            Write-Host "    $connector$($paths[$i])"
+        }
+    }
+    Write-Host ""
 }
 
 function Write-Err([string]$msg) {
-    Write-Host "  $msg" -ForegroundColor Red
+    if ($hasColorSupport) {
+        Write-Host "  $colRed$msg$colReset"
+    } else {
+        Write-Host "  $msg" -ForegroundColor Red
+    }
 }
 
 # Get-Sha256Hex computes a lowercase SHA256 hex digest. Uses Get-FileHash
@@ -467,6 +650,82 @@ function Resolve-Arch([string]$arch) {
     }
 }
 
+# --- Release notes extraction helper ---
+
+function Extract-ReleaseNotes([string]$body, [int]$maxLines = 2) {
+    if ([string]::IsNullOrWhiteSpace($body)) {
+        return @()
+    }
+    $cleanBody = $body -replace "\r\n", "`n"
+    $lines = $cleanBody -split "`n"
+    $results = @()
+    $inCodeBlock = $false
+
+    foreach ($raw in $lines) {
+        if ($results.Count -ge $maxLines) {
+            break
+        }
+        $trimmed = $raw.Trim()
+        if ($trimmed -match '^```') {
+            $inCodeBlock = -not $inCodeBlock
+            continue
+        }
+        if ($inCodeBlock -or [string]::IsNullOrWhiteSpace($trimmed)) {
+            continue
+        }
+        if ($trimmed -match '^(?:#+|>)\s*') {
+            continue
+        }
+        if ($trimmed -match '^[-*_]{3,}\s*$') {
+            continue
+        }
+
+        $text = ""
+        $isBullet = $false
+        if ($trimmed -match '^[-*•]\s+(.*)$') {
+            $text = $Matches[1].Trim()
+            $isBullet = $true
+        } elseif ($trimmed -match '^\d+\.\s+(.*)$') {
+            $text = $Matches[1].Trim()
+            $isBullet = $true
+        }
+
+        if ($isBullet -and $text.Length -gt 0) {
+            if ($text.Length -gt 72) {
+                $text = $text.Substring(0, 69) + "..."
+            }
+            $results += $text
+        }
+    }
+
+    if ($results.Count -eq 0) {
+        $inCodeBlock = $false
+        foreach ($raw in $lines) {
+            if ($results.Count -ge $maxLines) {
+                break
+            }
+            $trimmed = $raw.Trim()
+            if ($trimmed -match '^```') {
+                $inCodeBlock = -not $inCodeBlock
+                continue
+            }
+            if ($inCodeBlock -or [string]::IsNullOrWhiteSpace($trimmed)) {
+                continue
+            }
+            if ($trimmed -match '^(?:#+|>)\s*' -or $trimmed -match '^[-*_]{3,}\s*$') {
+                continue
+            }
+            $text = $trimmed
+            if ($text.Length -gt 72) {
+                $text = $text.Substring(0, 69) + "..."
+            }
+            $results += $text
+        }
+    }
+
+    return $results
+}
+
 # --- Resolve version (latest or pinned) ---
 
 function Resolve-Version([string]$userVersion) {
@@ -479,6 +738,9 @@ function Resolve-Version([string]$userVersion) {
     try {
         $response = Invoke-WebRequest -Uri $url -UseBasicParsing -ErrorAction Stop
         $release = $response.Content | ConvertFrom-Json
+        if ($release.body) {
+            $script:ReleaseNotes = Extract-ReleaseNotes $release.body
+        }
         if ($release.assets -and @($release.assets).Count -gt 0) {
             return $release.tag_name
         }
@@ -490,6 +752,9 @@ function Resolve-Version([string]$userVersion) {
         foreach ($rel in $releases) {
             if ($rel.assets -and @($rel.assets).Count -gt 0) {
                 Write-Step "  Resolved release $($rel.tag_name) with $(@($rel.assets).Count) assets"
+                if ($rel.body) {
+                    $script:ReleaseNotes = Extract-ReleaseNotes $rel.body
+                }
                 return $rel.tag_name
             }
         }
@@ -660,10 +925,15 @@ function Invoke-Aria2cDownload([string]$url, [string]$outPath) {
 
 function Get-Asset([string]$assetVer, [string]$assetArch) {
     $assetName = "gitmap-${assetVer}-windows-${assetArch}.zip"
-    $baseUrl = if ($env:GITMAP_DOWNLOAD_URL) {
-        $env:GITMAP_DOWNLOAD_URL.TrimEnd('/')
+    $overrideUrl = if ($env:GITMAP_DOWNLOAD_URL) { $env:GITMAP_DOWNLOAD_URL } elseif ($GITMAP_DOWNLOAD_URL) { $GITMAP_DOWNLOAD_URL } else { "" }
+    $isCustomUrlProvided = (-not [string]::IsNullOrWhiteSpace($overrideUrl))
+    $baseUrl = if ($isCustomUrlProvided) {
+        $overrideUrl.TrimEnd('/')
     } else {
         "https://github.com/$Repo/releases/download/$assetVer"
+    }
+    if ($isCustomUrlProvided) {
+        Write-Step "[download] Using overridden download URL from GITMAP_DOWNLOAD_URL: $baseUrl"
     }
     $assetUrl = "$baseUrl/$assetName"
     $checksumUrl = "$baseUrl/checksums.txt"
@@ -738,7 +1008,7 @@ function Get-Asset([string]$assetVer, [string]$assetArch) {
 
     try {
         if (-not (Invoke-Aria2cDownload -url $assetUrl -outPath $zipPath)) {
-            Invoke-WebRequest -Uri $assetUrl -OutFile $zipPath -UseBasicParsing
+            Invoke-BrailleDownload -url $assetUrl -outPath $zipPath -label "Downloading payload $assetName"
         }
         Invoke-WebRequest -Uri $checksumUrl -OutFile $checksumPath -UseBasicParsing
     }
@@ -766,8 +1036,9 @@ function Get-Asset([string]$assetVer, [string]$assetArch) {
 
     $expectedHash = ($expectedLine -split '\s+')[0]
     $actualHash = Get-Sha256Hex $zipPath
+    $isChecksumValid = ($actualHash -eq $expectedHash)
 
-    if ($actualHash -ne $expectedHash) {
+    if (-not $isChecksumValid) {
         Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
         if ($strict) {
             Stop-Strict "checksum mismatch for $assetName (expected $expectedHash, got $actualHash)"
@@ -779,7 +1050,7 @@ function Get-Asset([string]$assetVer, [string]$assetArch) {
     }
 
     Write-OK "Checksum verified."
-    return @{ ZipPath = $zipPath; TmpDir = $tmpDir; Version = $assetVer }
+    return @{ ZipPath = $zipPath; TmpDir = $tmpDir; Version = $assetVer; AssetUrl = $assetUrl }
 }
 
 # --- Extract and install ---
@@ -1265,6 +1536,7 @@ if (Test-Path -LiteralPath `$compPath) {
     } catch {}
 
     $targets = Resolve-PowerShellProfileTargets
+    $configuredProfiles = @()
     foreach ($profilePath in $targets) {
         $profileDir = Split-Path $profilePath -Parent
         if ($profileDir -and -not (Test-Path $profileDir)) {
@@ -1273,7 +1545,7 @@ if (Test-Path -LiteralPath `$compPath) {
 
         if (-not (Test-Path $profilePath)) {
             Add-Content -Path $profilePath -Value $block -Encoding UTF8
-            Write-OK "Configured predictive suggestions: $profilePath"
+            $configuredProfiles += $profilePath
             continue
         }
 
@@ -1295,8 +1567,12 @@ if (Test-Path -LiteralPath `$compPath) {
 
         if ($newContent -ne $content) {
             Set-Content -Path $profilePath -Value $newContent -Encoding UTF8
-            Write-OK "Configured predictive suggestions: $profilePath"
+            $configuredProfiles += $profilePath
         }
+    }
+
+    if ($configuredProfiles.Count -gt 0) {
+        Write-ProfileSubtree "Configured predictive suggestions:" @($configuredProfiles | Select-Object -Unique)
     }
 }
 
@@ -1372,12 +1648,16 @@ function Add-ToPath([string]$dir) {
         }
 
         $wrapperProfiles = Resolve-PowerShellProfileTargets
+        $addedWrappers = @()
         foreach ($wrapperProfile in $wrapperProfiles) {
             if (Add-CommandWrapperToProfile $wrapperProfile $dir) {
-                Write-OK "Added gitmap cd command wrapper to PowerShell profile: $wrapperProfile"
+                $addedWrappers += $wrapperProfile
             }
         }
-        if ($wrapperProfiles.Count -gt 0) { $modified += "PowerShell command wrapper" }
+        if ($addedWrappers.Count -gt 0) {
+            Write-ProfileSubtree "Added gitmap cd command wrapper to PowerShell profile:" @($addedWrappers | Select-Object -Unique)
+            $modified += "PowerShell command wrapper"
+        }
     }
 
     Install-CommandWrapperForSession $dir
@@ -1484,17 +1764,30 @@ function Remove-FromPath([string]$dir) {
 }
 
 function Write-InstallSummary([string]$version, [string]$binPath, [string]$installDir, [hashtable]$pathResult, [bool]$isNoPath, [string]$prevVersion = "") {
+    if ($Quiet -or $JSON) {
+        return
+    }
     Write-Host ""
     Write-Host "  -----------------------------------------------" -ForegroundColor Cyan
     Write-Host "  gitmap install summary" -ForegroundColor White
     Write-Host "  -----------------------------------------------" -ForegroundColor Cyan
     if ($prevVersion -and $prevVersion -ne $version) {
-        Write-Host "    Version    : $version (upgraded from $prevVersion)"
+        $prevFormatted = "$colBold$colWhite$prevVersion$colReset"
+        $arrowFormatted = "$colYellow→$colReset"
+        $currFormatted = "$colBold$colYellowHigh$version$colReset"
+        Write-Host "    Version    : $prevFormatted $arrowFormatted $currFormatted"
     } else {
         Write-Host "    Version    : $version"
     }
     Write-Host "    Binary     : $binPath"
     Write-Host "    Install Dir: $installDir"
+
+    if ($script:ReleaseNotes -and @($script:ReleaseNotes).Count -gt 0) {
+        Write-Host "  Release Notes:"
+        foreach ($rn in $script:ReleaseNotes) {
+            Write-Host "    • $rn"
+        }
+    }
 
     if ($isNoPath) {
         Write-Host "    PATH       : skipped (-NoPath)"
@@ -1529,58 +1822,70 @@ function Write-InstallSummary([string]$version, [string]$binPath, [string]$insta
 # exists (create on miss). All checks emit PASS/WARN; none throw,
 # because the binary is already on disk and the user can recover.
 function Invoke-InstallVerification([string]$binPath, [string]$installDir, [bool]$isNoPath) {
+    if ($Quiet -or $JSON) {
+        return
+    }
     $dataDir = Join-Path $installDir "data"
 
     Write-Host ""
     Write-Step "Verifying installation"
+    Write-Host ""
 
     # 1. Version
     if (Test-Path $binPath) {
         try {
             $verLine = (& $binPath version 2>&1 | Out-String).Trim().Split("`n")[0]
-            Write-Host ("    PASS  Version: {0}" -f $verLine) -ForegroundColor Green
+            Write-Host "    $colBold$colGreen SUCCESS $colReset Version: $verLine"
         }
         catch {
             Write-Warning "[Invoke-InstallVerification.Version] $_"
-            Write-Host ("    WARN  Could not run {0} version: {1}" -f $binPath, $_) -ForegroundColor Yellow
+            Write-Host ("    $colBold$colOrange WARN    $colReset Could not run {0} version: {1}" -f $binPath, $_)
         }
     }
     else {
-        Write-Host ("    WARN  Binary missing: {0}" -f $binPath) -ForegroundColor Yellow
+        Write-Host ("    $colBold$colRed FAIL    $colReset Binary missing: {0}" -f $binPath)
     }
 
     # 2. PATH active in this session
     $resolved = Get-Command $BinaryName -ErrorAction SilentlyContinue
     if ($resolved) {
-        Write-Host ("    PASS  PATH active: {0} -> {1}" -f $BinaryName, $resolved.Source) -ForegroundColor Green
+        Write-Host "    $colBold$colGreen SUCCESS $colReset PATH active: $BinaryName -> $($resolved.Source)"
     }
     elseif ($isNoPath) {
-        Write-Host ("    WARN  PATH skipped (-NoPath); invoke with full path: {0}" -f $binPath) -ForegroundColor Yellow
+        Write-Host "    $colBold$colOrange WARN    $colReset PATH skipped (-NoPath); invoke with full path: $binPath"
     }
     else {
-        Write-Host ("    WARN  {0} not on PATH yet - open a new terminal or reload `$PROFILE." -f $BinaryName) -ForegroundColor Yellow
+        Write-Host "    $colBold$colOrange WARN    $colReset $BinaryName not on PATH yet - open a new terminal or reload `$PROFILE."
     }
 
     # 3. Data folder
     if (Test-Path $dataDir) {
-        Write-Host ("    PASS  Data folder exists: {0}" -f $dataDir) -ForegroundColor Green
+        Write-Host "    $colBold$colGreen SUCCESS $colReset Data folder exists: $dataDir"
     }
     else {
         try {
             New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
-            Write-Host ("    PASS  Data folder created: {0}" -f $dataDir) -ForegroundColor Green
+            Write-Host "    $colBold$colGreen SUCCESS $colReset Data folder created: $dataDir"
         }
         catch {
             Write-Warning "[Invoke-InstallVerification.CreateDataDir] $_"
-            Write-Host ("    WARN  Could not create data folder: {0}" -f $dataDir) -ForegroundColor Yellow
+            Write-Host "    $colBold$colOrange WARN    $colReset Could not create data folder: $dataDir"
         }
     }
+    Write-Host ""
 }
 
 # --- Main ---
 
 function Main {
     try {
+        if (-not $Quiet -and -not $JSON) {
+            Write-Host ""
+            Write-CardHeader "GITMAP CLI INSTALLER" "v$InstallerVersion" 80
+            Write-CardText "$colCyan  Universal Git Repository Intelligence & Fleet Orchestrator$colReset" 80
+            Write-CardFooter 80
+        }
+
         $resolvedArch = Resolve-Arch $Arch
         $resolvedVersion = Resolve-Version $Version
         $resolvedDir = Resolve-InstallDir $InstallDir
@@ -1598,21 +1903,24 @@ function Main {
             } catch {}
         }
 
-        Write-Host ""
-        if ($previousVersion -and $previousVersion -ne $resolvedVersion) {
-            Write-Host "  gitmap installer: upgrading $previousVersion -> $resolvedVersion" -ForegroundColor White
-        } elseif ($previousVersion) {
-            Write-Host "  gitmap installer: reinstalling $resolvedVersion" -ForegroundColor White
-        } else {
-            Write-Host "  gitmap installer: installing $resolvedVersion (clean install)" -ForegroundColor White
-        }
-        Write-Host "  github.com/$Repo" -ForegroundColor DarkGray
-        Write-Host ""
+        Write-StageHeader 1 5 "RESOLVE TARGET RELEASE"
+        Write-CardHeader "" "" 80
+        Write-CardRow "Channel:" "latest stable release" 80
+        Write-CardRow "Resolved Tag:" "$colGreen$resolvedVersion$colReset" 80
+        Write-CardRow "Platform Arch:" "$resolvedArch" 80
+        Write-CardFooter 80
 
         $result = Get-Asset $resolvedVersion $resolvedArch
         if ($result.Version -and $result.Version -ne $resolvedVersion) {
             $resolvedVersion = $result.Version
         }
+
+        Write-StageHeader 2 5 "VERIFY & DOWNLOAD ASSET"
+        Write-CardHeader "" "" 80
+        Write-CardRow "Source URL:" "$($result.AssetUrl)" 80
+        Write-CardRow "Checksum:" "$colGreen SHA-256 integrity verified$colReset" 80
+        Write-CardRow "Status:" "$colGreen Payload downloaded successfully$colReset" 80
+        Write-CardFooter 80
 
         Repair-LegacyLayout $resolvedDir
 
@@ -1622,6 +1930,13 @@ function Main {
         finally {
             Remove-Item $result.TmpDir -Recurse -Force -ErrorAction SilentlyContinue
         }
+
+        $aliasPath = Join-Path $resolvedDir $BinaryAlias
+        Write-StageHeader 3 5 "EXTRACT & INSTALL BINARY"
+        Write-CardHeader "" "" 80
+        Write-CardRow "Binary Target:" "$binPath" 80
+        Write-CardRow "Alias Link:" "$aliasPath" 80
+        Write-CardFooter 80
 
         # Seed data files (downloader-config.json, etc.) so the binary
         # does not warn about a missing seed on first run.
@@ -1635,27 +1950,32 @@ function Main {
 
         Install-PowerShellShim $resolvedDir
 
+        $dataDir = Join-Path $resolvedDir "data"
+        Write-StageHeader 4 5 "SEED CONFIGURATION"
+        Write-CardHeader "" "" 80
+        Write-CardRow "Config Root:" "$dataDir" 80
+        Write-CardRow "Deploy Seed:" "$colGreen deploy-manifest.json verified$colReset" 80
+        Write-CardFooter 80
+
         $pathResult = @{ Target = "-NoPath"; Status = "skipped" }
         if (-not $NoPath) {
             $pathResult = Add-ToPath $resolvedDir
-
-            # NOTE: We intentionally do NOT call Chocolatey's `refreshenv` here.
-            # On Windows 11 24H2 / Server 2025 `wmic.exe` was removed from the
-            # OS, and older `refreshenv` implementations shell out to
-            # `wmic process get parentprocessid ...` which prints
-            #   'wmic' is not recognized as an internal or external command
-            # to the user's console. PowerShell `try/catch` cannot suppress
-            # native-stderr from a `cmd.exe` child, so the noise leaks
-            # through. `Rebuild-SessionPath` below already reads the
-            # Machine + User PATH from the registry, which is exactly what
-            # `refreshenv` would have done -- so the call is redundant.
-
-            # Force-rebuild $env:PATH in this scope so gitmap is usable immediately
             $script:NewPath = Rebuild-SessionPath $resolvedDir
         }
         else {
             $script:NewPath = $env:PATH
         }
+
+        Write-StageHeader 5 5 "SHELL ENVIRONMENT ACTIVATION"
+        Write-CardHeader "" "" 80
+        if (-not $NoPath) {
+            Write-CardRow "User PATH:" "$colGreen Verified in CurrentUser environment$colReset" 80
+            Write-CardRow "Profile State:" 'Reload alias or restart terminal to use `gitmap` and `gm`' 80
+        } else {
+            Write-CardRow "User PATH:" "$colOrange Skipped (-NoPath)$colReset" 80
+            Write-CardRow "Profile State:" "Invoke with full binary path: $binPath" 80
+        }
+        Write-CardFooter 80
 
         return @{ InstallDir = $resolvedDir; NewPath = $script:NewPath; Version = $resolvedVersion; PathResult = $pathResult }
     }
@@ -1825,7 +2145,10 @@ try {
                 $installedVersion = "gitmap $resolvedVersion"
             }
             if ($previousVersion -and $previousVersion -ne $resolvedVersion) {
-                Write-OK "Installed: $installedVersion (upgraded from $previousVersion)"
+                $prevFormatted = "$colBold$colWhite$previousVersion$colReset"
+                $arrowFormatted = "$colYellow→$colReset"
+                $currFormatted = "$colBold$colYellowHigh$installedVersion$colReset"
+                Write-OK "Installed: $prevFormatted $arrowFormatted $currFormatted"
             } else {
                 Write-OK "Installed: $installedVersion"
             }
@@ -1847,7 +2170,7 @@ try {
     # gitmap function) + completions are installed without a second
     # command. Setup is idempotent (marker `# gitmap shell wrapper v2`).
     # Non-fatal: install itself already succeeded.
-    if (Test-Path -LiteralPath $binPath) {
+    if (-not $Quiet -and -not $JSON -and $env:GITMAP_UPDATING -ne "1" -and (Test-Path -LiteralPath $binPath)) {
         Write-Host ""
         Write-Host "  -> Running 'gitmap setup' to install shell wrapper + completions..." -ForegroundColor Cyan
         try {
@@ -1862,15 +2185,17 @@ try {
     }
 
     # Configure PowerShell profiles with PSReadLine predictive IntelliSense & completions
-    Write-Host ""
-    Write-Host "  -> Configuring PowerShell predictive suggestions & completions..." -ForegroundColor Cyan
-    try {
-        Configure-PowerShellProfileSuggestions $binPath
-    } catch {
-        Write-Warning "[Main.ConfigurePowerShellProfileSuggestions] $_"
+    if (-not $Quiet -and -not $JSON -and $env:GITMAP_UPDATING -ne "1") {
+        Write-Host ""
+        Write-Host "  -> Configuring PowerShell predictive suggestions & completions..." -ForegroundColor Cyan
+        try {
+            Configure-PowerShellProfileSuggestions $binPath
+        } catch {
+            Write-Warning "[Main.ConfigurePowerShellProfileSuggestions] $_"
+        }
     }
 
-    if ($env:GITMAP_UPDATING -ne "1" -and (Test-Path -LiteralPath $binPath)) {
+    if (-not $Quiet -and -not $JSON -and $env:GITMAP_UPDATING -ne "1" -and (Test-Path -LiteralPath $binPath)) {
         Write-Host ""
         try {
             & $binPath binary
@@ -1879,9 +2204,38 @@ try {
         }
     }
 
-    Write-Host ""
-    Write-OK "Done! Run 'gitmap --help' to get started."
-    Write-Host ""
+    if ($JSON) {
+        @{
+            success = $true
+            status = "installed"
+            installed_version = $installedVersion
+            binary_path = $binPath
+            install_dir = $installResult.InstallDir
+        } | ConvertTo-Json -Compress
+    } elseif (-not $Quiet) {
+        Write-Host ""
+        Write-CardHeader "INSTALLATION COMPLETE" "SUCCESS" 80
+        if ($previousVersion -and $previousVersion -ne $resolvedVersion) {
+            Write-CardText "$colWhite$previousVersion$colReset $colYellow→$colReset $colBold$colYellowHigh$installedVersion$colReset is ready for production use." 80
+        } else {
+            Write-CardText "$colGreen  $installedVersion is ready for production use.$colReset" 80
+        }
+        if ($script:ReleaseNotes -and @($script:ReleaseNotes).Count -gt 0) {
+            Write-CardText "" 80
+            Write-CardText "  Release Notes:" 80
+            foreach ($rn in $script:ReleaseNotes) {
+                Write-CardText "    • $rn" 80
+            }
+        }
+        Write-CardText "" 80
+        Write-CardText "$colBold  Quick Start Commands:$colReset" 80
+        Write-CardText "    $colCyan gitmap status$colReset                 Inspect repository and fleet health" 80
+        Write-CardText "    $colCyan gitmap scan .$colReset                    High-speed multithreaded repository audit" 80
+        Write-CardText "    $colCyan gitmap update$colReset                 Seamless pure binary self-updater" 80
+        Write-CardText "    $colCyan gm --help$colReset                     Abbreviated shortcut invocation" 80
+        Write-CardFooter 80
+        Write-Host ""
+    }
     Set-InstallerExitCode 0
 }
 catch {

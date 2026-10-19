@@ -440,6 +440,23 @@ function Write-OK([string]$msg) {
     }
 }
 
+function Write-ProfileSubtree([string]$header, [string[]]$paths) {
+    if (-not $paths -or $paths.Count -eq 0 -or $Quiet -or $JSON) { return }
+    $check = if ($hasColorSupport) { "$colGreen$([char]0x2713)$colReset " } else { "$([char]0x2713) " }
+    Write-Host "  $check$header"
+    $treeMid = "$([char]0x251C)$([char]0x2500)$([char]0x2500) "
+    $treeLast = "$([char]0x2514)$([char]0x2500)$([char]0x2500) "
+    for ($i = 0; $i -lt $paths.Count; $i++) {
+        $connector = if ($i -eq $paths.Count - 1) { $treeLast } else { $treeMid }
+        if ($hasColorSupport) {
+            Write-Host "    $colMuted$connector$colReset$($paths[$i])"
+        } else {
+            Write-Host "    $connector$($paths[$i])"
+        }
+    }
+    Write-Host ""
+}
+
 function Write-Err([string]$msg) {
     if ($hasColorSupport) {
         Write-Host "  $colRed$msg$colReset"
@@ -1519,6 +1536,7 @@ if (Test-Path -LiteralPath `$compPath) {
     } catch {}
 
     $targets = Resolve-PowerShellProfileTargets
+    $configuredProfiles = @()
     foreach ($profilePath in $targets) {
         $profileDir = Split-Path $profilePath -Parent
         if ($profileDir -and -not (Test-Path $profileDir)) {
@@ -1527,7 +1545,7 @@ if (Test-Path -LiteralPath `$compPath) {
 
         if (-not (Test-Path $profilePath)) {
             Add-Content -Path $profilePath -Value $block -Encoding UTF8
-            Write-OK "Configured predictive suggestions: $profilePath"
+            $configuredProfiles += $profilePath
             continue
         }
 
@@ -1549,8 +1567,12 @@ if (Test-Path -LiteralPath `$compPath) {
 
         if ($newContent -ne $content) {
             Set-Content -Path $profilePath -Value $newContent -Encoding UTF8
-            Write-OK "Configured predictive suggestions: $profilePath"
+            $configuredProfiles += $profilePath
         }
+    }
+
+    if ($configuredProfiles.Count -gt 0) {
+        Write-ProfileSubtree "Configured predictive suggestions:" @($configuredProfiles | Select-Object -Unique)
     }
 }
 
@@ -1626,12 +1648,16 @@ function Add-ToPath([string]$dir) {
         }
 
         $wrapperProfiles = Resolve-PowerShellProfileTargets
+        $addedWrappers = @()
         foreach ($wrapperProfile in $wrapperProfiles) {
             if (Add-CommandWrapperToProfile $wrapperProfile $dir) {
-                Write-OK "Added gitmap cd command wrapper to PowerShell profile: $wrapperProfile"
+                $addedWrappers += $wrapperProfile
             }
         }
-        if ($wrapperProfiles.Count -gt 0) { $modified += "PowerShell command wrapper" }
+        if ($addedWrappers.Count -gt 0) {
+            Write-ProfileSubtree "Added gitmap cd command wrapper to PowerShell profile:" @($addedWrappers | Select-Object -Unique)
+            $modified += "PowerShell command wrapper"
+        }
     }
 
     Install-CommandWrapperForSession $dir
