@@ -143,6 +143,7 @@ var generatedCommandsPart1 = []string{
 	"csharp-repos",
 	"csr",
 	"d",
+	"daemon",
 	"dash",
 	"dashboard",
 	"db",
@@ -208,6 +209,7 @@ var generatedCommandsPart1 = []string{
 	"git-reset",
 	"git-rm",
 	"github-desktop",
+	"gitmap-daemon",
 	"gm",
 	"go",
 	"go-repos",
@@ -253,6 +255,4 @@ var generatedCommandsPart1 = []string{
 	"lcf",
 	"ld",
 	"lemon",
-	"lfs-common",
-	"lfsc",
 }

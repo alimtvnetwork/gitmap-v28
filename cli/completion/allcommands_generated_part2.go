@@ -5,6 +5,8 @@ package completion
 // generatedCommandsPart2 holds chunk 2 of 3 of the generated command
 // list (see allcommands_generated.go).
 var generatedCommandsPart2 = []string{
+	"lfs-common",
+	"lfsc",
 	"list",
 	"list-files",
 	"list-releases",
@@ -253,6 +255,4 @@ var generatedCommandsPart2 = []string{
 	"undo",
 	"uninstall",
 	"unzip-compact",
-	"update",
-	"uzc",
 }

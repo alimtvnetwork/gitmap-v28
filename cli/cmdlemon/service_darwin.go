@@ -78,10 +78,10 @@ func (s *DarwinService) Restart() error {
 func (s *DarwinService) Status() (*ServiceDetails, error) {
 	out, err := exec.Command("launchctl", "list").CombinedOutput()
 	statusType := ServiceStatusTypeStopped
-	if err == nil {
-		if strings.Contains(string(out), "com.gitmap.daemon") || strings.Contains(string(out), "com.gitmap.lemon") {
-			statusType = ServiceStatusTypeRunning
-		}
+	outStr := string(out)
+	isRunning := err == nil && (strings.Contains(outStr, "com.gitmap.daemon") || strings.Contains(outStr, "com.gitmap.lemon"))
+	if isRunning {
+		statusType = ServiceStatusTypeRunning
 	}
 	return &ServiceDetails{
 		Name:       DarwinPlistName,

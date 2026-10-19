@@ -51,8 +51,8 @@ In the `gitmap`, you already did some planning on the ENT goal, right? You did s
 | **Subtask-02** | Email Command Parser & Multi-Format Envelope | `cli/cmdlemon/lemon_types.go`, `cli/cmdlemon/email_parser.go`, `cli/cmdlemon/email_parser_test.go` | `COMPLETED` |
 | **Subtask-03** | Immediate Receipt Acknowledgment (ACK) & Command Replier | `cli/cmdlemon/email_ack.go`, `cli/cmdlemon/email_ack_test.go`, `cli/cmdlemon/email_reporter.go` | `COMPLETED` |
 | **Subtask-04** | Command Execution Pipeline & AGM Alignment | `cli/cmdlemon/command_executor.go`, `cli/cmdlemon/command_executor_test.go` | `COMPLETED` |
-| **Subtask-05** | Lemon Daemon Polling Loop & Cross-Platform Service Hooks | `cli/cmdlemon/lemon_daemon.go`, `cli/cmdlemon/service_manager.go`, `cli/cmdlemon/lemon_cmd.go` | `COMPLETED` |
-| **Subtask-06** | End-to-End Test Suite Covering Edge Cases & Verification | `cli/tests/e2e/lemon_email_e2e_test.go` | `COMPLETED` |
+| **Subtask-05** | GitMap Daemon (`gitmap-daemon`) Polling Loop, Settings Toggle & Cross-Platform Service Hooks | `cli/cmdlemon/lemon_daemon.go`, `cli/cmdlemon/service_manager.go`, `cli/cmdlemon/daemon_settings.go`, `cli/cmdlemon/lemon_cmd.go` | `COMPLETED` |
+| **Subtask-06** | End-to-End Test Suite Covering Edge Cases, Settings Toggle & Verification | `cli/tests/e2e/lemon_email_e2e_test.go`, `cli/tests/e2e/lemon_daemon_e2e_test.go`, `cli/tests/e2e/lemon_edgecases_e2e_test.go` | `COMPLETED` |
 
 ---
 

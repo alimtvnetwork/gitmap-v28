@@ -21,20 +21,31 @@ var daemonSettingAliases = []string{
 // IsDaemonEnabled returns true if the gitmap-daemon is enabled in settings (default: true).
 func IsDaemonEnabled() bool {
 	dbConn, errOpen := store.OpenDefault()
-	if errOpen == nil {
-		defer dbConn.Close()
-		val := strings.TrimSpace(dbConn.GetSetting(DaemonSettingKey))
-		if len(val) > 0 {
-			return !isFalsySetting(val)
-		}
-		for _, alias := range daemonSettingAliases {
-			aliasVal := strings.TrimSpace(dbConn.GetSetting(alias))
-			if len(aliasVal) > 0 {
-				return !isFalsySetting(aliasVal)
-			}
+	if errOpen != nil {
+		return readDaemonSettingFromConfig()
+	}
+	defer dbConn.Close()
+
+	val := strings.TrimSpace(dbConn.GetSetting(DaemonSettingKey))
+	if len(val) > 0 {
+		return !isFalsySetting(val)
+	}
+
+	return readDaemonSettingAliases(dbConn)
+}
+
+func readDaemonSettingAliases(dbConn *store.DB) bool {
+	for _, alias := range daemonSettingAliases {
+		aliasVal := strings.TrimSpace(dbConn.GetSetting(alias))
+		if len(aliasVal) > 0 {
+			return !isFalsySetting(aliasVal)
 		}
 	}
 
+	return readDaemonSettingFromConfig()
+}
+
+func readDaemonSettingFromConfig() bool {
 	val, isFound := config.GetVariable("global", DaemonSettingKey)
 	if isFound && len(strings.TrimSpace(val)) > 0 {
 		return !isFalsySetting(val)

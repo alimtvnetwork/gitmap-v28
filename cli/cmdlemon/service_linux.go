@@ -72,21 +72,26 @@ func (s *LinuxService) Restart() error {
 
 func (s *LinuxService) Status() (*ServiceDetails, error) {
 	out, err := exec.Command("systemctl", "--user", "is-active", LinuxUnitName).Output()
-	statusType := ServiceStatusTypeStopped
-	if err == nil && strings.TrimSpace(string(out)) == "active" {
-		statusType = ServiceStatusTypeRunning
-	} else {
-		// check legacy service name
-		outLegacy, errLegacy := exec.Command("systemctl", "--user", "is-active", LinuxLegacyUnitName).Output()
-		if errLegacy == nil && strings.TrimSpace(string(outLegacy)) == "active" {
-			statusType = ServiceStatusTypeRunning
-		}
+	isActive := err == nil && strings.TrimSpace(string(out)) == "active"
+	if isActive {
+		return makeLinuxServiceDetails(ServiceStatusTypeRunning), nil
 	}
+
+	outLegacy, errLegacy := exec.Command("systemctl", "--user", "is-active", LinuxLegacyUnitName).Output()
+	isLegacyActive := errLegacy == nil && strings.TrimSpace(string(outLegacy)) == "active"
+	if isLegacyActive {
+		return makeLinuxServiceDetails(ServiceStatusTypeRunning), nil
+	}
+
+	return makeLinuxServiceDetails(ServiceStatusTypeStopped), nil
+}
+
+func makeLinuxServiceDetails(statusType ServiceStatusType) *ServiceDetails {
 	return &ServiceDetails{
 		Name:       LinuxUnitName,
 		Platform:   "linux",
 		StatusType: statusType,
 		IsEnabled:  statusType == ServiceStatusTypeRunning,
 		ConfigPath: filepath.Join(".config/systemd/user", LinuxUnitName),
-	}, nil
+	}
 }

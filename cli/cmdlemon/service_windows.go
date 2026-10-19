@@ -67,21 +67,26 @@ func (s *WindowsService) Restart() error {
 
 func (s *WindowsService) Status() (*ServiceDetails, error) {
 	out, err := exec.Command("sc.exe", "query", WindowsServiceName).CombinedOutput()
-	statusType := ServiceStatusTypeStopped
-	if err == nil && strings.Contains(string(out), "RUNNING") {
-		statusType = ServiceStatusTypeRunning
-	} else {
-		// check legacy service name
-		outLegacy, errLegacy := exec.Command("sc.exe", "query", WindowsLegacyServiceName).CombinedOutput()
-		if errLegacy == nil && strings.Contains(string(outLegacy), "RUNNING") {
-			statusType = ServiceStatusTypeRunning
-		}
+	isRunning := err == nil && strings.Contains(string(out), "RUNNING")
+	if isRunning {
+		return makeWindowsServiceDetails(ServiceStatusTypeRunning), nil
 	}
+
+	outLegacy, errLegacy := exec.Command("sc.exe", "query", WindowsLegacyServiceName).CombinedOutput()
+	isLegacyRunning := errLegacy == nil && strings.Contains(string(outLegacy), "RUNNING")
+	if isLegacyRunning {
+		return makeWindowsServiceDetails(ServiceStatusTypeRunning), nil
+	}
+
+	return makeWindowsServiceDetails(ServiceStatusTypeStopped), nil
+}
+
+func makeWindowsServiceDetails(statusType ServiceStatusType) *ServiceDetails {
 	return &ServiceDetails{
 		Name:       WindowsServiceName,
 		Platform:   "windows",
 		StatusType: statusType,
 		IsEnabled:  statusType == ServiceStatusTypeRunning,
 		ConfigPath: filepath.Join("System32", WindowsServiceName),
-	}, nil
+	}
 }
