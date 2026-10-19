@@ -2,7 +2,7 @@
 
 ## What's Changed in v6.581.0
 
-- **native sqlite database integration and exploration suite**
+- **native sqlite database integration exploration and view join suite**
 
 ### Quick Install One-Liners
 
