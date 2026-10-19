@@ -213,6 +213,14 @@ var helpAliases = map[string]string{
 	"dbls":                        "db-listing",
 	"dbv":                         "db-view",
 	"db-list":                     "db-listing",
+	"dbrs":                        "db-rest",
+	"dbrest":                      "db-rest",
+	"dbrd":                        "db-record-del",
+	"dbrecorddel":                 "db-record-del",
+	"db-record-delete":            "db-record-del",
+	"dbrm":                        "db-rm",
+	"dbdelete":                    "db-rm",
+	"db-delete":                   "db-rm",
 }
 
 func resolveHelpAlias(cmd string) string {
