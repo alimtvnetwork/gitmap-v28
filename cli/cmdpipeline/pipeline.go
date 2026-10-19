@@ -73,6 +73,8 @@ type PipelineErrorLogsPayload struct {
 	Runs               []ghRunItem       `json:"runs,omitempty"`
 	IsFromCache        bool              `json:"isFromCache,omitempty"`
 	CacheSource        string            `json:"cacheSource,omitempty"`
+	ElapsedDuration    string            `json:"elapsedDuration,omitempty"`
+	ElapsedSeconds     float64           `json:"elapsedSeconds,omitempty"`
 }
 
 // SectionFailure represents a discrete failing section or step across pipeline runs.

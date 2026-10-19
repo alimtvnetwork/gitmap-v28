@@ -44,11 +44,14 @@ func executeParallelFetchWorkers(repo string, failedRuns []ghRunItem) []FailedRu
 func dispatchFetchRunWorker(wg *sync.WaitGroup, sem chan struct{}, results []FailedRunItem, repo string, fr ghRunItem, idx int) {
 	defer wg.Done()
 	sem <- struct{}{}
+	defer func() { <-sem }()
 	results[idx] = fetchAndBuildFailedRunItem(repo, fr)
-	<-sem
 }
 
 func resolveFetchConcurrency(total int) int {
+	if total <= 0 {
+		return 0
+	}
 	if total <= 8 {
 		return total
 	}

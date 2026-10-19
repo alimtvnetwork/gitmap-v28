@@ -2,6 +2,9 @@ package cmdpipeline
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
@@ -12,7 +15,7 @@ func TryRenderFromShaCache(repo string, flags PipelineErrorFlags) (bool, error) 
 		return false, nil
 	}
 
-	targetSha := resolveTargetOrHeadSha(repo, flags)
+	targetSha := resolveTargetShaFast(repo, flags)
 	if len(targetSha) == 0 {
 		return false, nil
 	}
@@ -40,6 +43,68 @@ func TryRenderFromShaCache(repo string, flags PipelineErrorFlags) (bool, error) 
 	_ = RecordPipelineCheckInTask(repo, payload)
 
 	return true, writePayloadWithFlags(payload, flags)
+}
+
+func resolveTargetShaFast(repo string, flags PipelineErrorFlags) string {
+	if len(flags.CommitTarget) > 0 && !flags.HasIndex {
+		return flags.CommitTarget
+	}
+
+	if len(flags.CommitTarget) > 0 {
+		resolved := resolveTargetCommitCandidate(flags.CommitTarget)
+		if len(resolved) > 0 {
+			return resolved
+		}
+	}
+
+	if sha := fastResolveHeadCommitSha(repo); len(sha) > 0 {
+		return sha
+	}
+
+	return resolveTargetOrHeadSha(repo, flags)
+}
+
+func fastResolveHeadCommitSha(repo string) string {
+	if !isCurrentRepoMatch(repo) {
+		repoDir := findLocalRepoDirForSlug(repo)
+		if len(repoDir) == 0 {
+			return ""
+		}
+		return readGitHeadSha(repoDir)
+	}
+
+	return readGitHeadSha(".")
+}
+
+func readGitHeadSha(dir string) string {
+	headPath := filepath.Join(dir, ".git", "HEAD")
+	data, err := os.ReadFile(headPath)
+	if err != nil {
+		return ""
+	}
+
+	content := strings.TrimSpace(string(data))
+	if len(content) == 40 && !strings.HasPrefix(content, "ref:") {
+		return content
+	}
+
+	if !strings.HasPrefix(content, "ref: ") {
+		return ""
+	}
+
+	refRel := strings.TrimSpace(content[5:])
+	refPath := filepath.Join(dir, ".git", filepath.FromSlash(refRel))
+	refData, err := os.ReadFile(refPath)
+	if err != nil {
+		return ""
+	}
+
+	sha := strings.TrimSpace(string(refData))
+	if len(sha) == 40 {
+		return sha
+	}
+
+	return ""
 }
 
 // SavePayloadToShaCache persists completed pipeline error telemetry payload into SQLite PipelineShaCache.

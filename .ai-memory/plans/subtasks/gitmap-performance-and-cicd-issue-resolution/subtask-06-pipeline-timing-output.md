@@ -6,8 +6,9 @@
   - `cli/cmdpipeline/pipeline_logs_output.go`
   - `cli/cmdpipeline/pipeline_logs_entry.go`
   - `cli/cmdpipeline/pipeline_timing_test.go`
+  - `cli/cmdpipeline/pipeline.go`
 - **Assigned Worker**: Worker 03
-- **Status**: PENDING
+- **Status**: COMPLETED
 
 ---
 
@@ -25,5 +26,8 @@
 ---
 
 ## 2. Verification
-- `gitmap te` outputs elapsed duration banner.
-- `go test ./cli/cmdpipeline/... -v`
+- `pipeline_logs_output.go` (291 lines, $\le 300$).
+- `pipeline_logs_entry.go` (260 lines, $\le 300$).
+- `pipeline_timing_test.go` (150 lines, $\le 300$).
+- `go test -C cli ./cmdpipeline -run "TestTiming|TestFormatExecutionDuration|TestFormatTimingBanner" -v`: All PASS (0.11s).
+- Full `cmdpipeline` test suite PASS (107s).

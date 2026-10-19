@@ -12,9 +12,9 @@ import (
 )
 
 func handlePipelineErrorLogs(args []string) error {
+	markPipelineExecutionStart()
 	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") || hasArgFlag(args, "help") {
 		printPipelineErrorLogsHelp()
-
 		return nil
 	}
 	if hasArgFlag(args, "last-failed-logs") {
@@ -26,7 +26,6 @@ func handlePipelineErrorLogs(args []string) error {
 	if handled, err := HandlePEFormatCommands(args); handled {
 		return err
 	}
-
 	return handlePipelineHistoryOrExecute(args)
 }
 
@@ -41,37 +40,31 @@ func handlePipelineHistoryOrExecute(args []string) error {
 	if handled, err := HandlePipelineHistoryErrors(args); handled {
 		return err
 	}
-
 	return executePipelineErrorLogs(args)
 }
 
 func executePipelineErrorLogs(args []string) error {
+	markPipelineExecutionStart()
 	flags := ParsePipelineErrorFlags(args)
 	if flags.ResolvedPath != "" {
 		_ = os.Chdir(flags.ResolvedPath)
 	}
-
 	if flags.IsAll {
 		return executeAllPipelineErrorLogs(flags, args)
 	}
-
 	if err := validateTargetRepo(flags); err != nil {
 		return err
 	}
 	repo := resolveFlagsRepoSlug(flags)
-
 	if isHit, err := TryRenderFromShaCache(repo, flags); isHit {
 		return err
 	}
-
 	if flags.HasTimeline || flags.HasUntilDone {
 		return executeTimelineOrUntilDoneErrorLogs(repo, flags, args)
 	}
-
 	if isInstant, decision := tryInstantCommitHashRetrieval(repo, flags); isInstant {
 		return renderCachedErrorLogs(repo, decision, flags)
 	}
-
 	return processAndRenderErrorLogs(repo, flags)
 }
 
@@ -79,7 +72,6 @@ func validateTargetRepo(flags PipelineErrorFlags) error {
 	if flags.IsAll {
 		return nil
 	}
-
 	if flags.RawRepoTarget != "" && flags.RepoTarget == "" {
 		PrintRepoTargetNotFoundDiagnostic(flags.RawRepoTarget, QueryRepoSuggestionsFromDB(flags.RawRepoTarget))
 		return fmt.Errorf("target repository %q not found", flags.RawRepoTarget)
@@ -99,7 +91,6 @@ func executeTimelineOrUntilDoneErrorLogs(repo string, flags PipelineErrorFlags, 
 	if !flags.IsJSON && !flags.HasSuppressOutputLog {
 		printTimelineWatchHeader(repo, flags)
 	}
-
 	return runTimelineOrUntilDoneLoop(repo, flags)
 }
 
@@ -118,11 +109,9 @@ func runTimelineOrUntilDoneLoop(repo string, flags PipelineErrorFlags) error {
 		if isDone {
 			return err
 		}
-
 		if isTimelineTestMode() {
 			return nil
 		}
-
 		time.Sleep(120 * time.Second)
 	}
 }
@@ -136,7 +125,6 @@ func pollTimelineLoopStep(repo string, flags PipelineErrorFlags) (bool, error) {
 	if hasEarlyDetectedErrors(payload) {
 		return handleEarlyDetectedErrors(payload, flags)
 	}
-
 	if !payload.IsRunning {
 		return true, writePayloadWithFlags(payload, flags)
 	}
@@ -150,7 +138,6 @@ func handleEarlyDetectedErrors(payload PipelineErrorLogsPayload, flags PipelineE
 	if isTimelineTestMode() {
 		return true, nil
 	}
-
 	return true, fmt.Errorf("pipeline errors detected in active run")
 }
 
@@ -165,17 +152,10 @@ func hasEarlyDetectedErrors(payload PipelineErrorLogsPayload) bool {
 	if len(payload.FailedRuns) > 0 || len(payload.SectionFailures) > 0 {
 		return true
 	}
-	if isFailingConclusion(payload.Conclusion) {
+	if isFailingConclusion(payload.Conclusion) || len(payload.CombinedErrors) > 0 {
 		return true
 	}
-	if len(payload.CombinedErrors) > 0 {
-		return true
-	}
-	if isFailingErrorLogs(payload.ErrorLogs) {
-		return true
-	}
-
-	return false
+	return isFailingErrorLogs(payload.ErrorLogs)
 }
 
 func isFailingErrorLogs(logs string) bool {
@@ -185,7 +165,6 @@ func isFailingErrorLogs(logs string) bool {
 	if strings.Contains(logs, "No failed pipeline steps") {
 		return false
 	}
-
 	return strings.Contains(logs, "FAIL") || strings.Contains(logs, "Error") || strings.Contains(logs, "error")
 }
 
@@ -193,7 +172,6 @@ func tryInstantCommitHashRetrieval(repo string, flags PipelineErrorFlags) (bool,
 	if isPipelineCacheBypassed(flags) {
 		return false, PipelineCacheDecision{}
 	}
-
 	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return false, PipelineCacheDecision{}
@@ -204,16 +182,13 @@ func tryInstantCommitHashRetrieval(repo string, flags PipelineErrorFlags) (bool,
 	if runRes.IsFailure() || len(runRes.Data) == 0 {
 		return false, PipelineCacheDecision{}
 	}
-
 	targetSha := resolveTargetOrHeadSha(repo, flags)
 	if len(targetSha) == 0 {
 		return false, PipelineCacheDecision{}
 	}
-
 	if checkCommitTargetCacheHit(runRes.Data, targetSha) {
 		return true, buildCacheHitDecision(runRes.Data, targetSha, "instant_hash_retrieval_completed")
 	}
-
 	return false, PipelineCacheDecision{}
 }
 
@@ -224,12 +199,10 @@ func resolveTargetOrHeadSha(repo string, flags PipelineErrorFlags) string {
 	if !flags.HasIndex {
 		return flags.CommitTarget
 	}
-
 	resolved := resolveTargetCommitCandidate(flags.CommitTarget)
 	if len(resolved) > 0 {
 		return resolved
 	}
-
 	return ResolveRepoHeadCommitSha(repo)
 }
 
@@ -238,16 +211,15 @@ func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 	if isInstant, decision := tryInstantCommitHashRetrieval(repo, flags); isInstant {
 		return renderCachedErrorLogs(repo, decision, flags)
 	}
-
 	decision := EvaluatePipelineErrorsCache(repo, flags)
 	if decision.IsFromCache {
 		return renderCachedErrorLogs(repo, decision, flags)
 	}
-
 	return fetchAndRenderFreshErrorLogs(repo, flags)
 }
 
 func writePayloadWithFlags(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) error {
+	attachExecutionDuration(&payload)
 	return writeOrRenderErrorLogs(ErrorLogOutputParams{
 		Payload:              payload,
 		IsJSON:               flags.IsJSON,
@@ -265,7 +237,6 @@ func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags Pi
 	payload.CacheSource = decision.CacheSource
 	applyPayloadOptions(&payload, decision.CachedRuns, flags)
 	_ = RecordPipelineCheckInTask(repo, payload)
-
 	return writePayloadWithFlags(payload, flags)
 }
 
@@ -278,7 +249,6 @@ func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
 	applyPayloadOptions(&payload, runs, flags)
 	SavePayloadToShaCache(repo, payload)
 	_ = RecordPipelineCheckInTask(repo, payload)
-
 	return writePayloadWithFlags(payload, flags)
 }
 
@@ -286,6 +256,5 @@ func printReadingProgress(flags PipelineErrorFlags) {
 	if flags.IsJSON || flags.HasSuppressOutputLog {
 		return
 	}
-
 	fmt.Printf("\n  Reading pipeline logs...\n\n")
 }

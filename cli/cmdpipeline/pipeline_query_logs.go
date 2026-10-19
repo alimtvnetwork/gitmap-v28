@@ -128,9 +128,20 @@ func fetchJobLevelFailedLogs(repo string, runId uint64, jobs []ghJobItem) (strin
 	return assembleJobLogsOrFallback(repo, runId, jobs, results)
 }
 
+func resolveJobLogConcurrency(total int) int {
+	if total <= 8 {
+		if total < 1 {
+			return 1
+		}
+		return total
+	}
+
+	return 8
+}
+
 func executeParallelJobLogFetches(repo string, jobs []ghJobItem) []string {
 	results := make([]string, len(jobs))
-	sem := make(chan struct{}, 4)
+	sem := make(chan struct{}, resolveJobLogConcurrency(len(jobs)))
 	var wg sync.WaitGroup
 
 	for i, j := range jobs {

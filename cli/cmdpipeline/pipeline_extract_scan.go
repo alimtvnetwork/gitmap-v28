@@ -1,7 +1,7 @@
 package cmdpipeline
 
 import (
-	"bufio"
+	"runtime"
 	"strings"
 )
 
@@ -50,13 +50,26 @@ func ParseFailedLogLines(rawLogs string) []FailedJobItem {
 }
 
 func scanLogLinesIntoMap(rawLogs string, jobMap map[string]*FailedJobItem, order *[]string) {
-	scanner := bufio.NewScanner(strings.NewReader(rawLogs))
+	lines := splitLogLines(rawLogs)
+	if len(lines) == 0 {
+		return
+	}
+
+	if len(lines) > 100 && runtime.NumCPU() > 1 {
+		scanLogLinesParallel(lines, jobMap, order)
+
+		return
+	}
+
+	scanLogLinesSequential(lines, jobMap, order)
+}
+
+func scanLogLinesSequential(lines []string, jobMap map[string]*FailedJobItem, order *[]string) {
 	contextRemaining := 0
 	var lastKey string
 	warnBuf := make(map[string][]string)
 	warnContRemaining := 0
-	for scanner.Scan() {
-		line := scanner.Text()
+	for _, line := range lines {
 		if isBlankLogLine(line) {
 			warnContRemaining = 0
 

@@ -43,14 +43,6 @@ const (
 	MetaMuseBinaryNameUnix    = "muse"
 )
 
-// Meta Muse installer error constants.
-const (
-	ErrMuseDownloadFailed  = "E1085"
-	ErrMissingDownloadTool = "E1086"
-	ErrMuseProbeFailed     = "E1087"
-	ErrUnsupportedArch     = "E1088"
-)
-
 // Supported tool names — DevOps & Containers.
 const (
 	ToolDocker      = "docker"
