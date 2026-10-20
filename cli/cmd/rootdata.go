@@ -168,7 +168,7 @@ func dataExecutionEntries() []dispatchEntry {
 		{[]string{constants.CmdAsync, constants.CmdAsyncAlias}, func() error { return RunAsyncCmd(argsTail()) }},
 		{[]string{constants.CmdStorage, constants.CmdStorageAlias}, func() error { return cmdstorage.RunStorageCmd(argsTail()) }},
 		{[]string{"schedule", "sc", "crontab", "cron"}, func() error { return cmdschedule.RunSchedule(argsTail()) }},
-		{[]string{"mail", "email"}, func() error {
+		{[]string{"mail", "mailbox"}, func() error {
 			if appErr := cmdmail.RunMail(argsTail()); appErr != nil {
 				return appErr
 			}
