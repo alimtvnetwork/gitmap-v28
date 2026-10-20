@@ -444,6 +444,29 @@ const { data } = useQuery({
 
 ---
 
+### Mistake #21: Ad-Hoc Python Web Scrapers for Screenshots
+
+**Frequency:** High  
+**Rule:** AH-GM1  
+
+```python
+# ❌ AI GENERATES THIS — brittle ad-hoc python urllib scraping script
+python -c "import urllib.request, re;
+for u in ['https://prnt.sc/abc']:
+    req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
+    h = urllib.request.urlopen(req).read().decode('utf-8')
+    m = re.findall(r'https://image\.prntscr\.com/[^\"]+', h)
+    print(u, m[:2])
+"
+```
+
+```bash
+# ✅ CORRECT — native compiled GitMap screenshot extractor and brain synchronizer
+gitmap prnt <url1> [url2...] [-e] [--json] [-o <dir>]
+```
+
+---
+
 ## Pattern Recognition Guide
 
 ### Signs AI is About to Hallucinate

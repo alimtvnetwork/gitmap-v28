@@ -1,205 +1,222 @@
 package cmdasset
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-var (
-	imgURLRegex          = regexp.MustCompile(`(?i)<img[^>]+(?:id="screenshot-image"|class="screenshot__image")[^>]+src="([^"]+)"`)
-	ogImgRegex           = regexp.MustCompile(`(?i)property="og:image"\s+content="([^"]+)"`)
-	lightshotDirectRegex = regexp.MustCompile(`(?i)https://(?:image\.prntscr\.com|img\.lightshot\.app)/[^\s"'<>]+`)
-)
-
+// RunAssetPrnt dispatches the screenshot downloader or URL extractor.
 func RunAssetPrnt(args []string) error {
-	hasArgs := len(args) > 0
-	if !hasArgs || args[0] == "-h" || args[0] == "--help" {
+	opts := parsePrntArgs(args)
+	if len(opts.URLs) == 0 {
 		printAssetPrntHelp()
 		return nil
 	}
 
-	url := args[0]
-	destPath := ""
-	if len(args) > 1 {
-		destPath = args[1]
+	results := executePrntBatch(opts)
+	if opts.JsonFormat {
+		return printPrntJSON(opts, results)
 	}
 
-	return DownloadPrntAsset(url, destPath)
+	printPrntTerminalSummary(opts, results)
+	return nil
+}
+
+func parsePrntArgs(args []string) PrntOptions {
+	opts := PrntOptions{Concurrency: 4}
+	var nonFlags []string
+
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "-h" || a == "--help":
+			return PrntOptions{}
+		case a == "-e" || a == "--extract-only" || a == "-p" || a == "--print-only":
+			opts.ExtractOnly = true
+		case a == "-j" || a == "--json":
+			opts.JsonFormat = true
+		case a == "-o" || a == "--output-dir" || a == "--output":
+			if i+1 < len(args) {
+				opts.OutputDir = args[i+1]
+				i++
+			}
+		case strings.HasPrefix(a, "--output-dir="):
+			opts.OutputDir = strings.TrimPrefix(a, "--output-dir=")
+		default:
+			nonFlags = append(nonFlags, a)
+		}
+	}
+
+	if len(nonFlags) == 2 && !strings.HasPrefix(nonFlags[1], "http://") && !strings.HasPrefix(nonFlags[1], "https://") {
+		opts.URLs = []string{nonFlags[0]}
+		opts.CustomDest = nonFlags[1]
+		return opts
+	}
+
+	opts.URLs = nonFlags
+	return opts
 }
 
 func printAssetPrntHelp() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
-	fmt.Println("  gitmap asset download-prnt <url> [destination-path]")
-	fmt.Println("  gitmap prnt <url> [destination-path]")
+	fmt.Println("  gitmap prnt <url1> [url2...] [flags]")
+	fmt.Println("  gitmap download-prnt <url1> [url2...] [flags]")
 	fmt.Println()
-	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
-	fmt.Println("  Downloads images from LightShot / prnt.sc URLs and saves them to local assets and brain.")
+	fmt.Println(constants.ColorCyan + "Flags:" + constants.ColorReset)
+	fmt.Println("  -e, --extract-only   Extract direct image URLs without downloading")
+	fmt.Println("  -j, --json           Output structured JSON envelope")
+	fmt.Println("  -o, --output-dir     Target directory for downloads (default: assets/screenshots)")
+	fmt.Println("  -h, --help           Show this help text")
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println("  gitmap prnt https://prnt.sc/FnF7IMTncnd5")
+	fmt.Println("  gitmap prnt https://prnt.sc/url1 https://prnt.sc/url2")
+	fmt.Println("  gitmap prnt https://prnt.sc/url1 https://prnt.sc/url2 -e")
+	fmt.Println("  gitmap prnt https://prnt.sc/url1 --json")
 }
 
-func DownloadPrntAsset(rawURL, destPath string) error {
+func executePrntBatch(opts PrntOptions) []PrntResultItem {
+	results := make([]PrntResultItem, len(opts.URLs))
+	sem := make(chan struct{}, opts.Concurrency)
+	var wg sync.WaitGroup
+
+	for i, u := range opts.URLs {
+		wg.Add(1)
+		go func(idx int, targetURL string) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			results[idx] = processSingleURL(targetURL, opts)
+		}(i, u)
+	}
+
+	wg.Wait()
+	return results
+}
+
+func processSingleURL(rawURL string, opts PrntOptions) PrntResultItem {
+	item := PrntResultItem{SourceURL: rawURL}
 	imgURL, err := resolveImageURL(rawURL)
 	if err != nil {
-		return err
+		item.IsSuccess = false
+		item.Error = err.Error()
+		return item
+	}
+
+	item.DirectURL = imgURL
+	item.Slug = extractSlugFromURL(rawURL)
+
+	if opts.ExtractOnly {
+		item.IsSuccess = true
+		return item
 	}
 
 	data, err := fetchImageBytes(imgURL)
 	if err != nil {
-		return fmt.Errorf("failed to download image from %s: %w", imgURL, err)
+		item.IsSuccess = false
+		item.Error = fmt.Sprintf("failed to download from %s: %v", imgURL, err)
+		return item
 	}
 
-	slug := extractSlugFromURL(rawURL)
-	finalPath := resolveDestinationPath(slug, destPath)
+	finalPath := resolveDestinationPath(item.Slug, opts.CustomDest, opts.OutputDir)
 	_ = os.MkdirAll(filepath.Dir(finalPath), 0755)
 
 	if writeErr := os.WriteFile(finalPath, data, 0644); writeErr != nil {
-		return fmt.Errorf("failed to save image to %s: %w", finalPath, writeErr)
+		item.IsSuccess = false
+		item.Error = fmt.Sprintf("failed to save to %s: %v", finalPath, writeErr)
+		return item
 	}
 
-	printAssetDownloadReport(rawURL, imgURL, finalPath, len(data))
-	maybeSyncToActiveBrain(slug, data)
-	return nil
+	item.SavedPath = finalPath
+	item.FileSizeBytes = len(data)
+	item.BrainSyncPath = maybeSyncToActiveBrain(item.Slug, data)
+	item.IsSuccess = true
+
+	return item
 }
 
-func printAssetDownloadReport(rawURL, imgURL, finalPath string, size int) {
-	fmt.Printf("\n%s✔ Successfully downloaded screenshot asset:%s\n", constants.ColorGreen, constants.ColorReset)
-	fmt.Printf("  • Source URL:  %s%s%s\n", constants.ColorCyan, rawURL, constants.ColorReset)
-	fmt.Printf("  • Direct URL:  %s\n", imgURL)
-	fmt.Printf("  • Saved Path:  %s%s%s (%d bytes)\n", constants.ColorGreen, finalPath, constants.ColorReset, size)
-}
-
-func resolveImageURL(rawURL string) (string, error) {
-	isDirect := lightshotDirectRegex.MatchString(rawURL)
-	if isDirect {
-		return rawURL, nil
-	}
-
-	html, err := fetchPageHTML(rawURL)
-	if err != nil {
-		return "", err
-	}
-
-	return parseImageURLFromHTML(rawURL, html)
-}
-
-func fetchPageHTML(targetURL string) (string, error) {
-	client := &http.Client{Timeout: 15 * time.Second}
-	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	return string(bodyBytes), nil
-}
-
-func parseImageURLFromHTML(rawURL, html string) (string, error) {
-	if m := imgURLRegex.FindStringSubmatch(html); len(m) > 1 {
-		return m[1], nil
-	}
-	if m := ogImgRegex.FindStringSubmatch(html); len(m) > 1 {
-		return m[1], nil
-	}
-	if m := lightshotDirectRegex.FindString(html); len(m) > 0 {
-		return m, nil
-	}
-
-	return "", fmt.Errorf("could not locate image source URL on %s", rawURL)
-}
-
-func fetchImageBytes(imgURL string) ([]byte, error) {
-	client := &http.Client{Timeout: 15 * time.Second}
-	req, err := http.NewRequest(http.MethodGet, imgURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	return io.ReadAll(resp.Body)
-}
-
-func extractSlugFromURL(rawURL string) string {
-	parts := strings.Split(strings.TrimRight(rawURL, "/"), "/")
-	if len(parts) > 0 {
-		return parts[len(parts)-1]
-	}
-
-	return fmt.Sprintf("screenshot_%d", time.Now().Unix())
-}
-
-func resolveDestinationPath(slug, customDest string) string {
-	hasCustom := len(customDest) > 0
-	if hasCustom {
-		return customDest
-	}
-
-	timestamp := time.Now().Format("20060102_150405")
-	fileName := fmt.Sprintf("%s_%s.png", slug, timestamp)
-
-	return filepath.Join("assets", "screenshots", fileName)
-}
-
-func maybeSyncToActiveBrain(slug string, data []byte) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return
-	}
-
-	brainBase := filepath.Join(home, ".gemini", "antigravity", "brain")
-	entries, err := os.ReadDir(brainBase)
-	hasEntries := err == nil && len(entries) > 0
-	if !hasEntries {
-		return
-	}
-
-	latestDir := findLatestBrainDir(brainBase, entries)
-	hasLatestDir := len(latestDir) > 0
-	if hasLatestDir {
-		brainDest := filepath.Join(latestDir, fmt.Sprintf("screenshot_%s.png", slug))
-		_ = os.WriteFile(brainDest, data, 0644)
-		fmt.Printf("  • Brain Sync:  %s%s%s\n", constants.ColorGreen, brainDest, constants.ColorReset)
-	}
-}
-
-func findLatestBrainDir(brainBase string, entries []os.DirEntry) string {
-	var latestDir string
-	var latestMod time.Time
-
-	for _, e := range entries {
-		if !e.IsDir() || strings.HasPrefix(e.Name(), ".") {
-			continue
-		}
-		p := filepath.Join(brainBase, e.Name())
-		fi, fiErr := os.Stat(p)
-		if fiErr == nil && fi.ModTime().After(latestMod) {
-			latestMod = fi.ModTime()
-			latestDir = p
+func printPrntTerminalSummary(opts PrntOptions, results []PrntResultItem) {
+	succCount := 0
+	for _, r := range results {
+		if r.IsSuccess {
+			succCount++
 		}
 	}
 
-	return latestDir
+	if opts.ExtractOnly {
+		fmt.Printf("\n%sExtracted %d direct image URL(s):%s\n", constants.ColorCyan, succCount, constants.ColorReset)
+		for _, r := range results {
+			if r.IsSuccess {
+				fmt.Printf("  • %s -> %s%s%s\n", r.SourceURL, constants.ColorGreen, r.DirectURL, constants.ColorReset)
+			} else {
+				fmt.Printf("  • %s -> %sError: %s%s\n", r.SourceURL, constants.ColorRed, r.Error, constants.ColorReset)
+			}
+		}
+		return
+	}
+
+	fmt.Printf("\n%s✔ Processed %d screenshot asset(s) (%d succeeded, %d failed):%s\n",
+		constants.ColorGreen, len(results), succCount, len(results)-succCount, constants.ColorReset)
+
+	for _, r := range results {
+		if r.IsSuccess {
+			fmt.Printf("  • Source: %s\n", r.SourceURL)
+			fmt.Printf("    Direct: %s\n", r.DirectURL)
+			fmt.Printf("    Saved:  %s%s%s (%d bytes)\n", constants.ColorGreen, r.SavedPath, constants.ColorReset, r.FileSizeBytes)
+			if r.BrainSyncPath != "" {
+				fmt.Printf("    Brain:  %s%s%s\n", constants.ColorCyan, r.BrainSyncPath, constants.ColorReset)
+			}
+		} else {
+			fmt.Printf("  • Source: %s\n", r.SourceURL)
+			fmt.Printf("    Error:  %s%s%s\n", constants.ColorRed, r.Error, constants.ColorReset)
+		}
+	}
+}
+
+func printPrntJSON(opts PrntOptions, results []PrntResultItem) error {
+	succCount := 0
+	var errs []string
+	for _, r := range results {
+		if r.IsSuccess {
+			succCount++
+		} else if r.Error != "" {
+			errs = append(errs, fmt.Sprintf("%s: %s", r.SourceURL, r.Error))
+		}
+	}
+
+	code := 200
+	msg := "OK"
+	if succCount == 0 && len(results) > 0 {
+		code = 500
+		msg = "All extractions failed"
+	}
+
+	env := PrntResponseEnvelope{
+		Status: PrntStatus{
+			IsSuccess: succCount > 0,
+			Code:      code,
+			Message:   msg,
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+		},
+		Attributes: PrntAttributes{
+			TotalRequested: len(results),
+			TotalSucceeded: succCount,
+			TotalFailed:    len(results) - succCount,
+			ExtractOnly:    opts.ExtractOnly,
+		},
+		Results: results,
+		Errors:  errs,
+	}
+
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(env)
 }

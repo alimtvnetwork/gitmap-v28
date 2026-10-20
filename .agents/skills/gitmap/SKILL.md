@@ -36,6 +36,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
 | ❌ Python SQLite task scripts or ad-hoc queries (`python -c "import sqlite3..."`) | ✅ `gitmap agent <task|subtask|log|diagnose|crashed|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
 | ❌ Python or ad-hoc SQLite scripts (`python -c "import sqlite3..."`), `sqlite3` CLI, DB browser tools | ✅ `gitmap db-read`, `gitmap db-add`, `gitmap db-edit`, `gitmap db-find`, `gitmap db-listing`, `gitmap db-view`, `gitmap db-rest`, `gitmap db-record-del`, `gitmap db-rm` | Compiled native Go SQLite exploration, mutation, view join, REST API server with Swagger UI & visualizer dashboard, and database lifecycle management. |
+| ❌ Ad-hoc Python network scrapers or image link extractors (e.g. `python -c "import urllib.request, re..."`, `fetch_urls.py`, curl pipes to scrape `prnt.sc`/lightshot/screenshot URLs) | ✅ `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (aliases: `gitmap download-prnt`, `gitmap asset download-prnt`) | Native compiled parallel fetching, multi-tier CDN regex resolution, User-Agent emulation, zero external dependencies, and automatic bidirectional Antigravity Brain synchronization. |
 | ❌ Modifying shared files blindly without checking multi-agent contention | ✅ `gitmap heatmap discuss` or `gitmap agent heatmap` | Ranks write claims, active leases, and collision blast radius across agents (<5ms). Prevents file lock crashes and concurrent overwrites. |
 
 ---
@@ -315,6 +316,13 @@ gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoR
 - `gitmap db-rest <alias1,alias2> <ports>` — Mounts multiple databases into a single unified REST gateway.
 - `gitmap db-rm <alias> [--purge] [-y]` (alias `gitmap dbrm`, `gitmap db-delete`) — Unregisters database alias and optionally purges underlying SQLite file.
 
+### 16. Screenshot Asset Extraction, Lightshot/prnt.sc Downloading & Brain Sync
+- `gitmap prnt <url> [dest]` — Downloads Lightshot / prnt.sc screenshot, saves to `assets/screenshots/`, and auto-syncs to active Antigravity Brain.
+- `gitmap prnt <url1> <url2>...` — Concurrent batch download of multiple screenshot URLs.
+- `gitmap prnt <url1> <url2>... -e` (or `--extract-only`, `-p`) — Resolves and displays direct image links without downloading.
+- `gitmap prnt <url1> <url2>... --json` — Emits structured Universal JSON response envelope.
+- `gitmap prnt <url1> <url2>... -o <dir>` — Saves batch downloads to designated custom directory.
+
 ---
 
 ## Operational Guardrails & Non-Negotiable Invariants
@@ -328,3 +336,4 @@ gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoR
 7. **Strict Relative Git Paths:** All paths and references must be relative to repository root (`02-spec/...`, `.ai-memory/...`); zero absolute paths and zero `file:///` URIs.
 8. **Zero Storage Ban:** Zero uploads to `actions/upload-artifact`. Maintain 0.0 GB Actions storage quota across all repositories.
 9. **Total Ban on Python SQLite Scripts:** NEVER run `python 03-ai-scripts/46-agent-sqlite-task-manager.py` or `python -c "import sqlite3..."`. For agent tasks, use native compiled `gitmap agent` subcommands exclusively. For inspecting, exploring, querying, mutating, or viewing SQLite databases (e.g. Antigravity DBs, split databases, application storage), use `gitmap db-read`, `gitmap db-add`, `gitmap db-edit`, `gitmap db-find`, `gitmap db-listing`, `gitmap db-view`, `gitmap db-rest`, `gitmap db-record-del`, `gitmap db-rm` (or aliases `dbr`, `dba`, `dbe`, `dbf`, `dbl`, `dbv`, `dbrs`, `dbrd`, `dbrm`).
+10. **Total Ban on Ad-Hoc Python Web Scrapers:** NEVER run `python -c "import urllib.request..."` or write ad-hoc Python scripts (`fetch_urls.py`, etc.) to scrape web pages, extract images, or download screenshot URLs (e.g., `prnt.sc`, `image.prntscr.com`, `i.imgur.com`). You MUST use native compiled `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (alias `gitmap download-prnt`), which automatically handles User-Agent headers, multi-tier CDN resolution, and bidirectional Antigravity Brain synchronization. See `@[.agents/skills/gitmap]` for full command reference.
