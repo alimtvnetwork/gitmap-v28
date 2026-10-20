@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.583.0] - 2026-10-20
+
+### Added
+- native batch screenshot prnt download and extraction engine with brain sync
+
+---
+
 ## [v6.582.0] - 2026-10-20
 
 ### Added
