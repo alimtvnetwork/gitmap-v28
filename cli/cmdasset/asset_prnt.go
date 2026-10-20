@@ -154,11 +154,7 @@ func printPrntTerminalSummary(opts PrntOptions, results []PrntResultItem) {
 	if opts.ExtractOnly {
 		fmt.Printf("\n%sExtracted %d direct image URL(s):%s\n", constants.ColorCyan, succCount, constants.ColorReset)
 		for _, r := range results {
-			if r.IsSuccess {
-				fmt.Printf("  • %s -> %s%s%s\n", r.SourceURL, constants.ColorGreen, r.DirectURL, constants.ColorReset)
-			} else {
-				fmt.Printf("  • %s -> %sError: %s%s\n", r.SourceURL, constants.ColorRed, r.Error, constants.ColorReset)
-			}
+			printPrntExtractItem(r)
 		}
 		return
 	}
@@ -167,18 +163,36 @@ func printPrntTerminalSummary(opts PrntOptions, results []PrntResultItem) {
 		constants.ColorGreen, len(results), succCount, len(results)-succCount, constants.ColorReset)
 
 	for _, r := range results {
-		if r.IsSuccess {
-			fmt.Printf("  • Source: %s\n", r.SourceURL)
-			fmt.Printf("    Direct: %s\n", r.DirectURL)
-			fmt.Printf("    Saved:  %s%s%s (%d bytes)\n", constants.ColorGreen, r.SavedPath, constants.ColorReset, r.FileSizeBytes)
-			if r.BrainSyncPath != "" {
-				fmt.Printf("    Brain:  %s%s%s\n", constants.ColorCyan, r.BrainSyncPath, constants.ColorReset)
-			}
-		} else {
-			fmt.Printf("  • Source: %s\n", r.SourceURL)
-			fmt.Printf("    Error:  %s%s%s\n", constants.ColorRed, r.Error, constants.ColorReset)
-		}
+		printPrntDownloadItem(r)
 	}
+}
+
+func printPrntExtractItem(r PrntResultItem) {
+	if r.IsSuccess {
+		fmt.Printf("  • %s -> %s%s%s\n", r.SourceURL, constants.ColorGreen, r.DirectURL, constants.ColorReset)
+		return
+	}
+	fmt.Printf("  • %s -> %sError: %s%s\n", r.SourceURL, constants.ColorRed, r.Error, constants.ColorReset)
+}
+
+func printPrntDownloadItem(r PrntResultItem) {
+	if !r.IsSuccess {
+		fmt.Printf("  • Source: %s\n", r.SourceURL)
+		fmt.Printf("    Error:  %s%s%s\n", constants.ColorRed, r.Error, constants.ColorReset)
+		return
+	}
+
+	fmt.Printf("  • Source: %s\n", r.SourceURL)
+	fmt.Printf("    Direct: %s\n", r.DirectURL)
+	fmt.Printf("    Saved:  %s%s%s (%d bytes)\n", constants.ColorGreen, r.SavedPath, constants.ColorReset, r.FileSizeBytes)
+	printPrntBrainSync(r.BrainSyncPath)
+}
+
+func printPrntBrainSync(brainPath string) {
+	if brainPath == "" {
+		return
+	}
+	fmt.Printf("    Brain:  %s%s%s\n", constants.ColorCyan, brainPath, constants.ColorReset)
 }
 
 func printPrntJSON(opts PrntOptions, results []PrntResultItem) error {

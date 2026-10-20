@@ -96,18 +96,26 @@ func fetchImageBytes(imgURL string) ([]byte, error) {
 }
 
 func extractSlugFromURL(rawURL string) string {
-	parts := strings.Split(strings.TrimRight(rawURL, "/"), "/")
-	if len(parts) > 0 {
-		clean := parts[len(parts)-1]
-		if idx := strings.Index(clean, "?"); idx != -1 {
-			clean = clean[:idx]
-		}
-		if clean != "" {
-			return clean
-		}
+	trimmed := strings.TrimRight(rawURL, "/")
+	parts := strings.Split(trimmed, "/")
+	if len(parts) == 0 {
+		return fmt.Sprintf("screenshot_%d", time.Now().Unix())
+	}
+
+	clean := sanitizeSlugPart(parts[len(parts)-1])
+	if clean != "" {
+		return clean
 	}
 
 	return fmt.Sprintf("screenshot_%d", time.Now().Unix())
+}
+
+func sanitizeSlugPart(part string) string {
+	idx := strings.Index(part, "?")
+	if idx != -1 {
+		return part[:idx]
+	}
+	return part
 }
 
 func resolveDestinationPath(slug, customDest, outputDir string) string {

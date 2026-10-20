@@ -49,11 +49,11 @@ gitmap asset download-prnt ...
   [1/3] https://prnt.sc/FnF7IMTncnd5
         Direct URL: https://img.lightshot.app/3_iJS9o8Sjm1aTq2i1lowQ.png
         Saved:      assets/screenshots/FnF7IMTncnd5_20261020_110409.png (48,991 B)
-        Brain Sync: C:\Users\...\.gemini\antigravity\brain\...\screenshot_FnF7IMTncnd5.png
+        Brain Sync: .gemini/antigravity/brain/<id>/screenshot_FnF7IMTncnd5.png
   [2/3] https://prnt.sc/oxgHWyUQkiWW
         Direct URL: https://i.imgur.com/example2.png
         Saved:      assets/screenshots/oxgHWyUQkiWW_20261020_110410.png (54,120 B)
-        Brain Sync: C:\Users\...\.gemini\antigravity\brain\...\screenshot_oxgHWyUQkiWW.png
+        Brain Sync: .gemini/antigravity/brain/<id>/screenshot_oxgHWyUQkiWW.png
 Completed 3 asset(s) in 320ms.
 ```
 

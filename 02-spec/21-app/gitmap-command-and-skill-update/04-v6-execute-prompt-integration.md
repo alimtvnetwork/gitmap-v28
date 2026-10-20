@@ -25,7 +25,7 @@ In Section 3 (TOTAL BAN rules):
 ---
 
 ## 3. Upstream & Cross-Repository Sync Strategy
-1. Apply changes to canonical prompt in `d:/work/coding-guidelines/01-prompts/v4/14-execute/02-execute-parent-task-with-n-steps-v6.md`.
-2. Apply changes to canonical skill in `d:/work/coding-guidelines/.agents/skills/gitmap/SKILL.md`.
-3. Apply changes to local repository `d:/work/gitmap/`.
+1. Apply changes to canonical prompt in canonical coding-guidelines repository (`01-prompts/v4/14-execute/02-execute-parent-task-with-n-steps-v6.md`).
+2. Apply changes to canonical skill in canonical coding-guidelines repository (`.agents/skills/gitmap/SKILL.md`).
+3. Apply changes to local repository root.
 4. Run `03-ai-scripts/38-sync-prompts-skills-scripts.py` to synchronize across connected fleet repositories.
