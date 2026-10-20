@@ -5,7 +5,7 @@
 **Master Plan:** `.ai-memory/plans/database-rest-command-implementation.md`  
 **Specification Reference:** `02-spec/21-app/database-rest-command-implementation/02-cli-and-rest-api-spec.md`  
 **Assigned Role:** Worker 02  
-**Status:** PENDING  
+> **Status:** DONE
 **Concurrency Budget:** A = 3, H = 2, Capacity = 6  
 
 ---

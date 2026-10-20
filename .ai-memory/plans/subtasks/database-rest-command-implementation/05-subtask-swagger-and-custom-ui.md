@@ -1,7 +1,7 @@
 # Subtask 05: Dynamic OpenAPI 3.0 Generator & Custom Database Visualizer UI
 
 > **Document Version:** 1.0.0  
-> **Status:** PENDING  
+> **Status:** DONE
 > **Parent Plan:** `.ai-memory/plans/database-rest-command-implementation.md`  
 > **Associated Spec:** `02-spec/21-app/database-rest-command-implementation/03-swagger-ui-and-verification-spec.md`  
 > **Assigned Role:** Worker 03 / UI & Documentation Specialist  

@@ -269,6 +269,7 @@ type Project struct { Id int64 `db:"Id"`; Name string `db:"Name"` }
 - [Cross-Language Code Style](./04-code-style/readme.md) — Formatting rules
 - [PHP Naming Conventions](../04-php/readme.md) — PHP-specific naming
 - [Go Coding Standards](../03-golang/04-golang-standards-reference/readme.md) — Go-specific naming
+- [GitMap DB Suite](../../../.agents/skills/gitmap/SKILL.md) — Native CLI database commands (`db-read`, `db-add`, `db-edit`, `db-find`, `db-listing`, `db-view`, `db-rest`, `db-record-del`, `db-rm`)
 - [Master Coding Guidelines](./15-master-coding-guidelines/readme.md) — Consolidated cross-language reference
 - [Issues & Fixes Log](./02-issues-and-fixes-log.md) — Full historical fixes
 

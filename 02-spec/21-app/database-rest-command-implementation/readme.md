@@ -2,7 +2,7 @@
 
 **Specification Slug:** `database-rest-command-implementation`  
 **Root Path:** `02-spec/21-app/database-rest-command-implementation/`  
-**Status:** DRAFT / IN_PROGRESS  
+**Status:** APPROVED / IMPLEMENTED  
 **Associated Plan:** `.ai-memory/plans/database-rest-command-implementation.md`  
 
 ---
@@ -23,11 +23,16 @@ This specification defines the complete technical architecture, CLI interfaces, 
 
 ## 2. Specification Documents Directory
 
-| Document | Focus Area |
-|---|---|
-| [01-architecture-spec.md](01-architecture-spec.md) | High-level system topology, lifecycle, port binding engine, and Split-DB caching architecture. |
-| [02-cli-and-rest-api-spec.md](02-cli-and-rest-api-spec.md) | CLI syntax parsing, REST API routes, Universal Response Envelope, CRUD, DDL, Views & SQL execution. |
-| [03-swagger-ui-and-verification-spec.md](03-swagger-ui-and-verification-spec.md) | Dynamic OpenAPI 3.0 generation, embedded Swagger UI, custom interactive Database Visualizer UI, and acceptance tests. |
+| Document | Focus Area | Lines |
+|---|---|---|
+| [01-architecture-overview.md](01-architecture-overview.md) | High-level system topology, lifecycle, multi-DB engine, and port fallback. | $\le 300$ |
+| [02-storage-and-split-db-cache.md](02-storage-and-split-db-cache.md) | Split-DB caching architecture, schema definitions, and concurrency safety. | $\le 300$ |
+| [03-cli-command-contracts.md](03-cli-command-contracts.md) | CLI command grammar, syntax parsing, banners, and companion commands. | $\le 300$ |
+| [04-rest-endpoints-crud-and-ddl.md](04-rest-endpoints-crud-and-ddl.md) | Universal Response Envelope, catalog, tables/schema, and record CRUD. | $\le 300$ |
+| [05-rest-views-queries-and-cloning.md](05-rest-views-queries-and-cloning.md) | Dynamic views, direct SQL queries, table alterations, migrations, and cloning. | $\le 300$ |
+| [06-swagger-openapi-and-schema.md](06-swagger-openapi-and-schema.md) | Dynamic OpenAPI 3.0 generation, introspection pipeline, and type mapping. | $\le 300$ |
+| [07-database-visualizer-ui.md](07-database-visualizer-ui.md) | Embedded zero-CDN Swagger UI and custom dark-theme Database Visualizer UI. | $\le 300$ |
+| [08-verification-and-acceptance-matrix.md](08-verification-and-acceptance-matrix.md) | Comprehensive acceptance verification strategy, test scenarios, and quality gates. | $\le 300$ |
 
 ---
 

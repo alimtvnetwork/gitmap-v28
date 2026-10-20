@@ -35,6 +35,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
 | ❌ Python SQLite task scripts or ad-hoc queries (`python -c "import sqlite3..."`) | ✅ `gitmap agent <task|subtask|log|diagnose|crashed|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
+| ❌ Python or ad-hoc SQLite scripts (`python -c "import sqlite3..."`), `sqlite3` CLI, DB browser tools | ✅ `gitmap db-read`, `gitmap db-add`, `gitmap db-edit`, `gitmap db-find`, `gitmap db-listing`, `gitmap db-view`, `gitmap db-rest`, `gitmap db-record-del`, `gitmap db-rm` | Compiled native Go SQLite exploration, mutation, view join, REST API server with Swagger UI & visualizer dashboard, and database lifecycle management. |
 | ❌ Modifying shared files blindly without checking multi-agent contention | ✅ `gitmap heatmap discuss` or `gitmap agent heatmap` | Ranks write claims, active leases, and collision blast radius across agents (<5ms). Prevents file lock crashes and concurrent overwrites. |
 
 ---
@@ -298,6 +299,22 @@ gitmap heatmap query "SELECT HeatmapActionLogId, TaskSlug, FilePath, ExpectedOut
 gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoRegistry ORDER BY TotalActionsRecorded DESC" --tier root
 ```
 
+### 15. Native SQLite Database Exploration, REST API Server & Lifecycle Suite
+- `gitmap db-read "<path-or-alias>" "<sql>"` — Executes read-only SQL query with request timing.
+- `gitmap db-read "<path-or-alias>" ls` — Lists all tables and views with row/column counts.
+- `gitmap db-read "<path>" -as <alias>` — Registers database file into persistent alias registry.
+- `gitmap db-read <alias> table <t1> [t2] [--columns] [--json]` — Displays schema, data types, and primary keys.
+- `gitmap db-add <alias> <table> csv <col1>, <col2>, ...` — Inserts record from CSV values.
+- `gitmap db-edit <alias> -table <table> -id <id> csv <col1>, <col2>, ...` — Updates record by ID.
+- `gitmap db-record-del <alias> -table <table> -id <id> [-y] [--json]` (alias `gitmap dbrd`) — Deletes single record by primary key.
+- `gitmap db-find <alias> -table <t1,t2> --find "<text>" [--columns <c1,c2>] [--json]` — Full-text and wildcard search.
+- `gitmap db-listing` (alias `gitmap dbl`) — Lists all registered and system databases with file sizes, table counts, and query metrics.
+- `gitmap db-view <alias> -t "t1 as a, t2 as b" --viewname <name> --find "<condition>"` — Joins tables and creates persistent views on the fly.
+- `gitmap db-rest "<db-path>" as <alias>` — Registers and binds database alias for REST.
+- `gitmap db-rest <alias> <port1,port2>` — Launches REST API daemon probing candidate ports, auto-generates dynamic Swagger UI (`/swagger`) and custom Interactive Database Visualizer (`/ui`).
+- `gitmap db-rest <alias1,alias2> <ports>` — Mounts multiple databases into a single unified REST gateway.
+- `gitmap db-rm <alias> [--purge] [-y]` (alias `gitmap dbrm`, `gitmap db-delete`) — Unregisters database alias and optionally purges underlying SQLite file.
+
 ---
 
 ## Operational Guardrails & Non-Negotiable Invariants
@@ -310,4 +327,4 @@ gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoR
 6. **Script Offloading:** Save all temporary diagnostics to `repo-cache` via `gitmap rc` to prevent dirty working trees.
 7. **Strict Relative Git Paths:** All paths and references must be relative to repository root (`02-spec/...`, `.ai-memory/...`); zero absolute paths and zero `file:///` URIs.
 8. **Zero Storage Ban:** Zero uploads to `actions/upload-artifact`. Maintain 0.0 GB Actions storage quota across all repositories.
-9. **Total Ban on Python SQLite Task Scripts:** NEVER run `python 03-ai-scripts/46-agent-sqlite-task-manager.py` or `python -c "import sqlite3..."`. Use native compiled `gitmap agent` subcommands exclusively.
+9. **Total Ban on Python SQLite Scripts:** NEVER run `python 03-ai-scripts/46-agent-sqlite-task-manager.py` or `python -c "import sqlite3..."`. For agent tasks, use native compiled `gitmap agent` subcommands exclusively. For inspecting, exploring, querying, mutating, or viewing SQLite databases (e.g. Antigravity DBs, split databases, application storage), use `gitmap db-read`, `gitmap db-add`, `gitmap db-edit`, `gitmap db-find`, `gitmap db-listing`, `gitmap db-view`, `gitmap db-rest`, `gitmap db-record-del`, `gitmap db-rm` (or aliases `dbr`, `dba`, `dbe`, `dbf`, `dbl`, `dbv`, `dbrs`, `dbrd`, `dbrm`).

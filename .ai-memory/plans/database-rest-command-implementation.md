@@ -2,7 +2,7 @@
 
 **Slug:** `database-rest-command-implementation`  
 **Task Name:** Database REST Command Implementation  
-**Status:** ACTIVE  
+**Status:** DONE  
 **Lifecycle Budget:** N = 400 Steps (Phase 1: 1-100, Phase 2: 101-250, Phase 3: 251-400)  
 **Concurrency:** A = 3, H = 2, Capacity = 6  
 
@@ -65,11 +65,11 @@ REST Engine Architecture:
 | Subtask ID | Title | Disjoint Files Owned | Assigned Role | Status |
 |---|---|---|---|---|
 | **Subtask-01** | Git Sync, Preflight & Task Initialization | `ledger.md`, `.ai-memory/plans/` | Lead | DONE |
-| **Subtask-02** | Architecture & Specification Authoring | `02-spec/21-app/database-rest-command-implementation/` | Spec Authors (A=3) | IN_PROGRESS |
-| **Subtask-03** | CLI Commands (`db-rest`, `db-record-del`, `db-rm`) & Port Fallback | `cli/cmddb/cmd_rest.go`, `cli/cmddb/cmd_record_del.go`, `cli/cmddb/cmd_rm.go`, `cli/cmddb/rest_port_picker.go` | Worker 01 | PENDING |
-| **Subtask-04** | REST Multi-DB Engine, CRUD, DDL, Views & SQL Querying | `cli/cmddb/rest_server.go`, `cli/cmddb/rest_handlers_*.go`, `cli/cmddb/rest_migration_cache.go` | Worker 02 | PENDING |
-| **Subtask-05** | OpenAPI/Swagger Generator & Custom Database Visualizer UI | `cli/cmddb/rest_swagger.go`, `cli/cmddb/rest_ui.go`, `cli/cmddb/rest_ui_assets.go` | Worker 03 | PENDING |
-| **Subtask-06** | Targeted Unit Tests & Acceptance Verification | `cli/cmddb/cmd_rest_test.go`, `cli/cmddb/cmd_record_del_test.go`, `cli/cmddb/cmd_rm_test.go` | Worker Swarm | PENDING |
+| **Subtask-02** | Architecture & Specification Authoring | `02-spec/21-app/database-rest-command-implementation/` | Spec Authors (A=3) | DONE |
+| **Subtask-03** | CLI Commands (`db-rest`, `db-record-del`, `db-rm`) & Port Fallback | `cli/cmddb/cmd_rest.go`, `cli/cmddb/cmd_record_del.go`, `cli/cmddb/cmd_rm.go`, `cli/cmddb/rest_port_picker.go` | Worker 01 | DONE |
+| **Subtask-04** | REST Multi-DB Engine, CRUD, DDL, Views & SQL Querying | `cli/cmddb/rest_server.go`, `cli/cmddb/rest_handlers_*.go`, `cli/cmddb/rest_migration_cache.go` | Worker 02 | DONE |
+| **Subtask-05** | OpenAPI/Swagger Generator & Custom Database Visualizer UI | `cli/cmddb/rest_swagger.go`, `cli/cmddb/rest_ui.go`, `cli/cmddb/rest_ui_assets.go` | Worker 03 | DONE |
+| **Subtask-06** | Targeted Unit Tests & Acceptance Verification | `cli/cmddb/cmd_rest_test.go`, `cli/cmddb/cmd_record_del_test.go`, `cli/cmddb/cmd_rm_test.go` | Worker Swarm | DONE |
 
 ---
 

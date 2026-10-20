@@ -2,7 +2,7 @@
 
 > **Subtask ID:** Subtask-02  
 > **Parent Plan:** `.ai-memory/plans/database-rest-command-implementation.md`  
-> **Status:** IN_PROGRESS  
+> **Status:** DONE
 > **Target Subsystems:** `02-spec/21-app/database-rest-command-implementation/`  
 > **Owned Files:**  
 > - `02-spec/21-app/database-rest-command-implementation/readme.md`  

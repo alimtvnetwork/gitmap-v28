@@ -29,7 +29,7 @@
    - Register master execution plan at `.ai-memory/plans/database-rest-command-implementation.md`.
    - Decompose task scope into 6 discrete, disjoint subtasks:
      - **Subtask-01:** Git Sync, Preflight & Task Initialization (Lead, Status: DONE)
-     - **Subtask-02:** Architecture & Specification Authoring (Spec Authors A=3, Status: IN_PROGRESS)
+> **Status:** DONE
      - **Subtask-03:** CLI Commands (`db-rest`, `db-record-del`, `db-rm`) & Port Fallback (Worker 01)
      - **Subtask-04:** REST Multi-DB Engine, CRUD, DDL, Views & SQL Querying (Worker 02)
      - **Subtask-05:** OpenAPI/Swagger Generator & Custom Database Visualizer UI (Worker 03)

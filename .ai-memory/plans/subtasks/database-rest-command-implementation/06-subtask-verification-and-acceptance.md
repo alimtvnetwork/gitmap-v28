@@ -1,7 +1,7 @@
 # Subtask 06: Targeted Unit Tests & Acceptance Verification
 
 > **Document Version:** 1.0.0  
-> **Status:** PENDING  
+> **Status:** DONE
 > **Parent Plan:** `.ai-memory/plans/database-rest-command-implementation.md`  
 > **Associated Spec:** `02-spec/21-app/database-rest-command-implementation/03-swagger-ui-and-verification-spec.md`  
 > **Assigned Role:** Worker Swarm / QA & Test Specialist  
