@@ -110,7 +110,9 @@ func refreshRegistrySizes() {
 
 func refreshOneAliasStat(conn *sql.DB, a DatabaseAlias) {
 	size := getFileSize(a.DatabasePath)
-	_, _ = conn.Exec("UPDATE DatabaseAlias SET FileSizeBytes = ? WHERE DatabaseAliasId = ?", size, a.DatabaseAliasId)
+	if _, err := conn.Exec("UPDATE DatabaseAlias SET FileSizeBytes = ? WHERE DatabaseAliasId = ?", size, a.DatabaseAliasId); err != nil {
+		return
+	}
 }
 
 func collectDatabaseSummaries(includeAll bool) ([]DatabaseAliasSummary, error) {
@@ -169,7 +171,9 @@ func countTablesInDb(dbPath string) int {
 
 	var count int
 	query := `SELECT count(*) FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'`
-	_ = conn.QueryRow(query).Scan(&count)
+	if err := conn.QueryRow(query).Scan(&count); err != nil {
+		return 0
+	}
 	return count
 }
 

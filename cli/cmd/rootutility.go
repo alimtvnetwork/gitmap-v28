@@ -213,4 +213,3 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"fix"}, func() error { return cmdautofix.RunFixCmd(argsTail()) }},
 	}
 }
-

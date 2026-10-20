@@ -66,7 +66,9 @@ func seedOneSystemAlias(conn *sql.DB, def sysAliasDef) {
 VALUES (?, ?, ?, 1, ?, 0, '', ?, '')
 ON CONFLICT(AliasName) DO UPDATE SET DatabasePath=excluded.DatabasePath, DatabaseType=excluded.DatabaseType, Description=excluded.Description, FileSizeBytes=CASE WHEN excluded.FileSizeBytes > 0 THEN excluded.FileSizeBytes ELSE DatabaseAlias.FileSizeBytes END`
 
-	_, _ = conn.Exec(query, def.name, path, def.dbType, size, def.desc)
+	if _, err := conn.Exec(query, def.name, path, def.dbType, size, def.desc); err != nil {
+		return
+	}
 }
 
 func getSystemAliasDefs() []sysAliasDef {
@@ -199,7 +201,9 @@ func IncrementAliasSearchCount(aliasOrPath string) {
 	defer conn.Close()
 
 	query := `UPDATE DatabaseAlias SET SearchHistoryCount = SearchHistoryCount + 1, LastAccessedAt = ? WHERE LOWER(AliasName) = LOWER(?) OR DatabasePath = ?`
-	_, _ = conn.Exec(query, now, trimmed, cleanPath)
+	if _, err := conn.Exec(query, now, trimmed, cleanPath); err != nil {
+		return
+	}
 }
 
 // ListAliases returns all registered database aliases from the DatabaseAlias table.

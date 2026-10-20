@@ -220,9 +220,9 @@ func countTableRowSafe(conn *sql.DB, tableName, kind string) int64 {
 	}
 	var count int64
 	q := fmt.Sprintf(`SELECT COUNT(*) FROM "%s"`, strings.ReplaceAll(tableName, `"`, `""`))
-	row := conn.QueryRow(q)
-	_ = row.Scan(&count)
-
+	if err := conn.QueryRow(q).Scan(&count); err != nil {
+		return 0
+	}
 	return count
 }
 

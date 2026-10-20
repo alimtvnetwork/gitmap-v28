@@ -104,7 +104,9 @@ func buildOrderClause(r *http.Request, cols []RestColumnInfo) string {
 func countMatchingRecords(conn *sql.DB, table, where string, args []any) int {
 	var count int
 	q := fmt.Sprintf(`SELECT COUNT(*) FROM "%s"%s`, table, where)
-	_ = conn.QueryRow(q, args...).Scan(&count)
+	if err := conn.QueryRow(q, args...).Scan(&count); err != nil {
+		return 0
+	}
 	return count
 }
 

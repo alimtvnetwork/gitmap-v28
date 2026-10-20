@@ -211,4 +211,3 @@ func stripTableAliases(cond string, tables []tableAlias) string {
 func escapeSqlIdent(s string) string {
 	return strings.ReplaceAll(s, `"`, `""`)
 }
-
