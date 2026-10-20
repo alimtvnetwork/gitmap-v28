@@ -168,15 +168,15 @@ func printPrntTerminalSummary(opts PrntOptions, results []PrntResultItem) {
 }
 
 func printPrntExtractItem(r PrntResultItem) {
-	if r.IsSuccess {
-		fmt.Printf("  • %s -> %s%s%s\n", r.SourceURL, constants.ColorGreen, r.DirectURL, constants.ColorReset)
+	if r.Error != "" {
+		fmt.Printf("  • %s -> %sError: %s%s\n", r.SourceURL, constants.ColorRed, r.Error, constants.ColorReset)
 		return
 	}
-	fmt.Printf("  • %s -> %sError: %s%s\n", r.SourceURL, constants.ColorRed, r.Error, constants.ColorReset)
+	fmt.Printf("  • %s -> %s%s%s\n", r.SourceURL, constants.ColorGreen, r.DirectURL, constants.ColorReset)
 }
 
 func printPrntDownloadItem(r PrntResultItem) {
-	if !r.IsSuccess {
+	if r.Error != "" {
 		fmt.Printf("  • Source: %s\n", r.SourceURL)
 		fmt.Printf("    Error:  %s%s%s\n", constants.ColorRed, r.Error, constants.ColorReset)
 		return

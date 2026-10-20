@@ -51,11 +51,12 @@ func WriteRestEnvelope(w http.ResponseWriter, code int, results any, attributes 
 func createRestStatus(code int, err error) RestStatus {
 	statusCode := resolveStatusCode(code, err)
 	isSuccess := err == nil && statusCode < 400
+	isFailed := err != nil || statusCode >= 400
 	msg := resolveStatusMessage(statusCode, err)
 
 	return RestStatus{
 		IsSuccess: isSuccess,
-		IsFailed:  !isSuccess,
+		IsFailed:  isFailed,
 		Code:      statusCode,
 		Message:   msg,
 		Timestamp: time.Now().UTC().Format(time.RFC3339Nano),

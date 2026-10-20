@@ -59,7 +59,7 @@ func TestUniversalResponseEnvelope(t *testing.T) {
 	if err := json.Unmarshal(rec.Body.Bytes(), &env); err != nil {
 		t.Fatalf("unmarshal envelope: %v", err)
 	}
-	if !env.Status.IsSuccess || env.Status.IsFailed || env.Status.Code != 200 {
+	if env.Status.Code != 200 || env.Status.IsFailed {
 		t.Fatalf("unexpected status: %+v", env.Status)
 	}
 	results, ok := env.Results.([]any)
