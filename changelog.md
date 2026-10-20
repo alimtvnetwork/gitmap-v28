@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.582.0] - 2026-10-20
+
+### Added
+- database rest command, swagger, custom ui, and record management
+
+---
+
 ## [v6.581.1] - 2026-10-19
 
 ### Added
