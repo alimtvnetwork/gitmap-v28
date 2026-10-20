@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinteractive"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlist"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmail"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmultigroup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprofiles"
@@ -167,5 +168,11 @@ func dataExecutionEntries() []dispatchEntry {
 		{[]string{constants.CmdAsync, constants.CmdAsyncAlias}, func() error { return RunAsyncCmd(argsTail()) }},
 		{[]string{constants.CmdStorage, constants.CmdStorageAlias}, func() error { return cmdstorage.RunStorageCmd(argsTail()) }},
 		{[]string{"schedule", "sc", "crontab", "cron"}, func() error { return cmdschedule.RunSchedule(argsTail()) }},
+		{[]string{"mail", "email"}, func() error {
+			if appErr := cmdmail.RunMail(argsTail()); appErr != nil {
+				return appErr
+			}
+			return nil
+		}},
 	}
 }

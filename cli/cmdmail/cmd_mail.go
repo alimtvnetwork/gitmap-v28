@@ -18,23 +18,21 @@ func RunMail(args []string) *appfault.AppError {
 		printMailHelp()
 		return nil
 	}
-	subcmd := strings.ToLower(args[0])
-	tail := args[1:]
-	switch subcmd {
+	switch strings.ToLower(args[0]) {
 	case "send":
-		return runMailSend(tail)
+		return runMailSend(args[1:])
 	case "check":
-		return runMailCheck(tail)
+		return runMailCheck(args[1:])
 	case "test":
-		return runMailTest(tail)
+		return runMailTest(args[1:])
 	case "template":
-		return runMailTemplate(tail)
+		return runMailTemplate(args[1:])
 	case "notify":
-		return runMailNotify(tail)
+		return runMailNotify(args[1:])
 	case "ui":
-		return runMailUI(tail)
+		return runMailUI(args[1:])
 	default:
-		return appfault.NewValidationError(fmt.Sprintf("unknown mail subcommand: %s", subcmd))
+		return appfault.NewValidationError(fmt.Sprintf("unknown mail subcommand: %s", args[0]))
 	}
 }
 
@@ -74,13 +72,21 @@ func runMailSend(args []string) *appfault.AppError {
 	if err != nil {
 		return appfault.NewValidationError(err.Error())
 	}
-	if len(opts.To) == 0 {
-		return appfault.NewValidationError("missing required recipient: --to")
+	if len(opts.To) == 0 || opts.Subject == "" {
+		return appfault.NewValidationError("missing required arguments: --to and --subject")
 	}
-	if opts.Subject == "" {
-		return appfault.NewValidationError("missing required subject: --subject")
+	if opts.From == "" {
+		opts.From = opts.AccountName + "@gitmap.local"
 	}
-	return executeSendPipeline(opts)
+	if opts.IsDryRun {
+		fmt.Printf("[GITMAP MAIL] DRY RUN: Validated to %s (subject: %s)\n", MaskEmailList(opts.To), opts.Subject)
+		return nil
+	}
+	if err := CurrentTransmitter.SendMail(opts, BuildMIMEMessage(opts)); err != nil {
+		return appfault.WrapExecution(err, "send email")
+	}
+	fmt.Printf("[GITMAP MAIL] Sent to %s (subject: %s)\n", MaskEmailList(opts.To), opts.Subject)
+	return nil
 }
 
 func parseSendArgs(args []string) (MailSendOptions, error) {
@@ -88,23 +94,21 @@ func parseSendArgs(args []string) (MailSendOptions, error) {
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		if (a == "--to" || a == "-t") && i+1 < len(args) {
-			opts.To = strings.Split(args[i+1], ",")
-			i++
+			opts.To, i = strings.Split(args[i+1], ","), i+1
 		} else if (a == "--subject" || a == "-s") && i+1 < len(args) {
-			opts.Subject = args[i+1]
-			i++
+			opts.Subject, i = args[i+1], i+1
 		} else if (a == "--body" || a == "-b") && i+1 < len(args) {
-			opts.Body = args[i+1]
-			i++
+			opts.Body, i = args[i+1], i+1
 		} else if (a == "--file" || a == "-f") && i+1 < len(args) {
 			content, err := os.ReadFile(args[i+1])
 			if err != nil {
-				return opts, err
+				return opts, fmt.Errorf("read body file: %w", err)
 			}
-			opts.Body = string(content)
-			i++
+			opts.Body, i = string(content), i+1
 		} else if a == "--html" {
 			opts.IsHTML = true
+		} else if (a == "--account" || a == "-a") && i+1 < len(args) {
+			opts.AccountName, i = args[i+1], i+1
 		} else if a == "--dry-run" {
 			opts.IsDryRun = true
 		}
@@ -112,24 +116,8 @@ func parseSendArgs(args []string) (MailSendOptions, error) {
 	return opts, nil
 }
 
-func executeSendPipeline(opts MailSendOptions) *appfault.AppError {
-	if opts.From == "" {
-		opts.From = opts.AccountName + "@gitmap.local"
-	}
-	raw := BuildMIMEMessage(opts)
-	if opts.IsDryRun {
-		fmt.Printf("[GITMAP MAIL] DRY RUN: Validated to %s (subject: %s)\n", MaskEmailList(opts.To), opts.Subject)
-		return nil
-	}
-	if err := CurrentTransmitter.SendMail(opts, raw); err != nil {
-		return appfault.WrapExecution(err, "send email")
-	}
-	fmt.Printf("[GITMAP MAIL] Sent to %s (subject: %s)\n", MaskEmailList(opts.To), opts.Subject)
-	return nil
-}
-
 func runMailCheck(args []string) *appfault.AppError {
-	filter := parseCheckArgs(args)
+	filter, isJSON := parseCheckArgs(args)
 	store, _ := OpenMailStore("")
 	if store != nil {
 		defer store.Close()
@@ -138,51 +126,46 @@ func runMailCheck(args []string) *appfault.AppError {
 	if err != nil {
 		return appfault.WrapExecution(err, "evaluate mailboxes")
 	}
-	if hasJSONFlag(args) {
-		out, _ := FormatMailCheckJSON(summary)
-		fmt.Println(out)
+	if isJSON {
+		jsonStr, err := FormatMailCheckJSON(summary)
+		if err != nil {
+			return appfault.WrapExecution(err, "format json")
+		}
+		fmt.Println(jsonStr)
 		return nil
 	}
 	fmt.Print(FormatMailCheckTable(summary, filter.ShowFullEmail))
 	return nil
 }
 
-func parseCheckArgs(args []string) MailboxCheckFilter {
-	f := MailboxCheckFilter{MaxLimit: 10}
+func parseCheckArgs(args []string) (MailboxCheckFilter, bool) {
+	filter := MailboxCheckFilter{CheckAll: true}
+	isJSON := false
 	for i := 0; i < len(args); i++ {
-		switch args[i] {
-		case "--all", "-a":
-			f.CheckAll = true
-		case "--account":
-			if i+1 < len(args) {
-				f.AccountName = args[i+1]
-				i++
-			}
-		case "--unread-only", "-u":
-			f.FilterUnreadOnly = true
-		case "--show-full-email":
-			f.ShowFullEmail = true
+		a := args[i]
+		if (a == "--account" || a == "-a") && i+1 < len(args) {
+			filter.AccountName, filter.CheckAll, i = args[i+1], false, i+1
+		} else if a == "--all" {
+			filter.CheckAll = true
+		} else if a == "--unread-only" || a == "-u" {
+			filter.FilterUnreadOnly = true
+		} else if a == "--show-full-email" {
+			filter.ShowFullEmail = true
+		} else if a == "--json" || a == "-j" {
+			isJSON = true
 		}
 	}
-	return f
-}
-
-func hasJSONFlag(args []string) bool {
-	for _, a := range args {
-		if a == "--json" || a == "-j" {
-			return true
-		}
-	}
-	return false
+	return filter, isJSON
 }
 
 func runMailTest(args []string) *appfault.AppError {
-	host, port, isTLS := "127.0.0.1", 587, false
+	host := "127.0.0.1"
+	port := 587
+	isTLS := false
 	for i := 0; i < len(args); i++ {
-		if args[i] == "--host" && i+1 < len(args) {
-			host = args[i+1]
-			i++
-		} else if args[i] == "--port" && i+1 < len(args) {
+		if (args[i] == "--host" || args[i] == "-h") && i+1 < len(args) {
+			host, i = args[i+1], i+1
+		} else if (args[i] == "--port" || args[i] == "-p") && i+1 < len(args) {
 			if p, err := strconv.Atoi(args[i+1]); err == nil && p > 0 {
 				port = p
 			}
@@ -195,11 +178,10 @@ func runMailTest(args []string) *appfault.AppError {
 }
 
 func executeTestConnection(host string, port int, isTLS bool) *appfault.AppError {
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	start := time.Now()
 	if port == 465 || isTLS {
-		tlsCfg := &tls.Config{ServerName: host, InsecureSkipVerify: isLocalHost(host)}
-		conn, err := tls.DialWithDialer(&net.Dialer{Timeout: 5 * time.Second}, "tcp", addr, tlsCfg)
+		conn, err := tls.DialWithDialer(&net.Dialer{Timeout: 5 * time.Second}, "tcp", addr, &tls.Config{ServerName: host, InsecureSkipVerify: isLocalHost(host)})
 		if err != nil {
 			return appfault.WrapExecution(err, "test tls connection")
 		}
@@ -211,187 +193,29 @@ func executeTestConnection(host string, port int, isTLS bool) *appfault.AppError
 		}
 		_ = conn.Close()
 	}
-	fmt.Printf("[GITMAP MAIL TEST] SUCCESS: Connected to %s (latency: %dms)\n", addr, time.Since(start).Milliseconds())
-	return nil
-}
-
-func runMailTemplate(args []string) *appfault.AppError {
-	if len(args) == 0 || isHelpArg(args[0]) {
-		fmt.Println("Usage: gitmap mail template <ls | view <name> | add <name> | rm <name>>")
-		return nil
-	}
-	store, err := OpenMailStore("")
-	if err != nil {
-		return appfault.WrapExecution(err, "open mail store")
-	}
-	defer store.Close()
-	switch strings.ToLower(args[0]) {
-	case "ls", "list":
-		return handleTemplateList(store)
-	case "view", "get":
-		return handleTemplateView(store, args[1:])
-	case "add", "save":
-		return handleTemplateAdd(store, args[1:])
-	case "rm", "del":
-		return handleTemplateDelete(store, args[1:])
-	default:
-		return appfault.NewValidationError("unknown template command: " + args[0])
-	}
-}
-
-func handleTemplateList(s *MailStore) *appfault.AppError {
-	list, err := s.ListTemplates()
-	if err != nil {
-		return appfault.WrapExecution(err, "list templates")
-	}
-	fmt.Printf("[GITMAP TEMPLATES] Found %d template(s)\n", len(list))
-	for _, t := range list {
-		fmt.Printf(" - %-20s (subject: %s, html: %t)\n", t.TemplateName, t.SubjectTemplate, t.IsHTML)
-	}
-	return nil
-}
-
-func handleTemplateView(s *MailStore, args []string) *appfault.AppError {
-	if len(args) == 0 {
-		return appfault.NewValidationError("missing template name")
-	}
-	t, err := s.GetTemplate(args[0])
-	if err != nil {
-		return appfault.NewNotFound("mail", "template", "template not found: "+args[0])
-	}
-	fmt.Printf("Template: %s\nSubject: %s\nHTML: %t\nBody:\n%s\n", t.TemplateName, t.SubjectTemplate, t.IsHTML, t.BodyTemplate)
-	return nil
-}
-
-func handleTemplateAdd(s *MailStore, args []string) *appfault.AppError {
-	if len(args) == 0 {
-		return appfault.NewValidationError("missing template name")
-	}
-	tmpl := MailTemplateRecord{TemplateID: fmt.Sprintf("tmpl-%d", time.Now().UnixNano()), TemplateName: args[0]}
-	for i := 1; i < len(args); i++ {
-		if args[i] == "--subject" && i+1 < len(args) {
-			tmpl.SubjectTemplate = args[i+1]
-			i++
-		} else if args[i] == "--body" && i+1 < len(args) {
-			tmpl.BodyTemplate = args[i+1]
-			i++
-		} else if args[i] == "--html" {
-			tmpl.IsHTML = true
-		}
-	}
-	if err := s.SaveTemplate(tmpl); err != nil {
-		return appfault.WrapExecution(err, "save template")
-	}
-	fmt.Printf("[GITMAP TEMPLATE] Saved template '%s'\n", tmpl.TemplateName)
-	return nil
-}
-
-func handleTemplateDelete(s *MailStore, args []string) *appfault.AppError {
-	if len(args) == 0 {
-		return appfault.NewValidationError("missing template name to delete")
-	}
-	if err := s.DeleteTemplate(args[0]); err != nil {
-		return appfault.WrapExecution(err, "delete template")
-	}
-	fmt.Printf("[GITMAP TEMPLATE] Deleted template '%s'\n", args[0])
-	return nil
-}
-
-func runMailNotify(args []string) *appfault.AppError {
-	if len(args) == 0 || isHelpArg(args[0]) {
-		fmt.Println("Usage: gitmap mail notify <watch | ls | trigger <rule>>")
-		return nil
-	}
-	store, _ := OpenMailStore("")
-	if store != nil {
-		defer store.Close()
-	}
-	switch strings.ToLower(args[0]) {
-	case "watch":
-		return handleNotifyWatch(store, args[1:])
-	case "ls", "list":
-		return handleNotifyList(store)
-	case "trigger":
-		return handleNotifyTrigger(args[1:])
-	default:
-		return appfault.NewValidationError("unknown notify command: " + args[0])
-	}
-}
-
-func handleNotifyWatch(store *MailStore, args []string) *appfault.AppError {
-	cfg := parseWatchArgs(args)
-	guard := NewIntervalGuard(cfg.PollingInterval)
-	if guard.WasClamped {
-		fmt.Printf("[GITMAP WATCHER] Notice: interval clamped to minimum %v\n", guard.EffectiveInterval)
-	}
-	cfg.PollingInterval = guard.EffectiveInterval
-	baseline, _ := ScanFolderTree(cfg.TargetDirectory, cfg.IsRecursive)
-	if cfg.RunOnce {
-		batch, _, err := ExecuteWatchCycle(cfg, baseline, store, CurrentTransmitter)
-		if err != nil {
-			return appfault.WrapExecution(err, "run watch cycle")
-		}
-		fmt.Printf("[GITMAP WATCHER] Single pass completed. Detected %d event(s)\n", batch.TotalEvents)
-		return nil
-	}
-	fmt.Printf("[GITMAP WATCHER] Monitoring %s (interval: %v)\n", cfg.TargetDirectory, cfg.PollingInterval)
-	return nil
-}
-
-func parseWatchArgs(args []string) FolderWatcherConfig {
-	cfg := FolderWatcherConfig{TargetDirectory: ".", PollingInterval: DefaultPollingInterval, DebounceWindow: DefaultDebounceWindow, IsRecursive: true, IsActive: true}
-	for i := 0; i < len(args); i++ {
-		if (args[i] == "--path" || args[i] == "-p") && i+1 < len(args) {
-			cfg.TargetDirectory = args[i+1]
-			i++
-		} else if (args[i] == "--to" || args[i] == "-t") && i+1 < len(args) {
-			cfg.Recipients = strings.Split(args[i+1], ",")
-			i++
-		} else if args[i] == "--once" {
-			cfg.RunOnce = true
-		}
-	}
-	return cfg
-}
-
-func handleNotifyList(s *MailStore) *appfault.AppError {
-	if s == nil {
-		fmt.Println("[GITMAP NOTIFY] No database records found.")
-		return nil
-	}
-	rules, _ := s.ListWatcherRules()
-	logs, _ := s.ListNotificationLogs(10)
-	fmt.Printf("[GITMAP NOTIFY] %d rule(s), %d log(s)\n", len(rules), len(logs))
-	for _, l := range logs {
-		fmt.Printf(" - [%s] %s -> %s (delivered: %t)\n", l.CreatedAt, l.Subject, l.RecipientSummary, l.IsDelivered)
-	}
-	return nil
-}
-
-func handleNotifyTrigger(args []string) *appfault.AppError {
-	if len(args) == 0 {
-		return appfault.NewValidationError("missing rule name to trigger")
-	}
-	fmt.Printf("[GITMAP NOTIFY] Triggered notification for rule '%s'\n", args[0])
+	fmt.Printf("[GITMAP MAIL TEST] SUCCESS: Connected to %s (%dms)\n", addr, time.Since(start).Milliseconds())
 	return nil
 }
 
 func printMailHelp() {
-	fmt.Println("Usage: gitmap mail <command> [flags]")
-	fmt.Println("\nCommands:")
-	fmt.Println("  send        Send an email directly via SMTP")
-	fmt.Println("  check       Check configured mailboxes and unread counts")
-	fmt.Println("  test        Test SMTP connectivity and TLS handshakes")
-	fmt.Println("  template    Manage email templates (ls, view, add, rm)")
-	fmt.Println("  notify      Folder watcher notifier (watch, ls, trigger)")
-	fmt.Println("  ui          Start the embedded mailing composer web UI")
-	fmt.Println("\nFlags:")
-	fmt.Println("  --to, -t             Recipient addresses (comma-separated)")
-	fmt.Println("  --subject, -s        Subject line")
-	fmt.Println("  --body, -b           Body content")
-	fmt.Println("  --file, -f           Path to message body file")
-	fmt.Println("  --html               Send as HTML format")
-	fmt.Println("  --unread-only, -u    Filter mailboxes to unread messages only")
-	fmt.Println("  --show-full-email    Display unmasked email addresses")
-	fmt.Println("  --json, -j           Emit output as Universal JSON Envelope")
+	const helpText = `Usage: gitmap mail <command> [flags]
+
+Commands:
+  send        Send an email directly via SMTP
+  check       Check configured mailboxes and unread counts
+  test        Test SMTP connectivity and TLS handshakes
+  template    Manage email templates (ls, view, add, rm)
+  notify      Folder watcher notifier (watch, ls, trigger)
+  ui          Start the embedded mailing composer web UI
+
+Flags:
+  --to, -t             Recipient addresses (comma-separated)
+  --subject, -s        Subject line
+  --body, -b           Body content
+  --file, -f           Path to message body file
+  --html               Send as HTML format
+  --unread-only, -u    Filter mailboxes to unread messages only
+  --show-full-email    Display unmasked email addresses
+  --json, -j           Emit output as Universal JSON Envelope`
+	fmt.Println(helpText)
 }

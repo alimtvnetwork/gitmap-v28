@@ -132,8 +132,9 @@ The following plans are protected by the Strict Pending Isolation Boundary and r
 
 ## 4. Active Subtasks Directories
 
-Only active subtask directories are maintained under `.ai-memory/plans/subtasks/` (12 directories):
+Only active subtask directories are maintained under `.ai-memory/plans/subtasks/`:
 
+- `subtasks/gitmap-mailing-and-scheduling-enhancements/` (6 subtasks - Mailing & Event Scheduling)
 - `subtasks/236-deep-spec-consolidation-and-canonical-reduction/` (Active current parent plan)
 - `subtasks/235-app-spec-and-completed-plans-consolidation-and-reduction/` (5 subtasks)
 - `subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/` (6 subtasks)

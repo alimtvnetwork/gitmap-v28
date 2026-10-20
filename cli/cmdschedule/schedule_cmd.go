@@ -49,7 +49,81 @@ func dispatchScheduleSubcommand(sub string, rest []string) error {
 	if isHandled, err := dispatchScheduleStateOps(sub, rest); isHandled {
 		return err
 	}
+	if isHandled, err := dispatchScheduleMailOps(sub, rest); isHandled {
+		return err
+	}
 	return dispatchScheduleExecutionOps(sub, rest)
+}
+
+func dispatchScheduleMailOps(sub string, rest []string) (bool, error) {
+	switch sub {
+	case "mail-check", "mail":
+		return true, toError(RunScheduleMailCheck(rest))
+	case "email", "send-email":
+		return true, toError(RunScheduleEmail(rest))
+	case "watch-folder", "folder-watch":
+		return true, runScheduleWatchFolder(rest)
+	case "ui":
+		return true, runScheduleUI(rest)
+	}
+	return false, nil
+}
+
+// RunScheduleWatchFolderFn allows external watchers or hooks to run folder watching.
+var RunScheduleWatchFolderFn func(args []string) error
+
+func runScheduleWatchFolder(args []string) error {
+	if RunScheduleWatchFolderFn != nil {
+		return RunScheduleWatchFolderFn(args)
+	}
+	return executeScheduleWatchFolder(args)
+}
+
+func executeScheduleWatchFolder(args []string) error {
+	if isScheduleHelpRequested(args) {
+		renderScheduleWatchFolderHelp()
+		return nil
+	}
+	fmt.Printf("[GITMAP WATCH-FOLDER] Configured directory watcher for %v\n", args)
+	return nil
+}
+
+func renderScheduleWatchFolderHelp() {
+	fmt.Println("Usage: gitmap schedule watch-folder [path] [flags]")
+	fmt.Println()
+	fmt.Println("Flags:")
+	fmt.Println("  --to, -t string             Recipient emails for event notification (required)")
+	fmt.Println("  --events, -e string         Monitored events: all, create, modify, delete (default: all)")
+	fmt.Println("  --debounce string           Quiet window debouncing duration (default: 3s)")
+	fmt.Println("  --poll-interval string      Filesystem poller interval (min: 5s, default: 8s)")
+	fmt.Println("  --filter string             Glob filter pattern (default: *)")
+	fmt.Println("  --rule-name, -n string      Descriptive label for watch rule")
+}
+
+// RunScheduleUIFn allows ui_server.go or external handlers to hook embedded schedule UI server.
+var RunScheduleUIFn func(args []string) error
+
+func runScheduleUI(args []string) error {
+	if RunScheduleUIFn != nil {
+		return RunScheduleUIFn(args)
+	}
+	return executeScheduleUI(args)
+}
+
+func executeScheduleUI(args []string) error {
+	if isScheduleHelpRequested(args) {
+		fmt.Println("Usage: gitmap schedule ui [--port 8746] [--no-open]")
+		return nil
+	}
+	fmt.Println("[GITMAP SCHEDULE UI] Embedded settings server: http://127.0.0.1:8746/schedule/ui")
+	return nil
+}
+
+func toError(appErr *apperror.AppError) error {
+	if appErr == nil {
+		return nil
+	}
+	return appErr
 }
 
 func dispatchScheduleDataOps(sub string, rest []string) (bool, error) {

@@ -7,6 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhealth"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhelp"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhooks"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmail"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrepo"
@@ -118,6 +119,11 @@ func dispatch275Alias(command string, args []string) (bool, error) {
 		return true, nil
 	case "hlth", "health":
 		if appErr := cmdhealth.RunHealth(args); appErr != nil {
+			return true, appErr
+		}
+		return true, nil
+	case "mail", "email":
+		if appErr := cmdmail.RunMail(args); appErr != nil {
 			return true, appErr
 		}
 		return true, nil

@@ -29,6 +29,10 @@ Manage scheduled tasks, automated macro executions, interval runners, OS startup
 | `rm` (`delete`, `del`) `<name>` | Remove a scheduled task from the root database and delete its split database file |
 | `restart` `[<duration>] [status\|cancel]` | Trigger native OS restart (`shutdown /r`), schedule with duration (`1:45hr`, `2h`, `1d`), inspect countdown `status`, or `cancel` |
 | `shutdown` `[<duration>] [status\|cancel]` | Trigger native OS shutdown (`shutdown /s`), schedule with duration (`1:45hr`, `2h`, `1d`), inspect countdown `status`, or `cancel` |
+| `mail-check` (`mail`) `[--all] [--unread-only]` | Check status and unread counts for configured mailbox profiles with privacy address masking |
+| `email` (`send-email`) `--to <emails> --subject <text>` | Register scheduled recurring or one-shot email delivery tasks |
+| `watch-folder` (`folder-watch`) `--path <dir> --to <emails>` | Register event-driven folder watcher activity triggers sending notification emails |
+| `ui` `[--port <N>]` | Launch embedded zero-CDN Schedule & Notifier Settings Web UI (starts at port 8095) |
 
 ---
 
