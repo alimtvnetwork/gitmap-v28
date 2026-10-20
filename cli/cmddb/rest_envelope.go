@@ -92,15 +92,15 @@ func sanitizeResultsArray(results any) (any, int) {
 	}
 
 	val := reflect.ValueOf(results)
-	if val.Kind() == reflect.Slice || val.Kind() == reflect.Array {
-		if val.Len() == 0 {
-			return []any{}, 0
-		}
-
-		return results, val.Len()
+	if val.Kind() != reflect.Slice && val.Kind() != reflect.Array {
+		return []any{results}, 1
 	}
 
-	return []any{results}, 1
+	if val.Len() == 0 {
+		return []any{}, 0
+	}
+
+	return results, val.Len()
 }
 
 func mergeRestAttributes(custom map[string]any, count int, err error) map[string]any {
