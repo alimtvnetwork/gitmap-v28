@@ -3,7 +3,7 @@
 - **Task ID:** `Subtask-04`
 - **Subtask Slug:** `04-subtask-folder-watcher-and-mail-core`
 - **Assigned Worker:** Worker 02
-- **Status:** PENDING
+- **Status:** DONE
 - **Parent Plan:** `.ai-memory/plans/gitmap-mailing-and-scheduling-enhancements.md`
 - **Target Specifications:**
   - `02-spec/21-app/gitmap-mailing-and-scheduling-enhancements/01-architecture-overview.md`

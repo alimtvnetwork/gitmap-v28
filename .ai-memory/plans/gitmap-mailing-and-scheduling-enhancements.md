@@ -2,7 +2,7 @@
 
 **Slug:** `gitmap-mailing-and-scheduling-enhancements`  
 **Task Name:** GitMap Mailing and Scheduling Enhancements  
-**Status:** ACTIVE  
+**Status:** COMPLETED  
 **Lifecycle Budget:** N = 400 Steps (Phase 1: 1-100, Phase 2: 101-250, Phase 3: 251-400)  
 **Concurrency:** A = 3, H = 2, Capacity = 6  
 
@@ -52,11 +52,11 @@ Core Subsystems:
 | Subtask ID | Title | Disjoint Files Owned | Assigned Role | Status |
 |---|---|---|---|---|
 | **Subtask-01** | Git Sync, Preflight & Task Initialization | `ledger.md`, `.ai-memory/plans/` | Lead | DONE |
-| **Subtask-02** | Architecture & Specification Authoring | `02-spec/21-app/gitmap-mailing-and-scheduling-enhancements/` | Spec Authors (A=3) | IN_PROGRESS |
-| **Subtask-03** | Multi-Mailbox Checker, Schedule Email CLI & Privacy Masker | `cli/cmdschedule/schedule_mail_check.go`, `cli/cmdschedule/schedule_email.go`, `cli/cmdschedule/privacy_masker.go`, `cli/cmdschedule/schedule_cmd.go` | Worker 01 | PENDING |
-| **Subtask-04** | Folder Watcher Event Trigger & Mail CLI Engine | `cli/cmdmail/cmd_mail.go`, `cli/cmdmail/mail_sender.go`, `cli/cmdmail/mail_checker.go`, `cli/cmdmail/folder_watcher.go`, `cli/cmdmail/storage.go` | Worker 02 | PENDING |
-| **Subtask-05** | Embedded Mailing Composer UI & Schedule Settings UI | `cli/cmdmail/ui_*.go`, `cli/cmdschedule/ui_*.go` | Worker 03 | PENDING |
-| **Subtask-06** | Targeted Unit Tests & Verification Suite | `cli/cmdmail/*_test.go`, `cli/cmdschedule/*_test.go` | Worker Swarm | PENDING |
+| **Subtask-02** | Architecture & Specification Authoring | `02-spec/21-app/gitmap-mailing-and-scheduling-enhancements/` | Spec Authors (A=3) | DONE |
+| **Subtask-03** | Multi-Mailbox Checker, Schedule Email CLI & Privacy Masker | `cli/cmdschedule/schedule_mail_check.go`, `cli/cmdschedule/schedule_email.go`, `cli/cmdschedule/privacy_masker.go`, `cli/cmdschedule/schedule_cmd.go` | Worker 01 | DONE |
+| **Subtask-04** | Folder Watcher Event Trigger & Mail CLI Engine | `cli/cmdmail/cmd_mail.go`, `cli/cmdmail/mail_sender.go`, `cli/cmdmail/mail_checker.go`, `cli/cmdmail/folder_watcher.go`, `cli/cmdmail/storage.go` | Worker 02 | DONE |
+| **Subtask-05** | Embedded Mailing Composer UI & Schedule Settings UI | `cli/cmdmail/ui_*.go`, `cli/cmdschedule/ui_*.go` | Worker 03 | DONE |
+| **Subtask-06** | Targeted Unit Tests & Verification Suite | `cli/cmdmail/*_test.go`, `cli/cmdschedule/*_test.go` | Worker Swarm | DONE |
 
 ---
 

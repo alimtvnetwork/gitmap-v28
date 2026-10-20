@@ -2,7 +2,7 @@
 
 > **Subtask ID:** Subtask-02  
 > **Parent Plan:** `.ai-memory/plans/gitmap-mailing-and-scheduling-enhancements.md`  
-> **Status:** IN_PROGRESS  
+> **Status:** DONE  
 > **Target Subsystems:** `02-spec/21-app/gitmap-mailing-and-scheduling-enhancements/`  
 > **Owned Files:**  
 > - `02-spec/21-app/gitmap-mailing-and-scheduling-enhancements/readme.md`  

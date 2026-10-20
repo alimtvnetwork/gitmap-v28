@@ -3,7 +3,7 @@
 - **Subtask ID:** `subtask-05-embedded-mailing-and-schedule-uis`
 - **Parent Task:** `gitmap-mailing-and-scheduling-enhancements`
 - **Assigned Worker:** Worker 03
-- **Status:** PENDING
+- **Status:** DONE
 
 ---
 
