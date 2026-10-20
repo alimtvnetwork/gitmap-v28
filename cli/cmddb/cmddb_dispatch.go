@@ -87,9 +87,6 @@ func runDb(args []string) error {
 	}
 }
 
-// Backwards-compatible alias for runDb
-var runDB = runDb
-
 // DispatchDbSubsystem routes SQLite database introspection commands.
 func DispatchDbSubsystem(ctx context.Context, args []string, out io.Writer) error {
 	subcmd, pos, opts := parseDbSubsystemArgs(args)

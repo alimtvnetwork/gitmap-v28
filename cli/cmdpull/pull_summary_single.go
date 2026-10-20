@@ -79,11 +79,6 @@ func resolveSummaryGlyph(isError, isDirty bool) string {
 	return constants.ColorGreen + "✓" + constants.ColorReset
 }
 
-func resolveCleanDirtySummary(state *PullRepoState, cwd string) (bool, string) {
-	diag := gitutil.InspectDirtyState(cwd)
-	return resolveCleanDirtySummaryWithDiag(state, diag)
-}
-
 func resolveCleanDirtySummaryWithDiag(state *PullRepoState, diag gitutil.DirtyDiagnosis) (bool, string) {
 	isDirty := diag.IsDirty || (state != nil && state.IsDirty)
 	if !isDirty {

@@ -104,7 +104,9 @@ func loadMailboxProfiles(targetAlias string) ([]MailboxProfileRecord, *appfault.
 	}
 	defer conn.Close()
 
-	ensureMailboxProfileSchema(conn)
+	if err := ensureMailboxProfileSchema(conn); err != nil {
+		return fallbackMailboxProfiles(targetAlias)
+	}
 	profiles, queryErr := queryMailboxProfiles(conn, targetAlias)
 	if queryErr != nil || len(profiles) == 0 {
 		return fallbackMailboxProfiles(targetAlias)
@@ -113,7 +115,7 @@ func loadMailboxProfiles(targetAlias string) ([]MailboxProfileRecord, *appfault.
 	return profiles, nil
 }
 
-func ensureMailboxProfileSchema(conn *sql.DB) {
+func ensureMailboxProfileSchema(conn *sql.DB) error {
 	q := `CREATE TABLE IF NOT EXISTS MailboxProfile (
 		profileId TEXT PRIMARY KEY,
 		alias TEXT NOT NULL UNIQUE,
@@ -131,7 +133,10 @@ func ensureMailboxProfileSchema(conn *sql.DB) {
 		createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 	);`
-	_, _ = conn.Exec(q)
+	if _, err := conn.Exec(q); err != nil {
+		return err
+	}
+	return nil
 }
 
 func queryMailboxProfiles(conn *sql.DB, targetAlias string) ([]MailboxProfileRecord, error) {

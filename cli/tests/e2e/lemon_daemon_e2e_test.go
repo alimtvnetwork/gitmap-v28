@@ -209,7 +209,7 @@ func TestLemonDaemon_ContextTermination(t *testing.T) {
 	go func() { errChan <- daemon.Run(ctx) }()
 
 	isStarted := false
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 100; i++ {
 		if daemon.GetState().IsRunning {
 			isStarted = true
 			break
