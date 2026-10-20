@@ -92,10 +92,10 @@ func ScanFolderTree(root string, isRecursive bool) (map[string]FileItemSnapshot,
 		}
 		rel, _ := filepath.Rel(cleanRoot, p)
 		rel = filepath.ToSlash(rel)
-		if shouldSkipPath(rel) {
-			if info.IsDir() {
-				return filepath.SkipDir
-			}
+		if isSkippedPath(rel) && info.IsDir() {
+			return filepath.SkipDir
+		}
+		if isSkippedPath(rel) {
 			return nil
 		}
 		if !isRecursive && info.IsDir() {
@@ -112,7 +112,7 @@ func ScanFolderTree(root string, isRecursive bool) (map[string]FileItemSnapshot,
 	return result, err
 }
 
-func shouldSkipPath(rel string) bool {
+func isSkippedPath(rel string) bool {
 	return strings.HasPrefix(rel, ".git") || strings.HasPrefix(rel, "node_modules")
 }
 

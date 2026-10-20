@@ -92,11 +92,8 @@ func TestScheduleUI_ToggleEndpoint(t *testing.T) {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	if !resp.IsSuccess {
-		t.Errorf("expected IsSuccess true, got false")
-	}
-	if resp.IsEnabled {
-		t.Errorf("expected IsEnabled false after toggle, got true")
+	if resp.Error != "" || resp.IsEnabled {
+		t.Errorf("expected success with IsEnabled false after toggle, got error=%s isEnabled=%v", resp.Error, resp.IsEnabled)
 	}
 }
 
@@ -113,7 +110,7 @@ func TestScheduleUI_WatchersEndpoints(t *testing.T) {
 
 	// Test POST valid watcher
 	payload := WatcherCreateRequest{
-		Path:            "d:/work/gitmap/test",
+		Path:            "./test",
 		Events:          []string{"modify", "delete"},
 		DebounceSeconds: 5,
 		ActionCommand:   "gitmap pe -t",
@@ -132,8 +129,8 @@ func TestScheduleUI_WatchersEndpoints(t *testing.T) {
 	if err := json.Unmarshal(recPost.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("failed to decode watcher response: %v", err)
 	}
-	if !resp.IsSuccess {
-		t.Errorf("expected IsSuccess true")
+	if resp.Error != "" {
+		t.Errorf("expected watcher response without error, got %s", resp.Error)
 	}
 }
 

@@ -55,16 +55,20 @@ func runMailUI(args []string) *appfault.AppError {
 	port := DefaultMailUIPort
 	for i := 0; i < len(args); i++ {
 		if (args[i] == "--port" || args[i] == "-p") && i+1 < len(args) {
-			if p, err := strconv.Atoi(args[i+1]); err == nil && p > 0 {
-				port = p
-			}
-			i++
+			port, i = parsePortFlag(args[i+1], port), i+1
 		}
 	}
 	if err := RunMailUI(port); err != nil {
 		return appfault.WrapExecution(err, "run mail ui")
 	}
 	return nil
+}
+
+func parsePortFlag(arg string, fallback int) int {
+	if p, err := strconv.Atoi(arg); err == nil && p > 0 {
+		return p
+	}
+	return fallback
 }
 
 func runMailSend(args []string) *appfault.AppError {
@@ -93,27 +97,36 @@ func parseSendArgs(args []string) (MailSendOptions, error) {
 	opts := MailSendOptions{AccountName: "default", Host: "127.0.0.1", Port: 587}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if (a == "--to" || a == "-t") && i+1 < len(args) {
+		switch {
+		case (a == "--to" || a == "-t") && i+1 < len(args):
 			opts.To, i = strings.Split(args[i+1], ","), i+1
-		} else if (a == "--subject" || a == "-s") && i+1 < len(args) {
+		case (a == "--subject" || a == "-s") && i+1 < len(args):
 			opts.Subject, i = args[i+1], i+1
-		} else if (a == "--body" || a == "-b") && i+1 < len(args) {
+		case (a == "--body" || a == "-b") && i+1 < len(args):
 			opts.Body, i = args[i+1], i+1
-		} else if (a == "--file" || a == "-f") && i+1 < len(args) {
-			content, err := os.ReadFile(args[i+1])
+		case (a == "--file" || a == "-f") && i+1 < len(args):
+			body, err := readBodyFile(args[i+1])
 			if err != nil {
-				return opts, fmt.Errorf("read body file: %w", err)
+				return opts, err
 			}
-			opts.Body, i = string(content), i+1
-		} else if a == "--html" {
+			opts.Body, i = body, i+1
+		case a == "--html":
 			opts.IsHTML = true
-		} else if (a == "--account" || a == "-a") && i+1 < len(args) {
+		case (a == "--account" || a == "-a") && i+1 < len(args):
 			opts.AccountName, i = args[i+1], i+1
-		} else if a == "--dry-run" {
+		case a == "--dry-run":
 			opts.IsDryRun = true
 		}
 	}
 	return opts, nil
+}
+
+func readBodyFile(path string) (string, error) {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("read body file: %w", err)
+	}
+	return string(content), nil
 }
 
 func runMailCheck(args []string) *appfault.AppError {
@@ -127,14 +140,18 @@ func runMailCheck(args []string) *appfault.AppError {
 		return appfault.WrapExecution(err, "evaluate mailboxes")
 	}
 	if isJSON {
-		jsonStr, err := FormatMailCheckJSON(summary)
-		if err != nil {
-			return appfault.WrapExecution(err, "format json")
-		}
-		fmt.Println(jsonStr)
-		return nil
+		return outputMailCheckJSON(summary)
 	}
 	fmt.Print(FormatMailCheckTable(summary, filter.ShowFullEmail))
+	return nil
+}
+
+func outputMailCheckJSON(summary *MailCheckSummary) *appfault.AppError {
+	jsonStr, err := FormatMailCheckJSON(summary)
+	if err != nil {
+		return appfault.WrapExecution(err, "format json")
+	}
+	fmt.Println(jsonStr)
 	return nil
 }
 
@@ -166,10 +183,7 @@ func runMailTest(args []string) *appfault.AppError {
 		if (args[i] == "--host" || args[i] == "-h") && i+1 < len(args) {
 			host, i = args[i+1], i+1
 		} else if (args[i] == "--port" || args[i] == "-p") && i+1 < len(args) {
-			if p, err := strconv.Atoi(args[i+1]); err == nil && p > 0 {
-				port = p
-			}
-			i++
+			port, i = parsePortFlag(args[i+1], port), i+1
 		} else if args[i] == "--tls" {
 			isTLS = true
 		}
@@ -181,18 +195,27 @@ func executeTestConnection(host string, port int, isTLS bool) *appfault.AppError
 	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	start := time.Now()
 	if port == 465 || isTLS {
-		conn, err := tls.DialWithDialer(&net.Dialer{Timeout: 5 * time.Second}, "tcp", addr, &tls.Config{ServerName: host, InsecureSkipVerify: isLocalHost(host)})
-		if err != nil {
-			return appfault.WrapExecution(err, "test tls connection")
-		}
-		_ = conn.Close()
-	} else {
-		conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
-		if err != nil {
-			return appfault.WrapExecution(err, "test connection")
-		}
-		_ = conn.Close()
+		return testTLSConnection(host, addr, start)
 	}
+	return testPlainConnection(addr, start)
+}
+
+func testTLSConnection(host, addr string, start time.Time) *appfault.AppError {
+	conn, err := tls.DialWithDialer(&net.Dialer{Timeout: 5 * time.Second}, "tcp", addr, &tls.Config{ServerName: host, InsecureSkipVerify: isLocalHost(host)})
+	if err != nil {
+		return appfault.WrapExecution(err, "test tls connection")
+	}
+	_ = conn.Close()
+	fmt.Printf("[GITMAP MAIL TEST] SUCCESS: Connected to %s (%dms)\n", addr, time.Since(start).Milliseconds())
+	return nil
+}
+
+func testPlainConnection(addr string, start time.Time) *appfault.AppError {
+	conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
+	if err != nil {
+		return appfault.WrapExecution(err, "test connection")
+	}
+	_ = conn.Close()
 	fmt.Printf("[GITMAP MAIL TEST] SUCCESS: Connected to %s (%dms)\n", addr, time.Since(start).Milliseconds())
 	return nil
 }

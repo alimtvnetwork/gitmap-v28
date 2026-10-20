@@ -64,10 +64,9 @@ func EvaluateMailboxes(store *MailStore, filter MailboxCheckFilter) (*MailCheckS
 }
 
 func resolveMailAccounts(store *MailStore, filter MailboxCheckFilter) []MailAccount {
-	if store != nil {
-		if dbProfiles, err := store.ListMailboxProfiles(); err == nil && len(dbProfiles) > 0 {
-			return convertProfilesToAccounts(dbProfiles, filter)
-		}
+	accounts := resolveStoreProfiles(store, filter)
+	if len(accounts) > 0 {
+		return accounts
 	}
 	all := GetConfiguredMailAccounts()
 	if filter.CheckAll || filter.AccountName == "" {
@@ -79,6 +78,17 @@ func resolveMailAccounts(store *MailStore, filter MailboxCheckFilter) []MailAcco
 		}
 	}
 	return []MailAccount{{Name: filter.AccountName, Email: filter.AccountName + "@gitmap.local", Host: "localhost:1025", IsDefault: true}}
+}
+
+func resolveStoreProfiles(store *MailStore, filter MailboxCheckFilter) []MailAccount {
+	if store == nil {
+		return nil
+	}
+	dbProfiles, err := store.ListMailboxProfiles()
+	if err != nil || len(dbProfiles) == 0 {
+		return nil
+	}
+	return convertProfilesToAccounts(dbProfiles, filter)
 }
 
 func convertProfilesToAccounts(profiles []MailboxProfileRecord, filter MailboxCheckFilter) []MailAccount {

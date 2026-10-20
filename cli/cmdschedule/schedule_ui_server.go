@@ -89,7 +89,7 @@ type NotifierRecipientItem struct {
 
 var (
 	uiWatcherLock  sync.RWMutex
-	uiWatchers     = []FolderWatcherItem{{ID: "w-01", Path: "d:/work/gitmap/cli", Events: []string{"modify", "create"}, DebounceSeconds: 3, ActionCommand: "gitmap pe -t", IsEnabled: true}}
+	uiWatchers     = []FolderWatcherItem{{ID: "w-01", Path: "./cli", Events: []string{"modify", "create"}, DebounceSeconds: 3, ActionCommand: "gitmap pe -t", IsEnabled: true}}
 	uiNotifierLock sync.RWMutex
 	uiNotifiers    = []NotifierRecipientItem{{ID: "n-01", Type: "email", Target: "devops-alerts@internal.company.com", Events: "failure,alert", IsEnabled: true}, {ID: "n-02", Type: "webhook", Target: "https://hooks.slack.com/services/T00/B00/X00", Events: "all", IsEnabled: true}}
 	uiTaskLock     sync.RWMutex

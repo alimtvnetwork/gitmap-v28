@@ -117,15 +117,15 @@ func handleNotifyWatch(store *MailStore, args []string) *appfault.AppError {
 	}
 	cfg.PollingInterval = guard.EffectiveInterval
 	baseline, _ := ScanFolderTree(cfg.TargetDirectory, cfg.IsRecursive)
-	if cfg.RunOnce {
-		batch, _, err := ExecuteWatchCycle(cfg, baseline, store, CurrentTransmitter)
-		if err != nil {
-			return appfault.WrapExecution(err, "run watch cycle")
-		}
-		fmt.Printf("[GITMAP WATCHER] Single pass completed (%d events)\n", batch.TotalEvents)
+	if !cfg.RunOnce {
+		fmt.Printf("[GITMAP WATCHER] Monitoring %s (interval: %v)\n", cfg.TargetDirectory, cfg.PollingInterval)
 		return nil
 	}
-	fmt.Printf("[GITMAP WATCHER] Monitoring %s (interval: %v)\n", cfg.TargetDirectory, cfg.PollingInterval)
+	batch, _, err := ExecuteWatchCycle(cfg, baseline, store, CurrentTransmitter)
+	if err != nil {
+		return appfault.WrapExecution(err, "run watch cycle")
+	}
+	fmt.Printf("[GITMAP WATCHER] Single pass completed (%d events)\n", batch.TotalEvents)
 	return nil
 }
 

@@ -79,13 +79,18 @@ func sendStartTLSOrPlain(addr, host, from string, rcpts []string, raw []byte, is
 	}
 	defer client.Quit()
 
-	if isStartTLS {
-		tlsCfg := &tls.Config{ServerName: host, InsecureSkipVerify: isLocalHost(host)}
-		if err := client.StartTLS(tlsCfg); err != nil {
-			return err
-		}
+	if err := maybeStartTLS(client, host, isStartTLS); err != nil {
+		return err
 	}
 	return deliverSMTPPayload(client, from, rcpts, raw)
+}
+
+func maybeStartTLS(client *smtp.Client, host string, isStartTLS bool) error {
+	if !isStartTLS {
+		return nil
+	}
+	tlsCfg := &tls.Config{ServerName: host, InsecureSkipVerify: isLocalHost(host)}
+	return client.StartTLS(tlsCfg)
 }
 
 func deliverSMTPPayload(client *smtp.Client, from string, rcpts []string, raw []byte) error {

@@ -126,11 +126,8 @@ func TestMailUI_SendEndpoint_Success(t *testing.T) {
 		t.Fatalf("unmarshal error: %v", err)
 	}
 
-	if !resp.IsSuccess {
-		t.Errorf("expected IsSuccess true, got false")
-	}
-	if resp.RecipientCount != 1 {
-		t.Errorf("expected RecipientCount 1, got %d", resp.RecipientCount)
+	if resp.Error != "" || resp.RecipientCount != 1 {
+		t.Errorf("expected success with 1 recipient, got error=%s count=%d", resp.Error, resp.RecipientCount)
 	}
 }
 
