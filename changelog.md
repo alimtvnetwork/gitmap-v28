@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.584.0] - 2026-10-20
+
+### Added
+- native mail client folder watcher and schedule email automation
+
+---
+
 ## [v6.583.0] - 2026-10-20
 
 ### Added
