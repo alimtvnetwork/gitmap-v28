@@ -48,6 +48,7 @@ func getCategoryCleaners() []categoryCleaner {
 		{"cargo-cache", []string{"cargo", "rust", "cargocache"}, cleanCargoCache},
 		{"nuget-cache", []string{"nuget", "dotnet", "nugetcache"}, cleanNugetCache},
 		{"gradle-maven-cache", []string{"gradle", "maven", "m2"}, cleanGradleMavenCache},
+		{"ccache-cache", []string{"ccache", "c", "cpp"}, cleanCcacheCache},
 	}
 }
 

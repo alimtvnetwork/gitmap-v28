@@ -1,6 +1,7 @@
 package osclean
 
 import (
+	"os"
 	"path/filepath"
 )
 
@@ -60,19 +61,121 @@ func cleanCargoCache(isDryRun bool) CategoryCleanStats {
 		Category: "cargo-cache",
 		Label:    "Cargo/Rust registry cache and git checkouts",
 	}
-	home := resolveHomeDir()
-	cargo := filepath.Join(home, ".cargo")
-	paths := []string{
-		filepath.Join(cargo, "registry", "cache"),
-		filepath.Join(cargo, "registry", "src"),
-		filepath.Join(cargo, "git", "db"),
-		filepath.Join(cargo, "git", "checkouts"),
+	for _, dir := range resolveCargoPaths() {
+		mergeCleanStats(&res, SweepTarget(dir, isDryRun, true))
 	}
-	for _, dir := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
-	}
+	invokeCargoClean(isDryRun, &res)
 
 	return res
+}
+
+func invokeCargoClean(isDryRun bool, res *CategoryCleanStats) {
+	if isDryRun {
+		return
+	}
+	if hasTool("cargo-cache") {
+		_, _ = runToolCommand("cargo", "cache", "--autoclean")
+		res.Notes = append(res.Notes, "Invoked 'cargo cache --autoclean'")
+	}
+	if hasTool("sccache") {
+		_, _ = runToolCommand("sccache", "--clear-cache")
+		res.Notes = append(res.Notes, "Invoked 'sccache --clear-cache'")
+	}
+}
+
+func resolveCargoPaths() []string {
+	var paths []string
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	paths = append(paths, resolveCargoRegistryPaths(home)...)
+	paths = append(paths, resolveRustToolingPaths(home, local)...)
+	paths = append(paths, resolveDevDrives("cargo/registry/cache")...)
+	paths = append(paths, resolveDevDrives("cargo/registry/src")...)
+	paths = append(paths, resolveDevDrives("cargo/git/db")...)
+	paths = append(paths, resolveDevDrives("cargo/git/checkouts")...)
+	paths = append(paths, resolveDevDrives("cargo/cache")...)
+
+	return filterUniquePaths(paths)
+}
+
+func resolveCargoRegistryPaths(home string) []string {
+	cargoHome := os.Getenv("CARGO_HOME")
+	if len(cargoHome) == 0 {
+		cargoHome = filepath.Join(home, ".cargo")
+	}
+
+	return []string{
+		filepath.Join(cargoHome, "registry", "cache"),
+		filepath.Join(cargoHome, "registry", "src"),
+		filepath.Join(cargoHome, "git", "db"),
+		filepath.Join(cargoHome, "git", "checkouts"),
+		filepath.Join(cargoHome, ".package-cache"),
+	}
+}
+
+func resolveRustToolingPaths(home, local string) []string {
+	paths := resolveRustupDirs(home)
+	paths = append(paths, resolveSccacheDirs(home, local)...)
+	if tgt := os.Getenv("CARGO_TARGET_DIR"); len(tgt) > 0 {
+		paths = append(paths, tgt)
+	}
+
+	return paths
+}
+
+func resolveRustupDirs(home string) []string {
+	rustupHome := os.Getenv("RUSTUP_HOME")
+	if len(rustupHome) == 0 {
+		rustupHome = filepath.Join(home, ".rustup")
+	}
+
+	return []string{filepath.Join(rustupHome, "downloads"), filepath.Join(rustupHome, "tmp")}
+}
+
+func resolveSccacheDirs(home, local string) []string {
+	var paths []string
+	if scc := os.Getenv("SCCACHE_DIR"); len(scc) > 0 {
+		paths = append(paths, scc)
+	}
+
+	return append(paths,
+		filepath.Join(local, "Mozilla", "sccache"),
+		filepath.Join(home, ".cache", "sccache"),
+		filepath.Join(home, "Library", "Caches", "Mozilla.sccache"),
+	)
+}
+
+func cleanCcacheCache(isDryRun bool) CategoryCleanStats {
+	res := CategoryCleanStats{
+		Category: "ccache-cache",
+		Label:    "C/C++ compiler cache (ccache)",
+	}
+	for _, dir := range resolveCcacheDirs() {
+		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
+	}
+	invokeCcacheClean(isDryRun, &res)
+
+	return res
+}
+
+func resolveCcacheDirs() []string {
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	paths := []string{
+		filepath.Join(local, "ccache"),
+		filepath.Join(home, ".cache", "ccache"),
+		filepath.Join(home, ".ccache"),
+	}
+	if cdir := os.Getenv("CCACHE_DIR"); len(cdir) > 0 {
+		paths = append(paths, cdir)
+	}
+
+	return filterUniquePaths(paths)
+}
+
+func invokeCcacheClean(isDryRun bool, res *CategoryCleanStats) {
+	if !isDryRun && hasTool("ccache") {
+		_, _ = runToolCommand("ccache", "-C")
+		res.Notes = append(res.Notes, "Invoked 'ccache -C'")
+	}
 }
 
 func cleanNugetCache(isDryRun bool) CategoryCleanStats {
@@ -80,23 +183,31 @@ func cleanNugetCache(isDryRun bool) CategoryCleanStats {
 		Category: "nuget-cache",
 		Label:    ".NET / NuGet package and HTTP cache",
 	}
+	invokeNugetClean(isDryRun, &res)
+	for _, dir := range resolveNugetPaths() {
+		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
+	}
+
+	return res
+}
+
+func invokeNugetClean(isDryRun bool, res *CategoryCleanStats) {
 	if !isDryRun && hasTool("dotnet") {
 		_, _ = runToolCommand("dotnet", "nuget", "locals", "all", "--clear")
 		res.Notes = append(res.Notes, "Invoked 'dotnet nuget locals all --clear'")
 	}
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
+}
+
+func resolveNugetPaths() []string {
+	home, local := resolveHomeDir(), resolveLocalAppData()
 	paths := []string{
 		filepath.Join(local, "NuGet", "v3-cache"),
 		filepath.Join(local, "NuGet", "plugins-cache"),
 		filepath.Join(home, ".nuget", "packages"),
 		filepath.Join(home, ".local", "share", "NuGet", "v3-cache"),
 	}
-	for _, dir := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
-	}
 
-	return res
+	return filterUniquePaths(paths)
 }
 
 func cleanGradleMavenCache(isDryRun bool) CategoryCleanStats {
@@ -104,14 +215,19 @@ func cleanGradleMavenCache(isDryRun bool) CategoryCleanStats {
 		Category: "gradle-maven-cache",
 		Label:    "Gradle and Maven build caches",
 	}
+	for _, dir := range resolveGradleMavenPaths() {
+		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
+	}
+
+	return res
+}
+
+func resolveGradleMavenPaths() []string {
 	home := resolveHomeDir()
 	paths := []string{
 		filepath.Join(home, ".gradle", "caches"),
 		filepath.Join(home, ".m2", "repository"),
 	}
-	for _, dir := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(dir, isDryRun, false))
-	}
 
-	return res
+	return filterUniquePaths(paths)
 }

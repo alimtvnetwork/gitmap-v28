@@ -145,17 +145,28 @@ func isExistingDirectory(path string) bool {
 	return err == nil && info != nil && info.IsDir()
 }
 
+var safeCacheTokens = []string{
+	"cache", "testcache", "mod", "store", "repository", "caches",
+	"v3-cache", "npm-cache", "go-build", "cargo", "rust", "checkouts",
+	"downloads", "sccache", "ccache", "turbopack", "turbo",
+}
+
 func isDevCachePathSafe(path string) bool {
 	clean := filepath.Clean(strings.ToLower(path))
 	if len(clean) <= 3 || strings.HasPrefix(clean, `c:\windows`) {
 		return false
 	}
-	safeTokens := []string{"cache", "testcache", "mod", "store", "repository", "caches", "v3-cache", "npm-cache", "go-build"}
-	for _, tok := range safeTokens {
+
+	return containsSafeToken(clean)
+}
+
+func containsSafeToken(clean string) bool {
+	for _, tok := range safeCacheTokens {
 		if strings.Contains(filepath.Base(clean), tok) || strings.Contains(clean, tok) {
 			return true
 		}
 	}
+
 	return false
 }
 

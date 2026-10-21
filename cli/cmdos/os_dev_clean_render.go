@@ -28,6 +28,7 @@ var ecosystemDisplayNames = map[string]string{
 	"nuget":  ".NET NuGet",
 	"gradle": "Java Gradle",
 	"maven":  "Java Maven",
+	"ccache": "C/C++ ccache",
 }
 
 func resolveEcosystemDisplayName(eco string) string {

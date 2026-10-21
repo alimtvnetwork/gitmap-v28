@@ -7,6 +7,12 @@ import (
 )
 
 func getEnhancedCategoryDefs() []EnhancedCategoryDef {
+	defs := getCoreEnhancedCategoryDefs()
+
+	return append(defs, getExtendedEnhancedCategoryDefs()...)
+}
+
+func getCoreEnhancedCategoryDefs() []EnhancedCategoryDef {
 	return []EnhancedCategoryDef{
 		{"go-cache", "Go build & module caches", []string{"go", "gobuild", "gocache"}, cleanGoEnhanced},
 		{"node-cache", "Node / npm / pnpm / yarn / bun", []string{"node", "npm", "pnpm", "yarn", "bun"}, cleanNodeEnhanced},
@@ -14,6 +20,11 @@ func getEnhancedCategoryDefs() []EnhancedCategoryDef {
 		{"bundler-cache", "Vite / webpack / turbopack", []string{"vite", "webpack", "turbopack", "parcel"}, cleanWebBundlerEnhanced},
 		{"antigravity-logs", "Antigravity logs & transcripts", []string{"agy", "antigravity", "gemini"}, cleanAntigravityEnhanced},
 		{"vscode-cache", "VS Code server & workspace caches", []string{"vscode", "code"}, cleanVSCodeEnhanced},
+	}
+}
+
+func getExtendedEnhancedCategoryDefs() []EnhancedCategoryDef {
+	return []EnhancedCategoryDef{
 		{"chrome-cache", "Chrome / Chromium dev caches", []string{"chrome", "chromium"}, cleanChromeDevEnhanced},
 		{"git-cache", "Git dangling objects & caches", []string{"git", "gitcache"}, cleanGitEnhanced},
 		{"temp-artifacts", "System temp dev artifacts", []string{"temp", "tmp"}, cleanSystemTempEnhanced},
@@ -39,83 +50,103 @@ func cleanNodeEnhanced(isDryRun bool) CategoryCleanStats {
 func cleanPythonEnhanced(isDryRun bool) CategoryCleanStats {
 	res := CategoryCleanStats{Category: "python-cache", Label: "Python / pip / uv / poetry"}
 	mergeCleanStats(&res, cleanPipCache(isDryRun))
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
-	paths := []string{
+	paths := resolvePythonExtraCachePaths()
+	for _, p := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
+	}
+
+	return res
+}
+
+func resolvePythonExtraCachePaths() []string {
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	return []string{
 		filepath.Join(local, "uv", "cache"),
 		filepath.Join(home, ".cache", "uv"),
 		filepath.Join(local, "pypoetry", "Cache"),
 		filepath.Join(home, ".cache", "pypoetry"),
 	}
-	for _, p := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
-	}
-	return res
 }
 
 func cleanWebBundlerEnhanced(isDryRun bool) CategoryCleanStats {
 	res := CategoryCleanStats{Category: "bundler-cache", Label: "Vite / webpack / turbopack"}
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
-	paths := []string{
+	paths := resolveWebBundlerCachePaths()
+	for _, p := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
+	}
+
+	return res
+}
+
+func resolveWebBundlerCachePaths() []string {
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	return []string{
 		filepath.Join(local, "vite"), filepath.Join(home, ".cache", "vite"),
 		filepath.Join(local, "webpack"), filepath.Join(home, ".cache", "webpack"),
 		filepath.Join(local, "turbopack"), filepath.Join(home, ".cache", "turbopack"),
 		filepath.Join(local, "parcel"), filepath.Join(home, ".cache", "parcel"),
 	}
-	for _, p := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
-	}
-	return res
 }
 
 func cleanAntigravityEnhanced(isDryRun bool) CategoryCleanStats {
 	res := CategoryCleanStats{Category: "antigravity-logs", Label: "Antigravity logs & transcripts"}
-	home := resolveHomeDir()
-	local := resolveLocalAppData()
-	paths := []string{
+	paths := resolveAntigravityCachePaths()
+	for _, p := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
+	}
+
+	return res
+}
+
+func resolveAntigravityCachePaths() []string {
+	home, local := resolveHomeDir(), resolveLocalAppData()
+	return []string{
 		filepath.Join(home, ".gemini", "antigravity", "logs"),
 		filepath.Join(home, ".gemini", "antigravity", "crashes"),
 		filepath.Join(home, ".gemini", "antigravity", "scratch"),
 		filepath.Join(local, "antigravity", "Cache"),
 		filepath.Join(local, "antigravity", "Code Cache"),
 	}
-	for _, p := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
-	}
-	return res
 }
 
 func cleanVSCodeEnhanced(isDryRun bool) CategoryCleanStats {
 	res := CategoryCleanStats{Category: "vscode-cache", Label: "VS Code server & workspace caches"}
-	home := resolveHomeDir()
-	appData := os.Getenv("APPDATA")
-	paths := []string{
+	paths := resolveVSCodeCachePaths()
+	for _, p := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
+	}
+
+	return res
+}
+
+func resolveVSCodeCachePaths() []string {
+	home, appData := resolveHomeDir(), os.Getenv("APPDATA")
+	return []string{
 		filepath.Join(appData, "Code", "CachedData"),
 		filepath.Join(appData, "Code", "CachedExtensionVSIXs"),
 		filepath.Join(appData, "Code", "logs"),
 		filepath.Join(home, ".cache", "vscode"),
 	}
-	for _, p := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
-	}
-	return res
 }
 
 func cleanChromeDevEnhanced(isDryRun bool) CategoryCleanStats {
 	res := CategoryCleanStats{Category: "chrome-cache", Label: "Chrome / Chromium dev caches"}
-	local := resolveLocalAppData()
-	home := resolveHomeDir()
-	paths := []string{
+	paths := resolveChromeDevCachePaths()
+	for _, p := range filterUniquePaths(paths) {
+		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
+	}
+
+	return res
+}
+
+func resolveChromeDevCachePaths() []string {
+	local, home := resolveLocalAppData(), resolveHomeDir()
+	return []string{
 		filepath.Join(local, "Google", "Chrome", "User Data", "Default", "Cache"),
 		filepath.Join(local, "Google", "Chrome", "User Data", "Default", "Code Cache"),
 		filepath.Join(local, "Google", "Chrome", "User Data", "Default", "GPUCache"),
 		filepath.Join(home, ".cache", "google-chrome"),
 	}
-	for _, p := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
-	}
-	return res
 }
 
 func cleanGitEnhanced(isDryRun bool) CategoryCleanStats {
@@ -181,16 +212,7 @@ func isTestBinary(name string) bool {
 }
 
 func cleanCargoEnhanced(isDryRun bool) CategoryCleanStats {
-	res := CategoryCleanStats{Category: "rust-cargo", Label: "Rust / Cargo cache"}
-	home := resolveHomeDir()
-	paths := []string{
-		filepath.Join(home, ".cargo", "registry", "cache"),
-		filepath.Join(home, ".cargo", "git", "db"),
-	}
-	for _, p := range filterUniquePaths(paths) {
-		mergeCleanStats(&res, SweepTarget(p, isDryRun, false))
-	}
-	return res
+	return cleanCargoCache(isDryRun)
 }
 
 func cleanIdeScratchEnhanced(isDryRun bool) CategoryCleanStats {

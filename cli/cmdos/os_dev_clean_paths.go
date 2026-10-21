@@ -12,16 +12,17 @@ import (
 
 func getAllDiscoveryRules() []EcosystemDiscoveryRule {
 	return []EcosystemDiscoveryRule{
-		{EcosystemID: "go", DisplayName: "Go (Golang)", CliCommands: [][]string{{"go", "env", "GOCACHE"}, {"go", "env", "GOMODCACHE"}}, EnvVariables: []string{"GOCACHE", "GOMODCACHE"}, DevToolSubdirs: []string{"go\\cache", "go\\pkg\\mod"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\go-build"}},
-		{EcosystemID: "pnpm", DisplayName: "pnpm Store", CliCommands: [][]string{{"pnpm", "store", "path"}}, EnvVariables: []string{"PNPM_HOME"}, DevToolSubdirs: []string{"pnpm\\store", "pnpm\\store\\v10", "pnpm\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\pnpm\\store"}},
+		{EcosystemID: "go", DisplayName: "Go (Golang)", CliCommands: [][]string{{"go", "env", "GOCACHE"}, {"go", "env", "GOMODCACHE"}}, EnvVariables: []string{"GOCACHE", "GOMODCACHE"}, DevToolSubdirs: []string{"go\\cache", "go\\pkg\\mod"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\go-build", "~/.cache/go-build"}},
+		{EcosystemID: "pnpm", DisplayName: "pnpm Store", CliCommands: [][]string{{"pnpm", "store", "path"}}, EnvVariables: []string{"PNPM_HOME"}, DevToolSubdirs: []string{"pnpm\\store", "pnpm\\store\\v10", "pnpm\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\pnpm\\store", "~/.local/share/pnpm/store"}},
 		{EcosystemID: "npm", DisplayName: "npm Cache", CliCommands: [][]string{{"npm", "config", "get", "cache"}}, EnvVariables: []string{"npm_config_cache"}, DevToolSubdirs: []string{"npm\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\npm-cache", "~/.npm"}},
-		{EcosystemID: "yarn", DisplayName: "Yarn Cache", CliCommands: [][]string{{"yarn", "cache", "dir"}}, EnvVariables: []string{"YARN_CACHE_FOLDER"}, DevToolSubdirs: []string{"yarn\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\Yarn\\Cache"}},
+		{EcosystemID: "yarn", DisplayName: "Yarn Cache", CliCommands: [][]string{{"yarn", "cache", "dir"}}, EnvVariables: []string{"YARN_CACHE_FOLDER"}, DevToolSubdirs: []string{"yarn\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\Yarn\\Cache", "~/.cache/yarn"}},
 		{EcosystemID: "bun", DisplayName: "Bun Cache", CliCommands: [][]string{{"bun", "pm", "cache"}}, EnvVariables: []string{"BUN_INSTALL"}, DevToolSubdirs: []string{"bun\\cache"}, HeuristicPaths: []string{"~/.bun/install/cache"}},
-		{EcosystemID: "python", DisplayName: "Python Pip/UV", CliCommands: [][]string{{"pip", "cache", "dir"}}, EnvVariables: []string{"PIP_CACHE_DIR", "UV_CACHE_DIR"}, DevToolSubdirs: []string{"python\\pip\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\pip\\cache", "~/.cache/pip"}},
-		{EcosystemID: "cargo", DisplayName: "Rust Cargo", CliCommands: [][]string{{"cargo", "cache", "--dir"}}, EnvVariables: []string{"CARGO_HOME"}, DevToolSubdirs: []string{"cargo\\registry\\cache"}, HeuristicPaths: []string{"~/.cargo/registry/cache"}},
-		{EcosystemID: "nuget", DisplayName: ".NET NuGet", CliCommands: nil, EnvVariables: []string{"NUGET_PACKAGES"}, DevToolSubdirs: []string{"nuget\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\NuGet\\v3-cache"}},
+		{EcosystemID: "python", DisplayName: "Python Pip/UV", CliCommands: [][]string{{"pip", "cache", "dir"}, {"uv", "cache", "dir"}}, EnvVariables: []string{"PIP_CACHE_DIR", "UV_CACHE_DIR"}, DevToolSubdirs: []string{"python\\pip\\cache", "uv\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\pip\\cache", "~/.cache/pip", "%LOCALAPPDATA%\\uv\\cache", "~/.cache/uv"}},
+		{EcosystemID: "cargo", DisplayName: "Rust Cargo", CliCommands: [][]string{{"cargo", "cache", "--dir"}}, EnvVariables: []string{"CARGO_HOME", "SCCACHE_DIR", "RUSTUP_HOME", "CARGO_TARGET_DIR"}, DevToolSubdirs: []string{"cargo\\registry\\cache", "cargo\\registry\\src", "cargo\\git\\db", "cargo\\git\\checkouts", "cargo\\cache"}, HeuristicPaths: []string{"~/.cargo/registry/cache", "~/.cargo/registry/src", "~/.cargo/git/db", "~/.cargo/git/checkouts", "~/.cargo/.package-cache", "~/.rustup/downloads", "~/.rustup/tmp", "%LOCALAPPDATA%\\Mozilla\\sccache", "~/.cache/sccache", "~/Library/Caches/Mozilla.sccache"}},
+		{EcosystemID: "nuget", DisplayName: ".NET NuGet", CliCommands: nil, EnvVariables: []string{"NUGET_PACKAGES"}, DevToolSubdirs: []string{"nuget\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\NuGet\\v3-cache", "~/.nuget/packages"}},
 		{EcosystemID: "gradle", DisplayName: "Java Gradle", CliCommands: nil, EnvVariables: []string{"GRADLE_USER_HOME"}, DevToolSubdirs: []string{"gradle\\caches"}, HeuristicPaths: []string{"~/.gradle/caches"}},
 		{EcosystemID: "maven", DisplayName: "Java Maven", CliCommands: nil, EnvVariables: []string{"M2_HOME"}, DevToolSubdirs: []string{"maven\\repository"}, HeuristicPaths: []string{"~/.m2/repository"}},
+		{EcosystemID: "ccache", DisplayName: "C/C++ ccache", CliCommands: [][]string{{"ccache", "-s"}}, EnvVariables: []string{"CCACHE_DIR"}, DevToolSubdirs: []string{"ccache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\ccache", "~/.cache/ccache"}},
 	}
 }
 
@@ -49,20 +50,21 @@ func containsEcosystem(targets []string, id string) bool {
 	return false
 }
 
+var ecoAliasMap = map[string]string{
+	"golang": "go", "go-build": "go", "go-buildcache": "go", "gocache": "go",
+	"pip": "python", "uv": "python", "pip3": "python", "python3": "python",
+	"rust": "cargo", "rustc": "cargo", "cargo-cache": "cargo", "crates": "cargo",
+	"dotnet": "nuget", ".net": "nuget",
+	"c": "ccache", "cpp": "ccache", "c++": "ccache",
+}
+
 func normalizeEcosystemID(token string) string {
 	tok := strings.ToLower(strings.TrimSpace(token))
-	switch tok {
-	case "golang", "go-build", "go-buildcache", "gocache":
-		return "go"
-	case "pip", "uv", "pip3", "python3":
-		return "python"
-	case "rust", "rustc":
-		return "cargo"
-	case "dotnet", ".net":
-		return "nuget"
-	default:
-		return tok
+	if norm, ok := ecoAliasMap[tok]; ok {
+		return norm
 	}
+
+	return tok
 }
 
 func probeTier1CliPaths(rule EcosystemDiscoveryRule) []DiscoveredCachePath {
@@ -78,10 +80,35 @@ func probeTier1CliPaths(rule EcosystemDiscoveryRule) []DiscoveredCachePath {
 func probeTier2EnvPaths(rule EcosystemDiscoveryRule) []DiscoveredCachePath {
 	var items []DiscoveredCachePath
 	for _, envKey := range rule.EnvVariables {
-		if val := strings.TrimSpace(os.Getenv(envKey)); len(val) > 0 {
-			items = append(items, newDiscoveredPath(val, rule.EcosystemID, "env", false))
+		val := strings.TrimSpace(os.Getenv(envKey))
+		if len(val) > 0 {
+			items = append(items, resolveEnvCachePaths(rule.EcosystemID, envKey, val)...)
 		}
 	}
+
+	return items
+}
+
+func resolveEnvCachePaths(ecoID, envKey, val string) []DiscoveredCachePath {
+	switch envKey {
+	case "CARGO_HOME":
+		return expandEnvSubdirs(val, ecoID, "registry/cache", "registry/src", "git/db", "git/checkouts")
+	case "RUSTUP_HOME":
+		return expandEnvSubdirs(val, ecoID, "downloads", "tmp")
+	default:
+		return []DiscoveredCachePath{newDiscoveredPath(val, ecoID, "env", false)}
+	}
+}
+
+func expandEnvSubdirs(root, ecoID string, subs ...string) []DiscoveredCachePath {
+	var items []DiscoveredCachePath
+	for _, sub := range subs {
+		p := filepath.Join(root, filepath.FromSlash(sub))
+		if isExistingDirectory(p) {
+			items = append(items, newDiscoveredPath(p, ecoID, "env", false))
+		}
+	}
+
 	return items
 }
 

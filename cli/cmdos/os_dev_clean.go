@@ -18,12 +18,34 @@ func RunOSDevClean(args []string) error {
 		return nil
 	}
 	opts := ParseDevCleanOptions(args)
-	if isPromptRequired(opts) && !confirmDevClean() {
-		fmt.Println("  Aborted by operator.")
+	paths := DiscoverDevToolCaches(opts)
+	if len(paths) == 0 {
+		fmt.Println("  No active developer tool caches found.")
 		return nil
 	}
-	paths := DiscoverDevToolCaches(opts)
+
+	return handleDevCleanExecution(paths, opts)
+}
+
+func handleDevCleanExecution(paths []DiscoveredCachePath, opts DevCleanOptions) error {
+	if opts.IsDryRun {
+		renderDevCleanOutput(paths, opts)
+		return nil
+	}
+	if isPromptRequired(opts) && !promptAndConfirmClean(paths, opts) {
+		fmt.Println("  Aborted by operator. No files were removed.")
+		return nil
+	}
+
 	return executeAndRenderClean(paths, opts)
+}
+
+func promptAndConfirmClean(paths []DiscoveredCachePath, opts DevCleanOptions) bool {
+	dryOpts := opts
+	dryOpts.IsDryRun = true
+	renderDevCleanOutput(paths, dryOpts)
+
+	return confirmDevClean()
 }
 
 func executeAndRenderClean(paths []DiscoveredCachePath, opts DevCleanOptions) error {
@@ -113,9 +135,14 @@ func isPromptRequired(opts DevCleanOptions) bool {
 }
 
 func confirmDevClean() bool {
-	fmt.Print("  Proceed with dev tools cache cleanup? Type 'yes' to continue: ")
+	fmt.Print("  Proceed with dev tools cache cleanup? Type 'yes' (or 'y') to continue: ")
 	text, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	return err == nil && strings.EqualFold(strings.TrimSpace(text), "yes")
+	if err != nil {
+		return false
+	}
+	trimmed := strings.ToLower(strings.TrimSpace(text))
+
+	return trimmed == "yes" || trimmed == "y"
 }
 
 func renderDevCleanOutput(paths []DiscoveredCachePath, opts DevCleanOptions) {
