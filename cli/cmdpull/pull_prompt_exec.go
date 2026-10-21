@@ -130,4 +130,3 @@ func stashSingleRepoItem(item UnresolvedPullRepo) bool {
 
 	return true
 }
-
